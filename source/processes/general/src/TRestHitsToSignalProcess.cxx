@@ -94,6 +94,13 @@ void TRestHitsToSignalProcess::InitProcess() {
 
     fGas = GetMetadata<TRestGas>();
     if (fGas != NULL) {
+#ifndef USE_Garfield
+        ferr << "A TRestGas definition was found but REST was not linked to Garfield libraries." << endl;
+        ferr << "Please, remove the TRestGas definition, and add gas parameters inside the process "
+                "TRestHitsToSignalProcess"
+             << endl;
+        exit(-1);
+#endif
         if (fGasPressure <= 0) fGasPressure = fGas->GetPressure();
         if (fElectricField <= 0) fElectricField = fGas->GetElectricField();
 

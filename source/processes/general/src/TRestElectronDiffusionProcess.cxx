@@ -68,12 +68,20 @@ void TRestElectronDiffusionProcess::LoadConfig(string cfgFilename, string name) 
 void TRestElectronDiffusionProcess::InitProcess() {
     fGas = GetMetadata<TRestGas>();
     if (fGas == NULL) {
-        warning << "Gas has not been initialized" << endl;
         if (fLonglDiffCoeff == -1 || fTransDiffCoeff == -1) {
-            ferr << "TRestHitsToSignalProcess: diffusion parameters are not defined in the rml file!" << endl;
+            warning << "Gas has not been initialized" << endl;
+            ferr << "TRestElectronDiffusionProcess: diffusion parameters are not defined in the rml file!"
+                 << endl;
             exit(-1);
         }
     } else {
+#ifndef USE_Garfield
+        ferr << "A TRestGas definition was found but REST was not linked to Garfield libraries." << endl;
+        ferr << "Please, remove the TRestGas definition, and add gas parameters inside the process "
+                "TRestElectronDiffusionProcess"
+             << endl;
+        exit(1);
+#endif
         if (fGasPressure <= 0) fGasPressure = fGas->GetPressure();
         if (fElectricField <= 0) fElectricField = fGas->GetElectricField();
         if (fWvalue <= 0) fWvalue = fGas->GetWvalue();
