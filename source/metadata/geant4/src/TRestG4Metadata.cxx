@@ -965,20 +965,22 @@ void TRestG4Metadata::ReadStorage() {
         // first we verify its in the list of valid volumes
         if (geometryVolumes.find((string)name) == geometryVolumes.end()) {
             // it is not on the container
-            cout << "WARNING: volume '" << name
-                 << "' is not a valid volume name and it won't be added, check RML or GDML file." << endl;
-            continue;
+            ferr << "TRestG4Metadata. Problem reading storage section." << endl;
+            ferr << " 	- The volume '" << name << "' was not found in the GDML geometry." << endl;
+            exit(1);
         } else {
             SetActiveVolume(name, chance);
-            cout << "Adding active volume from RML: '" << name << "' with chance: " << chance << endl;
-            geometryVolumes.erase((string)name);
+            info << "Adding active volume from RML: '" << name << "' with chance: " << chance << endl;
         }
     }
-    // we add them automatically with chance=1 if they are not on the RML
-    for (auto& name : geometryVolumes) {
-        SetActiveVolume(name, 1);
-        cout << "Automatically adding active volume: '" << name << "' with chance: " << 1 << endl;
-    }
+
+    // If the user didnt add explicitly any volume to the storage section we understand
+    // the user wants to register all the volumes
+    if (GetNumberOfActiveVolumes() == 0)
+        for (auto& name : geometryVolumes) {
+            SetActiveVolume(name, 1);
+            info << "Automatically adding active volume: '" << name << "' with chance: " << 1 << endl;
+        }
 }
 
 ///////////////////////////////////////////////
