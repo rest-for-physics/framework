@@ -136,10 +136,12 @@
 /// registered as a fully independent event. Therefore, the total number of
 /// registered events could be higher than the initial number of events.
 ///
-/// * **saveAllEvents**: If active, this parameter will ignore the *activeVolumes*
-/// and the energy range definition in the *storage* section. In future, this
-/// parameter would be better implemented inside `<storage` definition.
-///
+/// * **saveAllEvents**: If active, this parameter will mark all the volumes
+/// of the geometry as active, and it will ignore the energy range definition
+/// in the *storage* section. Any Geant4 simulated track from any event or
+/// subevent will be registered even if no energy deposition have been produced.
+/// In future, this parameter would be better implemented inside `<storage`
+/// definition.
 ///
 /// The following example illustrates the definition of the common simulation
 /// parameters.
@@ -478,7 +480,9 @@
 /// geometry. If an event did not produce an energy deposit in the
 /// sensitiveVolume, the event will not be stored at all. Therefore, the
 /// sensitive volume will serve as a trigger volume to decide when an event
-/// should be stored.
+/// should be stored. For the moment we can only define a single sensitive
+/// volume, but it might be desirable to introduce boolean operations with
+/// different geometry volumes.
 ///
 /// We can define the energy range we are interested in by defining the
 /// parameter energyRange. The event will be written to disk only if the
@@ -525,6 +529,9 @@
 /// control volume to allow further study of events depositing energy in the
 /// vessel, but saving some space in disk in case we do not need to use all
 /// the event population.
+///
+/// \note If we do not specify any *activeVolume*, then all volumes found
+/// in the GDML geometry will be marked as *activeVolume*.
 ///
 ///
 /// ## 4. The biasing volumes section (optional)
