@@ -42,12 +42,6 @@ MACRO( PREPARE_ROOT_DICT_HEADERS _input_dir )
     FILE( GLOB ROOT_DICT_INPUT_HEADERS "${_input_dir}/*.h" )
     FILE( GLOB _linkdef_hdr "${_input_dir}/LinkDef.h" )
 
-    #LIST( FIND ROOT_DICT_INPUT_HEADERS ${_linkdef_hdr} _aux )
-    #IF( ${_aux} EQUAL 0 OR ${_aux} GREATER 0 )
-    #    LIST( REMOVE_ITEM ROOT_DICT_INPUT_HEADERS "${_linkdef_hdr}" )
-    #    LIST( APPEND ROOT_DICT_INPUT_HEADERS "${_linkdef_hdr}" )
-    #ENDIF()
-
     IF( _linkdef_hdr )
         LIST( REMOVE_ITEM ROOT_DICT_INPUT_HEADERS "${_linkdef_hdr}" )
         LIST( APPEND ROOT_DICT_INPUT_HEADERS "${_linkdef_hdr}")
@@ -122,15 +116,21 @@ MACRO( GEN_ROOT_DICT_SOURCE _dict_src_filename )
     set( _dict_includes )
     FOREACH( _inc ${ROOT_DICT_INCLUDE_DIRS} )
         SET( _dict_includes "${_dict_includes}\t-I${_inc}")  #fg: the \t fixes a wired string expansion 
-        #SET( _dict_includes ${_dict_includes} -I${_inc} )
     ENDFOREACH()
+
+    # We modify the list of headers to be given to ROOTCINT command.
+    # We must remove/clean the full path from the main header
+    list ( GET ROOT_DICT_INPUT_HEADERS 0 MAIN_HEADER)
+	get_filename_component( MAIN_HEADER_CLEAN ${MAIN_HEADER} NAME)
+    list ( GET ROOT_DICT_INPUT_HEADERS 1 LINKDEF_HEADER )
+    set( ROOT_DICT_INPUT_HEADERS_CLEAN ${MAIN_HEADER_CLEAN} ${LINKDEF_HEADER} )
 
     STRING( REPLACE "/" "_" _dict_src_filename_nosc ${_dict_src_filename} )
     SET( _dict_src_file ${ROOT_DICT_OUTPUT_DIR}/${_dict_src_filename_nosc} )
     STRING( REGEX REPLACE "^(.*)\\.(.*)$" "\\1.h" _dict_hdr_file "${_dict_src_file}" )
     ADD_CUSTOM_COMMAND(
         OUTPUT  ${_dict_src_file}
-        COMMAND ${ROOT_CINT_WRAPPER} -f "${_dict_src_file}" ${_dict_includes} ${ROOT_DICT_INPUT_HEADERS}
+        COMMAND ${ROOT_CINT_WRAPPER} -f "${_dict_src_file}" ${_dict_includes} ${ROOT_DICT_INPUT_HEADERS_CLEAN}
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         DEPENDS ${ROOT_DICT_INPUT_HEADERS} ${_input_depend}
         COMMENT "generating: ${_dict_src_file} with ${ROOT_DICT_INPUT_HEADERS}"
@@ -212,12 +212,17 @@ MACRO( COMPILEDIR libname )
 
 	message(STATUS "making build files for ${CMAKE_CURRENT_SOURCE_DIR}, schema evolution: ${local_SE}")
 
+    # We need to define the include paths relative to the compilation directory
+    set ( REAL_SOURCE_DIR "${CMAKE_SOURCE_DIR}/source" )
+    string( REPLACE ${REAL_SOURCE_DIR} "" RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} )
+    set(RELATIVE_PATH "..${RELATIVE}")
+
 	set(contentfiles)
 
 	if(DEFINED contents)
 		message("specified sub-dirs: ${contents}")
 		foreach(content ${contents})
-			set(local_include_dirs ${local_include_dirs} ${addon_inc} ${CMAKE_CURRENT_SOURCE_DIR}/${content} ${CMAKE_CURRENT_SOURCE_DIR}/${content}/inc)
+			set(local_include_dirs ${local_include_dirs} ${addon_inc} ${RELATIVE_PATH}/${content} ${RELATIVE_PATH}/${content}/inc)
 		endforeach(content)
 		set(local_include_dirs ${local_include_dirs} PARENT_SCOPE)
 
@@ -245,7 +250,7 @@ MACRO( COMPILEDIR libname )
 		endforeach(content)
 	else()
 		message("using inc/src folders in root directory")
-		set(local_include_dirs ${local_include_dirs} ${addon_inc} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/inc)
+		set(local_include_dirs ${local_include_dirs} ${addon_inc} ${RELATIVE_PATH} ${RELATIVE_PATH}/inc)
 		set(local_include_dirs ${local_include_dirs} PARENT_SCOPE)
 
 		file(GLOB_RECURSE files src/*.cxx)
