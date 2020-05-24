@@ -68,6 +68,8 @@ testrestG4:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/
     - restG4 NLDBD.rml
+    - restRoot -b -q Run00001_NLDBD_Test.root
+    - restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/Run00001_NLDBD_Test.root
