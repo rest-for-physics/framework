@@ -38,10 +38,12 @@ build:
   script:
     - mkdir /tmp/rest && cd /tmp/rest
     - rm -rf ${CI_PROJECT_DIR}/install
-    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
+    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=OFF -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
     - make install -j2
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - echo "**${CI_SERVER_HOST}**"
+    - mkdir g4 && cd g4
+    - cmake ${CI_PROJECT_DIR}/packages/restG4
+    - make install -j2
   except:
       variables:
         - $CRONJOB
