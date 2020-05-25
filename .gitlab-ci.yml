@@ -72,7 +72,7 @@ testrestG4:
     - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/
     - env
     - restG4 NLDBD.rml
-    - restRoot -b -q Run00001_NLDBD_Test.root
+      #- restRoot -b -q Run00001_NLDBD_Test.root
     - restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
   artifacts:
     paths:
