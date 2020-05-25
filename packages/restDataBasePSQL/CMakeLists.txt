@@ -75,6 +75,7 @@ target_link_libraries(RestDataBasePSQL ${lnklib})
 # Install the library to 'lib' directory under REST_PATH
 #
 install(TARGETS RestDataBasePSQL DESTINATION lib)
+install(FILES ${headers} DESTINATION include)
 
 install(CODE
 "
