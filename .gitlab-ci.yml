@@ -4,6 +4,7 @@ stages:
   - pre-build
   - build
   - loadRESTLibs
+  - metadata
   - generate
   - process
   - drawing
@@ -41,12 +42,6 @@ build:
     - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
     - make install -j2
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-      #    - pwd
-      #    - mkdir /tmp/rest/g4 && cd /tmp/rest/g4
-      #    - pwd
-      #    - cmake ${CI_PROJECT_DIR}/packages/restG4
-      #    - make install -j2
-      #    - which restG4
   except:
       variables:
         - $CRONJOB
@@ -70,9 +65,7 @@ testrestG4:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/
-    - env
     - restG4 NLDBD.rml
-      #- restRoot -b -q Run00001_NLDBD_Test.root
     - restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
   artifacts:
     paths:
@@ -81,6 +74,13 @@ testrestG4:
   except:
       variables:
         - $CRONJOB
+
+gas:
+  type: metadata 
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/macros/pipeline
+    - restRoot -b -q ValidateGas.C
 
 testMeta:
   type: generate
