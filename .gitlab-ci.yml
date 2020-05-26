@@ -81,7 +81,7 @@ gas:
   type: metadata 
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts
+    - cd ${CI_PROJECT_DIR}/scripts/pipeline
     - restRoot -b -q ValidateGas.C
 
 testMeta:
@@ -103,7 +103,7 @@ testProcessTREX:
   type: process
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/install/scripts/trex
+    - cd ${CI_PROJECT_DIR}/scripts/pipeline/trex
     - restManager --c 01_raw.rml --f data.aqs
     - restManager --c 02_signal.rml --f RawData.root
     - restManager --c 03_hits.rml --f Signals.root
@@ -111,10 +111,10 @@ testProcessTREX:
     - rm RawData.root
     - rm Signals.root
     - rm Hits.root
-    - root -b -q ${CI_PROJECT_DIR}/install/scripts/trex/ValidateTrees.C
+    - root -b -q ${CI_PROJECT_DIR}/scripts/pipeline/trex/ValidateTrees.C
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/install/scripts/trex/results.root
+      - ${CI_PROJECT_DIR}/scripts/pipeline/trex/results.root
     expire_in: 1 week
   except:
       variables:
