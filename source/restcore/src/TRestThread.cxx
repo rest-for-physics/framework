@@ -152,6 +152,7 @@ bool TRestThread::TestRun(TRestAnalysisTree* tempTree) {
         for (unsigned int j = 0; j < fProcessChain.size(); j++) {
             essential << "t" << fThreadId << "p" << j << ": " << fProcessChain[j]->ClassName() << endl;
 
+            if (fThreadId == 0) fProcessChain[j]->EnableObservableValidation();
             fProcessChain[j]->BeginOfEventProcess(ProcessedEvent);
             fProcessChain[j]->ProcessEvent(ProcessedEvent);
             ProcessedEvent = fProcessChain[j]->GetOutputEvent();
@@ -160,6 +161,10 @@ bool TRestThread::TestRun(TRestAnalysisTree* tempTree) {
                 break;
             }
             fProcessChain[j]->EndOfEventProcess();
+            if (fThreadId == 0) {
+                fProcessChain[j]->DisableObservableValidation();
+                fProcessChain[j]->ValidateObservables();
+            }
             debug << " ....  " << ProcessedEvent->ClassName() << "(" << ProcessedEvent << ")" << endl;
         }
 
@@ -180,7 +185,7 @@ bool TRestThread::TestRun(TRestAnalysisTree* tempTree) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Propare some thing before we can satrt process
+/// \brief Prepare some thing before we can start process
 ///
 /// This method will:
 /// 1. Setup the processes in process chain:(set analysis tree, set readonly,

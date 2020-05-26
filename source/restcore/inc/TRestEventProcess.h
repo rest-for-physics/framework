@@ -72,6 +72,11 @@ class TRestEventProcess : public TRestMetadata {
     /// It defines whether to use added observables only or all the observables appear in the code.
     bool fDynamicObs = false;  //!
 
+    /// It defines if observable names should be added to the validation list
+    bool fValidateObservables = false;
+
+    map<string, int> fObservableForValidation;  //!     [name, id in AnalysisTree]
+
    private:
     /// not used, keep for compatibility
     REST_Process_Output fOutputLevel;  //!/// not used
@@ -117,12 +122,14 @@ class TRestEventProcess : public TRestMetadata {
         if (fAnalysisTree != NULL) {
             string obsname = this->GetName() + (string) "_" + (string)name;
             if (fObservableInfo.count(obsname) != 0) {
+                if (fValidateObservables) fObservableForValidation[obsname] = fObservableInfo[obsname];
                 fAnalysisTree->SetObservableValue(fObservableInfo[obsname], value);
             } else if (fDynamicObs && fObservableInfo.count(obsname) == 0) {
                 // create new branch for this observable
                 int n = fAnalysisTree->AddObservable<T>(obsname);
                 if (n != -1) {
                     fObservableInfo[obsname] = n;
+                    if (fValidateObservables) fObservableForValidation[obsname] = fObservableInfo[obsname];
                     fAnalysisTree->SetObservableValue(fObservableInfo[obsname], value);
                 }
             }
@@ -140,6 +147,11 @@ class TRestEventProcess : public TRestMetadata {
     vector<string> ReadObservables();
     virtual void ConfigAnalysisTree();
     virtual Bool_t OpenInputFiles(vector<string> files);
+
+    void EnableObservableValidation() { fValidateObservables = true; }
+    void DisableObservableValidation() { fValidateObservables = false; }
+
+    void ValidateObservables();
 
     // process running methods
     /// To be executed at the beginning of the run (outside event loop)
