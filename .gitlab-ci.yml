@@ -12,13 +12,15 @@ stages:
 
 before_script:
   - export USER="test"
+    # We redefine the HOME
+  - export HOME=${CI_PROJECT_DIR}/install/
   - if [ -d $HOME/.rest ]; then rm -Rf $HOME/.rest; fi
 
 clang-format:
     stage: pre-build
     script:
         - cd ${CI_PROJECT_DIR}/
-        - ./macros/pipeline/clangformattest.sh
+        - ./scripts/pipeline/clangformattest.sh
     except:
         variables:
             - $CI_SERVER_HOST
@@ -29,7 +31,7 @@ clang-format:
 validateCode:
     stage: pre-build
     script:
-        - python ${CI_PROJECT_DIR}/macros/pipeline/validateProcesses.py ${CI_PROJECT_DIR}/source/processes/
+        - python ${CI_PROJECT_DIR}/scripts/pipeline/validateProcesses.py ${CI_PROJECT_DIR}/source/processes/
     except:
         variables:
             - $CRONJOB
@@ -54,7 +56,7 @@ loadRESTLibs:
   type: loadRESTLibs
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - root -b -q ${CI_PROJECT_DIR}/install/macros/pipeline/loadLibraries.C
+    - root -b -q ${CI_PROJECT_DIR}/scripts/pipeline/loadLibraries.C
     - restRoot -b -q
   except:
       variables:
@@ -79,7 +81,7 @@ gas:
   type: metadata 
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/macros/pipeline
+    - cd ${CI_PROJECT_DIR}/scripts
     - restRoot -b -q ValidateGas.C
 
 testMeta:
@@ -101,7 +103,7 @@ testProcessTREX:
   type: process
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/install/macros/pipeline/trex
+    - cd ${CI_PROJECT_DIR}/install/scripts/trex
     - restManager --c 01_raw.rml --f data.aqs
     - restManager --c 02_signal.rml --f RawData.root
     - restManager --c 03_hits.rml --f Signals.root
@@ -109,10 +111,10 @@ testProcessTREX:
     - rm RawData.root
     - rm Signals.root
     - rm Hits.root
-    - root -b -q ${CI_PROJECT_DIR}/install/macros/pipeline/trex/ValidateTrees.C
+    - root -b -q ${CI_PROJECT_DIR}/install/scripts/trex/ValidateTrees.C
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/install/macros/pipeline/trex/results.root
+      - ${CI_PROJECT_DIR}/install/scripts/trex/results.root
     expire_in: 1 week
   except:
       variables:
