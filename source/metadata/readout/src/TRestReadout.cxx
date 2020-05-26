@@ -524,9 +524,8 @@ void TRestReadout::InitFromConfigFile() {
                 Int_t daq, readout;
                 while (!feof(f)) {
                     if (fscanf(f, "%d\t%d\n", &daq, &readout) <= 0) {
-                        ferr << "TRestReadout::InitFromConfigFile. Contact "
-                                "rest-dev@cern.ch"
-                             << endl;
+                        ferr << "TRestReadout::InitFromConfigFile. Problem reading decoding" << endl;
+                        ferr << "This error might need support at REST forum" << endl;
                         exit(-1);
                     }
                     // we skip blank daq channels if readout id is <0
