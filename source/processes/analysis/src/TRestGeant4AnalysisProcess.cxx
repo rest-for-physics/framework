@@ -64,12 +64,12 @@
 /// energy deposited in a particular volume of the geometry. We
 /// must specify the volume name before the keyword `volumeEDep`.
 /// \code
-///    // gasVolumeEDep will register the total energy deposited at the gas
-///    volume <observable name="gasVolumeEDep" value="ON"
+///    // gasVolumeEDep will register the total energy deposited at the gas volume
+///    <observable name="gasVolumeEDep" value="ON"
 ///            description="Energy deposited in the gas volume in keV" />
 ///
-///    // vesselVolumeEDep will register the total energy deposited at the
-///    vessel volume <observable name="vesselVolumeEDep" value="ON"
+///    // vesselVolumeEDep will register the total energy deposited at the vessel volume
+///    <observable name="vesselVolumeEDep" value="ON"
 ///            description="Energy deposited in the vessel volume in keV" />
 /// \endcode
 ///

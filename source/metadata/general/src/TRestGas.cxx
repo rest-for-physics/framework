@@ -608,7 +608,7 @@ void TRestGas::InitFromConfigFile() {
         fGasMedium->SetW(fW);  // as it is probably not computed by Magboltz
 #endif
 
-    PrintGasInfo();
+    if (GetVerboseLevel() >= REST_Info) PrintGasInfo();
 }
 
 void TRestGas::InitFromRootFile() {

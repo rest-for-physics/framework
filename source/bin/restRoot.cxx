@@ -99,4 +99,6 @@ int main(int argc, char* argv[]) {
     // display root's command line
     TRint theApp("App", &argc, argv);
     theApp.Run();
+
+    return 0;
 }

@@ -335,7 +335,7 @@ TPad* TRestRawSignalEvent::DrawEvent(TString option) {
         mg->SetTitle(title);
         mg->GetXaxis()->SetTitle("time bins");
         mg->GetYaxis()->SetTitleOffset(1.4);
-        mg->GetYaxis()->SetTitle("Voltage");
+        mg->GetYaxis()->SetTitle("Amplitude [ADC units]");
 
         for (int n = 0; n < nSignals; n++) {
             TGraph* gr = fSignal[n].GetGraph(n + 1);

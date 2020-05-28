@@ -440,3 +440,31 @@ std::vector<string> TRestEventProcess::GetListOfAddedObservables() {
     }
     return list;
 }
+
+void TRestEventProcess::ValidateObservables() {
+    std::vector<string> definedObservables;
+    for (auto const& x : fObservableInfo) {
+        definedObservables.push_back(x.first);
+    }
+
+    std::vector<string> usedObservables;
+    for (auto const& x : fObservableForValidation) {
+        usedObservables.push_back(x.first);
+    }
+
+    std::vector<string> diff;
+    std::set_difference(definedObservables.begin(), definedObservables.end(), usedObservables.begin(),
+                        usedObservables.end(), std::inserter(diff, diff.begin()));
+
+    for (auto const& x : diff) {
+        ferr << "----" << endl;
+        ferr << "The observable  '" << x << "' could not be identified as a valid observable of "
+             << this->ClassName() << endl;
+        ferr << "Please, verify the corresponding <observable definition inside the process." << endl;
+        ferr << "The observable names are case sensitive. Please, double-check the name is properly "
+                "formed."
+             << endl;
+        ferr << "----" << endl;
+        GetChar();
+    }
+}
