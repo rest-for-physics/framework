@@ -1,0 +1,8 @@
+<tube name="XeTMAGasSolid_1" startphi="0" deltaphi="360" rmin="0" rmax="0.8" z="1.2" aunit="deg" lunit="m" />
+
+<subtraction name="XeTMAGasSolid">
+    <first ref="XeTMAGasSolid_1"/>
+    <second ref="ResistanceSolid"/>
+    <positionref ref="ResistancePosition" />
+</subtraction>
+

@@ -1,0 +1,33 @@
+<polyhedra name="LeadSheldingWall_1" startphi="0" deltaphi="360" numsides="8" aunit="deg" lunit="mm">
+	<zplane rmin="0" rmax="LeadSheldingOuterRadius" z="-0.5*LeadSheldingLength" />
+	<zplane rmin="0" rmax="LeadSheldingOuterRadius" z="0.5*LeadSheldingLength" />
+</polyhedra>
+
+<polyhedra name="LeadSheldingWall_2" startphi="0" deltaphi="360" numsides="8" aunit="deg" lunit="mm">
+	<zplane rmin="0" rmax="LeadSheldingInnerRadius" z="-0.5*LeadSheldingLength-1" />
+	<zplane rmin="0" rmax="LeadSheldingInnerRadius" z="0.5*LeadSheldingLength+1" />
+</polyhedra>
+
+<subtraction name="LeadSheldingWall">
+    <first ref="LeadSheldingWall_1"/>
+    <second ref="LeadSheldingWall_2"/>
+    <position name="Position_guagua" x="0" y="0" z="0" />
+</subtraction>
+
+<polyhedra name="LeadSheldingCap" startphi="0" deltaphi="360" numsides="8" aunit="deg" lunit="mm">
+	<zplane rmin="0" rmax="LeadSheldingOuterRadius" z="-0.5*LeadSheldingCapLength" />
+	<zplane rmin="0" rmax="LeadSheldingOuterRadius" z="0.5*LeadSheldingCapLength" />
+</polyhedra>
+
+<union name="LeadSheldingSolid_1" >
+    <first ref="LeadSheldingWall" />
+    <second ref="LeadSheldingCap" />
+    <position name="Position_guagua2" x="0" y="0" z="0.5*(LeadSheldingLength+LeadSheldingCapLength)" />
+</union>
+
+<union name="LeadSheldingSolid" >
+    <first ref="LeadSheldingSolid_1" />
+    <second ref="LeadSheldingCap" />
+    <position name="Position_guagua3" x="0" y="0" z="-0.5*(LeadSheldingLength+LeadSheldingCapLength)" />
+</union>
+

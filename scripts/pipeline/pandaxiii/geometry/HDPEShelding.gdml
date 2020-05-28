@@ -1,0 +1,32 @@
+<polyhedra name="HDPESheldingWall_1" startphi="0" deltaphi="360" numsides="8" aunit="deg" lunit="mm">
+	<zplane rmin="0" rmax="HDPESheldingOuterRadius" z="-0.5*HDPESheldingLength" />
+	<zplane rmin="0" rmax="HDPESheldingOuterRadius" z="0.5*HDPESheldingLength" />
+</polyhedra>
+
+<polyhedra name="HDPESheldingWall_2" startphi="0" deltaphi="360" numsides="8" aunit="deg" lunit="mm">
+	<zplane rmin="0" rmax="HDPESheldingInnerRadius" z="-0.5*HDPESheldingLength-1" />
+	<zplane rmin="0" rmax="HDPESheldingInnerRadius" z="0.5*HDPESheldingLength+1" />
+</polyhedra>
+
+<subtraction name="HDPESheldingWall">
+    <first ref="HDPESheldingWall_1"/>
+    <second ref="HDPESheldingWall_2"/>
+    <position name="Position_guaguagua" x="0" y="0" z="0" />
+</subtraction>
+
+<polyhedra name="HDPESheldingCap" startphi="0" deltaphi="360" numsides="8" aunit="deg" lunit="mm">
+	<zplane rmin="0" rmax="HDPESheldingOuterRadius" z="-0.5*HDPESheldingCapLength" />
+	<zplane rmin="0" rmax="HDPESheldingOuterRadius" z="0.5*HDPESheldingCapLength" />
+</polyhedra>
+
+<union name="HDPESheldingSolid_1" >
+    <first ref="HDPESheldingWall" />
+    <second ref="HDPESheldingCap" />
+    <position name="Position_guaguagua2" x="0" y="0" z="0.5*(HDPESheldingLength+HDPESheldingCapLength)" />
+</union>
+
+<union name="HDPESheldingSolid" >
+    <first ref="HDPESheldingSolid_1" />
+    <second ref="HDPESheldingCap" />
+    <position name="Position_guaguagua3" x="0" y="0" z="-0.5*(HDPESheldingLength+HDPESheldingCapLength)" />
+</union>

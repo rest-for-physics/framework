@@ -1,0 +1,1 @@
+<sphere name="RadiationSourceSolid" rmin="0" rmax="1" deltaphi="360" deltatheta="180" aunit="deg" lunit="mm"/>

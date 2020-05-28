@@ -1,0 +1,29 @@
+<polyhedra name="GasSolid_1" startphi="0" deltaphi="360" numsides="8" aunit="deg" lunit="mm">
+	<zplane rmin="0" rmax="LeadSheldingInnerRadius" z="-0.5*LeadSheldingLength" />
+	<zplane rmin="0" rmax="LeadSheldingInnerRadius" z="0.5*LeadSheldingLength" />
+</polyhedra>
+
+<subtraction name="GasSolid_2">
+    <first ref="GasSolid_1"/>
+    <second ref="VesselWallSolid"/>
+    <positionref ref="pos1_7" />
+</subtraction>
+
+<subtraction name="GasSolid_3">
+    <first ref="GasSolid_2"/>
+    <second ref="VesselWallBoltsSolid"/>
+    <positionref ref="pos1_9" />
+</subtraction>
+
+<subtraction name="GasSolid_4">
+    <first ref="GasSolid_3"/>
+    <second ref="CopperVesselSolid"/>
+    <positionref ref="pos2_7" />
+</subtraction>
+
+<tube name="Solid_1" startphi="0" deltaphi="360" rmin="0" rmax="FieldCageOuterRadius+1" z="FieldCageLength+2*AcrylicCoverLength+1" aunit="deg" lunit="mm" />
+
+<subtraction name="GasInBetweenSolid">
+    <first ref="GasSolid_4"/>
+    <second ref="Solid_1"/>
+</subtraction>

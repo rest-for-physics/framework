@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<!DOCTYPE gdml [
+<!ENTITY materials SYSTEM "materials.xml">
+<!ENTITY CopperVessel SYSTEM "CopperVessel.gdml">
+<!ENTITY AcrylicPart SYSTEM "AcrylicPart.gdml">
+<!ENTITY Cathod SYSTEM "Cathode.gdml">
+<!ENTITY VesselWall SYSTEM "VesselWall.gdml">
+<!ENTITY LeadShelding SYSTEM "LeadShelding.gdml">
+<!ENTITY HDPEShelding SYSTEM "HDPEShelding.gdml">
+<!ENTITY CopperRings SYSTEM "CopperRings.gdml">
+<!ENTITY MM SYSTEM "MM.gdml">
+<!ENTITY XeTMAGas SYSTEM "XeTMAGas_new.gdml">
+<!ENTITY OtherXeTMAGas SYSTEM "OtherXeTMAGas.gdml">
+<!ENTITY GasInBetween SYSTEM "GasInBetween.gdml">
+<!ENTITY Resistance SYSTEM "Resistance.gdml">
+]>
+
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+<define>
+	<constant name="world_size" value="4000"/>
+
+	<!-- Some constants needed in caculations -->
+	<constant name="PI" value="3.14159265358979323846264" />
+    <constant name="degToRad" value="PI/180." />
+
+	<!-- Parameters of the Field Cage -->
+	<constant name="FieldCageInnerRadius" value="800"/>
+	<constant name="FieldCageOuterRadius" value="850"/>
+	<constant name="FieldCageLength" value="1200"/>
+	<constant name="GrooveSideLength" value="6"/>
+	<constant name="ringSpacing" value="20"/>
+	<constant name="ringRadius" value="2.5"/>
+
+	<!-- Parameters of the Acrylic Cover -->
+	<constant name="AcrylicCoverRadius" value="850"/>
+	<constant name="AcrylicCoverLength" value="135"/>
+	<constant name="AcrylicCoverCutRadius" value="800"/>
+	<constant name="AcrylicCoverCutLength" value="2"/>
+
+	<!-- Parameters of the Cathode -->
+	<constant name="CathodeRadius" value="800"/>
+	<constant name="CathodeHeight" value="2"/>
+
+	<!-- Parameters of the MicroMeges -->
+	<constant name="MMRadius" value="800"/>
+	<constant name="MMHeight" value="1"/>
+
+	<!-- Parameters of the Cu Vessel -->
+	<constant name="VesselInnerRadius" value="850"/>
+	<constant name="VesselOuterRadius" value="975"/>
+	<constant name="VesselLength" value="1200+2*140"/>
+
+	<!-- Parameters of the Vessel Wall -->
+	<constant name="VesselWallInnerRadius" value="975"/>
+	<constant name="VesselWallOuterRadius" value="985"/>
+	<constant name="VesselWallLength" value="1200+2*140"/>
+	<constant name="VesselWallShimInnerRadius" value="985"/>
+	<constant name="VesselWallShimOuterRadius" value="1065"/>
+	<constant name="VesselWallShimLength" value="2*140"/>
+  <constant name="VesselWallBoltsRadius" value="15" />
+  <constant name="VesselWallBoltsLength" value="425" />
+  <constant name="VesselWallToBoltsCenterDistance" value="1060" />
+
+	<!-- Parameters of the Lead Shelding -->
+	<constant name="LeadSheldingLength" value="2518"/>
+	<constant name="LeadSheldingCapLength" value="300"/>
+	<constant name="LeadSheldingInnerRadius" value="2175/2"/>
+	<constant name="LeadSheldingOuterRadius" value="2775/2"/>
+
+	<!-- Parameters of the HDPE Shelding -->
+	<constant name="HDPESheldingLength" value="3118"/>
+	<constant name="HDPESheldingCapLength" value="300"/>
+	<constant name="HDPESheldingInnerRadius" value="2775/2"/>
+	<constant name="HDPESheldingOuterRadius" value="3375/2"/>
+
+    <!-- Parameters of the Resistance -->
+    <constant name="ResistanceLength" value="6.35"/>
+    <constant name="ResistanceWidth" value="3.2"/>
+    <constant name="ResistanceThickness" value="0.635"/>
+    <!-- <constant name="ResistanceThickness" value="10"/> -->
+
+
+</define>
+
+<define>
+	<position name="AcrylicCoverCutPosition" unit="mm" x="0" y="0" z="0.5*AcrylicCoverLength-0.5*AcrylicCoverCutLength" />
+	<position name="AcrylicCoverPosition" unit="mm" x="0" y="0" z="-(0.5*FieldCageLength+0.5*AcrylicCoverLength)" />
+	<position name="CathodePosition" unit="mm" x="0" y="0" z="-(0.5*FieldCageLength+0.5*AcrylicCoverCutLength)" />
+	<position name="MMPosition" unit="mm" x="0" y="0" z="(0.5*FieldCageLength+0.5*MMHeight)" />
+	<position name="TopCapPosition" unit="mm" x="0" y="0" z="0.5*VesselLength" />
+	<position name="BottomCapPosition" unit="mm" x="0" y="0" z="-0.5*VesselLength" />
+	<position name="ShimPosition" unit="mm" x="0" y="0" z="0.5*FieldCageLength" />
+	<position name="TopSSCapPosition" unit="mm" x="0" y="0" z="0.5*FieldCageLength+140" />
+	<position name="BottomSSCapPosition" unit="mm" x="0" y="0" z="-0.5*FieldCageLength-140" />
+    <position name="ResistancePosition" unit="mm" x="0" y="sqrt(FieldCageInnerRadius*FieldCageInnerRadius-ResistanceLength*ResistanceLength/4)-0.5*ResistanceWidth-1" z="0.5*ringSpacing" />
+
+	<position name="ringPositionTop_00" x="0" y="0" z="0" />
+    <position name="ringPositionTop_01" x="0" y="0" z="ringSpacing*1" />
+    <position name="ringPositionTop_02" x="0" y="0" z="ringSpacing*2" />
+    <position name="ringPositionTop_03" x="0" y="0" z="ringSpacing*3" />
+    <position name="ringPositionTop_04" x="0" y="0" z="ringSpacing*4" />
+    <position name="ringPositionTop_05" x="0" y="0" z="ringSpacing*5" />
+    <position name="ringPositionTop_06" x="0" y="0" z="ringSpacing*6" />
+    <position name="ringPositionTop_07" x="0" y="0" z="ringSpacing*7" />
+    <position name="ringPositionTop_08" x="0" y="0" z="ringSpacing*8" />
+    <position name="ringPositionTop_09" x="0" y="0" z="ringSpacing*9" />
+    <position name="ringPositionTop_10" x="0" y="0" z="ringSpacing*10" />
+    <position name="ringPositionTop_11" x="0" y="0" z="ringSpacing*11" />
+    <position name="ringPositionTop_12" x="0" y="0" z="ringSpacing*12" />
+    <position name="ringPositionTop_13" x="0" y="0" z="ringSpacing*13" />
+    <position name="ringPositionTop_14" x="0" y="0" z="ringSpacing*14" />
+    <position name="ringPositionTop_15" x="0" y="0" z="ringSpacing*15" />
+    <position name="ringPositionTop_16" x="0" y="0" z="ringSpacing*16" />
+    <position name="ringPositionTop_17" x="0" y="0" z="ringSpacing*17" />
+    <position name="ringPositionTop_18" x="0" y="0" z="ringSpacing*18" />
+    <position name="ringPositionTop_19" x="0" y="0" z="ringSpacing*19" />
+    <position name="ringPositionTop_20" x="0" y="0" z="ringSpacing*20" />
+    <position name="ringPositionTop_21" x="0" y="0" z="ringSpacing*21" />
+    <position name="ringPositionTop_22" x="0" y="0" z="ringSpacing*22" />
+    <position name="ringPositionTop_23" x="0" y="0" z="ringSpacing*23" />
+    <position name="ringPositionTop_24" x="0" y="0" z="ringSpacing*24" />
+    <position name="ringPositionTop_25" x="0" y="0" z="ringSpacing*25" />
+    <position name="ringPositionTop_26" x="0" y="0" z="ringSpacing*26" />
+    <position name="ringPositionTop_27" x="0" y="0" z="ringSpacing*27" />
+    <position name="ringPositionTop_28" x="0" y="0" z="ringSpacing*28" />
+    <position name="ringPositionTop_29" x="0" y="0" z="ringSpacing*29" />
+
+    <position name="ringPositionBottom_01" x="0" y="0" z="-ringSpacing*1" />
+    <position name="ringPositionBottom_02" x="0" y="0" z="-ringSpacing*2" />
+    <position name="ringPositionBottom_03" x="0" y="0" z="-ringSpacing*3" />
+    <position name="ringPositionBottom_04" x="0" y="0" z="-ringSpacing*4" />
+    <position name="ringPositionBottom_05" x="0" y="0" z="-ringSpacing*5" />
+    <position name="ringPositionBottom_06" x="0" y="0" z="-ringSpacing*6" />
+    <position name="ringPositionBottom_07" x="0" y="0" z="-ringSpacing*7" />
+    <position name="ringPositionBottom_08" x="0" y="0" z="-ringSpacing*8" />
+    <position name="ringPositionBottom_09" x="0" y="0" z="-ringSpacing*9" />
+    <position name="ringPositionBottom_10" x="0" y="0" z="-ringSpacing*10" />
+    <position name="ringPositionBottom_11" x="0" y="0" z="-ringSpacing*11" />
+    <position name="ringPositionBottom_12" x="0" y="0" z="-ringSpacing*12" />
+    <position name="ringPositionBottom_13" x="0" y="0" z="-ringSpacing*13" />
+    <position name="ringPositionBottom_14" x="0" y="0" z="-ringSpacing*14" />
+    <position name="ringPositionBottom_15" x="0" y="0" z="-ringSpacing*15" />
+    <position name="ringPositionBottom_16" x="0" y="0" z="-ringSpacing*16" />
+    <position name="ringPositionBottom_17" x="0" y="0" z="-ringSpacing*17" />
+    <position name="ringPositionBottom_18" x="0" y="0" z="-ringSpacing*18" />
+    <position name="ringPositionBottom_19" x="0" y="0" z="-ringSpacing*19" />
+    <position name="ringPositionBottom_20" x="0" y="0" z="-ringSpacing*20" />
+    <position name="ringPositionBottom_21" x="0" y="0" z="-ringSpacing*21" />
+    <position name="ringPositionBottom_22" x="0" y="0" z="-ringSpacing*22" />
+    <position name="ringPositionBottom_23" x="0" y="0" z="-ringSpacing*23" />
+    <position name="ringPositionBottom_24" x="0" y="0" z="-ringSpacing*24" />
+    <position name="ringPositionBottom_25" x="0" y="0" z="-ringSpacing*25" />
+    <position name="ringPositionBottom_26" x="0" y="0" z="-ringSpacing*26" />
+    <position name="ringPositionBottom_27" x="0" y="0" z="-ringSpacing*27" />
+    <position name="ringPositionBottom_28" x="0" y="0" z="-ringSpacing*28" />
+    <position name="ringPositionBottom_29" x="0" y="0" z="-ringSpacing*29" />
+
+    <position name="pos1_1" unit="mm" x="0" y="0" z="2000+1000-(387.5-1075/6)"/>
+    <position name="pos1_2" unit="mm" x="0" y="0" z="1075/6*0.5"/>
+    <position name="pos1_3" unit="mm" x="0" y="0" z="427.5-40-2000"/>
+    <position name="pos1_4" unit="mm" x="0" y="0" z="151+(1470-151)*0.5"/>
+    <position name="pos1_5" unit="mm" x="0" y="0" z="(1470-151)*0.5+151*2+40"/>
+    <position name="pos1_6" unit="mm" x="0" y="0" z="-(1470-151)*0.5-40"/>
+    <position name="pos1_71" unit="mm" x="0" y="0" z="(1470-151)*0.5+151*2+40*0.5"/>
+    <position name="pos1_72" unit="mm" x="0" y="0" z="-((1470-151)*0.5+40*0.5)"/>
+    <position name="pos1_7" unit="mm" x="0" y="0" z="(1470-151)/2+446-2517/2"/>
+    <position name="pos1_8" unit="mm" x="0" y="0" z="2518/2-(1470-151)/2-446"/>
+    <position name="pos1_9" unit="mm" x="0" y="0" z="(1470-151)/2+446-2517/2+(1470-151)/2+151"/>
+
+    <position name="pos2_1" unit="mm" x="0" y="0" z="2018+1000-(387.5+18-4687/24)"/>
+    <position name="pos2_2" unit="mm" x="0" y="0" z="4687/24*0.5"/>
+    <position name="pos2_3" unit="mm" x="0" y="0" z="427.5+18-40-2018"/>
+    <position name="pos2_4" unit="mm" x="0" y="0" z="151+(1470-151)*0.5"/>
+    <position name="pos2_5" unit="mm" x="0" y="0" z="(1470-151)*0.5+151*2+40"/>
+    <position name="pos2_6" unit="mm" x="0" y="0" z="-(1470-151)*0.5-40"/>
+    <position name="pos2_71" unit="mm" x="0" y="0" z="(1470-151)*0.5+151*2+40*0.5"/>
+    <position name="pos2_72" unit="mm" x="0" y="0" z="-((1470-151)*0.5+40*0.5)"/>
+    <position name="pos2_7" unit="mm" x="0" y="0" z="(1470-151)/2+446-2517/2"/>
+
+</define>
+
+<define>
+    <variable name="targetGasDensity" value="0.0565884"/> <!-- g/cm3 -->
+    <variable name="quencherDensity" value="0.000254"/> <!-- 1%TMA -->
+    <variable name="quencherFraction" value="0.01"/>
+    <variable name="gasTemperature" value="300"/> <!-- K -->
+    <variable name="gasPressure" value="10"/> <!-- bar -->
+</define>
+
+&materials;
+
+<solids>
+
+    <box name="WorldSolid" x="world_size" y="world_size" z="world_size" lunit="mm" />
+    <box name="TestBoxSolid" x="1000" y="1000" z="1000" lunit="mm" />
+    &CopperVessel;
+    &AcrylicPart;
+    &Cathod;
+    &VesselWall;
+    &LeadShelding;
+    &HDPEShelding;
+    &CopperRings;
+    &MM;
+    &Resistance;
+    &XeTMAGas;
+    &GasInBetween;
+    &OtherXeTMAGas;
+
+
+</solids>
+
+<structure>
+
+	<volume name="CopperVesselVolume">
+        <materialref ref="Copper"/>
+        <solidref ref="CopperVesselSolid"/>
+    </volume>
+
+    <!-- <volume name="TwoCapsVolume">
+        <materialref ref="Copper"/>
+        <solidref ref="TwoCapsSolid"/>
+    </volume> -->
+
+    <volume name="AcrylicPartVolume">
+        <materialref ref="Acrylic"/> <!-- Acrylic material needs to be modified -->
+        <solidref ref="AcrylicPartSolid"/>
+    </volume>
+
+    <volume name="CathodeVolume">
+        <materialref ref="Copper"/>
+        <solidref ref="CathodeSolid"/>
+    </volume>
+
+    <volume name="VesselWallVolume">
+        <materialref ref="Stainlesssteel"/>
+        <solidref ref="VesselWallSolid"/>
+    </volume>
+
+    <volume name="VesselWallBoltsVolume">
+        <materialref ref="Stainlesssteel"/>
+        <solidref ref="VesselWallBoltsSolid"/>
+    </volume>
+
+    <volume name="LeadSheldingVolume">
+        <materialref ref="Lead"/>
+        <solidref ref="LeadSheldingSolid"/>
+    </volume>
+
+    <volume name="HDPESheldingVolume">
+        <materialref ref="HDPE"/> <!-- HDPE material needs to be modified -->
+        <solidref ref="HDPESheldingSolid"/>
+    </volume>
+
+    <volume name="CopperRingsVolume">
+        <materialref ref="Copper"/>
+        <solidref ref="CopperRingsSolid"/>
+    </volume>
+
+    <volume name="MMVolume">
+        <materialref ref="Kapton"/>
+        <solidref ref="MMSolid"/>
+    </volume>
+
+    <volume name="ResistanceVolume">
+        <materialref ref="Resistance"/>
+        <solidref ref="ResistanceSolid"/>
+    </volume>
+
+    <volume name="gasVolume">
+        <materialref ref="Xenon_TMA"/>
+        <solidref ref="XeTMAGasSolid"/>
+    </volume>
+
+    <volume name="OtherXeTMAGasVolume">
+        <materialref ref="Xenon_TMA"/>
+        <solidref ref="OtherXeTMAGasSolid"/>
+    </volume>
+
+    <volume name="GasInbetweenVolume">
+        <materialref ref="PureNitrogen"/> <!-- Haven't determined yet -->
+        <solidref ref="GasInBetweenSolid"/>
+    </volume>
+
+    <!--<volume name="BoxVolume">
+        <materialref ref="Stainlesssteel"/>
+        <solidref ref="TestBoxSolid"/>
+    </volume>-->
+
+    <!--world-->
+    <volume name="World">
+
+        <materialref ref="Air"/>
+        <solidref ref="WorldSolid"/>
+
+        <physvol name="CopperVessel">
+            <volumeref ref="CopperVesselVolume"/>
+            <position name="CopperVesselVolumePosition" unit="mm" x="0" y="0" z="(1470-151)/2+446-2517/2"/>
+        </physvol>
+
+        <!-- <physvol name="TwoCaps">
+            <volumeref ref="TwoCapsVolume"/>
+            <position name="TwoCapsVolumePosition" unit="mm" x="0" y="0" z="0.5*VesselLength"/>
+        </physvol> -->
+
+        <physvol name="AcrylicPart">
+            <volumeref ref="AcrylicPartVolume"/>
+            <position name="AcrylicPartVolumePosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+        <physvol name="Cathode">
+            <volumeref ref="CathodeVolume"/>
+            <positionref ref="CathodePosition" />
+        </physvol>
+
+        <physvol name="VesselWall">
+            <volumeref ref="VesselWallVolume"/>
+            <position name="VesselWallVolumePosition" unit="mm" x="0" y="0" z="(1470-151)/2+446-2517/2"/>
+        </physvol>
+
+        <physvol name="VesselWallBolts">
+            <volumeref ref="VesselWallBoltsVolume"/>
+            <position name="VesselWallVolumePosition" unit="mm" x="0" y="0" z="(1470-151)/2+446-2517/2+(1470-151)/2+151"/>
+        </physvol>
+
+        <physvol name="LeadShelding">
+            <volumeref ref="LeadSheldingVolume"/>
+            <position name="LeadSheldingVolumePosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+        <physvol name="HDPEShelding">
+            <volumeref ref="HDPESheldingVolume"/>
+            <position name="HDPESheldingVolumePosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+        <physvol name="CopperRings">
+            <volumeref ref="CopperRingsVolume"/>
+            <position name="CopperRingsVolumePosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+        <physvol name="MM">
+            <volumeref ref="MMVolume"/>
+            <positionref ref="MMPosition" />
+        </physvol>
+
+        <physvol name="Resistance">
+            <volumeref ref="ResistanceVolume"/>
+            <positionref ref="ResistancePosition" />
+        </physvol>
+
+        <physvol name="Gas">
+            <volumeref ref="gasVolume"/>
+            <position name="XeTMAGasVolumePosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+        <physvol name="OtherXeTMAGas">
+            <volumeref ref="OtherXeTMAGasVolume"/>
+            <position name="OtherXeTMAGasVolumePosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+        <physvol name="GasInbetween">
+            <volumeref ref="GasInbetweenVolume"/>
+            <position name="GasVolumePosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+        <!--<physvol name="Box">
+            <volumeref ref="BoxVolume"/>
+            <position name="BoxVolumePosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>-->
+
+    </volume>
+
+</structure>
+
+<setup name="Default" version="1.0">
+    <world ref="World"/>
+</setup>
+
+</gdml>

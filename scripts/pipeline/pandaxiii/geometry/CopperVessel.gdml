@@ -1,0 +1,72 @@
+<!-- 截取的圆球-->
+<sphere name = "CopperVesselSolid_11" rmin="0" rmax="2000" starttheta="0" deltaphi="360" deltatheta="60" aunit="deg" lunit= "mm"/>
+<tube name="CopperVesselSolid_12" startphi="0" deltaphi="360" rmin="0" rmax="2000" z="2000" aunit="deg" lunit="mm" />
+<intersection name="CopperVesselSolid_1" >
+    <first ref="CopperVesselSolid_11" />
+    <second ref="CopperVesselSolid_12" />
+    <positionref ref="pos1_1" />
+</intersection>
+
+<!-- 截取的圆环-->
+<torus name = "CopperVesselSolid_21" rmin="0" rmax="200" rtor="1000-200" deltaphi="360" startphi="0" aunit="deg" lunit= "mm"/>
+<tube name="CopperVesselSolid_22" startphi="0" deltaphi="360" rmin="0" rmax="2000" z="1075/6" aunit="deg" lunit="mm" />
+<tube name="CopperVesselSolid_23" startphi="0" deltaphi="360" rmin="0" rmax="1000-200" z="200*2" aunit="deg" lunit="mm" />
+<union name="CopperVesselSolid_24" >
+    <first ref="CopperVesselSolid_21" />
+    <second ref="CopperVesselSolid_23" />
+</union>
+<intersection name="CopperVesselSolid_2" >
+    <first ref="CopperVesselSolid_24" />
+    <second ref="CopperVesselSolid_22" />
+    <positionref ref="pos1_2" />
+</intersection>
+
+<!-- 圆柱部分-->
+<tube name="CopperVesselSolid_3" startphi="0" deltaphi="360" rmin="0" rmax="1000" z="1470-151" aunit="deg" lunit="mm" />
+<tube name="CopperVesselSolid_4" startphi="0" deltaphi="360" rmin="0" rmax="1000" z="151*2" aunit="deg" lunit="mm" />
+<tube name="CopperVesselSolid_10" startphi="0" deltaphi="360" rmin="0" rmax="1000" z="40" aunit="deg" lunit="mm" />
+
+
+<union name="CopperVesselSolid_5" >
+    <first ref="CopperVesselSolid_2" />
+    <second ref="CopperVesselSolid_1" />
+    <positionref ref="pos1_3" />
+</union>
+<union name="CopperVesselSolid_6" >
+    <first ref="CopperVesselSolid_3" />
+    <second ref="CopperVesselSolid_4" />
+    <positionref ref="pos1_4" />
+</union>
+
+<union name="CopperVesselSolid_7" >
+    <first ref="CopperVesselSolid_6" />
+    <second ref="CopperVesselSolid_10" />
+    <positionref ref="pos1_71" />
+</union>
+
+<union name="CopperVesselSolid_8" >
+    <first ref="CopperVesselSolid_7" />
+    <second ref="CopperVesselSolid_10" />
+    <positionref ref="pos1_72" />
+</union>
+
+<union name="CopperVesselSolid_9" >
+    <first ref="CopperVesselSolid_8" />
+    <second ref="CopperVesselSolid_5" />
+    <positionref ref="pos1_5" />
+</union>
+
+<union name="CopperVesselSolid_full" >
+    <first ref="CopperVesselSolid_9" />
+    <second ref="CopperVesselSolid_5" />
+    <positionref ref="pos1_6" />
+    <rotation name="CapRotation" unit="deg" x="180" y="0" z="0" />
+</union>
+
+<tube name="CopperVesselSolid_inner" startphi="0" deltaphi="360" rmin="0" rmax="850" z="1480" aunit="deg" lunit="mm" />
+
+<subtraction name="CopperVesselSolid" >
+    <first ref="CopperVesselSolid_full" />
+    <second ref="CopperVesselSolid_inner" />
+    <positionref ref="pos1_8" />
+</subtraction>

@@ -1,0 +1,349 @@
+<torus name="CopperRing" rmin="0" rmax="ringRadius" rtor="FieldCageInnerRadius+ringRadius" startphi="0" deltaphi="360" aunit="deg" lunit="mm" />
+
+<union name="CopperRing_1" >
+    <first ref="CopperRing" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_01" />
+</union>
+
+<union name="CopperRing_2" >
+    <first ref="CopperRing_1" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_01" />
+</union>
+
+<union name="CopperRing_3" >
+    <first ref="CopperRing_2" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_02" />
+</union>
+
+<union name="CopperRing_4" >
+    <first ref="CopperRing_3" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_02" />
+</union>
+
+<union name="CopperRing_5" >
+    <first ref="CopperRing_4" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_03" />
+</union>
+
+<union name="CopperRing_6" >
+    <first ref="CopperRing_5" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_03" />
+</union>
+
+<union name="CopperRing_7" >
+    <first ref="CopperRing_6" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_04" />
+</union>
+
+<union name="CopperRing_8" >
+    <first ref="CopperRing_7" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_04" />
+</union>
+
+<union name="CopperRing_9" >
+    <first ref="CopperRing_8" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_05" />
+</union>
+
+<union name="CopperRing_10" >
+    <first ref="CopperRing_9" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_05" />
+</union>
+
+<union name="CopperRing_11" >
+    <first ref="CopperRing_10" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_06" />
+</union>
+
+<union name="CopperRing_12" >
+    <first ref="CopperRing_11" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_06" />
+</union>
+
+<union name="CopperRing_13" >
+    <first ref="CopperRing_12" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_07" />
+</union>
+
+<union name="CopperRing_14" >
+    <first ref="CopperRing_13" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_07" />
+</union>
+
+<union name="CopperRing_15" >
+    <first ref="CopperRing_14" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_08" />
+</union>
+
+<union name="CopperRing_16" >
+    <first ref="CopperRing_15" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_08" />
+</union>
+
+<union name="CopperRing_17" >
+    <first ref="CopperRing_16" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_09" />
+</union>
+
+<union name="CopperRing_18" >
+    <first ref="CopperRing_17" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_09" />
+</union>
+
+<union name="CopperRing_19" >
+    <first ref="CopperRing_18" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_10" />
+</union>
+
+<union name="CopperRing_20" >
+    <first ref="CopperRing_19" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_10" />
+</union>
+
+<union name="CopperRing_21" >
+    <first ref="CopperRing_20" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_11" />
+</union>
+
+<union name="CopperRing_22" >
+    <first ref="CopperRing_21" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_11" />
+</union>
+
+<union name="CopperRing_23" >
+    <first ref="CopperRing_22" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_12" />
+</union>
+
+<union name="CopperRing_24" >
+    <first ref="CopperRing_23" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_12" />
+</union>
+
+<union name="CopperRing_25" >
+    <first ref="CopperRing_24" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_13" />
+</union>
+
+<union name="CopperRing_26" >
+    <first ref="CopperRing_25" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_13" />
+</union>
+
+<union name="CopperRing_27" >
+    <first ref="CopperRing_26" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_14" />
+</union>
+
+<union name="CopperRing_28" >
+    <first ref="CopperRing_27" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_14" />
+</union>
+
+<union name="CopperRing_29" >
+    <first ref="CopperRing_28" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_15" />
+</union>
+
+<union name="CopperRing_30" >
+    <first ref="CopperRing_29" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_15" />
+</union>
+
+<union name="CopperRing_31" >
+    <first ref="CopperRing_30" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_16" />
+</union>
+
+<union name="CopperRing_32" >
+    <first ref="CopperRing_31" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_16" />
+</union>
+
+<union name="CopperRing_33" >
+    <first ref="CopperRing_32" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_17" />
+</union>
+
+<union name="CopperRing_34" >
+    <first ref="CopperRing_33" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_17" />
+</union>
+
+<union name="CopperRing_35" >
+    <first ref="CopperRing_34" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_18" />
+</union>
+
+<union name="CopperRing_36" >
+    <first ref="CopperRing_35" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_18" />
+</union>
+
+<union name="CopperRing_37" >
+    <first ref="CopperRing_36" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_19" />
+</union>
+
+<union name="CopperRing_38" >
+    <first ref="CopperRing_37" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_19" />
+</union>
+
+<union name="CopperRing_39" >
+    <first ref="CopperRing_38" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_20" />
+</union>
+
+<union name="CopperRing_40" >
+    <first ref="CopperRing_39" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_20" />
+</union>
+
+<union name="CopperRing_41" >
+    <first ref="CopperRing_40" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_21" />
+</union>
+
+<union name="CopperRing_42" >
+    <first ref="CopperRing_41" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_21" />
+</union>
+
+<union name="CopperRing_43" >
+    <first ref="CopperRing_42" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_22" />
+</union>
+
+<union name="CopperRing_44" >
+    <first ref="CopperRing_43" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_22" />
+</union>
+
+<union name="CopperRing_45" >
+    <first ref="CopperRing_44" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_23" />
+</union>
+
+<union name="CopperRing_46" >
+    <first ref="CopperRing_45" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_23" />
+</union>
+
+<union name="CopperRing_47" >
+    <first ref="CopperRing_46" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_24" />
+</union>
+
+<union name="CopperRing_48" >
+    <first ref="CopperRing_47" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_24" />
+</union>
+
+<union name="CopperRing_49" >
+    <first ref="CopperRing_48" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_25" />
+</union>
+
+<union name="CopperRing_50" >
+    <first ref="CopperRing_49" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_25" />
+</union>
+
+<union name="CopperRing_51" >
+    <first ref="CopperRing_50" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_26" />
+</union>
+
+<union name="CopperRing_52" >
+    <first ref="CopperRing_51" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_26" />
+</union>
+
+<union name="CopperRing_53" >
+    <first ref="CopperRing_52" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_27" />
+</union>
+
+<union name="CopperRing_54" >
+    <first ref="CopperRing_53" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_27" />
+</union>
+
+<union name="CopperRing_55" >
+    <first ref="CopperRing_54" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_28" />
+</union>
+
+<union name="CopperRing_56" >
+    <first ref="CopperRing_55" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_28" />
+</union>
+
+<union name="CopperRing_57" >
+    <first ref="CopperRing_56" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionTop_29" />
+</union>
+
+<union name="CopperRingsSolid" >
+    <first ref="CopperRing_57" />
+    <second ref="CopperRing" />
+    <positionref ref="ringPositionBottom_29" />
+</union>

@@ -1,0 +1,374 @@
+<tube name="AcrylicFieldCageSolid_01" startphi="0" deltaphi="360" rmin="FieldCageInnerRadius" rmax="FieldCageOuterRadius" z="FieldCageLength" aunit="deg" lunit="mm" />
+
+<tube name="AcrylicCoverSolid_1" startphi="0" deltaphi="360" rmin="0" rmax="AcrylicCoverRadius" z="AcrylicCoverLength" aunit="deg" lunit="mm" />
+
+<tube name="AcrylicCoverSolid_2" startphi="0" deltaphi="360" rmin="0" rmax="AcrylicCoverCutRadius" z="AcrylicCoverCutLength" aunit="deg" lunit="mm" />
+
+<subtraction name="AcrylicCoverSolid">
+    <first ref="AcrylicCoverSolid_1"/>
+    <second ref="AcrylicCoverSolid_2"/>
+    <positionref ref="AcrylicCoverCutPosition" />
+</subtraction>
+
+<tube name="GrooveSolid" startphi="0" deltaphi="360" rmin="FieldCageInnerRadius-1" rmax="FieldCageInnerRadius+GrooveSideLength" z="GrooveSideLength" aunit="deg" lunit="mm"/>
+
+<subtraction name="AcrylicFieldCageSolid_02">
+    <first ref="AcrylicFieldCageSolid_01"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_00" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_03">
+    <first ref="AcrylicFieldCageSolid_02"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_01" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_04">
+    <first ref="AcrylicFieldCageSolid_03"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_01" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_05">
+    <first ref="AcrylicFieldCageSolid_04"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_02" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_06">
+    <first ref="AcrylicFieldCageSolid_05"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_02" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_07">
+    <first ref="AcrylicFieldCageSolid_06"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_03" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_08">
+    <first ref="AcrylicFieldCageSolid_07"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_03" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_09">
+    <first ref="AcrylicFieldCageSolid_08"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_04" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_10">
+    <first ref="AcrylicFieldCageSolid_09"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_04" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_11">
+    <first ref="AcrylicFieldCageSolid_10"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_05" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_12">
+    <first ref="AcrylicFieldCageSolid_11"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_05" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_13">
+    <first ref="AcrylicFieldCageSolid_12"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_06" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_14">
+    <first ref="AcrylicFieldCageSolid_13"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_06" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_15">
+    <first ref="AcrylicFieldCageSolid_14"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_07" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_16">
+    <first ref="AcrylicFieldCageSolid_15"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_07" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_17">
+    <first ref="AcrylicFieldCageSolid_16"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_08" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_18">
+    <first ref="AcrylicFieldCageSolid_17"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_08" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_19">
+    <first ref="AcrylicFieldCageSolid_18"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_09" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_20">
+    <first ref="AcrylicFieldCageSolid_19"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_09" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_21">
+    <first ref="AcrylicFieldCageSolid_20"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_10" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_22">
+    <first ref="AcrylicFieldCageSolid_21"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_10" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_23">
+    <first ref="AcrylicFieldCageSolid_22"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_11" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_24">
+    <first ref="AcrylicFieldCageSolid_23"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_11" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_25">
+    <first ref="AcrylicFieldCageSolid_24"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_12" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_26">
+    <first ref="AcrylicFieldCageSolid_25"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_12" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_27">
+    <first ref="AcrylicFieldCageSolid_26"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_13" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_28">
+    <first ref="AcrylicFieldCageSolid_27"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_13" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_29">
+    <first ref="AcrylicFieldCageSolid_28"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_14" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_30">
+    <first ref="AcrylicFieldCageSolid_29"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_14" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_31">
+    <first ref="AcrylicFieldCageSolid_30"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_15" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_32">
+    <first ref="AcrylicFieldCageSolid_31"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_15" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_33">
+    <first ref="AcrylicFieldCageSolid_32"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_16" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_34">
+    <first ref="AcrylicFieldCageSolid_33"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_16" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_35">
+    <first ref="AcrylicFieldCageSolid_34"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_17" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_36">
+    <first ref="AcrylicFieldCageSolid_35"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_17" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_37">
+    <first ref="AcrylicFieldCageSolid_36"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_18" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_38">
+    <first ref="AcrylicFieldCageSolid_37"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_18" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_39">
+    <first ref="AcrylicFieldCageSolid_38"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_19" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_40">
+    <first ref="AcrylicFieldCageSolid_39"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_19" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_41">
+    <first ref="AcrylicFieldCageSolid_40"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_20" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_42">
+    <first ref="AcrylicFieldCageSolid_41"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_20" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_43">
+    <first ref="AcrylicFieldCageSolid_42"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_21" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_44">
+    <first ref="AcrylicFieldCageSolid_43"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_21" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_45">
+    <first ref="AcrylicFieldCageSolid_44"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_22" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_46">
+    <first ref="AcrylicFieldCageSolid_45"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_22" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_47">
+    <first ref="AcrylicFieldCageSolid_46"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_23" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_48">
+    <first ref="AcrylicFieldCageSolid_47"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_23" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_49">
+    <first ref="AcrylicFieldCageSolid_48"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_24" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_50">
+    <first ref="AcrylicFieldCageSolid_49"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_24" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_51">
+    <first ref="AcrylicFieldCageSolid_50"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_25" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_52">
+    <first ref="AcrylicFieldCageSolid_51"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_25" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_53">
+    <first ref="AcrylicFieldCageSolid_52"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_26" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_54">
+    <first ref="AcrylicFieldCageSolid_53"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_26" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_55">
+    <first ref="AcrylicFieldCageSolid_54"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_27" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_56">
+    <first ref="AcrylicFieldCageSolid_55"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_27" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_57">
+    <first ref="AcrylicFieldCageSolid_56"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_28" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_58">
+    <first ref="AcrylicFieldCageSolid_57"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_28" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid_59">
+    <first ref="AcrylicFieldCageSolid_58"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionTop_29" />
+</subtraction>
+
+<subtraction name="AcrylicFieldCageSolid">
+    <first ref="AcrylicFieldCageSolid_59"/>
+    <second ref="GrooveSolid"/>
+    <positionref ref="ringPositionBottom_29" />
+</subtraction>
+
+<union name="AcrylicPartSolid" >
+    <first ref="AcrylicFieldCageSolid" />
+    <second ref="AcrylicCoverSolid" />
+    <positionref ref="AcrylicCoverPosition" />
+</union>
+
