@@ -235,10 +235,10 @@ void TRestAnalysisPlot::InitFromConfigFile() {
                         cout << "Adding global cut : " << globalCuts[i] << endl;
                     hist.cutString += globalCuts[i];
                 }
-                // add "SAME" option
-                if (plot.histos.size() > 0) {
-                    hist.drawOption += "SAME";
-                }
+                //// add "SAME" option
+                //if (plot.histos.size() > 0) {
+                //    hist.drawOption += " SAME";
+                //}
 
                 if (hist.plotString == "") {
                     warning << "No variables or histograms defined in the plot, skipping!" << endl;
