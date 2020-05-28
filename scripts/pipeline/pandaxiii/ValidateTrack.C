@@ -4,19 +4,19 @@ Int_t ValidateTrack(string fname) {
 
     TRestAnalysisTree* AnalysisTree = run->GetAnalysisTree();
 
-    if (AnalysisTree->GetObservableValue<double>("tckBlob_2D_Qhigh_X_R20") != 552.65964439511299133301) {
+    if (AnalysisTree->GetObservableValue<double>("tckBlob_2D_Qhigh_X_R20") != 404.79117548465728759766) {
         return -1;
     }
 
-    if (AnalysisTree->GetObservableValue<double>("tckBlob_2D_Qhigh_Y_R20") != 638.12474718689918518066) {
+    if (AnalysisTree->GetObservableValue<double>("tckBlob_2D_Qhigh_Y_R20") != 301.09379857778549194336) {
         return -1;
     }
 
-    if (AnalysisTree->GetObservableValue<double>("hitsAnaSmear_xMean") != 190.11300330629373434022) {
+    if (AnalysisTree->GetObservableValue<double>("hitsAnaSmear_xMean") != 112.28328575433145886109) {
         return -1;
     }
 
-    if (AnalysisTree->GetObservableValue<double>("hitsAnaSmear_yMean") != 672.01805915711759098485) {
+    if (AnalysisTree->GetObservableValue<double>("hitsAnaSmear_yMean") != 567.69430957018153094396) {
         return -1;
     }
 

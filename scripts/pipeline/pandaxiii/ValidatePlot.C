@@ -3,7 +3,7 @@ Int_t ValidatePlot(string fname) {
 
     string output = TRestTools::Execute("sha1sum " + fname);
     string sha1sum = Split(output, " ")[0];
-    if (sha1sum != "996d57a289c53a0d3490a85162982f84c2cb2a43") {
+    if (sha1sum != "0869177ec497f62967fd5aca3cba1856717e16ec") {
         cout << "incoherent sha1sum: " << sha1sum << endl;
         return -1;
     }
