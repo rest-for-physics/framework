@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
     // load rest library and macros
     TRestTools::LoadRESTLibrary(silent);
     auto a = TRestTools::Execute(
-        "find $REST_PATH/macros | grep REST_.*.C | grep -v \"swo\" | grep -v "
+        "find $REST_PATH/macros | grep REST_[^/]*.C | grep -v \"swo\" | grep -v "
         "\"CMakeLists\" | grep -v \"swp\"  | grep -v \"svn\"");
     auto b = Split(a, "\n");
     for (auto c : b) {
