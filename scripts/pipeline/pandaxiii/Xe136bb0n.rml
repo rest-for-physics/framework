@@ -30,7 +30,7 @@
     <parameter name="seed" value="1" />
 
     <generator type="volume" from="Gas" >
-      <source use="Xe136bb2n.dat">
+      <source use="Xe136bb0n.dat">
       </source>
     </generator>
 
