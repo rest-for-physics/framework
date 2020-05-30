@@ -1,11 +1,28 @@
 image: nkx1231/root6-geant4-garfield:0.5
 
 stages:
+    # Basic checks to verify correctness of code
   - pre-build
+
+    # Project compilation validation
   - build
-  - restRoot
-  - restManager_generate
+
+    # Basic validation tests of installation
+  - install
+
+    # Stage dedicated to validate metadata classes. gas, readout, g4Metadata, etc
+  - metadata
+
+    # Stage to validate restG4 package examples
+  - restG4
+
+    # Stage to validate data chain processing constructions (TREX-DM data, PandaX-III topology, etc).
   - restManager_process
+
+    # Stage to validate other restManager tasks (metadata generation, script loading, etc).
+  - restManager_generate
+
+    # Scripts to launch more complete tests. TRestGas file generation, Geant4 physics validation, etc.
   - deploy
 
 before_script:
@@ -53,7 +70,7 @@ build:
 
 
 loadRESTLibs:
-  type: restRoot
+  type: install
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - root -b -q ${CI_PROJECT_DIR}/scripts/pipeline/loadLibraries.C
@@ -62,15 +79,27 @@ loadRESTLibs:
       variables:
         - $CRONJOB
 
+01_NLDBD:
+  type: restG4
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/
+    - restG4 NLDBD.rml
+    - restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/Run00001_NLDBD_Test.root
+    expire_in: 1 day
+  except:
+      variables:
+        - $CRONJOB
+
 gas:
-  type: restRoot 
+  type: metadata 
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/scripts/pipeline
     - restRoot -b -q ValidateGas.C
-
-
-
 
 testMeta:
   type: restManager_generate
@@ -86,10 +115,7 @@ testMeta:
       variables:
         - $CRONJOB
 
-
-
-
-testProcessTREX: 
+trexDM_data: 
   type: restManager_process
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
@@ -110,7 +136,7 @@ testProcessTREX:
       variables:
         - $CRONJOB
 
-testProcessPandaX: 
+pandaXIII_MC: 
   type: restManager_process
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
