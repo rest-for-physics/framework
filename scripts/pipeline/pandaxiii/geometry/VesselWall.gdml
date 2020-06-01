@@ -1,0 +1,128 @@
+<!-- begin of Bolts on Shim -->
+<tube name="VW_Bolt_Solid" startphi="0" deltaphi="360" rmin="0" rmax="VesselWallBoltsRadius" z="VesselWallBoltsLength" aunit="deg" lunit="mm" />
+<box name="VW_BoltTemp_Solid_0" x="VesselWallBoltsRadius*2+1" y="VesselWallBoltsRadius*2+1" z="VesselWallBoltsLength+1" lunit="mm" />
+<union name="VW_BoltTemp_Solid_1" >
+  <first ref="VW_BoltTemp_Solid_0" />
+  <second ref="VW_Bolt_Solid" />
+  <position name="tempPosition" x="VesselWallToBoltsCenterDistance" y="0" z="0" />
+</union>
+<intersection name="VW_Bolts_Solid_1" >
+  <first ref="VW_BoltTemp_Solid_1" />
+  <second ref="VW_BoltTemp_Solid_0" />
+  <position name="Position_3" x="VesselWallToBoltsCenterDistance" y="0" z="0" />
+</intersection>
+
+<!-- <reflectedSolid name="VW_Bolts_Solid_1" solid="VW_BoltWithNuts_Solid" dx="1060" aunit="deg" lunit="mm" /> -->
+<union name="VW_Bolts_Solid_2" >
+  <first ref="VW_Bolts_Solid_1" />
+  <second ref="VW_Bolts_Solid_1" />
+  <rotation name="tempRotation" unit="deg" x="0" y="0" z="360/84*1" aunit="deg" />
+</union>
+<union name="VW_Bolts_Solid_4" >
+  <first ref="VW_Bolts_Solid_2" />
+  <second ref="VW_Bolts_Solid_2" />
+  <rotation name="tempRotation" unit="deg" x="0" y="0" z="360/84*2" aunit="deg" />
+</union>
+<union name="VW_Bolts_Solid_8" >
+  <first ref="VW_Bolts_Solid_4" />
+  <second ref="VW_Bolts_Solid_4" />
+  <rotation name="tempRotation" unit="deg" x="0" y="0" z="360/84*4" aunit="deg" />
+</union>
+<union name="VW_Bolts_Solid_16" >
+  <first ref="VW_Bolts_Solid_8" />
+  <second ref="VW_Bolts_Solid_8" />
+  <rotation name="tempRotation" unit="deg" x="0" y="0" z="360/84*8" aunit="deg" />
+</union>
+<union name="VW_Bolts_Solid_32" >
+  <first ref="VW_Bolts_Solid_16" />
+  <second ref="VW_Bolts_Solid_16" />
+  <rotation name="tempRotation" unit="deg" x="0" y="0" z="360/84*16" aunit="deg" />
+</union>
+<union name="VW_Bolts_Solid_64" >
+  <first ref="VW_Bolts_Solid_32" />
+  <second ref="VW_Bolts_Solid_32" />
+  <rotation name="tempRotation" unit="deg" x="0" y="0" z="360/84*32" aunit="deg" />
+</union>
+<union name="VW_Bolts_Solid_80" >
+  <first ref="VW_Bolts_Solid_64" />
+  <second ref="VW_Bolts_Solid_16" />
+  <rotation name="tempRotation" unit="deg" x="0" y="0" z="360/84*64" aunit="deg" />
+</union>
+<union name="VesselWallBoltsSolid" >
+  <first ref="VW_Bolts_Solid_80" />
+  <second ref="VW_Bolts_Solid_4" />
+  <rotation name="tempRotation" unit="deg" x="0" y="0" z="360/84*80" aunit="deg" />
+</union>
+<!-- end of Bolts on Shim -->
+
+<!-- 截取的圆球-->
+<sphere name = "VesselWallSolid_11" rmin="0" rmax="2000+18" deltaphi="360" deltatheta="180" aunit="deg" lunit= "mm"/>
+<tube name="VesselWallSolid_12" startphi="0" deltaphi="360" rmin="0" rmax="2000+18" z="2000" aunit="deg" lunit="mm" />
+<intersection name="VesselWallSolid_1" >
+    <first ref="VesselWallSolid_11" />
+    <second ref="VesselWallSolid_12" />
+    <positionref ref="pos2_1" />
+</intersection>
+
+<!-- 截取的圆环-->
+<torus name = "VesselWallSolid_21" rmin="0" rmax="218" rtor="1018-218" deltaphi="360" startphi="0" aunit="deg" lunit= "mm"/>
+<tube name="VesselWallSolid_22" startphi="0" deltaphi="360" rmin="0" rmax="2000" z="4687/24" aunit="deg" lunit="mm" />
+<tube name="VesselWallSolid_23" startphi="0" deltaphi="360" rmin="0" rmax="1018-218" z="218*2" aunit="deg" lunit="mm" />
+<union name="VesselWallSolid_24" >
+    <first ref="VesselWallSolid_21" />
+    <second ref="VesselWallSolid_23" />
+</union>
+<intersection name="VesselWallSolid_2" >
+    <first ref="VesselWallSolid_24" />
+    <second ref="VesselWallSolid_22" />
+    <positionref ref="pos2_2" />
+</intersection>
+
+<!-- 圆柱部分-->
+<tube name="VesselWallSolid_3" startphi="0" deltaphi="360" rmin="0" rmax="1012" z="1470-151" aunit="deg" lunit="mm" />
+<tube name="VesselWallSolid_41" startphi="0" deltaphi="360" rmin="0" rmax="2175/2" z="151*2" aunit="deg" lunit="mm" />
+<tube name="VesselWallSolid_10" startphi="0" deltaphi="360" rmin="0" rmax="1012" z="40" aunit="deg" lunit="mm" />
+
+<union name="VesselWallSolid_5" >
+    <first ref="VesselWallSolid_2" />
+    <second ref="VesselWallSolid_1" />
+    <positionref ref="pos2_3" />
+</union>
+<subtraction name="VesselWallSolid_42">
+  <first ref="VesselWallSolid_41"/>
+  <second ref="VesselWallBoltsSolid"/>
+  <position name="tempPosition" unit="mm" x="0" y="0" z="0"/>
+</subtraction>
+<union name="VesselWallSolid_6" >
+    <first ref="VesselWallSolid_3" />
+    <second ref="VesselWallSolid_42" />
+    <positionref ref="pos2_4" />
+</union>
+<union name="VesselWallSolid_7" >
+    <first ref="VesselWallSolid_6" />
+    <second ref="VesselWallSolid_10" />
+    <positionref ref="pos2_71" />
+</union>
+
+<union name="VesselWallSolid_8" >
+    <first ref="VesselWallSolid_7" />
+    <second ref="VesselWallSolid_10" />
+    <positionref ref="pos2_72" />
+</union>
+
+<union name="VesselWallSolid_9" >
+    <first ref="VesselWallSolid_8" />
+    <second ref="VesselWallSolid_5" />
+    <positionref ref="pos2_6" />
+    <rotation name="CapRotation1" unit="deg" x="180" y="0" z="0" />
+</union>
+<union name="VesselWallSolid_full" >
+    <first ref="VesselWallSolid_9" />
+    <second ref="VesselWallSolid_5" />
+    <positionref ref="pos2_5" />
+</union>
+
+<subtraction name="VesselWallSolid">
+    <first ref="VesselWallSolid_full"/>
+    <second ref="CopperVesselSolid_full"/>
+</subtraction>

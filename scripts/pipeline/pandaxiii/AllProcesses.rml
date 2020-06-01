@@ -1,0 +1,65 @@
+<?xml version="1.0" ?>
+<TRestManager>
+  <globals>
+    <!-- Environment -->
+    <variable name="REST_PITCH" value="3" overwrite="false" />
+    <parameter name="outputLevel" value="observable" />
+    <!-- Globals proper -->
+    <!--<parameter name="mainDataPath" value="${REST_DATAPATH}" />-->
+    <parameter name="verboseLevel" value="silent" />%options are : silent, warning, info, debug
+    <parameter name="seed" value="5" /> // set to 0 as random seed
+  </globals>
+  <TRestRun name="Run metadata" title="REST Metadata run info (template)" verboseLevel="silent">
+    <!--<parameter name="inputFile" value="${REST_INPUTFILE}" />-->
+    <parameter name="experiment" value="PandaX-III" />
+    <!--<parameter name="runType" value="strips_Pitch_${REST_PITCH}mm" />-->
+    <parameter name="runNumber" value="1" />
+    <parameter name="runTag" value="preserve" />
+    <parameter name="runDescription" value="" />
+    <parameter name="user" value="WU" />
+    <parameter name="verboseLevel" value="3" />
+    <parameter name="overwrite" value="off" />
+    <!--<parameter name="outputFile" value="Tracks_[EXPERIMENT]_[USER]_[RUNTYPE]_[RUNTAG]_[RUN]_V[VERSION].root" />-->
+    <parameter name="readOnly" value="true" />
+    <TRestReadout name="Panda-140kg" file="readout-140kg.rml"/>
+    <TRestGas type="TRestGas" name="Xenon-TMA 1Pct 10-10E3Vcm" file="server" pressure="10"/>
+  </TRestRun>
+  <TRestProcessRunner name="pixelization" title="Stripped manager.">
+    <parameter name="outputEvent" value="off" />
+    <parameter name="inputEvent" value="off" />
+    <parameter name="inputAnalysis" value="off" />
+    <parameter name="firstEntry" value="0" />
+    <parameter name="lastEntry" value="100000000000" />
+    <parameter name="eventsToProcess" value="0" />
+    <!-- ++++++++++++++++
+         Adding processes 
+         ++++++++++++++++ -->
+    <addProcess type="TRestGeant4AnalysisProcess" name="g4Ana" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestFindG4BlobAnalysisProcess" name="g4Blob" value="OFF" file="processes_2D.rml" />
+    <addProcess type="TRestG4toHitsProcess" name="G4ToHits" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestElectronDiffusionProcess" name="eDiff_1kVcm_10atm" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestHitsAnalysisProcess" name="hitsAnaDiff" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestSmearingProcess" name="smear_3FWHM" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestHitsAnalysisProcess" name="hitsAnaSmear" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestHitsToSignalProcess" name="hitsToSignal" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestTriggerAnalysisProcess" name="trigger" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestHitsShuffleProcess" name="hitsShuffle" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestFastHitsToTrackProcess" name="hitsToTrack" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestTrackAnalysisProcess" name="tckAna_2D" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestTrackReductionProcess" name="trackReduction" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestTrackPathMinimizationProcess" name="tckMin" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestTrackDetachIsolatedNodesProcess" name="detach" value="OFF" file="processes_2D.rml" />
+    <addProcess type="TRestTrackReconnectionProcess" name="trackReconnection" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestTrackAnalysisProcess" name="tckAnaFinal_2D" value="ON" file="processes_2D.rml" />
+
+    <addProcess type="TRestFindTrackBlobsProcess" name="tckBlob_2D" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestTrackDrawMarkersProcess" name="draw" value="OFF" file="processes_2D.rml"/>
+    <!-- Now we need to define in the manager the tasks we will perform.
+         If task processEvents is not enabled processes will not be launched -->
+    <!-- If analysisPlot is before the processEvents task it will take as input file the input for TRestRun.
+         If it is after processEvents it will take the output of TRestRun. -->
+  </TRestProcessRunner>
+  <addTask type="processEvents" value="ON" />
+  <addTask type="analysisPlot" name="Template" value="OFF" />
+</TRestManager>

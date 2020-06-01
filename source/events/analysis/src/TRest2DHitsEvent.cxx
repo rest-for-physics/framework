@@ -595,7 +595,7 @@ void TRest2DHitsEvent::DoHough() {
                 double weight = log10(xze[i] + xze[j]);
 
                 if (y1 == y2 && TMath::Abs(x1 - x2) < 100) continue;
-                if (x1 == x2) continue;
+                if (TMath::Abs(x1 - x2) <=1 ) continue;
                 if (sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) > 200 ||
                     sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) < 10)
                     continue;

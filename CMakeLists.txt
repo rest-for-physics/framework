@@ -140,17 +140,10 @@ if (${REST_G4} MATCHES "ON")
     add_subdirectory(packages/restG4)
 endif (${REST_G4} MATCHES "ON")
 
-IF (NOT DEFINED REST_PSQL)
-    set(REST_PSQL OFF)
-ENDIF ()
-
+#this is not a package, in future we shall turn it into a package
 IF (NOT DEFINED REST_SQL)
     set(REST_SQL OFF)
 ENDIF ()
-
-if (${REST_PSQL} MATCHES "ON")
-    add_subdirectory(packages/restDataBasePSQL)
-endif (${REST_PSQL} MATCHES "ON")
 
 IF (NOT DEFINED REST_DECAY0)
     set(REST_DECAY0 OFF)
@@ -166,7 +159,6 @@ message("=============================")
 message("System is : ${CMAKE_SYSTEM_NAME}")
 message("Garfield is : ${REST_GARFIELD}")
 message("Geant4 is : ${REST_G4}")
-message("PSQLDataBase is : ${REST_PSQL}")
 message("SQL is : ${REST_SQL}")
 message("=============================")
 message("Check main project README.md to see all available compilation options")

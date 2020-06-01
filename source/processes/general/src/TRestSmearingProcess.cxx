@@ -62,7 +62,7 @@ void TRestSmearingProcess::Initialize() {
     fHitsInputEvent = NULL;
     fHitsOutputEvent = new TRestHitsEvent();
 
-    fRandom = new TRandom3(0);
+    fRandom = NULL;
 }
 
 void TRestSmearingProcess::LoadConfig(string cfgFilename, string name) {
@@ -114,4 +114,5 @@ void TRestSmearingProcess::EndProcess() {
 void TRestSmearingProcess::InitFromConfigFile() {
     fEnergyRef = GetDblParameterWithUnits("energyReference");
     fResolutionAtEref = StringToDouble(GetParameter("resolutionReference"));
+    fRandom = new TRandom3(StringToDouble(GetParameter("seed", "0")));
 }

@@ -1,0 +1,570 @@
+<?xml version="1.0" ?>
+<processes>
+    <TRestElectronDiffusionProcess name="eDiff_1kVcm_10atm" title="eDiff" verboseLevel="silent">
+        <parameter name="electricField" value="1" units="kV/cm" />
+        <parameter name="attachment" value="0" />
+        <!-- units?? -->
+        <parameter name="gasPressure" value="10" />
+        <parameter name="Wvalue" value="" units="eV" />
+        <parameter name="maxHits" value="5000" />
+        <!--<observable name="readoutPlaneEnergy_1" value="ON" /> -->
+        <!-- There is no need to specify additional parameters if all values will be taken from the gas properties (TRestGas). -->
+    </TRestElectronDiffusionProcess>
+
+    <TRestAvalancheProcess name="avalancheProcess" title="IAXOD0 chamber">
+        <parameter name="energyReference" value="5.9keV" />
+        <parameter name="resolutionReference" value="13" />// fwhm
+        <parameter name="detectorGain" value="8000" />// absolute gain // parameter name=&quot;electronicsGain&quot; value=&quot;671744&quot; // electrons for 4096 ADC units
+    </TRestAvalancheProcess>
+
+    <TRestSignalDeconvolutionProcess name="deconvolution-Template" title="Deconvolution of AGET signals">
+        <parameter name="transversalDiffusionCoefficient" value="10" />
+        <!-- There is no need to specify additional parameters if all values will be taken from the gas properties (TRestGas). -->
+    </TRestSignalDeconvolutionProcess>
+    <TRestAvalancheProcess name="avalancheProcess" title="IAXOD0 chamber">
+        <parameter name="energyReference" value="5.9keV" />
+        <parameter name="resolutionReference" value="13" />// fwhm
+        <parameter name="detectorGain" value="8000" />// absolute gain // parameter name=&quot;electronicsGain&quot; value=&quot;671744&quot; // electrons for 4096 ADC units
+    </TRestAvalancheProcess>
+
+    <TRestSignalDeconvolutionProcess name="deconv" title="Deconvolution of AGET signals" verboseLevel="silent">
+        <parameter name="frequency1" value="2.71383005928202273" />
+        <parameter name="frequency2" value="18.6067876433914706e" />
+        <parameter name="smoothingPoints" value="3" />
+        <parameter name="smearingPoints" value="5" />
+        <parameter name="baselineStart" value="32" />
+        <parameter name="baselineEnd" value="64" />
+        <parameter name="nFFTStart" value="0" />
+        <parameter name="nFFTEnd" value="0" />
+        <parameter name="cutFrequency" value="12" />
+        <parameter name="responseFile" value="AGET_Response_SJTU_2017Feb22.root" />
+    </TRestSignalDeconvolutionProcess>
+
+    <TRestSignalGaussianConvolutionProcess name="gConv" title="Gaussian convolution of signals">
+        <parameter name="sigma" value=".1us" />
+        <parameter name="nSigmas" value="2" />// Number of sigmas to perform the calculation
+    </TRestSignalGaussianConvolutionProcess>
+
+    <TRestAddSignalNoiseProcess name="addSignalNoiseProcess" title="Test AddNoise to Signal">
+        <parameter name="noiseLevel" value="5" />// // electrons in each time bin
+    </TRestAddSignalNoiseProcess>
+
+    <TRestSignalToHitsProcess name="signalToHits" title="A Signal To Hits reconstruction template." verboseLevel="silent">
+        <parameter name="sampling" value="200ns" />
+        <parameter name="electricField" value="1000" units="V/cm" />
+        <!-- If not specified, the following values will be taken from TRestGas properties -->
+        <parameter name="gasPressure" value="" />
+        <!-- in atm -->
+        <parameter name="driftVelocity" value="" />
+        <!-- in cm/us -->
+        <parameter name="method" value="all" />
+    </TRestSignalToHitsProcess>
+
+    <TRestHitsToSignalProcess name="hitsToSignal" title="A hits to signal template" verboseLevel="silent">
+        <parameter name="sampling" value="200ns" />
+        <parameter name="electricField" value="1000" units="V/cm" />
+        <!-- If specified, the following parameters will modify the properties of the gas found in TRestGas -->
+        <parameter name="gasPressure" value="" />
+        <parameter name="driftVelocity" value="" />
+    </TRestHitsToSignalProcess>
+
+    <TRestHitsToTrackProcess name="ihitsToTrack" title="">
+        <parameter name="clusterDistance" value="7.5" units="mm" />
+    </TRestHitsToTrackProcess>
+    <TRestFastHitsToTrackProcess name="hitsToTrack" title="">
+        <parameter name="cellResolution" value="7.5" units="mm" />
+        <parameter name="netSize" value="1700mm" />
+        <parameter name="netOrigin" value="(-850,-850,-850)mm" />
+    </TRestFastHitsToTrackProcess>
+    <TRestHitsShuffleProcess name="hitsShuffle" title="Shuffles the hits">
+        <parameter name="iterations" value="100" />
+    </TRestHitsShuffleProcess>
+    <TRestHitsReductionProcess name="hitsReduction" title="Merges the closest hits in a HitsEvent">
+        <parameter name="startingDistance" value="0.25mm" />
+        <parameter name="minimumDistance" value="0.5mm" />
+        <parameter name="distanceStepFactor" value="1.15" />
+        <parameter name="maxNodes" value="25" />
+    </TRestHitsReductionProcess>
+    <TRestTrackReductionProcess name="trackReduction" title="Merges the closer hits in a TrackEvent" verboseLevel="silent">
+        <parameter name="startingDistance" value="0.15mm" />
+        <parameter name="minimumDistance" value="0.5mm" />
+        <parameter name="distanceStepFactor" value="1.15" />
+        <parameter name="maxNodes" value="20" />
+    </TRestTrackReductionProcess>
+    <TRestTrackPathMinimizationProcess name="debug" title="" verboseLevel="silent">
+        <parameter name="maxNodes" value="50" />
+        <parameter name="weightHits" value="false" />
+    </TRestTrackPathMinimizationProcess>
+    <TRestTrackPathMinimizationProcess name="tckMin" title="" verboseLevel="silent">
+        <parameter name="maxNodes" value="30" />
+        <parameter name="weightHits" value="false" />
+    </TRestTrackPathMinimizationProcess>
+    <TRestTrackReconnectionProcess name="trackReconnection" title="" verboseLevel="silent">
+        <observable name="branches" value="ON" />
+        <!-- This parameter will split the track in case secondary branches are found -->
+        <parameter name="splitTrack" value="false" />
+    </TRestTrackReconnectionProcess>
+    <TRestGeant4AnalysisProcess name="g4Ana" title="Geant4 analysis template" verboseLevel="silent">
+        <observable name="GasVolumeEDep" value="ON" description="Energy deposited in the gas volume in keV" />
+        <observable name="vesselVolumeEDep" value="OFF" description="Energy deposited in the vessel volume in keV" />
+        <observable name="totalEdep" value="ON" description="Total energy deposited in all the volumes in keV" />
+        <observable name="photoelectric" value="ON" description="Its value will be 1 if the event contains a photoelectric interaction." />
+        <observable name="compton" value="ON" description="Its value will be 1 if the event contains a compton scattering process." />
+        <observable name="bremstralung" value="ON" description="Its value will be 1 if the event contains a bremstralung physics process." />
+        <parameter name="lowEnergyCut" value="600keV" />
+        <parameter name="highEnergyCut" value="3000keV" />
+    </TRestGeant4AnalysisProcess>
+    <TRestHitsAnalysisProcess name="hitsAnaDiff" title="A hits analysis process">
+        <observable name="energy" value="ON" />
+        <observable name="xMean" value="ON" />
+        <observable name="yMean" value="ON" />
+        <observable name="zMean" value="ON" />
+        <observable name="nHits" value="ON" />
+        <observable name="nHitsX" value="ON" />
+        <observable name="nHitsY" value="ON" />
+        <!-- Observables and parameters to determine if hits are 
+         inside a certain fiducial volume (cylinder or prism). -->
+        <!-- This parameter allows to enable/disable the cylinder fiducialization. -->
+        <parameter name="cylinderFiducialization" value="false" />
+        <!-- x0 and y0 are common coordinates for prism and cylinder. -->
+        <parameter name="fiducial_x0" value="(0,0,-100)mm" />
+        <parameter name="fiducial_x1" value="(0,0,100)mm" />
+        <parameter name="fiducial_R" value="10mm" />
+        <!-- This parameter allows to enable/disable the prism fiducialization. -->
+        <parameter name="prismFiducialization" value="false" />
+        <parameter name="fiducial_sX" value="10mm" />
+        <parameter name="fiducial_sY" value="10mm" />
+        <observable name="isInsidePrismVolume" value="OFF" />
+        <observable name="nInsidePrismVolume" value="OFF" />
+        <observable name="energyInsidePrismVolume" value="OFF" />
+        <observable name="distanceToPrismWall" value="OFF" />
+        <observable name="distanceToPrismTop" value="OFF" />
+        <observable name="distanceToPrismBottom" value="OFF" />
+    </TRestHitsAnalysisProcess>
+    <TRestHitsAnalysisProcess name="hitsAnaSmear" title="A hits analysis process">
+        <observable name="energy" value="ON" />
+        <observable name="xMean" value="ON" />
+        <observable name="yMean" value="ON" />
+        <observable name="zMean" value="ON" />
+        <observable name="nHits" value="ON" />
+        <observable name="nHitsX" value="ON" />
+        <observable name="nHitsY" value="ON" />
+        <!-- Observables and parameters to determine if hits are 
+         inside a certain fiducial volume (cylinder or prism). -->
+        <!-- This parameter allows to enable/disable the cylinder fiducialization. -->
+        <parameter name="cylinderFiducialization" value="false" />
+        <!-- x0 and y0 are common coordinates for prism and cylinder. -->
+        <parameter name="fiducial_x0" value="(0,0,-100)mm" />
+        <parameter name="fiducial_x1" value="(0,0,100)mm" />
+        <parameter name="fiducial_R" value="10mm" />
+        <!-- This parameter allows to enable/disable the prism fiducialization. -->
+        <parameter name="prismFiducialization" value="false" />
+        <parameter name="fiducial_sX" value="10mm" />
+        <parameter name="fiducial_sY" value="10mm" />
+        <observable name="isInsidePrismVolume" value="OFF" />
+        <observable name="nInsidePrismVolume" value="OFF" />
+        <observable name="energyInsidePrismVolume" value="OFF" />
+        <observable name="distanceToPrismWall" value="OFF" />
+        <observable name="distanceToPrismTop" value="OFF" />
+        <observable name="distanceToPrismBottom" value="OFF" />
+    </TRestHitsAnalysisProcess>
+    <TRestHitsAnalysisProcess name="noSmear" title="Hits analysis template" verboseLevel="silent">
+        <observable name="energy" value="ON" />
+    </TRestHitsAnalysisProcess>
+    <TRestSmearingProcess name="smear" title="Smearing template">
+        <parameter name="energyReference" value="2457.83keV" />
+        <parameter name="resolutionReference" value="4.5" />
+    </TRestSmearingProcess>
+    <TRestSmearingProcess name="smear_1FWHM" title="Smearing template">
+        <parameter name="energyReference" value="879keV" />
+        <parameter name="resolutionReference" value="5.0" />
+    </TRestSmearingProcess>
+    <TRestSmearingProcess name="smear_2FWHM" title="Smearing template">
+        <parameter name="energyReference" value="879keV" />
+        <parameter name="resolutionReference" value="5.0" />
+    </TRestSmearingProcess>
+    <TRestSmearingProcess name="smear_3FWHM" title="Smearing template">
+        <parameter name="energyReference" value="879keV" />
+        <parameter name="resolutionReference" value="5.0" />
+    </TRestSmearingProcess>
+    <TRestHitsNormalizationProcess name="hitsNorm" title="Hits normalization template">
+        <parameter name="normFactor" value="0.021917" />
+    </TRestHitsNormalizationProcess>
+    <TRestTrackAnalysisProcess name="tckAna" title="Track analysis template">
+        <observable name="nTracksXYZ" value="ON" description="Number of pure 3D-tracks (with valid XYZ-hits)." />
+        <observable name="nTrackEnergyRatio" value="ON" description="Energy ratio between track event energy excluding the main track and total track event energy." />
+        <observable name="nTracks_HE_100" value="ON" description="Number of tracks with energy higher than 100 keV." />
+        <observable name="nTracks_LE_100" value="ON" description="Number of tracks with energy lower than 100 keV." />
+        <observable name="secondTrackMaxEnergy" value="ON" description="The energy of the second most energetic track" />
+        <observable name="xMean" value="ON" />
+        <observable name="yMean" value="ON" />
+        <observable name="zMean" value="ON" />
+    </TRestTrackAnalysisProcess>
+    <TRestTrackAnalysisProcess name="tckAna_2" title="Track analysis template">
+        <observable name="nTracks_X" value="ON" description="Number of 2D-tracks (with valid XZ-hits)." />
+        <observable name="nTracks_Y" value="ON" description="Number of 2D-tracks (with valid XZ-hits)." />
+        <observable name="nTrackEnergyRatio" value="ON" description="Energy ratio between track event energy excluding the main track and total track event energy." />
+    </TRestTrackAnalysisProcess>
+    <TRestTrackAnalysisProcess name="tckVol_2D" title="Track analysis template">
+        <observable name="MaxTrackVolume_X" value="ON" description="" />
+        <observable name="MaxTrackVolume_Y" value="ON" description="" />
+    </TRestTrackAnalysisProcess>
+    <TRestTrackAnalysisProcess name="tckAnaFinal_2D" title="Track analysis template" verboseLevel="silent">
+        <observable name="xMean" value="ON" />
+        <observable name="yMean" value="ON" />
+        <observable name="zMean" value="ON" />
+        <observable name="nTracks_X" value="ON" description="Number of 2D-tracks (with valid XZ-hits)." />
+        <observable name="nTracks_Y" value="ON" description="Number of 2D-tracks (with valid YZ-hits)." />
+        <observable name="maxTrackEnergyRatio" value="ON" description="Energy ratio between secondary tracks and main track." />
+        <observable name="MaxTrackLength_X" value="ON" description="" />
+        <observable name="MaxTrackLength_Y" value="ON" description="" />
+        <observable name="secondTrackMaxEnergy_X" value="ON" description="The energy of the second most energetic track in X" />
+        <observable name="secondTrackMaxEnergy_Y" value="ON" description="The energy of the second most energetic track in Y" />
+        <observable name="MaxTrackVolume_X" value="ON" description="" />
+        <observable name="MaxTrackVolume_Y" value="ON" description="" />
+        <parameter name="enableTwistParameters" value="true" />
+        <observable name="twistLow_X_5"  value="ON" />
+        <observable name="twistLow_X_10" value="ON" />
+        <observable name="twistLow_X_15" value="ON" />
+        <observable name="twistLow_X_20" value="ON" />
+        <observable name="twistLow_X_25" value="ON" />
+        <observable name="twistLow_X_30" value="ON" />
+        <observable name="twistLow_X_35" value="ON" />
+        <observable name="twistLow_X_45" value="ON" />
+        <observable name="twistHigh_X_15" value="ON" />
+        <observable name="twistHigh_X_20" value="ON" />
+        <observable name="twistHigh_X_25" value="ON" />
+        <observable name="twistHigh_X_30" value="ON" />
+        <observable name="twistHigh_X_35" value="ON" />
+        <observable name="twistHigh_X_45" value="ON" />
+        <observable name="twistBalance_X_15" value="ON" />
+        <observable name="twistBalance_X_20" value="ON" />
+        <observable name="twistBalance_X_25" value="ON" />
+        <observable name="twistBalance_X_30" value="ON" />
+        <observable name="twistBalance_X_35" value="ON" />
+        <observable name="twistBalance_X_45" value="ON" />
+        <observable name="twistRatio_X_15" value="ON" />
+        <observable name="twistRatio_X_20" value="ON" />
+        <observable name="twistRatio_X_25" value="ON" />
+        <observable name="twistRatio_X_30" value="ON" />
+        <observable name="twistRatio_X_35" value="ON" />
+        <observable name="twistRatio_X_45" value="ON" />
+        <observable name="twistLow_Y_15" value="ON" />
+        <observable name="twistLow_Y_20" value="ON" />
+        <observable name="twistLow_Y_25" value="ON" />
+        <observable name="twistLow_Y_30" value="ON" />
+        <observable name="twistLow_Y_35" value="ON" />
+        <observable name="twistLow_Y_45" value="ON" />
+        <observable name="twistHigh_Y_15" value="ON" />
+        <observable name="twistHigh_Y_20" value="ON" />
+        <observable name="twistHigh_Y_25" value="ON" />
+        <observable name="twistHigh_Y_30" value="ON" />
+        <observable name="twistHigh_Y_35" value="ON" />
+        <observable name="twistHigh_Y_45" value="ON" />
+        <observable name="twistBalance_Y_15" value="ON" />
+        <observable name="twistBalance_Y_20" value="ON" />
+        <observable name="twistBalance_Y_25" value="ON" />
+        <observable name="twistBalance_Y_30" value="ON" />
+        <observable name="twistBalance_Y_35" value="ON" />
+        <observable name="twistBalance_Y_45" value="ON" />
+        <observable name="twistRatio_Y_15" value="ON" />
+        <observable name="twistRatio_Y_20" value="ON" />
+        <observable name="twistRatio_Y_25" value="ON" />
+        <observable name="twistRatio_Y_30" value="ON" />
+        <observable name="twistRatio_Y_35" value="ON" />
+        <observable name="twistRatio_Y_45" value="ON" />
+    </TRestTrackAnalysisProcess>
+    <TRestTriggerAnalysisProcess name="trigger" title="Trigger analysis template">
+        <observable name="Integral_Eth300" value="ON" />
+        <observable name="Integral_Eth440" value="ON" />
+        <observable name="Integral_Eth850" value="ON" />
+        <observable name="Integral_Eth1229" value="ON" />
+        <observable name="Integral_Eth1900" value="OFF" />
+        <observable name="RawIntegral" value="ON" />
+        <observable name="TriggerStarts" value="ON" />
+    </TRestTriggerAnalysisProcess>
+    <TRestFindG4Blob_nalysisProcess name="g4Blob" title="Find blobs in DBD. G4 event">
+        <observable name="x1" value="ON" />
+        <observable name="y1" value="ON" />
+        <observable name="z1" value="ON" />
+        <observable name="x2" value="ON" />
+        <observable name="y2" value="ON" />
+        <observable name="z2" value="ON" />
+        <observable name="distance" value="ON" />
+        <observable name="Q1_R5" value="ON" />
+        <observable name="Q1_R10" value="ON" />
+        <observable name="Q1_R15" value="ON" />
+        <observable name="Q1_R12" value="ON" />
+        <observable name="Q2_R5" value="ON" />
+        <observable name="Q2_R10" value="ON" />
+        <observable name="Q2_R15" value="ON" />
+        <observable name="Q2_R12" value="ON" />
+    </TRestFindG4Blob_nalysisProcess>
+    <TRestFindTrackBlob_Process name="tckBlob_2D" title="Find blobs in the longest track">
+        <observable name="x1_X" value="ON" />
+        <observable name="z1_X" value="ON" />
+        <observable name="x2_X" value="ON" />
+        <observable name="z2_X" value="ON" />
+        <observable name="y1_Y" value="ON" />
+        <observable name="z1_Y" value="ON" />
+        <observable name="y2_Y" value="ON" />
+        <observable name="z2_Y" value="ON" />
+        <observable name="Q1_X_R5" value="ON" />
+        <observable name="Q1_X_R10" value="ON" />
+        <observable name="Q1_X_R15" value="ON" />
+        <observable name="Q1_X_R20" value="ON" />
+        <observable name="Q1_Y_R5" value="ON" />
+        <observable name="Q1_Y_R10" value="ON" />
+        <observable name="Q1_Y_R15" value="ON" />
+        <observable name="Q1_Y_R20" value="ON" />
+        <observable name="Q2_X_R5" value="ON" />
+        <observable name="Q2_X_R10" value="ON" />
+        <observable name="Q2_X_R15" value="ON" />
+        <observable name="Q2_X_R20" value="ON" />
+        <observable name="Q2_Y_R5" value="ON" />
+        <observable name="Q2_Y_R10" value="ON" />
+        <observable name="Q2_Y_R15" value="ON" />
+        <observable name="Q2_Y_R20" value="ON" />
+        <observable name="Qlow_X_R4" value="ON" />
+        <observable name="Qlow_X_R6" value="ON" />
+        <observable name="Qlow_X_R8" value="ON" />
+        <observable name="Qlow_X_R10" value="ON" />
+        <observable name="Qlow_X_R12" value="ON" />
+        <observable name="Qlow_X_R14" value="ON" />
+        <observable name="Qlow_X_R16" value="ON" />
+        <observable name="Qlow_X_R18" value="ON" />
+        <observable name="Qlow_X_R20" value="ON" />
+        <observable name="Qlow_X_R22" value="ON" />
+        <observable name="Qlow_X_R24" value="ON" />
+        <observable name="Qlow_X_R26" value="ON" />
+        <observable name="Qlow_X_R28" value="ON" />
+        <observable name="Qlow_X_R30" value="ON" />
+        <observable name="Qhigh_X_R4" value="ON" />
+        <observable name="Qhigh_X_R6" value="ON" />
+        <observable name="Qhigh_X_R8" value="ON" />
+        <observable name="Qhigh_X_R10" value="ON" />
+        <observable name="Qhigh_X_R12" value="ON" />
+        <observable name="Qhigh_X_R14" value="ON" />
+        <observable name="Qhigh_X_R16" value="ON" />
+        <observable name="Qhigh_X_R18" value="ON" />
+        <observable name="Qhigh_X_R20" value="ON" />
+        <observable name="Qhigh_X_R22" value="ON" />
+        <observable name="Qhigh_X_R24" value="ON" />
+        <observable name="Qhigh_X_R26" value="ON" />
+        <observable name="Qhigh_X_R28" value="ON" />
+        <observable name="Qhigh_X_R30" value="ON" />
+        <observable name="Qlow_Y_R4" value="ON" />
+        <observable name="Qlow_Y_R6" value="ON" />
+        <observable name="Qlow_Y_R8" value="ON" />
+        <observable name="Qlow_Y_R10" value="ON" />
+        <observable name="Qlow_Y_R12" value="ON" />
+        <observable name="Qlow_Y_R14" value="ON" />
+        <observable name="Qlow_Y_R16" value="ON" />
+        <observable name="Qlow_Y_R18" value="ON" />
+        <observable name="Qlow_Y_R20" value="ON" />
+        <observable name="Qlow_Y_R22" value="ON" />
+        <observable name="Qlow_Y_R24" value="ON" />
+        <observable name="Qlow_Y_R26" value="ON" />
+        <observable name="Qlow_Y_R28" value="ON" />
+        <observable name="Qlow_Y_R30" value="ON" />
+        <observable name="Qhigh_Y_R4" value="ON" />
+        <observable name="Qhigh_Y_R6" value="ON" />
+        <observable name="Qhigh_Y_R8" value="ON" />
+        <observable name="Qhigh_Y_R10" value="ON" />
+        <observable name="Qhigh_Y_R12" value="ON" />
+        <observable name="Qhigh_Y_R14" value="ON" />
+        <observable name="Qhigh_Y_R16" value="ON" />
+        <observable name="Qhigh_Y_R18" value="ON" />
+        <observable name="Qhigh_Y_R20" value="ON" />
+        <observable name="Qhigh_Y_R22" value="ON" />
+        <observable name="Qhigh_Y_R24" value="ON" />
+        <observable name="Qhigh_Y_R26" value="ON" />
+        <observable name="Qhigh_Y_R28" value="ON" />
+        <observable name="Qhigh_Y_R30" value="ON" />
+        <observable name="Qbalance_X_R4" value="ON" />
+        <observable name="Qbalance_X_R6" value="ON" />
+        <observable name="Qbalance_X_R8" value="ON" />
+        <observable name="Qbalance_X_R10" value="ON" />
+        <observable name="Qbalance_X_R12" value="ON" />
+        <observable name="Qbalance_X_R14" value="ON" />
+        <observable name="Qbalance_X_R16" value="ON" />
+        <observable name="Qbalance_X_R18" value="ON" />
+        <observable name="Qbalance_X_R20" value="ON" />
+        <observable name="Qbalance_X_R22" value="ON" />
+        <observable name="Qbalance_X_R24" value="ON" />
+        <observable name="Qbalance_X_R26" value="ON" />
+        <observable name="Qbalance_X_R28" value="ON" />
+        <observable name="Qbalance_X_R30" value="ON" />
+        <observable name="Qratio_X_R4" value="ON" />
+        <observable name="Qratio_X_R6" value="ON" />
+        <observable name="Qratio_X_R8" value="ON" />
+        <observable name="Qratio_X_R10" value="ON" />
+        <observable name="Qratio_X_R12" value="ON" />
+        <observable name="Qratio_X_R14" value="ON" />
+        <observable name="Qratio_X_R16" value="ON" />
+        <observable name="Qratio_X_R18" value="ON" />
+        <observable name="Qratio_X_R20" value="ON" />
+        <observable name="Qratio_X_R22" value="ON" />
+        <observable name="Qratio_X_R24" value="ON" />
+        <observable name="Qratio_X_R26" value="ON" />
+        <observable name="Qratio_X_R28" value="ON" />
+        <observable name="Qratio_X_R30" value="ON" />
+        <observable name="Qbalance_Y_R4" value="ON" />
+        <observable name="Qbalance_Y_R6" value="ON" />
+        <observable name="Qbalance_Y_R8" value="ON" />
+        <observable name="Qbalance_Y_R10" value="ON" />
+        <observable name="Qbalance_Y_R12" value="ON" />
+        <observable name="Qbalance_Y_R14" value="ON" />
+        <observable name="Qbalance_Y_R16" value="ON" />
+        <observable name="Qbalance_Y_R18" value="ON" />
+        <observable name="Qbalance_Y_R20" value="ON" />
+        <observable name="Qbalance_Y_R22" value="ON" />
+        <observable name="Qbalance_Y_R24" value="ON" />
+        <observable name="Qbalance_Y_R26" value="ON" />
+        <observable name="Qbalance_Y_R28" value="ON" />
+        <observable name="Qbalance_Y_R30" value="ON" />
+        <observable name="Qratio_Y_R4" value="ON" />
+        <observable name="Qratio_Y_R6" value="ON" />
+        <observable name="Qratio_Y_R8" value="ON" />
+        <observable name="Qratio_Y_R10" value="ON" />
+        <observable name="Qratio_Y_R12" value="ON" />
+        <observable name="Qratio_Y_R14" value="ON" />
+        <observable name="Qratio_Y_R16" value="ON" />
+        <observable name="Qratio_Y_R18" value="ON" />
+        <observable name="Qratio_Y_R20" value="ON" />
+        <observable name="Qratio_Y_R22" value="ON" />
+        <observable name="Qratio_Y_R24" value="ON" />
+        <observable name="Qratio_Y_R26" value="ON" />
+        <observable name="Qratio_Y_R28" value="ON" />
+        <observable name="Qratio_Y_R30" value="ON" />
+        <parameter name="hitsToCheckFraction" value="0.25" />
+    </TRestFindTrackBlob_Process>
+    <TRestSignalZeroSuppresionProcess name="zS" title="" verboseLevel="silent">
+        <!-- This parameter is used to define the baseline calculation -->
+        <parameter name="baseLineRange" value="(50,120)" />
+        <!-- These parameters define the integral with threshold. 
+         threshold : number of baseline noise sigmas to consider a point for integration.
+         pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
+         minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
+        -->
+        <parameter name="pointThreshold" value="1.9" />
+        <parameter name="pointsOverThreshold" value="10" />
+        <parameter name="signalThreshold" value="2.8" />
+    </TRestSignalZeroSuppresionProcess>
+    <TRestRawSignalAnalysisProcess name="sAna" title="" verboseLevel="silent">
+        <!-- This parameter defines every how many seconds a signal will be drawn.
+         In case the value is zero. There will not be any drawing. -->
+        <parameter name="refreshEvery" value="1" />
+        <!-- This parameter is used to define the baseline calculation -->
+        <parameter name="baseLineRange" value="(50,120)" />
+        <!-- This parameter is used to define the signal integration window -->
+        <parameter name="integralRange" value="(40,472)" />
+        <!-- These parameters define the integral with threshold. 
+         threshold : number of baseline noise sigmas to consider a point for integration.
+         pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
+         minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
+        -->
+        <parameter name="pointThreshold" value="1.9" />
+        <parameter name="pointsOverThreshold" value="10" />
+        <parameter name="signalThreshold" value="2.8" />
+        <!-- ++++++++++++++++++++++
+         Observable definitions
+         ++++++++++++++++++++++ -->
+        <!-- This observable needs to be refined 
+    <observable name="TimeBinsLength" value="ON" />
+-->
+        <!-- Event time observables -->
+        <observable name="SecondsFromStart" value="ON" />
+        <observable name="HoursFromStart" value="ON" />
+        <observable name="MeanRate_InHz" value="ON" />
+        <observable name="EventTimeDelay" value="ON" />
+        <!-- The numbers of signals that are found inside the event -->
+        <observable name="NumberOfSignals" value="ON" />
+        <!-- Number of signals after noisy signals reduction -->
+        <observable name="NumberOfGoodSignals" value="ON" />
+        <!-- The baseline average of the signals -->
+        <observable name="BaseLineMean" value="ON" />
+        <!-- The baseline sigma average of each independent signal -->
+        <observable name="BaseLineSigmaMean" value="ON" />
+    </TRestRawSignalAnalysisProcess>
+    <!-- The full signal integral in the integralRange -->
+    <TRestAvalancheProcess name="NLDBD" title="1PctGain">
+        <parameter name="energyReference" value="2458keV" />
+        <parameter name="resolutionReference" value="1" />
+        <parameter name="detectorGain" value="1" />
+    </TRestAvalancheProcess>
+    <TRestSignalShapingProcess name="signalShapingProcess" title="Test SignalShaping">
+        <parameter name="responseFile" value="AGET_Response_12.5MHz_Gain0x1_Shaping0x4.root" />//response file to be used to shape the signal
+    </TRestSignalShapingProcess>
+    <TRestG4toHitsProcess name="G4ToHits" title="G4Hits to Hits process" />
+    <bambooToRESTProcess name="bambooToREST" title="A process reading bamboo files">
+        <!-- Rotation parameter in degrees. It will rotate the original coordinates 
+         in the following order RotateX -> RotateY -> RotateZ -->
+        <parameter name="rotation" value="(90,0,0)" />
+    </bambooToRESTProcess>
+    <TRestHitsAnalysisProcess name="bambooAna" title="A Hits analysis from bamboo data.">
+        <observable name="energy" value="ON" />
+        <observable name="xMean" value="ON" />
+        <observable name="yMean" value="ON" />
+        <observable name="zMean" value="ON" />
+    </TRestHitsAnalysisProcess>
+    <TRestTrackDetachIsolatedNodesProcess name="detach" title="Detaching process" verboseLevel="silent" />
+    <TRestTrackLinearizationProcess name="tckLin_2D" title="A track linearization process." verboseLevel="silent">
+        <observable name="coverage_X" value="ON" />
+        <observable name="coverage_Y" value="ON" />
+        <observable name="dEdx_low_X" value="ON" />
+        <observable name="dEdx_high_X" value="ON" />
+        <observable name="dEdx_middle_X" value="ON" />
+        <observable name="dEdx_low_Y" value="ON" />
+        <observable name="dEdx_high_Y" value="ON" />
+        <observable name="dEdx_middle_Y" value="ON" />
+        <observable name="dEdx_Max_low_X" value="ON" />
+        <observable name="dEdx_Max_high_X" value="ON" />
+        <observable name="dEdx_Max_middle_X" value="ON" />
+        <observable name="dEdx_Max_low_Y" value="ON" />
+        <observable name="dEdx_Max_high_Y" value="ON" />
+        <observable name="dEdx_Max_middle_Y" value="ON" />
+        <observable name="Q_low_X" value="ON" />
+        <observable name="Q_high_X" value="ON" />
+        <observable name="Q_middle_X" value="ON" />
+        <observable name="Q_low_Y" value="ON" />
+        <observable name="Q_high_Y" value="ON" />
+        <observable name="Q_middle_Y" value="ON" />
+        <observable name="Q_Peak_low_X" value="ON" />
+        <observable name="Q_Peak_high_X" value="ON" />
+        <observable name="Q_Peak_middle_X" value="ON" />
+        <observable name="Q_Peak_low_Y" value="ON" />
+        <observable name="Q_Peak_high_Y" value="ON" />
+        <observable name="Q_Peak_middle_Y" value="ON" />
+        <observable name="transDiff_X" value="ON" />
+        <observable name="transDiff_Y" value="ON" />
+    </TRestTrackLinearizationProcess>
+    <TRestTrackDrawMarkersProcess name="draw" title="A track drawing process.">
+        <parameter name="canvasSizeX" value="1000" />
+        <parameter name="canvasSizeY" value="800" />
+        <addMarker x="g4Blob_x1" y="g4Blob_z1" style="4" size="6" color="1" pad="1" />
+        <addMarker x="g4Blob_x2" y="g4Blob_z2" style="4" size="6" color="1" pad="1" />
+        <addMarker x="g4Blob_x1" y="g4Blob_z1" style="29" size="2" color="1" pad="1" />
+        <addMarker x="g4Blob_x2" y="g4Blob_z2" style="29" size="2" color="1" pad="1" />
+        <addMarker x="g4Blob_y1" y="g4Blob_z1" style="4" size="6" color="1" pad="2" />
+        <addMarker x="g4Blob_y2" y="g4Blob_z2" style="4" size="6" color="1" pad="2" />
+        <addMarker x="g4Blob_y1" y="g4Blob_z1" style="29" size="2" color="1" pad="2" />
+        <addMarker x="g4Blob_y2" y="g4Blob_z2" style="29" size="2" color="1" pad="2" />
+        <addMarker x="g4Blob_x1" y="g4Blob_y1" style="4" size="6" color="1" pad="3" />
+        <addMarker x="g4Blob_x2" y="g4Blob_y2" style="4" size="6" color="1" pad="3" />
+        <addMarker x="g4Blob_x1" y="g4Blob_y1" style="29" size="2" color="1" pad="3" />
+        <addMarker x="g4Blob_x2" y="g4Blob_y2" style="29" size="2" color="1" pad="3" />
+        <addMarker x="tckBlob_2D_x1_X" y="tckBlob_2D_z1_X" style="4" size="12" color="4" pad="1" />
+        <addMarker x="tckBlob_2D_x2_X" y="tckBlob_2D_z2_X" style="4" size="12" color="4" pad="1" />
+        <addMarker x="tckBlob_2D_x1_X" y="tckBlob_2D_z1_X" style="5" size="10" color="4" pad="1" />
+        <addMarker x="tckBlob_2D_x2_X" y="tckBlob_2D_z2_X" style="5" size="10" color="4" pad="1" />
+        <addMarker x="tckBlob_2D_y1_Y" y="tckBlob_2D_z1_Y" style="4" size="12" color="4" pad="2" />
+        <addMarker x="tckBlob_2D_y2_Y" y="tckBlob_2D_z2_Y" style="4" size="12" color="4" pad="2" />
+        <addMarker x="tckBlob_2D_y1_Y" y="tckBlob_2D_z1_Y" style="5" size="10" color="4" pad="2" />
+        <addMarker x="tckBlob_2D_y2_Y" y="tckBlob_2D_z2_Y" style="5" size="10" color="4" pad="2" />
+        <addMarker x="tckBlob_2D_x1" y="tckBlob_2D_y1" style="25" size="12" color="4" pad="3" />
+        <addMarker x="tckBlob_2D_x2" y="tckBlob_2D_y2" style="25" size="12" color="4" pad="3" />
+        <addMarker x="tckBlob_2D_x1" y="tckBlob_2D_y1" style="30" size="12" color="4" pad="3" />
+        <addMarker x="tckBlob_2D_x2" y="tckBlob_2D_y2" style="30" size="12" color="4" pad="3" />
+    </TRestTrackDrawMarkersProcess>
+</processes>

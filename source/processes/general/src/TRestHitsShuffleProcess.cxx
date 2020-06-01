@@ -42,7 +42,7 @@ void TRestHitsShuffleProcess::Initialize() {
 
     fHitsEvent = NULL;
 
-    fRandom = new TRandom3(0);
+    fRandom = NULL;
 }
 
 void TRestHitsShuffleProcess::LoadConfig(std::string cfgFilename, std::string name) {
@@ -76,4 +76,5 @@ void TRestHitsShuffleProcess::EndProcess() {}
 //______________________________________________________________________________
 void TRestHitsShuffleProcess::InitFromConfigFile() {
     fIterations = StringToInteger(GetParameter("iterations"));
+    fRandom = new TRandom3(StringToDouble(GetParameter("seed", "0")));
 }

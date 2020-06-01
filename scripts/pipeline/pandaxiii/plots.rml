@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<TRestManager name="SpecPlot" title="Example" verboseLevel="info" >
+
+  <TRestRun name="SJTU_Proto" >
+    <parameter name="runNumber" value="-1"/>//change this value to "auto" to enable database
+    <parameter name="outputFile" value="null"/>//change this value to "auto" to enable database
+  </TRestRun>
+
+  <TRestAnalysisPlot name="restplot" title="Basic Plots">
+
+    <if condition="${USER}==test">
+      <parameter name="previewPlot" value="false"/>
+    </if>
+    <parameter name="previewPlot" value="true"/>
+
+    <canvas size="(1000,800)" divide="(1,2)" save="trackParameter.png"/>
+
+    <plot name="tckBlob" title="energy of track blobs" 
+          xlabel="Blob Energy" ylabel="Counts" logscale="false"
+          legend="on">
+
+      <histo name="lower energy blob, XZ">
+        <variable name="tckBlob_2D_Qlow_X_R20" nbins="100" />
+        <parameter name="lineColor" value="1"/>
+        <parameter name="lineColor" value="1"/>
+      </histo>
+
+      <histo name="lower energy blob, YZ">
+        <variable name="tckBlob_2D_Qlow_Y_R20" nbins="100" />
+        <parameter name="lineColor" value="2"/>
+      </histo>
+
+      <histo name="higher energy blob, XZ">
+        <variable name="tckBlob_2D_Qhigh_X_R20" nbins="100" />
+        <parameter name="lineColor" value="3"/>
+      </histo>
+
+      <histo name="higher energy blob, YZ">
+        <variable name="tckBlob_2D_Qhigh_Y_R20" nbins="100" />
+        <parameter name="lineColor" value="4"/>
+      </histo>
+    </plot>
+
+    <plot name="tckTwist" title="twist parameter of track ending"
+      xlabel="twist" ylabel="Counts" logscale="true"
+      legend="on">
+
+      <histo name="lower energy twist, XZ">
+        <variable name="tckAnaFinal_2D_twistLow_X_20" nbins="100" range="(0,1)"/>
+        <parameter name="lineColor" value="1"/>
+      </histo>
+
+      <histo name="lower energy twist, YZ">
+        <variable name="tckAnaFinal_2D_twistLow_Y_20" nbins="100" />
+        <parameter name="lineColor" value="2"/>
+      </histo>
+
+      <histo name="higher energy twist, XZ">
+        <variable name="tckAnaFinal_2D_twistHigh_X_20" nbins="100" />
+        <parameter name="lineColor" value="3"/>
+      </histo>
+
+      <histo name="higher energy twist, YZ">
+        <variable name="tckAnaFinal_2D_twistHigh_Y_20" nbins="100" />
+        <parameter name="lineColor" value="3"/>
+      </histo>
+    </plot>
+    
+  </TRestAnalysisPlot>
+
+  <addTask command="restplot->PlotCombinedCanvas()" value="ON"/>
+
+</TRestManager>
+
+
+<!--paramater here is accessible to all the classes-->

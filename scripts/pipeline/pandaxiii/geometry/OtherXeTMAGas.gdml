@@ -1,0 +1,35 @@
+<tube name="OtherXeTMAGasSolid_1" startphi="0" deltaphi="360" rmin="0" rmax="FieldCageOuterRadius" z="FieldCageLength+2*AcrylicCoverLength" aunit="deg" lunit="mm" />
+
+<subtraction name="OtherXeTMAGasSolid_2">
+    <first ref="OtherXeTMAGasSolid_1"/>
+    <second ref="AcrylicPartSolid"/>
+</subtraction>
+
+<subtraction name="OtherXeTMAGasSolid_3">
+    <first ref="OtherXeTMAGasSolid_2"/>
+    <second ref="CopperRingsSolid"/>
+</subtraction>
+
+<subtraction name="OtherXeTMAGasSolid_4">
+    <first ref="OtherXeTMAGasSolid_3"/>
+    <second ref="CathodeSolid"/>
+    <positionref ref="CathodePosition" />
+</subtraction>
+
+<subtraction name="OtherXeTMAGasSolid_5">
+    <first ref="OtherXeTMAGasSolid_4"/>
+    <second ref="MMSolid"/>
+    <positionref ref="MMPosition" />
+</subtraction>
+
+<subtraction name="OtherXeTMAGasSolid_6">
+    <first ref="OtherXeTMAGasSolid_5"/>
+    <second ref="XeTMAGasSolid"/>
+</subtraction>
+
+<subtraction name="OtherXeTMAGasSolid">
+    <first ref="OtherXeTMAGasSolid_6"/>
+    <second ref="ResistanceSolid"/>
+    <positionref ref="ResistancePosition" />
+</subtraction>
+
