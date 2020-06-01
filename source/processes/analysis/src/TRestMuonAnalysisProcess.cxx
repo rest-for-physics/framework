@@ -455,7 +455,7 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
                     iter++;
                 }
             }
-
+            info << " id : " << fAnaEvent->GetID();
             info << endl;
         }
     }
@@ -465,6 +465,8 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
 TRest2DHitsEvent* TRestMuonAnalysisProcess::MakeTag() {
     double zlen = fAnaEvent->GetZRange().Y() - fAnaEvent->GetZRange().X();
+    double xlen = fAnaEvent->GetXRange().Y() - fAnaEvent->GetXRange().X();
+    double ylen = fAnaEvent->GetYRange().Y() - fAnaEvent->GetYRange().X();
 
     if (fAnaEvent->GetSubEventTag() == "general")  // if no tags
     {
@@ -473,7 +475,12 @@ TRest2DHitsEvent* TRestMuonAnalysisProcess::MakeTag() {
         {
             fAnaEvent->SetSubEventTag("weak");
         }
-        if (TMath::IsNaN(zlen) || fAnaEvent->GetZRange().X() > 100)
+        if (zlen < 50 && xlen + ylen < 30)
+        // 1. tag low count event from source
+        {
+            fAnaEvent->SetSubEventTag("weak");
+        }
+        if (TMath::IsNaN(zlen) || fAnaEvent->GetZRange().X() > 200)
         // 2. tag abnormal event from source
         {
             fAnaEvent->SetSubEventTag("abnormal");
