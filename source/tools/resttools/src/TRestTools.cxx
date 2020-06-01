@@ -97,7 +97,7 @@ struct _REST_STARTUP_CHECK {
             }
             // check the dataURL file
             if (!TRestTools::fileExists(restUserPath + "/dataURL")) {
-                TRestTools::Execute("cp " + REST_PATH + "/data/dataURL " + restUserPath);
+                TRestTools::Execute("cp " + REST_PATH + "/data/dataURL " + restUserPath + "/");
             }
             // check the download directory
             if (!TRestTools::fileExists(restUserPath + "/download")) {
