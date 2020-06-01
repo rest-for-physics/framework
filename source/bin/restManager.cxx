@@ -69,6 +69,9 @@ void ParseInputFileArgs(const char* argv) {
     }
 }
 
+// Note!
+// Don't use cout in the main function!
+// This will make cout un-usable in the Macros!
 int main(int argc, char* argv[]) {
     // global envs
     setenv("REST_VERSION", REST_RELEASE, 1);
@@ -89,13 +92,13 @@ int main(int argc, char* argv[]) {
         // handle special arguments like "--batch"
         for (int i = 1; i < args.size(); i++) {
             if (args[i] == "--batch") {
-                cout << "you are in batch mode, all displays off" << endl;
+                fout << "you are in batch mode, all displays off" << endl;
                 argCApp = 2;
                 args.erase(args.begin() + i);
             }
         }
         if (fout.CompatibilityMode()) {
-            cout << "you are in batch mode, all displays off" << endl;
+            fout << "you are in batch mode, all displays off" << endl;
             argCApp = 2;
         }
     }
