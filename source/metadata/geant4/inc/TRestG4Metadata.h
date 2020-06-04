@@ -52,7 +52,7 @@ namespace g4_metadata_parameters {
 string CleanString(string);
 
 enum class generator_types {
-    FILE,
+    CUSTOM,
     VOLUME,
     SURFACE,
     POINT,
