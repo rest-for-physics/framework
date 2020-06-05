@@ -73,7 +73,7 @@ class TRestEventProcess : public TRestMetadata {
     bool fDynamicObs = false;  //!
 
     /// It defines if observable names should be added to the validation list
-    bool fValidateObservables = false;
+    bool fValidateObservables = false;  //!
 
     map<string, int> fObservableForValidation;  //!     [name, id in AnalysisTree]
 
