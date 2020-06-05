@@ -67,14 +67,21 @@ build:
       - ${CI_PROJECT_DIR}/install
     expire_in: 1 day
 
-
-
 loadRESTLibs:
   type: install
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - root -b -q ${CI_PROJECT_DIR}/scripts/pipeline/loadLibraries.C
     - restRoot -b -q
+  except:
+      variables:
+        - $CRONJOB
+
+listRESTMacros:
+  type: install
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - restManager ListMacros
   except:
       variables:
         - $CRONJOB
@@ -155,7 +162,6 @@ pandaXIII_MC:
   except:
       variables:
         - $CRONJOB
-
 
 deploy:
   type: deploy
