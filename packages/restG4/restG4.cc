@@ -97,6 +97,24 @@ int main(int argc, char** argv) {
     // {{{ Initializing REST classes
     restG4Metadata = new TRestG4Metadata(inputConfigFile, (string)restG4Name);
 
+    // We need to process and generate a new GDML for several reasons.
+    // 1. ROOT6 has a bug loading math expressions in gdml file
+    // 2. We allow file entities to be http remote files
+    // 3. We retrieve the GDML and materials versions and associate to the
+    // corresponding TRestG4Metadata members
+    GdmlPreprocessor* gdml = new GdmlPreprocessor();
+
+    // This call will generate a new single file GDML output
+    gdml->Load((string)restG4Metadata->Get_GDML_Filename());
+
+    // We redefine the value of the GDML file to be used in DetectorConstructor.
+    // This value is not anymore registed/written to disk inside TRestG4Metadata.
+    restG4Metadata->Set_GDML_Filename(gdml->GetOutputGDMLFile());
+    restG4Metadata->SetGeometryPath("");
+
+    restG4Metadata->Set_GDML_Reference(gdml->GetGDMLVersion());
+    restG4Metadata->SetMaterialsReference(gdml->GetEntityVersion("materials"));
+
     std::string g4Version = TRestTools::Execute("geant4-config --version");
     restG4Metadata->SetGeant4Version(g4Version);
 
@@ -440,13 +458,7 @@ throw std::exception();
         TFile* f1 = new TFile(Filename, "update");
         cout << "Writing geometry..." << endl;
 
-        // making a temporary file for ROOT to load. ROOT6 has a bug loading math
-        // expressions in gdml file system(("cp " +
-        // (string)restG4Metadata->Get_GDML_Filename() + " " +
-        // (string)restG4Metadata->Get_GDML_Filename() + "_").c_str());
-        GdmlPreprocessor* p = new GdmlPreprocessor();
-        p->Load((string)restG4Metadata->Get_GDML_Filename());
-        TGeoManager* geo2 = p->CreateGeoM();
+        TGeoManager* geo2 = gdml->CreateGeoM();
 
         f1->cd();
         geo2->SetName("Geometry");
