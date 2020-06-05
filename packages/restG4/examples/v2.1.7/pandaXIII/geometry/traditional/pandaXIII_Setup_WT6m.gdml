@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- ##VERSION PandaX-III - Traditional. WaterTank 6m - Version 2.1.7## -->
 
 <!DOCTYPE gdml [
-<!ENTITY materials SYSTEM "materials.xml">
+<!ENTITY materials SYSTEM "https://sultan.unizar.es/definitions/materials.xml">
 <!ENTITY solids SYSTEM "pandaXIII_Geometry.gdml">
 ]>
 
