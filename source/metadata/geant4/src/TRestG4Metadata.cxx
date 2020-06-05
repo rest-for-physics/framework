@@ -959,7 +959,7 @@ void TRestG4Metadata::ReadStorage() {
     GdmlPreprocessor* preprocesor = new GdmlPreprocessor();
     preprocesor->Load((string)Get_GDML_Filename());
 
-    TGeoManager::Import(Get_GDML_Filename() + "_");
+    TGeoManager::Import((TString)preprocesor->GetOutputGDMLFile());
     std::set<std::string> geometryVolumes = {"World_PV"};  // we include the world volume
     for (auto node : gGeoManager->GetTopVolume()->GetNodes()[0]) {
         string name = node->GetName();
