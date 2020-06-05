@@ -652,7 +652,7 @@ string CleanString(string s) {
 }
 
 std::map<string, generator_types> generator_types_map = {
-    {CleanString("file"), generator_types::FILE},
+    {CleanString("custom"), generator_types::CUSTOM},
     {CleanString("volume"), generator_types::VOLUME},
     {CleanString("surface"), generator_types::SURFACE},
     {CleanString("point"), generator_types::POINT},
@@ -922,6 +922,8 @@ void TRestG4Metadata::ReadGenerator() {
                 particleCollection->SetParticleModel(sourceString);
                 fPrimaryGenerator.AddParticleCollection(particleCollection);
                 fPrimaryGenerator.UpdateSourcesFromParticleCollection(0);
+
+                fGenType = "custom";
             }
         }
     }

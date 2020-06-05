@@ -81,7 +81,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* geant4_event) {
     if (nCollections > 0) {
         Int_t rndCollection;
         if (generator_type ==
-            g4_metadata_parameters::generator_types::FILE) {  // Generator type "file": no randomisation
+            g4_metadata_parameters::generator_types::CUSTOM) {  // Generator type "file": no randomisation
             static int nEvts = 0;
             rndCollection = nEvts++;
         } else
@@ -92,12 +92,13 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* geant4_event) {
 
     Int_t nParticles = restG4Metadata->GetNumberOfPrimaries();
 
-    if (generator_type != g4_metadata_parameters::generator_types::FILE)  // Except for generator "file"...
+    if (generator_type !=
+        g4_metadata_parameters::generator_types::CUSTOM)  // Except for generator "custom"...
         // ...Position is common for all particles
         SetParticlePosition();
 
     for (int j = 0; j < nParticles; j++) {
-        if (generator_type == g4_metadata_parameters::generator_types::FILE)  // Generator type "file"...
+        if (generator_type == g4_metadata_parameters::generator_types::CUSTOM)  // Generator type "custom"...
             // ...Get position from particle collection
             SetParticlePosition(j);
 
