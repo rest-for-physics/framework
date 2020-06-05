@@ -302,6 +302,9 @@ class TRestG4Metadata : public TRestMetadata {
     /// Sets the number of events to be simulated.
     void SetNEvents(Int_t n) { fNEvents = n; }
 
+    /// It sets the main filename to be used for the GDML geometry
+    void Set_GDML_Filename(string gdmlFile) { fGDML_Filename = gdmlFile; }
+
     /// Returns the number of events to be simulated.
     Int_t GetNumberOfEvents() { return fNEvents; }
     ///////////////////////////////////////////////////////////
