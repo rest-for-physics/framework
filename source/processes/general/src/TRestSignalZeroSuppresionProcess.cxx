@@ -176,11 +176,26 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent(TRestEvent* evInput) 
 
     Double_t totalIntegral = 0;
     Double_t rejectedSignal = 0;
+    int totoalflatN = 0;
+    map<int, int> flattailmap;  // signal id --> number of points in abnormal flat tail
     for (int n = 0; n < numberOfSignals; n++) {
         TRestRawSignal* s = fRawSignalEvent->GetSignal(n);
 
+        int Nbefore;
+        if (fNPointsFlatThreshold!=512) {
+            s->InitializePointsOverThreshold(TVector2(fPointThreshold, fSignalThreshold),
+                                             fNPointsOverThreshold, 512);
+            Nbefore = s->GetPointsOverThreshold().size();
+        }
         s->InitializePointsOverThreshold(TVector2(fPointThreshold, fSignalThreshold), fNPointsOverThreshold,
                                          fNPointsFlatThreshold);
+
+        int Nafter = s->GetPointsOverThreshold().size();
+        //cout << fRawSignalEvent->GetID() << " " << s->GetID() << " " << Nbefore << " " << Nafter << endl;
+        if (Nafter !=Nbefore) {
+            flattailmap[s->GetID()] = Nbefore - Nafter;
+            totoalflatN += Nbefore - Nafter;
+        }
 
         TRestSignal sgn;
         sgn.SetID(s->GetID());
@@ -202,6 +217,11 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent(TRestEvent* evInput) 
             fSignalEvent->PrintEvent();
         }
     }
+
+    SetObservableValue("flattail_map", flattailmap);
+    SetObservableValue("FlatTails", totoalflatN);
+    SetObservableValue("NFlatTailSignals", (int)flattailmap.size());
+    SetObservableValue("NSignalsRejected", rejectedSignal);
 
     debug << "TRestSignalZeroSuppresionProcess. Signals added : " << fSignalEvent->GetNumberOfSignals()
           << endl;
