@@ -106,10 +106,16 @@ class TRestG4Metadata : public TRestMetadata {
     TString fGeant4Version;
 
     /// The local path to the GDML geometry
-    TString fGeometryPath;
+    TString fGeometryPath;  //!
 
     /// The filename of the GDML geometry
-    TString fGDML_Filename;
+    TString fGDML_Filename;  //!
+
+    /// A GDML geometry reference introduced in the header of the GDML main setup
+    TString fGDML_Reference;
+
+    /// A GDML materials reference introduced in the header of the GDML of materials definition
+    TString fMaterialsReference;
 
     /// Type of spatial generator (surface, volume, point, virtualWall, etc)
     TString fGenType;
@@ -204,6 +210,12 @@ class TRestG4Metadata : public TRestMetadata {
 
     /// Returns the main filename of the GDML geometry
     TString Get_GDML_Filename() { return fGDML_Filename; }
+
+    /// Returns the reference provided at the GDML file header
+    TString Get_GDML_Reference() { return fGDML_Reference; }
+
+    /// Returns the reference provided at the materials file header
+    TString GetMaterialsReference() { return fMaterialsReference; }
 
     /// \brief Returns a string specifying the generator type (volume, surface, point,
     /// virtualWall, etc )
@@ -302,6 +314,18 @@ class TRestG4Metadata : public TRestMetadata {
     /// Sets the number of events to be simulated.
     void SetNEvents(Int_t n) { fNEvents = n; }
 
+    /// It sets the location of the geometry files
+    void SetGeometryPath(string path) { fGeometryPath = path; }
+
+    /// It sets the main filename to be used for the GDML geometry
+    void Set_GDML_Filename(string gdmlFile) { fGDML_Filename = gdmlFile; }
+
+    /// Returns the reference provided at the GDML file header
+    void Set_GDML_Reference(string reference) { fGDML_Reference = reference; }
+
+    /// Returns the reference provided at the materials file header
+    void SetMaterialsReference(string reference) { fMaterialsReference = reference; }
+
     /// Returns the number of events to be simulated.
     Int_t GetNumberOfEvents() { return fNEvents; }
     ///////////////////////////////////////////////////////////
@@ -391,6 +415,6 @@ class TRestG4Metadata : public TRestMetadata {
 
     ~TRestG4Metadata();
 
-    ClassDef(TRestG4Metadata, 4);
+    ClassDef(TRestG4Metadata, 5);
 };
 #endif  // RestCore_TRestG4Metadata
