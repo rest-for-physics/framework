@@ -227,6 +227,6 @@ void TRestElectronDiffusionProcess::InitFromConfigFile() {
         warning << "transversalDiffusionCoeffient is now OBSOLETE! It will soon dissapear." << endl;
         warning << " Please use the shorter form of this parameter : transDiff" << endl;
     }
-    fMaxHits = StringToInteger(GetParameter("maxHits", "0"));
+    fMaxHits = StringToInteger(GetParameter("maxHits", "1000"));
     fRandom = new TRandom3(StringToDouble(GetParameter("seed", "0")));
 }
