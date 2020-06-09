@@ -22,14 +22,52 @@
 
 //////////////////////////////////////////////////////////////////////////
 /// The TRestSignalZeroSuppresionProcess identifies the points that are over
-/// threshold from a TRestRawSignalEvent. The resulting points will be
-/// transported to a TRestSignalEvent that will be returned as output event
-/// type of this process. The data points at TRestSignalEvent will be
-/// attributed physical time units related to the sampling rate of the raw
-/// signal received as input.
+/// threshold from the input TRestRawSignalEvent. The resulting points, that
+/// are presumed to be a physical signal, will be transported to the output
+/// TRestSignalEvent returned by this process. The data points transferred to
+/// the output TRestSignalEvent will have physical time units related to the
+/// sampling rate of the raw signal received as input, and defined as a
+/// parameter in this process.
 ///
-/// TODO Write more details here, input parameters, conditions, etc.
+/// The different parameters required by this process are:
+/// * baselineRange : A 2D-vector definning the range, in number of bins,
+/// where the baseline properties will be calculated.
+/// * integralRange : A 2D-vector definning the time window, in number of bins,
+/// where the signal will be considered.
+/// * pointThreshold : The number of sigmas over the baseline flunctuations to
+/// consider a point is over the threshold.
+/// * pointsOverThreshold : The number of consecutive points over threshold
+/// required to consider them as a physical signal.
+/// * signalThreshold : The number of sigmas a set of consecutive points
+/// identified over threshold must be over the baseline fluctuations to be
+/// finally considered a physical signal.
+/// * pointsFlatThreshold : A parameter to help removing the un-physical or
+/// un-expected tail that follows the physical signal. \TODO more details?
+/// * sampling : The time duration of a time bin from the input TRestRawSignalEvent.
+/// If no units are specified, the default units, microseconds, will be
+/// considered.
 ///
+/// \TODO Add description of observables here.
+///
+///
+/// An example of definition of this process inside a data processing chain,
+/// inside the `<TRestProcessRunner>` section.
+///
+/// The values given between `${}` are enviroment variables that can be defined
+/// at the system or at the `<globals>` section. See also TRestMetadata for
+/// additional details.
+///
+/// \code
+///   <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON"
+///               baseLineRange="(${BL_MIN},${BL_MAX})"
+///               integralRange="(${INT_MIN},${INT_MAX})"
+///               pointThreshold="${POINT_TH}"
+///               pointsOverThreshold="${NPOINTS}"
+///               sampling="${SAMPLING}"
+///               signalThreshold="${SGNL_TH}"
+///               observable="all"
+///               verboseLevel="silent"   />
+/// \endcode
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -41,7 +79,7 @@
 /// process.
 ///               Javier Galan
 ///
-/// \class      TRestSignalZeroSuppresion
+/// \class      TRestSignalZeroSuppresionProcess
 /// \author     Javier Galan
 /// \author     Kaixiang Ni
 ///
@@ -182,7 +220,7 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent(TRestEvent* evInput) 
         TRestRawSignal* s = fRawSignalEvent->GetSignal(n);
 
         int Nbefore;
-        if (fNPointsFlatThreshold!=512) {
+        if (fNPointsFlatThreshold != 512) {
             s->InitializePointsOverThreshold(TVector2(fPointThreshold, fSignalThreshold),
                                              fNPointsOverThreshold, 512);
             Nbefore = s->GetPointsOverThreshold().size();
@@ -191,8 +229,8 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent(TRestEvent* evInput) 
                                          fNPointsFlatThreshold);
 
         int Nafter = s->GetPointsOverThreshold().size();
-        //cout << fRawSignalEvent->GetID() << " " << s->GetID() << " " << Nbefore << " " << Nafter << endl;
-        if (Nafter !=Nbefore) {
+        // cout << fRawSignalEvent->GetID() << " " << s->GetID() << " " << Nbefore << " " << Nafter << endl;
+        if (Nafter != Nbefore) {
             flattailmap[s->GetID()] = Nbefore - Nafter;
             totoalflatN += Nbefore - Nafter;
         }
