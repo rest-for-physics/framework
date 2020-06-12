@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<!-- ##VERSION REST Example 01.NLDBD Version 1.0## -->
 
 <!DOCTYPE gdml [
 <!ENTITY geometry SYSTEM "myGeometryTemplate.gdml">
-<!ENTITY materials SYSTEM "materials.xml">
+<!ENTITY materials SYSTEM "https://sultan.unizar.es/definitions/materials.xml">
 ]>
 
 <gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">

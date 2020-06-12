@@ -20,7 +20,6 @@
 			pointsOverThreshold="${NPOINTS}"
 			sampling="${SAMPLING}"
 			signalThreshold="${SGNL_TH}"
-			observable="all"
 			verboseLevel="silent"	/>
 
 		<addProcess type="TRestSignalChannelActivityProcess" name="chActivity" value="ON" verboseLevel="info" observable="all" >

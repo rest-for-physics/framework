@@ -31,9 +31,9 @@ Int_t Validate(string fname) {
         return 4;
     }
 
-    if (run->GetEntries() != 100) {
+    if (run->GetEntries() != 10) {
         cout << "Run entries : " << run->GetEntries() << endl;
-        cout << "The NLDBD simulation is launched from gas. It should always generate 100 events." << endl;
+        cout << "The NLDBD simulation is launched from gas. It should always generate 10 events." << endl;
         return 5;
     }
 
@@ -50,6 +50,45 @@ Int_t Validate(string fname) {
         return 7;
     }
 
+    TRestG4Event* ev = (TRestG4Event*)run->GetInputEvent();
+    run->GetEntry(9);
+    cout << "Total energy : " << ev->GetTotalDepositedEnergy() << endl;
+    Int_t en = (Int_t)(100 * ev->GetTotalDepositedEnergy());
+    if (en != 245700) {
+        cout << "Error in total energy" << endl;
+        return 8;
+    }
+
+    cout << "Sensitive volume energy : " << ev->GetSensitiveVolumeEnergy() << endl;
+    en = (Int_t)(100 * ev->GetSensitiveVolumeEnergy());
+    if (en != 245700) {
+        cout << "Error in total energy" << endl;
+        return 9;
+    }
+
+    cout << "Number of hits : " << ev->GetNumberOfHits() << endl;
+    if (ev->GetNumberOfHits() != 117) {
+        cout << "Error in the number of hits" << endl;
+        return 10;
+    }
+
+    cout << "Number of tracks : " << ev->GetNumberOfTracks() << endl;
+    if (ev->GetNumberOfTracks() != 19) {
+        cout << "Error in the number of tracks" << endl;
+        return 11;
+    }
+
+    Int_t X = (Int_t)(100 * ev->GetMeanPositionInVolume(0).X());
+    Int_t Y = (Int_t)(100 * ev->GetMeanPositionInVolume(0).Y());
+    Int_t Z = (Int_t)(100 * ev->GetMeanPositionInVolume(0).Z());
+
+    cout << "x: " << X << " y: " << Y << " z: " << Z << endl;
+    if (X != -65638 || Y != 4561 || Z != 4267) {
+        cout << "Error in the event mean position" << endl;
+        return 12;
+    }
+
+    cout << "All tests passed! [\033[32mOK\033[0m]\n";
     // Other tests like opening other metadata classes. Detector TGeoManager, etc.
 
     return 0;

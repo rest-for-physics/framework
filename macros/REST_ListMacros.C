@@ -13,8 +13,7 @@ Int_t REST_ListMacros() {
     vector<string> directories = TRestTools::GetSubdirectories(macrosPath);
 
     for (int n = 0; n < directories.size(); n++) {
-        // cout << "Directory : " << directories[n] << endl;
-        cout << " Directory : " << TRestTools::SeparatePathAndName(directories[n]).second << endl;
+        cout << "Directory : " << directories[n] << endl;
         if (directories[n].find("pipeline") != string::npos) continue;
         if (directories[n].find("/macros/mac/") != string::npos) continue;
         vector<string> files = TRestTools::GetFilesMatchingPattern(directories[n] + "/REST_*.C");

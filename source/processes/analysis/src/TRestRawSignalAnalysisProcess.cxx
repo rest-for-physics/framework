@@ -276,13 +276,14 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     // Double_t ampeve_intmethod;
     map<int, Double_t> risetime;
     // Double_t risetimemean;
+    map<int, Double_t> npointsot;
 
     baseline.clear();
     baselinesigma.clear();
     ampsgn_maxmethod.clear();
     ampsgn_intmethod.clear();
     risetime.clear();
-
+    npointsot.clear();
     /*
 baselinemean = 0;
 baselinesigmamean = 0;
@@ -324,6 +325,7 @@ Double_t _risetime = sgnl->GetRiseTime(); */
         ampsgn_intmethod[sgnl->GetID()] = sgnl->GetThresholdIntegral();
         ampsgn_maxmethod[sgnl->GetID()] = sgnl->GetMaxPeakValue();
         risetime[sgnl->GetID()] = sgnl->GetRiseTime();
+        npointsot[sgnl->GetID()] = sgnl->GetPointsOverThreshold().size();
 
         /* These observables were already being calculated later on
 baselinemean += sgnl->GetBaseLine();
@@ -345,6 +347,7 @@ risetimemean += sgnl->GetRiseTime();
     // The only new observables that remain are map variables.
     // We can adopt lower case naming for map variables. But Double_t variables naming convention was already
     // fixed. In future case insensitive?
+    SetObservableValue("pointsoverthres_map", npointsot);
     SetObservableValue("risetime_map", risetime);
     // SetObservableValue("risetimemean", risetimemean); // Repeated observable : RiseTimeAvg
     SetObservableValue("baseline_map", baseline);

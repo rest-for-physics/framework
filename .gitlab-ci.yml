@@ -67,8 +67,6 @@ build:
       - ${CI_PROJECT_DIR}/install
     expire_in: 1 day
 
-
-
 loadRESTLibs:
   type: install
   script:
@@ -79,12 +77,22 @@ loadRESTLibs:
       variables:
         - $CRONJOB
 
+listRESTMacros:
+  type: install
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - restManager ListMacros
+  except:
+      variables:
+        - $CRONJOB
+
 01_NLDBD:
   type: restG4
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/
     - restG4 NLDBD.rml
+    - geant4-config --version
     - restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
   artifacts:
     paths:
@@ -154,7 +162,6 @@ pandaXIII_MC:
   except:
       variables:
         - $CRONJOB
-
 
 deploy:
   type: deploy

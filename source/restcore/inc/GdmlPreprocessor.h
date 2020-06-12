@@ -18,7 +18,26 @@ class GdmlPreprocessor : public TRestMetadata {
     }
     string filestr = "";
     string path = "";
+    // outPath might be associated in future to a temporal REST_USER_PATH directory
+    string outPath = "/tmp/";
     string outfilename = "";
+    string gdmlVersion = "0.0";
+    map<string, string> entityVersion;
+
+    string GetEntityVersion(string name) {
+        for (auto& i : entityVersion) {
+            if (i.first == name) {
+                return i.second;
+                break;
+            }
+        }
+        return "0.0";
+    }
+
+    string GetGDMLVersion() { return gdmlVersion; }
+
+    string GetOutputGDMLFile() { return outfilename; }
+
     void Load(string file) {
         file = TRestTools::ToAbsoluteName(file);
         if (TRestTools::fileExists(file)) {
@@ -31,6 +50,12 @@ class GdmlPreprocessor : public TRestMetadata {
             std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
             filestr = str;
             t.close();
+
+            int pp = filestr.find("##VERSION", 0);
+            if (pp != string::npos) {
+                int pp2 = filestr.find("##", pp + 4);
+                if (pp2 != string::npos) gdmlVersion = filestr.substr(pp + 9, pp2 - pp - 9);
+            }
 
             cout << "GDML: initializating variables" << endl;
             int pos = filestr.find("<gdml", 0);
@@ -58,7 +83,8 @@ class GdmlPreprocessor : public TRestMetadata {
 
             cout << "GDML: creating temporary file" << endl;
             ofstream outf;
-            outfilename = file + "_";
+            string fname = TRestTools::SeparatePathAndName(file).second;
+            outfilename = outPath + fname;
             outf.open(outfilename, ios::trunc);
             outf << filestr << endl;
             outf.close();
@@ -76,7 +102,7 @@ class GdmlPreprocessor : public TRestMetadata {
         if (outfilename != "") {
             char originDirectory[256];
             sprintf(originDirectory, "%s", getenv("PWD"));
-            chdir(path.c_str());
+            chdir(outPath.c_str());
             TGeoManager* geo2 = new TGeoManager();
             geo2->Import(outfilename.c_str());
             chdir(originDirectory);
@@ -99,8 +125,14 @@ class GdmlPreprocessor : public TRestMetadata {
 
             int pos3 = filestr.find("\"", pos2) + 1;
             int pos4 = filestr.find("\"", pos3);
-            string entityfile = path + RemoveWhiteSpaces(filestr.substr(pos3, pos4 - pos3));
-            // cout << entityfile << endl;
+            string entityfile = RemoveWhiteSpaces(filestr.substr(pos3, pos4 - pos3));
+
+            if ((int)entityfile.find("http") != -1) {
+                TRestTools::DownloadRemoteFile(entityfile, outPath + entityname + ".xml");
+                entityfile = outPath + entityname + ".xml";
+            } else {
+                entityfile = path + entityfile;
+            }
 
             int pos5 = 0;
             if ((pos5 = filestr.find("&" + entityname + ";")) != -1) {
@@ -108,6 +140,15 @@ class GdmlPreprocessor : public TRestMetadata {
                     std::ifstream t(entityfile);
                     std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
                     t.close();
+
+                    entityVersion[entityname] = "";
+                    int pp = str.find("##VERSION", 0);
+                    if (pp != string::npos) {
+                        int pp2 = str.find("##", pp + 4);
+                        if (pp2 != string::npos) {
+                            entityVersion[entityname] = str.substr(pp + 9, pp2 - pp - 9);
+                        }
+                    }
 
                     // cout << "replacing entity..." << endl;
                     filestr.replace(pos5, entityname.length() + 2, str);
@@ -149,7 +190,7 @@ class GdmlPreprocessor : public TRestMetadata {
             // << replace << endl;
 
             if (replace == target) {
-                cout << "Error! falied to replace mathematical expressions! check the "
+                cout << "Error! failed to replace mathematical expressions! check the "
                         "file!"
                      << endl;
                 cout << replace << endl;

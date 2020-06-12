@@ -652,7 +652,7 @@ string CleanString(string s) {
 }
 
 std::map<string, generator_types> generator_types_map = {
-    {CleanString("file"), generator_types::FILE},
+    {CleanString("custom"), generator_types::CUSTOM},
     {CleanString("volume"), generator_types::VOLUME},
     {CleanString("surface"), generator_types::SURFACE},
     {CleanString("point"), generator_types::POINT},
@@ -922,6 +922,8 @@ void TRestG4Metadata::ReadGenerator() {
                 particleCollection->SetParticleModel(sourceString);
                 fPrimaryGenerator.AddParticleCollection(particleCollection);
                 fPrimaryGenerator.UpdateSourcesFromParticleCollection(0);
+
+                fGenType = "custom";
             }
         }
     }
@@ -957,7 +959,7 @@ void TRestG4Metadata::ReadStorage() {
     GdmlPreprocessor* preprocesor = new GdmlPreprocessor();
     preprocesor->Load((string)Get_GDML_Filename());
 
-    TGeoManager::Import(Get_GDML_Filename() + "_");
+    TGeoManager::Import((TString)preprocesor->GetOutputGDMLFile());
     std::set<std::string> geometryVolumes = {"World_PV"};  // we include the world volume
     for (auto node : gGeoManager->GetTopVolume()->GetNodes()[0]) {
         string name = node->GetName();
@@ -999,8 +1001,8 @@ void TRestG4Metadata::PrintMetadata() {
 
     metadata << "Geant 4 version : " << GetGeant4Version() << endl;
     metadata << "Random seed : " << GetSeed() << endl;
-    metadata << "Geometry File : " << Get_GDML_Filename() << endl;
-    metadata << "Geometry Path : " << GetGeometryPath() << endl;
+    metadata << "GDML geometry : " << Get_GDML_Reference() << endl;
+    metadata << "GDML materials reference : " << GetMaterialsReference() << endl;
     metadata << "Max. Step size : " << GetMaxTargetStepSize() << " mm" << endl;
     metadata << "Sub-event time delay : " << GetSubEventTimeDelay() << " us" << endl;
     if (fSaveAllEvents) metadata << "Save all events was enabled!" << endl;
