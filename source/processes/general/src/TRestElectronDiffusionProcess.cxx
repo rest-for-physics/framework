@@ -176,7 +176,8 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent(TRestEvent* evInput) {
                                      << " en : " << localWValue * REST_Units::keV / REST_Units::eV << " keV"
                                      << endl;
                             fOutputHitsEvent->AddHit(xDiff, yDiff, zDiff,
-                                                     localWValue * REST_Units::keV / REST_Units::eV);
+                                                     localWValue * REST_Units::keV / REST_Units::eV,
+                                                     hits->GetTime(n), hits->GetType(n));
                         }
                     }
                 }
