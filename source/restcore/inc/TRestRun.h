@@ -177,6 +177,7 @@ class TRestRun : public TRestMetadata {
     std::vector<std::string> GetMetadataStructureTitles();
     int GetNumberOfMetadataStructures() { return fMetadataInfo.size(); }
 
+    string ReplaceMetadataMember(const string instr);
     string ReplaceMetadataMembers(string instr);
 
     // Setters

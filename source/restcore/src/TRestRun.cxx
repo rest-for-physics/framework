@@ -144,7 +144,7 @@ void TRestRun::BeginOfInit() {
     if (ToUpper(inputname) == "AUTO") {
         TRestDataBase* db = gDataBase;
         auto files = db->query_run_files(fRunNumber);
-        fInputFileName = db->query_run(fRunNumber).value; // run entry value is file pattern
+        fInputFileName = db->query_run(fRunNumber).value;  // run entry value is file pattern
         fInputFileNames = Vector_cast<DBFile, TString>(files);
     }
 
@@ -904,10 +904,7 @@ void TRestRun::WriteWithDataBase() {
             fMetadataInfo[i]->Write(fMetadataInfo[i]->GetName(), kOverwrite);
         } else {
             debug << "IS historic" << endl;
-            fMetadataInfo[i]->SetName(("Historic_" + (string)fMetadataInfo[i]->ClassName()).c_str());
-            if (fSaveHistoricData)
-                fMetadataInfo[i]->Write(("Historic_" + (string)fMetadataInfo[i]->ClassName()).c_str(),
-                                        kOverwrite);
+            if (fSaveHistoricData) fMetadataInfo[i]->Write(fMetadataInfo[i]->GetName(), kOverwrite);
         }
     }
 
@@ -1386,6 +1383,7 @@ std::vector<std::string> TRestRun::GetMetadataStructureTitles() {
 /// the input string should be written using the following format <<MetadataClass::fDataMember>>.
 ///
 /// \return The string with data members replaced
+///
 string TRestRun::ReplaceMetadataMembers(const string instr) {
     string outstring = instr;
 
@@ -1396,19 +1394,42 @@ string TRestRun::ReplaceMetadataMembers(const string instr) {
         if (endPosition == (int)string::npos) break;
 
         string expressionToReplace = outstring.substr(startPosition + 2, endPosition - startPosition - 2);
+        string value = ReplaceMetadataMember(expressionToReplace);
 
-        vector<string> results = Split(expressionToReplace, "::", false, true);
-
-        if (results.size() == 2) {
-            string value = this->GetMetadataClass(results[0])->GetDataMemberValue(results[1]);
-            outstring.replace(startPosition, endPosition - startPosition + 2, value);
-            endPosition = 0;
-
-        } else
-            ferr << "TRestRun::ReplaceMetadata. Wrong number of elements found" << endl;
+        outstring.replace(startPosition, endPosition - startPosition + 2, value);
+        endPosition = 0;
     }
 
     return outstring;
+}
+
+///////////////////////////////////////////////
+/// \brief It will replace the data member from the corresponding metadata class type or name
+/// defined in the input string.
+//
+/// The input string should contain the metadata class type or name following the format
+/// `string instr = "mdName::fDataMember";` or `string instr = "TRestMetadataClass::fDataMember";`.
+///
+/// The method will work with both, metadata class or class name. First it will be evaluated
+/// if the metadata name is found, using the method TRestRun::GetMetadata. If not, it will try
+/// to check if the corresponding input string is giving a metadata class type, using the method
+/// TRestRun::GetMetadataClass..
+///
+/// \return The corresponding class data member value in string format.
+///
+string TRestRun::ReplaceMetadataMember(const string instr) {
+    vector<string> results = Split(instr, "::", false, true);
+
+    if (results.size() == 2) {
+        if (GetMetadata(results[0])) return this->GetMetadata(results[0])->GetDataMemberValue(results[1]);
+        if (GetMetadataClass(results[0]))
+            return this->GetMetadata(results[0])->GetDataMemberValue(results[1]);
+
+    } else
+        ferr << "TRestRun::ReplaceMetadata. Wrong number of elements found" << endl;
+
+    warning << "TRestRun::ReplaceMetdata. " << instr << " not found!" << endl;
+    return "";
 }
 
 // Printers
