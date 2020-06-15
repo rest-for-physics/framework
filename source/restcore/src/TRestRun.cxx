@@ -1409,16 +1409,19 @@ string TRestRun::ReplaceMetadataMembers(const string instr) {
 //
 /// The input string should contain the metadata class type or name following the format
 /// `string instr = "mdName::fDataMember";` or `string instr = "TRestMetadataClass::fDataMember";`.
+/// or the format `string instr = "mdName->fDataMember";`. Both, `::` and `->` are allowed
+/// to separate class and member of the class.
 ///
-/// The method will work with both, metadata class or class name. First it will be evaluated
+/// The method will work with both, metadata class or metadata name. First it will be evaluated
 /// if the metadata name is found, using the method TRestRun::GetMetadata. If not, it will try
 /// to check if the corresponding input string is giving a metadata class type, using the method
-/// TRestRun::GetMetadataClass..
+/// TRestRun::GetMetadataClass.
 ///
 /// \return The corresponding class data member value in string format.
 ///
 string TRestRun::ReplaceMetadataMember(const string instr) {
     vector<string> results = Split(instr, "::", false, true);
+    if (results.size() == 1) results = Split(instr, "->", false, true);
 
     if (results.size() == 2) {
         if (GetMetadata(results[0])) return this->GetMetadata(results[0])->GetDataMemberValue(results[1]);
@@ -1428,7 +1431,7 @@ string TRestRun::ReplaceMetadataMember(const string instr) {
     } else
         ferr << "TRestRun::ReplaceMetadata. Wrong number of elements found" << endl;
 
-    warning << "TRestRun::ReplaceMetdata. " << instr << " not found!" << endl;
+    warning << "TRestRun::ReplaceMetadata. " << instr << " not found!" << endl;
     return "";
 }
 
