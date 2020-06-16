@@ -687,11 +687,11 @@ void TRestHitsEvent::SetBoundaries() {
         if (z < minZ) minZ = z;
     }
 
-    fMinX = minX - 3;
-    fMaxX = maxX + 3;
+    fMinX = minX;
+    fMaxX = maxX;
 
-    fMinY = minY - 3;
-    fMaxY = maxY + 3;
+    fMinY = minY;
+    fMaxY = maxY;
 
     fMinZ = minZ;
     fMaxZ = maxZ;
@@ -758,7 +758,7 @@ void TRestHitsEvent::DrawGraphs() {
             cout << fXZHitGraph << endl;
             fPad->cd(1);
             fXZHitGraph->SetTitle(title);
-            fXZHitGraph->SetMarkerStyle(kFullCircle);
+            fXZHitGraph->SetMarkerStyle(kCircle);
             fXZHitGraph->Draw("pcol");
             fXZHitGraph->GetXaxis()->SetTitle("X-axis (mm)");
             fXZHitGraph->GetYaxis()->SetTitle("Z-axis (mm)");
@@ -789,24 +789,22 @@ void TRestHitsEvent::DrawGraphs() {
         fPad->Divide(2, 2);
 
         // draw xyz figure
-        cout << fXYZHitGraph << endl;
-        fPad->cd(2);
+        fPad->cd(1);
         fXYZHitGraph->SetTitle(title);
         fXYZHitGraph->SetMarkerStyle(kFullCircle);
         fXYZHitGraph->Draw("p");
+        int a;
+        fPad->GetView()->SetView(0, 1, 0, a);
         fXYZHitGraph->GetXaxis()->SetTitle("X-axis (mm)");
         fXYZHitGraph->GetYaxis()->SetTitle("Y-axis (mm)");
         fXYZHitGraph->GetZaxis()->SetTitle("Z-axis (mm)");
 
-        fXYZHitGraph->GetXaxis()->SetRangeUser(fMinX, fMaxX);
-        fXYZHitGraph->GetYaxis()->SetRangeUser(fMinY, fMaxY);
-
-        fPad->cd(2)->SetTheta(90);
-        fPad->cd(2)->SetPhi(0);
+        fPad->cd(1)->SetTheta(90);
+        fPad->cd(1)->SetPhi(0);
 
         if (xz[0].size() > 0) {
             fXZHitGraph = new TGraph2D(xz[0].size(), &xz[0][0], &xz[1][0], &xz[2][0]);
-            fPad->cd(4);
+            fPad->cd(3);
             fXZHitGraph->SetTitle(title);
             fXZHitGraph->SetMarkerStyle(kFullCircle);
             fXZHitGraph->Draw("pcol");
@@ -816,13 +814,13 @@ void TRestHitsEvent::DrawGraphs() {
             fXZHitGraph->GetXaxis()->SetRangeUser(fMinX, fMaxX);
             fXZHitGraph->GetYaxis()->SetRangeUser(fMinZ, fMaxZ);
 
-            fPad->cd(4)->SetTheta(90);
-            fPad->cd(4)->SetPhi(0);
+            fPad->cd(3)->SetTheta(90);
+            fPad->cd(3)->SetPhi(0);
         }
 
         if (yz[0].size() > 0) {
             fYZHitGraph = new TGraph2D(yz[0].size(), &yz[1][0], &yz[0][0], &yz[2][0]);
-            fPad->cd(1);
+            fPad->cd(2);
             fYZHitGraph->SetTitle(title);
             fYZHitGraph->SetMarkerStyle(kFullCircle);
             fYZHitGraph->Draw("pcol");
@@ -832,8 +830,8 @@ void TRestHitsEvent::DrawGraphs() {
             fYZHitGraph->GetXaxis()->SetRangeUser(fMinZ, fMaxZ);
             fYZHitGraph->GetYaxis()->SetRangeUser(fMinY, fMaxY);
 
-            fPad->cd(1)->SetTheta(90);
-            fPad->cd(1)->SetPhi(0);
+            fPad->cd(2)->SetTheta(90);
+            fPad->cd(2)->SetPhi(0);
         }
     }
 }
