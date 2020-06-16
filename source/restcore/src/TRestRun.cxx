@@ -756,9 +756,11 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
         debug << "TRestRun::FormFormat. target : " << target << endl;
         debug << "TRestRun::FormFormat. replacestr : " << replacestr << endl;
 
-        // if (target == "fVersion") replacestr = (string)GetVersion();
-
-        // if (target == "fCommit") replacestr = (string)GetCommit();
+        // If we form an output file we are willing to form the output filename
+        // using the latest version. But the version is set just before we
+        // call Write.
+        if (target == "fVersion") replacestr = (string)REST_RELEASE;
+        if (target == "fCommit") replacestr = (string)gCommit;
 
         if (replacestr != target) {
             if (target == "fRunNumber" || target == "fParentRunNumber") {
