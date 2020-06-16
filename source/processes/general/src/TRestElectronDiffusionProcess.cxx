@@ -66,6 +66,8 @@ void TRestElectronDiffusionProcess::LoadConfig(string cfgFilename, string name) 
 
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::InitProcess() {
+    fRandom = new TRandom3(fSeed);
+
     fGas = GetMetadata<TRestGas>();
     if (fGas == NULL) {
         if (fLonglDiffCoeff == -1 || fTransDiffCoeff == -1) {
@@ -229,5 +231,5 @@ void TRestElectronDiffusionProcess::InitFromConfigFile() {
         warning << " Please use the shorter form of this parameter : transDiff" << endl;
     }
     fMaxHits = StringToInteger(GetParameter("maxHits", "1000"));
-    fRandom = new TRandom3(StringToDouble(GetParameter("seed", "0")));
+    fSeed = StringToDouble(GetParameter("seed", "0"));
 }
