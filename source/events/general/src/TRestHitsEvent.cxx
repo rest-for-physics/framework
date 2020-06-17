@@ -44,7 +44,6 @@
 #include "TRestStringHelper.h"
 #include "TRestTools.h"
 #include "TStyle.h"
-#include "TView.h"
 
 using namespace std;
 using namespace TMath;
@@ -68,7 +67,7 @@ TRestHitsEvent::TRestHitsEvent() {
 
     fPad = NULL;
 
-    fXYZHitGraph = NULL;
+    fXYHitGraph = NULL;
     fXZHitGraph = NULL;
     fYZHitGraph = NULL;
 
@@ -610,64 +609,56 @@ TPad* TRestHitsEvent::DrawEvent(TString option) {
 
     optList.erase(std::remove(optList.begin(), optList.end(), "print"), optList.end());
 
-    if (optList.size() == 0) optList.push_back("graph");
+    if (optList.size() == 0) optList.push_back("hist(Cont1,col)");
 
     if (fPad != NULL) {
         delete fPad;
+        fPad = NULL;
     }
-    fPad = NULL;
 
-    // fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1);
-    // fPad->Divide(3, 2 * optList.size());
-    // fPad->Draw();
+    fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1);
+    fPad->Divide(3, 2 * optList.size());
+    fPad->Draw();
 
-    // Int_t column = 0;
-    // for (unsigned int n = 0; n < optList.size(); n++) {
-    //    string optionStr = (string)optList[n];
-    //    TString drawEventOption = optList[n];
-
-    //    // Generating drawOption argument
-    //    size_t startPos = optionStr.find("(");
-    //    if (startPos != string::npos) drawEventOption = optList[n](0, startPos);
-
-    //    // Generating histogram option argument
-    //    string histOption = "";
-    //    size_t endPos = optionStr.find(")");
-    //    if (endPos != string::npos) {
-    //        TString histOptionTmp = optList[n](startPos + 1, endPos - startPos - 1);
-
-    //        histOption = (string)histOptionTmp;
-    //        size_t pos = 0;
-    //        while ((pos = histOption.find(",", pos)) != string::npos) {
-    //            histOption.replace(pos, 1, ":");
-    //            pos = pos + 1;
-    //        }
-    //    }
-
-    //    // Generating histogram pitch argument
-    //    string pitchOption = "";
-
-    //    startPos = optionStr.find("[");
-    //    endPos = optionStr.find("]");
-    //    Double_t pitch = 3;
-    //    if (endPos != string::npos) {
-    //        TString pitchOption = optList[n](startPos + 1, endPos - startPos - 1);
-    //        pitch = stod((string)pitchOption);
-    //    }
-
-    //    if (drawEventOption == "graph") this->DrawGraphs(column);
-
-    //    if (drawEventOption == "hist") this->DrawHistograms(column, pitch, histOption);
-    //}
-
+    Int_t column = 0;
     for (unsigned int n = 0; n < optList.size(); n++) {
         string optionStr = (string)optList[n];
         TString drawEventOption = optList[n];
-        if (drawEventOption == "graph") this->DrawGraphs();
-        if (drawEventOption == "hist") {
-            this->DrawHistograms(3, "");
+
+        // Generating drawOption argument
+        size_t startPos = optionStr.find("(");
+        if (startPos != string::npos) drawEventOption = optList[n](0, startPos);
+
+        // Generating histogram option argument
+        string histOption = "";
+        size_t endPos = optionStr.find(")");
+        if (endPos != string::npos) {
+            TString histOptionTmp = optList[n](startPos + 1, endPos - startPos - 1);
+
+            histOption = (string)histOptionTmp;
+            size_t pos = 0;
+            while ((pos = histOption.find(",", pos)) != string::npos) {
+                histOption.replace(pos, 1, ":");
+                pos = pos + 1;
+            }
         }
+
+        // Generating histogram pitch argument
+        string pitchOption = "";
+
+        startPos = optionStr.find("[");
+        endPos = optionStr.find("]");
+        Double_t pitch = 3;
+        if (endPos != string::npos) {
+            TString pitchOption = optList[n](startPos + 1, endPos - startPos - 1);
+            pitch = stod((string)pitchOption);
+        }
+
+        if (drawEventOption == "graph") this->DrawGraphs(column);
+
+        if (drawEventOption == "hist") this->DrawHistograms(column, pitch, histOption);
     }
+
     return fPad;
 }
 
@@ -687,20 +678,20 @@ void TRestHitsEvent::SetBoundaries() {
         if (z < minZ) minZ = z;
     }
 
-    fMinX = minX - 3;
-    fMaxX = maxX + 3;
+    fMinX = minX;
+    fMaxX = maxX;
 
-    fMinY = minY - 3;
-    fMaxY = maxY + 3;
+    fMinY = minY;
+    fMaxY = maxY;
 
     fMinZ = minZ;
     fMaxZ = maxZ;
 }
 
-void TRestHitsEvent::DrawGraphs() {
-    if (fXYZHitGraph != NULL) {
-        delete fXYZHitGraph;
-        fXYZHitGraph = NULL;
+void TRestHitsEvent::DrawGraphs(Int_t& column) {
+    if (fXYHitGraph != NULL) {
+        delete fXYHitGraph;
+        fXYHitGraph = NULL;
     }
     if (fXZHitGraph != NULL) {
         delete fXZHitGraph;
@@ -711,134 +702,89 @@ void TRestHitsEvent::DrawGraphs() {
         fYZHitGraph = NULL;
     }
 
-    if (fPad == NULL) {
-        fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1);
-    }
+    Double_t xz[2][this->GetNumberOfHits()];
+    Double_t yz[2][this->GetNumberOfHits()];
+    Double_t xy[2][this->GetNumberOfHits()];
 
-    auto title = Form("Event ID %d", this->GetID());
-
-    vector<double> xz[3];   // 3 items: x value, z value, energy value
-    vector<double> yz[3];   // 3 items: y value, z value, energy value
-    vector<double> xyz[3];  // 3 items: x value, y value, z value
+    /* {{{ Creating xz, yz, and xy arrays and initializing graphs */
+    Int_t nXZ = 0;
+    Int_t nYZ = 0;
+    Int_t nXY = 0;
 
     for (int nhit = 0; nhit < this->GetNumberOfHits(); nhit++) {
         Double_t x = fHits->GetX(nhit);
         Double_t y = fHits->GetY(nhit);
         Double_t z = fHits->GetZ(nhit);
-        Double_t e = fHits->GetEnergy(nhit);
-        REST_HitType type = fHits->GetType(nhit);
 
-        if (type == XZ || type == XYZ) {
-            xz[0].push_back(x);
-            xz[1].push_back(z);
-            xz[2].push_back(e);
-        }
-        if (type == YZ || type == XYZ) {
-            yz[0].push_back(y);
-            yz[1].push_back(z);
-            yz[2].push_back(e);
-        }
-        if (type == XYZ) {
-            xyz[0].push_back(x);
-            xyz[1].push_back(y);
-            xyz[2].push_back(z);
-        }
-    }
-
-    cout << xz[0].size() << " " << yz[0].size() << " " << xyz[0].size() << endl;
-
-    if (xyz[0].size() > 0) fXYZHitGraph = new TGraph2D(xyz[0].size(), &xyz[0][0], &xyz[1][0], &xyz[2][0]);
-
-    if (fXYZHitGraph == NULL) {
-        // we draw 2 figures, XZ and YZ with same Z
-        fPad->Divide(2, 1);
-
-        if (xz[0].size() > 0) {
-            fXZHitGraph = new TGraph2D(xz[0].size(), &xz[0][0], &xz[1][0], &xz[2][0]);
-            cout << fXZHitGraph << endl;
-            fPad->cd(1);
-            fXZHitGraph->SetTitle(title);
-            fXZHitGraph->SetMarkerStyle(kFullCircle);
-            fXZHitGraph->Draw("pcol");
-            fXZHitGraph->GetXaxis()->SetTitle("X-axis (mm)");
-            fXZHitGraph->GetYaxis()->SetTitle("Z-axis (mm)");
-            fXZHitGraph->GetZaxis()->SetTitle("energy");
-            fXZHitGraph->GetYaxis()->SetRangeUser(fMinZ, fMaxZ);
-
-            fPad->cd(1)->SetTheta(90);
-            fPad->cd(1)->SetPhi(0);
-        }
-        if (yz[0].size() > 0) {
-            fYZHitGraph = new TGraph2D(yz[0].size(), &yz[0][0], &yz[1][0], &yz[2][0]);
-            cout << fYZHitGraph << endl;
-            fPad->cd(2);
-            fYZHitGraph->SetTitle(title);
-            fYZHitGraph->SetMarkerStyle(kFullCircle);
-            fYZHitGraph->Draw("pcol");
-            fYZHitGraph->GetXaxis()->SetTitle("Y-axis (mm)");
-            fYZHitGraph->GetYaxis()->SetTitle("Z-axis (mm)");
-            fXZHitGraph->GetZaxis()->SetTitle("energy");
-            fYZHitGraph->GetYaxis()->SetRangeUser(fMinZ, fMaxZ);
-
-            fPad->cd(2)->SetTheta(90);
-            fPad->cd(2)->SetPhi(0);
+        if (!IsNaN(x) && !IsNaN(z)) {
+            xz[0][nXZ] = x;
+            xz[1][nXZ] = z;
+            nXZ++;
         }
 
-    } else {
-        // we draw 3 figures, XZ and YZ matches their coordinate with XYZ
-        fPad->Divide(2, 2);
-
-        // draw xyz figure
-        cout << fXYZHitGraph << endl;
-        fPad->cd(2);
-        fXYZHitGraph->SetTitle(title);
-        fXYZHitGraph->SetMarkerStyle(kFullCircle);
-        fXYZHitGraph->Draw("p");
-        fXYZHitGraph->GetXaxis()->SetTitle("X-axis (mm)");
-        fXYZHitGraph->GetYaxis()->SetTitle("Y-axis (mm)");
-        fXYZHitGraph->GetZaxis()->SetTitle("Z-axis (mm)");
-
-        fXYZHitGraph->GetXaxis()->SetRangeUser(fMinX, fMaxX);
-        fXYZHitGraph->GetYaxis()->SetRangeUser(fMinY, fMaxY);
-
-        fPad->cd(2)->SetTheta(90);
-        fPad->cd(2)->SetPhi(0);
-
-        if (xz[0].size() > 0) {
-            fXZHitGraph = new TGraph2D(xz[0].size(), &xz[0][0], &xz[1][0], &xz[2][0]);
-            fPad->cd(4);
-            fXZHitGraph->SetTitle(title);
-            fXZHitGraph->SetMarkerStyle(kFullCircle);
-            fXZHitGraph->Draw("pcol");
-            fXZHitGraph->GetXaxis()->SetTitle("X-axis (mm)");
-            fXZHitGraph->GetYaxis()->SetTitle("Z-axis (mm)");
-
-            fXZHitGraph->GetXaxis()->SetRangeUser(fMinX, fMaxX);
-            fXZHitGraph->GetYaxis()->SetRangeUser(fMinZ, fMaxZ);
-
-            fPad->cd(4)->SetTheta(90);
-            fPad->cd(4)->SetPhi(0);
+        if (!IsNaN(y) && !IsNaN(z)) {
+            yz[0][nYZ] = y;
+            yz[1][nYZ] = z;
+            nYZ++;
         }
 
-        if (yz[0].size() > 0) {
-            fYZHitGraph = new TGraph2D(yz[0].size(), &yz[1][0], &yz[0][0], &yz[2][0]);
-            fPad->cd(1);
-            fYZHitGraph->SetTitle(title);
-            fYZHitGraph->SetMarkerStyle(kFullCircle);
-            fYZHitGraph->Draw("pcol");
-            fYZHitGraph->GetXaxis()->SetTitle("Z-axis (mm)");
-            fYZHitGraph->GetYaxis()->SetTitle("Y-axis (mm)");
-
-            fYZHitGraph->GetXaxis()->SetRangeUser(fMinZ, fMaxZ);
-            fYZHitGraph->GetYaxis()->SetRangeUser(fMinY, fMaxY);
-
-            fPad->cd(1)->SetTheta(90);
-            fPad->cd(1)->SetPhi(0);
+        if (!IsNaN(x) && !IsNaN(y)) {
+            xy[0][nXY] = x;
+            xy[1][nXY] = y;
+            nXY++;
         }
     }
+
+    fXZHitGraph = new TGraph(nXZ, xz[0], xz[1]);
+    fXZHitGraph->SetMarkerColor(kBlue);
+    fXZHitGraph->SetMarkerSize(0.3);
+    fXZHitGraph->SetMarkerStyle(20);
+
+    fYZHitGraph = new TGraph(nYZ, yz[0], yz[1]);
+    fYZHitGraph->SetMarkerColor(kRed);
+    fYZHitGraph->SetMarkerSize(0.3);
+    fYZHitGraph->SetMarkerStyle(20);
+
+    fXYHitGraph = new TGraph(nXY, xy[0], xy[1]);
+    fXYHitGraph->SetMarkerColor(kBlack);
+    fXYHitGraph->SetMarkerSize(0.3);
+    fXYHitGraph->SetMarkerStyle(20);
+    /* }}} */
+
+    char title[256];
+    sprintf(title, "Event ID %d", this->GetID());
+
+    if (nXZ > 0) {
+        fPad->cd(1 + 3 * column);
+        fXZHitGraph->SetTitle(title);
+        fXZHitGraph->Draw("AP*");
+
+        fXZHitGraph->GetXaxis()->SetTitle("X-axis (mm)");
+        fXZHitGraph->GetYaxis()->SetTitle("Z-axis (mm)");
+    }
+
+    if (nYZ > 0) {
+        fPad->cd(2 + 3 * column);
+        fYZHitGraph->SetTitle(title);
+        fYZHitGraph->Draw("AP");
+
+        fYZHitGraph->GetXaxis()->SetTitle("Y-axis (mm)");
+        fYZHitGraph->GetYaxis()->SetTitle("Z-axis (mm)");
+    }
+
+    if (nXY > 0) {
+        fPad->cd(3 + 3 * column);
+        fXYHitGraph->SetTitle(title);
+        fXYHitGraph->Draw("AP");
+
+        fXYHitGraph->GetXaxis()->SetTitle("X-axis (mm)");
+        fXYHitGraph->GetYaxis()->SetTitle("Y-axis (mm)");
+    }
+
+    column++;
 }
 
-void TRestHitsEvent::DrawHistograms(Double_t pitch, TString histOption) {
+void TRestHitsEvent::DrawHistograms(Int_t& column, Double_t pitch, TString histOption) {
     if (fXYHisto != NULL) {
         delete fXYHisto;
         fXYHisto = NULL;
@@ -864,11 +810,6 @@ void TRestHitsEvent::DrawHistograms(Double_t pitch, TString histOption) {
         delete fZHisto;
         fZHisto = NULL;
     }
-
-    if (fPad == NULL) {
-        fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1);
-    }
-    fPad->Divide(2, 3);
 
     Int_t nBinsX = (fMaxX - fMinX + 20) / pitch;
     Int_t nBinsY = (fMaxY - fMinY + 20) / pitch;
@@ -928,7 +869,7 @@ void TRestHitsEvent::DrawHistograms(Double_t pitch, TString histOption) {
     style.SetPalette(1);
 
     if (nXZ > 0) {
-        fPad->cd(1);
+        fPad->cd(1 + 3 * column);
         fXZHisto->Draw(histOption);
         fXZHisto->GetXaxis()->SetTitle("X-axis (mm)");
         fXZHisto->GetYaxis()->SetTitle("Z-axis (mm)");
@@ -940,7 +881,7 @@ void TRestHitsEvent::DrawHistograms(Double_t pitch, TString histOption) {
     }
 
     if (nYZ > 0) {
-        fPad->cd(2);
+        fPad->cd(2 + 3 * column);
         fYZHisto->Draw(histOption);
         fYZHisto->GetXaxis()->SetTitle("Y-axis (mm)");
         fYZHisto->GetYaxis()->SetTitle("Z-axis (mm)");
@@ -952,32 +893,36 @@ void TRestHitsEvent::DrawHistograms(Double_t pitch, TString histOption) {
     }
 
     if (nXY > 0) {
-        fPad->cd(3);
+        fPad->cd(3 + 3 * column);
         fXYHisto->Draw(histOption);
         fXYHisto->GetXaxis()->SetTitle("X-axis (mm)");
         fXYHisto->GetYaxis()->SetTitle("Y-axis (mm)");
     }
 
+    column++;
+
     if (nX > 0) {
-        fPad->cd(4);
+        fPad->cd(1 + 3 * column);
         fXHisto->Draw(histOption);
         fXHisto->GetXaxis()->SetTitle("X-axis (mm)");
         fXHisto->GetYaxis()->SetTitle("Number of events");
     }
 
     if (nY > 0) {
-        fPad->cd(5);
+        fPad->cd(2 + 3 * column);
         fYHisto->Draw(histOption);
         fYHisto->GetYaxis()->SetTitle("Y-axis (mm)");
         fYHisto->GetYaxis()->SetTitle("Number of events");
     }
 
     if (nZ > 0) {
-        fPad->cd(6);
+        fPad->cd(3 + 3 * column);
         fZHisto->Draw(histOption);
         fZHisto->GetZaxis()->SetTitle("Z-axis (mm)");
         fZHisto->GetYaxis()->SetTitle("Number of events");
     }
+
+    column++;
 }
 
 void TRestHitsEvent::PrintEvent(Int_t nHits) {
