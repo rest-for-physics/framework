@@ -43,10 +43,6 @@ Int_t GenerateDummyGas() {
     // Everything went fine. Placing back the original gases.rml
     TRestTools::Execute("scp -P 22 gases.bkp gasUser@sultan.unizar.es:gasFiles/gases.rml");
 
-    // Cleaning local directory
-    TRestTools::Execute("rm xe_0.1-n(ch3)3_99.0-E_vs_P_50.0_100.0_nodes_02-nCol_03-maxE_400.gas");
-    TRestTools::Execute("rm gases.bkp");
-
     return 0;
 }
 
