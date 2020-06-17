@@ -814,8 +814,9 @@ int TRestTools::UploadToServer(string filelocal, string remotefile, string metho
     if ((string)url.GetProtocol() == "https" || (string)url.GetProtocol() == "http") {
         // maybe we use curl to upload to http in future
     } else if ((string)url.GetProtocol() == "ssh") {
-        string cmd = "scp -P " + ToString(url.GetPort() == 0 ? 22 : url.GetPort()) + " " + filelocal + " " +
-                     url.GetUser() + "@" + url.GetHost() + ":" + EscapeSpecialLetters(url.GetFile());
+        string cmd = "scp -P " + ToString(url.GetPort() == 0 ? 22 : url.GetPort()) + " " +
+                     EscapeSpecialLetters(filelocal) + " " + url.GetUser() + "@" + url.GetHost() + ":" +
+                     EscapeSpecialLetters(url.GetFile());
         cout << cmd << endl;
         int a = system(cmd.c_str());
 
