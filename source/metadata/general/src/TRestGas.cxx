@@ -693,10 +693,10 @@ void TRestGas::UploadGasToServer(string absoluteGasFilename) {
     // We transfer the new gas definitions to the gasServer
     ids = gDataBase->search_data(DBEntry(0, "GAS_SERVER"));
     string remoteurl = gDataBase->query_data(ids[0]).value;
-    TRestTools::UploadToServer(remoteurl, fname, "ssh://gasUser@:22");
+    TRestTools::UploadToServer(fname, remoteurl, "ssh://gasUser@:22");
 
     // We transfer the gasFile to the gasServer
-    TRestTools::UploadToServer(remoteurl, absoluteGasFilename, "ssh://gasUser@:22");
+    TRestTools::UploadToServer(absoluteGasFilename, remoteurl, "ssh://gasUser@:22");
 
     // We remove the local file (afterwards, the remote copy will be used)
     // cmd = "rm " + _name;
