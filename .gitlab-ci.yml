@@ -27,6 +27,7 @@ stages:
 
 before_script:
   - export USER="test"
+  - echo $CI_SERVER_HOST
     # We redefine the HOME
   - export HOME=${CI_PROJECT_DIR}/install/
   - if [ -d $HOME/.rest ]; then rm -Rf $HOME/.rest; fi
@@ -102,12 +103,22 @@ listRESTMacros:
       variables:
         - $CRONJOB
 
-gas:
+LoadGas:
   type: metadata 
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline
-    - restRoot -b -q ValidateGas.C
+    - cd ${CI_PROJECT_DIR}/scripts/pipeline/metadata/gas/
+    - restRoot -b -q LoadGasFromServerAndValidate.C
+
+GenerateGas:
+  type: metadata 
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/scripts/pipeline/metadata/gas/
+    - restRoot -b -q GenerateDummyGas.C
+  only:
+      variables:
+        - $CI_SERVER_HOST == "lfna.unizar.es"
 
 testMeta:
   type: restManager_generate
