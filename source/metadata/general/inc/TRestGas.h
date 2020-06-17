@@ -108,6 +108,8 @@ class TRestGas : public TRestDriftVolume {
 
     TString fGasFileContent;  // Used for saving the gasFile into a root file
 
+    Bool_t fTest = false;
+
     void InitFromConfigFile();
     string ConstructFilename();
 
@@ -119,7 +121,7 @@ class TRestGas : public TRestDriftVolume {
 
    public:
     TRestGas();
-    TRestGas(const char* cfgFileName, string name = "", bool gasGeneration = false);
+    TRestGas(const char* cfgFileName, string name = "", bool gasGeneration = false, bool test = false);
     ~TRestGas();
 
     /// This enables the generation of the gas file if a non existing gas file is
