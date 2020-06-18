@@ -561,8 +561,8 @@ void TRestRun::ReadInputFileTrees() {
                 }
             }
         } else {
-            warning << "REST WARNING (OpenInputFile) : EventTree was not found" << endl;
-            warning << "This is a pure analysis file!" << endl;
+            debug << "TRestRun:OpenInputFile. EventTree was not found" << endl;
+            debug << "This is a pure analysis file!" << endl;
             fInputEvent = NULL;
         }
     }
