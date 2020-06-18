@@ -1428,7 +1428,7 @@ string TRestRun::ReplaceMetadataMember(const string instr) {
     if (results.size() == 2) {
         if (GetMetadata(results[0])) return this->GetMetadata(results[0])->GetDataMemberValue(results[1]);
         if (GetMetadataClass(results[0]))
-            return this->GetMetadata(results[0])->GetDataMemberValue(results[1]);
+            return this->GetMetadataClass(results[0])->GetDataMemberValue(results[1]);
 
     } else
         ferr << "TRestRun::ReplaceMetadata. Wrong number of elements found" << endl;
