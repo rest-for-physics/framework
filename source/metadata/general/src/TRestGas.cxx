@@ -595,7 +595,7 @@ void TRestGas::InitFromConfigFile() {
 #if defined USE_Garfield
     // calling garfield, either to generate gas file or load existing gas file
     if (fGasGeneration) {
-        info << "Starting gas generation" << endl;
+        essential << "Starting gas generation" << endl;
 
         CalcGarField(fEmin, fEmax, fEnodes);
         GenerateGasFile();
