@@ -37,13 +37,13 @@ class TRestSummaryProcess : public TRestEventProcess {
     Double_t fMeanRateSigma;
 
     /// It will register the average of an existing analyisTree observable.
-    std::map<TString, Double_t> fAverageObservable;
+    std::map<TString, Double_t> fAverage;
 
     /// If defined it will set the range where average is calculated
     std::map<TString, TVector2> fAverageRange;
 
     /// It will register the RMS of an existing analysisTree observable.
-    std::map<TString, Double_t> fRMSObservable;
+    std::map<TString, Double_t> fRMS;
 
     /// If defined it will set the range where RMS is calculated
     std::map<TString, TVector2> fRMSRange;

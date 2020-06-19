@@ -164,16 +164,14 @@ void TRestSummaryProcess::EndProcess() {
     fMeanRate = nEntries / (endTime - startTime);
     fMeanRateSigma = TMath::Sqrt(nEntries) / (endTime - startTime);
 
-    for (auto const& x : fAverageObservable) {
+    for (auto const& x : fAverage) {
         TVector2 range = fAverageRange[x.first];
-        fAverageObservable[x.first] =
-            this->GetFullAnalysisTree()->GetObservableAverage(x.first, range.X(), range.Y());
+        fAverage[x.first] = this->GetFullAnalysisTree()->GetObservableAverage(x.first, range.X(), range.Y());
     }
 
-    for (auto const& x : fRMSObservable) {
+    for (auto const& x : fRMS) {
         TVector2 range = fRMSRange[x.first];
-        fRMSObservable[x.first] =
-            this->GetFullAnalysisTree()->GetObservableRMS(x.first, range.X(), range.Y());
+        fRMS[x.first] = this->GetFullAnalysisTree()->GetObservableRMS(x.first, range.X(), range.Y());
     }
 
     if (GetVerboseLevel() >= REST_Info) PrintMetadata();
@@ -189,7 +187,7 @@ void TRestSummaryProcess::InitFromConfigFile() {
     while ((definition = GetKEYDefinition("average", pos)) != "") {
         TString obsName = GetFieldValue("obsName", definition);
 
-        fAverageObservable[obsName] = 0;
+        fAverage[obsName] = 0;
         fAverageRange[obsName] = StringTo2DVector(GetFieldValue("range", definition));
     }
 
@@ -197,7 +195,7 @@ void TRestSummaryProcess::InitFromConfigFile() {
     while ((definition = GetKEYDefinition("rms", pos)) != "") {
         TString obsName = GetFieldValue("obsName", definition);
 
-        fRMSObservable[obsName] = 0;
+        fRMS[obsName] = 0;
         fRMSRange[obsName] = StringTo2DVector(GetFieldValue("range", definition));
     }
 }
@@ -211,13 +209,13 @@ void TRestSummaryProcess::PrintMetadata() {
 
     metadata << " - Mean rate : " << fMeanRate << " Hz" << endl;
     metadata << " - Mean rate sigma : " << fMeanRateSigma << " Hz" << endl;
-    for (auto const& x : fAverageObservable) {
+    for (auto const& x : fAverage) {
         metadata << " " << endl;
         metadata << x.first << " average:" << x.second << endl;
         TVector2 a = fAverageRange[x.first];
         if (a.X() != -1 && a.Y() != -1) metadata << "    range : (" << a.X() << ", " << a.Y() << ")" << endl;
     }
-    for (auto const& x : fRMSObservable) {
+    for (auto const& x : fRMS) {
         metadata << " " << endl;
         metadata << x.first << " RMS:" << x.second << endl;
         TVector2 a = fRMSRange[x.first];
