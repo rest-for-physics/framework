@@ -280,7 +280,6 @@ string TRestReflector::ToString() {
             sprintf(buffer, "%s", ss.str().c_str());
             break;
         }
-
         case ToHash("map<TString,double>"): {
             map<TString, double>* m = (map<TString, double>*)(ladd);
             stringstream ss;
@@ -294,6 +293,29 @@ string TRestReflector::ToString() {
                 ss << x.first;
                 ss << ":";
                 ss << x.second;
+                ss << "]";
+            }
+            ss << "}";
+            sprintf(buffer, "%s", ss.str().c_str());
+            break;
+        }
+        case ToHash("map<TString,TVector2>"): {
+            map<TString, TVector2>* m = (map<TString, TVector2>*)(ladd);
+            stringstream ss;
+            ss << "{";
+            int cont = 0;
+            for (auto const& x : *m) {
+                if (cont > 0) ss << ",";
+                cont++;
+
+                ss << "[";
+                ss << x.first;
+                ss << ":";
+                ss << "(";
+                ss << x.second.X();
+                ss << ",";
+                ss << x.second.Y();
+                ss << ")";
                 ss << "]";
             }
             ss << "}";
