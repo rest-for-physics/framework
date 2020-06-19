@@ -204,6 +204,10 @@ class TRestAnalysisTree : public TTree {
     void EnableAllBranches();
     void DisableAllBranches();
 
+    Double_t GetObservableAverage(TString obsName, Double_t xLow = -1, Double_t xHigh = -1,
+                                  Int_t nBins = 1000);
+
+    Double_t GetObservableRMS(TString obsName, Double_t xLow = -1, Double_t xHigh = -1, Int_t nBins = 1000);
     // Construtor
     TRestAnalysisTree();
     TRestAnalysisTree(TString name, TString title);
