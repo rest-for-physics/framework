@@ -25,12 +25,30 @@
 
 #include "TRestEventProcess.h"
 
-//! A process to define basic data members with information that does not fit anywhere else
+#include "TVector2.h"
+
+//! A process to define basic data members to serve as a metadata summary in a data processing chain.
 class TRestSummaryProcess : public TRestEventProcess {
    private:
     /// The mean rate during the run, calculated as the final number of entries in the run.
     Double_t fMeanRate;
 
+    /// The mean rate sigma calculated as the square root of the corresponding mean rate counts
+    Double_t fMeanRateSigma;
+
+    /// It will register the average of an existing analyisTree observable.
+    std::map<TString, Double_t> fAverageObservable;
+
+    /// If defined it will set the range where average is calculated
+    std::map<TString, TVector2> fAverageRange;
+
+    /// It will register the RMS of an existing analysisTree observable.
+    std::map<TString, Double_t> fRMSObservable;
+
+    /// If defined it will set the range where RMS is calculated
+    std::map<TString, TVector2> fRMSRange;
+
+    /// The event pointer is not used in this process
     TRestEvent* fEvent = NULL;  //!
 
     void InitProcess();
@@ -65,6 +83,6 @@ class TRestSummaryProcess : public TRestEventProcess {
     ~TRestSummaryProcess();
 
     // If new members are added, removed or modified in this class version number must be increased!
-    ClassDef(TRestSummaryProcess, 1);
+    ClassDef(TRestSummaryProcess, 2);
 };
 #endif

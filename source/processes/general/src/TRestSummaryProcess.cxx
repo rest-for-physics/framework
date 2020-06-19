@@ -21,12 +21,37 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestSummaryProcess ... TODO documentation here ...
+/// TRestSummaryProcess might be added at any stage of the data processing chain.
 ///
+/// This process will register as metadata the following members:
+///
+/// 1. The *mean rate* and its *mean rate sigma* as deduced from the final number
+/// of entries registered at the current TRestAnalysisTree, using the start and end
+/// times defined at the current TRestRun object.
+///
+/// 2. The *average* of any observable available at the TRestAnalysisTree object accessible
+/// to the processing chain. It is defined through the keyword `<average` where we must
+/// specify the name of the observable we are willing to calculate its average using the
+/// field `obsName`. Optionally we are allowed to introduce the range where events
+/// will be considered for the average calculation.
+///
+/// 3. The *RMS* of any observable available at the TRestAnalysisTree object accessible
+/// to the processing chain. It is defined through the keyword `<rml` where we must
+/// specify the name of the observable we are willing to calculate its RMS using the
+/// field `obsName`. Optionally we are allowed to introduce the range where events
+/// will be considered for the RMS calculation.
+///
+/// The following code shows an example of implementation inside a
+/// TRestProcessRunner RML section.
 ///
 /// ```
-/// A code example here
-///
+///     <addProcess type="TRestSummaryProcess" name="summary" value="ON" verboseLevel="info" >
+///        <average obsName="rawAna_ThresholdIntegral" range="(0,500000)" />
+///        <average obsName="rawAna_BaseLineMean" range="(0,500)" />
+///        <average obsName="rawAna_BaseLineSigmaMean" range="(0,50)" />
+///        <rms obsName="rawAna_ThresholdIntegral" range="(0,500000)" />
+///        <rms obsName="rawAna_BaseLineMean" range="(0,500)" />
+///    </addProcess>
 /// ```
 ///
 ///--------------------------------------------------------------------------
@@ -137,6 +162,19 @@ void TRestSummaryProcess::EndProcess() {
     Double_t endTime = fRunInfo->GetEndTimestamp();
 
     fMeanRate = nEntries / (endTime - startTime);
+    fMeanRateSigma = TMath::Sqrt(nEntries) / (endTime - startTime);
+
+    for (auto const& x : fAverageObservable) {
+        TVector2 range = fAverageRange[x.first];
+        fAverageObservable[x.first] =
+            this->GetFullAnalysisTree()->GetObservableAverage(x.first, range.X(), range.Y());
+    }
+
+    for (auto const& x : fRMSObservable) {
+        TVector2 range = fRMSRange[x.first];
+        fRMSObservable[x.first] =
+            this->GetFullAnalysisTree()->GetObservableRMS(x.first, range.X(), range.Y());
+    }
 
     if (GetVerboseLevel() >= REST_Info) PrintMetadata();
 }
@@ -145,7 +183,24 @@ void TRestSummaryProcess::EndProcess() {
 /// \brief Function reading input parameters from the RML
 /// TRestSummaryProcess section
 ///
-void TRestSummaryProcess::InitFromConfigFile() {}
+void TRestSummaryProcess::InitFromConfigFile() {
+    string definition;
+    size_t pos = 0;
+    while ((definition = GetKEYDefinition("average", pos)) != "") {
+        TString obsName = GetFieldValue("obsName", definition);
+
+        fAverageObservable[obsName] = 0;
+        fAverageRange[obsName] = StringTo2DVector(GetFieldValue("range", definition));
+    }
+
+    pos = 0;
+    while ((definition = GetKEYDefinition("rms", pos)) != "") {
+        TString obsName = GetFieldValue("obsName", definition);
+
+        fRMSObservable[obsName] = 0;
+        fRMSRange[obsName] = StringTo2DVector(GetFieldValue("range", definition));
+    }
+}
 
 ///////////////////////////////////////////////
 /// \brief It prints out the process parameters stored in the
@@ -155,5 +210,18 @@ void TRestSummaryProcess::PrintMetadata() {
     BeginPrintProcess();
 
     metadata << " - Mean rate : " << fMeanRate << " Hz" << endl;
+    metadata << " - Mean rate sigma : " << fMeanRateSigma << " Hz" << endl;
+    for (auto const& x : fAverageObservable) {
+        metadata << " " << endl;
+        metadata << x.first << " average:" << x.second << endl;
+        TVector2 a = fAverageRange[x.first];
+        if (a.X() != -1 && a.Y() != -1) metadata << "    range : (" << a.X() << ", " << a.Y() << ")" << endl;
+    }
+    for (auto const& x : fRMSObservable) {
+        metadata << " " << endl;
+        metadata << x.first << " RMS:" << x.second << endl;
+        TVector2 a = fRMSRange[x.first];
+        if (a.X() != -1 && a.Y() != -1) metadata << "    range : (" << a.X() << ", " << a.Y() << ")" << endl;
+    }
     EndPrintProcess();
 }
