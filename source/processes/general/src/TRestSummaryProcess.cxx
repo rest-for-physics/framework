@@ -41,6 +41,18 @@
 /// field `obsName`. Optionally we are allowed to introduce the range where events
 /// will be considered for the RMS calculation.
 ///
+/// 4. The *maximum* of any observable available at the TRestAnalysisTree object accessible
+/// to the processing chain. It is defined through the keyword `<maximum` where we must
+/// specify the name of the observable we are willing to calculate its maximum using the
+/// field `obsName`. Optionally we are allowed to introduce the range where events
+/// will be considered for the maxium calculation.
+///
+/// 5. The *minimum* of any observable available at the TRestAnalysisTree object accessible
+/// to the processing chain. It is defined through the keyword `<minimum` where we must
+/// specify the name of the observable we are willing to calculate its minimum using the
+/// field `obsName`. Optionally we are allowed to introduce the range where events
+/// will be considered for the minimum calculation.
+///
 /// The following code shows an example of implementation inside a
 /// TRestProcessRunner RML section.
 ///
@@ -51,6 +63,7 @@
 ///        <average obsName="rawAna_BaseLineSigmaMean" range="(0,50)" />
 ///        <rms obsName="rawAna_ThresholdIntegral" range="(0,500000)" />
 ///        <rms obsName="rawAna_BaseLineMean" range="(0,500)" />
+///        <maximum obsName="hitsAna_energy" />
 ///    </addProcess>
 /// ```
 ///
@@ -174,6 +187,16 @@ void TRestSummaryProcess::EndProcess() {
         fRMS[x.first] = this->GetFullAnalysisTree()->GetObservableRMS(x.first, range.X(), range.Y());
     }
 
+    for (auto const& x : fMaximum) {
+        TVector2 range = fMaximumRange[x.first];
+        fMaximum[x.first] = this->GetFullAnalysisTree()->GetObservableMaximum(x.first, range.X(), range.Y());
+    }
+
+    for (auto const& x : fMinimum) {
+        TVector2 range = fMinimumRange[x.first];
+        fMinimum[x.first] = this->GetFullAnalysisTree()->GetObservableMinimum(x.first, range.X(), range.Y());
+    }
+
     if (GetVerboseLevel() >= REST_Info) PrintMetadata();
 }
 
@@ -198,6 +221,22 @@ void TRestSummaryProcess::InitFromConfigFile() {
         fRMS[obsName] = 0;
         fRMSRange[obsName] = StringTo2DVector(GetFieldValue("range", definition));
     }
+
+    pos = 0;
+    while ((definition = GetKEYDefinition("maximum", pos)) != "") {
+        TString obsName = GetFieldValue("obsName", definition);
+
+        fMaximum[obsName] = 0;
+        fMaximumRange[obsName] = StringTo2DVector(GetFieldValue("range", definition));
+    }
+
+    pos = 0;
+    while ((definition = GetKEYDefinition("minimum", pos)) != "") {
+        TString obsName = GetFieldValue("obsName", definition);
+
+        fMinimum[obsName] = 0;
+        fMinimumRange[obsName] = StringTo2DVector(GetFieldValue("range", definition));
+    }
 }
 
 ///////////////////////////////////////////////
@@ -219,6 +258,18 @@ void TRestSummaryProcess::PrintMetadata() {
         metadata << " " << endl;
         metadata << x.first << " RMS:" << x.second << endl;
         TVector2 a = fRMSRange[x.first];
+        if (a.X() != -1 && a.Y() != -1) metadata << "    range : (" << a.X() << ", " << a.Y() << ")" << endl;
+    }
+    for (auto const& x : fMaximum) {
+        metadata << " " << endl;
+        metadata << x.first << " Maximum:" << x.second << endl;
+        TVector2 a = fMaximumRange[x.first];
+        if (a.X() != -1 && a.Y() != -1) metadata << "    range : (" << a.X() << ", " << a.Y() << ")" << endl;
+    }
+    for (auto const& x : fMinimum) {
+        metadata << " " << endl;
+        metadata << x.first << " Minimum:" << x.second << endl;
+        TVector2 a = fMinimumRange[x.first];
         if (a.X() != -1 && a.Y() != -1) metadata << "    range : (" << a.X() << ", " << a.Y() << ")" << endl;
     }
     EndPrintProcess();

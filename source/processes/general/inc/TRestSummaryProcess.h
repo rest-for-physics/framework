@@ -48,6 +48,18 @@ class TRestSummaryProcess : public TRestEventProcess {
     /// If defined it will set the range where RMS is calculated
     std::map<TString, TVector2> fRMSRange;
 
+    /// It will register the maximum value of an existing analyisTree observable.
+    std::map<TString, Double_t> fMaximum;
+
+    /// If defined it will set the range where maximum is calculated
+    std::map<TString, TVector2> fMaximumRange;
+
+    /// It will register the minimum value of an existing analyisTree observable.
+    std::map<TString, Double_t> fMinimum;
+
+    /// If defined it will set the range where minimum is calculated
+    std::map<TString, TVector2> fMinimumRange;
+
     /// The event pointer is not used in this process
     TRestEvent* fEvent = NULL;  //!
 
