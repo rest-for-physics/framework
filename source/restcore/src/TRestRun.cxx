@@ -561,8 +561,8 @@ void TRestRun::ReadInputFileTrees() {
                 }
             }
         } else {
-            warning << "REST WARNING (OpenInputFile) : EventTree was not found" << endl;
-            warning << "This is a pure analysis file!" << endl;
+            debug << "TRestRun:OpenInputFile. EventTree was not found" << endl;
+            debug << "This is a pure analysis file!" << endl;
             fInputEvent = NULL;
         }
     }
@@ -1426,14 +1426,40 @@ string TRestRun::ReplaceMetadataMember(const string instr) {
     if (results.size() == 1) results = Split(instr, "->", false, true);
 
     if (results.size() == 2) {
-        if (GetMetadata(results[0])) return this->GetMetadata(results[0])->GetDataMemberValue(results[1]);
-        if (GetMetadataClass(results[0]))
-            return this->GetMetadata(results[0])->GetDataMemberValue(results[1]);
+        Int_t index = 0;
+        int pos1 = results[1].find("[", 0);
+        int pos2 = results[1].find("]", pos1);
+        if (pos1 > 0 && pos2 > 0) {
+            string indexStr = results[1].substr(pos1 + 1, pos2 - pos1 - 1);  // without []
+
+            index = StringToInteger(indexStr);
+            if (index < 0) index = 0;
+
+            results[1] = results[1].substr(0, pos1);
+        }
+
+        if (GetMetadata(results[0])) {
+            if (index >= this->GetMetadata(results[0])->GetDataMemberValues(results[1]).size()) {
+                warning << "TRestRun::ReplaceMetadataMember. Index out of range!" << endl;
+                warning << "Returning the first element" << endl;
+                index = 0;
+            }
+            return this->GetMetadata(results[0])->GetDataMemberValues(results[1])[index];
+        }
+
+        if (GetMetadataClass(results[0])) {
+            if (index >= this->GetMetadataClass(results[0])->GetDataMemberValues(results[1]).size()) {
+                warning << "TRestRun::ReplaceMetadataMember. Index out of range!" << endl;
+                warning << "Returning the first element" << endl;
+                index = 0;
+            }
+            return this->GetMetadataClass(results[0])->GetDataMemberValues(results[1])[index];
+        }
 
     } else
-        ferr << "TRestRun::ReplaceMetadata. Wrong number of elements found" << endl;
+        ferr << "TRestRun::ReplaceMetadataMember. Wrong number of elements found" << endl;
 
-    warning << "TRestRun::ReplaceMetadata. " << instr << " not found!" << endl;
+    warning << "TRestRun::ReplaceMetadataMember. " << instr << " not found!" << endl;
     return "";
 }
 

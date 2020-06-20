@@ -1,5 +1,5 @@
 
-Int_t ValidateGas() {
+Int_t LoadGasFromServerAndValidate() {
     gSystem->Load("libRestProcesses.so");
     gSystem->Load("libRestCore.so");
     gSystem->Load("libRestTools.so");
@@ -8,6 +8,11 @@ Int_t ValidateGas() {
 
     TRestGas* gas = new TRestGas("server", "Xenon-TMA 1Pct 10-10E3Vcm");
     gas->PrintMetadata();
+
+    if (!gas->GasFileLoaded()) {
+        cout << "The gas file was not properly loaded" << endl;
+        return 10;
+    }
 
     if (gas->GetGasMixture() != "xe_99.0-n(ch3)3_1.0") {
         cout << "Mixture : " << gas->GetGasMixture() << endl;

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+ <gases>
+<TRestGas name="dummyGas" title="Dummy gas">
+   <parameter name="pressure" value="1" />
+   <parameter name="temperature" value="293.15" />
+   <parameter name="maxElectronEnergy" value="400" />
+   <parameter name="W_value" value="21.9" />
+   <parameter name="nCollisions" value="3" />
+   <eField Emin="50" Emax="100." nodes="2" />
+   <gasComponent name="xe" fraction="0.001" />
+   <gasComponent name="n(ch3)3" fraction="0.99" />
+</TRestGas> 
+</gases>

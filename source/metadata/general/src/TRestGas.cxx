@@ -222,13 +222,12 @@ using namespace std;
 
 // const char* defaultServer = "https://sultan.unizar.es/gasFiles/";
 
-ClassImp(TRestGas)
+ClassImp(TRestGas);
 
-    /////////////////////////////////////////////
-    /// \brief TRestGas default constructor
-    ///
-    TRestGas::TRestGas()
-    : TRestDriftVolume() {
+/////////////////////////////////////////////
+/// \brief TRestGas default constructor
+///
+TRestGas::TRestGas() : TRestDriftVolume() {
     Initialize();
 
     fGasGeneration = false;
@@ -246,10 +245,11 @@ ClassImp(TRestGas)
 /// section. \param name The name of the TRestGas section to be read. \param
 /// gasGeneration Parameter allowing to activate the gas generation.
 ///
-TRestGas::TRestGas(const char* cfgFileName, string name, bool gasGeneration) : TRestDriftVolume() {
+TRestGas::TRestGas(const char* cfgFileName, string name, bool gasGeneration, bool test) : TRestDriftVolume() {
     Initialize();
-
     fGasGeneration = gasGeneration;
+
+    fTest = test;
 
     if (strcmp(cfgFileName, "server") == 0) {
         LoadConfigFromFile(StringToElement("<TRestGas name=\"" + name + "\" file=\"server\"/>"), NULL);
@@ -595,7 +595,7 @@ void TRestGas::InitFromConfigFile() {
 #if defined USE_Garfield
     // calling garfield, either to generate gas file or load existing gas file
     if (fGasGeneration) {
-        info << "Starting gas generation" << endl;
+        essential << "Starting gas generation" << endl;
 
         CalcGarField(fEmin, fEmax, fEnodes);
         GenerateGasFile();
@@ -634,7 +634,7 @@ void TRestGas::InitFromRootFile() {
 void TRestGas::UploadGasToServer(string absoluteGasFilename) {
     essential << "uploading gas file and gas definition rmls" << endl;
 
-    if (fMaxElectronEnergy < 400 || fNCollisions < 10 || fEnodes < 20) {
+    if (!fTest && (fMaxElectronEnergy < 400 || fNCollisions < 10 || fEnodes < 20)) {
         warning << "-- Warning : The gas file does not fulfill the requirements "
                    "for being uploaded to the gasServer"
                 << endl;
@@ -693,10 +693,10 @@ void TRestGas::UploadGasToServer(string absoluteGasFilename) {
     // We transfer the new gas definitions to the gasServer
     ids = gDataBase->search_data(DBEntry(0, "GAS_SERVER"));
     string remoteurl = gDataBase->query_data(ids[0]).value;
-    TRestTools::UploadToServer(remoteurl, fname, "ssh://gasUser@:22");
+    TRestTools::UploadToServer(fname, remoteurl, "ssh://gasUser@:22");
 
     // We transfer the gasFile to the gasServer
-    TRestTools::UploadToServer(remoteurl, absoluteGasFilename, "ssh://gasUser@:22");
+    TRestTools::UploadToServer(absoluteGasFilename, remoteurl, "ssh://gasUser@:22");
 
     // We remove the local file (afterwards, the remote copy will be used)
     // cmd = "rm " + _name;
