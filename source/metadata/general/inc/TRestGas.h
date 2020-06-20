@@ -108,7 +108,7 @@ class TRestGas : public TRestDriftVolume {
 
     TString fGasFileContent;  // Used for saving the gasFile into a root file
 
-    Bool_t fTest = false;
+    Bool_t fTest = false;  //!
 
     void InitFromConfigFile();
     string ConstructFilename();
