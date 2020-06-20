@@ -473,6 +473,36 @@ Double_t TRestAnalysisTree::GetObservableRMS(TString obsName, Double_t xLow, Dou
 }
 
 ///////////////////////////////////////////////
+/// \brief It returns the maximum value of obsName considering the given range. If no range is given
+/// the full histogram range will be considered.
+///
+Double_t TRestAnalysisTree::GetObservableMaximum(TString obsName, Double_t xLow, Double_t xHigh,
+                                                 Int_t nBins) {
+    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
+    if (xHigh == -1)
+        this->Draw(obsName);
+    else
+        this->Draw(obsName + ">>" + histDefinition);
+    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
+    return htemp->GetMaximumStored();
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the minimum value of obsName considering the given range. If no range is given
+/// the full histogram range will be considered.
+///
+Double_t TRestAnalysisTree::GetObservableMinimum(TString obsName, Double_t xLow, Double_t xHigh,
+                                                 Int_t nBins) {
+    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
+    if (xHigh == -1)
+        this->Draw(obsName);
+    else
+        this->Draw(obsName + ">>" + histDefinition);
+    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
+    return htemp->GetMinimumStored();
+}
+
+///////////////////////////////////////////////
 /// \brief It returns a string containning all the observables that exist in the analysis tree.
 ///
 TString TRestAnalysisTree::GetStringWithObservableNames() {
