@@ -586,8 +586,10 @@ void TRestRun::ReadFileInfo(string filename) {
 
     debug << "begin collecting file info: " << filename << endl;
     struct stat buf;
-    int fd = fileno(fopen(filename.c_str(), "rb"));
+    FILE* fp = fopen(filename.c_str(), "rb");
+    int fd = fileno(fp);
     fstat(fd, &buf);
+    fclose(fp);
 
     string datetime = ToDateTimeString(buf.st_mtime);
     fInformationMap["Time"] = Split(datetime, " ")[1];
@@ -960,7 +962,7 @@ void TRestRun::CloseFile() {
     }
     if (fInputFile != NULL) {
         fInputFile->Close();
-        delete fOutputFile;
+        delete fInputFile;
         fInputFile = NULL;
     }
 }
