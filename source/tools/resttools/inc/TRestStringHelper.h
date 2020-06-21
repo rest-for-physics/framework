@@ -35,7 +35,7 @@ Long64_t StringToLong(std::string in);
 TVector3 StringTo3DVector(std::string in);
 TVector2 StringTo2DVector(std::string in);
 std::vector<string> Split(std::string in, string separator, bool allowBlankString = false,
-                          bool removeWhiteSpaces = false);
+                          bool removeWhiteSpaces = false, int startPos = -1);
 std::string RemoveWhiteSpaces(std::string in);
 std::string Replace(std::string in, std::string thisString, std::string byThisString, size_t fromPosition = 0,
                     Int_t N = 0);
