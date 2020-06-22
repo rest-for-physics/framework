@@ -1510,6 +1510,13 @@ Bool_t TRestRun::EvaluateMetadataMember(const string instr) {
         return false;
     }
 
+    if (!isANumber(results[1])) {
+        if (ReplaceMetadataMember(results[0]) == results[1])
+            return true;
+        else
+            return false;
+    }
+
     Double_t lvalue = StringToDouble(ReplaceMetadataMember(results[0]));
     Double_t rvalue = StringToDouble(results[1]);
 
