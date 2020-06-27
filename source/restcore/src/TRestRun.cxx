@@ -1481,9 +1481,12 @@ string TRestRun::ReplaceMetadataMember(const string instr) {
 ///
 /// Both, `::` and `->` are allowed to separate class and the data member.
 ///
-/// \return The result of the evaluated expression
+/// \return The result of the evaluated expression. If the input string is empty
+/// it will return true.
 ///
 Bool_t TRestRun::EvaluateMetadataMember(const string instr) {
+    if (instr == "") return true;
+
     std::vector<string> oper = {"=", "==", "<=", "<", ">=", ">", "!="};
 
     string expOp = "";
