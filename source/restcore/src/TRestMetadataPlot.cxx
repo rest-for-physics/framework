@@ -823,7 +823,9 @@ void TRestMetadataPlot::GenerateCanvas() {
 
             gr_temp->GetXaxis()->SetTitle(plot.labelX.c_str());
             gr_temp->GetYaxis()->SetTitle(plot.labelY.c_str());
-            gr_temp->GetXaxis()->SetMaxDigits(4);
+            // Removed to avoid Gitlab SJTU pipeline failing.
+            // Probably due to ROOT version?
+            // gr_temp->GetXaxis()->SetMaxDigits(4);
 
             gr_temp->GetXaxis()->SetLabelSize(fTicksScaleX * gr_temp->GetXaxis()->GetLabelSize());
             gr_temp->GetYaxis()->SetLabelSize(fTicksScaleY * gr_temp->GetYaxis()->GetLabelSize());
