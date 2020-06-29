@@ -326,7 +326,7 @@ void TRestRun::EndOfInit() {
 
     OpenInputFile(0);
 
-    cout << "InputFile pattern: \"" << fInputFileName << "\"" << endl;
+    debug << "TRestRun::EndOfInit. InputFile pattern: \"" << fInputFileName << "\"" << endl;
     info << "which matches :" << endl;
     for (int i = 0; i < fInputFileNames.size(); i++) {
         info << fInputFileNames[i] << endl;
