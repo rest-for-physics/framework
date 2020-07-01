@@ -326,7 +326,7 @@ void TRestRun::EndOfInit() {
 
     OpenInputFile(0);
 
-    cout << "InputFile pattern: \"" << fInputFileName << "\"" << endl;
+    debug << "TRestRun::EndOfInit. InputFile pattern: \"" << fInputFileName << "\"" << endl;
     info << "which matches :" << endl;
     for (int i = 0; i < fInputFileNames.size(); i++) {
         info << fInputFileNames[i] << endl;
@@ -586,8 +586,10 @@ void TRestRun::ReadFileInfo(string filename) {
 
     debug << "begin collecting file info: " << filename << endl;
     struct stat buf;
-    int fd = fileno(fopen(filename.c_str(), "rb"));
+    FILE* fp = fopen(filename.c_str(), "rb");
+    int fd = fileno(fp);
     fstat(fd, &buf);
+    fclose(fp);
 
     string datetime = ToDateTimeString(buf.st_mtime);
     fInformationMap["Time"] = Split(datetime, " ")[1];
@@ -960,7 +962,7 @@ void TRestRun::CloseFile() {
     }
     if (fInputFile != NULL) {
         fInputFile->Close();
-        delete fOutputFile;
+        delete fInputFile;
         fInputFile = NULL;
     }
 }
@@ -1461,6 +1463,75 @@ string TRestRun::ReplaceMetadataMember(const string instr) {
 
     warning << "TRestRun::ReplaceMetadataMember. " << instr << " not found!" << endl;
     return "";
+}
+
+///////////////////////////////////////////////
+/// \brief It will evaluate the expression given including the data member from the
+/// corresponding metadata class type or name defined in the input string.
+//
+/// The input expression should contain the metadata class type or name using the format
+/// `metadata->member` or `metadata::fMember`, where metadata might be the class name or
+/// the intrinsic name assigned to the metadata object.
+///
+/// Examples:
+/// \code
+/// run->EvaluateMetadataMember("TRestDetectorSetup->fDetectorPressure == 4");
+/// run->EvaluateMetadataMember("sc->fMinValues[1] == 3" );
+/// \endcode
+///
+/// Both, `::` and `->` are allowed to separate class and the data member.
+///
+/// \return The result of the evaluated expression. If the input string is empty
+/// it will return true.
+///
+Bool_t TRestRun::EvaluateMetadataMember(const string instr) {
+    if (instr == "") return true;
+
+    std::vector<string> oper = {"=", "==", "<=", "<", ">=", ">", "!="};
+
+    string expOp = "";
+    std::vector<string> results;
+    for (int n = 0; n < oper.size(); n++) {
+        size_t pos = 0;
+        if (instr.find("->") != string::npos) pos = instr.find("->") + 2;
+
+        if (instr.find(oper[n], pos) != string::npos) {
+            expOp = oper[n];
+            results = Split(instr, oper[n], false, true, pos);
+            break;
+        }
+    }
+
+    if (expOp == "") {
+        warning << "TRestRun::EvaluateMetadataMember. Not valid operator found in expression : " << instr
+                << endl;
+        return false;
+    }
+
+    if (results.size() != 2) {
+        warning << "TRestRun::EvaluateMetadataMember. Not valid expression : " << instr << endl;
+        return false;
+    }
+
+    if (!isANumber(results[1])) {
+        if (ReplaceMetadataMember(results[0]) == results[1])
+            return true;
+        else
+            return false;
+    }
+
+    Double_t lvalue = StringToDouble(ReplaceMetadataMember(results[0]));
+    Double_t rvalue = StringToDouble(results[1]);
+
+    if (expOp == "=" && lvalue == rvalue) return true;
+    if (expOp == "==" && lvalue == rvalue) return true;
+    if (expOp == "<=" && lvalue <= rvalue) return true;
+    if (expOp == "<" && lvalue < rvalue) return true;
+    if (expOp == ">=" && lvalue >= rvalue) return true;
+    if (expOp == ">" && lvalue > rvalue) return true;
+    if (expOp == "!=" && lvalue != rvalue) return true;
+
+    return false;
 }
 
 // Printers

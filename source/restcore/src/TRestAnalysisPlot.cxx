@@ -236,7 +236,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
                     hist.cutString += globalCuts[i];
                 }
                 //// add "SAME" option
-                //if (plot.histos.size() > 0) {
+                // if (plot.histos.size() > 0) {
                 //    hist.drawOption += " SAME";
                 //}
 
@@ -954,7 +954,7 @@ void TRestAnalysisPlot::SavePlotToPDF(TString fileName, Int_t n) {
 
     TPad* pad = (TPad*)fCombinedCanvas->GetPad(n);
 
-    TCanvas* c = new TCanvas(fPlots[n].name.c_str(), fPlots[n].name.c_str(), 800, 600);
+    TCanvas* c = new TCanvas(fPlots[n - 1].name.c_str(), fPlots[n - 1].name.c_str(), 800, 600);
     pad->DrawClone();
 
     c->Print(fileName);

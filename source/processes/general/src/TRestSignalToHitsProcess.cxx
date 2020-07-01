@@ -193,7 +193,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
         fReadout->GetPlaneModuleChannel(signalID, planeID, readoutModule, readoutChannel);
 
         if (readoutChannel == -1) {
-            cout << "REST Warning : Readout channel not found for daq ID : " << signalID << endl;
+            // cout << "REST Warning : Readout channel not found for daq ID : " << signalID << endl;
             continue;
         }
         /////////////////////////////////////////////////////////////////////////
