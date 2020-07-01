@@ -142,6 +142,8 @@ class TRestEventProcess : public TRestMetadata {
         fCanvas = new TCanvas(this->GetName(), this->GetTitle(), fCanvasSize.X(), fCanvasSize.Y());
     }
 
+    bool ApplyCut();
+
    public:
     Int_t LoadSectionMetadata();
     vector<string> ReadObservables();
