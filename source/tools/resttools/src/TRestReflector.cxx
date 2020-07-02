@@ -92,7 +92,7 @@ void TRestReflector::Assembly() {
         onheap = true;
     } else if (dt != NULL) {
         address = (char*)malloc(size);
-        memset(address, size, 0);
+        memset(address, 0, size);
         onheap = true;
     }
 }
