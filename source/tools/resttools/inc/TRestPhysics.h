@@ -49,10 +49,14 @@ const double hPlanck = 1.054E-34;
 
 /// A meter in eV
 const double PhMeterIneV = 5067731.236453719;  // 8.0655447654281218E5;// 506.773123645372;
+/// A second in eV (using natural units)
+const double secondIneV = 1519225802531030.2;
 /// Speed of light in m/s
 const double lightSpeed = 2.99792458E8;
 /// Electron charge in natural units
 const double naturalElectron = 0.302822120214353;
+/// A kelvin in eV
+const double kelvinToeV = 86.172809e-6;
 
 TVector3 MoveToPlane(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a);
 
