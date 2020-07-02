@@ -173,6 +173,7 @@ int TRestTools::PrintTable(std::vector<std::vector<T>> data, Int_t start, Int_t 
         for (int m = 0; m < data[n].size(); m++) cout << data[n][m] << "\t";
         cout << endl;
     }
+    return 0;
 }
 
 template int TRestTools::PrintTable<Int_t>(std::vector<std::vector<Int_t>> data, Int_t start, Int_t end);
@@ -331,9 +332,11 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
     std::vector<std::vector<string>> values;
 
     for (string line; std::getline(fin, line);) {
-        std::istringstream in(line);
-        values.push_back(
-            std::vector<string>(std::istream_iterator<string>(in), std::istream_iterator<string>()));
+        if (line.find("#") == string::npos) {
+            std::istringstream in(line);
+            values.push_back(
+                std::vector<string>(std::istream_iterator<string>(in), std::istream_iterator<string>()));
+        }
     }
 
     // Filling the double values table (TODO error handling in case ToDouble
@@ -375,9 +378,11 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& 
     std::vector<std::vector<string>> values;
 
     for (string line; std::getline(fin, line);) {
-        std::istringstream in(line);
-        values.push_back(
-            std::vector<string>(std::istream_iterator<string>(in), std::istream_iterator<string>()));
+        if (line.find("#") == string::npos) {
+            std::istringstream in(line);
+            values.push_back(
+                std::vector<string>(std::istream_iterator<string>(in), std::istream_iterator<string>()));
+        }
     }
 
     // Filling the float values table (TODO error handling in case ToFloat
@@ -806,10 +811,10 @@ int TRestTools::UploadToServer(string filelocal, string remotefile, string metho
     // [proto://][user[:passwd]@]host[:port]/file.ext[#anchor][?options]
     TUrl url(remotefile.c_str());
     TUrl method(methodurl.c_str());
-    if (method.GetProtocol() != "") url.SetProtocol(method.GetProtocol());
+    if (method.GetProtocol() != (string) "") url.SetProtocol(method.GetProtocol());
     if (method.GetPort() != 0) url.SetPort(method.GetPort());
-    if (method.GetUser() != "") url.SetUser(method.GetUser());
-    if (method.GetPasswd() != "") url.SetPasswd(method.GetPasswd());
+    if (method.GetUser() != (string) "") url.SetUser(method.GetUser());
+    if (method.GetPasswd() != (string) "") url.SetPasswd(method.GetPasswd());
 
     if ((string)url.GetProtocol() == "https" || (string)url.GetProtocol() == "http") {
         // maybe we use curl to upload to http in future
