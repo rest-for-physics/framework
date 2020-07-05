@@ -15,6 +15,8 @@ Int_t ValidateTrees() {
 
     if (tr->GetEntries() != tV->GetEntries()) {
         cout << "Number of entries is not the same!" << endl;
+        cout << "result: " << tr->GetEntries() << endl;
+        cout << "anticipated: " << tV->GetEntries() << endl;
         return 1;
     }
 
