@@ -308,9 +308,9 @@ Double_t maxeve = 0;
 
         // We do not want that signals that are not identified as such contribute to define our
         // observables
-        if (sgnl->GetPointsOverThreshold().size() < 2) continue;
-
-        nGoodSignals++;
+        // nkx: we still need to store all the signals in baseline/rise time maps in case for noise analysis
+        // if (sgnl->GetPointsOverThreshold().size() < 2) continue;
+        if (sgnl->GetPointsOverThreshold().size() >= 2) nGoodSignals++;
 
         /* We skip now intermediate variables
 Double_t _bslval = sgnl->GetBaseLine();
