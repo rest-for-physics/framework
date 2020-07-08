@@ -4,6 +4,7 @@
 #include <string>
 
 #include "TRestTask.h"
+#include "TRestStringHelper.h"
 using namespace std;
 
 #include <TString.h>
@@ -38,30 +39,32 @@ std::vector<string> metadataConditions = {};  // {"sc->fMinValues[0]> 3.8", "sc-
 //*** Then we could use both modes ROOT and SQL to crosscheck.
 //***
 //*******************************************************************************************************
-Int_t REST_DataSummary(string pattern, string startDate = "", string endDate = "") {
-    vector<string> files = TRestTools::GetFilesMatchingPattern(pattern);
+Int_t REST_DataSummary(TString pattern, TString startDate = "", TString endDate = "") {
+    vector<string> files = TRestTools::GetFilesMatchingPattern((string)pattern);
 
     std::tm t{};
 
     Double_t startTimeStamp = 0;
     if (startDate != "") {
-        std::istringstream startTimeStream(startDate);
-        startTimeStream >> std::get_time(&t, "%Y-%m-%d");
-        if (startTimeStream.fail()) {
-            throw std::runtime_error{"Failed to parse startDate string. Format should be YYYY-MM-DD"};
-        }
-        startTimeStamp = (Double_t)mktime(&t);
+        //std::istringstream startTimeStream(startDate);
+        //startTimeStream >> std::get_time(&t, "%Y-%m-%d");
+        //if (startTimeStream.fail()) {
+        //    throw std::runtime_error{"Failed to parse startDate string. Format should be YYYY-MM-DD"};
+        //}
+        //startTimeStamp = (Double_t)mktime(&t);
+        startTimeStamp = (Double_t)ToTime((string)startDate);
     }
 
     Double_t endTimeStamp = 0;
     if (endDate != "") {
-        std::istringstream endTimeStream(endDate);
+        //std::istringstream endTimeStream(endDate);
 
-        endTimeStream >> std::get_time(&t, "%Y-%m-%d");
-        if (endTimeStream.fail()) {
-            throw std::runtime_error{"Failed to parse endDate string. Format should be YYYY-MM-DD"};
-        }
-        endTimeStamp = (Double_t)mktime(&t);
+        //endTimeStream >> std::get_time(&t, "%Y-%m-%d");
+        //if (endTimeStream.fail()) {
+        //    throw std::runtime_error{"Failed to parse endDate string. Format should be YYYY-MM-DD"};
+        //}
+        //endTimeStamp = (Double_t)mktime(&t);
+        endTimeStamp = (Double_t)ToTime((string)endDate);
     }
 
     Double_t runLength = 0;
