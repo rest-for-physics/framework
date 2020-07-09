@@ -3,8 +3,8 @@
 #include <streambuf>
 #include <string>
 
-#include "TRestTask.h"
 #include "TRestStringHelper.h"
+#include "TRestTask.h"
 using namespace std;
 
 #include <TString.h>
@@ -46,25 +46,18 @@ Int_t REST_DataSummary(TString pattern, TString startDate = "", TString endDate 
 
     Double_t startTimeStamp = 0;
     if (startDate != "") {
-        //std::istringstream startTimeStream(startDate);
-        //startTimeStream >> std::get_time(&t, "%Y-%m-%d");
-        //if (startTimeStream.fail()) {
-        //    throw std::runtime_error{"Failed to parse startDate string. Format should be YYYY-MM-DD"};
-        //}
-        //startTimeStamp = (Double_t)mktime(&t);
         startTimeStamp = (Double_t)ToTime((string)startDate);
+        cout.precision(12);
+        cout << "Start time stamp : " << startTimeStamp << endl;
+        cout.precision(4);
     }
 
     Double_t endTimeStamp = 0;
     if (endDate != "") {
-        //std::istringstream endTimeStream(endDate);
-
-        //endTimeStream >> std::get_time(&t, "%Y-%m-%d");
-        //if (endTimeStream.fail()) {
-        //    throw std::runtime_error{"Failed to parse endDate string. Format should be YYYY-MM-DD"};
-        //}
-        //endTimeStamp = (Double_t)mktime(&t);
         endTimeStamp = (Double_t)ToTime((string)endDate);
+        cout.precision(12);
+        cout << "End time stamp : " << endTimeStamp << endl;
+        cout.precision(4);
     }
 
     Double_t runLength = 0;
@@ -81,14 +74,14 @@ Int_t REST_DataSummary(TString pattern, TString startDate = "", TString endDate 
 
         Double_t runStartTimeStamp = run->GetStartTimestamp();
         if (startTimeStamp > 0 && startTimeStamp > run->GetStartTimestamp()) {
-            // cout << "Skipping file : " << n << " --> " << TRestTools::GetPureFileName(files[n]) << endl;
+            cout << "Skipping file : " << n << " --> " << TRestTools::GetPureFileName(files[n]) << endl;
             delete run;
             continue;
         }
 
         Double_t runEndTimeStamp = run->GetEndTimestamp();
         if (endTimeStamp > 0 && endTimeStamp < run->GetEndTimestamp()) {
-            // cout << "Skipping file : " << n << " --> " << TRestTools::GetPureFileName(files[n]) << endl;
+            cout << "Skipping file : " << n << " --> " << TRestTools::GetPureFileName(files[n]) << endl;
             delete run;
             continue;
         }
