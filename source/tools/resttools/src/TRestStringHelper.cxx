@@ -277,7 +277,7 @@ string REST_StringHelper::ToDateTimeString(time_t time) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Parse string to time_t
+/// \brief A method to convert a date/time formatted string to a timestamp.
 ///
 /// The input datatime format should match any of the following patterns:
 /// "YYYY-mm-DD HH:MM:SS", "YYYY/mm/DD HH:MM:SS", "YYYY-mm-DD", or "YYYY/mm/DD".
@@ -291,7 +291,7 @@ string REST_StringHelper::ToDateTimeString(time_t time) {
 /// here the type "time_t" is actually the type "long long", which indicates the
 /// elapsed time in second from 1970-1-1 8:00:00
 ///
-time_t REST_StringHelper::ToTime(string time) {
+time_t REST_StringHelper::StringToTimeStamp(string time) {
     struct tm tm1;
     tm1.tm_hour = 0;
     tm1.tm_min = 0;

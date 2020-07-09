@@ -46,7 +46,7 @@ Int_t REST_DataSummary(TString pattern, TString startDate = "", TString endDate 
 
     Double_t startTimeStamp = 0;
     if (startDate != "") {
-        startTimeStamp = (Double_t)ToTime((string)startDate);
+        startTimeStamp = (Double_t)StringToTimeStamp((string)startDate);
         cout.precision(12);
         cout << "Start time stamp : " << startTimeStamp << endl;
         cout.precision(4);
@@ -54,7 +54,7 @@ Int_t REST_DataSummary(TString pattern, TString startDate = "", TString endDate 
 
     Double_t endTimeStamp = 0;
     if (endDate != "") {
-        endTimeStamp = (Double_t)ToTime((string)endDate);
+        endTimeStamp = (Double_t)StringToTimeStamp((string)endDate);
         cout.precision(12);
         cout << "End time stamp : " << endTimeStamp << endl;
         cout.precision(4);
