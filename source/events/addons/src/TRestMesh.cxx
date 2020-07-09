@@ -527,14 +527,14 @@ std::vector<TVector3> TRestMesh::GetTrackBoundariesCylinder(TVector3 pos, TVecto
     TVector3 relPosBottom = posAtPlane - netCenter;
     relPosBottom.SetZ(0);
     // fNetSizeX is used to define the radius of the cylinder
-    if (relPosBottom.Mag2() < fNetSizeX * fNetSizeX) boundaries.push_back(posAtPlane);
+    if (relPosBottom.Mag2() < fNetSizeX * fNetSizeX / 4.) boundaries.push_back(posAtPlane);
 
     TVector3 planePosition_TopZ = TVector3(0, 0, GetNetSizeZ() / 2.) + netCenter;
     posAtPlane = REST_Physics::MoveToPlane(pos, dir, TVector3(0, 0, 1), planePosition_TopZ);
     TVector3 relPosTop = posAtPlane - netCenter;
     relPosTop.SetZ(0);
     // fNetSizeX is used to define the radius of the cylinder
-    if (relPosTop.Mag2() < fNetSizeX * fNetSizeX) boundaries.push_back(posAtPlane);
+    if (relPosTop.Mag2() < fNetSizeX * fNetSizeX / 4.) boundaries.push_back(posAtPlane);
 
     if (boundaries.size() == 2 && particle) {
         // d1 and d2 is the signed distance to the volume boundaries
