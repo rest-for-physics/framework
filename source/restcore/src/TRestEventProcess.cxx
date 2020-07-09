@@ -267,23 +267,6 @@ TRestEventProcess* TRestEventProcess::GetFriendLive(string nameortype) {
     return NULL;
 }
 
-//////////////////////////////////////////////////////////////////////////
-/// \brief Apply cut according to the cut conditions saved in fCut
-///
-/// returns true if the event should be cut and not stored.
-bool TRestEventProcess::ApplyCut() {
-    for (auto cut : fCuts) {
-        string obsname = this->GetName() + (string) "_" + (string)cut.first;
-        if (fAnalysisTree != NULL && fAnalysisTree->GetObservableType(obsname) == "double") {
-            double val = fAnalysisTree->GetObservableValue<double>(obsname);
-            if (val > cut.second.Y() || val < cut.second.X()) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 /*
 //______________________________________________________________________________
 void TRestEventProcess::InitProcess()
