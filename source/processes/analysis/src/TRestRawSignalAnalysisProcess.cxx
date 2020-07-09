@@ -504,8 +504,8 @@ risetimemean += sgnl->GetRiseTime();
     fPreviousEventTime.push_back(fSignalEvent->GetTimeStamp());
     if (fPreviousEventTime.size() > 10) fPreviousEventTime.erase(fPreviousEventTime.begin());
 
-    // If cut condition matches the event will be not registered.
-    if (ApplyCut()) return NULL;
+    // If no good signals are identified the event will be not registered.
+    if (nGoodSignals == 0) return NULL;
 
     return fSignalEvent;
 }
