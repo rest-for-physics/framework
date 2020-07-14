@@ -44,8 +44,6 @@ class GdmlPreprocessor : public TRestMetadata {
             fConfigFileName = file;
             path = TRestTools::SeparatePathAndName(file).first;
 
-            // getchar();
-
             std::ifstream t(file);
             std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
             filestr = str;
@@ -56,6 +54,8 @@ class GdmlPreprocessor : public TRestMetadata {
                 int pp2 = filestr.find("##", pp + 4);
                 if (pp2 != string::npos) gdmlVersion = filestr.substr(pp + 9, pp2 - pp - 9);
             }
+
+            filestr = ReplaceEnvironmentalVariables(filestr);
 
             cout << "GDML: initializating variables" << endl;
             int pos = filestr.find("<gdml", 0);
