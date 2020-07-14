@@ -307,7 +307,7 @@ Double_t TRestRawSignal::GetRiseSlope() {
              << endl;
 
     if (fPointsOverThreshold.size() < 2) {
-        cout << "REST Warning. TRestRawSignal::GetRiseSlope. Less than 2 points!." << endl;
+        // cout << "REST Warning. TRestRawSignal::GetRiseSlope. Less than 2 points!." << endl;
         return 0;
     }
 
@@ -331,7 +331,7 @@ Int_t TRestRawSignal::GetRiseTime() {
              << endl;
 
     if (fPointsOverThreshold.size() < 2) {
-        cout << "REST Warning. TRestRawSignal::GetRiseTime. Less than 2 points!." << endl;
+        // cout << "REST Warning. TRestRawSignal::GetRiseTime. Less than 2 points!." << endl;
         return 0;
     }
 
@@ -353,9 +353,9 @@ Double_t TRestRawSignal::GetTripleMaxIntegral() {
     }
 
     if (fPointsOverThreshold.size() < 2) {
-        cout << "REST Warning. TRestRawSignal::GetTripleMaxIntegral. Points over "
-                "threshold = "
-             << fPointsOverThreshold.size() << endl;
+       // cout << "REST Warning. TRestRawSignal::GetTripleMaxIntegral. Points over "
+        //        "threshold = "
+        //     << fPointsOverThreshold.size() << endl;
         return 0;
     }
 
