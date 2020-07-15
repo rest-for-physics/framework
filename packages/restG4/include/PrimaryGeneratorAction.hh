@@ -117,6 +117,8 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 
     Double_t energyFactor;
 
+    Double_t lastEnergy;
+
     void SetParticlePosition();
     void SetParticlePosition(int n);
     G4ParticleDefinition* SetParticleDefinition(int n);

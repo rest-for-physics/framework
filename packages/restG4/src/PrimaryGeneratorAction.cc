@@ -417,6 +417,16 @@ void PrimaryGeneratorAction::SetParticleEnergy(int n) {
         energy = 1 * keV;
     }
 
+    string angular_dist_type_name = (string)restG4Metadata->GetParticleSource(n).GetAngularDistType();
+    angular_dist_type_name = g4_metadata_parameters::CleanString(angular_dist_type_name);
+    g4_metadata_parameters::angular_dist_types angular_dist_type;
+    if (g4_metadata_parameters::angular_dist_types_map.count(angular_dist_type_name)) {
+        angular_dist_type = g4_metadata_parameters::angular_dist_types_map[angular_dist_type_name];
+        if (n > 0 && angular_dist_type == g4_metadata_parameters::angular_dist_types::BACK_TO_BACK)
+            energy = lastEnergy;
+    }
+
+    if (n == 0) lastEnergy = energy;
     fParticleGun->SetParticleEnergy(energy);
 
     restG4Event->SetPrimaryEventEnergy(energy / keV);
