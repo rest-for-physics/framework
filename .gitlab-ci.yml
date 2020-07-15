@@ -92,13 +92,13 @@ listRESTMacros:
   type: restG4
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/
+    - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD/
     - restG4 NLDBD.rml
     - geant4-config --version
     - restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/Run00001_NLDBD_Test.root
+      - ${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test.root
     expire_in: 1 day
   except:
       variables:
