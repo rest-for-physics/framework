@@ -207,7 +207,7 @@ TPad* TRestSignalEvent::DrawEvent(TString option) {
     fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1);
     fPad->Draw();
     fPad->cd();
-    fPad->DrawFrame(GetMinTime(), GetMinTime(), GetMaxTime(), GetMaxValue());
+    fPad->DrawFrame(GetMinTime(), GetMinValue(), GetMaxTime(), GetMaxValue());
 
     char title[256];
     sprintf(title, "Event ID %d", this->GetID());
