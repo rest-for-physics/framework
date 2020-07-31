@@ -22,7 +22,21 @@
 
 //////////////////////////////////////////////////////////////////////////
 ///
-/// BASIC DOCUMENTATION
+/// BASIC DOCUMENTATION : Full documentation to be added.
+///
+/// This process tries to reduce the common noise of TRestRawSignals by two
+/// means : 
+/// 
+/// Mode = 0
+/// For each time bin, all time bins are gathered for all the signals and
+/// ranked increasingly. We take the middle bin and substract its values to
+/// all the bins corresponding to that time.
+/// 
+/// 
+/// Mode = 1
+/// The method is exactly the same but we take into account **centerWidth**
+/// % of the total number of bins center around the middle. The mean of these
+/// bins is used to do the correction.
 ///
 //////////////////////////////////////////////////////////////////////////
 
