@@ -202,7 +202,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
     debug << "Entering TRestThread::PrepareToProcess( testrun=" << testrun << " )" << endl;
 
     string threadFileName;
-    if (fHostRunner->GetTempOutputDataFile()->GetName() == "/dev/null") {
+    if (fHostRunner->GetTempOutputDataFile()->GetName() == (string) "/dev/null") {
         threadFileName = "/dev/null";
     } else {
         threadFileName = "/tmp/rest_thread_tmp" + ToString(this) + ".root";

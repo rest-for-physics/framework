@@ -35,13 +35,13 @@ Long64_t StringToLong(std::string in);
 TVector3 StringTo3DVector(std::string in);
 TVector2 StringTo2DVector(std::string in);
 std::vector<string> Split(std::string in, string separator, bool allowBlankString = false,
-                          bool removeWhiteSpaces = false);
+                          bool removeWhiteSpaces = false, int startPos = -1);
 std::string RemoveWhiteSpaces(std::string in);
 std::string Replace(std::string in, std::string thisString, std::string byThisString, size_t fromPosition = 0,
                     Int_t N = 0);
 std::string EscapeSpecialLetters(string in);
 string ToDateTimeString(time_t time);
-time_t ToTime(string time);
+time_t StringToTimeStamp(string time);
 ULong64_t ToHash(string str);
 constexpr ULong64_t ToHash(const char* str, ULong64_t last_value = 0xCBF29CE484222325ull) {
     return *str ? ToHash(str + 1, (*str ^ last_value) * 0x100000001B3ull) : last_value;

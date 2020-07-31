@@ -177,7 +177,11 @@ class TRestRun : public TRestMetadata {
     std::vector<std::string> GetMetadataStructureTitles();
     int GetNumberOfMetadataStructures() { return fMetadataInfo.size(); }
 
+    string ReplaceMetadataMember(const string instr);
+    string GetMetadataMember(const string instr) { return ReplaceMetadataMember(instr); }
     string ReplaceMetadataMembers(string instr);
+
+    Bool_t EvaluateMetadataMember(const string instr);
 
     // Setters
     void SetInputFileName(string s) {

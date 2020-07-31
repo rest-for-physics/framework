@@ -28,6 +28,10 @@
 			<observable name="NumberOfSignals" value="ON" />
 			<observable name="NumberOfGoodSignals" value="ON" />
 		-->
+
+      <parameter name="cutsEnabled" value="true" />
+      <cut name="NumberOfGoodSignals" value="(1,1000)" />
+      
 		</addProcess>
 
 

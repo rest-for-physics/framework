@@ -48,6 +48,8 @@ class TRestElectronDiffusionProcess : public TRestEventProcess {
 
     Int_t fMaxHits;
 
+    Double_t fSeed = 0;
+
    public:
     any GetInputEvent() { return fInputHitsEvent; }
     any GetOutputEvent() { return fOutputHitsEvent; }
@@ -70,6 +72,8 @@ class TRestElectronDiffusionProcess : public TRestEventProcess {
 
         metadata << " Maximum number of hits : " << fMaxHits << endl;
 
+        metadata << " seed : " << fSeed << endl;
+
         EndPrintProcess();
     }
 
@@ -87,7 +91,7 @@ class TRestElectronDiffusionProcess : public TRestEventProcess {
     // Destructor
     ~TRestElectronDiffusionProcess();
 
-    ClassDef(TRestElectronDiffusionProcess, 1);  // Template for a REST "event process" class inherited from
+    ClassDef(TRestElectronDiffusionProcess, 2);  // Template for a REST "event process" class inherited from
                                                  // TRestEventProcess
 };
 #endif

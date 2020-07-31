@@ -215,7 +215,7 @@ TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent(TRestEvent* evInput) {
         for (Double_t t = minT - fNPoints * fSampling; t <= maxT + fNPoints * fSampling; t = t + 0.5) {
             Double_t en = fInputSignalEvent->GetIntegralWithTime(t, t + (fSampling * fNPoints) / 2.);
 
-            if ( en > fIntegralThreshold) {
+            if (en > fIntegralThreshold) {
                 tStart = t - fTriggerDelay * fSampling;
                 tEnd = t + (fNPoints - fTriggerDelay) * fSampling;
             }
@@ -268,7 +268,7 @@ TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent(TRestEvent* evInput) {
 
             if (t > tStart && t < tEnd) {
                 // convert physical time (in us) to timeBin
-                Int_t timeBin = (Int_t)((t - tStart) / fSampling);
+                Int_t timeBin = (Int_t)round((t - tStart) / fSampling);
 
                 if (GetVerboseLevel() >= REST_Warning)
                     if (timeBin < 0 || timeBin > fNPoints) {
@@ -302,6 +302,7 @@ TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent(TRestEvent* evInput) {
 
     debug << "TRestSignalToRawSignalProcess. Returning event with N signals "
           << fOutputRawSignalEvent->GetNumberOfSignals() << endl;
+
     return fOutputRawSignalEvent;
 }
 

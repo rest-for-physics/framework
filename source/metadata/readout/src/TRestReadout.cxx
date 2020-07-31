@@ -760,7 +760,7 @@ Double_t TRestReadout::GetX(Int_t signalID) {
     Int_t planeID, readoutChannel = -1, readoutModule;
     GetPlaneModuleChannel(signalID, planeID, readoutModule, readoutChannel);
     if (readoutChannel == -1) {
-        cout << "REST Warning : Readout channel not found for daq ID : " << signalID << endl;
+        // cout << "REST Warning : Readout channel not found for daq ID : " << signalID << endl;
         return numeric_limits<Double_t>::quiet_NaN();
     }
     return GetX(planeID, readoutModule, readoutChannel);
@@ -770,7 +770,7 @@ Double_t TRestReadout::GetY(Int_t signalID) {
     Int_t planeID, readoutChannel = -1, readoutModule;
     GetPlaneModuleChannel(signalID, planeID, readoutModule, readoutChannel);
     if (readoutChannel == -1) {
-        cout << "REST Warning : Readout channel not found for daq ID : " << signalID << endl;
+        // cout << "REST Warning : Readout channel not found for daq ID : " << signalID << endl;
         return numeric_limits<Double_t>::quiet_NaN();
     }
     return GetY(planeID, readoutModule, readoutChannel);

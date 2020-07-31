@@ -32,7 +32,6 @@
 #include "TRestEventProcess.h"
 
 //! A process to identify signal and remove baseline noise from a TRestRawSignalEvent.
-//! The resulting event is a TRestSignalEvent.
 class TRestSignalZeroSuppresionProcess : public TRestEventProcess {
    private:
     /// A pointer to the specific TRestRawSignalEvent input

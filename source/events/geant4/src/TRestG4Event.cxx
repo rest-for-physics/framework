@@ -233,6 +233,20 @@ Int_t TRestG4Event::GetEnergyDepositedByParticle(TString parName) {
     return en;
 }
 
+void TRestG4Event::SetBoundaries(Double_t xMin, Double_t xMax, Double_t yMin, Double_t yMax, Double_t zMin,
+                                 Double_t zMax) {
+    SetBoundaries();
+
+    fMinX = xMin;
+    fMaxX = xMax;
+
+    fMinY = yMin;
+    fMaxY = yMax;
+
+    fMinZ = zMin;
+    fMaxZ = zMax;
+}
+
 void TRestG4Event::SetBoundaries() {
     Double_t maxX = -1e10, minX = 1e10, maxZ = -1e10, minZ = 1e10, maxY = -1e10, minY = 1e10;
     Double_t minEnergy = 1e10, maxEnergy = -1e10;
@@ -888,10 +902,10 @@ TH1D* TRestG4Event::GetYHistogram(Int_t gridElement, std::vector<TString> optLis
     return fYHisto;
 }
 
-TPad* TRestG4Event::DrawEvent(TString option) {
+TPad* TRestG4Event::DrawEvent(TString option, Bool_t autoBoundaries) {
     vector<TString> optList = Vector_cast<string, TString>(TRestTools::GetOptions((string)option));
 
-    SetBoundaries();
+    if (autoBoundaries) SetBoundaries();
 
     // If no option is given. This is the default
     if (optList.size() == 0) {

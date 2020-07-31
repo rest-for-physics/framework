@@ -95,7 +95,7 @@ TRestEvent* TRestSmearingProcess::ProcessEvent(TRestEvent* evInput) {
     for (int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++)
         fHitsOutputEvent->AddHit(fHitsInputEvent->GetX(hit), fHitsInputEvent->GetY(hit),
                                  fHitsInputEvent->GetZ(hit), fHitsInputEvent->GetEnergy(hit) * gain,
-                                 fHitsInputEvent->GetType(hit));
+                                 fHitsInputEvent->GetTime(hit), fHitsInputEvent->GetType(hit));
 
     return fHitsOutputEvent;
 }
