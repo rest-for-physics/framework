@@ -27,18 +27,26 @@
 /// This process tries to reduce the common noise of TRestRawSignals by two
 /// means :
 ///
-/// Mode = 0
-/// For each time bin, all time bins are gathered for all the signals and
-/// ranked increasingly. We take the middle bin and substract its values to
+/// * **Mode = 0**: For each time bin, all time bins are gathered for all the signals
+/// and ranked increasingly. We take the middle bin and substract its values to
 /// all the bins corresponding to that time.
 ///
+/// * **Mode = 1**:  The method is exactly the same but we take into account
+/// *centerWidth%* of the total number of bins center around the middle. The mean
+/// of these bins is used to do the correction.
 ///
-/// Mode = 1
-/// The method is exactly the same but we take into account **centerWidth**
-/// % of the total number of bins center around the middle. The mean of these
-/// bins is used to do the correction.
+///_______________________________________________________________________________
 ///
-//////////////////////////////////////////////////////////////////////////
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2020-July: First implementation of common noise reduction process
+///
+/// \class      TRestRawCommonNoiseReductionProcess
+/// \author     Benjamin Manier
+///
+///______________________________________________________________________________
 
 #include "TRestRawCommonNoiseReductionProcess.h"
 using namespace std;
@@ -46,14 +54,12 @@ using namespace std;
 #include <iostream>  // std::cout
 #include <vector>    // std::vector
 
-ClassImp(TRestRawCommonNoiseReductionProcess)
+ClassImp(TRestRawCommonNoiseReductionProcess);
 
-    ///////////////////////////////////////////////
-    /// \brief Default constructor
-    ///
-    TRestRawCommonNoiseReductionProcess::TRestRawCommonNoiseReductionProcess() {
-    Initialize();
-}
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestRawCommonNoiseReductionProcess::TRestRawCommonNoiseReductionProcess() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -93,8 +99,8 @@ void TRestRawCommonNoiseReductionProcess::LoadDefaultConfig() { SetTitle("Defaul
 void TRestRawCommonNoiseReductionProcess::Initialize() {
     SetSectionName(this->ClassName());
 
+    fInputEvent = NULL;
     fOutputEvent = new TRestRawSignalEvent();
-    fInputEvent = new TRestRawSignalEvent();
 }
 
 ///////////////////////////////////////////////
@@ -124,12 +130,6 @@ void TRestRawCommonNoiseReductionProcess::InitProcess() {}
 TRestEvent* TRestRawCommonNoiseReductionProcess::ProcessEvent(TRestEvent* evInput) {
     fInputEvent = (TRestRawSignalEvent*)evInput;
 
-    // Copying the input event to the output event
-    fOutputEvent->SetID(fInputEvent->GetID());
-    fOutputEvent->SetSubID(fInputEvent->GetSubID());
-    fOutputEvent->SetTimeStamp(fInputEvent->GetTimeStamp());
-    fOutputEvent->SetSubEventTag(fInputEvent->GetSubEventTag());
-
     Int_t N = fInputEvent->GetNumberOfSignals();
 
     if (GetVerboseLevel() >= REST_Debug) N = 1;
@@ -137,20 +137,14 @@ TRestEvent* TRestRawCommonNoiseReductionProcess::ProcessEvent(TRestEvent* evInpu
         fOutputEvent->AddSignal(*fInputEvent->GetSignal(sgnl));
     }
 
-    /////////////////////////////////////////////////
     Int_t nBins = fInputEvent->GetSignal(0)->GetNumberOfPoints();
     Int_t begin, end;
     Double_t norm = 1.0;
     vector<Double_t> sgnlValues(N, 0.0);
 
     for (Int_t bin = 0; bin < nBins; bin++) {
-        // For each time bin we find the common Noise
-        for (Int_t sgnl = 0; sgnl < N; sgnl++) {
-            // Getting all the corresponding time bin for all TRestSignals
-            sgnlValues[sgnl] = fOutputEvent->GetSignal(sgnl)->GetData(bin);
-        }
+        for (Int_t sgnl = 0; sgnl < N; sgnl++) sgnlValues[sgnl] = fOutputEvent->GetSignal(sgnl)->GetData(bin);
 
-        // Sorting the signal from lowest to highest
         std::sort(sgnlValues.begin(), sgnlValues.end());
 
         // Sorting the different methods
@@ -172,18 +166,15 @@ TRestEvent* TRestRawCommonNoiseReductionProcess::ProcessEvent(TRestEvent* evInpu
 
         // Calculation of the correction to be made to each TRestRawSignal
         Double_t binCorrection = 0.0;
-        for (Int_t i = begin; i <= end; i++) {
-            binCorrection += sgnlValues[i];
-        }
+        for (Int_t i = begin; i <= end; i++) binCorrection += sgnlValues[i];
+
         binCorrection = binCorrection / norm;
 
         // Application of the correction.
-        for (Int_t sgnl = 0; sgnl < N; sgnl++) {
+        for (Int_t sgnl = 0; sgnl < N; sgnl++)
             fOutputEvent->GetSignal(sgnl)->IncreaseBinBy(bin, -binCorrection);
-        }
     }
 
-    /////////////////////////////////////////////////
     return fOutputEvent;
 }
 

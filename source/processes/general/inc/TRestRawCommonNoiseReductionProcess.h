@@ -26,20 +26,19 @@
 #include <TRestRawSignalEvent.h>
 #include "TRestEventProcess.h"
 
-//! A REST process to reduce the Common Noise from RawSignal type of data.
+//! A process to substract the common channels noise from RawSignal type of data.
 class TRestRawCommonNoiseReductionProcess : public TRestEventProcess {
    private:
-#ifndef __CINT__
     /// A pointer to the specific TRestRawSignalEvent input
     TRestRawSignalEvent* fInputEvent;
+
+    /// A pointer to the specific TRestRawSignalEvent output
     TRestRawSignalEvent* fOutputEvent;
 
-// TRestRawSignalEvent *fSignalEvent;
-// std::vector <std::string> fSignalAnalysisObservables;
-#endif
-    // Parameters
+    /// The mode defines the method to be used (It can be 0 or 1).
     Int_t fMode = 0;
-    Int_t fbinNumber = 0;
+
+    /// The percentage of signals taken from the array center to be considered for the average.
     Int_t fcenterWidth = 0;
 
     void InitFromConfigFile();
@@ -77,7 +76,8 @@ class TRestRawCommonNoiseReductionProcess : public TRestEventProcess {
     /// Returns a new instance of this class
     TRestEventProcess* Maker() { return new TRestRawCommonNoiseReductionProcess; }
 
-    TString GetProcessName() { return (TString) "rsCommonNoiseReduction"; }
+    /// Returns the reduced process name
+    TString GetProcessName() { return (TString) "commonNoiseReduction"; }
 
     // Constructor
     TRestRawCommonNoiseReductionProcess();
@@ -86,8 +86,7 @@ class TRestRawCommonNoiseReductionProcess : public TRestEventProcess {
     // Destructor
     ~TRestRawCommonNoiseReductionProcess();
 
-    ClassDef(TRestRawCommonNoiseReductionProcess,
-             1);  // Template for a REST "event process" class inherited from TRestEventProcess
+    ClassDef(TRestRawCommonNoiseReductionProcess, 1);
 };
 #endif
 
