@@ -25,14 +25,14 @@
 /// BASIC DOCUMENTATION : Full documentation to be added.
 ///
 /// This process tries to reduce the common noise of TRestRawSignals by two
-/// means : 
-/// 
+/// means :
+///
 /// Mode = 0
 /// For each time bin, all time bins are gathered for all the signals and
 /// ranked increasingly. We take the middle bin and substract its values to
 /// all the bins corresponding to that time.
-/// 
-/// 
+///
+///
 /// Mode = 1
 /// The method is exactly the same but we take into account **centerWidth**
 /// % of the total number of bins center around the middle. The mean of these
@@ -43,15 +43,17 @@
 #include "TRestRawCommonNoiseReductionProcess.h"
 using namespace std;
 #include <algorithm>
-#include <iostream>     // std::cout
-#include <vector>       // std::vector
+#include <iostream>  // std::cout
+#include <vector>    // std::vector
 
 ClassImp(TRestRawCommonNoiseReductionProcess)
 
-///////////////////////////////////////////////
-/// \brief Default constructor
-///
-TRestRawCommonNoiseReductionProcess::TRestRawCommonNoiseReductionProcess() { Initialize(); }
+    ///////////////////////////////////////////////
+    /// \brief Default constructor
+    ///
+    TRestRawCommonNoiseReductionProcess::TRestRawCommonNoiseReductionProcess() {
+    Initialize();
+}
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -65,10 +67,10 @@ TRestRawCommonNoiseReductionProcess::TRestRawCommonNoiseReductionProcess() { Ini
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 ///
-TRestRawCommonNoiseReductionProcess::TRestRawCommonNoiseReductionProcess( char *cfgFileName ) {
+TRestRawCommonNoiseReductionProcess::TRestRawCommonNoiseReductionProcess(char* cfgFileName) {
     Initialize();
 
-    if( LoadConfigFromFile( cfgFileName ) ) LoadDefaultConfig( );
+    if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
@@ -92,7 +94,7 @@ void TRestRawCommonNoiseReductionProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fOutputEvent = new TRestRawSignalEvent();
-    fInputEvent  = new TRestRawSignalEvent();
+    fInputEvent = new TRestRawSignalEvent();
 }
 
 ///////////////////////////////////////////////
@@ -107,82 +109,77 @@ void TRestRawCommonNoiseReductionProcess::Initialize() {
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestGeant4AnalysisProcess section inside the RML.
 ///
-void TRestRawCommonNoiseReductionProcess::LoadConfig( std::string cfgFilename, std::string name ) {
-    if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
+void TRestRawCommonNoiseReductionProcess::LoadConfig(std::string cfgFilename, std::string name) {
+    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
 /// \brief Process initialization.
 ///
-void TRestRawCommonNoiseReductionProcess::InitProcess() {
-}
+void TRestRawCommonNoiseReductionProcess::InitProcess() {}
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestRawCommonNoiseReductionProcess::ProcessEvent( TRestEvent *evInput ) {
-
-    fInputEvent = (TRestRawSignalEvent *) evInput;
+TRestEvent* TRestRawCommonNoiseReductionProcess::ProcessEvent(TRestEvent* evInput) {
+    fInputEvent = (TRestRawSignalEvent*)evInput;
 
     // Copying the input event to the output event
-    fOutputEvent->SetID( fInputEvent->GetID() );
-    fOutputEvent->SetSubID( fInputEvent->GetSubID() );
-    fOutputEvent->SetTimeStamp( fInputEvent->GetTimeStamp() );
-    fOutputEvent->SetSubEventTag( fInputEvent->GetSubEventTag() );
+    fOutputEvent->SetID(fInputEvent->GetID());
+    fOutputEvent->SetSubID(fInputEvent->GetSubID());
+    fOutputEvent->SetTimeStamp(fInputEvent->GetTimeStamp());
+    fOutputEvent->SetSubEventTag(fInputEvent->GetSubEventTag());
 
     Int_t N = fInputEvent->GetNumberOfSignals();
 
-    if( GetVerboseLevel() >= REST_Debug ) N = 1;
-    for( int sgnl = 0; sgnl < N; sgnl++ )
-    {   
-        fOutputEvent->AddSignal( *fInputEvent->GetSignal( sgnl ) );  
+    if (GetVerboseLevel() >= REST_Debug) N = 1;
+    for (int sgnl = 0; sgnl < N; sgnl++) {
+        fOutputEvent->AddSignal(*fInputEvent->GetSignal(sgnl));
     }
 
     /////////////////////////////////////////////////
-    Int_t  nBins = fInputEvent-> GetSignal(0)->GetNumberOfPoints();
+    Int_t nBins = fInputEvent->GetSignal(0)->GetNumberOfPoints();
     Int_t begin, end;
     Double_t norm = 1.0;
     vector<Double_t> sgnlValues(N, 0.0);
 
-
-    for( Int_t bin = 0 ; bin < nBins ; bin++ ) { 
-        // For each time bin we find the common Noise 
-        for( Int_t sgnl = 0 ; sgnl < N ; sgnl++ ){ 
+    for (Int_t bin = 0; bin < nBins; bin++) {
+        // For each time bin we find the common Noise
+        for (Int_t sgnl = 0; sgnl < N; sgnl++) {
             // Getting all the corresponding time bin for all TRestSignals
-            sgnlValues[sgnl] = fOutputEvent->GetSignal( sgnl )->GetData(bin);
+            sgnlValues[sgnl] = fOutputEvent->GetSignal(sgnl)->GetData(bin);
         }
 
         // Sorting the signal from lowest to highest
-        std::sort(sgnlValues.begin(), sgnlValues.end()); 
+        std::sort(sgnlValues.begin(), sgnlValues.end());
 
         // Sorting the different methods
-        Int_t begin, middle ,end;
-        middle = (Int_t) nBins / 2;
+        Int_t begin, middle, end;
+        middle = (Int_t)nBins / 2;
         Double_t norm = 1.0;
 
-        if(fMode == 0){
+        if (fMode == 0) {
             // We take only the middle one
-            begin = (Int_t) ( (double_t) nBins / 2.0 );
-            end   = begin;
-            norm  = 1.;
-        }
-        else if( fMode == 1 ){
+            begin = (Int_t)((double_t)nBins / 2.0);
+            end = begin;
+            norm = 1.;
+        } else if (fMode == 1) {
             // We take the average of the TRestSignals at the Center
-            begin = middle - (Int_t) (nBins * fcenterWidth * 0.01) ;
-            end   = middle + (Int_t) (nBins * fcenterWidth * 0.01) ;
-            norm = (Double_t) end - begin;
+            begin = middle - (Int_t)(nBins * fcenterWidth * 0.01);
+            end = middle + (Int_t)(nBins * fcenterWidth * 0.01);
+            norm = (Double_t)end - begin;
         }
 
         // Calculation of the correction to be made to each TRestRawSignal
         Double_t binCorrection = 0.0;
-        for( Int_t i = begin; i <= end; i++){
-            binCorrection += sgnlValues[i] ;
+        for (Int_t i = begin; i <= end; i++) {
+            binCorrection += sgnlValues[i];
         }
         binCorrection = binCorrection / norm;
 
         // Application of the correction.
-        for( Int_t sgnl = 0 ; sgnl < N ; sgnl++ ){ 
-            fOutputEvent->GetSignal( sgnl )->IncreaseBinBy( bin , - binCorrection ) ;
+        for (Int_t sgnl = 0; sgnl < N; sgnl++) {
+            fOutputEvent->GetSignal(sgnl)->IncreaseBinBy(bin, -binCorrection);
         }
     }
 
@@ -195,20 +192,19 @@ TRestEvent* TRestRawCommonNoiseReductionProcess::ProcessEvent( TRestEvent *evInp
 /// processed. This method will write the channels histogram.
 ///
 void TRestRawCommonNoiseReductionProcess::EndProcess() {
-    // Function to be executed once at the end of the process 
+    // Function to be executed once at the end of the process
     // (after all events have been processed)
 
-    //Start by calling the EndProcess function of the abstract class. 
-    //Comment this if you don't want it.
-    //TRestEventProcess::EndProcess();
+    // Start by calling the EndProcess function of the abstract class.
+    // Comment this if you don't want it.
+    // TRestEventProcess::EndProcess();
 }
-
 
 ///////////////////////////////////////////////
 /// \brief Function to read input parameters.
 ///
-void TRestRawCommonNoiseReductionProcess::InitFromConfigFile( ) {
-    fMode        = StringToInteger( GetParameter( "mode", "0" ) );
-    fcenterWidth = StringToInteger( GetParameter( "centerWidth", "10" ) );
+void TRestRawCommonNoiseReductionProcess::InitFromConfigFile() {
+    fMode = StringToInteger(GetParameter("mode", "0"));
+    fcenterWidth = StringToInteger(GetParameter("centerWidth", "10"));
 }
 
