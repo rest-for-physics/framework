@@ -150,9 +150,12 @@ bool TRestThread::TestRun(TRestAnalysisTree* tempTree) {
         debug << "Test run " << i << " : Input Event ---- " << fInputEvent->ClassName() << "(" << fInputEvent
               << ")" << endl;
         for (unsigned int j = 0; j < fProcessChain.size(); j++) {
-            essential << "t" << fThreadId << "p" << j << ": " << fProcessChain[j]->ClassName() << endl;
+            debug << "t" << fThreadId << "p" << j << ": " << fProcessChain[j]->ClassName() << endl;
 
             if (fThreadId == 0) fProcessChain[j]->EnableObservableValidation();
+
+            if (GetVerboseLevel() >= REST_Info) fProcessChain[j]->PrintMetadata();
+
             fProcessChain[j]->BeginOfEventProcess(ProcessedEvent);
             fProcessChain[j]->ProcessEvent(ProcessedEvent);
             ProcessedEvent = fProcessChain[j]->GetOutputEvent();
