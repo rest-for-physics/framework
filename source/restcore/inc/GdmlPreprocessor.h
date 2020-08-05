@@ -53,6 +53,7 @@ class GdmlPreprocessor : public TRestMetadata {
             if (pp != string::npos) {
                 int pp2 = filestr.find("##", pp + 4);
                 if (pp2 != string::npos) gdmlVersion = filestr.substr(pp + 9, pp2 - pp - 9);
+                gdmlVersion = ReplaceEnvironmentalVariables(gdmlVersion);
             }
 
             filestr = ReplaceEnvironmentalVariables(filestr);
