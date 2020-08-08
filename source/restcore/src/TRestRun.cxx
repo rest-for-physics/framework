@@ -587,6 +587,10 @@ void TRestRun::ReadFileInfo(string filename) {
     debug << "begin collecting file info: " << filename << endl;
     struct stat buf;
     FILE* fp = fopen(filename.c_str(), "rb");
+    if (!fp) {
+        ferr << "TRestRun::ReadFileInfo. Something went wrong with fopen()!" << strerror(errno) << endl;
+        exit(1);
+    }
     int fd = fileno(fp);
     fstat(fd, &buf);
     fclose(fp);
