@@ -38,12 +38,10 @@ clang-format:
         - cd ${CI_PROJECT_DIR}/
         - ./scripts/pipeline/clangformattest.sh
         - clang-format --version
-    except:
-        variables:
-            - $CI_SERVER_HOST
     only:
         variables:
             - $CRONJOB
+            - $CI_SERVER_HOST == "lfna.unizar.es"
 
 validateCode:
     stage: pre-build
