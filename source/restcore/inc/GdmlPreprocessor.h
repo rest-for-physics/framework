@@ -53,7 +53,7 @@ class GdmlPreprocessor : public TRestMetadata {
             if (pp != string::npos) {
                 int pp2 = filestr.find("##", pp + 4);
                 if (pp2 != string::npos) gdmlVersion = filestr.substr(pp + 9, pp2 - pp - 9);
-                gdmlVersion = ReplaceEnvironmentalVariables(gdmlVersion);
+                gdmlVersion = ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(gdmlVersion));
             }
 
             filestr = ReplaceEnvironmentalVariables(filestr);
@@ -141,6 +141,8 @@ class GdmlPreprocessor : public TRestMetadata {
                     std::ifstream t(entityfile);
                     std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
                     t.close();
+
+                    str = ReplaceEnvironmentalVariables(str);
 
                     entityVersion[entityname] = "";
                     int pp = str.find("##VERSION", 0);
