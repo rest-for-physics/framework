@@ -71,7 +71,7 @@ void TRestEvent::Initialize() {
     fEventID = 0;
     fEventTime = 0;
     fSubEventID = 0;
-    fSubEventTag = "";
+        fSubEventTag = "";
     fOk = true;
 
     fPad = NULL;
