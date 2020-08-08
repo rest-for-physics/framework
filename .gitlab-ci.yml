@@ -40,7 +40,7 @@ clang-format:
         - clang-format --version
     only:
         variables:
-            - $CRONJOB == YES
+            - $CRONJOB == "YES"
             - $CI_SERVER_HOST == "lfna.unizar.es"
 
 validateCode:
