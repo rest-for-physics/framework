@@ -94,13 +94,13 @@ listRESTMacros:
     - restG4 NLDBD.rml
     - geant4-config --version
     - restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
+  except:
+      variables:
+        - $CRONJOB
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test.root
     expire_in: 1 day
-  except:
-      variables:
-        - $CRONJOB
 
 LoadGas:
   type: metadata 
@@ -108,6 +108,9 @@ LoadGas:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/scripts/pipeline/metadata/gas/
     - restRoot -b -q LoadGasFromServerAndValidate.C
+  except:
+      variables:
+        - $CRONJOB
 
 GenerateGas:
   type: metadata 
@@ -118,6 +121,9 @@ GenerateGas:
   only:
       variables:
         - $CI_SERVER_HOST == "lfna.unizar.es"
+  except:
+      variables:
+        - $CRONJOB
 
 testMeta:
   type: restManager_generate
