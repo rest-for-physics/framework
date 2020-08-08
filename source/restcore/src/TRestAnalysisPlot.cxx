@@ -466,9 +466,10 @@ void TRestAnalysisPlot::AddFile(TString fileName) {
     run->SetHistoricMetadataSaving(false);
     run->OpenInputFile((string)fileName);
     if (run->GetAnalysisTree() != NULL) {
-        fRunInputFile.push_back(run);
+        fRunInputFileName.push_back((string)fileName);
         fNFiles++;
     }
+    delete run;
 
     // TFile* f = new TFile(fileName);
     // TIter nextkey(f->GetListOfKeys());
@@ -589,9 +590,13 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     Double_t endTime = 0;
     Double_t runLength = 0;
     Int_t totalEntries = 0;
-    for (unsigned int n = 0; n < fRunInputFile.size(); n++) {
-        Double_t endTimeStamp = fRunInputFile[n]->GetEndTimestamp();
-        Double_t startTimeStamp = fRunInputFile[n]->GetStartTimestamp();
+    for (unsigned int n = 0; n < fRunInputFileName.size(); n++) {
+        TRestRun* run = new TRestRun();
+        run->SetHistoricMetadataSaving(false);
+        run->OpenInputFile(fRunInputFileName[n]);
+
+        Double_t endTimeStamp = run->GetEndTimestamp();
+        Double_t startTimeStamp = run->GetStartTimestamp();
 
         // We get the lowest/highest run time stamps.
         if (!startTime || startTime > endTimeStamp) startTime = endTimeStamp;
@@ -602,9 +607,11 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
         if (endTimeStamp - startTimeStamp > 0) {
             runLength += endTimeStamp - startTimeStamp;
-            totalEntries += fRunInputFile[n]->GetEntries();
+            totalEntries += run->GetEntries();
         }
+        delete run;
     }
+
     Double_t meanRate = totalEntries / runLength;
 
     runLength /= 3600.;
@@ -625,7 +632,11 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             pos = 0;
             label = Replace(label, "<<meanRate>>", Form("%5.2lf", meanRate), pos);
 
-            label = fRunInputFile[0]->ReplaceMetadataMembers(label);
+            TRestRun* run = new TRestRun();
+            run->SetHistoricMetadataSaving(false);
+            run->OpenInputFile(fRunInputFileName[0]);
+            label = run->ReplaceMetadataMembers(label);
+            delete run;
 
             TLatex* texxt = new TLatex(fPanels[n].posX[m], fPanels[n].posY[m], label.c_str());
             texxt->SetTextColor(1);
@@ -675,12 +686,17 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
             // draw single histo from different file
             bool drawn = false;
-            for (unsigned int j = 0; j < fRunInputFile.size(); j++) {
+
+            TH3F* hTotal;
+            for (unsigned int j = 0; j < fRunInputFileName.size(); j++) {
+                TRestRun* run = new TRestRun();
+                run->SetHistoricMetadataSaving(false);
+                run->OpenInputFile(fRunInputFileName[j]);
                 // apply "classify" condition
                 bool flag = true;
                 auto iter = hist.classifyMap.begin();
                 while (iter != hist.classifyMap.end()) {
-                    if (fRunInputFile[j]->GetInfo(iter->first) != iter->second) {
+                    if (run->GetInfo(iter->first) != iter->second) {
                         flag = false;
                         break;
                     }
@@ -688,14 +704,23 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 }
                 if (!flag) continue;
 
-                TTree* tree = fRunInputFile[j]->GetAnalysisTree();
+                TTree* tree = run->GetAnalysisTree();
                 int outVal;
 
                 if (!drawn) {
-                    outVal = tree->Draw(plotString + ">>" + nameString + rangeString, cutString, optString);
+                    outVal = tree->Draw(plotString + ">>" + nameString + "_" + j + rangeString, cutString,
+                                        optString);
                     drawn = true;
+                    hTotal = (TH3F*)gPad->GetPrimitive(nameString + "_" + j)->Clone(nameString);
+
+                    // This is important so that the histogram is not erased when we delete TRestRun!
+                    hTotal->SetDirectory(0);
                 } else {
-                    outVal = tree->Draw(plotString + ">>+" + nameString, cutString, optString);
+                    outVal = tree->Draw(plotString + ">>" + nameString + "_" + j + rangeString, cutString,
+                                        optString);
+                    TH3F* hh = (TH3F*)gPad->GetPrimitive(nameString + "_" + j);
+
+                    hTotal->Add(hh);
                 }
 
                 if (outVal == -1) {
@@ -709,7 +734,9 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                     ferr << endl;
                     exit(1);
                 }
+                delete run;
             }
+
             if (drawn == false) {
                 warning << "TRestAnalysisPlot: no input file matches condition for histogram: " << hist.name
                         << ", this histogram is empty" << endl;
@@ -717,33 +744,32 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 i--;
             } else {
                 // adjust the histogram
-                TH3F* htemp = (TH3F*)gPad->GetPrimitive(nameString);
-                htemp->SetTitle(plot.title.c_str());
-                htemp->SetStats(plot.staticsOn);
+                hTotal->SetTitle(plot.title.c_str());
+                hTotal->SetStats(plot.staticsOn);
 
-                htemp->GetXaxis()->SetTitle(plot.labelX.c_str());
-                htemp->GetYaxis()->SetTitle(plot.labelY.c_str());
+                hTotal->GetXaxis()->SetTitle(plot.labelX.c_str());
+                hTotal->GetYaxis()->SetTitle(plot.labelY.c_str());
 
-                htemp->GetXaxis()->SetLabelSize(fTicksScaleX * htemp->GetXaxis()->GetLabelSize());
-                htemp->GetYaxis()->SetLabelSize(fTicksScaleY * htemp->GetYaxis()->GetLabelSize());
-                htemp->GetXaxis()->SetTitleSize(fLabelScaleX * htemp->GetXaxis()->GetTitleSize());
-                htemp->GetYaxis()->SetTitleSize(fLabelScaleY * htemp->GetYaxis()->GetTitleSize());
-                htemp->GetXaxis()->SetTitleOffset(fLabelOffsetX * htemp->GetXaxis()->GetTitleOffset());
-                htemp->GetYaxis()->SetTitleOffset(fLabelOffsetY * htemp->GetYaxis()->GetTitleOffset());
-                htemp->GetXaxis()->SetNdivisions(-5);
+                hTotal->GetXaxis()->SetLabelSize(fTicksScaleX * hTotal->GetXaxis()->GetLabelSize());
+                hTotal->GetYaxis()->SetLabelSize(fTicksScaleY * hTotal->GetYaxis()->GetLabelSize());
+                hTotal->GetXaxis()->SetTitleSize(fLabelScaleX * hTotal->GetXaxis()->GetTitleSize());
+                hTotal->GetYaxis()->SetTitleSize(fLabelScaleY * hTotal->GetYaxis()->GetTitleSize());
+                hTotal->GetXaxis()->SetTitleOffset(fLabelOffsetX * hTotal->GetXaxis()->GetTitleOffset());
+                hTotal->GetYaxis()->SetTitleOffset(fLabelOffsetY * hTotal->GetYaxis()->GetTitleOffset());
+                hTotal->GetXaxis()->SetNdivisions(-5);
 
-                htemp->SetLineColor(hist.lineColor);
-                htemp->SetLineWidth(hist.lineWidth);
-                htemp->SetLineStyle(hist.lineStyle);
-                htemp->SetFillColor(hist.fillColor);
-                htemp->SetFillStyle(hist.fillStyle);
+                hTotal->SetLineColor(hist.lineColor);
+                hTotal->SetLineWidth(hist.lineWidth);
+                hTotal->SetLineStyle(hist.lineStyle);
+                hTotal->SetFillColor(hist.fillColor);
+                hTotal->SetFillStyle(hist.fillStyle);
 
-                htemp->SetDrawOption(hist.drawOption.c_str());
+                hTotal->SetDrawOption(hist.drawOption.c_str());
 
-                if (plot.timeDisplay) htemp->GetXaxis()->SetTimeDisplay(1);
+                if (plot.timeDisplay) hTotal->GetXaxis()->SetTimeDisplay(1);
 
-                histCollectionPlot.push_back(htemp);
-                histCollectionAll.push_back(htemp);
+                histCollectionPlot.push_back(hTotal);
+                histCollectionAll.push_back(hTotal);
             }
         }
 
@@ -921,7 +947,11 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     }
 
     // Save canvas to a PDF file
-    fCanvasSave = fRunInputFile[0]->FormFormat(fCanvasSave);
+    TRestRun* run = new TRestRun();
+    run->SetHistoricMetadataSaving(false);
+    run->OpenInputFile(fRunInputFileName[0]);
+    fCanvasSave = run->FormFormat(fCanvasSave);
+    delete run;
     if (fCanvasSave != "") fCombinedCanvas->Print(fCanvasSave);
 
     // If the extension of the canvas save file is ROOT we store also the histograms
