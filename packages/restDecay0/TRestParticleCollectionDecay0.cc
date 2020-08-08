@@ -3,7 +3,7 @@
 ClassImp(TRestParticleCollectionDecay0)
 
     void TRestParticleCollectionDecay0::SetParticleModel(std::string modelstring) {
-    cout << "Initializing decay0 model, seed: " << (uintptr_t)this << endl;
+    cout << "Initializing decay0 model, seed: " << (uintptr_t) this << endl;
 
     fElement = StringToElement(modelstring);
     fElementGlobal = NULL;

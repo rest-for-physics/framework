@@ -45,4 +45,3 @@ Int_t GenerateDummyGas() {
 
     return 0;
 }
-
