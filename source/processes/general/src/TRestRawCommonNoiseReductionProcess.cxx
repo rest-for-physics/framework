@@ -198,4 +198,3 @@ void TRestRawCommonNoiseReductionProcess::InitFromConfigFile() {
     fMode = StringToInteger(GetParameter("mode", "0"));
     fcenterWidth = StringToInteger(GetParameter("centerWidth", "10"));
 }
-

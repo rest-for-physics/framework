@@ -353,7 +353,7 @@ Double_t TRestRawSignal::GetTripleMaxIntegral() {
     }
 
     if (fPointsOverThreshold.size() < 2) {
-       // cout << "REST Warning. TRestRawSignal::GetTripleMaxIntegral. Points over "
+        // cout << "REST Warning. TRestRawSignal::GetTripleMaxIntegral. Points over "
         //        "threshold = "
         //     << fPointsOverThreshold.size() << endl;
         return 0;

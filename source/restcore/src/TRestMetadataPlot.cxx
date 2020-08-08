@@ -1008,4 +1008,3 @@ void TRestMetadataPlot::SaveGraphToPDF(TString fileName, Int_t nPlot, Int_t nGra
     delete c;
     return;
 }
-

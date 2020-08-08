@@ -89,4 +89,3 @@ class TRestRawCommonNoiseReductionProcess : public TRestEventProcess {
     ClassDef(TRestRawCommonNoiseReductionProcess, 1);
 };
 #endif
-
