@@ -37,7 +37,7 @@ clang-format:
     stage: pre-build
     script:
         - cd ${CI_PROJECT_DIR}/
-        - ./scripts/pipeline/clangformattest.sh
+        - if [ -n "$CRONJOB" ]; then ./scripts/pipeline/clangformattest.sh; else echo "Skipping clang-format"; fi
         - clang-format --version
     only:
         variables:
