@@ -61,7 +61,7 @@ for f in $filelist; do
 	if checkCPP $f; then
 		echo "CHECKING MATCHING FILE ${f}"
 		# apply the clang-format script
-		./macros/pipeline/clang-format.sh ${f}
+		./scripts/pipeline/clang-format.sh ${f}
 	fi
 done
 
