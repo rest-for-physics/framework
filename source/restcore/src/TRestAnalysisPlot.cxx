@@ -707,18 +707,18 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 TTree* tree = run->GetAnalysisTree();
                 int outVal;
 
+                TString histoName = nameString + "_" + std::to_string(j) + rangeString;
                 if (!drawn) {
-                    outVal = tree->Draw(plotString + ">>" + nameString + "_" + j + rangeString, cutString,
-                                        optString);
+                    outVal = tree->Draw(plotString + ">>" + histoName, cutString, optString);
                     drawn = true;
                     hTotal = (TH3F*)gPad->GetPrimitive(nameString + "_" + j)->Clone(nameString);
 
                     // This is important so that the histogram is not erased when we delete TRestRun!
                     hTotal->SetDirectory(0);
                 } else {
-                    outVal = tree->Draw(plotString + ">>" + nameString + "_" + j + rangeString, cutString,
-                                        optString);
-                    TH3F* hh = (TH3F*)gPad->GetPrimitive(nameString + "_" + j);
+                    outVal = tree->Draw(plotString + ">>" + histoName, cutString, optString);
+                    TString reducedHistoName = nameString + "_" + std::to_string(j);
+                    TH3F* hh = (TH3F*)gPad->GetPrimitive(reducedHistoName);
 
                     hTotal->Add(hh);
                 }
