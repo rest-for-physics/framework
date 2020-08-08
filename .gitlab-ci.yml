@@ -28,6 +28,7 @@ stages:
 before_script:
   - export USER="test"
   - echo $CI_SERVER_HOST
+  - echo $CRONJOB
     # We redefine the HOME
   - export HOME=${CI_PROJECT_DIR}/install/
   - if [ -d $HOME/.rest ]; then rm -Rf $HOME/.rest; fi
@@ -49,7 +50,7 @@ validateCode:
         - python ${CI_PROJECT_DIR}/scripts/pipeline/validateProcesses.py ${CI_PROJECT_DIR}/source/processes/
     except:
         variables:
-            - $CRONJOB
+            - $CRONJOB == "YES"
 
 build:
   type: build
@@ -61,7 +62,7 @@ build:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
   except:
       variables:
-        - $CRONJOB
+        - $CRONJOB == "YES"
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install
@@ -75,7 +76,7 @@ loadRESTLibs:
     - restRoot -b -q
   except:
       variables:
-        - $CRONJOB
+        - $CRONJOB == "YES"
 
 listRESTMacros:
   type: install
@@ -84,7 +85,7 @@ listRESTMacros:
     - restManager ListMacros
   except:
       variables:
-        - $CRONJOB
+        - $CRONJOB == "YES"
 
 01_NLDBD:
   type: restG4
@@ -96,7 +97,7 @@ listRESTMacros:
     - restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
   except:
       variables:
-        - $CRONJOB
+        - $CRONJOB == "YES"
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test.root
@@ -110,7 +111,7 @@ LoadGas:
     - restRoot -b -q LoadGasFromServerAndValidate.C
   except:
       variables:
-        - $CRONJOB
+        - $CRONJOB == "YES"
 
 GenerateGas:
   type: metadata 
@@ -123,7 +124,7 @@ GenerateGas:
         - $CI_SERVER_HOST == "lfna.unizar.es"
   except:
       variables:
-        - $CRONJOB
+        - $CRONJOB == "YES"
 
 testMeta:
   type: restManager_generate
@@ -137,7 +138,7 @@ testMeta:
     expire_in: 1 day
   except:
       variables:
-        - $CRONJOB
+        - $CRONJOB == "YES"
 
 trexDM_data: 
   type: restManager_process
@@ -158,7 +159,7 @@ trexDM_data:
     expire_in: 1 week
   except:
       variables:
-        - $CRONJOB
+        - $CRONJOB == "YES"
 
           #pandaXIII_MC: 
           #  type: restManager_process
@@ -191,4 +192,4 @@ deploy:
       - ${CI_PROJECT_DIR}/install
   except:
       variables:
-        - $CRONJOB
+        - $CRONJOB == "YES"
