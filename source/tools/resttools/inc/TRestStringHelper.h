@@ -17,6 +17,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <set>
 
 #include "TRestStringOutput.h"
 
