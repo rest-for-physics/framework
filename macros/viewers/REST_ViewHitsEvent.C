@@ -1,5 +1,4 @@
 #include "TRestBrowser.h"
-#include "TRestHitsEventViewer.h"
 #include "TRestTask.h"
 
 #ifndef RestTask_ViewHitsEvents
