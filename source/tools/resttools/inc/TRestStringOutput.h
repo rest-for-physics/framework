@@ -220,4 +220,6 @@ extern TRestStringOutput info;
 extern TRestStringOutput success;
 extern TRestStringOutput debug;
 extern TRestStringOutput extreme;
+
+extern REST_Verbose_Level gVerbose;
 #endif
