@@ -14,10 +14,8 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         message(FATAL_ERROR "Clang version must be at least 3.2!")
     endif ()
 endif ()
-
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
-
 IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-stdlib=libc++")
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
@@ -33,7 +31,6 @@ IF (NOT DEFINED INSTALL_PREFIX)
 ENDIF ()
 get_filename_component(INSTALL_PREFIX_ABSOLUTE ${INSTALL_PREFIX} ABSOLUTE BASE_DIR "${CMAKE_BINARY_DIR}")
 set(REST_PATH ${INSTALL_PREFIX_ABSOLUTE})
-
 set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX_ABSOLUTE})
 
 
@@ -58,13 +55,23 @@ set(ROOT_FIND_REQUIRED true)
 set(CMAKE_MACOSX_RPATH 1)
 include(FindROOT)
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
-set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit -lSpectrum)
+set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit -lSpectrum)
+
+
+#switch to enable ROOT Eve functionality.
+IF( NOT DEFINED REST_EVE)
+   set(REST_EVE ON)
+ENDIF()
+if (${REST_EVE} MATCHES "ON")
+    add_definitions(-DUSE_Eve)
+    set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lEve -lRGL)
+endif (${REST_EVE} MATCHES "ON")
+
 
 #find garfield libs and includes
 IF( NOT DEFINED REST_GARFIELD )
    set(REST_GARFIELD OFF)
 ENDIF()
-
 if (${REST_GARFIELD} MATCHES "ON")
     add_definitions(-DUSE_Garfield)
     include(FindGarfield)
@@ -74,11 +81,12 @@ if (${REST_GARFIELD} MATCHES "ON")
     set(external_include_dirs ${external_include_dirs} ${Garfield_DIR}/Heed)
     message(STATUS "HEED Include " ${Garfield_DIR}/Heed)
     message(STATUS "ALL INCLUDES: " ${external_include_dirs})
-
 else ()
     set(REST_GARFIELD OFF)
 endif (${REST_GARFIELD} MATCHES "ON")
 
+
+#find mysql libs and includes
 if (${REST_SQL} MATCHES "ON" )
 	add_definitions(-DUSE_SQL)
 	include(FindSQL)
@@ -160,6 +168,7 @@ message("System is : ${CMAKE_SYSTEM_NAME}")
 message("Garfield is : ${REST_GARFIELD}")
 message("Geant4 is : ${REST_G4}")
 message("SQL is : ${REST_SQL}")
+message("ROOT EVE is : ${REST_EVE}")
 message("=============================")
 message("Check main project README.md to see all available compilation options")
 message("")
