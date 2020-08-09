@@ -460,7 +460,7 @@ TRestMetadata::TRestMetadata() : endl(fVerboseLevel, messageBuffer) {
     fStore = true;
     fElementGlobal = NULL;
     fElement = NULL;
-    fVerboseLevel = REST_Essential;
+    fVerboseLevel = gVerbose;
     fElementEnv.clear();
     fHostmgr = NULL;
 
@@ -476,7 +476,7 @@ TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(fVerboseLevel, mess
     fStore = true;
     fElementGlobal = NULL;
     fElement = NULL;
-    fVerboseLevel = REST_Essential;
+    fVerboseLevel = gVerbose;
     fElementEnv.clear();
     fHostmgr = NULL;
 
@@ -609,12 +609,8 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
 ///
 Int_t TRestMetadata::LoadSectionMetadata() {
     // get debug level
-    string debugStr = GetParameter("verboseLevel", "essential");
-    if (debugStr == "silent" || debugStr == "0") fVerboseLevel = REST_Silent;
-    if (debugStr == "essential" || debugStr == "warning" || debugStr == "1") fVerboseLevel = REST_Essential;
-    if (debugStr == "info" || debugStr == "2") fVerboseLevel = REST_Info;
-    if (debugStr == "debug" || debugStr == "3") fVerboseLevel = REST_Debug;
-    if (debugStr == "extreme" || debugStr == "4") fVerboseLevel = REST_Extreme;
+    string debugStr = GetParameter("verboseLevel", ToString(fVerboseLevel));
+    fVerboseLevel = StringToVerboseLevel(debugStr);
 
     debug << "Loading Config for : " << this->ClassName() << endl;
 
@@ -652,12 +648,8 @@ Int_t TRestMetadata::LoadSectionMetadata() {
     ReadElement(fElement);
 
     // get debug level again in case it is defined in the included file
-    debugStr = GetParameter("verboseLevel", "essential");
-    if (debugStr == "silent" || debugStr == "0") fVerboseLevel = REST_Silent;
-    if (debugStr == "essential" || debugStr == "warning" || debugStr == "1") fVerboseLevel = REST_Essential;
-    if (debugStr == "info" || debugStr == "2") fVerboseLevel = REST_Info;
-    if (debugStr == "debug" || debugStr == "3") fVerboseLevel = REST_Debug;
-    if (debugStr == "extreme" || debugStr == "4") fVerboseLevel = REST_Extreme;
+    debugStr = GetParameter("verboseLevel", ToString(fVerboseLevel));
+    fVerboseLevel = StringToVerboseLevel(debugStr);
 
     // fill the general metadata info: name, title, fstore
     this->SetName(GetParameter("name", "defaultName").c_str());
