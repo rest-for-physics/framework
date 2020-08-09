@@ -19,7 +19,6 @@
 #ifndef RestCore_TRestEventViewer
 #define RestCore_TRestEventViewer
 
-#include <TGLViewer.h>
 #include <TGeoManager.h>
 #include <TObject.h>
 
