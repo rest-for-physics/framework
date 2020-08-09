@@ -18,6 +18,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "TRestStringOutput.h"
+
 using namespace std;
 
 /// String helper classes. Declared static to be able to have direct access to the methods
@@ -42,6 +44,7 @@ std::string Replace(std::string in, std::string thisString, std::string byThisSt
 std::string EscapeSpecialLetters(string in);
 string ToDateTimeString(time_t time);
 time_t StringToTimeStamp(string time);
+REST_Verbose_Level StringToVerboseLevel(string in);
 ULong64_t ToHash(string str);
 constexpr ULong64_t ToHash(const char* str, ULong64_t last_value = 0xCBF29CE484222325ull) {
     return *str ? ToHash(str + 1, (*str ^ last_value) * 0x100000001B3ull) : last_value;

@@ -319,6 +319,16 @@ time_t REST_StringHelper::StringToTimeStamp(string time) {
     return time1;
 }
 
+REST_Verbose_Level REST_StringHelper::StringToVerboseLevel(string in) {
+    if (ToUpper(in) == "SILENT" || in == "0") return REST_Silent;
+    if (ToUpper(in) == "ESSENTIAL" || ToUpper(in) == "WARNING" || in == "1") return REST_Essential;
+    if (ToUpper(in) == "INFO" || in == "2") return REST_Info;
+    if (ToUpper(in) == "DEBUG" || in == "3") return REST_Debug;
+    if (ToUpper(in) == "EXTREME" || in == "4") return REST_Extreme;
+
+    return REST_Essential;
+}
+
 ///////////////////////////////////////////////
 /// \brief Gets a double from a string.
 ///
