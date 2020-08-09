@@ -92,8 +92,7 @@ else
     echo "git push origin HEAD:$CI_COMMIT_REF_NAME"
 	git push origin HEAD:$CI_COMMIT_REF_NAME
 	echo "Clang-format will generate a commit to fix code formatting"
-	echo "This build will stop here. But it should be solved in the next try."
-	exit 1;
+	exit 0;
 fi
 
 # cleanup changes in git
