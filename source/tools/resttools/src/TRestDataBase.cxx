@@ -226,22 +226,16 @@ int TRestDataBase::set_run(DBEntry info, bool overwrite) {
     return newRunNr;
 }
 
-DBEntry TRestDataBase::query_data(int id) {
-    if (fDataEntries.size() > id) return fDataEntries[id];
-    return DBEntry();
-}
-
 ///////////////////////////////////////////////
 /// The following specification of DBEntry's content means to match **any**:
 /// id <= 0, type == "" ,usr == "" ,tag == "" ,description == "" ,version == "".
 /// If all of them mean **any**, it will return a blank list.
-vector<int> TRestDataBase::search_data(DBEntry _info) {
-    vector<int> result;
+DBEntry TRestDataBase::query_data(DBEntry _info) {
+    vector<DBEntry> match;
     if (_info.runNr <= 0 && _info.type == "" && _info.tag == "" && _info.description == "" &&
         _info.version == "")
-        return result;
+        return DBEntry();
 
-    auto iter = fDataEntries.begin();
     for (int i = 0; i < fDataEntries.size(); i++) {
         DBEntry info = fDataEntries[i];
 
@@ -253,54 +247,19 @@ vector<int> TRestDataBase::search_data(DBEntry _info) {
         bool valuematch = (_info.value == "" || info.value == _info.value);
 
         if (runmatch && typematch && tagmatch && descriptionmatch && versionmatch && valuematch) {
-            result.push_back(i);
+            match.push_back(info);
         }
-
-        iter++;
-    }
-    return result;
-}
-
-///////////////////////////////////////////////
-/// In base class of database, we suppose the value of metadata entry is a file url.
-/// So we directly download them, to the local directory $REST_USER_PATH/data/download/.
-/// If the "name" is given, it will replace the file name from metadata value
-DBFile TRestDataBase::wrap_data(DBEntry data, string name) {
-    if (data.IsZombie()) {
-        cout << "Error! Zombie data cannot be wrapped into file!" << endl;
-        abort();
     }
 
-    string url = data.value;
-    if (name != "") {
-        int pos = url.find_last_of('/', -1);
-        url.replace(url.begin() + pos + 1, url.end(), name);
-    }
-
-    string purename = TRestTools::GetPureFileName(url);
-    if (purename == "") {
-        cout << "error! (data entry: " << data.runNr << ", type: " << data.type
-             << ") is recorded as a file path" << endl;
-        cout << "please specify a concrete file name in this path" << endl;
-        cout << "url: " << url << endl;
-        return DBFile();
-    }
-
-    if (url.find("local:") == 0) {
-        return Replace(url, "local:", "");
+    if (match.size() == 1) {
+        return match[0];
+    } else if (match.size() > 1) {
+        warning << "multiple metadata found! returning the first!" << endl;
+        return match[0];
     } else {
-        string fullpath = REST_USER_PATH + "/download/" + purename;
-
-        if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
-            return DBFile(fullpath);
-        } else if (TRestTools::fileExists(fullpath)) {
-            return DBFile(fullpath);
-        } else {
-            return DBFile();
-        }
+        return DBEntry();
     }
-
-    return DBFile();
+    return DBEntry();
 }
 
 int TRestDataBase::get_lastdata() { return fDataEntries.size() - 1; }

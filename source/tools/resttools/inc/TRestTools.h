@@ -79,8 +79,8 @@ class TRestTools {
     static std::istream& GetLine(std::istream& is, std::string& t);
 
     static std::string Execute(string cmd);
-    static std::string DownloadHttpFile(string remoteFile);
 
+    static std::string DownloadRemoteFile(string remoteFile);
     static int DownloadRemoteFile(string remoteFile, string localFile);
     static int UploadToServer(string localfile, string remotefile, string methodurl = "");
 

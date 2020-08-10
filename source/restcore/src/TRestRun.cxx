@@ -282,16 +282,10 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
         }
         if (e->Attribute("file") != NULL && (string)e->Attribute("file") == "server") {
             // read meta-sections from database
-            auto ids = gDataBase->search_data(DBEntry(fRunNumber, "META_RML", e->Value()));
-            if (ids.size() > 0) {
-                string file = gDataBase->wrap_data(gDataBase->query_data(ids[0]));
-                e->SetAttribute("file", file.c_str());
-                ExpandIncludeFile(e);
-            } else {
-                warning << "Failed to expand remote rml components for " << e->Value() << endl;
-                warning << "Config file for run " << fRunNumber << " not found!" << endl;
-                warning << "trying to use default config" << endl;
-            }
+            auto url = gDataBase->query_data(DBEntry(fRunNumber, "META_RML", e->Value())).value;
+            string file = TRestTools::DownloadRemoteFile(url);
+            e->SetAttribute("file", file.c_str());
+            ExpandIncludeFile(e);
         }
 
         TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
