@@ -55,12 +55,10 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
     //auto infolist = gDataBase->exec(Form("select * from rest_metadata where run_id=%i", lastvalirrun));
 
     // search metadata, run number=this run, metadata type = any
-    auto ids = gDataBase->search_data({(create ? run_id - 1 : run_id), "DB_COLUMN"});
+    auto mapstr = gDataBase->query_data({(create ? run_id - 1 : run_id), "META_COLUMN", "*"}).value;
     map<string, string> infolist;
-    for (auto id : ids) {
-        auto info = gDataBase->query_data(id);
-        infolist[info.tag] = info.value;
-    }
+    // TODO: parse the returned map string
+    // ...
 
     DBEntry entry = gDataBase->query_run(create ? run_id - 1 : run_id);
 

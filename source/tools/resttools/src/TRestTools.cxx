@@ -41,18 +41,19 @@
 ///
 /// <hr>
 ///
+#include "TRestTools.h"
+
 #include <dirent.h>
+
 #include <iostream>
 #include <limits>
 #include <memory>
 
 #include "TClass.h"
-#include "TSystem.h"
-#include "TUrl.h"
-
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
-#include "TRestTools.h"
+#include "TSystem.h"
+#include "TUrl.h"
 
 string REST_PATH;
 string REST_USER;
@@ -746,6 +747,37 @@ std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
                 t += (char)c;
         }
     }
+}
+
+///////////////////////////////////////////////
+/// \brief download the remote file automatically, returns the downloaded file name.
+///
+/// The file name is given in url format, and is parsed by TUrl. Various methods
+/// will be used, including scp, wget. Downloads to REST_USER_PATH + "/download/" + filename
+/// by default
+std::string TRestTools::DownloadRemoteFile(string url) {
+    string purename = TRestTools::GetPureFileName(url);
+    if (purename == "") {
+        cout << "error! (TRestTools::DownloadRemoteFile): url is not a file!" << endl;
+        cout << "please specify a concrete file name in this url" << endl;
+        cout << "url: " << url << endl;
+        return "";
+    }
+
+    if (url.find("local:") == 0) {
+        return Replace(url, "local:", "");
+    } else {
+        string fullpath = REST_USER_PATH + "/download/" + purename;
+
+        if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
+            return fullpath;
+        } else if (TRestTools::fileExists(fullpath)) {
+            return fullpath;
+        } else {
+            return "";
+        }
+    }
+    return "";
 }
 
 ///////////////////////////////////////////////

@@ -510,12 +510,9 @@ void TRestGas::InitFromConfigFile() {
     }
 
     // match the database, id=0(any), type="GAS_SERVER"
-    auto ids = gDataBase->search_data(DBEntry(0, "GAS_SERVER"));
-    if (ids.size() > 0)
-        fGasServer = gDataBase->query_data(ids[0]).value;
-    else
-        fGasServer = "none";
-    fGasServer = GetParameter("gasServer", fGasServer);
+    string _gasServer = gDataBase->query_data(DBEntry(0, "GAS_SERVER")).value;
+    if (_gasServer == "") _gasServer = "none";
+    fGasServer = GetParameter("gasServer", _gasServer);
 
     // add gas component
     string gasComponentString;
@@ -653,8 +650,8 @@ void TRestGas::UploadGasToServer(string absoluteGasFilename) {
     string cmd;
     int a;
     // We download (probably again) the original version
-    auto ids = gDataBase->search_data(DBEntry(0, "META_RML", "TRestGas"));
-    string fname = gDataBase->wrap_data(gDataBase->query_data(ids[0]));
+    string url = gDataBase->query_data(DBEntry(0, "META_RML", "TRestGas")).value;
+    string fname = TRestTools::DownloadRemoteFile(url);
 
 // We remove the last line. I.e. the enclosing </gases> in the original file
 #ifdef __APPLE__
@@ -691,12 +688,10 @@ void TRestGas::UploadGasToServer(string absoluteGasFilename) {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // We transfer the new gas definitions to the gasServer
-    ids = gDataBase->search_data(DBEntry(0, "GAS_SERVER"));
-    string remoteurl = gDataBase->query_data(ids[0]).value;
-    TRestTools::UploadToServer(fname, remoteurl, "ssh://gasUser@:22");
+    TRestTools::UploadToServer(fname, (string)fGasServer, "ssh://gasUser@:22");
 
     // We transfer the gasFile to the gasServer
-    TRestTools::UploadToServer(absoluteGasFilename, remoteurl, "ssh://gasUser@:22");
+    TRestTools::UploadToServer(absoluteGasFilename, (string)fGasServer, "ssh://gasUser@:22");
 
     // We remove the local file (afterwards, the remote copy will be used)
     // cmd = "rm " + _name;
@@ -734,8 +729,7 @@ string TRestGas::FindGasFile(string name) {
     string absoluteName = "";
 
     if (!fGasGeneration && fGasServer != "none") {
-        absoluteName = gDataBase->wrap_data(
-            gDataBase->query_data(gDataBase->search_data(DBEntry(0, "GAS_SERVER"))[0]), name);
+        absoluteName = TRestTools::DownloadRemoteFile((string)fGasServer + "/" + name);
     }
 
     if (absoluteName == "") {

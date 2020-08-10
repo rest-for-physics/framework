@@ -135,6 +135,7 @@ Different options can be passed to the `cmake` command to personalize the REST i
 * **REST_GARFIELD** (Default: OFF) : Enables access to [Garfield++](https://garfieldpp.web.cern.ch/garfieldpp/) libraries in REST. Garfield code inside REST will be encapsulated inside `#if defined USE_Garfield` statements.
 * **REST_G4** (Default: OFF) : Adds executable `restG4` which carries out simulation with [Geant4++](http://geant4.web.cern.ch/) using REST style config file.
 * **REST_SQL** (Default: OFF) : Enables the use of mysql libraries in REST. SQL code inside REST will be encapsulated inside `#if defined USE_SQL`.
+* **REST_EVE** (Default: ON) : Enables the use of libEve of ROOT which provides hardware accelerated 3D view of detector model and events within.
 
 To pass the options to cmake, one need to append "-DXXX=XXX" in the cmake command, for example: `cmake .. -DREST_WELCOME=OFF -DREST_G4=ON`. Once you explicitly set an option, your option choice will become the default choice for future `cmake` executions.
 
