@@ -104,9 +104,6 @@ class TRestDataBase {
     virtual void print(string cmd) {}
     /// return a table from query string cmd
     virtual DBTable exec(string cmd) { return DBTable(); }
-    /// return a file containing the values of the data. Default is to download
-    /// the file if data value is a remote url
-    virtual DBFile wrap_data(DBEntry data, string name = "");
 
     ///////////////////////  run number management interface  //////////////////////
     /// return the run number of the run. If not exist, return 0
@@ -131,10 +128,7 @@ class TRestDataBase {
 
     ///////////////////////  metadata management interface  //////////////////////
     /// return the piece of data in fMetadataEntries
-    virtual DBEntry query_data(int id);
-
-    /// search metadata according to the entry information. return a list of entry ids
-    virtual vector<int> search_data(DBEntry info);
+    virtual DBEntry query_data(DBEntry info);
 
     /// get the id of the last data in fMetadataEntries.
     virtual int get_lastdata();
