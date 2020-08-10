@@ -145,7 +145,7 @@ int main(int argc, char* argv[]) {
                             setenv("eventsToProcess", args[i + 1].c_str(), 1);
                             break;
                         case 'v':
-                            //setenv("verboseLevel", args[i + 1].c_str(), 1);
+                            // setenv("verboseLevel", args[i + 1].c_str(), 1);
                             gVerbose = StringToVerboseLevel(args[i + 1]);
                             break;
                         case 'p':

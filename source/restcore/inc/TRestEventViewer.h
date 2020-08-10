@@ -24,10 +24,10 @@
 
 #include <iostream>
 
-#include "TRestEvent.h"
 #include "TGButton.h"
 #include "TGLabel.h"
 #include "TGTextEntry.h"
+#include "TRestEvent.h"
 
 class TRestBrowser;
 class TRestEventViewer {
