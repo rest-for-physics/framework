@@ -27,6 +27,19 @@ int main(int argc, char* argv[]) {
             debug = true;
             break;
         }
+
+        char* c = &argv[i][0];
+        if (*c == '-') {
+            c++;
+            if (*c == '-') c++;
+            switch (*c) {
+                case 'v':
+                    // setenv("verboseLevel", args[i + 1].c_str(), 1);
+                    gVerbose = StringToVerboseLevel(argv[i + 1]);
+                    cout << "Setting verbose level: " << gVerbose << endl;
+                    break;
+            }
+        }
     }
 
     // load rest library and macros
