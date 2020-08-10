@@ -52,38 +52,41 @@ Int_t Validate(string fname) {
 
     TRestG4Event* ev = (TRestG4Event*)run->GetInputEvent();
     run->GetEntry(9);
+
     cout << "Total energy : " << ev->GetTotalDepositedEnergy() << endl;
     Int_t en = (Int_t)(100 * ev->GetTotalDepositedEnergy());
-    if (en != 245700) {
-        cout << "Error in total energy" << endl;
-        return 8;
-    }
-
+    cout << "Energy integer : " << en << endl;
     cout << "Sensitive volume energy : " << ev->GetSensitiveVolumeEnergy() << endl;
-    en = (Int_t)(100 * ev->GetSensitiveVolumeEnergy());
-    if (en != 245700) {
-        cout << "Error in total energy" << endl;
-        return 9;
-    }
-
     cout << "Number of hits : " << ev->GetNumberOfHits() << endl;
-    if (ev->GetNumberOfHits() != 117) {
-        cout << "Error in the number of hits" << endl;
-        return 10;
-    }
-
     cout << "Number of tracks : " << ev->GetNumberOfTracks() << endl;
-    if (ev->GetNumberOfTracks() != 19) {
-        cout << "Error in the number of tracks" << endl;
-        return 11;
-    }
 
     Int_t X = (Int_t)(100 * ev->GetMeanPositionInVolume(0).X());
     Int_t Y = (Int_t)(100 * ev->GetMeanPositionInVolume(0).Y());
     Int_t Z = (Int_t)(100 * ev->GetMeanPositionInVolume(0).Z());
 
     cout << "x: " << X << " y: " << Y << " z: " << Z << endl;
-    if (X != -65638 || Y != 4561 || Z != 4267) {
+
+    if (en != 245699) {
+        cout << "Error in total energy" << endl;
+        return 8;
+    }
+
+    en = (Int_t)(100 * ev->GetSensitiveVolumeEnergy());
+    if (en != 245699) {
+        cout << "Error in total energy" << endl;
+        return 9;
+    }
+
+    if (ev->GetNumberOfHits() != 355) {
+        cout << "Error in the number of hits" << endl;
+        return 10;
+    }
+
+    if (ev->GetNumberOfTracks() != 17) {
+        cout << "Error in the number of tracks" << endl;
+        return 11;
+    }
+    if (X != 5612 || Y != -40678 || Z != 83360) {
         cout << "Error in the event mean position" << endl;
         return 12;
     }

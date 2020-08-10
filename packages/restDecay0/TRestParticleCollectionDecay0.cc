@@ -3,7 +3,7 @@
 ClassImp(TRestParticleCollectionDecay0)
 
     void TRestParticleCollectionDecay0::SetParticleModel(std::string modelstring) {
-    cout << "Initializing decay0 model, seed: " << (uintptr_t)this << endl;
+    cout << "Initializing decay0 model, seed: " << (uintptr_t) this << endl;
 
     fElement = StringToElement(modelstring);
     fElementGlobal = NULL;
@@ -101,11 +101,11 @@ void TRestParticleCollectionDecay0::InitFromConfigFile() {
     fDecay0Model.set_decay_category(bxdecay0::decay0_generator::DECAY_CATEGORY_DBD);
 
     if (fParentName != "Xe136") {
-        error << "Only Xe136 double beta decay is supported by restDecay0" << endl;
+        ferr << "Only Xe136 double beta decay is supported by restDecay0" << endl;
         exit(1);
     }
     if (fDaugherLevel < 0 || fDaugherLevel > 3) {
-        error << "Supported Ba136 excitation level: 0, 1, 2, 3" << endl;
+        ferr << "Supported Ba136 excitation level: 0, 1, 2, 3" << endl;
         exit(1);
     }
 

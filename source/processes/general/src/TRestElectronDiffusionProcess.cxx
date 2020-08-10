@@ -66,6 +66,8 @@ void TRestElectronDiffusionProcess::LoadConfig(string cfgFilename, string name) 
 
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::InitProcess() {
+    fRandom = new TRandom3(fSeed);
+
     fGas = GetMetadata<TRestGas>();
     if (fGas == NULL) {
         if (fLonglDiffCoeff == -1 || fTransDiffCoeff == -1) {
@@ -176,7 +178,8 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent(TRestEvent* evInput) {
                                      << " en : " << localWValue * REST_Units::keV / REST_Units::eV << " keV"
                                      << endl;
                             fOutputHitsEvent->AddHit(xDiff, yDiff, zDiff,
-                                                     localWValue * REST_Units::keV / REST_Units::eV);
+                                                     localWValue * REST_Units::keV / REST_Units::eV,
+                                                     hits->GetTime(n), hits->GetType(n));
                         }
                     }
                 }
@@ -227,6 +230,6 @@ void TRestElectronDiffusionProcess::InitFromConfigFile() {
         warning << "transversalDiffusionCoeffient is now OBSOLETE! It will soon dissapear." << endl;
         warning << " Please use the shorter form of this parameter : transDiff" << endl;
     }
-    fMaxHits = StringToInteger(GetParameter("maxHits", "0"));
-    fRandom = new TRandom3(StringToDouble(GetParameter("seed", "0")));
+    fMaxHits = StringToInteger(GetParameter("maxHits", "1000"));
+    fSeed = StringToDouble(GetParameter("seed", "0"));
 }

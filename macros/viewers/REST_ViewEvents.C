@@ -1,5 +1,5 @@
 #include "TRestBrowser.h"
-#include "TRestGenericEventViewer.h"
+#include "TRestEventViewer.h"
 #include "TRestTask.h"
 
 #include "TRestLinearTrackEvent.h"
@@ -11,8 +11,8 @@
 #define RestTask_ViewEvents
 
 Int_t REST_ViewEvents(TString fName, TString EventType = "") {
-    TRestBrowser* browser = new TRestBrowser("TRestGenericEventViewer");
-    // TRestGenericEventViewer *viewer = (TRestGenericEventViewer*)browser->GetViewer();
+    TRestBrowser* browser = new TRestBrowser("TRestEventViewer");
+    // TRestEventViewer *viewer = (TRestEventViewer*)browser->GetViewer();
     TRestStringOutput cout;
     cout.setorientation(1);
     TClass* cl = TClass::GetClass(EventType);

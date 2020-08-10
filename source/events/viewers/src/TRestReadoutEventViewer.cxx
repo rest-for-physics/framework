@@ -28,7 +28,7 @@ TRestReadoutEventViewer::~TRestReadoutEventViewer() {}
 
 //______________________________________________________________________________
 void TRestReadoutEventViewer::Initialize() {
-    TRestGenericEventViewer::Initialize();
+    TRestEventViewer::Initialize();
 
     fCanvasXY = new TCanvas("ReadoutMap", "ReadoutMap");
     fCanvasXZYZ = new TCanvas("XZYZ", "XZYZ");
@@ -58,7 +58,7 @@ void TRestReadoutEventViewer::AddEvent(TRestEvent* ev) {
     // Finalize the drawing of current event, adding to the per-channel-signal
     // vs. time drawn by the generic event viewer, the three 2D histograms of
     // the XY, XZ and YZ projections.
-    TRestGenericEventViewer::AddEvent(ev);
+    TRestEventViewer::AddEvent(ev);
 
     if (fPad == NULL) return;
 

@@ -49,19 +49,16 @@ git checkout d9a5bbf0
 
 
 echo building...
-mkdir build -p
+mkdir -p build
 cd build
 
 cmake -DWITH_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=$GARFIELD_HOME ../
-make -j2
-mkdir ../lib -p
-
-cp lib/* ../lib
+make -j2 install
 
 # I add || true so that the script continues in case the pcm is not inside
 # rootdict/. As it is the case in some Garfield versions, in that case it
 # will be found already in lib/.
-cp rootdict/*.pcm ../lib || true
+#cp rootdict/*.pcm $GARFIELD_HOME/lib || true
 
 cd $WP
 

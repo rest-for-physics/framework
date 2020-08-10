@@ -31,7 +31,7 @@ using namespace std;
 TRestBrowser::TRestBrowser() {
     if (gDirectory != NULL && gDirectory->GetFile() != NULL) {
         Initialize();
-        SetViewer("TRestGenericEventViewer");
+        SetViewer("TRestEventViewer");
         OpenFile(gDirectory->GetFile()->GetName());
         cout << "Loaded File : " << fInputFileName << endl;
     } else {
@@ -225,7 +225,7 @@ Bool_t TRestBrowser::OpenFile(TString fName) {
     if (t != NULL) {
         // init viewer
         pureAnalysis = kFALSE;
-        if (fEventViewer == NULL) SetViewer("TRestGenericEventViewer");
+        if (fEventViewer == NULL) SetViewer("TRestEventViewer");
         if (geometry != NULL && fEventViewer != NULL) fEventViewer->SetGeometry(geometry);
         LoadEventAction();
     } else {

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<?xml version="4.0" encoding="UTF-8" standalone="no" ?>
 
 <!-- Constructing XML-like REST metadata input file
      File : config.rml
@@ -39,7 +39,7 @@ By default REST units are mm, keV and degrees
   <TRestG4Metadata name="DBDsimulation" title="NLDBD">
 
     <parameter name="gdml_file" value="geometry/mySetupTemplate.gdml"/>
-    <parameter name="maxTargetStepSize" value="200" units="um" />
+    <parameter name="maxTargetStepSize" value="1" units="mm" />
     <parameter name="subEventTimeDelay" value="100" units="us" />
 
     <parameter name="seed" value="17021981" />
@@ -76,8 +76,8 @@ By default REST units are mm, keV and degrees
 
   <TRestPhysicsLists name="default" title="First physics list implementation." >
     
-    <parameter name="cutForGamma" value="1" units="um" />
-    <parameter name="cutForElectron" value="1" units="um" />
+    <parameter name="cutForGamma" value="1" units="mm" />
+    <parameter name="cutForElectron" value="2" units="mm" />
     <parameter name="cutForPositron" value="1" units="mm" />
 
     <parameter name="cutForMuon" value="1" units="mm" />

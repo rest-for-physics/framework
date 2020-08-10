@@ -18,13 +18,13 @@
 #include <TCanvas.h>
 #include <TPad.h>
 
-#include "TRestGenericEventViewer.h"
+#include "TRestEventViewer.h"
 #include "TRestSignalEvent.h"
 //#include "TRestDecoding.h"
 #include "TH2Poly.h"
 #include "TRestReadout.h"
 
-class TRestReadoutEventViewer : public TRestGenericEventViewer {
+class TRestReadoutEventViewer : public TRestEventViewer {
    protected:
     TCanvas* fCanvasXY;
     TCanvas* fCanvasXZYZ;

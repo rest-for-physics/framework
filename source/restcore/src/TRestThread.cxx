@@ -150,9 +150,12 @@ bool TRestThread::TestRun(TRestAnalysisTree* tempTree) {
         debug << "Test run " << i << " : Input Event ---- " << fInputEvent->ClassName() << "(" << fInputEvent
               << ")" << endl;
         for (unsigned int j = 0; j < fProcessChain.size(); j++) {
-            essential << "t" << fThreadId << "p" << j << ": " << fProcessChain[j]->ClassName() << endl;
+            debug << "t" << fThreadId << "p" << j << ": " << fProcessChain[j]->ClassName() << endl;
 
             if (fThreadId == 0) fProcessChain[j]->EnableObservableValidation();
+
+            if (GetVerboseLevel() >= REST_Info) fProcessChain[j]->PrintMetadata();
+
             fProcessChain[j]->BeginOfEventProcess(ProcessedEvent);
             fProcessChain[j]->ProcessEvent(ProcessedEvent);
             ProcessedEvent = fProcessChain[j]->GetOutputEvent();
@@ -202,7 +205,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
     debug << "Entering TRestThread::PrepareToProcess( testrun=" << testrun << " )" << endl;
 
     string threadFileName;
-    if (fHostRunner->GetTempOutputDataFile()->GetName() == "/dev/null") {
+    if (fHostRunner->GetTempOutputDataFile()->GetName() == (string) "/dev/null") {
         threadFileName = "/dev/null";
     } else {
         threadFileName = "/tmp/rest_thread_tmp" + ToString(this) + ".root";

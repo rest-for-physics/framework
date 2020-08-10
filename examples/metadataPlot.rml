@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<TRestManager name="SpecPlot" title="Example" verboseLevel="info" >
+
+  <TRestMetadataPlot name="mdPlot" title="Basic Plots" verboseLevel="info" >
+
+	<!-- If the canvas is previsualized the user is allowed to introduce
+		  changes before saving the canvas to the specified output files -->
+    <parameter name="previewPlot" value="false"/>
+
+	<legendPosition x1="0.25" x2="0.5" y1="0.5" y2="0.65" option="lp" />
+
+	<canvas size="(1000,400)" divide="(1,1)" save="/var/www/html/tmp/canvas.png"/>
+
+    <plot name="rate" title="Raw acquisition rate versus time" 
+	      xlabel="Date/Time" ylabel="Rate [Hz]" value="ON"
+		  logX="false" logY="true" legend="on" timeDisplay="on"
+		  xVariable="timestamp" yRange="(0.01,1.e4)"
+		  save="/var/www/html/tmp/plot.png" >
+
+		  <graph name="meanRateBck" title="Background rate"
+			  lineColor="1" lineWidth="2" lineStyle="2"
+			  markerStyle="23" markerSize="1" markerColor="22"
+			  option="PL">
+			  <parameter name="yVariable" value="TRestSummaryProcess->fMeanRate" />
+			  <parameter name="metadataRule" value="TRestRun->fRunTag==Background_BIPO" />
+		  </graph>
+
+		  <graph name="meanRateCal" title="Calibration rate"
+			  lineColor="4" lineWidth="2" lineStyle="2"
+			  markerStyle="24" markerSize="2" markerColor="32"
+			  option="PL">
+			  <parameter name="yVariable" value="TRestSummaryProcess->fMeanRate" />
+			  <parameter name="metadataRule" value="TRestRun->fRunTag==Calibration_BIPO" />
+		  </graph>
+    </plot>
+
+  </TRestMetadataPlot>
+
+  <addTask command="mdPlot->GenerateCanvas()" value="ON"/>
+
+</TRestManager>
+
+
+<!--paramater here is accessible to all the classes-->

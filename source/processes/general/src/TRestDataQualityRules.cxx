@@ -36,6 +36,8 @@
 ///
 /// <hr>
 ///
+#include <iostream>
+
 #include "TRestDataQualityRules.h"
 using namespace std;
 
@@ -53,21 +55,22 @@ TRestDataQualityRules::~TRestDataQualityRules() {}
 
 Bool_t TRestDataQualityRules::EvaluateMetadataRule(TString value, TVector2 range) {
     /*
-vector<string> results = REST_StringHelper::Split((string)value, "::", false, true);
+       vector<string> results = REST_StringHelper::Split((string)value, "::", false, true);
 
-if (results.size() == 2) {
-    if (fRunInfo->GetMetadataClass(results[0])) {
-        string val = fRunInfo->GetMetadataClass(results[0])->GetDataMemberValue(results[1]);
-        Double_t dblVal = StringToDouble(val);
+       if (results.size() == 2) {
+       if (fRunInfo->GetMetadataClass(results[0])) {
+       string val = fRunInfo->GetMetadataClass(results[0])->GetDataMemberValue(results[1]);
+       Double_t dblVal = StringToDouble(val);
 
-        // If the metadata value is in range we return true
-        if (dblVal >= range.X() && dblVal <= range.Y()) return true;
+    // If the metadata value is in range we return true
+    if (dblVal >= range.X() && dblVal <= range.Y()) return true;
     } else {
-        ferr << "TRestDataQualityRules::EvaluateMetadataRule." << endl;
-        ferr << "Metadata class " << results[0] << " is not available inside TRestRun" << endl;
+    ferr << "TRestDataQualityRules::EvaluateMetadataRule." << endl;
+    ferr << "Metadata class " << results[0] << " is not available inside TRestRun" << endl;
     }
-} else
+    } else
     ferr << "TRestDataQualityRules::EvaluateMetadataRule. Wrong number of elements found" << endl;
-return false;
     */
+    cout << "TRestDataQualityRules::EvaluateMetadataRule is not implemented!" << endl;
+    return false;
 }

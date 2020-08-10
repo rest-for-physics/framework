@@ -61,7 +61,7 @@ for f in $filelist; do
 	if checkCPP $f; then
 		echo "CHECKING MATCHING FILE ${f}"
 		# apply the clang-format script
-		./macros/pipeline/clang-format.sh ${f}
+		./scripts/pipeline/clang-format.sh ${f}
 	fi
 done
 
@@ -92,8 +92,7 @@ else
     echo "git push origin HEAD:$CI_COMMIT_REF_NAME"
 	git push origin HEAD:$CI_COMMIT_REF_NAME
 	echo "Clang-format will generate a commit to fix code formatting"
-	echo "This build will stop here. But it should be solved in the next try."
-	exit 1;
+	exit 0;
 fi
 
 # cleanup changes in git

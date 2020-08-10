@@ -460,7 +460,7 @@ TRestMetadata::TRestMetadata() : endl(fVerboseLevel, messageBuffer) {
     fStore = true;
     fElementGlobal = NULL;
     fElement = NULL;
-    fVerboseLevel = REST_Essential;
+    fVerboseLevel = gVerbose;
     fElementEnv.clear();
     fHostmgr = NULL;
 
@@ -476,7 +476,7 @@ TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(fVerboseLevel, mess
     fStore = true;
     fElementGlobal = NULL;
     fElement = NULL;
-    fVerboseLevel = REST_Essential;
+    fVerboseLevel = gVerbose;
     fElementEnv.clear();
     fHostmgr = NULL;
 
@@ -609,12 +609,8 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
 ///
 Int_t TRestMetadata::LoadSectionMetadata() {
     // get debug level
-    string debugStr = GetParameter("verboseLevel", "essential");
-    if (debugStr == "silent" || debugStr == "0") fVerboseLevel = REST_Silent;
-    if (debugStr == "essential" || debugStr == "warning" || debugStr == "1") fVerboseLevel = REST_Essential;
-    if (debugStr == "info" || debugStr == "2") fVerboseLevel = REST_Info;
-    if (debugStr == "debug" || debugStr == "3") fVerboseLevel = REST_Debug;
-    if (debugStr == "extreme" || debugStr == "4") fVerboseLevel = REST_Extreme;
+    string debugStr = GetParameter("verboseLevel", ToString(fVerboseLevel));
+    fVerboseLevel = StringToVerboseLevel(debugStr);
 
     debug << "Loading Config for : " << this->ClassName() << endl;
 
@@ -652,12 +648,8 @@ Int_t TRestMetadata::LoadSectionMetadata() {
     ReadElement(fElement);
 
     // get debug level again in case it is defined in the included file
-    debugStr = GetParameter("verboseLevel", "essential");
-    if (debugStr == "silent" || debugStr == "0") fVerboseLevel = REST_Silent;
-    if (debugStr == "essential" || debugStr == "warning" || debugStr == "1") fVerboseLevel = REST_Essential;
-    if (debugStr == "info" || debugStr == "2") fVerboseLevel = REST_Info;
-    if (debugStr == "debug" || debugStr == "3") fVerboseLevel = REST_Debug;
-    if (debugStr == "extreme" || debugStr == "4") fVerboseLevel = REST_Extreme;
+    debugStr = GetParameter("verboseLevel", ToString(fVerboseLevel));
+    fVerboseLevel = StringToVerboseLevel(debugStr);
 
     // fill the general metadata info: name, title, fstore
     this->SetName(GetParameter("name", "defaultName").c_str());
@@ -997,7 +989,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     string filename;
     if (string(_filename) == "server") {
         // Let TRestRun to retrieve data according to run number later-on
-        if ((string)this->ClassName() == "TRestRun") return;
+        if ((string) this->ClassName() == "TRestRun") return;
 
         // match the database, runNumber=0(default data), type="META_RML", tag=<section name>
         auto ids = gDataBase->search_data(DBEntry(0, "META_RML", e->Value()));
@@ -1040,9 +1032,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL
-                    ? false
-                    : ((string)localele->Attribute("expanded") == "true")) {
+            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+                                                                   "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1075,9 +1066,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL
-                    ? false
-                    : ((string)localele->Attribute("expanded") == "true")) {
+            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+                                                                   "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1302,7 +1292,9 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlEleme
     if (a == PARAMETER_NOT_FOUND_STR) {
         return defaultVal;
     } else {
-        return GetValueInRESTUnits(a);
+        string unit = GetUnits(ele, parName);
+        Double_t value = StringToDouble(a.substr(0, a.find_last_of("1234567890().") + 1));
+        return REST_Units::ConvertValueToRESTUnits(value, unit);
     }
 
     return defaultVal;

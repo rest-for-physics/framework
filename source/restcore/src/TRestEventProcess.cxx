@@ -194,6 +194,7 @@ Int_t TRestEventProcess::LoadSectionMetadata() {
             if (ele->Value() != NULL && (string)ele->Value() == "cut") {
                 if (ele->Attribute("name") != NULL && ele->Attribute("value") != NULL) {
                     string name = ele->Attribute("name");
+                    name = (string) this->GetName() + "_" + name;
                     TVector2 value = StringTo2DVector(ele->Attribute("value"));
                     if (value.X() != value.Y()) fCuts.push_back(pair<string, TVector2>(name, value));
                 }
@@ -267,6 +268,29 @@ TRestEventProcess* TRestEventProcess::GetFriendLive(string nameortype) {
     return NULL;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// \brief Apply cut according to the cut conditions saved in fCut
+///
+/// returns true if the event should be cut and not stored.
+bool TRestEventProcess::ApplyCut() {
+    for (auto cut : fCuts) {
+        string type = (string)fAnalysisTree->GetObservableType(cut.first);
+        if (fAnalysisTree != NULL && type == "double") {
+            double val = fAnalysisTree->GetObservableValue<double>(cut.first);
+            if (val > cut.second.Y() || val < cut.second.X()) {
+                return true;
+            }
+        }
+        if (fAnalysisTree != NULL && type == "int") {
+            int val = fAnalysisTree->GetObservableValue<int>(cut.first);
+            if (val > cut.second.Y() || val < cut.second.X()) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
 /*
 //______________________________________________________________________________
 void TRestEventProcess::InitProcess()
@@ -280,8 +304,10 @@ cout << GetName() << ": Process initialization..." << endl;
 //////////////////////////////////////////////////////////////////////////
 /// \brief Begin of event process, preparation work. Called right before ProcessEvent()
 ///
-/// This method is called before calling ProcessEvent(). We initialize the process's output event if not null
-/// and not same as input event. The event's basic info (ID, timestamp, etc.) will also be set to the same as
+/// This method is called before calling ProcessEvent(). We initialize the process's output event if not
+/// null
+/// and not same as input event. The event's basic info (ID, timestamp, etc.) will also be set to the same
+/// as
 /// input event
 void TRestEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
     debug << "Entering " << ClassName() << "::BeginOfEventProcess, Initializing output event..." << endl;

@@ -47,8 +47,6 @@ class TRestG4Event : public TRestEvent {
     Double_t fMinEnergy, fMaxEnergy;  //!
 #endif
 
-    void SetBoundaries();
-
     void AddEnergyDepositToVolume(Int_t volID, Double_t eDep);
 
     Bool_t PerProcessEnergyInitFlag = false;
@@ -188,6 +186,10 @@ class TRestG4Event : public TRestEvent {
     Int_t fMaxSubEventID;
 
    public:
+    void SetBoundaries();
+    void SetBoundaries(Double_t xMin, Double_t xMax, Double_t yMin, Double_t yMax, Double_t zMin,
+                       Double_t zMax);
+
     TString GetPrimaryEventParticleName(int n) {
         if (fPrimaryParticleName.size() > n) return fPrimaryParticleName[n];
         return "Not defined";
@@ -466,7 +468,7 @@ class TRestG4Event : public TRestEvent {
     void PrintActiveVolumes();
     void PrintEvent(int maxTracks = 0, int maxHits = 0);
 
-    TPad* DrawEvent(TString option = "");
+    TPad* DrawEvent(TString option = "", Bool_t autoBoundaries = true);
 
     // Construtor
     TRestG4Event();

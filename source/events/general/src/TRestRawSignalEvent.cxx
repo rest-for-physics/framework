@@ -359,7 +359,7 @@ TPad* TRestRawSignalEvent::DrawEvent(TString option) {
         gr->SetTitle(title);
         gr->GetXaxis()->SetTitle("time bins");
         gr->GetYaxis()->SetTitleOffset(1.4);
-        gr->GetYaxis()->SetTitle("Voltage");
+        gr->GetYaxis()->SetTitle("Amplitude [a.u.]");
 
         fPad->cd();
         gr->Draw("ALP");

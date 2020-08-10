@@ -108,9 +108,9 @@ class TRestAnalysisPlot : public TRestMetadata {
     vector<string> fPlotNamesCheck;  //!
 
 #ifndef __CINT__
-    TRestRun* fRun;                        //! TRestRun to handle output file
-    std::vector<TRestRun*> fRunInputFile;  //! TRestRun to handle input file
-    TCanvas* fCombinedCanvas;              //! Output canvas
+    TRestRun* fRun;                          //! TRestRun to handle output file
+    std::vector<TString> fRunInputFileName;  //! TRestRun to handle input file
+    TCanvas* fCombinedCanvas;                //! Output canvas
 #endif
 
     void AddFile(TString fileName);

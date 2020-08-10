@@ -276,13 +276,14 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     // Double_t ampeve_intmethod;
     map<int, Double_t> risetime;
     // Double_t risetimemean;
+    map<int, Double_t> npointsot;
 
     baseline.clear();
     baselinesigma.clear();
     ampsgn_maxmethod.clear();
     ampsgn_intmethod.clear();
     risetime.clear();
-
+    npointsot.clear();
     /*
 baselinemean = 0;
 baselinesigmamean = 0;
@@ -307,9 +308,9 @@ Double_t maxeve = 0;
 
         // We do not want that signals that are not identified as such contribute to define our
         // observables
-        if (sgnl->GetPointsOverThreshold().size() < 2) continue;
-
-        nGoodSignals++;
+        // nkx: we still need to store all the signals in baseline/rise time maps in case for noise analysis
+        // if (sgnl->GetPointsOverThreshold().size() < 2) continue;
+        if (sgnl->GetPointsOverThreshold().size() >= 2) nGoodSignals++;
 
         /* We skip now intermediate variables
 Double_t _bslval = sgnl->GetBaseLine();
@@ -324,6 +325,7 @@ Double_t _risetime = sgnl->GetRiseTime(); */
         ampsgn_intmethod[sgnl->GetID()] = sgnl->GetThresholdIntegral();
         ampsgn_maxmethod[sgnl->GetID()] = sgnl->GetMaxPeakValue();
         risetime[sgnl->GetID()] = sgnl->GetRiseTime();
+        npointsot[sgnl->GetID()] = sgnl->GetPointsOverThreshold().size();
 
         /* These observables were already being calculated later on
 baselinemean += sgnl->GetBaseLine();
@@ -345,6 +347,7 @@ risetimemean += sgnl->GetRiseTime();
     // The only new observables that remain are map variables.
     // We can adopt lower case naming for map variables. But Double_t variables naming convention was already
     // fixed. In future case insensitive?
+    SetObservableValue("pointsoverthres_map", npointsot);
     SetObservableValue("risetime_map", risetime);
     // SetObservableValue("risetimemean", risetimemean); // Repeated observable : RiseTimeAvg
     SetObservableValue("baseline_map", baseline);
@@ -501,8 +504,8 @@ risetimemean += sgnl->GetRiseTime();
     fPreviousEventTime.push_back(fSignalEvent->GetTimeStamp());
     if (fPreviousEventTime.size() > 10) fPreviousEventTime.erase(fPreviousEventTime.begin());
 
-    // If no good signals are identified the event will be not registered.
-    if (nGoodSignals == 0) return NULL;
+    // If cut condition matches the event will be not registered.
+    if (ApplyCut()) return NULL;
 
     return fSignalEvent;
 }

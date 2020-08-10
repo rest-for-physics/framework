@@ -207,7 +207,7 @@ TPad* TRestSignalEvent::DrawEvent(TString option) {
     fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1);
     fPad->Draw();
     fPad->cd();
-    fPad->DrawFrame(GetMinTime(), 0, GetMaxTime(), GetMaxValue());
+    fPad->DrawFrame(GetMinTime(), GetMinValue(), GetMaxTime(), GetMaxValue());
 
     char title[256];
     sprintf(title, "Event ID %d", this->GetID());
@@ -216,7 +216,7 @@ TPad* TRestSignalEvent::DrawEvent(TString option) {
     mg->SetTitle(title);
     mg->GetXaxis()->SetTitle("Time [us]");
     mg->GetXaxis()->SetTitleOffset(1.1);
-    mg->GetYaxis()->SetTitle("Energy [keV]");
+    mg->GetYaxis()->SetTitle("Amplitude [a.u.]");
     mg->GetYaxis()->SetTitleOffset(0.8);
 
     mg->GetYaxis()->SetTitleSize(1.4 * mg->GetYaxis()->GetTitleSize());

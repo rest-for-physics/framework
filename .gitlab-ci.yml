@@ -27,6 +27,8 @@ stages:
 
 before_script:
   - export USER="test"
+  - echo $CI_SERVER_HOST
+  - echo $CRONJOB
     # We redefine the HOME
   - export HOME=${CI_PROJECT_DIR}/install/
   - if [ -d $HOME/.rest ]; then rm -Rf $HOME/.rest; fi
@@ -35,13 +37,12 @@ clang-format:
     stage: pre-build
     script:
         - cd ${CI_PROJECT_DIR}/
-        - ./scripts/pipeline/clangformattest.sh
-    except:
-        variables:
-            - $CI_SERVER_HOST
+        - if [ -n "$CRONJOB" ]; then ./scripts/pipeline/clangformattest.sh; else echo "Skipping clang-format"; fi
+        - clang-format --version
     only:
         variables:
-            - $CRONJOB
+            - $CRONJOB == "YES"
+            - $CI_SERVER_HOST == "lfna.unizar.es"
 
 validateCode:
     stage: pre-build
@@ -49,7 +50,7 @@ validateCode:
         - python ${CI_PROJECT_DIR}/scripts/pipeline/validateProcesses.py ${CI_PROJECT_DIR}/source/processes/
     except:
         variables:
-            - $CRONJOB
+            - $CRONJOB == "YES"
 
 build:
   type: build
@@ -61,7 +62,7 @@ build:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
   except:
       variables:
-        - $CRONJOB
+        - $CRONJOB == "YES"
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install
@@ -75,7 +76,7 @@ loadRESTLibs:
     - restRoot -b -q
   except:
       variables:
-        - $CRONJOB
+        - $CRONJOB == "YES"
 
 listRESTMacros:
   type: install
@@ -84,30 +85,46 @@ listRESTMacros:
     - restManager ListMacros
   except:
       variables:
-        - $CRONJOB
+        - $CRONJOB == "YES"
 
 01_NLDBD:
   type: restG4
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/
+    - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD/
     - restG4 NLDBD.rml
     - geant4-config --version
     - restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
-  artifacts:
-    paths:
-      - ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/Run00001_NLDBD_Test.root
-    expire_in: 1 day
   except:
       variables:
-        - $CRONJOB
+        - $CRONJOB == "YES"
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test.root
+    expire_in: 1 day
 
-gas:
+LoadGas:
   type: metadata 
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline
-    - restRoot -b -q ValidateGas.C
+    - cd ${CI_PROJECT_DIR}/scripts/pipeline/metadata/gas/
+    - restRoot -b -q LoadGasFromServerAndValidate.C
+  except:
+      variables:
+        - $CRONJOB == "YES"
+
+GenerateGas:
+  type: metadata 
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/scripts/pipeline/metadata/gas/
+    - restRoot -b -q GenerateDummyGas.C
+  only:
+      variables:
+        - $CI_SERVER_HOST == "lfna.unizar.es"
+  except:
+      variables:
+        - $CRONJOB == "YES"
 
 testMeta:
   type: restManager_generate
@@ -121,7 +138,7 @@ testMeta:
     expire_in: 1 day
   except:
       variables:
-        - $CRONJOB
+        - $CRONJOB == "YES"
 
 trexDM_data: 
   type: restManager_process
@@ -142,26 +159,26 @@ trexDM_data:
     expire_in: 1 week
   except:
       variables:
-        - $CRONJOB
+        - $CRONJOB == "YES"
 
-pandaXIII_MC: 
-  type: restManager_process
-  script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii
-    - restG4 Xe136bb0n.rml
-    - restRoot -b -q ValidateG4.C'("Xe136bb0n_n2E06.root")'
-    - restManager --c AllProcesses.rml --i Xe136bb0n_n2E06.root --o Xe136bb0n_Process.root --e 1000 --j 1
-    - restRoot -b -q ValidateTrack.C'("Xe136bb0n_Process.root")'
-    - restManager --c plots.rml --i Xe136bb0n_Process.root
-    - restRoot -b -q ValidatePlot.C'("trackParameter.png")'
-  artifacts:
-    paths:
-      - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii/trackParameter.pdf
-    expire_in: 1 week
-  except:
-      variables:
-        - $CRONJOB
+          #pandaXIII_MC: 
+          #  type: restManager_process
+          #  script:
+          #    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+          #    - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii
+          #    - restG4 Xe136bb0n.rml
+          #    - restRoot -b -q ValidateG4.C'("Xe136bb0n_n2E06.root")'
+          #    - restManager --c AllProcesses.rml --i Xe136bb0n_n2E06.root --o Xe136bb0n_Process.root --e 1000 --j 1
+          #    - restRoot -b -q ValidateTrack.C'("Xe136bb0n_Process.root")'
+          #    - restManager --c plots.rml --i Xe136bb0n_Process.root
+          #    - restRoot -b -q ValidatePlot.C'("trackParameter.png")'
+          #  artifacts:
+          #    paths:
+          #      - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii/trackParameter.pdf
+          #    expire_in: 1 week
+          #  except:
+          #      variables:
+          #        - $CRONJOB
 
 deploy:
   type: deploy
@@ -175,4 +192,4 @@ deploy:
       - ${CI_PROJECT_DIR}/install
   except:
       variables:
-        - $CRONJOB
+        - $CRONJOB == "YES"

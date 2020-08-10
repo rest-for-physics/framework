@@ -2,7 +2,6 @@
 
 #include "GdmlPreprocessor.h"
 #include "TRestBrowser.h"
-#include "TRestG4EventViewer.h"
 #include "TRestTask.h"
 using namespace std;
 
@@ -38,7 +37,8 @@ Int_t REST_ViewGeometry(TString fName, TString option = "") {
     if (option == "") {
         geo->GetMasterVolume()->Draw();
     } else if (ToUpper((string)option) == "EVE") {
-        TRestG4EventViewer* view = new TRestG4EventViewer();
+        TRestEventViewer* view = (TRestEventViewer*)REST_Reflection::Assembly("TRestG4EventViewer");
+        if (view == NULL) return -1;
         view->SetGeometry(geo);
         view->AddEvent(new TRestG4Event());
 

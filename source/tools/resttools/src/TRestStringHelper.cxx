@@ -131,10 +131,10 @@ Int_t REST_StringHelper::isANumber(string in) {
 /// Input: "abc:def" and ":", Output: { "abc", "def" }
 /// Input: "abc:def" and ":def", Output: { "abc" }
 std::vector<string> REST_StringHelper::Split(std::string in, string separator, bool allowBlankString,
-                                             bool removeWhiteSpaces) {
+                                             bool removeWhiteSpaces, int startPos) {
     std::vector<string> result;
 
-    int pos = -1;
+    int pos = startPos;
     int front = 0;
     while (1) {
         pos = in.find(separator.c_str(), pos + 1);
@@ -277,20 +277,39 @@ string REST_StringHelper::ToDateTimeString(time_t time) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Parse string to time_t
+/// \brief A method to convert a date/time formatted string to a timestamp.
 ///
-/// The input datatime format should be "Y-M-D H:M:S". e.g.
+/// The input datatime format should match any of the following patterns:
+/// "YYYY-mm-DD HH:MM:SS", "YYYY/mm/DD HH:MM:SS", "YYYY-mm-DD", or "YYYY/mm/DD".
+/// If no time is given it will be assumed to be 00:00:00.
+///
 /// \code
 /// REST_StringHelper::ToTime("2018-1-1 8:00:00")
 /// (return) 1514764800
 /// \endcode
+///
 /// here the type "time_t" is actually the type "long long", which indicates the
 /// elapsed time in second from 1970-1-1 8:00:00
-time_t REST_StringHelper::ToTime(string time) {
+///
+time_t REST_StringHelper::StringToTimeStamp(string time) {
     struct tm tm1;
+    tm1.tm_hour = 0;
+    tm1.tm_min = 0;
+    tm1.tm_sec = 0;
     time_t time1;
-    int i = sscanf(time.c_str(), "%d-%d-%d %d:%d:%d", &(tm1.tm_year), &(tm1.tm_mon), &(tm1.tm_mday),
+    if (time.find(":") != string::npos) {
+        if (time.find("/") != string::npos)
+            sscanf(time.c_str(), "%d/%d/%d %d:%d:%d", &(tm1.tm_year), &(tm1.tm_mon), &(tm1.tm_mday),
                    &(tm1.tm_hour), &(tm1.tm_min), &(tm1.tm_sec));
+        else
+            sscanf(time.c_str(), "%d-%d-%d %d:%d:%d", &(tm1.tm_year), &(tm1.tm_mon), &(tm1.tm_mday),
+                   &(tm1.tm_hour), &(tm1.tm_min), &(tm1.tm_sec));
+    } else {
+        if (time.find("/") != string::npos)
+            sscanf(time.c_str(), "%d/%d/%d", &(tm1.tm_year), &(tm1.tm_mon), &(tm1.tm_mday));
+        else
+            sscanf(time.c_str(), "%d-%d-%d", &(tm1.tm_year), &(tm1.tm_mon), &(tm1.tm_mday));
+    }
 
     tm1.tm_year -= 1900;
     tm1.tm_mon--;
@@ -298,6 +317,16 @@ time_t REST_StringHelper::ToTime(string time) {
     time1 = mktime(&tm1);
 
     return time1;
+}
+
+REST_Verbose_Level REST_StringHelper::StringToVerboseLevel(string in) {
+    if (ToUpper(in) == "SILENT" || in == "0") return REST_Silent;
+    if (ToUpper(in) == "ESSENTIAL" || ToUpper(in) == "WARNING" || in == "1") return REST_Essential;
+    if (ToUpper(in) == "INFO" || in == "2") return REST_Info;
+    if (ToUpper(in) == "DEBUG" || in == "3") return REST_Debug;
+    if (ToUpper(in) == "EXTREME" || in == "4") return REST_Extreme;
+
+    return REST_Essential;
 }
 
 ///////////////////////////////////////////////

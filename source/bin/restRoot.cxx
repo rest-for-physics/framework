@@ -14,20 +14,25 @@
 // This will make cout un-usable in the command line!
 int main(int argc, char* argv[]) {
     // set the env and debug status
-    bool silent = false;
-    bool debug = false;
     setenv("REST_VERSION", REST_RELEASE, 1);
     for (int i = 1; i < argc; i++) {
-        if (ToUpper((string)argv[i]) == "--SILENT") {
-            silent = true;
-            break;
-        }
-
-        if (ToUpper((string)argv[i]) == "--DEBUG") {
-            debug = true;
-            break;
+        char* c = &argv[i][0];
+        if (*c == '-') {
+            c++;
+            if (*c == '-') c++;
+            switch (*c) {
+                case 'v':
+                    gVerbose = StringToVerboseLevel(argv[i + 1]);
+                    break;
+            }
         }
     }
+
+    bool silent = false;
+    if (gVerbose == REST_Silent) silent = true;
+
+    bool debug = false;
+    if (gVerbose >= REST_Debug) debug = true;
 
     // load rest library and macros
     TRestTools::LoadRESTLibrary(silent);
