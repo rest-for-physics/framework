@@ -710,7 +710,8 @@ string TRestTools::Execute(string cmd) {
         result += buffer.data();
     }
 
-    if (result[result.size() - 1] == '\n') result = result.substr(0, result.size() - 1);  // remove last "\n"
+    if (result.size() > 0 && result[result.size() - 1] == '\n')
+        result = result.substr(0, result.size() - 1);  // remove last "\n"
 
     return result;
 }
