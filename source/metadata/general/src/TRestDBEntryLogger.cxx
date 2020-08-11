@@ -1,5 +1,5 @@
-#include "TRestManager.h"
 #include "TRestDataBase.h"
+#include "TRestManager.h"
 #include "TRestProcessRunner.h"
 #include "TRestStringOutput.h"
 
@@ -17,7 +17,7 @@ void TRestDBEntryLogger::InitFromConfigFile() {
         abort();
     }
 
-    //if (ToUpper(GetParameter("database", "")) != "PSQL") {
+    // if (ToUpper(GetParameter("database", "")) != "PSQL") {
     //    ferr << "TRestDBEntryLogger: the used database by REST (" << any(gDataBase).type
     //         << ") is not supported" << endl;
     //    ferr << "hint: you need to switch to PSQL in your rml:" << endl;
@@ -52,7 +52,7 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
         create = true;
     }
 
-    //auto infolist = gDataBase->exec(Form("select * from rest_metadata where run_id=%i", lastvalirrun));
+    // auto infolist = gDataBase->exec(Form("select * from rest_metadata where run_id=%i", lastvalirrun));
 
     // search metadata, run number=this run, metadata type = any
     auto mapstr = gDataBase->query_data({(create ? run_id - 1 : run_id), "META_COLUMN", "*"}).value;
@@ -76,11 +76,11 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
     ofs << "description: " << description << endl;
 
     if (infolist.size() > 0) {
-        for (auto info:infolist) {
+        for (auto info : infolist) {
             // i=0 --> run_id, we skip it
             ofs << info.first << ": " << info.second << endl;
         }
-    } 
+    }
     ofs.flush();
     ofs.close();
     system((fTextOpenCommand + " " + txtfilename).c_str());
@@ -134,16 +134,17 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
         runentry.version = version;
         gDataBase->set_run(runentry);
 
-       /* cout << Form(
-                    "insert into rest_runs (run_id, type, tag, description, version) values (%i, '%s', '%s', "
-                    "'%s', "
-                    "'%s');",
-                    run_id, type.c_str(), tag.c_str(), description.c_str(), version.c_str())
-             << endl;
-        gDataBase->exec(Form(
-            "insert into rest_runs (run_id, type, tag, description, version) values (%i, '%s', '%s', '%s', "
-            "'%s');",
-            run_id, type.c_str(), tag.c_str(), description.c_str(), version.c_str()));*/
+        /* cout << Form(
+                     "insert into rest_runs (run_id, type, tag, description, version) values (%i, '%s', '%s',
+         "
+                     "'%s', "
+                     "'%s');",
+                     run_id, type.c_str(), tag.c_str(), description.c_str(), version.c_str())
+              << endl;
+         gDataBase->exec(Form(
+             "insert into rest_runs (run_id, type, tag, description, version) values (%i, '%s', '%s', '%s', "
+             "'%s');",
+             run_id, type.c_str(), tag.c_str(), description.c_str(), version.c_str()));*/
 
         // add run file
         vector<string> files = Vector_cast<TString, string>(fRun->GetInputFileNames());
@@ -154,7 +155,7 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
                      "(%i,%i,'%s',%i,'%s');",
                      run_id, fileid, files[i].c_str(), filesize, ToDateTimeString(filetime).c_str()));*/
             if (i == 0) {
-                //gDataBase->exec(Form("update rest_runs set run_start = '%s' where run_id=%i;",
+                // gDataBase->exec(Form("update rest_runs set run_start = '%s' where run_id=%i;",
                 //                     ToDateTimeString(filetime).c_str(), run_id));
                 struct stat _stat;
                 time_t filetime;
@@ -170,12 +171,11 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
         }
 
         // add run metadata
-        //gDataBase->exec(Form("insert into rest_metadata (run_id) values (%i);", run_id));
-
+        // gDataBase->exec(Form("insert into rest_metadata (run_id) values (%i);", run_id));
     }
 
     for (auto iter : fMetainfo) {
-        //gDataBase->exec(Form("update rest_metadata set %s = '%s' where run_id=%i;", iter.first.c_str(),
+        // gDataBase->exec(Form("update rest_metadata set %s = '%s' where run_id=%i;", iter.first.c_str(),
         //                     iter.second.c_str(), run_id));
         if (iter.second != "" && iter.first != "") {
             DBEntry dataentry;

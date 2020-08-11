@@ -100,7 +100,7 @@ void TRestDataBase::Initialize() {
         while (TRestTools::GetLine(infile, s)) {
             DBEntry info;
             vector<string> items = Split(s, "\t", true);
-            if (items.size() <= 2 ) continue;
+            if (items.size() <= 2) continue;
             for (auto item : items) {
                 vector<string> pair = Split(item, "=", true);
                 if (pair.size() == 2) {
