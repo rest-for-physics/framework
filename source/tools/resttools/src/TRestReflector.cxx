@@ -394,7 +394,7 @@ int TRestReflector::InitDictionary() {
                  << endl;
             return -1;
         }
-        system(Form("mkdir -p %s/lib/AddonDict", REST_USER_PATH.c_str()));
+        system(Form("mkdir -p %s/AddonDict", REST_USER_PATH.c_str()));
 
         string linkdeffilename = REST_USER_PATH + (string) "/AddonDict/LinkDef.h";
         ofstream ofs(linkdeffilename);
