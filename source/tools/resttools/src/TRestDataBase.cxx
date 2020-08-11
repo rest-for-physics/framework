@@ -262,8 +262,6 @@ DBEntry TRestDataBase::query_data(DBEntry _info) {
     return DBEntry();
 }
 
-int TRestDataBase::get_lastdata() { return fDataEntries.size() - 1; }
-
 // int TRestDataBase::add_metadata(DBEntry info, string url, bool overwrite) {
 //    if (TRestTools::isPathWritable(REST_USER_PATH)) {
 //        cout << "error! path not writable" << endl;
