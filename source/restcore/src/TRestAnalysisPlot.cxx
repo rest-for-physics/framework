@@ -710,6 +710,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 TString reducedHistoName = nameString + "_" + std::to_string(j);
                 TString histoName = nameString + "_" + std::to_string(j) + rangeString;
                 if (!drawn) {
+                    cout << "AnalysisTree->Draw(\"" << plotString << ">>" << histoName << "\", \"" << cutString
+                         << "\", \"" << optString << "\")" << endl;
                     outVal = tree->Draw(plotString + ">>" + histoName, cutString, optString);
                     drawn = true;
                     hTotal = (TH3F*)gPad->GetPrimitive(reducedHistoName)->Clone(nameString);
@@ -790,6 +792,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         }
 
         // draw to the pad
+        targetPad = (TPad*)fCombinedCanvas->cd(n + 1 + fPanels.size());
         Double_t maxValue_Pad = 0;
         int maxID = 0;
         for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
@@ -831,112 +834,9 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             legend->Draw("same");
         }
 
-        // draw annotation, mainly the cut string
-        vector<pair<double, double>> plotted_text_Y;
-        if (plot.annotationOn) {
-            for (int i = 0; i < histCollectionPlot.size(); i++) {
-                // place annotation only for 1D histograms
-                TH3F* htemp = histCollectionPlot[i];
-                if (((string)htemp->ClassName()).find("TH1") != -1) {
-                    // annotation for the cut, it will be like: sAna_NumberOfGoodSignals>30 && ...
-                    string cutannotation = plot.histos[i].cutString;
-                    // annotation for file classifying, it will be like: FileName: run123.root
-                    string classifyannotation = "";
-                    auto iter = plot.histos[i].classifyMap.begin();
-                    while (iter != plot.histos[i].classifyMap.end()) {
-                        classifyannotation += iter->first + ": " + iter->second;
-                        iter++;
-                        if (iter != plot.histos[i].classifyMap.end()) classifyannotation += ", ";
-                    }
-
-                    string annotation = cutannotation != "" ? cutannotation : classifyannotation;
-                    if (annotation == "") annotation = "no cut";
-
-                    // calculate x start position of the annotation, according to the max bin of the histogram
-                    int maxbin = htemp->GetMaximumBin();
-                    int Nbins = htemp->GetNbinsX();
-                    double maxval_hist = htemp->GetBinContent(maxbin);
-
-                    double size = 0.04;
-                    double x_pos_relative = plot.logX ? log(maxbin) / log(Nbins) : maxbin / (double)Nbins;
-                    double y_pos_relative = plot.logY ? log(maxval_hist) / log(maxValue_Pad * 1.2)
-                                                      : maxval_hist / (maxValue_Pad * 1.2);
-
-                    int align = 0;
-                    int nCharacterPreLine;
-                    if (x_pos_relative > 0.5) {
-                        align = kHAlignRight + kVAlignCenter;
-                        x_pos_relative -= 0.01;
-                        nCharacterPreLine =
-                            x_pos_relative * fCanvasSize.X() / fCanvasDivisions.X() / size / 400;
-                    } else {
-                        align = kHAlignLeft + kVAlignCenter;
-                        x_pos_relative += 0.01;
-                        nCharacterPreLine =
-                            (1 - x_pos_relative) * fCanvasSize.X() / fCanvasDivisions.X() / size / 400;
-                    }
-
-                    double xpos = plot.logX ? htemp->GetBinCenter(exp(x_pos_relative * log(Nbins)))
-                                            : x_pos_relative * htemp->GetBinCenter(Nbins);
-
-                    // split the long annotation
-                    vector<string> annotation_multi_text;
-                    for (int j = 0; j < annotation.size(); j += nCharacterPreLine) {
-                        annotation_multi_text.push_back(annotation.substr(j, nCharacterPreLine));
-                    }
-
-                    // adjust y position to avoid overlap
-                    double yup = y_pos_relative + size;
-                    double ydown = yup - size * annotation_multi_text.size();
-
-                    double shift_value;
-                    for (double shift = 0; shift < 0.5; shift += size) {
-                        bool overlap = false;
-                        shift_value = yup > 0.5 ? -shift : shift;
-                        for (int j = 0; j < plotted_text_Y.size(); j++) {
-                            if (yup + shift > plotted_text_Y[j].second &&
-                                yup + shift < plotted_text_Y[j].first) {
-                                overlap = true;
-                                break;
-                            }
-                            if (ydown + shift > plotted_text_Y[j].second &&
-                                ydown + shift < plotted_text_Y[j].first) {
-                                overlap = true;
-                                break;
-                            }
-                            if (ydown + shift == plotted_text_Y[j].second &&
-                                yup + shift == plotted_text_Y[j].first) {
-                                overlap = true;
-                                break;
-                            }
-                        }
-                        if (!overlap) {
-                            break;
-                        }
-                    }
-                    yup += shift_value;
-                    ydown += shift_value;
-                    plotted_text_Y.push_back({yup, ydown});
-
-                    // draw
-                    for (int j = 0; j < annotation_multi_text.size(); j++) {
-                        double yy = plot.logY ? exp((yup - (j + 1) * size) * log(maxValue_Pad * 1.2))
-                                              : (yup - (j + 1) * size) * maxValue_Pad * 1.2;
-
-                        TLatex* text = new TLatex(xpos + plot.xOffset, yy + plot.yOffset,
-                                                  annotation_multi_text[j].c_str());
-                        text->SetTextAlign(align);
-                        text->SetTextSize(size);
-                        text->SetTextColor(plot.histos[i].lineColor);
-                        text->Draw("same");
-                    }
-                }
-            }
-        }
-
         // save pad
         targetPad->Update();
-        if (plot.save != "") SavePlotToPDF(plot.save, n + 1);
+        if (plot.save != "") targetPad->Print(plot.save.c_str());
 
         fCombinedCanvas->Update();
     }
