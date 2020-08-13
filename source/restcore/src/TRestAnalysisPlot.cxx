@@ -11,6 +11,7 @@
 ///_______________________________________________________________________________
 
 #include "TRestAnalysisPlot.h"
+
 #include "TRestManager.h"
 #include "TRestTools.h"
 using namespace std;
@@ -52,6 +53,12 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     size_t position = 0;
     if (fHostmgr->GetRunInfo() != NULL) {
         fRun = fHostmgr->GetRunInfo();
+    }
+    if (fRun == NULL) {
+        fRun = new TRestRun();
+        fRun->SetHistoricMetadataSaving(false);
+        string outputname = GetParameter("outputFile", "/tmp/restplot.root");
+        fRun->SetOutputFileName(outputname);
     }
 
 #pragma region ReadLabels
@@ -461,15 +468,17 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
 void TRestAnalysisPlot::AddFile(TString fileName) {
     debug << "TRestAnalysisPlot::AddFile. Adding file. " << endl;
     debug << "File name: " << fileName << endl;
+    fRunInputFileName.push_back((string)fileName);
+    fNFiles++;
 
-    TRestRun* run = new TRestRun();
-    run->SetHistoricMetadataSaving(false);
-    run->OpenInputFile((string)fileName);
-    if (run->GetAnalysisTree() != NULL) {
-        fRunInputFileName.push_back((string)fileName);
-        fNFiles++;
-    }
-    delete run;
+    // TRestRun* run = new TRestRun();
+    // run->SetHistoricMetadataSaving(false);
+    // run->OpenInputFile((string)fileName);
+    // if (run->GetAnalysisTree() != NULL) {
+    //    fRunInputFileName.push_back((string)fileName);
+    //    fNFiles++;
+    //}
+    // delete run;
 
     // TFile* f = new TFile(fileName);
     // TIter nextkey(f->GetListOfKeys());
@@ -514,13 +523,6 @@ void TRestAnalysisPlot::AddFileFromExternalRun() {
             // if we have a TRestProcessRunner before head, we use its output file
             AddFile(fRun->GetOutputFileName());
             return;
-        } else if (fRun->GetInputFileNames().size() != 0) {
-            // if we have only TRestRun, we ask for its input file list
-            auto names = fRun->GetInputFileNames();
-            for (int i = 0; i < names.size(); i++) {
-                this->AddFile(names[i]);
-            }
-            return;
         }
     }
 }
@@ -564,16 +566,6 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         exit(1);
     }
 
-    // initialize output root file if we have TRestRun running
-    TFile* fOutputRootFile = NULL;
-    if (fRun != NULL) {
-        fOutputRootFile = fRun->GetOutputFile();
-        if (fOutputRootFile == NULL) {
-            fRun->SetHistoricMetadataSaving(false);
-            fOutputRootFile = fRun->FormOutputFile();
-        }
-    }
-
     // Initializing canvas window
     if (fCombinedCanvas != NULL) {
         delete fCombinedCanvas;
@@ -591,12 +583,10 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     Double_t runLength = 0;
     Int_t totalEntries = 0;
     for (unsigned int n = 0; n < fRunInputFileName.size(); n++) {
-        TRestRun* run = new TRestRun();
-        run->SetHistoricMetadataSaving(false);
-        run->OpenInputFile(fRunInputFileName[n]);
+        fRun->OpenInputFile(fRunInputFileName[n]);
 
-        Double_t endTimeStamp = run->GetEndTimestamp();
-        Double_t startTimeStamp = run->GetStartTimestamp();
+        Double_t endTimeStamp = fRun->GetEndTimestamp();
+        Double_t startTimeStamp = fRun->GetStartTimestamp();
 
         // We get the lowest/highest run time stamps.
         if (!startTime || startTime > endTimeStamp) startTime = endTimeStamp;
@@ -607,9 +597,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
         if (endTimeStamp - startTimeStamp > 0) {
             runLength += endTimeStamp - startTimeStamp;
-            totalEntries += run->GetEntries();
+            totalEntries += fRun->GetEntries();
         }
-        delete run;
     }
 
     Double_t meanRate = totalEntries / runLength;
@@ -632,11 +621,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             pos = 0;
             label = Replace(label, "<<meanRate>>", Form("%5.2lf", meanRate), pos);
 
-            TRestRun* run = new TRestRun();
-            run->SetHistoricMetadataSaving(false);
-            run->OpenInputFile(fRunInputFileName[0]);
-            label = run->ReplaceMetadataMembers(label);
-            delete run;
+            fRun->OpenInputFile(fRunInputFileName[0]);
+            label = fRun->ReplaceMetadataMembers(label);
 
             TLatex* texxt = new TLatex(fPanels[n].posX[m], fPanels[n].posY[m], label.c_str());
             texxt->SetTextColor(1);
@@ -689,14 +675,12 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
             TH3F* hTotal;
             for (unsigned int j = 0; j < fRunInputFileName.size(); j++) {
-                TRestRun* run = new TRestRun();
-                run->SetHistoricMetadataSaving(false);
-                run->OpenInputFile(fRunInputFileName[j]);
+                fRun->OpenInputFile(fRunInputFileName[j]);
                 // apply "classify" condition
                 bool flag = true;
                 auto iter = hist.classifyMap.begin();
                 while (iter != hist.classifyMap.end()) {
-                    if (run->GetInfo(iter->first) != iter->second) {
+                    if (fRun->GetInfo(iter->first) != iter->second) {
                         flag = false;
                         break;
                     }
@@ -704,25 +688,34 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 }
                 if (!flag) continue;
 
-                TTree* tree = run->GetAnalysisTree();
+                TTree* tree = fRun->GetAnalysisTree();
                 int outVal;
 
                 TString reducedHistoName = nameString + "_" + std::to_string(j);
                 TString histoName = nameString + "_" + std::to_string(j) + rangeString;
                 if (!drawn) {
-                    cout << "AnalysisTree->Draw(\"" << plotString << ">>" << histoName << "\", \"" << cutString
-                         << "\", \"" << optString << "\")" << endl;
+                    cout << "AnalysisTree->Draw(\"" << plotString << ">>" << histoName << "\", \""
+                         << cutString << "\", \"" << optString << "\")" << endl;
                     outVal = tree->Draw(plotString + ">>" + histoName, cutString, optString);
-                    drawn = true;
-                    hTotal = (TH3F*)gPad->GetPrimitive(reducedHistoName)->Clone(nameString);
+                    if (outVal > 0) {
+                        drawn = true;
+                        hTotal = (TH3F*)gPad->GetPrimitive(reducedHistoName)->Clone(nameString);
+                        // This is important so that the histogram is not erased when we delete TRestRun!
+                        hTotal->SetDirectory(0);
+                    } else {
+                        info << "File: " << fRunInputFileName[j] << ": No entries are drawn" << endl;
+                        info << "AnalysisTree is empty? cut is too hard?" << endl;
+                    }
 
-                    // This is important so that the histogram is not erased when we delete TRestRun!
-                    hTotal->SetDirectory(0);
                 } else {
                     outVal = tree->Draw(plotString + ">>" + histoName, cutString, optString);
-                    TH3F* hh = (TH3F*)gPad->GetPrimitive(reducedHistoName);
-
-                    hTotal->Add(hh);
+                    if (outVal > 0) {
+                        TH3F* hh = (TH3F*)gPad->GetPrimitive(reducedHistoName);
+                        hTotal->Add(hh);
+                    } else {
+                        info << "File: " << fRunInputFileName[j] << ": No entries are drawn" << endl;
+                        info << "AnalysisTree is empty? cut is too hard?" << endl;
+                    }
                 }
 
                 if (outVal == -1) {
@@ -736,12 +729,10 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                     ferr << endl;
                     exit(1);
                 }
-                delete run;
             }
 
             if (drawn == false) {
-                warning << "TRestAnalysisPlot: no input file matches condition for histogram: " << hist.name
-                        << ", this histogram is empty" << endl;
+                warning << "Histogram \"" << nameString << "\" is empty" << endl;
                 plot.histos.erase(plot.histos.begin() + i);
                 i--;
             } else {
@@ -819,10 +810,9 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
         // save histogram to root file
         for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
-            if (fRun != NULL) {
-                fOutputRootFile->cd();
-                histCollectionPlot[i]->Write();
-            }
+            auto f = new TFile(fRun->GetOutputFileName(), "update");
+            histCollectionPlot[i]->Write();
+            f->Close();
         }
 
         // draw legend
@@ -847,11 +837,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     }
 
     // Save canvas to a PDF file
-    TRestRun* run = new TRestRun();
-    run->SetHistoricMetadataSaving(false);
-    run->OpenInputFile(fRunInputFileName[0]);
-    fCanvasSave = run->FormFormat(fCanvasSave);
-    delete run;
+    fRun->OpenInputFile(fRunInputFileName[0]);
+    fCanvasSave = fRun->FormFormat(fCanvasSave);
     if (fCanvasSave != "") fCombinedCanvas->Print(fCanvasSave);
 
     // If the extension of the canvas save file is ROOT we store also the histograms
@@ -863,11 +850,9 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     }
 
     // Save this class to the root file
-    if (fRun != NULL && fOutputRootFile != NULL) {
-        fOutputRootFile->cd();
-        this->Write();
-        fRun->CloseFile();
-    }
+    auto f = new TFile(fRun->GetOutputFileName(), "update");
+    this->Write();
+    f->Close();
 }
 
 void TRestAnalysisPlot::SaveCanvasToPDF(TString fileName) { fCombinedCanvas->Print(fileName); }
