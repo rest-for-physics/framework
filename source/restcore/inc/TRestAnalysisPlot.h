@@ -117,6 +117,8 @@ class TRestAnalysisPlot : public TRestMetadata {
     void AddFileFromExternalRun();
     void AddFileFromEnv();
 
+    TRestAnalysisTree* GetTreeFromFile(TString fileName);
+    TRestRun* GetInfoFromFile(TString fileName);
    protected:
    public:
     void Initialize() override;
