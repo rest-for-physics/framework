@@ -37,11 +37,13 @@ class TRestRealTimeDrawingProcess : public TRestEventProcess {
     Int_t fThreadWaitTimeoutMs;
 
     /// TRestAnalysisPlot object called for drawing
-    vector<TRestAnalysisPlot*> fPlots;  //!
+    static vector<TRestAnalysisPlot*> fPlots;  //!
     /// Last drawn entry of analysis tree
     static Long64_t fLastDrawnEntry;  //!
-    /// When it starts drawing, we shall pause all other threads to prevent modification of AnalysisTree
-    static map<TRestRealTimeDrawingProcess*, bool> toPause;  //!
+    /// Pause signal send for other threads when start drawing
+    static bool fPauseInvoke;  //!
+    /// Pause response flag from other threads when recieving pause signal
+    static map<TRestRealTimeDrawingProcess*, bool> fPauseResponse;  //!
     /// The event pointer is not used in this process
     TRestEvent* fEvent = NULL;  //!
 

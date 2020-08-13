@@ -85,7 +85,9 @@ using namespace std;
 ClassImp(TRestRealTimeDrawingProcess);
 
 Long64_t TRestRealTimeDrawingProcess::fLastDrawnEntry = 0;
-map<TRestRealTimeDrawingProcess*, bool> TRestRealTimeDrawingProcess::toPause;
+map<TRestRealTimeDrawingProcess*, bool> TRestRealTimeDrawingProcess::fPauseResponse;
+bool TRestRealTimeDrawingProcess::fPauseInvoke;
+vector<TRestAnalysisPlot*> TRestRealTimeDrawingProcess::fPlots;
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
@@ -96,9 +98,6 @@ TRestRealTimeDrawingProcess::TRestRealTimeDrawingProcess() { Initialize(); }
 /// \brief Default destructor
 ///
 TRestRealTimeDrawingProcess::~TRestRealTimeDrawingProcess() {
-    for (auto plt : fPlots) {
-        delete plt;
-    }
 }
 
 ///////////////////////////////////////////////
@@ -107,12 +106,10 @@ TRestRealTimeDrawingProcess::~TRestRealTimeDrawingProcess() {
 ///
 void TRestRealTimeDrawingProcess::Initialize() {
     fDrawInterval = 0;
-    for (auto plt : fPlots) {
-        delete plt;
-    }
     fPlots.clear();
     fLastDrawnEntry = 0;
-    toPause[this] = false;
+    fPauseResponse[this] = false;
+    fPauseInvoke = false;
 }
 
 ///////////////////////////////////////////////
@@ -132,24 +129,25 @@ TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* evInput) {
     if (fDrawInterval == 0) {
         return fEvent;
     }
-
-    // check the pause flag from other thread's TRestRealTimeDrawingProcess
-    for (auto iter = toPause.begin(); iter != toPause.end(); iter++) {
-        if (iter->first == this) continue;
-        while (iter->second == true) {
-            toPause[this] = true;
-            usleep(100);  // sleep 1 ms
-        }
-        toPause[this] = false;
+    if (GetFullAnalysisTree() == NULL) {
+        return fEvent;
     }
 
+    // check the pause flag from other thread's TRestRealTimeDrawingProcess
+    while (fPauseInvoke == true) {
+        fPauseResponse[this] = true;
+        usleep(1000);  // sleep 1 ms
+    }
+    fPauseResponse[this] = false;
+    
+
     if (fEvent->GetID() == fDrawInterval + fLastDrawnEntry) {
-        toPause[this] = true;
+        fPauseInvoke = true;
 
         info << "TRestRealTimeDrawingProcess: reached drawing flag. Waiting for other processes to pause"
              << endl;
         // wait while all other TRestRealTimeDrawingProcess is paused
-        for (auto iter = toPause.begin(); iter != toPause.end(); iter++) {
+        for (auto iter = fPauseResponse.begin(); iter != fPauseResponse.end(); iter++) {
             if (iter->first == this) continue;
             int i = 0;
             while (iter->second == false) {
@@ -159,8 +157,8 @@ TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* evInput) {
                     warning
                         << "TRestRealTimeDrawingProcess: waiting time reaches maximum, plotting job aborted"
                         << endl;
-                    fLastDrawnEntry = fLastDrawnEntry + fDrawInterval;
-                    toPause[this] = false;
+                    fLastDrawnEntry = GetFullAnalysisTree()->GetEntries();
+                    fPauseInvoke = false;
                     return fEvent;
                 }
             }
@@ -168,12 +166,14 @@ TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* evInput) {
 
         // starts drawing
         info << "TRestRealTimeDrawingProcess: drawing..." << endl;
+        Long64_t totalentries = GetFullAnalysisTree()->GetEntries();
         for (int i = 0; i < fPlots.size(); i++) {
+            fPlots[i]->SetTreeEntryRange(totalentries - fLastDrawnEntry, fLastDrawnEntry);
             fPlots[i]->PlotCombinedCanvas();
         }
 
-        fLastDrawnEntry = fLastDrawnEntry + fDrawInterval;
-        toPause[this] = false;
+        fLastDrawnEntry = totalentries;
+        fPauseInvoke = false;
     }
 
     return fEvent;
@@ -191,15 +191,18 @@ void TRestRealTimeDrawingProcess::EndProcess() {}
 void TRestRealTimeDrawingProcess::InitFromConfigFile() {
     fDrawInterval = StringToInteger(GetParameter("drawInterval", "0"));
     fThreadWaitTimeoutMs = GetDoubleParameterWithUnits("threadWaitTimeout", 1000);
-    TiXmlElement* ele = fElement->FirstChildElement("TRestAnalysisPlot");
-    while (ele != NULL) {
-        TRestAnalysisPlot* plt = new TRestAnalysisPlot();
-        plt->SetHostmgr(this->fHostmgr);
-        plt->LoadConfigFromFile(ele, fElementGlobal, fElementEnv);
-        plt->SetName(plt->GetName() + (TString)ToString(this));  // to prevent deleting canvas with same name
-        fPlots.push_back(plt);
+    if (fPlots.size() == 0) {
+        TiXmlElement* ele = fElement->FirstChildElement("TRestAnalysisPlot");
+        while (ele != NULL) {
+            TRestAnalysisPlot* plt = new TRestAnalysisPlot();
+            plt->SetHostmgr(this->fHostmgr);
+            plt->LoadConfigFromFile(ele, fElementGlobal, fElementEnv);
+            plt->SetName(plt->GetName() +
+                         (TString)ToString(this));  // to prevent deleting canvas with same name
+            fPlots.push_back(plt);
 
-        ele = ele->NextSiblingElement("TRestAnalysisPlot");
+            ele = ele->NextSiblingElement("TRestAnalysisPlot");
+        }
     }
 }
 
