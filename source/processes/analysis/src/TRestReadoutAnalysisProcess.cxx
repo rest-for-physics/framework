@@ -257,7 +257,7 @@ void TRestReadoutAnalysisProcess::EndProcess() {
 
                     auto h0 = fModuleHitMaps[iter->first];
                     h0->SetStats(false);
-                    h0->Clear();
+                    h0->Reset();
 
                     if (fModuleActivityX[iter->first] != NULL && fModuleActivityY[iter->first] != NULL) {
                         TH1D* h1 = fModuleActivityX[iter->first];
