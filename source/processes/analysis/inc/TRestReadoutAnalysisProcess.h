@@ -19,14 +19,14 @@
 #include <TRestGas.h>
 #include <TRestHitsEvent.h>
 #include <TRestReadout.h>
-#include <TRestSignalEvent.h>
+#include <TRestRawSignalEvent.h>
 
 #include "TRestEventProcess.h"
 
 class TRestReadoutAnalysisProcess : public TRestEventProcess {
    private:
 #ifndef __CINT__
-    TRestSignalEvent* fSignalEvent;  //!
+    TRestRawSignalEvent* fSignalEvent;  //!
 
     TRestReadout* fReadout;  //!
 
@@ -36,13 +36,15 @@ class TRestReadoutAnalysisProcess : public TRestEventProcess {
 
     void Initialize();
 
-    // parameters
-    map<int, double> fModuldeAmplification;  // [MM id, amplification]
+    string fModuleCanvasSave; //!
 
-    // analysis result(saved directly in root file)
-    map<int, TH1D*> fChannelsHistos;  //! [MM id, channel activity]
-
-    map<int, TH2D*> fChannelsHitMaps;  //! [MM id, channel activity]
+    // plots (saved directly in root file)
+    map<int, TH2D*> fModuleHitMaps;  //! [MM id, channel activity]
+    map<int, TH1D*> fModuleActivityX;  //! [MM id, channel activity]
+    map<int, TH1D*> fModuleActivityY;  //! [MM id, channel activity]
+    map<int, TH2D*> fModuleBSLSigmaX;   //! [MM id, channel activity]
+    map<int, TH2D*> fModuleBSLSigmaY;  //! [MM id, channel activity]
+    // 
 
    public:
     any GetInputEvent() { return fSignalEvent; }
@@ -55,20 +57,15 @@ class TRestReadoutAnalysisProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        metadata << "module amplification:(module id -> amp value) " << endl;
-        auto iter = fModuldeAmplification.begin();
-        while (iter != fModuldeAmplification.end()) {
-            metadata << iter->first << " -> " << iter->second << endl;
-            iter++;
-        }
-
-        metadata << "channel activity histograms required for module: ";
-        auto iter2 = fChannelsHistos.begin();
-        while (iter2 != fChannelsHistos.end()) {
+        metadata << "channel activity and hitmap histograms required for module: ";
+        auto iter2 = fModuleHitMaps.begin();
+        while (iter2 != fModuleHitMaps.end()) {
             metadata << iter2->first << ", ";
             iter2++;
         }
         metadata << endl;
+
+        metadata << "path for output plots: " << fModuleCanvasSave << endl;
 
         EndPrintProcess();
     }
