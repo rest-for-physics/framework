@@ -832,10 +832,9 @@ TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type, TiXmlEle
     TRestEventProcess* pc = REST_Reflection::Assembly((string)type);
     if (pc == NULL) return NULL;
 
-    pc->LoadConfigFromFile(ele, fElementGlobal);
-
     pc->SetRunInfo(this->fRunInfo);
     pc->SetHostmgr(fHostmgr);
+    pc->LoadConfigFromFile(ele, fElementGlobal, fElementEnv);
 
     return pc;
 }
