@@ -39,6 +39,11 @@ class TRestAnalysisPlot : public TRestMetadata {
         Int_t lineStyle;
         Int_t fillColor;
         Int_t fillStyle;
+
+        TH3F* ptr = NULL;
+        TH3F* operator->(){
+            return ptr;
+        }
     };
 
     struct Plot_Info_Set {
@@ -111,6 +116,8 @@ class TRestAnalysisPlot : public TRestMetadata {
     TRestRun* fRun;                          //! TRestRun to handle output file
     std::vector<TString> fRunInputFileName;  //! TRestRun to handle input file
     TCanvas* fCombinedCanvas;                //! Output canvas
+    Long64_t fDrawNEntries;                  //!
+    Long64_t fDrawFirstEntry;                //!
 #endif
 
     void AddFile(TString fileName);
@@ -135,6 +142,10 @@ class TRestAnalysisPlot : public TRestMetadata {
     TVector2 GetCanvasSize() { return fCanvasSize; }
     TVector2 GetCanvasDivisions() { return fCanvasDivisions; }
 
+    void SetTreeEntryRange(Long64_t NEntries = TTree::kMaxEntries, Long64_t FirstEntry = 0) {
+        fDrawNEntries = NEntries;
+        fDrawFirstEntry = FirstEntry;
+    }
     void PlotCombinedCanvas();
 
     // Construtor

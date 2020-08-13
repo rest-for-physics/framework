@@ -35,12 +35,11 @@ void TRestAnalysisPlot::Initialize() {
     SetSectionName(this->ClassName());
 
     fRun = NULL;
-
     fNFiles = 0;
-
     fCombinedCanvas = NULL;
-
     fPlotNamesCheck.clear();
+    fDrawNEntries = TTree::kMaxEntries;
+    fDrawFirstEntry = 0;
 }
 
 //______________________________________________________________________________
@@ -626,7 +625,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     // start drawing plots
     vector<TH3F*> histCollectionAll;
     for (unsigned int n = 0; n < fPlots.size(); n++) {
-        Plot_Info_Set plot = fPlots[n];
+        Plot_Info_Set& plot = fPlots[n];
 
         TPad* targetPad = (TPad*)fCombinedCanvas->cd(n + 1 + fPanels.size());
         targetPad->SetLogy(plot.logY);
@@ -636,10 +635,9 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         targetPad->SetBottomMargin(0.15);
         targetPad->SetTopMargin(0.07);
 
-        // draw to a new histogram
-        vector<TH3F*> histCollectionPlot;
+        // draw each histogram in the pad
         for (unsigned int i = 0; i < plot.histos.size(); i++) {
-            Histo_Info_Set hist = plot.histos[i];
+            Histo_Info_Set& hist = plot.histos[i];
 
             TString plotString = hist.plotString;
             TString nameString = hist.name;
@@ -663,9 +661,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             }
 
             // draw single histo from different file
-            bool drawn = false;
-
-            TH3F* hTotal;
+            bool firstdraw = false;
+            TH3F* hTotal = hist.ptr;
             for (unsigned int j = 0; j < fRunInputFileName.size(); j++) {
                 auto run = GetInfoFromFile(fRunInputFileName[j]);
                 // apply "classify" condition
@@ -685,13 +682,16 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
                 TString reducedHistoName = nameString + "_" + std::to_string(j);
                 TString histoName = nameString + "_" + std::to_string(j) + rangeString;
-                if (!drawn) {
-                    cout << "AnalysisTree->Draw(\"" << plotString << ">>" << histoName << "\", \""
-                         << cutString << "\", \"" << optString << "\")" << endl;
-                    outVal = tree->Draw(plotString + ">>" + histoName, cutString, optString);
+                info << "AnalysisTree->Draw(\"" << plotString << ">>" << histoName << "\", \"" << cutString
+                     << "\", \"" << optString << "\", " << fDrawNEntries << ", " << fDrawFirstEntry << ")"
+                     << endl;
+                outVal = tree->Draw(plotString + ">>" + histoName, cutString, optString, fDrawNEntries,
+                                    fDrawFirstEntry);
+                if (hTotal == NULL) {
                     if (outVal > 0) {
-                        drawn = true;
                         hTotal = (TH3F*)gPad->GetPrimitive(reducedHistoName)->Clone(nameString);
+                        hist.ptr = hTotal;
+                        firstdraw = true;
                         // This is important so that the histogram is not erased when we delete TRestRun!
                         hTotal->SetDirectory(0);
                     } else {
@@ -700,7 +700,6 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                     }
 
                 } else {
-                    outVal = tree->Draw(plotString + ">>" + histoName, cutString, optString);
                     if (outVal > 0) {
                         TH3F* hh = (TH3F*)gPad->GetPrimitive(reducedHistoName);
                         hTotal->Add(hh);
@@ -723,11 +722,9 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 }
             }
 
-            if (drawn == false) {
+            if (hTotal == NULL) {
                 warning << "Histogram \"" << nameString << "\" is empty" << endl;
-                plot.histos.erase(plot.histos.begin() + i);
-                i--;
-            } else {
+            } else if(firstdraw) {
                 // adjust the histogram
                 hTotal->SetTitle(plot.title.c_str());
                 hTotal->SetStats(plot.staticsOn);
@@ -753,23 +750,31 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
                 if (plot.timeDisplay) hTotal->GetXaxis()->SetTimeDisplay(1);
 
-                histCollectionPlot.push_back(hTotal);
                 histCollectionAll.push_back(hTotal);
             }
         }
 
-        if (histCollectionPlot.size() == 0) {
+        bool allempty = true;
+        for (unsigned int i = 0; i < plot.histos.size(); i++) {
+            if (plot.histos[i].ptr == NULL) continue;
+            else {
+                allempty = false;
+                break;
+            }
+        }
+        if (allempty) {
             warning << "TRestAnalysisPlot: pad empty for the plot: " << plot.name << endl;
             continue;
         }
 
         // scale the histograms
         if (plot.normalize > 0) {
-            for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
+            for (unsigned int i = 0; i < plot.histos.size(); i++) {
+                if (plot.histos[i].ptr == NULL) continue;
                 Double_t scale = 1.;
-                if (histCollectionPlot[i]->Integral() > 0) {
-                    scale = plot.normalize / histCollectionPlot[i]->Integral();
-                    histCollectionPlot[i]->Scale(scale);
+                if (plot.histos[i].ptr->Integral() > 0) {
+                    scale = plot.normalize / plot.histos[i].ptr->Integral();
+                    plot.histos[i].ptr->Scale(scale);
                 }
             }
         }
@@ -778,9 +783,10 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         targetPad = (TPad*)fCombinedCanvas->cd(n + 1 + fPanels.size());
         Double_t maxValue_Pad = 0;
         int maxID = 0;
-        for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
+        for (unsigned int i = 0; i < plot.histos.size(); i++) {
             // need to draw the max histogram first, in order to prevent peak hidden problem
-            Double_t value = histCollectionPlot[i]->GetBinContent(histCollectionPlot[i]->GetMaximumBin());
+            if (plot.histos[i].ptr == NULL) continue;
+            Double_t value = plot.histos[i]->GetBinContent(plot.histos[i].ptr->GetMaximumBin());
             if (i == 0) {
                 maxValue_Pad = value;
             } else if (value > maxValue_Pad) {
@@ -788,31 +794,34 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 maxID = i;
             }
         }
-        histCollectionPlot[maxID]->Draw(plot.histos[maxID].drawOption.c_str());
-        if (((string)histCollectionPlot[maxID]->ClassName()).find("TH1") != -1) {
-            histCollectionPlot[maxID]->GetYaxis()->SetRangeUser(plot.logY, maxValue_Pad * 1.2);
+        plot.histos[maxID]->Draw(plot.histos[maxID].drawOption.c_str());
+        if (((string)plot.histos[maxID]->ClassName()).find("TH1") != -1) {
+            plot.histos[maxID]->GetYaxis()->SetRangeUser(plot.logY, maxValue_Pad * 1.2);
         }
 
-        for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
+        for (unsigned int i = 0; i < plot.histos.size(); i++) {
             // draw the remaining histo
+            if (plot.histos[i].ptr == NULL) continue;
             if (i != maxID) {
-                histCollectionPlot[i]->Draw((plot.histos[maxID].drawOption + "same").c_str());
+                plot.histos[i]->Draw((plot.histos[maxID].drawOption + "same").c_str());
             }
         }
 
         // save histogram to root file
         if (fRun->GetOutputFile() != NULL) {
-            for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
-                fRun->GetOutputFile()->cd();
-                histCollectionPlot[i]->Write();
+            fRun->GetOutputFile()->cd();
+            for (unsigned int i = 0; i < plot.histos.size(); i++) {
+                if (plot.histos[i].ptr == NULL) continue;
+                plot.histos[i]->Write();
             }
         }
 
         // draw legend
         if (plot.legendOn) {
             TLegend* legend = new TLegend(fLegendX1, fLegendY1, fLegendX2, fLegendY2);
-            for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
-                legend->AddEntry(histCollectionPlot[i], histCollectionPlot[i]->GetName(), "lf");
+            for (unsigned int i = 0; i < plot.histos.size(); i++) {
+                if (plot.histos[i].ptr == NULL) continue;
+                legend->AddEntry(plot.histos[i].ptr, plot.histos[i]->GetName(), "lf");
             }
             legend->Draw("same");
         }
@@ -838,7 +847,9 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         TRestRun* run = new TRestRun();
         run->SetOutputFileName((string)fCanvasSave);
         run->FormOutputFile();
-        for (unsigned int n = 0; n < histCollectionAll.size(); n++) histCollectionAll[n]->Write();
+        for (unsigned int n = 0; n < histCollectionAll.size(); n++) {
+            histCollectionAll[n]->Write();
+        }
         delete run;
     }
 
