@@ -129,10 +129,6 @@ class TRestDataBase {
     ///////////////////////  metadata management interface  //////////////////////
     /// return the piece of data in fMetadataEntries
     virtual DBEntry query_data(DBEntry info);
-
-    /// get the id of the last data in fMetadataEntries.
-    virtual int get_lastdata();
-
     /// add/update a new record of metadata in database
     virtual int set_data(DBEntry info, bool overwrite = true) { return 0; }
 };

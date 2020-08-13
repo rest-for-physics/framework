@@ -68,7 +68,7 @@ TRestDataBase* TRestDataBase::instantiate(string name) {
         {
             db = (TRestDataBase*)c->New();
         } else {
-            cout << "warning! unrecognized TRestDataBase implementation: \"" << name << "\"" << endl;
+            warning << "unrecognized TRestDataBase implementation: \"" << name << "\"" << endl;
             db = new TRestDataBase();
         }
     } else {
@@ -100,7 +100,7 @@ void TRestDataBase::Initialize() {
         while (TRestTools::GetLine(infile, s)) {
             DBEntry info;
             vector<string> items = Split(s, "\t", true);
-            if (items.size() <= 2 ) continue;
+            if (items.size() <= 2) continue;
             for (auto item : items) {
                 vector<string> pair = Split(item, "=", true);
                 if (pair.size() == 2) {
@@ -133,7 +133,7 @@ DBFile DBFile::ParseFile(string _filename) {
     int result = stat(_fullname.c_str(), &buf);
 
     if (result != 0) {
-        cout << "Failed to load file \"" << _fullname << "\"!" << endl;
+        ferr << "DBFile::ParseFile: Failed to load file \"" << _fullname << "\"!" << endl;
     } else {
         file.fileSize = buf.st_size;
         file.evtRate = 0;
@@ -218,9 +218,9 @@ int TRestDataBase::set_run(DBEntry info, bool overwrite) {
     if (TRestTools::isPathWritable(REST_USER_PATH)) {
         TRestTools::Execute("echo " + ToString(newRunNr + 1) + " > " + runFilename);
     } else {
-        cout << "REST WARNING: runNumber file not writable. auto run number "
-                "increment is disabled"
-             << endl;
+        warning << "runNumber file not writable. auto run number "
+                   "increment is disabled"
+                << endl;
     }
 
     return newRunNr;
@@ -261,8 +261,6 @@ DBEntry TRestDataBase::query_data(DBEntry _info) {
     }
     return DBEntry();
 }
-
-int TRestDataBase::get_lastdata() { return fDataEntries.size() - 1; }
 
 // int TRestDataBase::add_metadata(DBEntry info, string url, bool overwrite) {
 //    if (TRestTools::isPathWritable(REST_USER_PATH)) {
