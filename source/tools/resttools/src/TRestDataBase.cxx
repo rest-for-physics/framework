@@ -219,8 +219,8 @@ int TRestDataBase::set_run(DBEntry info, bool overwrite) {
         TRestTools::Execute("echo " + ToString(newRunNr + 1) + " > " + runFilename);
     } else {
         warning << "runNumber file not writable. auto run number "
-                "increment is disabled"
-             << endl;
+                   "increment is disabled"
+                << endl;
     }
 
     return newRunNr;
