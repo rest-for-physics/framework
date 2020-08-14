@@ -211,9 +211,14 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
 
         // for each channel
-        map<int, map<int, double>> modulebaselinesigma;  // moduleid, channelid, baselinesigma
-        map<int, map<int, double>> modulebaseline;       // moduleid, channelid, baseline
-        map<int, map<int, double>> modulethresholdint;   // moduleid, channelid, thresholdintergal
+        vector<int> moduleid;
+        vector<int> channelid;
+        vector<double> baselinesigma;
+        vector<double> baseline;
+        vector<double> thresholdint;
+        //map<int, map<int, double>> modulebaselinesigma;  // moduleid, channelid, baselinesigma
+        //map<int, map<int, double>> modulebaseline;       // moduleid, channelid, baseline
+        //map<int, map<int, double>> modulethresholdint;   // moduleid, channelid, thresholdintergal
 
         for (int i = 0; i < fSignalEvent->GetNumberOfSignals(); i++) {
             TRestRawSignal* sgn = fSignalEvent->GetSignal(i);
@@ -221,10 +226,12 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
             // channel histo
             int plane = -1, mod = -1, channel = -1;
             fReadout->GetPlaneModuleChannel(sgn->GetID(), plane, mod, channel);
-            if (mod != -1) {
-                modulebaselinesigma[mod][channel] = sgn->GetBaseLineSigma();
-                modulebaseline[mod][channel] = sgn->GetBaseLine();
-                modulethresholdint[mod][channel] = sgn->GetThresholdIntegral();
+            if (mod != -1 && channel!=-1) {
+                moduleid.push_back(mod);
+                channelid.push_back(channel);
+                baselinesigma.push_back(sgn->GetBaseLineSigma());
+                baseline.push_back(sgn->GetBaseLine());
+                thresholdint.push_back(sgn->GetThresholdIntegral());
 
 
                 if (fModuleHitMaps.count(mod) > 0) {
@@ -235,9 +242,11 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
                 }
             }
         }
-        this->SetObservableValue("ModuleBSLSigma", modulebaselinesigma);
-        this->SetObservableValue("ModuleBSL", modulebaseline);
-        this->SetObservableValue("ModuleInt", modulethresholdint);
+        this->SetObservableValue("Module", moduleid);
+        this->SetObservableValue("Channel", channelid);
+        this->SetObservableValue("BaselineSigma", baselinesigma);
+        this->SetObservableValue("Baseline", baseline);
+        this->SetObservableValue("ThresholdIntegral", thresholdint);
 
     }
     return fSignalEvent;
