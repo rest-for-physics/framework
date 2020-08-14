@@ -40,7 +40,7 @@ class TRestAnalysisPlot : public TRestMetadata {
         Int_t fillColor;
         Int_t fillStyle;
 
-        TH3F* ptr = NULL;
+        TH3F* ptr = NULL;  //!
         TH3F* operator->() { return ptr; }
     };
 
