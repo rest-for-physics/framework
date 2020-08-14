@@ -101,6 +101,7 @@ class TRestAnalysisPlot : public TRestMetadata {
     TVector2 fCanvasDivisions;
     TVector2 fCanvasDivisionMargins;
     TString fCanvasSave;
+    Int_t fPaletteStyle;
 
     Int_t fLabelFont;
     Double_t fLabelOffsetX = 1.1;
@@ -164,6 +165,6 @@ class TRestAnalysisPlot : public TRestMetadata {
     // Destructor
     virtual ~TRestAnalysisPlot();
 
-    ClassDefOverride(TRestAnalysisPlot, 3);
+    ClassDefOverride(TRestAnalysisPlot, 4);
 };
 #endif

@@ -161,6 +161,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     fCanvasDivisions = StringTo2DVector(GetParameter("divide", canvasdef, "(1,1)"));
     fCanvasDivisionMargins = StringTo2DVector(GetParameter("divideMargin", canvasdef, "(0.01, 0.01)"));
     fCanvasSave = GetParameter("save", canvasdef, "/tmp/restplot.pdf");
+    fPaletteStyle = StringToInteger(GetParameter("paletteStyle", canvasdef, "57"));
 #pragma endregion
 
 #pragma region ReadGlobalCuts
@@ -576,7 +577,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
     // Setting up TStyle
     TStyle* st = new TStyle();
-    st->SetPalette(1);
+    st->SetPalette(fPaletteStyle);
 
     Double_t startTime = 0;
     Double_t endTime = 0;
@@ -870,6 +871,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         fRun->GetOutputFile()->cd();
         this->Write();
     }
+
+    delete st;
 }
 
 void TRestAnalysisPlot::SaveCanvasToPDF(TString fileName) { fCombinedCanvas->Print(fileName); }
