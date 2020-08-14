@@ -97,8 +97,7 @@ TRestRealTimeDrawingProcess::TRestRealTimeDrawingProcess() { Initialize(); }
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestRealTimeDrawingProcess::~TRestRealTimeDrawingProcess() {
-}
+TRestRealTimeDrawingProcess::~TRestRealTimeDrawingProcess() {}
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize input/output event members and define the
@@ -139,7 +138,6 @@ TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* evInput) {
         usleep(1000);  // sleep 1 ms
     }
     fPauseResponse[this] = false;
-    
 
     if (fEvent->GetID() == fDrawInterval + fLastDrawnEntry) {
         fPauseInvoke = true;

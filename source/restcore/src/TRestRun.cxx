@@ -215,7 +215,7 @@ void TRestRun::BeginOfInit() {
     fOutputFileName = (TString)TRestTools::RemoveMultipleSlash((string)fOutputFileName);
 
     if (!TRestTools::fileExists(outputdir)) {
-        system((TString)"mkdir -p " + outputdir);
+        system((TString) "mkdir -p " + outputdir);
     }
     if (!TRestTools::isPathWritable(outputdir)) {
         ferr << "TRestRun: Output path does not exist or it is not writable." << endl;

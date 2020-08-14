@@ -18,8 +18,8 @@
 
 #include <TRestGas.h>
 #include <TRestHitsEvent.h>
-#include <TRestReadout.h>
 #include <TRestRawSignalEvent.h>
+#include <TRestReadout.h>
 
 #include "TRestEventProcess.h"
 
@@ -36,15 +36,15 @@ class TRestReadoutAnalysisProcess : public TRestEventProcess {
 
     void Initialize();
 
-    string fModuleCanvasSave; //!
+    string fModuleCanvasSave;  //!
 
     // plots (saved directly in root file)
-    map<int, TH2D*> fModuleHitMaps;  //! [MM id, channel activity]
+    map<int, TH2D*> fModuleHitMaps;    //! [MM id, channel activity]
     map<int, TH1D*> fModuleActivityX;  //! [MM id, channel activity]
     map<int, TH1D*> fModuleActivityY;  //! [MM id, channel activity]
-    map<int, TH2D*> fModuleBSLSigmaX;   //! [MM id, channel activity]
+    map<int, TH2D*> fModuleBSLSigmaX;  //! [MM id, channel activity]
     map<int, TH2D*> fModuleBSLSigmaY;  //! [MM id, channel activity]
-    // 
+                                       //
 
    public:
     any GetInputEvent() { return fSignalEvent; }

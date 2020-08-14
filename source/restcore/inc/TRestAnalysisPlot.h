@@ -41,9 +41,7 @@ class TRestAnalysisPlot : public TRestMetadata {
         Int_t fillStyle;
 
         TH3F* ptr = NULL;
-        TH3F* operator->(){
-            return ptr;
-        }
+        TH3F* operator->() { return ptr; }
     };
 
     struct Plot_Info_Set {
@@ -126,6 +124,7 @@ class TRestAnalysisPlot : public TRestMetadata {
 
     TRestAnalysisTree* GetTreeFromFile(TString fileName);
     TRestRun* GetInfoFromFile(TString fileName);
+
    protected:
    public:
     void Initialize() override;

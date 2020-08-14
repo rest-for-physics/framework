@@ -549,7 +549,7 @@ TRestRun* TRestAnalysisPlot::GetInfoFromFile(TString fileName) {
     }
     if (fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL &&
         fHostmgr->GetProcessRunner()->GetTempOutputDataFile() != NULL &&
-        fHostmgr->GetProcessRunner()->GetTempOutputDataFile()->GetName()==fileName) {
+        fHostmgr->GetProcessRunner()->GetTempOutputDataFile()->GetName() == fileName) {
         return fRun;
     }
     fRun->OpenInputFile(fileName);
@@ -724,7 +724,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
             if (hTotal == NULL) {
                 warning << "Histogram \"" << nameString << "\" is empty" << endl;
-            } else if(firstdraw) {
+            } else if (firstdraw) {
                 // adjust the histogram
                 hTotal->SetTitle(plot.title.c_str());
                 hTotal->SetStats(plot.staticsOn);
@@ -756,7 +756,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
         bool allempty = true;
         for (unsigned int i = 0; i < plot.histos.size(); i++) {
-            if (plot.histos[i].ptr == NULL) continue;
+            if (plot.histos[i].ptr == NULL)
+                continue;
             else {
                 allempty = false;
                 break;
