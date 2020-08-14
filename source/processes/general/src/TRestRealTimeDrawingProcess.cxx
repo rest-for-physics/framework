@@ -33,7 +33,7 @@
 /// events, in which histogram will continuously grow.
 ///
 /// *drawInterval*: How many events should passed when it starts next drawing, refreshing
-/// the plots. =0 will do nothing.
+/// the plots. =0 will draw only once at the end of the process.
 ///
 /// *threadWaitTimeout*: In case the event triggering the draw operation is the last event
 /// in the input file, processes of other threads may never get into ProcessEvent() and
@@ -155,7 +155,6 @@ TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* evInput) {
                     warning
                         << "TRestRealTimeDrawingProcess: waiting time reaches maximum, plotting job aborted"
                         << endl;
-                    fLastDrawnEntry = GetFullAnalysisTree()->GetEntries();
                     fPauseInvoke = false;
                     return fEvent;
                 }
@@ -180,7 +179,19 @@ TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* evInput) {
 ///////////////////////////////////////////////
 /// \brief Function to use when all events have been processed
 ///
-void TRestRealTimeDrawingProcess::EndProcess() {}
+void TRestRealTimeDrawingProcess::EndProcess() {
+    if (fPauseInvoke == false) {
+
+        info << "TRestRealTimeDrawingProcess: end drawing..." << endl;
+        Long64_t totalentries = GetFullAnalysisTree()->GetEntries();
+        for (int i = 0; i < fPlots.size(); i++) {
+            fPlots[i]->SetTreeEntryRange(totalentries - fLastDrawnEntry, fLastDrawnEntry);
+            fPlots[i]->PlotCombinedCanvas();
+        }
+
+        fPauseInvoke = true;
+    }
+}
 
 ///////////////////////////////////////////////
 /// \brief Function reading input parameters from the RML
