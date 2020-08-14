@@ -763,7 +763,7 @@ void TRestMetadata::SetEnv(TiXmlElement* e, bool updateexisting) {
 /// sections will also be processed. Before expansion,
 /// ReplaceElementAttributes() will first be called.
 void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
-    debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
+    debug << ClassName() << "::ReadElement(<" << e->Value() << ")" << endl;
 
     ReplaceElementAttributes(e);
     if ((string)e->Value() == "for") {
@@ -779,11 +779,16 @@ void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
         TiXmlElement* contentelement = e->FirstChildElement();
         // we won't expand child TRestXXX sections unless forced recursive. The expansion of
         // these sections will be executed individually by the corresponding TRestXXX class
-        while (contentelement != NULL &&
-               (recursive || ((string)contentelement->Value()).find("TRest") == -1)) {
-            debug << "into child elements of: " << e->Value() << endl;
+        while (contentelement != NULL) {
             TiXmlElement* nxt = contentelement->NextSiblingElement();
-            ReadElement(contentelement, recursive);
+            if (recursive || ((string)contentelement->Value()).find("TRest") == -1) {
+                debug << "into child element \"" << contentelement->Value() << "\" of \"" << e->Value()
+                      << "\"" << endl;
+                ReadElement(contentelement, recursive);
+            } else {
+                debug << "skipping child element \"" << contentelement->Value() << "\" of \"" << e->Value()
+                      << "\"" << endl;
+            }
             contentelement = nxt;
         }
     }
