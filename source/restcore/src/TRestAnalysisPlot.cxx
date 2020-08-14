@@ -152,15 +152,15 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 
 #pragma region ReadCanvas
     position = 0;
-    string canvasDefinition;
-    if ((canvasDefinition = GetKEYDefinition("canvas", position)) != "") {
-        fCanvasSize = StringTo2DVector(GetFieldValue("size", canvasDefinition));
-        fCanvasDivisions = StringTo2DVector(GetFieldValue("divide", canvasDefinition));
-        fCanvasSave = GetFieldValue("save", canvasDefinition);
-        if (fCanvasSave == "Not defined") {
-            fCanvasSave = GetParameter("pdfFilename", "/tmp/restplot.pdf");
-        }
+    TiXmlElement* canvasdef = fElement->FirstChildElement("canvas");
+    if (canvasdef == NULL) {
+        canvasdef = fElement;
     }
+
+    fCanvasSize = StringTo2DVector(GetParameter("size", canvasdef, "(800,600)"));
+    fCanvasDivisions = StringTo2DVector(GetParameter("divide", canvasdef, "(1,1)"));
+    fCanvasDivisionMargins = StringTo2DVector(GetParameter("divideMargin", canvasdef, "(0.01, 0.01)"));
+    fCanvasSave = GetParameter("save", canvasdef, "/tmp/restplot.pdf");
 #pragma endregion
 
 #pragma region ReadGlobalCuts
@@ -233,9 +233,17 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             plot.logY = plot.logY ? plot.logY : StringToBool(GetParameter("logY", plotele, "false"));
             plot.logX = StringToBool(GetParameter("logX", plotele, "false"));
             plot.logZ = StringToBool(GetParameter("logZ", plotele, "false"));
+            plot.gridY = StringToBool(GetParameter("gridY", plotele, "false"));
+            plot.gridX = StringToBool(GetParameter("gridX", plotele, "false"));
             plot.normalize = StringToDouble(GetParameter("norm", plotele, ""));
             plot.labelX = GetParameter("xlabel", plotele, "");
             plot.labelY = GetParameter("ylabel", plotele, "");
+            plot.ticksX = StringToInteger(GetParameter("xticks", plotele, "510"));
+            plot.ticksY = StringToInteger(GetParameter("yticks", plotele, "510"));
+            plot.marginBottom = StringToDouble(GetParameter("marginBottom", plotele, "0.15"));
+            plot.marginTop = StringToDouble(GetParameter("marginTop", plotele, "0.07"));
+            plot.marginLeft = StringToDouble(GetParameter("marginLeft", plotele, "0.18"));
+            plot.marginRight = StringToDouble(GetParameter("marginRight", plotele, "0.1"));
             plot.legendOn = StringToBool(GetParameter("legend", plotele, "OFF"));
             plot.staticsOn = StringToBool(GetParameter("stats", plotele, "OFF"));
             plot.annotationOn = StringToBool(GetParameter("annotation", plotele, "OFF"));
@@ -472,11 +480,11 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
     }
 
     // 5. read draw style(line color, width, fill style, etc.)
-    hist.lineColor = StringToInteger(GetParameter("lineColor", histele));
-    hist.lineWidth = StringToInteger(GetParameter("lineWidth", histele));
-    hist.lineStyle = StringToInteger(GetParameter("lineStyle", histele));
-    hist.fillStyle = StringToInteger(GetParameter("fillStyle", histele));
-    hist.fillColor = StringToInteger(GetParameter("fillColor", histele));
+    hist.lineColor = StringToInteger(GetParameter("lineColor", histele, "602"));
+    hist.lineWidth = StringToInteger(GetParameter("lineWidth", histele, "1"));
+    hist.lineStyle = StringToInteger(GetParameter("lineStyle", histele, "1"));
+    hist.fillStyle = StringToInteger(GetParameter("fillStyle", histele, "1001"));
+    hist.fillColor = StringToInteger(GetParameter("fillColor", histele, "0"));
 
     return hist;
 }
@@ -563,7 +571,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         fCombinedCanvas = NULL;
     }
     fCombinedCanvas = new TCanvas(this->GetName(), this->GetName(), 0, 0, fCanvasSize.X(), fCanvasSize.Y());
-    fCombinedCanvas->Divide((Int_t)fCanvasDivisions.X(), (Int_t)fCanvasDivisions.Y());
+    fCombinedCanvas->Divide((Int_t)fCanvasDivisions.X(), (Int_t)fCanvasDivisions.Y(),
+                            fCanvasDivisionMargins.X(), fCanvasDivisionMargins.Y());
 
     // Setting up TStyle
     TStyle* st = new TStyle();
@@ -628,12 +637,15 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         Plot_Info_Set& plot = fPlots[n];
 
         TPad* targetPad = (TPad*)fCombinedCanvas->cd(n + 1 + fPanels.size());
+        targetPad->SetLogx(plot.logX);
         targetPad->SetLogy(plot.logY);
         targetPad->SetLogz(plot.logZ);
-        targetPad->SetLeftMargin(0.18);
-        targetPad->SetRightMargin(0.1);
-        targetPad->SetBottomMargin(0.15);
-        targetPad->SetTopMargin(0.07);
+        targetPad->SetGridx(plot.gridX);
+        targetPad->SetGridy(plot.gridY);
+        targetPad->SetLeftMargin(plot.marginLeft);
+        targetPad->SetRightMargin(plot.marginRight);
+        targetPad->SetBottomMargin(plot.marginBottom);
+        targetPad->SetTopMargin(plot.marginTop);
 
         // draw each histogram in the pad
         for (unsigned int i = 0; i < plot.histos.size(); i++) {
@@ -678,8 +690,9 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 if (!flag) continue;
 
                 TTree* tree = GetTreeFromFile(fRunInputFileName[j]);
-                int outVal;
 
+                // call Draw() from analysis tree
+                int outVal;
                 TString reducedHistoName = nameString + "_" + std::to_string(j);
                 TString histoName = nameString + "_" + std::to_string(j) + rangeString;
                 info << "AnalysisTree->Draw(\"" << plotString << ">>" << histoName << "\", \"" << cutString
@@ -687,29 +700,11 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                      << endl;
                 outVal = tree->Draw(plotString + ">>" + histoName, cutString, optString, fDrawNEntries,
                                     fDrawFirstEntry);
-                if (hTotal == NULL) {
-                    if (outVal > 0) {
-                        hTotal = (TH3F*)gPad->GetPrimitive(reducedHistoName)->Clone(nameString);
-                        hist.ptr = hTotal;
-                        firstdraw = true;
-                        // This is important so that the histogram is not erased when we delete TRestRun!
-                        hTotal->SetDirectory(0);
-                    } else {
-                        info << "File: " << fRunInputFileName[j] << ": No entries are drawn" << endl;
-                        info << "AnalysisTree is empty? cut is too hard?" << endl;
-                    }
-
-                } else {
-                    if (outVal > 0) {
-                        TH3F* hh = (TH3F*)gPad->GetPrimitive(reducedHistoName);
-                        hTotal->Add(hh);
-                    } else {
-                        info << "File: " << fRunInputFileName[j] << ": No entries are drawn" << endl;
-                        info << "AnalysisTree is empty? cut is too hard?" << endl;
-                    }
-                }
-
-                if (outVal == -1) {
+                TH3F* hh = (TH3F*)gPad->GetPrimitive(reducedHistoName);
+                if (outVal == 0) {
+                    info << "File: " << fRunInputFileName[j] << ": No entries are drawn" << endl;
+                    info << "AnalysisTree is empty? cut is too hard?" << endl;
+                } else if (outVal == -1) {
                     ferr << endl;
                     ferr << "TRestAnalysisPlot::PlotCombinedCanvas. Plot string not properly constructed. "
                             "Does the analysis observable exist inside the file?"
@@ -720,10 +715,25 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                     ferr << endl;
                     exit(1);
                 }
+
+                // add to histogram
+                if (hTotal == NULL) {
+                    if (hh != NULL) {
+                        hTotal = (TH3F*)hh->Clone(nameString);
+                        hist.ptr = hTotal;
+                        firstdraw = true;
+                        // This is important so that the histogram is not erased when we delete TRestRun!
+                        hTotal->SetDirectory(0);
+                    }
+                } else {
+                    if (outVal > 0) {
+                        hTotal->Add(hh);
+                    }
+                }
             }
 
             if (hTotal == NULL) {
-                warning << "Histogram \"" << nameString << "\" is empty" << endl;
+                warning << "Histogram \"" << nameString << "\" is NULL" << endl;
             } else if (firstdraw) {
                 // adjust the histogram
                 hTotal->SetTitle(plot.title.c_str());
@@ -738,7 +748,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 hTotal->GetYaxis()->SetTitleSize(fLabelScaleY * hTotal->GetYaxis()->GetTitleSize());
                 hTotal->GetXaxis()->SetTitleOffset(fLabelOffsetX * hTotal->GetXaxis()->GetTitleOffset());
                 hTotal->GetYaxis()->SetTitleOffset(fLabelOffsetY * hTotal->GetYaxis()->GetTitleOffset());
-                hTotal->GetXaxis()->SetNdivisions(-5);
+                hTotal->GetXaxis()->SetNdivisions(plot.ticksX);
+                hTotal->GetYaxis()->SetNdivisions(plot.ticksY);
 
                 hTotal->SetLineColor(hist.lineColor);
                 hTotal->SetLineWidth(hist.lineWidth);

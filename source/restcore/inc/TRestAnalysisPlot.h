@@ -52,6 +52,8 @@ class TRestAnalysisPlot : public TRestMetadata {
         Bool_t logX;
         Bool_t logY;
         Bool_t logZ;
+        Bool_t gridX;
+        Bool_t gridY;
         Bool_t staticsOn;
         Bool_t legendOn;
         Bool_t annotationOn;
@@ -66,6 +68,14 @@ class TRestAnalysisPlot : public TRestMetadata {
 
         TVector2 rangeX;  // absolute x range(e.g. 1000~3000 keV), same as SetRangeUser()
         TVector2 rangeY;  // absolute y range(e.g. 1000~3000 keV), same as SetRangeUser()
+
+        Double_t marginLeft;
+        Double_t marginRight;
+        Double_t marginTop;
+        Double_t marginBottom;
+
+        Int_t ticksX;
+        Int_t ticksY;
 
         string save;
 
@@ -89,6 +99,7 @@ class TRestAnalysisPlot : public TRestMetadata {
     // canvas option
     TVector2 fCanvasSize;
     TVector2 fCanvasDivisions;
+    TVector2 fCanvasDivisionMargins;
     TString fCanvasSave;
 
     Int_t fLabelFont;
