@@ -181,7 +181,6 @@ TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* evInput) {
 ///
 void TRestRealTimeDrawingProcess::EndProcess() {
     if (fPauseInvoke == false) {
-
         info << "TRestRealTimeDrawingProcess: end drawing..." << endl;
         Long64_t totalentries = GetFullAnalysisTree()->GetEntries();
         for (int i = 0; i < fPlots.size(); i++) {
