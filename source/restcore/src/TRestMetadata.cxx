@@ -924,7 +924,7 @@ void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e) {
             contentelement = contentelement->NextSiblingElement();
         }
     }
-    }
+}
 
 ///////////////////////////////////////////////
 /// \brief Expands the loop structures found in the given xml section.
@@ -943,7 +943,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
     const char* varstep = e->Attribute("step");
     const char* varin = e->Attribute("in");
 
-    if ((varin==NULL) && (varname == NULL || varfrom == NULL || varto == NULL)) return;
+    if ((varin == NULL) && (varname == NULL || varfrom == NULL || varto == NULL)) return;
     if (varstep == NULL) varstep = "1";
     TiXmlElement* parele = (TiXmlElement*)e->Parent();
     if (parele == NULL) return;
