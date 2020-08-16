@@ -214,6 +214,9 @@ void TRestRun::BeginOfInit() {
     // remove multiple slashes from fOutputFileName
     fOutputFileName = (TString)TRestTools::RemoveMultipleSlash((string)fOutputFileName);
 
+    if (!TRestTools::fileExists(outputdir)) {
+        system((TString) "mkdir -p " + outputdir);
+    }
     if (!TRestTools::isPathWritable(outputdir)) {
         ferr << "TRestRun: Output path does not exist or it is not writable." << endl;
         ferr << "Path : " << outputdir << endl;
@@ -413,7 +416,7 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
             debug << "Initializing input file : version code : " << this->GetVersionCode() << endl;
             debug << "Input file version : " << this->GetVersion() << endl;
             ReadInputFileTrees();
-            ResetEntry();
+            fCurrentEvent = 0;
         } else {
             fAnalysisTree = NULL;
 
@@ -429,6 +432,10 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
     } else {
         fInputFile = NULL;
         fAnalysisTree = NULL;
+        if (fFileProcess != NULL) {
+            fFileProcess->OpenInputFiles(Vector_cast<TString, string>(fInputFileNames));
+            fFileProcess->InitProcess();
+        }
     }
 
     if (fAnalysisTree == NULL && fFileProcess == NULL)
@@ -1312,7 +1319,7 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
                 REST_Reflection::GetClass(kName.c_str())->InheritsFrom(type)) {
                 TRestMetadata* a = (TRestMetadata*)f->Get(key->GetName());
 
-                if (a->InheritsFrom("TRestMetadata")) {
+                if (a != NULL && a->InheritsFrom("TRestMetadata")) {
                     return a;
                 } else {
                     warning << "TRestRun::GetMetadataClass() : The object to import is "

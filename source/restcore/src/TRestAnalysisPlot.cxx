@@ -11,6 +11,7 @@
 ///_______________________________________________________________________________
 
 #include "TRestAnalysisPlot.h"
+
 #include "TRestManager.h"
 #include "TRestTools.h"
 using namespace std;
@@ -34,12 +35,11 @@ void TRestAnalysisPlot::Initialize() {
     SetSectionName(this->ClassName());
 
     fRun = NULL;
-
     fNFiles = 0;
-
     fCombinedCanvas = NULL;
-
     fPlotNamesCheck.clear();
+    fDrawNEntries = TTree::kMaxEntries;
+    fDrawFirstEntry = 0;
 }
 
 //______________________________________________________________________________
@@ -52,6 +52,29 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     size_t position = 0;
     if (fHostmgr->GetRunInfo() != NULL) {
         fRun = fHostmgr->GetRunInfo();
+    }
+    if (fRun == NULL) {
+        fRun = new TRestRun();
+        fRun->SetHistoricMetadataSaving(false);
+        string outputname = GetParameter("outputFile", "/tmp/restplot.root");
+        fRun->SetOutputFileName(outputname);
+        fRun->FormOutputFile();
+    }
+
+    TiXmlElement* ele = fElement->FirstChildElement("addFile");
+    while (ele != NULL) {
+        TString inputfile = GetParameter("name", ele);
+        this->AddFile(inputfile);
+        ele = ele->NextSiblingElement("addFile");
+    }
+    // try to add files from external TRestRun handler
+    if (fNFiles == 0) AddFileFromExternalRun();
+    // try to add files from env "inputFile", which is set by --i argument
+    if (fNFiles == 0) AddFileFromEnv();
+
+    if (fNFiles == 0) {
+        ferr << "TRestAnalysisPlot: No input files are added!" << endl;
+        exit(1);
     }
 
 #pragma region ReadLabels
@@ -129,15 +152,16 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 
 #pragma region ReadCanvas
     position = 0;
-    string canvasDefinition;
-    if ((canvasDefinition = GetKEYDefinition("canvas", position)) != "") {
-        fCanvasSize = StringTo2DVector(GetFieldValue("size", canvasDefinition));
-        fCanvasDivisions = StringTo2DVector(GetFieldValue("divide", canvasDefinition));
-        fCanvasSave = GetFieldValue("save", canvasDefinition);
-        if (fCanvasSave == "Not defined") {
-            fCanvasSave = GetParameter("pdfFilename", "/tmp/restplot.pdf");
-        }
+    TiXmlElement* canvasdef = fElement->FirstChildElement("canvas");
+    if (canvasdef == NULL) {
+        canvasdef = fElement;
     }
+
+    fCanvasSize = StringTo2DVector(GetParameter("size", canvasdef, "(800,600)"));
+    fCanvasDivisions = StringTo2DVector(GetParameter("divide", canvasdef, "(1,1)"));
+    fCanvasDivisionMargins = StringTo2DVector(GetParameter("divideMargin", canvasdef, "(0.01, 0.01)"));
+    fCanvasSave = GetParameter("save", canvasdef, "/tmp/restplot.pdf");
+    fPaletteStyle = StringToInteger(GetParameter("paletteStyle", canvasdef, "57"));
 #pragma endregion
 
 #pragma region ReadGlobalCuts
@@ -210,9 +234,17 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             plot.logY = plot.logY ? plot.logY : StringToBool(GetParameter("logY", plotele, "false"));
             plot.logX = StringToBool(GetParameter("logX", plotele, "false"));
             plot.logZ = StringToBool(GetParameter("logZ", plotele, "false"));
+            plot.gridY = StringToBool(GetParameter("gridY", plotele, "false"));
+            plot.gridX = StringToBool(GetParameter("gridX", plotele, "false"));
             plot.normalize = StringToDouble(GetParameter("norm", plotele, ""));
             plot.labelX = GetParameter("xlabel", plotele, "");
             plot.labelY = GetParameter("ylabel", plotele, "");
+            plot.ticksX = StringToInteger(GetParameter("xticks", plotele, "510"));
+            plot.ticksY = StringToInteger(GetParameter("yticks", plotele, "510"));
+            plot.marginBottom = StringToDouble(GetParameter("marginBottom", plotele, "0.15"));
+            plot.marginTop = StringToDouble(GetParameter("marginTop", plotele, "0.07"));
+            plot.marginLeft = StringToDouble(GetParameter("marginLeft", plotele, "0.18"));
+            plot.marginRight = StringToDouble(GetParameter("marginRight", plotele, "0.1"));
             plot.legendOn = StringToBool(GetParameter("legend", plotele, "OFF"));
             plot.staticsOn = StringToBool(GetParameter("stats", plotele, "OFF"));
             plot.annotationOn = StringToBool(GetParameter("annotation", plotele, "OFF"));
@@ -449,11 +481,11 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
     }
 
     // 5. read draw style(line color, width, fill style, etc.)
-    hist.lineColor = StringToInteger(GetParameter("lineColor", histele));
-    hist.lineWidth = StringToInteger(GetParameter("lineWidth", histele));
-    hist.lineStyle = StringToInteger(GetParameter("lineStyle", histele));
-    hist.fillStyle = StringToInteger(GetParameter("fillStyle", histele));
-    hist.fillColor = StringToInteger(GetParameter("fillColor", histele));
+    hist.lineColor = StringToInteger(GetParameter("lineColor", histele, "602"));
+    hist.lineWidth = StringToInteger(GetParameter("lineWidth", histele, "1"));
+    hist.lineStyle = StringToInteger(GetParameter("lineStyle", histele, "1"));
+    hist.fillStyle = StringToInteger(GetParameter("fillStyle", histele, "1001"));
+    hist.fillColor = StringToInteger(GetParameter("fillColor", histele, "0"));
 
     return hist;
 }
@@ -461,50 +493,8 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
 void TRestAnalysisPlot::AddFile(TString fileName) {
     debug << "TRestAnalysisPlot::AddFile. Adding file. " << endl;
     debug << "File name: " << fileName << endl;
-
-    TRestRun* run = new TRestRun();
-    run->SetHistoricMetadataSaving(false);
-    run->OpenInputFile((string)fileName);
-    if (run->GetAnalysisTree() != NULL) {
-        fRunInputFileName.push_back((string)fileName);
-        fNFiles++;
-    }
-    delete run;
-
-    // TFile* f = new TFile(fileName);
-    // TIter nextkey(f->GetListOfKeys());
-    // TKey* key;
-    // TString rTag = "notFound";
-    // while ((key = (TKey*)nextkey())) {
-    //    string kName = key->GetClassName();
-    //    if (kName == "TRestRun") {
-    //        rTag = ((TRestRun*)f->Get(key->GetName()))->GetRunTag();
-    //        break;
-    //    }
-    //}
-    // f->Close();
-
-    // if (fClasifyBy == "runTag") {
-    //    debug << "TRestAnalysisPlot::AddFile. Calling GetRunTagIndex. Tag = " << rTag << endl;
-    //    Int_t index = GetRunTagIndex(rTag);
-    //    debug << "Index. = " << index << endl;
-
-    //    if (index < REST_MAX_TAGS) {
-    //        fFileNames[index].push_back(fileName);
-    //        fNFiles++;
-    //    } else {
-    //        ferr << "TRestAnalysisPlot::AddFile. Maximum number of tags per plot is : " << REST_MAX_TAGS
-    //             << endl;
-    //    }
-    //} else if (fClasifyBy == "combineAll") {
-    //    fFileNames[0].push_back(fileName);
-    //    fNFiles++;
-    //} else {
-    //    warning << "TRestAnalysisPlot : fClassifyBy not recognized" << endl;
-
-    //    fFileNames[0].push_back(fileName);
-    //    fNFiles++;
-    //}
+    fRunInputFileName.push_back((string)fileName);
+    fNFiles++;
 }
 
 // we can add input file from process's output file
@@ -513,13 +503,6 @@ void TRestAnalysisPlot::AddFileFromExternalRun() {
         if (fHostmgr->GetProcessRunner() != NULL && fRun->GetOutputFileName() != "") {
             // if we have a TRestProcessRunner before head, we use its output file
             AddFile(fRun->GetOutputFileName());
-            return;
-        } else if (fRun->GetInputFileNames().size() != 0) {
-            // if we have only TRestRun, we ask for its input file list
-            auto names = fRun->GetInputFileNames();
-            for (int i = 0; i < names.size(); i++) {
-                this->AddFile(names[i]);
-            }
             return;
         }
     }
@@ -546,54 +529,62 @@ Int_t TRestAnalysisPlot::GetPlotIndex(TString plotName) {
     return -1;
 }
 
+TRestAnalysisTree* TRestAnalysisPlot::GetTreeFromFile(TString fileName) {
+    if (fileName == fRun->GetInputFileName(0)) {
+        // this means the file is already opened by TRestRun
+        return fRun->GetAnalysisTree();
+    }
+    if (fileName == fRun->GetOutputFileName() && fRun->GetOutputFile() != NULL) {
+        // this means the process is finished and the chain's output file is transferred to TRestRun
+        return (TRestAnalysisTree*)fRun->GetOutputFile()->Get("AnalysisTree");
+    }
+    if (fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL &&
+        fHostmgr->GetProcessRunner()->GetTempOutputDataFile() != NULL &&
+        fHostmgr->GetProcessRunner()->GetTempOutputDataFile()->GetName() == fileName) {
+        // this means the process is still ongoing
+        return fHostmgr->GetProcessRunner()->GetOutputAnalysisTree();
+    }
+    fRun->OpenInputFile(fileName);
+    return fRun->GetAnalysisTree();
+}
+
+TRestRun* TRestAnalysisPlot::GetInfoFromFile(TString fileName) {
+    // in any case we directly return fRun. No need to reopen the given file
+    if (fileName == fRun->GetInputFileName(0)) {
+        return fRun;
+    }
+    if (fileName == fRun->GetOutputFileName() && fRun->GetOutputFile() != NULL) {
+        return fRun;
+    }
+    if (fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL &&
+        fHostmgr->GetProcessRunner()->GetTempOutputDataFile() != NULL &&
+        fHostmgr->GetProcessRunner()->GetTempOutputDataFile()->GetName() == fileName) {
+        return fRun;
+    }
+    fRun->OpenInputFile(fileName);
+    return fRun;
+}
+
 void TRestAnalysisPlot::PlotCombinedCanvas() {
-    // Add files, first use <addFile section definition
-    TiXmlElement* ele = fElement->FirstChildElement("addFile");
-    while (ele != NULL) {
-        TString inputfile = GetParameter("name", ele);
-        this->AddFile(inputfile);
-        ele = ele->NextSiblingElement("addFile");
-    }
-    // try to add files from external TRestRun handler
-    if (fNFiles == 0) AddFileFromExternalRun();
-    // try to add files from env "inputFile", which is set by --i argument
-    if (fNFiles == 0) AddFileFromEnv();
-
-    if (fNFiles == 0) {
-        ferr << "TRestAnalysisPlot: No input files are added!" << endl;
-        exit(1);
-    }
-
-    // initialize output root file if we have TRestRun running
-    TFile* fOutputRootFile = NULL;
-    if (fRun != NULL) {
-        fOutputRootFile = fRun->GetOutputFile();
-        if (fOutputRootFile == NULL) {
-            fRun->SetHistoricMetadataSaving(false);
-            fOutputRootFile = fRun->FormOutputFile();
-        }
-    }
-
     // Initializing canvas window
     if (fCombinedCanvas != NULL) {
         delete fCombinedCanvas;
         fCombinedCanvas = NULL;
     }
-    fCombinedCanvas = new TCanvas("combined", "combined", 0, 0, fCanvasSize.X(), fCanvasSize.Y());
-    fCombinedCanvas->Divide((Int_t)fCanvasDivisions.X(), (Int_t)fCanvasDivisions.Y());
+    fCombinedCanvas = new TCanvas(this->GetName(), this->GetName(), 0, 0, fCanvasSize.X(), fCanvasSize.Y());
+    fCombinedCanvas->Divide((Int_t)fCanvasDivisions.X(), (Int_t)fCanvasDivisions.Y(),
+                            fCanvasDivisionMargins.X(), fCanvasDivisionMargins.Y());
 
     // Setting up TStyle
     TStyle* st = new TStyle();
-    st->SetPalette(1);
+    st->SetPalette(fPaletteStyle);
 
     Double_t startTime = 0;
     Double_t endTime = 0;
     Double_t runLength = 0;
     Int_t totalEntries = 0;
     for (unsigned int n = 0; n < fRunInputFileName.size(); n++) {
-        TRestRun* run = new TRestRun();
-        run->SetHistoricMetadataSaving(false);
-        run->OpenInputFile(fRunInputFileName[n]);
+        auto run = GetInfoFromFile(fRunInputFileName[n]);
 
         Double_t endTimeStamp = run->GetEndTimestamp();
         Double_t startTimeStamp = run->GetStartTimestamp();
@@ -609,7 +600,6 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             runLength += endTimeStamp - startTimeStamp;
             totalEntries += run->GetEntries();
         }
-        delete run;
     }
 
     Double_t meanRate = totalEntries / runLength;
@@ -632,11 +622,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             pos = 0;
             label = Replace(label, "<<meanRate>>", Form("%5.2lf", meanRate), pos);
 
-            TRestRun* run = new TRestRun();
-            run->SetHistoricMetadataSaving(false);
-            run->OpenInputFile(fRunInputFileName[0]);
+            auto run = GetInfoFromFile(fRunInputFileName[0]);
             label = run->ReplaceMetadataMembers(label);
-            delete run;
 
             TLatex* texxt = new TLatex(fPanels[n].posX[m], fPanels[n].posY[m], label.c_str());
             texxt->SetTextColor(1);
@@ -648,20 +635,22 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     // start drawing plots
     vector<TH3F*> histCollectionAll;
     for (unsigned int n = 0; n < fPlots.size(); n++) {
-        Plot_Info_Set plot = fPlots[n];
+        Plot_Info_Set& plot = fPlots[n];
 
         TPad* targetPad = (TPad*)fCombinedCanvas->cd(n + 1 + fPanels.size());
+        targetPad->SetLogx(plot.logX);
         targetPad->SetLogy(plot.logY);
         targetPad->SetLogz(plot.logZ);
-        targetPad->SetLeftMargin(0.18);
-        targetPad->SetRightMargin(0.1);
-        targetPad->SetBottomMargin(0.15);
-        targetPad->SetTopMargin(0.07);
+        targetPad->SetGridx(plot.gridX);
+        targetPad->SetGridy(plot.gridY);
+        targetPad->SetLeftMargin(plot.marginLeft);
+        targetPad->SetRightMargin(plot.marginRight);
+        targetPad->SetBottomMargin(plot.marginBottom);
+        targetPad->SetTopMargin(plot.marginTop);
 
-        // draw to a new histogram
-        vector<TH3F*> histCollectionPlot;
+        // draw each histogram in the pad
         for (unsigned int i = 0; i < plot.histos.size(); i++) {
-            Histo_Info_Set hist = plot.histos[i];
+            Histo_Info_Set& hist = plot.histos[i];
 
             TString plotString = hist.plotString;
             TString nameString = hist.name;
@@ -685,13 +674,10 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             }
 
             // draw single histo from different file
-            bool drawn = false;
-
-            TH3F* hTotal;
+            bool firstdraw = false;
+            TH3F* hTotal = hist.ptr;
             for (unsigned int j = 0; j < fRunInputFileName.size(); j++) {
-                TRestRun* run = new TRestRun();
-                run->SetHistoricMetadataSaving(false);
-                run->OpenInputFile(fRunInputFileName[j]);
+                auto run = GetInfoFromFile(fRunInputFileName[j]);
                 // apply "classify" condition
                 bool flag = true;
                 auto iter = hist.classifyMap.begin();
@@ -704,26 +690,22 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 }
                 if (!flag) continue;
 
-                TTree* tree = run->GetAnalysisTree();
-                int outVal;
+                TTree* tree = GetTreeFromFile(fRunInputFileName[j]);
 
+                // call Draw() from analysis tree
+                int outVal;
                 TString reducedHistoName = nameString + "_" + std::to_string(j);
                 TString histoName = nameString + "_" + std::to_string(j) + rangeString;
-                if (!drawn) {
-                    outVal = tree->Draw(plotString + ">>" + histoName, cutString, optString);
-                    drawn = true;
-                    hTotal = (TH3F*)gPad->GetPrimitive(reducedHistoName)->Clone(nameString);
-
-                    // This is important so that the histogram is not erased when we delete TRestRun!
-                    hTotal->SetDirectory(0);
-                } else {
-                    outVal = tree->Draw(plotString + ">>" + histoName, cutString, optString);
-                    TH3F* hh = (TH3F*)gPad->GetPrimitive(reducedHistoName);
-
-                    hTotal->Add(hh);
-                }
-
-                if (outVal == -1) {
+                info << "AnalysisTree->Draw(\"" << plotString << ">>" << histoName << "\", \"" << cutString
+                     << "\", \"" << optString << "\", " << fDrawNEntries << ", " << fDrawFirstEntry << ")"
+                     << endl;
+                outVal = tree->Draw(plotString + ">>" + histoName, cutString, optString, fDrawNEntries,
+                                    fDrawFirstEntry);
+                TH3F* hh = (TH3F*)gPad->GetPrimitive(reducedHistoName);
+                if (outVal == 0) {
+                    info << "File: " << fRunInputFileName[j] << ": No entries are drawn" << endl;
+                    info << "AnalysisTree is empty? cut is too hard?" << endl;
+                } else if (outVal == -1) {
                     ferr << endl;
                     ferr << "TRestAnalysisPlot::PlotCombinedCanvas. Plot string not properly constructed. "
                             "Does the analysis observable exist inside the file?"
@@ -734,15 +716,26 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                     ferr << endl;
                     exit(1);
                 }
-                delete run;
+
+                // add to histogram
+                if (hTotal == NULL) {
+                    if (hh != NULL) {
+                        hTotal = (TH3F*)hh->Clone(nameString);
+                        hist.ptr = hTotal;
+                        firstdraw = true;
+                        // This is important so that the histogram is not erased when we delete TRestRun!
+                        hTotal->SetDirectory(0);
+                    }
+                } else {
+                    if (outVal > 0) {
+                        hTotal->Add(hh);
+                    }
+                }
             }
 
-            if (drawn == false) {
-                warning << "TRestAnalysisPlot: no input file matches condition for histogram: " << hist.name
-                        << ", this histogram is empty" << endl;
-                plot.histos.erase(plot.histos.begin() + i);
-                i--;
-            } else {
+            if (hTotal == NULL) {
+                warning << "Histogram \"" << nameString << "\" is NULL" << endl;
+            } else if (firstdraw) {
                 // adjust the histogram
                 hTotal->SetTitle(plot.title.c_str());
                 hTotal->SetStats(plot.staticsOn);
@@ -756,7 +749,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 hTotal->GetYaxis()->SetTitleSize(fLabelScaleY * hTotal->GetYaxis()->GetTitleSize());
                 hTotal->GetXaxis()->SetTitleOffset(fLabelOffsetX * hTotal->GetXaxis()->GetTitleOffset());
                 hTotal->GetYaxis()->SetTitleOffset(fLabelOffsetY * hTotal->GetYaxis()->GetTitleOffset());
-                hTotal->GetXaxis()->SetNdivisions(-5);
+                hTotal->GetXaxis()->SetNdivisions(plot.ticksX);
+                hTotal->GetYaxis()->SetNdivisions(plot.ticksY);
 
                 hTotal->SetLineColor(hist.lineColor);
                 hTotal->SetLineWidth(hist.lineWidth);
@@ -768,33 +762,44 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
                 if (plot.timeDisplay) hTotal->GetXaxis()->SetTimeDisplay(1);
 
-                histCollectionPlot.push_back(hTotal);
                 histCollectionAll.push_back(hTotal);
             }
         }
 
-        if (histCollectionPlot.size() == 0) {
+        bool allempty = true;
+        for (unsigned int i = 0; i < plot.histos.size(); i++) {
+            if (plot.histos[i].ptr == NULL)
+                continue;
+            else {
+                allempty = false;
+                break;
+            }
+        }
+        if (allempty) {
             warning << "TRestAnalysisPlot: pad empty for the plot: " << plot.name << endl;
             continue;
         }
 
         // scale the histograms
         if (plot.normalize > 0) {
-            for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
+            for (unsigned int i = 0; i < plot.histos.size(); i++) {
+                if (plot.histos[i].ptr == NULL) continue;
                 Double_t scale = 1.;
-                if (histCollectionPlot[i]->Integral() > 0) {
-                    scale = plot.normalize / histCollectionPlot[i]->Integral();
-                    histCollectionPlot[i]->Scale(scale);
+                if (plot.histos[i].ptr->Integral() > 0) {
+                    scale = plot.normalize / plot.histos[i].ptr->Integral();
+                    plot.histos[i].ptr->Scale(scale);
                 }
             }
         }
 
         // draw to the pad
+        targetPad = (TPad*)fCombinedCanvas->cd(n + 1 + fPanels.size());
         Double_t maxValue_Pad = 0;
         int maxID = 0;
-        for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
+        for (unsigned int i = 0; i < plot.histos.size(); i++) {
             // need to draw the max histogram first, in order to prevent peak hidden problem
-            Double_t value = histCollectionPlot[i]->GetBinContent(histCollectionPlot[i]->GetMaximumBin());
+            if (plot.histos[i].ptr == NULL) continue;
+            Double_t value = plot.histos[i]->GetBinContent(plot.histos[i].ptr->GetMaximumBin());
             if (i == 0) {
                 maxValue_Pad = value;
             } else if (value > maxValue_Pad) {
@@ -802,141 +807,41 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 maxID = i;
             }
         }
-        histCollectionPlot[maxID]->Draw(plot.histos[maxID].drawOption.c_str());
-        if (((string)histCollectionPlot[maxID]->ClassName()).find("TH1") != -1) {
-            histCollectionPlot[maxID]->GetYaxis()->SetRangeUser(plot.logY, maxValue_Pad * 1.2);
+        plot.histos[maxID]->Draw(plot.histos[maxID].drawOption.c_str());
+        if (((string)plot.histos[maxID]->ClassName()).find("TH1") != -1) {
+            plot.histos[maxID]->GetYaxis()->SetRangeUser(plot.logY, maxValue_Pad * 1.2);
         }
 
-        for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
+        for (unsigned int i = 0; i < plot.histos.size(); i++) {
             // draw the remaining histo
+            if (plot.histos[i].ptr == NULL) continue;
             if (i != maxID) {
-                histCollectionPlot[i]->Draw((plot.histos[maxID].drawOption + "same").c_str());
+                plot.histos[i]->Draw((plot.histos[maxID].drawOption + "same").c_str());
             }
         }
 
         // save histogram to root file
-        for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
-            if (fRun != NULL) {
-                fOutputRootFile->cd();
-                histCollectionPlot[i]->Write();
+        if (fRun->GetOutputFile() != NULL) {
+            fRun->GetOutputFile()->cd();
+            for (unsigned int i = 0; i < plot.histos.size(); i++) {
+                if (plot.histos[i].ptr == NULL) continue;
+                plot.histos[i]->Write();
             }
         }
 
         // draw legend
         if (plot.legendOn) {
             TLegend* legend = new TLegend(fLegendX1, fLegendY1, fLegendX2, fLegendY2);
-            for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
-                legend->AddEntry(histCollectionPlot[i], histCollectionPlot[i]->GetName(), "lf");
+            for (unsigned int i = 0; i < plot.histos.size(); i++) {
+                if (plot.histos[i].ptr == NULL) continue;
+                legend->AddEntry(plot.histos[i].ptr, plot.histos[i]->GetName(), "lf");
             }
             legend->Draw("same");
         }
 
-        // draw annotation, mainly the cut string
-        vector<pair<double, double>> plotted_text_Y;
-        if (plot.annotationOn) {
-            for (int i = 0; i < histCollectionPlot.size(); i++) {
-                // place annotation only for 1D histograms
-                TH3F* htemp = histCollectionPlot[i];
-                if (((string)htemp->ClassName()).find("TH1") != -1) {
-                    // annotation for the cut, it will be like: sAna_NumberOfGoodSignals>30 && ...
-                    string cutannotation = plot.histos[i].cutString;
-                    // annotation for file classifying, it will be like: FileName: run123.root
-                    string classifyannotation = "";
-                    auto iter = plot.histos[i].classifyMap.begin();
-                    while (iter != plot.histos[i].classifyMap.end()) {
-                        classifyannotation += iter->first + ": " + iter->second;
-                        iter++;
-                        if (iter != plot.histos[i].classifyMap.end()) classifyannotation += ", ";
-                    }
-
-                    string annotation = cutannotation != "" ? cutannotation : classifyannotation;
-                    if (annotation == "") annotation = "no cut";
-
-                    // calculate x start position of the annotation, according to the max bin of the histogram
-                    int maxbin = htemp->GetMaximumBin();
-                    int Nbins = htemp->GetNbinsX();
-                    double maxval_hist = htemp->GetBinContent(maxbin);
-
-                    double size = 0.04;
-                    double x_pos_relative = plot.logX ? log(maxbin) / log(Nbins) : maxbin / (double)Nbins;
-                    double y_pos_relative = plot.logY ? log(maxval_hist) / log(maxValue_Pad * 1.2)
-                                                      : maxval_hist / (maxValue_Pad * 1.2);
-
-                    int align = 0;
-                    int nCharacterPreLine;
-                    if (x_pos_relative > 0.5) {
-                        align = kHAlignRight + kVAlignCenter;
-                        x_pos_relative -= 0.01;
-                        nCharacterPreLine =
-                            x_pos_relative * fCanvasSize.X() / fCanvasDivisions.X() / size / 400;
-                    } else {
-                        align = kHAlignLeft + kVAlignCenter;
-                        x_pos_relative += 0.01;
-                        nCharacterPreLine =
-                            (1 - x_pos_relative) * fCanvasSize.X() / fCanvasDivisions.X() / size / 400;
-                    }
-
-                    double xpos = plot.logX ? htemp->GetBinCenter(exp(x_pos_relative * log(Nbins)))
-                                            : x_pos_relative * htemp->GetBinCenter(Nbins);
-
-                    // split the long annotation
-                    vector<string> annotation_multi_text;
-                    for (int j = 0; j < annotation.size(); j += nCharacterPreLine) {
-                        annotation_multi_text.push_back(annotation.substr(j, nCharacterPreLine));
-                    }
-
-                    // adjust y position to avoid overlap
-                    double yup = y_pos_relative + size;
-                    double ydown = yup - size * annotation_multi_text.size();
-
-                    double shift_value;
-                    for (double shift = 0; shift < 0.5; shift += size) {
-                        bool overlap = false;
-                        shift_value = yup > 0.5 ? -shift : shift;
-                        for (int j = 0; j < plotted_text_Y.size(); j++) {
-                            if (yup + shift > plotted_text_Y[j].second &&
-                                yup + shift < plotted_text_Y[j].first) {
-                                overlap = true;
-                                break;
-                            }
-                            if (ydown + shift > plotted_text_Y[j].second &&
-                                ydown + shift < plotted_text_Y[j].first) {
-                                overlap = true;
-                                break;
-                            }
-                            if (ydown + shift == plotted_text_Y[j].second &&
-                                yup + shift == plotted_text_Y[j].first) {
-                                overlap = true;
-                                break;
-                            }
-                        }
-                        if (!overlap) {
-                            break;
-                        }
-                    }
-                    yup += shift_value;
-                    ydown += shift_value;
-                    plotted_text_Y.push_back({yup, ydown});
-
-                    // draw
-                    for (int j = 0; j < annotation_multi_text.size(); j++) {
-                        double yy = plot.logY ? exp((yup - (j + 1) * size) * log(maxValue_Pad * 1.2))
-                                              : (yup - (j + 1) * size) * maxValue_Pad * 1.2;
-
-                        TLatex* text = new TLatex(xpos + plot.xOffset, yy + plot.yOffset,
-                                                  annotation_multi_text[j].c_str());
-                        text->SetTextAlign(align);
-                        text->SetTextSize(size);
-                        text->SetTextColor(plot.histos[i].lineColor);
-                        text->Draw("same");
-                    }
-                }
-            }
-        }
-
         // save pad
         targetPad->Update();
-        if (plot.save != "") SavePlotToPDF(plot.save, n + 1);
+        if (plot.save != "") targetPad->Print(plot.save.c_str());
 
         fCombinedCanvas->Update();
     }
@@ -947,27 +852,27 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     }
 
     // Save canvas to a PDF file
-    TRestRun* run = new TRestRun();
-    run->SetHistoricMetadataSaving(false);
-    run->OpenInputFile(fRunInputFileName[0]);
-    fCanvasSave = run->FormFormat(fCanvasSave);
-    delete run;
+    fCanvasSave = fRun->FormFormat(fCanvasSave);
     if (fCanvasSave != "") fCombinedCanvas->Print(fCanvasSave);
 
     // If the extension of the canvas save file is ROOT we store also the histograms
     if (TRestTools::isRootFile((string)fCanvasSave)) {
-        TFile* f = new TFile(fCanvasSave, "UPDATE");
-        f->cd();
-        for (unsigned int n = 0; n < histCollectionAll.size(); n++) histCollectionAll[n]->Write();
-        f->Close();
+        TRestRun* run = new TRestRun();
+        run->SetOutputFileName((string)fCanvasSave);
+        run->FormOutputFile();
+        for (unsigned int n = 0; n < histCollectionAll.size(); n++) {
+            histCollectionAll[n]->Write();
+        }
+        delete run;
     }
 
     // Save this class to the root file
-    if (fRun != NULL && fOutputRootFile != NULL) {
-        fOutputRootFile->cd();
+    if (fRun->GetOutputFile() != NULL) {
+        fRun->GetOutputFile()->cd();
         this->Write();
-        fRun->CloseFile();
     }
+
+    delete st;
 }
 
 void TRestAnalysisPlot::SaveCanvasToPDF(TString fileName) { fCombinedCanvas->Print(fileName); }

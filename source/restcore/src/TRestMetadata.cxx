@@ -766,7 +766,7 @@ void TRestMetadata::SetEnv(TiXmlElement* e, bool updateexisting) {
 /// sections will also be processed. Before expansion,
 /// ReplaceElementAttributes() will first be called.
 void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
-    debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
+    debug << ClassName() << "::ReadElement(<" << e->Value() << ")" << endl;
 
     ReplaceElementAttributes(e);
     if ((string)e->Value() == "for") {
@@ -782,11 +782,16 @@ void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
         TiXmlElement* contentelement = e->FirstChildElement();
         // we won't expand child TRestXXX sections unless forced recursive. The expansion of
         // these sections will be executed individually by the corresponding TRestXXX class
-        while (contentelement != NULL &&
-               (recursive || ((string)contentelement->Value()).find("TRest") == -1)) {
-            debug << "into child elements of: " << e->Value() << endl;
+        while (contentelement != NULL) {
             TiXmlElement* nxt = contentelement->NextSiblingElement();
-            ReadElement(contentelement, recursive);
+            if (recursive || ((string)contentelement->Value()).find("TRest") == -1) {
+                debug << "into child element \"" << contentelement->Value() << "\" of \"" << e->Value()
+                      << "\"" << endl;
+                ReadElement(contentelement, recursive);
+            } else {
+                debug << "skipping child element \"" << contentelement->Value() << "\" of \"" << e->Value()
+                      << "\"" << endl;
+            }
             contentelement = nxt;
         }
     }
@@ -900,6 +905,31 @@ void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
 }
 
 ///////////////////////////////////////////////
+/// \brief Helper method for TRestMetadata::ExpandForLoops().
+void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e) {
+    TiXmlElement* parele = (TiXmlElement*)e->Parent();
+    TiXmlElement* contentelement = e->FirstChildElement();
+    while (contentelement != NULL) {
+        if ((string)contentelement->Value() == "for") {
+            TiXmlElement* newforloop = (TiXmlElement*)contentelement->Clone();
+            // ReplaceElementAttributes(newforloop);
+            TiXmlElement* tempnew = (TiXmlElement*)parele->InsertBeforeChild(e, *newforloop);
+            delete newforloop;
+            newforloop = tempnew;
+            ExpandForLoops(newforloop);
+            contentelement = contentelement->NextSiblingElement();
+        } else {
+            TiXmlElement* attatchedalament = (TiXmlElement*)contentelement->Clone();
+            ReadElement(attatchedalament, true);
+            // debug << *attatchedalament << endl;
+            parele->InsertBeforeChild(e, *attatchedalament);
+            delete attatchedalament;
+            contentelement = contentelement->NextSiblingElement();
+        }
+    }
+}
+
+///////////////////////////////////////////////
 /// \brief Expands the loop structures found in the given xml section.
 ///
 /// The expansion is done by creating new TiXmlElement objects and inserting
@@ -914,15 +944,17 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
     const char* varfrom = e->Attribute("from");
     const char* varto = e->Attribute("to");
     const char* varstep = e->Attribute("step");
+    const char* varin = e->Attribute("in");
 
-    if (varname == NULL || varfrom == NULL || varto == NULL) return;
+    if ((varin == NULL) && (varname == NULL || varfrom == NULL || varto == NULL)) return;
     if (varstep == NULL) varstep = "1";
     TiXmlElement* parele = (TiXmlElement*)e->Parent();
     if (parele == NULL) return;
 
-    string _from = ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varfrom));
-    string _to = ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varto));
-    string _step = ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varstep));
+    string _from = varfrom ? ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varfrom)) : "";
+    string _to = varto ? ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varto)) : "";
+    string _step = varstep ? ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varstep)) : "";
+    string _in = varin ? ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varin)) : "";
     if (isANumber(_from) && isANumber(_to) && isANumber(_step)) {
         double from = StringToDouble(_from);
         double to = StringToDouble(_to);
@@ -931,30 +963,21 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
         debug << "----expanding for loop----" << endl;
         double i = 0;
         for (i = from; i <= to; i = i + step) {
-            ostringstream ss;
-            ss << i;
-            SetEnv(varname, ss.str(), true);
-            TiXmlElement* contentelement = e->FirstChildElement();
-            while (contentelement != NULL) {
-                if ((string)contentelement->Value() == "for") {
-                    TiXmlElement* newforloop = (TiXmlElement*)contentelement->Clone();
-                    // ReplaceElementAttributes(newforloop);
-                    TiXmlElement* tempnew = (TiXmlElement*)parele->InsertBeforeChild(e, *newforloop);
-                    delete newforloop;
-                    newforloop = tempnew;
-                    ExpandForLoops(newforloop);
-                    contentelement = contentelement->NextSiblingElement();
-                } else {
-                    TiXmlElement* attatchedalament = (TiXmlElement*)contentelement->Clone();
-                    ReadElement(attatchedalament, true);
-                    // debug << *attatchedalament << endl;
-                    parele->InsertBeforeChild(e, *attatchedalament);
-                    delete attatchedalament;
-                    contentelement = contentelement->NextSiblingElement();
-                }
-            }
+            SetEnv(varname, ToString(i), true);
+            ExpandForLoopOnce(e);
         }
+        parele->RemoveChild(e);
 
+        if (fVerboseLevel >= REST_Extreme) parele->Print(stdout, 0);
+        debug << "----end of for loop----" << endl;
+    } else if (_in != "") {
+        vector<string> loopvars = Split(_in, ":");
+
+        debug << "----expanding for loop----" << endl;
+        for (string loopvar : loopvars) {
+            SetEnv(varname, loopvar, true);
+            ExpandForLoopOnce(e);
+        }
         parele->RemoveChild(e);
 
         if (fVerboseLevel >= REST_Extreme) parele->Print(stdout, 0);

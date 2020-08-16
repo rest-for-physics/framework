@@ -54,7 +54,7 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
     fNRequiredArgument = 0;
     fMode = mode;
 
-    if (mode == 0) {
+    if (mode == TASK_MACRO) {
         // we parse the macro file, get the method's name and argument list
         ifstream in(TaskString);
         if (!in.is_open()) {
@@ -106,7 +106,7 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
                 break;
             }
         }
-    } else if (mode == 1) {
+    } else if (mode == TASK_CPPCMD) {
         // we parse the command, get the target object, method to be invoked, and
         // the argument list
         string cmd = (string)TaskString;
@@ -114,16 +114,11 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
         string name;
         string call;
         if (Split(cmd, "->").size() != 2) {
-            if (Split(cmd, ".").size() != 2) {
-                warning << "command"
-                        << " \"" << cmd << "\" "
-                        << "is illegal!" << endl;
-                fMode = TASK_ERROR;
-                return;
-            } else {
-                name = Split(cmd, ".")[0];
-                call = Split(cmd, ".")[1];
-            }
+            warning << "command"
+                    << " \"" << cmd << "\" "
+                    << "is illegal!" << endl;
+            fMode = TASK_ERROR;
+            return;
         } else {
             name = Split(cmd, "->")[0];
             call = Split(cmd, "->")[1];
@@ -141,8 +136,11 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
                                                                        : Split(Split(call, "(")[1], ")")[0]);
         targetname = name;
 
-    } else if (mode == 2) {
+    } else if (mode == TASK_CLASS) {
         // I don't think we can get here
+    } else if (mode == TASK_SHELLCMD) {
+        cmdstr = TaskString;
+        methodname = Split(cmdstr, " ")[0];
     }
 }
 
@@ -222,12 +220,12 @@ void TRestTask::RunTask(TRestManager* mgr) {
         ferr << "no task specified for TRestTask!!!" << endl;
         exit(-1);
     } else {
-        if (fMode == 0) {
+        if (fMode == TASK_MACRO) {
             // call gInterpreter to run a command
             ConstructCommand();
             gInterpreter->ProcessLine(cmdstr.c_str());
             return;
-        } else if (fMode == 1) {
+        } else if (fMode == TASK_CPPCMD) {
             //
             if (mgr == NULL) {
                 ferr << "no target specified for the command:" << endl;
@@ -242,11 +240,13 @@ void TRestTask::RunTask(TRestManager* mgr) {
                 } else {
                     string arg;
                     //////////////////////////////////
-                    // consuruct arguments
+                    // TODO: consuruct arguments
 
                     gInterpreter->Execute(meta, meta->IsA(), methodname.c_str(), arg.c_str());
                 }
             }
+        } else if (fMode == TASK_SHELLCMD) {
+            system(cmdstr.c_str());
         }
     }
 }
@@ -316,7 +316,10 @@ TRestTask* TRestTask::GetTask(TString MacroName) {
 }
 
 TRestTask* TRestTask::ParseCommand(TString cmd) {
-    auto tsk = new TRestTask(cmd, TASK_CPPCMD);
+    REST_TASKMODE mode = TASK_CPPCMD;
+    if (((string)cmd).find("->") == -1) mode = TASK_SHELLCMD;
+
+    auto tsk = new TRestTask(cmd, mode);
     if (tsk->GetMode() == TASK_ERROR) {
         delete tsk;
         return NULL;

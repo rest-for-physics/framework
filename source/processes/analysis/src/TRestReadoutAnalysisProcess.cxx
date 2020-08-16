@@ -14,10 +14,10 @@
 ///
 ///_______________________________________________________________________________
 
+#include "TRestReadoutAnalysisProcess.h"
+
 #include <TLegend.h>
 #include <TPaveText.h>
-
-#include "TRestReadoutAnalysisProcess.h"
 using namespace std;
 
 ClassImp(TRestReadoutAnalysisProcess)
@@ -42,48 +42,51 @@ void TRestReadoutAnalysisProcess::Initialize() {
 void TRestReadoutAnalysisProcess::InitProcess() {
     fReadout = GetMetadata<TRestReadout>();
     if (fReadout != NULL) {
-        {
-            auto iter = fChannelsHistos.begin();
-            while (iter != fChannelsHistos.end()) {
-                TRestReadoutModule* mod = fReadout->GetReadoutModuleWithID(iter->first);
-                if (mod == NULL) {
-                    warning << "REST Warning(TRestReadoutAnalysisProcess): readout "
-                               "module with id "
-                            << iter->first << " not found!" << endl;
-                } else {
-                    iter->second =
-                        new TH1D((TString) "ChannelActivity_M" + ToString(iter->first),
-                                 (TString) "Readout Channel Activity of Module " + ToString(iter->first),
-                                 mod->GetNumberOfChannels(), 0, mod->GetNumberOfChannels());
-                }
-                iter++;
-            }
-        }
+        auto iter = fModuleHitMaps.begin();
+        while (iter != fModuleHitMaps.end()) {
+            TRestReadoutModule* mod = fReadout->GetReadoutModuleWithID(iter->first);
+            if (mod == NULL) {
+                warning << "REST Warning(TRestReadoutAnalysisProcess): readout "
+                           "module with id "
+                        << iter->first << " not found!" << endl;
+            } else {
+                fModuleHitMaps[iter->first] =
+                    new TH2D((TString) "Hitmap_M" + ToString(iter->first),
+                             (TString) "FirstX/Y Hitmap of Module " + ToString(iter->first),
+                             mod->GetNumberOfChannels() / 2, 0, mod->GetNumberOfChannels() / 2,
+                             mod->GetNumberOfChannels() / 2, mod->GetNumberOfChannels() / 2,
+                             mod->GetNumberOfChannels());
 
-        {
-            auto iter = fChannelsHitMaps.begin();
-            while (iter != fChannelsHitMaps.end()) {
-                TRestReadoutModule* mod = fReadout->GetReadoutModuleWithID(iter->first);
-                if (mod == NULL) {
-                    warning << "REST Warning(TRestReadoutAnalysisProcess): readout "
-                               "module with id "
-                            << iter->first << " not found!" << endl;
-                } else {
-                    iter->second = new TH2D((TString) "Hitmap_M" + ToString(iter->first),
-                                            (TString) "FirstX/Y Hitmap of Module " + ToString(iter->first),
-                                            mod->GetNumberOfChannels() / 2, 0, mod->GetNumberOfChannels() / 2,
-                                            mod->GetNumberOfChannels() / 2, mod->GetNumberOfChannels() / 2,
-                                            mod->GetNumberOfChannels());
-                }
-                iter++;
+                fModuleActivityX[iter->first] =
+                    new TH1D((TString) "ActivityX_M" + ToString(iter->first),
+                             (TString) "X Channel Activity of Module " + ToString(iter->first),
+                             mod->GetNumberOfChannels() / 2, 0, mod->GetNumberOfChannels() / 2);
+
+                fModuleActivityY[iter->first] =
+                    new TH1D((TString) "ActivityY_M" + ToString(iter->first),
+                             (TString) "Y Channel Activity of Module " + ToString(iter->first),
+                             mod->GetNumberOfChannels() / 2, mod->GetNumberOfChannels() / 2,
+                             mod->GetNumberOfChannels());
+
+                fModuleBSLSigmaX[iter->first] =
+                    new TH2D((TString) "BSLSX_M" + ToString(iter->first),
+                             (TString) "X Channel Baseline Sigma of Module " + ToString(iter->first),
+                             mod->GetNumberOfChannels() / 2, 0, mod->GetNumberOfChannels() / 2, 100, 0, 100);
+
+                fModuleBSLSigmaY[iter->first] =
+                    new TH2D((TString) "BSLSY_M" + ToString(iter->first),
+                             (TString) "Y Channel Baseline Sigma of Module " + ToString(iter->first), 100, 0,
+                             100, mod->GetNumberOfChannels() / 2, mod->GetNumberOfChannels() / 2,
+                             mod->GetNumberOfChannels());
             }
+            iter++;
         }
     }
 }
 
 //______________________________________________________________________________
 TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
-    fSignalEvent = (TRestSignalEvent*)evInput;
+    fSignalEvent = (TRestRawSignalEvent*)evInput;
     if (fReadout != NULL) {
         Double_t firstX_id = -1.;
         Double_t firstY_id = -1.;
@@ -108,8 +111,9 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         double YEnergySum = 0;
         double YEnergyPosSum = 0;
 
+        // calculate firstx, firsty in position coordinate
         for (int i = 0; i < fSignalEvent->GetNumberOfSignals(); i++) {
-            TRestSignal* sgnl = fSignalEvent->GetSignal(i);
+            TRestRawSignal* sgnl = fSignalEvent->GetSignal(i);
 
             int p, m, c;
             fReadout->GetPlaneModuleChannel(sgnl->GetID(), p, m, c);
@@ -124,29 +128,29 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
                 YEnergyPosSum += fReadout->GetY(sgnl->GetID()) * sgnl->GetIntegral();
             }
 
-            if (sgnl->GetMaxPeakTime() < firstX_t) {
+            if (sgnl->GetMaxPeakBin() < firstX_t) {
                 if (!TMath::IsNaN(fReadout->GetX(sgnl->GetID()))) {
                     firstX_id = sgnl->GetID();
-                    firstX_t = sgnl->GetMaxPeakTime();
+                    firstX_t = sgnl->GetMaxPeakBin();
                 }
             }
-            if (sgnl->GetMaxPeakTime() < firstY_t) {
+            if (sgnl->GetMaxPeakBin() < firstY_t) {
                 if (!TMath::IsNaN(fReadout->GetY(sgnl->GetID()))) {
                     firstY_id = sgnl->GetID();
-                    firstY_t = sgnl->GetMaxPeakTime();
+                    firstY_t = sgnl->GetMaxPeakBin();
                 }
             }
 
-            if (sgnl->GetMaxPeakTime() > lastX_t) {
+            if (sgnl->GetMaxPeakBin() > lastX_t) {
                 if (!TMath::IsNaN(fReadout->GetX(sgnl->GetID()))) {
                     lastX_id = sgnl->GetID();
-                    lastX_t = sgnl->GetMaxPeakTime();
+                    lastX_t = sgnl->GetMaxPeakBin();
                 }
             }
-            if (sgnl->GetMaxPeakTime() > lastY_t) {
+            if (sgnl->GetMaxPeakBin() > lastY_t) {
                 if (!TMath::IsNaN(fReadout->GetY(sgnl->GetID()))) {
                     lastY_id = sgnl->GetID();
-                    lastY_t = sgnl->GetMaxPeakTime();
+                    lastY_t = sgnl->GetMaxPeakBin();
                 }
             }
         }
@@ -156,6 +160,9 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         this->SetObservableValue("NmodulesTriggered", (int)TriggeredModuleId.size());
         this->SetObservableValue("TriggeredModuleId", TriggeredModuleId);
 
+        // fill firstx/y hitmap in channel coordinate
+        map<int, int> modulefirstxchannel;  // moduleid, firstx channelid
+        map<int, int> modulefirstychannel;  // moduleid, firsty channelid
         if (firstX_id > -1 && firstY_id > -1) {
             double firstx = fReadout->GetX(firstX_id);
             double firsty = fReadout->GetY(firstY_id);
@@ -172,6 +179,7 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
             fReadout->GetPlaneModuleChannel(firstX_id, plane, mod1, channel1);
             fReadout->GetPlaneModuleChannel(firstY_id, plane, mod2, channel2);
             if (mod1 == mod2 && mod1 > -1) {
+                // consider the rotation of readout module, firstX may be from the Y channel!
                 int x = -1, y = -1;
                 int n = fReadout->GetReadoutModuleWithID(mod1)->GetNumberOfChannels() / 2;
                 if (channel1 >= n && channel2 < n) {
@@ -181,8 +189,10 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
                     x = channel1;
                     y = channel2;
                 }
-                if (fChannelsHitMaps.count(mod1) > 0) {
-                    if (fChannelsHitMaps[mod1] != NULL) fChannelsHitMaps[mod1]->Fill(x, y);
+                modulefirstxchannel[mod1] = x;
+                modulefirstychannel[mod1] = y;
+                if (fModuleHitMaps.count(mod1) > 0) {
+                    if (fModuleHitMaps[mod1] != NULL) fModuleHitMaps[mod1]->Fill(x, y);
                 }
                 // cout << n<<" "<<channel1 <<" "<< channel2 << endl;
                 // cout << x << " " << y << endl;
@@ -196,29 +206,45 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
                 debug << "Absolute position:(X, Y) : (" << firstx << ", " << firsty << ")" << endl;
             }
         }
-        double integral = 0;
+        this->SetObservableValue("ModuleFirstX", modulefirstxchannel);
+        this->SetObservableValue("ModuleFirstY", modulefirstychannel);
+
+        // for each channel
+        vector<int> moduleid;
+        vector<int> channelid;
+        vector<double> baselinesigma;
+        vector<double> baseline;
+        vector<double> thresholdint;
+        // map<int, map<int, double>> modulebaselinesigma;  // moduleid, channelid, baselinesigma
+        // map<int, map<int, double>> modulebaseline;       // moduleid, channelid, baseline
+        // map<int, map<int, double>> modulethresholdint;   // moduleid, channelid, thresholdintergal
+
         for (int i = 0; i < fSignalEvent->GetNumberOfSignals(); i++) {
-            TRestSignal* sgn = fSignalEvent->GetSignal(i);
+            TRestRawSignal* sgn = fSignalEvent->GetSignal(i);
 
             // channel histo
             int plane = -1, mod = -1, channel = -1;
             fReadout->GetPlaneModuleChannel(sgn->GetID(), plane, mod, channel);
-            if (mod != -1 && fChannelsHistos.count(mod) > 0) {
-                if (fChannelsHistos[mod] != NULL) fChannelsHistos[mod]->Fill(channel);
+            if (mod != -1 && channel != -1) {
+                moduleid.push_back(mod);
+                channelid.push_back(channel);
+                baselinesigma.push_back(sgn->GetBaseLineSigma());
+                baseline.push_back(sgn->GetBaseLine());
+                thresholdint.push_back(sgn->GetThresholdIntegral());
 
-                // amplification, integral
-                if (fModuldeAmplification[mod] == 0) fModuldeAmplification[mod] = 1;
-                for (int j = 0; j < sgn->GetNumberOfPoints(); j++) {
-                    auto timecharge = sgn->GetPoint(j);
-                    sgn->SetPoint(j, timecharge.X(), timecharge.Y() / fModuldeAmplification[mod]);
+                if (fModuleHitMaps.count(mod) > 0) {
+                    fModuleActivityX[mod]->Fill(channel);
+                    fModuleActivityY[mod]->Fill(channel);
+                    fModuleBSLSigmaX[mod]->Fill(channel, sgn->GetBaseLineSigma());
+                    fModuleBSLSigmaY[mod]->Fill(sgn->GetBaseLineSigma(), channel);
                 }
-                integral += sgn->GetIntegral();
             }
         }
-
-        this->SetObservableValue("CalibratedIntegral", integral);
-
-        debug << "TRestReadoutAnalysisProcess. Calibrated event energy : " << integral << endl;
+        this->SetObservableValue("Module", moduleid);
+        this->SetObservableValue("Channel", channelid);
+        this->SetObservableValue("BaselineSigma", baselinesigma);
+        this->SetObservableValue("Baseline", baseline);
+        this->SetObservableValue("ThresholdIntegral", thresholdint);
     }
     return fSignalEvent;
 }
@@ -227,25 +253,85 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 void TRestReadoutAnalysisProcess::EndProcess() {
     if (fReadout != NULL) {
         {
-            auto iter = fChannelsHistos.begin();
-            while (iter != fChannelsHistos.end()) {
-                if (iter->second != NULL) {
-                    TH1D* histo = iter->second;
-                    histo->GetXaxis()->SetTitle("Channel ID");
-                    histo->GetYaxis()->SetTitle("Count");
-                    histo->Write();
-                }
-                iter++;
-            }
-        }
-        {
-            auto iter = fChannelsHitMaps.begin();
-            while (iter != fChannelsHitMaps.end()) {
-                if (iter->second != NULL) {
-                    TH2D* histo = iter->second;
+            auto iter = fModuleHitMaps.begin();
+            while (iter != fModuleHitMaps.end()) {
+                if (fModuleHitMaps[iter->first] != NULL) {
+                    TH2D* histo = fModuleHitMaps[iter->first];
                     histo->GetXaxis()->SetTitle("X Channel");
                     histo->GetYaxis()->SetTitle("Y Channel");
                     histo->Write();
+                }
+
+                if (fModuleCanvasSave != "none") {
+                    if (fModuleHitMaps[iter->first] != NULL) {
+                        TH2D* histo = fModuleHitMaps[iter->first];
+                        TCanvas* c1 =
+                            new TCanvas((TString) "Can_ModuleHitMap" + ToString(iter->first),
+                                        (TString) "Hit Map of Module " + ToString(iter->first), 800, 600);
+                        histo->Draw("colz");
+                        c1->Write();
+                        c1->Print((TString)fModuleCanvasSave + "/M" + ToString(iter->first) + "_HitMap.png");
+                        delete c1;
+                    }
+
+                    auto h0 = fModuleHitMaps[iter->first];
+                    h0->SetStats(false);
+                    h0->Reset();
+
+                    if (fModuleActivityX[iter->first] != NULL && fModuleActivityY[iter->first] != NULL) {
+                        TH1D* h1 = fModuleActivityX[iter->first];
+                        TH1D* h2 = fModuleActivityY[iter->first];
+
+                        TCanvas* c1 = new TCanvas(
+                            (TString) "Can_ModuleActivity" + ToString(iter->first),
+                            (TString) "Channel Activity of Module " + ToString(iter->first), 800, 600);
+                        c1->Divide(2, 2, 0, 0);
+                        c1->cd(1);
+                        h1->SetFillColor(kBlue);
+                        h1->SetStats(false);
+                        h1->GetYaxis()->SetTitle("Counts");
+                        h1->Draw("bar");
+
+                        c1->cd(4);
+                        h2->SetFillColor(kBlue);
+                        h2->SetStats(false);
+                        h2->GetXaxis()->SetTitle("Counts");
+                        h2->Draw("hbar");
+
+                        c1->cd(3);
+                        h0->Draw("colz");
+                        c1->Write();
+                        c1->Print((TString)fModuleCanvasSave + "/M" + ToString(iter->first) +
+                                  "_Activity.png");
+                        delete c1;
+                    }
+
+                    if (fModuleBSLSigmaX[iter->first] != NULL && fModuleBSLSigmaY[iter->first] != NULL) {
+                        TH2D* h1 = fModuleBSLSigmaX[iter->first];
+                        TH2D* h2 = fModuleBSLSigmaY[iter->first];
+
+                        TCanvas* c1 = new TCanvas(
+                            (TString) "Can_ModuleBSLS" + ToString(iter->first),
+                            (TString) "Channel Baseline Sigma of Module " + ToString(iter->first), 800, 600);
+                        c1->Divide(2, 2, 0, 0);
+                        c1->cd(1);
+                        h1->SetFillColor(kBlue);
+                        h1->SetStats(false);
+                        h1->GetYaxis()->SetTitle("Baseline Sigma");
+                        h1->Draw("colz");
+
+                        c1->cd(4);
+                        h2->SetFillColor(kBlue);
+                        h2->SetStats(false);
+                        h2->GetXaxis()->SetTitle("Baseline Sigma");
+                        h2->Draw("colz");
+
+                        c1->cd(3);
+                        h0->Draw("colz");
+                        c1->Write();
+                        c1->Print((TString)fModuleCanvasSave + "/M" + ToString(iter->first) + "_BSLS.png");
+                        delete c1;
+                    }
                 }
                 iter++;
             }
@@ -259,19 +345,19 @@ void TRestReadoutAnalysisProcess::EndProcess() {
 // setting readout modules to draw:
 // <parameter name="modulesHist" value="2:5:6:8"/>
 void TRestReadoutAnalysisProcess::InitFromConfigFile() {
-    string moduleAmp = GetParameter("modulesAmp", "");
-    auto ampdef = Split(moduleAmp, ":");
-    for (int i = 0; i < ampdef.size(); i++) {
-        auto amppair = Split(ampdef[i], "-");
-        if (amppair.size() == 2) {
-            fModuldeAmplification[StringToInteger(amppair[0])] = StringToDouble(amppair[1]);
-        }
+    fModuleCanvasSave = GetParameter("outputPlotPath", "none");
+    if (fModuleCanvasSave != "none") {
+        fSingleThreadOnly = true;
+        TRestTools::Execute("mkdir -p " + fModuleCanvasSave);
     }
 
     string moduleHist = GetParameter("modulesHist", "");
     auto histdef = Split(moduleHist, ":");
     for (int i = 0; i < histdef.size(); i++) {
-        fChannelsHistos[StringToInteger(histdef[i])] = NULL;
-        fChannelsHitMaps[StringToInteger(histdef[i])] = NULL;
+        fModuleHitMaps[StringToInteger(histdef[i])] = NULL;
+        fModuleActivityX[StringToInteger(histdef[i])] = NULL;
+        fModuleActivityY[StringToInteger(histdef[i])] = NULL;
+        fModuleBSLSigmaX[StringToInteger(histdef[i])] = NULL;
+        fModuleBSLSigmaY[StringToInteger(histdef[i])] = NULL;
     }
 }

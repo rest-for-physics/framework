@@ -33,7 +33,7 @@ Int_t REST_StringHelper::isAExpression(string in) {
             return 0;
         }
     } else {
-        if (temp.find_first_not_of("-0123456789e+*/.,)( ^") == std::string::npos) {
+        if (temp.find_first_not_of("-0123456789e+*/.,)( ^%") == std::string::npos) {
             if (temp.find("/") == 0 || temp.find("./") == 0 || temp.find("../") == 0)
                 return 0;  // identify path
             return 1;

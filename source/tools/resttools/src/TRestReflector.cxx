@@ -394,7 +394,7 @@ int TRestReflector::InitDictionary() {
                  << endl;
             return -1;
         }
-        system(Form("mkdir -p %s/lib/AddonDict", REST_USER_PATH.c_str()));
+        system(Form("mkdir -p %s/AddonDict", REST_USER_PATH.c_str()));
 
         string linkdeffilename = REST_USER_PATH + (string) "/AddonDict/LinkDef.h";
         ofstream ofs(linkdeffilename);
@@ -423,7 +423,7 @@ int TRestReflector::InitDictionary() {
 
         int b =
             system(Form("gcc %s -std=c++11 -I`root-config --incdir` "
-                        "`root-config --libs` -lGui -lEve -lGeom -lMathMore -lGdml -lMinuit -L/usr/lib64 "
+                        "`root-config --libs` -lGui -lGeom -lGdml -lMinuit -L/usr/lib64 "
                         "-lstdc++ -shared -fPIC -o %s",
                         cxxfilename.c_str(), sofilename.c_str()));
 

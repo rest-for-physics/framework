@@ -39,6 +39,9 @@ class TRestAnalysisPlot : public TRestMetadata {
         Int_t lineStyle;
         Int_t fillColor;
         Int_t fillStyle;
+
+        TH3F* ptr = NULL;  //!
+        TH3F* operator->() { return ptr; }
     };
 
     struct Plot_Info_Set {
@@ -49,6 +52,8 @@ class TRestAnalysisPlot : public TRestMetadata {
         Bool_t logX;
         Bool_t logY;
         Bool_t logZ;
+        Bool_t gridX;
+        Bool_t gridY;
         Bool_t staticsOn;
         Bool_t legendOn;
         Bool_t annotationOn;
@@ -63,6 +68,14 @@ class TRestAnalysisPlot : public TRestMetadata {
 
         TVector2 rangeX;  // absolute x range(e.g. 1000~3000 keV), same as SetRangeUser()
         TVector2 rangeY;  // absolute y range(e.g. 1000~3000 keV), same as SetRangeUser()
+
+        Double_t marginLeft;
+        Double_t marginRight;
+        Double_t marginTop;
+        Double_t marginBottom;
+
+        Int_t ticksX;
+        Int_t ticksY;
 
         string save;
 
@@ -86,7 +99,9 @@ class TRestAnalysisPlot : public TRestMetadata {
     // canvas option
     TVector2 fCanvasSize;
     TVector2 fCanvasDivisions;
+    TVector2 fCanvasDivisionMargins;
     TString fCanvasSave;
+    Int_t fPaletteStyle;
 
     Int_t fLabelFont;
     Double_t fLabelOffsetX = 1.1;
@@ -111,11 +126,16 @@ class TRestAnalysisPlot : public TRestMetadata {
     TRestRun* fRun;                          //! TRestRun to handle output file
     std::vector<TString> fRunInputFileName;  //! TRestRun to handle input file
     TCanvas* fCombinedCanvas;                //! Output canvas
+    Long64_t fDrawNEntries;                  //!
+    Long64_t fDrawFirstEntry;                //!
 #endif
 
     void AddFile(TString fileName);
     void AddFileFromExternalRun();
     void AddFileFromEnv();
+
+    TRestAnalysisTree* GetTreeFromFile(TString fileName);
+    TRestRun* GetInfoFromFile(TString fileName);
 
    protected:
    public:
@@ -133,6 +153,10 @@ class TRestAnalysisPlot : public TRestMetadata {
     TVector2 GetCanvasSize() { return fCanvasSize; }
     TVector2 GetCanvasDivisions() { return fCanvasDivisions; }
 
+    void SetTreeEntryRange(Long64_t NEntries = TTree::kMaxEntries, Long64_t FirstEntry = 0) {
+        fDrawNEntries = NEntries;
+        fDrawFirstEntry = FirstEntry;
+    }
     void PlotCombinedCanvas();
 
     // Construtor
@@ -141,6 +165,6 @@ class TRestAnalysisPlot : public TRestMetadata {
     // Destructor
     virtual ~TRestAnalysisPlot();
 
-    ClassDefOverride(TRestAnalysisPlot, 3);
+    ClassDefOverride(TRestAnalysisPlot, 4);
 };
 #endif
