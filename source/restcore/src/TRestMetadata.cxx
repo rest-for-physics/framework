@@ -417,6 +417,9 @@
 ///            Kaixiang Ni
 ///
 /// \class      TRestMetadata
+/// \author     Igor Irastorza
+/// \author     Javier Galan
+/// \author     Kaixiang Ni
 ///
 /// <hr>
 ///
@@ -989,7 +992,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     string filename;
     if (string(_filename) == "server") {
         // Let TRestRun to retrieve data according to run number later-on
-        if ((string) this->ClassName() == "TRestRun") return;
+        if ((string)this->ClassName() == "TRestRun") return;
 
         // match the database, runNumber=0(default data), type="META_RML", tag=<section name>
         auto url = gDataBase->query_data(DBEntry(0, "META_RML", e->Value())).value;
@@ -1025,8 +1028,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1059,8 +1063,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
