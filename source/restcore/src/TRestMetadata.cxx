@@ -277,36 +277,39 @@
 /// triggered by its use in the construction of complex, multi-channel generic
 /// readouts by TRestReadout.
 ///
-/// The for loop definition is as follows, where *pitch* and *nChannels* are
-/// previously defined myParameters, and *nCh* and *nPix* are the *for* loop
-/// iteration variables.
+/// The for loop definition can be either `from-to-step` structure or `in` structure.
+/// The loop variable is defined in `variable` attribute, which is treated same as
+/// rml variable. In `from-to-step` structure, the value must be numbers. REST will 
+/// loop form `from` to `to` with step size `step`. In `in` structure, the values 
+/// are treated as string, and must be separated with `:`. For example:
 ///
 /// \code
-/// <for variable = "nCh" from = "0" to = "nChannels-2" step = "1" >
-///	<readoutChannel id = "${nCh}" >
-///		<for variable = "nPix" from = "0" to = "nChannels-1" step = "1"
-///> 			<addPixel id = "${nPix}" origin =
-///"((1+${nCh})*pitch,pitch/4+${nPix}*pitch)" size = "(pixelSize,pixelSize)"
-/// rotation = "45" / >
+/// <for variable="nCh" from="0" to="63" step="1" >
+///	  <readoutChannel id="${nCh}" >
+///		<for variable="nPix" from="0" to="63" step="1">
+///       <addPixel id="${nPix}" origin="((1+${nCh})*pitch,pitch/4+${nPix}*pitch)" 
+///         size="(pixelSize,pixelSize)" rotation="45" />
 ///		</for>
-///		<addPixel id = "nChannels" origin =
-///"(${nCh}*pitch,pitch/4+(nChannels-1)*pitch+pitch/2)" size =
-///"(pitch+pitch/2,pitch/2)" rotation = "0" / >
-///	</readoutChannel>
+///    </readoutChannel>
+/// </for>
+///
+/// <for variable="nMod" in="0:2:3:4:6:8:9" >
+///   <TRestAnalysisPlot name="ModuleFirstXYHitMap${nMod}"  previewPlot="false">
+///     <canvas size="(800,600)"  save="M${nMod}_Hitmap.png"/>
+///     <plot name="aaa" title="First X/Y Hitmap of Module ${nMod}" xlabel="X channel" 
+///       ylabel="Y channel" value="ON" option="colz">
+///       <variable name="rA_ModuleFirstX.second" range="(0,64)" nbins="64" />
+///       <variable name="rA_ModuleFirstY.second" range="(64,128)" nbins="64" />
+///       <cutString string="rA_ModuleFirstY.first==${nMod}"/>
+///     </plot>
+///   </TRestAnalysisPlot>
 /// </for>
 /// \endcode
 ///
-/// The starter will recongize the fields "variable", "from", "to", "step" in
-/// the header of the for loop definition. The variable "nCh", definded at the
-/// header of the for loop definition, will be added to the environment variable
-/// list. The value of the variable will be updated in each loop The content of
-/// the loop will be normally prepeocessed, replacing the variables and
-/// expressions, and then expanded in the local section.
-///
-/// To pass the loop infomarion into the resident TRestMetadata class, one needs
-/// to call the fourth overload of the LoadConfigFromFile() starter methods. The
-/// resident class can get access to its host's variable list in this overload.
-///
+/// The first for loop definition will be expanded to 64 <readoutChannel sections 
+/// with 64 <addPixel sections in each. The nCh and nPix variables will be 0~64 
+/// in each section. The second for loop definition will be expanded to 7 <TRestAnalysisPlot
+/// sections with nMod be valued 0,2,3,4,6,8,9 respectivelly.
 ///
 /// ### The globals section
 ///
