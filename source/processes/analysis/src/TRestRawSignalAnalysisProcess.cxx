@@ -501,11 +501,11 @@ risetimemean += sgnl->GetRiseTime();
         fAnalysisTree->PrintObservables(this);
     }
 
-    fPreviousEventTime.push_back(fSignalEvent->GetTimeStamp());
-    if (fPreviousEventTime.size() > 10) fPreviousEventTime.erase(fPreviousEventTime.begin());
-
     // If cut condition matches the event will be not registered.
     if (ApplyCut()) return NULL;
+
+    fPreviousEventTime.push_back(fSignalEvent->GetTimeStamp());
+    if (fPreviousEventTime.size() > 10) fPreviousEventTime.erase(fPreviousEventTime.begin());
 
     return fSignalEvent;
 }
