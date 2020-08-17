@@ -311,6 +311,37 @@
 /// in each section. The second for loop definition will be expanded to 7 <TRestAnalysisPlot
 /// sections with nMod be valued 0,2,3,4,6,8,9 respectivelly.
 ///
+/// ### If definition
+///
+/// It is supported in rml to use <if structure. If the condition matches, the inner
+/// sections of <if section will be expaned to and seen by the parent section. 
+/// This helps to identify different use cases of the rml. For example: 
+///
+/// \code
+/// <TRestXXX>
+///		<if condition="${HOME}==/home/nkx">
+///        <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" file="processes.rml"/>
+///     </if>
+///     <if evaluate="date +%Y-%m-%d" condition=">2019-08-21">
+///        <addProcess type = "TRestSignalToHitsProcess" name = "signalToHits" value = "ON" file =
+///        "processes.rml" />
+///     </if>
+/// </TRestXXX>
+/// \endcode
+///
+/// Here "condition" specifies the comparing condition, it can either be a complete expression or just
+/// the right side of it. In incomplete case, the left side shall be expressed by "evaluate",
+/// which is a shell command to be executed.
+///
+/// In the example, if the home directory is "/home/nkx", the process "TRestSignalZeroSuppresionProcess" 
+/// will be added. If the date is larger than 2019-08-21, the process "TRestSignalToHitsProcess" 
+/// will be added.
+///
+/// Condition markers supports: `==`, `!=`, `>`, `<`, `<=`, `>=`. Its better to escape the ">", "<" markers.
+/// Note that those markers are also valid for strings. If the two sides of the expression 
+/// are not numbers, REST will perform string comparasion. The ordering is according to the alphabet.
+/// A common misleading fact is that "1235">"12345", rather than 1235<12345 as number.
+///
 /// ### The globals section
 ///
 /// The *globals* section allows to specify few common definitions used in the
