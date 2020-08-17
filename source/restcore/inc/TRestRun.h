@@ -142,7 +142,7 @@ class TRestRun : public TRestMetadata {
     TString GetExperimentName() { return fExperimentName; }
 
     vector<TString> GetInputFileNames() { return fInputFileNames; }
-    string GetInputFileName(int i) { return (string)fInputFileNames[i]; }
+    string GetInputFileName(int i) { return i < fInputFileNames.size() ? (string)fInputFileNames[i] : ""; }
     string GetInputFileNamepattern() { return (string)fInputFileName; }
     TString GetOutputFileName() { return fOutputFileName; }
     TFile* GetInputFile() { return fInputFile; }
