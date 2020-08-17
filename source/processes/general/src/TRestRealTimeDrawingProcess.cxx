@@ -133,13 +133,14 @@ TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* evInput) {
     }
 
     // check the pause flag from other thread's TRestRealTimeDrawingProcess
+    // need to pause during drawing, to avoid writing to AnalysisTree
     while (fPauseInvoke == true) {
         fPauseResponse[this] = true;
         usleep(1000);  // sleep 1 ms
     }
     fPauseResponse[this] = false;
 
-    if (fEvent->GetID() == fDrawInterval + fLastDrawnEntry) {
+    if (GetFullAnalysisTree()->GetEntries() >= fDrawInterval + fLastDrawnEntry) {
         fPauseInvoke = true;
 
         info << "TRestRealTimeDrawingProcess: reached drawing flag. Waiting for other processes to pause"
@@ -152,6 +153,7 @@ TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* evInput) {
                 usleep(1000);  // sleep 1 ms
                 i++;
                 if (i > fThreadWaitTimeoutMs) {
+                    // to prevent last event in the process chain
                     warning
                         << "TRestRealTimeDrawingProcess: waiting time reaches maximum, plotting job aborted"
                         << endl;
