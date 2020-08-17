@@ -277,36 +277,39 @@
 /// triggered by its use in the construction of complex, multi-channel generic
 /// readouts by TRestReadout.
 ///
-/// The for loop definition is as follows, where *pitch* and *nChannels* are
-/// previously defined myParameters, and *nCh* and *nPix* are the *for* loop
-/// iteration variables.
+/// The for loop definition can be either `from-to-step` structure or `in` structure.
+/// The loop variable is defined in `variable` attribute, which is treated same as
+/// rml variable. In `from-to-step` structure, the value must be numbers. REST will
+/// loop form `from` to `to` with step size `step`. In `in` structure, the values
+/// are treated as string, and must be separated with `:`. For example:
 ///
 /// \code
-/// <for variable = "nCh" from = "0" to = "nChannels-2" step = "1" >
-///	<readoutChannel id = "${nCh}" >
-///		<for variable = "nPix" from = "0" to = "nChannels-1" step = "1"
-///> 			<addPixel id = "${nPix}" origin =
-///"((1+${nCh})*pitch,pitch/4+${nPix}*pitch)" size = "(pixelSize,pixelSize)"
-/// rotation = "45" / >
+/// <for variable="nCh" from="0" to="63" step="1" >
+///	  <readoutChannel id="${nCh}" >
+///		<for variable="nPix" from="0" to="63" step="1">
+///       <addPixel id="${nPix}" origin="((1+${nCh})*pitch,pitch/4+${nPix}*pitch)"
+///         size="(pixelSize,pixelSize)" rotation="45" />
 ///		</for>
-///		<addPixel id = "nChannels" origin =
-///"(${nCh}*pitch,pitch/4+(nChannels-1)*pitch+pitch/2)" size =
-///"(pitch+pitch/2,pitch/2)" rotation = "0" / >
-///	</readoutChannel>
+///    </readoutChannel>
+/// </for>
+///
+/// <for variable="nMod" in="0:2:3:4:6:8:9" >
+///   <TRestAnalysisPlot name="ModuleFirstXYHitMap${nMod}"  previewPlot="false">
+///     <canvas size="(800,600)"  save="M${nMod}_Hitmap.png"/>
+///     <plot name="aaa" title="First X/Y Hitmap of Module ${nMod}" xlabel="X channel"
+///       ylabel="Y channel" value="ON" option="colz">
+///       <variable name="rA_ModuleFirstX.second" range="(0,64)" nbins="64" />
+///       <variable name="rA_ModuleFirstY.second" range="(64,128)" nbins="64" />
+///       <cutString string="rA_ModuleFirstY.first==${nMod}"/>
+///     </plot>
+///   </TRestAnalysisPlot>
 /// </for>
 /// \endcode
 ///
-/// The starter will recongize the fields "variable", "from", "to", "step" in
-/// the header of the for loop definition. The variable "nCh", definded at the
-/// header of the for loop definition, will be added to the environment variable
-/// list. The value of the variable will be updated in each loop The content of
-/// the loop will be normally prepeocessed, replacing the variables and
-/// expressions, and then expanded in the local section.
-///
-/// To pass the loop infomarion into the resident TRestMetadata class, one needs
-/// to call the fourth overload of the LoadConfigFromFile() starter methods. The
-/// resident class can get access to its host's variable list in this overload.
-///
+/// The first for loop definition will be expanded to 64 <readoutChannel sections
+/// with 64 <addPixel sections in each. The nCh and nPix variables will be 0~64
+/// in each section. The second for loop definition will be expanded to 7 <TRestAnalysisPlot
+/// sections with nMod be valued 0,2,3,4,6,8,9 respectivelly.
 ///
 /// ### The globals section
 ///
@@ -417,6 +420,9 @@
 ///            Kaixiang Ni
 ///
 /// \class      TRestMetadata
+/// \author     Igor Irastorza
+/// \author     Javier Galan
+/// \author     Kaixiang Ni
 ///
 /// <hr>
 ///
@@ -763,7 +769,7 @@ void TRestMetadata::SetEnv(TiXmlElement* e, bool updateexisting) {
 /// sections will also be processed. Before expansion,
 /// ReplaceElementAttributes() will first be called.
 void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
-    debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
+    debug << ClassName() << "::ReadElement(<" << e->Value() << ")" << endl;
 
     ReplaceElementAttributes(e);
     if ((string)e->Value() == "for") {
@@ -779,11 +785,16 @@ void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
         TiXmlElement* contentelement = e->FirstChildElement();
         // we won't expand child TRestXXX sections unless forced recursive. The expansion of
         // these sections will be executed individually by the corresponding TRestXXX class
-        while (contentelement != NULL &&
-               (recursive || ((string)contentelement->Value()).find("TRest") == -1)) {
-            debug << "into child elements of: " << e->Value() << endl;
+        while (contentelement != NULL) {
             TiXmlElement* nxt = contentelement->NextSiblingElement();
-            ReadElement(contentelement, recursive);
+            if (recursive || ((string)contentelement->Value()).find("TRest") == -1) {
+                debug << "into child element \"" << contentelement->Value() << "\" of \"" << e->Value()
+                      << "\"" << endl;
+                ReadElement(contentelement, recursive);
+            } else {
+                debug << "skipping child element \"" << contentelement->Value() << "\" of \"" << e->Value()
+                      << "\"" << endl;
+            }
             contentelement = nxt;
         }
     }
@@ -897,6 +908,31 @@ void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
 }
 
 ///////////////////////////////////////////////
+/// \brief Helper method for TRestMetadata::ExpandForLoops().
+void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e) {
+    TiXmlElement* parele = (TiXmlElement*)e->Parent();
+    TiXmlElement* contentelement = e->FirstChildElement();
+    while (contentelement != NULL) {
+        if ((string)contentelement->Value() == "for") {
+            TiXmlElement* newforloop = (TiXmlElement*)contentelement->Clone();
+            // ReplaceElementAttributes(newforloop);
+            TiXmlElement* tempnew = (TiXmlElement*)parele->InsertBeforeChild(e, *newforloop);
+            delete newforloop;
+            newforloop = tempnew;
+            ExpandForLoops(newforloop);
+            contentelement = contentelement->NextSiblingElement();
+        } else {
+            TiXmlElement* attatchedalament = (TiXmlElement*)contentelement->Clone();
+            ReadElement(attatchedalament, true);
+            // debug << *attatchedalament << endl;
+            parele->InsertBeforeChild(e, *attatchedalament);
+            delete attatchedalament;
+            contentelement = contentelement->NextSiblingElement();
+        }
+    }
+}
+
+///////////////////////////////////////////////
 /// \brief Expands the loop structures found in the given xml section.
 ///
 /// The expansion is done by creating new TiXmlElement objects and inserting
@@ -911,15 +947,17 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
     const char* varfrom = e->Attribute("from");
     const char* varto = e->Attribute("to");
     const char* varstep = e->Attribute("step");
+    const char* varin = e->Attribute("in");
 
-    if (varname == NULL || varfrom == NULL || varto == NULL) return;
+    if ((varin == NULL) && (varname == NULL || varfrom == NULL || varto == NULL)) return;
     if (varstep == NULL) varstep = "1";
     TiXmlElement* parele = (TiXmlElement*)e->Parent();
     if (parele == NULL) return;
 
-    string _from = ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varfrom));
-    string _to = ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varto));
-    string _step = ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varstep));
+    string _from = varfrom ? ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varfrom)) : "";
+    string _to = varto ? ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varto)) : "";
+    string _step = varstep ? ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varstep)) : "";
+    string _in = varin ? ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varin)) : "";
     if (isANumber(_from) && isANumber(_to) && isANumber(_step)) {
         double from = StringToDouble(_from);
         double to = StringToDouble(_to);
@@ -928,30 +966,21 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
         debug << "----expanding for loop----" << endl;
         double i = 0;
         for (i = from; i <= to; i = i + step) {
-            ostringstream ss;
-            ss << i;
-            SetEnv(varname, ss.str(), true);
-            TiXmlElement* contentelement = e->FirstChildElement();
-            while (contentelement != NULL) {
-                if ((string)contentelement->Value() == "for") {
-                    TiXmlElement* newforloop = (TiXmlElement*)contentelement->Clone();
-                    // ReplaceElementAttributes(newforloop);
-                    TiXmlElement* tempnew = (TiXmlElement*)parele->InsertBeforeChild(e, *newforloop);
-                    delete newforloop;
-                    newforloop = tempnew;
-                    ExpandForLoops(newforloop);
-                    contentelement = contentelement->NextSiblingElement();
-                } else {
-                    TiXmlElement* attatchedalament = (TiXmlElement*)contentelement->Clone();
-                    ReadElement(attatchedalament, true);
-                    // debug << *attatchedalament << endl;
-                    parele->InsertBeforeChild(e, *attatchedalament);
-                    delete attatchedalament;
-                    contentelement = contentelement->NextSiblingElement();
-                }
-            }
+            SetEnv(varname, ToString(i), true);
+            ExpandForLoopOnce(e);
         }
+        parele->RemoveChild(e);
 
+        if (fVerboseLevel >= REST_Extreme) parele->Print(stdout, 0);
+        debug << "----end of for loop----" << endl;
+    } else if (_in != "") {
+        vector<string> loopvars = Split(_in, ":");
+
+        debug << "----expanding for loop----" << endl;
+        for (string loopvar : loopvars) {
+            SetEnv(varname, loopvar, true);
+            ExpandForLoopOnce(e);
+        }
         parele->RemoveChild(e);
 
         if (fVerboseLevel >= REST_Extreme) parele->Print(stdout, 0);

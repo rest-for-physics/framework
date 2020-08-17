@@ -74,6 +74,7 @@ class TRestMetadata : public TNamed {
     void SetEnv(TiXmlElement* e, bool updateexisting = true);
     void ReadElement(TiXmlElement* e, bool recursive = false);
     string FieldNamesToUpper(string inputString);
+    void ExpandForLoopOnce(TiXmlElement* e);
 
     /// REST version string, only used for archive and retrieve
     TString fVersion = REST_RELEASE;  //<

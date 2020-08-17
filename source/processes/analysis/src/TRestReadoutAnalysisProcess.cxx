@@ -111,6 +111,7 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         double YEnergySum = 0;
         double YEnergyPosSum = 0;
 
+        // calculate firstx, firsty in position coordinate
         for (int i = 0; i < fSignalEvent->GetNumberOfSignals(); i++) {
             TRestRawSignal* sgnl = fSignalEvent->GetSignal(i);
 
@@ -159,6 +160,9 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         this->SetObservableValue("NmodulesTriggered", (int)TriggeredModuleId.size());
         this->SetObservableValue("TriggeredModuleId", TriggeredModuleId);
 
+        // fill firstx/y hitmap in channel coordinate
+        map<int, int> modulefirstxchannel;  // moduleid, firstx channelid
+        map<int, int> modulefirstychannel;  // moduleid, firsty channelid
         if (firstX_id > -1 && firstY_id > -1) {
             double firstx = fReadout->GetX(firstX_id);
             double firsty = fReadout->GetY(firstY_id);
@@ -175,6 +179,7 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
             fReadout->GetPlaneModuleChannel(firstX_id, plane, mod1, channel1);
             fReadout->GetPlaneModuleChannel(firstY_id, plane, mod2, channel2);
             if (mod1 == mod2 && mod1 > -1) {
+                // consider the rotation of readout module, firstX may be from the Y channel!
                 int x = -1, y = -1;
                 int n = fReadout->GetReadoutModuleWithID(mod1)->GetNumberOfChannels() / 2;
                 if (channel1 >= n && channel2 < n) {
@@ -184,6 +189,8 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
                     x = channel1;
                     y = channel2;
                 }
+                modulefirstxchannel[mod1] = x;
+                modulefirstychannel[mod1] = y;
                 if (fModuleHitMaps.count(mod1) > 0) {
                     if (fModuleHitMaps[mod1] != NULL) fModuleHitMaps[mod1]->Fill(x, y);
                 }
@@ -199,21 +206,31 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
                 debug << "Absolute position:(X, Y) : (" << firstx << ", " << firsty << ")" << endl;
             }
         }
+        this->SetObservableValue("ModuleFirstX", modulefirstxchannel);
+        this->SetObservableValue("ModuleFirstY", modulefirstychannel);
 
         // for each channel
-        map<int, map<int, double>> modulebaselinesigma;  // moduleid, channelid, baselinesigma
-        map<int, map<int, double>> modulebaseline;       // moduleid, channelid, baselinesigma
-        map<int, map<int, double>> modulethresholdint;   // moduleid, channelid, baselinesigma
+        vector<int> moduleid;
+        vector<int> channelid;
+        vector<double> baselinesigma;
+        vector<double> baseline;
+        vector<double> thresholdint;
+        // map<int, map<int, double>> modulebaselinesigma;  // moduleid, channelid, baselinesigma
+        // map<int, map<int, double>> modulebaseline;       // moduleid, channelid, baseline
+        // map<int, map<int, double>> modulethresholdint;   // moduleid, channelid, thresholdintergal
+
         for (int i = 0; i < fSignalEvent->GetNumberOfSignals(); i++) {
             TRestRawSignal* sgn = fSignalEvent->GetSignal(i);
 
             // channel histo
             int plane = -1, mod = -1, channel = -1;
             fReadout->GetPlaneModuleChannel(sgn->GetID(), plane, mod, channel);
-            if (mod != -1) {
-                modulebaselinesigma[mod][channel] = sgn->GetBaseLineSigma();
-                modulebaseline[mod][channel] = sgn->GetBaseLine();
-                modulethresholdint[mod][channel] = sgn->GetThresholdIntegral();
+            if (mod != -1 && channel != -1) {
+                moduleid.push_back(mod);
+                channelid.push_back(channel);
+                baselinesigma.push_back(sgn->GetBaseLineSigma());
+                baseline.push_back(sgn->GetBaseLine());
+                thresholdint.push_back(sgn->GetThresholdIntegral());
 
                 if (fModuleHitMaps.count(mod) > 0) {
                     fModuleActivityX[mod]->Fill(channel);
@@ -223,9 +240,11 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
                 }
             }
         }
-        this->SetObservableValue("ModuleBSLSigma", modulebaselinesigma);
-        this->SetObservableValue("ModuleBSL", modulebaseline);
-        this->SetObservableValue("ModuleInt", modulethresholdint);
+        this->SetObservableValue("Module", moduleid);
+        this->SetObservableValue("Channel", channelid);
+        this->SetObservableValue("BaselineSigma", baselinesigma);
+        this->SetObservableValue("Baseline", baseline);
+        this->SetObservableValue("ThresholdIntegral", thresholdint);
     }
     return fSignalEvent;
 }
@@ -257,7 +276,7 @@ void TRestReadoutAnalysisProcess::EndProcess() {
 
                     auto h0 = fModuleHitMaps[iter->first];
                     h0->SetStats(false);
-                    h0->Clear();
+                    h0->Reset();
 
                     if (fModuleActivityX[iter->first] != NULL && fModuleActivityY[iter->first] != NULL) {
                         TH1D* h1 = fModuleActivityX[iter->first];
