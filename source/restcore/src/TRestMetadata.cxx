@@ -279,15 +279,15 @@
 ///
 /// The for loop definition can be either `from-to-step` structure or `in` structure.
 /// The loop variable is defined in `variable` attribute, which is treated same as
-/// rml variable. In `from-to-step` structure, the value must be numbers. REST will 
-/// loop form `from` to `to` with step size `step`. In `in` structure, the values 
+/// rml variable. In `from-to-step` structure, the value must be numbers. REST will
+/// loop form `from` to `to` with step size `step`. In `in` structure, the values
 /// are treated as string, and must be separated with `:`. For example:
 ///
 /// \code
 /// <for variable="nCh" from="0" to="63" step="1" >
 ///	  <readoutChannel id="${nCh}" >
 ///		<for variable="nPix" from="0" to="63" step="1">
-///       <addPixel id="${nPix}" origin="((1+${nCh})*pitch,pitch/4+${nPix}*pitch)" 
+///       <addPixel id="${nPix}" origin="((1+${nCh})*pitch,pitch/4+${nPix}*pitch)"
 ///         size="(pixelSize,pixelSize)" rotation="45" />
 ///		</for>
 ///    </readoutChannel>
@@ -296,7 +296,7 @@
 /// <for variable="nMod" in="0:2:3:4:6:8:9" >
 ///   <TRestAnalysisPlot name="ModuleFirstXYHitMap${nMod}"  previewPlot="false">
 ///     <canvas size="(800,600)"  save="M${nMod}_Hitmap.png"/>
-///     <plot name="aaa" title="First X/Y Hitmap of Module ${nMod}" xlabel="X channel" 
+///     <plot name="aaa" title="First X/Y Hitmap of Module ${nMod}" xlabel="X channel"
 ///       ylabel="Y channel" value="ON" option="colz">
 ///       <variable name="rA_ModuleFirstX.second" range="(0,64)" nbins="64" />
 ///       <variable name="rA_ModuleFirstY.second" range="(64,128)" nbins="64" />
@@ -306,8 +306,8 @@
 /// </for>
 /// \endcode
 ///
-/// The first for loop definition will be expanded to 64 <readoutChannel sections 
-/// with 64 <addPixel sections in each. The nCh and nPix variables will be 0~64 
+/// The first for loop definition will be expanded to 64 <readoutChannel sections
+/// with 64 <addPixel sections in each. The nCh and nPix variables will be 0~64
 /// in each section. The second for loop definition will be expanded to 7 <TRestAnalysisPlot
 /// sections with nMod be valued 0,2,3,4,6,8,9 respectivelly.
 ///
@@ -1018,7 +1018,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     string filename;
     if (string(_filename) == "server") {
         // Let TRestRun to retrieve data according to run number later-on
-        if ((string)this->ClassName() == "TRestRun") return;
+        if ((string) this->ClassName() == "TRestRun") return;
 
         // match the database, runNumber=0(default data), type="META_RML", tag=<section name>
         auto url = gDataBase->query_data(DBEntry(0, "META_RML", e->Value())).value;
@@ -1054,9 +1054,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL
-                    ? false
-                    : ((string)localele->Attribute("expanded") == "true")) {
+            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+                                                                   "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1089,9 +1088,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL
-                    ? false
-                    : ((string)localele->Attribute("expanded") == "true")) {
+            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+                                                                   "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
