@@ -19,6 +19,9 @@ stages:
     # Stage to validate data chain processing constructions (TREX-DM data, PandaX-III topology, etc).
   - restManager_process
 
+    # Stage to validate tasks or executions over preprocessed data filesx
+  - postProcessing
+
     # Stage to validate other restManager tasks (metadata generation, script loading, etc).
   - restManager_generate
 
@@ -151,11 +154,11 @@ trexDM_data:
     - restRoot -b -q MakeBasicTree.C
     - rm RawData.root
     - rm Signals.root
-    - rm Hits.root
     - root -b -q ${CI_PROJECT_DIR}/scripts/pipeline/trex/ValidateTrees.C
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/scripts/pipeline/trex/results.root
+      - ${CI_PROJECT_DIR}/scripts/pipeline/trex/Hits.root
     expire_in: 1 week
   except:
       variables:
@@ -179,6 +182,16 @@ trexDM_data:
           #  except:
           #      variables:
           #        - $CRONJOB
+
+AnalysisPlot:
+  type: postProcessing
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/scripts/pipeline/analysisPlot/
+    - restManager --c summary.rml --f ${CI_PROJECT_DIR}/scripts/pipeline/trex/Hits.root
+  except:
+      variables:
+        - $CRONJOB == "YES"
 
 deploy:
   type: deploy

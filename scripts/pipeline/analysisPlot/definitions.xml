@@ -1,0 +1,21 @@
+
+<globals>
+	<variable name="RAW_THINT_RANGE" value="(0,400000)" overwrite="false" />
+	<variable name="RAW_TRIPLE_RANGE" value="(0,30000)" overwrite="false" />
+	<variable name="RAW_PEAKAMP_RANGE" value="(0,10000)" overwrite="false" />
+
+	<variable name="RAW_SIGNALS_RANGE" value="(0,50)" overwrite="false" />
+	<variable name="MAXPEAK_RANGE" value="(0,50)" overwrite="false" />
+
+	<variable name="MAX_SIGNALS" value="10" overwrite="false" />
+	<variable name="MIN_SIGNALS" value="1" overwrite="false" />
+
+	<variable name="MAX_RISE" value="27" overwrite="false" />
+	<variable name="MIN_RISE" value="20" overwrite="false" />
+
+	<variable name="MAX_PEAKAVG" value="230" overwrite="false" />
+	<variable name="MIN_PEAKAVG" value="210" overwrite="false" />
+
+	<variable name="MAXPEAK_CUT" value="8" overwrite="false" />
+</globals>
+

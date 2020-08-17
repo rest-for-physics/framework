@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<TRestManager name="SpecPlot" title="Example" verboseLevel="debug" >
+
+	<!--
+	<TRestRun name="SJTU_Proto" >
+		<parameter name="runNumber" value="-1"/>//change this value to "auto" to enable database
+	</TRestRun>
+	-->
+
+	<globals file="definitions.xml"/>
+
+	<TRestAnalysisPlot name="restplot" title="Basic Plots" previewPlot="false" verboseLevel="debug">
+
+		<canvas size="(1200,800)" divide="(2,2)" save="summary.png"/>
+
+		<include file="panel.xml" />
+
+		<plot name="ThresholdIntegralEvolution" title="ThresholdIntegral" ylabel="Threshold integral" xlabel="Time/Date" 
+			legend="OFF" logscale="false" value="ON" annotation="OFF" timeDisplay="ON" >
+			<histo name="ThresholdIntegralEvolution_Raw">
+				<variable name="timeStamp" range="" nbins="100" />
+				<variable name="rawAna_ThresholdIntegral" range="${RAW_THINT_RANGE}" nbins="500" />
+				<parameter name="lineColor" value="1" />
+			</histo>
+		</plot>
+
+		<plot name="ThresholdIntegral" title="ThresholdIntegral" xlabel="Threshold Integral value" ylabel="Counts" 
+			legend="OFF" logscale="false" value="ON" annotation="OFF" >
+			<histo name="ThresholdIntegral_Raw">
+				<variable name="rawAna_ThresholdIntegral" range="${RAW_THINT_RANGE}" nbins="500" />
+				<parameter name="lineColor" value="1" />
+			</histo>
+
+			<histo name="ThresholdIntegral_PeakCut">
+				<variable name="rawAna_ThresholdIntegral" range="${RAW_THINT_RANGE}" nbins="500" />
+				<parameter name="lineColor" value="2" />
+				<cut variable="rawAna_MaxPeakTimeDelay" condition="<${MAXPEAK_CUT}" value="ON" />
+				<cut variable="rawAna_NumberOfGoodSignals" condition="<${MAX_SIGNALS}" value="ON" />
+				<cut variable="rawAna_NumberOfGoodSignals" condition=">${MIN_SIGNALS}" value="ON" />
+				<cut variable="rawAna_RiseTimeAvg" condition="<${MAX_RISE}" value="ON" />
+				<cut variable="rawAna_RiseTimeAvg" condition=">${MIN_RISE}" value="ON" />
+				<cut variable="rawAna_AveragePeakTime" condition=">${MIN_PEAKAVG}" value="ON" />
+				<cut variable="rawAna_AveragePeakTime" condition="<${MAX_PEAKAVG}" value="ON" />
+			</histo>
+		</plot>
+
+		<plot name="FullHitmap_AllCuts" title="Hitmap" xlabel="X [mm]" ylabel="Y [mm]" logscale="false" save="" value="ON" stats="OFF" >
+			<variable name="hitsAna_xMean" range="(-125,125)" nbins="100" />
+			<variable name="hitsAna_yMean" range="(-125,125)" nbins="100" />
+				<cut variable="rawAna_MaxPeakTimeDelay" condition="<${MAXPEAK_CUT}" value="ON" />
+				<cut variable="rawAna_NumberOfGoodSignals" condition="<${MAX_SIGNALS}" value="ON" />
+				<cut variable="rawAna_NumberOfGoodSignals" condition=">${MIN_SIGNALS}" value="ON" />
+				<cut variable="rawAna_RiseTimeAvg" condition="<${MAX_RISE}" value="ON" />
+				<cut variable="rawAna_RiseTimeAvg" condition=">${MIN_RISE}" value="ON" />
+				<cut variable="rawAna_AveragePeakTime" condition=">${MIN_PEAKAVG}" value="ON" />
+				<cut variable="rawAna_AveragePeakTime" condition="<${MAX_PEAKAVG}" value="ON" />
+				<cut variable="hitsAna_nHitsX" condition=">0" value="ON" />
+				<cut variable="hitsAna_nHitsY" condition=">0" value="ON" />
+		</plot>
+
+
+	</TRestAnalysisPlot>
+
+	<addTask command="restplot->PlotCombinedCanvas()" value="ON"/>
+
+</TRestManager>
+
+
+<!--paramater here is accessible to all the classes-->
