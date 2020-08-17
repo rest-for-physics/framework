@@ -360,6 +360,19 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
         exit(1);
     }
     ReadFileInfo((string)filename);
+
+    // add to fInputFileNames in case it is opening a new file
+    bool inList = false;
+    for (auto addedfilename : fInputFileNames) {
+        if (addedfilename == filename) {
+            inList = true;
+            break;
+        }
+    }
+    if (!inList) {
+        fInputFileNames.push_back(filename);
+    }
+
     if (TRestTools::isRootFile((string)filename)) {
         fInputFile = new TFile(filename, mode.c_str());
 
