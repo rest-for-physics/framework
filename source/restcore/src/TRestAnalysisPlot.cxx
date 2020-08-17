@@ -565,6 +565,10 @@ TRestRun* TRestAnalysisPlot::GetInfoFromFile(TString fileName) {
     return fRun;
 }
 
+bool TRestAnalysisPlot::IsDynamicRange(TString rangeString) {
+    return (string(rangeString)).find(",  ") != -1;
+}
+
 void TRestAnalysisPlot::PlotCombinedCanvas() {
     // Initializing canvas window
     if (fCombinedCanvas != NULL) {
@@ -728,7 +732,15 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                     }
                 } else {
                     if (outVal > 0) {
-                        hTotal->Add(hh);
+                        if (IsDynamicRange(rangeString)) {
+                            hTotal->SetDirectory(gDirectory);
+                            hTotal->SetCanExtend(TH1::kAllAxes);
+                            tree->Draw(plotString + ">>+" + hTotal->GetName(), cutString, optString,
+                                       fDrawNEntries, fDrawFirstEntry);
+                            hTotal->SetDirectory(0);
+                        } else {
+                            hTotal->Add(hh);
+                        }
                     }
                 }
             }
