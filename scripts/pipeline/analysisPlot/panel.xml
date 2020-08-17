@@ -1,0 +1,15 @@
+
+<panel font_size="0.06">
+	<label value="Run number : <<TRestRun::fRunNumber>>" x="0.25" y="0.9" />
+	<label value="Run tag : <<TRestRun::fRunTag>>" x="0.25" y="0.82" />
+	<label value="Run starts : <<startTime>>" x="0.25" y="0.74" />
+	<label value="Run ends : <<endTime>>" x="0.25" y="0.66" />
+	<label value="Entries : <<entries>>" x="0.25" y="0.58" />
+	<label value="Run duration : <<runLength>> hours" x="0.25" y="0.50" />
+	<label value="Mean rate : <<meanRate>> Hz" x="0.25" y="0.42" />
+
+	<label value="Detector pressure : <<TRestDetectorSetup::fDetectorPressure>> bar" x="0.25" y="0.30" />
+	<label value="Mesh voltage : <<TRestDetectorSetup::fMeshVoltage>> V" x="0.25" y="0.22" />
+	<label value="Drift voltage : <<TRestDetectorSetup::fDriftField>> V/cm/bar" x="0.25" y="0.14" />
+	<label value="Electronics gain : <<TRestDetectorSetup::fElectronicsGain>>" x="0.25" y="0.06" />
+</panel>
