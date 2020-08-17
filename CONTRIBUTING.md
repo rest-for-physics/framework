@@ -308,10 +308,13 @@ pause after each event. In extreme level, it will pause after each process.
 
 ### Style of PrintMetadata()
 
-We need to make `Printing` better with the help of REST string output tool. The style of PrintMetadata()
-shall be:
+The default style for metadata information, that it usually printed by the `PrintMetadata` method, it is controlled through the `metadata << ... << endl;` directive. Furthermore, when we implement the `PrintMetadata` method of an inherited class we should call the pure `TRestMetadata::PrintMetadata` method in order to create a proper header.
 
-* centered in screen
-* bordered with "||" (at side) and "=======" (at top/bottom)
-* white colored
+```c++
+void TRestReadout::PrintMetadata(Int_t DetailLevel) {
+    if (DetailLevel >= 0) {
+        TRestMetadata::PrintMetadata();
 
+        metadata << "Number of readout planes : " << fNReadoutPlanes << endl;
+        metadata << "Decoding was defined : ";
+```
