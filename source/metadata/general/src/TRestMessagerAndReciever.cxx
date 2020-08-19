@@ -270,4 +270,15 @@ void TRestMessagerAndReciever::Initialize() {
     fMode = MessagePool_Auto;
 }
 
-void TRestMessagerAndReciever::PrintMetadata() {}
+void TRestMessagerAndReciever::PrintMetadata() {
+    TRestMetadata::PrintMetadata();
+
+    metadata << "Connected message pools : " << endl;
+    for (int i = 0; i < fMessagePools.size(); i++) {
+        metadata << fMessagePools[i]->name << ": (token: " << fPoolTokens[i] << ", shmid: " << fShmIds[i]
+                 << ", source: " << fPoolSources[i] << ")" << endl;
+    }
+    metadata << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    metadata << endl;
+    metadata << endl;
+}
