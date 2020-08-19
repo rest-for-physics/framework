@@ -1,70 +1,126 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestRawSignalChannelActivityProcess.cxx
-///
-///
-///             First implementation of raw signal analysis process into REST_v2
-///             Created from TRestRawSignalAnalysisProcess
-///             Date : feb/2017
-///             Author : J. Galan
-///
-///_______________________________________________________________________________
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
-#include <TLegend.h>
-#include <TPaveText.h>
-
+//////////////////////////////////////////////////////////////////////////
+/// The TRestRawSignalChannelActivityProcess allows to generate different
+/// histograms in order to monitor the times a channel has observed a signal
+/// under certain threshold and number of active channels conditions.
+///
+/// TODO. Write a more detailed documentation here
+///
+///--------------------------------------------------------------------------
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2020-August: First implementation of raw signal channel activity process.
+///              Cristina Margalejo
+///
+/// \class      TRestRawSignalChannelActivityProcess
+/// \author     Cristina Margalejo
+///
+/// <hr>
+///
 #include "TRestRawSignalChannelActivityProcess.h"
 using namespace std;
 
-//int rawCounter = 0;
-//int considerForMeanRate = 0;
-//int reject = 1;
+ClassImp(TRestRawSignalChannelActivityProcess);
 
-ClassImp(TRestRawSignalChannelActivityProcess)
-    //______________________________________________________________________________
-    TRestRawSignalChannelActivityProcess::TRestRawSignalChannelActivityProcess() {
-    Initialize();
-}
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestRawSignalChannelActivityProcess::TRestRawSignalChannelActivityProcess() { Initialize(); }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Constructor loading data from a config file
+///
+/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// The default behaviour is that the config file must be specified with
+/// full path, absolute or relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+///
 TRestRawSignalChannelActivityProcess::TRestRawSignalChannelActivityProcess(char* cfgFileName) {
     Initialize();
 
     if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Default destructor
+///
 TRestRawSignalChannelActivityProcess::~TRestRawSignalChannelActivityProcess() { delete fSignalEvent; }
 
+///////////////////////////////////////////////
+/// \brief Function to load the default config in absence of RML input
+///
 void TRestRawSignalChannelActivityProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Function to initialize input/output event members and define the
+/// section name
+///
 void TRestRawSignalChannelActivityProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fSignalEvent = new TRestRawSignalEvent();
 }
 
+///////////////////////////////////////////////
+/// \brief Function to load the configuration from an external configuration
+/// file.
+///
+/// If no configuration path is defined in TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param name The name of the specific metadata. It will be used to find the
+/// correspondig TRestGeant4AnalysisProcess section inside the RML.
+///
 void TRestRawSignalChannelActivityProcess::LoadConfig(std::string cfgFilename, std::string name) {
     if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Process initialization. The ROOT TH1 histograms are created here using
+/// the limits defined in the process metadata members.
+///
+/// The readout histograms will only be created in case an appropiate readout definition
+/// is found in the processing chain.
+///
 void TRestRawSignalChannelActivityProcess::InitProcess() {
     fReadout = GetMetadata<TRestReadout>();
 
-    info << "TRestRawSignalChannelActivityProcess::InitProcess. Readout pointer : " << fReadout << endl;
+    debug << "TRestRawSignalChannelActivityProcess::InitProcess. Readout pointer : " << fReadout << endl;
     if (GetVerboseLevel() >= REST_Info && fReadout) fReadout->PrintMetadata();
 
     if (!fReadOnly) {
-       // fDaqChannelsHisto = new TH1D("daqChannelActivity", "daqChannelActivity", fDaqHistogramChannels, 0,
-       //                              fDaqHistogramChannels);
-		//fDaqChannelsHisto = new TH1D( "daqChannelActivityRaw", "daqChannelActivity", 300, 4320, 4620 );
-        fDaqChannelsHisto = new TH1D( "daqChannelActivityRaw", "daqChannelActivity", fDaqHistogramChannels, fDaqStartChannel, fDaqEndChannel );
+        fDaqChannelsHisto = new TH1D("daqChannelActivityRaw", "daqChannelActivity", fDaqHistogramChannels,
+                                     fDaqStartChannel, fDaqEndChannel);
         if (fReadout) {
             fReadoutChannelsHisto_OneSignal =
                 new TH1D("rChannelActivityRaw_1", "readoutChannelActivity", fReadoutHistogramChannels, 0,
@@ -94,7 +150,9 @@ void TRestRawSignalChannelActivityProcess::InitProcess() {
     }
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief The main processing event function
+///
 TRestEvent* TRestRawSignalChannelActivityProcess::ProcessEvent(TRestEvent* evInput) {
     TString obsName;
 
@@ -154,15 +212,12 @@ TRestEvent* TRestRawSignalChannelActivityProcess::ProcessEvent(TRestEvent* evInp
     return fSignalEvent;
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Function to include required actions after all events have been
+/// processed. In this process it will take care of writting the histograms
+/// to disk.
+///
 void TRestRawSignalChannelActivityProcess::EndProcess() {
-    // Function to be executed once at the end of the process
-    // (after all events have been processed)
-
-    // Start by calling the EndProcess function of the abstract class.
-    // Comment this if you don't want it.
-    // TRestEventProcess::EndProcess();
-
     if (!fReadOnly) {
         fDaqChannelsHisto->Write();
         if (fReadout) {
@@ -179,7 +234,10 @@ void TRestRawSignalChannelActivityProcess::EndProcess() {
     }
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Function to read input parameters from the RML
+/// TRestRawSignalChannelActivityProcess metadata section
+///
 void TRestRawSignalChannelActivityProcess::InitFromConfigFile() {
     fLowThreshold = StringToDouble(GetParameter("lowThreshold", "25"));
     fHighThreshold = StringToDouble(GetParameter("highThreshold", "50"));
@@ -189,3 +247,4 @@ void TRestRawSignalChannelActivityProcess::InitFromConfigFile() {
     fDaqEndChannel = StringToInteger(GetParameter("daqEndCh", "4620"));
     fReadoutHistogramChannels = StringToInteger(GetParameter("readoutChannels", "128"));
 }
+
