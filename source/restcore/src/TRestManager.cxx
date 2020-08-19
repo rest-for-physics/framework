@@ -168,7 +168,7 @@ void TRestManager::InitFromTask(string taskName, vector<string> arguments) {
 ///////////////////////////////////////////////
 /// \brief Get the application metadata class, according to the type
 ///
-TRestMetadata* TRestManager::GetApplication(string type) {
+TRestMetadata* TRestManager::GetMetadataClass(string type) {
     for (int i = 0; i < fMetaObjects.size(); i++) {
         if ((string)fMetaObjects[i]->ClassName() == type) {
             return fMetaObjects[i];
@@ -180,7 +180,7 @@ TRestMetadata* TRestManager::GetApplication(string type) {
 ///////////////////////////////////////////////
 /// \brief Get the application metadata class, according to the name
 ///
-TRestMetadata* TRestManager::GetApplicationWithName(string name) {
+TRestMetadata* TRestManager::GetMetadata(string name) {
     for (int i = 0; i < fMetaObjects.size(); i++) {
         if (fMetaObjects[i]->GetName() == name) {
             return fMetaObjects[i];
