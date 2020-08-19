@@ -58,8 +58,10 @@ void TRestAnalysisPlot::InitFromConfigFile() {
         fRun->SetHistoricMetadataSaving(false);
         string defaultFileName = "/tmp/restplot_" + REST_USER + ".root";
         string outputname = GetParameter("outputFile", defaultFileName);
-        fRun->SetOutputFileName(outputname);
-        fRun->FormOutputFile();
+        if (outputname != "null" && outputname != "/dev/null") {
+            fRun->SetOutputFileName(outputname);
+            fRun->FormOutputFile();
+        }
     }
 
     TiXmlElement* ele = fElement->FirstChildElement("addFile");
@@ -74,8 +76,8 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     if (fNFiles == 0) AddFileFromEnv();
 
     if (fNFiles == 0) {
-        ferr << "TRestAnalysisPlot: No input files are added!" << endl;
-        exit(1);
+        warning << "TRestAnalysisPlot: No input files are added!" << endl;
+        //exit(1);
     }
 
 #pragma region ReadLabels
