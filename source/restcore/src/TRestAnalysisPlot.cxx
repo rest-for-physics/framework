@@ -498,6 +498,12 @@ void TRestAnalysisPlot::AddFile(TString fileName) {
     fNFiles++;
 }
 
+void TRestAnalysisPlot::SetFile(TString fileName) {
+    fRunInputFileName.clear();
+    fRunInputFileName = Vector_cast<string, TString>(TRestTools::GetFilesMatchingPattern((string)fileName));
+    fNFiles = fRunInputFileName.size();
+}
+
 // we can add input file from process's output file
 void TRestAnalysisPlot::AddFileFromExternalRun() {
     if (fRun != NULL && fNFiles == 0) {

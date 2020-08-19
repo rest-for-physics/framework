@@ -130,7 +130,7 @@ class TRestAnalysisPlot : public TRestMetadata {
     Long64_t fDrawFirstEntry;                //!
 #endif
 
-    void AddFile(TString fileName);
+
     void AddFileFromExternalRun();
     void AddFileFromEnv();
 
@@ -143,6 +143,9 @@ class TRestAnalysisPlot : public TRestMetadata {
     void Initialize() override;
 
     void PrintMetadata() override {}
+
+        void AddFile(TString fileName);
+    void SetFile(TString fileName);
 
     void SaveCanvasToPDF(TString fileName);
     void SavePlotToPDF(TString fileName, Int_t n = 0);
