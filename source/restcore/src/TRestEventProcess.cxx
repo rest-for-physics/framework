@@ -226,6 +226,8 @@ Int_t TRestEventProcess::LoadSectionMetadata() {
 TRestMetadata* TRestEventProcess::GetMetadata(string name) {
     TRestMetadata* m = fRunInfo->GetMetadata(name);
     if (m == NULL) m = fRunInfo->GetMetadataClass(name);
+    if (m == NULL) m = fHostmgr->GetMetadata(name);
+    if (m == NULL) m = fHostmgr->GetMetadataClass(name);
     return m;
 }
 
