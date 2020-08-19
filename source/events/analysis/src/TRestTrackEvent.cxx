@@ -605,7 +605,7 @@ TPad* TRestTrackEvent::DrawEvent(TString option) {
                 if (tckYZ == 0) nTckYZ++;
                 fYZTrack[nTckYZ - 1].SetPoint(tckYZ, y, z);
                 if (isTopLevel) drawLinesYZ[nTckYZ - 1] = 1;
-                fYZHit[countYZ].SetPoint(countYZ, y, z);
+                fYZHit[countYZ].SetPoint(0, y, z);
 
                 if (!isTopLevel)
                     fYZHit[countYZ].SetMarkerColor(level + 11);
