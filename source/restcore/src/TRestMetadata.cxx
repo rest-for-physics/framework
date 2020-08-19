@@ -314,8 +314,8 @@
 /// ### If definition
 ///
 /// It is supported in rml to use <if structure. If the condition matches, the inner
-/// sections of <if section will be expaned to and seen by the parent section. 
-/// This helps to identify different use cases of the rml. For example: 
+/// sections of <if section will be expaned to and seen by the parent section.
+/// This helps to identify different use cases of the rml. For example:
 ///
 /// \code
 /// <TRestXXX>
@@ -333,12 +333,12 @@
 /// the right side of it. In incomplete case, the left side shall be expressed by "evaluate",
 /// which is a shell command to be executed.
 ///
-/// In the example, if the home directory is "/home/nkx", the process "TRestSignalZeroSuppresionProcess" 
-/// will be added. If the date is larger than 2019-08-21, the process "TRestSignalToHitsProcess" 
+/// In the example, if the home directory is "/home/nkx", the process "TRestSignalZeroSuppresionProcess"
+/// will be added. If the date is larger than 2019-08-21, the process "TRestSignalToHitsProcess"
 /// will be added.
 ///
 /// Condition markers supports: `==`, `!=`, `>`, `<`, `<=`, `>=`. Its better to escape the ">", "<" markers.
-/// Note that those markers are also valid for strings. If the two sides of the expression 
+/// Note that those markers are also valid for strings. If the two sides of the expression
 /// are not numbers, REST will perform string comparasion. The ordering is according to the alphabet.
 /// A common misleading fact is that "1235">"12345", rather than 1235<12345 as number.
 ///
@@ -1049,7 +1049,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     string filename;
     if (string(_filename) == "server") {
         // Let TRestRun to retrieve data according to run number later-on
-        if ((string)this->ClassName() == "TRestRun") return;
+        if ((string) this->ClassName() == "TRestRun") return;
 
         // match the database, runNumber=0(default data), type="META_RML", tag=<section name>
         auto url = gDataBase->query_data(DBEntry(0, "META_RML", e->Value())).value;
@@ -1085,9 +1085,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL
-                    ? false
-                    : ((string)localele->Attribute("expanded") == "true")) {
+            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+                                                                   "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1120,9 +1119,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL
-                    ? false
-                    : ((string)localele->Attribute("expanded") == "true")) {
+            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+                                                                   "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }

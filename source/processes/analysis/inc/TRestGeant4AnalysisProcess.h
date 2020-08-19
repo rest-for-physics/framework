@@ -25,47 +25,37 @@
 
 #include <TRestG4Event.h>
 #include <TRestG4Metadata.h>
-#include <TRestGas.h>
-#include <TRestHitsEvent.h>
 
 #include "TRestEventProcess.h"
 
-//! A generic analysis REST process to extract valuable information from a
-//! *Geant4* simulation produced by *restG4*.
+//! A pure analysis process to extract information from a TRestG4Event
 class TRestGeant4AnalysisProcess : public TRestEventProcess {
    private:
-#ifndef __CINT__
     /// A pointer to the specific TRestG4Event input
     TRestG4Event* fInputG4Event;  //!
 
     /// A pointer to the specific TRestG4Event output
     TRestG4Event* fOutputG4Event;  //!
 
-    /// A pointer to the simulation metadata information stored under
-    /// TRestG4Metadata
+    /// A pointer to the simulation metadata information accessible to TRestRun
     TRestG4Metadata* fG4Metadata;  //!
 
-    /// A vector storing the name of observables (xxxVolumeEDep) related to energy
-    /// deposition in a particular active volume.
+    /// It stores the name of observables `xxxVolumeEDep` related to the energy deposition in volume `xxx`.
     std::vector<std::string> fEnergyInObservables;  //!
 
-    /// A vector storing the active volume ids of observables (xxxVolumeEDep)
-    /// related to energy deposition in a particular active volume.
+    /// A vector storing the active volume ids of observables `xxxVolumeEDep`.
     std::vector<Int_t> fVolumeID;  //!
 
-    /// A vector storing the name of observables (xxxMeanPosX,Y,Z) related to mean
-    /// hits position in a particular active volume.
+    /// It stores the name of observables (xxxMeanPosX,Y,Z) related to mean hits position in volume `xxx`.
     std::vector<std::string> fMeanPosObservables;  //!
 
-    /// A vector storing the active volume ids corresponding mean position
-    /// observable (xxxMeanPosX,Y,Z).
+    /// A vector storing the active volume ids corresponding mean position observable `xxxMeanPosX,Y,Z`.
     std::vector<Int_t> fVolumeID2;  //!
 
-    /// A vector storing the direction X,Y or Z from corresponding mean position
-    /// observable (xxxMeanPosX,Y,Z).
-    std::vector<std::string> fDirID;               //!
-                                                   /// A vector storing the name of observables  related to
-                                                   /// processes in a particular active volume.
+    /// A vector storing the direction X,Y or Z from corresponding mean position observable `xxxMeanPosX,Y,Z`.
+    std::vector<std::string> fDirID;  //!
+
+    /// A vector storing the name of observables  related to processes in a particular active volume.
     std::vector<std::string> fProcessObservables;  //!
 
     /// A vector storing the active volume ids corresponding process observable .
@@ -73,29 +63,26 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
 
     /// A vector storing the name of processes.
     std::vector<std::string> fProcessName;  //!
-    /// A vector storing the name of observables (xxxTrackCounter) related to the
-    /// number of tracks of the given particle name.
+
+    /// A vector storing the observable name `xxxTracksCounter` for a given `xxx` particle.
     std::vector<std::string> fTrackCounterObservables;  //!
 
-    /// A vector storing the name of the particle related to the track counter
-    /// observable (xxxTrackCounter).
+    /// A vector storing the `xxx` particle name extracted from `xxxTracksCounter`.
     std::vector<std::string> fParticleTrackCounter;  //!
 
-    /// A vector storing the name of observables (xxxTrackEdep) related to the
-    /// energy deposited by the given particle name.
+    /// A vector storing the observable name `xxxTracksEDep` for a given `xxx` particle.
     std::vector<std::string> fTracksEDepObservables;  //!
 
-    /// A vector storing the name of the particle related to the track energy
-    /// observable (xxxTrackEDep).
+    /// A vector storing the `xxx` particle name extracted from `xxxTracksEDep`.
     std::vector<std::string> fParticleTrackEdep;  //!
 
-#endif
-    /// A low energy cut applied to input geant4 events. Events below the
-    /// threshold will be not further processed.
+    // TODO these two thresholds should become OBSOLETE. We must use now the more generic
+    // way ApplyCut() with the <cut ...> definition at the RML process definition.
+
+    /// A low energy cut. Events below the threshold will be not further processed.
     Double_t fLowEnergyCut;
 
-    /// A high energy cut applied to input geant4 events. Events above the
-    /// threshold will be not further processed.
+    /// A high energy cut. Events above the threshold will be not further processed.
     Double_t fHighEnergyCut;
 
     Bool_t fPerProcessSensitiveEnergy = false;

@@ -123,11 +123,9 @@
 #include "TRestHitsAnalysisProcess.h"
 using namespace std;
 
-ClassImp(TRestHitsAnalysisProcess)
-    //______________________________________________________________________________
-    TRestHitsAnalysisProcess::TRestHitsAnalysisProcess() {
-    Initialize();
-}
+ClassImp(TRestHitsAnalysisProcess);
+//______________________________________________________________________________
+TRestHitsAnalysisProcess::TRestHitsAnalysisProcess() { Initialize(); }
 
 //______________________________________________________________________________
 TRestHitsAnalysisProcess::TRestHitsAnalysisProcess(char* cfgFileName) {

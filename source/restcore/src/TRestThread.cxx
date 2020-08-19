@@ -154,7 +154,7 @@ bool TRestThread::TestRun(TRestAnalysisTree* tempTree) {
 
             if (fThreadId == 0) fProcessChain[j]->EnableObservableValidation();
 
-            //if (GetVerboseLevel() >= REST_Info) fProcessChain[j]->PrintMetadata();
+            // if (GetVerboseLevel() >= REST_Info) fProcessChain[j]->PrintMetadata();
 
             fProcessChain[j]->BeginOfEventProcess(ProcessedEvent);
             fProcessChain[j]->ProcessEvent(ProcessedEvent);
