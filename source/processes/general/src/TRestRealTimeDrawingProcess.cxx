@@ -209,6 +209,7 @@ void TRestRealTimeDrawingProcess::DrawWithNotification() {
         // consmue the message, remove it out of the message pool
         string message = messager->ConsumeMessage();
         if (message != "") {
+            info << "Recieveing message: " << message << endl;
             if (TRestTools::fileExists(message) && TRestTools::isRootFile(message)) {
                 TRestRun* run = new TRestRun(message);
                 int _runNumber = run->GetRunNumber();
@@ -221,6 +222,9 @@ void TRestRealTimeDrawingProcess::DrawWithNotification() {
                 } else {
                     // if the runnumber does not match, we put this message back to pool
                     // maybe other processes need it
+                    warning << "file: " << message << endl;
+                    warning << "It is not the file we wanted! runNumber in file: " << _runNumber
+                            << ", run we are processing: " << runNumber << endl;
                     messager->SendMessage("", message);
                 }
             }
