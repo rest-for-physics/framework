@@ -64,7 +64,7 @@ class TRestRealTimeDrawingProcess : public TRestEventProcess {
     void PrintMetadata();
 
     /// Returns a new instance of this class
-    TRestEventProcess* Maker() { return new TRestRealTimeDrawingProcess; }
+    void DrawWithNotification();
 
     /// Returns the name of this process
     TString GetProcessName() { return (TString) "realtimedraw"; }

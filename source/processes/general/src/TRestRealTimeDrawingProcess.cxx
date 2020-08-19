@@ -80,6 +80,8 @@
 /// <hr>
 ///
 #include "TRestRealTimeDrawingProcess.h"
+#include "TRestMessagerAndReciever.h"
+
 using namespace std;
 
 ClassImp(TRestRealTimeDrawingProcess);
@@ -194,6 +196,39 @@ void TRestRealTimeDrawingProcess::EndProcess() {
     }
 }
 
+
+void TRestRealTimeDrawingProcess::DrawWithNotification() {
+    auto messager = GetMetadata<TRestMessagerAndReciever>();
+    int runNumber = StringToInteger(GetParameter("runNumber"));
+    if (runNumber == -1) {
+        ferr << "TRestRealTimeDrawingProcess::DrawWithNotification: runNumber must be given!" << endl;
+        ferr << "consider adding \"--d xx\" in restManager command" << endl;
+        abort();
+    }
+    while (true) {
+        // consmue the message, remove it out of the message pool
+        string message = messager->ConsumeMessage();
+        if (message != "") {
+            if (TRestTools::fileExists(message) && TRestTools::isRootFile(message)) {
+                TRestRun* run = new TRestRun(message);
+                int _runNumber = run->GetRunNumber();
+                delete run;
+                if (_runNumber == runNumber) {
+                    for (int i = 0; i < fPlots.size(); i++) {
+                        fPlots[i]->SetFile(message);
+                        fPlots[i]->PlotCombinedCanvas();
+                    }
+                } else {
+                    // if the runnumber does not match, we put this message back to pool
+                    // maybe other processes need it
+                    messager->SendMessage("", message);
+                }
+            }
+        }
+        usleep(1000);
+    }
+}
+
 ///////////////////////////////////////////////
 /// \brief Function reading input parameters from the RML
 /// TRestRealTimeDrawingProcess section
@@ -215,6 +250,8 @@ void TRestRealTimeDrawingProcess::InitFromConfigFile() {
         }
     }
 }
+
+
 
 ///////////////////////////////////////////////
 /// \brief It prints out the process parameters stored in the
