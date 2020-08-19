@@ -52,7 +52,7 @@ void TRestMessagerAndReciever::InitFromConfigFile() {
         }
 
         bool created = false;
-        int shmid = shmget(key, sizeof(messagepool), SHMFLAG_OPEN);
+        int shmid = shmget(key, sizeof(messagepool_t), SHMFLAG_OPEN);
         if (fMode == MessagePool_Host) {
             if (shmid == -1) {
                 shmid = shmget(key, 30000, SHMFLAG_CREATEUNIQUE);
@@ -89,7 +89,7 @@ void TRestMessagerAndReciever::InitFromConfigFile() {
             }
         }
 
-        messagepool* message = (messagepool*)shmat(shmid, NULL, 0);
+        messagepool_t* message = (messagepool_t*)shmat(shmid, NULL, 0);
         if (message == NULL) {
             printf("shmat error\n");
             poolele = poolele->NextSiblingElement("pool");
@@ -112,7 +112,7 @@ void TRestMessagerAndReciever::InitFromConfigFile() {
     }
 }
 
-bool TRestMessagerAndReciever::lock(messagepool* pool, int timeoutMs) {
+bool TRestMessagerAndReciever::lock(messagepool_t* pool, int timeoutMs) {
     int i = 0;
     while (pool->owner != NULL && pool->owner != (void*)this) {
         usleep(1000);
@@ -127,7 +127,7 @@ bool TRestMessagerAndReciever::lock(messagepool* pool, int timeoutMs) {
     return true;
 }
 
-bool TRestMessagerAndReciever::unlock(messagepool* pool, int timeoutMs) {
+bool TRestMessagerAndReciever::unlock(messagepool_t* pool, int timeoutMs) {
     int i = 0;
     while (pool->owner != NULL && pool->owner != (void*)this) {
         usleep(1000);
@@ -164,18 +164,20 @@ void TRestMessagerAndReciever::AddPool(string message, int poolid) {
         return;
     }
 
-    messagepool* pool = fMessagePools[poolid];
+    messagepool_t* pool = fMessagePools[poolid];
     if (!lock(pool)) {
         warning << "cannot add message to pool: " << poolid << ": lock failed!" << endl;
         return;
     }
 
-    int pos = pool->currentPos + 1;
-    if (pos >= Nmsg) {
-        pos -= Nmsg;
+    int pos = pool->RequirePos();
+    if (pos !=-1) {
+        messagepool_t::message_t msg;
+        msg.provider = this;
+        strcpy(msg.content, message.c_str());
+        memcpy(&pool->messages[pos], &msg, sizeof(msg));
     }
-    strcpy(pool->messages[pos], message.c_str());
-    pool->currentPos = pos;
+
 
     unlock(pool);
 }
@@ -236,15 +238,12 @@ vector<string> TRestMessagerAndReciever::ShowMessagePool(string poolName) {
         return result;
     }
 
-    int pos = fMessagePools[id]->currentPos;
     for (int i = 0; i < Nmsg; i++) {
-        string msg = string(fMessagePools[id]->messages[pos]);
-        if (msg != "") {
-            result.push_back(msg);
-        }
-        pos--;
-        if (pos < 0) {
-            pos += Nmsg;
+        if (!fMessagePools[id]->messages[i].IsEmpty()) {
+            string msg = string(fMessagePools[id]->messages[i].content);
+            if (msg != "") {
+                result.push_back(msg);
+            }
         }
     }
 
@@ -269,17 +268,22 @@ string TRestMessagerAndReciever::ConsumeMessage(string poolName) {
         return "";
     }
 
-    int pos = fMessagePools[id]->currentPos;
-    string a = string(fMessagePools[id]->messages[pos]);
-
-    // clear this message
-    if (a != "") {
-        fMessagePools[id]->messages[pos][0] = 0;
-        fMessagePools[id]->currentPos -= 1;
+    string msg = "";
+    for (int i = 0; i < Nmsg; i++) {
+        if (!fMessagePools[id]->messages[i].IsEmpty()) {
+            // the process shall not consume the message provided by itself
+            if (fMessagePools[id]->messages[i].provider != this) {
+                // form the message
+                msg = string(fMessagePools[id]->messages[i].content);
+                // clear this message because it will be consumed
+                fMessagePools[id]->messages[i].Reset();
+                break;
+            }
+        }
     }
 
     unlock(fMessagePools[id]);
-    return a;
+    return msg;
 }
 
 void TRestMessagerAndReciever::Initialize() {
