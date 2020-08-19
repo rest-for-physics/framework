@@ -167,6 +167,7 @@
 
 #include <TLegend.h>
 #include <TPaveText.h>
+#include "TRestDataBase.h"
 
 #include "TRestRawSignalAnalysisProcess.h"
 using namespace std;
@@ -242,6 +243,11 @@ void TRestRawSignalAnalysisProcess::LoadConfig(std::string cfgFilename, std::str
 ///
 void TRestRawSignalAnalysisProcess::InitProcess() {
     // fSignalAnalysisObservables = TRestEventProcess::ReadObservables();
+    if (fRunInfo->GetStartTimestamp() != 0) {
+        fFirstEventTime = fRunInfo->GetStartTimestamp();
+    } else {
+        fFirstEventTime = -1;
+    }
 }
 
 ///////////////////////////////////////////////
