@@ -89,9 +89,9 @@ class TRestMessagerAndReciever : public TRestMetadata {
    public:
     virtual void SendMessage(string poolName = "", string message = "");
 
-    virtual vector<string> ShowMessagePool(string poolName);
+    virtual vector<string> ShowMessagePool(string poolName = "");
 
-    virtual string ReadMessage(string poolName);
+    virtual string ConsumeMessage(string poolName = "");
 
     virtual void PrintMetadata();
     // Constructor

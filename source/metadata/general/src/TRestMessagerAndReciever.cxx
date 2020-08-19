@@ -220,7 +220,12 @@ void TRestMessagerAndReciever::SendMessage(string poolName, string message) {
 vector<string> TRestMessagerAndReciever::ShowMessagePool(string poolName) {
     vector<string> result;
 
-    int id = GetPoolId(poolName);
+    int id;
+    if (poolName == "" && fMessagePools.size() > 0) {
+        id = 0;
+    } else {
+        id = GetPoolId(poolName);
+    }
     if (id == -1) {
         warning << "cannot find message pool with name: " << poolName << endl;
         return result;
@@ -247,8 +252,13 @@ vector<string> TRestMessagerAndReciever::ShowMessagePool(string poolName) {
     return result;
 }
 
-string TRestMessagerAndReciever::ReadMessage(string poolName) {
-    int id = GetPoolId(poolName);
+string TRestMessagerAndReciever::ConsumeMessage(string poolName) {
+    int id;
+    if (poolName == "" && fMessagePools.size() > 0) {
+        id = 0;
+    } else {
+        id = GetPoolId(poolName);
+    }
     if (id == -1) {
         warning << "cannot find message pool with name: " << poolName << endl;
         return "";
@@ -259,7 +269,14 @@ string TRestMessagerAndReciever::ReadMessage(string poolName) {
         return "";
     }
 
-    string a = string(fMessagePools[id]->messages[fMessagePools[id]->currentPos]);
+    int pos = fMessagePools[id]->currentPos;
+    string a = string(fMessagePools[id]->messages[pos]);
+
+    // clear this message
+    if (a != "") {
+        fMessagePools[id]->messages[pos][0] = 0;
+        fMessagePools[id]->currentPos -= 1;
+    }
 
     unlock(fMessagePools[id]);
     return a;
