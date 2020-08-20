@@ -27,16 +27,16 @@
 #include "TRestRun.h"
 
 // This metadata helps to recieve/dispatch messages across processes(UNIX process)
-// For example, we start two restManager with TRestMessagerAndReciever, 
+// For example, we start two restManager with TRestMessagerAndReciever,
 // one under dispatch mode and one under recieve mode. For the dispatching one,
-// we add a message task after processEvent task. Then, when the process 
-// chain finishes, it will dispatch the message, e.g., the output file name. 
+// we add a message task after processEvent task. Then, when the process
+// chain finishes, it will dispatch the message, e.g., the output file name.
 // the recieving one will get the message and do some drawings to the output file
 //
 // Can be overridden by REST packages
 class TRestMessagerAndReciever : public TRestMetadata {
    private:
-    /////////////// through shm  //////////////
+/////////////// through shm  //////////////
 #define Nmsg 100
 #define MsgLength 256
     struct messagepool_t {
@@ -72,20 +72,17 @@ class TRestMessagerAndReciever : public TRestMetadata {
             return -1;
         }
     };
-    vector<int> fShmIds;                 //!
-    vector<messagepool_t*> fMessagePools;                   //!
+    vector<int> fShmIds;                   //!
+    vector<messagepool_t*> fMessagePools;  //!
 
    protected:
     enum CommMode { MessagePool_Host, MessagePool_Client, MessagePool_Auto };
 
-    TRestRun* fRun; //!
+    TRestRun* fRun;  //!
 
-    CommMode fMode;  
-    vector<string> fPoolTokens; // to establish communication  
+    CommMode fMode;
+    vector<string> fPoolTokens;   // to establish communication
     vector<string> fPoolSources;  // describes the source of message to be send. e.g. OUTPUTFILE, RUNNUMBER
-
-
-
 
     virtual void InitFromConfigFile();
 
@@ -96,7 +93,7 @@ class TRestMessagerAndReciever : public TRestMetadata {
     virtual void AddPool(string message, string poolName);
 
     bool lock(messagepool_t* pool, int timeoutMs = 1000);
-    
+
     bool unlock(messagepool_t* pool, int timeoutMs = 1000);
 
     int GetPoolId(string poolName);
@@ -115,6 +112,6 @@ class TRestMessagerAndReciever : public TRestMetadata {
     ~TRestMessagerAndReciever();
 
     ClassDef(TRestMessagerAndReciever, 1);  // Template for a REST "event process" class inherited from
-                                         // TRestEventProcess
+                                            // TRestEventProcess
 };
 #endif

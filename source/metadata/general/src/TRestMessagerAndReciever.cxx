@@ -13,7 +13,7 @@ ClassImp(TRestMessagerAndReciever);
 //______________________________________________________________________________
 TRestMessagerAndReciever::TRestMessagerAndReciever() { Initialize(); }
 
-TRestMessagerAndReciever ::~TRestMessagerAndReciever() {
+TRestMessagerAndReciever::~TRestMessagerAndReciever() {
     // clear the shared memories
     for (int i = 0; i < fMessagePools.size(); i++) {
         shmdt(fMessagePools[i]);
@@ -171,13 +171,12 @@ void TRestMessagerAndReciever::AddPool(string message, int poolid) {
     }
 
     int pos = pool->RequirePos();
-    if (pos !=-1) {
+    if (pos != -1) {
         messagepool_t::message_t msg;
         msg.provider = this;
         strcpy(msg.content, message.c_str());
         memcpy(&pool->messages[pos], &msg, sizeof(msg));
     }
-
 
     unlock(pool);
 }

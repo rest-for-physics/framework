@@ -101,8 +101,6 @@ void TRestMultiCoBoAsAdToSignalProcess::InitProcess() {
     }
 
     totalBytesReaded = 0;
-
-
 }
 
 TRestEvent* TRestMultiCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent* evInput) {

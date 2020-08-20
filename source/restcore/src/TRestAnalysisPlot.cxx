@@ -77,7 +77,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 
     if (fNFiles == 0) {
         warning << "TRestAnalysisPlot: No input files are added!" << endl;
-        //exit(1);
+        // exit(1);
     }
 
 #pragma region ReadLabels

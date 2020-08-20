@@ -247,4 +247,3 @@ void TRestRawSignalChannelActivityProcess::InitFromConfigFile() {
     fDaqEndChannel = StringToInteger(GetParameter("daqEndCh", "4620"));
     fReadoutHistogramChannels = StringToInteger(GetParameter("readoutChannels", "128"));
 }
-

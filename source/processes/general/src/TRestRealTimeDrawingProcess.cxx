@@ -196,7 +196,6 @@ void TRestRealTimeDrawingProcess::EndProcess() {
     }
 }
 
-
 void TRestRealTimeDrawingProcess::DrawWithNotification() {
     auto messager = GetMetadata<TRestMessagerAndReciever>();
     int runNumber = StringToInteger(GetParameter("runNumber"));
@@ -254,8 +253,6 @@ void TRestRealTimeDrawingProcess::InitFromConfigFile() {
         }
     }
 }
-
-
 
 ///////////////////////////////////////////////
 /// \brief It prints out the process parameters stored in the
