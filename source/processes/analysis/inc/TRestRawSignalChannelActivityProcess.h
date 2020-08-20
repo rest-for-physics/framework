@@ -64,6 +64,12 @@ class TRestRawSignalChannelActivityProcess : public TRestEventProcess {
     /// The last channel at the daq channels histogram
     Int_t fDaqEndChannel;
 
+    /// The first channel at the readout channels histogram
+    Int_t fReadoutStartChannel;
+
+    /// The last channel at the readout channels histogram
+    Int_t fReadoutEndChannel;
+
     /// The daq channels histogram
     TH1D* fDaqChannelsHisto;  //!
 
@@ -113,6 +119,8 @@ class TRestRawSignalChannelActivityProcess : public TRestEventProcess {
         metadata << "End daq channel : " << fDaqEndChannel << endl;
 
         metadata << "Number of readout histogram channels : " << fReadoutHistogramChannels << endl;
+        metadata << "Start readout channel : " << fReadoutStartChannel << endl;
+        metadata << "End readout channel : " << fReadoutEndChannel << endl;
 
         EndPrintProcess();
     }
