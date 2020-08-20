@@ -1,4 +1,76 @@
-#include "TRestMessagerAndReciever.h"
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
+
+//////////////////////////////////////////////////////////////////////////
+/// TRestMessengerAndReceiver
+///
+/// This metadata helps to recieve/dispatch messages across processes(UNIX process)
+/// For example, we start two restManager with TRestMessengerAndReceiver added as metadata.
+/// For one of them, we add a "sendMessage" task after "processEvent". Then, when the process
+/// chain finishes, it will dispatch the message containing, e.g., the output file name.
+/// Then, the other restManager can get the message and be notified that the file is done.
+/// It can therefore do some operations to this file, e.g., add to TRestAnalysisPlot file list
+/// and update the plots.
+///
+/// By default it uses shared memory. Can be overridden by REST packages, adding more
+/// communication methods(http, kafka, etc.)
+///
+/// Messages handled by TRestMessengerAndReceiver is in different pools. Each message pool
+/// is limited with 100 messages. Each message is limited with 256 bytes. When sending 
+/// message, the message is added to the message pool. When receiving message, the logic 
+/// is more like "consuming": message is taken out from the pool and given to the specific 
+/// process. It will be erased after being consumed. TRestMessengerAndReceiver cannot consume 
+/// the message sent by self process.
+///
+/// The rml definition is like follows. We need to add serval <pool sections in its config
+/// section to define the message pools. The token of the pool is equivalent to the shm key,
+/// where two processes with a same token can access to a same memory.
+///
+/// ```
+/// <TRestManager name="CoBoDataAnalysis" title="Example" verboseLevel="info" >
+///   <TRestMessagerAndReciever name="Messager" title="Example" verboseLevel="info" >
+///     <pool name="chainfile" messageSource="outputfile" token="116027"/>
+///   </TRestMessagerAndReciever>
+///   <addTask command="Messager->SendMessage()" value="ON"/>
+/// </TRestManager>
+/// ```
+///
+///--------------------------------------------------------------------------
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2020-Aug:   First implementation and concept
+///             Ni Kaixiang
+///
+/// \class      TRestMessengerAndReceiver
+/// \author     Ni Kaixiang
+///
+/// <hr>
+///
+
+
+#include "TRestMessengerAndReceiver.h"
 
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -8,12 +80,12 @@
 #include "TRestProcessRunner.h"
 #include "TRestStringOutput.h"
 
-ClassImp(TRestMessagerAndReciever);
+ClassImp(TRestMessengerAndReceiver);
 
 //______________________________________________________________________________
-TRestMessagerAndReciever::TRestMessagerAndReciever() { Initialize(); }
+TRestMessengerAndReceiver::TRestMessengerAndReceiver() { Initialize(); }
 
-TRestMessagerAndReciever::~TRestMessagerAndReciever() {
+TRestMessengerAndReceiver::~TRestMessengerAndReceiver() {
     // clear the shared memories
     for (int i = 0; i < fMessagePools.size(); i++) {
         shmdt(fMessagePools[i]);
@@ -24,10 +96,10 @@ TRestMessagerAndReciever::~TRestMessagerAndReciever() {
 #define SHMFLAG_CREATEOROPEN (0640 | IPC_CREAT)
 #define SHMFLAG_OPEN (0640)
 
-// <TRestMessagerAndReciever mode="host">
+// <TRestMessengerAndReceiver mode="host">
 //    <pool name="chainfile" messageSource="outputfile" token="116027"/>
-// </TRestMessagerAndReciever>
-void TRestMessagerAndReciever::InitFromConfigFile() {
+// </TRestMessengerAndReceiver>
+void TRestMessengerAndReceiver::InitFromConfigFile() {
     fRun = fHostmgr != NULL ? fHostmgr->GetRunInfo() : NULL;
     string modestr = GetParameter("mode", "auto");
     if (ToUpper(modestr) == "HOST") {
@@ -57,21 +129,21 @@ void TRestMessagerAndReciever::InitFromConfigFile() {
             if (shmid == -1) {
                 shmid = shmget(key, 30000, SHMFLAG_CREATEUNIQUE);
                 if (shmid == -1) {
-                    warning << "TRestMessagerAndReciever: unknown error!" << endl;
+                    warning << "TRestMessengerAndReceiver: unknown error!" << endl;
                     poolele = poolele->NextSiblingElement("pool");
                     continue;
                 } else {
                     created = true;
                 }
             } else {
-                warning << "TRestMessagerAndReciever: shmget error!" << endl;
+                warning << "TRestMessengerAndReceiver: shmget error!" << endl;
                 warning << "Shared memory not deleted? type \"ipcrm -m " << shmid << "\" in the bash" << endl;
                 poolele = poolele->NextSiblingElement("pool");
                 continue;
             }
         } else if (fMode == MessagePool_Client) {
             if (shmid == -1) {
-                warning << "TRestMessagerAndReciever: shmget error!" << endl;
+                warning << "TRestMessengerAndReceiver: shmget error!" << endl;
                 warning << "Shared memory not initialized? Launch Host process first!" << endl;
                 poolele = poolele->NextSiblingElement("pool");
                 continue;
@@ -80,7 +152,7 @@ void TRestMessagerAndReciever::InitFromConfigFile() {
             if (shmid == -1) {
                 shmid = shmget(key, 30000, SHMFLAG_CREATEUNIQUE);
                 if (shmid == -1) {
-                    warning << "TRestMessagerAndReciever: unknown error!" << endl;
+                    warning << "TRestMessengerAndReceiver: unknown error!" << endl;
                     poolele = poolele->NextSiblingElement("pool");
                     continue;
                 } else {
@@ -112,7 +184,7 @@ void TRestMessagerAndReciever::InitFromConfigFile() {
     }
 }
 
-bool TRestMessagerAndReciever::lock(messagepool_t* pool, int timeoutMs) {
+bool TRestMessengerAndReceiver::lock(messagepool_t* pool, int timeoutMs) {
     int i = 0;
     while (pool->owner != NULL && pool->owner != (void*)this) {
         usleep(1000);
@@ -127,7 +199,7 @@ bool TRestMessagerAndReciever::lock(messagepool_t* pool, int timeoutMs) {
     return true;
 }
 
-bool TRestMessagerAndReciever::unlock(messagepool_t* pool, int timeoutMs) {
+bool TRestMessengerAndReceiver::unlock(messagepool_t* pool, int timeoutMs) {
     int i = 0;
     while (pool->owner != NULL && pool->owner != (void*)this) {
         usleep(1000);
@@ -143,7 +215,7 @@ bool TRestMessagerAndReciever::unlock(messagepool_t* pool, int timeoutMs) {
     return true;
 }
 
-int TRestMessagerAndReciever::GetPoolId(string poolName) {
+int TRestMessengerAndReceiver::GetPoolId(string poolName) {
     for (int i = 0; i < fMessagePools.size(); i++) {
         if (strcmp(fMessagePools[i]->name, poolName.c_str()) == 0) {
             return i;
@@ -152,7 +224,7 @@ int TRestMessagerAndReciever::GetPoolId(string poolName) {
     return -1;
 }
 
-void TRestMessagerAndReciever::AddPool(string message, int poolid) {
+void TRestMessengerAndReceiver::AddPool(string message, int poolid) {
     if (message.size() > MsgLength) {
         message = message.substr(0, MsgLength - 2);
     }
@@ -181,7 +253,7 @@ void TRestMessagerAndReciever::AddPool(string message, int poolid) {
     unlock(pool);
 }
 
-void TRestMessagerAndReciever::AddPool(string message, string poolName) {
+void TRestMessengerAndReceiver::AddPool(string message, string poolName) {
     int id = GetPoolId(poolName);
     if (id == -1) {
         warning << "cannot find message pool with name: " << poolName << endl;
@@ -190,7 +262,7 @@ void TRestMessagerAndReciever::AddPool(string message, string poolName) {
     AddPool(message, id);
 }
 
-void TRestMessagerAndReciever::SendMessage(string poolName, string message) {
+void TRestMessengerAndReceiver::SendMessage(string poolName, string message) {
     int id;
     if (poolName == "" && fMessagePools.size() > 0) {
         id = 0;
@@ -218,7 +290,7 @@ void TRestMessagerAndReciever::SendMessage(string poolName, string message) {
     AddPool(message, id);
 }
 
-vector<string> TRestMessagerAndReciever::ShowMessagePool(string poolName) {
+vector<string> TRestMessengerAndReceiver::ShowMessagePool(string poolName) {
     vector<string> result;
 
     int id;
@@ -250,7 +322,7 @@ vector<string> TRestMessagerAndReciever::ShowMessagePool(string poolName) {
     return result;
 }
 
-string TRestMessagerAndReciever::ConsumeMessage(string poolName) {
+string TRestMessengerAndReceiver::ConsumeMessage(string poolName) {
     int id;
     if (poolName == "" && fMessagePools.size() > 0) {
         id = 0;
@@ -285,12 +357,12 @@ string TRestMessagerAndReciever::ConsumeMessage(string poolName) {
     return msg;
 }
 
-void TRestMessagerAndReciever::Initialize() {
+void TRestMessengerAndReceiver::Initialize() {
     fRun = NULL;
     fMode = MessagePool_Auto;
 }
 
-void TRestMessagerAndReciever::PrintMetadata() {
+void TRestMessengerAndReceiver::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     metadata << "Connected message pools : " << endl;

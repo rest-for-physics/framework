@@ -20,21 +20,13 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestMessagerAndReciever
-#define RestCore_TRestMessagerAndReciever
+#ifndef RestCore_TRestMessengerAndReceiver
+#define RestCore_TRestMessengerAndReceiver
 
 #include "TRestMetadata.h"
 #include "TRestRun.h"
 
-// This metadata helps to recieve/dispatch messages across processes(UNIX process)
-// For example, we start two restManager with TRestMessagerAndReciever,
-// one under dispatch mode and one under recieve mode. For the dispatching one,
-// we add a message task after processEvent task. Then, when the process
-// chain finishes, it will dispatch the message, e.g., the output file name.
-// the recieving one will get the message and do some drawings to the output file
-//
-// Can be overridden by REST packages
-class TRestMessagerAndReciever : public TRestMetadata {
+class TRestMessengerAndReceiver : public TRestMetadata {
    private:
 /////////////// through shm  //////////////
 #define Nmsg 100
@@ -107,11 +99,11 @@ class TRestMessagerAndReciever : public TRestMetadata {
 
     virtual void PrintMetadata();
     // Constructor
-    TRestMessagerAndReciever();
+    TRestMessengerAndReceiver();
     // Destructor
-    ~TRestMessagerAndReciever();
+    ~TRestMessengerAndReceiver();
 
-    ClassDef(TRestMessagerAndReciever, 1);  // Template for a REST "event process" class inherited from
+    ClassDef(TRestMessengerAndReceiver, 1);  // Template for a REST "event process" class inherited from
                                             // TRestEventProcess
 };
 #endif
