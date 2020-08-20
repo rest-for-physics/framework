@@ -37,7 +37,7 @@ class TRestSignalToHitsProcess : public TRestEventProcess {
     void LoadDefaultConfig();
 
    protected:
-    Double_t fElectricField;  // V/cm
+    Double_t fElectricField;  // V/mm
     Double_t fGasPressure;    // atm
     Double_t fDriftVelocity;  // mm/us
 
