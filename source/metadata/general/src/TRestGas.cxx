@@ -1030,6 +1030,9 @@ Double_t TRestGas::GetDriftVelocity(Double_t E) {
         return 0;
     }
 
+    info << "Calling Garfield directly. Please be aware that the unit is different"
+         << "from REST standard unit. E is V/cm. The return is cm/us" << endl;
+
     Double_t vx, vy, vz;
     fGasMedium->ElectronVelocity(0., 0, -E, 0, 0, 0, vx, vy, vz);
     return vz * 1000.;
@@ -1055,6 +1058,9 @@ Double_t TRestGas::GetLongitudinalDiffusion(Double_t E) {
         debug << "-- Error : Gas file was not loaded!" << endl;
         return 0;
     }
+
+    info << "Calling Garfield directly. Please be aware that the unit is different"
+         << "from REST standard unit. E is V/cm. The return is cm^1/2" << endl;
 
     Double_t dl, dt;
     fGasMedium->ElectronDiffusion(0., 0, -E, 0, 0, 0, dl, dt);
@@ -1082,6 +1088,9 @@ Double_t TRestGas::GetTransversalDiffusion(Double_t E) {
         return 0;
     }
 
+    info << "Calling Garfield directly. Please be aware that the unit is different"
+         << "from REST standard unit. E is V/cm. The return is cm^1/2" << endl;
+
     Double_t dl, dt;
     fGasMedium->ElectronDiffusion(0., 0, -E, 0, 0, 0, dl, dt);
     return dt;
@@ -1108,6 +1117,9 @@ Double_t TRestGas::GetTownsendCoefficient(Double_t E) {
         return 0;
     }
 
+    info << "Calling Garfield directly. Please be aware that the unit is different"
+         << "from REST standard unit. E is V/cm. The return is V/cm" << endl;
+
     Double_t alpha;
     fGasMedium->ElectronTownsend(0., 0, -E, 0, 0, 0, alpha);
     return alpha;
@@ -1133,6 +1145,9 @@ Double_t TRestGas::GetAttachmentCoefficient(Double_t E) {
         debug << "-- Error : Gas file was not loaded!" << endl;
         return 0;
     }
+
+    info << "Calling Garfield directly. Please be aware that the unit is different"
+         << "from REST standard unit. E is V/cm. The return is V/cm" << endl;
 
     Double_t eta;
     fGasMedium->ElectronAttachment(0., 0, -E, 0, 0, 0, eta);
