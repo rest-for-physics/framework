@@ -80,7 +80,7 @@
 /// <hr>
 ///
 #include "TRestRealTimeDrawingProcess.h"
-#include "TRestMessagerAndReciever.h"
+#include "TRestMessengerAndReceiver.h"
 
 using namespace std;
 
@@ -197,7 +197,7 @@ void TRestRealTimeDrawingProcess::EndProcess() {
 }
 
 void TRestRealTimeDrawingProcess::DrawWithNotification() {
-    auto messager = GetMetadata<TRestMessagerAndReciever>();
+    auto messager = GetMetadata<TRestMessengerAndReceiver>();
     int runNumber = StringToInteger(GetParameter("runNumber"));
     if (runNumber == -1) {
         ferr << "TRestRealTimeDrawingProcess::DrawWithNotification: runNumber must be given!" << endl;
@@ -205,7 +205,7 @@ void TRestRealTimeDrawingProcess::DrawWithNotification() {
         abort();
     }
     while (true) {
-        // consmue the message, remove it out of the message pool
+        // consmue the message, take out from the message pool
         string message = messager->ConsumeMessage();
         if (message != "") {
             info << "Recieveing message: " << message << endl;
