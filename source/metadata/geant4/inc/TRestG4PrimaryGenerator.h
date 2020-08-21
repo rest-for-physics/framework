@@ -40,7 +40,7 @@ class TRestG4PrimaryGenerator : public TObject {
     // each entry --> one event template¡£
     // in restG4, we randomly pick the template from its entries and refresh
     // fSources
-    std::vector<TRestParticleCollection*> fParticleCollections;
+    std::vector<TRestParticleCollection*> fParticleCollections;  //!
 
    public:
     Int_t GetNumberOfCollections() { return fNCollections; }
@@ -63,6 +63,6 @@ class TRestG4PrimaryGenerator : public TObject {
     // Destructor
     virtual ~TRestG4PrimaryGenerator();
 
-    ClassDef(TRestG4PrimaryGenerator, 2);
+    ClassDef(TRestG4PrimaryGenerator, 3);
 };
 #endif
