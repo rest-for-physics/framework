@@ -30,7 +30,6 @@
     <parameter name="outputEvent" value="on"/>
 
     <addProcess type="TRestMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON"/>
-    <addProcess type="TRestBenchMarkProcess" name="bM" value="ON" observable="all"/>
     <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON">
       <parameter name="observable" value="all" />
       /// no need for explicit observable definition if we use "observable=all"
