@@ -35,10 +35,10 @@
 /// communication methods(http, kafka, etc.)
 ///
 /// Messages handled by TRestMessengerAndReceiver is in different pools. Each message pool
-/// is limited with 100 messages. Each message is limited with 256 bytes. When sending 
-/// message, the message is added to the message pool. When receiving message, the logic 
-/// is more like "consuming": message is taken out from the pool and given to the specific 
-/// process. It will be erased after being consumed. TRestMessengerAndReceiver cannot consume 
+/// is limited with 100 messages. Each message is limited with 256 bytes. When sending
+/// message, the message is added to the message pool. When receiving message, the logic
+/// is more like "consuming": message is taken out from the pool and given to the specific
+/// process. It will be erased after being consumed. TRestMessengerAndReceiver cannot consume
 /// the message sent by self process.
 ///
 /// The rml definition is like follows. We need to add serval <pool sections in its config
@@ -68,7 +68,6 @@
 ///
 /// <hr>
 ///
-
 
 #include "TRestMessengerAndReceiver.h"
 
