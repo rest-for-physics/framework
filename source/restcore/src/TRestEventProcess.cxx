@@ -287,8 +287,8 @@ bool TRestEventProcess::ApplyCut() {
                 return true;
             }
         }
-        return false;
     }
+    return false;
 }
 
 /*
