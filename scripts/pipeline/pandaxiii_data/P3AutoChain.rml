@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<!--In this example, when launching the analysis, we are doing following operations inside TRestManager:
+1. Initialize TRestRun
+1.1 set input and output file for TRestRun(here input and output is in "globals")
+1.2 addMetadata to TRestRun
+2. Initialize TRestProcessRunner
+2.1 set number of events to process
+2.2 set thread number
+2.3 set output tree branches
+2.4 add multiple processes
+2.4.1 override some parameters in the process
+2.4.1 add additional observables in the process
+3. Add a task to call TRestProcessRunner to run
+-->
+
+<TRestManager name="CoBoDataAnalysis" title="Example" verboseLevel="info" >
+
+  <TRestRun name="SJTU_Proto" >
+    <parameter name="runNumber" value="auto"/>//change this value to "auto" to enable database
+    <parameter name="inputFile" value="auto" />
+  </TRestRun>
+
+  <TRestProcessRunner name="Processor" verboseLevel="info">
+    <parameter name="eventsToProcess" value="0" />
+    <parameter name="threadNumber" value="2"/>
+
+    <parameter name="inputAnalysis" value="on"/>
+    <parameter name="inputEvent" value="off"/>
+    <parameter name="outputEvent" value="on"/>
+
+    <addProcess type="TRestMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON"/>
+    <addProcess type="TRestBenchMarkProcess" name="bM" value="ON" observable="all"/>
+    <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON">
+      <parameter name="observable" value="all" />
+      /// no need for explicit observable definition if we use "observable=all"
+      <!--<observable name="baseline" value="ON" />
+      <observable name="SecondsFromStart" value="ON" />
+      <observable name="ThresholdIntegral" value="ON" />-->
+    </addProcess>
+    <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" sampling="0.2us"/> 5MHz sampling
+
+    <addProcess type="TRestRealTimeDrawingProcess" name="rD" value="ON" drawInterval="1000" >
+      <TRestAnalysisPlot name="TriggerRatePlot"  previewPlot="false">
+        <canvas size="(1000,800)" save="TriggerRate.png"/>
+        <plot name="TriggerRate" title="Trigger Rate" xlabel="Seconds From Start" ylabel="Counts" value="ON" stats="ON">
+          <variable name="sAna_SecondsFromStart" range="auto" nbins="100" />
+        </plot>
+      </TRestAnalysisPlot>
+    </addProcess>
+
+
+  </TRestProcessRunner>
+
+  <addTask type="processEvents" value="ON"/>
+
+
+  <globals>
+    <searchPath value="$ENV{REST_INPUTDATA}/definitions/"/>
+    <parameter name="mainDataPath" value="" />
+
+    <parameter name="pointThreshold" value="3" />
+    <parameter name="pointsOverThreshold" value="3" />
+  </globals>
+
+</TRestManager>
+
+
+<!--paramater here is accessible to all the classes-->
+
+

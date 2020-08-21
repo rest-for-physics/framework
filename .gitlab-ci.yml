@@ -151,10 +151,10 @@ trexDM_data:
     - restManager --c 01_raw.rml --f data.aqs
     - restManager --c 02_signal.rml --f RawData.root
     - restManager --c 03_hits.rml --f Signals.root
-    - restRoot -b -q MakeBasicTree.C
+    - restRoot -b -q ../MakeBasicTree.C'("Hits.root")'
     - rm RawData.root
     - rm Signals.root
-    - root -b -q ${CI_PROJECT_DIR}/scripts/pipeline/trex/ValidateTrees.C
+    - root -b -q ../ValidateTrees.C
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/scripts/pipeline/trex/results.root
@@ -168,13 +168,29 @@ pandaXIII_MC:
   type: restManager_process
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii
+    - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC
     - restG4 Xe136bb0n.rml
     - restRoot -b -q ValidateG4.C'("Xe136bb0n_n2E06.root")'
     - restManager --c AllProcesses.rml --i testInput.root --o testOutput.root --j 1
-    - restRoot -b -q MakeBasicTree.C'("testOutput.root")'
-    - restRoot -b -q ValidateTrees.C
-    - restManager --c plots.rml --i Xe136bb0n_Process.root
+    - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
+    - restRoot -b -q ../ValidateTrees.C
+    - restManager --c plots.rml --i testOutput.root
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii/trackParameter.pdf
+    expire_in: 1 week
+  except:
+      variables:
+        - $CRONJOB
+
+pandaXIII_data: 
+  type: restManager_process
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_data
+    - restManager --c P3AutoChain.rml --i CoBo_AsAd0_2019-03-15.graw --o testOutput.root --j 4
+    - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
+    - restRoot -b -q ../ValidateTrees.C
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii/trackParameter.pdf
