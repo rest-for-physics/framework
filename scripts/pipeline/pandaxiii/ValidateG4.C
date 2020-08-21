@@ -27,7 +27,7 @@ Int_t ValidateG4(string fname) {
         return 4;
     }
 
-    if (run->GetEntries() != 50000) {
+    if (run->GetEntries() != 500) {
         cout << "Run entries : " << run->GetEntries() << endl;
         cout << "The NLDBD simulation is launched from gas. It should always generate 50000 events." << endl;
         return 5;
