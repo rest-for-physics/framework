@@ -85,7 +85,12 @@ TRestMessengerAndReceiver::TRestMessengerAndReceiver() { Initialize(); }
 
 TRestMessengerAndReceiver::~TRestMessengerAndReceiver() {
     // clear the shared memories
-    shmdt(fMessagePool);
+    if (fMessagePool != NULL) {
+        if (fMessagePool->owner == this) {
+            unlock(fMessagePool);
+        }
+        shmdt(fMessagePool);
+    }
 }
 
 TRestMessengerAndReceiver::TRestMessengerAndReceiver(string token) {
@@ -240,6 +245,8 @@ void TRestMessengerAndReceiver::AddPool(string message) {
         msg.provider = this;
         strcpy(msg.content, message.c_str());
         memcpy(&pool->messages[pos], &msg, sizeof(msg));
+    } else {
+        warning << "cannot send message: message pool is full!" << endl;
     }
 
     unlock(pool);
