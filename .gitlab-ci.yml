@@ -177,7 +177,7 @@ pandaXIII_MC:
     - restManager --c plots.rml --i testOutput.root
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii/trackParameter.pdf
+      - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC/trackParameter.png
     expire_in: 1 week
   except:
       variables:
@@ -193,7 +193,7 @@ pandaXIII_data:
     - restRoot -b -q ../ValidateTrees.C
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii/trackParameter.pdf
+      - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_data/TriggerRate.png
     expire_in: 1 week
   except:
       variables:
