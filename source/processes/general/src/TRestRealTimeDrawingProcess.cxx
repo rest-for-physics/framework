@@ -224,7 +224,7 @@ void TRestRealTimeDrawingProcess::DrawWithNotification() {
                     warning << "file: " << message << endl;
                     warning << "It is not the file we wanted! runNumber in file: " << _runNumber
                             << ", run we are processing: " << runNumber << endl;
-                    messager->SendMessage("", message);
+                    messager->SendMessage(message);
                 }
             }
         }

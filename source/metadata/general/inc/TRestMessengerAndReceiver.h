@@ -64,8 +64,8 @@ class TRestMessengerAndReceiver : public TRestMetadata {
             return -1;
         }
     };
-    vector<int> fShmIds;                   //!
-    vector<messagepool_t*> fMessagePools;  //!
+    int fShmId;                   //!
+    messagepool_t* fMessagePool;  //!
 
    protected:
     enum CommMode { MessagePool_Host, MessagePool_Client, MessagePool_Auto };
@@ -73,33 +73,33 @@ class TRestMessengerAndReceiver : public TRestMetadata {
     TRestRun* fRun;  //!
 
     CommMode fMode;
-    vector<string> fPoolTokens;   // to establish communication
-    vector<string> fPoolSources;  // describes the source of message to be send. e.g. OUTPUTFILE, RUNNUMBER
+    string fPoolToken;   // to establish communication
+    string fPoolSource;  // describes the source of message to be send. e.g. OUTPUTFILE, RUNNUMBER
 
     virtual void InitFromConfigFile();
 
     virtual void Initialize();
 
-    void AddPool(string message, int poolid);
-
-    virtual void AddPool(string message, string poolName);
+    virtual void AddPool(string message);
 
     bool lock(messagepool_t* pool, int timeoutMs = 1000);
 
     bool unlock(messagepool_t* pool, int timeoutMs = 1000);
 
-    int GetPoolId(string poolName);
-
    public:
-    virtual void SendMessage(string poolName = "", string message = "");
+    virtual bool IsConnected() { return fMessagePool != NULL; }
 
-    virtual vector<string> ShowMessagePool(string poolName = "");
+    virtual void SendMessage(string message = "");
 
-    virtual string ConsumeMessage(string poolName = "");
+    virtual vector<string> ShowMessagePool();
+
+    virtual string ConsumeMessage();
 
     virtual void PrintMetadata();
     // Constructor
     TRestMessengerAndReceiver();
+    // Constructor
+    TRestMessengerAndReceiver(string token);
     // Destructor
     ~TRestMessengerAndReceiver();
 
