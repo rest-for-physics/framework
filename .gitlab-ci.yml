@@ -129,6 +129,18 @@ GenerateGas:
       variables:
         - $CRONJOB == "YES"
 
+GenerateReadout:
+  type: metadata 
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/scripts/pipeline/metadata/readout/
+    - restManager --c generateReadout.rml --o readout.root
+    - restRoot -b -q PrintReadout.C'("readout.root")' > /dev/null
+    - diff validation.txt print.txt
+  except:
+      variables:
+        - $CRONJOB == "YES"
+
 testMeta:
   type: restManager_generate
   script:
