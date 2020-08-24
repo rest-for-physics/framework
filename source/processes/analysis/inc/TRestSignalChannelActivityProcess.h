@@ -25,8 +25,8 @@
 
 #include <TH1D.h>
 
-#include <TRestSignalEvent.h>
 #include <TRestReadout.h>
+#include <TRestSignalEvent.h>
 
 #include "TRestEventProcess.h"
 
