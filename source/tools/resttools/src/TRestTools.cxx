@@ -55,63 +55,6 @@
 #include "TSystem.h"
 #include "TUrl.h"
 
-string REST_PATH;
-string REST_USER;
-string REST_USER_PATH;
-struct _REST_STARTUP_CHECK {
-   public:
-    _REST_STARTUP_CHECK() {
-        char* _REST_PATH = getenv("REST_PATH");
-        char* _REST_USER = getenv("USER");
-        char* _REST_USERHOME = getenv("HOME");
-
-        if (_REST_PATH == nullptr) {
-            cout << "REST ERROR!! Lacking system env \"REST_PATH\"! Cannot start!" << endl;
-            cout << "You need to source \"thisREST.sh\" first" << endl;
-            abort();
-        }
-        REST_PATH = _REST_PATH;
-
-        if (_REST_USER == nullptr) {
-            cout << "REST WARNING!! Lacking system env \"USER\"!" << endl;
-            cout << "Setting default user" << endl;
-            REST_USER = "defaultUser";
-            setenv("USER", REST_USER.c_str(), true);
-
-        } else {
-            REST_USER = _REST_USER;
-        }
-
-        if (_REST_USERHOME == nullptr) {
-            cout << "REST WARNING!! Lacking system env \"HOME\"!" << endl;
-            cout << "Setting REST temp path to $REST_PATH/data" << endl;
-            REST_USER_PATH = REST_PATH + "/data";
-        } else {
-            string restUserPath = (string)_REST_USERHOME + "/.rest";
-            // check the directory exists
-            if (!TRestTools::fileExists(restUserPath)) {
-                mkdir(restUserPath.c_str(), S_IRWXU);
-            }
-            // check the runNumber file
-            if (!TRestTools::fileExists(restUserPath + "/runNumber")) {
-                TRestTools::Execute("echo 1 > " + restUserPath + "/runNumber");
-            }
-            // check the dataURL file
-            if (!TRestTools::fileExists(restUserPath + "/dataURL")) {
-                TRestTools::Execute("cp " + REST_PATH + "/data/dataURL " + restUserPath + "/");
-            }
-            // check the download directory
-            if (!TRestTools::fileExists(restUserPath + "/download")) {
-                mkdir((restUserPath + "/download").c_str(), S_IRWXU);
-            }
-
-            // now we don't need to check write accessibility in other methods in REST
-            REST_USER_PATH = restUserPath;
-        }
-    }
-};
-const _REST_STARTUP_CHECK __check;
-
 ClassImp(TRestTools);
 
 ///////////////////////////////////////////////
