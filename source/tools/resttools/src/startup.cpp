@@ -66,6 +66,7 @@ struct __TRestDataBase_Init {
     __TRestDataBase_Init() {
         if (gDataBase == NULL) {
             gDataBase = new TRestDataBase();
+            gDataBase->Initialize();
         }
     }
 };
