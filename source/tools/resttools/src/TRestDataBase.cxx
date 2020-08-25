@@ -53,8 +53,7 @@
 /// \endcode
 ///
 
-TRestDataBase* RestDataBase_Instance = NULL;
-TRestDataBase* TRestDataBase::GetDataBase() { return RestDataBase_Instance; }
+TRestDataBase* gDataBase = NULL;
 
 TRestDataBase* TRestDataBase::instantiate(string name) {
     // vector<string> list = TRestTools::GetListOfRESTLibraries();
@@ -75,8 +74,8 @@ TRestDataBase* TRestDataBase::instantiate(string name) {
         db = new TRestDataBase();
     }
     db->Initialize();
-    if (RestDataBase_Instance != NULL) delete RestDataBase_Instance;
-    RestDataBase_Instance = db;
+    if (gDataBase != NULL) delete gDataBase;
+    gDataBase = db;
     return db;
 }
 

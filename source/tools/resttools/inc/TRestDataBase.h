@@ -92,8 +92,6 @@ class TRestDataBase {
     /// destructor
     ~TRestDataBase() {}
 
-    /// gDataBase
-    static TRestDataBase* GetDataBase();
     /// instantiate specific database TRestDataBaseXXX according to the name XXX
     static TRestDataBase* instantiate(string name = "");
     /// default: read the dataURL file
@@ -133,6 +131,6 @@ class TRestDataBase {
     virtual int set_data(DBEntry info, bool overwrite = true) { return 0; }
 };
 
-#define gDataBase (TRestDataBase::GetDataBase())
+extern TRestDataBase* gDataBase;
 
 #endif
