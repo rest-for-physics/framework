@@ -1,8 +1,8 @@
-#include "TRestTask.h"
-#include "TRestReadout.h"
 #include <fstream>
 #include <iostream>
 #include <string>
+#include "TRestReadout.h"
+#include "TRestTask.h"
 
 void PrintReadout(TString fName) {
     TString fileName = fName;
@@ -41,7 +41,7 @@ void PrintReadout(TString fName) {
 
     f->Close();
 
-    cout.rdbuf(stream_buffer_cout); // back to the old buffer
+    cout.rdbuf(stream_buffer_cout);  // back to the old buffer
     file.close();
 
     return 0;
