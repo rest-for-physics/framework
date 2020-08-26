@@ -32,6 +32,18 @@
 using namespace std;
 
 #define UNUSED(x) (void)x
+
+#define MakeGlobal(classname, objname) \
+    struct __##classname##_Init {      \
+        __##classname##_Init() {       \
+            if (objname != NULL) {     \
+                delete objname;        \
+            }                          \
+            objname = new classname(); \
+        }                              \
+    };                                 \
+    const __##classname##_Init classname##_Init;
+
 extern string REST_PATH;
 extern string REST_USER;
 extern string REST_USER_PATH;
@@ -87,4 +99,6 @@ class TRestTools {
     /// Rest tools class
     ClassDef(TRestTools, 1);
 };
+
+
 #endif
