@@ -651,12 +651,6 @@ Int_t TRestMetadata::LoadSectionMetadata() {
 
     debug << "Loading Config for : " << this->ClassName() << endl;
 
-    // initialize database
-    if (gDataBase == NULL) {
-        string databaseuse = GetParameter("database", "");
-        TRestDataBase::instantiate(databaseuse);
-    }
-
     // set env first from global section
     if (fElementGlobal != NULL) {
         TiXmlElement* e = fElementGlobal->FirstChildElement();

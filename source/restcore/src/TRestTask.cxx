@@ -232,7 +232,7 @@ void TRestTask::RunTask(TRestManager* mgr) {
                 ferr << cmdstr << endl;
                 exit(-1);
             } else {
-                TRestMetadata* meta = mgr->GetApplicationWithName(targetname);
+                TRestMetadata* meta = mgr->GetMetadata(targetname);
                 if (meta == NULL) {
                     ferr << "cannot file metadata: " << targetname << " in TRestManager" << endl;
                     ferr << "command: " << cmdstr << endl;

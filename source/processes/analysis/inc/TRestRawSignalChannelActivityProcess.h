@@ -20,21 +20,21 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestSignalChannelActivityProcess
-#define RestCore_TRestSignalChannelActivityProcess
+#ifndef RestCore_TRestRawSignalChannelActivityProcess
+#define RestCore_TRestRawSignalChannelActivityProcess
 
 #include <TH1D.h>
 
+#include <TRestRawSignalEvent.h>
 #include <TRestReadout.h>
-#include <TRestSignalEvent.h>
 
 #include "TRestEventProcess.h"
 
 //! A pure analysis process to generate histograms with detector channels activity
-class TRestSignalChannelActivityProcess : public TRestEventProcess {
+class TRestRawSignalChannelActivityProcess : public TRestEventProcess {
    private:
-    /// A pointer to the specific TRestSignalEvent input
-    TRestSignalEvent* fSignalEvent;  //!
+    /// A pointer to the specific TRestRawSignalEvent input
+    TRestRawSignalEvent* fSignalEvent;  //!
 
     /// A pointer to the readout metadata information accessible to TRestRun
     TRestReadout* fReadout;  //!
@@ -126,14 +126,14 @@ class TRestSignalChannelActivityProcess : public TRestEventProcess {
     }
 
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "SignalChannelActivity"; }
+    TString GetProcessName() { return (TString) "rawSignalChannelActivity"; }
 
     // Constructor
-    TRestSignalChannelActivityProcess();
-    TRestSignalChannelActivityProcess(char* cfgFileName);
+    TRestRawSignalChannelActivityProcess();
+    TRestRawSignalChannelActivityProcess(char* cfgFileName);
     // Destructor
-    ~TRestSignalChannelActivityProcess();
+    ~TRestRawSignalChannelActivityProcess();
 
-    ClassDef(TRestSignalChannelActivityProcess, 2);
+    ClassDef(TRestRawSignalChannelActivityProcess, 2);
 };
 #endif

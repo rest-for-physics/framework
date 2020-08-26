@@ -23,7 +23,7 @@
 
   <TRestG4Metadata name="restG4 Simulation run" title="Simulation of Xe136bb0n decay from gas.">
     <!-- <parameter name="Nevents" value="1000000"/>-->
-    <parameter name="Nevents" value="50000"/>
+    <parameter name="Nevents" value="500"/>
     <parameter name="gdml_file" value="geometry/main.gdml"/>
     <parameter name="maxTargetStepSize" value="200" units="um" />
     <parameter name="subEventTimeDelay" value="100" units="us" />

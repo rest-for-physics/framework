@@ -224,8 +224,15 @@ Int_t TRestEventProcess::LoadSectionMetadata() {
 /// Either name or type as input argument is accepted. For example,
 /// GetMetadata("TRestReadout"), GetMetadata("readout_140")
 TRestMetadata* TRestEventProcess::GetMetadata(string name) {
-    TRestMetadata* m = fRunInfo->GetMetadata(name);
-    if (m == NULL) m = fRunInfo->GetMetadataClass(name);
+    TRestMetadata* m = NULL;
+    if (fRunInfo != NULL) {
+        m = fRunInfo->GetMetadata(name);
+        if (m == NULL) m = fRunInfo->GetMetadataClass(name);
+    }
+    if (fHostmgr != NULL) {
+        if (m == NULL) m = fHostmgr->GetMetadata(name);
+        if (m == NULL) m = fHostmgr->GetMetadataClass(name);
+    }
     return m;
 }
 
@@ -287,8 +294,8 @@ bool TRestEventProcess::ApplyCut() {
                 return true;
             }
         }
-        return false;
     }
+    return false;
 }
 
 /*

@@ -139,6 +139,8 @@ void TRestRun::BeginOfInit() {
 
     if (ToUpper(runNstr) != "AUTO") {
         fRunNumber = atoi(runNstr.c_str());
+        fStartTime = gDataBase->query_run(fRunNumber).tstart;
+        fEndTime = gDataBase->query_run(fRunNumber).tend;
     }
 
     if (ToUpper(inputname) == "AUTO") {

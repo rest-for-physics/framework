@@ -21,7 +21,7 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// The TRestSignalChannelActivityProcess allows to generate different
+/// The TRestRawSignalChannelActivityProcess allows to generate different
 /// histograms in order to monitor the times a channel has observed a signal
 /// under certain threshold and number of active channels conditions.
 ///
@@ -33,23 +33,23 @@
 ///
 /// History of developments:
 ///
-/// 2017-February: First implementation of signal channel activity process.
-///              Javier Galan
+/// 2020-August: First implementation of raw signal channel activity process.
+///              Cristina Margalejo
 ///
-/// \class      TRestSignalChannelActivityProcess
-/// \author     Javier Galan
+/// \class      TRestRawSignalChannelActivityProcess
+/// \author     Cristina Margalejo
 ///
 /// <hr>
 ///
-#include "TRestSignalChannelActivityProcess.h"
+#include "TRestRawSignalChannelActivityProcess.h"
 using namespace std;
 
-ClassImp(TRestSignalChannelActivityProcess);
+ClassImp(TRestRawSignalChannelActivityProcess);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestSignalChannelActivityProcess::TRestSignalChannelActivityProcess() { Initialize(); }
+TRestRawSignalChannelActivityProcess::TRestRawSignalChannelActivityProcess() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -63,7 +63,7 @@ TRestSignalChannelActivityProcess::TRestSignalChannelActivityProcess() { Initial
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 ///
-TRestSignalChannelActivityProcess::TRestSignalChannelActivityProcess(char* cfgFileName) {
+TRestRawSignalChannelActivityProcess::TRestRawSignalChannelActivityProcess(char* cfgFileName) {
     Initialize();
 
     if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
@@ -72,21 +72,21 @@ TRestSignalChannelActivityProcess::TRestSignalChannelActivityProcess(char* cfgFi
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestSignalChannelActivityProcess::~TRestSignalChannelActivityProcess() { delete fSignalEvent; }
+TRestRawSignalChannelActivityProcess::~TRestRawSignalChannelActivityProcess() { delete fSignalEvent; }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
 ///
-void TRestSignalChannelActivityProcess::LoadDefaultConfig() { SetTitle("Default config"); }
+void TRestRawSignalChannelActivityProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize input/output event members and define the
 /// section name
 ///
-void TRestSignalChannelActivityProcess::Initialize() {
+void TRestRawSignalChannelActivityProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fSignalEvent = new TRestSignalEvent();
+    fSignalEvent = new TRestRawSignalEvent();
 }
 
 ///////////////////////////////////////////////
@@ -101,7 +101,7 @@ void TRestSignalChannelActivityProcess::Initialize() {
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestGeant4AnalysisProcess section inside the RML.
 ///
-void TRestSignalChannelActivityProcess::LoadConfig(std::string cfgFilename, std::string name) {
+void TRestRawSignalChannelActivityProcess::LoadConfig(std::string cfgFilename, std::string name) {
     if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
@@ -112,39 +112,39 @@ void TRestSignalChannelActivityProcess::LoadConfig(std::string cfgFilename, std:
 /// The readout histograms will only be created in case an appropiate readout definition
 /// is found in the processing chain.
 ///
-void TRestSignalChannelActivityProcess::InitProcess() {
+void TRestRawSignalChannelActivityProcess::InitProcess() {
     fReadout = GetMetadata<TRestReadout>();
 
-    debug << "TRestSignalChannelActivityProcess::InitProcess. Readout pointer : " << fReadout << endl;
+    debug << "TRestRawSignalChannelActivityProcess::InitProcess. Readout pointer : " << fReadout << endl;
     if (GetVerboseLevel() >= REST_Info && fReadout) fReadout->PrintMetadata();
 
     if (!fReadOnly) {
-        fDaqChannelsHisto = new TH1D("daqChannelActivity", "daqChannelActivity", fDaqHistogramChannels,
+        fDaqChannelsHisto = new TH1D("daqChannelActivityRaw", "daqChannelActivityRaw", fDaqHistogramChannels,
                                      fDaqStartChannel, fDaqEndChannel);
         if (fReadout) {
             fReadoutChannelsHisto_OneSignal =
-                new TH1D("rChannelActivity_1", "readoutChannelActivity", fReadoutHistogramChannels,
+                new TH1D("rChannelActivityRaw_1", "readoutChannelActivity", fReadoutHistogramChannels,
                          fReadoutStartChannel, fReadoutEndChannel);
             fReadoutChannelsHisto_OneSignal_High =
-                new TH1D("rChannelActivity_1H", "readoutChannelActivity", fReadoutHistogramChannels,
+                new TH1D("rChannelActivityRaw_1H", "readoutChannelActivity", fReadoutHistogramChannels,
                          fReadoutStartChannel, fReadoutEndChannel);
             fReadoutChannelsHisto_TwoSignals =
-                new TH1D("rChannelActivity_2", "readoutChannelActivity", fReadoutHistogramChannels,
+                new TH1D("rChannelActivityRaw_2", "readoutChannelActivity", fReadoutHistogramChannels,
                          fReadoutStartChannel, fReadoutEndChannel);
             fReadoutChannelsHisto_TwoSignals_High =
-                new TH1D("rChannelActivity_2H", "readoutChannelActivity", fReadoutHistogramChannels,
+                new TH1D("rChannelActivityRaw_2H", "readoutChannelActivity", fReadoutHistogramChannels,
                          fReadoutStartChannel, fReadoutEndChannel);
             fReadoutChannelsHisto_ThreeSignals =
-                new TH1D("rChannelActivity_3", "readoutChannelActivity", fReadoutHistogramChannels,
+                new TH1D("rChannelActivityRaw_3", "readoutChannelActivity", fReadoutHistogramChannels,
                          fReadoutStartChannel, fReadoutEndChannel);
             fReadoutChannelsHisto_ThreeSignals_High =
-                new TH1D("rChannelActivity_3H", "readoutChannelActivity", fReadoutHistogramChannels,
+                new TH1D("rChannelActivityRaw_3H", "readoutChannelActivity", fReadoutHistogramChannels,
                          fReadoutStartChannel, fReadoutEndChannel);
             fReadoutChannelsHisto_MultiSignals =
-                new TH1D("rChannelActivity_M", "readoutChannelActivity", fReadoutHistogramChannels,
+                new TH1D("rChannelActivityRaw_M", "readoutChannelActivity", fReadoutHistogramChannels,
                          fReadoutStartChannel, fReadoutEndChannel);
             fReadoutChannelsHisto_MultiSignals_High =
-                new TH1D("rChannelActivity_MH", "readoutChannelActivity", fReadoutHistogramChannels,
+                new TH1D("rChannelActivityRaw_MH", "readoutChannelActivity", fReadoutHistogramChannels,
                          fReadoutStartChannel, fReadoutEndChannel);
         }
     }
@@ -153,10 +153,10 @@ void TRestSignalChannelActivityProcess::InitProcess() {
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestSignalChannelActivityProcess::ProcessEvent(TRestEvent* evInput) {
+TRestEvent* TRestRawSignalChannelActivityProcess::ProcessEvent(TRestEvent* evInput) {
     TString obsName;
 
-    TRestSignalEvent* fInputSignalEvent = (TRestSignalEvent*)evInput;
+    TRestRawSignalEvent* fInputSignalEvent = (TRestRawSignalEvent*)evInput;
 
     /// Copying the signal event to the output event
 
@@ -172,13 +172,13 @@ TRestEvent* TRestSignalChannelActivityProcess::ProcessEvent(TRestEvent* evInput)
     Int_t Nlow = 0;
     Int_t Nhigh = 0;
     for (int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++) {
-        TRestSignal* sgnl = fSignalEvent->GetSignal(s);
+        TRestRawSignal* sgnl = fSignalEvent->GetSignal(s);
         if (sgnl->GetMaxValue() > fHighThreshold) Nhigh++;
         if (sgnl->GetMaxValue() > fLowThreshold) Nlow++;
     }
 
     for (int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++) {
-        TRestSignal* sgnl = fSignalEvent->GetSignal(s);
+        TRestRawSignal* sgnl = fSignalEvent->GetSignal(s);
         // Adding signal to the channel activity histogram
         if (!fReadOnly && fReadout) {
             Int_t signalID = fSignalEvent->GetSignal(s)->GetID();
@@ -214,10 +214,10 @@ TRestEvent* TRestSignalChannelActivityProcess::ProcessEvent(TRestEvent* evInput)
 
 ///////////////////////////////////////////////
 /// \brief Function to include required actions after all events have been
-/// processed. In this process it will take care of writing the histograms
+/// processed. In this process it will take care of writting the histograms
 /// to disk.
 ///
-void TRestSignalChannelActivityProcess::EndProcess() {
+void TRestRawSignalChannelActivityProcess::EndProcess() {
     if (!fReadOnly) {
         fDaqChannelsHisto->Write();
         if (fReadout) {
@@ -236,9 +236,9 @@ void TRestSignalChannelActivityProcess::EndProcess() {
 
 ///////////////////////////////////////////////
 /// \brief Function to read input parameters from the RML
-/// TRestSignalChannelActivityProcess metadata section
+/// TRestRawSignalChannelActivityProcess metadata section
 ///
-void TRestSignalChannelActivityProcess::InitFromConfigFile() {
+void TRestRawSignalChannelActivityProcess::InitFromConfigFile() {
     fLowThreshold = StringToDouble(GetParameter("lowThreshold", "25"));
     fHighThreshold = StringToDouble(GetParameter("highThreshold", "50"));
 

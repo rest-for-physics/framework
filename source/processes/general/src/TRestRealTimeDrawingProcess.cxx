@@ -80,6 +80,8 @@
 /// <hr>
 ///
 #include "TRestRealTimeDrawingProcess.h"
+#include "TRestMessengerAndReceiver.h"
+
 using namespace std;
 
 ClassImp(TRestRealTimeDrawingProcess);
@@ -191,6 +193,42 @@ void TRestRealTimeDrawingProcess::EndProcess() {
         }
 
         fPauseInvoke = true;
+    }
+}
+
+void TRestRealTimeDrawingProcess::DrawWithNotification() {
+    auto messager = GetMetadata<TRestMessengerAndReceiver>();
+    int runNumber = StringToInteger(GetParameter("runNumber"));
+    if (runNumber == -1) {
+        ferr << "TRestRealTimeDrawingProcess::DrawWithNotification: runNumber must be given!" << endl;
+        ferr << "consider adding \"--d xx\" in restManager command" << endl;
+        abort();
+    }
+    while (true) {
+        // consmue the message, take out from the message pool
+        string message = messager->ConsumeMessage();
+        if (message != "") {
+            info << "Recieveing message: " << message << endl;
+            if (TRestTools::fileExists(message) && TRestTools::isRootFile(message)) {
+                TRestRun* run = new TRestRun(message);
+                int _runNumber = run->GetRunNumber();
+                delete run;
+                if (_runNumber == runNumber) {
+                    for (int i = 0; i < fPlots.size(); i++) {
+                        fPlots[i]->SetFile(message);
+                        fPlots[i]->PlotCombinedCanvas();
+                    }
+                } else {
+                    // if the runnumber does not match, we put this message back to pool
+                    // maybe other processes need it
+                    warning << "file: " << message << endl;
+                    warning << "It is not the file we wanted! runNumber in file: " << _runNumber
+                            << ", run we are processing: " << runNumber << endl;
+                    messager->SendMessage(message);
+                }
+            }
+        }
+        usleep(1000);
     }
 }
 

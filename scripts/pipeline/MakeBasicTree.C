@@ -1,6 +1,6 @@
 // This macro will extract the double observables and will fill a tree with std::vector<double>
-Int_t MakeBasicTree() {
-    TRestRun* run = new TRestRun("Hits.root");
+Int_t MakeBasicTree(string fname) {
+    TRestRun* run = new TRestRun(fname);
 
     TRestAnalysisTree* aTree = run->GetAnalysisTree();
 

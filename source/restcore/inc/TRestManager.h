@@ -45,13 +45,13 @@ class TRestManager : public TRestMetadata {
     void PrintMetadata();
 
     TRestProcessRunner* GetProcessRunner() {
-        return (TRestProcessRunner*)GetApplication("TRestProcessRunner");
+        return (TRestProcessRunner*)GetMetadataClass("TRestProcessRunner");
     }
-    TRestRun* GetRunInfo() { return (TRestRun*)GetApplication("TRestRun"); }
-    TRestAnalysisPlot* GetAnaPlot() { return (TRestAnalysisPlot*)GetApplication("TRestAnalysisPlot"); }
+    TRestRun* GetRunInfo() { return (TRestRun*)GetMetadataClass("TRestRun"); }
+    TRestAnalysisPlot* GetAnaPlot() { return (TRestAnalysisPlot*)GetMetadataClass("TRestAnalysisPlot"); }
 
-    TRestMetadata* GetApplicationWithName(string name);
-    TRestMetadata* GetApplication(string type);
+    TRestMetadata* GetMetadata(string name);
+    TRestMetadata* GetMetadataClass(string type);
 
     TRestManager();
     ~TRestManager();

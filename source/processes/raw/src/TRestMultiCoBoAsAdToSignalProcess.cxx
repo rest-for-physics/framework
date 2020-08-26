@@ -22,6 +22,7 @@
 // int counter = 0;
 
 #include "TRestMultiCoBoAsAdToSignalProcess.h"
+#include "TRestDataBase.h"
 using namespace std;
 #include <bitset>
 #include "TTimeStamp.h"
@@ -94,6 +95,10 @@ void TRestMultiCoBoAsAdToSignalProcess::InitProcess() {
 
     fRunOrigin = fRunInfo->GetRunNumber();
     fCurrentEvent = -1;
+
+    if (fRunInfo->GetStartTimestamp() != 0) {
+        fStartTimeStamp = TTimeStamp(fRunInfo->GetStartTimestamp());
+    }
 
     totalBytesReaded = 0;
 }

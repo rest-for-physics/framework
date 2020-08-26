@@ -41,7 +41,7 @@ class TRestHitsToSignalProcess : public TRestEventProcess {
    protected:
     Double_t fSampling;       // us
     Double_t fGasPressure;    // atm
-    Double_t fElectricField;  // V/cm
+    Double_t fElectricField;  // V/mm
     Double_t fDriftVelocity;  // mm/us
 
    public:

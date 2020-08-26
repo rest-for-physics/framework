@@ -303,16 +303,3 @@ TRestStringOutput& TRestStringOutput::operator<<(endl_t et) {
 
     return *this;
 }
-
-/// formatted message output, used for print metadata
-TRestStringOutput fout(REST_Silent, COLOR_BOLDBLUE, "[==", kBorderedMiddle);
-TRestStringOutput ferr(REST_Silent, COLOR_BOLDRED, "-- Error : ", kHeaderedLeft);
-TRestStringOutput warning(REST_Warning, COLOR_BOLDYELLOW, "-- Warning : ", kHeaderedLeft);
-TRestStringOutput essential(REST_Essential, COLOR_BOLDGREEN, "", kHeaderedMiddle);
-TRestStringOutput metadata(REST_Essential, COLOR_BOLDGREEN, "||", kBorderedMiddle);
-TRestStringOutput info(REST_Info, COLOR_BLUE, "-- Info : ", kHeaderedLeft);
-TRestStringOutput success(REST_Info, COLOR_GREEN, "-- Success : ", kHeaderedLeft);
-TRestStringOutput debug(REST_Debug, COLOR_RESET, "-- Debug : ", kHeaderedLeft);
-TRestStringOutput extreme(REST_Extreme, COLOR_RESET, "-- Extreme : ", kHeaderedLeft);
-
-REST_Verbose_Level gVerbose = REST_Warning;
