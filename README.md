@@ -32,28 +32,22 @@ If you are asked for a password, this is because you did not add your local comp
 Check the following [instructions](https://git-scm.com/book/en/v2/Git-on-the-Server-Generating-Your-SSH-Public-Key) to generate your key.
 Then, paste the key into your GitLab account (top-right icon of Gitlab site), go to "settings", and access the "ssh keys" in the left menu.
 
+We provide mirror repositories for users in different location. If you find it slow or unreachable
+to the previous address, try with the alternatives:
+
+```
+git clone https://gitlab.pandax.sjtu.edu.cn/pandax-iii/REST_v2.git
+```
+
 As soon as REST is under strong development phase the repository will be private, and access to the REST repository will be only granted on demand.
 Before granting access, an account must be registered at the [Unizar Gitlab site](https://lfna.unizar.es). 
 Then, you will need to contact the authors to request access to the code.
 
-### Prerequisites
+### Installing
 
 The only mandatory prerequisite of REST is ROOT6. Details on the installation of ROOT will be found at the [ROOT's official site](https://root.cern.ch). 
 One may directly find binary distributions on its [download page](https://root.cern.ch/downloading-root). 
 If not, try to compile and install it manually.
-
-We provide a script inside `scripts/installation/installROOT.sh`, to automatize the process of downloading, compiling and installing a predefined version of ROOT in your local system.
-If your system comes installed with all the [ROOT prerequisites](https://root.cern.ch/build-prerequisites) the installation using this script should be quite smooth.
-
-Example of installing ROOT6 using REST installation script:
-
-```
-cd REST_v2/scripts/installation/  
-./installROOT.sh  
-```
-
-The script will install a particular version of ROOT defined inside the script, and it will add to your bashrc a line to load ROOT each time you start a new terminal session.
-ROOT will be installed at `$HOME/apps`. Feel free to modify the `installROOT.sh` script to choose a different installation directory or ROOT version.
 
 Before starting the REST installation, make sure you are running the desired ROOT version and binary.
 
@@ -62,21 +56,21 @@ root-config --version
 which root
 ```
 
-### Installing
-
 After ROOT6 has been installed in the system, the compilation of REST should be straight forward. 
 Note that it is recommended to compile REST using the same version of g++ compiler used to compile ROOT.
+The detailed installation guide could be found in [REST documentation](doc/Chapters/2-installing-rest.md).
 
-Go to the root directory of your local REST repository, lets name it here `REST_SOURCE_PATH` and execute the following commands.
+Go to the root directory of your local REST repository, assume it is `~/REST_v2`, and execute the following commands.
 
 ```
-cd  
-cd REST_v2  
+cd ~/REST_v2  
 mkdir build
 cd build
 cmake .. -DINSTALL_PREFIX=../install/master/ 
 make -j4 install
 ```
+
+We collected some common problems one may get into while installing REST. Find it [here](doc/Chapters/2-installing-rest.md#trouble-shooting).
 
 After all the compilation and installation process ends, you will end up with an installed REST version at `~/REST_v2/install/master/`.
 
@@ -85,59 +79,6 @@ Execute the following command to configure your `.bashrc` to load REST in your s
  ```
  echo "source ~/REST_v2/install/master/thisREST.sh" >> .bashrc
  ```
-
-
-### Basic tests of the REST installation
-
-After sourcing `thisREST.sh` you should see a message on screen similar to the following one.
-
-```
-  *****************************************************************************
-  W E L C O M E   to  R E S T
-
-  Commit  : d1a37c6c (2019-08-27 16:11:18 +0800)
-  Branch/Version : v2.2.12_dev/v2.2.12
-  Compilation date : 2019-08-27 18:53
-
-  Installed at : /home/daq/REST_v2/install
-
-  REST forum site : ezpc10.unizar.es (New!)
-  *****************************************************************************
-```
-
-You can test now that REST libraries are loaded without errors inside the ROOT environment using the `restRoot` command:
-
-```
-restRoot
-
-   ------------------------------------------------------------
-  | Welcome to ROOT 6.14/06                http://root.cern.ch |
-  |                               (c) 1995-2018, The ROOT Team |
-  | Built for macosx64                                         |
-  | From tags/v6-14-06@v6-14-06, Dec 11 2018, 12:58:00         |
-  | Try '.help', '.demo', '.license', '.credits', '.quit'/'.q' |
-   ------------------------------------------------------------
-
-Loading library : libRestCore.dylib
-Loading library : libRestProcesses.dylib
-Loading library : libRestEvents.dylib
-Loading library : libRestMetadata.dylib
-Loading library : libRestTools.dylib
-
-```
-
-### Compilation options
-
-Different options can be passed to the `cmake` command to personalize the REST installation. The following options are available in REST.
-
-* **INSTALL_PREFIX** : Allows to define the destination of the final REST install directory. The default value is either "REST_v2/install/" (if you haven't installed REST) or the current REST path (if you already installed REST).
-* **REST_WELCOME** (Default: ON) : If dissabled no message will be displayed each time we call thisREST.sh.
-* **REST_GARFIELD** (Default: OFF) : Enables access to [Garfield++](https://garfieldpp.web.cern.ch/garfieldpp/) libraries in REST. Garfield code inside REST will be encapsulated inside `#if defined USE_Garfield` statements.
-* **REST_G4** (Default: OFF) : Adds executable `restG4` which carries out simulation with [Geant4++](http://geant4.web.cern.ch/) using REST style config file.
-* **REST_SQL** (Default: OFF) : Enables the use of mysql libraries in REST. SQL code inside REST will be encapsulated inside `#if defined USE_SQL`.
-* **REST_EVE** (Default: ON) : Enables the use of libEve of ROOT which provides hardware accelerated 3D view of detector model and events within.
-
-To pass the options to cmake, one need to append "-DXXX=XXX" in the cmake command, for example: `cmake .. -DREST_WELCOME=OFF -DREST_G4=ON`. Once you explicitly set an option, your option choice will become the default choice for future `cmake` executions.
 
 ## REST libraries
 

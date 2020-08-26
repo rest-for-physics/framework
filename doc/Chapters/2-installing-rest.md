@@ -108,11 +108,39 @@ Different options can be passed to the `cmake` command to personalize the REST i
 
 * **INSTALL_PREFIX** : Allows to define the destination of the final REST install directory. The default value is either "REST_v2/install/" (if you haven't installed REST) or the current REST path (if you already installed REST).
 * **REST_WELCOME** (Default: ON) : If dissabled no message will be displayed each time we call thisREST.sh.
-* **REST_GARFIELD** (Default: OFF) : Enables access to [Garfield++](https://garfieldpp.web.cern.ch/garfieldpp/) libraries in REST.
+* **REST_GARFIELD** (Default: OFF) : Enables access to [Garfield++](https://garfieldpp.web.cern.ch/garfieldpp/) libraries in REST. Garfield code inside REST will be encapsulated inside `#if defined USE_Garfield` statements.
 * **REST_G4** (Default: OFF) : Adds executable `restG4` which carries out simulation with [Geant4++](http://geant4.web.cern.ch/) using REST style config file.
+* **REST_SQL** (Default: OFF) : Enables the use of mysql libraries in REST. SQL code inside REST will be encapsulated inside `#if defined USE_SQL`.
+* **REST_EVE** (Default: ON) : Enables the use of libEve of ROOT which provides hardware accelerated 3D view of detector model and events within.
 
-To pass the options to cmake, one need to append "-DXXX=XXX" in the cmake command, for example: `cmake .. -DREST_WELCOME=OFF -DREST_G4=ON`.
-Note: Once you explicitly set an option, the default value of this option will be changed to the new value when you run `cmake` in the next time.
+To pass the options to cmake, one need to append "-DXXX=XXX" in the cmake command, for example: `cmake .. -DREST_WELCOME=OFF -DREST_G4=ON`. Once you explicitly set an option, your option choice will become the default choice for future `cmake` executions.
+
+### Adding libraries
+
+The concrete analysis tasks and experiment setups of REST are kept in individual libraries or packages. 
+The main framework of REST only keeps general event types and analysis algorithms. We need to install
+concrete library(package) to enable the workload, after installing REST mainbody.
+
+Both `Library` and `Package` are kind of c++ projects that based on REST. The concept is to make 
+that part of code envolve independently with REST framework, reducing the changing of REST framework.
+They are usually kept in different git repositories. `Library` provides a library with new event types and 
+analysis algorithms. `Package` provides not only libraries but also executables. They are installed to
+REST installation path.
+
+Some of the libraries/packages are provided as git submodule of REST, and can be installed together 
+with REST framework, just by adding compilation options to cmake.
+
+The following is a list of REST libraries/packages:
+
+Name         | Type       | enabled as submodule | repository
+-------------|------------|----------------------|------------
+restG4       |   package  |   -DREST_G4=ON       | 
+restMuonLib  |   library  |                      | https://gitlab.pandax.sjtu.edu.cn/pandax-iii/restmuonlib
+restDecay0   |   library  |   -DREST_DECAY0=ON   | 
+RestAxionLib |   library  |                      | https://lfna.unizar.es/iaxo/RestAxionLib
+restP3DB     |   package  |                      | https://gitlab.pandax.sjtu.edu.cn/pandax-iii/restp3db
+restSQL      |   package  |   -DREST_SQL=ON      | https://lfna.unizar.es/rest-development/restsql
+restWeb      |   package  |                      | https://lfna.unizar.es/rest-development/restWeb
 
 ### Updating REST
 
@@ -164,10 +192,12 @@ make -j4 install
 
 ### Trouble shooting
 
-#### go without git
+#### without git
 
-You can directly download the source code from the website and install REST.
-In this case the git functionality is disabled, and you cannot update/siwtch the version of REST.
+You can directly download the source code from the website and install REST, with the same command
+described [previously](#installing). Without git, you cannot see the version information on the 
+welcome message. You cannot update or siwtch the version of REST either.
+
 At some point if you want to enable the git access, you can type the following commands:
 
 ```
@@ -185,15 +215,60 @@ make -j4 install
 
 This operation also updates your REST to the latest version.
 
-#### cannot find -lXXX
+#### Garfield not found
 
-Sometimes during compilation ld will report error like "/usr/bin/ld: cannot find -lEve". 
-This could be due to the partial installation of ROOT, which lacks libEve.so, libMathMore.so, libGdml.so, etc. 
-This problem is found in some linux distributions where ROOT6 is available as packages.
-First confirm the missing by finding the library file in ROOT library directory, which can be found with `root-config --libdir`. 
-If so, switch another installation of ROOT.
+During cmake, sometimes it says cannot find Garfield. If you are not necessary with drift speed
+and diffusion calculation functionality, you can turn it off: `cmake .. -DREST_GARFIELD=OFF`.
 
-After this, we need to clear build path and re-run the previous command.
+To use Garfield, one must set env "GARFIELD_HOME", "HEED_DATABASE" in the bash. He also needs
+to add Garfield's library dir to "LD_LIBRARY_PATH". The garfield library "libGarfield.so" must 
+be placed in "$GARFIELD_HOME/lib", and the garfield headers must be placed in "$GARFIELD_HOME/Include".
+Garfield is also based on ROOT, and it must be compiled with same ROOT for REST.
+
+Take a look at `installGarfield.sh` for more details.
+
+#### cannot find -lGeom, -lGdml, -lSpectrum, -lEve, -lRGL
+
+During compilation, if it reports error "/usr/bin/ld: cannot find -lXXX" of **more than five 
+libraries**, this means your ROOT installation is incomplete. It is most possible that you 
+are using the OS provided ROOT distribution, which lackes several libraries. Check the 
+ROOT installaion with `root-config --libdir`. If the ROOT library directory is /usr/lib64/root, 
+then it is the case. You need to manually install ROOT. If not, check also the output of
+`cmake` command if it is using ROOT in the unwanted path. If so, source the correct thisROOT.sh,
+clear the build dir, and re-run cmake and make.
+
+#### cannot find -lGdml
+
+During compilation, if it reports error "/usr/bin/ld: cannot find -lXXX" **including Gdml 
+library**, this means your ROOT installation is incomplete. When installing ROOT, you 
+must turn on the compilation flag for ROOT to generate gdml library, as in `installROOT.sh`: 
+`cmake ../source -Dgdml=ON -DCMAKE_INSTALL_PREFIX=${ROOT_DIR}/install`
+
+#### cannot find -lEve, -lRGL
+
+During compilation, if it reports error "/usr/bin/ld: cannot find -lXXX" of **those two
+libraries**, this means ROOT really lacks them. Sometimes the manual installed ROOT won't compile
+those two libraries because the openGL libraries are not installed in the system. You may need 
+to install at least mesa-libGL-devel and glew-devel (and/or xlibmesa-glu-dev and libglew1.5-dev) 
+and re-install ROOT. Another solution is to disable eve libraries dependence in REST, by adding 
+cmake flags like: `cmake .. -DREST_EVE=OFF`
+
+#### error: ¡®set¡¯ was not declared in this scope
+
+In the some releases of gcc, header <set> is added through a different include chain, and must
+be manually added. Since REST 2.2.19 we fixed this problem. One can update the REST version or
+switch to a different gcc version.
+
+#### libtbb.so.2, needed by XXX/libImt.so, not found; undefined reference to `TParticle::Sizeof3D() const'
+
+This happens when one wants to install REST with `sudo make install`. It will together report many 
+similar messages. This is because the `LD_LIBRARY_PATH` is cleared when you temporary 
+switched to administrator user. The solutions is: 
+
+1. login as administrator to do all the operation. Remember to source the needed files before 
+opeartion.
+
+2. run `make` first. After compilation, run `sudo make install` to install.
 
 #### undefined symbol XXX
 
