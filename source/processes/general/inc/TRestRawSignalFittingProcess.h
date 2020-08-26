@@ -25,13 +25,14 @@
 
 #include <TRestRawSignalEvent.h>
 
+#include "TH1D.h"
 #include "TRestEventProcess.h"
 
 //! An analysis REST process to extract valuable information from RawSignal type of data.
 class TRestRawSignalFittingProcess : public TRestEventProcess {
    private:
     /// A pointer to the specific TRestRawSignalEvent input
-    TRestRawSignalEvent* fSignalEvent;  //!
+    TRestRawSignalEvent* fRawSignalEvent;  //!
 
     /* Metadata members
 TVector2 fBaseLineRange;
@@ -50,8 +51,8 @@ Int_t fNPointsOverThreshold; */
     // add here the members of your event process
 
    public:
-    any GetInputEvent() { return fSignalEvent; }
-    any GetOutputEvent() { return fSignalEvent; }
+    any GetInputEvent() { return fRawSignalEvent; }
+    any GetOutputEvent() { return fRawSignalEvent; }
 
     void InitProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
