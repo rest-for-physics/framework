@@ -5,6 +5,7 @@
 #include "TRestSystemOfUnits.h"
 #include "TRestTools.h"
 
+// initialize REST constants
 string REST_PATH;
 string REST_USER;
 string REST_USER_PATH;
@@ -62,15 +63,9 @@ struct __REST_CONST_INIT {
 };
 const __REST_CONST_INIT REST_CONST_INIT;
 
-struct __TRestDataBase_Init {
-    __TRestDataBase_Init() {
-        if (gDataBase == NULL) {
-            gDataBase = new TRestDataBase();
-            gDataBase->Initialize();
-        }
-    }
-};
-const __TRestDataBase_Init TRestDataBase_Init;
+// initialize gDataBase
+TRestDataBase* gDataBase = NULL;
+MakeGlobal(TRestDataBase, gDataBase);
 
 /// formatted message output, used for print metadata
 TRestStringOutput fout(REST_Silent, COLOR_BOLDBLUE, "[==", kBorderedMiddle);

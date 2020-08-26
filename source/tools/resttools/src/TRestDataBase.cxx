@@ -52,9 +52,6 @@
 /// db->print(runId);
 /// \endcode
 ///
-
-TRestDataBase* gDataBase = NULL;
-
 TRestDataBase* TRestDataBase::instantiate(string name) {
     // vector<string> list = TRestTools::GetListOfRESTLibraries();
     // for (unsigned int n = 0; n < list.size(); n++) {
@@ -166,6 +163,7 @@ TRestDataBase::TRestDataBase() {
     if (url != NULL) {
         fConnectionString = url;
     }
+    Initialize();
 }
 
 ///////////////////////////////////////////////
