@@ -8,14 +8,12 @@ using namespace std;
 
 Int_t REST_DataBase(Int_t run = -1) {
     TRestStringOutput fout;
-    TRestDataBase* db = TRestDataBase::instantiate("PSQL");
-    if (db == NULL) {
+    if (gDataBase == NULL) {
         fout.setcolor(COLOR_BOLDRED);
-        fout << "REST ERROR!! package: restDataBaseImpl not installed!" << endl;
-        fout << "cannot print database record!" << endl;
+        fout << "gDataBase is NULL" << endl;
     } else {
-        if (run < 0) run = db->get_lastrun();
-        db->print(Form("select * from rest_runs where run_id=%i", run));
+        if (run < 0) run = gDataBase->get_lastrun();
+        gDataBase->print(Form("select * from rest_runs where run_id=%i", run));
     }
 
     return 1;
