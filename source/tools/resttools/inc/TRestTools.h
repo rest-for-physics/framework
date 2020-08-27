@@ -100,5 +100,4 @@ class TRestTools {
     ClassDef(TRestTools, 1);
 };
 
-
 #endif

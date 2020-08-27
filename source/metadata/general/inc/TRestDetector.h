@@ -40,6 +40,7 @@ class TRestMetadata;
 class TRestDetector {
    private:
     void InitFromFileName(string fName);
+
    protected:
     string fDetectorName;
 
