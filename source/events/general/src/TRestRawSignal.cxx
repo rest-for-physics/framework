@@ -137,6 +137,11 @@ Short_t TRestRawSignal::operator[](Int_t n) {
 Double_t TRestRawSignal::GetData(Int_t n) { return (Double_t)fSignalData[n] - fBaseLine; }
 
 ///////////////////////////////////////////////
+/// \brief It returns the original data value of point *n* without baseline correction.
+///
+Double_t TRestRawSignal::GetRawData(Int_t n) { return (Double_t)fSignalData[n]; }
+
+///////////////////////////////////////////////
 /// \brief It adds the content of data to fSignalData[bin].
 ///
 void TRestRawSignal::IncreaseBinBy(Int_t bin, Double_t data) {

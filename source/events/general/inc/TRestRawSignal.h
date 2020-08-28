@@ -104,6 +104,8 @@ class TRestRawSignal : public TObject {
 
     Double_t GetData(Int_t n);
 
+    Double_t GetRawData(Int_t n);
+
     Short_t operator[](Int_t n);
 
     /// It sets the id number of the signal
