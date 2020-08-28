@@ -3,7 +3,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestDetector.h
+///             TRestDetectorImpl.h
 ///
 ///             Metadata class to be used to store basic detector setup info
 ///             inherited from TRestMetadata
@@ -12,8 +12,8 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef RestCore_TRestDetector
-#define RestCore_TRestDetector
+#ifndef RestCore_TRestDetectorImpl
+#define RestCore_TRestDetectorImpl
 
 #include <Rtypes.h>
 #include <TVector3.h>
@@ -30,6 +30,7 @@
 
 #include "TRestStringOutput.h"
 #include "TRestTools.h"
+#include "TRestDetector.h"
 
 using namespace std;
 
@@ -38,7 +39,7 @@ class TRestDriftVolume;
 class TRestReadout;
 class TRestGainMap;
 
-class TRestDetector {
+class TRestDetectorImpl: public TRestDetector {
    private:
     void ReadFileNameFEMINOS(string fName);
    protected:
@@ -105,20 +106,15 @@ class TRestDetector {
     virtual TVector2 GetReadoutPosition(int id);
     virtual Int_t GetReadoutType(int id);
 
-    /// instantiate specific detector: TRestDetectorXXX according to the name XXX
-    static TRestDetector* instantiate(string name = "");
-
     virtual void RegisterMetadata(TRestMetadata* ptr);
     virtual void RegisterString(string str);
 
     virtual void Print();
 
     // Constructors
-    TRestDetector();
+    TRestDetectorImpl();
     // Destructor
-    ~TRestDetector();
+    ~TRestDetectorImpl();
 };
-
-extern TRestDetector* gDetector;
 
 #endif

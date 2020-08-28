@@ -4,7 +4,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestDetector.cxx
+///             TRestDetectorImpl.cxx
 ///
 ///             G4 class description
 ///
@@ -13,121 +13,105 @@
 ///                 software.
 ///                 Javier Galan
 ///_______________________________________________________________________________
+#include "TRestDetectorImpl.h"
+
 #include "TClass.h"
 #include "TInterpreter.h"
 #include "TMethod.h"
 #include "TMethodCall.h"
-
-#include "TRestDetector.h"
 #include "TRestDriftVolume.h"
-#include "TRestReadout.h"
 #include "TRestGainMap.h"
+#include "TRestReadout.h"
 using namespace std;
 
 //______________________________________________________________________________
-TRestDetector::TRestDetector() {
-    // TRestDetector default constructor
+TRestDetectorImpl::TRestDetectorImpl() {
+    fDetectorMedium = NULL;
+    fReadout = NULL;
+    fGain = NULL;
+    // TRestDetectorImpl default constructor
 }
 
 //______________________________________________________________________________
-TRestDetector::~TRestDetector() {
-    // TRestDetector destructor
+TRestDetectorImpl::~TRestDetectorImpl() {
+    // TRestDetectorImpl destructor
 }
 
-TRestDetector* TRestDetector::instantiate(string name) {
-    TRestDetector* detector = NULL;
-    if (name != "") {
-        TClass* c = TClass::GetClass(("TRestDetector" + name).c_str());
-        if (c != NULL)  // this means we have the package installed
-        {
-            detector = (TRestDetector*)c->New();
-        } else {
-            warning << "unrecognized TRestDataBase implementation: \"" << name << "\"" << endl;
-            detector = new TRestDetector();
-        }
-    } else {
-        detector = new TRestDetector();
-    }
-    if (gDetector != NULL) delete gDetector;
-    gDetector = detector;
-    return detector;
-}
-
-string TRestDetector::GetMediumName() {
+string TRestDetectorImpl::GetMediumName() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetName();
     }
     return "";
 }
-Double_t TRestDetector::GetPressure() {
+Double_t TRestDetectorImpl::GetPressure() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetPressure();
     }
     return 0;
 }
-Double_t TRestDetector::GetTemperature() {
+Double_t TRestDetectorImpl::GetTemperature() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetTemperature();
     }
     return 0;
 }
-Double_t TRestDetector::GetWvalue() {
+Double_t TRestDetectorImpl::GetWvalue() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetWvalue();
     }
     return 0;
 }
-Double_t TRestDetector::GetDriftVelocity() {
+Double_t TRestDetectorImpl::GetDriftVelocity() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetDriftVelocity();
     }
     return 0;
 }
-Double_t TRestDetector::GetElectronLifeTime() {
+Double_t TRestDetectorImpl::GetElectronLifeTime() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetElectronLifeTime();
     }
     return 0;
 }
-Double_t TRestDetector::GetLongitudinalDiffusion() {
+Double_t TRestDetectorImpl::GetLongitudinalDiffusion() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetLongitudinalDiffusion();
     }
     return 0;
 }
-Double_t TRestDetector::GetTransversalDiffusion() {
+Double_t TRestDetectorImpl::GetTransversalDiffusion() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetTransversalDiffusion();
     }
     return 0;
 }
 
-string TRestDetector::GetReadoutName() {
+string TRestDetectorImpl::GetReadoutName() {
     if (fReadout != NULL) {
         return fReadout->GetName();
     }
     return "";
 }
-Int_t TRestDetector::GetNReadoutModules() {
+Int_t TRestDetectorImpl::GetNReadoutModules() {
     if (fReadout != NULL) {
         return fReadout->GetNumberOfModules();
     }
     return 0;
 }
-Int_t TRestDetector::GetNReadoutChannels() {
+Int_t TRestDetectorImpl::GetNReadoutChannels() {
     if (fReadout != NULL) {
         return fReadout->GetNumberOfChannels();
     }
     return 0;
 }
-Double_t TRestDetector::GetReadoutVoltage(int id) { return fAmplificationVoltage; }
-Double_t TRestDetector::GetReadoutGain(int id) {
+Double_t TRestDetectorImpl::GetReadoutVoltage(int id) { return fAmplificationVoltage; }
+Double_t TRestDetectorImpl::GetReadoutGain(int id) {
     if (fGain != NULL && fGain->fChannelGain.count(id) > 0) {
         return fGain->fChannelGain[id];
     }
     return 0;
 }
-TVector2 TRestDetector::GetReadoutPosition(int id) {
+TVector2 TRestDetectorImpl::GetReadoutPosition(int id) {
     if (fReadout != NULL) {
         double x = fReadout->GetX(id);
         double y = fReadout->GetY(id);
@@ -155,7 +139,7 @@ TVector2 TRestDetector::GetReadoutPosition(int id) {
     return TVector2();
 }
 enum REST_ReadoutType { unknown = -1, none = 1, X = 2, Y = 3, Z = 5, U = 7, V = 11, W = 13 };
-Int_t TRestDetector::GetReadoutType(int id) {
+Int_t TRestDetectorImpl::GetReadoutType(int id) {
     if (fReadout != NULL) {
         double x = fReadout->GetX(id);
         double y = fReadout->GetY(id);
@@ -165,7 +149,7 @@ Int_t TRestDetector::GetReadoutType(int id) {
     return unknown;
 }
 
-void TRestDetector::RegisterMetadata(TRestMetadata* ptr) {
+void TRestDetectorImpl::RegisterMetadata(TRestMetadata* ptr) {
     if (ptr != NULL) {
         if (ptr->InheritsFrom("TRestDriftVolume")) {
             fDetectorMedium = (TRestDriftVolume*)ptr;
@@ -177,15 +161,15 @@ void TRestDetector::RegisterMetadata(TRestMetadata* ptr) {
     }
 }
 
-void TRestDetector::RegisterString(string str) {
+void TRestDetectorImpl::RegisterString(string str) {
     if (str.find(".aqs") != -1) {
         ReadFileNameFEMINOS(str);
     }
 }
 
-void TRestDetector::Print() {}
+void TRestDetectorImpl::Print() {}
 
-void TRestDetector::ReadFileNameFEMINOS(string fName) {
+void TRestDetectorImpl::ReadFileNameFEMINOS(string fName) {
     string fullName = fName;
 
     unsigned int startPos = fullName.find_last_of("/") + 1;
@@ -230,5 +214,4 @@ void TRestDetector::ReadFileNameFEMINOS(string fName) {
     // fSubRunNumber = StringToInteger(name.substr(pos, len));
 }
 
-TRestDetector* gDetector = NULL;
-MakeGlobal(TRestDetector, gDetector);
+MakeGlobal(TRestDetectorImpl, gDetector, 2);
