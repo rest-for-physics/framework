@@ -115,78 +115,85 @@ void TRestRawSignalFittingProcess::InitProcess() {
 TRestEvent* TRestRawSignalFittingProcess::ProcessEvent(TRestEvent* evInput) {
     // no need for verbose copy now
     fRawSignalEvent = (TRestRawSignalEvent*)evInput;
-    
+
     cout << "=============================================" << endl;
     cout << "I am executing TRestRawSignalFittingProcess!" << endl;
     cout << "Event ID : " << fRawSignalEvent->GetID() << endl;
-    
+
     Double_t SigmaMean = 0;
     Double_t Sigma[fRawSignalEvent->GetNumberOfSignals()];
-    for (int s=0; s<fRawSignalEvent->GetNumberOfSignals(); s++){
-      TRestRawSignal* singleSignal = fRawSignalEvent->GetSignal(s);
-    
-      int MaxPeakBin = singleSignal->GetMaxPeakBin();
-      //cout << "MaxPeakBin: " << MaxPeakBin << endl;
-    
-      //ShaperSin function (AGET theoretic curve)
-      TF1* f = new TF1("fit","[0]+[1]*TMath::Exp(-3. * (x-[3])/[2]) * (x-[3])/[2] * (x-[3])/[2] * (x-[3])/[2] * sin((x-[3])/[2])", MaxPeakBin-25, MaxPeakBin+45);
-      f->SetParameters(0,250); //Initial values adjusted from Desmos
-      f->SetParLimits(0,0,350);
-      f->SetParameters(1,50);
-      f->SetParLimits(1,30,90000);
-      f->SetParameters(2,20);
-      f->SetParLimits(2,10,80);
-      f->SetParameters(3,170);
-      f->SetParLimits(3,150,250);
-      f->SetParNames("Baseline","ProdConstant","ShapingTime", "XConstant");
-    
-      //Create histogram from signal
-      Int_t nBins = singleSignal->GetNumberOfPoints();
-      TH1D* h = new TH1D("histo", "Signal to histo", nBins, 0, nBins);
-    
-      for (int i=0; i<nBins; i++){
-        h->Fill(i, singleSignal->GetData(i)+singleSignal->GetBaseLine());
-      }
-    
-      //Fit histogram with ShaperSin
-      h->Fit(f, "RNQ", "", MaxPeakBin-25, MaxPeakBin+45); // Options: R->fit in range, N->No draw, Q->Quiet
-      
-      if (fRawSignalEvent->GetID()==30875){
-       if (s==4){
-         for (int j=MaxPeakBin-25; j<MaxPeakBin+45; j++){
-           cout << "Pulse: " << singleSignal->GetData(j)+singleSignal->GetBaseLine() << "  Fit: " << f->Eval(j) << endl;
-           }
-       }
-      }
-    
-      //Standard deviation (sqrt of variance between fit and data)
-      Double_t sigma = 0;
-      for (int j=MaxPeakBin-25; j<MaxPeakBin+45; j++){
-        sigma += (singleSignal->GetData(j)+singleSignal->GetBaseLine()-f->Eval(j))*(singleSignal->GetData(j)+singleSignal->GetBaseLine()-f->Eval(j));
-        //cout << j-MaxPeakBin << " " << singleSignal->GetData(j)-f->Eval(j) << endl;
-      }
-      Sigma[s] = TMath::Sqrt(sigma /(25+45));  
-      SigmaMean+=Sigma[s];
-      //cout << "Standard deviation of signal number " << s << ": " << Sigma[s] << endl;
-      
-      h->GetListOfFunctions()->Remove(h->GetFunction("fit"));
-      h->Reset();
+    for (int s = 0; s < fRawSignalEvent->GetNumberOfSignals(); s++) {
+        TRestRawSignal* singleSignal = fRawSignalEvent->GetSignal(s);
+
+        int MaxPeakBin = singleSignal->GetMaxPeakBin();
+        // cout << "MaxPeakBin: " << MaxPeakBin << endl;
+
+        // ShaperSin function (AGET theoretic curve)
+        TF1* f = new TF1("fit",
+                         "[0]+[1]*TMath::Exp(-3. * (x-[3])/[2]) * (x-[3])/[2] * (x-[3])/[2] * (x-[3])/[2] * "
+                         "sin((x-[3])/[2])",
+                         MaxPeakBin - 25, MaxPeakBin + 45);
+        f->SetParameters(0, 250);  // Initial values adjusted from Desmos
+        f->SetParLimits(0, 0, 350);
+        f->SetParameters(1, 50);
+        f->SetParLimits(1, 30, 90000);
+        f->SetParameters(2, 20);
+        f->SetParLimits(2, 10, 80);
+        f->SetParameters(3, 170);
+        f->SetParLimits(3, 150, 250);
+        f->SetParNames("Baseline", "ProdConstant", "ShapingTime", "XConstant");
+
+        // Create histogram from signal
+        Int_t nBins = singleSignal->GetNumberOfPoints();
+        TH1D* h = new TH1D("histo", "Signal to histo", nBins, 0, nBins);
+
+        for (int i = 0; i < nBins; i++) {
+            h->Fill(i, singleSignal->GetData(i) + singleSignal->GetBaseLine());
+        }
+
+        // Fit histogram with ShaperSin
+        h->Fit(f, "RNQ", "", MaxPeakBin - 25,
+               MaxPeakBin + 45);  // Options: R->fit in range, N->No draw, Q->Quiet
+
+        if (fRawSignalEvent->GetID() == 30875) {
+            if (s == 4) {
+                for (int j = MaxPeakBin - 25; j < MaxPeakBin + 45; j++) {
+                    cout << "Pulse: " << singleSignal->GetData(j) + singleSignal->GetBaseLine()
+                         << "  Fit: " << f->Eval(j) << endl;
+                }
+            }
+        }
+
+        // Standard deviation (sqrt of variance between fit and data)
+        Double_t sigma = 0;
+        for (int j = MaxPeakBin - 25; j < MaxPeakBin + 45; j++) {
+            sigma += (singleSignal->GetData(j) + singleSignal->GetBaseLine() - f->Eval(j)) *
+                     (singleSignal->GetData(j) + singleSignal->GetBaseLine() - f->Eval(j));
+            // cout << j-MaxPeakBin << " " << singleSignal->GetData(j)-f->Eval(j) << endl;
+        }
+        Sigma[s] = TMath::Sqrt(sigma / (25 + 45));
+        SigmaMean += Sigma[s];
+        // cout << "Standard deviation of signal number " << s << ": " << Sigma[s] << endl;
+
+        h->GetListOfFunctions()->Remove(h->GetFunction("fit"));
+        h->Reset();
     }
-    
-    SigmaMean = SigmaMean/(fRawSignalEvent->GetNumberOfSignals());
-    SetObservableValue( "FitSigmaMean", SigmaMean );
-   
+
+    SigmaMean = SigmaMean / (fRawSignalEvent->GetNumberOfSignals());
+    SetObservableValue("FitSigmaMean", SigmaMean);
+
     Double_t sigmaMeanStdDev = 0;
-    for (int k=0; k<fRawSignalEvent->GetNumberOfSignals(); k++){
-       sigmaMeanStdDev += (Sigma[k]-SigmaMean)*(Sigma[k]-SigmaMean);
+    for (int k = 0; k < fRawSignalEvent->GetNumberOfSignals(); k++) {
+        sigmaMeanStdDev += (Sigma[k] - SigmaMean) * (Sigma[k] - SigmaMean);
     }
-    Double_t SigmaMeanStdDev = TMath::Sqrt(sigmaMeanStdDev /fRawSignalEvent->GetNumberOfSignals());
-    SetObservableValue( "FitSigmaStdDev", SigmaMeanStdDev );
-    
+    Double_t SigmaMeanStdDev = TMath::Sqrt(sigmaMeanStdDev / fRawSignalEvent->GetNumberOfSignals());
+    SetObservableValue("FitSigmaStdDev", SigmaMeanStdDev);
+
     cout << "SigmaMean: " << SigmaMean << endl;
     cout << "SigmaMeanStdDev: " << SigmaMeanStdDev << endl;
-    for (int k=0; k<fRawSignalEvent->GetNumberOfSignals(); k++){cout << "Standard deviation of signal number " << k << ": " << Sigma[k] << endl;}
-   
+    for (int k = 0; k < fRawSignalEvent->GetNumberOfSignals(); k++) {
+        cout << "Standard deviation of signal number " << k << ": " << Sigma[k] << endl;
+    }
 
     /// We define (or re-define) the baseline range and calculation range of our raw-signals.
     // This will affect the calculation of observables, but not the stored TRestRawSignal data.
