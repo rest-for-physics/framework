@@ -7,7 +7,6 @@
 #include "TView.h"
 
 #include "TRestReadout.h"
-#include "TRestDetector.h"
 ClassImp(TRestGainMap);
 
 void TRestGainMap::InitFromConfigFile() {

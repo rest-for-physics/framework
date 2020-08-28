@@ -265,7 +265,6 @@
 ///
 
 #include "TRestReadout.h"
-#include "TRestDetector.h"
 using namespace std;
 bool RESTREADOUT_DECODINGFILE_ERROR = false;
 

@@ -1,5 +1,4 @@
 #include "TRestDriftVolume.h"
-#include "TRestDetector.h"
 using namespace REST_Units;
 
 ClassImp(TRestDriftVolume)
