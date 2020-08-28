@@ -52,9 +52,7 @@ class TRestGainMap : public TRestMetadata {
     TH2F* f2DGainMapping = 0;       //->
     TH3F* f3DGainMapping = 0;       //->
 
-    void InitFromConfigFile() {
-        // read config from rml section
-    }
+    void InitFromConfigFile();
 
     void SaveToText(string filename) {}
     void ReadGainText(string filename) {}

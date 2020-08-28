@@ -3,11 +3,18 @@
 #include "TGraph2D.h"
 #include "TLegend.h"
 #include "TRandom.h"
-#include "TRestReadout.h"
 #include "TStyle.h"
 #include "TView.h"
 
+#include "TRestReadout.h"
+#include "TRestDetector.h"
 ClassImp(TRestGainMap);
+
+void TRestGainMap::InitFromConfigFile() {
+    // read config from rml section
+
+    gDetector->RegisterMetadata(this);
+}
 
 void TRestGainMap::DrawChannelGainMap(TRestReadoutModule* mod) {
     if (mod == NULL) {

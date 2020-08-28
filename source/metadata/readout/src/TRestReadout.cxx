@@ -265,6 +265,7 @@
 ///
 
 #include "TRestReadout.h"
+#include "TRestDetector.h"
 using namespace std;
 bool RESTREADOUT_DECODINGFILE_ERROR = false;
 
@@ -596,6 +597,7 @@ void TRestReadout::InitFromConfigFile() {
     }
 
     ValidateReadout();
+    gDetector->RegisterMetadata(this);
 }
 
 TRestReadoutModule* TRestReadout::ParseModuleDefinition(string moduleString) {

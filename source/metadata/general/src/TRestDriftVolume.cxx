@@ -1,4 +1,5 @@
 #include "TRestDriftVolume.h"
+#include "TRestDetector.h"
 using namespace REST_Units;
 
 ClassImp(TRestDriftVolume)
@@ -40,6 +41,8 @@ void TRestDriftVolume::InitFromConfigFile() {
 
     fPressureInAtm = GetDblParameterWithUnits("pressure");
     fTemperatureInK = GetDblParameterWithUnits("temperature");
+
+    gDetector->RegisterMetadata(this);
 }
 
 void TRestDriftVolume::PrintMetadata() {
