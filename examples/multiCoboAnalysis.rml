@@ -44,14 +44,10 @@
       <observable name="SecondsFromStart" value="ON" />
       <observable name="ThresholdIntegral" value="ON" />-->
     </addProcess>
-    <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" sampling="0.2us"/> 5MHz sampling
     <addProcess type="TRestReadoutAnalysisProcess" name="rA" value="ON">
       <parameter name="modulesHist" value="3:6:8"/>
-      <parameter name="modulesAmp" value="3-1.2:6-1.3:8-0.7"/>
-      <observable name="FirstX" value="ON" />
-      <observable name="FirstY" value="ON" />
-      <observable name="CalibratedIntegral" value="ON" />
     </addProcess>
+    <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" sampling="0.2us"/> 5MHz sampling
     <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="ON" method="tripleMax"/>
     <addProcess type="TRestHitsAnalysisProcess" name="hitsAna" value="OFF"/>
     <addProcess type="TRestHitsToTrackProcess" name="hitsToTrack" value="OFF"/>
@@ -84,8 +80,7 @@
     <searchPath value="$ENV{REST_INPUTDATA}/definitions/"/>
     <parameter name="verboseLevel" value="essential" /> %options are : silent(0), essential(1), info(2), debug(3), extreme(4)
     <parameter name="mainDataPath" value="" />
-    <!--<parameter name="database" value="PSQL"/>-->
-    
+
     <parameter name="pointThreshold" value="3" />
     <parameter name="pointsOverThreshold" value="3" />
   </globals>
