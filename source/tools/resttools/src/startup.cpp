@@ -1,4 +1,5 @@
 #include "TRestDataBase.h"
+#include "TRestDetector.h"
 #include "TRestReflector.h"
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
@@ -65,7 +66,9 @@ const __REST_CONST_INIT REST_CONST_INIT;
 
 // initialize gDataBase
 TRestDataBase* gDataBase = NULL;
-MakeGlobal(TRestDataBase, gDataBase);
+MakeGlobal(TRestDataBase, gDataBase,1);
+TRestDetector* gDetector = NULL;
+MakeGlobal(TRestDetector, gDetector, 1);
 
 /// formatted message output, used for print metadata
 TRestStringOutput fout(REST_Silent, COLOR_BOLDBLUE, "[==", kBorderedMiddle);
