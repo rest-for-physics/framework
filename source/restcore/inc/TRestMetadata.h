@@ -23,19 +23,21 @@
 #ifndef RestCore_TRestMetadata
 #define RestCore_TRestMetadata
 
-#include "TRestStringHelper.h"
-#include "TRestStringOutput.h"
-#include "TRestTools.h"
-#include "TRestVersion.h"
 #define TIXML_USE_STL
 #include <mutex>
 #include <thread>
 
 #include "TApplication.h"
 #include "TClass.h"
+#include "TRestDataBase.h"
+#include "TRestDetector.h"
 #include "TRestPhysics.h"
 #include "TRestReflector.h"
+#include "TRestStringHelper.h"
+#include "TRestStringOutput.h"
 #include "TRestSystemOfUnits.h"
+#include "TRestTools.h"
+#include "TRestVersion.h"
 #include "TStreamerElement.h"
 #include "TVirtualStreamerInfo.h"
 #include "tinyxml.h"
