@@ -26,23 +26,13 @@
 //#include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "TObject.h"
 
 using namespace std;
 
 #define UNUSED(x) (void)x
-
-#define MakeGlobal(classname, objname) \
-    struct __##classname##_Init {      \
-        __##classname##_Init() {       \
-            if (objname != NULL) {     \
-                delete objname;        \
-            }                          \
-            objname = new classname(); \
-        }                              \
-    };                                 \
-    const __##classname##_Init classname##_Init;
 
 extern string REST_PATH;
 extern string REST_USER;
@@ -99,5 +89,47 @@ class TRestTools {
     /// Rest tools class
     ClassDef(TRestTools, 1);
 };
+
+
+namespace REST_InitTools {
+
+template <class T>
+struct GlobalVarInit {
+    static int level;
+};
+template <class T>
+int GlobalVarInit<T>::level = 0;
+
+template <class T>
+inline bool CanOverwrite(T* name, int level) {
+    if (level > GlobalVarInit<T>::level) {
+        return true;
+    }
+    return false;
+}
+
+template <class T>
+inline bool SetInitLevel(T* name, int level) {
+    GlobalVarInit<T>::level = level;
+}
+
+#define MakeGlobal(classname, objname, level)                       \
+    struct __##classname##_Init {                                   \
+        __##classname##_Init() {                                    \
+            if (objname != NULL) {                                  \
+                if (REST_InitTools::CanOverwrite(objname, level)) { \
+                    delete objname;                                 \
+                    objname = new classname();                      \
+                    REST_InitTools::SetInitLevel(objname, level);   \
+                }                                                   \
+            } else {                                                \
+                objname = new classname();                          \
+                REST_InitTools::SetInitLevel(objname, level);       \
+            }                                                       \
+        }                                                           \
+    };                                                              \
+    const __##classname##_Init classname##_Init;
+
+}  // namespace REST_InitTools
 
 #endif
