@@ -39,7 +39,7 @@ class TRestMetadata;
 
 class TRestDetector {
    private:
-    void InitFromFileName(string fName);
+    void ReadFileNameFEMINOS(string fName);
    protected:
     string fDetectorName;
 
@@ -106,7 +106,8 @@ class TRestDetector {
     /// instantiate specific detector: TRestDetectorXXX according to the name XXX
     static TRestDetector* instantiate(string name = "");
 
-    virtual void InitFromMetadata(TRestMetadata* ptr);
+    virtual void RegisterMetadata(TRestMetadata* ptr);
+    virtual void RegisterString(string str);
 
     virtual void Print();
 

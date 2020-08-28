@@ -159,24 +159,25 @@ Int_t TRestDetector::GetReadoutType(int id) {
     return unknown;
 }
 
-void TRestDetector::InitFromMetadata(TRestMetadata* ptr) {
+void TRestDetector::RegisterMetadata(TRestMetadata* ptr) {
     if (ptr != NULL) {
         if (ptr->InheritsFrom("TRestDriftVolume")) {
             fDetectorMedium = (TRestDriftVolume*)ptr;
         } else if (ptr->InheritsFrom("TRestReadout")) {
             fReadout = (TRestReadout*)ptr;
-        } else if (ptr->InheritsFrom("TRestRun")) {
-            string filename = ((TRestRun*)ptr)->GetInputFileName(0);
-            if (filename.find(".aqs") != -1) {
-                InitFromFileName(filename);
-            }
         }
+    }
+}
+
+void TRestDetector::RegisterString(string str) {
+    if (str.find(".aqs") != -1) {
+        ReadFileNameFEMINOS(str);
     }
 }
 
 void TRestDetector::Print() {}
 
-void TRestDetector::InitFromFileName(string fName) {
+void TRestDetector::ReadFileNameFEMINOS(string fName) {
     string fullName = fName;
 
     unsigned int startPos = fullName.find_last_of("/") + 1;
