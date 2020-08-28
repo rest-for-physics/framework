@@ -27,15 +27,16 @@
 #include <string>
 #include <vector>
 
-#include "TRestDriftVolume.h"
-#include "TRestReadout.h"
-#include "TRestRun.h"
+
 #include "TRestStringOutput.h"
 #include "TRestTools.h"
 
 using namespace std;
 
 class TRestMetadata;
+class TRestDriftVolume;
+class TRestReadout;
+class TRestGainMap;
 
 class TRestDetector {
    private:
@@ -61,6 +62,7 @@ class TRestDetector {
 
     TRestDriftVolume* fDetectorMedium;
     TRestReadout* fReadout;
+    TRestGainMap* fGain;
 
    public:
     string GetDetectorName() { return fDetectorName; }

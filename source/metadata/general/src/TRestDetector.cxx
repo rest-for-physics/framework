@@ -13,14 +13,15 @@
 ///                 software.
 ///                 Javier Galan
 ///_______________________________________________________________________________
-
-#include "TRestDetector.h"
-
 #include "TClass.h"
 #include "TInterpreter.h"
 #include "TMethod.h"
 #include "TMethodCall.h"
 
+#include "TRestDetector.h"
+#include "TRestDriftVolume.h"
+#include "TRestReadout.h"
+#include "TRestGainMap.h"
 using namespace std;
 
 //______________________________________________________________________________
@@ -120,7 +121,12 @@ Int_t TRestDetector::GetNReadoutChannels() {
     return 0;
 }
 Double_t TRestDetector::GetReadoutVoltage(int id) { return fAmplificationVoltage; }
-Double_t TRestDetector::GetReadoutGain(int id) { return 0; }
+Double_t TRestDetector::GetReadoutGain(int id) {
+    if (fGain != NULL && fGain->fChannelGain.count(id) > 0) {
+        return fGain->fChannelGain[id];
+    }
+    return 0;
+}
 TVector2 TRestDetector::GetReadoutPosition(int id) {
     if (fReadout != NULL) {
         double x = fReadout->GetX(id);
@@ -165,6 +171,8 @@ void TRestDetector::RegisterMetadata(TRestMetadata* ptr) {
             fDetectorMedium = (TRestDriftVolume*)ptr;
         } else if (ptr->InheritsFrom("TRestReadout")) {
             fReadout = (TRestReadout*)ptr;
+        } else if (ptr->InheritsFrom("TRestGainMap")) {
+            fGain = (TRestGainMap*)ptr;
         }
     }
 }
