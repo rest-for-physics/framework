@@ -27,10 +27,9 @@
 #include <string>
 #include <vector>
 
-
+#include "TRestDetector.h"
 #include "TRestStringOutput.h"
 #include "TRestTools.h"
-#include "TRestDetector.h"
 
 using namespace std;
 
@@ -39,9 +38,10 @@ class TRestDriftVolume;
 class TRestReadout;
 class TRestGainMap;
 
-class TRestDetectorImpl: public TRestDetector {
+class TRestDetectorImpl : public TRestDetector {
    private:
     void ReadFileNameFEMINOS(string fName);
+
    protected:
     string fDetectorName;
 

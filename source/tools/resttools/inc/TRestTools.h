@@ -24,9 +24,9 @@
 #define RestCore_TRestTools
 
 //#include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "TObject.h"
 
@@ -89,7 +89,6 @@ class TRestTools {
     /// Rest tools class
     ClassDef(TRestTools, 1);
 };
-
 
 namespace REST_InitTools {
 
