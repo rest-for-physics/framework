@@ -66,7 +66,7 @@ const __REST_CONST_INIT REST_CONST_INIT;
 
 // initialize gDataBase
 TRestDataBase* gDataBase = NULL;
-MakeGlobal(TRestDataBase, gDataBase,1);
+MakeGlobal(TRestDataBase, gDataBase, 1);
 TRestDetector* gDetector = NULL;
 MakeGlobal(TRestDetector, gDetector, 1);
 
