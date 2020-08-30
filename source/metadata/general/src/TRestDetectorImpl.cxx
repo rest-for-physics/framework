@@ -26,6 +26,8 @@ using namespace std;
 
 //______________________________________________________________________________
 TRestDetectorImpl::TRestDetectorImpl() {
+    fDetectorName = "REST default detector";
+
     fDetectorMedium = NULL;
     fReadout = NULL;
     fGain = NULL;
