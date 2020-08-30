@@ -26,9 +26,6 @@ class TRestElectronDiffusionProcess : public TRestEventProcess {
     TRestHitsEvent* fInputHitsEvent;   //!
     TRestHitsEvent* fOutputHitsEvent;  //!
 
-    TRestGas* fGas;          //!
-    TRestReadout* fReadout;  //!
-
     TRandom3* fRandom;  //!
 #endif
 
@@ -76,8 +73,6 @@ class TRestElectronDiffusionProcess : public TRestEventProcess {
 
         EndPrintProcess();
     }
-
-    TRestMetadata* GetProcessMetadata() { return fGas; }
 
     TString GetProcessName() { return (TString) "electronDiffusion"; }
 

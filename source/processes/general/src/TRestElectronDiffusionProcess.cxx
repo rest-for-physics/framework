@@ -54,9 +54,6 @@ void TRestElectronDiffusionProcess::Initialize() {
     fOutputHitsEvent = new TRestHitsEvent();
     fInputHitsEvent = NULL;
 
-    fGas = NULL;
-    fReadout = NULL;
-
     fRandom = NULL;
 }
 
@@ -68,44 +65,22 @@ void TRestElectronDiffusionProcess::LoadConfig(string cfgFilename, string name) 
 void TRestElectronDiffusionProcess::InitProcess() {
     fRandom = new TRandom3(fSeed);
 
-    fGas = GetMetadata<TRestGas>();
-    if (fGas == NULL) {
-        if (fLonglDiffCoeff == -1 || fTransDiffCoeff == -1) {
-            warning << "Gas has not been initialized" << endl;
-            ferr << "TRestElectronDiffusionProcess: diffusion parameters are not defined in the rml file!"
-                 << endl;
-            exit(-1);
-        }
-        if (fWvalue == -1) {
-            warning << "Gas has not been initialized" << endl;
-            ferr << "TRestElectronDiffusionProcess: gas work function has not been defined in the rml file!"
-                 << endl;
-            exit(-1);
-        }
-    } else {
-#ifndef USE_Garfield
-        ferr << "A TRestGas definition was found but REST was not linked to Garfield libraries." << endl;
-        ferr << "Please, remove the TRestGas definition, and add gas parameters inside the process "
-                "TRestElectronDiffusionProcess"
+    if (fGasPressure <= 0) fGasPressure = gDetector->GetPressure();
+    if (fElectricField <= 0) fElectricField = gDetector->GetDriftVoltage();
+    if (fWvalue <= 0) fWvalue = gDetector->GetWvalue();
+    if (fLonglDiffCoeff <= 0) fLonglDiffCoeff = gDetector->GetLongitudinalDiffusion();  // (cm)^1/2
+    if (fTransDiffCoeff <= 0) fTransDiffCoeff = gDetector->GetTransversalDiffusion();   // (cm)^1/2
+
+    if (fLonglDiffCoeff <= 0 || fTransDiffCoeff <= 0) {
+        warning << "Gas has not been initialized" << endl;
+        ferr << "TRestElectronDiffusionProcess: diffusion parameters are not defined in the rml file!"
              << endl;
-        exit(1);
-#endif
-        if (fGasPressure <= 0) fGasPressure = fGas->GetPressure();
-        if (fElectricField <= 0) fElectricField = fGas->GetElectricField();
-        if (fWvalue <= 0) fWvalue = fGas->GetWvalue();
-
-        fGas->SetPressure(fGasPressure);
-        fGas->SetElectricField(fElectricField);
-        fGas->SetW(fWvalue);
-
-        if (fLonglDiffCoeff <= 0) fLonglDiffCoeff = fGas->GetLongitudinalDiffusion();  // (cm)^1/2
-
-        if (fTransDiffCoeff <= 0) fTransDiffCoeff = fGas->GetTransversalDiffusion();  // (cm)^1/2
+        exit(-1);
     }
-
-    fReadout = GetMetadata<TRestReadout>();
-    if (fReadout == NULL) {
-        cout << "REST ERRORRRR : Readout has not been initialized" << endl;
+    if (fWvalue <= 0) {
+        warning << "Gas has not been initialized" << endl;
+        ferr << "TRestElectronDiffusionProcess: gas work function has not been defined in the rml file!"
+             << endl;
         exit(-1);
     }
 }
@@ -126,6 +101,9 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent(TRestEvent* evInput) {
     if (fMaxHits > 0 && totalElectrons > fMaxHits)
         wValue = fInputHitsEvent->GetEnergy() * REST_Units::eV / fMaxHits;
 
+    double top = gDetector->GetTPCTopZ();
+    double bottom = gDetector->GetTPCBottomZ();
+
     for (int n = 0; n < nHits; n++) {
         TRestHits* hits = fInputHitsEvent->GetHits();
 
@@ -136,51 +114,47 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent(TRestEvent* evInput) {
             const Double_t y = hits->GetY(n);
             const Double_t z = hits->GetZ(n);
 
-            for (int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++) {
-                TRestReadoutPlane* plane = &(*fReadout)[p];
+            if (z > bottom && z < top) {
+                Double_t xDiff, yDiff, zDiff;
 
-                if (plane->isZInsideDriftVolume(z)) {
-                    Double_t xDiff, yDiff, zDiff;
+                Double_t driftDistance = gDetector->GetDriftDistance(TVector3(x, y, z));
 
-                    Double_t driftDistance = plane->GetDistanceTo(x, y, z);
+                Int_t numberOfElectrons = (Int_t)(eDep * REST_Units::eV / wValue);
 
-                    Int_t numberOfElectrons = (Int_t)(eDep * REST_Units::eV / wValue);
+                if (numberOfElectrons == 0 && eDep > 0) numberOfElectrons = 1;
 
-                    if (numberOfElectrons == 0 && eDep > 0) numberOfElectrons = 1;
+                Double_t localWValue = eDep * REST_Units::eV / numberOfElectrons;
+                Double_t localEnergy = 0;
 
-                    Double_t localWValue = eDep * REST_Units::eV / numberOfElectrons;
-                    Double_t localEnergy = 0;
+                while (numberOfElectrons > 0) {
+                    numberOfElectrons--;
 
-                    while (numberOfElectrons > 0) {
-                        numberOfElectrons--;
+                    Double_t longHitDiffusion =
+                        10. * TMath::Sqrt(driftDistance / 10.) * fLonglDiffCoeff;  // mm
 
-                        Double_t longHitDiffusion =
-                            10. * TMath::Sqrt(driftDistance / 10.) * fLonglDiffCoeff;  // mm
+                    Double_t transHitDiffusion =
+                        10. * TMath::Sqrt(driftDistance / 10.) * fTransDiffCoeff;  // mm
 
-                        Double_t transHitDiffusion =
-                            10. * TMath::Sqrt(driftDistance / 10.) * fTransDiffCoeff;  // mm
+                    if (fAttachment)
+                        isAttached = (fRandom->Uniform(0, 1) > pow(1 - fAttachment, driftDistance / 10.));
+                    else
+                        isAttached = 0;
 
-                        if (fAttachment)
-                            isAttached = (fRandom->Uniform(0, 1) > pow(1 - fAttachment, driftDistance / 10.));
-                        else
-                            isAttached = 0;
+                    if (isAttached == 0) {
+                        xDiff = x + fRandom->Gaus(0, transHitDiffusion);
 
-                        if (isAttached == 0) {
-                            xDiff = x + fRandom->Gaus(0, transHitDiffusion);
+                        yDiff = y + fRandom->Gaus(0, transHitDiffusion);
 
-                            yDiff = y + fRandom->Gaus(0, transHitDiffusion);
+                        zDiff = z + fRandom->Gaus(0, longHitDiffusion);
 
-                            zDiff = z + fRandom->Gaus(0, longHitDiffusion);
-
-                            localEnergy += localWValue * REST_Units::keV / REST_Units::eV;
-                            if (GetVerboseLevel() >= REST_Extreme)
-                                cout << "Adding hit. x : " << xDiff << " y : " << yDiff << " z : " << zDiff
-                                     << " en : " << localWValue * REST_Units::keV / REST_Units::eV << " keV"
-                                     << endl;
-                            fOutputHitsEvent->AddHit(xDiff, yDiff, zDiff,
-                                                     localWValue * REST_Units::keV / REST_Units::eV,
-                                                     hits->GetTime(n), hits->GetType(n));
-                        }
+                        localEnergy += localWValue * REST_Units::keV / REST_Units::eV;
+                        if (GetVerboseLevel() >= REST_Extreme)
+                            cout << "Adding hit. x : " << xDiff << " y : " << yDiff << " z : " << zDiff
+                                 << " en : " << localWValue * REST_Units::keV / REST_Units::eV << " keV"
+                                 << endl;
+                        fOutputHitsEvent->AddHit(xDiff, yDiff, zDiff,
+                                                 localWValue * REST_Units::keV / REST_Units::eV,
+                                                 hits->GetTime(n), hits->GetType(n));
                     }
                 }
             }
