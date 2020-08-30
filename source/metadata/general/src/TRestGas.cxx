@@ -400,7 +400,7 @@ void TRestGas::CalcGarField(double Emin, double Emax, int n) {
     if (fPressureInAtm != 1)
         warning << "-- Warning : The gas will be generated for gas pressure = 1atm" << endl;
 
-    fGasMedium->SetPressure(760.);
+    fGasMedium->SetPressure(1 * REST_Units::torr);
 
     fGasMedium->SetFieldGrid(Emin, Emax, n, n > 1);
 
@@ -599,7 +599,7 @@ void TRestGas::InitFromConfigFile() {
         fStatus = RESTGAS_GASFILE_LOADED;
     } else {
         LoadGasFile();
-        fGasMedium->SetPressure(fPressureInAtm);
+        fGasMedium->SetPressure(fPressureInAtm * REST_Units::torr);
     }
     if (fGasMedium && fGasMedium->GetW() == 0.)
         fGasMedium->SetW(fW);  // as it is probably not computed by Magboltz
@@ -873,7 +873,7 @@ void TRestGas::SetPressure(Double_t pressure) {
 
     fPressureInAtm = pressure;
 #if defined USE_Garfield
-    fGasMedium->SetPressure(fPressureInAtm * 760.);
+    fGasMedium->SetPressure(fPressureInAtm * REST_Units::torr);
 #endif
 }
 
