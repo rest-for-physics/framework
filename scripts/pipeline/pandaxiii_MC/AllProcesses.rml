@@ -8,6 +8,7 @@
     <!--<parameter name="mainDataPath" value="${REST_DATAPATH}" />-->
     <parameter name="verboseLevel" value="silent" />%options are : silent, warning, info, debug
     <parameter name="seed" value="5" /> // set to 0 as random seed
+    <parameter name="electricField" value="1000" units="V/cm" />
   </globals>
   <TRestRun name="Run metadata" title="REST Metadata run info (template)" verboseLevel="silent">
     <!--<parameter name="inputFile" value="${REST_INPUTFILE}" />-->
