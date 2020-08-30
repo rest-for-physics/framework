@@ -86,6 +86,66 @@ Double_t TRestDetectorImpl::GetTransversalDiffusion() {
     return 0;
 }
 
+Double_t TRestDetectorImpl::GetTPCBottomZ() {
+    if (fReadout != NULL) {
+        if (fReadout->GetNumberOfReadoutPlanes() > 1) {
+            double minz = 1e9;
+            for (int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++) {
+                TRestReadoutPlane* plane = &(*fReadout)[p];
+                double zz = plane->GetPosition().Z();
+                if (zz < minz) minz = zz;
+            }
+            return minz;
+        } else if (fReadout->GetNumberOfReadoutPlanes() == 1) {
+            TRestReadoutPlane* plane = &(*fReadout)[0];
+            if (plane->GetPlaneVector().Z() < 0) {
+                return plane->GetPosition().Z() - plane->GetTotalDriftDistance();
+            } else {
+                return plane->GetPosition().Z();
+            }
+        }
+
+        return 0;
+    }
+    return 0;
+}
+Double_t TRestDetectorImpl::GetTPCTopZ() {
+    if (fReadout != NULL) {
+
+        if (fReadout->GetNumberOfReadoutPlanes() > 1) {
+            double maxz = -1e9;
+            for (int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++) {
+                TRestReadoutPlane* plane = &(*fReadout)[p];
+                double zz = plane->GetPosition().Z();
+                if (zz > maxz) maxz = zz;
+            }
+            return maxz;
+        } else if(fReadout->GetNumberOfReadoutPlanes() == 1) {
+            TRestReadoutPlane* plane = &(*fReadout)[0];
+            if (plane->GetPlaneVector().Z() < 0) {
+                return plane->GetPosition().Z();
+            } else {
+                return plane->GetPosition().Z() + plane->GetTotalDriftDistance();
+            }
+        }
+
+        return 0;
+    }
+    return 0;
+}
+Double_t TRestDetectorImpl::GetDriftDistance(TVector3 pos) {
+    if (fReadout != NULL) {
+        for (int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++) {
+            TRestReadoutPlane* plane = &(*fReadout)[p];
+            if (plane->isZInsideDriftVolume(pos)) {
+                return plane->GetDistanceTo(pos);
+            }
+        }
+    }
+    return 0;
+}
+Double_t TRestDetectorImpl::GetAmplificationDistance(TVector3 pos) { return fAmplificationDistance; }
+
 string TRestDetectorImpl::GetReadoutName() {
     if (fReadout != NULL) {
         return fReadout->GetName();
@@ -149,7 +209,7 @@ Int_t TRestDetectorImpl::GetReadoutType(int id) {
     return unknown;
 }
 
-void TRestDetectorImpl::RegisterMetadata(TRestMetadata* ptr) {
+void TRestDetectorImpl::RegisterMetadata(TObject* ptr) {
     if (ptr != NULL) {
         if (ptr->InheritsFrom("TRestDriftVolume")) {
             fDetectorMedium = (TRestDriftVolume*)ptr;

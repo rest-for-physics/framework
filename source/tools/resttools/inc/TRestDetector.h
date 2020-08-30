@@ -59,8 +59,11 @@ class TRestDetector {
     virtual Double_t GetTargetMass() { return 0; }
     virtual Double_t GetTPCHeight() { return 0; }
     virtual Double_t GetTPCRadius() { return 0; }
-    virtual Double_t GetDriftDistance() { return 0; }
-    virtual Double_t GetAmplificationDistance() { return 0; }
+    virtual Double_t GetTPCBottomZ() { return 0; };
+    virtual Double_t GetTPCTopZ() { return 0; };
+    virtual Double_t GetDriftDistance(TVector3 pos) { return 0; }
+    virtual Double_t GetAmplificationDistance(TVector3 pos) { return 0; }
+
 
     //////// electronics ////////
     virtual Double_t GetDAQShapingTime() { return 0; }

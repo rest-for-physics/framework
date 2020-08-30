@@ -27,10 +27,9 @@
 #include <string>
 #include <vector>
 
-
+#include "TRestDetector.h"
 #include "TRestStringOutput.h"
 #include "TRestTools.h"
-#include "TRestDetector.h"
 
 using namespace std;
 
@@ -39,12 +38,11 @@ class TRestDriftVolume;
 class TRestReadout;
 class TRestGainMap;
 
-class TRestDetectorImpl: public TRestDetector {
+class TRestDetectorImpl : public TRestDetector {
    private:
     void ReadFileNameFEMINOS(string fName);
-   protected:
-    string fDetectorName;
 
+   protected:
     Double_t fDriftVoltage;
     Double_t fAmplificationVoltage;
 
@@ -66,50 +64,51 @@ class TRestDetectorImpl: public TRestDetector {
     TRestGainMap* fGain;
 
    public:
-    string GetDetectorName() { return fDetectorName; }
-
     //////// Field property ////////
-    virtual TVector3 GetDriftField(TVector3 pos) { return TVector3(); }
-    virtual TVector3 GetAmplificationField(TVector3 pos) { return TVector3(); }
-    virtual Double_t GetDriftVoltage() { return fDriftVoltage; }
-    virtual Double_t GetAmplificationVoltage() { return fDriftVoltage; }
+    virtual TVector3 GetDriftField(TVector3 pos) override { return TVector3(); }
+    virtual TVector3 GetAmplificationField(TVector3 pos) override { return TVector3(); }
+    virtual Double_t GetDriftVoltage() override { return fDriftVoltage; }
+    virtual Double_t GetAmplificationVoltage() override { return fDriftVoltage; }
 
     //////// Medium property ////////
-    virtual string GetMediumName();
-    virtual Double_t GetPressure();
-    virtual Double_t GetTemperature();
-    virtual Double_t GetWvalue();
-    virtual Double_t GetDriftVelocity();
-    virtual Double_t GetElectronLifeTime();
-    virtual Double_t GetLongitudinalDiffusion();
-    virtual Double_t GetTransversalDiffusion();
+    virtual string GetMediumName() override;
+    virtual Double_t GetPressure() override;
+    virtual Double_t GetTemperature() override;
+    virtual Double_t GetWvalue() override;
+    virtual Double_t GetDriftVelocity() override;
+    virtual Double_t GetElectronLifeTime() override;
+    virtual Double_t GetLongitudinalDiffusion() override;
+    virtual Double_t GetTransversalDiffusion() override;
 
     //////// TPC geometry ////////
-    virtual Double_t GetTargetMass() { return fTargetMass; }
-    virtual Double_t GetTPCHeight() { return fTPCHeight; }
-    virtual Double_t GetTPCRadius() { return fTPCRadius; }
-    virtual Double_t GetDriftDistance() { return fDriftDistance; }
-    virtual Double_t GetAmplificationDistance() { return fAmplificationDistance; }
+    virtual Double_t GetTargetMass() override { return fTargetMass; }
+    virtual Double_t GetTPCHeight() override { return fTPCHeight; }
+    virtual Double_t GetTPCRadius() override { return fTPCRadius; }
+    virtual Double_t GetTPCBottomZ() override;
+    virtual Double_t GetTPCTopZ() override;
+    virtual Double_t GetDriftDistance(TVector3 pos) override;
+    virtual Double_t GetAmplificationDistance(TVector3 pos) override;
+
 
     //////// electronics ////////
-    virtual Double_t GetDAQShapingTime() { return fDAQShapingTime; }
-    virtual Double_t GetDAQSamplingTime() { return fDAQSamplingTime; }
-    virtual Double_t GetDAQDynamicRange() { return fDAQDynamicRange; }
-    virtual Double_t GetDAQThreshold() { return fDAQThreshold; }
+    virtual Double_t GetDAQShapingTime() override { return fDAQShapingTime; }
+    virtual Double_t GetDAQSamplingTime() override { return fDAQSamplingTime; }
+    virtual Double_t GetDAQDynamicRange() override { return fDAQDynamicRange; }
+    virtual Double_t GetDAQThreshold() override { return fDAQThreshold; }
 
     //////// readout ////////
-    virtual string GetReadoutName();
-    virtual Int_t GetNReadoutModules();
-    virtual Int_t GetNReadoutChannels();
-    virtual Double_t GetReadoutVoltage(int id);
-    virtual Double_t GetReadoutGain(int id);
-    virtual TVector2 GetReadoutPosition(int id);
-    virtual Int_t GetReadoutType(int id);
+    virtual string GetReadoutName() override;
+    virtual Int_t GetNReadoutModules() override;
+    virtual Int_t GetNReadoutChannels() override;
+    virtual Double_t GetReadoutVoltage(int id) override;
+    virtual Double_t GetReadoutGain(int id) override;
+    virtual TVector2 GetReadoutPosition(int id) override;
+    virtual Int_t GetReadoutType(int id) override;
 
-    virtual void RegisterMetadata(TRestMetadata* ptr);
-    virtual void RegisterString(string str);
+    virtual void RegisterMetadata(TObject* ptr) override;
+    virtual void RegisterString(string str) override;
 
-    virtual void Print();
+    virtual void Print() override;
 
     // Constructors
     TRestDetectorImpl();
