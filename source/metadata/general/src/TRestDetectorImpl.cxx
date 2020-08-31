@@ -113,7 +113,6 @@ Double_t TRestDetectorImpl::GetTPCBottomZ() {
 }
 Double_t TRestDetectorImpl::GetTPCTopZ() {
     if (fReadout != NULL) {
-
         if (fReadout->GetNumberOfReadoutPlanes() > 1) {
             double maxz = -1e9;
             for (int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++) {
@@ -122,7 +121,7 @@ Double_t TRestDetectorImpl::GetTPCTopZ() {
                 if (zz > maxz) maxz = zz;
             }
             return maxz;
-        } else if(fReadout->GetNumberOfReadoutPlanes() == 1) {
+        } else if (fReadout->GetNumberOfReadoutPlanes() == 1) {
             TRestReadoutPlane* plane = &(*fReadout)[0];
             if (plane->GetPlaneVector().Z() < 0) {
                 return plane->GetPosition().Z();

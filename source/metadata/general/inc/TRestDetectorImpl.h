@@ -89,7 +89,6 @@ class TRestDetectorImpl : public TRestDetector {
     virtual Double_t GetDriftDistance(TVector3 pos) override;
     virtual Double_t GetAmplificationDistance(TVector3 pos) override;
 
-
     //////// electronics ////////
     virtual Double_t GetDAQShapingTime() override { return fDAQShapingTime; }
     virtual Double_t GetDAQSamplingTime() override { return fDAQSamplingTime; }
