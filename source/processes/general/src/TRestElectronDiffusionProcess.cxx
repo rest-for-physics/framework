@@ -34,18 +34,14 @@ TRestElectronDiffusionProcess::~TRestElectronDiffusionProcess() { delete fOutput
 void TRestElectronDiffusionProcess::LoadDefaultConfig() {
     SetTitle("Default config");
 
-    fElectricField = 2000;
     fAttachment = 0;
-    fGasPressure = 1;
 }
 
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fElectricField = 0;
     fAttachment = 0;
-    fGasPressure = 1;
 
     fTransDiffCoeff = 0;
     fLonglDiffCoeff = 0;
@@ -65,12 +61,17 @@ void TRestElectronDiffusionProcess::LoadConfig(string cfgFilename, string name) 
 void TRestElectronDiffusionProcess::InitProcess() {
     fRandom = new TRandom3(fSeed);
 
-    if (fGasPressure <= 0) fGasPressure = gDetector->GetPressure();
-    if (fElectricField <= 0) fElectricField = gDetector->GetDriftVoltage();
+    // calculate attachment from life time:
+    //(1-A) = e^(-t*v)
+    if (fAttachment <= 0)
+        fAttachment = 1 - exp(-gDetector->GetElectronLifeTime() * gDetector->GetDriftVelocity() *
+                              REST_Units::cm);  // attatched ratio per cm
+
+    cout << fAttachment << endl;
+
     if (fWvalue <= 0) fWvalue = gDetector->GetWvalue();
     if (fLonglDiffCoeff <= 0) fLonglDiffCoeff = gDetector->GetLongitudinalDiffusion();  // (cm)^1/2
     if (fTransDiffCoeff <= 0) fTransDiffCoeff = gDetector->GetTransversalDiffusion();   // (cm)^1/2
-
     if (fLonglDiffCoeff <= 0 || fTransDiffCoeff <= 0) {
         warning << "Gas has not been initialized" << endl;
         ferr << "TRestElectronDiffusionProcess: diffusion parameters are not defined in the rml file!"
@@ -184,9 +185,6 @@ void TRestElectronDiffusionProcess::EndProcess() {
 
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::InitFromConfigFile() {
-    // TODO add pressure units
-    fGasPressure = GetDblParameterWithUnits("gasPressure", -1.);
-    fElectricField = GetDblParameterWithUnits("electricField", -1.);
     fWvalue = GetDblParameterWithUnits("Wvalue", (double)0) * REST_Units::eV;
     fAttachment = StringToDouble(GetParameter("attachment", "0"));
     fLonglDiffCoeff = StringToDouble(GetParameter("longitudinalDiffusionCoefficient", "-1"));
