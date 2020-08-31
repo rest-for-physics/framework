@@ -64,7 +64,6 @@ class TRestDetector {
     virtual Double_t GetDriftDistance(TVector3 pos) { return 0; }
     virtual Double_t GetAmplificationDistance(TVector3 pos) { return 0; }
 
-
     //////// electronics ////////
     virtual Double_t GetDAQShapingTime() { return 0; }
     virtual Double_t GetDAQSamplingTime() { return 0; }
