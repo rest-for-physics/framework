@@ -40,8 +40,8 @@ void TRestSignalToHitsProcess::LoadDefaultConfig() {
 
     cout << "Signal to hits metadata not found. Loading default values" << endl;
 
-    fElectricField = 1000;
-    fGasPressure = 10;
+    //fElectricField = 1000;
+    //fGasPressure = 10;
 }
 
 void TRestSignalToHitsProcess::LoadConfig(std::string cfgFilename, std::string name) {
@@ -49,15 +49,15 @@ void TRestSignalToHitsProcess::LoadConfig(std::string cfgFilename, std::string n
 
     // If the parameters have no value it tries to obtain it from detector setup
 
-    if (fElectricField == PARAMETER_NOT_FOUND_DBL) {
-        TRestDetectorSetup* detSetup = GetMetadata<TRestDetectorSetup>();
-        if (detSetup != NULL) {
-            fElectricField = detSetup->GetFieldInVPerCm();
-            cout << "SignalToHitsProcess : Obtainning electric field from detector "
-                    "setup : "
-                 << fElectricField << " V/cm" << endl;
-        }
-    }
+    //if (fElectricField == PARAMETER_NOT_FOUND_DBL) {
+    //    TRestDetectorSetup* detSetup = GetMetadata<TRestDetectorSetup>();
+    //    if (detSetup != NULL) {
+    //        fElectricField = detSetup->GetFieldInVPerCm();
+    //        cout << "SignalToHitsProcess : Obtainning electric field from detector "
+    //                "setup : "
+    //             << fElectricField << " V/cm" << endl;
+    //    }
+    //}
 
     // if( fGasPressure <= 0 )
     //{
@@ -99,9 +99,6 @@ void TRestSignalToHitsProcess::Initialize() {
 
     fHitsEvent = new TRestHitsEvent();
     fSignalEvent = 0;
-
-    fGas = NULL;
-    fReadout = NULL;
 }
 
 //______________________________________________________________________________
@@ -113,36 +110,36 @@ void TRestSignalToHitsProcess::InitProcess() {
     // Comment this if you don't want it.
     // TRestEventProcess::InitProcess();
 
-    fGas = GetMetadata<TRestGas>();
-    if (fGas != NULL) {
-#ifndef USE_Garfield
-        ferr << "A TRestGas definition was found but REST was not linked to Garfield libraries." << endl;
-        ferr << "Please, remove the TRestGas definition, and add gas parameters inside the process "
-                "TRestSignalToHitsProcess"
-             << endl;
-        exit(-1);
-#endif
-        if (fGasPressure <= 0) fGasPressure = fGas->GetPressure();
-        if (fElectricField <= 0) fElectricField = fGas->GetElectricField();
-
-        fGas->SetPressure(fGasPressure);
-        fGas->SetElectricField(fElectricField);
-
-        if (fDriftVelocity <= 0) fDriftVelocity = fGas->GetDriftVelocity();
-    } else {
-        warning << "No TRestGas found in TRestRun." << endl;
-        if (fDriftVelocity == -1) {
-            ferr << "TRestHitsToSignalProcess: drift velocity is undefined in the rml file!" << endl;
-            exit(-1);
-        }
-    }
-
-    fReadout = GetMetadata<TRestReadout>();
-
-    if (fReadout == NULL) {
-        ferr << "Readout has not been initialized" << endl;
-        exit(-1);
-    }
+//    fGas = GetMetadata<TRestGas>();
+//    if (fGas != NULL) {
+//#ifndef USE_Garfield
+//        ferr << "A TRestGas definition was found but REST was not linked to Garfield libraries." << endl;
+//        ferr << "Please, remove the TRestGas definition, and add gas parameters inside the process "
+//                "TRestSignalToHitsProcess"
+//             << endl;
+//        exit(-1);
+//#endif
+//        if (fGasPressure <= 0) fGasPressure = fGas->GetPressure();
+//        if (fElectricField <= 0) fElectricField = fGas->GetElectricField();
+//
+//        fGas->SetPressure(fGasPressure);
+//        fGas->SetElectricField(fElectricField);
+//
+          if (fDriftVelocity <= 0) fDriftVelocity = gDetector->GetDriftVelocity();
+//    } else {
+//        warning << "No TRestGas found in TRestRun." << endl;
+//        if (fDriftVelocity == -1) {
+//            ferr << "TRestHitsToSignalProcess: drift velocity is undefined in the rml file!" << endl;
+//            exit(-1);
+//        }
+//    }
+//
+//    fReadout = GetMetadata<TRestReadout>();
+//
+//    if (fReadout == NULL) {
+//        ferr << "Readout has not been initialized" << endl;
+//        exit(-1);
+//    }
 }
 
 //______________________________________________________________________________
@@ -190,36 +187,27 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
         //    }
         //}
 
-        fReadout->GetPlaneModuleChannel(signalID, planeID, readoutModule, readoutChannel);
+        //fReadout->GetPlaneModuleChannel(signalID, planeID, readoutModule, readoutChannel);
 
-        if (readoutChannel == -1) {
-            // cout << "REST Warning : Readout channel not found for daq ID : " << signalID << endl;
-            continue;
-        }
-        /////////////////////////////////////////////////////////////////////////
+        //if (readoutChannel == -1) {
+        //    // cout << "REST Warning : Readout channel not found for daq ID : " << signalID << endl;
+        //    continue;
+        //}
+        ///////////////////////////////////////////////////////////////////////////
 
-        TRestReadoutPlane* plane = fReadout->GetReadoutPlaneWithID(planeID);
+        //TRestReadoutPlane* plane = fReadout->GetReadoutPlaneWithID(planeID);
 
         // For the moment this will only be valid for a TPC with its axis (field
         // direction) being in z
-        Double_t fieldZDirection = plane->GetPlaneVector().Z();
-        Double_t zPosition = plane->GetPosition().Z();
+        TVector3 xyz = gDetector->GetReadoutPosition(signalID);
+        int t = gDetector->GetReadoutType(signalID);
+        Double_t fieldZDirection = gDetector->GetReadoutDirection(signalID).Z();
 
-        Double_t x = plane->GetX(readoutModule, readoutChannel);
-        Double_t y = plane->GetY(readoutModule, readoutChannel);
+        Double_t zPosition = xyz.Z();
+        Double_t x = xyz.X();
+        Double_t y = xyz.Y();
 
-        REST_HitType type = XYZ;
-        TRestReadoutModule* mod = plane->GetModuleByID(readoutModule);
-        if (TMath::IsNaN(x)) {
-            x = mod->GetPhysicalCoordinates(TVector2(mod->GetModuleSizeX() / 2, mod->GetModuleSizeY() / 2))
-                    .X();
-            type = YZ;
-        } else if (TMath::IsNaN(y)) {
-            y = mod->GetPhysicalCoordinates(TVector2(mod->GetModuleSizeX() / 2, mod->GetModuleSizeY() / 2))
-                    .Y();
-            type = XZ;
-        }
-
+        REST_HitType type = (REST_HitType)(t * Z);
         if (fSignalToHitMethod == "onlyMax") {
             Double_t time = sgnl->GetMaxPeakTime();
             Double_t distanceToPlane = time * fDriftVelocity;
@@ -319,8 +307,8 @@ void TRestSignalToHitsProcess::EndProcess() {
 
 //______________________________________________________________________________
 void TRestSignalToHitsProcess::InitFromConfigFile() {
-    fElectricField = GetDblParameterWithUnits("electricField", 100.);
-    fGasPressure = GetDblParameterWithUnits("gasPressure", -1.);
+    //fElectricField = GetDblParameterWithUnits("electricField", 100.);
+    //fGasPressure = GetDblParameterWithUnits("gasPressure", -1.);
     fDriftVelocity = GetDblParameterWithUnits("driftVelocity", -1.);
     fSignalToHitMethod = GetParameter("method", "all");
 }
