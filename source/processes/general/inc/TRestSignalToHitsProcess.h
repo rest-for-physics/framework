@@ -26,6 +26,8 @@ class TRestSignalToHitsProcess : public TRestEventProcess {
     TRestHitsEvent* fHitsEvent;      //!
     TRestSignalEvent* fSignalEvent;  //!
 
+    TRestReadout* fReadout;  //!
+    TRestGas* fGas;          //!
 #endif
 
     void InitFromConfigFile();
@@ -35,6 +37,8 @@ class TRestSignalToHitsProcess : public TRestEventProcess {
     void LoadDefaultConfig();
 
    protected:
+    Double_t fElectricField;  // V/cm
+    Double_t fGasPressure;    // atm
     Double_t fDriftVelocity;  // mm/us
 
     TString fSignalToHitMethod;
@@ -52,6 +56,8 @@ class TRestSignalToHitsProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
+        metadata << "Electric field : " << fElectricField * units("V/cm") << " V/cm" << endl;
+        metadata << "Gas pressure : " << fGasPressure << " atm" << endl;
         metadata << "Drift velocity : " << fDriftVelocity << " mm/us" << endl;
 
         metadata << "Signal to hits method : " << fSignalToHitMethod << endl;
