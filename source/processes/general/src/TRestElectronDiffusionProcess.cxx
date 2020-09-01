@@ -185,6 +185,11 @@ void TRestElectronDiffusionProcess::EndProcess() {
 
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::InitFromConfigFile() {
+    double fElectricField = GetDblParameterWithUnits("electricField", -1);
+    if(fElectricField!=-1) gDetector->SetDriftField(fElectricField);
+    double fGasPressure = GetDblParameterWithUnits("gasPressure", -1);
+    if (fGasPressure != -1) gDetector->SetPressure(fGasPressure);
+
     fWvalue = GetDblParameterWithUnits("Wvalue", (double)0) * REST_Units::eV;
     fAttachment = StringToDouble(GetParameter("attachment", "0"));
     fLonglDiffCoeff = StringToDouble(GetParameter("longitudinalDiffusionCoefficient", "-1"));
