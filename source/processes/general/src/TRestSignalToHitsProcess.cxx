@@ -307,8 +307,11 @@ void TRestSignalToHitsProcess::EndProcess() {
 
 //______________________________________________________________________________
 void TRestSignalToHitsProcess::InitFromConfigFile() {
-    //fElectricField = GetDblParameterWithUnits("electricField", 100.);
-    //fGasPressure = GetDblParameterWithUnits("gasPressure", -1.);
+    double fElectricField = GetDblParameterWithUnits("electricField", -1);
+    if (fElectricField != -1) gDetector->SetDriftField(fElectricField);
+    double fGasPressure = GetDblParameterWithUnits("gasPressure", -1);
+    if (fGasPressure != -1) gDetector->SetPressure(fGasPressure);
+
     fDriftVelocity = GetDblParameterWithUnits("driftVelocity", -1.);
     fSignalToHitMethod = GetParameter("method", "all");
 }
