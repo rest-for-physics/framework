@@ -172,10 +172,11 @@ Double_t TRestDetectorImpl::GetReadoutGain(int id) {
     }
     return 0;
 }
-TVector2 TRestDetectorImpl::GetReadoutPosition(int id) {
+TVector3 TRestDetectorImpl::GetReadoutPosition(int id) {
     if (fReadout != NULL) {
         double x = fReadout->GetX(id);
         double y = fReadout->GetY(id);
+        double z = 0;
 
         if (TMath::IsNaN(x) || TMath::IsNaN(y)) {
             Int_t planeID, readoutChannel = -1, readoutModule;
@@ -184,6 +185,8 @@ TVector2 TRestDetectorImpl::GetReadoutPosition(int id) {
             if (readoutChannel != -1) {
                 TRestReadoutPlane* plane = fReadout->GetReadoutPlaneWithID(planeID);
                 TRestReadoutModule* mod = plane->GetModuleByID(readoutModule);
+
+                z = plane->GetPosition().Z();
                 if (TMath::IsNaN(x)) {
                     x = mod->GetPhysicalCoordinates(
                                TVector2(mod->GetModuleSizeX() / 2, mod->GetModuleSizeY() / 2))
@@ -195,9 +198,22 @@ TVector2 TRestDetectorImpl::GetReadoutPosition(int id) {
                 }
             }
         }
-        return TVector2(fReadout->GetX(id), fReadout->GetY(id));
+        return TVector3(x, y, z);
     }
-    return TVector2();
+    return TVector3();
+}
+TVector3 TRestDetectorImpl::GetReadoutDirection(int id) {
+    if (fReadout != NULL) {
+            Int_t planeID, readoutChannel = -1, readoutModule;
+            fReadout->GetPlaneModuleChannel(id, planeID, readoutModule, readoutChannel);
+
+            if (readoutChannel != -1) {
+                TRestReadoutPlane* plane = fReadout->GetReadoutPlaneWithID(planeID);
+                return plane->GetPlaneVector();
+            }
+    }
+    return TVector3();
+
 }
 enum REST_ReadoutType { unknown = -1, none = 1, X = 2, Y = 3, Z = 5, U = 7, V = 11, W = 13 };
 Int_t TRestDetectorImpl::GetReadoutType(int id) {

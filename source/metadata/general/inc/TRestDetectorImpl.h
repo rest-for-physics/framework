@@ -101,7 +101,8 @@ class TRestDetectorImpl : public TRestDetector {
     virtual Int_t GetNReadoutChannels() override;
     virtual Double_t GetReadoutVoltage(int id) override;
     virtual Double_t GetReadoutGain(int id) override;
-    virtual TVector2 GetReadoutPosition(int id) override;
+    virtual TVector3 GetReadoutPosition(int id) override;
+    virtual TVector3 GetReadoutDirection(int id) override;
     virtual Int_t GetReadoutType(int id) override;
 
     virtual void RegisterMetadata(TObject* ptr) override;

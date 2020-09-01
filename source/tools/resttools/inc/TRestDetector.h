@@ -76,7 +76,8 @@ class TRestDetector {
     virtual Int_t GetNReadoutChannels() { return 0; }
     virtual Double_t GetReadoutVoltage(int id) { return 0; }
     virtual Double_t GetReadoutGain(int id) { return 0; }
-    virtual TVector2 GetReadoutPosition(int id) { return 0; }
+    virtual TVector3 GetReadoutPosition(int id) { return TVector3(); }
+    virtual TVector3 GetReadoutDirection(int id) { return TVector3(); }
     virtual Int_t GetReadoutType(int id) { return 0; }
 
     /// instantiate specific detector: TRestDetectorXXX according to the name XXX
