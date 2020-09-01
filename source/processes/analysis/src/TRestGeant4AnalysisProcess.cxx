@@ -488,6 +488,10 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
                            fOutputG4Event->GetEnergyInSensitiveFromProcessCompton());
         SetObservableValue((string) "PerProcessElectronicIoni",
                            fOutputG4Event->GetEnergyInSensitiveFromProcessEIoni());
+        SetObservableValue((string) "PerProcessIonIoni",
+                           fOutputG4Event->GetEnergyInSensitiveFromProcessIonIoni());
+        SetObservableValue((string) "PerProcessAlphaIoni",
+                           fOutputG4Event->GetEnergyInSensitiveFromProcessAlphaIoni());
         SetObservableValue((string) "PerProcessHadronicIoni",
                            fOutputG4Event->GetEnergyInSensitiveFromProcessHadronIoni());
         SetObservableValue((string) "PerProcessProtonIoni",

@@ -57,6 +57,8 @@ class TRestG4Event : public TRestEvent {
         PerProcessEnergyInSensitive["photoelectric"] = 0;
         PerProcessEnergyInSensitive["compton"] = 0;
         PerProcessEnergyInSensitive["electron_ionization"] = 0;
+        PerProcessEnergyInSensitive["ion_ionization"] = 0;
+        PerProcessEnergyInSensitive["alpha_ionization"] = 0;
         PerProcessEnergyInSensitive["msc"] = 0;
         PerProcessEnergyInSensitive["hadronic_ionization"] = 0;
         PerProcessEnergyInSensitive["proton_ionization"] = 0;
@@ -91,6 +93,11 @@ class TRestG4Event : public TRestEvent {
                     PerProcessEnergyInSensitive["compton"] += energy;
                 } else if (process_name == "eIoni" || process_name == "e-Step" || process_name == "e+Step") {
                     PerProcessEnergyInSensitive["electron_ionization"] += energy;
+                } else if (process_name == "ionIoni") {
+                    PerProcessEnergyInSensitive["ion_ionization"] += energy;
+                    if (track->GetParticleName() == "alpha") {
+                        PerProcessEnergyInSensitive["alpha_ionization"] += energy;
+                    }
                 } else if (process_name == "msc") {
                     PerProcessEnergyInSensitive["msc"] += energy;
                 } else if (process_name == "hIoni") {
@@ -239,6 +246,18 @@ class TRestG4Event : public TRestEvent {
             InitializePerProcessEnergyInSensitive();
         }
         return PerProcessEnergyInSensitive["electron_ionization"];
+    }
+    Double_t GetEnergyInSensitiveFromProcessIonIoni() {
+        if (!PerProcessEnergyInitFlag) {
+            InitializePerProcessEnergyInSensitive();
+        }
+        return PerProcessEnergyInSensitive["ion_ionization"];
+    }
+    Double_t GetEnergyInSensitiveFromProcessAlphaIoni() {
+        if (!PerProcessEnergyInitFlag) {
+            InitializePerProcessEnergyInSensitive();
+        }
+        return PerProcessEnergyInSensitive["alpha_ionization"];
     }
     Double_t GetEnergyInSensitiveFromProcessMsc() {
         if (!PerProcessEnergyInitFlag) {
