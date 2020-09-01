@@ -226,6 +226,24 @@ Int_t TRestDetectorImpl::GetReadoutType(int id) {
     return unknown;
 }
 
+void TRestDetectorImpl::SetDriftMedium(string mediumname) {}
+void TRestDetectorImpl::SetDriftField(Double_t df) {
+    if (fDetectorMedium != NULL) {
+        fDetectorMedium->SetElectricField(df);
+    }
+}
+void TRestDetectorImpl::SetPressure(Double_t p) {
+    if (fDetectorMedium != NULL) {
+        fDetectorMedium->SetPressure(p);
+    }
+}
+void TRestDetectorImpl::SetDAQSamplingTime(Double_t st) { fDAQSamplingTime = st; }
+void TRestDetectorImpl::SetElectronLifeTime(Double_t elt) {
+    if (fDetectorMedium != NULL) {
+        fDetectorMedium->SetElectronLifeTime(elt);
+    }
+}
+
 void TRestDetectorImpl::RegisterMetadata(TObject* ptr) {
     if (ptr != NULL) {
         if (ptr->InheritsFrom("TRestDriftVolume")) {

@@ -42,8 +42,8 @@ class TRestDetector {
     //////// Field property ////////
     virtual TVector3 GetDriftField(TVector3 pos) { return TVector3(); }
     virtual TVector3 GetAmplificationField(TVector3 pos) { return TVector3(); }
-    virtual Double_t GetDriftVoltage() { return 0; }
-    virtual Double_t GetAmplificationVoltage() { return 0; }
+    virtual Double_t GetDriftField() { return 0; }
+    virtual Double_t GetAmplificationField() { return 0; }
 
     //////// Medium property ////////
     virtual string GetMediumName() { return ""; }
@@ -79,6 +79,13 @@ class TRestDetector {
     virtual TVector3 GetReadoutPosition(int id) { return TVector3(); }
     virtual TVector3 GetReadoutDirection(int id) { return TVector3(); }
     virtual Int_t GetReadoutType(int id) { return 0; }
+
+    //////// setters for some frequent-changed parameters ////////
+    virtual void SetDriftMedium(string mediumname) {}
+    virtual void SetDriftField(Double_t df) {}
+    virtual void SetPressure(Double_t p) {}
+    virtual void SetDAQSamplingTime(Double_t st) {}
+    virtual void SetElectronLifeTime(Double_t elt) {}
 
     /// instantiate specific detector: TRestDetectorXXX according to the name XXX
     static TRestDetector* instantiate(string name = "");

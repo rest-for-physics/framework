@@ -67,8 +67,8 @@ class TRestDetectorImpl : public TRestDetector {
     //////// Field property ////////
     virtual TVector3 GetDriftField(TVector3 pos) override { return TVector3(); }
     virtual TVector3 GetAmplificationField(TVector3 pos) override { return TVector3(); }
-    virtual Double_t GetDriftVoltage() override { return fDriftVoltage; }
-    virtual Double_t GetAmplificationVoltage() override { return fDriftVoltage; }
+    virtual Double_t GetDriftField() override { return fDriftVoltage; }
+    virtual Double_t GetAmplificationField() override { return fDriftVoltage; }
 
     //////// Medium property ////////
     virtual string GetMediumName() override;
@@ -104,6 +104,13 @@ class TRestDetectorImpl : public TRestDetector {
     virtual TVector3 GetReadoutPosition(int id) override;
     virtual TVector3 GetReadoutDirection(int id) override;
     virtual Int_t GetReadoutType(int id) override;
+
+    //////// setters for some frequent-changed parameters ////////
+    virtual void SetDriftMedium(string mediumname) override;
+    virtual void SetDriftField(Double_t df) override;
+    virtual void SetPressure(Double_t p) override;
+    virtual void SetDAQSamplingTime(Double_t st) override;
+    virtual void SetElectronLifeTime(Double_t elt) override;
 
     virtual void RegisterMetadata(TObject* ptr) override;
     virtual void RegisterString(string str) override;
