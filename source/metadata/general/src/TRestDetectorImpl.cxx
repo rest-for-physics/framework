@@ -204,16 +204,15 @@ TVector3 TRestDetectorImpl::GetReadoutPosition(int id) {
 }
 TVector3 TRestDetectorImpl::GetReadoutDirection(int id) {
     if (fReadout != NULL) {
-            Int_t planeID, readoutChannel = -1, readoutModule;
-            fReadout->GetPlaneModuleChannel(id, planeID, readoutModule, readoutChannel);
+        Int_t planeID, readoutChannel = -1, readoutModule;
+        fReadout->GetPlaneModuleChannel(id, planeID, readoutModule, readoutChannel);
 
-            if (readoutChannel != -1) {
-                TRestReadoutPlane* plane = fReadout->GetReadoutPlaneWithID(planeID);
-                return plane->GetPlaneVector();
-            }
+        if (readoutChannel != -1) {
+            TRestReadoutPlane* plane = fReadout->GetReadoutPlaneWithID(planeID);
+            return plane->GetPlaneVector();
+        }
     }
     return TVector3();
-
 }
 enum REST_ReadoutType { unknown = -1, none = 1, X = 2, Y = 3, Z = 5, U = 7, V = 11, W = 13 };
 Int_t TRestDetectorImpl::GetReadoutType(int id) {
