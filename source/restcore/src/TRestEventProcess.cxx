@@ -475,29 +475,21 @@ std::vector<string> TRestEventProcess::GetListOfAddedObservables() {
 }
 
 void TRestEventProcess::ValidateObservables() {
-    std::vector<string> definedObservables;
-    for (auto const& x : fObservableInfo) {
-        definedObservables.push_back(x.first);
+    for (auto x : fObservableInfo) {
+        if (fObservableForValidation.count(x.first) == 0) {
+            // the observable is added through <observable section but not set in the process
+            warning << "The observable  '" << x.first << "' is added through rml but not set by "
+                    << this->ClassName() << ", the first event is empty? The observable is invalid?" << endl;
+        }
     }
 
-    std::vector<string> usedObservables;
-    for (auto const& x : fObservableForValidation) {
-        usedObservables.push_back(x.first);
-    }
-
-    std::vector<string> diff;
-    std::set_difference(definedObservables.begin(), definedObservables.end(), usedObservables.begin(),
-                        usedObservables.end(), std::inserter(diff, diff.begin()));
-
-    for (auto const& x : diff) {
-        ferr << "----" << endl;
-        ferr << "The observable  '" << x << "' could not be identified as a valid observable of "
-             << this->ClassName() << endl;
-        ferr << "Please, verify the corresponding <observable definition inside the process." << endl;
-        ferr << "The observable names are case sensitive. Please, double-check the name is properly "
-                "formed."
-             << endl;
-        ferr << "----" << endl;
-        GetChar();
+    for (auto x : fObservableForValidation) {
+        if (fObservableInfo.count(x.first) == 0) {
+            // the observable is added in the process but not through test run
+            ferr << "The observable  '" << x.first << "' is added by " << this->ClassName()
+                 << " outside test run. Make sure all the calls of SetObservableValue() can be reached in "
+                    "the code!"
+                 << endl;
+        }
     }
 }
