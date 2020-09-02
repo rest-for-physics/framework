@@ -68,6 +68,7 @@ enum class energy_dist_types {
     TH1D,
     MONO,
     FLAT,
+    LOG,
 };
 extern std::map<string, energy_dist_types> energy_dist_types_map;
 
@@ -415,6 +416,6 @@ class TRestG4Metadata : public TRestMetadata {
 
     ~TRestG4Metadata();
 
-    ClassDef(TRestG4Metadata, 5);
+    ClassDef(TRestG4Metadata, 6);
 };
 #endif  // RestCore_TRestG4Metadata
