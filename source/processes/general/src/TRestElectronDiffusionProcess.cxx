@@ -67,7 +67,7 @@ void TRestElectronDiffusionProcess::InitProcess() {
         fAttachment = 1 - exp(-gDetector->GetElectronLifeTime() * gDetector->GetDriftVelocity() *
                               REST_Units::cm);  // attatched ratio per cm
 
-    cout << fAttachment << endl;
+    debug << "Attachment : " << fAttachment << endl;
 
     if (fWvalue <= 0) fWvalue = gDetector->GetWvalue();
     if (fLonglDiffCoeff <= 0) fLonglDiffCoeff = gDetector->GetLongitudinalDiffusion();  // (cm)^1/2
@@ -185,28 +185,21 @@ void TRestElectronDiffusionProcess::EndProcess() {
 
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::InitFromConfigFile() {
-    double fElectricField = GetDblParameterWithUnits("electricField", -1);
-    if (fElectricField != -1) gDetector->SetDriftField(fElectricField);
-    double fGasPressure = GetDblParameterWithUnits("gasPressure", -1);
-    if (fGasPressure != -1) gDetector->SetPressure(fGasPressure);
+    double field = GetDblParameterWithUnits("electricField", -1);
+    if (field != -1) gDetector->SetDriftField(field);
+
+    double pressure = GetDblParameterWithUnits("gasPressure", -1);
+    if (pressure != -1) gDetector->SetPressure(pressure);
 
     fWvalue = GetDblParameterWithUnits("Wvalue", (double)0) * REST_Units::eV;
-    fAttachment = StringToDouble(GetParameter("attachment", "0"));
-    fLonglDiffCoeff = StringToDouble(GetParameter("longitudinalDiffusionCoefficient", "-1"));
-    if (fLonglDiffCoeff == -1)
-        fLonglDiffCoeff = StringToDouble(GetParameter("longDiff", "-1"));
-    else {
-        warning << "longitudinalDiffusionCoeffient is now OBSOLETE! It will soon dissapear." << endl;
-        warning << " Please use the shorter form of this parameter : longDiff" << endl;
-    }
 
-    fTransDiffCoeff = StringToDouble(GetParameter("transversalDiffusionCoefficient", "-1"));
-    if (fTransDiffCoeff == -1)
-        fTransDiffCoeff = StringToDouble(GetParameter("transDiff", "-1"));
-    else {
-        warning << "transversalDiffusionCoeffient is now OBSOLETE! It will soon dissapear." << endl;
-        warning << " Please use the shorter form of this parameter : transDiff" << endl;
-    }
+    fAttachment = StringToDouble(GetParameter("attachment", "0"));
+
+    fLonglDiffCoeff = StringToDouble(GetParameter("longDiff", "-1"));
+
+    fTransDiffCoeff = StringToDouble(GetParameter("transDiff", "-1"));
+
     fMaxHits = StringToInteger(GetParameter("maxHits", "1000"));
+
     fSeed = StringToDouble(GetParameter("seed", "0"));
 }

@@ -22,12 +22,10 @@
 
 class TRestElectronDiffusionProcess : public TRestEventProcess {
    private:
-#ifndef __CINT__
     TRestHitsEvent* fInputHitsEvent;   //!
     TRestHitsEvent* fOutputHitsEvent;  //!
 
     TRandom3* fRandom;  //!
-#endif
 
     void InitFromConfigFile();
 
@@ -58,14 +56,14 @@ class TRestElectronDiffusionProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        metadata << " attachment coeficient : " << fAttachment << " V/cm" << endl;
-        metadata << " longitudinal diffusion coefficient : " << fLonglDiffCoeff << " cm^1/2" << endl;
-        metadata << " transversal diffusion coefficient : " << fTransDiffCoeff << " cm^1/2" << endl;
+        metadata << " Attachment coeficient : " << fAttachment << " cm-1" << endl;
+        metadata << " Longitudinal diffusion coefficient : " << fLonglDiffCoeff << " cm^1/2" << endl;
+        metadata << " Transversal diffusion coefficient : " << fTransDiffCoeff << " cm^1/2" << endl;
         metadata << " W value : " << fWvalue << " eV" << endl;
 
         metadata << " Maximum number of hits : " << fMaxHits << endl;
 
-        metadata << " seed : " << fSeed << endl;
+        metadata << " Seed : " << fSeed << endl;
 
         EndPrintProcess();
     }
@@ -80,7 +78,7 @@ class TRestElectronDiffusionProcess : public TRestEventProcess {
     // Destructor
     ~TRestElectronDiffusionProcess();
 
-    ClassDef(TRestElectronDiffusionProcess, 2);  // Template for a REST "event process" class inherited from
+    ClassDef(TRestElectronDiffusionProcess, 3);  // Template for a REST "event process" class inherited from
                                                  // TRestEventProcess
 };
 #endif
