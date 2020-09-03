@@ -391,11 +391,19 @@ void PrimaryGeneratorAction::SetParticleEnergy(int n) {
 
     if (energy_dist_type == g4_metadata_parameters::energy_dist_types::MONO) {
         energy = restG4Metadata->GetParticleSource(n).GetEnergy() * keV;
-    } else if (energy_dist_type == g4_metadata_parameters::energy_dist_types::FLAT) {
+    } 
+	else if (energy_dist_type == g4_metadata_parameters::energy_dist_types::FLAT) {
         TVector2 enRange = restG4Metadata->GetParticleSource(n).GetEnergyRange();
-
         energy = ((enRange.Y() - enRange.X()) * G4UniformRand() + enRange.X()) * keV;
-    } else if (energy_dist_type == g4_metadata_parameters::energy_dist_types::TH1D) {
+    } 
+	else if (energy_dist_type == g4_metadata_parameters::energy_dist_types::LOG) {
+        TVector2 enRange = restG4Metadata->GetParticleSource(n).GetEnergyRange();
+        auto max_energy = enRange.Y() * keV;
+        auto min_energy = enRange.X() * keV;
+        energy = exp((log(max_energy) - log(min_energy)) * G4UniformRand() + log(min_energy));
+
+       } 
+	else if (energy_dist_type == g4_metadata_parameters::energy_dist_types::TH1D) {
         Double_t value = G4UniformRand() * fSpectrumIntegral;
         Double_t sum = 0;
         Double_t deltaEnergy = fSpectrum->GetBinCenter(2) - fSpectrum->GetBinCenter(1);
