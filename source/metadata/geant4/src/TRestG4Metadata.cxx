@@ -393,6 +393,14 @@
 ///     <energyDist type="flat" range="(1,10)" units="keV" />
 /// \endcode
 ///
+/// * **log**: All the particles from this source will be launched in a
+/// specified energy range using a logarithmic energy distribution. It requires to
+/// define the parameter `range="(Ei,Ef)"`, where `Ei` is the minimum energy and
+/// `Ef` is the maximum energy (in keV). `Ei` needs to be > 0. \code
+///     // A random logarithmic generation between 1 and 10 keV
+///     <energyDist type="log" range="(1,10)" units="keV" />
+/// \endcode
+///
 /// * **TH1D**: It will use a TH1D histogram from a ROOT file with a user
 /// defined spectrum. It requires to define the parameters
 /// `file="mySpectrum.root"` `spctName="histName"` and `range="(Ei,Ef)"`. The
@@ -667,6 +675,7 @@ std::map<string, energy_dist_types> energy_dist_types_map = {
     {CleanString("TH1D"), energy_dist_types::TH1D},
     {CleanString("mono"), energy_dist_types::MONO},
     {CleanString("flat"), energy_dist_types::FLAT},
+    {CleanString("log"), energy_dist_types::LOG},
 };
 
 std::map<string, angular_dist_types> angular_dist_types_map = {
