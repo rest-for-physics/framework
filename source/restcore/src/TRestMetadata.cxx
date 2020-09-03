@@ -698,6 +698,7 @@ void TRestMetadata::InitFromRootFile() {
         configBuffer = "";
         // this->InitFromConfigFile();
     }
+    gDetector->RegisterMetadata(this);
 }
 
 ///////////////////////////////////////////////
