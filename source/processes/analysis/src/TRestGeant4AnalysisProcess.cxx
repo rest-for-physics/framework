@@ -293,7 +293,7 @@ void TRestGeant4AnalysisProcess::InitProcess() {
         fObservables.push_back("PerProcessProtonIoni");
         fObservables.push_back("PerProcessMsc");
         fObservables.push_back("PerProcessHadronElastic");
-        fObservables.push_back("PerProcessNeutronElastic"); 
+        fObservables.push_back("PerProcessNeutronElastic");
     }
     for (unsigned int i = 0; i < fObservables.size(); i++) {
         if (fObservables[i].find("VolumeEDep") != string::npos) {
