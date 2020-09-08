@@ -287,6 +287,8 @@ void TRestGeant4AnalysisProcess::InitProcess() {
         fObservables.push_back("PerProcessPhotoelectric");
         fObservables.push_back("PerProcessCompton");
         fObservables.push_back("PerProcessElectronicIoni");
+        fObservables.push_back("PerProcessAlphaIoni");
+        fObservables.push_back("PerProcessIonIoni");
         fObservables.push_back("PerProcessHadronicIoni");
         fObservables.push_back("PerProcessProtonIoni");
         fObservables.push_back("PerProcessMsc");
