@@ -56,6 +56,10 @@ struct __REST_CONST_INIT {
             if (!TRestTools::fileExists(restUserPath + "/download")) {
                 mkdir((restUserPath + "/download").c_str(), S_IRWXU);
             }
+            // check the gdml directory
+            if (!TRestTools::fileExists(restUserPath + "/gdml")) {
+                mkdir((restUserPath + "/gdml").c_str(), S_IRWXU);
+            }
 
             // now we don't need to check write accessibility in other methods in REST
             REST_USER_PATH = restUserPath;
