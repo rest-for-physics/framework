@@ -11,32 +11,24 @@ of adding new analysis items in TRestRawSignalAnalysisProcess. Assume we are goi
 peaks in an event. We would like to add a map of signal id to signal peaks. We also like to add an 
 observable of mean peak value.
 
-We add several lines in both header and source file:
-
-`//inside class definition(TRestRawSignalAnalysisProcess.h)`  
-`...`  
-`map<int,Double_t> signalpeakvalue;`  
-`...`  
+We add several lines in the cxx file:
 
 `//inside function ProcessEvent()(TRestRawSignalAnalysisProcess.cxx)`  
 `...`  
-`signalpeakvalue.clear();`
+`map<int,Double_t> signalpeakvalue;`  
 `int signalpeaksum = 0;`  
 `for (int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++){`  
 &emsp;`TRestRawSignal *sgnl = fSignalEvent->GetSignal(s);`  
-&emsp;`signalpeaksum+=sgnl->GetMaxPeakValue();`  
-&emsp;`signalpeakvalue[sgnl->GetID()]=sgnl->GetMaxPeakValue();`  
+&emsp;`signalpeaksum += sgnl->GetMaxPeakValue();`  
+&emsp;`signalpeakvalue[sgnl->GetID()] = sgnl->GetMaxPeakValue();`  
 `}`  
-`fAnalysisTree->SetObservableValue(this, "signalPeakMean", signalpeaksum / fSignalEvent->GetNumberOfSignals());`  
+`SetObservableValue("SignalPeakMean", signalpeaksum / fSignalEvent->GetNumberOfSignals());`  
+`SetObservableValue("SignalPeakValue", signalpeakvalue);`  
 `...`  
 
-This example contains two kinds of analysis saving methods: observable and internal variable. The mean 
-peak value is saved as observable, and the map of peak values is saved as internal variable. The calculation 
-is done by calling certain methods of TRestRawSignal. 
-
 After changing the source code, we need to switch to the build directory and type `make install`.
-Then, TRestRawSignalAnalysisProcess will be working in a new way. To add the observable of mean peak value,
-we also need to change the rml file.
+Then, TRestRawSignalAnalysisProcess will be working in a new way. We don't need to change the rml 
+file or the header file. The class definition would remain unchanged. 
 
 ### Add a class to souce code
 

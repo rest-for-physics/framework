@@ -76,7 +76,7 @@ void TRestEventViewer::AddEvent(TRestEvent* ev) {
     // fEvent=(TRestSignalEvent *)ev;
     fEvent = ev;
 
-    fOptwindow->SetText("");
+    //fOptwindow->SetText("");
 
     OptionPlot();
 }

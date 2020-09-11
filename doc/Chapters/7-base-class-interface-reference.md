@@ -6,6 +6,76 @@ points of inheriting the class TObject, which is the base class of many REST bas
 talk about the three main base classes in REST: TRestEvent, TRestMetadata and TRestEventProcess. Both
 of them are abstract class.
 
+### TRestStringOutput
+
+REST uses this tool class to do message output in a colorful and leveled style. There are several pre-defined 
+output objects, just like cout:
+
+fout            | It will always display the message. The message will be in middle of the window with color bold blue.
+essential       | It will display the message when verbose level is >= REST_Essential. The message is in middle with color bold green.
+info            | It will display the message when verbose level is >= REST_Info. The message is left orientated with color bold green.
+ferr            | It will display the error. The message is left orientated with color bold red.
+warning         | It will display the warning when verbose level is >= REST_Essential. The message is left orientated with color bold yellow.
+debug           | It will display the message when verbose level is >= REST_Debug. The message is left orientated with color white.
+extreme         | It will display the message when verbose level is >= REST_Extreme. The message is left orientated with color white.
+success         | It will display the message when verbose level is >= REST_Info. The message is left orientated with color bold green.
+metadata        | It will display the message when verbose level is >= REST_Essential. The message is left orientated with color bold green.
+
+The verbose level is REST_Silent < REST_Essential < REST_Info < REST_Debug < REST_Extreme.
+There is a global variable, `gVerbose`, for these output objects to compare. global verbose level is overriden 
+in metadata classes.
+
+TRestStringOutput allows the user to set output color, border, length and orientation. To set colors, 
+use the method TRestStringOutput::setcolor(). For example: 
+
+`fout.setcolor(COLOR_RED)`
+
+Here COLOR_RED is one of the pre-defined colors in REST, in the following list.
+
+Name of Color | actual value(type: const char*)
+-------------|------------
+COLOR_RESET   |  "\033[0m"
+COLOR_BLACK   |  "\033[30m"      
+COLOR_RED     |  "\033[31m"      
+COLOR_GREEN   |  "\033[32m"      
+COLOR_YELLOW  |  "\033[33m"      
+COLOR_BLUE    |  "\033[34m"      
+COLOR_MAGENTA |  "\033[35m"      
+COLOR_CYAN    |  "\033[36m"      
+COLOR_WHITE   |  "\033[37m"      
+COLOR_BOLDBLACK   |  "\033[1m\033[30m"      
+COLOR_BOLDRED     |  "\033[1m\033[31m"      
+COLOR_BOLDGREEN   |  "\033[1m\033[32m"      
+COLOR_BOLDYELLOW  |  "\033[1m\033[33m"      
+COLOR_BOLDBLUE    |  "\033[1m\033[34m"      
+COLOR_BOLDMAGENTA |  "\033[1m\033[35m"      
+COLOR_BOLDCYAN    |  "\033[1m\033[36m"      
+COLOR_BOLDWHITE   |  "\033[1m\033[37m"      
+COLOR_BACKGROUNDBLACK   |  "\033[1m\033[40m"      
+COLOR_BACKGROUNDRED     |  "\033[1m\033[41m"      
+COLOR_BACKGROUNDGREEN   |  "\033[1m\033[42m"      
+COLOR_BACKGROUNDYELLOW  |  "\033[1m\033[43m"      
+COLOR_BACKGROUNDBLUE    |  "\033[1m\033[44m"      
+COLOR_BACKGROUNDMAGENTA |  "\033[1m\033[45m"      
+COLOR_BACKGROUNDCYAN    |  "\033[1m\033[46m"      
+COLOR_BACKGROUNDWHITE   |  "\033[1m\033[47m"      
+
+
+### TRestReflector
+
+Reflection means a mapping from string type class/classmember name to the actual address of the 
+class/classmember. For example some times we need to write a config file to set values for a hundred of 
+class members. The actual lines in the config file may be just several, but we need to parpare a hundred
+of lines like:   
+`par1=GetParameter("par1","")==""?0:StringToInteger(GetParameter("par1"));`  
+in the code. Of course we don't want to write like this. In this case we need reflection. 
+
+Another example is that when we are writing a base class, we usually want to make it easier to inherit. 
+We want to directly implement the InitFromConfigFile() method for all of the derived class. How can we 
+set the class members' value even when we don't know them? We also need reflection. Note that if the 
+class member has no ROOT streamer(annotation //! is added after member definition), the reflection
+won't work for it. 
+
 ### TObject
 
 Classes inherited from TObject can be saved in both TFile and TTree. If one wants to save his data
@@ -124,8 +194,8 @@ transfer an event and not to use CloneTo();
 This is an abstract class inherited from TNamed (TNamed is inherited from TObject). To write a TRestMetadata inherited
 class, there is a pure virtual method InitFromConfigFile() which everyone needs to implement. This method defines
 how this class loads data from rml config file. As there is too many methods in the class, we just explain
-roughly its usage here. For detailed class reference, check the 
-[doxygen website](https://p3.doxygen.pandax.sjtu.edu.cn/classTRestMetadata.html).
+roughly its logic here. For detailed class reference, check the 
+[doxygen website](https://sultan.unizar.es/rest/classTRestMetadata.html).
 
 #### startup of TRestMetadata
 
@@ -198,81 +268,21 @@ The startup method LoadSectionMetadata() and Initialize() can be overriden by ch
 We also provide interface of printing in the method PrintMetadata(). REST macros like REST_PrintMetadata 
 call this method and print the information on screen. The user needs to implement it in some times.
 
-#### useful methods and tools
+#### string output
 
-REST provides rml parsing methods, reflection methods and string output tools in TRestMetadata, as 
-shown in the following. Inline methods from the class TRestStringHelper are also available. We will 
-not talk about them here. Check in our 
-[doxygen website](https://p3.doxygen.pandax.sjtu.edu.cn/classTRestStringHelper.html).
-
-##### protected class members
-
-Type | Name | Description
--------------|------------|-------------
-std::string                           | fConfigFileName | Full name of the rml config file
-std::string                           | fSectionName    | Section name given in the constructor of the derived metadata class
-REST_Verbose_Level                    | fVerboseLevel   | Verbose level used to print debug info. Won't save in file.
-TRestManager*                         | fHostmgr        | All metadata classes can be initialized and managed by TRestManager. We keep a pointer of TRestManager in all the classes. Won't save in file.
-Bool_t                                | fStore          | This variable is used to determine if the metadata structure should be stored in the ROOT file. Won't save in file.
-TiXmlElement*                         | fElement        | Saving the sectional element together with global element. Won't save in file.
-TiXmlElement*                         | fElementGlobal  | Saving the global element, to be passed to the resident class, if necessary. Won't save in file.
-vector&lt;TiXmlElement*>              | fElementEnv     | Saving a list of environmental variables. Won't save in file.
-TRestLeveledOutput&lt;REST_Silent>    | fout            | use this to display message when verbose level is >= REST_Silent. The message is in middle with color bold blue.
-TRestLeveledOutput&lt;REST_Essential> | essential       | use this to display message when verbose level is >= REST_Essential. The message is in middle with color bold green.
-TRestLeveledOutput&lt;REST_Info>      | info            | use this to display message when verbose level is >= REST_Info. The message is in middle with color bold green.
-TRestLeveledOutput&lt;REST_Silent>    | error           | use this to display error messages. The message is left orientated with color bold red.
-TRestLeveledOutput&lt;REST_Essential> | warning         | use this to display warning messages. The message is left orientated with color bold yellow.
-TRestLeveledOutput&lt;REST_Debug>     | debug           | use this to display debug messages. The message is left orientated with color white.
-TRestLeveledOutput&lt;REST_Extreme>   | extreme         | use this to display extreme debug messages. The message is left orientated with color white.
-
-String output tools are as data member of TRestMetadata. The usage is very simple, just like cout:
+In TRestMetadata, the string output tool will compare the verbose level of the class instead of gVerbose.
+For example, if we write in the metadata class's code:
 
 `fout << "hellow world" << endl;`  
 `debug << "Setting input event..." << endl;`
 
-Add the lines like this in your class' method functions. During running, when verbose level of this class is 
-set to be higher than(or equal to) REST_Debug, the second message will automatically be shown. Otherwise 
-there will only be the first message on screen. 
+If verbose level of this metadata class is set to be higher than(or equal to) REST_Debug, 
+the second message will automatically be shown. Otherwise there will only be the first message on screen. 
 
-TRestStringOutput allows the user to set output color, border, length and orientation. Check its usage
-[here](https://p3.doxygen.pandax.sjtu.edu.cn/classTRestStringOutput.html).
+The string output tool will also write the messages to the class's message buffer if its verbose level 
+is lower than REST_Info. The limit is 1000 bytes. We can retrieve the message from ROOT file later on.
 
-To set colors, use the method TRestStringOutput::setcolor(). For example: 
-
-`fout.setcolor(COLOR_RED)`
-
-Here COLOR_RED is one of the pre-defined colors in REST, in the following list.
-
-Name of Color | actual value(type: const char*)
--------------|------------
-COLOR_RESET   |  "\033[0m"
-COLOR_BLACK   |  "\033[30m"      
-COLOR_RED     |  "\033[31m"      
-COLOR_GREEN   |  "\033[32m"      
-COLOR_YELLOW  |  "\033[33m"      
-COLOR_BLUE    |  "\033[34m"      
-COLOR_MAGENTA |  "\033[35m"      
-COLOR_CYAN    |  "\033[36m"      
-COLOR_WHITE   |  "\033[37m"      
-COLOR_BOLDBLACK   |  "\033[1m\033[30m"      
-COLOR_BOLDRED     |  "\033[1m\033[31m"      
-COLOR_BOLDGREEN   |  "\033[1m\033[32m"      
-COLOR_BOLDYELLOW  |  "\033[1m\033[33m"      
-COLOR_BOLDBLUE    |  "\033[1m\033[34m"      
-COLOR_BOLDMAGENTA |  "\033[1m\033[35m"      
-COLOR_BOLDCYAN    |  "\033[1m\033[36m"      
-COLOR_BOLDWHITE   |  "\033[1m\033[37m"      
-COLOR_BACKGROUNDBLACK   |  "\033[1m\033[40m"      
-COLOR_BACKGROUNDRED     |  "\033[1m\033[41m"      
-COLOR_BACKGROUNDGREEN   |  "\033[1m\033[42m"      
-COLOR_BACKGROUNDYELLOW  |  "\033[1m\033[43m"      
-COLOR_BACKGROUNDBLUE    |  "\033[1m\033[44m"      
-COLOR_BACKGROUNDMAGENTA |  "\033[1m\033[45m"      
-COLOR_BACKGROUNDCYAN    |  "\033[1m\033[46m"      
-COLOR_BACKGROUNDWHITE   |  "\033[1m\033[47m"      
-
-
-##### rml methods
+#### rml methods
 
 Here we list roughly the main rml methods in TRestMetadata. To look for more details, check the 
 [doxygen website](https://p3.doxygen.pandax.sjtu.edu.cn/classTRestMetadata.html).
@@ -295,162 +305,103 @@ std::string   | GetKEYDefinition              | 4 | Old xml parser interface. Ge
 In most cases we just write a simple class with few class members to set from rml config file. We can simply use
 GetParameter() to do the setting.
 
-##### reflection methods
-
-Reflection means a mapping from string type class/classmember name to the actual address of the 
-class/classmember. For example some times we need to write a config file to set values for a hundred of 
-class members. The actual lines in the config file may be just several, but we need to parpare a hundred
-of lines like:   
-`par1=GetParameter("par1","")==""?0:StringToInteger(GetParameter("par1"));`  
-in the code. Of course we don't want to write like this. In this case we need reflection. 
-
-Another example is that when we are writing a base class, we usually want to make it easier to inherit. 
-We want to directly implement the InitFromConfigFile() method for all of the derived class. How can we 
-set the class members' value even when we don't know them? We also need reflection. Note that if the 
-class member has no ROOT streamer(annotation //! is added after member definition), the reflection
-won't work for it. 
-
-The reflection methods are in the table below:
-
-Return Type | Name        | Input Type | Description
-------------|-------------|------------|---------
-TStreamerElement* | GetDataMemberWithName      | string                      | Get ROOT streamer class of the target class member with class member name
-TStreamerElement* | GetDataMemberWithID        | int                         | Get ROOT streamer class of the target class member with class member's streamer id(not real id)
-int               | GetNumberOfDataMember      | ~                           | Get total number of avaliable class members. Initialize the reflection functionality.
-double            | GetDblDataMemberVal        | TStreamerElement*           | Get the value of class member assume its type is double.
-int               | GetIntDataMemberVal        | TStreamerElement*           | Get the value of class member assume its type is int.
-char*             | GetDataMemberRef           | TStreamerElement*           | Get address of the given class member in type of char*
-string            | GetDataMemberValString     | TStreamerElement*           | Get the value of class member assume its type is string.
-void              | SetDataMemberVal           | TStreamerElement#, char#  | Set the value of class member with a pointer. Assume the pointer is of same type of the class member.
-void              | SetDataMemberVal           | TStreamerElement*, string   | Set the value of class member with a number string. Convert the string to certain value type(int, double, float).
-void              | SetDataMemberValFromConfig | TStreamerElement*           | Autometically set the value of corresponding class member with the given xml section.
-
-(#: same as *)
-
-Now to setup value of a hundred class members from the rml file, we can write a loop:
-
-`int n = GetNumberOfDataMember();`  
-`for (int i = 1; i < n; i++) {`  
-&emsp;`TStreamerElement* e = GetDataMemberWithID(i);`   
-&emsp;`SetDataMemberValFromConfig(e);`  
-`}`  
-
-
 ### TRestEventProcess
 
-#### implementing
+#### methods to implement
 
 The most frequent case of developing REST is to write or modifiy an event process. TRestEventProcess is 
-inherited from TRestMetadata, adding extra interfaces and tools to it. We need to implement/redefine 
-additional methods/variables in TRestEventProcess. The followings are a list of them. 
-The ones with a "!" mark ahead must be implemented/redefined by the user.
+inherited from TRestMetadata, adding extra interfaces and tools to it. We need to implement 
+additional methods to write the concrete process. The followings are a list of them. 
+The bold ones must be implemented by the user.
 
-! TRestEvent* fInputEvent  
+* **virtual void InitFromConfigFile()**  
+* **virtual any GetInputEvent()**  
+* **virtual any GetOutputEvent()**  
+* virtual void InitProcess()  
+* **virtual TRestEvent *ProcessEvent( TRestEvent *evInput )**  
+* virtual void EndProcess()  
 
-! TRestEvent* fOutputEvent  
+The method `InitFromConfigFile()` is inherited from TRestMetadata and must be implemented. Usually we call
+several GetParamater() methods to read parameters in the config file.
 
-virtual void InitProcess()  
-
-virtual void BeginOfEventProcess()  
-
-! virtual TRestEvent *ProcessEvent( TRestEvent *evInput ) = 0  
-
-virtual void EndOfEventProcess()  
-
-virtual void EndProcess()  
-
-The variables "fInputEvent" and "fOutputEvent" defines the address of the process's input and output event.
-It is recommended to set them in the process's constructor. During launch, REST will check the 
-input-output event type of each process to make sure the process chain is vailed. The following shows an 
-example to write a constructor which sets input and output events. 
+`GetInputEvent()` and `GetOutputEvent()` tells how to get the process's input and output event. Their returned type
+is "any", which means you can directly write the concrete event as return value: 
 
 `class TRestRawSignalAnalysisProcess :public TRestEventProcess {`  
 &emsp;`private:`  
 &emsp;`//we define specific pointer of TRestEvent in class`  
 &emsp;`TRestRawSignalEvent *fSignalEvent;//!`  
 &emsp;`...`  
+&emsp;`public:`  
+&emsp;`any GetInputEvent() { return fSignalEvent; }`  
+&emsp;`any GetOutputEvent() { return fSignalEvent; }`  
 `}`  
 
-`TRestRawSignalAnalysisProcess::TRestRawSignalAnalysisProcess(){`  
-&emsp;`fSignalEvent = new TRestRawSignalEvent();//we instantiate specific TRestEvent object`  
-&emsp;`fOutputEvent = fSignalEvent;//and then sets fOutputEvent and fInputEvent to this pointer.`  
-&emsp;`fInputEvent = fSignalEvent;`  
-&emsp;`...`  
-`}`  
+During launch, REST will check the input-output event type of each process to make sure the process chain 
+is vailed. The input event type of the last process must be same as the output event type of the former process.
+It is possible to define generic input/ouput event, by setting the event type as base type `TRestEvent*`. 
 
-After the input-output check, REST will call the method InitProcess() of each loaded process. Some values 
+After the input-output check, REST will call the method `InitProcess()` for each loaded process. Some values 
 should be cleared/reset here in case the process needs to run again. 
 
-The three methods: BeginOfEventProcess(), ProcessEvent() and EndOfEventProcess() are called in sequence
-for one event. The most important one is the pure virtual method ProcessEvent(). It receives an input 
-event and gives an output event, both in type TRestEvent. We need to force transform the pointer type
-inside the method. Note that although ProcessEvent() seems to be independent on fInputEvent and 
-fOutputEvent, we still need to set fOutputEvent/fInputEvent inside the method. This is because sometimes
-after process we still need to access to them. To set fOutputEvent/fInputEvent, we can directly copy 
-the pointer(shallow copy) at the beginning of the method. If we want a deep copy, we can use 
-TRestEvent::CloneTo(). REST also allows the event cut. Simply return a NULL pointer inside the
-method, and this event will be skipped. The following is an example:
+The method `ProcessEvent()` must be implemented as the main data analysis logic. It receives an event and returns 
+an event. `fSignalEvent` should firstly be assigned as the recieved event with force type transform. 
+Then we can write whatever the logic he wants. e.g., calculating integral of the event. It shall return 
+fSignalEvent at the end. We can also return null somewhere in the method. In this case, REST will regared the 
+event to be **cut**. It will not proceed the remaining data process nor saving this event to the output file. 
+The following is an example:
 
 `TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput ){`  
-&emsp;`fSignalEvent = (TRestRawSignalEvent *)evInput;`  
-&emsp;`//hallow copy`  
-&emsp;`fOutputEvent = fSignalEvent;`  
-&emsp;`//deep copy`  
-&emsp;`//fSignalEvent->CloneTo(fOutputEvent);`  
-&emsp;`fInputEvent = fSignalEvent;`  
-&emsp;`//a cut which selects event that have 10 or more signals`    
-&emsp;`if(fSignalEvent->GetNumberOfSignals()<10)return NULL;`
-&emsp;`//some analysis for fSignalEvent`  
+&emsp;`fSignalEvent = (TRestRawSignalEvent *)evInput;`    
+&emsp;`Double_t thrIntegral = fSignalEvent->GetThresholdIntegral();`
+&emsp;`SetObservableValue("ThresholdIntegral", thrIntegral);`
+&emsp;`if(...){`  
+&emsp;&emsp;`return NULL; // cut the event`  
+&emsp;`}`  
 &emsp;`...`  
 &emsp;`return fSignalEvent;`  
 `}`  
 
-
-The method EndProcess() is a method to be called after all the events are finished. Some additional jobs 
+The method `EndProcess()` is a method to be called after all the events are finished. Some additional jobs 
 can be done here. For example, we can show a message about the process status in this method. Or, we can
 call saving for a TH1D object to the output file.
 
-#### using observables to save the result
+#### saving observables
 
-There are two ways to save analysis result of a process: creating observables and saving internal 
-variables. They both have advantages and shortcomings.
-
-To save observables, we can call the method TRestAnalysisTree::SetObservableValue() inside
-TRestEventProcess::ProcessEvent(). TRestEventProcess objects share pointer to a public analysis 
-tree, we can directly call it like following:
+It is simpler to use observables to store analysis results in the tree. By calling directly the method 
+SetObservableValue() inside TRestEventProcess::ProcessEvent(), we add the branch and fill the value at 
+once. In future if we want to update the process and add a new observable, we can simply modify the code
+by adding a new line of SetObservableValue()
 
 //inside function ProcessEvent()(TRestRawSignalAnalysisProcess.cxx)  
 `Double_t baseLineSigma = fSignalEvent->GetBaseLineSigmaAverage( fBaseLineRange.X(), fBaseLineRange.Y() );`  
-`fAnalysisTree->SetObservableValue( this, "baseLineSigmaMean", baseLineSigma );`  
+`SetObservableValue("BaseLineSigmaMean", baseLineSigma );`  
 
-We also need to add a line in rml file to tell REST to save the observable. The name should be same 
-as the string argument in SetObservableValue() method:
+The added observable can be in various types. The basic data types are mostly supported (unsigned long long is 
+not supported due to ROOT problem). The stl containers are all supported. We usually save sub-event level 
+observables with stl containers. For example the baseline of each signal is stored as `map<int, double>` 
+in the tree. 
 
-`<addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON">`  
-&emsp;`...`  
-&emsp;`<observable name="baseLineSigmaMean" value="ON" />`  
-`</addProcess>`  
+Observables are named after the process's name. For example, the added observable is "BaseLineSigmaMean",
+the process name is "sAna", then the actual branch name will be "sAna_BaseLineSigmaMean".
 
-It is recommended to use observables to store important analysis result. They are saved in single branches,
-so the reading could be faster. The observables can only be double type.
+#### automatic cut evaluation
 
-Another way is to define a class member inside the process class, then change its value during
-the ProcessEvent() function. When this function returns a non-null pointer, REST will auto save 
-this internal variable. The following is an example:
+REST provides an automatic cut evaluation method `ApplyCut()` for the processes. This method checks the observable
+value of this process. If it is out of specified range, it will return true. Then we can return NULL in the 
+process's code. For example: 
 
-//inside class definition(TRestRawSignalAnalysisProcess.h)  
-`Double_t baseLineSigmaMean;`  
+`SetObservableValue("MinPeakTime", 20);`  
+`if (ApplyCut()) return NULL;`  
 
-//inside function ProcessEvent()(TRestRawSignalAnalysisProcess.cxx)  
-`baseLineSigmaMean= fSignalEvent->GetBaseLineSigmaAverage( fBaseLineRange.X(), fBaseLineRange.Y() );`  
+The cut is defined in process's rml file. Only double and int observables are accepted.
 
-We can find the internal variable "baseLineSigmaMean" in process branch in AnalysisTree inside output file.
-This kind of definition could be more complex. Changing class member may cause previous version unreadable. 
-The user also needs to reset the values of the class members if the method will return before value 
-assignment. The good point is that it supports various data type, not only double type. We can add vector,
-map, or even self-defined structures in the process branch. For example, in TRestRawSignalAnalysisProcess, 
-we want to save baseline sigma for each signal, not an average value. So we use a vector&lt;double> member
-in class definition. 
+`<addProcess type="TRestRawSignalAnalysisProcess" ...>`  
+&emsp;`<parameter name="cutsEnabled" value="true" />`  
+&emsp;`<cut name="MinPeakTime" value="(1,10)" />`  
+`</TRestRun>`  
+
+We can see that the observable "MinPeakTime" is out of range (1,10), so the event will be cut.
 
 #### single thread process
 
@@ -460,7 +411,7 @@ and the viewer process displays event figure. They cannot be executed in paralle
 the constructor. 
 
 REST will only activate one thread if a single thread process exists in the process chain.
-(note that external process is not in the process chain.)
+(note that external process does not belong to the process chain.)
 
 #### other class members
 

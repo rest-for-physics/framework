@@ -131,20 +131,22 @@ G4ParticleDefinition* PrimaryGeneratorAction::SetParticleDefinition(int n) {
     G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
     G4ParticleDefinition* particle = particleTable->FindParticle(particle_name);
 
-    //if ((particle == nullptr)) {
-        // There might be a better way to do this
-        for (int Z = 1; Z <= 110; Z++)
-            for (int A = 2 * Z; A <= 3 * Z; A++) {
-                if (particle_name == G4IonTable::GetIonTable()->GetIonName(Z, A)) {
-                    cout << "particle : " << G4IonTable::GetIonTable()->GetIonName(Z, A, excited_energy)
-                         << endl;
-                    particle = G4IonTable::GetIonTable()->GetIon(Z, A, excited_energy);
-                    particle_name = G4IonTable::GetIonTable()->GetIonName(Z, A, excited_energy);
-                    fParticleGun->SetParticleCharge(charge);
-		if (n==1) info << "Found ion: " << particle_name << " Z " << Z << " A " << A << " excited energy"<< excited_energy << endl;
-                }
+    // if ((particle == nullptr)) {
+    // There might be a better way to do this
+    for (int Z = 1; Z <= 110; Z++)
+        for (int A = 2 * Z; A <= 3 * Z; A++) {
+            if (particle_name == G4IonTable::GetIonTable()->GetIonName(Z, A)) {
+                // cout << "particle : " << G4IonTable::GetIonTable()->GetIonName(Z, A, excited_energy) <<
+                // endl;
+                particle = G4IonTable::GetIonTable()->GetIon(Z, A, excited_energy);
+                particle_name = G4IonTable::GetIonTable()->GetIonName(Z, A, excited_energy);
+                fParticleGun->SetParticleCharge(charge);
+                if (n == 1)
+                    info << "Found ion: " << particle_name << " Z " << Z << " A " << A << " excited energy"
+                         << excited_energy << endl;
             }
-   // }
+        }
+    // }
 
     fParticleGun->SetParticleDefinition(particle);
 
@@ -391,19 +393,16 @@ void PrimaryGeneratorAction::SetParticleEnergy(int n) {
 
     if (energy_dist_type == g4_metadata_parameters::energy_dist_types::MONO) {
         energy = restG4Metadata->GetParticleSource(n).GetEnergy() * keV;
-    } 
-	else if (energy_dist_type == g4_metadata_parameters::energy_dist_types::FLAT) {
+    } else if (energy_dist_type == g4_metadata_parameters::energy_dist_types::FLAT) {
         TVector2 enRange = restG4Metadata->GetParticleSource(n).GetEnergyRange();
         energy = ((enRange.Y() - enRange.X()) * G4UniformRand() + enRange.X()) * keV;
-    } 
-	else if (energy_dist_type == g4_metadata_parameters::energy_dist_types::LOG) {
+    } else if (energy_dist_type == g4_metadata_parameters::energy_dist_types::LOG) {
         TVector2 enRange = restG4Metadata->GetParticleSource(n).GetEnergyRange();
         auto max_energy = enRange.Y() * keV;
         auto min_energy = enRange.X() * keV;
         energy = exp((log(max_energy) - log(min_energy)) * G4UniformRand() + log(min_energy));
 
-       } 
-	else if (energy_dist_type == g4_metadata_parameters::energy_dist_types::TH1D) {
+    } else if (energy_dist_type == g4_metadata_parameters::energy_dist_types::TH1D) {
         Double_t value = G4UniformRand() * fSpectrumIntegral;
         Double_t sum = 0;
         Double_t deltaEnergy = fSpectrum->GetBinCenter(2) - fSpectrum->GetBinCenter(1);

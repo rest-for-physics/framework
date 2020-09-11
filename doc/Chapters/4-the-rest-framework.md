@@ -113,9 +113,8 @@ inherited from TRestEvent.
 
 TRestEventProcess can also output analysis result to a tree. This kind of analysis result is called "observable".
 For example, TRestRawSignalAnalysisProcess will add a branch in the output tree called "BaseLineSigmaMean". 
-This observable is the value of average baseline RMS of the input TRestRawSignalEvent. By switching on/off 
-the observable in the config file, user can change the output of this process. Observbles can only be double
-type, and the user must call the method TRestAnalysisTree::SetObservableValue() during the process.
+This observable is the value of average baseline RMS of the input TRestRawSignalEvent. Observbles are added
+directly in the process with TRestEventProcess::SetObservableValue(). They can be any type and any value.
 
 A special kind of TRestEventProcess is called ExternalProcess. They usually open a/several raw data files
 (e.g. binary signal readout file) and directly generate output event. Their input event is null and
