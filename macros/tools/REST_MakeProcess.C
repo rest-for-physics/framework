@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "TRestReflector.h"
 #include "TRestStringHelper.h"
 #include "TString.h"
 
@@ -9,6 +10,15 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
                 "\"Process\"!"
              << endl;
         return -1;
+    }
+
+    if (TClass::GetClass(inputevent) == NULL) {
+        cout << "Warning! unrecognized type for input event: " << inputevent
+             << ", generated process may not be compilable!" << endl;
+    }
+    if (TClass::GetClass(outputevent) == NULL) {
+        cout << "Warning! unrecognized type for output event: " << outputevent
+             << ", generated process may not be compilable!" << endl;
     }
 
     TString _inputevent = inputevent;
