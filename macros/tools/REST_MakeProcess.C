@@ -5,6 +5,11 @@
 #include "TString.h"
 
 Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString outputevent = "TRestEvent") {
+    // REST_MakeProcess("TRestXXXProcess", "TRestHitsEvent")
+    //    --> generate an analysis process template for TRestHitsEvent
+    // restMakeProcess TRestXXXProcess TRestHitsEvent TRestTrackEvent
+    //    --> generate a data-conversion process template form TRestHitsEvent to TRestTrackEvent
+    
     if (name.First("TRest") != 0 || name.Contains("Process") == false) {
         ferr << "invalid process name! REST process name must be start with \"TRest\" and ends with "
                 "\"Process\"!"
@@ -19,6 +24,11 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     if (TClass::GetClass(outputevent) == NULL) {
         cout << "Warning! unrecognized type for output event: " << outputevent
              << ", generated process may not be compilable!" << endl;
+    }
+
+    // if the output event type is in default, we make it same as input event
+    if (outputevent == "TRestEvent") {
+        outputevent = inputevent;
     }
 
     TString _inputevent = inputevent;
@@ -155,7 +165,7 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     sourcefile << " * For the list of contributors see $REST_PATH/CREDITS.                  *" << endl;
     sourcefile << " *************************************************************************/" << endl;
     sourcefile << " /////////////////////////////////////////////////////////////////////////" << endl;
-    sourcefile << " /// Enter your description Here                                          " << endl;
+    sourcefile << " /// Write the process description Here                                   " << endl;
     sourcefile << " ///                                                                      " << endl;
     sourcefile << " /// \\class " << name << "                                             " << endl;
     sourcefile << " ///                                                                      " << endl;
