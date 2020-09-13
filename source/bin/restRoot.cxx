@@ -50,7 +50,8 @@ int main(int argc, char* argv[]) {
     int Nfile = 0;
     for (int i = 1; i < argc; i++) {
         string opt = (string)argv[i];
-        if (TRestTools::fileExists(opt) && TRestTools::isRootFile(opt)) {
+        if (opt.find("http") != string::npos ||
+            (TRestTools::fileExists(opt) && TRestTools::isRootFile(opt))) {
             printf("\nAttaching file %s as run%i...\n", opt.c_str(), Nfile);
 
             TRestRun* runTmp = new TRestRun(opt);
