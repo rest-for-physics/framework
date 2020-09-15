@@ -38,6 +38,12 @@ class TRestDetector {
     Int_t fRunNumber;
 
    public:
+    // Constructors
+    TRestDetector() {}
+    // Destructor
+    ~TRestDetector() {}
+
+    // Utility methods
     string GetDetectorName() { return fDetectorName; }
     Int_t GetRunNumber() { return fRunNumber; }
     void SetRunNumber(Int_t run) { fRunNumber = run; }
@@ -92,11 +98,6 @@ class TRestDetector {
     virtual void SetPressure(Double_t p) {}
     virtual void SetDAQSamplingTime(Double_t st) {}
     virtual void SetElectronLifeTime(Double_t elt) {}
-
-    // Constructors
-    TRestDetector() {}
-    // Destructor
-    ~TRestDetector() {}
 };
 
 extern TRestDetector* gDetector;
