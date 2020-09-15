@@ -86,8 +86,6 @@
 /// <hr>
 ///
 
-// #include <TRestDetectorSetup.h> // Not used now but it should serve to get sampling rate of rawSignal
-
 #include "TRestSignalZeroSuppresionProcess.h"
 #include <numeric>
 using namespace std;

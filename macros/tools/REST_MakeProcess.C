@@ -9,7 +9,7 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     //    --> generate an analysis process template for TRestHitsEvent
     // restMakeProcess TRestXXXProcess TRestHitsEvent TRestTrackEvent
     //    --> generate a data-conversion process template form TRestHitsEvent to TRestTrackEvent
-    
+
     if (name.First("TRest") != 0 || name.Contains("Process") == false) {
         ferr << "invalid process name! REST process name must be start with \"TRest\" and ends with "
                 "\"Process\"!"

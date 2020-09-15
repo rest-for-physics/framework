@@ -357,11 +357,12 @@ void TRestRun::OpenInputFile(int i) {
 ///
 void TRestRun::OpenInputFile(TString filename, string mode) {
     CloseFile();
-    if (!TRestTools::fileExists((string)filename)) {
+    if (!filename.Contains("http") && !TRestTools::fileExists((string)filename)) {
         ferr << "input file \"" << filename << "\" does not exist!" << endl;
         exit(1);
     }
-    ReadFileInfo((string)filename);
+
+    if (!filename.Contains("http")) ReadFileInfo((string)filename);
 
     // add to fInputFileNames in case it is opening a new file
     bool inList = false;
@@ -371,12 +372,13 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
             break;
         }
     }
+
     if (!inList) {
         fInputFileNames.push_back(filename);
     }
 
     if (TRestTools::isRootFile((string)filename)) {
-        fInputFile = new TFile(filename, mode.c_str());
+        fInputFile = TFile::Open(filename, mode.c_str());
 
         if (GetMetadataClass("TRestRun", fInputFile)) {
             // This should be the values in RML (if it was initialized using RML)
@@ -982,7 +984,6 @@ void TRestRun::CloseFile() {
     }
     if (fInputFile != NULL) {
         fInputFile->Close();
-        delete fInputFile;
         fInputFile = NULL;
     }
 }
