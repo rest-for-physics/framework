@@ -116,83 +116,100 @@ TRestEvent* TRestRawSignalFittingProcess::ProcessEvent(TRestEvent* evInput) {
     // no need for verbose copy now
     fRawSignalEvent = (TRestRawSignalEvent*)evInput;
 
-    cout << "=============================================" << endl;
-    cout << "I am executing TRestRawSignalFittingProcess!" << endl;
-    cout << "Event ID : " << fRawSignalEvent->GetID() << endl;
+    debug << "TRestRawSignalFittingProcess::ProcessEvent. Event ID : " << fRawSignalEvent->GetID() << endl;
 
     Double_t SigmaMean = 0;
     Double_t Sigma[fRawSignalEvent->GetNumberOfSignals()];
+    Double_t RatioSigmaMaxPeakMean = 0;
+    Double_t RatioSigmaMaxPeak[fRawSignalEvent->GetNumberOfSignals()];
+    Double_t ChiSquareMean = 0;
+    Double_t ChiSquare [fRawSignalEvent->GetNumberOfSignals()];
+    
     for (int s = 0; s < fRawSignalEvent->GetNumberOfSignals(); s++) {
         TRestRawSignal* singleSignal = fRawSignalEvent->GetSignal(s);
 
         int MaxPeakBin = singleSignal->GetMaxPeakBin();
-        // cout << "MaxPeakBin: " << MaxPeakBin << endl;
-
-        // ShaperSin function (AGET theoretic curve)
+        
+        // ShaperSin function (AGET theoretic curve) times logistic function
         TF1* f = new TF1("fit",
                          "[0]+[1]*TMath::Exp(-3. * (x-[3])/[2]) * (x-[3])/[2] * (x-[3])/[2] * (x-[3])/[2] * "
-                         "sin((x-[3])/[2])",
-                         MaxPeakBin - 25, MaxPeakBin + 45);
+                         "sin((x-[3])/[2])/(1+TMath::Exp(-x+[3]))",
+                         MaxPeakBin - 145, MaxPeakBin + 165);
         f->SetParameters(0, 250);  // Initial values adjusted from Desmos
-        f->SetParLimits(0, 0, 350);
-        f->SetParameters(1, 50);
+        f->SetParLimits(0, 150, 350);
+        f->SetParameters(1, 8400);
         f->SetParLimits(1, 30, 90000);
-        f->SetParameters(2, 20);
+        f->SetParameters(2, 34);
         f->SetParLimits(2, 10, 80);
-        f->SetParameters(3, 170);
+        f->SetParameters(3, 174);
         f->SetParLimits(3, 150, 250);
-        f->SetParNames("Baseline", "ProdConstant", "ShapingTime", "XConstant");
+        f->SetParNames("Baseline", "Amplitude", "ShapingTime", "PeakPosition");
 
         // Create histogram from signal
         Int_t nBins = singleSignal->GetNumberOfPoints();
         TH1D* h = new TH1D("histo", "Signal to histo", nBins, 0, nBins);
 
         for (int i = 0; i < nBins; i++) {
-            h->Fill(i, singleSignal->GetData(i) + singleSignal->GetBaseLine());
+            h->Fill(i, singleSignal->GetRawData(i) );
         }
 
         // Fit histogram with ShaperSin
-        h->Fit(f, "RNQ", "", MaxPeakBin - 25,
-               MaxPeakBin + 45);  // Options: R->fit in range, N->No draw, Q->Quiet
+        h->Fit(f, "RNQ", "", MaxPeakBin - 145,
+               MaxPeakBin + 165);  // Options: R->fit in range, N->No draw, Q->Quiet
 
-        if (fRawSignalEvent->GetID() == 30875) {
-            if (s == 4) {
+        /*if (fRawSignalEvent->GetID() == 18896) {
+            if (s == 3) {
                 for (int j = MaxPeakBin - 25; j < MaxPeakBin + 45; j++) {
                     cout << "Pulse: " << singleSignal->GetData(j) + singleSignal->GetBaseLine()
+                         << "  Pulse other way: " << singleSignal->GetRawData(j)
                          << "  Fit: " << f->Eval(j) << endl;
                 }
             }
-        }
+        }*/
 
-        // Standard deviation (sqrt of variance between fit and data)
         Double_t sigma = 0;
-        for (int j = MaxPeakBin - 25; j < MaxPeakBin + 45; j++) {
-            sigma += (singleSignal->GetData(j) + singleSignal->GetBaseLine() - f->Eval(j)) *
-                     (singleSignal->GetData(j) + singleSignal->GetBaseLine() - f->Eval(j));
-            // cout << j-MaxPeakBin << " " << singleSignal->GetData(j)-f->Eval(j) << endl;
-        }
-        Sigma[s] = TMath::Sqrt(sigma / (25 + 45));
+        for (int j = MaxPeakBin - 145; j < MaxPeakBin + 165; j++) {
+            sigma += (singleSignal->GetRawData(j) - f->Eval(j)) *
+                     (singleSignal->GetRawData(j) - f->Eval(j));
+            }
+        Sigma[s] = TMath::Sqrt(sigma / (145 + 165));
+        RatioSigmaMaxPeak[s] = Sigma[s] / singleSignal->GetRawData(MaxPeakBin);
+        RatioSigmaMaxPeakMean += RatioSigmaMaxPeak[s];
         SigmaMean += Sigma[s];
-        // cout << "Standard deviation of signal number " << s << ": " << Sigma[s] << endl;
-
-        h->GetListOfFunctions()->Remove(h->GetFunction("fit"));
-        h->Reset();
+        ChiSquare[s] = f->GetChisquare();
+        ChiSquareMean += ChiSquare[s];
+        h->Delete();
     }
 
+    //////////// Sigma Mean Observable /////////////
     SigmaMean = SigmaMean / (fRawSignalEvent->GetNumberOfSignals());
     SetObservableValue("FitSigmaMean", SigmaMean);
 
+    //////////// Sigma Mean Standard Deviation  Observable /////////////
     Double_t sigmaMeanStdDev = 0;
     for (int k = 0; k < fRawSignalEvent->GetNumberOfSignals(); k++) {
         sigmaMeanStdDev += (Sigma[k] - SigmaMean) * (Sigma[k] - SigmaMean);
     }
     Double_t SigmaMeanStdDev = TMath::Sqrt(sigmaMeanStdDev / fRawSignalEvent->GetNumberOfSignals());
     SetObservableValue("FitSigmaStdDev", SigmaMeanStdDev);
+    
+    //////////// Chi Square Mean Observable /////////////
+    ChiSquareMean = ChiSquareMean / fRawSignalEvent->GetNumberOfSignals();
+    SetObservableValue("FitChiSquareMean", ChiSquareMean);
+    
+    //////////// Ratio Sigma MaxPeak Mean Observable /////////////
+    RatioSigmaMaxPeakMean = RatioSigmaMaxPeakMean / fRawSignalEvent->GetNumberOfSignals();
+    SetObservableValue("FitRatioSigmaMaxPeakMean", RatioSigmaMaxPeakMean);
+    
 
-    cout << "SigmaMean: " << SigmaMean << endl;
-    cout << "SigmaMeanStdDev: " << SigmaMeanStdDev << endl;
+    debug << "SigmaMean: " << SigmaMean << endl;
+    debug << "SigmaMeanStdDev: " << SigmaMeanStdDev << endl;
+    debug << "ChiSquareMean: " << ChiSquareMean << endl;
+    debug << "RatioSigmaMaxPeakMean: " << RatioSigmaMaxPeakMean << endl;
     for (int k = 0; k < fRawSignalEvent->GetNumberOfSignals(); k++) {
-        cout << "Standard deviation of signal number " << k << ": " << Sigma[k] << endl;
+        debug << "Standard deviation of signal number " << k << ": " << Sigma[k] << endl;
+        debug << "Chi square of fit signal number " << k << ": " << ChiSquare[k] << endl;
+        debug << "Sandard deviation divided by amplitude of signal number " << k << ": " << RatioSigmaMaxPeak[k] << endl;
     }
 
     /// We define (or re-define) the baseline range and calculation range of our raw-signals.
