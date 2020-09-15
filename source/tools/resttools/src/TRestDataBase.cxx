@@ -12,6 +12,9 @@
 #include "TSystem.h"
 #include "TUrl.h"
 
+#include "mutex"
+std::mutex mtx;
+
 //////////////////////////////////////////////////////////////////////////
 /// Interface class of REST database accessibility.
 ///
@@ -203,6 +206,9 @@ int TRestDataBase::get_lastrun() {
 /// The method in derived class shall follow this rule.
 int TRestDataBase::set_run(DBEntry info, bool overwrite) {
     int newRunNr;
+
+    mtx.lock();
+
     if (info.runNr == 0) {
         newRunNr = get_lastrun() + 1;
     } else if (info.runNr > 0) {
@@ -219,6 +225,8 @@ int TRestDataBase::set_run(DBEntry info, bool overwrite) {
                    "increment is disabled"
                 << endl;
     }
+
+    mtx.unlock();
 
     return newRunNr;
 }

@@ -134,6 +134,6 @@ class TRestSignalChannelActivityProcess : public TRestEventProcess {
     // Destructor
     ~TRestSignalChannelActivityProcess();
 
-    ClassDef(TRestSignalChannelActivityProcess, 2);
+    ClassDef(TRestSignalChannelActivityProcess, 3);
 };
 #endif

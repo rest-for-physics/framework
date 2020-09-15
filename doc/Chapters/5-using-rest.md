@@ -113,8 +113,8 @@ where we input the name of the matadata object and the name of the file. This is
 as it is faster. One can spend some time generate definition files for the detector, then other users need not to do 
 it again.
 
-To generate a new instance, we need to add a full definition of the class. The section declaration must 
-be the metadata class name. The content of the section should follow the rule of the class. For example:
+TRestRun supports sequential startup to generate new metadata. We add a full definition of the
+class TRestReadout as an example: 
 
 `<TRestRun ...>`  
 &emsp;`<TRestReadout ...>`  
@@ -128,20 +128,24 @@ be the metadata class name. The content of the section should follow the rule of
 &emsp;`</TRestReadout>`  
 `</TRestRun>` 
 
+In this case, TRestRun will give the <TRestReadout section to a new TRestReadout instance, and calls its method
+`LoadConfigFromFile()`. In this method, TRestReadout will initialize the readout structure according to the given
+rml section. After this, the new metadata TRestReadout is prepared and stored. It will be ready to use by the 
+processes.
+
 #### adding process and its observables
 
 Now we are going to add processes and define the needed output observables. In the section "TRestProcessRunner"
 we add sections like `<addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON" file="processes.rml"/>`.
 We have to specify the type and name. In addition, we can use the option "value" to switch on/off the process 
-in the analysis chain. 
+in the analysis chain. The "file" attribute defines the include file whose content will be expanded into this section.
 
-To add observables or to set parameters, we need to write lines like: `<observable name="FirstX" value="ON" />` 
-or `<parameter name="resolutionReference" value="1.0" />` inside the "addProcess" section (as a child section
-of it). In case there are too many observables and parameter to define, which may cause a mess in the rml file,
-we can use an include definition here. REST already defines some useful observable/parameter sets for its process.
-For example for TRestSmearingProcess we have two parameter sets defined in the file "processes.rml", their names
-are "smear_1FWHM" and "smear_3FWHM" respectively. Use an attribute like: `file="processes.rml` to include and 
-expand this rml file. To change the parameter set just change the "name" attribute.
+All the observables are calculated in the process no matter whether they are added. By default, all of them are
+written to the AnalysisTree. We can also choose to write partial observables in case we want to reduce storage 
+or to have a cleaner tree. To do so, we need to manually write sections like: 
+`<observable name="ThresholdIntegral" value="ON" />` as the child sections of the `<addProcess` section. In case 
+there are too many observables and parameter to define, which may cause a mess in the rml file, 
+we use include definition in the example.
 
 #### input file and external process
 
@@ -158,13 +162,13 @@ Some parameters in section "TRestProcessRunner" changes the branches to save in 
 `<parameter name="inputEvent" value="on"/>`  
 `<parameter name="outputEvent" value="on"/>`  
 
-Output analysis is saved in whatever settings. If the user turns on "outputEvent", then the output event 
-will be saved. It is by default on. If the user turns on "inputEvent", then "outputEvent" will be automatically 
-turned on. All the events with different types will be saved. If the user turns on "inputAnalysis", then when 
-the input file is a root file, tree observables in it will be copied to the output file. 
+"outputAnalysis" (i.e. AnalysisTree) is always saved. If the user turns on "outputEvent", then the output event 
+will be saved. It is by default on. "inputEvent" means all the event types appeared in the analysis chain. 
+If the user turns on "inputEvent", then "outputEvent" will be automatically turned on. If the user turns on 
+"inputAnalysis", then when the input file is a root file, observables in it will be copied to the output file. 
 
-Events may have overlaps. For example, the output events of two processes are of the same type when a process is a 
-pure anslysis process. In this situation, only the later one will be saved.
+If two processes have different input/output event(different data) but with same type, only the one from the
+later process will be saved.
 
 By default all these three settings are on in REST. If the user wants to save some disk space, he can choose to
 save analysis items only(turn off events). Or if he only wants a view of the last processed event, he can choose 
@@ -179,27 +183,30 @@ reaches the number. The parameter "firstEntry" and "lastEntry" is only effective
 REST data file. They determines the entry region in the tree to extract events to process. "lastEntry" will
 be overwritten by a non-zero "eventsToProcess".
 
-REST counts processed events number by the number of saved events. If there is a cut in some process and the
+REST counts processed events number by the number of **saved events**. If there is a cut in some process and the
 event is not saved, we need to read more events than the given number. If there is many threads working together,
 the actual saved event number will be silghtly bigger than required.
 
 #### search path for definition files
 
-Usually we put include rml files and pre-defined root files in a same directory as the main rml file. This
-makes it simple to specify the file name. On the other hand, when the target file is in a remote directory 
-and we don't want to input a long absolute path in rml, we can add additional paths for REST to find files. 
+If the specified include rml/root file is not in absolute path, REST will find it sequentially in:
+1. current dir
+2. dir specified in section "searchPath"
+3. the dir where the rml file is placed
+4. $REST_PATH/data
+
+Usually we put the "searchPath" section in "globals" section to be seen by all the metadata classes.
 The following is an example:  
 `<globals>`  
 &emsp;`<searchPath value="$ENV{REST_PATH}/data/definitions/:$ENV{REST_PATH}/data/gasFiles/"/>`  
 `</globals>`  
 
-Putting the parameter in "globals" section will make it visible for all the sections in rml. The value is in
-linux env style with ":" separating multiple paths. Alternativally on can define multiple "searchPath sections,
-this is also vaild.
+The value of "searchPath" is in linux env style with ":" separating multiple paths. Alternativally 
+on can define multiple "searchPath sections together, this is also vaild.
 
-The directory "data" is where REST saves its universal reference files. For example here in the directoty 
-"definitions" REST saves many pre-defined rml files for readout, processes and gases. The detailed organization 
-of the directory "inputdata" can be found in the appendix. [REST pre-definition data](#rest-pre-definition-data)  
+In the example the directoty "$ENV{REST_PATH}/data/definitions" stores many pre-defined rml files 
+for readout, processes and gases. The detailed organization of the directory "inputdata" can be found 
+in the appendix. [REST pre-definition data](#rest-pre-definition-data)  
 
 #### output file: naming and saving
 
@@ -374,9 +381,9 @@ roll back to single thread mode with a viewer process in process chain.
 
 ### Plot the analysis result
 
-It is also allowed to plot histograms for observables in output file. REST has an core class 
-called TRestAnalysisPlot. It generates plot string according to an rml config file and calls the 
-TTree::Draw() method to draw the histogram. It can also save the plots to a pdf file or ROOT file afterwards.
+It is possible to plot histograms from observables in output file with rml configuration. REST has a core class 
+called TRestAnalysisPlot. It generates plot string according to the rml and calls TTree::Draw() to draw the 
+histogram. Then it will save the plots to a pdf file or ROOT file.
 
 To use it, a "TRestAnalysisPlot" section is needed in "TRestManager" section. The template of rml config file 
 for TRestAnalysisPlot can be found in ./examples/plotAnaSpectrum.rml. It shall follow the rules below. The 
@@ -448,15 +455,6 @@ from two different files to compare, then a **filter** for the files is needed. 
 section under this `<histo` section. For example, `<classify runTag="NLDBD"/>` selects only the files 
 with run tag equals to "NLDBD". The run tag is a TRestRun data member saved in file. Despite TRestRun 
 information, other supported fields of classification include FileName, Date, Size, etc.
-
-#### add annotations
-
-
-
-#### beautify
-
-
-
 
 ![alt](Image/plot.png)
 

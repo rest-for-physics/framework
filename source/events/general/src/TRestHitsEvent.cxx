@@ -715,20 +715,21 @@ void TRestHitsEvent::DrawGraphs(Int_t& column) {
         Double_t x = fHits->GetX(nhit);
         Double_t y = fHits->GetY(nhit);
         Double_t z = fHits->GetZ(nhit);
+        int type = fHits->GetType(nhit);
 
-        if (!IsNaN(x) && !IsNaN(z)) {
+        if (type % XZ == 0) {
             xz[0][nXZ] = x;
             xz[1][nXZ] = z;
             nXZ++;
         }
 
-        if (!IsNaN(y) && !IsNaN(z)) {
+        if (type % YZ == 0) {
             yz[0][nYZ] = y;
             yz[1][nYZ] = z;
             nYZ++;
         }
 
-        if (!IsNaN(x) && !IsNaN(y)) {
+        if (type % XY == 0) {
             xy[0][nXY] = x;
             xy[1][nXY] = y;
             nXY++;
@@ -833,33 +834,34 @@ void TRestHitsEvent::DrawHistograms(Int_t& column, Double_t pitch, TString histO
         Double_t x = fHits->GetX(nhit);
         Double_t y = fHits->GetY(nhit);
         Double_t z = fHits->GetZ(nhit);
+        int type = fHits->GetType(nhit);
 
-        if (!IsNaN(x) && !IsNaN(z)) {
+        if (type % XZ ==0) {
             fXZHisto->Fill(x, z);
             nXZ++;
         }
 
-        if (!IsNaN(y) && !IsNaN(z)) {
+        if (type % YZ == 0) {
             fYZHisto->Fill(y, z);
             nYZ++;
         }
 
-        if (!IsNaN(x) && !IsNaN(y)) {
+        if (type % XY ==0) {
             fXYHisto->Fill(x, y);
             nXY++;
         }
 
-        if (!IsNaN(x)) {
+        if (type % X == 0) {
             fXHisto->Fill(x);
             nX++;
         }
 
-        if (!IsNaN(y)) {
+        if (type % Y == 0) {
             fYHisto->Fill(y);
             nY++;
         }
 
-        if (!IsNaN(z)) {
+        if (type % Z == 0) {
             fZHisto->Fill(z);
             nZ++;
         }

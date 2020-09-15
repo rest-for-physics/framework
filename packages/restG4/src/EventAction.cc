@@ -118,10 +118,10 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
         if (minimum_energy_stored < 0) minimum_energy_stored = 0;
         if (maximum_energy_stored == 0) maximum_energy_stored = total_deposited_energy + 1.;
 
-        is_sensitive = sensitive_volume_deposited_energy > 0 &&
-                           total_deposited_energy > minimum_energy_stored &&
-                           total_deposited_energy < maximum_energy_stored ||
-                       restG4Metadata->GetSaveAllEvents();
+        is_sensitive =
+            (sensitive_volume_deposited_energy > 0 && total_deposited_energy > minimum_energy_stored &&
+             total_deposited_energy < maximum_energy_stored) ||
+            restG4Metadata->GetSaveAllEvents();
 
         if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
             string debug_level = "INFO";
