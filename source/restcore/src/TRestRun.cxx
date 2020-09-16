@@ -180,6 +180,7 @@ void TRestRun::BeginOfInit() {
         }
         // throw;
     }
+    gDetector->SetRunNumber(fRunNumber);
 
     // output file pattern
     string outputdir = (string)GetDataPath();
