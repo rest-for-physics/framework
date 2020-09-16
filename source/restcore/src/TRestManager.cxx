@@ -93,7 +93,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
         meta->SetHostmgr(this);
         fMetaObjects.push_back(meta);
         meta->SetConfigFile(fConfigFileName);
-        meta->LoadConfigFromFile(e, fElementGlobal, fElementEnv);
+        meta->LoadConfigFromFile(e, fElementGlobal, fVariables);
 
         return 0;
     }

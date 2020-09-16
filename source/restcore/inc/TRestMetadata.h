@@ -127,7 +127,7 @@ class TRestMetadata : public TNamed {
     // string utils
     std::string ReplaceEnvironmentalVariables(const std::string buffer);
     void SetEnv(string name, string value, bool overwriteexisting);
-    void ClearEnv() { fElementEnv.clear(); }
+    void ClearEnv() { fVariables.clear(); }
     string SearchFile(string filename);
 
     // tiny xml element utils
@@ -163,8 +163,8 @@ class TRestMetadata : public TNamed {
     TiXmlElement* fElement;  //!
     /// Saving the global element, to be passed to the resident class, if necessary.
     TiXmlElement* fElementGlobal;  //!
-    /// Saving a list of environmental variables
-    vector<TiXmlElement*> fElementEnv;  //!
+    /// Saving a list of rml variables. name-value pair.
+    map<string, string> fVariables;  //! 
 
     /// It can be used as a way to identify that something went wrong using SetError method.
     Bool_t fError = false;  //!
@@ -197,7 +197,7 @@ class TRestMetadata : public TNamed {
 
     Int_t LoadConfigFromFile();
     Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);
-    Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, vector<TiXmlElement*> eEnv);
+    Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, map<string, string> envs);
     Int_t LoadConfigFromFile(string cfgFileName, string sectionName = "");
 
     /// Load global setting for the rml section, e.g., name, title.
