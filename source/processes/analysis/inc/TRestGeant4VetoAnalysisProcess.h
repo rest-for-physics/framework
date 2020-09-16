@@ -19,40 +19,36 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     /// A pointer to the simulation metadata information accessible to TRestRun
     TRestG4Metadata* fG4Metadata;  //!
 
-    std::vector<int> fVetoVolumeIds; //!
-    string fVetoKeyword = ""; //!
-    std::vector<string> fVetoGroupKeywords; //!
-    std::map<string, std::vector<string>> fVetoGroupVolumeNames; //!
-    std::vector<Float_t> fQuenchingFactors; //!
+    std::vector<int> fVetoVolumeIds;                              //!
+    string fVetoKeyword = "";                                     //!
+    std::vector<string> fVetoGroupKeywords;                       //!
+    std::map<string, std::vector<string>> fVetoGroupVolumeNames;  //!
+    std::vector<Float_t> fQuenchingFactors;                       //!
 
     void InitFromConfigFile();
     void Initialize();
     void LoadDefaultConfig();
 
     // clean string (https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring)
-    inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v")
-    {
+    inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v") {
         s.erase(s.find_last_not_of(t) + 1);
         return s;
     }
     // trim from beginning of string (left)
-    inline std::string& ltrim(std::string& s, const char* t = " \t\n\r\f\v")
-    {
+    inline std::string& ltrim(std::string& s, const char* t = " \t\n\r\f\v") {
         s.erase(0, s.find_first_not_of(t));
         return s;
     }
     // trim from both ends of string (right then left)
-    inline std::string& trim(std::string& s, const char* t = " \t\n\r\f\v")
-    {
-        return ltrim(rtrim(s, t), t);
-    }
+    inline std::string& trim(std::string& s, const char* t = " \t\n\r\f\v") { return ltrim(rtrim(s, t), t); }
 
     // final clean string: trim and UPPER
-    inline std::string& clean_string(std::string& s){
+    inline std::string& clean_string(std::string& s) {
         s = trim(s);
         std::transform(s.begin(), s.end(), s.begin(), ::tolower);
         return s;
     }
+
    protected:
     // add here the members of your event process
 
@@ -86,7 +82,7 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
         cout << endl;
 
         cout << "GROUPS:" << endl;
-        for ( const auto &pair : fVetoGroupVolumeNames ) {
+        for (const auto& pair : fVetoGroupVolumeNames) {
             cout << "GROUP " << pair.first << " (" << pair.second.size() << " volumes):\n";
             for (unsigned int i = 0; i < pair.second.size(); i++) {
                 cout << "\t" << pair.second[i] << endl;
@@ -112,6 +108,6 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     TRestGeant4VetoAnalysisProcess(char* cfgFileName);
     ~TRestGeant4VetoAnalysisProcess();
 
-   ClassDef(TRestGeant4VetoAnalysisProcess, 1);
+    ClassDef(TRestGeant4VetoAnalysisProcess, 1);
 };
 #endif  // REST_TRESTGEANT4VETOANALYSISPROCESS_H
