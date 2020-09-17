@@ -49,15 +49,15 @@ void TRestSignalToHitsProcess::LoadConfig(std::string cfgFilename, std::string n
 
     // If the parameters have no value it tries to obtain it from detector setup
 
-    if (fElectricField == PARAMETER_NOT_FOUND_DBL) {
-        TRestDetectorSetup* detSetup = GetMetadata<TRestDetectorSetup>();
-        if (detSetup != NULL) {
-            fElectricField = detSetup->GetFieldInVPerCm();
-            cout << "SignalToHitsProcess : Obtainning electric field from detector "
-                    "setup : "
-                 << fElectricField << " V/cm" << endl;
-        }
-    }
+    // if (fElectricField == PARAMETER_NOT_FOUND_DBL) {
+    //    TRestDetectorSetup* detSetup = GetMetadata<TRestDetectorSetup>();
+    //    if (detSetup != NULL) {
+    fElectricField = gDetector->GetDriftField();
+    cout << "SignalToHitsProcess : Obtainning electric field from detector "
+            "setup : "
+         << fElectricField << " V/cm" << endl;
+    //    }
+    //}
 
     // if( fGasPressure <= 0 )
     //{

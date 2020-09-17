@@ -167,19 +167,8 @@ void TRestMultiFEMINOSToSignalProcess::LoadDetectorSetupData() {
         return;
     }
     string file_name = (string)fRunInfo->GetInputFileNamepattern();
-    TRestDetectorSetup* detector_setup = new TRestDetectorSetup();
-    detector_setup->SetName("DetectorSetup");
-    detector_setup->InitFromFileName(file_name);
-
-    // fRunOrigin value filled by fRunNumber
-    fRunOrigin = detector_setup->GetRunNumber();
-    fSubRunOrigin = detector_setup->GetSubRunNumber();
-
-    fRunInfo->SetParentRunNumber(fSubRunOrigin);
-    fRunInfo->SetRunNumber(fRunOrigin);
-    fRunInfo->SetRunTag(detector_setup->GetRunTag());
-
-    fRunInfo->AddMetadata(detector_setup);
+    gDetector->RegisterString(file_name);
+    fRunOrigin = gDetector->GetRunNumber();
 }
 
 //______________________________________________________________________________
