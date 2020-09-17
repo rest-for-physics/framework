@@ -20,7 +20,7 @@ Use it to discuss about options to solve a particular point, or to inform others
 
 * A.7 [ ] Implement a new process `TRestRawSignalToHitsProcess` that allows to fit detector signals and obtain the TRestHitsEvent directly.
 
-* A.8 [ ] Integrate the use of `TRestDetectorSetup` inside `TRestMultiFEMINOSToSignal` to retrieve the information of run number, detector settings, run tag, etc. `TRestDetectorSetup` should be added to the metadata structures in the data flow, and at the same time the values of `TRestRun` and `TRestAnalysisTree` should be updated according to the information in `TRestDetectorSetup`.
+* A.8 [x] Integrate the use of `TRestDetectorSetup` inside `TRestMultiFEMINOSToSignal` to retrieve the information of run number, detector settings, run tag, etc. `TRestDetectorSetup` should be added to the metadata structures in the data flow, and at the same time the values of `TRestRun` and `TRestAnalysisTree` should be updated according to the information in `TRestDetectorSetup`.
 
 * A.9 [x] `Gas file server` web interface.
 
@@ -41,7 +41,7 @@ Use it to discuss about options to solve a particular point, or to inform others
 * A.17 [ ] We need to work on the `TRestEvent::DrawEvent()` methods of the different event types. See implementation of `TRestG4Event::DrawEvent` to be used as reference. 
   We should create first the documentation of this method in `TRestG4Event` and then use it in other `TRestEvent::DrawEvent` methods.
 
-* A.18 [ ] Work on `basic RML's examples` and validation for REST new comers. Add a README.md giving a brief description of the examples.
+* A.18 [x] Work on `basic RML's examples` and validation for REST new comers. Add a README.md giving a brief description of the examples.
 
 ## B. README.md description on each data directory, library, etc
 
