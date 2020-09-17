@@ -696,11 +696,11 @@ TiXmlElement* TRestMetadata::ReplaceElementAttributes(TiXmlElement* e) {
         const char* val = attr->Value();
         const char* name = attr->Name();
 
-        // set attribute for all the vields
-        // if ( strcmp (name , "name") != 0 ) {
+        // set attribute except name field
+        if ( strcmp (name , "name") != 0 ) {
         string temp = ReplaceEnvironmentalVariables(val);
         e->SetAttribute(name, ReplaceMathematicalExpressions(temp).c_str());
-        //}
+        }
 
         attr = attr->Next();
     }
@@ -926,21 +926,22 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
     if ((string)e->Value() != "for") return;
     // ReplaceElementAttributes(e);
 
-    const char* varname = e->Attribute("variable");
-    const char* varfrom = e->Attribute("from");
-    const char* varto = e->Attribute("to");
-    const char* varstep = e->Attribute("step");
-    const char* varin = e->Attribute("in");
+    TString varname = TString(e->Attribute("variable"));
+    TString varfrom = TString(e->Attribute("from"));
+    TString varto = TString(e->Attribute("to"));
+    TString varstep = TString(e->Attribute("step"));
+    TString varin = TString(e->Attribute("in"));
 
-    if ((varin == NULL) && (varname == NULL || varfrom == NULL || varto == NULL)) return;
-    if (varstep == NULL) varstep = "1";
+    if ((varin == "") && (varname == "" || varfrom == "" || varto == "")) return;
+    if (varstep == "") varstep = "1";
     TiXmlElement* parele = (TiXmlElement*)e->Parent();
     if (parele == NULL) return;
 
-    string _from = varfrom ? ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varfrom)) : "";
-    string _to = varto ? ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varto)) : "";
-    string _step = varstep ? ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varstep)) : "";
-    string _in = varin ? ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varin)) : "";
+    string _name = (string)varname;
+    string _from = (string)varfrom;
+    string _to = (string)varto;
+    string _step = (string)varstep;
+    string _in = (string)varin;
     if (isANumber(_from) && isANumber(_to) && isANumber(_step)) {
         double from = StringToDouble(_from);
         double to = StringToDouble(_to);
@@ -949,7 +950,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
         debug << "----expanding for loop----" << endl;
         double i = 0;
         for (i = from; i <= to; i = i + step) {
-            SetEnv(varname, ToString(i), true);
+            SetEnv(_name, ToString(i), true);
             ExpandForLoopOnce(e);
         }
         parele->RemoveChild(e);
@@ -961,7 +962,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
 
         debug << "----expanding for loop----" << endl;
         for (string loopvar : loopvars) {
-            SetEnv(varname, loopvar, true);
+            SetEnv(_name, loopvar, true);
             ExpandForLoopOnce(e);
         }
         parele->RemoveChild(e);
@@ -969,6 +970,8 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
         if (fVerboseLevel >= REST_Extreme) parele->Print(stdout, 0);
         debug << "----end of for loop----" << endl;
     }
+    // variable defined in for loop should be temporal
+    fVariables.erase(_name);
 }
 
 ///////////////////////////////////////////////
@@ -1933,12 +1936,23 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
         }
     }
 
-    // replace bare variable name
+    // replace bare variable name. ignore sub strings. 
+    // e.g. variable "nCh" with value "3" cannot replace the string "nChannels+1"
     startPosition = 0;
     endPosition = 0;
     for (auto iter : fVariables) {
-        outputBuffer = Replace(outputBuffer, iter.first, iter.second);
-        
+        int pos = outputBuffer.find(iter.first, 0);
+        while (pos != -1) {
+            char next =
+                (pos + iter.first.size()) >= outputBuffer.size() ? 0 : outputBuffer[pos + iter.first.size()];
+            char prev = pos == 0 ? 0 : outputBuffer[pos - 1];
+            if (!isalpha(next) && !isalpha(prev)) {
+                outputBuffer.replace(pos, iter.first.size(),iter.second);
+                pos = outputBuffer.find(iter.first, pos + iter.second.size());
+            } else {
+                pos = outputBuffer.find(iter.first, pos + iter.first.size());
+            }
+        }
     }
 
     return outputBuffer;
