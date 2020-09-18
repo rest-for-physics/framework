@@ -1,5 +1,7 @@
 #include "TRestStringOutput.h"
 
+bool Console::CompatibilityMode = false;
+
 int Console::GetWidth() {
 #ifdef WIN32
     return 100;
@@ -163,6 +165,7 @@ TRestStringOutput::TRestStringOutput(string _color, string BorderOrHeader, REST_
     if (length > 500 || length < 20)  // unsupported console, we will fall back to compatibility modes
     {
         length = -1;
+        Console::CompatibilityMode = true;
     }
 
     verbose = REST_Essential;
@@ -255,7 +258,7 @@ string TRestStringOutput::FormattingPrintString(string input) {
 }
 
 void TRestStringOutput::setlength(int n) {
-    if (length != -1) {
+    if (!Console::CompatibilityMode) {
         if (n < Console::GetWidth() - 2)
             length = n;
         else
@@ -264,7 +267,7 @@ void TRestStringOutput::setlength(int n) {
 }
 
 void TRestStringOutput::flushstring() {
-    if (length == -1)  // this means we are using condor
+    if (Console::CompatibilityMode)  // this means we are using condor
     {
         std::cout << buf.str() << std::endl;
     } else {
