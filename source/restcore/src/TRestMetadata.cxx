@@ -116,10 +116,10 @@
 /// to startup the class: the section for the class and a global section. Additionaly
 /// we can give a map object to the method to import additional variables.
 ///
-/// The "section for the class" is an xml section with the value of class name. 
+/// The "section for the class" is an xml section with the value of class name.
 /// It is the main information souce for the class's startup. The "global"
 /// section is a special xml section in the rml file, containing global information
-/// which could be seen by all the class sections. 
+/// which could be seen by all the class sections.
 ///
 /// With the xml sections given, LoadConfigFromFile() first merge them together. Then it
 /// calls LoadSectionMetadata(), which loads some universal parameters like
@@ -129,7 +129,7 @@
 ///
 /// **InitFromConfigFile()** is a pure virtual method and every child classes have
 /// to implement it. This method defines how the metadata class loads its xml
-/// config section. A simple kind of implementation is to add few lines of GetParameter(): 
+/// config section. A simple kind of implementation is to add few lines of GetParameter():
 ///
 /// \code
 ///
@@ -148,10 +148,10 @@
 ///
 /// \endcode
 ///
-/// A more advanced usage is sequential startup, when the metadata class contains 
+/// A more advanced usage is sequential startup, when the metadata class contains
 /// another metadata class. We can write in the host class's InitFromConfigFile()
 /// to new the resident class, and the call the resident class's LoadConfigFromFile()
-/// method, giving the child section as the resident class's config section. The rml 
+/// method, giving the child section as the resident class's config section. The rml
 /// hierarchy could therefore be the same as class residence.
 ///
 /// For example, when received an xml section declared "TRestRun", the host
@@ -174,7 +174,7 @@
 /// 	while (e != NULL)
 /// 	{
 ///			string value = e->Value();
-/// 		if (value == "TRestRun") { 
+/// 		if (value == "TRestRun") {
 /// 		    fRunInfo = new TRestRun();
 /// 		    fRunInfo->LoadConfigFromFile(e, fElementGlobal);
 ///			}
@@ -191,7 +191,7 @@
 /// ### Replacement of variables and expressions
 ///
 /// By default, LoadConfigFromFile() will look into only the first-level child sections
-/// of both global and sectional section. if the section's value is either 
+/// of both global and sectional section. if the section's value is either
 /// "variable" or "constant", the class will keep them for replacement.
 ///
 /// \code
@@ -214,15 +214,15 @@
 ///
 /// \endcode
 ///
-/// LoadConfigFromFile() will replace the field values of xml sections before 
+/// LoadConfigFromFile() will replace the field values of xml sections before
 /// they are used. The procedure of replacing is as following:
 ///
-/// 1. recognize the strings surrounded by "${}". Seek and replace in system 
+/// 1. recognize the strings surrounded by "${}". Seek and replace in system
 /// env first. If not found, replace with variable/constant.
-/// 2. directly replace the strings matching the name of variable/constant 
+/// 2. directly replace the strings matching the name of variable/constant
 /// by their value.
 ///
-/// After replacement, LoadConfigFromFile() will call TFormula to evaluate the 
+/// After replacement, LoadConfigFromFile() will call TFormula to evaluate the
 /// string if it is identified as an math expression.
 ///
 /// The result string of the field value is either a number string or a string
@@ -697,9 +697,9 @@ TiXmlElement* TRestMetadata::ReplaceElementAttributes(TiXmlElement* e) {
         const char* name = attr->Name();
 
         // set attribute except name field
-        if ( strcmp (name , "name") != 0 ) {
-        string temp = ReplaceEnvironmentalVariables(val);
-        e->SetAttribute(name, ReplaceMathematicalExpressions(temp).c_str());
+        if (strcmp(name, "name") != 0) {
+            string temp = ReplaceEnvironmentalVariables(val);
+            e->SetAttribute(name, ReplaceMathematicalExpressions(temp).c_str());
         }
 
         attr = attr->Next();
@@ -1925,8 +1925,7 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
         if (sysenv != "") {
             outputBuffer.replace(replacePos, replaceLen, sysenv);
             endPosition = 0;
-        } 
-        else if (proenv != "") {
+        } else if (proenv != "") {
             outputBuffer.replace(replacePos, replaceLen, proenv);
             endPosition = 0;
         } else {
@@ -1936,7 +1935,7 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
         }
     }
 
-    // replace bare variable name. ignore sub strings. 
+    // replace bare variable name. ignore sub strings.
     // e.g. variable "nCh" with value "3" cannot replace the string "nChannels+1"
     startPosition = 0;
     endPosition = 0;
@@ -1947,7 +1946,7 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
                 (pos + iter.first.size()) >= outputBuffer.size() ? 0 : outputBuffer[pos + iter.first.size()];
             char prev = pos == 0 ? 0 : outputBuffer[pos - 1];
             if (!isalpha(next) && !isalpha(prev)) {
-                outputBuffer.replace(pos, iter.first.size(),iter.second);
+                outputBuffer.replace(pos, iter.first.size(), iter.second);
                 pos = outputBuffer.find(iter.first, pos + iter.second.size());
             } else {
                 pos = outputBuffer.find(iter.first, pos + iter.first.size());
@@ -1962,8 +1961,8 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
 /// \brief Set the program env with given env name, value and overwrite
 /// permission.
 ///
-/// It will add to fVariables map if the variable with name "name" does not exist. 
-/// If exist, it will change the value if "overwriteexisting" is true. 
+/// It will add to fVariables map if the variable with name "name" does not exist.
+/// If exist, it will change the value if "overwriteexisting" is true.
 void TRestMetadata::SetEnv(string name, string value, bool overwriteexisting) {
     if (fVariables.count(name) > 0) {
         if (overwriteexisting) {
