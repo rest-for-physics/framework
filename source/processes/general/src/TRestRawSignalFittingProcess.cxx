@@ -22,40 +22,21 @@
 
 //////////////////////////////////////////////////////////////////////////
 ///
-///_______________________________________________________________________________
-///
-/// RESTsoft - Software for Rare Event Searches with TPCs
-///
-/// History of developments:
-///
-/// 2020-August First implementation of raw signal fitting process.
-///                Created from TRestRawSignalAnalysisProcess.
-///
-/// \class      TRestRawSignalFittingProcess
-/// \author     David Diez
-///
-///______________________________________________________________________________
-///
-//////////////////////////////////////////////////////////////////////////
-/// 
-///
 ///
 /// Fit every TRestRawSignal in a TRestRawSignalEvent with AGET theoretical curve
-/// times a logistic function. 
-/// This logistic function acts like a step function to select only the positive range
-/// of the AGET function.
+/// times a logistic function. This logistic function acts like a step function to select only the positive range
+/// of the AGET function. Working with raw signal (without substracting baseline).
 ///   
 /// Form TRestRawSignal -> TH1 -> Measure goodness of fit
-/// Working with raw signal (without substracting baseline).
 ///
 /// Analytic expression to fit:
 ///
 /// [0]+[1]*TMath::Exp(-3. * (x-[3])/[2]) * (x-[3])/[2] * (x-[3])/[2] * (x-[3])/[2] * 
 /// sin((x-[3])/[2])/(1+TMath::Exp(-x+[3]))
 ///
-/// [0] = "Baseline"
-/// [1] = "Amplitude"
-/// [2] = "ShapingTime"
+/// [0] = "Baseline", 
+/// [1] = "Amplitude", 
+/// [2] = "ShapingTime", 
 /// [3] = "PeakPosition"
 ///
 ///
@@ -71,6 +52,22 @@
 ///
 /// * **FitRatioSigmaMaxPeakMean**: Mean over all pulses in the event of square root of the squared 
 /// difference betweeen raw signal and fit divided by number of bins and divided by amplitude of the pulse.
+///
+///_______________________________________________________________________________
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2020-August First implementation of raw signal fitting process.
+///                Created from TRestRawSignalAnalysisProcess.
+///
+/// \class      TRestRawSignalFittingProcess
+/// \author     David Diez
+///
+///______________________________________________________________________________
+///
+//////////////////////////////////////////////////////////////////////////
 
 #include "TRestRawSignalFittingProcess.h"
 using namespace std;
@@ -157,13 +154,13 @@ TRestEvent* TRestRawSignalFittingProcess::ProcessEvent(TRestEvent* evInput) {
     Double_t RatioSigmaMaxPeakMean = 0;
     Double_t RatioSigmaMaxPeak[fRawSignalEvent->GetNumberOfSignals()];
     Double_t ChiSquareMean = 0;
-    Double_t ChiSquare[fRawSignalEvent->GetNumberOfSignals()];
-
+    Double_t ChiSquare [fRawSignalEvent->GetNumberOfSignals()];
+    
     for (int s = 0; s < fRawSignalEvent->GetNumberOfSignals(); s++) {
         TRestRawSignal* singleSignal = fRawSignalEvent->GetSignal(s);
 
         int MaxPeakBin = singleSignal->GetMaxPeakBin();
-
+        
         // ShaperSin function (AGET theoretic curve) times logistic function
         TF1* f = new TF1("fit",
                          "[0]+[1]*TMath::Exp(-3. * (x-[3])/[2]) * (x-[3])/[2] * (x-[3])/[2] * (x-[3])/[2] * "
@@ -184,7 +181,7 @@ TRestEvent* TRestRawSignalFittingProcess::ProcessEvent(TRestEvent* evInput) {
         TH1D* h = new TH1D("histo", "Signal to histo", nBins, 0, nBins);
 
         for (int i = 0; i < nBins; i++) {
-            h->Fill(i, singleSignal->GetRawData(i));
+            h->Fill(i, singleSignal->GetRawData(i) );
         }
 
         // Fit histogram with ShaperSin
@@ -203,8 +200,9 @@ TRestEvent* TRestRawSignalFittingProcess::ProcessEvent(TRestEvent* evInput) {
 
         Double_t sigma = 0;
         for (int j = MaxPeakBin - 145; j < MaxPeakBin + 165; j++) {
-            sigma += (singleSignal->GetRawData(j) - f->Eval(j)) * (singleSignal->GetRawData(j) - f->Eval(j));
-        }
+            sigma += (singleSignal->GetRawData(j) - f->Eval(j)) *
+                     (singleSignal->GetRawData(j) - f->Eval(j));
+            }
         Sigma[s] = TMath::Sqrt(sigma / (145 + 165));
         RatioSigmaMaxPeak[s] = Sigma[s] / singleSignal->GetRawData(MaxPeakBin);
         RatioSigmaMaxPeakMean += RatioSigmaMaxPeak[s];
@@ -225,14 +223,15 @@ TRestEvent* TRestRawSignalFittingProcess::ProcessEvent(TRestEvent* evInput) {
     }
     Double_t SigmaMeanStdDev = TMath::Sqrt(sigmaMeanStdDev / fRawSignalEvent->GetNumberOfSignals());
     SetObservableValue("FitSigmaStdDev", SigmaMeanStdDev);
-
+    
     //////////// Chi Square Mean Observable /////////////
     ChiSquareMean = ChiSquareMean / fRawSignalEvent->GetNumberOfSignals();
     SetObservableValue("FitChiSquareMean", ChiSquareMean);
-
+    
     //////////// Ratio Sigma MaxPeak Mean Observable /////////////
     RatioSigmaMaxPeakMean = RatioSigmaMaxPeakMean / fRawSignalEvent->GetNumberOfSignals();
     SetObservableValue("FitRatioSigmaMaxPeakMean", RatioSigmaMaxPeakMean);
+    
 
     debug << "SigmaMean: " << SigmaMean << endl;
     debug << "SigmaMeanStdDev: " << SigmaMeanStdDev << endl;
@@ -241,8 +240,7 @@ TRestEvent* TRestRawSignalFittingProcess::ProcessEvent(TRestEvent* evInput) {
     for (int k = 0; k < fRawSignalEvent->GetNumberOfSignals(); k++) {
         debug << "Standard deviation of signal number " << k << ": " << Sigma[k] << endl;
         debug << "Chi square of fit signal number " << k << ": " << ChiSquare[k] << endl;
-        debug << "Sandard deviation divided by amplitude of signal number " << k << ": "
-              << RatioSigmaMaxPeak[k] << endl;
+        debug << "Sandard deviation divided by amplitude of signal number " << k << ": " << RatioSigmaMaxPeak[k] << endl;
     }
 
     /// We define (or re-define) the baseline range and calculation range of our raw-signals.
