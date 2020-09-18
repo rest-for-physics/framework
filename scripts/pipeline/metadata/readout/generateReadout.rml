@@ -31,10 +31,10 @@ Finally we call the method TRestRun::FormOutputFile() through TRestManager to sa
     <TRestReadout name="Prototype_2020_06" title="PANDA readout 7module" >
       <parameter name="verboseLevel" value="info"/>
       <parameter name="mappingNodes" value="0" />
-      <myParameter name="nChannels" value="64" />
-      <myParameter name="pitch" value="3" />
-      <myParameter name="pixelSize" value="3/sqrt(2.)" />
-      <myParameter name="myDecodingFile" value="${REST_INPUTDATA}/decoding/MM_On_AGET0-1.dec"/>
+      <variable name="nChannels" value="64" />
+      <variable name="pitch" value="3" />
+      <variable name="pixelSize" value="3/sqrt(2.)" />
+      <variable name="myDecodingFile" value="${REST_INPUTDATA}/decoding/MM_On_AGET0-1.dec"/>
 
       <readoutModule name="module" file="microbulkModule.rml"/>
 

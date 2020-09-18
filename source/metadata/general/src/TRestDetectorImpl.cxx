@@ -270,7 +270,7 @@ void TRestDetectorImpl::ReadFileNameFEMINOS(string fName) {
     unsigned int length = fullName.length();
     string name = fullName.substr(startPos, length - startPos);
 
-    // fRunNumber = StringToInteger(name.substr(1, 5));
+    fRunNumber = StringToInteger(name.substr(1, 5));
 
     unsigned int pos = name.find("_") + 1;
     unsigned int len = name.find("_Vm") - pos;

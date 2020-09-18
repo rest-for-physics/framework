@@ -2,18 +2,18 @@
 
 	// Y-strips
 	<for variable="nCh" from="1" to="nChannels-2" step="1" >
-		<readoutChannel id="[nCh]" >
+		<readoutChannel id="nCh" >
 			<for variable="nPix" from="0" to="nChannels-1" step="1" >
-				<addPixel id="[nPix]" origin="((1+[nCh])*pitch,pitch/4+[nPix]*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
+				<addPixel id="nPix" origin="((1+nCh)*pitch,pitch/4+nPix*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
 			</for>
-			<addPixel id="nChannels" origin="((1+[nCh])*pitch-pitch/2,pitch/4+(nChannels-1)*pitch+pitch/2)" size="(pitch,pitch/2)" rotation="0" />
+			<addPixel id="nChannels" origin="((1+nCh)*pitch-pitch/2,pitch/4+(nChannels-1)*pitch+pitch/2)" size="(pitch,pitch/2)" rotation="0" />
 		</readoutChannel>
 	</for>
 
 	//First strip is special (upper left corner)
 	<readoutChannel id="0">
 		<for variable="nPix" from="0" to="nChannels-1" step="1" >
-			<addPixel id="[nPix]" origin="((1)*pitch,pitch/4+[nPix]*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
+			<addPixel id="nPix" origin="((1)*pitch,pitch/4+nPix*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
 		</for>
 		<addPixel id="nChannels" origin="((1)*pitch-pitch/2,pitch/4+(nChannels-1)*pitch+pitch/2)" size="(pitch,pitch/2)" rotation="0" />
 		<addPixel id="nChannels+1" origin="(pitch/2,pitch/4+(nChannels-1)*pitch+pitch)" size="(pitch/2,pitch/2)" rotation="180" triangle="true"/>
@@ -22,8 +22,8 @@
 	// Last strip is special
 	<readoutChannel id="nChannels-1" >
 		<for variable="nPix" from="0" to="nChannels-1" step="1" >
-			<addPixel id="[nPix]" origin="(nChannels*pitch,pitch/4+[nPix]*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
-			<addPixel id="nChannels+[nPix]" origin="(nChannels*pitch,pitch/4+[nPix]*pitch)" size="(pitch/2,pitch)" rotation="0" />
+			<addPixel id="nPix" origin="(nChannels*pitch,pitch/4+nPix*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
+			<addPixel id="nChannels+nPix" origin="(nChannels*pitch,pitch/4+nPix*pitch)" size="(pitch/2,pitch)" rotation="0" />
 		</for>
 		<addPixel id="2*nChannels" origin="(nChannels*pitch-pitch/2,pitch/4+(nChannels-1)*pitch+pitch/2)" size="(pitch,pitch/2)" rotation="0" />
 	</readoutChannel>
@@ -34,16 +34,16 @@
 	<readoutChannel id="nChannels" >
 		<addPixel id="0" origin="(0,0)" size="(pitch/2,3*pitch/4)" rotation="0" />
 		<for variable="nPix" from="0" to="nChannels-1" step="1" >
-			<addPixel id="[nPix]+1" origin="((0.5+[nPix])*pitch,pitch-pitch/4)" size="(pixelSize,pixelSize)" rotation="-135" triangle="true"/>
+			<addPixel id="nPix+1" origin="((0.5+nPix)*pitch,pitch-pitch/4)" size="(pixelSize,pixelSize)" rotation="-135" triangle="true"/>
 		</for>
 		<addPixel id="nChannels+1" origin="(0,0)" size="(nChannels*pitch+pitch/2,pitch/4)" rotation="0" />
 	</readoutChannel>
 
 	<for variable="nCh" from="1" to="nChannels-2" step="1" >
-		<readoutChannel id="nChannels+[nCh]" >
-			<addPixel id="0" origin="(0,[nCh]*pitch-pitch/4)" size="(pitch/2,pitch)" rotation="0" />
+		<readoutChannel id="nChannels+nCh" >
+			<addPixel id="0" origin="(0,nCh*pitch-pitch/4)" size="(pitch/2,pitch)" rotation="0" />
 			<for variable="nPix" from="0" to="nChannels-1" step="1" >
-				<addPixel id="[nPix]+1" origin="((0.5+[nPix])*pitch,[nCh]*pitch-pitch/4)" size="(pixelSize,pixelSize)" rotation="45" />
+				<addPixel id="nPix+1" origin="((0.5+nPix)*pitch,nCh*pitch-pitch/4)" size="(pixelSize,pixelSize)" rotation="45" />
 			</for>
 		</readoutChannel>
 	</for>
@@ -53,7 +53,7 @@
 		<addPixel id="0" origin="(0,pitch/4+(nChannels-1)*pitch+pitch/2)" size="(pitch/2,pitch/2)" rotation="0" triangle="true"/>
 		<addPixel id="1" origin="(0,(nChannels-1)*pitch-pitch/4)" size="(pitch/2,pitch)" rotation="0" />
 		<for variable="nPix" from="0" to="nChannels-1" step="1" >
-			<addPixel id="[nPix]+2" origin="((0.5+[nPix])*pitch,(nChannels-1)*pitch-pitch/4)" size="(pixelSize,pixelSize)" rotation="45" />
+			<addPixel id="nPix+2" origin="((0.5+nPix)*pitch,(nChannels-1)*pitch-pitch/4)" size="(pixelSize,pixelSize)" rotation="45" />
 		</for>
 	</readoutChannel>
 

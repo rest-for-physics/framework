@@ -35,9 +35,21 @@ using namespace std;
 class TRestDetector {
    protected:
     string fDetectorName;
+    Int_t fRunNumber;
 
    public:
+    // Constructors
+    TRestDetector() {}
+    // Destructor
+    ~TRestDetector() {}
+
+    // Utility methods
     string GetDetectorName() { return fDetectorName; }
+    Int_t GetRunNumber() { return fRunNumber; }
+    void SetRunNumber(Int_t run) { fRunNumber = run; }
+    virtual void RegisterMetadata(TObject* ptr) {}
+    virtual void RegisterString(string str) {}
+    virtual void Print() {}
 
     //////// Field property ////////
     virtual TVector3 GetDriftField(TVector3 pos) { return TVector3(); }
@@ -86,19 +98,6 @@ class TRestDetector {
     virtual void SetPressure(Double_t p) {}
     virtual void SetDAQSamplingTime(Double_t st) {}
     virtual void SetElectronLifeTime(Double_t elt) {}
-
-    /// instantiate specific detector: TRestDetectorXXX according to the name XXX
-    static TRestDetector* instantiate(string name = "");
-
-    virtual void RegisterMetadata(TObject* ptr) {}
-    virtual void RegisterString(string str) {}
-
-    virtual void Print() {}
-
-    // Constructors
-    TRestDetector() {}
-    // Destructor
-    ~TRestDetector() {}
 };
 
 extern TRestDetector* gDetector;

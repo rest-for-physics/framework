@@ -72,7 +72,7 @@
 /// **xml section**.
 ///
 /// Note that the decalration
-/// "include", "for", "variable" and "myParameter" is reserved for the software.
+/// "include", "for", "variable" and "constant" is reserved for the software.
 /// They works differently than others, which we will talk later.
 ///
 /// ### Sequencial start up procedure of a metadata class
@@ -103,33 +103,34 @@
 /// \code
 ///
 /// void LoadConfigFromFile();
-/// void LoadConfigFromFile(const char *cfgFileName);
+/// void LoadConfigFromFile(const char *cfgFileName, string sectionName = "");
 /// void LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);
 /// void LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal,
-/// vector<TiXmlElement*> eEnv);
+/// map<string, string> envs);
 ///
 /// \endcode
 ///
-/// If no arguments are provided, the starter will only call the Initialize()
-/// method. If given the rml file name, it will find out its rml sections. We
-/// can also directly give the xml sections to it. Three xml sections are used
-/// to startup the class. The sectional section is the section with the same
-/// name as the class, which are providing the basic infomation. The global
-/// section is a special xml section in the rml file, containing some global
-/// settings such as datapath or file format. The env section is optional,
-/// through which the host class inputs the variables into its resident class.
+/// If no arguments are provided, LoadConfigFromFile() will only call the Initialize()
+/// method. If given the rml file name, it will find out the needed rml sections. We
+/// can also directly give the xml sections to the method. Two xml sections are used
+/// to startup the class: the section for the class and a global section. Additionaly
+/// we can give a map object to the method to import additional variables.
 ///
-/// With the xml sections given, The starter first merge them together. Then it
+/// The "section for the class" is an xml section with the value of class name.
+/// It is the main information souce for the class's startup. The "global"
+/// section is a special xml section in the rml file, containing global information
+/// which could be seen by all the class sections.
+///
+/// With the xml sections given, LoadConfigFromFile() first merge them together. Then it
 /// calls LoadSectionMetadata(), which loads some universal parameters like
 /// name, title and verbose level. This method also preprocesses the config
 /// sections, expanding the include/for decinition and replacing the variables.
-/// After this, the starter calls the method InitFromConfigFile().
+/// After this, LoadConfigFromFile() calls the method InitFromConfigFile().
 ///
-/// InitFromConfigFile() is a pure virtual method and every child classes have
+/// **InitFromConfigFile()** is a pure virtual method and every child classes have
 /// to implement it. This method defines how the metadata class loads its xml
-/// config section in rml file. If the user just want a simple startup logic, he
-/// can implement it with few lines of GetParameter().
-
+/// config section. A simple kind of implementation is to add few lines of GetParameter():
+///
 /// \code
 ///
 /// <TRestMuonAnalysisProcess name = "muAna" title = "Example" verboseLevel =
@@ -146,17 +147,12 @@
 /// }
 ///
 /// \endcode
-
 ///
-/// The sequential startup trick lies in that, when we want to initialize
-/// another TRestMetadata class (resident) in our main class(host), we write the
-/// residient's config section as a child section of host's section in the rml
-/// file. When doing initialization, we iterate all the child elements of the
-/// host's config element. Then when we find a child element declared as an
-/// available class name, we can instantiate the class. We then send this child
-/// element as config section to is resident class, calling its
-/// LoadConfigFromFile() method. The rml hierarchy will be the same as class
-/// residence.
+/// A more advanced usage is sequential startup, when the metadata class contains
+/// another metadata class. We can write in the host class's InitFromConfigFile()
+/// to new the resident class, and the call the resident class's LoadConfigFromFile()
+/// method, giving the child section as the resident class's config section. The rml
+/// hierarchy could therefore be the same as class residence.
 ///
 /// For example, when received an xml section declared "TRestRun", the host
 /// "TRestManager" will pass this section (together with its global section) to
@@ -174,26 +170,18 @@
 ///
 /// void TRestManager::InitFromConfigFile()
 /// {
-///		if (fElement != NULL)
-///		{
-/// 		TiXmlElement*e = fElement->FirstChildElement();
-/// 		while (e != NULL)
-/// 		{
-///				string value = e->Value();
-/// 			if (value == "variable" || value == "myParameter" || value
-/// == "constant") { e = e->NextSiblingElement(); continue; }
-///				ReadConfig((string)e->Value(), e);
-///				e = e->NextSiblingElement();
-/// 		}
-///		}
-/// }
-///
-/// Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
-/// {
-/// 	if (keydeclare == "TRestRun") {
-/// 		fRunInfo = new TRestRun();
-/// 		fRunInfo->LoadConfigFromFile(e, fElementGlobal);
-/// 		return 0;
+/// 	TiXmlElement*e = fElement->FirstChildElement();
+/// 	while (e != NULL)
+/// 	{
+///			string value = e->Value();
+/// 		if (value == "TRestRun") {
+/// 		    fRunInfo = new TRestRun();
+/// 		    fRunInfo->LoadConfigFromFile(e, fElementGlobal);
+///			}
+/// 		else if (value == "TRestAnalysisPlot") {
+/// 		    fPlot = new TRestAnalysisPlot();
+/// 		    fPlot->LoadConfigFromFile(e, fElementGlobal);
+///			}
 /// 	}
 /// }
 ///
@@ -202,23 +190,22 @@
 ///
 /// ### Replacement of variables and expressions
 ///
-/// By default, the starter will look into only the first-level child sections
-/// of both global and sectional section. The value of them will be saved in the
-/// metadata. In this level the decalration "myParameter" and "variable" is the
-/// same.
+/// By default, LoadConfigFromFile() will look into only the first-level child sections
+/// of both global and sectional section. if the section's value is either
+/// "variable" or "constant", the class will keep them for replacement.
 ///
 /// \code
 ///
-///   <ClassName name="userGivenName" title="User given title" >
-///       <myParameter name="nChannels" value="${CHANNELS}" /> //this variable
-///       cannot be loaded by the class "ContainedClassName"
+///   <TRestRun name="userGivenName" title="User given title" >
+///       <variable name="nChannels" value="${CHANNELS}" /> //this variable
+///       will be added to the class "TRestReadout"
 ///
-///       <ContainedClassName field1="value1" field2="value2"  >
+///       <TRestReadout name="aaaa" >
 ///           <variable .... / > //this variable cannot be loaded by the class
-///           "ClassName"
-///       </ContainedClassName>
+///           "TRestReadout"
+///       </TRestReadout>
 ///       <parameter name="Ch" value="nChannels+{CHANNELS}-2" />
-///   </ClassName>
+///   </TRestRun>
 ///
 ///   <global>
 ///       <variable name = "CHANNELS" value = "64" overwrite = "false" / >
@@ -227,36 +214,33 @@
 ///
 /// \endcode
 ///
+/// LoadConfigFromFile() will replace the field values of xml sections before
+/// they are used. The procedure of replacing is as following:
 ///
-/// After this process, the starter will replace the field values of xml
-/// sections before they are used. This work is done by the method
-/// PreprocessElement(). The procedure of replacing is as following.
+/// 1. recognize the strings surrounded by "${}". Seek and replace in system
+/// env first. If not found, replace with variable/constant.
+/// 2. directly replace the strings matching the name of variable/constant
+/// by their value.
 ///
-/// 1. recognize the strings surrounded by "$ENV{}". Seek in system env and
-/// replace these strings.
-/// 1. recognize the strings surrounded by "${}". Seek in system env as well as
-/// "variable" and replace these strings.
-/// 2. directly replace the strings matching the name of "myParameter" and
-/// "constant" by its value.
-/// 3. Judge if the string is an expressions, if so, try evaluate it using
-/// TFormula. Replace it by the result.
+/// After replacement, LoadConfigFromFile() will call TFormula to evaluate the
+/// string if it is identified as an math expression.
 ///
 /// The result string of the field value is either a number string or a string
 /// with concrete content. In the exapmle code above, the section declared with
-/// "parameter" is has its field value reset to string 126.
+/// "parameter" will have its field value reset to string 126.
 ///
 /// ### Including external RML files in a main RML file
 ///
 /// It is possible to link to other files in any section.
 /// There are two include modes:
-/// 1. raw include. the starter will parse all the lines in the file as xml
+/// 1. raw include. LoadConfigFromFile() will parse all the lines in the file as xml
 /// element and insert them inside the local section. \code <TRestXXX>
 ///		<include file="abc.txt"/>
 /// </TRestXXX>
 /// \endcode
-/// 2. auto insert. the starter will automatically find corresponding section in
+/// 2. auto insert. LoadConfigFromFile() will automatically find corresponding section in
 /// the file. If the file can be parsed by tinyxml, it will first import its
-/// globals section. When searching the section, the starter searches according
+/// globals section. When searching the section, LoadConfigFromFile() searches according
 /// to the name and type. Here "type" can either be the element declare or
 /// attribute "type". After finding the section, its child sections as well as
 /// attributes will be inserted into the local element. \code <TRestXXX
@@ -389,7 +373,7 @@
 ///
 /// Three fields in the first line of an xml section will be looked for before
 /// anything else. They are: name, title, and verboseLevel. If not specified,
-/// the starter will find in the *globals* section. If still not fond, it will
+/// LoadConfigFromFile() will find in the *globals* section. If still not fond, it will
 /// use the default value.
 ///
 /// Field "name" and "title" is needed by TNamed classes. The "verboseLevel" is
@@ -498,7 +482,7 @@ TRestMetadata::TRestMetadata() : endl(fVerboseLevel, messageBuffer) {
     fElementGlobal = NULL;
     fElement = NULL;
     fVerboseLevel = gVerbose;
-    fElementEnv.clear();
+    fVariables.clear();
     fHostmgr = NULL;
 
     fConfigFileName = "null";
@@ -514,7 +498,7 @@ TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(fVerboseLevel, mess
     fElementGlobal = NULL;
     fElement = NULL;
     fVerboseLevel = gVerbose;
-    fElementEnv.clear();
+    fVariables.clear();
     fHostmgr = NULL;
 
     fConfigFileName = cfgFileName;
@@ -528,7 +512,6 @@ TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(fVerboseLevel, mess
 TRestMetadata::~TRestMetadata() {
     if (fElementGlobal) delete fElementGlobal;
     if (fElement) delete fElement;
-    for (auto e : fElementEnv) delete e;
 }
 
 ///////////////////////////////////////////////
@@ -597,14 +580,14 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
 }
 
 ///////////////////////////////////////////////
-/// \brief Main starter.
+/// \brief Main starter method.
 ///
 /// First merge the sectional and global sections together, then save the input
 /// env section. To make start up it calls the following methods in sequence:
 /// LoadSectionMetadata(), InitFromConfigFile()
 ///
 Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal,
-                                        vector<TiXmlElement*> eEnv) {
+                                        map<string, string> envs) {
     Initialize();
     TiXmlElement* theElement;
     if (eSectional != NULL && eGlobal != NULL) {
@@ -627,7 +610,7 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
     }
     fElement = theElement;
     fElementGlobal = eGlobal ? (TiXmlElement*)eGlobal->Clone() : NULL;
-    for (auto e : eEnv) fElementEnv.push_back((TiXmlElement*)e->Clone());
+    fVariables = envs;
 
     int result = LoadSectionMetadata();
     if (result == 0) InitFromConfigFile();
@@ -636,7 +619,7 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
 }
 
 ///////////////////////////////////////////////
-/// \brief This method does some preparation for the starter.
+/// \brief This method does some preparation of xml section.
 ///
 /// Preparation includes: seting the name, title and verbose level of the
 /// current class. Finding out and saving the env sections.
@@ -655,8 +638,7 @@ Int_t TRestMetadata::LoadSectionMetadata() {
     if (fElementGlobal != NULL) {
         TiXmlElement* e = fElementGlobal->FirstChildElement();
         while (e != NULL) {
-            if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter" ||
-                (string)e->Value() == "constant") {
+            if ((string)e->Value() == "variable" || (string)e->Value() == "constant") {
                 ReplaceElementAttributes(e);
                 SetEnv(e);
             }
@@ -667,8 +649,7 @@ Int_t TRestMetadata::LoadSectionMetadata() {
     // then from local section
     TiXmlElement* e = fElement->FirstChildElement();
     while (e != NULL) {
-        if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter" ||
-            (string)e->Value() == "constant") {
+        if ((string)e->Value() == "variable" || (string)e->Value() == "constant") {
             ReplaceElementAttributes(e);
             SetEnv(e);
         }
@@ -715,11 +696,11 @@ TiXmlElement* TRestMetadata::ReplaceElementAttributes(TiXmlElement* e) {
         const char* val = attr->Value();
         const char* name = attr->Name();
 
-        // set attribute for all the vields
-        // if ( strcmp (name , "name") != 0 ) {
-        string temp = ReplaceEnvironmentalVariables(val);
-        e->SetAttribute(name, ReplaceMathematicalExpressions(temp).c_str());
-        //}
+        // set attribute except name field
+        if (strcmp(name, "name") != 0) {
+            string temp = ReplaceEnvironmentalVariables(val);
+            e->SetAttribute(name, ReplaceMathematicalExpressions(temp).c_str());
+        }
 
         attr = attr->Next();
     }
@@ -731,7 +712,7 @@ TiXmlElement* TRestMetadata::ReplaceElementAttributes(TiXmlElement* e) {
 /// \brief Identify an environmental variable section and add it into env
 /// section list
 ///
-/// Vaild section declaration: "variable", "myParameter", "constant". If the
+/// Vaild section declaration: "variable", "constant". If the
 /// section exists already, its value will be updated if "updateexisting" is
 /// true. If a system env with the same name has been defined already, then the
 /// system env will be used, unless the attribute "overwrite" is true.
@@ -755,35 +736,12 @@ void TRestMetadata::SetEnv(TiXmlElement* e, bool updateexisting) {
     // if overwrite is false, try to replace the value from system env.
     const char* overwrite = e->Attribute("overwrite");
     if (overwrite == NULL) overwrite = "false";
-    if ((string)overwrite == "true" || (string)overwrite == "True" || (string)overwrite == "yes") {
-        // setenv(name, value,1);
-    } else {
+    if (!StringToBool(overwrite)) {
         char* sysenv = getenv(name);
         if (sysenv != NULL) value = sysenv;
     }
 
-    // SetEnv(name, value, overwriteexisting);
-
-    // find the existing and set its value
-    for (int i = 0; i < fElementEnv.size(); i++) {
-        string name2 = fElementEnv[i]->Attribute("name");
-        if ((string)e->Value() == (string)fElementEnv[i]->Value()) {
-            if (name2 == (string)name) {
-                if (updateexisting) fElementEnv[i]->SetAttribute("value", value);
-                return;
-            } else if (((string)name).find(name2) != -1)
-            // input name contains a substring of existing name
-            // in this case we need to insert the input env before the existing env
-            // otherwise there may be problem for constant and myParameter repalcement
-            {
-                fElementEnv.insert(fElementEnv.begin() + i, (TiXmlElement*)e->Clone());
-                return;
-            }
-        }
-    }
-
-    // if not find, add it directly.
-    fElementEnv.push_back((TiXmlElement*)e->Clone());
+    SetEnv(name, value, true);
 }
 
 ///////////////////////////////////////////////
@@ -802,8 +760,7 @@ void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
         ExpandForLoops(e);
     } else if (e->Attribute("file") != NULL) {
         ExpandIncludeFile(e);
-    } else if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter" ||
-               (string)e->Value() == "constant") {
+    } else if ((string)e->Value() == "variable" || (string)e->Value() == "constant") {
         SetEnv(e);
     } else if ((string)e->Value() == "if") {
         ExpandIfSections(e);
@@ -969,21 +926,22 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
     if ((string)e->Value() != "for") return;
     // ReplaceElementAttributes(e);
 
-    const char* varname = e->Attribute("variable");
-    const char* varfrom = e->Attribute("from");
-    const char* varto = e->Attribute("to");
-    const char* varstep = e->Attribute("step");
-    const char* varin = e->Attribute("in");
+    TString varname = TString(e->Attribute("variable"));
+    TString varfrom = TString(e->Attribute("from"));
+    TString varto = TString(e->Attribute("to"));
+    TString varstep = TString(e->Attribute("step"));
+    TString varin = TString(e->Attribute("in"));
 
-    if ((varin == NULL) && (varname == NULL || varfrom == NULL || varto == NULL)) return;
-    if (varstep == NULL) varstep = "1";
+    if ((varin == "") && (varname == "" || varfrom == "" || varto == "")) return;
+    if (varstep == "") varstep = "1";
     TiXmlElement* parele = (TiXmlElement*)e->Parent();
     if (parele == NULL) return;
 
-    string _from = varfrom ? ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varfrom)) : "";
-    string _to = varto ? ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varto)) : "";
-    string _step = varstep ? ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varstep)) : "";
-    string _in = varin ? ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varin)) : "";
+    string _name = (string)varname;
+    string _from = (string)varfrom;
+    string _to = (string)varto;
+    string _step = (string)varstep;
+    string _in = (string)varin;
     if (isANumber(_from) && isANumber(_to) && isANumber(_step)) {
         double from = StringToDouble(_from);
         double to = StringToDouble(_to);
@@ -992,7 +950,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
         debug << "----expanding for loop----" << endl;
         double i = 0;
         for (i = from; i <= to; i = i + step) {
-            SetEnv(varname, ToString(i), true);
+            SetEnv(_name, ToString(i), true);
             ExpandForLoopOnce(e);
         }
         parele->RemoveChild(e);
@@ -1004,7 +962,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
 
         debug << "----expanding for loop----" << endl;
         for (string loopvar : loopvars) {
-            SetEnv(varname, loopvar, true);
+            SetEnv(_name, loopvar, true);
             ExpandForLoopOnce(e);
         }
         parele->RemoveChild(e);
@@ -1012,6 +970,8 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
         if (fVerboseLevel >= REST_Extreme) parele->Print(stdout, 0);
         debug << "----end of for loop----" << endl;
     }
+    // variable defined in for loop should be temporal
+    fVariables.erase(_name);
 }
 
 ///////////////////////////////////////////////
@@ -1141,7 +1101,6 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
                     TiXmlElement* globaldef = GetElement("globals", rootele)->FirstChildElement();
                     while (globaldef != NULL) {
                         if ((string)globaldef->Value() == "variable" ||
-                            (string)globaldef->Value() == "myParameter" ||
                             (string)globaldef->Value() == "constant") {
                             SetEnv(globaldef, false);
                         }
@@ -1943,39 +1902,14 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, size_
 /// and replace them with corresponding value.
 ///
 /// Replacing marks:
-/// 1. $ENV{VARIABLE_NAME} : search the system env and replace it if found.
-/// 2. ${VARIABLE_NAME} : search both system env and program env and replace it
-/// if found.
-/// 3. [VARIABLE_NAME] : search only program env and replace it if found. This
-/// is used for for loop.
-/// 4. VARIABLE_NAME    : try match the names of myParameter or constant and
-/// replace it if matched.
+/// 1. ${VARIABLE_NAME} : search system env and variable/constant. system env in prior
+/// 2. VARIABLE_NAME    : try match the names of variable/constant and replace it if matched.
 string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
     string outputBuffer = buffer;
 
-    // replace system env only
+    // replace variables with mark ${}
     int startPosition = 0;
     int endPosition = 0;
-    while ((startPosition = outputBuffer.find("$ENV{", endPosition)) != (int)string::npos) {
-        char envValue[256];
-        endPosition = outputBuffer.find("}", startPosition + 1);
-        if (endPosition == (int)string::npos) break;
-
-        string expression = outputBuffer.substr(startPosition + 5, endPosition - startPosition - 5);
-
-        if (getenv(expression.c_str()) != NULL) {
-            sprintf(envValue, "%s", getenv(expression.c_str()));
-            outputBuffer.replace(startPosition, endPosition - startPosition + 1, envValue);
-            endPosition = 0;
-        } else {
-            debug << "cannot find \"$ENV{" << expression << "}\" in system env, returning raw expression..."
-                  << endl;
-        }
-    }
-
-    // replace env with mark ${}
-    startPosition = 0;
-    endPosition = 0;
     while ((startPosition = outputBuffer.find("${", endPosition)) != (int)string::npos) {
         endPosition = outputBuffer.find("}", startPosition + 2);
         if (endPosition == (int)string::npos) break;
@@ -1985,25 +1919,14 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
         int replacePos = startPosition;
         int replaceLen = endPosition - startPosition + 1;
 
-        char* sysenv = getenv(expression.c_str());
-        char* proenv = NULL;
-        int envindex = 0;
-        for (int i = 0; i < fElementEnv.size(); i++) {
-            if ((string)fElementEnv[i]->Value() == "variable" &&
-                expression == (string)fElementEnv[i]->Attribute("name")) {
-                if (fElementEnv[i]->Attribute("value") != NULL) {
-                    proenv = const_cast<char*>(fElementEnv[i]->Attribute("value"));
-                    envindex = i;
-                    break;
-                }
-            }
-        }
+        string sysenv = getenv(expression.c_str()) != NULL ? getenv(expression.c_str()) : "";
+        string proenv = fVariables.count(expression) > 0 ? fVariables[expression] : "";
 
-        if (proenv != NULL) {
-            outputBuffer.replace(replacePos, replaceLen, proenv);
-            endPosition = 0;
-        } else if (sysenv != NULL) {
+        if (sysenv != "") {
             outputBuffer.replace(replacePos, replaceLen, sysenv);
+            endPosition = 0;
+        } else if (proenv != "") {
+            outputBuffer.replace(replacePos, replaceLen, proenv);
             endPosition = 0;
         } else {
             ferr << this->ClassName() << ", replace env : cannot find \"${" << expression << "}\"" << endl;
@@ -2012,48 +1935,22 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
         }
     }
 
-    // replace only program env with mark []
+    // replace bare variable name. ignore sub strings.
+    // e.g. variable "nCh" with value "3" cannot replace the string "nChannels+1"
     startPosition = 0;
     endPosition = 0;
-    while ((startPosition = outputBuffer.find("[", endPosition)) != (int)string::npos) {
-        endPosition = outputBuffer.find("]", startPosition + 1);
-        if (endPosition == (int)string::npos) break;
-
-        string expression = outputBuffer.substr(startPosition + 1, endPosition - startPosition - 1);
-
-        int replacePos = startPosition;
-        int replaceLen = endPosition - startPosition + 1;
-        if (startPosition != 0 && outputBuffer[startPosition - 1] == '$') {
-            replacePos = startPosition - 1;
-            replaceLen = endPosition - startPosition + 2;
-        }
-
-        bool replaced = false;
-        for (int i = 0; i < fElementEnv.size(); i++) {
-            if ((string)fElementEnv[i]->Value() == "variable" &&
-                expression == (string)fElementEnv[i]->Attribute("name")) {
-                if (fElementEnv[i]->Attribute("value") != NULL) {
-                    outputBuffer.replace(replacePos, replaceLen, fElementEnv[i]->Attribute("value"));
-                    replaced = true;
-                    break;
-                }
+    for (auto iter : fVariables) {
+        int pos = outputBuffer.find(iter.first, 0);
+        while (pos != -1) {
+            char next =
+                (pos + iter.first.size()) >= outputBuffer.size() ? 0 : outputBuffer[pos + iter.first.size()];
+            char prev = pos == 0 ? 0 : outputBuffer[pos - 1];
+            if (!isalpha(next) && !isalpha(prev)) {
+                outputBuffer.replace(pos, iter.first.size(), iter.second);
+                pos = outputBuffer.find(iter.first, pos + iter.second.size());
+            } else {
+                pos = outputBuffer.find(iter.first, pos + iter.first.size());
             }
-        }
-
-        if (!replaced) {
-            debug << "replace env " << startPosition << ": cannot find \"[" << expression
-                  << "]\" for for loop, returning raw expression..." << endl;
-        }
-    }
-
-    // replace myParameter
-    startPosition = 0;
-    endPosition = 0;
-    for (int i = 0; i < fElementEnv.size(); i++) {
-        if ((string)fElementEnv[i]->Value() == "myParameter" ||
-            (string)fElementEnv[i]->Value() == "constant") {
-            outputBuffer = Replace(outputBuffer, (string)fElementEnv[i]->Attribute("name"),
-                                   fElementEnv[i]->Attribute("value"), 0);
         }
     }
 
@@ -2064,23 +1961,16 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
 /// \brief Set the program env with given env name, value and overwrite
 /// permission.
 ///
-/// It will change the value if the env already exists and the overwrite
-/// permission is true. Otherwise it will generate a new TiXmlElement object and
-/// save it at the end of the env list.
+/// It will add to fVariables map if the variable with name "name" does not exist.
+/// If exist, it will change the value if "overwriteexisting" is true.
 void TRestMetadata::SetEnv(string name, string value, bool overwriteexisting) {
-    for (int i = 0; i < fElementEnv.size(); i++) {
-        if ((string)fElementEnv[i]->Value() == "variable" &&
-            (string)fElementEnv[i]->Attribute("name") == name) {
-            if (overwriteexisting) {
-                fElementEnv[i]->SetAttribute("value", value.c_str());
-            }
-            return;
+    if (fVariables.count(name) > 0) {
+        if (overwriteexisting) {
+            fVariables[name] = value;
         }
+    } else {
+        fVariables[name] = value;
     }
-    TiXmlElement* e = new TiXmlElement("variable");
-    e->SetAttribute("name", name.c_str());
-    e->SetAttribute("value", value.c_str());
-    fElementEnv.push_back(e);
 }
 
 ///////////////////////////////////////////////

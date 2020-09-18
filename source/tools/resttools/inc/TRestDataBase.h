@@ -92,8 +92,6 @@ class TRestDataBase {
     /// destructor
     ~TRestDataBase() {}
 
-    /// instantiate specific database TRestDataBaseXXX according to the name XXX
-    static TRestDataBase* instantiate(string name = "");
     /// default: read the dataURL file
     virtual void Initialize();
     /// test function

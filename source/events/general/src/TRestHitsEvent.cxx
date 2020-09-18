@@ -836,7 +836,7 @@ void TRestHitsEvent::DrawHistograms(Int_t& column, Double_t pitch, TString histO
         Double_t z = fHits->GetZ(nhit);
         int type = fHits->GetType(nhit);
 
-        if (type % XZ ==0) {
+        if (type % XZ == 0) {
             fXZHisto->Fill(x, z);
             nXZ++;
         }
@@ -846,7 +846,7 @@ void TRestHitsEvent::DrawHistograms(Int_t& column, Double_t pitch, TString histO
             nYZ++;
         }
 
-        if (type % XY ==0) {
+        if (type % XY == 0) {
             fXYHisto->Fill(x, y);
             nXY++;
         }

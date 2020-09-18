@@ -8,7 +8,7 @@ Use it to discuss about options to solve a particular point, or to inform others
 
 * A.1 [x] A first process, if declared as `external`, cannot access the `analysisTree`. We should override this limitation. Furthermore, it would be desirable that if the first process is `external` and the process itself does not stamp the `eventID`, `timestamp`, etc, an automatic numbering will be assigned by `TRestEventProcess`. E.g. just using the entry number on the `analysisTree`.
 
-* A.2 [ ] Implement a way to define a materials.xml file common to every-one. Avoiding `materials.xml` file to propagate on different geometry setups. Instead, geometry setups will use always a common one that can be validated and maintained by REST users. In summary, find a way that the GDML file will give a reference to `REST_PATH/data/definitions/materials.xml`.
+* A.2 [x] Implement a way to define a materials.xml file common to every-one. Avoiding `materials.xml` file to propagate on different geometry setups. Instead, geometry setups will use always a common one that can be validated and maintained by REST users. In summary, find a way that the GDML file will give a reference to `REST_PATH/data/definitions/materials.xml`.
 
 * A.3 [ ] `restG4GammaTransfer` independent calculation.
 
@@ -20,9 +20,9 @@ Use it to discuss about options to solve a particular point, or to inform others
 
 * A.7 [ ] Implement a new process `TRestRawSignalToHitsProcess` that allows to fit detector signals and obtain the TRestHitsEvent directly.
 
-* A.8 [ ] Integrate the use of `TRestDetectorSetup` inside `TRestMultiFEMINOSToSignal` to retrieve the information of run number, detector settings, run tag, etc. `TRestDetectorSetup` should be added to the metadata structures in the data flow, and at the same time the values of `TRestRun` and `TRestAnalysisTree` should be updated according to the information in `TRestDetectorSetup`.
+* A.8 [x] Integrate the use of `TRestDetectorSetup` inside `TRestMultiFEMINOSToSignal` to retrieve the information of run number, detector settings, run tag, etc. `TRestDetectorSetup` should be added to the metadata structures in the data flow, and at the same time the values of `TRestRun` and `TRestAnalysisTree` should be updated according to the information in `TRestDetectorSetup`.
 
-* A.9 [ ] `Gas file server` web interface.
+* A.9 [x] `Gas file server` web interface.
 
 * A.10 [ ] `restExplorer` package.
 
@@ -34,14 +34,14 @@ Use it to discuss about options to solve a particular point, or to inform others
 
 * A.14 [x] Fix duplicated metadata entries. See [forum post](http://ezpc10.unizar.es/t/duplicated-metadata-entries-in-last-version-v2-2-10/38).
 
-* A.15 [ ] Integrate `Decay0` generator code into `libRestG4`. packages/restG4 --> move in future to libraries/geant4?
+* A.15 [ ] Review restG4 and TRestG4Metadata to make a better generator definition, either for geant4 built-in generator or custom generator like restDecay0. See [forum post](http://ezpc10.unizar.es/t/confusion-of-particle-source-collection/352).
 
-* A.16 [ ] Optimize TRestReadout initialization See [forum post](http://ezpc10.unizar.es/t/optimize-trestreadout-startup-time/52).
+* A.16 [x] Optimize TRestReadout initialization See [forum post](http://ezpc10.unizar.es/t/optimize-trestreadout-startup-time/52).
 
 * A.17 [ ] We need to work on the `TRestEvent::DrawEvent()` methods of the different event types. See implementation of `TRestG4Event::DrawEvent` to be used as reference. 
   We should create first the documentation of this method in `TRestG4Event` and then use it in other `TRestEvent::DrawEvent` methods.
 
-* A.18 [ ] Work on `basic RML's examples` and validation for REST new comers. Add a README.md giving a brief description of the examples.
+* A.18 [x] Work on `basic RML's examples` and validation for REST new comers. Add a README.md giving a brief description of the examples.
 
 ## B. README.md description on each data directory, library, etc
 

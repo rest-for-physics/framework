@@ -834,7 +834,7 @@ TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type, TiXmlEle
 
     pc->SetRunInfo(this->fRunInfo);
     pc->SetHostmgr(fHostmgr);
-    pc->LoadConfigFromFile(ele, fElementGlobal, fElementEnv);
+    pc->LoadConfigFromFile(ele, fElementGlobal, fVariables);
 
     return pc;
 }

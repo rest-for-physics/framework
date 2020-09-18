@@ -12,9 +12,6 @@
 #include "TSystem.h"
 #include "TUrl.h"
 
-#include "mutex"
-std::mutex mtx;
-
 //////////////////////////////////////////////////////////////////////////
 /// Interface class of REST database accessibility.
 ///
@@ -55,29 +52,6 @@ std::mutex mtx;
 /// db->print(runId);
 /// \endcode
 ///
-TRestDataBase* TRestDataBase::instantiate(string name) {
-    // vector<string> list = TRestTools::GetListOfRESTLibraries();
-    // for (unsigned int n = 0; n < list.size(); n++) {
-    //    gSystem->Load(list[n].c_str());
-    //}
-    TRestDataBase* db = NULL;
-    if (name != "") {
-        TClass* c = TClass::GetClass(("TRestDataBase" + name).c_str());
-        if (c != NULL)  // this means we have the package installed
-        {
-            db = (TRestDataBase*)c->New();
-        } else {
-            warning << "unrecognized TRestDataBase implementation: \"" << name << "\"" << endl;
-            db = new TRestDataBase();
-        }
-    } else {
-        db = new TRestDataBase();
-    }
-    db->Initialize();
-    if (gDataBase != NULL) delete gDataBase;
-    gDataBase = db;
-    return db;
-}
 
 DBEntry::DBEntry(vector<string> items) {
     this->runNr = atoi(items[0].c_str());
@@ -206,9 +180,6 @@ int TRestDataBase::get_lastrun() {
 /// The method in derived class shall follow this rule.
 int TRestDataBase::set_run(DBEntry info, bool overwrite) {
     int newRunNr;
-
-    mtx.lock();
-
     if (info.runNr == 0) {
         newRunNr = get_lastrun() + 1;
     } else if (info.runNr > 0) {
@@ -225,8 +196,6 @@ int TRestDataBase::set_run(DBEntry info, bool overwrite) {
                    "increment is disabled"
                 << endl;
     }
-
-    mtx.unlock();
 
     return newRunNr;
 }
