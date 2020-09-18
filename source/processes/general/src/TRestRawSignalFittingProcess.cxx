@@ -37,6 +37,40 @@
 ///______________________________________________________________________________
 ///
 //////////////////////////////////////////////////////////////////////////
+/// 
+///
+///
+/// Fit every TRestRawSignal in a TRestRawSignalEvent with AGET theoretical curve
+/// times a logistic function. 
+/// This logistic function acts like a step function to select only the positive range
+/// of the AGET function.
+///   
+/// Form TRestRawSignal -> TH1 -> Measure goodness of fit
+/// Working with raw signal (without substracting baseline).
+///
+/// Analytic expression to fit:
+///
+/// [0]+[1]*TMath::Exp(-3. * (x-[3])/[2]) * (x-[3])/[2] * (x-[3])/[2] * (x-[3])/[2] * 
+/// sin((x-[3])/[2])/(1+TMath::Exp(-x+[3]))
+///
+/// [0] = "Baseline"
+/// [1] = "Amplitude"
+/// [2] = "ShapingTime"
+/// [3] = "PeakPosition"
+///
+///
+/// ### Observables
+///
+/// * **FitSigmaMean**: Mean over all pulses in the event of square root of the squared 
+/// difference betweeen raw signal and fit divided by number of bins.
+///  
+/// * **FitSigmaStdDev**: Standard deviation over all pulses in the event of square root of the squared 
+/// difference betweeen raw signal and fit divided by number of bins.
+///
+/// * **FitChiSquareMean**: Mean over all pulses in the event of chi square of the fit.
+///
+/// * **FitRatioSigmaMaxPeakMean**: Mean over all pulses in the event of square root of the squared 
+/// difference betweeen raw signal and fit divided by number of bins and divided by amplitude of the pulse.
 
 #include "TRestRawSignalFittingProcess.h"
 using namespace std;
