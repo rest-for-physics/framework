@@ -595,15 +595,12 @@ void TRestRun::ReadInputFileTrees() {
 /// 2. Created time and date
 /// 3. File size and entries
 void TRestRun::ReadFileInfo(string filename) {
-    // format example:
-    // run[aaaa]_cobo[bbbb]_frag[cccc]_[time].graw
-    // we are going to match it with inputfile:
-    // run00042_cobo1_frag0000.graw
+    debug << "begin loading file to gDetector..." << filename << endl;
+    gDetector->RegisterString(filename);
 
+    debug << "begin collecting basic file info..." << filename << endl;
     fInformationMap.clear();
     fInformationMap["FileName"] = filename;
-
-    debug << "begin collecting file info: " << filename << endl;
     struct stat buf;
     FILE* fp = fopen(filename.c_str(), "rb");
     if (!fp) {
@@ -624,8 +621,11 @@ void TRestRun::ReadFileInfo(string filename) {
         fTotalBytes = buf.st_size;
     }
 
-    debug << "begin matching file names" << endl;
-
+    debug << "begin matching file name pattern for more file info..." << endl;
+    // format example:
+    // run[aaaa]_cobo[bbbb]_frag[cccc]_[time].graw
+    // we are going to match it with inputfile:
+    // run00042_cobo1_frag0000.graw
     string format = GetParameter("inputFormat", "");
     string name = TRestTools::SeparatePathAndName(filename).second;
 

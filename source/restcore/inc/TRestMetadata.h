@@ -164,7 +164,7 @@ class TRestMetadata : public TNamed {
     /// Saving the global element, to be passed to the resident class, if necessary.
     TiXmlElement* fElementGlobal;  //!
     /// Saving a list of rml variables. name-value pair.
-    map<string, string> fVariables;  //! 
+    map<string, string> fVariables;  //!
 
     /// It can be used as a way to identify that something went wrong using SetError method.
     Bool_t fError = false;  //!

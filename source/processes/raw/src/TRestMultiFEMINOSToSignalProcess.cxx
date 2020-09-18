@@ -166,9 +166,9 @@ void TRestMultiFEMINOSToSignalProcess::LoadDetectorSetupData() {
         cout << "'fRunInfo' is null" << endl;
         return;
     }
-    string file_name = (string)fRunInfo->GetInputFileNamepattern();
-    gDetector->RegisterString(file_name);
-    fRunOrigin = gDetector->GetRunNumber();
+    //string file_name = (string)fRunInfo->GetInputFileNamepattern();
+    //gDetector->RegisterString(file_name);
+    //fRunOrigin = gDetector->GetRunNumber();
 }
 
 //______________________________________________________________________________
