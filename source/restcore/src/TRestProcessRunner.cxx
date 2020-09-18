@@ -570,8 +570,8 @@ void TRestProcessRunner::PauseMenu() {
             cout.setcolor(COLOR_BOLDWHITE);
             Console::CursorDown(1);
             Console::ClearLinesAfterCursor();
-            cout << "type the filename want to redirect output" << endl;
-            cout << "leave blank to output to /dev/null" << endl;
+            cout << "type filename for output redirect" << endl;
+            cout << "leave blank to redirect to /dev/null" << endl;
             cout << " " << endl;
             cout << " " << endl;
             cout << " " << endl;
@@ -585,12 +585,22 @@ void TRestProcessRunner::PauseMenu() {
             Console::CursorUp(1);
             file = Console::ReadLine();
             if (file == "") file = "/dev/null";
-            if (!TRestTools::isPathWritable(TRestTools::SeparatePathAndName(file).first)) {
-                Console::CursorUp(infobar);
-                cout.setcolor(COLOR_BOLDYELLOW);
-                cout << "file not writeable!" << endl;
-                cout.setcolor(COLOR_BOLDWHITE);
-                break;
+            if (TRestTools::fileExists(file)) {
+                if (!TRestTools::isPathWritable(file)) {
+                    Console::CursorUp(infobar);
+                    cout.setcolor(COLOR_BOLDYELLOW);
+                    cout << "file not writeable!" << endl;
+                    cout.setcolor(COLOR_BOLDWHITE);
+                    break;
+                }
+            } else {
+                if (!TRestTools::isPathWritable(TRestTools::SeparatePathAndName(file).first)) {
+                    Console::CursorUp(infobar);
+                    cout.setcolor(COLOR_BOLDYELLOW);
+                    cout << "path not writeable!" << endl;
+                    cout.setcolor(COLOR_BOLDWHITE);
+                    break;
+                }
             }
 
             pid_t pid;
@@ -607,7 +617,7 @@ void TRestProcessRunner::PauseMenu() {
                 for (int i = 0; i < fThreadNumber; i++) {
                     fThreads[i]->StartThread();
                 }
-                info << "Re-directing output" << endl;
+                info << "Re-directing output to " << file << endl;
                 freopen(file.c_str(), "w", stdout);
                 Console::CompatibilityMode = true;
             }
@@ -616,6 +626,7 @@ void TRestProcessRunner::PauseMenu() {
                 exit(0);
             }
             fProcStatus = kNormal;
+            info << "Continue processing..." << endl;
             break;
         } else if (b == 'n') {
             fProcStatus = kStep;
