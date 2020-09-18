@@ -92,13 +92,13 @@ int main(int argc, char* argv[]) {
         // handle special arguments like "--batch"
         for (int i = 1; i < args.size(); i++) {
             if (args[i] == "--batch") {
-                fout << "you are in batch mode, all displays off" << endl;
+                fout << "you are in batch mode, all graphical displays off" << endl;
                 argCApp = 2;
                 args.erase(args.begin() + i);
             }
         }
-        if (fout.CompatibilityMode()) {
-            fout << "you are in batch mode, all displays off" << endl;
+        if (Console::CompatibilityMode) {
+            fout << "you are in compatibility mode, all graphical displays off" << endl;
             argCApp = 2;
         }
     }
