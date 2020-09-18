@@ -1,0 +1,106 @@
+<solids>
+    <box name="WorldSolid" x="world_size" y="world_size" z="world_size" lunit="mm" />
+    <tube name="vesselSolidTube" startphi="0" deltaphi="360" rmin="0" rmax="gasRadius+vesselThickness" z="gasLength+2*vesselThickness" aunit="deg" lunit="mm" />
+    <tube name="gasSolidTube" startphi="0" deltaphi="360" rmin="0" rmax="gasRadius" z="gasLength" aunit="deg" lunit="mm" />
+    <tube name="mmSupportSolid" startphi="0" deltaphi="360" rmin="0" rmax="mmSupportRadius" z="mmSupportThickness" aunit="deg" lunit="mm" />
+    <box name="cathodeSolid" x="cathodeSize" y="cathodeSize" z="cathodeThickness" lunit="mm" />
+    <box name="fieldCageSolidInBox" x="fieldCageSize" y="fieldCageSize" z="1.2*fieldCageLength" lunit="mm" />
+    <box name="fieldCageSolidOutBox" x="fieldCageSize+fieldCageThickness" y="fieldCageSize+fieldCageThickness" z="fieldCageLength" lunit="mm" />
+
+    <!-- We MUST substract the vessel so that the "volume" generator will produce events only in the water tank -->
+    <subtraction name="vesselSolid">
+        <first ref="vesselSolidTube"/>
+        <second ref="gasSolidTube"/>
+    </subtraction>
+
+    <subtraction name="gasSolid_01">
+        <first ref="gasSolidTube"/>
+        <second ref="mmSupportSolid"/>
+        <positionref ref="mmSupportNorthPos" />
+    </subtraction>
+
+    <subtraction name="gasSolid_02">
+        <first ref="gasSolid_01"/>
+        <second ref="mmSupportSolid"/>
+        <positionref ref="mmSupportSouthPos" />
+    </subtraction>
+
+    <subtraction name="gasSolid">
+        <first ref="gasSolid_02"/>
+        <second ref="cathodeSolid"/>
+    </subtraction>
+
+    <subtraction name="fieldCageSolid">
+        <first ref="fieldCageSolidOutBox"/>
+        <second ref="fieldCageSolidInBox"/>
+    </subtraction>
+
+</solids>
+
+<structure>
+
+    <!-- {{{ Volumes definition (material and solid assignment) -->
+    <volume name="gasVolume">
+        <materialref ref="${GDML_GAS}"/>
+        <solidref ref="gasSolid"/>
+    </volume>
+
+    <volume name="vesselVolume">
+        <materialref ref="Copper"/>
+        <solidref ref="vesselSolid"/>
+    </volume>
+
+    <volume name="cathodeVolume">
+        <materialref ref="Mylar"/>
+        <solidref ref="cathodeSolid"/>
+    </volume>
+
+    <volume name="mmSupportVolume">
+        <materialref ref="Copper"/>
+        <solidref ref="mmSupportSolid"/>
+    </volume>
+
+    <volume name="fieldCageVolume">
+        <materialref ref="Copper"/>
+        <solidref ref="fieldCageSolid"/>
+    </volume>
+    <!-- }}} -->
+
+    <!-- {{{ Physical volume definition (volume and position assignment) -->
+    <volume name="World">
+        <materialref ref="Air"/>
+        <solidref ref="WorldSolid"/>
+
+        <physvol name="gas">
+            <volumeref ref="gasVolume"/>
+            <position name="gasPosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+        
+        <physvol name="vessel">
+            <volumeref ref="vesselVolume"/>
+            <position name="vesselPosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+        <physvol name="fieldCage">
+            <volumeref ref="fieldCageVolume"/>
+            <position name="fieldCagePosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+        
+        <physvol name="mmSupportSouth">
+            <volumeref ref="mmSupportVolume"/>
+            <positionref ref="mmSupportSouthPos" />
+        </physvol>
+        
+        <physvol name="mmSupportNorth">
+            <volumeref ref="mmSupportVolume"/>
+            <positionref ref="mmSupportNorthPos" />
+        </physvol>
+        
+        <physvol name="cathode">
+            <volumeref ref="cathodeVolume"/>
+            <position name="cathodePosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+        
+    </volume>
+    <!-- }}} -->
+</structure>
