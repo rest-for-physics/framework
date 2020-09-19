@@ -21,8 +21,8 @@
  *************************************************************************/
 
 
-#ifndef REST_TRESTGEANT4VETOANALYSISPROCESS_H
-#define REST_TRESTGEANT4VETOANALYSISPROCESS_H
+#ifndef RestCore_TRestGeant4VetoAnalysisProcess
+#define RestCore_TRestGeant4VetoAnalysisProcess
 
 #include <TRestG4Event.h>
 #include <TRestG4Metadata.h>
@@ -85,35 +85,35 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        cout << "VETO KEYWORD: " << fVetoKeyword << endl;
-        cout << endl;
+        debug << "VETO KEYWORD: " << fVetoKeyword << endl;
+        debug << endl;
 
-        cout << "VETO GROUP KEYWORDS:" << endl;
+        debug << "VETO GROUP KEYWORDS:" << endl;
         for (unsigned int i = 0; i < fVetoGroupKeywords.size(); i++) {
-            cout << "\t" << fVetoGroupKeywords[i] << endl;
+            debug << "\t" << fVetoGroupKeywords[i] << endl;
         }
-        cout << endl;
+        debug << endl;
 
-        cout << "Found " << fVetoVolumeIds.size() << " veto volumes:" << endl;
+        debug << "Found " << fVetoVolumeIds.size() << " veto volumes:" << endl;
         for (unsigned int i = 0; i < fVetoVolumeIds.size(); i++) {
-            cout << "\t" << fG4Metadata->GetActiveVolumeName(fVetoVolumeIds[i]) << endl;
+            debug << "\t" << fG4Metadata->GetActiveVolumeName(fVetoVolumeIds[i]) << endl;
         }
-        cout << endl;
+        debug << endl;
 
-        cout << "GROUPS:" << endl;
+        debug << "GROUPS:" << endl;
         for (const auto& pair : fVetoGroupVolumeNames) {
-            cout << "GROUP " << pair.first << " (" << pair.second.size() << " volumes):\n";
+            debug << "GROUP " << pair.first << " (" << pair.second.size() << " volumes):\n";
             for (unsigned int i = 0; i < pair.second.size(); i++) {
-                cout << "\t" << pair.second[i] << endl;
+                debug << "\t" << pair.second[i] << endl;
             }
         }
-        cout << endl;
+        debug << endl;
 
-        cout << "QUENCHING FACTORS (" << fQuenchingFactors.size() << " Total)" << endl;
+        debug << "QUENCHING FACTORS (" << fQuenchingFactors.size() << " Total)" << endl;
         for (unsigned int i = 0; i < fQuenchingFactors.size(); i++) {
-            cout << "\t" << fQuenchingFactors[i] << endl;
+            debug << "\t" << fQuenchingFactors[i] << endl;
         }
-        cout << endl;
+        debug << endl;
 
         EndPrintProcess();
     }
@@ -129,4 +129,4 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
 
     ClassDef(TRestGeant4VetoAnalysisProcess, 1);
 };
-#endif  // REST_TRESTGEANT4VETOANALYSISPROCESS_H
+#endif  // RestCore_TRestGeant4VetoAnalysisProcess
