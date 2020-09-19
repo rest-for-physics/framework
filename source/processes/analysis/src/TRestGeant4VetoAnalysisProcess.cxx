@@ -200,12 +200,12 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         Double_t energy_veto_max = 0;
         for (const auto& pair : volume_energy_map) {
             Double_t veto_energy = pair.second;
-            SetObservableValue(pair.first + "VolumeEDep" + "Qf-" + quenching_factor_string, veto_energy);
+            SetObservableValue(pair.first + "VolumeEDep" + "Qf" + quenching_factor_string, veto_energy);
             if (veto_energy > energy_veto_max) {
                 energy_veto_max = veto_energy;
             };
         }
-        SetObservableValue(string("vetoAllEVetoMax") + "Qf-" + quenching_factor_string, energy_veto_max);
+        SetObservableValue(string("vetoAllEVetoMax") + "Qf" + quenching_factor_string, energy_veto_max);
 
         // veto groups
         for (const auto& pair : fVetoGroupVolumeNames) {
@@ -226,7 +226,7 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
                     group_name += std::tolower(*it);
                 }
             }
-            SetObservableValue("vetoGroup" + group_name + "EVetoMax" + "Qf-" + quenching_factor_string,
+            SetObservableValue("vetoGroup" + group_name + "EVetoMax" + "Qf" + quenching_factor_string,
                                energy_veto_max_group);
         }
     }
