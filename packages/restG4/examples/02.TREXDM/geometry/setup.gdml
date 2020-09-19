@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<!-- ##VERSION TREX-DM Basic geometry Version 1.1 (${GDML_GAS} - ${GDML_PRESSURE}bar - Quencher: ${GDML_QUENCHER})## -->
+
+<!DOCTYPE gdml [
+<!ENTITY geometry SYSTEM "geometry.gdml">
+<!ENTITY materials SYSTEM "http://sultan.unizar.es/materials/materials.xml">
+]>
+
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+<!-- All values should be in mm -->
+
+    <define>
+        <constant name="world_size" value="20000" />
+
+        <!-- Very approximative values. May need revision. 0.9 is for Neon. -->
+        <variable name="targetGasDensity" value="${GDML_PRESSURE}*0.9"/>  <!-- mg/cm3 -->
+        <variable name="quencherDensity" value="${GDML_PRESSURE}*0.05"/> <!-- mg/cm3 -->
+        <variable name="quencherFraction" value="${GDML_QUENCHER}"/>
+        <variable name="gasTemperature" value="300"/> <!-- K -->
+        <variable name="gasPressure" value="${GDML_PRESSURE}"/> <!-- bar -->
+
+        <!-- The TPC gas target -->
+        <constant name="gasRadius" value="192.5" />
+        <constant name="gasLength" value="525" />
+
+        <!-- The vessel definitions -->
+        <constant name="vesselThickness" value="60" />
+
+        <!-- The vessel definitions -->
+		<constant name="cathodeSize" value="206" />
+        <constant name="cathodeThickness" value="0.05" />
+
+        <!-- The field cage definitions -->
+		<constant name="fieldCageSize" value="247" />
+		<constant name="fieldCageLength" value="316" />
+        <constant name="fieldCageThickness" value="0.05" />
+
+        <!-- The mm support definitions -->
+        <constant name="mmSupportRadius" value="187.5" />
+		<constant name="mmSupportThickness" value="2.5" />
+
+        <position name="mmSupportNorthPos" x="0" y="0" z="158" />
+        <position name="mmSupportSouthPos" x="0" y="0" z="-158" />
+    </define>
+
+    &materials;
+
+    &geometry;
+
+
+    <setup name="Default" version="1.0">
+        <world ref="World"/>
+    </setup>
+
+</gdml>

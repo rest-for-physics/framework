@@ -610,7 +610,7 @@ void TRestGas::InitFromConfigFile() {
 
 void TRestGas::InitFromRootFile() {
     debug << "Entering ... TRestGas::InitFromRootFile()" << endl;
-
+    TRestMetadata::InitFromRootFile();
     if (fGasFileContent != "")  // use gas file content by default
     {
         fGasFilename = "/tmp/restGasFile_" + REST_USER + ".gas";

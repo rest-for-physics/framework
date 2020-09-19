@@ -491,9 +491,9 @@ void TRestProcessRunner::PauseMenu() {
 
     cout << "--------------MENU--------------" << endl;
     cout << "\"v\" : change the verbose level" << endl;
-    cout << "\"e\" : change the number of events to process" << endl;
     cout << "\"n\" : push foward one event, then pause" << endl;
     cout << "\"l\" : print the latest processed event" << endl;
+    cout << "\"d\" : detach the current process" << endl;
     cout << "\"q\" : stop and quit the process" << endl;
     cout << "press \"p\" to continue process..." << endl;
     cout << "-" << endl;
@@ -547,6 +547,7 @@ void TRestProcessRunner::PauseMenu() {
                     break;
                 }
 
+                gVerbose = l;
                 this->SetVerboseLevel(l);
                 for (int i = 0; i < fThreadNumber; i++) {
                     fThreads[i]->SetVerboseLevel(l);
@@ -562,15 +563,15 @@ void TRestProcessRunner::PauseMenu() {
             }
             Console::ClearLinesAfterCursor();
             break;
-        } else if (b == 'e') {
+        } else if (b == 'd') {
             Console::CursorUp(infobar);
             cout.setcolor(COLOR_BOLDGREEN);
-            cout << "Changing number of events to process..." << endl;
+            cout << "Detaching restManager to backend" << endl;
             cout.setcolor(COLOR_BOLDWHITE);
             Console::CursorDown(1);
             Console::ClearLinesAfterCursor();
-            cout << "type the number you want" << endl;
-            cout << "type other to return the pause menu" << endl;
+            cout << "type filename for output redirect" << endl;
+            cout << "leave blank to redirect to /dev/null" << endl;
             cout << " " << endl;
             cout << " " << endl;
             cout << " " << endl;
@@ -579,41 +580,53 @@ void TRestProcessRunner::PauseMenu() {
             cout << endl;
             cout << endl;
 
-            while (1) {
-                Console::CursorUp(1);
-                string a = Console::ReadLine();
+            string file;
 
-                int neve = StringToInteger(a);
-                if (neve > 0) {
-                    eventsToProcess = neve;
+            Console::CursorUp(1);
+            file = Console::ReadLine();
+            if (file == "") file = "/dev/null";
+            if (TRestTools::fileExists(file)) {
+                if (!TRestTools::isPathWritable(file)) {
                     Console::CursorUp(infobar);
-                    cout.setcolor(COLOR_BOLDGREEN);
-                    cout << "Maximum number of events to process has been set to " << eventsToProcess << endl;
+                    cout.setcolor(COLOR_BOLDYELLOW);
+                    cout << "file not writeable!" << endl;
                     cout.setcolor(COLOR_BOLDWHITE);
                     break;
                 }
-                if (neve == 0) {
-                    int lastEntry = StringToInteger(GetParameter("lastEntry", "0"));
-                    if (lastEntry - firstEntry > 0)
-                        eventsToProcess = lastEntry - firstEntry;
-                    else
-                        eventsToProcess = REST_MAXIMUM_EVENTS;
+            } else {
+                if (!TRestTools::isPathWritable(TRestTools::SeparatePathAndName(file).first)) {
                     Console::CursorUp(infobar);
-                    cout.setcolor(COLOR_BOLDGREEN);
-                    cout << "Maximum number of events to process has been set to "
-                            "default ("
-                         << eventsToProcess << ")" << endl;
+                    cout.setcolor(COLOR_BOLDYELLOW);
+                    cout << "path not writeable!" << endl;
                     cout.setcolor(COLOR_BOLDWHITE);
                     break;
                 }
-
-                Console::CursorUp(infobar);
-                cout.setcolor(COLOR_BOLDYELLOW);
-                cout << "N events not set!" << endl;
-                cout.setcolor(COLOR_BOLDWHITE);
-                break;
             }
-            Console::ClearLinesAfterCursor();
+
+            pid_t pid;
+            pid = fork();
+            if (pid < 0) {
+                perror("fork error:");
+                exit(1);
+            }
+            // child process
+            if (pid == 0) {
+                fout << "Child process created! pid: " << getpid() << endl;
+                info << "Restarting threads" << endl;
+                mutexx.unlock();
+                for (int i = 0; i < fThreadNumber; i++) {
+                    fThreads[i]->StartThread();
+                }
+                info << "Re-directing output to " << file << endl;
+                freopen(file.c_str(), "w", stdout);
+                Console::CompatibilityMode = true;
+            }
+            // father process
+            else {
+                exit(0);
+            }
+            fProcStatus = kNormal;
+            info << "Continue processing..." << endl;
             break;
         } else if (b == 'n') {
             fProcStatus = kStep;
@@ -902,7 +915,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
         string s2(buffer);
 
         int barlength = 0;
-        if (fout.CompatibilityMode()) {
+        if (Console::CompatibilityMode) {
             barlength = 50;
         } else {
             barlength = Console::GetWidth() - s1.size() - s2.size() - 9;
@@ -912,7 +925,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
 
         delete[] buffer;
 
-        if (fout.CompatibilityMode()) {
+        if (Console::CompatibilityMode) {
             if (((int)prog) != prog_last_printed) {
                 cout << s1 << s2 << s3 << endl;
                 prog_last_printed = (int)prog;

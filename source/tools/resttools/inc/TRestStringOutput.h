@@ -111,6 +111,8 @@ class Console {
     static void ClearCurrentLine();
     /// clear lines after the cursor.
     static void ClearLinesAfterCursor();
+    /// indicates whether the output tool should work under compatibility mode for nonatty
+    static bool CompatibilityMode;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -171,7 +173,6 @@ class TRestStringOutput {
     void setlength(int n);
     void setorientation(int o) { orientation = o; }
     void resetorientation() { orientation = 0; }
-    bool CompatibilityMode() { return length == -1; }
 
     // style options: < : orientation left, ^ : orientation middle, > :
     // orientation right, | : use border, - : use header
