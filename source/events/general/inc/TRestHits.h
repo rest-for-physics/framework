@@ -30,12 +30,16 @@
 #include "TMath.h"
 #include "TMatrixD.h"
 #include "TObject.h"
+#include "TCanvas.h"
+#include <TF1.h>
+#include <TH1.h>
+
+
 
 enum REST_HitType { unknown = -1, X = 2, Y = 3, Z = 5, XY = 6, XZ = 10, YZ = 15, XYZ = 30 };
 //! It let save an event as a set of punctual deposition.
 //! It saves a 3-coordinate position and an energy for each punctual deposition.
 class TRestHits : public TObject {
-   private:
    public:
     Int_t fNHits;         ///< Number of punctual energy depositions, it is the lenght
                           ///< for all the array
@@ -52,6 +56,8 @@ class TRestHits : public TObject {
     std::vector<Float_t> fEnergy;     // [fNHits] Energy deposited at each
                                       // 3-coordinate position (units keV)
     std::vector<REST_HitType> fType;  //
+
+   public:
     //! Changes the origin of the Cartesian coordinate system
     void Translate(Int_t n, Double_t x, Double_t y, Double_t z);
     /// Event is rotated in XYZ.
@@ -122,6 +128,9 @@ class TRestHits : public TObject {
     Double_t GetSigmaZ2();
     Double_t GetSkewXY();
     Double_t GetSkewZ();
+
+    Double_t GetGausSigmaX();
+    Double_t GetGausSigmaY();
 
     Double_t GetEnergyX();
     Double_t GetEnergyY();
