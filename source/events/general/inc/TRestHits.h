@@ -25,16 +25,14 @@
 
 #include <iostream>
 
+#include <TF1.h>
+#include <TH1.h>
 #include "TArrayD.h"
 #include "TArrayI.h"
+#include "TCanvas.h"
 #include "TMath.h"
 #include "TMatrixD.h"
 #include "TObject.h"
-#include "TCanvas.h"
-#include <TF1.h>
-#include <TH1.h>
-
-
 
 enum REST_HitType { unknown = -1, X = 2, Y = 3, Z = 5, XY = 6, XZ = 10, YZ = 15, XYZ = 30 };
 //! It let save an event as a set of punctual deposition.
@@ -129,8 +127,8 @@ class TRestHits : public TObject {
     Double_t GetSkewXY();
     Double_t GetSkewZ();
 
-    Double_t GetGausSigmaX();
-    Double_t GetGausSigmaY();
+    Double_t GetGaussSigmaX();
+    Double_t GetGaussSigmaY();
 
     Double_t GetEnergyX();
     Double_t GetEnergyY();

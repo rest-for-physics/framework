@@ -76,7 +76,6 @@ class TRestHitsEvent : public TRestEvent {
     TRestHits* fHits;  //->
 
    public:
-
     void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
     void AddHit(TVector3 pos, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
 
@@ -123,9 +122,9 @@ class TRestHitsEvent : public TRestEvent {
     Double_t GetMeanPositionZ() { return fHits->GetMeanPositionZ(); }
     Double_t GetSigmaXY2() { return fHits->GetSigmaXY2(); }
     Double_t GetSigmaX() { return fHits->GetSigmaX(); }
-    Double_t GetGausSigmaX() { return GetXZHits()->GetGausSigmaX(); }
+    Double_t GetGaussSigmaX() { return GetXZHits()->GetGaussSigmaX(); }
     Double_t GetSigmaY() { return fHits->GetSigmaY(); }
-    Double_t GetGausSigmaY() { return GetYZHits()->GetGausSigmaY(); }
+    Double_t GetGaussSigmaY() { return GetYZHits()->GetGaussSigmaY(); }
     Double_t GetSigmaZ2() { return fHits->GetSigmaZ2(); }
     Double_t GetSkewXY() { return fHits->GetSkewXY(); }
     Double_t GetSkewZ() { return fHits->GetSkewZ(); }

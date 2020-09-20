@@ -24,7 +24,7 @@ using namespace TMath;
 
 ClassImp(TRestHits);
 
-    TRestHits::TRestHits() {
+TRestHits::TRestHits() {
     fNHits = 0;
     fTotEnergy = 0;
 }
@@ -516,7 +516,6 @@ Double_t TRestHits::GetSigmaXY2() {
     return sigmaXY2 /= totalEnergy;
 }
 
-
 Double_t TRestHits::GetSigmaX() {
     Double_t sigmaX2 = 0;
     Double_t sigmaX = 0;
@@ -547,46 +546,44 @@ Double_t TRestHits::GetSigmaY() {
     return sigmaY = TMath::Sqrt(sigmaY2);
 }
 
-Double_t TRestHits::GetGausSigmaX() {
+Double_t TRestHits::GetGaussSigmaX() {
     Double_t gausSigmaX = 0;
 
-	if( gROOT->FindObject("hitsGausHistoX") ) delete gROOT->FindObject("hitsGausHistoX");
-	TH1D *hh = new TH1D("hitsGausHistoX", "hitsGausHistoX", 120, -30, 30);
+    if (gROOT->FindObject("hitsGaussHistoX")) delete gROOT->FindObject("hitsGaussHistoX");
+    TH1D* hh = new TH1D("hitsGaussHistoX", "hitsGaussHistoX", 120, -30, 30);
 
-    for (int n = 0; n < GetNumberOfHits(); n++)
-		hh->Fill(fX[n],fEnergy[n]);
+    for (int n = 0; n < GetNumberOfHits(); n++) hh->Fill(fX[n], fEnergy[n]);
 
-	TF1 *fit = new TF1("fit","gaus",hh->GetMaximumBin()/2-32, hh->GetMaximumBin()/2-26);
+    TF1* fit = new TF1("fit", "gaus", hh->GetMaximumBin() / 2 - 32, hh->GetMaximumBin() / 2 - 26);
 
-	hh->Fit("fit","QNR"); // Q = quiet, no info in screen; N = no plot; R = fit in the function range
+    hh->Fit("fit", "QNR");  // Q = quiet, no info in screen; N = no plot; R = fit in the function range
 
-	gausSigmaX = fit->GetParameter(2);
+    gausSigmaX = fit->GetParameter(2);
 
-	delete fit;
+    delete fit;
 
     return gausSigmaX;
 }
 
-Double_t TRestHits::GetGausSigmaY() {
+Double_t TRestHits::GetGaussSigmaY() {
     Double_t gausSigmaY = 0;
 
-	if( gROOT->FindObject("hitsGausHistoY") ) delete gROOT->FindObject("hitsGausHistoY");
-	TH1D *hh2 = new TH1D("hitsGausHistoY", "hitsGausHistoY", 120, -30, 30); // Histogram to store the variable we want to fit.
+    if (gROOT->FindObject("hitsGaussHistoY")) delete gROOT->FindObject("hitsGaussHistoY");
+    TH1D* hh2 = new TH1D("hitsGaussHistoY", "hitsGaussHistoY", 120, -30,
+                         30);  // Histogram to store the variable we want to fit.
 
-    for (int n = 0; n < GetNumberOfHits(); n++)
-		hh2->Fill(fY[n],fEnergy[n]);
+    for (int n = 0; n < GetNumberOfHits(); n++) hh2->Fill(fY[n], fEnergy[n]);
 
-	TF1 *fit = new TF1("fit","gaus",hh2->GetMaximumBin()/2-32, hh2->GetMaximumBin()/2-26);
+    TF1* fit = new TF1("fit", "gaus", hh2->GetMaximumBin() / 2 - 32, hh2->GetMaximumBin() / 2 - 26);
 
-	hh2->Fit("fit","QNR"); // Q = quiet, no info in screen; N = no plot; R = fit in the function range
+    hh2->Fit("fit", "QNR");  // Q = quiet, no info in screen; N = no plot; R = fit in the function range
 
-	gausSigmaY = fit->GetParameter(2);
+    gausSigmaY = fit->GetParameter(2);
 
-	delete fit;
+    delete fit;
 
     return gausSigmaY;
 }
-
 
 Double_t TRestHits::GetSkewXY() {
     Double_t skewXY = 0;
