@@ -42,7 +42,7 @@
 ///
 /// \htmlonly <style>div.image img[src="Fit600.png"]{width:500px;}</style> \endhtmlonly
 ///
-/// ![Example of fitting a pulse](Fit600.png)
+/// ![Example of fitted pulse](Fit600.png)
 ///
 ///
 /// ### Observables
