@@ -28,12 +28,12 @@
 ///
 /// ### Observables
 ///
-/// Position statistics 
+/// Position statistics
 ///
-/// * **xSigmaGaus**: Standard deviation (sigma) in coordinate X in the hits of an event, obtained from a 
-///gaussian fit applied to the hits.
-/// * **ySigmaGaus**: Standard deviation (sigma) in coordinate Y in the hits of an event, obtained from a 
-///gaussian fit applied to the hits.
+/// * **xSigmaGaus**: Standard deviation (sigma) in coordinate X in the hits of an event, obtained from a
+/// gaussian fit applied to the hits.
+/// * **ySigmaGaus**: Standard deviation (sigma) in coordinate Y in the hits of an event, obtained from a
+/// gaussian fit applied to the hits.
 /// * **xy2SigmaGaus**: Sum of the variance (sigma^2) in coordinates X and Y in the hits of an event.
 /// s_xy^2=s_x^2+s_y^2.
 /// * **xySigmaBalanceGaus**: (s_x-s_y)/(s_x+s_y).
@@ -129,9 +129,9 @@ void TRestHitsGaussAnalysisProcess::InitProcess() {
 ///
 void TRestHitsGaussAnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
-    //SetLibraryVersion(LIBRARY_VERSION);
+    // SetLibraryVersion(LIBRARY_VERSION);
 
-    //fHitsEvent = new TRestHitsEvent();
+    // fHitsEvent = new TRestHitsEvent();
     fInputHitsEvent = NULL;
     fOutputHitsEvent = new TRestHitsEvent();
 }
@@ -142,10 +142,9 @@ void TRestHitsGaussAnalysisProcess::Initialize() {
 TRestEvent* TRestHitsGaussAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     fInputHitsEvent = (TRestHitsEvent*)evInput;
 
-
     TString obsName;
 
-	//cout << "Event id : " << fInputHitsEvent->GetID() << endl;
+    // cout << "Event id : " << fInputHitsEvent->GetID() << endl;
     TRestHits* hits = fInputHitsEvent->GetHits();
 
     for (int n = 0; n < hits->GetNumberOfHits(); n++) {
@@ -161,23 +160,22 @@ TRestEvent* TRestHitsGaussAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         fOutputHitsEvent->AddHit(x, y, z, eDep, time, type);
     }
 
-    Double_t gausSigmaX = fOutputHitsEvent->GetGausSigmaX(); 
-    Double_t gausSigmaY = fOutputHitsEvent->GetGausSigmaY();
+    Double_t gausSigmaX = fOutputHitsEvent->GetGaussSigmaX();
+    Double_t gausSigmaY = fOutputHitsEvent->GetGaussSigmaY();
 
     SetObservableValue("xSigmaGaus", gausSigmaX);
-    SetObservableValue("ySigmaGaus", gausSigmaY); 
-    SetObservableValue("xy2SigmaGaus", (gausSigmaX * gausSigmaX) + (gausSigmaY * gausSigmaY)); 
+    SetObservableValue("ySigmaGaus", gausSigmaY);
+    SetObservableValue("xy2SigmaGaus", (gausSigmaX * gausSigmaX) + (gausSigmaY * gausSigmaY));
     SetObservableValue("xySigmaBalanceGaus", (gausSigmaX - gausSigmaY) / (gausSigmaX + gausSigmaY));
 
     // We transform here fHitsEvent if necessary
-
 
     if (GetVerboseLevel() >= REST_Debug) {
         fOutputHitsEvent->PrintEvent();
 
         if (GetVerboseLevel() >= REST_Extreme) GetChar();
     }
-	
+
     return fOutputHitsEvent;
 }
 
