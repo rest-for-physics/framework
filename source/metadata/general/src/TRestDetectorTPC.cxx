@@ -24,7 +24,6 @@
 #include "TRestReadout.h"
 using namespace std;
 
-#define NAN numeric_limits<double>::quiet_NaN()
 //______________________________________________________________________________
 TRestDetectorTPC::TRestDetectorTPC() {
     fDetectorName = "REST default detector";
@@ -328,7 +327,7 @@ string TRestDetectorTPC::GetParameter(string paraname) {
     }
 
     if (result == "nan" || result == "(nan,nan)" || result == "(nan,nan,nan)") {
-        return "";
+        return PARAMETER_NOT_FOUND_STR;
     }
     return result;
 }

@@ -48,7 +48,7 @@ class TRestDetector {
     string GetDetectorName() { return fDetectorName; }
 
     // 
-    virtual string GetParameter(string paraname) { return ""; }
+    virtual string GetParameter(string paraname) { return PARAMETER_NOT_FOUND_STR; }
     virtual void SetParameter(string paraname, string paraval) { }
     virtual void RegisterMetadata(TObject* ptr) {}
     virtual void RegisterString(string str) {}
