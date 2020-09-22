@@ -1193,14 +1193,24 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
 ///
 /// \return A string of result
 string TRestMetadata::GetParameter(std::string parName, TString defaultValue) {
-    // first search the parameter in system env
-    char* val = getenv(parName.c_str());
-    if (val != NULL) {
-        return val;
+    // first search the parameter in REST args
+    if (REST_ARGS.count(parName) != 0) {
+        return REST_ARGS[parName];
     }
 
     // then look within local xml element
-    return GetParameter(parName, fElement, defaultValue);
+    string result = GetParameter(parName, fElement);
+    if (result != PARAMETER_NOT_FOUND_STR) {
+        return result;
+    }
+
+    // finally look into parameters of gDetector
+    result = gDetector->GetParameter(parName);
+    if (result != PARAMETER_NOT_FOUND_STR) {
+        return result;
+    }
+
+    return (string)defaultValue;
 }
 
 ///////////////////////////////////////////////
