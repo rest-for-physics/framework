@@ -309,7 +309,7 @@ void TRestDetectorTPC::ReadFileNameFEMINOS(string fName) {
 }
 
 string TRestDetectorTPC::GetParameter(string paraname) {
-    string result = "";
+    string result = PARAMETER_NOT_FOUND_STR;
 
     switch (ToHash(paraname.c_str())) {
         // basic types
