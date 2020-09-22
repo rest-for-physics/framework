@@ -294,8 +294,7 @@ void TRestProcessRunner::RunProcess() {
     info << "TRestProcessRunner : preparing threads..." << endl;
     fRunInfo->ResetEntry();
     fRunInfo->SetCurrentEntry(firstEntry);
-    bool testrun =
-        ToUpper(GetParameter("testRun", "ON")) == "ON" || ToUpper(GetParameter("testRun", "ON")) == "TRUE";
+    bool testrun = StringToBool(GetParameter("testRun", "ON"));
     for (int i = 0; i < fThreadNumber; i++) {
         fThreads[i]->PrepareToProcess(fOutputItem, testrun);
     }

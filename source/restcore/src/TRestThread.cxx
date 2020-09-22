@@ -294,6 +294,12 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
                      "cause empty event problem!"
                   << endl;
             fOutputEvent = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent();
+            if (fOutputEvent == NULL) {
+                ferr << "Output event of the last process is not initialized! You must enable test run to "
+                        "make it work!"
+                     << endl;
+                exit(1);
+            }
         }
 
         //////////////////////////////////////////
