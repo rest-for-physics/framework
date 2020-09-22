@@ -51,7 +51,6 @@ class TRestHitsGaussAnalysisProcess : public TRestEventProcess {
     void LoadDefaultConfig();
 
    protected:
-
    public:
     any GetInputEvent() { return fInputHitsEvent; }
     any GetOutputEvent() { return fOutputHitsEvent; }
