@@ -24,11 +24,11 @@
 ///
 ///
 /// Fit every TRestRawSignal in a TRestRawSignalEvent with AGET theoretical curve
-/// times a logistic function. This logistic function acts like a step function to select only the positive
-/// range
-/// of the AGET function. Working with raw signal (without substracting baseline).
+/// times a logistic function. This logistic function acts like a step function to select
+/// only the positive range of the AGET function.
+/// Working with raw signal (without substracting baseline).
 ///
-/// Form TRestRawSignal -> TH1 -> Measure goodness of fit
+/// From TRestRawSignal -> TH1 -> Measure goodness of fit
 ///
 /// Analytic expression to fit:
 ///
@@ -39,6 +39,10 @@
 /// [1] = "Amplitude",
 /// [2] = "ShapingTime",
 /// [3] = "PeakPosition"
+///
+/// \htmlonly <style>div.image img[src="Fit600.png"]{width:500px;}</style> \endhtmlonly
+///
+/// ![Example of fitted pulse](Fit600.png)
 ///
 ///
 /// ### Observables

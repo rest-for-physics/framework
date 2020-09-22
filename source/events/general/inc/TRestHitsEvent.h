@@ -122,7 +122,9 @@ class TRestHitsEvent : public TRestEvent {
     Double_t GetMeanPositionZ() { return fHits->GetMeanPositionZ(); }
     Double_t GetSigmaXY2() { return fHits->GetSigmaXY2(); }
     Double_t GetSigmaX() { return fHits->GetSigmaX(); }
+    Double_t GetGaussSigmaX() { return GetXZHits()->GetGaussSigmaX(); }
     Double_t GetSigmaY() { return fHits->GetSigmaY(); }
+    Double_t GetGaussSigmaY() { return GetYZHits()->GetGaussSigmaY(); }
     Double_t GetSigmaZ2() { return fHits->GetSigmaZ2(); }
     Double_t GetSkewXY() { return fHits->GetSkewXY(); }
     Double_t GetSkewZ() { return fHits->GetSkewZ(); }
