@@ -785,7 +785,7 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
         // using the latest version. But the version is set just before we
         // call Write.
         if (target == "fVersion") replacestr = (string)REST_RELEASE;
-        if (target == "fCommit") replacestr = (string)gCommit;
+        if (target == "fCommit") replacestr = (string)REST_COMMIT;
 
         if (replacestr != target) {
             if (target == "fRunNumber" || target == "fParentRunNumber") {
