@@ -52,10 +52,10 @@ void TRestSignalToHitsProcess::LoadConfig(std::string cfgFilename, std::string n
     // if (fElectricField == PARAMETER_NOT_FOUND_DBL) {
     //    TRestDetectorSetup* detSetup = GetMetadata<TRestDetectorSetup>();
     //    if (detSetup != NULL) {
-    fElectricField = gDetector->GetDriftField();
-    cout << "SignalToHitsProcess : Obtainning electric field from detector "
-            "setup : "
-         << fElectricField << " V/cm" << endl;
+    //fElectricField = gDetector->GetDriftField();
+    //cout << "SignalToHitsProcess : Obtainning electric field from detector "
+    //        "setup : "
+    //     << fElectricField << " V/cm" << endl;
     //    }
     //}
 
