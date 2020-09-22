@@ -19,9 +19,9 @@
 #include "TInterpreter.h"
 #include "TMethod.h"
 #include "TMethodCall.h"
+#include "TRestDetectorReadout.h"
 #include "TRestDriftVolume.h"
 #include "TRestGainMap.h"
-#include "TRestReadout.h"
 using namespace std;
 
 //______________________________________________________________________________
@@ -93,13 +93,13 @@ Double_t TRestDetectorImpl::GetTPCBottomZ() {
         if (fReadout->GetNumberOfReadoutPlanes() > 1) {
             double minz = 1e9;
             for (int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++) {
-                TRestReadoutPlane* plane = &(*fReadout)[p];
+                TRestDetectorReadoutPlane* plane = &(*fReadout)[p];
                 double zz = plane->GetPosition().Z();
                 if (zz < minz) minz = zz;
             }
             return minz;
         } else if (fReadout->GetNumberOfReadoutPlanes() == 1) {
-            TRestReadoutPlane* plane = &(*fReadout)[0];
+            TRestDetectorReadoutPlane* plane = &(*fReadout)[0];
             if (plane->GetPlaneVector().Z() < 0) {
                 return plane->GetPosition().Z() - plane->GetTotalDriftDistance();
             } else {
@@ -116,13 +116,13 @@ Double_t TRestDetectorImpl::GetTPCTopZ() {
         if (fReadout->GetNumberOfReadoutPlanes() > 1) {
             double maxz = -1e9;
             for (int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++) {
-                TRestReadoutPlane* plane = &(*fReadout)[p];
+                TRestDetectorReadoutPlane* plane = &(*fReadout)[p];
                 double zz = plane->GetPosition().Z();
                 if (zz > maxz) maxz = zz;
             }
             return maxz;
         } else if (fReadout->GetNumberOfReadoutPlanes() == 1) {
-            TRestReadoutPlane* plane = &(*fReadout)[0];
+            TRestDetectorReadoutPlane* plane = &(*fReadout)[0];
             if (plane->GetPlaneVector().Z() < 0) {
                 return plane->GetPosition().Z();
             } else {
@@ -137,7 +137,7 @@ Double_t TRestDetectorImpl::GetTPCTopZ() {
 Double_t TRestDetectorImpl::GetDriftDistance(TVector3 pos) {
     if (fReadout != NULL) {
         for (int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++) {
-            TRestReadoutPlane* plane = &(*fReadout)[p];
+            TRestDetectorReadoutPlane* plane = &(*fReadout)[p];
             if (plane->isZInsideDriftVolume(pos)) {
                 return plane->GetDistanceTo(pos);
             }
@@ -183,8 +183,8 @@ TVector3 TRestDetectorImpl::GetReadoutPosition(int id) {
             fReadout->GetPlaneModuleChannel(id, planeID, readoutModule, readoutChannel);
 
             if (readoutChannel != -1) {
-                TRestReadoutPlane* plane = fReadout->GetReadoutPlaneWithID(planeID);
-                TRestReadoutModule* mod = plane->GetModuleByID(readoutModule);
+                TRestDetectorReadoutPlane* plane = fReadout->GetReadoutPlaneWithID(planeID);
+                TRestDetectorReadoutModule* mod = plane->GetModuleByID(readoutModule);
 
                 z = plane->GetPosition().Z();
                 if (TMath::IsNaN(x)) {
@@ -208,7 +208,7 @@ TVector3 TRestDetectorImpl::GetReadoutDirection(int id) {
         fReadout->GetPlaneModuleChannel(id, planeID, readoutModule, readoutChannel);
 
         if (readoutChannel != -1) {
-            TRestReadoutPlane* plane = fReadout->GetReadoutPlaneWithID(planeID);
+            TRestDetectorReadoutPlane* plane = fReadout->GetReadoutPlaneWithID(planeID);
             return plane->GetPlaneVector();
         }
     }
@@ -247,8 +247,8 @@ void TRestDetectorImpl::RegisterMetadata(TObject* ptr) {
     if (ptr != NULL) {
         if (ptr->InheritsFrom("TRestDriftVolume")) {
             fDetectorMedium = (TRestDriftVolume*)ptr;
-        } else if (ptr->InheritsFrom("TRestReadout")) {
-            fReadout = (TRestReadout*)ptr;
+        } else if (ptr->InheritsFrom("TRestDetectorReadout")) {
+            fReadout = (TRestDetectorReadout*)ptr;
         } else if (ptr->InheritsFrom("TRestGainMap")) {
             fGain = (TRestGainMap*)ptr;
         }

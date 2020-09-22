@@ -222,7 +222,7 @@ Int_t TRestEventProcess::LoadSectionMetadata() {
 /// \brief Get a metadata object from the host TRestRun
 ///
 /// Either name or type as input argument is accepted. For example,
-/// GetMetadata("TRestReadout"), GetMetadata("readout_140")
+/// GetMetadata("TRestDetectorReadout"), GetMetadata("readout_140")
 TRestMetadata* TRestEventProcess::GetMetadata(string name) {
     TRestMetadata* m = NULL;
     if (fRunInfo != NULL) {

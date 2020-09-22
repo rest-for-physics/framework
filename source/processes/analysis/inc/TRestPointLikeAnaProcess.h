@@ -13,7 +13,7 @@
 #define RestCore_TRestPointLikeAnaProcess
 
 #include <TRestSignalEvent.h>
-#include "TRestReadout.h"
+#include "TRestDetectorReadout.h"
 
 #include "TRestEventProcess.h"
 
@@ -41,7 +41,7 @@ class TRestPointLikeAnaProcess : public TRestEventProcess {
 
    protected:
     // add here the members of your event process
-    TRestReadout* fReadout;
+    TRestDetectorReadout* fReadout;
 
    public:
     any GetInputEvent() { return fSignalEvent; }

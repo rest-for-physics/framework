@@ -6,7 +6,7 @@
 #include "TStyle.h"
 #include "TView.h"
 
-#include "TRestReadout.h"
+#include "TRestDetectorReadout.h"
 ClassImp(TRestGainMap);
 
 void TRestGainMap::InitFromConfigFile() {
@@ -15,7 +15,7 @@ void TRestGainMap::InitFromConfigFile() {
     gDetector->RegisterMetadata(this);
 }
 
-void TRestGainMap::DrawChannelGainMap(TRestReadoutModule* mod) {
+void TRestGainMap::DrawChannelGainMap(TRestDetectorReadoutModule* mod) {
     if (mod == NULL) {
         int min = 1e9;
         int max = 0;
@@ -53,7 +53,7 @@ void TRestGainMap::DrawChannelGainMap(TRestReadoutModule* mod) {
         }
 
         for (int i = 0; i < mod->GetNumberOfChannels(); i++) {
-            TRestReadoutChannel* channel = mod->GetChannel(i);
+            TRestDetectorReadoutChannel* channel = mod->GetChannel(i);
             int id = channel->GetDaqID();
             if (fChannelGain.count(id) == 0) fChannelGain[id] = 1;
 

@@ -41,7 +41,7 @@ void TRestDaqChannelSwitchingProcess::Initialize() {
 
 //______________________________________________________________________________
 void TRestDaqChannelSwitchingProcess::InitProcess() {
-    fReadout = GetMetadata<TRestReadout>();
+    fReadout = GetMetadata<TRestDetectorReadout>();
     if (fReadout != NULL) {
         auto iter = fFirstDaqChannelDef.begin();
         while (iter != fFirstDaqChannelDef.end()) {
@@ -65,10 +65,10 @@ void TRestDaqChannelSwitchingProcess::InitProcess() {
 
         if (fIgnoreUndefinedModules) {
             for (int i = 0; i < fReadout->GetNumberOfReadoutPlanes(); i++) {
-                TRestReadoutPlane& plane = (*fReadout)[i];
+                TRestDetectorReadoutPlane& plane = (*fReadout)[i];
 
                 for (int j = 0; j < plane.GetNumberOfModules(); j++) {
-                    TRestReadoutModule& mod = plane[j];
+                    TRestDetectorReadoutModule& mod = plane[j];
                     if (fFirstDaqChannelDef.count(mod.GetModuleID()) == 0) {
                         for (int i = 0; i < mod.GetNumberOfChannels(); i++) {
                             mod.GetChannel(i)->SetDaqID(-1e9);

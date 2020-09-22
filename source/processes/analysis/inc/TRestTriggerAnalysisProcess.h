@@ -14,9 +14,9 @@
 
 #include <TH1D.h>
 
+#include <TRestDetectorReadout.h>
 #include <TRestGas.h>
 #include <TRestHitsEvent.h>
-#include <TRestReadout.h>
 #include <TRestSignalEvent.h>
 
 #include "TRestEventProcess.h"

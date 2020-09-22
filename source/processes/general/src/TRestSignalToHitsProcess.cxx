@@ -137,7 +137,7 @@ void TRestSignalToHitsProcess::InitProcess() {
         }
     }
 
-    fReadout = GetMetadata<TRestReadout>();
+    fReadout = GetMetadata<TRestDetectorReadout>();
 
     if (fReadout == NULL) {
         ferr << "Readout has not been initialized" << endl;
@@ -167,10 +167,10 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
             cout << "Searching readout coordinates for signal ID : " << signalID << endl;
         // for( int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++ )
         //{
-        //    TRestReadoutPlane *plane = fReadout->GetReadoutPlane( p );
+        //    TRestDetectorReadoutPlane *plane = fReadout->GetReadoutPlane( p );
         //    for( int m = 0; m < plane->GetNumberOfModules(); m++ )
         //    {
-        //        TRestReadoutModule *mod = plane->GetModule( m );
+        //        TRestDetectorReadoutModule *mod = plane->GetModule( m );
 
         //        if( mod->isDaqIDInside( signalID ) )
         //        {
@@ -198,7 +198,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
         }
         /////////////////////////////////////////////////////////////////////////
 
-        TRestReadoutPlane* plane = fReadout->GetReadoutPlaneWithID(planeID);
+        TRestDetectorReadoutPlane* plane = fReadout->GetReadoutPlaneWithID(planeID);
 
         // For the moment this will only be valid for a TPC with its axis (field
         // direction) being in z
@@ -209,7 +209,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
         Double_t y = plane->GetY(readoutModule, readoutChannel);
 
         REST_HitType type = XYZ;
-        TRestReadoutModule* mod = plane->GetModuleByID(readoutModule);
+        TRestDetectorReadoutModule* mod = plane->GetModuleByID(readoutModule);
         if (TMath::IsNaN(x)) {
             x = mod->GetPhysicalCoordinates(TVector2(mod->GetModuleSizeX() / 2, mod->GetModuleSizeY() / 2))
                     .X();

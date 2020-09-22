@@ -23,8 +23,8 @@
 #ifndef RestCore_TRestRawSignalRecoverChannelsProcess
 #define RestCore_TRestRawSignalRecoverChannelsProcess
 
+#include "TRestDetectorReadout.h"
 #include "TRestRawSignalEvent.h"
-#include "TRestReadout.h"
 
 #include "TRestEventProcess.h"
 
@@ -39,7 +39,7 @@ class TRestRawSignalRecoverChannelsProcess : public TRestEventProcess {
     TRestRawSignalEvent* fOutputSignalEvent;  //!
 
     /// A pointer to the readout previously defined inside REST.
-    TRestReadout* fReadout;  //!
+    TRestDetectorReadout* fReadout;  //!
 #endif
 
     void InitFromConfigFile();

@@ -5,15 +5,15 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestReadoutEventViewer.h inherited from TRestEventViewer
+///             TRestDetectorReadoutEventViewer.h inherited from TRestEventViewer
 ///
 ///             dec 2015:   First concept
-///                 Viewer class for a TRestSignalEvent and TRestReadout
+///                 Viewer class for a TRestSignalEvent and TRestDetectorReadout
 ///                 JuanAn Garcia
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestReadoutEventViewer
-#define RestCore_TRestReadoutEventViewer
+#ifndef RestCore_TRestDetectorReadoutEventViewer
+#define RestCore_TRestDetectorReadoutEventViewer
 
 #include <TCanvas.h>
 #include <TPad.h>
@@ -22,15 +22,15 @@
 #include "TRestSignalEvent.h"
 //#include "TRestDecoding.h"
 #include "TH2Poly.h"
-#include "TRestReadout.h"
+#include "TRestDetectorReadout.h"
 
-class TRestReadoutEventViewer : public TRestEventViewer {
+class TRestDetectorReadoutEventViewer : public TRestEventViewer {
    protected:
     TCanvas* fCanvasXY;
     TCanvas* fCanvasXZYZ;
 
     // TRestDecoding *fDecoding;
-    TRestReadout* fReadout;
+    TRestDetectorReadout* fReadout;
 
     TRestSignalEvent* fSignalEvent;
 
@@ -44,20 +44,20 @@ class TRestReadoutEventViewer : public TRestEventViewer {
 
    public:
     void Initialize();
-    // Finalize initialization based on arg. TRestReadout
-    void SetReadout(TRestReadout* readout);
+    // Finalize initialization based on arg. TRestDetectorReadout
+    void SetReadout(TRestDetectorReadout* readout);
 
     void AddEvent(TRestEvent* ev);
     void DrawReadoutPulses();
-    TRestReadoutChannel* GetChannel(int readoutChannel);
-    TRestReadoutModule* GetModule(int readoutChannel);
+    TRestDetectorReadoutChannel* GetChannel(int readoutChannel);
+    TRestDetectorReadoutModule* GetModule(int readoutChannel);
 
     // Constructor
-    TRestReadoutEventViewer();
+    TRestDetectorReadoutEventViewer();
     // Destructor
-    ~TRestReadoutEventViewer();
+    ~TRestDetectorReadoutEventViewer();
 
-    ClassDef(TRestReadoutEventViewer, 1);  // class inherited from
-                                           // TRestEventViewer
+    ClassDef(TRestDetectorReadoutEventViewer, 1);  // class inherited from
+                                                   // TRestEventViewer
 };
 #endif

@@ -44,7 +44,7 @@ void TRestSingleChannelAnalysisProcess::Initialize() {
 
 //______________________________________________________________________________
 void TRestSingleChannelAnalysisProcess::InitProcess() {
-    fReadout = GetMetadata<TRestReadout>();
+    fReadout = GetMetadata<TRestDetectorReadout>();
     fCalib = GetMetadata<TRestGainMap>();
     if (fReadout == NULL) {
     } else {
@@ -82,7 +82,8 @@ void TRestSingleChannelAnalysisProcess::InitProcess() {
     }
 
     if (GetFriend("TRestRawSignalAnalysisProcess") == NULL) {
-        ferr << "please add friend process TRestRawSignalAnalysisProcess and TRestReadoutAnalysisProcess "
+        ferr << "please add friend process TRestRawSignalAnalysisProcess and "
+                "TRestDetectorReadoutAnalysisProcess "
                 "and turn on all their observables!"
              << endl;
         abort();

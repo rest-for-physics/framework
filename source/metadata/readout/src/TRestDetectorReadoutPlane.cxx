@@ -24,7 +24,7 @@
 ///
 /// This class stores the readout plane geometrical description, plane
 /// position, orientation, and cathode position. It contains
-/// a vector of TRestReadoutModule with the readout modules that are
+/// a vector of TRestDetectorReadoutModule with the readout modules that are
 /// implemented in the readout plane.
 ///
 ///--------------------------------------------------------------------------
@@ -36,30 +36,30 @@
 /// 2016-mar:  First concept.
 ///            Javier Galan
 ///
-/// \class      TRestReadoutPlane
+/// \class      TRestDetectorReadoutPlane
 /// \author     Javier Galan
 ///
 /// <hr>
 ///
 
-#include "TRestReadoutPlane.h"
+#include "TRestDetectorReadoutPlane.h"
 using namespace std;
 
-ClassImp(TRestReadoutPlane);
+ClassImp(TRestDetectorReadoutPlane);
 ///////////////////////////////////////////////
-/// \brief Default TRestReadoutPlane constructor
+/// \brief Default TRestDetectorReadoutPlane constructor
 ///
-TRestReadoutPlane::TRestReadoutPlane() { Initialize(); }
+TRestDetectorReadoutPlane::TRestDetectorReadoutPlane() { Initialize(); }
 
 ///////////////////////////////////////////////
-/// \brief Default TRestReadoutPlane destructor
+/// \brief Default TRestDetectorReadoutPlane destructor
 ///
-TRestReadoutPlane::~TRestReadoutPlane() {}
+TRestDetectorReadoutPlane::~TRestDetectorReadoutPlane() {}
 
 ///////////////////////////////////////////////
-/// \brief TRestReadoutPlane initialization
+/// \brief TRestDetectorReadoutPlane initialization
 ///
-void TRestReadoutPlane::Initialize() {
+void TRestDetectorReadoutPlane::Initialize() {
     fCathodePosition = TVector3(0, 0, 0);
     fPosition = TVector3(0, 0, 0);
     fPlaneVector = TVector3(0, 0, 0);
@@ -71,7 +71,7 @@ void TRestReadoutPlane::Initialize() {
 ///////////////////////////////////////////////
 /// \brief Returns the total number of channels in the readout plane
 ///
-Int_t TRestReadoutPlane::GetNumberOfChannels() {
+Int_t TRestDetectorReadoutPlane::GetNumberOfChannels() {
     Int_t nChannels = 0;
     for (int md = 0; md < GetNumberOfModules(); md++) nChannels += fReadoutModules[md].GetNumberOfChannels();
     return nChannels;
@@ -80,7 +80,7 @@ Int_t TRestReadoutPlane::GetNumberOfChannels() {
 ///////////////////////////////////////////////
 /// \brief Calculates the drift distance between readout plane and cathode
 ///
-void TRestReadoutPlane::SetDriftDistance() {
+void TRestDetectorReadoutPlane::SetDriftDistance() {
     Double_t tDriftDistance = this->GetDistanceTo(this->GetCathodePosition());
     this->SetTotalDriftDistance(tDriftDistance);
 }
@@ -88,7 +88,7 @@ void TRestReadoutPlane::SetDriftDistance() {
 ///////////////////////////////////////////////
 /// \brief Returns a pointer to a module using its internal module id
 ///
-TRestReadoutModule* TRestReadoutPlane::GetModuleByID(Int_t modID) {
+TRestDetectorReadoutModule* TRestDetectorReadoutPlane::GetModuleByID(Int_t modID) {
     for (int md = 0; md < GetNumberOfModules(); md++)
         if (fReadoutModules[md].GetModuleID() == modID) return &fReadoutModules[md];
 
@@ -107,11 +107,11 @@ TRestReadoutModule* TRestReadoutPlane::GetModuleByID(Int_t modID) {
 /// \param chID Internal channel id. As defined on the readout.
 ///
 /// \return The value of the X-coordinate relative to the readout position
-Double_t TRestReadoutPlane::GetX(Int_t modID, Int_t chID) {
-    TRestReadoutModule* rModule = GetModuleByID(modID);
+Double_t TRestDetectorReadoutPlane::GetX(Int_t modID, Int_t chID) {
+    TRestDetectorReadoutModule* rModule = GetModuleByID(modID);
     Double_t xOrigin = rModule->GetModuleOriginX();
 
-    TRestReadoutChannel* rChannel = rModule->GetChannel(chID);
+    TRestDetectorReadoutChannel* rChannel = rModule->GetChannel(chID);
 
     Double_t x = numeric_limits<Double_t>::quiet_NaN();
 
@@ -173,11 +173,11 @@ Double_t TRestReadoutPlane::GetX(Int_t modID, Int_t chID) {
 /// \param chID Internal channel id. As defined on the readout.
 ///
 /// \return The value of the X-coordinate relative to the readout position
-Double_t TRestReadoutPlane::GetY(Int_t modID, Int_t chID) {
-    TRestReadoutModule* rModule = GetModuleByID(modID);
+Double_t TRestDetectorReadoutPlane::GetY(Int_t modID, Int_t chID) {
+    TRestDetectorReadoutModule* rModule = GetModuleByID(modID);
     Double_t yOrigin = rModule->GetModuleOriginY();
 
-    TRestReadoutChannel* rChannel = rModule->GetChannel(chID);
+    TRestDetectorReadoutChannel* rChannel = rModule->GetChannel(chID);
 
     Double_t y = numeric_limits<Double_t>::quiet_NaN();
 
@@ -238,7 +238,7 @@ Double_t TRestReadoutPlane::GetY(Int_t modID, Int_t chID) {
 /// \param absX It is the x absolut physical position
 /// \param absY It is the y absolut physical position
 /// \return The corresponding channel id
-Int_t TRestReadoutPlane::FindChannel(Int_t module, Double_t absX, Double_t absY) {
+Int_t TRestDetectorReadoutPlane::FindChannel(Int_t module, Double_t absX, Double_t absY) {
     Double_t modX = absX - fPosition.X();
     Double_t modY = absY - fPosition.Y();
 
@@ -254,7 +254,7 @@ Int_t TRestReadoutPlane::FindChannel(Int_t module, Double_t absX, Double_t absY)
 /// \brief Returns the perpendicular distance to the readout plane of a given
 /// *x*, *y*, *z* position
 ///
-Double_t TRestReadoutPlane::GetDistanceTo(Double_t x, Double_t y, Double_t z) {
+Double_t TRestDetectorReadoutPlane::GetDistanceTo(Double_t x, Double_t y, Double_t z) {
     return GetDistanceTo(TVector3(x, y, z));
 }
 
@@ -262,7 +262,7 @@ Double_t TRestReadoutPlane::GetDistanceTo(Double_t x, Double_t y, Double_t z) {
 /// \brief Returns the perpendicular distance to the readout plane of a given
 /// TVector3 position
 ///
-Double_t TRestReadoutPlane::GetDistanceTo(TVector3 pos) {
+Double_t TRestDetectorReadoutPlane::GetDistanceTo(TVector3 pos) {
     return (pos - GetPosition()).Dot(GetPlaneVector());
 }
 
@@ -273,7 +273,7 @@ Double_t TRestReadoutPlane::GetDistanceTo(TVector3 pos) {
 /// \return 1 if the Z-position is found inside the drift volume definition. 0
 /// otherwise returns -1.
 ///
-Int_t TRestReadoutPlane::isZInsideDriftVolume(Double_t z) {
+Int_t TRestDetectorReadoutPlane::isZInsideDriftVolume(Double_t z) {
     TVector3 pos = TVector3(0, 0, z);
 
     return isZInsideDriftVolume(pos);
@@ -286,7 +286,7 @@ Int_t TRestReadoutPlane::isZInsideDriftVolume(Double_t z) {
 /// \return true if daqId is found
 /// returns false if daqId is not found
 ///
-Bool_t TRestReadoutPlane::isDaqIDInside(Int_t daqId) {
+Bool_t TRestDetectorReadoutPlane::isDaqIDInside(Int_t daqId) {
     for (int m = 0; m < GetNumberOfModules(); m++)
         if (fReadoutModules[m].isDaqIDInside(daqId)) return true;
 
@@ -302,7 +302,7 @@ Bool_t TRestReadoutPlane::isDaqIDInside(Int_t daqId) {
 /// \return 1 if the Z-position is found inside the drift volume definition. 0
 /// otherwise
 ///
-Int_t TRestReadoutPlane::isZInsideDriftVolume(TVector3 pos) {
+Int_t TRestDetectorReadoutPlane::isZInsideDriftVolume(TVector3 pos) {
     TVector3 posNew = TVector3(pos.X() - fPosition.X(), pos.Y() - fPosition.Y(), pos.Z());
 
     Double_t distance = GetDistanceTo(posNew);
@@ -323,7 +323,7 @@ Int_t TRestReadoutPlane::isZInsideDriftVolume(TVector3 pos) {
 /// \return the module *id* where the hit is found. If no module *id* is found
 /// it returns -1.
 ///
-Int_t TRestReadoutPlane::GetModuleIDFromPosition(Double_t x, Double_t y, Double_t z) {
+Int_t TRestDetectorReadoutPlane::GetModuleIDFromPosition(Double_t x, Double_t y, Double_t z) {
     TVector3 pos = TVector3(x, y, z);
 
     return GetModuleIDFromPosition(pos);
@@ -339,7 +339,7 @@ Int_t TRestReadoutPlane::GetModuleIDFromPosition(Double_t x, Double_t y, Double_
 /// \return the module *id* where the hit is found. If no module *id* is found
 /// it returns -1.
 ///
-Int_t TRestReadoutPlane::GetModuleIDFromPosition(TVector3 pos) {
+Int_t TRestDetectorReadoutPlane::GetModuleIDFromPosition(TVector3 pos) {
     TVector3 posNew = TVector3(pos.X() - fPosition.X(), pos.Y() - fPosition.Y(), pos.Z());
 
     Double_t distance = GetDistanceTo(posNew);
@@ -356,7 +356,7 @@ Int_t TRestReadoutPlane::GetModuleIDFromPosition(TVector3 pos) {
 /// \brief Prints information with details of the readout plane and modules
 /// defined inside the readout plane.
 ///
-void TRestReadoutPlane::Print(Int_t DetailLevel) {
+void TRestDetectorReadoutPlane::Print(Int_t DetailLevel) {
     if (DetailLevel >= 0) {
         metadata << "-- Readout plane : " << GetID() << endl;
         metadata << "----------------------------------------------------------------" << endl;
@@ -379,13 +379,13 @@ void TRestReadoutPlane::Print(Int_t DetailLevel) {
 ///////////////////////////////////////////////
 /// \brief Draws the readout plane using GetReadoutHistogram.
 ///
-void TRestReadoutPlane::Draw() { this->GetReadoutHistogram()->Draw(); }
+void TRestDetectorReadoutPlane::Draw() { this->GetReadoutHistogram()->Draw(); }
 
 ///////////////////////////////////////////////
 /// \brief Creates and resturns a TH2Poly object with the
 /// readout pixel description.
 ///
-TH2Poly* TRestReadoutPlane::GetReadoutHistogram() {
+TH2Poly* TRestDetectorReadoutPlane::GetReadoutHistogram() {
     Double_t x[4];
     Double_t y[4];
 
@@ -396,12 +396,12 @@ TH2Poly* TRestReadoutPlane::GetReadoutHistogram() {
     TH2Poly* readoutHistogram = new TH2Poly("ReadoutHistogram", "ReadoutHistogram", xmin, xmax, ymin, ymax);
 
     for (int mdID = 0; mdID < this->GetNumberOfModules(); mdID++) {
-        TRestReadoutModule* module = &fReadoutModules[mdID];
+        TRestDetectorReadoutModule* module = &fReadoutModules[mdID];
 
         int nChannels = module->GetNumberOfChannels();
 
         for (int ch = 0; ch < nChannels; ch++) {
-            TRestReadoutChannel* channel = module->GetChannel(ch);
+            TRestDetectorReadoutChannel* channel = module->GetChannel(ch);
             Int_t nPixels = channel->GetNumberOfPixels();
 
             for (int px = 0; px < nPixels; px++) {
@@ -423,14 +423,14 @@ TH2Poly* TRestReadoutPlane::GetReadoutHistogram() {
 ///////////////////////////////////////////////
 /// \brief Finds the xy boundaries of the readout plane delimited by the modules
 ///
-void TRestReadoutPlane::GetBoundaries(double& xmin, double& xmax, double& ymin, double& ymax) {
+void TRestDetectorReadoutPlane::GetBoundaries(double& xmin, double& xmax, double& ymin, double& ymax) {
     Double_t x[4];
     Double_t y[4];
 
     xmin = 1E9, xmax = -1E9, ymin = 1E9, ymax = -1E9;
 
     for (int mdID = 0; mdID < this->GetNumberOfModules(); mdID++) {
-        TRestReadoutModule* module = &fReadoutModules[mdID];
+        TRestDetectorReadoutModule* module = &fReadoutModules[mdID];
 
         for (int v = 0; v < 4; v++) {
             x[v] = module->GetVertex(v).X();

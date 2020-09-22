@@ -27,9 +27,9 @@
 
 #include <TCanvas.h>
 
+#include <TRestDetectorReadout.h>
 #include <TRestGas.h>
 #include <TRestHitsEvent.h>
-#include <TRestReadout.h>
 #include <TRestSignalEvent.h>
 
 #include "TRestEventProcess.h"
@@ -51,7 +51,6 @@ class TRestHitsGaussAnalysisProcess : public TRestEventProcess {
     void LoadDefaultConfig();
 
    protected:
-
    public:
     any GetInputEvent() { return fInputHitsEvent; }
     any GetOutputEvent() { return fOutputHitsEvent; }

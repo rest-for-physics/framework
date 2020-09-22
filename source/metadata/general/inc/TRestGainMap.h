@@ -42,8 +42,8 @@
 #include "TSystem.h"
 #include "TVector3.h"
 
-class TRestReadoutModule;
-class TRestReadout;
+class TRestDetectorReadoutModule;
+class TRestDetectorReadout;
 
 class TRestGainMap : public TRestMetadata {
    public:
@@ -57,7 +57,7 @@ class TRestGainMap : public TRestMetadata {
     void SaveToText(string filename) {}
     void ReadGainText(string filename) {}
 
-    void DrawChannelGainMap(TRestReadoutModule* mod = 0);
+    void DrawChannelGainMap(TRestDetectorReadoutModule* mod = 0);
 
     ClassDef(TRestGainMap, 1);  // Gas Parameters
 };

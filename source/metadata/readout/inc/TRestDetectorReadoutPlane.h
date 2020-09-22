@@ -20,23 +20,23 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestReadoutPlane
-#define RestCore_TRestReadoutPlane
+#ifndef RestCore_TRestDetectorReadoutPlane
+#define RestCore_TRestDetectorReadoutPlane
 
 #include <iostream>
 
 #include "TObject.h"
 
+#include "TRestDetectorReadoutChannel.h"
+#include "TRestDetectorReadoutModule.h"
 #include "TRestMetadata.h"
-#include "TRestReadoutChannel.h"
-#include "TRestReadoutModule.h"
 
 #include <TGraph.h>
 #include <TH2Poly.h>
 
-/// A class to store the readout plane definition used in TRestReadout. It
+/// A class to store the readout plane definition used in TRestDetectorReadout. It
 /// allows to integrate any number of independent readout modules.
-class TRestReadoutPlane : public TObject {
+class TRestDetectorReadoutPlane : public TObject {
    private:
     Int_t fPlaneID;  ///< The readout plane id. The id number is imposed by the
                      ///< order of creation. Being the first id=0.
@@ -54,17 +54,18 @@ class TRestReadoutPlane : public TObject {
     Double_t fTotalDriftDistance;  ///< A parameter storing the total drift distance,
                                    ///< defined between cathode and readout plane.
 
-    Int_t fNModules;                                  ///< The number of modules that have been added to the
-                                                      ///< readout plane
-    std::vector<TRestReadoutModule> fReadoutModules;  ///< A vector of the instances of TRestReadoutModule
-                                                      ///< containned in the readout plane.
+    Int_t fNModules;  ///< The number of modules that have been added to the
+                      ///< readout plane
+    std::vector<TRestDetectorReadoutModule>
+        fReadoutModules;  ///< A vector of the instances of TRestDetectorReadoutModule
+                          ///< containned in the readout plane.
 
     void Initialize();
 
    protected:
    public:
     // Setters
-    /// Sets the planeId. This is done by TRestReadout during initialization
+    /// Sets the planeId. This is done by TRestDetectorReadout during initialization
     void SetID(int id) { fPlaneID = id; }
 
     /// Sets the readout plane position
@@ -117,10 +118,10 @@ class TRestReadoutPlane : public TObject {
         return GetModuleByID(mod)->GetDistanceToModule(pos);
     }
 
-    TRestReadoutModule& operator[](int mod) { return fReadoutModules[mod]; }
+    TRestDetectorReadoutModule& operator[](int mod) { return fReadoutModules[mod]; }
 
     /// Returns a pointer to a readout module using its vector index
-    TRestReadoutModule* GetModule(int mod) {
+    TRestDetectorReadoutModule* GetModule(int mod) {
         if (mod >= GetNumberOfModules()) return NULL;
         return &fReadoutModules[mod];
     }
@@ -129,7 +130,7 @@ class TRestReadoutPlane : public TObject {
     Int_t GetNumberOfModules() { return fReadoutModules.size(); }
 
     /// Adds a new module to the readout plane
-    void AddModule(TRestReadoutModule& rModule) {
+    void AddModule(TRestDetectorReadoutModule& rModule) {
         fReadoutModules.push_back(rModule);
         fNModules++;
     }
@@ -139,7 +140,7 @@ class TRestReadoutPlane : public TObject {
 
     Int_t GetNumberOfChannels();
 
-    TRestReadoutModule* GetModuleByID(Int_t modID);
+    TRestDetectorReadoutModule* GetModuleByID(Int_t modID);
 
     Int_t isZInsideDriftVolume(Double_t z);
 
@@ -166,10 +167,10 @@ class TRestReadoutPlane : public TObject {
     void GetBoundaries(double& xmin, double& xmax, double& ymin, double& ymax);
 
     // Construtor
-    TRestReadoutPlane();
+    TRestDetectorReadoutPlane();
     // Destructor
-    virtual ~TRestReadoutPlane();
+    virtual ~TRestDetectorReadoutPlane();
 
-    ClassDef(TRestReadoutPlane, 1);
+    ClassDef(TRestDetectorReadoutPlane, 1);
 };
 #endif

@@ -41,12 +41,12 @@ void TRestPositionMappingProcess::Initialize() {
 
 //______________________________________________________________________________
 void TRestPositionMappingProcess::InitProcess() {
-    fReadout = GetMetadata<TRestReadout>();
+    fReadout = GetMetadata<TRestDetectorReadout>();
     fCalib = GetMetadata<TRestGainMap>();
     fGas = GetMetadata<TRestGas>();
     if (fReadout == NULL) {
         if (fCreateGainMap) {
-            ferr << "You must set a TRestReadout metadata object to create gain map!" << endl;
+            ferr << "You must set a TRestDetectorReadout metadata object to create gain map!" << endl;
             abort();
         }
     } else {

@@ -101,7 +101,7 @@ class TRestEventProcess : public TRestMetadata {
     /// \brief Get a metadata object from the host TRestRun
     ///
     /// Directly input the type as template argument. This helps to simplify the code and prevents
-    /// mis-spelling. For example: `fReadout = GetMetadata<TRestReadout>();`. No need for type
+    /// mis-spelling. For example: `fReadout = GetMetadata<TRestDetectorReadout>();`. No need for type
     /// conversion.
     template <class T>
     T* GetMetadata() {

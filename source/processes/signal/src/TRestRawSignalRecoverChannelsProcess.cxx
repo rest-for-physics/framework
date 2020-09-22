@@ -29,7 +29,7 @@
 ///
 /// The following example will apply the recovery algorithm for the
 /// channels with signal ids 17,19,27 and 67. The signal ids must exist
-/// in the readout defined through the TRestReadout structure.
+/// in the readout defined through the TRestDetectorReadout structure.
 ///
 /// \code
 /// <TRestRawSignalRecoverChannelsProcess name="returnChannels"
@@ -47,7 +47,7 @@
 /// \f$s_i = 0.5 \times (s_{i-1} + s_{i+1})\f$
 ///
 /// This process will access the information of the decoding stored in
-/// the TRestReadout definition to assure that the righ signal ids,
+/// the TRestDetectorReadout definition to assure that the righ signal ids,
 /// corresponding to the adjacent channels, are used in the calculation.
 ///
 ///
@@ -140,10 +140,10 @@ void TRestRawSignalRecoverChannelsProcess::LoadConfig(string cfgFilename, string
 ///////////////////////////////////////////////
 /// \brief Function to initialize the process.
 /// TRestRawSignalRecoverChannelsProcess requires to get a pointer to
-/// TRestReadout.
+/// TRestDetectorReadout.
 ///
 void TRestRawSignalRecoverChannelsProcess::InitProcess() {
-    fReadout = GetMetadata<TRestReadout>();
+    fReadout = GetMetadata<TRestDetectorReadout>();
 
     if (fReadout == NULL) {
         cout << "REST ERRORRRR : Readout has not been initialized" << endl;
@@ -234,9 +234,9 @@ void TRestRawSignalRecoverChannelsProcess::InitFromConfigFile() {
 void TRestRawSignalRecoverChannelsProcess::GetAdjacentSignalIds(Int_t signalId, Int_t& idLeft,
                                                                 Int_t& idRight) {
     for (int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++) {
-        TRestReadoutPlane* plane = fReadout->GetReadoutPlane(p);
+        TRestDetectorReadoutPlane* plane = fReadout->GetReadoutPlane(p);
         for (int m = 0; m < plane->GetNumberOfModules(); m++) {
-            TRestReadoutModule* mod = plane->GetModule(m);
+            TRestDetectorReadoutModule* mod = plane->GetModule(m);
             // We iterate over all readout modules searching for the one that contains
             // our signal id
             if (mod->isDaqIDInside(signalId)) {

@@ -24,10 +24,10 @@
 #define RestCore_TRestRawSignalAnalysisProcess
 
 #include <TH1D.h>
+#include <TRestDetectorReadout.h>
 #include <TRestGas.h>
 #include <TRestHitsEvent.h>
 #include <TRestRawSignalEvent.h>
-#include <TRestReadout.h>
 
 #include "TRestEventProcess.h"
 

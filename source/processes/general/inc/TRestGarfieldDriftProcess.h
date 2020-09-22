@@ -27,9 +27,9 @@
 
 #include <TRandom3.h>
 
+#include <TRestDetectorReadout.h>
 #include <TRestGeometry.h>
 #include <TRestHitsEvent.h>
-#include <TRestReadout.h>
 #include <TRestSignalEvent.h>
 
 #include "TRestEventProcess.h"
@@ -44,9 +44,9 @@ class TRestGarfieldDriftProcess : public TRestEventProcess {
     TRestHitsEvent* fOutputHitsEvent;  //!
 
 #if defined USE_Garfield
-    TRestReadout* fReadout;    //!
-    TRestGas* fGas;            //!
-    TRestGeometry* fGeometry;  //!
+    TRestDetectorReadout* fReadout;  //!
+    TRestGas* fGas;                  //!
+    TRestGeometry* fGeometry;        //!
 
     Garfield::Sensor* fGfSensor;             //!
     Garfield::DRIFT_METHOD* fGfDriftMethod;  //!

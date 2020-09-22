@@ -12,8 +12,8 @@
 #ifndef RestCore_TRestFiducializationProcess
 #define RestCore_TRestFiducializationProcess
 
+#include <TRestDetectorReadout.h>
 #include <TRestHitsEvent.h>
-#include <TRestReadout.h>
 
 #include "TRestEventProcess.h"
 
@@ -23,7 +23,7 @@ class TRestFiducializationProcess : public TRestEventProcess {
     TRestHitsEvent* fInputHitsEvent;   //!
     TRestHitsEvent* fOutputHitsEvent;  //!
 
-    TRestReadout* fReadout;  //!
+    TRestDetectorReadout* fReadout;  //!
 
 #endif
 

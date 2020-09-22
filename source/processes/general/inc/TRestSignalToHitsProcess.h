@@ -12,8 +12,8 @@
 #ifndef RestCore_TRestSignalToHitsProcess
 #define RestCore_TRestSignalToHitsProcess
 
+#include <TRestDetectorReadout.h>
 #include <TRestGas.h>
-#include <TRestReadout.h>
 
 #include <TRestHitsEvent.h>
 #include <TRestSignalEvent.h>
@@ -26,8 +26,8 @@ class TRestSignalToHitsProcess : public TRestEventProcess {
     TRestHitsEvent* fHitsEvent;      //!
     TRestSignalEvent* fSignalEvent;  //!
 
-    TRestReadout* fReadout;  //!
-    TRestGas* fGas;          //!
+    TRestDetectorReadout* fReadout;  //!
+    TRestGas* fGas;                  //!
 #endif
 
     void InitFromConfigFile();

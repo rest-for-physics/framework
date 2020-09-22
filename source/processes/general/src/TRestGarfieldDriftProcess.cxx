@@ -54,7 +54,7 @@ TRestGarfieldDriftProcess::TRestGarfieldDriftProcess(char* cfgFileName) : fRando
 
     PrintMetadata();
 
-    if (fReadout == NULL) fReadout = new TRestReadout(cfgFileName);
+    if (fReadout == NULL) fReadout = new TRestDetectorReadout(cfgFileName);
 
     // TRestGarfieldDriftProcess default constructor
 }
@@ -130,7 +130,7 @@ void TRestGarfieldDriftProcess::InitProcess() {
     }
 
     // Getting readout data
-    fReadout = GetMetadata<TRestReadout>();
+    fReadout = GetMetadata<TRestDetectorReadout>();
     if (fReadout == NULL) {
         cout << "REST ERRORRRR : Readout has not been initialized" << endl;
         exit(-1);
@@ -233,7 +233,7 @@ void TRestGarfieldDriftProcess::InitProcess() {
         matrixZpos = (readoutmatrix->IsTranslation() ? 10 * readoutmatrix->GetTranslation()[2]
                                                      : 0);  // converted to mm
         for (int jj = 0; jj < fReadout->GetNumberOfReadoutPlanes(); jj++) {
-            TRestReadoutPlane* readoutplane = fReadout->GetReadoutPlane(jj);
+            TRestDetectorReadoutPlane* readoutplane = fReadout->GetReadoutPlane(jj);
             planeZpos = readoutplane->GetPosition().Z();
             cout << "    jj " << jj << " matrixZpos " << matrixZpos << " planeZpos " << planeZpos << endl;
             if (fabs(planeZpos - matrixZpos) > 1)
@@ -331,7 +331,7 @@ void TRestGarfieldDriftProcess::InitProcess() {
 
 Int_t TRestGarfieldDriftProcess::FindModule(Int_t readoutPlane, Double_t x, Double_t y) {
     // TODO verify this
-    TRestReadoutPlane* plane = fReadout->GetReadoutPlane(readoutPlane);
+    TRestDetectorReadoutPlane* plane = fReadout->GetReadoutPlane(readoutPlane);
     for (int md = 0; md < plane->GetNumberOfModules(); md++)
         if ((*plane)[md].isInside(x, y)) return md;
 

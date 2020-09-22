@@ -20,8 +20,8 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestReadoutPixel
-#define RestCore_TRestReadoutPixel
+#ifndef RestCore_TRestDetectorReadoutPixel
+#define RestCore_TRestDetectorReadoutPixel
 
 #include <iostream>
 
@@ -30,8 +30,8 @@
 #include "TObject.h"
 #include "TRestMetadata.h"
 
-/// A class to store the readout pixel definition used in TRestReadoutChannel.
-class TRestReadoutPixel : public TObject {
+/// A class to store the readout pixel definition used in TRestDetectorReadoutChannel.
+class TRestDetectorReadoutPixel : public TObject {
    private:
     Double_t fPixelOriginX;  ///< The pixel x-origin position, left-bottom corner.
     Double_t fPixelOriginY;  ///< The pixel y-origin position, left-bottom corner.
@@ -114,10 +114,10 @@ class TRestReadoutPixel : public TObject {
     void Print(int index = -1);
 
     // Construtor
-    TRestReadoutPixel();
+    TRestDetectorReadoutPixel();
     // Destructor
-    virtual ~TRestReadoutPixel();
+    virtual ~TRestDetectorReadoutPixel();
 
-    ClassDef(TRestReadoutPixel, 4);
+    ClassDef(TRestDetectorReadoutPixel, 4);
 };
 #endif

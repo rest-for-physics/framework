@@ -23,7 +23,7 @@ TRestPointLikeAnaProcess::TRestPointLikeAnaProcess(char* cfgFileName) {
 
     if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
 
-    fReadout = new TRestReadout(cfgFileName);
+    fReadout = new TRestDetectorReadout(cfgFileName);
 }
 
 //______________________________________________________________________________
@@ -64,14 +64,14 @@ void TRestPointLikeAnaProcess::Initialize() {
 void TRestPointLikeAnaProcess::LoadConfig(string cfgFilename) {
     if (LoadConfigFromFile(cfgFilename)) LoadDefaultConfig();
 
-    // fReadout = new TRestReadout( cfgFilename.c_str() );
+    // fReadout = new TRestDetectorReadout( cfgFilename.c_str() );
 }
 
 //______________________________________________________________________________
 void TRestPointLikeAnaProcess::InitProcess() {
     TRestEventProcess::ReadObservables();
 
-    fReadout = GetMetadata<TRestReadout>();
+    fReadout = GetMetadata<TRestDetectorReadout>();
 
     if (fReadout == NULL) cout << "REST ERRORRRR : Readout has not been initialized" << endl;
 
@@ -126,7 +126,7 @@ TRestEvent* TRestPointLikeAnaProcess::ProcessEvent(TRestEvent* evInput) {
     int readoutChannel, daqChannel, planeId = 0;
 
     // Int_t modId;
-    TRestReadoutModule* module;
+    TRestDetectorReadoutModule* module;
 
     // The event limits in x and y direction are found.
     xl = yl = 0;
@@ -139,7 +139,7 @@ TRestEvent* TRestPointLikeAnaProcess::ProcessEvent(TRestEvent* evInput) {
 
     for (k = 0; k < fSignalEvent->GetNumberOfSignals(); k++) {
         daqChannel = fSignalEvent->GetSignal(k)->GetSignalID();
-        TRestReadoutPlane* plane = fReadout->GetReadoutPlane(planeId);
+        TRestDetectorReadoutPlane* plane = fReadout->GetReadoutPlane(planeId);
 
         for (int m = 0; m < plane->GetNumberOfModules(); m++) {
             module = plane->GetModule(m);
@@ -288,7 +288,7 @@ TRestEvent* TRestPointLikeAnaProcess::ProcessEvent(TRestEvent* evInput) {
     // The event observables are calculated using the limits in x and y.
     for (k = 0; k < fSignalEvent->GetNumberOfSignals(); k++) {
         daqChannel = fSignalEvent->GetSignal(k)->GetSignalID();
-        TRestReadoutPlane* plane = fReadout->GetReadoutPlane(planeId);
+        TRestDetectorReadoutPlane* plane = fReadout->GetReadoutPlane(planeId);
 
         for (int m = 0; m < plane->GetNumberOfModules(); m++) {
             module = plane->GetModule(m);

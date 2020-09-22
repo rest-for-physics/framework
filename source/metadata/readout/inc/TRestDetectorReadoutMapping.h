@@ -20,8 +20,8 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestReadoutMapping
-#define RestCore_TRestReadoutMapping
+#ifndef RestCore_TRestDetectorReadoutMapping
+#define RestCore_TRestDetectorReadoutMapping
 
 #include <iostream>
 
@@ -30,7 +30,7 @@
 
 /// This class defines a uniform 2-dimensional grid relating its nodes to the
 /// pixels of a readout.
-class TRestReadoutMapping : public TObject {
+class TRestDetectorReadoutMapping : public TObject {
    private:
     Int_t fNodesX;  ///< The number of nodes in the x-axis.
     Int_t fNodesY;  ///< The number of nodes in the y-axis.
@@ -84,10 +84,10 @@ class TRestReadoutMapping : public TObject {
     void Initialize(Int_t nX, Int_t nY, Double_t sX, Double_t sY);
 
     // Construtor
-    TRestReadoutMapping();
+    TRestDetectorReadoutMapping();
     // Destructor
-    ~TRestReadoutMapping();
+    ~TRestDetectorReadoutMapping();
 
-    ClassDef(TRestReadoutMapping, 1);
+    ClassDef(TRestDetectorReadoutMapping, 1);
 };
 #endif

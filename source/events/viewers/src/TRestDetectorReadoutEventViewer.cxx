@@ -5,29 +5,29 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestReadoutEventViewer.cxx
+///             TRestDetectorReadoutEventViewer.cxx
 ///
 ///             dec 2015:   First concept
-///                 Viewer class for a TRestSignalEvent and TRestReadout
+///                 Viewer class for a TRestSignalEvent and TRestDetectorReadout
 ///                 JuanAn Garcia
 ///_______________________________________________________________________________
 
-#include "TRestReadoutEventViewer.h"
+#include "TRestDetectorReadoutEventViewer.h"
 using namespace std;
 
 Int_t planeId = 0;
 
-ClassImp(TRestReadoutEventViewer)
+ClassImp(TRestDetectorReadoutEventViewer)
 
-    TRestReadoutEventViewer::TRestReadoutEventViewer() {
+    TRestDetectorReadoutEventViewer::TRestDetectorReadoutEventViewer() {
     Initialize();
 }
 
 //______________________________________________________________________________
-TRestReadoutEventViewer::~TRestReadoutEventViewer() {}
+TRestDetectorReadoutEventViewer::~TRestDetectorReadoutEventViewer() {}
 
 //______________________________________________________________________________
-void TRestReadoutEventViewer::Initialize() {
+void TRestDetectorReadoutEventViewer::Initialize() {
     TRestEventViewer::Initialize();
 
     fCanvasXY = new TCanvas("ReadoutMap", "ReadoutMap");
@@ -42,19 +42,19 @@ void TRestReadoutEventViewer::Initialize() {
 }
 
 //______________________________________________________________________________
-void TRestReadoutEventViewer::SetReadout(TRestReadout* readout) {
-    // Finalize the instantiation based on argument TRestReadout
+void TRestDetectorReadoutEventViewer::SetReadout(TRestDetectorReadout* readout) {
+    // Finalize the instantiation based on argument TRestDetectorReadout
     fReadout = readout;
     cout << "WARNING : Only plane 0 is drawn. Implementation to draw several "
             "planes or to choose the plane must be implemented."
          << endl;
     fReadout->PrintMetadata();
-    TRestReadoutPlane* plane = &(*fReadout)[planeId];
+    TRestDetectorReadoutPlane* plane = &(*fReadout)[planeId];
     fHistoXY = plane->GetReadoutHistogram();
     plane->GetBoundaries(xmin, xmax, ymin, ymax);
 }
 
-void TRestReadoutEventViewer::AddEvent(TRestEvent* ev) {
+void TRestDetectorReadoutEventViewer::AddEvent(TRestEvent* ev) {
     // Finalize the drawing of current event, adding to the per-channel-signal
     // vs. time drawn by the generic event viewer, the three 2D histograms of
     // the XY, XZ and YZ projections.
@@ -88,13 +88,13 @@ void TRestReadoutEventViewer::AddEvent(TRestEvent* ev) {
     fCanvasXZYZ->Update();
 }
 
-void TRestReadoutEventViewer::DrawReadoutPulses() {
+void TRestDetectorReadoutEventViewer::DrawReadoutPulses() {
     int readoutChannel, daqChannel;
     double charge;
 
     Int_t modId;
-    TRestReadoutModule* module = NULL;
-    TRestReadoutChannel* channel;
+    TRestDetectorReadoutModule* module = NULL;
+    TRestDetectorReadoutChannel* channel;
 
     int maxIndex;
 
@@ -118,7 +118,7 @@ void TRestReadoutEventViewer::DrawReadoutPulses() {
     for (int i = 0; i < fSignalEvent->GetNumberOfSignals(); i++) {
         daqChannel = fSignalEvent->GetSignal(i)->GetSignalID();
 
-        TRestReadoutPlane* plane = &(*fReadout)[planeId];
+        TRestDetectorReadoutPlane* plane = &(*fReadout)[planeId];
         for (int m = 0; m < plane->GetNumberOfModules(); m++) {
             module = &(*plane)[m];
 
@@ -177,8 +177,8 @@ void TRestReadoutEventViewer::DrawReadoutPulses() {
     }
 }
 
-TRestReadoutChannel* TRestReadoutEventViewer::GetChannel(int readoutChannel) {
-    TRestReadoutPlane* plane = &(*fReadout)[0];
+TRestDetectorReadoutChannel* TRestDetectorReadoutEventViewer::GetChannel(int readoutChannel) {
+    TRestDetectorReadoutPlane* plane = &(*fReadout)[0];
     for (int n = 0; n < plane->GetNumberOfModules(); n++) {
         if ((*plane)[n].GetChannel(readoutChannel) == NULL) continue;
         return (*plane)[n].GetChannel(readoutChannel);
@@ -188,8 +188,8 @@ TRestReadoutChannel* TRestReadoutEventViewer::GetChannel(int readoutChannel) {
     return NULL;
 }
 
-TRestReadoutModule* TRestReadoutEventViewer::GetModule(int readoutChannel) {
-    TRestReadoutPlane* plane = &(*fReadout)[0];
+TRestDetectorReadoutModule* TRestDetectorReadoutEventViewer::GetModule(int readoutChannel) {
+    TRestDetectorReadoutPlane* plane = &(*fReadout)[0];
     for (int n = 0; n < fReadout->GetNumberOfModules(); n++) {
         if ((*plane)[n].GetChannel(readoutChannel) == NULL) continue;
         return &(*plane)[n];

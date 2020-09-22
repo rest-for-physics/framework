@@ -79,7 +79,7 @@ bool RmlUpdateTool::UpdateSyntax() {
     index["restG4"] = fFileContent.find("TRestG4Metadata");
     index["restManager"] = fFileContent.find("TRestManager");
     index["processes"] = fFileContent.find("Process");
-    index["readouts"] = fFileContent.find("TRestReadout");
+    index["readouts"] = fFileContent.find("TRestDetectorReadout");
     index["gases"] = fFileContent.find("TRestGas");
 
     string name = "restManager";
@@ -170,7 +170,7 @@ bool RmlUpdateTool::UpdateStructure() {
             TiXmlElement* addMetadataElement = TRestProcessRunnerElement->FirstChildElement("addMetadata");
             while (addMetadataElement != NULL) {
                 if (addMetadataElement->Attribute("type") != NULL &&
-                    (string)addMetadataElement->Attribute("type") == "TRestReadout") {
+                    (string)addMetadataElement->Attribute("type") == "TRestDetectorReadout") {
                     TString readoutFile = GetParameter("readoutFile", TRestProcessRunnerElement, "");
                     if (readoutFile != "") {
                         addMetadataElement->SetAttribute("file", readoutFile);

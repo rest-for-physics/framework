@@ -113,7 +113,7 @@ void TRestSignalChannelActivityProcess::LoadConfig(std::string cfgFilename, std:
 /// is found in the processing chain.
 ///
 void TRestSignalChannelActivityProcess::InitProcess() {
-    fReadout = GetMetadata<TRestReadout>();
+    fReadout = GetMetadata<TRestDetectorReadout>();
 
     debug << "TRestSignalChannelActivityProcess::InitProcess. Readout pointer : " << fReadout << endl;
     if (GetVerboseLevel() >= REST_Info && fReadout) fReadout->PrintMetadata();

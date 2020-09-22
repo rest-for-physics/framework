@@ -24,7 +24,7 @@
 #define RestCore_TRestSignalZeroSuppresionProcess
 
 //#include <TRestGas.h>
-//#include <TRestReadout.h>
+//#include <TRestDetectorReadout.h>
 
 #include <TRestRawSignalEvent.h>
 #include <TRestSignalEvent.h>

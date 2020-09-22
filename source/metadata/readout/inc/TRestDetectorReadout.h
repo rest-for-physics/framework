@@ -20,18 +20,18 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestReadout
-#define RestCore_TRestReadout
+#ifndef RestCore_TRestDetectorReadout
+#define RestCore_TRestDetectorReadout
 
 #include <iostream>
 
 #include "TObject.h"
 
+#include "TRestDetectorReadoutPlane.h"
 #include "TRestMetadata.h"
-#include "TRestReadoutPlane.h"
 
 /// A metadata class to generate/store a readout description.
-class TRestReadout : public TRestMetadata {
+class TRestDetectorReadout : public TRestMetadata {
    private:
     void InitFromConfigFile();
 
@@ -40,29 +40,30 @@ class TRestReadout : public TRestMetadata {
     Bool_t fDecoding;  ///< Defines if a decoding file was used to set the relation
                        ///< between a physical readout channel id and a signal daq id
 
-    Int_t fNReadoutPlanes;                          ///< Number of readout planes present on the readout
-    std::vector<TRestReadoutPlane> fReadoutPlanes;  ///< A vector storing the TRestReadoutPlane definitions.
+    Int_t fNReadoutPlanes;  ///< Number of readout planes present on the readout
+    std::vector<TRestDetectorReadoutPlane>
+        fReadoutPlanes;  ///< A vector storing the TRestDetectorReadoutPlane definitions.
 
 #ifndef __CINT__
-    Int_t fMappingNodes;                            //!///< Number of nodes per axis used on the readout
-                                                    //! coordinate mapping. See also TRestReadoutMapping.
-    vector<TRestReadoutModule> fModuleDefinitions;  //!///< A vector storing the different
-                                                    //! TRestReadoutModule definitions.
+    Int_t fMappingNodes;  //!///< Number of nodes per axis used on the readout
+                          //! coordinate mapping. See also TRestDetectorReadoutMapping.
+    vector<TRestDetectorReadoutModule> fModuleDefinitions;  //!///< A vector storing the different
+                                                            //! TRestDetectorReadoutModule definitions.
 #endif
 
     void ValidateReadout();
 
    public:
-    TRestReadoutPlane& operator[](int p) { return fReadoutPlanes[p]; }
+    TRestDetectorReadoutPlane& operator[](int p) { return fReadoutPlanes[p]; }
 
-    TRestReadoutPlane* GetReadoutPlane(int p);
-    void AddReadoutPlane(TRestReadoutPlane plane);
+    TRestDetectorReadoutPlane* GetReadoutPlane(int p);
+    void AddReadoutPlane(TRestDetectorReadoutPlane plane);
 
     /////////////////////////////////////
     //{
-    TRestReadoutPlane* GetReadoutPlaneWithID(int id);
-    TRestReadoutModule* GetReadoutModuleWithID(int id);
-    TRestReadoutChannel* GetReadoutChannelWithdaqID(int daqId);
+    TRestDetectorReadoutPlane* GetReadoutPlaneWithID(int id);
+    TRestDetectorReadoutModule* GetReadoutModuleWithID(int id);
+    TRestDetectorReadoutChannel* GetReadoutChannelWithdaqID(int daqId);
     //}
     /////////////////////////////////////
 
@@ -74,7 +75,7 @@ class TRestReadout : public TRestMetadata {
 
     /////////////////////////////////////
     //{
-    TRestReadoutModule* ParseModuleDefinition(std::string ReadoutModuleString);
+    TRestDetectorReadoutModule* ParseModuleDefinition(std::string ReadoutModuleString);
     void GetPlaneModuleChannel(Int_t daqID, Int_t& planeID, Int_t& moduleID, Int_t& channelID);
     Int_t GetHitsDaqChannel(TVector3 hitpos, Int_t& planeID, Int_t& moduleID, Int_t& channelID);
     Double_t GetX(Int_t signalID);
@@ -97,12 +98,12 @@ class TRestReadout : public TRestMetadata {
     void Draw();
 
     // Construtor
-    TRestReadout();
-    TRestReadout(const char* cfgFileName);
-    TRestReadout(const char* cfgFileName, std::string name);
+    TRestDetectorReadout();
+    TRestDetectorReadout(const char* cfgFileName);
+    TRestDetectorReadout(const char* cfgFileName, std::string name);
     // Destructor
-    virtual ~TRestReadout();
+    virtual ~TRestDetectorReadout();
 
-    ClassDef(TRestReadout, 1);
+    ClassDef(TRestDetectorReadout, 1);
 };
 #endif

@@ -12,9 +12,9 @@
 #ifndef RestCore_TRestElectronDiffusionProcess
 #define RestCore_TRestElectronDiffusionProcess
 
+#include <TRestDetectorReadout.h>
 #include <TRestGas.h>
 #include <TRestHitsEvent.h>
-#include <TRestReadout.h>
 
 #include <TRandom3.h>
 

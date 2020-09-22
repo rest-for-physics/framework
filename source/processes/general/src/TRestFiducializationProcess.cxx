@@ -50,7 +50,7 @@ void TRestFiducializationProcess::LoadConfig(string cfgFilename, string name) {
 
 //______________________________________________________________________________
 void TRestFiducializationProcess::InitProcess() {
-    fReadout = GetMetadata<TRestReadout>();
+    fReadout = GetMetadata<TRestDetectorReadout>();
     if (fReadout == NULL) {
         cout << "REST ERRORRRR : Readout has not been initialized" << endl;
         exit(-1);
@@ -76,7 +76,7 @@ TRestEvent* TRestFiducializationProcess::ProcessEvent(TRestEvent* evInput) {
         auto type = hits->GetType(n);
 
         for (int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++) {
-            TRestReadoutPlane* plane = fReadout->GetReadoutPlane(p);
+            TRestDetectorReadoutPlane* plane = fReadout->GetReadoutPlane(p);
 
             if (plane->GetModuleIDFromPosition(TVector3(x, y, z)) >= 0)
                 fOutputHitsEvent->AddHit(x, y, z, eDep, t, type);

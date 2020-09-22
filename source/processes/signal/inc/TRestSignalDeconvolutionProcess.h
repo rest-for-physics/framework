@@ -12,8 +12,8 @@
 #ifndef RestCore_TRestSignalDeconvolutionProcess
 #define RestCore_TRestSignalDeconvolutionProcess
 
+#include <TRestDetectorReadout.h>
 #include <TRestHitsEvent.h>
-#include <TRestReadout.h>
 #include <TRestSignalEvent.h>
 
 #include "TRestEventProcess.h"

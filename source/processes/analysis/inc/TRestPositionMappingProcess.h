@@ -16,9 +16,9 @@
 
 //#include <TCanvas.h>
 
+#include <TRestDetectorReadout.h>
 #include <TRestGas.h>
 #include <TRestHitsEvent.h>
-#include <TRestReadout.h>
 #include <TRestSignalEvent.h>
 
 #include "TRestEventProcess.h"
@@ -27,10 +27,10 @@
 class TRestPositionMappingProcess : public TRestEventProcess {
    private:
 #ifndef __CINT__
-    TRestHitsEvent* fHitsEvent;  //!
-    TRestReadout* fReadout;      //!
-    TRestGainMap* fCalib;        //!
-    TRestGas* fGas;              //!
+    TRestHitsEvent* fHitsEvent;      //!
+    TRestDetectorReadout* fReadout;  //!
+    TRestGainMap* fCalib;            //!
+    TRestGas* fGas;                  //!
 #endif
 
     void InitFromConfigFile();

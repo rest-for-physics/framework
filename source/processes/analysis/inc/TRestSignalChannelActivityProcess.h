@@ -25,7 +25,7 @@
 
 #include <TH1D.h>
 
-#include <TRestReadout.h>
+#include <TRestDetectorReadout.h>
 #include <TRestSignalEvent.h>
 
 #include "TRestEventProcess.h"
@@ -37,7 +37,7 @@ class TRestSignalChannelActivityProcess : public TRestEventProcess {
     TRestSignalEvent* fSignalEvent;  //!
 
     /// A pointer to the readout metadata information accessible to TRestRun
-    TRestReadout* fReadout;  //!
+    TRestDetectorReadout* fReadout;  //!
 
     void InitFromConfigFile();
 

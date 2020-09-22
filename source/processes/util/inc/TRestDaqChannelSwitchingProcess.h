@@ -16,9 +16,9 @@
 
 //#include <TCanvas.h>
 
+#include <TRestDetectorReadout.h>
 #include <TRestGas.h>
 #include <TRestHitsEvent.h>
-#include <TRestReadout.h>
 #include <TRestSignalEvent.h>
 
 #include "TRestEventProcess.h"
@@ -26,8 +26,8 @@
 class TRestDaqChannelSwitchingProcess : public TRestEventProcess {
    private:
 #ifndef __CINT__
-    TRestEvent* fEvent;      //!
-    TRestReadout* fReadout;  //!
+    TRestEvent* fEvent;              //!
+    TRestDetectorReadout* fReadout;  //!
 #endif
     std::map<int, int> fFirstDaqChannelDef;  //[module id, first daq id]
     bool fIgnoreUndefinedModules;

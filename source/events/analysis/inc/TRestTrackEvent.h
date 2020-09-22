@@ -30,7 +30,7 @@
 
 #include <iostream>
 
-class TRestReadout;
+class TRestDetectorReadout;
 class TRestTrackEvent : public TRestEvent {
    protected:
     Int_t fNtracks;

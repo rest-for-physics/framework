@@ -35,36 +35,36 @@
 /// 2015-aug:  First concept.
 ///            Javier Galan
 ///
-/// \class      TRestReadoutChannel
+/// \class      TRestDetectorReadoutChannel
 /// \author     Javier Galan
 ///
 /// <hr>
 ///
 
-#include "TRestReadoutChannel.h"
+#include "TRestDetectorReadoutChannel.h"
 using namespace std;
 
-ClassImp(TRestReadoutChannel);
+ClassImp(TRestDetectorReadoutChannel);
 ///////////////////////////////////////////////
-/// \brief TRestReadoutChannel default constructor
+/// \brief TRestDetectorReadoutChannel default constructor
 ///
-TRestReadoutChannel::TRestReadoutChannel() { Initialize(); }
+TRestDetectorReadoutChannel::TRestDetectorReadoutChannel() { Initialize(); }
 
 ///////////////////////////////////////////////
-/// \brief TRestReadoutChannel default destructor
+/// \brief TRestDetectorReadoutChannel default destructor
 ///
-TRestReadoutChannel::~TRestReadoutChannel() {}
+TRestDetectorReadoutChannel::~TRestDetectorReadoutChannel() {}
 
 ///////////////////////////////////////////////
 /// \brief Initializes the channel members
 ///
-void TRestReadoutChannel::Initialize() { fDaqID = -1; }
+void TRestDetectorReadoutChannel::Initialize() { fDaqID = -1; }
 
 ///////////////////////////////////////////////
 /// \brief Determines if (x,y) referenced to module coordinates is inside the
 /// channel
 ///
-Int_t TRestReadoutChannel::isInside(Double_t x, Double_t y) {
+Int_t TRestDetectorReadoutChannel::isInside(Double_t x, Double_t y) {
     for (unsigned int i = 0; i < fReadoutPixel.size(); i++)
         if (fReadoutPixel[i].isInside(x, y)) return true;
     return false;
@@ -74,7 +74,7 @@ Int_t TRestReadoutChannel::isInside(Double_t x, Double_t y) {
 /// \brief Prints the details of the readout channel including pixel
 /// coordinates.
 ///
-void TRestReadoutChannel::Print(int DetailLevel, int index) {
+void TRestDetectorReadoutChannel::Print(int DetailLevel, int index) {
     if (DetailLevel >= 0) {
         metadata << "++++ Channel : " << index << " Daq channel : " << GetDaqID() << endl;
 

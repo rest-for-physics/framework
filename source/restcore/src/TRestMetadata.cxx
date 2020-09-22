@@ -198,12 +198,12 @@
 ///
 ///   <TRestRun name="userGivenName" title="User given title" >
 ///       <variable name="nChannels" value="${CHANNELS}" /> //this variable
-///       will be added to the class "TRestReadout"
+///       will be added to the class "TRestDetectorReadout"
 ///
-///       <TRestReadout name="aaaa" >
+///       <TRestDetectorReadout name="aaaa" >
 ///           <variable .... / > //this variable cannot be loaded by the class
-///           "TRestReadout"
-///       </TRestReadout>
+///           "TRestDetectorReadout"
+///       </TRestDetectorReadout>
 ///       <parameter name="Ch" value="nChannels+{CHANNELS}-2" />
 ///   </TRestRun>
 ///
@@ -259,7 +259,7 @@
 /// in our metadata structure. The use of FOR loops allows to introduce more
 /// versatil and extense definitions. Its implementation was fundamentally
 /// triggered by its use in the construction of complex, multi-channel generic
-/// readouts by TRestReadout.
+/// readouts by TRestDetectorReadout.
 ///
 /// The for loop definition can be either `from-to-step` structure or `in` structure.
 /// The loop variable is defined in `variable` attribute, which is treated same as

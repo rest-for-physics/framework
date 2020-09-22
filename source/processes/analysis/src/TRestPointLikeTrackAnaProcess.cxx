@@ -39,7 +39,7 @@ void TRestPointLikeTrackAnaProcess::Initialize() {
 void TRestPointLikeTrackAnaProcess::LoadConfig(string cfgFilename) {
     if (LoadConfigFromFile(cfgFilename)) LoadDefaultConfig();
 
-    // fReadout = new TRestReadout( cfgFilename.c_str() );
+    // fReadout = new TRestDetectorReadout( cfgFilename.c_str() );
 }
 
 //______________________________________________________________________________

@@ -5,30 +5,30 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestReadoutAnalysisProcess.h
+///             TRestDetectorReadoutAnalysisProcess.h
 ///
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestReadoutAnalysisProcess
-#define RestCore_TRestReadoutAnalysisProcess
+#ifndef RestCore_TRestDetectorReadoutAnalysisProcess
+#define RestCore_TRestDetectorReadoutAnalysisProcess
 
 #include <TH1D.h>
 
 //#include <TCanvas.h>
 
+#include <TRestDetectorReadout.h>
 #include <TRestGas.h>
 #include <TRestHitsEvent.h>
 #include <TRestRawSignalEvent.h>
-#include <TRestReadout.h>
 
 #include "TRestEventProcess.h"
 
-class TRestReadoutAnalysisProcess : public TRestEventProcess {
+class TRestDetectorReadoutAnalysisProcess : public TRestEventProcess {
    private:
 #ifndef __CINT__
     TRestRawSignalEvent* fSignalEvent;  //!
 
-    TRestReadout* fReadout;  //!
+    TRestDetectorReadout* fReadout;  //!
 
 #endif
 
@@ -73,12 +73,13 @@ class TRestReadoutAnalysisProcess : public TRestEventProcess {
     TString GetProcessName() { return (TString) "readoutAnalysis"; }
 
     // Constructor
-    TRestReadoutAnalysisProcess();
-    TRestReadoutAnalysisProcess(char* cfgFileName);
+    TRestDetectorReadoutAnalysisProcess();
+    TRestDetectorReadoutAnalysisProcess(char* cfgFileName);
     // Destructor
-    ~TRestReadoutAnalysisProcess();
+    ~TRestDetectorReadoutAnalysisProcess();
 
-    ClassDef(TRestReadoutAnalysisProcess, 1);  // Template for a REST "event process" class inherited from
-                                               // TRestEventProcess
+    ClassDef(TRestDetectorReadoutAnalysisProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

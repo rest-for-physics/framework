@@ -20,21 +20,21 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestReadoutModule
-#define RestCore_TRestReadoutModule
+#ifndef RestCore_TRestDetectorReadoutModule
+#define RestCore_TRestDetectorReadoutModule
 
 #include <iostream>
 
 #include <TMath.h>
 #include "TObject.h"
 
-#include <TRestReadoutChannel.h>
-#include <TRestReadoutMapping.h>
+#include <TRestDetectorReadoutChannel.h>
+#include <TRestDetectorReadoutMapping.h>
 #include <TVector2.h>
 
-/// A class to store the readout module definition used in TRestReadoutPlane. It
+/// A class to store the readout module definition used in TRestDetectorReadoutPlane. It
 /// allows to integrate any number of independent readout channels.
-class TRestReadoutModule : public TObject {
+class TRestDetectorReadoutModule : public TObject {
    private:
     Int_t fModuleID;  ///< The module id given by the readout definition.
 
@@ -58,17 +58,18 @@ class TRestReadoutModule : public TObject {
                             ///< module.
     Int_t fMaximumDaqId;    ///< The maximum daq channel id associated to the module.
 
-    std::vector<TRestReadoutChannel> fReadoutChannel;  ///< A vector of the instances of TRestReadoutChannel
-                                                       ///< containned in the readout module.
+    std::vector<TRestDetectorReadoutChannel>
+        fReadoutChannel;  ///< A vector of the instances of TRestDetectorReadoutChannel
+                          ///< containned in the readout module.
 
-    TRestReadoutMapping fMapping;  ///< The readout module uniform grid mapping.
+    TRestDetectorReadoutMapping fMapping;  ///< The readout module uniform grid mapping.
 
     Double_t fTolerance;  ///< Tolerance allowed in overlaps at the pixel
                           ///< boundaries in mm.
 
 #ifndef __CINT__
     Bool_t showWarnings;  //!///< Flag to enable/disable warning outputs. Disabled by
-                          //! default. REST_Warning in TRestReadout will enable it.
+                          //! default. REST_Warning in TRestDetectorReadout will enable it.
 #endif
 
     void Initialize();
@@ -190,12 +191,12 @@ class TRestReadoutModule : public TObject {
     TString GetName() { return fModuleName; }
 
     /// Returns a pointer to the readout mapping
-    TRestReadoutMapping* GetMapping() { return &fMapping; }
+    TRestDetectorReadoutMapping* GetMapping() { return &fMapping; }
 
-    TRestReadoutChannel& operator[](int n) { return fReadoutChannel[n]; }
+    TRestDetectorReadoutChannel& operator[](int n) { return fReadoutChannel[n]; }
 
     /// Returns a pointer to a readout channel by index
-    TRestReadoutChannel* GetChannel(int n) {
+    TRestDetectorReadoutChannel* GetChannel(int n) {
         if (n >= GetNumberOfChannels()) return NULL;
         return &fReadoutChannel[n];
     }
@@ -229,14 +230,14 @@ class TRestReadoutModule : public TObject {
     TVector2 GetPixelCenter(Int_t channel, Int_t pixel);
     Bool_t GetPixelTriangle(Int_t channel, Int_t pixel);
 
-    TVector2 GetPixelOrigin(TRestReadoutPixel* pix);
-    TVector2 GetPixelVertex(TRestReadoutPixel* pix, Int_t vertex);
-    TVector2 GetPixelCenter(TRestReadoutPixel* pix);
-    Bool_t GetPixelTriangle(TRestReadoutPixel* pix);
+    TVector2 GetPixelOrigin(TRestDetectorReadoutPixel* pix);
+    TVector2 GetPixelVertex(TRestDetectorReadoutPixel* pix, Int_t vertex);
+    TVector2 GetPixelCenter(TRestDetectorReadoutPixel* pix);
+    Bool_t GetPixelTriangle(TRestDetectorReadoutPixel* pix);
 
     TVector2 GetVertex(int n) const;
 
-    void AddChannel(TRestReadoutChannel& rChannel);
+    void AddChannel(TRestDetectorReadoutChannel& rChannel);
 
     void SetMinMaxDaqIDs();
 
@@ -245,10 +246,10 @@ class TRestReadoutModule : public TObject {
     void Print(Int_t DetailLevel = 0);
 
     // Construtor
-    TRestReadoutModule();
+    TRestDetectorReadoutModule();
     // Destructor
-    virtual ~TRestReadoutModule();
+    virtual ~TRestDetectorReadoutModule();
 
-    ClassDef(TRestReadoutModule, 1);
+    ClassDef(TRestDetectorReadoutModule, 1);
 };
 #endif

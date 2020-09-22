@@ -4,7 +4,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestReadoutAnalysisProcess.cxx
+///             TRestDetectorReadoutAnalysisProcess.cxx
 ///
 ///
 ///             First implementation of raw signal analysis process into REST_v2
@@ -14,23 +14,23 @@
 ///
 ///_______________________________________________________________________________
 
-#include "TRestReadoutAnalysisProcess.h"
+#include "TRestDetectorReadoutAnalysisProcess.h"
 
 #include <TLegend.h>
 #include <TPaveText.h>
 using namespace std;
 
-ClassImp(TRestReadoutAnalysisProcess)
+ClassImp(TRestDetectorReadoutAnalysisProcess)
     //______________________________________________________________________________
-    TRestReadoutAnalysisProcess::TRestReadoutAnalysisProcess() {
+    TRestDetectorReadoutAnalysisProcess::TRestDetectorReadoutAnalysisProcess() {
     Initialize();
 }
 
 //______________________________________________________________________________
-TRestReadoutAnalysisProcess::~TRestReadoutAnalysisProcess() {}
+TRestDetectorReadoutAnalysisProcess::~TRestDetectorReadoutAnalysisProcess() {}
 
 //______________________________________________________________________________
-void TRestReadoutAnalysisProcess::Initialize() {
+void TRestDetectorReadoutAnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fSignalEvent = NULL;
@@ -39,14 +39,14 @@ void TRestReadoutAnalysisProcess::Initialize() {
 }
 
 //______________________________________________________________________________
-void TRestReadoutAnalysisProcess::InitProcess() {
-    fReadout = GetMetadata<TRestReadout>();
+void TRestDetectorReadoutAnalysisProcess::InitProcess() {
+    fReadout = GetMetadata<TRestDetectorReadout>();
     if (fReadout != NULL) {
         auto iter = fModuleHitMaps.begin();
         while (iter != fModuleHitMaps.end()) {
-            TRestReadoutModule* mod = fReadout->GetReadoutModuleWithID(iter->first);
+            TRestDetectorReadoutModule* mod = fReadout->GetReadoutModuleWithID(iter->first);
             if (mod == NULL) {
-                warning << "REST Warning(TRestReadoutAnalysisProcess): readout "
+                warning << "REST Warning(TRestDetectorReadoutAnalysisProcess): readout "
                            "module with id "
                         << iter->first << " not found!" << endl;
             } else {
@@ -85,7 +85,7 @@ void TRestReadoutAnalysisProcess::InitProcess() {
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
+TRestEvent* TRestDetectorReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     fSignalEvent = (TRestRawSignalEvent*)evInput;
     if (fReadout != NULL) {
         Double_t firstX_id = -1.;
@@ -199,7 +199,7 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
                 // cout << fReadout->GetX(firstX_id) << " " << fReadout->GetY(firstY_id)
                 // << endl; cout << endl;
 
-                debug << "TRestReadoutAnalysisProcess. Adding point to hitmap of "
+                debug << "TRestDetectorReadoutAnalysisProcess. Adding point to hitmap of "
                          "module : "
                       << mod1 << endl;
                 debug << "Position on module(X, Y) : (" << x << ", " << y << ")" << endl;
@@ -250,7 +250,7 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 }
 
 //______________________________________________________________________________
-void TRestReadoutAnalysisProcess::EndProcess() {
+void TRestDetectorReadoutAnalysisProcess::EndProcess() {
     if (fReadout != NULL) {
         {
             auto iter = fModuleHitMaps.begin();
@@ -344,7 +344,7 @@ void TRestReadoutAnalysisProcess::EndProcess() {
 // <parameter name="modulesAmp" value = "2-1:5-1.2:6-0.8:8-0.9" />
 // setting readout modules to draw:
 // <parameter name="modulesHist" value="2:5:6:8"/>
-void TRestReadoutAnalysisProcess::InitFromConfigFile() {
+void TRestDetectorReadoutAnalysisProcess::InitFromConfigFile() {
     fModuleCanvasSave = GetParameter("outputPlotPath", "none");
     if (fModuleCanvasSave != "none") {
         fSingleThreadOnly = true;

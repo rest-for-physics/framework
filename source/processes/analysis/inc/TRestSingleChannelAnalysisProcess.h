@@ -16,9 +16,9 @@
 
 //#include <TCanvas.h>
 
+#include <TRestDetectorReadout.h>
 #include <TRestGas.h>
 #include <TRestHitsEvent.h>
-#include <TRestReadout.h>
 #include <TRestSignalEvent.h>
 
 #include "TRestEventProcess.h"
@@ -29,7 +29,7 @@ class TRestSingleChannelAnalysisProcess : public TRestEventProcess {
 #ifndef __CINT__
     TRestSignalEvent* fSignalEvent;  //!
 
-    TRestReadout* fReadout;  //!
+    TRestDetectorReadout* fReadout;  //!
 
     TRestGainMap* fCalib;  //!
 #endif

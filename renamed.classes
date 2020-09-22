@@ -1,0 +1,8 @@
+TRestReadoutEventViewer -> TRestDetectorReadoutEventViewer
+TRestReadout -> TRestDetectorReadout
+TRestReadoutChannel -> TRestDetectorReadoutChannel
+TRestReadoutMapping -> TRestDetectorReadoutMapping
+TRestReadoutModule -> TRestDetectorReadoutModule
+TRestReadoutPixel -> TRestDetectorReadoutPixel
+TRestReadoutPlane -> TRestDetectorReadoutPlane
+TRestReadoutAnalysisProcess -> TRestDetectorReadoutAnalysisProcess

@@ -33,7 +33,7 @@ TRestHitsToSignalProcess::TRestHitsToSignalProcess(char* cfgFileName) {
 
     PrintMetadata();
 
-    if (fReadout == NULL) fReadout = new TRestReadout(cfgFileName);
+    if (fReadout == NULL) fReadout = new TRestDetectorReadout(cfgFileName);
 
     // TRestHitsToSignalProcess default constructor
 }
@@ -116,7 +116,7 @@ void TRestHitsToSignalProcess::InitProcess() {
         }
     }
 
-    fReadout = GetMetadata<TRestReadout>();
+    fReadout = GetMetadata<TRestDetectorReadout>();
 
     if (fReadout == NULL) {
         ferr << "Readout has not been initialized" << endl;
@@ -126,7 +126,7 @@ void TRestHitsToSignalProcess::InitProcess() {
 
 Int_t TRestHitsToSignalProcess::FindModule(Int_t readoutPlane, Double_t x, Double_t y) {
     // TODO verify this
-    TRestReadoutPlane* plane = &(*fReadout)[readoutPlane];
+    TRestDetectorReadoutPlane* plane = &(*fReadout)[readoutPlane];
     for (int md = 0; md < plane->GetNumberOfModules(); md++)
         if ((*plane)[md].isInside(x, y)) return md;
 
@@ -160,7 +160,7 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent(TRestEvent* evInput) {
         Int_t daqId = fReadout->GetHitsDaqChannel(TVector3(x, y, z), planeId, moduleId, channelId);
 
         if (daqId >= 0) {
-            TRestReadoutPlane* plane = fReadout->GetReadoutPlaneWithID(planeId);
+            TRestDetectorReadoutPlane* plane = fReadout->GetReadoutPlaneWithID(planeId);
 
             Double_t energy = fHitsEvent->GetEnergy(hit);
 
