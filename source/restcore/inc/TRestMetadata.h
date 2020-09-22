@@ -42,11 +42,6 @@
 #include "TVirtualStreamerInfo.h"
 #include "tinyxml.h"
 
-const int PARAMETER_NOT_FOUND_INT = -99999999;
-const double PARAMETER_NOT_FOUND_DBL = -99999999;
-const std::string PARAMETER_NOT_FOUND_STR = "NO_SUCH_PARA";
-const string gCommit = TRestTools::Execute("rest-config --commit");
-
 /* We keep using REST_RELEASE, REST_VERSION(2,X,Y) and REST_VERSION_CODE
    to determine the installed REST version and avoid too much prototyping
 
@@ -80,13 +75,13 @@ class TRestMetadata : public TNamed {
 
     /// REST version string, only used for archive and retrieve
     TString fVersion = REST_RELEASE;  //<
-    TString fCommit = gCommit;        //<
+    TString fCommit = REST_COMMIT;        //<
     TString fLibraryVersion = "0";    //<
 
    protected:
     // new xml utilities
     std::string GetFieldValue(std::string parName, TiXmlElement* e);
-    string GetParameter(std::string parName, TiXmlElement* e, TString defaultValue = PARAMETER_NOT_FOUND_STR);
+    string GetParameter(std::string parName, TiXmlElement* e, TString defaultValue = PARAMETER_NOT_FOUND_DBL);
     Double_t GetDblParameterWithUnits(std::string parName, TiXmlElement* e,
                                       Double_t defaultVal = PARAMETER_NOT_FOUND_DBL);
     TVector2 Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* e,

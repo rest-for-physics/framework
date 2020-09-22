@@ -7,12 +7,15 @@
 #include "TRestTools.h"
 
 // initialize REST constants
+string REST_COMMIT;
 string REST_PATH;
 string REST_USER;
 string REST_USER_PATH;
 struct __REST_CONST_INIT {
    public:
     __REST_CONST_INIT() {
+        REST_COMMIT = TRestTools::Execute("rest-config --commit");
+
         char* _REST_PATH = getenv("REST_PATH");
         char* _REST_USER = getenv("USER");
         char* _REST_USERHOME = getenv("HOME");
@@ -86,3 +89,4 @@ TRestStringOutput debug(REST_Debug, COLOR_RESET, "-- Debug : ", kHeaderedLeft);
 TRestStringOutput extreme(REST_Extreme, COLOR_RESET, "-- Extreme : ", kHeaderedLeft);
 
 REST_Verbose_Level gVerbose = REST_Warning;
+map<string, string> REST_ARGS;
