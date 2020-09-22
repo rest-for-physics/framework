@@ -57,14 +57,14 @@ void PrintHelp() {
 void ParseInputFileArgs(const char* argv) {
     if (argv == NULL) return;
 
-    if (getenv("inputFile") != NULL) {
-        string input_old = getenv("inputFile");
+    if (REST_ARGS.count("inputFile") > 0) {
+        string input_old = REST_ARGS["inputFile"];
         input_old += "\n" + string(argv);
 
-        setenv("inputFile", input_old.c_str(), 1);
+        REST_ARGS["inputFile"] = input_old;
         setenv("REST_INPUTFILE", input_old.c_str(), 1);
     } else {
-        setenv("inputFile", argv, 1);
+        REST_ARGS["inputFile"] = argv;
         setenv("REST_INPUTFILE", argv, 1);
     }
 }
@@ -124,10 +124,11 @@ int main(int argc, char* argv[]) {
                     if (*c == '-') c++;
                     switch (*c) {
                         case 'c':
+                            REST_ARGS["configFile"] = args[i + 1];
                             sprintf(cfgFileName, "%s", args[i + 1].c_str());
                             break;
                         case 'd':
-                            setenv("runNumber", args[i + 1].c_str(), 1);
+                            REST_ARGS["runNumber"]=args[i + 1];
                             break;
                         case 'f':
                             ParseInputFileArgs(args[i + 1].c_str());
@@ -136,22 +137,21 @@ int main(int argc, char* argv[]) {
                             ParseInputFileArgs(args[i + 1].c_str());
                             break;
                         case 'o':
-                            setenv("outputFile", args[i + 1].c_str(), 1);
+                            REST_ARGS["outputFile"] = args[i + 1];
                             break;
                         case 'j':
-                            setenv("threadNumber", args[i + 1].c_str(), 1);
+                            REST_ARGS["threadNumber"] = args[i + 1];
                             break;
                         case 'e':
-                            setenv("eventsToProcess", args[i + 1].c_str(), 1);
+                            REST_ARGS["eventsToProcess"] = args[i + 1];
                             break;
                         case 'v':
-                            // setenv("verboseLevel", args[i + 1].c_str(), 1);
+                            REST_ARGS["verboseLevel"] = args[i + 1];
                             gVerbose = StringToVerboseLevel(args[i + 1]);
                             break;
                         case 'p':
-                            setenv("pdfFilename", args[i + 1].c_str(), 1);
+                            REST_ARGS["pdfFilename"] = args[i + 1];
                             break;
-                        // case 'help': PrintHelp(); exit(0);
                         default:
                             fout << endl;
                             PrintHelp();
