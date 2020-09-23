@@ -24,10 +24,10 @@
 #define RestCore_TRestTools
 
 //#include <iostream>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
-#include <map>
 
 #include "TObject.h"
 
