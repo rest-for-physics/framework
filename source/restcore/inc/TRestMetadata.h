@@ -82,25 +82,18 @@ class TRestMetadata : public TNamed {
     // new xml utilities
     std::string GetFieldValue(std::string parName, TiXmlElement* e);
     string GetParameter(std::string parName, TiXmlElement* e, TString defaultValue = PARAMETER_NOT_FOUND_STR);
-    Double_t GetDblParameterWithUnits(std::string parName, TiXmlElement* e,
-                                      Double_t defaultVal = PARAMETER_NOT_FOUND_DBL);
-    TVector2 Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* e,
-                                           TVector2 defaultValue = TVector2(-1, -1));
-    TVector3 Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* e,
-                                           TVector3 defaultValue = TVector3(-1, -1, -1));
     TiXmlElement* GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre = "");
     TiXmlElement* GetElement(std::string eleDeclare);
     TiXmlElement* GetElement(std::string eleDeclare, TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName);
-    std::string GetElementDeclare(TiXmlElement* e) { return e->Value(); }
-    std::string GetUnits(string whoseunits = "");
-    string GetUnits(TiXmlElement* e, string whoseunits = "");
+    string GetUnits(TiXmlElement* e);
+    string GetParameterUnits(string parname);
     TiXmlElement* ReplaceElementAttributes(TiXmlElement* e);
-
-    // old xml parser interface.
     TiXmlElement* StringToElement(string definition);
     string ElementToString(TiXmlElement* ele);
+
+    // old xml parser interface.
     string GetKEYStructure(std::string keyName);
     string GetKEYStructure(std::string keyName, size_t& Position);
     string GetKEYStructure(std::string keyName, string buffer);
@@ -111,13 +104,7 @@ class TRestMetadata : public TNamed {
     string GetKEYDefinition(std::string keyName, string buffer);
     string GetKEYDefinition(std::string keyName, size_t& Position, string buffer);
     string GetParameter(std::string parName, size_t& pos, std::string inputString);
-    Double_t GetDblParameterWithUnits(std::string parName, size_t& pos, std::string inputString);
-    TVector2 Get2DVectorParameterWithUnits(std::string parName, size_t& pos, std::string inputString);
-    TVector3 Get3DVectorParameterWithUnits(std::string parName, size_t& pos, std::string inputString);
     string GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition = 0);
-    Double_t GetDblFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
-    TVector2 Get2DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
-    TVector3 Get3DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
 
     // string utils
     std::string ReplaceEnvironmentalVariables(const std::string buffer);
