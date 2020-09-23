@@ -61,7 +61,8 @@ void GdmlPreprocessor::Load(string file) {
         cout << "GDML: creating temporary file" << endl;
         ofstream outf;
         string fname = TRestTools::SeparatePathAndName(file).second;
-        outfilename = outPath + fname;
+        // we have to use a unique identifier on the file to prevent collision when launching multiple jobs
+        outfilename = outPath + "PID" + std::to_string(getpid()) + "_" + fname;
         outf.open(outfilename, ios::trunc);
         outf << filestr << endl;
         outf.close();
