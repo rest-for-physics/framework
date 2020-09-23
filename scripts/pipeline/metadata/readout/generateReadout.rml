@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
-<!--We generate two TRestGas objects and a TRestReadout object in this example, and save them to a root
+<!--We generate two TRestGas objects and a TRestDetectorReadout object in this example, and save them to a root
 file known as metadata file. The file can be used in "addMetadata" section in TRestRun in future.
 
 We first set "searchPath" to tell TRestMetadata where to find the include file. Then we instantiate 
 a TRestRun object by adding a section in TRestMenager section. TRestRun will hold and manage our metadata.
 Inside TRestRun section, we define two TRestGas objects from online database(https://sultan.unizar.es/gasFiles/). 
-We also construct an TRestReadout object by hand. In the construction we first define a readout 
+We also construct an TRestDetectorReadout object by hand. In the construction we first define a readout 
 module known as MicroMegas(module). This is from a pre-defined section in readouts.rml. Then we define a 
 readout plane and add the modules piece by piece.
 
@@ -26,9 +26,9 @@ Finally we call the method TRestRun::FormOutputFile() through TRestManager to sa
   </globals>
 
   <TRestRun name="readoutrun">
-    <TRestReadout name="Panda-140kg" title="PANDA readout of new 140kg detector" file="readout-140kg.rml"/>
+    <TRestDetectorReadout name="Panda-140kg" title="PANDA readout of new 140kg detector" file="readout-140kg.rml"/>
 
-    <TRestReadout name="Prototype_2020_06" title="PANDA readout 7module" >
+    <TRestDetectorReadout name="Prototype_2020_06" title="PANDA readout 7module" >
       <parameter name="verboseLevel" value="info"/>
       <parameter name="mappingNodes" value="0" />
       <variable name="nChannels" value="64" />
@@ -59,7 +59,7 @@ Finally we call the method TRestRun::FormOutputFile() through TRestManager to sa
         <addReadoutModule id="9" name="module" origin="(-96.75,-292.175)" rotation="0" decodingFile="myDecodingFile" firstDaqChannel="136*0"/>
 
       </readoutPlane>
-    </TRestReadout>
+    </TRestDetectorReadout>
   </TRestRun>
 
   <addTask command="readoutrun->FormOutputFile()" value="ON"/>
