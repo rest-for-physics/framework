@@ -39,8 +39,8 @@ By default REST units are mm, keV and degrees
   <TRestG4Metadata name="DBDsimulation" title="NLDBD">
 
     <parameter name="gdml_file" value="geometry/mySetupTemplate.gdml"/>
-    <parameter name="maxTargetStepSize" value="1" units="mm" />
-    <parameter name="subEventTimeDelay" value="100" units="us" />
+    <parameter name="maxTargetStepSize" value="1mm" />
+    <parameter name="subEventTimeDelay" value="100us" />
 
     <parameter name="seed" value="17021981" />
 
@@ -69,21 +69,21 @@ By default REST units are mm, keV and degrees
     </biasing>
 
     <storage sensitiveVolume="gas">
-      <parameter name="energyRange" value="(0,5)" units="MeV" />
+      <parameter name="energyRange" value="(0,5)MeV" />
       <activeVolume name="gas" chance="1" />
     </storage>
   </TRestG4Metadata>
 
   <TRestPhysicsLists name="default" title="First physics list implementation." >
     
-    <parameter name="cutForGamma" value="1" units="mm" />
-    <parameter name="cutForElectron" value="2" units="mm" />
-    <parameter name="cutForPositron" value="1" units="mm" />
+    <parameter name="cutForGamma" value="1mm" />
+    <parameter name="cutForElectron" value="2mm" />
+    <parameter name="cutForPositron" value="1mm" />
 
-    <parameter name="cutForMuon" value="1" units="mm" />
-    <parameter name="cutForNeutron" value="1" units="mm" />
-    <parameter name="minEnergyRangeProductionCuts" value="1" units="keV" />
-    <parameter name="maxEnergyRangeProductionCuts" value="1" units="GeV" />
+    <parameter name="cutForMuon" value="1mm" />
+    <parameter name="cutForNeutron" value="1mm" />
+    <parameter name="minEnergyRangeProductionCuts" value="1keV" />
+    <parameter name="maxEnergyRangeProductionCuts" value="1GeV" />
     
     // Use only one EM physics list
     <!-- EM Physics lists -->
