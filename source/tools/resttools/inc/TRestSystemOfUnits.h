@@ -82,8 +82,11 @@ bool IsUnit(string in);
 string FindRESTUnitsInString(string InString);
 string RemoveUnitsFromString(string s);
 Double_t ConvertValueToRESTUnits(Double_t value, string unitsStr);
-Double_t GetValueInRESTUnits(string in);
 Double_t ConvertRESTUnitsValueToCustomUnits(Double_t value, string unitsStr);
+Double_t GetDblValueInString(string in);
+TVector2 Get2DVectorValueInString(string in);
+TVector3 Get3DVectorValueInString(string in);
+
 
 extern map<string, pair<int, double>> __ListOfRESTUnits;  // name, [unit type id, scale]
 
