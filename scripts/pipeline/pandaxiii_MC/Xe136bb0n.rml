@@ -25,8 +25,8 @@
     <!-- <parameter name="Nevents" value="1000000"/>-->
     <parameter name="Nevents" value="500"/>
     <parameter name="gdml_file" value="geometry/main.gdml"/>
-    <parameter name="maxTargetStepSize" value="200" units="um" />
-    <parameter name="subEventTimeDelay" value="100" units="us" />
+    <parameter name="maxTargetStepSize" value="200um" />
+    <parameter name="subEventTimeDelay" value="100us" />
     <parameter name="seed" value="1" />
 
     <generator type="volume" from="Gas" >
@@ -35,7 +35,7 @@
     </generator>
 
     <storage sensitiveVolume="Gas">
-      <parameter name="energyRange" value="(0,10)" units="MeV" />
+      <parameter name="energyRange" value="(0,10)MeV" />
       <activeVolume name="Gas" chance="1" />
     </storage>
 
@@ -43,14 +43,14 @@
 
   <TRestPhysicsLists name="default" title="First physics list implementation." >
 
-    <parameter name="cutForGamma" value="10" units="um" />
-    <parameter name="cutForElectron" value="1" units="mm" />
-    <parameter name="cutForPositron" value="1" units="mm" />
+    <parameter name="cutForGamma" value="10um" />
+    <parameter name="cutForElectron" value="1mm" />
+    <parameter name="cutForPositron" value="1mm" />
 
-    <parameter name="cutForMuon" value="1" units="mm" />
-    <parameter name="cutForNeutron" value="1" units="mm" />
-    <parameter name="minEnergyRangeProductionCuts" value="1" units="keV" />
-    <parameter name="maxEnergyRangeProductionCuts" value="1" units="GeV" />
+    <parameter name="cutForMuon" value="1mm" />
+    <parameter name="cutForNeutron" value="1mm" />
+    <parameter name="minEnergyRangeProductionCuts" value="1keV" />
+    <parameter name="maxEnergyRangeProductionCuts" value="1GeV" />
 
     <!-- EM Physics lists -->
     <physicsList name="G4EmLivermorePhysics"> </physicsList>
