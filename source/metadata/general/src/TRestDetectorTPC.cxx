@@ -321,9 +321,7 @@ string TRestDetectorTPC::GetParameter(string paraname) {
             result = ToString(any(GetPressure()));
             break;
         }
-        default: {
-            break;
-        }
+        default: { break; }
     }
 
     if (result == "nan" || result == "(nan,nan)" || result == "(nan,nan,nan)") {

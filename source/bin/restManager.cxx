@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
                             sprintf(cfgFileName, "%s", args[i + 1].c_str());
                             break;
                         case 'd':
-                            REST_ARGS["runNumber"]=args[i + 1];
+                            REST_ARGS["runNumber"] = args[i + 1];
                             break;
                         case 'f':
                             ParseInputFileArgs(args[i + 1].c_str());

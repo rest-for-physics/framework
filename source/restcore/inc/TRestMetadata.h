@@ -75,7 +75,7 @@ class TRestMetadata : public TNamed {
 
     /// REST version string, only used for archive and retrieve
     TString fVersion = REST_RELEASE;  //<
-    TString fCommit = REST_COMMIT;        //<
+    TString fCommit = REST_COMMIT;    //<
     TString fLibraryVersion = "0";    //<
 
    protected:

@@ -19,6 +19,7 @@
 ///_______________________________________________________________________________
 
 #include "TRestHits.h"
+#include "TROOT.h"
 using namespace std;
 using namespace TMath;
 
