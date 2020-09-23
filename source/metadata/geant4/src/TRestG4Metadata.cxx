@@ -835,10 +835,12 @@ void TRestG4Metadata::ReadBiasing() {
             cout << "Def : " << biasVolumeDefinition << endl;
 
             biasVolume.SetBiasingVolumePosition(
-                Get3DVectorFieldValueWithUnits("position", biasVolumeDefinition));
+                REST_Units::Get3DVectorValueInString(GetFieldValue("position", biasVolumeDefinition)));
             biasVolume.SetBiasingFactor(StringToDouble(GetFieldValue("factor", biasVolumeDefinition)));
-            biasVolume.SetBiasingVolumeSize(GetDblFieldValueWithUnits("size", biasVolumeDefinition));
-            biasVolume.SetEnergyRange(Get2DVectorFieldValueWithUnits("energyRange", biasVolumeDefinition));
+            biasVolume.SetBiasingVolumeSize(
+                REST_Units::GetDblValueInString(GetFieldValue("size", biasVolumeDefinition)));
+            biasVolume.SetEnergyRange(
+                REST_Units::Get2DVectorValueInString(GetFieldValue("energyRange", biasVolumeDefinition)));
             biasVolume.SetBiasingVolumeType(biasType);  // For the moment all the volumes should be same type
 
             /* TODO check that values are right if not printBiasingVolume with
@@ -879,7 +881,7 @@ void TRestG4Metadata::ReadGenerator() {
     fGenFrom = GetFieldValue("from", generatorDefinition);
     string dimension1[3]{"size", "lenX", "radius"};
     for (int i = 0; i < 3; i++) {
-        fGenDimension1 = GetDblFieldValueWithUnits(dimension1[i], generatorDefinition);
+        fGenDimension1 = REST_Units::GetDblValueInString(GetFieldValue(dimension1[i], generatorDefinition));
         if (fGenDimension1 != PARAMETER_NOT_FOUND_DBL) {
             if (dimension1[i] == "size") fGenDimension2 = fGenDimension1;
             break;
@@ -888,13 +890,14 @@ void TRestG4Metadata::ReadGenerator() {
 
     // TODO : If not defined (and required to be) it just returns (0,0,0) we
     // should make a WARNING. Inside StringToVector probably
-    fGenPosition = Get3DVectorFieldValueWithUnits("position", generatorDefinition);
+    fGenPosition = REST_Units::Get3DVectorValueInString(GetFieldValue("position", generatorDefinition));
 
     fGenRotation = StringTo3DVector(GetFieldValue("rotation", generatorDefinition));
 
     string dimension2[2]{"length", "lenY"};
     for (int i = 0; i < 2; i++) {
-        Double_t tmpDim2 = GetDblFieldValueWithUnits(dimension2[i], generatorDefinition);
+        Double_t tmpDim2 =
+            REST_Units::GetDblValueInString(GetFieldValue(dimension2[i], generatorDefinition));
         if (tmpDim2 != PARAMETER_NOT_FOUND_DBL) {
             fGenDimension2 = tmpDim2;
             break;
@@ -963,7 +966,7 @@ void TRestG4Metadata::ReadStorage() {
     cout << fSensitiveVolume << endl;
 
     size_t pos = 0;
-    fEnergyRangeStored = Get2DVectorParameterWithUnits("energyRange", pos, storageString);
+    fEnergyRangeStored = REST_Units::Get2DVectorValueInString(GetParameter("energyRange", pos, storageString));
 
     GdmlPreprocessor* preprocesor = new GdmlPreprocessor();
     preprocesor->Load((string)Get_GDML_Filename());
@@ -1358,11 +1361,12 @@ void TRestG4Metadata::ReadParticleSource(TString definition) {
         source.SetSpectrumName(GetFieldValue("spctName", energyDefinition));
     }
 
-    source.SetEnergyRange(Get2DVectorFieldValueWithUnits("range", energyDefinition));
+    source.SetEnergyRange(
+        REST_Units::Get2DVectorValueInString(GetFieldValue("range", energyDefinition)));
 
     if (source.GetEnergyDistType() == "mono") {
         Double_t en;
-        en = GetDblFieldValueWithUnits("energy", energyDefinition);
+        en = REST_Units::GetDblValueInString(GetFieldValue("energy", energyDefinition));
         source.SetEnergyRange(TVector2(en, en));
         source.SetEnergy(en);
     }

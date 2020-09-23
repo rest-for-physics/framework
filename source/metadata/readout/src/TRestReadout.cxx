@@ -461,7 +461,7 @@ void TRestReadout::InitFromConfigFile() {
         fModuleDefinitions.push_back(module);
     }
 #pragma endregion
-
+     
     vector<TRestReadoutModule> moduleVector;
     Int_t addedChannels = 0;
     while ((planeString = GetKEYStructure("readoutPlane", position)) != "NotFound") {
@@ -469,8 +469,10 @@ void TRestReadout::InitFromConfigFile() {
 
         string planeDefinition = GetKEYDefinition("readoutPlane", planeString);
         plane.SetID(GetNumberOfReadoutPlanes());
-        plane.SetPosition(Get3DVectorFieldValueWithUnits("position", planeDefinition));
-        plane.SetCathodePosition(Get3DVectorFieldValueWithUnits("cathodePosition", planeDefinition));
+        plane.SetPosition(
+            REST_Units::Get3DVectorValueInString(GetFieldValue("position", planeDefinition)));
+        plane.SetCathodePosition(REST_Units::Get3DVectorValueInString(GetFieldValue(
+            "cathodePosition", planeDefinition)));
         plane.SetPlaneVector(StringTo3DVector(GetFieldValue("planeVector", planeDefinition)));
         plane.SetChargeCollection(StringToDouble(GetFieldValue("chargeCollection", planeDefinition)));
 
