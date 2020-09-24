@@ -1,5 +1,5 @@
-#include "TRestG4Event.h"
-#include "TRestG4Metadata.h"
+#include "TRestGeant4Event.h"
+#include "TRestGeant4Metadata.h"
 #include "TRestTask.h"
 // Double_t Qbb = 2457.83;
 
@@ -22,7 +22,7 @@ Double_t REST_Fiducial(TString fName, Double_t zMin, Double_t zMax, Double_t rad
 
     double sigma = 0.425 * fwhm;
 
-    TRestG4Event* ev = new TRestG4Event();
+    TRestGeant4Event* ev = new TRestGeant4Event();
 
     run->SetInputEvent(ev);
 

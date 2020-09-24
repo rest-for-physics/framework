@@ -5,9 +5,9 @@
 #define RestTask_ViewG4Events
 
 Int_t REST_ViewG4Event(TString fName) {
-    TRestBrowser* browser = new TRestBrowser("TRestG4EventViewer");
+    TRestBrowser* browser = new TRestBrowser("TRestGeant4EventViewer");
 
-    TRestEvent* eve = new TRestG4Event();
+    TRestEvent* eve = new TRestGeant4Event();
     browser->SetInputEvent(eve);
 
     browser->OpenFile(fName);

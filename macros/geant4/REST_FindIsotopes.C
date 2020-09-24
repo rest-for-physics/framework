@@ -1,5 +1,5 @@
-#include "TRestG4Event.h"
-#include "TRestG4Metadata.h"
+#include "TRestGeant4Event.h"
+#include "TRestGeant4Metadata.h"
 #include "TRestTask.h"
 Int_t REST_FindIsotopes(TString fName, TString fIsotope) {
     cout << "Filename : " << fName << " looking for " << fIsotope << endl;
@@ -16,7 +16,7 @@ Int_t REST_FindIsotopes(TString fName, TString fIsotope) {
         run->OpenInputFile(fName);
 
     if (run == NULL) {
-        cout << "WARNING no TRestG4Run class was found" << endl;
+        cout << "WARNING no TRestGeant4Run class was found" << endl;
         exit(1);
     }
 
@@ -30,7 +30,7 @@ Int_t REST_FindIsotopes(TString fName, TString fIsotope) {
 
     /////////////////////////////
     // Reading event
-    TRestG4Event* ev = new TRestG4Event();
+    TRestGeant4Event* ev = new TRestGeant4Event();
 
     run->SetInputEvent(ev);
 

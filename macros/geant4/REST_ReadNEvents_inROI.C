@@ -23,7 +23,7 @@ Int_t REST_ReadNEvents_inROI(TString fName, int n1, int n2, double en1, double e
     // Reading events
     int n = 0;
     double en = 0;
-    TRestG4Event* ev = new TRestG4Event();
+    TRestGeant4Event* ev = new TRestGeant4Event();
 
     run->SetInputEvent(ev);
     for (int i = n1; i < n2 + 1; i++) {

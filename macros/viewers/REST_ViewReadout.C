@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include "TRestBrowser.h"
-#include "TRestReadout.h"
+#include "TRestDetectorReadout.h"
 #include "TRestTask.h"
 using namespace std;
 
@@ -12,15 +12,15 @@ int REST_ViewReadout(TString rootFile, TString name = "", Int_t plane = 0) {
     TRestStringOutput cout;
     TFile* fFile = new TFile(rootFile);
 
-    TRestReadout* readout = NULL;
+    TRestDetectorReadout* readout = NULL;
     TIter nextkey(fFile->GetListOfKeys());
     TKey* key;
     while ((key = (TKey*)nextkey()) != NULL) {
-        if (key->GetClassName() == (TString) "TRestReadout") {
+        if (key->GetClassName() == (TString) "TRestDetectorReadout") {
             if (readout == NULL)
-                readout = (TRestReadout*)fFile->Get(key->GetName());
+                readout = (TRestDetectorReadout*)fFile->Get(key->GetName());
             else if (key->GetName() == name)
-                readout = (TRestReadout*)fFile->Get(key->GetName());
+                readout = (TRestDetectorReadout*)fFile->Get(key->GetName());
         }
     }
 
@@ -28,19 +28,19 @@ int REST_ViewReadout(TString rootFile, TString name = "", Int_t plane = 0) {
 
     readout->PrintMetadata();
 
-    TRestReadoutPlane* readoutPlane = &(*readout)[plane];
+    TRestDetectorReadoutPlane* readoutPlane = &(*readout)[plane];
 
     Int_t nModules = readoutPlane->GetNumberOfModules();
 
     Int_t totalPixels = 0;
     Int_t totalChannels = 0;
     for (int mdID = 0; mdID < nModules; mdID++) {
-        TRestReadoutModule* module = &(*readoutPlane)[mdID];
+        TRestDetectorReadoutModule* module = &(*readoutPlane)[mdID];
         Int_t nChannels = module->GetNumberOfChannels();
         totalChannels += nChannels;
 
         for (int ch = 0; ch < nChannels; ch++) {
-            TRestReadoutChannel* channel = &(*module)[ch];
+            TRestDetectorReadoutChannel* channel = &(*module)[ch];
             Int_t nPixels = channel->GetNumberOfPixels();
             totalPixels += nPixels;
         }
@@ -61,7 +61,7 @@ int REST_ViewReadout(TString rootFile, TString name = "", Int_t plane = 0) {
     Int_t modGraphID = 0;
     Int_t chGraph = 0;
     for (int mdID = 0; mdID < nModules; mdID++) {
-        TRestReadoutModule* module = &(*readoutPlane)[mdID];
+        TRestDetectorReadoutModule* module = &(*readoutPlane)[mdID];
         Int_t nChannels = module->GetNumberOfChannels();
 
         Double_t x[5];
@@ -87,7 +87,7 @@ int REST_ViewReadout(TString rootFile, TString name = "", Int_t plane = 0) {
         modGraphID++;
 
         for (int ch = 0; ch < nChannels; ch++) {
-            TRestReadoutChannel* channel = &(*module)[ch];
+            TRestDetectorReadoutChannel* channel = &(*module)[ch];
 
             Int_t nPixels = channel->GetNumberOfPixels();
 
@@ -151,9 +151,9 @@ int REST_ViewReadout(TString rootFile, TString name = "", Int_t plane = 0) {
 
     for (int i = 0; i < chGraph; i++) channelGraph[i]->Draw("same");
 
-        // when we run this macro from restManager from bash,
-        // we need to call TRestMetadata::GetChar() to prevent returning,
-        // while keeping GUI alive.
+// when we run this macro from restManager from bash,
+// we need to call TRestMetadata::GetChar() to prevent returning,
+// while keeping GUI alive.
 #ifdef REST_MANAGER
     readout->GetChar("Running...\nPress a key to exit");
 #endif

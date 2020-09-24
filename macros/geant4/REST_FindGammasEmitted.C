@@ -1,5 +1,5 @@
-#include "TRestG4Event.h"
-#include "TRestG4Metadata.h"
+#include "TRestGeant4Event.h"
+#include "TRestGeant4Metadata.h"
 #include "TRestTask.h"
 Int_t REST_FindGammasEmitted(TString fName) {
     cout << "Filename : " << fName << endl;
@@ -14,15 +14,15 @@ Int_t REST_FindGammasEmitted(TString fName) {
 
     TFile* f = new TFile(fName);
 
-    TRestG4Metadata* metadata = new TRestG4Metadata();
+    TRestGeant4Metadata* metadata = new TRestGeant4Metadata();
 
     // Getting metadata
     TIter nextkey(f->GetListOfKeys());
     TKey* key;
     while ((key = (TKey*)nextkey())) {
         string className = key->GetClassName();
-        if (className == "TRestG4Metadata") {
-            metadata = (TRestG4Metadata*)f->Get(key->GetName());
+        if (className == "TRestGeant4Metadata") {
+            metadata = (TRestGeant4Metadata*)f->Get(key->GetName());
         }
         if (className == "TRestRun") {
             run = (TRestRun*)f->Get(key->GetName());
@@ -30,7 +30,7 @@ Int_t REST_FindGammasEmitted(TString fName) {
     }
 
     if (metadata == NULL) {
-        cout << "WARNING no TRestG4Metadata class was found" << endl;
+        cout << "WARNING no TRestGeant4Metadata class was found" << endl;
         exit(1);
     }
     if (run == NULL) {
@@ -42,9 +42,9 @@ Int_t REST_FindGammasEmitted(TString fName) {
 
     metadata->PrintMetadata();
 
-    TRestG4Event* ev = new TRestG4Event();
+    TRestGeant4Event* ev = new TRestGeant4Event();
 
-    TTree* tr = (TTree*)f->Get("TRestG4Event Tree");
+    TTree* tr = (TTree*)f->Get("TRestGeant4Event Tree");
 
     TBranch* br = tr->GetBranch("eventBranch");
 

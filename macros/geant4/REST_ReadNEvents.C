@@ -1,5 +1,5 @@
-#include "TRestG4Event.h"
-#include "TRestG4Metadata.h"
+#include "TRestGeant4Event.h"
+#include "TRestGeant4Metadata.h"
 #include "TRestTask.h"
 
 Int_t REST_ReadNEvents(TString fName, int n1, int n2) {
@@ -21,7 +21,7 @@ Int_t REST_ReadNEvents(TString fName, int n1, int n2) {
     /////////////////////////////
     // Reading events
 
-    TRestG4Event* ev = new TRestG4Event();
+    TRestGeant4Event* ev = new TRestGeant4Event();
 
     run->SetInputEvent(ev);
     for (int i = n1; i < n2 + 1; i++) {

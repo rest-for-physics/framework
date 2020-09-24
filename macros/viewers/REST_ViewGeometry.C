@@ -37,10 +37,10 @@ Int_t REST_ViewGeometry(TString fName, TString option = "") {
     if (option == "") {
         geo->GetMasterVolume()->Draw();
     } else if (ToUpper((string)option) == "EVE") {
-        TRestEventViewer* view = (TRestEventViewer*)REST_Reflection::Assembly("TRestG4EventViewer");
+        TRestEventViewer* view = (TRestEventViewer*)REST_Reflection::Assembly("TRestGeant4EventViewer");
         if (view == NULL) return -1;
         view->SetGeometry(geo);
-        view->AddEvent(new TRestG4Event());
+        view->AddEvent(new TRestGeant4Event());
 
         // TEveManager::Create();
 

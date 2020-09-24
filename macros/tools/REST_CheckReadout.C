@@ -1,32 +1,32 @@
 #include <algorithm>
 #include <vector>
-#include "TRestReadout.h"
+#include "TRestDetectorReadout.h"
 #include "TRestTask.h"
 
 #include <iostream>
 using namespace std;
 
-TGraph* GetHittedStripMap(TRestReadoutPlane* p, Int_t mask[4], Double_t region[4], Int_t N);
+TGraph* GetHittedStripMap(TRestDetectorReadoutPlane* p, Int_t mask[4], Double_t region[4], Int_t N);
 
 Int_t REST_CheckReadout(TString rootFile, TString name, Double_t region[4], Int_t stripsMask[4],
                         Int_t N = 1E4, Int_t plane = 0) {
     TFile* f = new TFile(rootFile);
-    TRestReadout* readout = (TRestReadout*)f->Get(name);
+    TRestDetectorReadout* readout = (TRestDetectorReadout*)f->Get(name);
     readout->PrintMetadata();
 
-    TRestReadoutPlane* readoutPlane = &(*readout)[plane];
+    TRestDetectorReadoutPlane* readoutPlane = &(*readout)[plane];
 
     Int_t nModules = readoutPlane->GetNumberOfModules();
 
     Int_t totalPixels = 0;
     Int_t totalChannels = 0;
     for (int mdID = 0; mdID < nModules; mdID++) {
-        TRestReadoutModule* module = &(*readoutPlane)[mdID];
+        TRestDetectorReadoutModule* module = &(*readoutPlane)[mdID];
         Int_t nChannels = module->GetNumberOfChannels();
         totalChannels += nChannels;
 
         for (int ch = 0; ch < nChannels; ch++) {
-            TRestReadoutChannel* channel = &(*module)[ch];
+            TRestDetectorReadoutChannel* channel = &(*module)[ch];
             Int_t nPixels = channel->GetNumberOfPixels();
             totalPixels += nPixels;
         }
@@ -47,7 +47,7 @@ Int_t REST_CheckReadout(TString rootFile, TString name, Double_t region[4], Int_
     Int_t modGraphID = 0;
     Int_t chGraph = 0;
     for (int mdID = 0; mdID < nModules; mdID++) {
-        TRestReadoutModule* module = &(*readoutPlane)[mdID];
+        TRestDetectorReadoutModule* module = &(*readoutPlane)[mdID];
         Int_t nChannels = module->GetNumberOfChannels();
 
         Double_t x[5];
@@ -70,7 +70,7 @@ Int_t REST_CheckReadout(TString rootFile, TString name, Double_t region[4], Int_
         modGraphID++;
 
         for (int ch = 0; ch < nChannels; ch++) {
-            TRestReadoutChannel* channel = &(*module)[ch];
+            TRestDetectorReadoutChannel* channel = &(*module)[ch];
 
             Int_t nPixels = channel->GetNumberOfPixels();
 
@@ -105,7 +105,7 @@ Int_t REST_CheckReadout(TString rootFile, TString name, Double_t region[4], Int_
     return 0;
 }
 
-TGraph* GetHittedStripMap(TRestReadoutPlane* p, Int_t mask[4], Double_t region[4], Int_t N) {
+TGraph* GetHittedStripMap(TRestDetectorReadoutPlane* p, Int_t mask[4], Double_t region[4], Int_t N) {
     Double_t xmin, xmax, ymin, ymax;
 
     p->GetBoundaries(xmin, xmax, ymin, ymax);

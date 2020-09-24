@@ -1,5 +1,5 @@
-#include "TRestG4Event.h"
-#include "TRestG4Metadata.h"
+#include "TRestGeant4Event.h"
+#include "TRestGeant4Metadata.h"
 #include "TRestHitsEvent.h"
 #include "TRestLinearTrackEvent.h"
 #include "TRestRawSignalEvent.h"
@@ -46,7 +46,7 @@ Int_t REST_G4Event(TString fName, Int_t firstEvent = 0) {
 
     run->PrintInfo();
 
-    TRestG4Event* evt = new TRestG4Event();
+    TRestGeant4Event* evt = new TRestGeant4Event();
 
     run->SetInputEvent(evt);
 

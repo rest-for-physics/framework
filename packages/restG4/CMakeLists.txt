@@ -52,7 +52,7 @@ endif()
 
 
 if(DEFINED rest_libraries)
-	set(lnklib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit ${rest_libraries} -lRestGeant4)
+	set(lnklib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit ${rest_libraries};RestGeant4)
 else()
 	set(lnklib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit -L${REST_PATH}/lib/ -lRestFramework -lRestGeant4 )
 message( "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n
