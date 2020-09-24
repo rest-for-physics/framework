@@ -896,8 +896,7 @@ void TRestG4Metadata::ReadGenerator() {
 
     string dimension2[2]{"length", "lenY"};
     for (int i = 0; i < 2; i++) {
-        Double_t tmpDim2 =
-            REST_Units::GetDblValueInString(GetFieldValue(dimension2[i], generatorDefinition));
+        Double_t tmpDim2 = REST_Units::GetDblValueInString(GetFieldValue(dimension2[i], generatorDefinition));
         if (tmpDim2 != PARAMETER_NOT_FOUND_DBL) {
             fGenDimension2 = tmpDim2;
             break;
@@ -966,7 +965,8 @@ void TRestG4Metadata::ReadStorage() {
     cout << fSensitiveVolume << endl;
 
     size_t pos = 0;
-    fEnergyRangeStored = REST_Units::Get2DVectorValueInString(GetParameter("energyRange", pos, storageString));
+    fEnergyRangeStored =
+        REST_Units::Get2DVectorValueInString(GetParameter("energyRange", pos, storageString));
 
     GdmlPreprocessor* preprocesor = new GdmlPreprocessor();
     preprocesor->Load((string)Get_GDML_Filename());
@@ -1361,8 +1361,7 @@ void TRestG4Metadata::ReadParticleSource(TString definition) {
         source.SetSpectrumName(GetFieldValue("spctName", energyDefinition));
     }
 
-    source.SetEnergyRange(
-        REST_Units::Get2DVectorValueInString(GetFieldValue("range", energyDefinition)));
+    source.SetEnergyRange(REST_Units::Get2DVectorValueInString(GetFieldValue("range", energyDefinition)));
 
     if (source.GetEnergyDistType() == "mono") {
         Double_t en;

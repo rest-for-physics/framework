@@ -107,7 +107,7 @@ Double_t GetDblValueInString(string in) {
 /// \brief It scales a physics measurement with its units into a REST default units value.
 ///
 /// For example, string in = "(0,5)MeV", return (0,5000) (keV)
-TVector2 Get2DVectorValueInString(string in) { 
+TVector2 Get2DVectorValueInString(string in) {
     string unit = FindRESTUnitsInString(in);
     TVector2 value = StringTo2DVector(RemoveUnitsFromString(in));
     Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);

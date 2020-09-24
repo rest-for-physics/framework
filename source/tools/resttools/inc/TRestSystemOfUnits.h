@@ -89,7 +89,6 @@ Double_t GetDblValueInString(string in);
 TVector2 Get2DVectorValueInString(string in);
 TVector3 Get3DVectorValueInString(string in);
 
-
 extern map<string, pair<int, double>> __ListOfRESTUnits;  // name, [unit type id, scale]
 
 double _AddUnit(string name, int type, double scale);

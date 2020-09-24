@@ -1494,7 +1494,6 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
     return NULL;
 }
 
-
 ///////////////////////////////////////////////
 /// \brief Returns a string with the unit name given in the given xml element
 ///
