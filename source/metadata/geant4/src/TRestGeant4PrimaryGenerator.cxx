@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestG4PrimaryGenerator.cxx
+///             TRestGeant4PrimaryGenerator.cxx
 ///
 ///             Base class from which to inherit all other event classes in REST
 ///
@@ -15,41 +15,41 @@
 ///                 J. Galan
 ///_______________________________________________________________________________
 
-#include "TRestG4PrimaryGenerator.h"
+#include "TRestGeant4PrimaryGenerator.h"
 using namespace std;
 
-ClassImp(TRestG4PrimaryGenerator)
+ClassImp(TRestGeant4PrimaryGenerator)
     //______________________________________________________________________________
-    TRestG4PrimaryGenerator::TRestG4PrimaryGenerator() {
-    // TRestG4PrimaryGenerator default constructor
+    TRestGeant4PrimaryGenerator::TRestGeant4PrimaryGenerator() {
+    // TRestGeant4PrimaryGenerator default constructor
     Reset();
 }
 
 //______________________________________________________________________________
-TRestG4PrimaryGenerator::~TRestG4PrimaryGenerator() {}
+TRestGeant4PrimaryGenerator::~TRestGeant4PrimaryGenerator() {}
 
-void TRestG4PrimaryGenerator::Reset() {
+void TRestGeant4PrimaryGenerator::Reset() {
     fNsources = 0;
     fSources.clear();
 
     RemoveParticleCollections();
 }
 
-void TRestG4PrimaryGenerator::RemoveSources() {
+void TRestGeant4PrimaryGenerator::RemoveSources() {
     fSources.clear();
     fNsources = 0;
 }
 
-void TRestG4PrimaryGenerator::AddSource(TRestParticleSource src) {
+void TRestGeant4PrimaryGenerator::AddSource(TRestParticleSource src) {
     fSources.push_back(src);
     fNsources++;
 }
 
-TRestParticleCollection* TRestG4PrimaryGenerator::GetParticleCollection(Int_t n) {
+TRestParticleCollection* TRestGeant4PrimaryGenerator::GetParticleCollection(Int_t n) {
     return fParticleCollections[n];
 }
 
-void TRestG4PrimaryGenerator::RemoveParticleCollections() {
+void TRestGeant4PrimaryGenerator::RemoveParticleCollections() {
     for (auto c : fParticleCollections) {
         delete c;
     }
@@ -57,12 +57,12 @@ void TRestG4PrimaryGenerator::RemoveParticleCollections() {
     fNCollections = 0;
 }
 
-void TRestG4PrimaryGenerator::AddParticleCollection(TRestParticleCollection* collection) {
+void TRestGeant4PrimaryGenerator::AddParticleCollection(TRestParticleCollection* collection) {
     fParticleCollections.push_back(collection);
     fNCollections++;
 }
 
-void TRestG4PrimaryGenerator::UpdateSourcesFromParticleCollection(Int_t n) {
+void TRestGeant4PrimaryGenerator::UpdateSourcesFromParticleCollection(Int_t n) {
     RemoveSources();
 
     Int_t pCollectionID = n % fNCollections;

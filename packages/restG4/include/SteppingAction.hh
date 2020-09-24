@@ -8,7 +8,7 @@
 #include "TH1D.h"
 #include "TH2D.h"
 
-#include <TRestBiasingVolume.h>
+#include <TRestGeant4BiasingVolume.h>
 
 #include <fstream>
 #include <iostream>
@@ -19,13 +19,13 @@ class SteppingAction : public G4UserSteppingAction {
     SteppingAction();
     ~SteppingAction();
 
-    void SetBiasingVolume(TRestBiasingVolume biasVol) { restBiasingVolume = biasVol; }
+    void SetBiasingVolume(TRestGeant4BiasingVolume biasVol) { restBiasingVolume = biasVol; }
     void SetBiasingSpectrum(TH1D* bSpectrum) { fBiasingSpectrum = bSpectrum; }
     void SetAngularDistribution(TH1D* aDist) { fAngularDistribution = aDist; }
     void SetSpatialDistribution(TH2D* sDist) { fSpatialDistribution = sDist; }
     void UserSteppingAction(const G4Step*);
 
-    TRestBiasingVolume GetBiasingVolume() { return restBiasingVolume; }
+    TRestGeant4BiasingVolume GetBiasingVolume() { return restBiasingVolume; }
     TH1D* GetBiasingSpectrum() { return fBiasingSpectrum; }
     TH1D* GetAngularDistribution() { return fAngularDistribution; }
     TH2D* GetSpatialDistribution() { return fSpatialDistribution; }
@@ -44,7 +44,7 @@ class SteppingAction : public G4UserSteppingAction {
         return x;
     }
 
-    TRestBiasingVolume restBiasingVolume;
+    TRestGeant4BiasingVolume restBiasingVolume;
 
     G4ThreeVector previousDirection;
 

@@ -2,8 +2,8 @@
 
 #include "PrimaryGeneratorAction.hh"
 
-#include <TRestG4Event.h>
-#include <TRestG4Metadata.h>
+#include <TRestGeant4Event.h>
+#include <TRestGeant4Metadata.h>
 
 #include "G4Event.hh"
 #include "G4Geantino.hh"
@@ -14,8 +14,8 @@
 #include "G4UnitsTable.hh"
 #include "Randomize.hh"
 
-extern TRestG4Metadata* restG4Metadata;
-extern TRestG4Event* restG4Event;
+extern TRestGeant4Metadata* restG4Metadata;
+extern TRestGeant4Event* restG4Event;
 
 extern Int_t biasing;
 
@@ -334,7 +334,7 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
         direction.set(v.X(), v.Y(), v.Z());
 
     } else if (angular_dist_type == g4_metadata_parameters::angular_dist_types::BACK_TO_BACK) {
-        // This should never crash. In TRestG4Metadata we have defined that if the
+        // This should never crash. In TRestGeant4Metadata we have defined that if the
         // first source is backtoback we set it to isotropic
         TVector3 v = restG4Event->GetPrimaryEventDirection(n - 1);
         v = v.Unit();
@@ -346,7 +346,7 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
                << G4endl;
     }
 
-    // storing the direction in TRestG4Event class
+    // storing the direction in TRestGeant4Event class
     TVector3 eventDirection(direction.x(), direction.y(), direction.z());
     restG4Event->SetPrimaryEventDirection(eventDirection);
 
@@ -633,7 +633,7 @@ void PrimaryGeneratorAction::SetParticlePosition() {
                << G4endl;
     }
 
-    // storing the direction in TRestG4Event class
+    // storing the direction in TRestGeant4Event class
     TVector3 eventPosition(x, y, z);
     restG4Event->SetPrimaryEventOrigin(eventPosition);
 

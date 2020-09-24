@@ -5,37 +5,37 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestG4EventViewer.cxx
+///             TRestGeant4EventViewer.cxx
 ///
 ///             nov 2015:   First concept
-///                 Viewer class for a TRestG4Event
+///                 Viewer class for a TRestGeant4Event
 ///                 Javier Galan/JuanAn Garcia
 ///_______________________________________________________________________________
 
-#include "TRestG4EventViewer.h"
+#include "TRestGeant4EventViewer.h"
 using namespace std;
 
-ClassImp(TRestG4EventViewer)
+ClassImp(TRestGeant4EventViewer)
     //______________________________________________________________________________
-    TRestG4EventViewer::TRestG4EventViewer() {
+    TRestGeant4EventViewer::TRestGeant4EventViewer() {
     Initialize();
 }
 
 //______________________________________________________________________________
-TRestG4EventViewer::~TRestG4EventViewer() {
-    // TRestG4EventViewer destructor
+TRestGeant4EventViewer::~TRestGeant4EventViewer() {
+    // TRestGeant4EventViewer destructor
 }
 
 //______________________________________________________________________________
-void TRestG4EventViewer::Initialize() {
-    fG4Event = new TRestG4Event();
+void TRestGeant4EventViewer::Initialize() {
+    fG4Event = new TRestGeant4Event();
     fEvent = fG4Event;
 
     fHitConnectors.clear();
     fHitConnectors.push_back(NULL);
 }
 
-void TRestG4EventViewer::DeleteCurrentEvent() {
+void TRestGeant4EventViewer::DeleteCurrentEvent() {
     // cout<<"Removing event"<<endl;
 
     TRestEveEventViewer::DeleteCurrentEvent();
@@ -44,12 +44,12 @@ void TRestG4EventViewer::DeleteCurrentEvent() {
     fHitConnectors.push_back(NULL);
 }
 
-void TRestG4EventViewer::AddEvent(TRestEvent* ev) {
+void TRestGeant4EventViewer::AddEvent(TRestEvent* ev) {
     DeleteCurrentEvent();
 
-    fG4Event = (TRestG4Event*)ev;
+    fG4Event = (TRestGeant4Event*)ev;
 
-    TRestG4Track* g4Track;
+    TRestGeant4Track* g4Track;
 
     Double_t eDepMin = 1.e6;
     Double_t eDepMax = 0;
@@ -57,7 +57,7 @@ void TRestG4EventViewer::AddEvent(TRestEvent* ev) {
 
     for (int i = 0; i < fG4Event->GetNumberOfTracks(); i++) {
         g4Track = fG4Event->GetTrack(i);
-        TRestG4Hits* g4Hits = g4Track->GetHits();
+        TRestGeant4Hits* g4Hits = g4Track->GetHits();
         Int_t nHits = g4Track->GetNumberOfHits();
         for (int j = 0; j < nHits; j++) {
             Double_t eDep = g4Hits->GetEnergy(j);
@@ -111,7 +111,7 @@ void TRestG4EventViewer::AddEvent(TRestEvent* ev) {
 
         this->AddMarker(trkID, origin, markerStr);
 
-        TRestG4Hits* g4Hits = g4Track->GetHits();
+        TRestGeant4Hits* g4Hits = g4Track->GetHits();
         Int_t nHits = g4Track->GetNumberOfHits();
 
         for (int i = 0; i < nHits; i++) {
@@ -133,7 +133,7 @@ void TRestG4EventViewer::AddEvent(TRestEvent* ev) {
     Update();
 }
 
-void TRestG4EventViewer::AddText(TString text, TVector3 at) {
+void TRestGeant4EventViewer::AddText(TString text, TVector3 at) {
     TEveText* evText = new TEveText(text);
     evText->SetName("Event title");
     evText->SetFontSize(12);
@@ -143,7 +143,7 @@ void TRestG4EventViewer::AddText(TString text, TVector3 at) {
     gEve->AddElement(evText);
 }
 
-void TRestG4EventViewer::AddMarker(Int_t trkID, TVector3 at, TString name) {
+void TRestGeant4EventViewer::AddMarker(Int_t trkID, TVector3 at, TString name) {
     TEvePointSet* marker = new TEvePointSet(1);
     marker->SetName(name);
     marker->SetMarkerColor(kMagenta);
@@ -153,11 +153,11 @@ void TRestG4EventViewer::AddMarker(Int_t trkID, TVector3 at, TString name) {
     fHitConnectors[trkID]->AddElement(marker);
 }
 
-void TRestG4EventViewer::NextTrackVertex(Int_t trkID, TVector3 to) {
+void TRestGeant4EventViewer::NextTrackVertex(Int_t trkID, TVector3 to) {
     fHitConnectors[trkID]->SetNextPoint(to.X() * GEOM_SCALE, to.Y() * GEOM_SCALE, to.Z() * GEOM_SCALE);
 }
 
-void TRestG4EventViewer::AddTrack(Int_t trkID, Int_t parentID, TVector3 from, TString name) {
+void TRestGeant4EventViewer::AddTrack(Int_t trkID, Int_t parentID, TVector3 from, TString name) {
     TEveLine* evLine = new TEveLine();
     evLine->SetName(name);
     fHitConnectors.push_back(evLine);
@@ -175,7 +175,7 @@ void TRestG4EventViewer::AddTrack(Int_t trkID, Int_t parentID, TVector3 from, TS
     fHitConnectors[parentID]->AddElement(fHitConnectors[trkID]);
 }
 
-void TRestG4EventViewer::AddParentTrack(Int_t trkID, TVector3 from, TString name) {
+void TRestGeant4EventViewer::AddParentTrack(Int_t trkID, TVector3 from, TString name) {
     TEveLine* evLine = new TEveLine();
     evLine->SetName(name);
     fHitConnectors.push_back(evLine);

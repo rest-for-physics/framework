@@ -17,9 +17,9 @@
 #include "Randomize.hh"
 #include "RunAction.hh"
 #include "SteppingAction.hh"
-#include "TRestG4Event.h"
-#include "TRestG4Metadata.h"
-#include "TRestG4Track.h"
+#include "TRestGeant4Event.h"
+#include "TRestGeant4Metadata.h"
+#include "TRestGeant4Track.h"
 #include "TRestGeometry.h"
 #include "TRestPhysicsLists.h"
 #include "TRestRun.h"
@@ -50,9 +50,9 @@ using namespace std;
 
 // We define rest objects that will be used in Geant4
 TRestRun* restRun;
-TRestG4Track* restTrack;
-TRestG4Event *restG4Event, *subRestG4Event;
-TRestG4Metadata* restG4Metadata;
+TRestGeant4Track* restTrack;
+TRestGeant4Event *restG4Event, *subRestG4Event;
+TRestGeant4Metadata* restG4Metadata;
 TRestPhysicsLists* restPhysList;
 
 Bool_t saveAllEvents;
@@ -62,7 +62,7 @@ Bool_t saveAllEvents;
 const Int_t maxBiasingVolumes = 50;
 Int_t biasing = 0;
 
-// This histograms would be better placed inside TRestBiasingVolume
+// This histograms would be better placed inside TRestGeant4BiasingVolume
 TH1D* biasingSpectrum[maxBiasingVolumes];
 TH1D* angularDistribution[maxBiasingVolumes];
 TH2D* spatialDistribution[maxBiasingVolumes];
@@ -95,20 +95,20 @@ int main(int argc, char** argv) {
     // }}}
 
     // {{{ Initializing REST classes
-    restG4Metadata = new TRestG4Metadata(inputConfigFile, (string)restG4Name);
+    restG4Metadata = new TRestGeant4Metadata(inputConfigFile, (string)restG4Name);
 
     // We need to process and generate a new GDML for several reasons.
     // 1. ROOT6 has a bug loading math expressions in gdml file
     // 2. We allow file entities to be http remote files
     // 3. We retrieve the GDML and materials versions and associate to the
-    // corresponding TRestG4Metadata members
+    // corresponding TRestGeant4Metadata members
     GdmlPreprocessor* gdml = new GdmlPreprocessor();
 
     // This call will generate a new single file GDML output
     gdml->Load((string)restG4Metadata->Get_GDML_Filename());
 
     // We redefine the value of the GDML file to be used in DetectorConstructor.
-    // This value is not anymore registed/written to disk inside TRestG4Metadata.
+    // This value is not anymore registed/written to disk inside TRestGeant4Metadata.
     restG4Metadata->Set_GDML_Filename(gdml->GetOutputGDMLFile());
     restG4Metadata->SetGeometryPath("");
 
@@ -131,11 +131,11 @@ int main(int argc, char** argv) {
 
     restRun->FormOutputFile();
 
-    restG4Event = new TRestG4Event();
-    subRestG4Event = new TRestG4Event();
+    restG4Event = new TRestGeant4Event();
+    subRestG4Event = new TRestGeant4Event();
     restRun->AddEventBranch(subRestG4Event);
 
-    restTrack = new TRestG4Track();
+    restTrack = new TRestGeant4Track();
     // }}}
 
     // {{{ Setting the biasing spectra histograms
@@ -388,7 +388,7 @@ int main(int argc, char** argv) {
         cout << "++++++++++ ERRORRRR +++++++++" << endl;
         cout << "++++++++++ ERRORRRR +++++++++" << endl;
         cout << "The number of events to be simulated was not recongnized properly!" << endl;
-        cout << "Make sure you did not forget the number of events entry in TRestG4Metadata." << endl;
+        cout << "Make sure you did not forget the number of events entry in TRestGeant4Metadata." << endl;
         cout << endl;
         cout << " ... or the parameter is properly constructed/interpreted." << endl;
         cout << endl;

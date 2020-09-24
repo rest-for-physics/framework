@@ -1,8 +1,8 @@
 #include "SteppingAction.hh"
 
-#include <TRestG4Event.h>
-#include <TRestG4Metadata.h>
-#include <TRestG4Track.h>
+#include <TRestGeant4Event.h>
+#include <TRestGeant4Metadata.h>
+#include <TRestGeant4Track.h>
 
 #include <G4SystemOfUnits.hh>
 
@@ -13,9 +13,9 @@
 #include "G4UnitsTable.hh"
 #include "globals.hh"
 
-extern TRestG4Event* restG4Event;
-extern TRestG4Metadata* restG4Metadata;
-extern TRestG4Track* restTrack;
+extern TRestGeant4Event* restG4Event;
+extern TRestGeant4Metadata* restG4Metadata;
+extern TRestGeant4Track* restTrack;
 extern Int_t biasing;
 
 //_____________________________________________________________________________
@@ -47,7 +47,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
         G4cout << endl;
         G4cout << "E.g. A definition of a gamma with 0keV energy" << endl;
         G4cout << endl;
-        G4cout << "Please, review your TRestG4Metadata RML definition" << endl;
+        G4cout << "Please, review your TRestGeant4Metadata RML definition" << endl;
         G4cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
         G4cout << endl;
         G4cout << endl;

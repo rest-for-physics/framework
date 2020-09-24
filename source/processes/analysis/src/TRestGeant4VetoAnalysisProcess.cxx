@@ -68,7 +68,7 @@ void TRestGeant4VetoAnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fInputG4Event = NULL;
-    fOutputG4Event = new TRestG4Event();
+    fOutputG4Event = new TRestGeant4Event();
 }
 
 ///////////////////////////////////////////////
@@ -91,7 +91,7 @@ void TRestGeant4VetoAnalysisProcess::LoadConfig(std::string cfgFilename, std::st
 /// \brief Process initialization.
 ///
 void TRestGeant4VetoAnalysisProcess::InitProcess() {
-    fG4Metadata = GetMetadata<TRestG4Metadata>();
+    fG4Metadata = GetMetadata<TRestGeant4Metadata>();
 
     // CAREFUL THIS METHOD IS CALLED TWICE!
     // we need to reset these variables to zero
@@ -128,8 +128,8 @@ void TRestGeant4VetoAnalysisProcess::InitProcess() {
 /// \brief The main processing event function
 ///
 TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
-    fInputG4Event = (TRestG4Event*)evInput;
-    *fOutputG4Event = *((TRestG4Event*)evInput);
+    fInputG4Event = (TRestGeant4Event*)evInput;
+    *fOutputG4Event = *((TRestGeant4Event*)evInput);
 
     std::map<string, Double_t> volume_energy_map;
 

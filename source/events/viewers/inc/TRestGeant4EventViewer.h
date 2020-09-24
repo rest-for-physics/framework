@@ -5,25 +5,25 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestG4EventViewer.h inherited from TRestEveEventViewer
+///             TRestGeant4EventViewer.h inherited from TRestEveEventViewer
 ///
 ///             nov 2015:   First concept
-///                 Viewer class for a TRestG4Event
+///                 Viewer class for a TRestGeant4Event
 ///                 Javier Galan/JuanAn Garcia
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestG4EventViewer
-#define RestCore_TRestG4EventViewer
+#ifndef RestCore_TRestGeant4EventViewer
+#define RestCore_TRestGeant4EventViewer
 
 #include "TRestEveEventViewer.h"
 
-#include "TRestG4Event.h"
+#include "TRestGeant4Event.h"
 
-class TRestG4EventViewer : public TRestEveEventViewer {
+class TRestGeant4EventViewer : public TRestEveEventViewer {
    private:
     std::vector<TEveLine*> fHitConnectors;
 
-    TRestG4Event* fG4Event;
+    TRestGeant4Event* fG4Event;
 
    public:
     void Initialize();
@@ -38,10 +38,10 @@ class TRestG4EventViewer : public TRestEveEventViewer {
     void AddMarker(Int_t trkID, TVector3 at, TString name);
 
     // Constructor
-    TRestG4EventViewer();
+    TRestGeant4EventViewer();
     // Destructor
-    ~TRestG4EventViewer();
+    ~TRestGeant4EventViewer();
 
-    ClassDef(TRestG4EventViewer, 1);  // class inherited from TRestEventViewer
+    ClassDef(TRestGeant4EventViewer, 1);  // class inherited from TRestEventViewer
 };
 #endif

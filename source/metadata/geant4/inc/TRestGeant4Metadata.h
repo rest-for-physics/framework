@@ -20,8 +20,8 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestG4Metadata
-#define RestCore_TRestG4Metadata
+#ifndef RestCore_TRestGeant4Metadata
+#define RestCore_TRestGeant4Metadata
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstdio>
@@ -35,8 +35,8 @@
 #include <TVector2.h>
 #include <TVector3.h>
 
-#include <TRestBiasingVolume.h>
-#include <TRestG4PrimaryGenerator.h>
+#include <TRestGeant4BiasingVolume.h>
+#include <TRestGeant4PrimaryGenerator.h>
 #include <TRestMetadata.h>
 
 //------------------------------------------------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ extern std::map<string, angular_dist_types> angular_dist_types_map;
 //------------------------------------------------------------------------------------------------------------------------
 
 /// The main class to store the *Geant4* simulation conditions that will be used by *restG4*.
-class TRestG4Metadata : public TRestMetadata {
+class TRestGeant4Metadata : public TRestMetadata {
    private:
     void Initialize();
 
@@ -158,14 +158,14 @@ class TRestG4Metadata : public TRestMetadata {
 
     /// \brief It the defines the primary source properties, particle type, momentum,
     /// energy, etc.
-    TRestG4PrimaryGenerator fPrimaryGenerator;
+    TRestGeant4PrimaryGenerator fPrimaryGenerator;
 
     /// \brief The number of biasing volumes used in the simulation. If zero, no biasing
     /// technique is used.
     Int_t fNBiasingVolumes;
 
     /// A vector containning the biasing volume properties.
-    std::vector<TRestBiasingVolume> fBiasingVolumes;
+    std::vector<TRestGeant4BiasingVolume> fBiasingVolumes;
 
     /// \brief The maximum target step size, in mm, allowed in Geant4 for the target
     /// volume (usually the gas volume).
@@ -347,7 +347,7 @@ class TRestG4Metadata : public TRestMetadata {
 
     /// \brief Returns the primary generator object containning information about
     /// particle sources.
-    TRestG4PrimaryGenerator GetPrimaryGenerator() { return fPrimaryGenerator; }
+    TRestGeant4PrimaryGenerator GetPrimaryGenerator() { return fPrimaryGenerator; }
 
     /// \brief Places in fPrimaryGenerator the source definition, with index n,
     /// from a TRestParticleCollection. This will be used by restG4 to pick up
@@ -369,7 +369,7 @@ class TRestG4Metadata : public TRestMetadata {
     Int_t GetNumberOfBiasingVolumes() { return fBiasingVolumes.size(); }
 
     /// Return the biasing volume with index n
-    TRestBiasingVolume GetBiasingVolume(int n) { return fBiasingVolumes[n]; }
+    TRestGeant4BiasingVolume GetBiasingVolume(int n) { return fBiasingVolumes[n]; }
 
     /// \brief Returns the number of biasing volumes defined. If 0 the biasing technique
     /// is not being used.
@@ -411,11 +411,11 @@ class TRestG4Metadata : public TRestMetadata {
 
     void PrintMetadata();
 
-    TRestG4Metadata();
-    TRestG4Metadata(char* cfgFileName, std::string name = "");
+    TRestGeant4Metadata();
+    TRestGeant4Metadata(char* cfgFileName, std::string name = "");
 
-    ~TRestG4Metadata();
+    ~TRestGeant4Metadata();
 
-    ClassDef(TRestG4Metadata, 5);
+    ClassDef(TRestGeant4Metadata, 5);
 };
-#endif  // RestCore_TRestG4Metadata
+#endif  // RestCore_TRestGeant4Metadata

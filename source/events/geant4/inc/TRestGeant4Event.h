@@ -20,8 +20,8 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestG4Event
-#define RestCore_TRestG4Event
+#ifndef RestCore_TRestGeant4Event
+#define RestCore_TRestGeant4Event
 
 #include <TGraph.h>
 #include <TGraph2D.h>
@@ -31,14 +31,14 @@
 #include <TMultiGraph.h>
 #include <TObject.h>
 #include <TRestEvent.h>
-#include <TRestG4Track.h>
+#include <TRestGeant4Track.h>
 #include <TVector3.h>
 
 #include <iostream>
 #include <map>
 
 /// An event class to store geant4 generated event information
-class TRestG4Event : public TRestEvent {
+class TRestGeant4Event : public TRestEvent {
    private:
 #ifndef __CINT__
     Double_t fMinX, fMaxX;            //!
@@ -67,8 +67,8 @@ class TRestG4Event : public TRestEvent {
 
         string volume_name;
         string process_name;
-        TRestG4Track* track;
-        TRestG4Hits* hits;
+        TRestGeant4Track* track;
+        TRestGeant4Hits* hits;
         Double_t energy;
 
         for (Int_t track_id = 0; track_id < GetNumberOfTracks(); track_id++) {
@@ -188,7 +188,7 @@ class TRestG4Event : public TRestEvent {
     std::vector<Double_t> fVolumeDepositedEnergy;
 
     Int_t fNTracks;
-    std::vector<TRestG4Track> fTrack;
+    std::vector<TRestGeant4Track> fTrack;
 
     Int_t fMaxSubEventID;
 
@@ -212,8 +212,8 @@ class TRestG4Event : public TRestEvent {
     Int_t GetNumberOfActiveVolumes() { return fNVolumes; }
 
     Int_t isVolumeStored(int n) { return fVolumeStored[n]; }
-    TRestG4Track* GetTrack(int n) { return &fTrack[n]; }
-    TRestG4Track* GetTrackByID(int id);
+    TRestGeant4Track* GetTrack(int n) { return &fTrack[n]; }
+    TRestGeant4Track* GetTrackByID(int id);
     Int_t GetNumberOfSubEventIDTracks() { return fMaxSubEventID + 1; }
 
     Double_t GetTotalDepositedEnergy() { return fTotalDepositedEnergy; }
@@ -309,7 +309,7 @@ class TRestG4Event : public TRestEvent {
         if (fNTracks > 0) lowestID = GetTrack(0)->GetTrackID();
 
         for (int i = 0; i < fNTracks; i++) {
-            TRestG4Track* tr = GetTrack(i);
+            TRestGeant4Track* tr = GetTrack(i);
             if (tr->GetTrackID() < lowestID) lowestID = tr->GetTrackID();
         }
 
@@ -317,7 +317,7 @@ class TRestG4Event : public TRestEvent {
     }
 
     void SetTrackSubEventID(Int_t n, Int_t id);
-    void AddTrack(TRestG4Track trk);
+    void AddTrack(TRestGeant4Track trk);
 
     Bool_t isRadiactiveDecay() {
         for (int n = 0; n < GetNumberOfTracks(); n++)
@@ -490,10 +490,10 @@ class TRestG4Event : public TRestEvent {
     TPad* DrawEvent(TString option = "", Bool_t autoBoundaries = true);
 
     // Construtor
-    TRestG4Event();
+    TRestGeant4Event();
     // Destructor
-    virtual ~TRestG4Event();
+    virtual ~TRestGeant4Event();
 
-    ClassDef(TRestG4Event, 5);  // REST event superclass
+    ClassDef(TRestGeant4Event, 5);  // REST event superclass
 };
 #endif

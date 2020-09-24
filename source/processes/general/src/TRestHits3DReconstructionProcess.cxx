@@ -194,7 +194,7 @@ void TRestHits3DReconstructionProcess::InitProcess() {
         CreateCanvas();
     }
 
-    fCompareProc = GetFriendLive("TRestG4toHitsProcess");
+    fCompareProc = GetFriendLive("TRestGeant4ToHitsProcess");
 }
 
 //______________________________________________________________________________

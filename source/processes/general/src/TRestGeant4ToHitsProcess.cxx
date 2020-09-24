@@ -22,7 +22,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 /// This process allows to select the GDML geometry volumes (defined in
-/// TRestG4Metadata) that will be transferred to the TRestHitsEvent by
+/// TRestGeant4Metadata) that will be transferred to the TRestHitsEvent by
 /// using the `<addVolume` key inside the process definition.
 ///
 /// The following example shows how to include the process into
@@ -32,7 +32,7 @@
 ///
 /// \code
 ///
-/// <addProcess type="TRestG4toHitsProcess" name="g4ToHits" value="ON">
+/// <addProcess type="TRestGeant4ToHitsProcess" name="g4ToHits" value="ON">
 ///     <addVolume name="gas" />
 ///     <addVolume name="vessel" />
 /// </addProcess>
@@ -47,27 +47,27 @@
 ///
 /// History of developments:
 ///
-/// 2016-October First implementation of TRestG4Event to TRestHitsEvent
+/// 2016-October First implementation of TRestGeant4Event to TRestHitsEvent
 ///              Igor Irastorza
 ///
 /// 2017-October: Added the possibility to extract hits only from selected geometrical volumes
 ///               Javier Galan
 ///
-/// \class      TRestG4toHitsProcess
+/// \class      TRestGeant4ToHitsProcess
 /// \author     Igor Irastorza
 /// \author     Javier Galan
 ///
 /// <hr>
 ///
-#include "TRestG4toHitsProcess.h"
+#include "TRestGeant4ToHitsProcess.h"
 using namespace std;
 
-ClassImp(TRestG4toHitsProcess);
+ClassImp(TRestGeant4ToHitsProcess);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestG4toHitsProcess::TRestG4toHitsProcess() { Initialize(); }
+TRestGeant4ToHitsProcess::TRestGeant4ToHitsProcess() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -81,7 +81,7 @@ TRestG4toHitsProcess::TRestG4toHitsProcess() { Initialize(); }
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 ///
-TRestG4toHitsProcess::TRestG4toHitsProcess(char* cfgFileName) {
+TRestGeant4ToHitsProcess::TRestGeant4ToHitsProcess(char* cfgFileName) {
     Initialize();
 
     if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
@@ -90,12 +90,12 @@ TRestG4toHitsProcess::TRestG4toHitsProcess(char* cfgFileName) {
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestG4toHitsProcess::~TRestG4toHitsProcess() { delete fHitsEvent; }
+TRestGeant4ToHitsProcess::~TRestGeant4ToHitsProcess() { delete fHitsEvent; }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
 ///
-void TRestG4toHitsProcess::LoadDefaultConfig() {
+void TRestGeant4ToHitsProcess::LoadDefaultConfig() {
     SetTitle("Default config");
 
     cout << "G4 to hits metadata not found. Loading default values" << endl;
@@ -105,7 +105,7 @@ void TRestG4toHitsProcess::LoadDefaultConfig() {
 /// \brief Function to initialize input/output event members and define the
 /// section name
 ///
-void TRestG4toHitsProcess::Initialize() {
+void TRestGeant4ToHitsProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fG4Event = NULL;
@@ -122,35 +122,35 @@ void TRestG4toHitsProcess::Initialize() {
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// correspondig TRestG4toHitsProcess section inside the RML.
+/// correspondig TRestGeant4ToHitsProcess section inside the RML.
 ///
-void TRestG4toHitsProcess::LoadConfig(std::string cfgFilename, std::string name) {
+void TRestGeant4ToHitsProcess::LoadConfig(std::string cfgFilename, std::string name) {
     if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
 /// \brief Process initialization. This process accesses the information inside
-/// TRestG4Metadata to identify the geometry volume ids associated to the hits.
+/// TRestGeant4Metadata to identify the geometry volume ids associated to the hits.
 ///
-void TRestG4toHitsProcess::InitProcess() {
-    fG4Metadata = GetMetadata<TRestG4Metadata>();
+void TRestGeant4ToHitsProcess::InitProcess() {
+    fG4Metadata = GetMetadata<TRestGeant4Metadata>();
 
     for (unsigned int n = 0; n < fVolumeSelection.size(); n++) {
         if (fG4Metadata->GetActiveVolumeID(fVolumeSelection[n]) >= 0)
             fVolumeId.push_back(fG4Metadata->GetActiveVolumeID(fVolumeSelection[n]));
         else if (GetVerboseLevel() >= REST_Warning)
-            cout << "TRestG4ToHitsProcess. volume name : " << fVolumeSelection[n]
+            cout << "TRestGeant4ToHitsProcess. volume name : " << fVolumeSelection[n]
                  << " not found and will not be added." << endl;
     }
 
     /* {{{ Debug output */
-    debug << "Active volumes available in TRestG4Metadata" << endl;
+    debug << "Active volumes available in TRestGeant4Metadata" << endl;
     debug << "-------------------------------------------" << endl;
     for (int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++)
         debug << "Volume id : " << n << " name : " << fG4Metadata->GetActiveVolumeName(n) << endl;
     debug << endl;
 
-    debug << "TRestG4HitsProcess volumes enabled in RML : ";
+    debug << "TRestGeant4HitsProcess volumes enabled in RML : ";
     debug << "-------------------------------------------" << endl;
     if (fVolumeSelection.size() == 0)
         debug << "all" << endl;
@@ -163,10 +163,10 @@ void TRestG4toHitsProcess::InitProcess() {
     }
 
     if (fVolumeSelection.size() > 0 && fVolumeSelection.size() != fVolumeId.size())
-        warning << "TRestG4toHitsProcess. Not all volumes were properly identified!" << endl;
+        warning << "TRestGeant4ToHitsProcess. Not all volumes were properly identified!" << endl;
 
     if (fVolumeId.size() > 0) {
-        debug << "TRestG4HitsProcess volumes identified : ";
+        debug << "TRestGeant4HitsProcess volumes identified : ";
         debug << "---------------------------------------" << endl;
         if (fVolumeSelection.size() == 0)
             debug << "all" << endl;
@@ -183,13 +183,13 @@ void TRestG4toHitsProcess::InitProcess() {
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestG4toHitsProcess::ProcessEvent(TRestEvent* evInput) {
-    fG4Event = (TRestG4Event*)evInput;
+TRestEvent* TRestGeant4ToHitsProcess::ProcessEvent(TRestEvent* evInput) {
+    fG4Event = (TRestGeant4Event*)evInput;
 
     if (this->GetVerboseLevel() >= REST_Extreme) {
-        cout << "------ TRestG4toHitsProcess --- Printing Input Event --- START ----" << endl;
+        cout << "------ TRestGeant4ToHitsProcess --- Printing Input Event --- START ----" << endl;
         fG4Event->PrintEvent();
-        cout << "------ TRestG4toHitsProcess --- Printing Input Event ---- END ----" << endl;
+        cout << "------ TRestGeant4ToHitsProcess --- Printing Input Event ---- END ----" << endl;
         GetChar();
     }
 
@@ -225,8 +225,8 @@ TRestEvent* TRestG4toHitsProcess::ProcessEvent(TRestEvent* evInput) {
     }
 
     if (this->GetVerboseLevel() >= REST_Debug) {
-        cout << "TRestG4toHitsProcess. Hits added : " << fHitsEvent->GetNumberOfHits() << endl;
-        cout << "TRestG4toHitsProcess. Hits total energy : " << fHitsEvent->GetEnergy() << endl;
+        cout << "TRestGeant4ToHitsProcess. Hits added : " << fHitsEvent->GetNumberOfHits() << endl;
+        cout << "TRestGeant4ToHitsProcess. Hits total energy : " << fHitsEvent->GetEnergy() << endl;
     }
 
     return fHitsEvent;
@@ -234,9 +234,9 @@ TRestEvent* TRestG4toHitsProcess::ProcessEvent(TRestEvent* evInput) {
 
 ///////////////////////////////////////////////
 /// \brief Function to read input parameters from the RML
-/// TRestG4toHitsProcess metadata section
+/// TRestGeant4ToHitsProcess metadata section
 ///
-void TRestG4toHitsProcess::InitFromConfigFile() {
+void TRestGeant4ToHitsProcess::InitFromConfigFile() {
     size_t position = 0;
     string addVolumeDefinition;
 
@@ -247,7 +247,7 @@ void TRestG4toHitsProcess::InitFromConfigFile() {
 ///////////////////////////////////////////////
 /// \brief It prints on screen relevant data members from this class
 ///
-void TRestG4toHitsProcess::PrintMetadata() {
+void TRestGeant4ToHitsProcess::PrintMetadata() {
     BeginPrintProcess();
 
     for (unsigned int n = 0; n < fVolumeSelection.size(); n++)

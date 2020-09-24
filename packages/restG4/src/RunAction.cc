@@ -42,9 +42,9 @@
 #include "G4SystemOfUnits.hh"
 #include "G4UnitsTable.hh"
 
-#include <TRestG4Metadata.h>
+#include <TRestGeant4Metadata.h>
 
-extern TRestG4Metadata* restG4Metadata;
+extern TRestGeant4Metadata* restG4Metadata;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

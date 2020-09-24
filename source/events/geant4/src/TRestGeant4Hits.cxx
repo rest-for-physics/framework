@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestG4Hits.cxx
+///             TRestGeant4Hits.cxx
 ///
 ///             Base class from which to inherit all other event classes in REST
 ///
@@ -15,22 +15,22 @@
 ///                 J. Galan
 ///_______________________________________________________________________________
 
-#include "TRestG4Hits.h"
+#include "TRestGeant4Hits.h"
 
-ClassImp(TRestG4Hits);
+ClassImp(TRestGeant4Hits);
 
 //______________________________________________________________________________
-TRestG4Hits::TRestG4Hits() : TRestHits() {
-    // TRestG4Hits default constructor
+TRestGeant4Hits::TRestGeant4Hits() : TRestHits() {
+    // TRestGeant4Hits default constructor
 }
 
 //______________________________________________________________________________
-TRestG4Hits::~TRestG4Hits() {
-    // TRestG4Hits destructor
+TRestGeant4Hits::~TRestGeant4Hits() {
+    // TRestGeant4Hits destructor
 }
 
-void TRestG4Hits::AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process, Int_t volume,
-                           Double_t eKin, TVector3 momentumDirection) {
+void TRestGeant4Hits::AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process,
+                               Int_t volume, Double_t eKin, TVector3 momentumDirection) {
     AddHit(pos, en, hit_global_time);
 
     fProcessID.Set(fNHits);
@@ -58,7 +58,7 @@ void TRestG4Hits::AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, 
     fMomentumDirectionZ[fNHits - 1] = z;
 }
 
-void TRestG4Hits::RemoveG4Hits() {
+void TRestGeant4Hits::RemoveG4Hits() {
     RemoveHits();
 
     fProcessID.Set(0);
@@ -68,7 +68,7 @@ void TRestG4Hits::RemoveG4Hits() {
     fKineticEnergy.Set(0);
 }
 
-Double_t TRestG4Hits::GetEnergyInVolume(Int_t volID) {
+Double_t TRestGeant4Hits::GetEnergyInVolume(Int_t volID) {
     Double_t en = 0;
 
     for (int n = 0; n < fNHits; n++)
@@ -77,7 +77,7 @@ Double_t TRestG4Hits::GetEnergyInVolume(Int_t volID) {
     return en;
 }
 
-TVector3 TRestG4Hits::GetMeanPositionInVolume(Int_t volID) {
+TVector3 TRestGeant4Hits::GetMeanPositionInVolume(Int_t volID) {
     TVector3 pos;
     Double_t en = 0;
     for (int n = 0; n < fNHits; n++)
@@ -96,7 +96,7 @@ TVector3 TRestG4Hits::GetMeanPositionInVolume(Int_t volID) {
     return pos;
 }
 
-TVector3 TRestG4Hits::GetFirstPositionInVolume(Int_t volID) {
+TVector3 TRestGeant4Hits::GetFirstPositionInVolume(Int_t volID) {
     for (int n = 0; n < fNHits; n++)
         if (fVolumeID[n] == volID) return GetPosition(n);
 
@@ -105,7 +105,7 @@ TVector3 TRestG4Hits::GetFirstPositionInVolume(Int_t volID) {
     return TVector3(nan, nan, nan);
 }
 
-TVector3 TRestG4Hits::GetLastPositionInVolume(Int_t volID) {
+TVector3 TRestGeant4Hits::GetLastPositionInVolume(Int_t volID) {
     for (int n = fNHits - 1; n >= 0; n--)
         if (fVolumeID[n] == volID) return GetPosition(n);
 

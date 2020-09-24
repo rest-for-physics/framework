@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestBiasingVolume.cxx
+///             TRestGeant4BiasingVolume.cxx
 ///
 ///             Base class from which to inherit all other event classes in REST
 ///
@@ -15,22 +15,22 @@
 ///                 J. Galan
 ///_______________________________________________________________________________
 
-#include "TRestBiasingVolume.h"
+#include "TRestGeant4BiasingVolume.h"
 using namespace std;
 
-ClassImp(TRestBiasingVolume)
+ClassImp(TRestGeant4BiasingVolume)
     //______________________________________________________________________________
-    TRestBiasingVolume::TRestBiasingVolume() {
+    TRestGeant4BiasingVolume::TRestGeant4BiasingVolume() {
     fBiasingVolumeType = "virtualBox";
-    // TRestBiasingVolume default constructor
+    // TRestGeant4BiasingVolume default constructor
 }
 
 //______________________________________________________________________________
-TRestBiasingVolume::~TRestBiasingVolume() {
-    // TRestBiasingVolume destructor
+TRestGeant4BiasingVolume::~TRestGeant4BiasingVolume() {
+    // TRestGeant4BiasingVolume destructor
 }
 
-void TRestBiasingVolume::PrintBiasingVolume() {
+void TRestGeant4BiasingVolume::PrintBiasingVolume() {
     cout << "-----------------------------" << endl;
     cout << "Biasing volume" << endl;
     cout << "-----------------------------" << endl;

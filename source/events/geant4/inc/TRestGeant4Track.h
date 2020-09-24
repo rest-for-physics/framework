@@ -13,12 +13,12 @@
 ///                 J. Galan
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestG4Track
-#define RestCore_TRestG4Track
+#ifndef RestCore_TRestGeant4Track
+#define RestCore_TRestGeant4Track
 
 #include <TArrayI.h>
 #include <TColor.h>
-#include <TRestG4Hits.h>
+#include <TRestGeant4Hits.h>
 #include <TString.h>
 #include <TVector3.h>
 
@@ -29,7 +29,7 @@
 
 // Perhaps there might be need for a mother class TRestTrack (if there is future
 // need)
-class TRestG4Track : public TObject {
+class TRestGeant4Track : public TObject {
    protected:
     Int_t fTrack_ID;
     Int_t fParent_ID;
@@ -44,7 +44,7 @@ class TRestG4Track : public TObject {
     Double_t fTrackTimestamp;   // in ns precision (seconds have been removed)
     Double_t fKineticEnergy;
 
-    TRestG4Hits fHits;
+    TRestGeant4Hits fHits;
 
     TVector3 fTrackOrigin;
 
@@ -54,7 +54,7 @@ class TRestG4Track : public TObject {
         fSubEventId = 0.;
     }
 
-    TRestG4Hits* GetHits() { return &fHits; }
+    TRestGeant4Hits* GetHits() { return &fHits; }
 
     Double_t GetEnergy() { return GetHits()->GetEnergy(); }
 
@@ -245,11 +245,11 @@ class TRestG4Track : public TObject {
 
     //    Int_t GetParticleID();
     // Construtor
-    TRestG4Track();
+    TRestGeant4Track();
     // Destructor
-    virtual ~TRestG4Track();
+    virtual ~TRestGeant4Track();
 
-    ClassDef(TRestG4Track, 2);  // REST event superclass
+    ClassDef(TRestGeant4Track, 2);  // REST event superclass
 };
 
 #endif

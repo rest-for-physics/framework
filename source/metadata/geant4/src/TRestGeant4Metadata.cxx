@@ -21,16 +21,16 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestG4Metadata is the main class used to interface with *restG4* (a REST
+/// TRestGeant4Metadata is the main class used to interface with *restG4* (a REST
 /// based Geant4 code distributed with REST) used to launch Geant4 based
 /// simulations, and store later on the simulation conditions as metadata
 /// information inside the output generated file. The simulations produced by
-/// *restG4* will write to disk the event data generated as a TRestG4Event type.
+/// *restG4* will write to disk the event data generated as a TRestGeant4Event type.
 /// The tutorials page includes a tutorial describing on detail how to launch a
 /// restG4 simulation and retrieve basic simulation results.
 ///
 /// There are few helper classes that aid to organize and access the information
-/// that TRestG4Metadata contains, TRestG4PrimaryGenerator, TRestBiasingVolume,
+/// that TRestGeant4Metadata contains, TRestGeant4PrimaryGenerator, TRestGeant4BiasingVolume,
 /// TRestParticleCollection, TRestParticle, TRestParticleSource, and
 /// TRestPhysicsLists.
 ///
@@ -56,10 +56,10 @@
 ///     ...
 /// </TRestRun>
 ///
-/// //A TRestG4Metadata section defining few parameters, generator, and storage.
-/// <TRestG4Metadata>
+/// //A TRestGeant4Metadata section defining few parameters, generator, and storage.
+/// <TRestGeant4Metadata>
 ///     ...
-/// </TRestG4Metadata>
+/// </TRestGeant4Metadata>
 ///
 /// //A TRestPhysicsLists section def-inning the physics processes active.
 /// <TRestPhysicsLists>
@@ -75,15 +75,15 @@
 /// REST_PATH/config/template/restG4.rml
 ///
 /// \note The runTag inside the TRestRun class will be overwritten by the name
-/// of TRestG4Metadata section defined in the RML.
+/// of TRestGeant4Metadata section defined in the RML.
 ///
 /// This page describes in detail the different parameters, particle generator
 /// types, storage, and other features implemented in restG4, that can be
-/// defined inside the section TRestG4Metadata. The description of other
+/// defined inside the section TRestGeant4Metadata. The description of other
 /// required sections, as TRestRun or TRestPhysicsLists, will be found in their
 /// respective class documentation.
 ///
-/// We can sub-divide the information provided through TRestG4Metadata in
+/// We can sub-divide the information provided through TRestGeant4Metadata in
 /// different parts,
 ///
 /// 1. the main parameters related to the simulation conditions, such as number
@@ -105,7 +105,7 @@
 /// ## 1. Basic simulation parameters
 ///
 /// The following list presents the common parameters that must be defined
-/// inside TRestG4Metadata section to define few simulation conditions in
+/// inside TRestGeant4Metadata section to define few simulation conditions in
 /// *restG4*, as important as the detector geometry, or the number of events to
 /// be simulated.
 ///
@@ -634,14 +634,14 @@
 ///
 /// History of developments:
 ///
-/// 2015-July: First concept and implementation of TRestG4 classes.
+/// 2015-July: First concept and implementation of TRestGeant4 classes.
 /// \author     Javier Galan
 ///
-/// \class TRestG4Metadata
+/// \class TRestGeant4Metadata
 ///
 /// <hr>
 ///
-#include "TRestG4Metadata.h"
+#include "TRestGeant4Metadata.h"
 using namespace std;
 
 #include <TGeoManager.h>
@@ -686,12 +686,12 @@ std::map<string, angular_dist_types> angular_dist_types_map = {
 };
 }  // namespace g4_metadata_parameters
 
-ClassImp(TRestG4Metadata);
+ClassImp(TRestGeant4Metadata);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestG4Metadata::TRestG4Metadata() : TRestMetadata() { Initialize(); }
+TRestGeant4Metadata::TRestGeant4Metadata() : TRestMetadata() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -705,9 +705,9 @@ TRestG4Metadata::TRestG4Metadata() : TRestMetadata() { Initialize(); }
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// corresponding TRestG4Metadata section inside the RML.
+/// corresponding TRestGeant4Metadata section inside the RML.
 ///
-TRestG4Metadata::TRestG4Metadata(char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
+TRestGeant4Metadata::TRestGeant4Metadata(char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);
@@ -718,12 +718,12 @@ TRestG4Metadata::TRestG4Metadata(char* cfgFileName, string name) : TRestMetadata
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestG4Metadata::~TRestG4Metadata() { fPrimaryGenerator.RemoveParticleCollections(); }
+TRestGeant4Metadata::~TRestGeant4Metadata() { fPrimaryGenerator.RemoveParticleCollections(); }
 
 ///////////////////////////////////////////////
-/// \brief Initialization of TRestG4Metadata members
+/// \brief Initialization of TRestGeant4Metadata members
 ///
-void TRestG4Metadata::Initialize() {
+void TRestGeant4Metadata::Initialize() {
     SetSectionName(this->ClassName());
 
     fChance.clear();
@@ -742,9 +742,9 @@ void TRestG4Metadata::Initialize() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Initialization of TRestG4Metadata members through a RML file
+/// \brief Initialization of TRestGeant4Metadata members through a RML file
 ///
-void TRestG4Metadata::InitFromConfigFile() {
+void TRestGeant4Metadata::InitFromConfigFile() {
     this->Initialize();
 
     // Initialize the metadata members from a configfile
@@ -798,7 +798,7 @@ void TRestG4Metadata::InitFromConfigFile() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Reads the biasing section defined inside TRestG4Metadata.
+/// \brief Reads the biasing section defined inside TRestGeant4Metadata.
 ///
 /// This section allows to define the size and properties of any number of
 /// biasing volumes. Biasing volume properties include the multiplicity factor
@@ -807,7 +807,7 @@ void TRestG4Metadata::InitFromConfigFile() {
 ///
 /// Check for more details in the general description of this class.
 ///
-void TRestG4Metadata::ReadBiasing() {
+void TRestGeant4Metadata::ReadBiasing() {
     string biasingString = GetKEYStructure("biasing");
 
     if (biasingString == "NotFound") {
@@ -830,7 +830,7 @@ void TRestG4Metadata::ReadBiasing() {
 
         Int_t n = 0;
         while ((biasVolumeDefinition = GetKEYDefinition("biasingVolume", position, biasingString)) != "") {
-            TRestBiasingVolume biasVolume;
+            TRestGeant4BiasingVolume biasVolume;
 
             cout << "Def : " << biasVolumeDefinition << endl;
 
@@ -854,14 +854,14 @@ void TRestG4Metadata::ReadBiasing() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Reads the generator section defined inside TRestG4Metadata.
+/// \brief Reads the generator section defined inside TRestGeant4Metadata.
 ///
 /// This section allows to define the primary particles to be simulated.
 /// The generator will allow us to define from where we will launch the
 /// primary particles, their energy distribution, and their angular
 /// momentum.
 ///
-void TRestG4Metadata::ReadGenerator() {
+void TRestGeant4Metadata::ReadGenerator() {
     // TODO if some fields are defined in the generator but not finally used
     // i.e. <generator type="volume" from="gasTarget" position="(100,0,-100)
     // here position is irrelevant since the event will be generated from the
@@ -946,12 +946,12 @@ void TRestG4Metadata::ReadGenerator() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Reads the storage section defined inside TRestG4Metadata.
+/// \brief Reads the storage section defined inside TRestGeant4Metadata.
 ///
 /// This section allows to define which hits will be stored to disk.
 /// Different volumes in the geometry can be tagged for hit storage.
 ///
-void TRestG4Metadata::ReadStorage() {
+void TRestGeant4Metadata::ReadStorage() {
     string storageString = GetKEYStructure("storage");
     fSensitiveVolume = GetFieldValue("sensitiveVolume", storageString);
     cout << "Sensitive volume : " << fSensitiveVolume << endl;
@@ -983,7 +983,7 @@ void TRestG4Metadata::ReadStorage() {
         // first we verify its in the list of valid volumes
         if (geometryVolumes.find((string)name) == geometryVolumes.end()) {
             // it is not on the container
-            ferr << "TRestG4Metadata. Problem reading storage section." << endl;
+            ferr << "TRestGeant4Metadata. Problem reading storage section." << endl;
             ferr << " 	- The volume '" << name << "' was not found in the GDML geometry." << endl;
             exit(1);
         } else {
@@ -1003,9 +1003,9 @@ void TRestG4Metadata::ReadStorage() {
 
 ///////////////////////////////////////////////
 /// \brief Prints on screen the details about the Geant4 simulation
-/// conditions, stored in TRestG4Metadata.
+/// conditions, stored in TRestGeant4Metadata.
 ///
-void TRestG4Metadata::PrintMetadata() {
+void TRestGeant4Metadata::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     metadata << "Geant 4 version : " << GetGeant4Version() << endl;
@@ -1076,7 +1076,7 @@ void TRestG4Metadata::PrintMetadata() {
 /// \param fName The Decay0 filename located at
 /// REST_PATH/data/generator/
 ///
-void TRestG4Metadata::ReadEventDataFile(TString fName) {
+void TRestGeant4Metadata::ReadEventDataFile(TString fName) {
     string fullPathName = SearchFile((string)fName);
     if (fullPathName == "") {
         ferr << "File not found : " << fName << endl;
@@ -1084,7 +1084,7 @@ void TRestG4Metadata::ReadEventDataFile(TString fName) {
         exit(1);
     }
 
-    debug << "TRestG4Metadata::ReadGeneratorFile" << endl;
+    debug << "TRestGeant4Metadata::ReadGeneratorFile" << endl;
     debug << "Full path generator file : " << fullPathName << endl;
 
     if (!ReadOldDecay0File(fullPathName)) ReadNewDecay0File(fullPathName);
@@ -1093,10 +1093,10 @@ void TRestG4Metadata::ReadEventDataFile(TString fName) {
 ///////////////////////////////////////////////
 /// \brief Reads particle information using the file format from newer Decay0 versions.
 ///
-/// This is an auxiliar method used in TRestG4Metadata::ReadEventDataFile that will read the Decay0 files
+/// This is an auxiliar method used in TRestGeant4Metadata::ReadEventDataFile that will read the Decay0 files
 /// produced with the newer Decay0 versions.
 ///
-Int_t TRestG4Metadata::ReadNewDecay0File(TString fileName) {
+Int_t TRestGeant4Metadata::ReadNewDecay0File(TString fileName) {
     ifstream infile;
     infile.open(fileName);
     if (!infile.is_open()) {
@@ -1114,7 +1114,7 @@ Int_t TRestG4Metadata::ReadNewDecay0File(TString fileName) {
     }
 
     if (generatorEvents == 0) {
-        ferr << "TRestG4Metadata::ReadNewDecay0File. Problem reading generator file" << endl;
+        ferr << "TRestGeant4Metadata::ReadNewDecay0File. Problem reading generator file" << endl;
         exit(1);
     }
 
@@ -1196,10 +1196,10 @@ Int_t TRestG4Metadata::ReadNewDecay0File(TString fileName) {
 ///////////////////////////////////////////////
 /// \brief Reads particle information using the file format from older Decay0 versions.
 ///
-/// This is an auxiliar method used in TRestG4Metadata::ReadEventDataFile that will read the Decay0 files
+/// This is an auxiliar method used in TRestGeant4Metadata::ReadEventDataFile that will read the Decay0 files
 /// produced with the newer Decay0 versions.
 ///
-Int_t TRestG4Metadata::ReadOldDecay0File(TString fileName) {
+Int_t TRestGeant4Metadata::ReadOldDecay0File(TString fileName) {
     ifstream infile;
     infile.open(fileName);
     if (!infile.is_open()) {
@@ -1219,8 +1219,9 @@ Int_t TRestG4Metadata::ReadOldDecay0File(TString fileName) {
         }
     }
     if (!headerFound) {
-        ferr << "TRestG4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and "
-                "full number of events:\" header.\n";
+        ferr
+            << "TRestGeant4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and "
+               "full number of events:\" header.\n";
         abort();
     }
     int tmpInt;
@@ -1305,7 +1306,7 @@ Int_t TRestG4Metadata::ReadOldDecay0File(TString fileName) {
 ///////////////////////////////////////////////
 /// \brief It reads the <source definition given by argument
 ///
-void TRestG4Metadata::ReadParticleSource(TString definition) {
+void TRestGeant4Metadata::ReadParticleSource(TString definition) {
     string sourceString = (string)definition;
     string sourceDefinition = GetKEYDefinition("source", sourceString);
 
@@ -1372,7 +1373,7 @@ void TRestG4Metadata::ReadParticleSource(TString definition) {
 
 ///////////////////////////////////////////////
 /// \brief Returns the id of an active volume giving as parameter its name.
-Int_t TRestG4Metadata::GetActiveVolumeID(TString name) {
+Int_t TRestGeant4Metadata::GetActiveVolumeID(TString name) {
     Int_t id;
     for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
         if (fActiveVolumes[id] == name) return id;
@@ -1392,7 +1393,7 @@ Int_t TRestG4Metadata::GetActiveVolumeID(TString name) {
 ///               Usually the volume of interest will be always registered
 ///               (chance=1).
 ///
-void TRestG4Metadata::SetActiveVolume(TString name, Double_t chance) {
+void TRestGeant4Metadata::SetActiveVolume(TString name, Double_t chance) {
     fActiveVolumes.push_back(name);
     fChance.push_back(chance);
 }
@@ -1401,7 +1402,7 @@ void TRestG4Metadata::SetActiveVolume(TString name, Double_t chance) {
 /// \brief Returns true if the volume named *volName* has been registered for
 /// data storage.
 ///
-Bool_t TRestG4Metadata::isVolumeStored(TString volName) {
+Bool_t TRestGeant4Metadata::isVolumeStored(TString volName) {
     for (int n = 0; n < GetNumberOfActiveVolumes(); n++)
         if (GetActiveVolumeName(n) == volName) return true;
 
@@ -1411,7 +1412,7 @@ Bool_t TRestG4Metadata::isVolumeStored(TString volName) {
 ///////////////////////////////////////////////
 /// \brief Returns the probability of an active volume being stored
 ///
-Double_t TRestG4Metadata::GetStorageChance(TString vol) {
+Double_t TRestGeant4Metadata::GetStorageChance(TString vol) {
     Int_t id;
     for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
         if (fActiveVolumes[id] == vol) return fChance[id];

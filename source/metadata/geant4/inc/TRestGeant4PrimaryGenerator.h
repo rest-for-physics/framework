@@ -2,7 +2,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestG4PrimaryGenerator.h
+///             TRestGeant4PrimaryGenerator.h
 ///
 ///             Class to store a particle definition
 ///
@@ -13,8 +13,8 @@
 ///
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef RestCore_TRestG4PrimaryGenerator
-#define RestCore_TRestG4PrimaryGenerator
+#ifndef RestCore_TRestGeant4PrimaryGenerator
+#define RestCore_TRestGeant4PrimaryGenerator
 
 #include <TRestParticleCollection.h>
 #include <TRestParticleSource.h>
@@ -25,7 +25,7 @@
 
 #include "TObject.h"
 
-class TRestG4PrimaryGenerator : public TObject {
+class TRestGeant4PrimaryGenerator : public TObject {
    protected:
     Int_t fNsources;  // Number of sources to be generated
 
@@ -55,14 +55,14 @@ class TRestG4PrimaryGenerator : public TObject {
     void AddParticleCollection(TRestParticleCollection* collection);
 
     /// Read n-th collection in fParticleCollections, and set fSources
-    /// accordingly. Used in TRestG4Metadata::ReadParticleCollection
+    /// accordingly. Used in TRestGeant4Metadata::ReadParticleCollection
     void UpdateSourcesFromParticleCollection(Int_t n);
 
     // Construtor
-    TRestG4PrimaryGenerator();
+    TRestGeant4PrimaryGenerator();
     // Destructor
-    virtual ~TRestG4PrimaryGenerator();
+    virtual ~TRestGeant4PrimaryGenerator();
 
-    ClassDef(TRestG4PrimaryGenerator, 3);
+    ClassDef(TRestGeant4PrimaryGenerator, 3);
 };
 #endif

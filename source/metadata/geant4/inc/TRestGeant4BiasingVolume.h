@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestBiasingVolume.h
+///             TRestGeant4BiasingVolume.h
 ///
 ///             A template class for copy/paste
 ///
@@ -13,15 +13,15 @@
 ///                 J. Galan
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestBiasingVolume
-#define RestCore_TRestBiasingVolume
+#ifndef RestCore_TRestGeant4BiasingVolume
+#define RestCore_TRestGeant4BiasingVolume
 
 #include <iostream>
 
 #include "TObject.h"
 #include "TVector3.h"
 
-class TRestBiasingVolume : public TObject {
+class TRestGeant4BiasingVolume : public TObject {
    protected:
     TVector3 fVolumePosition;
     Double_t fVolumeSize;
@@ -63,10 +63,10 @@ class TRestBiasingVolume : public TObject {
     void PrintBiasingVolume();
 
     // Construtor
-    TRestBiasingVolume();
+    TRestGeant4BiasingVolume();
     // Destructor
-    virtual ~TRestBiasingVolume();
+    virtual ~TRestGeant4BiasingVolume();
 
-    ClassDef(TRestBiasingVolume, 2);  // REST event superclass
+    ClassDef(TRestGeant4BiasingVolume, 2);  // REST event superclass
 };
 #endif

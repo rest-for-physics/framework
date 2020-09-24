@@ -7,8 +7,8 @@
 #include "G4Material.hh"
 #include "G4SystemOfUnits.hh"
 
-extern TRestG4Event* restG4Event;
-extern TRestG4Metadata* restG4Metadata;
+extern TRestGeant4Event* restG4Event;
+extern TRestGeant4Metadata* restG4Metadata;
 
 //_____________________________________________________________________________
 DetectorConstruction::DetectorConstruction() {
@@ -88,7 +88,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
 
         fGeneratorTranslation = pVol->GetTranslation();
 
-        // We set in TRestG4Metadata the center of the generator. If it is a point
+        // We set in TRestGeant4Metadata the center of the generator. If it is a point
         // we just want the value from the config file.
         // TODO : make this kind of keyword comparisons case insensitive?
         if (type == "surface" || type == "volume") {

@@ -23,22 +23,22 @@
 #ifndef RestCore_TRestGeant4AnalysisProcess
 #define RestCore_TRestGeant4AnalysisProcess
 
-#include <TRestG4Event.h>
-#include <TRestG4Metadata.h>
+#include <TRestGeant4Event.h>
+#include <TRestGeant4Metadata.h>
 
 #include "TRestEventProcess.h"
 
-//! A pure analysis process to extract information from a TRestG4Event
+//! A pure analysis process to extract information from a TRestGeant4Event
 class TRestGeant4AnalysisProcess : public TRestEventProcess {
    private:
-    /// A pointer to the specific TRestG4Event input
-    TRestG4Event* fInputG4Event;  //!
+    /// A pointer to the specific TRestGeant4Event input
+    TRestGeant4Event* fInputG4Event;  //!
 
-    /// A pointer to the specific TRestG4Event output
-    TRestG4Event* fOutputG4Event;  //!
+    /// A pointer to the specific TRestGeant4Event output
+    TRestGeant4Event* fOutputG4Event;  //!
 
     /// A pointer to the simulation metadata information accessible to TRestRun
-    TRestG4Metadata* fG4Metadata;  //!
+    TRestGeant4Metadata* fG4Metadata;  //!
 
     /// It stores the name of observables `xxxVolumeEDep` related to the energy deposition in volume `xxx`.
     std::vector<std::string> fEnergyInObservables;  //!

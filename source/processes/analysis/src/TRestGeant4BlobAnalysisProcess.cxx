@@ -4,7 +4,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestFindG4BlobAnalysisProcess.cxx
+///             TRestGeant4BlobAnalysisProcess.cxx
 ///
 ///
 ///             First implementation of Geant4 analysis process into REST_v2
@@ -13,41 +13,39 @@
 ///
 ///_______________________________________________________________________________
 
-#include "TRestFindG4BlobAnalysisProcess.h"
+#include "TRestGeant4BlobAnalysisProcess.h"
 using namespace std;
 
-ClassImp(TRestFindG4BlobAnalysisProcess)
-    //______________________________________________________________________________
-    TRestFindG4BlobAnalysisProcess::TRestFindG4BlobAnalysisProcess() {
-    Initialize();
-}
+ClassImp(TRestGeant4BlobAnalysisProcess);
+//______________________________________________________________________________
+TRestGeant4BlobAnalysisProcess::TRestGeant4BlobAnalysisProcess() { Initialize(); }
 
 //______________________________________________________________________________
-TRestFindG4BlobAnalysisProcess::TRestFindG4BlobAnalysisProcess(char* cfgFileName) {
+TRestGeant4BlobAnalysisProcess::TRestGeant4BlobAnalysisProcess(char* cfgFileName) {
     Initialize();
 
     if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
 }
 
 //______________________________________________________________________________
-TRestFindG4BlobAnalysisProcess::~TRestFindG4BlobAnalysisProcess() { delete fG4Event; }
+TRestGeant4BlobAnalysisProcess::~TRestGeant4BlobAnalysisProcess() { delete fG4Event; }
 
-void TRestFindG4BlobAnalysisProcess::LoadDefaultConfig() { SetTitle("Default config"); }
+void TRestGeant4BlobAnalysisProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 
 //______________________________________________________________________________
-void TRestFindG4BlobAnalysisProcess::Initialize() {
+void TRestGeant4BlobAnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fG4Event = new TRestG4Event();
-    /// fOutputG4Event = new TRestG4Event();
+    fG4Event = new TRestGeant4Event();
+    /// fOutputG4Event = new TRestGeant4Event();
 }
 
-void TRestFindG4BlobAnalysisProcess::LoadConfig(std::string cfgFilename, std::string name) {
+void TRestGeant4BlobAnalysisProcess::LoadConfig(std::string cfgFilename, std::string name) {
     if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
 //______________________________________________________________________________
-void TRestFindG4BlobAnalysisProcess::InitProcess() {
+void TRestGeant4BlobAnalysisProcess::InitProcess() {
     std::vector<string> fObservables;
     fObservables = TRestEventProcess::ReadObservables();
 
@@ -66,12 +64,12 @@ void TRestFindG4BlobAnalysisProcess::InitProcess() {
         fQ2_Radius.push_back(r2);
     }
 
-    fG4Metadata = GetMetadata<TRestG4Metadata>();
+    fG4Metadata = GetMetadata<TRestGeant4Metadata>();
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestFindG4BlobAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
-    *fG4Event = *((TRestG4Event*)evInput);
+TRestEvent* TRestGeant4BlobAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
+    *fG4Event = *((TRestGeant4Event*)evInput);
 
     TString obsName;
 
@@ -81,10 +79,10 @@ TRestEvent* TRestFindG4BlobAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     Double_t xBlob2 = 0, yBlob2 = 0, zBlob2 = 0;
 
     for (int tck = 0; tck < fG4Event->GetNumberOfTracks(); tck++) {
-        TRestG4Track* track = fG4Event->GetTrack(tck);
+        TRestGeant4Track* track = fG4Event->GetTrack(tck);
         if (track->GetParentID() == 0) {
             if (track->GetParticleName() != "e-") {
-                cout << "TRestFindG4BlobAnalysis Warning. Primary particle is not an "
+                cout << "TRestGeant4BlobAnalysis Warning. Primary particle is not an "
                         "electron!!"
                      << endl;
                 cout << "Skipping." << endl;
@@ -100,7 +98,7 @@ TRestEvent* TRestFindG4BlobAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
             }
 
             if (nBlobs >= 2) {
-                cout << "TRestFindG4BlobAnalysis Warning. More than 2 e- primaries "
+                cout << "TRestGeant4BlobAnalysis Warning. More than 2 e- primaries "
                         "found!"
                      << endl;
                 continue;
@@ -188,7 +186,7 @@ TRestEvent* TRestFindG4BlobAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 }
 
 //______________________________________________________________________________
-void TRestFindG4BlobAnalysisProcess::EndProcess() {
+void TRestGeant4BlobAnalysisProcess::EndProcess() {
     // Function to be executed once at the end of the process
     // (after all events have been processed)
 
@@ -198,4 +196,4 @@ void TRestFindG4BlobAnalysisProcess::EndProcess() {
 }
 
 //______________________________________________________________________________
-void TRestFindG4BlobAnalysisProcess::InitFromConfigFile() {}
+void TRestGeant4BlobAnalysisProcess::InitFromConfigFile() {}

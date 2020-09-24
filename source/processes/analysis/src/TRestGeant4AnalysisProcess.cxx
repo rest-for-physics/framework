@@ -22,8 +22,8 @@
 
 //////////////////////////////////////////////////////////////////////////
 /// The TRestGeant4AnalysisProcess allows to extract valuable information
-/// from a TRestG4Event which contains the information of energy deposits
-/// from a Geant4 MonteCarlo simulation. TRestG4Event stores hits which
+/// from a TRestGeant4Event which contains the information of energy deposits
+/// from a Geant4 MonteCarlo simulation. TRestGeant4Event stores hits which
 /// include the physical process and geometry volume id where the
 /// interaction took place. This process accesses the Geant4 event data
 /// and metadata information and it will add the observables defined by
@@ -253,7 +253,7 @@ void TRestGeant4AnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fInputG4Event = NULL;
-    fOutputG4Event = new TRestG4Event();
+    fOutputG4Event = new TRestGeant4Event();
 }
 
 ///////////////////////////////////////////////
@@ -278,7 +278,7 @@ void TRestGeant4AnalysisProcess::LoadConfig(std::string cfgFilename, std::string
 /// observables defined in TRestGeant4AnalysisProcess are filled at this stage.
 ///
 void TRestGeant4AnalysisProcess::InitProcess() {
-    fG4Metadata = GetMetadata<TRestG4Metadata>();
+    fG4Metadata = GetMetadata<TRestGeant4Metadata>();
 
     std::vector<string> fObservables;
     fObservables = TRestEventProcess::ReadObservables();
@@ -408,8 +408,8 @@ void TRestGeant4AnalysisProcess::InitProcess() {
 /// \brief The main processing event function
 ///
 TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
-    fInputG4Event = (TRestG4Event*)evInput;
-    *fOutputG4Event = *((TRestG4Event*)evInput);
+    fInputG4Event = (TRestGeant4Event*)evInput;
+    *fOutputG4Event = *((TRestGeant4Event*)evInput);
 
     TString obsName;
 
@@ -417,7 +417,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     if (GetVerboseLevel() >= REST_Debug) {
         cout << "----------------------------" << endl;
-        cout << "TRestG4Event : " << fOutputG4Event->GetID() << endl;
+        cout << "TRestGeant4Event : " << fOutputG4Event->GetID() << endl;
         cout << "Sensitive volume Energy : " << energy << endl;
         cout << "Total energy : " << fOutputG4Event->GetTotalDepositedEnergy() << endl;
         ;

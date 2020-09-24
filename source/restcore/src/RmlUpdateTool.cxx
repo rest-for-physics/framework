@@ -76,7 +76,7 @@ bool RmlUpdateTool::Is2_1() {
 bool RmlUpdateTool::UpdateSyntax() {
     // we must use C++ to do the job in future
     map<string, int> index;
-    index["restG4"] = fFileContent.find("TRestG4Metadata");
+    index["restG4"] = fFileContent.find("TRestGeant4Metadata");
     index["restManager"] = fFileContent.find("TRestManager");
     index["processes"] = fFileContent.find("Process");
     index["readouts"] = fFileContent.find("TRestDetectorReadout");

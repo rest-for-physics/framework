@@ -7,8 +7,8 @@
 
 #include <G4GDMLParser.hh>
 
-#include <TRestG4Event.h>
-#include <TRestG4Metadata.h>
+#include <TRestGeant4Event.h>
+#include <TRestGeant4Metadata.h>
 
 class DetectorConstruction : public G4VUserDetectorConstruction {
    private:

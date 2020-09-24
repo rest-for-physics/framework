@@ -5,23 +5,23 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestFindG4BlobAnalysisProcess.h
+///             TRestGeant4BlobAnalysisProcess.h
 ///
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestFindG4BlobAnalysisProcess
-#define RestCore_TRestFindG4BlobAnalysisProcess
+#ifndef RestCore_TRestGeant4BlobAnalysisProcess
+#define RestCore_TRestGeant4BlobAnalysisProcess
 
-#include <TRestG4Event.h>
-#include <TRestG4Metadata.h>
+#include <TRestGeant4Event.h>
+#include <TRestGeant4Metadata.h>
 
 #include "TRestEventProcess.h"
 
-class TRestFindG4BlobAnalysisProcess : public TRestEventProcess {
+class TRestGeant4BlobAnalysisProcess : public TRestEventProcess {
    private:
 #ifndef __CINT__
-    TRestG4Event* fG4Event;        //!
-    TRestG4Metadata* fG4Metadata;  //!
+    TRestGeant4Event* fG4Event;        //!
+    TRestGeant4Metadata* fG4Metadata;  //!
 
     std::vector<std::string> fQ1_Observables;  //!
     std::vector<double> fQ1_Radius;            //!
@@ -58,12 +58,12 @@ class TRestFindG4BlobAnalysisProcess : public TRestEventProcess {
     TString GetProcessName() { return (TString) "findG4BlobAnalysis"; }
 
     // Constructor
-    TRestFindG4BlobAnalysisProcess();
-    TRestFindG4BlobAnalysisProcess(char* cfgFileName);
+    TRestGeant4BlobAnalysisProcess();
+    TRestGeant4BlobAnalysisProcess(char* cfgFileName);
     // Destructor
-    ~TRestFindG4BlobAnalysisProcess();
+    ~TRestGeant4BlobAnalysisProcess();
 
-    ClassDef(TRestFindG4BlobAnalysisProcess, 1);  // Template for a REST "event process" class inherited from
+    ClassDef(TRestGeant4BlobAnalysisProcess, 1);  // Template for a REST "event process" class inherited from
                                                   // TRestEventProcess
 };
 #endif

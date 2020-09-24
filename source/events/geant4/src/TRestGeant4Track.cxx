@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestG4Track.cxx
+///             TRestGeant4Track.cxx
 ///
 ///             Base class from which to inherit all other event classes in REST
 ///
@@ -15,21 +15,21 @@
 ///                 J. Galan
 ///_______________________________________________________________________________
 
-#include "TRestG4Track.h"
+#include "TRestGeant4Track.h"
 using namespace std;
 
-ClassImp(TRestG4Track);
+ClassImp(TRestGeant4Track);
 //______________________________________________________________________________
-TRestG4Track::TRestG4Track() {
-    // TRestG4Track default constructor
+TRestGeant4Track::TRestGeant4Track() {
+    // TRestGeant4Track default constructor
 }
 
 //______________________________________________________________________________
-TRestG4Track::~TRestG4Track() {
-    // TRestG4Track destructor
+TRestGeant4Track::~TRestGeant4Track() {
+    // TRestGeant4Track destructor
 }
 
-Int_t TRestG4Track::GetProcessID(TString pcsName) {
+Int_t TRestGeant4Track::GetProcessID(TString pcsName) {
     Int_t id = -1;
 
     // TODO We register the process manually. Not good if we add new processes to
@@ -136,13 +136,13 @@ Int_t TRestG4Track::GetProcessID(TString pcsName) {
     else {
         id = -1;
         cout << "WARNING : The process " << pcsName
-             << " was not found. It must be added to TRestG4Track::GetProcessID()" << endl;
+             << " was not found. It must be added to TRestGeant4Track::GetProcessID()" << endl;
     }
 
     return id;
 }
 
-EColor TRestG4Track::GetParticleColor() {
+EColor TRestGeant4Track::GetParticleColor() {
     EColor color = kGray;
 
     if (GetParticleName() == "e-")
@@ -156,14 +156,14 @@ EColor TRestG4Track::GetParticleColor() {
     else if (GetParticleName() == "gamma")
         color = kGreen;
     else
-        cout << "TRestG4Track::GetParticleColor. Particle NOT found! Returning "
+        cout << "TRestGeant4Track::GetParticleColor. Particle NOT found! Returning "
                 "gray color."
              << endl;
 
     return color;
 }
 
-Double_t TRestG4Track::GetTrackLength() {
+Double_t TRestGeant4Track::GetTrackLength() {
     Double_t length = 0;
 
     length = GetDistance(fHits.GetPosition(0), GetTrackOrigin());
@@ -176,7 +176,7 @@ Double_t TRestG4Track::GetTrackLength() {
     return length;
 }
 
-TString TRestG4Track::GetProcessName(Int_t id) {
+TString TRestGeant4Track::GetProcessName(Int_t id) {
     if (id == 0)
         return "initStep";
     else if (id == 1)
@@ -281,7 +281,7 @@ TString TRestG4Track::GetProcessName(Int_t id) {
     return "";
 }
 
-void TRestG4Track::PrintTrack(int maxHits) {
+void TRestGeant4Track::PrintTrack(int maxHits) {
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
             "++++++++++++"
          << endl;
@@ -304,7 +304,7 @@ void TRestG4Track::PrintTrack(int maxHits) {
         cout << " Printing only the first " << nHits << " hits of the track" << endl;
     }
 
-    TRestG4Hits* hits = GetHits();
+    TRestGeant4Hits* hits = GetHits();
     for (int i = 0; i < nHits; i++) {
         cout << " # Hit " << i << " # process : " << GetProcessName(hits->GetHitProcess(i))
              << " volume : " << hits->GetHitVolume(i) << " X : " << hits->GetX(i) << " Y : " << hits->GetY(i)

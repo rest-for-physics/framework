@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestG4Hits.h
+///             TRestGeant4Hits.h
 ///
 ///             Base class from which to inherit all other event classes in REST
 ///
@@ -15,8 +15,8 @@
 ///                 J. Galan
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestG4Hits
-#define RestCore_TRestG4Hits
+#ifndef RestCore_TRestGeant4Hits
+#define RestCore_TRestGeant4Hits
 
 #include <TArrayF.h>
 #include <TArrayI.h>
@@ -26,7 +26,7 @@
 
 #include "TObject.h"
 
-class TRestG4Hits : public TRestHits {
+class TRestGeant4Hits : public TRestHits {
    protected:
     TArrayI fVolumeID;
     TArrayI fProcessID;      // [fNHits]
@@ -59,10 +59,10 @@ class TRestG4Hits : public TRestHits {
     TVector3 GetLastPositionInVolume(Int_t volID);
 
     // Constructor
-    TRestG4Hits();
+    TRestGeant4Hits();
     // Destructor
-    virtual ~TRestG4Hits();
+    virtual ~TRestGeant4Hits();
 
-    ClassDef(TRestG4Hits, 6);  // REST event superclass
+    ClassDef(TRestGeant4Hits, 6);  // REST event superclass
 };
 #endif

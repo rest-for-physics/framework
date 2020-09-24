@@ -41,9 +41,9 @@ using namespace std;
 
 #include "TH1D.h"
 
-#include <TRestG4Event.h>
-#include <TRestG4Metadata.h>
-#include <TRestG4Track.h>
+#include <TRestGeant4Event.h>
+#include <TRestGeant4Metadata.h>
+#include <TRestGeant4Track.h>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

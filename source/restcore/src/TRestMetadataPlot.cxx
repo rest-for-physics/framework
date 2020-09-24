@@ -262,7 +262,7 @@ TRestMetadataPlot::TRestMetadataPlot() { Initialize(); }
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// corresponding TRestG4Metadata section inside the RML.
+/// corresponding TRestGeant4Metadata section inside the RML.
 ///
 TRestMetadataPlot::TRestMetadataPlot(const char* cfgFileName, const char* name) : TRestMetadata(cfgFileName) {
     Initialize();

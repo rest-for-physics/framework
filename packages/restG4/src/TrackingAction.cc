@@ -42,9 +42,9 @@
 #include "G4Track.hh"
 #include "G4UnitsTable.hh"
 
-extern TRestG4Metadata* restG4Metadata;
-extern TRestG4Event* restG4Event;
-extern TRestG4Track* restTrack;
+extern TRestGeant4Metadata* restG4Metadata;
+extern TRestGeant4Event* restG4Event;
+extern TRestGeant4Track* restTrack;
 
 //#include "OutputDictionary.hh"
 
@@ -97,7 +97,7 @@ void TrackingAction::PreUserTrackingAction(const G4Track* track) {
 
     // We finish after the de-excitation of the resulting nucleus (we skip the
     // full chain, just first decay) On future we must add an option through
-    // TRestG4Metadata to store a given number of decays
+    // TRestGeant4Metadata to store a given number of decays
 
     //   if( fFullChain == true ) G4cout << "Full chain active" << G4endl;
     //   else  G4cout << "Full chain not active" << G4endl;

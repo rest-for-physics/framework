@@ -20,24 +20,24 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestG4toHitsProcess
-#define RestCore_TRestG4toHitsProcess
+#ifndef RestCore_TRestGeant4ToHitsProcess
+#define RestCore_TRestGeant4ToHitsProcess
 
-#include <TRestG4Event.h>
-#include <TRestG4Metadata.h>
 #include <TRestGas.h>
+#include <TRestGeant4Event.h>
+#include <TRestGeant4Metadata.h>
 #include <TRestHitsEvent.h>
 
 #include "TRestEventProcess.h"
 
-/// A process to transform a *TRestG4Event* into a *TRestHitsEvent*.
-class TRestG4toHitsProcess : public TRestEventProcess {
+/// A process to transform a *TRestGeant4Event* into a *TRestHitsEvent*.
+class TRestGeant4ToHitsProcess : public TRestEventProcess {
    private:
-    /// A pointer to the input TRestG4Event
-    TRestG4Event* fG4Event;  //!
+    /// A pointer to the input TRestGeant4Event
+    TRestGeant4Event* fG4Event;  //!
 
-    /// A pointer to the Geant4 simulation conditions stored in TRestG4Metadata
-    TRestG4Metadata* fG4Metadata;  //!
+    /// A pointer to the Geant4 simulation conditions stored in TRestGeant4Metadata
+    TRestGeant4Metadata* fG4Metadata;  //!
 
     /// A pointer to the output TRestHitsEvent
     TRestHitsEvent* fHitsEvent;  //!
@@ -73,12 +73,12 @@ class TRestG4toHitsProcess : public TRestEventProcess {
     TString GetProcessName() { return (TString) "g4toHitsEvent"; }
 
     // Constructor
-    TRestG4toHitsProcess();
-    TRestG4toHitsProcess(char* cfgFileName);
+    TRestGeant4ToHitsProcess();
+    TRestGeant4ToHitsProcess(char* cfgFileName);
     // Destructor
-    ~TRestG4toHitsProcess();
+    ~TRestGeant4ToHitsProcess();
 
-    ClassDef(TRestG4toHitsProcess, 1);  // Transform a TRestG4Event event to a
-                                        // TRestHitsEvent (hits-collection event)
+    ClassDef(TRestGeant4ToHitsProcess, 1);  // Transform a TRestGeant4Event event to a
+                                            // TRestHitsEvent (hits-collection event)
 };
 #endif

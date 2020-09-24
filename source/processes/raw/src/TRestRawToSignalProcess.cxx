@@ -103,45 +103,6 @@ void TRestRawToSignalProcess::EndProcess() {
     // close binary file??? Already done
 }
 
-////______________________________________________________________________________
-// Bool_t TRestRawToSignalProcess::OpenInputBinFile ( TString fName )
-//{
-//	//TRestDetectorSetup *det = (TRestDetectorSetup *)
-// this->GetDetectorSetup();
-//
-//	//if( det != NULL )
-//	//{
-//	//	fRunOrigin = det->GetRunNumber();
-//	//	fSubRunOrigin = det->GetSubRunNumber();
-//	//}
-//	//else
-//	//{
-//	//	cout << "REST WARNING : Detector setup has not been defined. Run
-// and subRunNumber will not be defined!" << endl;
-//
-//	//}
-//
-//	if(fInputBinFile!= NULL)fclose(fInputBinFile);
-//
-//	if( (fInputBinFile = fopen(fName.Data(),"rb") )==NULL ) {
-//		cout << "WARNING. Input file does not exist" << endl;
-//		return kFALSE;
-//	}
-//
-//    struct tm* clock;
-//    struct stat st;
-//    stat ( fName.Data(), &st);
-//
-//    clock = gmtime( &( st.st_mtime ) );
-//
-//    time_t tstamp = mktime ( clock );
-//
-//    tStart = (Double_t ) tstamp;
-//
-//
-//	return kTRUE;
-//}
-
 Bool_t TRestRawToSignalProcess::OpenInputFiles(vector<string> files) {
     nFiles = 0;
     // for (auto a : fInputFiles) { delete a; }
