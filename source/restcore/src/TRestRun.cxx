@@ -286,13 +286,13 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
             warning << "Skipping..." << endl;
             return -1;
         }
-        if (e->Attribute("file") != NULL && (string)e->Attribute("file") == "server") {
-            // read meta-sections from database
-            auto url = gDataBase->query_data(DBEntry(fRunNumber, "META_RML", e->Value())).value;
-            string file = TRestTools::DownloadRemoteFile(url);
-            e->SetAttribute("file", file.c_str());
-            ExpandIncludeFile(e);
-        }
+        //if (e->Attribute("file") != NULL && (string)e->Attribute("file") == "server") {
+        //    // read meta-sections from database
+        //    auto url = gDataBase->query_data(DBEntry(fRunNumber, "META_RML", e->Value())).value;
+        //    string file = TRestTools::DownloadRemoteFile(url);
+        //    e->SetAttribute("file", file.c_str());
+        //    ExpandIncludeFile(e);
+        //}
 
         TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
         meta->SetHostmgr(fHostmgr);
