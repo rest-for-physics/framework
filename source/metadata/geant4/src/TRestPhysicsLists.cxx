@@ -56,22 +56,20 @@ void TRestPhysicsLists::InitFromConfigFile() {
     fCutForNeutron = GetDblParameterWithUnits("cutForNeutron", 1);
     fMinEnergyRangeProductionCuts = GetDblParameterWithUnits("minEnergyRangeProductionCuts", 1);
     fMaxEnergyRangeProductionCuts = GetDblParameterWithUnits("maxEnergyRangeProductionCuts", 1e6);
-    size_t position = 0;
-    string physicsListString;
 
-    while ((physicsListString = GetKEYStructure("physicsList", position)) != "NotFound") {
+    TiXmlElement* physicsListDefinition = GetElement("physicsList");
+    while (physicsListDefinition != NULL) {
         // PhysicsList name
-        TString phName = GetFieldValue("name", GetKEYDefinition("physicsList", physicsListString));
+        TString phName = GetFieldValue("name", physicsListDefinition);
 
         if (!PhysicsListExists(phName)) {
             cout << "REST WARNING. TRestPhysicsList : Skipping physics list : " << phName << endl;
             continue;
         }
-        size_t pos = 0;
-        string optionDefinition;
 
         TString optionString = "";
-        while ((optionDefinition = GetKEYDefinition("option", pos, physicsListString)) != "") {
+        TiXmlElement* optionDefinition = GetElement("physicsList", physicsListDefinition);
+        while (optionDefinition != NULL) {
             TString optionName = GetFieldValue("name", optionDefinition);
             TString optionValue = GetFieldValue("value", optionDefinition);
 
@@ -82,6 +80,7 @@ void TRestPhysicsLists::InitFromConfigFile() {
 
         fPhysicsLists.push_back(phName);
         fPhysicsListOptions.push_back(optionString);
+        physicsListDefinition = GetNextElement(physicsListDefinition);
     }
 }
 
