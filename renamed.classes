@@ -6,3 +6,11 @@ TRestReadoutModule -> TRestDetectorReadoutModule
 TRestReadoutPixel -> TRestDetectorReadoutPixel
 TRestReadoutPlane -> TRestDetectorReadoutPlane
 TRestReadoutAnalysisProcess -> TRestDetectorReadoutAnalysisProcess
+TRestG4Event -> TRestGeant4Event
+TRestG4Metadata -> TRestGeant4Metadata
+TRestBiasingVolume -> TRestGeant4BiasingVolume
+TRestG4Track -> TRestGeant4Track
+TRestG4EventViewer -> TRestGeant4EventViewer
+TRestG4PrimaryGenerator -> TRestGeant4PrimaryGenerator
+TRestFindG4BlobAnalysisProcess -> TRestGeantBlobAnalysisProcess
+TRestG4toHitsProcess -> TRestGeant4ToHitsProcess
