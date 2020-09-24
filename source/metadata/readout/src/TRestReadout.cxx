@@ -439,39 +439,33 @@ void TRestReadout::AddReadoutPlane(TRestReadoutPlane plane) {
 /// the TRestReadout RML section.
 ///
 void TRestReadout::InitFromConfigFile() {
-    size_t position = 0;
-    string planeString;
-
     fMappingNodes = StringToInteger(GetParameter("mappingNodes", "0"));
 
 #pragma region ParseModuledefinition
-    string moduleString;
-    size_t posSection = 0;
-    while ((moduleString = GetKEYStructure("readoutModule", posSection)) != "NotFound") {
+    TiXmlElement* moduleDefinition = GetElement("readoutModule");
+    while (moduleDefinition != NULL) {
         if (GetVerboseLevel() >= REST_Debug) {
             cout << "------module-----------------" << endl;
-            cout << moduleString << endl;
-            cout << "---------------------------" << endl;
-            cout << "position : " << posSection << endl;
+            cout << moduleDefinition << endl;
+            cout << "-----------------------------" << endl;
             GetChar();
         }
 
-        TRestReadoutModule module = *ParseModuleDefinition(moduleString);
+        TRestReadoutModule module = *ParseModuleDefinition(moduleDefinition);
         module.DoReadoutMapping(fMappingNodes);
         fModuleDefinitions.push_back(module);
+        moduleDefinition = GetNextElement(moduleDefinition);
     }
 #pragma endregion
-
+    TiXmlElement* planeDefinition = GetElement("readoutPlane");
     vector<TRestReadoutModule> moduleVector;
     Int_t addedChannels = 0;
-    while ((planeString = GetKEYStructure("readoutPlane", position)) != "NotFound") {
+    while (planeDefinition != NULL) {
         TRestReadoutPlane plane;
 
-        string planeDefinition = GetKEYDefinition("readoutPlane", planeString);
         plane.SetID(GetNumberOfReadoutPlanes());
-        plane.SetPosition(REST_Units::Get3DVectorValueInString(GetFieldValue("position", planeDefinition)));
-        plane.SetCathodePosition(
-            REST_Units::Get3DVectorValueInString(GetFieldValue("cathodePosition", planeDefinition)));
+        plane.SetPosition(Get3DVectorParameterWithUnits("position", planeDefinition));
+        plane.SetCathodePosition(Get3DVectorParameterWithUnits("cathodePosition", planeDefinition));
         plane.SetPlaneVector(StringTo3DVector(GetFieldValue("planeVector", planeDefinition)));
         plane.SetChargeCollection(StringToDouble(GetFieldValue("chargeCollection", planeDefinition)));
 
@@ -481,9 +475,8 @@ void TRestReadout::InitFromConfigFile() {
 #pragma region addReadoutModuleToPlane
 
         moduleVector.clear();
-        string moduleDefinition;
-        size_t posPlane = 0;
-        while ((moduleDefinition = GetKEYDefinition("addReadoutModule", posPlane, planeString)) != "") {
+        TiXmlElement* moduleDefinition = GetElement("addReadoutModule", planeDefinition);
+        while (moduleDefinition != NULL) {
             TString modName = GetFieldValue("name", moduleDefinition);
             Int_t mid = GetModuleDefinitionId(modName);
 
@@ -541,9 +534,8 @@ void TRestReadout::InitFromConfigFile() {
 
             if (GetVerboseLevel() >= REST_Debug) {
                 cout << "------module-----------------" << endl;
-                cout << moduleString << endl;
-                cout << "---------------------------" << endl;
-                cout << "position : " << posPlane << endl;
+                cout << moduleDefinition << endl;
+                cout << "-----------------------------" << endl;
                 getchar();
             }
 
@@ -573,7 +565,7 @@ void TRestReadout::InitFromConfigFile() {
             moduleVector.push_back(fModuleDefinitions[mid]);
             // plane.AddModule( fModuleDefinitions[mid] );
 
-            posPlane++;
+            moduleDefinition = GetNextElement(moduleDefinition);
         }
 
         // We removed the constraint that module id's should start by 0 and have no
@@ -594,18 +586,17 @@ void TRestReadout::InitFromConfigFile() {
 #pragma endregion
 
         this->AddReadoutPlane(plane);
+        planeDefinition = GetNextElement(planeDefinition);
     }
 
     ValidateReadout();
     gDetector->RegisterMetadata(this);
 }
 
-TRestReadoutModule* TRestReadout::ParseModuleDefinition(string moduleString) {
+TRestReadoutModule* TRestReadout::ParseModuleDefinition(TiXmlElement* moduleDefinition) {
     TRestReadoutModule* mod = new TRestReadoutModule();
     TRestReadoutModule& module = *mod;
     if (GetVerboseLevel() >= REST_Warning) module.EnableWarnings();
-
-    string moduleDefinition = GetKEYDefinition("readoutModule", moduleString);
 
     module.SetName(GetFieldValue("name", moduleDefinition));
     module.SetSize(StringTo2DVector(GetFieldValue("size", moduleDefinition)));
@@ -614,12 +605,8 @@ TRestReadoutModule* TRestReadout::ParseModuleDefinition(string moduleString) {
 #pragma region addChannel
     vector<TRestReadoutChannel> channelVector;
     vector<int> channelIDVector;
-    string channelString;
-    size_t position2 = 0;
-    while ((channelString = GetKEYStructure("readoutChannel", position2, moduleString)) != "") {
-        size_t position3 = 0;
-        string channelDefinition = GetKEYDefinition("readoutChannel", position3, channelString);
-
+    TiXmlElement* channelDefinition = GetElement("readoutChannel", moduleDefinition);
+    while (channelDefinition != NULL) {
         TRestReadoutChannel channel;
 
         Int_t id = StringToInteger(GetFieldValue("id", channelDefinition));
@@ -629,23 +616,24 @@ TRestReadoutModule* TRestReadout::ParseModuleDefinition(string moduleString) {
 #pragma region addPixel
         vector<TRestReadoutPixel> pixelVector;
         vector<int> pixelIDVector;
-        string pixelString;
-        while ((pixelString = GetKEYDefinition("addPixel", position3, channelString)) != "") {
+        TiXmlElement* pixelDefinition = GetElement("addPixel", channelDefinition);
+        while (pixelDefinition != NULL) {
             TRestReadoutPixel pixel;
 
-            pixel.SetOrigin(StringTo2DVector(GetFieldValue("origin", pixelString)));
-            pixel.SetSize(StringTo2DVector(GetFieldValue("size", pixelString)));
-            pixel.SetRotation(StringToDouble(GetFieldValue("rotation", pixelString)));
-            pixel.SetTriangle(StringToBool(GetFieldValue("triangle", pixelString)));
+            pixel.SetOrigin(StringTo2DVector(GetFieldValue("origin", pixelDefinition)));
+            pixel.SetSize(StringTo2DVector(GetFieldValue("size", pixelDefinition)));
+            pixel.SetRotation(StringToDouble(GetFieldValue("rotation", pixelDefinition)));
+            pixel.SetTriangle(StringToBool(GetFieldValue("triangle", pixelDefinition)));
 
-            if (StringToInteger(GetFieldValue("id", pixelString)) != -1)
-                pixelIDVector.push_back(StringToInteger(GetFieldValue("id", pixelString)));
+            if (StringToInteger(GetFieldValue("id", pixelDefinition)) != -1)
+                pixelIDVector.push_back(StringToInteger(GetFieldValue("id", pixelDefinition)));
             pixelVector.push_back(pixel);
             // channel.AddPixel( pixel );
+            pixelDefinition = GetNextElement(pixelDefinition);
         }
 
         if (pixelIDVector.size() > 0 && pixelIDVector.size() != pixelVector.size()) {
-            ferr << "pixel id definition may be wrong! check your "
+            ferr << "pixel id definition may be wrong! It must be coherent and starts from 0. Check your "
                     "readout module definition!"
                  << endl;
             exit(0);
@@ -671,6 +659,7 @@ TRestReadoutModule* TRestReadout::ParseModuleDefinition(string moduleString) {
 #pragma endregion
 
         channelVector.push_back(channel);
+        channelDefinition = GetNextElement(channelDefinition);
     }
 
     if (channelIDVector.size() > 0 && channelIDVector.size() != channelVector.size()) {
