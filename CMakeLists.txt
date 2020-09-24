@@ -162,7 +162,7 @@ endif (${REST_G4_LIB} MATCHES "ON")
 
 ########################################## Axion library ###################################
 IF( NOT DEFINED REST_AXION_LIB )
-	set(REST_AXION_LIB ON)
+	set(REST_AXION_LIB OFF)
 ENDIF ()
 
 if (${REST_AXION_LIB} MATCHES "ON")
