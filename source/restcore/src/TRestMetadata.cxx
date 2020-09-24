@@ -1004,7 +1004,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     string filename;
     if (string(_filename) == "server") {
         // Let TRestRun to retrieve data according to run number later-on
-        if ((string) this->ClassName() == "TRestRun") return;
+        // if ((string) this->ClassName() == "TRestRun") return;
 
         // match the database, runNumber=0(default data), type="META_RML", tag=<section name>
         auto url = gDataBase->query_data(DBEntry(0, "META_RML", e->Value())).value;
@@ -1180,13 +1180,12 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Returns the value for the parameter name **parName** found in
-/// fElement(main data element)
+/// \brief Returns corresponding REST Metadata parameter from multiple sources
 ///
-/// It first finds the parameter from the system's env, if the name matches it
-/// will directly return the env. If no env is available, it calls
-/// GetParameter() method, specifying the search element
-/// TRestMetadata::fElement. See more detail there.
+/// It first finds the parameter from REST arguments from command line.
+/// If not found, it calls GetParameter() method to find parameter in TRestMetadata::fElement
+/// If not found, it calls TRestDetector::GetParameter()
+/// If still not found, it returns the default value.
 ///
 /// \param parName The name of the parameter from which we want to obtain the
 /// value. \param defaultValue The default value if the paremeter is not found
@@ -1214,8 +1213,7 @@ string TRestMetadata::GetParameter(std::string parName, TString defaultValue) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Returns the value for the parameter name **parName** found in
-/// fElement(main data element)
+/// \brief Returns the value for the parameter named **parName** in the given section
 ///
 /// There are two kinds of *parameter* in REST.
 /// 1. <parameter name="verboseLevel" value="silent" />
@@ -1263,6 +1261,54 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
     return ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(result));
 }
 
+
+Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlElement* ele,
+                                                 Double_t defaultVal) {
+    string a = GetParameter(parName, ele);
+    if (a == PARAMETER_NOT_FOUND_STR) {
+        return defaultVal;
+    } else {
+        string unit = GetParameterUnits(parName, ele);
+        Double_t value = StringToDouble(a.substr(0, a.find_last_of("1234567890().") + 1));
+        return REST_Units::ConvertValueToRESTUnits(value, unit);
+    }
+
+    return defaultVal;
+}
+
+TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
+                                                      TVector2 defaultVal) {
+    string a = GetParameter(parName, ele);
+    if (a == PARAMETER_NOT_FOUND_STR) {
+        return defaultVal;
+    } else {
+        string unit = GetParameterUnits(parName, ele);
+        TVector2 value = StringTo2DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
+        Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
+        Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
+        return TVector2(valueX, valueY);
+    }
+
+    return defaultVal;
+}
+
+TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
+                                                      TVector3 defaultVal) {
+    string a = GetParameter(parName, ele);
+    if (a == PARAMETER_NOT_FOUND_STR) {
+        return defaultVal;
+    } else {
+        string unit = GetParameterUnits(parName, ele);
+        TVector3 value = StringTo3DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
+        Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
+        Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
+        Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
+        return TVector3(valueX, valueY, valueZ);
+    }
+
+    return defaultVal;
+}
+
 ///////////////////////////////////////////////
 /// \brief Returns the field value of an xml element which has the specified
 /// name.
@@ -1271,7 +1317,7 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
 /// element.
 ///
 std::string TRestMetadata::GetFieldValue(std::string parName, TiXmlElement* e) {
-    return GetParameter(ToUpper(parName), e, "Not defined");
+    return GetParameter(parName, e, "Not defined");
 }
 
 ///////////////////////////////////////////////
@@ -1445,15 +1491,13 @@ TiXmlElement* TRestMetadata::GetElement(std::string eleDeclare) { return GetElem
 /// declaration
 ///
 TiXmlElement* TRestMetadata::GetElement(std::string eleDeclare, TiXmlElement* e) {
-    // cout << eleDeclare << " " << e << endl;
-    TiXmlElement* ele = e->FirstChildElement(eleDeclare.c_str());
-    while (ele != NULL) {
-        string a = ele->Value();
-        if (a == eleDeclare) break;
-        ele = ele->NextSiblingElement();
-    }
-    return ele;
+    return e->FirstChildElement(eleDeclare.c_str());
 }
+
+///////////////////////////////////////////////
+/// \brief Get the next sibling xml element of this element, with same eleDeclare
+///
+TiXmlElement* TRestMetadata::GetNextElement(TiXmlElement* e) { return e->NextSiblingElement(e->Value()); }
 
 ///////////////////////////////////////////////
 /// \brief Get an xml element from the default location, according to its
@@ -1540,6 +1584,32 @@ string TRestMetadata::GetParameterUnits(string parName) {
         // finally try to find unit in local section attribute
         if (!IsUnit(unit)) {
             unit = GetUnits(fElement);
+        }
+        return unit;
+    }
+    return "";
+}
+
+///////////////////////////////////////////////
+/// \brief Returns the unit string of the given parameter of the given xml section
+///
+string TRestMetadata::GetParameterUnits(string parName, TiXmlElement* e) {
+    string parvalue = GetParameter(parName, e);
+    if (parvalue == PARAMETER_NOT_FOUND_STR) {
+        return "";
+    } else {
+        // first try to use unit embeded in parvalue
+        string unit = REST_Units::FindRESTUnitsInString(parvalue);
+        // then try to find unit in corresponding "parameter" section
+        if (!IsUnit(unit)) {
+            TiXmlElement* paraele = GetElementWithName("parameter", parName, e);
+            if (paraele != NULL) {
+                unit = GetUnits(paraele);
+            }
+        }
+        // finally try to find unit in local section attribute
+        if (!IsUnit(unit)) {
+            unit = GetUnits(e);
         }
         return unit;
     }
@@ -2036,14 +2106,6 @@ std::vector<string> TRestMetadata::GetDataMemberValues(string memberName) {
     result = Replace(result, "}", "");
 
     return Split(result, ",");
-}
-
-///////////////////////////////////////////////
-/// \brief Operator to access datamember value with method GetDataMemberValue()
-string TRestMetadata::operator[](string memberName) {
-    string result = GetDataMemberValue(memberName);
-    if (result == "") result = GetDataMemberValue("f" + memberName);
-    return result;
 }
 
 ///////////////////////////////////////////////

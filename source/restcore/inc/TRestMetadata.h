@@ -70,8 +70,12 @@ class TRestMetadata : public TNamed {
    private:
     void SetEnv(TiXmlElement* e, bool updateexisting = true);
     void ReadElement(TiXmlElement* e, bool recursive = false);
-    string FieldNamesToUpper(string inputString);
     void ExpandForLoopOnce(TiXmlElement* e);
+    void ExpandIfSections(TiXmlElement* e);
+    void ExpandForLoops(TiXmlElement* e);
+    void ExpandIncludeFile(TiXmlElement* e);
+    string GetUnits(TiXmlElement* e);
+    string FieldNamesToUpper(string inputString);
 
     /// REST version string, only used for archive and retrieve
     TString fVersion = REST_RELEASE;  //<
@@ -82,13 +86,20 @@ class TRestMetadata : public TNamed {
     // new xml utilities
     std::string GetFieldValue(std::string parName, TiXmlElement* e);
     string GetParameter(std::string parName, TiXmlElement* e, TString defaultValue = PARAMETER_NOT_FOUND_STR);
+    Double_t GetDblParameterWithUnits(std::string parName, TiXmlElement* e,
+                                      Double_t defaultVal = PARAMETER_NOT_FOUND_DBL);
+    TVector2 Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* e,
+                                           TVector2 defaultValue = TVector2(-1, -1));
+    TVector3 Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* e,
+                                           TVector3 defaultValue = TVector3(-1, -1, -1));
     TiXmlElement* GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre = "");
     TiXmlElement* GetElement(std::string eleDeclare);
     TiXmlElement* GetElement(std::string eleDeclare, TiXmlElement* e);
+    TiXmlElement* GetNextElement(TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName);
-    string GetUnits(TiXmlElement* e);
     string GetParameterUnits(string parname);
+    string GetParameterUnits(string parname, TiXmlElement* e);
     TiXmlElement* ReplaceElementAttributes(TiXmlElement* e);
     TiXmlElement* StringToElement(string definition);
     string ElementToString(TiXmlElement* ele);
@@ -106,16 +117,14 @@ class TRestMetadata : public TNamed {
     string GetParameter(std::string parName, size_t& pos, std::string inputString);
     string GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition = 0);
 
-    // string utils
+    // some utils
     std::string ReplaceEnvironmentalVariables(const std::string buffer);
     void SetEnv(string name, string value, bool overwriteexisting);
-    void ClearEnv() { fVariables.clear(); }
     string SearchFile(string filename);
-
-    // tiny xml element utils
-    void ExpandIfSections(TiXmlElement* e);
-    void ExpandForLoops(TiXmlElement* e);
-    void ExpandIncludeFile(TiXmlElement* e);
+    TString GetSearchPath();
+    void ReSetVersion();
+    void UnSetVersion();
+    void SetLibraryVersion(TString version);
 
     //////////////////////////////////////////////////
     /// Data members
@@ -124,7 +133,7 @@ class TRestMetadata : public TNamed {
     /// see more detail in
     /// https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html#automatically-generated-streamers
 
-    /// Full name of rml file
+    /// Full name of the rml file
     std::string fConfigFileName;
     /// Section name given in the constructor of the derived metadata class
     std::string fSectionName;
@@ -225,9 +234,7 @@ class TRestMetadata : public TNamed {
 
     std::vector<string> GetDataMemberValues(string memberName);
 
-    string operator[](string memberName);
-
-    TString GetVersion();
+    TString GetVersion();  // *MENU*
 
     TString GetCommit();
 
@@ -236,9 +243,6 @@ class TRestMetadata : public TNamed {
     Int_t GetVersionCode();
     /// Returns a string with the path used for data storage
     TString GetDataPath() { return GetParameter("mainDataPath", ""); }
-
-    /// Returns a string with the path defined in sections "searchPath".
-    TString GetSearchPath();
 
     /// returns the verboselevel in type of REST_Verbose_Level enumerator
     REST_Verbose_Level GetVerboseLevel() { return fVerboseLevel; }
@@ -249,26 +253,18 @@ class TRestMetadata : public TNamed {
     /// Gets a string with the path used for data storage
     TString GetMainDataPath() { return GetDataPath(); }
 
-    std::string GetParameter(std::string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR);
+    std::string GetParameter(std::string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR);  // *MENU*
 
     Double_t GetDblParameterWithUnits(std::string parName, Double_t defaultValue = PARAMETER_NOT_FOUND_DBL);
 
     TVector2 Get2DVectorParameterWithUnits(string parName, TVector2 defaultValue = TVector2(-1, -1));
 
     TVector3 Get3DVectorParameterWithUnits(string parName, TVector3 defaultValue = TVector3(-1, -1, -1));
-    /// If this method is called the metadata information will **not** be stored in disk. I/O is handled
-    /// by
-    /// TRestRun.
+
+    /// If this method is called the metadata information will **not** be stored in disk.
     void DoNotStore() { fStore = false; }
-    /// If this method is called the metadata information will be stored in disk. This is the default
-    /// behaviour.
+    /// If this method is called the metadata information will be stored in disk.
     void Store() { fStore = true; }
-
-    void ReSetVersion();
-
-    void UnSetVersion();
-
-    void SetLibraryVersion(TString version);
     /// set the section name, clear the section content
     void SetSectionName(std::string sName) { fSectionName = sName; }
     /// set config file path from external
