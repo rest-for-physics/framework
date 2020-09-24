@@ -64,6 +64,7 @@ IF( NOT DEFINED REST_EVE)
 ENDIF()
 if (${REST_EVE} MATCHES "ON")
     add_definitions(-DUSE_Eve)
+	list( APPEND rest_features "Eve" )
     set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lEve -lRGL)
 endif (${REST_EVE} MATCHES "ON")
 
@@ -81,18 +82,25 @@ if (${REST_GARFIELD} MATCHES "ON")
     set(external_include_dirs ${external_include_dirs} ${Garfield_DIR}/Heed)
     message(STATUS "HEED Include " ${Garfield_DIR}/Heed)
     message(STATUS "ALL INCLUDES: " ${external_include_dirs})
+	list( APPEND rest_features "Garfield" )
 else ()
     set(REST_GARFIELD OFF)
 endif (${REST_GARFIELD} MATCHES "ON")
 
 
+#this is to enable linking of SQL libraries. I.e. for process TRestMySQLToAnalysisProccess.
+IF (NOT DEFINED REST_SQL)
+    set(REST_SQL OFF)
+ENDIF ()
+
 #find mysql libs and includes
 if (${REST_SQL} MATCHES "ON" )
+	list( APPEND rest_features "MySQL" )
 	add_definitions(-DUSE_SQL)
 	include(FindSQL)
 	set(external_include_dirs ${external_include_dirs} ${SQL_INCLUDE_DIR})
 	set(external_libs ${external_libs} ${SQL_LIBRARIES})
-	message(STATUS "MySQL: " ${SQL_INCLUDE_DIR})
+	message(STATUS "MySQL include directory: " ${SQL_INCLUDE_DIR})
 	set(REST_SQL ON)
 else()
 	set(REST_SQL OFF)
@@ -141,17 +149,42 @@ message("")
 
 
 #compile the packages
+
+########################################## Geant4 library ###################################
+IF( NOT DEFINED REST_G4_LIB )
+	set(REST_G4_LIB ON)
+ENDIF ()
+
+if (${REST_G4_LIB} MATCHES "ON")
+	add_subdirectory(libraries/geant4)
+	list( APPEND rest_libs_index "RestGeant4" )
+endif (${REST_G4_LIB} MATCHES "ON")
+
+########################################## Axion library ###################################
+IF( NOT DEFINED REST_AXION_LIB )
+	set(REST_AXION_LIB ON)
+ENDIF ()
+
+if (${REST_AXION_LIB} MATCHES "ON")
+	add_subdirectory(libraries/axion)
+	list( APPEND rest_libs_index "RestAxion" )
+endif (${REST_AXION_LIB} MATCHES "ON")
+
+########################################## RESTG4 Package ###################################
 IF (NOT DEFINED REST_G4)
     set(REST_G4 OFF)
 ENDIF ()
+
 if (${REST_G4} MATCHES "ON")
+	list( APPEND rest_packages "RestG4" )
+	# If we didnt add the library, we force to compile the library. It is required by restG4
+	if( ${REST_G4_LIB} MATCHES "OFF" )
+		add_subdirectory(libraries/geant4)
+	endif( ${REST_G4_LIB} MATCHES "OFF" )
     add_subdirectory(packages/restG4)
 endif (${REST_G4} MATCHES "ON")
+########################################## xxxxxxxxxxxxxx ###################################
 
-#this is not a package, in future we shall turn it into a package
-IF (NOT DEFINED REST_SQL)
-    set(REST_SQL OFF)
-ENDIF ()
 
 IF (NOT DEFINED REST_DECAY0)
     set(REST_DECAY0 OFF)
@@ -163,14 +196,14 @@ endif (${REST_DECAY0} MATCHES "ON")
 #begin installation
 message("")
 message("REST will be installed in : ${CMAKE_INSTALL_PREFIX}")
-message("=============================")
+message("===========================================================")
 message("System is : ${CMAKE_SYSTEM_NAME}")
-message("Garfield is : ${REST_GARFIELD}")
-message("Geant4 is : ${REST_G4}")
-message("SQL is : ${REST_SQL}")
-message("ROOT EVE is : ${REST_EVE}")
-message("=============================")
-message("Check main project README.md to see all available compilation options")
+message("Packages : ${rest_packages}")
+message("Libraries : ${rest_libs_index}" )
+message("Features : ${rest_features}" )
+
+message("===========================================================")
+message("Check main project README.md to see all available compilation options, packages and libraries")
 message("")
 
 file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h")

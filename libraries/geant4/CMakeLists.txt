@@ -5,7 +5,7 @@ set(CMAKE_MACOSX_RPATH 1)
 
 ## --------------------------------------------------------------------------
 ## ---------- ONLY need to change THIS_LIBRARY and LibraryVersion -----------
-## ---------- to adapt this CMakeLists file to a new library name.  --------
+## ---------- to adapt this dummy CMakeLists to a new library name.  --------
 ## ---------- The version value should be assigned to any metadata ----------
 ## ---------- structure inside the Initialize method              -----------
 ## ----------
@@ -14,17 +14,18 @@ set(CMAKE_MACOSX_RPATH 1)
 ## ---------- You might use any string you like in the version field --------
 ## ----------
 set( THIS_LIBRARY "RestGeant4" )
-set( LibraryVersion "1.0" )
+set( LibraryVersion "1.1" )
 ## ----------
 ## --------------------------------------------------------------------------
 
 add_definitions(-DLIBRARY_VERSION="${LibraryVersion}")
-project(${THIS_LIBRARY})
+project(${THIS_LIBRARY} CXX)
 message("===============  ${THIS_LIBRARY}  ==============")
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake ${CMAKE_MODULE_PATH})
 
-# find REST 
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+
+# find REST
 IF(NOT DEFINED REST_PATH)
 	IF(DEFINED ENV{REST_PATH})
 		set(REST_PATH $ENV{REST_PATH})
@@ -36,7 +37,7 @@ ENDIF()
 set(CMAKE_INSTALL_PREFIX ${REST_PATH})
 message(STATUS "Using REST PATH: " ${REST_PATH})
 
-SET(CMAKE_CXX_FLAGS "-std=c++1y")
+SET(CMAKE_CXX_FLAGS "-std=c++1y -Wno-deprecated")
 
 #----------------------------------------------------------------------------
 # Find package ROOT
@@ -47,24 +48,23 @@ include(MacroRootDict)
 #----------------------------------------------------------------------------
 # Set include and lib
 if(DEFINED rest_include_dirs)
-set(incdir ${PROJECT_SOURCE_DIR}/inc ${ROOT_INCLUDE_DIRS} ${rest_include_dirs})
+    set(incdir ${PROJECT_SOURCE_DIR}/inc ${ROOT_INCLUDE_DIRS} ${rest_include_dirs} /usr/local/include)
 else()
-set(incdir ${PROJECT_SOURCE_DIR}/inc ${ROOT_INCLUDE_DIRS} ${REST_PATH}/include)
+    set(incdir ${PROJECT_SOURCE_DIR}/inc ${ROOT_INCLUDE_DIRS} ${REST_PATH}/include /usr/local/include)
 endif()
 
-# TODO Once we have everything in lRestFramework we will replace lRestCore and lRestTools by lRestFramework.
-# TODO See how we include the dependency with TRestDetector. A kind of requires (libRestDetector.so).
-# TODO This must be an option, since we may wish to create a library that does not link to detector libraries.
 if(DEFINED rest_libraries)
-set(lnklib ${rest_libraries} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit)
+    set(lnklib ${rest_libraries} ${ROOT_LIBRARIES} -L/usr/local/lib -lGui -lEve -lRGL -lGeom -lGdml -lMinuit ${external_libs})
+	list( APPEND rest_libraries ${THIS_LIBRARY} )
 else()
-set(lnklib -L${REST_PATH}/lib/ -lRestTools -lRestCore -lRestEvents -lRestMetadata ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit)
+    set(lnklib -L/usr/local/lib -L${REST_PATH}/lib/ -lRestTools -lRestCore -lRestEvents -lRestMetadata ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit ${external_libs})
 message( "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n
           After \"make install\" this package will add additional library in ${REST_PATH}/lib\n\n
           This will take effect in the next launch of restManager/restRoot
           \n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" )
 endif()
 
+set(incdir ${incdir} ${external_include_dirs})
 include_directories(${incdir})
 
 #----------------------------------------------------------------------------
@@ -72,7 +72,6 @@ include_directories(${incdir})
 #
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cxx)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/inc/*.h)
-
 foreach (header ${headers})
 	get_filename_component(barename ${header} NAME)
 	string(REPLACE ".h" "" class ${barename})
@@ -94,34 +93,32 @@ target_link_libraries(${THIS_LIBRARY} ${lnklib})
 #----------------------------------------------------------------------------
 # Install the library to 'lib' directory under REST_PATH
 #
+#begin installation
 install(TARGETS ${THIS_LIBRARY} DESTINATION lib)
+
+file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+
+INSTALL(FILES ${Headers} DESTINATION include)
 
 install(CODE
 "
 file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/*.pcm\")
 file(COPY \${PCMFiles} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-
 "
 
 )
 
-string(TOLOWER ${THIS_LIBRARY} lowcaseLibName )
-string(SUBSTRING ${lowcaseLibName} 4 -1 shortLibName )
+#
+# USE this if the library contains data directory that needs to be placed
+# at the install directory REST_PATH/data/geant4
+#
+#install(
+#	DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data
+#    DESTINATION .
+#    COMPONENT install
+#        )
 
-install(
-        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/
-        DESTINATION ./data/${shortLibName}/
-        COMPONENT install
-)
-
-install(
-        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/
-        DESTINATION ./examples/${shortLibName}/
-        COMPONENT install
-)
-
-install(
-        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/macros/
-        DESTINATION ./macros/${shortLibName}/
-        COMPONENT install
-)
+#----------------------------------------------------------------------------
+# Example programs for this library
+#----------------------------------------------------------------------------
+#add_subdirectory(examples)

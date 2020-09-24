@@ -11,12 +11,20 @@ add_subdirectory(../macros tasks.out)
 
 set(rest_include_dirs ${local_include_dirs})
 set(rest_libraries ${local_libraries})
+
+SUBDIRLIST(SUBDIRS ${PROJECT_SOURCE_DIR}/libraries)
+
+message( "${PROJECT_SOURCE_DIR}")
+FOREACH(subdir ${SUBDIRS})
+	set(rest_include_dirs ${rest_include_dirs} ${PROJECT_SOURCE_DIR}/libraries/${subdir}/inc)
+ENDFOREACH()
+
 set(rest_include_dirs ${rest_include_dirs} PARENT_SCOPE)
 set(rest_libraries ${rest_libraries} PARENT_SCOPE)
 
 set(rest_libraries_regular "-L${CMAKE_INSTALL_PREFIX}/lib ")
 foreach(lib ${rest_libraries})
-  set(rest_libraries_regular "${rest_libraries_regular}-l${lib} ")
+  set(rest_libraries_regular "${rest_libraries_regular} -l${lib} ")
 endforeach(lib)
 set(rest_libraries_regular ${rest_libraries_regular} PARENT_SCOPE)
 

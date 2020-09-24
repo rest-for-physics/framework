@@ -270,11 +270,7 @@ MACRO( COMPILEDIR libname )
 			endif()
 
 			set(contentfiles ${contentfiles} ${file} ${ROOT_DICT_OUTPUT_SOURCES})
-
 		endforeach (file)
-
-
-
 	endif()
 
 
@@ -306,4 +302,15 @@ MACRO( COMPILEDIR libname )
 	endif()
 	set(local_libraries ${local_libraries} ${libname})
 	set(local_libraries ${local_libraries} PARENT_SCOPE)
+ENDMACRO()
+
+MACRO(SUBDIRLIST result curdir)
+	FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
+	SET(dirlist "")
+	FOREACH(child ${children})
+		IF(IS_DIRECTORY ${curdir}/${child})
+			LIST(APPEND dirlist ${child})
+		ENDIF()
+	ENDFOREACH()
+	SET(${result} ${dirlist})
 ENDMACRO()

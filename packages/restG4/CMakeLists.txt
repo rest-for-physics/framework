@@ -42,20 +42,19 @@ endif()
 
 include(FindROOT)
 
-
-
 #----------------------------------------------------------------------------
 # Set include and lib
 if(DEFINED rest_include_dirs)
-set(incdir ${PROJECT_SOURCE_DIR}/include ${ROOT_INCLUDE_DIRS} ${rest_include_dirs} ${Geant4_INCLUDE_DIR})
+	set(incdir ${PROJECT_SOURCE_DIR}/include ${ROOT_INCLUDE_DIRS} ${rest_include_dirs} ${Geant4_INCLUDE_DIR})
 else()
-set(incdir ${PROJECT_SOURCE_DIR}/include ${ROOT_INCLUDE_DIRS} ${REST_PATH}/include ${Geant4_INCLUDE_DIR})
+	set(incdir ${PROJECT_SOURCE_DIR}/include ${ROOT_INCLUDE_DIRS} ${REST_PATH}/include ${Geant4_INCLUDE_DIR})
 endif()
 
+
 if(DEFINED rest_libraries)
-set(lnklib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit ${rest_libraries})
+	set(lnklib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit ${rest_libraries} -lRestGeant4)
 else()
-set(lnklib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit -L${REST_PATH}/lib/ -lRestTools -lRestCore -lRestEvents -lRestMetadata )
+	set(lnklib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit -L${REST_PATH}/lib/ -lRestFramework -lRestGeant4 )
 message( "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n
           After \"make install\" restG4 will be installed in ${REST_PATH}/bin\n\n
           You can directly use it!
