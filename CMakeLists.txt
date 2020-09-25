@@ -88,23 +88,23 @@ else ()
 endif (${REST_GARFIELD} MATCHES "ON")
 
 
-#this is to enable linking of SQL libraries. I.e. for process TRestMySQLToAnalysisProccess.
-IF (NOT DEFINED REST_SQL)
-    set(REST_SQL OFF)
+#this is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProccess.
+IF (NOT DEFINED SQL)
+    set(SQL OFF)
 ENDIF ()
 
 #find mysql libs and includes
-if (${REST_SQL} MATCHES "ON" )
-	list( APPEND rest_features "MySQL" )
+if (${SQL} MATCHES "ON" )
+	list( APPEND rest_features "SQL" )
 	add_definitions(-DUSE_SQL)
 	include(FindSQL)
 	set(external_include_dirs ${external_include_dirs} ${SQL_INCLUDE_DIR})
 	set(external_libs ${external_libs} ${SQL_LIBRARIES})
-	message(STATUS "MySQL include directory: " ${SQL_INCLUDE_DIR})
-	set(REST_SQL ON)
+	message(STATUS "SQL include directory: " ${SQL_INCLUDE_DIR})
+	set(SQL ON)
 else()
-	set(REST_SQL OFF)
-endif (${REST_SQL} MATCHES "ON" )
+	set(SQL OFF)
+endif (${SQL} MATCHES "ON" )
 
 
 #include dir for compilation
