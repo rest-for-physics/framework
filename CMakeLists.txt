@@ -40,12 +40,10 @@ IF (NOT DEFINED REST_SE)
 ENDIF ()
 set(SCHEMA_EVOLUTION ${REST_SE})
 
-
 #welcome message
 IF (NOT DEFINED REST_WELCOME)
     set(REST_WELCOME ON)
 ENDIF ()
-
 
 #find ROOT libs and includes
 set(external_include_dirs)
@@ -149,28 +147,6 @@ message("")
 
 
 #compile the packages
-
-########################################## Geant4 library ###################################
-IF( NOT DEFINED REST_G4_LIB )
-	set(REST_G4_LIB ON)
-ENDIF ()
-
-if (${REST_G4_LIB} MATCHES "ON")
-	add_definitions(-DREST_Geant4Lib)
-	add_subdirectory(libraries/geant4)
-	list( APPEND rest_libs_index "RestGeant4" )
-endif (${REST_G4_LIB} MATCHES "ON")
-
-########################################## Axion library ###################################
-IF( NOT DEFINED REST_AXION_LIB )
-	set(REST_AXION_LIB OFF)
-ENDIF ()
-
-if (${REST_AXION_LIB} MATCHES "ON")
-	add_definitions(-DREST_AxionLib)
-	add_subdirectory(libraries/axion)
-	list( APPEND rest_libs_index "RestAxion" )
-endif (${REST_AXION_LIB} MATCHES "ON")
 
 ########################################## RESTG4 Package ###################################
 IF (NOT DEFINED REST_G4)

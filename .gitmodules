@@ -1,3 +1,6 @@
 [submodule "packages/restSQL"]
 	path = packages/restSQL
 	url = git@lfna.unizar.es:rest-development/restsql.git
+[submodule "source/libraries/axion"]
+	path = source/libraries/axion
+	url = git@lfna.unizar.es:iaxo/RestAxionLib.git
