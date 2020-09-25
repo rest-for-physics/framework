@@ -1,7 +1,7 @@
 #include "TRestGeant4Event.h"
 #include "TRestGeant4Metadata.h"
 #include "TRestTask.h"
-Int_t REST_FindIsotopes(TString fName, TString fIsotope) {
+Int_t REST_Geant4_FindIsotopes(TString fName, TString fIsotope) {
     cout << "Filename : " << fName << " looking for " << fIsotope << endl;
 
     // gSystem->Load("librestcore.so");

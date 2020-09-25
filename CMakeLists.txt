@@ -68,11 +68,11 @@ if (${REST_EVE} MATCHES "ON")
     set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lEve -lRGL)
 endif (${REST_EVE} MATCHES "ON")
 
-
 #find garfield libs and includes
 IF( NOT DEFINED REST_GARFIELD )
    set(REST_GARFIELD OFF)
 ENDIF()
+
 if (${REST_GARFIELD} MATCHES "ON")
     add_definitions(-DUSE_Garfield)
     include(FindGarfield)
@@ -156,6 +156,7 @@ IF( NOT DEFINED REST_G4_LIB )
 ENDIF ()
 
 if (${REST_G4_LIB} MATCHES "ON")
+	add_definitions(-DREST_Geant4Lib)
 	add_subdirectory(libraries/geant4)
 	list( APPEND rest_libs_index "RestGeant4" )
 endif (${REST_G4_LIB} MATCHES "ON")
@@ -166,6 +167,7 @@ IF( NOT DEFINED REST_AXION_LIB )
 ENDIF ()
 
 if (${REST_AXION_LIB} MATCHES "ON")
+	add_definitions(-DREST_AxionLib)
 	add_subdirectory(libraries/axion)
 	list( APPEND rest_libs_index "RestAxion" )
 endif (${REST_AXION_LIB} MATCHES "ON")

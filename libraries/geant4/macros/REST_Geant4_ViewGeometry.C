@@ -8,7 +8,7 @@ using namespace std;
 #ifndef RestTask_ViewGeometry
 #define RestTask_ViewGeometry
 
-Int_t REST_ViewGeometry(TString fName, TString option = "") {
+Int_t REST_Geant4_ViewGeometry(TString fName, TString option = "") {
     TRestStringOutput cout;
     cout << "Filename : " << fName << endl;
 

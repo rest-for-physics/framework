@@ -3,8 +3,8 @@
 #include "TRestTask.h"
 // Double_t Qbb = 2457.83;
 
-Double_t REST_Fiducial(TString fName, Double_t zMin, Double_t zMax, Double_t radius, Double_t mean = 2457.83,
-                       Double_t fwhm = 25) {
+Double_t REST_Geant4_Fiducial(TString fName, Double_t zMin, Double_t zMax, Double_t radius,
+                              Double_t mean = 2457.83, Double_t fwhm = 25) {
     cout << "Filename : " << fName << endl;
 
     TRestRun* run = new TRestRun();

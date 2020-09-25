@@ -2,7 +2,7 @@
 #include "TRestGeant4Metadata.h"
 #include "TRestTask.h"
 
-Int_t REST_QuickLookAnalysis(TString fName) {
+Int_t REST_Geant4_QuickLookAnalysis(TString fName) {
     const double eMin_ROI = 2458 - 25;
     const double eMax_ROI = 2458 + 25;
 

@@ -1,7 +1,7 @@
 #include "TRestGeant4Event.h"
 #include "TRestGeant4Metadata.h"
 #include "TRestTask.h"
-Int_t REST_FindGammasEmitted(TString fName) {
+Int_t REST_Geant4_FindGammasEmitted(TString fName) {
     cout << "Filename : " << fName << endl;
 
     TRestRun* run = new TRestRun();

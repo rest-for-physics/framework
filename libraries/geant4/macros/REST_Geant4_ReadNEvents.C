@@ -2,7 +2,7 @@
 #include "TRestGeant4Metadata.h"
 #include "TRestTask.h"
 
-Int_t REST_ReadNEvents(TString fName, int n1, int n2) {
+Int_t REST_Geant4_ReadNEvents(TString fName, int n1, int n2) {
     TRestRun* run = new TRestRun();
 
     string fname = fName.Data();

@@ -1,7 +1,7 @@
 #include "TRestGeant4Event.h"
 #include "TRestGeant4Metadata.h"
 #include "TRestTask.h"
-Int_t REST_ListIsotopes(TString fName, TString fOutName) {
+Int_t REST_Geant4_ListIsotopes(TString fName, TString fOutName) {
     cout << "Filename : " << fName << ", storing info in " << fOutName << endl;
 
     ofstream fOut;

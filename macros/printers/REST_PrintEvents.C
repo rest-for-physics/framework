@@ -1,5 +1,6 @@
+#ifdef REST_Geant4Lib
 #include "TRestGeant4Event.h"
-#include "TRestGeant4Metadata.h"
+#endif
 #include "TRestHitsEvent.h"
 #include "TRestLinearTrackEvent.h"
 #include "TRestRawSignalEvent.h"
@@ -39,7 +40,8 @@ Int_t REST_GenericEvents(TString fName, TString EventType = "", Int_t Entry = 0)
     return 0;
 }
 
-Int_t REST_G4Event(TString fName, Int_t firstEvent = 0) {
+#ifdef REST_Geant4Lib
+Int_t REST_Geant4Event(TString fName, Int_t firstEvent = 0) {
     TRestRun* run = new TRestRun();
 
     run->OpenInputFile(fName);
@@ -58,6 +60,7 @@ Int_t REST_G4Event(TString fName, Int_t firstEvent = 0) {
 
     return 0;
 }
+#endif
 
 Int_t REST_HitsEvent(TString fName, Int_t firstEvent = 0) {
     TRestRun* run = new TRestRun();

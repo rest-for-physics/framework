@@ -15,11 +15,9 @@
 #include "TRestGeant4EventViewer.h"
 using namespace std;
 
-ClassImp(TRestGeant4EventViewer)
-    //______________________________________________________________________________
-    TRestGeant4EventViewer::TRestGeant4EventViewer() {
-    Initialize();
-}
+ClassImp(TRestGeant4EventViewer);
+//______________________________________________________________________________
+TRestGeant4EventViewer::TRestGeant4EventViewer() { Initialize(); }
 
 //______________________________________________________________________________
 TRestGeant4EventViewer::~TRestGeant4EventViewer() {

@@ -5,7 +5,7 @@
 // Description : It prints out on screen Geant4 events in the ROI between entries n1 and n2.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////
-Int_t REST_ReadNEvents_inROI(TString fName, int n1, int n2, double en1, double en2) {
+Int_t REST_Geant4_ReadNEvents_inROI(TString fName, int n1, int n2, double en1, double en2) {
     TRestRun* run = new TRestRun();
 
     string fname = fName.Data();

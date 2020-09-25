@@ -71,7 +71,17 @@ include_directories(${incdir})
 # Locate sources and headers for this project
 #
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cxx)
+
+if( ${REST_EVE} MATCHES "OFF" )
+	list( REMOVE_ITEM sources ${PROJECT_SOURCE_DIR}/src/TRestGeant4EventViewer.cxx )
+endif( )
+
 file(GLOB headers ${PROJECT_SOURCE_DIR}/inc/*.h)
+
+if( ${REST_EVE} MATCHES "OFF" )
+	list( REMOVE_ITEM headers ${PROJECT_SOURCE_DIR}/inc/TRestGeant4EventViewer.h )
+endif( )
+
 foreach (header ${headers})
 	get_filename_component(barename ${header} NAME)
 	string(REPLACE ".h" "" class ${barename})
@@ -105,18 +115,17 @@ install(CODE
 file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/*.pcm\")
 file(COPY \${PCMFiles} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 "
-
 )
 
 #
 # USE this if the library contains data directory that needs to be placed
 # at the install directory REST_PATH/data/geant4
 #
-#install(
-#	DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data
-#    DESTINATION .
-#    COMPONENT install
-#        )
+install(
+	DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/macros
+    DESTINATION .
+    COMPONENT install
+        )
 
 #----------------------------------------------------------------------------
 # Example programs for this library
