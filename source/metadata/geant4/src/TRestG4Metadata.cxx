@@ -992,7 +992,7 @@ void TRestG4Metadata::ReadStorage() {
         geometryVolumes.insert(name);
     }
 
-    TiXmlElement* volumeDefinition = GetElement("activeVolume",storageDefinition);
+    TiXmlElement* volumeDefinition = GetElement("activeVolume", storageDefinition);
     while (volumeDefinition != NULL) {
         Double_t chance = StringToDouble(GetFieldValue("chance", volumeDefinition));
         TString name = GetFieldValue("name", volumeDefinition);

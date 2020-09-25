@@ -1261,7 +1261,6 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
     return ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(result));
 }
 
-
 Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlElement* ele,
                                                  Double_t defaultVal) {
     string a = GetParameter(parName, ele);
