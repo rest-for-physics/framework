@@ -46,8 +46,7 @@ Then, you will need to contact the authors to request access to the code.
 ### Installing
 
 The only mandatory prerequisite of REST is ROOT6. Details on the installation of ROOT will be found at the [ROOT's official site](https://root.cern.ch). 
-One may directly find binary distributions on its [download page](https://root.cern.ch/downloading-root). 
-If not, try to compile and install it manually.
+One may directly find binary distributions on its [download page](https://root.cern.ch/downloading-root), although compiling and installing on your system from source is recommended since it is important that ROOT and REST have been compiled for the same system architecture and compiler version.
 
 Before starting the REST installation, make sure you are running the desired ROOT version and binary.
 
@@ -58,7 +57,7 @@ which root
 
 After ROOT6 has been installed in the system, the compilation of REST should be straight forward. 
 Note that it is recommended to compile REST using the same version of g++ compiler used to compile ROOT.
-The detailed installation guide could be found in [REST documentation](doc/Chapters/2-installing-rest.md).
+The detailed [installation guide](doc/Chapters/2-installing-rest.md), including compilation options, will be found at the [REST documentation](doc/Chapters/0-contents.md).
 
 Go to the root directory of your local REST repository, assume it is `~/REST_v2`, and execute the following commands.
 

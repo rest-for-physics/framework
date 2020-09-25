@@ -106,12 +106,23 @@ Loading library : libRestTools.dylib
 
 Different options can be passed to the `cmake` command to personalize the REST installation. The following options are available in REST.
 
-* **INSTALL_PREFIX** : Allows to define the destination of the final REST install directory. The default value is either "REST_v2/install/" (if you haven't installed REST) or the current REST path (if you already installed REST).
-* **REST_WELCOME** (Default: ON) : If dissabled no message will be displayed each time we call thisREST.sh.
-* **REST_GARFIELD** (Default: OFF) : Enables access to [Garfield++](https://garfieldpp.web.cern.ch/garfieldpp/) libraries in REST. Garfield code inside REST will be encapsulated inside `#if defined USE_Garfield` statements.
-* **REST_G4** (Default: OFF) : Adds executable `restG4` which carries out simulation with [Geant4++](http://geant4.web.cern.ch/) using REST style config file.
-* **REST_SQL** (Default: OFF) : Enables the use of mysql libraries in REST. SQL code inside REST will be encapsulated inside `#if defined USE_SQL`.
-* **REST_EVE** (Default: ON) : Enables the use of libEve of ROOT which provides hardware accelerated 3D view of detector model and events within.
+* REST Options/features:
+    * **INSTALL_PREFIX** : Allows to define the destination of the final REST install directory. The default value is either "REST_v2/install/" (if you haven't installed REST) or the current REST path (if you already installed REST).
+    * **REST_WELCOME** (Default: ON) : If dissabled no message will be displayed each time we call thisREST.sh.
+    * **REST_GARFIELD** (Default: OFF) : Enables access to [Garfield++](https://garfieldpp.web.cern.ch/garfieldpp/) libraries in REST. Garfield code inside REST will be encapsulated inside `#if defined USE_Garfield` statements.
+    * **SQL** (Default: OFF) : Enables the use of mysql libraries in REST. SQL code inside REST will be encapsulated inside `#if defined USE_SQL`.
+    * **REST_EVE** (Default: ON) : Enables the use of libEve of ROOT which provides hardware accelerated 3D view of detector model and events within.
+
+* REST Packages:
+    * **REST_G4** (Default: OFF) : Adds executable `restG4` which carries out simulation with [Geant4++](http://geant4.web.cern.ch/) using REST style config file.
+    * **REST_SQL** (Default: OFF) : Adds executable `restSQL` which allows to populate and update a SQL database extracting the metadata information from a REST file database.
+
+* REST Libraries:
+    * **REST_GEANT4_LIB** (Default: ON) : Enables the use of Geant4 event type and analysis processes in REST. It does not require *Geant4*. But it allows to access previous `restG4` generated data.
+    * **REST_AXION_LIB** (Default: OFF) : Enables the use of Axion event type and Axion signal calculation processes in REST.
+    * **REST_DETECTOR_LIB** (Default: ON) : Enables the use of Detector event type and event reconstruction processes in REST.
+    * **REST_RAW_LIB** (Default: ON) : Enables the use of Raw signal event type and Raw signal conditioning processes in REST.
+    * **REST_TRACK_LIB** (Default: ON) : Enables the use of Track event type and Track identification processes in REST.
 
 To pass the options to cmake, one need to append "-DXXX=XXX" in the cmake command, for example: `cmake .. -DREST_WELCOME=OFF -DREST_G4=ON`. Once you explicitly set an option, your option choice will become the default choice for future `cmake` executions.
 
@@ -132,15 +143,16 @@ with REST framework, just by adding compilation options to cmake.
 
 The following is a list of REST libraries/packages:
 
-Name         | Type       | enabled as submodule | repository
--------------|------------|----------------------|------------
-restG4       |   package  |   -DREST_G4=ON       | 
-restMuonLib  |   library  |                      | https://gitlab.pandax.sjtu.edu.cn/pandax-iii/restmuonlib
-restDecay0   |   library  |   -DREST_DECAY0=ON   | 
-RestAxionLib |   library  |                      | https://lfna.unizar.es/iaxo/RestAxionLib
-restP3DB     |   package  |                      | https://gitlab.pandax.sjtu.edu.cn/pandax-iii/restp3db
-restSQL      |   package  |   -DREST_SQL=ON      | https://lfna.unizar.es/rest-development/restsql
-restWeb      |   package  |                      | https://lfna.unizar.es/rest-development/restWeb
+Name         | Type       |  cmake flag (=default)  | repository
+-------------|------------|-------------------------|------------
+restMuonLib  |   library  |                         | https://gitlab.pandax.sjtu.edu.cn/pandax-iii/restmuonlib
+restDecay0   |   library  |   -DREST_DECAY0=OFF     | 
+RestAxionLib |   library  |   -DREST_AXION_LIB=OFF  | https://lfna.unizar.es/iaxo/RestAxionLib
+RestGeant4Lib|   library  |   -DREST_GEANT4_LIB=ON  | https://lfna.unizar.es/rest-development/RestGeant4Lib
+restG4       |   package  |   -DREST_G4=OFF         | 
+restP3DB     |   package  |                         | https://gitlab.pandax.sjtu.edu.cn/pandax-iii/restp3db
+restSQL      |   package  |   -DREST_SQL=ON         | https://lfna.unizar.es/rest-development/restsql
+restWeb      |   package  |                         | https://lfna.unizar.es/rest-development/restWeb
 
 ### Updating REST
 
