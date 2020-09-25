@@ -10,7 +10,7 @@
 	<parameter name="outputFile" value="[fRunType].root" />
 	<parameter name="readOnly" value="false" />
 
-	<addMetadata type="TRestReadout" name="TREXDM_Nov2018" file="readouts.root" store="false" />
+	<addMetadata type="TRestDetectorReadout" name="TREXDM_Nov2018" file="readouts.root" store="false" />
 
 	<TRestGas name="Neon-Isobutane 2Pct 10-10E3Vcm" pressure="6" file="server" />
 </TRestRun>

@@ -21,7 +21,7 @@
     <parameter name="overwrite" value="off" />
     <!--<parameter name="outputFile" value="Tracks_[EXPERIMENT]_[USER]_[RUNTYPE]_[RUNTAG]_[RUN]_V[VERSION].root" />-->
     <parameter name="readOnly" value="true" />
-    <TRestReadout name="Panda-140kg" file="readout-140kg.rml"/>
+    <TRestDetectorReadout name="Panda-140kg" file="readout-140kg.rml"/>
     <TRestGas type="TRestGas" name="Xenon-TMA 1Pct 10-10E3Vcm" file="server" pressure="10"/>
   </TRestRun>
   <TRestProcessRunner name="pixelization" title="Stripped manager.">

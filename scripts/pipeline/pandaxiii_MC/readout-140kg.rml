@@ -53,7 +53,7 @@
   </readoutModule>
 
 <!-- This readout (Panda-140kg) is the latest design of PandaIII detector_2019.5.28-->
- <TRestReadout name="Panda-140kg" title="PANDA SJTU Jinping readout. 1 plane 52 modules ${PITCH}mm-Pitch ${CHANNELS}+${CHANNELS} channels" >
+ <TRestDetectorReadout name="Panda-140kg" title="PANDA SJTU Jinping readout. 1 plane 52 modules ${PITCH}mm-Pitch ${CHANNELS}+${CHANNELS} channels" >
     <variable name="nChannels" value="${CHANNELS}" />
     <variable name="pitch" value="${PITCH}" />
     <variable name="pixelSize" value="${PITCH}/sqrt(2.)" />
@@ -125,6 +125,6 @@
       </readoutPlane>
 
 
-  </TRestReadout>
+  </TRestDetectorReadout>
 
 </readouts>

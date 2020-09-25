@@ -1,7 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include "TRestReadout.h"
+#include "TRestDetectorReadout.h"
 #include "TRestTask.h"
 
 void PrintReadout(TString fName) {
@@ -31,9 +31,9 @@ void PrintReadout(TString fName) {
     TKey* key;
     int n = 0;
     while ((key = (TKey*)nextkey())) {
-        if (((string)(key->GetClassName())).find("TRestReadout") != -1) {
+        if (((string)(key->GetClassName())).find("TRestDetectorReadout") != -1) {
             TObject* obj = f->Get(key->GetName());
-            TRestReadout readout = *(TRestReadout*)obj;
+            TRestDetectorReadout readout = *(TRestDetectorReadout*)obj;
             readout[0].Print(1);
         }
         n++;
