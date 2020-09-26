@@ -38,7 +38,7 @@ Int_t Validate(string fname) {
     }
 
     cout << "Testing reading of Geant4 metadata class" << endl;
-    TRestG4Metadata* g4Md = (TRestG4Metadata*)run->GetMetadataClass("TRestG4Metadata");
+    TRestGeant4Metadata* g4Md = (TRestGeant4Metadata*)run->GetMetadataClass("TRestGeant4Metadata");
     if (!g4Md) {
         cout << "Problem reading Geant4 metadata class!" << endl;
         return 6;
@@ -50,7 +50,7 @@ Int_t Validate(string fname) {
         return 7;
     }
 
-    TRestG4Event* ev = (TRestG4Event*)run->GetInputEvent();
+    TRestGeant4Event* ev = (TRestGeant4Event*)run->GetInputEvent();
     run->GetEntry(9);
 
     cout << "Total energy : " << ev->GetTotalDepositedEnergy() << endl;
