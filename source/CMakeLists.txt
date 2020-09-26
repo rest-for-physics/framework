@@ -10,11 +10,6 @@ add_subdirectory(events)
 add_subdirectory(processes)
 add_subdirectory(../macros tasks.out)
 
-set(rest_include_dirs ${local_include_dirs})
-set(rest_libraries ${local_libraries})
-
-#SUBDIRLIST(SUBDIRS libraries)
-
 ########################################## Geant4 library ###################################
 IF( NOT DEFINED REST_G4_LIB )
 	set(REST_G4_LIB ON)
@@ -36,6 +31,12 @@ if (${REST_AXION_LIB} MATCHES "ON")
 	add_subdirectory(libraries/axion)
 	list( APPEND rest_libs_index "RestAxion" )
 endif (${REST_AXION_LIB} MATCHES "ON")
+
+#### This must be placed after all targets!!!
+set(rest_include_dirs ${local_include_dirs})
+set(rest_libraries ${local_libraries})
+
+#SUBDIRLIST(SUBDIRS libraries)
 
 ############################################################################################
 
