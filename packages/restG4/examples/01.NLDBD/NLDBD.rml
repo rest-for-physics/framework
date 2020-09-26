@@ -23,7 +23,7 @@ By default REST units are mm, keV and degrees
     // Value "auto" can add simulation run into database ???
     <parameter name="runNumber" value="auto"/>
 
-    // The runTag in a restG4 simulation will be replaced by the title of TRestG4Metadata
+    // The runTag in a restG4 simulation will be replaced by the title of TRestGeant4Metadata
     <parameter name="runTag" value="g4Tag"/>
 
     // The output filename can be built using any member from TRestRun, fRunNumber, fRunTag, ..., etc.
@@ -36,7 +36,7 @@ By default REST units are mm, keV and degrees
     <parameter name="readOnly" value="false" />
   </TRestRun>
 
-  <TRestG4Metadata name="DBDsimulation" title="NLDBD">
+  <TRestGeant4Metadata name="DBDsimulation" title="NLDBD">
 
     <parameter name="gdml_file" value="geometry/mySetupTemplate.gdml"/>
     <parameter name="maxTargetStepSize" value="1" units="mm" />
@@ -44,7 +44,7 @@ By default REST units are mm, keV and degrees
 
     <parameter name="seed" value="17021981" />
 
-    <!-- The number of events to be simulated is now defined in TRestG4Metadata -->
+    <!-- The number of events to be simulated is now defined in TRestGeant4Metadata -->
     <parameter name="Nevents" value="10" />
 
     ///three types of source definition supported:
@@ -72,7 +72,7 @@ By default REST units are mm, keV and degrees
       <parameter name="energyRange" value="(0,5)" units="MeV" />
       <activeVolume name="gas" chance="1" />
     </storage>
-  </TRestG4Metadata>
+  </TRestGeant4Metadata>
 
   <TRestPhysicsLists name="default" title="First physics list implementation." >
     
