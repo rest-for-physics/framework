@@ -36,7 +36,7 @@
          ++++++++++++++++ -->
     <addProcess type="TRestGeant4AnalysisProcess" name="g4Ana" value="ON" file="processes_2D.rml" />
     <addProcess type="TRestFindG4BlobAnalysisProcess" name="g4Blob" value="OFF" file="processes_2D.rml" />
-    <addProcess type="TRestG4toHitsProcess" name="G4ToHits" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestGeant4ToHitsProcess" name="G4ToHits" value="ON" file="processes_2D.rml" />
     <addProcess type="TRestElectronDiffusionProcess" name="eDiff_1kVcm_10atm" value="ON" file="processes_2D.rml" />
     <addProcess type="TRestHitsAnalysisProcess" name="hitsAnaDiff" value="ON" file="processes_2D.rml" />
     <addProcess type="TRestSmearingProcess" name="smear_3FWHM" value="ON" file="processes_2D.rml" />

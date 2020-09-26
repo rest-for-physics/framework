@@ -33,7 +33,7 @@ Int_t ValidateG4(string fname) {
     }
 
     cout << "Testing reading of Geant4 metadata class" << endl;
-    TRestG4Metadata* g4Md = (TRestG4Metadata*)run->GetMetadataClass("TRestG4Metadata");
+    TRestGeant4Metadata* g4Md = (TRestGeant4Metadata*)run->GetMetadataClass("TRestGeant4Metadata");
     if (!g4Md) {
         cout << "Problem reading Geant4 metadata class!" << endl;
         return 6;

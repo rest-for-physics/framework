@@ -283,7 +283,7 @@
         <observable name="RawIntegral" value="ON" />
         <observable name="TriggerStarts" value="ON" />
     </TRestTriggerAnalysisProcess>
-    <TRestFindG4Blob_nalysisProcess name="g4Blob" title="Find blobs in DBD. G4 event">
+    <TRestGeant4BlobAnalysisProcess name="g4Blob" title="Find blobs in DBD. G4 event">
         <observable name="x1" value="ON" />
         <observable name="y1" value="ON" />
         <observable name="z1" value="ON" />
@@ -299,7 +299,7 @@
         <observable name="Q2_R10" value="ON" />
         <observable name="Q2_R15" value="ON" />
         <observable name="Q2_R12" value="ON" />
-    </TRestFindG4Blob_nalysisProcess>
+    </TRestGeant4BlobAnalysisProcess>
     <TRestFindTrackBlob_Process name="tckBlob_2D" title="Find blobs in the longest track">
         <observable name="x1_X" value="ON" />
         <observable name="z1_X" value="ON" />
@@ -496,7 +496,7 @@
     <TRestSignalShapingProcess name="signalShapingProcess" title="Test SignalShaping">
         <parameter name="responseFile" value="AGET_Response_12.5MHz_Gain0x1_Shaping0x4.root" />//response file to be used to shape the signal
     </TRestSignalShapingProcess>
-    <TRestG4toHitsProcess name="G4ToHits" title="G4Hits to Hits process" />
+    <TRestGeant4ToHitsProcess name="G4ToHits" title="G4Hits to Hits process" />
     <bambooToRESTProcess name="bambooToREST" title="A process reading bamboo files">
         <!-- Rotation parameter in degrees. It will rotate the original coordinates 
          in the following order RotateX -> RotateY -> RotateZ -->
