@@ -29,7 +29,7 @@ struct __REST_CONST_INIT {
 
         if (_REST_USER == nullptr) {
             cout << "REST WARNING!! Lacking system env \"USER\"!" << endl;
-            cout << "Setting default user" << endl;
+            cout << "Setting user name to : \"defaultUser\"" << endl;
             REST_USER = "defaultUser";
             setenv("USER", REST_USER.c_str(), true);
 
@@ -39,7 +39,7 @@ struct __REST_CONST_INIT {
 
         if (_REST_USERHOME == nullptr) {
             cout << "REST WARNING!! Lacking system env \"HOME\"!" << endl;
-            cout << "Setting REST temp path to $REST_PATH/data" << endl;
+            cout << "Setting REST temp path to : " << REST_PATH + "/data" << endl;
             REST_USER_PATH = REST_PATH + "/data";
         } else {
             string restUserPath = (string)_REST_USERHOME + "/.rest";

@@ -68,16 +68,13 @@ std::vector<string> TRestTools::GetOptions(string optionsStr) { return Split(opt
 ///////////////////////////////////////////////
 /// \brief Calls gSystem to load REST library.
 ///
+/// REST library lies in $REST_PATH/lib and $HOME/.rest/userlib/
 /// After this we can use reflection methods TClass::GetClass() and
 /// TRestMetadata::GetDataMemberRef()
 ///
 void TRestTools::LoadRESTLibrary(bool silent) {
-    char* _ldpath = getenv("LD_LIBRARY_PATH");
-    if (_ldpath == nullptr) {
-        _ldpath = Form("%s/lib/", REST_PATH.c_str());
-    }
-    string ldpath = _ldpath;
-    ldpath += ":" + REST_USER_PATH + "/AddonDict/";
+    string ldpath = REST_PATH + "/lib/";
+    ldpath += ":" + REST_USER_PATH + "/userlib/";
     vector<string> ldpaths = Split(ldpath, ":");
 
     vector<string> fileList;
