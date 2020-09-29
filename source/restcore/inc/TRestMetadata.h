@@ -70,7 +70,8 @@ class TRestMetadata : public TNamed {
    private:
     void ReadEnvInElement(TiXmlElement* e, bool overwrite = true);
     void ReadElement(TiXmlElement* e, bool recursive = false);
-    void ExpandForLoopOnce(TiXmlElement* e);
+    void ReplaceForLoopVars(TiXmlElement* e, map<string, string> forLoopVar);
+    void ExpandForLoopOnce(TiXmlElement* e, map<string, string> forLoopVar);
     void ExpandIfSections(TiXmlElement* e);
     void ExpandForLoops(TiXmlElement* e);
     void ExpandIncludeFile(TiXmlElement* e);

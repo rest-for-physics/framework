@@ -896,7 +896,7 @@ void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
 
 ///////////////////////////////////////////////
 /// \brief Helper method for TRestMetadata::ExpandForLoops().
-void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e) {
+void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e, map<string, string> forLoopVar) {
     TiXmlElement* parele = (TiXmlElement*)e->Parent();
     TiXmlElement* contentelement = e->FirstChildElement();
     while (contentelement != NULL) {
@@ -910,12 +910,60 @@ void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e) {
             contentelement = contentelement->NextSiblingElement();
         } else {
             TiXmlElement* attachedelement = (TiXmlElement*)contentelement->Clone();
+            ReplaceForLoopVars(attachedelement, forLoopVar);
             ReadElement(attachedelement, true);
             // debug << *attachedelement << endl;
             parele->InsertBeforeChild(e, *attachedelement);
             delete attachedelement;
             contentelement = contentelement->NextSiblingElement();
         }
+    }
+}
+
+///////////////////////////////////////////////
+/// \brief Helper method for TRestMetadata::ExpandForLoops().
+void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forLoopVar) {
+    if (e == NULL) return;
+
+    TiXmlAttribute* attr = e->FirstAttribute();
+    while (attr != NULL) {
+        const char* val = attr->Value();
+        const char* name = attr->Name();
+
+        // set attribute except name field
+        if (strcmp(name, "name") != 0) {
+            string outputBuffer = val;
+
+            // replace variables with mark ${}
+            int startPosition = 0;
+            int endPosition = 0;
+            while ((startPosition = outputBuffer.find("{", endPosition)) != (int)string::npos) {
+                endPosition = outputBuffer.find("}", startPosition + 1);
+                if (endPosition == (int)string::npos) break;
+                if (startPosition >= 1 && outputBuffer[startPosition - 1] == '$')
+                    break;  // to prevent replacing ${} mark
+
+                string expression = outputBuffer.substr(startPosition + 1, endPosition - startPosition - 1);
+
+                int replacePos = startPosition;
+                int replaceLen = endPosition - startPosition + 1;
+
+                string proenv = forLoopVar.count(expression) > 0 ? forLoopVar[expression] : "";
+
+                if (proenv != "") {
+                    outputBuffer.replace(replacePos, replaceLen, proenv);
+                    endPosition = 0;
+                } else {
+                    ferr << this->ClassName() << ", replace for loop env : cannot find \"{" << expression << "}\""
+                         << endl;
+                    exit(1);
+                }
+            }
+
+            e->SetAttribute(name, ReplaceMathematicalExpressions(outputBuffer).c_str());
+        }
+
+        attr = attr->Next();
     }
 }
 
@@ -946,6 +994,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
     string _to = (string)varto;
     string _step = (string)varstep;
     string _in = (string)varin;
+    map<string, string> forloopvar;
     if (isANumber(_from) && isANumber(_to) && isANumber(_step)) {
         double from = StringToDouble(_from);
         double to = StringToDouble(_to);
@@ -954,8 +1003,9 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
         debug << "----expanding for loop----" << endl;
         double i = 0;
         for (i = from; i <= to; i = i + step) {
+            forloopvar[_name] = ToString(i);
             fVariables[_name] = ToString(i);
-            ExpandForLoopOnce(e);
+            ExpandForLoopOnce(e, forloopvar);
         }
         parele->RemoveChild(e);
 
@@ -966,8 +1016,9 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
 
         debug << "----expanding for loop----" << endl;
         for (string loopvar : loopvars) {
+            forloopvar[_name] = loopvar;
             fVariables[_name] = loopvar;
-            ExpandForLoopOnce(e);
+            ExpandForLoopOnce(e, forloopvar);
         }
         parele->RemoveChild(e);
 
