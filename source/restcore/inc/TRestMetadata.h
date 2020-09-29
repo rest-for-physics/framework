@@ -68,7 +68,7 @@ class TRestManager;
 //! A base class for any REST metadata class
 class TRestMetadata : public TNamed {
    private:
-    void SetEnv(TiXmlElement* e, bool updateexisting = true);
+    void ReadEnvInElement(TiXmlElement* e, bool overwrite = true);
     void ReadElement(TiXmlElement* e, bool recursive = false);
     void ExpandForLoopOnce(TiXmlElement* e);
     void ExpandIfSections(TiXmlElement* e);
@@ -119,7 +119,6 @@ class TRestMetadata : public TNamed {
 
     // some utils
     std::string ReplaceEnvironmentalVariables(const std::string buffer);
-    void SetEnv(string name, string value, bool overwriteexisting);
     string SearchFile(string filename);
     TString GetSearchPath();
     void ReSetVersion();
@@ -156,6 +155,8 @@ class TRestMetadata : public TNamed {
     TiXmlElement* fElementGlobal;  //!
     /// Saving a list of rml variables. name-value pair.
     map<string, string> fVariables;  //!
+    /// Saving a list of rml constants. name-value pair. Constants are temporary for this class only.
+    map<string, string> fConstants;  //!
 
     /// It can be used as a way to identify that something went wrong using SetError method.
     Bool_t fError = false;  //!
@@ -284,7 +285,7 @@ class TRestMetadata : public TNamed {
     TRestMetadata(const char* cfgFileNamecfgFileName);
 
     /// Call CINT to generate streamers for this class
-    ClassDef(TRestMetadata, 6);
+    ClassDef(TRestMetadata, 7);
 };
 
 #endif

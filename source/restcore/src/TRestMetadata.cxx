@@ -483,6 +483,7 @@ TRestMetadata::TRestMetadata() : endl(fVerboseLevel, messageBuffer) {
     fElement = NULL;
     fVerboseLevel = gVerbose;
     fVariables.clear();
+    fConstants.clear();
     fHostmgr = NULL;
 
     fConfigFileName = "null";
@@ -499,6 +500,7 @@ TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(fVerboseLevel, mess
     fElement = NULL;
     fVerboseLevel = gVerbose;
     fVariables.clear();
+    fConstants.clear();
     fHostmgr = NULL;
 
     fConfigFileName = cfgFileName;
@@ -638,10 +640,8 @@ Int_t TRestMetadata::LoadSectionMetadata() {
     if (fElementGlobal != NULL) {
         TiXmlElement* e = fElementGlobal->FirstChildElement();
         while (e != NULL) {
-            if ((string)e->Value() == "variable" || (string)e->Value() == "constant") {
-                ReplaceElementAttributes(e);
-                SetEnv(e);
-            }
+            ReplaceElementAttributes(e);
+            ReadEnvInElement(e);
             e = e->NextSiblingElement();
         }
     }
@@ -649,10 +649,8 @@ Int_t TRestMetadata::LoadSectionMetadata() {
     // then from local section
     TiXmlElement* e = fElement->FirstChildElement();
     while (e != NULL) {
-        if ((string)e->Value() == "variable" || (string)e->Value() == "constant") {
-            ReplaceElementAttributes(e);
-            SetEnv(e);
-        }
+        ReplaceElementAttributes(e);
+        ReadEnvInElement(e);
         e = e->NextSiblingElement();
     }
 
@@ -722,26 +720,32 @@ TiXmlElement* TRestMetadata::ReplaceElementAttributes(TiXmlElement* e) {
 /// <variable name="TEST" value="VALUE" overwrite="true" />
 /// \endcode
 ///
-void TRestMetadata::SetEnv(TiXmlElement* e, bool updateexisting) {
+void TRestMetadata::ReadEnvInElement(TiXmlElement* e, bool overwrite) {
     if (e == NULL) return;
-
-    // cout << this->ClassName() << " " << (string)e->Value()<< " " <<
-    // e->Attribute("value") << endl;
 
     const char* name = e->Attribute("name");
     if (name == NULL) return;
     const char* value = e->Attribute("value");
     if (value == NULL) return;
 
-    // if overwrite is false, try to replace the value from system env.
-    const char* overwrite = e->Attribute("overwrite");
-    if (overwrite == NULL) overwrite = "false";
-    if (!StringToBool(overwrite)) {
-        char* sysenv = getenv(name);
-        if (sysenv != NULL) value = sysenv;
+    if ((string)e->Value() == "variable") {
+        // if overwrite is false, try to replace the value from system env.
+        const char* overwritesysenv = e->Attribute("overwrite");
+        if (overwritesysenv == NULL) overwritesysenv = "false";
+        if (!StringToBool(overwritesysenv)) {
+            char* sysenv = getenv(name);
+            if (sysenv != NULL) value = sysenv;
+        }
+        if (!overwrite && fVariables.count(name) > 0) return;
+        fVariables[name] = value;
+    } else if ((string)e->Value() == "constant") {
+        if (!overwrite && fVariables.count(name) > 0) return;
+        fConstants[name] = value;
+    } else if ((string)e->Value() == "myParameter") {
+        warning << "myParameter is obsolete now! use \"constant\" instead" << endl;
+        if (!overwrite && fVariables.count(name) > 0) return;
+        fConstants[name] = value;
     }
-
-    SetEnv(name, value, true);
 }
 
 ///////////////////////////////////////////////
@@ -756,12 +760,12 @@ void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
     debug << ClassName() << "::ReadElement(<" << e->Value() << ")" << endl;
 
     ReplaceElementAttributes(e);
+    ReadEnvInElement(e);
+
     if ((string)e->Value() == "for") {
         ExpandForLoops(e);
     } else if (e->Attribute("file") != NULL) {
         ExpandIncludeFile(e);
-    } else if ((string)e->Value() == "variable" || (string)e->Value() == "constant") {
-        SetEnv(e);
     } else if ((string)e->Value() == "if") {
         ExpandIfSections(e);
     } else if (e->FirstChildElement() != NULL) {
@@ -880,11 +884,11 @@ void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
         if (parele == NULL) return;
         TiXmlElement* contentelement = e->FirstChildElement();
         while (contentelement != NULL) {
-            TiXmlElement* attatchedalament = (TiXmlElement*)contentelement->Clone();
-            ReadElement(attatchedalament, true);
-            // debug << *attatchedalament << endl;
-            parele->InsertBeforeChild(e, *attatchedalament);
-            delete attatchedalament;
+            TiXmlElement* attachedelement = (TiXmlElement*)contentelement->Clone();
+            ReadElement(attachedelement, true);
+            // debug << *attachedelement << endl;
+            parele->InsertBeforeChild(e, *attachedelement);
+            delete attachedelement;
             contentelement = contentelement->NextSiblingElement();
         }
     }
@@ -905,11 +909,11 @@ void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e) {
             ExpandForLoops(newforloop);
             contentelement = contentelement->NextSiblingElement();
         } else {
-            TiXmlElement* attatchedalament = (TiXmlElement*)contentelement->Clone();
-            ReadElement(attatchedalament, true);
-            // debug << *attatchedalament << endl;
-            parele->InsertBeforeChild(e, *attatchedalament);
-            delete attatchedalament;
+            TiXmlElement* attachedelement = (TiXmlElement*)contentelement->Clone();
+            ReadElement(attachedelement, true);
+            // debug << *attachedelement << endl;
+            parele->InsertBeforeChild(e, *attachedelement);
+            delete attachedelement;
             contentelement = contentelement->NextSiblingElement();
         }
     }
@@ -950,7 +954,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
         debug << "----expanding for loop----" << endl;
         double i = 0;
         for (i = from; i <= to; i = i + step) {
-            SetEnv(_name, ToString(i), true);
+            fVariables[_name] = ToString(i);
             ExpandForLoopOnce(e);
         }
         parele->RemoveChild(e);
@@ -962,7 +966,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
 
         debug << "----expanding for loop----" << endl;
         for (string loopvar : loopvars) {
-            SetEnv(_name, loopvar, true);
+            fVariables[_name] = loopvar;
             ExpandForLoopOnce(e);
         }
         parele->RemoveChild(e);
@@ -1040,8 +1044,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1074,8 +1079,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1100,10 +1106,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
                 if (type != "globals" && GetElement("globals", rootele) != NULL) {
                     TiXmlElement* globaldef = GetElement("globals", rootele)->FirstChildElement();
                     while (globaldef != NULL) {
-                        if ((string)globaldef->Value() == "variable" ||
-                            (string)globaldef->Value() == "constant") {
-                            SetEnv(globaldef, false);
-                        }
+                        ReadEnvInElement(globaldef, false);
                         globaldef = globaldef->NextSiblingElement();
                     }
                 }
@@ -1260,7 +1263,6 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
 
     return ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(result));
 }
-
 
 Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlElement* ele,
                                                  Double_t defaultVal) {
@@ -1867,11 +1869,11 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
         }
     }
 
-    // replace bare variable name. ignore sub strings.
+    // replace bare constant name. ignore sub strings.
     // e.g. variable "nCh" with value "3" cannot replace the string "nChannels+1"
     startPosition = 0;
     endPosition = 0;
-    for (auto iter : fVariables) {
+    for (auto iter : fConstants) {
         int pos = outputBuffer.find(iter.first, 0);
         while (pos != -1) {
             char next =
@@ -1887,22 +1889,6 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
     }
 
     return outputBuffer;
-}
-
-///////////////////////////////////////////////
-/// \brief Set the program env with given env name, value and overwrite
-/// permission.
-///
-/// It will add to fVariables map if the variable with name "name" does not exist.
-/// If exist, it will change the value if "overwriteexisting" is true.
-void TRestMetadata::SetEnv(string name, string value, bool overwriteexisting) {
-    if (fVariables.count(name) > 0) {
-        if (overwriteexisting) {
-            fVariables[name] = value;
-        }
-    } else {
-        fVariables[name] = value;
-    }
 }
 
 ///////////////////////////////////////////////
