@@ -487,7 +487,8 @@ class TRestGeant4Event : public TRestEvent {
     void PrintActiveVolumes();
     void PrintEvent(int maxTracks = 0, int maxHits = 0);
 
-    TPad* DrawEvent(TString option = "", Bool_t autoBoundaries = true);
+    TPad* DrawEvent(TString option = "") { return DrawEvent(option, true); }
+    TPad* DrawEvent(TString option, Bool_t autoBoundaries);
 
     // Construtor
     TRestGeant4Event();

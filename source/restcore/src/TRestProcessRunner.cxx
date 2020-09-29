@@ -294,8 +294,7 @@ void TRestProcessRunner::RunProcess() {
     info << "TRestProcessRunner : preparing threads..." << endl;
     fRunInfo->ResetEntry();
     fRunInfo->SetCurrentEntry(firstEntry);
-    bool testrun =
-        ToUpper(GetParameter("testRun", "ON")) == "ON" || ToUpper(GetParameter("testRun", "ON")) == "TRUE";
+    bool testrun = StringToBool(GetParameter("testRun", "ON"));
     for (int i = 0; i < fThreadNumber; i++) {
         fThreads[i]->PrepareToProcess(fOutputItem, testrun);
     }
@@ -609,7 +608,7 @@ void TRestProcessRunner::PauseMenu() {
                 perror("fork error:");
                 exit(1);
             }
-            //child process
+            // child process
             if (pid == 0) {
                 fout << "Child process created! pid: " << getpid() << endl;
                 info << "Restarting threads" << endl;
@@ -621,7 +620,7 @@ void TRestProcessRunner::PauseMenu() {
                 freopen(file.c_str(), "w", stdout);
                 Console::CompatibilityMode = true;
             }
-            //father process
+            // father process
             else {
                 exit(0);
             }

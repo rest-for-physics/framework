@@ -34,14 +34,18 @@ TRestElectronDiffusionProcess::~TRestElectronDiffusionProcess() { delete fOutput
 void TRestElectronDiffusionProcess::LoadDefaultConfig() {
     SetTitle("Default config");
 
+    fElectricField = 2000;
     fAttachment = 0;
+    fGasPressure = 1;
 }
 
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::Initialize() {
     SetSectionName(this->ClassName());
 
+    fElectricField = 0;
     fAttachment = 0;
+    fGasPressure = 1;
 
     fTransDiffCoeff = 0;
     fLonglDiffCoeff = 0;
@@ -49,6 +53,9 @@ void TRestElectronDiffusionProcess::Initialize() {
 
     fOutputHitsEvent = new TRestHitsEvent();
     fInputHitsEvent = NULL;
+
+    fGas = NULL;
+    fReadout = NULL;
 
     fRandom = NULL;
 }
@@ -61,27 +68,44 @@ void TRestElectronDiffusionProcess::LoadConfig(string cfgFilename, string name) 
 void TRestElectronDiffusionProcess::InitProcess() {
     fRandom = new TRandom3(fSeed);
 
-    // calculate attachment from life time:
-    //(1-A) = e^(-t*v)
-    if (fAttachment <= 0)
-        fAttachment = 1 - exp(-gDetector->GetElectronLifeTime() * gDetector->GetDriftVelocity() *
-                              REST_Units::cm);  // attatched ratio per cm
-
-    debug << "Attachment : " << fAttachment << endl;
-
-    if (fWvalue <= 0) fWvalue = gDetector->GetWvalue();
-    if (fLonglDiffCoeff <= 0) fLonglDiffCoeff = gDetector->GetLongitudinalDiffusion();  // (cm)^1/2
-    if (fTransDiffCoeff <= 0) fTransDiffCoeff = gDetector->GetTransversalDiffusion();   // (cm)^1/2
-    if (fLonglDiffCoeff <= 0 || fTransDiffCoeff <= 0) {
-        warning << "Gas has not been initialized" << endl;
-        ferr << "TRestElectronDiffusionProcess: diffusion parameters are not defined in the rml file!"
+    fGas = GetMetadata<TRestGas>();
+    if (fGas == NULL) {
+        if (fLonglDiffCoeff == -1 || fTransDiffCoeff == -1) {
+            warning << "Gas has not been initialized" << endl;
+            ferr << "TRestElectronDiffusionProcess: diffusion parameters are not defined in the rml file!"
+                 << endl;
+            exit(-1);
+        }
+        if (fWvalue == -1) {
+            warning << "Gas has not been initialized" << endl;
+            ferr << "TRestElectronDiffusionProcess: gas work function has not been defined in the rml file!"
+                 << endl;
+            exit(-1);
+        }
+    } else {
+#ifndef USE_Garfield
+        ferr << "A TRestGas definition was found but REST was not linked to Garfield libraries." << endl;
+        ferr << "Please, remove the TRestGas definition, and add gas parameters inside the process "
+                "TRestElectronDiffusionProcess"
              << endl;
-        exit(-1);
+        exit(1);
+#endif
+        if (fGasPressure <= 0) fGasPressure = fGas->GetPressure();
+        if (fElectricField <= 0) fElectricField = fGas->GetElectricField();
+        if (fWvalue <= 0) fWvalue = fGas->GetWvalue();
+
+        fGas->SetPressure(fGasPressure);
+        fGas->SetElectricField(fElectricField);
+        fGas->SetW(fWvalue);
+
+        if (fLonglDiffCoeff <= 0) fLonglDiffCoeff = fGas->GetLongitudinalDiffusion();  // (cm)^1/2
+
+        if (fTransDiffCoeff <= 0) fTransDiffCoeff = fGas->GetTransversalDiffusion();  // (cm)^1/2
     }
-    if (fWvalue <= 0) {
-        warning << "Gas has not been initialized" << endl;
-        ferr << "TRestElectronDiffusionProcess: gas work function has not been defined in the rml file!"
-             << endl;
+
+    fReadout = GetMetadata<TRestReadout>();
+    if (fReadout == NULL) {
+        cout << "REST ERRORRRR : Readout has not been initialized" << endl;
         exit(-1);
     }
 }
@@ -102,9 +126,6 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent(TRestEvent* evInput) {
     if (fMaxHits > 0 && totalElectrons > fMaxHits)
         wValue = fInputHitsEvent->GetEnergy() * REST_Units::eV / fMaxHits;
 
-    double top = gDetector->GetTPCTopZ();
-    double bottom = gDetector->GetTPCBottomZ();
-
     for (int n = 0; n < nHits; n++) {
         TRestHits* hits = fInputHitsEvent->GetHits();
 
@@ -115,47 +136,51 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent(TRestEvent* evInput) {
             const Double_t y = hits->GetY(n);
             const Double_t z = hits->GetZ(n);
 
-            if (z > bottom && z < top) {
-                Double_t xDiff, yDiff, zDiff;
+            for (int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++) {
+                TRestReadoutPlane* plane = &(*fReadout)[p];
 
-                Double_t driftDistance = gDetector->GetDriftDistance(TVector3(x, y, z));
+                if (plane->isZInsideDriftVolume(z)) {
+                    Double_t xDiff, yDiff, zDiff;
 
-                Int_t numberOfElectrons = (Int_t)(eDep * REST_Units::eV / wValue);
+                    Double_t driftDistance = plane->GetDistanceTo(x, y, z);
 
-                if (numberOfElectrons == 0 && eDep > 0) numberOfElectrons = 1;
+                    Int_t numberOfElectrons = (Int_t)(eDep * REST_Units::eV / wValue);
 
-                Double_t localWValue = eDep * REST_Units::eV / numberOfElectrons;
-                Double_t localEnergy = 0;
+                    if (numberOfElectrons == 0 && eDep > 0) numberOfElectrons = 1;
 
-                while (numberOfElectrons > 0) {
-                    numberOfElectrons--;
+                    Double_t localWValue = eDep * REST_Units::eV / numberOfElectrons;
+                    Double_t localEnergy = 0;
 
-                    Double_t longHitDiffusion =
-                        10. * TMath::Sqrt(driftDistance / 10.) * fLonglDiffCoeff;  // mm
+                    while (numberOfElectrons > 0) {
+                        numberOfElectrons--;
 
-                    Double_t transHitDiffusion =
-                        10. * TMath::Sqrt(driftDistance / 10.) * fTransDiffCoeff;  // mm
+                        Double_t longHitDiffusion =
+                            10. * TMath::Sqrt(driftDistance / 10.) * fLonglDiffCoeff;  // mm
 
-                    if (fAttachment)
-                        isAttached = (fRandom->Uniform(0, 1) > pow(1 - fAttachment, driftDistance / 10.));
-                    else
-                        isAttached = 0;
+                        Double_t transHitDiffusion =
+                            10. * TMath::Sqrt(driftDistance / 10.) * fTransDiffCoeff;  // mm
 
-                    if (isAttached == 0) {
-                        xDiff = x + fRandom->Gaus(0, transHitDiffusion);
+                        if (fAttachment)
+                            isAttached = (fRandom->Uniform(0, 1) > pow(1 - fAttachment, driftDistance / 10.));
+                        else
+                            isAttached = 0;
 
-                        yDiff = y + fRandom->Gaus(0, transHitDiffusion);
+                        if (isAttached == 0) {
+                            xDiff = x + fRandom->Gaus(0, transHitDiffusion);
 
-                        zDiff = z + fRandom->Gaus(0, longHitDiffusion);
+                            yDiff = y + fRandom->Gaus(0, transHitDiffusion);
 
-                        localEnergy += localWValue * REST_Units::keV / REST_Units::eV;
-                        if (GetVerboseLevel() >= REST_Extreme)
-                            cout << "Adding hit. x : " << xDiff << " y : " << yDiff << " z : " << zDiff
-                                 << " en : " << localWValue * REST_Units::keV / REST_Units::eV << " keV"
-                                 << endl;
-                        fOutputHitsEvent->AddHit(xDiff, yDiff, zDiff,
-                                                 localWValue * REST_Units::keV / REST_Units::eV,
-                                                 hits->GetTime(n), hits->GetType(n));
+                            zDiff = z + fRandom->Gaus(0, longHitDiffusion);
+
+                            localEnergy += localWValue * REST_Units::keV / REST_Units::eV;
+                            if (GetVerboseLevel() >= REST_Extreme)
+                                cout << "Adding hit. x : " << xDiff << " y : " << yDiff << " z : " << zDiff
+                                     << " en : " << localWValue * REST_Units::keV / REST_Units::eV << " keV"
+                                     << endl;
+                            fOutputHitsEvent->AddHit(xDiff, yDiff, zDiff,
+                                                     localWValue * REST_Units::keV / REST_Units::eV,
+                                                     hits->GetTime(n), hits->GetType(n));
+                        }
                     }
                 }
             }
@@ -185,21 +210,26 @@ void TRestElectronDiffusionProcess::EndProcess() {
 
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::InitFromConfigFile() {
-    double field = GetDblParameterWithUnits("electricField", -1);
-    if (field != -1) gDetector->SetDriftField(field);
-
-    double pressure = GetDblParameterWithUnits("gasPressure", -1);
-    if (pressure != -1) gDetector->SetPressure(pressure);
-
+    // TODO add pressure units
+    fGasPressure = GetDblParameterWithUnits("gasPressure", -1.);
+    fElectricField = GetDblParameterWithUnits("electricField", -1.);
     fWvalue = GetDblParameterWithUnits("Wvalue", (double)0) * REST_Units::eV;
-
     fAttachment = StringToDouble(GetParameter("attachment", "0"));
+    fLonglDiffCoeff = StringToDouble(GetParameter("longitudinalDiffusionCoefficient", "-1"));
+    if (fLonglDiffCoeff == -1)
+        fLonglDiffCoeff = StringToDouble(GetParameter("longDiff", "-1"));
+    else {
+        warning << "longitudinalDiffusionCoeffient is now OBSOLETE! It will soon dissapear." << endl;
+        warning << " Please use the shorter form of this parameter : longDiff" << endl;
+    }
 
-    fLonglDiffCoeff = StringToDouble(GetParameter("longDiff", "-1"));
-
-    fTransDiffCoeff = StringToDouble(GetParameter("transDiff", "-1"));
-
+    fTransDiffCoeff = StringToDouble(GetParameter("transversalDiffusionCoefficient", "-1"));
+    if (fTransDiffCoeff == -1)
+        fTransDiffCoeff = StringToDouble(GetParameter("transDiff", "-1"));
+    else {
+        warning << "transversalDiffusionCoeffient is now OBSOLETE! It will soon dissapear." << endl;
+        warning << " Please use the shorter form of this parameter : transDiff" << endl;
+    }
     fMaxHits = StringToInteger(GetParameter("maxHits", "1000"));
-
     fSeed = StringToDouble(GetParameter("seed", "0"));
 }

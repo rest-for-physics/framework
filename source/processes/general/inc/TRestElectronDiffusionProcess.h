@@ -12,20 +12,24 @@
 #ifndef RestCore_TRestElectronDiffusionProcess
 #define RestCore_TRestElectronDiffusionProcess
 
-#include <TRestDetectorReadout.h>
-#include <TRestGas.h>
-#include <TRestHitsEvent.h>
-
 #include <TRandom3.h>
+#include <TRestDetectorGas.h>
+#include <TRestDetectorReadout.h>
+#include <TRestHitsEvent.h>
 
 #include "TRestEventProcess.h"
 
 class TRestElectronDiffusionProcess : public TRestEventProcess {
    private:
+#ifndef __CINT__
     TRestHitsEvent* fInputHitsEvent;   //!
     TRestHitsEvent* fOutputHitsEvent;  //!
 
+    TRestDetectorGas* fGas;          //!
+    TRestDetectorReadout* fReadout;  //!
+
     TRandom3* fRandom;  //!
+#endif
 
     void InitFromConfigFile();
 
@@ -34,7 +38,9 @@ class TRestElectronDiffusionProcess : public TRestEventProcess {
     void LoadDefaultConfig();
 
    protected:
+    Double_t fElectricField;
     Double_t fAttachment;
+    Double_t fGasPressure;
     Double_t fWvalue;
     Double_t fLonglDiffCoeff;
     Double_t fTransDiffCoeff;
@@ -56,21 +62,27 @@ class TRestElectronDiffusionProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        metadata << " Attachment coeficient : " << fAttachment << " cm-1" << endl;
-        metadata << " Longitudinal diffusion coefficient : " << fLonglDiffCoeff << " cm^1/2" << endl;
-        metadata << " Transversal diffusion coefficient : " << fTransDiffCoeff << " cm^1/2" << endl;
+        metadata << " eField : " << fElectricField * units("V/cm") << " V/cm" << endl;
+        metadata << " attachment coeficient : " << fAttachment << " V/cm" << endl;
+        metadata << " gas pressure : " << fGasPressure << " atm" << endl;
+        metadata << " longitudinal diffusion coefficient : " << fLonglDiffCoeff << " cm^1/2" << endl;
+        metadata << " transversal diffusion coefficient : " << fTransDiffCoeff << " cm^1/2" << endl;
         metadata << " W value : " << fWvalue << " eV" << endl;
 
         metadata << " Maximum number of hits : " << fMaxHits << endl;
 
-        metadata << " Seed : " << fSeed << endl;
+        metadata << " seed : " << fSeed << endl;
 
         EndPrintProcess();
     }
 
+    TRestMetadata* GetProcessMetadata() { return fGas; }
+
     TString GetProcessName() { return (TString) "electronDiffusion"; }
 
+    Double_t GetElectricField() { return fElectricField; }
     Double_t GetAttachmentCoefficient() { return fAttachment; }
+    Double_t GetGasPressure() { return fGasPressure; }
 
     // Constructor
     TRestElectronDiffusionProcess();
@@ -78,7 +90,7 @@ class TRestElectronDiffusionProcess : public TRestEventProcess {
     // Destructor
     ~TRestElectronDiffusionProcess();
 
-    ClassDef(TRestElectronDiffusionProcess, 3);  // Template for a REST "event process" class inherited from
+    ClassDef(TRestElectronDiffusionProcess, 2);  // Template for a REST "event process" class inherited from
                                                  // TRestEventProcess
 };
 #endif

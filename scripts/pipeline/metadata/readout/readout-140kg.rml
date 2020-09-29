@@ -62,67 +62,67 @@
 
     <readoutModule name="module" file="readouts.rml"/>
 
-        <readoutPlane position="(0,0,600.5)mm" planeVector="(0,0,-1)"
-          chargeCollection="1"
-          cathodePosition="(0,0,-601)mm" >
+    <readoutPlane position="(0,0,600.5)mm" planeVector="(0,0,-1)"
+      chargeCollection="1"
+      cathodePosition="(0,0,-601)mm" >
 
-        // 4 modules
-        <for variable="modX" from="1" to="4" step="1" >
-          <addReadoutModule id="${modX}" name="module"
-              origin="(( (nChannels+1)*pitch-1*pitch/2)*(-2+(${modX}-1)) , 3 * ((nChannels+1)*pitch-pitch/2-pitch/4) )"
-              rotation="0" />
-        </for>
+      // 4 modules
+      <for variable="modX" from="1" to="4" step="1" >
+        <addReadoutModule id="${modX}" name="module"
+            origin="(( (nChannels+1)*pitch-1*pitch/2)*(-2+(${modX}-1)) , 3 * ((nChannels+1)*pitch-pitch/2-pitch/4) )"
+            rotation="0" />
+      </for>
 
-        // 6-modules
-        <for variable="modX" from="5" to="10" step="1" >
-          <addReadoutModule id="${modX}" name="module"
-              origin="(((nChannels+1)*pitch-1*pitch/2)*(-3+(${modX}-5)) , 2 * ((nChannels+1)*pitch-pitch/2-pitch/4) )"
-              rotation="0" />
-        </for>
+      // 6-modules
+      <for variable="modX" from="5" to="10" step="1" >
+        <addReadoutModule id="${modX}" name="module"
+            origin="(((nChannels+1)*pitch-1*pitch/2)*(-3+(${modX}-5)) , 2 * ((nChannels+1)*pitch-pitch/2-pitch/4) )"
+            rotation="0" />
+      </for>
 
-        // 8-modules
-        <for variable="modX" from="11" to="18" step="1" >
-          <addReadoutModule id="${modX}" name="module"
-              origin="(((nChannels+1)*pitch-1*pitch/2)*(-4+(${modX}-11)) , 1 * ((nChannels+1)*pitch-pitch/2-pitch/4) )"
-              rotation="0" />
-        </for>
+      // 8-modules
+      <for variable="modX" from="11" to="18" step="1" >
+        <addReadoutModule id="${modX}" name="module"
+            origin="(((nChannels+1)*pitch-1*pitch/2)*(-4+(${modX}-11)) , 1 * ((nChannels+1)*pitch-pitch/2-pitch/4) )"
+            rotation="0" />
+      </for>
 
-        // 8-modules
-        <for variable="modX" from="19" to="26" step="1" >
-          <addReadoutModule id="${modX}" name="module"
-              origin="(((nChannels+1)*pitch-1*pitch/2)*(-4+(${modX}-19)) , 0.0 * ((nChannels+1)*pitch-pitch/2-pitch/4) )"
-              rotation="0" />
-        </for>
+      // 8-modules
+      <for variable="modX" from="19" to="26" step="1" >
+        <addReadoutModule id="${modX}" name="module"
+            origin="(((nChannels+1)*pitch-1*pitch/2)*(-4+(${modX}-19)) , 0.0 * ((nChannels+1)*pitch-pitch/2-pitch/4) )"
+            rotation="0" />
+      </for>
 
-        // 8-modules
-        <for variable="modX" from="27" to="34" step="1" >
-          <addReadoutModule id="${modX}" name="module"
-              origin="(((nChannels+1)*pitch-1*pitch/2)*(-4+(${modX}-27)) , -1 * ((nChannels+1)*pitch-pitch/2-pitch/4) )"
-              rotation="0" />
-        </for>
+      // 8-modules
+      <for variable="modX" from="27" to="34" step="1" >
+        <addReadoutModule id="${modX}" name="module"
+            origin="(((nChannels+1)*pitch-1*pitch/2)*(-4+(${modX}-27)) , -1 * ((nChannels+1)*pitch-pitch/2-pitch/4) )"
+            rotation="0" />
+      </for>
 
-        // 8-modules
-        <for variable="modX" from="35" to="42" step="1" >
-          <addReadoutModule id="${modX}" name="module"
-              origin="(((nChannels+1)*pitch-1*pitch/2)*(-4+(${modX}-35)) , -2 * ((nChannels+1)*pitch-pitch/2-pitch/4) )"
-              rotation="0" />
-        </for>
+      // 8-modules
+      <for variable="modX" from="35" to="42" step="1" >
+        <addReadoutModule id="${modX}" name="module"
+            origin="(((nChannels+1)*pitch-1*pitch/2)*(-4+(${modX}-35)) , -2 * ((nChannels+1)*pitch-pitch/2-pitch/4) )"
+            rotation="0" />
+      </for>
 
-        // 6-modules
-        <for variable="modX" from="43" to="48" step="1" >
-          <addReadoutModule id="${modX}" name="module"
-              origin="(((nChannels+1)*pitch-1*pitch/2)*(-3+(${modX}-43)) , -3 * ((nChannels+1)*pitch-pitch/2-pitch/4) )"
-              rotation="0" />
-        </for>
+      // 6-modules
+      <for variable="modX" from="43" to="48" step="1" >
+        <addReadoutModule id="${modX}" name="module"
+            origin="(((nChannels+1)*pitch-1*pitch/2)*(-3+(${modX}-43)) , -3 * ((nChannels+1)*pitch-pitch/2-pitch/4) )"
+            rotation="0" />
+      </for>
 
-        // 4-modules
-        <for variable="modX" from="49" to="52" step="1" >
-          <addReadoutModule id="${modX}" name="module"
-              origin="(((nChannels+1)*pitch-1*pitch/2)*(-2+(${modX}-49)) , -4 * ((nChannels+1)*pitch-pitch/2-pitch/4) )"
-              rotation="0" />
-        </for>
+      // 4-modules
+      <for variable="modX" from="49" to="52" step="1" >
+        <addReadoutModule id="${modX}" name="module"
+            origin="(((nChannels+1)*pitch-1*pitch/2)*(-2+(${modX}-49)) , -4 * ((nChannels+1)*pitch-pitch/2-pitch/4) )"
+            rotation="0" />
+      </for>
 
-      </readoutPlane>
+    </readoutPlane>
 
 
   </TRestDetectorReadout>

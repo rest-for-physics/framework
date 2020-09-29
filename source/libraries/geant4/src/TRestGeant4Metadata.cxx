@@ -805,40 +805,41 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 /// and the range of energies that particles will be propagated to the next
 /// biasing volume.
 ///
+/// \code
+///    <biasing value="off" type="virtualBox">
+///      <biasingVolume size="2850mm" position="(0,0,0)mm" factor="2" energyRange="(0,5)MeV" />
+///      <biasingVolume size="2450mm" position="(0,0,0)mm" factor="2" energyRange="(0,5)MeV" />
+///      <biasingVolume size="2050mm" position="(0,0,0)mm" factor="2" energyRange="(0,5)MeV" />
+///    </biasing>
+/// \endcode
+///
 /// Check for more details in the general description of this class.
 ///
 void TRestGeant4Metadata::ReadBiasing() {
-    string biasingString = GetKEYStructure("biasing");
-
-    if (biasingString == "NotFound") {
+    TiXmlElement* biasingDefinition = GetElement("biasing");
+    if (biasingDefinition == NULL) {
         fNBiasingVolumes = 0;
         return;
     }
-
-    string biasingDefinition = GetKEYDefinition("biasing", biasingString);
-
     TString biasEnabled = GetFieldValue("value", biasingDefinition);
     TString biasType = GetFieldValue("type", biasingDefinition);
 
-    cout << "Bias : " << biasEnabled << endl;
+    debug << "Bias : " << biasEnabled << endl;
 
     if (biasEnabled == "on" || biasEnabled == "ON" || biasEnabled == "On" || biasEnabled == "oN") {
-        cout << "Biasing is enabled" << endl;
+        info << "Biasing is enabled" << endl;
 
-        size_t position = 0;
-        string biasVolumeDefinition;
-
+        TiXmlElement* biasVolumeDefinition = GetElement("biasingVolume", biasingDefinition);
         Int_t n = 0;
-        while ((biasVolumeDefinition = GetKEYDefinition("biasingVolume", position, biasingString)) != "") {
-            TRestGeant4BiasingVolume biasVolume;
-
-            cout << "Def : " << biasVolumeDefinition << endl;
+        while (biasVolumeDefinition != NULL) {
+            TRestBiasingVolume biasVolume;
+            debug << "Def : " << biasVolumeDefinition << endl;
 
             biasVolume.SetBiasingVolumePosition(
-                Get3DVectorFieldValueWithUnits("position", biasVolumeDefinition));
-            biasVolume.SetBiasingFactor(StringToDouble(GetFieldValue("factor", biasVolumeDefinition)));
-            biasVolume.SetBiasingVolumeSize(GetDblFieldValueWithUnits("size", biasVolumeDefinition));
-            biasVolume.SetEnergyRange(Get2DVectorFieldValueWithUnits("energyRange", biasVolumeDefinition));
+                Get3DVectorParameterWithUnits("position", biasVolumeDefinition));
+            biasVolume.SetBiasingFactor(StringToDouble(GetParameter("factor", biasVolumeDefinition)));
+            biasVolume.SetBiasingVolumeSize(GetDblParameterWithUnits("size", biasVolumeDefinition));
+            biasVolume.SetEnergyRange(Get2DVectorParameterWithUnits("energyRange", biasVolumeDefinition));
             biasVolume.SetBiasingVolumeType(biasType);  // For the moment all the volumes should be same type
 
             /* TODO check that values are right if not printBiasingVolume with
@@ -846,7 +847,7 @@ void TRestGeant4Metadata::ReadBiasing() {
             */
 
             fBiasingVolumes.push_back(biasVolume);
-
+            biasVolumeDefinition = GetNextElement(biasVolumeDefinition);
             n++;
         }
         fNBiasingVolumes = n;
@@ -861,6 +862,22 @@ void TRestGeant4Metadata::ReadBiasing() {
 /// primary particles, their energy distribution, and their angular
 /// momentum.
 ///
+/// \code
+///    <generator type="volume" from="gas" >
+///      ///1. generator file
+///      <source use="Xe136bb0n.dat"/>
+///
+///      ///2. decay0 package
+///      <!--<source use="decay0" particle="Xe136" decayMode="0vbb" daughterLevel="3" />-->
+///
+///      ///3. geant4 internal
+///      <!--<source use="geant4" particle="Na22" excitedLevel="0.0" fullChain="on">
+///        <angularDist type="isotropic" />
+///        <energyDist type="mono" energy="0.0" units="MeV" />
+///      </source>-->
+///    </generator>
+/// \endcode
+///
 void TRestGeant4Metadata::ReadGenerator() {
     // TODO if some fields are defined in the generator but not finally used
     // i.e. <generator type="volume" from="gasTarget" position="(100,0,-100)
@@ -871,15 +888,13 @@ void TRestGeant4Metadata::ReadGenerator() {
     // center of the volume (i.e. gasTarget) but if i.e rotation or side are
     // defined and not relevant we should set it to -1
 
-    string generatorString = GetKEYStructure("generator");
-
-    string generatorDefinition = GetKEYDefinition("generator", generatorString);
+    TiXmlElement* generatorDefinition = GetElement("generator");
 
     fGenType = GetFieldValue("type", generatorDefinition);
     fGenFrom = GetFieldValue("from", generatorDefinition);
     string dimension1[3]{"size", "lenX", "radius"};
     for (int i = 0; i < 3; i++) {
-        fGenDimension1 = GetDblFieldValueWithUnits(dimension1[i], generatorDefinition);
+        fGenDimension1 = GetDblParameterWithUnits(dimension1[i], generatorDefinition);
         if (fGenDimension1 != PARAMETER_NOT_FOUND_DBL) {
             if (dimension1[i] == "size") fGenDimension2 = fGenDimension1;
             break;
@@ -888,26 +903,21 @@ void TRestGeant4Metadata::ReadGenerator() {
 
     // TODO : If not defined (and required to be) it just returns (0,0,0) we
     // should make a WARNING. Inside StringToVector probably
-    fGenPosition = Get3DVectorFieldValueWithUnits("position", generatorDefinition);
+    fGenPosition = Get3DVectorParameterWithUnits("position", generatorDefinition);
 
-    fGenRotation = StringTo3DVector(GetFieldValue("rotation", generatorDefinition));
+    fGenRotation = StringTo3DVector(GetParameter("rotation", generatorDefinition));
 
     string dimension2[2]{"length", "lenY"};
     for (int i = 0; i < 2; i++) {
-        Double_t tmpDim2 = GetDblFieldValueWithUnits(dimension2[i], generatorDefinition);
+        Double_t tmpDim2 = GetDblParameterWithUnits(dimension2[i], generatorDefinition);
         if (tmpDim2 != PARAMETER_NOT_FOUND_DBL) {
             fGenDimension2 = tmpDim2;
             break;
         }
     }
 
-    size_t position = 0;
-    string sourceString;
-
-    while ((sourceString = GetKEYStructure("source", position, generatorString)) != "") {
-        // Source parameters
-        string sourceDefinition = GetKEYDefinition("source", sourceString);
-
+    TiXmlElement* sourceDefinition = GetElement("source", generatorDefinition);
+    while (sourceDefinition != NULL) {
         fGeneratorFile = GetFieldValue("fromFile", sourceDefinition);
 
         if (fGeneratorFile != "Not defined") {
@@ -923,18 +933,19 @@ void TRestGeant4Metadata::ReadGenerator() {
             ReadEventDataFile(fGeneratorFile);
         } else if (use == "geant4" || use == "" || use == "Not defined") {
             info << "Adding sources to geant4" << endl;
-            ReadParticleSource(sourceString);
+            ReadParticleSource(sourceDefinition);
         } else {
             info << "Load custom sources from " << use << endl;
             TRestParticleCollection* particleCollection = TRestParticleCollection::instantiate(use);
             if (particleCollection != NULL) {
-                particleCollection->SetParticleModel(sourceString);
+                particleCollection->SetParticleModel(ElementToString(sourceDefinition));
                 fPrimaryGenerator.AddParticleCollection(particleCollection);
                 fPrimaryGenerator.UpdateSourcesFromParticleCollection(0);
 
                 fGenType = "custom";
             }
         }
+        sourceDefinition = GetNextElement(sourceDefinition);
     }
 
     // check if the generator is valid.
@@ -951,19 +962,24 @@ void TRestGeant4Metadata::ReadGenerator() {
 /// This section allows to define which hits will be stored to disk.
 /// Different volumes in the geometry can be tagged for hit storage.
 ///
+/// \code
+///    <storage sensitiveVolume="gas">
+///      <parameter name="energyRange" value="(0,5)MeV" />
+///      <activeVolume name="gas" chance="1" />
+///    </storage>
+/// \endcode
+///
 void TRestGeant4Metadata::ReadStorage() {
-    string storageString = GetKEYStructure("storage");
-    fSensitiveVolume = GetFieldValue("sensitiveVolume", storageString);
-    cout << "Sensitive volume : " << fSensitiveVolume << endl;
+    TiXmlElement* storageDefinition = GetElement("storage");
+    fSensitiveVolume = GetFieldValue("sensitiveVolume", storageDefinition);
     if (fSensitiveVolume == "Not defined") {
-        cout << "REST WARNING : Sensitive volume not defined. Setting it to gas!!!!" << endl;
+        warning << "Sensitive volume not defined. Setting it to gas!!!!" << endl;
         fSensitiveVolume = "gas";
     }
 
-    cout << fSensitiveVolume << endl;
+    info << "Sensitive volume : " << fSensitiveVolume << endl;
 
-    size_t pos = 0;
-    fEnergyRangeStored = Get2DVectorParameterWithUnits("energyRange", pos, storageString);
+    fEnergyRangeStored = Get2DVectorParameterWithUnits("energyRange", storageDefinition);
 
     GdmlPreprocessor* preprocesor = new GdmlPreprocessor();
     preprocesor->Load((string)Get_GDML_Filename());
@@ -975,9 +991,8 @@ void TRestGeant4Metadata::ReadStorage() {
         geometryVolumes.insert(name);
     }
 
-    pos = 0;
-    string volumeDefinition;
-    while ((volumeDefinition = GetKEYDefinition("activeVolume", pos, storageString)) != "") {
+    TiXmlElement* volumeDefinition = GetElement("activeVolume", storageDefinition);
+    while (volumeDefinition != NULL) {
         Double_t chance = StringToDouble(GetFieldValue("chance", volumeDefinition));
         TString name = GetFieldValue("name", volumeDefinition);
         // first we verify its in the list of valid volumes
@@ -990,6 +1005,7 @@ void TRestGeant4Metadata::ReadStorage() {
             SetActiveVolume(name, chance);
             info << "Adding active volume from RML: '" << name << "' with chance: " << chance << endl;
         }
+        volumeDefinition = GetNextElement(volumeDefinition);
     }
 
     // If the user didnt add explicitly any volume to the storage section we understand
@@ -1306,9 +1322,8 @@ Int_t TRestGeant4Metadata::ReadOldDecay0File(TString fileName) {
 ///////////////////////////////////////////////
 /// \brief It reads the <source definition given by argument
 ///
-void TRestGeant4Metadata::ReadParticleSource(TString definition) {
-    string sourceString = (string)definition;
-    string sourceDefinition = GetKEYDefinition("source", sourceString);
+void TRestGeant4Metadata::ReadParticleSource(TiXmlElement* definition) {
+    TiXmlElement* sourceDefinition = definition;
 
     TRestParticleSource source;
 
@@ -1333,7 +1348,7 @@ void TRestGeant4Metadata::ReadParticleSource(TString definition) {
     }
 
     // Angular distribution parameters
-    string angularDefinition = GetKEYDefinition("angularDist", sourceString);
+    TiXmlElement* angularDefinition = GetElement("angularDist", sourceDefinition);
 
     source.SetAngularDistType(GetFieldValue("type", angularDefinition));
 
@@ -1350,7 +1365,7 @@ void TRestGeant4Metadata::ReadParticleSource(TString definition) {
     source.SetDirection(StringTo3DVector(GetFieldValue("direction", angularDefinition)));
 
     // Energy distribution parameters
-    string energyDefinition = GetKEYDefinition("energyDist", sourceString);
+    TiXmlElement* energyDefinition = GetElement("energyDist", sourceDefinition);
 
     source.SetEnergyDistType(GetFieldValue("type", energyDefinition));
 
@@ -1359,11 +1374,11 @@ void TRestGeant4Metadata::ReadParticleSource(TString definition) {
         source.SetSpectrumName(GetFieldValue("spctName", energyDefinition));
     }
 
-    source.SetEnergyRange(Get2DVectorFieldValueWithUnits("range", energyDefinition));
+    source.SetEnergyRange(Get2DVectorParameterWithUnits("range", energyDefinition));
 
     if (source.GetEnergyDistType() == "mono") {
         Double_t en;
-        en = GetDblFieldValueWithUnits("energy", energyDefinition);
+        en = GetDblParameterWithUnits("energy", energyDefinition);
         source.SetEnergyRange(TVector2(en, en));
         source.SetEnergy(en);
     }

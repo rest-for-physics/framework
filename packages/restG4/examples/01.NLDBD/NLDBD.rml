@@ -39,7 +39,7 @@ By default REST units are mm, keV and degrees
   <TRestGeant4Metadata name="DBDsimulation" title="NLDBD">
 
     <parameter name="gdml_file" value="geometry/mySetupTemplate.gdml"/>
-    <parameter name="maxTargetStepSize" value="1" units="mm" />
+    <parameter name="maxTargetStepSize" value="1mm" />
     <parameter name="subEventTimeDelay" value="100" units="us" />
 
     <parameter name="seed" value="17021981" />
@@ -75,7 +75,7 @@ By default REST units are mm, keV and degrees
   </TRestGeant4Metadata>
 
   <TRestPhysicsLists name="default" title="First physics list implementation." >
-    
+
     <parameter name="cutForGamma" value="1" units="mm" />
     <parameter name="cutForElectron" value="2" units="mm" />
     <parameter name="cutForPositron" value="1" units="mm" />
@@ -84,7 +84,7 @@ By default REST units are mm, keV and degrees
     <parameter name="cutForNeutron" value="1" units="mm" />
     <parameter name="minEnergyRangeProductionCuts" value="1" units="keV" />
     <parameter name="maxEnergyRangeProductionCuts" value="1" units="GeV" />
-    
+
     // Use only one EM physics list
     <!-- EM Physics lists -->
     <physicsList name="G4EmLivermorePhysics"> </physicsList>
@@ -105,7 +105,7 @@ By default REST units are mm, keV and degrees
     <physicsList name="G4HadronPhysicsQGSP_BIC_HP"> </physicsList>
     <physicsList name="G4NeutronTrackingCut"> </physicsList>
     <physicsList name="G4EmExtraPhysics"> </physicsList>
-    
+
   </TRestPhysicsLists>
 
 </restG4>

@@ -304,8 +304,8 @@ void TRestMetadataPlot::InitFromConfigFile() {
 #pragma region ReadLabels
     debug << "TRestMetadataPlot: Reading canvas settings" << endl;
     position = 0;
-    string formatDefinition;
-    if ((formatDefinition = GetKEYDefinition("labels", position)) != "") {
+    TiXmlElement* formatDefinition = GetElement("labels");
+    if (formatDefinition != NULL) {
         if (GetVerboseLevel() >= REST_Debug) {
             cout << formatDefinition << endl;
             cout << "Reading format definition : " << endl;
@@ -345,8 +345,8 @@ void TRestMetadataPlot::InitFromConfigFile() {
 
 #pragma region ReadLegend
     position = 0;
-    string legendDefinition;
-    if ((legendDefinition = GetKEYDefinition("legendPosition", position)) != "") {
+    TiXmlElement* legendDefinition = GetElement("legendPosition");
+    if (legendDefinition != NULL) {
         if (GetVerboseLevel() >= REST_Debug) {
             cout << legendDefinition << endl;
             cout << "Reading legend definition : " << endl;
@@ -379,8 +379,8 @@ void TRestMetadataPlot::InitFromConfigFile() {
 
 #pragma region ReadCanvas
     position = 0;
-    string canvasDefinition;
-    if ((canvasDefinition = GetKEYDefinition("canvas", position)) != "") {
+    TiXmlElement* canvasDefinition = GetElement("canvas");
+    if (canvasDefinition != NULL) {
         fCanvasSize = StringTo2DVector(GetFieldValue("size", canvasDefinition));
         fCanvasDivisions = StringTo2DVector(GetFieldValue("divide", canvasDefinition));
         fCanvasSave = GetFieldValue("save", canvasDefinition);

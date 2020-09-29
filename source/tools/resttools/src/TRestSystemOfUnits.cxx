@@ -96,11 +96,37 @@ string RemoveUnitsFromString(string s) {
 ///////////////////////////////////////////////
 /// \brief It scales a physics measurement with its units into a REST default units value.
 ///
-/// For example, string in = "35.V/cm"
-Double_t GetValueInRESTUnits(string in) {
+/// For example, string in = "35.V/cm", return 3.5 (V/mm)
+Double_t GetDblValueInString(string in) {
     string units = FindRESTUnitsInString(in);
     double val = StringToDouble(RemoveUnitsFromString(in));
     return ConvertValueToRESTUnits(val, units);
+}
+
+///////////////////////////////////////////////
+/// \brief It scales a physics measurement with its units into a REST default units value.
+///
+/// For example, string in = "(0,5)MeV", return (0,5000) (keV)
+TVector2 Get2DVectorValueInString(string in) {
+    string unit = FindRESTUnitsInString(in);
+    TVector2 value = StringTo2DVector(RemoveUnitsFromString(in));
+    Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
+    Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
+    return TVector2(valueX, valueY);
+}
+
+///////////////////////////////////////////////
+/// \brief It scales a physics measurement with its units into a REST default units value.
+///
+/// For example, string in = "35.V/cm", return 3.5 (V/mm)
+/// string in = "(0,5,6)cm", return (0,50,60) mm
+TVector3 Get3DVectorValueInString(string in) {
+    string unit = FindRESTUnitsInString(in);
+    TVector3 value = StringTo3DVector(RemoveUnitsFromString(in));
+    Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
+    Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
+    Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
+    return TVector3(valueX, valueY, valueZ);
 }
 
 ///////////////////////////////////////////////

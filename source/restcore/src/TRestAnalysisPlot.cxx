@@ -64,11 +64,11 @@ void TRestAnalysisPlot::InitFromConfigFile() {
         }
     }
 
-    TiXmlElement* ele = fElement->FirstChildElement("addFile");
+    TiXmlElement* ele = GetElement("addFile");
     while (ele != NULL) {
         TString inputfile = GetParameter("name", ele);
         this->AddFile(inputfile);
-        ele = ele->NextSiblingElement("addFile");
+        ele = GetNextElement(ele);
     }
     // try to add files from external TRestRun handler
     if (fNFiles == 0) AddFileFromExternalRun();
@@ -83,8 +83,8 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 #pragma region ReadLabels
     debug << "TRestAnalysisPlot: Reading canvas settings" << endl;
     position = 0;
-    string formatDefinition;
-    if ((formatDefinition = GetKEYDefinition("labels", position)) != "") {
+    TiXmlElement* formatDefinition = GetElement("labels");
+    if (formatDefinition != NULL) {
         if (GetVerboseLevel() >= REST_Debug) {
             cout << formatDefinition << endl;
             cout << "Reading format definition : " << endl;
@@ -124,8 +124,8 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 
 #pragma region ReadLegend
     position = 0;
-    string legendDefinition;
-    if ((legendDefinition = GetKEYDefinition("legendPosition", position)) != "") {
+    TiXmlElement* legendDefinition = GetElement("legendPosition");
+    if (legendDefinition != NULL) {
         if (GetVerboseLevel() >= REST_Debug) {
             cout << legendDefinition << endl;
             cout << "Reading legend definition : " << endl;
@@ -170,7 +170,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 #pragma region ReadGlobalCuts
     debug << "TRestAnalysisPlot: Reading global cuts" << endl;
     vector<string> globalCuts;
-    TiXmlElement* gCutele = fElement->FirstChildElement("globalCut");
+    TiXmlElement* gCutele = GetElement("globalCut");
     while (gCutele != NULL)  // general cuts
     {
         string cutActive = GetParameter("value", gCutele, "ON");
@@ -194,13 +194,13 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             globalCuts.push_back(cutString);
         }
 
-        gCutele = gCutele->NextSiblingElement("globalCut");
+        gCutele = GetNextElement(gCutele);
     }
 #pragma endregion
 
 #pragma region ReadGlobalCutStrings
     debug << "TRestAnalysisPlot: Reading global cut strings" << endl;
-    TiXmlElement* gCutStrele = fElement->FirstChildElement("globalCutString");
+    TiXmlElement* gCutStrele = GetElement("globalCutString");
     while (gCutStrele != NULL)  // general cuts
     {
         string cutActive = GetParameter("value", gCutStrele, "ON");
@@ -213,14 +213,14 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             globalCuts.push_back(cutString);
         }
 
-        gCutStrele = gCutStrele->NextSiblingElement("globalCutString");
+        gCutStrele = GetNextElement(gCutStrele);
     }
 #pragma endregion
 
 #pragma region ReadPlot
     debug << "TRestAnalysisPlot: Reading plot sections" << endl;
     Int_t maxPlots = (Int_t)fCanvasDivisions.X() * (Int_t)fCanvasDivisions.Y();
-    TiXmlElement* plotele = fElement->FirstChildElement("plot");
+    TiXmlElement* plotele = GetElement("plot");
     while (plotele != NULL) {
         string active = GetParameter("value", plotele, "ON");
         if (ToUpper(active) == "ON") {
@@ -256,7 +256,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             plot.timeDisplay = StringToBool(GetParameter("timeDisplay", plotele, "OFF"));
             plot.save = RemoveWhiteSpaces(GetParameter("save", plotele, ""));
 
-            TiXmlElement* histele = plotele->FirstChildElement("histo");
+            TiXmlElement* histele = GetElement("histo", plotele);
             if (histele == NULL) {
                 // in case for single-hist plot, variables are added directly inside the <plot section
                 histele = plotele;
@@ -284,11 +284,11 @@ void TRestAnalysisPlot::InitFromConfigFile() {
                 if (histele == plotele) {
                     break;
                 }
-                histele = histele->NextSiblingElement("histo");
+                histele = GetNextElement(histele);
             }
 
             fPlots.push_back(plot);
-            plotele = plotele->NextSiblingElement("plot");
+            plotele = GetNextElement(plotele);
         }
     }
 #pragma endregion
@@ -296,7 +296,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 #pragma region ReadPanel
     debug << "TRestAnalysisPlot: Reading panel sections" << endl;
     maxPlots -= fPlots.size();  // remaining spaces on canvas
-    TiXmlElement* panelele = fElement->FirstChildElement("panel");
+    TiXmlElement* panelele = GetElement("panel");
     while (panelele != NULL) {
         string active = GetParameter("value", panelele, "ON");
         if (ToUpper(active) == "ON") {
@@ -311,17 +311,17 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             Panel_Info panel;
             panel.font_size = StringToDouble(GetParameter("font_size", panelele, "0.1"));
 
-            TiXmlElement* labelele = panelele->FirstChildElement("label");
+            TiXmlElement* labelele = GetElement("label", panelele);
             while (labelele != NULL) {
                 panel.label.push_back(GetParameter("value", labelele, "Error. Label value not defined"));
                 panel.posX.push_back(StringToDouble(GetParameter("x", labelele, "0.1")));
                 panel.posY.push_back(StringToDouble(GetParameter("y", labelele, "0.1")));
 
-                labelele = labelele->NextSiblingElement("label");
+                labelele = GetNextElement(labelele);
             }
 
             fPanels.push_back(panel);
-            panelele = panelele->NextSiblingElement("panel");
+            panelele = GetNextElement(panelele);
         }
     }
 
@@ -357,8 +357,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
     vector<string> varNames;
     vector<TVector2> ranges;
     vector<Int_t> bins;
-    TiXmlElement* varele = histele->FirstChildElement("variable");
-
+    TiXmlElement* varele = GetElement("variable", histele);
     while (varele != NULL) {
         varNames.push_back(GetParameter("name", varele));
 
@@ -368,8 +367,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
         ranges.push_back(StringTo2DVector(rangeStr));
 
         bins.push_back(StringToInteger(GetParameter("nbins", varele)));
-
-        varele = varele->NextSiblingElement("variable");
+        varele = GetNextElement(varele);
     }
     if (GetVerboseLevel() >= REST_Debug) {
         for (unsigned int n = 0; n < bins.size(); n++) {
@@ -417,7 +415,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
     // 3. read cuts
     string cutString = "";
 
-    TiXmlElement* cutele = histele->FirstChildElement("cut");
+    TiXmlElement* cutele = GetElement("cut", histele);
     while (cutele != NULL) {
         string cutActive = GetParameter("value", cutele, "ON");
         if (ToUpper(cutActive) == "ON") {
@@ -442,10 +440,10 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
 
             cutString += cutVariable + cutCondition;
         }
-        cutele = cutele->NextSiblingElement("cut");
+        cutele = GetNextElement(cutele);
     }
 
-    TiXmlElement* cutstrele = histele->FirstChildElement("cutString");
+    TiXmlElement* cutstrele = GetElement("cutString", histele);
     while (cutstrele != NULL) {
         string cutActive = GetParameter("value", cutstrele, "ON");
         if (ToUpper(cutActive) == "ON") {
@@ -462,13 +460,13 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
 
             cutString += "(" + cutStr + ")";
         }
-        cutstrele = cutstrele->NextSiblingElement("cutString");
+        cutstrele = GetNextElement(cutstrele);
     }
     hist.cutString = cutString;
 
     // 4. read classify condition
     hist.classifyMap.clear();
-    TiXmlElement* classifyele = histele->FirstChildElement("classify");
+    TiXmlElement* classifyele = GetElement("classify", histele);
     while (classifyele != NULL) {
         string Active = GetParameter("value", classifyele, "ON");
         if (ToUpper(Active) == "ON") {
@@ -480,7 +478,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
                 attr = attr->Next();
             }
         }
-        classifyele = classifyele->NextSiblingElement("classify");
+        classifyele = GetNextElement(classifyele);
     }
 
     // 5. read draw style(line color, width, fill style, etc.)

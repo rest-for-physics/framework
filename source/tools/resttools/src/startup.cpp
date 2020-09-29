@@ -7,12 +7,15 @@
 #include "TRestTools.h"
 
 // initialize REST constants
+string REST_COMMIT;
 string REST_PATH;
 string REST_USER;
 string REST_USER_PATH;
 struct __REST_CONST_INIT {
    public:
     __REST_CONST_INIT() {
+        REST_COMMIT = TRestTools::Execute("rest-config --commit");
+
         char* _REST_PATH = getenv("REST_PATH");
         char* _REST_USER = getenv("USER");
         char* _REST_USERHOME = getenv("HOME");
@@ -26,7 +29,7 @@ struct __REST_CONST_INIT {
 
         if (_REST_USER == nullptr) {
             cout << "REST WARNING!! Lacking system env \"USER\"!" << endl;
-            cout << "Setting default user" << endl;
+            cout << "Setting user name to : \"defaultUser\"" << endl;
             REST_USER = "defaultUser";
             setenv("USER", REST_USER.c_str(), true);
 
@@ -36,7 +39,7 @@ struct __REST_CONST_INIT {
 
         if (_REST_USERHOME == nullptr) {
             cout << "REST WARNING!! Lacking system env \"HOME\"!" << endl;
-            cout << "Setting REST temp path to $REST_PATH/data" << endl;
+            cout << "Setting REST temp path to : " << REST_PATH + "/data" << endl;
             REST_USER_PATH = REST_PATH + "/data";
         } else {
             string restUserPath = (string)_REST_USERHOME + "/.rest";
@@ -86,3 +89,4 @@ TRestStringOutput debug(REST_Debug, COLOR_RESET, "-- Debug : ", kHeaderedLeft);
 TRestStringOutput extreme(REST_Extreme, COLOR_RESET, "-- Extreme : ", kHeaderedLeft);
 
 REST_Verbose_Level gVerbose = REST_Warning;
+map<string, string> REST_ARGS;
