@@ -13,8 +13,8 @@
 #define RestCore_TRestElectronDiffusionProcess
 
 #include <TRandom3.h>
-#include <TRestDetectorGas.h>
 #include <TRestDetectorReadout.h>
+#include <TRestGas.h>
 #include <TRestHitsEvent.h>
 
 #include "TRestEventProcess.h"
@@ -25,7 +25,7 @@ class TRestElectronDiffusionProcess : public TRestEventProcess {
     TRestHitsEvent* fInputHitsEvent;   //!
     TRestHitsEvent* fOutputHitsEvent;  //!
 
-    TRestDetectorGas* fGas;          //!
+    TRestGas* fGas;                  //!
     TRestDetectorReadout* fReadout;  //!
 
     TRandom3* fRandom;  //!

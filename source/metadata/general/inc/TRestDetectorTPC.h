@@ -35,7 +35,7 @@ using namespace std;
 
 class TRestMetadata;
 class TRestDriftVolume;
-class TRestReadout;
+class TRestDetectorReadout;
 class TRestGainMap;
 
 class TRestDetectorTPC : public TRestDetector {
@@ -60,7 +60,7 @@ class TRestDetectorTPC : public TRestDetector {
     Double_t fDAQThreshold;
 
     TRestDriftVolume* fDetectorMedium;
-    TRestReadout* fReadout;
+    TRestDetectorReadout* fReadout;
     TRestGainMap* fGain;
 
    public:

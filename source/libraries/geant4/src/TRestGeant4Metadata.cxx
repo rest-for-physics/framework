@@ -832,7 +832,7 @@ void TRestGeant4Metadata::ReadBiasing() {
         TiXmlElement* biasVolumeDefinition = GetElement("biasingVolume", biasingDefinition);
         Int_t n = 0;
         while (biasVolumeDefinition != NULL) {
-            TRestBiasingVolume biasVolume;
+            TRestGeant4BiasingVolume biasVolume;
             debug << "Def : " << biasVolumeDefinition << endl;
 
             biasVolume.SetBiasingVolumePosition(

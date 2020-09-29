@@ -103,7 +103,7 @@ void TRestElectronDiffusionProcess::InitProcess() {
         if (fTransDiffCoeff <= 0) fTransDiffCoeff = fGas->GetTransversalDiffusion();  // (cm)^1/2
     }
 
-    fReadout = GetMetadata<TRestReadout>();
+    fReadout = GetMetadata<TRestDetectorReadout>();
     if (fReadout == NULL) {
         cout << "REST ERRORRRR : Readout has not been initialized" << endl;
         exit(-1);
@@ -137,7 +137,7 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent(TRestEvent* evInput) {
             const Double_t z = hits->GetZ(n);
 
             for (int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++) {
-                TRestReadoutPlane* plane = &(*fReadout)[p];
+                TRestDetectorReadoutPlane* plane = &(*fReadout)[p];
 
                 if (plane->isZInsideDriftVolume(z)) {
                     Double_t xDiff, yDiff, zDiff;
