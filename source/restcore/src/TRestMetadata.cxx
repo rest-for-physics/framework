@@ -763,7 +763,7 @@ void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
     ReadEnvInElement(e);
 
     if ((string)e->Value() == "for") {
-        ExpandForLoops(e);
+        ExpandForLoops(e, {});
     } else if (e->Attribute("file") != NULL) {
         ExpandIncludeFile(e);
     } else if ((string)e->Value() == "if") {
@@ -906,7 +906,7 @@ void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e, map<string, string> forLo
             TiXmlElement* tempnew = (TiXmlElement*)parele->InsertBeforeChild(e, *newforloop);
             delete newforloop;
             newforloop = tempnew;
-            ExpandForLoops(newforloop);
+            ExpandForLoops(newforloop, forLoopVar);
             contentelement = contentelement->NextSiblingElement();
         } else {
             TiXmlElement* attachedelement = (TiXmlElement*)contentelement->Clone();
@@ -974,7 +974,7 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
 /// them in the given xml section. Loop variable is treated samely as REST
 /// "variable"
 ///
-void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
+void TRestMetadata::ExpandForLoops(TiXmlElement* e, map<string, string> forloopvar) {
     if ((string)e->Value() != "for") return;
     // ReplaceElementAttributes(e);
 
@@ -994,7 +994,6 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
     string _to = (string)varto;
     string _step = (string)varstep;
     string _in = (string)varin;
-    map<string, string> forloopvar;
     if (isANumber(_from) && isANumber(_to) && isANumber(_step)) {
         double from = StringToDouble(_from);
         double to = StringToDouble(_to);

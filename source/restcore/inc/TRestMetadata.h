@@ -72,8 +72,8 @@ class TRestMetadata : public TNamed {
     void ReadElement(TiXmlElement* e, bool recursive = false);
     void ReplaceForLoopVars(TiXmlElement* e, map<string, string> forLoopVar);
     void ExpandForLoopOnce(TiXmlElement* e, map<string, string> forLoopVar);
+    void ExpandForLoops(TiXmlElement* e, map<string, string> forLoopVar);
     void ExpandIfSections(TiXmlElement* e);
-    void ExpandForLoops(TiXmlElement* e);
     void ExpandIncludeFile(TiXmlElement* e);
     string GetUnits(TiXmlElement* e);
     string FieldNamesToUpper(string inputString);
