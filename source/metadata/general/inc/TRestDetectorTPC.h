@@ -37,38 +37,37 @@ class TRestMetadata;
 class TRestDriftVolume;
 class TRestReadout;
 class TRestGainMap;
+class TRestRun;
 
 class TRestDetectorTPC : public TRestDetector {
    private:
-    void ReadFileNameFEMINOS(string fName);
 
    protected:
-    Double_t fDriftVoltage;
-    Double_t fAmplificationVoltage;
+    Double_t fDriftVoltage;  // In V
+    Double_t fAmplificationVoltage;// In V
 
-    Double_t fMass;
+    Double_t fTargetMass;// in kg
+    Double_t fTPCHeight;// in mm
+    Double_t fTPCRadius;// in mm
+    Double_t fDriftDistance; // in mm
+    Double_t fAmplificationDistance;  // in mm
 
-    Double_t fTargetMass;
-    Double_t fTPCHeight;
-    Double_t fTPCRadius;
-    Double_t fDriftDistance;
-    Double_t fAmplificationDistance;
-
-    Double_t fDAQShapingTime;
-    Double_t fDAQSamplingTime;
+    Double_t fDAQShapingTime; // in us
+    Double_t fDAQSamplingTime;// in us
     Double_t fDAQDynamicRange;
     Double_t fDAQThreshold;
 
     TRestDriftVolume* fDetectorMedium;
     TRestReadout* fReadout;
     TRestGainMap* fGain;
+    TRestRun* fRun;
 
    public:
     //////// Field property ////////
     virtual TVector3 GetDriftField(TVector3 pos) { return TVector3(); }
     virtual TVector3 GetAmplificationField(TVector3 pos) { return TVector3(); }
-    virtual Double_t GetDriftField() { return fDriftVoltage; }
-    virtual Double_t GetAmplificationField() { return fDriftVoltage; }
+    virtual Double_t GetDriftField() { return fDriftVoltage / fDriftDistance; }
+    virtual Double_t GetAmplificationField() { return fAmplificationVoltage / fAmplificationDistance; }
 
     //////// Medium property ////////
     virtual string GetMediumName();
@@ -113,7 +112,6 @@ class TRestDetectorTPC : public TRestDetector {
     virtual void SetElectronLifeTime(Double_t elt);
 
     virtual void RegisterMetadata(TObject* ptr) override;
-    virtual void RegisterString(string str) override;
     virtual string GetParameter(string paraname) override;
     virtual void SetParameter(string paraname, string paraval) override;
 
