@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 
+#include "TFile.h"
 #include "TRestStringOutput.h"
 #include "TRestTools.h"
 
@@ -36,6 +37,9 @@ class TRestDetector {
    protected:
     string fDetectorName;
     Int_t fRunNumber;
+    map<string, string> fParameterMap;
+
+    virtual void PrintParameterMap();
 
    public:
     // Constructors
@@ -47,12 +51,16 @@ class TRestDetector {
     void SetRunNumber(Int_t run) { fRunNumber = run; }
     string GetDetectorName() { return fDetectorName; }
 
-    //
-    virtual string GetParameter(string paraname) { return PARAMETER_NOT_FOUND_STR; }
-    virtual void SetParameter(string paraname, string paraval) {}
+    // virtual methods
+    virtual string GetParameter(string paraname) {
+        if (fParameterMap.count(paraname) > 0) return fParameterMap[paraname];
+        return PARAMETER_NOT_FOUND_STR;
+    }
+    virtual void SetParameter(string paraname, string paraval) { fParameterMap[paraname] = paraval; }
     virtual void RegisterMetadata(TObject* ptr) {}
-    virtual void RegisterString(string str) {}
-    virtual void Print() {}
+    virtual void Print();
+    virtual void WriteFile(TFile* f);
+    virtual void ReadFile(TFile* f);
 };
 
 extern TRestDetector* gDetector;
