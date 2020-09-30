@@ -30,6 +30,11 @@ if (${REST_AXION_LIB} MATCHES "ON")
 	add_definitions(-DREST_AxionLib)
 	add_subdirectory(libraries/axion)
 	list( APPEND rest_libs_index "RestAxion" )
+
+	install(DIRECTORY libraries/axion/data/
+		DESTINATION ./data/axion/
+		COMPONENT install
+		)
 endif (${REST_AXION_LIB} MATCHES "ON")
 
 #### This must be placed after all targets!!!
