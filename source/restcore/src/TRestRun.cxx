@@ -180,7 +180,7 @@ void TRestRun::BeginOfInit() {
         }
         // throw;
     }
-    gDetector->SetRunNumber(fRunNumber);
+    gDetector->RegisterMetadata(this);
 
     // output file pattern
     string outputdir = (string)GetDataPath();
@@ -382,6 +382,7 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
         fInputFile = TFile::Open(filename, mode.c_str());
 
         if (GetMetadataClass("TRestRun", fInputFile)) {
+            gDetector->ReadFile(fInputFile);
             // This should be the values in RML (if it was initialized using RML)
             TString runTypeTmp = fRunType;
             TString runUserTmp = fRunUser;
@@ -595,12 +596,9 @@ void TRestRun::ReadInputFileTrees() {
 /// 2. Created time and date
 /// 3. File size and entries
 void TRestRun::ReadFileInfo(string filename) {
-    debug << "begin loading file to gDetector..." << filename << endl;
-    gDetector->RegisterString(filename);
-
     debug << "begin collecting basic file info..." << filename << endl;
-    fInformationMap.clear();
-    fInformationMap["FileName"] = filename;
+
+    gDetector->SetParameter("inputFile_Name", filename);
     struct stat buf;
     FILE* fp = fopen(filename.c_str(), "rb");
     if (!fp) {
@@ -612,10 +610,10 @@ void TRestRun::ReadFileInfo(string filename) {
     fclose(fp);
 
     string datetime = ToDateTimeString(buf.st_mtime);
-    fInformationMap["Time"] = Split(datetime, " ")[1];
-    fInformationMap["Date"] = Split(datetime, " ")[0];
-    fInformationMap["Size"] = ToString(buf.st_size) + "B";
-    fInformationMap["Entries"] = ToString(GetEntries());
+    gDetector->SetParameter("inputFile_Time", Split(datetime, " ")[1]);
+    gDetector->SetParameter("inputFile_Date", Split(datetime, " ")[0]);
+    gDetector->SetParameter("inputFile_Size", ToString(buf.st_size) + "B");
+    gDetector->SetParameter("inputFile_Entries", ToString(GetEntries()));
 
     if (TRestTools::isRootFile((string)filename)) {
         fTotalBytes = buf.st_size;
@@ -665,8 +663,7 @@ void TRestRun::ReadFileInfo(string filename) {
 
         // cout << formatsectionlist[i] << " " << name.substr(pos1 + 1, pos2 - pos1
         // - 1) << endl;
-
-        fInformationMap[formatsectionlist[i]] = name.substr(pos1 + 1, pos2 - pos1 - 1);
+        gDetector->SetParameter(formatsectionlist[i], name.substr(pos1 + 1, pos2 - pos1 - 1));
 
         pos = pos2 - 1;
     }
@@ -847,10 +844,7 @@ TFile* TRestRun::FormOutputFile(vector<string> filenames, string targetfilename)
     fOutputFile = new TFile(fOutputFileName, "update");
     debug << "TRestRun::FormOutputFile. Calling WriteWithDataBase()" << endl;
     this->WriteWithDataBase();
-    // for (int i = 0; i < fMetadataInfo.size(); i++) {
-    //	fMetadataInfo[i]->Write();
-    //}
-    //
+    gDetector->WriteFile(fOutputFile);
 
     fout << this->ClassName() << " Created ..." << endl;
     fout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << endl;
@@ -872,6 +866,7 @@ TFile* TRestRun::FormOutputFile() {
     // fEventTree->CreateEventBranches();
     fAnalysisTree->Write();
     this->WriteWithDataBase();
+    gDetector->WriteFile(fOutputFile);
 
     fout << this->ClassName() << " Created." << endl;
     fout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << endl;
@@ -1310,16 +1305,19 @@ TRestEvent* TRestRun::GetNextEventWithConditions(const string cuts) {
 }
 
 string TRestRun::GetInfo(string infoname) {
-    if (fInformationMap.count(infoname) != 0) {
-        return fInformationMap[infoname];
+    string result = GetParameter(infoname, "");
+    if (result != "") {
+        return result;
     }
 
-    if (GetDataMemberValue(infoname) != "") {
-        return GetDataMemberValue(infoname);
+    result = GetDataMemberValue(infoname);
+    if (result != "") {
+        return result;
     }
 
-    if (GetDataMemberValue("f" + infoname) != "") {
-        return GetDataMemberValue("f" + infoname);
+    result = GetDataMemberValue("f" + infoname);
+    if (result != "") {
+        return result;
     }
 
     return infoname;
