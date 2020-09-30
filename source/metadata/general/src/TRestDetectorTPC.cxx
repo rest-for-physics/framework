@@ -22,6 +22,7 @@
 #include "TRestDetectorReadout.h"
 #include "TRestDriftVolume.h"
 #include "TRestGainMap.h"
+#include "TRestRun.h"
 using namespace std;
 
 //______________________________________________________________________________
@@ -31,6 +32,7 @@ TRestDetectorTPC::TRestDetectorTPC() {
     fDetectorMedium = NULL;
     fReadout = NULL;
     fGain = NULL;
+    fRun = NULL;
     // TRestDetectorTPC default constructor
 }
 
@@ -251,61 +253,30 @@ void TRestDetectorTPC::RegisterMetadata(TObject* ptr) {
             fReadout = (TRestDetectorReadout*)ptr;
         } else if (ptr->InheritsFrom("TRestGainMap")) {
             fGain = (TRestGainMap*)ptr;
+        } else if (ptr->InheritsFrom("TRestRun")) {
+            fRun = (TRestRun*)ptr;
+            fRunNumber = fRun->GetRunNumber();
         }
     }
 }
 
-void TRestDetectorTPC::RegisterString(string str) {
-    if (str.find(".aqs") != -1) {
-        ReadFileNameFEMINOS(str);
-    }
-}
+void TRestDetectorTPC::Print() {
+    TRestDetector::Print();
 
-void TRestDetectorTPC::Print() {}
+    cout << " Amplification voltage : " << fAmplificationVoltage << " V" << endl;
+    cout << " Drift voltage : " << fDriftVoltage << " V" << endl;
+    cout << " --------------------------------------------" << endl;
+    cout << " Sampling rate : " << fDAQSamplingTime << " us " << endl;
+    cout << " Shaping time : " << fDAQShapingTime << " us " << endl;
+    cout << " Dynamic range : " << fDAQDynamicRange << " us " << endl;
+    cout << " DAQ threshold : " << fDAQThreshold << " us " << endl;
+    cout << " --------------------------------------------" << endl;
+    cout << " Detector radius : " << fTPCRadius << " us " << endl;
+    cout << " Max drift distance : " << fDriftDistance << " us " << endl;
+    cout << " Target mass : " << fTargetMass << " us " << endl;
+    cout << " --------------------------------------------" << endl;
 
-void TRestDetectorTPC::ReadFileNameFEMINOS(string fName) {
-    string fullName = fName;
-
-    unsigned int startPos = fullName.find_last_of("/") + 1;
-    unsigned int length = fullName.length();
-    string name = fullName.substr(startPos, length - startPos);
-
-    fRunNumber = StringToInteger(name.substr(1, 5));
-
-    unsigned int pos = name.find("_") + 1;
-    unsigned int len = name.find("_Vm") - pos;
-    // fRunTag = (TString)name.substr(pos, len);
-
-    pos = name.find("Vm_") + 3;
-    len = name.find("_Vd") - pos;
-    fAmplificationVoltage = StringToDouble(name.substr(pos, len));
-
-    pos = name.find("Vd_") + 3;
-    len = name.find("_Pr") - pos;
-    fDriftVoltage = StringToDouble(name.substr(pos, len));
-
-    pos = name.find("Pr_") + 3;
-    len = name.find("_Gain") - pos;
-    if (fDetectorMedium != NULL) fDetectorMedium->SetPressure(StringToDouble(name.substr(pos, len)));
-
-    pos = name.find("Gain_") + 5;
-    len = name.find("_Shape") - pos;
-    fDAQDynamicRange = atof(name.substr(pos, len).c_str());
-
-    pos = name.find("Shape_") + 6;
-    len = name.find("_Clock") - pos;
-    fDAQShapingTime = atof(name.substr(pos, len).c_str());
-
-    pos = name.find("Clock_") + 6;
-    len = name.find("-") - pos;
-    TString _sampling = name.substr(pos, len).c_str();
-
-    TString samplingReduced = _sampling(2, _sampling.Length());
-    fDAQSamplingTime = (Double_t)strtol(samplingReduced.Data(), NULL, 16) / 100.;  // This is only for AGET
-
-    pos = name.find("-") + 1;
-    len = name.find(".aqs") - pos;
-    // fSubRunNumber = StringToInteger(name.substr(pos, len));
+    TRestDetector::PrintParameterMap();
 }
 
 string TRestDetectorTPC::GetParameter(string paraname) {
@@ -324,12 +295,17 @@ string TRestDetectorTPC::GetParameter(string paraname) {
         default: { break; }
     }
 
-    if (result == "nan" || result == "(nan,nan)" || result == "(nan,nan,nan)") {
-        return PARAMETER_NOT_FOUND_STR;
+    if (result != PARAMETER_NOT_FOUND_STR) {
+        if (result == "nan" || result == "(nan,nan)" || result == "(nan,nan,nan)") {
+        } else {
+            return result;
+        }
     }
-    return result;
+    return TRestDetector::GetParameter(paraname);
 }
 
-void TRestDetectorTPC::SetParameter(string paraname, string paraval) {}
+void TRestDetectorTPC::SetParameter(string paraname, string paraval) {
+    TRestDetector::SetParameter(paraname, paraval);
+}
 
 MakeGlobal(TRestDetectorTPC, gDetector, 2);

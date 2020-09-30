@@ -40,7 +40,6 @@ class TRestRun : public TRestMetadata {
     // data-like metadata objects
     vector<TRestMetadata*> fMetadataInfo;   //!
     vector<TRestMetadata*> fInputMetadata;  //!
-    map<string, string> fInformationMap;    //!
 
     // temp data member
     vector<TString> fInputFileNames;   //!
