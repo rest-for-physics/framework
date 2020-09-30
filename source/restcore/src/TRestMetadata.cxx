@@ -1319,6 +1319,7 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlEleme
         return defaultVal;
     } else {
         string unit = GetParameterUnits(parName, ele);
+        a.resize(a.length() - unit.length());
         Double_t value = StringToDouble(a.substr(0, a.find_last_of("1234567890().") + 1));
         return REST_Units::ConvertValueToRESTUnits(value, unit);
     }
@@ -1333,6 +1334,7 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXml
         return defaultVal;
     } else {
         string unit = GetParameterUnits(parName, ele);
+        a.resize(a.length() - unit.length());
         TVector2 value = StringTo2DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
         Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
@@ -1349,6 +1351,7 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXml
         return defaultVal;
     } else {
         string unit = GetParameterUnits(parName, ele);
+        a.resize(a.length() - unit.length());
         TVector3 value = StringTo3DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
         Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
@@ -1405,6 +1408,7 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, Double_t d
         return defaultVal;
     } else {
         string unit = GetParameterUnits(parName);
+        a.resize(a.length() - unit.length());
         Double_t value = StringToDouble(a.substr(0, a.find_last_of("1234567890().") + 1));
         return REST_Units::ConvertValueToRESTUnits(value, unit);
     }
@@ -1417,6 +1421,7 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TVect
         return defaultVal;
     } else {
         string unit = GetParameterUnits(parName);
+        a.resize(a.length() - unit.length());
         TVector2 value = StringTo2DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
         Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
@@ -1431,6 +1436,7 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVect
         return defaultVal;
     } else {
         string unit = GetParameterUnits(parName);
+        a.resize(a.length() - unit.length());
         TVector3 value = StringTo3DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
         Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
