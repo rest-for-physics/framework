@@ -295,7 +295,6 @@ string TRestDetectorTPC::GetParameter(string paraname) {
         default: { break; }
     }
 
-
     if (result != PARAMETER_NOT_FOUND_STR) {
         if (result == "nan" || result == "(nan,nan)" || result == "(nan,nan,nan)") {
         } else {
