@@ -22,7 +22,7 @@ Int_t REST_FindIsotopes(TString fName, TString fIsotope) {
 
     run->OpenInputFile(fName);
 
-    run->PrintInfo();
+    run->PrintMetadata();
 
     /////////////////////////////
 

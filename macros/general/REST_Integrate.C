@@ -33,7 +33,7 @@ Int_t REST_Integrate(TString varName, TString rootFileName, double startVal, dou
     for (unsigned int n = 0; n < inputFilesNew.size(); n++) {
         run->OpenInputFile(inputFilesNew[n]);
 
-        run->PrintInfo();
+        run->PrintMetadata();
 
         Int_t obsID = run->GetAnalysisTree()->GetObservableID(varName);
         if (obsID == -1) {

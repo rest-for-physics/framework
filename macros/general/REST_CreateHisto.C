@@ -28,7 +28,7 @@ Int_t REST_CreateHisto(TString varName, TString rootFileName, TString histoName,
 
         run->OpenInputFile(inputFilesNew[n]);
 
-        run->PrintInfo();
+        run->PrintMetadata();
 
         Int_t obsID = run->GetAnalysisTree()->GetObservableID(varName);
         if (obsID == -1) {
