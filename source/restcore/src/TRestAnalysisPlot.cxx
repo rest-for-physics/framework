@@ -693,7 +693,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 bool flag = true;
                 auto iter = hist.classifyMap.begin();
                 while (iter != hist.classifyMap.end()) {
-                    if (run->GetInfo(iter->first) != iter->second) {
+                    if (run->GetRunInformation(iter->first) != iter->second) {
                         flag = false;
                         break;
                     }
