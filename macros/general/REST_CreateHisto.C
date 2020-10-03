@@ -57,33 +57,33 @@ Int_t REST_CreateHisto(TString varName, TString rootFileName, TString histoName,
     return 0;
 };
 
-    //
-    // class REST_CreateHisto :public TRestTask {
-    // public:
-    //	ClassDef(REST_CreateHisto, 1);
-    //
-    //	REST_CreateHisto() { fNRequiredArgument = 3; }
-    //	~REST_CreateHisto() {}
-    //
-    //	TString varName="";
-    //	TString rootFileName="";
-    //	TString histoName="";
-    //	int startVal = 0;
-    //	int endVal = 1000;
-    //	int bins = 1000;
-    //	Double_t normFactor = 1;
-    //
-    //	void RunTask(TRestManager*mgr)
-    //	{
-    //		REST_CreateHisto(varName,
-    //				rootFileName,
-    //				histoName,
-    //				startVal,
-    //				endVal,
-    //				bins,
-    //				normFactor);
-    //	}
-    //
-    //};
+//
+// class REST_CreateHisto :public TRestTask {
+// public:
+//	ClassDef(REST_CreateHisto, 1);
+//
+//	REST_CreateHisto() { fNRequiredArgument = 3; }
+//	~REST_CreateHisto() {}
+//
+//	TString varName="";
+//	TString rootFileName="";
+//	TString histoName="";
+//	int startVal = 0;
+//	int endVal = 1000;
+//	int bins = 1000;
+//	Double_t normFactor = 1;
+//
+//	void RunTask(TRestManager*mgr)
+//	{
+//		REST_CreateHisto(varName,
+//				rootFileName,
+//				histoName,
+//				startVal,
+//				endVal,
+//				bins,
+//				normFactor);
+//	}
+//
+//};
 
 #endif

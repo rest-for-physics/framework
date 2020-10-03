@@ -38,7 +38,7 @@ class TRestRun : public TRestMetadata {
     Int_t fEntriesSaved;
 
     // data-like metadata objects
-    vector<TRestMetadata*> fMetadata;   //!
+    vector<TRestMetadata*> fMetadata;       //!
     vector<TRestMetadata*> fInputMetadata;  //!
 
     // temp data member

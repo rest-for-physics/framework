@@ -663,7 +663,7 @@ void TRestRun::ReadFileInfo(string filename) {
 
         string infoFromFileName = name.substr(pos1 + 1, pos2 - pos1 - 1);
         gDetector->SetParameter(formatsectionlist[i], infoFromFileName);
-        
+
         // to store special file pattern parameters: fRunNumber, fRunTag, etc.
         if (formatsectionlist[i] == "fRunNumber") {
             SetRunNumber(StringToInteger(infoFromFileName));
