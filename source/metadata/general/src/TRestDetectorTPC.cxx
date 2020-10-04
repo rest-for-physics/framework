@@ -25,6 +25,8 @@
 #include "TRestRun.h"
 using namespace std;
 
+Float_t NaN = std::numeric_limits<Float_t>::quiet_NaN();
+
 //______________________________________________________________________________
 TRestDetectorTPC::TRestDetectorTPC() {
     fDetectorName = "REST default detector";
@@ -51,43 +53,43 @@ Double_t TRestDetectorTPC::GetPressure() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetPressure();
     }
-    return NAN;
+    return NaN;
 }
 Double_t TRestDetectorTPC::GetTemperature() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetTemperature();
     }
-    return NAN;
+    return NaN;
 }
 Double_t TRestDetectorTPC::GetWvalue() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetWvalue();
     }
-    return NAN;
+    return NaN;
 }
 Double_t TRestDetectorTPC::GetDriftVelocity() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetDriftVelocity();
     }
-    return NAN;
+    return NaN;
 }
 Double_t TRestDetectorTPC::GetElectronLifeTime() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetElectronLifeTime();
     }
-    return NAN;
+    return NaN;
 }
 Double_t TRestDetectorTPC::GetLongitudinalDiffusion() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetLongitudinalDiffusion();
     }
-    return NAN;
+    return NaN;
 }
 Double_t TRestDetectorTPC::GetTransversalDiffusion() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetTransversalDiffusion();
     }
-    return NAN;
+    return NaN;
 }
 
 Double_t TRestDetectorTPC::GetTPCBottomZ() {
@@ -109,9 +111,9 @@ Double_t TRestDetectorTPC::GetTPCBottomZ() {
             }
         }
 
-        return NAN;
+        return NaN;
     }
-    return NAN;
+    return NaN;
 }
 Double_t TRestDetectorTPC::GetTPCTopZ() {
     if (fReadout != NULL) {
@@ -132,9 +134,9 @@ Double_t TRestDetectorTPC::GetTPCTopZ() {
             }
         }
 
-        return NAN;
+        return NaN;
     }
-    return NAN;
+    return NaN;
 }
 Double_t TRestDetectorTPC::GetDriftDistance(TVector3 pos) {
     if (fReadout != NULL) {
@@ -145,7 +147,7 @@ Double_t TRestDetectorTPC::GetDriftDistance(TVector3 pos) {
             }
         }
     }
-    return NAN;
+    return NaN;
 }
 Double_t TRestDetectorTPC::GetAmplificationDistance(TVector3 pos) { return fAmplificationDistance; }
 
@@ -159,20 +161,20 @@ Int_t TRestDetectorTPC::GetNReadoutModules() {
     if (fReadout != NULL) {
         return fReadout->GetNumberOfModules();
     }
-    return NAN;
+    return NaN;
 }
 Int_t TRestDetectorTPC::GetNReadoutChannels() {
     if (fReadout != NULL) {
         return fReadout->GetNumberOfChannels();
     }
-    return NAN;
+    return NaN;
 }
 Double_t TRestDetectorTPC::GetReadoutVoltage(int id) { return fAmplificationVoltage; }
 Double_t TRestDetectorTPC::GetReadoutGain(int id) {
     if (fGain != NULL && fGain->fChannelGain.count(id) > 0) {
         return fGain->fChannelGain[id];
     }
-    return NAN;
+    return NaN;
 }
 TVector3 TRestDetectorTPC::GetReadoutPosition(int id) {
     if (fReadout != NULL) {
@@ -202,7 +204,7 @@ TVector3 TRestDetectorTPC::GetReadoutPosition(int id) {
         }
         return TVector3(x, y, z);
     }
-    return TVector3(NAN, NAN, NAN);
+    return TVector3(NaN, NaN, NaN);
 }
 TVector3 TRestDetectorTPC::GetReadoutDirection(int id) {
     if (fReadout != NULL) {
@@ -214,7 +216,7 @@ TVector3 TRestDetectorTPC::GetReadoutDirection(int id) {
             return plane->GetPlaneVector();
         }
     }
-    return TVector3(NAN, NAN, NAN);
+    return TVector3(NaN, NaN, NaN);
 }
 enum REST_ReadoutType { unknown = -1, none = 1, X = 2, Y = 3, Z = 5, U = 7, V = 11, W = 13 };
 Int_t TRestDetectorTPC::GetReadoutType(int id) {
