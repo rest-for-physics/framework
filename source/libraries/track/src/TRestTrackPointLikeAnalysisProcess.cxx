@@ -4,49 +4,47 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestPointLikeTrackAnaProcess.cxx
+///             TRestTrackPointLikeAnalysisProcess.cxx
 ///
 ///_______________________________________________________________________________
 
-#include "TRestPointLikeTrackAnaProcess.h"
+#include "TRestTrackPointLikeAnalysisProcess.h"
 using namespace std;
 
-ClassImp(TRestPointLikeTrackAnaProcess)
-    //______________________________________________________________________________
-    TRestPointLikeTrackAnaProcess::TRestPointLikeTrackAnaProcess() {
-    Initialize();
-}
+ClassImp(TRestTrackPointLikeAnalysisProcess);
+//______________________________________________________________________________
+TRestTrackPointLikeAnalysisProcess::TRestTrackPointLikeAnalysisProcess() { Initialize(); }
 
 //______________________________________________________________________________
-TRestPointLikeTrackAnaProcess::TRestPointLikeTrackAnaProcess(char* cfgFileName) {
+TRestTrackPointLikeAnalysisProcess::TRestTrackPointLikeAnalysisProcess(char* cfgFileName) {
     Initialize();
 
     if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
 }
 
 //______________________________________________________________________________
-TRestPointLikeTrackAnaProcess::~TRestPointLikeTrackAnaProcess() {}
+TRestTrackPointLikeAnalysisProcess::~TRestTrackPointLikeAnalysisProcess() {}
 
-void TRestPointLikeTrackAnaProcess::LoadDefaultConfig() { SetTitle("Default config"); }
+void TRestTrackPointLikeAnalysisProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 
 //______________________________________________________________________________
-void TRestPointLikeTrackAnaProcess::Initialize() {
+void TRestTrackPointLikeAnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fTrackEvent = NULL;
 }
 
-void TRestPointLikeTrackAnaProcess::LoadConfig(string cfgFilename) {
+void TRestTrackPointLikeAnalysisProcess::LoadConfig(string cfgFilename) {
     if (LoadConfigFromFile(cfgFilename)) LoadDefaultConfig();
 
     // fReadout = new TRestDetectorReadout( cfgFilename.c_str() );
 }
 
 //______________________________________________________________________________
-void TRestPointLikeTrackAnaProcess::InitProcess() { TRestEventProcess::ReadObservables(); }
+void TRestTrackPointLikeAnalysisProcess::InitProcess() { TRestEventProcess::ReadObservables(); }
 
 //______________________________________________________________________________
-TRestEvent* TRestPointLikeTrackAnaProcess::ProcessEvent(TRestEvent* evInput) {
+TRestEvent* TRestTrackPointLikeAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     fTrackEvent = (TRestTrackEvent*)evInput;
 
     Int_t nTracks = fTrackEvent->GetNumberOfTracks();
@@ -106,7 +104,7 @@ TRestEvent* TRestPointLikeTrackAnaProcess::ProcessEvent(TRestEvent* evInput) {
 }
 
 //______________________________________________________________________________
-void TRestPointLikeTrackAnaProcess::EndProcess() {
+void TRestTrackPointLikeAnalysisProcess::EndProcess() {
     // Function to be executed once at the end of the process
     // (after all events have been processed)
 
@@ -116,4 +114,4 @@ void TRestPointLikeTrackAnaProcess::EndProcess() {
 }
 
 //______________________________________________________________________________
-void TRestPointLikeTrackAnaProcess::InitFromConfigFile() {}
+void TRestTrackPointLikeAnalysisProcess::InitFromConfigFile() {}

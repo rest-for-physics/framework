@@ -4,7 +4,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestFindTrackBlobsProcess.cxx
+///             TRestTrackBlobAnalysisProcess.cxx
 ///
 ///
 ///             First implementation of Geant4 analysis process into REST_v2
@@ -13,29 +13,27 @@
 ///
 ///_______________________________________________________________________________
 
-#include "TRestFindTrackBlobsProcess.h"
+#include "TRestTrackBlobAnalysisProcess.h"
 using namespace std;
 
-ClassImp(TRestFindTrackBlobsProcess)
-    //______________________________________________________________________________
-    TRestFindTrackBlobsProcess::TRestFindTrackBlobsProcess() {
-    Initialize();
-}
+ClassImp(TRestTrackBlobAnalysisProcess);
+//______________________________________________________________________________
+TRestTrackBlobAnalysisProcess::TRestTrackBlobAnalysisProcess() { Initialize(); }
 
 //______________________________________________________________________________
-TRestFindTrackBlobsProcess::TRestFindTrackBlobsProcess(char* cfgFileName) {
+TRestTrackBlobAnalysisProcess::TRestTrackBlobAnalysisProcess(char* cfgFileName) {
     Initialize();
 
     if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
 }
 
 //______________________________________________________________________________
-TRestFindTrackBlobsProcess::~TRestFindTrackBlobsProcess() { delete fOutputTrackEvent; }
+TRestTrackBlobAnalysisProcess::~TRestTrackBlobAnalysisProcess() { delete fOutputTrackEvent; }
 
-void TRestFindTrackBlobsProcess::LoadDefaultConfig() { SetTitle("Default config"); }
+void TRestTrackBlobAnalysisProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 
 //______________________________________________________________________________
-void TRestFindTrackBlobsProcess::Initialize() {
+void TRestTrackBlobAnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fInputTrackEvent = NULL;
@@ -44,12 +42,12 @@ void TRestFindTrackBlobsProcess::Initialize() {
     fHitsToCheckFraction = 0.2;
 }
 
-void TRestFindTrackBlobsProcess::LoadConfig(std::string cfgFilename, std::string name) {
+void TRestTrackBlobAnalysisProcess::LoadConfig(std::string cfgFilename, std::string name) {
     if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
 //______________________________________________________________________________
-void TRestFindTrackBlobsProcess::InitProcess() {
+void TRestTrackBlobAnalysisProcess::InitProcess() {
     std::vector<string> fObservables;
     fObservables = TRestEventProcess::ReadObservables();
 
@@ -183,7 +181,7 @@ void TRestFindTrackBlobsProcess::InitProcess() {
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
+TRestEvent* TRestTrackBlobAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     fInputTrackEvent = (TRestTrackEvent*)evInput;
 
     // Copying the input tracks to the output track
@@ -478,7 +476,7 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
 }
 
 //______________________________________________________________________________
-void TRestFindTrackBlobsProcess::EndProcess() {
+void TRestTrackBlobAnalysisProcess::EndProcess() {
     // Function to be executed once at the end of the process
     // (after all events have been processed)
 
@@ -488,6 +486,6 @@ void TRestFindTrackBlobsProcess::EndProcess() {
 }
 
 //______________________________________________________________________________
-void TRestFindTrackBlobsProcess::InitFromConfigFile() {
+void TRestTrackBlobAnalysisProcess::InitFromConfigFile() {
     fHitsToCheckFraction = StringToDouble(GetParameter("hitsToCheckFraction", "0.2"));
 }

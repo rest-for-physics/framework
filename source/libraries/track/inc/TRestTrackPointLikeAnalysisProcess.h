@@ -5,18 +5,18 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestPointLikeTrackAnaProcess.h
+///             TRestTrackPointLikeAnalysisProcess.h
 ///
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestPointLikeTrackAnaProcess
-#define RestCore_TRestPointLikeTrackAnaProcess
+#ifndef RestCore_TRestTrackPointLikeAnalysisProcess
+#define RestCore_TRestTrackPointLikeAnalysisProcess
 
 #include <TRestTrackEvent.h>
 
 #include "TRestEventProcess.h"
 
-class TRestPointLikeTrackAnaProcess : public TRestEventProcess {
+class TRestTrackPointLikeAnalysisProcess : public TRestEventProcess {
    private:
 #ifndef __CINT__
     TRestTrackEvent* fTrackEvent;  //!
@@ -54,12 +54,13 @@ class TRestPointLikeTrackAnaProcess : public TRestEventProcess {
     //       found.
 
     // Constructor
-    TRestPointLikeTrackAnaProcess();
-    TRestPointLikeTrackAnaProcess(char* cfgFileName);
+    TRestTrackPointLikeAnalysisProcess();
+    TRestTrackPointLikeAnalysisProcess(char* cfgFileName);
     // Destructor
-    ~TRestPointLikeTrackAnaProcess();
+    ~TRestTrackPointLikeAnalysisProcess();
 
-    ClassDef(TRestPointLikeTrackAnaProcess, 1);  // Template for a REST "event process" class inherited from
-                                                 // TRestEventProcess
+    ClassDef(TRestTrackPointLikeAnalysisProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

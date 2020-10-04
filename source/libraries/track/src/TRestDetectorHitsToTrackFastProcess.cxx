@@ -5,39 +5,37 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestFastHitsToTrackProcess.cxx
+///             TRestDetectorHitsToTrackFastProcess.cxx
 ///
 ///             Feb 2016:   First concept (Javier Galan)
 //
 ///_______________________________________________________________________________
 
-#include "TRestFastHitsToTrackProcess.h"
+#include "TRestDetectorHitsToTrackFastProcess.h"
 using namespace std;
 
 #include <TRestMesh.h>
 
-ClassImp(TRestFastHitsToTrackProcess)
-    //______________________________________________________________________________
-    TRestFastHitsToTrackProcess::TRestFastHitsToTrackProcess() {
-    Initialize();
-}
+ClassImp(TRestDetectorHitsToTrackFastProcess);
+//______________________________________________________________________________
+TRestDetectorHitsToTrackFastProcess::TRestDetectorHitsToTrackFastProcess() { Initialize(); }
 
 //______________________________________________________________________________
-TRestFastHitsToTrackProcess::TRestFastHitsToTrackProcess(char* cfgFileName) {
+TRestDetectorHitsToTrackFastProcess::TRestDetectorHitsToTrackFastProcess(char* cfgFileName) {
     Initialize();
 
     if (LoadConfigFromFile(cfgFileName) == -1) LoadDefaultConfig();
 
-    // TRestFastHitsToTrackProcess default constructor
+    // TRestDetectorHitsToTrackFastProcess default constructor
 }
 
 //______________________________________________________________________________
-TRestFastHitsToTrackProcess::~TRestFastHitsToTrackProcess() {
+TRestDetectorHitsToTrackFastProcess::~TRestDetectorHitsToTrackFastProcess() {
     delete fTrackEvent;
-    // TRestFastHitsToTrackProcess destructor
+    // TRestDetectorHitsToTrackFastProcess destructor
 }
 
-void TRestFastHitsToTrackProcess::LoadDefaultConfig() {
+void TRestDetectorHitsToTrackFastProcess::LoadDefaultConfig() {
     SetName("fastHitsToTrackProcess");
     SetTitle("Default config");
 
@@ -48,7 +46,7 @@ void TRestFastHitsToTrackProcess::LoadDefaultConfig() {
 }
 
 //______________________________________________________________________________
-void TRestFastHitsToTrackProcess::Initialize() {
+void TRestDetectorHitsToTrackFastProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fCellResolution = 10.;
@@ -60,12 +58,12 @@ void TRestFastHitsToTrackProcess::Initialize() {
     fTrackEvent = new TRestTrackEvent();
 }
 
-void TRestFastHitsToTrackProcess::LoadConfig(std::string cfgFilename, std::string name) {
+void TRestDetectorHitsToTrackFastProcess::LoadConfig(std::string cfgFilename, std::string name) {
     if (LoadConfigFromFile(cfgFilename, name) == -1) LoadDefaultConfig();
 }
 
 //______________________________________________________________________________
-void TRestFastHitsToTrackProcess::InitProcess() {
+void TRestDetectorHitsToTrackFastProcess::InitProcess() {
     // Function to be executed once at the beginning of process
     // (before starting the process of the events)
 
@@ -75,7 +73,7 @@ void TRestFastHitsToTrackProcess::InitProcess() {
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestFastHitsToTrackProcess::ProcessEvent(TRestEvent* evInput) {
+TRestEvent* TRestDetectorHitsToTrackFastProcess::ProcessEvent(TRestEvent* evInput) {
     /* Time measurement
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
     */
@@ -134,7 +132,7 @@ TRestEvent* TRestFastHitsToTrackProcess::ProcessEvent(TRestEvent* evInput) {
     return fTrackEvent;
 }
 
-Int_t TRestFastHitsToTrackProcess::FindTracks(TRestHits* hits) {
+Int_t TRestDetectorHitsToTrackFastProcess::FindTracks(TRestHits* hits) {
     TRestMesh* mesh = new TRestMesh(fNetSize, fNodes);
     mesh->SetOrigin(fNetOrigin);
 
@@ -175,7 +173,7 @@ Int_t TRestFastHitsToTrackProcess::FindTracks(TRestHits* hits) {
 }
 
 //______________________________________________________________________________
-void TRestFastHitsToTrackProcess::EndProcess() {
+void TRestDetectorHitsToTrackFastProcess::EndProcess() {
     // Function to be executed once at the end of the process
     // (after all events have been processed)
 
@@ -185,7 +183,7 @@ void TRestFastHitsToTrackProcess::EndProcess() {
 }
 
 //______________________________________________________________________________
-void TRestFastHitsToTrackProcess::InitFromConfigFile() {
+void TRestDetectorHitsToTrackFastProcess::InitFromConfigFile() {
     fCellResolution = GetDblParameterWithUnits("cellResolution");
     fNetSize = GetDblParameterWithUnits("netSize");
     fNetOrigin = Get3DVectorParameterWithUnits("netOrigin");

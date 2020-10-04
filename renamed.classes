@@ -9,8 +9,25 @@ TRestReadoutAnalysisProcess -> TRestDetectorReadoutAnalysisProcess
 TRestG4Event -> TRestGeant4Event
 TRestG4Metadata -> TRestGeant4Metadata
 TRestBiasingVolume -> TRestGeant4BiasingVolume
+TRestG4Hits -> TRestGeant4Hits
 TRestG4Track -> TRestGeant4Track
 TRestG4EventViewer -> TRestGeant4EventViewer
 TRestG4PrimaryGenerator -> TRestGeant4PrimaryGenerator
-TRestFindG4BlobAnalysisProcess -> TRestGeantBlobAnalysisProcess
+TRestFindG4BlobAnalysisProcess -> TRestGeant4BlobAnalysisProcess
 TRestG4toHitsProcess -> TRestGeant4ToHitsProcess
+
+# This two classes might be merge into a single one using different methods (accurate and fast).
+# On top of that they should belong to TRestDetector library and be compiled only if REST_TRACK_LIB was enabled.
+TRestFastHitsToTrackProcess -> TRestDetectorHitsToTrackFastProcess
+TRestHitsToTrackProcess -> TRestDetectorHitsToTrackProcess
+
+TRestFindTrackBlobsProcess -> TRestTrackBlobAnalysisProcess
+TRestTrackDetachIsolatedNodesProcess -> TRestTrackDetachIsolatedNodesProcess
+TRestPointLikeTrackAnaProcess -> TRestTrackPointLikeAnalysisProcess
+TRestTrackToHitsProcess -> TRestTrackToDetectorHitsProcess
+TRestFastHitsToTrackProcess.cxx -> TRestDetectorHitsToTrackFastProcess.cxx
+
+Quarantined classes:
+
+TRestAnalysisHistogramViewerProcess
+TRestTrackLinearizationProcess

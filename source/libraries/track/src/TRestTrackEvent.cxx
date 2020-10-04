@@ -26,9 +26,9 @@
 
 using namespace std;
 
-ClassImp(TRestTrackEvent)
-    //______________________________________________________________________________
-    TRestTrackEvent::TRestTrackEvent() {
+ClassImp(TRestTrackEvent);
+//______________________________________________________________________________
+TRestTrackEvent::TRestTrackEvent() {
     // TRestTrackEvent default constructor
     TRestEvent::Initialize();
     fTrack.clear();

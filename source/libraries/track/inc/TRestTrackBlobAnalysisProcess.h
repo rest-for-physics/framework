@@ -5,18 +5,18 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestFindTrackBlobsProcess.h
+///             TRestTrackBlobAnalysisProcess.h
 ///
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestFindTrackBlobsProcess
-#define RestCore_TRestFindTrackBlobsProcess
+#ifndef RestCore_TRestTrackBlobAnalysisProcess
+#define RestCore_TRestTrackBlobAnalysisProcess
 
 #include <TRestTrackEvent.h>
 
 #include "TRestEventProcess.h"
 
-class TRestFindTrackBlobsProcess : public TRestEventProcess {
+class TRestTrackBlobAnalysisProcess : public TRestEventProcess {
    private:
 #ifndef __CINT__
     TRestTrackEvent* fInputTrackEvent;   //!
@@ -116,12 +116,12 @@ class TRestFindTrackBlobsProcess : public TRestEventProcess {
     TString GetProcessName() { return (TString) "findTrackBlobs"; }
 
     // Constructor
-    TRestFindTrackBlobsProcess();
-    TRestFindTrackBlobsProcess(char* cfgFileName);
+    TRestTrackBlobAnalysisProcess();
+    TRestTrackBlobAnalysisProcess(char* cfgFileName);
     // Destructor
-    ~TRestFindTrackBlobsProcess();
+    ~TRestTrackBlobAnalysisProcess();
 
-    ClassDef(TRestFindTrackBlobsProcess, 1);  // Template for a REST "event process" class inherited from
-                                              // TRestEventProcess
+    ClassDef(TRestTrackBlobAnalysisProcess, 1);  // Template for a REST "event process" class inherited from
+                                                 // TRestEventProcess
 };
 #endif

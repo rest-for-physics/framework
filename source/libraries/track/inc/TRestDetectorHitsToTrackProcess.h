@@ -5,19 +5,19 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestHitsToTrackProcess.h
+///             TRestDetectorHitsToTrackProcess.h
 ///
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestHitsToTrackProcess
-#define RestCore_TRestHitsToTrackProcess
+#ifndef RestCore_TRestDetectorHitsToTrackProcess
+#define RestCore_TRestDetectorHitsToTrackProcess
 
 #include <TRestHitsEvent.h>
 #include <TRestTrackEvent.h>
 #include "TMatrixD.h"
 #include "TRestEventProcess.h"
 
-class TRestHitsToTrackProcess : public TRestEventProcess {
+class TRestDetectorHitsToTrackProcess : public TRestEventProcess {
    private:
 #ifndef __CINT__
     TRestHitsEvent* fHitsEvent;    //!
@@ -55,12 +55,12 @@ class TRestHitsToTrackProcess : public TRestEventProcess {
     TString GetProcessName() { return (TString) "hitsToTrack"; }
 
     // Constructor
-    TRestHitsToTrackProcess();
-    TRestHitsToTrackProcess(char* cfgFileName);
+    TRestDetectorHitsToTrackProcess();
+    TRestDetectorHitsToTrackProcess(char* cfgFileName);
     // Destructor
-    ~TRestHitsToTrackProcess();
+    ~TRestDetectorHitsToTrackProcess();
 
-    ClassDef(TRestHitsToTrackProcess, 1);  // Template for a REST "event process" class inherited from
-                                           // TRestEventProcess
+    ClassDef(TRestDetectorHitsToTrackProcess, 1);  // Template for a REST "event process" class inherited from
+                                                   // TRestEventProcess
 };
 #endif

@@ -19,9 +19,9 @@
 #include "TRestTrack.h"
 using namespace std;
 
-ClassImp(TRestTrack)
-    //______________________________________________________________________________
-    TRestTrack::TRestTrack() {
+ClassImp(TRestTrack);
+//______________________________________________________________________________
+TRestTrack::TRestTrack() {
     // TRestTrack default constructor
 }
 

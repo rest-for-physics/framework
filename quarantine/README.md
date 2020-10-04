@@ -1,0 +1,2 @@
+- **TRestAnalysisHistogramViewerProcess** is a Track Process. However, it seems as it just access the analysis tree, therefore it could be perfectly covered by other generic process.
+- **TRestTrackLinearizarionProcess** is a process used to obtain the energy profile along the track from a TRestTrack. It is connected to TRestLinearTrack. We need to think if this is being used, and if it is worth to create a new library. Perhaps it could be integrated inside TRestTrackEvent.

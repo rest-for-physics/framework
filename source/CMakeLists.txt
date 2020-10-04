@@ -21,6 +21,18 @@ if (${REST_G4_LIB} MATCHES "ON")
 	list( APPEND rest_libs_index "RestGeant4" )
 endif (${REST_G4_LIB} MATCHES "ON")
 
+########################################## Track library ###################################
+IF( NOT DEFINED REST_TRACK_LIB )
+	set(REST_TRACK_LIB OFF)
+ENDIF ()
+
+if (${REST_TRACK_LIB} MATCHES "ON")
+	add_definitions(-DREST_TrackLib)
+	add_subdirectory(libraries/track)
+	list( APPEND rest_libs_index "RestTrack" )
+
+endif (${REST_TRACK_LIB} MATCHES "ON")
+
 ########################################## Axion library ###################################
 IF( NOT DEFINED REST_AXION_LIB )
 	set(REST_AXION_LIB OFF)

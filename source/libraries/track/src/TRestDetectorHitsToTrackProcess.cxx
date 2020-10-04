@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestHitsToTrackProcess.cxx
+///             TRestDetectorHitsToTrackProcess.cxx
 ///
 ///             Dec 2015:   First concept (Javier Gracia Garza)
 //
@@ -14,31 +14,29 @@
 //              (Javier Galan)
 ///_______________________________________________________________________________
 
-#include "TRestHitsToTrackProcess.h"
+#include "TRestDetectorHitsToTrackProcess.h"
 using namespace std;
 
-ClassImp(TRestHitsToTrackProcess)
-    //______________________________________________________________________________
-    TRestHitsToTrackProcess::TRestHitsToTrackProcess() {
-    Initialize();
-}
+ClassImp(TRestDetectorHitsToTrackProcess);
+//______________________________________________________________________________
+TRestDetectorHitsToTrackProcess::TRestDetectorHitsToTrackProcess() { Initialize(); }
 
 //______________________________________________________________________________
-TRestHitsToTrackProcess::TRestHitsToTrackProcess(char* cfgFileName) {
+TRestDetectorHitsToTrackProcess::TRestDetectorHitsToTrackProcess(char* cfgFileName) {
     Initialize();
 
     if (LoadConfigFromFile(cfgFileName) == -1) LoadDefaultConfig();
 
-    // TRestHitsToTrackProcess default constructor
+    // TRestDetectorHitsToTrackProcess default constructor
 }
 
 //______________________________________________________________________________
-TRestHitsToTrackProcess::~TRestHitsToTrackProcess() {
+TRestDetectorHitsToTrackProcess::~TRestDetectorHitsToTrackProcess() {
     delete fTrackEvent;
-    // TRestHitsToTrackProcess destructor
+    // TRestDetectorHitsToTrackProcess destructor
 }
 
-void TRestHitsToTrackProcess::LoadDefaultConfig() {
+void TRestDetectorHitsToTrackProcess::LoadDefaultConfig() {
     SetName("hitsToTrackProcess");
     SetTitle("Default config");
 
@@ -46,7 +44,7 @@ void TRestHitsToTrackProcess::LoadDefaultConfig() {
 }
 
 //______________________________________________________________________________
-void TRestHitsToTrackProcess::Initialize() {
+void TRestDetectorHitsToTrackProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fClusterDistance = 1.;
@@ -56,12 +54,12 @@ void TRestHitsToTrackProcess::Initialize() {
 }
 
 //______________________________________________________________________________
-void TRestHitsToTrackProcess::LoadConfig(string cfgFilename, std::string name) {
+void TRestDetectorHitsToTrackProcess::LoadConfig(string cfgFilename, std::string name) {
     if (LoadConfigFromFile(cfgFilename, name) == -1) LoadDefaultConfig();
 }
 
 //______________________________________________________________________________
-void TRestHitsToTrackProcess::InitProcess() {
+void TRestDetectorHitsToTrackProcess::InitProcess() {
     // Function to be executed once at the beginning of process
     // (before starting the process of the events)
 
@@ -71,7 +69,7 @@ void TRestHitsToTrackProcess::InitProcess() {
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestHitsToTrackProcess::ProcessEvent(TRestEvent* evInput) {
+TRestEvent* TRestDetectorHitsToTrackProcess::ProcessEvent(TRestEvent* evInput) {
     /* Time measurement
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
     */
@@ -80,33 +78,35 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent(TRestEvent* evInput) {
     fTrackEvent->SetEventInfo(fHitsEvent);
 
     if (GetVerboseLevel() >= REST_Debug)
-        cout << "TResHitsToTrackProcess : nHits " << fHitsEvent->GetNumberOfHits() << endl;
+        cout << "TResDetectorHitsToTrackProcess : nHits " << fHitsEvent->GetNumberOfHits() << endl;
 
     TRestHits* xzHits = fHitsEvent->GetXZHits();
 
     if (GetVerboseLevel() >= REST_Debug)
-        cout << "TRestHitsToTrackProcess : Number of xzHits : " << xzHits->GetNumberOfHits() << endl;
+        cout << "TRestDetectorHitsToTrackProcess : Number of xzHits : " << xzHits->GetNumberOfHits() << endl;
     Int_t xTracks = FindTracks(xzHits);
 
     fTrackEvent->SetNumberOfXTracks(xTracks);
 
     TRestHits* yzHits = fHitsEvent->GetYZHits();
     if (GetVerboseLevel() >= REST_Debug)
-        cout << "TRestHitsToTrackProcess : Number of yzHits : " << yzHits->GetNumberOfHits() << endl;
+        cout << "TRestDetectorHitsToTrackProcess : Number of yzHits : " << yzHits->GetNumberOfHits() << endl;
     Int_t yTracks = FindTracks(yzHits);
 
     fTrackEvent->SetNumberOfYTracks(yTracks);
 
     TRestHits* xyzHits = fHitsEvent->GetXYZHits();
     if (GetVerboseLevel() >= REST_Debug)
-        cout << "TRestHitsToTrackProcess : Number of xyzHits : " << xyzHits->GetNumberOfHits() << endl;
+        cout << "TRestDetectorHitsToTrackProcess : Number of xyzHits : " << xyzHits->GetNumberOfHits()
+             << endl;
 
     FindTracks(xyzHits);
 
     if (GetVerboseLevel() >= REST_Debug) {
-        cout << "TRestHitsToTrackProcess. X tracks : " << xTracks << "  Y tracks : " << yTracks << endl;
-        cout << "TRestHitsToTrackProcess. Total number of tracks : " << fTrackEvent->GetNumberOfTracks()
+        cout << "TRestDetectorHitsToTrackProcess. X tracks : " << xTracks << "  Y tracks : " << yTracks
              << endl;
+        cout << "TRestDetectorHitsToTrackProcess. Total number of tracks : "
+             << fTrackEvent->GetNumberOfTracks() << endl;
     }
 
     if (fTrackEvent->GetNumberOfTracks() == 0) return NULL;
@@ -118,7 +118,7 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent(TRestEvent* evInput) {
     return fTrackEvent;
 }
 
-Int_t TRestHitsToTrackProcess::FindTracks(TRestHits* hits) {
+Int_t TRestDetectorHitsToTrackProcess::FindTracks(TRestHits* hits) {
     if (GetVerboseLevel() >= REST_Extreme) hits->PrintHits();
     Int_t nTracksFound = 0;
     vector<Int_t> Q;  // list of points (hits) that need to be checked
@@ -208,7 +208,7 @@ Int_t TRestHitsToTrackProcess::FindTracks(TRestHits* hits) {
 }
 
 //______________________________________________________________________________
-void TRestHitsToTrackProcess::EndProcess() {
+void TRestDetectorHitsToTrackProcess::EndProcess() {
     // Function to be executed once at the end of the process
     // (after all events have been processed)
 
@@ -218,6 +218,6 @@ void TRestHitsToTrackProcess::EndProcess() {
 }
 
 //______________________________________________________________________________
-void TRestHitsToTrackProcess::InitFromConfigFile() {
+void TRestDetectorHitsToTrackProcess::InitFromConfigFile() {
     fClusterDistance = GetDblParameterWithUnits("clusterDistance");
 }
