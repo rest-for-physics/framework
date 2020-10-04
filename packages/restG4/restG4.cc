@@ -127,7 +127,7 @@ int main(int argc, char** argv) {
 
     restRun->AddMetadata(restG4Metadata);
     restRun->AddMetadata(restPhysList);
-    restRun->PrintInfo();
+    restRun->PrintMetadata();
 
     restRun->FormOutputFile();
 

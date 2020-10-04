@@ -15,7 +15,7 @@ Int_t REST_Geant4_ReadNEvents_inROI(TString fName, int n1, int n2, double en1, d
 
     run->OpenInputFile(fName);
 
-    run->PrintInfo();
+    run->PrintMetadata();
 
     /////////////////////////////
 

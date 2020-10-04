@@ -23,7 +23,7 @@ Int_t REST_Geant4_ListIsotopes(TString fName, TString fOutName) {
 
     run->OpenInputFile(fName);
 
-    run->PrintInfo();
+    run->PrintMetadata();
 
     /////////////////////////////
 

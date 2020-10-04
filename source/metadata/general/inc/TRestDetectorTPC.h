@@ -41,19 +41,18 @@ class TRestRun;
 
 class TRestDetectorTPC : public TRestDetector {
    private:
-
    protected:
-    Double_t fDriftVoltage;  // In V
-    Double_t fAmplificationVoltage;// In V
+    Double_t fDriftVoltage;          // In V
+    Double_t fAmplificationVoltage;  // In V
 
-    Double_t fTargetMass;// in kg
-    Double_t fTPCHeight;// in mm
-    Double_t fTPCRadius;// in mm
-    Double_t fDriftDistance; // in mm
+    Double_t fTargetMass;             // in kg
+    Double_t fTPCHeight;              // in mm
+    Double_t fTPCRadius;              // in mm
+    Double_t fDriftDistance;          // in mm
     Double_t fAmplificationDistance;  // in mm
 
-    Double_t fDAQShapingTime; // in us
-    Double_t fDAQSamplingTime;// in us
+    Double_t fDAQShapingTime;   // in us
+    Double_t fDAQSamplingTime;  // in us
     Double_t fDAQDynamicRange;
     Double_t fDAQThreshold;
 

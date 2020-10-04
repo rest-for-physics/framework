@@ -85,7 +85,7 @@ void TRestRun::Initialize() {
     fEntriesSaved = -1;
 
     fInputMetadata.clear();
-    fMetadataInfo.clear();
+    fMetadata.clear();
     fInputFileNames.clear();
     fInputFile = NULL;
     fOutputFile = NULL;
@@ -296,7 +296,7 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
 
         TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
         meta->SetHostmgr(fHostmgr);
-        fMetadataInfo.push_back(meta);
+        fMetadata.push_back(meta);
         meta->LoadConfigFromFile(e, fElementGlobal);
 
         return 0;
@@ -499,7 +499,7 @@ void TRestRun::ReadInputFileMetadata() {
                 }
                  */
                 fInputMetadata.push_back(a);
-                fMetadataInfo.push_back(a);
+                fMetadata.push_back(a);
                 addednames.insert(key->GetName());
             }
         }
@@ -661,9 +661,28 @@ void TRestRun::ReadFileInfo(string filename) {
             return;
         }
 
-        // cout << formatsectionlist[i] << " " << name.substr(pos1 + 1, pos2 - pos1
-        // - 1) << endl;
-        gDetector->SetParameter(formatsectionlist[i], name.substr(pos1 + 1, pos2 - pos1 - 1));
+        string infoFromFileName = name.substr(pos1 + 1, pos2 - pos1 - 1);
+        gDetector->SetParameter(formatsectionlist[i], infoFromFileName);
+
+        // to store special file pattern parameters: fRunNumber, fRunTag, etc.
+        if (formatsectionlist[i] == "fRunNumber") {
+            SetRunNumber(StringToInteger(infoFromFileName));
+            gDetector->SetRunNumber(StringToInteger(infoFromFileName));
+        } else if (formatsectionlist[i] == "fParentRunNumber" || formatsectionlist[i] == "fSubRunNumber") {
+            SetParentRunNumber(StringToInteger(infoFromFileName));
+        } else if (formatsectionlist[i] == "fRunType") {
+            SetRunType(infoFromFileName);
+        } else if (formatsectionlist[i] == "fRunUser") {
+            SetRunUser(infoFromFileName);
+        } else if (formatsectionlist[i] == "fRunTag") {
+            SetRunTag(infoFromFileName);
+        } else if (formatsectionlist[i] == "fRunDescription") {
+            SetRunDescription(infoFromFileName);
+        } else if (formatsectionlist[i] == "fExperimentName") {
+            fExperimentName = infoFromFileName;
+        } else if (formatsectionlist[i] == "fRunClassName") {
+            fRunClassName = infoFromFileName;
+        }
 
         pos = pos2 - 1;
     }
@@ -773,7 +792,7 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
 
         string targetstr = inString.substr(pos1, pos2 - pos1 + 1);   // with []
         string target = inString.substr(pos1 + 1, pos2 - pos1 - 1);  // without []
-        string replacestr = GetInfo(target);
+        string replacestr = GetRunInformation(target);
 
         debug << "TRestRun::FormFormat. target : " << target << endl;
         debug << "TRestRun::FormFormat. replacestr : " << replacestr << endl;
@@ -909,13 +928,13 @@ void TRestRun::WriteWithDataBase() {
     debug << "TRestRun::WriteWithDataBase. Calling this->Write(0,kOverWrite)" << endl;
     this->Write(0, kOverwrite);
     debug << "TRestRun::WriteWithDataBase. Succeed" << endl;
-    debug << "TRestRun::WriteWithDataBase. fMetadataInfo.size() == " << fMetadataInfo.size() << endl;
-    for (int i = 0; i < fMetadataInfo.size(); i++) {
+    debug << "TRestRun::WriteWithDataBase. fMetadata.size() == " << fMetadata.size() << endl;
+    for (int i = 0; i < fMetadata.size(); i++) {
         bool historic = false;
         debug << "TRestRun::WriteWithDataBase. fInputMetadata.size() == " << fInputMetadata.size() << endl;
         for (int j = 0; j < fInputMetadata.size(); j++) {
-            debug << fMetadataInfo[i]->GetName() << " == " << fInputMetadata[j]->GetName() << endl;
-            if (fMetadataInfo[i] == fInputMetadata[j]) {
+            debug << fMetadata[i]->GetName() << " == " << fInputMetadata[j]->GetName() << endl;
+            if (fMetadata[i] == fInputMetadata[j]) {
                 historic = true;
                 break;
             }
@@ -923,10 +942,10 @@ void TRestRun::WriteWithDataBase() {
 
         if (!historic) {
             debug << "NO historic" << endl;
-            fMetadataInfo[i]->Write(fMetadataInfo[i]->GetName(), kOverwrite);
+            fMetadata[i]->Write(fMetadata[i]->GetName(), kOverwrite);
         } else {
             debug << "IS historic" << endl;
-            if (fSaveHistoricData) fMetadataInfo[i]->Write(fMetadataInfo[i]->GetName(), kOverwrite);
+            if (fSaveHistoricData) fMetadata[i]->Write(fMetadata[i]->GetName(), kOverwrite);
         }
     }
 
@@ -961,11 +980,11 @@ void TRestRun::CloseFile() {
         fEventTree = NULL;
     }
 
-    for (int i = 0; i < fMetadataInfo.size(); i++) {
+    for (int i = 0; i < fMetadata.size(); i++) {
         for (int j = 0; j < fInputMetadata.size(); j++) {
-            if (fMetadataInfo[i] == fInputMetadata[j]) {
-                delete fMetadataInfo[i];
-                fMetadataInfo.erase(fMetadataInfo.begin() + i);
+            if (fMetadata[i] == fInputMetadata[j]) {
+                delete fMetadata[i];
+                fMetadata.erase(fMetadata.begin() + i);
                 i--;
                 fInputMetadata.erase(fInputMetadata.begin() + j);
                 break;
@@ -1125,7 +1144,7 @@ void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t s
     else
         meta->DoNotStore();
 
-    fMetadataInfo.push_back(meta);
+    fMetadata.push_back(meta);
     meta->InitFromRootFile();
     f->Close();
     delete f;
@@ -1304,7 +1323,7 @@ TRestEvent* TRestRun::GetNextEventWithConditions(const string cuts) {
     }
 }
 
-string TRestRun::GetInfo(string infoname) {
+string TRestRun::GetRunInformation(string infoname) {
     string result = GetParameter(infoname, "");
     if (result != "") {
         return result;
@@ -1344,8 +1363,8 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
             }
         }
     } else {
-        for (int i = 0; i < fMetadataInfo.size(); i++)
-            if (fMetadataInfo[i]->InheritsFrom(type)) return fMetadataInfo[i];
+        for (int i = 0; i < fMetadata.size(); i++)
+            if (fMetadata[i]->InheritsFrom(type)) return fMetadata[i];
 
         if (fInputFile != NULL && this->GetVersionCode() >= TRestTools::ConvertVersionCode("2.2.1")) {
             return GetMetadataClass(type, fInputFile);
@@ -1375,8 +1394,8 @@ TRestMetadata* TRestRun::GetMetadata(TString name, TFile* f) {
             }
         }
     } else {
-        for (unsigned int i = 0; i < fMetadataInfo.size(); i++)
-            if (fMetadataInfo[i]->GetName() == name) return fMetadataInfo[i];
+        for (unsigned int i = 0; i < fMetadata.size(); i++)
+            if (fMetadata[i]->GetName() == name) return fMetadata[i];
 
         // if (fInputFile != NULL && this->GetVersionCode() >=
         // ConvertVersionCode("2.2.1")) { 	return GetMetadata(name, fInputFile);
@@ -1389,7 +1408,7 @@ TRestMetadata* TRestRun::GetMetadata(TString name, TFile* f) {
 std::vector<std::string> TRestRun::GetMetadataStructureNames() {
     std::vector<std::string> strings;
 
-    for (int n = 0; n < GetNumberOfMetadataStructures(); n++) strings.push_back(fMetadataInfo[n]->GetName());
+    for (int n = 0; n < GetNumberOfMetadataStructures(); n++) strings.push_back(fMetadata[n]->GetName());
 
     return strings;
 }
@@ -1397,7 +1416,7 @@ std::vector<std::string> TRestRun::GetMetadataStructureNames() {
 std::vector<std::string> TRestRun::GetMetadataStructureTitles() {
     std::vector<std::string> strings;
 
-    for (int n = 0; n < GetNumberOfMetadataStructures(); n++) strings.push_back(fMetadataInfo[n]->GetTitle());
+    for (int n = 0; n < GetNumberOfMetadataStructures(); n++) strings.push_back(fMetadata[n]->GetTitle());
 
     return strings;
 }
@@ -1555,7 +1574,7 @@ Bool_t TRestRun::EvaluateMetadataMember(const string instr) {
 }
 
 // Printers
-void TRestRun::PrintInfo() {
+void TRestRun::PrintMetadata() {
     // cout.precision(10);
     TRestMetadata::PrintMetadata();
 

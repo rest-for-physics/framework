@@ -29,7 +29,7 @@ Int_t REST_GenericEvents(TString fName, TString EventType = "", Int_t Entry = 0)
 
     TRestEvent* evt = run->GetInputEvent();
 
-    run->PrintInfo();
+    run->PrintMetadata();
 
     run->GetEntry(Entry);
 
@@ -46,7 +46,7 @@ Int_t REST_Geant4Event(TString fName, Int_t firstEvent = 0) {
 
     run->OpenInputFile(fName);
 
-    run->PrintInfo();
+    run->PrintMetadata();
 
     TRestGeant4Event* evt = new TRestGeant4Event();
 
@@ -67,7 +67,7 @@ Int_t REST_HitsEvent(TString fName, Int_t firstEvent = 0) {
 
     run->OpenInputFile(fName);
 
-    run->PrintInfo();
+    run->PrintMetadata();
 
     TRestHitsEvent* evt = new TRestHitsEvent();
 
@@ -87,7 +87,7 @@ Int_t REST_LinearTrackEvent(TString fName, Int_t firstEvent = 0) {
 
     run->OpenInputFile(fName);
 
-    run->PrintInfo();
+    run->PrintMetadata();
 
     TRestLinearTrackEvent* evt = new TRestLinearTrackEvent();
 
@@ -107,7 +107,7 @@ Int_t REST_RawSignalEvent(TString fName, Int_t firstEvent = 0) {
 
     run->OpenInputFile(fName);
 
-    run->PrintInfo();
+    run->PrintMetadata();
 
     TRestRawSignalEvent* evt = new TRestRawSignalEvent();
 
@@ -127,7 +127,7 @@ Int_t REST_SignalEvent(TString fName, Int_t firstEvent = 0) {
 
     run->OpenInputFile(fName);
 
-    run->PrintInfo();
+    run->PrintMetadata();
 
     TRestSignalEvent* evt = new TRestSignalEvent();
 
@@ -147,7 +147,7 @@ Int_t REST_TrackEvent(TString fName, Int_t firstEvent = 0) {
 
     run->OpenInputFile(fName);
 
-    run->PrintInfo();
+    run->PrintMetadata();
 
     TRestTrackEvent* evt = new TRestTrackEvent();
 
