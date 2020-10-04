@@ -689,15 +689,21 @@ void TRestMetadata::InitFromRootFile() {
 TiXmlElement* TRestMetadata::ReplaceElementAttributes(TiXmlElement* e) {
     if (e == NULL) return NULL;
 
+    std::string parName = "";
     TiXmlAttribute* attr = e->FirstAttribute();
     while (attr != NULL) {
         const char* val = attr->Value();
         const char* name = attr->Name();
 
+        if (strcmp(name, "name") == 0) parName = (string)val;
+
         // set attribute except name field
         if (strcmp(name, "name") != 0) {
             string temp = ReplaceEnvironmentalVariables(val);
-            e->SetAttribute(name, ReplaceMathematicalExpressions(temp).c_str());
+            e->SetAttribute(
+                name, ReplaceMathematicalExpressions(
+                          temp, "Please, check parameter name: " + parName + " (ReplaceElementAttributes)")
+                          .c_str());
         }
 
         attr = attr->Next();
@@ -925,10 +931,13 @@ void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e, map<string, string> forLo
 void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forLoopVar) {
     if (e == NULL) return;
 
+    std::string parName = "";
     TiXmlAttribute* attr = e->FirstAttribute();
     while (attr != NULL) {
         const char* val = attr->Value();
         const char* name = attr->Name();
+
+        if (strcmp(name, "name") == 0) parName = (string)val;
 
         // set attribute except name field
         if (strcmp(name, "name") != 0) {
@@ -960,7 +969,10 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
                 }
             }
 
-            e->SetAttribute(name, ReplaceMathematicalExpressions(outputBuffer).c_str());
+            e->SetAttribute(
+                name, ReplaceMathematicalExpressions(
+                          outputBuffer, "Please, check parameter name: " + parName + " (ReplaceForLoopVars)")
+                          .c_str());
         }
 
         attr = attr->Next();
@@ -1309,7 +1321,8 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
         }
     }
 
-    return ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(result));
+    return ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(result),
+                                          "Please, check parameter name: " + parName);
 }
 
 Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlElement* ele,
