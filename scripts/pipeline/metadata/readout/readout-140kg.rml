@@ -2,7 +2,6 @@
 
 <readouts>
 
-
   <globals>
     <variable name="PITCH" value="3" overwrite="false" />
     <!-- The pitch value in mm -->
@@ -54,9 +53,9 @@
 
 <!-- This readout (Panda-140kg) is the latest design of PandaIII detector_2019.5.28-->
  <TRestDetectorReadout name="Panda-140kg" title="PANDA SJTU Jinping readout. 1 plane 52 modules ${PITCH}mm-Pitch ${CHANNELS}+${CHANNELS} channels" >
-    <variable name="nChannels" value="${CHANNELS}" />
-    <variable name="pitch" value="${PITCH}" />
-    <variable name="pixelSize" value="${PITCH}/sqrt(2.)" />
+    <constant name="nChannels" value="${CHANNELS}" />
+    <constant name="pitch" value="${PITCH}" />
+    <constant name="pixelSize" value="${PITCH}/sqrt(2.)" />
 
     <parameter name="mappingNodes" value="0" />
 
