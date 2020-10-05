@@ -12,7 +12,12 @@ add_subdirectory(../macros tasks.out)
 
 ########################################## Geant4 library ###################################
 IF( NOT DEFINED REST_G4_LIB )
-	set(REST_G4_LIB ON)
+	set(REST_G4_LIB OFF)
+
+	# If restG4 package was enabled we need RestGeant4Lib
+	if (${REST_G4} MATCHES "ON")
+		set(REST_G4_LIB ON)
+	endif (${REST_G4} MATCHES "ON")
 ENDIF ()
 
 if (${REST_G4_LIB} MATCHES "ON")

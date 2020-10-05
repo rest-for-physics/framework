@@ -155,10 +155,6 @@ ENDIF ()
 
 if (${REST_G4} MATCHES "ON")
 	list( APPEND rest_packages "RestG4" )
-	# If we didnt add the library, we force to compile the library. It is required by restG4
-	if( ${REST_G4_LIB} MATCHES "OFF" )
-		add_subdirectory(libraries/geant4)
-	endif( ${REST_G4_LIB} MATCHES "OFF" )
     add_subdirectory(packages/restG4)
 endif (${REST_G4} MATCHES "ON")
 ########################################## xxxxxxxxxxxxxx ###################################
