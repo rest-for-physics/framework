@@ -118,7 +118,7 @@ string FindRESTUnitsInString(string s) {
 ///////////////////////////////////////////////
 /// \brief It should remove all units found inside the input string
 ///
-string RemoveUnitsFromString(string s) { return s.substr(0, s.find_first_not_of("1234567890(),")); }
+string RemoveUnitsFromString(string s) { return s.substr(0, s.find_first_not_of("1234567890(),.-")); }
 
 ///////////////////////////////////////////////
 /// \brief It scales a physics measurement with its units into a REST default units value.
@@ -293,6 +293,7 @@ TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
 
         } else {
             if (pos == 0 && unitsStr[pos] != '/') {
+                cout << unitsStr << endl;
                 warning << "first character \"" << unitsStr[pos] << "\" unrecognized in unit definition!"
                         << endl;
             }
