@@ -1332,8 +1332,8 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlEleme
         return defaultVal;
     } else {
         string unit = GetParameterUnits(parName, ele);
-        if (a.find(unit) != string::npos) a.resize(a.length() - unit.length());
-        Double_t value = StringToDouble(a.substr(0, a.find_last_of("1234567890().") + 1));
+        string valuestr = REST_Units::RemoveUnitsFromString(a);
+        Double_t value = StringToDouble(valuestr);
         return REST_Units::ConvertValueToRESTUnits(value, unit);
     }
 
@@ -1347,8 +1347,8 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXml
         return defaultVal;
     } else {
         string unit = GetParameterUnits(parName, ele);
-        if (a.find(unit) != string::npos) a.resize(a.length() - unit.length());
-        TVector2 value = StringTo2DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
+        string valuestr = REST_Units::RemoveUnitsFromString(a);
+        TVector2 value = StringTo2DVector(valuestr);
         Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
         return TVector2(valueX, valueY);
@@ -1364,8 +1364,8 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXml
         return defaultVal;
     } else {
         string unit = GetParameterUnits(parName, ele);
-        if (a.find(unit) != string::npos) a.resize(a.length() - unit.length());
-        TVector3 value = StringTo3DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
+        string valuestr = REST_Units::RemoveUnitsFromString(a);
+        TVector3 value = StringTo3DVector(valuestr);
         Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
         Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
@@ -1421,8 +1421,8 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, Double_t d
         return defaultVal;
     } else {
         string unit = GetParameterUnits(parName);
-        if (a.find(unit) != string::npos) a.resize(a.length() - unit.length());
-        Double_t value = StringToDouble(a.substr(0, a.find_last_of("1234567890().") + 1));
+        string valuestr = REST_Units::RemoveUnitsFromString(a);
+        Double_t value = StringToDouble(valuestr);
         return REST_Units::ConvertValueToRESTUnits(value, unit);
     }
     return defaultVal;
@@ -1434,8 +1434,8 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TVect
         return defaultVal;
     } else {
         string unit = GetParameterUnits(parName);
-        if (a.find(unit) != string::npos) a.resize(a.length() - unit.length());
-        TVector2 value = StringTo2DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
+        string valuestr = REST_Units::RemoveUnitsFromString(a);
+        TVector2 value = StringTo2DVector(valuestr);
         Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
         return TVector2(valueX, valueY);
@@ -1449,8 +1449,8 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVect
         return defaultVal;
     } else {
         string unit = GetParameterUnits(parName);
-        if (a.find(unit) != string::npos) a.resize(a.length() - unit.length());
-        TVector3 value = StringTo3DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
+        string valuestr = REST_Units::RemoveUnitsFromString(a);
+        TVector3 value = StringTo3DVector(valuestr);
         Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
         Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
@@ -1634,35 +1634,17 @@ string TRestMetadata::GetUnits(TiXmlElement* e) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Returns the unit string of the given parameter
-///
-string TRestMetadata::GetParameterUnits(string parName) {
-    string parvalue = GetParameter(parName);
-    if (parvalue == PARAMETER_NOT_FOUND_STR) {
-        return "";
-    } else {
-        // first try to use unit embeded in parvalue
-        string unit = REST_Units::FindRESTUnitsInString(parvalue);
-        // then try to find unit in corresponding "parameter" section
-        if (!IsUnit(unit)) {
-            TiXmlElement* paraele = GetElementWithName("parameter", parName);
-            if (paraele != NULL) {
-                unit = GetUnits(paraele);
-            }
-        }
-        // finally try to find unit in local section attribute
-        if (!IsUnit(unit)) {
-            unit = GetUnits(fElement);
-        }
-        return unit;
-    }
-    return "";
-}
-
-///////////////////////////////////////////////
 /// \brief Returns the unit string of the given parameter of the given xml section
 ///
+/// It will firstly find the parameter section from the given xml section. 
+/// Then it will search units definition in:
+/// 1. value string of this parameter
+/// 2. "units" attribute of the parameter section
+/// 3. "units" attribute of the given section
+///
+/// If argument section is not given(==NULL), it will use the local section(fElement)
 string TRestMetadata::GetParameterUnits(string parName, TiXmlElement* e) {
+    if (e == NULL) e = fElement;
     string parvalue = GetParameter(parName, e);
     if (parvalue == PARAMETER_NOT_FOUND_STR) {
         return "";
@@ -1670,14 +1652,14 @@ string TRestMetadata::GetParameterUnits(string parName, TiXmlElement* e) {
         // first try to use unit embeded in parvalue
         string unit = REST_Units::FindRESTUnitsInString(parvalue);
         // then try to find unit in corresponding "parameter" section
-        if (!IsUnit(unit)) {
+        if (unit == "") {
             TiXmlElement* paraele = GetElementWithName("parameter", parName, e);
             if (paraele != NULL) {
                 unit = GetUnits(paraele);
             }
         }
         // finally try to find unit in local section attribute
-        if (!IsUnit(unit)) {
+        if (unit == "") {
             unit = GetUnits(e);
         }
         return unit;
