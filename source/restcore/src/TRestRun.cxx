@@ -648,20 +648,24 @@ void TRestRun::ReadFileInfo(string filename) {
     }
 
     pos = -1;
-    for (int i = 0; i < formatsectionlist.size(); i++) {
+    for (int i = 0; i < formatsectionlist.size() && i < formatprefixlist.size() - 1; i++) {
         if (i != 0 && formatprefixlist[i] == "") {
             warning << "file format reference contains error!" << endl;
             return;
         }
-        int pos1 = name.find(formatprefixlist[i], pos + 1) + formatprefixlist[i].size() - 1;
+        int pos1 = name.find(formatprefixlist[i], pos + 1) + formatprefixlist[i].size();
         if (formatprefixlist[i] == "") pos1 = 0;
         int pos2 = name.find(formatprefixlist[i + 1], pos1);
         if (pos1 == -1 || pos2 == -1) {
-            warning << "file format mismatch!" << endl;
+            warning << "File pattern matching: file format mismatch!" << endl;
             return;
         }
 
-        string infoFromFileName = name.substr(pos1 + 1, pos2 - pos1 - 1);
+        string infoFromFileName = name.substr(pos1, pos2 - pos1);
+
+        debug << "File pattern matching. key: "<< formatsectionlist[i] << " (between the mark \"" << formatprefixlist[i] << "\" and \"" << formatprefixlist[i + 1] << "\"), value: "
+             << infoFromFileName << endl;
+
         gDetector->SetParameter(formatsectionlist[i], infoFromFileName);
 
         // to store special file pattern parameters: fRunNumber, fRunTag, etc.
