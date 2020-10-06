@@ -270,12 +270,12 @@ void TRestDetectorTPC::Print() {
     cout << " --------------------------------------------" << endl;
     cout << " Sampling rate : " << fDAQSamplingTime << " us " << endl;
     cout << " Shaping time : " << fDAQShapingTime << " us " << endl;
-    cout << " Dynamic range : " << fDAQDynamicRange << " us " << endl;
-    cout << " DAQ threshold : " << fDAQThreshold << " us " << endl;
+    cout << " Dynamic range : " << fDAQDynamicRange << " fC " << endl;
+    cout << " DAQ threshold : " << fDAQThreshold << endl;
     cout << " --------------------------------------------" << endl;
-    cout << " Detector radius : " << fTPCRadius << " us " << endl;
-    cout << " Max drift distance : " << fDriftDistance << " us " << endl;
-    cout << " Target mass : " << fTargetMass << " us " << endl;
+    cout << " Detector radius : " << fTPCRadius * REST_Units::m << " m " << endl;
+    cout << " Max drift distance : " << fDriftDistance * REST_Units::m << " m " << endl;
+    cout << " Target mass : " << fTargetMass << " kg " << endl;
     cout << " --------------------------------------------" << endl;
 
     TRestDetector::PrintParameterMap();
@@ -307,6 +307,37 @@ string TRestDetectorTPC::GetParameter(string paraname) {
 }
 
 void TRestDetectorTPC::SetParameter(string paraname, string paraval) {
+    switch (ToHash(paraname.c_str())) {
+        // basic types
+        case ToHash("fAmplificationVoltage"): {
+            fAmplificationVoltage = StringToDouble(paraval);
+            break;
+        }
+        case ToHash("fDriftVoltage"): {
+            fDriftVoltage = StringToDouble(paraval);
+            break;
+        }
+        case ToHash("fDAQSamplingTime"): {
+            fDAQSamplingTime = StringToDouble(paraval);
+            break;
+        }
+        case ToHash("fDAQShapingTime"): {
+            fDAQShapingTime = StringToDouble(paraval);
+            break;
+        }
+        case ToHash("fDAQDynamicRange"): {
+            fDAQShapingTime = StringToDouble(paraval);
+            break;
+        }
+        case ToHash("fDAQThreshold"): {
+            fDAQThreshold = StringToDouble(paraval);
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+
     TRestDetector::SetParameter(paraname, paraval);
 }
 
