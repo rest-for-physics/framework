@@ -57,7 +57,7 @@ void TRestDetector::ReadFile(TFile* f) {
 }
 
 void TRestDetector::SetParameter(string paraname, string paraval) { 
-    any member = REST_Reflection::GetDataMember(any(this,REST_ARGS["gDetector"]), paraname);
+    any member = any(this,REST_ARGS["gDetector"]).GetDataMember(paraname);
     if (!member.IsZombie()) {
         if (member.type == "double") {
             member.SetValue((paraval));
