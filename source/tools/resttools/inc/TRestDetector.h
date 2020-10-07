@@ -56,7 +56,7 @@ class TRestDetector {
         if (fParameterMap.count(paraname) > 0) return fParameterMap[paraname];
         return PARAMETER_NOT_FOUND_STR;
     }
-    virtual void SetParameter(string paraname, string paraval) { fParameterMap[paraname] = paraval; }
+    virtual void SetParameter(string paraname, string paraval);
     virtual void RegisterMetadata(TObject* ptr) {}
     virtual void Print();
     virtual void WriteFile(TFile* f);

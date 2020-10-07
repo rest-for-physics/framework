@@ -29,6 +29,7 @@ Float_t NaN = std::numeric_limits<Float_t>::quiet_NaN();
 
 //______________________________________________________________________________
 TRestDetectorTPC::TRestDetectorTPC() {
+    fRunNumber = 0;
     fDetectorName = "REST default detector";
 
     fDetectorMedium = NULL;
@@ -331,6 +332,26 @@ void TRestDetectorTPC::SetParameter(string paraname, string paraval) {
         }
         case ToHash("fDAQThreshold"): {
             fDAQThreshold = StringToDouble(paraval);
+            break;
+        }
+        case ToHash("fTargetMass"): {
+            fTargetMass = StringToDouble(paraval);
+            break;
+        }
+        case ToHash("fTPCHeight"): {
+            fTPCHeight = StringToDouble(paraval);
+            break;
+        }
+        case ToHash("fTPCRadius"): {
+            fTPCRadius = StringToDouble(paraval);
+            break;
+        }
+        case ToHash("fDriftDistance"): {
+            fDriftDistance = StringToDouble(paraval);
+            break;
+        }
+        case ToHash("fAmplificationDistance"): {
+            fAmplificationDistance = StringToDouble(paraval);
             break;
         }
         default: {

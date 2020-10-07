@@ -3,7 +3,7 @@
 #include "TClass.h"
 #include "TMap.h"
 #include "TObjString.h"
-
+#include "TRestStringHelper.h"
 // This is an interface class
 
 void TRestDetector::Print() {
@@ -53,4 +53,16 @@ void TRestDetector::ReadFile(TFile* f) {
     } else {
         warning << "TRestDetector::ReadFile: no detector parameters stored in file" << endl;
     }
+}
+
+void TRestDetector::SetParameter(string paraname, string paraval) { 
+    if (paraname == "fRunNumber") {
+        fRunNumber = StringToInteger(paraval);
+    }
+    else if (paraname == "fDetectorName") {
+        fDetectorName = paraval;
+    }
+    
+    fParameterMap[paraname] = paraval; 
+
 }
