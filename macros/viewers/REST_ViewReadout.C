@@ -9,7 +9,6 @@ using namespace std;
 #define RestTask_ViewReadout
 
 int REST_ViewReadout(TString rootFile, TString name = "", Int_t plane = 0) {
-    TRestStringOutput cout;
     TFile* fFile = new TFile(rootFile);
 
     TRestReadout* readout = NULL;

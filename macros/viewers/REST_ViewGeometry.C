@@ -9,7 +9,6 @@ using namespace std;
 #define RestTask_ViewGeometry
 
 Int_t REST_ViewGeometry(TString fName, TString option = "") {
-    TRestStringOutput cout;
     cout << "Filename : " << fName << endl;
 
     TGeoManager* geo = NULL;
