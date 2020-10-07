@@ -2110,17 +2110,12 @@ std::string TRestMetadata::GetSectionName() {
 std::string TRestMetadata::GetConfigBuffer() { return configBuffer; }
 
 ///////////////////////////////////////////////
-/// \brief Get the value of datamember as string.
+/// \brief Get the value of data member as string.
 ///
-/// Note that only streamed datamembers can be read, others will just
-/// return an empty string.
-///
+/// All kinds of data member can be found, including non-streamed 
+/// data member and base-class data member
 string TRestMetadata::GetDataMemberValue(string memberName) {
-    any member = REST_Reflection::GetDataMember(any((char*)this, this->ClassName()), memberName);
-    if (!member.IsZombie()) {
-        return ToString(member);
-    }
-    return "";
+    return REST_Reflection::GetDataMemberValue(any(this, this->ClassName()), memberName);
 }
 
 ///////////////////////////////////////////////
@@ -2131,9 +2126,8 @@ string TRestMetadata::GetDataMemberValue(string memberName) {
 /// argument requests a data member that is not a vector in nature, this
 /// method will still return a valid vector string with a single element.
 ///
-/// Note that only streamed datamembers can be read, others will just
-/// return an empty string.
-///
+/// All kinds of data member can be found, including non-streamed
+/// data member and base-class data member
 std::vector<string> TRestMetadata::GetDataMemberValues(string memberName) {
     string result = GetDataMemberValue(memberName);
 

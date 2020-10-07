@@ -160,7 +160,7 @@ class TRestReflector {
                 return;
             }
         }
-        val = *(T*)(address);
+        if (address != NULL) val = *(T*)(address);
     }
     /// Set the value of the wrapped type
     template <class T>
@@ -171,7 +171,7 @@ class TRestReflector {
                 return;
             }
         }
-        *((T*)(address)) = val;
+        if (address != NULL) *((T*)(address)) = val;
     }
     /// Assembly a new object, and save its address. The old object will be destroied if not null
     void Assembly();
@@ -189,7 +189,7 @@ class TRestReflector {
     /// Default constructor
     TRestReflector() {}
     /// Constructor from a certain address and a certain type.
-    TRestReflector(char* address, string type);
+    TRestReflector(void* address, string type);
     /// Constructor to wrap an object. Any typed object can be revieved as argument.
     template <class T>
     TRestReflector(const T& obj) {
@@ -264,6 +264,11 @@ TRestReflector GetDataMember(REST_Reflection::TRestReflector obj, string name);
 ///
 ///
 TRestReflector GetDataMember(REST_Reflection::TRestReflector obj, int ID);
+
+///////////////////////////////////////////////
+/// \brief Get the value of datamember as string.
+///
+string GetDataMemberValue(REST_Reflection::TRestReflector obj, string name);
 
 ///////////////////////////////////////////////
 /// \brief Get the number of data members of a class
