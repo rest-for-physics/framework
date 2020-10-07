@@ -308,56 +308,7 @@ string TRestDetectorTPC::GetParameter(string paraname) {
 }
 
 void TRestDetectorTPC::SetParameter(string paraname, string paraval) {
-    switch (ToHash(paraname.c_str())) {
-        // basic types
-        case ToHash("fAmplificationVoltage"): {
-            fAmplificationVoltage = StringToDouble(paraval);
-            break;
-        }
-        case ToHash("fDriftVoltage"): {
-            fDriftVoltage = StringToDouble(paraval);
-            break;
-        }
-        case ToHash("fDAQSamplingTime"): {
-            fDAQSamplingTime = StringToDouble(paraval);
-            break;
-        }
-        case ToHash("fDAQShapingTime"): {
-            fDAQShapingTime = StringToDouble(paraval);
-            break;
-        }
-        case ToHash("fDAQDynamicRange"): {
-            fDAQShapingTime = StringToDouble(paraval);
-            break;
-        }
-        case ToHash("fDAQThreshold"): {
-            fDAQThreshold = StringToDouble(paraval);
-            break;
-        }
-        case ToHash("fTargetMass"): {
-            fTargetMass = StringToDouble(paraval);
-            break;
-        }
-        case ToHash("fTPCHeight"): {
-            fTPCHeight = StringToDouble(paraval);
-            break;
-        }
-        case ToHash("fTPCRadius"): {
-            fTPCRadius = StringToDouble(paraval);
-            break;
-        }
-        case ToHash("fDriftDistance"): {
-            fDriftDistance = StringToDouble(paraval);
-            break;
-        }
-        case ToHash("fAmplificationDistance"): {
-            fAmplificationDistance = StringToDouble(paraval);
-            break;
-        }
-        default: {
-            break;
-        }
-    }
+
 
     TRestDetector::SetParameter(paraname, paraval);
 }

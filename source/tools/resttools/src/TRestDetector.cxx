@@ -4,13 +4,14 @@
 #include "TMap.h"
 #include "TObjString.h"
 #include "TRestStringHelper.h"
-// This is an interface class
+#include "TRestReflector.h"
 
 void TRestDetector::Print() {
     cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout << "TRestDetector content" << endl;
     cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout << " Detector name : " << fDetectorName << endl;
+    cout << " Detector class : " << REST_ARGS["gDetector"] << endl;
     cout << " Run number : " << fRunNumber << endl;
     cout << " Number of parameters stored: " << fParameterMap.size() << endl;
     cout << " --------------------------------------------" << endl;
@@ -56,11 +57,15 @@ void TRestDetector::ReadFile(TFile* f) {
 }
 
 void TRestDetector::SetParameter(string paraname, string paraval) { 
-    if (paraname == "fRunNumber") {
-        fRunNumber = StringToInteger(paraval);
-    }
-    else if (paraname == "fDetectorName") {
-        fDetectorName = paraval;
+    any member = REST_Reflection::GetDataMember(any(this,REST_ARGS["gDetector"]), paraname);
+    if (!member.IsZombie()) {
+        if (member.type == "double") {
+            member.SetValue((paraval));
+        } else if (member.type == "int") {
+            member.SetValue(StringToInteger(paraval));
+        } else if (member.type == "string") {
+            member.SetValue(paraval);
+        }
     }
     
     fParameterMap[paraname] = paraval; 
