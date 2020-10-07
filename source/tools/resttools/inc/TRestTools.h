@@ -130,6 +130,7 @@ inline bool SetInitLevel(T* name, int level) {
                 objname = new classname();                          \
                 REST_InitTools::SetInitLevel(objname, level);       \
             }                                                       \
+            REST_ARGS[#objname] = #classname;                       \
         }                                                           \
     };                                                              \
     const __##classname##_Init classname##_Init;
