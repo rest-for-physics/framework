@@ -31,7 +31,6 @@
 #include "TRestReflector.h"
 ClassImp(TRestTask);
 
-using namespace REST_Reflection;
 ///////////////////////////////////////////////
 /// \brief TRestTask default constructor
 ///
@@ -179,7 +178,7 @@ void TRestTask::InitFromConfigFile() {
 
     } else if (fMode == TASK_CLASS) {
         // load config for the inherited task class
-        SetDataMemberValFromConfig();
+        ReadDataMemberValFromConfig();
     }
 }
 
@@ -195,7 +194,7 @@ void TRestTask::SetArgumentValue(vector<string> arg) {
     }
     argument = arg;
     if (fMode == TASK_CLASS) {
-        SetDataMemberValFromConfig();
+        ReadDataMemberValFromConfig();
     }
 }
 
@@ -281,10 +280,10 @@ void TRestTask::PrintArgumentHelp() {
     } else if (fMode == 2) {
         ferr << "Macro class \"" << this->ClassName() << "\" gets invailed input!" << endl;
         ferr << "You should give the following arguments ( * : necessary input):" << endl;
-        int n = GetNumberOfDataMembers(this);
+        int n = any(this).GetNumberOfDataMembers();
         for (int i = 1; i < n; i++) {
             if (i < fNRequiredArgument + 1) ferr << "*";
-            ferr << GetDataMember(this, i).name << endl;
+            ferr << any(this).GetDataMember(i).name << endl;
         }
     }
 }

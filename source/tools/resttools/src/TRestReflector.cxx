@@ -331,6 +331,10 @@ string TRestReflector::ToString() {
     return result;
 }
 
+void TRestReflector::ParseString(string str) {
+
+    }
+
 int TRestReflector::InitDictionary() {
     size = cl == 0 ? dt->Size() : cl->Size();
     type = cl == 0 ? dt->GetName() : cl->GetName();
@@ -484,26 +488,25 @@ void CloneAny(TRestReflector from, TRestReflector to) {
     }
 }
 
-TRestReflector GetDataMember(TRestReflector obj, string name) {
-    TClass* c = obj.cl;
-    if (c != NULL) {
-        TDataMember* mem = c->GetDataMember(name.c_str());
+TRestReflector TRestReflector::GetDataMember(string name) {
+    if (cl != NULL) {
+        TDataMember* mem = cl->GetDataMember(name.c_str());
         if (mem == NULL) {
             // find data member also in base class.
-            TVirtualStreamerInfo* vs = c->GetStreamerInfo();
+            TVirtualStreamerInfo* vs = cl->GetStreamerInfo();
             TObjArray* ses = vs->GetElements();
             int n = ses->GetLast() + 1;
             for (int i = 0; i < n; i++) {
                 TStreamerElement* ele = (TStreamerElement*)ses->At(i);
                 string type = ele->GetTypeName();
                 if (type == "BASE") {
-                    char* addr = (char*)obj + ele->GetOffset();
+                    char* addr = address + ele->GetOffset();
                     type = ele->GetClass()->GetName();
-                    return GetDataMember(TRestReflector(addr, type), name);
+                    return TRestReflector(addr, type).GetDataMember(name);
                 }
             }
         } else {
-            char* addr = (char*)obj + mem->GetOffset();
+            char* addr = address + mem->GetOffset();
             string type = mem->GetTypeName();
             TRestReflector ptr(addr, type);
             ptr.name = name;
@@ -513,46 +516,36 @@ TRestReflector GetDataMember(TRestReflector obj, string name) {
     return TRestReflector();
 }
 
-TRestReflector GetDataMember(TRestReflector obj, int ID) {
-    TClass* c = obj.cl;
-    if (c != NULL) {
-        TVirtualStreamerInfo* vs = c->GetStreamerInfo();
-        TObjArray* ses = vs->GetElements();
-        int n = ses->GetLast() + 1;
-
-        if (ID < n) {
-            TStreamerElement* ele = (TStreamerElement*)ses->At(ID);
-            char* addr = (char*)obj + ele->GetOffset();
-            string type = ele->GetTypeName();
-            if (type == "BASE") {
-                type = ele->GetClass()->GetName();
-            }
-            if (type == obj.type) {
-                return TRestReflector();
-            }
-
+TRestReflector TRestReflector::GetDataMember(int ID) {
+   
+    if (cl != NULL) {
+        TList* list = cl->GetListOfDataMembers();
+        if (ID < GetNumberOfDataMembers()) {
+            TDataMember* mem = (TDataMember*)list->At(ID);
+            char* addr = address + mem->GetOffset();
+            string type = mem->GetTypeName();
+            string name = mem->GetName();
             TRestReflector ptr(addr, type);
-            ptr.name = ele->GetName();
+            ptr.name = name;
             return ptr;
         }
     }
     return TRestReflector();
 }
 
-string GetDataMemberValue(TRestReflector obj, string name) {
-    TRestReflector member = GetDataMember(obj, name);
+string TRestReflector::GetDataMemberValue(string name) {
+    TRestReflector member = GetDataMember(name);
     if (!member.IsZombie()) {
-        return ToString(member);
+        return member.ToString();
     }
     return "";
 }
 
-int GetNumberOfDataMembers(TRestReflector obj) {
-    TClass* c = obj.cl;
-    TVirtualStreamerInfo* vs = c->GetStreamerInfo();
-    TObjArray* ses = vs->GetElements();
-
-    return ses->GetLast() + 1;
+int TRestReflector::GetNumberOfDataMembers() {
+    if (cl != NULL) {
+        return cl->GetNdata();
+    }
+    return 0;
 }
 
 }  // namespace REST_Reflection

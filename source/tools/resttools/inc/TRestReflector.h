@@ -124,9 +124,6 @@ class TRestReflector {
    private:
     /// Prepare the ROOT dictionary for this type
     int InitDictionary();
-    /// Convert the wrappered type to string
-    string ToString();
-
    public:
     /// Name field
     string name = "";
@@ -173,12 +170,25 @@ class TRestReflector {
         }
         if (address != NULL) *((T*)(address)) = val;
     }
+    /// Convert the wrapped object to string
+    string ToString();
+    /// Set the value of the wrapped object from string
+    void ParseString(string str);
     /// Assembly a new object, and save its address. The old object will be destroied if not null
     void Assembly();
     /// Destroy the current object. It will make the class to be zombie.
     void Destroy();
     /// Print the Hex memory map of the wrappered object
     void PrintMemory(int bytepreline = 16);
+    /// Get the data member of a TObject inherited class with certain name.
+    TRestReflector GetDataMember(string name);
+    /// Get the data member of a TObject inherited class with given index
+    TRestReflector GetDataMember(int ID);
+    /// Get the value of datamember as string.
+    string GetDataMemberValue(string name);
+    /// Get the number of data members of a class
+    int GetNumberOfDataMembers();
+
     /// Type conversion operator. With this, one can implicitly convert TRestReflector object to
     /// pointer of certain type. For example, `TRestEvent* eve =
     /// REST_Reflection::Assembly("TRestRawSignalEvent");`
@@ -237,43 +247,6 @@ TRestReflector WrapType(string typeName);
 ///
 /// If the type is base data type, it will use memcpy()
 void CloneAny(TRestReflector from, TRestReflector to);
-
-///////////////////////////////////////////////
-/// \brief Get the data member of a TObject inherited class with certain name.
-///
-/// The output is wrapped with TRestReflector.
-/// Note that the data member with //! annotation in the class definition will not
-/// be recognized.
-TRestReflector GetDataMember(REST_Reflection::TRestReflector obj, string name);
-
-///////////////////////////////////////////////
-/// \brief Get the data member of a TObject inherited class with given index
-///
-/// The 0th data member of a class will always be its base class.
-///
-/// Example :
-/// \code
-///
-/// TRestRun r;
-/// cout << REST_Reflection::GetDataMember(r,0).name << endl; //prints "TRestMetadata"
-/// cout << REST_Reflection::GetDataMember(r,4).name << endl; //prints "fRunType"
-/// REST_Reflection::GetDataMember(r,4).SetValue((TString)"aaa");
-/// r->PrintMetadata();  //the run tag printed will be "aaa"
-///
-/// \endcode
-///
-///
-TRestReflector GetDataMember(REST_Reflection::TRestReflector obj, int ID);
-
-///////////////////////////////////////////////
-/// \brief Get the value of datamember as string.
-///
-string GetDataMemberValue(REST_Reflection::TRestReflector obj, string name);
-
-///////////////////////////////////////////////
-/// \brief Get the number of data members of a class
-int GetNumberOfDataMembers(REST_Reflection::TRestReflector obj);
-
 };  // namespace REST_Reflection
 
 typedef REST_Reflection::TRestReflector any;
