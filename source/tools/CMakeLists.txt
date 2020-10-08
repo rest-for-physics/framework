@@ -12,6 +12,7 @@ else()
         "edgeutil.c"
         "heldkarp.c"
 		"tiny*.cpp"
-        "startup.cpp")
+        "startup.cpp"
+        "converter.cpp")
   endif()
 COMPILEDIR(RestTools)

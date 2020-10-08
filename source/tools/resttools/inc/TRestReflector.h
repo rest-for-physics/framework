@@ -124,6 +124,8 @@ class TRestReflector {
    private:
     /// Prepare the ROOT dictionary for this type
     int InitDictionary();
+    /// If on heap, we can call Destroy() to TRestReflector. True only when initailized from Assembly()
+    bool onheap = false;
    public:
     /// Name field
     string name = "";
@@ -131,15 +133,12 @@ class TRestReflector {
     string type = "";
     /// Address of the wrapped object
     char* address = 0;
-    /// If on heap, we can call Destroy() to TRestReflector. True only when initailized from Assembly()
-    bool onheap = false;
     /// Size of the object
     int size = 0;
     /// Pointer to the corresponding TClass helper, if the wrapped object is in class type
     TClass* cl = 0;
     /// Pointer to the corresponding TDataType helper, if the wrapped object is in data type
     TDataType* dt = 0;
-
     /// If this object type wrapper is invalid
     bool IsZombie();
     /// Streamer method of varioud types. Supports deep-cloning of custom TObject-inherited classes
@@ -180,12 +179,12 @@ class TRestReflector {
     void Destroy();
     /// Print the Hex memory map of the wrappered object
     void PrintMemory(int bytepreline = 16);
-    /// Get the data member of a TObject inherited class with certain name.
+    /// Get its data member if the wrapped object is a class
     TRestReflector GetDataMember(string name);
-    /// Get the data member of a TObject inherited class with given index
+    /// Get its data member if the wrapped object is a class
     TRestReflector GetDataMember(int ID);
     /// Get the value of datamember as string.
-    string GetDataMemberValue(string name);
+    string GetDataMemberValueString(string name);
     /// Get the number of data members of a class
     int GetNumberOfDataMembers();
 
@@ -250,5 +249,44 @@ void CloneAny(TRestReflector from, TRestReflector to);
 };  // namespace REST_Reflection
 
 typedef REST_Reflection::TRestReflector any;
+
+
+class RESTVirtualConverter {
+   public:
+    virtual string ToString(void* obj) = 0;
+    virtual void ParseString(void* obj, string str) = 0;
+};
+
+// type name, {toString method, parseString method}
+extern map<string, RESTVirtualConverter*> RESTConverterMethodBase;
+
+template <class T>
+class Converter : RESTVirtualConverter {
+   public:
+    string (*ToStringFunc)(T);
+    T (*ParseStringFunc)(string);
+    static Converter<T>* thisptr;
+
+    string ToString(void* obj) override { return ToStringFunc(*(T*)obj); }
+    void ParseString(void* obj, string str) override {
+        T newobj = ParseStringFunc(str);
+        *((T*)(obj)) = newobj;
+    }
+
+    Converter(string (*_ToStringFunc)(T), T (*_ParseStringFunc)(string)) {
+        ToStringFunc = _ToStringFunc;
+        ParseStringFunc = _ParseStringFunc;
+        string typestr = REST_Reflection::GetTypeName<T>();
+        if (RESTConverterMethodBase.count(typestr) > 0) {
+            cout << "Warning! converter for type: " << typestr << " already added!" << endl;
+        } else {
+            RESTConverterMethodBase[typestr] = this;
+        }
+    }
+};
+
+#define AddConverter(ToStringFunc, ParseStringFunc, type) \
+  template <>                                    \
+    Converter<type>* Converter<type>::thisptr = new Converter<type>(&ToStringFunc, &ParseStringFunc);
 
 #endif

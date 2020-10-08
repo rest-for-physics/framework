@@ -132,208 +132,25 @@ void TRestReflector::PrintMemory(int bytepreline) {
 void TRestReflector::operator>>(TRestReflector to) { CloneAny(*this, to); }
 
 string TRestReflector::ToString() {
-    char* ladd = address;
-    char* buffer = new char[500]();
-
-    // assert(!((kOffsetP + kChar) <= atype && atype <= (kOffsetP + kBool) &&
-    // count == 0));
-    switch (ToHash(type.c_str())) {
-        // basic types
-        case ToHash("bool"): {
-            Bool_t* val = (Bool_t*)ladd;
-            sprintf(buffer, "%d", *val);
-            break;
-        }
-        case ToHash("char"): {
-            Char_t* val = (Char_t*)ladd;
-            sprintf(buffer, "%d", *val);
-            break;
-        }
-        case ToHash("short"): {
-            Short_t* val = (Short_t*)ladd;
-            sprintf(buffer, "%d", *val);
-            break;
-        }
-        case ToHash("int"): {
-            Int_t* val = (Int_t*)ladd;
-            sprintf(buffer, "%d", *val);
-            break;
-        }
-        case ToHash("long"): {
-            Long_t* val = (Long_t*)ladd;
-            sprintf(buffer, "%ld", *val);
-            break;
-        }
-        case ToHash("long long"): {
-            Long64_t* val = (Long64_t*)ladd;
-            sprintf(buffer, "%lld", *val);
-            break;
-        }
-        case ToHash("float"): {
-            Float_t* val = (Float_t*)ladd;
-            sprintf(buffer, "%f", *val);
-            break;
-        }
-        case ToHash("double"): {
-            Double_t* val = (Double_t*)ladd;
-            sprintf(buffer, "%g", *val);
-            break;
-        }
-        case ToHash("unsigned char"): {
-            UChar_t* val = (UChar_t*)ladd;
-            sprintf(buffer, "%u", *val);
-            break;
-        }
-        case ToHash("unsigned short"): {
-            UShort_t* val = (UShort_t*)ladd;
-            sprintf(buffer, "%u", *val);
-            break;
-        }
-        case ToHash("unsigned int"): {
-            UInt_t* val = (UInt_t*)ladd;
-            sprintf(buffer, "%u", *val);
-            break;
-        }
-        case ToHash("unsigned long"): {
-            ULong_t* val = (ULong_t*)ladd;
-            sprintf(buffer, "%lu", *val);
-            break;
-        }
-        case ToHash("unsigned long long"): {
-            ULong64_t* val = (ULong64_t*)ladd;
-            sprintf(buffer, "%llu", *val);
-            break;
-        }
-        case ToHash("TString"): {
-            TString* st = (TString*)(ladd);
-            sprintf(buffer, "%s", st->Data());
-            break;
-        }
-        case ToHash("string"): {
-            string* st = (string*)(ladd);
-            sprintf(buffer, "%s", st->c_str());
-            break;
-        }
-        case ToHash("TVector2"): {
-            TVector2* vec = (TVector2*)ladd;
-            sprintf(buffer, "(%g,%g)", vec->X(), vec->Y());
-            break;
-        }
-        case ToHash("TVector3"): {
-            TVector3* vec = (TVector3*)ladd;
-            sprintf(buffer, "(%g,%g,%g)", vec->X(), vec->Y(), vec->Z());
-            break;
-        }
-        case ToHash("vector<int>"): {
-            vector<int>* vec = (vector<int>*)(ladd);
-            stringstream ss;
-            ss << "{";
-            for (int i = 0; i < vec->size(); i++) {
-                ss << vec->at(i);
-                if (i < vec->size() - 1) {
-                    ss << ",";
-                }
-            }
-            ss << "}";
-            sprintf(buffer, "%s", ss.str().c_str());
-            break;
-        }
-        case ToHash("vector<double>"): {
-            vector<double>* vec = (vector<double>*)(ladd);
-            stringstream ss;
-            ss << "{";
-            for (int i = 0; i < vec->size(); i++) {
-                ss << vec->at(i);
-                if (i < vec->size() - 1) {
-                    ss << ",";
-                }
-            }
-            ss << "}";
-            sprintf(buffer, "%s", ss.str().c_str());
-            break;
-        }
-        case ToHash("vector<string>"): {
-            vector<string>* vec = (vector<string>*)(ladd);
-            stringstream ss;
-            ss << "{";
-            for (int i = 0; i < vec->size(); i++) {
-                ss << vec->at(i);
-                if (i < vec->size() - 1) {
-                    ss << ",";
-                }
-            }
-            ss << "}";
-            sprintf(buffer, "%s", ss.str().c_str());
-            break;
-        }
-        case ToHash("vector<TString>"): {
-            vector<TString>* vec = (vector<TString>*)(ladd);
-            stringstream ss;
-            ss << "{";
-            for (int i = 0; i < vec->size(); i++) {
-                ss << vec->at(i).Data();
-                if (i < vec->size() - 1) {
-                    ss << ",";
-                }
-            }
-            ss << "}";
-            sprintf(buffer, "%s", ss.str().c_str());
-            break;
-        }
-        case ToHash("map<TString,double>"): {
-            map<TString, double>* m = (map<TString, double>*)(ladd);
-            stringstream ss;
-            ss << "{";
-            int cont = 0;
-            for (auto const& x : *m) {
-                if (cont > 0) ss << ",";
-                cont++;
-
-                ss << "[";
-                ss << x.first;
-                ss << ":";
-                ss << x.second;
-                ss << "]";
-            }
-            ss << "}";
-            sprintf(buffer, "%s", ss.str().c_str());
-            break;
-        }
-        case ToHash("map<TString,TVector2>"): {
-            map<TString, TVector2>* m = (map<TString, TVector2>*)(ladd);
-            stringstream ss;
-            ss << "{";
-            int cont = 0;
-            for (auto const& x : *m) {
-                if (cont > 0) ss << ",";
-                cont++;
-
-                ss << "[";
-                ss << x.first;
-                ss << ":";
-                ss << "(";
-                ss << x.second.X();
-                ss << ",";
-                ss << x.second.Y();
-                ss << ")";
-                ss << "]";
-            }
-            ss << "}";
-            sprintf(buffer, "%s", ss.str().c_str());
-            break;
-        }
-
-        default: { sprintf(buffer, "Type: %s, Address: %p", type.c_str(), address); }
+    if (type == "string") return *(string*)(address);
+    if (RESTConverterMethodBase.count(type) > 0) {
+        return RESTConverterMethodBase[type]->ToString(address);
+    } else {
+        return Form("Type: %s, Address: %p", type.c_str(), address);
     }
-
-    string result(buffer);
-    delete[] buffer;
-    return result;
 }
 
 void TRestReflector::ParseString(string str) {
-
+    if (type == "string") {
+        *(string*)(address) = str;
+    } else {
+        if (RESTConverterMethodBase.count(type) > 0) {
+            RESTConverterMethodBase[type]->ParseString(address, str);
+        } else {
+            warning << "Method for parsing string to type : " << type << " has not been registered!" << endl;
+        }
     }
+}
 
 int TRestReflector::InitDictionary() {
     size = cl == 0 ? dt->Size() : cl->Size();
@@ -476,7 +293,8 @@ void CloneAny(TRestReflector from, TRestReflector to) {
     } else {
         TBufferFile buffer(TBuffer::kWrite);
 
-        buffer.MapObject(from.address, from.cl);  // register obj in map to handle self reference
+        buffer.MapObject(from.address,
+                         from.cl);  // register obj in map to handle self reference
         from.cl->Streamer(from.address, buffer);
 
         buffer.SetReadMode();
@@ -517,7 +335,6 @@ TRestReflector TRestReflector::GetDataMember(string name) {
 }
 
 TRestReflector TRestReflector::GetDataMember(int ID) {
-   
     if (cl != NULL) {
         TList* list = cl->GetListOfDataMembers();
         if (ID < GetNumberOfDataMembers()) {
@@ -533,7 +350,7 @@ TRestReflector TRestReflector::GetDataMember(int ID) {
     return TRestReflector();
 }
 
-string TRestReflector::GetDataMemberValue(string name) {
+string TRestReflector::GetDataMemberValueString(string name) {
     TRestReflector member = GetDataMember(name);
     if (!member.IsZombie()) {
         return member.ToString();
@@ -548,4 +365,44 @@ int TRestReflector::GetNumberOfDataMembers() {
     return 0;
 }
 
+string VectorStringToString(vector<string> vec) {
+    stringstream ss;
+    ss << "{";
+    for (int i = 0; i < vec.size(); i++) {
+        ss << "\"" << vec.at(i) << "\"";
+        if (i < vec.size() - 1) {
+            ss << ",";
+        }
+    }
+    ss << "}";
+    return ss.str();
+}
+vector<string> StringToVectorString(string vec) {
+    vector<string> result;
+    if (vec[0] == '{' && vec[vec.size() - 1] == '}') {
+        vec.erase(vec.begin());
+        vec.erase(vec.end() - 1);
+        vector<string> parts = Split(vec, ",");
+
+        for (string part : parts) {
+            while (part[0] == ' ') {
+                part.erase(part.begin());
+            }
+            while (part[part.size() - 1] == ' ') {
+                part.erase(part.end() - 1);
+            }
+
+            if (part[0] == '\"' && part[part.size() - 1] == '\"') {
+                result.push_back(part.substr(1, part.size() - 2));
+            } else {
+                cout << "illegal format!" << endl;
+            }
+        }
+
+    } else {
+        cout << "illegal format!" << endl;
+    }
+
+    return result;
+}
 }  // namespace REST_Reflection
