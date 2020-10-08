@@ -363,45 +363,4 @@ int TRestReflector::GetNumberOfDataMembers() {
     }
     return 0;
 }
-
-string VectorStringToString(vector<string> vec) {
-    stringstream ss;
-    ss << "{";
-    for (int i = 0; i < vec.size(); i++) {
-        ss << "\"" << vec.at(i) << "\"";
-        if (i < vec.size() - 1) {
-            ss << ",";
-        }
-    }
-    ss << "}";
-    return ss.str();
-}
-vector<string> StringToVectorString(string vec) {
-    vector<string> result;
-    if (vec[0] == '{' && vec[vec.size() - 1] == '}') {
-        vec.erase(vec.begin());
-        vec.erase(vec.end() - 1);
-        vector<string> parts = Split(vec, ",");
-
-        for (string part : parts) {
-            while (part[0] == ' ') {
-                part.erase(part.begin());
-            }
-            while (part[part.size() - 1] == ' ') {
-                part.erase(part.end() - 1);
-            }
-
-            if (part[0] == '\"' && part[part.size() - 1] == '\"') {
-                result.push_back(part.substr(1, part.size() - 2));
-            } else {
-                cout << "illegal format!" << endl;
-            }
-        }
-
-    } else {
-        cout << "illegal format!" << endl;
-    }
-
-    return result;
-}
 }  // namespace REST_Reflection

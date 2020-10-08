@@ -148,5 +148,9 @@ map<T1, T2> StringToMap(string vec) {
 }
 
 #define comma ,
+AddConverter(MapToString, StringToMap, map<string comma int>);
+AddConverter(MapToString, StringToMap, map<string comma double>);
+AddConverter(MapToString, StringToMap, map<string comma string>);
+AddConverter(MapToString, StringToMap, map<TString comma int>);
 AddConverter(MapToString, StringToMap, map<TString comma double>);
 AddConverter(MapToString, StringToMap, map<TString comma TVector2>);
