@@ -1636,7 +1636,7 @@ string TRestMetadata::GetUnits(TiXmlElement* e) {
 ///////////////////////////////////////////////
 /// \brief Returns the unit string of the given parameter of the given xml section
 ///
-/// It will firstly find the parameter section from the given xml section. 
+/// It will firstly find the parameter section from the given xml section.
 /// Then it will search units definition in:
 /// 1. value string of this parameter
 /// 2. "units" attribute of the parameter section
@@ -2112,7 +2112,7 @@ std::string TRestMetadata::GetConfigBuffer() { return configBuffer; }
 ///////////////////////////////////////////////
 /// \brief Get the value of data member as string.
 ///
-/// All kinds of data member can be found, including non-streamed 
+/// All kinds of data member can be found, including non-streamed
 /// data member and base-class data member
 string TRestMetadata::GetDataMemberValue(string memberName) {
     return any(this, this->ClassName()).GetDataMemberValueString(memberName);
@@ -2205,14 +2205,13 @@ string TRestMetadata::DataMemberNameToParameterName(string name) { return ""; }
 
 string TRestMetadata::ParameterNameToDataMemberName(string name) { return ""; }
 
-
 ///////////////////////////////////////////////
 /// \brief Reflection methods, Set value of a datamember in class according to
 /// TRestMetadata::fElement
 ///
 /// It will loop over all the parameters in the rml and find the corresponding datamember.
 /// If found, it will set the it's value. For example, we write:
-/// \code 
+/// \code
 /// class TRestXXX: public TRestMetadata{
 /// int fPar0;
 /// }
@@ -2223,13 +2222,7 @@ string TRestMetadata::ParameterNameToDataMemberName(string name) { return ""; }
 /// be set to 10.
 ///
 /// We have a naming convention for the parameters in rml and the data members in class.
-/// The names of data member shall all start from "f" and have the second character in 
+/// The names of data member shall all start from "f" and have the second character in
 /// capital form. For example, data member "fTargetName" is linked to parameter "targetName".
 /// In the previous code "fPar0" is linked to "par0"
-void TRestMetadata::ReadDataMemberValFromConfig() {
-
-
-
-
-
-}
+void TRestMetadata::ReadDataMemberValFromConfig() {}

@@ -663,8 +663,9 @@ void TRestRun::ReadFileInfo(string filename) {
 
         string infoFromFileName = name.substr(pos1, pos2 - pos1);
 
-        debug << "File pattern matching. key: "<< formatsectionlist[i] << " (between the mark \"" << formatprefixlist[i] << "\" and \"" << formatprefixlist[i + 1] << "\"), value: "
-             << infoFromFileName << endl;
+        debug << "File pattern matching. key: " << formatsectionlist[i] << " (between the mark \""
+              << formatprefixlist[i] << "\" and \"" << formatprefixlist[i + 1]
+              << "\"), value: " << infoFromFileName << endl;
 
         gDetector->SetParameter(formatsectionlist[i], infoFromFileName);
 

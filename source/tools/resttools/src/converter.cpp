@@ -85,9 +85,8 @@ AddConverter(VectorToString, StringToVector, vector<int>);
 AddConverter(VectorToString, StringToVector, vector<double>);
 AddConverter(VectorToString, StringToVector, vector<TString>);
 
-
 template <class T1, class T2>
-string MapToString(map<T1,T2> vec) {
+string MapToString(map<T1, T2> vec) {
     stringstream ss;
     ss << "{";
     int cont = 0;
