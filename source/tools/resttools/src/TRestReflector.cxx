@@ -55,8 +55,8 @@ map<string, TDataType*> __ListOfDataTypes = map<string, TDataType*>();
 ///
 /// \class TRestReflector
 ///
-TRestReflector::TRestReflector(char* _address, string _type) {
-    address = _address;
+TRestReflector::TRestReflector(void* _address, string _type) {
+    address = (char*)_address;
     onheap = false;
     cl = GetClass(_type);
     dt = GetDataType(_type);
@@ -132,203 +132,24 @@ void TRestReflector::PrintMemory(int bytepreline) {
 void TRestReflector::operator>>(TRestReflector to) { CloneAny(*this, to); }
 
 string TRestReflector::ToString() {
-    char* ladd = address;
-    char* buffer = new char[500]();
-
-    // assert(!((kOffsetP + kChar) <= atype && atype <= (kOffsetP + kBool) &&
-    // count == 0));
-    switch (ToHash(type.c_str())) {
-        // basic types
-        case ToHash("bool"): {
-            Bool_t* val = (Bool_t*)ladd;
-            sprintf(buffer, "%d", *val);
-            break;
-        }
-        case ToHash("char"): {
-            Char_t* val = (Char_t*)ladd;
-            sprintf(buffer, "%d", *val);
-            break;
-        }
-        case ToHash("short"): {
-            Short_t* val = (Short_t*)ladd;
-            sprintf(buffer, "%d", *val);
-            break;
-        }
-        case ToHash("int"): {
-            Int_t* val = (Int_t*)ladd;
-            sprintf(buffer, "%d", *val);
-            break;
-        }
-        case ToHash("long"): {
-            Long_t* val = (Long_t*)ladd;
-            sprintf(buffer, "%ld", *val);
-            break;
-        }
-        case ToHash("long long"): {
-            Long64_t* val = (Long64_t*)ladd;
-            sprintf(buffer, "%lld", *val);
-            break;
-        }
-        case ToHash("float"): {
-            Float_t* val = (Float_t*)ladd;
-            sprintf(buffer, "%f", *val);
-            break;
-        }
-        case ToHash("double"): {
-            Double_t* val = (Double_t*)ladd;
-            sprintf(buffer, "%g", *val);
-            break;
-        }
-        case ToHash("unsigned char"): {
-            UChar_t* val = (UChar_t*)ladd;
-            sprintf(buffer, "%u", *val);
-            break;
-        }
-        case ToHash("unsigned short"): {
-            UShort_t* val = (UShort_t*)ladd;
-            sprintf(buffer, "%u", *val);
-            break;
-        }
-        case ToHash("unsigned int"): {
-            UInt_t* val = (UInt_t*)ladd;
-            sprintf(buffer, "%u", *val);
-            break;
-        }
-        case ToHash("unsigned long"): {
-            ULong_t* val = (ULong_t*)ladd;
-            sprintf(buffer, "%lu", *val);
-            break;
-        }
-        case ToHash("unsigned long long"): {
-            ULong64_t* val = (ULong64_t*)ladd;
-            sprintf(buffer, "%llu", *val);
-            break;
-        }
-        case ToHash("TString"): {
-            TString* st = (TString*)(ladd);
-            sprintf(buffer, "%s", st->Data());
-            break;
-        }
-        case ToHash("string"): {
-            string* st = (string*)(ladd);
-            sprintf(buffer, "%s", st->c_str());
-            break;
-        }
-        case ToHash("TVector2"): {
-            TVector2* vec = (TVector2*)ladd;
-            sprintf(buffer, "(%g,%g)", vec->X(), vec->Y());
-            break;
-        }
-        case ToHash("TVector3"): {
-            TVector3* vec = (TVector3*)ladd;
-            sprintf(buffer, "(%g,%g,%g)", vec->X(), vec->Y(), vec->Z());
-            break;
-        }
-        case ToHash("vector<int>"): {
-            vector<int>* vec = (vector<int>*)(ladd);
-            stringstream ss;
-            ss << "{";
-            for (int i = 0; i < vec->size(); i++) {
-                ss << vec->at(i);
-                if (i < vec->size() - 1) {
-                    ss << ",";
-                }
-            }
-            ss << "}";
-            sprintf(buffer, "%s", ss.str().c_str());
-            break;
-        }
-        case ToHash("vector<double>"): {
-            vector<double>* vec = (vector<double>*)(ladd);
-            stringstream ss;
-            ss << "{";
-            for (int i = 0; i < vec->size(); i++) {
-                ss << vec->at(i);
-                if (i < vec->size() - 1) {
-                    ss << ",";
-                }
-            }
-            ss << "}";
-            sprintf(buffer, "%s", ss.str().c_str());
-            break;
-        }
-        case ToHash("vector<string>"): {
-            vector<string>* vec = (vector<string>*)(ladd);
-            stringstream ss;
-            ss << "{";
-            for (int i = 0; i < vec->size(); i++) {
-                ss << vec->at(i);
-                if (i < vec->size() - 1) {
-                    ss << ",";
-                }
-            }
-            ss << "}";
-            sprintf(buffer, "%s", ss.str().c_str());
-            break;
-        }
-        case ToHash("vector<TString>"): {
-            vector<TString>* vec = (vector<TString>*)(ladd);
-            stringstream ss;
-            ss << "{";
-            for (int i = 0; i < vec->size(); i++) {
-                ss << vec->at(i).Data();
-                if (i < vec->size() - 1) {
-                    ss << ",";
-                }
-            }
-            ss << "}";
-            sprintf(buffer, "%s", ss.str().c_str());
-            break;
-        }
-        case ToHash("map<TString,double>"): {
-            map<TString, double>* m = (map<TString, double>*)(ladd);
-            stringstream ss;
-            ss << "{";
-            int cont = 0;
-            for (auto const& x : *m) {
-                if (cont > 0) ss << ",";
-                cont++;
-
-                ss << "[";
-                ss << x.first;
-                ss << ":";
-                ss << x.second;
-                ss << "]";
-            }
-            ss << "}";
-            sprintf(buffer, "%s", ss.str().c_str());
-            break;
-        }
-        case ToHash("map<TString,TVector2>"): {
-            map<TString, TVector2>* m = (map<TString, TVector2>*)(ladd);
-            stringstream ss;
-            ss << "{";
-            int cont = 0;
-            for (auto const& x : *m) {
-                if (cont > 0) ss << ",";
-                cont++;
-
-                ss << "[";
-                ss << x.first;
-                ss << ":";
-                ss << "(";
-                ss << x.second.X();
-                ss << ",";
-                ss << x.second.Y();
-                ss << ")";
-                ss << "]";
-            }
-            ss << "}";
-            sprintf(buffer, "%s", ss.str().c_str());
-            break;
-        }
-
-        default: { sprintf(buffer, "Type: %s, Address: %p", type.c_str(), address); }
+    if (type == "string") return *(string*)(address);
+    if (RESTConverterMethodBase.count(type) > 0) {
+        return RESTConverterMethodBase[type]->ToString(address);
+    } else {
+        return Form("Type: %s, Address: %p", type.c_str(), address);
     }
+}
 
-    string result(buffer);
-    delete[] buffer;
-    return result;
+void TRestReflector::ParseString(string str) {
+    if (type == "string") {
+        *(string*)(address) = str;
+    } else {
+        if (RESTConverterMethodBase.count(type) > 0) {
+            RESTConverterMethodBase[type]->ParseString(address, str);
+        } else {
+            warning << "Method for parsing string to type : " << type << " has not been registered!" << endl;
+        }
+    }
 }
 
 int TRestReflector::InitDictionary() {
@@ -484,81 +305,62 @@ void CloneAny(TRestReflector from, TRestReflector to) {
     }
 }
 
-TRestReflector GetDataMember(TRestReflector obj, string name) {
-    TClass* c = obj.cl;
-    if (c != NULL) {
-        TVirtualStreamerInfo* vs = c->GetStreamerInfo();
-        TObjArray* ses = vs->GetElements();
-        int n = ses->GetLast() + 1;
-
-        for (int i = 0; i < n; i++) {
-            TStreamerElement* ele = (TStreamerElement*)ses->At(i);
-            char* addr = (char*)obj + ele->GetOffset();
-            string type = ele->GetTypeName();
-            if (type == "BASE") {
-                type = ele->GetClass()->GetName();
-            }
-            if (type == obj.type) {
-                return TRestReflector();
-            }
-
-            if ((string)ele->GetFullName() == name) {
-                TRestReflector ptr(addr, type);
-                ptr.name = name;
-
-                return ptr;
-            }
-        }
-
-        // find data member also in base class.
-        for (int i = 0; i < n; i++) {
-            TStreamerElement* ele = (TStreamerElement*)ses->At(i);
-            char* addr = (char*)obj + ele->GetOffset();
-            string type = ele->GetTypeName();
-            if (type == "BASE") {
-                type = ele->GetClass()->GetName();
-                TRestReflector ptr = GetDataMember(TRestReflector(addr, type), name);
-                if (!ptr.IsZombie()) {
-                    return ptr;
+TRestReflector TRestReflector::GetDataMember(string name) {
+    if (cl != NULL) {
+        TDataMember* mem = cl->GetDataMember(name.c_str());
+        if (mem == NULL) {
+            // find data member also in base class.
+            TVirtualStreamerInfo* vs = cl->GetStreamerInfo();
+            TObjArray* ses = vs->GetElements();
+            int n = ses->GetLast() + 1;
+            for (int i = 0; i < n; i++) {
+                TStreamerElement* ele = (TStreamerElement*)ses->At(i);
+                string type = ele->GetTypeName();
+                if (type == "BASE") {
+                    char* addr = address + ele->GetOffset();
+                    type = ele->GetClass()->GetName();
+                    return TRestReflector(addr, type).GetDataMember(name);
                 }
             }
-        }
-    }
-    return TRestReflector();
-}
-
-TRestReflector GetDataMember(TRestReflector obj, int ID) {
-    TClass* c = obj.cl;
-    if (c != NULL) {
-        TVirtualStreamerInfo* vs = c->GetStreamerInfo();
-        TObjArray* ses = vs->GetElements();
-        int n = ses->GetLast() + 1;
-
-        if (ID < n) {
-            TStreamerElement* ele = (TStreamerElement*)ses->At(ID);
-            char* addr = (char*)obj + ele->GetOffset();
-            string type = ele->GetTypeName();
-            if (type == "BASE") {
-                type = ele->GetClass()->GetName();
-            }
-            if (type == obj.type) {
-                return TRestReflector();
-            }
-
+        } else {
+            char* addr = address + mem->GetOffset();
+            string type = mem->GetTypeName();
             TRestReflector ptr(addr, type);
-            ptr.name = ele->GetName();
+            ptr.name = name;
             return ptr;
         }
     }
     return TRestReflector();
 }
 
-int GetNumberOfDataMembers(TRestReflector obj) {
-    TClass* c = obj.cl;
-    TVirtualStreamerInfo* vs = c->GetStreamerInfo();
-    TObjArray* ses = vs->GetElements();
-
-    return ses->GetLast() + 1;
+TRestReflector TRestReflector::GetDataMember(int ID) {
+    if (cl != NULL) {
+        TList* list = cl->GetListOfDataMembers();
+        if (ID < GetNumberOfDataMembers()) {
+            TDataMember* mem = (TDataMember*)list->At(ID);
+            char* addr = address + mem->GetOffset();
+            string type = mem->GetTypeName();
+            string name = mem->GetName();
+            TRestReflector ptr(addr, type);
+            ptr.name = name;
+            return ptr;
+        }
+    }
+    return TRestReflector();
 }
 
+string TRestReflector::GetDataMemberValueString(string name) {
+    TRestReflector member = GetDataMember(name);
+    if (!member.IsZombie()) {
+        return member.ToString();
+    }
+    return "";
+}
+
+int TRestReflector::GetNumberOfDataMembers() {
+    if (cl != NULL) {
+        return cl->GetNdata();
+    }
+    return 0;
+}
 }  // namespace REST_Reflection

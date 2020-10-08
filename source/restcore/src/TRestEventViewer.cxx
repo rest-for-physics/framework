@@ -35,6 +35,7 @@ TRestEventViewer::~TRestEventViewer() {
 void TRestEventViewer::Initialize() {
     fPad = NULL;
 
+    if (fCanvas != NULL) delete fCanvas;
     fCanvas = new TCanvas("Event Viewer", "Event Viewer");
 
     fCanvas->SetWindowPosition(350, 10);

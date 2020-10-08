@@ -24,6 +24,7 @@
 #define RestCore_TRestTools
 
 //#include <iostream>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -34,10 +35,14 @@ using namespace std;
 
 #define UNUSED(x) (void)x
 
+const string PARAMETER_NOT_FOUND_STR = "NO_SUCH_PARA";
+const double PARAMETER_NOT_FOUND_DBL = -99999999;
+
+extern string REST_COMMIT;
 extern string REST_PATH;
 extern string REST_USER;
 extern string REST_USER_PATH;
-
+extern map<string, string> REST_ARGS;
 /// A generic class with useful static methods.
 class TRestTools {
    public:
@@ -125,6 +130,7 @@ inline bool SetInitLevel(T* name, int level) {
                 objname = new classname();                          \
                 REST_InitTools::SetInitLevel(objname, level);       \
             }                                                       \
+            REST_ARGS[#objname] = #classname;                       \
         }                                                           \
     };                                                              \
     const __##classname##_Init classname##_Init;

@@ -31,7 +31,6 @@
 #include "TRestReflector.h"
 ClassImp(TRestTask);
 
-using namespace REST_Reflection;
 ///////////////////////////////////////////////
 /// \brief TRestTask default constructor
 ///
@@ -83,22 +82,36 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
                 argumentname.clear();
                 argumenttype.clear();
                 for (int i = 0; i < list.size(); i++) {
-                    auto tmp = Split(list[i], " ");
-                    if (Count(tmp[0], "TString") > 0) {
-                        argumenttype.push_back(65);
-                    } else if (Count(ToUpper(tmp[0]), "INT") > 0) {
-                        argumenttype.push_back(3);
-                    } else if (Count(ToUpper(tmp[0]), "DOUBLE") > 0) {
-                        argumenttype.push_back(8);
-                    } else {
-                        argumenttype.push_back(-1);
+                    auto def_val = Split(list[i], "=");
+
+                    if (def_val.size() == 0) {
+                        cout << "unknown error!" << endl;
                     }
 
-                    argumentname.push_back(Split(tmp[1], "=")[0]);
-                    if (Split(list[i], "=").size() > 1) {
-                        argument.push_back(Split(list[i], "=")[1]);
+                    string def = def_val[0];
+
+                    while (def[0] == ' ') {
+                        def.erase(def.begin());
+                    }
+                    while (def[def.size() - 1] == ' ') {
+                        def.erase(def.end() - 1);
+                    }
+
+                    int pos = def.find_last_of(" ");
+                    string name = RemoveWhiteSpaces(def.substr(pos, -1));
+                    string type = def.substr(0, pos);
+
+                    bool isstringtype = Count(type, "TString") > 0 || Count(type, "string") > 0 ||
+                                        Count(RemoveWhiteSpaces(type), "char*") > 0;
+                    if (isstringtype) {
+                        argumenttype.push_back(1);
                     } else {
-                        argument.push_back("NOT SET");
+                        argumenttype.push_back(0);
+                    }
+                    argumentname.push_back(name);
+
+                    if (def_val.size() == 1) {
+                        // argument has no default value
                         fNRequiredArgument++;
                     }
                 }
@@ -165,7 +178,7 @@ void TRestTask::InitFromConfigFile() {
 
     } else if (fMode == TASK_CLASS) {
         // load config for the inherited task class
-        SetDataMemberValFromConfig();
+        ReadDataMemberValFromConfig();
     }
 }
 
@@ -181,7 +194,7 @@ void TRestTask::SetArgumentValue(vector<string> arg) {
     }
     argument = arg;
     if (fMode == TASK_CLASS) {
-        SetDataMemberValFromConfig();
+        ReadDataMemberValFromConfig();
     }
 }
 
@@ -199,7 +212,7 @@ void TRestTask::ConstructCommand() {
     string methodname = GetName();
     cmdstr = methodname + "(";
     for (int i = 0; i < argument.size(); i++) {
-        if (argumenttype[i] == 65) {
+        if (argumenttype[i] == 1) {
             cmdstr += "\"" + argument[i] + "\"";
         } else {
             cmdstr += argument[i];
@@ -258,20 +271,19 @@ void TRestTask::RunTask(TRestManager* mgr) {
 void TRestTask::PrintArgumentHelp() {
     if (fMode == 0) {
         ferr << GetName() << "() Gets invailed input!" << endl;
-        ferr << "You should give the following arguments ( * : necessary input):" << endl;
-        int n = argument.size();
+        cout << "You should give the following arguments (* is mandatory input):" << endl;
+        int n = argumentname.size();
         for (int i = 0; i < n; i++) {
-            if (i < fNRequiredArgument) ferr << "*";
-            ferr << argumentname[i] << endl;
+            cout << (i < fNRequiredArgument ? "*" : "") << argumentname[i] << endl;
         }
     } else if (fMode == 1) {
     } else if (fMode == 2) {
         ferr << "Macro class \"" << this->ClassName() << "\" gets invailed input!" << endl;
         ferr << "You should give the following arguments ( * : necessary input):" << endl;
-        int n = GetNumberOfDataMembers(this);
+        int n = any(this).GetNumberOfDataMembers();
         for (int i = 1; i < n; i++) {
             if (i < fNRequiredArgument + 1) ferr << "*";
-            ferr << GetDataMember(this, i).name << endl;
+            ferr << any(this).GetDataMember(i).name << endl;
         }
     }
 }
@@ -289,29 +301,33 @@ void TRestTask::PrintArgumentHelp() {
 /// this name. If so, it returns the found class, if not, it finds a
 /// corresponding macro file and calls gInterpreter to load it, and then
 /// instaintiates a TRestTask class wrapping this file.
-TRestTask* TRestTask::GetTask(TString MacroName) {
+TRestTask* TRestTask::GetTask(TString taskName) {
     string macfilelists =
-        TRestTools::Execute("find $REST_PATH/macros -name *" + (string)MacroName + (string) ".*");
+        TRestTools::Execute("find $REST_PATH/macros -name *" + (string)taskName + (string) ".*");
     auto macfiles = Split(macfilelists, "\n");
 
     if (macfiles.size() != 0 && macfiles[0] != "") {
-        std::cout << "Found MacroFile " << macfiles[0] << std::endl;
+        info << "Found MacroFile " << macfiles[0] << noClass::endl;
         // system("echo \"#define REST_MANAGER\" > /tmp/tmpMacro.c");
         // system(("cat " + macfiles[0] + " >> /tmp/tmpMacro.c").c_str());
         if (gInterpreter->LoadFile(macfiles[0].c_str()) == 0) {
             auto tsk = new TRestTask(macfiles[0].c_str(), TASK_MACRO);
             // system("rm /tmp/tmpMacro.c");
             return tsk;
+        } else {
+            ferr << "Task file: " << macfiles[0] << " contains error" << noClass::endl;
+            return NULL;
         }
 
     } else {
         // initialize from a class which is inherited from TRestTask
-        TRestTask* tsk = REST_Reflection::Assembly((string)MacroName);
+        TRestTask* tsk = REST_Reflection::Assembly((string)taskName);
         if (tsk != NULL && tsk->InheritsFrom("TRestTask")) {
             tsk->SetMode(TASK_CLASS);
             return tsk;
         }
     }
+    ferr << "REST ERROR. Task : " << taskName << " not found!!" << noClass::endl;
     return NULL;
 }
 

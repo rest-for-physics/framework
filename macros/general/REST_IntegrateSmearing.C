@@ -31,7 +31,7 @@ Int_t REST_IntegrateSmearing(TString varName, TString rootFileName, double Middl
 
         run->OpenInputFile(inputFilesNew[n]);
 
-        run->PrintInfo();
+        run->PrintMetadata();
 
         Int_t obsID = run->GetAnalysisTree()->GetObservableID(varName);
         if (obsID == -1) {

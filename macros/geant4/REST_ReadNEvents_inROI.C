@@ -15,7 +15,7 @@ Int_t REST_ReadNEvents_inROI(TString fName, int n1, int n2, double en1, double e
 
     run->OpenInputFile(fName);
 
-    run->PrintInfo();
+    run->PrintMetadata();
 
     /////////////////////////////
 

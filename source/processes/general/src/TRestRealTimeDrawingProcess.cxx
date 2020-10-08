@@ -238,7 +238,7 @@ void TRestRealTimeDrawingProcess::DrawWithNotification() {
 ///
 void TRestRealTimeDrawingProcess::InitFromConfigFile() {
     fDrawInterval = StringToInteger(GetParameter("drawInterval", "0"));
-    fThreadWaitTimeoutMs = GetDoubleParameterWithUnits("threadWaitTimeout", 1000);
+    fThreadWaitTimeoutMs = GetDblParameterWithUnits("threadWaitTimeout", 1000);
     if (fPlots.size() == 0) {
         TiXmlElement* ele = fElement->FirstChildElement("TRestAnalysisPlot");
         while (ele != NULL) {

@@ -4,7 +4,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestDetectorImpl.cxx
+///             TRestDetectorTPC.cxx
 ///
 ///             G4 class description
 ///
@@ -13,7 +13,7 @@
 ///                 software.
 ///                 Javier Galan
 ///_______________________________________________________________________________
-#include "TRestDetectorImpl.h"
+#include "TRestDetectorTPC.h"
 
 #include "TClass.h"
 #include "TInterpreter.h"
@@ -22,73 +22,78 @@
 #include "TRestDriftVolume.h"
 #include "TRestGainMap.h"
 #include "TRestReadout.h"
+#include "TRestRun.h"
 using namespace std;
 
+Float_t NaN = std::numeric_limits<Float_t>::quiet_NaN();
+
 //______________________________________________________________________________
-TRestDetectorImpl::TRestDetectorImpl() {
+TRestDetectorTPC::TRestDetectorTPC() {
+    fRunNumber = 0;
     fDetectorName = "REST default detector";
 
     fDetectorMedium = NULL;
     fReadout = NULL;
     fGain = NULL;
-    // TRestDetectorImpl default constructor
+    fRun = NULL;
+    // TRestDetectorTPC default constructor
 }
 
 //______________________________________________________________________________
-TRestDetectorImpl::~TRestDetectorImpl() {
-    // TRestDetectorImpl destructor
+TRestDetectorTPC::~TRestDetectorTPC() {
+    // TRestDetectorTPC destructor
 }
 
-string TRestDetectorImpl::GetMediumName() {
+string TRestDetectorTPC::GetMediumName() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetName();
     }
     return "";
 }
-Double_t TRestDetectorImpl::GetPressure() {
+Double_t TRestDetectorTPC::GetPressure() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetPressure();
     }
-    return 0;
+    return NaN;
 }
-Double_t TRestDetectorImpl::GetTemperature() {
+Double_t TRestDetectorTPC::GetTemperature() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetTemperature();
     }
-    return 0;
+    return NaN;
 }
-Double_t TRestDetectorImpl::GetWvalue() {
+Double_t TRestDetectorTPC::GetWvalue() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetWvalue();
     }
-    return 0;
+    return NaN;
 }
-Double_t TRestDetectorImpl::GetDriftVelocity() {
+Double_t TRestDetectorTPC::GetDriftVelocity() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetDriftVelocity();
     }
-    return 0;
+    return NaN;
 }
-Double_t TRestDetectorImpl::GetElectronLifeTime() {
+Double_t TRestDetectorTPC::GetElectronLifeTime() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetElectronLifeTime();
     }
-    return 0;
+    return NaN;
 }
-Double_t TRestDetectorImpl::GetLongitudinalDiffusion() {
+Double_t TRestDetectorTPC::GetLongitudinalDiffusion() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetLongitudinalDiffusion();
     }
-    return 0;
+    return NaN;
 }
-Double_t TRestDetectorImpl::GetTransversalDiffusion() {
+Double_t TRestDetectorTPC::GetTransversalDiffusion() {
     if (fDetectorMedium != NULL) {
         return fDetectorMedium->GetTransversalDiffusion();
     }
-    return 0;
+    return NaN;
 }
 
-Double_t TRestDetectorImpl::GetTPCBottomZ() {
+Double_t TRestDetectorTPC::GetTPCBottomZ() {
     if (fReadout != NULL) {
         if (fReadout->GetNumberOfReadoutPlanes() > 1) {
             double minz = 1e9;
@@ -107,11 +112,11 @@ Double_t TRestDetectorImpl::GetTPCBottomZ() {
             }
         }
 
-        return 0;
+        return NaN;
     }
-    return 0;
+    return NaN;
 }
-Double_t TRestDetectorImpl::GetTPCTopZ() {
+Double_t TRestDetectorTPC::GetTPCTopZ() {
     if (fReadout != NULL) {
         if (fReadout->GetNumberOfReadoutPlanes() > 1) {
             double maxz = -1e9;
@@ -130,11 +135,11 @@ Double_t TRestDetectorImpl::GetTPCTopZ() {
             }
         }
 
-        return 0;
+        return NaN;
     }
-    return 0;
+    return NaN;
 }
-Double_t TRestDetectorImpl::GetDriftDistance(TVector3 pos) {
+Double_t TRestDetectorTPC::GetDriftDistance(TVector3 pos) {
     if (fReadout != NULL) {
         for (int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++) {
             TRestReadoutPlane* plane = &(*fReadout)[p];
@@ -143,36 +148,36 @@ Double_t TRestDetectorImpl::GetDriftDistance(TVector3 pos) {
             }
         }
     }
-    return 0;
+    return NaN;
 }
-Double_t TRestDetectorImpl::GetAmplificationDistance(TVector3 pos) { return fAmplificationDistance; }
+Double_t TRestDetectorTPC::GetAmplificationDistance(TVector3 pos) { return fAmplificationDistance; }
 
-string TRestDetectorImpl::GetReadoutName() {
+string TRestDetectorTPC::GetReadoutName() {
     if (fReadout != NULL) {
         return fReadout->GetName();
     }
     return "";
 }
-Int_t TRestDetectorImpl::GetNReadoutModules() {
+Int_t TRestDetectorTPC::GetNReadoutModules() {
     if (fReadout != NULL) {
         return fReadout->GetNumberOfModules();
     }
-    return 0;
+    return NaN;
 }
-Int_t TRestDetectorImpl::GetNReadoutChannels() {
+Int_t TRestDetectorTPC::GetNReadoutChannels() {
     if (fReadout != NULL) {
         return fReadout->GetNumberOfChannels();
     }
-    return 0;
+    return NaN;
 }
-Double_t TRestDetectorImpl::GetReadoutVoltage(int id) { return fAmplificationVoltage; }
-Double_t TRestDetectorImpl::GetReadoutGain(int id) {
+Double_t TRestDetectorTPC::GetReadoutVoltage(int id) { return fAmplificationVoltage; }
+Double_t TRestDetectorTPC::GetReadoutGain(int id) {
     if (fGain != NULL && fGain->fChannelGain.count(id) > 0) {
         return fGain->fChannelGain[id];
     }
-    return 0;
+    return NaN;
 }
-TVector3 TRestDetectorImpl::GetReadoutPosition(int id) {
+TVector3 TRestDetectorTPC::GetReadoutPosition(int id) {
     if (fReadout != NULL) {
         double x = fReadout->GetX(id);
         double y = fReadout->GetY(id);
@@ -200,9 +205,9 @@ TVector3 TRestDetectorImpl::GetReadoutPosition(int id) {
         }
         return TVector3(x, y, z);
     }
-    return TVector3();
+    return TVector3(NaN, NaN, NaN);
 }
-TVector3 TRestDetectorImpl::GetReadoutDirection(int id) {
+TVector3 TRestDetectorTPC::GetReadoutDirection(int id) {
     if (fReadout != NULL) {
         Int_t planeID, readoutChannel = -1, readoutModule;
         fReadout->GetPlaneModuleChannel(id, planeID, readoutModule, readoutChannel);
@@ -212,10 +217,10 @@ TVector3 TRestDetectorImpl::GetReadoutDirection(int id) {
             return plane->GetPlaneVector();
         }
     }
-    return TVector3();
+    return TVector3(NaN, NaN, NaN);
 }
 enum REST_ReadoutType { unknown = -1, none = 1, X = 2, Y = 3, Z = 5, U = 7, V = 11, W = 13 };
-Int_t TRestDetectorImpl::GetReadoutType(int id) {
+Int_t TRestDetectorTPC::GetReadoutType(int id) {
     if (fReadout != NULL) {
         double x = fReadout->GetX(id);
         double y = fReadout->GetY(id);
@@ -225,25 +230,25 @@ Int_t TRestDetectorImpl::GetReadoutType(int id) {
     return unknown;
 }
 
-void TRestDetectorImpl::SetDriftMedium(string mediumname) {}
-void TRestDetectorImpl::SetDriftField(Double_t df) {
+void TRestDetectorTPC::SetDriftMedium(string mediumname) {}
+void TRestDetectorTPC::SetDriftField(Double_t df) {
     if (fDetectorMedium != NULL) {
         fDetectorMedium->SetElectricField(df);
     }
 }
-void TRestDetectorImpl::SetPressure(Double_t p) {
+void TRestDetectorTPC::SetPressure(Double_t p) {
     if (fDetectorMedium != NULL) {
         fDetectorMedium->SetPressure(p);
     }
 }
-void TRestDetectorImpl::SetDAQSamplingTime(Double_t st) { fDAQSamplingTime = st; }
-void TRestDetectorImpl::SetElectronLifeTime(Double_t elt) {
+void TRestDetectorTPC::SetDAQSamplingTime(Double_t st) { fDAQSamplingTime = st; }
+void TRestDetectorTPC::SetElectronLifeTime(Double_t elt) {
     if (fDetectorMedium != NULL) {
         fDetectorMedium->SetElectronLifeTime(elt);
     }
 }
 
-void TRestDetectorImpl::RegisterMetadata(TObject* ptr) {
+void TRestDetectorTPC::RegisterMetadata(TObject* ptr) {
     if (ptr != NULL) {
         if (ptr->InheritsFrom("TRestDriftVolume")) {
             fDetectorMedium = (TRestDriftVolume*)ptr;
@@ -251,61 +256,59 @@ void TRestDetectorImpl::RegisterMetadata(TObject* ptr) {
             fReadout = (TRestReadout*)ptr;
         } else if (ptr->InheritsFrom("TRestGainMap")) {
             fGain = (TRestGainMap*)ptr;
+        } else if (ptr->InheritsFrom("TRestRun")) {
+            fRun = (TRestRun*)ptr;
+            fRunNumber = fRun->GetRunNumber();
         }
     }
 }
 
-void TRestDetectorImpl::RegisterString(string str) {
-    if (str.find(".aqs") != -1) {
-        ReadFileNameFEMINOS(str);
+void TRestDetectorTPC::Print() {
+    TRestDetector::Print();
+
+    cout << " Amplification voltage : " << fAmplificationVoltage << " V" << endl;
+    cout << " Drift voltage : " << fDriftVoltage << " V" << endl;
+    cout << " --------------------------------------------" << endl;
+    cout << " Sampling rate : " << fDAQSamplingTime << " us " << endl;
+    cout << " Shaping time : " << fDAQShapingTime << " us " << endl;
+    cout << " Dynamic range : " << fDAQDynamicRange << " fC " << endl;
+    cout << " DAQ threshold : " << fDAQThreshold << endl;
+    cout << " --------------------------------------------" << endl;
+    cout << " Detector radius : " << fTPCRadius * REST_Units::m << " m " << endl;
+    cout << " Max drift distance : " << fDriftDistance * REST_Units::m << " m " << endl;
+    cout << " Target mass : " << fTargetMass << " kg " << endl;
+    cout << " --------------------------------------------" << endl;
+
+    TRestDetector::PrintParameterMap();
+}
+
+string TRestDetectorTPC::GetParameter(string paraname) {
+    string result = PARAMETER_NOT_FOUND_STR;
+
+    switch (ToHash(paraname.c_str())) {
+        // basic types
+        case ToHash("driftVelocity"): {
+            result = ToString(any(GetDriftVelocity()));
+            break;
+        }
+        case ToHash("pressure"): {
+            result = ToString(any(GetPressure()));
+            break;
+        }
+        default: { break; }
     }
+
+    if (result != PARAMETER_NOT_FOUND_STR) {
+        if (result == "nan" || result == "(nan,nan)" || result == "(nan,nan,nan)") {
+        } else {
+            return result;
+        }
+    }
+    return TRestDetector::GetParameter(paraname);
 }
 
-void TRestDetectorImpl::Print() {}
-
-void TRestDetectorImpl::ReadFileNameFEMINOS(string fName) {
-    string fullName = fName;
-
-    unsigned int startPos = fullName.find_last_of("/") + 1;
-    unsigned int length = fullName.length();
-    string name = fullName.substr(startPos, length - startPos);
-
-    fRunNumber = StringToInteger(name.substr(1, 5));
-
-    unsigned int pos = name.find("_") + 1;
-    unsigned int len = name.find("_Vm") - pos;
-    // fRunTag = (TString)name.substr(pos, len);
-
-    pos = name.find("Vm_") + 3;
-    len = name.find("_Vd") - pos;
-    fAmplificationVoltage = StringToDouble(name.substr(pos, len));
-
-    pos = name.find("Vd_") + 3;
-    len = name.find("_Pr") - pos;
-    fDriftVoltage = StringToDouble(name.substr(pos, len));
-
-    pos = name.find("Pr_") + 3;
-    len = name.find("_Gain") - pos;
-    if (fDetectorMedium != NULL) fDetectorMedium->SetPressure(StringToDouble(name.substr(pos, len)));
-
-    pos = name.find("Gain_") + 5;
-    len = name.find("_Shape") - pos;
-    fDAQDynamicRange = atof(name.substr(pos, len).c_str());
-
-    pos = name.find("Shape_") + 6;
-    len = name.find("_Clock") - pos;
-    fDAQShapingTime = atof(name.substr(pos, len).c_str());
-
-    pos = name.find("Clock_") + 6;
-    len = name.find("-") - pos;
-    TString _sampling = name.substr(pos, len).c_str();
-
-    TString samplingReduced = _sampling(2, _sampling.Length());
-    fDAQSamplingTime = (Double_t)strtol(samplingReduced.Data(), NULL, 16) / 100.;  // This is only for AGET
-
-    pos = name.find("-") + 1;
-    len = name.find(".aqs") - pos;
-    // fSubRunNumber = StringToInteger(name.substr(pos, len));
+void TRestDetectorTPC::SetParameter(string paraname, string paraval) {
+    TRestDetector::SetParameter(paraname, paraval);
 }
 
-MakeGlobal(TRestDetectorImpl, gDetector, 2);
+MakeGlobal(TRestDetectorTPC, gDetector, 2);

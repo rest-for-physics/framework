@@ -166,7 +166,7 @@ Int_t TRestAnalysisTree::AddObservable(TString objName, TRestMetadata* meta, TSt
     if (fBranchesCreated) {
         return -1;
     }
-    any ptr = REST_Reflection::GetDataMember(meta, (string)objName);
+    any ptr = any(meta).GetDataMember((string)objName);
     if (ptr.IsZombie()) return -1;
 
     TString brName = meta->GetName() + (TString) "." + ptr.name;

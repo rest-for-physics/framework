@@ -42,11 +42,6 @@
 #include "TVirtualStreamerInfo.h"
 #include "tinyxml.h"
 
-const int PARAMETER_NOT_FOUND_INT = -99999999;
-const double PARAMETER_NOT_FOUND_DBL = -99999999;
-const std::string PARAMETER_NOT_FOUND_STR = "NO_SUCH_PARA";
-const string gCommit = TRestTools::Execute("rest-config --commit");
-
 /* We keep using REST_RELEASE, REST_VERSION(2,X,Y) and REST_VERSION_CODE
    to determine the installed REST version and avoid too much prototyping
 
@@ -73,14 +68,19 @@ class TRestManager;
 //! A base class for any REST metadata class
 class TRestMetadata : public TNamed {
    private:
-    void SetEnv(TiXmlElement* e, bool updateexisting = true);
+    void ReadEnvInElement(TiXmlElement* e, bool overwrite = true);
     void ReadElement(TiXmlElement* e, bool recursive = false);
+    void ReplaceForLoopVars(TiXmlElement* e, map<string, string> forLoopVar);
+    void ExpandForLoopOnce(TiXmlElement* e, map<string, string> forLoopVar);
+    void ExpandForLoops(TiXmlElement* e, map<string, string> forLoopVar);
+    void ExpandIfSections(TiXmlElement* e);
+    void ExpandIncludeFile(TiXmlElement* e);
+    string GetUnits(TiXmlElement* e);
     string FieldNamesToUpper(string inputString);
-    void ExpandForLoopOnce(TiXmlElement* e);
 
     /// REST version string, only used for archive and retrieve
     TString fVersion = REST_RELEASE;  //<
-    TString fCommit = gCommit;        //<
+    TString fCommit = REST_COMMIT;    //<
     TString fLibraryVersion = "0";    //<
 
    protected:
@@ -96,16 +96,15 @@ class TRestMetadata : public TNamed {
     TiXmlElement* GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre = "");
     TiXmlElement* GetElement(std::string eleDeclare);
     TiXmlElement* GetElement(std::string eleDeclare, TiXmlElement* e);
+    TiXmlElement* GetNextElement(TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName);
-    std::string GetElementDeclare(TiXmlElement* e) { return e->Value(); }
-    std::string GetUnits(string whoseunits = "");
-    string GetUnits(TiXmlElement* e, string whoseunits = "");
+    string GetParameterUnits(string parname, TiXmlElement* e = NULL);
     TiXmlElement* ReplaceElementAttributes(TiXmlElement* e);
-
-    // old xml parser interface.
     TiXmlElement* StringToElement(string definition);
     string ElementToString(TiXmlElement* ele);
+
+    // old xml parser interface.
     string GetKEYStructure(std::string keyName);
     string GetKEYStructure(std::string keyName, size_t& Position);
     string GetKEYStructure(std::string keyName, string buffer);
@@ -116,24 +115,15 @@ class TRestMetadata : public TNamed {
     string GetKEYDefinition(std::string keyName, string buffer);
     string GetKEYDefinition(std::string keyName, size_t& Position, string buffer);
     string GetParameter(std::string parName, size_t& pos, std::string inputString);
-    Double_t GetDblParameterWithUnits(std::string parName, size_t& pos, std::string inputString);
-    TVector2 Get2DVectorParameterWithUnits(std::string parName, size_t& pos, std::string inputString);
-    TVector3 Get3DVectorParameterWithUnits(std::string parName, size_t& pos, std::string inputString);
     string GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition = 0);
-    Double_t GetDblFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
-    TVector2 Get2DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
-    TVector3 Get3DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
 
-    // string utils
+    // some utils
     std::string ReplaceEnvironmentalVariables(const std::string buffer);
-    void SetEnv(string name, string value, bool overwriteexisting);
-    void ClearEnv() { fVariables.clear(); }
     string SearchFile(string filename);
-
-    // tiny xml element utils
-    void ExpandIfSections(TiXmlElement* e);
-    void ExpandForLoops(TiXmlElement* e);
-    void ExpandIncludeFile(TiXmlElement* e);
+    TString GetSearchPath();
+    void ReSetVersion();
+    void UnSetVersion();
+    void SetLibraryVersion(TString version);
 
     //////////////////////////////////////////////////
     /// Data members
@@ -142,7 +132,7 @@ class TRestMetadata : public TNamed {
     /// see more detail in
     /// https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html#automatically-generated-streamers
 
-    /// Full name of rml file
+    /// Full name of the rml file
     std::string fConfigFileName;
     /// Section name given in the constructor of the derived metadata class
     std::string fSectionName;
@@ -165,6 +155,8 @@ class TRestMetadata : public TNamed {
     TiXmlElement* fElementGlobal;  //!
     /// Saving a list of rml variables. name-value pair.
     map<string, string> fVariables;  //!
+    /// Saving a list of rml constants. name-value pair. Constants are temporary for this class only.
+    map<string, string> fConstants;  //!
 
     /// It can be used as a way to identify that something went wrong using SetError method.
     Bool_t fError = false;  //!
@@ -182,6 +174,22 @@ class TRestMetadata : public TNamed {
     void SetErrorMessage(TString message) {
         if (GetError()) fErrorMessage = message;
     }
+
+#define InitDataMember(name, defaultvalue)                      \
+    {                                                           \
+        string paraname = DataMemberNameToParameterName(#name); \
+        string paraval = GetParameter(paraname);                \
+        if (paraval == PARAMETER_NOT_FOUND_STR) {               \
+            name = defaultvalue;                                \
+        } else {                                                \
+            any(name).ParseString(paraval);                     \
+        }                                                       \
+    }
+
+    string DataMemberNameToParameterName(string name);
+    string ParameterNameToDataMemberName(string name);
+
+    void ReadDataMemberValFromConfig();
 
    public:
     /// It returns true if an error was identified by a derived metadata class
@@ -243,9 +251,7 @@ class TRestMetadata : public TNamed {
 
     std::vector<string> GetDataMemberValues(string memberName);
 
-    string operator[](string memberName);
-
-    TString GetVersion();
+    TString GetVersion();  // *MENU*
 
     TString GetCommit();
 
@@ -254,9 +260,6 @@ class TRestMetadata : public TNamed {
     Int_t GetVersionCode();
     /// Returns a string with the path used for data storage
     TString GetDataPath() { return GetParameter("mainDataPath", ""); }
-
-    /// Returns a string with the path defined in sections "searchPath".
-    TString GetSearchPath();
 
     /// returns the verboselevel in type of REST_Verbose_Level enumerator
     REST_Verbose_Level GetVerboseLevel() { return fVerboseLevel; }
@@ -267,31 +270,18 @@ class TRestMetadata : public TNamed {
     /// Gets a string with the path used for data storage
     TString GetMainDataPath() { return GetDataPath(); }
 
-    std::string GetParameter(std::string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR);
+    std::string GetParameter(std::string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR);  // *MENU*
 
     Double_t GetDblParameterWithUnits(std::string parName, Double_t defaultValue = PARAMETER_NOT_FOUND_DBL);
-
-    Double_t GetDoubleParameterWithUnits(std::string parName,
-                                         Double_t defaultValue = PARAMETER_NOT_FOUND_DBL) {
-        return GetDblParameterWithUnits(parName, defaultValue);
-    }
 
     TVector2 Get2DVectorParameterWithUnits(string parName, TVector2 defaultValue = TVector2(-1, -1));
 
     TVector3 Get3DVectorParameterWithUnits(string parName, TVector3 defaultValue = TVector3(-1, -1, -1));
-    /// If this method is called the metadata information will **not** be stored in disk. I/O is handled
-    /// by
-    /// TRestRun.
+
+    /// If this method is called the metadata information will **not** be stored in disk.
     void DoNotStore() { fStore = false; }
-    /// If this method is called the metadata information will be stored in disk. This is the default
-    /// behaviour.
+    /// If this method is called the metadata information will be stored in disk.
     void Store() { fStore = true; }
-
-    void ReSetVersion();
-
-    void UnSetVersion();
-
-    void SetLibraryVersion(TString version);
     /// set the section name, clear the section content
     void SetSectionName(std::string sName) { fSectionName = sName; }
     /// set config file path from external
@@ -300,9 +290,6 @@ class TRestMetadata : public TNamed {
     void SetHostmgr(TRestManager* m) { fHostmgr = m; }
     /// sets the verboselevel
     void SetVerboseLevel(REST_Verbose_Level v) { fVerboseLevel = v; }
-
-    void SetDataMemberValFromConfig();
-
     /// overwriting the write() method with fStore considered
     virtual Int_t Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 
@@ -311,7 +298,7 @@ class TRestMetadata : public TNamed {
     TRestMetadata(const char* cfgFileNamecfgFileName);
 
     /// Call CINT to generate streamers for this class
-    ClassDef(TRestMetadata, 6);
+    ClassDef(TRestMetadata, 7);
 };
 
 #endif

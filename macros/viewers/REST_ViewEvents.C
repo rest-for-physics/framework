@@ -1,10 +1,9 @@
 #include "TRestBrowser.h"
 #include "TRestEventViewer.h"
-#include "TRestTask.h"
-
 #include "TRestLinearTrackEvent.h"
 #include "TRestRawSignalEvent.h"
 #include "TRestSignalEvent.h"
+#include "TRestTask.h"
 #include "TRestTrackEvent.h"
 
 #ifndef RestTask_ViewEvents
@@ -12,16 +11,15 @@
 
 Int_t REST_ViewEvents(TString fName, TString EventType = "") {
     TRestBrowser* browser = new TRestBrowser("TRestEventViewer");
-    // TRestEventViewer *viewer = (TRestEventViewer*)browser->GetViewer();
-    TRestStringOutput cout;
-    cout.setorientation(1);
+
     TClass* cl = TClass::GetClass(EventType);
-    if (cl == NULL || EventType == "") {
-        if (cl == NULL) {
+    if (cl == NULL) {
+        if (EventType != "") {
             cout << "REST WARNING : unknown event type \"" << EventType << "\"" << endl;
-            cout << "Using default event in file..." << endl;
-            cout << endl;
         }
+        cout << "Using default event in file..." << endl;
+        cout << endl;
+
         browser->OpenFile(fName);
     } else {
         TRestEvent* eve = (TRestEvent*)cl->New();

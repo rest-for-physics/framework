@@ -157,7 +157,6 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
 void TRestManager::InitFromTask(string taskName, vector<string> arguments) {
     TRestTask* tsk = TRestTask::GetTask(taskName);
     if (tsk == NULL) {
-        cout << "REST ERROR. Task : " << taskName << " not found!!" << endl;
         gSystem->Exit(-1);
     }
     tsk->SetArgumentValue(arguments);

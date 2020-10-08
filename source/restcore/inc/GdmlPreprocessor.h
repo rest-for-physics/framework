@@ -17,7 +17,8 @@ class GdmlPreprocessor : public TRestMetadata {
     string filestr = "";
     string path = "";
     // outPath might be associated in future to a temporal REST_USER_PATH directory
-    string outPath = REST_USER_PATH + "/gdml/";
+    // string outPath = REST_USER_PATH + "/gdml/";
+    string outPath = "/tmp/";
     string outfilename = "";
     string gdmlVersion = "0.0";
     map<string, string> entityVersion;

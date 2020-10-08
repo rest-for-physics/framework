@@ -483,6 +483,7 @@ TRestMetadata::TRestMetadata() : endl(fVerboseLevel, messageBuffer) {
     fElement = NULL;
     fVerboseLevel = gVerbose;
     fVariables.clear();
+    fConstants.clear();
     fHostmgr = NULL;
 
     fConfigFileName = "null";
@@ -499,6 +500,7 @@ TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(fVerboseLevel, mess
     fElement = NULL;
     fVerboseLevel = gVerbose;
     fVariables.clear();
+    fConstants.clear();
     fHostmgr = NULL;
 
     fConfigFileName = cfgFileName;
@@ -638,10 +640,8 @@ Int_t TRestMetadata::LoadSectionMetadata() {
     if (fElementGlobal != NULL) {
         TiXmlElement* e = fElementGlobal->FirstChildElement();
         while (e != NULL) {
-            if ((string)e->Value() == "variable" || (string)e->Value() == "constant") {
-                ReplaceElementAttributes(e);
-                SetEnv(e);
-            }
+            ReplaceElementAttributes(e);
+            ReadEnvInElement(e);
             e = e->NextSiblingElement();
         }
     }
@@ -649,10 +649,8 @@ Int_t TRestMetadata::LoadSectionMetadata() {
     // then from local section
     TiXmlElement* e = fElement->FirstChildElement();
     while (e != NULL) {
-        if ((string)e->Value() == "variable" || (string)e->Value() == "constant") {
-            ReplaceElementAttributes(e);
-            SetEnv(e);
-        }
+        ReplaceElementAttributes(e);
+        ReadEnvInElement(e);
         e = e->NextSiblingElement();
     }
 
@@ -691,15 +689,21 @@ void TRestMetadata::InitFromRootFile() {
 TiXmlElement* TRestMetadata::ReplaceElementAttributes(TiXmlElement* e) {
     if (e == NULL) return NULL;
 
+    std::string parName = "";
     TiXmlAttribute* attr = e->FirstAttribute();
     while (attr != NULL) {
         const char* val = attr->Value();
         const char* name = attr->Name();
 
+        if (strcmp(name, "name") == 0) parName = (string)val;
+
         // set attribute except name field
         if (strcmp(name, "name") != 0) {
             string temp = ReplaceEnvironmentalVariables(val);
-            e->SetAttribute(name, ReplaceMathematicalExpressions(temp).c_str());
+            e->SetAttribute(
+                name, ReplaceMathematicalExpressions(
+                          temp, "Please, check parameter name: " + parName + " (ReplaceElementAttributes)")
+                          .c_str());
         }
 
         attr = attr->Next();
@@ -722,26 +726,32 @@ TiXmlElement* TRestMetadata::ReplaceElementAttributes(TiXmlElement* e) {
 /// <variable name="TEST" value="VALUE" overwrite="true" />
 /// \endcode
 ///
-void TRestMetadata::SetEnv(TiXmlElement* e, bool updateexisting) {
+void TRestMetadata::ReadEnvInElement(TiXmlElement* e, bool overwrite) {
     if (e == NULL) return;
-
-    // cout << this->ClassName() << " " << (string)e->Value()<< " " <<
-    // e->Attribute("value") << endl;
 
     const char* name = e->Attribute("name");
     if (name == NULL) return;
     const char* value = e->Attribute("value");
     if (value == NULL) return;
 
-    // if overwrite is false, try to replace the value from system env.
-    const char* overwrite = e->Attribute("overwrite");
-    if (overwrite == NULL) overwrite = "false";
-    if (!StringToBool(overwrite)) {
-        char* sysenv = getenv(name);
-        if (sysenv != NULL) value = sysenv;
+    if ((string)e->Value() == "variable") {
+        // if overwrite is false, try to replace the value from system env.
+        const char* overwritesysenv = e->Attribute("overwrite");
+        if (overwritesysenv == NULL) overwritesysenv = "false";
+        if (!StringToBool(overwritesysenv)) {
+            char* sysenv = getenv(name);
+            if (sysenv != NULL) value = sysenv;
+        }
+        if (!overwrite && fVariables.count(name) > 0) return;
+        fVariables[name] = value;
+    } else if ((string)e->Value() == "constant") {
+        if (!overwrite && fVariables.count(name) > 0) return;
+        fConstants[name] = value;
+    } else if ((string)e->Value() == "myParameter") {
+        warning << "myParameter is obsolete now! use \"constant\" instead" << endl;
+        if (!overwrite && fVariables.count(name) > 0) return;
+        fConstants[name] = value;
     }
-
-    SetEnv(name, value, true);
 }
 
 ///////////////////////////////////////////////
@@ -756,12 +766,12 @@ void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
     debug << ClassName() << "::ReadElement(<" << e->Value() << ")" << endl;
 
     ReplaceElementAttributes(e);
+    ReadEnvInElement(e);
+
     if ((string)e->Value() == "for") {
-        ExpandForLoops(e);
+        ExpandForLoops(e, {});
     } else if (e->Attribute("file") != NULL) {
         ExpandIncludeFile(e);
-    } else if ((string)e->Value() == "variable" || (string)e->Value() == "constant") {
-        SetEnv(e);
     } else if ((string)e->Value() == "if") {
         ExpandIfSections(e);
     } else if (e->FirstChildElement() != NULL) {
@@ -880,11 +890,11 @@ void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
         if (parele == NULL) return;
         TiXmlElement* contentelement = e->FirstChildElement();
         while (contentelement != NULL) {
-            TiXmlElement* attatchedalament = (TiXmlElement*)contentelement->Clone();
-            ReadElement(attatchedalament, true);
-            // debug << *attatchedalament << endl;
-            parele->InsertBeforeChild(e, *attatchedalament);
-            delete attatchedalament;
+            TiXmlElement* attachedelement = (TiXmlElement*)contentelement->Clone();
+            ReadElement(attachedelement, true);
+            // debug << *attachedelement << endl;
+            parele->InsertBeforeChild(e, *attachedelement);
+            delete attachedelement;
             contentelement = contentelement->NextSiblingElement();
         }
     }
@@ -892,7 +902,7 @@ void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
 
 ///////////////////////////////////////////////
 /// \brief Helper method for TRestMetadata::ExpandForLoops().
-void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e) {
+void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e, map<string, string> forLoopVar) {
     TiXmlElement* parele = (TiXmlElement*)e->Parent();
     TiXmlElement* contentelement = e->FirstChildElement();
     while (contentelement != NULL) {
@@ -902,16 +912,70 @@ void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e) {
             TiXmlElement* tempnew = (TiXmlElement*)parele->InsertBeforeChild(e, *newforloop);
             delete newforloop;
             newforloop = tempnew;
-            ExpandForLoops(newforloop);
+            ExpandForLoops(newforloop, forLoopVar);
             contentelement = contentelement->NextSiblingElement();
         } else {
-            TiXmlElement* attatchedalament = (TiXmlElement*)contentelement->Clone();
-            ReadElement(attatchedalament, true);
-            // debug << *attatchedalament << endl;
-            parele->InsertBeforeChild(e, *attatchedalament);
-            delete attatchedalament;
+            TiXmlElement* attachedelement = (TiXmlElement*)contentelement->Clone();
+            ReplaceForLoopVars(attachedelement, forLoopVar);
+            ReadElement(attachedelement, true);
+            // debug << *attachedelement << endl;
+            parele->InsertBeforeChild(e, *attachedelement);
+            delete attachedelement;
             contentelement = contentelement->NextSiblingElement();
         }
+    }
+}
+
+///////////////////////////////////////////////
+/// \brief Helper method for TRestMetadata::ExpandForLoops().
+void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forLoopVar) {
+    if (e == NULL) return;
+
+    std::string parName = "";
+    TiXmlAttribute* attr = e->FirstAttribute();
+    while (attr != NULL) {
+        const char* val = attr->Value();
+        const char* name = attr->Name();
+
+        if (strcmp(name, "name") == 0) parName = (string)val;
+
+        // set attribute except name field
+        if (strcmp(name, "name") != 0) {
+            string outputBuffer = val;
+
+            // replace variables with mark ${}
+            int startPosition = 0;
+            int endPosition = 0;
+            while ((startPosition = outputBuffer.find("{", endPosition)) != (int)string::npos) {
+                endPosition = outputBuffer.find("}", startPosition + 1);
+                if (endPosition == (int)string::npos) break;
+                if (startPosition >= 1 && outputBuffer[startPosition - 1] == '$')
+                    break;  // to prevent replacing ${} mark
+
+                string expression = outputBuffer.substr(startPosition + 1, endPosition - startPosition - 1);
+
+                int replacePos = startPosition;
+                int replaceLen = endPosition - startPosition + 1;
+
+                string proenv = forLoopVar.count(expression) > 0 ? forLoopVar[expression] : "";
+
+                if (proenv != "") {
+                    outputBuffer.replace(replacePos, replaceLen, proenv);
+                    endPosition = 0;
+                } else {
+                    ferr << this->ClassName() << ", replace for loop env : cannot find \"{" << expression
+                         << "}\"" << endl;
+                    exit(1);
+                }
+            }
+
+            e->SetAttribute(
+                name, ReplaceMathematicalExpressions(
+                          outputBuffer, "Please, check parameter name: " + parName + " (ReplaceForLoopVars)")
+                          .c_str());
+        }
+
+        attr = attr->Next();
     }
 }
 
@@ -922,7 +986,7 @@ void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e) {
 /// them in the given xml section. Loop variable is treated samely as REST
 /// "variable"
 ///
-void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
+void TRestMetadata::ExpandForLoops(TiXmlElement* e, map<string, string> forloopvar) {
     if ((string)e->Value() != "for") return;
     // ReplaceElementAttributes(e);
 
@@ -950,8 +1014,9 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
         debug << "----expanding for loop----" << endl;
         double i = 0;
         for (i = from; i <= to; i = i + step) {
-            SetEnv(_name, ToString(i), true);
-            ExpandForLoopOnce(e);
+            forloopvar[_name] = ToString(i);
+            fVariables[_name] = ToString(i);
+            ExpandForLoopOnce(e, forloopvar);
         }
         parele->RemoveChild(e);
 
@@ -962,8 +1027,9 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
 
         debug << "----expanding for loop----" << endl;
         for (string loopvar : loopvars) {
-            SetEnv(_name, loopvar, true);
-            ExpandForLoopOnce(e);
+            forloopvar[_name] = loopvar;
+            fVariables[_name] = loopvar;
+            ExpandForLoopOnce(e, forloopvar);
         }
         parele->RemoveChild(e);
 
@@ -1004,7 +1070,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     string filename;
     if (string(_filename) == "server") {
         // Let TRestRun to retrieve data according to run number later-on
-        if ((string) this->ClassName() == "TRestRun") return;
+        // if ((string) this->ClassName() == "TRestRun") return;
 
         // match the database, runNumber=0(default data), type="META_RML", tag=<section name>
         auto url = gDataBase->query_data(DBEntry(0, "META_RML", e->Value())).value;
@@ -1100,10 +1166,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
                 if (type != "globals" && GetElement("globals", rootele) != NULL) {
                     TiXmlElement* globaldef = GetElement("globals", rootele)->FirstChildElement();
                     while (globaldef != NULL) {
-                        if ((string)globaldef->Value() == "variable" ||
-                            (string)globaldef->Value() == "constant") {
-                            SetEnv(globaldef, false);
-                        }
+                        ReadEnvInElement(globaldef, false);
                         globaldef = globaldef->NextSiblingElement();
                     }
                 }
@@ -1180,32 +1243,40 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Returns the value for the parameter name **parName** found in
-/// fElement(main data element)
+/// \brief Returns corresponding REST Metadata parameter from multiple sources
 ///
-/// It first finds the parameter from the system's env, if the name matches it
-/// will directly return the env. If no env is available, it calls
-/// GetParameter() method, specifying the search element
-/// TRestMetadata::fElement. See more detail there.
+/// It first finds the parameter from REST arguments from command line.
+/// If not found, it calls GetParameter() method to find parameter in TRestMetadata::fElement
+/// If not found, it calls TRestDetector::GetParameter()
+/// If still not found, it returns the default value.
 ///
 /// \param parName The name of the parameter from which we want to obtain the
 /// value. \param defaultValue The default value if the paremeter is not found
 ///
 /// \return A string of result
 string TRestMetadata::GetParameter(std::string parName, TString defaultValue) {
-    // first search the parameter in system env
-    char* val = getenv(parName.c_str());
-    if (val != NULL) {
-        return val;
+    // first search the parameter in REST args
+    if (REST_ARGS.count(parName) != 0) {
+        return REST_ARGS[parName];
     }
 
     // then look within local xml element
-    return GetParameter(parName, fElement, defaultValue);
+    string result = GetParameter(parName, fElement);
+    if (result != PARAMETER_NOT_FOUND_STR) {
+        return result;
+    }
+
+    // finally look into parameters of gDetector
+    result = gDetector->GetParameter(parName);
+    if (result != PARAMETER_NOT_FOUND_STR) {
+        return result;
+    }
+
+    return (string)defaultValue;
 }
 
 ///////////////////////////////////////////////
-/// \brief Returns the value for the parameter name **parName** found in
-/// fElement(main data element)
+/// \brief Returns the value for the parameter named **parName** in the given section
 ///
 /// There are two kinds of *parameter* in REST.
 /// 1. <parameter name="verboseLevel" value="silent" />
@@ -1250,7 +1321,58 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
         }
     }
 
-    return ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(result));
+    return ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(result),
+                                          "Please, check parameter name: " + parName);
+}
+
+Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlElement* ele,
+                                                 Double_t defaultVal) {
+    string a = GetParameter(parName, ele);
+    if (a == PARAMETER_NOT_FOUND_STR) {
+        return defaultVal;
+    } else {
+        string unit = GetParameterUnits(parName, ele);
+        string valuestr = REST_Units::RemoveUnitsFromString(a);
+        Double_t value = StringToDouble(valuestr);
+        return REST_Units::ConvertValueToRESTUnits(value, unit);
+    }
+
+    return defaultVal;
+}
+
+TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
+                                                      TVector2 defaultVal) {
+    string a = GetParameter(parName, ele);
+    if (a == PARAMETER_NOT_FOUND_STR) {
+        return defaultVal;
+    } else {
+        string unit = GetParameterUnits(parName, ele);
+        string valuestr = REST_Units::RemoveUnitsFromString(a);
+        TVector2 value = StringTo2DVector(valuestr);
+        Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
+        Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
+        return TVector2(valueX, valueY);
+    }
+
+    return defaultVal;
+}
+
+TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
+                                                      TVector3 defaultVal) {
+    string a = GetParameter(parName, ele);
+    if (a == PARAMETER_NOT_FOUND_STR) {
+        return defaultVal;
+    } else {
+        string unit = GetParameterUnits(parName, ele);
+        string valuestr = REST_Units::RemoveUnitsFromString(a);
+        TVector3 value = StringTo3DVector(valuestr);
+        Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
+        Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
+        Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
+        return TVector3(valueX, valueY, valueZ);
+    }
+
+    return defaultVal;
 }
 
 ///////////////////////////////////////////////
@@ -1261,7 +1383,7 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
 /// element.
 ///
 std::string TRestMetadata::GetFieldValue(std::string parName, TiXmlElement* e) {
-    return GetParameter(ToUpper(parName), e, "Not defined");
+    return GetParameter(parName, e, "Not defined");
 }
 
 ///////////////////////////////////////////////
@@ -1293,60 +1415,48 @@ std::string TRestMetadata::GetFieldValue(std::string parName, TiXmlElement* e) {
 /// \return A double/2DVector/3DVector value in the default correspoding REST
 /// units (keV, us, mm, Vcm).
 ///
-Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlElement* ele,
-                                                 Double_t defaultVal) {
-    string a = GetParameter(parName, ele);
+Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, Double_t defaultVal) {
+    string a = GetParameter(parName);
     if (a == PARAMETER_NOT_FOUND_STR) {
         return defaultVal;
     } else {
-        string unit = GetUnits(ele, parName);
-        Double_t value = StringToDouble(a.substr(0, a.find_last_of("1234567890().") + 1));
+        string unit = GetParameterUnits(parName);
+        string valuestr = REST_Units::RemoveUnitsFromString(a);
+        Double_t value = StringToDouble(valuestr);
         return REST_Units::ConvertValueToRESTUnits(value, unit);
     }
-
     return defaultVal;
 }
 
-Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, Double_t defaultVal) {
-    return GetDblParameterWithUnits(parName, fElement, defaultVal);
-}
-
-TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
-                                                      TVector2 defaultVal) {
-    string a = GetParameter(parName, ele);
+TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TVector2 defaultVal) {
+    string a = GetParameter(parName);
     if (a == PARAMETER_NOT_FOUND_STR) {
         return defaultVal;
     } else {
-        string unit = GetUnits(ele, parName);
-        TVector2 value = StringTo2DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
+        string unit = GetParameterUnits(parName);
+        string valuestr = REST_Units::RemoveUnitsFromString(a);
+        TVector2 value = StringTo2DVector(valuestr);
         Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
         return TVector2(valueX, valueY);
     }
-
     return defaultVal;
 }
-TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TVector2 defaultVal) {
-    return Get2DVectorParameterWithUnits(parName, fElement, defaultVal);
-}
-TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
-                                                      TVector3 defaultVal) {
-    string a = GetParameter(parName, ele);
+
+TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVector3 defaultVal) {
+    string a = GetParameter(parName);
     if (a == PARAMETER_NOT_FOUND_STR) {
         return defaultVal;
     } else {
-        string unit = GetUnits(ele, parName);
-        TVector3 value = StringTo3DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
+        string unit = GetParameterUnits(parName);
+        string valuestr = REST_Units::RemoveUnitsFromString(a);
+        TVector3 value = StringTo3DVector(valuestr);
         Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
         Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
         return TVector3(valueX, valueY, valueZ);
     }
-
     return defaultVal;
-}
-TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVector3 defaultVal) {
-    return Get3DVectorParameterWithUnits(parName, fElement, defaultVal);
 }
 
 ///////////////////////////////////////////////
@@ -1450,15 +1560,13 @@ TiXmlElement* TRestMetadata::GetElement(std::string eleDeclare) { return GetElem
 /// declaration
 ///
 TiXmlElement* TRestMetadata::GetElement(std::string eleDeclare, TiXmlElement* e) {
-    // cout << eleDeclare << " " << e << endl;
-    TiXmlElement* ele = e->FirstChildElement(eleDeclare.c_str());
-    while (ele != NULL) {
-        string a = ele->Value();
-        if (a == eleDeclare) break;
-        ele = ele->NextSiblingElement();
-    }
-    return ele;
+    return e->FirstChildElement(eleDeclare.c_str());
 }
+
+///////////////////////////////////////////////
+/// \brief Get the next sibling xml element of this element, with same eleDeclare
+///
+TiXmlElement* TRestMetadata::GetNextElement(TiXmlElement* e) { return e->NextSiblingElement(e->Value()); }
 
 ///////////////////////////////////////////////
 /// \brief Get an xml element from the default location, according to its
@@ -1500,67 +1608,63 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
 }
 
 ///////////////////////////////////////////////
-/// \brief Returns a string with the unit name provided inside the given
-/// element.
-///
-/// It calls the method GetUnits(TiXmlElement,string) with the current elemnet.
-string TRestMetadata::GetUnits(string whoseunits) {
-    if (fElement != NULL)
-        return GetUnits(fElement, whoseunits);
-    else {
-        ferr << "TRestMetadata::GetUnits(" << whoseunits << "). fElement is NULL" << endl;
-        return "";
-    }
-}
-
-///////////////////////////////////////////////
 /// \brief Returns a string with the unit name given in the given xml element
 ///
 /// if given the target attribute, it will find the unit for this.
 /// e.g. value="(1,-13)mm"  "-3mm"  "50,units=mm"  can both be recoginzed.
 /// if not given, it will find the unit as a parameter of the element.
 ///	e.g. <... value="3" units="mm" .../>
-string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits) {
-    string unitstring = "";
-    if (whoseunits == "") {
-        // units are directly defined as field value in the section
-        unitstring = GetParameter("UNITS", e);
-        if (IsUnit(unitstring)) {
-            debug << "Found unit definition \"" << unitstring << "\" in element " << e->Value() << endl;
-            debug << endl;
-            return unitstring;
-        } else if (whoseunits == "") {
-            unitstring = GetParameter("units", e);
-            if (IsUnit(unitstring)) {
-                debug << "Found unit definition \"" << unitstring << "\" in element " << e->Value() << endl;
-                debug << endl;
-                return unitstring;
-            }
-        } else {
-            warning << "TRestMetadata::" << ClassName() << endl;
-            warning << "No units are defined in " << e->Value() << " : " << e->Attribute("name") << endl;
-            warning << "The parameter will use REST default units" << endl;
-            return "";
-        }
-    } else {
-        // units are embeded inside value string
-        string a = GetParameter(whoseunits, e);
-        unitstring = REST_Units::FindRESTUnitsInString(a);
-
-        if (IsUnit(unitstring)) {
-            return unitstring;
-        } else {
-            debug << "Parameter \"" << whoseunits << " = " << a << "\" dose not contain any units" << endl;
-            debug << "Trying to find unit in element..." << endl;
-            if (GetElementWithName("parameter", whoseunits, e) != NULL) {
-                return GetUnits(GetElementWithName("parameter", whoseunits, e), "");
-            } else {
-                return GetUnits(e, "");
-            }
-        }
+string TRestMetadata::GetUnits(TiXmlElement* e) {
+    if (e == NULL) {
+        warning << "TRestMetadata::GetUnits(): NULL element given!" << endl;
+        return "";
     }
 
-    return unitstring;
+    string valstr = e->Attribute("value") == NULL ? "" : e->Attribute("value");
+    string unitattr = e->Attribute("units") == NULL ? "" : e->Attribute("units");
+
+    string unitembeded = REST_Units::FindRESTUnitsInString(valstr);
+    if (IsUnit(unitembeded)) {
+        return unitembeded;
+    }
+    if (IsUnit(unitattr)) {
+        return unitattr;
+    }
+    return "";
+}
+
+///////////////////////////////////////////////
+/// \brief Returns the unit string of the given parameter of the given xml section
+///
+/// It will firstly find the parameter section from the given xml section.
+/// Then it will search units definition in:
+/// 1. value string of this parameter
+/// 2. "units" attribute of the parameter section
+/// 3. "units" attribute of the given section
+///
+/// If argument section is not given(==NULL), it will use the local section(fElement)
+string TRestMetadata::GetParameterUnits(string parName, TiXmlElement* e) {
+    if (e == NULL) e = fElement;
+    string parvalue = GetParameter(parName, e);
+    if (parvalue == PARAMETER_NOT_FOUND_STR) {
+        return "";
+    } else {
+        // first try to use unit embeded in parvalue
+        string unit = REST_Units::FindRESTUnitsInString(parvalue);
+        // then try to find unit in corresponding "parameter" section
+        if (unit == "") {
+            TiXmlElement* paraele = GetElementWithName("parameter", parName, e);
+            if (paraele != NULL) {
+                unit = GetUnits(paraele);
+            }
+        }
+        // finally try to find unit in local section attribute
+        if (unit == "") {
+            unit = GetUnits(e);
+        }
+        return unit;
+    }
+    return "";
 }
 
 ///////////////////////////////////////////////
@@ -1759,47 +1863,6 @@ std::string TRestMetadata::GetFieldValue(std::string fieldName, std::string defi
     return value;
 }
 
-Double_t TRestMetadata::GetDblFieldValueWithUnits(string fieldName, string definition, size_t fromPosition) {
-    TiXmlElement* ele = StringToElement(FieldNamesToUpper(definition));
-    TiXmlElement* e = ele->FirstChildElement();
-    while (e != NULL) {
-        TiXmlElement* tmp = e;
-        e = e->NextSiblingElement();
-        ele->RemoveChild(tmp);
-    }
-    auto value = GetDblParameterWithUnits(ToUpper(fieldName), ele);
-    delete ele;
-    return value;
-}
-
-TVector2 TRestMetadata::Get2DVectorFieldValueWithUnits(string fieldName, string definition,
-                                                       size_t fromPosition) {
-    TiXmlElement* ele = StringToElement(FieldNamesToUpper(definition));
-    TiXmlElement* e = ele->FirstChildElement();
-    while (e != NULL) {
-        TiXmlElement* tmp = e;
-        e = e->NextSiblingElement();
-        ele->RemoveChild(tmp);
-    }
-    auto value = Get2DVectorParameterWithUnits(ToUpper(fieldName), ele);
-    delete ele;
-    return value;
-}
-
-TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits(string fieldName, string definition,
-                                                       size_t fromPosition) {
-    TiXmlElement* ele = StringToElement(FieldNamesToUpper(definition));
-    TiXmlElement* e = ele->FirstChildElement();
-    while (e != NULL) {
-        TiXmlElement* tmp = e;
-        e = e->NextSiblingElement();
-        ele->RemoveChild(tmp);
-    }
-    auto value = Get3DVectorParameterWithUnits(ToUpper(fieldName), ele);
-    delete ele;
-    return value;
-}
-
 ///////////////////////////////////////////////
 /// \brief Returns the value for the parameter name **parName** found in
 /// **inputString**.
@@ -1812,86 +1875,6 @@ string TRestMetadata::GetParameter(string parName, size_t& pos, string inputStri
 
     TiXmlElement* ele = StringToElement(inputString);
     string value = GetParameter(parName, ele);
-
-    delete ele;
-    return value;
-}
-
-///////////////////////////////////////////////
-/// \brief Gets the double value of the parameter name **parName**, found in
-/// **inputString**, after applying unit conversion.
-///
-/// The parameter must defined providing the additional field units just behind
-/// the parameter value. As in the following example :
-///
-/// \code <parameter name="electricField" value="1" units="kVm" > \endcode
-///
-/// \param parName The name of the parameter from which we want to obtain the
-/// value. \param pos Defines the position inside **inputString** where to start
-/// searching the definition of **parName**.
-///
-/// \return A double value in the default correspoding REST units (keV, us, mm,
-/// Vcm).
-///
-Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, size_t& pos, std::string inputString) {
-    pos = inputString.find(parName, pos);
-
-    TiXmlElement* ele = StringToElement(inputString);
-    double value = GetDblParameterWithUnits(parName, ele);
-
-    delete ele;
-    return value;
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a 2D vector value of the parameter name **parName**, found in
-/// **inputString**, after applying unit conversion.
-///
-/// The parameter must defined providing the additional field units just behind
-/// the parameter value. As in the following example :
-///
-/// \code <parameter name="position" value="(10,0)" units="mm" > \endcode
-///
-/// \param parName The name of the parameter from which we want to obtain the
-/// value. \param pos Defines the position inside **inputString** where to start
-/// searching the definition of **parName**.
-///
-/// \return A 2D vector value in the default correspoding REST units (keV, us,
-/// mm, Vcm).
-///
-TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, size_t& pos,
-                                                      std::string inputString) {
-    pos = inputString.find(parName, pos);
-
-    TiXmlElement* ele = StringToElement(inputString);
-    TVector2 value = Get2DVectorParameterWithUnits(parName, ele);
-
-    delete ele;
-    return value;
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a 3D vector value of the parameter name **parName**, found in
-/// **inputString**, after applying unit conversion.
-///
-/// The parameter must defined providing the additional field units just behind
-/// the parameter value. As in the following example :
-///
-/// \code <parameter name="position" value="(10,0,-10)" units="mm" > \endcode
-///
-/// \param parName The name of the parameter from which we want to obtain the
-/// value. \param pos Defines the position inside **inputString** where to start
-/// searching the definition of **parName**.
-///
-/// \return A 3D vector value in the default correspoding REST units (keV, us,
-/// mm, Vcm).
-///
-TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, size_t& pos,
-                                                      std::string inputString) {
-    pos = inputString.find(parName, pos);
-
-    TiXmlElement* ele = StringToElement(inputString);
-    TVector3 value = Get3DVectorParameterWithUnits(parName, ele);
 
     delete ele;
     return value;
@@ -1935,11 +1918,11 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
         }
     }
 
-    // replace bare variable name. ignore sub strings.
+    // replace bare constant name. ignore sub strings.
     // e.g. variable "nCh" with value "3" cannot replace the string "nChannels+1"
     startPosition = 0;
     endPosition = 0;
-    for (auto iter : fVariables) {
+    for (auto iter : fConstants) {
         int pos = outputBuffer.find(iter.first, 0);
         while (pos != -1) {
             char next =
@@ -1955,22 +1938,6 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
     }
 
     return outputBuffer;
-}
-
-///////////////////////////////////////////////
-/// \brief Set the program env with given env name, value and overwrite
-/// permission.
-///
-/// It will add to fVariables map if the variable with name "name" does not exist.
-/// If exist, it will change the value if "overwriteexisting" is true.
-void TRestMetadata::SetEnv(string name, string value, bool overwriteexisting) {
-    if (fVariables.count(name) > 0) {
-        if (overwriteexisting) {
-            fVariables[name] = value;
-        }
-    } else {
-        fVariables[name] = value;
-    }
 }
 
 ///////////////////////////////////////////////
@@ -2143,17 +2110,12 @@ std::string TRestMetadata::GetSectionName() {
 std::string TRestMetadata::GetConfigBuffer() { return configBuffer; }
 
 ///////////////////////////////////////////////
-/// \brief Get the value of datamember as string.
+/// \brief Get the value of data member as string.
 ///
-/// Note that only streamed datamembers can be read, others will just
-/// return an empty string.
-///
+/// All kinds of data member can be found, including non-streamed
+/// data member and base-class data member
 string TRestMetadata::GetDataMemberValue(string memberName) {
-    any member = REST_Reflection::GetDataMember(any((char*)this, this->ClassName()), memberName);
-    if (!member.IsZombie()) {
-        return ToString(member);
-    }
-    return "";
+    return any(this, this->ClassName()).GetDataMemberValueString(memberName);
 }
 
 ///////////////////////////////////////////////
@@ -2164,9 +2126,8 @@ string TRestMetadata::GetDataMemberValue(string memberName) {
 /// argument requests a data member that is not a vector in nature, this
 /// method will still return a valid vector string with a single element.
 ///
-/// Note that only streamed datamembers can be read, others will just
-/// return an empty string.
-///
+/// All kinds of data member can be found, including non-streamed
+/// data member and base-class data member
 std::vector<string> TRestMetadata::GetDataMemberValues(string memberName) {
     string result = GetDataMemberValue(memberName);
 
@@ -2174,14 +2135,6 @@ std::vector<string> TRestMetadata::GetDataMemberValues(string memberName) {
     result = Replace(result, "}", "");
 
     return Split(result, ",");
-}
-
-///////////////////////////////////////////////
-/// \brief Operator to access datamember value with method GetDataMemberValue()
-string TRestMetadata::operator[](string memberName) {
-    string result = GetDataMemberValue(memberName);
-    if (result == "") result = GetDataMemberValue("f" + memberName);
-    return result;
 }
 
 ///////////////////////////////////////////////
@@ -2248,18 +2201,28 @@ Int_t TRestMetadata::Write(const char* name, Int_t option, Int_t bufsize) {
     return -1;
 }
 
+string TRestMetadata::DataMemberNameToParameterName(string name) { return ""; }
+
+string TRestMetadata::ParameterNameToDataMemberName(string name) { return ""; }
+
 ///////////////////////////////////////////////
 /// \brief Reflection methods, Set value of a datamember in class according to
 /// TRestMetadata::fElement
 ///
-/// It will search for "parameter" section with the same name of the datamember,
-/// and set it's value. For example \code class TRestXXX: public TRestMetadata{
-/// int par0;
+/// It will loop over all the parameters in the rml and find the corresponding datamember.
+/// If found, it will set the it's value. For example, we write:
+/// \code
+/// class TRestXXX: public TRestMetadata{
+/// int fPar0;
 /// }
 ///
 /// <TRestXXX name="..." par0="10"/>
 /// \endcode
-/// After loading the rml file and calling this method, the value of "par0" will
-/// be set to 10
+/// After loading the rml file and calling this method, the value of "fPar0" will
+/// be set to 10.
 ///
-void TRestMetadata::SetDataMemberValFromConfig() {}
+/// We have a naming convention for the parameters in rml and the data members in class.
+/// The names of data member shall all start from "f" and have the second character in
+/// capital form. For example, data member "fTargetName" is linked to parameter "targetName".
+/// In the previous code "fPar0" is linked to "par0"
+void TRestMetadata::ReadDataMemberValFromConfig() {}

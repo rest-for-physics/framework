@@ -101,7 +101,7 @@ class TRestG4Metadata : public TRestMetadata {
 
     Int_t ReadOldDecay0File(TString fileName);
 
-    void ReadParticleSource(TString definition);
+    void ReadParticleSource(TiXmlElement* sourceDefinition);
 
     /// The version of Geant4 used to generate the data
     TString fGeant4Version;

@@ -515,13 +515,12 @@ void TRestGas::InitFromConfigFile() {
     fGasServer = GetParameter("gasServer", _gasServer);
 
     // add gas component
-    string gasComponentString;
-    size_t position = 0;
-    while ((gasComponentString = GetKEYDefinition("gasComponent", position)) != "") {
-        string gasName = GetFieldValue("name", gasComponentString);
-        Double_t gasFraction = StringToDouble(GetFieldValue("fraction", gasComponentString));
-
+    TiXmlElement* gasComponentDefinition = GetElement("gasComponent");
+    while (gasComponentDefinition != NULL) {
+        string gasName = GetFieldValue("name", gasComponentDefinition);
+        Double_t gasFraction = StringToDouble(GetFieldValue("fraction", gasComponentDefinition));
         AddGasComponent(gasName, gasFraction);
+        gasComponentDefinition = GetNextElement(gasComponentDefinition);
     }
     if (fNofGases == 0 && fMaterial != "") {
         vector<string> componentsdef = Split(fMaterial, " ");
@@ -547,10 +546,10 @@ void TRestGas::InitFromConfigFile() {
     }
 
     // setup e-field calculation range and gas file generation parameters
-    string eFieldString = GetKEYDefinition("eField");
-    fEmax = StringToDouble(GetFieldValue("Emax", eFieldString));
-    fEmin = StringToDouble(GetFieldValue("Emin", eFieldString));
-    fEnodes = StringToInteger(GetFieldValue("nodes", eFieldString));
+    TiXmlElement* eFieldDefinition = GetElement("eField");
+    fEmax = StringToDouble(GetFieldValue("Emax", eFieldDefinition));
+    fEmin = StringToDouble(GetFieldValue("Emin", eFieldDefinition));
+    fEnodes = StringToInteger(GetFieldValue("nodes", eFieldDefinition));
     fNCollisions = StringToInteger(GetParameter("nCollisions"));
     fMaxElectronEnergy = StringToDouble(GetParameter("maxElectronEnergy", "40"));
     if (ToUpper(GetParameter("generate")) == "ON" || ToUpper(GetParameter("generate")) == "TRUE")

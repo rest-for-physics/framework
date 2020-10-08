@@ -229,21 +229,24 @@ MACRO( COMPILEDIR libname )
 		foreach(content ${contents})
 		file(GLOB_RECURSE files ${content}/*.cxx)
 		foreach (file ${files})
-
 			string(REGEX MATCH "[^/\\]*cxx" temp ${file})
 			string(REPLACE ".cxx" "" class ${temp})
 
 			set(ROOT_DICT_INCLUDE_DIRS ${local_include_dirs} ${external_include_dirs})
 			file(GLOB_RECURSE header ${class}.h)
-			set(ROOT_DICT_INPUT_HEADERS ${header} ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
-			if(${SCHEMA_EVOLUTION} MATCHES "ON")
-				GEN_ROOT_DICT_LINKDEF_HEADER( ${class} ${header})
-				GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
+			if(NOT header)
+				message(WARNING "header file: " ${class}.h " does not exist for source file: " ${file} ". If you really want to build it, add it to \"addon_src\" variable before calling COMPILEDIR()")
 			else()
-				GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx)
-			endif()
+				set(ROOT_DICT_INPUT_HEADERS ${header} ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
+				if(${SCHEMA_EVOLUTION} MATCHES "ON")
+					GEN_ROOT_DICT_LINKDEF_HEADER( ${class} ${header})
+					GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
+				else()
+					GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx)
+				endif()
 
-			set(contentfiles ${contentfiles} ${file} ${ROOT_DICT_OUTPUT_SOURCES})
+				set(contentfiles ${contentfiles} ${file} ${ROOT_DICT_OUTPUT_SOURCES})
+			endif()
 
 		endforeach (file)
 		
@@ -255,22 +258,24 @@ MACRO( COMPILEDIR libname )
 
 		file(GLOB_RECURSE files src/*.cxx)
 		foreach (file ${files})
-
 			string(REGEX MATCH "[^/\\]*cxx" temp ${file})
 			string(REPLACE ".cxx" "" class ${temp})
 
 			set(ROOT_DICT_INCLUDE_DIRS ${local_include_dirs} ${external_include_dirs})
 			file(GLOB_RECURSE header ${class}.h)
-			set(ROOT_DICT_INPUT_HEADERS ${header} ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
-			if(${SCHEMA_EVOLUTION} MATCHES "ON")
-				GEN_ROOT_DICT_LINKDEF_HEADER( ${class} ${header})
-				GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
+			if(NOT header)
+				message(WARNING "header file: " ${class}.h " does not exist for source file: " ${file} ". If you really want to build it, add it to \"addon_src\" variable before calling COMPILEDIR()")
 			else()
-				GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx)
+				set(ROOT_DICT_INPUT_HEADERS ${header} ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
+				if(${SCHEMA_EVOLUTION} MATCHES "ON")
+					GEN_ROOT_DICT_LINKDEF_HEADER( ${class} ${header})
+					GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
+				else()
+					GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx)
+				endif()
+
+				set(contentfiles ${contentfiles} ${file} ${ROOT_DICT_OUTPUT_SOURCES})
 			endif()
-
-			set(contentfiles ${contentfiles} ${file} ${ROOT_DICT_OUTPUT_SOURCES})
-
 		endforeach (file)
 
 

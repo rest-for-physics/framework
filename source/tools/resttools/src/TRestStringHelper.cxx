@@ -47,7 +47,7 @@ Int_t REST_StringHelper::isAExpression(string in) {
 /// \brief Evaluates and replaces valid mathematical expressions found in the
 /// input string **buffer**.
 ///
-std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer) {
+std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer, std::string errorMessage) {
     // we spilt the unit part and the expresstion part
     int pos = buffer.find_last_of("1234567890().");
 
@@ -71,7 +71,13 @@ std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer
             result += Expressions[i] + ",";
             continue;
         }
-        result += EvaluateExpression(Expressions[i]) + ",";
+        string evaluated = EvaluateExpression(Expressions[i]);
+        if (evaluated == "RESTerror") {
+            result += Expressions[i] + ",";
+            ferr << "ReplaceMathematicalExpressions. Error on RML syntax!" << endl;
+            if (errorMessage != "") ferr << errorMessage << endl;
+        } else
+            result += evaluated + ",";
     }
     if (Expressions.size() > 0) result.erase(result.size() - 1, 1);
 
@@ -103,7 +109,8 @@ std::string REST_StringHelper::EvaluateExpression(std::string exp) {
     ostringstream sss;
     Double_t number = formula.EvalPar(0);
     if (number > 0 && number < 1.e-300) {
-        cout << "REST Warning! Expression not recognized --> " << exp << endl;
+        warning << "REST_StringHelper::EvaluateExpresssion. Expression not recognized --> " << exp << endl;
+        return (string) "RESTerror";
     }
 
     sss << number;

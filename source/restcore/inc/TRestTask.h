@@ -34,6 +34,8 @@ class TRestTask : public TRestMetadata {
     REST_TASKMODE fMode;
     string targetname = "";
     string methodname = "";
+    // indicates whether the argument is string/TString/const char *. If so, the value would be 1. We need to
+    // add "" mark when constructing command. Otherwise the value is 0.
     vector<int> argumenttype;     //!
     vector<string> argumentname;  //!
     vector<string> argument;

@@ -20,7 +20,6 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-
 #ifndef RestCore_TRestGeant4VetoAnalysisProcess
 #define RestCore_TRestGeant4VetoAnalysisProcess
 

@@ -196,6 +196,7 @@ class TRestStringOutput {
     TRestStringOutput& operator<<(endl_t et);
 };
 
+namespace noClass {
 //////////////////////////////////////////////////////////////////////////
 /// \relates TRestStringOutput
 /// This method serves as an end-line mark for TRestStringOutput.
@@ -206,6 +207,8 @@ class TRestStringOutput {
 /// method is passed to TRestStringOutput, who calls back to this method giving its
 /// reference. This logic is same as std::endl.
 inline void endl(TRestStringOutput& input) { input.flushstring(); }
+};  // namespace REST_StringOutput
+using namespace noClass;
 
 /// \relates TRestStringOutput
 /// print a welcome message by calling shell script "rest-config"
