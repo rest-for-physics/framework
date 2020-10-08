@@ -47,19 +47,7 @@
 ///
 /// ### Observables
 ///
-<<<<<<< HEAD
-/// * **FitBaseline_map**: For each pulse, save first fit's parameter.
-///
-/// * **FitAmplitude_map**: For each pulse, save second fit's parameter.
-///
-/// * **FitShapingTime_map**: For each pulse, save third fit's parameter.
-///
-/// * **FitPeakPosition_map**: For each pulse, save fourth fit's parameter.
-///
-/// * **FitSigmaMean**: Mean over all pulses in the event of square root of the squared 
-=======
 /// * **FitSigmaMean**: Mean over all pulses in the event of square root of the squared
->>>>>>> cb21d54f2604293ba61ebe87278545fcddf5ed6b
 /// difference betweeen raw signal and fit divided by number of bins.
 ///
 /// * **FitSigmaStdDev**: Standard deviation over all pulses in the event of square root of the squared
@@ -171,23 +159,8 @@ TRestEvent* TRestRawSignalFittingProcess::ProcessEvent(TRestEvent* evInput) {
     Double_t RatioSigmaMaxPeakMean = 0;
     Double_t RatioSigmaMaxPeak[fRawSignalEvent->GetNumberOfSignals()];
     Double_t ChiSquareMean = 0;
-<<<<<<< HEAD
-    Double_t ChiSquare [fRawSignalEvent->GetNumberOfSignals()];
-    
-    map<int, Double_t> baselineFit;
-    map<int, Double_t> amplitudeFit;
-    map<int, Double_t> shapingtimeFit;
-    map<int, Double_t> peakpositionFit;
-
-    baselineFit.clear();
-    amplitudeFit.clear();
-    shapingtimeFit.clear();
-    peakpositionFit.clear();
-    
-=======
     Double_t ChiSquare[fRawSignalEvent->GetNumberOfSignals()];
 
->>>>>>> cb21d54f2604293ba61ebe87278545fcddf5ed6b
     for (int s = 0; s < fRawSignalEvent->GetNumberOfSignals(); s++) {
         TRestRawSignal* singleSignal = fRawSignalEvent->GetSignal(s);
 
@@ -219,7 +192,16 @@ TRestEvent* TRestRawSignalFittingProcess::ProcessEvent(TRestEvent* evInput) {
         // Fit histogram with ShaperSin
         h->Fit(f, "RNQ", "", MaxPeakBin - 145,
                MaxPeakBin + 165);  // Options: R->fit in range, N->No draw, Q->Quiet
-               
+
+        /*if (fRawSignalEvent->GetID() == 18896) {
+            if (s == 3) {
+                for (int j = MaxPeakBin - 25; j < MaxPeakBin + 45; j++) {
+                    cout << "Pulse: " << singleSignal->GetData(j) + singleSignal->GetBaseLine()
+                         << "  Pulse other way: " << singleSignal->GetRawData(j)
+                         << "  Fit: " << f->Eval(j) << endl;
+                }
+            }
+        }*/
 
         Double_t sigma = 0;
         for (int j = MaxPeakBin - 145; j < MaxPeakBin + 165; j++) {
@@ -231,20 +213,8 @@ TRestEvent* TRestRawSignalFittingProcess::ProcessEvent(TRestEvent* evInput) {
         SigmaMean += Sigma[s];
         ChiSquare[s] = f->GetChisquare();
         ChiSquareMean += ChiSquare[s];
-        
-        baselineFit[singleSignal->GetID()] = f->GetParameter(0);
-        amplitudeFit[singleSignal->GetID()] = f->GetParameter(1);
-        shapingtimeFit[singleSignal->GetID()] = f->GetParameter(2);
-        peakpositionFit[singleSignal->GetID()] = f->GetParameter(3);
-        
         h->Delete();
     }
-    
-    //////////// Fitted parameters Map Observables /////////////
-    SetObservableValue("FitBaseline_map", baselineFit);
-    SetObservableValue("FitAmplitude_map", amplitudeFit);
-    SetObservableValue("FitShapingTime_map", shapingtimeFit);
-    SetObservableValue("FitPeakPosition_map", peakpositionFit);
 
     //////////// Sigma Mean Observable /////////////
     SigmaMean = SigmaMean / (fRawSignalEvent->GetNumberOfSignals());
