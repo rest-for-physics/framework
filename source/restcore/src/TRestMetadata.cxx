@@ -2115,7 +2115,7 @@ std::string TRestMetadata::GetConfigBuffer() { return configBuffer; }
 /// All kinds of data member can be found, including non-streamed 
 /// data member and base-class data member
 string TRestMetadata::GetDataMemberValue(string memberName) {
-    return REST_Reflection::GetDataMemberValue(any(this, this->ClassName()), memberName);
+    return any(this, this->ClassName()).GetDataMemberValueString(memberName);
 }
 
 ///////////////////////////////////////////////
@@ -2201,18 +2201,35 @@ Int_t TRestMetadata::Write(const char* name, Int_t option, Int_t bufsize) {
     return -1;
 }
 
+string TRestMetadata::DataMemberNameToParameterName(string name) { return ""; }
+
+string TRestMetadata::ParameterNameToDataMemberName(string name) { return ""; }
+
+
 ///////////////////////////////////////////////
 /// \brief Reflection methods, Set value of a datamember in class according to
 /// TRestMetadata::fElement
 ///
-/// It will search for "parameter" section with the same name of the datamember,
-/// and set it's value. For example \code class TRestXXX: public TRestMetadata{
-/// int par0;
+/// It will loop over all the parameters in the rml and find the corresponding datamember.
+/// If found, it will set the it's value. For example, we write:
+/// \code 
+/// class TRestXXX: public TRestMetadata{
+/// int fPar0;
 /// }
 ///
 /// <TRestXXX name="..." par0="10"/>
 /// \endcode
-/// After loading the rml file and calling this method, the value of "par0" will
-/// be set to 10
+/// After loading the rml file and calling this method, the value of "fPar0" will
+/// be set to 10.
 ///
-void TRestMetadata::SetDataMemberValFromConfig() {}
+/// We have a naming convention for the parameters in rml and the data members in class.
+/// The names of data member shall all start from "f" and have the second character in 
+/// capital form. For example, data member "fTargetName" is linked to parameter "targetName".
+/// In the previous code "fPar0" is linked to "par0"
+void TRestMetadata::ReadDataMemberValFromConfig() {
+
+
+
+
+
+}

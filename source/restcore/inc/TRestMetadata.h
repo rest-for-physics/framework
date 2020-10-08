@@ -175,6 +175,22 @@ class TRestMetadata : public TNamed {
         if (GetError()) fErrorMessage = message;
     }
 
+#define InitDataMember(name, defaultvalue)                      \
+    {                                                           \
+        string paraname = DataMemberNameToParameterName(#name); \
+        string paraval = GetParameter(paraname);                \
+        if (paraval == PARAMETER_NOT_FOUND_STR) {               \
+            name = defaultvalue;                                \
+        } else {                                                \
+            any(name).ParseString(paraval);                     \
+        }                                                       \
+    }
+
+    string DataMemberNameToParameterName(string name);
+    string ParameterNameToDataMemberName(string name);
+
+    void ReadDataMemberValFromConfig();
+
    public:
     /// It returns true if an error was identified by a derived metadata class
     Bool_t GetError() { return fError; }
@@ -274,9 +290,6 @@ class TRestMetadata : public TNamed {
     void SetHostmgr(TRestManager* m) { fHostmgr = m; }
     /// sets the verboselevel
     void SetVerboseLevel(REST_Verbose_Level v) { fVerboseLevel = v; }
-
-    void SetDataMemberValFromConfig();
-
     /// overwriting the write() method with fStore considered
     virtual Int_t Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 
