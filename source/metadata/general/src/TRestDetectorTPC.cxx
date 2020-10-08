@@ -308,8 +308,6 @@ string TRestDetectorTPC::GetParameter(string paraname) {
 }
 
 void TRestDetectorTPC::SetParameter(string paraname, string paraval) {
-
-
     TRestDetector::SetParameter(paraname, paraval);
 }
 

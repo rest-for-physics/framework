@@ -249,7 +249,7 @@ TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
     }
     fScaleCombined = 1;
 
-    for (int pos = 0; pos>=0 && pos < unitsStr.size();) {
+    for (int pos = 0; pos >= 0 && pos < unitsStr.size();) {
         if (isalpha(unitsStr[pos])) {
             int pos1 = pos;
             while (pos < unitsStr.size() && isalpha(unitsStr[pos])) {
@@ -272,7 +272,7 @@ TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
                 double ordernum = 1;
                 if (pos2 < unitsStr.size() - 1) {
                     if (unitsStr[pos2] == '^') {
-                        int pos3 = unitsStr.find_first_not_of("-0123456789.", pos2+1);
+                        int pos3 = unitsStr.find_first_not_of("-0123456789.", pos2 + 1);
                         string orderstr = unitsStr.substr(pos2 + 1, pos3 - pos2 - 1);
                         ordernum = StringToDouble(orderstr);
                         pos = pos3;
@@ -310,7 +310,6 @@ TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
     } else {
         fZombie = false;
     }
-
 }
 
 int TRestSystemOfUnits::GetUnitType(string singleUnit) {

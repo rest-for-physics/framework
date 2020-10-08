@@ -293,8 +293,7 @@ void CloneAny(TRestReflector from, TRestReflector to) {
     } else {
         TBufferFile buffer(TBuffer::kWrite);
 
-        buffer.MapObject(from.address,
-                         from.cl);  // register obj in map to handle self reference
+        buffer.MapObject(from.address, from.cl);  // register obj in map to handle self reference
         from.cl->Streamer(from.address, buffer);
 
         buffer.SetReadMode();

@@ -3,8 +3,8 @@
 #include "TClass.h"
 #include "TMap.h"
 #include "TObjString.h"
-#include "TRestStringHelper.h"
 #include "TRestReflector.h"
+#include "TRestStringHelper.h"
 
 void TRestDetector::Print() {
     cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
@@ -56,8 +56,8 @@ void TRestDetector::ReadFile(TFile* f) {
     }
 }
 
-void TRestDetector::SetParameter(string paraname, string paraval) { 
-    any member = any(this,REST_ARGS["gDetector"]).GetDataMember(paraname);
+void TRestDetector::SetParameter(string paraname, string paraval) {
+    any member = any(this, REST_ARGS["gDetector"]).GetDataMember(paraname);
     if (!member.IsZombie()) {
         if (member.type == "double") {
             member.SetValue((paraval));
@@ -67,7 +67,6 @@ void TRestDetector::SetParameter(string paraname, string paraval) {
             member.SetValue(paraval);
         }
     }
-    
-    fParameterMap[paraname] = paraval; 
 
+    fParameterMap[paraname] = paraval;
 }

@@ -150,9 +150,9 @@ int REST_ViewReadout(TString rootFile, TString name = "", Int_t plane = 0) {
 
     for (int i = 0; i < chGraph; i++) channelGraph[i]->Draw("same");
 
-        // when we run this macro from restManager from bash,
-        // we need to call TRestMetadata::GetChar() to prevent returning,
-        // while keeping GUI alive.
+// when we run this macro from restManager from bash,
+// we need to call TRestMetadata::GetChar() to prevent returning,
+// while keeping GUI alive.
 #ifdef REST_MANAGER
     readout->GetChar("Running...\nPress a key to exit");
 #endif

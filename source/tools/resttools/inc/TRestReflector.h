@@ -126,6 +126,7 @@ class TRestReflector {
     int InitDictionary();
     /// If on heap, we can call Destroy() to TRestReflector. True only when initailized from Assembly()
     bool onheap = false;
+
    public:
     /// Name field
     string name = "";
@@ -250,7 +251,6 @@ void CloneAny(TRestReflector from, TRestReflector to);
 
 typedef REST_Reflection::TRestReflector any;
 
-
 class RESTVirtualConverter {
    public:
     virtual string ToString(void* obj) = 0;
@@ -286,7 +286,7 @@ class Converter : RESTVirtualConverter {
 };
 
 #define AddConverter(ToStringFunc, ParseStringFunc, type) \
-  template <>                                    \
+    template <>                                           \
     Converter<type>* Converter<type>::thisptr = new Converter<type>(&ToStringFunc, &ParseStringFunc);
 
 #endif
