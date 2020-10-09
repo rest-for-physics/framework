@@ -113,7 +113,7 @@ inline bool CanOverwrite(T* name, int level) {
 }
 
 template <class T>
-inline bool SetInitLevel(T* name, int level) {
+inline void SetInitLevel(T* name, int level) {
     GlobalVarInit<T>::level = level;
 }
 
