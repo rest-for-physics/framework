@@ -47,8 +47,8 @@ class TRestTask : public TRestMetadata {
 
     void SetArgumentValue(vector<string> arg);
 
-    static TRestTask* GetTask(TString Name);
-    static TRestTask* ParseCommand(TString cmd);
+    static TRestTask* GetTaskFromMacro(TString Name);
+    static TRestTask* GetTaskFromCommand(TString cmd);
 
     virtual void RunTask(TRestManager*);
     virtual void PrintArgumentHelp();

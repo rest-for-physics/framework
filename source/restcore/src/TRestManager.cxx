@@ -127,7 +127,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
                     ri->CloseFile();
                 }
             } else {
-                TRestTask* tsk = TRestTask::GetTask(type);
+                TRestTask* tsk = TRestTask::GetTaskFromMacro(type);
                 if (tsk == NULL) {
                     warning << "REST ERROR. Task : " << type << " not found!!" << endl;
                     warning << "This task will be skipped." << endl;
@@ -140,7 +140,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
         } else if (cmd != NULL) {
             debug << " \"" << cmd << "\" " << endl;
 
-            TRestTask* tsk = TRestTask::ParseCommand(cmd);
+            TRestTask* tsk = TRestTask::GetTaskFromCommand(cmd);
             if (tsk == NULL) {
                 warning << "REST ERROR. Command : " << cmd << " cannot be parsed!!" << endl;
                 warning << "This task will be skipped." << endl;
@@ -155,7 +155,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
 }
 
 void TRestManager::InitFromTask(string taskName, vector<string> arguments) {
-    TRestTask* tsk = TRestTask::GetTask(taskName);
+    TRestTask* tsk = TRestTask::GetTaskFromMacro(taskName);
     if (tsk == NULL) {
         gSystem->Exit(-1);
     }

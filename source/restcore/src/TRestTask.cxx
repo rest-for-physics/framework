@@ -161,26 +161,7 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
 /// \brief Starter method. Looks through the rml sections and set
 /// argument/datamenber value
 ///
-void TRestTask::InitFromConfigFile() {
-    if (fMode == TASK_MACRO) {
-        TiXmlElement* ele = fElement->FirstChildElement("parameter");
-        while (ele != NULL) {
-            if (ele->Attribute("name") == NULL || ele->Attribute("value") == NULL) continue;
-            string name = ele->Attribute("name");
-            string value = ele->Attribute("value");
-            for (int i = 0; i < argumentname.size(); i++) {
-                if (name == argumentname[i]) {
-                    argument[i] = value;
-                }
-            }
-            ele = ele->NextSiblingElement("parameter");
-        }
-
-    } else if (fMode == TASK_CLASS) {
-        // load config for the inherited task class
-        ReadDataMemberValFromConfig();
-    }
-}
+void TRestTask::InitFromConfigFile() { ReadAllParameters(); }
 
 ///////////////////////////////////////////////
 /// \brief Set argument directly with a list of string
@@ -193,9 +174,6 @@ void TRestTask::SetArgumentValue(vector<string> arg) {
         exit(0);
     }
     argument = arg;
-    if (fMode == TASK_CLASS) {
-        ReadDataMemberValFromConfig();
-    }
 }
 
 ///////////////////////////////////////////////
@@ -301,7 +279,7 @@ void TRestTask::PrintArgumentHelp() {
 /// this name. If so, it returns the found class, if not, it finds a
 /// corresponding macro file and calls gInterpreter to load it, and then
 /// instaintiates a TRestTask class wrapping this file.
-TRestTask* TRestTask::GetTask(TString taskName) {
+TRestTask* TRestTask::GetTaskFromMacro(TString taskName) {
     string macfilelists =
         TRestTools::Execute("find $REST_PATH/macros -name *" + (string)taskName + (string) ".*");
     auto macfiles = Split(macfilelists, "\n");
@@ -331,7 +309,7 @@ TRestTask* TRestTask::GetTask(TString taskName) {
     return NULL;
 }
 
-TRestTask* TRestTask::ParseCommand(TString cmd) {
+TRestTask* TRestTask::GetTaskFromCommand(TString cmd) {
     REST_TASKMODE mode = TASK_CPPCMD;
     if (((string)cmd).find("->") == -1) mode = TASK_SHELLCMD;
 
