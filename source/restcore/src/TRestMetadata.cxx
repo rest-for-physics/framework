@@ -1106,8 +1106,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1140,8 +1141,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -2201,9 +2203,31 @@ Int_t TRestMetadata::Write(const char* name, Int_t option, Int_t bufsize) {
     return -1;
 }
 
-string TRestMetadata::DataMemberNameToParameterName(string name) { return ""; }
+string TRestMetadata::DataMemberNameToParameterName(string name) {
+    if (name == "") {
+        return "";
+    }
+    if (name[0] == 'f' && name.size() > 1) {
+        return string(1, tolower(name[1])) + name.substr(2, -1);
+    } else {
+        warning << "REST Warning: bad data member naming: \"" << this->ClassName() << "::" << name << "\""
+                << endl;
+        return "";
+    }
+}
 
-string TRestMetadata::ParameterNameToDataMemberName(string name) { return ""; }
+string TRestMetadata::ParameterNameToDataMemberName(string name) {
+    if (name == "") {
+        return "";
+    }
+    if (islower(name[0])) {
+        return "f" + string(1, toupper(name[0])) + name.substr(1, -1);
+    } else {
+        warning << "REST Warning: bad parameter naming: \"" << name << "\" for class: " << this->ClassName()
+                << endl;
+        return "";
+    }
+}
 
 ///////////////////////////////////////////////
 /// \brief Reflection methods, Set value of a datamember in class according to
@@ -2225,4 +2249,25 @@ string TRestMetadata::ParameterNameToDataMemberName(string name) { return ""; }
 /// The names of data member shall all start from "f" and have the second character in
 /// capital form. For example, data member "fTargetName" is linked to parameter "targetName".
 /// In the previous code "fPar0" is linked to "par0"
-void TRestMetadata::ReadDataMemberValFromConfig() {}
+void TRestMetadata::ReadAllParameters() {
+    any thisactual(this, this->ClassName());
+
+    auto paraele = fElement->FirstChildElement("parameter");
+    while (paraele != NULL) {
+        TString name = paraele->Attribute("name");
+        TString value = paraele->Attribute("value");
+
+        if (name == "" || value == "") {
+            warning << "bad <parameter section" << endl;
+        } else if (name == "name" || name == "title" || name == "verboseLevel" || name == "store") {
+            // we omit these parameters since they are already loaded in LoadSectionMetadata()
+        } else {
+            string datamembername = ParameterNameToDataMemberName((string)name);
+            any datamember = thisactual.GetDataMember(datamembername);
+            if (!datamember.IsZombie()) {
+                datamember.ParseString((string)value);
+            }
+        }
+        paraele = paraele->NextSiblingElement("parameter");
+    }
+}

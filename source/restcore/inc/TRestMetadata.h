@@ -175,21 +175,10 @@ class TRestMetadata : public TNamed {
         if (GetError()) fErrorMessage = message;
     }
 
-#define InitDataMember(name, defaultvalue)                      \
-    {                                                           \
-        string paraname = DataMemberNameToParameterName(#name); \
-        string paraval = GetParameter(paraname);                \
-        if (paraval == PARAMETER_NOT_FOUND_STR) {               \
-            name = defaultvalue;                                \
-        } else {                                                \
-            any(name).ParseString(paraval);                     \
-        }                                                       \
-    }
-
     string DataMemberNameToParameterName(string name);
     string ParameterNameToDataMemberName(string name);
 
-    void ReadDataMemberValFromConfig();
+    void ReadAllParameters();
 
    public:
     /// It returns true if an error was identified by a derived metadata class
