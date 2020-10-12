@@ -2266,6 +2266,8 @@ void TRestMetadata::ReadAllParameters() {
             if (datamembername != "") {
                 any datamember = thisactual.GetDataMember(datamembername);
                 if (!datamember.IsZombie()) {
+                    debug << this->ClassName() << "::ReadAllParameters(): parsing value \"" << value
+                          << "\" to data member \"" << datamembername << "\"" << endl;
                     datamember.ParseString((string)value);
                 } else {
                     debug << this->ClassName() << "::ReadAllParameters(): datamember \"" << datamembername
