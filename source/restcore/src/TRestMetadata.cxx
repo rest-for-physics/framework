@@ -2257,15 +2257,20 @@ void TRestMetadata::ReadAllParameters() {
         TString name = paraele->Attribute("name");
         TString value = paraele->Attribute("value");
 
-        if (name == "" || value == "") {
-            warning << "bad <parameter section" << endl;
+        if (name == "") {
+            warning << "bad <parameter section: " << *paraele << endl;
         } else if (name == "name" || name == "title" || name == "verboseLevel" || name == "store") {
             // we omit these parameters since they are already loaded in LoadSectionMetadata()
         } else {
             string datamembername = ParameterNameToDataMemberName((string)name);
-            any datamember = thisactual.GetDataMember(datamembername);
-            if (!datamember.IsZombie()) {
-                datamember.ParseString((string)value);
+            if (datamembername != "") {
+                any datamember = thisactual.GetDataMember(datamembername);
+                if (!datamember.IsZombie()) {
+                    datamember.ParseString((string)value);
+                } else {
+                    debug << this->ClassName() << "::ReadAllParameters(): datamember \"" << datamembername
+                          << "\" for parameter \"" << name << "\" not found, skipping" << endl;
+                }
             }
         }
         paraele = paraele->NextSiblingElement("parameter");

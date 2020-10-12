@@ -147,7 +147,7 @@ void TRestReflector::ParseString(string str) {
         if (RESTConverterMethodBase.count(type) > 0) {
             RESTConverterMethodBase[type]->ParseString(address, str);
         } else {
-            warning << "Method for parsing string to " << type << " has not been registered!" << endl;
+            info << "Method for parsing string to " << type << " has not been registered!" << endl;
         }
     }
 }
