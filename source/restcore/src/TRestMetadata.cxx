@@ -2248,10 +2248,21 @@ string TRestMetadata::ParameterNameToDataMemberName(string name) {
 /// We have a naming convention for the parameters in rml and the data members in class.
 /// The names of data member shall all start from "f" and have the second character in
 /// capital form. For example, data member "fTargetName" is linked to parameter "targetName".
-/// In the previous code "fPar0" is linked to "par0"
+/// In the previous code "fPar0" is linked to "par0".
+/// 
+/// Note that parameters include <parameter section and all the attributes in fElement.
 void TRestMetadata::ReadAllParameters() {
-    any thisactual(this, this->ClassName());
+    // Loop over attribute set
+    auto paraattr = fElement->FirstAttribute();
+    while (paraattr != NULL) {
+        TString name = paraattr->Name();
+        TString value = paraattr->Value();
 
+        ReadOneParameter((string)name, (string)value);
+        paraattr = paraattr->Next();
+    }
+
+    // Loop over <parameter section
     auto paraele = fElement->FirstChildElement("parameter");
     while (paraele != NULL) {
         TString name = paraele->Attribute("name");
@@ -2259,22 +2270,29 @@ void TRestMetadata::ReadAllParameters() {
 
         if (name == "") {
             warning << "bad <parameter section: " << *paraele << endl;
-        } else if (name == "name" || name == "title" || name == "verboseLevel" || name == "store") {
-            // we omit these parameters since they are already loaded in LoadSectionMetadata()
         } else {
-            string datamembername = ParameterNameToDataMemberName((string)name);
-            if (datamembername != "") {
-                any datamember = thisactual.GetDataMember(datamembername);
-                if (!datamember.IsZombie()) {
-                    debug << this->ClassName() << "::ReadAllParameters(): parsing value \"" << value
-                          << "\" to data member \"" << datamembername << "\"" << endl;
-                    datamember.ParseString((string)value);
-                } else {
-                    debug << this->ClassName() << "::ReadAllParameters(): datamember \"" << datamembername
-                          << "\" for parameter \"" << name << "\" not found, skipping" << endl;
-                }
-            }
+            ReadOneParameter((string)name, (string)value);
         }
         paraele = paraele->NextSiblingElement("parameter");
+    }
+}
+
+void TRestMetadata::ReadOneParameter(string name, string value) {
+    if (name == "name" || name == "title" || name == "verboseLevel" || name == "store") {
+        // we omit these parameters since they are already loaded in LoadSectionMetadata()
+    } else {
+        any thisactual(this, this->ClassName());
+        string datamembername = ParameterNameToDataMemberName(name);
+        if (datamembername != "") {
+            any datamember = thisactual.GetDataMember(datamembername);
+            if (!datamember.IsZombie()) {
+                debug << this->ClassName() << "::ReadAllParameters(): parsing value \"" << value
+                      << "\" to data member \"" << datamembername << "\"" << endl;
+                datamember.ParseString(value);
+            } else {
+                debug << this->ClassName() << "::ReadAllParameters(): datamember \"" << datamembername
+                      << "\" for parameter \"" << name << "\" not found, skipping" << endl;
+            }
+        }
     }
 }
