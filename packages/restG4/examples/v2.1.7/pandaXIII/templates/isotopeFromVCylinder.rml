@@ -11,7 +11,7 @@
   </globals>
 
   <TRestRun name="PANDA-X III run" title="Simulations v2.0">
-    <parameter name="experiment" value="PANDAXIII"/>
+    <parameter name="experimentName" value="PANDAXIII"/>
     <parameter name="runType" value="simulation"/>
     <parameter name="runNumber" value="${REST_RUN}"/>
     <parameter name="runTag" value="VCyl_L${REST_LENGTH}m_R${REST_RADIUS}mm_${REST_GEOMETRY_TYPE}_${REST_ISOTOPE}"/>
