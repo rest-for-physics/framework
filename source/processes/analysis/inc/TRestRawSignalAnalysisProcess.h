@@ -46,8 +46,8 @@ class TRestRawSignalAnalysisProcess : public TRestEventProcess {
     TVector2 fBaseLineRange = TVector2(5, 55);
     TVector2 fIntegralRange = TVector2(10, 500);
     Double_t fPointThreshold = 2;
-    Double_t fPointsOverThreshold = 5;
-    Int_t fSignalThreshold = 5;
+    Double_t fSignalThreshold = 5;
+    Int_t fPointsOverThreshold = 5;
 
     void InitFromConfigFile();
 
