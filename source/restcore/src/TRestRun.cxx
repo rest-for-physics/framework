@@ -266,7 +266,7 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
         }
         TRestEventProcess* pc = REST_Reflection::Assembly(processType);
 
-        pc->LoadConfigFromFile(e, fElementGlobal);
+        pc->LoadConfigFromElement(e, fElementGlobal);
 
         pc->SetRunInfo(this);
         pc->SetHostmgr(fHostmgr);
@@ -298,7 +298,8 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
         TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
         meta->SetHostmgr(fHostmgr);
         fMetadata.push_back(meta);
-        meta->LoadConfigFromFile(e, fElementGlobal);
+        meta->LoadConfigFromElement(e, fElementGlobal);
+        gDetector->RegisterMetadata(meta);
 
         return 0;
     }
@@ -1151,7 +1152,8 @@ void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t s
         meta->DoNotStore();
 
     fMetadata.push_back(meta);
-    meta->InitFromRootFile();
+    meta->LoadConfigFromBuffer();
+    gDetector->RegisterMetadata(meta);
     f->Close();
     delete f;
 }

@@ -126,6 +126,13 @@ class TRestMetadata : public TNamed {
     void UnSetVersion();
     void SetLibraryVersion(TString version);
 
+    // Load global setting for the rml section, e.g., name, title.
+    virtual Int_t LoadSectionMetadata();
+    /// To make settings from rml file. This method must be implemented in the derived class.
+    virtual void InitFromConfigFile() = 0;
+    /// Method called after the object is retrieved from root file.
+    virtual void InitFromRootFile() {}
+
     //////////////////////////////////////////////////
     /// Data members
     /// NOTE!! In root6 the "#ifndef __CINT__" structure is not helpful any more!
@@ -193,19 +200,11 @@ class TRestMetadata : public TNamed {
             return "No error!";
     }
 
-    Int_t LoadConfigFromFile();
-    Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);
-    Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, map<string, string> envs);
+    Int_t LoadConfigFromElement(TiXmlElement* eSectional, TiXmlElement* eGlobal,
+                                map<string, string> envs = {});
     Int_t LoadConfigFromFile(string cfgFileName, string sectionName = "");
+    Int_t LoadConfigFromBuffer();
 
-    /// Load global setting for the rml section, e.g., name, title.
-    virtual Int_t LoadSectionMetadata();
-
-    ///  To make settings from rml file. This method must be implemented in the derived class.
-    virtual void InitFromConfigFile() = 0;
-
-    /// Method called after the object is retrieved from root file.
-    virtual void InitFromRootFile();
 
     /// Making default settings.
     virtual void Initialize() {}

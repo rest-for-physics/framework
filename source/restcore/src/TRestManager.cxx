@@ -93,7 +93,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
         meta->SetHostmgr(this);
         fMetaObjects.push_back(meta);
         meta->SetConfigFile(fConfigFileName);
-        meta->LoadConfigFromFile(e, fElementGlobal, fVariables);
+        meta->LoadConfigFromElement(e, fElementGlobal, fVariables);
 
         return 0;
     }
@@ -133,7 +133,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
                     warning << "This task will be skipped." << endl;
                     return -1;
                 }
-                tsk->LoadConfigFromFile(e, fElementGlobal);
+                tsk->LoadConfigFromElement(e, fElementGlobal);
                 tsk->RunTask(this);
                 return 0;
             }

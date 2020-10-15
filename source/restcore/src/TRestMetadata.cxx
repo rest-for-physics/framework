@@ -517,14 +517,6 @@ TRestMetadata::~TRestMetadata() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Default starter. Just call again the Initialize() method.
-///
-Int_t TRestMetadata::LoadConfigFromFile() {
-    Initialize();
-    return 0;
-}
-
-///////////////////////////////////////////////
 /// \brief Give the file name, find out the corresponding section. Then call the
 /// main starter.
 ///
@@ -562,7 +554,7 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
         }
 
         // call the real loading method
-        int result = LoadConfigFromFile(Sectional, Global, {});
+        int result = LoadConfigFromElement(Sectional, Global, {});
         delete Sectional;
         delete rootEle;
         return result;
@@ -575,21 +567,14 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
 }
 
 ///////////////////////////////////////////////
-/// \brief Calling the main starter
-///
-Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal) {
-    return LoadConfigFromFile(eSectional, eGlobal, {});
-}
-
-///////////////////////////////////////////////
 /// \brief Main starter method.
 ///
 /// First merge the sectional and global sections together, then save the input
 /// env section. To make start up it calls the following methods in sequence:
 /// LoadSectionMetadata(), InitFromConfigFile()
 ///
-Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal,
-                                        map<string, string> envs) {
+Int_t TRestMetadata::LoadConfigFromElement(TiXmlElement* eSectional, TiXmlElement* eGlobal,
+                                           map<string, string> envs) {
     Initialize();
     TiXmlElement* theElement;
     if (eSectional != NULL && eGlobal != NULL) {
@@ -618,6 +603,21 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
     if (result == 0) InitFromConfigFile();
     debug << ClassName() << " has finished preparing config data" << endl;
     return result;
+}
+
+///////////////////////////////////////////////
+/// \brief Initialize data from a string element buffer.
+///
+/// This method is usually called when the object is retrieved from root file. It will call
+/// InitFromRootFile() after parsing configBuffer(string) to fElement(TiXmlElement)
+Int_t TRestMetadata::LoadConfigFromBuffer() {
+    if (configBuffer != "") {
+        fElement = StringToElement(configBuffer);
+        configBuffer = "";
+        InitFromRootFile();
+        return 0;
+    }
+    return -1;
 }
 
 ///////////////////////////////////////////////
@@ -669,15 +669,6 @@ Int_t TRestMetadata::LoadSectionMetadata() {
         ToUpper(GetParameter("store", "true")) == "TRUE" || ToUpper(GetParameter("store", "true")) == "ON";
 
     return 0;
-}
-
-void TRestMetadata::InitFromRootFile() {
-    if (configBuffer != "") {
-        fElement = StringToElement(configBuffer);
-        configBuffer = "";
-        // this->InitFromConfigFile();
-    }
-    gDetector->RegisterMetadata(this);
 }
 
 ///////////////////////////////////////////////
@@ -2249,7 +2240,7 @@ string TRestMetadata::ParameterNameToDataMemberName(string name) {
 /// The names of data member shall all start from "f" and have the second character in
 /// capital form. For example, data member "fTargetName" is linked to parameter "targetName".
 /// In the previous code "fPar0" is linked to "par0".
-/// 
+///
 /// Note that parameters include <parameter section and all the attributes in fElement.
 void TRestMetadata::ReadAllParameters() {
     // Loop over attribute set
