@@ -95,7 +95,7 @@ TRestMessengerAndReceiver::~TRestMessengerAndReceiver() {
 
 TRestMessengerAndReceiver::TRestMessengerAndReceiver(string token) {
     Initialize();
-    LoadConfigFromFile(StringToElement("<TRestMessengerAndReceiver token=\"" + token + "\"/>"), NULL, {});
+    LoadConfigFromElement(StringToElement("<TRestMessengerAndReceiver token=\"" + token + "\"/>"), NULL, {});
 }
 
 void TRestMessengerAndReceiver::Initialize() {

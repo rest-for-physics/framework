@@ -590,7 +590,6 @@ void TRestReadout::InitFromConfigFile() {
     }
 
     ValidateReadout();
-    gDetector->RegisterMetadata(this);
 }
 
 TRestReadoutModule* TRestReadout::ParseModuleDefinition(TiXmlElement* moduleDefinition) {
