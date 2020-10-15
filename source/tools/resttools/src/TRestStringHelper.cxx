@@ -1,6 +1,9 @@
 #include "TRestStringHelper.h"
 
 #include "Rtypes.h"
+#include "TSystem.h"
+#include <thread>
+#include "TApplication.h"
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(6, 0, 0)
 #include "TFormula.h"
@@ -117,6 +120,26 @@ std::string REST_StringHelper::EvaluateExpression(std::string exp) {
     string out = sss.str();
 
     return out;
+}
+
+///////////////////////////////////////////////////
+/// \brief Helps to pause the program, printing a message before pausing.
+/// 
+/// ROOT GUI won't be jammed during this pause.
+Int_t REST_StringHelper::GetChar(string hint) {
+    if (gApplication != NULL && !gApplication->IsRunning()) {
+        thread t = thread(&TApplication::Run, gApplication, true);
+        t.detach();
+
+        cout << hint << endl;
+        int result = getchar();
+        gSystem->ExitLoop();
+        return result;
+    } else {
+        cout << hint << endl;
+        return getchar();
+    }
+    return -1;
 }
 
 ///////////////////////////////////////////////

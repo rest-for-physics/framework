@@ -227,10 +227,6 @@ class TRestMetadata : public TNamed {
     /// Print the buffered message
     void PrintMessageBuffer();  // *MENU*
 
-    /// helps to pause the program, printing a message before pausing.
-    /// ROOT GUI won't be jammed during this pause
-    int GetChar(string hint = "Press a KEY to continue ...");
-
     // getters and setters
     std::string GetSectionName();
 

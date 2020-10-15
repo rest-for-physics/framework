@@ -241,13 +241,6 @@ void TRestBrowser::SetInputEvent(TRestEvent* eve) {
     }
 }
 
-int TRestBrowser::GetChar(string hint) {
-    if (r != NULL) {
-        r->GetChar(hint);
-    }
-    return 0;
-}
-
 Bool_t TRestBrowser::LoadEvent(Int_t n) {
     if (r->GetInputFile() == NULL || r->GetInputFile()->IsZombie()) {
         cout << "No File..." << endl;

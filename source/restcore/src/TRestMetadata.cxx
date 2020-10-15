@@ -445,7 +445,6 @@
 #include "TRestMetadata.h"
 
 #include <TMath.h>
-#include <TSystem.h>
 
 #include <iomanip>
 
@@ -2006,22 +2005,6 @@ void TRestMetadata::WriteConfigBuffer(string fname) {
 }
 
 void TRestMetadata::PrintMessageBuffer() { cout << messageBuffer << endl; }
-
-int TRestMetadata::GetChar(string hint) {
-    if (gApplication != NULL && !gApplication->IsRunning()) {
-        thread t = thread(&TApplication::Run, gApplication, true);
-        t.detach();
-
-        cout << hint << endl;
-        int result = getchar();
-        gSystem->ExitLoop();
-        return result;
-    } else {
-        cout << hint << endl;
-        return getchar();
-    }
-    return -1;
-}
 
 ///////////////////////////////////////////////
 /// \brief Prints metadata content on screen. Usually overloaded by the derived
