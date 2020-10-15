@@ -560,9 +560,9 @@ TPad* TRestRawSignalAnalysisProcess::DrawObservables() {
 ///
 void TRestRawSignalAnalysisProcess::InitFromConfigFile() {
     TRestEventProcess::InitFromConfigFile();
-    //fBaseLineRange = StringTo2DVector(GetParameter("baseLineRange", "(5,55)"));
-    //fIntegralRange = StringTo2DVector(GetParameter("integralRange", "(10,500)"));
-    //fPointThreshold = StringToDouble(GetParameter("pointThreshold", "2"));
-    //fPointsOverThreshold = StringToInteger(GetParameter("pointsOverThreshold", "5"));
-    //fSignalThreshold = StringToDouble(GetParameter("signalThreshold", "5"));
+    // fBaseLineRange = StringTo2DVector(GetParameter("baseLineRange", "(5,55)"));
+    // fIntegralRange = StringTo2DVector(GetParameter("integralRange", "(10,500)"));
+    // fPointThreshold = StringToDouble(GetParameter("pointThreshold", "2"));
+    // fPointsOverThreshold = StringToInteger(GetParameter("pointsOverThreshold", "5"));
+    // fSignalThreshold = StringToDouble(GetParameter("signalThreshold", "5"));
 }

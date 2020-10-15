@@ -114,10 +114,10 @@ void TRestRun::BeginOfInit() {
 
     // Get some infomation
     fRunUser = REST_USER;
-    //fRunType = GetParameter("runType", "ANALYSIS").c_str();
-    //fRunDescription = GetParameter("runDescription", "").c_str();
-    //fExperimentName = GetParameter("experiment", "preserve").c_str();
-    //fRunTag = GetParameter("runTag", "noTag").c_str();
+    // fRunType = GetParameter("runType", "ANALYSIS").c_str();
+    // fRunDescription = GetParameter("runDescription", "").c_str();
+    // fExperimentName = GetParameter("experiment", "preserve").c_str();
+    // fRunTag = GetParameter("runTag", "noTag").c_str();
     ReadAllParameters();
 
     // runnumber and input file name
@@ -199,7 +199,7 @@ void TRestRun::BeginOfInit() {
                           "_" + (TString)runNumberStr + "_" + (TString)runParentStr + "_V" + REST_RELEASE +
                           ".root";
 
-        //fOverwrite = ToUpper(GetParameter("overwrite", "on")) != "OFF";
+        // fOverwrite = ToUpper(GetParameter("overwrite", "on")) != "OFF";
         while (!fOverwrite && TRestTools::fileExists((string)fOutputFileName)) {
             fParentRunNumber++;
             sprintf(runParentStr, "%05d", fParentRunNumber);
