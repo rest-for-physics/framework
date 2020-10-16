@@ -35,6 +35,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/wait.h>
+
 
 #include <algorithm>
 #include <chrono>
@@ -452,21 +454,58 @@ throw std::exception();
     delete subRestG4Event;
     delete restTrack;
 
-    // Writing the geometry in TGeoManager format to the ROOT file
-    {
-        // writing the geometry object
-        TFile* f1 = new TFile(Filename, "update");
-        cout << "Writing geometry..." << endl;
 
+    ////////// Writing the geometry in TGeoManager format to the ROOT file
+    ////////// Need to fork and do it in child process, to prevent occasional seg.fault
+    pid_t pid;
+    pid = fork();
+    if (pid < 0) {
+        perror("fork error:");
+        exit(1);
+    }
+    // child process
+    if (pid == 0) {
+        // writing the geometry object
+        freopen("/dev/null", "w", stdout);
+        freopen("/dev/null", "w", stderr);
+        Console::CompatibilityMode = true;
+
+        TFile* f1 = new TFile(Filename, "update");
         TGeoManager* geo2 = gdml->CreateGeoM();
 
         f1->cd();
         geo2->SetName("Geometry");
         geo2->Write();
-        cout << "Closing file : " << Filename << endl;
         f1->Close();
+        exit(0);
     }
+    // father process
+    else {
+        int stat_val;
+        pid_t child_pid;
 
+        printf("Writing geometry ... \n");
+
+        child_pid = wait(&stat_val);
+
+        printf("Geometry writting process exited, pid = %d, Code %d\n", child_pid, WEXITSTATUS(stat_val));
+        if (WEXITSTATUS(stat_val) != 0) printf("REST Error: geometry writting is abnormal!\n");
+    }
+    //// Writing the geometry in TGeoManager format to the ROOT file
+    //{
+    //    // writing the geometry object
+    //    TFile* f1 = new TFile(Filename, "update");
+    //    cout << "Writing geometry..." << endl;
+
+    //    TGeoManager* geo2 = gdml->CreateGeoM();
+
+    //    f1->cd();
+    //    geo2->SetName("Geometry");
+    //    geo2->Write();
+    //    cout << "Closing file : " << Filename << endl;
+    //    f1->Close();
+    //}
+    cout << "============== Generated file: " << Filename <<" =============="<< endl;
     auto end_time = chrono::steady_clock::now();
     cout << "Elapsed time: " << chrono::duration_cast<chrono::seconds>(end_time - start_time).count()
          << " seconds" << endl;
