@@ -205,7 +205,6 @@ class TRestMetadata : public TNamed {
     Int_t LoadConfigFromFile(string cfgFileName, string sectionName = "");
     Int_t LoadConfigFromBuffer();
 
-
     /// Making default settings.
     virtual void Initialize() {}
 
