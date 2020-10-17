@@ -62,7 +62,7 @@ Int_t REST_ViewReadoutEvent(TString fName, TString readoutFilename = "definition
     // When we run this macro from restManager from bash, we need to call
     // TRestMetadata::GetChar() to prevent returning, while keeping GUI alive.
 #ifdef REST_MANAGER
-    browser->GetChar("Running...\nPress a key to exit");
+    GetChar("Running...\nPress a key to exit");
 #endif
 
     return 0;

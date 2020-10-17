@@ -29,7 +29,7 @@ Int_t REST_ViewEvents(TString fName, TString EventType = "") {
     }
 
 #ifdef REST_MANAGER
-    browser->GetChar("Running...\nPress a key to exit");
+    GetChar("Running...\nPress a key to exit");
 #endif
 
     return 0;

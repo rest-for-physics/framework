@@ -154,7 +154,7 @@ int REST_ViewReadout(TString rootFile, TString name = "", Int_t plane = 0) {
 // we need to call TRestMetadata::GetChar() to prevent returning,
 // while keeping GUI alive.
 #ifdef REST_MANAGER
-    readout->GetChar("Running...\nPress a key to exit");
+    GetChar("Running...\nPress a key to exit");
 #endif
 
     return 0;
