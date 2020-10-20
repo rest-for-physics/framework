@@ -59,13 +59,7 @@ void TRestDetector::ReadFile(TFile* f) {
 void TRestDetector::SetParameter(string paraname, string paraval) {
     any member = any(this, REST_ARGS["gDetector"]).GetDataMember(paraname);
     if (!member.IsZombie()) {
-        if (member.type == "double") {
-            member.SetValue((paraval));
-        } else if (member.type == "int") {
-            member.SetValue(StringToInteger(paraval));
-        } else if (member.type == "string") {
-            member.SetValue(paraval);
-        }
+        member.ParseString(paraval);
     }
 
     fParameterMap[paraname] = paraval;

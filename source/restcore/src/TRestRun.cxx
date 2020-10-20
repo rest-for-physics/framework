@@ -672,23 +672,9 @@ void TRestRun::ReadFileInfo(string filename) {
         gDetector->SetParameter(formatsectionlist[i], infoFromFileName);
 
         // to store special file pattern parameters: fRunNumber, fRunTag, etc.
-        if (formatsectionlist[i] == "fRunNumber") {
-            SetRunNumber(StringToInteger(infoFromFileName));
-            gDetector->SetRunNumber(StringToInteger(infoFromFileName));
-        } else if (formatsectionlist[i] == "fParentRunNumber" || formatsectionlist[i] == "fSubRunNumber") {
-            SetParentRunNumber(StringToInteger(infoFromFileName));
-        } else if (formatsectionlist[i] == "fRunType") {
-            SetRunType(infoFromFileName);
-        } else if (formatsectionlist[i] == "fRunUser") {
-            SetRunUser(infoFromFileName);
-        } else if (formatsectionlist[i] == "fRunTag") {
-            SetRunTag(infoFromFileName);
-        } else if (formatsectionlist[i] == "fRunDescription") {
-            SetRunDescription(infoFromFileName);
-        } else if (formatsectionlist[i] == "fExperimentName") {
-            fExperimentName = infoFromFileName;
-        } else if (formatsectionlist[i] == "fRunClassName") {
-            fRunClassName = infoFromFileName;
+        any member = any(this, this->ClassName()).GetDataMember(formatsectionlist[i]);
+        if (!member.IsZombie()) {
+            member.ParseString(infoFromFileName);
         }
 
         pos = pos2 - 1;
