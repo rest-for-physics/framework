@@ -173,7 +173,7 @@ void TRestMessengerAndReceiver::InitFromConfigFile() {
         return;
     }
 
-    if ((string)this->GetName() == "defaultName") SetName(message->name);
+    if ((string) this->GetName() == "defaultName") SetName(message->name);
 
     if (created) {
         message->Reset();
