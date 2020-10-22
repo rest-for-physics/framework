@@ -236,8 +236,20 @@ void TRestTask::RunTask(TRestManager* mgr) {
                     string cmd = Form("%s* %s = (%s*)%s;", type.c_str(), fInvokeObject.c_str(),
                                         type.c_str(), ToString(meta).c_str());
 
-                    gROOT->ProcessLine(cmd.c_str());
-                    gROOT->ProcessLine(fConstructedCommand.c_str());
+                    TInterpreter::EErrorCode err;
+                    gInterpreter->ProcessLine(cmd.c_str(), &err);
+                    if (err != TInterpreter::kNoError) {
+                        ferr << "TRestTask::RunTask(): unknown error" << endl;
+                        ferr << "code: "<< err << endl;
+                        exit(-1);
+                    }
+                    gInterpreter->ProcessLine(fConstructedCommand.c_str(), &err);
+                    if (err != TInterpreter::kNoError) {
+                        ferr << "TRestTask: failed to execute cpp command, error code: " << err << endl;
+                        ferr << fConstructedCommand << endl;
+                        ferr << "Check your <AddTask section!"<< endl;
+                        exit(-1);
+                    }
                 }
             }
         } else if (fMode == TASK_SHELLCMD) {
