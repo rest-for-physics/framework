@@ -90,6 +90,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
 
     if (Count(keydeclare, "TRest") > 0) {
         TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
+        if (meta == NULL) return -1;
         meta->SetHostmgr(this);
         fMetaObjects.push_back(meta);
         meta->SetConfigFile(fConfigFileName);
