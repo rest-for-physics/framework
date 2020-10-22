@@ -1875,7 +1875,7 @@ string TRestMetadata::GetParameter(string parName, size_t& pos, string inputStri
 /// and replace them with corresponding value.
 ///
 /// Replacing marks:
-/// 1. ${VARIABLE_NAME} : search system env and variable/constant. system env in prior
+/// 1. ${VARIABLE_NAME} : search system env, REST arguments and variable/constant, in sequence.
 /// 2. VARIABLE_NAME    : try match the names of variable/constant and replace it if matched.
 string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
     string outputBuffer = buffer;
@@ -1894,9 +1894,13 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
 
         string sysenv = getenv(expression.c_str()) != NULL ? getenv(expression.c_str()) : "";
         string proenv = fVariables.count(expression) > 0 ? fVariables[expression] : "";
+        string argenv = REST_ARGS.count(expression) > 0 ? REST_ARGS[expression] : "";
 
         if (sysenv != "") {
             outputBuffer.replace(replacePos, replaceLen, sysenv);
+            endPosition = 0;
+        } else if (argenv != "") {
+            outputBuffer.replace(replacePos, replaceLen, argenv);
             endPosition = 0;
         } else if (proenv != "") {
             outputBuffer.replace(replacePos, replaceLen, proenv);
