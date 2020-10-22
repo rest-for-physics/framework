@@ -136,19 +136,22 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
             name = Split(cmd, "->")[0];
             call = Split(cmd, "->")[1];
         }
-        if (Count(call, "(") != 1 || Count(call, ")") != 1)  // we can only use one bracket
-        {
+
+        int p1 = call.find_first_of("(");
+        int p2 = call.find_last_of(")");
+        if (p1 == -1 || p2 == -1 || p1 >= p2) {
             warning << "command"
                     << " \"" << cmd << "\" "
                     << "is illegal!" << endl;
             fMode = TASK_ERROR;
             return;
         }
-        fInvokeMethod = Split(call, "(")[0];
-        fArgumentValues.push_back(Split(Split(call, "(")[1], ")").size() == 0 ? ""
-                                                                       : Split(Split(call, "(")[1], ")")[0]);
         fInvokeObject = name;
+        fInvokeMethod = call.substr(0, p1);
 
+        string args = call.substr(p1 + 1, p2 - p1 - 1);
+        fArgumentValues = Split(args, ",");
+        fConstructedCommand = cmd;
     } else if (mode == TASK_CLASS) {
         // I don't think we can get here
     } else if (mode == TASK_SHELLCMD) {
@@ -229,11 +232,12 @@ void TRestTask::RunTask(TRestManager* mgr) {
                     ferr << "command: " << fConstructedCommand << endl;
                     exit(-1);
                 } else {
-                    string arg;
-                    //////////////////////////////////
-                    // TODO: consuruct arguments
+                    string type = meta->ClassName();
+                    string cmd = Form("%s* %s = (%s*)%s;", type.c_str(), fInvokeObject.c_str(),
+                                        type.c_str(), ToString(meta).c_str());
 
-                    gInterpreter->Execute(meta, meta->IsA(), fInvokeMethod.c_str(), arg.c_str());
+                    gROOT->ProcessLine(cmd.c_str());
+                    gROOT->ProcessLine(fConstructedCommand.c_str());
                 }
             }
         } else if (fMode == TASK_SHELLCMD) {
