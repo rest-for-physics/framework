@@ -37,7 +37,6 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 
-
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
@@ -454,7 +453,6 @@ throw std::exception();
     delete subRestG4Event;
     delete restTrack;
 
-
     ////////// Writing the geometry in TGeoManager format to the ROOT file
     ////////// Need to fork and do it in child process, to prevent occasional seg.fault
     pid_t pid;
@@ -505,7 +503,7 @@ throw std::exception();
     //    cout << "Closing file : " << Filename << endl;
     //    f1->Close();
     //}
-    cout << "============== Generated file: " << Filename <<" =============="<< endl;
+    cout << "============== Generated file: " << Filename << " ==============" << endl;
     auto end_time = chrono::steady_clock::now();
     cout << "Elapsed time: " << chrono::duration_cast<chrono::seconds>(end_time - start_time).count()
          << " seconds" << endl;
