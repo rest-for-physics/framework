@@ -77,6 +77,7 @@ class TRestMetadata : public TNamed {
     void ExpandIncludeFile(TiXmlElement* e);
     string GetUnits(TiXmlElement* e);
     string FieldNamesToUpper(string inputString);
+    void ReadOneParameter(string name, string value);
 
     /// REST version string, only used for archive and retrieve
     TString fVersion = REST_RELEASE;  //<
@@ -124,6 +125,13 @@ class TRestMetadata : public TNamed {
     void ReSetVersion();
     void UnSetVersion();
     void SetLibraryVersion(TString version);
+
+    // Load global setting for the rml section, e.g., name, title.
+    virtual Int_t LoadSectionMetadata();
+    /// To make settings from rml file. This method must be implemented in the derived class.
+    virtual void InitFromConfigFile() = 0;
+    /// Method called after the object is retrieved from root file.
+    virtual void InitFromRootFile() {}
 
     //////////////////////////////////////////////////
     /// Data members
@@ -175,21 +183,10 @@ class TRestMetadata : public TNamed {
         if (GetError()) fErrorMessage = message;
     }
 
-#define InitDataMember(name, defaultvalue)                      \
-    {                                                           \
-        string paraname = DataMemberNameToParameterName(#name); \
-        string paraval = GetParameter(paraname);                \
-        if (paraval == PARAMETER_NOT_FOUND_STR) {               \
-            name = defaultvalue;                                \
-        } else {                                                \
-            any(name).ParseString(paraval);                     \
-        }                                                       \
-    }
-
     string DataMemberNameToParameterName(string name);
     string ParameterNameToDataMemberName(string name);
 
-    void ReadDataMemberValFromConfig();
+    void ReadAllParameters();
 
    public:
     /// It returns true if an error was identified by a derived metadata class
@@ -203,19 +200,10 @@ class TRestMetadata : public TNamed {
             return "No error!";
     }
 
-    Int_t LoadConfigFromFile();
-    Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);
-    Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, map<string, string> envs);
+    Int_t LoadConfigFromElement(TiXmlElement* eSectional, TiXmlElement* eGlobal,
+                                map<string, string> envs = {});
     Int_t LoadConfigFromFile(string cfgFileName, string sectionName = "");
-
-    /// Load global setting for the rml section, e.g., name, title.
-    virtual Int_t LoadSectionMetadata();
-
-    ///  To make settings from rml file. This method must be implemented in the derived class.
-    virtual void InitFromConfigFile() = 0;
-
-    /// Method called after the object is retrieved from root file.
-    virtual void InitFromRootFile();
+    Int_t LoadConfigFromBuffer();
 
     /// Making default settings.
     virtual void Initialize() {}
@@ -237,10 +225,6 @@ class TRestMetadata : public TNamed {
 
     /// Print the buffered message
     void PrintMessageBuffer();  // *MENU*
-
-    /// helps to pause the program, printing a message before pausing.
-    /// ROOT GUI won't be jammed during this pause
-    int GetChar(string hint = "Press a KEY to continue ...");
 
     // getters and setters
     std::string GetSectionName();

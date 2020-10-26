@@ -55,7 +55,7 @@ Int_t REST_Fit(TString varName, TString rootFileName, double startVal, double en
     h->Fit("gaus");
     h->Draw();
 
-    run->GetChar();
+    GetChar();
 
     delete run;
 

@@ -14,7 +14,7 @@
   </globals>
 
   <TRestRun name="PANDA-X III run" title="Simulations v2.0">
-    <parameter name="experiment" value="PANDAXIII"/>
+    <parameter name="experimentName" value="PANDAXIII"/>
     <parameter name="runNumber" value="1"/>
     <parameter name="runDescription" value="We launch Xe136bb0n decays from the gas volume."/>
     <parameter name="user" value="${USER}"/>

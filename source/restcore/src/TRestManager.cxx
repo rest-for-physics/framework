@@ -90,10 +90,11 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
 
     if (Count(keydeclare, "TRest") > 0) {
         TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
+        if (meta == NULL) return -1;
         meta->SetHostmgr(this);
         fMetaObjects.push_back(meta);
         meta->SetConfigFile(fConfigFileName);
-        meta->LoadConfigFromFile(e, fElementGlobal, fVariables);
+        meta->LoadConfigFromElement(e, fElementGlobal, fVariables);
 
         return 0;
     }
@@ -127,20 +128,20 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
                     ri->CloseFile();
                 }
             } else {
-                TRestTask* tsk = TRestTask::GetTask(type);
+                TRestTask* tsk = TRestTask::GetTaskFromMacro(type);
                 if (tsk == NULL) {
                     warning << "REST ERROR. Task : " << type << " not found!!" << endl;
                     warning << "This task will be skipped." << endl;
                     return -1;
                 }
-                tsk->LoadConfigFromFile(e, fElementGlobal);
+                tsk->LoadConfigFromElement(e, fElementGlobal);
                 tsk->RunTask(this);
                 return 0;
             }
         } else if (cmd != NULL) {
             debug << " \"" << cmd << "\" " << endl;
 
-            TRestTask* tsk = TRestTask::ParseCommand(cmd);
+            TRestTask* tsk = TRestTask::GetTaskFromCommand(cmd);
             if (tsk == NULL) {
                 warning << "REST ERROR. Command : " << cmd << " cannot be parsed!!" << endl;
                 warning << "This task will be skipped." << endl;
@@ -155,7 +156,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
 }
 
 void TRestManager::InitFromTask(string taskName, vector<string> arguments) {
-    TRestTask* tsk = TRestTask::GetTask(taskName);
+    TRestTask* tsk = TRestTask::GetTaskFromMacro(taskName);
     if (tsk == NULL) {
         gSystem->Exit(-1);
     }

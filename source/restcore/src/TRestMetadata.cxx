@@ -445,7 +445,6 @@
 #include "TRestMetadata.h"
 
 #include <TMath.h>
-#include <TSystem.h>
 
 #include <iomanip>
 
@@ -517,14 +516,6 @@ TRestMetadata::~TRestMetadata() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Default starter. Just call again the Initialize() method.
-///
-Int_t TRestMetadata::LoadConfigFromFile() {
-    Initialize();
-    return 0;
-}
-
-///////////////////////////////////////////////
 /// \brief Give the file name, find out the corresponding section. Then call the
 /// main starter.
 ///
@@ -562,7 +553,7 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
         }
 
         // call the real loading method
-        int result = LoadConfigFromFile(Sectional, Global, {});
+        int result = LoadConfigFromElement(Sectional, Global, {});
         delete Sectional;
         delete rootEle;
         return result;
@@ -575,21 +566,14 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
 }
 
 ///////////////////////////////////////////////
-/// \brief Calling the main starter
-///
-Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal) {
-    return LoadConfigFromFile(eSectional, eGlobal, {});
-}
-
-///////////////////////////////////////////////
 /// \brief Main starter method.
 ///
 /// First merge the sectional and global sections together, then save the input
 /// env section. To make start up it calls the following methods in sequence:
 /// LoadSectionMetadata(), InitFromConfigFile()
 ///
-Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal,
-                                        map<string, string> envs) {
+Int_t TRestMetadata::LoadConfigFromElement(TiXmlElement* eSectional, TiXmlElement* eGlobal,
+                                           map<string, string> envs) {
     Initialize();
     TiXmlElement* theElement;
     if (eSectional != NULL && eGlobal != NULL) {
@@ -618,6 +602,21 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
     if (result == 0) InitFromConfigFile();
     debug << ClassName() << " has finished preparing config data" << endl;
     return result;
+}
+
+///////////////////////////////////////////////
+/// \brief Initialize data from a string element buffer.
+///
+/// This method is usually called when the object is retrieved from root file. It will call
+/// InitFromRootFile() after parsing configBuffer(string) to fElement(TiXmlElement)
+Int_t TRestMetadata::LoadConfigFromBuffer() {
+    if (configBuffer != "") {
+        fElement = StringToElement(configBuffer);
+        configBuffer = "";
+        InitFromRootFile();
+        return 0;
+    }
+    return -1;
 }
 
 ///////////////////////////////////////////////
@@ -669,15 +668,6 @@ Int_t TRestMetadata::LoadSectionMetadata() {
         ToUpper(GetParameter("store", "true")) == "TRUE" || ToUpper(GetParameter("store", "true")) == "ON";
 
     return 0;
-}
-
-void TRestMetadata::InitFromRootFile() {
-    if (configBuffer != "") {
-        fElement = StringToElement(configBuffer);
-        configBuffer = "";
-        // this->InitFromConfigFile();
-    }
-    gDetector->RegisterMetadata(this);
 }
 
 ///////////////////////////////////////////////
@@ -1885,7 +1875,7 @@ string TRestMetadata::GetParameter(string parName, size_t& pos, string inputStri
 /// and replace them with corresponding value.
 ///
 /// Replacing marks:
-/// 1. ${VARIABLE_NAME} : search system env and variable/constant. system env in prior
+/// 1. ${VARIABLE_NAME} : search system env, REST arguments and variable/constant, in sequence.
 /// 2. VARIABLE_NAME    : try match the names of variable/constant and replace it if matched.
 string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
     string outputBuffer = buffer;
@@ -1904,9 +1894,13 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
 
         string sysenv = getenv(expression.c_str()) != NULL ? getenv(expression.c_str()) : "";
         string proenv = fVariables.count(expression) > 0 ? fVariables[expression] : "";
+        string argenv = REST_ARGS.count(expression) > 0 ? REST_ARGS[expression] : "";
 
         if (sysenv != "") {
             outputBuffer.replace(replacePos, replaceLen, sysenv);
+            endPosition = 0;
+        } else if (argenv != "") {
+            outputBuffer.replace(replacePos, replaceLen, argenv);
             endPosition = 0;
         } else if (proenv != "") {
             outputBuffer.replace(replacePos, replaceLen, proenv);
@@ -2013,22 +2007,6 @@ void TRestMetadata::WriteConfigBuffer(string fname) {
 }
 
 void TRestMetadata::PrintMessageBuffer() { cout << messageBuffer << endl; }
-
-int TRestMetadata::GetChar(string hint) {
-    if (gApplication != NULL && !gApplication->IsRunning()) {
-        thread t = thread(&TApplication::Run, gApplication, true);
-        t.detach();
-
-        cout << hint << endl;
-        int result = getchar();
-        gSystem->ExitLoop();
-        return result;
-    } else {
-        cout << hint << endl;
-        return getchar();
-    }
-    return -1;
-}
 
 ///////////////////////////////////////////////
 /// \brief Prints metadata content on screen. Usually overloaded by the derived
@@ -2201,9 +2179,31 @@ Int_t TRestMetadata::Write(const char* name, Int_t option, Int_t bufsize) {
     return -1;
 }
 
-string TRestMetadata::DataMemberNameToParameterName(string name) { return ""; }
+string TRestMetadata::DataMemberNameToParameterName(string name) {
+    if (name == "") {
+        return "";
+    }
+    if (name[0] == 'f' && name.size() > 1) {
+        return string(1, tolower(name[1])) + name.substr(2, -1);
+    } else {
+        warning << "REST Warning: bad data member naming: \"" << this->ClassName() << "::" << name << "\""
+                << endl;
+        return "";
+    }
+}
 
-string TRestMetadata::ParameterNameToDataMemberName(string name) { return ""; }
+string TRestMetadata::ParameterNameToDataMemberName(string name) {
+    if (name == "") {
+        return "";
+    }
+    if (islower(name[0])) {
+        return "f" + string(1, toupper(name[0])) + name.substr(1, -1);
+    } else {
+        warning << "REST Warning: bad parameter naming: \"" << name << "\" for class: " << this->ClassName()
+                << endl;
+        return "";
+    }
+}
 
 ///////////////////////////////////////////////
 /// \brief Reflection methods, Set value of a datamember in class according to
@@ -2224,5 +2224,51 @@ string TRestMetadata::ParameterNameToDataMemberName(string name) { return ""; }
 /// We have a naming convention for the parameters in rml and the data members in class.
 /// The names of data member shall all start from "f" and have the second character in
 /// capital form. For example, data member "fTargetName" is linked to parameter "targetName".
-/// In the previous code "fPar0" is linked to "par0"
-void TRestMetadata::ReadDataMemberValFromConfig() {}
+/// In the previous code "fPar0" is linked to "par0".
+///
+/// Note that parameters include <parameter section and all the attributes in fElement.
+void TRestMetadata::ReadAllParameters() {
+    // Loop over attribute set
+    auto paraattr = fElement->FirstAttribute();
+    while (paraattr != NULL) {
+        TString name = paraattr->Name();
+        TString value = paraattr->Value();
+
+        ReadOneParameter((string)name, (string)value);
+        paraattr = paraattr->Next();
+    }
+
+    // Loop over <parameter section
+    auto paraele = fElement->FirstChildElement("parameter");
+    while (paraele != NULL) {
+        TString name = paraele->Attribute("name");
+        TString value = paraele->Attribute("value");
+
+        if (name == "") {
+            warning << "bad <parameter section: " << *paraele << endl;
+        } else {
+            ReadOneParameter((string)name, (string)value);
+        }
+        paraele = paraele->NextSiblingElement("parameter");
+    }
+}
+
+void TRestMetadata::ReadOneParameter(string name, string value) {
+    if (name == "name" || name == "title" || name == "verboseLevel" || name == "store") {
+        // we omit these parameters since they are already loaded in LoadSectionMetadata()
+    } else {
+        any thisactual(this, this->ClassName());
+        string datamembername = ParameterNameToDataMemberName(name);
+        if (datamembername != "") {
+            any datamember = thisactual.GetDataMember(datamembername);
+            if (!datamember.IsZombie()) {
+                debug << this->ClassName() << "::ReadAllParameters(): parsing value \"" << value
+                      << "\" to data member \"" << datamembername << "\"" << endl;
+                datamember.ParseString(value);
+            } else {
+                debug << this->ClassName() << "::ReadAllParameters(): datamember \"" << datamembername
+                      << "\" for parameter \"" << name << "\" not found, skipping" << endl;
+            }
+        }
+    }
+}

@@ -26,6 +26,7 @@ using namespace std;
 /// String helper classes. Declared static to be able to have direct access to the methods
 namespace REST_StringHelper {
 
+Int_t GetChar(string hint = "Press a KEY to continue ...");
 Int_t isANumber(std::string in);
 Int_t isAExpression(std::string in);
 std::string ReplaceMathematicalExpressions(std::string buffer, std::string errorMessage = "");

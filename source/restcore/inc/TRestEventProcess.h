@@ -146,8 +146,8 @@ class TRestEventProcess : public TRestMetadata {
 
    public:
     Int_t LoadSectionMetadata();
+    virtual void InitFromConfigFile() { ReadAllParameters(); }
     vector<string> ReadObservables();
-    virtual void ConfigAnalysisTree();
     virtual Bool_t OpenInputFiles(vector<string> files);
 
     void EnableObservableValidation() { fValidateObservables = true; }
@@ -168,7 +168,7 @@ class TRestEventProcess : public TRestMetadata {
     virtual void EndProcess() {}
 
     // setters
-    /// Set analysis tree of this process, then configure it by adding observables to it
+    /// Set analysis tree of this process, then add observables to it
     void SetAnalysisTree(TRestAnalysisTree* tree);
     /// Set TRestRun for this process
     void SetRunInfo(TRestRun* r) { fRunInfo = r; }

@@ -11,7 +11,7 @@ string REST_COMMIT;
 string REST_PATH;
 string REST_USER;
 string REST_USER_PATH;
-map<string, string> REST_ARGS;
+map<string, string> REST_ARGS = {};
 struct __REST_CONST_INIT {
    public:
     __REST_CONST_INIT() {

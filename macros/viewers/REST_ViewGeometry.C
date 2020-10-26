@@ -74,7 +74,7 @@ Int_t REST_ViewGeometry(TString fName, TString option = "") {
 // while keeping GUI alive.
 #ifdef REST_MANAGER
     TRestRun* run = new TRestRun();
-    run->GetChar("Running...\nPress a key to exit");
+    GetChar("Running...\nPress a key to exit");
 #endif
 
     return 0;

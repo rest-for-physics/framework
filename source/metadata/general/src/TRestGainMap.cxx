@@ -11,8 +11,6 @@ ClassImp(TRestGainMap);
 
 void TRestGainMap::InitFromConfigFile() {
     // read config from rml section
-
-    gDetector->RegisterMetadata(this);
 }
 
 void TRestGainMap::DrawChannelGainMap(TRestReadoutModule* mod) {

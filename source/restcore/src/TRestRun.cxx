@@ -114,10 +114,11 @@ void TRestRun::BeginOfInit() {
 
     // Get some infomation
     fRunUser = REST_USER;
-    fRunType = GetParameter("runType", "ANALYSIS").c_str();
-    fRunDescription = GetParameter("runDescription", "").c_str();
-    fExperimentName = GetParameter("experiment", "preserve").c_str();
-    fRunTag = GetParameter("runTag", "noTag").c_str();
+    // fRunType = GetParameter("runType", "ANALYSIS").c_str();
+    // fRunDescription = GetParameter("runDescription", "").c_str();
+    // fExperimentName = GetParameter("experiment", "preserve").c_str();
+    // fRunTag = GetParameter("runTag", "noTag").c_str();
+    ReadAllParameters();
 
     // runnumber and input file name
     fRunNumber = -1;
@@ -198,7 +199,7 @@ void TRestRun::BeginOfInit() {
                           "_" + (TString)runNumberStr + "_" + (TString)runParentStr + "_V" + REST_RELEASE +
                           ".root";
 
-        fOverwrite = ToUpper(GetParameter("overwrite", "on")) != "OFF";
+        // fOverwrite = ToUpper(GetParameter("overwrite", "on")) != "OFF";
         while (!fOverwrite && TRestTools::fileExists((string)fOutputFileName)) {
             fParentRunNumber++;
             sprintf(runParentStr, "%05d", fParentRunNumber);
@@ -265,7 +266,7 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
         }
         TRestEventProcess* pc = REST_Reflection::Assembly(processType);
 
-        pc->LoadConfigFromFile(e, fElementGlobal);
+        pc->LoadConfigFromElement(e, fElementGlobal);
 
         pc->SetRunInfo(this);
         pc->SetHostmgr(fHostmgr);
@@ -297,7 +298,8 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
         TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
         meta->SetHostmgr(fHostmgr);
         fMetadata.push_back(meta);
-        meta->LoadConfigFromFile(e, fElementGlobal);
+        meta->LoadConfigFromElement(e, fElementGlobal);
+        gDetector->RegisterMetadata(meta);
 
         return 0;
     }
@@ -670,23 +672,9 @@ void TRestRun::ReadFileInfo(string filename) {
         gDetector->SetParameter(formatsectionlist[i], infoFromFileName);
 
         // to store special file pattern parameters: fRunNumber, fRunTag, etc.
-        if (formatsectionlist[i] == "fRunNumber") {
-            SetRunNumber(StringToInteger(infoFromFileName));
-            gDetector->SetRunNumber(StringToInteger(infoFromFileName));
-        } else if (formatsectionlist[i] == "fParentRunNumber" || formatsectionlist[i] == "fSubRunNumber") {
-            SetParentRunNumber(StringToInteger(infoFromFileName));
-        } else if (formatsectionlist[i] == "fRunType") {
-            SetRunType(infoFromFileName);
-        } else if (formatsectionlist[i] == "fRunUser") {
-            SetRunUser(infoFromFileName);
-        } else if (formatsectionlist[i] == "fRunTag") {
-            SetRunTag(infoFromFileName);
-        } else if (formatsectionlist[i] == "fRunDescription") {
-            SetRunDescription(infoFromFileName);
-        } else if (formatsectionlist[i] == "fExperimentName") {
-            fExperimentName = infoFromFileName;
-        } else if (formatsectionlist[i] == "fRunClassName") {
-            fRunClassName = infoFromFileName;
+        any member = any(this, this->ClassName()).GetDataMember(formatsectionlist[i]);
+        if (!member.IsZombie()) {
+            member.ParseString(infoFromFileName);
         }
 
         pos = pos2 - 1;
@@ -1029,6 +1017,7 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
         fInputFile = NULL;
         fAnalysisTree = new TRestAnalysisTree("externalProcessAna", "externalProcessAna");
         p->SetAnalysisTree(fAnalysisTree);
+        fTotalBytes = p->GetTotalBytes();
 
         GetNextEvent(fInputEvent, 0);
         fAnalysisTree->CreateBranches();
@@ -1150,7 +1139,8 @@ void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t s
         meta->DoNotStore();
 
     fMetadata.push_back(meta);
-    meta->InitFromRootFile();
+    meta->LoadConfigFromBuffer();
+    gDetector->RegisterMetadata(meta);
     f->Close();
     delete f;
 }

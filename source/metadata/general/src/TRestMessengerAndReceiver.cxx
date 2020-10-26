@@ -47,7 +47,7 @@
 ///
 /// ```
 /// <TRestManager name="CoBoDataAnalysis" title="Example" verboseLevel="info" >
-///   <TRestMessagerAndReciever name="Messager" title="Example" verboseLevel="info"
+///   <TRestMessengerAndReceiver name="Messager" title="Example" verboseLevel="info"
 ///     messageSource="outputfile" token="116027"/>
 ///   <addTask command="Messager->SendMessage()" value="ON"/>
 /// </TRestManager>
@@ -93,14 +93,16 @@ TRestMessengerAndReceiver::~TRestMessengerAndReceiver() {
     }
 }
 
-TRestMessengerAndReceiver::TRestMessengerAndReceiver(string token) {
+TRestMessengerAndReceiver::TRestMessengerAndReceiver(int token, string mode) {
     Initialize();
-    LoadConfigFromFile(StringToElement("<TRestMessengerAndReceiver token=\"" + token + "\"/>"), NULL, {});
+    LoadConfigFromElement(StringToElement("<TRestMessengerAndReceiver token=\"" + ToString(token) +
+                                          "\" mode=\"" + mode + "\"/>"),
+                          NULL, {});
 }
 
 void TRestMessengerAndReceiver::Initialize() {
     fRun = NULL;
-    fMode = MessagePool_Auto;
+    fMode = MessagePool_TwoWay;
 }
 
 #define SHMFLAG_CREATEUNIQUE (0640 | IPC_CREAT | IPC_EXCL)
@@ -108,17 +110,17 @@ void TRestMessengerAndReceiver::Initialize() {
 #define SHMFLAG_OPEN (0640)
 
 // Example rml structure:
-//   <TRestMessagerAndReciever name="Messager" title="Example" verboseLevel="info"
+//   <TRestMessengerAndReceiver name="Messager" title="Example" verboseLevel="info"
 //     messageSource="outputfile" token="116027" mode="auto"/>
 void TRestMessengerAndReceiver::InitFromConfigFile() {
     fRun = fHostmgr != NULL ? fHostmgr->GetRunInfo() : NULL;
-    string modestr = GetParameter("mode", "auto");
+    string modestr = GetParameter("mode", "twoway");
     if (ToUpper(modestr) == "HOST") {
         fMode = MessagePool_Host;
     } else if (ToUpper(modestr) == "CLIENT") {
         fMode = MessagePool_Client;
-    } else {
-        fMode = MessagePool_Auto;
+    } else if (ToUpper(modestr) == "TWOWAY" || ToUpper(modestr) == "AUTO") {
+        fMode = MessagePool_TwoWay;
     }
 
     string token = GetParameter("token", "116027");
@@ -153,7 +155,7 @@ void TRestMessengerAndReceiver::InitFromConfigFile() {
             warning << "Shared memory not initialized? Launch Host process first!" << endl;
             return;
         }
-    } else if (fMode == MessagePool_Auto) {
+    } else if (fMode == MessagePool_TwoWay) {
         if (shmid == -1) {
             shmid = shmget(key, 30000, SHMFLAG_CREATEUNIQUE);
             if (shmid == -1) {
@@ -170,6 +172,9 @@ void TRestMessengerAndReceiver::InitFromConfigFile() {
         printf("shmat error\n");
         return;
     }
+
+    if ((string) this->GetName() == "defaultName") SetName(message->name);
+
     if (created) {
         message->Reset();
         strcpy(message->name, this->GetName());
@@ -177,7 +182,7 @@ void TRestMessengerAndReceiver::InitFromConfigFile() {
     } else {
         if (strcmp(message->name, this->GetName()) != 0) {
             warning << "TRestMessengerAndReceiver: connected message pool name(" << message->name
-                    << ") is different with mine(" << this->GetName() << ")!" << endl;
+                    << ") is different with this(" << this->GetName() << ")!" << endl;
         }
         cout << "Connected to shared memory: " << shmid << endl;
     }
@@ -257,6 +262,10 @@ void TRestMessengerAndReceiver::SendMessage(string message) {
         warning << "TRestMessengerAndReceiver: Not connected!" << endl;
         return;
     }
+    if (fMode == MessagePool_Client) {
+        warning << "TRestMessengerAndReceiver: Forbidden to send message from client!" << endl;
+        return;
+    }
 
     if (message == "") {
         if (ToUpper(fPoolSource) == "OUTPUTFILE") {
@@ -302,6 +311,10 @@ vector<string> TRestMessengerAndReceiver::ShowMessagePool() {
 string TRestMessengerAndReceiver::ConsumeMessage() {
     if (!IsConnected()) {
         warning << "TRestMessengerAndReceiver: Not connected!" << endl;
+        return "";
+    }
+    if (fMode == MessagePool_Host) {
+        warning << "TRestMessengerAndReceiver: Forbidden to consume message from host!" << endl;
         return "";
     }
 

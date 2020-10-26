@@ -67,8 +67,6 @@ class TRestBrowser {
     void SetViewer(TString viewerName);
     void SetInputEvent(TRestEvent*);
 
-    int GetChar(string hint = "Press a KEY to continue ...");
-
     void setWindowName(TString wName) { frmMain->SetWindowName(wName.Data()); }
 
     void setButtons();

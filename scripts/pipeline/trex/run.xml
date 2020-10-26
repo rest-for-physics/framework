@@ -1,5 +1,5 @@
 <TRestRun name="TREX-DM" title="TREX-DM test data analysis" verboseLevel="silent">
-	<parameter name="experiment" value="TREXDM_LSC"/>
+	<parameter name="experimentName" value="TREXDM_LSC"/>
 	<parameter name="runNumber" value="auto"/>
 	<parameter name="runTag" value="preserve"/>
 	<parameter name="runType" value="${RUN_TYPE}"/>
