@@ -147,7 +147,7 @@ void TRestReflector::ParseString(string str) {
         if (RESTConverterMethodBase.count(type) > 0) {
             RESTConverterMethodBase[type]->ParseString(address, str);
         } else {
-            info << "Method for parsing string to " << type << " has not been registered!" << endl;
+            cout << "Method for parsing string to " << type << " has not been registered!" << endl;
         }
     }
 }
@@ -291,7 +291,7 @@ void CloneAny(TRestReflector from, TRestReflector to) {
     if (RESTConverterMethodBase.count(from.type) > 0) {
         RESTConverterMethodBase[from.type]->CloneObj(from.address, to.address);
     } else {
-        info << "Method for cloning type: \"" << from.type << "\" has not been registered!" << endl;
+        cout << "Method for cloning type: \"" << from.type << "\" has not been registered!" << endl;
     }
     //if (from.cl == NULL) {
     //    memcpy(to.address, from.address, from.size);
