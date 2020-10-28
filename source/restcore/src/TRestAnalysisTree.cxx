@@ -27,10 +27,15 @@ using namespace std;
 ClassImp(TRestAnalysisTree) using namespace std;
 //______________________________________________________________________________
 TRestAnalysisTree::TRestAnalysisTree() : TTree() {
-    SetName("TRestAnalysisTree");
-    SetTitle("Analysis tree");
+    SetName("AnalysisTree");
+    SetTitle("REST Analysis tree");
 
     Initialize();
+}
+
+TRestAnalysisTree::TRestAnalysisTree(TTree* tree) : TTree() {
+    cout << "constructor from TTree" << endl;
+    tree->Clone();
 }
 
 TRestAnalysisTree::TRestAnalysisTree(TString name, TString title) : TTree(name, title) {
@@ -50,236 +55,78 @@ void TRestAnalysisTree::Initialize() {
 
     fNObservables = 0;
 
+    fObservableIdMap.clear();
     fObservableDescriptions.clear();
     fObservableNames.clear();
-    fObservableMemory.clear();
+    fObservables.clear();
     fConnected = false;
     fBranchesCreated = false;
 }
 
-void TRestAnalysisTree::CopyObservableList(TRestAnalysisTree* from, string prefix) {
-    if (from != NULL && !fConnected) {
-        vector<any> tmpobsval;
-        vector<TString> tmpobsname;
-        vector<TString> tmpobsdes;
-        vector<TString> tmptypes;
+Int_t TRestAnalysisTree::GetObservableID(TString obsName) {
+    if (!ObservableExists(obsName)) return -1;
+    return fObservableIdMap[obsName];
+}
 
-        for (int i = 0; i < from->GetNumberOfObservables(); i++) {
-            tmpobsval.push_back(REST_Reflection::Assembly((string)from->GetObservableType(i)));
-            tmpobsname.push_back(prefix + from->GetObservableName(i));
-            tmpobsdes.push_back(from->GetObservableDescription(i));
-            tmptypes.push_back(from->GetObservableType(i));
-        }
+Bool_t TRestAnalysisTree::ObservableExists(TString obsName) {
+    if (fObservableIdMap.size() == 0 && fObservableNames.size() > 0) MakeObservableIdMap();
+    return fObservableIdMap.count(obsName) > 0;
+}
 
-        fObservableMemory.insert(fObservableMemory.begin(), tmpobsval.begin(), tmpobsval.end());
-        fObservableNames.insert(fObservableNames.begin(), tmpobsname.begin(), tmpobsname.end());
-        fObservableDescriptions.insert(fObservableDescriptions.begin(), tmpobsdes.begin(), tmpobsdes.end());
-        fObservableTypes.insert(fObservableTypes.begin(), tmptypes.begin(), tmptypes.end());
-        fNObservables += from->GetNumberOfObservables();
-
-        // fConnected = true;
-    } else {
-        cout << "REST ERROR: AnalysisTree Observables is already connected!" << endl;
+void TRestAnalysisTree::ConnectBranches() {
+    if (fConnected) {
+        cout << "REST Warning: AnalysisTree observable already connected!" << endl;
+        return;
     }
-}
 
-void TRestAnalysisTree::ConnectEventBranches() {
+    // connect basic event branches
     TBranch* br1 = GetBranch("eventID");
-    br1->SetAddress(&fEventID);
-
     TBranch* br2 = GetBranch("subEventID");
-    br2->SetAddress(&fSubEventID);
-
     TBranch* br3 = GetBranch("timeStamp");
-    br3->SetAddress(&fTimeStamp);
-
     TBranch* br4 = GetBranch("subEventTag");
-    br4->SetAddress(&fSubEventTag);
-
     TBranch* br5 = GetBranch("runOrigin");
-    br5->SetAddress(&fRunOrigin);
-
     TBranch* br6 = GetBranch("subRunOrigin");
-    br6->SetAddress(&fSubRunOrigin);
-}
 
-void TRestAnalysisTree::ConnectObservables() {
-    if (!fConnected) {
-        fObservableMemory = std::vector<any>(GetNumberOfObservables());
-        for (int i = 0; i < GetNumberOfObservables(); i++) {
-            fObservableMemory[i] = REST_Reflection::WrapType((string)fObservableTypes[i]);
-        }
+    if (br1 && br2 && br3 && br4 && br5 && br6) {
+        br1->SetAddress(&fEventID);
+        br2->SetAddress(&fSubEventID);
+        br3->SetAddress(&fTimeStamp);
+        br4->SetAddress(&fSubEventTag);
+        br5->SetAddress(&fRunOrigin);
+        br6->SetAddress(&fSubRunOrigin);
+    } else {
+        cout << "REST ERROR: AnalysisTree lacks event branches!" << endl;
+        return;
+    }
 
-        TTree::GetEntry(0);
+    // create observables
+    InitObservables();
 
-        for (int i = 0; i < GetNumberOfObservables(); i++) {
-            TBranch* branch = GetBranch(fObservableNames[i]);
-            if (branch != NULL) {
-                if (branch->GetAddress() != NULL) {
-                    if ((string)branch->ClassName() != "TBranch") {
-                        // for TBranchElement the saved address is char**
-                        fObservableMemory[i].address = *(char**)branch->GetAddress();
-                    } else {
-                        // for TBranch the saved address is char*
-                        fObservableMemory[i].address = branch->GetAddress();
-                    }
+    TTree::GetEntry(0);
+
+    for (int i = 0; i < GetNumberOfObservables(); i++) {
+        TBranch* branch = GetBranch(fObservableNames[i]);
+        if (branch != NULL) {
+            if (branch->GetAddress() != NULL) {
+                if ((string)branch->ClassName() != "TBranch") {
+                    // for TBranchElement the saved address is char**
+                    fObservables[i].address = *(char**)branch->GetAddress();
                 } else {
-                    fObservableMemory[i].Assembly();
-                    branch->SetAddress(fObservableMemory[i].address);
+                    // for TBranch the saved address is char*
+                    fObservables[i].address = branch->GetAddress();
                 }
+            } else {
+                fObservables[i].Assembly();
+                branch->SetAddress(fObservables[i].address);
             }
         }
-        fConnected = true;
-    } else {
-        cout << "REST ERROR: AnalysisTree Observables is already connected!" << endl;
     }
+    fConnected = true;
 }
 
-Int_t TRestAnalysisTree::AddObservable(TString observableName, TString observableType, TString description) {
+void TRestAnalysisTree::CreateBranches() {
     if (fBranchesCreated) {
-        return -1;
-    }
-    Double_t x = 0;
-    if (GetObservableID(observableName) == -1) {
-        any ptr = REST_Reflection::Assembly((string)observableType);
-        if (!ptr.IsZombie()) {
-            fObservableNames.push_back(observableName);
-            fObservableDescriptions.push_back(description);
-            fObservableMemory.push_back(ptr);
-            fObservableTypes.push_back(observableType);
-
-            fNObservables++;
-        } else {
-            cout << "Error adding observable \"" << observableName << "\" with type \"" << observableType
-                 << "\", type not found!" << endl;
-            return -1;
-        }
-    } else {
-        // cout << "observable \"" << observableName << "\" has already been created! skipping" << endl;
-        return GetObservableID(observableName);
-    }
-
-    return fNObservables - 1;
-}
-
-Int_t TRestAnalysisTree::AddObservable(TString objName, TRestMetadata* meta, TString description) {
-    if (fBranchesCreated) {
-        return -1;
-    }
-    any ptr = any(meta).GetDataMember((string)objName);
-    if (ptr.IsZombie()) return -1;
-
-    TString brName = meta->GetName() + (TString) "." + ptr.name;
-    // cout << ele->GetTypeName() << " " << ele->GetName() << " " <<
-    // ele->ClassName() << endl;
-    if (GetObservableID(brName) == -1) {
-        if (ptr.name[0] != 'f') {
-            fObservableNames.push_back(brName);
-            fObservableDescriptions.push_back(description);
-            fObservableMemory.push_back(ptr);
-            fObservableTypes.push_back(ptr.type);
-            fNObservables++;
-        } else {
-            cout << "Data member \"" << objName << "\" not found in class: \"" << meta->ClassName() << "\""
-                 << endl;
-            return -1;
-        }
-    } else {
-        // cout << "observable \"" << observableName << "\" has already been
-        // created! skipping" << endl;
-        return GetObservableID(brName);
-    }
-    return fNObservables - 1;
-}
-
-void TRestAnalysisTree::PrintObservables(TRestEventProcess* proc, int NObs) {
-    // if (!isConnected() || !fBranchesCreated) {
-    //    if (fNObservables > 0 &&
-    //        fObservableMemory.size() == 0)  // the object may be just retrieved from root file
-    //    {
-    //        ConnectEventBranches();
-    //        ConnectObservables();
-    //        GetEntry(0);
-    //    }
-    //}
-
-    if (!fConnected && !fBranchesCreated) {
-        cout << "Error in PrintObservables, please connect or create the tree branch first!" << endl;
-        return;
-    }
-
-    cout.precision(15);
-    if (proc == NULL) {
-        std::cout << "Run origin : " << GetRunOrigin() << std::endl;
-        std::cout << "Event ID : " << GetEventID() << std::endl;
-        std::cout << "Event Time : " << GetTimeStamp() << std::endl;
-        std::cout << "Event Tag : " << GetSubEventTag() << std::endl;
-        std::cout << "-----------------------------------------" << std::endl;
-    } else {
-        std::cout << "---- AnalysisTree Observable for process: " << proc->GetName() << " ----" << std::endl;
-    }
-
-    for (int n = 0; n < GetNumberOfObservables() && n < NObs; n++) {
-        if (proc == NULL || (proc != NULL && ((string)fObservableNames[n]).find(proc->GetName()) == 0))
-            PrintObservable(n);
-    }
-
-    std::cout << std::endl;
-    cout.precision(6);
-}
-
-// print the Nth observable in the observal list
-void TRestAnalysisTree::PrintObservable(int n) {
-    if (n < 0 || n >= fNObservables) {
-        return;
-    }
-    if (fConnected || fBranchesCreated) {
-        std::cout << "Observable : " << ToString(fObservableNames[n], 30)
-                  << "    Value : " << fObservableMemory[n] << std::endl;
-
-    } else {
-        std::cout << "Observable : " << ToString(fObservableNames[n], 30) << "    Value : ???" << std::endl;
-    }
-}
-
-Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
-    if (!fConnected && !fBranchesCreated) {
-        ConnectEventBranches();
-        ConnectObservables();
-    } else if (fNObservables != fObservableMemory.size()) {
-        // the object is just retrieved from root file, we connect the branches
-        ConnectEventBranches();
-        ConnectObservables();
-    }
-
-    return TTree::GetEntry(entry, getall);
-}
-
-void TRestAnalysisTree::SetEventInfo(TRestEvent* evt) {
-    if (evt != NULL) {
-        fEventID = evt->GetID();
-        fSubEventID = evt->GetSubID();
-        fTimeStamp = evt->GetTimeStamp().AsDouble();
-        *fSubEventTag = evt->GetSubEventTag();
-        fRunOrigin = evt->GetRunOrigin();
-        fSubRunOrigin = evt->GetSubRunOrigin();
-    }
-}
-
-Int_t TRestAnalysisTree::Fill(TRestEvent* evt) {
-    if (evt != NULL) {
-        SetEventInfo(evt);
-    }
-
-    if (!fBranchesCreated) {
-        CreateBranches();
-    }
-
-    return TTree::Fill();
-}
-
-void TRestAnalysisTree::CreateEventBranches() {
-    if (fBranchesCreated) {
+        cout << "REST Warning: AnalysisTree branches already created!" << endl;
         return;
     }
 
@@ -289,17 +136,11 @@ void TRestAnalysisTree::CreateEventBranches() {
     Branch("subEventID", &fSubEventID);
     Branch("timeStamp", &fTimeStamp);
     Branch("subEventTag", fSubEventTag);
-}
-
-void TRestAnalysisTree::CreateObservableBranches() {
-    if (fBranchesCreated) {
-        return;
-    }
 
     for (int n = 0; n < GetNumberOfObservables(); n++) {
         TString typeName = fObservableTypes[n];
         TString brName = fObservableNames[n];
-        char* ref = fObservableMemory[n].address;
+        char* ref = fObservables[n].address;
 
         if (typeName == "double") {
             this->Branch(brName, (double*)ref);
@@ -328,18 +169,151 @@ void TRestAnalysisTree::CreateObservableBranches() {
         this->GetBranch(brName)->SetTitle("(" + typeName + ") " + fObservableDescriptions[n]);
     }
 
-    // Branch(fObservableNames[n], fObservableMemory[n]);
+    fBranchesCreated = true;
+    fConnected = true;
 }
 
-void TRestAnalysisTree::CreateBranches() {
+void TRestAnalysisTree::InitObservables() {
+    fObservables = std::vector<any>(GetNumberOfObservables());
+    for (int i = 0; i < GetNumberOfObservables(); i++) {
+        fObservables[i] = REST_Reflection::WrapType((string)fObservableTypes[i]);
+        fObservables[i].name = fObservableNames[i];
+    }
+    MakeObservableIdMap();
+}
+
+void TRestAnalysisTree::MakeObservableIdMap() {
+    fObservableIdMap.clear();
+    for (int i = 0; i < fObservableNames.size(); i++) {
+        fObservableIdMap[fObservableNames[i]] = i;
+    }
+}
+
+Int_t TRestAnalysisTree::AddObservable(TString observableName, TString observableType, TString description) {
+    if (fBranchesCreated) {
+        return -1;
+    }
+    Double_t x = 0;
+    if (GetObservableID(observableName) == -1) {
+        any ptr = REST_Reflection::Assembly((string)observableType);
+        ptr.name = observableName;
+        if (!ptr.IsZombie()) {
+            fObservableNames.push_back(observableName);
+            fObservableIdMap[observableName] = fObservableNames.size() - 1;
+            fObservableDescriptions.push_back(description);
+            fObservableTypes.push_back(observableType);
+            fObservables.push_back(ptr);
+
+            fNObservables++;
+        } else {
+            cout << "Error adding observable \"" << observableName << "\" with type \"" << observableType
+                 << "\", type not found!" << endl;
+            return -1;
+        }
+    } else {
+        return GetObservableID(observableName);
+    }
+
+    return fNObservables - 1;
+}
+
+void TRestAnalysisTree::PrintObservables() {
+    if (fNObservables != fObservables.size()) {
+        InitObservables();
+    }
+
+    cout.precision(15);
+    std::cout << "Entry : " << fReadEntry << std::endl;
+    std::cout << "> Event ID : " << GetEventID() << std::endl;
+    std::cout << "> Event Time : " << GetTimeStamp() << std::endl;
+    std::cout << "> Event Tag : " << GetSubEventTag() << std::endl;
+    std::cout << "-----------------------------------------" << std::endl;
+    cout.precision(6);
+
+    for (int n = 0; n < GetNumberOfObservables(); n++) {
+        PrintObservable(n);
+    }
+}
+
+// print the Nth observable in the observal list
+void TRestAnalysisTree::PrintObservable(int n) {
+    if (n < 0 || n >= fNObservables) {
+        return;
+    }
+    string obsVal = fObservables[n].ToString();
+    int lengthRemaining = Console::GetWidth() - 14 - 30 - 13;
+
+    std::cout << "Observable : " << ToString(fObservableNames[n], 30) << "    Value : " << ToString(obsVal, lengthRemaining)
+              << std::endl;
+}
+
+Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
+    if (!fConnected) {
+        if (!fBranchesCreated && GetListOfBranches()->GetEntriesFast() > 0 &&
+            fNObservables != fObservables.size()) {
+            // the object is just retrieved from root file, we connect the branches
+            fBranchesCreated = true;
+            ConnectBranches();
+        } else {
+            // the tree is initialized but not filled yet. There is no entries to get
+            return 0;
+        }
+    }
+
+    return TTree::GetEntry(entry, getall);
+}
+
+void TRestAnalysisTree::SetEventInfo(TRestEvent* evt) {
+    if (evt != NULL) {
+        fEventID = evt->GetID();
+        fSubEventID = evt->GetSubID();
+        fTimeStamp = evt->GetTimeStamp().AsDouble();
+        *fSubEventTag = evt->GetSubEventTag();
+        fRunOrigin = evt->GetRunOrigin();
+        fSubRunOrigin = evt->GetSubRunOrigin();
+    }
+}
+
+Int_t TRestAnalysisTree::Fill() {
     if (!fBranchesCreated) {
         if (GetListOfBranches()->GetEntriesFast() > 0) {
+            // Branches are already created but the flag is false
+            // This means the tree is just retrieved from root file
+            // We need to connect observables for it
             fBranchesCreated = true;
-            return;
+            if (!fConnected) {
+                ConnectBranches();
+            }
+        } else {
+            CreateBranches();
         }
-        CreateEventBranches();
-        CreateObservableBranches();
-        fBranchesCreated = true;
+    }
+
+    return TTree::Fill();
+}
+
+void TRestAnalysisTree::SetObservableValue(Int_t id, any obs) {
+    if (id == -1) {
+        // this means we want to find observable id by its name
+        id = GetObservableID(obs.name);
+        // if not found, we have a chance to create observable
+        if (id == -1) {
+            if (!fBranchesCreated) {
+                id = AddObservable(obs.name, obs.type);
+            } else {
+                cout << "error: SetObservableValue(): branches already created!" << endl;
+            }
+        }
+    } else if (id == fObservables.size()) {
+        // this means we want to add observable directly
+        if (!fBranchesCreated) {
+            id = AddObservable(obs.name, obs.type);
+        } else {
+            cout << "error: SetObservableValue(): branches already created!" << endl;
+        }
+    }
+    if (id != -1) {
+        obs >> fObservables[id];
     }
 }
 
@@ -517,4 +491,6 @@ TString TRestAnalysisTree::GetStringWithObservableNames() {
     return (TString)branchNames;
 }
 
-TRestAnalysisTree::~TRestAnalysisTree() {}
+TRestAnalysisTree::~TRestAnalysisTree() {
+    if (fSubEventTag != NULL) delete fSubEventTag;
+}
