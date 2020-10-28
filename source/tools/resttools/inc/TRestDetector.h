@@ -33,13 +33,10 @@
 
 using namespace std;
 
-class TRestDetector {
+class TRestDetector : public map<string, string> {
    protected:
     string fDetectorName;
     Int_t fRunNumber;
-    map<string, string> fParameterMap;
-
-    virtual void PrintParameterMap();
 
    public:
     // Constructors
@@ -47,19 +44,18 @@ class TRestDetector {
     // Destructor
     ~TRestDetector() {}
 
-    Int_t GetRunNumber() { return fRunNumber; }
-    void SetRunNumber(Int_t run) { fRunNumber = run; }
-    string GetDetectorName() { return fDetectorName; }
+    Int_t GetRunNumber() const { return fRunNumber; }
+    void SetRunNumber(const Int_t& run) { fRunNumber = run; }
+    string GetDetectorName() const { return fDetectorName; }
 
     // virtual methods
-    virtual string GetParameter(string paraname) {
-        if (fParameterMap.count(paraname) > 0) return fParameterMap[paraname];
+    virtual string GetParameter(const string& paraname) const {
+        if (this->count(paraname) > 0) return this->at(paraname);
         return PARAMETER_NOT_FOUND_STR;
     }
-    virtual void SetParameter(string paraname, string paraval);
-    virtual void RegisterMetadata(TObject* ptr) {}
-    virtual void Print();
-    virtual void WriteFile(TFile* f);
+    virtual void SetParameter(const string& paraname, const string& paraval);
+    virtual void Print() const;
+    virtual void WriteFile(TFile* f) const;
     virtual void ReadFile(TFile* f);
 };
 

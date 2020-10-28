@@ -6,29 +6,26 @@
 #include "TRestReflector.h"
 #include "TRestStringHelper.h"
 
-void TRestDetector::Print() {
+void TRestDetector::Print() const {
     cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout << "TRestDetector content" << endl;
     cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout << " Detector name : " << fDetectorName << endl;
     cout << " Detector class : " << REST_ARGS["gDetector"] << endl;
     cout << " Run number : " << fRunNumber << endl;
-    cout << " Number of parameters stored: " << fParameterMap.size() << endl;
+    cout << " Number of parameters stored: " << (*this).size() << endl;
     cout << " --------------------------------------------" << endl;
-}
-
-void TRestDetector::PrintParameterMap() {
-    for (auto iter : fParameterMap) {
+    for (auto iter : *this) {
         cout << iter.first << " : " << iter.second << endl;
     }
     cout << " --------------------------------------------" << endl;
 }
 
-void TRestDetector::WriteFile(TFile* f) {
+void TRestDetector::WriteFile(TFile* f) const {
     TObjArray* arr = new TObjArray();
 
     vector<TNamed*> items;
-    for (auto iter : fParameterMap) {
+    for (auto iter : *this) {
         TNamed* item = new TNamed(iter.first.c_str(), iter.second.c_str());
         arr->Add(item);
         items.push_back(item);
@@ -56,11 +53,11 @@ void TRestDetector::ReadFile(TFile* f) {
     }
 }
 
-void TRestDetector::SetParameter(string paraname, string paraval) {
+void TRestDetector::SetParameter(const string& paraname, const string& paraval) {
     any member = any(this, REST_ARGS["gDetector"]).GetDataMember(paraname);
     if (!member.IsZombie()) {
         member.ParseString(paraval);
     }
 
-    fParameterMap[paraname] = paraval;
+    (*this)[paraname] = paraval;
 }
