@@ -2209,8 +2209,10 @@ string TRestMetadata::ParameterNameToDataMemberName(string name) {
 /// \brief Reflection methods, Set value of a datamember in class according to
 /// TRestMetadata::fElement
 ///
-/// It will loop over all the parameters in the rml and find the corresponding datamember.
-/// If found, it will set the it's value. For example, we write:
+/// It will loop over all the parameters in the rml and gDetector. (The repeated one
+/// won't override the existing one. rml parameters in prior.) Then it will find the 
+/// corresponding datamember for the parameter. If found, it will set the datamember value. 
+/// For example, we write:
 /// \code
 /// class TRestXXX: public TRestMetadata{
 /// int fPar0;
@@ -2228,13 +2230,20 @@ string TRestMetadata::ParameterNameToDataMemberName(string name) {
 ///
 /// Note that parameters include <parameter section and all the attributes in fElement.
 void TRestMetadata::ReadAllParameters() {
+    // we shall first add all the parameters to a temporary map to avoid
+    // first parameter being overriden by the repeated parameter section
+    map<TString, TString> parameters;
+
     // Loop over attribute set
     auto paraattr = fElement->FirstAttribute();
     while (paraattr != NULL) {
         TString name = paraattr->Name();
         TString value = paraattr->Value();
 
-        ReadOneParameter((string)name, (string)value);
+        if (parameters.count(name)== 0) {
+            parameters[name] = value;
+        }
+        // ReadOneParameter((string)name, (string)value);
         paraattr = paraattr->Next();
     }
 
@@ -2247,9 +2256,25 @@ void TRestMetadata::ReadAllParameters() {
         if (name == "") {
             warning << "bad <parameter section: " << *paraele << endl;
         } else {
-            ReadOneParameter((string)name, (string)value);
+            if (parameters.count(name) == 0) {
+                parameters[name] = value;
+            }
+            // ReadOneParameter((string)name, (string)value);
         }
         paraele = paraele->NextSiblingElement("parameter");
+    }
+
+    // Loop over gDetector
+    auto iter = gDetector->begin();
+    while (iter != gDetector->end()) {
+        if (parameters.count(iter->first) == 0) {
+            parameters[iter->first] = iter->second;
+        }
+        iter++;
+    }
+
+    for (auto i : parameters) {
+        ReadOneParameter((string)i.first, (string)i.second);
     }
 }
 
