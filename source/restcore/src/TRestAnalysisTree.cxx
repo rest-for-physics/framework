@@ -313,6 +313,21 @@ void TRestAnalysisTree::SetObservableValue(Int_t id, any obs) {
         }
     }
     if (id != -1) {
+        if (!fBranchesCreated) {
+            if (obs.type != fObservables[id].type) {
+                // if the observable branches are not created, and the type doesn't match, 
+                // we still have the chance to fix. We reset fObservableTypes and fObservableMemory
+                // according to the input type value.
+                cout << "Warning: SetObservableValue(): adding different type observable \""<<obs.name<<"\"" << endl;
+                cout << "Existing observable is in type: " << fObservables[id].type
+                     << ", observable to add is in type: " << obs.type << endl;
+                fObservableTypes[id] = obs.type;
+                string name = fObservables[id].name;
+                fObservables[id].Destroy();
+                fObservables[id] = REST_Reflection::Assembly(obs.type);
+                fObservables[id].name = name;
+            }
+        }
         obs >> fObservables[id];
     }
 }
