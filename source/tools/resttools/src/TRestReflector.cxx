@@ -133,6 +133,7 @@ void TRestReflector::operator>>(TRestReflector to) { CloneAny(*this, to); }
 
 string TRestReflector::ToString() {
     if (type == "string") return *(string*)(address);
+    if (address == NULL) return "null";
     if (RESTConverterMethodBase.count(type) > 0) {
         return RESTConverterMethodBase[type]->ToString(address);
     } else {
