@@ -58,7 +58,7 @@ string ToString(T source, int length = -1, char fill = ' ') {
     stringstream ss1;
     ss1 << source;
     string s = ss1.str();
-    if (length == -1) {
+    if (length < 0) {
         return s;
     } else if (s.size() < length) {
         return s + string(length - s.size(), fill);

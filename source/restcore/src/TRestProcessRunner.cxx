@@ -325,7 +325,7 @@ void TRestProcessRunner::RunProcess() {
     }
     fout << "=" << endl;
 
-    // copy thread tree to local
+    // copy thread's event tree to local
     fTempOutputDataFile->cd();
     TTree* tree = fThreads[0]->GetEventTree();
     if (tree != NULL) {
@@ -342,17 +342,17 @@ void TRestProcessRunner::RunProcess() {
         fEventTree = NULL;
     }
 
-    tree = (TRestAnalysisTree*)fThreads[0]->GetAnalysisTree();
-    if (tree != NULL) {
-        fAnalysisTree = (TRestAnalysisTree*)tree->Clone();
-        fAnalysisTree->SetName("AnalysisTree");
-        fAnalysisTree->SetTitle("AnalysisTree");
-        fAnalysisTree->SetDirectory(fTempOutputDataFile);
-    } else {
-        fAnalysisTree = NULL;
-    }
+    // initialize analysis tree
+    fAnalysisTree = new TRestAnalysisTree("AnalysisTree", "REST Process Analysis Tree");
+    fAnalysisTree->SetDirectory(fTempOutputDataFile);
 
-    nBranches = fAnalysisTree->GetListOfBranches()->GetEntriesFast();
+    tree = fThreads[0]->GetAnalysisTree();
+    if (tree != NULL) {
+        nBranches = tree->GetNbranches();
+    } else {
+        ferr << "Threads are not initialized! No AnalysisTree!" << endl;
+        exit(1);
+    }
 
     // reset runner
     this->ResetRunTimes();
@@ -731,14 +731,21 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
         TObjArray* branchesL;
 
         if (fAnalysisTree != NULL) {
-            t->GetAnalysisTree()->SetEventInfo(t->GetOutputEvent());
-            branchesT = t->GetAnalysisTree()->GetListOfBranches();
-            branchesL = fAnalysisTree->GetListOfBranches();
-            for (int i = 0; i < nBranches; i++) {
-                TBranch* branchT = (TBranch*)branchesT->UncheckedAt(i);
-                TBranch* branchL = (TBranch*)branchesL->UncheckedAt(i);
-                branchL->SetAddress(branchT->GetAddress());
+            TRestAnalysisTree* remotetree = t->GetAnalysisTree();
+
+            //t->GetAnalysisTree()->SetEventInfo(t->GetOutputEvent());
+            //branchesT = t->GetAnalysisTree()->GetListOfBranches();
+            //branchesL = fAnalysisTree->GetListOfBranches();
+            //for (int i = 0; i < nBranches; i++) {
+            //    TBranch* branchT = (TBranch*)branchesT->UncheckedAt(i);
+            //    TBranch* branchL = (TBranch*)branchesL->UncheckedAt(i);
+            //    branchL->SetAddress(branchT->GetAddress());
+            //}
+            fAnalysisTree->SetEventInfo(fOutputEvent);
+            for (int n = 0; n < remotetree->GetNumberOfObservables(); n++) {
+                fAnalysisTree->SetObservableValue(n, remotetree->GetObservable(n));
             }
+
             fAnalysisTree->Fill();
         }
 

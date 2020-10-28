@@ -54,7 +54,6 @@ string VectorToString(vector<T> vec) {
     ss << "}";
     return ss.str();
 }
-
 template <class T>
 vector<T> StringToVector(string vec) {
     vector<T> result;
@@ -80,10 +79,51 @@ vector<T> StringToVector(string vec) {
 
     return result;
 }
-AddConverter(VectorToString, StringToVector, vector<string>);
 AddConverter(VectorToString, StringToVector, vector<int>);
 AddConverter(VectorToString, StringToVector, vector<double>);
+AddConverter(VectorToString, StringToVector, vector<string>);
 AddConverter(VectorToString, StringToVector, vector<TString>);
+
+
+template <class T>
+string SetToString(set<T> set) {
+    string result = "{";
+    for (auto val : set) {
+        result += Converter<T>::thisptr->ToStringFunc(val) + ",";
+    }
+    if (result[result.size() - 1] == ',') result.erase(result.end() - 1);
+    result += "}";
+    return result;
+}
+template <class T>
+set<T> StringToSet(string vec) {
+    set<T> result;
+    if (vec[0] == '{' && vec[vec.size() - 1] == '}') {
+        vec.erase(vec.begin());
+        vec.erase(vec.end() - 1);
+        vector<string> parts = Split(vec, ",");
+
+        for (string part : parts) {
+            while (part[0] == ' ') {
+                part.erase(part.begin());
+            }
+            while (part[part.size() - 1] == ' ') {
+                part.erase(part.end() - 1);
+            }
+            result.insert(Converter<T>::thisptr->ParseStringFunc(part));
+        }
+
+    } else {
+        cout << "illegal format!" << endl;
+        return set<T>{};
+    }
+    return result;
+}
+AddConverter(SetToString, StringToSet, set<int>);
+AddConverter(SetToString, StringToSet, set<double>);
+AddConverter(SetToString, StringToSet, set<string>);
+AddConverter(SetToString, StringToSet, set<TString>);
+
 
 template <class T1, class T2>
 string MapToString(map<T1, T2> vec) {
@@ -103,7 +143,6 @@ string MapToString(map<T1, T2> vec) {
     ss << "}";
     return ss.str();
 }
-
 template <class T1, class T2>
 map<T1, T2> StringToMap(string vec) {
     map<T1, T2> result;
@@ -148,9 +187,24 @@ map<T1, T2> StringToMap(string vec) {
 }
 
 #define comma ,
+AddConverter(MapToString, StringToMap, map<int comma int>);
+AddConverter(MapToString, StringToMap, map<int comma double>);
+AddConverter(MapToString, StringToMap, map<int comma string>);
+AddConverter(MapToString, StringToMap, map<int comma TString>);
+
+AddConverter(MapToString, StringToMap, map<double comma int>);
+AddConverter(MapToString, StringToMap, map<double comma double>);
+AddConverter(MapToString, StringToMap, map<double comma string>);
+AddConverter(MapToString, StringToMap, map<double comma TString>);
+
 AddConverter(MapToString, StringToMap, map<string comma int>);
 AddConverter(MapToString, StringToMap, map<string comma double>);
 AddConverter(MapToString, StringToMap, map<string comma string>);
+AddConverter(MapToString, StringToMap, map<string comma TString>);
+
 AddConverter(MapToString, StringToMap, map<TString comma int>);
 AddConverter(MapToString, StringToMap, map<TString comma double>);
+AddConverter(MapToString, StringToMap, map<TString comma TString>);
+AddConverter(MapToString, StringToMap, map<TString comma string>);
+
 AddConverter(MapToString, StringToMap, map<TString comma TVector2>);

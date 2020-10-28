@@ -20,7 +20,6 @@
 
 #include "TRestEvent.h"
 #include "TRestReflector.h"
-
 #include "TTree.h"
 class TRestEventProcess;
 class TRestMetadata;
@@ -38,52 +37,40 @@ class TRestAnalysisTree : public TTree {
     Int_t fRunOrigin;       //!
     Int_t fSubRunOrigin;    //!
 
-    std::vector<any> fObservableMemory;  //!
+    //
+    std::vector<any> fObservables;            //!
+    std::map<TString, int> fObservableIdMap;  //!
 
+    // for storage
     Int_t fNObservables;
     std::vector<TString> fObservableNames;
     std::vector<TString> fObservableDescriptions;
     std::vector<TString> fObservableTypes;
 
-    void PrintObservable(int N);
-    void ConnectEventBranches();
-    void ConnectObservables();
-    void CreateEventBranches();
-    void CreateObservableBranches();
+    void Initialize();
+    void ConnectBranches();
+    void CreateBranches();
+    void InitObservables();
+    void MakeObservableIdMap();
 
    protected:
    public:
-    void Initialize();
-
+    // getters
     bool IsConnected() { return fConnected; }
     bool IsBranchesCreated() { return fBranchesCreated; }
-
-    Int_t GetObservableID(TString obsName) {
-        for (int i = 0; i < GetNumberOfObservables(); i++)
-            if (fObservableNames[i] == obsName) return i;
-        // cout << "TRestAnalysisTree::GetObservableID. Error, observable name : " << obsName << " not
-        // found!!"
-        //     << endl;
-        return -1;
-    }
-
-    Bool_t ObservableExists(TString obsName) {
-        if (GetObservableID(obsName) >= 0) return true;
-        return false;
-    }
-
+    Int_t GetObservableID(TString obsName);
+    Bool_t ObservableExists(TString obsName);
     Int_t GetEventID() { return fEventID; }
     Int_t GetSubEventID() { return fSubEventID; }
     Double_t GetTimeStamp() { return fTimeStamp; }
     TString GetSubEventTag() { return *fSubEventTag; }
     Int_t GetRunOrigin() { return fRunOrigin; }
     Int_t GetSubRunOrigin() { return fSubRunOrigin; }
-
     Int_t GetNumberOfObservables() { return fNObservables; }
 
     // observable method
     any GetObservable(Int_t n) {
-        return fObservableMemory[n];
+        return fObservables[n];
     }  // TODO implement error message in case n >= fNObservables
     TString GetObservableName(Int_t n) {
         return fObservableNames[n];
@@ -116,7 +103,7 @@ class TRestAnalysisTree : public TTree {
 
     template <class T>
     T GetObservableValue(Int_t n) {
-        return *(T*)fObservableMemory[n];
+        return *(T*)fObservables[n];
     }
     template <class T>
     T GetObservableValue(TString obsName) {
@@ -129,11 +116,11 @@ class TRestAnalysisTree : public TTree {
 
     template <class T>
     T GetObservableValueSafe(Int_t n) {
-        if (REST_Reflection::GetTypeName<T>() != fObservableMemory[n].type) {
+        if (REST_Reflection::GetTypeName<T>() != fObservables[n].type) {
             cout << "Error! TRestAnalysisTree::GetObservableValueSafe(): unmatched type!" << endl;
             return T();
         }
-        return *(T*)fObservableMemory[n];
+        return *(T*)fObservables[n];
     }
     template <class T>
     T GetObservableValueSafe(TString obsName) {
@@ -145,44 +132,22 @@ class TRestAnalysisTree : public TTree {
     }
 
     template <class T>
-    void SetObservableValue(Int_t n, const T& value) {
-        if (!fBranchesCreated) {
-            // if the observable branches are not created, we still have the chance to change
-            // we check whether the value in the specified type(saved in fObservableTypes)
-            // if not, we reset fObservableTypes and fObservableMemory according to the
-            // value. Memory leak is inevitable.
-            TString type = REST_Reflection::GetTypeName<T>();
-            if (type != fObservableTypes[n]) {
-                fObservableTypes[n] = type;
-                fObservableMemory[n] = REST_Reflection::Assembly((string)type);
-            }
-        }
-        if (n != -1 && n < fObservableMemory.size()) fObservableMemory[n].SetValue(value);
-    }
-    template <class T>
     void SetObservableValue(TString name, const T& value) {
-        // string name_fixed = Replace((string)ProcName_ObsName, ".", "_", 0);
-        Int_t id = GetObservableID(name);
-        if (id == -1 && !fBranchesCreated) {
-            id = AddObservable<T>(name);
-        }
-        SetObservableValue(id, value);
+        any val(value);
+        val.name = name;
+        SetObservableValue(-1, val);
     }
-    void SetObservableValue(Int_t n, any value) { value >> fObservableMemory[n]; }
+    void SetObservableValue(Int_t id, any obs);
 
-    void CreateBranches();
-
-    void CopyObservableList(TRestAnalysisTree* from, string prefix = "");
-
-    void PrintObservables(TRestEventProcess* proc = 0, int NObservables = 9999);
+    void PrintObservables();
+    void PrintObservable(int N);
 
     void SetRunOrigin(Int_t run_origin) { fRunOrigin = run_origin; }
     void SetSubRunOrigin(Int_t sub_run_origin) { fSubRunOrigin = sub_run_origin; }
 
     void SetEventInfo(TRestEvent* evt);
-    Int_t Fill(TRestEvent* evt = 0);
+    Int_t Fill();
 
-    Int_t AddObservable(TString objName, TRestMetadata* meta, TString description = "");
     Int_t AddObservable(TString observableName, TString observableType = "double", TString description = "");
     template <typename T>
     Int_t AddObservable(TString observableName, TString description = "") {
@@ -216,6 +181,7 @@ class TRestAnalysisTree : public TTree {
 
     // Construtor
     TRestAnalysisTree();
+    TRestAnalysisTree(TTree* tree);
     TRestAnalysisTree(TString name, TString title);
     // Destructor
     virtual ~TRestAnalysisTree();
