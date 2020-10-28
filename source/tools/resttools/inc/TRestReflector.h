@@ -142,7 +142,7 @@ class TRestReflector {
     TDataType* dt = 0;
     /// If this object type wrapper is invalid
     bool IsZombie();
-    /// Streamer method of varioud types. Supports deep-cloning of custom TObject-inherited classes
+    /// Deep copy the content of the wrapped object to `to`.
     void operator>>(TRestReflector to);
     /// Output overload by calling ToString();
     friend ostream& operator<<(ostream& cin, TRestReflector ptr) { return cin << ptr.ToString(); }
@@ -241,11 +241,8 @@ TRestReflector WrapType(string typeName);
 ///////////////////////////////////////////////
 /// \brief Deep copy the content of object `from` to `to`
 ///
-/// If the type is class type, it will use ROOT streamer. The class member
-/// with //! annotation will not be copied. The content of pointer class member
-/// with //-> annotation will also be copied.
-///
-/// If the type is base data type, it will use memcpy()
+/// Calls RESTVirtualConverter::CloneObj(). The actual methods are registered in converter.cpp
+/// If not registered, you can add it manually with AddConverter() macro
 void CloneAny(TRestReflector from, TRestReflector to);
 };  // namespace REST_Reflection
 
@@ -255,6 +252,7 @@ class RESTVirtualConverter {
    public:
     virtual string ToString(void* obj) = 0;
     virtual void ParseString(void* obj, string str) = 0;
+    virtual void CloneObj(void* from, void* to) = 0;
 };
 
 // type name, {toString method, parseString method}
@@ -271,6 +269,9 @@ class Converter : RESTVirtualConverter {
     void ParseString(void* obj, string str) override {
         T newobj = ParseStringFunc(str);
         *((T*)(obj)) = newobj;
+    }
+    void CloneObj(void* from, void* to) override {
+        *((T*)(to)) = *((T*)(from));
     }
 
     Converter(string (*_ToStringFunc)(T), T (*_ParseStringFunc)(string)) {

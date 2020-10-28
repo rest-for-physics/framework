@@ -288,21 +288,26 @@ void CloneAny(TRestReflector from, TRestReflector to) {
         return;
     }
 
-    if (from.cl == NULL) {
-        memcpy(to.address, from.address, from.size);
+    if (RESTConverterMethodBase.count(from.type) > 0) {
+        RESTConverterMethodBase[from.type]->CloneObj(from.address, to.address);
     } else {
-        TBufferFile buffer(TBuffer::kWrite);
-
-        buffer.MapObject(from.address, from.cl);  // register obj in map to handle self reference
-        from.cl->Streamer(from.address, buffer);
-
-        buffer.SetReadMode();
-        buffer.ResetMap();
-        buffer.SetBufferOffset(0);
-
-        buffer.MapObject(to.address, to.cl);  // register obj in map to handle self reference
-        to.cl->Streamer(to.address, buffer);
+        info << "Method for cloning type: \"" << from.type << "\" has not been registered!" << endl;
     }
+    //if (from.cl == NULL) {
+    //    memcpy(to.address, from.address, from.size);
+    //} else {
+    //    TBufferFile buffer(TBuffer::kWrite);
+
+    //    buffer.MapObject(from.address, from.cl);  // register obj in map to handle self reference
+    //    from.cl->Streamer(from.address, buffer);
+
+    //    buffer.SetReadMode();
+    //    buffer.ResetMap();
+    //    buffer.SetBufferOffset(0);
+
+    //    buffer.MapObject(to.address, to.cl);  // register obj in map to handle self reference
+    //    to.cl->Streamer(to.address, buffer);
+    //}
 }
 
 TRestReflector TRestReflector::GetDataMember(string name) {
