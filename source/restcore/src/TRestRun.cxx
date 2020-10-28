@@ -101,18 +101,20 @@ void TRestRun::Initialize() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Begin of startup
+/// \brief Initialize logic of TRestRun
 ///
 /// Things doing in this method:
-/// 1. Load from rml the input file name pattern, and search all the files
-/// matching pattern.
-/// 2. Load from rml the output file name
-///
-void TRestRun::BeginOfInit() {
+/// 1. Read basic parameter. This is done by calling ReadAllParameters()
+/// 2. Initialize runnumber and input file name. They follow non-trival logic.
+/// 3. Construct default output file name with runNumber, runTag, etc.
+/// 4. Open input file(s), read the stored metadata and trees, read file name pattern.
+/// 5. Loop over sections to initialize metadata
+/// 
+void TRestRun::InitFromConfigFile() {
     debug << "Initializing TRestRun from config file, version: " << REST_RELEASE << endl;
     ReSetVersion();
 
-    // Get some infomation
+    // 1. Read basic parameter
     fRunUser = REST_USER;
     // fRunType = GetParameter("runType", "ANALYSIS").c_str();
     // fRunDescription = GetParameter("runDescription", "").c_str();
@@ -120,7 +122,7 @@ void TRestRun::BeginOfInit() {
     // fRunTag = GetParameter("runTag", "noTag").c_str();
     ReadAllParameters();
 
-    // runnumber and input file name
+    // 2. Initialize runnumber and input file name. They follow non-trival logic
     fRunNumber = -1;
     fParentRunNumber = 0;
     string runNstr = GetParameter("runNumber", "-1");
@@ -181,9 +183,8 @@ void TRestRun::BeginOfInit() {
         }
         // throw;
     }
-    gDetector->RegisterMetadata(this);
 
-    // output file pattern
+    // 3. Construct output file name
     string outputdir = (string)GetDataPath();
     if (outputdir == "") outputdir = ".";
     string outputname = GetParameter("outputFile", "default");
@@ -226,108 +227,9 @@ void TRestRun::BeginOfInit() {
         ferr << "Path : " << outputdir << endl;
         exit(1);
     }
-}
 
-///////////////////////////////////////////////
-/// \brief Respond to the input xml element.
-///
-/// If the declaration of the input element is:
-/// 1. addMetadata: Instantiate the metadata by reading the root file, and add
-/// it to the handled metadata list. Calling the method ImportMetadata().
-/// 2. TRestXXX: Instantiate the metadata by using sequential startup, and add
-/// it to the handled metadata list.
-/// 3. addProcess: Add an external process, which reads the input file and forms
-/// events
-///
-/// Other types of declarations will be omitted.
-///
-Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
-    if (keydeclare == "addMetadata") {
-        if (e->Attribute("file") != NULL) {
-            ImportMetadata(e->Attribute("file"), e->Attribute("name"), e->Attribute("type"), true);
-            return 0;
-        } else {
-            warning << "Wrong definition of addMetadata! Metadata name or file name "
-                       "is not given!"
-                    << endl;
-            return -1;
-        }
-    } else if (keydeclare == "addProcess") {
-        string active = GetParameter("value", e, "");
-        if (active != "" && ToUpper(active) != "ON") return 0;
-        string processName = GetParameter("name", e, "");
-        string processType = GetParameter("type", e, "");
-        if (processType == "") {
-            warning << "Bad expression of addProcess" << endl;
-            return 0;
-        } else if (processName == "") {
-            warning << "Event process " << processType << " has no name, it will be skipped" << endl;
-            return -1;
-        }
-        TRestEventProcess* pc = REST_Reflection::Assembly(processType);
-
-        pc->LoadConfigFromElement(e, fElementGlobal);
-
-        pc->SetRunInfo(this);
-        pc->SetHostmgr(fHostmgr);
-
-        if (pc->isExternal()) {
-            SetExtProcess(pc);
-            return 0;
-        } else {
-            warning << "This is not an external file process!" << endl;
-        }
-
-    }
-
-    else if (Count(keydeclare, "TRest") > 0) {
-        if (e->Attribute("file") != NULL && TRestTools::isRootFile(e->Attribute("file"))) {
-            warning << "TRestRun: A root file is being included in section <" << keydeclare
-                    << " ! To import metadata from this file, use <addMetadata" << endl;
-            warning << "Skipping..." << endl;
-            return -1;
-        }
-        // if (e->Attribute("file") != NULL && (string)e->Attribute("file") == "server") {
-        //    // read meta-sections from database
-        //    auto url = gDataBase->query_data(DBEntry(fRunNumber, "META_RML", e->Value())).value;
-        //    string file = TRestTools::DownloadRemoteFile(url);
-        //    e->SetAttribute("file", file.c_str());
-        //    ExpandIncludeFile(e);
-        //}
-
-        TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
-        meta->SetHostmgr(fHostmgr);
-        fMetadata.push_back(meta);
-        meta->LoadConfigFromElement(e, fElementGlobal);
-        gDetector->RegisterMetadata(meta);
-
-        return 0;
-    }
-
-    return -1;
-}
-
-///////////////////////////////////////////////
-/// \brief End of startup
-///
-/// Things doing in this method:
-/// 1. Get some run information from the main config element(fElement).
-/// 2. Open the first input file and find the tree. Then link the input
-/// event/analysis to the input tree. This is done within method
-/// OpenInputFile().
-/// 3. Print some message.
-///
-void TRestRun::EndOfInit() {
-    // Get some information
-
-    // fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
-    // fRunType = ToUpper(GetParameter("runType", "ANALYSIS")).c_str();
-    // fRunDescription = GetParameter("runDescription", "").c_str();
-    // fExperimentName = GetParameter("experiment", "preserve").c_str();
-    // fRunTag = GetParameter("runTag", "noTag").c_str();
-
+    // 4. Open input file(s)
     OpenInputFile(0);
-
     debug << "TRestRun::EndOfInit. InputFile pattern: \"" << fInputFileName << "\"" << endl;
     info << "which matches :" << endl;
     for (int i = 0; i < fInputFileNames.size(); i++) {
@@ -335,7 +237,63 @@ void TRestRun::EndOfInit() {
     }
     essential << "(" << fInputFileNames.size() << " added files)" << endl;
 
-    // cout << "Output file: \"" << fOutputFileName << "\"" << endl;
+    // 5. Loop over sections to initialize metadata
+    TiXmlElement* e = fElement->FirstChildElement();
+    while (e != NULL) {
+        string keydeclare = e->Value();
+        if (keydeclare == "addMetadata") {
+            if (e->Attribute("file") != NULL) {
+                ImportMetadata(e->Attribute("file"), e->Attribute("name"), e->Attribute("type"), true);
+            } else {
+                warning << "Wrong definition of addMetadata! Metadata name or file name "
+                           "is not given!"
+                        << endl;
+            }
+        } else if (keydeclare == "addProcess") {
+            bool active = StringToBool(GetParameter("value", e, ""));
+            if (!active) {
+                e = e->NextSiblingElement();
+                continue;
+            }
+            string processName = GetParameter("name", e, "");
+            string processType = GetParameter("type", e, "");
+            if (processType == "") {
+                warning << "Bad expression of addProcess" << endl;
+            } else if (processName == "") {
+                warning << "Event process " << processType << " has no name, it will be skipped" << endl;
+            }
+            TRestEventProcess* pc = REST_Reflection::Assembly(processType);
+            if (!pc->isExternal()) {
+                warning << "This is not an external file process!" << endl;
+            } else {
+                pc->LoadConfigFromElement(e, fElementGlobal);
+                pc->SetRunInfo(this);
+                pc->SetHostmgr(fHostmgr);
+
+                SetExtProcess(pc);
+            }
+        }
+        else if (Count(keydeclare, "TRest") > 0) {
+            if (e->Attribute("file") != NULL && TRestTools::isRootFile(e->Attribute("file"))) {
+                warning << "TRestRun: A root file is being included in section <" << keydeclare
+                        << " ! To import metadata from this file, use <addMetadata" << endl;
+                warning << "Skipping..." << endl;
+            }
+            // if (e->Attribute("file") != NULL && (string)e->Attribute("file") == "server") {
+            //    // read meta-sections from database
+            //    auto url = gDataBase->query_data(DBEntry(fRunNumber, "META_RML", e->Value())).value;
+            //    string file = TRestTools::DownloadRemoteFile(url);
+            //    e->SetAttribute("file", file.c_str());
+            //    ExpandIncludeFile(e);
+            //}
+
+            TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
+            meta->SetHostmgr(fHostmgr);
+            fMetadata.push_back(meta);
+            meta->LoadConfigFromElement(e, fElementGlobal);
+        }
+        e = e->NextSiblingElement();
+    }
 }
 
 ///////////////////////////////////////////////
@@ -600,7 +558,7 @@ void TRestRun::ReadInputFileTrees() {
 void TRestRun::ReadFileInfo(string filename) {
     debug << "begin collecting basic file info..." << filename << endl;
 
-    gDetector->SetParameter("inputFile_Name", filename);
+    //gDetector->SetParameter("inputFile_Name", filename);
     struct stat buf;
     FILE* fp = fopen(filename.c_str(), "rb");
     if (!fp) {
@@ -610,12 +568,14 @@ void TRestRun::ReadFileInfo(string filename) {
     int fd = fileno(fp);
     fstat(fd, &buf);
     fclose(fp);
-
-    string datetime = ToDateTimeString(buf.st_mtime);
-    gDetector->SetParameter("inputFile_Time", Split(datetime, " ")[1]);
-    gDetector->SetParameter("inputFile_Date", Split(datetime, " ")[0]);
-    gDetector->SetParameter("inputFile_Size", ToString(buf.st_size) + "B");
-    gDetector->SetParameter("inputFile_Entries", ToString(GetEntries()));
+    if (fEndTime == 0) {
+        fEndTime = buf.st_mtime;
+    }
+    //string datetime = ToDateTimeString(buf.st_mtime);
+    //gDetector->SetParameter("inputFile_Time", Split(datetime, " ")[1]);
+    //gDetector->SetParameter("inputFile_Date", Split(datetime, " ")[0]);
+    //gDetector->SetParameter("inputFile_Size", ToString(buf.st_size) + "B");
+    //gDetector->SetParameter("inputFile_Entries", ToString(GetEntries()));
 
     if (TRestTools::isRootFile((string)filename)) {
         fTotalBytes = buf.st_size;
@@ -1105,6 +1065,7 @@ void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t s
     }
     if (!TRestTools::isRootFile(File.Data())) {
         ferr << "(ImportMetadata) : The file " << File << " is not root file!" << endl;
+        ferr << "If you want to initialize metadata from rml file, use <TRest section!" << endl;
         return;
     }
 
@@ -1140,7 +1101,6 @@ void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t s
 
     fMetadata.push_back(meta);
     meta->LoadConfigFromBuffer();
-    gDetector->RegisterMetadata(meta);
     f->Close();
     delete f;
 }
@@ -1581,10 +1541,10 @@ void TRestRun::PrintMetadata() {
     metadata << "Run tag : " << GetRunTag() << endl;
     metadata << "Run user : " << GetRunUser() << endl;
     metadata << "Run description : " << GetRunDescription() << endl;
-    metadata << "Start timestamp : " << GetStartTimestamp() << endl;
-    metadata << "Date/Time : " << ToDateTimeString(GetStartTimestamp()) << endl;
-    metadata << "End timestamp : " << GetEndTimestamp() << endl;
-    metadata << "Date/Time : " << ToDateTimeString(GetEndTimestamp()) << endl;
+    metadata << "Start Date/Time : " << ToDateTimeString(GetStartTimestamp())
+             << " (" << GetStartTimestamp() << ")" << endl;
+    metadata << "End Date/Time : " << ToDateTimeString(GetEndTimestamp())
+             << " (" << GetEndTimestamp() << ")" << endl;
     metadata << "Input file : " << GetInputFileNamepattern() << endl;
     metadata << "Output file : " << GetOutputFileName() << endl;
     metadata << "Number of events : " << fEntriesSaved << endl;
