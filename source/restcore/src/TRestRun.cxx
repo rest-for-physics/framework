@@ -834,7 +834,7 @@ TFile* TRestRun::FormOutputFile() {
     fOutputFile = new TFile(fOutputFileName, "recreate");
     fAnalysisTree = new TRestAnalysisTree("AnalysisTree", "AnalysisTree");
     fEventTree = new TTree("EventTree", "EventTree");
-    fAnalysisTree->CreateBranches();
+    //fAnalysisTree->CreateBranches();
     // fEventTree->CreateEventBranches();
     fAnalysisTree->Write();
     this->WriteWithDataBase();
@@ -975,12 +975,13 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
             fInputEvent->SetTimeStamp(fStartTime);
         }
         fInputFile = NULL;
+        // we make sure external processes can access to analysis tree
         fAnalysisTree = new TRestAnalysisTree("externalProcessAna", "externalProcessAna");
         p->SetAnalysisTree(fAnalysisTree);
         fTotalBytes = p->GetTotalBytes();
 
         GetNextEvent(fInputEvent, 0);
-        fAnalysisTree->CreateBranches();
+        //fAnalysisTree->CreateBranches();
         info << "The external file process has been set! Name : " << fFileProcess->GetName() << endl;
     } else {
         if (fFileProcess != NULL) {
