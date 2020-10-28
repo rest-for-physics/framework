@@ -788,6 +788,9 @@ void TRestG4Metadata::InitFromConfigFile() {
     fPrintProgress = ToUpper(GetParameter("printProgress", "false")) == "TRUE" ||
                      ToUpper(GetParameter("printProgress", "off")) == "ON";
 
+    fRegisterEmptyTracks = ToUpper(GetParameter("registerEmptyTracks", "false")) == "TRUE" ||
+                           ToUpper(GetParameter("registerEmptyTracks", "off")) == "ON";
+
     ReadGenerator();
 
     ReadStorage();

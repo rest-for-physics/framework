@@ -197,6 +197,11 @@ class TRestG4Metadata : public TRestMetadata {
     /// If this parameter is set to 'true' it will print out on screen every time 10k events are reached.
     Bool_t fPrintProgress = 0;  //!
 
+    /// \brief If this parameter is enabled it will register tracks with no hits inside. This is the default
+    /// behaviour. If it is disabled then empty tracks will not be written to disk at the risk of loosing
+    /// traceability, but saving disk space and likely improving computing performance for extense events.
+    Bool_t fRegisterEmptyTracks = 1;
+
    public:
     /// \brief Returns the random seed that was used to generate the corresponding
     /// geant4 dataset.
@@ -284,6 +289,9 @@ class TRestG4Metadata : public TRestMetadata {
 
     /// It returns true if `printProgress` parameter was set to true
     Bool_t PrintProgress() const { return fPrintProgress; }
+
+    /// It returns false if `registerEmptyTracks` parameter was set to false.
+    Bool_t RegisterEmptyTracks() const { return fRegisterEmptyTracks; }
 
     /// \brief Used exclusively by restG4 to set the value of the random seed used on
     /// Geant4 simulation.
