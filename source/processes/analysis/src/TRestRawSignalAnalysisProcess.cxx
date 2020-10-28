@@ -504,7 +504,9 @@ risetimemean += sgnl->GetRiseTime();
     SetObservableValue("AveragePeakTime", peakTimeAverage);
 
     if (GetVerboseLevel() >= REST_Debug) {
-        fAnalysisTree->PrintObservables(this);
+        for (auto i : fObservableInfo) {
+            fAnalysisTree->PrintObservable(i.second);
+        }
     }
 
     fPreviousEventTime.push_back(fSignalEvent->GetTimeStamp());
