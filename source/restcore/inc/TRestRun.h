@@ -95,7 +95,6 @@ class TRestRun : public TRestMetadata {
         fOutputFileName = fOutputFile->GetName();
     }
 
-
     void WriteWithDataBase();
 
     void CloseFile();

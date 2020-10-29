@@ -777,7 +777,7 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
 /// If output file name is not given(=""), then it will recreate the output file
 /// according to fOutputFileName. Otherwise it will update the given file. File
 /// Merging is by calling TFileMerger. After this, it will format the merged file name.
-/// This method is used to create output file after TRestProcessRunner is finished. 
+/// This method is used to create output file after TRestProcessRunner is finished.
 /// The metadata objects will also be written into the file.
 TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilename) {
     debug << "TRestRun::FormOutputFile. target : " << outputfilename << endl;
@@ -837,7 +837,7 @@ TFile* TRestRun::FormOutputFile() {
     fOutputFile = new TFile(fOutputFileName, "recreate");
     fAnalysisTree = new TRestAnalysisTree("AnalysisTree", "AnalysisTree");
     fEventTree = new TTree("EventTree", "EventTree");
-    //fAnalysisTree->CreateBranches();
+    // fAnalysisTree->CreateBranches();
     // fEventTree->CreateEventBranches();
     fAnalysisTree->Write();
     fEventTree->Write();
@@ -1007,7 +1007,7 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
         fTotalBytes = p->GetTotalBytes();
 
         GetNextEvent(fInputEvent, 0);
-        //fAnalysisTree->CreateBranches();
+        // fAnalysisTree->CreateBranches();
         info << "The external file process has been set! Name : " << fFileProcess->GetName() << endl;
     } else {
         if (fFileProcess != NULL) {

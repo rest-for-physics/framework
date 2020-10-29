@@ -2184,8 +2184,8 @@ Int_t TRestMetadata::Write(const char* name, Int_t option, Int_t bufsize) {
 /// TRestMetadata::fElement
 ///
 /// It will loop over all the parameters in the rml and gDetector. (The repeated one
-/// won't override the existing one. rml parameters in prior.) Then it will find the 
-/// corresponding datamember for the parameter. If found, it will set the datamember value. 
+/// won't override the existing one. rml parameters in prior.) Then it will find the
+/// corresponding datamember for the parameter. If found, it will set the datamember value.
 /// For example, we write:
 /// \code
 /// class TRestXXX: public TRestMetadata{
@@ -2214,7 +2214,7 @@ void TRestMetadata::ReadAllParameters() {
         TString name = paraattr->Name();
         TString value = paraattr->Value();
 
-        if (parameters.count(name)== 0) {
+        if (parameters.count(name) == 0) {
             parameters[name] = value;
         }
         // ReadOneParameter((string)name, (string)value);

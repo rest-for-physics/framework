@@ -386,7 +386,7 @@ int main(int argc, char** argv) {
 #endif
     }
 
-    else // N_events == -1 
+    else  // N_events == -1
     {
         cout << "++++++++++ ERRORRRR +++++++++" << endl;
         cout << "++++++++++ ERRORRRR +++++++++" << endl;

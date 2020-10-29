@@ -290,7 +290,7 @@ TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
             } else {
                 fZombie = true;
                 return;
-                //warning << "not a unit \"" << singleunit << "\"" << endl;
+                // warning << "not a unit \"" << singleunit << "\"" << endl;
             }
 
         } else {

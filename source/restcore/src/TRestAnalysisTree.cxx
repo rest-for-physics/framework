@@ -243,8 +243,8 @@ void TRestAnalysisTree::PrintObservable(int n) {
     string obsVal = fObservables[n].ToString();
     int lengthRemaining = Console::GetWidth() - 14 - 30 - 13;
 
-    std::cout << "Observable : " << ToString(fObservableNames[n], 30) << "    Value : " << ToString(obsVal, lengthRemaining)
-              << std::endl;
+    std::cout << "Observable : " << ToString(fObservableNames[n], 30)
+              << "    Value : " << ToString(obsVal, lengthRemaining) << std::endl;
 }
 
 Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
@@ -315,11 +315,13 @@ void TRestAnalysisTree::SetObservableValue(Int_t id, any obs) {
     if (id != -1) {
         if (!fBranchesCreated) {
             if (obs.type != fObservables[id].type) {
-                // if the observable branches are not created, and the type doesn't match, 
+                // if the observable branches are not created, and the type doesn't match,
                 // we still have the chance to fix. We reset fObservableTypes and fObservableMemory
                 // according to the input type value.
-                cout << "Warning: SetObservableValue(): setting value with different type. Observable : "<<obs.name<<", existing type: " << fObservables[id].type
-                     << ", value to add is in type: " << obs.type <<", trying to update to the new type." << endl;
+                cout << "Warning: SetObservableValue(): setting value with different type. Observable : "
+                     << obs.name << ", existing type: " << fObservables[id].type
+                     << ", value to add is in type: " << obs.type << ", trying to update to the new type."
+                     << endl;
                 fObservableTypes[id] = obs.type;
                 string name = fObservables[id].name;
                 fObservables[id].Destroy();

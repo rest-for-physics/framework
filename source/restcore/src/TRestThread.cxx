@@ -230,7 +230,6 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
         fOutputFile->SetCompressionLevel(0);
         fAnalysisTree = new TRestAnalysisTree("AnalysisTree_" + ToString(fThreadId), "dummyTree");
 
-
         debug << "TRestThread: Finding first input event of process chain..." << endl;
         if (fHostRunner->GetInputEvent() == NULL) {
             ferr << "Input event is not initialized from TRestRun! Please check your input file and file "
@@ -248,14 +247,12 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
             exit(1);
         }
 
-
         debug << "TRestThread: Reading input event and input observable..." << endl;
         if (fHostRunner->GetNextevtFunc(fInputEvent, fAnalysisTree) != 0) {
             ferr << "In thread " << fThreadId << ")::Failed to read input event, process cannot start!"
                  << endl;
             exit(1);
         }
-
 
         debug << "TRestThread: Init process..." << endl;
         for (unsigned int i = 0; i < fProcessChain.size(); i++) {
@@ -359,7 +356,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
             fEventTree = NULL;
         }
 
-        //fAnalysisTree->CreateBranches();
+        // fAnalysisTree->CreateBranches();
 
         // create output temp file for process-defined output object
 
