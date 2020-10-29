@@ -75,7 +75,6 @@ void TRestDetector::ReadFile(TFile* f) {
 void TRestDetector::SetParameter(const string& paraname, const string& paraval) {
     any member = any(this, REST_ARGS["gDetector"]).GetDataMember(ParameterNameToDataMemberName(paraname));
     if (!member.IsZombie()) {
-        cout << 111 << endl;
         member.ParseString(paraval);
     }
 
