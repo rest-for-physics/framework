@@ -109,7 +109,7 @@ void TRestRun::Initialize() {
 /// 3. Construct default output file name with runNumber, runTag, etc.
 /// 4. Open input file(s), read the stored metadata and trees, read file name pattern.
 /// 5. Loop over sections to initialize metadata
-/// 
+///
 void TRestRun::InitFromConfigFile() {
     debug << "Initializing TRestRun from config file, version: " << REST_RELEASE << endl;
     ReSetVersion();
@@ -243,7 +243,10 @@ void TRestRun::InitFromConfigFile() {
         string keydeclare = e->Value();
         if (keydeclare == "addMetadata") {
             if (e->Attribute("file") != NULL) {
-                ImportMetadata(e->Attribute("file"), e->Attribute("name"), e->Attribute("type"), true);
+                string file_addMetadata = ReplaceEnvironmentalVariables(e->Attribute("file"));
+                string name_addMetadata = ReplaceEnvironmentalVariables(e->Attribute("name"));
+                string type_addMetadata = ReplaceEnvironmentalVariables(e->Attribute("type"));
+                ImportMetadata(file_addMetadata, name_addMetadata, type_addMetadata, true);
             } else {
                 warning << "Wrong definition of addMetadata! Metadata name or file name "
                            "is not given!"
@@ -272,8 +275,7 @@ void TRestRun::InitFromConfigFile() {
 
                 SetExtProcess(pc);
             }
-        }
-        else if (Count(keydeclare, "TRest") > 0) {
+        } else if (Count(keydeclare, "TRest") > 0) {
             if (e->Attribute("file") != NULL && TRestTools::isRootFile(e->Attribute("file"))) {
                 warning << "TRestRun: A root file is being included in section <" << keydeclare
                         << " ! To import metadata from this file, use <addMetadata" << endl;
@@ -558,7 +560,7 @@ void TRestRun::ReadInputFileTrees() {
 void TRestRun::ReadFileInfo(string filename) {
     debug << "begin collecting basic file info..." << filename << endl;
 
-    //gDetector->SetParameter("inputFile_Name", filename);
+    // gDetector->SetParameter("inputFile_Name", filename);
     struct stat buf;
     FILE* fp = fopen(filename.c_str(), "rb");
     if (!fp) {
@@ -571,11 +573,11 @@ void TRestRun::ReadFileInfo(string filename) {
     if (fEndTime == 0) {
         fEndTime = buf.st_mtime;
     }
-    //string datetime = ToDateTimeString(buf.st_mtime);
-    //gDetector->SetParameter("inputFile_Time", Split(datetime, " ")[1]);
-    //gDetector->SetParameter("inputFile_Date", Split(datetime, " ")[0]);
-    //gDetector->SetParameter("inputFile_Size", ToString(buf.st_size) + "B");
-    //gDetector->SetParameter("inputFile_Entries", ToString(GetEntries()));
+    // string datetime = ToDateTimeString(buf.st_mtime);
+    // gDetector->SetParameter("inputFile_Time", Split(datetime, " ")[1]);
+    // gDetector->SetParameter("inputFile_Date", Split(datetime, " ")[0]);
+    // gDetector->SetParameter("inputFile_Size", ToString(buf.st_size) + "B");
+    // gDetector->SetParameter("inputFile_Entries", ToString(GetEntries()));
 
     if (TRestTools::isRootFile((string)filename)) {
         fTotalBytes = buf.st_size;
@@ -1542,10 +1544,10 @@ void TRestRun::PrintMetadata() {
     metadata << "Run tag : " << GetRunTag() << endl;
     metadata << "Run user : " << GetRunUser() << endl;
     metadata << "Run description : " << GetRunDescription() << endl;
-    metadata << "Start Date/Time : " << ToDateTimeString(GetStartTimestamp())
-             << " (" << GetStartTimestamp() << ")" << endl;
-    metadata << "End Date/Time : " << ToDateTimeString(GetEndTimestamp())
-             << " (" << GetEndTimestamp() << ")" << endl;
+    metadata << "Start Date/Time : " << ToDateTimeString(GetStartTimestamp()) << " (" << GetStartTimestamp()
+             << ")" << endl;
+    metadata << "End Date/Time : " << ToDateTimeString(GetEndTimestamp()) << " (" << GetEndTimestamp() << ")"
+             << endl;
     metadata << "Input file : " << GetInputFileNamepattern() << endl;
     metadata << "Output file : " << GetOutputFileName() << endl;
     metadata << "Number of events : " << fEntriesSaved << endl;

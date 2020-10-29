@@ -1035,6 +1035,10 @@ void TRestG4Metadata::PrintMetadata() {
     metadata << "Max. Step size : " << GetMaxTargetStepSize() << " mm" << endl;
     metadata << "Sub-event time delay : " << GetSubEventTimeDelay() << " us" << endl;
     if (fSaveAllEvents) metadata << "Save all events was enabled!" << endl;
+    if (fRegisterEmptyTracks)
+        metadata << "Register empty tracks was enabled" << endl;
+    else
+        metadata << "Register empty tracks was NOT enabled" << endl;
     metadata << "**********Generator**********" << endl;
     TString generatorType = GetGeneratorType();
     metadata << "Number of generated events : " << GetNumberOfEvents() << endl;
