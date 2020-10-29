@@ -33,19 +33,19 @@ class TRestEventProcess;
 /// This namespace serves for the reflection functionality
 namespace REST_Reflection {
 
-extern map<string, TDataType*> __ListOfDataTypes;
+extern map<string, TDataType*> RESTListOfDataTypes;
 
 /// Wrap the string type name into ROOT type identifier "TDataType"
 inline TDataType* GetDataType(string type) {
-    if (__ListOfDataTypes[type] == NULL) {
+    if (RESTListOfDataTypes[type] == NULL) {
         TDataType* dt = new TDataType(type.c_str());
         if (dt->GetType() == -1) {
             delete dt;
         } else {
-            __ListOfDataTypes[type] = dt;
+            RESTListOfDataTypes[type] = dt;
         }
     }
-    return __ListOfDataTypes[type];
+    return RESTListOfDataTypes[type];
 }
 /// Get the type of a "data" object, returning the wrapped type identifier "TDataType"
 template <typename T>
@@ -270,9 +270,7 @@ class Converter : RESTVirtualConverter {
         T newobj = ParseStringFunc(str);
         *((T*)(obj)) = newobj;
     }
-    void CloneObj(void* from, void* to) override {
-        *((T*)(to)) = *((T*)(from));
-    }
+    void CloneObj(void* from, void* to) override { *((T*)(to)) = *((T*)(from)); }
 
     Converter(string (*_ToStringFunc)(T), T (*_ParseStringFunc)(string)) {
         ToStringFunc = _ToStringFunc;

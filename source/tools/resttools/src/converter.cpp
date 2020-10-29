@@ -2,7 +2,11 @@
 #include "TRestStringHelper.h"
 #include "TRestTools.h"
 
-map<string, RESTVirtualConverter*> RESTConverterMethodBase;
+namespace REST_Reflection {
+map<string, TDataType*> RESTListOfDataTypes = {};
+}
+map<string, RESTVirtualConverter*> RESTConverterMethodBase = {};
+
 template <class T>
 string ToStringSimple(T source) {
     return ToString(source);
@@ -84,7 +88,6 @@ AddConverter(VectorToString, StringToVector, vector<double>);
 AddConverter(VectorToString, StringToVector, vector<string>);
 AddConverter(VectorToString, StringToVector, vector<TString>);
 
-
 template <class T>
 string SetToString(set<T> set) {
     string result = "{";
@@ -123,7 +126,6 @@ AddConverter(SetToString, StringToSet, set<int>);
 AddConverter(SetToString, StringToSet, set<double>);
 AddConverter(SetToString, StringToSet, set<string>);
 AddConverter(SetToString, StringToSet, set<TString>);
-
 
 template <class T1, class T2>
 string MapToString(map<T1, T2> vec) {

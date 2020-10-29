@@ -7,9 +7,6 @@
 #include "TSystem.h"
 
 namespace REST_Reflection {
-
-map<string, TDataType*> __ListOfDataTypes = map<string, TDataType*>();
-
 ////////////////////////////////////////////////////////////////
 ///
 /// Wrapper class for different type objects
