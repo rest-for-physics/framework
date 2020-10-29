@@ -135,6 +135,7 @@ void TRestProcessRunner::BeginOfInit() {
     }
     fRunInfo->SetCurrentEntry(firstEntry);
 
+    fUseTestRun = StringToBool(GetParameter("useTestRun", "ON"));
     fThreadNumber = StringToDouble(GetParameter("threadNumber", "1"));
     if (ToUpper(GetParameter("inputAnalysis", "ON")) == "ON") fOutputItem[0] = true;
     if (ToUpper(GetParameter("inputEvent", "OFF")) == "ON") fOutputItem[1] = true;
@@ -294,9 +295,8 @@ void TRestProcessRunner::RunProcess() {
     info << "TRestProcessRunner : preparing threads..." << endl;
     fRunInfo->ResetEntry();
     fRunInfo->SetCurrentEntry(firstEntry);
-    bool testrun = StringToBool(GetParameter("testRun", "ON"));
     for (int i = 0; i < fThreadNumber; i++) {
-        fThreads[i]->PrepareToProcess(fOutputItem, testrun);
+        fThreads[i]->PrepareToProcess(fOutputItem);
     }
 
     // print metadata
