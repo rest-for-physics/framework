@@ -86,12 +86,15 @@ class TRestRun : public TRestMetadata {
     }
 
     TString FormFormat(TString FilenameFormat);
-    TFile* FormOutputFile(vector<string> filefullnames, string targetfilename = "");
+    TFile* MergeToOutputFile(vector<string> filefullnames, string outputfilename = "");
+    TFile* FormOutputFile();
+    TFile* UpdateOutputFile();
+
     void PassOutputFile() {
         fOutputFile = fInputFile;
         fOutputFileName = fOutputFile->GetName();
     }
-    TFile* FormOutputFile();
+
 
     void WriteWithDataBase();
 

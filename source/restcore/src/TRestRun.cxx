@@ -773,21 +773,21 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
 ///////////////////////////////////////////////
 /// \brief Form REST output file by merging a list of files together
 ///
-/// if target file name is given, then all other files in the file name list
-/// will be merged into it. otherwise files will be merged to a new file defined
-/// in parameter: outputfile. This method is used to create output file after
-/// TRestProcessRunner is finished. The metadata objects will also be written
-/// into the file.
-TFile* TRestRun::FormOutputFile(vector<string> filenames, string targetfilename) {
-    debug << "TRestRun::FormOutputFile. target : " << targetfilename << endl;
+/// If output file name is not given(=""), then it will recreate the output file
+/// according to fOutputFileName. Otherwise it will update the given file. File
+/// Merging is by calling TFileMerger. After this, it will format the merged file name.
+/// This method is used to create output file after TRestProcessRunner is finished. 
+/// The metadata objects will also be written into the file.
+TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilename) {
+    debug << "TRestRun::FormOutputFile. target : " << outputfilename << endl;
     string filename;
     TFileMerger* m = new TFileMerger();
-    if (targetfilename == "") {
+    if (outputfilename == "") {
         filename = fOutputFileName;
         info << "Creating file : " << filename << endl;
         m->OutputFile(filename.c_str(), "RECREATE");
     } else {
-        filename = targetfilename;
+        filename = outputfilename;
         info << "Creating file : " << filename << endl;
         m->OutputFile(filename.c_str(), "UPDATE");
     }
@@ -839,13 +839,36 @@ TFile* TRestRun::FormOutputFile() {
     //fAnalysisTree->CreateBranches();
     // fEventTree->CreateEventBranches();
     fAnalysisTree->Write();
+    fEventTree->Write();
     this->WriteWithDataBase();
     gDetector->WriteFile(fOutputFile);
 
-    fout << this->ClassName() << " Created." << endl;
+    fout << "TRestRun: Output File Created." << endl;
     fout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << endl;
     fout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second << endl;
     return fOutputFile;
+}
+
+TFile* TRestRun::UpdateOutputFile() {
+    if (fOutputFile != NULL) {
+        if (fOutputFile->IsOpen()) {
+            fOutputFile->ReOpen("update");
+        }
+
+        fOutputFile->cd();
+        fAnalysisTree->Write();
+        fEventTree->Write();
+        this->WriteWithDataBase();
+        gDetector->WriteFile(fOutputFile);
+
+        fout << "TRestRun: Output File Updated." << endl;
+        fout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << endl;
+        fout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second << endl;
+        return fOutputFile;
+
+    } else {
+        ferr << "TRestRun::UpdateOutputFile(): output file is closed" << endl;
+    }
 }
 
 ///////////////////////////////////////////////
