@@ -244,10 +244,11 @@ void TRestRun::InitFromConfigFile() {
         string keydeclare = e->Value();
         if (keydeclare == "addMetadata") {
             if (e->Attribute("file") != NULL) {
-                string file_addMetadata = ReplaceEnvironmentalVariables(e->Attribute("file"));
-                string name_addMetadata = ReplaceEnvironmentalVariables(e->Attribute("name"));
-                string type_addMetadata = ReplaceEnvironmentalVariables(e->Attribute("type"));
-                ImportMetadata(file_addMetadata, name_addMetadata, type_addMetadata, true);
+                //string file_addMetadata = ReplaceEnvironmentalVariables(e->Attribute("file"));
+                //string name_addMetadata = ReplaceEnvironmentalVariables(e->Attribute("name"));
+                //string type_addMetadata = ReplaceEnvironmentalVariables(e->Attribute("type"));
+                //ImportMetadata(file_addMetadata, name_addMetadata, type_addMetadata, true);
+                ImportMetadata(e->Attribute("file"), e->Attribute("name"), e->Attribute("type"), true);
             } else {
                 warning << "Wrong definition of addMetadata! Metadata name or file name "
                            "is not given!"
