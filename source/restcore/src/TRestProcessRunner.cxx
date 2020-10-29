@@ -733,10 +733,10 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
         if (fAnalysisTree != NULL) {
             TRestAnalysisTree* remotetree = t->GetAnalysisTree();
 
-            //t->GetAnalysisTree()->SetEventInfo(t->GetOutputEvent());
-            //branchesT = t->GetAnalysisTree()->GetListOfBranches();
-            //branchesL = fAnalysisTree->GetListOfBranches();
-            //for (int i = 0; i < nBranches; i++) {
+            // t->GetAnalysisTree()->SetEventInfo(t->GetOutputEvent());
+            // branchesT = t->GetAnalysisTree()->GetListOfBranches();
+            // branchesL = fAnalysisTree->GetListOfBranches();
+            // for (int i = 0; i < nBranches; i++) {
             //    TBranch* branchT = (TBranch*)branchesT->UncheckedAt(i);
             //    TBranch* branchL = (TBranch*)branchesL->UncheckedAt(i);
             //    branchL->SetAddress(branchT->GetAddress());

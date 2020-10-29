@@ -108,7 +108,7 @@ void GdmlPreprocessor::ReplaceEntity() {
         if ((int)entityfile.find("http") != -1) {
             string entityfiledl = outPath + "PID" + std::to_string(getpid()) + "_" + entityname + ".xml";
             int a = TRestTools::DownloadRemoteFile(entityfile, entityfiledl);
-            if (a !=0) {
+            if (a != 0) {
                 cout << "GDML: Download failed!" << endl;
                 exit(1);
             }

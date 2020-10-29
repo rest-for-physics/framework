@@ -468,8 +468,8 @@ std::string REST_StringHelper::ToUpper(std::string str) {
 /// \brief Convert data member name to parameter name, following REST parameter naming convention.
 ///
 /// > The name of class data member, if starts from ¡°f¡± and have the second character in
-/// capital form, will be linked to a parameter. The linked parameter will strip the first 
-/// ¡°f¡± and have the first letter in lowercase. For example, data member ¡°fTargetName¡± is 
+/// capital form, will be linked to a parameter. The linked parameter will strip the first
+/// ¡°f¡± and have the first letter in lowercase. For example, data member ¡°fTargetName¡± is
 /// linked to parameter ¡°targetName¡±.
 string REST_StringHelper::DataMemberNameToParameterName(string name) {
     if (name == "") {

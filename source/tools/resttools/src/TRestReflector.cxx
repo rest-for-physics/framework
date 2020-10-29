@@ -291,7 +291,7 @@ void CloneAny(TRestReflector from, TRestReflector to) {
     } else {
         cout << "Method for cloning type: \"" << from.type << "\" has not been registered!" << endl;
     }
-    //if (from.cl == NULL) {
+    // if (from.cl == NULL) {
     //    memcpy(to.address, from.address, from.size);
     //} else {
     //    TBufferFile buffer(TBuffer::kWrite);
