@@ -288,7 +288,9 @@ TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
 
                 fScaleCombined *= pow(_scale, _order);
             } else {
-                warning << "not a unit \"" << singleunit << "\"" << endl;
+                fZombie = true;
+                return;
+                //warning << "not a unit \"" << singleunit << "\"" << endl;
             }
 
         } else {
