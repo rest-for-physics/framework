@@ -100,7 +100,7 @@ class TRestMetadata : public TNamed {
     TiXmlElement* GetNextElement(TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName);
-    string GetParameterUnits(string parname, TiXmlElement* e = NULL);
+    pair<string,string> GetParameterAndUnits(string parname, TiXmlElement* e = NULL);
     TiXmlElement* ReplaceElementAttributes(TiXmlElement* e);
     TiXmlElement* StringToElement(string definition);
     string ElementToString(TiXmlElement* ele);

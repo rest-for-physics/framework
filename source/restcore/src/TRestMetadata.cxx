@@ -1314,13 +1314,13 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
 
 Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlElement* ele,
                                                  Double_t defaultVal) {
-    string a = GetParameter(parName, ele);
-    if (a == PARAMETER_NOT_FOUND_STR) {
+    pair<string, string> val_unit = GetParameterAndUnits(parName, ele);
+    string val = val_unit.first;
+    string unit = val_unit.second;
+    if (val == PARAMETER_NOT_FOUND_STR) {
         return defaultVal;
     } else {
-        string unit = GetParameterUnits(parName, ele);
-        string valuestr = REST_Units::RemoveUnitsFromString(a);
-        Double_t value = StringToDouble(valuestr);
+        Double_t value = StringToDouble(val);
         return REST_Units::ConvertValueToRESTUnits(value, unit);
     }
 
@@ -1329,13 +1329,13 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlEleme
 
 TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
                                                       TVector2 defaultVal) {
-    string a = GetParameter(parName, ele);
-    if (a == PARAMETER_NOT_FOUND_STR) {
+    pair<string, string> val_unit = GetParameterAndUnits(parName, ele);
+    string val = val_unit.first;
+    string unit = val_unit.second;
+    if (val == PARAMETER_NOT_FOUND_STR) {
         return defaultVal;
     } else {
-        string unit = GetParameterUnits(parName, ele);
-        string valuestr = REST_Units::RemoveUnitsFromString(a);
-        TVector2 value = StringTo2DVector(valuestr);
+        TVector2 value = StringTo2DVector(val);
         Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
         return TVector2(valueX, valueY);
@@ -1346,13 +1346,13 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXml
 
 TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
                                                       TVector3 defaultVal) {
-    string a = GetParameter(parName, ele);
-    if (a == PARAMETER_NOT_FOUND_STR) {
+    pair<string, string> val_unit = GetParameterAndUnits(parName, ele);
+    string val = val_unit.first;
+    string unit = val_unit.second;
+    if (val == PARAMETER_NOT_FOUND_STR) {
         return defaultVal;
     } else {
-        string unit = GetParameterUnits(parName, ele);
-        string valuestr = REST_Units::RemoveUnitsFromString(a);
-        TVector3 value = StringTo3DVector(valuestr);
+        TVector3 value = StringTo3DVector(val);
         Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
         Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
@@ -1403,26 +1403,26 @@ std::string TRestMetadata::GetFieldValue(std::string parName, TiXmlElement* e) {
 /// units (keV, us, mm, Vcm).
 ///
 Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, Double_t defaultVal) {
-    string a = GetParameter(parName);
-    if (a == PARAMETER_NOT_FOUND_STR) {
+    pair<string, string> val_unit = GetParameterAndUnits(parName);
+    string val = val_unit.first;
+    string unit = val_unit.second;
+    if (val == PARAMETER_NOT_FOUND_STR) {
         return defaultVal;
     } else {
-        string unit = GetParameterUnits(parName);
-        string valuestr = REST_Units::RemoveUnitsFromString(a);
-        Double_t value = StringToDouble(valuestr);
+        Double_t value = StringToDouble(val);
         return REST_Units::ConvertValueToRESTUnits(value, unit);
     }
     return defaultVal;
 }
 
 TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TVector2 defaultVal) {
-    string a = GetParameter(parName);
-    if (a == PARAMETER_NOT_FOUND_STR) {
+    pair<string, string> val_unit = GetParameterAndUnits(parName);
+    string val = val_unit.first;
+    string unit = val_unit.second;
+    if (val == PARAMETER_NOT_FOUND_STR) {
         return defaultVal;
     } else {
-        string unit = GetParameterUnits(parName);
-        string valuestr = REST_Units::RemoveUnitsFromString(a);
-        TVector2 value = StringTo2DVector(valuestr);
+        TVector2 value = StringTo2DVector(val);
         Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
         return TVector2(valueX, valueY);
@@ -1431,13 +1431,13 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TVect
 }
 
 TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVector3 defaultVal) {
-    string a = GetParameter(parName);
-    if (a == PARAMETER_NOT_FOUND_STR) {
+    pair<string, string> val_unit = GetParameterAndUnits(parName);
+    string val = val_unit.first;
+    string unit = val_unit.second;
+    if (val == PARAMETER_NOT_FOUND_STR) {
         return defaultVal;
     } else {
-        string unit = GetParameterUnits(parName);
-        string valuestr = REST_Units::RemoveUnitsFromString(a);
-        TVector3 value = StringTo3DVector(valuestr);
+        TVector3 value = StringTo3DVector(val);
         Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
         Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
@@ -1630,11 +1630,16 @@ string TRestMetadata::GetUnits(TiXmlElement* e) {
 /// 3. "units" attribute of the given section
 ///
 /// If argument section is not given(==NULL), it will use the local section(fElement)
-string TRestMetadata::GetParameterUnits(string parName, TiXmlElement* e) {
-    if (e == NULL) e = fElement;
-    string parvalue = GetParameter(parName, e);
+pair<string, string> TRestMetadata::GetParameterAndUnits(string parName, TiXmlElement* e) {
+    string parvalue;
+    if (e == NULL) {
+        parvalue = GetParameter(parName);
+    } else {
+        parvalue = GetParameter(parName, e);
+    }
+
     if (parvalue == PARAMETER_NOT_FOUND_STR) {
-        return "";
+        return {parvalue, ""};
     } else {
         // first try to use unit embeded in parvalue
         string unit = REST_Units::FindRESTUnitsInString(parvalue);
@@ -1649,9 +1654,9 @@ string TRestMetadata::GetParameterUnits(string parName, TiXmlElement* e) {
         if (unit == "") {
             unit = GetUnits(e);
         }
-        return unit;
+        return {REST_Units::RemoveUnitsFromString(parvalue), unit};
     }
-    return "";
+    return {parvalue, ""};
 }
 
 ///////////////////////////////////////////////
