@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
     restG4Metadata = new TRestG4Metadata(inputConfigFile, (string)restG4Name);
 
     // We need to process and generate a new GDML for several reasons.
-    // 1. ROOT6 has a bug loading math expressions in gdml file
+    // 1. ROOT6 has problem loading math expressions in gdml file
     // 2. We allow file entities to be http remote files
     // 3. We retrieve the GDML and materials versions and associate to the
     // corresponding TRestG4Metadata members
@@ -384,7 +384,10 @@ int main(int argc, char** argv) {
         ui->SessionStart();
         delete ui;
 #endif
-    } else {
+    }
+
+    else // N_events == -1 
+    {
         cout << "++++++++++ ERRORRRR +++++++++" << endl;
         cout << "++++++++++ ERRORRRR +++++++++" << endl;
         cout << "++++++++++ ERRORRRR +++++++++" << endl;
@@ -445,6 +448,7 @@ throw std::exception();
 
     TString Filename = restRun->GetOutputFileName();
 
+    restRun->UpdateOutputFile();
     restRun->CloseFile();
     restRun->PrintMetadata();
     delete restRun;
