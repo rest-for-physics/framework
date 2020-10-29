@@ -673,9 +673,9 @@ Int_t TRestMetadata::LoadSectionMetadata() {
 ///////////////////////////////////////////////
 /// \brief replace the field value(attribute) of the given xml element
 ///
-/// it calls ReplaceEnvironmentalVariables() and
+/// it calls ReplaceVariables(), ReplaceConstants() and
 /// ReplaceMathematicalExpressions() in sequence. "name" attribute won't be
-/// replaced
+/// replaced by constants to avoid conflict.
 TiXmlElement* TRestMetadata::ReplaceElementAttributes(TiXmlElement* e) {
     if (e == NULL) return NULL;
 
@@ -685,16 +685,13 @@ TiXmlElement* TRestMetadata::ReplaceElementAttributes(TiXmlElement* e) {
         const char* val = attr->Value();
         const char* name = attr->Name();
 
-        if (strcmp(name, "name") == 0) parName = (string)val;
+        string newVal = val != NULL ? val : "";
+        newVal = ReplaceVariables(newVal);
 
-        // set attribute except name field
-        if (strcmp(name, "name") != 0) {
-            string temp = ReplaceEnvironmentalVariables(val);
-            e->SetAttribute(
-                name, ReplaceMathematicalExpressions(
-                          temp, "Please, check parameter name: " + parName + " (ReplaceElementAttributes)")
-                          .c_str());
-        }
+        // for name attribute, don't replace constants
+        if (strcmp(name, "name") != 0) newVal = ReplaceConstants(newVal);
+
+        e->SetAttribute(name, ReplaceMathematicalExpressions(newVal));
 
         attr = attr->Next();
     }
@@ -1311,7 +1308,7 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
         }
     }
 
-    return ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(result),
+    return ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(result)),
                                           "Please, check parameter name: " + parName);
 }
 
@@ -1874,10 +1871,12 @@ string TRestMetadata::GetParameter(string parName, size_t& pos, string inputStri
 /// \brief Identifies enviromental variable replacing marks in the input buffer,
 /// and replace them with corresponding value.
 ///
-/// Replacing marks:
-/// 1. ${VARIABLE_NAME} : search system env, REST arguments and variable/constant, in sequence.
-/// 2. VARIABLE_NAME    : try match the names of variable/constant and replace it if matched.
-string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
+/// Replacing marks is like ${VARIABLE_NAME}. "variables" include system env, values
+/// added through <variable section, and rest command line arguments(--c option).
+/// The replacing sequence is same. i.e. try to replace with system env first, if not
+/// found, try to replace <variable section, if still not found, try to replace
+/// with command line arguments. If all not found, return the initial value.
+string TRestMetadata::ReplaceVariables(const string buffer) {
     string outputBuffer = buffer;
 
     // replace variables with mark ${}
@@ -1912,10 +1911,22 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
         }
     }
 
+    return outputBuffer;
+}
+
+
+///////////////////////////////////////////////
+/// \brief Identifies "constants" in the input buffer, and replace them with corresponding value.
+///
+/// Constans are the substrings directly appeared in the buffer
+string TRestMetadata::ReplaceConstants(const string buffer) {
+    string outputBuffer = buffer;
+
+    int startPosition = 0;
+    int endPosition = 0;
+
     // replace bare constant name. ignore sub strings.
     // e.g. variable "nCh" with value "3" cannot replace the string "nChannels+1"
-    startPosition = 0;
-    endPosition = 0;
     for (auto iter : fConstants) {
         int pos = outputBuffer.find(iter.first, 0);
         while (pos != -1) {
@@ -2168,7 +2179,7 @@ TString TRestMetadata::GetSearchPath() {
     result += REST_PATH + "/data/:";
     if (result.back() == ':') result.erase(result.size() - 1);
 
-    return ReplaceEnvironmentalVariables(result);
+    return ReplaceConstants(ReplaceVariables(result));
 }
 
 Int_t TRestMetadata::Write(const char* name, Int_t option, Int_t bufsize) {

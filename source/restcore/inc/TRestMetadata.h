@@ -119,7 +119,8 @@ class TRestMetadata : public TNamed {
     string GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition = 0);
 
     // some utils
-    std::string ReplaceEnvironmentalVariables(const std::string buffer);
+    std::string ReplaceVariables(const std::string buffer);
+    std::string ReplaceConstants(const std::string buffer);
     string SearchFile(string filename);
     TString GetSearchPath();
     void ReSetVersion();
