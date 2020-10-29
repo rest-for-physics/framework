@@ -85,38 +85,32 @@ string GetStandardUnitDefinition(string unitsdef) { return units(unitsdef).ToSta
 ///////////////////////////////////////////////
 /// \brief Find and return the units definition in a string
 ///
-/// We suppose the last of **value** before **units** must be "1234567890(),".
+/// We suppose the last of **value** before **units** must be "1234567890(),.-".
 /// Hence this prepority can be used to spilt the input string into value part and unit part
 /// e.g.
 /// value="(1,-13)mm"
 /// value="-3mm"
-/// value="50,units=mm"
-/// value="20 mm"
 /// can both be recognized
 ///
 string FindRESTUnitsInString(string s) {
-    string unitsStr = "";
-
     size_t l = RemoveUnitsFromString(s).length();
     string unitDef = s.substr(l, -1);
 
-    if (unitDef.find("=") != -1) {
-        string def = unitDef.substr(0, unitDef.find("="));
-        if (def == "units" || def == "unit") {
-            unitsStr = unitDef.substr(unitDef.find("=") + 1, -1);
-        }
-    } else {
-        unitsStr = Replace(unitDef, " ", "", 0);
-    }
-
-    if (IsUnit(unitsStr)) {
-        return unitsStr;
+    if (IsUnit(unitDef)) {
+        return unitDef;
     }
     return "";
 }
 
 ///////////////////////////////////////////////
 /// \brief It should remove all units found inside the input string
+///
+/// We suppose the last of **value** before **units** must be "1234567890(),.-".
+/// Hence this prepority can be used to spilt the input string into value part and unit part
+/// e.g.
+/// value="(1,-13)mm"
+/// value="-3mm"
+/// can both be recognized
 ///
 string RemoveUnitsFromString(string s) { return s.substr(0, s.find_first_not_of("1234567890(),.-")); }
 

@@ -1093,8 +1093,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1127,8 +1128,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1919,7 +1921,6 @@ string TRestMetadata::ReplaceVariables(const string buffer) {
     return outputBuffer;
 }
 
-
 ///////////////////////////////////////////////
 /// \brief Identifies "constants" in the input buffer, and replace them with corresponding value.
 ///
@@ -2279,7 +2280,36 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
             if (!datamember.IsZombie()) {
                 debug << this->ClassName() << "::ReadAllParameters(): parsing value \"" << value
                       << "\" to data member \"" << datamembername << "\"" << endl;
-                datamember.ParseString(value);
+
+                if (REST_Units::FindRESTUnitsInString(value) != "") {
+                    // there is units contained in this parameter.
+                    string val = REST_Units::RemoveUnitsFromString(value);
+                    string unit = REST_Units::FindRESTUnitsInString(value);
+
+                    if (datamember.type == "double") {
+                        Double_t value = StringToDouble(val);
+                        *(double*)datamember = REST_Units::ConvertValueToRESTUnits(value, unit);
+                    } else if (datamember.type == "TVector2") {
+                        TVector2 value = StringTo2DVector(val);
+                        Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
+                        Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
+                        *(TVector2*)datamember = TVector2(valueX, valueY);
+                    } else if (datamember.type == "TVector3") {
+                        TVector3 value = StringTo3DVector(val);
+                        Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
+                        Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
+                        Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
+                        *(TVector3*)datamember = TVector3(valueX, valueY, valueZ);
+                    } else {
+                        warning
+                            << this->ClassName() << " find unit definition in parameter: " << name
+                            << ", but the corresponding data member doesn't support it. Data member type: "
+                            << datamember.type << endl;
+                        datamember.ParseString(val);
+                    }
+                } else {
+                    datamember.ParseString(value);
+                }
             } else {
                 debug << this->ClassName() << "::ReadAllParameters(): datamember \"" << datamembername
                       << "\" for parameter \"" << name << "\" not found, skipping" << endl;
