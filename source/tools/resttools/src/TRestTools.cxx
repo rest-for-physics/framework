@@ -732,7 +732,7 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
     info << "Downloading remote file : " << remoteFile << endl;
     info << "To local file : " << localFile << endl;
 
-    string localFiletmp = localFile + ".tmp";
+    string localFiletmp = localFile + ".restdownload";
     if ((string)url.GetProtocol() == "https" || (string)url.GetProtocol() == "http") {
         string path = TRestTools::SeparatePathAndName(localFiletmp).first;
         if (!TRestTools::fileExists(path)) {
