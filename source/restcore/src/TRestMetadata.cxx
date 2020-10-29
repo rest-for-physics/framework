@@ -751,6 +751,7 @@ void TRestMetadata::ReadEnvInElement(TiXmlElement* e, bool overwrite) {
 /// ReplaceElementAttributes() will first be called.
 void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
     debug << ClassName() << "::ReadElement(<" << e->Value() << ")" << endl;
+    if (e == NULL) return;
 
     ReplaceElementAttributes(e);
     ReadEnvInElement(e);
@@ -804,6 +805,7 @@ void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
 /// Note that the `>`, `<` calculation is also valid for strings. The ordering is according to the alphabet
 ///
 void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
+    if (e == NULL) return;
     if ((string)e->Value() != "if") return;
 
     const char* evaluate = e->Attribute("evaluate");
@@ -890,6 +892,8 @@ void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
 ///////////////////////////////////////////////
 /// \brief Helper method for TRestMetadata::ExpandForLoops().
 void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e, map<string, string> forLoopVar) {
+    if (e == NULL) return;
+
     TiXmlElement* parele = (TiXmlElement*)e->Parent();
     TiXmlElement* contentelement = e->FirstChildElement();
     while (contentelement != NULL) {
@@ -974,6 +978,7 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
 /// "variable"
 ///
 void TRestMetadata::ExpandForLoops(TiXmlElement* e, map<string, string> forloopvar) {
+    if (e == NULL) return;
     if ((string)e->Value() != "for") return;
     // ReplaceElementAttributes(e);
 
@@ -1049,6 +1054,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e, map<string, string> forloopv
 /// there will be a different way to load, see TRestRun::ImportMetadata()
 void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
+    if (e == NULL) return;
 
     ReplaceElementAttributes(e);
     const char* _filename = e->Attribute("file");
@@ -1316,6 +1322,7 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
 
 Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlElement* ele,
                                                  Double_t defaultVal) {
+    if (ele == NULL) return defaultVal;
     pair<string, string> val_unit = GetParameterAndUnits(parName, ele);
     string val = val_unit.first;
     string unit = val_unit.second;
@@ -1331,6 +1338,7 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlEleme
 
 TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
                                                       TVector2 defaultVal) {
+    if (ele == NULL) return defaultVal;
     pair<string, string> val_unit = GetParameterAndUnits(parName, ele);
     string val = val_unit.first;
     string unit = val_unit.second;
@@ -1348,6 +1356,7 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXml
 
 TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
                                                       TVector3 defaultVal) {
+    if (ele == NULL) return defaultVal;
     pair<string, string> val_unit = GetParameterAndUnits(parName, ele);
     string val = val_unit.first;
     string unit = val_unit.second;
@@ -1369,10 +1378,20 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXml
 /// name.
 ///
 /// A version of GetParameter() but only find parameter in the fields of xml
-/// element.
+/// element. If not found, the returned string is "Not defined"
 ///
 std::string TRestMetadata::GetFieldValue(std::string parName, TiXmlElement* e) {
-    return GetParameter(parName, e, "Not defined");
+    if (e == NULL) {
+        if (GetVerboseLevel() > REST_Debug) {
+            cout << "Element is null" << endl;
+        }
+        return "Not defined";
+    }
+    const char* val = e->Attribute(parName.c_str());
+    if (val == NULL) {
+        return "Not defined";
+    }
+    return val;
 }
 
 ///////////////////////////////////////////////
@@ -1550,7 +1569,10 @@ TiXmlElement* TRestMetadata::GetElement(std::string eleDeclare, TiXmlElement* e)
 ///////////////////////////////////////////////
 /// \brief Get the next sibling xml element of this element, with same eleDeclare
 ///
-TiXmlElement* TRestMetadata::GetNextElement(TiXmlElement* e) { return e->NextSiblingElement(e->Value()); }
+TiXmlElement* TRestMetadata::GetNextElement(TiXmlElement* e) {
+    if (e == NULL) return NULL;
+    return e->NextSiblingElement(e->Value());
+}
 
 ///////////////////////////////////////////////
 /// \brief Get an xml element from the default location, according to its
@@ -1566,7 +1588,7 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
 ///
 TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::string eleName,
                                                 TiXmlElement* e) {
-    if (e == NULL) e = fElement;
+    if (e == NULL) return NULL;
     if (eleDeclare == "")  // find only with name
     {
         TiXmlElement* ele = e->FirstChildElement();
@@ -1632,6 +1654,7 @@ pair<string, string> TRestMetadata::GetParameterAndUnits(string parName, TiXmlEl
     string parvalue;
     if (e == NULL) {
         parvalue = GetParameter(parName);
+        e = fElement;
     } else {
         parvalue = GetParameter(parName, e);
     }

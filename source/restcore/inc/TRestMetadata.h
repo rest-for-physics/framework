@@ -78,6 +78,7 @@ class TRestMetadata : public TNamed {
     string GetUnits(TiXmlElement* e);
     string FieldNamesToUpper(string inputString);
     void ReadOneParameter(string name, string value);
+    TiXmlElement* ReplaceElementAttributes(TiXmlElement* e);
 
     /// REST version string, only used for archive and retrieve
     TString fVersion = REST_RELEASE;  //<
@@ -100,7 +101,6 @@ class TRestMetadata : public TNamed {
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName);
     pair<string,string> GetParameterAndUnits(string parname, TiXmlElement* e = NULL);
-    TiXmlElement* ReplaceElementAttributes(TiXmlElement* e);
     TiXmlElement* StringToElement(string definition);
     string ElementToString(TiXmlElement* ele);
 
