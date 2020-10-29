@@ -203,7 +203,7 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     SetObservableValue("balanceXYnHits", (nHitsX - nHitsY) / double(nHitsX + nHitsY));
 
     if ((nHits == nHitsX) || (nHits == nHitsY))
-        SetObservableValue("nHitsSizeXY", nHits);
+        SetObservableValue("nHitsSizeXY", (double)nHits);
     else
         SetObservableValue("nHitsSizeXY", TMath::Sqrt(nHitsX * nHitsX + nHitsY * nHitsY));
 
