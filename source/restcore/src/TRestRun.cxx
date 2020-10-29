@@ -183,6 +183,7 @@ void TRestRun::InitFromConfigFile() {
         }
         // throw;
     }
+    gDetector->SetRunNumber(fRunNumber);
 
     // 3. Construct output file name
     string outputdir = (string)GetDataPath();
@@ -856,8 +857,8 @@ TFile* TRestRun::UpdateOutputFile() {
         }
 
         fOutputFile->cd();
-        fAnalysisTree->Write();
-        fEventTree->Write();
+        fAnalysisTree->Write(0, kWriteDelete);
+        fEventTree->Write(0, kWriteDelete);
         this->WriteWithDataBase();
         gDetector->WriteFile(fOutputFile);
 
@@ -903,8 +904,8 @@ void TRestRun::WriteWithDataBase() {
     }
 
     // save metadata objects in file
-    debug << "TRestRun::WriteWithDataBase. Calling this->Write(0,kOverWrite)" << endl;
-    this->Write(0, kOverwrite);
+    debug << "TRestRun::WriteWithDataBase. Calling this->Write(0,kWriteDelete)" << endl;
+    this->Write(0, kWriteDelete);
     debug << "TRestRun::WriteWithDataBase. Succeed" << endl;
     debug << "TRestRun::WriteWithDataBase. fMetadata.size() == " << fMetadata.size() << endl;
     for (int i = 0; i < fMetadata.size(); i++) {
@@ -920,10 +921,10 @@ void TRestRun::WriteWithDataBase() {
 
         if (!historic) {
             debug << "NO historic" << endl;
-            fMetadata[i]->Write(fMetadata[i]->GetName(), kOverwrite);
+            fMetadata[i]->Write(fMetadata[i]->GetName(), kWriteDelete);
         } else {
             debug << "IS historic" << endl;
-            if (fSaveHistoricData) fMetadata[i]->Write(fMetadata[i]->GetName(), kOverwrite);
+            if (fSaveHistoricData) fMetadata[i]->Write(fMetadata[i]->GetName(), kWriteDelete);
         }
     }
 
@@ -944,8 +945,8 @@ void TRestRun::CloseFile() {
         fEntriesSaved = fAnalysisTree->GetEntries();
         if (fAnalysisTree->GetEntries() > 0 && fInputFile == NULL) {
             if (fOutputFile != NULL) {
-                fAnalysisTree->Write(0, kOverwrite);
-                this->Write(0, kOverwrite);
+                fAnalysisTree->Write(0, kWriteDelete);
+                this->Write(0, kWriteDelete);
             }
         }
         delete fAnalysisTree;
@@ -953,7 +954,7 @@ void TRestRun::CloseFile() {
     }
 
     if (fEventTree != NULL) {
-        if (fEventTree->GetEntries() > 0 && fInputFile == NULL) fEventTree->Write(0, kOverwrite);
+        if (fEventTree->GetEntries() > 0 && fInputFile == NULL) fEventTree->Write(0, kWriteDelete);
         delete fEventTree;
         fEventTree = NULL;
     }
