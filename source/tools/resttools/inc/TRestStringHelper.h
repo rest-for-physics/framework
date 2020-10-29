@@ -66,7 +66,6 @@ string ToString(T source, int length = -1, char fill = ' ') {
         return s.substr(0, length);
     }
 }
-
 template <class T1, class T2>
 inline vector<T2> Vector_cast(vector<T1> vecstring) {
     vector<T2> result;
@@ -75,8 +74,9 @@ inline vector<T2> Vector_cast(vector<T1> vecstring) {
     }
     return result;
 }
-
 std::string ToUpper(std::string in);
+string DataMemberNameToParameterName(string name);
+string ParameterNameToDataMemberName(string name);
 
 };  // namespace REST_StringHelper
 using namespace REST_StringHelper;

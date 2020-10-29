@@ -2179,32 +2179,6 @@ Int_t TRestMetadata::Write(const char* name, Int_t option, Int_t bufsize) {
     return -1;
 }
 
-string TRestMetadata::DataMemberNameToParameterName(string name) {
-    if (name == "") {
-        return "";
-    }
-    if (name[0] == 'f' && name.size() > 1) {
-        return string(1, tolower(name[1])) + name.substr(2, -1);
-    } else {
-        warning << "REST Warning: bad data member naming: \"" << this->ClassName() << "::" << name << "\""
-                << endl;
-        return "";
-    }
-}
-
-string TRestMetadata::ParameterNameToDataMemberName(string name) {
-    if (name == "") {
-        return "";
-    }
-    if (islower(name[0])) {
-        return "f" + string(1, toupper(name[0])) + name.substr(1, -1);
-    } else {
-        warning << "REST Warning: bad parameter naming: \"" << name << "\" for class: " << this->ClassName()
-                << endl;
-        return "";
-    }
-}
-
 ///////////////////////////////////////////////
 /// \brief Reflection methods, Set value of a datamember in class according to
 /// TRestMetadata::fElement

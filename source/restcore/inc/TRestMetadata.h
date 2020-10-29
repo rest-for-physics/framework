@@ -183,9 +183,6 @@ class TRestMetadata : public TNamed {
         if (GetError()) fErrorMessage = message;
     }
 
-    string DataMemberNameToParameterName(string name);
-    string ParameterNameToDataMemberName(string name);
-
     void ReadAllParameters();
 
    public:

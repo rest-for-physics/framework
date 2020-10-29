@@ -1,6 +1,7 @@
 #include "TRestStringHelper.h"
 
 #include <thread>
+
 #include "Rtypes.h"
 #include "TApplication.h"
 #include "TSystem.h"
@@ -461,6 +462,42 @@ TVector2 REST_StringHelper::StringTo2DVector(string in) {
 std::string REST_StringHelper::ToUpper(std::string str) {
     transform(str.begin(), str.end(), str.begin(), (int (*)(int))toupper);
     return str;
+}
+
+///////////////////////////////////////////////
+/// \brief Convert data member name to parameter name, following REST parameter naming convention.
+///
+/// > The name of class data member, if starts from ¡°f¡± and have the second character in
+/// capital form, will be linked to a parameter. The linked parameter will strip the first 
+/// ¡°f¡± and have the first letter in lowercase. For example, data member ¡°fTargetName¡± is 
+/// linked to parameter ¡°targetName¡±.
+string REST_StringHelper::DataMemberNameToParameterName(string name) {
+    if (name == "") {
+        return "";
+    }
+    if (name[0] == 'f' && name.size() > 1) {
+        return string(1, tolower(name[1])) + name.substr(2, -1);
+    } else {
+        return "";
+    }
+}
+
+///////////////////////////////////////////////
+/// \brief Convert parameter name to datamember name, following REST parameter naming convention.
+///
+/// > The name of class data member, if starts from ¡°f¡± and have the second character in
+/// capital form, will be linked to a parameter. The linked parameter will strip the first
+/// ¡°f¡± and have the first letter in lowercase. For example, data member ¡°fTargetName¡± is
+/// linked to parameter ¡°targetName¡±.
+string REST_StringHelper::ParameterNameToDataMemberName(string name) {
+    if (name == "") {
+        return "";
+    }
+    if (islower(name[0])) {
+        return "f" + string(1, toupper(name[0])) + name.substr(1, -1);
+    } else {
+        return "";
+    }
 }
 
 #ifdef WIN32
