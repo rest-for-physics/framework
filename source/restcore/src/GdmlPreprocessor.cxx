@@ -103,9 +103,16 @@ void GdmlPreprocessor::ReplaceEntity() {
         int pos4 = filestr.find("\"", pos3);
         string entityfile = RemoveWhiteSpaces(filestr.substr(pos3, pos4 - pos3));
 
+        cout << "GDML: replacing entitiy: " << entityname << ", file: " << entityfile << endl;
+
         if ((int)entityfile.find("http") != -1) {
-            TRestTools::DownloadRemoteFile(entityfile, outPath + entityname + ".xml");
-            entityfile = outPath + entityname + ".xml";
+            string entityfiledl = outPath + "PID" + std::to_string(getpid()) + "_" + entityname + ".xml";
+            int a = TRestTools::DownloadRemoteFile(entityfile, entityfiledl);
+            if (a !=0) {
+                cout << "GDML: Download failed!" << endl;
+                exit(1);
+            }
+            entityfile = entityfiledl;
         } else {
             entityfile = path + entityfile;
         }
