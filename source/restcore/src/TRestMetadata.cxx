@@ -1539,16 +1539,11 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
 }
 
 ///////////////////////////////////////////////
-/// \brief Get an xml element from default location(TRestMetadata::fElement),
-/// according to its declaration
-///
-TiXmlElement* TRestMetadata::GetElement(std::string eleDeclare) { return GetElement(eleDeclare, fElement); }
-
-///////////////////////////////////////////////
 /// \brief Get an xml element from a given parent element, according to its
 /// declaration
 ///
 TiXmlElement* TRestMetadata::GetElement(std::string eleDeclare, TiXmlElement* e) {
+    if (e == NULL) e = fElement;
     return e->FirstChildElement(eleDeclare.c_str());
 }
 
@@ -1571,6 +1566,7 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
 ///
 TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::string eleName,
                                                 TiXmlElement* e) {
+    if (e == NULL) e = fElement;
     if (eleDeclare == "")  // find only with name
     {
         TiXmlElement* ele = e->FirstChildElement();

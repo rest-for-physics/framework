@@ -95,8 +95,7 @@ class TRestMetadata : public TNamed {
     TVector3 Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* e,
                                            TVector3 defaultValue = TVector3(-1, -1, -1));
     TiXmlElement* GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre = "");
-    TiXmlElement* GetElement(std::string eleDeclare);
-    TiXmlElement* GetElement(std::string eleDeclare, TiXmlElement* e);
+    TiXmlElement* GetElement(std::string eleDeclare, TiXmlElement* e = NULL);
     TiXmlElement* GetNextElement(TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName);
