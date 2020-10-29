@@ -40,19 +40,17 @@ class TRestDetector : public map<string, string> {
 
    public:
     // Constructors
-    TRestDetector() {}
+    TRestDetector() { SetDetectorName("REST Detector"); }
     // Destructor
     ~TRestDetector() {}
 
-    Int_t GetRunNumber() const { return fRunNumber; }
-    void SetRunNumber(const Int_t& run) { fRunNumber = run; }
-    string GetDetectorName() const { return fDetectorName; }
+    Int_t GetRunNumber() const;
+    void SetRunNumber(const Int_t& run);
+    string GetDetectorName() const;
+    void SetDetectorName(const string& name);
 
     // virtual methods
-    virtual string GetParameter(const string& paraname) const {
-        if (this->count(paraname) > 0) return this->at(paraname);
-        return PARAMETER_NOT_FOUND_STR;
-    }
+    virtual string GetParameter(const string& paraname) const;
     virtual void SetParameter(const string& paraname, const string& paraval);
     virtual void Print() const;
     virtual void WriteFile(TFile* f) const;
