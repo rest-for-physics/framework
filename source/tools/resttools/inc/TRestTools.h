@@ -120,6 +120,7 @@ inline void SetInitLevel(T* name, int level) {
 #define MakeGlobal(classname, objname, level)                       \
     struct __##classname##_Init {                                   \
         __##classname##_Init() {                                    \
+            REST_ARGS[#objname] = #classname;                       \
             if (objname != NULL) {                                  \
                 if (REST_InitTools::CanOverwrite(objname, level)) { \
                     delete objname;                                 \
@@ -130,7 +131,6 @@ inline void SetInitLevel(T* name, int level) {
                 objname = new classname();                          \
                 REST_InitTools::SetInitLevel(objname, level);       \
             }                                                       \
-            REST_ARGS[#objname] = #classname;                       \
         }                                                           \
     };                                                              \
     const __##classname##_Init classname##_Init;
