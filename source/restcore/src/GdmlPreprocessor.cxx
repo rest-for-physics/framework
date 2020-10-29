@@ -29,10 +29,10 @@ void GdmlPreprocessor::Load(string file) {
         if (pp != string::npos) {
             int pp2 = filestr.find("##", pp + 4);
             if (pp2 != string::npos) gdmlVersion = filestr.substr(pp + 9, pp2 - pp - 9);
-            gdmlVersion = ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(gdmlVersion));
+            gdmlVersion = ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(gdmlVersion)));
         }
 
-        filestr = ReplaceEnvironmentalVariables(filestr);
+        filestr = ReplaceConstants(ReplaceVariables(filestr));
 
         cout << "GDML: initializating variables" << endl;
         int pos = filestr.find("<gdml", 0);
@@ -124,7 +124,7 @@ void GdmlPreprocessor::ReplaceEntity() {
                 std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
                 t.close();
 
-                str = ReplaceEnvironmentalVariables(str);
+                str = ReplaceConstants(ReplaceVariables(str));
 
                 entityVersion[entityname] = "";
                 int pp = str.find("##VERSION", 0);
@@ -168,9 +168,9 @@ void GdmlPreprocessor::ReplaceAttributeWithKeyWord(string keyword) {
         }
         string target = filestr.substr(pos1, pos2 - pos1);
         // cout << target << endl;
-        string replace = ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(target));
+        string replace = ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(target)));
         // cout << replace << endl;
-        // cout << target << " " << ReplaceEnvironmentalVariables(target) << " "
+        // cout << target << " " << ReplaceConstants(ReplaceVariables(target) << " "
         // << replace << endl;
 
         if (replace == target) {
