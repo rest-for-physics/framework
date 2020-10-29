@@ -318,9 +318,8 @@ void TRestAnalysisTree::SetObservableValue(Int_t id, any obs) {
                 // if the observable branches are not created, and the type doesn't match, 
                 // we still have the chance to fix. We reset fObservableTypes and fObservableMemory
                 // according to the input type value.
-                cout << "Warning: SetObservableValue(): adding different type observable \""<<obs.name<<"\"" << endl;
-                cout << "Existing observable is in type: " << fObservables[id].type
-                     << ", observable to add is in type: " << obs.type << endl;
+                cout << "Warning: SetObservableValue(): setting value with different type. Observable : "<<obs.name<<", existing type: " << fObservables[id].type
+                     << ", value to add is in type: " << obs.type <<", trying to update to the new type." << endl;
                 fObservableTypes[id] = obs.type;
                 string name = fObservables[id].name;
                 fObservables[id].Destroy();
