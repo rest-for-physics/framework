@@ -7,7 +7,6 @@ file(GLOB_RECURSE addon_src
     "edgeutil.c"
     "heldkarp.c"
 	"tiny*.cpp"
-    "startup.cpp"
-    "converter.cpp")
+    "startup.cpp")
 
 COMPILEDIR(RestTools)
