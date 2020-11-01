@@ -40,6 +40,7 @@ class TRestAnalysisTree : public TTree {
     //
     std::vector<any> fObservables;            //!
     std::map<TString, int> fObservableIdMap;  //!
+    TTree* fROOTTree;//!
 
     // for storage
     Int_t fNObservables;
@@ -52,8 +53,12 @@ class TRestAnalysisTree : public TTree {
     void CreateBranches();
     void InitObservables();
     void MakeObservableIdMap();
+    void ReadLeafValueToObservable(TLeaf* lf, any& obs);
 
+    TRestAnalysisTree(TTree* tree);
    protected:
+
+
    public:
     // getters
     bool IsConnected() { return fConnected; }
@@ -181,8 +186,8 @@ class TRestAnalysisTree : public TTree {
 
     // Construtor
     TRestAnalysisTree();
-    TRestAnalysisTree(TTree* tree);
     TRestAnalysisTree(TString name, TString title);
+    static TRestAnalysisTree* ConvertFromTTree(TTree* tree);
     // Destructor
     virtual ~TRestAnalysisTree();
 

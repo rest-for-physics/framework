@@ -17,6 +17,17 @@
 
 #include "TBranchElement.h"
 #include "TH1F.h"
+#include "TLeaf.h"
+#include "TLeaf.h"
+#include "TLeafB.h"
+#include "TLeafC.h"
+#include "TLeafD.h"
+#include "TLeafElement.h"
+#include "TLeafF.h"
+#include "TLeafI.h"
+#include "TLeafL.h"
+#include "TLeafObject.h"
+#include "TLeafS.h"
 #include "TObjArray.h"
 #include "TRestEventProcess.h"
 #include "TRestMetadata.h"
@@ -34,8 +45,32 @@ TRestAnalysisTree::TRestAnalysisTree() : TTree() {
 }
 
 TRestAnalysisTree::TRestAnalysisTree(TTree* tree) : TTree() {
-    cout << "constructor from TTree" << endl;
-    tree->Clone();
+    SetName("AnalysisTree");
+    SetTitle("Linked to " + (TString)tree->GetName());
+
+    Initialize();
+
+    fROOTTree = tree;
+    tree->GetEntry(0);
+
+    TObjArray* lfs = tree->GetListOfLeaves();
+    for (int i = 0; i < lfs->GetLast() + 1; i++) {
+        TLeaf* lf = (TLeaf*)lfs->UncheckedAt(i);
+        any obs;
+        ReadLeafValueToObservable(lf, obs);
+        obs.name = lf->GetName();
+        SetObservableValue(-1, obs);
+    }
+
+    fConnected = true;
+}
+
+TRestAnalysisTree* TRestAnalysisTree::ConvertFromTTree(TTree* tree) {
+    if (tree->ClassName() == "TRestAnalysisTree") {
+        return (TRestAnalysisTree*)tree;
+    }
+
+    return new TRestAnalysisTree(tree);
 }
 
 TRestAnalysisTree::TRestAnalysisTree(TString name, TString title) : TTree(name, title) {
@@ -54,6 +89,7 @@ void TRestAnalysisTree::Initialize() {
     fTimeStamp = 0;
 
     fNObservables = 0;
+    fROOTTree = NULL;
 
     fObservableIdMap.clear();
     fObservableDescriptions.clear();
@@ -95,7 +131,7 @@ void TRestAnalysisTree::ConnectBranches() {
         br5->SetAddress(&fRunOrigin);
         br6->SetAddress(&fSubRunOrigin);
     } else {
-        cout << "REST ERROR: AnalysisTree lacks event branches!" << endl;
+        cout << "REST ERROR: AnalysisTree lacks event branches! Call CreateBranches() first!" << endl;
         return;
     }
 
@@ -189,6 +225,96 @@ void TRestAnalysisTree::MakeObservableIdMap() {
     }
 }
 
+
+void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, any& obs) {
+    if (lf == NULL || lf->GetLen() == 0) return;
+
+    if (obs.IsZombie()) {
+        // this means we need to determine the observable type first
+        string type;
+        string leafdef(lf->GetBranch()->GetTitle());
+        if (leafdef.find("[") == -1) {
+            // there is no [] mark in the leaf. The leaf is a single values
+            switch (leafdef[leafdef.size() - 1]) {
+                case 'C':
+                    type = "string";
+                    break;
+                case 'B':
+                    type = "char";
+                    break;
+                case 'S':
+                    type = "stort";
+                    break;
+                case 'I':
+                    type = "int";
+                    break;
+                case 'F':
+                    type = "float";
+                    break;
+                case 'D':
+                    type = "double";
+                    break;
+                case 'L':
+                    type = "long long";
+                    break;
+                case 'O':
+                    type = "bool";
+                    break;
+                default:
+                    ferr << "Unsupported leaf definition: " << leafdef << "! Assuming int" << endl;
+                    type = "int";
+            }
+        } else {
+            switch (leafdef[leafdef.size() - 1]) {
+                case 'I':
+                    type = "vector<int>";
+                    break;
+                case 'F':
+                    type = "vector<float>";
+                    break;
+                case 'D':
+                    type = "vector<double>";
+                    break;
+                default:
+                    ferr << "Unsupported leaf definition: " << leafdef << "! Assuming vector<int>" << endl;
+                    type = "vector<int>";
+            }
+        }
+        obs = REST_Reflection::Assembly(type);
+
+    } 
+
+    // start to fill value
+    if (obs.dt != 0) {
+        // the observable is basic type, we directly set it address from leaf
+        obs.address = (char*)lf->GetValuePointer();
+    } else if(obs.type == "vector<double>") {
+        double* ptr = (double*)lf->GetValuePointer();
+        vector<double> val(ptr, ptr + lf->GetLen());
+        obs.SetValue(val);
+    } else if (obs.type == "vector<int>") {
+        int* ptr = (int*)lf->GetValuePointer();
+        vector<int> val(ptr, ptr + lf->GetLen());
+        obs.SetValue(val);
+    } else if (obs.type == "vector<float>") {
+        float* ptr = (float*)lf->GetValuePointer();
+        vector<float> val(ptr, ptr + lf->GetLen());
+        obs.SetValue(val);
+    } else if (obs.type == "string") {
+        char* ptr = (char*)lf->GetValuePointer();
+        string val(ptr, lf->GetLen());
+        obs.SetValue(val);
+    } else {
+        warning << "Unsupported observable type to convert from TLeaf!" << endl;
+    }
+
+
+
+
+}
+
+
+
 Int_t TRestAnalysisTree::AddObservable(TString observableName, TString observableType, TString description) {
     if (fBranchesCreated) {
         return -1;
@@ -260,6 +386,31 @@ Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
         }
     }
 
+    if (fROOTTree != NULL) {
+        // if it is connected to an external tree, we get entry on that
+        int result = fROOTTree->GetEntry(entry, getall);
+
+        TObjArray* lfs = fROOTTree->GetListOfLeaves();
+        if (fObservables.size() != lfs->GetLast() + 1) {
+            cout << "Warning: external TTree may have changed!" << endl;
+            for (int i = 0; i < lfs->GetLast() + 1; i++) {
+                TLeaf* lf = (TLeaf*)lfs->UncheckedAt(i);
+                any obs;
+                ReadLeafValueToObservable(lf, obs);
+                obs.name = lf->GetName();
+                SetObservableValue(-1, obs);
+            }
+        } else {
+            for (int i = 0; i < lfs->GetLast() + 1; i++) {
+                TLeaf* lf = (TLeaf*)lfs->UncheckedAt(i);
+                ReadLeafValueToObservable(lf, fObservables[i]);
+            }
+        }
+
+
+        return result;
+    }
+
     return TTree::GetEntry(entry, getall);
 }
 
@@ -287,6 +438,11 @@ Int_t TRestAnalysisTree::Fill() {
         } else {
             CreateBranches();
         }
+    }
+
+    if (fROOTTree != NULL) {
+        cout << "Warning: this is a read-only tree!" << endl;
+        return -1;
     }
 
     return TTree::Fill();
