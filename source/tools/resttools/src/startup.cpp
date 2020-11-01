@@ -179,6 +179,7 @@ vector<T> StringToVector(string vec) {
     return result;
 }
 AddConverter(VectorToString, StringToVector, vector<int>);
+AddConverter(VectorToString, StringToVector, vector<float>);
 AddConverter(VectorToString, StringToVector, vector<double>);
 AddConverter(VectorToString, StringToVector, vector<string>);
 AddConverter(VectorToString, StringToVector, vector<TString>);
@@ -218,6 +219,7 @@ set<T> StringToSet(string vec) {
     return result;
 }
 AddConverter(SetToString, StringToSet, set<int>);
+AddConverter(SetToString, StringToSet, set<float>);
 AddConverter(SetToString, StringToSet, set<double>);
 AddConverter(SetToString, StringToSet, set<string>);
 AddConverter(SetToString, StringToSet, set<TString>);
@@ -285,21 +287,31 @@ map<T1, T2> StringToMap(string vec) {
 
 #define comma ,
 AddConverter(MapToString, StringToMap, map<int comma int>);
+AddConverter(MapToString, StringToMap, map<int comma float>);
 AddConverter(MapToString, StringToMap, map<int comma double>);
 AddConverter(MapToString, StringToMap, map<int comma string>);
 AddConverter(MapToString, StringToMap, map<int comma TString>);
 
+AddConverter(MapToString, StringToMap, map<float comma int>);
+AddConverter(MapToString, StringToMap, map<float comma float>);
+AddConverter(MapToString, StringToMap, map<float comma double>);
+AddConverter(MapToString, StringToMap, map<float comma string>);
+AddConverter(MapToString, StringToMap, map<float comma TString>);
+
 AddConverter(MapToString, StringToMap, map<double comma int>);
+AddConverter(MapToString, StringToMap, map<double comma float>);
 AddConverter(MapToString, StringToMap, map<double comma double>);
 AddConverter(MapToString, StringToMap, map<double comma string>);
 AddConverter(MapToString, StringToMap, map<double comma TString>);
 
 AddConverter(MapToString, StringToMap, map<string comma int>);
+AddConverter(MapToString, StringToMap, map<string comma float>);
 AddConverter(MapToString, StringToMap, map<string comma double>);
 AddConverter(MapToString, StringToMap, map<string comma string>);
 AddConverter(MapToString, StringToMap, map<string comma TString>);
 
 AddConverter(MapToString, StringToMap, map<TString comma int>);
+AddConverter(MapToString, StringToMap, map<TString comma float>);
 AddConverter(MapToString, StringToMap, map<TString comma double>);
 AddConverter(MapToString, StringToMap, map<TString comma TString>);
 AddConverter(MapToString, StringToMap, map<TString comma string>);
