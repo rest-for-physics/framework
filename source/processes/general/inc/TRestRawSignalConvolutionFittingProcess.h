@@ -20,29 +20,27 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestRawCommonNoiseReductionProcess
-#define RestCore_TRestRawCommonNoiseReductionProcess
+#ifndef RestCore_TRestRawSignalConvolutionFittingProcess
+#define RestCore_TRestRawSignalConvolutionFittingProcess
 
 #include <TRestRawSignalEvent.h>
-#include "TRestEventProcess.h"
 
-//! A process to substract the common channels noise from RawSignal type of data.
-class TRestRawCommonNoiseReductionProcess : public TRestEventProcess {
+#include "TH1D.h"
+#include "TRestEventProcess.h"
+#include "TF1Convolution.h"
+
+//! An analysis REST process to extract valuable information from RawSignal type of data.
+class TRestRawSignalConvolutionFittingProcess : public TRestEventProcess {
    private:
     /// A pointer to the specific TRestRawSignalEvent input
-    TRestRawSignalEvent* fInputEvent;
+    TRestRawSignalEvent* fRawSignalEvent;  //!
 
-    /// A pointer to the specific TRestRawSignalEvent output
-    TRestRawSignalEvent* fOutputEvent;
-
-    /// The mode defines the method to be used (It can be 0 or 1).
-    Int_t fMode = 0;
-
-    /// The percentage of signals taken from the array center to be considered for the average.
-    Int_t fcenterWidth = 0;
-    
-    /// Baseline subtracted or not (0 subtracted, 1 not subtracted).
-    Int_t fBaseline = 0;
+    /* Metadata members
+TVector2 fBaseLineRange;
+TVector2 fIntegralRange;
+Double_t fPointThreshold;
+Double_t fSignalThreshold;
+Int_t fNPointsOverThreshold; */
 
     void InitFromConfigFile();
 
@@ -54,13 +52,11 @@ class TRestRawCommonNoiseReductionProcess : public TRestEventProcess {
     // add here the members of your event process
 
    public:
-    any GetInputEvent() { return fInputEvent; }
-    any GetOutputEvent() { return fOutputEvent; }
+    any GetInputEvent() { return fRawSignalEvent; }
+    any GetOutputEvent() { return fRawSignalEvent; }
 
     void InitProcess();
-
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-
     void EndProcess();
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
@@ -68,30 +64,27 @@ class TRestRawCommonNoiseReductionProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        metadata << " fMode : [" << fMode << "]";
-        if (fMode == 0) metadata << " --> Mode 0 activated." << endl;
-        if (fMode == 1) metadata << " --> Mode 1 activated." << endl;
-        metadata << " fcenterWidth : " << fcenterWidth << endl;
-        metadata << " fBaseline : [" << fBaseline << "]";
-        if (fBaseline == 0) metadata << " --> Baseline sustracted (Option 0 activated)." << endl;
-        if (fBaseline == 1) metadata << " --> Baseline not sustracted (Option 1 activated)." << endl;
+        /*
+metadata << "Baseline range : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y() << " ) "
+         << endl;
+metadata << "Integral range : ( " << fIntegralRange.X() << " , " << fIntegralRange.Y() << " ) "
+         << endl;
+metadata << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
+metadata << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
+metadata << "Number of points over threshold : " << fNPointsOverThreshold << endl;
+metadata << " " << endl;
+        */
 
         EndPrintProcess();
     }
 
-    /// Returns a new instance of this class
-    TRestEventProcess* Maker() { return new TRestRawCommonNoiseReductionProcess; }
+    TString GetProcessName() { return (TString) "rawSignalConvolutionFitting"; }
 
-    /// Returns the reduced process name
-    TString GetProcessName() { return (TString) "commonNoiseReduction"; }
+    TRestRawSignalConvolutionFittingProcess();  // Constructor
+    TRestRawSignalConvolutionFittingProcess(char* cfgFileName);
+    ~TRestRawSignalConvolutionFittingProcess();  // Destructor
 
-    // Constructor
-    TRestRawCommonNoiseReductionProcess();
-    TRestRawCommonNoiseReductionProcess(char* cfgFileName);
-
-    // Destructor
-    ~TRestRawCommonNoiseReductionProcess();
-
-    ClassDef(TRestRawCommonNoiseReductionProcess, 1);
+    ClassDef(TRestRawSignalConvolutionFittingProcess, 1);
+    // Template for a REST "event process" class inherited from TRestEventProcess
 };
 #endif
