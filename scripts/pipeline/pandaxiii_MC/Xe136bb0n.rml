@@ -18,7 +18,7 @@
     <parameter name="runNumber" value="1"/>
     <parameter name="runDescription" value="We launch Xe136bb0n decays from the gas volume."/>
     <parameter name="user" value="${USER}"/>
-    <parameter name="outputFile" value="Xe136bb0n_n2E06.root" />
+    <parameter name="outputFileName" value="Xe136bb0n_n2E06.root" />
   </TRestRun>
 
   <TRestG4Metadata name="restG4 Simulation run" title="Simulation of Xe136bb0n decay from gas.">
