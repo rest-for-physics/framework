@@ -358,7 +358,4 @@ void TRestHitsAnalysisProcess::InitFromConfigFile() {
     if (GetParameter("cylinderFiducialization", "false") == "true") fCylinderFiducial = true;
 
     if (GetParameter("prismFiducialization", "false") == "true") fPrismFiducial = true;
-
-    if (fCylinderFiducial) cout << "Cylinder fiducial active" << endl;
-    if (fPrismFiducial) cout << "Prism fiducial active" << endl;
 }
