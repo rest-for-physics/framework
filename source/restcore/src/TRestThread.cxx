@@ -539,7 +539,7 @@ void TRestThread::ProcessEvent() {
 /// This method is called back at the end of TRestProcessRunner::RunProcess() in
 /// TRestProcessRunner.
 void TRestThread::EndProcess() {
-    info << "TRestThread : Writing temp file" << endl;
+    info << "TRestThread : Writing temp file. Thread id : " << fThreadId << endl;
 
     if (fOutputFile == NULL) return;
 
