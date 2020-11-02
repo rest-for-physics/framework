@@ -408,7 +408,7 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
             TKey* key;
             while ((key = (TKey*)nextkey())) {
                 if ((string)key->GetClassName() == "TTree") {
-                    fAnalysisTree = (TRestAnalysisTree*)fInputFile->Get(key->GetName());
+                    fAnalysisTree = TRestAnalysisTree::ConvertFromTTree((TTree*)fInputFile->Get(key->GetName()));
                 }
             }
         }
@@ -519,18 +519,20 @@ void TRestRun::ReadInputFileTrees() {
             if (fInputEvent == NULL) {
                 TObjArray* branches = fEventTree->GetListOfBranches();
                 // get the last event branch as input event branch
-                TBranch* br = (TBranch*)branches->At(branches->GetLast());
+                if (branches->GetLast() > -1) {
+                    TBranch* br = (TBranch*)branches->At(branches->GetLast());
 
-                if (Count(br->GetName(), "EventBranch") == 0) {
-                    info << "No event branch inside file : " << filename << endl;
-                    info << "This file may be a pure analysis file" << endl;
-                } else {
-                    string type = Replace(br->GetName(), "Branch", "", 0);
-                    fInputEvent = REST_Reflection::Assembly(type);
-                    fInputEvent->InitializeWithMetadata(this);
-                    fEventTree->SetBranchAddress(br->GetName(), &fInputEvent);
-                    fEventBranchLoc = branches->GetLast();
-                    debug << "found event branch of event type: " << fInputEvent->ClassName() << endl;
+                    if (br == NULL || Count(br->GetName(), "EventBranch") == 0) {
+                        info << "No event branch inside file : " << filename << endl;
+                        info << "This file may be a pure analysis file" << endl;
+                    } else {
+                        string type = Replace(br->GetName(), "Branch", "", 0);
+                        fInputEvent = REST_Reflection::Assembly(type);
+                        fInputEvent->InitializeWithMetadata(this);
+                        fEventTree->SetBranchAddress(br->GetName(), &fInputEvent);
+                        fEventBranchLoc = branches->GetLast();
+                        debug << "found event branch of event type: " << fInputEvent->ClassName() << endl;
+                    }
                 }
             } else {
                 string brname = (string)fInputEvent->ClassName() + "Branch";
