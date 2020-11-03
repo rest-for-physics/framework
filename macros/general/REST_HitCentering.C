@@ -6,13 +6,24 @@
 #include <TRestTask.h>
 #include <TSystem.h>
 
-#ifdef RestTask_HitCentering
-#undef RestTask_HitCentering
-#endif
+#ifndef RestTask_HitCentering
 #define RestTask_HitCentering
 
-Int_t REST_HitCentering(bool isX, TString rootFileName, TString histoName, int startVal = 0,
-                         int endVal = 1000, int bins = 1000, int n1 = 0, int n2 = 1000) {
+//*******************************************************************************************************
+//*** Description: This macro reads each hits event inside the file.root given by argument and centers it
+//*** around 0 by subtracting the mean event position to each individual hit position. It creates a
+//*** histogram including events n1 to n2 and stores it in file.root. It can be executed for both XZ
+//*** events (isX = true) or YZ events (isX = false).
+//*** --------------
+//*** The output histogram shows the standard shape of the hits events, so their symmetry, gaussianity
+//*** and others can be estimated. 
+//*** --------------
+//*** Usage: restManager HitCentering bool /full/path/file.root [histoName] [firstBin] [lastBin]
+//*** [#bins] [firstEvent] [lastEvent]
+//*******************************************************************************************************
+
+Int_t REST_HitCentering(bool isX, TString rootFileName, TString histoName, int startVal = -30,
+                        int endVal = 30, int bins = 120, int n1 = 0, int n2 = 60000) {
 	/*
 	Set first argument to true to run the macro on the X direction, and to false to run it on the Y direction.
 	*/
@@ -84,4 +95,4 @@ Int_t REST_HitCentering(bool isX, TString rootFileName, TString histoName, int s
 };
 
 
-//#endif
+#endif
