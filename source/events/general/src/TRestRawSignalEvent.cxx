@@ -310,7 +310,7 @@ Double_t TRestRawSignalEvent::GetMaxTime() {
 ///
 /// Other paramenters: to plot only signals identified as good signals. 
 ///                    Or signals in IDs range.
-///       Written as follows: onlyGoodSignals[signalTh,pointTh,nOver]
+///       Written as follows: onlyGoodSignals[pointTh,signalTh,nOver]
 ///                           baseLineRange[baseLineRangeInit,baseLineRangeEnd]
 ///                           signalRangeID[sRangeInit,sRangeEnd]
 ///       If none is selected, all signals are plotted.
@@ -370,8 +370,8 @@ TPad* TRestRawSignalEvent::DrawEvent(TString option) {
             TString tmpStr = optList[j](startPos + 1, endPos - startPos - 1);
             vector<TString> optList_2 = Vector_cast<string, TString>(Split((string)tmpStr, ","));
             
-            signalTh = StringToDouble((string)optList_2[0]);
-            pointTh = StringToDouble((string)optList_2[1]);
+            pointTh = StringToDouble((string)optList_2[0]);
+            signalTh = StringToDouble((string)optList_2[1]);
             nOver = StringToDouble((string)optList_2[2]);
             
             ThresCheck = true;            
@@ -427,8 +427,8 @@ TPad* TRestRawSignalEvent::DrawEvent(TString option) {
             debug << "  Base line range: (" << baseLineRangeInit << "," << baseLineRangeEnd << ")" << endl;
             
             for (int n = 0; n < nSignals; n++) {
-              fSignal[n].CalculateBaseLine(20,150);
-              fSignal[n].InitializePointsOverThreshold(TVector2(3.5, 1.5),7);
+              fSignal[n].CalculateBaseLine(baseLineRangeInit,baseLineRangeEnd);
+              fSignal[n].InitializePointsOverThreshold(TVector2(pointTh, signalTh),nOver);
               if (fSignal[n].GetPointsOverThreshold().size() >= 2 && sRangeID == false){
                   TGraph* gr = fSignal[n].GetGraph(n + 1);
                   mg->Add(gr);
@@ -504,8 +504,8 @@ TPad* TRestRawSignalEvent::DrawEvent(TString option) {
             
                int sigPrinted = 0;
                for (int n = 0; n < nSignals; n++) {
-                 fSignal[n].CalculateBaseLine(20,150);
-                 fSignal[n].InitializePointsOverThreshold(TVector2(3.5, 1.5),7);
+                 fSignal[n].CalculateBaseLine(baseLineRangeInit,baseLineRangeEnd);
+                 fSignal[n].InitializePointsOverThreshold(TVector2(pointTh, signalTh),nOver);
                  if (fSignal[n].GetPointsOverThreshold().size() >= 2 && n >= StringToInteger((string)firstSignal) && n <= StringToInteger((string)lastSignal)){
                    TGraph* gr = fSignal[n].GetGraph(n + 1);
                    mg->Add(gr);
