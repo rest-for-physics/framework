@@ -160,7 +160,7 @@ trexDM_data:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/scripts/pipeline/trex
-    - restManager --c 01_raw.rml --f data.aqs
+    - restManager --c 01_raw.rml --f *.aqs
     - restManager --c 02_signal.rml --f RawData.root
     - restManager --c 03_hits.rml --f Signals.root
     - restRoot -b -q ../MakeBasicTree.C'("Hits.root")'
