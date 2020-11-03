@@ -240,7 +240,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
         fInputEvent = (TRestEvent*)fHostRunner->GetInputEvent()->Clone();
         string chainInputType = fProcessChain[0]->GetInputEvent().type;
         // we check if the process chain input type matches fInputEvent
-        if (chainInputType != (string)fInputEvent->ClassName()) {
+        if (chainInputType != "TRestEvent" && chainInputType != (string)fInputEvent->ClassName()) {
             cout << "REST ERROR: Input event type does not match!" << endl;
             cout << "Process input type : " << chainInputType
                  << ", File input type : " << fInputEvent->ClassName() << endl;
