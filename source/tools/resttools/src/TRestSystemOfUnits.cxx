@@ -288,11 +288,11 @@ TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
             }
 
         } else {
-            if (pos == 0 && unitsStr[pos] != '/') {
-                cout << unitsStr << endl;
-                warning << "first character \"" << unitsStr[pos] << "\" unrecognized in unit definition!"
-                        << endl;
-            }
+            //if (pos == 0 && unitsStr[pos] != '/') {
+            //    cout << unitsStr << endl;
+            //    warning << "first character \"" << unitsStr[pos] << "\" unrecognized in unit definition!"
+            //            << endl;
+            //}
             if (pos == unitsStr.size() - 1) {
                 warning << "last character \"" << unitsStr[pos] << "\" unrecognized in unit definition!"
                         << endl;
