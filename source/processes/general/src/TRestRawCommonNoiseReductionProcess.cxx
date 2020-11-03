@@ -35,10 +35,7 @@
 /// *centerWidth%* of the total number of bins center around the middle. The mean
 /// of these bins is used to do the correction.
 ///
-/// Output signal could be recovered with or without base line subtraction:
-///
-/// * **Baseline = 0**: Base line subtracted.
-/// * **Baseline = 1**: Base line not subtracted.
+/// Output signal without base line subtraction.
 ///
 ///_______________________________________________________________________________
 ///
@@ -46,10 +43,10 @@
 ///
 /// History of developments:
 ///
-/// 2020-July: First implementation of common noise reduction process
+/// 2020-July: First implementation of common noise reduction process.
 ///            Benjamin Manier
 ///
-/// 2020-October: Base line options
+/// 2020-October: Base line not subtracted.
 ///            David Diez
 ///
 /// \class      TRestRawCommonNoiseReductionProcess
@@ -192,14 +189,8 @@ TRestEvent* TRestRawCommonNoiseReductionProcess::ProcessEvent(TRestEvent* evInpu
         binCorrection = binCorrection / norm;
 
         // Application of the correction.
-        if (fBaseline == 0) {
-            for (Int_t sgnl = 0; sgnl < N; sgnl++)
-                fOutputEvent->GetSignal(sgnl)->IncreaseBinBy(bin, -binCorrection);
-        }  
-        else if (fBaseline == 1) {
-            for (Int_t sgnl = 0; sgnl < N; sgnl++)
-                fOutputEvent->GetSignal(sgnl)->IncreaseBinBy(bin, Baseline-binCorrection);
-        }   
+        for (Int_t sgnl = 0; sgnl < N; sgnl++)
+            fOutputEvent->GetSignal(sgnl)->IncreaseBinBy(bin, Baseline-binCorrection);     
     }
 
     return fOutputEvent;
@@ -224,5 +215,4 @@ void TRestRawCommonNoiseReductionProcess::EndProcess() {
 void TRestRawCommonNoiseReductionProcess::InitFromConfigFile() {
     fMode = StringToInteger(GetParameter("mode", "0"));
     fcenterWidth = StringToInteger(GetParameter("centerWidth", "10"));
-    fBaseline = StringToInteger(GetParameter("baseline", "0"));
 }

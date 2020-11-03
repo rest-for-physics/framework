@@ -40,9 +40,6 @@ class TRestRawCommonNoiseReductionProcess : public TRestEventProcess {
 
     /// The percentage of signals taken from the array center to be considered for the average.
     Int_t fcenterWidth = 0;
-    
-    /// Baseline subtracted or not (0 subtracted, 1 not subtracted).
-    Int_t fBaseline = 0;
 
     void InitFromConfigFile();
 
@@ -72,9 +69,6 @@ class TRestRawCommonNoiseReductionProcess : public TRestEventProcess {
         if (fMode == 0) metadata << " --> Mode 0 activated." << endl;
         if (fMode == 1) metadata << " --> Mode 1 activated." << endl;
         metadata << " fcenterWidth : " << fcenterWidth << endl;
-        metadata << " fBaseline : [" << fBaseline << "]";
-        if (fBaseline == 0) metadata << " --> Baseline sustracted (Option 0 activated)." << endl;
-        if (fBaseline == 1) metadata << " --> Baseline not sustracted (Option 1 activated)." << endl;
 
         EndPrintProcess();
     }
