@@ -128,6 +128,14 @@ void TRestRun::InitFromConfigFile() {
     string runNstr = GetParameter("runNumber", "-1");
     string inputname = GetParameter("inputFileName", "");
     inputname = TRestTools::RemoveMultipleSlash(inputname);
+    string inputnameold = GetParameter("inputFile", "default");
+    if (inputnameold != "default") {
+        warning << "Parameter \"inputFile\" in rml is obsolete! Please update it to \"inputFileName\""
+                << endl;
+        if (inputname == "") {
+            inputname = inputnameold;
+        }
+    }
     if (ToUpper(runNstr) == "AUTO" && ToUpper(inputname) == "AUTO") {
         ferr << "TRestRun: run number and input file name cannot both be "
                 "\"AUTO\""
@@ -189,6 +197,14 @@ void TRestRun::InitFromConfigFile() {
     string outputdir = (string)GetDataPath();
     if (outputdir == "") outputdir = ".";
     string outputname = GetParameter("outputFileName", "default");
+    string outputnameold = GetParameter("outputFile", "default");
+    if (outputnameold != "default") {
+        warning << "Parameter \"outputFile\" in rml is obsolete! Please update it to \"outputFileName\""
+                << endl;
+        if (outputname == "default") {
+            outputname = outputnameold;
+        }
+    }
     if (ToUpper(outputname) == "DEFAULT") {
         string expName = RemoveWhiteSpaces((string)GetExperimentName());
         string runType = RemoveWhiteSpaces((string)GetRunType());
