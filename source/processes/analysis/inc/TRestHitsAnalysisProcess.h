@@ -74,6 +74,10 @@ class TRestHitsAnalysisProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
+        if (fCylinderFiducial) metadata << "Cylinder fiducial active" << endl;
+        if (fPrismFiducial) metadata << "Prism fiducial active" << endl;
+
+        metadata << " -------------------" << endl;
         metadata << " Fiducial parameters" << endl;
         metadata << " -------------------" << endl;
         metadata << " x0 : (" << fFid_x0.X() << " , " << fFid_x0.Y() << " , " << fFid_x0.Z() << ")" << endl;

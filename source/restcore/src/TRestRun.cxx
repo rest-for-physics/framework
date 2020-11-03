@@ -126,7 +126,7 @@ void TRestRun::InitFromConfigFile() {
     fRunNumber = -1;
     fParentRunNumber = 0;
     string runNstr = GetParameter("runNumber", "-1");
-    string inputname = GetParameter("inputFile", "");
+    string inputname = GetParameter("inputFileName", "");
     inputname = TRestTools::RemoveMultipleSlash(inputname);
     if (ToUpper(runNstr) == "AUTO" && ToUpper(inputname) == "AUTO") {
         ferr << "TRestRun: run number and input file name cannot both be "
@@ -188,7 +188,7 @@ void TRestRun::InitFromConfigFile() {
     // 3. Construct output file name
     string outputdir = (string)GetDataPath();
     if (outputdir == "") outputdir = ".";
-    string outputname = GetParameter("outputFile", "default");
+    string outputname = GetParameter("outputFileName", "default");
     if (ToUpper(outputname) == "DEFAULT") {
         string expName = RemoveWhiteSpaces((string)GetExperimentName());
         string runType = RemoveWhiteSpaces((string)GetRunType());
@@ -244,10 +244,6 @@ void TRestRun::InitFromConfigFile() {
         string keydeclare = e->Value();
         if (keydeclare == "addMetadata") {
             if (e->Attribute("file") != NULL) {
-                //string file_addMetadata = ReplaceEnvironmentalVariables(e->Attribute("file"));
-                //string name_addMetadata = ReplaceEnvironmentalVariables(e->Attribute("name"));
-                //string type_addMetadata = ReplaceEnvironmentalVariables(e->Attribute("type"));
-                //ImportMetadata(file_addMetadata, name_addMetadata, type_addMetadata, true);
                 ImportMetadata(e->Attribute("file"), e->Attribute("name"), e->Attribute("type"), true);
             } else {
                 warning << "Wrong definition of addMetadata! Metadata name or file name "
@@ -408,7 +404,8 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
             TKey* key;
             while ((key = (TKey*)nextkey())) {
                 if ((string)key->GetClassName() == "TTree") {
-                    fAnalysisTree = TRestAnalysisTree::ConvertFromTTree((TTree*)fInputFile->Get(key->GetName()));
+                    fAnalysisTree =
+                        TRestAnalysisTree::ConvertFromTTree((TTree*)fInputFile->Get(key->GetName()));
                 }
             }
         }
