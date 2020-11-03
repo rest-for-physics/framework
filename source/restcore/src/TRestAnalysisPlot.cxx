@@ -518,7 +518,7 @@ void TRestAnalysisPlot::AddFileFromExternalRun() {
 // we can add input file from parameter "inputFile"
 void TRestAnalysisPlot::AddFileFromEnv() {
     if (fNFiles == 0) {
-        string filepattern = GetParameter("inputFile", "");
+        string filepattern = GetParameter("inputFileName", "");
         auto files = TRestTools::GetFilesMatchingPattern(filepattern);
 
         for (unsigned int n = 0; n < files.size(); n++) {
