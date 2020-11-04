@@ -22,10 +22,41 @@
 
 //////////////////////////////////////////////////////////////////////////
 /// The TRestRawSignalChannelActivityProcess allows to generate different
-/// histograms in order to monitor the times a channel has observed a signal
-/// under certain threshold and number of active channels conditions.
+/// histograms in order to monitor the number of times a channel has observed 
+/// a raw signal given a set of conditions on the threshold and number of active 
+/// channels.
 ///
-/// TODO. Write a more detailed documentation here
+/// TRestRawSignalChannelActivityProcess produces different channel activity
+/// histograms involving raw signals. These histograms thus show the activity
+/// of the channels before zero suppression, which can be useful to perform
+/// noise studies.
+///
+/// The following list describes the different histograms that are generated:
+///
+/// * **daqChannelActivityRaw**: Histogram based on the DAQ channels.
+/// The following figure shows the DAQ channel activity histogram for raw
+/// signals in: 
+///     * a) the case where all the channels are saved (where a flat
+///          distribution is seen because all channels have the same raw activity)
+///     * b) the case where only channels that have been hit are saved.
+///
+/// \htmlonly <style>div.image img[src="daqChActRaw.png"]{width:1000px;}</style> \endhtmlonly
+/// ![An ilustration of the daq raw signals channel activity](daqChActRaw.png)
+///
+/// * **rChannelActivityRaw_N**: where *N* can be 1, 2, 3 or M (multi), is
+/// a histogram based on the readout channels, i.e., after converting the daq
+/// channel numbering into readout channel numbering based on the .dec
+/// file, that contains the events with *N* number of signals above the **lowThreshold**
+/// set by the user.
+///
+/// * **rChannelActivityRaw_NH**: where *N* can be 1, 2, 3 or M (multi), is
+/// a histogram based on the readout channels, i.e., after converting the daq
+/// channel numbering into readout channel numbering based on the .dec
+/// file, that contains the events with *N* number of signals above the **highThreshold**
+/// set by the user. 
+///
+/// The number of channels and their numbering can be specified by the user to
+/// match the detector being used.
 ///
 ///--------------------------------------------------------------------------
 ///
