@@ -83,6 +83,13 @@ class TRestRun : public TRestMetadata {
             warning << "TRestRun::GetEntry. Entry requested out of limits" << endl;
             warning << "Total number of entries is : " << GetEntries() << endl;
         }
+
+        fCurrentEvent = i;
+    }
+
+    void GetNextEntry() {
+        if (fCurrentEvent + 1 >= GetEntries()) fCurrentEvent = -1;
+        GetEntry(fCurrentEvent + 1);
     }
 
     TString FormFormat(TString FilenameFormat);
