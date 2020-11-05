@@ -225,7 +225,6 @@ void TRestAnalysisTree::MakeObservableIdMap() {
     }
 }
 
-
 void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, any& obs) {
     if (lf == NULL || lf->GetLen() == 0) return;
 
@@ -281,14 +280,13 @@ void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, any& obs) {
             }
         }
         obs = REST_Reflection::Assembly(type);
-
-    } 
+    }
 
     // start to fill value
     if (obs.dt != 0) {
         // the observable is basic type, we directly set it address from leaf
         obs.address = (char*)lf->GetValuePointer();
-    } else if(obs.type == "vector<double>") {
+    } else if (obs.type == "vector<double>") {
         double* ptr = (double*)lf->GetValuePointer();
         vector<double> val(ptr, ptr + lf->GetLen());
         obs.SetValue(val);
@@ -307,13 +305,7 @@ void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, any& obs) {
     } else {
         warning << "Unsupported observable type to convert from TLeaf!" << endl;
     }
-
-
-
-
 }
-
-
 
 Int_t TRestAnalysisTree::AddObservable(TString observableName, TString observableType, TString description) {
     if (fBranchesCreated) {
@@ -406,7 +398,6 @@ Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
                 ReadLeafValueToObservable(lf, fObservables[i]);
             }
         }
-
 
         return result;
     }

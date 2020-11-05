@@ -25,9 +25,9 @@
 
 #include <TRestRawSignalEvent.h>
 
+#include "TF1Convolution.h"
 #include "TH1D.h"
 #include "TRestEventProcess.h"
-#include "TF1Convolution.h"
 
 //! An analysis REST process to extract valuable information from RawSignal type of data.
 class TRestRawSignalConvolutionFittingProcess : public TRestEventProcess {

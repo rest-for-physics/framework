@@ -136,18 +136,18 @@ void TRestRawCommonNoiseReductionProcess::InitProcess() {}
 ///
 TRestEvent* TRestRawCommonNoiseReductionProcess::ProcessEvent(TRestEvent* evInput) {
     fInputEvent = (TRestRawSignalEvent*)evInput;
-    
+
     // Event base line determination.
     Double_t baseLineMean = 0;
-      for (int sgnl = 0; sgnl < fInputEvent->GetNumberOfSignals(); sgnl++) {
-         fInputEvent->GetSignal(sgnl)->CalculateBaseLine(20,150);
-         Double_t baseline = fInputEvent->GetSignal(sgnl)->GetBaseLine();
-         baseLineMean += baseline;
-     }
+    for (int sgnl = 0; sgnl < fInputEvent->GetNumberOfSignals(); sgnl++) {
+        fInputEvent->GetSignal(sgnl)->CalculateBaseLine(20, 150);
+        Double_t baseline = fInputEvent->GetSignal(sgnl)->GetBaseLine();
+        baseLineMean += baseline;
+    }
     Double_t Baseline = baseLineMean / fInputEvent->GetNumberOfSignals();
-    
+
     Int_t N = fInputEvent->GetNumberOfSignals();
-    
+
     if (GetVerboseLevel() >= REST_Debug) N = 1;
     for (int sgnl = 0; sgnl < N; sgnl++) {
         fOutputEvent->AddSignal(*fInputEvent->GetSignal(sgnl));
@@ -190,7 +190,7 @@ TRestEvent* TRestRawCommonNoiseReductionProcess::ProcessEvent(TRestEvent* evInpu
 
         // Application of the correction.
         for (Int_t sgnl = 0; sgnl < N; sgnl++)
-            fOutputEvent->GetSignal(sgnl)->IncreaseBinBy(bin, Baseline-binCorrection);     
+            fOutputEvent->GetSignal(sgnl)->IncreaseBinBy(bin, Baseline - binCorrection);
     }
 
     return fOutputEvent;

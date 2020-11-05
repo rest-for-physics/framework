@@ -24,15 +24,15 @@
 ///
 ///
 /// Fit every TRestRawSignal in a TRestRawSignalEvent with AGET theoretical curve
-/// times a logistic function convoluted with a gaussian pulse. The logistic function 
+/// times a logistic function convoluted with a gaussian pulse. The logistic function
 /// acts like a step function to select only the positive range of the AGET function.
 ///
 /// From TRestRawSignal -> TH1 -> Measure goodness of fit
 ///
 /// Analytic expression to fit:
-/// 
-/// AGET function: 
-/// [0]*TMath::Exp(-3. * (x-[2])/[1]) * (x-[2])/[1] * (x-[2])/[1] * (x-[2])/[1] * 
+///
+/// AGET function:
+/// [0]*TMath::Exp(-3. * (x-[2])/[1]) * (x-[2])/[1] * (x-[2])/[1] * (x-[2])/[1] *
 /// sin((x-[2])/[1])/(1+TMath::Exp(-10000*(x-[2])))
 ///
 /// [0] = "Amplitude",
@@ -160,7 +160,8 @@ TRestEvent* TRestRawSignalConvolutionFittingProcess::ProcessEvent(TRestEvent* ev
     // no need for verbose copy now
     fRawSignalEvent = (TRestRawSignalEvent*)evInput;
 
-    debug << "TRestRawSignalConvolutionFittingProcess::ProcessEvent. Event ID : " << fRawSignalEvent->GetID() << endl;
+    debug << "TRestRawSignalConvolutionFittingProcess::ProcessEvent. Event ID : " << fRawSignalEvent->GetID()
+          << endl;
 
     Double_t SigmaMean = 0;
     Double_t Sigma[fRawSignalEvent->GetNumberOfSignals()];
@@ -178,55 +179,55 @@ TRestEvent* TRestRawSignalConvolutionFittingProcess::ProcessEvent(TRestEvent* ev
     shapingtimeFit.clear();
     peakpositionFit.clear();
     variancegaussFit.clear();
-    
+
     int MinBinRange = 25;
     int MaxBinRange = 45;
 
     for (int s = 0; s < fRawSignalEvent->GetNumberOfSignals(); s++) {
         TRestRawSignal* singleSignal = fRawSignalEvent->GetSignal(s);
-        singleSignal->CalculateBaseLine(20,150);
+        singleSignal->CalculateBaseLine(20, 150);
         int MaxPeakBin = singleSignal->GetMaxPeakBin();
 
-        //ShaperSin function (AGET theoretical curve) times logistic function
+        // ShaperSin function (AGET theoretical curve) times logistic function
         TF1* f = new TF1("Aget",
                          "[0]*TMath::Exp(-3. * (x-[2])/[1]) * (x-[2])/[1] * (x-[2])/[1] * (x-[2])/[1] * "
-                         " sin((x-[2])/[1])/(1+TMath::Exp(-10000*(x-[2])))", 0, 511);
-        f->SetParameters(0.,300.,42.,20.); //Initial values adjusted from Desmos
-        f->SetParNames("Amplitude","ShapingTime","PeakPosition");
-        
+                         " sin((x-[2])/[1])/(1+TMath::Exp(-10000*(x-[2])))",
+                         0, 511);
+        f->SetParameters(0., 300., 42., 20.);  // Initial values adjusted from Desmos
+        f->SetParNames("Amplitude", "ShapingTime", "PeakPosition");
+
         // Gaussian pulse
-        TF1* g = new TF1("pulse","exp(-0.5*((x)/[0])*((x)/[0]))",0, 511);
-        g->SetParameters(0,7.);
-                
+        TF1* g = new TF1("pulse", "exp(-0.5*((x)/[0])*((x)/[0]))", 0, 511);
+        g->SetParameters(0, 7.);
+
         // Convolution of AGET and gaussian functions
-        TF1Convolution *conv = new TF1Convolution("Aget","pulse",0, 511,true);
+        TF1Convolution* conv = new TF1Convolution("Aget", "pulse", 0, 511, true);
         conv->SetRange(0, 511);
         conv->SetNofPointsFFT(10000);
-        
-        TF1 *fit_conv = new TF1("fit",*conv, 0, 511, conv->GetNpar());
-        fit_conv->SetParNames("Amplitude","ShapingTime","PeakPosition","VarianceGauss");
-       
+
+        TF1* fit_conv = new TF1("fit", *conv, 0, 511, conv->GetNpar());
+        fit_conv->SetParNames("Amplitude", "ShapingTime", "PeakPosition", "VarianceGauss");
 
         // Create histogram from signal
         Int_t nBins = singleSignal->GetNumberOfPoints();
         TH1D* h = new TH1D("histo", "Signal to histo", nBins, 0, nBins);
 
         for (int i = 0; i < nBins; i++) {
-            h->Fill(i, singleSignal->GetRawData(i)-singleSignal->GetBaseLine());
-            h->SetBinError(i,singleSignal->GetBaseLineSigma());
+            h->Fill(i, singleSignal->GetRawData(i) - singleSignal->GetBaseLine());
+            h->SetBinError(i, singleSignal->GetBaseLineSigma());
         }
 
         // Fit histogram with convolution
-        fit_conv->SetParameters(singleSignal->GetData(MaxPeakBin),25.,MaxPeakBin-25.,8.); 
-        fit_conv->FixParameter(0,singleSignal->GetData(MaxPeakBin));
-   
-        h->Fit(fit_conv, "LRNQ", "", MaxPeakBin-MinBinRange, MaxPeakBin+MaxBinRange);  
+        fit_conv->SetParameters(singleSignal->GetData(MaxPeakBin), 25., MaxPeakBin - 25., 8.);
+        fit_conv->FixParameter(0, singleSignal->GetData(MaxPeakBin));
+
+        h->Fit(fit_conv, "LRNQ", "", MaxPeakBin - MinBinRange, MaxPeakBin + MaxBinRange);
         // Options: L->Likelihood minimization, R->fit in range, N->No draw, Q->Quiet
-        
 
         Double_t sigma = 0;
         for (int j = MaxPeakBin - MinBinRange; j < MaxPeakBin + MaxBinRange; j++) {
-            sigma += (singleSignal->GetData(j) - fit_conv->Eval(j)) * (singleSignal->GetData(j) - fit_conv->Eval(j));
+            sigma += (singleSignal->GetData(j) - fit_conv->Eval(j)) *
+                     (singleSignal->GetData(j) - fit_conv->Eval(j));
         }
         Sigma[s] = TMath::Sqrt(sigma / (MinBinRange + MaxBinRange));
         RatioSigmaMaxPeak[s] = Sigma[s] / singleSignal->GetData(MaxPeakBin);

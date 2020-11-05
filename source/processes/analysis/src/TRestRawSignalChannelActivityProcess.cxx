@@ -22,8 +22,8 @@
 
 //////////////////////////////////////////////////////////////////////////
 /// The TRestRawSignalChannelActivityProcess allows to generate different
-/// histograms in order to monitor the number of times a channel has observed 
-/// a raw signal given a set of conditions on the threshold and number of active 
+/// histograms in order to monitor the number of times a channel has observed
+/// a raw signal given a set of conditions on the threshold and number of active
 /// channels.
 ///
 /// TRestRawSignalChannelActivityProcess produces different channel activity
@@ -35,7 +35,7 @@
 ///
 /// * **daqChannelActivityRaw**: Histogram based on the DAQ channels.
 /// The following figure shows the DAQ channel activity histogram for raw
-/// signals in: 
+/// signals in:
 ///     * a) the case where all the channels are saved (where a flat
 ///          distribution is seen because all channels have the same raw activity)
 ///     * b) the case where only channels that have been hit are saved.
@@ -53,7 +53,7 @@
 /// a histogram based on the readout channels, i.e., after converting the daq
 /// channel numbering into readout channel numbering based on the .dec
 /// file, that contains the events with *N* number of signals above the **highThreshold**
-/// set by the user. 
+/// set by the user.
 ///
 /// The number of channels and their numbering can be specified by the user to
 /// match the detector being used.

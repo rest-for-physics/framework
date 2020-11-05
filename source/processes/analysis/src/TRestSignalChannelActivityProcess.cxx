@@ -23,7 +23,7 @@
 //////////////////////////////////////////////////////////////////////////
 /// The TRestSignalChannelActivityProcess allows to generate different
 /// histograms in order to monitor the number of times a channel has observed
-/// a signal given a set of conditions on the threshold and number of active 
+/// a signal given a set of conditions on the threshold and number of active
 /// channels.
 ///
 /// TRestSignalChannelActivityProcess produces different channel activity
@@ -53,7 +53,7 @@
 /// a histogram based on the readout channels, i.e., after converting the daq
 /// channel numbering into readout channel numbering based on the .dec
 /// file, that contains the events with *N* number of signals above the **highThreshold**
-/// set by the user. 
+/// set by the user.
 ///
 /// The number of channels and their numbering can be specified by the user to
 /// match the detector being used.

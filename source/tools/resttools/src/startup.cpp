@@ -7,9 +7,9 @@
 #include "TRestTools.h"
 //////////////////////////////////////////////////////////////////////////
 /// This script initializes REST global variables in sequence to clearify
-/// their dependency, therefore avoiding seg.fault during startup. All 
+/// their dependency, therefore avoiding seg.fault during startup. All
 /// global variables in libRestTools, if depend on other global variable,
-/// should be placed here for initialization. 
+/// should be placed here for initialization.
 
 string REST_COMMIT;
 string REST_PATH;
