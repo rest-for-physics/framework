@@ -9,6 +9,7 @@
 
 #include "TRestVersion.h"
 
+Int_t loadMacros = 1;
 // Note!
 // Don't use cout in the main function!
 // This will make cout un-usable in the command line!
@@ -24,6 +25,33 @@ int main(int argc, char* argv[]) {
                 case 'v':
                     gVerbose = StringToVerboseLevel(argv[i + 1]);
                     break;
+                case 'm':
+                    loadMacros = StringToInteger(argv[i + 1]);
+                    break;
+                case 'h':
+                    // We use cout here since we will just exit afterwards
+                    cout << " " << endl;
+                    cout << "-----------------------------------" << endl;
+                    cout << "restRoot basic options description." << endl;
+                    cout << "-----------------------------------" << endl;
+                    cout << endl;
+                    cout << " In order to define the verbosity of restRoot you may use:" << endl;
+                    cout << endl;
+                    cout << " restRoot --v [VERBOSE_LEVEL]" << endl;
+                    cout << " " << endl;
+                    cout << " Where VERBOSE_LEVEL=0,1,2,3 is equivalent to silent, warning, info, "
+                            "debug"
+                         << endl;
+                    cout << endl;
+                    cout << " -----" << endl;
+                    cout << endl;
+                    cout << " In order to decide if REST macros should be loadedd you may use:" << endl;
+                    cout << endl;
+                    cout << " restRoot --m [0,1]" << endl;
+                    cout << " " << endl;
+                    cout << " Option 0 will disable macro loading. Option 1 is the default." << endl;
+                    cout << " " << endl;
+                    exit(0);
             }
         }
     }
@@ -36,14 +64,16 @@ int main(int argc, char* argv[]) {
 
     // load rest library and macros
     TRestTools::LoadRESTLibrary(silent);
-    auto a = TRestTools::Execute(
-        "find $REST_PATH/macros | grep REST_[^/]*.C | grep -v \"swo\" | grep -v "
-        "\"CMakeLists\" | grep -v \"swp\"  | grep -v \"svn\"");
-    auto b = Split(a, "\n");
-    for (auto c : b) {
-        if (debug) printf("Loading macro : %s\n", c.c_str());
+    if (loadMacros) {
+        auto a = TRestTools::Execute(
+            "find $REST_PATH/macros | grep REST_[^/]*.C | grep -v \"swo\" | grep -v "
+            "\"CMakeLists\" | grep -v \"swp\"  | grep -v \"svn\"");
+        auto b = Split(a, "\n");
+        for (auto c : b) {
+            if (debug) printf("Loading macro : %s\n", c.c_str());
 
-        gROOT->ProcessLine((".L " + c).c_str());
+            gROOT->ProcessLine((".L " + c).c_str());
+        }
     }
 
     // load input root file with TRestRun, initialize input event, analysis tree and metadata structures
