@@ -15,6 +15,8 @@
 int main(int argc, char* argv[]) {
     // set the env and debug status
     setenv("REST_VERSION", REST_RELEASE, 1);
+
+    Int_t loadMacros = 1;
     for (int i = 1; i < argc; i++) {
         char* c = &argv[i][0];
         if (*c == '-') {
@@ -23,6 +25,9 @@ int main(int argc, char* argv[]) {
             switch (*c) {
                 case 'v':
                     gVerbose = StringToVerboseLevel(argv[i + 1]);
+                    break;
+                case 'm':
+                    loadMacros = StringToInteger(argv[i + 1]);
                     break;
             }
         }
@@ -36,14 +41,16 @@ int main(int argc, char* argv[]) {
 
     // load rest library and macros
     TRestTools::LoadRESTLibrary(silent);
-    auto a = TRestTools::Execute(
-        "find $REST_PATH/macros | grep REST_[^/]*.C | grep -v \"swo\" | grep -v "
-        "\"CMakeLists\" | grep -v \"swp\"  | grep -v \"svn\"");
-    auto b = Split(a, "\n");
-    for (auto c : b) {
-        if (debug) printf("Loading macro : %s\n", c.c_str());
+    if (loadMacros) {
+        auto a = TRestTools::Execute(
+            "find $REST_PATH/macros | grep REST_[^/]*.C | grep -v \"swo\" | grep -v "
+            "\"CMakeLists\" | grep -v \"swp\"  | grep -v \"svn\"");
+        auto b = Split(a, "\n");
+        for (auto c : b) {
+            if (debug) printf("Loading macro : %s\n", c.c_str());
 
-        gROOT->ProcessLine((".L " + c).c_str());
+            gROOT->ProcessLine((".L " + c).c_str());
+        }
     }
 
     // load input root file with TRestRun, initialize input event, analysis tree and metadata structures
