@@ -322,7 +322,7 @@ Double_t TRestRawSignalEvent::GetMaxTime() {
 ///
 /// The different options must separated by colons, as "option1:option2:option3".
 ///
-/// Examples:  DrawEvent("0-10:onlyGoodSignals[3.5,1.5,7]:baseLineRange[20,150]:printSignalsID")
+/// Examples:  DrawEvent("0-10:onlyGoodSignals[3.5,1.5,7]:baseLineRange[20,150]:printIDs")
 ///            DrawEvent("signalRangeID[800,900]:onlyGoodSignals[3.5,1.5,7]:baseLineRange[20,150]")
 ///
 TPad* TRestRawSignalEvent::DrawEvent(TString option) {
