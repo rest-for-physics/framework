@@ -300,30 +300,36 @@ Double_t TRestRawSignalEvent::GetMaxTime() {
 ///////////////////////////////////////////////
 /// \brief This method draws current raw signal event in a TPad.
 ///
-/// This method receives as argument a string that defines which signals are plotted.
+/// This method receives an optional argument as string that allows to control
+/// which signals will be plotted. Different options can be passed to the string by
+/// separated the options using colons, as "option1:option2:option3".
 ///
-/// Signal range: signal number("x") or signal range("x-y").
-///               Plot only signals in selected range.
-///               Maximum range from signal 0 to numberOfSignals-1
-///               Have to be the first parameter provided.
-///               By default all signals are ploted.
+/// The following options are allowed:
 ///
-/// Plot only signals identified as good signals:
-///              onlyGoodSignals[pointTh,signalTh,nOver]
-///              baseLineRange[baseLineRangeInit,baseLineRangeEnd]
+/// 1. **from-to**: It imposes that only the signal entries on the specified
+///    range will be plotted.
 ///
-/// Plot signals in IDs range:
-///              signalRangeID[sRangeInit,sRangeEnd]
+/// 2. **onlyGoodSignals[pointTh,signalTh,nOver]**: It imposes that only signals
+///    where points were identified over the threshold will be plotted. The parameters
+///    provided are the parameters given to the method TRestRawSignal::InitializePointsOverThreshold.
+///    \warning When using this option **baseLineRange** option must also be defined.
 ///
-/// Print by screen ID of plotted signals:
-///              printIDs
-///       
-/// If none is selected, all signals are plotted.
+/// 3. **baseLineRange[start,end]**: It defines the bin range (start,end) where the baseline
+///    will be calculated.
 ///
-/// The different options must separated by colons, as "option1:option2:option3".
+/// 4. **signalRangeID[startId,endId]**: It imposes that the signals ids drawn are inside the
+///    given range.
 ///
-/// Examples:  DrawEvent("0-10:onlyGoodSignals[3.5,1.5,7]:baseLineRange[20,150]:printIDs")
-///            DrawEvent("signalRangeID[800,900]:onlyGoodSignals[3.5,1.5,7]:baseLineRange[20,150]")
+/// 5. **printIDs**: Prints by screen the ID of plotted signals.
+///
+/// If no option is given, all signals will be plotted.
+///
+/// Examples:
+///
+/// \code
+/// DrawEvent("0-10:onlyGoodSignals[3.5,1.5,7]:baseLineRange[20,150]:printIDs")
+/// DrawEvent("signalRangeID[800,900]:onlyGoodSignals[3.5,1.5,7]:baseLineRange[20,150]")
+/// \endcode
 ///
 TPad* TRestRawSignalEvent::DrawEvent(TString option) {
     int nSignals = this->GetNumberOfSignals();
@@ -412,7 +418,7 @@ TPad* TRestRawSignalEvent::DrawEvent(TString option) {
 
             sRangeID = true;
         }
-        
+
         // Read print ID option
         size_t screenIDs = str.find("printIDs");
 
@@ -445,14 +451,18 @@ TPad* TRestRawSignalEvent::DrawEvent(TString option) {
                     TGraph* gr = fSignal[n].GetGraph(n + 1);
                     mg->Add(gr);
                     sigPrinted++;
-                    if (printIDs == true){cout << fSignal[n].GetID() << endl;}
+                    if (printIDs == true) {
+                        cout << "id : " << fSignal[n].GetID() << endl;
+                    }
                 }
                 if (fSignal[n].GetPointsOverThreshold().size() >= 2 && sRangeID == true) {
                     if (fSignal[n].GetID() >= sRangeInit && fSignal[n].GetID() <= sRangeEnd) {
                         TGraph* gr = fSignal[n].GetGraph(n + 1);
                         mg->Add(gr);
                         sigPrinted++;
-                        if (printIDs == true){cout << fSignal[n].GetID() << endl;}
+                        if (printIDs == true) {
+                            cout << fSignal[n].GetID() << endl;
+                        }
                     }
                 }
             }
@@ -464,19 +474,23 @@ TPad* TRestRawSignalEvent::DrawEvent(TString option) {
                     TGraph* gr = fSignal[n].GetGraph(n + 1);
                     mg->Add(gr);
                     sigPrinted++;
-                    if (printIDs == true){cout << fSignal[n].GetID() << endl;}
+                    if (printIDs == true) {
+                        cout << fSignal[n].GetID() << endl;
+                    }
                 }
                 if (sRangeID == true) {
                     if (fSignal[n].GetID() >= sRangeInit && fSignal[n].GetID() <= sRangeEnd) {
                         TGraph* gr = fSignal[n].GetGraph(n + 1);
                         mg->Add(gr);
                         sigPrinted++;
-                        if (printIDs == true){cout << fSignal[n].GetID() << endl;}
+                        if (printIDs == true) {
+                            cout << fSignal[n].GetID() << endl;
+                        }
                     }
                 }
             }
         }
-        cout << "Number of printed signals: " << sigPrinted << endl;
+        cout << "Number of drawn signals: " << sigPrinted << endl;
 
         fPad->cd();
         fPad->DrawFrame(0, GetMinValue() - 1, GetMaxTime() + 1, GetMaxValue() + 1);
@@ -509,7 +523,6 @@ TPad* TRestRawSignalEvent::DrawEvent(TString option) {
             mg = new TMultiGraph();
             sprintf(title, "Event ID %d", this->GetID());
 
-            // If threshold and baseline options are given
             if (ThresCheck == true && BLCheck == true) {
                 debug << "Draw only good signals with: " << endl;
                 debug << "  Signal threshold: " << signalTh << endl;
@@ -530,7 +543,9 @@ TPad* TRestRawSignalEvent::DrawEvent(TString option) {
                         if (fMinValue > fSignal[n].GetMinValue()) fMinValue = fSignal[n].GetMinValue();
                         if (fMaxValue < fSignal[n].GetMaxValue()) fMaxValue = fSignal[n].GetMaxValue();
                         sigPrinted++;
-                        if (printIDs == true){cout << fSignal[n].GetID() << endl;}
+                        if (printIDs == true) {
+                            cout << fSignal[n].GetID() << endl;
+                        }
                     }
                 }
                 cout << "Number of good signals in range (" << firstSignal << "," << lastSignal
@@ -542,7 +557,9 @@ TPad* TRestRawSignalEvent::DrawEvent(TString option) {
                      n < StringToInteger((string)lastSignal) + 1; n++) {
                     TGraph* gr = fSignal[n].GetGraph(n + 1);
                     mg->Add(gr);
-                    if (printIDs == true){cout << fSignal[n].GetID() << endl;}
+                    if (printIDs == true) {
+                        cout << fSignal[n].GetID() << endl;
+                    }
                     if (fMinValue > fSignal[n].GetMinValue()) fMinValue = fSignal[n].GetMinValue();
                     if (fMaxValue < fSignal[n].GetMaxValue()) fMaxValue = fSignal[n].GetMaxValue();
                 }
