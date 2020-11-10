@@ -18,7 +18,6 @@
 #include "TBranchElement.h"
 #include "TH1F.h"
 #include "TLeaf.h"
-#include "TLeaf.h"
 #include "TLeafB.h"
 #include "TLeafC.h"
 #include "TLeafD.h"
@@ -66,7 +65,7 @@ TRestAnalysisTree::TRestAnalysisTree(TTree* tree) : TTree() {
 }
 
 TRestAnalysisTree* TRestAnalysisTree::ConvertFromTTree(TTree* tree) {
-    if (tree->ClassName() == "TRestAnalysisTree") {
+    if (tree->ClassName() == (TString) "TRestAnalysisTree") {
         return (TRestAnalysisTree*)tree;
     }
 

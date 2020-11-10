@@ -886,6 +886,7 @@ TFile* TRestRun::UpdateOutputFile() {
     } else {
         ferr << "TRestRun::UpdateOutputFile(): output file is closed" << endl;
     }
+    return NULL;
 }
 
 ///////////////////////////////////////////////
