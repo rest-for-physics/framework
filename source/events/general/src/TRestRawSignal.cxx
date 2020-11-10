@@ -493,7 +493,7 @@ void TRestRawSignal::GetDifferentialSignal(TRestRawSignal* diffSgnl, Int_t smear
 ///
 void TRestRawSignal::GetWhiteNoiseSignal(TRestRawSignal* noiseSgnl, Double_t noiseLevel) {
     double* dd = new double();
-    uintptr_t seed = (uintptr_t)dd + (uintptr_t) this;
+    uintptr_t seed = (uintptr_t)dd + (uintptr_t)this;
     delete dd;
     TRandom3* fRandom = new TRandom3(seed);
 
@@ -593,7 +593,7 @@ void TRestRawSignal::SignalAddition(TRestRawSignal* inSgnl) {
 void TRestRawSignal::WriteSignalToTextFile(TString filename) {
     // We should check it is writable
     FILE* fff = fopen(filename.Data(), "w");
-    for (int i = 0; i < GetNumberOfPoints(); i++) fprintf(fff, "%d\t%d\n", i, GetData(i));
+    for (int i = 0; i < GetNumberOfPoints(); i++) fprintf(fff, "%d\t%lf\n", i, GetData(i));
     fclose(fff);
 }
 
