@@ -438,6 +438,12 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
             if (cutString.length() > 0) cutString += " && ";
             debug << "Adding local cut : " << cutVariable << cutCondition << endl;
 
+            cutCondition = RemoveWhiteSpaces(cutCondition);
+            if (cutCondition.find("==") == 0) {
+                string condValue = cutCondition.substr(2);
+                if (!isANumber(condValue)) cutCondition = "==\"" + condValue + "\"";
+            }
+
             cutString += cutVariable + cutCondition;
         }
         cutele = GetNextElement(cutele);
