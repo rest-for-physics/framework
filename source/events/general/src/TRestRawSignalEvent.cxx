@@ -309,6 +309,10 @@ Double_t TRestRawSignalEvent::GetMaxTime() {
 /// 1. **from-to**: It imposes that only the signal entries on the specified
 ///    range will be plotted.
 ///
+/// 4. **ids[startId,endId]** or **signalRangeID[startId,endId]**: It imposes that
+///    the signal ids drawn are inside the given range. Giving the range using `-`
+///    symbol (as in previous option) is also allowed. I.e. `ids[10-20]`.
+///
 /// 2. **onlyGoodSignals[pointTh,signalTh,nOver]**: It imposes that only signals
 ///    where points were identified over the threshold will be plotted. The parameters
 ///    provided are the parameters given to the method TRestRawSignal::InitializePointsOverThreshold.
@@ -317,18 +321,24 @@ Double_t TRestRawSignalEvent::GetMaxTime() {
 /// 3. **baseLineRange[start,end]**: It defines the bin range (start,end) where the baseline
 ///    will be calculated.
 ///
-/// 4. **signalRangeID[startId,endId]**: It imposes that the signals ids drawn are inside the
-///    given range.
-///
 /// 5. **printIDs**: Prints by screen the ID of plotted signals.
 ///
 /// If no option is given, all signals will be plotted.
 ///
-/// Examples:
 ///
+/// Example 1:
 /// \code
-/// DrawEvent("0-10:onlyGoodSignals[3.5,1.5,7]:baseLineRange[20,150]:printIDs")
-/// DrawEvent("signalRangeID[800,900]:onlyGoodSignals[3.5,1.5,7]:baseLineRange[20,150]")
+/// DrawEvent("0-10:onlyGoodSignals[3.5,1.5,7]:baseLineRange[20,150]:printIDs");
+/// \endcode
+///
+/// Example 2:
+/// \code
+/// DrawEvent("signalRangeID[800,900]:onlyGoodSignals[3.5,1.5,7]:baseLineRange[20,150]");
+/// \endcode
+///
+/// Example 3:
+/// \code
+/// DrawEvent("ids[800,900]:printIDs");
 /// \endcode
 ///
 TPad* TRestRawSignalEvent::DrawEvent(TString option) {
@@ -406,12 +416,19 @@ TPad* TRestRawSignalEvent::DrawEvent(TString option) {
 
         // Read signal range ID option
         size_t sRange = str.find("signalRangeID[");
+        size_t sRange2 = str.find("ids[");
 
-        if (sRange != string::npos) {
+        if (sRange != string::npos || sRange2 != string::npos) {
             size_t startPos3 = str.find("[");
             size_t endPos3 = str.find("]");
             TString tmpStr3 = optList[j](startPos3 + 1, endPos3 - startPos3 - 1);
-            vector<TString> optList_4 = Vector_cast<string, TString>(Split((string)tmpStr3, ","));
+            vector<TString> optList_4;
+            if (str.find(",") != string::npos)
+                optList_4 = Vector_cast<string, TString>(Split((string)tmpStr3, ","));
+            else if (str.find("-") != string::npos)
+                optList_4 = Vector_cast<string, TString>(Split((string)tmpStr3, "-"));
+            else
+                ferr << "TRestRawSignalEvent::DrawEvent not valid ids format!" << endl;
 
             sRangeInit = StringToInteger((string)optList_4[0]);
             sRangeEnd = StringToInteger((string)optList_4[1]);
