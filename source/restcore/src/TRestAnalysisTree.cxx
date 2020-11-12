@@ -367,7 +367,7 @@ void TRestAnalysisTree::PrintObservable(int n) {
 Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
     if (!fConnected) {
         if (!fBranchesCreated && GetListOfBranches()->GetEntriesFast() > 0 &&
-            fNObservables != fObservables.size()) {
+            (fNObservables == 0 || fNObservables != fObservables.size())) {
             // the object is just retrieved from root file, we connect the branches
             fBranchesCreated = true;
             ConnectBranches();
