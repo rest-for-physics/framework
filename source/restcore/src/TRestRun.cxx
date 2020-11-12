@@ -1177,12 +1177,10 @@ TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString ta
             if (fAnalysisTree->GetEventID() == eventID) {
                 if (subEventID != -1 && fAnalysisTree->GetSubEventID() != subEventID) continue;
                 if (tag != "" && fAnalysisTree->GetSubEventTag() != tag) continue;
-                if (fEventTree != NULL) {
-                    fEventTree->GetEntry(i);
-                    fAnalysisTree->SetBranchStatus("*", true);
-                    fAnalysisTree->GetEntry(i);
-                    return fInputEvent;
-                }
+                if (fEventTree != NULL) fEventTree->GetEntry(i);
+                fAnalysisTree->SetBranchStatus("*", true);
+                fAnalysisTree->GetEntry(i);
+                return fInputEvent;
             }
         }
 
