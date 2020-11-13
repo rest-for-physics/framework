@@ -33,10 +33,10 @@
 ///
 /// Max track energies and track energy ratio:
 ///
-/// * **maxTrackEnergy**: Energy of the most energetic track in the event with X, Y, Z coordinates.
-/// * **maxTrack_X_Energy**: Energy of the most energetic track in the event with X, Z coordinates.
-/// * **maxTrack_Y_Energy**: Energy of the most energetic track in the event with Y, Z coordinates.
-/// * **maxTrackEnergyRatio**: (totalEnergy - tckMaxEnergy) / totalEnergy
+/// * **MaxTrackEnergy**: Energy of the most energetic track in the event with X, Y, Z coordinates.
+/// * **MaxTrackEnergy_X**: Energy of the most energetic track in the event with X, Z coordinates.
+/// * **MaxTrackEnergy_Y**: Energy of the most energetic track in the event with Y, Z coordinates.
+/// * **MaxTrackEnergyRatio**: (totalEnergy - tckMaxEnergy) / totalEnergy
 /// with tckMaxEnergy = tckMaxEnX + tckMaxEnY + tckMaxEnXYZ.
 ///
 /// Maximum Second Track Energy observables:
@@ -832,17 +832,17 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     if (fInputTrackEvent->GetMaxEnergyTrack())
         tckMaxEnXYZ = fInputTrackEvent->GetMaxEnergyTrack()->GetEnergy();
 
-    SetObservableValue((string) "maxTrackEnergy", tckMaxEnXYZ);
+    SetObservableValue((string) "MaxTrackEnergy", tckMaxEnXYZ);
 
     if (fInputTrackEvent->GetMaxEnergyTrack("X"))
         tckMaxEnX = fInputTrackEvent->GetMaxEnergyTrack("X")->GetEnergy();
 
-    SetObservableValue((string) "maxTrack_X_Energy", tckMaxEnX);
+    SetObservableValue((string) "MaxTrackEnergy_X", tckMaxEnX);
 
     if (fInputTrackEvent->GetMaxEnergyTrack("Y"))
         tckMaxEnY = fInputTrackEvent->GetMaxEnergyTrack("Y")->GetEnergy();
 
-    SetObservableValue((string) "maxTrack_Y_Energy", tckMaxEnY);
+    SetObservableValue((string) "MaxTrackEnergy_Y", tckMaxEnY);
 
     Double_t tckMaxEnergy = tckMaxEnX + tckMaxEnY + tckMaxEnXYZ;
 
@@ -850,7 +850,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     Double_t trackEnergyRatio = (totalEnergy - tckMaxEnergy) / totalEnergy;
 
-    SetObservableValue((string) "maxTrackEnergyRatio", trackEnergyRatio);
+    SetObservableValue((string) "MaxTrackEnergyRatio", trackEnergyRatio);
     /* }}} */
 
     /* {{{ Maximum Second Track Energy observable */
