@@ -215,7 +215,7 @@
         <observable name="zMean" value="ON" />
         <observable name="nTracks_X" value="ON" description="Number of 2D-tracks (with valid XZ-hits)." />
         <observable name="nTracks_Y" value="ON" description="Number of 2D-tracks (with valid YZ-hits)." />
-        <observable name="maxTrackEnergyRatio" value="ON" description="Energy ratio between secondary tracks and main track." />
+        <observable name="MaxTrackEnergyRatio" value="ON" description="Energy ratio between secondary tracks and main track." />
         <observable name="MaxTrackLength_X" value="ON" description="" />
         <observable name="MaxTrackLength_Y" value="ON" description="" />
         <observable name="SecondTrackMaxEnergy_X" value="ON" description="The energy of the second most energetic track in X" />
