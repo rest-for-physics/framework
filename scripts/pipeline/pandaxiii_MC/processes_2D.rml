@@ -195,7 +195,7 @@
         <observable name="nTrackEnergyRatio" value="ON" description="Energy ratio between track event energy excluding the main track and total track event energy." />
         <observable name="nTracks_HE_100" value="ON" description="Number of tracks with energy higher than 100 keV." />
         <observable name="nTracks_LE_100" value="ON" description="Number of tracks with energy lower than 100 keV." />
-        <observable name="secondTrackMaxEnergy" value="ON" description="The energy of the second most energetic track" />
+        <observable name="SecondTrackMaxEnergy" value="ON" description="The energy of the second most energetic track" />
         <observable name="xMean" value="ON" />
         <observable name="yMean" value="ON" />
         <observable name="zMean" value="ON" />
@@ -218,8 +218,8 @@
         <observable name="maxTrackEnergyRatio" value="ON" description="Energy ratio between secondary tracks and main track." />
         <observable name="MaxTrackLength_X" value="ON" description="" />
         <observable name="MaxTrackLength_Y" value="ON" description="" />
-        <observable name="secondTrackMaxEnergy_X" value="ON" description="The energy of the second most energetic track in X" />
-        <observable name="secondTrackMaxEnergy_Y" value="ON" description="The energy of the second most energetic track in Y" />
+        <observable name="SecondTrackMaxEnergy_X" value="ON" description="The energy of the second most energetic track in X" />
+        <observable name="SecondTrackMaxEnergy_Y" value="ON" description="The energy of the second most energetic track in Y" />
         <observable name="MaxTrackVolume_X" value="ON" description="" />
         <observable name="MaxTrackVolume_Y" value="ON" description="" />
         <parameter name="enableTwistParameters" value="true" />
