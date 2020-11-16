@@ -43,6 +43,10 @@
 /// \htmlonly <style>div.image img[src="daqChActRaw.png"]{width:1000px;}</style> \endhtmlonly
 /// ![An ilustration of the daq raw signals channel activity](daqChActRaw.png)
 ///
+/// * **rChannelActivityRaw**: histogram based on the readout channels, i.e.,
+/// after converting the daq channel numbering into readout channel numbering
+/// based on the .dec file.
+///
 /// * **rChannelActivityRaw_N**: where *N* can be 1, 2, 3 or M (multi), is
 /// a histogram based on the readout channels, i.e., after converting the daq
 /// channel numbering into readout channel numbering based on the .dec
@@ -153,6 +157,9 @@ void TRestRawSignalChannelActivityProcess::InitProcess() {
         fDaqChannelsHisto = new TH1D("daqChannelActivityRaw", "daqChannelActivityRaw", fDaqHistogramChannels,
                                      fDaqStartChannel, fDaqEndChannel);
         if (fReadout) {
+            fReadoutChannelsHisto =
+                new TH1D("rChannelActivityRaw", "readoutChannelActivity", fReadoutHistogramChannels,
+                         fReadoutStartChannel, fReadoutEndChannel);
             fReadoutChannelsHisto_OneSignal =
                 new TH1D("rChannelActivityRaw_1", "readoutChannelActivity", fReadoutHistogramChannels,
                          fReadoutStartChannel, fReadoutEndChannel);
@@ -217,6 +224,8 @@ TRestEvent* TRestRawSignalChannelActivityProcess::ProcessEvent(TRestEvent* evInp
             Int_t p, m, readoutChannel;
             fReadout->GetPlaneModuleChannel(signalID, p, m, readoutChannel);
 
+            fReadoutChannelsHisto->Fill(readoutChannel);
+
             if (sgnl->GetMaxValue() > fLowThreshold) {
                 if (Nlow == 1) fReadoutChannelsHisto_OneSignal->Fill(readoutChannel);
                 if (Nlow == 2) fReadoutChannelsHisto_TwoSignals->Fill(readoutChannel);
@@ -252,6 +261,8 @@ void TRestRawSignalChannelActivityProcess::EndProcess() {
     if (!fReadOnly) {
         fDaqChannelsHisto->Write();
         if (fReadout) {
+			fReadoutChannelsHisto->Write();
+
             fReadoutChannelsHisto_OneSignal->Write();
             fReadoutChannelsHisto_TwoSignals->Write();
             fReadoutChannelsHisto_ThreeSignals->Write();
