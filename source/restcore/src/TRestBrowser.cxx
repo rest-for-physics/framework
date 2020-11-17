@@ -251,7 +251,13 @@ Bool_t TRestBrowser::LoadEvent(Int_t n) {
         return kFALSE;
     }
     if (r->GetAnalysisTree() != NULL && n < r->GetAnalysisTree()->GetEntries() && n >= 0) {
-        r->GetEntry(n);
+        r->GetEventWithID(n);
+        if (!r) {
+            warning << "Event ID : " << n << " not found!" << endl;
+            warning << "Getting entry 0" << endl;
+            r->GetEntry(0);
+        }
+
     } else {
         cout << "Event out of limits" << endl;
         return kFALSE;
