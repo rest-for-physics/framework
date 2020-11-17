@@ -33,19 +33,19 @@
 ///
 /// Max track energies and track energy ratio:
 ///
-/// * **maxTrackEnergy**: Energy of the most energetic track in the event with X, Y, Z coordinates.
-/// * **maxTrack_X_Energy**: Energy of the most energetic track in the event with X, Z coordinates.
-/// * **maxTrack_Y_Energy**: Energy of the most energetic track in the event with Y, Z coordinates.
-/// * **maxTrackEnergyRatio**: (totalEnergy - tckMaxEnergy) / totalEnergy
+/// * **MaxTrackEnergy**: Energy of the most energetic track in the event with X, Y, Z coordinates.
+/// * **MaxTrackEnergy_X**: Energy of the most energetic track in the event with X, Z coordinates.
+/// * **MaxTrackEnergy_Y**: Energy of the most energetic track in the event with Y, Z coordinates.
+/// * **MaxTrackEnergyRatio**: (totalEnergy - tckMaxEnergy) / totalEnergy
 /// with tckMaxEnergy = tckMaxEnX + tckMaxEnY + tckMaxEnXYZ.
 ///
 /// Maximum Second Track Energy observables:
 ///
-/// * **secondTrackMaxEnergy**: Energy of the second most energetic track in the event with X,Y,Z
+/// * **SecondTrackMaxEnergy**: Energy of the second most energetic track in the event with X,Y,Z
 /// coordinates.
-/// * **secondTrackMaxEnergy_X**: Energy of the second most energetic track in the event with X,Z
+/// * **SecondTrackMaxEnergy_X**: Energy of the second most energetic track in the event with X,Z
 /// coordinates.
-/// * **secondTrackMaxEnergy_Y**: Energy of the second most energetic track in the event with Y,Z
+/// * **SecondTrackMaxEnergy_Y**: Energy of the second most energetic track in the event with Y,Z
 /// coordinates.
 ///
 /// Track Length observables:
@@ -80,12 +80,40 @@
 /// * **MaxTrack_Zmean_Y**: Z coordinate in the mean position of the most energetic track with only Y
 /// and Z coord in the event.
 ///
+/// Mean position for second max energy tracks:
+///
+/// * **SecondMaxTrack_Xmean_XYZ**: X coordinate in the mean position of the second most energetic track
+/// with X,Y,Z in the event.
+/// * **SecondMaxTrack_Ymean_XYZ**: Y coordinate in the mean position of the second most energetic track
+/// with X,Y,Z in the event.
+/// * **SecondMaxTrack_Zmean_XYZ**: Z coordinate in the mean position of the second most energetic track
+/// with X,Y,Z in the event.
+/// * **SecondMaxTrack_Xmean_X**: X coordinate in the mean position of the second most energetic track
+/// with only X and Z coord in the event.
+/// * **SecondMaxTrack_Zmean_X**: Z coordinate in the mean position of the second most energetic track
+/// with only X and Z coord in the event.
+/// * **SecondMaxTrack_Ymean_Y**: Y coordinate in the mean position of the second most energetic track
+/// with only Y and Z coord in the event.
+/// * **SecondMaxTrack_Zmean_Y**: Z coordinate in the mean position of the second most energetic track
+/// with only Y and Z coord in the event.
+///
 /// Mean position: Very similar to the previous observables, main difference all tracks (XYZ, XZ, YZ)
 /// together.
 ///
 /// * **xMean**: X coordinate (if it has) in the mean position of the most energetic track in the event.
 /// * **yMean**: Y coordinate (if it has) in the mean position of the most energetic track in the event.
 /// * **zMean**: Z coordinate (if it has) in the mean position of the most energetic track in the event.
+///
+/// Main track distance measures the distance in X,Y,Z between the most energetic and second most
+/// energetic tracks.
+///
+/// * **MainTracksDistance_Xmean_XYZ**: Distance between tracks in X-coordinate for XYZ tracks.
+/// * **MainTracksDistance_Ymean_XYZ**: Distance between tracks in Y-coordinate for XYZ tracks.
+/// * **MainTracksDistance_Zmean_XYZ**: Distance between tracks in Z-coordinate for XYZ tracks.
+/// * **MainTracksDistance_Xmean_X**: Distance between tracks in X-coordinate for XZ tracks.
+/// * **MainTracksDistance_Zmean_X**: Distance between tracks in X-coordinate for XZ tracks.
+/// * **MainTracksDistance_Ymean_Y**: Distance between tracks in Y-coordinate for YZ tracks.
+/// * **MainTracksDistance_Zmean_Y**: Distance between tracks in Y-coordinate for YZ tracks.
 ///
 /// Time observables:
 ///
@@ -113,11 +141,9 @@
 #include "TRestTrackAnalysisProcess.h"
 using namespace std;
 
-ClassImp(TRestTrackAnalysisProcess)
-    //______________________________________________________________________________
-    TRestTrackAnalysisProcess::TRestTrackAnalysisProcess() {
-    Initialize();
-}
+ClassImp(TRestTrackAnalysisProcess);
+//______________________________________________________________________________
+TRestTrackAnalysisProcess::TRestTrackAnalysisProcess() { Initialize(); }
 
 //______________________________________________________________________________
 TRestTrackAnalysisProcess::TRestTrackAnalysisProcess(char* cfgFileName) {
@@ -806,17 +832,17 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     if (fInputTrackEvent->GetMaxEnergyTrack())
         tckMaxEnXYZ = fInputTrackEvent->GetMaxEnergyTrack()->GetEnergy();
 
-    SetObservableValue((string) "maxTrackEnergy", tckMaxEnXYZ);
+    SetObservableValue((string) "MaxTrackEnergy", tckMaxEnXYZ);
 
     if (fInputTrackEvent->GetMaxEnergyTrack("X"))
         tckMaxEnX = fInputTrackEvent->GetMaxEnergyTrack("X")->GetEnergy();
 
-    SetObservableValue((string) "maxTrack_X_Energy", tckMaxEnX);
+    SetObservableValue((string) "MaxTrackEnergy_X", tckMaxEnX);
 
     if (fInputTrackEvent->GetMaxEnergyTrack("Y"))
         tckMaxEnY = fInputTrackEvent->GetMaxEnergyTrack("Y")->GetEnergy();
 
-    SetObservableValue((string) "maxTrack_Y_Energy", tckMaxEnY);
+    SetObservableValue((string) "MaxTrackEnergy_Y", tckMaxEnY);
 
     Double_t tckMaxEnergy = tckMaxEnX + tckMaxEnY + tckMaxEnXYZ;
 
@@ -824,7 +850,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     Double_t trackEnergyRatio = (totalEnergy - tckMaxEnergy) / totalEnergy;
 
-    SetObservableValue((string) "maxTrackEnergyRatio", trackEnergyRatio);
+    SetObservableValue((string) "MaxTrackEnergyRatio", trackEnergyRatio);
     /* }}} */
 
     /* {{{ Maximum Second Track Energy observable */
@@ -840,11 +866,11 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     if (fInputTrackEvent->GetSecondMaxEnergyTrack("Y") != NULL)
         maxSecondTrackEnergy_Y = fInputTrackEvent->GetSecondMaxEnergyTrack("Y")->GetEnergy();
 
-    SetObservableValue((string) "secondTrackMaxEnergy", maxSecondTrackEnergy);
+    SetObservableValue((string) "SecondTrackMaxEnergy", maxSecondTrackEnergy);
 
-    SetObservableValue((string) "secondTrackMaxEnergy_X", maxSecondTrackEnergy_X);
+    SetObservableValue((string) "SecondTrackMaxEnergy_X", maxSecondTrackEnergy_X);
 
-    SetObservableValue((string) "secondTrackMaxEnergy_Y", maxSecondTrackEnergy_Y);
+    SetObservableValue((string) "SecondTrackMaxEnergy_Y", maxSecondTrackEnergy_Y);
     /* }}} */
 
     /* {{{ Track Length observables (MaxTrackLength_XX) */
@@ -876,8 +902,10 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     /////////////////// XYZ-track //////////////////////////
     Double_t maxX = 0, maxY = 0, maxZ = 0;
-    ;
+    Double_t sMaxX = 0, sMaxY = 0, sMaxZ = 0;
+    Double_t dX = 0, dY = 0, dZ = 0;
 
+    // Main max track
     TRestTrack* tMax = fInputTrackEvent->GetMaxEnergyTrack();
 
     if (tMax != NULL) {
@@ -887,10 +915,29 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     }
 
     SetObservableValue((string) "MaxTrack_Xmean_XYZ", maxX);
-
     SetObservableValue((string) "MaxTrack_Ymean_XYZ", maxY);
-
     SetObservableValue((string) "MaxTrack_Zmean_XYZ", maxZ);
+
+    // Second max track
+    TRestTrack* tSecondMax = fInputTrackEvent->GetSecondMaxEnergyTrack();
+
+    if (tSecondMax != NULL) {
+        sMaxX = tSecondMax->GetMeanPosition().X();
+        sMaxY = tSecondMax->GetMeanPosition().Y();
+        sMaxZ = tSecondMax->GetMeanPosition().Z();
+    }
+
+    SetObservableValue((string) "SecondMaxTrack_Xmean_XYZ", sMaxX);
+    SetObservableValue((string) "SecondMaxTrack_Ymean_XYZ", sMaxY);
+    SetObservableValue((string) "SecondMaxTrack_Zmean_XYZ", sMaxZ);
+
+    if (sMaxX != 0) dX = abs(maxX - sMaxX);
+    if (sMaxY != 0) dY = abs(maxY - sMaxY);
+    if (sMaxZ != 0) dZ = abs(maxZ - sMaxZ);
+
+    SetObservableValue((string) "MainTracksDistance_Xmean_XYZ", dX);
+    SetObservableValue((string) "MainTracksDistance_Ymean_XYZ", dY);
+    SetObservableValue((string) "MainTracksDistance_Zmean_XYZ", dZ);
 
     /////////////////// XZ-track //////////////////////////
 
@@ -902,8 +949,23 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     }
 
     SetObservableValue((string) "MaxTrack_Xmean_X", maxX);
-
     SetObservableValue((string) "MaxTrack_Zmean_X", maxZ);
+
+    sMaxX = 0, sMaxY = 0, sMaxZ = 0;
+    tSecondMax = fInputTrackEvent->GetSecondMaxEnergyTrack("X");
+    if (tSecondMax != NULL) {
+        sMaxX = tSecondMax->GetMeanPosition().X();
+        sMaxZ = tSecondMax->GetMeanPosition().Z();
+    }
+
+    SetObservableValue((string) "SecondMaxTrack_Xmean_X", sMaxX);
+    SetObservableValue((string) "SecondMaxTrack_Zmean_X", sMaxZ);
+
+    if (sMaxX != 0) dX = abs(maxX - sMaxX);
+    if (sMaxZ != 0) dZ = abs(maxZ - sMaxZ);
+
+    SetObservableValue((string) "MainTracksDistance_Xmean_X", dX);
+    SetObservableValue((string) "MainTracksDistance_Zmean_X", dZ);
 
     /////////////////// YZ-track //////////////////////////
 
@@ -915,8 +977,23 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     }
 
     SetObservableValue((string) "MaxTrack_Ymean_Y", maxY);
-
     SetObservableValue((string) "MaxTrack_Zmean_Y", maxZ);
+
+    sMaxX = 0, sMaxY = 0, sMaxZ = 0;
+    tSecondMax = fInputTrackEvent->GetSecondMaxEnergyTrack("Y");
+    if (tSecondMax != NULL) {
+        sMaxY = tSecondMax->GetMeanPosition().Y();
+        sMaxZ = tSecondMax->GetMeanPosition().Z();
+    }
+
+    SetObservableValue((string) "SecondMaxTrack_Ymean_Y", sMaxY);
+    SetObservableValue((string) "SecondMaxTrack_Zmean_Y", sMaxZ);
+
+    if (sMaxY != 0) dY = abs(maxY - sMaxY);
+    if (sMaxZ != 0) dZ = abs(maxZ - sMaxZ);
+
+    SetObservableValue((string) "MainTracksDistance_Ymean_Y", dY);
+    SetObservableValue((string) "MainTracksDistance_Zmean_Y", dZ);
 
     /////////////////// xMean, yMean and zMean //////////////////////////
     Double_t x = 0, y = 0, z = 0;
@@ -965,14 +1042,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         if (nTracksY < fNTracksYCut.X() || nTracksY > fNTracksYCut.Y()) return NULL;
     }
 
-    //   if( GetVerboseLevel() >= REST_Info )
-    //   {
-    //       cout << "TRestTrackAnalysisProcess : " << GetName() << endl;
-    //       cout << "----------------------------------------------" << endl;
-    //       fAnalysisTree->PrintObservables();
-    // GetChar();
     if (GetVerboseLevel() >= REST_Extreme) GetChar();
-    //}
 
     return fOutputTrackEvent;
 }

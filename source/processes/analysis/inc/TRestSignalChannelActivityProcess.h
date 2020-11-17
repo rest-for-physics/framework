@@ -73,6 +73,9 @@ class TRestSignalChannelActivityProcess : public TRestEventProcess {
     /// The daq channels histogram
     TH1D* fDaqChannelsHisto;  //!
 
+    /// The readout channels histogram
+    TH1D* fReadoutChannelsHisto;  //!
+
     /// The readout channels histogram built with 1-signal events (low threshold)
     TH1D* fReadoutChannelsHisto_OneSignal;  //!
 
