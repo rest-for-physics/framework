@@ -250,7 +250,7 @@ Bool_t TRestBrowser::LoadEvent(Int_t n) {
         cout << "This is a pure analysis file..." << endl;
         return kFALSE;
     }
-    if (r->GetAnalysisTree() != NULL && n < r->GetAnalysisTree()->GetEntries() && n >= 0) {
+    if (r->GetAnalysisTree() != NULL && r->GetAnalysisTree()->GetEntries() > 0) {
         r->GetEventWithID(n);
         if (!r) {
             warning << "Event ID : " << n << " not found!" << endl;
