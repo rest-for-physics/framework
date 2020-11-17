@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
     // set the env and debug status
     setenv("REST_VERSION", REST_RELEASE, 1);
 
-    Int_t loadMacros = 1;
+    Int_t loadMacros = 0;
     for (int i = 1; i < argc; i++) {
         char* c = &argv[i][0];
         if (*c == '-') {
@@ -29,6 +29,28 @@ int main(int argc, char* argv[]) {
                 case 'm':
                     loadMacros = StringToInteger(argv[i + 1]);
                     break;
+                case 'h':
+                    // We use cout here since we will just exit afterwards
+                    printf("\n");
+                    printf("-----------------------------------\n");
+                    printf("restRoot basic options description.\n");
+                    printf("-----------------------------------\n");
+                    printf("\n");
+                    printf(" In order to define the verbosity of restRoot you may use:\n");
+                    printf("\n");
+                    printf(" restRoot --v [VERBOSE_LEVEL]\n");
+                    printf("\n");
+                    printf(" Where VERBOSE_LEVEL=0,1,2,3 is equivalent to silent, warning, info, debug\n");
+                    printf("\n");
+                    printf("-----\n");
+                    printf("\n");
+                    printf(" In order to decide if REST macros should be loadedd you may use:\n");
+                    printf("\n");
+                    printf(" restRoot --m [0,1]\n");
+                    printf("\n");
+                    printf(" Option 0 will disable macro loading. Option 1 is the default.\n");
+                    printf("\n");
+                    exit(0);
             }
         }
     }
