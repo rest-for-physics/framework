@@ -53,7 +53,7 @@ TRestBrowser::~TRestBrowser() {
 
 void TRestBrowser::Initialize(TString opt) {
     pureAnalysis = kFALSE;
-    fCurrentEvent = 0;
+    fCurrentEntry = 0;
 
     r = new TRestRun();
 
@@ -111,8 +111,8 @@ void TRestBrowser::setButtons() {
     fLabel = new TGLabel(fVFrame, "EventId:");
     fVFrame->AddFrame(fLabel, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
-    fNEvent = new TGNumberEntry(fVFrame, fCurrentEvent);
-    fNEvent->SetIntNumber(fCurrentEvent);
+    fNEvent = new TGNumberEntry(fVFrame, fCurrentId);
+    fNEvent->SetIntNumber(fCurrentId);
     fVFrame->AddFrame(fNEvent, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
     auto controlbar = new TGHorizontalFrame(fVFrame);
@@ -121,9 +121,8 @@ void TRestBrowser::setButtons() {
         fButPrev->Connect("Clicked()", "TRestBrowser", this, "LoadPrevEventAction()");
         controlbar->AddFrame(fButPrev, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
-        fLoadEvent =
-            new TGPictureButton(controlbar,
-                                gClient->GetPicture(icondir + "refresh.png"));  ///< Load Event button
+        fLoadEvent = new TGPictureButton(
+            controlbar, gClient->GetPicture(icondir + "refresh.png"));  ///< Load Event button
         fLoadEvent->Connect("Clicked()", "TRestBrowser", this, "LoadEventAction()");
         controlbar->AddFrame(fLoadEvent, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
@@ -169,29 +168,23 @@ void TRestBrowser::LoadEventAction() {
 
     cout << "Loading event " << eventN << endl;
 
-    if (LoadEvent(eventN)) fCurrentEvent = eventN;
+    LoadEventId(eventN);
 }
 
 void TRestBrowser::LoadNextEventAction() {
-    Int_t nextEvent = fCurrentEvent + 1;
+    Int_t nextEvent = fCurrentEntry + 1;
 
     cout << " Next event " << nextEvent << endl;
 
-    if (LoadEvent(nextEvent)) {
-        fCurrentEvent = nextEvent;
-        fNEvent->SetIntNumber(fCurrentEvent);
-    }
+    LoadEventEntry(nextEvent);
 }
 
 void TRestBrowser::LoadPrevEventAction() {
-    Int_t prevEvent = fCurrentEvent - 1;
+    Int_t prevEvent = fCurrentEntry - 1;
 
     cout << " Previous event " << prevEvent << endl;
 
-    if (LoadEvent(prevEvent)) {
-        fCurrentEvent = prevEvent;
-        fNEvent->SetIntNumber(fCurrentEvent);
-    }
+    LoadEventEntry(prevEvent);
 }
 
 void TRestBrowser::LoadFileAction() {
@@ -204,7 +197,7 @@ void TRestBrowser::LoadFileAction() {
 
     if (TRestTools::fileExists(dir.Data())) {
         OpenFile(dir);
-        fNEvent->SetIntNumber(fCurrentEvent);
+        fNEvent->SetIntNumber(fCurrentId);
     }
 }
 
@@ -218,7 +211,7 @@ Bool_t TRestBrowser::OpenFile(TString fName) {
     r->OpenInputFile(fName);
     TFile* f = r->GetInputFile();
     TTree* t = r->GetEventTree();
-    fCurrentEvent = r->GetCurrentEntry();
+    fCurrentEntry = r->GetCurrentEntry();
 
     TGeoManager* geometry = gGeoManager;
 
@@ -241,25 +234,60 @@ void TRestBrowser::SetInputEvent(TRestEvent* eve) {
     }
 }
 
-Bool_t TRestBrowser::LoadEvent(Int_t n) {
+Bool_t TRestBrowser::LoadEventEntry(Int_t n) {
     if (r->GetInputFile() == NULL || r->GetInputFile()->IsZombie()) {
-        cout << "No File..." << endl;
+        warning << "TRestBrowser::LoadEventEntry. No File..." << endl;
         return kFALSE;
     }
     if (pureAnalysis) {
-        cout << "This is a pure analysis file..." << endl;
+        warning << "TRestBrowser::LoadEventEntry. This is a pure analysis file..." << endl;
+        return kFALSE;
+    }
+    if (r->GetAnalysisTree() != NULL && n < r->GetAnalysisTree()->GetEntries() && n >= 0) {
+        r->GetEntry(n);
+
+        fCurrentEntry = r->GetCurrentEntry();
+        fCurrentId = r->GetAnalysisTree()->GetEventID();
+
+        fNEvent->SetIntNumber(fCurrentId);
+    } else {
+        warning << "TRestBrowser::LoadEventEntry. Event out of limits" << endl;
+        return kFALSE;
+    }
+
+    if (fEventViewer != NULL) {
+        fEventViewer->AddEvent(r->GetInputEvent());
+    }
+
+    r->GetAnalysisTree()->PrintObservables();
+
+    fCanDefault->cd();
+    return kTRUE;
+}
+
+Bool_t TRestBrowser::LoadEventId(Int_t id) {
+    if (r->GetInputFile() == NULL || r->GetInputFile()->IsZombie()) {
+        warning << "TRestBrowser::LoadEventEntry. No File..." << endl;
+        return kFALSE;
+    }
+    if (pureAnalysis) {
+        cout << "" << endl;
+        warning << "TRestBrowser::LoadEventEntry. This is a pure analysis file..." << endl;
         return kFALSE;
     }
     if (r->GetAnalysisTree() != NULL && r->GetAnalysisTree()->GetEntries() > 0) {
-        r->GetEventWithID(n);
-        if (!r) {
-            warning << "Event ID : " << n << " not found!" << endl;
+        TRestEvent* ev = r->GetEventWithID(id);
+        if (!ev) {
+            warning << "Event ID : " << id << " not found!" << endl;
             warning << "Getting entry 0" << endl;
             r->GetEntry(0);
         }
 
+        fCurrentEntry = r->GetCurrentEntry();
+        fCurrentId = r->GetAnalysisTree()->GetEventID();
+
     } else {
-        cout << "Event out of limits" << endl;
+        warning << "TRestBrowser::LoadEventEntry. Event out of limits" << endl;
         return kFALSE;
     }
 
