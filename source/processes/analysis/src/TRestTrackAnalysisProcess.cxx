@@ -114,6 +114,10 @@
 /// * **TracksDistance_Zmean_X**: Distance between tracks in X-coordinate for XZ tracks.
 /// * **TracksDistance_Ymean_Y**: Distance between tracks in Y-coordinate for YZ tracks.
 /// * **TracksDistance_Zmean_Y**: Distance between tracks in Y-coordinate for YZ tracks.
+/// * **TracksDistance_YZ**: Distance between tracks in the YZ projection.
+/// * **TracksDistance_XZ**: Distance between tracks in the YZ projection.
+/// * **TracksDistance_XYZ**: Euclidean distance between the main XYZ-tracks.
+/// * **TracksDistance_XZ_YZ**: Euclidean distance between main tracks. XZ+YZ projections added.
 ///
 /// Time observables:
 ///
@@ -907,6 +911,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     Double_t maxX = 0, maxY = 0, maxZ = 0;
     Double_t sMaxX = 0, sMaxY = 0, sMaxZ = 0;
     Double_t dX = 0, dY = 0, dZ = 0;
+    Double_t dXZ = 0, dYZ = 0, dXYZ = 0;
 
     // Main max track
     TRestTrack* tMax = fInputTrackEvent->GetMaxEnergyTrack();
@@ -942,6 +947,9 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     SetObservableValue((string) "TracksDistance_Y_XYZ", dY);
     SetObservableValue((string) "TracksDistance_Z_XYZ", dZ);
 
+    if (dX != 0 || dY != 0 || dZ != 0) dXYZ = TMath::Sqrt(dX * dX + dY * dY + dZ * dZ);
+    SetObservableValue((string) "TracksDistance_XYZ", dXYZ);
+
     /////////////////// XZ-track //////////////////////////
 
     maxX = 0, maxY = 0, maxZ = 0;
@@ -970,6 +978,9 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     SetObservableValue((string) "TracksDistance_X_X", dX);
     SetObservableValue((string) "TracksDistance_Z_X", dZ);
+
+    if (dX != 0 || dY != 0 || dZ != 0) dXZ = TMath::Sqrt(dX * dX + dZ * dZ);
+    SetObservableValue((string) "TracksDistance_XZ", dXZ);
 
     /////////////////// YZ-track //////////////////////////
 
@@ -1000,6 +1011,12 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     SetObservableValue((string) "TracksDistance_Y_Y", dY);
     SetObservableValue((string) "TracksDistance_Z_Y", dZ);
+
+    if (dX != 0 || dY != 0 || dZ != 0) dYZ = TMath::Sqrt(dY * dY + dZ * dZ);
+    SetObservableValue((string) "TracksDistance_YZ", dYZ);
+
+    Double_t dXZ_YZ = TMath::Sqrt(dYZ * dYZ + dXZ * dXZ);
+    SetObservableValue((string) "TracksDistance_XZ_YZ", dXZ_YZ);
 
     /////////////////// xMean, yMean and zMean //////////////////////////
     Double_t x = 0, y = 0, z = 0;
