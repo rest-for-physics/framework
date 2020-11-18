@@ -107,13 +107,13 @@
 /// Main track distance measures the distance in X,Y,Z between the most energetic and second most
 /// energetic tracks.
 ///
-/// * **MainTracksDistance_Xmean_XYZ**: Distance between tracks in X-coordinate for XYZ tracks.
-/// * **MainTracksDistance_Ymean_XYZ**: Distance between tracks in Y-coordinate for XYZ tracks.
-/// * **MainTracksDistance_Zmean_XYZ**: Distance between tracks in Z-coordinate for XYZ tracks.
-/// * **MainTracksDistance_Xmean_X**: Distance between tracks in X-coordinate for XZ tracks.
-/// * **MainTracksDistance_Zmean_X**: Distance between tracks in X-coordinate for XZ tracks.
-/// * **MainTracksDistance_Ymean_Y**: Distance between tracks in Y-coordinate for YZ tracks.
-/// * **MainTracksDistance_Zmean_Y**: Distance between tracks in Y-coordinate for YZ tracks.
+/// * **TracksDistance_Xmean_XYZ**: Distance between tracks in X-coordinate for XYZ tracks.
+/// * **TracksDistance_Ymean_XYZ**: Distance between tracks in Y-coordinate for XYZ tracks.
+/// * **TracksDistance_Zmean_XYZ**: Distance between tracks in Z-coordinate for XYZ tracks.
+/// * **TracksDistance_Xmean_X**: Distance between tracks in X-coordinate for XZ tracks.
+/// * **TracksDistance_Zmean_X**: Distance between tracks in X-coordinate for XZ tracks.
+/// * **TracksDistance_Ymean_Y**: Distance between tracks in Y-coordinate for YZ tracks.
+/// * **TracksDistance_Zmean_Y**: Distance between tracks in Y-coordinate for YZ tracks.
 ///
 /// Time observables:
 ///
@@ -393,10 +393,8 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     // Copying the input tracks to the output track
     for (int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++)
         fOutputTrackEvent->AddTrack(fInputTrackEvent->GetTrack(tck));
-    // cout<<"ntracks "<<fInputTrackEvent->GetNumberOfTracks("")<<endl;
-    if (this->GetVerboseLevel() >= REST_Debug) fInputTrackEvent->PrintOnlyTracks();
 
-    TString obsName;
+    if (this->GetVerboseLevel() >= REST_Debug) fInputTrackEvent->PrintOnlyTracks();
 
     /* {{{ Number of tracks observables */
     Int_t nTracksX = 0, nTracksY = 0, nTracksXYZ = 0;
@@ -406,13 +404,8 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     SetObservableValue((string) "trackEnergy", fInputTrackEvent->GetEnergy(""));
 
-    // obsName = this->GetName() + (TString) ".nTracks_X";
     SetObservableValue((string) "nTracks_X", nTracksX);
-
-    // obsName = this->GetName() + (TString) ".nTracks_Y";
     SetObservableValue((string) "nTracks_Y", nTracksY);
-
-    // obsName = this->GetName() + (TString) ".nTracks_XYZ";
     SetObservableValue((string) "nTracks_XYZ", nTracksXYZ);
     /* }}} */
 
@@ -829,18 +822,28 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     /* {{{ Getting max track energies and track energy ratio */
     Double_t tckMaxEnXYZ = 0, tckMaxEnX = 0, tckMaxEnY = 0;
 
-    if (fInputTrackEvent->GetMaxEnergyTrack())
+    if (fInputTrackEvent->GetMaxEnergyTrack()) {
         tckMaxEnXYZ = fInputTrackEvent->GetMaxEnergyTrack()->GetEnergy();
+        debug << "id: " << fInputTrackEvent->GetID() << " " << fInputTrackEvent->GetSubEventTag()
+              << " tckMaxEnXYZ: " << tckMaxEnXYZ << endl;
+    }
 
     SetObservableValue((string) "MaxTrackEnergy", tckMaxEnXYZ);
 
-    if (fInputTrackEvent->GetMaxEnergyTrack("X"))
+    if (fInputTrackEvent->GetMaxEnergyTrack("X")) {
         tckMaxEnX = fInputTrackEvent->GetMaxEnergyTrack("X")->GetEnergy();
+        debug << "id: " << fInputTrackEvent->GetID() << " " << fInputTrackEvent->GetSubEventTag()
+              << " tckMaxEnX: " << tckMaxEnX << endl;
+    }
 
     SetObservableValue((string) "MaxTrackEnergy_X", tckMaxEnX);
 
-    if (fInputTrackEvent->GetMaxEnergyTrack("Y"))
+    if (fInputTrackEvent->GetMaxEnergyTrack("Y")) {
         tckMaxEnY = fInputTrackEvent->GetMaxEnergyTrack("Y")->GetEnergy();
+        debug << "id: " << fInputTrackEvent->GetID() << " " << fInputTrackEvent->GetSubEventTag()
+              << " tckMaxEnY: " << tckMaxEnY << endl;
+    }
+    // if (fInputTrackEvent->GetID() >= 43) GetChar();
 
     SetObservableValue((string) "MaxTrackEnergy_Y", tckMaxEnY);
 
@@ -935,13 +938,14 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     if (sMaxY != 0) dY = abs(maxY - sMaxY);
     if (sMaxZ != 0) dZ = abs(maxZ - sMaxZ);
 
-    SetObservableValue((string) "MainTracksDistance_Xmean_XYZ", dX);
-    SetObservableValue((string) "MainTracksDistance_Ymean_XYZ", dY);
-    SetObservableValue((string) "MainTracksDistance_Zmean_XYZ", dZ);
+    SetObservableValue((string) "TracksDistance_X_XYZ", dX);
+    SetObservableValue((string) "TracksDistance_Y_XYZ", dY);
+    SetObservableValue((string) "TracksDistance_Z_XYZ", dZ);
 
     /////////////////// XZ-track //////////////////////////
 
     maxX = 0, maxY = 0, maxZ = 0;
+    dX = 0, dY = 0, dZ = 0;
     tMax = fInputTrackEvent->GetMaxEnergyTrack("X");
     if (tMax != NULL) {
         maxX = tMax->GetMeanPosition().X();
@@ -964,12 +968,14 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     if (sMaxX != 0) dX = abs(maxX - sMaxX);
     if (sMaxZ != 0) dZ = abs(maxZ - sMaxZ);
 
-    SetObservableValue((string) "MainTracksDistance_Xmean_X", dX);
-    SetObservableValue((string) "MainTracksDistance_Zmean_X", dZ);
+    SetObservableValue((string) "TracksDistance_X_X", dX);
+    SetObservableValue((string) "TracksDistance_Z_X", dZ);
 
     /////////////////// YZ-track //////////////////////////
 
     maxX = 0, maxY = 0, maxZ = 0;
+    dX = 0, dY = 0, dZ = 0;
+
     tMax = fInputTrackEvent->GetMaxEnergyTrack("Y");
     if (tMax != NULL) {
         maxY = tMax->GetMeanPosition().Y();
@@ -992,8 +998,8 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     if (sMaxY != 0) dY = abs(maxY - sMaxY);
     if (sMaxZ != 0) dZ = abs(maxZ - sMaxZ);
 
-    SetObservableValue((string) "MainTracksDistance_Ymean_Y", dY);
-    SetObservableValue((string) "MainTracksDistance_Zmean_Y", dZ);
+    SetObservableValue((string) "TracksDistance_Y_Y", dY);
+    SetObservableValue((string) "TracksDistance_Z_Y", dZ);
 
     /////////////////// xMean, yMean and zMean //////////////////////////
     Double_t x = 0, y = 0, z = 0;
