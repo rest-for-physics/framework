@@ -47,8 +47,8 @@ class TRestBrowser {
 #ifndef __CINT__
     Bool_t pureAnalysis;
     TString fInputFileName;
-    Int_t fCurrentEntry;
-    Int_t fCurrentId;
+    Int_t fCurrentEntry = 0;
+    Int_t fCurrentId = 0;
 
     TRestEventViewer* fEventViewer = 0;  //!
 #endif
