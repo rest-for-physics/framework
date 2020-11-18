@@ -1180,6 +1180,7 @@ TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString ta
                 if (fEventTree != NULL) fEventTree->GetEntry(i);
                 fAnalysisTree->SetBranchStatus("*", true);
                 fAnalysisTree->GetEntry(i);
+                fCurrentEvent = i;
                 return fInputEvent;
             }
         }
@@ -1314,6 +1315,7 @@ TRestEvent* TRestRun::GetNextEventWithConditions(const string cuts) {
     } else {
         fAnalysisTree->GetEntry(indices[0]);
         fEventTree->GetEntry(indices[0]);
+        fCurrentEvent = indices[0];
         return fInputEvent;
     }
 }
