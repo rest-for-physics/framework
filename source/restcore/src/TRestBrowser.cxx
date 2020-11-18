@@ -54,6 +54,7 @@ TRestBrowser::~TRestBrowser() {
 void TRestBrowser::Initialize(TString opt) {
     pureAnalysis = kFALSE;
     fCurrentEntry = 0;
+    fCurrentId = 0;
 
     r = new TRestRun();
 
@@ -166,7 +167,7 @@ TGVerticalFrame* TRestBrowser::generateNewFrame() {
 void TRestBrowser::LoadEventAction() {
     Int_t eventN = (Int_t)fNEvent->GetNumber();
 
-    cout << "Loading event " << eventN << endl;
+    debug << "TRestBrowser::LoadEventAction. Id:" << eventN << endl;
 
     LoadEventId(eventN);
 }
@@ -174,7 +175,7 @@ void TRestBrowser::LoadEventAction() {
 void TRestBrowser::LoadNextEventAction() {
     Int_t nextEvent = fCurrentEntry + 1;
 
-    cout << " Next event " << nextEvent << endl;
+    debug << "TRestBrowser::LoadNextEventAction. Next entry:" << nextEvent << endl;
 
     LoadEventEntry(nextEvent);
 }
@@ -182,7 +183,7 @@ void TRestBrowser::LoadNextEventAction() {
 void TRestBrowser::LoadPrevEventAction() {
     Int_t prevEvent = fCurrentEntry - 1;
 
-    cout << " Previous event " << prevEvent << endl;
+    debug << "TRestBrowser::LoadNextEventAction. Previous entry:" << prevEvent << endl;
 
     LoadEventEntry(prevEvent);
 }
@@ -248,6 +249,8 @@ Bool_t TRestBrowser::LoadEventEntry(Int_t n) {
 
         fCurrentEntry = r->GetCurrentEntry();
         fCurrentId = r->GetAnalysisTree()->GetEventID();
+        debug << "TRestBrowser:LoadEventEntry. Setting current id : " << fCurrentId << endl;
+        debug << "TRestBrowser:LoadEventEntry. Setting current entry : " << fCurrentEntry << endl;
 
         fNEvent->SetIntNumber(fCurrentId);
     } else {
@@ -285,6 +288,8 @@ Bool_t TRestBrowser::LoadEventId(Int_t id) {
 
         fCurrentEntry = r->GetCurrentEntry();
         fCurrentId = r->GetAnalysisTree()->GetEventID();
+        debug << "TRestBrowser:LoadEventId. Setting current id : " << fCurrentId << endl;
+        debug << "TRestBrowser:LoadEventId. Setting current entry : " << fCurrentEntry << endl;
 
     } else {
         warning << "TRestBrowser::LoadEventEntry. Event out of limits" << endl;
