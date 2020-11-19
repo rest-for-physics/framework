@@ -125,14 +125,10 @@
 /// * **MaxTrackSigmaX**: The cluster size in X of the main most energetic track.
 /// * **MaxTrackSigmaY**: The cluster size in Y of the main most energetic track.
 /// * **MaxTrack_XZ_SigmaX**: The cluster size in X of the main most energetic track in XZ projection.
-/// * **MaxTrack_XZ_SigmaY**: The cluster size in Y of the main most energetic track in XZ projection.
-/// * **MaxTrack_YZ_SigmaX**: The cluster size in X of the main most energetic track in YZ projection.
 /// * **MaxTrack_YZ_SigmaY**: The cluster size in Y of the main most energetic track in YZ projection.
 /// * **SecondTrackMaxSigmaX**: The cluster size in X of the second most energetic track.
 /// * **SecondTrackMaxSigmaY**: The cluster size in Y of the second most energetic track.
 /// * **SecondTrackMax_XZ_SigmaX**: The cluster size in X of the second most energetic track in XZ projection.
-/// * **SecondTrackMax_XZ_SigmaY**: The cluster size in Y of the second most energetic track in XZ projection.
-/// * **SecondTrackMax_YZ_SigmaX**: The cluster size in X of the second most energetic track in YZ projection.
 /// * **SecondTrackMax_YZ_SigmaY**: The cluster size in Y of the second most energetic track in YZ projection.
 ///
 /// Time observables:
@@ -842,8 +838,8 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     /* {{{ Getting max track energies and track energy ratio */
     Double_t tckMaxEnXYZ = 0, tckMaxEnX = 0, tckMaxEnY = 0;
     Double_t tckMaxXYZ_SigmaX = 0, tckMaxXYZ_SigmaY = 0;
-    Double_t tckMaxXZ_SigmaX = 0, tckMaxXZ_SigmaY = 0;
-    Double_t tckMaxYZ_SigmaX = 0, tckMaxYZ_SigmaY = 0;
+    Double_t tckMaxXZ_SigmaX = 0;
+    Double_t tckMaxYZ_SigmaY = 0;
 
     if (fInputTrackEvent->GetMaxEnergyTrack()) {
         tckMaxEnXYZ = fInputTrackEvent->GetMaxEnergyTrack()->GetEnergy();
@@ -860,25 +856,21 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     if (fInputTrackEvent->GetMaxEnergyTrack("X")) {
         tckMaxEnX = fInputTrackEvent->GetMaxEnergyTrack("X")->GetEnergy();
         tckMaxXZ_SigmaX = fInputTrackEvent->GetMaxEnergyTrack("X")->GetHits()->GetSigmaX();
-        tckMaxXZ_SigmaY = fInputTrackEvent->GetMaxEnergyTrack("X")->GetHits()->GetSigmaY();
         debug << "id: " << fInputTrackEvent->GetID() << " " << fInputTrackEvent->GetSubEventTag()
               << " tckMaxEnX: " << tckMaxEnX << endl;
     }
 
     SetObservableValue((string) "MaxTrackEnergy_X", tckMaxEnX);
     SetObservableValue((string) "MaxTrack_XZ_SigmaX", tckMaxXZ_SigmaX);
-    SetObservableValue((string) "MaxTrack_XZ_SigmaY", tckMaxXZ_SigmaY);
 
     if (fInputTrackEvent->GetMaxEnergyTrack("Y")) {
         tckMaxEnY = fInputTrackEvent->GetMaxEnergyTrack("Y")->GetEnergy();
-        tckMaxYZ_SigmaX = fInputTrackEvent->GetMaxEnergyTrack("Y")->GetHits()->GetSigmaX();
         tckMaxYZ_SigmaY = fInputTrackEvent->GetMaxEnergyTrack("Y")->GetHits()->GetSigmaY();
         debug << "id: " << fInputTrackEvent->GetID() << " " << fInputTrackEvent->GetSubEventTag()
               << " tckMaxEnY: " << tckMaxEnY << endl;
     }
 
     SetObservableValue((string) "MaxTrackEnergy_Y", tckMaxEnY);
-    SetObservableValue((string) "MaxTrack_YZ_SigmaX", tckMaxYZ_SigmaX);
     SetObservableValue((string) "MaxTrack_YZ_SigmaY", tckMaxYZ_SigmaY);
 
     Double_t tckMaxEnergy = tckMaxEnX + tckMaxEnY + tckMaxEnXYZ;
@@ -900,17 +892,15 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     }
 
     Double_t maxSecondTrackEnergy_X = 0;
-    Double_t tckSecondMaxXZ_SigmaX = 0, tckSecondMaxXZ_SigmaY = 0;
+    Double_t tckSecondMaxXZ_SigmaX = 0;
     if (fInputTrackEvent->GetSecondMaxEnergyTrack("X") != NULL) {
         tckSecondMaxXZ_SigmaX = fInputTrackEvent->GetSecondMaxEnergyTrack("X")->GetHits()->GetSigmaX();
-        tckSecondMaxXZ_SigmaY = fInputTrackEvent->GetSecondMaxEnergyTrack("X")->GetHits()->GetSigmaY();
         maxSecondTrackEnergy_X = fInputTrackEvent->GetSecondMaxEnergyTrack("X")->GetEnergy();
     }
 
     Double_t maxSecondTrackEnergy_Y = 0;
-    Double_t tckSecondMaxYZ_SigmaX = 0, tckSecondMaxYZ_SigmaY = 0;
+    Double_t tckSecondMaxYZ_SigmaY = 0;
     if (fInputTrackEvent->GetSecondMaxEnergyTrack("Y") != NULL) {
-        tckSecondMaxYZ_SigmaX = fInputTrackEvent->GetSecondMaxEnergyTrack("Y")->GetHits()->GetSigmaX();
         tckSecondMaxYZ_SigmaY = fInputTrackEvent->GetSecondMaxEnergyTrack("Y")->GetHits()->GetSigmaY();
         maxSecondTrackEnergy_Y = fInputTrackEvent->GetSecondMaxEnergyTrack("Y")->GetEnergy();
     }
@@ -921,10 +911,8 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     SetObservableValue((string) "SecondTrackMaxEnergy_X", maxSecondTrackEnergy_X);
     SetObservableValue((string) "SecondTrackMax_XZ_SigmaX", tckSecondMaxXZ_SigmaX);
-    SetObservableValue((string) "SecondTrackMax_XZ_SigmaY", tckSecondMaxXZ_SigmaY);
 
     SetObservableValue((string) "SecondTrackMaxEnergy_Y", maxSecondTrackEnergy_Y);
-    SetObservableValue((string) "SecondTrackMax_YZ_SigmaX", tckSecondMaxYZ_SigmaX);
     SetObservableValue((string) "SecondTrackMax_YZ_SigmaY", tckSecondMaxYZ_SigmaY);
     /* }}} */
 
@@ -934,9 +922,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     Double_t tckLenXYZ = fInputTrackEvent->GetMaxEnergyTrackLength();
 
     SetObservableValue((string) "MaxTrackLength_X", tckLenX);
-
     SetObservableValue((string) "MaxTrackLength_Y", tckLenY);
-
     SetObservableValue((string) "MaxTrackLength_XYZ", tckLenXYZ);
     /* }}} */
 
@@ -946,9 +932,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     Double_t tckVolXYZ = fInputTrackEvent->GetMaxEnergyTrackVolume();
 
     SetObservableValue((string) "MaxTrackVolume_X", tckVolX);
-
     SetObservableValue((string) "MaxTrackVolume_Y", tckVolY);
-
     SetObservableValue((string) "MaxTrackVolume_XYZ", tckVolXYZ);
     /* }}} */
 
