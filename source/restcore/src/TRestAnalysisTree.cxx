@@ -358,9 +358,9 @@ void TRestAnalysisTree::PrintObservable(int n) {
         return;
     }
     string obsVal = fObservables[n].ToString();
-    int lengthRemaining = Console::GetWidth() - 14 - 30 - 13;
+    int lengthRemaining = Console::GetWidth() - 14 - 45 - 13;
 
-    std::cout << "Observable : " << ToString(fObservableNames[n], 30)
+    std::cout << "Observable : " << ToString(fObservableNames[n], 45)
               << "    Value : " << ToString(obsVal, lengthRemaining) << std::endl;
 }
 
