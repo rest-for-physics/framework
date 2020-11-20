@@ -261,7 +261,7 @@ void TRestRawSignalChannelActivityProcess::EndProcess() {
     if (!fReadOnly) {
         fDaqChannelsHisto->Write();
         if (fReadout) {
-			fReadoutChannelsHisto->Write();
+            fReadoutChannelsHisto->Write();
 
             fReadoutChannelsHisto_OneSignal->Write();
             fReadoutChannelsHisto_TwoSignals->Write();
