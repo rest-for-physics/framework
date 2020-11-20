@@ -387,6 +387,11 @@ Float_t REST_StringHelper::StringToFloat(string in) {
 ///
 Int_t REST_StringHelper::StringToInteger(string in) { return (Int_t)StringToDouble(in); }
 
+///////////////////////////////////////////////
+/// \brief Gets a string from an integer.
+///
+string REST_StringHelper::IntegerToString(Int_t n) { return Form("%d", n); }
+
 Bool_t REST_StringHelper::StringToBool(std::string in) {
     return (ToUpper(in) == "TRUE" || ToUpper(in) == "ON");
 }

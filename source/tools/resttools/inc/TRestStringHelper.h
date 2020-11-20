@@ -34,6 +34,7 @@ std::string EvaluateExpression(std::string exp);
 Float_t StringToFloat(std::string in);
 Double_t StringToDouble(std::string in);
 Int_t StringToInteger(std::string in);
+std::string IntegerToString(Int_t n);
 Bool_t StringToBool(std::string in);
 Long64_t StringToLong(std::string in);
 TVector3 StringTo3DVector(std::string in);
