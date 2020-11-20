@@ -28,6 +28,24 @@ cd
 git clone git@lfna.unizar.es:rest-development/REST_v2.git
 ```
 
+In order to download all the sub-modules (recommended) included in REST we need to clone using the following.
+
+```
+git clone --recursive git@lfna.unizar.es:rest-development/REST_v2.git
+```
+
+When we want to pull the latest changes from the remote repository we need to add `--recurse-submodules` in order to update the main project and all the sub-modules.
+
+```
+git pull --recurse-submodules
+```
+
+If `--recursive` is not used many REST libraries and packages will not be populated. If the repository was cloned without `--recursive` option, then it is possible to download the modules later using
+
+```
+git submodule update --init --recursive
+```
+
 If you are asked for a password, this is because you did not add your local computer account public ssh key to your Gitlab account. 
 Check the following [instructions](https://git-scm.com/book/en/v2/Git-on-the-Server-Generating-Your-SSH-Public-Key) to generate your key.
 Then, paste the key into your GitLab account (top-right icon of Gitlab site), go to "settings", and access the "ssh keys" in the left menu.
@@ -42,6 +60,7 @@ git clone https://gitlab.pandax.sjtu.edu.cn/pandax-iii/REST_v2.git
 As soon as REST is under strong development phase the repository will be private, and access to the REST repository will be only granted on demand.
 Before granting access, an account must be registered at the [Unizar Gitlab site](https://lfna.unizar.es). 
 Then, you will need to contact the authors to request access to the code.
+
 
 ### Installing
 
