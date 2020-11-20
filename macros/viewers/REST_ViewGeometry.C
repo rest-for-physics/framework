@@ -8,6 +8,12 @@ using namespace std;
 #ifndef RestTask_ViewGeometry
 #define RestTask_ViewGeometry
 
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_ViewGeometry(TString fName, TString option = "") {
     cout << "Filename : " << fName << endl;
 

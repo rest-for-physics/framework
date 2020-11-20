@@ -8,6 +8,15 @@ using namespace std;
 
 TGraph* GetHittedStripMap(TRestReadoutPlane* p, Int_t mask[4], Double_t region[4], Int_t N);
 
+#ifndef RESTTask_CheckReadout
+#define RESTTask_CheckReadout
+
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_CheckReadout(TString rootFile, TString name, Double_t region[4], Int_t stripsMask[4],
                         Int_t N = 1E4, Int_t plane = 0) {
     TFile* f = new TFile(rootFile);

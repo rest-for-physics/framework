@@ -4,6 +4,15 @@
 #include "TRestStringHelper.h"
 #include "TString.h"
 
+#ifndef RESTTask_MakeProcess
+#define RESTTask_MakeProcess
+
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString outputevent = "TRestEvent") {
     // REST_MakeProcess("TRestXXXProcess", "TRestHitsEvent")
     //    --> generate an analysis process template for TRestHitsEvent

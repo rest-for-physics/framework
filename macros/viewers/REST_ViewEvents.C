@@ -9,6 +9,12 @@
 #ifndef RestTask_ViewEvents
 #define RestTask_ViewEvents
 
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_ViewEvents(TString fName, TString EventType = "") {
     TRestBrowser* browser = new TRestBrowser("TRestEventViewer");
 

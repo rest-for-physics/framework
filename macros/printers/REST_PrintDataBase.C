@@ -6,6 +6,15 @@ using namespace std;
 #include <TString.h>
 #include "TRestDataBase.h"
 
+#ifndef RestTask_DataBase
+#define RestTask_DataBase
+
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_DataBase(Int_t run = -1) {
     TRestStringOutput fout;
     if (gDataBase == NULL) {

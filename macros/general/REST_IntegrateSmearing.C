@@ -10,6 +10,12 @@
 #ifndef RestTask_IntegrateSmearing
 #define RestTask_IntegrateSmearing
 
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_IntegrateSmearing(TString varName, TString rootFileName, double Middle) {
     TRestStringOutput cout;
 

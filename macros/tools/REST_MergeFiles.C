@@ -1,5 +1,15 @@
 #include "TFileMerger.h"
 #include "TRestTask.h"
+
+#ifndef RESTTask_MergeFiles
+#define RESTTask_MergeFiles
+
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_MergeFiles(TString pathAndPattern, TString outputFilename) {
     vector<string> files = TRestTools::GetFilesMatchingPattern((string)pathAndPattern);
     TFileMerger* m = new TFileMerger();

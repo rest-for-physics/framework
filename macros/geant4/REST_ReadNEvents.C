@@ -2,6 +2,15 @@
 #include "TRestG4Metadata.h"
 #include "TRestTask.h"
 
+#ifndef RestTask_FindGammasEmitted
+#define RestTask_FindGammasEmitted
+
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_ReadNEvents(TString fName, int n1, int n2) {
     TRestRun* run = new TRestRun();
 

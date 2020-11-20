@@ -3,12 +3,20 @@
 #include "TRestTask.h"
 // Double_t Qbb = 2457.83;
 
-Double_t REST_Fiducial(TString fName, Double_t zMin, Double_t zMax, Double_t radius, Double_t mean = 2457.83,
-                       Double_t fwhm = 25) {
+#ifndef RestTask_GetROIEventsFiducial
+#define RestTask_GetROIEventsFiducial
+
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
+Double_t REST_GetROIEventsFiducial(TString fName, Double_t zMin, Double_t zMax, Double_t radius,
+                                   Double_t mean = 2457.83, Double_t fwhm = 25) {
     cout << "Filename : " << fName << endl;
 
     TRestRun* run = new TRestRun();
-    cout << "x" << endl;
     string fname = fName.Data();
     if (!TRestTools::fileExists(fname)) {
         cout << "WARNING. Input file does not exist" << endl;

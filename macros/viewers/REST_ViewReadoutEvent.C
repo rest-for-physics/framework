@@ -2,8 +2,8 @@
 #include "TRestReadoutEventViewer.h"
 #include "TRestTask.h"
 
-#ifndef RestTask_ViewReadoutEvents
-#define RestTask_ViewReadoutEvents
+#ifndef RestTask_ViewReadoutEvent
+#define RestTask_ViewReadoutEvent
 
 // - Argument "readoutFilename" can be an rml file or a root file.
 // - ReadoutEvent viewer differs fomr the rest of REST event-viewers in that its
@@ -14,6 +14,12 @@
 //  TREV object, and handing it over the TRestReadout object, via TREV's
 //  "SetReadout" member method.
 
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_ViewReadoutEvent(TString fName, TString readoutFilename = "definitions/readouts.root") {
     // Instantiate browser (and hence TREV object)
     TRestBrowser* browser = new TRestBrowser("TRestReadoutEventViewer");

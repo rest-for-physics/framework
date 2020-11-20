@@ -4,6 +4,12 @@
 #ifndef RestTask_ViewHitsEvents
 #define RestTask_ViewHitsEvents
 
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_ViewHitsEvent(TString fName) {
     TRestBrowser* browser = new TRestBrowser("TRestHitsEventViewer");
 

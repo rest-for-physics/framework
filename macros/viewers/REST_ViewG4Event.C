@@ -4,6 +4,12 @@
 #ifndef RestTask_ViewG4Events
 #define RestTask_ViewG4Events
 
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_ViewG4Event(TString fName) {
     TRestBrowser* browser = new TRestBrowser("TRestG4EventViewer");
 

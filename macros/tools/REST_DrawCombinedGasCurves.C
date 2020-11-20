@@ -11,6 +11,15 @@ Double_t maxDriftVel = 0;
 Double_t maxLDiff = 0;
 Double_t maxTDiff = 0;
 
+#ifndef RESTTask_DrawCombinedGasCurves
+#define RESTTask_DrawCombinedGasCurves
+
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 int REST_DrawCombinedGasCurves() {
     TRestGas* gas[nGases];
     TGraph *driftVelGraph[nGases], *diffLGraph[nGases], *diffTGraph[nGases];
