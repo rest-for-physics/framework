@@ -679,11 +679,14 @@ Int_t TRestMetadata::LoadSectionMetadata() {
 TiXmlElement* TRestMetadata::ReplaceElementAttributes(TiXmlElement* e) {
     if (e == NULL) return NULL;
 
+    debug << "Entering ... TRestMetadata::ReplaceElementAttributes" << endl;
+
     std::string parName = "";
     TiXmlAttribute* attr = e->FirstAttribute();
     while (attr != NULL) {
         const char* val = attr->Value();
         const char* name = attr->Name();
+        debug << "Element name : " << name << " value : " << val << endl;
 
         string newVal = val != NULL ? val : "";
         newVal = ReplaceVariables(newVal);
@@ -919,14 +922,17 @@ void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e, map<string, string> forLo
 
 ///////////////////////////////////////////////
 /// \brief Helper method for TRestMetadata::ExpandForLoops().
+///
 void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forLoopVar) {
     if (e == NULL) return;
 
+    debug << "Entering ... TRestMetadata::ReplaceForLoopVars" << endl;
     std::string parName = "";
     TiXmlAttribute* attr = e->FirstAttribute();
     while (attr != NULL) {
         const char* val = attr->Value();
         const char* name = attr->Name();
+        debug << "Attribute name : " << name << " value : " << val << endl;
 
         if (strcmp(name, "name") == 0) parName = (string)val;
 
@@ -980,13 +986,17 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
 void TRestMetadata::ExpandForLoops(TiXmlElement* e, map<string, string> forloopvar) {
     if (e == NULL) return;
     if ((string)e->Value() != "for") return;
-    // ReplaceElementAttributes(e);
+    debug << "Entering ... ExpandForLoops" << endl;
+    ReplaceElementAttributes(e);
 
     TString varname = TString(e->Attribute("variable"));
     TString varfrom = TString(e->Attribute("from"));
     TString varto = TString(e->Attribute("to"));
     TString varstep = TString(e->Attribute("step"));
     TString varin = TString(e->Attribute("in"));
+
+    debug << "variable: " << varname << " from: " << varfrom << " to: " << varto << " step: " << varstep
+          << " in: " << varin << endl;
 
     if ((varin == "") && (varname == "" || varfrom == "" || varto == "")) return;
     if (varstep == "") varstep = "1";
@@ -998,6 +1008,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e, map<string, string> forloopv
     string _to = (string)varto;
     string _step = (string)varstep;
     string _in = (string)varin;
+    debug << "_from: " << _from << " _to: " << _to << " _step: " << _step << endl;
     if (isANumber(_from) && isANumber(_to) && isANumber(_step)) {
         double from = StringToDouble(_from);
         double to = StringToDouble(_to);
@@ -1099,8 +1110,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1133,8 +1145,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1901,6 +1914,7 @@ string TRestMetadata::GetParameter(string parName, size_t& pos, string inputStri
 /// found, try to replace <variable section, if still not found, try to replace
 /// with command line arguments. If all not found, return the initial value.
 string TRestMetadata::ReplaceVariables(const string buffer) {
+    debug << "Entering ... TRestMetadata::ReplaceVariables (" << buffer << ")" << endl;
     string outputBuffer = buffer;
 
     // replace variables with mark ${}
@@ -1935,6 +1949,7 @@ string TRestMetadata::ReplaceVariables(const string buffer) {
         }
     }
 
+    if (buffer != outputBuffer) debug << "Replaced by : " << outputBuffer << endl;
     return outputBuffer;
 }
 
@@ -1943,6 +1958,7 @@ string TRestMetadata::ReplaceVariables(const string buffer) {
 ///
 /// Constans are the substrings directly appeared in the buffer
 string TRestMetadata::ReplaceConstants(const string buffer) {
+    debug << "Entering ... TRestMetadata::ReplaceConstants (" << buffer << ")" << endl;
     string outputBuffer = buffer;
 
     int startPosition = 0;
@@ -1965,6 +1981,7 @@ string TRestMetadata::ReplaceConstants(const string buffer) {
         }
     }
 
+    if (buffer != outputBuffer) debug << "Replaced by : " << outputBuffer << endl;
     return outputBuffer;
 }
 
