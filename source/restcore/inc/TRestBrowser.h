@@ -29,13 +29,23 @@ class TRestBrowser {
     // Frames and buttons
 
     TGVerticalFrame* fVFrame = 0;     //! < Vertical frame.
-    TGNumberEntry* fNEvent = 0;       //! Event number.
-    TGLabel* fLabel = 0;              //! label(content"plot options:")
-    TGPictureButton* fButPrev = 0;    //! Previous event.
-    TGPictureButton* fLoadEvent = 0;  //! Load Event button
-    TGPictureButton* fButNext = 0;    //! Next number.
+    TGLabel* fEventRowLabel = 0;           //! label(content"plot options:")
+    TGLabel* fEventIdLabel = 0;                //! label(content"plot options:")
+    TGLabel* fEventSubIdLabel = 0;        //! label(content"plot options:")
+    TGNumberEntry* fEventRowNumberBox = 0;      //! Event number.
+    TGNumberEntry* fEventIdNumberBox = 0;       //! Event number.
+    TGNumberEntry* fEventSubIdNumberBox = 0;  //! Event number.
+    TGPictureButton* fButEventPrev = 0;    //! Previous event.
+    TGPictureButton* fButEventLoad = 0;  //! Load Event button
+    TGPictureButton* fButEventNext = 0;    //! Next number.
     TGPictureButton* fMenuOpen = 0;   //! Open file
     TGTextButton* fExit = 0;          //! Load Event button
+
+    TGLabel* fPlotOptionLabel = 0;  //! label(content"plot options:")
+    TGTextEntry* fPlotOptionTextBox = 0; 
+    TGTextButton* fButOptPrev = 0;     //! Previous event.
+    TGTextButton* fButOptLoad = 0;     //! Load Event button
+    TGTextButton* fButOptNext = 0;     //! Next number.
 
     TCanvas* fCanDefault = 0;  //!
 
@@ -47,10 +57,11 @@ class TRestBrowser {
 #ifndef __CINT__
     Bool_t pureAnalysis;
     TString fInputFileName;
-    Int_t fCurrentEntry = 0;
-    Int_t fCurrentId = 0;
 
     TRestEventViewer* fEventViewer = 0;  //!
+
+    Bool_t LoadEventId(Int_t id, Int_t subid = -1);
+    Bool_t LoadEventEntry(Int_t n);
 #endif
 
    public:
@@ -63,6 +74,7 @@ class TRestBrowser {
 
     void Initialize(TString opt = "FI");
     void InitFromConfigFile();
+    Bool_t OpenFile(TString filename);
 
     void SetViewer(TRestEventViewer* eV);
     void SetViewer(TString viewerName);
@@ -74,18 +86,17 @@ class TRestBrowser {
 
     TRestEventViewer* GetViewer() { return fEventViewer; }
 
-    TGVerticalFrame* generateNewFrame();
-
-    void addFrame(TGFrame* f);
-
-    void LoadEventAction();
-    void LoadNextEventAction();
-    void LoadPrevEventAction();
+    // actions
     void LoadFileAction();
     void ExitAction();
 
-    Bool_t OpenFile(TString fName);
-    Bool_t LoadEventId(Int_t id);
-    Bool_t LoadEventEntry(Int_t n);
+    void RowValueChangedAction(Long_t val);
+    void IdValueChangedAction(Long_t val);
+
+    void NextPlotOptionAction();
+    void PreviousPlotOptionAction();
+    void PlotAction();
+
+
 };
 #endif
