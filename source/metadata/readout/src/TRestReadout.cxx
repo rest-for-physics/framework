@@ -563,6 +563,7 @@ void TRestReadout::InitFromConfigFile() {
                 // WRONG version before -->
                 // fModuleDefinitions[mid].GetChannel(ch)->SetID( rChannel[ch] );
                 fModuleDefinitions[mid].GetChannel(rChannel[ch])->SetDaqID(dChannel[ch]);
+                fModuleDefinitions[mid].GetChannel(rChannel[ch])->SetChannelID(rChannel[ch]);
 
 #pragma endregion
                 addedChannels++;

@@ -550,6 +550,6 @@ void TRestReadoutModule::Print(Int_t DetailLevel) {
         metadata << "-- Total channels : " << GetNumberOfChannels() << endl;
         metadata << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
-        for (int n = 0; n < GetNumberOfChannels(); n++) fReadoutChannel[n].Print(DetailLevel - 1, n);
+        for (int n = 0; n < GetNumberOfChannels(); n++) fReadoutChannel[n].Print(DetailLevel - 1);
     }
 }
