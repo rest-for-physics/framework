@@ -728,7 +728,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
         return -1;
     }
 
-    if (fInputEvent->GetID() == 0) {
+    if (fInputEvent->GetID() == 0 && fInputEvent->GetSubID() == 0) {
         fInputEvent->SetID(fCurrentEvent - 1);
     }
 
