@@ -185,3 +185,4 @@ TGraph* GetHittedStripMap(TRestReadoutPlane* p, Int_t mask[4], Double_t region[4
 
     return gr;
 }
+#endif

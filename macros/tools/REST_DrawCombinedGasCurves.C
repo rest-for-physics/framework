@@ -133,3 +133,4 @@ int REST_DrawCombinedGasCurves() {
 
     return 0;
 }
+#endif

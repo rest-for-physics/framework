@@ -72,3 +72,4 @@ Int_t REST_ProduceResponseSignal(TString inputFileName, TString outputFileName, 
 
     return 0;
 }
+#endif

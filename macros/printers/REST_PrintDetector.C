@@ -26,3 +26,4 @@ Int_t REST_Detector(Int_t run = -1) {
 
     return 1;
 }
+#endif

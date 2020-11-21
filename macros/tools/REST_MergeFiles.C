@@ -29,3 +29,4 @@ Int_t REST_MergeFiles(TString pathAndPattern, TString outputFilename) {
 
     // return 0;
 }
+#endif

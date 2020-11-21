@@ -100,3 +100,4 @@ Int_t REST_ListIsotopes(TString fName, TString fOutName) {
 
     return 0;
 }
+#endif

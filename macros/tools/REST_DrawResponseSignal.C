@@ -23,3 +23,4 @@ Int_t REST_DrawResponseSignal(TString fName) {
 
     return 0;
 }
+#endif

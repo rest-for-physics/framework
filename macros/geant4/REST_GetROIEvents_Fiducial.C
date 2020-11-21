@@ -88,3 +88,4 @@ Double_t REST_GetROIEventsFiducial(TString fName, Double_t zMin, Double_t zMax, 
     */
     return 0;
 }
+#endif

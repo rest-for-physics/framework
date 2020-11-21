@@ -256,3 +256,4 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
 
     return 0;
 }
+#endif

@@ -10,7 +10,7 @@
 //*** --------------
 //*** This macro might need update/revision.
 //*******************************************************************************************************
-Int_t REST_ReadNEvents_inROI(TString fName, int n1, int n2, double en1, double en2) {
+Int_t REST_ReadNEvents_inROI(string fName, int n1, int n2, double en1, double en2) {
     TRestRun* run = new TRestRun(fName);
 
     run->PrintMetadata();
@@ -43,3 +43,4 @@ Int_t REST_ReadNEvents_inROI(TString fName, int n1, int n2, double en1, double e
     delete run;
     return 0;
 }
+#endif

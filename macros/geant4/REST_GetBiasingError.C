@@ -101,3 +101,4 @@ Double_t REST_GetBiasingError(TString fName, Int_t finalEvents = 0) {
 
     return error;
 }
+#endif

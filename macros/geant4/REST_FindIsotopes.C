@@ -80,3 +80,4 @@ Int_t REST_FindIsotopes(TString fName, TString fIsotope) {
 
     return 0;
 }
+#endif

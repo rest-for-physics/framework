@@ -22,3 +22,4 @@ Int_t REST_GenerateGasFile(char* cfgFile) {
 
     return 0;
 }
+#endif

@@ -51,3 +51,4 @@ Int_t REST_Metadata(TString fName, TString objName = "") {
 
     return 0;
 }
+#endif

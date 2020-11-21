@@ -21,3 +21,4 @@ Int_t REST_ValidateGeometry(TString gdmlName) {
 
     return 0;
 }
+#endif

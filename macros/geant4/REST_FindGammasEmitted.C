@@ -86,3 +86,4 @@ Int_t REST_FindGammasEmitted(TString fName) {
 
     return 0;
 }
+#endif

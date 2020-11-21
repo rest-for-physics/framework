@@ -56,3 +56,4 @@ Double_t REST_GetROIEvents(TString fName, Double_t mean = 2457.83, Double_t fwhm
     */
     return totalContribution;
 }
+#endif

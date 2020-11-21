@@ -77,3 +77,4 @@ Int_t REST_CheckRunFileList(TString namePattern, Int_t N = 100000) {
 
     return 0;
 }
+#endif

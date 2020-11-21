@@ -27,3 +27,4 @@ Int_t REST_DataBase(Int_t run = -1) {
 
     return 1;
 }
+#endif
