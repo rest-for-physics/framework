@@ -34,7 +34,8 @@ int REST_ViewReadout(TString rootFile, TString name = "", Int_t plane = 0) {
 
     delete key;
 
-    TString title = "Reaout plane : " + IntegerToString(plane);
+    TString title =
+        "Readout: " + (string)readout->GetName() + " --- plane: " + IntegerToString(plane) + ";X[mm];Y[mm]";
 
     readout->PrintMetadata();
 
