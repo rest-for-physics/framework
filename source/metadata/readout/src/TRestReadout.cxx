@@ -480,6 +480,13 @@ void TRestReadout::InitFromConfigFile() {
             TString modName = GetFieldValue("name", moduleDefinition);
             Int_t mid = GetModuleDefinitionId(modName);
 
+            if (mid == -1) {
+                ferr << "TRestReadout at <addReadoutModule>. Module name " << modName << " not found!"
+                     << endl;
+                ferr << "Please, check spelling" << endl;
+                exit(1);
+            }
+
             fModuleDefinitions[mid].SetModuleID(StringToInteger(GetFieldValue("id", moduleDefinition)));
             fModuleDefinitions[mid].SetOrigin(StringTo2DVector(GetFieldValue("origin", moduleDefinition)));
             fModuleDefinitions[mid].SetRotation(StringToDouble(GetFieldValue("rotation", moduleDefinition)));
