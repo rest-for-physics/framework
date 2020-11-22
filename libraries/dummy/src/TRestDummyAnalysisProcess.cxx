@@ -25,10 +25,10 @@
 ///
 /// TODO Write a proper documentation here
 ///
-/// \warning REST is under continous development. This README is offered
-/// to you by the REST community. Your HELP is needed to keep this file up
-/// to date. Feel free to contribute fixing typos, updating information or
-/// adding new contributions. See also our Contribution Guide.
+/// \warning REST is under continous development. This documentation is
+/// offered to you by the REST community. Your HELP is needed to keep this
+/// file up to date. Feel free to contribute fixing typos, updating
+/// information or adding new contributions. See also our Contribution Guide.
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -108,16 +108,7 @@ void TRestDummyAnalysisProcess::LoadConfig(std::string cfgFilename, std::string 
 /// to process the event
 ///
 void TRestDummyAnalysisProcess::InitProcess() {
-    fStartTimestamp = fRunInfo->GetStartTimestamp();
-    fEndTimestamp = fRunInfo->GetEndTimestamp();
-
-    if (fSQLVariables.size() > 0)
-        FillDBArrays();
-    else {
-        warning << "TRestDummyAnalysisProcess::InitProcess. No data base field entries have been specified!"
-                << endl;
-        warning << "This process will do nothing!" << endl;
-    }
+    // Initialize any class members if necessary
 }
 
 ///////////////////////////////////////////////
@@ -132,6 +123,8 @@ void TRestDummyAnalysisProcess::Initialize() { SetSectionName(this->ClassName())
 TRestEvent* TRestDummyAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     fEvent = evInput;
 
+    // ProcessEvent is in the loop, each call a new event will be processed.
+
     // An analysis process does not specialize the event to Hits, Geant4, Signal, ...
     // Therefore, we should not acess the event data at a pure analysis process
     // Just basic access will be availble such as eventId, timestamp, etc.
@@ -142,6 +135,20 @@ TRestEvent* TRestDummyAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     // SetObservableValue( "myNewObsName", calculatedValue );
 
     return fEvent;
+}
+
+void TRestDummyAnalysisProcess::EndProcess() {
+    /// At the EndProcess stage all events have been alreaady processed and
+    /// we can already get access to the full analysis tree.
+
+    ///// Just some examples accessing analysis tree
+    ///// We can get now any entry.
+    // this->GetFullAnalysisTree()->GetEntry(3);
+    // this->GetFullAnalysisTree()->PrintObservables();
+    // cout << "Nobs : " << fRunInfo->GetAnalysisTree()->GetNumberOfObservables() << endl;
+    // cout << "Entries : " << fRunInfo->GetAnalysisTree()->GetEntries() << endl;
+    // cout << "Nobs : " << this->GetFullAnalysisTree()->GetNumberOfObservables() << endl;
+    // cout << "Entries : " << this->GetFullAnalysisTree()->GetEntries() << endl;
 }
 
 ///////////////////////////////////////////////
