@@ -99,7 +99,7 @@ void TRestReadoutChannel::Print(int DetailLevel) {
 
         if (DetailLevel - 1 >= 0)
             for (int n = 0; n < GetNumberOfPixels(); n++) {
-                fReadoutPixel[n].Print(n);
+                fReadoutPixel[n].Print();
             }
     }
 }

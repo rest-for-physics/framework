@@ -245,7 +245,7 @@ Bool_t TRestBrowser::LoadEventId(Int_t id, Int_t subid) {
     if (r->GetAnalysisTree() != NULL && r->GetAnalysisTree()->GetEntries() > 0) {
         TRestEvent* ev = r->GetEventWithID(id, subid);
         if (!ev) {
-            warning << "Event ID : " << id << " with sub ID : "<< subid <<" not found!" << endl;
+            warning << "Event ID : " << id << " with sub ID : " << subid << " not found!" << endl;
             return kFALSE;
         } else {
             fEventRow = r->GetCurrentEntry();
@@ -300,6 +300,7 @@ Bool_t TRestBrowser::OpenFile(TString filename) {
             fEventSubIdNumberBox->SetIntNumber(ev->GetSubID());
         }
     }
+    return true;
 }
 
 void TRestBrowser::NextPlotOptionAction() {
