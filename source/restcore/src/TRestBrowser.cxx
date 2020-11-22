@@ -111,7 +111,7 @@ void TRestBrowser::setButtons() {
     fEventRowLabel = new TGLabel(fVFrame, "Row:");
     fVFrame->AddFrame(fEventRowLabel, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
-    fEventRowNumberBox = new TGNumberEntry(fVFrame, 0);
+    fEventRowNumberBox = new TGNumberEntry(fVFrame, fEventRow);
     fEventRowNumberBox->Connect("ValueSet(Long_t)", "TRestBrowser", this, "RowValueChangedAction(Long_t)");
     fVFrame->AddFrame(fEventRowNumberBox, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
@@ -128,27 +128,18 @@ void TRestBrowser::setButtons() {
 
     auto numberboxbar = new TGHorizontalFrame(fVFrame);
     {
-        fEventIdNumberBox = new TGNumberEntry(numberboxbar, 0);
+        fEventIdNumberBox = new TGNumberEntry(numberboxbar, fEventId);
         fEventIdNumberBox->Connect("ValueSet(Long_t)", "TRestBrowser", this, "IdValueChangedAction(Long_t)");
         numberboxbar->AddFrame(fEventIdNumberBox, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
-        fEventSubIdNumberBox = new TGNumberEntry(numberboxbar, 0);
+        fEventSubIdNumberBox = new TGNumberEntry(numberboxbar, fEventSubId);
         fEventSubIdNumberBox->Connect("ValueSet(Long_t)", "TRestBrowser", this,
                                       "IdValueChangedAction(Long_t)");
         numberboxbar->AddFrame(fEventSubIdNumberBox, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
     }
     fVFrame->AddFrame(numberboxbar, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
-    // tool buttoms
-    fMenuOpen = new TGPictureButton(fVFrame, gClient->GetPicture(icondir + "bld_open.png"));
-    fMenuOpen->Connect("Clicked()", "TRestBrowser", this, "LoadFileAction()");
-    fVFrame->AddFrame(fMenuOpen, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
-
-    fExit = new TGTextButton(fVFrame, "EXIT");  ///< Exit button
-    fExit->Connect("Clicked()", "TRestBrowser", this, "ExitAction()");
-    fVFrame->AddFrame(fExit, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
-
-    // plot option buttoms
+    // plot option buttons
     fPlotOptionLabel = new TGLabel(fVFrame, "Plot Options:");
     fVFrame->AddFrame(fPlotOptionLabel, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
@@ -156,21 +147,30 @@ void TRestBrowser::setButtons() {
     fPlotOptionTextBox->SetText("");
     fVFrame->AddFrame(fPlotOptionTextBox, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
-    auto frame1 = new TGHorizontalFrame(fVFrame);
+    auto switchbuttonbar = new TGHorizontalFrame(fVFrame);
     {
-        fButOptPrev = new TGTextButton(frame1, "<<Previous");  ///< Load Event button
+        fButOptPrev = new TGTextButton(switchbuttonbar, "<<Previous");  ///< Load Event button
         fButOptPrev->Connect("Clicked()", "TRestBrowser", this, "PreviousPlotOptionAction()");
-        frame1->AddFrame(fButOptPrev, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+        switchbuttonbar->AddFrame(fButOptPrev, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
-        fButOptLoad = new TGTextButton(frame1, "Plot");  ///< Load Event button
-        fButOptLoad->Connect("Clicked()", "TRestBrowser", this, "PlotAction()");
-        frame1->AddFrame(fButOptLoad, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+        fButOptRefresh = new TGTextButton(switchbuttonbar, "Plot");  ///< Load Event button
+        fButOptRefresh->Connect("Clicked()", "TRestBrowser", this, "PlotAction()");
+        switchbuttonbar->AddFrame(fButOptRefresh, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
-        fButOptNext = new TGTextButton(frame1, "Next>>");  ///< Load Event button
+        fButOptNext = new TGTextButton(switchbuttonbar, "Next>>");  ///< Load Event button
         fButOptNext->Connect("Clicked()", "TRestBrowser", this, "NextPlotOptionAction()");
-        frame1->AddFrame(fButOptNext, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+        switchbuttonbar->AddFrame(fButOptNext, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
     }
-    fVFrame->AddFrame(frame1, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+    fVFrame->AddFrame(switchbuttonbar, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+
+    // tool buttons
+    fMenuOpen = new TGPictureButton(fVFrame, gClient->GetPicture(icondir + "bld_open.png"));
+    fMenuOpen->Connect("Clicked()", "TRestBrowser", this, "LoadFileAction()");
+    fVFrame->AddFrame(fMenuOpen, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+
+    fExit = new TGTextButton(fVFrame, "EXIT");  ///< Exit button
+    fExit->Connect("Clicked()", "TRestBrowser", this, "ExitAction()");
+    fVFrame->AddFrame(fExit, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
     frmMain->Resize(TGDimension(300, frmMain->GetHeight() + fVFrame->GetHeight()));
 
@@ -205,12 +205,16 @@ Bool_t TRestBrowser::LoadEventEntry(Int_t n) {
         TRestEvent* ev = r->GetInputEvent();
         if (!ev) {
             ferr << "internal error!" << endl;
+            return kFALSE;
         } else {
-            fEventRowNumberBox->SetIntNumber(r->GetCurrentEntry());
-            fEventIdNumberBox->SetIntNumber(ev->GetID());
-            fEventSubIdNumberBox->SetIntNumber(ev->GetSubID());
+            fEventRow = r->GetCurrentEntry();
+            fEventId = ev->GetID();
+            fEventSubId = ev->GetSubID();
+
+            fEventRowNumberBox->SetIntNumber(fEventRow);
+            fEventIdNumberBox->SetIntNumber(fEventId);
+            fEventSubIdNumberBox->SetIntNumber(fEventSubId);
             r->GetAnalysisTree()->PrintObservables();
-            cout << endl;
         }
     } else {
         warning << "TRestBrowser::LoadEventEntry. Event out of limits" << endl;
@@ -220,6 +224,7 @@ Bool_t TRestBrowser::LoadEventEntry(Int_t n) {
     if (fEventViewer != NULL) {
         fEventViewer->AddEvent(r->GetInputEvent());
         fEventViewer->Plot(fPlotOptionTextBox->GetText());
+        cout << endl;
     }
 
     fCanDefault->cd();
@@ -240,15 +245,17 @@ Bool_t TRestBrowser::LoadEventId(Int_t id, Int_t subid) {
     if (r->GetAnalysisTree() != NULL && r->GetAnalysisTree()->GetEntries() > 0) {
         TRestEvent* ev = r->GetEventWithID(id, subid);
         if (!ev) {
-            warning << "Event ID : " << id << " not found!" << endl;
-            fEventIdNumberBox->SetBackgroundColor(kRed);
-            fEventSubIdNumberBox->SetForegroundColor(kRed);
+            warning << "Event ID : " << id << " with sub ID : "<< subid <<" not found!" << endl;
+            return kFALSE;
         } else {
-            fEventRowNumberBox->SetIntNumber(r->GetCurrentEntry());
-            fEventIdNumberBox->SetIntNumber(ev->GetID());
-            fEventSubIdNumberBox->SetIntNumber(ev->GetSubID());
+            fEventRow = r->GetCurrentEntry();
+            fEventId = ev->GetID();
+            fEventSubId = ev->GetSubID();
+
+            fEventRowNumberBox->SetIntNumber(fEventRow);
+            fEventIdNumberBox->SetIntNumber(fEventId);
+            fEventSubIdNumberBox->SetIntNumber(fEventSubId);
             r->GetAnalysisTree()->PrintObservables();
-            cout << endl;
         }
     } else {
         warning << "TRestBrowser::LoadEventEntry. Event out of limits" << endl;
@@ -258,6 +265,7 @@ Bool_t TRestBrowser::LoadEventId(Int_t id, Int_t subid) {
     if (fEventViewer != NULL) {
         fEventViewer->AddEvent(r->GetInputEvent());
         fEventViewer->Plot(fPlotOptionTextBox->GetText());
+        cout << endl;
     }
 
     fCanDefault->cd();
@@ -325,20 +333,36 @@ void TRestBrowser::PlotAction() {
 }
 
 void TRestBrowser::RowValueChangedAction(Long_t val) {
-    int entryN = (Int_t)fEventRowNumberBox->GetNumber();
+    int rowold = fEventRow;
+    fEventRow = (Int_t)fEventRowNumberBox->GetNumber();
 
-    debug << "TRestBrowser::LoadEventAction. Entry:" << entryN << endl;
+    debug << "TRestBrowser::LoadEventAction. Entry:" << fEventRow << endl;
 
-    LoadEventEntry(entryN);
+    bool success = LoadEventEntry(fEventRow);
+
+    if (!success) {
+        fEventRow = rowold;
+        fEventRowNumberBox->SetIntNumber(fEventRow);
+    }
 }
 
 void TRestBrowser::IdValueChangedAction(Long_t val) {
-    int eventN = (Int_t)fEventIdNumberBox->GetNumber();
-    int eventsubN = (Int_t)fEventSubIdNumberBox->GetNumber();
+    int idold = fEventId;
+    int subidold = fEventSubId;
 
-    debug << "TRestBrowser::LoadEventAction. Event ID: " << eventN << ", Sub ID: " << eventsubN << endl;
+    fEventId = (Int_t)fEventIdNumberBox->GetNumber();
+    fEventSubId = (Int_t)fEventSubIdNumberBox->GetNumber();
 
-    LoadEventId(eventN, eventsubN);
+    debug << "TRestBrowser::LoadEventAction. Event ID: " << fEventId << ", Sub ID: " << fEventSubId << endl;
+
+    bool success = LoadEventId(fEventId, fEventSubId);
+
+    if (!success) {
+        fEventId = idold;
+        fEventSubId = subidold;
+        fEventIdNumberBox->SetIntNumber(fEventId);
+        fEventSubIdNumberBox->SetIntNumber(fEventSubId);
+    }
 }
 
 void TRestBrowser::LoadFileAction() {

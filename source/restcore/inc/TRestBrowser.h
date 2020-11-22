@@ -28,26 +28,27 @@ class TRestBrowser {
 
     // Frames and buttons
 
-    TGVerticalFrame* fVFrame = 0;     //! < Vertical frame.
-    TGLabel* fEventRowLabel = 0;           //! label(content"plot options:")
-    TGLabel* fEventIdLabel = 0;                //! label(content"plot options:")
-    TGLabel* fEventSubIdLabel = 0;        //! label(content"plot options:")
-    TGNumberEntry* fEventRowNumberBox = 0;      //! Event number.
-    TGNumberEntry* fEventIdNumberBox = 0;       //! Event number.
-    TGNumberEntry* fEventSubIdNumberBox = 0;  //! Event number.
-    TGPictureButton* fButEventPrev = 0;    //! Previous event.
-    TGPictureButton* fButEventLoad = 0;  //! Load Event button
-    TGPictureButton* fButEventNext = 0;    //! Next number.
-    TGPictureButton* fMenuOpen = 0;   //! Open file
-    TGTextButton* fExit = 0;          //! Load Event button
+    TGVerticalFrame* fVFrame = 0;             //! < The main vertical frame for browser controlling
+    TGLabel* fEventRowLabel = 0;              //!
+    TGLabel* fEventIdLabel = 0;               //!
+    TGLabel* fEventSubIdLabel = 0;            //!
+    TGNumberEntry* fEventRowNumberBox = 0;    //! For row number.
+    TGNumberEntry* fEventIdNumberBox = 0;     //! For Event number.
+    TGNumberEntry* fEventSubIdNumberBox = 0;  //! For sub Event number.
 
-    TGLabel* fPlotOptionLabel = 0;  //! label(content"plot options:")
-    TGTextEntry* fPlotOptionTextBox = 0; 
-    TGTextButton* fButOptPrev = 0;     //! Previous event.
-    TGTextButton* fButOptLoad = 0;     //! Load Event button
-    TGTextButton* fButOptNext = 0;     //! Next number.
+    TGLabel* fPlotOptionLabel = 0;        //!
+    TGTextEntry* fPlotOptionTextBox = 0;  //!
+    TGTextButton* fButOptPrev = 0;        //! Previous plot option
+    TGTextButton* fButOptRefresh = 0;     //! Refresh plot
+    TGTextButton* fButOptNext = 0;        //! Next plot option
+
+    TGPictureButton* fMenuOpen = 0;  //! Open file button
+    TGTextButton* fExit = 0;         //! Exit button
 
     TCanvas* fCanDefault = 0;  //!
+    Int_t fEventRow = 0;       //!
+    Int_t fEventId = 0;        //!
+    Int_t fEventSubId = 0;     //!
 
     TBrowser* b = 0;  //!
     TRestRun* r = 0;  //!
