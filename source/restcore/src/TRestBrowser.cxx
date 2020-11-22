@@ -108,7 +108,7 @@ void TRestBrowser::setButtons() {
     fVFrame->Resize(300, 200);
 
     // row in the tree
-    fEventRowLabel = new TGLabel(fVFrame, "Row:");
+    fEventRowLabel = new TGLabel(fVFrame, "Entry:");
     fVFrame->AddFrame(fEventRowLabel, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
     fEventRowNumberBox = new TGNumberEntry(fVFrame, fEventRow);
@@ -273,7 +273,7 @@ Bool_t TRestBrowser::LoadEventId(Int_t id, Int_t subid) {
 }
 
 Bool_t TRestBrowser::OpenFile(TString filename) {
-    if (TRestTools::fileExists(filename.Data())) {
+    if (filename.Contains("http") || TRestTools::fileExists(filename.Data())) {
         fInputFileName = filename;
         r->OpenInputFile(fInputFileName);
         TFile* f = r->GetInputFile();
