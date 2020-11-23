@@ -27,7 +27,6 @@
 
 #include "TRestRun.h"
 
-#include "GdmlPreprocessor.h"
 #include "TRestDataBase.h"
 #include "TRestEventProcess.h"
 #include "TRestManager.h"
