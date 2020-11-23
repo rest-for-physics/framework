@@ -11,6 +11,9 @@
 //
 
 class GdmlPreprocessor : public TRestMetadata {
+   private:
+    TGeoManager* fGeo;
+
    public:
     GdmlPreprocessor() {}
     ~GdmlPreprocessor() {}
@@ -28,6 +31,12 @@ class GdmlPreprocessor : public TRestMetadata {
     string GetOutputGDMLFile();
 
     void Load(string file);
+
+    TGeoManager* GetGeoManager(string gdmlfile) {
+        Load(gdmlfile);
+        fGeo = TGeoManager::Import(GetOutputGDMLFile().c_str());
+        return fGeo;
+    }
 
     TGeoManager* CreateGeoM();
 
