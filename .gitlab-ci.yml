@@ -151,7 +151,7 @@ BasicReadout:
     - cd ${CI_PROJECT_DIR}/projects/basic-readouts/
     - ls
     - restRoot --m 1 -b -q GenerateReadouts.C'("basic.root")'
-    - restRoot -b -q BasicValidation.C'("basic.root")'
+    - restRoot -b -q BasicValidation.C'("basic.root", "pixelDecoding")'
   except:
       variables:
         - $CRONJOB == "YES"
