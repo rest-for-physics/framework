@@ -202,12 +202,6 @@ install(
         COMPONENT install
 )
 
-install(
-        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/projects
-        DESTINATION .
-        COMPONENT install
-)
-
 #copy pcm files
 install(CODE
         "
