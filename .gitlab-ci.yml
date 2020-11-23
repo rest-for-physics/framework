@@ -141,6 +141,17 @@ GenerateReadout:
       variables:
         - $CRONJOB == "YES"
 
+BasicReadout:
+  type: metadata 
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/projects/basic-readout/
+    - restRoot --m 1 -b -q GenerateReadouts.C'("basic.root")'
+    - restRoot -b -q BasicValidation.C'("basic.root")'
+  except:
+      variables:
+        - $CRONJOB == "YES"
+
 testMeta:
   type: restManager_generate
   script:
