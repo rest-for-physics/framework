@@ -33,13 +33,15 @@ class TRestBrowser;
 class TRestEventViewer {
    protected:
     TGeoManager* fGeometry = 0;     //!
-    TRestEvent* fEvent = 0;         //!
+    TRestEvent* fEvent = 0;      //!
 
     TPad* fPad = 0;
     TCanvas* fCanvas = 0;
 
-   public:
     virtual void Initialize();
+
+   public:
+    virtual void Embed(TBrowser* b);
 
     virtual void AddEvent(TRestEvent* ev);
 

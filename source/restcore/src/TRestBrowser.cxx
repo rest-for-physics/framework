@@ -82,9 +82,9 @@ void TRestBrowser::SetViewer(TRestEventViewer* eV) {
     }
     if (eV != NULL) {
         fEventViewer = eV;
-        b->StartEmbedding(1, -1);
-        eV->Initialize();
-        b->StopEmbedding();
+        //b->StartEmbedding(1, -1);
+        eV->Embed(b);
+        //b->StopEmbedding();
     }
 }
 
