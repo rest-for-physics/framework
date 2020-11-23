@@ -1,10 +1,9 @@
 //////////////////////////////////////////////////////////////////////////
 ///
 ///
-/// This class is inherted from TRestRun. It opens input file as TRestRun
-/// defined, and shows a plot of the event contained in the file. The plot
-/// is shown in a TBrowser embeded window, providing a customizable controller
-/// on the side.
+/// This class opens input file with TRestRun and shows the plot of each event 
+/// The plot is shown through TRestEventViewer interface on the right. On the left
+/// there is a control bar to switch the events. Plot options can also be given.
 ///
 /// \class TRestBrowser
 ///
@@ -63,7 +62,7 @@ void TRestBrowser::Initialize(TString opt) {
     frmMain = new TGMainFrame(gClient->GetRoot(), 300);
     frmMain->SetCleanup(kDeepCleanup);
     frmMain->SetWindowName("Controller");
-    setButtons();
+    SetButtons();
     b->StopEmbedding();
 
     b->StartEmbedding(1, -1);
@@ -101,7 +100,7 @@ void TRestBrowser::SetViewer(TString viewerName) {
     }
 }
 
-void TRestBrowser::setButtons() {
+void TRestBrowser::SetButtons() {
     TString icondir = (TString)getenv("ROOTSYS") + "/icons/";
 
     auto fVFrame = new TGVerticalFrame(frmMain);

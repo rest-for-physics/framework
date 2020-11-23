@@ -1,6 +1,8 @@
 #ifndef RestCore_TRestBrowser
 #define RestCore_TRestBrowser
 
+#include <iostream>
+
 #include "TApplication.h"
 #include "TBrowser.h"
 #include "TCanvas.h"
@@ -13,12 +15,9 @@
 #include "TGTextEntry.h"
 #include "TObject.h"
 #include "TROOT.h"
-#include "TSystem.h"
-
 #include "TRestEventViewer.h"
 #include "TRestRun.h"
-
-#include <iostream>
+#include "TSystem.h"
 
 /// Event browser for different input file
 class TRestBrowser {
@@ -37,7 +36,7 @@ class TRestBrowser {
     TGNumberEntry* fEventSubIdNumberBox = 0;  //! For sub Event number.
 
     TGLabel* fPlotOptionLabel = 0;        //!
-    TGTextEntry* fPlotOptionTextBox = 0;  //!
+    TGTextEntry* fPlotOptionTextBox = 0;  //! TextBox for plot options
     TGTextButton* fButOptPrev = 0;        //! Previous plot option
     TGTextButton* fButOptRefresh = 0;     //! Refresh plot
     TGTextButton* fButOptNext = 0;        //! Next plot option
@@ -61,30 +60,24 @@ class TRestBrowser {
 
     TRestEventViewer* fEventViewer = 0;  //!
 
+    void SetButtons();
     Bool_t LoadEventId(Int_t id, Int_t subid = -1);
     Bool_t LoadEventEntry(Int_t n);
 #endif
 
    public:
-    // Constructors
-    TRestBrowser();
-    TRestBrowser(TString viewerName);
-
-    // Destructor
-    ~TRestBrowser();
-
+    // tool method
     void Initialize(TString opt = "FI");
     void InitFromConfigFile();
     Bool_t OpenFile(TString filename);
 
+    // setters
     void SetViewer(TRestEventViewer* eV);
     void SetViewer(TString viewerName);
     void SetInputEvent(TRestEvent*);
+    void SetWindowName(TString wName) { frmMain->SetWindowName(wName.Data()); }
 
-    void setWindowName(TString wName) { frmMain->SetWindowName(wName.Data()); }
-
-    void setButtons();
-
+    // getters
     TRestEventViewer* GetViewer() { return fEventViewer; }
 
     // actions
@@ -98,6 +91,11 @@ class TRestBrowser {
     void PreviousPlotOptionAction();
     void PlotAction();
 
+    // Constructors
+    TRestBrowser();
+    TRestBrowser(TString viewerName);
 
+    // Destructor
+    ~TRestBrowser();
 };
 #endif
