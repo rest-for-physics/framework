@@ -35,6 +35,9 @@ before_script:
     # We redefine the HOME
   - export HOME=${CI_PROJECT_DIR}/install/
   - if [ -d $HOME/.rest ]; then rm -Rf $HOME/.rest; fi
+  - git submodule sync --recursive
+  - git submodule update --init --recursive
+
 
 clang-format:
     stage: pre-build
@@ -146,6 +149,7 @@ BasicReadout:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/projects/basic-readouts/
+    - ls
     - restRoot --m 1 -b -q GenerateReadouts.C'("basic.root")'
     - restRoot -b -q BasicValidation.C'("basic.root")'
   except:
