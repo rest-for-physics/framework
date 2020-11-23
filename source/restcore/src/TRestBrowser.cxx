@@ -145,6 +145,7 @@ void TRestBrowser::setButtons() {
 
     fPlotOptionTextBox = new TGTextEntry(fVFrame, "");
     fPlotOptionTextBox->SetText("");
+    fPlotOptionTextBox->Connect("ReturnPressed()", "TRestBrowser", this, "PlotAction()");
     fVFrame->AddFrame(fPlotOptionTextBox, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
     auto switchbuttonbar = new TGHorizontalFrame(fVFrame);
