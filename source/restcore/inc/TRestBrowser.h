@@ -60,6 +60,8 @@ class TRestBrowser {
 
     TRestEventViewer* fEventViewer = 0;  //!
 
+    void SetViewer(TRestEventViewer* eV);
+    void SetViewer(TString viewerName);
     void SetButtons();
     Bool_t LoadEventId(Int_t id, Int_t subid = -1);
     Bool_t LoadEventEntry(Int_t n);
@@ -72,8 +74,6 @@ class TRestBrowser {
     Bool_t OpenFile(TString filename);
 
     // setters
-    void SetViewer(TRestEventViewer* eV);
-    void SetViewer(TString viewerName);
     void SetInputEvent(TRestEvent*);
     void SetWindowName(TString wName) { frmMain->SetWindowName(wName.Data()); }
 
