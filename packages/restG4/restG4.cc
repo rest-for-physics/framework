@@ -11,7 +11,6 @@
 #include "G4RunManager.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4UImanager.hh"
-#include "GdmlPreprocessor.h"
 #include "PhysicsList.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "Randomize.hh"
@@ -20,6 +19,7 @@
 #include "TRestG4Event.h"
 #include "TRestG4Metadata.h"
 #include "TRestG4Track.h"
+#include "TRestGDMLParser.h"
 #include "TRestGeometry.h"
 #include "TRestPhysicsLists.h"
 #include "TRestRun.h"
@@ -103,7 +103,8 @@ int main(int argc, char** argv) {
     // 2. We allow file entities to be http remote files
     // 3. We retrieve the GDML and materials versions and associate to the
     // corresponding TRestG4Metadata members
-    GdmlPreprocessor* gdml = new GdmlPreprocessor();
+    // 4. We support the use of system variables ${}
+    TRestGDMLParser* gdml = new TRestGDMLParser();
 
     // This call will generate a new single file GDML output
     gdml->Load((string)restG4Metadata->Get_GDML_Filename());

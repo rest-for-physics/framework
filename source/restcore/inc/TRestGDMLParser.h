@@ -1,6 +1,6 @@
 
-#ifndef restG4_GdmlPreprocessor
-#define restG4_GdmlPreprocessor
+#ifndef restG4_TRestGDMLParser
+#define restG4_TRestGDMLParser
 
 #include "TGeoManager.h"
 #include "TRestMetadata.h"
@@ -10,13 +10,13 @@
 // we must preprocess gdml file because of a bug in TGDMLParse::Value() in ROOT6
 //
 
-class GdmlPreprocessor : public TRestMetadata {
+class TRestGDMLParser : public TRestMetadata {
    private:
     TGeoManager* fGeo;
 
    public:
-    GdmlPreprocessor() {}
-    ~GdmlPreprocessor() {}
+    TRestGDMLParser() {}
+    ~TRestGDMLParser() {}
     string filestr = "";
     string path = "";
     string outPath = REST_USER_PATH + "/gdml/";
@@ -48,7 +48,7 @@ class GdmlPreprocessor : public TRestMetadata {
 
     void ReplaceAttributeWithKeyWord(string keyword);
 
-    ClassDef(GdmlPreprocessor, 1);
+    ClassDef(TRestGDMLParser, 1);
 };
 
 #endif

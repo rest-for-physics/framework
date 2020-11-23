@@ -1,6 +1,6 @@
-#include "GdmlPreprocessor.h"
+#include "TRestGDMLParser.h"
 
-string GdmlPreprocessor::GetEntityVersion(string name) {
+string TRestGDMLParser::GetEntityVersion(string name) {
     for (auto& i : entityVersion) {
         if (i.first == name) {
             return i.second;
@@ -10,11 +10,11 @@ string GdmlPreprocessor::GetEntityVersion(string name) {
     return "0.0";
 }
 
-string GdmlPreprocessor::GetGDMLVersion() { return gdmlVersion; }
+string TRestGDMLParser::GetGDMLVersion() { return gdmlVersion; }
 
-string GdmlPreprocessor::GetOutputGDMLFile() { return outfilename; }
+string TRestGDMLParser::GetOutputGDMLFile() { return outfilename; }
 
-void GdmlPreprocessor::Load(string file) {
+void TRestGDMLParser::Load(string file) {
     file = TRestTools::ToAbsoluteName(file);
     if (TRestTools::fileExists(file)) {
         fConfigFileName = file;
@@ -75,7 +75,7 @@ void GdmlPreprocessor::Load(string file) {
     }
 }
 
-TGeoManager* GdmlPreprocessor::CreateGeoM() {
+TGeoManager* TRestGDMLParser::CreateGeoM() {
     // We must change to the gdml file directory, otherwise ROOT cannot load.
     if (outfilename != "") {
         char originDirectory[256];
@@ -89,9 +89,9 @@ TGeoManager* GdmlPreprocessor::CreateGeoM() {
     return NULL;
 }
 
-void GdmlPreprocessor::PrintContent() { cout << filestr << endl; }
+void TRestGDMLParser::PrintContent() { cout << filestr << endl; }
 
-void GdmlPreprocessor::ReplaceEntity() {
+void TRestGDMLParser::ReplaceEntity() {
     int pos = 0;
     while ((pos = filestr.find("<!ENTITY", pos)) != -1) {
         int pos1 = filestr.find_first_not_of(" ", pos + 8);
@@ -149,7 +149,7 @@ void GdmlPreprocessor::ReplaceEntity() {
     }
 }
 
-void GdmlPreprocessor::ReplaceAttributeWithKeyWord(string keyword) {
+void TRestGDMLParser::ReplaceAttributeWithKeyWord(string keyword) {
     int n;
     while ((n = filestr.find(keyword, 0)) != -1) {
         int pos1 = 0, pos2 = 0;

@@ -646,7 +646,7 @@ using namespace std;
 
 #include <TGeoManager.h>
 
-#include "GdmlPreprocessor.h"
+#include "TRestGDMLParser.h"
 
 namespace g4_metadata_parameters {
 string CleanString(string s) {
@@ -756,7 +756,7 @@ void TRestG4Metadata::InitFromConfigFile() {
     if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO" ||
         seedstr == "0") {
         double* dd = new double();
-        fSeed = (uintptr_t)dd + (uintptr_t) this;
+        fSeed = (uintptr_t)dd + (uintptr_t)this;
         delete dd;
     } else {
         fSeed = (Long_t)StringToInteger(seedstr);
@@ -985,10 +985,10 @@ void TRestG4Metadata::ReadStorage() {
 
     fEnergyRangeStored = Get2DVectorParameterWithUnits("energyRange", storageDefinition);
 
-    GdmlPreprocessor* preprocesor = new GdmlPreprocessor();
-    preprocesor->Load((string)Get_GDML_Filename());
+    TRestGDMLParser* gdml = new TRestGDMLParser();
+    gdml->Load((string)Get_GDML_Filename());
 
-    TGeoManager::Import((TString)preprocesor->GetOutputGDMLFile());
+    TGeoManager::Import((TString)gdml->GetOutputGDMLFile());
     std::set<std::string> geometryVolumes = {"World_PV"};  // we include the world volume
     for (auto node : gGeoManager->GetTopVolume()->GetNodes()[0]) {
         string name = node->GetName();
