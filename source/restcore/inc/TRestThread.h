@@ -29,31 +29,26 @@
 /// Threaded worker of a process chain
 class TRestThread : public TRestMetadata {
    private:
-    Bool_t isFinished;
     Int_t fThreadId;
 
-    TRestProcessRunner* fHostRunner;  //!
-
-    TRestEvent* fInputEvent;   //!
-    TRestEvent* fOutputEvent;  //!
-
-    TTree* fEventTree;                 //!
-    TRestAnalysisTree* fAnalysisTree;  //!
-
+    TRestProcessRunner* fHostRunner;           //!
     vector<TRestEventProcess*> fProcessChain;  //!
+    TRestAnalysisTree* fAnalysisTree;          //!
+    TRestEvent* fInputEvent;                   //!
+    TRestEvent* fOutputEvent;                  //!
+    TFile* fOutputFile;                        //!
+    TTree* fEventTree;                         //!
 
-#ifndef __CINT__
-    TFile* fOutputFile;  //!
-    std::thread t;       //!
-#endif
+    std::thread t;      //!
+    Bool_t isFinished;  //!
 
    public:
     void Initialize();
     void InitFromConfigFile() {}
 
     void AddProcess(TRestEventProcess* process);
-    void PrepareToProcess(bool* outputConfig = 0, bool testrun = true);
-    bool TestRun(TRestAnalysisTree* tempTree = NULL);
+    void PrepareToProcess(bool* outputConfig = 0);
+    bool TestRun();
     void StartProcess();
 
     void ProcessEvent();

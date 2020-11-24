@@ -102,6 +102,12 @@ class TRestRawSignal : public TObject {
     /// Returns the range defined by user
     TVector2 GetRange() { return fRange; }
 
+    /// Returns false if the baseline and its baseline fluctuation was not initialized.
+    Bool_t isBaseLineInitialized() {
+        if (fBaseLineSigma == 0 && fBaseLine == 0) return false;
+        return true;
+    }
+
     Double_t GetData(Int_t n);
 
     Double_t GetRawData(Int_t n);

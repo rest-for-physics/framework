@@ -10,7 +10,7 @@
   restManager --c electronsSimu.rml --i example.root --o output.root
 
   <TRestRun name="Run metadata" title="REST Metadata run info (template)">
-    <parameter name="experiment" value="Test"/>
+    <parameter name="experimentName" value="Test"/>
     <parameter name="runType" value="simulation"/>
     <parameter name="runNumber" value="-1"/> //it will find next run number from database when we use "auto"
     <parameter name="runTag" value="Template"/>

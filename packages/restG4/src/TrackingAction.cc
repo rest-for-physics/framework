@@ -124,7 +124,8 @@ void TrackingAction::PostUserTrackingAction(const G4Track* track) {
     //   G4cout << "Storing track : Number of hits : " <<
     //   restTrack->GetNumberOfHits() << G4endl;
 
-    restG4Event->AddTrack(*restTrack);
+    if (restTrack->GetNumberOfHits() > 0 || restG4Metadata->RegisterEmptyTracks())
+        restG4Event->AddTrack(*restTrack);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

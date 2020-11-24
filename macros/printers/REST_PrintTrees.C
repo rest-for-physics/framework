@@ -3,6 +3,9 @@
 #include "TRestTask.h"
 using namespace std;
 
+#ifndef RestTask_PrintTrees
+#define RestTask_PrintTrees
+
 #include <TString.h>
 
 //*******************************************************************************************************
@@ -13,7 +16,7 @@ using namespace std;
 //*** --------------
 //*** Usage: restManager PrintTrees file.root [#entry]
 //*******************************************************************************************************
-Int_t REST_Trees(TString fName, Int_t Entry = 0) {
+Int_t REST_PrintTrees(TString fName, Int_t Entry = 0) {
     TRestRun* run = new TRestRun();
 
     run->OpenInputFile(fName);
@@ -33,3 +36,4 @@ Int_t REST_Trees(TString fName, Int_t Entry = 0) {
 
     return 0;
 }
+#endif

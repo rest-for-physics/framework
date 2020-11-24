@@ -1,21 +1,19 @@
-////////////////////////////////////////////////////////////////////////////////////////////
-//
-// Author : Gloria Luzon
-// Date : 26/July/2019
-// Description : It prints out on screen Geant4 events in the ROI between entries n1 and n2.
-//
-////////////////////////////////////////////////////////////////////////////////////////////
-Int_t REST_ReadNEvents_inROI(TString fName, int n1, int n2, double en1, double en2) {
-    TRestRun* run = new TRestRun();
+#include "TRestG4Event.h"
+#include "TRestG4Metadata.h"
+#include "TRestTask.h"
 
-    string fname = fName.Data();
-    // if( !fileExists( fname ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
+#ifndef RestTask_ReadNEvents_inROI
+#define RestTask_ReadNEvents_inROI
 
-    // else run->OpenInputFile( fName );
+//*******************************************************************************************************
+//*** Description : It prints out on screen Geant4 events in the ROI between entries n1 and n2.
+//*** --------------
+//*** This macro might need update/revision.
+//*******************************************************************************************************
+Int_t REST_ReadNEvents_inROI(string fName, int n1, int n2, double en1, double en2) {
+    TRestRun* run = new TRestRun(fName);
 
-    run->OpenInputFile(fName);
-
-    run->PrintInfo();
+    run->PrintMetadata();
 
     /////////////////////////////
 
@@ -45,3 +43,4 @@ Int_t REST_ReadNEvents_inROI(TString fName, int n1, int n2, double en1, double e
     delete run;
     return 0;
 }
+#endif

@@ -38,9 +38,8 @@ class TRestRun : public TRestMetadata {
     Int_t fEntriesSaved;
 
     // data-like metadata objects
-    vector<TRestMetadata*> fMetadataInfo;   //!
+    vector<TRestMetadata*> fMetadata;       //!
     vector<TRestMetadata*> fInputMetadata;  //!
-    map<string, string> fInformationMap;    //!
 
     // temp data member
     vector<TString> fInputFileNames;   //!
@@ -60,25 +59,7 @@ class TRestRun : public TRestMetadata {
    public:
     /// REST run class
     void Initialize();
-    void InitFromConfigFile() {
-        BeginOfInit();
-        if (fElement != NULL) {
-            TiXmlElement* e = fElement->FirstChildElement();
-            while (e != NULL) {
-                string value = e->Value();
-                if (value == "variable" || value == "myParameter" || value == "constant") {
-                    e = e->NextSiblingElement();
-                    continue;
-                }
-                ReadConfig((string)e->Value(), e);
-                e = e->NextSiblingElement();
-            }
-        }
-        EndOfInit();
-    }
-    void BeginOfInit();
-    Int_t ReadConfig(string keydeclare, TiXmlElement* e);
-    void EndOfInit();
+    void InitFromConfigFile();
 
     // file operation
     void OpenInputFile(int i);
@@ -102,15 +83,24 @@ class TRestRun : public TRestMetadata {
             warning << "TRestRun::GetEntry. Entry requested out of limits" << endl;
             warning << "Total number of entries is : " << GetEntries() << endl;
         }
+
+        fCurrentEvent = i;
+    }
+
+    void GetNextEntry() {
+        if (fCurrentEvent + 1 >= GetEntries()) fCurrentEvent = -1;
+        GetEntry(fCurrentEvent + 1);
     }
 
     TString FormFormat(TString FilenameFormat);
-    TFile* FormOutputFile(vector<string> filefullnames, string targetfilename = "");
+    TFile* MergeToOutputFile(vector<string> filefullnames, string outputfilename = "");
+    TFile* FormOutputFile();
+    TFile* UpdateOutputFile();
+
     void PassOutputFile() {
         fOutputFile = fInputFile;
         fOutputFileName = fOutputFile->GetName();
     }
-    TFile* FormOutputFile();
 
     void WriteWithDataBase();
 
@@ -121,7 +111,7 @@ class TRestRun : public TRestMetadata {
     /// add metadata object to the metadata list
     void AddMetadata(TRestMetadata* meta) {
         if (meta != NULL) {
-            fMetadataInfo.push_back(meta);
+            fMetadata.push_back(meta);
         } else {
             warning << "REST Warning! A null matadata wants to be added in TRestRun!" << endl;
         }
@@ -163,7 +153,7 @@ class TRestRun : public TRestMetadata {
     std::vector<int> GetEventIdsWithConditions(const string, int startingIndex = 0, int maxNumber = -1);
     TRestEvent* GetNextEventWithConditions(const string);
     TRestEventProcess* GetFileProcess() { return fFileProcess; }
-    string GetInfo(string infoname);
+    string GetRunInformation(string infoname);
     Int_t GetObservableID(TString name) { return fAnalysisTree->GetObservableID(name); }
     Bool_t ObservableExists(TString name) { return fAnalysisTree->ObservableExists(name); }
     TString GetInputEventName() { return fInputEvent->ClassName(); }
@@ -175,7 +165,7 @@ class TRestRun : public TRestMetadata {
     TRestMetadata* GetMetadataClass(TString type, TFile* f = 0);
     std::vector<std::string> GetMetadataStructureNames();
     std::vector<std::string> GetMetadataStructureTitles();
-    int GetNumberOfMetadataStructures() { return fMetadataInfo.size(); }
+    int GetNumberOfMetadataStructures() { return fMetadata.size(); }
 
     string ReplaceMetadataMember(const string instr);
     string GetMetadataMember(const string instr) { return ReplaceMetadataMember(instr); }
@@ -217,11 +207,10 @@ class TRestRun : public TRestMetadata {
     void PrintStartDate();
     void PrintEndDate();
 
-    void PrintInfo();
-    void PrintMetadata() { PrintInfo(); }
+    void PrintMetadata();
     void PrintAllMetadata() {
-        PrintInfo();
-        for (unsigned int i = 0; i < fMetadataInfo.size(); i++) fMetadataInfo[i]->PrintMetadata();
+        PrintMetadata();
+        for (unsigned int i = 0; i < fMetadata.size(); i++) fMetadata[i]->PrintMetadata();
     }
     void PrintTrees() {
         if (fEventTree != NULL) {

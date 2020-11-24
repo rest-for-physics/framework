@@ -18,7 +18,7 @@
 
   <TRestRun name="SJTU_Proto" >
     <parameter name="runNumber" value="auto"/>//change this value to "auto" to enable database
-    <parameter name="inputFile" value="auto" />
+    <parameter name="inputFileName" value="auto" />
   </TRestRun>
 
   <TRestProcessRunner name="Processor" verboseLevel="info">

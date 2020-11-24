@@ -8,6 +8,15 @@ Double_t zMax = -1000;
 
 Double_t radius = 63.0;
 
+#ifndef RestTask_GetROIEvents
+#define RestTask_GetROIEvents
+
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Double_t REST_GetROIEvents(TString fName, Double_t mean = 2457.83, Double_t fwhm = 0.03) {
     Double_t sigma = mean * fwhm / (2 * TMath::Sqrt(2 * TMath::Log(2.)));
 
@@ -47,3 +56,4 @@ Double_t REST_GetROIEvents(TString fName, Double_t mean = 2457.83, Double_t fwhm
     */
     return totalContribution;
 }
+#endif

@@ -20,6 +20,7 @@ Int_t ValidateTrees() {
         return 1;
     }
 
+    bool obsValErr = false;
     for (int n = 0; n < tr->GetEntries(); n++) {
         tr->GetEntry(n);
         tV->GetEntry(n);
@@ -43,10 +44,11 @@ Int_t ValidateTrees() {
             if ((*vr)[m] != (*vV)[m]) {
                 cout << "Double Observable with index " << m << " in entry " << n
                      << " is not the same value!!" << endl;
-                return 3;
+                obsValErr = true;
             }
         }
     }
+    if (obsValErr) return 3;
 
     cout << "Tree validation sucess!" << endl;
     return 0;

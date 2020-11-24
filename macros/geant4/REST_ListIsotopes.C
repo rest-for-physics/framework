@@ -1,6 +1,16 @@
 #include "TRestG4Event.h"
 #include "TRestG4Metadata.h"
 #include "TRestTask.h"
+
+#ifndef RestTask_ListIsotopes
+#define RestTask_ListIsotopes
+
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_ListIsotopes(TString fName, TString fOutName) {
     cout << "Filename : " << fName << ", storing info in " << fOutName << endl;
 
@@ -23,7 +33,7 @@ Int_t REST_ListIsotopes(TString fName, TString fOutName) {
 
     run->OpenInputFile(fName);
 
-    run->PrintInfo();
+    run->PrintMetadata();
 
     /////////////////////////////
 
@@ -90,3 +100,4 @@ Int_t REST_ListIsotopes(TString fName, TString fOutName) {
 
     return 0;
 }
+#endif

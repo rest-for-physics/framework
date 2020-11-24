@@ -6,7 +6,7 @@
 #include <TVector3.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/stat.h>
+//#include <sys/stat.h>
 
 #include <algorithm>
 #include <cstdio>
@@ -33,19 +33,19 @@ class TRestEventProcess;
 /// This namespace serves for the reflection functionality
 namespace REST_Reflection {
 
-extern map<string, TDataType*> __ListOfDataTypes;
+extern map<string, TDataType*> RESTListOfDataTypes;
 
 /// Wrap the string type name into ROOT type identifier "TDataType"
 inline TDataType* GetDataType(string type) {
-    if (__ListOfDataTypes[type] == NULL) {
+    if (RESTListOfDataTypes[type] == NULL) {
         TDataType* dt = new TDataType(type.c_str());
         if (dt->GetType() == -1) {
             delete dt;
         } else {
-            __ListOfDataTypes[type] = dt;
+            RESTListOfDataTypes[type] = dt;
         }
     }
-    return __ListOfDataTypes[type];
+    return RESTListOfDataTypes[type];
 }
 /// Get the type of a "data" object, returning the wrapped type identifier "TDataType"
 template <typename T>
@@ -124,8 +124,8 @@ class TRestReflector {
    private:
     /// Prepare the ROOT dictionary for this type
     int InitDictionary();
-    /// Convert the wrappered type to string
-    string ToString();
+    /// If on heap, we can call Destroy() to TRestReflector. True only when initailized from Assembly()
+    bool onheap = false;
 
    public:
     /// Name field
@@ -134,18 +134,15 @@ class TRestReflector {
     string type = "";
     /// Address of the wrapped object
     char* address = 0;
-    /// If on heap, we can call Destroy() to TRestReflector. True only when initailized from Assembly()
-    bool onheap = false;
     /// Size of the object
     int size = 0;
     /// Pointer to the corresponding TClass helper, if the wrapped object is in class type
     TClass* cl = 0;
     /// Pointer to the corresponding TDataType helper, if the wrapped object is in data type
     TDataType* dt = 0;
-
     /// If this object type wrapper is invalid
     bool IsZombie();
-    /// Streamer method of varioud types. Supports deep-cloning of custom TObject-inherited classes
+    /// Deep copy the content of the wrapped object to `to`.
     void operator>>(TRestReflector to);
     /// Output overload by calling ToString();
     friend ostream& operator<<(ostream& cin, TRestReflector ptr) { return cin << ptr.ToString(); }
@@ -160,7 +157,7 @@ class TRestReflector {
                 return;
             }
         }
-        val = *(T*)(address);
+        if (address != NULL) val = *(T*)(address);
     }
     /// Set the value of the wrapped type
     template <class T>
@@ -171,14 +168,27 @@ class TRestReflector {
                 return;
             }
         }
-        *((T*)(address)) = val;
+        if (address != NULL) *((T*)(address)) = val;
     }
+    /// Convert the wrapped object to string
+    string ToString();
+    /// Set the value of the wrapped object from string
+    void ParseString(string str);
     /// Assembly a new object, and save its address. The old object will be destroied if not null
     void Assembly();
     /// Destroy the current object. It will make the class to be zombie.
     void Destroy();
     /// Print the Hex memory map of the wrappered object
     void PrintMemory(int bytepreline = 16);
+    /// Get its data member if the wrapped object is a class
+    TRestReflector GetDataMember(string name);
+    /// Get its data member if the wrapped object is a class
+    TRestReflector GetDataMember(int ID);
+    /// Get the value of datamember as string.
+    string GetDataMemberValueString(string name);
+    /// Get the number of data members of a class
+    int GetNumberOfDataMembers();
+
     /// Type conversion operator. With this, one can implicitly convert TRestReflector object to
     /// pointer of certain type. For example, `TRestEvent* eve =
     /// REST_Reflection::Assembly("TRestRawSignalEvent");`
@@ -189,7 +199,7 @@ class TRestReflector {
     /// Default constructor
     TRestReflector() {}
     /// Constructor from a certain address and a certain type.
-    TRestReflector(char* address, string type);
+    TRestReflector(void* address, string type);
     /// Constructor to wrap an object. Any typed object can be revieved as argument.
     template <class T>
     TRestReflector(const T& obj) {
@@ -231,46 +241,51 @@ TRestReflector WrapType(string typeName);
 ///////////////////////////////////////////////
 /// \brief Deep copy the content of object `from` to `to`
 ///
-/// If the type is class type, it will use ROOT streamer. The class member
-/// with //! annotation will not be copied. The content of pointer class member
-/// with //-> annotation will also be copied.
-///
-/// If the type is base data type, it will use memcpy()
+/// Calls RESTVirtualConverter::CloneObj(). The actual methods are registered in converter.cpp
+/// If not registered, you can add it manually with AddConverter() macro
 void CloneAny(TRestReflector from, TRestReflector to);
-
-///////////////////////////////////////////////
-/// \brief Get the data member of a TObject inherited class with certain name.
-///
-/// The output is wrapped with TRestReflector.
-/// Note that the data member with //! annotation in the class definition will not
-/// be recognized.
-TRestReflector GetDataMember(REST_Reflection::TRestReflector obj, string name);
-
-///////////////////////////////////////////////
-/// \brief Get the data member of a TObject inherited class with given index
-///
-/// The 0th data member of a class will always be its base class.
-///
-/// Example :
-/// \code
-///
-/// TRestRun r;
-/// cout << REST_Reflection::GetDataMember(r,0).name << endl; //prints "TRestMetadata"
-/// cout << REST_Reflection::GetDataMember(r,4).name << endl; //prints "fRunType"
-/// REST_Reflection::GetDataMember(r,4).SetValue((TString)"aaa");
-/// r->PrintMetadata();  //the run tag printed will be "aaa"
-///
-/// \endcode
-///
-///
-TRestReflector GetDataMember(REST_Reflection::TRestReflector obj, int ID);
-
-///////////////////////////////////////////////
-/// \brief Get the number of data members of a class
-int GetNumberOfDataMembers(REST_Reflection::TRestReflector obj);
-
 };  // namespace REST_Reflection
 
 typedef REST_Reflection::TRestReflector any;
+
+class RESTVirtualConverter {
+   public:
+    virtual string ToString(void* obj) = 0;
+    virtual void ParseString(void* obj, string str) = 0;
+    virtual void CloneObj(void* from, void* to) = 0;
+};
+
+// type name, {toString method, parseString method}
+extern map<string, RESTVirtualConverter*> RESTConverterMethodBase;
+
+template <class T>
+class Converter : RESTVirtualConverter {
+   public:
+    string (*ToStringFunc)(T);
+    T (*ParseStringFunc)(string);
+    static Converter<T>* thisptr;
+
+    string ToString(void* obj) override { return ToStringFunc(*(T*)obj); }
+    void ParseString(void* obj, string str) override {
+        T newobj = ParseStringFunc(str);
+        *((T*)(obj)) = newobj;
+    }
+    void CloneObj(void* from, void* to) override { *((T*)(to)) = *((T*)(from)); }
+
+    Converter(string (*_ToStringFunc)(T), T (*_ParseStringFunc)(string)) {
+        ToStringFunc = _ToStringFunc;
+        ParseStringFunc = _ParseStringFunc;
+        string typestr = REST_Reflection::GetTypeName<T>();
+        if (RESTConverterMethodBase.count(typestr) > 0) {
+            cout << "Warning! converter for type: " << typestr << " already added!" << endl;
+        } else {
+            RESTConverterMethodBase[typestr] = this;
+        }
+    }
+};
+
+#define AddConverter(ToStringFunc, ParseStringFunc, type) \
+    template <>                                           \
+    Converter<type>* Converter<type>::thisptr = new Converter<type>(&ToStringFunc, &ParseStringFunc);
 
 #endif

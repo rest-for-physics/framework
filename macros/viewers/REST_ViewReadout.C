@@ -8,8 +8,16 @@ using namespace std;
 #ifndef RestTask_ViewReadout
 #define RestTask_ViewReadout
 
+//*******************************************************************************************************
+//*** Description: This macro will draw on a canvas the readout module topology from the specified
+//*** readout plane. If no plane id is provided the first readout plane will be considered.
+//*** --------------
+//*** Remark : If the root file contains several readout files a particular readout can be specified
+//***          by name. If the name is empty "" the first readout will be used.
+//*** --------------
+//*** Usage inside restRoot: REST_ViewReadout("readouts.root", "", 1);
+//*******************************************************************************************************
 int REST_ViewReadout(TString rootFile, TString name = "", Int_t plane = 0) {
-    TRestStringOutput cout;
     TFile* fFile = new TFile(rootFile);
 
     TRestReadout* readout = NULL;
@@ -25,6 +33,9 @@ int REST_ViewReadout(TString rootFile, TString name = "", Int_t plane = 0) {
     }
 
     delete key;
+
+    TString title =
+        "Readout: " + (string)readout->GetName() + " --- plane: " + IntegerToString(plane) + ";X[mm];Y[mm]";
 
     readout->PrintMetadata();
 
@@ -139,7 +150,7 @@ int REST_ViewReadout(TString rootFile, TString name = "", Int_t plane = 0) {
     }
 
     TCanvas* c = new TCanvas("ReadoutGraphViewer", "  ", 900, 900);
-    c->DrawFrame(xmin, ymin, xmax, ymax);
+    c->DrawFrame(xmin, ymin, xmax, ymax, title);
     c->SetTicks();
 
     for (int i = 0; i < modGraphID; i++) modGraph[i]->Draw("same");
@@ -151,11 +162,11 @@ int REST_ViewReadout(TString rootFile, TString name = "", Int_t plane = 0) {
 
     for (int i = 0; i < chGraph; i++) channelGraph[i]->Draw("same");
 
-        // when we run this macro from restManager from bash,
-        // we need to call TRestMetadata::GetChar() to prevent returning,
-        // while keeping GUI alive.
+// when we run this macro from restManager from bash,
+// we need to call TRestMetadata::GetChar() to prevent returning,
+// while keeping GUI alive.
 #ifdef REST_MANAGER
-    readout->GetChar("Running...\nPress a key to exit");
+    GetChar("Running...\nPress a key to exit");
 #endif
 
     return 0;

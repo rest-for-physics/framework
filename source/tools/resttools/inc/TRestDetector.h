@@ -27,32 +27,34 @@
 #include <string>
 #include <vector>
 
+#include "TFile.h"
 #include "TRestStringOutput.h"
 #include "TRestTools.h"
 
 using namespace std;
 
-class TRestDetector {
+class TRestDetector : public map<string, string> {
    protected:
     string fDetectorName;
     Int_t fRunNumber;
 
    public:
     // Constructors
-    TRestDetector() {}
+    TRestDetector() { SetDetectorName("REST Detector"); }
     // Destructor
     ~TRestDetector() {}
 
-    Int_t GetRunNumber() { return fRunNumber; }
-    void SetRunNumber(Int_t run) { fRunNumber = run; }
-    string GetDetectorName() { return fDetectorName; }
+    Int_t GetRunNumber() const;
+    void SetRunNumber(const Int_t& run);
+    string GetDetectorName() const;
+    void SetDetectorName(const string& name);
 
-    //
-    virtual string GetParameter(string paraname) { return PARAMETER_NOT_FOUND_STR; }
-    virtual void SetParameter(string paraname, string paraval) {}
-    virtual void RegisterMetadata(TObject* ptr) {}
-    virtual void RegisterString(string str) {}
-    virtual void Print() {}
+    // virtual methods
+    virtual string GetParameter(const string& paraname) const;
+    virtual void SetParameter(const string& paraname, const string& paraval);
+    virtual void Print() const;
+    virtual void WriteFile(TFile* f) const;
+    virtual void ReadFile(TFile* f);
 };
 
 extern TRestDetector* gDetector;

@@ -35,16 +35,23 @@
 /// *centerWidth%* of the total number of bins center around the middle. The mean
 /// of these bins is used to do the correction.
 ///
+/// Output signal without base line subtraction.
+///
 ///_______________________________________________________________________________
 ///
 /// RESTsoft - Software for Rare Event Searches with TPCs
 ///
 /// History of developments:
 ///
-/// 2020-July: First implementation of common noise reduction process
+/// 2020-July: First implementation of common noise reduction process.
+///            Benjamin Manier
+///
+/// 2020-October: Base line not subtracted.
+///            David Diez
 ///
 /// \class      TRestRawCommonNoiseReductionProcess
 /// \author     Benjamin Manier
+/// \author     David Diez
 ///
 ///______________________________________________________________________________
 
@@ -130,6 +137,15 @@ void TRestRawCommonNoiseReductionProcess::InitProcess() {}
 TRestEvent* TRestRawCommonNoiseReductionProcess::ProcessEvent(TRestEvent* evInput) {
     fInputEvent = (TRestRawSignalEvent*)evInput;
 
+    // Event base line determination.
+    Double_t baseLineMean = 0;
+    for (int sgnl = 0; sgnl < fInputEvent->GetNumberOfSignals(); sgnl++) {
+        fInputEvent->GetSignal(sgnl)->CalculateBaseLine(20, 150);
+        Double_t baseline = fInputEvent->GetSignal(sgnl)->GetBaseLine();
+        baseLineMean += baseline;
+    }
+    Double_t Baseline = baseLineMean / fInputEvent->GetNumberOfSignals();
+
     Int_t N = fInputEvent->GetNumberOfSignals();
 
     if (GetVerboseLevel() >= REST_Debug) N = 1;
@@ -143,24 +159,26 @@ TRestEvent* TRestRawCommonNoiseReductionProcess::ProcessEvent(TRestEvent* evInpu
     vector<Double_t> sgnlValues(N, 0.0);
 
     for (Int_t bin = 0; bin < nBins; bin++) {
-        for (Int_t sgnl = 0; sgnl < N; sgnl++) sgnlValues[sgnl] = fOutputEvent->GetSignal(sgnl)->GetData(bin);
+        for (Int_t sgnl = 0; sgnl < N; sgnl++) {
+            sgnlValues[sgnl] = fOutputEvent->GetSignal(sgnl)->GetRawData(bin);
+        }
 
         std::sort(sgnlValues.begin(), sgnlValues.end());
 
         // Sorting the different methods
         Int_t begin, middle, end;
-        middle = (Int_t)nBins / 2;
+        middle = (Int_t)N / 2;
         Double_t norm = 1.0;
 
         if (fMode == 0) {
             // We take only the middle one
-            begin = (Int_t)((double_t)nBins / 2.0);
+            begin = (Int_t)((double_t)N / 2.0);
             end = begin;
             norm = 1.;
         } else if (fMode == 1) {
             // We take the average of the TRestSignals at the Center
-            begin = middle - (Int_t)(nBins * fcenterWidth * 0.01);
-            end = middle + (Int_t)(nBins * fcenterWidth * 0.01);
+            begin = middle - (Int_t)(N * fcenterWidth * 0.01);
+            end = middle + (Int_t)(N * fcenterWidth * 0.01);
             norm = (Double_t)end - begin;
         }
 
@@ -172,7 +190,7 @@ TRestEvent* TRestRawCommonNoiseReductionProcess::ProcessEvent(TRestEvent* evInpu
 
         // Application of the correction.
         for (Int_t sgnl = 0; sgnl < N; sgnl++)
-            fOutputEvent->GetSignal(sgnl)->IncreaseBinBy(bin, -binCorrection);
+            fOutputEvent->GetSignal(sgnl)->IncreaseBinBy(bin, Baseline - binCorrection);
     }
 
     return fOutputEvent;

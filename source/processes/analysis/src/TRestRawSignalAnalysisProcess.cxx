@@ -310,7 +310,7 @@ Double_t maxeve = 0;
 
         /// Important call we need to initialize the points over threshold in a TRestRawSignal
         sgnl->InitializePointsOverThreshold(TVector2(fPointThreshold, fSignalThreshold),
-                                            fNPointsOverThreshold);
+                                            fPointsOverThreshold);
 
         // We do not want that signals that are not identified as such contribute to define our
         // observables
@@ -504,7 +504,9 @@ risetimemean += sgnl->GetRiseTime();
     SetObservableValue("AveragePeakTime", peakTimeAverage);
 
     if (GetVerboseLevel() >= REST_Debug) {
-        fAnalysisTree->PrintObservables(this);
+        for (auto i : fObservableInfo) {
+            fAnalysisTree->PrintObservable(i.second);
+        }
     }
 
     fPreviousEventTime.push_back(fSignalEvent->GetTimeStamp());
@@ -559,9 +561,10 @@ TPad* TRestRawSignalAnalysisProcess::DrawObservables() {
 /// \brief Function to read input parameters.
 ///
 void TRestRawSignalAnalysisProcess::InitFromConfigFile() {
-    fBaseLineRange = StringTo2DVector(GetParameter("baseLineRange", "(5,55)"));
-    fIntegralRange = StringTo2DVector(GetParameter("integralRange", "(10,500)"));
-    fPointThreshold = StringToDouble(GetParameter("pointThreshold", "2"));
-    fNPointsOverThreshold = StringToInteger(GetParameter("pointsOverThreshold", "5"));
-    fSignalThreshold = StringToDouble(GetParameter("signalThreshold", "5"));
+    TRestEventProcess::InitFromConfigFile();
+    // fBaseLineRange = StringTo2DVector(GetParameter("baseLineRange", "(5,55)"));
+    // fIntegralRange = StringTo2DVector(GetParameter("integralRange", "(10,500)"));
+    // fPointThreshold = StringToDouble(GetParameter("pointThreshold", "2"));
+    // fPointsOverThreshold = StringToInteger(GetParameter("pointsOverThreshold", "5"));
+    // fSignalThreshold = StringToDouble(GetParameter("signalThreshold", "5"));
 }

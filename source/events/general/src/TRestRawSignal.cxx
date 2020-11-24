@@ -593,7 +593,7 @@ void TRestRawSignal::SignalAddition(TRestRawSignal* inSgnl) {
 void TRestRawSignal::WriteSignalToTextFile(TString filename) {
     // We should check it is writable
     FILE* fff = fopen(filename.Data(), "w");
-    for (int i = 0; i < GetNumberOfPoints(); i++) fprintf(fff, "%d\t%d\n", i, GetData(i));
+    for (int i = 0; i < GetNumberOfPoints(); i++) fprintf(fff, "%d\t%lf\n", i, GetData(i));
     fclose(fff);
 }
 
