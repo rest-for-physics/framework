@@ -480,6 +480,13 @@ void TRestReadout::InitFromConfigFile() {
             TString modName = GetFieldValue("name", moduleDefinition);
             Int_t mid = GetModuleDefinitionId(modName);
 
+            if (mid == -1) {
+                ferr << "TRestReadout at <addReadoutModule>. Module name " << modName << " not found!"
+                     << endl;
+                ferr << "Please, check spelling" << endl;
+                exit(1);
+            }
+
             fModuleDefinitions[mid].SetModuleID(StringToInteger(GetFieldValue("id", moduleDefinition)));
             fModuleDefinitions[mid].SetOrigin(StringTo2DVector(GetFieldValue("origin", moduleDefinition)));
             fModuleDefinitions[mid].SetRotation(StringToDouble(GetFieldValue("rotation", moduleDefinition)));
@@ -556,6 +563,7 @@ void TRestReadout::InitFromConfigFile() {
                 // WRONG version before -->
                 // fModuleDefinitions[mid].GetChannel(ch)->SetID( rChannel[ch] );
                 fModuleDefinitions[mid].GetChannel(rChannel[ch])->SetDaqID(dChannel[ch]);
+                fModuleDefinitions[mid].GetChannel(rChannel[ch])->SetChannelID(rChannel[ch]);
 
 #pragma endregion
                 addedChannels++;
@@ -590,7 +598,6 @@ void TRestReadout::InitFromConfigFile() {
     }
 
     ValidateReadout();
-    gDetector->RegisterMetadata(this);
 }
 
 TRestReadoutModule* TRestReadout::ParseModuleDefinition(TiXmlElement* moduleDefinition) {
@@ -663,9 +670,12 @@ TRestReadoutModule* TRestReadout::ParseModuleDefinition(TiXmlElement* moduleDefi
     }
 
     if (channelIDVector.size() > 0 && channelIDVector.size() != channelVector.size()) {
-        ferr << "channel id definition may be wrong! check your "
-                "readout module definition!"
-             << endl;
+        ferr << "TRestReadout::ParseModuleDefinition. Channel id definition may be wrong!"
+             << "check your readout module definition!" << endl;
+        ferr << " " << endl;
+        ferr << "channelIDVector size : " << channelIDVector.size() << endl;
+        ferr << "channel vector size : " << channelVector.size() << endl;
+
         exit(0);
     }
 
@@ -681,9 +691,12 @@ TRestReadoutModule* TRestReadout::ParseModuleDefinition(TiXmlElement* moduleDefi
     }
 
     if (module.GetNumberOfChannels() != channelVector.size()) {
-        ferr << "channel id definition may be wrong! check your "
-                "readout module definition!"
-             << endl;
+        ferr << "TRestReadout::ParseModuleDefinition. Channel id definition may be wrong!"
+             << "check your readout module definition!" << endl;
+        ferr << " " << endl;
+        ferr << "Module number of channels : " << module.GetNumberOfChannels() << endl;
+        ferr << "channel vector size : " << channelVector.size() << endl;
+
         exit(0);
     }
 #pragma endregion

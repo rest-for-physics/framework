@@ -28,7 +28,7 @@
 
 class TRestRawToSignalProcess : public TRestEventProcess {
    protected:
-    void InitFromConfigFile();
+    virtual void InitFromConfigFile();
     unsigned int payload;
     unsigned int frameBits;
     string fElectronicsType;  // AFTER or AGET

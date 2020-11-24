@@ -1,4 +1,14 @@
 #include "TRestTask.h"
+
+#ifndef RESTTask_PrintMetadata
+#define RESTTask_PrintMetadata
+
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_Metadata(TString fName, TString objName = "") {
     TRestStringOutput cout;
     cout.setorientation(1);
@@ -41,3 +51,4 @@ Int_t REST_Metadata(TString fName, TString objName = "") {
 
     return 0;
 }
+#endif

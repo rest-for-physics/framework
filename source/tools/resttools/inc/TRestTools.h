@@ -113,13 +113,14 @@ inline bool CanOverwrite(T* name, int level) {
 }
 
 template <class T>
-inline bool SetInitLevel(T* name, int level) {
+inline void SetInitLevel(T* name, int level) {
     GlobalVarInit<T>::level = level;
 }
 
 #define MakeGlobal(classname, objname, level)                       \
     struct __##classname##_Init {                                   \
         __##classname##_Init() {                                    \
+            REST_ARGS[#objname] = #classname;                       \
             if (objname != NULL) {                                  \
                 if (REST_InitTools::CanOverwrite(objname, level)) { \
                     delete objname;                                 \

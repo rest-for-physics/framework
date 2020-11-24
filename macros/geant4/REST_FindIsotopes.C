@@ -1,6 +1,16 @@
 #include "TRestG4Event.h"
 #include "TRestG4Metadata.h"
 #include "TRestTask.h"
+
+#ifndef RestTask_FindIsotopes
+#define RestTask_FindIsotopes
+
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_FindIsotopes(TString fName, TString fIsotope) {
     cout << "Filename : " << fName << " looking for " << fIsotope << endl;
 
@@ -22,7 +32,7 @@ Int_t REST_FindIsotopes(TString fName, TString fIsotope) {
 
     run->OpenInputFile(fName);
 
-    run->PrintInfo();
+    run->PrintMetadata();
 
     /////////////////////////////
 
@@ -70,3 +80,4 @@ Int_t REST_FindIsotopes(TString fName, TString fIsotope) {
 
     return 0;
 }
+#endif

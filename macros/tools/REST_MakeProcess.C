@@ -4,6 +4,15 @@
 #include "TRestStringHelper.h"
 #include "TString.h"
 
+#ifndef RESTTask_MakeProcess
+#define RESTTask_MakeProcess
+
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString outputevent = "TRestEvent") {
     // REST_MakeProcess("TRestXXXProcess", "TRestHitsEvent")
     //    --> generate an analysis process template for TRestHitsEvent
@@ -103,6 +112,7 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     headerfile << "    void Initialize();" << endl;
     headerfile << endl;
     headerfile << "    // Add here the members or parameters for your event process." << endl;
+    headerfile << "    // You should set their initial values here together. " << endl;
     headerfile << "    // Note: add \"//!\" mark at the end of the member definition" << endl;
     headerfile << "    // if you don't want to save them as \"metadata\"." << endl;
     headerfile << endl;
@@ -225,7 +235,9 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     sourcefile << "}" << endl;
     sourcefile << endl;
     sourcefile << "void " << name << "::InitFromConfigFile() {" << endl;
-    sourcefile << "    // Define here how to read the config file. What parameter to get." << endl;
+    sourcefile << "    TRestEventProcess::InitFromConfigFile();" << endl;
+    sourcefile << "    // Don't need to write code here besides the advanced logic of parameter loading"
+               << endl;
     sourcefile << endl;
     sourcefile << "}" << endl;
 
@@ -244,3 +256,4 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
 
     return 0;
 }
+#endif

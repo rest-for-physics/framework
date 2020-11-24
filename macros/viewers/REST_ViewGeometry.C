@@ -8,8 +8,13 @@ using namespace std;
 #ifndef RestTask_ViewGeometry
 #define RestTask_ViewGeometry
 
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_ViewGeometry(TString fName, TString option = "") {
-    TRestStringOutput cout;
     cout << "Filename : " << fName << endl;
 
     TGeoManager* geo = NULL;
@@ -75,7 +80,7 @@ Int_t REST_ViewGeometry(TString fName, TString option = "") {
 // while keeping GUI alive.
 #ifdef REST_MANAGER
     TRestRun* run = new TRestRun();
-    run->GetChar("Running...\nPress a key to exit");
+    GetChar("Running...\nPress a key to exit");
 #endif
 
     return 0;

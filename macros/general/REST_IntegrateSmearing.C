@@ -10,6 +10,12 @@
 #ifndef RestTask_IntegrateSmearing
 #define RestTask_IntegrateSmearing
 
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_IntegrateSmearing(TString varName, TString rootFileName, double Middle) {
     TRestStringOutput cout;
 
@@ -31,7 +37,7 @@ Int_t REST_IntegrateSmearing(TString varName, TString rootFileName, double Middl
 
         run->OpenInputFile(inputFilesNew[n]);
 
-        run->PrintInfo();
+        run->PrintMetadata();
 
         Int_t obsID = run->GetAnalysisTree()->GetObservableID(varName);
         if (obsID == -1) {

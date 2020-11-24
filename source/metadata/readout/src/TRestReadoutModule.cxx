@@ -142,16 +142,16 @@ void TRestReadoutModule::DoReadoutMapping(Int_t nodes) {
             // often. This should be just a warning I guess.
             if (showWarnings && fMapping.isNodeSet(nodeX, nodeY)) {
                 cout << endl;
-                cout << "TRestReadoutModule. WARNING. Node is already SET!!" << endl;
-                cout << "Trying to associate channel : " << ch << " Pixel : " << px << endl;
-                cout << "Pixel coordinates : ( " << xPix << " , " << yPix << " ) " << endl;
+                warning << "TRestReadoutModule. Node is already SET!!" << endl;
+                warning << "Trying to associate channel : " << ch << " Pixel : " << px << endl;
+                warning << "Pixel coordinates : ( " << xPix << " , " << yPix << " ) " << endl;
 
                 Int_t tempCh = fMapping.GetChannelByNode(nodeX, nodeY);
                 Int_t tempPix = fMapping.GetPixelByNode(nodeX, nodeY);
-                cout << "Already associated channel : " << tempCh << " pixel : " << tempPix << endl;
+                warning << "Already associated channel : " << tempCh << " pixel : " << tempPix << endl;
                 Double_t xP = this->GetChannel(tempCh)->GetPixel(tempPix)->GetCenter().X();
                 Double_t yP = this->GetChannel(tempCh)->GetPixel(tempPix)->GetCenter().Y();
-                cout << "Pixel coordinates : ( " << xP << " , " << yP << " ) " << endl;
+                warning << "Pixel coordinates : ( " << xP << " , " << yP << " ) " << endl;
                 cout << endl;
 
                 cout << "Increasing the number of mapping of nodes may solve this issue." << endl;
@@ -550,6 +550,6 @@ void TRestReadoutModule::Print(Int_t DetailLevel) {
         metadata << "-- Total channels : " << GetNumberOfChannels() << endl;
         metadata << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
-        for (int n = 0; n < GetNumberOfChannels(); n++) fReadoutChannel[n].Print(DetailLevel - 1, n);
+        for (int n = 0; n < GetNumberOfChannels(); n++) fReadoutChannel[n].Print(DetailLevel - 1);
     }
 }

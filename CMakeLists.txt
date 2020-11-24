@@ -174,9 +174,6 @@ message("Check main project README.md to see all available compilation options")
 message("")
 
 file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h")
-file(GLOB_RECURSE Headers_ "${CMAKE_CURRENT_SOURCE_DIR}/source/tools/external/win/*.h")
-
-list(REMOVE_ITEM Headers ${Headers_})
 
 INSTALL(FILES ${Headers} DESTINATION include)
 

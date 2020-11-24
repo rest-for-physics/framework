@@ -4,6 +4,15 @@
 Int_t minTime = 156;
 Int_t maxTime = 159;
 
+#ifndef RESTTask_ProduceResponseSignal
+#define RESTTask_ProduceResponseSignal
+
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_ProduceResponseSignal(TString inputFileName, TString outputFileName, Int_t nPoints = 512,
                                  Double_t threshold = 1) {
     TRestRun* run = new TRestRun();
@@ -63,3 +72,4 @@ Int_t REST_ProduceResponseSignal(TString inputFileName, TString outputFileName, 
 
     return 0;
 }
+#endif

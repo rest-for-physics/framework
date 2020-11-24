@@ -9,6 +9,12 @@
 #ifndef RESTTask_PrintFileContents
 #define RESTTask_PrintFileContents
 
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_FileContents(TString fName) {
     TRestStringOutput fout;
     TFile* fFile = new TFile(fName);

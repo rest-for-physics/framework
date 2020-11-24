@@ -67,14 +67,18 @@ class TRestEveEventViewer : public TRestEventViewer {
 
     Double_t fMinRadius;
     Double_t fMaxRadius;
-
+    
    public:
     virtual void Initialize();
+
+    virtual void Embed(TBrowser* b) {}
 
     virtual void DeleteCurrentEvent();
     void DeleteGeometry();
 
     virtual void AddEvent(TRestEvent* ev) = 0;
+
+    virtual void Plot(const char* option) {}
 
     void AddSphericalHit(double x, double y, double z, double radius, double en);
 

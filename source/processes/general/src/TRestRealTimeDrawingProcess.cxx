@@ -244,7 +244,7 @@ void TRestRealTimeDrawingProcess::InitFromConfigFile() {
         while (ele != NULL) {
             TRestAnalysisPlot* plt = new TRestAnalysisPlot();
             plt->SetHostmgr(this->fHostmgr);
-            plt->LoadConfigFromFile(ele, fElementGlobal, fVariables);
+            plt->LoadConfigFromElement(ele, fElementGlobal, fVariables);
             plt->SetName(plt->GetName() +
                          (TString)ToString(this));  // to prevent deleting canvas with same name
             fPlots.push_back(plt);

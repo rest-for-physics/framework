@@ -21,7 +21,7 @@
     </globals>
 
     <TRestRun name="Background" title="${EXPERIMENT} Simulations. Version ${VERSION}.">
-        <parameter name="experiment" value="${EXPERIMENT}"/>
+        <parameter name="experimentName" value="${EXPERIMENT}"/>
         <parameter name="readOnly" value="false" />
         <parameter name="runNumber" value="100"/>
         <parameter name="runDescription" value=""/>

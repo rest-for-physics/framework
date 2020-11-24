@@ -35,6 +35,9 @@ before_script:
     # We redefine the HOME
   - export HOME=${CI_PROJECT_DIR}/install/
   - if [ -d $HOME/.rest ]; then rm -Rf $HOME/.rest; fi
+  - git submodule sync --recursive
+  - git submodule update --init --recursive
+
 
 clang-format:
     stage: pre-build
@@ -141,6 +144,18 @@ GenerateReadout:
       variables:
         - $CRONJOB == "YES"
 
+BasicReadout:
+  type: metadata 
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/projects/basic-readouts/
+    - ls
+    - restRoot --m 1 -b -q GenerateReadouts.C'("basic.root")'
+    - restRoot -b -q BasicValidation.C'("basic.root", "pixelDecoding")'
+  except:
+      variables:
+        - $CRONJOB == "YES"
+
 testMeta:
   type: restManager_generate
   script:
@@ -160,7 +175,7 @@ trexDM_data:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/scripts/pipeline/trex
-    - restManager --c 01_raw.rml --f data.aqs
+    - restManager --c 01_raw.rml --f *.aqs
     - restManager --c 02_signal.rml --f RawData.root
     - restManager --c 03_hits.rml --f Signals.root
     - restRoot -b -q ../MakeBasicTree.C'("Hits.root")'

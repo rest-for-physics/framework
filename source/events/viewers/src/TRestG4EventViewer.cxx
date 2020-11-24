@@ -70,7 +70,7 @@ void TRestG4EventViewer::AddEvent(TRestEvent* ev) {
         }
     }
 
-    cout << "Total EDep " << totalEDep << endl;
+    cout << "TRestG4EventViewer::AddEvent. Total EDep " << totalEDep << endl;
 
     Double_t slope = (fMaxRadius - fMinRadius) / (eDepMax - eDepMin);
     Double_t bias = fMinRadius - slope * eDepMin;
@@ -84,7 +84,9 @@ void TRestG4EventViewer::AddEvent(TRestEvent* ev) {
 
         // Building track name
         Double_t eKin = g4Track->GetKineticEnergy();
+        // cout << "eKin: " << eKin << endl;
         TString ptlName = g4Track->GetParticleName();
+        // cout << "ptlName: " << ptlName << endl;
         char pcleStr[64];
         sprintf(pcleStr, "Track ID : %d %s (%6.2lf keV)", trkID, ptlName.Data(), eKin);
 
@@ -93,6 +95,7 @@ void TRestG4EventViewer::AddEvent(TRestEvent* ev) {
                 origin.X(), origin.Y(), origin.Z());
 
         if (parentID == 0) {
+            // cout << " Parent ID : 0" << endl;
             char evInfoStr[256];
             sprintf(evInfoStr, "%s. EventID = %d at position (%4.2lf, %4.2lf, %4.2lf) mm", ptlName.Data(),
                     fG4Event->GetID(), origin.X(), origin.Y(), origin.Z());
@@ -106,14 +109,18 @@ void TRestG4EventViewer::AddEvent(TRestEvent* ev) {
                         origin.Z());
                 this->AddText(evInfoStr, origin);
             }
-        } else
+        } else {
+            // cout << "Adding track : " << trkID << " parent : " << parentID << " pt: " << pcleStr << endl;
             this->AddTrack(trkID, parentID, origin, pcleStr);
+        }
 
+        // cout << "Adding marker" << endl;
         this->AddMarker(trkID, origin, markerStr);
 
         TRestG4Hits* g4Hits = g4Track->GetHits();
         Int_t nHits = g4Track->GetNumberOfHits();
 
+        // cout << "Adding hits" << endl;
         for (int i = 0; i < nHits; i++) {
             Double_t x = g4Hits->GetX(i);
             Double_t y = g4Hits->GetY(i);
@@ -129,6 +136,7 @@ void TRestG4EventViewer::AddEvent(TRestEvent* ev) {
             }
         }
     }
+    // cout << "Updating" << endl;
 
     Update();
 }

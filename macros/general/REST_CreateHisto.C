@@ -10,6 +10,12 @@
 #ifndef RestTask_CreateHisto
 #define RestTask_CreateHisto
 
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_CreateHisto(TString varName, TString rootFileName, TString histoName, int startVal = 0,
                        int endVal = 1000, int bins = 1000, Double_t normFactor = 1) {
     TRestStringOutput cout;
@@ -28,7 +34,7 @@ Int_t REST_CreateHisto(TString varName, TString rootFileName, TString histoName,
 
         run->OpenInputFile(inputFilesNew[n]);
 
-        run->PrintInfo();
+        run->PrintMetadata();
 
         Int_t obsID = run->GetAnalysisTree()->GetObservableID(varName);
         if (obsID == -1) {

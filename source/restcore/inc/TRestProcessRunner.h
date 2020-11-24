@@ -38,6 +38,7 @@ class TRestProcessRunner : public TRestMetadata {
     TTree* fEventTree;                 //!
     TRestAnalysisTree* fAnalysisTree;  //!
     ProcStatus fProcStatus;
+    Bool_t fUseTestRun;
     Int_t nBranches;
     Int_t fThreadNumber;
     Int_t fProcessNumber;
@@ -99,12 +100,13 @@ class TRestProcessRunner : public TRestMetadata {
     int GetNProcesses() { return fProcessNumber; }
     int GetNProcessedEvents() { return fProcessedEvents; }
     double GetReadingSpeed();
+    bool UseTestRun() const { return fUseTestRun; }
 
     // Construtor & Destructor
     TRestProcessRunner();
     ~TRestProcessRunner();
 
-    ClassDef(TRestProcessRunner, 2);
+    ClassDef(TRestProcessRunner, 3);
 };
 
 #endif

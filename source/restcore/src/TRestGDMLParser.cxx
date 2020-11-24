@@ -1,6 +1,6 @@
-#include "GdmlPreprocessor.h"
+#include "TRestGDMLParser.h"
 
-string GdmlPreprocessor::GetEntityVersion(string name) {
+string TRestGDMLParser::GetEntityVersion(string name) {
     for (auto& i : entityVersion) {
         if (i.first == name) {
             return i.second;
@@ -10,11 +10,11 @@ string GdmlPreprocessor::GetEntityVersion(string name) {
     return "0.0";
 }
 
-string GdmlPreprocessor::GetGDMLVersion() { return gdmlVersion; }
+string TRestGDMLParser::GetGDMLVersion() { return gdmlVersion; }
 
-string GdmlPreprocessor::GetOutputGDMLFile() { return outfilename; }
+string TRestGDMLParser::GetOutputGDMLFile() { return outfilename; }
 
-void GdmlPreprocessor::Load(string file) {
+void TRestGDMLParser::Load(string file) {
     file = TRestTools::ToAbsoluteName(file);
     if (TRestTools::fileExists(file)) {
         fConfigFileName = file;
@@ -29,10 +29,10 @@ void GdmlPreprocessor::Load(string file) {
         if (pp != string::npos) {
             int pp2 = filestr.find("##", pp + 4);
             if (pp2 != string::npos) gdmlVersion = filestr.substr(pp + 9, pp2 - pp - 9);
-            gdmlVersion = ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(gdmlVersion));
+            gdmlVersion = ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(gdmlVersion)));
         }
 
-        filestr = ReplaceEnvironmentalVariables(filestr);
+        filestr = ReplaceConstants(ReplaceVariables(filestr));
 
         cout << "GDML: initializating variables" << endl;
         int pos = filestr.find("<gdml", 0);
@@ -75,7 +75,7 @@ void GdmlPreprocessor::Load(string file) {
     }
 }
 
-TGeoManager* GdmlPreprocessor::CreateGeoM() {
+TGeoManager* TRestGDMLParser::CreateGeoM() {
     // We must change to the gdml file directory, otherwise ROOT cannot load.
     if (outfilename != "") {
         char originDirectory[256];
@@ -89,9 +89,9 @@ TGeoManager* GdmlPreprocessor::CreateGeoM() {
     return NULL;
 }
 
-void GdmlPreprocessor::PrintContent() { cout << filestr << endl; }
+void TRestGDMLParser::PrintContent() { cout << filestr << endl; }
 
-void GdmlPreprocessor::ReplaceEntity() {
+void TRestGDMLParser::ReplaceEntity() {
     int pos = 0;
     while ((pos = filestr.find("<!ENTITY", pos)) != -1) {
         int pos1 = filestr.find_first_not_of(" ", pos + 8);
@@ -103,9 +103,16 @@ void GdmlPreprocessor::ReplaceEntity() {
         int pos4 = filestr.find("\"", pos3);
         string entityfile = RemoveWhiteSpaces(filestr.substr(pos3, pos4 - pos3));
 
+        cout << "GDML: replacing entitiy: " << entityname << ", file: " << entityfile << endl;
+
         if ((int)entityfile.find("http") != -1) {
-            TRestTools::DownloadRemoteFile(entityfile, outPath + entityname + ".xml");
-            entityfile = outPath + entityname + ".xml";
+            string entityfiledl = outPath + "PID" + std::to_string(getpid()) + "_" + entityname + ".xml";
+            int a = TRestTools::DownloadRemoteFile(entityfile, entityfiledl);
+            if (a != 0) {
+                cout << "GDML: Download failed!" << endl;
+                exit(1);
+            }
+            entityfile = entityfiledl;
         } else {
             entityfile = path + entityfile;
         }
@@ -117,7 +124,7 @@ void GdmlPreprocessor::ReplaceEntity() {
                 std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
                 t.close();
 
-                str = ReplaceEnvironmentalVariables(str);
+                str = ReplaceConstants(ReplaceVariables(str));
 
                 entityVersion[entityname] = "";
                 int pp = str.find("##VERSION", 0);
@@ -142,7 +149,7 @@ void GdmlPreprocessor::ReplaceEntity() {
     }
 }
 
-void GdmlPreprocessor::ReplaceAttributeWithKeyWord(string keyword) {
+void TRestGDMLParser::ReplaceAttributeWithKeyWord(string keyword) {
     int n;
     while ((n = filestr.find(keyword, 0)) != -1) {
         int pos1 = 0, pos2 = 0;
@@ -161,9 +168,9 @@ void GdmlPreprocessor::ReplaceAttributeWithKeyWord(string keyword) {
         }
         string target = filestr.substr(pos1, pos2 - pos1);
         // cout << target << endl;
-        string replace = ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(target));
+        string replace = ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(target)));
         // cout << replace << endl;
-        // cout << target << " " << ReplaceEnvironmentalVariables(target) << " "
+        // cout << target << " " << ReplaceConstants(ReplaceVariables(target) << " "
         // << replace << endl;
 
         if (replace == target) {

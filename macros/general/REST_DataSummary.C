@@ -5,9 +5,13 @@
 
 #include "TRestStringHelper.h"
 #include "TRestTask.h"
+
 using namespace std;
 
 #include <TString.h>
+
+#ifndef RestTask_DataSummary
+#define RestTask_DataSummary
 
 string classifyString =
     "<<TRestDetectorSetup::fDetectorPressure>> & <<TRestDetectorSetup::fMeshVoltage>> & "
@@ -128,3 +132,4 @@ Int_t REST_DataSummary(TString pattern, TString startDate = "", TString endDate 
 
     return 0;
 }
+#endif

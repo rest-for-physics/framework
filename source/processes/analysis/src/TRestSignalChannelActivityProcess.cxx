@@ -22,10 +22,45 @@
 
 //////////////////////////////////////////////////////////////////////////
 /// The TRestSignalChannelActivityProcess allows to generate different
-/// histograms in order to monitor the times a channel has observed a signal
-/// under certain threshold and number of active channels conditions.
+/// histograms in order to monitor the number of times a channel has observed
+/// a signal given a set of conditions on the threshold and number of active
+/// channels.
 ///
-/// TODO. Write a more detailed documentation here
+/// TRestSignalChannelActivityProcess produces different channel activity
+/// histograms involving signals. These histograms thus show the activity
+/// of the channels after zero suppression.
+///
+/// The following list describes the different histograms that are generated:
+///
+/// * **daqChannelActivity**: Histogram based on the DAQ channels.
+/// The following figure shows the DAQ channel activity histogram for
+/// signals in:
+/// 	* a) the case where only channels that have been hit are saved.
+/// 	* b) the case where all the channels are saved. The left plot shows
+/// a flat distribution of raw activity and after signal analysis it turns into
+/// the right plot where only *good signals* are present.
+///
+/// \htmlonly <style>div.image img[src="daqChAct.png"]{width:1000px;}</style> \endhtmlonly
+/// ![An ilustration of the daq signals channel activity](daqChAct.png)
+///
+/// * **rChannelActivity**: histogram based on the readout channels, i.e.,
+/// after converting the daq channel numbering into readout channel numbering
+/// based on the .dec file.
+///
+/// * **rChannelActivity_N**: where *N* can be 1, 2, 3 or M (multi), is
+/// a histogram based on the readout channels, i.e., after converting the daq
+/// channel numbering into readout channel numbering based on the .dec
+/// file, that contains the events with *N* number of signals above the **lowThreshold**
+/// set by the user.
+///
+/// * **rChannelActivity_NH**: where *N* can be 1, 2, 3 or M (multi), is
+/// a histogram based on the readout channels, i.e., after converting the daq
+/// channel numbering into readout channel numbering based on the .dec
+/// file, that contains the events with *N* number of signals above the **highThreshold**
+/// set by the user.
+///
+/// The number of channels and their numbering can be specified by the user to
+/// match the detector being used.
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -122,6 +157,9 @@ void TRestSignalChannelActivityProcess::InitProcess() {
         fDaqChannelsHisto = new TH1D("daqChannelActivity", "daqChannelActivity", fDaqHistogramChannels,
                                      fDaqStartChannel, fDaqEndChannel);
         if (fReadout) {
+            fReadoutChannelsHisto =
+                new TH1D("rChannelActivity", "readoutChannelActivity", fReadoutHistogramChannels,
+                         fReadoutStartChannel, fReadoutEndChannel);
             fReadoutChannelsHisto_OneSignal =
                 new TH1D("rChannelActivity_1", "readoutChannelActivity", fReadoutHistogramChannels,
                          fReadoutStartChannel, fReadoutEndChannel);
@@ -186,6 +224,8 @@ TRestEvent* TRestSignalChannelActivityProcess::ProcessEvent(TRestEvent* evInput)
             Int_t p, m, readoutChannel;
             fReadout->GetPlaneModuleChannel(signalID, p, m, readoutChannel);
 
+            fReadoutChannelsHisto->Fill(readoutChannel);
+
             if (sgnl->GetMaxValue() > fLowThreshold) {
                 if (Nlow == 1) fReadoutChannelsHisto_OneSignal->Fill(readoutChannel);
                 if (Nlow == 2) fReadoutChannelsHisto_TwoSignals->Fill(readoutChannel);
@@ -221,6 +261,8 @@ void TRestSignalChannelActivityProcess::EndProcess() {
     if (!fReadOnly) {
         fDaqChannelsHisto->Write();
         if (fReadout) {
+            fReadoutChannelsHisto->Write();
+
             fReadoutChannelsHisto_OneSignal->Write();
             fReadoutChannelsHisto_TwoSignals->Write();
             fReadoutChannelsHisto_ThreeSignals->Write();

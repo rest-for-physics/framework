@@ -54,10 +54,10 @@
 
 
   <TRestReadout name="PixelReadout_MxM" title="PIXEL readout ${PITCH}mm-Pitch ${MODULES}x${MODULES} modules ${CHANNELS}+${CHANNELS} channels" >
-    <variable name="nChannels" value="${CHANNELS}" />
-    <variable name="nModules" value="${MODULES}" />
-    <variable name="pitch" value="${PITCH}" />
-    <variable name="pixelSize" value="${PITCH}/sqrt(2.)" />
+    <myParameter name="nChannels" value="${CHANNELS}" />
+    <myParameter name="nModules" value="${MODULES}" />
+    <myParameter name="pitch" value="${PITCH}" />
+    <myParameter name="pixelSize" value="${PITCH}/sqrt(2.)" />
 
     <parameter name="mappingNodes" value="0" />
 
@@ -101,10 +101,10 @@
   </TRestReadout>
 
   <TRestReadout name="PandaReadout_MxM" title="PANDA readout ${PITCH}mm-Pitch ${MODULES}x${MODULES} modules ${CHANNELS}+${CHANNELS} channels" >
-    <variable name="nChannels" value="${CHANNELS}" />
-    <variable name="nModules" value="${MODULES}" />
-    <variable name="pitch" value="${PITCH}" />
-    <variable name="pixelSize" value="${PITCH}/sqrt(2.)" />
+    <myParameter name="nChannels" value="${CHANNELS}" />
+    <myParameter name="nModules" value="${MODULES}" />
+    <myParameter name="pitch" value="${PITCH}" />
+    <myParameter name="pixelSize" value="${PITCH}/sqrt(2.)" />
 
     <parameter name="mappingNodes" value="0" />
 
@@ -139,9 +139,9 @@
   </TRestReadout>
 
   <TRestReadout name="Panda_SJTU_Proto" title="PANDA SJTU Prototype readout. 7 modules ${PITCH}mm-Pitch ${CHANNELS}+${CHANNELS} channels" >
-    <variable name="nChannels" value="${CHANNELS}" />
-    <variable name="pitch" value="${PITCH}" />
-    <variable name="pixelSize" value="${PITCH}/sqrt(2.)" />
+    <myParameter name="nChannels" value="${CHANNELS}" />
+    <myParameter name="pitch" value="${PITCH}" />
+    <myParameter name="pixelSize" value="${PITCH}/sqrt(2.)" />
 
     <parameter name="mappingNodes" value="0" />
 
@@ -191,9 +191,9 @@
   </TRestReadout>
 
   <TRestReadout name="Panda-CDR" title="PANDA SJTU Jinping readout. 2 planes 41 modules ${PITCH}mm-Pitch ${CHANNELS}+${CHANNELS} channels" >
-    <variable name="nChannels" value="${CHANNELS}" />
-    <variable name="pitch" value="${PITCH}" />
-    <variable name="pixelSize" value="${PITCH}/sqrt(2.)" />
+    <myParameter name="nChannels" value="${CHANNELS}" />
+    <myParameter name="pitch" value="${PITCH}" />
+    <myParameter name="pixelSize" value="${PITCH}/sqrt(2.)" />
 
     <parameter name="mappingNodes" value="0" />
 
@@ -262,9 +262,9 @@
 	then we use addReadoutModule giving the name as reference -->
 
   <TRestReadout name="Panda-Jinping" title="PANDA SJTU Jinping readout. 2 planes 33 modules ${PITCH}mm-Pitch ${CHANNELS}+${CHANNELS} channels" >
-    <variable name="nChannels" value="${CHANNELS}" />
-    <variable name="pitch" value="${PITCH}" />
-    <variable name="pixelSize" value="${PITCH}/sqrt(2.)" />
+    <myParameter name="nChannels" value="${CHANNELS}" />
+    <myParameter name="pitch" value="${PITCH}" />
+    <myParameter name="pixelSize" value="${PITCH}/sqrt(2.)" />
 
     <parameter name="mappingNodes" value="0" />
 
