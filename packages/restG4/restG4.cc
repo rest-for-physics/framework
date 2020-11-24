@@ -484,7 +484,7 @@ throw std::exception();
     }
     // father process
     else {
-        int stat_val;
+        int stat_val = 0;
         pid_t child_pid;
 
         printf("Writing geometry ... \n");
