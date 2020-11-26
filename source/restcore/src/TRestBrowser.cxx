@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 ///
 ///
-/// This class opens input file with TRestRun and shows the plot of each event 
+/// This class opens input file with TRestRun and shows the plot of each event
 /// The plot is shown through TRestEventViewer interface on the right. On the left
 /// there is a control bar to switch the events. Plot options can also be given.
 ///
@@ -82,9 +82,9 @@ void TRestBrowser::SetViewer(TRestEventViewer* eV) {
     }
     if (eV != NULL) {
         fEventViewer = eV;
-        //b->StartEmbedding(1, -1);
+        // b->StartEmbedding(1, -1);
         eV->Embed(b);
-        //b->StopEmbedding();
+        // b->StopEmbedding();
     }
 }
 
@@ -370,7 +370,7 @@ void TRestBrowser::RowValueChangedAction(Long_t val) {
     }
 }
 
-void TRestBrowser::EventTypeChangedAction(Int_t id) { 
+void TRestBrowser::EventTypeChangedAction(Int_t id) {
     string eventtype = fEventTypeComboBox->GetSelectedEntry()->GetTitle();
     TRestEvent* eve = REST_Reflection::Assembly(eventtype);
 
@@ -378,7 +378,7 @@ void TRestBrowser::EventTypeChangedAction(Int_t id) {
         r->SetInputEvent(eve);
         RowValueChangedAction(0);
     }
-   }
+}
 
 void TRestBrowser::IdValueChangedAction(Long_t val) {
     int idold = fEventId;
