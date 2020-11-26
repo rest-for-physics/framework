@@ -124,7 +124,8 @@ int main(int argc, char** argv) {
 
     restRun = new TRestRun();
     restRun->LoadConfigFromFile(inputConfigFile);
-    restRun->SetRunTag(restG4Metadata->GetTitle());
+    TString rTag = restRun->GetRunTag();
+    if (rTag == "Null" || rTag == "") restRun->SetRunTag(restG4Metadata->GetTitle());
     restRun->SetRunType("restG4");
 
     restRun->AddMetadata(restG4Metadata);
