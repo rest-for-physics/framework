@@ -547,17 +547,17 @@ Double_t TRestHits::GetSigmaY() {
     return sigmaY = TMath::Sqrt(sigmaY2);
 }
 
-Double_t TRestHits::GetGaussSigmaX() {
+Double_t TRestHits::GetGaussSigmaX(Int_t readoutChannels, Int_t startChannel, Int_t endChannel, Double_t pitch) {
     Double_t gausSigmaX = 0;
 
     if (gROOT->FindObject("hitsGaussHistoX")) delete gROOT->FindObject("hitsGaussHistoX");
-    TH1D* hh = new TH1D("hitsGaussHistoX", "hitsGaussHistoX", 120, -30, 30);
+	TH1D* hX = new TH1D("hitsGaussHistoX", "hitsGaussHistoX", readoutChannels, startChannel, endChannel);
 
-    for (int n = 0; n < GetNumberOfHits(); n++) hh->Fill(fX[n], fEnergy[n]);
+    for (int n = 0; n < GetNumberOfHits(); n++) hX->Fill(fX[n], fEnergy[n]);
 
-    TF1* fit = new TF1("fit", "gaus", hh->GetMaximumBin() / 2 - 32, hh->GetMaximumBin() / 2 - 26);
+    TF1* fit = new TF1("fit", "gaus", hX->GetMaximumBin() / (1/pitch) - 32, hX->GetMaximumBin() / (1/pitch) - 26);
 
-    hh->Fit("fit", "QNR");  // Q = quiet, no info in screen; N = no plot; R = fit in the function range
+    hX->Fit("fit", "QNRL");  // Q = quiet, no info in screen; N = no plot; R = fit in the function range; L = log likelihood fit
 
     gausSigmaX = fit->GetParameter(2);
 
@@ -566,18 +566,17 @@ Double_t TRestHits::GetGaussSigmaX() {
     return gausSigmaX;
 }
 
-Double_t TRestHits::GetGaussSigmaY() {
+Double_t TRestHits::GetGaussSigmaY(Int_t readoutChannels, Int_t startChannel, Int_t endChannel, Double_t pitch) {
     Double_t gausSigmaY = 0;
 
     if (gROOT->FindObject("hitsGaussHistoY")) delete gROOT->FindObject("hitsGaussHistoY");
-    TH1D* hh2 = new TH1D("hitsGaussHistoY", "hitsGaussHistoY", 120, -30,
-                         30);  // Histogram to store the variable we want to fit.
+	TH1D* hY = new TH1D("hitsGaussHistoY", "hitsGaussHistoY", readoutChannels, startChannel, endChannel);
 
-    for (int n = 0; n < GetNumberOfHits(); n++) hh2->Fill(fY[n], fEnergy[n]);
+    for (int n = 0; n < GetNumberOfHits(); n++) hY->Fill(fY[n], fEnergy[n]);
 
-    TF1* fit = new TF1("fit", "gaus", hh2->GetMaximumBin() / 2 - 32, hh2->GetMaximumBin() / 2 - 26);
+    TF1* fit = new TF1("fit", "gaus", hY->GetMaximumBin() / (1/pitch) - 32, hY->GetMaximumBin() / (1/pitch) - 26);
 
-    hh2->Fit("fit", "QNR");  // Q = quiet, no info in screen; N = no plot; R = fit in the function range
+    hY->Fit("fit", "QNRL");  // Q = quiet, no info in screen; N = no plot; R = fit in the function range; L = log likelihood fit
 
     gausSigmaY = fit->GetParameter(2);
 
