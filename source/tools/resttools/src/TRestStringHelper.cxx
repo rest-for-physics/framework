@@ -1,6 +1,10 @@
 #include "TRestStringHelper.h"
 
+#include <thread>
+
 #include "Rtypes.h"
+#include "TApplication.h"
+#include "TSystem.h"
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(6, 0, 0)
 #include "TFormula.h"
@@ -117,6 +121,26 @@ std::string REST_StringHelper::EvaluateExpression(std::string exp) {
     string out = sss.str();
 
     return out;
+}
+
+///////////////////////////////////////////////////
+/// \brief Helps to pause the program, printing a message before pausing.
+///
+/// ROOT GUI won't be jammed during this pause.
+Int_t REST_StringHelper::GetChar(string hint) {
+    if (gApplication != NULL && !gApplication->IsRunning()) {
+        thread t = thread(&TApplication::Run, gApplication, true);
+        t.detach();
+
+        cout << hint << endl;
+        int result = getchar();
+        gSystem->ExitLoop();
+        return result;
+    } else {
+        cout << hint << endl;
+        return getchar();
+    }
+    return -1;
 }
 
 ///////////////////////////////////////////////
@@ -363,6 +387,11 @@ Float_t REST_StringHelper::StringToFloat(string in) {
 ///
 Int_t REST_StringHelper::StringToInteger(string in) { return (Int_t)StringToDouble(in); }
 
+///////////////////////////////////////////////
+/// \brief Gets a string from an integer.
+///
+string REST_StringHelper::IntegerToString(Int_t n) { return Form("%d", n); }
+
 Bool_t REST_StringHelper::StringToBool(std::string in) {
     return (ToUpper(in) == "TRUE" || ToUpper(in) == "ON");
 }
@@ -438,6 +467,42 @@ TVector2 REST_StringHelper::StringTo2DVector(string in) {
 std::string REST_StringHelper::ToUpper(std::string str) {
     transform(str.begin(), str.end(), str.begin(), (int (*)(int))toupper);
     return str;
+}
+
+///////////////////////////////////////////////
+/// \brief Convert data member name to parameter name, following REST parameter naming convention.
+///
+/// > The name of class data member, if starts from ¡°f¡± and have the second character in
+/// capital form, will be linked to a parameter. The linked parameter will strip the first
+/// ¡°f¡± and have the first letter in lowercase. For example, data member ¡°fTargetName¡± is
+/// linked to parameter ¡°targetName¡±.
+string REST_StringHelper::DataMemberNameToParameterName(string name) {
+    if (name == "") {
+        return "";
+    }
+    if (name[0] == 'f' && name.size() > 1) {
+        return string(1, tolower(name[1])) + name.substr(2, -1);
+    } else {
+        return "";
+    }
+}
+
+///////////////////////////////////////////////
+/// \brief Convert parameter name to datamember name, following REST parameter naming convention.
+///
+/// > The name of class data member, if starts from ¡°f¡± and have the second character in
+/// capital form, will be linked to a parameter. The linked parameter will strip the first
+/// ¡°f¡± and have the first letter in lowercase. For example, data member ¡°fTargetName¡± is
+/// linked to parameter ¡°targetName¡±.
+string REST_StringHelper::ParameterNameToDataMemberName(string name) {
+    if (name == "") {
+        return "";
+    }
+    if (islower(name[0])) {
+        return "f" + string(1, toupper(name[0])) + name.substr(1, -1);
+    } else {
+        return "";
+    }
 }
 
 #ifdef WIN32

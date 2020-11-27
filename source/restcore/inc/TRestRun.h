@@ -59,25 +59,7 @@ class TRestRun : public TRestMetadata {
    public:
     /// REST run class
     void Initialize();
-    void InitFromConfigFile() {
-        BeginOfInit();
-        if (fElement != NULL) {
-            TiXmlElement* e = fElement->FirstChildElement();
-            while (e != NULL) {
-                string value = e->Value();
-                if (value == "variable" || value == "myParameter" || value == "constant") {
-                    e = e->NextSiblingElement();
-                    continue;
-                }
-                ReadConfig((string)e->Value(), e);
-                e = e->NextSiblingElement();
-            }
-        }
-        EndOfInit();
-    }
-    void BeginOfInit();
-    Int_t ReadConfig(string keydeclare, TiXmlElement* e);
-    void EndOfInit();
+    void InitFromConfigFile();
 
     // file operation
     void OpenInputFile(int i);
@@ -101,15 +83,24 @@ class TRestRun : public TRestMetadata {
             warning << "TRestRun::GetEntry. Entry requested out of limits" << endl;
             warning << "Total number of entries is : " << GetEntries() << endl;
         }
+
+        fCurrentEvent = i;
+    }
+
+    void GetNextEntry() {
+        if (fCurrentEvent + 1 >= GetEntries()) fCurrentEvent = -1;
+        GetEntry(fCurrentEvent + 1);
     }
 
     TString FormFormat(TString FilenameFormat);
-    TFile* FormOutputFile(vector<string> filefullnames, string targetfilename = "");
+    TFile* MergeToOutputFile(vector<string> filefullnames, string outputfilename = "");
+    TFile* FormOutputFile();
+    TFile* UpdateOutputFile();
+
     void PassOutputFile() {
         fOutputFile = fInputFile;
         fOutputFileName = fOutputFile->GetName();
     }
-    TFile* FormOutputFile();
 
     void WriteWithDataBase();
 

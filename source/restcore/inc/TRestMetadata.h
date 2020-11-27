@@ -77,6 +77,8 @@ class TRestMetadata : public TNamed {
     void ExpandIncludeFile(TiXmlElement* e);
     string GetUnits(TiXmlElement* e);
     string FieldNamesToUpper(string inputString);
+    void ReadOneParameter(string name, string value);
+    TiXmlElement* ReplaceElementAttributes(TiXmlElement* e);
 
     /// REST version string, only used for archive and retrieve
     TString fVersion = REST_RELEASE;  //<
@@ -94,14 +96,11 @@ class TRestMetadata : public TNamed {
     TVector3 Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* e,
                                            TVector3 defaultValue = TVector3(-1, -1, -1));
     TiXmlElement* GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre = "");
-    TiXmlElement* GetElement(std::string eleDeclare);
-    TiXmlElement* GetElement(std::string eleDeclare, TiXmlElement* e);
+    TiXmlElement* GetElement(std::string eleDeclare, TiXmlElement* e = NULL);
     TiXmlElement* GetNextElement(TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName);
-    string GetParameterUnits(string parname);
-    string GetParameterUnits(string parname, TiXmlElement* e);
-    TiXmlElement* ReplaceElementAttributes(TiXmlElement* e);
+    pair<string, string> GetParameterAndUnits(string parname, TiXmlElement* e = NULL);
     TiXmlElement* StringToElement(string definition);
     string ElementToString(TiXmlElement* ele);
 
@@ -119,12 +118,20 @@ class TRestMetadata : public TNamed {
     string GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition = 0);
 
     // some utils
-    std::string ReplaceEnvironmentalVariables(const std::string buffer);
+    std::string ReplaceVariables(const std::string buffer);
+    std::string ReplaceConstants(const std::string buffer);
     string SearchFile(string filename);
     TString GetSearchPath();
     void ReSetVersion();
     void UnSetVersion();
     void SetLibraryVersion(TString version);
+
+    // Load global setting for the rml section, e.g., name, title.
+    virtual Int_t LoadSectionMetadata();
+    /// To make settings from rml file. This method must be implemented in the derived class.
+    virtual void InitFromConfigFile() = 0;
+    /// Method called after the object is retrieved from root file.
+    virtual void InitFromRootFile() {}
 
     //////////////////////////////////////////////////
     /// Data members
@@ -176,6 +183,8 @@ class TRestMetadata : public TNamed {
         if (GetError()) fErrorMessage = message;
     }
 
+    void ReadAllParameters();
+
    public:
     /// It returns true if an error was identified by a derived metadata class
     Bool_t GetError() { return fError; }
@@ -188,19 +197,10 @@ class TRestMetadata : public TNamed {
             return "No error!";
     }
 
-    Int_t LoadConfigFromFile();
-    Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);
-    Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, map<string, string> envs);
+    Int_t LoadConfigFromElement(TiXmlElement* eSectional, TiXmlElement* eGlobal,
+                                map<string, string> envs = {});
     Int_t LoadConfigFromFile(string cfgFileName, string sectionName = "");
-
-    /// Load global setting for the rml section, e.g., name, title.
-    virtual Int_t LoadSectionMetadata();
-
-    ///  To make settings from rml file. This method must be implemented in the derived class.
-    virtual void InitFromConfigFile() = 0;
-
-    /// Method called after the object is retrieved from root file.
-    virtual void InitFromRootFile();
+    Int_t LoadConfigFromBuffer();
 
     /// Making default settings.
     virtual void Initialize() {}
@@ -222,10 +222,6 @@ class TRestMetadata : public TNamed {
 
     /// Print the buffered message
     void PrintMessageBuffer();  // *MENU*
-
-    /// helps to pause the program, printing a message before pausing.
-    /// ROOT GUI won't be jammed during this pause
-    int GetChar(string hint = "Press a KEY to continue ...");
 
     // getters and setters
     std::string GetSectionName();
@@ -275,9 +271,6 @@ class TRestMetadata : public TNamed {
     void SetHostmgr(TRestManager* m) { fHostmgr = m; }
     /// sets the verboselevel
     void SetVerboseLevel(REST_Verbose_Level v) { fVerboseLevel = v; }
-
-    void SetDataMemberValFromConfig();
-
     /// overwriting the write() method with fStore considered
     virtual Int_t Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 

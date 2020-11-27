@@ -115,24 +115,38 @@ class TRestEventProcess : public TRestMetadata {
     //////////////////////////////////////////////////////////////////////////
     /// \brief Set observable value for analysistree.
     ///
-    /// recommended since it is more efficienct than calling
-    /// fAnalysisTree->SetObservableValue( obsName, obsValue )
+    /// It will rename the observable to "processName_obsName"
+    /// If use dynamic observable, it will try to create new observable
+    /// in the AnalysisTree if the observable is not found
     template <class T>
     void SetObservableValue(string name, const T& value) {
         if (fAnalysisTree != NULL) {
             string obsname = this->GetName() + (string) "_" + (string)name;
-            if (fObservableInfo.count(obsname) != 0) {
-                if (fValidateObservables) fObservableForValidation[obsname] = fObservableInfo[obsname];
-                fAnalysisTree->SetObservableValue(fObservableInfo[obsname], value);
-            } else if (fDynamicObs && fObservableInfo.count(obsname) == 0) {
-                // create new branch for this observable
-                int n = fAnalysisTree->AddObservable<T>(obsname);
+
+            int id = fAnalysisTree->GetObservableID(obsname);
+            if (id != -1) {
+                if (fValidateObservables) fObservableForValidation[obsname] = id;
+                fAnalysisTree->SetObservableValue(obsname, value);
+            } else if (fDynamicObs) {
+                fAnalysisTree->SetObservableValue(obsname, value);
+                int n = fAnalysisTree->GetObservableID(obsname);
                 if (n != -1) {
                     fObservableInfo[obsname] = n;
-                    if (fValidateObservables) fObservableForValidation[obsname] = fObservableInfo[obsname];
-                    fAnalysisTree->SetObservableValue(fObservableInfo[obsname], value);
+                    if (fValidateObservables) fObservableForValidation[obsname] = n;
                 }
             }
+            // if (fObservableInfo.count(obsname) != 0) {
+            //    if (fValidateObservables) fObservableForValidation[obsname] = fObservableInfo[obsname];
+            //    fAnalysisTree->SetObservableValue(fObservableInfo[obsname], value);
+            //} else if (fDynamicObs && fObservableInfo.count(obsname) == 0) {
+            //    // create new branch for this observable
+            //    int n = fAnalysisTree->AddObservable<T>(obsname);
+            //    if (n != -1) {
+            //        fObservableInfo[obsname] = n;
+            //        if (fValidateObservables) fObservableForValidation[obsname] = fObservableInfo[obsname];
+            //        fAnalysisTree->SetObservableValue(fObservableInfo[obsname], value);
+            //    }
+            //}
         }
     }
 
@@ -146,8 +160,8 @@ class TRestEventProcess : public TRestMetadata {
 
    public:
     Int_t LoadSectionMetadata();
+    virtual void InitFromConfigFile() { ReadAllParameters(); }
     vector<string> ReadObservables();
-    virtual void ConfigAnalysisTree();
     virtual Bool_t OpenInputFiles(vector<string> files);
 
     void EnableObservableValidation() { fValidateObservables = true; }
@@ -168,7 +182,7 @@ class TRestEventProcess : public TRestMetadata {
     virtual void EndProcess() {}
 
     // setters
-    /// Set analysis tree of this process, then configure it by adding observables to it
+    /// Set analysis tree of this process, then add observables to it
     void SetAnalysisTree(TRestAnalysisTree* tree);
     /// Set TRestRun for this process
     void SetRunInfo(TRestRun* r) { fRunInfo = r; }

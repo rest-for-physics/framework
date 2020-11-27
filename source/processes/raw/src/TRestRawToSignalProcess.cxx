@@ -130,8 +130,6 @@ Bool_t TRestRawToSignalProcess::OpenInputFiles(vector<string> files) {
         nFiles++;
     }
 
-    if (fRunInfo != NULL) fRunInfo->SetTotalBytes(totalBytes);
-
     if (nFiles > 0) {
         fInputBinFile = fInputFiles[0];
     } else {

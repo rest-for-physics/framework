@@ -17,7 +17,7 @@ By default REST units are mm, keV and degrees
   </globals>
 
   <TRestRun name="Run metadata" title="REST Metadata run info (template)">
-    <parameter name="experiment" value="Test"/>
+    <parameter name="experimentName" value="Test"/>
     <parameter name="runType" value="simulation"/>
 
     // Value "auto" can add simulation run into database ???

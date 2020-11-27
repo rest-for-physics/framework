@@ -58,13 +58,13 @@ void ParseInputFileArgs(const char* argv) {
     if (argv == NULL) return;
 
     if (REST_ARGS.count("inputFile") > 0) {
-        string input_old = REST_ARGS["inputFile"];
+        string input_old = REST_ARGS["inputFileName"];
         input_old += "\n" + string(argv);
 
-        REST_ARGS["inputFile"] = input_old;
+        REST_ARGS["inputFileName"] = input_old;
         setenv("REST_INPUTFILE", input_old.c_str(), 1);
     } else {
-        REST_ARGS["inputFile"] = argv;
+        REST_ARGS["inputFileName"] = argv;
         setenv("REST_INPUTFILE", argv, 1);
     }
 }
@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
                             ParseInputFileArgs(args[i + 1].c_str());
                             break;
                         case 'o':
-                            REST_ARGS["outputFile"] = args[i + 1];
+                            REST_ARGS["outputFileName"] = args[i + 1];
                             break;
                         case 'j':
                             REST_ARGS["threadNumber"] = args[i + 1];

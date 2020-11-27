@@ -1,7 +1,17 @@
 #include "TRestGeant4Event.h"
 #include "TRestGeant4Metadata.h"
 #include "TRestTask.h"
-Int_t REST_Geant4_FindIsotopes(TString fName, TString fIsotope) {
+
+#ifndef RestTask_FindIsotopes
+#define RestTask_FindIsotopes
+
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
+Int_t REST_FindIsotopes(TString fName, TString fIsotope) {
     cout << "Filename : " << fName << " looking for " << fIsotope << endl;
 
     // gSystem->Load("librestcore.so");
@@ -70,3 +80,4 @@ Int_t REST_Geant4_FindIsotopes(TString fName, TString fIsotope) {
 
     return 0;
 }
+#endif

@@ -26,6 +26,7 @@ using namespace std;
 /// String helper classes. Declared static to be able to have direct access to the methods
 namespace REST_StringHelper {
 
+Int_t GetChar(string hint = "Press a KEY to continue ...");
 Int_t isANumber(std::string in);
 Int_t isAExpression(std::string in);
 std::string ReplaceMathematicalExpressions(std::string buffer, std::string errorMessage = "");
@@ -33,6 +34,7 @@ std::string EvaluateExpression(std::string exp);
 Float_t StringToFloat(std::string in);
 Double_t StringToDouble(std::string in);
 Int_t StringToInteger(std::string in);
+std::string IntegerToString(Int_t n);
 Bool_t StringToBool(std::string in);
 Long64_t StringToLong(std::string in);
 TVector3 StringTo3DVector(std::string in);
@@ -57,7 +59,7 @@ string ToString(T source, int length = -1, char fill = ' ') {
     stringstream ss1;
     ss1 << source;
     string s = ss1.str();
-    if (length == -1) {
+    if (length < 0) {
         return s;
     } else if (s.size() < length) {
         return s + string(length - s.size(), fill);
@@ -65,7 +67,6 @@ string ToString(T source, int length = -1, char fill = ' ') {
         return s.substr(0, length);
     }
 }
-
 template <class T1, class T2>
 inline vector<T2> Vector_cast(vector<T1> vecstring) {
     vector<T2> result;
@@ -74,8 +75,9 @@ inline vector<T2> Vector_cast(vector<T1> vecstring) {
     }
     return result;
 }
-
 std::string ToUpper(std::string in);
+string DataMemberNameToParameterName(string name);
+string ParameterNameToDataMemberName(string name);
 
 };  // namespace REST_StringHelper
 using namespace REST_StringHelper;

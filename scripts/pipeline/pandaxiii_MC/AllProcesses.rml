@@ -11,7 +11,7 @@
   </globals>
   <TRestRun name="Run metadata" title="REST Metadata run info (template)" verboseLevel="silent">
     <!--<parameter name="inputFile" value="${REST_INPUTFILE}" />-->
-    <parameter name="experiment" value="PandaX-III" />
+    <parameter name="experimentName" value="PandaX-III" />
     <!--<parameter name="runType" value="strips_Pitch_${REST_PITCH}mm" />-->
     <parameter name="runNumber" value="1" />
     <parameter name="runTag" value="preserve" />

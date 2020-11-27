@@ -1,6 +1,8 @@
 #ifndef RestCore_TRestBrowser
 #define RestCore_TRestBrowser
 
+#include <iostream>
+
 #include "TApplication.h"
 #include "TBrowser.h"
 #include "TCanvas.h"
@@ -9,16 +11,14 @@
 #include "TGFileDialog.h"
 #include "TGFrame.h"
 #include "TGLabel.h"
+#include "TGComboBox.h"
 #include "TGNumberEntry.h"
 #include "TGTextEntry.h"
 #include "TObject.h"
 #include "TROOT.h"
-#include "TSystem.h"
-
 #include "TRestEventViewer.h"
 #include "TRestRun.h"
-
-#include <iostream>
+#include "TSystem.h"
 
 /// Event browser for different input file
 class TRestBrowser {
@@ -28,16 +28,30 @@ class TRestBrowser {
 
     // Frames and buttons
 
-    TGVerticalFrame* fVFrame = 0;     //! < Vertical frame.
-    TGNumberEntry* fNEvent = 0;       //! Event number.
-    TGLabel* fLabel = 0;              //! label(content"plot options:")
-    TGPictureButton* fButPrev = 0;    //! Previous event.
-    TGPictureButton* fLoadEvent = 0;  //! Load Event button
-    TGPictureButton* fButNext = 0;    //! Next number.
-    TGPictureButton* fMenuOpen = 0;   //! Open file
-    TGTextButton* fExit = 0;          //! Load Event button
+    TGVerticalFrame* fVFrame = 0;             //! < The main vertical frame for browser controlling
+    TGLabel* fEventRowLabel = 0;              //!
+    TGLabel* fEventIdLabel = 0;               //!
+    TGLabel* fEventSubIdLabel = 0;            //!
+    TGNumberEntry* fEventRowNumberBox = 0;    //! For row number.
+    TGNumberEntry* fEventIdNumberBox = 0;     //! For Event number.
+    TGNumberEntry* fEventSubIdNumberBox = 0;  //! For sub Event number.
+
+    TGLabel* fEventTypeLabel = 0; //!
+    TGComboBox* fEventTypeComboBox = 0; //!
+
+    TGLabel* fPlotOptionLabel = 0;        //!
+    TGTextEntry* fPlotOptionTextBox = 0;  //! TextBox for plot options
+    TGTextButton* fButOptPrev = 0;        //! Previous plot option
+    TGTextButton* fButOptRefresh = 0;     //! Refresh plot
+    TGTextButton* fButOptNext = 0;        //! Next plot option
+
+    TGPictureButton* fMenuOpen = 0;  //! Open file button
+    TGTextButton* fExit = 0;         //! Exit button
 
     TCanvas* fCanDefault = 0;  //!
+    Int_t fEventRow = 0;       //!
+    Int_t fEventId = 0;        //!
+    Int_t fEventSubId = 0;     //!
 
     TBrowser* b = 0;  //!
     TRestRun* r = 0;  //!
@@ -47,45 +61,47 @@ class TRestBrowser {
 #ifndef __CINT__
     Bool_t pureAnalysis;
     TString fInputFileName;
-    Int_t fCurrentEvent;
 
     TRestEventViewer* fEventViewer = 0;  //!
+
+    void SetViewer(TRestEventViewer* eV);
+    void SetViewer(TString viewerName);
+    void SetButtons();
+    Bool_t LoadEventId(Int_t id, Int_t subid = -1);
+    Bool_t LoadEventEntry(Int_t n);
 #endif
 
    public:
+    // tool method
+    void Initialize(TString opt = "FI");
+    void InitFromConfigFile();
+    Bool_t OpenFile(TString filename);
+
+    // setters
+    void SetInputEvent(TRestEvent*);
+    void SetWindowName(TString wName) { frmMain->SetWindowName(wName.Data()); }
+
+    // getters
+    TRestEventViewer* GetViewer() { return fEventViewer; }
+
+    // actions
+    void LoadFileAction();
+    void ExitAction();
+
+    void RowValueChangedAction(Long_t val);
+    void IdValueChangedAction(Long_t val);
+
+    void EventTypeChangedAction(Int_t id);
+
+    void NextPlotOptionAction();
+    void PreviousPlotOptionAction();
+    void PlotAction();
+
     // Constructors
     TRestBrowser();
     TRestBrowser(TString viewerName);
 
     // Destructor
     ~TRestBrowser();
-
-    void Initialize(TString opt = "FI");
-    void InitFromConfigFile();
-
-    void SetViewer(TRestEventViewer* eV);
-    void SetViewer(TString viewerName);
-    void SetInputEvent(TRestEvent*);
-
-    int GetChar(string hint = "Press a KEY to continue ...");
-
-    void setWindowName(TString wName) { frmMain->SetWindowName(wName.Data()); }
-
-    void setButtons();
-
-    TRestEventViewer* GetViewer() { return fEventViewer; }
-
-    TGVerticalFrame* generateNewFrame();
-
-    void addFrame(TGFrame* f);
-
-    void LoadEventAction();
-    void LoadNextEventAction();
-    void LoadPrevEventAction();
-    void LoadFileAction();
-    void ExitAction();
-
-    Bool_t OpenFile(TString fName);
-    Bool_t LoadEvent(Int_t n);
 };
 #endif

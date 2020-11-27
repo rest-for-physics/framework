@@ -40,8 +40,6 @@ void TRestDriftVolume::InitFromConfigFile() {
 
     fPressureInAtm = GetDblParameterWithUnits("pressure");
     fTemperatureInK = GetDblParameterWithUnits("temperature");
-
-    gDetector->RegisterMetadata(this);
 }
 
 void TRestDriftVolume::PrintMetadata() {

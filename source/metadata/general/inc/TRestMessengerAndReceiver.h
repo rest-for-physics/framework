@@ -68,7 +68,7 @@ class TRestMessengerAndReceiver : public TRestMetadata {
     messagepool_t* fMessagePool;  //!
 
    protected:
-    enum CommMode { MessagePool_Host, MessagePool_Client, MessagePool_Auto };
+    enum CommMode { MessagePool_Host, MessagePool_Client, MessagePool_TwoWay };
 
     TRestRun* fRun;  //!
 
@@ -99,7 +99,7 @@ class TRestMessengerAndReceiver : public TRestMetadata {
     // Constructor
     TRestMessengerAndReceiver();
     // Constructor
-    TRestMessengerAndReceiver(string token);
+    TRestMessengerAndReceiver(int token, string mode = "TwoWay");
     // Destructor
     ~TRestMessengerAndReceiver();
 

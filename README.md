@@ -23,9 +23,23 @@ More info can be found in the [documentation](doc/Chapters/2-installing-rest.md)
 
 The recommended way to download a copy of REST will be to clone it using the corresponding git command.
 
+This command will download the master branch to the `restFramework` directory including all submodules (libraries, packages, etc).
+
 ```
 cd
-git clone git@lfna.unizar.es:rest-development/REST_v2.git
+git clone --single-branch --branch master git@lfna.unizar.es:rest-development/REST_v2.git -recurse-submodules restFramework 
+```
+
+If the project was cloned previously and some modules are missing, then it might be necessary to initialize the missing submodules:
+
+```
+git submodule update --init --recursive
+```
+
+If a submodule was re-synchronized to point to another commit sub-module, it will be necessary to update those modules using:
+
+```
+git pull --recurse-submodules
 ```
 
 In order to download all the sub-modules (recommended) included in REST we need to clone using the following.
@@ -46,7 +60,10 @@ If `--recursive` is not used many REST libraries and packages will not be popula
 git submodule update --init --recursive
 ```
 
+Please, notice that if you are working in a sub-module development you need to add the directory as a commit to the new project, if you wish that others will be able to update the submodule within the main project. Otherwise, the people pulling the main repository with sub-modules will not get the latest updates.
+
 If you are asked for a password, this is because you did not add your local computer account public ssh key to your Gitlab account. 
+
 Check the following [instructions](https://git-scm.com/book/en/v2/Git-on-the-Server-Generating-Your-SSH-Public-Key) to generate your key.
 Then, paste the key into your GitLab account (top-right icon of Gitlab site), go to "settings", and access the "ssh keys" in the left menu.
 
@@ -154,4 +171,9 @@ This project is licensed under the GNU License - see the [LICENSE](https://lfna.
 * Hat tip to anyone whose code was used
 * Inspiration
 * etc
+
+----
+
+**⚠ WARNING: REST is under continous development.** This README is offered to you by the REST community. Your HELP is needed to keep this file up to date. You are very welcome to contribute fixing typos, updating information or adding new contributions to REST. See also our [Contribution Guide](https://lfna.unizar.es/rest-development/REST_v2/-/blob/master/CONTRIBUTING.md).
+
 

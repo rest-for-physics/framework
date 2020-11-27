@@ -252,7 +252,7 @@ TRestGas::TRestGas(const char* cfgFileName, string name, bool gasGeneration, boo
     fTest = test;
 
     if (strcmp(cfgFileName, "server") == 0) {
-        LoadConfigFromFile(StringToElement("<TRestGas name=\"" + name + "\" file=\"server\"/>"), NULL);
+        LoadConfigFromElement(StringToElement("<TRestGas name=\"" + name + "\" file=\"server\"/>"), NULL);
     } else {
         fConfigFileName = cfgFileName;
         LoadConfigFromFile(fConfigFileName, name);

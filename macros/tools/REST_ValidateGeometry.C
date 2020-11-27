@@ -1,4 +1,14 @@
 #include "TRestTask.h"
+
+#ifndef RESTTask_ValidateGeometry
+#define RESTTask_ValidateGeometry
+
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_ValidateGeometry(TString gdmlName) {
     TGeoManager* geo = new TGeoManager();
     geo->Import(gdmlName);
@@ -11,3 +21,4 @@ Int_t REST_ValidateGeometry(TString gdmlName) {
 
     return 0;
 }
+#endif

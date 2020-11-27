@@ -46,16 +46,19 @@ class TRestDetectorReadoutChannel : public TObject {
    private:
     Int_t fDaqID;  ///< Defines the corresponding daq channel id. See decoding
                    ///< details at TRestDetectorReadout.
-    std::vector<TRestDetectorReadoutPixel>
-        fReadoutPixel;  ///< A vector storing the different TRestDetectorReadoutPixel
-                        ///< definitions.
+    std::vector<TRestDetectorReadoutPixel> fReadoutPixel;  ///< A vector storing the different
+                                                           ///< TRestDetectorReadoutPixel definitions.
+
+    Short_t fChannelId = -1;  ///< It stores the corresponding physical readout channel
 
     void Initialize();
 
-   protected:
    public:
     /// Returns the corresponding daq channel id
     Int_t GetDaqID() { return fDaqID; }
+
+    /// Returns the corresponding channel id
+    Int_t GetChannelId() { return fChannelId; }
 
     /// Returns the total number of pixels inside the readout channel
     Int_t GetNumberOfPixels() { return fReadoutPixel.size(); }
@@ -80,12 +83,15 @@ class TRestDetectorReadoutChannel : public TObject {
     /// Sets the daq channel number id
     void SetDaqID(Int_t id) { fDaqID = id; }
 
+    /// Sets the readout channel number id
+    void SetChannelID(Int_t id) { fChannelId = id; }
+
     /// Adds a new pixel to the readout channel
     void AddPixel(TRestDetectorReadoutPixel pix) { fReadoutPixel.push_back(pix); }
 
     Int_t isInside(Double_t x, Double_t y);
 
-    void Print(int DetailLevel = 0, int index = -1);
+    void Print(int DetailLevel = 0);
 
     // Construtor
     TRestDetectorReadoutChannel();

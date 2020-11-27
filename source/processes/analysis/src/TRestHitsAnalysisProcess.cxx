@@ -203,7 +203,7 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     SetObservableValue("balanceXYnHits", (nHitsX - nHitsY) / double(nHitsX + nHitsY));
 
     if ((nHits == nHitsX) || (nHits == nHitsY))
-        SetObservableValue("nHitsSizeXY", nHits);
+        SetObservableValue("nHitsSizeXY", (double)nHits);
     else
         SetObservableValue("nHitsSizeXY", TMath::Sqrt(nHitsX * nHitsX + nHitsY * nHitsY));
 
@@ -358,7 +358,4 @@ void TRestHitsAnalysisProcess::InitFromConfigFile() {
     if (GetParameter("cylinderFiducialization", "false") == "true") fCylinderFiducial = true;
 
     if (GetParameter("prismFiducialization", "false") == "true") fPrismFiducial = true;
-
-    if (fCylinderFiducial) cout << "Cylinder fiducial active" << endl;
-    if (fPrismFiducial) cout << "Prism fiducial active" << endl;
 }

@@ -1,14 +1,15 @@
 <TRestRun name="TREX-DM" title="TREX-DM test data analysis" verboseLevel="silent">
-	<parameter name="experiment" value="TREXDM_LSC"/>
-	<parameter name="runNumber" value="auto"/>
+	<parameter name="experimentName" value="TREXDM_LSC"/>
+	<parameter name="runNumber" value="preserve"/>
 	<parameter name="runTag" value="preserve"/>
 	<parameter name="runType" value="${RUN_TYPE}"/>
 	<parameter name="runDescription" value=""/>
 	<parameter name="user" value="${USER}"/>
 	<parameter name="verboseLevel" value="0"/>
 	<parameter name="overwrite" value="on" />
-	<parameter name="outputFile" value="[fRunType].root" />
+	<parameter name="outputFileName" value="[fRunType].root" />
 	<parameter name="readOnly" value="false" />
+	<parameter name="inputFormat" value="R[fRunNumber]_[fRunTag]_Vm[TRestDetector::fAmplificationVoltage]_Shaping.aqs" />
 
 	<addMetadata type="TRestDetectorReadout" name="TREXDM_Nov2018" file="readouts.root" store="false" />
 

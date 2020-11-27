@@ -135,6 +135,7 @@ void TRestProcessRunner::BeginOfInit() {
     }
     fRunInfo->SetCurrentEntry(firstEntry);
 
+    fUseTestRun = StringToBool(GetParameter("useTestRun", "ON"));
     fThreadNumber = StringToDouble(GetParameter("threadNumber", "1"));
     if (ToUpper(GetParameter("inputAnalysis", "ON")) == "ON") fOutputItem[0] = true;
     if (ToUpper(GetParameter("inputEvent", "OFF")) == "ON") fOutputItem[1] = true;
@@ -294,9 +295,8 @@ void TRestProcessRunner::RunProcess() {
     info << "TRestProcessRunner : preparing threads..." << endl;
     fRunInfo->ResetEntry();
     fRunInfo->SetCurrentEntry(firstEntry);
-    bool testrun = StringToBool(GetParameter("testRun", "ON"));
     for (int i = 0; i < fThreadNumber; i++) {
-        fThreads[i]->PrepareToProcess(fOutputItem, testrun);
+        fThreads[i]->PrepareToProcess(fOutputItem);
     }
 
     // print metadata
@@ -325,7 +325,7 @@ void TRestProcessRunner::RunProcess() {
     }
     fout << "=" << endl;
 
-    // copy thread tree to local
+    // copy thread's event tree to local
     fTempOutputDataFile->cd();
     TTree* tree = fThreads[0]->GetEventTree();
     if (tree != NULL) {
@@ -342,17 +342,17 @@ void TRestProcessRunner::RunProcess() {
         fEventTree = NULL;
     }
 
-    tree = (TRestAnalysisTree*)fThreads[0]->GetAnalysisTree();
-    if (tree != NULL) {
-        fAnalysisTree = (TRestAnalysisTree*)tree->Clone();
-        fAnalysisTree->SetName("AnalysisTree");
-        fAnalysisTree->SetTitle("AnalysisTree");
-        fAnalysisTree->SetDirectory(fTempOutputDataFile);
-    } else {
-        fAnalysisTree = NULL;
-    }
+    // initialize analysis tree
+    fAnalysisTree = new TRestAnalysisTree("AnalysisTree", "REST Process Analysis Tree");
+    fAnalysisTree->SetDirectory(fTempOutputDataFile);
 
-    nBranches = fAnalysisTree->GetListOfBranches()->GetEntriesFast();
+    tree = fThreads[0]->GetAnalysisTree();
+    if (tree != NULL) {
+        nBranches = tree->GetNbranches();
+    } else {
+        ferr << "Threads are not initialized! No AnalysisTree!" << endl;
+        exit(1);
+    }
 
     // reset runner
     this->ResetRunTimes();
@@ -731,14 +731,21 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
         TObjArray* branchesL;
 
         if (fAnalysisTree != NULL) {
-            t->GetAnalysisTree()->SetEventInfo(t->GetOutputEvent());
-            branchesT = t->GetAnalysisTree()->GetListOfBranches();
-            branchesL = fAnalysisTree->GetListOfBranches();
-            for (int i = 0; i < nBranches; i++) {
-                TBranch* branchT = (TBranch*)branchesT->UncheckedAt(i);
-                TBranch* branchL = (TBranch*)branchesL->UncheckedAt(i);
-                branchL->SetAddress(branchT->GetAddress());
+            TRestAnalysisTree* remotetree = t->GetAnalysisTree();
+
+            // t->GetAnalysisTree()->SetEventInfo(t->GetOutputEvent());
+            // branchesT = t->GetAnalysisTree()->GetListOfBranches();
+            // branchesL = fAnalysisTree->GetListOfBranches();
+            // for (int i = 0; i < nBranches; i++) {
+            //    TBranch* branchT = (TBranch*)branchesT->UncheckedAt(i);
+            //    TBranch* branchL = (TBranch*)branchesL->UncheckedAt(i);
+            //    branchL->SetAddress(branchT->GetAddress());
+            //}
+            fAnalysisTree->SetEventInfo(fOutputEvent);
+            for (int n = 0; n < remotetree->GetNumberOfObservables(); n++) {
+                fAnalysisTree->SetObservableValue(n, remotetree->GetObservable(n));
             }
+
             fAnalysisTree->Fill();
         }
 
@@ -817,7 +824,7 @@ void TRestProcessRunner::ConfigOutputFile() {
         files_to_merge.push_back(f->GetName());
     }
 
-    fRunInfo->FormOutputFile(files_to_merge, fTempOutputDataFile->GetName());
+    fRunInfo->MergeToOutputFile(files_to_merge, fTempOutputDataFile->GetName());
 }
 
 // tools
@@ -846,7 +853,7 @@ TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type, TiXmlEle
 
     pc->SetRunInfo(this->fRunInfo);
     pc->SetHostmgr(fHostmgr);
-    pc->LoadConfigFromFile(ele, fElementGlobal, fVariables);
+    pc->LoadConfigFromElement(ele, fElementGlobal, fVariables);
 
     return pc;
 }

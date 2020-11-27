@@ -43,11 +43,11 @@ class TRestRawSignalAnalysisProcess : public TRestEventProcess {
     time_t timeStored;  //!
 
     // parameters
-    TVector2 fBaseLineRange;
-    TVector2 fIntegralRange;
-    Double_t fPointThreshold;
-    Double_t fSignalThreshold;
-    Int_t fNPointsOverThreshold;
+    TVector2 fBaseLineRange = TVector2(5, 55);
+    TVector2 fIntegralRange = TVector2(10, 500);
+    Double_t fPointThreshold = 2;
+    Double_t fSignalThreshold = 5;
+    Int_t fPointsOverThreshold = 5;
 
     void InitFromConfigFile();
 
@@ -77,8 +77,7 @@ class TRestRawSignalAnalysisProcess : public TRestEventProcess {
                  << endl;
         metadata << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
         metadata << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
-        metadata << "Number of points over threshold : " << fNPointsOverThreshold << endl;
-        metadata << " " << endl;
+        metadata << "Number of points over threshold : " << fPointsOverThreshold << endl;
 
         EndPrintProcess();
     }
@@ -89,7 +88,7 @@ class TRestRawSignalAnalysisProcess : public TRestEventProcess {
     TRestRawSignalAnalysisProcess(char* cfgFileName);
     ~TRestRawSignalAnalysisProcess();  // Destructor
 
-    ClassDef(TRestRawSignalAnalysisProcess, 2);
+    ClassDef(TRestRawSignalAnalysisProcess, 3);
     // Template for a REST "event process" class inherited from TRestEventProcess
 };
 #endif

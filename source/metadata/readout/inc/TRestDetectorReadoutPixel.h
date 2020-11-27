@@ -111,7 +111,7 @@ class TRestDetectorReadoutPixel : public TObject {
 
     TVector2 TransformToPixelCoordinates(TVector2 p);
 
-    void Print(int index = -1);
+    void Print();
 
     // Construtor
     TRestDetectorReadoutPixel();

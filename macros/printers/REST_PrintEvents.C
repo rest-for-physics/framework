@@ -11,6 +11,12 @@
 #ifndef RESTTask_PrintEvents
 #define RESTTask_PrintEvents
 
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_GenericEvents(TString fName, TString EventType = "", Int_t Entry = 0) {
     TRestRun* run = new TRestRun();
     TClass* cl = TClass::GetClass(EventType);

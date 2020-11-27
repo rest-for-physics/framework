@@ -11,12 +11,12 @@
 #include "G4RunManager.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4UImanager.hh"
-#include "GdmlPreprocessor.h"
 #include "PhysicsList.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "Randomize.hh"
 #include "RunAction.hh"
 #include "SteppingAction.hh"
+#include "TRestGDMLParser.h"
 #include "TRestGeant4Event.h"
 #include "TRestGeant4Metadata.h"
 #include "TRestGeant4Track.h"
@@ -35,6 +35,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/wait.h>
 
 #include <algorithm>
 #include <chrono>
@@ -98,11 +99,12 @@ int main(int argc, char** argv) {
     restG4Metadata = new TRestGeant4Metadata(inputConfigFile, (string)restG4Name);
 
     // We need to process and generate a new GDML for several reasons.
-    // 1. ROOT6 has a bug loading math expressions in gdml file
+    // 1. ROOT6 has problem loading math expressions in gdml file
     // 2. We allow file entities to be http remote files
     // 3. We retrieve the GDML and materials versions and associate to the
     // corresponding TRestGeant4Metadata members
-    GdmlPreprocessor* gdml = new GdmlPreprocessor();
+    // 4. We support the use of system variables ${}
+    TRestGDMLParser* gdml = new TRestGDMLParser();
 
     // This call will generate a new single file GDML output
     gdml->Load((string)restG4Metadata->Get_GDML_Filename());
@@ -383,7 +385,10 @@ int main(int argc, char** argv) {
         ui->SessionStart();
         delete ui;
 #endif
-    } else {
+    }
+
+    else  // N_events == -1
+    {
         cout << "++++++++++ ERRORRRR +++++++++" << endl;
         cout << "++++++++++ ERRORRRR +++++++++" << endl;
         cout << "++++++++++ ERRORRRR +++++++++" << endl;
@@ -444,6 +449,7 @@ throw std::exception();
 
     TString Filename = restRun->GetOutputFileName();
 
+    restRun->UpdateOutputFile();
     restRun->CloseFile();
     restRun->PrintMetadata();
     delete restRun;
@@ -452,21 +458,57 @@ throw std::exception();
     delete subRestG4Event;
     delete restTrack;
 
-    // Writing the geometry in TGeoManager format to the ROOT file
-    {
+    ////////// Writing the geometry in TGeoManager format to the ROOT file
+    ////////// Need to fork and do it in child process, to prevent occasional seg.fault
+    pid_t pid;
+    pid = fork();
+    if (pid < 0) {
+        perror("fork error:");
+        exit(1);
+    }
+    // child process
+    if (pid == 0) {
         // writing the geometry object
-        TFile* f1 = new TFile(Filename, "update");
-        cout << "Writing geometry..." << endl;
+        freopen("/dev/null", "w", stdout);
+        freopen("/dev/null", "w", stderr);
+        Console::CompatibilityMode = true;
 
+        TFile* f1 = new TFile(Filename, "update");
         TGeoManager* geo2 = gdml->CreateGeoM();
 
         f1->cd();
         geo2->SetName("Geometry");
         geo2->Write();
-        cout << "Closing file : " << Filename << endl;
         f1->Close();
+        exit(0);
     }
+    // father process
+    else {
+        int stat_val = 0;
+        pid_t child_pid;
 
+        printf("Writing geometry ... \n");
+
+        child_pid = wait(&stat_val);
+
+        printf("Geometry writting process exited, pid = %d, Code %d\n", child_pid, WEXITSTATUS(stat_val));
+        if (WEXITSTATUS(stat_val) != 0) printf("REST Error: geometry writting is abnormal!\n");
+    }
+    //// Writing the geometry in TGeoManager format to the ROOT file
+    //{
+    //    // writing the geometry object
+    //    TFile* f1 = new TFile(Filename, "update");
+    //    cout << "Writing geometry..." << endl;
+
+    //    TGeoManager* geo2 = gdml->CreateGeoM();
+
+    //    f1->cd();
+    //    geo2->SetName("Geometry");
+    //    geo2->Write();
+    //    cout << "Closing file : " << Filename << endl;
+    //    f1->Close();
+    //}
+    cout << "============== Generated file: " << Filename << " ==============" << endl;
     auto end_time = chrono::steady_clock::now();
     cout << "Elapsed time: " << chrono::duration_cast<chrono::seconds>(end_time - start_time).count()
          << " seconds" << endl;

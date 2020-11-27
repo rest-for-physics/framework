@@ -74,9 +74,9 @@ Int_t TRestDetectorReadoutChannel::isInside(Double_t x, Double_t y) {
 /// \brief Prints the details of the readout channel including pixel
 /// coordinates.
 ///
-void TRestDetectorReadoutChannel::Print(int DetailLevel, int index) {
+void TRestDetectorReadoutChannel::Print(int DetailLevel) {
     if (DetailLevel >= 0) {
-        metadata << "++++ Channel : " << index << " Daq channel : " << GetDaqID() << endl;
+        metadata << "++++ Channel : " << GetChannelId() << " Daq channel : " << GetDaqID() << endl;
 
         string typestr;
         if (GetType() == Channel_NoType)
@@ -99,7 +99,7 @@ void TRestDetectorReadoutChannel::Print(int DetailLevel, int index) {
 
         if (DetailLevel - 1 >= 0)
             for (int n = 0; n < GetNumberOfPixels(); n++) {
-                fReadoutPixel[n].Print(n);
+                fReadoutPixel[n].Print();
             }
     }
 }

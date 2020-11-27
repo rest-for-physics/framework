@@ -646,7 +646,7 @@ using namespace std;
 
 #include <TGeoManager.h>
 
-#include "GdmlPreprocessor.h"
+#include "TRestGDMLParser.h"
 
 namespace g4_metadata_parameters {
 string CleanString(string s) {
@@ -756,7 +756,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO" ||
         seedstr == "0") {
         double* dd = new double();
-        fSeed = (uintptr_t)dd + (uintptr_t) this;
+        fSeed = (uintptr_t)dd + (uintptr_t)this;
         delete dd;
     } else {
         fSeed = (Long_t)StringToInteger(seedstr);
@@ -787,6 +787,9 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 
     fPrintProgress = ToUpper(GetParameter("printProgress", "false")) == "TRUE" ||
                      ToUpper(GetParameter("printProgress", "off")) == "ON";
+
+    fRegisterEmptyTracks = ToUpper(GetParameter("registerEmptyTracks", "false")) == "TRUE" ||
+                           ToUpper(GetParameter("registerEmptyTracks", "off")) == "ON";
 
     ReadGenerator();
 
@@ -981,10 +984,10 @@ void TRestGeant4Metadata::ReadStorage() {
 
     fEnergyRangeStored = Get2DVectorParameterWithUnits("energyRange", storageDefinition);
 
-    GdmlPreprocessor* preprocesor = new GdmlPreprocessor();
-    preprocesor->Load((string)Get_GDML_Filename());
+    TRestGDMLParser* gdml = new TRestGDMLParser();
+    gdml->Load((string)Get_GDML_Filename());
 
-    TGeoManager::Import((TString)preprocesor->GetOutputGDMLFile());
+    TGeoManager::Import((TString)gdml->GetOutputGDMLFile());
     std::set<std::string> geometryVolumes = {"World_PV"};  // we include the world volume
     for (auto node : gGeoManager->GetTopVolume()->GetNodes()[0]) {
         string name = node->GetName();
@@ -1031,6 +1034,10 @@ void TRestGeant4Metadata::PrintMetadata() {
     metadata << "Max. Step size : " << GetMaxTargetStepSize() << " mm" << endl;
     metadata << "Sub-event time delay : " << GetSubEventTimeDelay() << " us" << endl;
     if (fSaveAllEvents) metadata << "Save all events was enabled!" << endl;
+    if (fRegisterEmptyTracks)
+        metadata << "Register empty tracks was enabled" << endl;
+    else
+        metadata << "Register empty tracks was NOT enabled" << endl;
     metadata << "**********Generator**********" << endl;
     TString generatorType = GetGeneratorType();
     metadata << "Number of generated events : " << GetNumberOfEvents() << endl;

@@ -10,6 +10,12 @@
 #ifndef RestTask_Fit
 #define RestTask_Fit
 
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_Fit(TString varName, TString rootFileName, double startVal, double endVal, int nBins = 100) {
     TRestStringOutput cout;
     cout << "Variable name : " << varName << endl;
@@ -55,7 +61,7 @@ Int_t REST_Fit(TString varName, TString rootFileName, double startVal, double en
     h->Fit("gaus");
     h->Draw();
 
-    run->GetChar();
+    GetChar();
 
     delete run;
 

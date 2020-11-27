@@ -5,6 +5,15 @@
 #include "TSystem.h"
 using namespace std;
 
+#ifndef RESTTask_CheckRunFileList
+#define RESTTask_CheckRunFileList
+
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_CheckRunFileList(TString namePattern, Int_t N = 100000) {
     TGeoManager::SetVerboseLevel(0);
 
@@ -68,3 +77,4 @@ Int_t REST_CheckRunFileList(TString namePattern, Int_t N = 100000) {
 
     return 0;
 }
+#endif

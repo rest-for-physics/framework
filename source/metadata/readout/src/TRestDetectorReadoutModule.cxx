@@ -148,10 +148,10 @@ void TRestDetectorReadoutModule::DoReadoutMapping(Int_t nodes) {
 
                 Int_t tempCh = fMapping.GetChannelByNode(nodeX, nodeY);
                 Int_t tempPix = fMapping.GetPixelByNode(nodeX, nodeY);
-                cout << "Already associated channel : " << tempCh << " pixel : " << tempPix << endl;
+                warning << "Already associated channel : " << tempCh << " pixel : " << tempPix << endl;
                 Double_t xP = this->GetChannel(tempCh)->GetPixel(tempPix)->GetCenter().X();
                 Double_t yP = this->GetChannel(tempCh)->GetPixel(tempPix)->GetCenter().Y();
-                cout << "Pixel coordinates : ( " << xP << " , " << yP << " ) " << endl;
+                warning << "Pixel coordinates : ( " << xP << " , " << yP << " ) " << endl;
                 cout << endl;
 
                 cout << "Increasing the number of mapping of nodes may solve this issue." << endl;
@@ -554,6 +554,6 @@ void TRestDetectorReadoutModule::Print(Int_t DetailLevel) {
         metadata << "-- Total channels : " << GetNumberOfChannels() << endl;
         metadata << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
-        for (int n = 0; n < GetNumberOfChannels(); n++) fReadoutChannel[n].Print(DetailLevel - 1, n);
+        for (int n = 0; n < GetNumberOfChannels(); n++) fReadoutChannel[n].Print(DetailLevel - 1);
     }
 }

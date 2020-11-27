@@ -91,7 +91,7 @@ string Console::ReadLine() {
 }
 
 void Console::WriteLine(string content) {
-    printf(content.c_str());
+    printf("%s", content.c_str());
     fflush(stdout);
 }
 

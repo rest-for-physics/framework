@@ -147,7 +147,8 @@ vector<string> TRestEventProcess::ReadObservables() {
 
 void TRestEventProcess::SetAnalysisTree(TRestAnalysisTree* tree) {
     fAnalysisTree = tree;
-    ConfigAnalysisTree();
+    if (fAnalysisTree == NULL) return;
+    ReadObservables();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -160,15 +161,6 @@ void TRestEventProcess::SetFriendProcess(TRestEventProcess* p) {
         if (fFriendlyProcesses[i]->GetName() == p->GetName()) return;
     }
     fFriendlyProcesses.push_back(p);
-}
-
-//////////////////////////////////////////////////////////////////////////
-/// \brief Set branches for analysis tree according to the output level, read observables.
-///
-void TRestEventProcess::ConfigAnalysisTree() {
-    if (fAnalysisTree == NULL) return;
-
-    ReadObservables();
 }
 
 //////////////////////////////////////////////////////////////////////////

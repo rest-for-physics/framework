@@ -10,6 +10,12 @@
 #ifndef RestTask_Integrate
 #define RestTask_Integrate
 
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Int_t REST_Integrate(TString varName, TString rootFileName, double startVal, double endVal) {
     TRestStringOutput cout;
     cout << "Variable name : " << varName << endl;

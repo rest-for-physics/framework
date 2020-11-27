@@ -75,10 +75,7 @@ TRestDummyNameProcess::TRestDummyNameProcess(char* cfgFileName) {
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestDummyNameProcess::~TRestDummyNameProcess() {
-    delete fDummyEvent;
-    delete fDummyEvent;
-}
+TRestDummyNameProcess::~TRestDummyNameProcess() { delete fDummyEvent; }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input

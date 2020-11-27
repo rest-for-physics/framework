@@ -2,6 +2,15 @@
 #include "TRestGeant4Metadata.h"
 #include "TRestTask.h"
 
+#ifndef RestTask_GetBiasingError
+#define RestTask_GetBiasingError
+
+//*******************************************************************************************************
+//***
+//*** Your HELP is needed to verify, validate and document this macro
+//*** This macro might need update/revision.
+//***
+//*******************************************************************************************************
 Double_t REST_GetBiasingError(TString fName, Int_t finalEvents = 0) {
     cout << "Filename : " << fName << endl;
 
@@ -92,3 +101,4 @@ Double_t REST_GetBiasingError(TString fName, Int_t finalEvents = 0) {
 
     return error;
 }
+#endif
