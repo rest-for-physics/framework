@@ -424,6 +424,6 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     ~TRestGeant4Metadata();
 
-    ClassDef(TRestG4Metadata, 6);
+    ClassDef(TRestGeant4Metadata, 6);
 };
 #endif  // RestCore_TRestGeant4Metadata
