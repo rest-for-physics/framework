@@ -202,6 +202,9 @@ class TRestG4Metadata : public TRestMetadata {
     /// traceability, but saving disk space and likely improving computing performance for extense events.
     Bool_t fRegisterEmptyTracks = 1;
 
+    /// The world magnetic field
+    TVector3 fMagneticField = TVector3(0, 0, 0);
+
    public:
     /// \brief Returns the random seed that was used to generate the corresponding
     /// geant4 dataset.
@@ -411,6 +414,9 @@ class TRestG4Metadata : public TRestMetadata {
     /// Returns a string with the name of the active volume with index n
     TString GetActiveVolumeName(Int_t n) { return fActiveVolumes[n]; }
 
+    /// Returns the world magnetic field in Tesla
+    TVector3 GetMagneticField() { return fMagneticField; }
+
     Int_t GetActiveVolumeID(TString name);
 
     Bool_t isVolumeStored(TString volName);
@@ -424,6 +430,6 @@ class TRestG4Metadata : public TRestMetadata {
 
     ~TRestG4Metadata();
 
-    ClassDef(TRestG4Metadata, 6);
+    ClassDef(TRestG4Metadata, 7);
 };
 #endif  // RestCore_TRestG4Metadata

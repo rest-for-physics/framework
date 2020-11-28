@@ -747,6 +747,8 @@ void TRestG4Metadata::Initialize() {
 void TRestG4Metadata::InitFromConfigFile() {
     this->Initialize();
 
+    fMagneticField = Get3DVectorParameterWithUnits("magneticField", TVector3(0, 0, 0));
+
     // Initialize the metadata members from a configfile
     fGDML_Filename = GetParameter("gdml_file");
 
@@ -1034,6 +1036,10 @@ void TRestG4Metadata::PrintMetadata() {
     metadata << "GDML materials reference : " << GetMaterialsReference() << endl;
     metadata << "Max. Step size : " << GetMaxTargetStepSize() << " mm" << endl;
     metadata << "Sub-event time delay : " << GetSubEventTimeDelay() << " us" << endl;
+    Double_t mx = GetMagneticField().X();
+    Double_t my = GetMagneticField().Y();
+    Double_t mz = GetMagneticField().Z();
+    metadata << "Magnetic field : ( " << mx << ", " << my << ", " << mz << ") T" << endl;
     if (fSaveAllEvents) metadata << "Save all events was enabled!" << endl;
     if (fRegisterEmptyTracks)
         metadata << "Register empty tracks was enabled" << endl;
