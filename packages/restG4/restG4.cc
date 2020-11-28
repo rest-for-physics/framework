@@ -490,10 +490,10 @@ throw std::exception();
 
         printf("Writing geometry ... \n");
 
-        child_pid = wait(&stat_val);
+        // child_pid = wait(&stat_val);
 
-        printf("Geometry writting process exited, pid = %d, Code %d\n", child_pid, WEXITSTATUS(stat_val));
-        if (WEXITSTATUS(stat_val) != 0) printf("REST Error: geometry writting is abnormal!\n");
+        // printf("Geometry writting process exited, pid = %d, Code %d\n", child_pid, WEXITSTATUS(stat_val));
+        // if (WEXITSTATUS(stat_val) != 0) printf("REST Error: geometry writting is abnormal!\n");
     }
     //// Writing the geometry in TGeoManager format to the ROOT file
     //{
