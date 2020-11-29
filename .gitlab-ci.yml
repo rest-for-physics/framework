@@ -44,17 +44,10 @@ before_script:
   - git submodule sync --recursive
   - git submodule update --init --recursive
 
-axion-pipeline:
+axionLib:
   stage: libraries
-  image: $PIPELINE_TRIGGER_IMAGE
-  variables:
-    GIT_STRATEGY: none
-    TRIGGER_TARGET_REPO_ID: git@lfna.unizar.es:iaxo/RestAxionLib.git
   script:
-      - "curl -k --request POST \
-     --form token=bd53c38cdd1395ffeb14d297ebe202 \
-     --form ref=master \
-     https://lfna.unizar.es/iaxo/RestAxionLib"
+    - "curl -X POST -F token=bd53c38cdd1395ffeb14d297ebe202 -F ref=master https://lfna.unizar.es/api/v4/projects/31/trigger/pipeline"
 
 clang-format:
     stage: pre-build
