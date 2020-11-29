@@ -3,26 +3,18 @@ image: nkx1231/root6-geant4-garfield:0.5
 variables:
       GIT_SUBMODULE_STRATEGY: recursive
 
-      GITLAB_API_PATH: /api/v4/projects
-      GITLAB_HOST: lfna.unizar.es
-      PIPELINE_TRIGGER_IMAGE: registry.gitlab.com/finestructure/pipeline-trigger
-      # Secrets
-      PIPELINE_SERVICE_TOKEN: qgx91q3cX_G_yMA4gJau
-      PIPELINE_TRIGGER_TOKEN: bd53c38cdd1395ffeb14d297ebe202
-
-
 stages:
     # Basic checks to verify correctness of code
   - pre-build
+
+    # Basic validation tests of installation
+  - libraries
 
     # Project compilation validation
   - build
 
     # Basic validation tests of installation
   - install
-
-    # Basic validation tests of installation
-  - libraries
 
     # Stage dedicated to validate metadata classes. gas, readout, g4Metadata, etc
   - metadata
@@ -59,10 +51,10 @@ axion-pipeline:
     GIT_STRATEGY: none
     TRIGGER_TARGET_REPO_ID: git@lfna.unizar.es:iaxo/RestAxionLib.git
   script:
-    - trigger --verbose -h $GITLAB_HOST -u $GITLAB_API_PATH
-      -a $TRIGGER_SOURCE_USER_TOKEN -p $TRIGGER_TARGET_REPO_TOKEN
-      -t master $TRIGGER_TARGET_REPO_ID
-      #      -e SOME_ENV_VAR="value goes here" -e ANOTHER_ENV_VAR=$CAN_ALSO_READ_FROM_VARS
+      - "curl --request POST \
+     --form token=bd53c38cdd1395ffeb14d297ebe202 \
+     --form ref=master \
+     https://lfna.unizar.es/iaxo/RestAxionLib"
 
 clang-format:
     stage: pre-build
