@@ -98,6 +98,6 @@ class TRestDetectorReadoutChannel : public TObject {
     // Destructor
     virtual ~TRestDetectorReadoutChannel();
 
-    ClassDef(TRestDetectorReadoutChannel, 2);  // REST run class
+    ClassDef(TRestDetectorReadoutChannel, 3);  // REST run class
 };
 #endif
