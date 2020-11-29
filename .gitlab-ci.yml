@@ -51,7 +51,7 @@ axion-pipeline:
     GIT_STRATEGY: none
     TRIGGER_TARGET_REPO_ID: git@lfna.unizar.es:iaxo/RestAxionLib.git
   script:
-      - "curl --request POST \
+      - "curl -k --request POST \
      --form token=bd53c38cdd1395ffeb14d297ebe202 \
      --form ref=master \
      https://lfna.unizar.es/iaxo/RestAxionLib"
