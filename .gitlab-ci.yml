@@ -47,7 +47,7 @@ before_script:
 axionLib:
   stage: libraries
   script:
-    - "curl -X POST -F token=bd53c38cdd1395ffeb14d297ebe202 -F ref=master https://lfna.unizar.es/api/v4/projects/31/trigger/pipeline"
+    - "curl -k -X POST -F token=bd53c38cdd1395ffeb14d297ebe202 -F ref=master https://lfna.unizar.es/api/v4/projects/31/trigger/pipeline"
 
 clang-format:
     stage: pre-build
