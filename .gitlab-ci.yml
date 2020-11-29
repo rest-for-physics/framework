@@ -10,6 +10,9 @@ stages:
     # Project compilation validation
   - build
 
+    # REST libraries installed as sub-modules
+  - libraries
+
     # Basic validation tests of installation
   - install
 
@@ -40,6 +43,14 @@ before_script:
   - if [ -d $HOME/.rest ]; then rm -Rf $HOME/.rest; fi
   - git submodule sync --recursive
   - git submodule update --init --recursive
+
+axionLib:
+  stage: libraries
+  script:
+    - "curl -k -X POST -F token=bd53c38cdd1395ffeb14d297ebe202 -F ref=master https://lfna.unizar.es/api/v4/projects/31/trigger/pipeline"
+  only:
+      variables:
+          - $CI_SERVER_HOST == "lfna.unizar.es"
 
 clang-format:
     stage: pre-build
