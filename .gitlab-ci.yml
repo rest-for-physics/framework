@@ -177,6 +177,7 @@ trexDM_data:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/scripts/pipeline/trex
+    - wget https://sultan.unizar.es/trexdm-readouts/readouts_v2.3.root
     - restManager --c 01_raw.rml --f *.aqs
     - restManager --c 02_signal.rml --f RawData.root
     - restManager --c 03_hits.rml --f Signals.root

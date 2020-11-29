@@ -11,7 +11,7 @@
 	<parameter name="readOnly" value="false" />
 	<parameter name="inputFormat" value="R[fRunNumber]_[fRunTag]_Vm[TRestDetector::fAmplificationVoltage]_Shaping.aqs" />
 
-	<addMetadata type="TRestDetectorReadout" name="TREXDM_Nov2018" file="readouts.root" store="false" />
+    <addMetadata type="TRestDetectorReadout" name="TREXDM_Nov2018" file="readouts_v2.3.root" store="false" />
 
 	<TRestGas name="Neon-Isobutane 2Pct 10-10E3Vcm" pressure="6" file="server" />
 </TRestRun>
