@@ -71,11 +71,11 @@
     <TRestHitsToTrackProcess name="ihitsToTrack" title="">
         <parameter name="clusterDistance" value="7.5" units="mm" />
     </TRestHitsToTrackProcess>
-    <TRestFastHitsToTrackProcess name="hitsToTrack" title="">
+    <TRestDetectorHitsToTrackFastProcess name="hitsToTrack" title="">
         <parameter name="cellResolution" value="7.5" units="mm" />
         <parameter name="netSize" value="1700mm" />
         <parameter name="netOrigin" value="(-850,-850,-850)mm" />
-    </TRestFastHitsToTrackProcess>
+    </TRestDetectorHitsToTrackFastProcess>
     <TRestHitsShuffleProcess name="hitsShuffle" title="Shuffles the hits">
         <parameter name="iterations" value="100" />
     </TRestHitsShuffleProcess>
@@ -100,7 +100,7 @@
         <parameter name="weightHits" value="false" />
     </TRestTrackPathMinimizationProcess>
     <TRestTrackReconnectionProcess name="trackReconnection" title="" verboseLevel="silent">
-        <observable name="branches" value="ON" />
+        <observable name="branches" type="int" value="ON" />
         <!-- This parameter will split the track in case secondary branches are found -->
         <parameter name="splitTrack" value="false" />
     </TRestTrackReconnectionProcess>
@@ -108,9 +108,9 @@
         <observable name="GasVolumeEDep" value="ON" description="Energy deposited in the gas volume in keV" />
         <observable name="vesselVolumeEDep" value="OFF" description="Energy deposited in the vessel volume in keV" />
         <observable name="totalEdep" value="ON" description="Total energy deposited in all the volumes in keV" />
-        <observable name="photoelectric" value="ON" description="Its value will be 1 if the event contains a photoelectric interaction." />
-        <observable name="compton" value="ON" description="Its value will be 1 if the event contains a compton scattering process." />
-        <observable name="bremstralung" value="ON" description="Its value will be 1 if the event contains a bremstralung physics process." />
+        <observable name="photoelectric" value="ON" type="int" description="Its value will be 1 if the event contains a photoelectric interaction." />
+        <observable name="compton" value="ON" type="int" description="Its value will be 1 if the event contains a compton scattering process." />
+        <observable name="bremstralung" value="ON" type="int" description="Its value will be 1 if the event contains a bremstralung physics process." />
         <parameter name="lowEnergyCut" value="600keV" />
         <parameter name="highEnergyCut" value="3000keV" />
     </TRestGeant4AnalysisProcess>
@@ -119,9 +119,9 @@
         <observable name="xMean" value="ON" />
         <observable name="yMean" value="ON" />
         <observable name="zMean" value="ON" />
-        <observable name="nHits" value="ON" />
-        <observable name="nHitsX" value="ON" />
-        <observable name="nHitsY" value="ON" />
+        <observable name="nHits" value="ON" type="int" />
+        <observable name="nHitsX" value="ON" type="int" />
+        <observable name="nHitsY" value="ON" type="int" />
         <!-- Observables and parameters to determine if hits are 
          inside a certain fiducial volume (cylinder or prism). -->
         <!-- This parameter allows to enable/disable the cylinder fiducialization. -->
@@ -146,9 +146,9 @@
         <observable name="xMean" value="ON" />
         <observable name="yMean" value="ON" />
         <observable name="zMean" value="ON" />
-        <observable name="nHits" value="ON" />
-        <observable name="nHitsX" value="ON" />
-        <observable name="nHitsY" value="ON" />
+        <observable name="nHits" value="ON" type="int" />
+        <observable name="nHitsX" value="ON" type="int" />
+        <observable name="nHitsY" value="ON" type="int" />
         <!-- Observables and parameters to determine if hits are 
          inside a certain fiducial volume (cylinder or prism). -->
         <!-- This parameter allows to enable/disable the cylinder fiducialization. -->
@@ -191,18 +191,18 @@
         <parameter name="normFactor" value="0.021917" />
     </TRestHitsNormalizationProcess>
     <TRestTrackAnalysisProcess name="tckAna" title="Track analysis template">
-        <observable name="nTracksXYZ" value="ON" description="Number of pure 3D-tracks (with valid XYZ-hits)." />
+        <observable name="nTracksXYZ" type="int" value="ON" description="Number of pure 3D-tracks (with valid XYZ-hits)." />
         <observable name="nTrackEnergyRatio" value="ON" description="Energy ratio between track event energy excluding the main track and total track event energy." />
-        <observable name="nTracks_HE_100" value="ON" description="Number of tracks with energy higher than 100 keV." />
-        <observable name="nTracks_LE_100" value="ON" description="Number of tracks with energy lower than 100 keV." />
+        <observable name="nTracks_HE_100" type="int" value="ON" description="Number of tracks with energy higher than 100 keV." />
+        <observable name="nTracks_LE_100" type="int" value="ON" description="Number of tracks with energy lower than 100 keV." />
         <observable name="SecondTrackMaxEnergy" value="ON" description="The energy of the second most energetic track" />
         <observable name="xMean" value="ON" />
         <observable name="yMean" value="ON" />
         <observable name="zMean" value="ON" />
     </TRestTrackAnalysisProcess>
     <TRestTrackAnalysisProcess name="tckAna_2" title="Track analysis template">
-        <observable name="nTracks_X" value="ON" description="Number of 2D-tracks (with valid XZ-hits)." />
-        <observable name="nTracks_Y" value="ON" description="Number of 2D-tracks (with valid XZ-hits)." />
+        <observable name="nTracks_X" type="int" value="ON" description="Number of 2D-tracks (with valid XZ-hits)." />
+        <observable name="nTracks_Y" type="int" value="ON" description="Number of 2D-tracks (with valid YZ-hits)." />
         <observable name="nTrackEnergyRatio" value="ON" description="Energy ratio between track event energy excluding the main track and total track event energy." />
     </TRestTrackAnalysisProcess>
     <TRestTrackAnalysisProcess name="tckVol_2D" title="Track analysis template">
@@ -213,8 +213,8 @@
         <observable name="xMean" value="ON" />
         <observable name="yMean" value="ON" />
         <observable name="zMean" value="ON" />
-        <observable name="nTracks_X" value="ON" description="Number of 2D-tracks (with valid XZ-hits)." />
-        <observable name="nTracks_Y" value="ON" description="Number of 2D-tracks (with valid YZ-hits)." />
+        <observable name="nTracks_X" type="int" value="ON" description="Number of 2D-tracks (with valid XZ-hits)." />
+        <observable name="nTracks_Y" type="int" value="ON" description="Number of 2D-tracks (with valid YZ-hits)." />
         <observable name="MaxTrackEnergyRatio" value="ON" description="Energy ratio between secondary tracks and main track." />
         <observable name="MaxTrackLength_X" value="ON" description="" />
         <observable name="MaxTrackLength_Y" value="ON" description="" />
@@ -281,7 +281,7 @@
         <observable name="Integral_Eth1229" value="ON" />
         <observable name="Integral_Eth1900" value="OFF" />
         <observable name="RawIntegral" value="ON" />
-        <observable name="TriggerStarts" value="ON" />
+        <observable name="TriggerStarts" type="int" value="ON" />
     </TRestTriggerAnalysisProcess>
     <TRestGeant4BlobAnalysisProcess name="g4Blob" title="Find blobs in DBD. G4 event">
         <observable name="x1" value="ON" />

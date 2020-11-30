@@ -45,7 +45,7 @@
     <addProcess type="TRestTriggerAnalysisProcess" name="trigger" value="ON" file="processes_2D.rml" />
     <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="ON" file="processes_2D.rml" />
     <addProcess type="TRestHitsShuffleProcess" name="hitsShuffle" value="ON" file="processes_2D.rml" />
-    <addProcess type="TRestFastHitsToTrackProcess" name="hitsToTrack" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestDetectorHitsToTrackFastProcess" name="hitsToTrack" value="ON" file="processes_2D.rml" />
     <addProcess type="TRestTrackAnalysisProcess" name="tckAna_2D" value="ON" file="processes_2D.rml" />
     <addProcess type="TRestTrackReductionProcess" name="trackReduction" value="ON" file="processes_2D.rml" />
     <addProcess type="TRestTrackPathMinimizationProcess" name="tckMin" value="ON" file="processes_2D.rml" />
@@ -53,7 +53,7 @@
     <addProcess type="TRestTrackReconnectionProcess" name="trackReconnection" value="ON" file="processes_2D.rml" />
     <addProcess type="TRestTrackAnalysisProcess" name="tckAnaFinal_2D" value="ON" file="processes_2D.rml" />
 
-    <addProcess type="TRestFindTrackBlobsProcess" name="tckBlob_2D" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestTrackBlobAnalysisProcess" name="tckBlob_2D" value="ON" file="processes_2D.rml" />
     <addProcess type="TRestTrackDrawMarkersProcess" name="draw" value="OFF" file="processes_2D.rml"/>
     <!-- Now we need to define in the manager the tasks we will perform.
          If task processEvents is not enabled processes will not be launched -->
