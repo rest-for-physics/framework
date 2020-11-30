@@ -35,6 +35,7 @@ before_script:
     # We redefine the HOME
   - export HOME=${CI_PROJECT_DIR}/install/
   - if [ -d $HOME/.rest ]; then rm -Rf $HOME/.rest; fi
+  - git config --global http.sslverify false
   - git submodule sync --recursive
   - git submodule update --init --recursive
 
