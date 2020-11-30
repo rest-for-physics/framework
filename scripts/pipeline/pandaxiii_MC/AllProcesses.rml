@@ -30,7 +30,7 @@
     <parameter name="inputAnalysis" value="off" />
     <parameter name="firstEntry" value="0" />
     <parameter name="lastEntry" value="100000000000" />
-    <parameter name="eventsToProcess" value="0" />
+    <parameter name="eventsToProcess" value="10" />
     <!-- ++++++++++++++++
          Adding processes 
          ++++++++++++++++ -->
