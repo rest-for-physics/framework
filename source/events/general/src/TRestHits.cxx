@@ -548,40 +548,44 @@ Double_t TRestHits::GetSigmaY() {
 }
 
 Double_t TRestHits::GetGaussSigmaX(Int_t readoutChannels, Int_t startChannel, Int_t endChannel, Double_t pitch) {
+	TH1::AddDirectory(kFALSE);
     Double_t gausSigmaX = 0;
 
-    if (gROOT->FindObject("hitsGaussHistoX")) delete gROOT->FindObject("hitsGaussHistoX");
 	TH1D* hX = new TH1D("hitsGaussHistoX", "hitsGaussHistoX", readoutChannels, startChannel, endChannel);
 
     for (int n = 0; n < GetNumberOfHits(); n++) hX->Fill(fX[n], fEnergy[n]);
 
-    TF1* fit = new TF1("fit", "gaus", hX->GetMaximumBin() / (1/pitch) - 32, hX->GetMaximumBin() / (1/pitch) - 26);
+    TF1* fit = new TF1("", "gaus", hX->GetMaximumBin() / (1/pitch) - 32, hX->GetMaximumBin() / (1/pitch) - 26);
 
-    hX->Fit("fit", "QNRL");  // Q = quiet, no info in screen; N = no plot; R = fit in the function range; L = log likelihood fit
+    hX->Fit(fit, "QNRL");  // Q = quiet, no info in screen; N = no plot; R = fit in the function range; L = log likelihood fit
 
     gausSigmaX = fit->GetParameter(2);
 
     delete fit;
+	delete hX;
 
+	TH1::AddDirectory(kTRUE);
     return gausSigmaX;
 }
 
 Double_t TRestHits::GetGaussSigmaY(Int_t readoutChannels, Int_t startChannel, Int_t endChannel, Double_t pitch) {
+	TH1::AddDirectory(kFALSE);
     Double_t gausSigmaY = 0;
 
-    if (gROOT->FindObject("hitsGaussHistoY")) delete gROOT->FindObject("hitsGaussHistoY");
 	TH1D* hY = new TH1D("hitsGaussHistoY", "hitsGaussHistoY", readoutChannels, startChannel, endChannel);
 
     for (int n = 0; n < GetNumberOfHits(); n++) hY->Fill(fY[n], fEnergy[n]);
 
-    TF1* fit = new TF1("fit", "gaus", hY->GetMaximumBin() / (1/pitch) - 32, hY->GetMaximumBin() / (1/pitch) - 26);
+    TF1* fit = new TF1("", "gaus", hY->GetMaximumBin() / (1/pitch) - 32, hY->GetMaximumBin() / (1/pitch) - 26);
 
-    hY->Fit("fit", "QNRL");  // Q = quiet, no info in screen; N = no plot; R = fit in the function range; L = log likelihood fit
+    hY->Fit(fit, "QNRL");  // Q = quiet, no info in screen; N = no plot; R = fit in the function range; L = log likelihood fit
 
     gausSigmaY = fit->GetParameter(2);
 
     delete fit;
+	delete hY;
 
+	TH1::AddDirectory(kTRUE);
     return gausSigmaY;
 }
 
