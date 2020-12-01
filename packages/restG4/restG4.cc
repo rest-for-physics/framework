@@ -124,7 +124,8 @@ int main(int argc, char** argv) {
 
     restRun = new TRestRun();
     restRun->LoadConfigFromFile(inputConfigFile);
-    restRun->SetRunTag(restG4Metadata->GetTitle());
+    TString rTag = restRun->GetRunTag();
+    if (rTag == "Null" || rTag == "") restRun->SetRunTag(restG4Metadata->GetTitle());
     restRun->SetRunType("restG4");
 
     restRun->AddMetadata(restG4Metadata);
@@ -489,10 +490,10 @@ throw std::exception();
 
         printf("Writing geometry ... \n");
 
-        child_pid = wait(&stat_val);
+        // child_pid = wait(&stat_val);
 
-        printf("Geometry writting process exited, pid = %d, Code %d\n", child_pid, WEXITSTATUS(stat_val));
-        if (WEXITSTATUS(stat_val) != 0) printf("REST Error: geometry writting is abnormal!\n");
+        // printf("Geometry writting process exited, pid = %d, Code %d\n", child_pid, WEXITSTATUS(stat_val));
+        // if (WEXITSTATUS(stat_val) != 0) printf("REST Error: geometry writting is abnormal!\n");
     }
     //// Writing the geometry in TGeoManager format to the ROOT file
     //{

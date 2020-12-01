@@ -23,8 +23,9 @@ By default REST units are mm, keV and degrees
     // Value "auto" can add simulation run into database ???
     <parameter name="runNumber" value="auto"/>
 
-    // The runTag in a restG4 simulation will be replaced by the title of TRestG4Metadata
-    <parameter name="runTag" value="g4Tag"/>
+	// If the runTag parameter is not defined or it is empty, the title of TRestG4Metadata
+	// will be used as the runTag
+	<parameter name="runTag" value="NLDBD" />
 
     // The output filename can be built using any member from TRestRun, fRunNumber, fRunTag, ..., etc.
     <parameter name="outputFile" value="Run[fRunNumber]_[fRunTag]_[fExperimentName].root" />

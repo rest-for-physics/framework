@@ -7,6 +7,7 @@
 #include "TBrowser.h"
 #include "TCanvas.h"
 #include "TGButton.h"
+#include "TGComboBox.h"
 #include "TGDimension.h"
 #include "TGFileDialog.h"
 #include "TGFrame.h"
@@ -34,6 +35,9 @@ class TRestBrowser {
     TGNumberEntry* fEventRowNumberBox = 0;    //! For row number.
     TGNumberEntry* fEventIdNumberBox = 0;     //! For Event number.
     TGNumberEntry* fEventSubIdNumberBox = 0;  //! For sub Event number.
+
+    TGLabel* fEventTypeLabel = 0;        //!
+    TGComboBox* fEventTypeComboBox = 0;  //!
 
     TGLabel* fPlotOptionLabel = 0;        //!
     TGTextEntry* fPlotOptionTextBox = 0;  //! TextBox for plot options
@@ -86,6 +90,8 @@ class TRestBrowser {
 
     void RowValueChangedAction(Long_t val);
     void IdValueChangedAction(Long_t val);
+
+    void EventTypeChangedAction(Int_t id);
 
     void NextPlotOptionAction();
     void PreviousPlotOptionAction();

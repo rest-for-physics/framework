@@ -127,8 +127,8 @@ class TRestHits : public TObject {
     Double_t GetSkewXY();
     Double_t GetSkewZ();
 
-    Double_t GetGaussSigmaX();
-    Double_t GetGaussSigmaY();
+    Double_t GetGaussSigmaX(Int_t readoutChannels, Int_t startChannel, Int_t endChannel, Double_t pitch);
+    Double_t GetGaussSigmaY(Int_t readoutChannels, Int_t startChannel, Int_t endChannel, Double_t pitch);
 
     Double_t GetEnergyX();
     Double_t GetEnergyY();

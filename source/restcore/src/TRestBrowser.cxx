@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 ///
 ///
-/// This class opens input file with TRestRun and shows the plot of each event 
+/// This class opens input file with TRestRun and shows the plot of each event
 /// The plot is shown through TRestEventViewer interface on the right. On the left
 /// there is a control bar to switch the events. Plot options can also be given.
 ///
@@ -82,9 +82,9 @@ void TRestBrowser::SetViewer(TRestEventViewer* eV) {
     }
     if (eV != NULL) {
         fEventViewer = eV;
-        //b->StartEmbedding(1, -1);
+        // b->StartEmbedding(1, -1);
         eV->Embed(b);
-        //b->StopEmbedding();
+        // b->StopEmbedding();
     }
 }
 
@@ -137,6 +137,14 @@ void TRestBrowser::SetButtons() {
         numberboxbar->AddFrame(fEventSubIdNumberBox, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
     }
     fVFrame->AddFrame(numberboxbar, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+
+    // event type to choose
+    fEventTypeLabel = new TGLabel(fVFrame, "Event Type:");
+    fVFrame->AddFrame(fEventTypeLabel, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+
+    fEventTypeComboBox = new TGComboBox(fVFrame);
+    fEventTypeComboBox->Connect("Selected(Int_t)", "TRestBrowser", this, "EventTypeChangedAction(Int_t)");
+    fVFrame->AddFrame(fEventTypeComboBox, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
     // plot option buttons
     fPlotOptionLabel = new TGLabel(fVFrame, "Plot Options:");
@@ -275,6 +283,7 @@ Bool_t TRestBrowser::LoadEventId(Int_t id, Int_t subid) {
 Bool_t TRestBrowser::OpenFile(TString filename) {
     if (filename.Contains("http") || TRestTools::fileExists(filename.Data())) {
         fInputFileName = filename;
+
         r->OpenInputFile(fInputFileName);
         TFile* f = r->GetInputFile();
         TTree* t = r->GetEventTree();
@@ -282,6 +291,20 @@ Bool_t TRestBrowser::OpenFile(TString filename) {
         TGeoManager* geometry = gGeoManager;
 
         if (t != NULL) {
+            // add entry for other event types
+            TObjArray* branches = t->GetListOfBranches();
+            for (int i = 0; i <= branches->GetLast(); i++) {
+                TBranch* br = (TBranch*)branches->At(i);
+                if (((string)br->GetName()).find("EventBranch") != -1) {
+                    string eventtype = Replace((string)br->GetName(), "Branch", "");
+                    fEventTypeComboBox->AddEntry(eventtype.c_str(), fEventTypeComboBox->GetNumberOfEntries());
+                    // we make the entry of input event being selected
+                    if (r->GetInputEvent() != NULL && (string)r->GetInputEvent()->ClassName() == eventtype) {
+                        fEventTypeComboBox->Select(fEventTypeComboBox->GetNumberOfEntries() - 1, false);
+                    }
+                }
+            }
+
             // init viewer
             pureAnalysis = kFALSE;
             if (fEventViewer == NULL) SetViewer("TRestEventViewer");
@@ -344,6 +367,16 @@ void TRestBrowser::RowValueChangedAction(Long_t val) {
     if (!success) {
         fEventRow = rowold;
         fEventRowNumberBox->SetIntNumber(fEventRow);
+    }
+}
+
+void TRestBrowser::EventTypeChangedAction(Int_t id) {
+    string eventtype = fEventTypeComboBox->GetSelectedEntry()->GetTitle();
+    TRestEvent* eve = REST_Reflection::Assembly(eventtype);
+
+    if (eve != NULL) {
+        r->SetInputEvent(eve);
+        RowValueChangedAction(0);
     }
 }
 
