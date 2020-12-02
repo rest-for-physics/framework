@@ -79,7 +79,7 @@ loadRESTLibs:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - root -b -q ${CI_PROJECT_DIR}/scripts/pipeline/loadLibraries.C
-    - restRoot --m 1 -b -q
+    - restRoot -b -q
   except:
       variables:
         - $CRONJOB == "YES"
