@@ -44,7 +44,13 @@ Int_t ValidateTrees() {
             if ((*vr)[m] != (*vV)[m]) {
                 cout << "Double Observable with index " << m << " in entry " << n
                      << " is not the same value!!" << endl;
-                obsValErr = true;
+                printf("  value: %.15f, should be: %.15f\n", (*vr)[m], (*vV)[m]);
+
+                if (!TMath::IsNaN((*vr)[m] - (*vV)[m]) && abs(((*vr)[m] - (*vV)[m]) / (*vr)[m]) < 1e-15) {
+                    cout << "  (ignored)" << endl;
+                } else {
+                    obsValErr = true;
+                }
             }
         }
     }
