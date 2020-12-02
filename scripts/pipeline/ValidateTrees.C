@@ -41,7 +41,7 @@ Int_t ValidateTrees() {
         }
 
         for (int m = 0; m < (*vr).size(); m++) {
-            if ((*vr)[m] != (*vV)[m]) {
+            if ((Int_t)(1000. * (*vr)[m]) != (Int_t)(1000. * (*vV)[m])) {
                 cout << "Double Observable with index " << m << " in entry " << n
                      << " is not the same value!!" << endl;
                 printf("  value: %.15f, should be: %.15f\n", (*vr)[m], (*vV)[m]);
