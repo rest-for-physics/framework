@@ -198,7 +198,7 @@ pandaXIII_MC:
     - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC
     - restG4 Xe136bb0n.rml
     - restRoot -b -q ValidateG4.C'("Xe136bb0n_n2E06.root")'
-    - restManager --c AllProcesses.rml --i testInput.root --o testOutput.root --j 1
+    - restManager --c AllProcesses.rml --i Xe136bb0n_n2E06.root --o testOutput.root --j 1 --e 10
     - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
     - restRoot -b -q ../ValidateTrees.C
     - restManager --c plots.rml --i testOutput.root
