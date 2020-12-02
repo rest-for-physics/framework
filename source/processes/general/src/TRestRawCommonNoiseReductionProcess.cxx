@@ -35,6 +35,15 @@
 /// *centerWidth%* of the total number of bins center around the middle. The mean
 /// of these bins is used to do the correction.
 ///
+/// Common noise identification in all signals or by blocks
+/// Written with TREX-DM architecture in mind (8 blocks with 68 signals each 
+/// and gap of 4 ID between blocks)
+///
+/// * **Blocks = 0**: All signals together.
+///
+/// * **Blocks = 1**: 8 groups of signals, independent common noise reduction 
+/// process for each group.
+///
 /// Output signal without base line subtraction.
 ///
 ///_______________________________________________________________________________
@@ -145,55 +154,113 @@ TRestEvent* TRestRawCommonNoiseReductionProcess::ProcessEvent(TRestEvent* evInpu
         baseLineMean += baseline;
     }
     Double_t Baseline = baseLineMean / fInputEvent->GetNumberOfSignals();
-
-    Int_t N = fInputEvent->GetNumberOfSignals();
-
-    if (GetVerboseLevel() >= REST_Debug) N = 1;
-    for (int sgnl = 0; sgnl < N; sgnl++) {
-        fOutputEvent->AddSignal(*fInputEvent->GetSignal(sgnl));
-    }
-
-    Int_t nBins = fInputEvent->GetSignal(0)->GetNumberOfPoints();
-    Int_t begin, end;
-    Double_t norm = 1.0;
-    vector<Double_t> sgnlValues(N, 0.0);
-
-    for (Int_t bin = 0; bin < nBins; bin++) {
-        for (Int_t sgnl = 0; sgnl < N; sgnl++) {
-            sgnlValues[sgnl] = fOutputEvent->GetSignal(sgnl)->GetRawData(bin);
+    
+    if (fBlocks == 0){
+        Int_t N = fInputEvent->GetNumberOfSignals();
+    
+        if (GetVerboseLevel() >= REST_Debug) N = 1;
+        for (int sgnl = 0; sgnl < N; sgnl++) {
+            fOutputEvent->AddSignal(*fInputEvent->GetSignal(sgnl));
         }
-
-        std::sort(sgnlValues.begin(), sgnlValues.end());
-
-        // Sorting the different methods
-        Int_t begin, middle, end;
-        middle = (Int_t)N / 2;
+    
+        Int_t nBins = fInputEvent->GetSignal(0)->GetNumberOfPoints();
+        Int_t begin, end;
         Double_t norm = 1.0;
-
-        if (fMode == 0) {
-            // We take only the middle one
-            begin = (Int_t)((double_t)N / 2.0);
-            end = begin;
-            norm = 1.;
-        } else if (fMode == 1) {
-            // We take the average of the TRestSignals at the Center
-            begin = middle - (Int_t)(N * fcenterWidth * 0.01);
-            end = middle + (Int_t)(N * fcenterWidth * 0.01);
-            norm = (Double_t)end - begin;
+        vector<Double_t> sgnlValues(N, 0.0);
+    
+        for (Int_t bin = 0; bin < nBins; bin++) {
+            for (Int_t sgnl = 0; sgnl < N; sgnl++) {
+                sgnlValues[sgnl] = fOutputEvent->GetSignal(sgnl)->GetRawData(bin);
+            }
+    
+            std::sort(sgnlValues.begin(), sgnlValues.end());
+    
+            // Sorting the different methods
+            Int_t begin, middle, end;
+            middle = (Int_t)N / 2;
+            Double_t norm = 1.0;
+    
+            if (fMode == 0) {
+                // We take only the middle one
+                begin = (Int_t)((double_t)N / 2.0);
+                end = begin;
+                norm = 1.;
+            } else if (fMode == 1) {
+                // We take the average of the TRestSignals at the Center
+                begin = middle - (Int_t)(N * fcenterWidth * 0.01);
+                end = middle + (Int_t)(N * fcenterWidth * 0.01);
+                norm = (Double_t)end - begin;
+            }
+    
+            // Calculation of the correction to be made to each TRestRawSignal
+            Double_t binCorrection = 0.0;
+            for (Int_t i = begin; i <= end; i++) binCorrection += sgnlValues[i];
+    
+            binCorrection = binCorrection / norm;
+    
+            // Application of the correction.
+            for (Int_t sgnl = 0; sgnl < N; sgnl++)
+                fOutputEvent->GetSignal(sgnl)->IncreaseBinBy(bin, Baseline - binCorrection);
         }
-
-        // Calculation of the correction to be made to each TRestRawSignal
-        Double_t binCorrection = 0.0;
-        for (Int_t i = begin; i <= end; i++) binCorrection += sgnlValues[i];
-
-        binCorrection = binCorrection / norm;
-
-        // Application of the correction.
-        for (Int_t sgnl = 0; sgnl < N; sgnl++)
-            fOutputEvent->GetSignal(sgnl)->IncreaseBinBy(bin, Baseline - binCorrection);
+    
+        return fOutputEvent;
     }
-
-    return fOutputEvent;
+    else if (fBlocks == 1){
+        Int_t N = 68;
+        Int_t nBlocks = 8;
+        Int_t firstID = 578;
+        Int_t gap = 4;
+        
+        for (int block = 0; block < nBlocks; block++) {
+            int firstInBlock = firstID + block * (N + gap);
+        
+            if (GetVerboseLevel() >= REST_Debug) N = 1;
+            for (int sgnl = 0; sgnl < N; sgnl++) {
+                fOutputEvent->AddSignal(*fInputEvent->GetSignalById(firstInBlock+sgnl));
+            }
+        
+            Int_t nBins = fInputEvent->GetSignal(0)->GetNumberOfPoints();
+            Int_t begin, end;
+            Double_t norm = 1.0;
+            vector<Double_t> sgnlValues(N, 0.0);
+        
+            for (Int_t bin = 0; bin < nBins; bin++) {
+                for (Int_t sgnl = 0; sgnl < N; sgnl++) {
+                    sgnlValues[sgnl] = fOutputEvent->GetSignalById(firstInBlock+sgnl)->GetRawData(bin);
+                }
+        
+                std::sort(sgnlValues.begin(), sgnlValues.end());
+        
+                // Sorting the different methods
+                Int_t begin, middle, end;
+                middle = (Int_t)N / 2;
+                Double_t norm = 1.0;
+        
+                if (fMode == 0) {
+                    // We take only the middle one
+                    begin = (Int_t)((double_t)N / 2.0);
+                    end = begin;
+                    norm = 1.;
+                } else if (fMode == 1) {
+                    // We take the average of the TRestSignals at the Center
+                    begin = middle - (Int_t)(N * fcenterWidth * 0.01);
+                    end = middle + (Int_t)(N * fcenterWidth * 0.01);
+                    norm = (Double_t)end - begin;
+                }
+        
+                // Calculation of the correction to be made to each TRestRawSignal
+                Double_t binCorrection = 0.0;
+                for (Int_t i = begin; i <= end; i++) binCorrection += sgnlValues[i];
+        
+                binCorrection = binCorrection / norm;
+        
+                // Application of the correction.
+                for (Int_t sgnl = 0; sgnl < N; sgnl++)
+                    fOutputEvent->GetSignalById(firstInBlock+sgnl)->IncreaseBinBy(bin, Baseline - binCorrection);
+            }
+        }    
+        return fOutputEvent;
+    }
 }
 
 ///////////////////////////////////////////////
@@ -215,4 +282,5 @@ void TRestRawCommonNoiseReductionProcess::EndProcess() {
 void TRestRawCommonNoiseReductionProcess::InitFromConfigFile() {
     fMode = StringToInteger(GetParameter("mode", "0"));
     fcenterWidth = StringToInteger(GetParameter("centerWidth", "10"));
+    fBlocks = StringToInteger(GetParameter("blocks", "0"));
 }
