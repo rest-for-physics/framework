@@ -36,6 +36,8 @@ before_script:
   - export HOME=${CI_PROJECT_DIR}/install/
   - if [ -d $HOME/.rest ]; then rm -Rf $HOME/.rest; fi
   - pwd
+  - root-config --version
+  - geant4-config --version
 
 submodule:
     stage: pre-build
