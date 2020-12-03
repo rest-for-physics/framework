@@ -115,6 +115,24 @@ listRESTMacros:
       - ${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test.root
     expire_in: 1 day
 
+02_PandaXiiiMC:
+  type: restG4
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC
+    - restG4 Xe136bb0n.rml
+    - restRoot -b -q ValidateG4.C'("Xe136bb0n_n2E06.root")'
+  except:
+      variables:
+        - $CRONJOB == "YES"
+  only:
+      variables:
+        - $CI_SERVER_HOST == "gitlab.pandax.sjtu.edu.cn"
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC/Xe136bb0n_n2E06.root
+    expire_in: 1 day
+
 LoadGas:
   type: metadata 
   script:
@@ -200,25 +218,40 @@ trexDM_data:
       variables:
         - $CRONJOB == "YES"
 
-pandaXIII_MC: 
+pandaXIII_Topological: 
   type: restManager_process
   script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC
-    - restG4 Xe136bb0n.rml
-    - restRoot -b -q ValidateG4.C'("Xe136bb0n_n2E06.root")'
-    - if [ `geant4-config --version` = "10.4.2" ] ; then echo "using just-generated file" && restManager --c AllProcesses.rml --i Xe136bb0n_n2E06.root --o testOutput.root --j 1 --e 10 ; else echo "using pre-generated file" && restManager --c AllProcesses.rml --i testInput.root --o testOutput.root --j 1 --e 10 ;fi
+    - restManager --c AllProcesses.rml --i testInput.root --o testOutput.root --j 1 --e 10
     - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
     - restRoot -b -q ../ValidateTrees.C
     - restManager --c plots.rml --i testOutput.root
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC/testOutput.root
       - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC/trackParameter.png
     expire_in: 1 week
   except:
       variables:
         - $CRONJOB
+
+pandaXIII_Topological_fromG4: 
+  type: restManager_process
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC
+    - echo "using just-generated g4 file"
+    - restManager --c AllProcesses.rml --i Xe136bb0n_n2E06.root --o testOutput.root --j 1 --e 10
+    - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
+    - restRoot -b -q ../ValidateTrees.C
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC/testOutput.root
+    expire_in: 1 week
+  except:
+      variables:
+        - $CRONJOB
+  only:
+      variables:
+        - $CI_SERVER_HOST == "gitlab.pandax.sjtu.edu.cn"
 
 pandaXIII_data: 
   type: restManager_process
