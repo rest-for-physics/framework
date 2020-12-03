@@ -38,8 +38,6 @@ before_script:
   - pwd
   - root-config --version
   - geant4-config --version
-  - if [ `root-config --version` = "6.20/00" ] ; then export VALIDATION_FILE="validation_6.20.root"; else export VALIDATION_FILE="validation.root" ;fi
-  - echo "Validation File : $VALIDATION_FILE"
 
 submodule:
     stage: pre-build
@@ -213,7 +211,7 @@ pandaXIII_MC:
     - restRoot -b -q ValidateG4.C'("Xe136bb0n_n2E06.root")'
     - if [ `geant4-config --version` = "10.4.2" ] ; then echo "using just-generated file" && restManager --c AllProcesses.rml --i Xe136bb0n_n2E06.root --o testOutput.root --j 1 --e 10 ; else echo "using pre-generated file" && restManager --c AllProcesses.rml --i testInput.root --o testOutput.root --j 1 --e 10 ;fi
     - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
-    - restRoot -b -q ../ValidateTrees.C'("$VALIDATION_FILE")'
+    - if [ `root-config --version` = "6.20/00" ] ; then restRoot -b -q ../ValidateTrees.C'("validation_6.20.root")'; else restRoot -b -q ../ValidateTrees.C'("validation.root")' ;fi
     - restManager --c plots.rml --i testOutput.root
   artifacts:
     paths:
