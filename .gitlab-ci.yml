@@ -125,9 +125,7 @@ listRESTMacros:
   except:
       variables:
         - $CRONJOB == "YES"
-  only:
-      variables:
-        - $CI_SERVER_HOST == "gitlab.pandax.sjtu.edu.cn"
+        - $CI_SERVER_HOST == "lfna.unizar.es"
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC/Xe136bb0n_n2E06.root
@@ -249,9 +247,7 @@ pandaXIII_Topological_fromG4:
   except:
       variables:
         - $CRONJOB
-  only:
-      variables:
-        - $CI_SERVER_HOST == "gitlab.pandax.sjtu.edu.cn"
+        - $CI_SERVER_HOST == "lfna.unizar.es"
 
 pandaXIII_data: 
   type: restManager_process
