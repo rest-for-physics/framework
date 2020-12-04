@@ -26,6 +26,7 @@
 #include <TRestRawSignalEvent.h>
 
 #include "TH1D.h"
+#include "TF1.h"
 #include "TRestEventProcess.h"
 
 //! An analysis REST process to extract valuable information from RawSignal type of data.
