@@ -127,7 +127,6 @@ listRESTMacros:
   except:
       variables:
         - $CRONJOB == "YES"
-        - $CI_SERVER_HOST == "lfna.unizar.es"
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC/Xe136bb0n_n2E06.root
