@@ -2,13 +2,13 @@
 #include <TTree.h>
 #include <iostream>
 #include <vector>
-Int_t ValidateTrees() {
+Int_t ValidateTrees(TString validationFile) {
     TFile* f = new TFile("results.root");
     TTree* tr = (TTree*)f->Get("bTree");
     std::vector<double>* vr = 0;
     tr->SetBranchAddress("doubleObservables", &vr);
 
-    TFile* fV = new TFile("validation.root");
+    TFile* fV = new TFile(validationFile);
     TTree* tV = (TTree*)fV->Get("bTree");
     std::vector<double>* vV = 0;
     tV->SetBranchAddress("doubleObservables", &vV);
