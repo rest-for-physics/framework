@@ -242,7 +242,7 @@ pandaXIII_Topological_fromG4:
     - echo "using just-generated g4 file"
     - restManager --c AllProcesses.rml --i Xe136bb0n_n2E06.root --o testOutput.root --j 1 --e 10
     - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
-    - restRoot -b -q ../ValidateTrees.C
+    - if [ `root-config --version` = "6.20/04" ] ; then restRoot -b -q ../ValidateTrees.C'("validation_6.20.root")'; else restRoot -b -q ../ValidateTrees.C'("validation.root")' ;fi
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC/testOutput.root
@@ -250,7 +250,6 @@ pandaXIII_Topological_fromG4:
   except:
       variables:
         - $CRONJOB
-        - $CI_SERVER_HOST == "lfna.unizar.es"
 
 pandaXIII_data: 
   type: restManager_process
