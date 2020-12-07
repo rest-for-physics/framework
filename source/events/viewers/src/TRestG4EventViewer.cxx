@@ -13,6 +13,7 @@
 ///_______________________________________________________________________________
 
 #include "TRestG4EventViewer.h"
+#include "TRestStringOutput.h"
 using namespace std;
 
 ClassImp(TRestG4EventViewer)
@@ -157,7 +158,7 @@ void TRestG4EventViewer::AddMarker(Int_t trkID, TVector3 at, TString name) {
     marker->SetMarkerColor(kMagenta);
     marker->SetMarkerStyle(3);
     marker->SetPoint(0, at.X() * GEOM_SCALE, at.Y() * GEOM_SCALE, at.Z() * GEOM_SCALE);
-    marker->SetMarkerSize(0.2);
+    marker->SetMarkerSize(0.4);
     fHitConnectors[trkID]->AddElement(marker);
 }
 
@@ -171,7 +172,7 @@ void TRestG4EventViewer::AddTrack(Int_t trkID, Int_t parentID, TVector3 from, TS
     fHitConnectors.push_back(evLine);
 
     fHitConnectors[trkID]->SetMainColor(kWhite);
-    fHitConnectors[trkID]->SetLineWidth(2);
+    fHitConnectors[trkID]->SetLineWidth(8);
 
     if (name.Contains("gamma")) fHitConnectors[trkID]->SetMainColor(kGreen);
     if (name.Contains("e-")) fHitConnectors[trkID]->SetMainColor(kRed);
@@ -180,7 +181,12 @@ void TRestG4EventViewer::AddTrack(Int_t trkID, Int_t parentID, TVector3 from, TS
 
     fHitConnectors[trkID]->SetNextPoint(from.X() * GEOM_SCALE, from.Y() * GEOM_SCALE, from.Z() * GEOM_SCALE);
 
-    fHitConnectors[parentID]->AddElement(fHitConnectors[trkID]);
+    if (fHitConnectors.size() > parentID)
+        fHitConnectors[parentID]->AddElement(fHitConnectors[trkID]);
+    else {
+        warning << "Parent ID: " << parentID << " of track " << trkID << " was not found!" << endl;
+        warning << "This might be solved by enabling TRestGeant4Metadata::fRegisterEmptyTracks" << endl;
+    }
 }
 
 void TRestG4EventViewer::AddParentTrack(Int_t trkID, TVector3 from, TString name) {
@@ -189,6 +195,7 @@ void TRestG4EventViewer::AddParentTrack(Int_t trkID, TVector3 from, TString name
     fHitConnectors.push_back(evLine);
 
     fHitConnectors[trkID]->SetMainColor(kWhite);
+    fHitConnectors[trkID]->SetLineWidth(4);
     fHitConnectors[trkID]->SetNextPoint(from.X() * GEOM_SCALE, from.Y() * GEOM_SCALE, from.Z() * GEOM_SCALE);
 
     gEve->AddElement(fHitConnectors[trkID]);
