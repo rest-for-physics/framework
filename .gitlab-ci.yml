@@ -36,6 +36,8 @@ before_script:
   - export HOME=${CI_PROJECT_DIR}/install/
   - if [ -d $HOME/.rest ]; then rm -Rf $HOME/.rest; fi
   - pwd
+  - root-config --version
+  - geant4-config --version
 
 submodule:
     stage: pre-build
@@ -125,7 +127,6 @@ listRESTMacros:
   except:
       variables:
         - $CRONJOB == "YES"
-        - $CI_SERVER_HOST == "lfna.unizar.es"
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC/Xe136bb0n_n2E06.root
@@ -206,7 +207,7 @@ trexDM_data:
     - restRoot -b -q ../MakeBasicTree.C'("Hits.root")'
     - rm RawData.root
     - rm Signals.root
-    - root -b -q ../ValidateTrees.C
+    - root -b -q ../ValidateTrees.C'("validation.root")'
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/scripts/pipeline/trex/results.root
@@ -223,7 +224,7 @@ pandaXIII_Topological:
     - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC
     - restManager --c AllProcesses.rml --i testInput.root --o testOutput.root --j 1 --e 10
     - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
-    - restRoot -b -q ../ValidateTrees.C
+    - if [ `root-config --version` = "6.20/04" ] ; then restRoot -b -q ../ValidateTrees.C'("validation_6.20.root")'; else restRoot -b -q ../ValidateTrees.C'("validation.root")' ;fi
     - restManager --c plots.rml --i testOutput.root
   artifacts:
     paths:
@@ -258,7 +259,7 @@ pandaXIII_data:
     - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_data
     - restManager --c P3AutoChain.rml --i CoBo_AsAd0_2019-03-15.graw --o testOutput.root --j 1
     - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
-    - restRoot -b -q ../ValidateTrees.C
+    - restRoot -b -q ../ValidateTrees.C'("validation.root")'
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_data/TriggerRate.png
