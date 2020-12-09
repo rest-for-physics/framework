@@ -1253,7 +1253,6 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
 ///
 /// It first finds the parameter from REST arguments from command line.
 /// If not found, it calls GetParameter() method to find parameter in TRestMetadata::fElement
-/// If not found, it calls TRestDetector::GetParameter()
 /// If still not found, it returns the default value.
 ///
 /// \param parName The name of the parameter from which we want to obtain the
@@ -1268,12 +1267,6 @@ string TRestMetadata::GetParameter(std::string parName, TString defaultValue) {
 
     // then look within local xml element
     string result = GetParameter(parName, fElement);
-    if (result != PARAMETER_NOT_FOUND_STR) {
-        return result;
-    }
-
-    // finally look into parameters of gDetector
-    result = gDetector->GetParameter(parName);
     if (result != PARAMETER_NOT_FOUND_STR) {
         return result;
     }
@@ -2289,9 +2282,9 @@ void TRestMetadata::ReadAllParameters() {
         paraele = paraele->NextSiblingElement("parameter");
     }
 
-    // Loop over gDetector
-    auto iter = gDetector->begin();
-    while (iter != gDetector->end()) {
+    // Loop over REST_ARGS
+    auto iter = REST_ARGS.begin();
+    while (iter != REST_ARGS.end()) {
         if (parameters.count(iter->first) == 0) {
             parameters[iter->first] = iter->second;
         }

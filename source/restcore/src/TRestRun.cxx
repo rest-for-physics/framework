@@ -190,7 +190,6 @@ void TRestRun::InitFromConfigFile() {
         }
         // throw;
     }
-    gDetector->SetRunNumber(fRunNumber);
 
     // 3. Construct output file name
     string outputdir = (string)GetDataPath();
@@ -357,7 +356,6 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
         fInputFile = TFile::Open(filename, mode.c_str());
 
         if (GetMetadataClass("TRestRun", fInputFile)) {
-            gDetector->ReadFile(fInputFile);
             // This should be the values in RML (if it was initialized using RML)
             TString runTypeTmp = fRunType;
             TString runUserTmp = fRunUser;
@@ -647,8 +645,6 @@ void TRestRun::ReadFileInfo(string filename) {
               << formatprefixlist[i] << "\" and \"" << formatprefixlist[i + 1]
               << "\"), value: " << infoFromFileName << endl;
 
-        gDetector->SetParameter(formatsectionlist[i], infoFromFileName);
-
         // to store special file pattern parameters: fRunNumber, fRunTag, etc.
         any member = any(this, this->ClassName()).GetDataMember(formatsectionlist[i]);
         if (!member.IsZombie()) {
@@ -834,7 +830,6 @@ TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilena
     fOutputFile = new TFile(fOutputFileName, "update");
     debug << "TRestRun::FormOutputFile. Calling WriteWithDataBase()" << endl;
     this->WriteWithDataBase();
-    gDetector->WriteFile(fOutputFile);
 
     fout << this->ClassName() << " Created ..." << endl;
     fout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << endl;
@@ -857,7 +852,6 @@ TFile* TRestRun::FormOutputFile() {
     fAnalysisTree->Write();
     fEventTree->Write();
     this->WriteWithDataBase();
-    gDetector->WriteFile(fOutputFile);
 
     fout << "TRestRun: Output File Created." << endl;
     fout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << endl;
@@ -875,7 +869,6 @@ TFile* TRestRun::UpdateOutputFile() {
         fAnalysisTree->Write(0, kWriteDelete);
         fEventTree->Write(0, kWriteDelete);
         this->WriteWithDataBase();
-        gDetector->WriteFile(fOutputFile);
 
         fout << "TRestRun: Output File Updated." << endl;
         fout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << endl;
