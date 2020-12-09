@@ -574,7 +574,7 @@ void TRestRun::ReadInputFileTrees() {
 void TRestRun::ReadFileInfo(string filename) {
     debug << "begin collecting basic file info..." << filename << endl;
 
-    // gDetector->SetParameter("inputFile_Name", filename);
+    // basic file info: modify time, total bytes, etc.
     struct stat buf;
     FILE* fp = fopen(filename.c_str(), "rb");
     if (!fp) {
@@ -587,11 +587,6 @@ void TRestRun::ReadFileInfo(string filename) {
     if (fEndTime == 0) {
         fEndTime = buf.st_mtime;
     }
-    // string datetime = ToDateTimeString(buf.st_mtime);
-    // gDetector->SetParameter("inputFile_Time", Split(datetime, " ")[1]);
-    // gDetector->SetParameter("inputFile_Date", Split(datetime, " ")[0]);
-    // gDetector->SetParameter("inputFile_Size", ToString(buf.st_size) + "B");
-    // gDetector->SetParameter("inputFile_Entries", ToString(GetEntries()));
 
     if (TRestTools::isRootFile((string)filename)) {
         fTotalBytes = buf.st_size;
@@ -599,9 +594,9 @@ void TRestRun::ReadFileInfo(string filename) {
 
     debug << "begin matching file name pattern for more file info..." << endl;
     // format example:
-    // run[aaaa]_cobo[bbbb]_frag[cccc]_[time].graw
+    // run[fRunNumber]_cobo[aaa]_frag[bbb]_Vm[TRestDetector::fAmplificationVoltage].graw
     // we are going to match it with inputfile:
-    // run00042_cobo1_frag0000.graw
+    // run00042_cobo1_frag0000_Vm350.graw
     string format = GetParameter("inputFormat", "");
     string name = TRestTools::SeparatePathAndName(filename).second;
 
@@ -645,10 +640,42 @@ void TRestRun::ReadFileInfo(string filename) {
               << formatprefixlist[i] << "\" and \"" << formatprefixlist[i + 1]
               << "\"), value: " << infoFromFileName << endl;
 
-        // to store special file pattern parameters: fRunNumber, fRunTag, etc.
-        any member = any(this, this->ClassName()).GetDataMember(formatsectionlist[i]);
-        if (!member.IsZombie()) {
-            member.ParseString(infoFromFileName);
+        // run[fRunNumber]_cobo[aaa]_frag[bbb]_Vm[TRestDetector::fAmplificationVoltage].graw
+
+        // store file format fields to REST_ARGS as global parameter: aaa, bbb
+        REST_ARGS[formatsectionlist[i]] = infoFromFileName;
+
+        // store special file pattern parameters as TRestRun data member: fRunNumber
+        if (DataMemberNameToParameterName(formatsectionlist[i]) != "") {
+            any member = any(this, this->ClassName()).GetDataMember(formatsectionlist[i]);
+            if (!member.IsZombie()) {
+                member.ParseString(infoFromFileName);
+            } else {
+                warning << "TRestRun: file name format field \"" << formatsectionlist[i]
+                        << "\"(value = " << infoFromFileName
+                        << ") not registered, data member does not exist in TRestRun!" << endl;
+            }
+        }
+
+        // to store special file pattern parameters as data member of store metadata class:
+        // TRestDetector::fAmplificationVoltage
+        vector<string> class_datamember = Split(formatsectionlist[i], "::");
+        if (class_datamember.size() > 1) {
+            TRestMetadata* meta = GetMetadataClass(class_datamember[0]);
+            if (meta != NULL) {
+                any member = any(meta, meta->ClassName()).GetDataMember(class_datamember[1]);
+                if (!member.IsZombie()) {
+                    member.ParseString(infoFromFileName);
+                } else {
+                    warning << "TRestRun: file name format field \"" << formatsectionlist[i]
+                            << "\"(value = " << infoFromFileName
+                            << ") not registered, metadata exist but without such datamember field!" << endl;
+                }
+            } else {
+                warning << "TRestRun: file name format field \"" << formatsectionlist[i]
+                        << "\"(value = " << infoFromFileName << ") not registered, metadata does not exist!"
+                        << endl;
+            }
         }
 
         pos = pos2 - 1;
