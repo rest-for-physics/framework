@@ -474,6 +474,10 @@ throw std::exception();
         freopen("/dev/null", "w", stderr);
         Console::CompatibilityMode = true;
 
+        // We wait the father process ends properly
+        sleep(5);
+
+        // Then we just add the geometry
         TFile* f1 = new TFile(Filename, "update");
         TGeoManager* geo2 = gdml->CreateGeoM();
 

@@ -172,14 +172,22 @@ class TRestGas : public TRestDriftVolume {
     Double_t GetAttachmentCoefficient(Double_t E);
 
     Double_t GetDriftVelocity() {
+        if (fElectricField == 0) {
+            warning << "TRestGas::GetDriftVelocity. Warning fElectricField is zero!" << endl;
+            warning << " - Use: TRestGas::SetElectricField( field[V/mm] ) to set the field value" << endl;
+            warning << " - Or, use: TRestGas::GetDriftVelocity( field[V/cm] )" << endl;
+        }
         return GetDriftVelocity(fElectricField * units("V/cm")) / units("cm/us");
     }  // in standard unit mm/us
+
     Double_t GetLongitudinalDiffusion() {
         return GetLongitudinalDiffusion(fElectricField * units("V/cm"));
     }  // in unit (cm)^1/2
+
     Double_t GetTransversalDiffusion() {
         return GetTransversalDiffusion(fElectricField * units("V/cm"));
     }  // in unit (cm)^1/2
+
     Double_t GetTownsendCoefficient() { return GetTownsendCoefficient(fElectricField * units("V/cm")); }
     Double_t GetAttachmentCoefficient() { return GetAttachmentCoefficient(fElectricField * units("V/cm")); }
 
