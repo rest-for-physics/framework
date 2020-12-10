@@ -21,8 +21,10 @@ Int_t MakeBasicTree(string fname) {
         obsValues.clear();
         for (int m = 0; m < aTree->GetNumberOfObservables(); m++) {
             if (aTree->GetObservableType(m) == "double") {
-                cout << "index: " << obsValues.size() << ", obsName: " << aTree->GetObservableName(m)
-                     << " value: " << aTree->GetObservableValue<Double_t>(m) << endl;
+                if (m == 0) {
+                    cout << "index: " << obsValues.size() << ", obsName: " << aTree->GetObservableName(m)
+                         << " value: " << aTree->GetObservableValue<Double_t>(m) << endl;
+                }
                 obsValues.push_back(aTree->GetObservableValue<Double_t>(m));
             }
         }
