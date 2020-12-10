@@ -16,12 +16,12 @@ Int_t MakeBasicTree(string fname) {
 
     for (int n = 0; n < run->GetEntries(); n++) {
         run->GetEntry(n);
-        cout << "Entry : " << n << endl;
+        // cout << "Entry : " << n << endl;
 
         obsValues.clear();
         for (int m = 0; m < aTree->GetNumberOfObservables(); m++) {
             if (aTree->GetObservableType(m) == "double") {
-                if (m == 0) {
+                if (n == 0) {
                     cout << "index: " << obsValues.size() << ", obsName: " << aTree->GetObservableName(m)
                          << " value: " << aTree->GetObservableValue<Double_t>(m) << endl;
                 }
