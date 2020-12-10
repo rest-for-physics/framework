@@ -136,6 +136,7 @@ void TRestProcessRunner::BeginOfInit() {
     fRunInfo->SetCurrentEntry(firstEntry);
 
     fUseTestRun = StringToBool(GetParameter("useTestRun", "ON"));
+    fValidateObservables = StringToBool(GetParameter("validateObservables", "OFF"));
     fThreadNumber = StringToDouble(GetParameter("threadNumber", "1"));
     if (ToUpper(GetParameter("inputAnalysis", "ON")) == "ON") fOutputItem[0] = true;
     if (ToUpper(GetParameter("inputEvent", "OFF")) == "ON") fOutputItem[1] = true;
@@ -853,6 +854,7 @@ TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type, TiXmlEle
 
     pc->SetRunInfo(this->fRunInfo);
     pc->SetHostmgr(fHostmgr);
+    pc->SetObservableValidation(fValidateObservables);
     pc->LoadConfigFromElement(ele, fElementGlobal, fVariables);
 
     return pc;

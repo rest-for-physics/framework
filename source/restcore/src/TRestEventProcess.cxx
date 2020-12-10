@@ -65,7 +65,8 @@ ClassImp(TRestEventProcess);
 /// TRestEventProcess default constructor
 ///
 TRestEventProcess::TRestEventProcess() {
-    fObservableInfo.clear();
+    fObservablesDefined.clear();
+    fObservablesUpdated.clear();
     fSingleThreadOnly = false;
 }
 
@@ -138,7 +139,7 @@ vector<string> TRestEventProcess::ReadObservables() {
         int id = fAnalysisTree->AddObservable((this->GetName() + (string) "_" + obsnames[i]).c_str(),
                                               obstypes[i], obsdesc[i]);
         if (id != -1) {
-            fObservableInfo[(string)GetName() + "_" + obsnames[i]] = id;
+            fObservablesDefined[(string)GetName() + "_" + obsnames[i]] = id;
         }
     }
 
@@ -324,6 +325,8 @@ void TRestEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
         outEv->SetTime(inEv->GetTime());
     }
 
+    fObservablesUpdated.clear();
+
     // TODO if fIsExternal and we already have defined the fAnalysisTree run#,
     // evId#, timestamp, etc at the analysisTree we could stamp the output event
     // here.
@@ -338,9 +341,22 @@ void TRestEventProcess::ProcessEvent( TRestEvent *eventInput )
 */
 
 //////////////////////////////////////////////////////////////////////////
-/// \brief End of event process. Nothing to do. Called directly after ProcessEvent()
+/// \brief End of event process. Validate the updated observable number matches total defined observable number
 void TRestEventProcess::EndOfEventProcess(TRestEvent* evInput) {
     debug << "Entering TRestEventProcess::EndOfEventProcess (" << ClassName() << ")" << endl;
+    if (fValidateObservables) {
+        if (fObservablesDefined.size() != fObservablesUpdated.size()) {
+            for (auto x : fObservablesDefined) {
+                if (fObservablesUpdated.count(x.first) == 0) {
+                    // the observable is added through <observable section but not set in the process
+                    warning << "The observable  '" << x.first << "' is defined but not set by "
+                            << this->ClassName()
+                            << ", the event is empty? Makesure all observables are set through ProcessEvent()"
+                            << endl;
+                }
+            }
+        }
+    }
 }
 
 /*
@@ -372,18 +388,18 @@ void TRestEventProcess::BeginPrintProcess() {
     metadata << " ----------------------------------------------- " << endl;
     metadata << " " << endl;
 
-    if (fObservableInfo.size() > 0) {
+    if (fObservablesDefined.size() > 0) {
         metadata << " Analysis tree observables added by this process " << endl;
         metadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
     }
 
-    auto iter = fObservableInfo.begin();
-    while (iter != fObservableInfo.end()) {
+    auto iter = fObservablesDefined.begin();
+    while (iter != fObservablesDefined.end()) {
         metadata << " ++ " << iter->first << endl;
         iter++;
     }
 
-    if (fObservableInfo.size() > 0) {
+    if (fObservablesDefined.size() > 0) {
         metadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
         metadata << " " << endl;
     }
@@ -458,30 +474,10 @@ TRestAnalysisTree* TRestEventProcess::GetFullAnalysisTree() {
 /// Get list of observables, convert map to vector.
 std::vector<string> TRestEventProcess::GetListOfAddedObservables() {
     vector<string> list;
-    auto iter = fObservableInfo.begin();
-    while (iter != fObservableInfo.end()) {
+    auto iter = fObservablesDefined.begin();
+    while (iter != fObservablesDefined.end()) {
         list.push_back(iter->first);
         iter++;
     }
     return list;
-}
-
-void TRestEventProcess::ValidateObservables() {
-    for (auto x : fObservableInfo) {
-        if (fObservableForValidation.count(x.first) == 0) {
-            // the observable is added through <observable section but not set in the process
-            warning << "The observable  '" << x.first << "' is added through rml but not set by "
-                    << this->ClassName() << ", the first event is empty? The observable is invalid?" << endl;
-        }
-    }
-
-    for (auto x : fObservableForValidation) {
-        if (fObservableInfo.count(x.first) == 0) {
-            // the observable is added in the process but not through test run
-            ferr << "The observable  '" << x.first << "' is added by " << this->ClassName()
-                 << " outside test run. Make sure all the calls of SetObservableValue() can be reached in "
-                    "the code!"
-                 << endl;
-        }
-    }
 }
