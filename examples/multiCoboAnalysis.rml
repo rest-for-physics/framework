@@ -30,6 +30,9 @@
   <TRestProcessRunner name="Processor" verboseLevel="info">
     <parameter name="eventsToProcess" value="0" />
     <parameter name="threadNumber" value="2"/>
+
+    <parameter name="useTestRun" value="ON"/>
+    <parameter name="validateObservables" value="OFF"/>
     
     <parameter name="inputAnalysis" value="on"/>
     <parameter name="inputEvent" value="on"/>
@@ -44,14 +47,14 @@
       <observable name="SecondsFromStart" value="ON" />
       <observable name="ThresholdIntegral" value="ON" />-->
     </addProcess>
-    <addProcess type="TRestReadoutAnalysisProcess" name="rA" value="ON">
+    <!--<addProcess type="TRestReadoutAnalysisProcess" name="rA" value="ON">
       <parameter name="modulesHist" value="3:6:8"/>
     </addProcess>
     <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" sampling="0.2us"/> 5MHz sampling
     <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="ON" method="tripleMax"/>
     <addProcess type="TRestHitsAnalysisProcess" name="hitsAna" value="OFF"/>
     <addProcess type="TRestHitsToTrackProcess" name="hitsToTrack" value="OFF"/>
-    <addProcess type="TRestTrackAnalysisProcess" name="tckAna" value="OFF" />
+    <addProcess type="TRestTrackAnalysisProcess" name="tckAna" value="OFF" />-->
 
   </TRestProcessRunner>
 

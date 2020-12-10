@@ -71,11 +71,12 @@ class TRestEventProcess : public TRestMetadata {
     bool fReadOnly = false;  //!
     /// It defines whether to use added observables only or all the observables appear in the code.
     bool fDynamicObs = false;  //!
-
     /// It defines if observable names should be added to the validation list
     bool fValidateObservables = false;  //!
-
-    map<string, int> fObservableForValidation;  //!     [name, id in AnalysisTree]
+    /// Stores the list of process observables updated when processing this event
+    map<string, int> fObservablesUpdated;  //!     [name, id in AnalysisTree]
+    /// Stores the list of all the appeared process observables in the code
+    map<string, int> fObservablesDefined;  //!     [name, id in AnalysisTree]
 
    private:
     /// not used, keep for compatibility
@@ -84,11 +85,6 @@ class TRestEventProcess : public TRestMetadata {
    protected:
     /// Stores cut definitions. Any listed observables should be in the range.
     vector<pair<string, TVector2>> fCuts;  //!  [name, cut range]
-    /// Stores the list of process observables and they position inside AnalysisTree.
-    /// It will be faster to find the observable from map, thus the speed of
-    /// `TRestEventProcess::SetObservableValue()` will be faster than
-    /// `TRestAnalysisTree::SetObservableValue()`
-    map<string, int> fObservableInfo;  //!     [name, id in AnalysisTree]
     /// Stores a list of friendly processes. Sometimes the process may behave differently
     /// according to the friend processes added. It can also get parameter or output event
     /// from friend processes
@@ -123,16 +119,27 @@ class TRestEventProcess : public TRestMetadata {
         if (fAnalysisTree != NULL) {
             string obsname = this->GetName() + (string) "_" + (string)name;
 
-            int id = fAnalysisTree->GetObservableID(obsname);
-            if (id != -1) {
-                if (fValidateObservables) fObservableForValidation[obsname] = id;
-                fAnalysisTree->SetObservableValue(obsname, value);
-            } else if (fDynamicObs) {
-                fAnalysisTree->SetObservableValue(obsname, value);
-                int n = fAnalysisTree->GetObservableID(obsname);
-                if (n != -1) {
-                    fObservableInfo[obsname] = n;
-                    if (fValidateObservables) fObservableForValidation[obsname] = n;
+            if (fValidateObservables) {
+                int id = fAnalysisTree->GetObservableID(obsname);
+                if (id != -1) {
+                    fObservablesDefined[obsname] = id;
+                    fObservablesUpdated[obsname] = id;
+                    fAnalysisTree->SetObservableValue(obsname, value);
+                } else if (fDynamicObs) {
+                    fAnalysisTree->SetObservableValue(obsname, value);
+                    int n = fAnalysisTree->GetObservableID(obsname);
+                    if (n != -1) {
+                        fObservablesDefined[obsname] = id;
+                        fObservablesUpdated[obsname] = id;
+                    }
+                }
+            }
+            else{
+                int id = fAnalysisTree->GetObservableID(obsname);
+                if (id != -1) {
+                    fAnalysisTree->SetObservableValueQuick(id, value);
+                } else if (fDynamicObs) {
+                    fAnalysisTree->SetObservableValueQuick(obsname, value);
                 }
             }
             // if (fObservableInfo.count(obsname) != 0) {
@@ -164,10 +171,9 @@ class TRestEventProcess : public TRestMetadata {
     vector<string> ReadObservables();
     virtual Bool_t OpenInputFiles(vector<string> files);
 
-    void EnableObservableValidation() { fValidateObservables = true; }
-    void DisableObservableValidation() { fValidateObservables = false; }
-
-    void ValidateObservables();
+    void SetObservableValidation(bool validate) { fValidateObservables = validate; }
+    //void EnableObservableValidation() { fValidateObservables = true; }
+    //void DisableObservableValidation() { fValidateObservables = false; }
 
     // process running methods
     /// To be executed at the beginning of the run (outside event loop)

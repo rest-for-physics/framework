@@ -152,7 +152,7 @@ bool TRestThread::TestRun() {
         for (unsigned int j = 0; j < fProcessChain.size(); j++) {
             debug << "t" << fThreadId << "p" << j << ": " << fProcessChain[j]->ClassName() << endl;
 
-            if (fThreadId == 0) fProcessChain[j]->EnableObservableValidation();
+            fProcessChain[j]->SetObservableValidation(true);
 
             // if (GetVerboseLevel() >= REST_Info) fProcessChain[j]->PrintMetadata();
 
@@ -164,10 +164,12 @@ bool TRestThread::TestRun() {
                 break;
             }
             fProcessChain[j]->EndOfEventProcess();
-            if (fThreadId == 0) {
-                fProcessChain[j]->DisableObservableValidation();
-                fProcessChain[j]->ValidateObservables();
-            }
+
+            fProcessChain[j]->SetObservableValidation(false);
+            // if (fThreadId == 0) {
+            //    fProcessChain[j]->DisableObservableValidation();
+            //    fProcessChain[j]->ValidateObservables();
+            //}
             debug << " ....  " << ProcessedEvent->ClassName() << "(" << ProcessedEvent << ")" << endl;
         }
 
@@ -294,8 +296,9 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
         // if event type is same, we only create branch for the last of this type
         // event
         if (outputConfig[1] == true) {
-            // item: input event
-            // the input events of each processes in the process chain(can be many)
+            // outputConfig[1]: the input events of each processes in the process chain(can be many)
+
+            // the input event of process chain
             TRestEvent* evt = fInputEvent;
             {
                 TString BranchName = (TString)evt->GetName() + "Branch";
@@ -309,9 +312,10 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
                             branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
                     }
             }
+            // the input event of other processes
             for (unsigned int i = 0; i < fProcessChain.size(); i++) {
                 TRestEvent* evt = fProcessChain[i]->GetOutputEvent();
-                {
+                if (evt != NULL) {
                     TString BranchName = (TString)evt->GetName() + "Branch";
                     if (branchesToAdd.size() == 0)
                         branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
@@ -327,8 +331,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
         }
 
         if (outputConfig[2] == true) {
-            // item: output event
-            // output event of the last process in the process chain
+            // outputConfig[2]: output event: the output event of the last process in the process chain
             TRestEvent* evt = fOutputEvent;
             {
                 TString BranchName = (TString)evt->GetName() + "Branch";

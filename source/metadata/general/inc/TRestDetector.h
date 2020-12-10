@@ -28,35 +28,45 @@
 #include <vector>
 
 #include "TFile.h"
+#include "TRestMetadata.h"
 #include "TRestStringOutput.h"
 #include "TRestTools.h"
 
 using namespace std;
 
-class TRestDetector : public map<string, string> {
-   protected:
-    string fDetectorName;
-    Int_t fRunNumber;
-
+class TRestDetector : public TRestMetadata {
    public:
+    string fDetectorName = "REST Detector";
+    Int_t fRunNumber = 0;
+
+    Double_t fDriftVoltage;   // In V
+    Double_t fDriftDistance;  // in mm
+    Double_t fDriftGain;      // in mm
+
+    Double_t fAmplificationVoltage;   // In V
+    Double_t fAmplificationDistance;  // in mm
+    Double_t fAmplificationGain;      //
+
+    Double_t fMass;    // in kg
+    Double_t fHeight;  // in mm
+    Double_t fRadius;  // in mm
+    Double_t fLength;  // in mm
+    Double_t fWidth;   // in mm
+
+    Double_t fDAQShapingTime;   // in us
+    Double_t fDAQSamplingTime;  // in us
+    Double_t fDAQDynamicRange;
+    Double_t fDAQThreshold;
+
+    void InitFromConfigFile() { ReadAllParameters(); }
+    void PrintMetadata();
+
     // Constructors
-    TRestDetector() { SetDetectorName("REST Detector"); }
+    TRestDetector() {}
     // Destructor
     ~TRestDetector() {}
 
-    Int_t GetRunNumber() const;
-    void SetRunNumber(const Int_t& run);
-    string GetDetectorName() const;
-    void SetDetectorName(const string& name);
-
-    // virtual methods
-    virtual string GetParameter(const string& paraname) const;
-    virtual void SetParameter(const string& paraname, const string& paraval);
-    virtual void Print() const;
-    virtual void WriteFile(TFile* f) const;
-    virtual void ReadFile(TFile* f);
+    ClassDef(TRestDetector, 1);
 };
-
-extern TRestDetector* gDetector;
 
 #endif
