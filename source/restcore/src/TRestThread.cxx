@@ -152,7 +152,7 @@ bool TRestThread::TestRun() {
         for (unsigned int j = 0; j < fProcessChain.size(); j++) {
             debug << "t" << fThreadId << "p" << j << ": " << fProcessChain[j]->ClassName() << endl;
 
-            //if (fThreadId == 0) fProcessChain[j]->EnableObservableValidation();
+            fProcessChain[j]->SetObservableValidation(true);
 
             // if (GetVerboseLevel() >= REST_Info) fProcessChain[j]->PrintMetadata();
 
@@ -164,7 +164,9 @@ bool TRestThread::TestRun() {
                 break;
             }
             fProcessChain[j]->EndOfEventProcess();
-            //if (fThreadId == 0) {
+
+            fProcessChain[j]->SetObservableValidation(false);
+            // if (fThreadId == 0) {
             //    fProcessChain[j]->DisableObservableValidation();
             //    fProcessChain[j]->ValidateObservables();
             //}
