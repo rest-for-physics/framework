@@ -119,6 +119,12 @@ class TRestGas : public TRestDriftVolume {
 
     void UploadGasToServer(string gasFilename);
 
+    Double_t GetDriftVelocity(Double_t E);
+    Double_t GetLongitudinalDiffusion(Double_t E);
+    Double_t GetTransversalDiffusion(Double_t E);
+    Double_t GetTownsendCoefficient(Double_t E);
+    Double_t GetAttachmentCoefficient(Double_t E);
+
    public:
     TRestGas();
     TRestGas(const char* cfgFileName, string name = "", bool gasGeneration = false, bool test = false);
@@ -165,31 +171,45 @@ class TRestGas : public TRestDriftVolume {
 
     TString GetGasMixture();
 
-    Double_t GetDriftVelocity(Double_t E);
-    Double_t GetLongitudinalDiffusion(Double_t E);
-    Double_t GetTransversalDiffusion(Double_t E);
-    Double_t GetTownsendCoefficient(Double_t E);
-    Double_t GetAttachmentCoefficient(Double_t E);
-
     Double_t GetDriftVelocity() {
         if (fElectricField == 0) {
             warning << "TRestGas::GetDriftVelocity. Warning fElectricField is zero!" << endl;
             warning << " - Use: TRestGas::SetElectricField( field[V/mm] ) to set the field value" << endl;
-            warning << " - Or, use: TRestGas::GetDriftVelocity( field[V/cm] )" << endl;
         }
         return GetDriftVelocity(fElectricField * units("V/cm")) / units("cm/us");
     }  // in standard unit mm/us
 
     Double_t GetLongitudinalDiffusion() {
+        if (fElectricField == 0) {
+            warning << "TRestGas::GetDriftVelocity. Warning fElectricField is zero!" << endl;
+            warning << " - Use: TRestGas::SetElectricField( field[V/mm] ) to set the field value" << endl;
+        }
         return GetLongitudinalDiffusion(fElectricField * units("V/cm"));
     }  // in unit (cm)^1/2
 
     Double_t GetTransversalDiffusion() {
+        if (fElectricField == 0) {
+            warning << "TRestGas::GetDriftVelocity. Warning fElectricField is zero!" << endl;
+            warning << " - Use: TRestGas::SetElectricField( field[V/mm] ) to set the field value" << endl;
+        }
         return GetTransversalDiffusion(fElectricField * units("V/cm"));
     }  // in unit (cm)^1/2
 
-    Double_t GetTownsendCoefficient() { return GetTownsendCoefficient(fElectricField * units("V/cm")); }
-    Double_t GetAttachmentCoefficient() { return GetAttachmentCoefficient(fElectricField * units("V/cm")); }
+    Double_t GetTownsendCoefficient() {
+        if (fElectricField == 0) {
+            warning << "TRestGas::GetDriftVelocity. Warning fElectricField is zero!" << endl;
+            warning << " - Use: TRestGas::SetElectricField( field[V/mm] ) to set the field value" << endl;
+        }
+        return GetTownsendCoefficient(fElectricField * units("V/cm"));
+    }
+
+    Double_t GetAttachmentCoefficient() {
+        if (fElectricField == 0) {
+            warning << "TRestGas::GetDriftVelocity. Warning fElectricField is zero!" << endl;
+            warning << " - Use: TRestGas::SetElectricField( field[V/mm] ) to set the field value" << endl;
+        }
+        return GetAttachmentCoefficient(fElectricField * units("V/cm"));
+    }
 
     void GetGasWorkFunction();
 
