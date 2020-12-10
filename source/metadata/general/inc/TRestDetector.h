@@ -39,19 +39,19 @@ class TRestDetector : public TRestMetadata {
     string fDetectorName = "REST Detector";
     Int_t fRunNumber = 0;
 
-    Double_t fDriftVoltage;          // In V
+    Double_t fDriftVoltage;   // In V
     Double_t fDriftDistance;  // in mm
-    Double_t fDriftGain;         // in mm
+    Double_t fDriftGain;      // in mm
 
-    Double_t fAmplificationVoltage;  // In V
+    Double_t fAmplificationVoltage;   // In V
     Double_t fAmplificationDistance;  // in mm
-    Double_t fAmplificationGain;    //
+    Double_t fAmplificationGain;      //
 
-    Double_t fMass;                // in kg
-    Double_t fHeight;              // in mm
-    Double_t fRadius;              // in mm
-    Double_t fLength;              // in mm
-    Double_t fWidth;              // in mm
+    Double_t fMass;    // in kg
+    Double_t fHeight;  // in mm
+    Double_t fRadius;  // in mm
+    Double_t fLength;  // in mm
+    Double_t fWidth;   // in mm
 
     Double_t fDAQShapingTime;   // in us
     Double_t fDAQSamplingTime;  // in us
@@ -62,12 +62,11 @@ class TRestDetector : public TRestMetadata {
     void PrintMetadata();
 
     // Constructors
-    TRestDetector() { }
+    TRestDetector() {}
     // Destructor
     ~TRestDetector() {}
 
     ClassDef(TRestDetector, 1);
 };
-
 
 #endif
