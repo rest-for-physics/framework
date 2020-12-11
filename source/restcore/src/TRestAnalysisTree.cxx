@@ -58,7 +58,7 @@ TRestAnalysisTree::TRestAnalysisTree(TTree* tree) : TTree() {
         any obs;
         ReadLeafValueToObservable(lf, obs);
         obs.name = lf->GetName();
-        SetObservableValue(-1, obs);
+        SetObservableValueSafe(-1, obs);
     }
 
     fConnected = true;
@@ -389,7 +389,7 @@ Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
                 any obs;
                 ReadLeafValueToObservable(lf, obs);
                 obs.name = lf->GetName();
-                SetObservableValue(-1, obs);
+                SetObservableValueSafe(-1, obs);
             }
         } else {
             for (int i = 0; i < lfs->GetLast() + 1; i++) {
@@ -438,7 +438,7 @@ Int_t TRestAnalysisTree::Fill() {
     return TTree::Fill();
 }
 
-void TRestAnalysisTree::SetObservableValue(Int_t id, any obs) {
+void TRestAnalysisTree::SetObservableValueSafe(Int_t id, any obs) {
     if (id == -1) {
         // this means we want to find observable id by its name
         id = GetObservableID(obs.name);

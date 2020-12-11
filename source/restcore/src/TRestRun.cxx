@@ -713,7 +713,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
         fBytesReaded = fFileProcess->GetTotalBytesReaded();
         if (targettree != NULL) {
             for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
-                targettree->SetObservableValue(n, fAnalysisTree->GetObservable(n));
+                targettree->SetObservableValueSafe(n, fAnalysisTree->GetObservable(n));
         }
         fCurrentEvent++;
     } else {
@@ -726,7 +726,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
                 fBytesReaded += fAnalysisTree->GetEntry(fCurrentEvent);
                 if (targettree != NULL) {
                     for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
-                        targettree->SetObservableValue(n, fAnalysisTree->GetObservable(n));
+                        targettree->SetObservableValueSafe(n, fAnalysisTree->GetObservable(n));
                 }
                 if (fEventTree != NULL) {
                     fBytesReaded += ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))

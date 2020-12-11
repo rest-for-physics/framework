@@ -136,7 +136,7 @@ class TRestAnalysisTree : public TTree {
     }
 
     template <class T>
-    void SetObservableValueQuick(TString name, const T& value) {
+    void SetObservableValue(TString name, const T& value) {
         int id = GetObservableID(name);
         if (id != -1) {
             *(T*)fObservables[id] = value;
@@ -151,16 +151,15 @@ class TRestAnalysisTree : public TTree {
         }
     }
     template <class T>
-    void SetObservableValueQuick(Int_t id, const T& value) {
+    void SetObservableValue(Int_t id, const T& value) {
         *(T*)fObservables[id] = value;
     }
-    template <class T>
-    void SetObservableValue(TString name, const T& value) {
-        any val(value);
-        val.name = name;
-        SetObservableValue(-1, val);
+
+    void SetObservableValueSafe(TString name, any value) {
+        value.name = name;
+        SetObservableValueSafe(-1, value);
     }
-    void SetObservableValue(Int_t id, any obs);
+    void SetObservableValueSafe(Int_t id, any obs);
 
     void PrintObservables();
     void PrintObservable(int N);
