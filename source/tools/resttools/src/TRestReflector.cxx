@@ -131,8 +131,9 @@ void TRestReflector::operator>>(TRestReflector to) { CloneAny(*this, to); }
 string TRestReflector::ToString() {
     if (type == "string") return *(string*)(address);
     if (address == NULL) return "null";
-    if (RESTConverterMethodBase.count(type) > 0) {
-        return RESTConverterMethodBase[type]->ToString(address);
+    RESTVirtualConverter* converter = RESTConverterMethodBase[type];
+    if (converter != NULL) {
+        return converter->ToString(address);
     } else {
         return Form("Type: %s, Address: %p", type.c_str(), address);
     }
@@ -142,8 +143,9 @@ void TRestReflector::ParseString(string str) {
     if (type == "string") {
         *(string*)(address) = str;
     } else {
-        if (RESTConverterMethodBase.count(type) > 0) {
-            RESTConverterMethodBase[type]->ParseString(address, str);
+        RESTVirtualConverter* converter = RESTConverterMethodBase[type];
+        if (converter != NULL) {
+            converter->ParseString(address, str);
         } else {
             cout << "Method for parsing string to " << type << " has not been registered!" << endl;
         }
@@ -286,8 +288,9 @@ void CloneAny(TRestReflector from, TRestReflector to) {
         return;
     }
 
-    if (RESTConverterMethodBase.count(from.type) > 0) {
-        RESTConverterMethodBase[from.type]->CloneObj(from.address, to.address);
+    RESTVirtualConverter* converter = RESTConverterMethodBase[from.type];
+    if (converter != NULL) {
+        converter->CloneObj(from.address, to.address);
     } else {
         cout << "Method for cloning type: \"" << from.type << "\" has not been registered!" << endl;
     }
