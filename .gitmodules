@@ -10,3 +10,6 @@
 [submodule "projects/basic-geometries"]
 	path = projects/basic-geometries
 	url = https://lfna.unizar.es/gifna/basic-geometries.git 
+[submodule "source/libraries/model"]
+	path = source/libraries/model
+	url = git@lfna.unizar.es:gifna/RestModelLib.git
