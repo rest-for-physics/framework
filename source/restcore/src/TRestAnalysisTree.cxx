@@ -58,7 +58,7 @@ TRestAnalysisTree::TRestAnalysisTree(TTree* tree) : TTree() {
         any obs;
         ReadLeafValueToObservable(lf, obs);
         obs.name = lf->GetName();
-        SetObservableValue(-1, obs);
+        SetObservable(-1, obs);
     }
 
     fConnected = true;
@@ -99,13 +99,15 @@ void TRestAnalysisTree::Initialize() {
 }
 
 Int_t TRestAnalysisTree::GetObservableID(TString obsName) {
-    if (!ObservableExists(obsName)) return -1;
-    return fObservableIdMap[obsName];
+    if (fObservableIdMap.size() == 0 && fObservableNames.size() > 0) MakeObservableIdMap();
+    return fObservableIdMap[obsName] - 1;
 }
 
 Bool_t TRestAnalysisTree::ObservableExists(TString obsName) {
     if (fObservableIdMap.size() == 0 && fObservableNames.size() > 0) MakeObservableIdMap();
-    return fObservableIdMap.count(obsName) > 0;
+    if (fObservableIdMap.count(obsName) == 0) return false;
+    if (fObservableIdMap[obsName] == 0) return false;
+    return true;
 }
 
 void TRestAnalysisTree::ConnectBranches() {
@@ -220,7 +222,9 @@ void TRestAnalysisTree::InitObservables() {
 void TRestAnalysisTree::MakeObservableIdMap() {
     fObservableIdMap.clear();
     for (int i = 0; i < fObservableNames.size(); i++) {
-        fObservableIdMap[fObservableNames[i]] = i;
+        // in the map, id = index + 1. fObservableIdMap["unexistedName"] = 0, therefore GetObservableID() can
+        // simply return fObservableIdMap["name"] - 1, which reduces the number of searching
+        fObservableIdMap[fObservableNames[i]] = i + 1;
     }
 }
 
@@ -316,7 +320,7 @@ Int_t TRestAnalysisTree::AddObservable(TString observableName, TString observabl
         ptr.name = observableName;
         if (!ptr.IsZombie()) {
             fObservableNames.push_back(observableName);
-            fObservableIdMap[observableName] = fObservableNames.size() - 1;
+            fObservableIdMap[observableName] = fObservableNames.size(); 
             fObservableDescriptions.push_back(description);
             fObservableTypes.push_back(observableType);
             fObservables.push_back(ptr);
@@ -389,7 +393,7 @@ Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
                 any obs;
                 ReadLeafValueToObservable(lf, obs);
                 obs.name = lf->GetName();
-                SetObservableValue(-1, obs);
+                SetObservable(-1, obs);
             }
         } else {
             for (int i = 0; i < lfs->GetLast() + 1; i++) {
@@ -438,7 +442,7 @@ Int_t TRestAnalysisTree::Fill() {
     return TTree::Fill();
 }
 
-void TRestAnalysisTree::SetObservableValue(Int_t id, any obs) {
+void TRestAnalysisTree::SetObservable(Int_t id, any obs) {
     if (id == -1) {
         // this means we want to find observable id by its name
         id = GetObservableID(obs.name);
