@@ -10,6 +10,16 @@ add_subdirectory(events)
 add_subdirectory(processes)
 add_subdirectory(../macros tasks.out)
 
+IF( DEFINED REST_ALL_LIBS )
+	if (${REST_ALL_LIBS} MATCHES "ON")
+		set(REST_ALL_LIBS ON)
+	endif (${REST_ALL_LIBS} MATCHES "ON")
+		set(REST_G4_LIB ON)
+		set(REST_TRACK_LIB ON)
+		set(REST_AXION_LIB ON)
+		set(REST_MODEL_LIB ON)
+ENDIF ()
+
 ########################################## Geant4 library ###################################
 IF( NOT DEFINED REST_G4_LIB )
 	set(REST_G4_LIB OFF)
@@ -53,6 +63,22 @@ if (${REST_AXION_LIB} MATCHES "ON")
 		COMPONENT install
 		)
 endif (${REST_AXION_LIB} MATCHES "ON")
+
+########################################## Model library ###################################
+IF( NOT DEFINED REST_MODEL_LIB )
+	set(REST_MODEL_LIB OFF)
+ENDIF ()
+
+if (${REST_MODEL_LIB} MATCHES "ON")
+	add_definitions(-DREST_ModelLib)
+	add_subdirectory(libraries/model)
+	list( APPEND rest_libs_index "RestModel" )
+
+	install(DIRECTORY libraries/model/macros/
+		DESTINATION ./macros/model/
+		COMPONENT install
+		)
+endif (${REST_MODEL_LIB} MATCHES "ON")
 
 #### This must be placed after all targets!!!
 set(rest_include_dirs ${local_include_dirs})

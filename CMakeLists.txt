@@ -53,7 +53,7 @@ set(ROOT_FIND_REQUIRED true)
 set(CMAKE_MACOSX_RPATH 1)
 include(FindROOT)
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
-set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit -lSpectrum)
+set(external_libs ${external_libs} "${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit -lSpectrum")
 
 
 #switch to enable ROOT Eve functionality.
@@ -63,7 +63,7 @@ ENDIF()
 if (${REST_EVE} MATCHES "ON")
     add_definitions(-DUSE_Eve)
 	list( APPEND rest_features "Eve" )
-    set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lEve -lRGL)
+    set(external_libs "${external_libs} -lEve -lRGL")
 endif (${REST_EVE} MATCHES "ON")
 
 #find garfield libs and includes
@@ -76,7 +76,7 @@ if (${REST_GARFIELD} MATCHES "ON")
     include(FindGarfield)
     message(STATUS "GARFIELD " ${Garfield_INCLUDE_DIRS})
     set(external_include_dirs ${external_include_dirs} ${Garfield_INCLUDE_DIRS})
-    set(external_libs ${external_libs} ${Garfield_LIBRARIES})
+    set(external_libs "${external_libs} ${Garfield_LIBRARIES}")
     set(external_include_dirs ${external_include_dirs} ${Garfield_DIR}/Heed)
     message(STATUS "HEED Include " ${Garfield_DIR}/Heed)
     message(STATUS "ALL INCLUDES: " ${external_include_dirs})
@@ -91,13 +91,24 @@ IF (NOT DEFINED SQL)
     set(SQL OFF)
 ENDIF ()
 
+#switch to enable ROOT Eve functionality.
+IF( NOT DEFINED REST_MODEL_LIB)
+	set(REST_MODEL_LIB OFF)
+ENDIF()
+
+if (${REST_MODEL_LIB} MATCHES "ON")
+	set(external_libs "${external_libs} -lRooFitCore -lRooFit -lRooStats")
+	message( STATUS "Adding RooFit and RooFitCore libraries" )
+endif (${REST_MODEL_LIB} MATCHES "ON")
+
+
 #find mysql libs and includes
 if (${SQL} MATCHES "ON" )
 	list( APPEND rest_features "SQL" )
 	add_definitions(-DUSE_SQL)
 	include(FindSQL)
 	set(external_include_dirs ${external_include_dirs} ${SQL_INCLUDE_DIR})
-	set(external_libs ${external_libs} ${SQL_LIBRARIES})
+	set(external_libs "${external_libs} ${SQL_LIBRARIES}")
 	message(STATUS "SQL include directory: " ${SQL_INCLUDE_DIR})
 	set(SQL ON)
 else()
