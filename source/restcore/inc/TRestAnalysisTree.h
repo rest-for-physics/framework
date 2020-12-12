@@ -155,11 +155,11 @@ class TRestAnalysisTree : public TTree {
         *(T*)fObservables[id] = value;
     }
 
-    void SetObservableValueSafe(TString name, any value) {
+    void SetObservable(TString name, any value) {
         value.name = name;
-        SetObservableValueSafe(-1, value);
+        SetObservable(-1, value);
     }
-    void SetObservableValueSafe(Int_t id, any obs);
+    void SetObservable(Int_t id, any obs);
 
     void PrintObservables();
     void PrintObservable(int N);

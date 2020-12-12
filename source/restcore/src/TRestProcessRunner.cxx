@@ -744,7 +744,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
             //}
             fAnalysisTree->SetEventInfo(fOutputEvent);
             for (int n = 0; n < remotetree->GetNumberOfObservables(); n++) {
-                fAnalysisTree->SetObservableValueSafe(n, remotetree->GetObservable(n));
+                fAnalysisTree->SetObservable(n, remotetree->GetObservable(n));
             }
 
             fAnalysisTree->Fill();

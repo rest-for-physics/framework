@@ -124,9 +124,9 @@ class TRestEventProcess : public TRestMetadata {
                 if (id != -1) {
                     fObservablesDefined[obsname] = id;
                     fObservablesUpdated[obsname] = id;
-                    fAnalysisTree->SetObservableValueSafe(obsname, value);
+                    fAnalysisTree->SetObservable(obsname, value);
                 } else if (fDynamicObs) {
-                    fAnalysisTree->SetObservableValueSafe(obsname, value);
+                    fAnalysisTree->SetObservable(obsname, value);
                     int n = fAnalysisTree->GetObservableID(obsname);
                     if (n != -1) {
                         fObservablesDefined[obsname] = id;
