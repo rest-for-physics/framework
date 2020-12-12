@@ -172,12 +172,13 @@ void TRestG4EventViewer::AddTrack(Int_t trkID, Int_t parentID, TVector3 from, TS
     fHitConnectors.push_back(evLine);
 
     fHitConnectors[trkID]->SetMainColor(kWhite);
-    fHitConnectors[trkID]->SetLineWidth(8);
+    fHitConnectors[trkID]->SetLineWidth(4);
 
     if (name.Contains("gamma")) fHitConnectors[trkID]->SetMainColor(kGreen);
     if (name.Contains("e-")) fHitConnectors[trkID]->SetMainColor(kRed);
     if (name.Contains("mu-")) fHitConnectors[trkID]->SetMainColor(kGray);
     if (name.Contains("alpha")) fHitConnectors[trkID]->SetMainColor(kYellow);
+    if (name.Contains("neutron")) fHitConnectors[trkID]->SetMainColor(kBlue);
 
     fHitConnectors[trkID]->SetNextPoint(from.X() * GEOM_SCALE, from.Y() * GEOM_SCALE, from.Z() * GEOM_SCALE);
 
