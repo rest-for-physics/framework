@@ -53,6 +53,14 @@ axionLib:
       variables:
           - $CI_SERVER_HOST == "lfna.unizar.es"
 
+modelLib:
+  stage: libraries
+  script:
+    - "curl -k -X POST -F token=a244698329647e96d55908d75f3f0e -F ref=master https://lfna.unizar.es/api/v4/projects/11/trigger/pipeline"
+  only:
+      variables:
+          - $CI_SERVER_HOST == "lfna.unizar.es"
+
 submodule:
     stage: pre-build
     script: 
