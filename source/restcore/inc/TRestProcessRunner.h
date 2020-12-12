@@ -39,6 +39,7 @@ class TRestProcessRunner : public TRestMetadata {
     TRestAnalysisTree* fAnalysisTree;  //!
     ProcStatus fProcStatus;
     Bool_t fUseTestRun;
+    Bool_t fValidateObservables;
     Int_t nBranches;
     Int_t fThreadNumber;
     Int_t fProcessNumber;
@@ -106,7 +107,7 @@ class TRestProcessRunner : public TRestMetadata {
     TRestProcessRunner();
     ~TRestProcessRunner();
 
-    ClassDef(TRestProcessRunner, 3);
+    ClassDef(TRestProcessRunner, 4);
 };
 
 #endif

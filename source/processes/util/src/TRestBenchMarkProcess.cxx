@@ -88,6 +88,7 @@ TRestEvent* TRestBenchMarkProcess::ProcessEvent(TRestEvent* eventInput) {
 void TRestBenchMarkProcess::EndProcess() {
     if (fMonitorThread != NULL) {
         fMonitorFlag = 0;
+        usleep(1e6 / fRefreshRate * 2);
         // fMonitorThread->join();
         delete fMonitorThread;
         fMonitorThread = NULL;
