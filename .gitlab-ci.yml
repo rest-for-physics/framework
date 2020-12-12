@@ -231,6 +231,8 @@ trexDM_data:
       variables:
         - $CRONJOB == "YES"
 
+## testInput.root needs to be updated for V2.3.X. Do we need that if we launch Topological_fromG4?
+## Anyway, if necessary then once this is fixed it can be added also to LFNA pipeline
 pandaXIII_Topological: 
   type: restManager_process
   script:
@@ -247,6 +249,7 @@ pandaXIII_Topological:
   except:
       variables:
           - $CRONJOB
+          - $CI_SERVER_HOST == "lfna.unizar.es"       
 
 pandaXIII_Topological_fromG4: 
   type: restManager_process
@@ -256,7 +259,7 @@ pandaXIII_Topological_fromG4:
     - echo "using just-generated g4 file"
     - restManager --c AllProcesses.rml --i Xe136bb0n_n2E06.root --o testOutput.root --j 1 --e 10
     - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
-    - if [ `root-config --version` = "6.20/04" ] ; then restRoot -b -q ../ValidateTrees.C'("validation_6.20.root")'; else restRoot -b -q ../ValidateTrees.C'("validation.root")' ;fi
+    - restRoot -b -q ../ValidateTrees.C'("validation.root")'
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC/testOutput.root
