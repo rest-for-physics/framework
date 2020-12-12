@@ -47,6 +47,9 @@ submodule:
     only:
         variables:
             - $CI_SERVER_HOST == "lfna.unizar.es"    
+    except:
+        variables:
+            - $CRONJOB == "YES"
 
 clang-format:
     stage: pre-build
