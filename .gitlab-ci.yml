@@ -1,7 +1,7 @@
 image: nkx1231/root6-geant4-garfield:0.5
 
-#variables:
-    #      GIT_SUBMODULE_STRATEGY: recursive
+variables:
+    GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
     # Basic checks to verify correctness of code
@@ -60,18 +60,6 @@ modelLib:
   only:
       variables:
           - $CI_SERVER_HOST == "lfna.unizar.es"
-
-submodule:
-    stage: pre-build
-    script: 
-      - git submodule sync --recursive projects/
-      - git submodule update --init --recursive projects/
-    only:
-        variables:
-            - $CI_SERVER_HOST == "lfna.unizar.es"    
-    except:
-        variables:
-            - $CRONJOB == "YES"
 
 clang-format:
     stage: pre-build
