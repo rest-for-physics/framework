@@ -137,11 +137,29 @@ class TRestAnalysisTree : public TTree {
 
     template <class T>
     void SetObservableValue(TString name, const T& value) {
-        any val(value);
-        val.name = name;
-        SetObservableValue(-1, val);
+        int id = GetObservableID(name);
+        if (id != -1) {
+            *(T*)fObservables[id] = value;
+        } else {
+            if (!fBranchesCreated) {
+                id = AddObservable<T>(name);
+                *(T*)fObservables[id] = value;
+            } else {
+                cout << "TRestAnalysisTree::SetObservableValueQuick(): observable: \"" << name
+                     << "\" not found!" << endl;
+            }
+        }
     }
-    void SetObservableValue(Int_t id, any obs);
+    template <class T>
+    void SetObservableValue(Int_t id, const T& value) {
+        *(T*)fObservables[id] = value;
+    }
+
+    void SetObservable(TString name, any value) {
+        value.name = name;
+        SetObservable(-1, value);
+    }
+    void SetObservable(Int_t id, any obs);
 
     void PrintObservables();
     void PrintObservable(int N);

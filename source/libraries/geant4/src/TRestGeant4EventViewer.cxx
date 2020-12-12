@@ -13,6 +13,7 @@
 ///_______________________________________________________________________________
 
 #include "TRestGeant4EventViewer.h"
+#include "TRestStringOutput.h"
 using namespace std;
 
 ClassImp(TRestGeant4EventViewer);
@@ -155,7 +156,7 @@ void TRestGeant4EventViewer::AddMarker(Int_t trkID, TVector3 at, TString name) {
     marker->SetMarkerColor(kMagenta);
     marker->SetMarkerStyle(3);
     marker->SetPoint(0, at.X() * GEOM_SCALE, at.Y() * GEOM_SCALE, at.Z() * GEOM_SCALE);
-    marker->SetMarkerSize(0.2);
+    marker->SetMarkerSize(0.4);
     fHitConnectors[trkID]->AddElement(marker);
 }
 
@@ -169,16 +170,22 @@ void TRestGeant4EventViewer::AddTrack(Int_t trkID, Int_t parentID, TVector3 from
     fHitConnectors.push_back(evLine);
 
     fHitConnectors[trkID]->SetMainColor(kWhite);
-    fHitConnectors[trkID]->SetLineWidth(2);
+    fHitConnectors[trkID]->SetLineWidth(4);
 
     if (name.Contains("gamma")) fHitConnectors[trkID]->SetMainColor(kGreen);
     if (name.Contains("e-")) fHitConnectors[trkID]->SetMainColor(kRed);
     if (name.Contains("mu-")) fHitConnectors[trkID]->SetMainColor(kGray);
     if (name.Contains("alpha")) fHitConnectors[trkID]->SetMainColor(kYellow);
+    if (name.Contains("neutron")) fHitConnectors[trkID]->SetMainColor(kBlue);
 
     fHitConnectors[trkID]->SetNextPoint(from.X() * GEOM_SCALE, from.Y() * GEOM_SCALE, from.Z() * GEOM_SCALE);
 
-    fHitConnectors[parentID]->AddElement(fHitConnectors[trkID]);
+    if (fHitConnectors.size() > parentID)
+        fHitConnectors[parentID]->AddElement(fHitConnectors[trkID]);
+    else {
+        warning << "Parent ID: " << parentID << " of track " << trkID << " was not found!" << endl;
+        warning << "This might be solved by enabling TRestGeant4Metadata::fRegisterEmptyTracks" << endl;
+    }
 }
 
 void TRestGeant4EventViewer::AddParentTrack(Int_t trkID, TVector3 from, TString name) {
@@ -187,6 +194,7 @@ void TRestGeant4EventViewer::AddParentTrack(Int_t trkID, TVector3 from, TString 
     fHitConnectors.push_back(evLine);
 
     fHitConnectors[trkID]->SetMainColor(kWhite);
+    fHitConnectors[trkID]->SetLineWidth(4);
     fHitConnectors[trkID]->SetNextPoint(from.X() * GEOM_SCALE, from.Y() * GEOM_SCALE, from.Z() * GEOM_SCALE);
 
     gEve->AddElement(fHitConnectors[trkID]);
