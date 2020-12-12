@@ -6,7 +6,7 @@
 	url = git@lfna.unizar.es:iaxo/RestAxionLib.git
 [submodule "projects/basic-readouts"]
 	path = projects/basic-readouts
-	url = git@lfna.unizar.es:gifna/basic-readouts.git
+	url = https://lfna.unizar.es/gifna/basic-readouts.git
 [submodule "projects/basic-geometries"]
 	path = projects/basic-geometries
-	url = git@lfna.unizar.es:gifna/basic-geometries.git
+	url = https://lfna.unizar.es/gifna/basic-geometries.git 

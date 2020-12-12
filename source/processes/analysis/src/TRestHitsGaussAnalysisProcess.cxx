@@ -160,8 +160,8 @@ TRestEvent* TRestHitsGaussAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         fOutputHitsEvent->AddHit(x, y, z, eDep, time, type);
     }
 
-    Double_t gausSigmaX = fOutputHitsEvent->GetGaussSigmaX();
-    Double_t gausSigmaY = fOutputHitsEvent->GetGaussSigmaY();
+    Double_t gausSigmaX = fOutputHitsEvent->GetGaussSigmaX(fReadoutChannelsX, fStartChannelPosition, fEndChannelPosition, fPitch);
+    Double_t gausSigmaY = fOutputHitsEvent->GetGaussSigmaY(fReadoutChannelsX, fStartChannelPosition, fEndChannelPosition, fPitch);
 
     SetObservableValue("xSigmaGaus", gausSigmaX);
     SetObservableValue("ySigmaGaus", gausSigmaY);
@@ -183,7 +183,15 @@ TRestEvent* TRestHitsGaussAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 /// \brief Function reading input parameters from the RML
 /// TRestHitsGaussAnalysisProcess section
 ///
-void TRestHitsGaussAnalysisProcess::InitFromConfigFile() {}
+void TRestHitsGaussAnalysisProcess::InitFromConfigFile() {
+    fReadoutChannelsX = StringToInteger(GetParameter("readoutChannelsX", "120"));
+    fReadoutChannelsY = StringToInteger(GetParameter("readoutChannelsY", "120"));
+    fStartChannelPosition = StringToInteger(GetParameter("StartChPos", "-30"));
+    fEndChannelPosition = StringToInteger(GetParameter("EndChPos", "30"));
+
+    fPitch = StringToDouble(GetParameter("Pitch", "0.5"));
+
+}
 
 ///////////////////////////////////////////////
 /// \brief It prints out the process parameters stored in the
@@ -193,6 +201,12 @@ void TRestHitsGaussAnalysisProcess::PrintMetadata() {
     BeginPrintProcess();
 
     // Print output metadata using, metadata << endl;
+
+    metadata << "Number of X readout channels : " << fReadoutChannelsX << endl;
+    metadata << "Number of Y readout channels : " << fReadoutChannelsY << endl;
+    metadata << "Start channel position (mm) : " << fStartChannelPosition << endl;
+    metadata << "End channel position (mm) : " << fEndChannelPosition << endl;
+    metadata << "Pitch (mm) : " << fPitch << endl;
 
     EndPrintProcess();
 }
