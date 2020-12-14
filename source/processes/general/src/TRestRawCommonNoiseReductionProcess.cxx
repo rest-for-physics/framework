@@ -158,7 +158,7 @@ TRestEvent* TRestRawCommonNoiseReductionProcess::ProcessEvent(TRestEvent* evInpu
     if (fBlocks == 0){
         Int_t N = fInputEvent->GetNumberOfSignals();
     
-        if (GetVerboseLevel() >= REST_Debug) N = 1;
+        //if (GetVerboseLevel() >= REST_Debug) N = 1;
         for (int sgnl = 0; sgnl < N; sgnl++) {
             fOutputEvent->AddSignal(*fInputEvent->GetSignal(sgnl));
         }
@@ -198,7 +198,7 @@ TRestEvent* TRestRawCommonNoiseReductionProcess::ProcessEvent(TRestEvent* evInpu
     
             binCorrection = binCorrection / norm;
     
-            // Application of the correction.
+            // Correction applied.
             for (Int_t sgnl = 0; sgnl < N; sgnl++)
                 fOutputEvent->GetSignal(sgnl)->IncreaseBinBy(bin, Baseline - binCorrection);
         }
@@ -211,40 +211,61 @@ TRestEvent* TRestRawCommonNoiseReductionProcess::ProcessEvent(TRestEvent* evInpu
         Int_t firstID = 578;
         Int_t gap = 4;
         
-        for (int block = 0; block < nBlocks; block++) {
-            int firstInBlock = firstID + block * (N + gap);
+        Int_t firstInBlock;
+        Int_t nSign;
+        Int_t sigID;
         
-            if (GetVerboseLevel() >= REST_Debug) N = 1;
-            for (int sgnl = 0; sgnl < N; sgnl++) {
-                fOutputEvent->AddSignal(*fInputEvent->GetSignalById(firstInBlock+sgnl));
+        for (int block = 0; block < nBlocks; block++) {
+            firstInBlock = firstID + block * (N + gap);
+            nSign = 0;
+            //if (GetVerboseLevel() >= REST_Debug) N = 1;
+            
+            for (Int_t sgnl = 0; sgnl < N; sgnl++) {
+                sigID = firstInBlock+sgnl;
+                fInputEvent->GetSignalById(sigID)->CalculateBaseLine(20,500);
+                if (fInputEvent->GetSignalById(sigID)->GetBaseLineSigma() >= 3.3) {
+                    //debug << "Baseline1: " << fInputEvent->GetSignalById(sigID)->GetBaseLineSigma() << endl;
+                    fOutputEvent->AddSignal(*fInputEvent->GetSignalById(sigID));
+                    nSign++;
+                }
             }
         
             Int_t nBins = fInputEvent->GetSignal(0)->GetNumberOfPoints();
             Int_t begin, end;
             Double_t norm = 1.0;
-            vector<Double_t> sgnlValues(N, 0.0);
+            vector<Double_t> sgnlValues(nSign, 0.0);
         
+            //debug << "nSign: " << nSign << endl;
+            
             for (Int_t bin = 0; bin < nBins; bin++) {
+                int i = 0;
                 for (Int_t sgnl = 0; sgnl < N; sgnl++) {
-                    sgnlValues[sgnl] = fOutputEvent->GetSignalById(firstInBlock+sgnl)->GetRawData(bin);
+                    sigID = firstInBlock+sgnl;
+                    if (fInputEvent->GetSignalById(sigID)->GetBaseLineSigma() >= 3.3) {
+                        //debug << "Baseline2: " << fInputEvent->GetSignalById(sigID)->GetBaseLineSigma() << endl;
+                        //debug << fOutputEvent->GetSignalById(sigID)->GetRawData(bin) << endl;
+                        sgnlValues[i] = fOutputEvent->GetSignalById(sigID)->GetRawData(bin);
+                        i++;
+                    }
                 }
         
+                
                 std::sort(sgnlValues.begin(), sgnlValues.end());
         
                 // Sorting the different methods
                 Int_t begin, middle, end;
-                middle = (Int_t)N / 2;
+                middle = (Int_t)nSign / 2;
                 Double_t norm = 1.0;
         
                 if (fMode == 0) {
                     // We take only the middle one
-                    begin = (Int_t)((double_t)N / 2.0);
+                    begin = (Int_t)((double_t)nSign / 2.0);
                     end = begin;
                     norm = 1.;
                 } else if (fMode == 1) {
                     // We take the average of the TRestSignals at the Center
-                    begin = middle - (Int_t)(N * fcenterWidth * 0.01);
-                    end = middle + (Int_t)(N * fcenterWidth * 0.01);
+                    begin = middle - (Int_t)(nSign * fcenterWidth * 0.01);
+                    end = middle + (Int_t)(nSign * fcenterWidth * 0.01);
                     norm = (Double_t)end - begin;
                 }
         
@@ -254,10 +275,19 @@ TRestEvent* TRestRawCommonNoiseReductionProcess::ProcessEvent(TRestEvent* evInpu
         
                 binCorrection = binCorrection / norm;
         
-                // Application of the correction.
-                for (Int_t sgnl = 0; sgnl < N; sgnl++)
-                    fOutputEvent->GetSignalById(firstInBlock+sgnl)->IncreaseBinBy(bin, Baseline - binCorrection);
+                // Correction applied.
+                for (Int_t sgnl = 0; sgnl < N; sgnl++) {
+                    if (fInputEvent->GetSignalById(firstInBlock+sgnl)->GetBaseLineSigma() >= 3.3) {
+                        fOutputEvent->GetSignalById(firstInBlock+sgnl)->IncreaseBinBy(bin, Baseline - binCorrection);
+                    }
+                }
             }
+            for (int sgnl = 0; sgnl < N; sgnl++) {
+                if (fInputEvent->GetSignalById(firstInBlock+sgnl)->GetBaseLineSigma() < 3.3) {
+                    fOutputEvent->AddSignal(*fInputEvent->GetSignalById(firstInBlock+sgnl));
+                }
+            }
+            
         }    
         return fOutputEvent;
     }
