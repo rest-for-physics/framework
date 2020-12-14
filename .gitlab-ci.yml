@@ -36,6 +36,7 @@ stages:
 
 before_script:
   - export USER="test"
+  - export GIT_SSL_NO_VERIFY=1
   - echo $CI_SERVER_HOST
   - echo $CRONJOB
     # We redefine the HOME
