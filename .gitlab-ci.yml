@@ -47,9 +47,8 @@ before_script:
 
 axionLib:
   stage: libraries
-  image: registry.gitlab.com/finestructure/pipeline-trigger:2.6.0
   script:
-      - trigger -h lfna.unizar.es -u /api/v4/projects/31/trigger/pipeline -p "bd53c38cdd1395ffeb14d297ebe202" -t master gifna/RestModelLib 
+      - trigger -h lfna.unizar.es -u /api/v4/projects/31/trigger/pipeline -p "bd53c38cdd1395ffeb14d297ebe202" -t master gifna/RestAxionLib 
   only:
       variables:
           - $CI_SERVER_HOST == "lfna.unizar.es"
@@ -189,9 +188,6 @@ BasicReadout:
     - ls
     - restRoot --m 1 -b -q GenerateReadouts.C'("basic.root")'
     - restRoot -b -q BasicValidation.C'("basic.root", "pixelDecoding")'
-  only:
-      variables:
-        - $CI_SERVER_HOST == "lfna.unizar.es"       
   except:
       variables:
         - $CRONJOB == "YES"
