@@ -2,6 +2,7 @@ image: nkx1231/root6-geant4-garfield:0.5
 
 variables:
     GIT_SUBMODULE_STRATEGY: recursive
+    GIT_SSL_NO_VERIFY: 1
 
 stages:
     # Basic checks to verify correctness of code
