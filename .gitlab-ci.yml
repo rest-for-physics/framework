@@ -35,9 +35,21 @@ before_script:
     # We redefine the HOME
   - export HOME=${CI_PROJECT_DIR}/install/
   - if [ -d $HOME/.rest ]; then rm -Rf $HOME/.rest; fi
-  - git submodule sync --recursive projects/
-  - git submodule update --init --recursive projects/
+  - pwd
+  - root-config --version
+  - geant4-config --version
 
+submodule:
+    stage: pre-build
+    script: 
+      - git submodule sync --recursive projects/
+      - git submodule update --init --recursive projects/
+    only:
+        variables:
+            - $CI_SERVER_HOST == "lfna.unizar.es"    
+    except:
+        variables:
+            - $CRONJOB == "YES"
 
 clang-format:
     stage: pre-build
@@ -47,7 +59,6 @@ clang-format:
         - clang-format --version
     only:
         variables:
-            - $CRONJOB == "YES"
             - $CI_SERVER_HOST == "lfna.unizar.es"
 
 validateCode:
@@ -79,7 +90,7 @@ loadRESTLibs:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - root -b -q ${CI_PROJECT_DIR}/scripts/pipeline/loadLibraries.C
-    - restRoot --m 1 -b -q
+    - restRoot -b -q
   except:
       variables:
         - $CRONJOB == "YES"
@@ -107,6 +118,21 @@ listRESTMacros:
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test.root
+    expire_in: 1 day
+
+02_PandaXiiiMC:
+  type: restG4
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC
+    - restG4 Xe136bb0n.rml
+    - restRoot -b -q ValidateG4.C'("Xe136bb0n_n2E06.root")'
+  except:
+      variables:
+        - $CRONJOB == "YES"
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC/Xe136bb0n_n2E06.root
     expire_in: 1 day
 
 LoadGas:
@@ -152,6 +178,9 @@ BasicReadout:
     - ls
     - restRoot --m 1 -b -q GenerateReadouts.C'("basic.root")'
     - restRoot -b -q BasicValidation.C'("basic.root", "pixelDecoding")'
+  only:
+      variables:
+        - $CI_SERVER_HOST == "lfna.unizar.es"       
   except:
       variables:
         - $CRONJOB == "YES"
@@ -181,7 +210,7 @@ trexDM_data:
     - restRoot -b -q ../MakeBasicTree.C'("Hits.root")'
     - rm RawData.root
     - rm Signals.root
-    - root -b -q ../ValidateTrees.C
+    - root -b -q ../ValidateTrees.C'("validation.root")'
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/scripts/pipeline/trex/results.root
@@ -191,20 +220,35 @@ trexDM_data:
       variables:
         - $CRONJOB == "YES"
 
-pandaXIII_MC: 
+pandaXIII_Topological: 
   type: restManager_process
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC
-    - restG4 Xe136bb0n.rml
-    - restRoot -b -q ValidateG4.C'("Xe136bb0n_n2E06.root")'
-    - restManager --c AllProcesses.rml --i testInput.root --o testOutput.root --j 1
+    - restManager --c AllProcesses.rml --i testInput.root --o testOutput.root --j 1 --e 10
     - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
-    - restRoot -b -q ../ValidateTrees.C
+    - if [ `root-config --version` = "6.20/04" ] ; then restRoot -b -q ../ValidateTrees.C'("validation_6.20.root")'; else restRoot -b -q ../ValidateTrees.C'("validation.root")' ;fi
     - restManager --c plots.rml --i testOutput.root
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC/trackParameter.png
+    expire_in: 1 week
+  except:
+      variables:
+        - $CRONJOB
+
+pandaXIII_Topological_fromG4: 
+  type: restManager_process
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC
+    - echo "using just-generated g4 file"
+    - restManager --c AllProcesses.rml --i Xe136bb0n_n2E06.root --o testOutput.root --j 1 --e 10
+    - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
+    - if [ `root-config --version` = "6.20/04" ] ; then restRoot -b -q ../ValidateTrees.C'("validation_6.20.root")'; else restRoot -b -q ../ValidateTrees.C'("validation.root")' ;fi
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC/testOutput.root
     expire_in: 1 week
   except:
       variables:
@@ -217,7 +261,7 @@ pandaXIII_data:
     - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_data
     - restManager --c P3AutoChain.rml --i CoBo_AsAd0_2019-03-15.graw --o testOutput.root --j 1
     - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
-    - restRoot -b -q ../ValidateTrees.C
+    - restRoot -b -q ../ValidateTrees.C'("validation.root")'
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_data/TriggerRate.png

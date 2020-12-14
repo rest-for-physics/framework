@@ -30,7 +30,6 @@
 #include "TApplication.h"
 #include "TClass.h"
 #include "TRestDataBase.h"
-#include "TRestDetector.h"
 #include "TRestPhysics.h"
 #include "TRestReflector.h"
 #include "TRestStringHelper.h"
