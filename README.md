@@ -26,43 +26,19 @@ The recommended way to download a copy of REST will be to clone it using the cor
 This command will download the master branch to the `restFramework` directory including all submodules (libraries, packages, etc).
 
 ```
+export GIT_SSL_NO_VERIFY=1
 cd
-git clone --single-branch --branch master git@lfna.unizar.es:rest-development/REST_v2.git -recurse-submodules restFramework 
+git clone --single-branch --branch master git@lfna.unizar.es:rest-development/REST_v2.git restFramework 
+cd restFramework
+## Known to work with python version 3.5 but feel free to use another one
+python3.5 pull-submodules.py
 ```
 
-If the project was cloned previously and some modules are missing, then it might be necessary to initialize the missing submodules:
+If you have pulled changes in a particular submodule, or added your own commits, be aware that calling again to `python3.5 pull-submodules.py` will bring the state of submodules to the official ones at the main repository. REMOVING! any commits you may have at the submodule and that were not pushed to a remote.
 
-```
-git submodule update --init --recursive
-```
+Please, notice that if you are working in a sub-module development you need to `git add` the submodule directory as a commit to the main project, if you wish that others will be able to update the submodule within the main project. Otherwise, the people pulling the main repository with sub-modules will not get the latest updates at the submodule master.
 
-If a submodule was re-synchronized to point to another commit sub-module, it will be necessary to update those modules using:
-
-```
-git pull --recurse-submodules
-```
-
-In order to download all the sub-modules (recommended) included in REST we need to clone using the following.
-
-```
-git clone --recursive git@lfna.unizar.es:rest-development/REST_v2.git
-```
-
-When we want to pull the latest changes from the remote repository we need to add `--recurse-submodules` in order to update the main project and all the sub-modules.
-
-```
-git pull --recurse-submodules
-```
-
-If `--recursive` is not used many REST libraries and packages will not be populated. If the repository was cloned without `--recursive` option, then it is possible to download the modules later using
-
-```
-git submodule update --init --recursive
-```
-
-Please, notice that if you are working in a sub-module development you need to add the directory as a commit to the new project, if you wish that others will be able to update the submodule within the main project. Otherwise, the people pulling the main repository with sub-modules will not get the latest updates.
-
-If you are asked for a password, this is because you did not add your local computer account public ssh key to your Gitlab account. 
+If you are asked for a password, this is because you did not add your local computer account public ssh key to your Gitlab account.
 
 Check the following [instructions](https://git-scm.com/book/en/v2/Git-on-the-Server-Generating-Your-SSH-Public-Key) to generate your key.
 Then, paste the key into your GitLab account (top-right icon of Gitlab site), go to "settings", and access the "ssh keys" in the left menu.
