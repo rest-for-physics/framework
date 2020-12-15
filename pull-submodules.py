@@ -1,5 +1,15 @@
 #!/usr/bin/python
 
+##
+## This script will pull and syncrhonize all REST submodules to the corresponding
+## reference given at the main repository.
+##
+## Be carefull, if there are commits inside the sub-modules that have not been pushed
+## to the corresponding remote, they risk from being lost!
+##
+## Use: python3.5 pull-submodules.py
+##
+
 import os
 import subprocess
 
