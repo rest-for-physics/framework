@@ -1,4 +1,4 @@
-image: nkx1231/root6-geant4-garfield:0.5
+image: nkx1231/root6-geant4-garfield:0.6
 
 variables:
 #    GIT_SUBMODULE_STRATEGY: recursive
@@ -45,7 +45,7 @@ before_script:
   - pwd
   - root-config --version
   - geant4-config --version
-  - python --version
+  - python3 --version
 
 clang-format:
     stage: pre-build
