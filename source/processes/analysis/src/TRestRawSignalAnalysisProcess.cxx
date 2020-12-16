@@ -85,6 +85,7 @@
 /// threshold in the event.
 /// * **AmplitudeRatio**: PeakAmplitudeIntegral/ MaxPeakAmplitude. Sum of all maximum
 /// points divided by the maximum between the maximum points of the pulses.
+/// * **MinEventValue**: Minimum value reached by a pulse in the event.
 ///
 /// Peak time observables:
 ///
