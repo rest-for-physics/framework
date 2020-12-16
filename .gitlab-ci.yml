@@ -46,8 +46,34 @@ before_script:
   - root-config --version
   - geant4-config --version
   - python --version
-  - which python
-  - cd ${CI_PROJECT_DIR}/ & python3.5 pull-submodules.py
+
+clang-format:
+    stage: pre-build
+    script:
+        - cd ${CI_PROJECT_DIR}/
+        - if [ -n "$CRONJOB" ]; then ./scripts/pipeline/clangformattest.sh; else echo "Skipping clang-format"; fi
+        - clang-format --version
+    only:
+        variables:
+            - $CI_SERVER_HOST == "lfna.unizar.es"
+            - $CRONJOB == "YES"
+
+submodules:
+    stage: pre-build
+    script:
+        - cd ${CI_PROJECT_DIR}/
+        - python3.5 pull-submodules.py
+    except:
+        variables:
+            - $CRONJOB == "YES"
+
+validateCode:
+    stage: pre-build
+    script:
+        - python ${CI_PROJECT_DIR}/scripts/pipeline/validateProcesses.py ${CI_PROJECT_DIR}/source/processes/
+    except:
+        variables:
+            - $CRONJOB == "YES"
 
 axionLib:
   stage: libraries
@@ -64,24 +90,6 @@ modelLib:
   only:
       variables:
           - $CI_SERVER_HOST == "lfna.unizar.es"
-
-clang-format:
-    stage: pre-build
-    script:
-        - cd ${CI_PROJECT_DIR}/
-        - if [ -n "$CRONJOB" ]; then ./scripts/pipeline/clangformattest.sh; else echo "Skipping clang-format"; fi
-        - clang-format --version
-    only:
-        variables:
-            - $CI_SERVER_HOST == "lfna.unizar.es"
-
-validateCode:
-    stage: pre-build
-    script:
-        - python ${CI_PROJECT_DIR}/scripts/pipeline/validateProcesses.py ${CI_PROJECT_DIR}/source/processes/
-    except:
-        variables:
-            - $CRONJOB == "YES"
 
 build:
   type: build
