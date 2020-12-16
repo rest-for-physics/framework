@@ -49,7 +49,7 @@ class TRestRawSignalAnalysisProcess : public TRestEventProcess {
     Double_t fSignalThreshold = 5;
     Int_t fPointsOverThreshold = 5;
 
-    void InitFromConfigFile();
+    //void InitFromConfigFile();
 
     void Initialize();
 
