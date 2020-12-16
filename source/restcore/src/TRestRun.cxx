@@ -358,7 +358,7 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
         if (GetMetadataClass("TRestRun", fInputFile)) {
             // This should be the values in RML (if it was initialized using RML)
             TString runTypeTmp = fRunType;
-            TString runUserTmp = fRunUser;
+            //           TString runUserTmp = fRunUser;
             TString runTagTmp = fRunTag;
             TString runDescriptionTmp = fRunDescription;
             TString experimentNameTmp = fExperimentName;
@@ -382,7 +382,12 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
             // If the value was initialized from RML and is not preserve, we recover
             // back the value in RML
             if (runTypeTmp != "Null" && runTypeTmp != "preserve") fRunType = runTypeTmp;
-            if (runUserTmp != "Null" && runTypeTmp != "preserve") fRunUser = runUserTmp;
+
+            // We should not recover the user. Only when writting. If not when I open a file
+            // with restRoot just to read, and Print the run content from other user in my
+            // own account, it will say it was me!
+            // if (runUserTmp != "Null" && runTypeTmp != "preserve") fRunUser = runUserTmp;
+
             if (runTagTmp != "Null" && runTagTmp != "preserve") fRunTag = runTagTmp;
             if (runDescriptionTmp != "Null" && runDescriptionTmp != "preserve")
                 fRunDescription = runDescriptionTmp;
@@ -938,6 +943,8 @@ void TRestRun::WriteWithDataBase() {
         time(&timev);
         fEndTime = (Double_t)timev;
     }
+
+    fRunUser = REST_USER;
 
     // save metadata objects in file
     debug << "TRestRun::WriteWithDataBase. Calling this->Write(0,kWriteDelete)" << endl;
