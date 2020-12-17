@@ -477,6 +477,7 @@ void TRestRun::ReadInputFileMetadata() {
                 fInputMetadata.push_back(a);
                 }
                  */
+                a->LoadConfigFromBuffer();
                 fInputMetadata.push_back(a);
                 fMetadata.push_back(a);
                 addednames.insert(key->GetName());
