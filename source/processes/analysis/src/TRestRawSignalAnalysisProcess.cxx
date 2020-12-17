@@ -281,9 +281,9 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     // Double_t ampeve_maxmethod;
     map<int, Double_t> ampsgn_intmethod;
     // Double_t ampeve_intmethod;
-    map<int, Double_t> risetime;
+    map<int, int> risetime;
     // Double_t risetimemean;
-    map<int, Double_t> npointsot;
+    map<int, int> npointsot;
 
     baseline.clear();
     baselinesigma.clear();
