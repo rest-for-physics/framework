@@ -30,7 +30,8 @@
 class TRestRawVetoAnalysisProcess : public TRestEventProcess {
    private:
     /// The daq channel id that will be considered as a veto signal
-    Int_t fVetoSignalId;  //<
+    // Int_t fVetoSignalId;  //<
+    vector<double> fVetoSignalId;
 
     /// The range used to calculate the baseline parameters from the veto signal
     TVector2 fBaseLineRange;  //<
