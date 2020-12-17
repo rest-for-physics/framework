@@ -35,9 +35,9 @@ class TRestRawCommonNoiseReductionProcess : public TRestEventProcess {
 
     /// A pointer to the specific TRestRawSignalEvent output
     TRestRawSignalEvent* fOutputEvent;
-    
+
     /// Common noise to all signals or by groups (It can be 0 or 1).
-    Int_t fBlocks = 0; 
+    Int_t fBlocks = 0;
 
     /// The mode defines the method to be used (It can be 0 or 1).
     Int_t fMode = 0;

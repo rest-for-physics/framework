@@ -494,7 +494,7 @@ risetimemean += sgnl->GetRiseTime();
     SetObservableValue("MinPeakAmplitude", minValue);
     SetObservableValue("MaxPeakAmplitude", maxValue);
     SetObservableValue("PeakAmplitudeIntegral", maxValueIntegral);
-    
+
     SetObservableValue("MinEventValue", minDownValue);
 
     Double_t amplitudeRatio = maxValueIntegral / maxValue;

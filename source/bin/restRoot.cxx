@@ -125,7 +125,7 @@ int main(int argc, char* argv[]) {
 
                 gROOT->ProcessLine(mdcmd.c_str());
 
-                //if (metaType == "TRestGas") {
+                // if (metaType == "TRestGas") {
                 //    string gascmd = Form("%s->LoadGasFile();", metaFixed.c_str());
                 //    gROOT->ProcessLine(gascmd.c_str());
                 //}
