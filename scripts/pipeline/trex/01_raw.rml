@@ -52,14 +52,15 @@
                 <observable name="MinPeakAmplitude" type="double" value="ON" />                         
                 <observable name="MaxPeakAmplitude" type="double" value="ON" />                         
                 <observable name="PeakAmplitudeIntegral" type="double" value="ON" />                    
-                <observable name="MinEventValue" type="double" value="ON" />                            
+                <!--<observable name="MinEventValue" type="double" value="ON" />-->                            
                 <observable name="AmplitudeRatio" type="double" value="ON" />                           
                 <observable name="MaxPeakTime" type="double" value="ON" />                              
                 <observable name="MinPeakTime" type="double" value="ON" />                             
                 <observable name="MaxPeakTimeDelay" type="double" value="ON" />                        
                 <observable name="AveragePeakTime" type="double" value="ON" />                         
 
-            <cut name="NumberOfGoodSignals" value="(1,1000)" />
+                <cut name="NumberOfGoodSignals" value="(1,1000)" />
+                <parameter name="cutsEnabled" value="true" />
 		</addProcess>
 
 
