@@ -2,7 +2,7 @@
 #include "TRestGeant4Event.h"
 #endif
 #include "TRestHitsEvent.h"
-#include "TRestLinearTrackEvent.h"
+//#include "TRestLinearTrackEvent.h"
 #include "TRestRawSignalEvent.h"
 #include "TRestSignalEvent.h"
 #include "TRestTask.h"
@@ -88,6 +88,7 @@ Int_t REST_HitsEvent(TString fName, Int_t firstEvent = 0) {
     return 0;
 }
 
+/*
 Int_t REST_LinearTrackEvent(TString fName, Int_t firstEvent = 0) {
     TRestRun* run = new TRestRun();
 
@@ -106,7 +107,7 @@ Int_t REST_LinearTrackEvent(TString fName, Int_t firstEvent = 0) {
     delete run;
 
     return 0;
-}
+} */
 
 Int_t REST_RawSignalEvent(TString fName, Int_t firstEvent = 0) {
     TRestRun* run = new TRestRun();
