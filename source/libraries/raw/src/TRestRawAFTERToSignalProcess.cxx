@@ -5,11 +5,11 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestAFTERToSignalProcess.cxx
+///             TRestRawAFTERToSignalProcess.cxx
 ///
 ///             Template to use to design "event process" classes inherited from
-///             TRestAFTERToSignalProcess
-///             How to use: replace TRestAFTERToSignalProcess by your name,
+///             TRestRawAFTERToSignalProcess
+///             How to use: replace TRestRawAFTERToSignalProcess by your name,
 ///             fill the required functions following instructions and add all
 ///             needed additional members and funcionality
 ///
@@ -19,7 +19,7 @@
 ///                 Igor G. Irastorza
 ///_______________________________________________________________________________
 
-#include "TRestAFTERToSignalProcess.h"
+#include "TRestRawAFTERToSignalProcess.h"
 using namespace std;
 #include "TTimeStamp.h"
 #ifdef WIN32
@@ -31,21 +31,21 @@ using namespace std;
 
 #define MAX_UNSIGNED_INT 4294967295
 
-ClassImp(TRestAFTERToSignalProcess)
+ClassImp(TRestRawAFTERToSignalProcess)
     //______________________________________________________________________________
-    TRestAFTERToSignalProcess::TRestAFTERToSignalProcess() {
+    TRestRawAFTERToSignalProcess::TRestRawAFTERToSignalProcess() {
     Initialize();
 }
 
-TRestAFTERToSignalProcess::TRestAFTERToSignalProcess(char* cfgFileName) { Initialize(); }
+TRestRawAFTERToSignalProcess::TRestRawAFTERToSignalProcess(char* cfgFileName) { Initialize(); }
 
 //______________________________________________________________________________
-TRestAFTERToSignalProcess::~TRestAFTERToSignalProcess() {
-    // TRestAFTERToSignalProcess destructor
+TRestRawAFTERToSignalProcess::~TRestRawAFTERToSignalProcess() {
+    // TRestRawAFTERToSignalProcess destructor
 }
 
 //______________________________________________________________________________
-void TRestAFTERToSignalProcess::Initialize() {
+void TRestRawAFTERToSignalProcess::Initialize() {
     TRestRawToSignalProcess::Initialize();
     // this->SetVerboseLevel(REST_Debug);
 
@@ -54,7 +54,7 @@ void TRestAFTERToSignalProcess::Initialize() {
 }
 
 //______________________________________________________________________________
-void TRestAFTERToSignalProcess::InitProcess() {
+void TRestRawAFTERToSignalProcess::InitProcess() {
     // Binary file header
 
     // The binary starts here
@@ -75,7 +75,7 @@ void TRestAFTERToSignalProcess::InitProcess() {
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestAFTERToSignalProcess::ProcessEvent(TRestEvent* evInput) {
+TRestEvent* TRestRawAFTERToSignalProcess::ProcessEvent(TRestEvent* evInput) {
     EventHeader head;
     DataPacketHeader pHeader;
     DataPacketEnd pEnd;

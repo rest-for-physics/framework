@@ -85,6 +85,9 @@ else ()
     set(REST_GARFIELD OFF)
 endif (${REST_GARFIELD} MATCHES "ON")
 
+if (${REST_RAW_LIB} MATCHES "ON")
+    set(external_include_dirs ${external_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/source/libraries/raw/inc)
+endif (${REST_RAW_LIB} MATCHES "ON")
 
 #this is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProccess.
 IF (NOT DEFINED SQL)

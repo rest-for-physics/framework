@@ -21,7 +21,7 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestSharedMemoryBufferToRawSignalProcess gets access to an existing
+/// TRestRawMemoryBufferToSignalProcess gets access to an existing
 /// buffer as a shared resource that should have been previously created
 /// by an external process.
 ///
@@ -84,12 +84,12 @@
 /// conversion.
 ///             Javier Galan
 ///
-/// \class      TRestSharedMemoryBufferToRawSignalProcess
+/// \class      TRestRawMemoryBufferToSignalProcess
 /// \author     Javier Galan
 ///
 /// <hr>
 ///
-#include "TRestSharedMemoryBufferToRawSignalProcess.h"
+#include "TRestRawMemoryBufferToSignalProcess.h"
 using namespace std;
 
 #include <sys/sem.h>
@@ -108,14 +108,12 @@ union semun {
 
 struct sembuf Operacion;
 
-ClassImp(TRestSharedMemoryBufferToRawSignalProcess)
+ClassImp(TRestRawMemoryBufferToSignalProcess);
 
-    ///////////////////////////////////////////////
-    /// \brief Default constructor
-    ///
-    TRestSharedMemoryBufferToRawSignalProcess::TRestSharedMemoryBufferToRawSignalProcess() {
-    Initialize();
-}
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestRawMemoryBufferToSignalProcess::TRestRawMemoryBufferToSignalProcess() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -129,7 +127,7 @@ ClassImp(TRestSharedMemoryBufferToRawSignalProcess)
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 ///
-TRestSharedMemoryBufferToRawSignalProcess::TRestSharedMemoryBufferToRawSignalProcess(char* cfgFileName) {
+TRestRawMemoryBufferToSignalProcess::TRestRawMemoryBufferToSignalProcess(char* cfgFileName) {
     Initialize();
 
     LoadConfig(cfgFileName);
@@ -138,15 +136,13 @@ TRestSharedMemoryBufferToRawSignalProcess::TRestSharedMemoryBufferToRawSignalPro
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestSharedMemoryBufferToRawSignalProcess::~TRestSharedMemoryBufferToRawSignalProcess() {
-    delete fOutputRawSignalEvent;
-}
+TRestRawMemoryBufferToSignalProcess::~TRestRawMemoryBufferToSignalProcess() { delete fOutputRawSignalEvent; }
 
 ///////////////////////////////////////////////
 /// \brief This method will increase the semaphore red level to protect shared
 /// memory regions
 ///
-void TRestSharedMemoryBufferToRawSignalProcess::SemaphoreRed(int id) {
+void TRestRawMemoryBufferToSignalProcess::SemaphoreRed(int id) {
     Operacion.sem_num = 0;  // sem_id
     Operacion.sem_op = -1;
     Operacion.sem_flg = 0;
@@ -158,7 +154,7 @@ void TRestSharedMemoryBufferToRawSignalProcess::SemaphoreRed(int id) {
 /// \brief This method will increase the semaphore green level to release shared
 /// memory regions
 ///
-void TRestSharedMemoryBufferToRawSignalProcess::SemaphoreGreen(int id) {
+void TRestRawMemoryBufferToSignalProcess::SemaphoreGreen(int id) {
     Operacion.sem_num = 0;  // sem_id
     Operacion.sem_op = 1;
     Operacion.sem_flg = 0;
@@ -169,11 +165,11 @@ void TRestSharedMemoryBufferToRawSignalProcess::SemaphoreGreen(int id) {
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
 ///
-void TRestSharedMemoryBufferToRawSignalProcess::LoadDefaultConfig() {
-    SetName("sharedMemoryBufferToRawSignal-Default");
+void TRestRawMemoryBufferToSignalProcess::LoadDefaultConfig() {
+    SetName("sharedMemoryBufferToSignal-Default");
     SetTitle("Default config");
 
-    cout << "SharedMemoryBufferToRawSignal metadata not found. Loading default "
+    cout << "SharedMemoryBufferToSignal metadata not found. Loading default "
             "values"
          << endl;
 }
@@ -190,7 +186,7 @@ void TRestSharedMemoryBufferToRawSignalProcess::LoadDefaultConfig() {
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestGeant4AnalysisProcess section inside the RML.
 ///
-void TRestSharedMemoryBufferToRawSignalProcess::LoadConfig(std::string cfgFilename, std::string name) {
+void TRestRawMemoryBufferToSignalProcess::LoadConfig(std::string cfgFilename, std::string name) {
     if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
@@ -198,7 +194,7 @@ void TRestSharedMemoryBufferToRawSignalProcess::LoadConfig(std::string cfgFilena
 /// \brief Function to initialize input/output event members and define the
 /// section name
 ///
-void TRestSharedMemoryBufferToRawSignalProcess::Initialize() {
+void TRestRawMemoryBufferToSignalProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fOutputRawSignalEvent = new TRestRawSignalEvent();
@@ -206,8 +202,8 @@ void TRestSharedMemoryBufferToRawSignalProcess::Initialize() {
     fReset = true;
 }
 
-void TRestSharedMemoryBufferToRawSignalProcess::InitProcess() {
-    cout << "TRestSharedMemoryBufferToRawSignalProcess::InitProcess. Creating "
+void TRestRawMemoryBufferToSignalProcess::InitProcess() {
+    cout << "TRestRawMemoryBufferToSignalProcess::InitProcess. Creating "
             "access to shared memory"
          << endl;
 
@@ -262,12 +258,12 @@ void TRestSharedMemoryBufferToRawSignalProcess::InitProcess() {
 /// \brief Function including required initialization before each event starts
 /// to process.
 ///
-void TRestSharedMemoryBufferToRawSignalProcess::BeginOfEventProcess() { fOutputRawSignalEvent->Initialize(); }
+void TRestRawMemoryBufferToSignalProcess::BeginOfEventProcess() { fOutputRawSignalEvent->Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestSharedMemoryBufferToRawSignalProcess::ProcessEvent(TRestEvent* evInput) {
+TRestEvent* TRestRawMemoryBufferToSignalProcess::ProcessEvent(TRestEvent* evInput) {
     while (true) {
         SemaphoreRed(fSemaphoreId);
         int dataReady = fShMem_daqInfo->dataReady;
@@ -336,9 +332,9 @@ TRestEvent* TRestSharedMemoryBufferToRawSignalProcess::ProcessEvent(TRestEvent* 
 
 ///////////////////////////////////////////////
 /// \brief Function reading input parameters from the RML
-/// TRestSharedMemoryBufferToRawSignalProcess metadata section
+/// TRestRawMemoryBufferToSignalProcess metadata section
 ///
-void TRestSharedMemoryBufferToRawSignalProcess::InitFromConfigFile() {
+void TRestRawMemoryBufferToSignalProcess::InitFromConfigFile() {
     fKeyDaqInfo = StringToInteger(GetParameter("daqInfoKey", "3"));
 
     fKeyBuffer = StringToInteger(GetParameter("bufferKey", "13"));

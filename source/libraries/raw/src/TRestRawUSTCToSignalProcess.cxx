@@ -5,11 +5,11 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestUSTCElectronicsProcess.cxx
+///             TRestRawUSTCToSignalProcess.cxx
 ///
 ///             Template to use to design "event process" classes inherited from
-///             TRestUSTCElectronicsProcess
-///             How to use: replace TRestUSTCElectronicsProcess by your name,
+///             TRestRawUSTCToSignalProcess
+///             How to use: replace TRestRawUSTCToSignalProcess by your name,
 ///             fill the required functions following instructions and add all
 ///             needed additional members and funcionality
 ///
@@ -21,32 +21,32 @@
 
 // int counter = 0;
 
-#include "TRestUSTCElectronicsProcess.h"
+#include "TRestRawUSTCToSignalProcess.h"
 using namespace std;
 #include <bitset>
 #include "TTimeStamp.h"
 
-ClassImp(TRestUSTCElectronicsProcess)
+ClassImp(TRestRawUSTCToSignalProcess)
     //______________________________________________________________________________
-    TRestUSTCElectronicsProcess::TRestUSTCElectronicsProcess() {
+    TRestRawUSTCToSignalProcess::TRestRawUSTCToSignalProcess() {
     Initialize();
 }
 
-TRestUSTCElectronicsProcess::TRestUSTCElectronicsProcess(char* cfgFileName) { Initialize(); }
+TRestRawUSTCToSignalProcess::TRestRawUSTCToSignalProcess(char* cfgFileName) { Initialize(); }
 
 //______________________________________________________________________________
-TRestUSTCElectronicsProcess::~TRestUSTCElectronicsProcess() {
-    // TRestUSTCElectronicsProcess destructor
+TRestRawUSTCToSignalProcess::~TRestRawUSTCToSignalProcess() {
+    // TRestRawUSTCToSignalProcess destructor
 }
 
 //______________________________________________________________________________
-void TRestUSTCElectronicsProcess::Initialize() {
+void TRestRawUSTCToSignalProcess::Initialize() {
     TRestRawToSignalProcess::Initialize();
 
     SetSectionName(this->ClassName());
 }
 
-void TRestUSTCElectronicsProcess::InitProcess() {
+void TRestRawUSTCToSignalProcess::InitProcess() {
     fEventBuffer.clear();
     errorevents.clear();
     unknownerrors = 0;
@@ -72,7 +72,7 @@ void TRestUSTCElectronicsProcess::InitProcess() {
     if ((!GetNextFrame(frame)) || (!ReadFrameData(frame))) {
         FixToNextFrame(fInputFiles[fCurrentFile]);
         if ((!GetNextFrame(frame)) || (!ReadFrameData(frame))) {
-            ferr << "TRestUSTCElectronicsProcess: Failed to read the first data frame in file, may be wrong "
+            ferr << "TRestRawUSTCToSignalProcess: Failed to read the first data frame in file, may be wrong "
                     "input?"
                  << endl;
             exit(1);
@@ -83,12 +83,12 @@ void TRestUSTCElectronicsProcess::InitProcess() {
     AddBuffer(frame);
 
     if (fCurrentEvent != 0) {
-        warning << "TRestUSTCElectronicsProcess : first event is not with id 0 !" << endl;
+        warning << "TRestRawUSTCToSignalProcess : first event is not with id 0 !" << endl;
         warning << "The first Id is " << fCurrentEvent << ". May be input file not the first file?" << endl;
     }
 }
 
-TRestEvent* TRestUSTCElectronicsProcess::ProcessEvent(TRestEvent* evInput) {
+TRestEvent* TRestRawUSTCToSignalProcess::ProcessEvent(TRestEvent* evInput) {
     while (1) {
         if (EndReading()) {
             return NULL;
@@ -133,7 +133,7 @@ TRestEvent* TRestUSTCElectronicsProcess::ProcessEvent(TRestEvent* evInput) {
                   << frame->channelId << ", " << sgnl.GetMaxValue() << endl;
 
         } else {
-            warning << "TRestUSTCElectronicsProcess : unmatched signal frame!" << endl;
+            warning << "TRestRawUSTCToSignalProcess : unmatched signal frame!" << endl;
             warning << "ID (supposed, received): " << fCurrentEvent << ", " << frame->evId << endl;
             warning << "Time (supposed, received) : " << evtTime << ", " << frame->eventTime << endl;
             warning << endl;
@@ -161,7 +161,7 @@ TRestEvent* TRestUSTCElectronicsProcess::ProcessEvent(TRestEvent* evInput) {
     return fSignalEvent;
 }
 
-void TRestUSTCElectronicsProcess::EndProcess() {
+void TRestRawUSTCToSignalProcess::EndProcess() {
     for (int i = 0; i < errorevents.size(); i++) {
         warning << "Event " << errorevents[i] << " contains error !" << endl;
     }
@@ -174,7 +174,7 @@ void TRestUSTCElectronicsProcess::EndProcess() {
     errorevents.clear();
 }
 
-bool TRestUSTCElectronicsProcess::FillBuffer() {
+bool TRestRawUSTCToSignalProcess::FillBuffer() {
 #ifdef Incoherent_Event_Generation
     bool unknowncurrentevent = false;
     if (fEventBuffer[fCurrentBuffer].size() > 0) {
@@ -252,7 +252,7 @@ bool TRestUSTCElectronicsProcess::FillBuffer() {
     return true;
 }
 
-bool TRestUSTCElectronicsProcess::OpenNextFile(USTCDataFrame& frame) {
+bool TRestRawUSTCToSignalProcess::OpenNextFile(USTCDataFrame& frame) {
     if (fCurrentFile < fInputFiles.size() - 1)  // try to get frame form next file
     {
         fCurrentFile++;
@@ -262,7 +262,7 @@ bool TRestUSTCElectronicsProcess::OpenNextFile(USTCDataFrame& frame) {
     }
 }
 
-bool TRestUSTCElectronicsProcess::GetNextFrame(USTCDataFrame& frame) {
+bool TRestRawUSTCToSignalProcess::GetNextFrame(USTCDataFrame& frame) {
     if (fInputFiles[fCurrentFile] == NULL) {
         return OpenNextFile(frame);
     }
@@ -338,7 +338,7 @@ bool TRestUSTCElectronicsProcess::GetNextFrame(USTCDataFrame& frame) {
 }
 
 // it find the next flag of frame, e.g. 0xffff or 0xac0f
-void TRestUSTCElectronicsProcess::FixToNextFrame(FILE* f) {
+void TRestRawUSTCToSignalProcess::FixToNextFrame(FILE* f) {
     if (f == NULL) return;
     UChar_t buffer[PROTOCOL_SIZE];
     int n = 0;
@@ -377,7 +377,7 @@ void TRestUSTCElectronicsProcess::FixToNextFrame(FILE* f) {
     totalBytesReaded += n;
 }
 
-bool TRestUSTCElectronicsProcess::ReadFrameData(USTCDataFrame& frame) {
+bool TRestRawUSTCToSignalProcess::ReadFrameData(USTCDataFrame& frame) {
 #ifdef V3_Readout_Format_Long
 
     // EEEE | E0A0 | 246C 0686 4550 504E | 0001 | 2233 4455 6677 | (A098)(A09C)... | FFFF FFFF
@@ -465,7 +465,7 @@ bool TRestUSTCElectronicsProcess::ReadFrameData(USTCDataFrame& frame) {
     return true;
 }
 
-bool TRestUSTCElectronicsProcess::AddBuffer(USTCDataFrame& frame) {
+bool TRestRawUSTCToSignalProcess::AddBuffer(USTCDataFrame& frame) {
 #ifdef Incoherent_Event_Generation
     if (frame.evId == fCurrentEvent) {
         fEventBuffer[fCurrentBuffer].push_back(frame);
@@ -499,7 +499,7 @@ bool TRestUSTCElectronicsProcess::AddBuffer(USTCDataFrame& frame) {
     return true;
 }
 
-void TRestUSTCElectronicsProcess::ClearBuffer() {
+void TRestRawUSTCToSignalProcess::ClearBuffer() {
     fEventBuffer[fCurrentBuffer].clear();
     fCurrentBuffer += 1;
     if (fCurrentBuffer >= fEventBuffer.size()) {
@@ -507,7 +507,7 @@ void TRestUSTCElectronicsProcess::ClearBuffer() {
     }
 }
 
-Bool_t TRestUSTCElectronicsProcess::EndReading() {
+Bool_t TRestRawUSTCToSignalProcess::EndReading() {
     for (int n = 0; n < nFiles; n++) {
         if (fInputFiles[n] != NULL) return kFALSE;
     }

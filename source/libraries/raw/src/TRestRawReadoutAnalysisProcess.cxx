@@ -4,7 +4,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestDetectorReadoutAnalysisProcess.cxx
+///             TRestRawReadoutAnalysisProcess.cxx
 ///
 ///
 ///             First implementation of raw signal analysis process into REST_v2
@@ -14,23 +14,23 @@
 ///
 ///_______________________________________________________________________________
 
-#include "TRestDetectorReadoutAnalysisProcess.h"
+#include "TRestRawReadoutAnalysisProcess.h"
 
 #include <TLegend.h>
 #include <TPaveText.h>
 using namespace std;
 
-ClassImp(TRestDetectorReadoutAnalysisProcess)
+ClassImp(TRestRawReadoutAnalysisProcess)
     //______________________________________________________________________________
-    TRestDetectorReadoutAnalysisProcess::TRestDetectorReadoutAnalysisProcess() {
+    TRestRawReadoutAnalysisProcess::TRestRawReadoutAnalysisProcess() {
     Initialize();
 }
 
 //______________________________________________________________________________
-TRestDetectorReadoutAnalysisProcess::~TRestDetectorReadoutAnalysisProcess() {}
+TRestRawReadoutAnalysisProcess::~TRestRawReadoutAnalysisProcess() {}
 
 //______________________________________________________________________________
-void TRestDetectorReadoutAnalysisProcess::Initialize() {
+void TRestRawReadoutAnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fSignalEvent = NULL;
@@ -39,14 +39,14 @@ void TRestDetectorReadoutAnalysisProcess::Initialize() {
 }
 
 //______________________________________________________________________________
-void TRestDetectorReadoutAnalysisProcess::InitProcess() {
+void TRestRawReadoutAnalysisProcess::InitProcess() {
     fReadout = GetMetadata<TRestDetectorReadout>();
     if (fReadout != NULL) {
         auto iter = fModuleHitMaps.begin();
         while (iter != fModuleHitMaps.end()) {
             TRestDetectorReadoutModule* mod = fReadout->GetReadoutModuleWithID(iter->first);
             if (mod == NULL) {
-                warning << "REST Warning(TRestDetectorReadoutAnalysisProcess): readout "
+                warning << "REST Warning(TRestRawReadoutAnalysisProcess): readout "
                            "module with id "
                         << iter->first << " not found!" << endl;
             } else {
@@ -85,7 +85,7 @@ void TRestDetectorReadoutAnalysisProcess::InitProcess() {
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestDetectorReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
+TRestEvent* TRestRawReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     fSignalEvent = (TRestRawSignalEvent*)evInput;
     if (fReadout != NULL) {
         Double_t firstX_id = -1.;
@@ -199,7 +199,7 @@ TRestEvent* TRestDetectorReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInpu
                 // cout << fReadout->GetX(firstX_id) << " " << fReadout->GetY(firstY_id)
                 // << endl; cout << endl;
 
-                debug << "TRestDetectorReadoutAnalysisProcess. Adding point to hitmap of "
+                debug << "TRestRawReadoutAnalysisProcess. Adding point to hitmap of "
                          "module : "
                       << mod1 << endl;
                 debug << "Position on module(X, Y) : (" << x << ", " << y << ")" << endl;
@@ -250,7 +250,7 @@ TRestEvent* TRestDetectorReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInpu
 }
 
 //______________________________________________________________________________
-void TRestDetectorReadoutAnalysisProcess::EndProcess() {
+void TRestRawReadoutAnalysisProcess::EndProcess() {
     if (fReadout != NULL) {
         {
             auto iter = fModuleHitMaps.begin();
@@ -344,7 +344,7 @@ void TRestDetectorReadoutAnalysisProcess::EndProcess() {
 // <parameter name="modulesAmp" value = "2-1:5-1.2:6-0.8:8-0.9" />
 // setting readout modules to draw:
 // <parameter name="modulesHist" value="2:5:6:8"/>
-void TRestDetectorReadoutAnalysisProcess::InitFromConfigFile() {
+void TRestRawReadoutAnalysisProcess::InitFromConfigFile() {
     fModuleCanvasSave = GetParameter("outputPlotPath", "none");
     if (fModuleCanvasSave != "none") {
         fSingleThreadOnly = true;

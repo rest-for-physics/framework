@@ -5,11 +5,11 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestMultiCoBoAsAdToSignalProcess.cxx
+///             TRestRawMultiCoBoAsAdToSignalProcess.cxx
 ///
 ///             Template to use to design "event process" classes inherited from
-///             TRestMultiCoBoAsAdToSignalProcess
-///             How to use: replace TRestMultiCoBoAsAdToSignalProcess by your
+///             TRestRawMultiCoBoAsAdToSignalProcess
+///             How to use: replace TRestRawMultiCoBoAsAdToSignalProcess by your
 ///             name, fill the required functions following instructions and add
 ///             all needed additional members and funcionality
 ///
@@ -21,33 +21,33 @@
 
 // int counter = 0;
 
-#include "TRestMultiCoBoAsAdToSignalProcess.h"
+#include "TRestRawMultiCoBoAsAdToSignalProcess.h"
 #include "TRestDataBase.h"
 using namespace std;
 #include <bitset>
 #include "TTimeStamp.h"
 
-ClassImp(TRestMultiCoBoAsAdToSignalProcess)
-    //______________________________________________________________________________
-    TRestMultiCoBoAsAdToSignalProcess::TRestMultiCoBoAsAdToSignalProcess() {
+ClassImp(TRestRawMultiCoBoAsAdToSignalProcess);
+//______________________________________________________________________________
+TRestRawMultiCoBoAsAdToSignalProcess::TRestRawMultiCoBoAsAdToSignalProcess() { Initialize(); }
+
+TRestRawMultiCoBoAsAdToSignalProcess::TRestRawMultiCoBoAsAdToSignalProcess(char* cfgFileName) {
     Initialize();
 }
 
-TRestMultiCoBoAsAdToSignalProcess::TRestMultiCoBoAsAdToSignalProcess(char* cfgFileName) { Initialize(); }
-
 //______________________________________________________________________________
-TRestMultiCoBoAsAdToSignalProcess::~TRestMultiCoBoAsAdToSignalProcess() {
-    // TRestMultiCoBoAsAdToSignalProcess destructor
+TRestRawMultiCoBoAsAdToSignalProcess::~TRestRawMultiCoBoAsAdToSignalProcess() {
+    // TRestRawMultiCoBoAsAdToSignalProcess destructor
 }
 
 //______________________________________________________________________________
-void TRestMultiCoBoAsAdToSignalProcess::Initialize() {
+void TRestRawMultiCoBoAsAdToSignalProcess::Initialize() {
     TRestRawToSignalProcess::Initialize();
 
     SetSectionName(this->ClassName());
 }
 
-Bool_t TRestMultiCoBoAsAdToSignalProcess::InitializeStartTimeStampFromFilename(TString fName) {
+Bool_t TRestRawMultiCoBoAsAdToSignalProcess::InitializeStartTimeStampFromFilename(TString fName) {
     // these parameters have to be extracted from the file name. So do not change
     // the origin binary file name.
     int year, month, day, hour, minute, second, millisecond;
@@ -82,7 +82,7 @@ Bool_t TRestMultiCoBoAsAdToSignalProcess::InitializeStartTimeStampFromFilename(T
 }
 
 vector<int> fileerrors;
-void TRestMultiCoBoAsAdToSignalProcess::InitProcess() {
+void TRestRawMultiCoBoAsAdToSignalProcess::InitProcess() {
     fDataFrame.clear();
     fHeaderFrame.clear();
     fileerrors.clear();
@@ -103,7 +103,7 @@ void TRestMultiCoBoAsAdToSignalProcess::InitProcess() {
     totalBytesReaded = 0;
 }
 
-TRestEvent* TRestMultiCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent* evInput) {
+TRestEvent* TRestRawMultiCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent* evInput) {
     fSignalEvent->Initialize();
     if (EndReading()) {
         return NULL;
@@ -116,7 +116,7 @@ TRestEvent* TRestMultiCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent* evInput)
     // Int_t nextId = GetLowestEventId();
 
     if (GetVerboseLevel() >= REST_Debug) {
-        cout << "TRestMultiCoBoAsAdToSignalProcess: Generating event with ID: " << fCurrentEvent << endl;
+        cout << "TRestRawMultiCoBoAsAdToSignalProcess: Generating event with ID: " << fCurrentEvent << endl;
     }
 
     TTimeStamp tSt = 0;
@@ -151,8 +151,8 @@ TRestEvent* TRestMultiCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent* evInput)
     }
 
     if (GetVerboseLevel() >= REST_Debug) {
-        cout << "TRestMultiCoBoAsAdToSignalProcess: event time is : " << tSt << endl;
-        cout << "TRestMultiCoBoAsAdToSignalProcess: " << fSignalEvent->GetNumberOfSignals()
+        cout << "TRestRawMultiCoBoAsAdToSignalProcess: event time is : " << tSt << endl;
+        cout << "TRestRawMultiCoBoAsAdToSignalProcess: " << fSignalEvent->GetNumberOfSignals()
              << " signals added" << endl;
         cout << "------------------------------------" << endl;
     }
@@ -167,7 +167,7 @@ TRestEvent* TRestMultiCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent* evInput)
     return fSignalEvent;
 }
 
-void TRestMultiCoBoAsAdToSignalProcess::EndProcess() {
+void TRestRawMultiCoBoAsAdToSignalProcess::EndProcess() {
     for (int i = 0; i < fileerrors.size(); i++) {
         if (fileerrors[i] > 0) {
             warning << "Found " << fileerrors[i] << " error frame headers in file " << i << endl;
@@ -180,7 +180,7 @@ void TRestMultiCoBoAsAdToSignalProcess::EndProcess() {
 
 // true: finish filling
 // false: error when filling
-bool TRestMultiCoBoAsAdToSignalProcess::fillbuffer() {
+bool TRestRawMultiCoBoAsAdToSignalProcess::fillbuffer() {
     // if event id = -1(no event has been read before), read header frame for each
     // file
     if (fCurrentEvent == -1) {
@@ -226,7 +226,7 @@ bool TRestMultiCoBoAsAdToSignalProcess::fillbuffer() {
         // c. if eventid is the same as current, return to a, otherwise break.
         while (fHeaderFrame[i].eventIdx == fCurrentEvent) {
             if (GetVerboseLevel() >= REST_Debug) {
-                cout << "TRestMultiCoBoAsAdToSignalProcess: retrieving frame header in "
+                cout << "TRestRawMultiCoBoAsAdToSignalProcess: retrieving frame header in "
                         "file "
                      << i << " (" << fInputFileNames[i] << ")" << endl;
                 if (GetVerboseLevel() >= REST_Extreme) fHeaderFrame[i].Show();
@@ -301,7 +301,7 @@ bool TRestMultiCoBoAsAdToSignalProcess::fillbuffer() {
     return true;
 }
 
-bool TRestMultiCoBoAsAdToSignalProcess::ReadFrameHeader(CoBoHeaderFrame& HdrFrame) {
+bool TRestRawMultiCoBoAsAdToSignalProcess::ReadFrameHeader(CoBoHeaderFrame& HdrFrame) {
     UChar_t* Header = &(HdrFrame.frameHeader[0]);
 
     HdrFrame.frameSize =
@@ -415,7 +415,7 @@ bool TRestMultiCoBoAsAdToSignalProcess::ReadFrameHeader(CoBoHeaderFrame& HdrFram
     return true;
 }
 
-bool TRestMultiCoBoAsAdToSignalProcess::ReadFrameDataP(FILE* f, CoBoHeaderFrame& hdr) {
+bool TRestRawMultiCoBoAsAdToSignalProcess::ReadFrameDataP(FILE* f, CoBoHeaderFrame& hdr) {
     unsigned int i;
     int j;
     unsigned int agetIdx, chanIdx, buckIdx, sample, chTmp;
@@ -468,7 +468,7 @@ bool TRestMultiCoBoAsAdToSignalProcess::ReadFrameDataP(FILE* f, CoBoHeaderFrame&
     return true;
 }
 
-bool TRestMultiCoBoAsAdToSignalProcess::ReadFrameDataF(CoBoHeaderFrame& hdr) {
+bool TRestRawMultiCoBoAsAdToSignalProcess::ReadFrameDataF(CoBoHeaderFrame& hdr) {
     int i;
     int j;
     unsigned int agetIdx, chanIdx, chanIdx0, chanIdx1, chanIdx2, chanIdx3, buckIdx, sample, chTmp;
@@ -530,12 +530,12 @@ bool TRestMultiCoBoAsAdToSignalProcess::ReadFrameDataF(CoBoHeaderFrame& hdr) {
     return true;
 }
 
-void TRestMultiCoBoAsAdToSignalProcess::ClearBuffer(Int_t n) {
+void TRestRawMultiCoBoAsAdToSignalProcess::ClearBuffer(Int_t n) {
     fDataFrame[n].evId = -1;
     for (int m = 0; m < 272; m++) fDataFrame[n].chHit[m] = kFALSE;
 }
 
-Int_t TRestMultiCoBoAsAdToSignalProcess::GetLowestEventId() {
+Int_t TRestRawMultiCoBoAsAdToSignalProcess::GetLowestEventId() {
     Int_t evid = fDataFrame[0].evId;
 
     for (unsigned int m = 1; m < fDataFrame.size(); m++) {
@@ -546,7 +546,7 @@ Int_t TRestMultiCoBoAsAdToSignalProcess::GetLowestEventId() {
     return evid;
 }
 
-Bool_t TRestMultiCoBoAsAdToSignalProcess::EndReading() {
+Bool_t TRestRawMultiCoBoAsAdToSignalProcess::EndReading() {
     for (int n = 0; n < nFiles; n++) {
         if (fInputFiles[n] != NULL) return kFALSE;
         if (fDataFrame[n].evId != -1) return kFALSE;

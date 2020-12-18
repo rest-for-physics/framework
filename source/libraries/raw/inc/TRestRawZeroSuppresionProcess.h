@@ -20,8 +20,8 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestSignalZeroSuppresionProcess
-#define RestCore_TRestSignalZeroSuppresionProcess
+#ifndef RestCore_TRestRawZeroSuppresionProcess
+#define RestCore_TRestRawZeroSuppresionProcess
 
 //#include <TRestGas.h>
 //#include <TRestDetectorReadout.h>
@@ -32,7 +32,7 @@
 #include "TRestEventProcess.h"
 
 //! A process to identify signal and remove baseline noise from a TRestRawSignalEvent.
-class TRestSignalZeroSuppresionProcess : public TRestEventProcess {
+class TRestRawZeroSuppresionProcess : public TRestEventProcess {
    private:
     /// A pointer to the specific TRestRawSignalEvent input
     TRestRawSignalEvent* fRawSignalEvent;  //!
@@ -101,15 +101,15 @@ class TRestSignalZeroSuppresionProcess : public TRestEventProcess {
     }
 
     /// Returns a new instance of this class
-    TRestEventProcess* Maker() { return new TRestSignalZeroSuppresionProcess; }
+    TRestEventProcess* Maker() { return new TRestRawZeroSuppresionProcess; }
 
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "signalZeroSuppresion"; }
+    TString GetProcessName() { return (TString) "rawZeroSuppresion"; }
 
-    TRestSignalZeroSuppresionProcess();
-    TRestSignalZeroSuppresionProcess(char* cfgFileName);
-    ~TRestSignalZeroSuppresionProcess();
+    TRestRawZeroSuppresionProcess();
+    TRestRawZeroSuppresionProcess(char* cfgFileName);
+    ~TRestRawZeroSuppresionProcess();
 
-    ClassDef(TRestSignalZeroSuppresionProcess, 2);
+    ClassDef(TRestRawZeroSuppresionProcess, 2);
 };
 #endif

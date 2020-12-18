@@ -21,7 +21,7 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// The TRestSignalZeroSuppresionProcess identifies the points that are over
+/// The TRestRawZeroSuppresionProcess identifies the points that are over
 /// threshold from the input TRestRawSignalEvent. The resulting points, that
 /// are presumed to be a physical signal, will be transported to the output
 /// TRestSignalEvent returned by this process. The data points transferred to
@@ -58,7 +58,7 @@
 /// additional details.
 ///
 /// \code
-///   <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON"
+///   <addProcess type="TRestRawZeroSuppresionProcess" name="zS" value="ON"
 ///               baseLineRange="(${BL_MIN},${BL_MAX})"
 ///               integralRange="(${INT_MIN},${INT_MAX})"
 ///               pointThreshold="${POINT_TH}"
@@ -79,25 +79,25 @@
 /// process.
 ///               Javier Galan
 ///
-/// \class      TRestSignalZeroSuppresionProcess
+/// \class      TRestRawZeroSuppresionProcess
 /// \author     Javier Galan
 /// \author     Kaixiang Ni
 ///
 /// <hr>
 ///
 
-#include "TRestSignalZeroSuppresionProcess.h"
 #include <numeric>
+#include "TRestRawZeroSuppresionProcess.h"
 using namespace std;
 
 const double cmTomm = 10.;
 
-ClassImp(TRestSignalZeroSuppresionProcess);
+ClassImp(TRestRawZeroSuppresionProcess);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestSignalZeroSuppresionProcess::TRestSignalZeroSuppresionProcess() { Initialize(); }
+TRestRawZeroSuppresionProcess::TRestRawZeroSuppresionProcess() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -111,7 +111,7 @@ TRestSignalZeroSuppresionProcess::TRestSignalZeroSuppresionProcess() { Initializ
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 ///
-TRestSignalZeroSuppresionProcess::TRestSignalZeroSuppresionProcess(char* cfgFileName) {
+TRestRawZeroSuppresionProcess::TRestRawZeroSuppresionProcess(char* cfgFileName) {
     Initialize();
 
     LoadConfig(cfgFileName);
@@ -120,12 +120,12 @@ TRestSignalZeroSuppresionProcess::TRestSignalZeroSuppresionProcess(char* cfgFile
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestSignalZeroSuppresionProcess::~TRestSignalZeroSuppresionProcess() { delete fSignalEvent; }
+TRestRawZeroSuppresionProcess::~TRestRawZeroSuppresionProcess() { delete fSignalEvent; }
 
 ///////////////////////////////////////////////
 /// \brief Method to load the default config in absence of RML input
 ///
-void TRestSignalZeroSuppresionProcess::LoadDefaultConfig() {
+void TRestRawZeroSuppresionProcess::LoadDefaultConfig() {
     SetName("signalZeroSuppresionProcess-Default");
     SetTitle("Default config");
 
@@ -151,14 +151,14 @@ void TRestSignalZeroSuppresionProcess::LoadDefaultConfig() {
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestGeant4AnalysisProcess section inside the RML.
 ///
-void TRestSignalZeroSuppresionProcess::LoadConfig(std::string cfgFilename, std::string name) {
+void TRestRawZeroSuppresionProcess::LoadConfig(std::string cfgFilename, std::string name) {
     if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
 /// \brief Input/output event types declaration and section name.
 ///
-void TRestSignalZeroSuppresionProcess::Initialize() {
+void TRestRawZeroSuppresionProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fRawSignalEvent = NULL;
@@ -172,7 +172,7 @@ void TRestSignalZeroSuppresionProcess::Initialize() {
 /// Personal note (TODO): Should be the baseline zero-ed by
 /// TRestRawSignalAnalysisProcess? It is that necessary?
 ///
-void TRestSignalZeroSuppresionProcess::InitProcess() {
+void TRestRawZeroSuppresionProcess::InitProcess() {
     // !!!!!!!!!!!! BASELINE CORRECTION !!!!!!!!!!!!!!
     // TRestRawSignalAnalysisProcess subtracts baseline. Baseline is double value,
     // but data points in TRestRawSignalAnalysisProcess is only short integer
@@ -202,7 +202,7 @@ void TRestSignalZeroSuppresionProcess::InitProcess() {
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent(TRestEvent* evInput) {
+TRestEvent* TRestRawZeroSuppresionProcess::ProcessEvent(TRestEvent* evInput) {
     fRawSignalEvent = (TRestRawSignalEvent*)evInput;
 
     fRawSignalEvent->SetBaseLineRange(fBaseLineRange);
@@ -259,10 +259,9 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent(TRestEvent* evInput) 
     SetObservableValue("NFlatTailSignals", (int)flattailmap.size());
     SetObservableValue("NSignalsRejected", rejectedSignal);
 
-    debug << "TRestSignalZeroSuppresionProcess. Signals added : " << fSignalEvent->GetNumberOfSignals()
-          << endl;
-    debug << "TRestSignalZeroSuppresionProcess. Signals rejected : " << rejectedSignal << endl;
-    debug << "TRestSignalZeroSuppresionProcess. Threshold integral : " << totalIntegral << endl;
+    debug << "TRestRawZeroSuppresionProcess. Signals added : " << fSignalEvent->GetNumberOfSignals() << endl;
+    debug << "TRestRawZeroSuppresionProcess. Signals rejected : " << rejectedSignal << endl;
+    debug << "TRestRawZeroSuppresionProcess. Threshold integral : " << totalIntegral << endl;
 
     if (fSignalEvent->GetNumberOfSignals() <= 0) return NULL;
 
@@ -273,7 +272,7 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent(TRestEvent* evInput) 
 /// \brief Function to include required actions after all events have been
 /// processed.
 ///
-void TRestSignalZeroSuppresionProcess::EndProcess() {
+void TRestRawZeroSuppresionProcess::EndProcess() {
     // Function to be executed once at the end of the process
     // (after all events have been processed)
 
@@ -284,9 +283,9 @@ void TRestSignalZeroSuppresionProcess::EndProcess() {
 
 ///////////////////////////////////////////////
 /// \brief Function to read input parameters from the RML
-/// TRestSignalZeroSuppresionProcess metadata section
+/// TRestRawZeroSuppresionProcess metadata section
 ///
-void TRestSignalZeroSuppresionProcess::InitFromConfigFile() {
+void TRestRawZeroSuppresionProcess::InitFromConfigFile() {
     // keep up with TRestRawSignalAnalysisProcess
     fBaseLineRange = StringTo2DVector(GetParameter("baseLineRange", "(5,55)"));
     fIntegralRange = StringTo2DVector(GetParameter("integralRange", "(10,500)"));

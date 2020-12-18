@@ -5,59 +5,57 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestFindResponseSignalProcess.cxx
+///             TRestRawFindResponseSignalProcess.cxx
 ///
-///             February 2016: Javier Gracia
+///             February 2016: Javier Galan
 ///_______________________________________________________________________________
 
-#include "TRestFindResponseSignalProcess.h"
+#include "TRestRawFindResponseSignalProcess.h"
 using namespace std;
-
-#include <TRestFFT.h>
 
 #include <TFile.h>
 
-ClassImp(TRestFindResponseSignalProcess)
+ClassImp(TRestRawFindResponseSignalProcess)
     //______________________________________________________________________________
-    TRestFindResponseSignalProcess::TRestFindResponseSignalProcess() {
+    TRestRawFindResponseSignalProcess::TRestRawFindResponseSignalProcess() {
     Initialize();
 }
 
 //______________________________________________________________________________
-TRestFindResponseSignalProcess::TRestFindResponseSignalProcess(char* cfgFileName) {
+TRestRawFindResponseSignalProcess::TRestRawFindResponseSignalProcess(char* cfgFileName) {
     Initialize();
 
     if (LoadConfigFromFile(cfgFileName) == -1) LoadDefaultConfig();
 
     PrintMetadata();
-    // TRestFindResponseSignalProcess default constructor
+    // TRestRawFindResponseSignalProcess default constructor
 }
 
 //______________________________________________________________________________
-TRestFindResponseSignalProcess::~TRestFindResponseSignalProcess() {
+TRestRawFindResponseSignalProcess::~TRestRawFindResponseSignalProcess() {
     delete fOutputSignalEvent;
-    // TRestFindResponseSignalProcess destructor
+    // TRestRawFindResponseSignalProcess destructor
 }
 
-void TRestFindResponseSignalProcess::LoadDefaultConfig() {
+void TRestRawFindResponseSignalProcess::LoadDefaultConfig() {
     SetName("findResponseSignal-Default");
     SetTitle("Default config");
 }
 
 //______________________________________________________________________________
-void TRestFindResponseSignalProcess::Initialize() {
+void TRestRawFindResponseSignalProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fInputSignalEvent = NULL;
     fOutputSignalEvent = new TRestRawSignalEvent();
 }
 
-void TRestFindResponseSignalProcess::LoadConfig(string cfgFilename, string name) {
+void TRestRawFindResponseSignalProcess::LoadConfig(string cfgFilename, string name) {
     if (LoadConfigFromFile(cfgFilename, name) == -1) LoadDefaultConfig();
 }
 
 //______________________________________________________________________________
-void TRestFindResponseSignalProcess::InitProcess() {
+void TRestRawFindResponseSignalProcess::InitProcess() {
     // Function to be executed once at the beginning of process
     // (before starting the process of the events)
 
@@ -67,7 +65,7 @@ void TRestFindResponseSignalProcess::InitProcess() {
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestFindResponseSignalProcess::ProcessEvent(TRestEvent* evInput) {
+TRestEvent* TRestRawFindResponseSignalProcess::ProcessEvent(TRestEvent* evInput) {
     fInputSignalEvent = (TRestRawSignalEvent*)evInput;
 
     if (fInputSignalEvent->GetNumberOfSignals() <= 0) return NULL;
@@ -108,7 +106,7 @@ TRestEvent* TRestFindResponseSignalProcess::ProcessEvent(TRestEvent* evInput) {
 }
 
 //______________________________________________________________________________
-void TRestFindResponseSignalProcess::EndProcess() {
+void TRestRawFindResponseSignalProcess::EndProcess() {
     // Function to be executed once at the end of the process
     // (after all events have been processed)
 
@@ -118,7 +116,7 @@ void TRestFindResponseSignalProcess::EndProcess() {
 }
 
 //______________________________________________________________________________
-void TRestFindResponseSignalProcess::InitFromConfigFile() {
+void TRestRawFindResponseSignalProcess::InitFromConfigFile() {
     /*
         fTriggerTime = StringToInteger( GetParameter( "triggerTime" ) );
         fNBins = StringToInteger( GetParameter( "nBins" ) );

@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestFFT.cxx
+///             TRestRawFFT.cxx
 ///
 ///             Event class to help for using TFFT
 ///
@@ -15,17 +15,17 @@
 ///                 Javier Galan
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestFFT
-#define RestCore_TRestFFT
+#ifndef RestCore_TRestRawFFT
+#define RestCore_TRestRawFFT
 
 #include <iostream>
 
 #include <TArrayD.h>
 #include <TObject.h>
 
-#include <TRestSignal.h>
+#include <TRestRawSignal.h>
 
-class TRestFFT : public TObject {
+class TRestRawFFT : public TObject {
    protected:
     Int_t fNfft;
 
@@ -43,7 +43,7 @@ class TRestFFT : public TObject {
 
     Int_t GetNfft() { return fNfft; }
 
-    void GetSignal(TRestSignal* sgnl);
+    void GetSignal(TRestRawSignal* sgnl);
 
     // Setters
     void SetNfft(Int_t n);
@@ -57,7 +57,7 @@ class TRestFFT : public TObject {
     void GaussianSecondOrderResponse(Double_t f1, Double_t f2, Double_t Ao, Double_t sigma);
 
     // FFT processing
-    void ForwardSignalFFT(TRestSignal* sgnl, Int_t fNStart = 0, Int_t fNEnd = 0);
+    void ForwardSignalFFT(TRestRawSignal* sgnl, Int_t fNStart = 0, Int_t fNEnd = 0);
     void BackwardFFT();
 
     void RenormalizeNode(Int_t n, Double_t factor);
@@ -70,19 +70,19 @@ class TRestFFT : public TObject {
 
     void ProduceDelta(Int_t t_o, Int_t Nfft);
 
-    void DivideBy(TRestFFT* fftInput, Int_t from = 0, Int_t to = 0);
-    void MultiplyBy(TRestFFT* fftInput, Int_t from = 0, Int_t to = 0);
+    void DivideBy(TRestRawFFT* fftInput, Int_t from = 0, Int_t to = 0);
+    void MultiplyBy(TRestRawFFT* fftInput, Int_t from = 0, Int_t to = 0);
 
-    void ApplyResponse(TRestFFT* fftInput, Int_t cutOff);
+    void ApplyResponse(TRestRawFFT* fftInput, Int_t cutOff);
 
     void WriteFrequencyToTextFile(TString filename);
     void WriteTimeSignalToTextFile(TString filename);
 
     // Construtor
-    TRestFFT();
+    TRestRawFFT();
     // Destructor
-    ~TRestFFT();
+    ~TRestRawFFT();
 
-    ClassDef(TRestFFT, 1);
+    ClassDef(TRestRawFFT, 1);
 };
 #endif

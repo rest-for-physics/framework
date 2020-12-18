@@ -5,11 +5,11 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestMultiCoBoAsAdToSignalProcess.h
+///             TRestRawMultiCoBoAsAdToSignalProcess.h
 ///
 ///             Template to use to design "event process" classes inherited from
 ///             TRestProcess
-///             How to use: replace TRestMultiCoBoAsAdToSignalProcess by your
+///             How to use: replace TRestRawMultiCoBoAsAdToSignalProcess by your
 ///             name, fill the required functions following instructions and add
 ///             all needed additional members and funcionality
 ///
@@ -18,8 +18,8 @@
 ///                 software. Javier Galan
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestMultiCoBoAsAdToSignalProcess
-#define RestCore_TRestMultiCoBoAsAdToSignalProcess
+#ifndef RestCore_TRestRawMultiCoBoAsAdToSignalProcess
+#define RestCore_TRestRawMultiCoBoAsAdToSignalProcess
 
 #include <map>
 #include "TRestRawSignalEvent.h"
@@ -84,7 +84,7 @@ struct CoBoHeaderFrame {
     }
 };
 
-class TRestMultiCoBoAsAdToSignalProcess : public TRestRawToSignalProcess {
+class TRestRawMultiCoBoAsAdToSignalProcess : public TRestRawToSignalProcess {
    private:
 #ifndef __CINT__
     TRestRawSignal sgnl;  //!
@@ -128,12 +128,12 @@ class TRestMultiCoBoAsAdToSignalProcess : public TRestRawToSignalProcess {
     Bool_t EndReading();
 
     // Constructor
-    TRestMultiCoBoAsAdToSignalProcess();
-    TRestMultiCoBoAsAdToSignalProcess(char* cfgFileName);
+    TRestRawMultiCoBoAsAdToSignalProcess();
+    TRestRawMultiCoBoAsAdToSignalProcess(char* cfgFileName);
     // Destructor
-    ~TRestMultiCoBoAsAdToSignalProcess();
+    ~TRestRawMultiCoBoAsAdToSignalProcess();
 
-    ClassDef(TRestMultiCoBoAsAdToSignalProcess,
+    ClassDef(TRestRawMultiCoBoAsAdToSignalProcess,
              1);  // Template for a REST "event process" class inherited from
                   // TRestEventProcess
 };

@@ -15,6 +15,7 @@ IF( DEFINED REST_ALL_LIBS )
 		set(REST_ALL_LIBS ON)
 	endif (${REST_ALL_LIBS} MATCHES "ON")
 		set(REST_G4_LIB ON)
+		set(REST_RAW_LIB ON)
 		set(REST_TRACK_LIB ON)
 		set(REST_AXION_LIB ON)
 		set(REST_MODEL_LIB ON)
@@ -64,6 +65,18 @@ if (${REST_AXION_LIB} MATCHES "ON")
 		)
 endif (${REST_AXION_LIB} MATCHES "ON")
 
+########################################## Raw library ###################################
+IF( NOT DEFINED REST_RAW_LIB )
+	set(REST_RAW_LIB OFF)
+ENDIF ()
+
+if (${REST_RAW_LIB} MATCHES "ON")
+	message( STATUS "Adding Raw Lib" )
+	add_definitions(-DREST_RawLib)
+	add_subdirectory(libraries/raw)
+	list( APPEND rest_libs_index "RestRaw" )
+endif (${REST_RAW_LIB} MATCHES "ON")
+
 ########################################## Model library ###################################
 IF( NOT DEFINED REST_MODEL_LIB )
 	set(REST_MODEL_LIB OFF)
@@ -83,6 +96,8 @@ endif (${REST_MODEL_LIB} MATCHES "ON")
 #### This must be placed after all targets!!!
 set(rest_include_dirs ${local_include_dirs})
 set(rest_libraries ${local_libraries})
+
+message( STATUS "rest_include_dirs: ${rest_include_dirs}" )
 
 #SUBDIRLIST(SUBDIRS libraries)
 

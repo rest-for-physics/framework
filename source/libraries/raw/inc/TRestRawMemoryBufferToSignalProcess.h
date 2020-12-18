@@ -20,8 +20,8 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestSharedMemoryBufferToRawSignalProcess
-#define RestCore_TRestSharedMemoryBufferToRawSignalProcess
+#ifndef RestCore_TRestRawMemoryBufferToSignalProcess
+#define RestCore_TRestRawMemoryBufferToSignalProcess
 
 #include "TRestEventProcess.h"
 #include "TRestRawSignalEvent.h"
@@ -55,7 +55,7 @@ typedef struct {
 
 //! A process to read a shared buffer created by another external process and
 //! create a TRestRawSignalEvent
-class TRestSharedMemoryBufferToRawSignalProcess : public TRestEventProcess {
+class TRestRawMemoryBufferToSignalProcess : public TRestEventProcess {
    private:
 #ifndef __CINT__
 
@@ -123,18 +123,18 @@ class TRestSharedMemoryBufferToRawSignalProcess : public TRestEventProcess {
     }
 
     /// Returns a new instance of this class
-    TRestEventProcess* Maker() { return new TRestSharedMemoryBufferToRawSignalProcess; }
+    TRestEventProcess* Maker() { return new TRestRawMemoryBufferToSignalProcess; }
 
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "sharedMemoryBufferToRawSignalEvent"; }
+    TString GetProcessName() { return (TString) "sharedMemoryBufferToSignalEvent"; }
 
     // Constructor
-    TRestSharedMemoryBufferToRawSignalProcess();
-    TRestSharedMemoryBufferToRawSignalProcess(char* cfgFileName);
+    TRestRawMemoryBufferToSignalProcess();
+    TRestRawMemoryBufferToSignalProcess(char* cfgFileName);
 
     // Destructor
-    ~TRestSharedMemoryBufferToRawSignalProcess();
+    ~TRestRawMemoryBufferToSignalProcess();
 
-    ClassDef(TRestSharedMemoryBufferToRawSignalProcess, 1);
+    ClassDef(TRestRawMemoryBufferToSignalProcess, 1);
 };
 #endif

@@ -13,8 +13,6 @@
 #include "TRestRawSignalAddNoiseProcess.h"
 using namespace std;
 
-#include <TRestFFT.h>
-
 #include <TFile.h>
 
 ClassImp(TRestRawSignalAddNoiseProcess);

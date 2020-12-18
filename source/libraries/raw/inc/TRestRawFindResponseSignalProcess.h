@@ -5,18 +5,18 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestFindResponseSignalProcess.h
+///             TRestRawFindResponseSignalProcess.h
 ///
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestFindResponseSignalProcess
-#define RestCore_TRestFindResponseSignalProcess
+#ifndef RestCore_TRestRawFindResponseSignalProcess
+#define RestCore_TRestRawFindResponseSignalProcess
 
 #include <TRestRawSignalEvent.h>
 
 #include "TRestEventProcess.h"
 
-class TRestFindResponseSignalProcess : public TRestEventProcess {
+class TRestRawFindResponseSignalProcess : public TRestEventProcess {
    private:
     TRestRawSignalEvent* fInputSignalEvent;   //!
     TRestRawSignalEvent* fOutputSignalEvent;  //!
@@ -51,12 +51,13 @@ class TRestFindResponseSignalProcess : public TRestEventProcess {
     TString GetProcessName() { return (TString) "findResponseSignal"; }
 
     // Constructor
-    TRestFindResponseSignalProcess();
-    TRestFindResponseSignalProcess(char* cfgFileName);
+    TRestRawFindResponseSignalProcess();
+    TRestRawFindResponseSignalProcess(char* cfgFileName);
     // Destructor
-    ~TRestFindResponseSignalProcess();
+    ~TRestRawFindResponseSignalProcess();
 
-    ClassDef(TRestFindResponseSignalProcess, 1);  // Template for a REST "event process" class inherited from
-                                                  // TRestEventProcess
+    ClassDef(TRestRawFindResponseSignalProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

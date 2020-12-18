@@ -5,11 +5,11 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestUSTCElectronicsProcess.h
+///             TRestRawUSTCToSignalProcess.h
 ///
 ///             Template to use to design "event process" classes inherited from
 ///             TRestProcess
-///             How to use: replace TRestUSTCElectronicsProcess by your name,
+///             How to use: replace TRestRawUSTCToSignalProcess by your name,
 ///             fill the required functions following instructions and add all
 ///             needed additional members and funcionality
 ///
@@ -18,8 +18,8 @@
 ///                 software. Javier Galan
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestUSTCElectronicsProcess
-#define RestCore_TRestUSTCElectronicsProcess
+#ifndef RestCore_TRestRawUSTCToSignalProcess
+#define RestCore_TRestRawUSTCToSignalProcess
 
 #include <map>
 #include "TRestRawToSignalProcess.h"
@@ -77,7 +77,7 @@ struct USTCDataFrame {
     Int_t dataPoint[512];
 };
 
-class TRestUSTCElectronicsProcess : public TRestRawToSignalProcess {
+class TRestRawUSTCToSignalProcess : public TRestRawToSignalProcess {
    private:
 #ifndef __CINT__
     TRestRawSignal sgnl;  //!
@@ -123,12 +123,12 @@ class TRestUSTCElectronicsProcess : public TRestRawToSignalProcess {
     Bool_t EndReading();
 
     // Constructor
-    TRestUSTCElectronicsProcess();
-    TRestUSTCElectronicsProcess(char* cfgFileName);
+    TRestRawUSTCToSignalProcess();
+    TRestRawUSTCToSignalProcess(char* cfgFileName);
     // Destructor
-    ~TRestUSTCElectronicsProcess();
+    ~TRestRawUSTCToSignalProcess();
 
-    ClassDef(TRestUSTCElectronicsProcess, 2);  // Template for a REST "event process" class inherited from
+    ClassDef(TRestRawUSTCToSignalProcess, 2);  // Template for a REST "event process" class inherited from
                                                // TRestEventProcess
 };
 #endif

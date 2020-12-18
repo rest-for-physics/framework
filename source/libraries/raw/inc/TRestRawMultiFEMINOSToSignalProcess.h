@@ -5,11 +5,11 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestMultiFEMINOSToSignalProcess.h
+///             TRestRawMultiFEMINOSToSignalProcess.h
 ///
 ///             Template to use to design "event process" classes inherited from
 ///             TRestProcess
-///             How to use: replace TRestMultiFEMINOSToSignalProcess by your
+///             How to use: replace TRestRawMultiFEMINOSToSignalProcess by your
 ///             name, fill the required functions following instructions and add
 ///             all needed additional members and funcionality
 ///
@@ -19,13 +19,13 @@
 ///                 JuanAn
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestMultiFEMINOSToSignalProcess
-#define RestCore_TRestMultiFEMINOSToSignalProcess
+#ifndef RestCore_TRestRawMultiFEMINOSToSignalProcess
+#define RestCore_TRestRawMultiFEMINOSToSignalProcess
 
 #include "TRestRawToSignalProcess.h"
 #include "TRestSignalEvent.h"
 
-class TRestMultiFEMINOSToSignalProcess : public TRestRawToSignalProcess {
+class TRestRawMultiFEMINOSToSignalProcess : public TRestRawToSignalProcess {
    private:
     unsigned short pay;
 
@@ -44,12 +44,12 @@ class TRestMultiFEMINOSToSignalProcess : public TRestRawToSignalProcess {
     Bool_t ReadFrame(void* fr, int fr_sz);
 
     // Constructor
-    TRestMultiFEMINOSToSignalProcess();
-    TRestMultiFEMINOSToSignalProcess(char* cfgFileName);
+    TRestRawMultiFEMINOSToSignalProcess();
+    TRestRawMultiFEMINOSToSignalProcess(char* cfgFileName);
     // Destructor
-    ~TRestMultiFEMINOSToSignalProcess();
+    ~TRestRawMultiFEMINOSToSignalProcess();
 
-    ClassDef(TRestMultiFEMINOSToSignalProcess,
+    ClassDef(TRestRawMultiFEMINOSToSignalProcess,
              1);  // Template for a REST "event process" class inherited from
                   // TRestEventProcess
 };

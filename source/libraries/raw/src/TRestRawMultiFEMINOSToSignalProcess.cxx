@@ -5,11 +5,11 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestMultiFEMINOSToSignalProcess.cxx
+///             TRestRawMultiFEMINOSToSignalProcess.cxx
 ///
 ///             Template to use to design "event process" classes inherited from
-///             TRestMultiFEMINOSToSignalProcess
-///             How to use: replace TRestMultiFEMINOSToSignalProcess by your
+///             TRestRawMultiFEMINOSToSignalProcess
+///             How to use: replace TRestRawMultiFEMINOSToSignalProcess by your
 ///             name, fill the required functions following instructions and add
 ///             all needed additional members and funcionality
 ///
@@ -140,28 +140,28 @@
 #define ORIGINAL_MCLIENT 0
 unsigned char cur_fr[MAX_EVENT_SIZE];  // Current frame
 
-#include "TRestMultiFEMINOSToSignalProcess.h"
+#include "TRestRawMultiFEMINOSToSignalProcess.h"
 using namespace std;
 #include "TTimeStamp.h"
 
 Int_t nChannels = 0;
 
-ClassImp(TRestMultiFEMINOSToSignalProcess);
+ClassImp(TRestRawMultiFEMINOSToSignalProcess);
 //______________________________________________________________________________
-TRestMultiFEMINOSToSignalProcess::TRestMultiFEMINOSToSignalProcess() { Initialize(); }
+TRestRawMultiFEMINOSToSignalProcess::TRestRawMultiFEMINOSToSignalProcess() { Initialize(); }
 
-TRestMultiFEMINOSToSignalProcess::TRestMultiFEMINOSToSignalProcess(char* cfgFileName)
+TRestRawMultiFEMINOSToSignalProcess::TRestRawMultiFEMINOSToSignalProcess(char* cfgFileName)
     : TRestRawToSignalProcess(cfgFileName) {
     Initialize();
 }
 
 //______________________________________________________________________________
-TRestMultiFEMINOSToSignalProcess::~TRestMultiFEMINOSToSignalProcess() {
-    // TRestMultiFEMINOSToSignalProcess destructor
+TRestRawMultiFEMINOSToSignalProcess::~TRestRawMultiFEMINOSToSignalProcess() {
+    // TRestRawMultiFEMINOSToSignalProcess destructor
 }
 
 //______________________________________________________________________________
-void TRestMultiFEMINOSToSignalProcess::LoadDetectorSetupData() {
+void TRestRawMultiFEMINOSToSignalProcess::LoadDetectorSetupData() {
     if (fRunInfo == nullptr) {
         cout << "'fRunInfo' is null" << endl;
         return;
@@ -172,14 +172,14 @@ void TRestMultiFEMINOSToSignalProcess::LoadDetectorSetupData() {
 }
 
 //______________________________________________________________________________
-void TRestMultiFEMINOSToSignalProcess::Initialize() {
+void TRestRawMultiFEMINOSToSignalProcess::Initialize() {
     fLastEventId = 0;
     fLastTimeStamp = 0;
 }
 
 //______________________________________________________________________________
-void TRestMultiFEMINOSToSignalProcess::InitProcess() {
-    debug << "TRestMultiFeminos::InitProcess" << endl;
+void TRestRawMultiFEMINOSToSignalProcess::InitProcess() {
+    debug << "TRestRawMultiFeminos::InitProcess" << endl;
     // Reading binary file header
 
     LoadDetectorSetupData();
@@ -229,8 +229,8 @@ void TRestMultiFEMINOSToSignalProcess::InitProcess() {
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent(TRestEvent* evInput) {
-    if (GetVerboseLevel() >= REST_Debug) cout << "TRestMultiFEMINOSToSignalProcess::ProcessEvent" << endl;
+TRestEvent* TRestRawMultiFEMINOSToSignalProcess::ProcessEvent(TRestEvent* evInput) {
+    if (GetVerboseLevel() >= REST_Debug) cout << "TRestRawMultiFEMINOSToSignalProcess::ProcessEvent" << endl;
 
     while (1) {
         unsigned short* sh;
@@ -358,7 +358,7 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent(TRestEvent* evInput) 
     return NULL;
 }
 
-Bool_t TRestMultiFEMINOSToSignalProcess::ReadFrame(void* fr, int fr_sz) {
+Bool_t TRestRawMultiFEMINOSToSignalProcess::ReadFrame(void* fr, int fr_sz) {
     Bool_t endOfEvent = false;
 
     unsigned short* p;

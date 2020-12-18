@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestFFT.cxx
+///             TRestRawFFT.cxx
 ///
 ///             Event class to help for using TFFT
 ///
@@ -18,21 +18,21 @@
 #include <TComplex.h>
 #include <TVirtualFFT.h>
 
-#include "TRestFFT.h"
+#include "TRestRawFFT.h"
 using namespace std;
 
-ClassImp(TRestFFT)
+ClassImp(TRestRawFFT)
     //______________________________________________________________________________
-    TRestFFT::TRestFFT() {
-    // TRestFFT default constructor
+    TRestRawFFT::TRestRawFFT() {
+    // TRestRawFFT default constructor
 }
 
 //______________________________________________________________________________
-TRestFFT::~TRestFFT() {
-    // TRestFFT destructor
+TRestRawFFT::~TRestRawFFT() {
+    // TRestRawFFT destructor
 }
 
-void TRestFFT::SetNfft(Int_t n) {
+void TRestRawFFT::SetNfft(Int_t n) {
     fNfft = n;
 
     fTimeReal.Set(fNfft);
@@ -41,14 +41,14 @@ void TRestFFT::SetNfft(Int_t n) {
     fFrequencyImg.Set(fNfft);
 }
 
-Double_t TRestFFT::GetFrequencyNorm2(Int_t n) {
+Double_t TRestRawFFT::GetFrequencyNorm2(Int_t n) {
     Double_t norm2 = fFrequencyReal.GetArray()[n] * fFrequencyReal.GetArray()[n] +
                      fFrequencyImg.GetArray()[n] * fFrequencyImg.GetArray()[n];
 
     return norm2;
 }
 
-void TRestFFT::ForwardSignalFFT(TRestSignal* sgnl, Int_t fNStart, Int_t fNEnd) {
+void TRestRawFFT::ForwardSignalFFT(TRestRawSignal* sgnl, Int_t fNStart, Int_t fNEnd) {
     Int_t n = sgnl->GetNumberOfPoints() - fNStart - fNEnd;
     SetNfft(n);
 
@@ -67,7 +67,7 @@ void TRestFFT::ForwardSignalFFT(TRestSignal* sgnl, Int_t fNStart, Int_t fNEnd) {
     delete forward;
 }
 
-void TRestFFT::BackwardFFT() {
+void TRestRawFFT::BackwardFFT() {
     TVirtualFFT* backward = TVirtualFFT::FFT(1, &fNfft, "C2R");
     backward->SetPointsComplex(fFrequencyReal.GetArray(), fFrequencyImg.GetArray());
     backward->Transform();
@@ -81,7 +81,7 @@ void TRestFFT::BackwardFFT() {
     delete backward;
 }
 
-void TRestFFT::ProduceDelta(Int_t t_o, Int_t Nfft) {
+void TRestRawFFT::ProduceDelta(Int_t t_o, Int_t Nfft) {
     SetNfft(Nfft);
 
     for (int i = 0; i < fNfft; i++) {
@@ -101,12 +101,12 @@ void TRestFFT::ProduceDelta(Int_t t_o, Int_t Nfft) {
     delete forward;
 }
 
-void TRestFFT::GetSignal(TRestSignal* sgnl) {
+void TRestRawFFT::GetSignal(TRestRawSignal* sgnl) {
     sgnl->Reset();
     for (int i = 0; i < fNfft; i++) sgnl->AddPoint(i, fTimeReal.GetArray()[i]);
 }
 
-void TRestFFT::MultiplyBy(TRestFFT* fftInput, Int_t from, Int_t to) {
+void TRestRawFFT::MultiplyBy(TRestRawFFT* fftInput, Int_t from, Int_t to) {
     if (fftInput->GetNfft() != this->GetNfft()) {
         cout << "Not the same N FFT" << endl;
         return;
@@ -125,7 +125,7 @@ void TRestFFT::MultiplyBy(TRestFFT* fftInput, Int_t from, Int_t to) {
     }
 }
 
-void TRestFFT::DivideBy(TRestFFT* fftInput, Int_t from, Int_t to) {
+void TRestRawFFT::DivideBy(TRestRawFFT* fftInput, Int_t from, Int_t to) {
     if (fftInput->GetNfft() != this->GetNfft()) {
         cout << "Not the same N FFT" << endl;
         return;
@@ -144,8 +144,8 @@ void TRestFFT::DivideBy(TRestFFT* fftInput, Int_t from, Int_t to) {
     }
 }
 
-void TRestFFT::ApplyResponse(TRestFFT* fftInput, Int_t cutOff) {
-    if (cutOff <= 0) cout << "TRestFFT::ApplyResponse. cutOff <= 0!!!" << endl;
+void TRestRawFFT::ApplyResponse(TRestRawFFT* fftInput, Int_t cutOff) {
+    if (cutOff <= 0) cout << "TRestRawFFT::ApplyResponse. cutOff <= 0!!!" << endl;
     DivideBy(fftInput, 0, cutOff);
 
     Double_t normCutOff = GetFrequencyNorm2(cutOff - 1);
@@ -159,7 +159,7 @@ void TRestFFT::ApplyResponse(TRestFFT* fftInput, Int_t cutOff) {
     }
 }
 
-void TRestFFT::KillFrequencies(Int_t cutOff) {
+void TRestRawFFT::KillFrequencies(Int_t cutOff) {
     for (int i = cutOff; i < GetNfft() / 2; i++) {
         fFrequencyReal.GetArray()[i] = 0;
         fFrequencyImg.GetArray()[i] = 0;
@@ -168,7 +168,7 @@ void TRestFFT::KillFrequencies(Int_t cutOff) {
     }
 }
 
-void TRestFFT::ButterWorthFilter(Int_t cutOff, Int_t order)  //, Double_t amp, Double_t decay )
+void TRestRawFFT::ButterWorthFilter(Int_t cutOff, Int_t order)  //, Double_t amp, Double_t decay )
 {
     double cOffDouble = (double)cutOff;
     for (int i = 0; i < fNfft / 2; i++) {
@@ -183,7 +183,7 @@ void TRestFFT::ButterWorthFilter(Int_t cutOff, Int_t order)  //, Double_t amp, D
     }
 }
 
-void TRestFFT::ApplyLowPassFilter(Int_t cutFrequency) {
+void TRestRawFFT::ApplyLowPassFilter(Int_t cutFrequency) {
     for (int i = 0; i < fNfft; i++) {
         if (i >= cutFrequency && i < fNfft - cutFrequency) {
             fFrequencyReal.GetArray()[i] = 0.;
@@ -192,7 +192,7 @@ void TRestFFT::ApplyLowPassFilter(Int_t cutFrequency) {
     }
 }
 
-void TRestFFT::GaussianSecondOrderResponse(Double_t f1, Double_t f2, Double_t Ao, Double_t sigma) {
+void TRestRawFFT::GaussianSecondOrderResponse(Double_t f1, Double_t f2, Double_t Ao, Double_t sigma) {
     Double_t a = TMath::Sqrt(Ao);
     for (int i = 0; i < fNfft / 2; i++) {
         Double_t w = (double)2. * i / 3;
@@ -221,7 +221,7 @@ void TRestFFT::GaussianSecondOrderResponse(Double_t f1, Double_t f2, Double_t Ao
     // WriteTimeSignalToTextFile ( "timeSignal" );
 }
 
-void TRestFFT::SetSecondOrderAnalyticalResponse(Double_t f1, Double_t f2, Double_t to) {
+void TRestRawFFT::SetSecondOrderAnalyticalResponse(Double_t f1, Double_t f2, Double_t to) {
     for (int i = 0; i < fNfft / 2; i++) {
         Double_t w = 2.59 * (double)i;
 
@@ -250,14 +250,14 @@ void TRestFFT::SetSecondOrderAnalyticalResponse(Double_t f1, Double_t f2, Double
     WriteTimeSignalToTextFile("/home/javier/tmp/timeSignal");
 }
 
-void TRestFFT::RemoveBaseline() {
+void TRestRawFFT::RemoveBaseline() {
     Double_t real = this->GetFrequencyAmplitudeReal(1);
     Double_t img = this->GetFrequencyAmplitudeImg(1);
     Double_t module = sqrt(real * real + img * img);
     this->SetNode(0, module);
 }
 
-void TRestFFT::RenormalizeNode(Int_t n, Double_t factor) {
+void TRestRawFFT::RenormalizeNode(Int_t n, Double_t factor) {
     fFrequencyReal.GetArray()[fNfft - n - 1] = fFrequencyReal.GetArray()[n] / factor;
     fFrequencyImg.GetArray()[fNfft - n - 1] = fFrequencyImg.GetArray()[n] / factor;
 
@@ -265,14 +265,14 @@ void TRestFFT::RenormalizeNode(Int_t n, Double_t factor) {
     fFrequencyImg.GetArray()[n] = fFrequencyImg.GetArray()[n] / factor;
 }
 
-void TRestFFT::WriteFrequencyToTextFile(TString filename) {
+void TRestRawFFT::WriteFrequencyToTextFile(TString filename) {
     FILE* fff = fopen(filename.Data(), "w");
     for (int i = 0; i < fNfft; i++)
         fprintf(fff, "%d\t%17.14e\t%17.14e\n", i, fFrequencyReal.GetArray()[i], fFrequencyImg.GetArray()[i]);
     fclose(fff);
 }
 
-void TRestFFT::WriteTimeSignalToTextFile(TString filename) {
+void TRestRawFFT::WriteTimeSignalToTextFile(TString filename) {
     FILE* fff = fopen(filename.Data(), "w");
     for (int i = 0; i < fNfft; i++)
         fprintf(fff, "%d\t%e\t%e\n", i, fTimeReal.GetArray()[i], fTimeImg.GetArray()[i]);

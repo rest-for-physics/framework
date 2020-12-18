@@ -6,11 +6,11 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestAFTERToSignalProcess.h
+///             TRestRawAFTERToSignalProcess.h
 ///
 ///             Template to use to design "event process" classes inherited from
 ///             TRestProcess
-///             How to use: replace TRestAFTERToSignalProcess by your name,
+///             How to use: replace TRestRawAFTERToSignalProcess by your name,
 ///             fill the required functions following instructions and add all
 ///             needed additional members and funcionality
 ///
@@ -20,8 +20,8 @@
 ///                 JuanAn
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestAFTERToSignalProcess
-#define RestCore_TRestAFTERToSignalProcess
+#ifndef RestCore_TRestRawAFTERToSignalProcess
+#define RestCore_TRestRawAFTERToSignalProcess
 
 #include "TRestRawToSignalProcess.h"
 #include "TRestSignalEvent.h"
@@ -70,7 +70,7 @@ struct DataPacketEnd {
     unsigned short crc2;
 };
 
-class TRestAFTERToSignalProcess : public TRestRawToSignalProcess {
+class TRestRawAFTERToSignalProcess : public TRestRawToSignalProcess {
    protected:
     unsigned int prevTime;
     double reducedTime;
@@ -85,12 +85,12 @@ class TRestAFTERToSignalProcess : public TRestRawToSignalProcess {
     Bool_t isExternal() { return true; }
 
     // Constructor
-    TRestAFTERToSignalProcess();
-    TRestAFTERToSignalProcess(char* cfgFileName);
+    TRestRawAFTERToSignalProcess();
+    TRestRawAFTERToSignalProcess(char* cfgFileName);
     // Destructor
-    ~TRestAFTERToSignalProcess();
+    ~TRestRawAFTERToSignalProcess();
 
-    ClassDef(TRestAFTERToSignalProcess, 1);  // Template for a REST "event process" class inherited from
-                                             // TRestEventProcess
+    ClassDef(TRestRawAFTERToSignalProcess, 1);  // Template for a REST "event process" class inherited from
+                                                // TRestEventProcess
 };
 #endif
