@@ -192,7 +192,7 @@ std:
     vector<double> result;
     vector<string> vec_str =
         REST_StringHelper::Split(in, separator, allowBlankString, removeWhiteSpaces, startPos);
-    for (unsigned int i; i < vec_str.size(); i++) {
+    for (unsigned int i = 0; i < vec_str.size(); i++) {
         double temp = REST_StringHelper::StringToDouble(vec_str[i]);
         result.push_back(temp);
     }
