@@ -1,5 +1,5 @@
-#include "TRestG4Event.h"
-#include "TRestG4Metadata.h"
+#include "TRestGeant4Event.h"
+#include "TRestGeant4Metadata.h"
 #include "TRestTask.h"
 
 #ifndef RestTask_ReadNEvents_inROI
@@ -10,7 +10,7 @@
 //*** --------------
 //*** This macro might need update/revision.
 //*******************************************************************************************************
-Int_t REST_ReadNEvents_inROI(string fName, int n1, int n2, double en1, double en2) {
+Int_t REST_Geant4_ReadNEvents_inROI(string fName, int n1, int n2, double en1, double en2) {
     TRestRun* run = new TRestRun(fName);
 
     run->PrintMetadata();

@@ -11,7 +11,7 @@
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
-Double_t REST_GetBiasingError(TString fName, Int_t finalEvents = 0) {
+Double_t REST_Geant4_GetBiasingError(TString fName, Int_t finalEvents = 0) {
     cout << "Filename : " << fName << endl;
 
     TRestRun* run = new TRestRun();

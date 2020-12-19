@@ -1,12 +1,20 @@
 #ifdef REST_Geant4Lib
 #include "TRestGeant4Event.h"
 #endif
+
 #include "TRestHitsEvent.h"
-//#include "TRestLinearTrackEvent.h"
-#include "TRestRawSignalEvent.h"
 #include "TRestSignalEvent.h"
-#include "TRestTask.h"
+//#include "TRestLinearTrackEvent.h"
+
+#ifdef REST_RawLib
+#include "TRestRawSignalEvent.h"
+#endif
+
+#ifdef REST_TrackLib
 #include "TRestTrackEvent.h"
+#endif
+
+#include "TRestTask.h"
 
 #ifndef RESTTask_PrintEvents
 #define RESTTask_PrintEvents
@@ -87,7 +95,6 @@ Int_t REST_HitsEvent(TString fName, Int_t firstEvent = 0) {
 
     return 0;
 }
-
 /*
 Int_t REST_LinearTrackEvent(TString fName, Int_t firstEvent = 0) {
     TRestRun* run = new TRestRun();
@@ -109,6 +116,7 @@ Int_t REST_LinearTrackEvent(TString fName, Int_t firstEvent = 0) {
     return 0;
 } */
 
+#ifdef REST_RawLib
 Int_t REST_RawSignalEvent(TString fName, Int_t firstEvent = 0) {
     TRestRun* run = new TRestRun();
 
@@ -128,6 +136,7 @@ Int_t REST_RawSignalEvent(TString fName, Int_t firstEvent = 0) {
 
     return 0;
 }
+#endif
 
 Int_t REST_SignalEvent(TString fName, Int_t firstEvent = 0) {
     TRestRun* run = new TRestRun();
@@ -149,6 +158,7 @@ Int_t REST_SignalEvent(TString fName, Int_t firstEvent = 0) {
     return 0;
 }
 
+#ifdef REST_TrackLib
 Int_t REST_TrackEvent(TString fName, Int_t firstEvent = 0) {
     TRestRun* run = new TRestRun();
 
@@ -168,5 +178,6 @@ Int_t REST_TrackEvent(TString fName, Int_t firstEvent = 0) {
 
     return 0;
 }
+#endif
 
 #endif

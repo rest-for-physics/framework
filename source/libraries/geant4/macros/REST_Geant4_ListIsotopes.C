@@ -11,7 +11,7 @@
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
-Int_t REST_ListIsotopes(TString fName, TString fOutName) {
+Int_t REST_Geant4_ListIsotopes(TString fName, TString fOutName) {
     cout << "Filename : " << fName << ", storing info in " << fOutName << endl;
 
     ofstream fOut;

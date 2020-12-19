@@ -2,8 +2,8 @@
 #include "TRestGeant4Metadata.h"
 #include "TRestTask.h"
 
-#ifndef RestTask_FindGammasEmitted
-#define RestTask_FindGammasEmitted
+#ifndef RestTask_Geant4_ReadNEvents
+#define RestTask_Geant4_ReadNEvents
 
 //*******************************************************************************************************
 //***
@@ -11,7 +11,7 @@
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
-Int_t REST_ReadNEvents(TString fName, int n1, int n2) {
+Int_t REST_Geant4_ReadNEvents(TString fName, int n1, int n2) {
     TRestRun* run = new TRestRun();
 
     string fname = fName.Data();

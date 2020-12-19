@@ -1,5 +1,4 @@
 #include "TRestRawSignalEvent.h"
-#include "TRestSignalEvent.h"
 #include "TRestTask.h"
 Int_t minTime = 156;
 Int_t maxTime = 159;

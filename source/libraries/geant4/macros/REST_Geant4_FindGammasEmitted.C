@@ -2,8 +2,8 @@
 #include "TRestGeant4Metadata.h"
 #include "TRestTask.h"
 
-#ifndef RestTask_FindGammasEmitted
-#define RestTask_FindGammasEmitted
+#ifndef RestTask_Geant4_FindGammasEmitted
+#define RestTask_Geant4_FindGammasEmitted
 
 //*******************************************************************************************************
 //***
@@ -11,7 +11,7 @@
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
-Int_t REST_FindGammasEmitted(TString fName) {
+Int_t REST_Geant4_FindGammasEmitted(TString fName) {
     cout << "Filename : " << fName << endl;
 
     TRestRun* run = new TRestRun();

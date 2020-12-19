@@ -17,7 +17,7 @@ Double_t radius = 63.0;
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
-Double_t REST_GetROIEvents(TString fName, Double_t mean = 2457.83, Double_t fwhm = 0.03) {
+Double_t REST_Geant4_GetROIEvents(TString fName, Double_t mean = 2457.83, Double_t fwhm = 0.03) {
     Double_t sigma = mean * fwhm / (2 * TMath::Sqrt(2 * TMath::Log(2.)));
 
     cout << "Filename : " << fName << endl;

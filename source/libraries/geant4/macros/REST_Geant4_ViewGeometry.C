@@ -13,7 +13,7 @@ using namespace std;
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
-Int_t REST_ViewGeometry(TString fName, TString option = "") {
+Int_t REST_Geant4_ViewGeometry(TString fName, TString option = "") {
     cout << "Filename : " << fName << endl;
 
     TGeoManager* geo = NULL;
@@ -41,7 +41,8 @@ Int_t REST_ViewGeometry(TString fName, TString option = "") {
     if (option == "") {
         geo->GetMasterVolume()->Draw();
     } else if (ToUpper((string)option) == "EVE") {
-        TRestEventViewer* view = (TRestEventViewer*)REST_Reflection::Assembly("TRestGeant4EventViewer");
+        TRestEventViewer* view =
+            (TRestEventViewer*)REST_Geant4_Reflection::Assembly("TRestGeant4EventViewer");
         if (view == NULL) return -1;
         view->SetGeometry(geo);
         view->AddEvent(new TRestGeant4Event());
@@ -77,7 +78,7 @@ Int_t REST_ViewGeometry(TString fName, TString option = "") {
 // when we run this macro from restManager from bash,
 // we need to call TRestMetadata::GetChar() to prevent returning,
 // while keeping GUI alive.
-#ifdef REST_MANAGER
+#ifdef REST_Geant4_MANAGER
     TRestRun* run = new TRestRun();
     GetChar("Running...\nPress a key to exit");
 #endif
