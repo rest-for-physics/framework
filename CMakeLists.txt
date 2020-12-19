@@ -194,11 +194,17 @@ message("===========================================================")
 message("Check main project README.md to see all available compilation options, packages and libraries")
 message("")
 
-file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h")
+file(GLOB_RECURSE Headers1 "${CMAKE_CURRENT_SOURCE_DIR}/source/events/*.h")
+file(GLOB_RECURSE Headers2 "${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/*.h")
+file(GLOB_RECURSE Headers3 "${CMAKE_CURRENT_SOURCE_DIR}/source/processes/*.h")
+file(GLOB_RECURSE Headers4 "${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/*.h")
+file(GLOB_RECURSE Headers5 "${CMAKE_CURRENT_SOURCE_DIR}/source/tools/*.h")
+set(Headers ${Headers} ${Headers1} ${Headers2} ${Headers3} ${Headers4} ${Headers5} )
 
+install(CODE "execute_process(COMMAND rm -r ${CMAKE_INSTALL_PREFIX})")
+
+#message( STATUS "Headers : ${Headers}" )
 INSTALL(FILES ${Headers} DESTINATION include)
-
-#INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG DESTINATION .)
 
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENCE DESTINATION .)
 
