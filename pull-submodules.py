@@ -13,6 +13,8 @@
 import os
 import subprocess
 
+debug = 1
+
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 
 def main():
@@ -36,11 +38,13 @@ def main():
                      if fullpath.find("packages") >= 0:
                         fullpath = fullpath[fullpath.find("packages"):]
                      p1 = subprocess.run('cd {} && git submodule init {}'.format(root, submodule), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-##                     print ( p1.stdout )
-##print ( p1.stderr )
+                     if( debug ):
+                         print ( p1.stdout )
+                         print ( p1.stderr )
                      p2 = subprocess.run('cd {} && git submodule update {}'.format(root, submodule), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                     ##print ( p2.stdout )
-                     ##print ( p2.stderr )
+                     if( debug ):
+                         print ( p2.stdout )
+                         print ( p2.stderr )
                      errorOutput = p2.stderr.decode("utf-8")
                      if errorOutput.find("failed") == -1:
                         print ( fullpath.rstrip() + "[\033[92m OK \x1b[0m]" )
