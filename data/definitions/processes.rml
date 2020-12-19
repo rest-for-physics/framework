@@ -141,15 +141,15 @@
 
   </TRestSignalToHitsProcess>
 
-  <TRestHitsToTrackProcess name="hitsToTrack" title="" >
+  <TRestDetectorHitsToTrackProcess name="hitsToTrack" title="" >
     <parameter name="clusterDistance" value="6" units="mm" />
-  </TRestHitsToTrackProcess>
+  </TRestDetectorHitsToTrackProcess>
 
-  <TRestFastHitsToTrackProcess name="hitsToTrack" title="" >
+  <TRestDetectorHitsToTrackFastProcess name="hitsToTrack" title="" >
     <parameter name="cellResolution" value="10" units="mm" />
     <parameter name="netSize" value="2000" units="mm" />
     <parameter name="netOrigin" value="(-1000,-1000,-1000)" units="mm" />
-  </TRestFastHitsToTrackProcess>
+  </TRestDetectorHitsToTrackFastProcess>
 
   <TRestHitsShuffleProcess name="hitsShuffle" title="Shuffles the hits" >
     <parameter name="iterations" value="100" />
@@ -277,7 +277,7 @@
     <observable name="TriggerStarts" value="ON" />
   </TRestTriggerAnalysisProcess>
 
-  <TRestFindG4BlobAnalysisProcess name="g4Blob" title="Find blobs in DBD. G4 event">
+  <TRestGeant4BlobAnalysisProcess name="g4Blob" title="Find blobs in DBD. G4 event">
     <observable name="x1" value="ON" />
     <observable name="y1" value="ON" />
     <observable name="z1" value="ON" />
@@ -295,9 +295,9 @@
     <observable name="Q2_R10" value="ON" />
     <observable name="Q2_R15" value="ON" />
     <observable name="Q2_R20" value="ON" />
-  </TRestFindG4BlobAnalysisProcess>
+  </TRestGeant4BlobAnalysisProcess>
 
-  <TRestFindTrackBlobsProcess name="tckBlob" title="Find blobs in the longest track">
+  <TRestTrackBlobAnalysisProcess name="tckBlob" title="Find blobs in the longest track">
     <observable name="x1" value="ON" />
     <observable name="y1" value="ON" />
     <observable name="z1" value="ON" />
@@ -317,9 +317,9 @@
     <observable name="Q2_R20" value="ON" />
 
     <parameter name="hitsToCheckFraction" value="0.25" />
-  </TRestFindTrackBlobsProcess>
+  </TRestTrackBlobAnalysisProcess>
 
-  <TRestSignalZeroSuppresionProcess name="zS" title=""  >
+  <TRestRawZeroSuppresionProcess name="zS" title=""  >
 
     <!-- This parameter is used to define the baseline calculation -->
     <parameter name="baseLineRange" value="(${BL_MIN},${BL_MAX})" />
@@ -333,7 +333,7 @@
     <parameter name="pointThreshold" value="${POINT_TH}" />
     <parameter name="pointsOverThreshold" value="${NPOINTS}" />
     <parameter name="signalThreshold" value="${SGNL_TH}" />
-  </TRestSignalZeroSuppresionProcess>
+  </TRestRawZeroSuppresionProcess>
 
   <TRestRawSignalAnalysisProcess name="sAna" title=""  >
 
@@ -642,8 +642,8 @@
     <parameter name="responseFile" value="AGET_Response_12.5MHz_Gain0x1_Shaping0x4.root" /> //response file to be used to shape the signal
   </TRestSignalShapingProcess>
 
-  <TRestG4toHitsProcess name="G4ToHits" title="G4Hits to Hits process" >
-  </TRestG4toHitsProcess>
+  <TRestGeant4ToHitsProcess name="G4ToHits" title="G4Hits to Hits process" >
+  </TRestGeant4ToHitsProcess>
 
   <bambooToRESTProcess name="bambooToREST" title="A process reading bamboo files" >
 

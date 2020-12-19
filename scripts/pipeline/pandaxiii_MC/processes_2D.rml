@@ -68,9 +68,9 @@
         <parameter name="driftVelocity" value="" />
     </TRestHitsToSignalProcess>
 
-    <TRestHitsToTrackProcess name="ihitsToTrack" title="">
+    <TRestDetectorHitsToTrackProcess name="ihitsToTrack" title="">
         <parameter name="clusterDistance" value="7.5" units="mm" />
-    </TRestHitsToTrackProcess>
+    </TRestDetectorHitsToTrackProcess>
     <TRestDetectorHitsToTrackFastProcess name="hitsToTrack" title="">
         <parameter name="cellResolution" value="7.5" units="mm" />
         <parameter name="netSize" value="1700mm" />
@@ -439,7 +439,7 @@
         <observable name="Qratio_Y_R30" value="ON" />
         <parameter name="hitsToCheckFraction" value="0.25" />
     </TRestFindTrackBlob_Process>
-    <TRestSignalZeroSuppresionProcess name="zS" title="" verboseLevel="silent">
+    <TRestRawZeroSuppresionProcess name="zS" title="" verboseLevel="silent">
         <!-- This parameter is used to define the baseline calculation -->
         <parameter name="baseLineRange" value="(50,120)" />
         <!-- These parameters define the integral with threshold. 
@@ -450,7 +450,7 @@
         <parameter name="pointThreshold" value="1.9" />
         <parameter name="pointsOverThreshold" value="10" />
         <parameter name="signalThreshold" value="2.8" />
-    </TRestSignalZeroSuppresionProcess>
+    </TRestRawZeroSuppresionProcess>
     <TRestRawSignalAnalysisProcess name="sAna" title="" verboseLevel="silent">
         <!-- This parameter defines every how many seconds a signal will be drawn.
          In case the value is zero. There will not be any drawing. -->

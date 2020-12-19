@@ -13,7 +13,7 @@
 
 		<parameter name="eventsToProcess" value="0" />
 
-		<addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON"
+		<addProcess type="TRestRawZeroSuppresionProcess" name="zS" value="ON"
 			baseLineRange="(${BL_MIN},${BL_MAX})"
 			integralRange="(${INT_MIN},${INT_MAX})"
 			pointThreshold="${POINT_TH}"

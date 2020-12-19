@@ -33,12 +33,12 @@
     <parameter name="inputEvent" value="on"/>
     <parameter name="outputEvent" value="on"/>
 
-    <addProcess type="TRestMultiFEMINOSToSignalProcess" name="virtualDAQ" value="ON"/>
+    <addProcess type="TRestRawMultiFEMINOSToSignalProcess" name="virtualDAQ" value="ON"/>
     <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON" file="processes.rml">
       <parameter name="pointThreshold" value="3" />
       <parameter name="pointsOverThreshold" value="3" />
     </addProcess>
-    <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" file="processes.rml"/>
+    <addProcess type="TRestRawZeroSuppresionProcess" name="zS" value="ON" file="processes.rml"/>
 
   </TRestProcessRunner>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
 <!--This file is an example of REST simulation functionality. We process the output root file 
-from restG4, converting its TRestG4Event to TRestSignalEvent. Observables and processes's 
+from restG4, converting its TRestGeant4Event to TRestSignalEvent. Observables and processes's 
 internal values are saved.
 -->
 
@@ -29,7 +29,7 @@ internal values are saved.
     <parameter name="outputEvent" value="on"/>
 
     // observable = all will add all NON `custom` observables 
-    <addProcess type="TRestG4toHitsProcess" name="g4ToHits" value="ON" >
+    <addProcess type="TRestGeant4ToHitsProcess" name="g4ToHits" value="ON" >
     </addProcess>
 
     <addProcess type="TRestHitsAnalysisProcess" name="hitsAna" value="ON" >

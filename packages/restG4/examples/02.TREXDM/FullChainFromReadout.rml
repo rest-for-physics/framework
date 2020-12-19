@@ -31,7 +31,7 @@
         <parameter name="outputFile" value="Run[fRunNumber]_[fRunType]_[fRunTag]_[fRunUser].root" />
     </TRestRun>
 
-    <TRestG4Metadata name="restG4 run"  title="${REST_ISOTOPE}_readout_surface_1um">
+    <TRestGeant4Metadata name="restG4 run"  title="${REST_ISOTOPE}_readout_surface_1um">
 
 		<parameter name="gdml_file" value="geometry/setup.gdml"/>
         <parameter name="maxTargetStepSize" value="${STEP_SIZE}" />
@@ -51,7 +51,7 @@
             <parameter name="energyRange" value="(0,1)" units="GeV" />
             <activeVolume name="gas" chance="1" /> 
         </storage>
-    </TRestG4Metadata>
+    </TRestGeant4Metadata>
 
     <TRestPhysicsLists name="default" file="common/physics.xml" />
 

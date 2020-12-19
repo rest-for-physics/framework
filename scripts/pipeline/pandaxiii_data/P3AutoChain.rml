@@ -29,7 +29,7 @@
     <parameter name="inputEvent" value="off"/>
     <parameter name="outputEvent" value="on"/>
 
-    <addProcess type="TRestMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON"/>
+    <addProcess type="TRestRawMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON"/>
     <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON">
       <parameter name="observable" value="all" />
       /// no need for explicit observable definition if we use "observable=all"
@@ -37,7 +37,7 @@
       <observable name="SecondsFromStart" value="ON" />
       <observable name="ThresholdIntegral" value="ON" />-->
     </addProcess>
-    <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" sampling="0.2us"/> 5MHz sampling
+    <addProcess type="TRestRawZeroSuppresionProcess" name="zS" value="ON" sampling="0.2us"/> 5MHz sampling
 
     <addProcess type="TRestRealTimeDrawingProcess" name="rD" value="ON" drawInterval="1000" >
       <TRestAnalysisPlot name="TriggerRatePlot"  previewPlot="false">

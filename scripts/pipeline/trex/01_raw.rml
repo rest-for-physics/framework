@@ -14,7 +14,7 @@
 
 		<parameter name="eventsToProcess" value="100" />
 
-		<addProcess type="TRestMultiFEMINOSToSignalProcess" name="virtualDAQ" value="ON" verboseLevel="silent">
+		<addProcess type="TRestRawMultiFEMINOSToSignalProcess" name="virtualDAQ" value="ON" verboseLevel="silent">
 			<parameter name="pedScript" value="ped"/>
 			<parameter name="runScript" value="run"/>
 			<parameter name="electronics" value="TCMFeminos"/>
