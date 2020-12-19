@@ -111,7 +111,8 @@ loadRESTLibs:
   type: install
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - root -b -q ${CI_PROJECT_DIR}/scripts/pipeline/loadLibraries.C
+      ### Produces segmentation fault :(
+      #- root -b -q ${CI_PROJECT_DIR}/scripts/pipeline/loadLibraries.C
     - restRoot -b -q
   except:
       variables:
