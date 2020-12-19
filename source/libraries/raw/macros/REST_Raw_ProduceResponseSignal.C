@@ -12,8 +12,8 @@ Int_t maxTime = 159;
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
-Int_t REST_ProduceResponseSignal(TString inputFileName, TString outputFileName, Int_t nPoints = 512,
-                                 Double_t threshold = 1) {
+Int_t REST_Raw_ProduceResponseSignal(TString inputFileName, TString outputFileName, Int_t nPoints = 512,
+                                     Double_t threshold = 1) {
     TRestRun* run = new TRestRun();
     run->OpenInputFile(inputFileName);
 
