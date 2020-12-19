@@ -41,10 +41,14 @@ def main():
                      if( debug ):
                          print ( p1.stdout.decode("utf-8") )
                          print ( p1.stderr.decode("utf-8") )
+                     if ( p1.stdout.decode("utf-8").find("checkout") >= 0 ):
+                         print( p1.stdout.decode("utf-8") )
                      p2 = subprocess.run('cd {} && git submodule update {}'.format(root, submodule), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                      if( debug ):
                          print ( p2.stdout.decode("utf-8") )
                          print ( p2.stderr.decode("utf-8") )
+                     if ( p2.stdout.decode("utf-8").find("checkout") >= 0 ):
+                         print( p2.stdout.decode("utf-8") )
                      errorOutput = p2.stderr.decode("utf-8")
                      if errorOutput.find("failed") == -1:
                         print ( fullpath.rstrip() + "[\033[92m OK \x1b[0m]" )
