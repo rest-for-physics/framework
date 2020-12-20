@@ -1,7 +1,7 @@
 #ifndef RestCore_TRestDataBase
 #define RestCore_TRestDataBase
 
-#include <time.h>
+#include <sys/time.h>
 
 #include <iostream>
 #include <map>
