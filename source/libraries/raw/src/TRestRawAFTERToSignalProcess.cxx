@@ -1,23 +1,55 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
+
+//////////////////////////////////////////////////////////////////////////
+/// The TRestRawAFTERToSignalProcess is a process used to read a binary file
+/// produced by the AFTER electronics, the resulting signal will be registered
+/// inside a TRestRawSignalEvent, and then it processing can continue inside
+/// with the REST framework libraries.
 ///
+/// TODO. This process might be obsolete today. It may need additional revision,
+/// validation, and documentation.
 ///
-///             RESTSoft : Software for Rare Event Searches with TPCs
+/// \warning **⚠ WARNING: REST is under continous development.** This documentation
+/// is offered to you by the REST community. Your HELP is needed to keep this file
+/// up to date. You are very welcome to contribute fixing typos, updating
+/// information or adding new contributions. See also our [Contribution
+/// Guide](https://lfna.unizar.es/rest-development/REST_v2/-/blob/master/CONTRIBUTING.md).
 ///
-///             TRestRawAFTERToSignalProcess.cxx
+///--------------------------------------------------------------------------
 ///
-///             Template to use to design "event process" classes inherited from
-///             TRestRawAFTERToSignalProcess
-///             How to use: replace TRestRawAFTERToSignalProcess by your name,
-///             fill the required functions following instructions and add all
-///             needed additional members and funcionality
+/// RESTsoft - Software for Rare Event Searches with TPCs
 ///
-///             jun 2014:   First concept
-///                 Created as part of the conceptualization of existing REST
-///                 software.
-///                 Igor G. Irastorza
-///_______________________________________________________________________________
+/// History of developments:
+///
+/// 2015-Oct: First implementation as part of the conceptualization of existing
+///			  REST software.
+///           Juanan Garcia
+///
+/// \class      TRestRawAFTERToSignalProcess
+/// \author     Juanan Garcia
+///
+/// <hr>
+///
 
 #include "TRestRawAFTERToSignalProcess.h"
 using namespace std;
@@ -31,29 +63,53 @@ using namespace std;
 
 #define MAX_UNSIGNED_INT 4294967295
 
-ClassImp(TRestRawAFTERToSignalProcess)
-    //______________________________________________________________________________
-    TRestRawAFTERToSignalProcess::TRestRawAFTERToSignalProcess() {
-    Initialize();
-}
+ClassImp(TRestRawAFTERToSignalProcess);
 
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestRawAFTERToSignalProcess::TRestRawAFTERToSignalProcess() { Initialize(); }
+
+///////////////////////////////////////////////
+/// \brief Constructor loading data from a config file
+///
+/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// The default behaviour is that the config file must be specified with
+/// full path, absolute or relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+///
 TRestRawAFTERToSignalProcess::TRestRawAFTERToSignalProcess(char* cfgFileName) { Initialize(); }
 
-//______________________________________________________________________________
-TRestRawAFTERToSignalProcess::~TRestRawAFTERToSignalProcess() {
-    // TRestRawAFTERToSignalProcess destructor
-}
+///////////////////////////////////////////////
+/// \brief Default destructor
+///
+TRestRawAFTERToSignalProcess::~TRestRawAFTERToSignalProcess() {}
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Function to initialize input/output event members and define the
+/// section name
+///
+/// In this case we re-use the initialization of TRestRawToSignalProcess
+/// interface class.
+///
 void TRestRawAFTERToSignalProcess::Initialize() {
     TRestRawToSignalProcess::Initialize();
-    // this->SetVerboseLevel(REST_Debug);
 
     prevTime = 0;
     reducedTime = 0;
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Process initialization.
+///
+/// TODO It should adopt standard way to retrieve data from filename
+/// and fill/update a TRestDetector metadata class. See for example
+/// TRestRawMultiFEMINOSToSignalProcess.
+///
 void TRestRawAFTERToSignalProcess::InitProcess() {
     // Binary file header
 
@@ -74,7 +130,9 @@ void TRestRawAFTERToSignalProcess::InitProcess() {
     // Timestamp of the run
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief The main processing event function
+///
 TRestEvent* TRestRawAFTERToSignalProcess::ProcessEvent(TRestEvent* evInput) {
     EventHeader head;
     DataPacketHeader pHeader;
