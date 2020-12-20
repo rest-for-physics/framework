@@ -14,7 +14,7 @@ very important for running processes later on. Generate it by typing :
 
 `restManager --c saveMetadata.rml --o meta.root`
 
-This command will make REST to save two TRestGas classes and one TRestReadout class to the file 
+This command will make REST to save two TRestGas classes and one TRestDetectorReadout class to the file 
 "meta.root", which will be used in the later data analysis work. The content of gas and readout 
 definition can be observed the rml file. Later we will explain what it did. 
 
@@ -161,7 +161,7 @@ definitions, where many elements may need to be added to an existing array in
 our metadata structure. The use of for loops allows to introduce more
 versatil and extense definitions. Its implementation was fundamentally triggered 
 by its use in the construction of complex, multi-channel generic readouts by
-TRestReadout.
+TRestDetectorReadout.
 
 The for loop definition is as follows, where *pitch* and *nChannels* are previously 
 defined myParameters, and *nCh* and *nPix* are the *for* loop iteration variables.
@@ -187,7 +187,7 @@ We can add `<if` sections to make rml to respond differently under different sys
 attribute must be added in the if section. REST will parse the condition formula. If matches, the child 
 sections inside if section will be seen. For example:  
 `<if condition="${HOME}==/home/nkx">`  
-&emsp;`<addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" file="processes.rml"/>`  
+&emsp;`<addProcess type="TRestRawZeroSuppresionProcess" name="zS" value="ON" file="processes.rml"/>`  
 `</if>`  
 Here ${HOME} is a variable and will be replaced first under variable logic. So REST is just comparing two 
 strings, only if the home directly is "/home/nkx", the `<addProcess` section is valid. Sometimes we need 
@@ -220,8 +220,8 @@ transmission. So we are adding TRestRun class inside TRestManager class. Lets se
 `<TRestRun name="readoutrun">`  
 &emsp;`<TRestGas ... file="XXX" />`  
 &emsp;`<TRestGas ... file="XXX" />`  
-&emsp;`<TRestReadout ... file="XXX" />`  
-&emsp;`<TRestReadout ...>`   
+&emsp;`<TRestDetectorReadout ... file="XXX" />`  
+&emsp;`<TRestDetectorReadout ...>`   
 &emsp;&emsp;`(some parameters)`  
 &emsp;&emsp;`<readoutModule ... file="XXX"/>`  
 &emsp;&emsp;`<readoutPlane ...>`  
@@ -230,13 +230,13 @@ transmission. So we are adding TRestRun class inside TRestManager class. Lets se
 &emsp;&emsp;&emsp;`<addReadoutModule .../>`  
 &emsp;&emsp;&emsp;`...`  
 &emsp;&emsp;`</readoutPlane ...>`  
-&emsp;`</TRestReadout>`  
+&emsp;`</TRestDetectorReadout>`  
 `</TRestRun>`  
 
-Its comprehensive that we are adding two TRestGas classes and two TRestReadout classes inside TRestRun class. 
+Its comprehensive that we are adding two TRestGas classes and two TRestDetectorReadout classes inside TRestRun class. 
 The first three objects are using include definitions since they have a "file" attribute. In the last 
-TRestReadout section, we first define a readout module template from external include file. Then we add the
-pieces onto a readout plane. All together they form an one-plane readout system. This TRestReadout class is
+TRestDetectorReadout section, we first define a readout module template from external include file. Then we add the
+pieces onto a readout plane. All together they form an one-plane readout system. This TRestDetectorReadout class is
 also saved to TRestRun class.
 
 Previous work is done within the initialization of these classes. Now these classes are ready and we need 

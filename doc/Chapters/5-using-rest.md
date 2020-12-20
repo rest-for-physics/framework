@@ -114,10 +114,10 @@ as it is faster. One can spend some time generate definition files for the detec
 it again.
 
 TRestRun supports sequential startup to generate new metadata. We add a full definition of the
-class TRestReadout as an example: 
+class TRestDetectorReadout as an example: 
 
 `<TRestRun ...>`  
-&emsp;`<TRestReadout ...>`  
+&emsp;`<TRestDetectorReadout ...>`  
 &emsp;&emsp;`<readoutModule .../>`  
 &emsp;&emsp;`<readoutPlane ...>`  
 &emsp;&emsp;&emsp;`<addReadoutModule .../>`  
@@ -125,12 +125,12 @@ class TRestReadout as an example:
 &emsp;&emsp;&emsp;`<addReadoutModule .../>`  
 &emsp;&emsp;&emsp;`...`  
 &emsp;&emsp;`</readoutPlane ...>`  
-&emsp;`</TRestReadout>`  
+&emsp;`</TRestDetectorReadout>`  
 `</TRestRun>` 
 
-In this case, TRestRun will give the <TRestReadout section to a new TRestReadout instance, and calls its method
-`LoadConfigFromFile()`. In this method, TRestReadout will initialize the readout structure according to the given
-rml section. After this, the new metadata TRestReadout is prepared and stored. It will be ready to use by the 
+In this case, TRestRun will give the <TRestDetectorReadout section to a new TRestDetectorReadout instance, and calls its method
+`LoadConfigFromFile()`. In this method, TRestDetectorReadout will initialize the readout structure according to the given
+rml section. After this, the new metadata TRestDetectorReadout is prepared and stored. It will be ready to use by the 
 processes.
 
 #### adding process and its observables
@@ -340,7 +340,7 @@ parameters used by `TRestRawSignalAnalysisProcess` (here named "sAna") at that t
 information.
 
 Finally, REST allows processes to save some ROOT analysis objects in the file. Here the TH1D
-"ChannelActivity_M3" is saved by the process "rA" (of type TRestReadoutAnalysisProcess). We can 
+"ChannelActivity_M3" is saved by the process "rA" (of type TRestRawReadoutAnalysisProcess). We can 
 directly draw it.
 
 ### Browsing and viewing events
@@ -358,7 +358,7 @@ and will be free to operate this event.
 
 By default TRestBrowser extracts the last event in file, and draws it in the canvas by using the viewer
 class TRestGenericEventViewer. This viewer just calls the default method TRestEvent::Draw(). Other viewers
-like TRestHitsEventViewer or TRestG4EventViewer are also available. Some pre-defined bash alias and ROOT 
+like TRestHitsEventViewer or TRestGeant4EventViewer are also available. Some pre-defined bash alias and ROOT 
 scripts can be used to draw these events in differently. In bash, we can directly start a event viewer 
 window with commands: "restViewEvents abc.root", "restManager ViewHitsEvents hits.root". In restRoot 
 prompt, we can call the function: "REST_ViewEvents("abc.root")" to start the event viewer.

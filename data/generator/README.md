@@ -1,6 +1,6 @@
 The following directory contains data files that can be used by restG4 as an external generator. Decay0 files include event energies and momentum distributions for the different particle types produced in each event.
 
-They should be included in the `generator` definition in the `TRestG4Metadata` section as follows
+They should be included in the `generator` definition in the `TRestGeant4Metadata` section as follows
 
 ```
 <generator type="volume" from="gasVolume" >

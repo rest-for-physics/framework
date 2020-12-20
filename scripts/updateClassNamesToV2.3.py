@@ -14,16 +14,18 @@ pathToUpdate = ""
 
 print 
 
-if( narg <= 1):
+if( narg <= 2):
     print( "\n" )
-    print( "Please provide an input file (RML)" )
-    print( "Usage: python3.5 updateRMLsToV2.3.py RELATIVE_ROOT_PATH\n" )
+    print( "Please provide a PATH and an EXTENSION filename)" )
+    print( "Usage: python3.5 updateRMLsToV2.3.py RELATIVE_ROOT_PATH EXTENSION[rml,md,...]\n" )
     sys.exit(1)
-for x in range(narg-1):
-	pathToUpdate = sys.argv[x+1]
+
+pathToUpdate = sys.argv[1]
+extension = sys.argv[2]
 
 print ( "Path: " + pathToUpdate )
-allRMLs = glob.glob(pathToUpdate+'/**/*rml', recursive = True)
+print ( "Extension: " + extension )
+allRMLs = glob.glob(pathToUpdate+'/**/*'+extension, recursive = True)
 
 f=open(os.getenv("REST_SOURCE") + "/renamed.classes","r")
 lines=f.readlines()

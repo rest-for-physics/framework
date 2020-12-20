@@ -203,21 +203,21 @@ Derived class can have the same start up strategy defined in TRestMetadata. The 
 InitFromConfigFile() needs to be called manually after or in the constructor. For example:
 
 // in constructor  
-`TRestReadout::TRestReadout( const char *cfgFileName, string name) : TRestMetadata (cfgFileName){`  
+`TRestDetectorReadout::TRestDetectorReadout( const char *cfgFileName, string name) : TRestMetadata (cfgFileName){`  
 &emsp;`cout << "Loading readout. This might take few seconds" << endl;`  
 &emsp;`Initialize();`  
 &emsp;`LoadConfigFromFile( fConfigFileName, name );`  
 `}`  
 
 `int main(){`  
-&emsp;`TRestReadout*readout=new TRestReadout("readout.rml","strippedReadout");`  
+&emsp;`TRestDetectorReadout*readout=new TRestDetectorReadout("readout.rml","strippedReadout");`  
 &emsp;`...`  
 `}`  
 
 or  
 // after constructor  
 `int main(){`  
-&emsp;`TRestReadout*readout=new TRestReadout();`  
+&emsp;`TRestDetectorReadout*readout=new TRestDetectorReadout();`  
 &emsp;`readout->LoadConfigFromFile("readout.rml");`  
 &emsp;`...`  
 `}`  
@@ -426,9 +426,9 @@ TCanvas*                      | fCanvas            | A TCanvas object for drawin
 
 We also implemented a series of methods GetXXXMetadata(). For example to get the data of readout definition,
 we can simply use  
-`fReadout = (TRestReadout*)GetReadoutMetadata();`  
+`fReadout = (TRestDetectorReadout*)GetReadoutMetadata();`  
 in the class's method funciton. The alternative call is:  
-`fReadout = (TRestReadout*)fRunInfo->GetMetadata("TRestReadout")`
+`fReadout = (TRestDetectorReadout*)fRunInfo->GetMetadata("TRestDetectorReadout")`
 
 
 [**prev**](6-some-metadata-classes.md)

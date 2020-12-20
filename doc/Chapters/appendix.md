@@ -10,17 +10,17 @@ We list here the different event data processes implemented in REST together wit
 These processes are in charged of transforming data between different basic data types in REST. 
 
 As soon as we transform one data type to another we can make use of the dedicated data type processes. For example, 
-if we have a geant4 event (TRestG4Event), we may transform it to a basic hits event (TRestHitsEvent) and continue 
+if we have a geant4 event (TRestGeant4Event), we may transform it to a basic hits event (TRestHitsEvent) and continue 
 processing the event using the basic *hit processes*.
 
 REST process | Input type | Output type | Description
 -------------|------------|-------------|------------
 TRestRawSignalToSignalProcess               | TRestRawSignal    | TRestSignalEvent  | Transforms a rawsignal into a signal event.
-TRestSignalToHitsProcess                    | TRestSignalEvent  | TRestHitsEvent    | Converts a signal event into a hits event using TRestReadout.
-TRestHitsToSignalProcess                    | TRestHitsEvent    | TRestSignalEvent  | Transforms a HitsEvent into SignalEvent using TRestReadout.
-TRestHitsToTrackProcess                     | TRestHitsEvent    | TRestTrackEvent   | Hit clusterization into tracks by proximity (Accurate).
-TRestFastHitsToTrackProcess                 | TRestHitsEvent    | TRestTrackEvent   | Hit clusterization into tracks by proximity (Aproximation).
-TRestG4toHitsProcess                        | TRestG4Event      | TRestHitsEvent    | Transforms a geant4 event into a hits event.
+TRestSignalToHitsProcess                    | TRestSignalEvent  | TRestHitsEvent    | Converts a signal event into a hits event using TRestDetectorReadout.
+TRestHitsToSignalProcess                    | TRestHitsEvent    | TRestSignalEvent  | Transforms a HitsEvent into SignalEvent using TRestDetectorReadout.
+TRestDetectorHitsToTrackProcess                     | TRestHitsEvent    | TRestTrackEvent   | Hit clusterization into tracks by proximity (Accurate).
+TRestDetectorHitsToTrackFastProcess                 | TRestHitsEvent    | TRestTrackEvent   | Hit clusterization into tracks by proximity (Aproximation).
+TRestGeant4ToHitsProcess                        | TRestGeant4Event      | TRestHitsEvent    | Transforms a geant4 event into a hits event.
 
 #### Analysis processes
 
@@ -33,10 +33,10 @@ REST process | Input type | Output type | Description
 -------------|------------|-------------|------------
 TRestRawSignalAnalysisProcess               | TRestRawSignal    | TRestRawSignal    | Adds analysis observables from raw signal event.
 TRestHitsAnalysisProcess                    | TRestHitsEvent    | TRestHitsEvent    | Adds analysis observables from hits event.
-TRestGeant4AnalysisProcess                  | TRestG4Event      | TRestG4Event      | Adds analysis observables from a geant4 event.
+TRestGeant4AnalysisProcess                  | TRestGeant4Event      | TRestGeant4Event      | Adds analysis observables from a geant4 event.
 TRestTrackAnalysisProcess                   | TRestTrackEvent   | TRestTrackEvent   | Adds analysis observables from a track event.
 TRestTriggerAnalysisProcess                 | TRestSignalEvent  | TRestSignalEvent  | Applies cuts using time window and energy threshold trigger definition.
-TRestFindG4BlobAnalysisProcess              | TRestG4Event      | TRestG4Event      | Finds the electron end blobs in a TRestG4Event. For events with at least 2-electron tracks.
+TRestGeant4BlobAnalysisProcess              | TRestGeant4Event      | TRestGeant4Event      | Finds the electron end blobs in a TRestGeant4Event. For events with at least 2-electron tracks.
 
 #### Signal processes
 
@@ -50,8 +50,8 @@ TRestAddSignalNoiseProcess                  | TRestSignalEvent      | TRestSigna
 TRestSignalDeconvolutionProcess             | TRestSignalEvent      | TRestSignalEvent  | Deconvolutes a signal using a given input response signal.
 TRestSignalGaussianConvolutionProcess       | TRestSignalEvent      | TRestSignalEvent  | Convolutes the input signal with a gaussian.
 TRestSignalShapingProcess                   | TRestSignalEvent      | TRestSignalEvent  | Shapes the input signal with a given input response signal.
-TRestFindResponseSignalProcess              | TRestSignalEvent      | TRestSignalEvent  | Selects clean signals from input to be used as response for deconvolution.
-TRestSignalZeroSuppresionProcess            | TRestRawSignalEvent   | TRestSignalEvent  | Keeps only points which are found over threshold.
+TRestRawFindResponseSignalProcess              | TRestSignalEvent      | TRestSignalEvent  | Selects clean signals from input to be used as response for deconvolution.
+TRestRawZeroSuppresionProcess            | TRestRawSignalEvent   | TRestSignalEvent  | Keeps only points which are found over threshold.
 
 #### Hit processes
 
@@ -61,7 +61,7 @@ number using merging algorithms.
 
 REST process | Input type | Output type | Description
 -------------|------------|-------------|------------
-TRestElectronDiffusionProcess               | TRestHitsEvent        | TRestHitsEvent    | Spatially diffuses input hits using gas properties defined in TRestGas and the active TPC volume/geometry defined in TRestReadout.
+TRestElectronDiffusionProcess               | TRestHitsEvent        | TRestHitsEvent    | Spatially diffuses input hits using gas properties defined in TRestGas and the active TPC volume/geometry defined in TRestDetectorReadout.
 TRestFiducializationProcess                 | TRestHitsEvent        | TRestHitsEvent    | Only hits inside readout active volume definition survive.
 TRestAvalancheProcess                       | TRestHitsEvent        | TRestHitsEvent    | Statistical gain increase per hit.
 TRestHitsNormalizationProcess               | TRestHitsEvent        | TRestHitsEvent    | Re-scales the hits energy by a constant factor.
@@ -78,12 +78,12 @@ ends, or project the hits over the main trajectory effectively linearizing the t
 
 REST process | Input type | Output type | Description
 -------------|------------|-------------|------------
-TRestFindTrackBlobsProcess                  | TRestTrackEvent       | TRestTrackEvent       | Finds the track end blobs in a TrackEvent .Tracks should have been pre-processed with path minimization and reconnection processes.
+TRestTrackBlobAnalysisProcess                  | TRestTrackEvent       | TRestTrackEvent       | Finds the track end blobs in a TrackEvent .Tracks should have been pre-processed with path minimization and reconnection processes.
 TRestTrackLinearizationProcess              | TRestTrackEvent       | TRestLinearTrackEvent | Projects the hits into the track to get dE/dx profile.
 TRestTrackPathMinimizationProcess           | TRestTrackEvent       | TRestTrackEvent       | Finds the minimum path between hits inside each track.
 TRestTrackReconnectionProcess               | TRestTrackEvent       | TRestTrackEvent       | Improves physical track description after track minimization.
 TRestTrackReductionProcess                  | TRestTrackEvent       | TRestTrackEvent       | Reduces the number of hits inside a track by merging closer hits.
-TRestTrackToHitsProcess                     | TRestTrackEvent       | TRestHitsEvent        | It recovers back a track event into a hits event.
+TRestTrackToDetectorHitsProcess                     | TRestTrackEvent       | TRestHitsEvent        | It recovers back a track event into a hits event.
 
 #### Rawdata processes
 
@@ -93,11 +93,11 @@ TRestRawSignalEvent.
 REST process | Input type | Output type | Description
 -------------|------------|-------------|------------
 TRestRawToSignalProcess                     | rawdata               | TRestRawSignalEvent   | Used to encapsulate rawdata to signal processes.
-TRestAFTERToSignalProcess                   | rawdata               | TRestRawSignalEvent   | Transforms AFTER data into raw signal event.
+TRestRawAFTERToSignalProcess                   | rawdata               | TRestRawSignalEvent   | Transforms AFTER data into raw signal event.
 TRestCoBoAsAdToSignalProcess                | rawdata               | TRestRawSignalEvent   | Transforms CoBoAsAd data into raw signal event.
-TRestMultiCoBoAsAdToSignalProcess           | rawdata               | TRestRawSignalEvent   | Transforms CoBoAsAd data into raw signal event. General version using several CoBoAsAd cards. Event data might be splitted between different data files. The process receives a list of all the files in a given run.
+TRestRawMultiCoBoAsAdToSignalProcess           | rawdata               | TRestRawSignalEvent   | Transforms CoBoAsAd data into raw signal event. General version using several CoBoAsAd cards. Event data might be splitted between different data files. The process receives a list of all the files in a given run.
 TRestFEMINOSToSignalProcess                 | rawdata               | TRestRawSignalEvent        | Transforms FEMINOS data into SignalEvent.
-TRestMultiFEMINOSToSignalProcess            | rawdata               | TRestRawSignalEvent        | Transforms FEMINOS data into SignalEvent.  General version using several Feminos cards. Full event data is containned in one single file.
+TRestRawMultiFEMINOSToSignalProcess            | rawdata               | TRestRawSignalEvent        | Transforms FEMINOS data into SignalEvent.  General version using several Feminos cards. Full event data is containned in one single file.
 
 #### Viewer processes
 
@@ -135,11 +135,11 @@ REST_General_IntegrateSmearing() |  |  Integrates with smearing a given observab
 Function name  |Input arguments | Description
 ------------|-------------|------------
 REST_Viewer_GenericEvents() | TString fName<br>TString EventType = "" | Shows a TRestBrowser which visualizes events in file by calling TRestGenericEventViewer
-REST_Viewer_G4Event() | TString fName |  Shows a TRestBrowser which visualizes TRestG4Event by calling TRestG4EventViewer
+REST_Viewer_G4Event() | TString fName |  Shows a TRestBrowser which visualizes TRestGeant4Event by calling TRestGeant4EventViewer
 REST_Viewer_Geometry() | TString fName |  Shows Geometry info saved in the given file by calling TGeoManager
 REST_Viewer_HitsEvent() | TString fName |  Shows a TRestBrowser which visualizes TRestHitsEvent by calling TRestHitsEventViewer
-REST_Viewer_Readout() | TString rootFile<br>TString name<br>Int_t plane = 0 |  Draw a figure of readout definition according to the save TRestReadout object in the file
-REST_Viewer_ReadoutEvent() | TString fName<br>TString cfgFilename = "template/config.rml"  | Shows a TRestBrowser which visualizes TRestReadoutEvent by calling TRestReadoutEventViewer
+REST_Viewer_Readout() | TString rootFile<br>TString name<br>Int_t plane = 0 |  Draw a figure of readout definition according to the save TRestDetectorReadout object in the file
+REST_Viewer_ReadoutEvent() | TString fName<br>TString cfgFilename = "template/config.rml"  | Shows a TRestBrowser which visualizes TRestDetectorReadoutEvent by calling TRestDetectorReadoutEventViewer
 
 #### printer macros
 
@@ -168,7 +168,7 @@ REST_Geant4_ReadNEvents() | TString fName<br>int n1<br>int n2 |
 
 Function name  |Input arguments | Description
 ------------|-------------|------------
-REST_Tools_CheckReadout()   | TRestReadoutPlane *p<br>Int_t mask[4]<br>Double_t region[4]<br>Int_t N | 
+REST_Tools_CheckReadout()   | TRestDetectorReadoutPlane *p<br>Int_t mask[4]<br>Double_t region[4]<br>Int_t N | 
 REST_Tools_CheckRunFileList() | TString namePattern<br>Int_t N = 100000 |  
 REST_Tools_DrawCombinedGasCurves() | / |  
 REST_Tools_DrawResponseSignal() | TString fName |  
@@ -190,7 +190,7 @@ The directory contains pre-generated data which may be used in analysis/simulait
 #### decoding
 
 Contains several decoding files for electronics. The first line is the daq channel, the section line is
-the channel in TRestReadout. For example, for each AGET chip, we have 68 channels. One MicroMegas needs
+the channel in TRestDetectorReadout. For example, for each AGET chip, we have 68 channels. One MicroMegas needs
 two AGET chips. Their 136 channels are connected with 128 MicroMegas channels with certain mapping. So 
 we need decoding file to process readout file. 
 
@@ -468,10 +468,10 @@ We can directly copy the pointer, thanks to the test run strategy adpoted.
 1. embeded into TBrowser.
 2. TRestEventViewer is allowed to customize control bar
 
-##### Changed class: TRestReadout
+##### Changed class: TRestDetectorReadout
 1. Add operator [] in each class, which uses "Index" (fReadoutChannel[i])
 2. add a method GetHitsDaqChannel(), GetPlaneModuleChannel(), GetXXXWithID(), GetX(), GetY()
-3. add channel type definition in TRestReadoutChannel. This is for the convenience of GetX(), GetY() method
+3. add channel type definition in TRestDetectorReadoutChannel. This is for the convenience of GetX(), GetY() method
 
 ##### Changed class: TRestGas
 1. it saves garfield's gas file as string inside its class menber. This string will be saved inside metadata file.
@@ -480,7 +480,7 @@ We can directly copy the pointer, thanks to the test run strategy adpoted.
 
 ##### Changed processes
 1. TRestRawSignalAnalysisProcess: added several non-double analysis output
-2. TRestSignalZeroSuppresionProcess: added baseline subtraction correction for previous 
+2. TRestRawZeroSuppresionProcess: added baseline subtraction correction for previous 
 TRestRawSignalAnalysisProcess
 3. Update the cut definition in TRestTrackAnalysisProcess and TRestRawSignalAnalysisProcess
 
@@ -495,11 +495,11 @@ e.g.
 `<parameter name="meanBaseLineSigmaCutRange" value="(0,6)" />`
 
 4. Add processes: TRest2DHitsEvent, TRestRawSignalTo2DHitsProcess, TRestMuonAnalysisProcess, 
-TRestReadoutAnalysisProcess, TRestUSTCElectronicsProcess
+TRestRawReadoutAnalysisProcess, TRestRawUSTCToSignalProcess
 5. Multiple processes will now transfer event info
-6. TRestMultiCoBoAsAdToSignalProcess: added package-loss handling
+6. TRestRawMultiCoBoAsAdToSignalProcess: added package-loss handling
 7. TRestSignalToHitsProcess: fix a bug in triple max method
-8. TRestHitsToSignalProcess: simplified the code using new TRestReadout method
+8. TRestHitsToSignalProcess: simplified the code using new TRestDetectorReadout method
 9. TRestHitsShuffleProcess: fix a bug when nHits is too small
 
 
