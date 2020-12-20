@@ -11,28 +11,32 @@ add_subdirectory(events)
 add_subdirectory(processes)
 add_subdirectory(../macros tasks.out)
 
+## There is a problem with this variable because if used it is cached.
+## And then there is no option to enable all but one library
+## We need a system that enables all RESTLIB_ but it is just valid on 
+## the cmake session we are running
 IF( DEFINED REST_ALL_LIBS )
 	if (${REST_ALL_LIBS} MATCHES "ON")
 		set(REST_ALL_LIBS ON)
 	endif (${REST_ALL_LIBS} MATCHES "ON")
-		set(REST_GEANT4_LIB ON)
-		set(REST_RAW_LIB ON)
-		set(REST_TRACK_LIB ON)
-		set(REST_AXION_LIB ON)
-		set(REST_MODEL_LIB ON)
+		set(RESTLIB_GEANT4 ON)
+		set(RESTLIB_RAW ON)
+		set(RESTLIB_TRACK ON)
+		set(RESTLIB_AXION ON)
+		set(RESTLIB_MODEL ON)
 ENDIF ()
 
 ########################################## Geant4 library ###################################
-IF( NOT DEFINED REST_GEANT4_LIB )
-	set(REST_GEANT4_LIB OFF)
+IF( NOT DEFINED RESTLIB_GEANT4 )
+	set(RESTLIB_GEANT4 OFF)
 
 	# If restG4 package was enabled we need RestGeant4Lib
 	if (${REST_G4} MATCHES "ON")
-		set(REST_GEANT4_LIB ON)
+		set(RESTLIB_GEANT4 ON)
 	endif (${REST_G4} MATCHES "ON")
 ENDIF ()
 
-if (${REST_GEANT4_LIB} MATCHES "ON")
+if (${RESTLIB_GEANT4} MATCHES "ON")
 	add_definitions(-DREST_Geant4Lib)
 	add_subdirectory(libraries/geant4)
 	list( APPEND rest_libs_index "RestGeant4" )
@@ -44,14 +48,14 @@ if (${REST_GEANT4_LIB} MATCHES "ON")
 
 	file(GLOB_RECURSE libHeaders "libraries/geant4/inc/*.h")
 	set(restlibHeaders ${restlibHeaders} ${libHeaders} )
-endif (${REST_GEANT4_LIB} MATCHES "ON")
+endif (${RESTLIB_GEANT4} MATCHES "ON")
 
 ########################################## Track library ###################################
-IF( NOT DEFINED REST_TRACK_LIB )
-	set(REST_TRACK_LIB OFF)
+IF( NOT DEFINED RESTLIB_TRACK )
+	set(RESTLIB_TRACK OFF)
 ENDIF ()
 
-if (${REST_TRACK_LIB} MATCHES "ON")
+if (${RESTLIB_TRACK} MATCHES "ON")
 	add_definitions(-DREST_TrackLib)
 	add_subdirectory(libraries/track)
 	list( APPEND rest_libs_index "RestTrack" )
@@ -59,14 +63,14 @@ if (${REST_TRACK_LIB} MATCHES "ON")
 	file(GLOB_RECURSE libHeaders "libraries/track/inc/*.h")
 	set(restlibHeaders ${restlibHeaders} ${libHeaders} )
 
-endif (${REST_TRACK_LIB} MATCHES "ON")
+endif (${RESTLIB_TRACK} MATCHES "ON")
 
 ########################################## Axion library ###################################
-IF( NOT DEFINED REST_AXION_LIB )
-	set(REST_AXION_LIB OFF)
+IF( NOT DEFINED RESTLIB_AXION )
+	set(RESTLIB_AXION OFF)
 ENDIF ()
 
-if (${REST_AXION_LIB} MATCHES "ON")
+if (${RESTLIB_AXION} MATCHES "ON")
 	add_definitions(-DREST_AxionLib)
 	add_subdirectory(libraries/axion)
 	list( APPEND rest_libs_index "RestAxion" )
@@ -78,14 +82,14 @@ if (${REST_AXION_LIB} MATCHES "ON")
 		DESTINATION ./data/axion/
 		COMPONENT install
 		)
-endif (${REST_AXION_LIB} MATCHES "ON")
+endif (${RESTLIB_AXION} MATCHES "ON")
 
 ########################################## Raw library ###################################
-IF( NOT DEFINED REST_RAW_LIB )
-	set(REST_RAW_LIB OFF)
+IF( NOT DEFINED RESTLIB_RAW )
+	set(RESTLIB_RAW OFF)
 ENDIF ()
 
-if (${REST_RAW_LIB} MATCHES "ON")
+if (${RESTLIB_RAW} MATCHES "ON")
 	add_definitions(-DREST_RawLib)
 	add_subdirectory(libraries/raw)
 	list( APPEND rest_libs_index "RestRaw" )
@@ -97,14 +101,14 @@ if (${REST_RAW_LIB} MATCHES "ON")
 
 	file(GLOB_RECURSE libHeaders "libraries/raw/inc/*.h")
 	set(restlibHeaders ${restlibHeaders} ${libHeaders} )
-endif (${REST_RAW_LIB} MATCHES "ON")
+endif (${RESTLIB_RAW} MATCHES "ON")
 
 ########################################## Model library ###################################
-IF( NOT DEFINED REST_MODEL_LIB )
-	set(REST_MODEL_LIB OFF)
+IF( NOT DEFINED RESTLIB_MODEL )
+	set(RESTLIB_MODEL OFF)
 ENDIF ()
 
-if (${REST_MODEL_LIB} MATCHES "ON")
+if (${RESTLIB_MODEL} MATCHES "ON")
 	add_definitions(-DREST_ModelLib)
 	add_subdirectory(libraries/model)
 	list( APPEND rest_libs_index "RestModel" )
@@ -116,7 +120,7 @@ if (${REST_MODEL_LIB} MATCHES "ON")
 		DESTINATION ./macros/model/
 		COMPONENT install
 		)
-endif (${REST_MODEL_LIB} MATCHES "ON")
+endif (${RESTLIB_MODEL} MATCHES "ON")
 
 #### This must be placed after all targets!!!
 set(rest_include_dirs ${local_include_dirs})

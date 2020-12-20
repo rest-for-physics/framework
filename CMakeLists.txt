@@ -85,9 +85,9 @@ else ()
     set(REST_GARFIELD OFF)
 endif (${REST_GARFIELD} MATCHES "ON")
 
-if (${REST_RAW_LIB} MATCHES "ON")
+if (${RESTLIB_RAW} MATCHES "ON")
     set(external_include_dirs ${external_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/source/libraries/raw/inc)
-endif (${REST_RAW_LIB} MATCHES "ON")
+endif (${RESTLIB_RAW} MATCHES "ON")
 
 #this is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProccess.
 IF (NOT DEFINED SQL)
@@ -95,14 +95,14 @@ IF (NOT DEFINED SQL)
 ENDIF ()
 
 #switch to enable ROOT Eve functionality.
-IF( NOT DEFINED REST_MODEL_LIB)
-	set(REST_MODEL_LIB OFF)
+IF( NOT DEFINED RESTLIB_MODEL)
+	set(RESTLIB_MODEL OFF)
 ENDIF()
 
-if (${REST_MODEL_LIB} MATCHES "ON")
+if (${RESTLIB_MODEL} MATCHES "ON")
 	set(external_libs "${external_libs} -lRooFitCore -lRooFit -lRooStats")
 	message( STATUS "Adding RooFit and RooFitCore libraries" )
-endif (${REST_MODEL_LIB} MATCHES "ON")
+endif (${RESTLIB_MODEL} MATCHES "ON")
 
 
 #find mysql libs and includes
