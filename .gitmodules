@@ -31,3 +31,6 @@
 [submodule "projects/iaxo-geometry"]
 	path = projects/iaxo-geometry
 	url = git@lfna.unizar.es:iaxo/iaxo-geometry.git
+[submodule "projects/iaxo-readouts"]
+	path = projects/iaxo-readouts
+	url = git@lfna.unizar.es:iaxo/iaxo-readouts.git
