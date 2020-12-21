@@ -1,4 +1,4 @@
-set(contents tsp)
+set(contents . tsp)
 
 file(GLOB_RECURSE addon_src
     "trackMinimization.c"
