@@ -22,3 +22,6 @@
 [submodule "projects/trexdm-geometry"]
 	path = projects/trexdm-geometry
 	url = git@lfna.unizar.es:gifna/trexdm-geometry.git
+[submodule "projects/trexdm-quickana"]
+	path = projects/trexdm-quickana
+	url = git@lfna.unizar.es:gifna/trexdm-quickana.git
