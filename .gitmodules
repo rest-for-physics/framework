@@ -13,3 +13,6 @@
 [submodule "source/libraries/model"]
 	path = source/libraries/model
 	url = git@lfna.unizar.es:gifna/RestModelLib.git
+[submodule "projects/trexdm-simulations"]
+	path = projects/trexdm-simulations
+	url = git@lfna.unizar.es:gifna/trexdm-simulations.git
