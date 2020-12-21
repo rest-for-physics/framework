@@ -16,3 +16,6 @@
 [submodule "projects/trexdm-simulations"]
 	path = projects/trexdm-simulations
 	url = git@lfna.unizar.es:gifna/trexdm-simulations.git
+[submodule "projects/trexdm-readouts"]
+	path = projects/trexdm-readouts
+	url = git@lfna.unizar.es:gifna/trexdm-readouts.git
