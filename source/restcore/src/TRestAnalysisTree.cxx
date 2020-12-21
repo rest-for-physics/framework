@@ -99,8 +99,15 @@ void TRestAnalysisTree::Initialize() {
 }
 
 Int_t TRestAnalysisTree::GetObservableID(TString obsName) {
-    if (!ObservableExists(obsName)) return -1;
-    return fObservableIdMap[obsName];
+    if (fObservableIdMap.size() == 0 && fObservableNames.size() > 0) MakeObservableIdMap();
+    auto iter = fObservableIdMap.find(obsName);
+    if (iter != fObservableIdMap.end()) {
+        return iter->second;
+    } else {
+        return -1;
+    }
+    //if (!ObservableExists(obsName)) return -1;
+    //return fObservableIdMap[obsName];
 }
 
 Bool_t TRestAnalysisTree::ObservableExists(TString obsName) {
