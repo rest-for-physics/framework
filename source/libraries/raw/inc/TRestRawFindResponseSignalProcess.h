@@ -33,8 +33,6 @@ class TRestRawFindResponseSignalProcess : public TRestEventProcess {
     TRestRawSignalEvent* fInputSignalEvent;   //!
     TRestRawSignalEvent* fOutputSignalEvent;  //!
 
-    void InitFromConfigFile();
-
     void Initialize();
 
     void LoadDefaultConfig();
