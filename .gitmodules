@@ -25,3 +25,6 @@
 [submodule "projects/trexdm-quickana"]
 	path = projects/trexdm-quickana
 	url = git@lfna.unizar.es:gifna/trexdm-quickana.git
+[submodule "projects/iaxo-simulations"]
+	path = projects/iaxo-simulations
+	url = git@lfna.unizar.es:iaxo/iaxo-simulations.git
