@@ -28,3 +28,6 @@
 [submodule "projects/iaxo-simulations"]
 	path = projects/iaxo-simulations
 	url = git@lfna.unizar.es:iaxo/iaxo-simulations.git
+[submodule "projects/iaxo-geometry"]
+	path = projects/iaxo-geometry
+	url = git@lfna.unizar.es:iaxo/iaxo-geometry.git
