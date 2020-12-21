@@ -21,22 +21,22 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// The TRestRawAFTERToSignalProcess is a process used to read a binary file
-/// produced by the AFTER electronics, the resulting signal will be registered
-/// inside a TRestRawSignalEvent, and then it processing can continue inside
-/// with the REST framework libraries.
+/// The TRestRawFindResponseSignalProcess seems to get the dominant signal,
+/// renormalize, and place it at the output event.
 ///
-/// \warning TODO. This process might be obsolete today. It may need additional
+/// \warning This process might be obsolete today. It may need additional
 /// revision, validation, and documentation. Use it under your own risk. If you
 /// find this process useful for your work feel free to use it, improve it,
 /// validate and/or document this process. If all those points are addressed
-/// these TODO lines can be removed.
+/// these lines can be removed.
 ///
-/// \warning **⚠ WARNING: REST is under continous development.** This documentation
+/// **⚠ WARNING: REST is under continous development.** This documentation
 /// is offered to you by the REST community. Your HELP is needed to keep this file
 /// up to date. You are very welcome to contribute fixing typos, updating
-/// information or adding new contributions. See also our [Contribution
-/// Guide](https://lfna.unizar.es/rest-development/REST_v2/-/blob/master/CONTRIBUTING.md).
+/// information or adding new contributions. See also our
+/// [Contribution Guide](https://lfna.unizar.es/rest-development/REST_v2/-/blob/master/CONTRIBUTING.md).
+/// Any concern, issue or problem using REST might also be posted to the
+/// [REST Framework Forum](http://ezpc10.unizar.es/).
 ///
 ///--------------------------------------------------------------------------
 ///
