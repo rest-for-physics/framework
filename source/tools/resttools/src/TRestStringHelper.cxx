@@ -133,12 +133,12 @@ Int_t REST_StringHelper::GetChar(string hint) {
         t.detach();
 
         cout << hint << endl;
-        int result = getchar();
+        int result = Console::CompatibilityMode ? 1 : getchar();
         gSystem->ExitLoop();
         return result;
     } else {
         cout << hint << endl;
-        return getchar();
+        return Console::CompatibilityMode ? 1 : getchar();
     }
     return -1;
 }
