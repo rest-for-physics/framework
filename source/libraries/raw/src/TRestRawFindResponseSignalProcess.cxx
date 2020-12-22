@@ -22,7 +22,11 @@
 
 //////////////////////////////////////////////////////////////////////////
 /// The TRestRawFindResponseSignalProcess seems to get the dominant signal,
-/// renormalize, and place it at the output event.
+/// renormalize, and place it at the output event. The process is far from
+/// being a generic process, since it receives many hard-coded parameters.
+/// At first sight it looks as if the output file will contain a
+/// representative signal per event (extracted after some conditions) and
+/// renormalized to 1000 amplitude units.
 ///
 /// \warning This process might be obsolete today. It may need additional
 /// revision, validation, and documentation. Use it under your own risk. If you
@@ -34,7 +38,8 @@
 /// is offered to you by the REST community. Your HELP is needed to keep this file
 /// up to date. You are very welcome to contribute fixing typos, updating
 /// information or adding new contributions. See also our
-/// [Contribution Guide](https://lfna.unizar.es/rest-development/REST_v2/-/blob/master/CONTRIBUTING.md).
+/// <a href="https://lfna.unizar.es/rest-development/REST_v2/-/blob/master/CONTRIBUTING.md">
+/// Contribution guide </a>.
 /// Any concern, issue or problem using REST might also be posted to the
 /// [REST Framework Forum](http://ezpc10.unizar.es/).
 ///
