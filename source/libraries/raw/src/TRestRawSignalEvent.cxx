@@ -1,19 +1,56 @@
-//______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
+
+//////////////////////////////////////////////////////////////////////////
+/// The TRestRawSignalEvent ... (TODO) main description, methods and data members
+/// need to be documented yet.
 ///
+/// \note If you find this code useful for your work feel free to use it, improve
+/// it, add new validation pipelines and/or document the code.
+/// See also our
+/// <a href="https://lfna.unizar.es/rest-development/REST_v2/-/blob/master/CONTRIBUTING.md">
+/// Contribution guide </a>.
+/// Any concern, issue or problem using REST might also be posted to the
+/// [REST Framework Forum](http://ezpc10.unizar.es/).
 ///
-///             RESTSoft : Software for Rare Event Searches with TPCs
+/// **⚠ WARNING: REST is under continous development.** This documentation
+/// is offered to you by the REST community. Your HELP is needed to keep this file
+/// up to date. You are very welcome to contribute fixing typos, updating
+/// information or adding new contributions.
 ///
-///             TRestRawSignalEvent.h
+///--------------------------------------------------------------------------
 ///
-///             Event class to store DAQ events either from simulation and
-///             acquisition
+/// RESTsoft - Software for Rare Event Searches with TPCs
 ///
-///             feb 2017:   First concept
-///                 Created from TRestSignalEvent
-///                 Javier Galan
-///_______________________________________________________________________________
+/// History of developments:
+///
+/// 2017-Feb: First concept (inspired by TRestSignalEvent)
+///           Javier Galan
+///
+/// \class      TRestRawSignalEvent
+/// \author     Javier Galan
+///
+/// <hr>
+///
 
 #include <TMath.h>
 

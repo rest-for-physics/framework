@@ -27,7 +27,7 @@
 
 #include "TRestEventProcess.h"
 
-//! A process to generate an average response signal
+//! A process to find a representative signal to generate a response signal
 class TRestRawFindResponseSignalProcess : public TRestEventProcess {
    private:
     TRestRawSignalEvent* fInputSignalEvent;   //!
