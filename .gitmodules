@@ -34,3 +34,15 @@
 [submodule "projects/iaxo-readouts"]
 	path = projects/iaxo-readouts
 	url = git@lfna.unizar.es:iaxo/iaxo-readouts.git
+[submodule "source/libraries/geant4"]
+	path = source/libraries/geant4
+	url = https://github.com/rest-for-physics/geant4lib.git
+[submodule "source/libraries/raw"]
+	path = source/libraries/raw
+	url = https://github.com/rest-for-physics/rawlib.git
+[submodule "source/libraries/track"]
+	path = source/libraries/track
+	url = https://github.com/rest-for-physics/tracklib.git
+[submodule "source/libraries/detector"]
+	path = source/libraries/detector
+	url = https://github.com/rest-for-physics/detectorlib.git
