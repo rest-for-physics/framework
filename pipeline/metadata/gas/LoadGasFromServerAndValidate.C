@@ -6,7 +6,7 @@ Int_t LoadGasFromServerAndValidate() {
     gSystem->Load("libRestMetadata.so");
     gSystem->Load("libRestEvents.so");
 
-    TRestGas* gas = new TRestGas("server", "Xenon-TMA 1Pct 10-10E3Vcm");
+    TRestDetectorGas* gas = new TRestDetectorGas("server", "Xenon-TMA 1Pct 10-10E3Vcm");
     gas->PrintMetadata();
 
     if (!gas->GasFileLoaded()) {

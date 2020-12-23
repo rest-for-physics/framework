@@ -1,4 +1,4 @@
-#include "TRestSignal.h"
+#include "TRestDetectorSignal.h"
 #include "TRestTask.h"
 
 #ifndef RESTTask_DrawResponseSignal
@@ -13,8 +13,8 @@
 Int_t REST_DrawResponseSignal(TString fName) {
     TFile* f = new TFile(fName);
 
-    TRestSignal* signal = new TRestSignal();
-    signal = (TRestSignal*)f->Get("signal Response");
+    TRestDetectorSignal* signal = new TRestDetectorSignal();
+    signal = (TRestDetectorSignal*)f->Get("signal Response");
 
     TCanvas* c = new TCanvas();
     TGraph* gr = signal->GetGraph();

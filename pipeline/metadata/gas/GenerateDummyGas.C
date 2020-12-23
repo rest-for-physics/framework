@@ -15,7 +15,7 @@ Int_t GenerateDummyGas() {
     }
 
     // Launching gas generation in test mode
-    TRestGas* gas = new TRestGas("dummy.rml", "dummyGas", true, true);
+    TRestDetectorGas* gas = new TRestDetectorGas("dummy.rml", "dummyGas", true, true);
 
     if (!gas->GasFileLoaded()) {
         cout << "The gas file was not properly loaded" << endl;
@@ -32,7 +32,7 @@ Int_t GenerateDummyGas() {
     cout << "Trying to load the generated dummyGas from server" << endl;
     cout << "-----" << endl;
     // Checking if now we are able to read the gas from server
-    TRestGas* gas2 = new TRestGas("server", "dummyGas");
+    TRestDetectorGas* gas2 = new TRestDetectorGas("server", "dummyGas");
     gas2->PrintMetadata();
 
     if (!gas2->GasFileLoaded()) {

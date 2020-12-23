@@ -14,10 +14,10 @@
 //***
 //*******************************************************************************************************
 Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString outputevent = "TRestEvent") {
-    // REST_MakeProcess("TRestXXXProcess", "TRestHitsEvent")
-    //    --> generate an analysis process template for TRestHitsEvent
-    // restMakeProcess TRestXXXProcess TRestHitsEvent TRestTrackEvent
-    //    --> generate a data-conversion process template form TRestHitsEvent to TRestTrackEvent
+    // REST_MakeProcess("TRestXXXProcess", "TRestDetectorHitsEvent")
+    //    --> generate an analysis process template for TRestDetectorHitsEvent
+    // restMakeProcess TRestXXXProcess TRestDetectorHitsEvent TRestTrackEvent
+    //    --> generate a data-conversion process template form TRestDetectorHitsEvent to TRestTrackEvent
 
     if (name.First("TRest") != 0 || name.Contains("Process") == false) {
         ferr << "invalid process name! REST process name must be start with \"TRest\" and ends with "

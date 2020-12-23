@@ -49,7 +49,7 @@ Int_t REST_HitCentering(TString rootFileName, TString histoName, int startVal = 
         run->OpenInputFile(inputFilesNew[n]);
 
         // Reading events
-        TRestHitsEvent* ev = new TRestHitsEvent();
+        TRestDetectorHitsEvent* ev = new TRestDetectorHitsEvent();
 
         run->SetInputEvent(ev);
         for (int i = n1; i < n2 + 1; i++) {

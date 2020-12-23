@@ -1,7 +1,7 @@
 #include "TRestBrowser.h"
 #include "TRestEventViewer.h"
 //#include "TRestLinearTrackEvent.h"
-#include "TRestSignalEvent.h"
+#include "TRestDetectorSignalEvent.h"
 #include "TRestTask.h"
 
 #ifndef RestTask_ViewEvents
@@ -46,7 +46,7 @@ Int_t REST_ViewLinearTrackEvent(TString fName) {
 } */
 
 Int_t REST_ViewSignalEvent(TString fName) {
-    REST_ViewEvents(fName, "TRestSignalEvent");
+    REST_ViewEvents(fName, "TRestDetectorSignalEvent");
     return 0;
 }
 

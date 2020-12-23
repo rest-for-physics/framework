@@ -1,4 +1,4 @@
-#include "TRestGas.h"
+#include "TRestDetectorGas.h"
 #include "TRestTask.h"
 
 #ifndef RESTTask_GenerateGasFile
@@ -11,7 +11,7 @@
 //***
 //*******************************************************************************************************
 Int_t REST_GenerateGasFile(char* cfgFile) {
-    TRestGas* gas = new TRestGas(cfgFile, "", true);
+    TRestDetectorGas* gas = new TRestDetectorGas(cfgFile, "", true);
 
     //   gas->SetGasPressure( 1. );
 

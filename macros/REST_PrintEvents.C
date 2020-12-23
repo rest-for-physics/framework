@@ -2,8 +2,8 @@
 #include "TRestGeant4Event.h"
 #endif
 
-#include "TRestHitsEvent.h"
-#include "TRestSignalEvent.h"
+#include "TRestDetectorHitsEvent.h"
+#include "TRestDetectorSignalEvent.h"
 //#include "TRestLinearTrackEvent.h"
 
 #ifdef REST_RawLib
@@ -83,7 +83,7 @@ Int_t REST_HitsEvent(TString fName, Int_t firstEvent = 0) {
 
     run->PrintMetadata();
 
-    TRestHitsEvent* evt = new TRestHitsEvent();
+    TRestDetectorHitsEvent* evt = new TRestDetectorHitsEvent();
 
     run->SetInputEvent(evt);
 
@@ -145,7 +145,7 @@ Int_t REST_SignalEvent(TString fName, Int_t firstEvent = 0) {
 
     run->PrintMetadata();
 
-    TRestSignalEvent* evt = new TRestSignalEvent();
+    TRestDetectorSignalEvent* evt = new TRestDetectorSignalEvent();
 
     run->SetInputEvent(evt);
 

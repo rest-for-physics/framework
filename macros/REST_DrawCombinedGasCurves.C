@@ -1,4 +1,4 @@
-#include "TRestGas.h"
+#include "TRestDetectorGas.h"
 #include "TRestTask.h"
 
 const Int_t nGases = 4;
@@ -21,13 +21,13 @@ Double_t maxTDiff = 0;
 //***
 //*******************************************************************************************************
 int REST_DrawCombinedGasCurves() {
-    TRestGas* gas[nGases];
+    TRestDetectorGas* gas[nGases];
     TGraph *driftVelGraph[nGases], *diffLGraph[nGases], *diffTGraph[nGases];
 
-    gas[0] = new TRestGas("GasDefinitionXeTMA1Pct.rml", "", true);
-    gas[1] = new TRestGas("GasDefinitionXeTMA3Pct.rml", "", true);
-    gas[2] = new TRestGas("GasDefinitionXeTMA7Pct.rml", "", true);
-    gas[3] = new TRestGas("GasDefinitionXeTMA9Pct.rml", "", true);
+    gas[0] = new TRestDetectorGas("GasDefinitionXeTMA1Pct.rml", "", true);
+    gas[1] = new TRestDetectorGas("GasDefinitionXeTMA3Pct.rml", "", true);
+    gas[2] = new TRestDetectorGas("GasDefinitionXeTMA7Pct.rml", "", true);
+    gas[3] = new TRestDetectorGas("GasDefinitionXeTMA9Pct.rml", "", true);
 
     for (int i = 0; i < nGases; i++) gas[i]->SetPressure(10);
 

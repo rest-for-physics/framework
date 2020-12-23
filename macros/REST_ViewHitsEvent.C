@@ -11,9 +11,9 @@
 //***
 //*******************************************************************************************************
 Int_t REST_ViewHitsEvent(TString fName) {
-    TRestBrowser* browser = new TRestBrowser("TRestHitsEventViewer");
+    TRestBrowser* browser = new TRestBrowser("TRestDetectorHitsEventViewer");
 
-    TRestEvent* eve = new TRestHitsEvent();
+    TRestEvent* eve = new TRestDetectorHitsEvent();
     browser->SetInputEvent(eve);
 
     browser->OpenFile(fName);
