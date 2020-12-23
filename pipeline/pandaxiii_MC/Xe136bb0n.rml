@@ -41,7 +41,7 @@
 
   </TRestGeant4Metadata>
 
-  <TRestPhysicsLists name="default" title="First physics list implementation." >
+  <TRestGeant4PhysicsLists name="default" title="First physics list implementation." >
 
     <parameter name="cutForGamma" value="10um" />
     <parameter name="cutForElectron" value="1mm" />
@@ -72,6 +72,6 @@
     <physicsList name="G4NeutronTrackingCut"> </physicsList>
     <physicsList name="G4EmExtraPhysics"> </physicsList>
 
-  </TRestPhysicsLists>
+  </TRestGeant4PhysicsLists>
 
 </restG4>

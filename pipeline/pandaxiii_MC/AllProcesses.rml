@@ -22,7 +22,7 @@
     <!--<parameter name="outputFile" value="Tracks_[EXPERIMENT]_[USER]_[RUNTYPE]_[RUNTAG]_[RUN]_V[VERSION].root" />-->
     <parameter name="readOnly" value="true" />
     <TRestDetectorReadout name="Panda-140kg" file="readout-140kg.rml"/>
-    <TRestGas type="TRestGas" name="Xenon-TMA 1Pct 10-10E3Vcm" file="server" pressure="10"/>
+    <TRestDetectorGas type="TRestDetectorGas" name="Xenon-TMA 1Pct 10-10E3Vcm" file="server" pressure="10"/>
   </TRestRun>
   <TRestProcessRunner name="pixelization" title="Stripped manager.">
     <parameter name="outputEvent" value="off" />
@@ -37,14 +37,14 @@
     <addProcess type="TRestGeant4AnalysisProcess" name="g4Ana" value="ON" file="processes_2D.rml" />
     <addProcess type="TRestGeant4BlobAnalysisProcess" name="g4Blob" value="OFF" file="processes_2D.rml" />
     <addProcess type="TRestGeant4ToHitsProcess" name="G4ToHits" value="ON" file="processes_2D.rml" />
-    <addProcess type="TRestElectronDiffusionProcess" name="eDiff_1kVcm_10atm" value="ON" file="processes_2D.rml" />
-    <addProcess type="TRestHitsAnalysisProcess" name="hitsAnaDiff" value="ON" file="processes_2D.rml" />
-    <addProcess type="TRestSmearingProcess" name="smear_3FWHM" value="ON" file="processes_2D.rml" />
-    <addProcess type="TRestHitsAnalysisProcess" name="hitsAnaSmear" value="ON" file="processes_2D.rml" />
-    <addProcess type="TRestHitsToSignalProcess" name="hitsToSignal" value="ON" file="processes_2D.rml" />
-    <addProcess type="TRestTriggerAnalysisProcess" name="trigger" value="ON" file="processes_2D.rml" />
-    <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="ON" file="processes_2D.rml" />
-    <addProcess type="TRestHitsShuffleProcess" name="hitsShuffle" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestDetectorElectronDiffusionProcess" name="eDiff_1kVcm_10atm" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestDetectorHitsAnalysisProcess" name="hitsAnaDiff" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestDetectorHitsSmearingProcess" name="smear_3FWHM" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestDetectorHitsAnalysisProcess" name="hitsAnaSmear" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestDetectorHitsToSignalProcess" name="hitsToSignal" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestDetectorTriggerAnalysisProcess" name="trigger" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestDetectorSignalToHitsProcess" name="signalToHits" value="ON" file="processes_2D.rml" />
+    <addProcess type="TRestDetectorHitsShuffleProcess" name="hitsShuffle" value="ON" file="processes_2D.rml" />
     <addProcess type="TRestDetectorHitsToTrackFastProcess" name="hitsToTrack" value="ON" file="processes_2D.rml" />
     <addProcess type="TRestTrackAnalysisProcess" name="tckAna_2D" value="ON" file="processes_2D.rml" />
     <addProcess type="TRestTrackReductionProcess" name="trackReduction" value="ON" file="processes_2D.rml" />

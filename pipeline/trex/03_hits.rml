@@ -14,7 +14,7 @@
 		<parameter name="eventsToProcess" value="0" />
 		<parameter name="outputEvent" value="ON" />
 
-		<addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="ON" verboseLevel="silent" 
+		<addProcess type="TRestDetectorSignalToHitsProcess" name="signalToHits" value="ON" verboseLevel="silent" 
 			sampling="${SAMPLING}"
 			electricField="${PRESSURE}*${DRIFT_FIELD}"
 			gasPressure="${PRESSURE}"
@@ -22,7 +22,7 @@
 			observable="all"
 			method="tripleMax" />
 
-		<addProcess type="TRestHitsAnalysisProcess" name="hitsAna" value="ON" verboseLevel="silent" >
+		<addProcess type="TRestDetectorHitsAnalysisProcess" name="hitsAna" value="ON" verboseLevel="silent" >
 			<observable name="energy" value="ON" />
 			<observable name="energyX" value="ON" />
 			<observable name="energyY" value="ON" />

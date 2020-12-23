@@ -53,6 +53,6 @@
         </storage>
     </TRestGeant4Metadata>
 
-    <TRestPhysicsLists name="default" file="common/physics.xml" />
+    <TRestGeant4PhysicsLists name="default" file="common/physics.xml" />
 
 </restG4>

@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <processes>
-    <TRestElectronDiffusionProcess name="eDiff_1kVcm_10atm" title="eDiff" verboseLevel="silent">
+    <TRestDetectorElectronDiffusionProcess name="eDiff_1kVcm_10atm" title="eDiff" verboseLevel="silent">
         <parameter name="electricField" value="1" units="kV/cm" />
         <parameter name="attachment" value="0" />
         <!-- units?? -->
@@ -8,26 +8,26 @@
         <parameter name="Wvalue" value="" units="eV" />
         <parameter name="maxHits" value="5000" />
         <!--<observable name="readoutPlaneEnergy_1" value="ON" /> -->
-        <!-- There is no need to specify additional parameters if all values will be taken from the gas properties (TRestGas). -->
-    </TRestElectronDiffusionProcess>
+        <!-- There is no need to specify additional parameters if all values will be taken from the gas properties (TRestDetectorGas). -->
+    </TRestDetectorElectronDiffusionProcess>
 
-    <TRestAvalancheProcess name="avalancheProcess" title="IAXOD0 chamber">
+    <TRestDetectorAvalancheProcess name="avalancheProcess" title="IAXOD0 chamber">
         <parameter name="energyReference" value="5.9keV" />
         <parameter name="resolutionReference" value="13" />// fwhm
         <parameter name="detectorGain" value="8000" />// absolute gain // parameter name=&quot;electronicsGain&quot; value=&quot;671744&quot; // electrons for 4096 ADC units
-    </TRestAvalancheProcess>
+    </TRestDetectorAvalancheProcess>
 
-    <TRestSignalDeconvolutionProcess name="deconvolution-Template" title="Deconvolution of AGET signals">
+    <TRestDetectorSignalDeconvolutionProcess name="deconvolution-Template" title="Deconvolution of AGET signals">
         <parameter name="transversalDiffusionCoefficient" value="10" />
-        <!-- There is no need to specify additional parameters if all values will be taken from the gas properties (TRestGas). -->
-    </TRestSignalDeconvolutionProcess>
-    <TRestAvalancheProcess name="avalancheProcess" title="IAXOD0 chamber">
+        <!-- There is no need to specify additional parameters if all values will be taken from the gas properties (TRestDetectorGas). -->
+    </TRestDetectorSignalDeconvolutionProcess>
+    <TRestDetectorAvalancheProcess name="avalancheProcess" title="IAXOD0 chamber">
         <parameter name="energyReference" value="5.9keV" />
         <parameter name="resolutionReference" value="13" />// fwhm
         <parameter name="detectorGain" value="8000" />// absolute gain // parameter name=&quot;electronicsGain&quot; value=&quot;671744&quot; // electrons for 4096 ADC units
-    </TRestAvalancheProcess>
+    </TRestDetectorAvalancheProcess>
 
-    <TRestSignalDeconvolutionProcess name="deconv" title="Deconvolution of AGET signals" verboseLevel="silent">
+    <TRestDetectorSignalDeconvolutionProcess name="deconv" title="Deconvolution of AGET signals" verboseLevel="silent">
         <parameter name="frequency1" value="2.71383005928202273" />
         <parameter name="frequency2" value="18.6067876433914706e" />
         <parameter name="smoothingPoints" value="3" />
@@ -38,35 +38,35 @@
         <parameter name="nFFTEnd" value="0" />
         <parameter name="cutFrequency" value="12" />
         <parameter name="responseFile" value="AGET_Response_SJTU_2017Feb22.root" />
-    </TRestSignalDeconvolutionProcess>
+    </TRestDetectorSignalDeconvolutionProcess>
 
-    <TRestSignalGaussianConvolutionProcess name="gConv" title="Gaussian convolution of signals">
+    <TRestDetectorSignalGaussianConvolutionProcess name="gConv" title="Gaussian convolution of signals">
         <parameter name="sigma" value=".1us" />
         <parameter name="nSigmas" value="2" />// Number of sigmas to perform the calculation
-    </TRestSignalGaussianConvolutionProcess>
+    </TRestDetectorSignalGaussianConvolutionProcess>
 
     <TRestAddSignalNoiseProcess name="addSignalNoiseProcess" title="Test AddNoise to Signal">
         <parameter name="noiseLevel" value="5" />// // electrons in each time bin
     </TRestAddSignalNoiseProcess>
 
-    <TRestSignalToHitsProcess name="signalToHits" title="A Signal To Hits reconstruction template." verboseLevel="silent">
+    <TRestDetectorSignalToHitsProcess name="signalToHits" title="A Signal To Hits reconstruction template." verboseLevel="silent">
         <parameter name="sampling" value="200ns" />
         <parameter name="electricField" value="1000" units="V/cm" />
-        <!-- If not specified, the following values will be taken from TRestGas properties -->
+        <!-- If not specified, the following values will be taken from TRestDetectorGas properties -->
         <parameter name="gasPressure" value="" />
         <!-- in atm -->
         <parameter name="driftVelocity" value="" />
         <!-- in cm/us -->
         <parameter name="method" value="all" />
-    </TRestSignalToHitsProcess>
+    </TRestDetectorSignalToHitsProcess>
 
-    <TRestHitsToSignalProcess name="hitsToSignal" title="A hits to signal template" verboseLevel="silent">
+    <TRestDetectorHitsToSignalProcess name="hitsToSignal" title="A hits to signal template" verboseLevel="silent">
         <parameter name="sampling" value="200ns" />
         <parameter name="electricField" value="1000" units="V/cm" />
-        <!-- If specified, the following parameters will modify the properties of the gas found in TRestGas -->
+        <!-- If specified, the following parameters will modify the properties of the gas found in TRestDetectorGas -->
         <parameter name="gasPressure" value="" />
         <parameter name="driftVelocity" value="" />
-    </TRestHitsToSignalProcess>
+    </TRestDetectorHitsToSignalProcess>
 
     <TRestDetectorHitsToTrackProcess name="ihitsToTrack" title="">
         <parameter name="clusterDistance" value="7.5" units="mm" />
@@ -76,15 +76,15 @@
         <parameter name="netSize" value="1700mm" />
         <parameter name="netOrigin" value="(-850,-850,-850)mm" />
     </TRestDetectorHitsToTrackFastProcess>
-    <TRestHitsShuffleProcess name="hitsShuffle" title="Shuffles the hits">
+    <TRestDetectorHitsShuffleProcess name="hitsShuffle" title="Shuffles the hits">
         <parameter name="iterations" value="100" />
-    </TRestHitsShuffleProcess>
-    <TRestHitsReductionProcess name="hitsReduction" title="Merges the closest hits in a HitsEvent">
+    </TRestDetectorHitsShuffleProcess>
+    <TRestDetectorHitsReductionProcess name="hitsReduction" title="Merges the closest hits in a HitsEvent">
         <parameter name="startingDistance" value="0.25mm" />
         <parameter name="minimumDistance" value="0.5mm" />
         <parameter name="distanceStepFactor" value="1.15" />
         <parameter name="maxNodes" value="25" />
-    </TRestHitsReductionProcess>
+    </TRestDetectorHitsReductionProcess>
     <TRestTrackReductionProcess name="trackReduction" title="Merges the closer hits in a TrackEvent" verboseLevel="silent">
         <parameter name="startingDistance" value="0.15mm" />
         <parameter name="minimumDistance" value="0.5mm" />
@@ -114,7 +114,7 @@
         <parameter name="lowEnergyCut" value="600keV" />
         <parameter name="highEnergyCut" value="3000keV" />
     </TRestGeant4AnalysisProcess>
-    <TRestHitsAnalysisProcess name="hitsAnaDiff" title="A hits analysis process">
+    <TRestDetectorHitsAnalysisProcess name="hitsAnaDiff" title="A hits analysis process">
         <observable name="energy" value="ON" />
         <observable name="xMean" value="ON" />
         <observable name="yMean" value="ON" />
@@ -140,8 +140,8 @@
         <observable name="distanceToPrismWall" value="OFF" />
         <observable name="distanceToPrismTop" value="OFF" />
         <observable name="distanceToPrismBottom" value="OFF" />
-    </TRestHitsAnalysisProcess>
-    <TRestHitsAnalysisProcess name="hitsAnaSmear" title="A hits analysis process">
+    </TRestDetectorHitsAnalysisProcess>
+    <TRestDetectorHitsAnalysisProcess name="hitsAnaSmear" title="A hits analysis process">
         <observable name="energy" value="ON" />
         <observable name="xMean" value="ON" />
         <observable name="yMean" value="ON" />
@@ -167,29 +167,29 @@
         <observable name="distanceToPrismWall" value="OFF" />
         <observable name="distanceToPrismTop" value="OFF" />
         <observable name="distanceToPrismBottom" value="OFF" />
-    </TRestHitsAnalysisProcess>
-    <TRestHitsAnalysisProcess name="noSmear" title="Hits analysis template" verboseLevel="silent">
+    </TRestDetectorHitsAnalysisProcess>
+    <TRestDetectorHitsAnalysisProcess name="noSmear" title="Hits analysis template" verboseLevel="silent">
         <observable name="energy" value="ON" />
-    </TRestHitsAnalysisProcess>
-    <TRestSmearingProcess name="smear" title="Smearing template">
+    </TRestDetectorHitsAnalysisProcess>
+    <TRestDetectorHitsSmearingProcess name="smear" title="Smearing template">
         <parameter name="energyReference" value="2457.83keV" />
         <parameter name="resolutionReference" value="4.5" />
-    </TRestSmearingProcess>
-    <TRestSmearingProcess name="smear_1FWHM" title="Smearing template">
+    </TRestDetectorHitsSmearingProcess>
+    <TRestDetectorHitsSmearingProcess name="smear_1FWHM" title="Smearing template">
         <parameter name="energyReference" value="879keV" />
         <parameter name="resolutionReference" value="5.0" />
-    </TRestSmearingProcess>
-    <TRestSmearingProcess name="smear_2FWHM" title="Smearing template">
+    </TRestDetectorHitsSmearingProcess>
+    <TRestDetectorHitsSmearingProcess name="smear_2FWHM" title="Smearing template">
         <parameter name="energyReference" value="879keV" />
         <parameter name="resolutionReference" value="5.0" />
-    </TRestSmearingProcess>
-    <TRestSmearingProcess name="smear_3FWHM" title="Smearing template">
+    </TRestDetectorHitsSmearingProcess>
+    <TRestDetectorHitsSmearingProcess name="smear_3FWHM" title="Smearing template">
         <parameter name="energyReference" value="879keV" />
         <parameter name="resolutionReference" value="5.0" />
-    </TRestSmearingProcess>
-    <TRestHitsNormalizationProcess name="hitsNorm" title="Hits normalization template">
+    </TRestDetectorHitsSmearingProcess>
+    <TRestDetectorHitsNormalizationProcess name="hitsNorm" title="Hits normalization template">
         <parameter name="normFactor" value="0.021917" />
-    </TRestHitsNormalizationProcess>
+    </TRestDetectorHitsNormalizationProcess>
     <TRestTrackAnalysisProcess name="tckAna" title="Track analysis template">
         <observable name="nTracksXYZ" type="int" value="ON" description="Number of pure 3D-tracks (with valid XYZ-hits)." />
         <observable name="nTrackEnergyRatio" value="ON" description="Energy ratio between track event energy excluding the main track and total track event energy." />
@@ -274,7 +274,7 @@
         <observable name="twistRatio_Y_35" value="ON" />
         <observable name="twistRatio_Y_45" value="ON" />
     </TRestTrackAnalysisProcess>
-    <TRestTriggerAnalysisProcess name="trigger" title="Trigger analysis template">
+    <TRestDetectorTriggerAnalysisProcess name="trigger" title="Trigger analysis template">
         <observable name="Integral_Eth300" value="ON" />
         <observable name="Integral_Eth440" value="ON" />
         <observable name="Integral_Eth850" value="ON" />
@@ -282,7 +282,7 @@
         <observable name="Integral_Eth1900" value="OFF" />
         <observable name="RawIntegral" value="ON" />
         <observable name="TriggerStarts" type="int" value="ON" />
-    </TRestTriggerAnalysisProcess>
+    </TRestDetectorTriggerAnalysisProcess>
     <TRestGeant4BlobAnalysisProcess name="g4Blob" title="Find blobs in DBD. G4 event">
         <observable name="x1" value="ON" />
         <observable name="y1" value="ON" />
@@ -488,26 +488,26 @@
         <observable name="BaseLineSigmaMean" value="ON" />
     </TRestRawSignalAnalysisProcess>
     <!-- The full signal integral in the integralRange -->
-    <TRestAvalancheProcess name="NLDBD" title="1PctGain">
+    <TRestDetectorAvalancheProcess name="NLDBD" title="1PctGain">
         <parameter name="energyReference" value="2458keV" />
         <parameter name="resolutionReference" value="1" />
         <parameter name="detectorGain" value="1" />
-    </TRestAvalancheProcess>
-    <TRestSignalShapingProcess name="signalShapingProcess" title="Test SignalShaping">
+    </TRestDetectorAvalancheProcess>
+    <TRestDetectorSignalShapingProcess name="signalShapingProcess" title="Test SignalShaping">
         <parameter name="responseFile" value="AGET_Response_12.5MHz_Gain0x1_Shaping0x4.root" />//response file to be used to shape the signal
-    </TRestSignalShapingProcess>
+    </TRestDetectorSignalShapingProcess>
     <TRestGeant4ToHitsProcess name="G4ToHits" title="G4Hits to Hits process" />
     <bambooToRESTProcess name="bambooToREST" title="A process reading bamboo files">
         <!-- Rotation parameter in degrees. It will rotate the original coordinates 
          in the following order RotateX -> RotateY -> RotateZ -->
         <parameter name="rotation" value="(90,0,0)" />
     </bambooToRESTProcess>
-    <TRestHitsAnalysisProcess name="bambooAna" title="A Hits analysis from bamboo data.">
+    <TRestDetectorHitsAnalysisProcess name="bambooAna" title="A Hits analysis from bamboo data.">
         <observable name="energy" value="ON" />
         <observable name="xMean" value="ON" />
         <observable name="yMean" value="ON" />
         <observable name="zMean" value="ON" />
-    </TRestHitsAnalysisProcess>
+    </TRestDetectorHitsAnalysisProcess>
     <TRestTrackDetachIsolatedNodesProcess name="detach" title="Detaching process" verboseLevel="silent" />
     <TRestTrackLinearizationProcess name="tckLin_2D" title="A track linearization process." verboseLevel="silent">
         <observable name="coverage_X" value="ON" />

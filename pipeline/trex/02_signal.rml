@@ -22,7 +22,7 @@
 			signalThreshold="${SGNL_TH}"
 			verboseLevel="silent"	/>
 
-		<addProcess type="TRestSignalChannelActivityProcess" name="chActivity" value="ON" verboseLevel="info" observable="all" >
+		<addProcess type="TRestDetectorSignalChannelActivityProcess" name="chActivity" value="ON" verboseLevel="info" observable="all" >
 		    <parameter name="daqChannels" value="72*4*4" />
 		    <parameter name="readoutChannels" value="256*2*2" />
 		</addProcess>

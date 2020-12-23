@@ -74,7 +74,7 @@ By default REST units are mm, keV and degrees
     </storage>
   </TRestGeant4Metadata>
 
-  <TRestPhysicsLists name="default" title="First physics list implementation." >
+  <TRestGeant4PhysicsLists name="default" title="First physics list implementation." >
 
     <parameter name="cutForGamma" value="1" units="mm" />
     <parameter name="cutForElectron" value="2" units="mm" />
@@ -106,6 +106,6 @@ By default REST units are mm, keV and degrees
     <physicsList name="G4NeutronTrackingCut"> </physicsList>
     <physicsList name="G4EmExtraPhysics"> </physicsList>
 
-  </TRestPhysicsLists>
+  </TRestGeant4PhysicsLists>
 
 </restG4>
