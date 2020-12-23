@@ -24,8 +24,8 @@
 /// The TRestRawZeroSuppresionProcess identifies the points that are over
 /// threshold from the input TRestRawSignalEvent. The resulting points, that
 /// are presumed to be a physical signal, will be transported to the output
-/// TRestSignalEvent returned by this process. The data points transferred to
-/// the output TRestSignalEvent will have physical time units related to the
+/// TRestDetectorSignalEvent returned by this process. The data points transferred to
+/// the output TRestDetectorSignalEvent will have physical time units related to the
 /// sampling rate of the raw signal received as input, and defined as a
 /// parameter in this process.
 ///
@@ -162,7 +162,7 @@ void TRestRawZeroSuppresionProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fRawSignalEvent = NULL;
-    fSignalEvent = new TRestSignalEvent();
+    fSignalEvent = new TRestDetectorSignalEvent();
 }
 
 ///////////////////////////////////////////////
@@ -233,7 +233,7 @@ TRestEvent* TRestRawZeroSuppresionProcess::ProcessEvent(TRestEvent* evInput) {
             totoalflatN += Nbefore - Nafter;
         }
 
-        TRestSignal sgn;
+        TRestDetectorSignal sgn;
         sgn.SetID(s->GetID());
 
         std::vector<Int_t> pOver = s->GetPointsOverThreshold();

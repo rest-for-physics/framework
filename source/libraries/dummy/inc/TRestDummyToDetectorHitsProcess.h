@@ -27,13 +27,13 @@
 
 #include "TRestDummyEvent.h"
 #include "TRestEventProcess.h"
-#include "TRestHitsEvent.h"
+#include "TRestDetectorHitsEvent.h"
 
 class TRestDummyToDetectorHitsProcess : public TRestEventProcess {
    protected:
     // input/output event with concrete type
     TRestDummyEvent* fDummyEvent;  //!
-    TRestHitsEvent* fHitsEvent;    //!
+    TRestDetectorHitsEvent* fHitsEvent;    //!
 
     // unsaved parameters and temporary data members, add //! to not store
     // TH2D* htemp = NULL;  //!
@@ -72,6 +72,6 @@ class TRestDummyToDetectorHitsProcess : public TRestEventProcess {
     ~TRestDummyToDetectorHitsProcess();
 
     ClassDef(TRestDummyToDetectorHitsProcess, 1);  // Transform a TRestDummyEvent event to a
-                                                   // TRestHitsEvent (hits-collection event)
+                                                   // TRestDetectorHitsEvent (hits-collection event)
 };
 #endif

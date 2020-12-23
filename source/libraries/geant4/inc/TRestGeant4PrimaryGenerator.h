@@ -16,8 +16,8 @@
 #ifndef RestCore_TRestGeant4PrimaryGenerator
 #define RestCore_TRestGeant4PrimaryGenerator
 
-#include <TRestParticleCollection.h>
-#include <TRestParticleSource.h>
+#include <TRestGeant4ParticleCollection.h>
+#include <TRestGeant4ParticleSource.h>
 #include <TString.h>
 #include <TVector3.h>
 
@@ -32,7 +32,7 @@ class TRestGeant4PrimaryGenerator : public TObject {
     // storing particle information for the use of restG4
     // each entry --> one particle
     // all particles are thrown into one geant4 event
-    std::vector<TRestParticleSource> fSources;
+    std::vector<TRestGeant4ParticleSource> fSources;
 
     Int_t fNCollections;
 
@@ -40,19 +40,19 @@ class TRestGeant4PrimaryGenerator : public TObject {
     // each entry --> one event template¡£
     // in restG4, we randomly pick the template from its entries and refresh
     // fSources
-    std::vector<TRestParticleCollection*> fParticleCollections;  //!
+    std::vector<TRestGeant4ParticleCollection*> fParticleCollections;  //!
 
    public:
     Int_t GetNumberOfCollections() { return fNCollections; }
     Int_t GetNumberOfSources() { return fNsources; }
-    TRestParticleSource GetParticleSource(int i) { return fSources[i]; }
-    TRestParticleCollection* GetParticleCollection(Int_t n);
+    TRestGeant4ParticleSource GetParticleSource(int i) { return fSources[i]; }
+    TRestGeant4ParticleCollection* GetParticleCollection(Int_t n);
 
     void Reset();
     void RemoveSources();
     void RemoveParticleCollections();
-    void AddSource(TRestParticleSource src);
-    void AddParticleCollection(TRestParticleCollection* collection);
+    void AddSource(TRestGeant4ParticleSource src);
+    void AddParticleCollection(TRestGeant4ParticleCollection* collection);
 
     /// Read n-th collection in fParticleCollections, and set fSources
     /// accordingly. Used in TRestGeant4Metadata::ReadParticleCollection

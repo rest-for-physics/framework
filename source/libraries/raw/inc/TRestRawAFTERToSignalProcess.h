@@ -24,7 +24,7 @@
 #define RestCore_TRestRawAFTERToSignalProcess
 
 #include "TRestRawToSignalProcess.h"
-#include "TRestSignalEvent.h"
+#include "TRestDetectorSignalEvent.h"
 
 // ATENTION: new T2K Daq versions 2.X need to read one extra word
 #define NEW_DAQ_T2K_2_X

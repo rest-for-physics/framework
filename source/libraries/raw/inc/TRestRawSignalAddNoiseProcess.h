@@ -21,13 +21,11 @@ class TRestRawSignalAddNoiseProcess : public TRestEventProcess {
     TRestRawSignalEvent* fInputSignalEvent;
     TRestRawSignalEvent* fOutputSignalEvent;
 
-    void InitFromConfigFile();
-
     void Initialize();
 
     void LoadDefaultConfig();
 
-    Double_t fNoiseLevel;
+    Double_t fNoiseLevel = 10;
 
    protected:
     // add here the members of your event process

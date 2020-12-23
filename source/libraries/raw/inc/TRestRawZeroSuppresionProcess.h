@@ -23,11 +23,11 @@
 #ifndef RestCore_TRestRawZeroSuppresionProcess
 #define RestCore_TRestRawZeroSuppresionProcess
 
-//#include <TRestGas.h>
+//#include <TRestDetectorGas.h>
 //#include <TRestDetectorReadout.h>
 
 #include <TRestRawSignalEvent.h>
-#include <TRestSignalEvent.h>
+#include <TRestDetectorSignalEvent.h>
 
 #include "TRestEventProcess.h"
 
@@ -37,8 +37,8 @@ class TRestRawZeroSuppresionProcess : public TRestEventProcess {
     /// A pointer to the specific TRestRawSignalEvent input
     TRestRawSignalEvent* fRawSignalEvent;  //!
 
-    /// A pointer to the specific TRestSignalEvent output
-    TRestSignalEvent* fSignalEvent;  //!
+    /// A pointer to the specific TRestDetectorSignalEvent output
+    TRestDetectorSignalEvent* fSignalEvent;  //!
 
     /// The ADC range used for baseline offset definition
     TVector2 fBaseLineRange;
@@ -60,7 +60,7 @@ class TRestRawZeroSuppresionProcess : public TRestEventProcess {
     /// A parameter to determine if baseline correction has been applied by a previous process
     bool fBaseLineCorrection;
 
-    /// The ADC sampling used to transform ADC units to physical time in the output TRestSignalEvent. Given in
+    /// The ADC sampling used to transform ADC units to physical time in the output TRestDetectorSignalEvent. Given in
     /// us.
     Double_t fSampling;
 

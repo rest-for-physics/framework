@@ -21,8 +21,9 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// The TRestRawSignalEvent ... (TODO) main description, methods and data members
-/// need to be documented yet.
+/// The TRestRawSignalEvent ...
+///
+/// DOCUMENTATION TO BE WRITTEN (main description, methods, data members)
 ///
 /// \note If you find this code useful for your work feel free to use it, improve
 /// it, add new validation pipelines and/or document the code.
@@ -43,7 +44,7 @@
 ///
 /// History of developments:
 ///
-/// 2017-Feb: First concept (inspired by TRestSignalEvent)
+/// 2017-Feb: First concept (inspired by TRestDetectorSignalEvent)
 ///           Javier Galan
 ///
 /// \class      TRestRawSignalEvent

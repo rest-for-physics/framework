@@ -145,7 +145,7 @@ void TRestRawSignalShapingProcess::LoadConfig(string cfgFilename, string name) {
 void TRestRawSignalShapingProcess::InitProcess() {
     /*
      * NOT IMPLEMENTED. TODO To use a generic response from a
-     * predefined TRestSignal
+     * predefined TRestDetectorSignal
      *
      * For the moment we do only a gausian shaping"
      * /

@@ -69,7 +69,7 @@ void TRestGeant4EventViewer::AddEvent(TRestEvent* ev) {
         }
     }
 
-    cout << "TRestG4EventViewer::AddEvent. Total EDep " << totalEDep << endl;
+    cout << "TRestGeant4EventViewer::AddEvent. Total EDep " << totalEDep << endl;
 
     Double_t slope = (fMaxRadius - fMinRadius) / (eDepMax - eDepMin);
     Double_t bias = fMinRadius - slope * eDepMin;

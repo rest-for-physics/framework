@@ -18,7 +18,7 @@ void TRestParticleCollectionDecay0::VirtualUpdate() {
 
     auto ps = gendecay.get_particles();
     for (auto p : ps) {
-        TRestParticle particle;
+        TRestGeant4Particle particle;
         double mass;
         double energy;
 

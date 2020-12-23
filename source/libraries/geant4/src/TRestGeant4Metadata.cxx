@@ -31,11 +31,11 @@
 ///
 /// There are few helper classes that aid to organize and access the information
 /// that TRestGeant4Metadata contains, TRestGeant4PrimaryGenerator, TRestGeant4BiasingVolume,
-/// TRestParticleCollection, TRestParticle, TRestParticleSource, and
-/// TRestPhysicsLists.
+/// TRestGeant4ParticleCollection, TRestGeant4Particle, TRestGeant4ParticleSource, and
+/// TRestGeant4PhysicsLists.
 ///
 /// The full RML description to be provided to *restG4* to launch a simulation
-/// requires in addition a TRestPhysicsLists definition, providing the physics
+/// requires in addition a TRestGeant4PhysicsLists definition, providing the physics
 /// processes, EM, hadronic, etc, that will be active in our Geant4 simulation.
 ///
 /// In general terms, an RML file to be used with restG4 must define the
@@ -61,10 +61,10 @@
 ///     ...
 /// </TRestGeant4Metadata>
 ///
-/// //A TRestPhysicsLists section def-inning the physics processes active.
-/// <TRestPhysicsLists>
+/// //A TRestGeant4PhysicsLists section def-inning the physics processes active.
+/// <TRestGeant4PhysicsLists>
 ///     ...
-/// </TRestPhysicsLists>
+/// </TRestGeant4PhysicsLists>
 ///
 /// \endcode
 ///
@@ -80,7 +80,7 @@
 /// This page describes in detail the different parameters, particle generator
 /// types, storage, and other features implemented in restG4, that can be
 /// defined inside the section TRestGeant4Metadata. The description of other
-/// required sections, as TRestRun or TRestPhysicsLists, will be found in their
+/// required sections, as TRestRun or TRestGeant4PhysicsLists, will be found in their
 /// respective class documentation.
 ///
 /// We can sub-divide the information provided through TRestGeant4Metadata in
@@ -941,7 +941,7 @@ void TRestGeant4Metadata::ReadGenerator() {
             ReadParticleSource(sourceDefinition);
         } else {
             info << "Load custom sources from " << use << endl;
-            TRestParticleCollection* particleCollection = TRestParticleCollection::instantiate(use);
+            TRestGeant4ParticleCollection* particleCollection = TRestGeant4ParticleCollection::instantiate(use);
             if (particleCollection != NULL) {
                 particleCollection->SetParticleModel(ElementToString(sourceDefinition));
                 fPrimaryGenerator.AddParticleCollection(particleCollection);
@@ -1070,7 +1070,7 @@ void TRestGeant4Metadata::PrintMetadata() {
     metadata << "Generator file : " << GetGeneratorFile() << endl;
 
     for (int n = 0; n < GetNumberOfPrimaries(); n++) {
-        TRestParticleSource src = GetParticleSource(n);
+        TRestGeant4ParticleSource src = GetParticleSource(n);
         src.PrintParticleSource();
     }
 
@@ -1099,7 +1099,7 @@ void TRestGeant4Metadata::PrintMetadata() {
 /// pre-generated events, providing the names (or ids) of
 /// particles to be produced, their energy, and momentum.
 /// The particles and their properties are stored in a
-/// TRestParticleCollection which will be randomly accessed
+/// TRestGeant4ParticleCollection which will be randomly accessed
 /// by the restG4 package.
 ///
 /// \param fName The Decay0 filename located at
@@ -1147,13 +1147,13 @@ Int_t TRestGeant4Metadata::ReadNewDecay0File(TString fileName) {
         exit(1);
     }
 
-    TRestParticle particle;
+    TRestGeant4Particle particle;
 
     debug << "Reading generator file : " << fileName << endl;
     debug << "Total number of events : " << generatorEvents << endl;
 
     for (int n = 0; n < generatorEvents && !infile.eof(); n++) {
-        TRestParticleCollection* particleCollection = TRestParticleCollection::instantiate();
+        TRestGeant4ParticleCollection* particleCollection = TRestGeant4ParticleCollection::instantiate();
         particleCollection->RemoveParticles();
 
         int pos = -1;
@@ -1259,14 +1259,14 @@ Int_t TRestGeant4Metadata::ReadOldDecay0File(TString fileName) {
 
     // cout << "i : " << tmpInt << " fN : " << fGeneratorEvents << endl;
 
-    TRestParticle particle;
+    TRestGeant4Particle particle;
     string type = (string)GetGeneratorType();
 
     cout << "Reading generator file : " << fileName << endl;
     cout << "Total number of events : " << fGeneratorEvents << endl;
 
     for (int n = 0; n < fGeneratorEvents && !infile.eof(); n++) {
-        TRestParticleCollection* particleCollection = TRestParticleCollection::instantiate();
+        TRestGeant4ParticleCollection* particleCollection = TRestGeant4ParticleCollection::instantiate();
         particleCollection->RemoveParticles();
 
         Int_t nParticles;
@@ -1338,7 +1338,7 @@ Int_t TRestGeant4Metadata::ReadOldDecay0File(TString fileName) {
 void TRestGeant4Metadata::ReadParticleSource(TiXmlElement* definition) {
     TiXmlElement* sourceDefinition = definition;
 
-    TRestParticleSource source;
+    TRestGeant4ParticleSource source;
 
     source.SetParticleName(GetFieldValue("particle", sourceDefinition));
 

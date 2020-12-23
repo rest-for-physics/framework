@@ -156,7 +156,7 @@
 /// History of developments:
 ///
 /// 2017-February: First implementation of raw signal analysis process into REST_v2.
-///                Created from TRestSignalAnalysisProcess
+///                Created from TRestDetectorSignalAnalysisProcess
 ///
 /// \class      TRestRawSignalAnalysisProcess
 /// \author     Javier Galan
@@ -415,7 +415,7 @@ risetimemean += sgnl->GetRiseTime();
     // ... of course we need to consider baseline substraction for each observable. TRestRawSignal methods
     // should do that internally. I have updated that to be like that, but we need to be with open eyes for
     // some period.
-    // Baseline substraction will always happen when we transfer a TRestRawSignal to TRestSignal
+    // Baseline substraction will always happen when we transfer a TRestRawSignal to TRestDetectorSignal
     //
     // We do not substract baselines then now, as it was done before
     //

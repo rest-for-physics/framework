@@ -100,7 +100,7 @@ void TRestDummyToDetectorHitsProcess::Initialize() {
     SetLibraryVersion(LIBRARY_VERSION);
 
     fDummyEvent = new TRestDummyEvent();
-    fHitsEvent = new TRestHitsEvent();
+    fHitsEvent = new TRestDetectorHitsEvent();
 }
 
 ///////////////////////////////////////////////

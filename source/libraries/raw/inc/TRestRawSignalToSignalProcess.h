@@ -24,19 +24,19 @@
 #define RestCore_TRestRawSignalToSignalProcess
 
 #include <TRestRawSignalEvent.h>
-#include <TRestSignalEvent.h>
+#include <TRestDetectorSignalEvent.h>
 
 #include "TRestEventProcess.h"
 
-//! A process to convert a TRestRawSignalEvent into a TRestSignalEvent
+//! A process to convert a TRestRawSignalEvent into a TRestDetectorSignalEvent
 class TRestRawSignalToSignalProcess : public TRestEventProcess {
    private:
 #ifndef __CINT__
     /// A pointer to the specific TRestRawSignalEvent input
     TRestRawSignalEvent* fInputSignalEvent;  //!
 
-    /// A pointer to the specific TRestSignalEvent input
-    TRestSignalEvent* fOutputSignalEvent;  //!
+    /// A pointer to the specific TRestDetectorSignalEvent input
+    TRestDetectorSignalEvent* fOutputSignalEvent;  //!
 #endif
 
     void InitFromConfigFile();

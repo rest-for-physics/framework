@@ -74,7 +74,7 @@ TRestEvent* TRestDetectorHitsToTrackProcess::ProcessEvent(TRestEvent* evInput) {
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
     */
 
-    fHitsEvent = (TRestHitsEvent*)evInput;
+    fHitsEvent = (TRestDetectorHitsEvent*)evInput;
     fTrackEvent->SetEventInfo(fHitsEvent);
 
     if (GetVerboseLevel() >= REST_Debug)

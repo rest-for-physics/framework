@@ -24,7 +24,7 @@
 #include <map>
 #include "TRestRawSignalEvent.h"
 #include "TRestRawToSignalProcess.h"
-#include "TRestSignalEvent.h"
+#include "TRestDetectorSignalEvent.h"
 
 struct CoBoDataFrame {
     CoBoDataFrame() {

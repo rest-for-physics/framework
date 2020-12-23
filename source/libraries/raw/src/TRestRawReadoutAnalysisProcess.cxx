@@ -8,7 +8,7 @@
 ///
 ///
 ///             First implementation of raw signal analysis process into REST_v2
-///             Created from TRestSignalAnalysisProcess
+///             Created from TRestDetectorSignalAnalysisProcess
 ///             Date : Jun/2018
 ///             Author : Ni Kaixiang
 ///

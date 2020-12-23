@@ -176,7 +176,7 @@ TRestEvent* TRestRawCommonNoiseReductionProcess::ProcessEvent(TRestEvent* evInpu
             end = begin;
             norm = 1.;
         } else if (fMode == 1) {
-            // We take the average of the TRestSignals at the Center
+            // We take the average of the TRestDetectorSignals at the Center
             begin = middle - (Int_t)(N * fcenterWidth * 0.01);
             end = middle + (Int_t)(N * fcenterWidth * 0.01);
             norm = (Double_t)end - begin;

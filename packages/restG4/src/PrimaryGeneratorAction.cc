@@ -651,7 +651,7 @@ void PrimaryGeneratorAction::SetParticlePosition() {
 
 //_____________________________________________________________________________
 void PrimaryGeneratorAction::SetParticlePosition(int n) {
-    // Storing particle's position to that retrieved from TRestParticle
+    // Storing particle's position to that retrieved from TRestGeant4Particle
     TVector3 pos = restG4Metadata->GetParticleSource(n).GetOrigin();
     restG4Event->SetPrimaryEventOrigin(pos);
 

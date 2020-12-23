@@ -4,11 +4,7 @@ set(rest_macros)
 set(rest_libs_index)
 set(restlibHeaders)
 
-add_subdirectory(tools)
-add_subdirectory(restcore)
-add_subdirectory(metadata)
-add_subdirectory(events)
-add_subdirectory(processes)
+add_subdirectory(framework)
 add_subdirectory(../macros tasks.out)
 
 ## There is a problem with this variable because if used it is cached.
@@ -19,12 +15,28 @@ IF( DEFINED REST_ALL_LIBS )
 	if (${REST_ALL_LIBS} MATCHES "ON")
 		set(REST_ALL_LIBS ON)
 	endif (${REST_ALL_LIBS} MATCHES "ON")
+		set(RESTLIB_DETECTOR ON)
 		set(RESTLIB_GEANT4 ON)
 		set(RESTLIB_RAW ON)
 		set(RESTLIB_TRACK ON)
 		set(RESTLIB_AXION ON)
 		set(RESTLIB_MODEL ON)
 ENDIF ()
+
+########################################## Detector library ###################################
+IF( NOT DEFINED RESTLIB_DETECTOR )
+	set(RESTLIB_DETECTOR OFF)
+ENDIF ()
+
+if (${RESTLIB_DETECTOR} MATCHES "ON")
+	add_definitions(-DREST_DetectorLib)
+	add_subdirectory(libraries/detector)
+	list( APPEND rest_libs_index "RestDetector" )
+
+	file(GLOB_RECURSE libHeaders "libraries/detector/inc/*.h")
+	set(restlibHeaders ${restlibHeaders} ${libHeaders} )
+
+endif (${RESTLIB_DETECTOR} MATCHES "ON")
 
 ########################################## Geant4 library ###################################
 IF( NOT DEFINED RESTLIB_GEANT4 )

@@ -351,17 +351,17 @@ class TRestGeant4Metadata : public TRestMetadata {
     Int_t GetNumberOfPrimaries() { return GetNumberOfSources(); }
 
     /// Returns the particle source specified with index n.
-    TRestParticleSource GetSource(int n) { return fPrimaryGenerator.GetParticleSource(n); }
+    TRestGeant4ParticleSource GetSource(int n) { return fPrimaryGenerator.GetParticleSource(n); }
 
     /// Returns the name of the particle source with index n (Geant4 based names).
-    TRestParticleSource GetParticleSource(int n) { return fPrimaryGenerator.GetParticleSource(n); }
+    TRestGeant4ParticleSource GetParticleSource(int n) { return fPrimaryGenerator.GetParticleSource(n); }
 
     /// \brief Returns the primary generator object containning information about
     /// particle sources.
     TRestGeant4PrimaryGenerator GetPrimaryGenerator() { return fPrimaryGenerator; }
 
     /// \brief Places in fPrimaryGenerator the source definition, with index n,
-    /// from a TRestParticleCollection. This will be used by restG4 to pick up
+    /// from a TRestGeant4ParticleCollection. This will be used by restG4 to pick up
     /// randomly a primary source definition from a pre-generated sources
     /// collection. The particle collection needs to be previously populated using
     /// i.e. an input Decay0 file.
@@ -371,7 +371,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     void RemoveSources() { fPrimaryGenerator.RemoveSources(); }
 
     /// Adds a new source to fPrimaryGenerator.
-    void AddSource(TRestParticleSource src) { fPrimaryGenerator.AddSource(src); }
+    void AddSource(TRestGeant4ParticleSource src) { fPrimaryGenerator.AddSource(src); }
     ///////////////////////////////////////////////////////////
 
     // Direct access to biasing volumes definition

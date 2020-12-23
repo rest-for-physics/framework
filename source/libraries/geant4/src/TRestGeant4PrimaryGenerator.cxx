@@ -40,12 +40,12 @@ void TRestGeant4PrimaryGenerator::RemoveSources() {
     fNsources = 0;
 }
 
-void TRestGeant4PrimaryGenerator::AddSource(TRestParticleSource src) {
+void TRestGeant4PrimaryGenerator::AddSource(TRestGeant4ParticleSource src) {
     fSources.push_back(src);
     fNsources++;
 }
 
-TRestParticleCollection* TRestGeant4PrimaryGenerator::GetParticleCollection(Int_t n) {
+TRestGeant4ParticleCollection* TRestGeant4PrimaryGenerator::GetParticleCollection(Int_t n) {
     return fParticleCollections[n];
 }
 
@@ -57,7 +57,7 @@ void TRestGeant4PrimaryGenerator::RemoveParticleCollections() {
     fNCollections = 0;
 }
 
-void TRestGeant4PrimaryGenerator::AddParticleCollection(TRestParticleCollection* collection) {
+void TRestGeant4PrimaryGenerator::AddParticleCollection(TRestGeant4ParticleCollection* collection) {
     fParticleCollections.push_back(collection);
     fNCollections++;
 }
@@ -67,11 +67,11 @@ void TRestGeant4PrimaryGenerator::UpdateSourcesFromParticleCollection(Int_t n) {
 
     Int_t pCollectionID = n % fNCollections;
 
-    TRestParticleCollection* pCollection = GetParticleCollection(pCollectionID);
+    TRestGeant4ParticleCollection* pCollection = GetParticleCollection(pCollectionID);
 
     pCollection->VirtualUpdate();
 
-    TRestParticleSource src;
+    TRestGeant4ParticleSource src;
     src.SetAngularDistType("flux");
     src.SetEnergyDistType("mono");
 

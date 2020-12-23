@@ -12,7 +12,7 @@
 #ifndef RestCore_TRestTrackToDetectorHitsProcess
 #define RestCore_TRestTrackToDetectorHitsProcess
 
-#include <TRestHitsEvent.h>
+#include <TRestDetectorHitsEvent.h>
 #include <TRestTrackEvent.h>
 #include "TRestEventProcess.h"
 
@@ -20,7 +20,7 @@ class TRestTrackToDetectorHitsProcess : public TRestEventProcess {
    private:
 #ifndef __CINT__
     TRestTrackEvent* fInputTrackEvent;  //!
-    TRestHitsEvent* fOutputHitsEvent;   //!
+    TRestDetectorHitsEvent* fOutputHitsEvent;   //!
 #endif
 
     void InitFromConfigFile();

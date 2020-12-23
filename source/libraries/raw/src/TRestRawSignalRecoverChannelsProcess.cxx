@@ -219,7 +219,7 @@ TRestEvent* TRestRawSignalRecoverChannelsProcess::ProcessEvent(TRestEvent* evInp
 
 ///////////////////////////////////////////////
 /// \brief Function reading input parameters from the RML
-/// TRestSignalToRawSignalProcess metadata section
+/// TRestDetectorSignalToRawSignalProcess metadata section
 ///
 void TRestRawSignalRecoverChannelsProcess::InitFromConfigFile() {
     size_t pos = 0;

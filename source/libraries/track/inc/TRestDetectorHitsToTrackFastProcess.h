@@ -13,7 +13,7 @@
 #define RestCore_TRestDetectorHitsToTrackFastProcess
 
 #include <TRestEventProcess.h>
-#include <TRestHitsEvent.h>
+#include <TRestDetectorHitsEvent.h>
 #include <TRestTrackEvent.h>
 
 #include <TVector3.h>
@@ -21,7 +21,7 @@
 class TRestDetectorHitsToTrackFastProcess : public TRestEventProcess {
    private:
 #ifndef __CINT__
-    TRestHitsEvent* fHitsEvent;    //!
+    TRestDetectorHitsEvent* fHitsEvent;    //!
     TRestTrackEvent* fTrackEvent;  //!
 #endif
 

@@ -22,7 +22,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 /// This process allows to select the GDML geometry volumes (defined in
-/// TRestGeant4Metadata) that will be transferred to the TRestHitsEvent by
+/// TRestGeant4Metadata) that will be transferred to the TRestDetectorHitsEvent by
 /// using the `<addVolume` key inside the process definition.
 ///
 /// The following example shows how to include the process into
@@ -39,7 +39,7 @@
 /// \endcode
 ///
 /// If no volumes are defined using the `<addVolume` key, **all volumes will
-/// be active**, and all hits will be transferred to the TRestHitsEvent output.
+/// be active**, and all hits will be transferred to the TRestDetectorHitsEvent output.
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -47,7 +47,7 @@
 ///
 /// History of developments:
 ///
-/// 2016-October First implementation of TRestGeant4Event to TRestHitsEvent
+/// 2016-October First implementation of TRestGeant4Event to TRestDetectorHitsEvent
 ///              Igor Irastorza
 ///
 /// 2017-October: Added the possibility to extract hits only from selected geometrical volumes
@@ -109,7 +109,7 @@ void TRestGeant4ToHitsProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fG4Event = NULL;
-    fHitsEvent = new TRestHitsEvent();
+    fHitsEvent = new TRestDetectorHitsEvent();
 }
 
 ///////////////////////////////////////////////

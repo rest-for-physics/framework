@@ -17,8 +17,8 @@
 //#include <TCanvas.h>
 
 #include <TRestDetectorReadout.h>
-#include <TRestGas.h>
-#include <TRestHitsEvent.h>
+#include <TRestDetectorGas.h>
+#include <TRestDetectorHitsEvent.h>
 #include <TRestRawSignalEvent.h>
 
 #include "TRestEventProcess.h"

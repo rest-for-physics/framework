@@ -22,9 +22,21 @@
 
 //////////////////////////////////////////////////////////////////////////
 /// TRestRawSignal is ... a longer description comes here
-/// The REST process using it will usually define the sampling of the TRestRawSignal binning.
 ///
-/// DOCUMENTATION TO BE WRITTEN
+/// DOCUMENTATION TO BE WRITTEN (main description)
+///
+/// \note If you find this code useful for your work feel free to use it, improve
+/// it, add new validation pipelines and/or document the code.
+/// See also our
+/// <a href="https://lfna.unizar.es/rest-development/REST_v2/-/blob/master/CONTRIBUTING.md">
+/// Contribution guide </a>.
+/// Any concern, issue or problem using REST might also be posted to the
+/// [REST Framework Forum](http://ezpc10.unizar.es/).
+///
+/// **⚠ WARNING: REST is under continous development.** This documentation
+/// is offered to you by the REST community. Your HELP is needed to keep this file
+/// up to date. You are very welcome to contribute fixing typos, updating
+/// information or adding new contributions.
 ///
 ///--------------------------------------------------------------------------
 ///

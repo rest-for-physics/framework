@@ -126,7 +126,7 @@ class TRestGeant4Event : public TRestEvent {
 #ifndef __CINT__
 
     // TODO These graphs should be placed in TRestTrack?
-    // (following GetGraph implementation in TRestSignal)
+    // (following GetGraph implementation in TRestDetectorSignal)
     TGraph* fXZHitGraph;  //!
     TGraph* fYZHitGraph;  //!
     TGraph* fXYHitGraph;  //!

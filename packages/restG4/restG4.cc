@@ -21,7 +21,7 @@
 #include "TRestGeant4Metadata.h"
 #include "TRestGeant4Track.h"
 #include "TRestGeometry.h"
-#include "TRestPhysicsLists.h"
+#include "TRestGeant4PhysicsLists.h"
 #include "TRestRun.h"
 #include "TrackingAction.hh"
 
@@ -54,7 +54,7 @@ TRestRun* restRun;
 TRestGeant4Track* restTrack;
 TRestGeant4Event *restG4Event, *subRestG4Event;
 TRestGeant4Metadata* restG4Metadata;
-TRestPhysicsLists* restPhysList;
+TRestGeant4PhysicsLists* restPhysList;
 
 Bool_t saveAllEvents;
 
@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
     std::string g4Version = TRestTools::Execute("geant4-config --version");
     restG4Metadata->SetGeant4Version(g4Version);
 
-    restPhysList = new TRestPhysicsLists(inputConfigFile, (string)physListName);
+    restPhysList = new TRestGeant4PhysicsLists(inputConfigFile, (string)physListName);
 
     restRun = new TRestRun();
     restRun->LoadConfigFromFile(inputConfigFile);
@@ -319,7 +319,7 @@ int main(int argc, char** argv) {
             // previously obtained
             restG4Metadata->RemoveSources();
 
-            TRestParticleSource src;
+            TRestGeant4ParticleSource src;
             src.SetParticleName("gamma");
             src.SetEnergyDistType("TH1D");
             src.SetAngularDistType("TH1D");

@@ -1,24 +1,67 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestRawMultiFEMINOSToSignalProcess.cxx
-///
-///             Template to use to design "event process" classes inherited from
-///             TRestRawMultiFEMINOSToSignalProcess
-///             How to use: replace TRestRawMultiFEMINOSToSignalProcess by your
-///             name, fill the required functions following instructions and add
-///             all needed additional members and funcionality
-///
-///             Aug 2017:   First concept
-///                 Created as part of the conceptualization of existing REST
-///                 software.
-///                 Javier Galan
-///_______________________________________________________________________________
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
+//////////////////////////////////////////////////////////////////////////
+/// The TRestRawMultiFEMINOSToSignalProcess ...
+///
+/// DOCUMENTATION TO BE WRITTEN (main description, methods, data members)
+///
+/// \note If you find this code useful for your work feel free to use it, improve
+/// it, add new validation pipelines and/or document the code.
+/// See also our
+/// <a href="https://lfna.unizar.es/rest-development/REST_v2/-/blob/master/CONTRIBUTING.md">
+/// Contribution guide </a>.
+/// Any concern, issue or problem using REST might also be posted to the
+/// [REST Framework Forum](http://ezpc10.unizar.es/).
+///
+/// \warning This process might be obsolete today. It may need additional
+/// revision, validation, and documentation. Use it under your own risk. If you
+/// find this process useful for your work feel free to use it, improve it,
+/// validate and/or document this process. If all those points are addressed
+/// these lines can be removed.
+///
+/// **⚠ WARNING: REST is under continous development.** This documentation
+/// is offered to you by the REST community. Your HELP is needed to keep this file
+/// up to date. You are very welcome to contribute fixing typos, updating
+/// information or adding new contributions. See also our
+/// <a href="https://lfna.unizar.es/rest-development/REST_v2/-/blob/master/CONTRIBUTING.md">
+/// Contribution guide </a>.
+/// Any concern, issue or problem using REST might also be posted to the
+/// [REST Framework Forum](http://ezpc10.unizar.es/).
+///
+///--------------------------------------------------------------------------
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2017-Aug: First implementation
+///           Javier Galan
+///
+/// \class      TRestRawMultiFEMINOSToSignalProcess
+/// \author     Javier Galan
+///
+/// <hr>
+///
 // int counter = 0;
 
 // Prefix Codes for 8-bit data content
@@ -147,7 +190,7 @@ using namespace std;
 Int_t nChannels = 0;
 
 ClassImp(TRestRawMultiFEMINOSToSignalProcess);
-//______________________________________________________________________________
+
 TRestRawMultiFEMINOSToSignalProcess::TRestRawMultiFEMINOSToSignalProcess() { Initialize(); }
 
 TRestRawMultiFEMINOSToSignalProcess::TRestRawMultiFEMINOSToSignalProcess(char* cfgFileName)
@@ -155,29 +198,20 @@ TRestRawMultiFEMINOSToSignalProcess::TRestRawMultiFEMINOSToSignalProcess(char* c
     Initialize();
 }
 
-//______________________________________________________________________________
-TRestRawMultiFEMINOSToSignalProcess::~TRestRawMultiFEMINOSToSignalProcess() {
-    // TRestRawMultiFEMINOSToSignalProcess destructor
-}
+TRestRawMultiFEMINOSToSignalProcess::~TRestRawMultiFEMINOSToSignalProcess() {}
 
-//______________________________________________________________________________
 void TRestRawMultiFEMINOSToSignalProcess::LoadDetectorSetupData() {
     if (fRunInfo == nullptr) {
         cout << "'fRunInfo' is null" << endl;
         return;
     }
-    // string file_name = (string)fRunInfo->GetInputFileNamepattern();
-    // gDetector->RegisterString(file_name);
-    // fRunOrigin = gDetector->GetRunNumber();
 }
 
-//______________________________________________________________________________
 void TRestRawMultiFEMINOSToSignalProcess::Initialize() {
     fLastEventId = 0;
     fLastTimeStamp = 0;
 }
 
-//______________________________________________________________________________
 void TRestRawMultiFEMINOSToSignalProcess::InitProcess() {
     debug << "TRestRawMultiFeminos::InitProcess" << endl;
     // Reading binary file header
@@ -228,7 +262,6 @@ void TRestRawMultiFEMINOSToSignalProcess::InitProcess() {
     }
 }
 
-//______________________________________________________________________________
 TRestEvent* TRestRawMultiFEMINOSToSignalProcess::ProcessEvent(TRestEvent* evInput) {
     if (GetVerboseLevel() >= REST_Debug) cout << "TRestRawMultiFEMINOSToSignalProcess::ProcessEvent" << endl;
 

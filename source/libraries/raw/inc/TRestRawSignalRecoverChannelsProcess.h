@@ -32,7 +32,7 @@
 class TRestRawSignalRecoverChannelsProcess : public TRestEventProcess {
    private:
 #ifndef __CINT__
-    /// A pointer to the specific TRestSignalEvent input
+    /// A pointer to the specific TRestDetectorSignalEvent input
     TRestRawSignalEvent* fInputSignalEvent;  //!
 
     /// A pointer to the specific TRestRawSignalEvent input

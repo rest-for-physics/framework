@@ -37,7 +37,7 @@ void TRestTrackToDetectorHitsProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fInputTrackEvent = NULL;
-    fOutputHitsEvent = new TRestHitsEvent();
+    fOutputHitsEvent = new TRestDetectorHitsEvent();
 }
 
 void TRestTrackToDetectorHitsProcess::LoadConfig(std::string cfgFilename, std::string name) {

@@ -22,7 +22,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 /// The TRestRawSignalToSignalProcess transforms a TRestRawSignalEvent into
-/// a TRestSignalEvent. It applies a direct transform between both data
+/// a TRestDetectorSignalEvent. It applies a direct transform between both data
 /// types. The data points inside the raw signal are transformed to time
 /// information using the input sampling time and time start provided
 /// through the process RML section.
@@ -44,7 +44,7 @@
 /// \code
 ///
 /// // A raw signal with 200ns binning will be translated to a
-/// // TRestSignalEvent. The new signal will start at time=20us, and its
+/// // TRestDetectorSignalEvent. The new signal will start at time=20us, and its
 /// // amplitude will be reduced a factor 50.
 ///
 /// <TRestRawSignalToSignalProcess name="rsTos" title"Raw signal to signal">
@@ -125,7 +125,7 @@ void TRestRawSignalToSignalProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fInputSignalEvent = NULL;
-    fOutputSignalEvent = new TRestSignalEvent();
+    fOutputSignalEvent = new TRestDetectorSignalEvent();
 }
 
 ///////////////////////////////////////////////
@@ -151,7 +151,7 @@ TRestEvent* TRestRawSignalToSignalProcess::ProcessEvent(TRestEvent* evInput) {
     fInputSignalEvent = (TRestRawSignalEvent*)evInput;
 
     for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++) {
-        TRestSignal sgnl;
+        TRestDetectorSignal sgnl;
         sgnl.Initialize();
         TRestRawSignal* rawSgnl = fInputSignalEvent->GetSignal(n);
         sgnl.SetID(rawSgnl->GetID());

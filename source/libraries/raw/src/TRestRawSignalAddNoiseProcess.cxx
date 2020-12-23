@@ -38,15 +38,11 @@ TRestRawSignalAddNoiseProcess::~TRestRawSignalAddNoiseProcess() {
 void TRestRawSignalAddNoiseProcess::LoadDefaultConfig() {
     SetName("addSignalNoiseProcess-Default");
     SetTitle("Default config");
-
-    fNoiseLevel = 1;
 }
 
 //______________________________________________________________________________
 void TRestRawSignalAddNoiseProcess::Initialize() {
     SetSectionName(this->ClassName());
-
-    fNoiseLevel = 1;
 
     fInputSignalEvent = NULL;
     fOutputSignalEvent = new TRestRawSignalEvent();
@@ -98,7 +94,3 @@ void TRestRawSignalAddNoiseProcess::EndProcess() {
     // TRestEventProcess::EndProcess();
 }
 
-//______________________________________________________________________________
-void TRestRawSignalAddNoiseProcess::InitFromConfigFile() {
-    fNoiseLevel = StringToDouble(GetParameter("noiseLevel"));
-}

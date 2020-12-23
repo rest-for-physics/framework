@@ -83,7 +83,7 @@ PhysicsList::PhysicsList() : G4VModularPhysicsList() {
     cout << "restG4. PhysicsList. Wrong constructor!!" << endl;
 }
 
-PhysicsList::PhysicsList(TRestPhysicsLists* physicsLists) : G4VModularPhysicsList() {
+PhysicsList::PhysicsList(TRestGeant4PhysicsLists* physicsLists) : G4VModularPhysicsList() {
     // add new units for radioActive decays
     //
     const G4double minute = 60 * second;

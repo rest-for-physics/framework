@@ -77,7 +77,7 @@ TRestEvent* TRestDetectorHitsToTrackFastProcess::ProcessEvent(TRestEvent* evInpu
     /* Time measurement
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
     */
-    fHitsEvent = (TRestHitsEvent*)evInput;
+    fHitsEvent = (TRestDetectorHitsEvent*)evInput;
 
     fTrackEvent->SetID(fHitsEvent->GetID());
     fTrackEvent->SetSubID(fHitsEvent->GetSubID());
