@@ -19,9 +19,8 @@
 #include "TRestGDMLParser.h"
 #include "TRestGeant4Event.h"
 #include "TRestGeant4Metadata.h"
-#include "TRestGeant4Track.h"
-#include "TRestGeometry.h"
 #include "TRestGeant4PhysicsLists.h"
+#include "TRestGeant4Track.h"
 #include "TRestRun.h"
 #include "TrackingAction.hh"
 
