@@ -46,6 +46,8 @@ before_script:
   - root-config --version
   - geant4-config --version
   - python3 --version
+  - cd ${CI_PROJECT_DIR}/
+  - python3.5 pull-submodules.py
 
 clang-format:
     stage: pre-build
@@ -58,14 +60,14 @@ clang-format:
             - $CI_SERVER_HOST == "lfna.unizar.es"
             - $CRONJOB == "YES"
 
-submodules:
-    stage: pre-build
-    script:
-        - cd ${CI_PROJECT_DIR}/
-        - python3.5 pull-submodules.py
-    except:
-        variables:
-            - $CRONJOB == "YES"
+              #submodules:
+              #    stage: pre-build
+              #    script:
+              #        - cd ${CI_PROJECT_DIR}/
+              #        - python3.5 pull-submodules.py
+              #    except:
+              #        variables:
+              #            - $CRONJOB == "YES"
 
 validateCode:
     stage: pre-build
