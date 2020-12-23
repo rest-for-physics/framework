@@ -89,6 +89,10 @@ if (${RESTLIB_RAW} MATCHES "ON")
     set(external_include_dirs ${external_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/source/libraries/raw/inc)
 endif (${RESTLIB_RAW} MATCHES "ON")
 
+if (${RESTLIB_TRACK} MATCHES "ON")
+    set(external_include_dirs ${external_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/source/libraries/track/inc)
+endif (${RESTLIB_TRACK} MATCHES "ON")
+
 #this is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProccess.
 IF (NOT DEFINED SQL)
     set(SQL OFF)
