@@ -4,7 +4,7 @@
 file known as metadata file. The file can be used in "addMetadata" section in TRestRun in future.
 
 We first set "searchPath" to tell TRestMetadata where to find the include file. Then we instantiate 
-a TRestRun object by adding a section in TRestMenager section. TRestRun will hold and manage our metadata.
+a TRestRun object by adding a section in TRestManager section. TRestRun will hold and manage our metadata.
 Inside TRestRun section, we define two TRestDetectorGas objects from online database(https://sultan.unizar.es/gasFiles/). 
 We also construct an TRestDetectorReadout object by hand. In the construction we first define a readout 
 module known as MicroMegas(module). This is from a pre-defined section in readouts.rml. Then we define a 
