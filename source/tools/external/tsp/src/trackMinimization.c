@@ -241,9 +241,10 @@ static int runHeldKarp_segment (int ncount, int *elen, int *hk_tour )
     while( contiguos )
     {
         contiguos = 0;
-        for( i = 1; i < ncount; i++ )
-            if( hk_tour[i] - hk_tour[i-1] == ncount-1 ) contiguos = 1;
-            if( hk_tour[i] - hk_tour[i-1] == 1-ncount ) contiguos = 1;
+        for (i = 1; i < ncount; i++) {
+            if (hk_tour[i] - hk_tour[i - 1] == ncount - 1) contiguos = 1;
+            if (hk_tour[i] - hk_tour[i - 1] == 1 - ncount) contiguos = 1;
+        }
 
         if( contiguos )
         {
