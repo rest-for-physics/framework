@@ -447,7 +447,7 @@ void TRestThread::AddProcess(TRestEventProcess* process) {
     debug << "Entering TRestThread::AddProcess" << endl;
 
     fProcessChain.push_back(process);
-    //if (Console::CompatibilityMode && process->GetVerboseLevel() >= REST_Debug) {
+    // if (Console::CompatibilityMode && process->GetVerboseLevel() >= REST_Debug) {
     //    warning << "REST WARNING! Cannot use \"debug\" output level for process " << process->GetName()
     //            << endl;
     //    process->SetVerboseLevel(REST_Info);
