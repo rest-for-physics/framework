@@ -227,7 +227,7 @@ pandaXIII_Topological:
     - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC
     - restManager --c AllProcesses.rml --i testInput.root --o testOutput.root --j 1 --e 10
     - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
-    - if [ `root-config --version` = "6.20/04" ] ; then restRoot -b -q ../ValidateTrees.C'("validation_6.20.root")'; else restRoot -b -q ../ValidateTrees.C'("validation.root")' ;fi
+    - restRoot -b -q ../ValidateTrees.C'("validation_6.20.root")'
     - restManager --c plots.rml --i testOutput.root
   artifacts:
     paths:
@@ -245,7 +245,7 @@ pandaXIII_Topological_fromG4:
     - echo "using just-generated g4 file"
     - restManager --c AllProcesses.rml --i Xe136bb0n_n2E06.root --o testOutput.root --j 1 --e 10
     - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
-    - if [ `root-config --version` = "6.20/04" ] ; then restRoot -b -q ../ValidateTrees.C'("validation_6.20.root")'; else restRoot -b -q ../ValidateTrees.C'("validation.root")' ;fi
+    - restRoot -b -q ../ValidateTrees.C'("validation_6.20.root")'
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC/testOutput.root
