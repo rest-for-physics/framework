@@ -158,6 +158,16 @@ GenerateGas:
       variables:
         - $CRONJOB == "YES"
 
+AnalysisTree:
+  type: metadata 
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/scripts/pipeline/metadata/analysistree/
+    - restRoot -b -q simpleTree.cpp
+  except:
+      variables:
+        - $CRONJOB == "YES"
+
 GenerateReadout:
   type: metadata 
   script:
