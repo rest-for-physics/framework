@@ -133,12 +133,12 @@ Int_t REST_StringHelper::GetChar(string hint) {
         t.detach();
 
         cout << hint << endl;
-        int result = getchar();
+        int result = Console::CompatibilityMode ? 1 : getchar();
         gSystem->ExitLoop();
         return result;
     } else {
         cout << hint << endl;
-        return getchar();
+        return Console::CompatibilityMode ? 1 : getchar();
     }
     return -1;
 }
@@ -192,7 +192,7 @@ std:
     vector<double> result;
     vector<string> vec_str =
         REST_StringHelper::Split(in, separator, allowBlankString, removeWhiteSpaces, startPos);
-    for (unsigned int i; i < vec_str.size(); i++) {
+    for (unsigned int i = 0; i < vec_str.size(); i++) {
         double temp = REST_StringHelper::StringToDouble(vec_str[i]);
         result.push_back(temp);
     }
