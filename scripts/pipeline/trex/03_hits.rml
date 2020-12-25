@@ -28,9 +28,9 @@
 			<observable name="energyY" value="ON" />
 			<observable name="balanceXYenergy" value="ON" />
 
-			<observable name="nHits" value="ON" />
-			<observable name="nHitsX" value="ON" />
-			<observable name="nHitsY" value="ON" />
+			<observable name="nHits" type="int" value="ON" />
+			<observable name="nHitsX" type="int" value="ON" />
+			<observable name="nHitsY" type="int" value="ON" />
 			<observable name="nHitsSizeXY" value="ON" />
 
 			<observable name="maxHitEnergy" value="ON" />

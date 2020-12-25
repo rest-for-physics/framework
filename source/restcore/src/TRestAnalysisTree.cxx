@@ -102,8 +102,8 @@ Int_t TRestAnalysisTree::GetObservableID(TString obsName) {
     } else {
         return -1;
     }
-    //if (!ObservableExists(obsName)) return -1;
-    //return fObservableIdMap[obsName];
+    // if (!ObservableExists(obsName)) return -1;
+    // return fObservableIdMap[obsName];
 }
 
 Bool_t TRestAnalysisTree::ObservableExists(TString obsName) {

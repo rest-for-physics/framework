@@ -25,8 +25,8 @@
 			pointThreshold="${POINT_TH}" pointsOverThreshold="${NPOINTS}" signalThreshold="${SGNL_TH}"
 			verboseLevel="silent" >
             // We define all observables except MinValue because is not yet on validation.root
-                <observable name="pointsoverthres_map" type="map<int,double>" value="ON" />
-                <observable name="risetime_map" type="map<int,double>" value="ON" />
+                <observable name="pointsoverthres_map" type="map<int,int>" value="ON" />
+                <observable name="risetime_map" type="map<int,int>" value="ON" />
                 <observable name="baseline_map" type="map<int,double>" value="ON" />
                 <observable name="baselinesigma_map" type="map<int,double>" value="ON" />
                 <observable name="max_amplitude_map" type="map<int,double>" value="ON" />
