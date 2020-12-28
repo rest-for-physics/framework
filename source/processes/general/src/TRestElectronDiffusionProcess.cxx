@@ -144,12 +144,16 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent(TRestEvent* evInput) {
 
                     Double_t driftDistance = plane->GetDistanceTo(x, y, z);
 
-                    Int_t numberOfElectrons = (Int_t)(eDep * REST_Units::eV / wValue);
-
-                    if (numberOfElectrons == 0 && eDep > 0) numberOfElectrons = 1;
+                    Int_t numberOfElectrons;
+                    if (fUseElectronNumberSampling) {
+                        numberOfElectrons = gRandom->Poisson((Int_t)(eDep * REST_Units::eV / wValue));
+                        if (numberOfElectrons == 0 && eDep > 0) numberOfElectrons = 1;
+                    } else {
+                        numberOfElectrons = (Int_t)(eDep * REST_Units::eV / wValue);
+                        if (numberOfElectrons == 0 && eDep > 0) numberOfElectrons = 1;
+                    }
 
                     Double_t localWValue = eDep * REST_Units::eV / numberOfElectrons;
-                    Double_t localEnergy = 0;
 
                     while (numberOfElectrons > 0) {
                         numberOfElectrons--;
@@ -172,7 +176,6 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent(TRestEvent* evInput) {
 
                             zDiff = z + fRandom->Gaus(0, longHitDiffusion);
 
-                            localEnergy += localWValue * REST_Units::keV / REST_Units::eV;
                             if (GetVerboseLevel() >= REST_Extreme)
                                 cout << "Adding hit. x : " << xDiff << " y : " << yDiff << " z : " << zDiff
                                      << " en : " << localWValue * REST_Units::keV / REST_Units::eV << " keV"
@@ -232,4 +235,5 @@ void TRestElectronDiffusionProcess::InitFromConfigFile() {
     }
     fMaxHits = StringToInteger(GetParameter("maxHits", "1000"));
     fSeed = StringToDouble(GetParameter("seed", "0"));
+    fUseElectronNumberSampling = StringToBool(GetParameter("useElectronNumberSampling", "false"));
 }
