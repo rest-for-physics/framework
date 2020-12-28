@@ -14,7 +14,7 @@
 
 		<parameter name="eventsToProcess" value="100" />
 
-		<addProcess type="TRestRawMultiFEMINOSToSignalProcess" name="virtualDAQ" value="ON" verboseLevel="silent">
+		<addProcess type="TRestMultiFEMINOSToSignalProcess" name="virtualDAQ" value="ON" verboseLevel="silent">
 			<parameter name="pedScript" value="ped"/>
 			<parameter name="runScript" value="run"/>
 			<parameter name="electronics" value="TCMFeminos"/>
@@ -23,15 +23,44 @@
 		<addProcess type="TRestRawSignalAnalysisProcess" name="rawAna" value="ON"
 			baseLineRange="(${BL_MIN},${BL_MAX})" integralRange="(${INT_MIN},${INT_MAX})"
 			pointThreshold="${POINT_TH}" pointsOverThreshold="${NPOINTS}" signalThreshold="${SGNL_TH}"
-			verboseLevel="silent" observable="all" >
-		<!--
-			<observable name="NumberOfSignals" value="ON" />
-			<observable name="NumberOfGoodSignals" value="ON" />
-		-->
+			verboseLevel="silent" >
+            // We define all observables except MinValue because is not yet on validation.root
+                <observable name="pointsoverthres_map" type="map<int,int>" value="ON" />
+                <observable name="risetime_map" type="map<int,int>" value="ON" />
+                <observable name="baseline_map" type="map<int,double>" value="ON" />
+                <observable name="baselinesigma_map" type="map<int,double>" value="ON" />
+                <observable name="max_amplitude_map" type="map<int,double>" value="ON" />
+                <observable name="thr_integral_map" type="map<int,double>" value="ON" />
+                <observable name="SecondsFromStart" type="double" value="ON" />                     
+                <observable name="HoursFromStart" type="double" value="ON" />                          
+                <observable name="EventTimeDelay" type="double" value="ON" />                          
+                <observable name="MeanRate_InHz" type="double" value="ON" />                           
+                <observable name="BaseLineMean" type="double" value="ON" />                            
+                <observable name="BaseLineSigmaMean" type="double" value="ON" />                       
+                <observable name="TimeBinsLength" type="double" value="ON" />                          
+                <observable name="NumberOfSignals" type="int" value="ON" />                         
+                <observable name="NumberOfGoodSignals" type="int" value="ON" />                     
+                <observable name="FullIntegral" type="double" value="ON" />                            
+                <observable name="ThresholdIntegral" type="double" value="ON" />                       
+                <observable name="RiseSlopeAvg" type="double" value="ON" />                             
+                <observable name="SlopeIntegral" type="double" value="ON" />                            
+                <observable name="RateOfChangeAvg" type="double" value="ON" />                          
+                <observable name="RiseTimeAvg" type="double" value="ON" />                              
+                <observable name="TripleMaxIntegral" type="double" value="ON" />                        
+                <observable name="IntegralBalance" type="double" value="ON" />                          
+                <observable name="AmplitudeIntegralRatio" type="double" value="ON" />                   
+                <observable name="MinPeakAmplitude" type="double" value="ON" />                         
+                <observable name="MaxPeakAmplitude" type="double" value="ON" />                         
+                <observable name="PeakAmplitudeIntegral" type="double" value="ON" />                    
+                <!--<observable name="MinEventValue" type="double" value="ON" />-->                            
+                <observable name="AmplitudeRatio" type="double" value="ON" />                           
+                <observable name="MaxPeakTime" type="double" value="ON" />                              
+                <observable name="MinPeakTime" type="double" value="ON" />                             
+                <observable name="MaxPeakTimeDelay" type="double" value="ON" />                        
+                <observable name="AveragePeakTime" type="double" value="ON" />                         
 
-      <parameter name="cutsEnabled" value="true" />
-      <cut name="NumberOfGoodSignals" value="(1,1000)" />
-      
+                <cut name="NumberOfGoodSignals" value="(1,1000)" />
+                <parameter name="cutsEnabled" value="true" />
 		</addProcess>
 
 
@@ -40,3 +69,4 @@
 	<addTask type="processEvents" value="ON" />
     
 </TRestManager>
+

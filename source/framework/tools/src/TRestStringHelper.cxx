@@ -133,12 +133,12 @@ Int_t REST_StringHelper::GetChar(string hint) {
         t.detach();
 
         cout << hint << endl;
-        int result = getchar();
+        int result = Console::CompatibilityMode ? 1 : getchar();
         gSystem->ExitLoop();
         return result;
     } else {
         cout << hint << endl;
-        return getchar();
+        return Console::CompatibilityMode ? 1 : getchar();
     }
     return -1;
 }
@@ -176,6 +176,25 @@ std::vector<string> REST_StringHelper::Split(std::string in, string separator, b
         }
         front = pos + separator.size();
         if (pos == -1) break;
+    }
+
+    return result;
+}
+
+///////////////////////////////////////////////
+/// \brief Convert the input string into a  vector of double elements
+///
+/// e.g. Input: "1,2,3,4", Output: {1.,2.,3.,4.}
+std::vector<double> REST_StringHelper::StringToElements(std::string in, string separator,
+                                                        bool allowBlankString, bool removeWhiteSpaces,
+                                                        int startPos) {
+std:
+    vector<double> result;
+    vector<string> vec_str =
+        REST_StringHelper::Split(in, separator, allowBlankString, removeWhiteSpaces, startPos);
+    for (unsigned int i = 0; i < vec_str.size(); i++) {
+        double temp = REST_StringHelper::StringToDouble(vec_str[i]);
+        result.push_back(temp);
     }
 
     return result;

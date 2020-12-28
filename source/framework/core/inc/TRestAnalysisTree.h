@@ -27,9 +27,6 @@ class TStreamerElement;
 
 class TRestAnalysisTree : public TTree {
    private:
-    Bool_t fConnected;        //!
-    Bool_t fBranchesCreated;  //!
-
     Int_t fEventID;         //!
     Int_t fSubEventID;      //!
     Double_t fTimeStamp;    //!
@@ -49,19 +46,29 @@ class TRestAnalysisTree : public TTree {
     std::vector<TString> fObservableTypes;
 
     void Initialize();
-    void ConnectBranches();
-    void CreateBranches();
+    void UpdateObservables();
+    void UpdateBranches();
     void InitObservables();
     void MakeObservableIdMap();
     void ReadLeafValueToObservable(TLeaf* lf, any& obs);
+    bool BranchesExist() { return GetListOfBranches()->GetEntriesFast() > 0; }
+
+    enum TRestAnalysisTree_Status {
+        Error = -1,
+        Created = 1,
+        Retrieved = 2,
+        EmptyCloned = 3,
+        Connected = 4,
+        Filled = 5,
+        ROOTTree = 6
+    };
 
     TRestAnalysisTree(TTree* tree);
 
    protected:
    public:
     // getters
-    bool IsConnected() { return fConnected; }
-    bool IsBranchesCreated() { return fBranchesCreated; }
+    int GetStatus();
     Int_t GetObservableID(TString obsName);
     Bool_t ObservableExists(TString obsName);
     Int_t GetEventID() { return fEventID; }
@@ -141,12 +148,9 @@ class TRestAnalysisTree : public TTree {
         if (id != -1) {
             *(T*)fObservables[id] = value;
         } else {
-            if (!fBranchesCreated) {
-                id = AddObservable<T>(name);
+            id = AddObservable<T>(name);
+            if (id != -1) {
                 *(T*)fObservables[id] = value;
-            } else {
-                cout << "TRestAnalysisTree::SetObservableValueQuick(): observable: \"" << name
-                     << "\" not found!" << endl;
             }
         }
     }
