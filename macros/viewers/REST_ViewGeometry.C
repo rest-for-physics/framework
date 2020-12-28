@@ -1,6 +1,5 @@
 #include <iostream>
 
-#include "GdmlPreprocessor.h"
 #include "TRestBrowser.h"
 #include "TRestTask.h"
 using namespace std;
@@ -32,7 +31,7 @@ Int_t REST_ViewGeometry(TString fName, TString option = "") {
             }
         }
     } else if (((string)fName).find(".gdml") != string::npos) {
-        GdmlPreprocessor* p = new GdmlPreprocessor();
+        TRestGDMLParser* p = new TRestGDMLParser();
         p->Load((string)fName);
         geo = p->CreateGeoM();
     } else {

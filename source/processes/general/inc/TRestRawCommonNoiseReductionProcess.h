@@ -25,6 +25,7 @@
 
 #include <TRestRawSignalEvent.h>
 #include "TRestEventProcess.h"
+#include "TRestRawSignal.h"
 
 //! A process to substract the common channels noise from RawSignal type of data.
 class TRestRawCommonNoiseReductionProcess : public TRestEventProcess {
@@ -34,6 +35,9 @@ class TRestRawCommonNoiseReductionProcess : public TRestEventProcess {
 
     /// A pointer to the specific TRestRawSignalEvent output
     TRestRawSignalEvent* fOutputEvent;
+
+    /// Common noise to all signals or by groups (It can be 0 or 1).
+    Int_t fBlocks = 0;
 
     /// The mode defines the method to be used (It can be 0 or 1).
     Int_t fMode = 0;
@@ -69,6 +73,7 @@ class TRestRawCommonNoiseReductionProcess : public TRestEventProcess {
         if (fMode == 0) metadata << " --> Mode 0 activated." << endl;
         if (fMode == 1) metadata << " --> Mode 1 activated." << endl;
         metadata << " fcenterWidth : " << fcenterWidth << endl;
+        metadata << "fBlocks : [" << fBlocks << "]";
 
         EndPrintProcess();
     }
@@ -86,6 +91,6 @@ class TRestRawCommonNoiseReductionProcess : public TRestEventProcess {
     // Destructor
     ~TRestRawCommonNoiseReductionProcess();
 
-    ClassDef(TRestRawCommonNoiseReductionProcess, 1);
+    ClassDef(TRestRawCommonNoiseReductionProcess, 2);
 };
 #endif

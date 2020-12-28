@@ -85,6 +85,7 @@
 /// threshold in the event.
 /// * **AmplitudeRatio**: PeakAmplitudeIntegral/ MaxPeakAmplitude. Sum of all maximum
 /// points divided by the maximum between the maximum points of the pulses.
+/// * **MinEventValue**: Minimum value reached by a pulse in the event.
 ///
 /// Peak time observables:
 ///
@@ -115,11 +116,11 @@
 /// of samples in the range used to compute the base line.
 /// * **baselinesigmamean**: Add the base line's standard deviation of all pulses in
 /// the event and divide it by the number of pulses.
-/// * **ampsgn_maxmethod**: Map the ID of each signal in the event with the amplitude
+/// * **max_amplitude_map**: Map the ID of each signal in the event with the amplitude
 /// of its peak. Amplitude = MaxPeakValue-BaseLine.
 /// * **ampeve_maxmethod**: Add the amplitude of all pulses in the event.
 /// Amplitude = MaxPeakValue-BaseLine.
-/// * **ampsgn_intmethod**: Map the ID of each signal in the event with the threshold
+/// * **thr_integral_map**: Map the ID of each signal in the event with the threshold
 /// integral of its peak. GetIntegralWithThreshold() adds the samples of a pulse
 /// that get over the threshold. A certain number of samples must pass the threshold
 /// to be taken into account.
@@ -280,9 +281,9 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     // Double_t ampeve_maxmethod;
     map<int, Double_t> ampsgn_intmethod;
     // Double_t ampeve_intmethod;
-    map<int, Double_t> risetime;
+    map<int, int> risetime;
     // Double_t risetimemean;
-    map<int, Double_t> npointsot;
+    map<int, int> npointsot;
 
     baseline.clear();
     baselinesigma.clear();
@@ -459,6 +460,7 @@ risetimemean += sgnl->GetRiseTime();
     Double_t maxValue = 0;
     Double_t minValue = 1.e6;
     Double_t maxValueIntegral = 0;
+    Double_t minDownValue = 1.e6;
 
     Double_t minPeakTime = 1000;  // TODO sustitute this for something better
     Double_t maxPeakTime = 0;
@@ -479,6 +481,8 @@ risetimemean += sgnl->GetRiseTime();
             if (minPeakTime > peakBin) minPeakTime = peakBin;
             if (maxPeakTime < peakBin) maxPeakTime = peakBin;
         }
+        Double_t mindownvalue = fSignalEvent->GetSignal(s)->GetMinValue();
+        if (mindownvalue < minDownValue) minDownValue = mindownvalue;
     }
 
     if (nGoodSignals > 0) peakTimeAverage /= nGoodSignals;
@@ -490,6 +494,8 @@ risetimemean += sgnl->GetRiseTime();
     SetObservableValue("MinPeakAmplitude", minValue);
     SetObservableValue("MaxPeakAmplitude", maxValue);
     SetObservableValue("PeakAmplitudeIntegral", maxValueIntegral);
+
+    SetObservableValue("MinEventValue", minDownValue);
 
     Double_t amplitudeRatio = maxValueIntegral / maxValue;
     if (maxValue == 0) amplitudeRatio = 0;
@@ -504,7 +510,7 @@ risetimemean += sgnl->GetRiseTime();
     SetObservableValue("AveragePeakTime", peakTimeAverage);
 
     if (GetVerboseLevel() >= REST_Debug) {
-        for (auto i : fObservableInfo) {
+        for (auto i : fObservablesDefined) {
             fAnalysisTree->PrintObservable(i.second);
         }
     }
@@ -560,11 +566,11 @@ TPad* TRestRawSignalAnalysisProcess::DrawObservables() {
 ///////////////////////////////////////////////
 /// \brief Function to read input parameters.
 ///
-void TRestRawSignalAnalysisProcess::InitFromConfigFile() {
+/*void TRestRawSignalAnalysisProcess::InitFromConfigFile() {
     TRestEventProcess::InitFromConfigFile();
     // fBaseLineRange = StringTo2DVector(GetParameter("baseLineRange", "(5,55)"));
     // fIntegralRange = StringTo2DVector(GetParameter("integralRange", "(10,500)"));
     // fPointThreshold = StringToDouble(GetParameter("pointThreshold", "2"));
     // fPointsOverThreshold = StringToInteger(GetParameter("pointsOverThreshold", "5"));
     // fSignalThreshold = StringToDouble(GetParameter("signalThreshold", "5"));
-}
+}*/

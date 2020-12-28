@@ -124,6 +124,11 @@ int main(int argc, char* argv[]) {
                 if (debug) printf("%s\n", mdcmd.c_str());
 
                 gROOT->ProcessLine(mdcmd.c_str());
+
+                // if (metaType == "TRestGas") {
+                //    string gascmd = Form("%s->LoadGasFile();", metaFixed.c_str());
+                //    gROOT->ProcessLine(gascmd.c_str());
+                //}
             }
 
             argv[i] = (char*)"";

@@ -44,6 +44,7 @@ class TRestElectronDiffusionProcess : public TRestEventProcess {
     Double_t fWvalue;
     Double_t fLonglDiffCoeff;
     Double_t fTransDiffCoeff;
+    Bool_t fUseElectronNumberSampling;
 
     Int_t fMaxHits;
 
@@ -90,7 +91,7 @@ class TRestElectronDiffusionProcess : public TRestEventProcess {
     // Destructor
     ~TRestElectronDiffusionProcess();
 
-    ClassDef(TRestElectronDiffusionProcess, 2);  // Template for a REST "event process" class inherited from
+    ClassDef(TRestElectronDiffusionProcess, 3);  // Template for a REST "event process" class inherited from
                                                  // TRestEventProcess
 };
 #endif

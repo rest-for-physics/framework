@@ -142,21 +142,28 @@ TRestEvent* TRestRawVetoAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     GetChar();
     */
 
-    Double_t VetoPeakTime = 0;          // Cristina
-    Double_t VetoMaxPeakAmplitude = 0;  // Cristina
+    Double_t VetoPeakTime = 0;             // Cristina
+    Double_t VetoMaxPeakAmplitude = 0;     // Cristina
+    Int_t nVetoes = fVetoSignalId.size();  // how many veto channels are there?
 
     fOutputRawSignalEvent->SetBaseLineRange(fBaseLineRange);
     fOutputRawSignalEvent->SetRange(fRange);
 
-    if (fOutputRawSignalEvent->GetSignalIndex(fVetoSignalId) != -1) {
-        // We extract the parameters from the veto signal
-        TRestRawSignal* sgnl = fOutputRawSignalEvent->GetSignalById(fVetoSignalId);
+    // cout << nVetoes << endl;
 
-        VetoPeakTime = sgnl->GetMaxPeakBin();
-        VetoMaxPeakAmplitude = sgnl->GetMaxPeakValue();
+    // iterate over vetoes
+    for (unsigned int i = 0; i < nVetoes; i++) {
+        if (fOutputRawSignalEvent->GetSignalIndex(fVetoSignalId[i]) !=
+            -1) {  // Checks if channel (fVetoSignalID) participated in the event. If not, it is -1
+            // We extract the parameters from the veto signal
+            TRestRawSignal* sgnl = fOutputRawSignalEvent->GetSignalById(fVetoSignalId[i]);
 
-        // And at the end we remove the signal from the event
-        fOutputRawSignalEvent->RemoveSignalWithId(fVetoSignalId);
+            VetoPeakTime = sgnl->GetMaxPeakBin();
+            VetoMaxPeakAmplitude = sgnl->GetMaxPeakValue();
+
+            // And at the end we remove the signal from the event
+            fOutputRawSignalEvent->RemoveSignalWithId(fVetoSignalId[i]);
+        }
     }
 
     SetObservableValue("PeakTime", VetoPeakTime);                  // Cristina
@@ -185,7 +192,18 @@ TRestEvent* TRestRawVetoAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 /// TRestRawVetoAnalysisProcess section
 ///
 void TRestRawVetoAnalysisProcess::InitFromConfigFile() {
-    fVetoSignalId = StringToInteger(GetParameter("vetoSignalId", "-1"));
+    fVetoSignalId = StringToElements(GetParameter("vetoSignalId", "-1"), ",");
+    // fVetoSignalId = StringToInteger(GetParameter("vetoSignalId", "-1"));
+    /*
+    vector<string> fVetoSignalId_str = Split(GetParameter("vetoSignalId", "-1"),","); // split VetoSignalIDs
+    into vector<string>
+    cout << "Size vector: " << fVetoSignalId_str.size() << endl;
+    // cout << "Veto IDs:" << endl;
+    for (unsigned int i=0; i<fVetoSignalId_str.size(); i++) { // convert vector<string> to vector<int>
+        Int_t chId = StringToInteger(fVetoSignalId_str[i]);
+        fVetoSignalId.push_back( chId );
+    }
+    */
     fBaseLineRange = StringTo2DVector(GetParameter("baseLineRange", "(5,55)"));
     fRange = StringTo2DVector(GetParameter("range", "(10,500)"));
 }
@@ -199,7 +217,8 @@ void TRestRawVetoAnalysisProcess::PrintMetadata() {
 
     // Print output metadata using, metadata << endl;
 
-    metadata << "Veto signal id : " << fVetoSignalId << endl;
+    for (unsigned int i = 0; i < fVetoSignalId.size(); i++)
+        metadata << "Veto signal id : " << fVetoSignalId[i] << endl;
 
     EndPrintProcess();
 }

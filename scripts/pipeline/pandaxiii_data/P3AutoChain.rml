@@ -31,11 +31,33 @@
 
     <addProcess type="TRestMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON"/>
     <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON">
-      <parameter name="observable" value="all" />
-      /// no need for explicit observable definition if we use "observable=all"
-      <!--<observable name="baseline" value="ON" />
+
+      /// We define all observables except MinValue because it is not yet in validation chain
       <observable name="SecondsFromStart" value="ON" />
-      <observable name="ThresholdIntegral" value="ON" />-->
+      <observable name="HoursFromStart" value="ON" />
+      <observable name="EventTimeDelay" value="ON" />
+      <observable name="MeanRate_InHz" value="ON" />
+      <observable name="BaseLineMean" value="ON" />
+      <observable name="BaseLineSigmaMean" value="ON" />
+      <observable name="TimeBinsLength" value="ON" />
+      <observable name="FullIntegral" value="ON" />
+      <observable name="ThresholdIntegral" value="ON" />
+      <observable name="RiseSlopeAvg" value="ON" />
+      <observable name="SlopeIntegral" value="ON" />
+      <observable name="RateOfChangeAvg" value="ON" />
+      <observable name="RiseTimeAvg" value="ON" />
+      <observable name="TripleMaxIntegral" value="ON" />
+      <observable name="IntegralBalance" value="ON" />
+      <observable name="AmplitudeIntegralRatio" value="ON" />
+      <observable name="MinPeakAmplitude" value="ON" />
+      <observable name="MaxPeakAmplitude" value="ON" />
+      <observable name="PeakAmplitudeIntegral" value="ON" />
+      <observable name="AmplitudeRatio" value="ON" />
+      <observable name="MaxPeakTime" value="ON" />
+      <observable name="MinPeakTime" value="ON" />
+      <observable name="MaxPeakTimeDelay" value="ON" />
+      <observable name="AveragePeakTime" value="ON" />
+
     </addProcess>
     <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" sampling="0.2us"/> 5MHz sampling
 

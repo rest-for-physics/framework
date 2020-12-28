@@ -2,10 +2,13 @@
 
 #include <G4UserLimits.hh>
 
+#include "G4FieldManager.hh"
 #include "G4IonTable.hh"
 #include "G4Isotope.hh"
+#include "G4MagneticField.hh"
 #include "G4Material.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4UniformMagField.hh"
 
 extern TRestG4Event* restG4Event;
 extern TRestG4Metadata* restG4Metadata;
@@ -57,8 +60,21 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         exit(1);
     }
 
+    Double_t mx = restG4Metadata->GetMagneticField().X() * tesla;
+    Double_t my = restG4Metadata->GetMagneticField().Y() * tesla;
+    Double_t mz = restG4Metadata->GetMagneticField().Z() * tesla;
+
+    G4MagneticField* magField = new G4UniformMagField(G4ThreeVector(mx, my, mz));
+    G4FieldManager* localFieldMgr = new G4FieldManager(magField);
+    G4FieldManager* fieldMgr = G4TransportationManager::GetTransportationManager()->GetFieldManager();
+    fieldMgr->SetDetectorField(magField);
+    fieldMgr->CreateChordFinder(magField);
+
     if (_vol != NULL) {
         G4LogicalVolume* vol = _vol->GetLogicalVolume();
+        // This method seems not available in my Geant4 version 10.4.2
+        // In future Geant4 versions it seems possible to define field at particular volumes
+        // vol->setFieldManager(localFieldMgr, true);
         G4Material* mat = vol->GetMaterial();
         vol->SetUserLimits(new G4UserLimits(restG4Metadata->GetMaxTargetStepSize() * mm));
         G4cout << "Sensitivity volume properties" << G4endl;

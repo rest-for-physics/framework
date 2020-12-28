@@ -2,13 +2,13 @@
 #include <TTree.h>
 #include <iostream>
 #include <vector>
-Int_t ValidateTrees() {
+Int_t ValidateTrees(TString validationFile) {
     TFile* f = new TFile("results.root");
     TTree* tr = (TTree*)f->Get("bTree");
     std::vector<double>* vr = 0;
     tr->SetBranchAddress("doubleObservables", &vr);
 
-    TFile* fV = new TFile("validation.root");
+    TFile* fV = new TFile(validationFile);
     TTree* tV = (TTree*)fV->Get("bTree");
     std::vector<double>* vV = 0;
     tV->SetBranchAddress("doubleObservables", &vV);
@@ -41,10 +41,16 @@ Int_t ValidateTrees() {
         }
 
         for (int m = 0; m < (*vr).size(); m++) {
-            if ((*vr)[m] != (*vV)[m]) {
+            if ((Int_t)(1000. * (*vr)[m]) != (Int_t)(1000. * (*vV)[m])) {
                 cout << "Double Observable with index " << m << " in entry " << n
                      << " is not the same value!!" << endl;
-                obsValErr = true;
+                printf("  value: %.15f, should be: %.15f\n", (*vr)[m], (*vV)[m]);
+
+                if (!TMath::IsNaN((*vr)[m] - (*vV)[m]) && abs(((*vr)[m] - (*vV)[m]) / (*vr)[m]) < 1e-15) {
+                    cout << "  (ignored)" << endl;
+                } else {
+                    obsValErr = true;
+                }
             }
         }
     }
