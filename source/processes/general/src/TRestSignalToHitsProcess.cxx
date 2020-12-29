@@ -269,6 +269,19 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
                 cout << "Adding hit. Time : " << time << " x : " << x << " y : " << y << " z : " << z
                      << " Energy : " << energy << endl;
             }
+        } else if (fSignalToHitMethod == "q_center") {
+            Double_t energy_signal = 0;
+            Double_t distanceToPlane = 0;
+
+            for (int j = 0; j < sgnl->GetNumberOfPoints(); j++) {
+                Double_t energy_point = sgnl->GetData(j);
+                energy_signal += energy_point;
+                distanceToPlane += sgnl->GetTime(j) * fDriftVelocity * energy_point;
+            }
+            Double_t energy = energy_signal / sgnl->GetNumberOfPoints();
+
+            Double_t z = zPosition + fieldZDirection * (distanceToPlane / energy_signal);
+            fHitsEvent->AddHit(x, y, z, energy, 0, type);
         } else {
             for (int j = 0; j < sgnl->GetNumberOfPoints(); j++) {
                 Double_t energy = sgnl->GetData(j);
