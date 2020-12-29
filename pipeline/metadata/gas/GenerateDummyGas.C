@@ -1,12 +1,6 @@
 // A basic test to generate a gas file and test uploading it to the gas server
 
 Int_t GenerateDummyGas() {
-    gSystem->Load("libRestProcesses.so");
-    gSystem->Load("libRestCore.so");
-    gSystem->Load("libRestTools.so");
-    gSystem->Load("libRestMetadata.so");
-    gSystem->Load("libRestEvents.so");
-
     TRestTools::Execute("scp -P 22 gasUser@sultan.unizar.es:gasFiles/gases.rml gases.bkp");
 
     if (TRestTools::isValidFile("gases.bkp") == 0) {
