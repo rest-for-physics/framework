@@ -44,7 +44,8 @@ class TRestElectronDiffusionProcess : public TRestEventProcess {
     Double_t fWvalue;
     Double_t fLonglDiffCoeff;
     Double_t fTransDiffCoeff;
-    Bool_t fUseElectronNumberSampling;
+    Bool_t fPoissonElectronExcitation;
+    Bool_t fUnitElectronEnergy;
 
     Int_t fMaxHits;
 

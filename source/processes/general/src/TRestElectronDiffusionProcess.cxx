@@ -123,8 +123,10 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent(TRestEvent* evInput) {
     Int_t totalElectrons = fInputHitsEvent->GetEnergy() * REST_Units::eV / fWvalue;
 
     Double_t wValue = fWvalue;
-    if (fMaxHits > 0 && totalElectrons > fMaxHits)
+    if (fMaxHits > 0 && totalElectrons > fMaxHits) {
+        // set a fake w-value if max hits are limited. this fake w-value will be larger
         wValue = fInputHitsEvent->GetEnergy() * REST_Units::eV / fMaxHits;
+    }
 
     for (int n = 0; n < nHits; n++) {
         TRestHits* hits = fInputHitsEvent->GetHits();
@@ -145,8 +147,12 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent(TRestEvent* evInput) {
                     Double_t driftDistance = plane->GetDistanceTo(x, y, z);
 
                     Int_t numberOfElectrons;
-                    if (fUseElectronNumberSampling) {
-                        numberOfElectrons = gRandom->Poisson((Int_t)(eDep * REST_Units::eV / wValue));
+                    if (fPoissonElectronExcitation) {
+                        numberOfElectrons = fRandom->Poisson((Int_t)(eDep * REST_Units::eV / fWvalue));
+                        if (wValue != fWvalue) {
+                            // reduce the number of electrons to improve speed
+                            numberOfElectrons = (Int_t)(numberOfElectrons * fWvalue / wValue);
+                        }
                         if (numberOfElectrons == 0 && eDep > 0) numberOfElectrons = 1;
                     } else {
                         numberOfElectrons = (Int_t)(eDep * REST_Units::eV / wValue);
@@ -176,13 +182,23 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent(TRestEvent* evInput) {
 
                             zDiff = z + fRandom->Gaus(0, longHitDiffusion);
 
-                            if (GetVerboseLevel() >= REST_Extreme)
-                                cout << "Adding hit. x : " << xDiff << " y : " << yDiff << " z : " << zDiff
-                                     << " en : " << localWValue * REST_Units::keV / REST_Units::eV << " keV"
-                                     << endl;
-                            fOutputHitsEvent->AddHit(xDiff, yDiff, zDiff,
-                                                     localWValue * REST_Units::keV / REST_Units::eV,
-                                                     hits->GetTime(n), hits->GetType(n));
+                            if (fUnitElectronEnergy) {
+                                if (GetVerboseLevel() >= REST_Extreme)
+                                    cout << "Adding hit. x : " << xDiff << " y : " << yDiff
+                                         << " z : " << zDiff
+                                         << " (unit energy)"<< endl;
+                                fOutputHitsEvent->AddHit(xDiff, yDiff, zDiff, 1, hits->GetTime(n),
+                                                         hits->GetType(n));
+                            } else {
+                                if (GetVerboseLevel() >= REST_Extreme)
+                                    cout << "Adding hit. x : " << xDiff << " y : " << yDiff
+                                         << " z : " << zDiff
+                                         << " en : " << localWValue * REST_Units::keV / REST_Units::eV
+                                         << " keV" << endl;
+                                fOutputHitsEvent->AddHit(xDiff, yDiff, zDiff,
+                                                         localWValue * REST_Units::keV / REST_Units::eV,
+                                                         hits->GetTime(n), hits->GetType(n));
+                            }
                         }
                     }
                 }
@@ -235,5 +251,6 @@ void TRestElectronDiffusionProcess::InitFromConfigFile() {
     }
     fMaxHits = StringToInteger(GetParameter("maxHits", "1000"));
     fSeed = StringToDouble(GetParameter("seed", "0"));
-    fUseElectronNumberSampling = StringToBool(GetParameter("useElectronNumberSampling", "false"));
+    fPoissonElectronExcitation = StringToBool(GetParameter("poissonElectronExcitation", "false"));
+    fUnitElectronEnergy = StringToBool(GetParameter("unitElectronEnergy", "false"));
 }
