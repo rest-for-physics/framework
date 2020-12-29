@@ -184,12 +184,7 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent(TRestEvent* evInput) {
 
             time = ((Int_t)(time / fSampling)) * fSampling;  // now time is in unit "us", but dispersed
 
-            if (fUseElectronNumberSampling) {
-                fSignalEvent->AddChargeToSignal(daqId, time, 1);
-            } else {
-                fSignalEvent->AddChargeToSignal(daqId, time, energy);
-            }
-
+            fSignalEvent->AddChargeToSignal(daqId, time, energy);
         } else {
             if (GetVerboseLevel() >= REST_Debug)
                 cout << "readout channel not find for position (" << x << ", " << y << ", " << z << ")!"
@@ -227,5 +222,4 @@ void TRestHitsToSignalProcess::InitFromConfigFile() {
     fElectricField = GetDblParameterWithUnits("electricField", -1.);
     // DONE : velocity units are implemented with standard unit "mm/us"
     fDriftVelocity = GetDblParameterWithUnits("driftVelocity", -1.);
-    fUseElectronNumberSampling = StringToBool(GetParameter("useElectronNumberSampling", "false"));
 }
