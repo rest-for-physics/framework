@@ -148,7 +148,7 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent(TRestEvent* evInput) {
 
                     Int_t numberOfElectrons;
                     if (fPoissonElectronExcitation) {
-                        numberOfElectrons = fRandom->Poisson(round(eDep * REST_Units::eV / fWvalue));
+                        numberOfElectrons = fRandom->Poisson(eDep * REST_Units::eV / fWvalue);
                         if (wValue != fWvalue) {
                             // reduce the number of electrons to improve speed
                             numberOfElectrons = round(numberOfElectrons * fWvalue / wValue);
