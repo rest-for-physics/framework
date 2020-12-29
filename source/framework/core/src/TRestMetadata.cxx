@@ -801,7 +801,8 @@ void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
 /// "evaluate" specifies the shell command, the output of which is used.
 /// "condition" specifies the comparing condition.
 /// So here if the home directory is "/home/nkx", the process "TRestRawZeroSuppresionProcess" will be added
-/// If the current date is larger than 2019-08-21, the process "TRestDetectorSignalToHitsProcess" will be added
+/// If the current date is larger than 2019-08-21, the process "TRestDetectorSignalToHitsProcess" will be
+/// added
 ///
 /// Supports condition markers: `==`, `!=`, `>`, `<`, `<=`, `>=`. Its better to escape the ">", "<" markers.
 /// Note that the `>`, `<` calculation is also valid for strings. The ordering is according to the alphabet
@@ -1083,9 +1084,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     }
 
     if (filename == "") {
-        warning << "REST WARNING(expand include file): Include file \"" << _filename << "\" does not exist!"
-                << endl;
-        warning << endl;
+        ferr << "TRestMetadata::ExpandIncludeFile. Include file \"" << _filename << "\" does not exist!"
+             << endl;
+        exit(1);
         return;
     }
     if (!TRestTools::isRootFile(filename))  // root file inclusion is implemented in TRestRun
@@ -1109,8 +1110,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1118,9 +1120,11 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
             remoteele = new TiXmlElement("Config");
 
             TiXmlElement* ele = GetElementFromFile(filename);
-            if (ele == NULL)
-                warning << "REST Waring: no xml elements contained in the include file \"" << filename << "\""
-                        << endl;
+            if (ele == NULL) {
+                ferr << "TRestMetadata::ExpandIncludeFile. No xml elements contained in the include file \""
+                     << filename << "\"" << endl;
+                exit(1);
+            }
             while (ele != NULL) {
                 remoteele->InsertEndChild(*ele);
                 ele = ele->NextSiblingElement();
@@ -1143,8 +1147,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1155,9 +1160,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
             // get the root element
             TiXmlElement* rootele = GetElementFromFile(filename);
             if (rootele == NULL) {
-                warning << "REST WARNING(expand include file): Include file " << filename
-                        << " is of wrong xml format!" << endl;
-                warning << endl;
+                ferr << "TRestMetaddata::ExpandIncludeFile. Include file " << filename
+                     << " is of wrong xml format!" << endl;
+                exit(1);
                 return;
             }
             if ((string)rootele->Value() == type) {
