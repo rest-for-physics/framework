@@ -269,7 +269,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
                 cout << "Adding hit. Time : " << time << " x : " << x << " y : " << y << " z : " << z
                      << " Energy : " << energy << endl;
             }
-        } else if (fSignalToHitMethod == "q_center") {
+        } else if (fSignalToHitMethod == "qCenter") {
             Double_t energy_signal = 0;
             Double_t distanceToPlane = 0;
 
