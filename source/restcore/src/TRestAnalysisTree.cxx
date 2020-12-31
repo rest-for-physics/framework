@@ -1,36 +1,66 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
+
+//////////////////////////////////////////////////////////////////////////
 ///
+/// TRestAnalysisTree is TTree but with **managed objects** for the branches to fill.
+/// There are six fixed branches of event information in TRestAnalysisTree: runOrigin,
+/// subRunOrigin, eventID, subEventID, subEventTag and timeStamp. They are pointing
+/// to the corresponding class members inside TRestAnalysisTree. Other branches are 
+/// added by the user, pointing also to some objects whose addresses are stored in a 
+/// vector in the class. Those objects are called `observables`. 
 ///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestAnalysisTree.cxx
-///
-///             Base class for managing a basic analysis tree.
-///
-///             feb 2016:   First concept
-///              author :   Javier Galan
+/// In traditional TTree case, the user defines multiple global variables, and add 
+/// branches with the address of these variables to the tree. Then the user changes the 
+/// variables and calls `TTree::Fill()` to create and save a new entry in the data list. 
+/// In TRestAnalysisTree, the concept of "Branch" is weakened. We can directly call 
+/// `SetObservableValue()` and then `TRestAnalysisTree::Fill()` to do the data saving. 
+/// The code could be simplified while sacrificing a little performance. 
 ///_______________________________________________________________________________
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2016-Mar: First implementation 
+/// 2019-May: Updated to support any type of observables
+/// 2020-Oct: Updated to be free from "Branch" concept
+/// 
+///
+/// \class      TRestAnalysisTree
+/// \author     Javier Galan, Ni Kaixiang
+///
+///______________________________________________________________________________
+///
+//////////////////////////////////////////////////////////////////////////
+
 
 #include "TRestAnalysisTree.h"
 
-#include "TBranchElement.h"
 #include "TH1F.h"
 #include "TLeaf.h"
-#include "TLeafB.h"
-#include "TLeafC.h"
-#include "TLeafD.h"
-#include "TLeafElement.h"
-#include "TLeafF.h"
-#include "TLeafI.h"
-#include "TLeafL.h"
-#include "TLeafObject.h"
-#include "TLeafS.h"
 #include "TObjArray.h"
-#include "TRestEventProcess.h"
-#include "TRestMetadata.h"
-#include "TStreamerInfo.h"
+#include "TRestStringHelper.h"
+#include "TRestStringOutput.h"
 
 using namespace std;
 
@@ -85,6 +115,7 @@ void TRestAnalysisTree::Initialize() {
     fSubEventTag = new TString();
     fTimeStamp = 0;
 
+    fStatus = 0;
     fNObservables = 0;
     fROOTTree = NULL;
 
@@ -94,7 +125,7 @@ void TRestAnalysisTree::Initialize() {
     fObservables.clear();
 }
 
-Int_t TRestAnalysisTree::GetObservableID(TString obsName) {
+Int_t TRestAnalysisTree::GetObservableID(const string& obsName) {
     MakeObservableIdMap();
     auto iter = fObservableIdMap.find(obsName);
     if (iter != fObservableIdMap.end()) {
@@ -106,7 +137,7 @@ Int_t TRestAnalysisTree::GetObservableID(TString obsName) {
     // return fObservableIdMap[obsName];
 }
 
-Bool_t TRestAnalysisTree::ObservableExists(TString obsName) {
+Bool_t TRestAnalysisTree::ObservableExists(const string& obsName) {
     MakeObservableIdMap();
     return fObservableIdMap.count(obsName) > 0;
 }
@@ -129,7 +160,7 @@ Bool_t TRestAnalysisTree::ObservableExists(TString obsName) {
 // 5. Filled           |    Denied      |     Allowed  |    Allowed
 // 6. ROOTTree         |    Denied      |     Denied   |    Allowed
 //
-int TRestAnalysisTree::GetStatus() {
+int TRestAnalysisTree::EvaluateStatus() {
     int NBranches = GetListOfBranches()->GetEntriesFast();
     int NObsInList = fObservables.size();
     int Entries = GetEntriesFast();
@@ -218,11 +249,13 @@ void TRestAnalysisTree::UpdateObservables() {
             }
         }
     }
+
+    fStatus = EvaluateStatus();
 }
 
 // This method will change status 1->4, or update status 4
 void TRestAnalysisTree::UpdateBranches() {
-    if(!GetBranch("runOrigin")) Branch("runOrigin", &fRunOrigin);
+    if (!GetBranch("runOrigin")) Branch("runOrigin", &fRunOrigin);
     if (!GetBranch("subRunOrigin")) Branch("subRunOrigin", &fSubRunOrigin);
     if (!GetBranch("eventID")) Branch("eventID", &fEventID);
     if (!GetBranch("subEventID")) Branch("subEventID", &fSubEventID);
@@ -263,6 +296,8 @@ void TRestAnalysisTree::UpdateBranches() {
             this->GetBranch(brName)->SetTitle("(" + typeName + ") " + fObservableDescriptions[n]);
         }
     }
+
+    fStatus = EvaluateStatus();
 }
 
 void TRestAnalysisTree::InitObservables() {
@@ -278,7 +313,7 @@ void TRestAnalysisTree::MakeObservableIdMap() {
     if (fObservableIdMap.size() != fObservableNames.size()) {
         fObservableIdMap.clear();
         for (int i = 0; i < fObservableNames.size(); i++) {
-            fObservableIdMap[fObservableNames[i]] = i;
+            fObservableIdMap[(string)fObservableNames[i]] = i;
         }
         if (fObservableIdMap.size() != fObservableNames.size()) {
             cout << "REST ERROR! duplicated or blank observable name!" << endl;
@@ -368,30 +403,31 @@ void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, any& obs) {
     }
 }
 
-Int_t TRestAnalysisTree::AddObservable(TString observableName, TString observableType, TString description) {
-    int status = GetStatus();
-    if (status == Created) {
-    } else if (status == Retrieved) {
+any TRestAnalysisTree::AddObservable(TString observableName, TString observableType, TString description) {
+    if (fStatus == None) fStatus = EvaluateStatus();
+
+    if (fStatus == Created) {
+    } else if (fStatus == Retrieved) {
         cout << "REST_Warning: cannot add observable for retrieved tree with data!" << endl;
         return -1;
-    } else if (status == EmptyCloned) {
+    } else if (fStatus == EmptyCloned) {
         UpdateObservables();
-    } else if (status == Connected) {
-    } else if (status == Filled) {
+    } else if (fStatus == Connected) {
+    } else if (fStatus == Filled) {
         cout << "REST_Warning: cannot add observable! AnalysisTree is already filled" << endl;
         return -1;
-    } else if (status == ROOTTree) {
+    } else if (fStatus == ROOTTree) {
         cout << "REST_Warning: cannot add observable for root tree!" << endl;
         return -1;
     }
 
     Double_t x = 0;
-    if (GetObservableID(observableName) == -1) {
+    if (GetObservableID((string)observableName) == -1) {
         any ptr = REST_Reflection::Assembly((string)observableType);
         ptr.name = observableName;
         if (!ptr.IsZombie()) {
             fObservableNames.push_back(observableName);
-            fObservableIdMap[observableName] = fObservableNames.size() - 1;
+            fObservableIdMap[(string)observableName] = fObservableNames.size() - 1;
             fObservableDescriptions.push_back(description);
             fObservableTypes.push_back(observableType);
             fObservables.push_back(ptr);
@@ -403,25 +439,26 @@ Int_t TRestAnalysisTree::AddObservable(TString observableName, TString observabl
             return -1;
         }
     } else {
-        return GetObservableID(observableName);
+        return GetObservableID((string)observableName);
     }
 
-    return fNObservables - 1;
+    return fObservables[fNObservables - 1];
 }
 
 void TRestAnalysisTree::PrintObservables() {
-    int status = GetStatus();
-    if (status == Created) {
-    } else if (status == Retrieved) {
+    if (fStatus == None) fStatus = EvaluateStatus();
+
+    if (fStatus == Created) {
+    } else if (fStatus == Retrieved) {
         cout << "TRestAnalysisTree::PrintObservables(): Reading entry 0" << endl;
         GetEntry(0);
-    } else if (status == EmptyCloned) {
+    } else if (fStatus == EmptyCloned) {
         cout << "REST_Warning: AnalysisTree is empty" << endl;
         UpdateObservables();
-    } else if (status == Connected) {
+    } else if (fStatus == Connected) {
         cout << "REST_Warning: AnalysisTree is empty" << endl;
-    } else if (status == Filled) {
-    } else if (status == ROOTTree) {
+    } else if (fStatus == Filled) {
+    } else if (fStatus == ROOTTree) {
     }
 
     cout.precision(15);
@@ -450,16 +487,17 @@ void TRestAnalysisTree::PrintObservable(int n) {
 }
 
 Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
-    int status = GetStatus();
-    if (status == Created) {
+    if (fStatus == None) fStatus = EvaluateStatus();
+
+    if (fStatus == Created) {
         UpdateBranches();
-    } else if (status == Retrieved) {
+    } else if (fStatus == Retrieved) {
         UpdateObservables();
-    } else if (status == EmptyCloned) {
+    } else if (fStatus == EmptyCloned) {
         UpdateObservables();
-    } else if (status == Connected) {
-    } else if (status == Filled) {
-    } else if (status == ROOTTree) {
+    } else if (fStatus == Connected) {
+    } else if (fStatus == Filled) {
+    } else if (fStatus == ROOTTree) {
     }
 
     if (fROOTTree != NULL) {
@@ -501,22 +539,31 @@ void TRestAnalysisTree::SetEventInfo(TRestEvent* evt) {
 }
 
 Int_t TRestAnalysisTree::Fill() {
-    int status = GetStatus();
-    if (status == Created) {
+    if (fStatus == None) fStatus = EvaluateStatus();
+
+    if (fStatus == Filled) {
+        return TTree::Fill();
+    } else if (fStatus == Created) {
         UpdateBranches();
-    } else if (status == Retrieved) {
+        int a = TTree::Fill();
+        fStatus = EvaluateStatus();
+    } else if (fStatus == Retrieved) {
         UpdateObservables();
-    } else if (status == EmptyCloned) {
+        int a = TTree::Fill();
+        fStatus = EvaluateStatus();
+    } else if (fStatus == EmptyCloned) {
         UpdateObservables();
-    } else if (status == Connected) {
+        int a = TTree::Fill();
+        fStatus = EvaluateStatus();
+    } else if (fStatus == Connected) {
         UpdateBranches();
-    } else if (status == Filled) {
-    } else if (status == ROOTTree) {
+        int a = TTree::Fill();
+        fStatus = EvaluateStatus();
+    } else if (fStatus == ROOTTree) {
         cout << "REST_Warning: cannot Fill the root tree, read only!" << endl;
         return -1;
     }
-
-    return TTree::Fill();
+    return -1;
 }
 
 void TRestAnalysisTree::SetObservable(Int_t id, any obs) {
@@ -525,11 +572,13 @@ void TRestAnalysisTree::SetObservable(Int_t id, any obs) {
         id = GetObservableID(obs.name);
         // if not found, we have a chance to create observable
         if (id == -1) {
-            id = AddObservable(obs.name, obs.type);
+            AddObservable(obs.name, obs.type);
+            id = GetObservableID(obs.name);
         }
     } else if (id == fObservables.size()) {
         // this means we want to add observable directly
-        id = AddObservable(obs.name, obs.type);
+        AddObservable(obs.name, obs.type);
+        id = GetObservableID(obs.name);
     }
     if (id != -1) {
         if (obs.type != fObservables[id].type) {
