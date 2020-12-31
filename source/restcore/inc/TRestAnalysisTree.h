@@ -38,10 +38,10 @@ class TRestAnalysisTree : public TTree {
     Int_t fSubRunOrigin;    //!
 
     //
-    Int_t fStatus = 0;                        //!
-    std::vector<any> fObservables;            //!
+    Int_t fStatus = 0;                       //!
+    std::vector<any> fObservables;           //!
     std::map<string, int> fObservableIdMap;  //!
-    TTree* fROOTTree;                         //!
+    TTree* fROOTTree;                        //!
 
     // for storage
     Int_t fNObservables;
@@ -103,9 +103,7 @@ class TRestAnalysisTree : public TTree {
         return GetObservableType(id);
     }
 
-    Double_t GetDblObservableValue(string obsName) {
-        return GetDblObservableValue(GetObservableID(obsName));
-    }
+    Double_t GetDblObservableValue(string obsName) { return GetDblObservableValue(GetObservableID(obsName)); }
     Double_t GetDblObservableValue(Int_t n) {
         if (GetObservableType(n) == "int") return GetObservableValue<int>(n);
         if (GetObservableType(n) == "double") return GetObservableValue<double>(n);

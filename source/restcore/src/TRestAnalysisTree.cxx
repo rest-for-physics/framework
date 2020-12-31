@@ -25,26 +25,26 @@
 /// TRestAnalysisTree is TTree but with **managed objects** for the branches to fill.
 /// There are six fixed branches of event information in TRestAnalysisTree: runOrigin,
 /// subRunOrigin, eventID, subEventID, subEventTag and timeStamp. They are pointing
-/// to the corresponding class members inside TRestAnalysisTree. Other branches are 
-/// added by the user, pointing also to some objects whose addresses are stored in a 
-/// vector in the class. Those objects are called `observables`. 
+/// to the corresponding class members inside TRestAnalysisTree. Other branches are
+/// added by the user, pointing also to some objects whose addresses are stored in a
+/// vector in the class. Those objects are called `observables`.
 ///
-/// In traditional TTree case, the user defines multiple global variables, and add 
-/// branches with the address of these variables to the tree. Then the user changes the 
-/// variables and calls `TTree::Fill()` to create and save a new entry in the data list. 
-/// In TRestAnalysisTree, the concept of "Branch" is weakened. We can directly call 
-/// `SetObservableValue()` and then `TRestAnalysisTree::Fill()` to do the data saving. 
-/// The code could be simplified while sacrificing a little performance. 
+/// In traditional TTree case, the user defines multiple global variables, and add
+/// branches with the address of these variables to the tree. Then the user changes the
+/// variables and calls `TTree::Fill()` to create and save a new entry in the data list.
+/// In TRestAnalysisTree, the concept of "Branch" is weakened. We can directly call
+/// `SetObservableValue()` and then `TRestAnalysisTree::Fill()` to do the data saving.
+/// The code could be simplified while sacrificing a little performance.
 ///_______________________________________________________________________________
 ///
 /// RESTsoft - Software for Rare Event Searches with TPCs
 ///
 /// History of developments:
 ///
-/// 2016-Mar: First implementation 
+/// 2016-Mar: First implementation
 /// 2019-May: Updated to support any type of observables
 /// 2020-Oct: Updated to be free from "Branch" concept
-/// 
+///
 ///
 /// \class      TRestAnalysisTree
 /// \author     Javier Galan, Ni Kaixiang
@@ -52,7 +52,6 @@
 ///______________________________________________________________________________
 ///
 //////////////////////////////////////////////////////////////////////////
-
 
 #include "TRestAnalysisTree.h"
 
@@ -222,7 +221,7 @@ void TRestAnalysisTree::UpdateObservables() {
         exit(1);
     }
 
-    // create observables(no assembly) from stored observable info. 
+    // create observables(no assembly) from stored observable info.
     fObservables = std::vector<any>(GetNumberOfObservables());
     for (int i = 0; i < GetNumberOfObservables(); i++) {
         fObservables[i] = REST_Reflection::WrapType((string)fObservableTypes[i]);
@@ -267,7 +266,7 @@ void TRestAnalysisTree::UpdateBranches() {
         TString brName = fObservableNames[n];
         char* ref = fObservables[n].address;
 
-        TBranch*  branch = GetBranch(brName);
+        TBranch* branch = GetBranch(brName);
         if (branch == NULL) {
             if (typeName == "double") {
                 this->Branch(brName, (double*)ref);

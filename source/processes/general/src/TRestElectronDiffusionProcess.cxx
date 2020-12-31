@@ -185,8 +185,7 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent(TRestEvent* evInput) {
                             if (fUnitElectronEnergy) {
                                 if (GetVerboseLevel() >= REST_Extreme)
                                     cout << "Adding hit. x : " << xDiff << " y : " << yDiff
-                                         << " z : " << zDiff
-                                         << " (unit energy)"<< endl;
+                                         << " z : " << zDiff << " (unit energy)" << endl;
                                 fOutputHitsEvent->AddHit(xDiff, yDiff, zDiff, 1, hits->GetTime(n),
                                                          hits->GetType(n));
                             } else {

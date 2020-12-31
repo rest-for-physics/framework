@@ -342,7 +342,8 @@ void TRestEventProcess::ProcessEvent( TRestEvent *eventInput )
 */
 
 //////////////////////////////////////////////////////////////////////////
-/// \brief End of event process. Validate the updated observable number matches total defined observable number
+/// \brief End of event process. Validate the updated observable number matches total defined observable
+/// number
 void TRestEventProcess::EndOfEventProcess(TRestEvent* evInput) {
     debug << "Entering TRestEventProcess::EndOfEventProcess (" << ClassName() << ")" << endl;
     if (fValidateObservables) {

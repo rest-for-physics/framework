@@ -4,10 +4,10 @@ using namespace chrono;
 void testspeedRESTTree() {
     TFile* f = new TFile("abc.root", "recreate");
     TRestAnalysisTree* tree = new TRestAnalysisTree();
-    //double& gaus = tree->AddObservable<double>("gaus");
-    //int& poisson = tree->AddObservable<int>("poisson");
-    //double& rndm = tree->AddObservable<double>("rndm");
-    //double& landau = tree->AddObservable<double>("landau");
+    // double& gaus = tree->AddObservable<double>("gaus");
+    // int& poisson = tree->AddObservable<int>("poisson");
+    // double& rndm = tree->AddObservable<double>("rndm");
+    // double& landau = tree->AddObservable<double>("landau");
 
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
     for (int i = 0; i < 1000000; i++) {
@@ -16,10 +16,10 @@ void testspeedRESTTree() {
         tree->SetObservableValue("rndm", gRandom->Rndm());
         tree->SetObservableValue("landau", gRandom->Landau(10, 2));
 
-        //gaus = gRandom->Gaus(100, 20);
-        //poisson = gRandom->Poisson(36);
-        //rndm = gRandom->Rndm();
-        //landau = gRandom->Landau(10, 2);
+        // gaus = gRandom->Gaus(100, 20);
+        // poisson = gRandom->Poisson(36);
+        // rndm = gRandom->Rndm();
+        // landau = gRandom->Landau(10, 2);
 
         tree->Fill();
     }
