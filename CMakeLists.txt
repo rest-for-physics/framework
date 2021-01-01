@@ -85,6 +85,7 @@ else ()
     set(REST_GARFIELD OFF)
 endif (${REST_GARFIELD} MATCHES "ON")
 
+## This lines could be placed probably at each library CMakeLists ...
 if (${RESTLIB_RAW} MATCHES "ON")
     set(external_include_dirs ${external_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/source/libraries/raw/inc)
 endif (${RESTLIB_RAW} MATCHES "ON")
@@ -92,6 +93,11 @@ endif (${RESTLIB_RAW} MATCHES "ON")
 if (${RESTLIB_TRACK} MATCHES "ON")
     set(external_include_dirs ${external_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/source/libraries/track/inc)
 endif (${RESTLIB_TRACK} MATCHES "ON")
+
+if (${RESTLIB_DETECTOR} MATCHES "ON")
+    set(external_include_dirs ${external_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/source/libraries/detector/inc)
+endif (${RESTLIB_DETECTOR} MATCHES "ON")
+###### ....
 
 #this is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProccess.
 IF (NOT DEFINED SQL)
@@ -198,12 +204,8 @@ message("===========================================================")
 message("Check main project README.md to see all available compilation options, packages and libraries")
 message("")
 
-file(GLOB_RECURSE Headers1 "${CMAKE_CURRENT_SOURCE_DIR}/source/events/*.h")
-file(GLOB_RECURSE Headers2 "${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/*.h")
-file(GLOB_RECURSE Headers3 "${CMAKE_CURRENT_SOURCE_DIR}/source/processes/*.h")
-file(GLOB_RECURSE Headers4 "${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/*.h")
-file(GLOB_RECURSE Headers5 "${CMAKE_CURRENT_SOURCE_DIR}/source/tools/*.h")
-set(Headers ${Headers} ${Headers1} ${Headers2} ${Headers3} ${Headers4} ${Headers5} )
+file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/framework/*.h")
+#set(Headers ${Headers} ${Headers1} ${Headers2} ${Headers3} ${Headers4} ${Headers5} )
 
 install(CODE "execute_process(COMMAND rm -r ${CMAKE_INSTALL_PREFIX})")
 

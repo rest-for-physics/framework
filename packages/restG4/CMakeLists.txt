@@ -1,11 +1,11 @@
-#----------------------------------------------------------------------------
-# Setup the project
+#-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+#Setup the project
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 project(restG4)
 message("===============  restG4  ==============")
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake ${CMAKE_MODULE_PATH})
 
-# find REST 
+#find REST 
 IF(NOT DEFINED REST_PATH)
 	IF(DEFINED ENV{REST_PATH})
 		set(REST_PATH $ENV{REST_PATH})
@@ -22,12 +22,10 @@ if(NOT CMAKE_CXX_FLAGS)
 SET(CMAKE_CXX_FLAGS "-std=c++1y")
 endif()
 
-
-
-#----------------------------------------------------------------------------
-# Find Geant4 package, activating all available UI and Vis drivers by default
-# You can set WITH_GEANT4_UIVIS to OFF via the command line or ccmake/cmake-gui
-# to build a batch mode only executable
+#-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+#Find Geant4 package, activating all available UI and Vis drivers by default
+#You can set WITH_GEANT4_UIVIS to OFF via the command line or ccmake / cmake - gui
+#to build a batch mode only executable
 option(WITH_GEANT4_UIVIS "Build example with Geant4 UI and Vis drivers" ON)
 if(WITH_GEANT4_UIVIS)
   find_package(Geant4 REQUIRED ui_all vis_all)
@@ -42,8 +40,8 @@ endif()
 
 include(FindROOT)
 
-#----------------------------------------------------------------------------
-# Set include and lib
+#-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+#Set include and lib
 if(DEFINED rest_include_dirs)
 	set(incdir ${PROJECT_SOURCE_DIR}/include ${ROOT_INCLUDE_DIRS} ${rest_include_dirs} ${Geant4_INCLUDE_DIR})
 else()
@@ -51,18 +49,10 @@ else()
 endif()
 
 
-if(DEFINED rest_libraries)
-	set(lnklib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit ${rest_libraries};RestGeant4)
-else()
-	set(lnklib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit -L${REST_PATH}/lib/ -lRestFramework -lRestGeant4 )
-message( "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n
-          After \"make install\" restG4 will be installed in ${REST_PATH}/bin\n\n
-          You can directly use it!
-          \n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" )
-endif()
+set(lnklib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit -L${REST_PATH}/lib/ -lRestFramework -lRestGeant4 -lRestDetector -lRestRaw )
 
-#----------------------------------------------------------------------------
-# Locate sources and headers for this project
+#-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+#Locate sources and headers for this project
 #
 include(${Geant4_USE_FILE})
 include_directories(${incdir})
@@ -72,7 +62,10 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${Garfield_INCLUDE_DIRS}/*.
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
-#
+##
+#message( STATUS "lnklib G4: ${lnklib}" )
+#message( STATUS "sources G4: ${sources}" )
+#message( STATUS "headers G4: ${headers}" )
 add_executable(restG4 restG4.cc ${sources} ${headers})
 target_link_libraries(restG4 ${lnklib})
 
@@ -96,9 +89,4 @@ install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/mac
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
 install(TARGETS restG4 DESTINATION bin)
-
-install(CODE "execute_process(COMMAND chmod 744 ${REST_PATH}/examples/v2.1.7/replaceRMLVars.py)")
-#install(CODE "execute_process(COMMAND ln -sf ${REST_PATH}/data/definitions/materials.xml ${REST_PATH}/examples/01.NLDBD-PandaX-III/geometry/materials.xml)")
-#install(CODE "execute_process(COMMAND ln -sf ${REST_PATH}/data/definitions/materials.xml ${REST_PATH}/examples/v2.1.7/pandaXIII/geometry/traditional/materials.xml)")
-#install(CODE "execute_process(COMMAND ln -sf ${REST_PATH}/data/definitions/materials.xml ${REST_PATH}/examples/v2.1.7/pandaXIII/geometry/resistive/materials.xml)")
 
