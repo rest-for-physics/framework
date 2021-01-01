@@ -49,7 +49,8 @@ else()
 endif()
 
 
-set(lnklib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit -L${REST_PATH}/lib/ -lRestFramework -lRestGeant4 -lRestDetector -lRestRaw )
+set(lnklib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit ${rest_libs_index} )
+string(STRIP "${lnklib}" lnklib)
 
 #-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 #Locate sources and headers for this project
