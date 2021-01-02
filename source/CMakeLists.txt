@@ -24,6 +24,21 @@ IF( DEFINED REST_ALL_LIBS )
 ENDIF ()
 
 
+########################################## Detector library ###################################
+IF( NOT DEFINED RESTLIB_DETECTOR )
+	set(RESTLIB_DETECTOR OFF)
+ENDIF ()
+
+if (${RESTLIB_DETECTOR} MATCHES "ON")
+	add_definitions(-DREST_DetectorLib)
+	add_subdirectory(libraries/detector)
+	list( APPEND rest_libs_index "RestDetector" )
+
+	file(GLOB_RECURSE libHeaders "libraries/detector/inc/*.h")
+	set(restlibHeaders ${restlibHeaders} ${libHeaders} )
+
+endif (${RESTLIB_DETECTOR} MATCHES "ON")
+
 ########################################## Geant4 library ###################################
 IF( NOT DEFINED RESTLIB_GEANT4 )
 	set(RESTLIB_GEANT4 OFF)
@@ -100,21 +115,6 @@ if (${RESTLIB_RAW} MATCHES "ON")
 	file(GLOB_RECURSE libHeaders "libraries/raw/inc/*.h")
 	set(restlibHeaders ${restlibHeaders} ${libHeaders} )
 endif (${RESTLIB_RAW} MATCHES "ON")
-
-########################################## Detector library ###################################
-IF( NOT DEFINED RESTLIB_DETECTOR )
-	set(RESTLIB_DETECTOR OFF)
-ENDIF ()
-
-if (${RESTLIB_DETECTOR} MATCHES "ON")
-	add_definitions(-DREST_DetectorLib)
-	add_subdirectory(libraries/detector)
-	list( APPEND rest_libs_index "RestDetector" )
-
-	file(GLOB_RECURSE libHeaders "libraries/detector/inc/*.h")
-	set(restlibHeaders ${restlibHeaders} ${libHeaders} )
-
-endif (${RESTLIB_DETECTOR} MATCHES "ON")
 
 ########################################## Model library ###################################
 IF( NOT DEFINED RESTLIB_MODEL )
