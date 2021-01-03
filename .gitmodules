@@ -46,3 +46,6 @@
 [submodule "source/libraries/detector"]
 	path = source/libraries/detector
 	url = https://github.com/rest-for-physics/detectorlib.git
+[submodule "source/libraries/connectors"]
+	path = source/libraries/connectors
+	url = https://github.com/rest-for-physics/connectorslib.git
