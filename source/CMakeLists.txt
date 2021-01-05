@@ -135,17 +135,11 @@ if (${RESTLIB_MODEL} MATCHES "ON")
 		)
 endif (${RESTLIB_MODEL} MATCHES "ON")
 
-#### This must be placed after all targets!!!
-set(rest_include_dirs ${local_include_dirs})
-set(rest_libraries ${local_libraries})
-set(Headers ${restlibHeaders})
-
 #message( STATUS "rest_include_dirs: ${rest_include_dirs}" )
 
 #SUBDIRLIST(SUBDIRS libraries)
 
-############################################################################################
-
+########################################## Connectors library ###################################
 list( LENGTH rest_libs_index N_libs )
 
 ## The detector library is always involved. Right now, if we enable only raw and track then,
@@ -158,6 +152,15 @@ if( N_libs GREATER 1 AND DEFINED RESTLIB_DETECTOR AND ${RESTLIB_DETECTOR} MATCHE
 	file(GLOB_RECURSE libHeaders "libraries/connectors/inc/*.h")
 	set(restlibHeaders ${restlibHeaders} ${libHeaders} )
 endif( N_libs GREATER 1 AND DEFINED RESTLIB_DETECTOR AND ${RESTLIB_DETECTOR} MATCHES "ON" )
+
+############################################################################################
+
+############################################################################################
+#### This must be placed after all targets!!!
+set(rest_include_dirs ${local_include_dirs})
+set(rest_libraries ${local_libraries})
+set(Headers ${restlibHeaders})
+############################################################################################
 
 set(Headers ${Headers} PARENT_SCOPE)
 set(rest_include_dirs ${rest_include_dirs} PARENT_SCOPE)
