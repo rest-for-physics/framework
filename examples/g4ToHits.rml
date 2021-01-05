@@ -29,7 +29,7 @@ internal values are saved.
     <parameter name="outputEvent" value="on"/>
 
     // observable = all will add all NON `custom` observables 
-    <addProcess type="TRestGeant4ToHitsProcess" name="g4ToHits" value="ON" >
+    <addProcess type="TRestGeant4ToDetectorHitsProcess" name="g4ToHits" value="ON" >
     </addProcess>
 
     <addProcess type="TRestDetectorHitsAnalysisProcess" name="hitsAna" value="ON" >

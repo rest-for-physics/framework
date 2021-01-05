@@ -224,11 +224,6 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/macros
         COMPONENT install
         )
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/scripts/restv2_1ToXml.py
-        DESTINATION scripts
-        COMPONENT install
-        )
-
 install(
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data
         DESTINATION .
@@ -248,5 +243,4 @@ include(thisREST)
 
 #add permissions
 install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/bin/rest-config)")
-install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/scripts/restv2_1ToXml.py)")
 install(CODE "execute_process(COMMAND chmod 777 ${CMAKE_INSTALL_PREFIX})")

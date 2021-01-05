@@ -14,7 +14,8 @@ TRestG4Track TRestGeant4Track
 TRestG4EventViewer TRestGeant4EventViewer
 TRestG4PrimaryGenerator TRestGeant4PrimaryGenerator
 TRestFindG4BlobAnalysisProcess TRestGeant4BlobAnalysisProcess
-TRestG4toHitsProcess TRestGeant4ToHitsProcess
+TRestG4toHitsProcess TRestGeant4ToDetectorHitsProcess
+TRestGeant4ToHitsProcess TRestGeant4ToDetectorHitsProcess
 
 # This two classes might be merge into a single one using different methods (accurate and fast).
 # On top of that they should belong to TRestDetector library and be compiled only if REST_TRACK_LIB was enabled.

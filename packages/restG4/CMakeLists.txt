@@ -49,7 +49,7 @@ else()
 endif()
 
 
-set(lnklib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit ${rest_libs_index} )
+set(lnklib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit RestGeant4 )
 string(STRIP "${lnklib}" lnklib)
 
 #-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
@@ -59,7 +59,9 @@ include(${Geant4_USE_FILE})
 include_directories(${incdir})
 
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${Garfield_INCLUDE_DIRS}/*.hh )
+# Geant4 was depending on detector that was depending on Garfield ...
+#file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${Garfield_INCLUDE_DIRS}/*.hh )
+file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh )
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries

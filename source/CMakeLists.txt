@@ -146,6 +146,19 @@ set(Headers ${restlibHeaders})
 
 ############################################################################################
 
+list( LENGTH rest_libs_index N_libs )
+
+## The detector library is always involved. Right now, if we enable only raw and track then,
+## there is no need for connectors.
+if( N_libs GREATER 1 AND DEFINED RESTLIB_DETECTOR AND ${RESTLIB_DETECTOR} MATCHES "ON" )
+    add_definitions(-DREST_ConnectorsLib)
+	add_subdirectory(libraries/connectors)
+    list( APPEND rest_libs_index "RestConnectors" )
+
+	file(GLOB_RECURSE libHeaders "libraries/connectors/inc/*.h")
+	set(restlibHeaders ${restlibHeaders} ${libHeaders} )
+endif( N_libs GREATER 1 AND DEFINED RESTLIB_DETECTOR AND ${RESTLIB_DETECTOR} MATCHES "ON" )
+
 set(Headers ${Headers} PARENT_SCOPE)
 set(rest_include_dirs ${rest_include_dirs} PARENT_SCOPE)
 set(rest_libraries ${rest_libraries} PARENT_SCOPE)

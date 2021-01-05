@@ -36,7 +36,7 @@
 
     <!--<addProcess type="TRestGeant4AnalysisProcess" name="g4Ana" value="ON" file="processes.rml"/>
     <addProcess type="TRestGeant4BlobAnalysisProcess" name="g4Blob" value="OFF" file="processes.rml"/>-->
-    <addProcess type="TRestGeant4ToHitsProcess" name="g4ToHits" value="ON"/>
+    <addProcess type="TRestGeant4ToDetectorHitsProcess" name="g4ToHits" value="ON"/>
     <addProcess type="TRestDetectorElectronDiffusionProcess" name="electronDiffusion_1kVcm_10atm" value="ON" maxHits="100">
       <parameter name="electricField" value="1" units="kV/cm" />
       <parameter name="gasPressure" value="10" />
