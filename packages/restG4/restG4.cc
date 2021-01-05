@@ -79,8 +79,6 @@ char physListName[256];
 int main(int argc, char** argv) {
     auto start_time = chrono::steady_clock::now();
 
-    TRestTools::LoadRESTLibrary();
-
     // {{{ Getting by argument the simulation config file
     // sprintf( inputConfigFile, "%s", "myConfig.rml");
     if (argc < 2) {
