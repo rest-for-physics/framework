@@ -53,7 +53,7 @@
   </readoutModule>
 
 
-  <TRestReadout name="PixelReadout_MxM" title="PIXEL readout ${PITCH}mm-Pitch ${MODULES}x${MODULES} modules ${CHANNELS}+${CHANNELS} channels" >
+  <TRestDetectorReadout name="PixelReadout_MxM" title="PIXEL readout ${PITCH}mm-Pitch ${MODULES}x${MODULES} modules ${CHANNELS}+${CHANNELS} channels" >
     <myParameter name="nChannels" value="${CHANNELS}" />
     <myParameter name="nModules" value="${MODULES}" />
     <myParameter name="pitch" value="${PITCH}" />
@@ -98,9 +98,9 @@
       </for>
     </readoutPlane>
 
-  </TRestReadout>
+  </TRestDetectorReadout>
 
-  <TRestReadout name="PandaReadout_MxM" title="PANDA readout ${PITCH}mm-Pitch ${MODULES}x${MODULES} modules ${CHANNELS}+${CHANNELS} channels" >
+  <TRestDetectorReadout name="PandaReadout_MxM" title="PANDA readout ${PITCH}mm-Pitch ${MODULES}x${MODULES} modules ${CHANNELS}+${CHANNELS} channels" >
     <myParameter name="nChannels" value="${CHANNELS}" />
     <myParameter name="nModules" value="${MODULES}" />
     <myParameter name="pitch" value="${PITCH}" />
@@ -136,9 +136,9 @@
       </for>
     </readoutPlane>
 
-  </TRestReadout>
+  </TRestDetectorReadout>
 
-  <TRestReadout name="Panda_SJTU_Proto" title="PANDA SJTU Prototype readout. 7 modules ${PITCH}mm-Pitch ${CHANNELS}+${CHANNELS} channels" >
+  <TRestDetectorReadout name="Panda_SJTU_Proto" title="PANDA SJTU Prototype readout. 7 modules ${PITCH}mm-Pitch ${CHANNELS}+${CHANNELS} channels" >
     <myParameter name="nChannels" value="${CHANNELS}" />
     <myParameter name="pitch" value="${PITCH}" />
     <myParameter name="pixelSize" value="${PITCH}/sqrt(2.)" />
@@ -170,9 +170,9 @@
 
     </readoutPlane>
 
-  </TRestReadout>
+  </TRestDetectorReadout>
 
-  <TRestReadout name="SingleAnode" title="Single" >
+  <TRestDetectorReadout name="SingleAnode" title="Single" >
 
     <parameter name="mappingNodes" value="0" />
 
@@ -188,9 +188,9 @@
         <addReadoutModule id="1" name="module" origin="( -1000 , -1000 )" rotation="0" />
       </readoutPlane>
     </for>
-  </TRestReadout>
+  </TRestDetectorReadout>
 
-  <TRestReadout name="Panda-CDR" title="PANDA SJTU Jinping readout. 2 planes 41 modules ${PITCH}mm-Pitch ${CHANNELS}+${CHANNELS} channels" >
+  <TRestDetectorReadout name="Panda-CDR" title="PANDA SJTU Jinping readout. 2 planes 41 modules ${PITCH}mm-Pitch ${CHANNELS}+${CHANNELS} channels" >
     <myParameter name="nChannels" value="${CHANNELS}" />
     <myParameter name="pitch" value="${PITCH}" />
     <myParameter name="pixelSize" value="${PITCH}/sqrt(2.)" />
@@ -254,14 +254,14 @@
         </for>
       </readoutPlane>
     </for>
-  </TRestReadout>
+  </TRestDetectorReadout>
 
 
   <!-- This readout (Panda-Jinping) is validated with the new readoutModule definition.
 	We do the readoutModule definition outside the readoutPlane and
 	then we use addReadoutModule giving the name as reference -->
 
-  <TRestReadout name="Panda-Jinping" title="PANDA SJTU Jinping readout. 2 planes 33 modules ${PITCH}mm-Pitch ${CHANNELS}+${CHANNELS} channels" >
+  <TRestDetectorReadout name="Panda-Jinping" title="PANDA SJTU Jinping readout. 2 planes 33 modules ${PITCH}mm-Pitch ${CHANNELS}+${CHANNELS} channels" >
     <myParameter name="nChannels" value="${CHANNELS}" />
     <myParameter name="pitch" value="${PITCH}" />
     <myParameter name="pixelSize" value="${PITCH}/sqrt(2.)" />
@@ -325,6 +325,6 @@
         </for>
       </readoutPlane>
     </for>
-  </TRestReadout>
+  </TRestDetectorReadout>
 
 </readouts>
