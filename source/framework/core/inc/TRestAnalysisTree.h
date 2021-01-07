@@ -1,19 +1,24 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestAnalysisTree.h
-///
-///             Base class from which to inherit all other event classes in REST
-///
-///             mar 2016:   First concept
-///                 Created as part of the conceptualization of existing REST
-///                 software.
-///                 Javier Galan
-///_______________________________________________________________________________
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
 #ifndef RestCore_TRestAnalysisTree
 #define RestCore_TRestAnalysisTree
@@ -21,10 +26,8 @@
 #include "TRestEvent.h"
 #include "TRestReflector.h"
 #include "TTree.h"
-class TRestEventProcess;
-class TRestMetadata;
-class TStreamerElement;
 
+//! REST core data-saving helper based on TTree
 class TRestAnalysisTree : public TTree {
    private:
     Int_t fEventID;         //!
@@ -35,9 +38,10 @@ class TRestAnalysisTree : public TTree {
     Int_t fSubRunOrigin;    //!
 
     //
-    std::vector<any> fObservables;            //!
-    std::map<TString, int> fObservableIdMap;  //!
-    TTree* fROOTTree;                         //!
+    Int_t fStatus = 0;                       //!
+    std::vector<any> fObservables;           //!
+    std::map<string, int> fObservableIdMap;  //!
+    TTree* fROOTTree;                        //!
 
     // for storage
     Int_t fNObservables;
@@ -46,6 +50,7 @@ class TRestAnalysisTree : public TTree {
     std::vector<TString> fObservableTypes;
 
     void Initialize();
+    int EvaluateStatus();
     void UpdateObservables();
     void UpdateBranches();
     void InitObservables();
@@ -55,6 +60,7 @@ class TRestAnalysisTree : public TTree {
 
     enum TRestAnalysisTree_Status {
         Error = -1,
+        None = 0,
         Created = 1,
         Retrieved = 2,
         EmptyCloned = 3,
@@ -68,9 +74,9 @@ class TRestAnalysisTree : public TTree {
    protected:
    public:
     // getters
-    int GetStatus();
-    Int_t GetObservableID(TString obsName);
-    Bool_t ObservableExists(TString obsName);
+    int GetStatus() { return fStatus; }
+    Int_t GetObservableID(const string& obsName);
+    Bool_t ObservableExists(const string& obsName);
     Int_t GetEventID() { return fEventID; }
     Int_t GetSubEventID() { return fSubEventID; }
     Double_t GetTimeStamp() { return fTimeStamp; }
@@ -87,22 +93,17 @@ class TRestAnalysisTree : public TTree {
         return fObservableNames[n];
     }  // TODO implement error message in case n >= fNObservables
     TString GetObservableDescription(Int_t n) { return fObservableDescriptions[n]; }
-
     TString GetObservableType(Int_t n) {
         if (fNObservables > 0 && fObservableTypes.size() == 0) return "double";
         return fObservableTypes[n];
     }
-
-    TString GetObservableType(TString obsName) {
+    TString GetObservableType(string obsName) {
         Int_t id = GetObservableID(obsName);
         if (id == -1) return "NotFound";
         return GetObservableType(id);
     }
 
-    Double_t GetDblObservableValue(TString obsName) {
-        return GetDblObservableValue(GetObservableID(obsName));
-    }
-
+    Double_t GetDblObservableValue(string obsName) { return GetDblObservableValue(GetObservableID(obsName)); }
     Double_t GetDblObservableValue(Int_t n) {
         if (GetObservableType(n) == "int") return GetObservableValue<int>(n);
         if (GetObservableType(n) == "double") return GetObservableValue<double>(n);
@@ -117,7 +118,7 @@ class TRestAnalysisTree : public TTree {
         return *(T*)fObservables[n];
     }
     template <class T>
-    T GetObservableValue(TString obsName) {
+    T GetObservableValue(string obsName) {
         Int_t id = GetObservableID(obsName);
         if (id == -1) {
             return T();
@@ -134,7 +135,7 @@ class TRestAnalysisTree : public TTree {
         return *(T*)fObservables[n];
     }
     template <class T>
-    T GetObservableValueSafe(TString obsName) {
+    T GetObservableValueSafe(const string& obsName) {
         Int_t id = GetObservableID(obsName);
         if (id == -1) {
             return T();
@@ -143,23 +144,24 @@ class TRestAnalysisTree : public TTree {
     }
 
     template <class T>
-    void SetObservableValue(TString name, const T& value) {
+    void SetObservableValue(const string& name, const T& value) {
         int id = GetObservableID(name);
         if (id != -1) {
             *(T*)fObservables[id] = value;
         } else {
-            id = AddObservable<T>(name);
+            AddObservable<T>(name);
+            id = GetObservableID(name);
             if (id != -1) {
                 *(T*)fObservables[id] = value;
             }
         }
     }
     template <class T>
-    void SetObservableValue(Int_t id, const T& value) {
+    void SetObservableValue(const Int_t& id, const T& value) {
         *(T*)fObservables[id] = value;
     }
 
-    void SetObservable(TString name, any value) {
+    void SetObservable(string name, any value) {
         value.name = name;
         SetObservable(-1, value);
     }
@@ -174,10 +176,10 @@ class TRestAnalysisTree : public TTree {
     void SetEventInfo(TRestEvent* evt);
     Int_t Fill();
 
-    Int_t AddObservable(TString observableName, TString observableType = "double", TString description = "");
+    any AddObservable(TString observableName, TString observableType = "double", TString description = "");
     template <typename T>
-    Int_t AddObservable(TString observableName, TString description = "") {
-        return AddObservable(observableName, REST_Reflection::GetTypeName<T>(), description);
+    T& AddObservable(TString observableName, TString description = "") {
+        return *(T*)AddObservable(observableName, REST_Reflection::GetTypeName<T>(), description);
     }
 
     Int_t GetEntry(Long64_t entry = 0, Int_t getall = 0);

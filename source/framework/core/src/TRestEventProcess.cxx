@@ -136,8 +136,9 @@ vector<string> TRestEventProcess::ReadObservables() {
     }  // now we get a list of all observal names, we add them into fAnalysisTree and fObservableInfo
 
     for (int i = 0; i < obsnames.size(); i++) {
-        int id = fAnalysisTree->AddObservable((this->GetName() + (string) "_" + obsnames[i]).c_str(),
-                                              obstypes[i], obsdesc[i]);
+        string obsname = this->GetName() + (string) "_" + obsnames[i];
+        fAnalysisTree->AddObservable(obsname, obstypes[i], obsdesc[i]);
+        int id = fAnalysisTree->GetObservableID(obsname);
         if (id != -1) {
             fObservablesDefined[(string)GetName() + "_" + obsnames[i]] = id;
         }
@@ -341,7 +342,8 @@ void TRestEventProcess::ProcessEvent( TRestEvent *eventInput )
 */
 
 //////////////////////////////////////////////////////////////////////////
-/// \brief End of event process. Validate the updated observable number matches total defined observable number
+/// \brief End of event process. Validate the updated observable number matches total defined observable
+/// number
 void TRestEventProcess::EndOfEventProcess(TRestEvent* evInput) {
     debug << "Entering TRestEventProcess::EndOfEventProcess (" << ClassName() << ")" << endl;
     if (fValidateObservables) {

@@ -154,8 +154,8 @@ class TRestRun : public TRestMetadata {
     TRestEvent* GetNextEventWithConditions(const string);
     TRestEventProcess* GetFileProcess() { return fFileProcess; }
     string GetRunInformation(string infoname);
-    Int_t GetObservableID(TString name) { return fAnalysisTree->GetObservableID(name); }
-    Bool_t ObservableExists(TString name) { return fAnalysisTree->ObservableExists(name); }
+    Int_t GetObservableID(string name) { return fAnalysisTree->GetObservableID(name); }
+    Bool_t ObservableExists(string name) { return fAnalysisTree->ObservableExists(name); }
     TString GetInputEventName() { return fInputEvent->ClassName(); }
     TRestAnalysisTree* GetAnalysisTree() { return fAnalysisTree; }
     TTree* GetEventTree() { return fEventTree; }
