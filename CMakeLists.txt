@@ -179,7 +179,7 @@ ENDIF ()
 
 if (${REST_G4} MATCHES "ON")
 	list( APPEND rest_packages "RestG4" )
-    add_subdirectory(packages/restG4)
+    add_subdirectory(source/packages/restG4)
 endif (${REST_G4} MATCHES "ON")
 ########################################## xxxxxxxxxxxxxx ###################################
 

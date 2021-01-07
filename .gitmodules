@@ -49,3 +49,6 @@
 [submodule "source/libraries/connectors"]
 	path = source/libraries/connectors
 	url = https://github.com/rest-for-physics/connectorslib.git
+[submodule "source/packages/restG4"]
+	path = source/packages/restG4
+	url = https://github.com/rest-for-physics/restG4.git
