@@ -94,12 +94,7 @@ restRoot
   | Try '.help', '.demo', '.license', '.credits', '.quit'/'.q' |
    ------------------------------------------------------------
 
-Loading library : libRestCore.dylib
-Loading library : libRestProcesses.dylib
-Loading library : libRestEvents.dylib
-Loading library : libRestMetadata.dylib
-Loading library : libRestTools.dylib
-
+Loading library : libRestFramework.dylib
 ```
 
 ### Compilation options
@@ -118,15 +113,15 @@ Different options can be passed to the `cmake` command to personalize the REST i
     * **REST_SQL** (Default: OFF) : Adds executable `restSQL` which allows to populate and update a SQL database extracting the metadata information from a REST file database.
 
 * REST Libraries:
-    * **REST_GEANT4_LIB** (Default: ON) : Enables the use of Geant4 event type and analysis processes in REST. It does not require *Geant4*. But it allows to access previous `restG4` generated data.
-    * **REST_AXION_LIB** (Default: OFF) : Enables the use of Axion event type and Axion signal calculation processes in REST.
-    * **REST_DETECTOR_LIB** (Default: ON) : Enables the use of Detector event type and event reconstruction processes in REST.
-    * **REST_RAW_LIB** (Default: ON) : Enables the use of Raw signal event type and Raw signal conditioning processes in REST.
-    * **REST_TRACK_LIB** (Default: ON) : Enables the use of Track event type and Track identification processes in REST.
+    * **RESTLIB_GEANT4** (Default: OFF) : Enables the use of Geant4 event type and analysis processes in REST. It does not require *Geant4*. But it allows to access previous `restG4` generated data.
+    * **RESTLIB_RAW** (Default: ON) : Enables the use of Raw signal event type and Raw signal conditioning processes in REST.
+    * **RESTLIB_DETECTOR** (Default: OFF) : Enables the use of Detector event type and event reconstruction processes in REST.
+    * **RESTLIB_TRACK** (Default: ON) : Enables the use of Track event type and Track identification processes in REST.
+    * **RESTLIB_AXION** (Default: OFF) : Enables the use of Axion event type and Axion signal calculation processes in REST.
 
 To pass the options to cmake, one need to append "-DXXX=XXX" in the cmake command, for example: `cmake .. -DREST_WELCOME=OFF -DREST_G4=ON`. Once you explicitly set an option, your option choice will become the default choice for future `cmake` executions.
 
-### Adding libraries
+### Adding libraries (TODO needs revision)
 
 The concrete analysis tasks and experiment setups of REST are kept in individual libraries or packages. 
 The main framework of REST only keeps general event types and analysis algorithms. We need to install
