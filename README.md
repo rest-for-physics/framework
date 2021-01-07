@@ -57,6 +57,17 @@ REST is mirrored to the following repositories where pipelines are executed, and
 
 Code can be pulled for read-access from those mirrors, however, development is centralized at the main GitHub public repository.
 
+
+### Recovering a clean git state of rest-framework and submodules
+
+If you have added modifications to the rest-framework code and/or submodules. It is possible to fully clean your repository to be an identical copy to the one found at the remote repository.
+
+Notice that executing the following script (placed at the rest-framework root repository) will completely remove any changes or addons you have in done in your local installation.
+
+```
+source clean-state.sh
+```
+
 ### Installing
 
 The only mandatory prerequisite of REST is ROOT6. Details on the installation of ROOT will be found at the [ROOT's official site](https://root.cern.ch). 
@@ -119,8 +130,6 @@ make -j4 install
 **Remark:** Notice that once we pass an option to cmake, that option will be cached inside the cmake system. I.e. we do not need to provide the installation path we provided the first time, and any future calls to `cmake` will assume `detector` and `raw` libraries are enabled.
 
 **TODO**: A [pending issue](https://github.com/rest-for-physics/rest-framework/issues/5) is to have a flag that allows to enable all available REST libraries.
-
-
 
 ## Useful links or references
 
