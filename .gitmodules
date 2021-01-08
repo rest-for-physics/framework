@@ -49,3 +49,6 @@
 [submodule "source/packages/restG4"]
 	path = source/packages/restG4
 	url = https://github.com/rest-for-physics/restG4.git
+[submodule "source/packages/restSQL"]
+	path = source/packages/restSQL
+	url = https://github.com/rest-for-physics/restSQL.git
