@@ -110,7 +110,7 @@ The commit message **should include** at least the name of the main class, the n
  related to a given REST class or file. Some examples of **good commit messages** are the following ones
 
 ```
-git commit -m "TRestReadout::GetPixelPosition method modified. Bug fixed related to pixel rotation."
+git commit -m "TRestDetectorReadout::GetPixelPosition method modified. Bug fixed related to pixel rotation."
 
 git commit -m "restG4. PrimaryGenerator new type of spatial generator added."
 
@@ -311,7 +311,7 @@ pause after each event. In extreme level, it will pause after each process.
 The default style for metadata information, that it usually printed by the `PrintMetadata` method, it is controlled through the `metadata << ... << endl;` directive. Furthermore, when we implement the `PrintMetadata` method of an inherited class we should call the pure `TRestMetadata::PrintMetadata` method in order to create a proper header.
 
 ```c++
-void TRestReadout::PrintMetadata(Int_t DetailLevel) {
+void TRestDetectorReadout::PrintMetadata(Int_t DetailLevel) {
     if (DetailLevel >= 0) {
         TRestMetadata::PrintMetadata();
 

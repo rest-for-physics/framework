@@ -1,6 +1,6 @@
 \brief This tutorial shows how to define specific simulation conditions to generate Geant4 event data in REST format.
 
-The package restG4 provides a Geant4 code that can be interfaced with REST using TRestMetadata specific structures to be used in Geant4 simulation conditions. All the simulation behaviour is defined through a REST metadata language file (RML). TRestG4Metadata is the main class collecting all the initial simulation conditions, such as which particules will be generated, from where they will be generated, what data will be stored in the output file, and few other options. All this information is stored by TRestG4Metadata by using helper classes, such as TRestPhysicsLists, TRestG4PrimaryGenerator, TRestBiasingVolume, etc.
+The package restG4 provides a Geant4 code that can be interfaced with REST using TRestMetadata specific structures to be used in Geant4 simulation conditions. All the simulation behaviour is defined through a REST metadata language file (RML). TRestGeant4Metadata is the main class collecting all the initial simulation conditions, such as which particules will be generated, from where they will be generated, what data will be stored in the output file, and few other options. All this information is stored by TRestGeant4Metadata by using helper classes, such as TRestPhysicsLists, TRestGeant4PrimaryGenerator, TRestGeant4BiasingVolume, etc.
 
 restG4 will launch the simulation, that we described in the simulation RML file, and it will automatically create a ROOT file using the classes structure of REST libraries.
 
@@ -27,10 +27,10 @@ In general terms, an RML file to be used with *restG4* must define the following
     ...
 </TRestRun>
 
-<!-- A TRestG4Metadata section definning few parameters, generator, and storage. -->
-<TRestG4Metadata>
+<!-- A TRestGeant4Metadata section definning few parameters, generator, and storage. -->
+<TRestGeant4Metadata>
     ...
-</TRestG4Metadata>
+</TRestGeant4Metadata>
 
 <!-- A TRestPhysicsLists section definning the physics processes active. -->
 <TRestPhysicsLists>
@@ -41,7 +41,7 @@ In general terms, an RML file to be used with *restG4* must define the following
 
 \note Wherever 3 dots (`...`) are provided means a redundant code format, or that additional fields might be required. 
 
-Few basic working examples can be found at REST_PATH/config/template/restG4.rml. Those examples will be used to illustrate step by step the execution of *restG4* and the obtention of few parameters for analysis. The documentation found at TRestG4Metadata class will help you construct a generic RML file to allow you define your particular simulation setup.
+Few basic working examples can be found at REST_PATH/config/template/restG4.rml. Those examples will be used to illustrate step by step the execution of *restG4* and the obtention of few parameters for analysis. The documentation found at TRestGeant4Metadata class will help you construct a generic RML file to allow you define your particular simulation setup.
 
 ### 2. The GDML detector geometry
 
@@ -75,7 +75,7 @@ cd $REST_PATH/config/template/geometry/
 
 ## Producing, visualizing and printing Geant4 REST generated data using the examples
 
-Inside the file `REST_PATH/config/template/restG4.rml`, you will find three different examples that will allow you to generate and store event data. The file `restG4.rml` contains a unique TRestRun and TRestPhysicsLists sections, common to each simulation case, and different TRestG4Metadata sections each of them definning different simulation conditions. All these examples use the basic geometry described previously.
+Inside the file `REST_PATH/config/template/restG4.rml`, you will find three different examples that will allow you to generate and store event data. The file `restG4.rml` contains a unique TRestRun and TRestPhysicsLists sections, common to each simulation case, and different TRestGeant4Metadata sections each of them definning different simulation conditions. All these examples use the basic geometry described previously.
 
 The following list describes briefly the examples available,
 
@@ -87,8 +87,8 @@ These working examples can be launched with *restG4* command. In these examples,
 
 The restG4 command receives up to two arguments,
 
-1. the RML file containning the TRestG4Metadata, TRestRun and TRestPhysicsLists sections,
-2. and the name of the TRestG4Metadata section to be used.
+1. the RML file containning the TRestGeant4Metadata, TRestRun and TRestPhysicsLists sections,
+2. and the name of the TRestGeant4Metadata section to be used.
 
 The execution of *restG4* follows this scheme,
 
@@ -96,7 +96,7 @@ The execution of *restG4* follows this scheme,
 restG4 cfgFile.rml sectionName
 ~~~
 
-being the first argument, `cfgFile.rml` mandatory, and the second argument, `sectionName`, optional. If the name of the section is omitted when launching *restG4*, the first TRestG4Metadata section found inside `cfgFile.rml` will be considered.
+being the first argument, `cfgFile.rml` mandatory, and the second argument, `sectionName`, optional. If the name of the section is omitted when launching *restG4*, the first TRestGeant4Metadata section found inside `cfgFile.rml` will be considered.
 
 The following lines of code illustrate how to generate the example files.
 
@@ -120,7 +120,7 @@ restG4 restG4.rml MuonShower
 restG4 restG4.rml Cd109
 ~~~
 
-After, the proper execution of the *restG4* command we will find our results file, containning TRestG4Event data, inside the directory *REST_DATAPATH* we have defined in our system.
+After, the proper execution of the *restG4* command we will find our results file, containning TRestGeant4Event data, inside the directory *REST_DATAPATH* we have defined in our system.
 
 You can visualize the generated Geant4 events, that produced an energy deposit in the sensitive volume of the detector using the `REST_VIEWER_G4Event` script available when launching *restG4*, or print detailed event information using `REST_UTILS_PrintG4Event`.
 

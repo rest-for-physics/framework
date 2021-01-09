@@ -1,8 +1,8 @@
-\brief This tutorial shows how to generate a TRestReadout structure and store it to disk for later use in TRestManager
+\brief This tutorial shows how to generate a TRestDetectorReadout structure and store it to disk for later use in TRestManager
 
 We will address two different examples following basic readout topologies. These examples can be also found at the repository at REST_v2/config/template/readouts.rml.
 
-You will find a variety of more complex examples at REST_v2/data/definitions/readouts/readouts.rml. More details about readout construction are available at the documentation of TRestReadout class. The class TRestMetadata describes detailed information on how to write RML files.
+You will find a variety of more complex examples at REST_v2/data/definitions/readouts/readouts.rml. More details about readout construction are available at the documentation of TRestDetectorReadout class. The class TRestMetadata describes detailed information on how to write RML files.
 
 ## Example 1. A basic pixelated readout 
 
@@ -15,7 +15,7 @@ In this example we generate a readout with a single readout plane, and one pixel
     <variable name="CHANNELS" value="8" overwrite="true" />
 </environment>
 
-<section TRestReadout name="pixelReadout" title="A basic pixel readout. ${CHANNELS}x${CHANNELS} channels. Pixel size : ${PIX_SIZE} mm" >
+<section TRestDetectorReadout name="pixelReadout" title="A basic pixel readout. ${CHANNELS}x${CHANNELS} channels. Pixel size : ${PIX_SIZE} mm" >
 
     // These parameters are later keywords inside the section
     // and will be sustituted by their value.
@@ -80,7 +80,7 @@ We create two readout module definitions, one for each axis, and place each read
     <variable name="CHANNELS" value="8" overwrite="true" />
 </environment>
 
-<section TRestReadout name="strippedReadout" title="A basic pixel readout. ${CHANNELS}+${CHANNELS} channels. Pitch size : ${PIX_SIZE} mm" >
+<section TRestDetectorReadout name="strippedReadout" title="A basic pixel readout. ${CHANNELS}+${CHANNELS} channels. Pitch size : ${PIX_SIZE} mm" >
     <myParameter name="nChannels" value="${CHANNELS}" />
     <myParameter name="pixelSize" value="${PIX_SIZE}" />
 
@@ -144,17 +144,17 @@ We create two readout module definitions, one for each axis, and place each read
 
 Here we assume the previous examples are defined in a file named *readouts.rml* and this file is found at the working directory.
 
-The following code will instantiate the TRestReadout class using the pixelated and stripped definitions, and save them to a ROOT file.
+The following code will instantiate the TRestDetectorReadout class using the pixelated and stripped definitions, and save them to a ROOT file.
 
 \code
 
 // We start a ROOT session with REST libraries and scripts loaded by using restRoot
 ~ restRoot
 
-// We give the filename and the readout names as arguments for the TRestReadout constructors
-[0] TRestReadout *pixRead = new TRestReadout( "readouts.rml", "pixelReadout");
+// We give the filename and the readout names as arguments for the TRestDetectorReadout constructors
+[0] TRestDetectorReadout *pixRead = new TRestDetectorReadout( "readouts.rml", "pixelReadout");
 
-[1] TRestReadout *stripRead = new TRestReadout( "readouts.rml", "strippedReadout");
+[1] TRestDetectorReadout *stripRead = new TRestDetectorReadout( "readouts.rml", "strippedReadout");
 
 // We create a new ROOT file with "RECREATE" option or open an existing file with "UPDATE" option
 [2] TFile *f = new TFile( "readouts.root", "RECREATE" );
@@ -173,9 +173,9 @@ After executing this code we will have a *readouts.root* file with two different
 
 \note The original readout name given at the RML file has been lost. And in order to reference it in ROOT or REST we will use the names given at write time, *pixel* and *strip*.
 
-## Recovering the TRestReadout saved on a ROOT file
+## Recovering the TRestDetectorReadout saved on a ROOT file
 
-We can easily recover the TRestReadout as any other ROOT structure. In order to quickly look inside a REST/ROOT file we can use the executable **restPrintFileContents** to check the existing objects (readouts) inside the file.
+We can easily recover the TRestDetectorReadout as any other ROOT structure. In order to quickly look inside a REST/ROOT file we can use the executable **restPrintFileContents** to check the existing objects (readouts) inside the file.
 
 \code
 
@@ -183,7 +183,7 @@ We can easily recover the TRestReadout as any other ROOT structure. In order to 
 
 \endcode
 
-The following code recovers the TRestReadout structure
+The following code recovers the TRestDetectorReadout structure
 
 \code
 
@@ -192,7 +192,7 @@ The following code recovers the TRestReadout structure
 [0] TFile *f = new TFile( "readouts.root" );
 
 // We get a pointer to the pixelated readout
-[1] TRestReadout *r = f->Get("pixel");
+[1] TRestDetectorReadout *r = f->Get("pixel");
 
 // We print the metadata information of this readout
 [2] r->PrintMetadata();
@@ -207,7 +207,7 @@ The following code recovers the TRestReadout structure
 
 The readout visualization is still far from optimal, but a couple of ways are available in order to verify the task of readout design.
 
-In a ROOT session we can call the method TRestReadoutPlane::GetReadoutHistogram to draw the pixel boundaries. 
+In a ROOT session we can call the method TRestDetectorReadoutPlane::GetReadoutHistogram to draw the pixel boundaries. 
 
 \code
 
@@ -216,7 +216,7 @@ In a ROOT session we can call the method TRestReadoutPlane::GetReadoutHistogram 
 [0] TFile *f = new TFile( "readouts.root" );
 
 // We get a pointer to the pixelated readout
-[1] TRestReadout *r = f->Get("strip");
+[1] TRestDetectorReadout *r = f->Get("strip");
 
 // We draw first the readout plane 0. A canvas inside ROOT is automatically generated
 [2] r->GetReadoutPlane(0)->GetReadoutHistogram()->Draw();
@@ -248,7 +248,7 @@ The construction of complex readouts requires to evaluate the proper channel spa
 
 In order to test the readout we can produce a random virtual hit generation, with (x,y) coordinates inside the range of the readout modules in a given readout plane. We may then activate few test channels and draw only those hits which dropped in the activated channels. The script *REST_UTILS_CheckReadout* allows to perform this task. To produce a faster result we can focus in a small area of the readout, defined by the *region* parameter. We can activate the 128 first channels with a channel *mask* definition.
 
-The following code shows the use of this script that works for any TRestReadout class stored previously in a ROOT file.
+The following code shows the use of this script that works for any TRestDetectorReadout class stored previously in a ROOT file.
 
 \code
 

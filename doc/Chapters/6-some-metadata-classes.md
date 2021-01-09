@@ -146,11 +146,11 @@ In the thrid line we add TRestGas from the root file. This will be used by certa
 That's it. Other gas parameters and relevant information related to TRestGas can be found in the class 
 documentation.
 
-### TRestReadout
+### TRestDetectorReadout
 
 We will address two different examples following basic readout topologies. You will find a variety of 
 more complex examples at REST_v2/data/definitions/readouts.rml. More details about readout 
-construction are available at the documentation of TRestReadout class. The class TRestMetadata describes 
+construction are available at the documentation of TRestDetectorReadout class. The class TRestMetadata describes 
 detailed information on how to write RML files.
 
 #### a basic pixelated readout 
@@ -165,7 +165,7 @@ placed inside. To achieve that each channel has a unique pixel definition.
 &emsp;`<variable name="CHANNELS" value="8" overwrite="true" />`  
 `</globals>`  
 
-`<TRestReadout name="pixelReadout" title="A basic pixel readout. ${CHANNELS}x${CHANNELS} channels. Pixel size : ${PIX_SIZE} mm" >`
+`<TRestDetectorReadout name="pixelReadout" title="A basic pixel readout. ${CHANNELS}x${CHANNELS} channels. Pixel size : ${PIX_SIZE} mm" >`
 
 &emsp;// These parameters are later keywords inside the section  
 &emsp;// and will be substituted by their value.  
@@ -209,9 +209,9 @@ placed inside. To achieve that each channel has a unique pixel definition.
 
 &emsp;`</readoutPlane>`  
 
-`</TRestReadout>`
+`</TRestDetectorReadout>`
 
-By using restRoot one can manually instantiate this TRestReadout object and save it. To use restManager 
+By using restRoot one can manually instantiate this TRestDetectorReadout object and save it. To use restManager 
 to directly generate the ROOT file, one needs to add these sections in TRestRun and TRestManager section, 
 and provide an "addTask" section.
 
@@ -226,7 +226,7 @@ readout planes.
 &emsp;`<variable name="CHANNELS" value="8" overwrite="true" />`  
 `</globals>`  
 
-`<TRestReadout name="strippedReadout" title="A basic pixel readout. ${CHANNELS}+${CHANNELS} channels. Pitch size : ${PIX_SIZE} mm" >`  
+`<TRestDetectorReadout name="strippedReadout" title="A basic pixel readout. ${CHANNELS}+${CHANNELS} channels. Pitch size : ${PIX_SIZE} mm" >`  
 &emsp;`<myParameter name="nChannels" value="${CHANNELS}" />`  
 &emsp;`<myParameter name="pixelSize" value="${PIX_SIZE}" />`  
 
@@ -272,7 +272,7 @@ readout planes.
 
 &emsp;`</readoutPlane>`  
 
-`</TRestReadout>`  
+`</TRestDetectorReadout>`  
 
 For the moment, the process TRestHitsToSignalProcess is not able to process a multilayer readout plane, 
 and/or charge collection sharing between different readout planes, covering the same active volume. 
@@ -283,14 +283,14 @@ Although few changes would be needed to adapt this process.
 Here we assume the previous examples are defined in a file named *readouts.rml* and this file is found 
 at the working directory.
 
-The following code will instantiate the TRestReadout class using the pixelated and stripped definitions, 
+The following code will instantiate the TRestDetectorReadout class using the pixelated and stripped definitions, 
 and save them to a ROOT file.
 
 :~$ `restRoot`  
 
-[0] `TRestReadout *pixRead = new TRestReadout( "readouts.rml", "pixelReadout");`  
+[0] `TRestDetectorReadout *pixRead = new TRestDetectorReadout( "readouts.rml", "pixelReadout");`  
 
-[1] `TRestReadout *stripRead = new TRestReadout( "readouts.rml", "strippedReadout");`
+[1] `TRestDetectorReadout *stripRead = new TRestDetectorReadout( "readouts.rml", "strippedReadout");`
 
 [2] `TFile *f = new TFile( "readouts.root", "RECREATE" );`
 
@@ -306,19 +306,19 @@ and save them to a ROOT file.
 After executing this code we will have a *readouts.root* file with two different readouts, named *pixelReadout* 
 and *strippedReadout*.
 
-We can easily recover these TRestReadout objects from saved root file. In order to quickly look inside a 
+We can easily recover these TRestDetectorReadout objects from saved root file. In order to quickly look inside a 
 REST/ROOT file we can use the executable **restPrintFileContents** to check the existing objects 
 (readouts) inside the file.
 
 :~$ `restPrintFileContents readouts.root`
 
-The following code recovers the TRestReadout structure
+The following code recovers the TRestDetectorReadout structure
 
 :~$ `restRoot`
 
 [0] `TFile *f = new TFile( "readouts.root" );`
 
-[1] `TRestReadout *r = f->Get("pixelReadout");`
+[1] `TRestDetectorReadout *r = f->Get("pixelReadout");`
 
 // We print the metadata information of this readout  
 [2] `r->PrintMetadata();`
@@ -334,13 +334,13 @@ The following code recovers the TRestReadout structure
 The readout visualization is still far from optimal, but a couple of ways are available in order to verify 
 the task of readout design.
 
-In a ROOT session we can call the method TRestReadoutPlane::GetReadoutHistogram() to draw the pixel boundaries. 
+In a ROOT session we can call the method TRestDetectorReadoutPlane::GetReadoutHistogram() to draw the pixel boundaries. 
 
 ~$ `restRoot`
 
 [0] `TFile *f = new TFile( "readouts.root" );`
 
-[1] `TRestReadout *r = f->Get("pixelReadout");`
+[1] `TRestDetectorReadout *r = f->Get("pixelReadout");`
 
 [2] `r->GetReadoutPlane(0)->GetReadoutHistogram()->Draw();`
 
@@ -373,7 +373,7 @@ and draw only those hits which dropped in the activated channels. The script *RE
 allows to perform this task. To produce a faster result we can focus in a small area of the readout, 
 defined by the *region* parameter. We can activate the 128 first channels with a channel *mask* definition.
 
-The following code shows the use of this script that works for any TRestReadout class stored previously 
+The following code shows the use of this script that works for any TRestDetectorReadout class stored previously 
 in a ROOT file.
 
 $~ `restRoot`
@@ -419,7 +419,7 @@ These figures show the result of running the *REST_Tools_CheckReadout* script fo
 ![Validating different channels and regions in different readout topologies.](Image/readoutValidation.png) 
 
 
-### TRestG4Metadata
+### TRestGeant4Metadata
 
 I don't know...
 

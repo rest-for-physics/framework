@@ -1,8 +1,5 @@
-[submodule "packages/restSQL"]
-	path = packages/restSQL
-	url = git@lfna.unizar.es:rest-development/restsql.git
-[submodule "libraries/axion"]
-	path = libraries/axion
+[submodule "source/libraries/axion"]
+	path = source/libraries/axion
 	url = git@lfna.unizar.es:iaxo/RestAxionLib.git
 [submodule "projects/basic-readouts"]
 	path = projects/basic-readouts
@@ -10,3 +7,48 @@
 [submodule "projects/basic-geometries"]
 	path = projects/basic-geometries
 	url = https://lfna.unizar.es/gifna/basic-geometries.git 
+[submodule "source/libraries/model"]
+	path = source/libraries/model
+	url = git@lfna.unizar.es:gifna/RestModelLib.git
+[submodule "projects/trexdm-simulations"]
+	path = projects/trexdm-simulations
+	url = git@lfna.unizar.es:gifna/trexdm-simulations.git
+[submodule "projects/trexdm-readouts"]
+	path = projects/trexdm-readouts
+	url = git@lfna.unizar.es:gifna/trexdm-readouts.git
+[submodule "projects/trexdm-geometry"]
+	path = projects/trexdm-geometry
+	url = git@lfna.unizar.es:gifna/trexdm-geometry.git
+[submodule "projects/trexdm-quickana"]
+	path = projects/trexdm-quickana
+	url = git@lfna.unizar.es:gifna/trexdm-quickana.git
+[submodule "projects/iaxo-simulations"]
+	path = projects/iaxo-simulations
+	url = git@lfna.unizar.es:iaxo/iaxo-simulations.git
+[submodule "projects/iaxo-geometry"]
+	path = projects/iaxo-geometry
+	url = git@lfna.unizar.es:iaxo/iaxo-geometry.git
+[submodule "projects/iaxo-readouts"]
+	path = projects/iaxo-readouts
+	url = git@lfna.unizar.es:iaxo/iaxo-readouts.git
+[submodule "source/libraries/geant4"]
+	path = source/libraries/geant4
+	url = https://github.com/rest-for-physics/geant4lib.git
+[submodule "source/libraries/raw"]
+	path = source/libraries/raw
+	url = https://github.com/rest-for-physics/rawlib.git
+[submodule "source/libraries/track"]
+	path = source/libraries/track
+	url = https://github.com/rest-for-physics/tracklib.git
+[submodule "source/libraries/detector"]
+	path = source/libraries/detector
+	url = https://github.com/rest-for-physics/detectorlib.git
+[submodule "source/libraries/connectors"]
+	path = source/libraries/connectors
+	url = https://github.com/rest-for-physics/connectorslib.git
+[submodule "source/packages/restG4"]
+	path = source/packages/restG4
+	url = https://github.com/rest-for-physics/restG4.git
+[submodule "source/packages/restSQL"]
+	path = source/packages/restSQL
+	url = https://github.com/rest-for-physics/restSQL.git

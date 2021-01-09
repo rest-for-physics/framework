@@ -109,7 +109,7 @@ The class *mySignalProcess* can be connected to the processing queue inside the 
 ...
 
     <addProcess type="TRestCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON" >
-    <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" >
+    <addProcess type="TRestRawZeroSuppresionProcess" name="zS" value="ON" >
 
     // The only condition is that the output of the previous process is a TRestSignalEvent
     <addProcess type="mySignalProcess" name="dummySignal" value="ON" >

@@ -19,7 +19,7 @@ our first geant4 simulation, we enter this directory and run restG4:
 :restG4template$ `restG4 restG4.rml`
 
 Then a geant4 simulation will start for 100 events, generating a file "example_output.root". This root file 
-contains a TTree with branch "TRestG4EventBranch", and a TGeoManager named "Geometry". We can view them 
+contains a TTree with branch "TRestGeant4EventBranch", and a TGeoManager named "Geometry". We can view them 
 in TBrowser.
 
 ![alt](Image/restG4output.png)

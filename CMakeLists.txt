@@ -40,22 +40,20 @@ IF (NOT DEFINED REST_SE)
 ENDIF ()
 set(SCHEMA_EVOLUTION ${REST_SE})
 
-
 #welcome message
 IF (NOT DEFINED REST_WELCOME)
     set(REST_WELCOME ON)
 ENDIF ()
 
-
 #find ROOT libs and includes
 set(external_include_dirs)
 set(external_libs)
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${DECAY_PATH}/cmake ${CMAKE_MODULE_PATH})
 set(ROOT_FIND_REQUIRED true)
 set(CMAKE_MACOSX_RPATH 1)
 include(FindROOT)
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
-set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit -lSpectrum)
+set(external_libs ${external_libs} "${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit -lSpectrum")
 
 
 #switch to enable ROOT Eve functionality.
@@ -64,39 +62,112 @@ IF( NOT DEFINED REST_EVE)
 ENDIF()
 if (${REST_EVE} MATCHES "ON")
     add_definitions(-DUSE_Eve)
-    set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lEve -lRGL)
+	list( APPEND rest_features "Eve" )
+    set(external_libs "${external_libs} -lEve -lRGL")
 endif (${REST_EVE} MATCHES "ON")
-
 
 #find garfield libs and includes
 IF( NOT DEFINED REST_GARFIELD )
    set(REST_GARFIELD OFF)
 ENDIF()
+
 if (${REST_GARFIELD} MATCHES "ON")
     add_definitions(-DUSE_Garfield)
     include(FindGarfield)
     message(STATUS "GARFIELD " ${Garfield_INCLUDE_DIRS})
     set(external_include_dirs ${external_include_dirs} ${Garfield_INCLUDE_DIRS})
-    set(external_libs ${external_libs} ${Garfield_LIBRARIES})
+    set(external_libs "${external_libs} ${Garfield_LIBRARIES}")
     set(external_include_dirs ${external_include_dirs} ${Garfield_DIR}/Heed)
     message(STATUS "HEED Include " ${Garfield_DIR}/Heed)
     message(STATUS "ALL INCLUDES: " ${external_include_dirs})
+	list( APPEND rest_features "Garfield" )
 else ()
     set(REST_GARFIELD OFF)
 endif (${REST_GARFIELD} MATCHES "ON")
 
+#find garfield libs and includes
+IF( NOT DEFINED REST_DECAY0 )
+    set(REST_DECAY0 OFF)
+ENDIF()
+
+if (${REST_DECAY0} MATCHES "ON")
+    add_definitions(-DUSE_Decay0)
+    list( APPEND rest_features "Decay0" )
+
+    # TODO Issue #6 at rest-framework
+    #----------------------------------------------------------------------------
+    # Find package Decay0 and ROOT
+    find_package(BxDecay0 1.0 CONFIG COMPONENTS manager REQUIRED)
+    #
+    # find_package was not working properly for me in 1.0.9. So I was using 
+    # bxdecay0-config. But in case Decay0 flag is enabled and we do not
+    # have a bxdecay0 installation we might run into problems
+    #
+
+    #execute_process(
+    # COMMAND bxdecay0-config --version
+    # OUTPUT_VARIABLE BxDecay0_VERSION
+    # OUTPUT_STRIP_TRAILING_WHITESPACE)
+    #
+	#execute_process(
+    #COMMAND bxdecay0-config --incdir 
+    # OUTPUT_VARIABLE BxDecay0_INCLUDE_DIRS
+    #   OUTPUT_STRIP_TRAILING_WHITESPACE)
+  #
+	#execute_process(
+    #COMMAND bxdecay0-config --libdir
+    # OUTPUT_VARIABLE BxDecay0_LIBRARY_DIRS
+    # OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    message (STATUS "Found BxDecay0. Version ='${BxDecay0_VERSION}'")
+    message (STATUS "Found BxDecay0. Include path ='${BxDecay0_INCLUDE_DIRS}'")
+    message (STATUS "Found BxDecay0. Library path ='${BxDecay0_LIBRARY_DIRS}'")
+else ()
+    set(REST_DECAY0 OFF)
+endif (${REST_DECAY0} MATCHES "ON")
+
+## This lines could be placed probably at each library CMakeLists ...
+if (${RESTLIB_RAW} MATCHES "ON")
+    set(external_include_dirs ${external_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/source/libraries/raw/inc)
+endif (${RESTLIB_RAW} MATCHES "ON")
+
+if (${RESTLIB_TRACK} MATCHES "ON")
+    set(external_include_dirs ${external_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/source/libraries/track/inc)
+endif (${RESTLIB_TRACK} MATCHES "ON")
+
+if (${RESTLIB_DETECTOR} MATCHES "ON")
+    set(external_include_dirs ${external_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/source/libraries/detector/inc)
+endif (${RESTLIB_DETECTOR} MATCHES "ON")
+###### ....
+
+#this is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProccess.
+IF (NOT DEFINED SQL)
+    set(SQL OFF)
+ENDIF ()
+
+#switch to enable ROOT Eve functionality.
+IF( NOT DEFINED RESTLIB_MODEL)
+	set(RESTLIB_MODEL OFF)
+ENDIF()
+
+if (${RESTLIB_MODEL} MATCHES "ON")
+	set(external_libs "${external_libs} -lRooFitCore -lRooFit -lRooStats")
+	message( STATUS "Adding RooFit and RooFitCore libraries" )
+endif (${RESTLIB_MODEL} MATCHES "ON")
+
 
 #find mysql libs and includes
-if (${REST_SQL} MATCHES "ON" )
+if (${SQL} MATCHES "ON" )
+	list( APPEND rest_features "SQL" )
 	add_definitions(-DUSE_SQL)
 	include(FindSQL)
 	set(external_include_dirs ${external_include_dirs} ${SQL_INCLUDE_DIR})
-	set(external_libs ${external_libs} ${SQL_LIBRARIES})
-	message(STATUS "MySQL: " ${SQL_INCLUDE_DIR})
-	set(REST_SQL ON)
+	set(external_libs "${external_libs} ${SQL_LIBRARIES}")
+	message(STATUS "SQL include directory: " ${SQL_INCLUDE_DIR})
+	set(SQL ON)
 else()
-	set(REST_SQL OFF)
-endif (${REST_SQL} MATCHES "ON" )
+	set(SQL OFF)
+endif (${SQL} MATCHES "ON" )
 
 
 #include dir for compilation
@@ -141,43 +212,38 @@ message("")
 
 
 #compile the packages
+
+########################################## RESTG4 Package ###################################
 IF (NOT DEFINED REST_G4)
     set(REST_G4 OFF)
 ENDIF ()
+
 if (${REST_G4} MATCHES "ON")
-    add_subdirectory(packages/restG4)
+	list( APPEND rest_packages "RestG4" )
+    add_subdirectory(source/packages/restG4)
 endif (${REST_G4} MATCHES "ON")
-
-#this is not a package, in future we shall turn it into a package
-IF (NOT DEFINED REST_SQL)
-    set(REST_SQL OFF)
-ENDIF ()
-
-IF (NOT DEFINED REST_DECAY0)
-    set(REST_DECAY0 OFF)
-ENDIF ()
-if (${REST_DECAY0} MATCHES "ON")
-    add_subdirectory(packages/restDecay0)
-endif (${REST_DECAY0} MATCHES "ON")
+########################################## xxxxxxxxxxxxxx ###################################
 
 #begin installation
 message("")
 message("REST will be installed in : ${CMAKE_INSTALL_PREFIX}")
-message("=============================")
+message("===========================================================")
 message("System is : ${CMAKE_SYSTEM_NAME}")
-message("Garfield is : ${REST_GARFIELD}")
-message("Geant4 is : ${REST_G4}")
-message("SQL is : ${REST_SQL}")
-message("ROOT EVE is : ${REST_EVE}")
-message("=============================")
-message("Check main project README.md to see all available compilation options")
+message("Packages : ${rest_packages}")
+message("Libraries : ${rest_libs_index}" )
+message("Features : ${rest_features}" )
+
+message("===========================================================")
+message("Check main project README.md to see all available compilation options, packages and libraries")
 message("")
 
-file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h")
+file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/framework/*.h")
+#set(Headers ${Headers} ${Headers1} ${Headers2} ${Headers3} ${Headers4} ${Headers5} )
 
+install(CODE "execute_process(COMMAND rm -r ${CMAKE_INSTALL_PREFIX})")
+
+#message( STATUS "Headers : ${Headers}" )
 INSTALL(FILES ${Headers} DESTINATION include)
-
-#INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG DESTINATION .)
 
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENCE DESTINATION .)
 
@@ -188,11 +254,6 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/macros
         DESTINATION .
-        COMPONENT install
-        )
-
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/scripts/restv2_1ToXml.py
-        DESTINATION scripts
         COMPONENT install
         )
 
@@ -215,5 +276,4 @@ include(thisREST)
 
 #add permissions
 install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/bin/rest-config)")
-install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/scripts/restv2_1ToXml.py)")
 install(CODE "execute_process(COMMAND chmod 777 ${CMAKE_INSTALL_PREFIX})")

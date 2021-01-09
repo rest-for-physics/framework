@@ -60,14 +60,14 @@ section there is some child sections declared by different core class names(here
 "TRestProcessRunner"). TRestManager will try to instantiate objects of corresponding core classes by calling
 the method TClass::GetClass(). Then it call the core classes' LoadConfigFromFile() method giving them the 
 defined child sections. If the core class also contains TRestMetadata-inherited class which can be initialized 
-through rml file/sections, its section will have its own child section(here we have "TRestReadout"). 
+through rml file/sections, its section will have its own child section(here we have "TRestDetectorReadout"). 
 And this grandchild section is given to the grand-resident class in that core class. This is sequential startup.
 
 `<TRestManager ... >`  
 &emsp;`<TRestRun ... >`  
-&emsp;&emsp;`<TRestReadout ... >`  
+&emsp;&emsp;`<TRestDetectorReadout ... >`  
 &emsp;&emsp;&emsp;`...`  
-&emsp;&emsp;`</TRestReadout>`  
+&emsp;&emsp;`</TRestDetectorReadout>`  
 &emsp;`</TRestRun>`  
 &emsp;`<TRestProcessRunner ...>`  
 &emsp;&emsp;`...`  
@@ -122,7 +122,7 @@ they cannot save any observables in the tree.
 
 REST uses chained process to do anslysis. For exapmle, In a practical detection run we get the raw readout 
 waveform. The data file is first converted into type TRestRawSignalEvent by some processes. Then we go forward 
-with the envolution of event type. The defined process TRestSignalZeroSuppresionProcess converts the type
+with the envolution of event type. The defined process TRestRawZeroSuppresionProcess converts the type
 TRestRawSignalEvent into TRestSignalEvent type (cutting out the baseline and extracting the pulse). We redord 
 the observables(baseline level, rms, etc) during the process. To go further we also have 
 TRestSignalToHitProcess, which maps the channel id with their physical location according to an external 

@@ -20,7 +20,7 @@ other examples.
   </TRestRun>
 
   <TRestProcessRunner name="Processor" verboseLevel="info">
-    <addProcess type="TRestMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON"/>
+    <addProcess type="TRestRawMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON"/>
     <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON" />
   </TRestProcessRunner>
 

@@ -1,4 +1,7 @@
-image: nkx1231/root6-geant4-garfield:0.5
+image: nkx1231/root6-geant4-garfield:0.6
+
+variables:
+#    GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
     # Basic checks to verify correctness of code
@@ -6,6 +9,9 @@ stages:
 
     # Project compilation validation
   - build
+
+    # REST libraries installed as sub-modules
+  - libraries
 
     # Basic validation tests of installation
   - install
@@ -30,6 +36,7 @@ stages:
 
 before_script:
   - export USER="test"
+  - export GIT_SSL_NO_VERIFY=1
   - echo $CI_SERVER_HOST
   - echo $CRONJOB
     # We redefine the HOME
@@ -38,43 +45,60 @@ before_script:
   - pwd
   - root-config --version
   - geant4-config --version
-
-submodule:
-    stage: pre-build
-    script: 
-      - git submodule sync --recursive projects/
-      - git submodule update --init --recursive projects/
-    only:
-        variables:
-            - $CI_SERVER_HOST == "lfna.unizar.es"    
-    except:
-        variables:
-            - $CRONJOB == "YES"
+  - python3 --version
+  - cd ${CI_PROJECT_DIR}/
+  - python3.5 pull-submodules.py
 
 clang-format:
     stage: pre-build
     script:
         - cd ${CI_PROJECT_DIR}/
-        - if [ -n "$CRONJOB" ]; then ./scripts/pipeline/clangformattest.sh; else echo "Skipping clang-format"; fi
+        - if [ -n "$CRONJOB" ]; then ./pipeline/clangformattest.sh; else echo "Skipping clang-format"; fi
         - clang-format --version
     only:
         variables:
             - $CI_SERVER_HOST == "lfna.unizar.es"
+            - $CRONJOB == "YES"
+
+              #submodules:
+              #    stage: pre-build
+              #    script:
+              #        - cd ${CI_PROJECT_DIR}/
+              #        - python3.5 pull-submodules.py
+              #    except:
+              #        variables:
+              #            - $CRONJOB == "YES"
 
 validateCode:
     stage: pre-build
     script:
-        - python ${CI_PROJECT_DIR}/scripts/pipeline/validateProcesses.py ${CI_PROJECT_DIR}/source/processes/
+        - python ${CI_PROJECT_DIR}/pipeline/validateProcesses.py ${CI_PROJECT_DIR}/source/processes/
     except:
         variables:
             - $CRONJOB == "YES"
+
+axionLib:
+  stage: libraries
+  script:
+    - "curl -k -X POST -F token=bd53c38cdd1395ffeb14d297ebe202 -F ref=master https://lfna.unizar.es/api/v4/projects/31/trigger/pipeline"
+  only:
+      variables:
+          - $CI_SERVER_HOST == "lfna.unizar.es"
+
+modelLib:
+  stage: libraries
+  script:
+    - "curl -k -X POST -F token=a244698329647e96d55908d75f3f0e -F ref=master https://lfna.unizar.es/api/v4/projects/11/trigger/pipeline"
+  only:
+      variables:
+          - $CI_SERVER_HOST == "lfna.unizar.es"
 
 build:
   type: build
   script:
     - mkdir /tmp/rest && cd /tmp/rest
     - rm -rf ${CI_PROJECT_DIR}/install
-    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
+    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
     - make install -j2
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
   except:
@@ -89,7 +113,8 @@ loadRESTLibs:
   type: install
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - root -b -q ${CI_PROJECT_DIR}/scripts/pipeline/loadLibraries.C
+      ### Produces segmentation fault :(
+      #- root -b -q ${CI_PROJECT_DIR}/pipeline/loadLibraries.C
     - restRoot -b -q
   except:
       variables:
@@ -124,7 +149,7 @@ listRESTMacros:
   type: restG4
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC
+    - cd ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC
     - restG4 Xe136bb0n.rml
     - restRoot -b -q ValidateG4.C'("Xe136bb0n_n2E06.root")'
   except:
@@ -132,14 +157,14 @@ listRESTMacros:
         - $CRONJOB == "YES"
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC/Xe136bb0n_n2E06.root
+      - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/Xe136bb0n_n2E06.root
     expire_in: 1 day
 
 LoadGas:
   type: metadata 
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline/metadata/gas/
+    - cd ${CI_PROJECT_DIR}/pipeline/metadata/gas/
     - restRoot -b -q LoadGasFromServerAndValidate.C
   except:
       variables:
@@ -149,7 +174,7 @@ GenerateGas:
   type: metadata 
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline/metadata/gas/
+    - cd ${CI_PROJECT_DIR}/pipeline/metadata/gas/
     - restRoot -b -q GenerateDummyGas.C
   only:
       variables:
@@ -172,7 +197,7 @@ GenerateReadout:
   type: metadata 
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline/metadata/readout/
+    - cd ${CI_PROJECT_DIR}/pipeline/metadata/readout/
     - restManager --c generateReadout.rml --o readout.root
     - restRoot -b -q PrintReadout.C'("readout.root")' > /dev/null
     - diff validation.txt print.txt
@@ -186,6 +211,8 @@ BasicReadout:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/projects/basic-readouts/
     - ls
+    - git status
+    - git log
     - restRoot --m 1 -b -q GenerateReadouts.C'("basic.root")'
     - restRoot -b -q BasicValidation.C'("basic.root", "pixelDecoding")'
   only:
@@ -213,7 +240,8 @@ trexDM_data:
   type: restManager_process
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline/trex
+    - cd ${CI_PROJECT_DIR}/pipeline/trex
+    - wget https://sultan.unizar.es/trexdm-readouts/readouts_v2.3.root
     - restManager --c 01_raw.rml --f *.aqs
     - restManager --c 02_signal.rml --f RawData.root
     - restManager --c 03_hits.rml --f Signals.root
@@ -223,8 +251,8 @@ trexDM_data:
     - root -b -q ../ValidateTrees.C'("validation.root")'
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/scripts/pipeline/trex/results.root
-      - ${CI_PROJECT_DIR}/scripts/pipeline/trex/Hits.root
+      - ${CI_PROJECT_DIR}/pipeline/trex/results.root
+      - ${CI_PROJECT_DIR}/pipeline/trex/Hits.root
     expire_in: 1 week
   except:
       variables:
@@ -234,31 +262,31 @@ pandaXIII_Topological:
   type: restManager_process
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC
+    - cd ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC
     - restManager --c AllProcesses.rml --i testInput.root --o testOutput.root --j 1 --e 10
     - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
-    - restRoot -b -q ../ValidateTrees.C'("validation_6.20.root")'
+    - restRoot -b -q ../ValidateTrees.C'("validation.root")'
     - restManager --c plots.rml --i testOutput.root
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC/trackParameter.png
+      - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/trackParameter.png
     expire_in: 1 week
   except:
       variables:
-        - $CRONJOB
+          - $CRONJOB
 
 pandaXIII_Topological_fromG4: 
   type: restManager_process
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC
+    - cd ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC
     - echo "using just-generated g4 file"
     - restManager --c AllProcesses.rml --i Xe136bb0n_n2E06.root --o testOutput.root --j 1 --e 10
     - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
-    - restRoot -b -q ../ValidateTrees.C'("validation_6.20.root")'
+    - restRoot -b -q ../ValidateTrees.C'("validation.root")'
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_MC/testOutput.root
+      - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/testOutput.root
     expire_in: 1 week
   except:
       variables:
@@ -268,13 +296,13 @@ pandaXIII_data:
   type: restManager_process
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_data
+    - cd ${CI_PROJECT_DIR}/pipeline/pandaxiii_data
     - restManager --c P3AutoChain.rml --i CoBo_AsAd0_2019-03-15.graw --o testOutput.root --j 1
     - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
     - restRoot -b -q ../ValidateTrees.C'("validation.root")'
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/scripts/pipeline/pandaxiii_data/TriggerRate.png
+      - ${CI_PROJECT_DIR}/pipeline/pandaxiii_data/TriggerRate.png
     expire_in: 1 week
   except:
       variables:
@@ -284,8 +312,8 @@ AnalysisPlot:
   type: postProcessing
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline/analysisPlot/
-    - restManager --c summary.rml --f ${CI_PROJECT_DIR}/scripts/pipeline/trex/Hits.root
+    - cd ${CI_PROJECT_DIR}/pipeline/analysisPlot/
+    - restManager --c summary.rml --f ${CI_PROJECT_DIR}/pipeline/trex/Hits.root
   except:
       variables:
         - $CRONJOB == "YES"

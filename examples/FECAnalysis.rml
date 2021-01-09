@@ -15,7 +15,7 @@
     <parameter name="inputEvent" value="on"/>
     <parameter name="outputEvent" value="on"/>
 
-    <addProcess type="TRestUSTCElectronicsProcess" name="virtualDAQ" value="ON"/>
+    <addProcess type="TRestRawUSTCToSignalProcess" name="virtualDAQ" value="ON"/>
     <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON">
       <parameter name="pointThreshold" value="3" />
       <parameter name="pointsOverThreshold" value="3" />

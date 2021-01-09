@@ -4,7 +4,7 @@ This is just an indexing list of existing programs included with REST compilatio
 
 ## Core executables
 
-**restG4** : The executable from *restG4* package. It takes as argument a RML configuration file with a TRestG4Metadata section definition.
+**restG4** : The executable from *restG4* package. It takes as argument a RML configuration file with a TRestGeant4Metadata section definition.
 
 **restManager** : The manager program of REST allowing to execute the REST event processes defined in TRestManager. Additional definitions allow to include additional metadata structures inside REST.
 
@@ -34,4 +34,4 @@ This is just an indexing list of existing programs included with REST compilatio
 
 **restDrawEvents** : It draws the events one by one, using the specific TRestEvent::Draw method implemented in the specific event data type found inside the REST file. 
 
-**restG4PrintParticles** : It prints the name of all the different particles registered inside a REST file containning a TRestG4Event data type.
+**restG4PrintParticles** : It prints the name of all the different particles registered inside a REST file containning a TRestGeant4Event data type.
