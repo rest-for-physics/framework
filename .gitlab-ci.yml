@@ -159,6 +159,9 @@ LoadGas:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/gas/
     - restRoot -b -q LoadGasFromServerAndValidate.C
+  only:
+      variables:
+        - $CI_SERVER_HOST == "lfna.unizar.es"
   except:
       variables:
         - $CRONJOB == "YES"
