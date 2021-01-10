@@ -169,9 +169,11 @@ GenerateGas:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/gas/
     - restRoot -b -q GenerateDummyGas.C
+  only:
+      variables:
+        - $CI_SERVER_HOST == "lfna.unizar.es"
   except:
       variables:
-        - $CI_SERVER_HOST != "lfna.unizar.es"
         - $CRONJOB == "YES"
 
 AnalysisTree:
@@ -192,6 +194,9 @@ GenerateReadout:
     - restManager --c generateReadout.rml --o readout.root
     - restRoot -b -q PrintReadout.C'("readout.root")' > /dev/null
     - diff validation.txt print.txt
+  only:
+      variables:
+        - $CI_SERVER_HOST == "lfna.unizar.es"
   except:
       variables:
         - $CRONJOB == "YES"
