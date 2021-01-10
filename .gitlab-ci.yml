@@ -50,24 +50,17 @@ before_script:
   - python3.5 pull-submodules.py
 
 clang-format:
-    stage: pre-build
-    script:
-        - cd ${CI_PROJECT_DIR}/
-        - if [ -n "$CRONJOB" ]; then ./pipeline/clangformattest.sh; else echo "Skipping clang-format"; fi
-        - clang-format --version
-    only:
-        variables:
-            - $CI_SERVER_HOST == "lfna.unizar.es"
-            - $CRONJOB == "YES"
-
-              #submodules:
-              #    stage: pre-build
-              #    script:
-              #        - cd ${CI_PROJECT_DIR}/
-              #        - python3.5 pull-submodules.py
-              #    except:
-              #        variables:
-              #            - $CRONJOB == "YES"
+  stage: pre-build
+  script:
+#        - if [ $CI_SERVER_HOST != "lfna.unizar.es" ]; then exit 0; fi
+      - cd ${CI_PROJECT_DIR}/
+#     - if [ -n "$CRONJOB" ]; then ./pipeline/clangformattest.sh; else echo "Skipping clang-format"; fi
+      - ./pipeline/clangformattest.sh
+      - clang-format --version
+  only:
+      variables:
+          - $CI_SERVER_HOST == "lfna.unizar.es"
+          - $CRONJOB == "YES"
 
 validateCode:
     stage: pre-build
@@ -176,11 +169,9 @@ GenerateGas:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/gas/
     - restRoot -b -q GenerateDummyGas.C
-  only:
-      variables:
-        - $CI_SERVER_HOST == "lfna.unizar.es"
   except:
       variables:
+        - $CI_SERVER_HOST != "lfna.unizar.es"
         - $CRONJOB == "YES"
 
 AnalysisTree:
