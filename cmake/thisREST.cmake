@@ -168,6 +168,16 @@ echo \${GIT_COMMIT}
 
 fi
 
+if [ $option = \\\"--clean\\\" ] ; then
+echo \${GIT_CLEANSTATE}
+
+fi
+
+if [ $option = \\\"--release\\\" ] ; then
+echo \${REST_OFFICIAL_RELEASE}
+
+fi
+
 if [ $option = \\\"--flags\\\" ] ; then
 echo REST_WELCOME=${REST_WELCOME}
 echo REST_GARFIELD=${REST_GARFIELD}
@@ -188,6 +198,8 @@ echo \\\"  \\\"
 echo \\\"  Commit  : \${GIT_COMMIT} (\${GIT_DATE})  \\\"
 echo \\\"  Branch/Version : \${GIT_BRANCH}/\${GIT_TAG}  \\\"
 echo \\\"  Compilation date : ${date}  \\\"
+echo \\\"  Clean state : \${GIT_CLEANSTATE} \\\"
+echo \\\"  Official release : \${REST_OFFICIAL_RELEASE} \\\"
 echo \\\"  \\\"
 echo \\\"  Installed at : $REST_PATH  \\\"
 echo \\\"  \\\"
@@ -204,13 +216,15 @@ fi
 
 if [ $option = \\\"--help\\\" ] ; then
 echo \\\"  Usage :                                                                      \\\"
-echo \\\"  rest-config [--incdir]  : Show the directory of headers                      \\\"
-echo \\\"  rest-config [--libdir]  : Show the directory of library                      \\\"
-echo \\\"  rest-config [--libs]    : Print regular REST libraries                       \\\"
-echo \\\"  rest-config [--exes]    : Print a list of REST executables with alias        \\\"
-echo \\\"  rest-config [--version] : Print the version of REST                          \\\"
-echo \\\"  rest-config [--welcome] : Print the welcome message                          \\\"
-echo \\\"  rest-config [--flags]   : Print cmake flags defined when installing          \\\"
+echo \\\"  rest-config [--incdir]  : Shows the directory of headers                      \\\"
+echo \\\"  rest-config [--libdir]  : Shows the directory of library                      \\\"
+echo \\\"  rest-config [--libs]    : Prints regular REST libraries                       \\\"
+echo \\\"  rest-config [--exes]    : Prints a list of REST executables with alias        \\\"
+echo \\\"  rest-config [--version] : Prints the version of REST                          \\\"
+echo \\\"  rest-config [--welcome] : Prints the welcome message                          \\\"
+echo \\\"  rest-config [--flags]   : Prints cmake flags defined when installing          \\\"
+echo \\\"  rest-config [--release] : Prints 'Yes' if the compilation corresponds with an official git tag.      \\\"
+echo \\\"  rest-config [--clean] : Prints 'Yes' if no local modifications were found during compilation   \\\"
 
 fi
 
