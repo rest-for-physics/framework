@@ -2061,7 +2061,7 @@ void TRestMetadata::PrintMetadata() {
     else
         metadata << "Clean state: No" << endl;
     metadata << "REST Commit : " << GetCommit() << endl;
-    metadata << "REST Library version : " << GetLibraryVersion() << endl;
+    if (GetLibraryVersion() != "0.0") metadata << "REST Library version : " << GetLibraryVersion() << endl;
     metadata << "---------------------------------------" << endl;
 }
 
