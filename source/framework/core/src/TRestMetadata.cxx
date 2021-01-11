@@ -487,6 +487,9 @@ TRestMetadata::TRestMetadata() : endl(fVerboseLevel, messageBuffer) {
     fConfigFileName = "null";
     configBuffer = "";
     metadata.setlength(100);
+
+    if (TRestTools::Execute("rest-config --release") == "Yes") fOfficialRelease = true;
+    if (TRestTools::Execute("rest-config --clean") == "Yes") fCleanState = true;
 }
 
 ///////////////////////////////////////////////
@@ -504,6 +507,9 @@ TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(fVerboseLevel, mess
     fConfigFileName = cfgFileName;
     configBuffer = "";
     metadata.setlength(100);
+
+    if (TRestTools::Execute("rest-config --release") == "Yes") fOfficialRelease = true;
+    if (TRestTools::Execute("rest-config --clean") == "Yes") fCleanState = true;
 }
 
 ///////////////////////////////////////////////
@@ -1110,9 +1116,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL
-                    ? false
-                    : ((string)localele->Attribute("expanded") == "true")) {
+            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+                                                                   "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1147,9 +1152,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL
-                    ? false
-                    : ((string)localele->Attribute("expanded") == "true")) {
+            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+                                                                   "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -2048,6 +2052,14 @@ void TRestMetadata::PrintMetadata() {
     metadata << "Name : " << GetName() << endl;
     metadata << "Title : " << GetTitle() << endl;
     metadata << "REST Version : " << GetVersion() << endl;
+    if (fOfficialRelease)
+        metadata << "REST Official release: Yes" << endl;
+    else
+        metadata << "REST Official release: No" << endl;
+    if (fCleanState)
+        metadata << "Clean state: Yes" << endl;
+    else
+        metadata << "Clean state: No" << endl;
     metadata << "REST Commit : " << GetCommit() << endl;
     metadata << "REST Library version : " << GetLibraryVersion() << endl;
     metadata << "---------------------------------------" << endl;
