@@ -16,7 +16,7 @@
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
-Int_t REST_Fit(TString varName, TString rootFileName, double startVal, double endVal, int nBins = 100) {
+Int_t REST_Fit(string varName, string rootFileName, double startVal, double endVal, int nBins = 100) {
     TRestStringOutput cout;
     cout << "Variable name : " << varName << endl;
     cout << "Fit range : ( " << startVal << " , " << endVal << " ) " << endl;
@@ -26,7 +26,7 @@ Int_t REST_Fit(TString varName, TString rootFileName, double startVal, double en
         return -1;
     }
 
-    std::vector<string> inputFilesNew = TRestTools::GetFilesMatchingPattern((string)rootFileName);
+    std::vector<string> inputFilesNew = TRestTools::GetFilesMatchingPattern(rootFileName);
 
     TH1D* h = new TH1D("FitHisto", "FitHisto", nBins, startVal, endVal);
 
@@ -50,7 +50,7 @@ Int_t REST_Fit(TString varName, TString rootFileName, double startVal, double en
             continue;
         }
         for (int i = 0; i < run->GetEntries(); i++) {
-            run->GetAnalysisTree()->GetBranch(varName)->GetEntry(i);
+            run->GetAnalysisTree()->GetBranch((TString)varName)->GetEntry(i);
             Double_t value = run->GetAnalysisTree()->GetDblObservableValue(obsID);
             if (value >= startVal && value < endVal) {
                 h->Fill(value);

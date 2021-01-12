@@ -16,10 +16,10 @@
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
-Int_t REST_IntegrateSmearing(TString varName, TString rootFileName, double Middle) {
+Int_t REST_IntegrateSmearing(string varName, string rootFileName, double Middle) {
     TRestStringOutput cout;
 
-    std::vector<string> inputFilesNew = TRestTools::GetFilesMatchingPattern((string)rootFileName);
+    std::vector<string> inputFilesNew = TRestTools::GetFilesMatchingPattern(rootFileName);
 
     if (inputFilesNew.size() == 0) {
         cout << "Files not found!" << endl;
@@ -50,7 +50,7 @@ Int_t REST_IntegrateSmearing(TString varName, TString rootFileName, double Middl
         TH1D* h = new TH1D("histo", "histo", 180, Qbb - 90, Qbb + 90);
         Int_t peak = 0;
         for (int i = 0; i < run->GetEntries(); i++) {
-            run->GetAnalysisTree()->GetBranch(varName)->GetEntry(i);
+            run->GetAnalysisTree()->GetBranch((TString)varName)->GetEntry(i);
             Double_t en = run->GetAnalysisTree()->GetDblObservableValue(obsID);
             if (en > Qbb - 5 && en < Qbb + 5) peak++;
 

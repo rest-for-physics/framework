@@ -16,7 +16,7 @@
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
-Int_t REST_Integrate(TString varName, TString rootFileName, double startVal, double endVal) {
+Int_t REST_Integrate(string varName, string rootFileName, double startVal, double endVal) {
     TRestStringOutput cout;
     cout << "Variable name : " << varName << endl;
     cout << "Integration range : ( " << startVal << " , " << endVal << " ) " << endl;
@@ -26,7 +26,7 @@ Int_t REST_Integrate(TString varName, TString rootFileName, double startVal, dou
         return -1;
     }
 
-    std::vector<string> inputFilesNew = TRestTools::GetFilesMatchingPattern((string)rootFileName);
+    std::vector<string> inputFilesNew = TRestTools::GetFilesMatchingPattern(rootFileName);
 
     if (inputFilesNew.size() == 0) {
         cout << "Files not found!" << endl;
@@ -49,7 +49,7 @@ Int_t REST_Integrate(TString varName, TString rootFileName, double startVal, dou
             continue;
         }
         for (int i = 0; i < run->GetEntries(); i++) {
-            run->GetAnalysisTree()->GetBranch(varName)->GetEntry(i);
+            run->GetAnalysisTree()->GetBranch((TString)varName)->GetEntry(i);
             Double_t value = run->GetAnalysisTree()->GetDblObservableValue(obsID);
             if (value >= startVal && value < endVal) integral++;
         }
