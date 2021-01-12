@@ -137,22 +137,30 @@ make -j4 install
 - An API doxygen documentation is frequently updated [here](https://sultan.unizar.es/rest/).
 - The REST Framework forum for open discussions is available [here](ezpc10.unizar.es).
 
-## Contributing, versioning and documentation
+## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) to get some guidelines on how to contribute to this project.
 Before any contribution, those guidelines must be assimilated and accepted. 
 In any case, changes, improvements, or addons, to [CONTRIBUTING.md](CONTRIBUTING.md) are aceptable after proposal and discussion with other authors at the [REST Framework forum](https://ezpc10.unizar.es/).
 
-REST exploits the Git tagging system to produce its own versioning system. Details on how the REST version number is produced are given in [CONTRIBUTING.md](CONTRIBUTING.md).
-Any **metadata** object written with REST **will contain this version number**, making it possible to determine the REST version used to write any particular ROOT file.
+The framework exploits the Git tagging system to produce its own versioning system. It is important to emphasize that the REST framework centralizes the versioning of all the submodules (libraries, packages, ...) that it contains. Details on how the REST version number is produced are given in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Versioning
+
+Any **metadata** object written with REST **will be stamped** with few metadata members that will allow to identify the state of the code when the object was produced. Those data members are:
+  - *fVersion*: A string containning the human version number.
+  - *fCommit*: The latest commit hash value when the compilation took place.
+  - *fLibraryVersion*: The human version library. It is fixed by CMakeLists at the library submodules.
+  - *fOfficialRelease*: It will be true if the commit was tagged at the repository.
+  - *fCleanState*: It will be true if there are no local modifications (including submodules). To remove any local modifications and recover a clean state we may execute `source clean-state.sh` at the project root.
+
 If different REST versions were used to write a ROOT file, e.g. at different steps of the data processing chain, the historic metadata objects will preserve their original version.
 However, the `TRestRun` metadata object **will always store** the version used to write the ROOT file.
 
 After REST release 2.2.1., REST implements correctly the `ROOT schema evolution`. Therefore, any new REST version should always be backwards compatible.
 I.e. Any file written after v2.2.1 should be readable without problems with any future version.
 
-The [REST API documentation](https://sultan.unizar.es/rest/) (WIP) will provide details on the use of the different REST objects, together with few tutorials and basic examples on the use of REST in different scenarios. 
-
+A major change at 2.3 will prevent from backwards compatibility, since class names have been reviewed.
 
 ## Main authors and contributing institutions
 
