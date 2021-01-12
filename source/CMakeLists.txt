@@ -34,6 +34,11 @@ if (${RESTLIB_DETECTOR} MATCHES "ON")
 	add_subdirectory(libraries/detector)
 	list( APPEND rest_libs_index "RestDetector" )
 
+	install(DIRECTORY libraries/detector/macros/
+		DESTINATION ./macros/detector/
+		COMPONENT install
+		)
+
 	file(GLOB_RECURSE libHeaders "libraries/detector/inc/*.h")
 	set(restlibHeaders ${restlibHeaders} ${libHeaders} )
 
