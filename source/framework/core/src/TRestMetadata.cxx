@@ -946,6 +946,12 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
         if (strcmp(name, "name") != 0) {
             string outputBuffer = val;
 
+            if (outputBuffer.find("[") != (int)string::npos || outputBuffer.find("]") != (int)string::npos) {
+                ferr << "TRestMetadata::ReplaceForLoopVars. Old for-loop construction identified" << endl;
+                ferr << "Please, replace [] variable nomenclature by ${}." << endl;
+                exit(1);
+            }
+
             // replace variables with mark ${}
             int startPosition = 0;
             int endPosition = 0;
