@@ -34,7 +34,7 @@ The following commands will download the master branch to the `rest-framework` d
 cd $HOME
 mkdir git
 cd git
-git clone https://github.com/rest-for-physics/rest-framework.git
+git clone https://github.com/rest-for-physics/framework.git rest-framework
 cd rest-framework
 ## It is known to work with python version 3.5 but feel free to use a later version.
 python3.5 pull-submodules.py
