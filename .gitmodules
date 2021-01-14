@@ -52,3 +52,6 @@
 [submodule "projects/basic-readouts"]
 	path = projects/basic-readouts
 	url = https://github.com/rest-for-physics/basic-readouts.git
+[submodule "scripts/batch-scripts"]
+	path = scripts/batch-scripts
+	url = https://github.com/rest-for-physics/batch-scripts.git

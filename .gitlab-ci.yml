@@ -16,6 +16,9 @@ stages:
     # Basic validation tests of installation
   - install
 
+    # Basic core validation tests
+  - core
+
     # Stage dedicated to validate metadata classes. gas, readout, g4Metadata, etc
   - metadata
 
@@ -181,10 +184,10 @@ GenerateGas:
         - $CRONJOB == "YES"
 
 AnalysisTree:
-  type: metadata 
+  type: core
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline/metadata/analysistree/
+    - cd ${CI_PROJECT_DIR}/pipeline/analysistree/
     - restRoot -b -q simpleTree.cpp
   except:
       variables:
