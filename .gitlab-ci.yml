@@ -50,19 +50,19 @@ before_script:
   - geant4-config --version
   - python3 --version
 
-clang-format:
-  stage: pre-build
-  script:
-#        - if [ $CI_SERVER_HOST != "lfna.unizar.es" ]; then exit 0; fi
-      - cd ${CI_PROJECT_DIR}/
-      - if [ -n "$CRONJOB" ]; then ./pipeline/clangformattest.sh; else echo "Skipping clang-format"; fi
-      - ./pipeline/clangformattest.sh
-      - clang-format --version
-  only:
-      variables:
-          - $CI_SERVER_HOST == "lfna.unizar.es"
-          - $CRONJOB
-          - $CRONJOB == "YES"
+    #clang-format:
+    #  stage: pre-build
+    #  script:
+    ##        - if [ $CI_SERVER_HOST != "lfna.unizar.es" ]; then exit 0; fi
+    #      - cd ${CI_PROJECT_DIR}/
+    #      - if [ -n "$CRONJOB" ]; then ./pipeline/clangformattest.sh; else echo "Skipping clang-format"; fi
+    #      - ./pipeline/clangformattest.sh
+    #      - clang-format --version
+    #  only:
+    #      variables:
+    #          - $CI_SERVER_HOST == "lfna.unizar.es"
+    #          - $CRONJOB
+    #          - $CRONJOB == "YES"
 
 validateCode:
     stage: pre-build
