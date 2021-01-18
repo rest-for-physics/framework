@@ -240,6 +240,10 @@ class TRestMetadata : public TNamed {
 
     TString GetLibraryVersion();
 
+    Bool_t isOfficialRelease() { return fOfficialRelease; }
+
+    Bool_t isCleanState() { return fCleanState; }
+
     Int_t GetVersionCode();
     /// Returns a string with the path used for data storage
     TString GetDataPath() { return GetParameter("mainDataPath", ""); }
