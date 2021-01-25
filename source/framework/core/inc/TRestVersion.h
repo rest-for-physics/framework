@@ -10,11 +10,11 @@
  * #endif
  *
  */
-#define REST_RELEASE "2.3.1"
-#define REST_RELEASE_DATE "Mon Jan 11"
-#define REST_RELEASE_TIME "23:07:46 CET 2021"
-#define REST_GIT_COMMIT "bc16e828"
-#define REST_VERSION_CODE 131841
+#define REST_RELEASE "2.3.2"
+#define REST_RELEASE_DATE "Mon Jan 25"
+#define REST_RELEASE_TIME "22:10:53 CET 2021"
+#define REST_GIT_COMMIT "1637bc97"
+#define REST_VERSION_CODE 131842
 #define REST_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #define REST_SCHEMA_EVOLUTION "ON"
 #endif
