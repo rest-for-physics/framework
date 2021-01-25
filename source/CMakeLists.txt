@@ -59,6 +59,10 @@ foreach(dir ${dirs})
 	endforeach()
 endforeach()
 
+if( ${REST_G4} MATCHES ON )
+    set( RESTLIB_GEANT4 ON )
+endif()
+
 # loop all the dirs and compile if option is ON
 foreach(dir ${dirs})
 	SUBDIRLIST(subdirs "${CMAKE_CURRENT_SOURCE_DIR}/${dir}")
