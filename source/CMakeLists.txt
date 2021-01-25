@@ -63,6 +63,12 @@ if( ${REST_G4} MATCHES ON )
     set( RESTLIB_GEANT4 ON )
 endif()
 
+if( ${RESTLIB_DETECTOR} MATCHES ON )
+        if( ${RESTLIB_RAW} MATCHES ON)
+            set( RESTLIB_CONNECTORS ON )
+        endif()
+endif()
+
 # loop all the dirs and compile if option is ON
 foreach(dir ${dirs})
 	SUBDIRLIST(subdirs "${CMAKE_CURRENT_SOURCE_DIR}/${dir}")
