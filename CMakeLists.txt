@@ -51,6 +51,7 @@ set(external_libs)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${DECAY_PATH}/cmake ${CMAKE_MODULE_PATH})
 set(ROOT_FIND_REQUIRED true)
 set(CMAKE_MACOSX_RPATH 1)
+
 include(FindROOT)
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
 set(external_libs ${external_libs} "${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit -lSpectrum")
@@ -64,99 +65,15 @@ if (${REST_EVE} MATCHES "ON")
     add_definitions(-DUSE_Eve)
 	list( APPEND rest_features "Eve" )
     set(external_libs "${external_libs} -lEve -lRGL")
+else()
+    set(excludes ${excludes} TRestEveEventViewer )
 endif (${REST_EVE} MATCHES "ON")
-
-#find garfield libs and includes
-IF( NOT DEFINED REST_GARFIELD )
-   set(REST_GARFIELD OFF)
-ENDIF()
-
-if (${REST_GARFIELD} MATCHES "ON")
-    add_definitions(-DUSE_Garfield)
-    include(FindGarfield)
-    message(STATUS "GARFIELD " ${Garfield_INCLUDE_DIRS})
-    set(external_include_dirs ${external_include_dirs} ${Garfield_INCLUDE_DIRS})
-    set(external_libs "${external_libs} ${Garfield_LIBRARIES}")
-    set(external_include_dirs ${external_include_dirs} ${Garfield_DIR}/Heed)
-    message(STATUS "HEED Include " ${Garfield_DIR}/Heed)
-    message(STATUS "ALL INCLUDES: " ${external_include_dirs})
-	list( APPEND rest_features "Garfield" )
-else ()
-    set(REST_GARFIELD OFF)
-endif (${REST_GARFIELD} MATCHES "ON")
-
-#find garfield libs and includes
-IF( NOT DEFINED REST_DECAY0 )
-    set(REST_DECAY0 OFF)
-ENDIF()
-
-if (${REST_DECAY0} MATCHES "ON")
-    add_definitions(-DUSE_Decay0)
-    list( APPEND rest_features "Decay0" )
-
-    # TODO Issue #6 at rest-framework
-    #----------------------------------------------------------------------------
-    # Find package Decay0 and ROOT
-    find_package(BxDecay0 1.0 CONFIG COMPONENTS manager REQUIRED)
-    #
-    # find_package was not working properly for me in 1.0.9. So I was using 
-    # bxdecay0-config. But in case Decay0 flag is enabled and we do not
-    # have a bxdecay0 installation we might run into problems
-    #
-
-    #execute_process(
-    # COMMAND bxdecay0-config --version
-    # OUTPUT_VARIABLE BxDecay0_VERSION
-    # OUTPUT_STRIP_TRAILING_WHITESPACE)
-    #
-	#execute_process(
-    #COMMAND bxdecay0-config --incdir 
-    # OUTPUT_VARIABLE BxDecay0_INCLUDE_DIRS
-    #   OUTPUT_STRIP_TRAILING_WHITESPACE)
-  #
-	#execute_process(
-    #COMMAND bxdecay0-config --libdir
-    # OUTPUT_VARIABLE BxDecay0_LIBRARY_DIRS
-    # OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-    message (STATUS "Found BxDecay0. Version ='${BxDecay0_VERSION}'")
-    message (STATUS "Found BxDecay0. Include path ='${BxDecay0_INCLUDE_DIRS}'")
-    message (STATUS "Found BxDecay0. Library path ='${BxDecay0_LIBRARY_DIRS}'")
-else ()
-    set(REST_DECAY0 OFF)
-endif (${REST_DECAY0} MATCHES "ON")
-
-## This lines could be placed probably at each library CMakeLists ...
-if (${RESTLIB_RAW} MATCHES "ON")
-    set(external_include_dirs ${external_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/source/libraries/raw/inc)
-endif (${RESTLIB_RAW} MATCHES "ON")
-
-if (${RESTLIB_TRACK} MATCHES "ON")
-    set(external_include_dirs ${external_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/source/libraries/track/inc)
-endif (${RESTLIB_TRACK} MATCHES "ON")
-
-if (${RESTLIB_DETECTOR} MATCHES "ON")
-    set(external_include_dirs ${external_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/source/libraries/detector/inc)
-endif (${RESTLIB_DETECTOR} MATCHES "ON")
-###### ....
 
 #this is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProccess.
 IF (NOT DEFINED SQL)
     set(SQL OFF)
 ENDIF ()
 
-#switch to enable ROOT Eve functionality.
-IF( NOT DEFINED RESTLIB_MODEL)
-	set(RESTLIB_MODEL OFF)
-ENDIF()
-
-if (${RESTLIB_MODEL} MATCHES "ON")
-	set(external_libs "${external_libs} -lRooFitCore -lRooFit -lRooStats")
-	message( STATUS "Adding RooFit and RooFitCore libraries" )
-endif (${RESTLIB_MODEL} MATCHES "ON")
-
-
-#find mysql libs and includes
 if (${SQL} MATCHES "ON" )
 	list( APPEND rest_features "SQL" )
 	add_definitions(-DUSE_SQL)
@@ -169,37 +86,13 @@ else()
 	set(SQL OFF)
 endif (${SQL} MATCHES "ON" )
 
-
 #include dir for compilation
 include_directories(${external_include_dirs})
 message(STATUS "external include directory: " ${external_include_dirs})
 message(STATUS "external libraries to link: " ${external_libs})
 
-
 #gether some infomation
 string(TIMESTAMP date "%Y-%m-%d %H:%M")
-#message("")
-#include(CollectGitInfo)
-#message(STATUS "REST release : ${GIT_TAG}")
-#message(STATUS "REST date : ${GIT_DATE}")
-#message(STATUS "REST commit : ${GIT_COMMIT}")
-#message(STATUS "REST branch : ${GIT_BRANCH}")
-#message("")
-
-
-##generate TRestVersion.h during build stage
-#IF (NOT CMAKE_SYSTEM_NAME MATCHES "Windows")
-#    add_custom_target(
-#            RESTVersion ALL
-#            COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generateVersionHeader.py ${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/inc/TRestVersion.h
-#            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-#
-#    #RESULT_VARIABLE h)
-#    #if(h MATCHES 0)
-#    #	add_definitions(-DREST_VERSION_HEADER)
-#    #endif()
-#ENDIF ()
-
 
 #start compile
 include(MacroRootDict)
@@ -210,27 +103,13 @@ message(STATUS "rest executables: " ${rest_exes})
 message(STATUS "rest macros: " ${rest_macros_str})
 message("")
 
-
-#compile the packages
-
-########################################## RESTG4 Package ###################################
-IF (NOT DEFINED REST_G4)
-    set(REST_G4 OFF)
-ENDIF ()
-
-if (${REST_G4} MATCHES "ON")
-	list( APPEND rest_packages "RestG4" )
-    add_subdirectory(source/packages/restG4)
-endif (${REST_G4} MATCHES "ON")
-########################################## xxxxxxxxxxxxxx ###################################
-
 #begin installation
 message("")
 message("REST will be installed in : ${CMAKE_INSTALL_PREFIX}")
 message("===========================================================")
 message("System is : ${CMAKE_SYSTEM_NAME}")
 message("Packages : ${rest_packages}")
-message("Libraries : ${rest_libs_index}" )
+message("Libraries : ${rest_libraries}" )
 message("Features : ${rest_features}" )
 
 message("===========================================================")
