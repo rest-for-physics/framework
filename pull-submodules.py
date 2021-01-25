@@ -45,6 +45,8 @@ def main():
                         fullpath = fullpath[fullpath.find("source"):]
                      if fullpath.find("packages") >= 0:
                         fullpath = fullpath[fullpath.find("packages"):]
+                     if fullpath.find("scripts") >= 0:
+                        fullpath = fullpath[fullpath.find("scripts"):]
                   if 'url=' in line:
                      url = line.replace('url=', '').strip()
                      if( url.find("http") != -1 and private == 0) or (url.find("git@") != -1 and private == 1):
