@@ -347,3 +347,178 @@ MACRO(SUBDIRLIST result curdir)
 	ENDFOREACH()
 	SET(${result} ${dirlist})
 ENDMACRO()
+
+# ============================================================================
+# Macro to convert directory name to REST library name
+# e.g. axion --> RestAxion
+# e.g. detector --> RestDetector
+MACRO(DIRNAME2LIBNAME result dirname)
+	string(SUBSTRING ${dirname} 0 1 firstletter)
+	string(TOUPPER ${firstletter} firstlettercapital)
+	string(SUBSTRING ${dirname} 1 -1 remainingletter)
+	set(${result} "Rest${firstlettercapital}${remainingletter}")
+ENDMACRO()
+
+# ============================================================================
+# Macro to convert directory name to REST CMake Option name
+# e.g. source/libraries/axion --> RESTLIB_AXION
+# e.g. source/packages/restG4 --> REST_G4
+#
+# result: the converted option string. Will be empty if error
+# dirname: the relative path from CMAKE_CURRENT_SOURCE_DIR to the target dir
+macro(DIRNAME2OPTION result dirname)
+	set(${result} "")
+	if(${dirname} MATCHES "libraries/")
+		string(REPLACE "libraries/" "" purename ${dirname})
+		string(TOUPPER ${purename} uppername)
+		set(${result} "RESTLIB_${uppername}")
+	endif()
+
+	if(${dirname} MATCHES "packages/")
+		string(REPLACE "packages/rest" "" purename ${dirname})
+		set(${result} "REST_${purename}")
+	endif()
+
+ENDMACRO()
+
+
+# ============================================================================
+# Macro to compile REST libraries sub-dir into a single library
+#
+# The working directory of this macro should have regular form like:
+#   DIR                     
+#    ©À©¤©¤ CMakeLists.txt              
+#    ©À©¤©¤ inc                         
+#    ©¦    ©À©¤©¤ CLASS_A.h     
+#    ©¦    ©¸©¤©¤ CLASS_B.h             
+#    ©¸©¤©¤ src                         
+#          ©À©¤©¤ CLASS_A.cxx      
+#          ©¸©¤©¤ CLASS_B.cxx  
+#    --- xxx.cc
+#
+# This macro will first set include directories of cmake to ${CMAKE_CURRENT_SOURCE_DIR},
+# ${CMAKE_CURRENT_SOURCE_DIR}/inc, sub-directories, and sub-directories/inc.
+#
+# Then it will find out all the cxx files and call CINT.
+#
+# Finally it will call cmake to add a library, using the found cxx files, CINT-wrappered 
+# cxx files, and other defined c++ scripts.
+#
+## Arguments:
+#       dependency            - the libraries which this one depends on. Should be the name of a list. 
+#                               Could be -L/usr/local/lib/xxx.so, or be other libname(e.g. RestDetector)
+#                               If RestDetector_COMPULED=FALSE, then it will execute this macro
+#                               firstly on that library.
+#
+## OUTPUT variables (will be changed after this macro):
+#		dirs_included         - After this macro, additional inc dirs from the current 
+#		                        directory will be attatched at the end of this variable.
+#
+#		library_added       - After this macro, the generated library name will be attatched 
+#                               at the end of this variable.
+#
+## Optional variables (to be set before this macro):
+#		contents              - this variable defines needed sub-directories of current directory
+#
+#		addon_src             - if some of the scripts do not follow regular directory form,
+#		                        set them in this argument to compile them. CINT will not be 
+#		                        called for them.
+#
+#		addon_CINT            - if some of the scripts do not follow regular directory form,
+#		                        set them in this argument to compile them with CINT
+#
+#		addon_inc             - if some of the header directories do not follow regular directory 
+#		                        form, set them in this argument to include them. 
+#
+# ----------------------------------------------------------------------------
+MACRO( COMPILELIB dependency)
+
+	string(REGEX MATCH "[^/\\]*$" puredirname ${CMAKE_CURRENT_SOURCE_DIR})
+	DIRNAME2LIBNAME(libname ${puredirname})
+
+	message(STATUS "making build files in ${CMAKE_CURRENT_SOURCE_DIR}, dependency: ${${dependency}}")
+	
+	set(files_cxx)
+	set(files_to_compile_cxx)
+	set(files_to_compile_cint)
+	set(dirs_to_include ${rest_framework_include_dirs})
+	set(libs_to_link ${rest_framework_libraries})
+
+	# check dependency
+	foreach(dep ${${dependency}})
+		set(dirs_to_include ${dirs_to_include} "${CMAKE_CURRENT_SOURCE_DIR}/../${dep}/inc")
+		DIRNAME2LIBNAME(deplibname ${dep})
+		set(libs_to_link ${libs_to_link} ${deplibname})
+	endforeach()
+
+	# include dir
+	set(dirs_to_include ${dirs_to_include} ${addon_inc} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/inc)
+
+	# generate CINT files
+	file(GLOB_RECURSE files_cxx ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cxx)
+	foreach (file ${files_cxx})
+		string(REGEX MATCH "[^/\\]*cxx$" temp ${file}) # get pure file name
+		string(REPLACE ".cxx" "" class ${temp}) # get file name without extension, i.e. class name
+
+		set ( SKIP "FALSE" )
+		if(DEFINED excludes)
+			foreach(exclude ${excludes})
+				if ( "${exclude}" STREQUAL "${class}" )
+					set ( SKIP "TRUE" )
+					#	message( STATUS "Skipping ${class}" )
+				endif()
+			endforeach(exclude)
+		endif()
+
+		if( ${SKIP} STREQUAL "FALSE" )
+			set(ROOT_DICT_INCLUDE_DIRS ${dirs_to_include} ${external_include_dirs})
+			file(GLOB_RECURSE header ${class}.h)
+			if(NOT header)
+				message(WARNING "header file: " ${class}.h " does not exist for source file: " ${file} ". If you really want to build it, add it to \"addon_src\" variable before calling COMPILEDIR()")
+			else()
+				set(ROOT_DICT_INPUT_HEADERS ${header} ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
+				if(${SCHEMA_EVOLUTION} MATCHES "ON")
+					GEN_ROOT_DICT_LINKDEF_HEADER( ${class} ${header})
+					GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
+				else()
+					GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx)
+				endif()
+
+				set(files_to_compile_cxx ${files_to_compile_cxx} ${file})
+				set(files_to_compile_cint ${files_to_compile_cint} ${ROOT_DICT_OUTPUT_SOURCES})
+			endif()
+		endif( ${SKIP} STREQUAL "FALSE" )
+	endforeach (file)
+
+	foreach(src ${addon_CINT})
+		string(REGEX MATCH "[^/\\]+$" filename ${src})
+		set(ROOT_DICT_INCLUDE_DIRS ${dirs_to_include} ${external_include_dirs})
+		set(ROOT_DICT_INPUT_HEADERS ${src})
+		GEN_ROOT_DICT_SOURCES(CINT_${filename}.cxx)
+		set(files_to_compile ${files_to_compile} ${src} ${ROOT_DICT_OUTPUT_SOURCES})
+	endforeach(src)
+
+	list(LENGTH files_cxx Nfiles_cxx)
+	list(LENGTH files_to_compile_cint Nfiles_cint)
+	list(LENGTH addon_src Nfiles_add)
+
+	message(STATUS "${Nfiles_cxx} source files in total, ${Nfiles_cint} classes to generete, ${Nfiles_add} additional source files")
+
+	# start compile
+	include_directories(${dirs_to_include} ${external_include_dirs})
+	add_library(${libname} SHARED ${files_to_compile_cxx} ${files_to_compile_cint} ${addon_src})
+	target_link_libraries(${libname} ${libs_to_link} ${external_libs})
+
+	# install
+	install(TARGETS ${libname}
+		RUNTIME DESTINATION bin
+		LIBRARY DESTINATION lib
+		ARCHIVE DESTINATION lib/static)
+
+	file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h")
+	INSTALL(FILES ${Headers} DESTINATION include)
+
+	set(dirs_included ${dirs_to_include} PARENT_SCOPE)
+	set(library_added ${libname})
+	set(library_added ${library_added} PARENT_SCOPE)
+ENDMACRO()
