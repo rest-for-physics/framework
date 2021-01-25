@@ -1,5 +1,38 @@
 # Write thisREST.[c]sh to INSTALL directory
 
+## We identify the thisroot.sh script for the corresponding ROOT version
+execute_process(COMMAND root-config --prefix
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} 
+	OUTPUT_VARIABLE ROOT_PATH)
+string(REGEX REPLACE "\n$" "" ROOT_PATH "${ROOT_PATH}")
+set ( thisROOT "${ROOT_PATH}/bin/thisroot.sh" )
+
+## We identify the geant4.sh script for the corresponding Geant4 version
+execute_process(COMMAND geant4-config --prefix
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} 
+	OUTPUT_VARIABLE GEANT4_PATH)
+string(REGEX REPLACE "\n$" "" GEANT4_PATH "${GEANT4_PATH}")
+set ( thisGeant4 "${GEANT4_PATH}/bin/geant4.sh" )
+
+if (${REST_G4} MATCHES "ON")
+	set ( loadG4 "\# if geant4.sh script is found we load the same Geant4 version as used in compilation\n if [[ -f \"${thisGeant4}\" ]]; then
+		source ${thisGeant4}\n fi\n" )
+else ()
+    set( loadG4 "")
+endif (${REST_G4} MATCHES "ON")
+
+
+if (${REST_GARFIELD} MATCHES "ON")
+	set ( loadGarfield "\n\# if GARFIELD is enabled we load the same Garfield environment used in compilation
+export GARFIELD_HOME=$ENV{GARFIELD_HOME}
+export HEED_DATABASE=\$GARFIELD_HOME/Heed/heed++/database
+export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH" )
+else ()
+    set( loadGarfield "")
+endif (${REST_GARFIELD} MATCHES "ON")
+
+
+
 # install thisREST script, sh VERSION
 install( CODE
 "
@@ -17,6 +50,14 @@ else
     echo \\\"Invalid shell! Either source with bash or zsh!\\\"
     return 1
 fi
+
+\# if thisroot.sh script is found we load the same ROOT version as used in compilation
+if [[ -f \"${thisROOT}\" ]]; then
+	source ${thisROOT}
+fi
+
+${loadG4}
+${loadGarfield}
 
 if [ \\\$REST_PATH ] ; then
 echo switching to REST installed in \\\${thisdir}
