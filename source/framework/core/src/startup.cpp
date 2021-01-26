@@ -62,9 +62,9 @@ struct __REST_CONST_INIT {
                 TRestTools::Execute("echo 1 > " + restUserPath + "/runNumber");
             }
             // check the dataURL file
-            if (!TRestTools::fileExists(restUserPath + "/dataURL")) {
-                TRestTools::Execute("cp " + REST_PATH + "/data/dataURL " + restUserPath + "/");
-            }
+            //if (!TRestTools::fileExists(restUserPath + "/dataURL")) {
+            //    TRestTools::Execute("cp " + REST_PATH + "/data/dataURL " + restUserPath + "/");
+            //}
             // check the download directory
             if (!TRestTools::fileExists(restUserPath + "/download")) {
                 mkdir((restUserPath + "/download").c_str(), S_IRWXU);
