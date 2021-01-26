@@ -20,6 +20,7 @@ PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 narg = len(sys.argv)
 private = 0
 latest = 0
+debug = 0
 
 for x in range(narg-1):
     if ( sys.argv[x+1] == "--private" ):
@@ -28,6 +29,8 @@ for x in range(narg-1):
     if ( sys.argv[x+1] == "--latest" ):
         latest = 1
         print( "\nPulling latest submodules from their git repository")
+    if ( sys.argv[x+1] == "--debug" ):
+        debug = 1
 
 def main():
 # The following command may fail
