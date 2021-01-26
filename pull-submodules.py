@@ -19,11 +19,15 @@ PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 
 narg = len(sys.argv)
 private = 0
+latest = 0
 
 for x in range(narg-1):
     if ( sys.argv[x+1] == "--private" ):
         private = 1
         print( "\nBe aware that you should add your local system public ssh to your GitLab and/or GitHub account!\nIt is usually placed at ~/.ssh/id_rsa.pub.\nIf it does not exist just create a new one using 'ssh-keygen -t rsa'.\n\nATTENTION: If a password it is requested the reason behind is no public key for this system is found at the remote repository.\nOnce you do that, only repositories where you have access rights will be pulled.\n\nIf no password is requested everything went fine!\n")
+    if ( sys.argv[x+1] == "--latest" ):
+        latest = 1
+        print( "\nPulling latest submodules from their git repository")
 
 def main():
 # The following command may fail
@@ -52,12 +56,19 @@ def main():
                      if( url.find("http") != -1 and private == 0) or (url.find("git@") != -1 and private == 1):
                          if( debug ):
                              print( "Pulling from: " + url )
+                         # 1
                          p1 = subprocess.run('cd {} && git submodule init {}'.format(root, submodule), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                          if( debug ):
                              print ( p1.stdout.decode("utf-8") )
                              print ( p1.stderr.decode("utf-8") )
                          if ( p1.stdout.decode("utf-8").find("checkout") >= 0 ):
                              print( p1.stdout.decode("utf-8") )
+                         errorOutput = p1.stderr.decode("utf-8")
+                         if errorOutput.find("failed") != -1:
+                             print (errorOutput)
+                             print ( fullpath.rstrip() + "[\033[91m Failed \x1b[0m]" )
+                             continue
+                         # 2
                          p2 = subprocess.run('cd {} && git submodule update {}'.format(root, submodule), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                          if( debug ):
                              print ( p2.stdout.decode("utf-8") )
@@ -65,8 +76,30 @@ def main():
                          if ( p2.stdout.decode("utf-8").find("checkout") >= 0 ):
                              print( p2.stdout.decode("utf-8") )
                          errorOutput = p2.stderr.decode("utf-8")
+                         errorOutput = p2.stderr.decode("utf-8")
+                         if errorOutput.find("failed") != -1:
+                             print ( fullpath.rstrip() + "[\033[91m Failed \x1b[0m]" )
+                             print (errorOutput)
+                             continue
+                         # 3
+                         if latest == 1:
+                             p3 = subprocess.run('cd {}/{} && git pull'.format(root, submodule), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                             if( debug ):
+                                 print ( p3.stdout.decode("utf-8") )
+                                 print ( p3.stderr.decode("utf-8") )
+                             if ( p3.stdout.decode("utf-8").find("checkout") >= 0 ):
+                                 print( p3.stdout.decode("utf-8") )
+                             errorOutput = p3.stderr.decode("utf-8")
+                             errorOutput = p3.stderr.decode("utf-8")
+                             if errorOutput.find("failed") != -1:
+                                 print ( fullpath.rstrip() + "[\033[91m Failed \x1b[0m]" )
+                                 print (errorOutput)
+                                 continue
+                         # 4
+                         p4 = subprocess.run('cd {}/{} && git rev-parse HEAD'.format(root, submodule), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
                          if errorOutput.find("failed") == -1:
-                             print ( fullpath.rstrip() + "[\033[92m OK \x1b[0m]" )
+                             print ( fullpath.rstrip() + "[\033[92m OK \x1b[0m] (" + p4.stdout.decode("utf-8")[0:7] + ")")
 
 if __name__ == '__main__':
    main()
