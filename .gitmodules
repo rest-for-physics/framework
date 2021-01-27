@@ -55,3 +55,6 @@
 [submodule "scripts/batch-scripts"]
 	path = scripts/batch-scripts
 	url = https://github.com/rest-for-physics/batch-scripts.git
+[submodule "source/packages/restP3DB"]
+	path = source/packages/restP3DB
+	url = https://gitlab.pandax.sjtu.edu.cn/pandax-iii/restp3db.git
