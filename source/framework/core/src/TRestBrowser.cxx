@@ -93,6 +93,10 @@ void TRestBrowser::SetViewer(TString viewerName) {
         TRestEventViewer* viewer = REST_Reflection::Assembly((string)viewerName);
         if (viewer != NULL) {
             SetViewer(viewer);
+        } else {
+            ferr << viewerName << " not recoginzed! Did you install the corresponding library?" << endl;
+            ferr << "Also check EVE feature is turned on in REST for 3d event viewing." << endl;
+            warning << "Using default event viewer" << endl;
         }
     } else {
         cout << "illegal viewer : " << viewerName << endl;
@@ -322,8 +326,11 @@ Bool_t TRestBrowser::OpenFile(TString filename) {
             fEventIdNumberBox->SetIntNumber(ev->GetID());
             fEventSubIdNumberBox->SetIntNumber(ev->GetSubID());
         }
+        return true;
+    } else {
+        ferr << "file: " << filename << " does not exist!" << endl;
     }
-    return true;
+    return false;
 }
 
 void TRestBrowser::NextPlotOptionAction() {
