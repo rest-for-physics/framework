@@ -119,7 +119,9 @@ message("")
 file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/framework/*.h")
 #set(Headers ${Headers} ${Headers1} ${Headers2} ${Headers3} ${Headers4} ${Headers5} )
 
-install(CODE "execute_process(COMMAND rm -r ${CMAKE_INSTALL_PREFIX})")
+if (${INSTALL_CLEARDIR} MATCHES "ON")
+  install(CODE "execute_process(COMMAND rm -r ${CMAKE_INSTALL_PREFIX})")
+endif()
 
 #message( STATUS "Headers : ${Headers}" )
 INSTALL(FILES ${Headers} DESTINATION include)
