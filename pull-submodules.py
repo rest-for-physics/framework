@@ -20,23 +20,27 @@ debug = 0
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 
 narg = len(sys.argv)
-private = 0
+lfna = 0
+sjtu = 0
 latest = 0
 debug = 0
 force = 0
 
 for x in range(narg - 1):
-    if (sys.argv[x + 1] == "--private"):
-        private = 1
-        print("\nBe aware that you should add your local system public ssh to your GitLab and/or GitHub account!\nIt is usually placed at ~/.ssh/id_rsa.pub.\nIf it does not exist just create a new one using 'ssh-keygen -t rsa'.\n\nATTENTION: If a password it is requested the reason behind is no public key for this system is found at the remote repository.\nOnce you do that, only repositories where you have access rights will be pulled.\n\nIf no password is requested everything went fine!\n")
+    if (sys.argv[x + 1] == "--lfna"):
+        lfna = 1
+        print("Adding submodules from lfna repositories. \nBe aware that you should add your local system public ssh to your GitLab and/or GitHub account!\nIt is usually placed at ~/.ssh/id_rsa.pub.\nIf it does not exist just create a new one using 'ssh-keygen -t rsa'.\n\nATTENTION: If a password it is requested the reason behind is no public key for this system is found at the remote repository.\nOnce you do that, only repositories where you have access rights will be pulled.\n\nIf no password is requested everything went fine!\n")
+    if (sys.argv[x + 1] == "--sjtu"):
+        sjtu = 1
+        print("Adding submodules from sjtu repositories. You may be asked to enter password for it.")
     if (sys.argv[x + 1] == "--latest"):
         latest = 1
-        print("\nPulling latest submodules from their git repository")
+        print("Pulling latest submodules from their git repository, instead of the version recorded by REST. This may cause the submodules to be uncompilable.")
     if (sys.argv[x + 1] == "--debug"):
         debug = 1
     if (sys.argv[x + 1] == "--force"):
         force = 1
-        print("\nForce pulling submodules. It will overrite local changes on the files.")
+        print("Force pulling submodules. It will overrite local changes on the files.")
 
 def main():
 # The following command may fail
@@ -64,9 +68,8 @@ def main():
                         fullpath = fullpath[fullpath.find("scripts"):]
                   if 'url=' in line:
                      url = line.replace('url=', '').strip()
-                     if(url.find("http") != -1 and private == 0) or (url.find("git@") != -1 and private == 1):
-                         if(debug):
-                             print("Pulling from: " + url)
+                     if (url.find("github") != -1) or (url.find("lfna.unizar.es") != -1 and lfna == 1) or (url.find("gitlab.pandax.sjtu.edu.cn") != -1 and sjtu == 1):
+                         print (fullpath.rstrip(), end='')
                          # init
                          p = subprocess.run('cd {} && git submodule init {}'.format(root, submodule), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                          if(debug):
@@ -76,7 +79,7 @@ def main():
                              print(p.stdout.decode("utf-8"))
                          errorOutput = p.stderr.decode("utf-8")
                          if errorOutput.find("failed") != -1 or errorOutput.find("error") != -1:
-                             print (fullpath.rstrip() + "[\033[91m Failed \x1b[0m]")
+                             print ("[\033[91m Failed \x1b[0m]")
                              print ("Message: ")
                              print (errorOutput)
                              continue
@@ -88,7 +91,7 @@ def main():
                                  print (p.stderr.decode("utf-8"))
                              errorOutput = p.stderr.decode("utf-8")
                              if errorOutput.find("failed") != -1 or errorOutput.find("error") != -1:
-                                 print (fullpath.rstrip() + "[\033[91m Failed \x1b[0m]")
+                                 print ("[\033[91m Failed \x1b[0m]")
                                  print ("Message: ")
                                  print (errorOutput)
                                  continue
@@ -101,7 +104,7 @@ def main():
                              print(p.stdout.decode("utf-8"))
                          errorOutput = p.stderr.decode("utf-8")
                          if errorOutput.find("failed") != -1 or errorOutput.find("error") != -1:
-                             print (fullpath.rstrip() + "[\033[91m Failed \x1b[0m]")
+                             print ("[\033[91m Failed \x1b[0m]")
                              print ("Message: ")
                              print (errorOutput)
                              continue
@@ -114,7 +117,7 @@ def main():
                                  print (p.stderr.decode("utf-8"))
                              errorOutput = p.stderr.decode("utf-8")
                              if errorOutput.find("failed") != -1 or errorOutput.find("error") != -1:
-                                 print (fullpath.rstrip() + "[\033[91m Failed \x1b[0m]")
+                                 print ("[\033[91m Failed \x1b[0m]")
                                  print ("Message: ")
                                  print (errorOutput)
                                  continue
@@ -122,7 +125,7 @@ def main():
                          p = subprocess.run('cd {}/{} && git rev-parse HEAD'.format(root, submodule), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
                          if errorOutput.find("failed") == -1 and errorOutput.find("error") == -1:
-                             print (fullpath.rstrip() + "[\033[92m OK \x1b[0m] (" + p.stdout.decode("utf-8")[0:7] + ")")
+                             print ("[\033[92m OK \x1b[0m] (" + p.stdout.decode("utf-8")[0:7] + ")")
 
 if __name__ == '__main__':
    main()
