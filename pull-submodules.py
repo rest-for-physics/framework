@@ -94,8 +94,9 @@ def main():
                          errorOutput = p.stderr.decode("utf-8")
                          if errorOutput.find("failed") != -1 or errorOutput.find("error") != -1:
                              print ("[\033[91m Failed \x1b[0m]")
-                             print ("Message: ")
-                             print (errorOutput)
+                             if(debug):
+                                 print ("Message: ")
+                                 print (errorOutput)
                              continue
                          # if force, overrite the changes with git reset
                          if force == 1:
@@ -106,8 +107,9 @@ def main():
                              errorOutput = p.stderr.decode("utf-8")
                              if errorOutput.find("failed") != -1 or errorOutput.find("error") != -1:
                                  print ("[\033[91m Failed \x1b[0m]")
-                                 print ("Message: ")
-                                 print (errorOutput)
+                                 if(debug):
+                                     print ("Message: ")
+                                     print (errorOutput)
                                  continue
                          # update submodule
                          p = subprocess.run('cd {} && git submodule update {}'.format(root, submodule), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -119,8 +121,9 @@ def main():
                          errorOutput = p.stderr.decode("utf-8")
                          if errorOutput.find("failed") != -1 or errorOutput.find("error") != -1:
                              print ("[\033[91m Failed \x1b[0m]")
-                             print ("Message: ")
-                             print (errorOutput)
+                             if(debug):
+                                 print ("Message: ")
+                                 print (errorOutput)
                              continue
                          # if latest, pull the latest commit instead of the one
                          # recorded in the main repo
@@ -132,8 +135,9 @@ def main():
                              errorOutput = p.stderr.decode("utf-8")
                              if errorOutput.find("failed") != -1 or errorOutput.find("error") != -1:
                                  print ("[\033[91m Failed \x1b[0m]")
-                                 print ("Message: ")
-                                 print (errorOutput)
+                                 if(debug):
+                                     print ("Message: ")
+                                     print (errorOutput)
                                  continue
                          # get commit id
                          p = subprocess.run('cd {}/{} && git rev-parse HEAD'.format(root, submodule), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
