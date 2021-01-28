@@ -39,6 +39,8 @@ class TRestAnalysisTree : public TTree {
 
     //
     Int_t fStatus = 0;                       //!
+    Int_t fSetObservableCalls = 0;           //!
+    Int_t fSetObservableIndex = 0;           //!
     std::vector<any> fObservables;           //!
     std::map<string, int> fObservableIdMap;  //!
     TTree* fROOTTree;                        //!
@@ -59,13 +61,32 @@ class TRestAnalysisTree : public TTree {
     bool BranchesExist() { return GetListOfBranches()->GetEntriesFast() > 0; }
 
     enum TRestAnalysisTree_Status {
+        //!< Error state
         Error = -1,
+        //!< First status when constructed as empty tree
         None = 0,
+        //!< Status during the first loop of SetObservableValue() before Fill() and after
+        //! construction. No branches are created and filled. Some observables may be added.
+        //! We will create branches when we call Fill(). We will update branches when we call
+        //! PrintObservables(). The status will become "Filled" and "Connected" respectivelly
         Created = 1,
+        //!< There are branches in the tree with data, but no observables are added.
+        //! This means the tree was just retrieved from root file. In this case, when calling
+        //! GetEntry() or Fill(), we will first recover the observables and connect them to the
+        //! branches. We forbid to add new observable to the tree. After reconnection, the
+        //! status will become "Filled"
         Retrieved = 2,
+        //!< There are branches in the tree but with no data(i.e. entry number is 0).
+        //! No observables are added either. This means the tree could be an empty clone
+        //! of another TRestAnalysisTree. Adding new observable is allowed in this case.
         EmptyCloned = 3,
+        //!< There are branches in the tree with no data. There are observables in the list.
+        //! same as "Created"
         Connected = 4,
+        //!< There are branches in the tree with data. There are observables in the list.
+        //! Once filled, it is forbidden to add new observable to the tree. 
         Filled = 5,
+        //!< first status when constructed from ROOT tree
         ROOTTree = 6
     };
 
@@ -73,7 +94,9 @@ class TRestAnalysisTree : public TTree {
 
    protected:
    public:
-    // getters
+    /////////////// Getters ////////////////
+
+    // Get the status of this tree. This call will not evaluate the status.
     int GetStatus() { return fStatus; }
     Int_t GetObservableID(const string& obsName);
     Bool_t ObservableExists(const string& obsName);
@@ -86,65 +109,90 @@ class TRestAnalysisTree : public TTree {
     Int_t GetNumberOfObservables() { return fNObservables; }
 
     // observable method
-    any GetObservable(Int_t n) {
-        return fObservables[n];
-    }  // TODO implement error message in case n >= fNObservables
-    TString GetObservableName(Int_t n) {
-        return fObservableNames[n];
-    }  // TODO implement error message in case n >= fNObservables
-    TString GetObservableDescription(Int_t n) { return fObservableDescriptions[n]; }
-    TString GetObservableType(Int_t n) {
-        if (fNObservables > 0 && fObservableTypes.size() == 0) return "double";
-        return fObservableTypes[n];
-    }
-    TString GetObservableType(string obsName) {
-        Int_t id = GetObservableID(obsName);
-        if (id == -1) return "NotFound";
-        return GetObservableType(id);
-    }
+    any GetObservable(Int_t n);
+    TString GetObservableName(Int_t n);
+    TString GetObservableDescription(Int_t n);
+    TString GetObservableType(Int_t n);
+    TString GetObservableType(string obsName);
+    Double_t GetDblObservableValue(string obsName);
+    Double_t GetDblObservableValue(Int_t n);
 
-    Double_t GetDblObservableValue(string obsName) { return GetDblObservableValue(GetObservableID(obsName)); }
-    Double_t GetDblObservableValue(Int_t n) {
-        if (GetObservableType(n) == "int") return GetObservableValue<int>(n);
-        if (GetObservableType(n) == "double") return GetObservableValue<double>(n);
-
-        cout << "TRestAnalysisTree::GetDblObservableValue. Type " << GetObservableType(n)
-             << " not supported! Returning zero" << endl;
-        return 0.;
-    }
-
+    ///////////////////////////////////////////////
+    /// \brief Get observable in a given type, according to its id.
     template <class T>
-    T GetObservableValue(Int_t n) {
-        return *(T*)fObservables[n];
-    }
-    template <class T>
-    T GetObservableValue(string obsName) {
-        Int_t id = GetObservableID(obsName);
-        if (id == -1) {
+    T GetObservableValue(Int_t n, bool safe = false) {
+        if (safe && REST_Reflection::GetTypeName<T>() != fObservables[n].type) {
+            cout << "Error! TRestAnalysisTree::GetObservableValue(): unmatched type!" << endl;
             return T();
         }
-        return GetObservableValue<T>(id);
-    }
-
-    template <class T>
-    T GetObservableValueSafe(Int_t n) {
-        if (REST_Reflection::GetTypeName<T>() != fObservables[n].type) {
-            cout << "Error! TRestAnalysisTree::GetObservableValueSafe(): unmatched type!" << endl;
+        if (safe && n >= fNObservables) {
+            cout << "Error! TRestAnalysisTree::GetObservableValue(): index outside limits!" << endl;
             return T();
         }
         return *(T*)fObservables[n];
     }
+    ///////////////////////////////////////////////
+    /// \brief Get observable in a given type, according to its name.
+    ///
+    /// The returned value is directly the type. When set safe == true, it will
+    /// preform type name check before converting to the specified type, and make 
+    /// it safer(otherwise there is potential seg.fault if you convert for example 
+    /// int* to double). Note that type name reflection takes time.
+    /// 
+    /// Example: 
+    /// `vector<int> v = AnalysisTree->GetObservableValue<vector<int>>("myvec1");`
+    /// `double a = AnalysisTree->GetObservableValue<double>("myval");`
     template <class T>
-    T GetObservableValueSafe(const string& obsName) {
+    T GetObservableValue(string obsName, bool safe = false) {
         Int_t id = GetObservableID(obsName);
         if (id == -1) {
             return T();
         }
-        return GetObservableValueSafe<T>(id);
+        return GetObservableValue<T>(id, safe);
     }
 
+    ///////////////////////////////////////////////
+    /// \brief Set the value of observable whose index is id
     template <class T>
-    void SetObservableValue(const string& name, const T& value) {
+    void SetObservableValue(const Int_t& id, const T& value) {
+        if (id >= fNObservables) {
+            cout << "Error! TRestAnalysisTree::SetObservableValue(): index outside limits!" << endl;
+            return;
+        }
+        *(T*)fObservables[id] = value;
+    }
+    ///////////////////////////////////////////////
+    /// \brief Set the value of observable. May not check the name.
+    ///
+    /// Any type of input value is accepted. We can directly set value from a 
+    /// vector or map object. If the observable does not exist, it will create 
+    /// a new one if the tree is not filled yet. If quick == true we directly 
+    /// set the observable whose index is equal to fSetObservableIndex, and increase
+    /// fSetObservableIndex at each call of this method. Otherwise we find the
+    /// observable with name and set it. Note that observable type check is not
+    /// performed in this method. To make it safe consider using SetObservable()
+    ///
+    /// Example:
+    /// \code
+    ///
+    /// TRestAnalysisTree* tree = new TRestAnalysisTree();
+    /// for (int i = 0; i < 1000000; i++) {
+    ///    tree->SetObservableValue("gaus", gRandom->Gaus(100, 20));
+    ///    tree->SetObservableValue("poisson", gRandom->Poisson(36));
+    ///    tree->SetObservableValue("rndm", gRandom->Rndm());
+    ///    tree->SetObservableValue("landau", gRandom->Landau(10, 2));
+    ///    tree->Fill();
+    /// }
+    ///
+    /// \endcode
+    template <class T>
+    void SetObservableValue(const string& name, const T& value, bool quick = true) {
+        if (quick && fStatus == Filled && fSetObservableCalls == fNObservables) {
+            SetObservableValue(fSetObservableIndex, value);
+            fSetObservableIndex++;
+            return;
+        }
+
         int id = GetObservableID(name);
         if (id != -1) {
             *(T*)fObservables[id] = value;
@@ -155,12 +203,16 @@ class TRestAnalysisTree : public TTree {
                 *(T*)fObservables[id] = value;
             }
         }
-    }
-    template <class T>
-    void SetObservableValue(const Int_t& id, const T& value) {
-        *(T*)fObservables[id] = value;
+        fSetObservableCalls++;
     }
 
+    ///////////////////////////////////////////////
+    /// \brief Set the value of observable whose name is as specified
+    ///
+    /// The input is "any". This class is able to be constructed from any object,
+    /// The input of this method could be equal to SetObservableValue(). It will first 
+    /// convert the object to "any" object, then it will set the observable value
+    /// with it. It is safer but slower.
     void SetObservable(string name, any value) {
         value.name = name;
         SetObservable(-1, value);
@@ -216,4 +268,5 @@ class TRestAnalysisTree : public TTree {
 
     ClassDef(TRestAnalysisTree, 3);
 };
+
 #endif
