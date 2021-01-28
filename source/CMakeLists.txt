@@ -115,3 +115,5 @@ set(rest_libraries_regular ${rest_libraries_regular} PARENT_SCOPE)
 set(rest_exes ${rest_exes} PARENT_SCOPE)
 set(rest_macros ${rest_macros} PARENT_SCOPE)
 set(rest_macros_str ${rest_macros_str} PARENT_SCOPE)
+
+set(REST_G4 ${REST_G4} PARENT_SCOPE)
