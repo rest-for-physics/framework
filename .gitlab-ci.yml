@@ -93,7 +93,7 @@ build:
   type: build
   script:
     - cd ${CI_PROJECT_DIR}/
-    - python3.5 pull-submodules.py --force
+    - python3.5 pull-submodules.py --force --dontask
     - mkdir /tmp/rest && cd /tmp/rest
     - rm -rf ${CI_PROJECT_DIR}/install
     - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install

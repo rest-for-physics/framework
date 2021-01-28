@@ -25,6 +25,8 @@ sjtu = 0
 latest = 0
 debug = 0
 force = 0
+dontask = 0
+clean = 0
 
 for x in range(narg - 1):
     if (sys.argv[x + 1] == "--lfna"):
@@ -38,14 +40,26 @@ for x in range(narg - 1):
         print("Pulling latest submodules from their git repository, instead of the version recorded by REST. This may cause the submodules to be uncompilable.")
     if (sys.argv[x + 1] == "--debug"):
         debug = 1
+    if (sys.argv[x + 1] == "--dontask"):
+        dontask = 1
     if (sys.argv[x + 1] == "--force"):
         force = 1
-        print("Force pulling submodules. It will overrite local changes on the files.")
+    if (sys.argv[x + 1] == "--clean"):
+        force = 1
+        clean = 1
 
 def main():
 # The following command may fail
 #   os.system('cd {} && git submodule update --init
 #   --recursive'.format(PROJECT_ROOT))
+
+   if( force and not dontask ):
+      answer = input("This will override local changes on the files. And will bring your local repository to a clean state\nAre you sure to proceed? (y/n) " )
+      if( answer != "y" ):
+         sys.exit(0);
+
+   if( force ):
+      print("Force pulling submodules.")
 
 # In case the above command failed, also go through all submodules and update
 # them individually
@@ -126,6 +140,10 @@ def main():
 
                          if errorOutput.find("failed") == -1 and errorOutput.find("error") == -1:
                              print ("[\033[92m OK \x1b[0m] (" + p.stdout.decode("utf-8")[0:7] + ")")
+
+   if( clean ):
+         p = subprocess.run('git clean -xfd', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+         p = subprocess.run('git reset --hard', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 if __name__ == '__main__':
    main()
