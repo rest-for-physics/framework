@@ -124,11 +124,6 @@ void TRestAnalysisTree::Initialize() {
     fObservables.clear();
 }
 
-///////////////////////////////////////////////
-/// \brief Get the index of the specified observable.
-///
-/// If not exist, it will return -1. It will call MakeObservableIdMap() to 
-/// update observable id map before searching
 Int_t TRestAnalysisTree::GetObservableID(const string& obsName) {
     MakeObservableIdMap();
     auto iter = fObservableIdMap.find(obsName);
@@ -141,18 +136,11 @@ Int_t TRestAnalysisTree::GetObservableID(const string& obsName) {
     // return fObservableIdMap[obsName];
 }
 
-///////////////////////////////////////////////
-/// \brief Get if the specified observable exists
-///
-/// It will call MakeObservableIdMap() to update observable id map before searching
 Bool_t TRestAnalysisTree::ObservableExists(const string& obsName) {
     MakeObservableIdMap();
     return fObservableIdMap.count(obsName) > 0;
 }
 
-///////////////////////////////////////////////
-/// \brief Evaluate the Status of this tree. 
-///
 ///////////////////////////////////////////////////////////////////////////////
 // Status              | Nbranches  |  NObs in list  | Entries |
 // 1. Created          |     0      |       0        |    0    |
@@ -220,13 +208,7 @@ int TRestAnalysisTree::EvaluateStatus() {
     return TRestAnalysisTree_Status::Error;
 }
 
-///////////////////////////////////////////////
-/// \brief Update observables stored in the tree.
-///
-/// It will first connect the six event data members(i.e. runid, eventid, etc.) 
-/// to the existing TTree branches. Then it will create new observable objects by 
-/// reflection, and connect them also to the existing TTree branches. After 
-/// re-connection, this method will change status 2->5, 3->4
+// This method will change status 2->5, 3-4
 void TRestAnalysisTree::UpdateObservables() {
     // connect basic event branches
     TBranch* br1 = GetBranch("runOrigin");
@@ -279,13 +261,7 @@ void TRestAnalysisTree::UpdateObservables() {
     fStatus = EvaluateStatus();
 }
 
-///////////////////////////////////////////////
-/// \brief Update branches in the tree.
-///
-/// It will create branches if not exist, both for event data members and 
-/// observables. Note that this method can be called multiple times during the 
-/// first loop of observable setting. After branch creation, this method will
-/// change status 1->4, or stay 4.
+// This method will change status 1->4, or update status 4
 void TRestAnalysisTree::UpdateBranches() {
     if (!GetBranch("runOrigin")) Branch("runOrigin", &fRunOrigin);
     if (!GetBranch("subRunOrigin")) Branch("subRunOrigin", &fSubRunOrigin);
@@ -332,7 +308,6 @@ void TRestAnalysisTree::UpdateBranches() {
     fStatus = EvaluateStatus();
 }
 
-
 void TRestAnalysisTree::InitObservables() {
     fObservables = std::vector<any>(GetNumberOfObservables());
     for (int i = 0; i < GetNumberOfObservables(); i++) {
@@ -342,11 +317,6 @@ void TRestAnalysisTree::InitObservables() {
     MakeObservableIdMap();
 }
 
-
-///////////////////////////////////////////////
-/// \brief Update the map of observable name to observable id.
-///
-/// Using map will improve the speed of "SetObservableValue"
 void TRestAnalysisTree::MakeObservableIdMap() {
     if (fObservableIdMap.size() != fObservableNames.size()) {
         fObservableIdMap.clear();
@@ -440,69 +410,6 @@ void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, any& obs) {
         warning << "Unsupported observable type to convert from TLeaf!" << endl;
     }
 }
-
-
-///////////////////////////////////////////////
-/// \brief Get the observable object wrapped with "any" class, according to the id
-any TRestAnalysisTree::GetObservable(Int_t n) {
-    if (n >= fNObservables) {
-        cout << "Error! TRestAnalysisTree::GetObservable(): index outside limits!" << endl;
-        return any();
-    }
-    return fObservables[n];
-}
-///////////////////////////////////////////////
-/// \brief Get the observable name according to id
-TString TRestAnalysisTree::GetObservableName(Int_t n) {
-    if (n >= fNObservables) {
-        cout << "Error! TRestAnalysisTree::GetObservableName(): index outside limits!" << endl;
-        return "";
-    }
-    return fObservableNames[n];
-}
-///////////////////////////////////////////////
-/// \brief Get the observable description according to id
-TString TRestAnalysisTree::GetObservableDescription(Int_t n) {
-    if (n >= fNObservables) {
-        cout << "Error! TRestAnalysisTree::GetObservableDescription(): index outside limits!" << endl;
-        return "";
-    }
-    return fObservableDescriptions[n];
-}
-///////////////////////////////////////////////
-/// \brief Get the observable type according to id
-TString TRestAnalysisTree::GetObservableType(Int_t n) {
-    if (n >= fNObservables) {
-        cout << "Error! TRestAnalysisTree::GetObservableType(): index outside limits!" << endl;
-        return "double";
-    }
-    return fObservableTypes[n];
-}
-///////////////////////////////////////////////
-/// \brief Get double value of the observable, according to the name.
-/// 
-/// It assumes the observable is in double/int type. If not it will print error and return 0
-Double_t TRestAnalysisTree::GetDblObservableValue(string obsName) {
-    return GetDblObservableValue(GetObservableID(obsName));
-}
-///////////////////////////////////////////////
-/// \brief Get double value of the observable, according to the id.
-///
-/// It assumes the observable is in double/int type. If not it will print error and return 0
-Double_t TRestAnalysisTree::GetDblObservableValue(Int_t n) {
-    if (n >= fNObservables) {
-        cout << "Error! TRestAnalysisTree::GetDblObservableValue(): index outside limits!" << endl;
-        return 0;
-    }
-
-    if (GetObservableType(n) == "int") return GetObservableValue<int>(n);
-    if (GetObservableType(n) == "double") return GetObservableValue<double>(n);
-
-    cout << "TRestAnalysisTree::GetDblObservableValue. Type " << GetObservableType(n)
-         << " not supported! Returning zero" << endl;
-    return 0.;
-}
-
 
 any TRestAnalysisTree::AddObservable(TString observableName, TString observableType, TString description) {
     if (fStatus == None) fStatus = EvaluateStatus();
@@ -642,30 +549,24 @@ void TRestAnalysisTree::SetEventInfo(TRestEvent* evt) {
 Int_t TRestAnalysisTree::Fill() {
     if (fStatus == None) fStatus = EvaluateStatus();
 
-    fSetObservableIndex = 0;
-
     if (fStatus == Filled) {
         return TTree::Fill();
     } else if (fStatus == Created) {
         UpdateBranches();
         int a = TTree::Fill();
         fStatus = EvaluateStatus();
-        return a;
     } else if (fStatus == Retrieved) {
         UpdateObservables();
         int a = TTree::Fill();
         fStatus = EvaluateStatus();
-        return a;
     } else if (fStatus == EmptyCloned) {
         UpdateObservables();
         int a = TTree::Fill();
         fStatus = EvaluateStatus();
-        return a;
     } else if (fStatus == Connected) {
         UpdateBranches();
         int a = TTree::Fill();
         fStatus = EvaluateStatus();
-        return a;
     } else if (fStatus == ROOTTree) {
         cout << "REST_Warning: cannot Fill the root tree, read only!" << endl;
         return -1;
