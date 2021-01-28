@@ -187,10 +187,19 @@ int TRestAnalysisTree::EvaluateStatus() {
             }
         }
     } else if (NBranches == 6) {
-        if (Entries > 0) {
-            return TRestAnalysisTree_Status::Filled;
+        TBranch* br = (TBranch*)GetListOfBranches()->UncheckedAt(0);
+        if ((int*)br->GetAddress() != &fRunOrigin) {
+            if (Entries > 0) {
+                return TRestAnalysisTree_Status::Retrieved;
+            } else {
+                return TRestAnalysisTree_Status::EmptyCloned;
+            }
         } else {
-            return TRestAnalysisTree_Status::Connected;
+            if (Entries > 0) {
+                return TRestAnalysisTree_Status::Filled;
+            } else {
+                return TRestAnalysisTree_Status::Connected;
+            }
         }
     } else {
         return TRestAnalysisTree_Status::Error;
@@ -202,20 +211,20 @@ int TRestAnalysisTree::EvaluateStatus() {
 // This method will change status 2->5, 3-4
 void TRestAnalysisTree::UpdateObservables() {
     // connect basic event branches
-    TBranch* br1 = GetBranch("eventID");
-    TBranch* br2 = GetBranch("subEventID");
-    TBranch* br3 = GetBranch("timeStamp");
-    TBranch* br4 = GetBranch("subEventTag");
-    TBranch* br5 = GetBranch("runOrigin");
-    TBranch* br6 = GetBranch("subRunOrigin");
+    TBranch* br1 = GetBranch("runOrigin");
+    TBranch* br2 = GetBranch("subRunOrigin");
+    TBranch* br3 = GetBranch("eventID");
+    TBranch* br4 = GetBranch("subEventID");
+    TBranch* br5 = GetBranch("timeStamp");
+    TBranch* br6 = GetBranch("subEventTag");
 
     if (br1 && br2 && br3 && br4 && br5 && br6) {
-        br1->SetAddress(&fEventID);
-        br2->SetAddress(&fSubEventID);
-        br3->SetAddress(&fTimeStamp);
-        br4->SetAddress(&fSubEventTag);
-        br5->SetAddress(&fRunOrigin);
-        br6->SetAddress(&fSubRunOrigin);
+        br1->SetAddress(&fRunOrigin);
+        br2->SetAddress(&fSubRunOrigin);
+        br3->SetAddress(&fEventID);
+        br4->SetAddress(&fSubEventID);
+        br5->SetAddress(&fTimeStamp);
+        br6->SetAddress(&fSubEventTag);
     } else {
         cout << "REST Error: TRestAnalysisTree::ConnectBranches(): event branches does not exist!" << endl;
         exit(1);

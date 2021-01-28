@@ -16,6 +16,9 @@ stages:
     # Basic validation tests of installation
   - install
 
+    # Basic core validation tests
+  - core
+
     # Stage dedicated to validate metadata classes. gas, readout, g4Metadata, etc
   - metadata
 
@@ -50,16 +53,17 @@ before_script:
 clang-format:
   stage: pre-build
   script:
-#        - if [ $CI_SERVER_HOST != "lfna.unizar.es" ]; then exit 0; fi
-      - cd ${CI_PROJECT_DIR}/
-      - if [ -n "$CRONJOB" ]; then ./pipeline/clangformattest.sh; else echo "Skipping clang-format"; fi
-      - ./pipeline/clangformattest.sh
-      - clang-format --version
+
+    - if [ $CI_SERVER_HOST != "lfna.unizar.es" ]; then exit 0; fi
+    - cd ${CI_PROJECT_DIR}/
+    - if [ -n "$CRONJOB" ]; then ./pipeline/clangformattest.sh; else echo "Skipping clang-format"; fi
+    - ./pipeline/clangformattest.sh
+    - clang-format --version
   only:
-      variables:
-          - $CI_SERVER_HOST == "lfna.unizar.es"
-          - $CRONJOB
-          - $CRONJOB == "YES"
+    variables:
+      - $CI_SERVER_HOST == "lfna.unizar.es"
+      - $CRONJOB
+      - $CRONJOB == "YES"
 
 validateCode:
     stage: pre-build
@@ -89,7 +93,7 @@ build:
   type: build
   script:
     - cd ${CI_PROJECT_DIR}/
-    - python3.5 pull-submodules.py
+    - python3.5 pull-submodules.py --force --dontask
     - mkdir /tmp/rest && cd /tmp/rest
     - rm -rf ${CI_PROJECT_DIR}/install
     - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
@@ -181,10 +185,10 @@ GenerateGas:
         - $CRONJOB == "YES"
 
 AnalysisTree:
-  type: metadata 
+  type: core
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline/metadata/analysistree/
+    - cd ${CI_PROJECT_DIR}/pipeline/analysistree/
     - restRoot -b -q simpleTree.cpp
   except:
       variables:

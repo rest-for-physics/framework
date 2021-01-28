@@ -115,9 +115,9 @@ else:
 
 print ("\nA new version file has been generated at : " + outputHeader )
 print ("To increase the version of REST use the generated file to replace the existing TRestVersion.h file.\n" )
-print ("-----> cp " + outputHeader + " /path/to/REST_v2/source/restcore/inc/TRestVersion.h\n")
+print ("-----> cp " + outputHeader + " ../source/framework/core/inc/TRestVersion.h\n")
 print ("After replacing TRestVersion.h, add the file and commit it\n")
-print ("-----> git add /path/to/REST_v2/source/restcore/inc/TRestVersion.h")
+print ("-----> git add ../source/framework/core/inc/TRestVersion.h")
 print ("-----> git commit -m \"Updated TRestVersion.h to v2."+str(b)+"."+str(c)+"\" " )
 print ("\n")
 print ("You should generate a new Git tag now!\n")
@@ -129,3 +129,4 @@ print ("IMPORTANT. Summarize the changes in the tag generated at the Gitlab repo
 
 
 exit(0)
+

@@ -25,8 +25,6 @@
 
 #include <TH1D.h>
 
-#include <TRestRawSignalEvent.h>
-
 #include "TRestEventProcess.h"
 
 //! A system performance monitor process for event flow rate, reading speed, cpu stress, etc

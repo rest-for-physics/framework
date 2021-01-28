@@ -2,8 +2,10 @@
 #include "TRestGeant4Event.h"
 #endif
 
+#ifdef REST_DetectorLib
 #include "TRestDetectorHitsEvent.h"
 #include "TRestDetectorSignalEvent.h"
+#endif
 //#include "TRestLinearTrackEvent.h"
 
 #ifdef REST_RawLib
@@ -76,7 +78,8 @@ Int_t REST_Geant4Event(TString fName, Int_t firstEvent = 0) {
 }
 #endif
 
-Int_t REST_HitsEvent(TString fName, Int_t firstEvent = 0) {
+#ifdef REST_DetectorLib
+Int_t REST_DetectorHitsEvent(TString fName, Int_t firstEvent = 0) {
     TRestRun* run = new TRestRun();
 
     run->OpenInputFile(fName);
@@ -95,6 +98,8 @@ Int_t REST_HitsEvent(TString fName, Int_t firstEvent = 0) {
 
     return 0;
 }
+#endif
+
 /*
 Int_t REST_LinearTrackEvent(TString fName, Int_t firstEvent = 0) {
     TRestRun* run = new TRestRun();
@@ -138,7 +143,8 @@ Int_t REST_RawSignalEvent(TString fName, Int_t firstEvent = 0) {
 }
 #endif
 
-Int_t REST_SignalEvent(TString fName, Int_t firstEvent = 0) {
+#ifdef REST_DetectorLib
+Int_t REST_DetectorSignalEvent(TString fName, Int_t firstEvent = 0) {
     TRestRun* run = new TRestRun();
 
     run->OpenInputFile(fName);
@@ -157,6 +163,7 @@ Int_t REST_SignalEvent(TString fName, Int_t firstEvent = 0) {
 
     return 0;
 }
+#endif
 
 #ifdef REST_TrackLib
 Int_t REST_TrackEvent(TString fName, Int_t firstEvent = 0) {

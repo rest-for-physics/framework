@@ -63,7 +63,7 @@ DBEntry::DBEntry(vector<string> items) {
 
 void TRestDataBase::Initialize() {
     fDataEntries.clear();
-    string metaFilename = REST_USER_PATH + (string) "/dataURL";
+    string metaFilename = REST_PATH + "/data/dataURL";
     if (!TRestTools::fileExists(metaFilename)) {
         return;
     } else {

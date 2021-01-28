@@ -84,6 +84,9 @@ class TRestMetadata : public TNamed {
     TString fCommit = REST_COMMIT;    //<
     TString fLibraryVersion = "0";    //<
 
+    Bool_t fOfficialRelease = false;  //<
+    Bool_t fCleanState = false;       //<
+
    protected:
     // new xml utilities
     std::string GetFieldValue(std::string parName, TiXmlElement* e);
@@ -237,6 +240,10 @@ class TRestMetadata : public TNamed {
 
     TString GetLibraryVersion();
 
+    Bool_t isOfficialRelease() { return fOfficialRelease; }
+
+    Bool_t isCleanState() { return fCleanState; }
+
     Int_t GetVersionCode();
     /// Returns a string with the path used for data storage
     TString GetDataPath() { return GetParameter("mainDataPath", ""); }
@@ -278,7 +285,7 @@ class TRestMetadata : public TNamed {
     TRestMetadata(const char* cfgFileNamecfgFileName);
 
     /// Call CINT to generate streamers for this class
-    ClassDef(TRestMetadata, 7);
+    ClassDef(TRestMetadata, 8);
 };
 
 #endif

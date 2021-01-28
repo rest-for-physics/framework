@@ -16,11 +16,11 @@
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
-Int_t REST_CreateHisto(TString varName, TString rootFileName, TString histoName, int startVal = 0,
+Int_t REST_CreateHisto(string varName, string rootFileName, TString histoName, int startVal = 0,
                        int endVal = 1000, int bins = 1000, Double_t normFactor = 1) {
     TRestStringOutput cout;
 
-    std::vector<string> inputFilesNew = TRestTools::GetFilesMatchingPattern((string)rootFileName);
+    std::vector<string> inputFilesNew = TRestTools::GetFilesMatchingPattern(rootFileName);
 
     TH1D* h = new TH1D(histoName, histoName, bins, startVal, endVal);
 
@@ -44,7 +44,7 @@ Int_t REST_CreateHisto(TString varName, TString rootFileName, TString histoName,
             continue;
         }
         for (int i = 0; i < run->GetEntries(); i++) {
-            run->GetAnalysisTree()->GetBranch(varName)->GetEntry(i);
+            run->GetAnalysisTree()->GetBranch((TString)varName)->GetEntry(i);
             Double_t val = run->GetAnalysisTree()->GetDblObservableValue(obsID);
             if (val >= startVal && val <= endVal) h->Fill(val);
         }
@@ -54,7 +54,7 @@ Int_t REST_CreateHisto(TString varName, TString rootFileName, TString histoName,
 
     h->Scale(normFactor);
 
-    TFile* f = new TFile(rootFileName, "update");
+    TFile* f = new TFile((TString)rootFileName, "update");
     h->Write(histoName);
     f->Close();
 
