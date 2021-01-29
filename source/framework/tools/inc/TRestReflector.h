@@ -33,18 +33,25 @@ class TRestEventProcess;
 namespace REST_Reflection {
 
 extern map<string, TDataType*> RESTListOfDataTypes;
+extern map<void*, TClass*> RESTListOfClasses_typeid;
+extern map<string, TClass*> RESTListOfClasses_typename;
 
 /// Wrap the string type name into ROOT type identifier "TDataType"
 inline TDataType* GetDataType(string type) {
-    if (RESTListOfDataTypes[type] == NULL) {
+    auto iter = RESTListOfDataTypes.find(type);
+    if (iter != RESTListOfDataTypes.end()) {
+        return iter->second;
+    } else {
         TDataType* dt = new TDataType(type.c_str());
         if (dt->GetType() == -1) {
             delete dt;
+            RESTListOfDataTypes[type] = NULL;
         } else {
             RESTListOfDataTypes[type] = dt;
+            return dt;
         }
     }
-    return RESTListOfDataTypes[type];
+    return NULL;
 }
 /// Get the type of a "data" object, returning the wrapped type identifier "TDataType"
 template <typename T>
@@ -93,17 +100,34 @@ TDataType* GetDataType() {
 }
 
 /// Wrap the string type name into ROOT type identifier "TClass"
-inline TClass* GetClass(string type) { return TClass::GetClass(type.c_str()); }
+inline TClass* GetClassQuick(string type) {
+    auto iter = RESTListOfClasses_typename.find(type);
+    if (iter != RESTListOfClasses_typename.end()) {
+        return iter->second;
+    } else {
+        TClass* cl = TClass::GetClass(type.c_str());
+        RESTListOfClasses_typename[type] = cl;
+        return cl;
+    }
+}
 /// Get the type of a "class" object, returning the wrapped type identifier "TClass"
 template <typename T>
-TClass* GetClass() {
-    return TClass::GetClass(typeid(T));
+TClass* GetClassQuick() {
+    void* typeidaddr = (void*)&typeid(T);
+    auto iter = RESTListOfClasses_typeid.find(typeidaddr);
+    if (iter != RESTListOfClasses_typeid.end()) {
+        return iter->second;
+    } else {
+        TClass* cl = TClass::GetClass(typeid(T));
+        RESTListOfClasses_typeid[typeidaddr] = cl;
+        return cl;
+    }
 }
 
 /// Get the type name of an object
 template <typename T>
 std::string GetTypeName() {
-    TClass* cl = GetClass<T>();
+    TClass* cl = GetClassQuick<T>();
     if (cl != NULL) {
         return cl->GetName();
     }
@@ -204,7 +228,7 @@ class TRestReflector {
     TRestReflector(const T& obj) {
         address = (char*)&obj;
         onheap = false;
-        cl = REST_Reflection::GetClass<T>();
+        cl = REST_Reflection::GetClassQuick<T>();
         dt = REST_Reflection::GetDataType<T>();
         if (cl == NULL && dt == NULL) {
             cout << "In TRestReflector::TRestReflector() : unrecognized type! " << endl;
@@ -217,7 +241,7 @@ class TRestReflector {
     TRestReflector(T* obj) {
         address = (char*)obj;
         onheap = false;
-        cl = REST_Reflection::GetClass<T>();
+        cl = REST_Reflection::GetClassQuick<T>();
         dt = REST_Reflection::GetDataType<T>();
         if (cl == NULL && dt == NULL) {
             cout << "In TRestReflector::TRestReflector() : unrecognized type! " << endl;

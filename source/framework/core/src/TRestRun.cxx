@@ -1373,8 +1373,8 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
         while ((key = (TKey*)nextkey())) {
             string kName = key->GetClassName();
 
-            if (REST_Reflection::GetClass(kName.c_str()) != NULL &&
-                REST_Reflection::GetClass(kName.c_str())->InheritsFrom(type)) {
+            if (REST_Reflection::GetClassQuick(kName.c_str()) != NULL &&
+                REST_Reflection::GetClassQuick(kName.c_str())->InheritsFrom(type)) {
                 TRestMetadata* a = (TRestMetadata*)f->Get(key->GetName());
 
                 if (a != NULL && a->InheritsFrom("TRestMetadata")) {

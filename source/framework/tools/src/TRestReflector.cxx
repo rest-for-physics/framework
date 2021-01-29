@@ -55,7 +55,7 @@ namespace REST_Reflection {
 TRestReflector::TRestReflector(void* _address, string _type) {
     address = (char*)_address;
     onheap = false;
-    cl = GetClass(_type);
+    cl = GetClassQuick(_type);
     dt = GetDataType(_type);
     if (cl == NULL && dt == NULL) {
         cout << "In TRestReflector::TRestReflector() : unrecognized type: \"" << _type << "\"" << endl;
@@ -156,11 +156,6 @@ int TRestReflector::InitDictionary() {
     size = cl == 0 ? dt->Size() : cl->Size();
     type = cl == 0 ? dt->GetName() : cl->GetName();
 
-    if (type == "" || size == 0 || (cl == 0 && dt == 0)) {
-        cout << "Error in CreateDictionary: object is zombie!" << endl;
-        return -1;
-    }
-
     if (dt != NULL) return 0;
 
     if (cl != NULL) {
@@ -172,6 +167,11 @@ int TRestReflector::InitDictionary() {
         } else {
             return 0;
         }
+    }
+
+    if (type == "" || size == 0 || (cl == 0 && dt == 0)) {
+        cout << "Error in CreateDictionary: object is zombie!" << endl;
+        return -1;
     }
 
     if (1) {
@@ -202,7 +202,7 @@ int TRestReflector::InitDictionary() {
             cout << "Loading external dictionary for: \"" << type << "\":" << endl;
             cout << sofilename << endl;
             gSystem->Load(sofilename.c_str());
-            cl = GetClass(type);  // reset the TClass after loading external library.
+            cl = GetClassQuick(type);  // reset the TClass after loading external library.
             return 0;
         }
 
@@ -260,7 +260,7 @@ int TRestReflector::InitDictionary() {
         }
 
         gSystem->Load(Form("%s", sofilename.c_str()));
-        cl = GetClass(type);  // reset the TClass after loading external library.
+        cl = GetClassQuick(type);  // reset the TClass after loading external library.
     }
 
     return 0;
