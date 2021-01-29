@@ -52,7 +52,7 @@ else
 fi
 
 \# if thisroot.sh script is found we load the same ROOT version as used in compilation
-if [[ -f \"${thisROOT}\" ]]; then
+if [[ -f \\\"${thisROOT}\\\" ]]; then
 	source ${thisROOT}
 fi
 
