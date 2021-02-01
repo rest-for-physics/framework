@@ -12,7 +12,7 @@ void testspeedRESTTree() {
     // double& landau = tree->AddObservable<double>("landau");
 
     ///////////////////////////////////////////////
-    // B. Use quick observable
+    // B. Use quick observable(default)
     // tree->EnableQuickObservableValueSetting();
 
     ///////////////////////////////////////////////
