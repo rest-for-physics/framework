@@ -110,6 +110,7 @@ class TRestAnalysisTree : public TTree {
     Int_t GetNumberOfObservables() { return fNObservables; }
 
     // observable method
+    any GetObservable(string obsName);
     any GetObservable(Int_t n);
     TString GetObservableName(Int_t n);
     TString GetObservableDescription(Int_t n);
@@ -121,46 +122,41 @@ class TRestAnalysisTree : public TTree {
     ///////////////////////////////////////////////
     /// \brief Get observable in a given type, according to its id.
     template <class T>
-    T GetObservableValue(Int_t n, bool safe = false) {
-        if (safe && REST_Reflection::GetTypeName<T>() != fObservables[n].type) {
-            cout << "Error! TRestAnalysisTree::GetObservableValue(): unmatched type!" << endl;
-            return T();
-        }
-        if (safe && n >= fNObservables) {
+    T GetObservableValue(Int_t n) {
+        // id check
+        if (n >= fNObservables) {
             cout << "Error! TRestAnalysisTree::GetObservableValue(): index outside limits!" << endl;
             return T();
         }
-        return *(T*)fObservables[n];
+        return fObservables[n].GetValue<T>();
     }
     ///////////////////////////////////////////////
     /// \brief Get observable in a given type, according to its name.
     ///
-    /// The returned value is directly the type. When set safe == true, it will
-    /// preform type name check before converting to the specified type, and make
-    /// it safer(otherwise there is potential seg.fault if you convert for example
-    /// int* to double). Note that type name reflection takes time.
+    /// The returned value is directly the type.
     ///
     /// Example:
     /// `vector<int> v = AnalysisTree->GetObservableValue<vector<int>>("myvec1");`
     /// `double a = AnalysisTree->GetObservableValue<double>("myval");`
     template <class T>
-    T GetObservableValue(string obsName, bool safe = false) {
+    T GetObservableValue(string obsName) {
         Int_t id = GetObservableID(obsName);
         if (id == -1) {
             return T();
         }
-        return GetObservableValue<T>(id, safe);
+        return GetObservableValue<T>(id);
     }
 
     ///////////////////////////////////////////////
     /// \brief Set the value of observable whose index is id
     template <class T>
     void SetObservableValue(const Int_t& id, const T& value) {
+        // id check
         if (id >= fNObservables) {
             cout << "Error! TRestAnalysisTree::SetObservableValue(): index outside limits!" << endl;
             return;
         }
-        *(T*)fObservables[id] = value;
+        fObservables[id].SetValue(value);
     }
     ///////////////////////////////////////////////
     /// \brief Set the value of observable. May not check the name.
@@ -172,9 +168,8 @@ class TRestAnalysisTree : public TTree {
     /// and increase fSetObservableIndex at each call of this method. Otherwise we
     /// first find the index of the observable with given name, and then set its value.
     ///
-    /// Note that observable type check is not performed in this method. To make
-    /// it safe consider using SetObservable(). If the method is not called in the
-    /// loop with equal times, one needs to disable quick observable value setting
+    /// If the method is not called in the loop with equal times(e.g. when manually typing
+    /// the code in ROOT prompt), one needs to disable quick observable value setting
     /// before calling the method, or consider to use SetObservable()
     ///
     /// Example:
@@ -211,15 +206,15 @@ class TRestAnalysisTree : public TTree {
 
         int id = GetObservableID(name);
         if (id != -1) {
-            *(T*)fObservables[id] = value;
+            SetObservableValue(id, value);
         } else {
             AddObservable<T>(name);
             id = GetObservableID(name);
             if (id != -1) {
-                *(T*)fObservables[id] = value;
+                SetObservableValue(id, value);
+                fSetObservableCalls++;
             }
         }
-        fSetObservableCalls++;
     }
 
     void SetObservable(Int_t id, any obs);

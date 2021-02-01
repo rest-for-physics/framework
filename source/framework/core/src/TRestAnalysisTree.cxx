@@ -50,7 +50,7 @@
 /// A. Do not use observable            |      846,522  |      
 /// B. Use quick observable (default)   |    1,188,232  |       
 /// C. Do not use quick observable      |    2,014,646  |      
-/// D. Use reflected observable         |   57,294,083  |       
+/// D. Use reflected observable         |    8,425,772  |       
 /// TTree                               |      841,744  |
 ///_______________________________________________________________________________
 ///
@@ -434,7 +434,7 @@ void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, any& obs) {
     }
 
     // start to fill value
-    if (obs.dt != 0) {
+    if (obs.is_data_type) {
         // the observable is basic type, we directly set it address from leaf
         obs.address = (char*)lf->GetValuePointer();
     } else if (obs.type == "vector<double>") {
@@ -458,6 +458,12 @@ void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, any& obs) {
     }
 }
 
+
+any TRestAnalysisTree::GetObservable(string obsName) {
+    Int_t id = GetObservableID(obsName);
+    if (id == -1) return any();
+    return GetObservable(id);
+}
 
 ///////////////////////////////////////////////
 /// \brief Get the observable object wrapped with "any" class, according to the id
@@ -737,25 +743,25 @@ void TRestAnalysisTree::SetObservable(Int_t id, any obs) {
 /// \brief Set the value of observable whose name is as specified
 ///
 /// The input type is "any". This class is able to be constructed from any object,
-/// Therefore the input could be equal to SetObservableValue(). It will first
-/// convert the object to "any" object, then it will set the observable value
-/// with it. Converting to "any" contains a type name reflection, therefore makes the
-/// method slower than SetObservableValue(). But it is safer since it checks if
-/// the type matches. 
+/// Therefore the input could be equal to SetObservableValue(). But in this case it 
+/// would be much slower than `SetObservableValue()`, since converting to "any" contains 
+/// a type name reflection which takes time. This method is better used to copy directly
+/// "any" objects, e.g., observables from another TRestAnalysisTree.
 /// 
 /// Example:
 /// \code
-///
-/// TRestAnalysisTree* tree = new TRestAnalysisTree();
-/// tree->SetObservable("myval", 20);
-/// tree->SetObservable("myvec", vector<int>{11,23,37,41});
-/// tree->Fill();
-/// tree->SetObservable("myvec", vector<int>{2,3});
-/// tree->SetObservable("myval", 30);
-/// tree->Fill();
-/// tree->SetObservable("myval", 40);
-/// tree->SetObservable("myvec", vector<double>{5,7}); // prints error that type doesn't match
-/// tree->Fill();
+/// 
+///     TFile* fin = new TFile("simpleTree.root", "open");
+///     TRestAnalysisTree* treein = (TRestAnalysisTree*)fin->Get("AnalysisTree");
+///     TRestAnalysisTree* treeout = (TRestAnalysisTree*)tmp_tree->CloneTree(0);
+/// 
+///     any c = treein->GetObservable("vec");
+///     for (int i = 0; i < 10; i++) {
+///         treein->GetEntry(i);
+///         treeout->SetObservable("interitedvec", c);
+///         treeout->Fill();
+///     }
+/// 
 /// 
 /// \endcode
 /// 
