@@ -52,31 +52,22 @@ namespace REST_Reflection {
 ///
 /// \class TRestReflector
 ///
-TRestReflector::TRestReflector(void* _address, string _type) {
+TRestReflector::TRestReflector(void* _address, const string& _type) {
     address = (char*)_address;
     onheap = false;
     cl = GetClassQuick(_type);
-    dt = GetDataType(_type);
-    if (cl == NULL && dt == NULL) {
+    DataType_Info dt = DataType_Info(_type);
+    if (cl == NULL && dt.size == 0) {
         cout << "In TRestReflector::TRestReflector() : unrecognized type: \"" << _type << "\"" << endl;
         return;
     }
+
+    typeinfo = cl == 0 ? dt.typeinfo : cl->GetTypeInfo();
+    is_data_type = dt.size > 0;
+    size = cl == 0 ? dt.size : cl->Size();
+    type = cl == 0 ? dt.name : cl->GetName();
+
     InitDictionary();
-}
-
-int TRestReflector::GetTypeID() {
-    if (cl != 0) {
-        if ((string)cl->GetName() == "string") {
-            return TStreamerInfo::kSTL;
-        } else if ((string)cl->GetName() == "TString") {
-            return TStreamerInfo::kTString;
-        }
-
-        return cl->GetStreamerInfo()->GetElement(0)->GetType();
-    }
-
-    if (dt != 0) return dt->GetType();
-    return -1;
 }
 
 void TRestReflector::Assembly() {
@@ -87,7 +78,7 @@ void TRestReflector::Assembly() {
     if (cl != NULL) {
         address = (char*)cl->New();
         onheap = true;
-    } else if (dt != NULL) {
+    } else if (is_data_type) {
         address = (char*)malloc(size);
         memset(address, 0, size);
         onheap = true;
@@ -104,7 +95,7 @@ void TRestReflector::Destroy() {
 
     if (cl != NULL) {
         cl->Destructor(address);
-    } else if (dt != NULL) {
+    } else if (is_data_type) {
         free(address);
     }
 }
@@ -153,10 +144,7 @@ void TRestReflector::ParseString(string str) {
 }
 
 int TRestReflector::InitDictionary() {
-    size = cl == 0 ? dt->Size() : cl->Size();
-    type = cl == 0 ? dt->GetName() : cl->GetName();
-
-    if (dt != NULL) return 0;
+    if (is_data_type) return 0;
 
     if (cl != NULL) {
         if (cl->GetCollectionProxy() && dynamic_cast<TEmulatedCollectionProxy*>(cl->GetCollectionProxy())) {
@@ -169,15 +157,15 @@ int TRestReflector::InitDictionary() {
         }
     }
 
-    if (type == "" || size == 0 || (cl == 0 && dt == 0)) {
+    if (type == "" || size == 0 || (cl == 0 && !is_data_type)) {
         cout << "Error in CreateDictionary: object is zombie!" << endl;
         return -1;
     }
 
     if (1) {
-        int pos = type.find("<");
+        int pos = ((string)type).find("<");
 
-        string basetype = type.substr(0, pos);
+        string basetype = ((string)type).substr(0, pos);
         vector<string> stltypes{"vector", "list", "map", "set", "array", "deque"};
         bool flag = false;
         for (auto stltype : stltypes) {
@@ -266,7 +254,9 @@ int TRestReflector::InitDictionary() {
     return 0;
 }
 
-bool TRestReflector::IsZombie() { return (type == "" || address == 0 || size == 0 || (cl == 0 && dt == 0)); }
+bool TRestReflector::IsZombie() {
+    return (type == "" || address == 0 || size == 0 || (cl == 0 && !is_data_type));
+}
 
 TRestReflector Assembly(string typeName) {
     TRestReflector ptr = WrapType(typeName);
