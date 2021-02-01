@@ -199,9 +199,9 @@ class TRestEventProcess : public TRestMetadata {
 
     // getters
     /// Get pointer to input event. Must be implemented in the derived class
-    virtual any GetInputEvent() = 0;
+    virtual RESTValue GetInputEvent() = 0;
     /// Get pointer to output event. Must be implemented in the derived class
-    virtual any GetOutputEvent() = 0;
+    virtual RESTValue GetOutputEvent() = 0;
     /// Interface to external file reading, get the total bytes of input binary file. To be implemented in
     /// external processes.
     virtual Long64_t GetTotalBytes() { return -1; }

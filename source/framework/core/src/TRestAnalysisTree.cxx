@@ -101,7 +101,7 @@ TRestAnalysisTree::TRestAnalysisTree(TTree* tree) : TTree() {
     TObjArray* lfs = tree->GetListOfLeaves();
     for (int i = 0; i < lfs->GetLast() + 1; i++) {
         TLeaf* lf = (TLeaf*)lfs->UncheckedAt(i);
-        any obs;
+        RESTValue obs;
         ReadLeafValueToObservable(lf, obs);
         obs.name = lf->GetName();
         SetObservable(-1, obs);
@@ -266,7 +266,7 @@ void TRestAnalysisTree::UpdateObservables() {
     }
 
     // create observables(no assembly) from stored observable info.
-    fObservables = std::vector<any>(GetNumberOfObservables());
+    fObservables = std::vector<RESTValue>(GetNumberOfObservables());
     for (int i = 0; i < GetNumberOfObservables(); i++) {
         fObservables[i] = REST_Reflection::WrapType((string)fObservableTypes[i]);
         fObservables[i].name = fObservableNames[i];
@@ -351,7 +351,7 @@ void TRestAnalysisTree::UpdateBranches() {
 
 
 void TRestAnalysisTree::InitObservables() {
-    fObservables = std::vector<any>(GetNumberOfObservables());
+    fObservables = std::vector<RESTValue>(GetNumberOfObservables());
     for (int i = 0; i < GetNumberOfObservables(); i++) {
         fObservables[i] = REST_Reflection::WrapType((string)fObservableTypes[i]);
         fObservables[i].name = fObservableNames[i];
@@ -376,7 +376,7 @@ void TRestAnalysisTree::MakeObservableIdMap() {
     }
 }
 
-void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, any& obs) {
+void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, RESTValue& obs) {
     if (lf == NULL || lf->GetLen() == 0) return;
 
     if (obs.IsZombie()) {
@@ -459,18 +459,18 @@ void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, any& obs) {
 }
 
 
-any TRestAnalysisTree::GetObservable(string obsName) {
+RESTValue TRestAnalysisTree::GetObservable(string obsName) {
     Int_t id = GetObservableID(obsName);
-    if (id == -1) return any();
+    if (id == -1) return RESTValue();
     return GetObservable(id);
 }
 
 ///////////////////////////////////////////////
-/// \brief Get the observable object wrapped with "any" class, according to the id
-any TRestAnalysisTree::GetObservable(Int_t n) {
+/// \brief Get the observable object wrapped with "RESTValue" class, according to the id
+RESTValue TRestAnalysisTree::GetObservable(Int_t n) {
     if (n >= fNObservables) {
         cout << "Error! TRestAnalysisTree::GetObservable(): index outside limits!" << endl;
-        return any();
+        return RESTValue();
     }
     return fObservables[n];
 }
@@ -534,7 +534,7 @@ Double_t TRestAnalysisTree::GetDblObservableValue(Int_t n) {
 }
 
 
-any TRestAnalysisTree::AddObservable(TString observableName, TString observableType, TString description) {
+RESTValue TRestAnalysisTree::AddObservable(TString observableName, TString observableType, TString description) {
     if (fStatus == None) fStatus = EvaluateStatus();
 
     if (fStatus == Created) {
@@ -554,7 +554,7 @@ any TRestAnalysisTree::AddObservable(TString observableName, TString observableT
 
     Double_t x = 0;
     if (GetObservableID((string)observableName) == -1) {
-        any ptr = REST_Reflection::Assembly((string)observableType);
+        RESTValue ptr = REST_Reflection::Assembly((string)observableType);
         ptr.name = observableName;
         if (!ptr.IsZombie()) {
             fObservableNames.push_back(observableName);
@@ -640,7 +640,7 @@ Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
             cout << "Warning: external TTree may have changed!" << endl;
             for (int i = 0; i < lfs->GetLast() + 1; i++) {
                 TLeaf* lf = (TLeaf*)lfs->UncheckedAt(i);
-                any obs;
+                RESTValue obs;
                 ReadLeafValueToObservable(lf, obs);
                 obs.name = lf->GetName();
                 SetObservable(-1, obs);
@@ -706,7 +706,7 @@ Int_t TRestAnalysisTree::Fill() {
 ///////////////////////////////////////////////
 /// \brief Set the value of observable whose id is as specified
 ///
-void TRestAnalysisTree::SetObservable(Int_t id, any obs) {
+void TRestAnalysisTree::SetObservable(Int_t id, RESTValue obs) {
     if (id == -1) {
         // this means we want to find observable id by its name
         id = GetObservableID(obs.name);
@@ -742,11 +742,11 @@ void TRestAnalysisTree::SetObservable(Int_t id, any obs) {
 ///////////////////////////////////////////////
 /// \brief Set the value of observable whose name is as specified
 ///
-/// The input type is "any". This class is able to be constructed from any object,
+/// The input type is "RESTValue". This class is able to be constructed from any object,
 /// Therefore the input could be equal to SetObservableValue(). But in this case it 
-/// would be much slower than `SetObservableValue()`, since converting to "any" contains 
+/// would be much slower than `SetObservableValue()`, since converting to "RESTValue" contains 
 /// a type name reflection which takes time. This method is better used to copy directly
-/// "any" objects, e.g., observables from another TRestAnalysisTree.
+/// "RESTValue" objects, e.g., observables from another TRestAnalysisTree.
 /// 
 /// Example:
 /// \code
@@ -755,7 +755,7 @@ void TRestAnalysisTree::SetObservable(Int_t id, any obs) {
 ///     TRestAnalysisTree* treein = (TRestAnalysisTree*)fin->Get("AnalysisTree");
 ///     TRestAnalysisTree* treeout = (TRestAnalysisTree*)tmp_tree->CloneTree(0);
 /// 
-///     any c = treein->GetObservable("vec");
+///     RESTValue c = treein->GetObservable("vec");
 ///     for (int i = 0; i < 10; i++) {
 ///         treein->GetEntry(i);
 ///         treeout->SetObservable("interitedvec", c);
@@ -765,7 +765,7 @@ void TRestAnalysisTree::SetObservable(Int_t id, any obs) {
 /// 
 /// \endcode
 /// 
-void TRestAnalysisTree::SetObservable(string name, any value) {
+void TRestAnalysisTree::SetObservable(string name, RESTValue value) {
     value.name = name;
     SetObservable(-1, value);
 }

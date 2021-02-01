@@ -42,7 +42,7 @@ class TRestAnalysisTree : public TTree {
     Int_t fSetObservableCalls = 0;           //!
     Int_t fSetObservableIndex = 0;           //!
     Bool_t fQuickSetObservableValue = true;  //!
-    std::vector<any> fObservables;           //!
+    std::vector<RESTValue> fObservables;     //!
     std::map<string, int> fObservableIdMap;  //!
     TTree* fROOTTree;                        //!
 
@@ -58,7 +58,7 @@ class TRestAnalysisTree : public TTree {
     void UpdateBranches();
     void InitObservables();
     void MakeObservableIdMap();
-    void ReadLeafValueToObservable(TLeaf* lf, any& obs);
+    void ReadLeafValueToObservable(TLeaf* lf, RESTValue& obs);
     bool BranchesExist() { return GetListOfBranches()->GetEntriesFast() > 0; }
 
     enum TRestAnalysisTree_Status {
@@ -110,8 +110,8 @@ class TRestAnalysisTree : public TTree {
     Int_t GetNumberOfObservables() { return fNObservables; }
 
     // observable method
-    any GetObservable(string obsName);
-    any GetObservable(Int_t n);
+    RESTValue GetObservable(string obsName);
+    RESTValue GetObservable(Int_t n);
     TString GetObservableName(Int_t n);
     TString GetObservableDescription(Int_t n);
     TString GetObservableType(Int_t n);
@@ -217,8 +217,8 @@ class TRestAnalysisTree : public TTree {
         }
     }
 
-    void SetObservable(Int_t id, any obs);
-    void SetObservable(string name, any value);
+    void SetObservable(Int_t id, RESTValue obs);
+    void SetObservable(string name, RESTValue value);
 
     void PrintObservables();
     void PrintObservable(int N);
@@ -229,7 +229,8 @@ class TRestAnalysisTree : public TTree {
     void SetEventInfo(TRestEvent* evt);
     Int_t Fill();
 
-    any AddObservable(TString observableName, TString observableType = "double", TString description = "");
+    RESTValue AddObservable(TString observableName, TString observableType = "double",
+                            TString description = "");
     template <typename T>
     T& AddObservable(TString observableName, TString description = "") {
         return *(T*)AddObservable(observableName, REST_Reflection::GetTypeName<T>(), description);

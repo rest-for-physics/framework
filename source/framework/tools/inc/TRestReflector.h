@@ -399,6 +399,7 @@ void CloneAny(TRestReflector from, TRestReflector to);
 };  // namespace REST_Reflection
 
 typedef REST_Reflection::TRestReflector any;
+typedef REST_Reflection::TRestReflector RESTValue;
 
 class RESTVirtualConverter {
    public:

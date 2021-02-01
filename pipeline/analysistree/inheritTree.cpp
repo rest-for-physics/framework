@@ -18,7 +18,7 @@ void inheritTree() {
         cout << b << endl;
         treeout->SetObservableValue("b", b);
 
-        any c = tmp_tree->GetObservable("vec");
+        RESTValue c = tmp_tree->GetObservable("vec");
         treeout->SetObservable("interitedvec", c);
 
         /*if(iEntry % 100 == 0)cout << sAna_PeakAmplitudeIntegral << endl;
