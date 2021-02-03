@@ -228,6 +228,10 @@ extern map<void*, TClass*> RESTListOfClasses_typeid;
 extern map<string, TClass*> RESTListOfClasses_typename;
 
 /// Wrap the string type name into ROOT type identifier "TClass"
+///
+/// Quicker than TClass::GetClass() since it stores limited objects in the map, no need to
+/// iterate all the valid types. Do not call this method before main function.
+/// 
 inline TClass* GetClassQuick(string type) {
     auto iter = RESTListOfClasses_typename.find(type);
     if (iter != RESTListOfClasses_typename.end()) {
@@ -237,8 +241,15 @@ inline TClass* GetClassQuick(string type) {
         RESTListOfClasses_typename[type] = cl;
         return cl;
     }
+    return NULL;
 }
-/// Get the type of a "class" object, returning the wrapped type identifier "TClass"
+
+/////////////////////////////
+/// \brief Get the type of a "class" object, returning the wrapped type identifier "TClass". 
+///
+/// Quicker than TClass::GetClass() since it stores limited objects in the map, no need to 
+/// iterate all the valid types. Do not call this method before main function.
+/// 
 template <typename T>
 TClass* GetClassQuick() {
     void* typeidaddr = (void*)&typeid(T);
@@ -250,16 +261,16 @@ TClass* GetClassQuick() {
         RESTListOfClasses_typeid[typeidaddr] = cl;
         return cl;
     }
+    return NULL;
 }
 
 /// Get the type name of an object
 template <typename T>
 std::string GetTypeName() {
-    TClass* cl = GetClassQuick<T>();
+    TClass* cl = TClass::GetClass(typeid(T));
     if (cl != NULL) {
         return cl->GetName();
     }
-
     return string(DataType_Info((T*)0).name);
 }
 /// Get the type name of an object
@@ -372,8 +383,12 @@ class TRestReflector {
 
         typeinfo = &typeid(T);
         is_data_type = dt.size > 0;
-        size = cl == 0 ? dt.size : cl->Size();
-        type = cl == 0 ? dt.name : cl->GetName();
+        size = sizeof(T);
+        if (cl == NULL) {
+            type = dt.name;
+        } else {
+            type = cl->GetName();
+        }
 
         InitDictionary();
     }
