@@ -121,11 +121,15 @@ message("")
 file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/framework/*.h")
 #set(Headers ${Headers} ${Headers1} ${Headers2} ${Headers3} ${Headers4} ${Headers5} )
 
+# clear the install dir
+IF (NOT DEFINED INSTALL_CLEARDIR)
+    set(INSTALL_CLEARDIR ON)
+ENDIF ()
 if (${INSTALL_CLEARDIR} MATCHES "ON")
   install(CODE "execute_process(COMMAND rm -r ${CMAKE_INSTALL_PREFIX})")
 endif()
 
-#message( STATUS "Headers : ${Headers}" )
+# install the files of the main framework
 INSTALL(FILES ${Headers} DESTINATION include)
 
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENCE DESTINATION .)
