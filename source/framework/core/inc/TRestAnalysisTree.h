@@ -264,6 +264,8 @@ class TRestAnalysisTree : public TTree {
     Double_t GetObservableMaximum(TString obsName, Double_t xLow = -1, Double_t xHigh = -1,
                                   Int_t nBins = 1000);
 
+    Int_t WriteAsTTree(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
+
     // Construtor
     TRestAnalysisTree();
     TRestAnalysisTree(TString name, TString title);

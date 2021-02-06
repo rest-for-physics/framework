@@ -958,6 +958,33 @@ TString TRestAnalysisTree::GetStringWithObservableNames() {
     return (TString)branchNames;
 }
 
+///////////////////////////////////////////////
+/// \brief It writes TRestAnalysisTree as TTree, in order to migrate files to pure ROOT users
+///
+Int_t TRestAnalysisTree::WriteAsTTree(const char* name, Int_t option, Int_t bufsize) {
+    TTree* tree = new TTree();
+
+    char* dest = (char*)tree + sizeof(TObject);
+    char* from = (char*)this + sizeof(TObject);
+
+    constexpr size_t n = sizeof(TTree) - sizeof(TObject);
+
+    // copy the data of the created TTree to a temporary location
+    char* temp = (char*)malloc(n);
+    memcpy(temp, dest, n);
+
+    // copy the data of this TRestAnalysisTree to TTree, and call the new TTree to write
+    memcpy(dest, from, n);
+    int result = tree->Write(name, option, bufsize);
+
+    // restore the data of the created TTree, then we can free it!
+    memcpy(dest, temp, n);
+    free(temp);
+    delete tree;
+
+    return result;
+}
+
 TRestAnalysisTree::~TRestAnalysisTree() {
     if (fSubEventTag != NULL) delete fSubEventTag;
 }
