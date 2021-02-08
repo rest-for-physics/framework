@@ -128,7 +128,7 @@ def main():
                          # if latest, pull the latest commit instead of the one
                          # recorded in the main repo
                          if latest == 1:
-                             p = subprocess.run('cd {}/{} && git pull origin master'.format(root, submodule), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                             p = subprocess.run('cd {}/{} && git pull --tags origin master'.format(root, submodule), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                              if(debug):
                                  print (p.stdout.decode("utf-8"))
                                  print (p.stderr.decode("utf-8"))
