@@ -58,3 +58,6 @@
 [submodule "source/packages/restP3DB"]
 	path = source/packages/restP3DB
 	url = https://gitlab.pandax.sjtu.edu.cn/pandax-iii/restp3db.git
+[submodule "projects/iaxo-analysis"]
+	path = projects/iaxo-analysis
+	url = git@lfna.unizar.es:iaxo/iaxo-analysis.git
