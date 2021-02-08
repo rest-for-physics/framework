@@ -260,7 +260,7 @@ bool TRestReflector::IsZombie() {
 
 TRestReflector Assembly(string typeName) {
     TRestReflector ptr = WrapType(typeName);
-    ptr.Assembly();
+    if (ptr.ToString() != "null") ptr.Assembly();
     return ptr;
 }
 
