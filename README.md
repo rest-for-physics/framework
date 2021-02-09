@@ -26,7 +26,7 @@ This repository, *rest-framework*, centralizes all the activity or software ecos
 These instructions will get you a copy of the project up and running on your local machine. Additional details can be found in the [documentation](doc/Chapters/2-installing-rest.md) 
 
 ### Downloading REST
-The recommended way to download a copy of REST will be *clonning it* using the corresponding git command.
+The recommended way to download a copy of REST will be *cloning it* using the corresponding git command.
 
 The following commands will download the master branch to the `rest-framework` directory including all public submodules (libraries, packages, etc).
 
@@ -45,7 +45,21 @@ If you have pulled changes in a particular submodule, or added your own commits,
 If you have access to private repositories, related to projects or experiments inside the REST community you may pull those executing an additional command.
 
 ```
-python3.5 pull-submodules.py --private
+python3.5 pull-submodules.py --lfna (or --sjtu)
+```
+
+on top of that, you might get the latest state of each submodule by executing
+
+```
+python3.5 pull-submodules.py --lfna --latest
+```
+
+But, if you wish to remain at the reference/official release, and get the latest state from a particular submodule, it is possible to move to the given submodule and checkout its `master` branch.
+
+```
+cd source/libraries/xlib
+git checkout master
+git pull
 ```
 
 ### Mirror repositories
