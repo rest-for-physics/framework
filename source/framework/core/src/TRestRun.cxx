@@ -653,7 +653,7 @@ void TRestRun::ReadFileInfo(string filename) {
 
         // store special file pattern parameters as TRestRun data member: fRunNumber
         if (DataMemberNameToParameterName(formatsectionlist[i]) != "") {
-            any member = any(this, this->ClassName()).GetDataMember(formatsectionlist[i]);
+            RESTValue member = RESTValue(this, this->ClassName()).GetDataMember(formatsectionlist[i]);
             if (!member.IsZombie()) {
                 member.ParseString(infoFromFileName);
             } else {
@@ -669,7 +669,7 @@ void TRestRun::ReadFileInfo(string filename) {
         if (class_datamember.size() > 1) {
             TRestMetadata* meta = GetMetadataClass(class_datamember[0]);
             if (meta != NULL) {
-                any member = any(meta, meta->ClassName()).GetDataMember(class_datamember[1]);
+                RESTValue member = RESTValue(meta, meta->ClassName()).GetDataMember(class_datamember[1]);
                 if (!member.IsZombie()) {
                     member.ParseString(infoFromFileName);
                 } else {
@@ -1373,8 +1373,8 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
         while ((key = (TKey*)nextkey())) {
             string kName = key->GetClassName();
 
-            if (REST_Reflection::GetClass(kName.c_str()) != NULL &&
-                REST_Reflection::GetClass(kName.c_str())->InheritsFrom(type)) {
+            if (REST_Reflection::GetClassQuick(kName.c_str()) != NULL &&
+                REST_Reflection::GetClassQuick(kName.c_str())->InheritsFrom(type)) {
                 TRestMetadata* a = (TRestMetadata*)f->Get(key->GetName());
 
                 if (a != NULL && a->InheritsFrom("TRestMetadata")) {

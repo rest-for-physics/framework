@@ -25,6 +25,8 @@
 #include "TStreamerElement.h"
 #include "TVirtualStreamerInfo.h"
 
+#include "TRestStringHelper.h"
+
 using namespace std;
 
 class TRestEventProcess;
@@ -32,86 +34,244 @@ class TRestEventProcess;
 /// This namespace serves for the reflection functionality
 namespace REST_Reflection {
 
-extern map<string, TDataType*> RESTListOfDataTypes;
+    struct DataType_Info {
+    char name[20]{'u','n','k','n','o','w','n', 0};
+    Int_t size = 0;
+    const type_info* typeinfo = 0;
 
-/// Wrap the string type name into ROOT type identifier "TDataType"
-inline TDataType* GetDataType(string type) {
-    if (RESTListOfDataTypes[type] == NULL) {
-        TDataType* dt = new TDataType(type.c_str());
-        if (dt->GetType() == -1) {
-            delete dt;
-        } else {
-            RESTListOfDataTypes[type] = dt;
+    DataType_Info() {}
+
+    DataType_Info(string name) {
+        switch (ToHash(name)) {
+            case ToHash("char"):
+                typeinfo = &typeid(char);
+                size = sizeof(char);
+                break;
+            case ToHash("short"):
+                typeinfo = &typeid(short);
+                size = sizeof(short);
+                break;
+            case ToHash("int"):
+                typeinfo = &typeid(int);
+                size = sizeof(int);
+                break;
+            case ToHash("long"):
+                typeinfo = &typeid(long);
+                size = sizeof(long);
+                break;
+            case ToHash("long int"):
+                typeinfo = &typeid(long int);
+                size = sizeof(long int);
+                break;
+            case ToHash("long long"):
+                typeinfo = &typeid(long long);
+                size = sizeof(long long);
+                break;
+            case ToHash("bool"):
+                typeinfo = &typeid(bool);
+                size = sizeof(bool);
+                break;
+            case ToHash("float"):
+                typeinfo = &typeid(float);
+                size = sizeof(float);
+                break;
+            case ToHash("double"):
+                typeinfo = &typeid(double);
+                size = sizeof(double);
+                break;
+            case ToHash("long double"):
+                typeinfo = &typeid(long double);
+                size = sizeof(long double);
+                break;
+            case ToHash("unsigned char"):
+                typeinfo = &typeid(unsigned char);
+                size = sizeof(unsigned char);
+                break;
+            case ToHash("unsigned short"):
+                typeinfo = &typeid(unsigned short);
+                size = sizeof(unsigned short);
+                break;
+            case ToHash("unsigned int"):
+                typeinfo = &typeid(unsigned int);
+                size = sizeof(unsigned int);
+                break;
+            case ToHash("unsigned long"):
+                typeinfo = &typeid(unsigned long);
+                size = sizeof(unsigned long);
+                break;
+            case ToHash("unsigned long long"):
+                typeinfo = &typeid(unsigned long long);
+                size = sizeof(unsigned long long);
+                break;
+            case ToHash("unsigned long int"):
+                typeinfo = &typeid(unsigned long int);
+                size = sizeof(unsigned long int);
+                break;
+            case ToHash("char*"):
+                typeinfo = &typeid(char*);
+                size = sizeof(char*);
+                break;
+            case ToHash("size_t"):
+                typeinfo = &typeid(size_t);
+                size = sizeof(char*);
+                break;
+            // we also add some name of ROOT data types
+            case ToHash("Char_t"):
+                typeinfo = &typeid(Char_t);
+                size = sizeof(Char_t);
+                break;
+            case ToHash("UChar_t"):
+                typeinfo = &typeid(UChar_t);
+                size = sizeof(UChar_t);
+                break;
+            case ToHash("Short_t"):
+                typeinfo = &typeid(Short_t);
+                size = sizeof(Short_t);
+                break;
+            case ToHash("Int_t"):
+                typeinfo = &typeid(Int_t);
+                size = sizeof(Int_t);
+                break;
+            case ToHash("UInt_t"):
+                typeinfo = &typeid(UInt_t);
+                size = sizeof(UInt_t);
+                break;
+            case ToHash("Long_t"):
+                typeinfo = &typeid(Long_t);
+                size = sizeof(Long_t);
+                break;
+            case ToHash("ULong_t"):
+                typeinfo = &typeid(ULong_t);
+                size = sizeof(ULong_t);
+                break;
+            case ToHash("Float_t"):
+                typeinfo = &typeid(Float_t);
+                size = sizeof(Float_t);
+                break;
+            case ToHash("Float16_t"):
+                typeinfo = &typeid(Float16_t);
+                size = sizeof(Float16_t);
+                break;
+            case ToHash("Double_t"):
+                typeinfo = &typeid(Double_t);
+                size = sizeof(Double_t);
+                break;
+            case ToHash("Double32_t"):
+                typeinfo = &typeid(Double32_t);
+                size = sizeof(Double32_t);
+                break;
+            case ToHash("LongDouble_t"):
+                typeinfo = &typeid(LongDouble_t);
+                size = sizeof(LongDouble_t);
+                break;
+            case ToHash("Bool_t"):
+                typeinfo = &typeid(Bool_t);
+                size = sizeof(Bool_t);
+                break;
+            default:
+                break;
+        }
+        if (typeinfo != 0) {
+            strcpy(this->name, name.c_str());
         }
     }
-    return RESTListOfDataTypes[type];
-}
-/// Get the type of a "data" object, returning the wrapped type identifier "TDataType"
-template <typename T>
-TDataType* GetDataType() {
-    string type = "";
-    {
-        if (typeid(T) == typeid(unsigned int)) {
-            type = "unsigned int";
-        } else if (typeid(T) == typeid(unsigned)) {
-            type = "unsigned";
-        } else if (typeid(T) == typeid(int)) {
-            type = "int";
-        } else if (typeid(T) == typeid(unsigned long)) {
-            type = "unsigned long";
-        } else if (typeid(T) == typeid(long)) {
-            type = "long";
-        } else if (typeid(T) == typeid(unsigned long long)) {
-            type = "unsigned long long";
-        } else if (typeid(T) == typeid(long long)) {
-            type = "long long";
-        } else if (typeid(T) == typeid(unsigned short)) {
-            type = "unsigned short";
+
+    template <typename T>
+    DataType_Info(T* obj) {
+        string name = "";
+        if (typeid(T) == typeid(char)) {
+            name = "char";
         } else if (typeid(T) == typeid(short)) {
-            type = "short";
-        } else if (typeid(T) == typeid(unsigned char)) {
-            type = "unsigned char";
-        } else if (typeid(T) == typeid(char)) {
-            type = "char";
+            name = "short";
+        } else if (typeid(T) == typeid(int)) {
+            name = "int";
+        } else if (typeid(T) == typeid(long)) {
+            name = "long";
+        } else if (typeid(T) == typeid(long int)) {
+            name = "long int";
+        } else if (typeid(T) == typeid(long long)) {
+            name = "long long";
         } else if (typeid(T) == typeid(bool)) {
-            type = "bool";
+            name = "bool";
         } else if (typeid(T) == typeid(float)) {
-            type = "float";
+            name = "float";
         } else if (typeid(T) == typeid(double)) {
-            type = "double";
-        } else if (typeid(T) == typeid(signed char)) {
-            type = "signed char";
-        } else if (typeid(T) == typeid(Float16_t)) {
-            type = "Float16_t";
-        } else if (typeid(T) == typeid(Double32_t)) {
-            type = "Double32_t";
+            name = "double";
+        } else if (typeid(T) == typeid(long double)) {
+            name = "long double";
+        } else if (typeid(T) == typeid(unsigned char)) {
+            name = "unsigned char";
+        } else if (typeid(T) == typeid(unsigned short)) {
+            name = "unsigned short";
+        } else if (typeid(T) == typeid(unsigned int)) {
+            name = "unsigned int";
+        } else if (typeid(T) == typeid(unsigned long)) {
+            name = "unsigned long";
+        } else if (typeid(T) == typeid(unsigned long long)) {
+            name = "unsigned long long";
+        } else if (typeid(T) == typeid(unsigned long int)) {
+            name = "unsigned long int";
         } else if (typeid(T) == typeid(char*)) {
-            type = "char*";
+            name = "char*";
+        }
+
+        if (name != "") {
+            strcpy(this->name, name.c_str());
+            size = sizeof(T);
+            typeinfo = &typeid(T);
         }
     }
-    return GetDataType(type);
-}
+
+};
+
+extern map<void*, TClass*> RESTListOfClasses_typeid;
+extern map<string, TClass*> RESTListOfClasses_typename;
 
 /// Wrap the string type name into ROOT type identifier "TClass"
-inline TClass* GetClass(string type) { return TClass::GetClass(type.c_str()); }
-/// Get the type of a "class" object, returning the wrapped type identifier "TClass"
+///
+/// Quicker than TClass::GetClass() since it stores limited objects in the map, no need to
+/// iterate all the valid types. Do not call this method before main function.
+/// 
+inline TClass* GetClassQuick(string type) {
+    auto iter = RESTListOfClasses_typename.find(type);
+    if (iter != RESTListOfClasses_typename.end()) {
+        return iter->second;
+    } else {
+        TClass* cl = TClass::GetClass(type.c_str());
+        RESTListOfClasses_typename[type] = cl;
+        return cl;
+    }
+    return NULL;
+}
+
+/////////////////////////////
+/// \brief Get the type of a "class" object, returning the wrapped type identifier "TClass". 
+///
+/// Quicker than TClass::GetClass() since it stores limited objects in the map, no need to 
+/// iterate all the valid types. Do not call this method before main function.
+/// 
 template <typename T>
-TClass* GetClass() {
-    return TClass::GetClass(typeid(T));
+TClass* GetClassQuick() {
+    void* typeidaddr = (void*)&typeid(T);
+    auto iter = RESTListOfClasses_typeid.find(typeidaddr);
+    if (iter != RESTListOfClasses_typeid.end()) {
+        return iter->second;
+    } else {
+        TClass* cl = TClass::GetClass(typeid(T));
+        RESTListOfClasses_typeid[typeidaddr] = cl;
+        return cl;
+    }
+    return NULL;
 }
 
 /// Get the type name of an object
 template <typename T>
 std::string GetTypeName() {
-    TClass* cl = GetClass<T>();
+    TClass* cl = TClass::GetClass(typeid(T));
     if (cl != NULL) {
         return cl->GetName();
     }
-    TDataType* dt = GetDataType<T>();
-    if (dt != NULL) {
-        return dt->GetName();
-    }
-    return "unknown";
+    return string(DataType_Info((T*)0).name);
 }
 /// Get the type name of an object
 template <class T>
@@ -131,6 +291,8 @@ class TRestReflector {
     string name = "";
     /// Type of the wrapped object
     string type = "";
+    /// value of typeid(T).name() of the wrapped object
+    const type_info* typeinfo = 0;
     /// Address of the wrapped object
     char* address = 0;
     /// Size of the object
@@ -138,34 +300,31 @@ class TRestReflector {
     /// Pointer to the corresponding TClass helper, if the wrapped object is in class type
     TClass* cl = 0;
     /// Pointer to the corresponding TDataType helper, if the wrapped object is in data type
-    TDataType* dt = 0;
+    bool is_data_type;
     /// If this object type wrapper is invalid
     bool IsZombie();
     /// Deep copy the content of the wrapped object to `to`.
     void operator>>(TRestReflector to);
     /// Output overload by calling ToString();
     friend ostream& operator<<(ostream& cin, TRestReflector ptr) { return cin << ptr.ToString(); }
-    /// Get the id of the wrapperd type. The enum used for type id is TStreamerInfo::EReadWrite
-    int GetTypeID();
     /// Get the value of the wrapped type, not recommended to use
     template <typename T>
-    void GetValue(T& val, bool check = false) {
-        if (check) {
-            if (GetTypeName<T>() != type) {
-                cout << "In TRestReflector::GetValue() : type unmatch! " << endl;
-                return;
-            }
+    T GetValue() {
+        if (typeid(T) != *this->typeinfo) {
+            cout << "In TRestReflector::GetValue() : type unmatch! " << endl;
+            cout << "Input: " << GetTypeName<T>() << ", this: " << this->type << endl;
+            return T();
         }
-        if (address != NULL) val = *(T*)(address);
+        if (address != NULL) return *(T*)(address);
+        return T();
     }
     /// Set the value of the wrapped type
     template <class T>
-    void SetValue(const T& val, bool check = false) {
-        if (check) {
-            if (GetTypeName<T>() != type) {
-                cout << "In TRestReflector::GetValue() : type unmatch! " << endl;
-                return;
-            }
+    void SetValue(const T& val) {
+        if (typeid(T) != *this->typeinfo) {
+            cout << "In TRestReflector::SetValue() : type unmatch! " << endl;
+            cout << "Input: " << GetTypeName<T>() << ", this: " << string(this->type) << endl;
+            return;
         }
         if (address != NULL) *((T*)(address)) = val;
     }
@@ -198,33 +357,42 @@ class TRestReflector {
     /// Default constructor
     TRestReflector() {}
     /// Constructor from a certain address and a certain type.
-    TRestReflector(void* address, string type);
+    TRestReflector(void* address, const string& type);
     /// Constructor to wrap an object. Any typed object can be revieved as argument.
     template <class T>
     TRestReflector(const T& obj) {
         address = (char*)&obj;
-        onheap = false;
-        cl = REST_Reflection::GetClass<T>();
-        dt = REST_Reflection::GetDataType<T>();
-        if (cl == NULL && dt == NULL) {
-            cout << "In TRestReflector::TRestReflector() : unrecognized type! " << endl;
-            return;
-        }
-        InitDictionary();
+        InitFromTemplate<T>();
     }
     /// Constructor to wrap an object pointer.
     template <class T>
     TRestReflector(T* obj) {
         address = (char*)obj;
+        InitFromTemplate<T>();
+    }
+
+    template <class T>
+    void InitFromTemplate() {
         onheap = false;
-        cl = REST_Reflection::GetClass<T>();
-        dt = REST_Reflection::GetDataType<T>();
-        if (cl == NULL && dt == NULL) {
+        cl = REST_Reflection::GetClassQuick<T>();
+        DataType_Info dt = DataType_Info((T*)0);
+        if (cl == NULL && dt.size == 0) {
             cout << "In TRestReflector::TRestReflector() : unrecognized type! " << endl;
             return;
         }
+
+        typeinfo = &typeid(T);
+        is_data_type = dt.size > 0;
+        size = sizeof(T);
+        if (cl == NULL) {
+            type = dt.name;
+        } else {
+            type = cl->GetName();
+        }
+
         InitDictionary();
     }
+
 };
 
 ///////////////////////////////////////////////
@@ -246,6 +414,7 @@ void CloneAny(TRestReflector from, TRestReflector to);
 };  // namespace REST_Reflection
 
 typedef REST_Reflection::TRestReflector any;
+typedef REST_Reflection::TRestReflector RESTValue;
 
 class RESTVirtualConverter {
    public:

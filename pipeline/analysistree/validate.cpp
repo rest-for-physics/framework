@@ -12,4 +12,9 @@ void validate() {
         return 2;
     }
 
+    if (tree->GetObservableValue<vector<int>>("interitedvec")[0] != 3) {
+        cout << "branch \"interitedvec[0]\" in entry 3 is not 3!" << endl;
+        return 3;
+    }
+
 }

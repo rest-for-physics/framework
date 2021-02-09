@@ -2302,10 +2302,10 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
     if (name == "name" || name == "title" || name == "verboseLevel" || name == "store") {
         // we omit these parameters since they are already loaded in LoadSectionMetadata()
     } else {
-        any thisactual(this, this->ClassName());
+        RESTValue thisactual(this, this->ClassName());
         string datamembername = ParameterNameToDataMemberName(name);
         if (datamembername != "") {
-            any datamember = thisactual.GetDataMember(datamembername);
+            RESTValue datamember = thisactual.GetDataMember(datamembername);
             if (!datamember.IsZombie()) {
                 debug << this->ClassName() << "::ReadAllParameters(): parsing value \"" << value
                       << "\" to data member \"" << datamembername << "\"" << endl;

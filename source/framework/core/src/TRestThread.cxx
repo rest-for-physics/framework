@@ -65,8 +65,8 @@ Int_t TRestThread::ValidateChain(TRestEvent* input) {
     // add the non-general processes to list for validation
     vector<TRestEventProcess*> processes;
     for (unsigned int i = 0; i < fProcessChain.size(); i++) {
-        any inEvent = fProcessChain[i]->GetInputEvent();
-        any outEvent = fProcessChain[i]->GetOutputEvent();
+        RESTValue inEvent = fProcessChain[i]->GetInputEvent();
+        RESTValue outEvent = fProcessChain[i]->GetOutputEvent();
 
         if (outEvent.type == "TRestEvent" && inEvent.type == "TRestEvent") {
             info << "general process: " << fProcessChain[i]->GetName() << endl;

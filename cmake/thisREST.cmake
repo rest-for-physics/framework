@@ -21,6 +21,12 @@ else ()
     set( loadG4 "")
 endif (${REST_G4} MATCHES "ON")
 
+if( DEFINED MPFR_PATH )
+    set( loadMPFR "export LD_LIBRARY_PATH=${MPFR_PATH}/lib:\$LD_LIBRARY_PATH")
+else ()
+    set( loadMPFR "")
+endif()
+
 
 if (${REST_GARFIELD} MATCHES "ON")
 	set ( loadGarfield "\n\# if GARFIELD is enabled we load the same Garfield environment used in compilation
@@ -30,8 +36,6 @@ export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH" )
 else ()
     set( loadGarfield "")
 endif (${REST_GARFIELD} MATCHES "ON")
-
-
 
 # install thisREST script, sh VERSION
 install( CODE
@@ -52,11 +56,12 @@ else
 fi
 
 \# if thisroot.sh script is found we load the same ROOT version as used in compilation
-if [[ -f \"${thisROOT}\" ]]; then
+if [[ -f \\\"${thisROOT}\\\" ]]; then
 	source ${thisROOT}
 fi
 
 ${loadG4}
+${loadMPFR}
 ${loadGarfield}
 
 if [ \\\$REST_PATH ] ; then

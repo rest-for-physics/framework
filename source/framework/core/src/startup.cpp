@@ -16,7 +16,8 @@ string REST_USER;
 string REST_USER_PATH;
 map<string, string> REST_ARGS = {};
 namespace REST_Reflection {
-map<string, TDataType*> RESTListOfDataTypes = {};
+map<void*, TClass*> RESTListOfClasses_typeid = {};
+map<string, TClass*> RESTListOfClasses_typename = {};
 }
 map<string, RESTVirtualConverter*> RESTConverterMethodBase = {};
 
