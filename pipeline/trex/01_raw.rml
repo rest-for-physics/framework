@@ -20,6 +20,15 @@
 			<parameter name="electronics" value="TCMFeminos"/>
 		</addProcess>
 
+		<addProcess type="TRestRawSignalChannelActivityProcess" name="rawChActivity" value="ON" verboseLevel="silent" >
+			<parameter name="daqChannels" value="360" />
+			<parameter name="daqStartCh" value="4320" />
+			<parameter name="daqEndCh" value="4680" />
+			<parameter name="readoutChannels" value="250" />
+			<parameter name="readoutStartCh" value="0" />
+			<parameter name="readoutEndCh" value="250" />
+		</addProcess>
+
 		<addProcess type="TRestRawSignalAnalysisProcess" name="rawAna" value="ON"
 			baseLineRange="(${BL_MIN},${BL_MAX})" integralRange="(${INT_MIN},${INT_MAX})"
 			pointThreshold="${POINT_TH}" pointsOverThreshold="${NPOINTS}" signalThreshold="${SGNL_TH}"
