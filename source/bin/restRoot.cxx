@@ -64,6 +64,7 @@ int main(int argc, char* argv[]) {
     // load rest library and macros
     TRestTools::LoadRESTLibrary(silent);
     if (loadMacros) {
+        if (!silent) printf("= Loading macros ...\n");
         auto a = TRestTools::Execute(
             "find $REST_PATH/macros | grep REST_[^/]*.C | grep -v \"swo\" | grep -v "
             "\"CMakeLists\" | grep -v \"swp\"  | grep -v \"svn\"");
