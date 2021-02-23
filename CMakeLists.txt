@@ -1,8 +1,6 @@
 PROJECT(REST)
 CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 
-set(REST_G4)
-
 #minimum compiler version
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # require at least gcc 4.8
