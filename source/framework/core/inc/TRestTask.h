@@ -28,8 +28,6 @@ class TRestTask : public TRestMetadata {
    protected:
     TRestTask(TString TaskString, REST_TASKMODE mode = TASK_MACRO);
 
-    void ConstructCommand();
-
     int fNRequiredArgument;
     REST_TASKMODE fMode;
     string fInvokeObject = "";
