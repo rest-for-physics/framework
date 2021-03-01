@@ -1508,7 +1508,6 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
 
     if (!TRestTools::fileExists(filename)) {
         ferr << "Config file does not exist. The file is: " << filename << endl;
-        GetChar();
         exit(1);
     }
 
@@ -1520,7 +1519,6 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
     rootele = doc.RootElement();
     if (rootele == NULL) {
         ferr << "The rml file \"" << cfgFileName << "\" does not contain any valid elements!" << endl;
-        GetChar();
         exit(1);
     }
     if (NameOrDecalre == "") {
@@ -1930,8 +1928,8 @@ string TRestMetadata::ReplaceVariables(const string buffer) {
             outputBuffer.replace(replacePos, replaceLen, proenv);
             endPosition = 0;
         } else {
-            ferr << this->ClassName() << ", replace env : cannot find \"${" << expression << "}\"" << endl;
-            ferr << "(position: " << startPosition << ") in either system or program env, exiting..." << endl;
+            ferr << this->ClassName() << ", replace env : cannot find \"${" << expression
+                 << "}\" in either system or program env, exiting..." << endl;
             exit(1);
         }
     }
