@@ -826,7 +826,7 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
 TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilename) {
     debug << "TRestRun::FormOutputFile. target : " << outputfilename << endl;
     string filename;
-    TFileMerger* m = new TFileMerger();
+    TFileMerger* m = new TFileMerger(false);
     if (outputfilename == "") {
         filename = fOutputFileName;
         info << "Creating file : " << filename << endl;
