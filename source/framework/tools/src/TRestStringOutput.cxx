@@ -140,6 +140,7 @@ void Console::ClearLinesAfterCursor() {
     fflush(stdout);
 }
 
+#define TRestStringOutput_BestLength 100
 TRestStringOutput::TRestStringOutput(string _color, string BorderOrHeader, REST_Display_Format style) {
     color = _color;
     formatstring = BorderOrHeader;
@@ -158,9 +159,7 @@ TRestStringOutput::TRestStringOutput(string _color, string BorderOrHeader, REST_
         useborder = false;
     }
 
-    length = 100;
-    if (length > Console::GetWidth() - 2) length = Console::GetWidth() - 2;
-
+    setlength(TRestStringOutput_BestLength);
     resetstring();
     if (length > 500 || length < 20)  // unsupported console, we will fall back to compatibility modes
     {
@@ -259,10 +258,15 @@ string TRestStringOutput::FormattingPrintString(string input) {
 
 void TRestStringOutput::setlength(int n) {
     if (!Console::CompatibilityMode) {
-        if (n < Console::GetWidth() - 2)
-            length = n;
-        else
+        if (n >= Console::GetWidth() - 2) {
             length = Console::GetWidth() - 2;
+        } else if (n <= 0) {
+            length = Console::GetWidth() - 2;
+        } else {
+            length = n;
+        }
+    } else {
+        length = n;
     }
 }
 
@@ -271,11 +275,14 @@ void TRestStringOutput::flushstring() {
     {
         std::cout << buf.str() << std::endl;
     } else {
-        int consolewidth = Console::GetWidth() - 2;
         printf("\033[K");
         if (orientation == 0) {
-            std::cout << color << string((consolewidth - length) / 2, ' ') << FormattingPrintString(buf.str())
-                      << string((consolewidth - length) / 2, ' ') << COLOR_RESET << std::endl;
+            // we always reset the length of TRestStringOutput in case the console is resized
+            setlength(TRestStringOutput_BestLength);
+            int blankwidth = (Console::GetWidth() - 2 - length) / 2;
+
+            std::cout << color << string(blankwidth, ' ') << FormattingPrintString(buf.str())
+                      << string(blankwidth, ' ') << COLOR_RESET << std::endl;
         } else {
             std::cout << color << FormattingPrintString(buf.str()) << COLOR_RESET << std::endl;
         }
