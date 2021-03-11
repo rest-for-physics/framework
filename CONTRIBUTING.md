@@ -273,6 +273,8 @@ version or after a particular version.
 
 All Contributors should try to follow a single coding style in order to maintain cohesion of the code and make the code as readable as possible.
 
+We must consider REST as an extension of the ROOT, since most of the REST objects inherit from a TObject. Therefore, we must inherit also the naming conventions and style as much as possible. ROOT follows the [Taligent rules](https://root.cern/TaligentDocs/TaligentOnline/DocumentRoot/1.0/Docs/books/WM/WM_63.html#HEADING77).
+
 ### Clang-Format
 
 In order to achieve this cohesion we chose the tool [clang-format](https://clang.llvm.org/docs/ClangFormat.html) which is the industry standard tool to format C++ code. It only requires a single `.clang-format` file which is included on the root of the repository.
