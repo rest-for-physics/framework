@@ -24,13 +24,15 @@
 #define RestProcess_TRestEventSelectionProcess
 
 #include <TH1D.h>
-
+#include <iostream>
 #include "TRestEventProcess.h"
 
-//! An event to select events that should be accepted for further processing
+//! A template process to serve as an example to create new TRestRawSignalEventProcess
 class TRestEventSelectionProcess : public TRestEventProcess {
    private:
     TRestEvent* fEvent;  //!
+    string fFile;
+    std::vector<Int_t> fList;
 
     /// A list with the event ids that have been selected.
     std::vector<Int_t> fEventIds;  //<
@@ -54,6 +56,6 @@ class TRestEventSelectionProcess : public TRestEventProcess {
     // Destructor
     ~TRestEventSelectionProcess() {}
 
-    ClassDef(TRestEventSelectionProcess, 1);
+    ClassDef(TRestEventSelectionProcess, 2);
 };
 #endif

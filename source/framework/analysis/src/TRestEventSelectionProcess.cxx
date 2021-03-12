@@ -21,13 +21,13 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// The TRestEventSelectionProcess ...
-///
-/// **TODO**: Needs to be documented and added to validation pipeline.
+/// The TRestEventSelectionProcess allows procesing of selected events only.
+/// It reads a list of event IDs from a txt file, if an event is not in the 
+/// list it returns NULL, ends the processing and continues with the next event.
 ///
 /// <hr>
 ///
-/// \warning **⚠ REST is under continous development.** This documentation
+/// \warning **? REST is under continous development.** This documentation
 /// is offered to you by the REST community. Your HELP is needed to keep this code
 /// up to date. Your feedback will be worth to support this software, please report
 /// any problems/suggestions you may find while using it at [The REST Framework
@@ -46,8 +46,12 @@
 /// 2021-Jan: Created empty template
 ///             Javier Galan
 ///
+/// 2021-Jan: Read IDs from txt
+///              David Diez
+///
 /// \class      TRestEventSelectionProcess
 /// \author     Javier Galan
+/// \author     David Diez
 ///
 /// <hr>
 ///
@@ -77,10 +81,17 @@ void TRestEventSelectionProcess::Initialize() {
 ///////////////////////////////////////////////
 /// \brief Process initialization.
 ///
-/// TODO It should fill the fEventIDs vector.
 ///
 void TRestEventSelectionProcess::InitProcess() {
-    /// TOBE implemented
+    string line;
+    ifstream File(fFile);
+    
+    if (File.is_open()){
+      while ( getline(File,line) ){
+        fList.push_back(stoi(line));
+      }
+      File.close();
+    }
 }
 
 ///////////////////////////////////////////////
@@ -89,17 +100,19 @@ void TRestEventSelectionProcess::InitProcess() {
 TRestEvent* TRestEventSelectionProcess::ProcessEvent(TRestEvent* eventInput) {
     fEvent = eventInput;
 
-    // TOBE implemented. If the event ID fEvent->GetID() is not in the list
-    // we should return NULL;
+    for(int i=0; i < fList.size(); i++){
+        if(fList[i] == fEvent->GetID()){return fEvent;}
+    }
 
-    return fEvent;
+    return NULL;
 }
 
 ///////////////////////////////////////////////
 /// \brief Initialization of the process from RML
 ///
 void TRestEventSelectionProcess::InitFromConfigFile() {
-    /// TOBE implemented. Read event ids, or define filename used to identify event ids
+
+    fFile = GetParameter("fileWithIDs","");
 }
 
 ///////////////////////////////////////////////
@@ -109,6 +122,7 @@ void TRestEventSelectionProcess::PrintMetadata() {
     BeginPrintProcess();
 
     /// TOBE implemented. Probably it should print just the event Ids that are in the selection.
+    metadata << "File with IDs: " << fFile << endl;
 
     EndPrintProcess();
 }
