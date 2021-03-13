@@ -107,9 +107,11 @@ Go to the root directory of your local REST repository, assume it is `~/rest-fra
 cd ~/rest-framework
 mkdir build
 cd build
-cmake .. -DINSTALL_PREFIX=../install/ 
+cmake .. -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON -DINSTALL_PREFIX=../install/ 
 make -j4 install
 ```
+
+If you do not need to link REST to `Geant4` and/or `Garfield` funtionalities, just set the compilation options to `OFF` or do not include them at the `cmake` command.
 
 **Remark**: If there is no structural changes in REST, such as new files or libraries, then `cmake` command needs to be executed only once. If you modify a source file and exectue `make -j4 install` the compilation system will recognize that it requires to compile that file. If you execute `cmake` again, then the full project will be compiled from scratch.
 
