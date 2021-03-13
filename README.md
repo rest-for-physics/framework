@@ -101,10 +101,10 @@ After ROOT6 has been installed in the system, the compilation of REST should be 
 Note that it is recommended to compile REST using the same version of g++ compiler used to compile ROOT.
 The detailed [installation guide](doc/Chapters/2-installing-rest.md), including compilation options, will be found at the [REST documentation](doc/Chapters/0-contents.md).
 
-Go to the root directory of your local REST repository, assume it is `~/REST_v2`, and execute the following commands.
+Go to the root directory of your local REST repository, assume it is `~/rest-framework`, and execute the following commands.
 
 ```
-cd ~/REST_v2  
+cd ~/rest-framework
 mkdir build
 cd build
 cmake .. -DINSTALL_PREFIX=../install/ 
@@ -129,6 +129,17 @@ restRoot
  ```
  echo "source ~/REST_v2/install/master/thisREST.sh" >> .bashrc
  ```
+ 
+### Troubleshooting
+
+- One of the major bottlenecks on REST installation is ROOT installation itself. It is recommended to compile ROOT from source. To help on this task we provide the following script [installROOT.py](scripts/installation/installROOT.py).
+- We recommend to have a look or just execute the script [installRequiredSoftware.py](scripts/installation/installRequiredSoftware.py) at Debian based Linux distributions, to install recommended software.
+- If ROOT compilation complains about Python libraries, you may need to install python development libraries in your system, and/or update your default python to V3. The following executions should help:
+```
+ sudo apt-get install libpython3.7-dev
+ sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+ ```
+
 
 ## REST libraries
 
@@ -151,6 +162,7 @@ make -j4 install
 - A REST overview guide can be found [here](doc/Chapters/4-the-rest-framework.md). 
 - An API doxygen documentation is frequently updated [here](https://sultan.unizar.es/rest/).
 - The REST Framework forum for open discussions is available [here](ezpc10.unizar.es).
+- ROOT naming convention and coding rules are [Taligent rules](https://root.cern/TaligentDocs/TaligentOnline/DocumentRoot/1.0/Docs/books/WM/WM_63.html#HEADING77).
 
 ## Contributing
 
@@ -198,10 +210,7 @@ This project is licensed under the GNU License - see the [LICENSE](https://lfna.
 
 ## Acknowledgments
 
+We acknowledge support from the the European Research Council (ERC) under the European Union’s Horizon 2020 research and innovation programme, grant agreement ERC-2017-AdG788781 (IAXO+), and from the Spanish Agencia Estatal de Investigaci\ ́on under grant FPA2016-76978-C3-1-P
 
-
-----
-
-**⚠ WARNING: REST is under continous development.** This README is offered to you by the REST community. Your HELP is needed to keep this file up to date. You are very welcome to contribute fixing typos, updating information or adding new contributions to REST. See also our [Contribution Guide](https://lfna.unizar.es/rest-development/REST_v2/-/blob/master/CONTRIBUTING.md).
 
 
