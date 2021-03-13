@@ -27,6 +27,15 @@ This repository, *rest-framework*, centralizes all the activity or software ecos
 
 These instructions will get you a copy of the project up and running on your local machine. Additional details can be found in the [documentation](doc/Chapters/2-installing-rest.md) 
 
+### Mirror repositories
+
+REST is mirrored to the following repositories where pipelines are executed, and where code can also be retrieved.
+
+- https://gitlab.cern.ch/rest-for-physics
+- https://lfna.unizar.es/rest-for-physics
+
+Code can be pulled for read-access from those mirrors, however, development is centralized at the main GitHub public repository.
+
 ### Downloading REST
 The recommended way to download a copy of REST will be *cloning it* using the corresponding git command.
 
@@ -64,25 +73,17 @@ git checkout master
 git pull
 ```
 
-### Mirror repositories
-
-REST is mirrored to the following repositories where pipelines are executed, and where code can also be retrieved.
-
-- https://gitlab.cern.ch/rest-for-physics
-- https://lfna.unizar.es/rest-for-physics
-
-Code can be pulled for read-access from those mirrors, however, development is centralized at the main GitHub public repository.
-
-
 ### Recovering a clean git state of rest-framework and submodules
 
 If you have added modifications to the rest-framework code and/or submodules. It is possible to fully clean your repository to be an identical copy to the one found at the remote repository.
 
-Notice that executing the following script (placed at the rest-framework root repository) will completely remove any changes or addons you have in done in your local installation.
+Notice that executing the following script (placed at the rest-framework root repository) will completely remove any changes or addons you have done at your local installation.
 
 ```
-source clean-state.sh
+python3.5 pull-submodules.py --clean
 ```
+
+If there is any untracked content you might still need to `git clean -d -f` to remove untracked items. If any untracked items or modified files are found at your source repository during compilation the `fCleanState` flag at `TRestMetadata` will be set to `OFF`.
 
 ### Installing
 
@@ -145,8 +146,6 @@ make -j4 install
 
 **Remark:** Notice that once we pass an option to cmake, that option will be cached inside the cmake system. I.e. we do not need to provide the installation path we provided the first time, and any future calls to `cmake` will assume `detector` and `raw` libraries are enabled.
 
-**TODO**: A [pending issue](https://github.com/rest-for-physics/rest-framework/issues/5) is to have a flag that allows to enable all available REST libraries.
-
 ## Useful links or references
 
 - A REST overview guide can be found [here](doc/Chapters/4-the-rest-framework.md). 
@@ -183,6 +182,7 @@ A major change at 2.3 will prevent from backwards compatibility, since class nam
 * **Javier Galan, Igor G. Irastorza, Gloria Luzon** - *University of Zaragoza (Spain)*
 * **Ke Han, Kaixiang Ni** - *Shanghai Jiao Tong University (China)*
 * **Yann Bedfer, Damien Neyret** - *CEA Saclay (France)*
+* **Eduardo Picatoste, Cristian Cogollos** - *Universitat de Barcelona (Spain)*
 
 See also the list of [contributors]() who participated in this project.
 
@@ -198,11 +198,6 @@ This project is licensed under the GNU License - see the [LICENSE](https://lfna.
 
 ## Acknowledgments
 
-`TOBE written`
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
 
 
 ----
