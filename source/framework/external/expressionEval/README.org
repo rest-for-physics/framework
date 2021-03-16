@@ -1,0 +1,14 @@
+* A simple, header only math expression evaluation library
+
+This is a simple, standalone, c++14 header only math expression
+evaluation library to be used in
+https://github.com/rest-for-physics/framework for runtime evaluation
+of ROOT trees.
+
+** C++ is annoying af.
+
+That's it. That's the subsection.
+
+** License
+
+Just MIT.

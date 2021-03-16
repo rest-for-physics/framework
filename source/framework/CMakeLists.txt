@@ -1,4 +1,4 @@
-set(contents external/tinyxml tools core analysis)
+set(contents external/tinyxml external/expressionEval tools core analysis)
 
 file(GLOB_RECURSE addon_src
 	"tiny*cpp"
