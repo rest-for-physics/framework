@@ -1899,6 +1899,33 @@ string TRestMetadata::GetParameter(string parName, size_t& pos, string inputStri
     return value;
 }
 
+
+///////////////////////////////////////////////
+/// \brief Returns a map<string, string> containing the names and
+/// expressions within the <expressionset> of a TRestExpressionEvaluationProcess
+/// tag.
+///
+/// This method is only used for the TRestExpressionEvaluationProcess and
+/// thus the name of the tag ("expressionset") is hardcoded at the moment.
+///
+map<string, string> TRestMetadata::GetExprStrings() {
+    map<string, string> result;
+
+    TiXmlElement* exprset = fElement->FirstChildElement("expressionset");
+    if (exprset == NULL) return result;
+
+    TiXmlElement* item = exprset->FirstChildElement();
+    while(item != NULL) {
+	const char* name = item->Attribute("name");
+	if (name == NULL) return result;
+	const char* expr = item->Attribute("expr");
+	if (expr == NULL) return result;
+	result[string(name)] = string(expr);
+	item = item->NextSiblingElement();
+    }
+    return result;
+}
+
 ///////////////////////////////////////////////
 /// \brief Identifies enviromental variable replacing marks in the input buffer,
 /// and replace them with corresponding value.
