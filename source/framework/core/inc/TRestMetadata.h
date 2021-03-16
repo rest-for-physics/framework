@@ -118,6 +118,7 @@ class TRestMetadata : public TNamed {
     string GetKEYDefinition(std::string keyName, string buffer);
     string GetKEYDefinition(std::string keyName, size_t& Position, string buffer);
     string GetParameter(std::string parName, size_t& pos, std::string inputString);
+    map<string, string> GetExprStrings();
     string GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition = 0);
 
     // some utils
