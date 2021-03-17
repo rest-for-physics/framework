@@ -25,7 +25,6 @@
     <!-- <parameter name="Nevents" value="1000000"/>-->
     <parameter name="Nevents" value="500"/>
     <parameter name="gdml_file" value="geometry/main.gdml"/>
-    <parameter name="maxTargetStepSize" value="200um" />
     <parameter name="subEventTimeDelay" value="100us" />
     <parameter name="seed" value="1" />
 
@@ -36,7 +35,7 @@
 
     <storage sensitiveVolume="Gas">
       <parameter name="energyRange" value="(0,10)MeV" />
-      <activeVolume name="Gas" chance="1" />
+      <activeVolume name="Gas" chance="1" maxStepSize="200um" />
     </storage>
 
   </TRestGeant4Metadata>

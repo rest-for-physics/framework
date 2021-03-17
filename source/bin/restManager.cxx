@@ -15,6 +15,35 @@ void setenv(const char* __name, const char* __value, int __replace) {
 }
 #endif
 
+int fork_n_execute(string command) {
+    int status;
+    pid_t pid;
+
+    pid = fork();
+
+    if (pid == 0) {
+        /* This is the child process */
+        system(command.c_str());  // execute the command
+        // we call exit() when system() returns to complete child process
+        exit(EXIT_SUCCESS);
+    } else if (pid < 0) {
+        /* The fork failed */
+        printf("Failed to fork(): %s ", command);
+        status = -1;
+    }
+
+    /* This is the parent process
+     * incase you want to do something
+     * like wait for the child process to finish
+     */
+    /*
+       else
+       if(waitpid(pid, &status, 0) != pid)
+       status = -1;
+       */
+    return status;
+}
+
 void PrintHelp() {
     TRestStringOutput fout(COLOR_BOLDYELLOW, "", kHeaderedLeft);
     fout << " " << endl;
@@ -53,6 +82,9 @@ void PrintHelp() {
     fout.setheader("");
     fout << "=" << endl;
 }
+
+Bool_t doFork = false;
+std::vector<std::string> input_files;
 
 void ParseInputFileArgs(const char* argv) {
     if (argv == NULL) return;
@@ -96,6 +128,12 @@ int main(int argc, char* argv[]) {
                 argCApp = 2;
                 args.erase(args.begin() + i);
             }
+            if (args[i] == "--fork") {
+                fout << "Fork is enabled!" << endl;
+                argCApp = 2;
+                args.erase(args.begin() + i);
+                doFork = true;
+            }
         }
         if (Console::CompatibilityMode) {
             fout << "you are in compatibility mode, all graphical displays off" << endl;
@@ -131,10 +169,16 @@ int main(int argc, char* argv[]) {
                             REST_ARGS["runNumber"] = args[i + 1];
                             break;
                         case 'f':
-                            ParseInputFileArgs(args[i + 1].c_str());
+                            if (doFork)
+                                input_files = TRestTools::GetFilesMatchingPattern(args[i + 1].c_str());
+                            else
+                                ParseInputFileArgs(args[i + 1].c_str());
                             break;
                         case 'i':
-                            ParseInputFileArgs(args[i + 1].c_str());
+                            if (doFork)
+                                input_files = TRestTools::GetFilesMatchingPattern(args[i + 1].c_str());
+                            else
+                                ParseInputFileArgs(args[i + 1].c_str());
                             break;
                         case 'o':
                             REST_ARGS["outputFileName"] = args[i + 1];
@@ -165,18 +209,34 @@ int main(int argc, char* argv[]) {
             fout.setorientation(0);
             fout << "Launching TRestManager..." << endl;
             fout << endl;
-            TRestManager* mgr = new TRestManager();
 
-            auto path = TRestTools::SeparatePathAndName(cfgFileName).first;
-            setenv("configPath", path.c_str(), 1);
+            int pid = 0;
+            if (doFork) {
+                for (unsigned int n = 0; n < input_files.size(); n++) {
+                    string command = "restManager";
+                    for (unsigned int x = 1; x < args.size(); x++) {
+                        if (args[x] != "--f" && args[x - 1] != "--f" && args[x] != "--fork")
+                            command += " " + args[x];
+                    }
+                    command += " --f " + input_files[n] + " >> /tmp/out." + n;
+                    fout << "Executing : " << command << endl;
+                    fork_n_execute(command);
+                }
+                exit(0);
+            } else {
+                TRestManager* mgr = new TRestManager();
 
-            mgr->LoadConfigFromFile(cfgFileName);
+                auto path = TRestTools::SeparatePathAndName(cfgFileName).first;
+                setenv("configPath", path.c_str(), 1);
 
-            fout << "Done!" << endl;
-            // a->GetChar();
+                mgr->LoadConfigFromFile(cfgFileName);
 
-            delete mgr;
-            gSystem->Exit(0);
+                fout << "Done!" << endl;
+                // a->GetChar();
+
+                delete mgr;
+                gSystem->Exit(0);
+            }
         } else  // usage2
         {
             vector<string> argumentlist;
