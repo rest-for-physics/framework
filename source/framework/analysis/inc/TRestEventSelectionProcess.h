@@ -32,10 +32,11 @@ class TRestEventSelectionProcess : public TRestEventProcess {
    private:
     TRestEvent* fEvent;  //!
     string fFile;
+    string fConditions;
     std::vector<Int_t> fList;
 
     /// A list with the event ids that have been selected.
-    std::vector<Int_t> fEventIds;  //<
+    //std::vector<Int_t> fEventIds;  //<
 
     void InitFromConfigFile();
 
@@ -56,6 +57,6 @@ class TRestEventSelectionProcess : public TRestEventProcess {
     // Destructor
     ~TRestEventSelectionProcess() {}
 
-    ClassDef(TRestEventSelectionProcess, 2);
+    ClassDef(TRestEventSelectionProcess, 3);
 };
 #endif
