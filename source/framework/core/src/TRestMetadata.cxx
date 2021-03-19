@@ -1332,6 +1332,9 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
         }
     }
 
+    result = Replace(result, " AND ", " && ");
+    result = Replace(result, " OR ", " || ");
+
     return ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(result)),
                                           "Please, check parameter name: " + parName);
 }

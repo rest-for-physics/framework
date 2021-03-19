@@ -4,7 +4,7 @@
 
 	<globals file="globals.xml"/>
 	<globals>
-		<variable name="RUN_TYPE" value="Hits" overwrite="false" />
+	  	<variable name="RUN_TYPE" value="Hits" overwrite="false" />
 	</globals>
 
 	<TRestRun file="run.xml" />

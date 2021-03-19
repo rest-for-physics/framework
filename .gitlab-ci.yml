@@ -249,8 +249,11 @@ trexDM_data:
     - wget https://sultan.unizar.es/trexdm-readouts/readouts_v2.3.root
     - cp R01928_tagTest_Vm380.aqs R01929_tagTest_Vm380.aqs
     - restManager --fork --c 01_raw.rml --f "*.aqs"
+    - sleep 20
     - restManager --fork --c 02_signal.rml --f "RawData*.root"
+    - sleep 20
     - restManager --fork --c 03_hits.rml --f "Signals*.root"
+    - sleep 20
     - restRoot -b -q ../MakeBasicTree.C'("Hits_01928.root")'
     - rm RawData_01928.root
     - rm Signals_01928.root

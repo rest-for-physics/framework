@@ -13,6 +13,7 @@
 	-->
 
     <variable name="RUN_TYPE" value="Test" overwrite="false" />
+    <variable name="FORMAT" value=" " />
 
     <parameter name="mainDataPath" value="." />
     <parameter name="verboseLevel" value="silent" /> %options are : silent, warning, info, silent
