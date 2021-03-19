@@ -321,7 +321,7 @@ AnalysisPlot:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/analysisPlot/
-    - restManager --c summary.rml --f ${CI_PROJECT_DIR}/pipeline/trex/Hits.root
+    - restManager --c summary.rml --f ${CI_PROJECT_DIR}/pipeline/trex/Hits_01929.root
   except:
       variables:
         - $CRONJOB == "YES"
