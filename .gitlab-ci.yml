@@ -262,6 +262,10 @@ trexDM_data:
     - rm RawData_01929.root
     - rm Signals_01929.root
     - root -b -q ../ValidateTrees.C'("validation.root")'
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/pipeline/trex/Hits_01929.root
+    expire_in: 1 day
   except:
       variables:
         - $CRONJOB == "YES"
