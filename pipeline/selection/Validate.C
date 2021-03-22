@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 Int_t Validate(TString validationFile) {
-    TFile* f = new TFile("${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test_EvSelection.root");
+    TFile* f = new TFile("${CI_PROJECT_DIR}/pipeline/selection/Run00001_NLDBD_Test_EvSelection.root");
     TTree* tr = (TTree*)f->Get("AnalysisTree");
       
     TFile* fV = new TFile(validationFile);

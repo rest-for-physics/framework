@@ -17,14 +17,14 @@
     <parameter name="runDescription" value=""/>
     <parameter name="user" value="${USER}"/>
     <parameter name="verboseLevel" value="2"/>
-    <parameter name="outputFileName" value="${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test_EvSelection.root" />
+    <parameter name="outputFileName" value="${CI_PROJECT_DIR}/pipeline/selection/Run00001_NLDBD_Test_EvSelection.root" />
   </TRestRun>
 
 
   <TRestProcessRunner name="TemplateEventProcess" verboseLevel="info">
     <parameter name="eventsToProcess" value="0" />
  
-    <addProcess type="TRestEventSelectionProcess" name="evSelection" fileWithIDs="${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test_g4Analysis.root" conditions="g4Ana_totalEdep<2400&amp;&amp;g4Ana_energyPrimary>1000" value="ON"  verboseLevel="info"/>
+    <addProcess type="TRestEventSelectionProcess" name="evSelection" fileWithIDs="${CI_PROJECT_DIR}/pipeline/selection/Run00001_NLDBD_Test_g4Analysis.root" conditions="g4Ana_totalEdep<2400 AND g4Ana_energyPrimary>1000" value="ON"  verboseLevel="info"/>
     
     <addProcess type="TRestEventSelectionProcess" name="evSelection" fileWithIDs="${CI_PROJECT_DIR}/pipeline/selection/IDs.txt" value="ON"  verboseLevel="info"/>
 

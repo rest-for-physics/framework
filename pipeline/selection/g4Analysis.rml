@@ -17,7 +17,7 @@
     <parameter name="runDescription" value=""/>
     <parameter name="user" value="${USER}"/>
     <parameter name="verboseLevel" value="2"/>
-    <parameter name="outputFileName" value="${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test_g4Analysis.root" />
+    <parameter name="outputFileName" value="${CI_PROJECT_DIR}/pipeline/selection/Run00001_NLDBD_Test_g4Analysis.root" />
   </TRestRun>
 
 
