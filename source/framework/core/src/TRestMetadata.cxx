@@ -1410,7 +1410,12 @@ std::string TRestMetadata::GetFieldValue(std::string parName, TiXmlElement* e) {
     if (val == NULL) {
         return "Not defined";
     }
-    return val;
+
+    string result = (string)val;
+    result = Replace(result, " AND ", " && ");
+    result = Replace(result, " OR ", " || ");
+
+    return result;
 }
 
 ///////////////////////////////////////////////
