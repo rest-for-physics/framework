@@ -105,14 +105,28 @@ string FindRESTUnitsInString(string s) {
 ///////////////////////////////////////////////
 /// \brief It should remove all units found inside the input string
 ///
-/// We suppose the last of **value** before **units** must be "1234567890(),.-".
+/// We suppose the last of **value** before **units** must be "1234567890(),.-eE".
 /// Hence this prepority can be used to spilt the input string into value part and unit part
 /// e.g.
 /// value="(1,-13)mm"
 /// value="-3mm"
+/// value="6e-5mm"
 /// can both be recognized
 ///
-string RemoveUnitsFromString(string s) { return s.substr(0, s.find_first_not_of("1234567890(),.-")); }
+string RemoveUnitsFromString(string s) { 
+    string valstr1 = s.substr(0, s.find_first_not_of("1234567890(),.-eE")); 
+
+    if (valstr1.size() == 0) {
+        return "";
+    }
+
+    // if e turns out to be the last character, we shall also strip it
+    if (valstr1[valstr1.size() - 1] == 'e' || valstr1[valstr1.size() - 1] == 'E') {
+        return valstr1.substr(0, valstr1.size() - 1);
+    }
+
+    return valstr1;
+}
 
 ///////////////////////////////////////////////
 /// \brief It scales a physics measurement with its units into a REST default units value.
