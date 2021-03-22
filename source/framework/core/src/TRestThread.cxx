@@ -231,6 +231,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
         fOutputFile = new TFile(threadFileName.c_str(), "recreate");
         fOutputFile->SetCompressionLevel(0);
         fAnalysisTree = new TRestAnalysisTree("AnalysisTree_" + ToString(fThreadId), "dummyTree");
+        fAnalysisTree->DisableQuickObservableValueSetting();
 
         debug << "TRestThread: Finding first input event of process chain..." << endl;
         if (fHostRunner->GetInputEvent() == NULL) {
@@ -380,6 +381,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
 
         debug << "Creating Analysis Tree..." << endl;
         fAnalysisTree = new TRestAnalysisTree("AnalysisTree_" + ToString(fThreadId), "dummyTree");
+        fAnalysisTree->DisableQuickObservableValueSetting();
         fEventTree = new TTree((TString) "EventTree_" + ToString(fThreadId), "dummyTree");
         // fEventTree->CreateEventBranches();
 
