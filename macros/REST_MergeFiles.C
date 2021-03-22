@@ -12,7 +12,7 @@
 //*******************************************************************************************************
 Int_t REST_MergeFiles(TString pathAndPattern, TString outputFilename) {
     vector<string> files = TRestTools::GetFilesMatchingPattern((string)pathAndPattern);
-    TFileMerger* m = new TFileMerger();
+    TFileMerger* m = new TFileMerger(false);
     m->OutputFile(outputFilename);
     for (auto f : files) {
         m->AddFile(f.c_str());

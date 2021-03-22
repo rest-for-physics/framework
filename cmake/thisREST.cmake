@@ -83,6 +83,9 @@ export PATH=\\\$REST_PATH/bin:\\\$_PATH
 export LD_LIBRARY_PATH=\\\$REST_PATH/lib:\\\$_LD_LIBRARY_PATH
 export LIBRARY_PATH=\\\$LIBRARY_PATH:\\\$REST_PATH/lib
 
+alias restRoot=\\\"restRoot -l\\\"
+alias restRootMacros=\\\"restRoot -l --m 1\\\"
+
 \#alias restRoot=\\\"root -l \\\$REST_PATH/scripts/LoadRESTScripts.C\\\"
 
 if [ \\\$(rest-config --flags | grep \\\"REST_WELCOME=ON\\\") ];then

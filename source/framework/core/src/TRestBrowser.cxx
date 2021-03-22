@@ -56,7 +56,12 @@ void TRestBrowser::Initialize(TString opt) {
     r = new TRestRun();
 
     b = new TBrowser("Browser", 0, "REST Browser", opt);
-    b->GetBrowserImp()->GetMainFrame()->DontCallClose();
+    TGMainFrame* fr = b->GetBrowserImp()->GetMainFrame();
+    if (fr == NULL) {
+        warning << "No x11 interface is available. Cannot call the browser window!" << endl;
+        exit(1);
+    }
+    fr->DontCallClose();
 
     b->StartEmbedding(0, -1);
     frmMain = new TGMainFrame(gClient->GetRoot(), 300);

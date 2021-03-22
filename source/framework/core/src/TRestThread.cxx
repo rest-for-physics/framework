@@ -154,22 +154,31 @@ bool TRestThread::TestRun() {
 
             fProcessChain[j]->SetObservableValidation(true);
 
-            // if (GetVerboseLevel() >= REST_Info) fProcessChain[j]->PrintMetadata();
-
             fProcessChain[j]->BeginOfEventProcess(ProcessedEvent);
-            fProcessChain[j]->ProcessEvent(ProcessedEvent);
-            ProcessedEvent = fProcessChain[j]->GetOutputEvent();
+            ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
+            // if the output of ProcessEvent() is NULL we assume the event is cut. 
+            // we try to use GetOutputEvent()
+            if (ProcessedEvent == NULL) {
+                ProcessedEvent = fProcessChain[j]->GetOutputEvent();
+            } 
+            // if still null we perform another try
             if (ProcessedEvent == NULL) {
                 debug << "  ----  NULL" << endl;
                 break;
             }
+            // check if the output event is same as the processed event
+            TRestEvent* outputevent = fProcessChain[j]->GetOutputEvent();
+            if (outputevent != ProcessedEvent) {
+                warning << "Test run, in " << fProcessChain[j]->ClassName()
+                        << " : output event is different with process returned event! Please check to assign "
+                           "the TRestEvent datamember as evInput in ProcessEvent() method"
+                        << endl;
+            }
+
             fProcessChain[j]->EndOfEventProcess();
 
             fProcessChain[j]->SetObservableValidation(false);
-            // if (fThreadId == 0) {
-            //    fProcessChain[j]->DisableObservableValidation();
-            //    fProcessChain[j]->ValidateObservables();
-            //}
+
             debug << " ....  " << ProcessedEvent->ClassName() << "(" << ProcessedEvent << ")" << endl;
         }
 

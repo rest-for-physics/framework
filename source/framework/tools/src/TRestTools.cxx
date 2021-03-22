@@ -93,10 +93,13 @@ void TRestTools::LoadRESTLibrary(bool silent) {
     }
 
     // load the found REST libraries
+    if (!silent) cout << "\n= REST Version: " << Execute("rest-config --version") << endl;
+    if (!silent) cout << "= Loading libraries ..." << endl;
     for (unsigned int n = 0; n < fileList.size(); n++) {
-        if (!silent) cout << "Loading library : " << fileList[n] << endl;
+        if (!silent) cout << " - " << fileList[n] << endl;
         gSystem->Load(fileList[n].c_str());
     }
+    if (!silent) cout << endl;
 }
 
 ///////////////////////////////////////////////

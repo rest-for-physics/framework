@@ -1,6 +1,6 @@
 [submodule "source/libraries/axion"]
 	path = source/libraries/axion
-	url = git@lfna.unizar.es:iaxo/RestAxionLib.git
+	url = https://github.com/rest-for-physics/axionlib.git
 [submodule "source/libraries/model"]
 	path = source/libraries/model
 	url = git@lfna.unizar.es:gifna/RestModelLib.git
@@ -58,3 +58,6 @@
 [submodule "source/packages/restP3DB"]
 	path = source/packages/restP3DB
 	url = https://gitlab.pandax.sjtu.edu.cn/pandax-iii/restp3db.git
+[submodule "projects/iaxo-analysis"]
+	path = projects/iaxo-analysis
+	url = git@lfna.unizar.es:iaxo/iaxo-analysis.git

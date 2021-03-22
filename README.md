@@ -1,5 +1,7 @@
 # The REST Framework
 
+[![DOI](https://zenodo.org/badge/324291710.svg)](https://zenodo.org/badge/latestdoi/324291710)
+
 The REST-for-Physics (Rare Event Searches Toolkit) Framework is mainly written in C++ and it is fully integrated with [ROOT](https://root.cern.ch) I/O interface.
 REST was initially born as a collaborative software effort to provide common tools for acquisition, simulation, and data analysis of gaseous Time Projection Chambers (TPCs). However, the framework is already extending its usage to be non-exclusive of detector data analysis. The possibilities of the framework are provided by the different libraries and packages written for REST in our community.
 
@@ -25,8 +27,17 @@ This repository, *rest-framework*, centralizes all the activity or software ecos
 
 These instructions will get you a copy of the project up and running on your local machine. Additional details can be found in the [documentation](doc/Chapters/2-installing-rest.md) 
 
+### Mirror repositories
+
+REST is mirrored to the following repositories where pipelines are executed, and where code can also be retrieved.
+
+- https://gitlab.cern.ch/rest-for-physics
+- https://lfna.unizar.es/rest-for-physics
+
+Code can be pulled for read-access from those mirrors, however, development is centralized at the main GitHub public repository.
+
 ### Downloading REST
-The recommended way to download a copy of REST will be *clonning it* using the corresponding git command.
+The recommended way to download a copy of REST will be *cloning it* using the corresponding git command.
 
 The following commands will download the master branch to the `rest-framework` directory including all public submodules (libraries, packages, etc).
 
@@ -45,28 +56,34 @@ If you have pulled changes in a particular submodule, or added your own commits,
 If you have access to private repositories, related to projects or experiments inside the REST community you may pull those executing an additional command.
 
 ```
-python3.5 pull-submodules.py --private
+python3.5 pull-submodules.py --lfna (or --sjtu)
 ```
 
-### Mirror repositories
+on top of that, you might get the latest state of each submodule by executing
 
-REST is mirrored to the following repositories where pipelines are executed, and where code can also be retrieved.
+```
+python3.5 pull-submodules.py --lfna --latest
+```
 
-- https://gitlab.cern.ch/rest-for-physics
-- https://lfna.unizar.es/rest-for-physics
+But, if you wish to remain at the reference/official release, and get the latest state from a particular submodule, it is possible to move to the given submodule and checkout its `master` branch.
 
-Code can be pulled for read-access from those mirrors, however, development is centralized at the main GitHub public repository.
-
+```
+cd source/libraries/xlib
+git checkout master
+git pull
+```
 
 ### Recovering a clean git state of rest-framework and submodules
 
 If you have added modifications to the rest-framework code and/or submodules. It is possible to fully clean your repository to be an identical copy to the one found at the remote repository.
 
-Notice that executing the following script (placed at the rest-framework root repository) will completely remove any changes or addons you have in done in your local installation.
+Notice that executing the following script (placed at the rest-framework root repository) will completely remove any changes or addons you have done at your local installation.
 
 ```
-source clean-state.sh
+python3.5 pull-submodules.py --clean
 ```
+
+If there is any untracked content you might still need to `git clean -d -f` to remove untracked items. If any untracked items or modified files are found at your source repository during compilation the `fCleanState` flag at `TRestMetadata` will be set to `OFF`.
 
 ### Installing
 
@@ -84,15 +101,17 @@ After ROOT6 has been installed in the system, the compilation of REST should be 
 Note that it is recommended to compile REST using the same version of g++ compiler used to compile ROOT.
 The detailed [installation guide](doc/Chapters/2-installing-rest.md), including compilation options, will be found at the [REST documentation](doc/Chapters/0-contents.md).
 
-Go to the root directory of your local REST repository, assume it is `~/REST_v2`, and execute the following commands.
+Go to the root directory of your local REST repository, assume it is `~/rest-framework`, and execute the following commands.
 
 ```
-cd ~/REST_v2  
+cd ~/rest-framework
 mkdir build
 cd build
-cmake .. -DINSTALL_PREFIX=../install/ 
+cmake .. -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON -DINSTALL_PREFIX=../install/ 
 make -j4 install
 ```
+
+If you do not need to link REST to `Geant4` and/or `Garfield` funtionalities, just set the compilation options to `OFF` or do not include them at the `cmake` command.
 
 **Remark**: If there is no structural changes in REST, such as new files or libraries, then `cmake` command needs to be executed only once. If you modify a source file and exectue `make -j4 install` the compilation system will recognize that it requires to compile that file. If you execute `cmake` again, then the full project will be compiled from scratch.
 
@@ -112,6 +131,17 @@ restRoot
  ```
  echo "source ~/REST_v2/install/master/thisREST.sh" >> .bashrc
  ```
+ 
+### Troubleshooting
+
+- One of the major bottlenecks on REST installation is ROOT installation itself. It is recommended to compile ROOT from source. To help on this task we provide the following script [installROOT.py](scripts/installation/installROOT.py).
+- We recommend to have a look or just execute the script [installRequiredSoftware.py](scripts/installation/installRequiredSoftware.py) at Debian based Linux distributions, to install recommended software.
+- If ROOT compilation complains about Python libraries, you may need to install python development libraries in your system, and/or update your default python to V3. The following executions should help:
+```
+ sudo apt-get install libpython3.7-dev
+ sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+ ```
+
 
 ## REST libraries
 
@@ -129,13 +159,12 @@ make -j4 install
 
 **Remark:** Notice that once we pass an option to cmake, that option will be cached inside the cmake system. I.e. we do not need to provide the installation path we provided the first time, and any future calls to `cmake` will assume `detector` and `raw` libraries are enabled.
 
-**TODO**: A [pending issue](https://github.com/rest-for-physics/rest-framework/issues/5) is to have a flag that allows to enable all available REST libraries.
-
 ## Useful links or references
 
 - A REST overview guide can be found [here](doc/Chapters/4-the-rest-framework.md). 
 - An API doxygen documentation is frequently updated [here](https://sultan.unizar.es/rest/).
 - The REST Framework forum for open discussions is available [here](ezpc10.unizar.es).
+- ROOT naming convention and coding rules are [Taligent rules](https://root.cern/TaligentDocs/TaligentOnline/DocumentRoot/1.0/Docs/books/WM/WM_63.html#HEADING77).
 
 ## Contributing
 
@@ -167,6 +196,7 @@ A major change at 2.3 will prevent from backwards compatibility, since class nam
 * **Javier Galan, Igor G. Irastorza, Gloria Luzon** - *University of Zaragoza (Spain)*
 * **Ke Han, Kaixiang Ni** - *Shanghai Jiao Tong University (China)*
 * **Yann Bedfer, Damien Neyret** - *CEA Saclay (France)*
+* **Eduardo Picatoste, Cristian Cogollos** - *Universitat de Barcelona (Spain)*
 
 See also the list of [contributors]() who participated in this project.
 
@@ -182,15 +212,7 @@ This project is licensed under the GNU License - see the [LICENSE](https://lfna.
 
 ## Acknowledgments
 
-`TOBE written`
+We acknowledge support from the the European Research Council (ERC) under the European Union’s Horizon 2020 research and innovation programme, grant agreement ERC-2017-AdG788781 (IAXO+), and from the Spanish Agencia Estatal de Investigaci\ ́on under grant FPA2016-76978-C3-1-P
 
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
-
-
-----
-
-**⚠ WARNING: REST is under continous development.** This README is offered to you by the REST community. Your HELP is needed to keep this file up to date. You are very welcome to contribute fixing typos, updating information or adding new contributions to REST. See also our [Contribution Guide](https://lfna.unizar.es/rest-development/REST_v2/-/blob/master/CONTRIBUTING.md).
-
+![Insitution logos](miscellaneous/institution_logos.png")
 

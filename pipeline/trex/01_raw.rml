@@ -6,6 +6,7 @@
 
 	<globals>
 		<variable name="RUN_TYPE" value="RawData" overwrite="false" />
+		<variable name="FORMAT" value="R[fRunNumber]_[fRunTag]_Vm[TRestDetector::fAmplificationVoltage]_Shaping.aqs" />
 	</globals>
 
 	<TRestRun file="run.xml"/>
@@ -18,6 +19,15 @@
 			<parameter name="pedScript" value="ped"/>
 			<parameter name="runScript" value="run"/>
 			<parameter name="electronics" value="TCMFeminos"/>
+		</addProcess>
+
+		<addProcess type="TRestRawSignalChannelActivityProcess" name="rawChActivity" value="ON" verboseLevel="silent" >
+			<parameter name="daqChannels" value="360" />
+			<parameter name="daqStartCh" value="4320" />
+			<parameter name="daqEndCh" value="4680" />
+			<parameter name="readoutChannels" value="250" />
+			<parameter name="readoutStartCh" value="0" />
+			<parameter name="readoutEndCh" value="250" />
 		</addProcess>
 
 		<addProcess type="TRestRawSignalAnalysisProcess" name="rawAna" value="ON"

@@ -201,14 +201,13 @@ std:
 }
 
 ///////////////////////////////////////////////
-/// \brief Returns the input string removing white spaces.
+/// \brief Returns the input string removing all white spaces.
 ///
 string REST_StringHelper::RemoveWhiteSpaces(string in) {
     string out = in;
     size_t pos = 0;
     while ((pos = out.find(" ", pos)) != string::npos) {
         out.erase(pos, 1);
-        // pos = pos + 1;
     }
 
     return out;
@@ -483,9 +482,59 @@ TVector2 REST_StringHelper::StringTo2DVector(string in) {
 ///////////////////////////////////////////////
 /// \brief Convert string to its upper case. Alternative of TString::ToUpper
 ///
-std::string REST_StringHelper::ToUpper(std::string str) {
-    transform(str.begin(), str.end(), str.begin(), (int (*)(int))toupper);
-    return str;
+std::string REST_StringHelper::ToUpper(std::string s) {
+    transform(s.begin(), s.end(), s.begin(), (int (*)(int))toupper);
+    return s;
+}
+
+///////////////////////////////////////////////
+/// \brief Convert string to its lower case. Alternative of TString::ToLower
+///
+std::string REST_StringHelper::ToLower(std::string s) {
+    transform(s.begin(), s.end(), s.begin(), (int (*)(int))tolower);
+    return s;
+}
+
+///////////////////////////////////////////////
+/// \brief Removes all white spaces found at the end of the string
+/// (https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring)
+///
+std::string REST_StringHelper::RightTrim(std::string s, const char* t) {
+    s.erase(s.find_last_not_of(t) + 1);
+    return s;
+}
+
+///////////////////////////////////////////////
+/// \brief Removes all white spaces found at the beginning of the string
+/// (https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring)
+///
+std::string REST_StringHelper::LeftTrim(std::string s, const char* t) {
+    s.erase(0, s.find_first_not_of(t));
+    return s;
+}
+
+///////////////////////////////////////////////
+/// \brief Removes all white spaces found at the beginning and the end of the string
+/// (https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring)
+///
+std::string REST_StringHelper::Trim(std::string s, const char* t) { return LeftTrim(RightTrim(s, t), t); }
+
+///////////////////////////////////////////////
+/// \brief It trims and uppers the string
+///
+std::string REST_StringHelper::TrimAndUpper(std::string s) {
+    s = Trim(s);
+    s = ToUpper(s);
+    return s;
+}
+
+///////////////////////////////////////////////
+/// \brief It trims and lowers the string
+///
+std::string REST_StringHelper::TrimAndLower(std::string s) {
+    s = Trim(s);
+    s = ToLower(s);
+    return s;
 }
 
 ///////////////////////////////////////////////

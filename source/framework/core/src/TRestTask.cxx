@@ -27,8 +27,12 @@
 
 #include "TRestTask.h"
 
+#include "TFunction.h"
+#include "TMethodArg.h"
 #include "TRestManager.h"
 #include "TRestReflector.h"
+#include "TRestStringHelper.h"
+
 ClassImp(TRestTask);
 
 ///////////////////////////////////////////////
@@ -55,70 +59,33 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
 
     if (mode == TASK_MACRO) {
         // we parse the macro file, get the method's name and argument list
-        ifstream in(TaskString);
-        if (!in.is_open()) {
-            ferr << "Error opening file" << endl;
+        string filename = TRestTools::SeparatePathAndName((string)TaskString).second;
+        int n = filename.find_last_of('.');
+        string funcName = "";
+        if (n > 0) {
+            funcName = filename.substr(0, n);
+        } else {
+            funcName = TaskString;
         }
-        char buffer[256];
-        while (!in.eof()) {
-            in.getline(buffer, 256);
-            string line = buffer;
-
-            if (line.find('(') != -1 && line.find(' ') > 0) {
-                // this line is a definition of the macro method
-                fInvokeMethod = line.substr(line.find(' ') + 1, line.find('(') - line.find(' ') - 1);
-                SetName(fInvokeMethod.c_str());
-
-                while (line.find(')') == -1) {
-                    if (in.eof()) {
-                        ferr << "invaild macro file!" << endl;
-                    }
-                    in.getline(buffer, 256);
-                    line = line + (string)buffer;
-                }
-
-                string args = line.substr(line.find('(') + 1, line.find(')') - line.find('(') - 1);
-                auto list = Split(args, ",");
-                fArgumentNames.clear();
-                fArgumentTypes.clear();
-                for (int i = 0; i < list.size(); i++) {
-                    auto def_val = Split(list[i], "=");
-
-                    if (def_val.size() == 0) {
-                        cout << "unknown error!" << endl;
-                    }
-
-                    string def = def_val[0];
-
-                    while (def[0] == ' ') {
-                        def.erase(def.begin());
-                    }
-                    while (def[def.size() - 1] == ' ') {
-                        def.erase(def.end() - 1);
-                    }
-
-                    int pos = def.find_last_of(" ");
-                    string name = RemoveWhiteSpaces(def.substr(pos, -1));
-                    string type = def.substr(0, pos);
-
-                    bool isstringtype = Count(type, "TString") > 0 || Count(type, "string") > 0 ||
-                                        Count(RemoveWhiteSpaces(type), "char*") > 0;
-                    if (isstringtype) {
-                        fArgumentTypes.push_back(1);
-                    } else {
-                        fArgumentTypes.push_back(0);
-                    }
-                    fArgumentNames.push_back(name);
-
-                    if (def_val.size() == 1) {
-                        // argument has no default value
-                        fNRequiredArgument++;
-                    }
-                }
-
-                break;
+        TFunction* f = gROOT->GetGlobalFunction(funcName.c_str());
+        if (f == NULL) {
+            fMode = TASK_ERROR;
+        } else {
+            fNRequiredArgument = f->GetNargs() - f->GetNargsOpt();
+            fInvokeMethod = funcName;
+            // indicates whether the argument is string/TString/const char *. If so, the value would be 1. We
+            // need to add "" mark when constructing command. Otherwise the value is 0.
+            
+            TList* list = f->GetListOfMethodArgs();
+            for (int i = 0; i < list->GetSize(); i++) {
+                TMethodArg* arg = (TMethodArg*)list->At(i);
+                string type = arg->GetTypeName();
+                fArgumentTypes.push_back(type == "string" || type == "char" || type == "TString");
+                fArgumentNames.push_back(arg->GetName());
             }
+            string fConstructedCommand = "";
         }
+
     } else if (mode == TASK_CPPCMD) {
         // we parse the command, get the target object, method to be invoked, and
         // the argument list
@@ -180,33 +147,6 @@ void TRestTask::SetArgumentValue(vector<string> arg) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Forms the command string
-///
-void TRestTask::ConstructCommand() {
-    // check if all the arguments have been set
-    for (int i = 0; i < fArgumentValues.size(); i++) {
-        if (fArgumentValues[i] == "NOT SET") {
-            ferr << "TRestTask : argument " << i << " not set! Task will not run!" << endl;
-        }
-    }
-
-    string fInvokeMethod = GetName();
-    fConstructedCommand = fInvokeMethod + "(";
-    for (int i = 0; i < fArgumentValues.size(); i++) {
-        if (fArgumentTypes[i] == 1) {
-            fConstructedCommand += "\"" + fArgumentValues[i] + "\"";
-        } else {
-            fConstructedCommand += fArgumentValues[i];
-        }
-
-        if (i < fArgumentValues.size() - 1) fConstructedCommand += ",";
-    }
-    fConstructedCommand += ")";
-
-    cout << "Command : " << fConstructedCommand << endl;
-}
-
-///////////////////////////////////////////////
 /// \brief Run the task with command line
 ///
 void TRestTask::RunTask(TRestManager* mgr) {
@@ -216,7 +156,26 @@ void TRestTask::RunTask(TRestManager* mgr) {
     } else {
         if (fMode == TASK_MACRO) {
             // call gInterpreter to run a command
-            ConstructCommand();
+            for (int i = 0; i < fArgumentValues.size(); i++) {
+                if (fArgumentValues[i] == "NOT SET") {
+                    ferr << "TRestTask : argument " << i << " not set! Task will not run!" << endl;
+                }
+            }
+
+            fConstructedCommand = fInvokeMethod + "(";
+            for (int i = 0; i < fArgumentValues.size(); i++) {
+                if (fArgumentTypes[i] == 1) {
+                    fConstructedCommand += "\"" + fArgumentValues[i] + "\"";
+                } else {
+                    fConstructedCommand += fArgumentValues[i];
+                }
+
+                if (i < fArgumentValues.size() - 1) fConstructedCommand += ",";
+            }
+            fConstructedCommand += ")";
+
+            cout << "Command : " << fConstructedCommand << endl;
+
             gInterpreter->ProcessLine(fConstructedCommand.c_str());
             return;
         } else if (fMode == TASK_CPPCMD) {
@@ -264,7 +223,7 @@ void TRestTask::RunTask(TRestManager* mgr) {
 ///
 void TRestTask::PrintArgumentHelp() {
     if (fMode == 0) {
-        ferr << GetName() << "() Gets invailed input!" << endl;
+        ferr << fInvokeMethod << "() Gets invailed input!" << endl;
         cout << "You should give the following arguments (* is mandatory input):" << endl;
         int n = fArgumentNames.size();
         for (int i = 0; i < n; i++) {
@@ -305,8 +264,14 @@ TRestTask* TRestTask::GetTaskFromMacro(TString taskName) {
         // system("echo \"#define REST_MANAGER\" > /tmp/tmpMacro.c");
         // system(("cat " + macfiles[0] + " >> /tmp/tmpMacro.c").c_str());
         if (gInterpreter->LoadFile(macfiles[0].c_str()) == 0) {
-            auto tsk = new TRestTask(macfiles[0].c_str(), TASK_MACRO);
-            // system("rm /tmp/tmpMacro.c");
+            TRestTask* tsk = new TRestTask(macfiles[0].c_str(), TASK_MACRO);
+            if (tsk->GetMode() == TASK_ERROR) {
+                ferr << "Task file: " << macfiles[0]
+                     << " loaded but method not found. Make sure it contains the method with same name as "
+                        "file name"
+                     << noClass::endl;
+                return NULL;
+            }
             return tsk;
         } else {
             ferr << "Task file: " << macfiles[0] << " contains error" << noClass::endl;

@@ -2,6 +2,7 @@
 # Start to add sub dirs
 
 set(rest_macros)
+set(rest_macros_str)
 
 add_subdirectory(framework)
 add_subdirectory(../macros tasks.out)
@@ -114,6 +115,9 @@ set(rest_libraries_regular ${rest_libraries_regular} PARENT_SCOPE)
 
 set(rest_exes ${rest_exes} PARENT_SCOPE)
 set(rest_macros ${rest_macros} PARENT_SCOPE)
+# construct REST macros string(separate with blank)
+set(rest_macros_str)
+foreach(mac ${rest_macros})
+    set(rest_macros_str "${rest_macros_str}${mac} ")
+endforeach(mac ${rest_macros})
 set(rest_macros_str ${rest_macros_str} PARENT_SCOPE)
-
-set(REST_G4 ${REST_G4} PARENT_SCOPE)

@@ -1,9 +1,6 @@
 PROJECT(REST)
 CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 
-set(REST_G4)
-
-
 #minimum compiler version
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # require at least gcc 4.8
@@ -35,6 +32,9 @@ get_filename_component(INSTALL_PREFIX_ABSOLUTE ${INSTALL_PREFIX} ABSOLUTE BASE_D
 set(REST_PATH ${INSTALL_PREFIX_ABSOLUTE})
 set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX_ABSOLUTE})
 
+IF (NOT DEFINED RESTLIB_MODEL)
+    set(RESTLIB_MODEL OFF)
+ENDIF ()
 
 #auto schema evolution for ROOT
 IF (NOT DEFINED REST_SE)
@@ -57,7 +57,6 @@ set(CMAKE_MACOSX_RPATH 1)
 include(FindROOT)
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
 set(external_libs ${external_libs} "${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit -lSpectrum")
-
 
 #switch to enable ROOT Eve functionality.
 IF( NOT DEFINED REST_EVE)

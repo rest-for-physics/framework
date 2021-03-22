@@ -1332,6 +1332,9 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
         }
     }
 
+    result = Replace(result, " AND ", " && ");
+    result = Replace(result, " OR ", " || ");
+
     return ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(result)),
                                           "Please, check parameter name: " + parName);
 }
@@ -1452,6 +1455,16 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, Double_t d
     return defaultVal;
 }
 
+Double_t TRestMetadata::GetDblParameter(std::string parName, Double_t defaultVal) {
+    string val = GetParameter(parName);
+    if (val == PARAMETER_NOT_FOUND_STR) {
+        return defaultVal;
+    } else {
+        return StringToDouble(val);
+    }
+    return defaultVal;
+}
+
 TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TVector2 defaultVal) {
     pair<string, string> val_unit = GetParameterAndUnits(parName);
     string val = val_unit.first;
@@ -1508,7 +1521,6 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
 
     if (!TRestTools::fileExists(filename)) {
         ferr << "Config file does not exist. The file is: " << filename << endl;
-        GetChar();
         exit(1);
     }
 
@@ -1520,7 +1532,6 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
     rootele = doc.RootElement();
     if (rootele == NULL) {
         ferr << "The rml file \"" << cfgFileName << "\" does not contain any valid elements!" << endl;
-        GetChar();
         exit(1);
     }
     if (NameOrDecalre == "") {
@@ -1930,8 +1941,8 @@ string TRestMetadata::ReplaceVariables(const string buffer) {
             outputBuffer.replace(replacePos, replaceLen, proenv);
             endPosition = 0;
         } else {
-            ferr << this->ClassName() << ", replace env : cannot find \"${" << expression << "}\"" << endl;
-            ferr << "(position: " << startPosition << ") in either system or program env, exiting..." << endl;
+            ferr << this->ClassName() << ", replace env : cannot find \"${" << expression
+                 << "}\" in either system or program env, exiting..." << endl;
             exit(1);
         }
     }

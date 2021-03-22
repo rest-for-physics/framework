@@ -77,7 +77,16 @@ inline vector<T2> Vector_cast(vector<T1> vecstring) {
     }
     return result;
 }
+
 std::string ToUpper(std::string in);
+std::string ToLower(std::string in);
+
+std::string RightTrim(std::string s, const char* t = " \t\n\r\f\v");
+std::string LeftTrim(std::string s, const char* t = " \t\n\r\f\v");
+std::string Trim(std::string s, const char* t = " \t\n\r\f\v");
+std::string TrimAndUpper(std::string s);
+std::string TrimAndLower(std::string s);
+
 string DataMemberNameToParameterName(string name);
 string ParameterNameToDataMemberName(string name);
 
