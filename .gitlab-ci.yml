@@ -322,8 +322,8 @@ EventSelection:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/selection
     - restManager --c g4Analysis.rml --f "${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test.root"
-    - restManager --c g4OnSelection.rml --f "${CI_PROJECT_DIR}/pipeline/selection/Run00001_NLDBD_Test_g4Analysis.root"
-    - restRoot -b -q ../Validate.C'("${CI_PROJECT_DIR}/pipeline/selection/ExpectedOutput_NLDBD_Test_EvSelection.root")'
+    - restManager --c g4OnSelection.rml --f Run00001_NLDBD_Test_g4Analysis.root
+    - restRoot -b -q Validate.C'("ExpectedOutput_NLDBD_Test_EvSelection.root")'
     
   artifacts:
     paths:
