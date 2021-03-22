@@ -33,5 +33,4 @@
   
   <addTask type="processEvents" value="ON" />
 
-
 </TRestManager>
