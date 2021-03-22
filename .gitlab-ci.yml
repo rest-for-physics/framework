@@ -319,8 +319,8 @@ pandaXIII_data:
 EventSelection: 
   type: restManager_process
   script:
-    - restManager --c g4Analysis.rml --f ${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test.root
-    - restManager --c g4OnSelection.rml --f ${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test_g4Analysis.root
+    - restManager --c g4Analysis.rml --f "${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test.root"
+    - restManager --c g4OnSelection.rml --f "${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test_g4Analysis.root"
     - restRoot -b -q ../Validate.C'("${CI_PROJECT_DIR}/install/examples/01.NLDBD/ExpectedOutput_NLDBD_Test_EvSelection.root")'
     
   artifacts:
