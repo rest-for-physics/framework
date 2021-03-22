@@ -262,6 +262,10 @@ trexDM_data:
     - rm RawData_01929.root
     - rm Signals_01929.root
     - root -b -q ../ValidateTrees.C'("validation.root")'
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/pipeline/trex/Hits_01929.root
+    expire_in: 1 day
   except:
       variables:
         - $CRONJOB == "YES"
@@ -338,7 +342,7 @@ AnalysisPlot:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/analysisPlot/
-    - restManager --c summary.rml --f ${CI_PROJECT_DIR}/pipeline/trex/Hits.root
+    - restManager --c summary.rml --f ${CI_PROJECT_DIR}/pipeline/trex/Hits_01929.root
   except:
       variables:
         - $CRONJOB == "YES"
