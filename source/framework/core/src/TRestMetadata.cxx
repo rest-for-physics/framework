@@ -1455,16 +1455,6 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, Double_t d
     return defaultVal;
 }
 
-Double_t TRestMetadata::GetDblParameter(std::string parName, Double_t defaultVal) {
-    string val = GetParameter(parName);
-    if (val == PARAMETER_NOT_FOUND_STR) {
-        return defaultVal;
-    } else {
-        return StringToDouble(val);
-    }
-    return defaultVal;
-}
-
 TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TVector2 defaultVal) {
     pair<string, string> val_unit = GetParameterAndUnits(parName);
     string val = val_unit.first;
