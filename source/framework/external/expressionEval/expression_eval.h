@@ -153,6 +153,29 @@ enum UnaryOpKind {
     uoPlus, uoMinus, uoNot
 };
 
+static inline string toString(NodeKind kind){
+    string result = "";
+    switch(kind){
+        case nkUnary:
+	    result = "nkUnary";
+            break;
+	case nkBinary:
+	    result = "nkBinary";
+            break;
+	case nkFloat:
+	    result = "nkFloat";
+            break;
+        case nkIdent:
+	    result = "nkIdent";
+            break;
+	case nkExpression:
+	    result = "nkExpression";
+	    break;
+	default: break;
+    }
+    return result;
+}
+
 class Node {
 public:
     NodeKind kind;
