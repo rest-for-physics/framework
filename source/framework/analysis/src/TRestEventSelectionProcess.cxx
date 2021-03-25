@@ -21,13 +21,27 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// The TRestEventSelectionProcess ...
+/// The TRestEventSelectionProcess allows procesing of selected events only.
 ///
-/// **TODO**: Needs to be documented and added to validation pipeline.
+/// There are two ways of selecting events: 
+///
+/// * Providing a txt file with the IDs of the events to be processed (fileWithIDs).
+/// It reads the list, if an event is not in the list it returns NULL, 
+/// ends the processing and continues with the next event.
+///
+/// * Providing a root file (fileWithIDs) and the conditions to select the events (conditions).
+/// Only events that satisfy the conditions will be processed. 
+///
+/// Examples for rml files:
+/// <addProcess type="TRestEventSelectionProcess" name="evSelection" fileWithIDs="/path/to/file/IDs.txt" 
+/// value="ON"  verboseLevel="info"/>
+///
+/// <addProcess type="TRestEventSelectionProcess" name="evSelection" fileWithIDs="/path/to/file/File.root"
+/// conditions="observable<N" value="ON"  verboseLevel="info"/>
 ///
 /// <hr>
 ///
-/// \warning **⚠ REST is under continous development.** This documentation
+/// \warning **? REST is under continous development.** This documentation
 /// is offered to you by the REST community. Your HELP is needed to keep this code
 /// up to date. Your feedback will be worth to support this software, please report
 /// any problems/suggestions you may find while using it at [The REST Framework
@@ -46,8 +60,15 @@
 /// 2021-Jan: Created empty template
 ///             Javier Galan
 ///
+/// 2021-Jan: Read IDs from txt
+///              David Diez
+///
+/// 2021-Mar: Read IDs from root with conditions
+///              David Diez
+///
 /// \class      TRestEventSelectionProcess
 /// \author     Javier Galan
+/// \author     David Diez
 ///
 /// <hr>
 ///
@@ -77,10 +98,26 @@ void TRestEventSelectionProcess::Initialize() {
 ///////////////////////////////////////////////
 /// \brief Process initialization.
 ///
-/// TODO It should fill the fEventIDs vector.
 ///
 void TRestEventSelectionProcess::InitProcess() {
-    /// TOBE implemented
+
+    if (fFile.substr(fFile.length() - 4)==".txt"){
+        string line;
+        ifstream File(fFile);
+        
+        if (File.is_open()){
+          while ( getline(File,line) ){
+            fList.push_back(stoi(line));
+          }
+          File.close();
+        }
+    }
+    
+    else if(fFile.substr(fFile.length() - 4)=="root"){
+        TRestRun* run = new TRestRun(fFile);        
+        fList = run->GetEventIdsWithConditions(fConditions);      
+        delete run;
+    }
 }
 
 ///////////////////////////////////////////////
@@ -89,17 +126,20 @@ void TRestEventSelectionProcess::InitProcess() {
 TRestEvent* TRestEventSelectionProcess::ProcessEvent(TRestEvent* eventInput) {
     fEvent = eventInput;
 
-    // TOBE implemented. If the event ID fEvent->GetID() is not in the list
-    // we should return NULL;
+    for(int i=0; i < fList.size(); i++){
+        if(fList[i] == fEvent->GetID()){return fEvent;}
+    }
 
-    return fEvent;
+    return NULL;
 }
 
 ///////////////////////////////////////////////
 /// \brief Initialization of the process from RML
 ///
 void TRestEventSelectionProcess::InitFromConfigFile() {
-    /// TOBE implemented. Read event ids, or define filename used to identify event ids
+
+    fFile = GetParameter("fileWithIDs","");
+    fConditions = GetParameter("conditions","");
 }
 
 ///////////////////////////////////////////////
@@ -108,7 +148,10 @@ void TRestEventSelectionProcess::InitFromConfigFile() {
 void TRestEventSelectionProcess::PrintMetadata() {
     BeginPrintProcess();
 
-    /// TOBE implemented. Probably it should print just the event Ids that are in the selection.
+    metadata << "File with IDs: " << fFile << endl;
+    if(fFile.substr(fFile.length() - 4)=="root"){
+        metadata << "Conditions: " << fConditions << endl;
+    }
 
     EndPrintProcess();
 }
