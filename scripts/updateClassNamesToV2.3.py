@@ -27,7 +27,7 @@ print ( "Path: " + pathToUpdate )
 print ( "Extension: " + extension )
 allRMLs = glob.glob(pathToUpdate+'/**/*'+extension, recursive = True)
 
-f=open(os.getenv("REST_SOURCE") + "miscellaneous/renamed.classes","r")
+f=open(os.getenv("REST_SOURCE") + "/miscellaneous/renamed.classes","r")
 lines=f.readlines()
 result=[]
 for x in lines:
