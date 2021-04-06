@@ -42,6 +42,7 @@ class TRestRun : public TRestMetadata {
     vector<TRestMetadata*> fInputMetadata;  //!
 
     // temp data member
+    TString fInputFormat;              //!
     vector<TString> fInputFileNames;   //!
     TFile* fInputFile;                 //!
     TFile* fOutputFile;                //!
