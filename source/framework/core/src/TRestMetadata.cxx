@@ -1332,6 +1332,9 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
         }
     }
 
+    result = Replace(result, " AND ", " && ");
+    result = Replace(result, " OR ", " || ");
+
     return ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(result)),
                                           "Please, check parameter name: " + parName);
 }
@@ -1407,7 +1410,12 @@ std::string TRestMetadata::GetFieldValue(std::string parName, TiXmlElement* e) {
     if (val == NULL) {
         return "Not defined";
     }
-    return val;
+
+    string result = (string)val;
+    result = Replace(result, " AND ", " && ");
+    result = Replace(result, " OR ", " || ");
+
+    return result;
 }
 
 ///////////////////////////////////////////////

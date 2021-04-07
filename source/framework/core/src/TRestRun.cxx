@@ -243,16 +243,7 @@ void TRestRun::InitFromConfigFile() {
         exit(1);
     }
 
-    // 4. Open input file(s)
-    OpenInputFile(0);
-    debug << "TRestRun::EndOfInit. InputFile pattern: \"" << fInputFileName << "\"" << endl;
-    info << "which matches :" << endl;
-    for (int i = 0; i < fInputFileNames.size(); i++) {
-        info << fInputFileNames[i] << endl;
-    }
-    essential << "(" << fInputFileNames.size() << " added files)" << endl;
-
-    // 5. Loop over sections to initialize metadata
+    // 4. Loop over sections to initialize metadata
     TiXmlElement* e = fElement->FirstChildElement();
     while (e != NULL) {
         string keydeclare = e->Value();
@@ -308,6 +299,16 @@ void TRestRun::InitFromConfigFile() {
         }
         e = e->NextSiblingElement();
     }
+
+    // 5. Open input file(s). We open input file at the last stage in case the file name pattern
+    // reading requires TRestDetector
+    OpenInputFile(0);
+    debug << "TRestRun::EndOfInit. InputFile pattern: \"" << fInputFileName << "\"" << endl;
+    info << "which matches :" << endl;
+    for (int i = 0; i < fInputFileNames.size(); i++) {
+        info << fInputFileNames[i] << endl;
+    }
+    essential << "(" << fInputFileNames.size() << " added files)" << endl;
 }
 
 ///////////////////////////////////////////////
@@ -603,7 +604,7 @@ void TRestRun::ReadFileInfo(string filename) {
     // run[fRunNumber]_cobo[aaa]_frag[bbb]_Vm[TRestDetector::fAmplificationVoltage].graw
     // we are going to match it with inputfile:
     // run00042_cobo1_frag0000_Vm350.graw
-    string format = GetParameter("inputFormat", "");
+    string format = (string)fInputFormat;
     string name = TRestTools::SeparatePathAndName(filename).second;
 
     vector<string> formatsectionlist;

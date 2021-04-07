@@ -32,7 +32,7 @@ tar xvf $G4_FILE
 mkdir -p $G4_ROOT-build
 cd $G4_ROOT-build
 cmake ../$G4_ROOT -DGEANT4_USE_GDML=ON -DGEANT4_USE_QT=OFF -DCMAKE_INSTALL_PREFIX=$HOME/apps/$G4_ROOT-install -DGEANT4_INSTALL_DATA=ON -DGEANT4_INSTALL_DATA_TIMEOUT=7200
-make -j4
+make -j30
 make install
 cd $WP
 echo ""

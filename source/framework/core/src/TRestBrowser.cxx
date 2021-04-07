@@ -28,7 +28,7 @@
 using namespace std;
 //______________________________________________________________________________
 TRestBrowser::TRestBrowser() {
-    if (gDirectory != NULL && gDirectory->GetFile() != NULL) {
+    if ((TDirectory*)gDirectory != NULL && gDirectory->GetFile() != NULL) {
         Initialize();
         SetViewer("TRestEventViewer");
         OpenFile(gDirectory->GetFile()->GetName());

@@ -38,7 +38,7 @@ mkdir -p ${ROOT_DIR}/build
 cd ${ROOT_DIR}/build
 
 cmake -Dgdml=ON -DCMAKE_INSTALL_PREFIX=${ROOT_DIR}/install  ../source
-make -j4
+make -j30
 make install
 
 cd ${CURRENT_DIR}

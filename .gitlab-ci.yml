@@ -247,18 +247,25 @@ trexDM_data:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/trex
     - wget https://sultan.unizar.es/trexdm-readouts/readouts_v2.3.root
-    - restManager --c 01_raw.rml --f *.aqs
-    - restManager --c 02_signal.rml --f RawData.root
-    - restManager --c 03_hits.rml --f Signals.root
-    - restRoot -b -q ../MakeBasicTree.C'("Hits.root")'
-    - rm RawData.root
-    - rm Signals.root
+    - cp R01928_tagTest_Vm380.aqs R01929_tagTest_Vm380.aqs
+    - restManager --fork --c 01_raw.rml --f "*.aqs"
+    - sleep 20
+    - restManager --fork --c 02_signal.rml --f "RawData*.root"
+    - sleep 20
+    - restManager --fork --c 03_hits.rml --f "Signals*.root"
+    - sleep 20
+    - restRoot -b -q ../MakeBasicTree.C'("Hits_01928.root")'
+    - rm RawData_01928.root
+    - rm Signals_01928.root
+    - root -b -q ../ValidateTrees.C'("validation.root")'
+    - restRoot -b -q ../MakeBasicTree.C'("Hits_01929.root")'
+    - rm RawData_01929.root
+    - rm Signals_01929.root
     - root -b -q ../ValidateTrees.C'("validation.root")'
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/pipeline/trex/results.root
-      - ${CI_PROJECT_DIR}/pipeline/trex/Hits.root
-    expire_in: 1 week
+      - ${CI_PROJECT_DIR}/pipeline/trex/Hits_01929.root
+    expire_in: 1 day
   except:
       variables:
         - $CRONJOB == "YES"
@@ -312,13 +319,30 @@ pandaXIII_data:
   except:
       variables:
         - $CRONJOB
+        
+EventSelection: 
+  type: restManager_process
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/pipeline/selection
+    - restManager --c g4Analysis.rml --f "${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test.root"
+    - restManager --c g4OnSelection.rml --f Run00001_NLDBD_Test_g4Analysis.root
+    - restRoot -b -q Validate.C'("ExpectedOutput_NLDBD_Test_EvSelection.root")'
+    
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/pipeline/selection/IDs.txt
+    expire_in: 1 week
+  except:
+      variables:
+        - $CRONJOB
 
 AnalysisPlot:
   type: postProcessing
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/analysisPlot/
-    - restManager --c summary.rml --f ${CI_PROJECT_DIR}/pipeline/trex/Hits.root
+    - restManager --c summary.rml --f ${CI_PROJECT_DIR}/pipeline/trex/Hits_01929.root
   except:
       variables:
         - $CRONJOB == "YES"
