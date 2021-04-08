@@ -673,6 +673,7 @@ void TRestRun::ReadFileInfo(string filename) {
                 RESTValue member = RESTValue(meta, meta->ClassName()).GetDataMember(class_datamember[1]);
                 if (!member.IsZombie()) {
                     member.ParseString(infoFromFileName);
+                    meta->UpdateMetadataMembers();
                 } else {
                     warning << "TRestRun: file name format field \"" << formatsectionlist[i]
                             << "\"(value = " << infoFromFileName

@@ -213,6 +213,9 @@ class TRestMetadata : public TNamed {
     /// Implemented it in the derived metadata class to print out specific metadata information.
     virtual void PrintMetadata();
 
+    /// Method to allow implementation of specific metadata members updates at inherited classes
+    virtual void UpdateMetadataMembers() {}
+
     /// Print the current time on local machine.
     void PrintTimeStamp(Double_t timeStamp);
 

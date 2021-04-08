@@ -6,7 +6,7 @@
 
 	<globals>
 		<variable name="RUN_TYPE" value="RawData" overwrite="false" />
-		<variable name="FORMAT" value="R[fRunNumber]_[fRunTag]_Vm[TRestDetector::fAmplificationVoltage]_Shaping.aqs" />
+		<variable name="FORMAT" value="R[fRunNumber]_[fRunTag]_Vm_[TRestDetector::fAmplificationVoltage]_Vd_[TRestDetector::fDriftVoltage]_Pr_[TRestDetector::fPressure]_Gain_[TRestDetector::fElectronicsGain]_Shape_[TRestDetector::fElectronicsShaping]_Clock_[TRestDetector::fElectronicsClock]-[fParentRunNumber].aqs" overwrite="false" />
 	</globals>
 
 	<TRestRun file="run.xml"/>
