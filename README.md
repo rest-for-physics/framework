@@ -208,11 +208,11 @@ See also the list of [contributors]() who participated in this project.
 
 ## License
 
-This project is licensed under the GNU License - see the [LICENSE](https://lfna.unizar.es/rest-development/REST_v2/blob/master/LICENCE) file for details
+This project is licensed under the GNU License - see the [LICENSE](LICENCE) file for details
 
 ## Acknowledgments
 
-We acknowledge support from the the European Research Council (ERC) under the European Union’s Horizon 2020 research and innovation programme, grant agreement ERC-2017-AdG788781 (IAXO+), and from the Spanish Agencia Estatal de Investigaci\ ́on under grant FPA2016-76978-C3-1-P
+We acknowledge support from the the European Research Council (ERC) under the European Union’s Horizon 2020 research and innovation programme, grant agreement ERC-2017-AdG788781 (IAXO+), and from the Spanish Agencia Estatal de Investigacion under grant FPA2016-76978-C3-1-P
 
-![Insitution logos](miscellaneous/institution_logos.png")
+![Insitution logos](miscellaneous/institution_logos.png)
 
