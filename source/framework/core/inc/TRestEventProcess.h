@@ -133,8 +133,7 @@ class TRestEventProcess : public TRestMetadata {
                         fObservablesUpdated[obsname] = id;
                     }
                 }
-            }
-            else{
+            } else {
                 int id = fAnalysisTree->GetObservableID(obsname);
                 if (id != -1) {
                     fAnalysisTree->SetObservableValue(id, value);
@@ -167,13 +166,28 @@ class TRestEventProcess : public TRestMetadata {
 
    public:
     Int_t LoadSectionMetadata();
-    virtual void InitFromConfigFile() { ReadAllParameters(); }
+    virtual void InitFromConfigFile() {
+        std::map<string, string> params = GetParametersList();
+
+        for (auto& t : params) std::cout << t.first << " " << t.second << "\n";
+        cout << " ------ " << endl;
+
+        for (auto it = params.begin(); it != params.end(); it++)
+            it->second = fRunInfo->ReplaceMetadataMembers(it->second);
+
+        cout << " ====== " << endl;
+        for (auto& t : params) std::cout << t.first << " " << t.second << "\n";
+
+        cout << " ------ " << endl;
+
+        ReadParametersList(params);
+    }
     vector<string> ReadObservables();
     virtual Bool_t OpenInputFiles(vector<string> files);
 
     void SetObservableValidation(bool validate) { fValidateObservables = validate; }
-    //void EnableObservableValidation() { fValidateObservables = true; }
-    //void DisableObservableValidation() { fValidateObservables = false; }
+    // void EnableObservableValidation() { fValidateObservables = true; }
+    // void DisableObservableValidation() { fValidateObservables = false; }
 
     // process running methods
     /// To be executed at the beginning of the run (outside event loop)
