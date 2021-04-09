@@ -135,6 +135,8 @@ class TRestMetadata : public TNamed {
     /// Method called after the object is retrieved from root file.
     virtual void InitFromRootFile() {}
 
+    void ReadParametersList(std::map<string, string> list);
+
     //////////////////////////////////////////////////
     /// Data members
     /// NOTE!! In root6 the "#ifndef __CINT__" structure is not helpful any more!
@@ -185,6 +187,7 @@ class TRestMetadata : public TNamed {
         if (GetError()) fErrorMessage = message;
     }
 
+    std::map<string, string> GetParametersList();
     void ReadAllParameters();
 
    public:
