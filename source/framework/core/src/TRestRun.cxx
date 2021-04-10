@@ -1449,7 +1449,7 @@ std::vector<std::string> TRestRun::GetMetadataStructureTitles() {
 
 ///////////////////////////////////////////////
 /// \brief It will replace the data members contained inside the string given as input. The data members in
-/// the input string should be written using the following format <<MetadataClass::fDataMember>>.
+/// the input string should be written using the following format [MetadataClass::fDataMember].
 ///
 /// \return The string with data members replaced
 ///
@@ -1458,8 +1458,8 @@ string TRestRun::ReplaceMetadataMembers(const string instr) {
 
     int startPosition = 0;
     int endPosition = 0;
-    while ((startPosition = outstring.find("<<", endPosition)) != (int)string::npos) {
-        endPosition = outstring.find(">>", startPosition + 1);
+    while ((startPosition = outstring.find("[", endPosition)) != (int)string::npos) {
+        endPosition = outstring.find("]", startPosition + 1);
         if (endPosition == (int)string::npos) break;
 
         string expressionToReplace = outstring.substr(startPosition + 2, endPosition - startPosition - 2);
