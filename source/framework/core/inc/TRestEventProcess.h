@@ -166,22 +166,18 @@ class TRestEventProcess : public TRestMetadata {
 
    public:
     Int_t LoadSectionMetadata();
+
     virtual void InitFromConfigFile() {
         std::map<string, string> params = GetParametersList();
 
-        for (auto& t : params) std::cout << t.first << " " << t.second << "\n";
-        cout << " ------ " << endl;
-
-        for (auto it = params.begin(); it != params.end(); it++)
+        for (auto it = params.begin(); it != params.end(); it++) {
             it->second = fRunInfo->ReplaceMetadataMembers(it->second);
-
-        cout << " ====== " << endl;
-        for (auto& t : params) std::cout << t.first << " " << t.second << "\n";
-
-        cout << " ------ " << endl;
+            it->second = ReplaceMathematicalExpressions(it->second);
+        }
 
         ReadParametersList(params);
     }
+
     vector<string> ReadObservables();
     virtual Bool_t OpenInputFiles(vector<string> files);
 
