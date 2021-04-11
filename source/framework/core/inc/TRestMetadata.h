@@ -135,7 +135,7 @@ class TRestMetadata : public TNamed {
     /// Method called after the object is retrieved from root file.
     virtual void InitFromRootFile() {}
 
-    void ReadParametersList(std::map<string, string> list);
+    void ReadParametersList(std::map<string, string>& list);
 
     //////////////////////////////////////////////////
     /// Data members

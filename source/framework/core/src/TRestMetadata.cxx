@@ -2268,7 +2268,7 @@ void TRestMetadata::ReadAllParameters() {
 /// \brief It reads a parameter list and associates it to its corresponding metadata
 /// member. par0 --> fPar0.
 ///
-void TRestMetadata::ReadParametersList(std::map<string, string> list) {
+void TRestMetadata::ReadParametersList(std::map<string, string>& list) {
     for (auto i : list) {
         ReadOneParameter(i.first, i.second);
     }
