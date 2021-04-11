@@ -1460,9 +1460,21 @@ string TRestRun::ReplaceMetadataMembers(const string instr) {
     int endPosition = 0;
     while ((startPosition = outstring.find("[", endPosition)) != (int)string::npos) {
         endPosition = outstring.find("]", startPosition + 1);
+        string s = outstring.substr(startPosition + 1, endPosition - startPosition - 1);
+        int cont = count(s.begin(), s.end(), '[') - count(s.begin(), s.end(), ']');
+
+        if (cont < 0) ferr << "This is a coding error at ReplaceMetadataMembers!" << endl;
+
+        // We search for the enclosing ]. Since we might find a vector index inside.
+        while (cont > 0) {
+            endPosition = outstring.find("]", endPosition + 1);
+            s = outstring.substr(startPosition + 1, endPosition - startPosition - 1);
+            cont = count(s.begin(), s.end(), '[') - count(s.begin(), s.end(), ']');
+            if (endPosition == (int)string::npos) break;
+        }
         if (endPosition == (int)string::npos) break;
 
-        string expressionToReplace = outstring.substr(startPosition + 2, endPosition - startPosition - 2);
+        string expressionToReplace = outstring.substr(startPosition + 1, endPosition - startPosition - 1);
         string value = ReplaceMetadataMember(expressionToReplace);
 
         outstring.replace(startPosition, endPosition - startPosition + 2, value);
