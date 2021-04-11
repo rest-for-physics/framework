@@ -1477,7 +1477,7 @@ string TRestRun::ReplaceMetadataMembers(const string instr) {
         string expressionToReplace = outstring.substr(startPosition + 1, endPosition - startPosition - 1);
         string value = ReplaceMetadataMember(expressionToReplace);
 
-        outstring.replace(startPosition, endPosition - startPosition + 2, value);
+        outstring.replace(startPosition, endPosition - startPosition + 1, value);
         endPosition = 0;
     }
 
