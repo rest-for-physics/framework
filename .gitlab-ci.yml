@@ -1,4 +1,4 @@
-image: nkx1231/root6-geant4-garfield:0.6
+image: lobis/root-geant4-garfieldpp
 
 variables:
 #    GIT_SUBMODULE_STRATEGY: recursive
