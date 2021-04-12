@@ -73,7 +73,7 @@ clang-format:
 validateCode:
     stage: pre-build
     script:
-        - python ${CI_PROJECT_DIR}/pipeline/validateProcesses.py ${CI_PROJECT_DIR}/source/processes/
+        - python3 ${CI_PROJECT_DIR}/pipeline/validateProcesses.py ${CI_PROJECT_DIR}/source/libraries/
     except:
         variables:
             - $CRONJOB == "YES"
@@ -98,7 +98,7 @@ build:
   type: build
   script:
     - cd ${CI_PROJECT_DIR}/
-    - python3.5 pull-submodules.py --force --dontask
+    - python3 pull-submodules.py --force --dontask
     - if [ -d ${CI_PROJECT_DIR}/build ]; then rm -Rf ${CI_PROJECT_DIR}/build; fi
     - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build/
     - rm -rf ${CI_PROJECT_DIR}/install
