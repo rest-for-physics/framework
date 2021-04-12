@@ -47,7 +47,12 @@ before_script:
   - if [ -d $HOME/.rest ]; then rm -Rf $HOME/.rest; fi
   - pwd
   - root-config --version
+  - source /opt/geant4/install/bin/geant4.sh
   - geant4-config --version
+  - export GARFIELD_HOME=/opt/garfieldpp/install
+  - export HEED_DATABASE=$GARFIELD_HOME/Heed/heed++/database
+  - export LD_LIBRARY_PATH=$GARFIELD_HOME/lib:$LD_LIBRARY_PATH
+  - ls $GARFIELD_HOME
   - python3 --version
 
 clang-format:
