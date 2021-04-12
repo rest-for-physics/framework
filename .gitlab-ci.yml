@@ -73,7 +73,9 @@ clang-format:
 validateCode:
     stage: pre-build
     script:
-        - python3 ${CI_PROJECT_DIR}/pipeline/validateProcesses.py ${CI_PROJECT_DIR}/source/libraries/
+        - cd ${CI_PROJECT_DIR}/
+        - python3 pull-submodules.py --force --dontask
+        - python3 pipeline/validateProcesses.py source/libraries/
     except:
         variables:
             - $CRONJOB == "YES"
