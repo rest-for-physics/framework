@@ -113,8 +113,8 @@ string FindRESTUnitsInString(string s) {
 /// value="6e-5mm"
 /// can both be recognized
 ///
-string RemoveUnitsFromString(string s) { 
-    string valstr1 = s.substr(0, s.find_first_not_of("1234567890(),.-eE")); 
+string RemoveUnitsFromString(string s) {
+    string valstr1 = s.substr(0, s.find_first_not_of("1234567890(),.-eE"));
 
     if (valstr1.size() == 0) {
         return "";
@@ -251,6 +251,7 @@ double _AddUnit(string name, int type, double scale) {
 /// \class TRestSystemOfUnits
 ///
 TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
+    unitsStr = Trim(unitsStr);
     if (unitsStr == "") {
         fZombie = true;
         return;
@@ -308,8 +309,8 @@ TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
             //            << endl;
             //}
             if (pos == unitsStr.size() - 1) {
-                warning << "last character \"" << unitsStr[pos] << "\" unrecognized in unit definition!"
-                        << endl;
+                warning << "last character inside \"" << unitsStr << "\" \"" << unitsStr[pos]
+                        << "\" unrecognized in unit definition!" << endl;
             }
 
             pos++;

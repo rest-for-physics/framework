@@ -2255,16 +2255,38 @@ Int_t TRestMetadata::Write(const char* name, Int_t option, Int_t bufsize) {
 /// In the previous code "fPar0" is linked to "par0".
 ///
 /// Note that parameters include <parameter section and all the attributes in fElement.
+///
 void TRestMetadata::ReadAllParameters() {
     // we shall first add all the parameters to a temporary map to avoid
     // first parameter being overriden by the repeated parameter section
-    map<TString, TString> parameters;
+    map<string, string> parameters = GetParametersList();
+
+    ReadParametersList(parameters);
+}
+
+///////////////////////////////////////////////
+/// \brief It reads a parameter list and associates it to its corresponding metadata
+/// member. par0 --> fPar0.
+///
+void TRestMetadata::ReadParametersList(std::map<string, string>& list) {
+    for (auto i : list) {
+        ReadOneParameter(i.first, i.second);
+    }
+}
+
+///////////////////////////////////////////////
+/// \brief It retrieves a map of all parameter:value found in the metadata class
+///
+std::map<string, string> TRestMetadata::GetParametersList() {
+    // we shall first add all the parameters to a temporary map to avoid
+    // first parameter being overriden by the repeated parameter section
+    map<string, string> parameters;
 
     // Loop over attribute set
     auto paraattr = fElement->FirstAttribute();
     while (paraattr != NULL) {
-        TString name = paraattr->Name();
-        TString value = paraattr->Value();
+        string name = paraattr->Name();
+        string value = paraattr->Value();
 
         if (parameters.count(name) == 0) {
             parameters[name] = value;
@@ -2276,8 +2298,8 @@ void TRestMetadata::ReadAllParameters() {
     // Loop over <parameter section
     auto paraele = fElement->FirstChildElement("parameter");
     while (paraele != NULL) {
-        TString name = paraele->Attribute("name");
-        TString value = paraele->Attribute("value");
+        string name = paraele->Attribute("name");
+        string value = paraele->Attribute("value");
 
         if (name == "") {
             warning << "bad <parameter section: " << *paraele << endl;
@@ -2299,9 +2321,7 @@ void TRestMetadata::ReadAllParameters() {
         iter++;
     }
 
-    for (auto i : parameters) {
-        ReadOneParameter((string)i.first, (string)i.second);
-    }
+    return parameters;
 }
 
 void TRestMetadata::ReadOneParameter(string name, string value) {

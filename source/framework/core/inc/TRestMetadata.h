@@ -135,6 +135,8 @@ class TRestMetadata : public TNamed {
     /// Method called after the object is retrieved from root file.
     virtual void InitFromRootFile() {}
 
+    void ReadParametersList(std::map<string, string>& list);
+
     //////////////////////////////////////////////////
     /// Data members
     /// NOTE!! In root6 the "#ifndef __CINT__" structure is not helpful any more!
@@ -185,6 +187,7 @@ class TRestMetadata : public TNamed {
         if (GetError()) fErrorMessage = message;
     }
 
+    std::map<string, string> GetParametersList();
     void ReadAllParameters();
 
    public:
@@ -212,6 +215,9 @@ class TRestMetadata : public TNamed {
 
     /// Implemented it in the derived metadata class to print out specific metadata information.
     virtual void PrintMetadata();
+
+    /// Method to allow implementation of specific metadata members updates at inherited classes
+    virtual void UpdateMetadataMembers() {}
 
     /// Print the current time on local machine.
     void PrintTimeStamp(Double_t timeStamp);

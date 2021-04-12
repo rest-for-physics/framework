@@ -403,7 +403,12 @@ Float_t REST_StringHelper::StringToFloat(string in) {
 ///////////////////////////////////////////////
 /// \brief Gets an integer from a string.
 ///
-Int_t REST_StringHelper::StringToInteger(string in) { return (Int_t)StringToDouble(in); }
+Int_t REST_StringHelper::StringToInteger(string in) {
+    // If we find an hexadecimal number
+    if (in.find("0x") != std::string::npos) return (Int_t)std::stoul(in, nullptr, 16);
+
+    return (Int_t)StringToDouble(in);
+}
 
 ///////////////////////////////////////////////
 /// \brief Gets a string from an integer.
