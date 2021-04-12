@@ -115,7 +115,7 @@ else:
 
 print ("\nA new version file has been generated at : " + outputHeader )
 print ("To increase the version of REST use the generated file to replace the existing TRestVersion.h file.\n" )
-print ("-----> cp " + outputHeader + " ../source/framework/core/inc/TRestVersion.h\n")
+print ("-----> mv " + outputHeader + " ../source/framework/core/inc/TRestVersion.h\n")
 print ("After replacing TRestVersion.h, add the file and commit it\n")
 print ("-----> git add ../source/framework/core/inc/TRestVersion.h")
 print ("-----> git commit -m \"Updated TRestVersion.h to v2."+str(b)+"."+str(c)+"\" " )
