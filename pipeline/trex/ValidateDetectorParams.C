@@ -14,7 +14,7 @@ Int_t ValidateDetectorParams(string fname) {
 
     if (det->GetDataMemberValue("fPressure") != "6") return 4;
 
-    if (det->GetDataMemberValue("fElectronicsSamplingTime") != "0.16") return 5;
+    if (det->GetDataMemberValue("fElectronicsSamplingTime") != "0.04") return 5;
 
     if (det->GetDataMemberValue("fElectronicsGain") != "0x0") return 5;
 

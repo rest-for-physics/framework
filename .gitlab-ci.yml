@@ -262,7 +262,7 @@ trexDM_data:
     - rm RawData_01929.root
     - rm Signals_01929.root
     - root -b -q ../ValidateTrees.C'("validation.root")'
-    - root -b -q ../ValidateDetectorParams.C'("Hits_01929.root")'
+    - root -b -q ValidateDetectorParams.C'("Hits_01929.root")'
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/pipeline/trex/Hits_01929.root
