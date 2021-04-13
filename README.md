@@ -2,7 +2,6 @@
 
 [![DOI](https://zenodo.org/badge/324291710.svg)](https://zenodo.org/badge/latestdoi/324291710)
 [![pipeline status](https://gitlab.cern.ch/rest-for-physics/framework/badges/development/pipeline.svg)](https://gitlab.cern.ch/rest-for-physics/framework/-/commits/development)
-[![pipeline status](https://lfna.unizar.es/rest-for-physics/framework/badges/development/pipeline.svg)](https://lfna.unizar.es/rest-for-physics/framework/-/commits/development)
 
 The REST-for-Physics (Rare Event Searches Toolkit) Framework is mainly written in C++ and it is fully integrated with [ROOT](https://root.cern.ch) I/O interface.
 REST was initially born as a collaborative software effort to provide common tools for acquisition, simulation, and data analysis of gaseous Time Projection Chambers (TPCs). However, the framework is already extending its usage to be non-exclusive of detector data analysis. The possibilities of the framework are provided by the different libraries and packages written for REST in our community.
