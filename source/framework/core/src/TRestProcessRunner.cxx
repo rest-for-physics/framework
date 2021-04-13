@@ -137,6 +137,7 @@ void TRestProcessRunner::BeginOfInit() {
 
     fUseTestRun = StringToBool(GetParameter("useTestRun", "ON"));
     fValidateObservables = StringToBool(GetParameter("validateObservables", "OFF"));
+    fSortOutputEvents = StringToBool(GetParameter("sortOutputEvents", "ON"));
     fThreadNumber = StringToDouble(GetParameter("threadNumber", "1"));
     if (ToUpper(GetParameter("inputAnalysis", "ON")) == "ON") fOutputItem[0] = true;
     if (ToUpper(GetParameter("inputEvent", "OFF")) == "ON") fOutputItem[1] = true;
@@ -720,6 +721,35 @@ Int_t TRestProcessRunner::GetNextevtFunc(TRestEvent* targetevt, TRestAnalysisTre
 /// simultaneously in two threads. As a result threads will not write their
 /// files together, thus preventing segmentaion violation.
 void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
+
+    if (fSortOutputEvents) {
+        // Make sure the thread has the minimum event id in the all the
+        // threads. Otherwise just wait.
+        while (1) {
+            bool smallest = true;
+            for (TRestThread* otherT : fThreads) {
+                if (otherT->Finished()) {
+                    continue;
+                }
+                if (t->GetThreadId() == otherT->GetThreadId()) {
+                    continue;
+                }
+                int id1 = t->GetInputEvent()->GetID();
+                int id2 = otherT->GetInputEvent()->GetID();
+                if (id1 > id2) {
+                    smallest = false;
+                } else if (id1 == id2) {
+                    cout << "warning! Two events with same event id! output events maybe dis-ordered!"
+                         << endl;
+                }
+            }
+
+            if (smallest) break;
+            usleep(1);
+        }
+    }
+
+    // Start event saving, entering mutex lock region.
     mutexx.lock();
 #ifdef TIME_MEASUREMENT
     high_resolution_clock::time_point t5 = high_resolution_clock::now();

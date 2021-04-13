@@ -33,6 +33,7 @@
 
     <parameter name="useTestRun" value="ON"/>
     <parameter name="validateObservables" value="OFF"/>
+    <parameter name="sortOutputEvents" value="ON"/>
     
     <parameter name="inputAnalysis" value="on"/>
     <parameter name="inputEvent" value="on"/>
