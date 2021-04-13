@@ -430,7 +430,7 @@ void TRestThread::StartProcess() {
 
     while (fHostRunner->GetNextevtFunc(fInputEvent, fAnalysisTree) == 0) {
         ProcessEvent();
-        if (fOutputEvent != NULL) fHostRunner->FillThreadEventFunc(this);
+        /*if (fOutputEvent != NULL) */fHostRunner->FillThreadEventFunc(this);
     }
 
     // fHostRunner->WriteThreadFileFunc(this);
