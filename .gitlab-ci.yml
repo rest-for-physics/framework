@@ -47,18 +47,17 @@ before_script:
   - if [ -d $HOME/.rest ]; then rm -Rf $HOME/.rest; fi
   - pwd
   - root-config --version
-  - source /opt/geant4/install/bin/geant4.sh
+  - if [ $CI_SERVER_HOST != "lfna.unizar.es" ]; then source /opt/geant4/install/bin/geant4.sh; fi
   - geant4-config --version
-  - export GARFIELD_HOME=/opt/garfieldpp/install
-  - export HEED_DATABASE=$GARFIELD_HOME/Heed/heed++/database
-  - export LD_LIBRARY_PATH=$GARFIELD_HOME/lib:$LD_LIBRARY_PATH
+  - if [ $CI_SERVER_HOST != "lfna.unizar.es" ]; then export GARFIELD_HOME=/opt/garfieldpp/install; fi
+  - if [ $CI_SERVER_HOST != "lfna.unizar.es" ]; then export HEED_DATABASE=$GARFIELD_HOME/Heed/heed++/database; fi
+  - if [ $CI_SERVER_HOST != "lfna.unizar.es" ]; then export LD_LIBRARY_PATH=$GARFIELD_HOME/lib:$LD_LIBRARY_PATH; fi
   - ls $GARFIELD_HOME
   - python3 --version
 
 clang-format:
   stage: pre-build
   script:
-
     - if [ $CI_SERVER_HOST != "lfna.unizar.es" ]; then exit 0; fi
     - cd ${CI_PROJECT_DIR}/
     - if [ -n "$CRONJOB" ]; then ./pipeline/clangformattest.sh; else echo "Skipping clang-format"; fi
