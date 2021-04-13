@@ -153,7 +153,7 @@ files = []
 # r=root, d=directories, f = files
 for r, d, f in os.walk(sys.argv[1]):
         for file in f:
-                    if 'Process.cxx' in file:
+                    if file.endswith('Process.cxx'):
                                     print("Validating " + file )
  #                                   files.append(os.path.join(r, file))
                                     validateProcess(os.path.join(r, file))
