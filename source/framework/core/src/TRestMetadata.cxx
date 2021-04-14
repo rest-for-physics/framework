@@ -2300,12 +2300,16 @@ std::map<string, string> TRestMetadata::GetParametersList() {
     while (paraele != NULL) {
         string name = paraele->Attribute("name");
         string value = paraele->Attribute("value");
+        // In case <parameter section contains units definitions in extra attribute field,
+        // not together with "value" attribute field
+        // We should concat the value and units together.
+        TString units = paraele->Attribute("units");
 
         if (name == "") {
             warning << "bad <parameter section: " << *paraele << endl;
         } else {
             if (parameters.count(name) == 0) {
-                parameters[name] = value;
+                parameters[name] = value + units;
             }
             // ReadOneParameter((string)name, (string)value);
         }
