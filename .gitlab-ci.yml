@@ -129,10 +129,6 @@ build_nkx:
   except:
       variables:
         - $CRONJOB == "YES"
-  artifacts:
-    paths:
-      - ${CI_PROJECT_DIR}/install
-    expire_in: 1 day
 
 loadRESTLibs:
   type: install
