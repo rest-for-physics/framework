@@ -593,7 +593,7 @@ string REST_StringHelper::DataMemberNameToParameterName(string name) {
     if (name == "") {
         return "";
     }
-    if (name[0] == 'f' && name.size() > 1) {
+    if (name[0] == 'f' && name.size() > 1 && (name[1] >= 65 && name[1] <= 90)) {
         return string(1, tolower(name[1])) + name.substr(2, -1);
     } else {
         return "";
