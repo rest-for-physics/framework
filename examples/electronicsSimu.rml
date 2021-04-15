@@ -30,9 +30,9 @@
     <parameter name="eventsToProcess" value="0" />
     <parameter name="threadNumber" value="2"/>
 
-    <parameter name="inputAnalysis" value="off"/>
-    <parameter name="inputEvent" value="on"/>
-    <parameter name="outputEvent" value="on"/>
+    <parameter name="inputAnalysisStorage" value="off"/>
+    <parameter name="inputEventStorage" value="on"/>
+    <parameter name="outputEventStorage" value="on"/>
 
     <!--<addProcess type="TRestGeant4AnalysisProcess" name="g4Ana" value="ON" file="processes.rml"/>
     <addProcess type="TRestGeant4BlobAnalysisProcess" name="g4Blob" value="OFF" file="processes.rml"/>-->
