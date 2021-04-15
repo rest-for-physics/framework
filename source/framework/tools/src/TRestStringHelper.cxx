@@ -253,20 +253,20 @@ Int_t REST_StringHelper::FindNthStringPosition(const string& in, size_t pos, con
 
 /// \brief Returns the number of different characters between two strings
 ///
-/// This algorithm is case insensitive. It matches the two strings at the best position
-/// and counts the unmatched part(just a guess).
+/// This algorithm is case insensitive. It matches the two strings in pieces
+/// after inserting proper blanks, then counts the unmatched part(just a guess).
 /// e.g. 
-/// "woll"
+/// "woll "
 /// "world"
 ///  00101    --> 2
 /// 
-///  "torgae"
+/// " torgae"
 /// "Storage"
 ///  1000110  --> 3
 /// 
-/// "qwert"
-/// "asefg"
-///  11011    --> 4
+/// "fi le"
+/// "title"
+///  10100    --> 2
 /// 
 /// Source code from
 /// https://blog.csdn.net/baidu_23086307/article/details/53020566

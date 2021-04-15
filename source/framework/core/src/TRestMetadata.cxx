@@ -2370,7 +2370,11 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
                 } else {
                     datamember.ParseString(value);
                 }
-            } else {
+            } else if (datamember.name != "" ) {
+                // this mean the datamember is found with type not recognized. 
+                // We won't try to find the misspelling
+            }
+            else {
                 debug << this->ClassName() << "::ReadAllParameters(): parameter \"" << name
                         << "\" not recognized for automatic load" << endl;
                 vector<string> availableparameters;
@@ -2378,7 +2382,13 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
                 vector<string> datamembers = thisactual.GetListOfDataMembers();
                 for (int i = 0; i < datamembers.size(); i++) {
                     string parameter = DataMemberNameToParameterName(datamembers[i]);
-                    if (parameter != "") availableparameters.push_back(parameter);
+                    if (parameter != "") {
+                        if (parameter == "name" || parameter == "title" || parameter == "verboseLevel" ||
+                            parameter == "type" || parameter == "value" || parameter == "store") {
+                        } else {
+                            availableparameters.push_back(parameter);
+                        }
+                    }
                 }
 
                 int mindiff = 100;
