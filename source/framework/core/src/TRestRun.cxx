@@ -648,42 +648,51 @@ void TRestRun::ReadFileInfo(string filename) {
               << "\"), value: " << infoFromFileName << endl;
 
         // run[fRunNumber]_cobo[aaa]_frag[bbb]_Vm[TRestDetector::fAmplificationVoltage].graw
-
-        // store file format fields to REST_ARGS as global parameter: aaa, bbb
-        REST_ARGS[formatsectionlist[i]] = infoFromFileName;
-
-        // store special file pattern parameters as TRestRun data member: fRunNumber
-        if (DataMemberNameToParameterName(formatsectionlist[i]) != "") {
-            RESTValue member = RESTValue(this, this->ClassName()).GetDataMember(formatsectionlist[i]);
-            if (!member.IsZombie()) {
-                member.ParseString(infoFromFileName);
-            } else {
-                warning << "TRestRun: file name format field \"" << formatsectionlist[i]
-                        << "\"(value = " << infoFromFileName
-                        << ") not registered, data member does not exist in TRestRun!" << endl;
-            }
-        }
-
-        // to store special file pattern parameters as data member of store metadata class:
-        // TRestDetector::fAmplificationVoltage
-        vector<string> class_datamember = Split(formatsectionlist[i], "::");
-        if (class_datamember.size() > 1) {
-            TRestMetadata* meta = GetMetadataClass(class_datamember[0]);
-            if (meta != NULL) {
-                RESTValue member = RESTValue(meta, meta->ClassName()).GetDataMember(class_datamember[1]);
+        bool inforead = false;
+        if (!inforead) {
+            // 1. store special file pattern parameters as TRestRun data member: fRunNumber
+            if (DataMemberNameToParameterName(formatsectionlist[i]) != "") {
+                RESTValue member = RESTValue(this, this->ClassName()).GetDataMember(formatsectionlist[i]);
                 if (!member.IsZombie()) {
                     member.ParseString(infoFromFileName);
-                    meta->UpdateMetadataMembers();
+                    inforead = true;
                 } else {
                     warning << "TRestRun: file name format field \"" << formatsectionlist[i]
                             << "\"(value = " << infoFromFileName
-                            << ") not registered, metadata exist but without such datamember field!" << endl;
+                            << ") not registered, data member does not exist in TRestRun!" << endl;
                 }
-            } else {
-                warning << "TRestRun: file name format field \"" << formatsectionlist[i]
-                        << "\"(value = " << infoFromFileName << ") not registered, metadata does not exist!"
-                        << endl;
             }
+        }
+
+        if (!inforead) {
+            // 2. store special file pattern parameters as data member of the loaded
+            // metadata class, e.g., TRestDetector::fAmplificationVoltage
+            vector<string> class_datamember = Split(formatsectionlist[i], "::");
+            if (class_datamember.size() > 1) {
+                TRestMetadata* meta = GetMetadataClass(class_datamember[0]);
+                if (meta != NULL) {
+                    RESTValue member = RESTValue(meta, meta->ClassName()).GetDataMember(class_datamember[1]);
+                    if (!member.IsZombie()) {
+                        member.ParseString(infoFromFileName);
+                        meta->UpdateMetadataMembers();
+                        inforead = true;
+                    } else {
+                        warning << "TRestRun: file name format field \"" << formatsectionlist[i]
+                                << "\"(value = " << infoFromFileName
+                                << ") not registered, metadata exist but without such datamember field!"
+                                << endl;
+                    }
+                } else {
+                    warning << "TRestRun: file name format field \"" << formatsectionlist[i]
+                            << "\"(value = " << infoFromFileName
+                            << ") not registered, metadata does not exist!" << endl;
+                }
+            }
+        }
+
+        if (!inforead) {
+            // 3. store file format fields to REST_ARGS as global parameter: aaa, bbb
+            REST_ARGS[formatsectionlist[i]] = infoFromFileName;
         }
 
         pos = pos2 - 1;
