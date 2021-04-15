@@ -125,7 +125,8 @@ build_nkx:
     - if [ -d ${CI_PROJECT_DIR}/install_nkx]; then rm -Rf ${CI_PROJECT_DIR}/install_nkx; fi
     - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install_nkx
     - make install -j2
-#    - . ${CI_PROJECT_DIR}/install_nkx/thisREST.sh
+    - cat ${CI_PROJECT_DIR}/install_nkx/thisREST.sh
+    - . ${CI_PROJECT_DIR}/install_nkx/thisREST.sh
   except:
       variables:
         - $CRONJOB == "YES"
