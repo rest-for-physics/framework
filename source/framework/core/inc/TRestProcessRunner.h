@@ -37,19 +37,28 @@ class TRestProcessRunner : public TRestMetadata {
     TFile* fTempOutputDataFile;        //!
     TTree* fEventTree;                 //!
     TRestAnalysisTree* fAnalysisTree;  //!
-    ProcStatus fProcStatus;
+    ProcStatus fProcStatus;            //!
+    Int_t fNBranches;                  //!
+
+    // metadata
     Bool_t fUseTestRun;
+    Bool_t fUsePauseMenu;
     Bool_t fValidateObservables;
     Bool_t fSortOutputEvents;
-    Int_t nBranches;
+    Bool_t fInputAnalysisStorage;
+    Bool_t fInputEventStorage;
+    Bool_t fOutputEventStorage;
+    Bool_t fOutputAnalysisStorage;
     Int_t fThreadNumber;
     Int_t fProcessNumber;
-    Int_t firstEntry;
-    Int_t eventsToProcess;
+    Int_t fFirstEntry;
+    Int_t fEventsToProcess;
     Int_t fProcessedEvents;
-    map<string, string> ProcessInfo;
-    bool fOutputItem[4] = {
-        false};  // the on/off status for item: inputAnalysis, inputEvent, outputEvent, outputAnalysis
+    map<string, string> fProcessInfo;
+
+
+    //bool fOutputItem[4] = {
+    //    false};  // the on/off status for item: inputAnalysis, inputEvent, outputEvent, outputAnalysis
 
    public:
     /// REST run class
@@ -96,7 +105,7 @@ class TRestProcessRunner : public TRestMetadata {
     TRestAnalysisTree* GetOutputAnalysisTree() { return fAnalysisTree; }
     TFile* GetTempOutputDataFile() { return fTempOutputDataFile; }
     string GetProcInfo(string infoname) {
-        return ProcessInfo[infoname] == "" ? infoname : ProcessInfo[infoname];
+        return fProcessInfo[infoname] == "" ? infoname : fProcessInfo[infoname];
     }
     int GetNThreads() { return fThreadNumber; }
     int GetNProcesses() { return fProcessNumber; }
@@ -108,7 +117,7 @@ class TRestProcessRunner : public TRestMetadata {
     TRestProcessRunner();
     ~TRestProcessRunner();
 
-    ClassDef(TRestProcessRunner, 5);
+    ClassDef(TRestProcessRunner, 6);
 };
 
 #endif
