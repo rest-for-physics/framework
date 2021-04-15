@@ -34,10 +34,11 @@
     <parameter name="useTestRun" value="ON"/>
     <parameter name="validateObservables" value="OFF"/>
     <parameter name="sortOutputEvents" value="ON"/>
+    <parameter name="usePauseMenu" value="OFF"/>
     
-    <parameter name="inputAnalysis" value="on"/>
-    <parameter name="inputEvent" value="on"/>
-    <parameter name="outputEvent" value="on"/>
+    <parameter name="inputAnalysisStorage" value="on"/>
+    <parameter name="inputEventStorage" value="on"/>
+    <parameter name="outputEventStorage" value="on"/>
 
     <addProcess type="TRestRawMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON"/>
     <addProcess type="TRestBenchMarkProcess" name="bM" value="ON" observable="all"/>

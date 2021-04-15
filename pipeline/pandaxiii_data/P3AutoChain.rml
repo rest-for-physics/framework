@@ -25,9 +25,9 @@
     <parameter name="eventsToProcess" value="0" />
     <parameter name="threadNumber" value="2"/>
 
-    <parameter name="inputAnalysis" value="on"/>
-    <parameter name="inputEvent" value="off"/>
-    <parameter name="outputEvent" value="on"/>
+    <parameter name="inputAnalysisStorage" value="on"/>
+    <parameter name="inputEventStorage" value="off"/>
+    <parameter name="outputEventStorage" value="on"/>
 
     <addProcess type="TRestRawMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON"/>
     <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON">

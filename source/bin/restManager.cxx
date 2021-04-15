@@ -218,7 +218,7 @@ int main(int argc, char* argv[]) {
                         if (args[x] != "--f" && args[x - 1] != "--f" && args[x] != "--fork")
                             command += " " + args[x];
                     }
-                    command += " --f " + input_files[n] + " >> /tmp/" + getenv("USER") + "_out." + n;
+                    command += " --f " + input_files[n] + " >> /tmp/" + getenv("USER") + "_out." + ToString(n);
                     fout << "Executing : " << command << endl;
                     fork_n_execute(command);
                 }

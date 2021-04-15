@@ -2282,6 +2282,15 @@ std::map<string, string> TRestMetadata::GetParametersList() {
     // first parameter being overriden by the repeated parameter section
     map<string, string> parameters;
 
+    // Loop over REST_ARGS
+    auto iter = REST_ARGS.begin();
+    while (iter != REST_ARGS.end()) {
+        // if (parameters.count(iter->first) == 0) {
+        parameters[iter->first] = iter->second;
+        //}
+        iter++;
+    }
+
     // Loop over attribute set
     auto paraattr = fElement->FirstAttribute();
     while (paraattr != NULL) {
@@ -2316,20 +2325,12 @@ std::map<string, string> TRestMetadata::GetParametersList() {
         paraele = paraele->NextSiblingElement("parameter");
     }
 
-    // Loop over REST_ARGS
-    auto iter = REST_ARGS.begin();
-    while (iter != REST_ARGS.end()) {
-        if (parameters.count(iter->first) == 0) {
-            parameters[iter->first] = iter->second;
-        }
-        iter++;
-    }
-
     return parameters;
 }
 
 void TRestMetadata::ReadOneParameter(string name, string value) {
-    if (name == "name" || name == "title" || name == "verboseLevel" || name == "store") {
+    if (name == "name" || name == "title" || name == "verboseLevel" || 
+        name == "type" || name == "value" || name == "store") {
         // we omit these parameters since they are already loaded in LoadSectionMetadata()
     } else {
         RESTValue thisactual(this, this->ClassName());
@@ -2370,8 +2371,34 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
                     datamember.ParseString(value);
                 }
             } else {
-                debug << this->ClassName() << "::ReadAllParameters(): datamember \"" << datamembername
-                      << "\" for parameter \"" << name << "\" not found, skipping" << endl;
+                debug << this->ClassName() << "::ReadAllParameters(): parameter \"" << name
+                        << "\" not recognized for automatic load" << endl;
+                vector<string> availableparameters;
+
+                vector<string> datamembers = thisactual.GetListOfDataMembers();
+                for (int i = 0; i < datamembers.size(); i++) {
+                    string parameter = DataMemberNameToParameterName(datamembers[i]);
+                    if (parameter != "") availableparameters.push_back(parameter);
+                }
+
+                int mindiff = 100;
+                string hintParameter = "";
+                for (auto parameter : availableparameters) {
+                    int diff = DiffString(name, parameter);
+                    if (diff < mindiff) {
+                        mindiff = diff;
+                        hintParameter = parameter;
+                    }
+                }
+
+                // we regard the unset parameter with less than 2 characters different from
+                // the data member as "misspelling" parameter. We prompt a warning for it.
+                if (hintParameter != "" && mindiff <= 2) {
+                    warning << this->ClassName() << "::ReadAllParameters(): parameter \"" << name
+                            << "\" not recognized for automatic load, did you mean \"" << hintParameter << "\" ?" << endl;
+                    GetChar();
+                }
+
             }
         }
     }

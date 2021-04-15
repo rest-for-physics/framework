@@ -345,6 +345,37 @@ TRestReflector TRestReflector::GetDataMember(int ID) {
     return TRestReflector();
 }
 
+vector<string> TRestReflector::GetListOfDataMembers() {
+    vector<string> dataMembers;
+
+    // add datamembers from base class first
+    TVirtualStreamerInfo* vs = cl->GetStreamerInfo();
+    TObjArray* ses = vs->GetElements();
+    int n = ses->GetLast() + 1;
+    for (int i = 0; i < n; i++) {
+        TStreamerElement* ele = (TStreamerElement*)ses->At(i);
+        string type = ele->GetTypeName();
+        if (type == "BASE") {
+            char* addr = address + ele->GetOffset();
+            type = ele->GetClass()->GetName();
+            
+            auto baseDataMembers = TRestReflector(addr, type).GetListOfDataMembers();
+            dataMembers.insert(dataMembers.end(), baseDataMembers.begin(), baseDataMembers.end());
+        }
+    }
+
+    // then add datamembers of this class
+    TList* list = cl->GetListOfDataMembers();
+    for (int i = 0; i < list->GetSize(); i++) {
+        TDataMember* mem = (TDataMember*)list->At(i);
+        string name = mem->GetName();
+
+        dataMembers.push_back(name);
+    }
+
+    return dataMembers;
+}
+
 string TRestReflector::GetDataMemberValueString(string name) {
     TRestReflector member = GetDataMember(name);
     if (!member.IsZombie()) {
