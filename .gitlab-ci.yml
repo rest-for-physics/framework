@@ -114,6 +114,26 @@ build:
       - ${CI_PROJECT_DIR}/install
     expire_in: 1 day
 
+build_nkx:
+  image: nkx1231/root6-geant4-garfield:0.6
+  type: build
+  script:
+    - cd ${CI_PROJECT_DIR}/
+    - python3 pull-submodules.py --force --dontask
+    - if [ -d ${CI_PROJECT_DIR}/build ]; then rm -Rf ${CI_PROJECT_DIR}/build; fi
+    - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build/
+    - if [ -d ${CI_PROJECT_DIR}/install_nkx]; then rm -Rf ${CI_PROJECT_DIR}/install_nkx; fi
+    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install_nkx
+    - make install -j2
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+  except:
+      variables:
+        - $CRONJOB == "YES"
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install
+    expire_in: 1 day
+
 loadRESTLibs:
   type: install
   script:
