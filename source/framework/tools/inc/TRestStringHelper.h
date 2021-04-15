@@ -56,6 +56,7 @@ constexpr ULong64_t ToHash(const char* str, ULong64_t last_value = 0xCBF29CE4842
 }
 Int_t Count(std::string s, std::string sbstring);
 Int_t FindNthStringPosition(const string& in, size_t pos, const string& strToFind, size_t nth);
+Int_t DiffString(const string& source, const string& target);
 template <class T>
 string ToString(T source, int length = -1, char fill = ' ') {
     stringstream ss1;

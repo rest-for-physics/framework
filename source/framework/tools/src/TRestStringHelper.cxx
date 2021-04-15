@@ -1,4 +1,4 @@
-#include "TRestStringHelper.h"
+Ôªø#include "TRestStringHelper.h"
 
 #include <thread>
 
@@ -249,6 +249,46 @@ Int_t REST_StringHelper::FindNthStringPosition(const string& in, size_t pos, con
     size_t found_pos = in.find(strToFind, pos);
     if (nth == 0 || string::npos == found_pos) return found_pos;
     return FindNthStringPosition(in, found_pos + 1, strToFind, nth - 1);
+}
+
+/// \brief Returns the number of different characters between two strings
+///
+Int_t REST_StringHelper::DiffString(const string& source, const string& target) {
+    int n = source.length();
+    int m = target.length();
+    if (m == 0) return n;
+    if (n == 0) return m;
+    // Construct a matrix
+    typedef vector<vector<int> > Tmatrix;
+    Tmatrix matrix(n + 1);
+    for (int i = 0; i <= n; i++) matrix[i].resize(m + 1);
+
+    // step 2 Initialize
+
+    for (int i = 1; i <= n; i++) matrix[i][0] = i;
+    for (int i = 1; i <= m; i++) matrix[0][i] = i;
+
+    // step 3
+    for (int i = 1; i <= n; i++) {
+        const char si = source[i - 1];
+        // step 4
+        for (int j = 1; j <= m; j++) {
+            const char dj = target[j - 1];
+            // step 5
+            int cost;
+            if (si == dj) {
+                cost = 0;
+            } else {
+                cost = 1;
+            }
+            // step 6
+            const int above = matrix[i - 1][j] + 1;
+            const int left = matrix[i][j - 1] + 1;
+            const int diag = matrix[i - 1][j - 1] + cost;
+            matrix[i][j] = min(above, min(left, diag));
+        }
+    }  // step7
+    return matrix[n][m];
 }
 
 ///////////////////////////////////////////////
@@ -545,10 +585,10 @@ std::string REST_StringHelper::TrimAndLower(std::string s) {
 ///////////////////////////////////////////////
 /// \brief Convert data member name to parameter name, following REST parameter naming convention.
 ///
-/// > The name of class data member, if starts from °∞f°± and have the second character in
+/// > The name of class data member, if starts from ‚Äúf‚Äù and have the second character in
 /// capital form, will be linked to a parameter. The linked parameter will strip the first
-/// °∞f°± and have the first letter in lowercase. For example, data member °∞fTargetName°± is
-/// linked to parameter °∞targetName°±.
+/// ‚Äúf‚Äù and have the first letter in lowercase. For example, data member ‚ÄúfTargetName‚Äù is
+/// linked to parameter ‚ÄútargetName‚Äù.
 string REST_StringHelper::DataMemberNameToParameterName(string name) {
     if (name == "") {
         return "";
@@ -563,10 +603,10 @@ string REST_StringHelper::DataMemberNameToParameterName(string name) {
 ///////////////////////////////////////////////
 /// \brief Convert parameter name to datamember name, following REST parameter naming convention.
 ///
-/// > The name of class data member, if starts from °∞f°± and have the second character in
+/// > The name of class data member, if starts from ‚Äúf‚Äù and have the second character in
 /// capital form, will be linked to a parameter. The linked parameter will strip the first
-/// °∞f°± and have the first letter in lowercase. For example, data member °∞fTargetName°± is
-/// linked to parameter °∞targetName°±.
+/// ‚Äúf‚Äù and have the first letter in lowercase. For example, data member ‚ÄúfTargetName‚Äù is
+/// linked to parameter ‚ÄútargetName‚Äù.
 string REST_StringHelper::ParameterNameToDataMemberName(string name) {
     if (name == "") {
         return "";
