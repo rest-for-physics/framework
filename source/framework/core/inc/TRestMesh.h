@@ -28,18 +28,18 @@ const int NODE_NOT_FOUND = -1;
 
 class TRestMesh : public TObject {
    protected:
-    TVector3 fNetOrigin;
+    TVector3 fNetOrigin = TVector3(0, 0, 0);
 
-    Double_t fNetSizeX;
-    Double_t fNetSizeY;
-    Double_t fNetSizeZ;
+    Double_t fNetSizeX = 0;
+    Double_t fNetSizeY = 0;
+    Double_t fNetSizeZ = 0;
 
-    Int_t fNodesX;
-    Int_t fNodesY;
-    Int_t fNodesZ;
+    Int_t fNodesX = 0;
+    Int_t fNodesY = 0;
+    Int_t fNodesZ = 0;
 
-    Int_t fNumberOfNodes;
-    Int_t fNumberOfGroups;
+    Int_t fNumberOfNodes = 0;
+    Int_t fNumberOfGroups = 0;
 
     std::vector<Int_t> nodeGroupID;
     std::vector<Int_t> nodeX;
