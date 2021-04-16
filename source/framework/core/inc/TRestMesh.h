@@ -88,6 +88,10 @@ class TRestMesh : public TObject {
     Int_t GetNodeY(Double_t y, Bool_t relative = false);
     Int_t GetNodeZ(Double_t z, Bool_t relative = false);
 
+    Int_t GetNodeX(TVector3 v, Bool_t relative = false);
+    Int_t GetNodeY(TVector3 v, Bool_t relative = false);
+    Int_t GetNodeZ(TVector3 v, Bool_t relative = false);
+
     /// Returns true if the coordinate system is set to cylindrical
     Bool_t IsCylindrical() { return fIsCylindrical; }
     /// Returns true if the coordinate system is set to spherical
@@ -123,7 +127,8 @@ class TRestMesh : public TObject {
     /// Sets the coordinate system to spherical
     void SetSpherical(Bool_t v) {
         if (v && (fNetSizeX != fNetSizeY || fNetSizeY != fNetSizeZ))
-            warning << "The net size should be the same in X, Y and Z for spherical net!" << endl;
+            std::cout << "Warning!! The net size should be the same in X, Y and Z for spherical net!"
+                      << std::endl;
 
         fIsSpherical = v;
     }
