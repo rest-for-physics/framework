@@ -68,14 +68,23 @@ void TRestProcessRunner::Initialize() {
     fAnalysisTree = NULL;
     fTempOutputDataFile = NULL;
     fThreads.clear();
-    ProcessInfo.clear();
+    fProcessInfo.clear();
 
     fThreadNumber = 0;
-    firstEntry = 0;
-    eventsToProcess = 0;
+    fFirstEntry = 0;
+    fEventsToProcess = 0;
     fProcessedEvents = 0;
     fProcessNumber = 0;
     fProcStatus = kNormal;
+
+    fUseTestRun = true;
+    fUsePauseMenu = true;
+    fValidateObservables = false;
+    fSortOutputEvents = true;
+    fInputAnalysisStorage = true;
+    fInputEventStorage = true;
+    fOutputEventStorage = true;
+    fOutputAnalysisStorage = true;
 }
 
 ///////////////////////////////////////////////
@@ -114,34 +123,43 @@ void TRestProcessRunner::BeginOfInit() {
         exit(1);
     }
 
-    firstEntry = StringToInteger(GetParameter("firstEntry", "0"));
+    ReadAllParameters();
+
+    // firstEntry = StringToInteger(GetParameter("firstEntry", "0"));
+    // eventsToProcess = StringToInteger(GetParameter("eventsToProcess", "0"));
     int lastEntry = StringToInteger(GetParameter("lastEntry", "0"));
-    eventsToProcess = StringToInteger(GetParameter("eventsToProcess", "0"));
-    if (lastEntry - firstEntry > 0 && eventsToProcess == 0) {
-        eventsToProcess = lastEntry - firstEntry;
-    } else if (eventsToProcess > 0 && lastEntry - firstEntry > 0 &&
-               lastEntry - firstEntry != eventsToProcess) {
+    if (lastEntry - fFirstEntry > 0 && fEventsToProcess == 0) {
+        fEventsToProcess = lastEntry - fFirstEntry;
+    } else if (fEventsToProcess > 0 && lastEntry - fFirstEntry > 0 &&
+               lastEntry - fFirstEntry != fEventsToProcess) {
         warning << "Conflict number of events to process!" << endl;
-    } else if (eventsToProcess > 0 && lastEntry - firstEntry == 0) {
-        lastEntry = firstEntry + eventsToProcess;
-    } else if (eventsToProcess == 0 && firstEntry == 0 && lastEntry == 0) {
-        eventsToProcess = REST_MAXIMUM_EVENTS;
+    } else if (fEventsToProcess > 0 && lastEntry - fFirstEntry == 0) {
+        lastEntry = fFirstEntry + fEventsToProcess;
+    } else if (fEventsToProcess == 0 && fFirstEntry == 0 && lastEntry == 0) {
+        fEventsToProcess = REST_MAXIMUM_EVENTS;
         lastEntry = REST_MAXIMUM_EVENTS;
     } else {
         warning << "error setting of event number" << endl;
-        eventsToProcess = eventsToProcess > 0 ? eventsToProcess : REST_MAXIMUM_EVENTS;
-        firstEntry = firstEntry > 0 ? firstEntry : 0;
-        lastEntry = lastEntry == firstEntry + eventsToProcess ? lastEntry : REST_MAXIMUM_EVENTS;
+        fEventsToProcess = fEventsToProcess > 0 ? fEventsToProcess : REST_MAXIMUM_EVENTS;
+        fFirstEntry = fFirstEntry > 0 ? fFirstEntry : 0;
+        lastEntry = lastEntry == fFirstEntry + fEventsToProcess ? lastEntry : REST_MAXIMUM_EVENTS;
     }
-    fRunInfo->SetCurrentEntry(firstEntry);
+    fRunInfo->SetCurrentEntry(fFirstEntry);
 
-    fUseTestRun = StringToBool(GetParameter("useTestRun", "ON"));
-    fValidateObservables = StringToBool(GetParameter("validateObservables", "OFF"));
-    fThreadNumber = StringToDouble(GetParameter("threadNumber", "1"));
-    if (ToUpper(GetParameter("inputAnalysis", "ON")) == "ON") fOutputItem[0] = true;
-    if (ToUpper(GetParameter("inputEvent", "OFF")) == "ON") fOutputItem[1] = true;
-    if (ToUpper(GetParameter("outputEvent", "ON")) == "ON") fOutputItem[2] = true;
-    fOutputItem[3] = true;
+    //fUseTestRun = StringToBool(GetParameter("useTestRun", "ON"));
+    //fUsePauseMenu = StringToBool(GetParameter("usePauseMenu", "OFF"));
+    if (!fUsePauseMenu || fVerboseLevel >= REST_Debug) fProcStatus = kIgnore;
+    if (fOutputAnalysisStorage == false) {
+        ferr << "output analysis must be turned on to process data!" << endl;
+        exit(1);
+    }
+    //fValidateObservables = StringToBool(GetParameter("validateObservables", "OFF"));
+    //fSortOutputEvents = StringToBool(GetParameter("sortOutputEvents", "ON"));
+    //fThreadNumber = StringToDouble(GetParameter("threadNumber", "1"));
+    //if (ToUpper(GetParameter("inputAnalysis", "ON")) == "ON") fOutputItem[0] = true;
+    //if (ToUpper(GetParameter("inputEvent", "OFF")) == "ON") fOutputItem[1] = true;
+    //if (ToUpper(GetParameter("outputEvent", "ON")) == "ON") fOutputItem[2] = true;
+    //fOutputItem[3] = true;
 
     // fOutputItem = Split(GetParameter("treeBranches",
     // "inputevent:outputevent:inputanalysis"), ":");
@@ -257,14 +275,14 @@ void TRestProcessRunner::EndOfInit() {
 /// Items: FirstProcess, LastProcess, ProcNumber
 void TRestProcessRunner::ReadProcInfo() {
     if (fRunInfo->GetFileProcess() != NULL) {
-        ProcessInfo["FirstProcess"] = fRunInfo->GetFileProcess()->GetName();
+        fProcessInfo["FirstProcess"] = fRunInfo->GetFileProcess()->GetName();
     } else {
-        if (fProcessNumber > 0) ProcessInfo["FirstProcess"] = fThreads[0]->GetProcess(0)->GetName();
+        if (fProcessNumber > 0) fProcessInfo["FirstProcess"] = fThreads[0]->GetProcess(0)->GetName();
     }
     int n = fProcessNumber;
-    ProcessInfo["LastProcess"] =
-        (n == 0 ? ProcessInfo["FirstProcess"] : fThreads[0]->GetProcess(n - 1)->GetName());
-    ProcessInfo["ProcNumber"] = ToString(n);
+    fProcessInfo["LastProcess"] =
+        (n == 0 ? fProcessInfo["FirstProcess"] : fThreads[0]->GetProcess(n - 1)->GetName());
+    fProcessInfo["ProcNumber"] = ToString(n);
 }
 
 ///////////////////////////////////////////////
@@ -295,9 +313,9 @@ void TRestProcessRunner::RunProcess() {
     info << endl;
     info << "TRestProcessRunner : preparing threads..." << endl;
     fRunInfo->ResetEntry();
-    fRunInfo->SetCurrentEntry(firstEntry);
+    fRunInfo->SetCurrentEntry(fFirstEntry);
     for (int i = 0; i < fThreadNumber; i++) {
-        fThreads[i]->PrepareToProcess(fOutputItem);
+        fThreads[i]->PrepareToProcess(&fInputAnalysisStorage);
     }
 
     // print metadata
@@ -349,7 +367,7 @@ void TRestProcessRunner::RunProcess() {
 
     tree = fThreads[0]->GetAnalysisTree();
     if (tree != NULL) {
-        nBranches = tree->GetNbranches();
+        fNBranches = tree->GetNbranches();
     } else {
         ferr << "Threads are not initialized! No AnalysisTree!" << endl;
         exit(1);
@@ -359,7 +377,7 @@ void TRestProcessRunner::RunProcess() {
     this->ResetRunTimes();
     fProcessedEvents = 0;
     fRunInfo->ResetEntry();
-    fRunInfo->SetCurrentEntry(firstEntry);
+    fRunInfo->SetCurrentEntry(fFirstEntry);
     inputtreeentries = fRunInfo->GetEntries();
 
     // set root mutex
@@ -383,7 +401,7 @@ void TRestProcessRunner::RunProcess() {
     }
 
     while (fProcStatus == kPause ||
-           (fRunInfo->GetInputEvent() != NULL && eventsToProcess > fProcessedEvents)) {
+           (fRunInfo->GetInputEvent() != NULL && fEventsToProcess > fProcessedEvents)) {
         PrintProcessedEvents(100);
 
         if (fProcStatus == kNormal && Console::kbhit())  // if keyboard inputs
@@ -421,7 +439,7 @@ void TRestProcessRunner::RunProcess() {
         // printf("%d processed events now...\r", fProcessedEvents); fflush(stdout);
     }
 
-    if (Console::kbhit())
+    if (fProcStatus != kIgnore && Console::kbhit())
         while (getchar() != '\n')
             ;  // clear buffer
 
@@ -695,10 +713,10 @@ Int_t TRestProcessRunner::GetNextevtFunc(TRestEvent* targetevt, TRestAnalysisTre
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
 #endif
     int n;
-    if (fProcessedEvents >= eventsToProcess || targetevt == NULL || fProcStatus == kStop) {
+    if (fProcessedEvents >= fEventsToProcess || targetevt == NULL || fProcStatus == kStop) {
         n = -1;
     } else {
-        if (fOutputItem[0] == false) {
+        if (fInputAnalysisStorage == false) {
             n = fRunInfo->GetNextEvent(targetevt, NULL);
         } else {
             n = fRunInfo->GetNextEvent(targetevt, targettree);
@@ -720,6 +738,35 @@ Int_t TRestProcessRunner::GetNextevtFunc(TRestEvent* targetevt, TRestAnalysisTre
 /// simultaneously in two threads. As a result threads will not write their
 /// files together, thus preventing segmentaion violation.
 void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
+
+    if (fSortOutputEvents) {
+        // Make sure the thread has the minimum event id in the all the
+        // threads. Otherwise just wait.
+        while (1) {
+            bool smallest = true;
+            for (TRestThread* otherT : fThreads) {
+                if (otherT->Finished()) {
+                    continue;
+                }
+                if (t->GetThreadId() == otherT->GetThreadId()) {
+                    continue;
+                }
+                int id1 = t->GetInputEvent()->GetID();
+                int id2 = otherT->GetInputEvent()->GetID();
+                if (id1 > id2) {
+                    smallest = false;
+                } else if (id1 == id2) {
+                    cout << "warning! Two events with same event id! output events maybe dis-ordered!"
+                         << endl;
+                }
+            }
+
+            if (smallest) break;
+            usleep(1);
+        }
+    }
+
+    // Start event saving, entering mutex lock region.
     mutexx.lock();
 #ifdef TIME_MEASUREMENT
     high_resolution_clock::time_point t5 = high_resolution_clock::now();
@@ -786,7 +833,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
 void TRestProcessRunner::ConfigOutputFile() {
     essential << "Configuring output file, merging thread files together" << endl;
 #ifdef TIME_MEASUREMENT
-    ProcessInfo["ProcessTime"] = ToString(deltaTime) + "ms";
+    fProcessInfo["ProcessTime"] = ToString(deltaTime) + "ms";
 #endif
 
     vector<string> files_to_merge;
@@ -839,7 +886,7 @@ void TRestProcessRunner::ResetRunTimes() {
     deltaTime = 0;
 #endif
     time_t tt = time(NULL);
-    ProcessInfo["ProcessDate"] = Split(ToDateTimeString(tt), " ")[0];
+    fProcessInfo["ProcessDate"] = Split(ToDateTimeString(tt), " ")[0];
 }
 
 ///////////////////////////////////////////////
@@ -888,22 +935,22 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
         double progspeed = progsum / ncalculated / printInterval * 1000000;
 
         double prog = 0;
-        if (eventsToProcess == REST_MAXIMUM_EVENTS && fRunInfo->GetFileProcess() != NULL)
+        if (fEventsToProcess == REST_MAXIMUM_EVENTS && fRunInfo->GetFileProcess() != NULL)
         // Nevents is unknown, reading external data file
         {
             prog = fRunInfo->GetBytesReaded() / (double)fRunInfo->GetTotalBytes() * 100;
         } else if (fRunInfo->GetFileProcess() != NULL)
         // Nevents is known, reading external data file
         {
-            prog = fProcessedEvents / (double)eventsToProcess * 100;
-        } else if (eventsToProcess == REST_MAXIMUM_EVENTS)
+            prog = fProcessedEvents / (double)fEventsToProcess * 100;
+        } else if (fEventsToProcess == REST_MAXIMUM_EVENTS)
         // Nevents is unknown, reading root file
         {
             prog = fRunInfo->GetCurrentEntry() / (double)inputtreeentries * 100;
         }
 
         else {
-            prog = fProcessedEvents / (double)eventsToProcess * 100;
+            prog = fProcessedEvents / (double)fEventsToProcess * 100;
         }
 
         char* buffer = new char[500]();
@@ -995,7 +1042,7 @@ void TRestProcessRunner::PrintMetadata() {
 
     metadata << "Status : " << status << endl;
     metadata << "Processesed events : " << fProcessedEvents << endl;
-    metadata << "Analysis tree branches : " << nBranches << endl;
+    metadata << "Analysis tree branches : " << fNBranches << endl;
     metadata << "Thread number : " << fThreadNumber << endl;
     metadata << "Processes in each thread : " << fProcessNumber << endl;
 

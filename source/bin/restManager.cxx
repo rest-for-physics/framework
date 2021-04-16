@@ -28,7 +28,7 @@ int fork_n_execute(string command) {
         exit(EXIT_SUCCESS);
     } else if (pid < 0) {
         /* The fork failed */
-        printf("Failed to fork(): %s ", command);
+        printf("Failed to fork(): %s ", command.c_str());
         status = -1;
     }
 
@@ -218,7 +218,7 @@ int main(int argc, char* argv[]) {
                         if (args[x] != "--f" && args[x - 1] != "--f" && args[x] != "--fork")
                             command += " " + args[x];
                     }
-                    command += " --f " + input_files[n] + " >> /tmp/" + getenv("USER") + "_out." + n;
+                    command += " --f " + input_files[n] + " >> /tmp/" + getenv("USER") + "_out." + ToString(n);
                     fout << "Executing : " << command << endl;
                     fork_n_execute(command);
                 }

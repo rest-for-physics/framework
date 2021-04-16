@@ -25,9 +25,9 @@
     <TRestDetectorGas type="TRestDetectorGas" name="Xenon-TMA 1Pct 10-10E3Vcm" file="server" pressure="10"/>
   </TRestRun>
   <TRestProcessRunner name="pixelization" title="Stripped manager.">
-    <parameter name="outputEvent" value="off" />
-    <parameter name="inputEvent" value="off" />
-    <parameter name="inputAnalysis" value="off" />
+    <parameter name="outputEventStorage" value="off" />
+    <parameter name="inputEventStorage" value="off" />
+    <parameter name="inputAnalysisStorage" value="off" />
     <parameter name="firstEntry" value="0" />
     <parameter name="lastEntry" value="100000000000" />
     <parameter name="eventsToProcess" value="10" />

@@ -8,8 +8,8 @@
 	<label value="Run duration : <<runLength>> hours" x="0.25" y="0.50" />
 	<label value="Mean rate : <<meanRate>> Hz" x="0.25" y="0.42" />
 
-	<label value="Detector pressure : <<TRestDetectorSetup::fDetectorPressure>> bar" x="0.25" y="0.30" />
-	<label value="Mesh voltage : <<TRestDetectorSetup::fMeshVoltage>> V" x="0.25" y="0.22" />
-	<label value="Drift voltage : <<TRestDetectorSetup::fDriftField>> V/cm/bar" x="0.25" y="0.14" />
-	<label value="Electronics gain : <<TRestDetectorSetup::fElectronicsGain>>" x="0.25" y="0.06" />
+	<label value="Detector pressure : [TRestDetector::fPressure] bar" x="0.25" y="0.30" />
+	<label value="Mesh voltage : [TRestDetector::fAmplificationVoltage] V" x="0.25" y="0.22" />
+	<label value="Drift voltage : [TRestDetector::fDriftField] V/cm/bar" x="0.25" y="0.14" />
+	<label value="Electronics gain : [TRestDetector::fElectronicsGain]" x="0.25" y="0.06" />
 </panel>

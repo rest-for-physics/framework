@@ -1,4 +1,4 @@
-image: nkx1231/root6-geant4-garfield:0.6
+image: lobis/root-geant4-garfieldpp
 
 variables:
 #    GIT_SUBMODULE_STRATEGY: recursive
@@ -47,13 +47,17 @@ before_script:
   - if [ -d $HOME/.rest ]; then rm -Rf $HOME/.rest; fi
   - pwd
   - root-config --version
+  - if [ -f "/opt/geant4/install/bin/geant4.sh" ]; then source /opt/geant4/install/bin/geant4.sh; fi
   - geant4-config --version
+  - if [ -d "/opt/garfieldpp/install" ]; then export GARFIELD_HOME=/opt/garfieldpp/install; fi
+  - if [ -d "/opt/garfieldpp/install" ]; then export HEED_DATABASE=$GARFIELD_HOME/Heed/heed++/database; fi
+  - if [ -d "/opt/garfieldpp/install" ]; then export LD_LIBRARY_PATH=$GARFIELD_HOME/lib:$LD_LIBRARY_PATH; fi
+  - ls $GARFIELD_HOME
   - python3 --version
 
 clang-format:
   stage: pre-build
   script:
-
     - if [ $CI_SERVER_HOST != "lfna.unizar.es" ]; then exit 0; fi
     - cd ${CI_PROJECT_DIR}/
     - if [ -n "$CRONJOB" ]; then ./pipeline/clangformattest.sh; else echo "Skipping clang-format"; fi
@@ -68,7 +72,9 @@ clang-format:
 validateCode:
     stage: pre-build
     script:
-        - python ${CI_PROJECT_DIR}/pipeline/validateProcesses.py ${CI_PROJECT_DIR}/source/processes/
+        - cd ${CI_PROJECT_DIR}/
+        - python3 pull-submodules.py --force --dontask
+        - python3 pipeline/validateProcesses.py source/libraries/
     except:
         variables:
             - $CRONJOB == "YES"
@@ -93,7 +99,7 @@ build:
   type: build
   script:
     - cd ${CI_PROJECT_DIR}/
-    - python3.5 pull-submodules.py --force --dontask
+    - python3 pull-submodules.py --force --dontask
     - if [ -d ${CI_PROJECT_DIR}/build ]; then rm -Rf ${CI_PROJECT_DIR}/build; fi
     - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build/
     - rm -rf ${CI_PROJECT_DIR}/install
@@ -107,6 +113,23 @@ build:
     paths:
       - ${CI_PROJECT_DIR}/install
     expire_in: 1 day
+
+build_nkx:
+  image: nkx1231/root6-geant4-garfield:0.6
+  type: build
+  script:
+    - cd ${CI_PROJECT_DIR}/
+    - python3 pull-submodules.py --force --dontask
+    - if [ -d ${CI_PROJECT_DIR}/build ]; then rm -Rf ${CI_PROJECT_DIR}/build; fi
+    - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build/
+    - if [ -d ${CI_PROJECT_DIR}/install_nkx]; then rm -Rf ${CI_PROJECT_DIR}/install_nkx; fi
+    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install_nkx
+    - make install -j2
+    - cat ${CI_PROJECT_DIR}/install_nkx/thisREST.sh
+#    - . ${CI_PROJECT_DIR}/install_nkx/thisREST.sh
+  except:
+      variables:
+        - $CRONJOB == "YES"
 
 loadRESTLibs:
   type: install
@@ -262,7 +285,7 @@ trexDM_data:
     - rm RawData_01929.root
     - rm Signals_01929.root
     - root -b -q ../ValidateTrees.C'("validation.root")'
-    - root -b -q ValidateDetectorParams.C'("Hits_01929.root")'
+    - restRoot -b -q ValidateDetectorParams.C'("Hits_01929.root")'
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/pipeline/trex/Hits_01929.root

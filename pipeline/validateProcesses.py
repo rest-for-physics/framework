@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: iso-8859-15 -*-
 
 # This script generates the version header to be used in REST installation
@@ -14,8 +14,8 @@ import subprocess
 
 
 def validateProcess(className):
-    print ""
-    print "++++ Validating process : " + className
+    print ("")
+    print ("++++ Validating process : " + className)
     with open(className, 'r') as file:
         data = file.read()
 
@@ -30,10 +30,10 @@ def validateProcess(className):
             for i in map: 
                 iObsPos = map[i]
                 if iObsPos > returnPos:
-                    print " - Process is likely to be returned before SetObservableValue!!"
-                    print " - FILE : " + className
+                    print (" - Process is likely to be returned before SetObservableValue!!")
+                    print (" - FILE : " + className)
                     sys.exit(1)
-    print "OK"
+    print ("OK")
     return
 
 def getObservablePositions(data):
@@ -50,7 +50,7 @@ def getObservablePositions(data):
            break
 
         name = data[pos1:pos2]
-        if(not obsposes.has_key(name)):
+        if(not name in obsposes):
             obsposes[name] = pos1
 
         pos = pos2 + 1
@@ -76,7 +76,7 @@ def getMethodDefinition(text):
                 counter = counter - 1
                 start = pos2 + 1
         elif pos1 != -1:
-                print "Big error!!"
+                print ("Big error!!")
         else:
                 counter = counter - 1
                 start = pos2 + 1
@@ -153,7 +153,8 @@ files = []
 # r=root, d=directories, f = files
 for r, d, f in os.walk(sys.argv[1]):
         for file in f:
-                    if 'Process.cxx' in file:
+                    if file.endswith('Process.cxx'):
+                                    print("Validating " + file )
  #                                   files.append(os.path.join(r, file))
                                     validateProcess(os.path.join(r, file))
 

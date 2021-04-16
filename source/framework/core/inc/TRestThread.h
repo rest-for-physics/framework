@@ -63,6 +63,9 @@ class TRestThread : public TRestMetadata {
     void SetThreadId(Int_t id);
     void SetOutputTree(TRestAnalysisTree* t) { fAnalysisTree = t; }
     void SetProcessRunner(TRestProcessRunner* r) { fHostRunner = r; }
+
+    Int_t GetThreadId() { return fThreadId; }
+    TRestEvent* GetInputEvent() { return fInputEvent; }
     TFile* GetOutputFile() { return fOutputFile; };
     TRestEvent* GetOutputEvent() { return fOutputEvent; }
     Int_t GetProcessnum() { return fProcessChain.size(); }

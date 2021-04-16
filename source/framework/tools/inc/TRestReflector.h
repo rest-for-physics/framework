@@ -144,6 +144,14 @@ namespace REST_Reflection {
                 typeinfo = &typeid(ULong_t);
                 size = sizeof(ULong_t);
                 break;
+            case ToHash("Long64_t"):
+                typeinfo = &typeid(Long64_t);
+                size = sizeof(Long64_t);
+                break;
+            case ToHash("ULong64_t"):
+                typeinfo = &typeid(ULong64_t);
+                size = sizeof(ULong64_t);
+                break;
             case ToHash("Float_t"):
                 typeinfo = &typeid(Float_t);
                 size = sizeof(Float_t);
@@ -338,10 +346,12 @@ class TRestReflector {
     void Destroy();
     /// Print the Hex memory map of the wrappered object
     void PrintMemory(int bytepreline = 16);
-    /// Get its data member if the wrapped object is a class
+    /// Find the class's datamember as TRestReflector object, including those from base class
     TRestReflector GetDataMember(string name);
-    /// Get its data member if the wrapped object is a class
+    /// Get the i-th datamember of the class, ignoring those from base class
     TRestReflector GetDataMember(int ID);
+    /// Get a list of the class's datamembers as a vector of string, including those from base class
+    vector<string> GetListOfDataMembers();
     /// Get the value of datamember as string.
     string GetDataMemberValueString(string name);
     /// Get the number of data members of a class
