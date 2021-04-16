@@ -28,7 +28,7 @@ int fork_n_execute(string command) {
         exit(EXIT_SUCCESS);
     } else if (pid < 0) {
         /* The fork failed */
-        printf("Failed to fork(): %s ", command);
+        printf("Failed to fork(): %s ", command.c_str());
         status = -1;
     }
 
