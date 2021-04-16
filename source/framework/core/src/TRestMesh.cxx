@@ -1,17 +1,61 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
+
+//////////////////////////////////////////////////////////////////////////
+/// TRestMesh is a helper class allowing to define a uniform grid that can be
+/// filled directly with a TRestHits structure.
 ///
+/// The class keeps track only of those nodes (cells in the grid) where a hit
+/// was found. TRestMesh also includes grouping algorithms allowing to define
+/// a node group id. Assigning a unique group id to those cells that are
+/// neighbours.
 ///
-///             RESTSoft : Software for Rare Event Searches with TPCs
+/// This class was originally created to be used at TRestAxionMagneticField
+/// and TRestDetectorHitsToTrackFastProcess.
 ///
-///             TRestMesh.cxx
+/// If spherical coordinates are enabled, the X,Y,Z dimensions will relate to
+/// R, Theta, and Phi. The interface with the class still keeps using
+/// X,Y,Z coordinates, but the nodes (nX,nY,nZ) will make reference to the
+/// position in a grid divided at uniform steps in R, Theta and Phi, where
+/// `GetX( nX, nY, nZ)`, `GetY( nX, nY, nZ) and `GetZ( nX, nY, nZ)` will
+/// return the cartesian coordinates, but nX, nY and nZ will make reference to
+/// the cell at a given radius, and theta and phi angles.
 ///
-///             Event class to help for using mesh nodes
+///--------------------------------------------------------------------------
 ///
-///             feb 2016:
-///                 Javier Galan
-///_______________________________________________________________________________
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2016-February: First concept and implementation of TRestMesh.
+/// \author     Javier Galan
+///
+/// 2021-Abril: Including spherical coordinates capability
+/// \author     Javier Galan
+///
+/// \class TRestMesh
+///
+/// <hr>
+///
 
 #include "TRestMesh.h"
 #include "TRestPhysics.h"
@@ -19,12 +63,15 @@ using namespace std;
 using namespace TMath;
 
 ClassImp(TRestMesh);
-//______________________________________________________________________________
-TRestMesh::TRestMesh() {
-    // TRestMesh default constructor
-}
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestMesh::TRestMesh() {}
+
+///////////////////////////////////////////////
+/// \brief Constructor specifying the size (sX=sY=sZ=size) and the number of nodes (nX=nY=nZ=nodes).
+///
 TRestMesh::TRestMesh(Double_t size, Int_t nodes) {
     fNetSizeX = size;
     fNetSizeY = size;
@@ -38,6 +85,9 @@ TRestMesh::TRestMesh(Double_t size, Int_t nodes) {
     fNetOrigin = TVector3(0, 0, 0);
 }
 
+///////////////////////////////////////////////
+/// \brief Constructor specifying the size, origin, and number of nodes in each dimension.
+///
 TRestMesh::TRestMesh(TVector3 size, TVector3 position, Int_t nx, Int_t ny, Int_t nz) {
     fNetSizeX = size.X();
     fNetSizeY = size.Y();
@@ -51,19 +101,51 @@ TRestMesh::TRestMesh(TVector3 size, TVector3 position, Int_t nx, Int_t ny, Int_t
     fNetOrigin = position;
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Default destructor
+///
 TRestMesh::~TRestMesh() {
     // TRestMesh destructor
 }
 
-//! Gets the X position of node (i,j)
-Double_t TRestMesh::GetX(Int_t nX) { return fNetOrigin.X() + (fNetSizeX / (fNodesX - 1)) * nX; }
+///////////////////////////////////////////////
+/// \brief Gets the cartesian position of nodeX
+///
+Double_t TRestMesh::GetX(Int_t nX) { return GetPosition(nX, 0, 0).X(); }
 
-//! Gets the Y position of node (i,j)
-Double_t TRestMesh::GetY(Int_t nY) { return fNetOrigin.Y() + (fNetSizeY / (fNodesY - 1)) * nY; }
+///////////////////////////////////////////////
+/// \brief Gets the cartesian position of nodeY
+///
+Double_t TRestMesh::GetY(Int_t nY) { return GetPosition(0, nY, 0).Y(); }
 
-//! Gets the Z position of node (i,j)
-Double_t TRestMesh::GetZ(Int_t nZ) { return fNetOrigin.Z() + (fNetSizeZ / (fNodesZ - 1)) * nZ; }
+///////////////////////////////////////////////
+/// \brief Gets the cartesian position of nodeZ
+///
+Double_t TRestMesh::GetZ(Int_t nZ) { return GetPosition(0, 0, nZ).Z(); }
+
+///////////////////////////////////////////////
+/// \brief Gets the position of the corresponding node.
+///
+TVector3 TRestMesh::GetPosition(Int_t nX, Int_t nY, Int_t nZ) {
+    if (fIsSpherical) {
+        Double_t r = (fNetSizeX / (fNodesX - 1)) * nX;
+        Double_t theta = (TMath::Pi() / (fNodesY - 1)) * nY;
+        Double_t phi = (2 * TMath::Pi() / (fNodesY - 1)) * nZ - TMath::Pi();
+
+        TVector3 v;
+        v.SetMag(r);
+        v.SetTheta(theta);
+        v.SetPhi(phi);
+
+    } else {
+        Double_t x = fNetOrigin.X() + (fNetSizeX / (fNodesX - 1)) * nX;
+        Double_t y = fNetOrigin.Y() + (fNetSizeY / (fNodesY - 1)) * nY;
+        Double_t z = fNetOrigin.Z() + (fNetSizeZ / (fNodesZ - 1)) * nZ;
+        return TVector3(x, y, z);
+    }
+
+    return TVector3(0, 0, 0);
+}
 
 ///////////////////////////////////////////////
 /// \brief Gets the node index corresponding to the x-coordinate.
@@ -89,9 +171,34 @@ Int_t TRestMesh::GetNodeX(Double_t x, Bool_t relative) {
         return 0;
     }
 
-    Int_t nX = (Int_t)(xInside * (fNodesX - 1) / fNetSizeX);
+    return (Int_t)(xInside * (fNodesX - 1) / fNetSizeX);
+}
 
-    return nX;
+///////////////////////////////////////////////
+/// \brief Gets the node index corresponding to the x-coordinate or r-coordinate in spherical coordinates.
+///
+/// If relative it is true it means the x-coordinate is already relative to the origin of the mesh.
+/// By default the x-coordinate is given in absolute coordinates, i.e. relative=false.
+///
+Int_t TRestMesh::GetNodeX(TVector3 v, Bool_t relative) {
+    // If it is cylindrical we still follow the cartesian approach :(
+    if (fIsCylindrical || !fIsSpherical) return GetNodeX(v.X(), relative);
+
+    // if( fIsSpherical ) {
+
+    TVector3 posInside = v - fNetOrigin;
+    if (relative) posInside = v;
+
+    if (posInside.Mag() > fNetSizeX) {
+        cout << "REST WARNING (TRestMesh) : Relative position (" << posInside.X() << ", " << posInside.Y()
+             << ", " << posInside.Z() << ")"
+             << ") outside boundaries. Setting it to : " << fNodesX - 1 << endl;
+        return fNodesX - 1;
+    }
+
+    // }
+
+    return (Int_t)(posInside.Mag() * (fNodesX - 1) / fNetSizeX);
 }
 
 ///////////////////////////////////////////////
@@ -124,6 +231,31 @@ Int_t TRestMesh::GetNodeY(Double_t y, Bool_t relative) {
 }
 
 ///////////////////////////////////////////////
+/// \brief Gets the node index corresponding to the x-coordinate or theta-coordinate in spherical coordinates.
+///
+/// If relative it is true it means the x-coordinate is already relative to the origin of the mesh.
+/// By default the x-coordinate is given in absolute coordinates, i.e. relative=false.
+///
+Int_t TRestMesh::GetNodeY(TVector3 v, Bool_t relative) {
+    // If it is cylindrical we still follow the cartesian approach :(
+    if (fIsCylindrical || !fIsSpherical) return GetNodeY(v.Y(), relative);
+
+    // if( fIsSpherical ) {
+
+    TVector3 posInside = v - fNetOrigin;
+    if (relative) posInside = v;
+
+    if (posInside.Mag() > fNetSizeX) {  // fNetSizeX = fNetSizeY = fNetSizeZ
+        cout << "REST WARNING (TRestMesh) : Relative position (" << posInside.X() << ", " << posInside.Y()
+             << ", " << posInside.Z() << ") outside boundaries. Setting it to : " << fNodesY - 1 << endl;
+        return fNodesY - 1;
+    }
+    // }
+
+    return (Int_t)(posInside.Theta() * (fNodesY - 1) / TMath::Pi());
+}
+
+///////////////////////////////////////////////
 /// \brief Gets the node index corresponding to the z-coordinate.
 ///
 /// If relative it is true it means the z-coordinate is already relative to the origin of the mesh.
@@ -151,10 +283,41 @@ Int_t TRestMesh::GetNodeZ(Double_t z, Bool_t relative) {
     return nZ;
 }
 
+///////////////////////////////////////////////
+/// \brief Gets the node index corresponding to the x-coordinate or theta-coordinate in spherical coordinates.
+///
+/// If relative it is true it means the x-coordinate is already relative to the origin of the mesh.
+/// By default the x-coordinate is given in absolute coordinates, i.e. relative=false.
+///
+Int_t TRestMesh::GetNodeZ(TVector3 v, Bool_t relative) {
+    // If it is cylindrical we still follow the cartesian approach :(
+    if (fIsCylindrical || !fIsSpherical) return GetNodeY(v.Y(), relative);
+
+    // if( fIsSpherical ) {
+
+    TVector3 posInside = v - fNetOrigin;
+    if (relative) posInside = v;
+
+    if (posInside.Mag() > fNetSizeX) {  // fNetSizeX = fNetSizeY = fNetSizeZ
+        cout << "REST WARNING (TRestMesh) : Relative position (" << posInside.X() << ", " << posInside.Y()
+             << ", " << posInside.Z() << ") outside boundaries. Setting it to : " << fNodesZ - 1 << endl;
+        return fNodesZ - 1;
+    }
+    // }
+
+    return (Int_t)((posInside.Phi() + TMath::Pi()) * (fNodesZ - 1) / 2. / TMath::Pi());
+}
+
+///////////////////////////////////////////////
+/// \brief It initializes the nodes using the hit coordinates found inside a TRestHits structure
+///
 void TRestMesh::SetNodesFromHits(TRestHits* hits) {
     double nan = numeric_limits<double>::quiet_NaN();
     for (int hit = 0; hit < hits->GetNumberOfHits(); hit++) {
         REST_HitType type = hits->GetType(hit);
+        if (fIsSpherical) this->AddNode(hits->GetX(hit), hits->GetY(hit), hits->GetZ(hit));
+
+        // cartesian and cylindrical
         this->AddNode(type == YZ ? nan : hits->GetX(hit), type == XZ ? nan : hits->GetY(hit),
                       hits->GetZ(hit));
     }
@@ -162,6 +325,9 @@ void TRestMesh::SetNodesFromHits(TRestHits* hits) {
     Regrouping();
 }
 
+///////////////////////////////////////////////
+/// \brief Needs TO BE documented
+///
 void TRestMesh::Regrouping() {
     for (int g = 0; g < GetNumberOfGroups(); g++) {
         Int_t nbIndex = 0;
@@ -201,16 +367,25 @@ void TRestMesh::Regrouping() {
     }
 }
 
+///////////////////////////////////////////////
+/// \brief Returns the vector position for a given node index.
+/// If the node is not found, -1 will be returned.
+///
 Int_t TRestMesh::GetNodeIndex(Int_t nx, Int_t ny, Int_t nz) {
     for (int i = 0; i < GetNumberOfNodes(); i++)
         if (nodeX[i] == nx && nodeY[i] == ny && nodeZ[i] == nz) return i;
     return -1;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns the group id corresponding to the x,y,z coordinate.
+/// If the coordinate falls at a non-initialized node, it will return
+/// GROUP_NOT_FOUND.
+///
 Int_t TRestMesh::GetGroupId(Double_t x, Double_t y, Double_t z) {
-    Int_t nx = GetNodeX(x);
-    Int_t ny = GetNodeY(y);
-    Int_t nz = GetNodeZ(z);
+    Int_t nx = GetNodeX(TVector3(x, y, z));
+    Int_t ny = GetNodeY(TVector3(x, y, z));
+    Int_t nz = GetNodeZ(TVector3(x, y, z));
 
     Int_t index = GetNodeIndex(nx, ny, nz);
     if (index != NODE_NOT_SET) return nodeGroupID[index];
@@ -218,12 +393,19 @@ Int_t TRestMesh::GetGroupId(Double_t x, Double_t y, Double_t z) {
     return GROUP_NOT_FOUND;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns the group id using the position inside the nodes vector.
+///
 Int_t TRestMesh::GetGroupId(Int_t index) {
     if (index > (int)nodeGroupID.size()) return GROUP_NOT_FOUND;
 
     return nodeGroupID[index];
 }
 
+///////////////////////////////////////////////
+/// \brief Returns the group id of the first node identified in the
+/// neighbour cell from cell=(nx,ny,nz).
+///
 Int_t TRestMesh::FindNeighbourGroup(Int_t nx, Int_t ny, Int_t nz) {
     Int_t index = NODE_NOT_SET;
 
@@ -238,6 +420,11 @@ Int_t TRestMesh::FindNeighbourGroup(Int_t nx, Int_t ny, Int_t nz) {
     return GROUP_NOT_FOUND;
 }
 
+///////////////////////////////////////////////
+/// \brief It identifies a foreign neighbour. I.e. if the group id of the neighbour cell
+/// is different to the cell=(nx,ny,nz) it will return the neighbour index with different
+/// group id.
+///
 Int_t TRestMesh::FindForeignNeighbour(Int_t nx, Int_t ny, Int_t nz) {
     Int_t index = GetNodeIndex(nx, ny, nz);
 
@@ -257,7 +444,9 @@ Int_t TRestMesh::FindForeignNeighbour(Int_t nx, Int_t ny, Int_t nz) {
     return GROUP_NOT_FOUND;
 }
 
-// Setters
+///////////////////////////////////////////////
+/// \brief Sets the origin of the bounding-box and initializes the nodes vector to zero.
+///
 void TRestMesh::SetOrigin(Double_t oX, Double_t oY, Double_t oZ) {
     fNetOrigin = TVector3(oX, oY, oZ);
     // TODO instead of removing nodes we might need just to re-translate the
@@ -265,6 +454,9 @@ void TRestMesh::SetOrigin(Double_t oX, Double_t oY, Double_t oZ) {
     RemoveNodes();
 }
 
+///////////////////////////////////////////////
+/// \brief Sets the origin of the bounding-box and initializes the nodes vector to zero.
+///
 void TRestMesh::SetOrigin(TVector3 pos) {
     fNetOrigin = pos;
     // TODO instead of removing nodes we might need just to re-translate the
@@ -272,6 +464,9 @@ void TRestMesh::SetOrigin(TVector3 pos) {
     RemoveNodes();
 }
 
+///////////////////////////////////////////////
+/// \brief Sets the origin of the bounding-box and initializes the nodes vector to zero.
+///
 void TRestMesh::SetSize(Double_t sX, Double_t sY, Double_t sZ) {
     fNetSizeX = sX;
     fNetSizeY = sY;
@@ -281,6 +476,9 @@ void TRestMesh::SetSize(Double_t sX, Double_t sY, Double_t sZ) {
     RemoveNodes();
 }
 
+///////////////////////////////////////////////
+/// \brief Sets the number of nodes and initializes the nodes vector to zero.
+///
 void TRestMesh::SetNodes(Int_t nX, Int_t nY, Int_t nZ) {
     fNodesX = nX;
     fNodesY = nY;
@@ -290,10 +488,15 @@ void TRestMesh::SetNodes(Int_t nX, Int_t nY, Int_t nZ) {
     RemoveNodes();
 }
 
+///////////////////////////////////////////////
+/// \brief If adds corresponding node to xyz-coordinates if not previously defined
+///
 void TRestMesh::AddNode(Double_t x, Double_t y, Double_t z) {
-    Int_t nx = GetNodeX(x);
-    Int_t ny = GetNodeY(y);
-    Int_t nz = GetNodeZ(z);
+    TVector3 v = TVector3(x, y, z);
+
+    Int_t nx = GetNodeX(v);
+    Int_t ny = GetNodeY(v);
+    Int_t nz = GetNodeZ(v);
 
     /*
     cout << "Adding node : x=" << x  << " y=" << y << " z=" << z << endl;
@@ -321,6 +524,9 @@ void TRestMesh::AddNode(Double_t x, Double_t y, Double_t z) {
     }
 }
 
+///////////////////////////////////////////////
+/// \brief It initializes all node vectors to zero
+///
 void TRestMesh::RemoveNodes() {
     nodeGroupID.clear();
     nodeX.clear();
@@ -330,8 +536,22 @@ void TRestMesh::RemoveNodes() {
     fNumberOfGroups = 0;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns true if the position is found inside the grid (box,sphere or cylinder).
+///
 Bool_t TRestMesh::IsInside(TVector3 pos) {
     if (pos.Z() < fNetOrigin.Z() || pos.Z() > fNetOrigin.Z() + fNetSizeZ) return false;
+
+    if (IsSpherical()) {
+        // By definition we use X coordinate to define sphere radius
+        Double_t R = fNetSizeX / 2.;
+        Double_t posRadius = (GetNetCenter() - pos).Mag();
+
+        if (posRadius < R)
+            return true;
+        else
+            return false;
+    }
 
     if (IsCylindrical()) {
         // By definition we use X coordinate to define cylinder radius
@@ -348,6 +568,9 @@ Bool_t TRestMesh::IsInside(TVector3 pos) {
     return true;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns true if the position is found inside the bounding box
+///
 Bool_t TRestMesh::IsInsideBoundingBox(TVector3 pos) {
     if (pos.Z() < fNetOrigin.Z() || pos.Z() > fNetOrigin.Z() + fNetSizeZ) return false;
     if (pos.X() < fNetOrigin.X() || pos.X() > fNetOrigin.X() + fNetSizeX) return false;
@@ -474,6 +697,9 @@ std::vector<TVector3> TRestMesh::GetTrackBoundaries(TVector3 pos, TVector3 dir, 
     return boundaries;
 }
 
+///////////////////////////////////////////////
+/// \brief Needs TO BE documented
+///
 std::vector<TVector3> TRestMesh::GetTrackBoundariesCylinder(TVector3 pos, TVector3 dir, Bool_t particle) {
     TVector3 netCenter = this->GetNetCenter();
 
@@ -552,6 +778,9 @@ std::vector<TVector3> TRestMesh::GetTrackBoundariesCylinder(TVector3 pos, TVecto
     return boundaries;
 }
 
+///////////////////////////////////////////////
+/// \brief Prints the nodes information
+///
 void TRestMesh::Print() {
     std::cout << "Mesh. Number of nodes : " << GetNumberOfNodes()
               << " Number of groups : " << GetNumberOfGroups() << std::endl;
