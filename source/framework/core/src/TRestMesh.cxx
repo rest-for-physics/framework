@@ -328,6 +328,23 @@ void TRestMesh::SetNodesFromHits(TRestHits* hits) {
 }
 
 ///////////////////////////////////////////////
+/// \brief It initializes the nodes using the hit coordinates found inside a TRestHits structure.
+/// This method will assume that the hit coordinates are expressed in spherical coordinates.
+/// (R, Theta, Phi).
+///
+void TRestMesh::SetNodesFromSphericalHits(TRestHits* hits) {
+    if (!fIsSpherical)
+        cout << "TRestMesh::SetNodesFromSphericalHits is only to be used with a spherical mesh!" << endl;
+
+    for (int hit = 0; hit < hits->GetNumberOfHits(); hit++) {
+        if (hits->GetEnergy(hit) <= 0) continue;
+        this->AddSphericalNode(hits->GetX(hit), hits->GetY(hit), hits->GetZ(hit), hits->GetEnergy(hit));
+    }
+
+    Regrouping();
+}
+
+///////////////////////////////////////////////
 /// \brief Needs TO BE documented
 ///
 void TRestMesh::Regrouping() {
@@ -495,6 +512,39 @@ void TRestMesh::SetNodes(Int_t nX, Int_t nY, Int_t nZ) {
 ///
 void TRestMesh::AddNode(Double_t x, Double_t y, Double_t z, Double_t en) {
     TVector3 v = TVector3(x, y, z);
+
+    Int_t nx = GetNodeX(v);
+    Int_t ny = GetNodeY(v);
+    Int_t nz = GetNodeZ(v);
+
+    Int_t index = GetNodeIndex(nx, ny, nz);
+    if (index == NODE_NOT_SET) {
+        Int_t gId = FindNeighbourGroup(nx, ny, nz);
+        if (gId == GROUP_NOT_FOUND) {
+            gId = GetNumberOfGroups();
+            fNumberOfGroups++;
+        }
+
+        nodeX.push_back(nx);
+        nodeY.push_back(ny);
+        nodeZ.push_back(nz);
+        nodeGroupID.push_back(gId);
+        energy.push_back(en);
+
+        fNumberOfNodes++;
+    } else {
+        energy[index] += en;
+    }
+}
+
+///////////////////////////////////////////////
+/// \brief If adds corresponding node to xyz-coordinates if not previously defined
+///
+void TRestMesh::AddSphericalNode(Double_t r, Double_t theta, Double_t phi, Double_t en) {
+    TVector3 v;
+    v.SetMag(r);
+    v.SetTheta(theta);
+    v.SetPhi(phi);
 
     Int_t nx = GetNodeX(v);
     Int_t ny = GetNodeY(v);

@@ -110,6 +110,7 @@ class TRestMesh : public TObject {
     Double_t GetEnergyAtNode(Int_t nx, Int_t ny, Int_t nz) { return energy[GetNodeIndex(nx, ny, nz)]; }
 
     void SetNodesFromHits(TRestHits* hits);
+    void SetNodesFromSphericalHits(TRestHits* hits);
     void Regrouping();
 
     Int_t GetNodeIndex(Int_t nx, Int_t ny, Int_t nz);
@@ -166,6 +167,7 @@ class TRestMesh : public TObject {
     TVector3 GetTopVertex() { return GetVertex(1); }
 
     void AddNode(Double_t x, Double_t y, Double_t z, Double_t en = 0);
+    void AddSphericalNode(Double_t x, Double_t y, Double_t z, Double_t en = 0);
 
     void RemoveNodes();
 
