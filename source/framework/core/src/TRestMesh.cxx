@@ -398,9 +398,17 @@ Int_t TRestMesh::GetNodeIndex(Int_t nx, Int_t ny, Int_t nz) {
 /// GROUP_NOT_FOUND.
 ///
 Int_t TRestMesh::GetGroupId(Double_t x, Double_t y, Double_t z) {
-    Int_t nx = GetNodeX(TVector3(x, y, z));
-    Int_t ny = GetNodeY(TVector3(x, y, z));
-    Int_t nz = GetNodeZ(TVector3(x, y, z));
+    Int_t nx, ny, nz;
+    if (fIsSpherical) {
+        TVector3 v = TVector3(x, y, z);  // Because if one of them is nan, this might cause problems
+        nx = GetNodeX(TVector3(x, y, z));
+        ny = GetNodeY(TVector3(x, y, z));
+        nz = GetNodeZ(TVector3(x, y, z));
+    } else {
+        nx = GetNodeX(x);
+        ny = GetNodeY(y);
+        nz = GetNodeZ(z);
+    }
 
     Int_t index = GetNodeIndex(nx, ny, nz);
     if (index != NODE_NOT_SET) return nodeGroupID[index];
