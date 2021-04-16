@@ -314,12 +314,14 @@ Int_t TRestMesh::GetNodeZ(TVector3 v, Bool_t relative) {
 void TRestMesh::SetNodesFromHits(TRestHits* hits) {
     double nan = numeric_limits<double>::quiet_NaN();
     for (int hit = 0; hit < hits->GetNumberOfHits(); hit++) {
+        if (hits->GetEnergy(hit) <= 0) continue;
         REST_HitType type = hits->GetType(hit);
-        if (fIsSpherical) this->AddNode(hits->GetX(hit), hits->GetY(hit), hits->GetZ(hit));
+        if (fIsSpherical)
+            this->AddNode(hits->GetX(hit), hits->GetY(hit), hits->GetZ(hit), hits->GetEnergy(hit));
 
         // cartesian and cylindrical
-        this->AddNode(type == YZ ? nan : hits->GetX(hit), type == XZ ? nan : hits->GetY(hit),
-                      hits->GetZ(hit));
+        this->AddNode(type == YZ ? nan : hits->GetX(hit), type == XZ ? nan : hits->GetY(hit), hits->GetZ(hit),
+                      hits->GetEnergy(hit));
     }
 
     Regrouping();
@@ -491,36 +493,30 @@ void TRestMesh::SetNodes(Int_t nX, Int_t nY, Int_t nZ) {
 ///////////////////////////////////////////////
 /// \brief If adds corresponding node to xyz-coordinates if not previously defined
 ///
-void TRestMesh::AddNode(Double_t x, Double_t y, Double_t z) {
+void TRestMesh::AddNode(Double_t x, Double_t y, Double_t z, Double_t en) {
     TVector3 v = TVector3(x, y, z);
 
     Int_t nx = GetNodeX(v);
     Int_t ny = GetNodeY(v);
     Int_t nz = GetNodeZ(v);
 
-    /*
-    cout << "Adding node : x=" << x  << " y=" << y << " z=" << z << endl;
-    cout << "Node : " << nx << " " << ny << " " << nz << endl;
-    cout << "Index : " << GetNodeIndex( nx, ny, nz ) << endl;
-    */
-
-    if (GetNodeIndex(nx, ny, nz) == NODE_NOT_SET) {
+    Int_t index = GetNodeIndex(nx, ny, nz);
+    if (index == NODE_NOT_SET) {
         Int_t gId = FindNeighbourGroup(nx, ny, nz);
         if (gId == GROUP_NOT_FOUND) {
             gId = GetNumberOfGroups();
             fNumberOfGroups++;
         }
-        /*
-        cout << "Adding it!" << endl;
-        getchar();
-        */
 
         nodeX.push_back(nx);
         nodeY.push_back(ny);
         nodeZ.push_back(nz);
         nodeGroupID.push_back(gId);
+        energy.push_back(en);
 
         fNumberOfNodes++;
+    } else {
+        energy[index] += en;
     }
 }
 

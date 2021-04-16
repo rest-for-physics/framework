@@ -67,6 +67,9 @@ class TRestMesh : public TObject {
     /// A vector storing the Z-dimension cell id
     std::vector<Int_t> nodeZ;
 
+    /// A vector storing the total energy inside the cell id
+    std::vector<Double_t> energy;
+
     /// A flag to indentify if we use cylindrical coordinates
     Bool_t fIsCylindrical = false;
     /// A flag to indentify if we use spherical coordinates
@@ -102,6 +105,9 @@ class TRestMesh : public TObject {
         TVector3 node(nodeX[index], nodeY[index], nodeZ[index]);
         return node;
     }
+
+    /// Returns the energy at a particular node
+    Double_t GetEnergyAtNode(Int_t nx, Int_t ny, Int_t nz) { return energy[GetNodeIndex(nx, ny, nz)]; }
 
     void SetNodesFromHits(TRestHits* hits);
     void Regrouping();
@@ -159,7 +165,7 @@ class TRestMesh : public TObject {
     /// It returns the top boundary vertex
     TVector3 GetTopVertex() { return GetVertex(1); }
 
-    void AddNode(Double_t x, Double_t y, Double_t z);
+    void AddNode(Double_t x, Double_t y, Double_t z, Double_t en = 0);
 
     void RemoveNodes();
 
