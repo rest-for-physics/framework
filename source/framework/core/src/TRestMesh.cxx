@@ -316,10 +316,6 @@ void TRestMesh::SetNodesFromHits(TRestHits* hits) {
     for (int hit = 0; hit < hits->GetNumberOfHits(); hit++) {
         if (hits->GetEnergy(hit) <= 0) continue;
         REST_HitType type = hits->GetType(hit);
-        if (fIsSpherical)
-            this->AddNode(hits->GetX(hit), hits->GetY(hit), hits->GetZ(hit), hits->GetEnergy(hit));
-
-        // cartesian and cylindrical
         this->AddNode(type == YZ ? nan : hits->GetX(hit), type == XZ ? nan : hits->GetY(hit), hits->GetZ(hit),
                       hits->GetEnergy(hit));
     }
@@ -511,11 +507,18 @@ void TRestMesh::SetNodes(Int_t nX, Int_t nY, Int_t nZ) {
 /// \brief If adds corresponding node to xyz-coordinates if not previously defined
 ///
 void TRestMesh::AddNode(Double_t x, Double_t y, Double_t z, Double_t en) {
-    TVector3 v = TVector3(x, y, z);
+    Int_t nx, ny, nz;
 
-    Int_t nx = GetNodeX(v);
-    Int_t ny = GetNodeY(v);
-    Int_t nz = GetNodeZ(v);
+    if (fIsSpherical) {
+        TVector3 v = TVector3(x, y, z);  // Because if one of them is nan, this might cause problems
+        nx = GetNodeX(v);
+        ny = GetNodeY(v);
+        nz = GetNodeZ(v);
+    } else {
+        nx = GetNodeX(x);
+        ny = GetNodeY(y);
+        nz = GetNodeZ(z);
+    }
 
     Int_t index = GetNodeIndex(nx, ny, nz);
     if (index == NODE_NOT_SET) {
