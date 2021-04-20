@@ -31,15 +31,15 @@
 class TRestEventSelectionProcess : public TRestEventProcess {
    private:
     TRestEvent* fEvent;  //!
-    string fFile;
+    string fFileWithIDs;
     string fConditions;
     std::vector<Int_t> fList;
 
     /// A list with the event ids that have been selected.
     //std::vector<Int_t> fEventIds;  //<
 
-    void InitFromConfigFile();
-
+    // void InitFromConfigFile();
+    
     void Initialize();
 
    protected:

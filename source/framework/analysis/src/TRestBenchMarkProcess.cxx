@@ -20,10 +20,6 @@ ULong64_t TRestBenchMarkProcess::fStartTime = 0;
 //______________________________________________________________________________
 TRestBenchMarkProcess::TRestBenchMarkProcess() { Initialize(); }
 
-void TRestBenchMarkProcess::InitFromConfigFile() {
-    fRefreshRate = StringToDouble(GetParameter("RefreshRate", "10"));
-}
-
 void TRestBenchMarkProcess::Initialize() {
     fEvent = NULL;
 #ifndef __APPLE__
