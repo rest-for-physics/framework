@@ -114,6 +114,25 @@ build:
       - ${CI_PROJECT_DIR}/install
     expire_in: 1 day
 
+build_latest:
+  type: build
+  script:
+    - cd ${CI_PROJECT_DIR}/
+    - python3 pull-submodules.py --force --dontask --latest
+    - if [ -d ${CI_PROJECT_DIR}/build_latest ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest; fi
+    - mkdir ${CI_PROJECT_DIR}/build_latest && cd ${CI_PROJECT_DIR}/build_latest/
+    - rm -rf ${CI_PROJECT_DIR}/install_latest
+    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest
+    - make install -j2
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
+  except:
+      variables:
+        - $CRONJOB == "YES"
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install_latest
+    expire_in: 1 day
+
 build_nkx:
   image: nkx1231/root6-geant4-garfield:0.6
   type: build
@@ -138,6 +157,8 @@ loadRESTLibs:
       ### Produces segmentation fault :(
       #- root -b -q ${CI_PROJECT_DIR}/pipeline/loadLibraries.C
     - restRoot -b -q
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
+    - restRoot -b -q
   except:
       variables:
         - $CRONJOB == "YES"
@@ -146,6 +167,8 @@ listRESTMacros:
   type: install
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - restManager ListMacros
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - restManager ListMacros
   except:
       variables:
@@ -166,6 +189,18 @@ listRESTMacros:
     paths:
       - ${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test.root
     expire_in: 1 day
+
+01_NLDBD_latest:
+  type: restG4
+  script:
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD/
+    - restG4 NLDBD.rml
+    - geant4-config --version
+    - restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
+  except:
+      variables:
+        - $CRONJOB == "YES"
 
 02_PandaXiiiMC:
   type: restG4
