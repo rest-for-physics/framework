@@ -52,6 +52,8 @@ Int_t REST_StringHelper::isAExpression(string in) {
 /// input string **buffer**.
 ///
 std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer, std::string errorMessage) {
+    buffer = Replace(buffer, " AND ", " && ");
+    buffer = Replace(buffer, " OR ", " || ");
     // we spilt the unit part and the expresstion part
     int pos = buffer.find_last_of("1234567890().");
 
@@ -255,22 +257,22 @@ Int_t REST_StringHelper::FindNthStringPosition(const string& in, size_t pos, con
 ///
 /// This algorithm is case insensitive. It matches the two strings in pieces
 /// after inserting proper blanks, then counts the unmatched part(just a guess).
-/// e.g. 
+/// e.g.
 /// "woll "
 /// "world"
 ///  00101    --> 2
-/// 
+///
 /// " torgae"
 /// "Storage"
 ///  1000110  --> 3
-/// 
+///
 /// "fi le"
 /// "title"
 ///  10100    --> 2
-/// 
+///
 /// Source code from
 /// https://blog.csdn.net/baidu_23086307/article/details/53020566
-/// 
+///
 Int_t REST_StringHelper::DiffString(const string& source, const string& target) {
     int n = source.length();
     int m = target.length();

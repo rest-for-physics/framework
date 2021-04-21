@@ -1332,9 +1332,6 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
         }
     }
 
-    result = Replace(result, " AND ", " && ");
-    result = Replace(result, " OR ", " || ");
-
     return ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(result)),
                                           "Please, check parameter name: " + parName);
 }
@@ -2329,8 +2326,8 @@ std::map<string, string> TRestMetadata::GetParametersList() {
 }
 
 void TRestMetadata::ReadOneParameter(string name, string value) {
-    if (name == "name" || name == "title" || name == "verboseLevel" || 
-        name == "type" || name == "value" || name == "store") {
+    if (name == "name" || name == "title" || name == "verboseLevel" || name == "type" || name == "value" ||
+        name == "store") {
         // we omit these parameters since they are already loaded in LoadSectionMetadata()
     } else {
         RESTValue thisactual(this, this->ClassName());
@@ -2370,13 +2367,12 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
                 } else {
                     datamember.ParseString(value);
                 }
-            } else if (datamember.name != "" ) {
-                // this mean the datamember is found with type not recognized. 
+            } else if (datamember.name != "") {
+                // this mean the datamember is found with type not recognized.
                 // We won't try to find the misspelling
-            }
-            else {
+            } else {
                 debug << this->ClassName() << "::ReadAllParameters(): parameter \"" << name
-                        << "\" not recognized for automatic load" << endl;
+                      << "\" not recognized for automatic load" << endl;
                 vector<string> availableparameters;
 
                 vector<string> datamembers = thisactual.GetListOfDataMembers();
@@ -2405,10 +2401,10 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
                 // the data member as "misspelling" parameter. We prompt a warning for it.
                 if (hintParameter != "" && mindiff <= 2) {
                     warning << this->ClassName() << "::ReadAllParameters(): parameter \"" << name
-                            << "\" not recognized for automatic load, did you mean \"" << hintParameter << "\" ?" << endl;
+                            << "\" not recognized for automatic load, did you mean \"" << hintParameter
+                            << "\" ?" << endl;
                     GetChar();
                 }
-
             }
         }
     }
