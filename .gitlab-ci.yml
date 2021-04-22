@@ -249,7 +249,7 @@ GenerateGas:
     - restRoot -b -q GenerateDummyGas.C
   only:
       variables:
-        - $CI_SERVER_HOST == "gitlab.cern.ch"
+        - $CI_SERVER_HOST == "lfna.unizar.es"
   except:
       variables:
         - $CRONJOB == "YES"
