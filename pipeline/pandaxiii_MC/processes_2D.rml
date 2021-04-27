@@ -300,7 +300,7 @@
         <observable name="Q2_R15" value="ON" />
         <observable name="Q2_R12" value="ON" />
     </TRestGeant4BlobAnalysisProcess>
-    <TRestFindTrackBlob_Process name="tckBlob_2D" title="Find blobs in the longest track">
+  <TRestTrackBlobAnalysisProcess name="tckBlob_2D" title="Find blobs in the longest track">
         <observable name="x1_X" value="ON" />
         <observable name="z1_X" value="ON" />
         <observable name="x2_X" value="ON" />
@@ -438,7 +438,7 @@
         <observable name="Qratio_Y_R28" value="ON" />
         <observable name="Qratio_Y_R30" value="ON" />
         <parameter name="hitsToCheckFraction" value="0.25" />
-    </TRestFindTrackBlob_Process>
+    </TRestTrackBlobAnalysisProcess>
     <TRestRawZeroSuppresionProcess name="zS" title="" verboseLevel="silent">
         <!-- This parameter is used to define the baseline calculation -->
         <parameter name="baseLineRange" value="(50,120)" />
