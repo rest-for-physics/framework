@@ -75,11 +75,11 @@ class TRestMesh : public TObject {
     /// A flag to indentify if we use spherical coordinates
     Bool_t fIsSpherical = false;
 
+   public:
     Double_t GetX(Int_t nX);
     Double_t GetY(Int_t nY);
     Double_t GetZ(Int_t nZ);
 
-   public:
     /// Returns the total number of nodes added
     Int_t GetNumberOfNodes() { return fNumberOfNodes; }
     /// Returns the total number of groups identified
