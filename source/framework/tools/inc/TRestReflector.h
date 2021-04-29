@@ -308,7 +308,7 @@ class TRestReflector {
     /// Pointer to the corresponding TClass helper, if the wrapped object is in class type
     TClass* cl = 0;
     /// Pointer to the corresponding TDataType helper, if the wrapped object is in data type
-    bool is_data_type;
+    bool is_data_type = false;
     /// If this object type wrapper is invalid
     bool IsZombie();
     /// Deep copy the content of the wrapped object to `to`.
