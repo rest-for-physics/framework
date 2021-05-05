@@ -33,8 +33,8 @@ class TRestGDMLParser : public TRestMetadata {
 
     void Load(string file);
 
-    TGeoManager* GetGeoManager(string gdmlfile) {
-        Load(gdmlfile);
+    TGeoManager* GetGeoManager(string gdmlFile) {
+        Load(gdmlFile);
         fGeo = TGeoManager::Import(GetOutputGDMLFile().c_str());
         return fGeo;
     }

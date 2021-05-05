@@ -26,11 +26,12 @@
 #include <TBufferFile.h>
 #include <TObject.h>
 #include <TPad.h>
-#include <TRestTools.h>
 #include <TString.h>
 #include <TTimeStamp.h>
 
 #include <iostream>
+
+#include "TRestTools.h"
 
 class TRestRun;
 
