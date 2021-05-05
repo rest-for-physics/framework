@@ -15,36 +15,36 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif ()
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
-IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-stdlib=libc++")
-ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 # Install path
-IF (NOT DEFINED INSTALL_PREFIX)
-    IF (DEFINED ENV{REST_PATH})
+if (NOT DEFINED INSTALL_PREFIX)
+    if (DEFINED ENV{REST_PATH})
         set(INSTALL_PREFIX $ENV{REST_PATH})
     else ()
         set(INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/install)
     endif ()
-ENDIF ()
+endif ()
 get_filename_component(INSTALL_PREFIX_ABSOLUTE ${INSTALL_PREFIX} ABSOLUTE BASE_DIR "${CMAKE_BINARY_DIR}")
 set(REST_PATH ${INSTALL_PREFIX_ABSOLUTE})
 set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX_ABSOLUTE})
 
-IF (NOT DEFINED RESTLIB_MODEL)
+if (NOT DEFINED RESTLIB_MODEL)
     set(RESTLIB_MODEL OFF)
-ENDIF ()
+endif ()
 
 # Auto schema evolution for ROOT
-IF (NOT DEFINED REST_SE)
+if (NOT DEFINED REST_SE)
     set(REST_SE ON)
-ENDIF ()
+endif ()
 set(SCHEMA_EVOLUTION ${REST_SE})
 
 # Welcome message
-IF (NOT DEFINED REST_WELCOME)
+if (NOT DEFINED REST_WELCOME)
     set(REST_WELCOME ON)
-ENDIF ()
+endif ()
 
 # Find ROOT libs and includes
 set(external_include_dirs)
@@ -58,9 +58,9 @@ set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
 set(external_libs ${external_libs} "${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit -lSpectrum")
 
 # Switch to enable ROOT Eve functionality.
-IF (NOT DEFINED REST_EVE)
+if (NOT DEFINED REST_EVE)
     set(REST_EVE ON)
-ENDIF ()
+endif ()
 if (${REST_EVE} MATCHES "ON")
     add_definitions(-DUSE_Eve)
     list(APPEND rest_features "Eve")
@@ -70,9 +70,9 @@ else ()
 endif (${REST_EVE} MATCHES "ON")
 
 # This is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProccess.
-IF (NOT DEFINED SQL)
+if (NOT DEFINED SQL)
     set(SQL OFF)
-ENDIF ()
+endif ()
 
 if (${SQL} MATCHES "ON")
     list(APPEND rest_features "SQL")
@@ -118,40 +118,38 @@ message("")
 file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/framework/*.h")
 
 # Clear the install dir
-IF (NOT DEFINED INSTALL_CLEARDIR)
+if (NOT DEFINED INSTALL_CLEARDIR)
     set(INSTALL_CLEARDIR ON)
-ENDIF ()
+endif ()
 if (${INSTALL_CLEARDIR} MATCHES "ON")
     install(CODE "execute_process(COMMAND rm -r ${CMAKE_INSTALL_PREFIX})")
 endif ()
 
 # Install the files of the main framework
-INSTALL(FILES ${Headers} DESTINATION include)
-
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENCE DESTINATION .)
-
+install(FILES ${Headers} DESTINATION include)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENCE DESTINATION .)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples
         DESTINATION .
         COMPONENT install
         )
-
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/macros
         DESTINATION .
         COMPONENT install
         )
-
 install(
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data
         DESTINATION .
         COMPONENT install
 )
-
 install(
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts
         DESTINATION .
         COMPONENT install
 )
-
+file(GLOB cmake_scripts
+        "cmake/scripts/*"
+        )
+install(FILES ${cmake_scripts} DESTINATION cmake)
 # Copy pcm files
 install(CODE
         "
