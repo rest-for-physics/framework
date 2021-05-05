@@ -1088,8 +1088,10 @@ void TRestRun::SetInputEvent(TRestEvent* eve) {
             //	TBranch *br = (TBranch*)branches->At(fEventBranchLoc);
             //	br->SetAddress(0);
             //}
-            if (fInputEvent != nullptr)
+            if (fInputEvent != nullptr){
                 fEventTree->SetBranchAddress((TString)fInputEvent->ClassName() + "Branch", 0);
+                fEventTree->SetBranchStatus((TString)fInputEvent->ClassName() + "Branch", false);
+            }
             TObjArray* branches = fEventTree->GetListOfBranches();
             string brname = (string)eve->ClassName() + "Branch";
             for (int i = 0; i <= branches->GetLast(); i++) {
@@ -1097,11 +1099,13 @@ void TRestRun::SetInputEvent(TRestEvent* eve) {
                 if ((string)br->GetName() == brname) {
                     debug << "Setting input event.. Type: " << eve->ClassName() << " Address: " << eve
                           << endl;
-                    if (fInputEvent != nullptr && (char*)fInputEvent != (char*)eve) {
-                        delete fInputEvent;
-                    }
+                    //if (fInputEvent != nullptr && (char*)fInputEvent != (char*)eve) {
+                    //    delete fInputEvent;
+                    //}
+                  
                     fInputEvent = eve;
                     fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
+                    fEventTree->SetBranchStatus(brname.c_str(), false);
                     fEventBranchLoc = i;
                     break;
                 } else if (i == branches->GetLast()) {
