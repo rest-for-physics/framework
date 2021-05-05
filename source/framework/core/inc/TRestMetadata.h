@@ -24,11 +24,14 @@
 #define RestCore_TRestMetadata
 
 #define TIXML_USE_STL
+#include <TApplication.h>
+#include <TClass.h>
+#include <TStreamerElement.h>
+#include <TVirtualStreamerInfo.h>
+
 #include <mutex>
 #include <thread>
 
-#include "TApplication.h"
-#include "TClass.h"
 #include "TRestDataBase.h"
 #include "TRestPhysics.h"
 #include "TRestReflector.h"
@@ -37,8 +40,6 @@
 #include "TRestSystemOfUnits.h"
 #include "TRestTools.h"
 #include "TRestVersion.h"
-#include "TStreamerElement.h"
-#include "TVirtualStreamerInfo.h"
 #include "tinyxml.h"
 
 /* We keep using REST_RELEASE, REST_VERSION(2,X,Y) and REST_VERSION_CODE

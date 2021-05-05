@@ -3,6 +3,7 @@
 
 #include <mutex>
 #include <thread>
+
 #include "TRestAnalysisTree.h"
 #include "TRestEvent.h"
 #include "TRestEventProcess.h"
@@ -55,10 +56,6 @@ class TRestProcessRunner : public TRestMetadata {
     Int_t fEventsToProcess;
     Int_t fProcessedEvents;
     map<string, string> fProcessInfo;
-
-
-    //bool fOutputItem[4] = {
-    //    false};  // the on/off status for item: inputAnalysis, inputEvent, outputEvent, outputAnalysis
 
    public:
     /// REST run class
@@ -113,7 +110,7 @@ class TRestProcessRunner : public TRestMetadata {
     double GetReadingSpeed();
     bool UseTestRun() const { return fUseTestRun; }
 
-    // Construtor & Destructor
+    // Constructor & Destructor
     TRestProcessRunner();
     ~TRestProcessRunner();
 

@@ -23,10 +23,10 @@
 #ifndef RestCore_TRestMetadataPlot
 #define RestCore_TRestMetadataPlot
 
+#include <TCanvas.h>
 #include <TLatex.h>
-#include "TCanvas.h"
 
-#include <TRestRun.h>
+#include "TRestRun.h"
 
 /// A helper class to draw the evolution or correlation of metadata information from a set of REST files
 class TRestMetadataPlot : public TRestMetadata {

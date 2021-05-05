@@ -4,9 +4,10 @@
 
 #define REST_MAXIMUM_EVENTS 2E9
 
-#include "TFile.h"
-#include "TFileMerger.h"
-#include "TKey.h"
+#include <TFile.h>
+#include <TFileMerger.h>
+#include <TKey.h>
+
 #include "TRestAnalysisTree.h"
 #include "TRestEvent.h"
 #include "TRestMetadata.h"
@@ -233,7 +234,7 @@ class TRestRun : public TRestMetadata {
 
     Int_t Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 
-    // Construtor & Destructor
+    // Constructor & Destructor
     TRestRun();
     TRestRun(string rootfilename);
     ~TRestRun();

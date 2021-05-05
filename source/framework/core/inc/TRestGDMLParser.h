@@ -2,9 +2,10 @@
 #ifndef restG4_TRestGDMLParser
 #define restG4_TRestGDMLParser
 
-#include "TGeoManager.h"
+#include <TGeoManager.h>
+#include <unistd.h>
+
 #include "TRestMetadata.h"
-#include "unistd.h"
 
 ///////////////////////////////////////////
 // we must preprocess gdml file because of a bug in TGDMLParse::Value() in ROOT6

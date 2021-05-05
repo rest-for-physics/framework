@@ -50,7 +50,7 @@ class TRestEventProcess : public TRestMetadata {
 
    protected:
     ///< Canvas for some viewer event
-    TCanvas* fCanvas = NULL;  //!
+    TCanvas* fCanvas = nullptr;  //!
     /// Canvas size
     TVector2 fCanvasSize;  //!
     ///< Pointer to the analysis tree where to store observable definitions and values.
@@ -58,9 +58,9 @@ class TRestEventProcess : public TRestMetadata {
     /// and their addresses. It is the one from TRestRun that reads this tree's structure,
     /// calls Fill() method, and writes data to disk. In other words, this tree is dummy and
     /// has zero entries. To get the real one, use GetFullAnalysisTree()
-    TRestAnalysisTree* fAnalysisTree = NULL;  //!
+    TRestAnalysisTree* fAnalysisTree = nullptr;  //!
     ///< Pointer to TRestRun object where to find metadata.
-    TRestRun* fRunInfo = NULL;  //!
+    TRestRun* fRunInfo = nullptr;  //!
     /// It defines if the process reads event data from an external source.
     bool fIsExternal = false;  //!
     /// It defines if the process can run only under single thread mode. If true, the whole process
@@ -116,7 +116,7 @@ class TRestEventProcess : public TRestMetadata {
     /// in the AnalysisTree if the observable is not found
     template <class T>
     void SetObservableValue(string name, const T& value) {
-        if (fAnalysisTree != NULL) {
+        if (fAnalysisTree != nullptr) {
             string obsname = this->GetName() + (string) "_" + (string)name;
 
             if (fValidateObservables) {
@@ -158,7 +158,7 @@ class TRestEventProcess : public TRestMetadata {
 
     /// Create the canvas
     void CreateCanvas() {
-        if (fCanvas != NULL) return;
+        if (fCanvas != nullptr) return;
         fCanvas = new TCanvas(this->GetName(), this->GetTitle(), fCanvasSize.X(), fCanvasSize.Y());
     }
 
@@ -189,11 +189,11 @@ class TRestEventProcess : public TRestMetadata {
     /// To be executed at the beginning of the run (outside event loop)
     virtual void InitProcess() {}
     /// Begin of event process, preparation work. Called right before ProcessEvent()
-    void BeginOfEventProcess(TRestEvent* evInput = NULL);
+    void BeginOfEventProcess(TRestEvent* evInput = nullptr);
     /// Process one event
     virtual TRestEvent* ProcessEvent(TRestEvent* evInput) = 0;
     /// End of event process. Nothing to do. Called directly after ProcessEvent()
-    void EndOfEventProcess(TRestEvent* evInput = NULL);
+    void EndOfEventProcess(TRestEvent* evInput = nullptr);
     /// To be executed at the end of the run (outside event loop)
     virtual void EndProcess() {}
 

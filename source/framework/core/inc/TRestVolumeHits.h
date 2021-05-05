@@ -20,11 +20,12 @@
 #ifndef RestCore_TRestVolumeHits
 #define RestCore_TRestVolumeHits
 
+#include <TObject.h>
+#include <TVector3.h>
+
 #include <iostream>
 
-#include <TObject.h>
-#include <TRestHits.h>
-#include <TVector3.h>
+#include "TRestHits.h"
 
 class TRestVolumeHits : public TRestHits {
    protected:
@@ -66,9 +67,8 @@ class TRestVolumeHits : public TRestHits {
     }
     Double_t GetXYSize(int n) { return TMath::Sqrt(fSigmaX[n] * fSigmaX[n] + fSigmaY[n] * fSigmaY[n]); }
 
-    // Construtor
+    // Constructor & Destructor
     TRestVolumeHits();
-    // Destructor
     ~TRestVolumeHits();
 
     ClassDef(TRestVolumeHits, 2);
