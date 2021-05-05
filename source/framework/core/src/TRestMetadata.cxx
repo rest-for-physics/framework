@@ -171,7 +171,7 @@
 /// void TRestManager::InitFromConfigFile()
 /// {
 /// 	TiXmlElement*e = fElement->FirstChildElement();
-/// 	while (e != NULL)
+/// 	while (e != nullptr)
 /// 	{
 ///			string value = e->Value();
 /// 		if (value == "TRestRun") {
@@ -477,12 +477,12 @@ ClassImp(TRestMetadata);
 ///
 TRestMetadata::TRestMetadata() : endl(fVerboseLevel, messageBuffer) {
     fStore = true;
-    fElementGlobal = NULL;
-    fElement = NULL;
+    fElementGlobal = nullptr;
+    fElement = nullptr;
     fVerboseLevel = gVerbose;
     fVariables.clear();
     fConstants.clear();
-    fHostmgr = NULL;
+    fHostmgr = nullptr;
 
     fConfigFileName = "null";
     configBuffer = "";
@@ -497,12 +497,12 @@ TRestMetadata::TRestMetadata() : endl(fVerboseLevel, messageBuffer) {
 ///
 TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(fVerboseLevel, messageBuffer) {
     fStore = true;
-    fElementGlobal = NULL;
-    fElement = NULL;
+    fElementGlobal = nullptr;
+    fElement = nullptr;
     fVerboseLevel = gVerbose;
     fVariables.clear();
     fConstants.clear();
-    fHostmgr = NULL;
+    fHostmgr = nullptr;
 
     fConfigFileName = cfgFileName;
     configBuffer = "";
@@ -533,7 +533,7 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
 
         // find the xml section corresponding to the sectionName
         TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, sectionName);
-        if (Sectional == NULL) {
+        if (Sectional == nullptr) {
             ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName << "\""
                  << endl;
             ferr << "in config file: " << fConfigFileName << endl;
@@ -543,13 +543,13 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
         // find the "globals" section. Multiple sections are supported.
         TiXmlElement* rootEle = GetElementFromFile(fConfigFileName);
         TiXmlElement* Global = GetElement("globals", rootEle);
-        if (Global != NULL) ReadElement(Global);
-        if (Global != NULL && Global->NextSiblingElement("globals") != NULL) {
+        if (Global != nullptr) ReadElement(Global);
+        if (Global != nullptr && Global->NextSiblingElement("globals") != nullptr) {
             TiXmlElement* ele = Global->NextSiblingElement("globals");
-            if (ele != NULL) ReadElement(ele);
-            while (ele != NULL) {
+            if (ele != nullptr) ReadElement(ele);
+            while (ele != nullptr) {
                 TiXmlElement* e = ele->FirstChildElement();
-                while (e != NULL) {
+                while (e != nullptr) {
                     Global->InsertEndChild(*e);
                     e = e->NextSiblingElement();
                 }
@@ -581,20 +581,20 @@ Int_t TRestMetadata::LoadConfigFromElement(TiXmlElement* eSectional, TiXmlElemen
                                            map<string, string> envs) {
     Initialize();
     TiXmlElement* theElement;
-    if (eSectional != NULL && eGlobal != NULL) {
+    if (eSectional != nullptr && eGlobal != nullptr) {
         // Sectional and global elements are first combined.
         theElement = (TiXmlElement*)eSectional->Clone();
         TiXmlElement* echild = eGlobal->FirstChildElement();
-        while (echild != NULL) {
+        while (echild != nullptr) {
             theElement->LinkEndChild(echild->Clone());
             echild = echild->NextSiblingElement();
         }
         // for (int i = 0; i < eEnv.size(); i++) {
         //    theElement->LinkEndChild(eEnv[i]->Clone());
         //}
-    } else if (eSectional != NULL) {
+    } else if (eSectional != nullptr) {
         theElement = (TiXmlElement*)eSectional->Clone();
-    } else if (eGlobal != NULL) {
+    } else if (eGlobal != nullptr) {
         theElement = (TiXmlElement*)eGlobal->Clone();
     } else {
         return 0;
@@ -641,9 +641,9 @@ Int_t TRestMetadata::LoadSectionMetadata() {
     debug << "Loading Config for : " << this->ClassName() << endl;
 
     // set env first from global section
-    if (fElementGlobal != NULL) {
+    if (fElementGlobal != nullptr) {
         TiXmlElement* e = fElementGlobal->FirstChildElement();
-        while (e != NULL) {
+        while (e != nullptr) {
             ReplaceElementAttributes(e);
             ReadEnvInElement(e);
             e = e->NextSiblingElement();
@@ -652,7 +652,7 @@ Int_t TRestMetadata::LoadSectionMetadata() {
 
     // then from local section
     TiXmlElement* e = fElement->FirstChildElement();
-    while (e != NULL) {
+    while (e != nullptr) {
         ReplaceElementAttributes(e);
         ReadEnvInElement(e);
         e = e->NextSiblingElement();
@@ -682,18 +682,18 @@ Int_t TRestMetadata::LoadSectionMetadata() {
 /// ReplaceMathematicalExpressions() in sequence. "name" attribute won't be
 /// replaced by constants to avoid conflict.
 TiXmlElement* TRestMetadata::ReplaceElementAttributes(TiXmlElement* e) {
-    if (e == NULL) return NULL;
+    if (e == nullptr) return NULL;
 
     debug << "Entering ... TRestMetadata::ReplaceElementAttributes" << endl;
 
     std::string parName = "";
     TiXmlAttribute* attr = e->FirstAttribute();
-    while (attr != NULL) {
+    while (attr != nullptr) {
         const char* val = attr->Value();
         const char* name = attr->Name();
         debug << "Element name : " << name << " value : " << val << endl;
 
-        string newVal = val != NULL ? val : "";
+        string newVal = val != nullptr ? val : "";
         newVal = ReplaceVariables(newVal);
 
         // for name attribute, don't replace constants
@@ -722,20 +722,20 @@ TiXmlElement* TRestMetadata::ReplaceElementAttributes(TiXmlElement* e) {
 /// \endcode
 ///
 void TRestMetadata::ReadEnvInElement(TiXmlElement* e, bool overwrite) {
-    if (e == NULL) return;
+    if (e == nullptr) return;
 
     const char* name = e->Attribute("name");
-    if (name == NULL) return;
+    if (name == nullptr) return;
     const char* value = e->Attribute("value");
-    if (value == NULL) return;
+    if (value == nullptr) return;
 
     if ((string)e->Value() == "variable") {
         // if overwrite is false, try to replace the value from system env.
         const char* overwritesysenv = e->Attribute("overwrite");
-        if (overwritesysenv == NULL) overwritesysenv = "false";
+        if (overwritesysenv == nullptr) overwritesysenv = "false";
         if (!StringToBool(overwritesysenv)) {
             char* sysenv = getenv(name);
-            if (sysenv != NULL) value = sysenv;
+            if (sysenv != nullptr) value = sysenv;
         }
         if (!overwrite && fVariables.count(name) > 0) return;
         fVariables[name] = value;
@@ -759,22 +759,22 @@ void TRestMetadata::ReadEnvInElement(TiXmlElement* e, bool overwrite) {
 /// ReplaceElementAttributes() will first be called.
 void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
     debug << ClassName() << "::ReadElement(<" << e->Value() << ")" << endl;
-    if (e == NULL) return;
+    if (e == nullptr) return;
 
     ReplaceElementAttributes(e);
     ReadEnvInElement(e);
 
     if ((string)e->Value() == "for") {
         ExpandForLoops(e, {});
-    } else if (e->Attribute("file") != NULL) {
+    } else if (e->Attribute("file") != nullptr) {
         ExpandIncludeFile(e);
     } else if ((string)e->Value() == "if") {
         ExpandIfSections(e);
-    } else if (e->FirstChildElement() != NULL) {
+    } else if (e->FirstChildElement() != nullptr) {
         TiXmlElement* contentelement = e->FirstChildElement();
         // we won't expand child TRestXXX sections unless forced recursive. The expansion of
         // these sections will be executed individually by the corresponding TRestXXX class
-        while (contentelement != NULL) {
+        while (contentelement != nullptr) {
             TiXmlElement* nxt = contentelement->NextSiblingElement();
             if (recursive || ((string)contentelement->Value()).find("TRest") == -1) {
                 debug << "into child element \"" << contentelement->Value() << "\" of \"" << e->Value()
@@ -814,13 +814,13 @@ void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
 /// Note that the `>`, `<` calculation is also valid for strings. The ordering is according to the alphabet
 ///
 void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
-    if (e == NULL) return;
+    if (e == nullptr) return;
     if ((string)e->Value() != "if") return;
 
     const char* evaluate = e->Attribute("evaluate");
     const char* condition = e->Attribute("condition");
 
-    if (condition == NULL || string(condition).find_first_of("=!<>") == -1) {
+    if (condition == nullptr || string(condition).find_first_of("=!<>") == -1) {
         warning << "Invalid \"IF\" structure!" << endl;
         return;
     }
@@ -830,7 +830,7 @@ void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
 
     string v1 = "";
     bool matches = false;
-    if (evaluate != NULL) {
+    if (evaluate != nullptr) {
         v1 = TRestTools::Execute(evaluate);
     } else if (p1 > 0) {
         v1 = string(condition).substr(0, p1);
@@ -885,9 +885,9 @@ void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
 
     if (matches) {
         TiXmlElement* parele = (TiXmlElement*)e->Parent();
-        if (parele == NULL) return;
+        if (parele == nullptr) return;
         TiXmlElement* contentelement = e->FirstChildElement();
-        while (contentelement != NULL) {
+        while (contentelement != nullptr) {
             TiXmlElement* attachedelement = (TiXmlElement*)contentelement->Clone();
             ReadElement(attachedelement, true);
             // debug << *attachedelement << endl;
@@ -901,11 +901,11 @@ void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
 ///////////////////////////////////////////////
 /// \brief Helper method for TRestMetadata::ExpandForLoops().
 void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e, map<string, string> forLoopVar) {
-    if (e == NULL) return;
+    if (e == nullptr) return;
 
     TiXmlElement* parele = (TiXmlElement*)e->Parent();
     TiXmlElement* contentelement = e->FirstChildElement();
-    while (contentelement != NULL) {
+    while (contentelement != nullptr) {
         if ((string)contentelement->Value() == "for") {
             TiXmlElement* newforloop = (TiXmlElement*)contentelement->Clone();
             // ReplaceElementAttributes(newforloop);
@@ -930,12 +930,12 @@ void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e, map<string, string> forLo
 /// \brief Helper method for TRestMetadata::ExpandForLoops().
 ///
 void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forLoopVar) {
-    if (e == NULL) return;
+    if (e == nullptr) return;
 
     debug << "Entering ... TRestMetadata::ReplaceForLoopVars" << endl;
     std::string parName = "";
     TiXmlAttribute* attr = e->FirstAttribute();
-    while (attr != NULL) {
+    while (attr != nullptr) {
         const char* val = attr->Value();
         const char* name = attr->Name();
         debug << "Attribute name : " << name << " value : " << val << endl;
@@ -996,7 +996,7 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
 /// "variable"
 ///
 void TRestMetadata::ExpandForLoops(TiXmlElement* e, map<string, string> forloopvar) {
-    if (e == NULL) return;
+    if (e == nullptr) return;
     if ((string)e->Value() != "for") return;
     debug << "Entering ... ExpandForLoops" << endl;
     ReplaceElementAttributes(e);
@@ -1013,7 +1013,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e, map<string, string> forloopv
     if ((varin == "") && (varname == "" || varfrom == "" || varto == "")) return;
     if (varstep == "") varstep = "1";
     TiXmlElement* parele = (TiXmlElement*)e->Parent();
-    if (parele == NULL) return;
+    if (parele == nullptr) return;
 
     string _name = (string)varname;
     string _from = (string)varfrom;
@@ -1077,11 +1077,11 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e, map<string, string> forloopv
 /// there will be a different way to load, see TRestRun::ImportMetadata()
 void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
-    if (e == NULL) return;
+    if (e == nullptr) return;
 
     ReplaceElementAttributes(e);
     const char* _filename = e->Attribute("file");
-    if (_filename == NULL) return;
+    if (_filename == nullptr) return;
 
     string filename;
     if (string(_filename) == "server") {
@@ -1106,8 +1106,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         debug << "----expanding include file----" << endl;
         // we find the local element(the element to receive content)
         // and the remote element(the element to provide content)
-        TiXmlElement* remoteele = NULL;
-        TiXmlElement* localele = NULL;
+        TiXmlElement* remoteele = nullptr;
+        TiXmlElement* localele = nullptr;
         string type;
         string name;
 
@@ -1121,8 +1121,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // We will insert all the xml elements in aaa.rml into this section
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
-            if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+            if (localele == nullptr) return;
+            if (localele->Attribute("expanded") == nullptr ? false : ((string)localele->Attribute("expanded") ==
                                                                    "true")) {
                 debug << "----already expanded----" << endl;
                 return;
@@ -1131,12 +1131,12 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
             remoteele = new TiXmlElement("Config");
 
             TiXmlElement* ele = GetElementFromFile(filename);
-            if (ele == NULL) {
+            if (ele == nullptr) {
                 ferr << "TRestMetadata::ExpandIncludeFile. No xml elements contained in the include file \""
                      << filename << "\"" << endl;
                 exit(1);
             }
-            while (ele != NULL) {
+            while (ele != nullptr) {
                 remoteele->InsertEndChild(*ele);
                 ele = ele->NextSiblingElement();
             }
@@ -1158,18 +1158,18 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+            if (localele->Attribute("expanded") == nullptr ? false : ((string)localele->Attribute("expanded") ==
                                                                    "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
 
-            type = e->Attribute("type") != NULL ? e->Attribute("type") : e->Value();
-            name = localele->Attribute("name") == NULL ? "" : localele->Attribute("name");
+            type = e->Attribute("type") != nullptr ? e->Attribute("type") : e->Value();
+            name = localele->Attribute("name") == nullptr ? "" : localele->Attribute("name");
 
             // get the root element
             TiXmlElement* rootele = GetElementFromFile(filename);
-            if (rootele == NULL) {
+            if (rootele == nullptr) {
                 ferr << "TRestMetaddata::ExpandIncludeFile. Include file " << filename
                      << " is of wrong xml format!" << endl;
                 exit(1);
@@ -1181,9 +1181,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
                 remoteele = rootele;
             } else {
                 // import env first
-                if (type != "globals" && GetElement("globals", rootele) != NULL) {
+                if (type != "globals" && GetElement("globals", rootele) != nullptr) {
                     TiXmlElement* globaldef = GetElement("globals", rootele)->FirstChildElement();
-                    while (globaldef != NULL) {
+                    while (globaldef != nullptr) {
                         ReadEnvInElement(globaldef, false);
                         globaldef = globaldef->NextSiblingElement();
                     }
@@ -1194,8 +1194,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
                     // we find only according to the name
                     vector<TiXmlElement*> eles;
                     TiXmlElement* ele = rootele->FirstChildElement();
-                    while (ele != NULL) {
-                        if (ele->Attribute("name") != NULL && (string)ele->Attribute("name") == name) {
+                    while (ele != nullptr) {
+                        if (ele->Attribute("name") != nullptr && (string)ele->Attribute("name") == name) {
                             eles.push_back(ele);
                         }
                         ele = ele->NextSiblingElement();
@@ -1212,7 +1212,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
                     remoteele = (TiXmlElement*)GetElement(type, rootele)->Clone();
                 }
 
-                if (remoteele == NULL) {
+                if (remoteele == nullptr) {
                     warning << "Cannot find the needed xml section in "
                                "include file!"
                             << endl;
@@ -1232,15 +1232,15 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         int nattr = 0;
         int nele = 0;
         TiXmlAttribute* attr = remoteele->FirstAttribute();
-        while (attr != NULL) {
-            if (localele->Attribute(attr->Name()) == NULL) {
+        while (attr != nullptr) {
+            if (localele->Attribute(attr->Name()) == nullptr) {
                 localele->SetAttribute(attr->Name(), attr->Value());
                 nattr++;
             }
             attr = attr->Next();
         }
         TiXmlElement* ele = remoteele->FirstChildElement();
-        while (ele != NULL) {
+        while (ele != nullptr) {
             // ReadElement(ele);
             if ((string)ele->Value() != "for") {
                 localele->InsertEndChild(*ele);
@@ -1311,7 +1311,7 @@ string TRestMetadata::GetParameter(std::string parName, TString defaultValue) {
 ///
 /// \return A string of result, with env and expressions replaced
 string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString defaultValue) {
-    if (e == NULL) {
+    if (e == nullptr) {
         if (GetVerboseLevel() > REST_Debug) {
             cout << "Element is null" << endl;
         }
@@ -1319,13 +1319,13 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
     }
     string result = (string)defaultValue;
     // first find in attribute
-    if (e->Attribute(parName.c_str()) != NULL) {
+    if (e->Attribute(parName.c_str()) != nullptr) {
         result = e->Attribute(parName.c_str());
     }
     // then find in child sections/elements
     else {
         TiXmlElement* element = GetElementWithName("parameter", parName, e);
-        if (element != NULL && element->Attribute("value") != NULL) {
+        if (element != nullptr && element->Attribute("value") != nullptr) {
             result = element->Attribute("value");
         } else {
             debug << ClassName() << ": Parameter : " << parName << " not found!" << endl;
@@ -1338,7 +1338,7 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
 
 Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlElement* ele,
                                                  Double_t defaultVal) {
-    if (ele == NULL) return defaultVal;
+    if (ele == nullptr) return defaultVal;
     pair<string, string> val_unit = GetParameterAndUnits(parName, ele);
     string val = val_unit.first;
     string unit = val_unit.second;
@@ -1354,7 +1354,7 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlEleme
 
 TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
                                                       TVector2 defaultVal) {
-    if (ele == NULL) return defaultVal;
+    if (ele == nullptr) return defaultVal;
     pair<string, string> val_unit = GetParameterAndUnits(parName, ele);
     string val = val_unit.first;
     string unit = val_unit.second;
@@ -1372,7 +1372,7 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXml
 
 TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
                                                       TVector3 defaultVal) {
-    if (ele == NULL) return defaultVal;
+    if (ele == nullptr) return defaultVal;
     pair<string, string> val_unit = GetParameterAndUnits(parName, ele);
     string val = val_unit.first;
     string unit = val_unit.second;
@@ -1397,14 +1397,14 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXml
 /// element. If not found, the returned string is "Not defined"
 ///
 std::string TRestMetadata::GetFieldValue(std::string parName, TiXmlElement* e) {
-    if (e == NULL) {
+    if (e == nullptr) {
         if (GetVerboseLevel() > REST_Debug) {
             cout << "Element is null" << endl;
         }
         return "Not defined";
     }
     const char* val = e->Attribute(parName.c_str());
-    if (val == NULL) {
+    if (val == nullptr) {
         return "Not defined";
     }
 
@@ -1522,7 +1522,7 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
     }
 
     rootele = doc.RootElement();
-    if (rootele == NULL) {
+    if (rootele == nullptr) {
         ferr << "The rml file \"" << cfgFileName << "\" does not contain any valid elements!" << endl;
         exit(1);
     }
@@ -1531,22 +1531,22 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
     }
     // search with either name or declare in either root element or sub-root
     // element
-    while (rootele != NULL) {
-        if (rootele->Value() != NULL && (string)rootele->Value() == NameOrDecalre) {
+    while (rootele != nullptr) {
+        if (rootele->Value() != nullptr && (string)rootele->Value() == NameOrDecalre) {
             return (TiXmlElement*)rootele->Clone();
         }
 
-        if (rootele->Attribute("name") != NULL && (string)rootele->Attribute("name") == NameOrDecalre) {
+        if (rootele->Attribute("name") != nullptr && (string)rootele->Attribute("name") == NameOrDecalre) {
             return (TiXmlElement*)rootele->Clone();
         }
 
         TiXmlElement* etemp = GetElement(NameOrDecalre, rootele);
-        if (etemp != NULL) {
+        if (etemp != nullptr) {
             return (TiXmlElement*)etemp->Clone();
         }
 
         etemp = GetElementWithName("", NameOrDecalre, rootele);
-        if (etemp != NULL) {
+        if (etemp != nullptr) {
             return (TiXmlElement*)etemp->Clone();
         }
 
@@ -1563,7 +1563,7 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
 /// declaration
 ///
 TiXmlElement* TRestMetadata::GetElement(std::string eleDeclare, TiXmlElement* e) {
-    if (e == NULL) e = fElement;
+    if (e == nullptr) e = fElement;
     return e->FirstChildElement(eleDeclare.c_str());
 }
 
@@ -1571,7 +1571,7 @@ TiXmlElement* TRestMetadata::GetElement(std::string eleDeclare, TiXmlElement* e)
 /// \brief Get the next sibling xml element of this element, with same eleDeclare
 ///
 TiXmlElement* TRestMetadata::GetNextElement(TiXmlElement* e) {
-    if (e == NULL) return NULL;
+    if (e == nullptr) return NULL;
     return e->NextSiblingElement(e->Value());
 }
 
@@ -1589,12 +1589,12 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
 ///
 TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::string eleName,
                                                 TiXmlElement* e) {
-    if (e == NULL) return NULL;
+    if (e == nullptr) return NULL;
     if (eleDeclare == "")  // find only with name
     {
         TiXmlElement* ele = e->FirstChildElement();
-        while (ele != NULL) {
-            if (ele->Attribute("name") != NULL && (string)ele->Attribute("name") == eleName) {
+        while (ele != nullptr) {
+            if (ele->Attribute("name") != nullptr && (string)ele->Attribute("name") == eleName) {
                 return ele;
             }
             ele = ele->NextSiblingElement();
@@ -1603,8 +1603,8 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
     } else  // find with name and declare
     {
         TiXmlElement* ele = e->FirstChildElement(eleDeclare.c_str());
-        while (ele != NULL) {
-            if (ele->Attribute("name") != NULL && (string)ele->Attribute("name") == eleName) {
+        while (ele != nullptr) {
+            if (ele->Attribute("name") != nullptr && (string)ele->Attribute("name") == eleName) {
                 return ele;
             }
             ele = ele->NextSiblingElement(eleDeclare.c_str());
@@ -1623,13 +1623,13 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
 /// if not given, it will find the unit as a parameter of the element.
 ///	e.g. <... value="3" units="mm" .../>
 string TRestMetadata::GetUnits(TiXmlElement* e) {
-    if (e == NULL) {
+    if (e == nullptr) {
         warning << "TRestMetadata::GetUnits(): NULL element given!" << endl;
         return "";
     }
 
-    string valstr = e->Attribute("value") == NULL ? "" : e->Attribute("value");
-    string unitattr = e->Attribute("units") == NULL ? "" : e->Attribute("units");
+    string valstr = e->Attribute("value") == nullptr ? "" : e->Attribute("value");
+    string unitattr = e->Attribute("units") == nullptr ? "" : e->Attribute("units");
 
     string unitembeded = REST_Units::FindRESTUnitsInString(valstr);
     if (IsUnit(unitembeded)) {
@@ -1653,7 +1653,7 @@ string TRestMetadata::GetUnits(TiXmlElement* e) {
 /// If argument section is not given(==NULL), it will use the local section(fElement)
 pair<string, string> TRestMetadata::GetParameterAndUnits(string parName, TiXmlElement* e) {
     string parvalue;
-    if (e == NULL) {
+    if (e == nullptr) {
         parvalue = GetParameter(parName);
         e = fElement;
     } else {
@@ -1668,7 +1668,7 @@ pair<string, string> TRestMetadata::GetParameterAndUnits(string parName, TiXmlEl
         // then try to find unit in corresponding "parameter" section
         if (unit == "") {
             TiXmlElement* paraele = GetElementWithName("parameter", parName, e);
-            if (paraele != NULL) {
+            if (paraele != nullptr) {
                 unit = GetUnits(paraele);
             }
         }
@@ -1699,12 +1699,12 @@ TiXmlElement* TRestMetadata::StringToElement(string definition) {
 /// This method does't arrange the output. All the contents are written in one
 /// line.
 string TRestMetadata::ElementToString(TiXmlElement* ele) {
-    if (ele != NULL) {
+    if (ele != nullptr) {
         // remove comments
         TiXmlNode* n = ele->FirstChild();
-        while (n != NULL) {
+        while (n != nullptr) {
             TiXmlComment* cmt = n->ToComment();
-            if (cmt != NULL) {
+            if (cmt != nullptr) {
                 TiXmlNode* nn = n;
                 n = n->NextSibling();
                 ele->RemoveChild(nn);
@@ -1773,10 +1773,10 @@ string TRestMetadata::GetKEYStructure(std::string keyName, size_t& fromPosition,
     debug << "Finding " << fromPosition << "th appearance of KEY Structure \"" << keyName << "\"..." << endl;
 
     TiXmlElement* childele = ele->FirstChildElement(keyName);
-    for (int i = 0; childele != NULL && i < fromPosition; i++) {
+    for (int i = 0; childele != nullptr && i < fromPosition; i++) {
         childele = childele->NextSiblingElement(keyName);
     }
-    if (childele != NULL) {
+    if (childele != nullptr) {
         string result = ElementToString(childele);
         fromPosition = fromPosition + 1;
         debug << "Found Key : " << result << endl;
@@ -1851,10 +1851,10 @@ string TRestMetadata::GetKEYDefinition(string keyName, size_t& fromPosition, str
 string TRestMetadata::FieldNamesToUpper(string definition) {
     string result = definition;
     TiXmlElement* e = StringToElement(definition);
-    if (e == NULL) return NULL;
+    if (e == nullptr) return NULL;
 
     TiXmlAttribute* attr = e->FirstAttribute();
-    while (attr != NULL) {
+    while (attr != nullptr) {
         string parName = std::string(attr->Name());
 
         size_t pos = 0;
@@ -1919,7 +1919,7 @@ string TRestMetadata::ReplaceVariables(const string buffer) {
         int replacePos = startPosition;
         int replaceLen = endPosition - startPosition + 1;
 
-        string sysenv = getenv(expression.c_str()) != NULL ? getenv(expression.c_str()) : "";
+        string sysenv = getenv(expression.c_str()) != nullptr ? getenv(expression.c_str()) : "";
         string proenv = fVariables.count(expression) > 0 ? fVariables[expression] : "";
         string argenv = REST_ARGS.count(expression) > 0 ? REST_ARGS[expression] : "";
 
@@ -2014,7 +2014,7 @@ void TRestMetadata::PrintTimeStamp(Double_t timeStamp) {
 /// \brief Prints current config buffer on screen
 ///
 void TRestMetadata::PrintConfigBuffer() {
-    if (fElement != NULL) {
+    if (fElement != nullptr) {
         fElement->Print(stdout, 0);
         cout << endl;
     } else {
@@ -2030,7 +2030,7 @@ void TRestMetadata::PrintConfigBuffer() {
 }
 
 void TRestMetadata::WriteConfigBuffer(string fname) {
-    if (fElement != NULL) {
+    if (fElement != nullptr) {
         FILE* f = fopen(fname.c_str(), "at");
         fElement->Print(f, 0);
         fclose(f);
@@ -2205,8 +2205,8 @@ TString TRestMetadata::GetSearchPath() {
     // Then we skip adding user paths
     if (fElement) {
         TiXmlElement* ele = fElement->FirstChildElement("searchPath");
-        while (ele != NULL) {
-            if (ele->Attribute("value") != NULL) {
+        while (ele != nullptr) {
+            if (ele->Attribute("value") != nullptr) {
                 result += (string)ele->Attribute("value") + ":";
             }
             ele = ele->NextSiblingElement("searchPath");
@@ -2290,7 +2290,7 @@ std::map<string, string> TRestMetadata::GetParametersList() {
 
     // Loop over attribute set
     auto paraattr = fElement->FirstAttribute();
-    while (paraattr != NULL) {
+    while (paraattr != nullptr) {
         string name = paraattr->Name();
         string value = paraattr->Value();
 
@@ -2303,7 +2303,7 @@ std::map<string, string> TRestMetadata::GetParametersList() {
 
     // Loop over <parameter section
     auto paraele = fElement->FirstChildElement("parameter");
-    while (paraele != NULL) {
+    while (paraele != nullptr) {
         string name = paraele->Attribute("name");
         string value = paraele->Attribute("value");
         // In case <parameter section contains units definitions in extra attribute field,

@@ -1,22 +1,24 @@
 #ifndef RestCore_TRestTask
 #define RestCore_TRestTask
 
+#include <TCanvas.h>
+#include <TF1.h>
+#include <TGeoManager.h>
+#include <TH2D.h>
+#include <TInterpreter.h>
+#include <TLatex.h>
+#include <TLegend.h>
+#include <TObject.h>
+#include <TROOT.h>
+#include <TRandom.h>
+#include <TStyle.h>
+
 #include <iostream>
 #include <string>
 
-#include "TCanvas.h"
-#include "TF1.h"
-#include "TGeoManager.h"
-#include "TH2D.h"
-#include "TInterpreter.h"
-#include "TLatex.h"
-#include "TLegend.h"
-#include "TObject.h"
-#include "TROOT.h"
-#include "TRandom.h"
 #include "TRestAnalysisTree.h"
 #include "TRestRun.h"
-#include "TStyle.h"
+
 class TRestManager;
 
 using namespace std;
@@ -54,6 +56,7 @@ class TRestTask : public TRestMetadata {
     void SetMode(REST_TASKMODE mod) { fMode = mod; }
     REST_TASKMODE GetMode() { return fMode; }
 
+    // Constructor & Destructor
     TRestTask();
     ~TRestTask(){};
 

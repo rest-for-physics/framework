@@ -130,7 +130,7 @@ std::string REST_StringHelper::EvaluateExpression(std::string exp) {
 ///
 /// ROOT GUI won't be jammed during this pause.
 Int_t REST_StringHelper::GetChar(string hint) {
-    if (gApplication != NULL && !gApplication->IsRunning()) {
+    if (gApplication != nullptr && !gApplication->IsRunning()) {
         thread t = thread(&TApplication::Run, gApplication, true);
         t.detach();
 

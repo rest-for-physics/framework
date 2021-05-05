@@ -24,11 +24,14 @@
 #define RestCore_TRestMetadata
 
 #define TIXML_USE_STL
+#include <TApplication.h>
+#include <TClass.h>
+#include <TStreamerElement.h>
+#include <TVirtualStreamerInfo.h>
+
 #include <mutex>
 #include <thread>
 
-#include "TApplication.h"
-#include "TClass.h"
 #include "TRestDataBase.h"
 #include "TRestPhysics.h"
 #include "TRestReflector.h"
@@ -37,8 +40,6 @@
 #include "TRestSystemOfUnits.h"
 #include "TRestTools.h"
 #include "TRestVersion.h"
-#include "TStreamerElement.h"
-#include "TVirtualStreamerInfo.h"
 #include "tinyxml.h"
 
 /* We keep using REST_RELEASE, REST_VERSION(2,X,Y) and REST_VERSION_CODE
@@ -98,11 +99,11 @@ class TRestMetadata : public TNamed {
     TVector3 Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* e,
                                            TVector3 defaultValue = TVector3(-1, -1, -1));
     TiXmlElement* GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre = "");
-    TiXmlElement* GetElement(std::string eleDeclare, TiXmlElement* e = NULL);
+    TiXmlElement* GetElement(std::string eleDeclare, TiXmlElement* e = nullptr);
     TiXmlElement* GetNextElement(TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName);
-    pair<string, string> GetParameterAndUnits(string parname, TiXmlElement* e = NULL);
+    pair<string, string> GetParameterAndUnits(string parname, TiXmlElement* e = nullptr);
     TiXmlElement* StringToElement(string definition);
     string ElementToString(TiXmlElement* ele);
 

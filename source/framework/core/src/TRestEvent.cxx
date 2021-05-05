@@ -74,7 +74,7 @@ void TRestEvent::Initialize() {
     fSubEventTag = "";
     fOk = true;
 
-    fPad = NULL;
+    fPad = nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -133,7 +133,7 @@ void TRestEvent::SetTime(Double_t seconds, Double_t nanoseconds) {
 /// Copy the six univeral information in TRestEvent from another TRestEvent
 ///
 void TRestEvent::SetEventInfo(TRestEvent* eve) {
-    if (eve != NULL) {
+    if (eve != nullptr) {
         SetID(eve->GetID());
         SetSubID(eve->GetSubID());
         SetTimeStamp(eve->GetTimeStamp());
@@ -143,9 +143,9 @@ void TRestEvent::SetEventInfo(TRestEvent* eve) {
 }
 
 void TRestEvent::RestartPad(Int_t nElements) {
-    if (fPad != NULL) {
+    if (fPad != nullptr) {
         delete fPad;
-        fPad = NULL;
+        fPad = nullptr;
     }
 
     fPad = new TPad(this->GetName(), "", 0., 0., 1., 1.);

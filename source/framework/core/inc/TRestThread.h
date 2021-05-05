@@ -1,30 +1,24 @@
+
 #ifndef RestCore_TRestThread
 #define RestCore_TRestThread
 
-#include <iostream>
+#include <TFile.h>
+#include <TFileMerger.h>
+#include <TKey.h>
+#include <TObject.h>
+#include <TString.h>
+#include <TTree.h>
 
+#include <iostream>
 #include <mutex>
+#include <string>
 #include <thread>
 
-#include "TFile.h"
-#include "TObject.h"
-#include "TTree.h"
-
-#include <TKey.h>
-#include <string>
-#include "TFileMerger.h"
-#include "TString.h"
-
+#include "TRestAnalysisTree.h"
 #include "TRestEvent.h"
 #include "TRestEventProcess.h"
 #include "TRestMetadata.h"
-
-#include "TRestAnalysisTree.h"
 #include "TRestProcessRunner.h"
-
-// class TRestRun;
-// enum REST_Process_Output;
-// class TRestThread;
 
 /// Threaded worker of a process chain
 class TRestThread : public TRestMetadata {
@@ -74,6 +68,7 @@ class TRestThread : public TRestMetadata {
     TTree* GetEventTree() { return fEventTree; }
     Bool_t Finished() { return isFinished; }
 
+    // Constructor & Destructor
     TRestThread() { Initialize(); }
     ~TRestThread(){};
 

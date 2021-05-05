@@ -99,30 +99,30 @@ vector<string> TRestEventProcess::ReadObservables() {
     vector<string> obstypes;
     vector<string> obsdesc;
 
-    while (e != NULL) {
+    while (e != nullptr) {
         const char* obschr = e->Attribute("name");
         const char* _value = e->Attribute("value");
         const char* _type = e->Attribute("type");
         const char* _desc = e->Attribute("description");
 
         string value;
-        if (_value == NULL)
+        if (_value == nullptr)
             value = "ON";
         else
             value = _value;
         string type;
-        if (_type == NULL)
+        if (_type == nullptr)
             type = "double";
         else
             type = _type;
         string description;
-        if (_desc == NULL)
+        if (_desc == nullptr)
             description = "";
         else
             description = _desc;
 
         if (ToUpper(value) == "ON") {
-            if (obschr != NULL) {
+            if (obschr != nullptr) {
                 debug << this->ClassName() << " : setting observable \"" << obschr << "\"" << endl;
                 // vector<string> tmp = Split(obsstring, ":");
                 obsnames.push_back(obschr);
@@ -149,7 +149,7 @@ vector<string> TRestEventProcess::ReadObservables() {
 
 void TRestEventProcess::SetAnalysisTree(TRestAnalysisTree* tree) {
     fAnalysisTree = tree;
-    if (fAnalysisTree == NULL) return;
+    if (fAnalysisTree == nullptr) return;
     ReadObservables();
 }
 
@@ -158,7 +158,7 @@ void TRestEventProcess::SetAnalysisTree(TRestAnalysisTree* tree) {
 ///
 /// Processes can get access to each other's parameter and observable
 void TRestEventProcess::SetFriendProcess(TRestEventProcess* p) {
-    if (p == NULL) return;
+    if (p == nullptr) return;
     for (int i = 0; i < fFriendlyProcesses.size(); i++) {
         if (fFriendlyProcesses[i]->GetName() == p->GetName()) return;
     }
@@ -184,9 +184,9 @@ Int_t TRestEventProcess::LoadSectionMetadata() {
     fCuts.clear();
     if (ToUpper(GetParameter("cutsEnabled", "false")) == "TRUE") {
         TiXmlElement* ele = fElement->FirstChildElement();
-        while (ele != NULL) {
-            if (ele->Value() != NULL && (string)ele->Value() == "cut") {
-                if (ele->Attribute("name") != NULL && ele->Attribute("value") != NULL) {
+        while (ele != nullptr) {
+            if (ele->Value() != nullptr && (string)ele->Value() == "cut") {
+                if (ele->Attribute("name") != nullptr && ele->Attribute("value") != nullptr) {
                     string name = ele->Attribute("name");
                     name = (string) this->GetName() + "_" + name;
                     TVector2 value = StringTo2DVector(ele->Attribute("value"));
@@ -194,8 +194,8 @@ Int_t TRestEventProcess::LoadSectionMetadata() {
                 }
             }
 
-            else if (ele->Value() != NULL && (string)ele->Value() == "parameter") {
-                if (ele->Attribute("name") != NULL && ele->Attribute("value") != NULL) {
+            else if (ele->Value() != nullptr && (string)ele->Value() == "parameter") {
+                if (ele->Attribute("name") != nullptr && ele->Attribute("value") != nullptr) {
                     string name = ele->Attribute("name");
                     if (name.find("Cut") == name.size() - 3 || name.find("CutRange") == name.size() - 8) {
                         name = name.substr(0, name.find("Cut") + 3);
@@ -218,14 +218,14 @@ Int_t TRestEventProcess::LoadSectionMetadata() {
 /// Either name or type as input argument is accepted. For example,
 /// GetMetadata("TRestDetectorReadout"), GetMetadata("readout_140")
 TRestMetadata* TRestEventProcess::GetMetadata(string name) {
-    TRestMetadata* m = NULL;
-    if (fRunInfo != NULL) {
+    TRestMetadata* m = nullptr;
+    if (fRunInfo != nullptr) {
         m = fRunInfo->GetMetadata(name);
-        if (m == NULL) m = fRunInfo->GetMetadataClass(name);
+        if (m == nullptr) m = fRunInfo->GetMetadataClass(name);
     }
-    if (fHostmgr != NULL) {
-        if (m == NULL) m = fHostmgr->GetMetadata(name);
-        if (m == NULL) m = fHostmgr->GetMetadataClass(name);
+    if (fHostmgr != nullptr) {
+        if (m == nullptr) m = fHostmgr->GetMetadata(name);
+        if (m == nullptr) m = fHostmgr->GetMetadataClass(name);
     }
     return m;
 }
@@ -244,9 +244,9 @@ TRestMetadata* TRestEventProcess::GetMetadata(string name) {
 /// the input/output event to compare the difference.
 TRestEventProcess* TRestEventProcess::GetFriend(string nameortype) {
     TRestEventProcess* proc = GetFriendLive(nameortype);
-    if (proc == NULL) {
+    if (proc == nullptr) {
         TRestMetadata* friendfromfile = GetMetadata(nameortype);
-        if (friendfromfile != NULL && friendfromfile->InheritsFrom("TRestEventProcess")) {
+        if (friendfromfile != nullptr && friendfromfile->InheritsFrom("TRestEventProcess")) {
             return (TRestEventProcess*)friendfromfile;
         }
         return NULL;
@@ -276,13 +276,13 @@ TRestEventProcess* TRestEventProcess::GetFriendLive(string nameortype) {
 bool TRestEventProcess::ApplyCut() {
     for (auto cut : fCuts) {
         string type = (string)fAnalysisTree->GetObservableType(cut.first);
-        if (fAnalysisTree != NULL && type == "double") {
+        if (fAnalysisTree != nullptr && type == "double") {
             double val = fAnalysisTree->GetObservableValue<double>(cut.first);
             if (val > cut.second.Y() || val < cut.second.X()) {
                 return true;
             }
         }
-        if (fAnalysisTree != NULL && type == "int") {
+        if (fAnalysisTree != nullptr && type == "int") {
             int val = fAnalysisTree->GetObservableValue<int>(cut.first);
             if (val > cut.second.Y() || val < cut.second.X()) {
                 return true;
@@ -312,7 +312,7 @@ cout << GetName() << ": Process initialization..." << endl;
 /// input event
 void TRestEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
     debug << "Entering " << ClassName() << "::BeginOfEventProcess, Initializing output event..." << endl;
-    if (inEv != NULL && GetOutputEvent().address != NULL && (TRestEvent*)GetOutputEvent() != inEv) {
+    if (inEv != nullptr && GetOutputEvent().address != nullptr && (TRestEvent*)GetOutputEvent() != inEv) {
         TRestEvent* outEv = GetOutputEvent();
         outEv->Initialize();
 
@@ -467,7 +467,7 @@ void TRestEventProcess::EndPrintProcess() {
 //////////////////////////////////////////////////////////////////////////
 /// Get the full analysis tree from TRestRun, with non-empty entries.
 TRestAnalysisTree* TRestEventProcess::GetFullAnalysisTree() {
-    if (fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL)
+    if (fHostmgr != nullptr && fHostmgr->GetProcessRunner() != nullptr)
         return fHostmgr->GetProcessRunner()->GetOutputAnalysisTree();
     return NULL;
 }

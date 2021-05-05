@@ -47,7 +47,7 @@ class TRestRealTimeDrawingProcess : public TRestEventProcess {
     /// Pause response flag from other threads when recieving pause signal
     static map<TRestRealTimeDrawingProcess*, bool> fPauseResponse;  //!
     /// The event pointer is not used in this process
-    TRestEvent* fEvent = NULL;  //!
+    TRestEvent* fEvent = nullptr;  //!
 
    protected:
    public:

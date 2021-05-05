@@ -8,7 +8,7 @@
 
 ClassImp(TRestBenchMarkProcess);
 
-thread* TRestBenchMarkProcess::fMonitorThread = NULL;
+thread* TRestBenchMarkProcess::fMonitorThread = nullptr;
 int TRestBenchMarkProcess::fMonitorFlag = 0;
 float TRestBenchMarkProcess::fCPUUsageInPct = 0;
 float TRestBenchMarkProcess::fMemUsageInMB = 0;
@@ -21,7 +21,7 @@ ULong64_t TRestBenchMarkProcess::fStartTime = 0;
 TRestBenchMarkProcess::TRestBenchMarkProcess() { Initialize(); }
 
 void TRestBenchMarkProcess::Initialize() {
-    fEvent = NULL;
+    fEvent = nullptr;
 #ifndef __APPLE__
     fCPUNumber = get_nprocs_conf();
     fMemNumber = get_phys_pages();
@@ -52,13 +52,13 @@ void TRestBenchMarkProcess::SysMonitorFunc(int pid, double refreshrate) {
 }
 
 void TRestBenchMarkProcess::InitProcess() {
-    if (fHostmgr == NULL || fHostmgr->GetProcessRunner() == NULL) {
+    if (fHostmgr == nullptr || fHostmgr->GetProcessRunner() == nullptr) {
         ferr << "TRestBenchMarkProcess: the process is not hosted by TRestProcessRunner!" << endl;
         exit(1);
     }
 
     // init external thread for system info service
-    if (fMonitorThread == NULL) {
+    if (fMonitorThread == nullptr) {
         fMonitorFlag = 1;
         // SysMonitorFunc(fPid, fRefreshRate);
         fMonitorThread = new thread(&TRestBenchMarkProcess::SysMonitorFunc, this, fPid, fRefreshRate);
@@ -82,12 +82,12 @@ TRestEvent* TRestBenchMarkProcess::ProcessEvent(TRestEvent* eventInput) {
 }
 
 void TRestBenchMarkProcess::EndProcess() {
-    if (fMonitorThread != NULL) {
+    if (fMonitorThread != nullptr) {
         fMonitorFlag = 0;
         usleep(1e6 / fRefreshRate * 2);
         // fMonitorThread->join();
         delete fMonitorThread;
-        fMonitorThread = NULL;
+        fMonitorThread = nullptr;
     }
 }
 

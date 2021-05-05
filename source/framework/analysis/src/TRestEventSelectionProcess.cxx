@@ -92,7 +92,7 @@ TRestEventSelectionProcess::TRestEventSelectionProcess() { Initialize(); }
 void TRestEventSelectionProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fEvent = NULL;
+    fEvent = nullptr;
 }
 
 ///////////////////////////////////////////////

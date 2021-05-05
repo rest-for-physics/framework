@@ -121,7 +121,7 @@ inline void SetInitLevel(T* name, int level) {
     struct __##classname##_Init {                                   \
         __##classname##_Init() {                                    \
             REST_ARGS[#objname] = #classname;                       \
-            if (objname != NULL) {                                  \
+            if (objname != nullptr) {                                  \
                 if (REST_InitTools::CanOverwrite(objname, level)) { \
                     delete objname;                                 \
                     objname = new classname();                      \

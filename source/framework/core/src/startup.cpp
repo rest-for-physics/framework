@@ -18,7 +18,7 @@ map<string, string> REST_ARGS = {};
 namespace REST_Reflection {
 map<void*, TClass*> RESTListOfClasses_typeid = {};
 map<string, TClass*> RESTListOfClasses_typename = {};
-}
+}  // namespace REST_Reflection
 map<string, RESTVirtualConverter*> RESTConverterMethodBase = {};
 
 // initialize REST constants
@@ -63,7 +63,7 @@ struct __REST_CONST_INIT {
                 TRestTools::Execute("echo 1 > " + restUserPath + "/runNumber");
             }
             // check the dataURL file
-            //if (!TRestTools::fileExists(restUserPath + "/dataURL")) {
+            // if (!TRestTools::fileExists(restUserPath + "/dataURL")) {
             //    TRestTools::Execute("cp " + REST_PATH + "/data/dataURL " + restUserPath + "/");
             //}
             // check the download directory
@@ -83,7 +83,7 @@ struct __REST_CONST_INIT {
 const __REST_CONST_INIT REST_CONST_INIT;
 
 // initialize gDataBase
-TRestDataBase* gDataBase = NULL;
+TRestDataBase* gDataBase = nullptr;
 MakeGlobal(TRestDataBase, gDataBase, 1);
 
 // initialize formatted message output tool

@@ -15,15 +15,6 @@
 #ifndef RestCore_TRestEveEventViewer
 #define RestCore_TRestEveEventViewer
 
-#include "TRestEventViewer.h"
-
-#include <TGLViewer.h>
-#include <TGeoManager.h>
-#include <TGeoMaterial.h>
-#include <TObject.h>
-#include <TPad.h>
-#include <TVector3.h>
-
 #include <TEveArrow.h>
 #include <TEveBrowser.h>
 #include <TEveEventManager.h>
@@ -36,10 +27,22 @@
 #include <TEveText.h>
 #include <TEveTrans.h>
 #include <TEveViewer.h>
+#include <TGLViewer.h>
 #include <TGTab.h>
+#include <TGeoManager.h>
+#include <TGeoMaterial.h>
 #include <TGeoNode.h>
+#include <TObject.h>
+#include <TPad.h>
+#include <TVector3.h>
 
+#include "TRestEventViewer.h"
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 24, 0)
+#define GEOM_SCALE 1
+#else
 #define GEOM_SCALE 0.1
+#endif
 
 class TRestEveEventViewer : public TRestEventViewer {
    protected:
@@ -67,7 +70,7 @@ class TRestEveEventViewer : public TRestEventViewer {
 
     Double_t fMinRadius;
     Double_t fMaxRadius;
-    
+
    public:
     virtual void Initialize();
 
