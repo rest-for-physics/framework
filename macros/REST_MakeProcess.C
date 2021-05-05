@@ -107,12 +107,10 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     }
 
     headerfile << endl;
-    headerfile << "    void InitFromConfigFile();" << endl;
-    headerfile << endl;
     headerfile << "    void Initialize();" << endl;
     headerfile << endl;
     headerfile << "    // Add here the members or parameters for your event process." << endl;
-    headerfile << "    // You should set their initial values here together. " << endl;
+    headerfile << "    // You can set their default values here together. " << endl;
     headerfile << "    // Note: add \"//!\" mark at the end of the member definition" << endl;
     headerfile << "    // if you don't want to save them as \"metadata\"." << endl;
     headerfile << endl;
@@ -209,12 +207,14 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
         sourcefile << "    " << outputeventname << " = new " << outputevent << "();" << endl;
     }
     sourcefile << endl;
-    sourcefile << "    // Assign initial values for the parameters here" << endl;
+    sourcefile << "    // Assign default values for the members here" << endl;
     sourcefile << endl;
     sourcefile << "}" << endl;
     sourcefile << endl;
     sourcefile << "void " << name << "::InitProcess() {" << endl;
     sourcefile << "    // Write here the jobs to do before processing" << endl;
+    sourcefile << "    // i.e., initialize histograms and auxiliary vectors," << endl;
+    sourcefile << "    // read TRestRun metadata, or load additional rml sections" << endl;
     sourcefile << endl;
     sourcefile << "}" << endl;
     sourcefile << endl;
@@ -234,12 +234,6 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     sourcefile << endl;
     sourcefile << "}" << endl;
     sourcefile << endl;
-    sourcefile << "void " << name << "::InitFromConfigFile() {" << endl;
-    sourcefile << "    TRestEventProcess::InitFromConfigFile();" << endl;
-    sourcefile << "    // Don't need to write code here besides the advanced logic of parameter loading"
-               << endl;
-    sourcefile << endl;
-    sourcefile << "}" << endl;
 
     sourcefile.flush();
     sourcefile.close();
