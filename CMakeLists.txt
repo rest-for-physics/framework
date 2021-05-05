@@ -1,7 +1,7 @@
 PROJECT(REST)
 CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 
-#minimum compiler version
+# Minimum compiler version
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # require at least gcc 4.8
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8)
@@ -19,8 +19,7 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-stdlib=libc++")
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
-
-#install path
+# Install path
 IF (NOT DEFINED INSTALL_PREFIX)
     IF (DEFINED ENV{REST_PATH})
         set(INSTALL_PREFIX $ENV{REST_PATH})
@@ -36,29 +35,29 @@ IF (NOT DEFINED RESTLIB_MODEL)
     set(RESTLIB_MODEL OFF)
 ENDIF ()
 
-#auto schema evolution for ROOT
+# Auto schema evolution for ROOT
 IF (NOT DEFINED REST_SE)
     set(REST_SE ON)
 ENDIF ()
 set(SCHEMA_EVOLUTION ${REST_SE})
 
-#welcome message
+# Welcome message
 IF (NOT DEFINED REST_WELCOME)
     set(REST_WELCOME ON)
 ENDIF ()
 
-#find ROOT libs and includes
+# Find ROOT libs and includes
 set(external_include_dirs)
 set(external_libs)
+
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${DECAY_PATH}/cmake ${CMAKE_MODULE_PATH})
-set(ROOT_FIND_REQUIRED true)
 set(CMAKE_MACOSX_RPATH 1)
 
-include(FindROOT)
+find_package(ROOT REQUIRED)
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
 set(external_libs ${external_libs} "${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit -lSpectrum")
 
-#switch to enable ROOT Eve functionality.
+# Switch to enable ROOT Eve functionality.
 IF (NOT DEFINED REST_EVE)
     set(REST_EVE ON)
 ENDIF ()
@@ -70,7 +69,7 @@ else ()
     set(excludes ${excludes} TRestEveEventViewer)
 endif (${REST_EVE} MATCHES "ON")
 
-#this is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProccess.
+# This is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProccess.
 IF (NOT DEFINED SQL)
     set(SQL OFF)
 ENDIF ()
@@ -87,15 +86,15 @@ else ()
     set(SQL OFF)
 endif (${SQL} MATCHES "ON")
 
-#include dir for compilation
+# Include directories for compilation
 include_directories(${external_include_dirs})
 message(STATUS "external include directory: " ${external_include_dirs})
 message(STATUS "external libraries to link: " ${external_libs})
 
-#gether some infomation
+# Gather some information
 string(TIMESTAMP date "%Y-%m-%d %H:%M")
 
-#start compile
+# Start compile
 include(MacroRootDict)
 add_subdirectory(source)
 message("")
@@ -104,7 +103,7 @@ message(STATUS "rest executables: " ${rest_exes})
 message(STATUS "rest macros: " ${rest_macros_str})
 message("")
 
-#begin installation
+# Begin installation
 message("")
 message("REST will be installed in : ${CMAKE_INSTALL_PREFIX}")
 message("===========================================================")
@@ -112,15 +111,13 @@ message("System is : ${CMAKE_SYSTEM_NAME}")
 message("Packages : ${rest_packages}")
 message("Libraries : ${rest_libraries}")
 message("Features : ${rest_features}")
-
 message("===========================================================")
 message("Check main project README.md to see all available compilation options, packages and libraries")
 message("")
 
 file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/framework/*.h")
-#set(Headers ${Headers} ${Headers1} ${Headers2} ${Headers3} ${Headers4} ${Headers5} )
 
-# clear the install dir
+# Clear the install dir
 IF (NOT DEFINED INSTALL_CLEARDIR)
     set(INSTALL_CLEARDIR ON)
 ENDIF ()
@@ -128,7 +125,7 @@ if (${INSTALL_CLEARDIR} MATCHES "ON")
     install(CODE "execute_process(COMMAND rm -r ${CMAKE_INSTALL_PREFIX})")
 endif ()
 
-# install the files of the main framework
+# Install the files of the main framework
 INSTALL(FILES ${Headers} DESTINATION include)
 
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENCE DESTINATION .)
@@ -149,7 +146,13 @@ install(
         COMPONENT install
 )
 
-#copy pcm files
+install(
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts
+        DESTINATION .
+        COMPONENT install
+)
+
+# Copy pcm files
 install(CODE
         "
 file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/*.pcm\")
@@ -157,9 +160,9 @@ file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/lib)
 "
         )
 
-#create thisREST.sh
+# Create thisREST.sh
 include(thisREST)
 
-#add permissions
+# Add permissions
 install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/bin/rest-config)")
 install(CODE "execute_process(COMMAND chmod 777 ${CMAKE_INSTALL_PREFIX})")
