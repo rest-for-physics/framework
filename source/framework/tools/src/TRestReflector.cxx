@@ -57,7 +57,7 @@ TRestReflector::TRestReflector(void* _address, const string& _type) {
     onheap = false;
     cl = GetClassQuick(_type);
     DataType_Info dt = DataType_Info(_type);
-    if (cl == NULL && dt.size == 0) {
+    if (cl == nullptr && dt.size == 0) {
         cout << "In TRestReflector::TRestReflector() : unrecognized type: \"" << _type << "\"" << endl;
         return;
     }
@@ -75,7 +75,7 @@ void TRestReflector::Assembly() {
         Destroy();
     }
 
-    if (cl != NULL) {
+    if (cl != nullptr) {
         address = (char*)cl->New();
         onheap = true;
     } else if (is_data_type) {
@@ -86,14 +86,14 @@ void TRestReflector::Assembly() {
 }
 
 void TRestReflector::Destroy() {
-    if (address == NULL) return;
+    if (address == nullptr) return;
     if (onheap == false) {
         // It can only delete/free objects on heap memory
         cout << "In TRestReflector::Destroy() : cannot free on stack memory!" << endl;
         return;
     }
 
-    if (cl != NULL) {
+    if (cl != nullptr) {
         cl->Destructor(address);
     } else if (is_data_type) {
         free(address);
@@ -121,9 +121,9 @@ void TRestReflector::operator>>(TRestReflector to) { CloneAny(*this, to); }
 
 string TRestReflector::ToString() {
     if (type == "string") return *(string*)(address);
-    if (address == NULL) return "null";
+    if (address == nullptr) return "null";
     RESTVirtualConverter* converter = RESTConverterMethodBase[type];
-    if (converter != NULL) {
+    if (converter != nullptr) {
         return converter->ToString(address);
     } else {
         return Form("Type: %s, Address: %p", type.c_str(), address);
@@ -135,7 +135,7 @@ void TRestReflector::ParseString(string str) {
         *(string*)(address) = str;
     } else {
         RESTVirtualConverter* converter = RESTConverterMethodBase[type];
-        if (converter != NULL) {
+        if (converter != nullptr) {
             converter->ParseString(address, str);
         } else {
             cout << "Method for parsing string to " << type << " has not been registered!" << endl;
@@ -146,7 +146,7 @@ void TRestReflector::ParseString(string str) {
 int TRestReflector::InitDictionary() {
     if (is_data_type) return 0;
 
-    if (cl != NULL) {
+    if (cl != nullptr) {
         if (cl->GetCollectionProxy() && dynamic_cast<TEmulatedCollectionProxy*>(cl->GetCollectionProxy())) {
             // cout << "In TRestReflector::CloneTo() : the target is an stl collection but does not have a "
             //	"compiled CollectionProxy. Please generate the dictionary for this collection."
@@ -279,12 +279,12 @@ void CloneAny(TRestReflector from, TRestReflector to) {
     }
 
     RESTVirtualConverter* converter = RESTConverterMethodBase[from.type];
-    if (converter != NULL) {
+    if (converter != nullptr) {
         converter->CloneObj(from.address, to.address);
     } else {
         cout << "Method for cloning type: \"" << from.type << "\" has not been registered!" << endl;
     }
-    // if (from.cl == NULL) {
+    // if (from.cl == nullptr) {
     //    memcpy(to.address, from.address, from.size);
     //} else {
     //    TBufferFile buffer(TBuffer::kWrite);
@@ -302,9 +302,9 @@ void CloneAny(TRestReflector from, TRestReflector to) {
 }
 
 TRestReflector TRestReflector::GetDataMember(string name) {
-    if (cl != NULL) {
+    if (cl != nullptr) {
         TDataMember* mem = cl->GetDataMember(name.c_str());
-        if (mem == NULL) {
+        if (mem == nullptr) {
             // find data member also in base class.
             TVirtualStreamerInfo* vs = cl->GetStreamerInfo();
             TObjArray* ses = vs->GetElements();
@@ -330,7 +330,7 @@ TRestReflector TRestReflector::GetDataMember(string name) {
 }
 
 TRestReflector TRestReflector::GetDataMember(int ID) {
-    if (cl != NULL) {
+    if (cl != nullptr) {
         TList* list = cl->GetListOfDataMembers();
         if (ID < GetNumberOfDataMembers()) {
             TDataMember* mem = (TDataMember*)list->At(ID);
@@ -385,7 +385,7 @@ string TRestReflector::GetDataMemberValueString(string name) {
 }
 
 int TRestReflector::GetNumberOfDataMembers() {
-    if (cl != NULL) {
+    if (cl != nullptr) {
         return cl->GetNdata();
     }
     return 0;

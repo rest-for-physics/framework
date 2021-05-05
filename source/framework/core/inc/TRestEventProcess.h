@@ -44,9 +44,9 @@ class TRestEventProcess : public TRestMetadata {
    private:
     // unused datamember, set as private
     ///< not used, keep for compatibility
-    TRestEvent* fInputEvent = NULL;  //!
+    TRestEvent* fInputEvent = nullptr;  //!
     ///< not used, keep for compatibility
-    TRestEvent* fOutputEvent = NULL;  //!
+    TRestEvent* fOutputEvent = nullptr;  //!
 
    protected:
     ///< Canvas for some viewer event

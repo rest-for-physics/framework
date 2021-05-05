@@ -274,7 +274,7 @@ TRestMetadataPlot::TRestMetadataPlot(const char* cfgFileName, const char* name) 
 /// \brief Default destructor
 ///
 TRestMetadataPlot::~TRestMetadataPlot() {
-    if (fRun != NULL) delete fRun;
+    if (fRun != nullptr) delete fRun;
 }
 
 ///////////////////////////////////////////////
@@ -283,11 +283,11 @@ TRestMetadataPlot::~TRestMetadataPlot() {
 void TRestMetadataPlot::Initialize() {
     SetSectionName(this->ClassName());
 
-    fRun = NULL;
+    fRun = nullptr;
 
     fNFiles = 0;
 
-    fCombinedCanvas = NULL;
+    fCombinedCanvas = nullptr;
 
     fPlotNamesCheck.clear();
 }
@@ -297,7 +297,7 @@ void TRestMetadataPlot::Initialize() {
 ///
 void TRestMetadataPlot::InitFromConfigFile() {
     size_t position = 0;
-    if (fHostmgr->GetRunInfo() != NULL) {
+    if (fHostmgr->GetRunInfo() != nullptr) {
         fRun = fHostmgr->GetRunInfo();
     }
 
@@ -305,7 +305,7 @@ void TRestMetadataPlot::InitFromConfigFile() {
     debug << "TRestMetadataPlot: Reading canvas settings" << endl;
     position = 0;
     TiXmlElement* formatDefinition = GetElement("labels");
-    if (formatDefinition != NULL) {
+    if (formatDefinition != nullptr) {
         if (GetVerboseLevel() >= REST_Debug) {
             cout << formatDefinition << endl;
             cout << "Reading format definition : " << endl;
@@ -346,7 +346,7 @@ void TRestMetadataPlot::InitFromConfigFile() {
 #pragma region ReadLegend
     position = 0;
     TiXmlElement* legendDefinition = GetElement("legendPosition");
-    if (legendDefinition != NULL) {
+    if (legendDefinition != nullptr) {
         if (GetVerboseLevel() >= REST_Debug) {
             cout << legendDefinition << endl;
             cout << "Reading legend definition : " << endl;
@@ -380,7 +380,7 @@ void TRestMetadataPlot::InitFromConfigFile() {
 #pragma region ReadCanvas
     position = 0;
     TiXmlElement* canvasDefinition = GetElement("canvas");
-    if (canvasDefinition != NULL) {
+    if (canvasDefinition != nullptr) {
         fCanvasSize = StringTo2DVector(GetFieldValue("size", canvasDefinition));
         fCanvasDivisions = StringTo2DVector(GetFieldValue("divide", canvasDefinition));
         fCanvasSave = GetFieldValue("save", canvasDefinition);
@@ -394,7 +394,7 @@ void TRestMetadataPlot::InitFromConfigFile() {
     debug << "TRestMetadataPlot: Reading plot sections" << endl;
     Int_t maxPlots = (Int_t)fCanvasDivisions.X() * (Int_t)fCanvasDivisions.Y();
     TiXmlElement* plotele = fElement->FirstChildElement("plot");
-    while (plotele != NULL) {
+    while (plotele != nullptr) {
         string active = GetParameter("value", plotele, "ON");
         if (ToUpper(active) == "ON") {
             int N = fPlots.size();
@@ -434,12 +434,12 @@ void TRestMetadataPlot::InitFromConfigFile() {
             debug << "- save : " << plot.save << endl;
 
             TiXmlElement* graphele = plotele->FirstChildElement("graph");
-            if (graphele == NULL) {
+            if (graphele == nullptr) {
                 // in case for single-graph plot, variables might be added directly inside the <plot section
                 graphele = plotele;
             }
 
-            while (graphele != NULL) {
+            while (graphele != nullptr) {
                 Graph_Info_Set graph = SetupGraphFromConfigFile(graphele, plot);
 
                 debug << "Graph name : " << graph.name << endl;
@@ -460,7 +460,7 @@ void TRestMetadataPlot::InitFromConfigFile() {
     debug << "TRestMetadataPlot: Reading panel sections" << endl;
     maxPlots -= fPlots.size();  // remaining spaces on canvas
     TiXmlElement* panelele = fElement->FirstChildElement("panel");
-    while (panelele != NULL) {
+    while (panelele != nullptr) {
         string active = GetParameter("value", panelele, "ON");
         if (ToUpper(active) == "ON") {
             int N = fPanels.size();
@@ -475,7 +475,7 @@ void TRestMetadataPlot::InitFromConfigFile() {
             panel.font_size = StringToDouble(GetParameter("font_size", panelele, "0.1"));
 
             TiXmlElement* labelele = panelele->FirstChildElement("label");
-            while (labelele != NULL) {
+            while (labelele != nullptr) {
                 panel.label.push_back(GetParameter("value", labelele, "Error. Label value not defined"));
                 panel.posX.push_back(StringToDouble(GetParameter("x", labelele, "0.1")));
                 panel.posY.push_back(StringToDouble(GetParameter("y", labelele, "0.1")));
@@ -554,8 +554,8 @@ void TRestMetadataPlot::AddFile(TString fileName) {
 /// \brief We can add input file from process's output file
 ///
 void TRestMetadataPlot::AddFileFromExternalRun() {
-    if (fRun != NULL) {
-        if (fHostmgr->GetProcessRunner() != NULL && fRun->GetOutputFileName() != "") {
+    if (fRun != nullptr) {
+        if (fHostmgr->GetProcessRunner() != nullptr && fRun->GetOutputFileName() != "") {
             // if we have a TRestProcessRunner before head, we use its output file
             AddFile(fRun->GetOutputFileName());
             return;
@@ -604,7 +604,7 @@ void TRestMetadataPlot::GenerateCanvas() {
     info << "--------------------------" << endl;
     // Add files, first use <addFile section definition
     TiXmlElement* ele = fElement->FirstChildElement("addFile");
-    while (ele != NULL) {
+    while (ele != nullptr) {
         TString inputfile = GetParameter("name", ele);
         this->AddFile(inputfile);
         ele = ele->NextSiblingElement("addFile");
@@ -620,19 +620,19 @@ void TRestMetadataPlot::GenerateCanvas() {
     }
 
     // initialize output root file if we have TRestRun running
-    TFile* fOutputRootFile = NULL;
-    if (fRun != NULL) {
+    TFile* fOutputRootFile = nullptr;
+    if (fRun != nullptr) {
         fOutputRootFile = fRun->GetOutputFile();
-        if (fOutputRootFile == NULL) {
+        if (fOutputRootFile == nullptr) {
             fRun->SetHistoricMetadataSaving(false);
             fOutputRootFile = fRun->FormOutputFile();
         }
     }
 
     // Initializing canvas window
-    if (fCombinedCanvas != NULL) {
+    if (fCombinedCanvas != nullptr) {
         delete fCombinedCanvas;
-        fCombinedCanvas = NULL;
+        fCombinedCanvas = nullptr;
     }
     fCombinedCanvas = new TCanvas("combined", "combined", 0, 0, fCanvasSize.X(), fCanvasSize.Y());
     fCombinedCanvas->Divide((Int_t)fCanvasDivisions.X(), (Int_t)fCanvasDivisions.Y());
@@ -903,7 +903,7 @@ void TRestMetadataPlot::GenerateCanvas() {
 
         // save histogram to root file
         for (unsigned int i = 0; i < graphCollectionPlot.size(); i++) {
-            if (fRun != NULL) {
+            if (fRun != nullptr) {
                 fOutputRootFile->cd();
                 graphCollectionPlot[i]->Write();
             }
@@ -949,7 +949,7 @@ void TRestMetadataPlot::GenerateCanvas() {
     }
 
     // Save this class to the root file
-    if (fRun != NULL && fOutputRootFile != NULL) {
+    if (fRun != nullptr && fOutputRootFile != nullptr) {
         fOutputRootFile->cd();
         this->Write();
         fRun->CloseFile();

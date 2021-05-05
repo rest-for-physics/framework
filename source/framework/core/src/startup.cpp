@@ -83,7 +83,7 @@ struct __REST_CONST_INIT {
 const __REST_CONST_INIT REST_CONST_INIT;
 
 // initialize gDataBase
-TRestDataBase* gDataBase = NULL;
+TRestDataBase* gDataBase = nullptr;
 MakeGlobal(TRestDataBase, gDataBase, 1);
 
 // initialize formatted message output tool

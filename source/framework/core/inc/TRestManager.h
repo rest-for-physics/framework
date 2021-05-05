@@ -21,9 +21,9 @@ class TRestManager : public TRestMetadata {
    public:
     void Initialize();
     void InitFromConfigFile() {
-        if (fElement != NULL) {
+        if (fElement != nullptr) {
             TiXmlElement* e = fElement->FirstChildElement();
-            while (e != NULL) {
+            while (e != nullptr) {
                 string value = e->Value();
                 if (value == "variable" || value == "myParameter" || value == "constant") {
                     e = e->NextSiblingElement();

@@ -61,7 +61,7 @@ class TRestSummaryProcess : public TRestEventProcess {
     std::map<TString, TVector2> fMinimumRange;
 
     /// The event pointer is not used in this process
-    TRestEvent* fEvent = NULL;  //!
+    TRestEvent* fEvent = nullptr;  //!
 
     void InitProcess();
     void EndProcess();

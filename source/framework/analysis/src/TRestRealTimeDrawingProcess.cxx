@@ -130,7 +130,7 @@ TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* evInput) {
     if (fDrawInterval == 0) {
         return fEvent;
     }
-    if (GetFullAnalysisTree() == NULL) {
+    if (GetFullAnalysisTree() == nullptr) {
         return fEvent;
     }
 
@@ -241,7 +241,7 @@ void TRestRealTimeDrawingProcess::InitFromConfigFile() {
     fThreadWaitTimeoutMs = GetDblParameterWithUnits("threadWaitTimeout", 1000);
     if (fPlots.size() == 0) {
         TiXmlElement* ele = fElement->FirstChildElement("TRestAnalysisPlot");
-        while (ele != NULL) {
+        while (ele != nullptr) {
             TRestAnalysisPlot* plt = new TRestAnalysisPlot();
             plt->SetHostmgr(this->fHostmgr);
             plt->LoadConfigFromElement(ele, fElementGlobal, fVariables);

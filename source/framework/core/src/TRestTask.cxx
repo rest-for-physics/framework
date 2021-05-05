@@ -68,7 +68,7 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
             funcName = TaskString;
         }
         TFunction* f = gROOT->GetGlobalFunction(funcName.c_str());
-        if (f == NULL) {
+        if (f == nullptr) {
             fMode = TASK_ERROR;
         } else {
             fNRequiredArgument = f->GetNargs() - f->GetNargsOpt();
@@ -180,13 +180,13 @@ void TRestTask::RunTask(TRestManager* mgr) {
             return;
         } else if (fMode == TASK_CPPCMD) {
             //
-            if (mgr == NULL) {
+            if (mgr == nullptr) {
                 ferr << "no target specified for the command:" << endl;
                 ferr << fConstructedCommand << endl;
                 exit(-1);
             } else {
                 TRestMetadata* meta = mgr->GetMetadata(fInvokeObject);
-                if (meta == NULL) {
+                if (meta == nullptr) {
                     ferr << "cannot file metadata: " << fInvokeObject << " in TRestManager" << endl;
                     ferr << "command: " << fConstructedCommand << endl;
                     exit(-1);
@@ -281,7 +281,7 @@ TRestTask* TRestTask::GetTaskFromMacro(TString taskName) {
     } else {
         // initialize from a class which is inherited from TRestTask
         TRestTask* tsk = REST_Reflection::Assembly((string)taskName);
-        if (tsk != NULL && tsk->InheritsFrom("TRestTask")) {
+        if (tsk != nullptr && tsk->InheritsFrom("TRestTask")) {
             tsk->SetMode(TASK_CLASS);
             return tsk;
         }

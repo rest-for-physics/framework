@@ -137,7 +137,7 @@ void DBFile::Print() {
 
 TRestDataBase::TRestDataBase() {
     auto url = getenv("REST_DBURL");
-    if (url != NULL) {
+    if (url != nullptr) {
         fConnectionString = url;
     }
     Initialize();
