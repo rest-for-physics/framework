@@ -104,7 +104,7 @@ build:
     - python3 pull-submodules.py --force --dontask
     - if [ -d ${CI_PROJECT_DIR}/build ]; then rm -Rf ${CI_PROJECT_DIR}/build; fi
     - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build/
-    - rm -rf ${CI_PROJECT_DIR}/install
+    - if [ -d ${CI_PROJECT_DIR}/install ]; then rm -Rf ${CI_PROJECT_DIR}/install; fi
     - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
     - make install -j2
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
@@ -123,7 +123,7 @@ build_latest:
     - python3 pull-submodules.py --force --dontask --latest
     - if [ -d ${CI_PROJECT_DIR}/build_latest ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest; fi
     - mkdir ${CI_PROJECT_DIR}/build_latest && cd ${CI_PROJECT_DIR}/build_latest/
-    - rm -rf ${CI_PROJECT_DIR}/install_latest
+    - if [ -d ${CI_PROJECT_DIR}/install_latest ]; then rm -Rf ${CI_PROJECT_DIR}/install_latest; fi
     - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest
     - make install -j2
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
@@ -142,11 +142,11 @@ build_latest_root622_geant4v1042:
     - cd ${CI_PROJECT_DIR}/
     - python3 pull-submodules.py --force --dontask --latest
     - if [ -d ${CI_PROJECT_DIR}/build_latest ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest; fi
-    - mkdir ${CI_PROJECT_DIR}/build_latest && cd ${CI_PROJECT_DIR}/build_latest/
-    - rm -rf ${CI_PROJECT_DIR}/install_latest
-    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest
+    - mkdir ${CI_PROJECT_DIR}/build_latest && cd ${CI_PROJECT_DIR}/build_latest2/
+    - if [ -d ${CI_PROJECT_DIR}/install_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/install_latest2; fi
+    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest2
     - make install -j2
-    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
+    - . ${CI_PROJECT_DIR}/install_latest2/thisREST.sh
   except:
       variables:
         - $CRONJOB == "YES"
