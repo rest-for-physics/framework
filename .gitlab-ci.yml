@@ -141,8 +141,8 @@ build_latest_root622_geant4v1042:
   script:
     - cd ${CI_PROJECT_DIR}/
     - python3 pull-submodules.py --force --dontask --latest
-    - if [ -d ${CI_PROJECT_DIR}/build_latest ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest; fi
-    - mkdir ${CI_PROJECT_DIR}/build_latest && cd ${CI_PROJECT_DIR}/build_latest2/
+    - if [ -d ${CI_PROJECT_DIR}/build_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest2; fi
+    - mkdir ${CI_PROJECT_DIR}/build_latest2 && cd ${CI_PROJECT_DIR}/build_latest2/
     - if [ -d ${CI_PROJECT_DIR}/install_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/install_latest2; fi
     - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest2
     - make install -j2
@@ -150,10 +150,6 @@ build_latest_root622_geant4v1042:
   except:
       variables:
         - $CRONJOB == "YES"
-  artifacts:
-    paths:
-      - ${CI_PROJECT_DIR}/install_latest
-    expire_in: 1 day
 
 build_nkx:
   image: nkx1231/root6-geant4-garfield:0.6
