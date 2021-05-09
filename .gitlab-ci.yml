@@ -38,6 +38,7 @@ stages:
   - deploy
 
 before_script:
+  - pwd
   - export USER="test"
     #  - export GIT_SSL_NO_VERIFY=1
   - echo $CI_SERVER_HOST
@@ -45,7 +46,7 @@ before_script:
     # We redefine the HOME
   - export HOME=${CI_PROJECT_DIR}/install/
   - if [ -d $HOME/.rest ]; then rm -Rf $HOME/.rest; fi
-  - pwd
+  - if [ -f "/opt/root/install/bin/thisroot.sh" ]; then source /opt/root/install/bin/thisroot.sh; fi
   - root-config --version
   - if [ -f "/opt/geant4/install/bin/geant4.sh" ]; then source /opt/geant4/install/bin/geant4.sh; fi
   - geant4-config --version
