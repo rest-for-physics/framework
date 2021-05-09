@@ -38,16 +38,16 @@ class TRestMessengerAndReceiver : public TRestMetadata {
             void* provider;
             char content[MsgLength];
             void Reset() {
-                provider = NULL;
+                provider = nullptr;
                 for (int i = 0; i < MsgLength; i++) {
                     content[i] = 0;
                 }
             }
-            bool IsEmpty() { return provider == NULL || content[0] == 0; }
+            bool IsEmpty() { return provider == nullptr || content[0] == 0; }
         };
         message_t messages[Nmsg];  //! max 100 messages, each 256 char length
         void Reset() {
-            owner = NULL;
+            owner = nullptr;
             for (int i = 0; i < MsgLength; i++) {
                 name[i] = 0;
             }
@@ -87,7 +87,7 @@ class TRestMessengerAndReceiver : public TRestMetadata {
     bool unlock(messagepool_t* pool, int timeoutMs = 1000);
 
    public:
-    virtual bool IsConnected() { return fMessagePool != NULL; }
+    virtual bool IsConnected() { return fMessagePool != nullptr; }
 
     virtual void SendMessage(string message = "");
 

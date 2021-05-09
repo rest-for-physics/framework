@@ -61,12 +61,12 @@ TRestProcessRunner::~TRestProcessRunner() {}
 /// \brief Setting default values of class' data member
 ///
 void TRestProcessRunner::Initialize() {
-    fRunInfo = NULL;
-    fInputEvent = NULL;
-    fOutputEvent = NULL;
-    fEventTree = NULL;
-    fAnalysisTree = NULL;
-    fTempOutputDataFile = NULL;
+    fRunInfo = nullptr;
+    fInputEvent = nullptr;
+    fOutputEvent = nullptr;
+    fEventTree = nullptr;
+    fAnalysisTree = nullptr;
+    fTempOutputDataFile = nullptr;
     fThreads.clear();
     fProcessInfo.clear();
 
@@ -98,9 +98,9 @@ void TRestProcessRunner::Initialize() {
 /// 3. Number of thread needed. A list TRestThread will then be instantiated.
 void TRestProcessRunner::BeginOfInit() {
     info << endl;
-    if (fHostmgr != NULL) {
+    if (fHostmgr != nullptr) {
         fRunInfo = fHostmgr->GetRunInfo();
-        if (fRunInfo == NULL) {
+        if (fRunInfo == nullptr) {
             ferr << "File IO has not been specified, " << endl;
             ferr << "please make sure the \"TRestFiles\" section is ahead of the "
                     "\"TRestProcessRunner\" section"
@@ -203,7 +203,7 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement* e) {
         info << "adding process " << processType << " \"" << processName << "\"" << endl;
         for (int i = 0; i < fThreadNumber; i++) {
             TRestEventProcess* p = InstantiateProcess(processType, e);
-            if (p != NULL) {
+            if (p != nullptr) {
                 if (p->isExternal()) {
                     fRunInfo->SetExtProcess(p);
                     return 0;
@@ -245,10 +245,10 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement* e) {
 void TRestProcessRunner::EndOfInit() {
     debug << "Validating process chain..." << endl;
 
-    if (fRunInfo->GetFileProcess() != NULL) {
+    if (fRunInfo->GetFileProcess() != nullptr) {
         fInputEvent = fRunInfo->GetFileProcess()->GetOutputEvent();
     } else {
-        if (fThreads[0]->GetProcessnum() > 0 && fThreads[0]->GetProcess(0)->GetInputEvent().address != NULL) {
+        if (fThreads[0]->GetProcessnum() > 0 && fThreads[0]->GetProcess(0)->GetInputEvent().address != nullptr) {
             string name = fThreads[0]->GetProcess(0)->GetInputEvent().type;
             TRestEvent* a = REST_Reflection::Assembly(name);
             a->Initialize();
@@ -256,7 +256,7 @@ void TRestProcessRunner::EndOfInit() {
         }
         fInputEvent = fRunInfo->GetInputEvent();
     }
-    if (fInputEvent == NULL) {
+    if (fInputEvent == nullptr) {
         ferr << "Cannot determine input event, validating process chain failed!" << endl;
         exit(1);
     }
@@ -274,7 +274,7 @@ void TRestProcessRunner::EndOfInit() {
 ///
 /// Items: FirstProcess, LastProcess, ProcNumber
 void TRestProcessRunner::ReadProcInfo() {
-    if (fRunInfo->GetFileProcess() != NULL) {
+    if (fRunInfo->GetFileProcess() != nullptr) {
         fProcessInfo["FirstProcess"] = fRunInfo->GetFileProcess()->GetName();
     } else {
         if (fProcessNumber > 0) fProcessInfo["FirstProcess"] = fThreads[0]->GetProcess(0)->GetName();
@@ -319,7 +319,7 @@ void TRestProcessRunner::RunProcess() {
     }
 
     // print metadata
-    if (fRunInfo->GetFileProcess() != NULL) {
+    if (fRunInfo->GetFileProcess() != nullptr) {
         essential << this->ClassName() << ": 1 + " << fProcessNumber << " processes loaded, " << fThreadNumber
                   << " threads prepared!" << endl;
     } else {
@@ -327,13 +327,13 @@ void TRestProcessRunner::RunProcess() {
                   << " threads prepared!" << endl;
     }
     if (fVerboseLevel >= REST_Essential) {
-        if (fRunInfo->GetFileProcess() != NULL) fRunInfo->GetFileProcess()->PrintMetadata();
+        if (fRunInfo->GetFileProcess() != nullptr) fRunInfo->GetFileProcess()->PrintMetadata();
 
         for (int i = 0; i < fProcessNumber; i++) {
             fThreads[0]->GetProcess(i)->PrintMetadata();
         }
     } else {
-        if (fRunInfo->GetFileProcess() != NULL) {
+        if (fRunInfo->GetFileProcess() != nullptr) {
             fout << "(external) " << fRunInfo->GetFileProcess()->ClassName() << " : "
                  << fRunInfo->GetFileProcess()->GetName() << endl;
         }
@@ -347,18 +347,18 @@ void TRestProcessRunner::RunProcess() {
     // copy thread's event tree to local
     fTempOutputDataFile->cd();
     TTree* tree = fThreads[0]->GetEventTree();
-    if (tree != NULL) {
+    if (tree != nullptr) {
         fEventTree = (TRestAnalysisTree*)tree->Clone();
         fEventTree->SetName("EventTree");
         string outputeventname;
-        if (fThreads[0]->GetOutputEvent() != NULL) {
+        if (fThreads[0]->GetOutputEvent() != nullptr) {
             outputeventname = fThreads[0]->GetOutputEvent()->ClassName();
         }
 
         fEventTree->SetTitle((outputeventname + "Tree").c_str());
         fEventTree->SetDirectory(fTempOutputDataFile);
     } else {
-        fEventTree = NULL;
+        fEventTree = nullptr;
     }
 
     // initialize analysis tree
@@ -366,7 +366,7 @@ void TRestProcessRunner::RunProcess() {
     fAnalysisTree->SetDirectory(fTempOutputDataFile);
 
     tree = fThreads[0]->GetAnalysisTree();
-    if (tree != NULL) {
+    if (tree != nullptr) {
         fNBranches = tree->GetNbranches();
     } else {
         ferr << "Threads are not initialized! No AnalysisTree!" << endl;
@@ -384,7 +384,7 @@ void TRestProcessRunner::RunProcess() {
     //!!!!!!!!!!!!Important!!!!!!!!!!!!
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit");
     TMinuitMinimizer::UseStaticMinuit(false);
-    if (gGlobalMutex == NULL) {
+    if (gGlobalMutex == nullptr) {
         gGlobalMutex = new TMutex(true);
         gROOTMutex = gGlobalMutex;
         gInterpreterMutex = gGlobalMutex;
@@ -401,7 +401,7 @@ void TRestProcessRunner::RunProcess() {
     }
 
     while (fProcStatus == kPause ||
-           (fRunInfo->GetInputEvent() != NULL && fEventsToProcess > fProcessedEvents)) {
+           (fRunInfo->GetInputEvent() != nullptr && fEventsToProcess > fProcessedEvents)) {
         PrintProcessedEvents(100);
 
         if (fProcStatus == kNormal && Console::kbhit())  // if keyboard inputs
@@ -472,9 +472,9 @@ void TRestProcessRunner::RunProcess() {
 
     // reset the mutex to null
     delete gGlobalMutex;
-    gGlobalMutex = NULL;
-    gROOTMutex = NULL;
-    gInterpreterMutex = NULL;
+    gGlobalMutex = nullptr;
+    gROOTMutex = nullptr;
+    gInterpreterMutex = nullptr;
 
     fout << this->ClassName() << ": " << fProcessedEvents << " processed events" << endl;
 
@@ -713,7 +713,7 @@ Int_t TRestProcessRunner::GetNextevtFunc(TRestEvent* targetevt, TRestAnalysisTre
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
 #endif
     int n;
-    if (fProcessedEvents >= fEventsToProcess || targetevt == NULL || fProcStatus == kStop) {
+    if (fProcessedEvents >= fEventsToProcess || targetevt == nullptr || fProcStatus == kStop) {
         n = -1;
     } else {
         if (fInputAnalysisStorage == false) {
@@ -771,14 +771,14 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
 #ifdef TIME_MEASUREMENT
     high_resolution_clock::time_point t5 = high_resolution_clock::now();
 #endif
-    if (t->GetOutputEvent() != NULL) {
+    if (t->GetOutputEvent() != nullptr) {
         fOutputEvent = t->GetOutputEvent();
         // copy address of analysis tree of the given thread
         // to the local tree, then fill the local tree
         TObjArray* branchesT;
         TObjArray* branchesL;
 
-        if (fAnalysisTree != NULL) {
+        if (fAnalysisTree != nullptr) {
             TRestAnalysisTree* remotetree = t->GetAnalysisTree();
 
             // t->GetAnalysisTree()->SetEventInfo(t->GetOutputEvent());
@@ -797,7 +797,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
             fAnalysisTree->Fill();
         }
 
-        if (fEventTree != NULL) {
+        if (fEventTree != nullptr) {
             // t->GetEventTree()->FillEvent(t->GetOutputEvent());
             branchesT = t->GetEventTree()->GetListOfBranches();
             branchesL = fEventTree->GetListOfBranches();
@@ -847,7 +847,7 @@ void TRestProcessRunner::ConfigOutputFile() {
     fRunInfo->Write();
     this->Write();
     char tmpString[256];
-    if (fRunInfo->GetFileProcess() != NULL) {
+    if (fRunInfo->GetFileProcess() != nullptr) {
         sprintf(tmpString, "Process-%d. %s", 0, fRunInfo->GetFileProcess()->GetName());
         fRunInfo->GetFileProcess()->Write();
     }
@@ -857,8 +857,8 @@ void TRestProcessRunner::ConfigOutputFile() {
     }
 
     //}
-    if (fEventTree != NULL) fEventTree->Write(0, kWriteDelete);
-    if (fAnalysisTree != NULL) fAnalysisTree->Write(0, kWriteDelete);
+    if (fEventTree != nullptr) fEventTree->Write(0, kWriteDelete);
+    if (fAnalysisTree != nullptr) fAnalysisTree->Write(0, kWriteDelete);
     fTempOutputDataFile->Close();
     // files_to_merge.push_back(fTempOutputDataFile->GetName());
 
@@ -868,7 +868,7 @@ void TRestProcessRunner::ConfigOutputFile() {
     // data file.
     for (int i = 0; i < fThreadNumber; i++) {
         TFile* f = fThreads[i]->GetOutputFile();
-        if (f != NULL) f->Close();
+        if (f != nullptr) f->Close();
         files_to_merge.push_back(f->GetName());
     }
 
@@ -897,7 +897,7 @@ void TRestProcessRunner::ResetRunTimes() {
 /// xml section.
 TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type, TiXmlElement* ele) {
     TRestEventProcess* pc = REST_Reflection::Assembly((string)type);
-    if (pc == NULL) return NULL;
+    if (pc == nullptr) return NULL;
 
     pc->SetRunInfo(this->fRunInfo);
     pc->SetHostmgr(fHostmgr);
@@ -935,11 +935,11 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
         double progspeed = progsum / ncalculated / printInterval * 1000000;
 
         double prog = 0;
-        if (fEventsToProcess == REST_MAXIMUM_EVENTS && fRunInfo->GetFileProcess() != NULL)
+        if (fEventsToProcess == REST_MAXIMUM_EVENTS && fRunInfo->GetFileProcess() != nullptr)
         // Nevents is unknown, reading external data file
         {
             prog = fRunInfo->GetBytesReaded() / (double)fRunInfo->GetTotalBytes() * 100;
-        } else if (fRunInfo->GetFileProcess() != NULL)
+        } else if (fRunInfo->GetFileProcess() != nullptr)
         // Nevents is known, reading external data file
         {
             prog = fProcessedEvents / (double)fEventsToProcess * 100;
@@ -954,7 +954,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
         }
 
         char* buffer = new char[500]();
-        if (fRunInfo->GetFileProcess() != NULL) {
+        if (fRunInfo->GetFileProcess() != nullptr) {
             sprintf(buffer, "%d Events (%.1fMB/s), ", fProcessedEvents, speedbyte / 1024 / 1024);
         } else {
             sprintf(buffer, "%d Events, ", fProcessedEvents);

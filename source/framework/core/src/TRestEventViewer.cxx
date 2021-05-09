@@ -24,8 +24,8 @@ ClassImp(TRestEventViewer)
     TRestEventViewer::TRestEventViewer() {
     // TRestEventViewer default constructor
     //Initialize();
-    fPad = NULL;
-    fCanvas = NULL;
+    fPad = nullptr;
+    fCanvas = nullptr;
 }
 
 //______________________________________________________________________________
@@ -35,27 +35,27 @@ TRestEventViewer::~TRestEventViewer() {
 }
 
 void TRestEventViewer::Initialize() {
-    fPad = NULL;
+    fPad = nullptr;
     
-    if (fCanvas != NULL) delete fCanvas;
+    if (fCanvas != nullptr) delete fCanvas;
     fCanvas = new TCanvas("Event Viewer", "Event Viewer");
 
     fCanvas->SetWindowPosition(350, 10);
 }
 
 void TRestEventViewer::Embed(TBrowser* b) {
-    if (b != NULL) b->StartEmbedding(1, -1);
+    if (b != nullptr) b->StartEmbedding(1, -1);
 
     Initialize();
 
-    if (b != NULL) b->StopEmbedding();
+    if (b != nullptr) b->StopEmbedding();
 }
 
 void TRestEventViewer::AddEvent(TRestEvent* ev) { fEvent = ev; }
 
 void TRestEventViewer::Plot(const char* option) {
-    if (fPad == NULL) fPad = new TPad();
-    if (fEvent != NULL) {
+    if (fPad == nullptr) fPad = new TPad();
+    if (fEvent != nullptr) {
         fPad = fEvent->DrawEvent(option);
         fCanvas->cd();
         fPad->Draw();

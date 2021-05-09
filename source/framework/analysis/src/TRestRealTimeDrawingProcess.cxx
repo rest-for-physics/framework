@@ -146,7 +146,7 @@ TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* evInput) {
     if (fDrawInterval == 0) {
         return fEvent;
     }
-    if (GetFullAnalysisTree() == NULL) {
+    if (GetFullAnalysisTree() == nullptr) {
         return fEvent;
     }
 
@@ -248,12 +248,10 @@ void TRestRealTimeDrawingProcess::DrawWithNotification() {
     }
 }
 
-///////////////////////////////////////////////
 /// \brief It prints out the process parameters stored in the
 /// metadata structure
 ///
 void TRestRealTimeDrawingProcess::PrintMetadata() {
     BeginPrintProcess();
-
     EndPrintProcess();
 }

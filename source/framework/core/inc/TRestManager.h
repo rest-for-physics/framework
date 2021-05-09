@@ -1,17 +1,16 @@
 #ifndef RestCore_TRestManager
 #define RestCore_TRestManager
 
+#include <TApplication.h>
+#include <TObject.h>
+#include <TROOT.h>
+
 #include <iostream>
 
-#include "TObject.h"
-
-#include "TApplication.h"
 #include "TRestAnalysisPlot.h"
 #include "TRestMetadata.h"
 #include "TRestProcessRunner.h"
 #include "TRestRun.h"
-
-#include <TROOT.h>
 
 /// Managing applications and executing tasks
 class TRestManager : public TRestMetadata {
@@ -22,9 +21,9 @@ class TRestManager : public TRestMetadata {
    public:
     void Initialize();
     void InitFromConfigFile() {
-        if (fElement != NULL) {
+        if (fElement != nullptr) {
             TiXmlElement* e = fElement->FirstChildElement();
-            while (e != NULL) {
+            while (e != nullptr) {
                 string value = e->Value();
                 if (value == "variable" || value == "myParameter" || value == "constant") {
                     e = e->NextSiblingElement();

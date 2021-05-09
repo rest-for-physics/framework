@@ -36,13 +36,13 @@ ClassImp(TRestThread);
 /// \brief Set variables by default during initialization.
 ///
 void TRestThread::Initialize() {
-    fOutputEvent = NULL;
-    fInputEvent = NULL;
+    fOutputEvent = nullptr;
+    fInputEvent = nullptr;
 
-    fAnalysisTree = NULL;
-    fEventTree = NULL;
+    fAnalysisTree = nullptr;
+    fEventTree = nullptr;
 
-    fOutputFile = NULL;
+    fOutputFile = nullptr;
 
     fProcessChain.clear();
 
@@ -84,7 +84,7 @@ Int_t TRestThread::ValidateChain(TRestEvent* input) {
 
     if (processes.size() > 0) {
         // verify that the input event of first process is OK
-        if (input != NULL) {
+        if (input != nullptr) {
             if ((string)input->ClassName() != processes[0]->GetInputEvent().type) {
                 ferr << "(ValidateChain): Input event type does not match!" << endl;
                 cout << "Input type of the first non-external process in chain: "
@@ -158,11 +158,11 @@ bool TRestThread::TestRun() {
             ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
             // if the output of ProcessEvent() is NULL we assume the event is cut. 
             // we try to use GetOutputEvent()
-            if (ProcessedEvent == NULL) {
+            if (ProcessedEvent == nullptr) {
                 ProcessedEvent = fProcessChain[j]->GetOutputEvent();
             } 
             // if still null we perform another try
-            if (ProcessedEvent == NULL) {
+            if (ProcessedEvent == nullptr) {
                 debug << "  ----  NULL" << endl;
                 break;
             }
@@ -184,14 +184,14 @@ bool TRestThread::TestRun() {
 
         fOutputEvent = ProcessedEvent;
         fHostRunner->GetNextevtFunc(fInputEvent, fAnalysisTree);
-        if (fOutputEvent != NULL) {
+        if (fOutputEvent != nullptr) {
             debug << "Output Event ---- " << fOutputEvent->ClassName() << "(" << fOutputEvent << ")" << endl;
             break;
         } else {
             debug << "Null output, trying again" << endl;
         }
     }
-    if (fOutputEvent == NULL) {
+    if (fOutputEvent == nullptr) {
         // fOutputEvent = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent();
         return false;
     }
@@ -223,7 +223,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
     }
 
     bool outputConfigToDel = false;
-    if (outputConfig == NULL) {
+    if (outputConfig == nullptr) {
         outputConfigToDel = true;
         outputConfig = new bool[4];
         for (int i = 0; i < 4; i++) {
@@ -243,7 +243,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
         fAnalysisTree->DisableQuickObservableValueSetting();
 
         debug << "TRestThread: Finding first input event of process chain..." << endl;
-        if (fHostRunner->GetInputEvent() == NULL) {
+        if (fHostRunner->GetInputEvent() == nullptr) {
             ferr << "Input event is not initialized from TRestRun! Please check your input file and file "
                     "reading process!"
                  << endl;
@@ -293,7 +293,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
             debug << "Initializing output event" << endl;
             string chainOutputType = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent().type;
             fOutputEvent = REST_Reflection::Assembly(chainOutputType);
-            if (fOutputEvent == NULL) {
+            if (fOutputEvent == nullptr) {
                 exit(1);
             }
         }
@@ -325,7 +325,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
             // the input event of other processes
             for (unsigned int i = 0; i < fProcessChain.size(); i++) {
                 TRestEvent* evt = fProcessChain[i]->GetOutputEvent();
-                if (evt != NULL) {
+                if (evt != nullptr) {
                     TString BranchName = (TString)evt->GetName() + "Branch";
                     if (branchesToAdd.size() == 0)
                         branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
@@ -366,7 +366,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
         if (fEventTree->GetListOfBranches()->GetLast() < 0)  // if no event branches are created
         {
             delete fEventTree;
-            fEventTree = NULL;
+            fEventTree = nullptr;
         }
 
         // fAnalysisTree->CreateBranches();
@@ -396,14 +396,14 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
 
         if (outputConfig[2] == true) {
             TString BranchName = (TString)fInputEvent->GetName() + "Branch";
-            if (fEventTree->GetBranch(BranchName) == NULL)  // avoid duplicated branch
+            if (fEventTree->GetBranch(BranchName) == nullptr)  // avoid duplicated branch
                 fEventTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);
         }
         // currently external process analysis is not supported!
 
         // if (fEventTree->GetListOfBranches()->GetLast() < 1)
         //{
-        //	delete fEventTree; fEventTree = NULL;
+        //	delete fEventTree; fEventTree = nullptr;
         //}
         // fAnalysisTree->CreateBranches();
     }
@@ -430,7 +430,7 @@ void TRestThread::StartProcess() {
 
     while (fHostRunner->GetNextevtFunc(fInputEvent, fAnalysisTree) == 0) {
         ProcessEvent();
-        /*if (fOutputEvent != NULL) */fHostRunner->FillThreadEventFunc(this);
+        /*if (fOutputEvent != nullptr) */fHostRunner->FillThreadEventFunc(this);
     }
 
     // fHostRunner->WriteThreadFileFunc(this);
@@ -499,7 +499,7 @@ void TRestThread::ProcessEvent() {
             processtime[j] = (int)duration_cast<microseconds>(t2 - t1).count();
 #endif
 
-            if (ProcessedEvent == NULL) {
+            if (ProcessedEvent == nullptr) {
                 cout << "------- End of process " + (string)fProcessChain[j]->GetName() +
                             " (NULL returned) -------"
                      << endl;
@@ -529,14 +529,14 @@ void TRestThread::ProcessEvent() {
         }
 
         GetChar("======= End of Event " +
-                ((fOutputEvent == NULL) ? ToString(fInputEvent->GetID()) : ToString(fOutputEvent->GetID())) +
+                ((fOutputEvent == nullptr) ? ToString(fInputEvent->GetID()) : ToString(fOutputEvent->GetID())) +
                 " =======");
     } else {
         for (unsigned int j = 0; j < fProcessChain.size(); j++) {
             fProcessChain[j]->BeginOfEventProcess(ProcessedEvent);
             ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
             fProcessChain[j]->EndOfEventProcess();
-            if (ProcessedEvent == NULL) break;
+            if (ProcessedEvent == nullptr) break;
         }
 
         if (fHostRunner->UseTestRun()) {
@@ -555,7 +555,7 @@ void TRestThread::ProcessEvent() {
 void TRestThread::EndProcess() {
     info << "TRestThread : Writing temp file. Thread id : " << fThreadId << endl;
 
-    if (fOutputFile == NULL) return;
+    if (fOutputFile == nullptr) return;
 
     fOutputFile->cd();
     for (unsigned int i = 0; i < fProcessChain.size(); i++) {

@@ -23,13 +23,14 @@
 #ifndef RestCore_TRestEvent
 #define RestCore_TRestEvent
 
-#include <iostream>
-
+#include <TBufferFile.h>
+#include <TObject.h>
 #include <TPad.h>
 #include <TString.h>
 #include <TTimeStamp.h>
-#include "TBufferFile.h"
-#include "TObject.h"
+
+#include <iostream>
+
 #include "TRestTools.h"
 
 class TRestRun;
@@ -39,8 +40,8 @@ class TRestEvent : public TObject {
    protected:
     Int_t fRunOrigin;       ///< Run ID number of the event
     Int_t fSubRunOrigin;    ///< Sub-run ID number of the event
-    Int_t fEventID;         ///< Event identificative number
-    Int_t fSubEventID;      ///< Sub-Event identificative number
+    Int_t fEventID;         ///< Event identification number
+    Int_t fSubEventID;      ///< Sub-Event identification number
     TString fSubEventTag;   ///< A short length label to identify the sub-Event
     TTimeStamp fEventTime;  ///< Absolute event time
     Bool_t fOk;  ///< Flag to be used by processes to define an event status. fOk=true is the default.
@@ -99,7 +100,7 @@ class TRestEvent : public TObject {
 
     virtual void CloneTo(TRestEvent* target);
 
-    // Construtor
+    // Constructor
     TRestEvent();
     // Destructor
     virtual ~TRestEvent();

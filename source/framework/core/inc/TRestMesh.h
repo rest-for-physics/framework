@@ -23,10 +23,11 @@
 #ifndef RestCore_TRestMesh
 #define RestCore_TRestMesh
 
-#include <iostream>
-
 #include <TObject.h>
 #include <TVector3.h>
+
+#include <iostream>
+
 #include "TRestHits.h"
 
 const int NODE_NOT_SET = -1;
@@ -179,7 +180,7 @@ class TRestMesh : public TObject {
 
     void Print();
 
-    // Construtor
+    // Constructor
     TRestMesh();
 
     TRestMesh(Double_t size, Int_t nodes);

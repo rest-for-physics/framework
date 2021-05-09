@@ -2,9 +2,10 @@
 #ifndef restG4_TRestGDMLParser
 #define restG4_TRestGDMLParser
 
-#include "TGeoManager.h"
+#include <TGeoManager.h>
+#include <unistd.h>
+
 #include "TRestMetadata.h"
-#include "unistd.h"
 
 ///////////////////////////////////////////
 // we must preprocess gdml file because of a bug in TGDMLParse::Value() in ROOT6
@@ -32,8 +33,8 @@ class TRestGDMLParser : public TRestMetadata {
 
     void Load(string file);
 
-    TGeoManager* GetGeoManager(string gdmlfile) {
-        Load(gdmlfile);
+    TGeoManager* GetGeoManager(string gdmlFile) {
+        Load(gdmlFile);
         fGeo = TGeoManager::Import(GetOutputGDMLFile().c_str());
         return fGeo;
     }

@@ -48,7 +48,7 @@ void TRestEveEventViewer::Initialize() {
 void TRestEveEventViewer::SetGeometry(TGeoManager* geo) {
     TRestEventViewer::SetGeometry(geo);
 
-    if (fGeometry == NULL) return;
+    if (fGeometry == nullptr) return;
 
     TObjArray* arr = fGeometry->GetListOfVolumes();
     Int_t nVolumes = arr->GetEntries();

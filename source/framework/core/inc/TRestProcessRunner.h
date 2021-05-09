@@ -3,6 +3,7 @@
 
 #include <mutex>
 #include <thread>
+
 #include "TRestAnalysisTree.h"
 #include "TRestEvent.h"
 #include "TRestEventProcess.h"
@@ -56,18 +57,14 @@ class TRestProcessRunner : public TRestMetadata {
     Int_t fProcessedEvents;
     map<string, string> fProcessInfo;
 
-
-    //bool fOutputItem[4] = {
-    //    false};  // the on/off status for item: inputAnalysis, inputEvent, outputEvent, outputAnalysis
-
    public:
     /// REST run class
     void Initialize();
     void InitFromConfigFile() {
         BeginOfInit();
-        if (fElement != NULL) {
+        if (fElement != nullptr) {
             TiXmlElement* e = fElement->FirstChildElement();
-            while (e != NULL) {
+            while (e != nullptr) {
                 string value = e->Value();
                 if (value == "variable" || value == "myParameter" || value == "constant") {
                     e = e->NextSiblingElement();
@@ -113,7 +110,7 @@ class TRestProcessRunner : public TRestMetadata {
     double GetReadingSpeed();
     bool UseTestRun() const { return fUseTestRun; }
 
-    // Construtor & Destructor
+    // Constructor & Destructor
     TRestProcessRunner();
     ~TRestProcessRunner();
 

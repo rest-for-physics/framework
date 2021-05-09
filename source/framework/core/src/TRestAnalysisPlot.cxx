@@ -12,14 +12,15 @@
 
 #include "TRestAnalysisPlot.h"
 
-#include "TRestManager.h"
-#include "TRestTools.h"
-using namespace std;
-
 #include <TLegend.h>
 #include <TStyle.h>
 
 #include <ctime>
+
+#include "TRestManager.h"
+#include "TRestTools.h"
+
+using namespace std;
 
 ClassImp(TRestAnalysisPlot);
 //______________________________________________________________________________
@@ -34,9 +35,9 @@ TRestAnalysisPlot::TRestAnalysisPlot(const char* cfgFileName, const char* name) 
 void TRestAnalysisPlot::Initialize() {
     SetSectionName(this->ClassName());
 
-    fRun = NULL;
+    fRun = nullptr;
     fNFiles = 0;
-    fCombinedCanvas = NULL;
+    fCombinedCanvas = nullptr;
     fPlotNamesCheck.clear();
     fDrawNEntries = TTree::kMaxEntries;
     fDrawFirstEntry = 0;
@@ -44,16 +45,16 @@ void TRestAnalysisPlot::Initialize() {
 
 //______________________________________________________________________________
 TRestAnalysisPlot::~TRestAnalysisPlot() {
-    if (fRun != NULL) delete fRun;
+    if (fRun != nullptr) delete fRun;
 }
 
 //______________________________________________________________________________
 void TRestAnalysisPlot::InitFromConfigFile() {
     size_t position = 0;
-    if (fHostmgr->GetRunInfo() != NULL) {
+    if (fHostmgr->GetRunInfo() != nullptr) {
         fRun = fHostmgr->GetRunInfo();
     }
-    if (fRun == NULL) {
+    if (fRun == nullptr) {
         fRun = new TRestRun();
         fRun->SetHistoricMetadataSaving(false);
         string defaultFileName = "/tmp/restplot_" + REST_USER + ".root";
@@ -65,7 +66,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     }
 
     TiXmlElement* ele = GetElement("addFile");
-    while (ele != NULL) {
+    while (ele != nullptr) {
         TString inputfile = GetParameter("name", ele);
         this->AddFile(inputfile);
         ele = GetNextElement(ele);
@@ -84,7 +85,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     debug << "TRestAnalysisPlot: Reading canvas settings" << endl;
     position = 0;
     TiXmlElement* formatDefinition = GetElement("labels");
-    if (formatDefinition != NULL) {
+    if (formatDefinition != nullptr) {
         if (GetVerboseLevel() >= REST_Debug) {
             cout << formatDefinition << endl;
             cout << "Reading format definition : " << endl;
@@ -125,7 +126,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 #pragma region ReadLegend
     position = 0;
     TiXmlElement* legendDefinition = GetElement("legendPosition");
-    if (legendDefinition != NULL) {
+    if (legendDefinition != nullptr) {
         if (GetVerboseLevel() >= REST_Debug) {
             cout << legendDefinition << endl;
             cout << "Reading legend definition : " << endl;
@@ -156,7 +157,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 #pragma region ReadCanvas
     position = 0;
     TiXmlElement* canvasdef = fElement->FirstChildElement("canvas");
-    if (canvasdef == NULL) {
+    if (canvasdef == nullptr) {
         canvasdef = fElement;
     }
 
@@ -171,7 +172,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     debug << "TRestAnalysisPlot: Reading global cuts" << endl;
     vector<string> globalCuts;
     TiXmlElement* gCutele = GetElement("globalCut");
-    while (gCutele != NULL)  // general cuts
+    while (gCutele != nullptr)  // general cuts
     {
         string cutActive = GetParameter("value", gCutele, "ON");
 
@@ -201,7 +202,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 #pragma region ReadGlobalCutStrings
     debug << "TRestAnalysisPlot: Reading global cut strings" << endl;
     TiXmlElement* gCutStrele = GetElement("globalCutString");
-    while (gCutStrele != NULL)  // general cuts
+    while (gCutStrele != nullptr)  // general cuts
     {
         string cutActive = GetParameter("value", gCutStrele, "ON");
 
@@ -221,7 +222,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     debug << "TRestAnalysisPlot: Reading plot sections" << endl;
     Int_t maxPlots = (Int_t)fCanvasDivisions.X() * (Int_t)fCanvasDivisions.Y();
     TiXmlElement* plotele = GetElement("plot");
-    while (plotele != NULL) {
+    while (plotele != nullptr) {
         string active = GetParameter("value", plotele, "ON");
         if (ToUpper(active) == "ON") {
             int N = fPlots.size();
@@ -257,11 +258,11 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             plot.save = RemoveWhiteSpaces(GetParameter("save", plotele, ""));
 
             TiXmlElement* histele = GetElement("histo", plotele);
-            if (histele == NULL) {
+            if (histele == nullptr) {
                 // in case for single-hist plot, variables are added directly inside the <plot section
                 histele = plotele;
             }
-            while (histele != NULL) {
+            while (histele != nullptr) {
                 Histo_Info_Set hist = SetupHistogramFromConfigFile(histele, plot);
                 // add global cut
                 for (unsigned int i = 0; i < globalCuts.size(); i++) {
@@ -297,7 +298,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     debug << "TRestAnalysisPlot: Reading panel sections" << endl;
     maxPlots -= fPlots.size();  // remaining spaces on canvas
     TiXmlElement* panelele = GetElement("panel");
-    while (panelele != NULL) {
+    while (panelele != nullptr) {
         string active = GetParameter("value", panelele, "ON");
         if (ToUpper(active) == "ON") {
             int N = fPanels.size();
@@ -312,7 +313,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             panel.font_size = StringToDouble(GetParameter("font_size", panelele, "0.1"));
 
             TiXmlElement* labelele = GetElement("label", panelele);
-            while (labelele != NULL) {
+            while (labelele != nullptr) {
                 panel.label.push_back(GetParameter("value", labelele, "Error. Label value not defined"));
                 panel.posX.push_back(StringToDouble(GetParameter("x", labelele, "0.1")));
                 panel.posY.push_back(StringToDouble(GetParameter("y", labelele, "0.1")));
@@ -358,7 +359,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
     vector<TVector2> ranges;
     vector<Int_t> bins;
     TiXmlElement* varele = GetElement("variable", histele);
-    while (varele != NULL) {
+    while (varele != nullptr) {
         varNames.push_back(GetParameter("name", varele));
 
         string rangeStr = GetParameter("range", varele);
@@ -416,7 +417,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
     string cutString = "";
 
     TiXmlElement* cutele = GetElement("cut", histele);
-    while (cutele != NULL) {
+    while (cutele != nullptr) {
         string cutActive = GetParameter("value", cutele, "ON");
         if (ToUpper(cutActive) == "ON") {
             string cutVariable = GetParameter("variable", cutele);
@@ -450,7 +451,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
     }
 
     TiXmlElement* cutstrele = GetElement("cutString", histele);
-    while (cutstrele != NULL) {
+    while (cutstrele != nullptr) {
         string cutActive = GetParameter("value", cutstrele, "ON");
         if (ToUpper(cutActive) == "ON") {
             string cutStr = GetParameter("string", cutstrele);
@@ -473,12 +474,12 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
     // 4. read classify condition
     hist.classifyMap.clear();
     TiXmlElement* classifyele = GetElement("classify", histele);
-    while (classifyele != NULL) {
+    while (classifyele != nullptr) {
         string Active = GetParameter("value", classifyele, "ON");
         if (ToUpper(Active) == "ON") {
             TiXmlAttribute* attr = classifyele->FirstAttribute();
-            while (attr != NULL) {
-                if (attr->Value() != NULL && string(attr->Value()) != "") {
+            while (attr != nullptr) {
+                if (attr->Value() != nullptr && string(attr->Value()) != "") {
                     hist.classifyMap[attr->Name()] = attr->Value();
                 }
                 attr = attr->Next();
@@ -512,8 +513,8 @@ void TRestAnalysisPlot::SetFile(TString fileName) {
 
 // we can add input file from process's output file
 void TRestAnalysisPlot::AddFileFromExternalRun() {
-    if (fRun != NULL && fNFiles == 0) {
-        if (fHostmgr->GetProcessRunner() != NULL && fRun->GetOutputFileName() != "") {
+    if (fRun != nullptr && fNFiles == 0) {
+        if (fHostmgr->GetProcessRunner() != nullptr && fRun->GetOutputFileName() != "") {
             // if we have a TRestProcessRunner before head, we use its output file
             AddFile(fRun->GetOutputFileName());
             return;
@@ -547,12 +548,12 @@ TRestAnalysisTree* TRestAnalysisPlot::GetTreeFromFile(TString fileName) {
         // this means the file is already opened by TRestRun
         return fRun->GetAnalysisTree();
     }
-    if (fileName == fRun->GetOutputFileName() && fRun->GetOutputFile() != NULL) {
+    if (fileName == fRun->GetOutputFileName() && fRun->GetOutputFile() != nullptr) {
         // this means the process is finished and the chain's output file is transferred to TRestRun
         return (TRestAnalysisTree*)fRun->GetOutputFile()->Get("AnalysisTree");
     }
-    if (fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL &&
-        fHostmgr->GetProcessRunner()->GetTempOutputDataFile() != NULL &&
+    if (fHostmgr != nullptr && fHostmgr->GetProcessRunner() != nullptr &&
+        fHostmgr->GetProcessRunner()->GetTempOutputDataFile() != nullptr &&
         fHostmgr->GetProcessRunner()->GetTempOutputDataFile()->GetName() == fileName) {
         // this means the process is still ongoing
         return fHostmgr->GetProcessRunner()->GetOutputAnalysisTree();
@@ -566,11 +567,11 @@ TRestRun* TRestAnalysisPlot::GetInfoFromFile(TString fileName) {
     if (fileName == fRun->GetInputFileName(0)) {
         return fRun;
     }
-    if (fileName == fRun->GetOutputFileName() && fRun->GetOutputFile() != NULL) {
+    if (fileName == fRun->GetOutputFileName() && fRun->GetOutputFile() != nullptr) {
         return fRun;
     }
-    if (fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL &&
-        fHostmgr->GetProcessRunner()->GetTempOutputDataFile() != NULL &&
+    if (fHostmgr != nullptr && fHostmgr->GetProcessRunner() != nullptr &&
+        fHostmgr->GetProcessRunner()->GetTempOutputDataFile() != nullptr &&
         fHostmgr->GetProcessRunner()->GetTempOutputDataFile()->GetName() == fileName) {
         return fRun;
     }
@@ -584,9 +585,9 @@ bool TRestAnalysisPlot::IsDynamicRange(TString rangeString) {
 
 void TRestAnalysisPlot::PlotCombinedCanvas() {
     // Initializing canvas window
-    if (fCombinedCanvas != NULL) {
+    if (fCombinedCanvas != nullptr) {
         delete fCombinedCanvas;
-        fCombinedCanvas = NULL;
+        fCombinedCanvas = nullptr;
     }
     fCombinedCanvas = new TCanvas(this->GetName(), this->GetName(), 0, 0, fCanvasSize.X(), fCanvasSize.Y());
     fCombinedCanvas->Divide((Int_t)fCanvasDivisions.X(), (Int_t)fCanvasDivisions.Y(),
@@ -735,8 +736,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 }
 
                 // add to histogram
-                if (hTotal == NULL) {
-                    if (hh != NULL) {
+                if (hTotal == nullptr) {
+                    if (hh != nullptr) {
                         hTotal = (TH3F*)hh->Clone(nameString);
                         hist.ptr = hTotal;
                         firstdraw = true;
@@ -758,7 +759,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 }
             }
 
-            if (hTotal == NULL) {
+            if (hTotal == nullptr) {
                 warning << "Histogram \"" << nameString << "\" is NULL" << endl;
             } else if (firstdraw) {
                 // adjust the histogram
@@ -793,7 +794,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
         bool allempty = true;
         for (unsigned int i = 0; i < plot.histos.size(); i++) {
-            if (plot.histos[i].ptr == NULL)
+            if (plot.histos[i].ptr == nullptr)
                 continue;
             else {
                 allempty = false;
@@ -808,7 +809,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         // scale the histograms
         if (plot.normalize > 0) {
             for (unsigned int i = 0; i < plot.histos.size(); i++) {
-                if (plot.histos[i].ptr == NULL) continue;
+                if (plot.histos[i].ptr == nullptr) continue;
                 Double_t scale = 1.;
                 if (plot.histos[i].ptr->Integral() > 0) {
                     scale = plot.normalize / plot.histos[i].ptr->Integral();
@@ -823,7 +824,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         int maxID = 0;
         for (unsigned int i = 0; i < plot.histos.size(); i++) {
             // need to draw the max histogram first, in order to prevent peak hidden problem
-            if (plot.histos[i].ptr == NULL) continue;
+            if (plot.histos[i].ptr == nullptr) continue;
             Double_t value = plot.histos[i]->GetBinContent(plot.histos[i].ptr->GetMaximumBin());
             if (i == 0) {
                 maxValue_Pad = value;
@@ -839,17 +840,17 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
         for (unsigned int i = 0; i < plot.histos.size(); i++) {
             // draw the remaining histo
-            if (plot.histos[i].ptr == NULL) continue;
+            if (plot.histos[i].ptr == nullptr) continue;
             if (i != maxID) {
                 plot.histos[i]->Draw((plot.histos[maxID].drawOption + "same").c_str());
             }
         }
 
         // save histogram to root file
-        if (fRun->GetOutputFile() != NULL) {
+        if (fRun->GetOutputFile() != nullptr) {
             fRun->GetOutputFile()->cd();
             for (unsigned int i = 0; i < plot.histos.size(); i++) {
-                if (plot.histos[i].ptr == NULL) continue;
+                if (plot.histos[i].ptr == nullptr) continue;
                 plot.histos[i]->Write();
             }
         }
@@ -858,7 +859,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         if (plot.legendOn) {
             TLegend* legend = new TLegend(fLegendX1, fLegendY1, fLegendX2, fLegendY2);
             for (unsigned int i = 0; i < plot.histos.size(); i++) {
-                if (plot.histos[i].ptr == NULL) continue;
+                if (plot.histos[i].ptr == nullptr) continue;
                 legend->AddEntry(plot.histos[i].ptr, plot.histos[i]->GetName(), "lf");
             }
             legend->Draw("same");
@@ -892,7 +893,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     }
 
     // Save this class to the root file
-    if (fRun->GetOutputFile() != NULL) {
+    if (fRun->GetOutputFile() != nullptr) {
         fRun->GetOutputFile()->cd();
         this->Write();
     }

@@ -266,7 +266,7 @@ void TRestMySQLToAnalysisProcess::PrintMetadata() {
 void TRestMySQLToAnalysisProcess::FillDBArrays() {
 #if defined USE_SQL
     MYSQL* conn = mysql_init(NULL);
-    if (conn == NULL) {
+    if (conn == nullptr) {
         ferr << "TRestMySQLToAnalysisProcess::InitProcess. mysql_init() failed" << endl;
         exit(1);
     }
@@ -289,7 +289,7 @@ void TRestMySQLToAnalysisProcess::FillDBArrays() {
 
     MYSQL_RES* result = mysql_store_result(conn);
 
-    if (result == NULL) {
+    if (result == nullptr) {
         ferr << "Error getting result from SQL query" << endl;
         ferr << mysql_error(conn) << endl;
         ferr << "Query string : " << sqlQuery << endl;

@@ -25,32 +25,32 @@
 /// TRestAnalysisTree is TTree but with **managed objects** for the branches to fill.
 /// There are six fixed branches of event information in TRestAnalysisTree: runOrigin,
 /// subRunOrigin, eventID, subEventID, subEventTag and timeStamp. They are pointing
-/// to the corresponding class members inside TRestAnalysisTree. Those branches are 
+/// to the corresponding class members inside TRestAnalysisTree. Those branches are
 /// called `event branches`. Additional branches could be added by the user, they will
-/// point to some objects whose addresses are also stored in this class. Those objects 
-/// are called `observables`. 
+/// point to some objects whose addresses are also stored in this class. Those objects
+/// are called `observables`.
 ///
 /// In traditional TTree case, the user defines multiple global variables, and add
 /// branches with the address of these variables to the tree. Then the user changes the
-/// value of those variables somewhere in the code, and calls `TTree::Fill()` to create 
+/// value of those variables somewhere in the code, and calls `TTree::Fill()` to create
 /// and save a new entry in the data list.
-/// 
+///
 /// In TRestAnalysisTree, the concept of "Branch" is weakened. We can directly call
 /// `SetObservableValue()` and then `TRestAnalysisTree::Fill()` to do the data saving.
-/// The code could be simplified while sacrificing a little performance. We can use 
+/// The code could be simplified while sacrificing a little performance. We can use
 /// temporary variable to set observable value directly. We can focus on the analysis
 /// code inside the loop, without caring about varaible initialization before that.
-/// 
-/// The following is a summary of speed of filling 1000000 entries for TTree and 
+///
+/// The following is a summary of speed of filling 1000000 entries for TTree and
 /// TRestAnalysisTree. Four observables and six event branches are added. We take the
 /// average of 3 tests as the result. See the file pipeline/analysistree/testspeed.cpp
-/// for more details. 
-/// 
+/// for more details.
+///
 /// Condition                           |    time(us)   |
-/// A. Do not use observable            |      846,522  |      
-/// B. Use quick observable (default)   |    1,188,232  |       
-/// C. Do not use quick observable      |    2,014,646  |      
-/// D. Use reflected observable         |    8,425,772  |       
+/// A. Do not use observable            |      846,522  |
+/// B. Use quick observable (default)   |    1,188,232  |
+/// C. Do not use quick observable      |    2,014,646  |
+/// D. Use reflected observable         |    8,425,772  |
 /// TTree                               |      841,744  |
 ///_______________________________________________________________________________
 ///
@@ -72,9 +72,10 @@
 
 #include "TRestAnalysisTree.h"
 
-#include "TH1F.h"
-#include "TLeaf.h"
-#include "TObjArray.h"
+#include <TH1F.h>
+#include <TLeaf.h>
+#include <TObjArray.h>
+
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
 
@@ -133,7 +134,7 @@ void TRestAnalysisTree::Initialize() {
 
     fStatus = 0;
     fNObservables = 0;
-    fROOTTree = NULL;
+    fROOTTree = nullptr;
 
     fObservableIdMap.clear();
     fObservableDescriptions.clear();
@@ -144,7 +145,7 @@ void TRestAnalysisTree::Initialize() {
 ///////////////////////////////////////////////
 /// \brief Get the index of the specified observable.
 ///
-/// If not exist, it will return -1. It will call MakeObservableIdMap() to 
+/// If not exist, it will return -1. It will call MakeObservableIdMap() to
 /// update observable id map before searching
 Int_t TRestAnalysisTree::GetObservableID(const string& obsName) {
     MakeObservableIdMap();
@@ -168,7 +169,7 @@ Bool_t TRestAnalysisTree::ObservableExists(const string& obsName) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Evaluate the Status of this tree. 
+/// \brief Evaluate the Status of this tree.
 ///
 ///////////////////////////////////////////////////////////////////////////////
 // Status              | Nbranches  |  NObs in list  | Entries |
@@ -193,7 +194,7 @@ int TRestAnalysisTree::EvaluateStatus() {
     int NObsInList = fObservables.size();
     int Entries = GetEntriesFast();
 
-    if (fROOTTree != NULL) {
+    if (fROOTTree != nullptr) {
         return TRestAnalysisTree_Status::ROOTTree;
     }
 
@@ -240,9 +241,9 @@ int TRestAnalysisTree::EvaluateStatus() {
 ///////////////////////////////////////////////
 /// \brief Update observables stored in the tree.
 ///
-/// It will first connect the six event data members(i.e. runid, eventid, etc.) 
-/// to the existing TTree branches. Then it will create new observable objects by 
-/// reflection, and connect them also to the existing TTree branches. After 
+/// It will first connect the six event data members(i.e. runid, eventid, etc.)
+/// to the existing TTree branches. Then it will create new observable objects by
+/// reflection, and connect them also to the existing TTree branches. After
 /// re-connection, this method will change status 2->5, 3->4
 void TRestAnalysisTree::UpdateObservables() {
     // connect basic event branches
@@ -277,8 +278,8 @@ void TRestAnalysisTree::UpdateObservables() {
 
     for (int i = 0; i < GetNumberOfObservables(); i++) {
         TBranch* branch = GetBranch(fObservableNames[i]);
-        if (branch != NULL) {
-            if (branch->GetAddress() != NULL) {
+        if (branch != nullptr) {
+            if (branch->GetAddress() != nullptr) {
                 if ((string)branch->ClassName() != "TBranch") {
                     // for TBranchElement the saved address is char**
                     fObservables[i].address = *(char**)branch->GetAddress();
@@ -299,8 +300,8 @@ void TRestAnalysisTree::UpdateObservables() {
 ///////////////////////////////////////////////
 /// \brief Update branches in the tree.
 ///
-/// It will create branches if not exist, both for event data members and 
-/// observables. Note that this method can be called multiple times during the 
+/// It will create branches if not exist, both for event data members and
+/// observables. Note that this method can be called multiple times during the
 /// first loop of observable setting. After branch creation, this method will
 /// change status 1->4, or stay 4.
 void TRestAnalysisTree::UpdateBranches() {
@@ -317,7 +318,7 @@ void TRestAnalysisTree::UpdateBranches() {
         char* ref = fObservables[n].address;
 
         TBranch* branch = GetBranch(brName);
-        if (branch == NULL) {
+        if (branch == nullptr) {
             if (typeName == "double") {
                 this->Branch(brName, (double*)ref);
             } else if (typeName == "float") {
@@ -349,7 +350,6 @@ void TRestAnalysisTree::UpdateBranches() {
     fStatus = EvaluateStatus();
 }
 
-
 void TRestAnalysisTree::InitObservables() {
     fObservables = std::vector<RESTValue>(GetNumberOfObservables());
     for (int i = 0; i < GetNumberOfObservables(); i++) {
@@ -358,7 +358,6 @@ void TRestAnalysisTree::InitObservables() {
     }
     MakeObservableIdMap();
 }
-
 
 ///////////////////////////////////////////////
 /// \brief Update the map of observable name to observable id.
@@ -377,7 +376,7 @@ void TRestAnalysisTree::MakeObservableIdMap() {
 }
 
 void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, RESTValue& obs) {
-    if (lf == NULL || lf->GetLen() == 0) return;
+    if (lf == nullptr || lf->GetLen() == 0) return;
 
     if (obs.IsZombie()) {
         // this means we need to determine the observable type first
@@ -458,7 +457,6 @@ void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, RESTValue& obs) {
     }
 }
 
-
 RESTValue TRestAnalysisTree::GetObservable(string obsName) {
     Int_t id = GetObservableID(obsName);
     if (id == -1) return RESTValue();
@@ -510,7 +508,7 @@ TString TRestAnalysisTree::GetObservableType(string obsName) {
 }
 ///////////////////////////////////////////////
 /// \brief Get double value of the observable, according to the name.
-/// 
+///
 /// It assumes the observable is in double/int type. If not it will print error and return 0
 Double_t TRestAnalysisTree::GetDblObservableValue(string obsName) {
     return GetDblObservableValue(GetObservableID(obsName));
@@ -533,8 +531,8 @@ Double_t TRestAnalysisTree::GetDblObservableValue(Int_t n) {
     return 0.;
 }
 
-
-RESTValue TRestAnalysisTree::AddObservable(TString observableName, TString observableType, TString description) {
+RESTValue TRestAnalysisTree::AddObservable(TString observableName, TString observableType,
+                                           TString description) {
     if (fStatus == None) fStatus = EvaluateStatus();
 
     if (fStatus == Created) {
@@ -631,7 +629,7 @@ Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
     } else if (fStatus == ROOTTree) {
     }
 
-    if (fROOTTree != NULL) {
+    if (fROOTTree != nullptr) {
         // if it is connected to an external tree, we get entry on that
         int result = fROOTTree->GetEntry(entry, getall);
 
@@ -659,7 +657,7 @@ Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
 }
 
 void TRestAnalysisTree::SetEventInfo(TRestEvent* evt) {
-    if (evt != NULL) {
+    if (evt != nullptr) {
         fEventID = evt->GetID();
         fSubEventID = evt->GetSubID();
         fTimeStamp = evt->GetTimeStamp().AsDouble();
@@ -743,28 +741,28 @@ void TRestAnalysisTree::SetObservable(Int_t id, RESTValue obs) {
 /// \brief Set the value of observable whose name is as specified
 ///
 /// The input type is "RESTValue". This class is able to be constructed from any object,
-/// Therefore the input could be equal to SetObservableValue(). But in this case it 
-/// would be much slower than `SetObservableValue()`, since converting to "RESTValue" contains 
+/// Therefore the input could be equal to SetObservableValue(). But in this case it
+/// would be much slower than `SetObservableValue()`, since converting to "RESTValue" contains
 /// a type name reflection which takes time. This method is better used to copy directly
 /// "RESTValue" objects, e.g., observables from another TRestAnalysisTree.
-/// 
+///
 /// Example:
 /// \code
-/// 
+///
 ///     TFile* fin = new TFile("simpleTree.root", "open");
 ///     TRestAnalysisTree* treein = (TRestAnalysisTree*)fin->Get("AnalysisTree");
 ///     TRestAnalysisTree* treeout = (TRestAnalysisTree*)tmp_tree->CloneTree(0);
-/// 
+///
 ///     RESTValue c = treein->GetObservable("vec");
 ///     for (int i = 0; i < 10; i++) {
 ///         treein->GetEntry(i);
 ///         treeout->SetObservable("interitedvec", c);
 ///         treeout->Fill();
 ///     }
-/// 
-/// 
+///
+///
 /// \endcode
-/// 
+///
 void TRestAnalysisTree::SetObservable(string name, RESTValue value) {
     value.name = name;
     SetObservable(-1, value);
@@ -873,16 +871,15 @@ void TRestAnalysisTree::DisableAllBranches() { this->SetBranchStatus("*", false)
 ///////////////////////////////////////////////
 /// \brief It will enable quick observable value setting
 ///
-/// When enabled, when calling SetObservableValue(string, value), we skip the 
+/// When enabled, when calling SetObservableValue(string, value), we skip the
 /// index searching and directly set the observable at n-th call of the method.
 /// This is possible when multiple SetObservableValue() is called in sequence in
-/// a loop. This will significantally improve the speed of that method. 
+/// a loop. This will significantally improve the speed of that method.
 void TRestAnalysisTree::EnableQuickObservableValueSetting() { this->fQuickSetObservableValue = true; }
 
 ///////////////////////////////////////////////
 /// \brief It will disable quick observable value setting
 void TRestAnalysisTree::DisableQuickObservableValueSetting() { this->fQuickSetObservableValue = false; }
-
 
 ///////////////////////////////////////////////
 /// \brief It returns the average of the observable considering the given range. If no range is given
@@ -986,5 +983,5 @@ Int_t TRestAnalysisTree::WriteAsTTree(const char* name, Int_t option, Int_t bufs
 }
 
 TRestAnalysisTree::~TRestAnalysisTree() {
-    if (fSubEventTag != NULL) delete fSubEventTag;
+    if (fSubEventTag != nullptr) delete fSubEventTag;
 }

@@ -29,7 +29,7 @@
 class TRestMySQLToAnalysisProcess : public TRestEventProcess {
    private:
     /// A pointer to the event data
-    TRestEvent* fEvent = NULL;  //!
+    TRestEvent* fEvent = nullptr;  //!
 
     /// The host indentification name or IP
     string fDBServerName;  //!
