@@ -55,6 +55,7 @@ before_script:
   - if [ -d "/opt/garfieldpp/install" ]; then export LD_LIBRARY_PATH=$GARFIELD_HOME/lib:$LD_LIBRARY_PATH; fi
   - ls $GARFIELD_HOME
   - python3 --version
+  - apt update && apt install -y wget
 
 clang-format:
   stage: pre-build
