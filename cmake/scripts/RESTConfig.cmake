@@ -8,5 +8,8 @@ set(REST_PATH $ENV{REST_PATH})
 execute_process(COMMAND rest-config --libs OUTPUT_VARIABLE REST_LIBRARIES)
 string(STRIP ${REST_LIBRARIES} REST_LIBRARIES) # It is necessary to strip the whitespaces, or it will give error
 
+execute_process(COMMAND rest-config --incdir OUTPUT_VARIABLE REST_INCLUDE_DIRS)
+string(STRIP ${REST_INCLUDE_DIRS} REST_INCLUDE_DIRS) # It is necessary to strip the whitespaces, or it will give error
+
 execute_process(COMMAND rest-config --version OUTPUT_VARIABLE REST_VERSION)
-string(STRIP ${REST_VERSION} REST_VERSION)
+string(STRIP ${REST_VERSION} REST_VERSION) # It is necessary to strip the whitespaces, or it will give error
