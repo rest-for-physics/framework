@@ -354,9 +354,9 @@ trexDM_data_latest:
     paths:
       - ${CI_PROJECT_DIR}/pipeline/trex/Hits_01929.root
     expire_in: 1 day
-    except:
-      variables:
-        - $CRONJOB == "YES"
+  except:
+    variables:
+      - $CRONJOB == "YES"
 
 pandaXIII_Topological: 
   type: restManager_process
