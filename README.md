@@ -67,12 +67,18 @@ on top of that, you might get the latest state of each submodule by executing
 python3 pull-submodules.py --lfna --latest
 ```
 
-But, if you wish to remain at the reference/official release, and get the latest state from a particular submodule, it is possible to move to the given submodule and checkout its `master` branch.
+But, if you wish to remain at the reference/official release, and get just the latest state from a particular submodule, it is possible to move to the given submodule and checkout its `master` branch.
 
 ```
 cd source/libraries/xlib
 git checkout master
 git pull
+```
+
+It is also possible to exclude submodules from being pulled by using the `--exclude:` directive and comma separated submodule names.
+
+```
+python3 pull-submodules.py --exclude:axionlib,geant4lib,restG4
 ```
 
 ### Recovering a clean git state of rest-framework and submodules
