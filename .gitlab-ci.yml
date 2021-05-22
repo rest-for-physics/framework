@@ -108,7 +108,7 @@ build:
     - if [ -d ${CI_PROJECT_DIR}/install ]; then rm -Rf ${CI_PROJECT_DIR}/install; fi
     - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
     - make install -j2
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+      #    - . ${CI_PROJECT_DIR}/install/thisREST.sh
   except:
       variables:
         - $CRONJOB == "YES"
@@ -127,7 +127,7 @@ build_latest:
     - if [ -d ${CI_PROJECT_DIR}/install_latest ]; then rm -Rf ${CI_PROJECT_DIR}/install_latest; fi
     - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest
     - make install -j2
-    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
+      #    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
   except:
       variables:
         - $CRONJOB == "YES"
@@ -172,10 +172,12 @@ build_latest:
 loadRESTLibs:
   type: install
   script:
+    - cat ${CI_PROJECT_DIR}/install/thisREST.sh
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
       ### Produces segmentation fault :(
       #- root -b -q ${CI_PROJECT_DIR}/pipeline/loadLibraries.C
     - restRoot -b -q
+    - cat ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - restRoot -b -q
   except:
