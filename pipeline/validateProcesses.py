@@ -16,7 +16,7 @@ import subprocess
 def validateProcess(className):
     print ("")
     print ("++++ Validating process : " + className)
-    with open(className, 'r') as file:
+    with open(className, 'r', encoding="utf-8") as file:
         data = file.read()
 
         data = data[data.find("ProcessEvent"):]
