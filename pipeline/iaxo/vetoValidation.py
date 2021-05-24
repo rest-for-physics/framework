@@ -9,8 +9,6 @@ rawEv = ROOT.TRestRawSignalEvent()
 
 sgnl1 = ROOT.TRestRawSignal()
 sgnl1.SetID(4688)
-# id = sgnl1.GetID();
-# print ("\nsignl1 ID: %i" % id)
 sgnl2 = ROOT.TRestRawSignal()
 sgnl2.SetID(4705)
 sgnl3 = ROOT.TRestRawSignal()
@@ -29,14 +27,12 @@ rawEv.AddSignal(sgnl2)
 rawEv.AddSignal(sgnl3)
 rawEv.AddSignal(sgnl4)
 
-# addVetoProcess = ROOT.TRestRawVetoAnalysisProcess("veto.rml")
 addVetoProcess = ROOT.TRestRawVetoAnalysisProcess("processes.rml")
 
 outEv = addVetoProcess.ProcessEvent( rawEv )
 
 print ("\nChecking if observable was created and veto signal was removed")
 for i in [1,2,3]:
-# for i in [4688.4705,4676]:
     if outEv.GetSignalIndex(i) != -1:
         print ("\nVeto failed: veto signal still present!")
         exit(202)
@@ -62,18 +58,3 @@ if tree.ObservableExists("veto_MaxPeakAmplitude_back") == False:
 print ("[\033[92m OK \x1b[0m]")
 
 exit(0)
-
-
-
-
-
-# outEv.GetSignal(0).CalculateBaseLine(50,450)
-# baseLineSigma = outEv.GetSignal(0).GetBaseLineSigma()
-
-# print ("\nEvaluating baseline sigma at the output event")
-# if baseLineSigma < 15 or baseLineSigma > 25:
-#     print ("\nEvaluation failed! Sigma is outside (15,25) range!" )
-#     exit(202)
-# print ("[\033[92m OK \x1b[0m]")
-
-# exit(0)
