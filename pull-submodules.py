@@ -28,6 +28,7 @@ force = 0
 dontask = 0
 clean = 0
 
+exclude_elems = ""
 for x in range(narg - 1):
     if (sys.argv[x + 1] == "--lfna"):
         lfna = 1
