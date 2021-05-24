@@ -460,7 +460,7 @@ iaxo_data:
     - cd ${CI_PROJECT_DIR}/pipeline/iaxo
     - restManager --fork --c RawToSignal.rml --f "*.aqs"
     - sleep 20
-    - ./vetoValidation.py 
+    - python3 vetoValidation.py 
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/pipeline/iaxo/R01208_output.root
