@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<processes>
+
+<globals>
+    <variable name="NPOINTS" value="7" overwrite="false" /> 
+    <variable name="POINT_TH" value="2.2" overwrite="false" /> 
+    <variable name="SGNL_TH" value="1" overwrite="false" /> 
+    <variable name="BL_MIN" value="20" overwrite="false" /> 
+    <variable name="BL_MAX" value="200" overwrite="false" /> 
+    <variable name="INT_MIN" value="200" overwrite="false" /> 
+    <variable name="INT_MAX" value="500" overwrite="false" /> 
+</globals>
+
+<!-- ···································································································· -->
+<!-- SIGNAL RELATED PROCESSES ··········································································· -->
+<!-- ···································································································· -->
+
+<TRestRawToSignalProcess name="virtualDAQ" title="TEST" verboseLevel="silent">
+    <parameter name="pedScript" value="ped"/>
+    <parameter name="runScript" value="run"/>
+    <parameter name="electronics" value="SingleFeminos"/>
+    <!-- <parameter name="electronics" value="AGET"/> -->
+    <parameter name="fileFormat" value="SJTU" />
+    <parameter name="minPoints" value="16" />
+</TRestRawToSignalProcess>
+
+<!-- ···································································································· -->
+
+<TRestRawVetoAnalysisProcess name="veto" title="test" verboseLevel="silent">
+	<parameter name="baseLineRange" value="(10,100)"/>
+	<parameter name="range" value="(10,500)"/>
+	<parameter name="observable" value="all"/>
+
+	<vetoGroup name="top" signalIDs="4688,4705,4728,4744"/>
+	<vetoGroup name="bottom" signalIDs="4647,4620,4637,4668"/>
+	<vetoGroup name="back" signalIDs="4676,4612,4672"/>
+	<vetoGroup name="right" signalIDs="4849,4620,4637,4668"/>
+</TRestRawVetoAnalysisProcess>
+
+<!-- ···································································································· -->
+
+<TRestDetectorSignalToHitsProcess name="signalToHits" title="A Signal To Hits reconstruction template." verboseLevel="silent" >
+
+    <parameter name="sampling" value="20ns" /> <!-- 100MHz/0x02(wckdiv) -&gt; 50MHz -> 20ns sampling time; 512 bins -> 20x512~10us window (old:100ns)-->
+    <!-- <parameter name="threshold" value="0" />-->
+    <parameter name="electricField" value="15.833" units="V/cm" />
+
+    <parameter name="triggerDelay" value="4000ns" /> <!-- 0x190 -&gt; 400 -> 4000ns -->
+
+    <!-- If not specified, the following values will be taken from TRestDetectorGas properties -->
+    <parameter name="gasPressure" value="1.38169" /> <!-- in atm -->
+    <parameter name="driftVelocity" value="${DRIFT_VELOCITY}" /> <!-- in cm/us ${DRIFT_VELOCITY}-->
+
+    <parameter name="method" value="tripleMax" /> <!-- "gausFit", "tripleMax" or "onlyMax" -->
+</TRestDetectorSignalToHitsProcess>
+
+<!-- ···································································································· -->
+
+<TRestRawZeroSuppresionProcess name="zS" title="" verboseLevel="silent" >
+
+    <!-- This parameter is used to define the baseline calculation -->
+    <parameter name="baseLineRange" value="(${BL_MIN},${BL_MAX})" />
+
+    <!-- These parameters define the integral with threshold. 
+         threshold : number of baseline noise sigmas to consider a point for integration.
+         pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
+         minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
+        -->
+    <parameter name="sampling" value="20ns" /> <!--Cris 07/01/2020-->
+    <parameter name="integralRange" value="(${INT_MIN},${INT_MAX})" /> <!--Cris 07/01/2020-->
+    <parameter name="pointThreshold" value="${POINT_TH}" />
+    <parameter name="pointsOverThreshold" value="${NPOINTS}" />
+    <parameter name="signalThreshold" value="${SGNL_TH}" />
+</TRestRawZeroSuppresionProcess>
+	
+<!-- ···································································································· -->
+
+<TRestRawSignalAnalysisProcess name="sAna" title="" verboseLevel="info" observable="all">
+
+    <!-- This parameter defines every how many seconds a signal will be drawn.
+         In case the value is zero. There will not be any drawing. -->
+    <parameter name="refreshEvery" value="1" />
+
+    <!-- This parameter is used to define the baseline calculation -->
+    <parameter name="baseLineRange" value="(${BL_MIN},${BL_MAX})" />
+
+    <!-- This parameter is used to define the signal integration window -->
+    <parameter name="integralRange" value="(${INT_MIN},${INT_MAX})" />
+
+    <!-- These parameters define the integral with threshold. 
+         threshold : number of baseline noise sigmas to consider a point for integration.
+         pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
+         minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
+        -->
+    <parameter name="pointThreshold" value="${POINT_TH}" />
+    <parameter name="pointsOverThreshold" value="${NPOINTS}" />
+    <parameter name="signalThreshold" value="${SGNL_TH}" />
+
+    <!-- This observable needs to be refined 
+    <observable name="TimeBinsLength" value="ON" />
+    -->
+
+
+
+    <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+         Cut/event selection definition
+         This are the cut range definition on the observables 
+         Events that are not in those ranges will be rejected if cutsEnables is true.
+         ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!--
+    <parameter name="cutsEnabled" value="false" />
+
+    <parameter name="meanBaseLineCutRange" value="(200,800)" />
+    <parameter name="meanBaseLineSigmaCutRange" value="(0,6)" />
+    <parameter name="maxNumberOfSignalsCut" value="(1,20)" />
+    <parameter name="maxNumberOfGoodSignalsCut" value="(4,10)" />
+    <parameter name="fullIntegralCut" value="(1,500000)" />
+    <parameter name="thresholdIntegralCut" value="(1,150000)" />
+    <parameter name="peakTimeDelayCut" value="(0,10)" />
+-->
+
+</TRestRawSignalAnalysisProcess>
+
+<!-- ···································································································· -->
+
+<TRestDetectorSignalShapingProcess name="signalShapingProcess" title="Test SignalShaping" >
+    <parameter name="responseFile" value="AGET_Response_12.5MHz_Gain0x1_Shaping0x4.root" /> //response file to be used to shape the signal
+</TRestDetectorSignalShapingProcess>
+
+<!-- ···································································································· -->
+
+<TRestRawSignalViewerProcess name="rsViewer" title="Signal viewer." verboseLevel="debug" >
+
+    <parameter name="refreshEvery" value="1" />
+
+    <parameter name="baseLineRange" value="(20,200)" /> <!-- (20,200) -->
+    <parameter name="thresholdRange" value="(200,350)" /> <!-- (200,350) -->
+    <parameter name="peakThreshold" value="" />
+    <parameter name="nSignalsThreshold" value="" />
+    <parameter name="yRange" value="auto" />
+
+</TRestRawSignalViewerProcess>
+
+<!-- ···································································································· -->
+
+<TRestDetectorSignalViewerProcess name="sViewer" title="Signal viewer." verboseLevel="silent" >
+
+    <parameter name="refreshEvery" value="1" />
+
+    <!-- <parameter name="baseLineRange" value="(${BL_MIN},${BL_MAX})" /> -->
+    <parameter name="baseLineRange" value="(20,200)" />
+
+</TRestDetectorSignalViewerProcess>
+
+<!-- ···································································································· -->
+
+<TRestDetectorSignalChannelActivityProcess name="chActivity" title="Channel activity process" >
+
+    <parameter name="lowThreshold" value="25" />  <!--25-->
+    <parameter name="highThreshold" value="50" /> <!--50-->
+    <!--<parameter name="yRange" value="(4000,5000)" />-->
+	<parameter name="daqChannels" value="300" />
+	<parameter name="daqStartCh" value="4320" />
+	<parameter name="daqEndCh" value="4680" />
+	<parameter name="readoutChannels" value="250" />
+	<parameter name="readoutStartCh" value="0" />
+	<parameter name="readoutEndCh" value="250" />
+    
+</TRestDetectorSignalChannelActivityProcess>
+
+
+<!-- ···································································································· -->
+
+<TRestRawSignalChannelActivityProcess name="rawChActivity" title="Raw channel activity process" >
+
+    <parameter name="lowThreshold" value="25" /> 
+    <parameter name="highThreshold" value="50" />
+    <!--<parameter name="yRange" value="(4000,5000)" />-->
+	<parameter name="daqChannels" value="300" />
+	<parameter name="daqStartCh" value="4322" />
+	<parameter name="daqEndCh" value="4680" />
+	<parameter name="readoutChannels" value="250" />
+	<parameter name="readoutStartCh" value="0" />
+	<parameter name="readoutEndCh" value="250" />
+    
+</TRestRawSignalChannelActivityProcess>
+
+
+<!-- ···································································································· -->
+<!-- HITS RELATED PROCESSES ············································································· -->
+<!-- ···································································································· -->
+
+<TRestDetectorHitsToSignalProcess name="hitsToSignal" title="A hits to signal template" >
+
+    <parameter name="sampling" value="20ns" />
+    <parameter name="electricField" value="150" units="V/cm" />
+
+    <!-- If specified, the following parameters will modify the properties of the gas found in TRestDetectorGas -->
+    <parameter name="gasPressure" value="1.38169" />
+    <parameter name="driftVelocity" value="" />
+</TRestDetectorHitsToSignalProcess>
+
+<!-- ···································································································· -->
+
+<TRestDetectorHitsToTrackProcess name="hitsToTrack" title="" verboseLevel="silent"> <!-- verbose : debug; silent -->
+    <parameter name="clusterDistance" value="3.5mm" /> <!-- cluster = 7 strips with no signal; 0.5mm pitch -->
+    <!--<parameter name="clusterDistance" value="2mm" /> --> <!-- cluster = 5 strips with no signal; 0.5mm pitch (Elisa)-->
+</TRestDetectorHitsToTrackProcess>
+
+<!-- ···································································································· -->
+
+<TRestDetectorHitsToTrackFastProcess name="fastHitsToTrack" title="" > 
+    <parameter name="cellResolution" value="10mm" />
+    <parameter name="netSize" value="2000mm" />
+    <parameter name="netOrigin" value="(-1000,-1000,-1000)mm" />
+</TRestDetectorHitsToTrackFastProcess>
+
+<!-- ···································································································· -->
+
+<TRestDetectorHitsReductionProcess name="hitsReduction-IAXOD0" title="MinimumDistance being IAXOD0 readout pitch" >
+    <parameter name="startingDistance" value="0.45mm" />
+    <parameter name="minimumDistance" value="0.5mm" />
+    <parameter name="distanceStepFactor" value="1.5" />
+    <parameter name="maxNodes" value="70" />
+</TRestDetectorHitsReductionProcess>
+
+<!-- ···································································································· -->
+
+<TRestDetectorHitsAnalysisProcess name="hitsAnaLite" title="Hits analysis template" verboseLevel="silent" observable="all" >
+    <observable name="energy" value="ON" />
+
+    <observable name="nHits" value="ON" />
+    <observable name="nHitsX" value="ON" />
+    <observable name="nHitsY" value="ON" />
+
+    <observable name="xMean" value="ON" />
+    <observable name="yMean" value="ON" />
+    <observable name="zMean" value="ON" />
+
+    <parameter name="cylinderFiducialization" value="false" />
+    <parameter name="prismFiducialization" value="true" />
+
+    <parameter name="fiducial_x0" value="(0,0,-15)mm" />
+    <parameter name="fiducial_x1" value="(0,0,15)mm" />
+    <parameter name="fiducial_sX" value="60mm" />
+    <parameter name="fiducial_sY" value="60mm" />
+
+    <observable name="isInsidePrismVolume" value="ON" />
+    <observable name="nInsidePrismVolume" value="ON" />
+    <observable name="energyInsidePrismVolume" value="ON" />
+
+    <observable name="distanceToPrismWall" value="ON" />
+    <observable name="distanceToPrismTop" value="ON" />
+    <observable name="distanceToPrismBottom" value="ON" />
+
+</TRestDetectorHitsAnalysisProcess>
+
+<!-- ···································································································· -->
+
+<TRestDetectorHitsAnalysisProcess name="hitsAna" title="Hits analysis template" verboseLevel="info" > 
+
+
+    <observable name="energy" value="ON" />
+    <observable name="energyX" value="ON" />
+    <observable name="energyY" value="ON" />
+    <observable name="balanceXYenergy" value="ON" />
+    
+    <observable name="nHits" type="int" value="ON" />
+    <observable name="nHitsX" type="int" value="ON" />
+    <observable name="nHitsY" type="int" value="ON" />
+    <observable name="balanceXYnHits" value="ON" />
+    <observable name="nHitsSizeXY" value="ON" />
+
+    <observable name="maxHitEnergy" value="ON" />
+    <observable name="minHitEnergy" value="ON" />
+    <observable name="meanHitEnergy" value="ON" />
+    <observable name="meanHitEnergyBalance" value="ON" />
+
+    <observable name="xMean" value="ON" />
+    <observable name="yMean" value="ON" />
+    <observable name="zMean" value="ON" />
+
+    <observable name="xSigma" value="ON" />
+    <!--<observable name="xSigmaGaus" value="OFF" /> -->
+    <observable name="ySigma" value="ON" />
+    <!--<observable name="ySigmaGaus" value="OFF" /> -->
+    <observable name="xy2Sigma" value="ON" />
+    <!-- <observable name="xy2SigmaGaus" value="OFF" /> --><!-- Cris -->
+    <observable name="xySigmaBalance" value="ON" />
+    <!-- <observable name="xySigmaBalanceGaus" value="OFF" /> -->
+    <observable name="z2Sigma" value="ON" />
+    <observable name="xySkew" value="ON" />
+
+    <observable name="zSkew" value="ON" /> 
+
+    <!-- x0 and y0 are common coordinates for prism and cylinder. -->
+    <parameter name="fiducial_x0" value="(0,0,-15)mm" />
+    <parameter name="fiducial_x1" value="(0,0,300)mm" />
+
+    <!-- This parameter allows to enable/disable the cylinder fiducialization. -->
+    <parameter name="cylinderFiducialization" value="false" />
+
+        <parameter name="fiducial_R" value="48mm" />
+
+        <observable name="isInsideCylindricalVolume" value="OFF" />
+        <observable name="nInsideCylindricalVolume" value="OFF" />
+        <observable name="energyInsideCylindricalVolume" value="OFF" />
+
+        <observable name="distanceToCylinderWall" value="OFF" />
+        <observable name="distanceToCylinderTop" value="OFF" />
+        <observable name="distanceToCylinderBottom" value="OFF" />
+
+        <observable name="xMeanInCylinder" value="OFF" />
+        <observable name="yMeanInCylinder" value="OFF" />
+        <observable name="zMeanInCylinder" value="OFF" /> 
+
+    <!-- This parameter allows to enable/disable the prism fiducialization. -->
+    <parameter name="prismFiducialization" value="true" />
+
+        <parameter name="fiducial_sX" value="60mm" />
+        <parameter name="fiducial_sY" value="60mm" />
+        <parameter name="fiducial_theta" value="0"/>
+       
+        <observable name="isInsidePrismVolume" type="int" value="ON" />
+        <observable name="nInsidePrismVolume" type="int" value="ON" />
+        <observable name="energyInsidePrismVolume" value="ON" />
+
+        <observable name="distanceToPrismWall" value="ON" />
+        <observable name="distanceToPrismTop" value="ON" />
+        <observable name="distanceToPrismBottom" value="ON" />
+
+        <observable name="xMeanInPrism" value="ON" />
+        <observable name="yMeanInPrism" value="ON" />
+        <observable name="zMeanInPrism" value="ON" /> 
+
+</TRestDetectorHitsAnalysisProcess>
+
+<!-- ···································································································· -->
+
+<TRestDetectorHitsNormalizationProcess name="hitsNorm" title="Hits normalization template" >
+    <parameter name="normFactor" value="0.021917" />
+</TRestDetectorHitsNormalizationProcess>
+
+<!-- ···································································································· -->
+
+<TRestDetectorHitsRotateAndTranslateProcess name="HitsRotTransIAXOD0" title="" verboseLevel="silent" >
+
+    <!-- Readout information:
+    Origin position : X = 0 mm  Y : -42.25 mm
+    Size : X = 59.75 Y : 59.75
+    Rotation : 45 degrees
+    -->
+    <parameter name="translationEnabled" value="true" />
+
+    <parameter name="deltaX" value="-21.125mm" /> <!-- -29.875 -->	
+    <parameter name="deltaY" value="21.125mm" /> <!-- 42.25; 12.36; 12.375 -->
+    <parameter name="deltaZ" value="0.mm" />
+    
+    <parameter name="rotationEnabled" value="false" />
+
+    <parameter name="alpha" value="0." />	// rotation angle around X in degrees
+    <parameter name="beta" value="0."  />	// rotation angle around Y in degrees
+    <parameter name="gamma" value="0." />	// rotation angle around Z in degrees
+
+</TRestDetectorHitsRotateAndTranslateProcess>
+
+<!-- ···································································································· -->
+<!-- TRACKS RELATED PROCESSES ··········································································· -->
+<!-- ···································································································· -->
+
+<TRestTrackPathMinimizationProcess name="trackPathMinimization" title="" >
+    <parameter name="energyThreshold" value="0.8" />
+    <parameter name="maxNodes" value="50" />
+</TRestTrackPathMinimizationProcess>
+
+<!-- ···································································································· -->
+
+<TRestTrackReconnectionProcess name="trackReconnection" title="" >
+    <observable name="branches" value="ON" />
+</TRestTrackReconnectionProcess>
+
+<!-- ···································································································· -->
+
+<TRestTrackAnalysisProcess name="tckAna" title="Track analysis template">
+
+    <parameter name="cutsEnabled" value="false" />
+
+    <parameter name="nTracksXCut" value="(1,10)" />
+    <parameter name="nTracksYCut" value="(1,10)" />
+
+    <observable name="LengthX" value="OFF" />
+    <observable name="LengthY" value="OFF" />
+    <observable name="nTracks_X" type="int" value="ON" />
+    <observable name="nTracks_Y" type="int" value="ON" />
+    <observable name="nTracks_XYZ" type="int" value="ON" />
+
+    <observable name="trackEnergy" value="ON" />
+    <observable name="MaxTrackEnergy" value="ON" />
+    <observable name="MaxTrackEnergy_Y" value="ON" />
+    <observable name="MaxTrackEnergy_X" value="ON" />
+    <observable name="MaxTrackEnergyRatio" value="ON" />
+    
+    <observable name="SecondTrackMaxEnergy" value="ON" />
+    <observable name="SecondTrackMaxEnergy_X" value="ON" />
+    <observable name="SecondTrackMaxEnergy_Y" value="ON" />
+
+    <observable name="MaxTrackLength_XYZ" value="ON" />
+    <observable name="MaxTrackLength_X" value="ON" />
+    <observable name="MaxTrackLength_Y" value="ON" />
+
+    <observable name="MaxTrackVolume_XYZ" value="ON" />
+    <observable name="MaxTrackVolume_X" value="ON" />
+    <observable name="MaxTrackVolume_Y" value="ON" />
+
+    <observable name="MaxTrack_Xmean_XYZ" value="ON" />
+    <observable name="MaxTrack_Ymean_XYZ" value="ON" />
+    <observable name="MaxTrack_Zmean_XYZ" value="ON" />
+
+    <observable name="MaxTrack_Xmean_X" value="ON" />
+    <observable name="MaxTrack_Zmean_X" value="ON" />
+
+    <observable name="MaxTrack_Ymean_Y" value="ON" />
+    <observable name="MaxTrack_Zmean_Y" value="ON" />
+
+</TRestTrackAnalysisProcess>
+
+<!-- ···································································································· -->
+
+<TRestTrackReductionProcess name="trackReduction-IAXOD0" title="MinimumDistance being IAXOD0 cluster definition: 3 strips of distance" >
+    <parameter name="startingDistance" value="0.5mm" />
+    <parameter name="minimumDistance" value="2mm" />
+    <parameter name="distanceStepFactor" value="1.25" />
+    <parameter name="maxNodes" value="15" />
+</TRestTrackReductionProcess>
+
+
+
+</processes>

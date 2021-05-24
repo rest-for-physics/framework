@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<TRestManager>
+
+<globals>
+	<!--
+    <variable name="AUTO_DAQ_PATH" value="${HOME}/quickAnaREST" overwrite="false" /> 
+    <variable name="READOUT_FILE" value="readouts.root" overwrite="false" /> 
+    <variable name="READOUT_NAME" value="SingleModule" overwrite="false" /> 
+    <variable name="GAS_NAME" value="Neon-Isobutane 2Pct 10-10E3Vcm" overwrite="false" />
+    <variable name="PRESSURE" value="1" overwrite="false" /> 
+    <variable name="ELECTRONICS" value="MultiFEMINOS" overwrite="false" />
+
+    <parameter name="gasDataPath" value="${REST_PATH}/inputData/gasFiles/" />
+
+    <searchPath value="$ENV{REST_INPUTDATA}/definitions/"/>
+	-->
+    <parameter name="mainDataPath" value="." />
+   
+    <variable name="RUN_TYPE" value="RawToSignal" overwrite="false" />
+
+    <variable name="BL_MIN" value="20" overwrite="false" /> <!--50 in definitions.xml file -->
+    <variable name="BL_MAX" value="200" overwrite="false" /> <!--100 in definitions.xml  file -->
+
+    <variable name="INT_MIN" value="200" overwrite="false" /> 
+    <variable name="INT_MAX" value="500" overwrite="false" /> 
+
+    <variable name="NPOINTS" value="7" overwrite="false" /> 
+    <variable name="POINT_TH" value="2.2" overwrite="false" /> <!--3.2 in in definitions.xml file -->
+   	<variable name="SGNL_TH" value="1" overwrite="false" /> <!--2.9 in in definitions.xml file -->
+
+    <variable name="SAMPLING" value="20ns" overwrite="false" />
+    <variable name="PRESSURE" value="1.05" overwrite="false" /> <!--1.4 for Ar, 1.05 for Xe -->
+    <!--<variable name="DRIFT_FIELD" value="160" overwrite="false" /> -->
+    <variable name="DRIFT_VELOCITY" value="3.4223418" overwrite="false" /> <!--3.4223418 for Ar+2.3% iso in CAST; 1.89 for Xe+50%Ne+2.3%iso -->
+
+
+</globals>
+
+
+<TRestRun name="VetoTest9Units" title="IAXO D0 Muon Veto Test" verboseLevel="silent">
+	<parameter name="experiment" value="IAXOD0"/>
+	<parameter name="runNumber" value="preserve"/>
+	<parameter name="runTag" value="preserve"/>
+	<parameter name="runType" value="${RUN_TYPE}"/>
+	<parameter name="runDescription" value=""/>
+	<parameter name="user" value="${USER}"/>
+	<parameter name="verboseLevel" value="0"/>
+	<parameter name="overwrite" value="off" />
+	
+	<parameter name="inputFormat" value="R[runNr]_[Tag]_Vm_[Mesh]_Vd_[Drift]_Pr_[Pressure]_Gain_[Gain]_Shape_[Shaping]_Clock_[Clock]-[SubRunNr].aqs"/> -->
+	<parameter name="outputFile" value="R[runNr]_output.root" /> -->
+
+	<parameter name="readOnly" value="false" />
+
+
+	 <addMetadata type="TRestDetectorReadout" name="iaxo_readout_15" file="readouts.root"/> 
+
+</TRestRun>
+
+	<TRestProcessRunner name="RawSignals" title="Raw processing and analysis" verboseLevel="info">
+
+		<parameter name="firstEntry" value="0" />
+		<parameter name="lastEntry" value="0" />
+		<parameter name="eventsToProcess" value="50" />
+
+
+		<addProcess type="TRestRawMultiFEMINOSToSignalProcess" name="virtualDAQ" value="ON" verboseLevel="silent">
+			<parameter name="pedScript" value="ped"/>
+			<parameter name="runScript" value="run"/>
+			<parameter name="electronics" value="TCMFeminos"/>
+			<parameter name="fileFormat" value="SJTU" />
+		</addProcess>
+
+		<addProcess type="TRestRawSignalChannelActivityProcess" name="rawChActivity" value="OFF" verboseLevel="silent" >
+			<parameter name="daqChannels" value="300" />
+			<parameter name="daqStartCh" value="4320" />
+			<parameter name="daqEndCh" value="5000" />
+			<parameter name="readoutChannels" value="250" />
+			<parameter name="readoutStartCh" value="0" />
+			<parameter name="readoutEndCh" value="250" />
+		</addProcess>:
+   		
+		<addProcess type="TRestRawVetoAnalysisProcess" name="veto" value="ON" file="processes.rml"/>
+			<!--	
+			<parameter name="baseLineRange" value="(10,100)"/> 
+			<parameter name="range" value="(10,500)"/>
+			<parameter name="observable" value="all"/>
+			-->			
+			<!-- parameter name="threshold" value="500"/-->
+			<!-- parameter name="timeWindow" value="300,500"/-->
+			<!--
+			<vetoGroup name="top"  signalIDs="4688,4705,4728,4744"/>
+			<vetoGroup name="bottom"  signalIDs="4647,4620,4637,4668"/>
+			<vetoGroup name="back"  signalIDs="4676,4612,4672"/>
+			<vetoGroup name="right"  signalIDs="4849,4620,4637,4668"/>
+			-->
+
+		    <!-- <observable name="MaxPeakAmplitude" value="ON" />
+		    <observable name="PeakTime" value="ON" /> -->			
+		<!--/addProcess-->
+
+    <!-- Signal analysis -->
+
+    <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="OFF" file="processes.rml"/>
+    <addProcess type="TRestRawSignalViewerProcess" name="rsViewer" value="OFF" file="processes.rml"/>
+    <addProcess type="TRestRawZeroSuppresionProcess" name="zS" value="OFF" file="processes.rml"/>
+    <addProcess type="TRestDetectorSignalChannelActivityProcess" name="chActivity" value="OFF" file="processes.rml"/>
+
+    <!-- Signal to track reconstruction and track analysis -->
+    <addProcess type="TRestDetectorSignalToHitsProcess" name="signalToHits" value="OFF" file="processes.rml"/>
+    <addProcess type="TRestDetectorHitsAnalysisProcess" name="hitsAna" value="OFF" file="processes.rml"/>
+
+	<addProcess type="TRestDetectorHitsGaussAnalysisProcess" name="hitsAnaGauss" value="OFF">
+		<parameter name="observable" value="all"/>
+			<parameter name="readoutChannelsX" value="120" />
+			<parameter name="readoutChannelsY" value="120" />
+			<parameter name="StartChPos" value="-30" />
+			<parameter name="EndChPos" value="30" />
+			<parameter name="Pitch" value="0.5" />
+	</addProcess>-	
+
+    <addProcess type="TRestDetectorHitsAnalysisProcess" name="hitsAnaLite" value="OFF" file="processes.rml" />
+    <addProcess type="TRestDetectorHitsToTrackProcess" name="hitsToTrack" value="OFF" file="processes.rml"/>
+    <addProcess type="TRestTrackAnalysisProcess" name="tckAna" value="OFF" file="processes.rml"/>
+
+
+
+	</TRestProcessRunner>
+
+	<addTask type="processEvents" value="ON" />
+    
+</TRestManager>
