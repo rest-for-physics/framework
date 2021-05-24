@@ -448,3 +448,20 @@ deploy:
   except:
       variables:
         - $CRONJOB == "YES"
+
+
+iaxo_data: 
+  type: restManager_process
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/pipeline/iaxo
+    - restManager --fork --c RawToSignal.rml --f "*.aqs"
+    - sleep 20
+    - ./vetoValidation.py 
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/pipeline/iaxo/R01208_output.root
+    expire_in: 1 day
+  except:
+      variables:
+        - $CRONJOB == "YES"
