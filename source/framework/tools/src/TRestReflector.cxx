@@ -190,6 +190,8 @@ int TRestReflector::InitDictionary() {
             cout << "Loading external dictionary for: \"" << type << "\":" << endl;
             cout << sofilename << endl;
             gSystem->Load(sofilename.c_str());
+            RESTListOfClasses_typeid.clear();
+            RESTListOfClasses_typename.clear();
             cl = GetClassQuick(type);  // reset the TClass after loading external library.
             return 0;
         }
@@ -248,6 +250,8 @@ int TRestReflector::InitDictionary() {
         }
 
         gSystem->Load(Form("%s", sofilename.c_str()));
+        RESTListOfClasses_typeid.clear();
+        RESTListOfClasses_typename.clear();
         cl = GetClassQuick(type);  // reset the TClass after loading external library.
     }
 
