@@ -27,6 +27,7 @@ debug = 0
 force = 0
 dontask = 0
 clean = 0
+fbName = ""
 
 exclude_elems = ""
 for x in range(narg - 1):
@@ -36,9 +37,11 @@ for x in range(narg - 1):
     if (sys.argv[x + 1] == "--sjtu"):
         sjtu = 1
         print("Adding submodules from sjtu repositories. You may be asked to enter password for it.")
-    if (sys.argv[x + 1] == "--latest"):
-        latest = 1
-        print("Pulling latest submodules from their git repository, instead of the version recorded by REST. This may cause the submodules to be uncompilable.")
+    if ( sys.argv[x + 1].find("--latest") >= 0 ):
+        if( sys.argv[x + 1].find("--latest:") >= 0 ):
+            latest = 1
+            fbName = sys.argv[x + 1][9:]
+            print("Pulling latest submodules from their git repository, instead of the version recorded by REST. This may cause the submodules to be uncompilable.")
     if (sys.argv[x + 1] == "--debug"):
         debug = 1
     if (sys.argv[x + 1] == "--dontask"):
@@ -64,8 +67,11 @@ def main():
    if( force ):
       print("Force pulling submodules.")
 
-   bNamePcs = subprocess.run('git rev-parse --abbrev-ref HEAD', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-   frameworkBranchName = bNamePcs.stdout.decode("utf-8").rstrip("\n")
+   if( fbName == "" ):
+       bNamePcs = subprocess.run('git rev-parse --abbrev-ref HEAD', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+       frameworkBranchName = bNamePcs.stdout.decode("utf-8").rstrip("\n")
+   else:
+       frameworkBranchName = fbName
    print( "Framework branch name: " + frameworkBranchName )
 
 # In case the above command failed, also go through all submodules and update
