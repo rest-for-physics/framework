@@ -91,7 +91,7 @@ std::vector<std::string> input_files;
 void ParseInputFileArgs(const char* argv) {
     if (argv == NULL) return;
 
-    if (REST_ARGS.count("inputFile") > 0) {
+    if (REST_ARGS.count("inputFileName") > 0) {
         string input_old = REST_ARGS["inputFileName"];
         input_old += "\n" + string(argv);
 
