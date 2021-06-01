@@ -66,6 +66,7 @@ def main():
 
    bNamePcs = subprocess.run('git rev-parse --abbrev-ref HEAD', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
    frameworkBranchName = bNamePcs.stdout.decode("utf-8").rstrip("\n")
+   print( "Framework branch name: " + frameworkBranchName )
 
 # In case the above command failed, also go through all submodules and update
 # them individually
@@ -144,6 +145,8 @@ def main():
                          if latest == 1:
                              command = 'git ls-remote --heads ' + url + ' ' + frameworkBranchName + ' | wc -l'
                              branchExistsPcs = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+                             print ( "##" + branchExistsPcs.stdout.decode("utf-8").rstrip("\n") + "##" )
 
                              branchToPull = "master"
                              if( branchExistsPcs.stdout.decode("utf-8").rstrip("\n") != "0"):
