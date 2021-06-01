@@ -152,8 +152,6 @@ def main():
                              command = 'git ls-remote --heads ' + url + ' ' + frameworkBranchName + ' | wc -l'
                              branchExistsPcs = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-                             print ( "##" + branchExistsPcs.stdout.decode("utf-8").rstrip("\n") + "##" )
-
                              branchToPull = "master"
                              if( branchExistsPcs.stdout.decode("utf-8").rstrip("\n") != "0"):
                                  branchToPull = frameworkBranchName
