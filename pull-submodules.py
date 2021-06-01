@@ -51,9 +51,6 @@ for x in range(narg - 1):
     if (sys.argv[x + 1].find("--exclude:")>=0 ):
         exclude_elems = sys.argv[x + 1][10:].split(",")
 
-
-
-
 def main():
 # The following command may fail
 #   os.system('cd {} && git submodule update --init
@@ -66,6 +63,9 @@ def main():
 
    if( force ):
       print("Force pulling submodules.")
+
+   bNamePcs = subprocess.run('git rev-parse --abbrev-ref HEAD', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+   frameworkBranchName = bNamePcs.stdout.decode("utf-8").rstrip("\n")
 
 # In case the above command failed, also go through all submodules and update
 # them individually
@@ -142,7 +142,14 @@ def main():
                          # if latest, pull the latest commit instead of the one
                          # recorded in the main repo
                          if latest == 1:
-                             p = subprocess.run('cd {}/{} && git pull --tags origin master'.format(root, submodule), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                             command = 'git ls-remote --heads ' + url + ' ' + frameworkBranchName + ' | wc -l'
+                             branchExistsPcs = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+                             branchToPull = "master"
+                             if( branchExistsPcs.stdout.decode("utf-8").rstrip("\n") != "0"):
+                                 branchToPull = frameworkBranchName
+ 
+                             p = subprocess.run('cd {}/{} && git pull --tags origin {}'.format(root, submodule, branchToPull), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                              if(debug):
                                  print (p.stdout.decode("utf-8"))
                                  print (p.stderr.decode("utf-8"))
