@@ -9,6 +9,8 @@
 char cfgFileName[256];
 char iFile[256];
 
+const int maxForksAllowed = 32;
+
 #ifdef WIN32
 void setenv(const char* __name, const char* __value, int __replace) {
     _putenv(((string)__name + "=" + (string)__value).c_str());
@@ -89,7 +91,7 @@ std::vector<std::string> input_files;
 void ParseInputFileArgs(const char* argv) {
     if (argv == NULL) return;
 
-    if (REST_ARGS.count("inputFile") > 0) {
+    if (REST_ARGS.count("inputFileName") > 0) {
         string input_old = REST_ARGS["inputFileName"];
         input_old += "\n" + string(argv);
 
@@ -106,6 +108,7 @@ void ParseInputFileArgs(const char* argv) {
 // This will make cout un-usable in the Macros!
 int main(int argc, char* argv[]) {
     // global envs
+    printf("Starting pid: %d\n", getpid());
     setenv("REST_VERSION", REST_RELEASE, 1);
 
     // preprocess arguments
@@ -211,22 +214,28 @@ int main(int argc, char* argv[]) {
             fout << endl;
 
             int pid = 0;
-            if (doFork) {
+            if (doFork && input_files.size() > maxForksAllowed) {
+                ferr << "Fork list is larger than " << maxForksAllowed
+                     << " files. Please, use a glob pattern producing a shorter list" << endl;
+            } else if (doFork) {
                 for (unsigned int n = 0; n < input_files.size(); n++) {
                     string command = "restManager";
                     for (unsigned int x = 1; x < args.size(); x++) {
                         if (args[x] != "--f" && args[x - 1] != "--f" && args[x] != "--fork")
                             command += " " + args[x];
                     }
-                    command += " --f " + input_files[n] + " >> /tmp/" + getenv("USER") + "_out." + ToString(n);
+                    command +=
+                        " --f " + input_files[n] + " >> /tmp/" + getenv("USER") + "_out." + ToString(n);
                     fout << "Executing : " << command << endl;
                     fork_n_execute(command);
                 }
                 exit(0);
             } else {
+                fout << "Creating TRestManager" << endl;
                 TRestManager* mgr = new TRestManager();
 
                 auto path = TRestTools::SeparatePathAndName(cfgFileName).first;
+                fout << "path:" << path << endl;
                 setenv("configPath", path.c_str(), 1);
 
                 mgr->LoadConfigFromFile(cfgFileName);

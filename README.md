@@ -1,7 +1,8 @@
 # The REST Framework
-
 [![DOI](https://zenodo.org/badge/324291710.svg)](http://doi.org/10.5281/zenodo.4528985)
 [![pipeline status](https://gitlab.cern.ch/rest-for-physics/framework/badges/development/pipeline.svg)](https://gitlab.cern.ch/rest-for-physics/framework/-/commits/development)
+[![CI](https://github.com/rest-for-physics/framework/actions/workflows/ci.yml/badge.svg)](https://github.com/rest-for-physics/framework/actions/workflows/ci.yml)
+
 
 The REST-for-Physics (Rare Event Searches Toolkit) Framework is mainly written in C++ and it is fully integrated with [ROOT](https://root.cern.ch) I/O interface.
 REST was initially born as a collaborative software effort to provide common tools for acquisition, simulation, and data analysis of gaseous Time Projection Chambers (TPCs). However, the framework is already extending its usage to be non-exclusive of detector data analysis. The possibilities of the framework are provided by the different libraries and packages written for REST in our community.
@@ -49,29 +50,35 @@ cd git
 git clone https://github.com/rest-for-physics/framework.git rest-framework
 cd rest-framework
 ## It is known to work with python version 3.5 but feel free to use a later version.
-python3.5 pull-submodules.py
+python3 pull-submodules.py
 ```
 
-If you have pulled changes in a particular submodule, or added your own commits, be aware that calling again to `python3.5 pull-submodules.py` will bring the state of submodules to the official ones at the main repository. REMOVING! any commits you may have at the submodule and that were not pushed to a remote.
+If you have pulled changes in a particular submodule, or added your own commits, be aware that calling again to `python3 pull-submodules.py` will bring the state of submodules to the official ones at the main repository. REMOVING! any commits you may have at the submodule and that were not pushed to a remote.
 
 If you have access to private repositories, related to projects or experiments inside the REST community you may pull those executing an additional command.
 
 ```
-python3.5 pull-submodules.py --lfna (or --sjtu)
+python3 pull-submodules.py --lfna (or --sjtu)
 ```
 
 on top of that, you might get the latest state of each submodule by executing
 
 ```
-python3.5 pull-submodules.py --lfna --latest
+python3 pull-submodules.py --lfna --latest
 ```
 
-But, if you wish to remain at the reference/official release, and get the latest state from a particular submodule, it is possible to move to the given submodule and checkout its `master` branch.
+But, if you wish to remain at the reference/official release, and get just the latest state from a particular submodule, it is possible to move to the given submodule and checkout its `master` branch.
 
 ```
 cd source/libraries/xlib
 git checkout master
 git pull
+```
+
+It is also possible to exclude submodules from being pulled by using the `--exclude:` directive and comma separated submodule names.
+
+```
+python3 pull-submodules.py --exclude:axionlib,geant4lib,restG4
 ```
 
 ### Recovering a clean git state of rest-framework and submodules
@@ -81,7 +88,7 @@ If you have added modifications to the rest-framework code and/or submodules. It
 Notice that executing the following script (placed at the rest-framework root repository) will completely remove any changes or addons you have done at your local installation.
 
 ```
-python3.5 pull-submodules.py --clean
+python3 pull-submodules.py --clean
 ```
 
 If there is any untracked content you might still need to `git clean -d -f` to remove untracked items. If any untracked items or modified files are found at your source repository during compilation the `fCleanState` flag at `TRestMetadata` will be set to `OFF`.

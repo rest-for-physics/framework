@@ -21,12 +21,12 @@
 #ifndef TRestSoft_TRestHits
 #define TRestSoft_TRestHits
 
+#include <TF1.h>
+#include <TH1.h>
 #include <TVector3.h>
 
 #include <iostream>
 
-#include <TF1.h>
-#include <TH1.h>
 #include "TArrayD.h"
 #include "TArrayI.h"
 #include "TCanvas.h"
@@ -39,7 +39,7 @@ enum REST_HitType { unknown = -1, X = 2, Y = 3, Z = 5, XY = 6, XZ = 10, YZ = 15,
 //! It saves a 3-coordinate position and an energy for each punctual deposition.
 class TRestHits : public TObject {
    public:
-    Int_t fNHits;         ///< Number of punctual energy depositions, it is the lenght
+    Int_t fNHits;         ///< Number of punctual energy depositions, it is the length
                           ///< for all the array
     Double_t fTotEnergy;  ///< Event total energy
 

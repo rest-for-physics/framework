@@ -276,7 +276,7 @@ TClass* GetClassQuick() {
 template <typename T>
 std::string GetTypeName() {
     TClass* cl = TClass::GetClass(typeid(T));
-    if (cl != NULL) {
+    if (cl != nullptr) {
         return cl->GetName();
     }
     return string(DataType_Info((T*)0).name);
@@ -308,7 +308,7 @@ class TRestReflector {
     /// Pointer to the corresponding TClass helper, if the wrapped object is in class type
     TClass* cl = 0;
     /// Pointer to the corresponding TDataType helper, if the wrapped object is in data type
-    bool is_data_type;
+    bool is_data_type = false;
     /// If this object type wrapper is invalid
     bool IsZombie();
     /// Deep copy the content of the wrapped object to `to`.
@@ -323,7 +323,7 @@ class TRestReflector {
             cout << "Input: " << GetTypeName<T>() << ", this: " << this->type << endl;
             return T();
         }
-        if (address != NULL) return *(T*)(address);
+        if (address != nullptr) return *(T*)(address);
         return T();
     }
     /// Set the value of the wrapped type
@@ -334,7 +334,7 @@ class TRestReflector {
             cout << "Input: " << GetTypeName<T>() << ", this: " << string(this->type) << endl;
             return;
         }
-        if (address != NULL) *((T*)(address)) = val;
+        if (address != nullptr) *((T*)(address)) = val;
     }
     /// Convert the wrapped object to string
     string ToString();
@@ -386,7 +386,7 @@ class TRestReflector {
         onheap = false;
         cl = REST_Reflection::GetClassQuick<T>();
         DataType_Info dt = DataType_Info((T*)0);
-        if (cl == NULL && dt.size == 0) {
+        if (cl == nullptr && dt.size == 0) {
             cout << "In TRestReflector::TRestReflector() : unrecognized type! " << endl;
             return;
         }
@@ -394,7 +394,7 @@ class TRestReflector {
         typeinfo = &typeid(T);
         is_data_type = dt.size > 0;
         size = sizeof(T);
-        if (cl == NULL) {
+        if (cl == nullptr) {
             type = dt.name;
         } else {
             type = cl->GetName();

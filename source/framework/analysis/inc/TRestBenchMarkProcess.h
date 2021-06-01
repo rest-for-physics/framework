@@ -47,8 +47,6 @@ class TRestBenchMarkProcess : public TRestEventProcess {
     static int fLastEventNumber;     //!
     static ULong64_t fStartTime;     //!
 
-    void InitFromConfigFile();
-
     void Initialize();
 
     void SysMonitorFunc(int pid, double refreshrate = 1);

@@ -38,7 +38,7 @@ class TRestDataQualityProcess : public TRestEventProcess {
     /// A vector with the rule definitions for each quality number
     std::vector<TRestDataQualityRules> fRules;  //<
 
-    TRestEvent* fEvent = NULL;  //!
+    TRestEvent* fEvent = nullptr;  //!
 
     void InitProcess();
     void EndProcess();

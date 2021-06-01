@@ -28,7 +28,7 @@
 using namespace std;
 //______________________________________________________________________________
 TRestBrowser::TRestBrowser() {
-    if ((TDirectory*)gDirectory != NULL && gDirectory->GetFile() != NULL) {
+    if ((TDirectory*)gDirectory != nullptr && gDirectory->GetFile() != nullptr) {
         Initialize();
         SetViewer("TRestEventViewer");
         OpenFile(gDirectory->GetFile()->GetName());
@@ -46,7 +46,7 @@ TRestBrowser::TRestBrowser(TString viewerName) {
 
 //______________________________________________________________________________
 TRestBrowser::~TRestBrowser() {
-    if (frmMain != NULL) frmMain->Cleanup();
+    if (frmMain != nullptr) frmMain->Cleanup();
     // delete frmMain;
 }
 
@@ -57,7 +57,7 @@ void TRestBrowser::Initialize(TString opt) {
 
     b = new TBrowser("Browser", 0, "REST Browser", opt);
     TGMainFrame* fr = b->GetBrowserImp()->GetMainFrame();
-    if (fr == NULL) {
+    if (fr == nullptr) {
         warning << "No x11 interface is available. Cannot call the browser window!" << endl;
         exit(1);
     }
@@ -81,11 +81,11 @@ void TRestBrowser::Initialize(TString opt) {
 }
 
 void TRestBrowser::SetViewer(TRestEventViewer* eV) {
-    if (fEventViewer != NULL) {
+    if (fEventViewer != nullptr) {
         cout << "Event viewer has already been set!" << endl;
         return;
     }
-    if (eV != NULL) {
+    if (eV != nullptr) {
         fEventViewer = eV;
         // b->StartEmbedding(1, -1);
         eV->Embed(b);
@@ -96,7 +96,7 @@ void TRestBrowser::SetViewer(TRestEventViewer* eV) {
 void TRestBrowser::SetViewer(TString viewerName) {
     if (Count((string)viewerName, "Viewer") > 0) {
         TRestEventViewer* viewer = REST_Reflection::Assembly((string)viewerName);
-        if (viewer != NULL) {
+        if (viewer != nullptr) {
             SetViewer(viewer);
         } else {
             ferr << viewerName << " not recoginzed! Did you install the corresponding library?" << endl;
@@ -202,13 +202,13 @@ void TRestBrowser::SetButtons() {
 void TRestBrowser::InitFromConfigFile() { cout << __PRETTY_FUNCTION__ << endl; }
 
 void TRestBrowser::SetInputEvent(TRestEvent* eve) {
-    if (r != NULL) {
+    if (r != nullptr) {
         r->SetInputEvent(eve);
     }
 }
 
 Bool_t TRestBrowser::LoadEventEntry(Int_t n) {
-    if (r->GetInputFile() == NULL || r->GetInputFile()->IsZombie()) {
+    if (r->GetInputFile() == nullptr || r->GetInputFile()->IsZombie()) {
         warning << "TRestBrowser::LoadEventEntry. No File..." << endl;
         return kFALSE;
     }
@@ -217,7 +217,7 @@ Bool_t TRestBrowser::LoadEventEntry(Int_t n) {
         return kFALSE;
     }
 
-    if (r->GetAnalysisTree() != NULL && n < r->GetAnalysisTree()->GetEntries() && n >= 0) {
+    if (r->GetAnalysisTree() != nullptr && n < r->GetAnalysisTree()->GetEntries() && n >= 0) {
         r->GetEntry(n);
         TRestEvent* ev = r->GetInputEvent();
         if (!ev) {
@@ -238,7 +238,7 @@ Bool_t TRestBrowser::LoadEventEntry(Int_t n) {
         return kFALSE;
     }
 
-    if (fEventViewer != NULL) {
+    if (fEventViewer != nullptr) {
         fEventViewer->AddEvent(r->GetInputEvent());
         fEventViewer->Plot(fPlotOptionTextBox->GetText());
         cout << endl;
@@ -249,7 +249,7 @@ Bool_t TRestBrowser::LoadEventEntry(Int_t n) {
 }
 
 Bool_t TRestBrowser::LoadEventId(Int_t id, Int_t subid) {
-    if (r->GetInputFile() == NULL || r->GetInputFile()->IsZombie()) {
+    if (r->GetInputFile() == nullptr || r->GetInputFile()->IsZombie()) {
         warning << "TRestBrowser::LoadEventEntry. No File..." << endl;
         return kFALSE;
     }
@@ -259,7 +259,7 @@ Bool_t TRestBrowser::LoadEventId(Int_t id, Int_t subid) {
         return kFALSE;
     }
 
-    if (r->GetAnalysisTree() != NULL && r->GetAnalysisTree()->GetEntries() > 0) {
+    if (r->GetAnalysisTree() != nullptr && r->GetAnalysisTree()->GetEntries() > 0) {
         TRestEvent* ev = r->GetEventWithID(id, subid);
         if (!ev) {
             warning << "Event ID : " << id << " with sub ID : " << subid << " not found!" << endl;
@@ -279,7 +279,7 @@ Bool_t TRestBrowser::LoadEventId(Int_t id, Int_t subid) {
         return kFALSE;
     }
 
-    if (fEventViewer != NULL) {
+    if (fEventViewer != nullptr) {
         fEventViewer->AddEvent(r->GetInputEvent());
         fEventViewer->Plot(fPlotOptionTextBox->GetText());
         cout << endl;
@@ -299,7 +299,7 @@ Bool_t TRestBrowser::OpenFile(TString filename) {
 
         TGeoManager* geometry = gGeoManager;
 
-        if (t != NULL) {
+        if (t != nullptr) {
             // add entry for other event types
             TObjArray* branches = t->GetListOfBranches();
             for (int i = 0; i <= branches->GetLast(); i++) {
@@ -308,7 +308,7 @@ Bool_t TRestBrowser::OpenFile(TString filename) {
                     string eventtype = Replace((string)br->GetName(), "Branch", "");
                     fEventTypeComboBox->AddEntry(eventtype.c_str(), fEventTypeComboBox->GetNumberOfEntries());
                     // we make the entry of input event being selected
-                    if (r->GetInputEvent() != NULL && (string)r->GetInputEvent()->ClassName() == eventtype) {
+                    if (r->GetInputEvent() != nullptr && (string)r->GetInputEvent()->ClassName() == eventtype) {
                         fEventTypeComboBox->Select(fEventTypeComboBox->GetNumberOfEntries() - 1, false);
                     }
                 }
@@ -316,8 +316,8 @@ Bool_t TRestBrowser::OpenFile(TString filename) {
 
             // init viewer
             pureAnalysis = kFALSE;
-            if (fEventViewer == NULL) SetViewer("TRestEventViewer");
-            if (geometry != NULL && fEventViewer != NULL) fEventViewer->SetGeometry(geometry);
+            if (fEventViewer == nullptr) SetViewer("TRestEventViewer");
+            if (geometry != nullptr && fEventViewer != nullptr) fEventViewer->SetGeometry(geometry);
             RowValueChangedAction(0);
         } else {
             pureAnalysis = kTRUE;
@@ -363,7 +363,7 @@ void TRestBrowser::PreviousPlotOptionAction() {
 }
 
 void TRestBrowser::PlotAction() {
-    if (fEventViewer != NULL) {
+    if (fEventViewer != nullptr) {
         fEventViewer->Plot(fPlotOptionTextBox->GetText());
     }
 }
@@ -386,7 +386,7 @@ void TRestBrowser::EventTypeChangedAction(Int_t id) {
     string eventtype = fEventTypeComboBox->GetSelectedEntry()->GetTitle();
     TRestEvent* eve = REST_Reflection::Assembly(eventtype);
 
-    if (eve != NULL) {
+    if (eve != nullptr) {
         r->SetInputEvent(eve);
         RowValueChangedAction(0);
     }

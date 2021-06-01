@@ -90,7 +90,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
 
     if (Count(keydeclare, "TRest") > 0) {
         TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
-        if (meta == NULL) return -1;
+        if (meta == nullptr) return -1;
         meta->SetHostmgr(this);
         fMetaObjects.push_back(meta);
         meta->SetConfigFile(fConfigFileName);
@@ -109,27 +109,27 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
 
         const char* type = e->Attribute("type");
         const char* cmd = e->Attribute("command");
-        if (type == NULL && cmd == NULL) {
+        if (type == nullptr && cmd == nullptr) {
             warning << "command or type should be given!" << endl;
             return -1;
         }
-        if (type != NULL) {
+        if (type != nullptr) {
             debug << " \"" << type << "\" " << endl;
             if ((string)type == "processEvents") {
                 auto pr = GetProcessRunner();
-                if (pr != NULL) pr->RunProcess();
+                if (pr != nullptr) pr->RunProcess();
             } else if ((string)type == "analysisPlot") {
                 auto ap = GetAnaPlot();
-                if (ap != NULL) ap->PlotCombinedCanvas();
+                if (ap != nullptr) ap->PlotCombinedCanvas();
             } else if ((string)type == "saveMetadata") {
                 auto ri = GetRunInfo();
-                if (ri != NULL) {
+                if (ri != nullptr) {
                     ri->FormOutputFile();
                     ri->CloseFile();
                 }
             } else {
                 TRestTask* tsk = TRestTask::GetTaskFromMacro(type);
-                if (tsk == NULL) {
+                if (tsk == nullptr) {
                     warning << "REST ERROR. Task : " << type << " not found!!" << endl;
                     warning << "This task will be skipped." << endl;
                     return -1;
@@ -138,11 +138,11 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
                 tsk->RunTask(this);
                 return 0;
             }
-        } else if (cmd != NULL) {
+        } else if (cmd != nullptr) {
             debug << " \"" << cmd << "\" " << endl;
 
             TRestTask* tsk = TRestTask::GetTaskFromCommand(cmd);
-            if (tsk == NULL) {
+            if (tsk == nullptr) {
                 warning << "REST ERROR. Command : " << cmd << " cannot be parsed!!" << endl;
                 warning << "This task will be skipped." << endl;
                 return -1;
@@ -157,7 +157,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
 
 void TRestManager::InitFromTask(string taskName, vector<string> arguments) {
     TRestTask* tsk = TRestTask::GetTaskFromMacro(taskName);
-    if (tsk == NULL) {
+    if (tsk == nullptr) {
         gSystem->Exit(-1);
     }
     tsk->SetArgumentValue(arguments);

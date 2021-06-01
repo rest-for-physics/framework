@@ -1,4 +1,5 @@
-image: lobis/root-geant4-garfieldpp
+#image: lobis/root-geant4-garfieldpp:cxx14_ROOTv6-25-01_Geant4v10.4.3
+image: nkx1231/root6-geant4-garfield:0.6
 
 variables:
 #    GIT_SUBMODULE_STRATEGY: recursive
@@ -38,6 +39,7 @@ stages:
   - deploy
 
 before_script:
+  - pwd
   - export USER="test"
     #  - export GIT_SSL_NO_VERIFY=1
   - echo $CI_SERVER_HOST
@@ -45,7 +47,7 @@ before_script:
     # We redefine the HOME
   - export HOME=${CI_PROJECT_DIR}/install/
   - if [ -d $HOME/.rest ]; then rm -Rf $HOME/.rest; fi
-  - pwd
+  - if [ -f "/opt/root/install/bin/thisroot.sh" ]; then source /opt/root/install/bin/thisroot.sh; fi
   - root-config --version
   - if [ -f "/opt/geant4/install/bin/geant4.sh" ]; then source /opt/geant4/install/bin/geant4.sh; fi
   - geant4-config --version
@@ -54,6 +56,7 @@ before_script:
   - if [ -d "/opt/garfieldpp/install" ]; then export LD_LIBRARY_PATH=$GARFIELD_HOME/lib:$LD_LIBRARY_PATH; fi
   - ls $GARFIELD_HOME
   - python3 --version
+  - apt update && apt install -y wget
 
 clang-format:
   stage: pre-build
@@ -79,21 +82,21 @@ validateCode:
         variables:
             - $CRONJOB == "YES"
 
-axionLib:
-  stage: libraries
-  script:
-    - "curl -k -X POST -F token=bd53c38cdd1395ffeb14d297ebe202 -F ref=master https://lfna.unizar.es/api/v4/projects/31/trigger/pipeline"
-  only:
-      variables:
-          - $CI_SERVER_HOST == "lfna.unizar.es"
+#axionLib:
+#  stage: libraries
+#  script:
+#    - "curl -k -X POST -F token=bd53c38cdd1395ffeb14d297ebe202 -F ref=master https://lfna.unizar.es/api/v4/projects/31/trigger/pipeline"
+#  only:
+#      variables:
+#          - $CI_SERVER_HOST == "lfna.unizar.es"
 
-modelLib:
-  stage: libraries
-  script:
-    - "curl -k -X POST -F token=a244698329647e96d55908d75f3f0e -F ref=master https://lfna.unizar.es/api/v4/projects/11/trigger/pipeline"
-  only:
-      variables:
-          - $CI_SERVER_HOST == "lfna.unizar.es"
+#modelLib:
+#  stage: libraries
+#  script:
+#    - "curl -k -X POST -F token=a244698329647e96d55908d75f3f0e -F ref=master https://lfna.unizar.es/api/v4/projects/11/trigger/pipeline"
+#  only:
+#      variables:
+#          - $CI_SERVER_HOST == "lfna.unizar.es"
 
 build:
   type: build
@@ -102,10 +105,10 @@ build:
     - python3 pull-submodules.py --force --dontask
     - if [ -d ${CI_PROJECT_DIR}/build ]; then rm -Rf ${CI_PROJECT_DIR}/build; fi
     - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build/
-    - rm -rf ${CI_PROJECT_DIR}/install
+    - if [ -d ${CI_PROJECT_DIR}/install ]; then rm -Rf ${CI_PROJECT_DIR}/install; fi
     - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
     - make install -j2
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+      #    - . ${CI_PROJECT_DIR}/install/thisREST.sh
   except:
       variables:
         - $CRONJOB == "YES"
@@ -114,29 +117,68 @@ build:
       - ${CI_PROJECT_DIR}/install
     expire_in: 1 day
 
-build_nkx:
-  image: nkx1231/root6-geant4-garfield:0.6
+build_latest:
   type: build
   script:
     - cd ${CI_PROJECT_DIR}/
-    - python3 pull-submodules.py --force --dontask
-    - if [ -d ${CI_PROJECT_DIR}/build ]; then rm -Rf ${CI_PROJECT_DIR}/build; fi
-    - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build/
-    - if [ -d ${CI_PROJECT_DIR}/install_nkx]; then rm -Rf ${CI_PROJECT_DIR}/install_nkx; fi
-    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install_nkx
+    - python3 pull-submodules.py --force --dontask --latest
+    - if [ -d ${CI_PROJECT_DIR}/build_latest ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest; fi
+    - mkdir ${CI_PROJECT_DIR}/build_latest && cd ${CI_PROJECT_DIR}/build_latest/
+    - if [ -d ${CI_PROJECT_DIR}/install_latest ]; then rm -Rf ${CI_PROJECT_DIR}/install_latest; fi
+    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest
     - make install -j2
-    - cat ${CI_PROJECT_DIR}/install_nkx/thisREST.sh
-#    - . ${CI_PROJECT_DIR}/install_nkx/thisREST.sh
+      #    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
   except:
       variables:
         - $CRONJOB == "YES"
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install_latest
+    expire_in: 1 day
+
+    #build_latest_root622_geant4v1042:
+    #  image: lobis/root-geant4-garfieldpp:cxx14_ROOTv6-22-08_Geant4v10.4.2
+    #  type: build
+    #  script:
+    #    - cd ${CI_PROJECT_DIR}/
+    #    - python3 pull-submodules.py --force --dontask --latest
+    #    - if [ -d ${CI_PROJECT_DIR}/build_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest2; fi
+      #    - mkdir ${CI_PROJECT_DIR}/build_latest2 && cd ${CI_PROJECT_DIR}/build_latest2/
+      #    - if [ -d ${CI_PROJECT_DIR}/install_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/install_latest2; fi
+      #    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest2
+      #    - make install -j2
+      #    - . ${CI_PROJECT_DIR}/install_latest2/thisREST.sh
+      #  except:
+      #      variables:
+      #        - $CRONJOB == "YES"
+
+    #build_nkx:
+    #  image: nkx1231/root6-geant4-garfield:0.6
+    #  type: build
+    #  script:
+    #    - cd ${CI_PROJECT_DIR}/
+    #    - python3 pull-submodules.py --force --dontask
+    #    - if [ -d ${CI_PROJECT_DIR}/build_nkx ]; then rm -Rf ${CI_PROJECT_DIR}/build_nkx; fi
+    #    - mkdir ${CI_PROJECT_DIR}/build_nkx && cd ${CI_PROJECT_DIR}/build_nkx/
+    #    - if [ -d ${CI_PROJECT_DIR}/install_nkx]; then rm -Rf ${CI_PROJECT_DIR}/install_nkx; fi
+    #    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install_nkx
+    #    - make install -j2
+  #    - cat ${CI_PROJECT_DIR}/install_nkx/thisREST.sh
+#    - . ${CI_PROJECT_DIR}/install_nkx/thisREST.sh
+#  except:
+#      variables:
+#        - $CRONJOB == "YES"
 
 loadRESTLibs:
   type: install
   script:
+    - cat ${CI_PROJECT_DIR}/install/thisREST.sh
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
       ### Produces segmentation fault :(
       #- root -b -q ${CI_PROJECT_DIR}/pipeline/loadLibraries.C
+    - restRoot -b -q
+    - cat ${CI_PROJECT_DIR}/install_latest/thisREST.sh
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - restRoot -b -q
   except:
       variables:
@@ -146,6 +188,8 @@ listRESTMacros:
   type: install
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - restManager ListMacros
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - restManager ListMacros
   except:
       variables:
@@ -167,6 +211,18 @@ listRESTMacros:
       - ${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test.root
     expire_in: 1 day
 
+01_NLDBD_latest:
+  type: restG4
+  script:
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD/
+    - restG4 NLDBD.rml
+    - geant4-config --version
+    - restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
+  except:
+      variables:
+        - $CRONJOB == "YES"
+
 02_PandaXiiiMC:
   type: restG4
   script:
@@ -181,6 +237,17 @@ listRESTMacros:
     paths:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/Xe136bb0n_n2E06.root
     expire_in: 1 day
+
+02_PandaXiiiMC_latest:
+  type: restG4
+  script:
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC
+    - restG4 Xe136bb0n.rml
+    - restRoot -b -q ValidateG4.C'("Xe136bb0n_n2E06.root")'
+  except:
+      variables:
+        - $CRONJOB == "YES"
 
 LoadGas:
   type: metadata 
@@ -264,19 +331,19 @@ testMeta:
       variables:
         - $CRONJOB == "YES"
 
-trexDM_data: 
+trexDM_data_latest: 
   type: restManager_process
   script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/trex
     - wget https://sultan.unizar.es/trexdm-readouts/readouts_v2.3.root
     - cp R01928_tagTest_Vm_250_Vd_160_Pr_6_Gain_0x0_Shape_0xF_Clock_0x4-068.aqs R01929_tagTest_Vm_250_Vd_160_Pr_6_Gain_0x0_Shape_0xF_Clock_0x4-068.aqs
     - restManager --fork --c 01_raw.rml --f "*.aqs"
-    - sleep 20
+    - sleep 30
     - restManager --fork --c 02_signal.rml --f "RawData*.root"
-    - sleep 20
+    - sleep 30
     - restManager --fork --c 03_hits.rml --f "Signals*.root"
-    - sleep 20
+    - sleep 30
     - restRoot -b -q ../MakeBasicTree.C'("Hits_01928.root")'
     - rm RawData_01928.root
     - rm Signals_01928.root
@@ -291,8 +358,8 @@ trexDM_data:
       - ${CI_PROJECT_DIR}/pipeline/trex/Hits_01929.root
     expire_in: 1 day
   except:
-      variables:
-        - $CRONJOB == "YES"
+    variables:
+      - $CRONJOB == "YES"
 
 pandaXIII_Topological: 
   type: restManager_process
@@ -351,7 +418,7 @@ EventSelection:
     - cd ${CI_PROJECT_DIR}/pipeline/selection
     - restManager --c g4Analysis.rml --f "${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test.root"
     - restManager --c g4OnSelection.rml --f Run00001_NLDBD_Test_g4Analysis.root
-    - restRoot -b -q Validate.C'("ExpectedOutput_NLDBD_Test_EvSelection.root")'
+    - restRoot -b -q Validate.C'("Run00001_NLDBD_Test_EvSelection.root")'
     
   artifacts:
     paths:

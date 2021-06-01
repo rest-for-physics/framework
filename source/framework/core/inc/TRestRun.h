@@ -4,9 +4,10 @@
 
 #define REST_MAXIMUM_EVENTS 2E9
 
-#include "TFile.h"
-#include "TFileMerger.h"
-#include "TKey.h"
+#include <TFile.h>
+#include <TFileMerger.h>
+#include <TKey.h>
+
 #include "TRestAnalysisTree.h"
 #include "TRestEvent.h"
 #include "TRestMetadata.h"
@@ -73,10 +74,10 @@ class TRestRun : public TRestMetadata {
 
     Int_t GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettree);
     void GetEntry(int i) {
-        if (fAnalysisTree != NULL) {
+        if (fAnalysisTree != nullptr) {
             fAnalysisTree->GetEntry(i);
         }
-        if (fEventTree != NULL) {
+        if (fEventTree != nullptr) {
             fEventTree->GetEntry(i);
         }
 
@@ -111,7 +112,7 @@ class TRestRun : public TRestMetadata {
 
     /// add metadata object to the metadata list
     void AddMetadata(TRestMetadata* meta) {
-        if (meta != NULL) {
+        if (meta != nullptr) {
             fMetadata.push_back(meta);
         } else {
             warning << "REST Warning! A null matadata wants to be added in TRestRun!" << endl;
@@ -142,7 +143,7 @@ class TRestRun : public TRestMetadata {
     Long64_t GetBytesReaded() { return fBytesReaded; }
     Long64_t GetTotalBytes() { return fTotalBytes; }
     int GetEntries() {
-        if (fAnalysisTree != NULL) {
+        if (fAnalysisTree != nullptr) {
             return fAnalysisTree->GetEntries();
         }
         return REST_MAXIMUM_EVENTS;
@@ -160,7 +161,7 @@ class TRestRun : public TRestMetadata {
     TString GetInputEventName() { return fInputEvent->ClassName(); }
     TRestAnalysisTree* GetAnalysisTree() { return fAnalysisTree; }
     TTree* GetEventTree() { return fEventTree; }
-    Int_t GetInputFileNumber() { return fFileProcess == NULL ? fInputFileNames.size() : 1; }
+    Int_t GetInputFileNumber() { return fFileProcess == nullptr ? fInputFileNames.size() : 1; }
 
     TRestMetadata* GetMetadata(TString name, TFile* f = 0);
     TRestMetadata* GetMetadataClass(TString type, TFile* f = 0);
@@ -214,26 +215,26 @@ class TRestRun : public TRestMetadata {
         for (unsigned int i = 0; i < fMetadata.size(); i++) fMetadata[i]->PrintMetadata();
     }
     void PrintTrees() {
-        if (fEventTree != NULL) {
+        if (fEventTree != nullptr) {
             fout << endl;
             fout << "=====EventTree=====" << endl;
             fEventTree->Print();
         }
-        if (fAnalysisTree != NULL) {
+        if (fAnalysisTree != nullptr) {
             fout << endl;
             fout << "=====AnalysisTree=====" << endl;
             fAnalysisTree->Print();
         }
     }
     void PrintObservables() {
-        if (fAnalysisTree != NULL) fAnalysisTree->PrintObservables();
+        if (fAnalysisTree != nullptr) fAnalysisTree->PrintObservables();
     }
 
     void PrintEvent() { fInputEvent->PrintEvent(); }
 
     Int_t Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 
-    // Construtor & Destructor
+    // Constructor & Destructor
     TRestRun();
     TRestRun(string rootfilename);
     ~TRestRun();

@@ -31,6 +31,8 @@
 //! long time while we want to see the result instantly.
 class TRestRealTimeDrawingProcess : public TRestEventProcess {
    private:
+    void Initialize();
+
     /// How many events passed when it starts next drawing
     Long64_t fDrawInterval;
     /// How many events passed when it starts next drawing
@@ -45,21 +47,16 @@ class TRestRealTimeDrawingProcess : public TRestEventProcess {
     /// Pause response flag from other threads when recieving pause signal
     static map<TRestRealTimeDrawingProcess*, bool> fPauseResponse;  //!
     /// The event pointer is not used in this process
-    TRestEvent* fEvent = NULL;  //!
-
-    void InitProcess();
-    void EndProcess();
-
-    void InitFromConfigFile();
-
-    void Initialize();
+    TRestEvent* fEvent = nullptr;  //!
 
    protected:
    public:
     any GetInputEvent() { return fEvent; }
     any GetOutputEvent() { return fEvent; }
 
+    void InitProcess();
     TRestEvent* ProcessEvent(TRestEvent* evInput);
+    void EndProcess();
 
     void PrintMetadata();
 

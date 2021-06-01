@@ -28,6 +28,7 @@ force = 0
 dontask = 0
 clean = 0
 
+exclude_elems = ""
 for x in range(narg - 1):
     if (sys.argv[x + 1] == "--lfna"):
         lfna = 1
@@ -47,6 +48,11 @@ for x in range(narg - 1):
     if (sys.argv[x + 1] == "--clean"):
         force = 1
         clean = 1
+    if (sys.argv[x + 1].find("--exclude:")>=0 ):
+        exclude_elems = sys.argv[x + 1][10:].split(",")
+
+
+
 
 def main():
 # The following command may fail
@@ -80,9 +86,17 @@ def main():
                         fullpath = fullpath[fullpath.find("packages"):]
                      if fullpath.find("scripts") >= 0:
                         fullpath = fullpath[fullpath.find("scripts"):]
+
+
                   if 'url=' in line:
                      url = line.replace('url=', '').strip()
-                     if (url.find("github") != -1) or (url.find("lfna.unizar.es") != -1 and lfna == 1) or (url.find("gitlab.pandax.sjtu.edu.cn") != -1 and sjtu == 1):
+
+                     exclude = False
+                     for x in exclude_elems:
+                        if url.lower().find( x.lower() )>0:
+                          exclude = True
+
+                     if (not exclude and url.find("github") != -1) or (url.find("lfna.unizar.es") != -1 and lfna == 1) or (url.find("gitlab.pandax.sjtu.edu.cn") != -1 and sjtu == 1):
                          print (fullpath.rstrip(), end='')
                          # init
                          p = subprocess.run('cd {} && git submodule init {}'.format(root, submodule), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

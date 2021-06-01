@@ -12,7 +12,7 @@ TRestDBEntryLogger::TRestDBEntryLogger() { Initialize(); }
 
 void TRestDBEntryLogger::InitFromConfigFile() {
     // check environment
-    if (gDataBase == NULL) {
+    if (gDataBase == nullptr) {
         ferr << "REST database is not initailized!" << endl;
         abort();
     }

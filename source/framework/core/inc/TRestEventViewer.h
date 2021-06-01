@@ -19,24 +19,24 @@
 #ifndef RestCore_TRestEventViewer
 #define RestCore_TRestEventViewer
 
+#include <TGButton.h>
+#include <TGLabel.h>
+#include <TGTextEntry.h>
 #include <TGeoManager.h>
 #include <TObject.h>
 
 #include <iostream>
 
-#include "TGButton.h"
-#include "TGLabel.h"
-#include "TGTextEntry.h"
 #include "TRestEvent.h"
 
 class TRestBrowser;
 class TRestEventViewer {
    protected:
-    TGeoManager* fGeometry = 0;     //!
-    TRestEvent* fEvent = 0;      //!
+    TGeoManager* fGeometry = nullptr;  //!
+    TRestEvent* fEvent = nullptr;      //!
 
-    TPad* fPad = 0;
-    TCanvas* fCanvas = 0;
+    TPad* fPad = nullptr;
+    TCanvas* fCanvas = nullptr;
 
     virtual void Initialize();
 
@@ -50,12 +50,12 @@ class TRestEventViewer {
     virtual void DeleteCurrentEvent();
     // Setters
     virtual void SetGeometry(TGeoManager* geo) { fGeometry = geo; }
-    void SetEvent(TRestEvent* ev) { fEvent = ev; }
+    void SetEvent(TRestEvent* event) { fEvent = event; }
     // Getters
     TGeoManager* GetGeometry() { return fGeometry; }
     TRestEvent* GetEvent() { return fEvent; }
 
-    // Construtor
+    // Constructor
     TRestEventViewer();
     // Destructor
     virtual ~TRestEventViewer();

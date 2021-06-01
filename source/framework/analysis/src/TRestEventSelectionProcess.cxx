@@ -92,7 +92,7 @@ TRestEventSelectionProcess::TRestEventSelectionProcess() { Initialize(); }
 void TRestEventSelectionProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fEvent = NULL;
+    fEvent = nullptr;
 }
 
 ///////////////////////////////////////////////
@@ -101,9 +101,9 @@ void TRestEventSelectionProcess::Initialize() {
 ///
 void TRestEventSelectionProcess::InitProcess() {
 
-    if (fFile.substr(fFile.length() - 4)==".txt"){
+    if (fFileWithIDs.substr(fFileWithIDs.length() - 4)==".txt"){
         string line;
-        ifstream File(fFile);
+        ifstream File(fFileWithIDs);
         
         if (File.is_open()){
           while ( getline(File,line) ){
@@ -113,8 +113,8 @@ void TRestEventSelectionProcess::InitProcess() {
         }
     }
     
-    else if(fFile.substr(fFile.length() - 4)=="root"){
-        TRestRun* run = new TRestRun(fFile);        
+    else if(fFileWithIDs.substr(fFileWithIDs.length() - 4)=="root"){
+        TRestRun* run = new TRestRun(fFileWithIDs);        
         fList = run->GetEventIdsWithConditions(fConditions);      
         delete run;
     }
@@ -134,22 +134,13 @@ TRestEvent* TRestEventSelectionProcess::ProcessEvent(TRestEvent* eventInput) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Initialization of the process from RML
-///
-void TRestEventSelectionProcess::InitFromConfigFile() {
-
-    fFile = GetParameter("fileWithIDs","");
-    fConditions = GetParameter("conditions","");
-}
-
-///////////////////////////////////////////////
 /// \brief Prints on screen the process data members
 ///
 void TRestEventSelectionProcess::PrintMetadata() {
     BeginPrintProcess();
 
-    metadata << "File with IDs: " << fFile << endl;
-    if(fFile.substr(fFile.length() - 4)=="root"){
+    metadata << "File with IDs: " << fFileWithIDs << endl;
+    if(fFileWithIDs.substr(fFileWithIDs.length() - 4)=="root"){
         metadata << "Conditions: " << fConditions << endl;
     }
 

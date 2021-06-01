@@ -85,7 +85,7 @@ TRestMessengerAndReceiver::TRestMessengerAndReceiver() { Initialize(); }
 
 TRestMessengerAndReceiver::~TRestMessengerAndReceiver() {
     // clear the shared memories
-    if (fMessagePool != NULL) {
+    if (fMessagePool != nullptr) {
         if (fMessagePool->owner == this) {
             unlock(fMessagePool);
         }
@@ -101,7 +101,7 @@ TRestMessengerAndReceiver::TRestMessengerAndReceiver(int token, string mode) {
 }
 
 void TRestMessengerAndReceiver::Initialize() {
-    fRun = NULL;
+    fRun = nullptr;
     fMode = MessagePool_TwoWay;
 }
 
@@ -113,7 +113,7 @@ void TRestMessengerAndReceiver::Initialize() {
 //   <TRestMessengerAndReceiver name="Messager" title="Example" verboseLevel="info"
 //     messageSource="outputfile" token="116027" mode="auto"/>
 void TRestMessengerAndReceiver::InitFromConfigFile() {
-    fRun = fHostmgr != NULL ? fHostmgr->GetRunInfo() : NULL;
+    fRun = fHostmgr != nullptr ? fHostmgr->GetRunInfo() : NULL;
     string modestr = GetParameter("mode", "twoway");
     if (ToUpper(modestr) == "HOST") {
         fMode = MessagePool_Host;
@@ -168,7 +168,7 @@ void TRestMessengerAndReceiver::InitFromConfigFile() {
     }
 
     messagepool_t* message = (messagepool_t*)shmat(shmid, NULL, 0);
-    if (message == NULL) {
+    if (message == nullptr) {
         printf("shmat error\n");
         return;
     }
@@ -195,7 +195,7 @@ void TRestMessengerAndReceiver::InitFromConfigFile() {
 
 bool TRestMessengerAndReceiver::lock(messagepool_t* pool, int timeoutMs) {
     int i = 0;
-    while (pool->owner != NULL && pool->owner != (void*)this) {
+    while (pool->owner != nullptr && pool->owner != (void*)this) {
         usleep(1000);
         i++;
         if (i >= timeoutMs) {
@@ -210,7 +210,7 @@ bool TRestMessengerAndReceiver::lock(messagepool_t* pool, int timeoutMs) {
 
 bool TRestMessengerAndReceiver::unlock(messagepool_t* pool, int timeoutMs) {
     int i = 0;
-    while (pool->owner != NULL && pool->owner != (void*)this) {
+    while (pool->owner != nullptr && pool->owner != (void*)this) {
         usleep(1000);
         i++;
         if (i >= timeoutMs) {
@@ -219,7 +219,7 @@ bool TRestMessengerAndReceiver::unlock(messagepool_t* pool, int timeoutMs) {
         }
     }
 
-    pool->owner = NULL;
+    pool->owner = nullptr;
 
     return true;
 }
@@ -269,7 +269,7 @@ void TRestMessengerAndReceiver::SendMessage(string message) {
 
     if (message == "") {
         if (ToUpper(fPoolSource) == "OUTPUTFILE") {
-            if (fRun != NULL) {
+            if (fRun != nullptr) {
                 message = fRun->GetOutputFileName();
             }
         } else if (ToUpper(fPoolSource) == "TIME") {
