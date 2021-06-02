@@ -6,35 +6,17 @@ The Git system is an efficient way to track changes to the code in the repositor
 The history of the code repository will be digested into **commits**. Being a commit a minimum change to
 the code of the repository. Usually involving **no more than 2-3 files**. 
 
-The code can be independently developed into **branches** where we add *commits*. The main branch or 
-**master branch** is the branch where we should finally merge the definitive changes of any parallel **development branch**.
+The code can be independently developed into **branches** where we add *commits*.
+For details on branches usage refer to the [branches section](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell) at the Git documentation.
 
 You may refer to the [Git website](https://git-scm.com/book/en/v2/Getting-Started-Git-Basics) for details on basic git usage. See also basic [CERN Gitlab tutorials](https://gitlab.cern.ch/help/gitlab-basics/README.md).
 
 ### Using branches in REST repository
 
-A branch can be contributed by several users at the same time. The REST repository will contain at 
-least **one main `development` branch** that can be contributed by anyone with developer access (while 
-any user can create his own branch for personal testing and/or future merging to the *development branch*).
-
-You can place yourself in the development branch by updating your local repository index `git fetch` and using `git checkout`
-
-```
-git fetch
-git checkout development
-```
-
-Use `git status` at any time in the command line to get information of the **branch name** you are working on,
-and the files you have modified.
-
-The *development* branch is intended for obvious bug fixes or marked as minor issue. It is recommended that new contributions and functionalities added to REST have been previously discussed in [the forum](https://ezpc10.unizar.es/).
-
-Major contributions or experimental updates should be placed in independent branches. User or dedicated branches that we name here`experimental` branches. 
-While the *development* branch will be merged to master in the short term, experimental branches might not be finally merged to master, and are in principle considered temporary branches that might be removed at any time once they got stalled.
-Therefore, small changes to the code, i.e. bug fixes, new class methods, new processes, etc, can be directly pushed to the `development branch`.
-While major changes taking place in longer development periods, i.e. days or weeks, should be contributed in an independent branch for future merge to the **main development branch**.
-
-For details on branches usage refer to the [branches section](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell) at the Git documentation.
+A branch may be contributed by several users at the same time. The main branch or 
+**master branch** is the branch where we should finally merge the definitive changes after peer review.
+Development will happen at a different branch, and once the changes need the intervention and review from other developers, a pull-request will be created, so that the changes are reviewed and eventually merged to **master**.
+It is recommended that new contributions and functionalities added to REST have been previously discussed in [the forum](https://rest-forum.unizar.es/) or at GitHub teams.
 
 ### Documenting new methods or classes added to the repository
 
@@ -48,7 +30,7 @@ TODO : Explain how pipeline validation tests should be implemented
 
 TODO : describe how changes should be discussed at REST forum. Bug report, report on changes, encourage discussion, user support, etc. Not defined yet.
 
-### Adding a new commit to the development branch
+### Advices when adding a new commit to your development branch
 
 It is critical to prepare the **commit** following a few basic rules in order to allow future code review and track
 historical changes that may produce a future conflict identified much later on in time.
