@@ -91,6 +91,8 @@ std::string TrimAndLower(std::string s);
 string DataMemberNameToParameterName(string name);
 string ParameterNameToDataMemberName(string name);
 
+TF1* ExtractTF1FromString(std::string func, double init, double end);
+
 };  // namespace REST_StringHelper
 using namespace REST_StringHelper;
 

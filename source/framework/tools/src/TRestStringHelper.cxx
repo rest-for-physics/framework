@@ -1,4 +1,4 @@
-ï»¿#include "TRestStringHelper.h"
+#include "TRestStringHelper.h"
 
 #include <thread>
 
@@ -605,10 +605,10 @@ std::string REST_StringHelper::TrimAndLower(std::string s) {
 ///////////////////////////////////////////////
 /// \brief Convert data member name to parameter name, following REST parameter naming convention.
 ///
-/// > The name of class data member, if starts from â€œfâ€ and have the second character in
+/// > The name of class data member, if starts from “f” and have the second character in
 /// capital form, will be linked to a parameter. The linked parameter will strip the first
-/// â€œfâ€ and have the first letter in lowercase. For example, data member â€œfTargetNameâ€ is
-/// linked to parameter â€œtargetNameâ€.
+/// “f” and have the first letter in lowercase. For example, data member “fTargetName” is
+/// linked to parameter “targetName”.
 string REST_StringHelper::DataMemberNameToParameterName(string name) {
     if (name == "") {
         return "";
@@ -623,10 +623,10 @@ string REST_StringHelper::DataMemberNameToParameterName(string name) {
 ///////////////////////////////////////////////
 /// \brief Convert parameter name to datamember name, following REST parameter naming convention.
 ///
-/// > The name of class data member, if starts from â€œfâ€ and have the second character in
+/// > The name of class data member, if starts from “f” and have the second character in
 /// capital form, will be linked to a parameter. The linked parameter will strip the first
-/// â€œfâ€ and have the first letter in lowercase. For example, data member â€œfTargetNameâ€ is
-/// linked to parameter â€œtargetNameâ€.
+/// “f” and have the first letter in lowercase. For example, data member “fTargetName” is
+/// linked to parameter “targetName”.
 string REST_StringHelper::ParameterNameToDataMemberName(string name) {
     if (name == "") {
         return "";
@@ -636,6 +636,72 @@ string REST_StringHelper::ParameterNameToDataMemberName(string name) {
     } else {
         return "";
     }
+}
+
+/////////////////////////////////////////////
+/// \brief Reads fuction with parameter options from strig and returns it as TF1*. 
+///
+/// > Function as string following ROOT::TFormula conventions for parameters. 
+/// They are defined between square braquets and allow initial values, fixed values and ranges. 
+/// This has been created for fitting functions, where each parameter has its own restrictions.
+/// Examples: 
+/// -- Initial value: [0=3.5]
+/// -- Fixed value: [0==3.5]
+/// -- Range: [0=3.5(1,5)] The parameter 0 begin at 3.5 and it can move between 1 and 5.
+/// All parameters should be initialized.
+///
+/// Input: String with function and parameter options.
+///        Two doubles with the range of the function.
+/// Output: TF1* with the interprested fuction. It contains all restrictions, ranges, etc.
+
+TF1* REST_StringHelper::ExtractTF1FromString(std::string func, double init, double end) {
+    string tf1 = func;
+    // Number of parameters
+    size_t n = std::count(func.begin(), func.end(), '[');
+    // Reading options 
+    int a = 0;
+    int optPos[n];
+    std::vector<std::string> options (n); // Vector of strings of any size.
+    for(int i = 0; i < n; i++){
+        optPos[i]=func.find("[", a); 
+        options[i]=func.substr(func.find("[", a)+1, func.find("]", func.find("[", a))-func.find("[", a)-1 ); 
+        a = func.find("[", a) + 1;
+    }
+    // Removing options from function string
+    for(int i = 0; i < n; i++){tf1.replace(optPos[n-1-i]+1, (func.find("]", optPos[n-1-i])-optPos[n-1-i]-1), std::string(1, func[optPos[n-1-i]+1]) );}
+    
+    // Function
+    TF1* f = new TF1("f",tf1c,init,end);
+    
+    // Initial conditions
+    for(int i=0; i < n; i++){
+        if(options[i].find("=") != std::string::npos){
+            string op = options[i].substr(options[i].find_last_of("=")+1, options[i].find("(")-options[i].find_last_of("=")-1 ); 
+            if(isANumber(op)){f->SetParameter(i, stod(op));}
+            else{cout << "Initial condition for parameter " << i << " is not a number: " << op << endl;}
+        }
+        else{cout << "No initial condition given for parameter " << i << "!" << endl;}
+    }
+    
+    // Fixed values
+    for(int i=0; i < n; i++){
+        if( std::count(options[i].begin(), options[i].end(), '=') == 2){
+            string op = options[i].substr(options[i].find_last_of("=")+1, options[i].find("(")-options[i].find_last_of("=")-1 ); 
+            if(isANumber(op)){f->FixParameter(i, stod(op));}
+            //cout << "Parameter " << i << " fixed with value " << op << endl; 
+        }
+    }
+    
+    // Ranges
+    for(int i=0; i < n; i++){
+        if(options[i].find("(") != std::string::npos){
+            string op = options[i].substr(options[i].find("(")+1, options[i].find(")")-options[i].find("(")-1 ); 
+            f->SetParLimits(i, stod(op.substr(0, op.find(","))), stod(op.substr(op.find(",")+1, op.size()-1-op.find(",") )) );
+            //cout << "Parameter " << i << " range " << "(" << stod(op.substr(0, op.find(","))) << "," << stod(op.substr(op.find(",")+1, op.size()-1-op.find(",") )) << ")" << endl; 
+        }
+    }
+    
+    return f;
 }
 
 #ifdef WIN32
