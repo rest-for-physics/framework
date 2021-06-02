@@ -27,6 +27,7 @@ debug = 0
 force = 0
 dontask = 0
 clean = 0
+fbName = ""
 
 exclude_elems = ""
 for x in range(narg - 1):
@@ -36,9 +37,11 @@ for x in range(narg - 1):
     if (sys.argv[x + 1] == "--sjtu"):
         sjtu = 1
         print("Adding submodules from sjtu repositories. You may be asked to enter password for it.")
-    if (sys.argv[x + 1] == "--latest"):
-        latest = 1
-        print("Pulling latest submodules from their git repository, instead of the version recorded by REST. This may cause the submodules to be uncompilable.")
+    if ( sys.argv[x + 1].find("--latest") >= 0 ):
+        if( sys.argv[x + 1].find("--latest:") >= 0 ):
+            latest = 1
+            fbName = sys.argv[x + 1][9:]
+            print("Pulling latest submodules from their git repository, instead of the version recorded by REST. This may cause the submodules to be uncompilable.")
     if (sys.argv[x + 1] == "--debug"):
         debug = 1
     if (sys.argv[x + 1] == "--dontask"):
@@ -50,9 +53,6 @@ for x in range(narg - 1):
         clean = 1
     if (sys.argv[x + 1].find("--exclude:")>=0 ):
         exclude_elems = sys.argv[x + 1][10:].split(",")
-
-
-
 
 def main():
 # The following command may fail
@@ -66,6 +66,13 @@ def main():
 
    if( force ):
       print("Force pulling submodules.")
+
+   if( fbName == "" ):
+       bNamePcs = subprocess.run('git rev-parse --abbrev-ref HEAD', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+       frameworkBranchName = bNamePcs.stdout.decode("utf-8").rstrip("\n")
+   else:
+       frameworkBranchName = fbName
+   print( "Framework branch name: " + frameworkBranchName )
 
 # In case the above command failed, also go through all submodules and update
 # them individually
@@ -142,7 +149,14 @@ def main():
                          # if latest, pull the latest commit instead of the one
                          # recorded in the main repo
                          if latest == 1:
-                             p = subprocess.run('cd {}/{} && git pull --tags origin master'.format(root, submodule), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                             command = 'git ls-remote --heads ' + url + ' ' + frameworkBranchName + ' | wc -l'
+                             branchExistsPcs = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+                             branchToPull = "master"
+                             if( branchExistsPcs.stdout.decode("utf-8").rstrip("\n") != "0"):
+                                 branchToPull = frameworkBranchName
+ 
+                             p = subprocess.run('cd {}/{} && git pull --tags origin {}'.format(root, submodule, branchToPull), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                              if(debug):
                                  print (p.stdout.decode("utf-8"))
                                  print (p.stderr.decode("utf-8"))
