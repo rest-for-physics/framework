@@ -671,6 +671,7 @@ TF1* REST_StringHelper::ExtractTF1FromString(std::string func, double init, doub
     for(int i = 0; i < n; i++){tf1.replace(optPos[n-1-i]+1, (func.find("]", optPos[n-1-i])-optPos[n-1-i]-1), std::string(1, func[optPos[n-1-i]+1]) );}
     
     // Function
+    const char * tf1c = tf1.c_str();
     TF1* f = new TF1("f",tf1c,init,end);
     
     // Initial conditions

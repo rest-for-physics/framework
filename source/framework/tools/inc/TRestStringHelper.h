@@ -4,6 +4,7 @@
 #pragma once
 
 #include <TFormula.h>
+#include <TF1.h>
 #include <TVector2.h>
 #include <TVector3.h>
 #include <stdio.h>
