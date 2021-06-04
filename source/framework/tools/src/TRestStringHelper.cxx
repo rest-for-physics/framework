@@ -605,10 +605,10 @@ std::string REST_StringHelper::TrimAndLower(std::string s) {
 ///////////////////////////////////////////////
 /// \brief Convert data member name to parameter name, following REST parameter naming convention.
 ///
-/// > The name of class data member, if starts from “f” and have the second character in
+/// > The name of class data member, if starts from Â“fÂ” and have the second character in
 /// capital form, will be linked to a parameter. The linked parameter will strip the first
-/// “f” and have the first letter in lowercase. For example, data member “fTargetName” is
-/// linked to parameter “targetName”.
+/// Â“fÂ” and have the first letter in lowercase. For example, data member Â“fTargetNameÂ” is
+/// linked to parameter Â“targetNameÂ”.
 string REST_StringHelper::DataMemberNameToParameterName(string name) {
     if (name == "") {
         return "";
@@ -623,10 +623,10 @@ string REST_StringHelper::DataMemberNameToParameterName(string name) {
 ///////////////////////////////////////////////
 /// \brief Convert parameter name to datamember name, following REST parameter naming convention.
 ///
-/// > The name of class data member, if starts from “f” and have the second character in
+/// > The name of class data member, if starts from Â“fÂ” and have the second character in
 /// capital form, will be linked to a parameter. The linked parameter will strip the first
-/// “f” and have the first letter in lowercase. For example, data member “fTargetName” is
-/// linked to parameter “targetName”.
+/// Â“fÂ” and have the first letter in lowercase. For example, data member Â“fTargetNameÂ” is
+/// linked to parameter Â“targetNameÂ”.
 string REST_StringHelper::ParameterNameToDataMemberName(string name) {
     if (name == "") {
         return "";
@@ -642,7 +642,7 @@ string REST_StringHelper::ParameterNameToDataMemberName(string name) {
 /// \brief Reads fuction with parameter options from strig and returns it as TF1*. 
 ///
 /// > Function as string following ROOT::TFormula conventions for parameters. 
-/// They are defined between square braquets and allow initial values, fixed values and ranges. 
+/// They are defined between square brackets and allow initial values, fixed values and ranges. 
 /// This has been created for fitting functions, where each parameter has its own restrictions.
 /// Examples: 
 /// -- Initial value: [0=3.5]
@@ -652,7 +652,7 @@ string REST_StringHelper::ParameterNameToDataMemberName(string name) {
 ///
 /// Input: String with function and parameter options.
 ///        Two doubles with the range of the function.
-/// Output: TF1* with the interprested fuction. It contains all restrictions, ranges, etc.
+/// Output: TF1* with the interpreted fuction. It contains all restrictions, ranges, etc.
 
 TF1* REST_StringHelper::ExtractTF1FromString(std::string func, double init, double end) {
     string tf1 = func;
