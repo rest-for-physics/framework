@@ -552,7 +552,7 @@ void TRestMesh::AddNode(Double_t x, Double_t y, Double_t z, Double_t en) {
 /// \brief If adds corresponding node to xyz-coordinates if not previously defined
 ///
 void TRestMesh::AddSphericalNode(Double_t r, Double_t theta, Double_t phi, Double_t en) {
-    TVector3 v;
+    TVector3 v(1, 0, 0);
     v.SetMag(r);
     v.SetTheta(theta);
     v.SetPhi(phi);
