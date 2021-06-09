@@ -157,45 +157,39 @@ int TRestReflector::InitDictionary() {
         }
     }
 
-    if (type == "" || size == 0 || (cl == 0 && !is_data_type)) {
+    if (type == "" || size == 0 || cl == nullptr) {
         cout << "Error in CreateDictionary: object is zombie!" << endl;
         return -1;
     }
 
-    if (1) {
-        int pos = ((string)type).find("<");
+    int pos = ((string)type).find("<");
 
-        string basetype = ((string)type).substr(0, pos);
-        vector<string> stltypes{"vector", "list", "map", "set", "array", "deque"};
-        bool flag = false;
-        for (auto stltype : stltypes) {
-            if (basetype == stltype) {
-                flag = true;
-            }
+    string basetype = ((string)type).substr(0, pos);
+    vector<string> stltypes{"vector", "list", "map", "set", "array", "deque"};
+    bool flag = false;
+    for (auto stltype : stltypes) {
+        if (basetype == stltype) {
+            flag = true;
         }
-        if (!flag) {
-            cout << "Error in CreateDictionary: unknown type \"" << type << "\"" << endl;
-            return -1;
-        }
+    }
+    if (!flag) {
+        cout << "Error in CreateDictionary: unknown type \"" << type << "\"" << endl;
+        return -1;
+    }
 
-        string typeformatted = Replace(type, ">", "_");
-        typeformatted = Replace(typeformatted, "<", "_");
-        typeformatted = Replace(typeformatted, ",", "_");
-        typeformatted = RemoveWhiteSpaces(typeformatted);
+    string typeformatted = Replace(type, ">", "_");
+    typeformatted = Replace(typeformatted, "<", "_");
+    typeformatted = Replace(typeformatted, ",", "_");
+    typeformatted = RemoveWhiteSpaces(typeformatted);
 
-        string sofilename = REST_USER_PATH + (string) "/AddonDict/Dict_" + typeformatted + ".so";
+    string sofilename = REST_USER_PATH + (string) "/AddonDict/Dict_" + typeformatted + ".so";
 
-        // we directly load the dictionary if it exists
-        if (TRestTools::fileExists(sofilename)) {
-            cout << "Loading external dictionary for: \"" << type << "\":" << endl;
-            cout << sofilename << endl;
-            gSystem->Load(sofilename.c_str());
-            RESTListOfClasses_typeid.clear();
-            RESTListOfClasses_typename.clear();
-            cl = GetClassQuick(type);  // reset the TClass after loading external library.
-            return 0;
-        }
+    // we directly load the dictionary if it exists
+    if (TRestTools::fileExists(sofilename)) {
+        cout << "Loading external dictionary for: \"" << type << "\":" << endl;
+        cout << sofilename << endl;
 
+    } else {
         // we create a new library of dictionary for that type
         if (!TRestTools::isPathWritable(REST_USER_PATH)) {
             cout << "Error in CreateDictionary: cannot create dictionary, path not writeable!" << endl;
@@ -248,13 +242,13 @@ int TRestReflector::InitDictionary() {
             cout << "gcc failed to generate library for the dictionary" << endl;
             return -1;
         }
-
-        gSystem->Load(Form("%s", sofilename.c_str()));
-        RESTListOfClasses_typeid.clear();
-        RESTListOfClasses_typename.clear();
-        cl = GetClassQuick(type);  // reset the TClass after loading external library.
     }
 
+    gSystem->Load(sofilename.c_str());
+    RESTListOfClasses_typeid.clear();
+    RESTListOfClasses_typename.clear();
+    cl = GetClassQuick(type);      // reset the TClass after loading external library.
+    typeinfo = cl->GetTypeInfo();  // update the typeinfo
     return 0;
 }
 
@@ -362,7 +356,7 @@ vector<string> TRestReflector::GetListOfDataMembers() {
         if (type == "BASE") {
             char* addr = address + ele->GetOffset();
             type = ele->GetClass()->GetName();
-            
+
             auto baseDataMembers = TRestReflector(addr, type).GetListOfDataMembers();
             dataMembers.insert(dataMembers.end(), baseDataMembers.begin(), baseDataMembers.end());
         }
