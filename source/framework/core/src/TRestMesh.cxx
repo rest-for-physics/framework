@@ -132,7 +132,7 @@ TVector3 TRestMesh::GetPosition(Int_t nX, Int_t nY, Int_t nZ) {
         Double_t theta = (TMath::Pi() / (fNodesY - 1)) * nY;
         Double_t phi = (2 * TMath::Pi() / (fNodesY - 1)) * nZ - TMath::Pi();
 
-        TVector3 v;
+        TVector3 v = TVector3(1, 0, 0);
         v.SetMag(r);
         v.SetTheta(theta);
         v.SetPhi(phi);
