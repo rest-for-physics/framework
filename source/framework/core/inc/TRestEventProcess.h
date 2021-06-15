@@ -47,7 +47,15 @@ class TRestEventProcess : public TRestMetadata {
     TRestEvent* fInputEvent = nullptr;  //!
     ///< not used, keep for compatibility
     TRestEvent* fOutputEvent = nullptr;  //!
+    /// not used, keep for compatibility
+    REST_Process_Output fOutputLevel;  //!/// not used
 
+    /// Stores a list of friendly processes. Sometimes the process may behave differently
+    /// according to the friend processes added. It can also get parameter or output event
+    /// from friend processes
+    vector<TRestEventProcess*> fFriendlyProcesses;  //!
+    /// Stores a list of parallel processes if multithread is enabled
+    vector<TRestEventProcess*> fParallelProcesses;  //!
    protected:
     ///< Canvas for some viewer event
     TCanvas* fCanvas = nullptr;  //!
@@ -77,18 +85,8 @@ class TRestEventProcess : public TRestMetadata {
     map<string, int> fObservablesUpdated;  //!     [name, id in AnalysisTree]
     /// Stores the list of all the appeared process observables in the code
     map<string, int> fObservablesDefined;  //!     [name, id in AnalysisTree]
-
-   private:
-    /// not used, keep for compatibility
-    REST_Process_Output fOutputLevel;  //!/// not used
-
-   protected:
     /// Stores cut definitions. Any listed observables should be in the range.
     vector<pair<string, TVector2>> fCuts;  //!  [name, cut range]
-    /// Stores a list of friendly processes. Sometimes the process may behave differently
-    /// according to the friend processes added. It can also get parameter or output event
-    /// from friend processes
-    vector<TRestEventProcess*> fFriendlyProcesses;  //!
 
     // utils
     void BeginPrintProcess();
@@ -97,7 +95,7 @@ class TRestEventProcess : public TRestMetadata {
     /// \brief Get a metadata object from the host TRestRun
     ///
     /// Directly input the type as template argument. This helps to simplify the code and prevents
-    /// mis-spelling. For example: `fReadout = GetMetadata<TRestDetectorReadout>();`. No need for type
+    /// mis-spelling. For example: `fReadout = GetMetadata<TRestReadout>();`. No need for type
     /// conversion.
     template <class T>
     T* GetMetadata() {
@@ -107,7 +105,8 @@ class TRestEventProcess : public TRestMetadata {
     TRestMetadata* GetMetadata(string nameortype);
     TRestEventProcess* GetFriend(string nameortype);
     TRestEventProcess* GetFriendLive(string nameortype);
-
+    int GetNumberOfParallelProcesses() { return fParallelProcesses.size(); }
+    TRestEventProcess* GetParallel(int i);
     //////////////////////////////////////////////////////////////////////////
     /// \brief Set observable value for analysistree.
     ///
@@ -166,20 +165,14 @@ class TRestEventProcess : public TRestMetadata {
 
    public:
     Int_t LoadSectionMetadata();
-
-    virtual void InitFromConfigFile() {
-        std::map<string, string> params = GetParametersList();
-
-        for (auto it = params.begin(); it != params.end(); it++) {
-            it->second = fRunInfo->ReplaceMetadataMembers(it->second);
-            it->second = ReplaceMathematicalExpressions(it->second);
-        }
-
-        ReadParametersList(params);
-    }
-
+    virtual void InitFromConfigFile() { ReadAllParameters(); }
     vector<string> ReadObservables();
+    // open a list of input files to be processed, only used if is external process
     virtual Bool_t OpenInputFiles(vector<string> files);
+    // add an input file during process
+    virtual Bool_t AddInputFile(string file) { return false; }
+    // reset the entry by moving file ptr to 0 with fseek
+    virtual Bool_t ResetEntry() { return false; }
 
     void SetObservableValidation(bool validate) { fValidateObservables = validate; }
     // void EnableObservableValidation() { fValidateObservables = true; }
@@ -206,6 +199,8 @@ class TRestEventProcess : public TRestMetadata {
     void SetCanvasSize(Int_t x, Int_t y) { fCanvasSize = TVector2(x, y); }
     /// Add friendly process to this process
     void SetFriendProcess(TRestEventProcess* p);
+    /// Add parallel process to this process
+    void SetParallelProcess(TRestEventProcess* p);
 
     // getters
     /// Get pointer to input event. Must be implemented in the derived class
