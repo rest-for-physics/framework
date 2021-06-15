@@ -32,6 +32,8 @@
 #include "TRestManager.h"
 #include "TRestVersion.h"
 
+std::mutex mutex2;
+
 ClassImp(TRestRun);
 
 TRestRun::TRestRun() { Initialize(); }
@@ -193,7 +195,6 @@ void TRestRun::InitFromConfigFile() {
 
     // 3. Construct output file name
     string outputdir = (string)GetDataPath();
-    if (outputdir == "") outputdir = ".";
     string outputname = GetParameter("outputFileName", "default");
     string outputnameold = GetParameter("outputFile", "default");
     if (outputnameold != "default") {
@@ -211,7 +212,7 @@ void TRestRun::InitFromConfigFile() {
         char runNumberStr[256];
         sprintf(runNumberStr, "%05d", fRunNumber);
 
-        fOutputFileName = outputdir + "/Run_" + expName + "_" + fRunUser + "_" + runType + "_" + fRunTag +
+        fOutputFileName = outputdir + "Run_" + expName + "_" + fRunUser + "_" + runType + "_" + fRunTag +
                           "_" + (TString)runNumberStr + "_" + (TString)runParentStr + "_V" + REST_RELEASE +
                           ".root";
 
@@ -219,7 +220,7 @@ void TRestRun::InitFromConfigFile() {
         while (!fOverwrite && TRestTools::fileExists((string)fOutputFileName)) {
             fParentRunNumber++;
             sprintf(runParentStr, "%05d", fParentRunNumber);
-            fOutputFileName = outputdir + "/Run_" + expName + "_" + fRunUser + "_" + runType + "_" + fRunTag +
+            fOutputFileName = outputdir + "Run_" + expName + "_" + fRunUser + "_" + runType + "_" + fRunTag +
                               "_" + (TString)runNumberStr + "_" + (TString)runParentStr + "_V" +
                               REST_RELEASE + ".root";
         }
@@ -243,7 +244,16 @@ void TRestRun::InitFromConfigFile() {
         exit(1);
     }
 
-    // 4. Loop over sections to initialize metadata
+    // 4. Open input file(s)
+    OpenInputFile(0);
+    debug << "TRestRun::EndOfInit. InputFile pattern: \"" << fInputFileName << "\"" << endl;
+    info << "which matches :" << endl;
+    for (int i = 0; i < fInputFileNames.size(); i++) {
+        info << fInputFileNames[i] << endl;
+    }
+    essential << "(" << fInputFileNames.size() << " added files)" << endl;
+
+    // 5. Loop over sections to initialize metadata
     TiXmlElement* e = fElement->FirstChildElement();
     while (e != nullptr) {
         string keydeclare = e->Value();
@@ -293,22 +303,17 @@ void TRestRun::InitFromConfigFile() {
             //}
 
             TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
+            if (meta == nullptr) {
+                warning << "failed to add metadata \"" << keydeclare << "\"" << endl;
+                e = e->NextSiblingElement();
+                continue;
+            }
             meta->SetHostmgr(fHostmgr);
             fMetadata.push_back(meta);
             meta->LoadConfigFromElement(e, fElementGlobal);
         }
         e = e->NextSiblingElement();
     }
-
-    // 5. Open input file(s). We open input file at the last stage in case the file name pattern
-    // reading requires TRestDetector
-    OpenInputFile(0);
-    debug << "TRestRun::EndOfInit. InputFile pattern: \"" << fInputFileName << "\"" << endl;
-    info << "which matches :" << endl;
-    for (int i = 0; i < fInputFileNames.size(); i++) {
-        info << fInputFileNames[i] << endl;
-    }
-    essential << "(" << fInputFileNames.size() << " added files)" << endl;
 }
 
 ///////////////////////////////////////////////
@@ -441,6 +446,18 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
         info << "Input file is not REST root file, an external process is needed!" << endl;
 }
 
+void TRestRun::AddInputFileExternal(string file) {
+    mutex2.lock();
+    if (fFileProcess != nullptr) {
+        bool add = fFileProcess->AddInputFile(file);
+        if (add == false) {
+            ferr << "failed to add input file!" << endl;
+        }
+        fInputFileNames.push_back(file);
+    }
+    mutex2.unlock();
+}
+
 void TRestRun::ReadInputFileMetadata() {
     TFile* f = fInputFile;
     if (f != nullptr) {
@@ -519,7 +536,7 @@ void TRestRun::ReadInputFileTrees() {
                     break;
                 }
             }
-            // if(Tree2!=NULL)
+            // if(Tree2!=nullptr)
             //	fAnalysisTree->SetEntries(Tree2->GetEntries());
             debug << "Old REST file successfully recovered!" << endl;
         } else {
@@ -604,7 +621,7 @@ void TRestRun::ReadFileInfo(string filename) {
     // run[fRunNumber]_cobo[aaa]_frag[bbb]_Vm[TRestDetector::fAmplificationVoltage].graw
     // we are going to match it with inputfile:
     // run00042_cobo1_frag0000_Vm350.graw
-    string format = (string)fInputFormat;
+    string format = GetParameter("inputFormat", "");
     string name = TRestTools::SeparatePathAndName(filename).second;
 
     vector<string> formatsectionlist;
@@ -697,7 +714,7 @@ void TRestRun::ReadFileInfo(string filename) {
 
         pos = pos2 - 1;
     }
-}
+    }
 
 ///////////////////////////////////////////////
 /// \brief Reset file reading progress.
@@ -708,8 +725,7 @@ void TRestRun::ReadFileInfo(string filename) {
 void TRestRun::ResetEntry() {
     fCurrentEvent = 0;
     if (fFileProcess != nullptr) {
-        fFileProcess->OpenInputFiles(Vector_cast<TString, string>(fInputFileNames));
-        fFileProcess->InitProcess();
+        fFileProcess->ResetEntry();
     }
 }
 
@@ -722,11 +738,17 @@ void TRestRun::ResetEntry() {
 /// writing observable data into target analysistree calls memcpy
 /// It requires same branch structure, but we didn't verify it here.
 Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettree) {
+    bool messageShown = false;
+    TRestEvent* eve = fInputEvent;
+
     if (fFileProcess != nullptr) {
         debug << "TRestRun: getting next event from external process" << endl;
+    GetEventExt:
+        mutex2.lock();
         fFileProcess->BeginOfEventProcess();
-        fInputEvent = fFileProcess->ProcessEvent(NULL);
+        eve = fFileProcess->ProcessEvent(nullptr);
         fFileProcess->EndOfEventProcess();
+        mutex2.unlock();
         fBytesReaded = fFileProcess->GetTotalBytesReaded();
         if (targettree != nullptr) {
             for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
@@ -737,9 +759,9 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
         debug << "TRestRun: getting next event from root file" << endl;
         if (fAnalysisTree != nullptr) {
             if (fCurrentEvent >= fAnalysisTree->GetEntriesFast()) {
-                fInputEvent = nullptr;
+                eve = nullptr;
             } else {
-                fInputEvent->Initialize();
+                eve->Initialize();
                 fBytesReaded += fAnalysisTree->GetEntry(fCurrentEvent);
                 if (targettree != nullptr) {
                     for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
@@ -758,14 +780,30 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
             warning << "error to get event from input file, missing file process or "
                        "analysis tree"
                     << endl;
-            fInputEvent = nullptr;
+            eve = nullptr;
         }
     }
 
-    if (fInputEvent == nullptr) {
+    // cout << fHangUpEndFile << endl;
+
+    if (eve == nullptr) {
+        if (fHangUpEndFile && fFileProcess != nullptr) {
+            // if hangup is set, we continue calling ProcessEvent() of the
+            // external process, until there is non-null event yielded
+            if (!messageShown) {
+                essential << "external process file reading reaches end, waiting for more files" << endl;
+            }
+            sleep(1);
+            messageShown = true;
+            fCurrentEvent--;
+            goto GetEventExt;
+        }
+        fInputEvent = eve;
         if (fFileProcess != nullptr) fFileProcess->EndProcess();
         return -1;
     }
+
+    fInputEvent = eve;
 
     if (fInputEvent->GetID() == 0 && fInputEvent->GetSubID() == 0) {
         fInputEvent->SetID(fCurrentEvent - 1);
@@ -786,7 +824,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 /// proc info list is created by TRestProcessRunner::ReadProcInfo(),
 /// the run data is from TRestRun's datamember(fRunNumber,fRunType, etc)
 /// e.g. we can set output file name like:
-/// \code Run[fRunNumber]_T[Date]_[Time]_Proc_[LastProcess].root \endcode
+/// \code Run[fRunNumber]_Proc_[LastProcess].root \endcode
 /// and generates:
 /// \code Run00000_T2018-01-01_08:00:00_Proc_sAna.root \endcode
 TString TRestRun::FormFormat(TString FilenameFormat) {
@@ -922,7 +960,7 @@ TFile* TRestRun::UpdateOutputFile() {
     } else {
         ferr << "TRestRun::UpdateOutputFile(): output file is closed" << endl;
     }
-    return NULL;
+    return nullptr;
 }
 
 ///////////////////////////////////////////////
@@ -992,7 +1030,7 @@ void TRestRun::WriteWithDataBase() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Close both input file and output file, setting trees to NULL also.
+/// \brief Close both input file and output file, setting trees to nullptr also.
 ///
 void TRestRun::CloseFile() {
     fEntriesSaved = -1;
@@ -1088,7 +1126,7 @@ void TRestRun::SetInputEvent(TRestEvent* eve) {
             //	TBranch *br = (TBranch*)branches->At(fEventBranchLoc);
             //	br->SetAddress(0);
             //}
-            if (fInputEvent != nullptr){
+            if (fInputEvent != nullptr) {
                 fEventTree->SetBranchAddress((TString)fInputEvent->ClassName() + "Branch", 0);
                 fEventTree->SetBranchStatus((TString)fInputEvent->ClassName() + "Branch", false);
             }
@@ -1099,10 +1137,10 @@ void TRestRun::SetInputEvent(TRestEvent* eve) {
                 if ((string)br->GetName() == brname) {
                     debug << "Setting input event.. Type: " << eve->ClassName() << " Address: " << eve
                           << endl;
-                    //if (fInputEvent != nullptr && (char*)fInputEvent != (char*)eve) {
+                    // if (fInputEvent != nullptr && (char*)fInputEvent != (char*)eve) {
                     //    delete fInputEvent;
                     //}
-                  
+
                     fInputEvent = eve;
                     fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
                     fEventTree->SetBranchStatus(brname.c_str(), false);
@@ -1201,6 +1239,20 @@ Double_t TRestRun::GetRunLength() {
     return fEndTime - fStartTime;
 }
 
+Long64_t TRestRun::GetTotalBytes() {
+    if (fFileProcess != nullptr) {
+        fTotalBytes = fFileProcess->GetTotalBytes();
+    }
+    return fTotalBytes;
+}
+
+int TRestRun::GetEntries() {
+    if (fAnalysisTree != nullptr) {
+        return fAnalysisTree->GetEntries();
+    }
+    return REST_MAXIMUM_EVENTS;
+}
+
 // Getters
 TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString tag) {
     if (fAnalysisTree != nullptr) {
@@ -1229,7 +1281,7 @@ TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString ta
         // reset the branch status
         fAnalysisTree->SetBranchStatus("*", true);
     }
-    return NULL;
+    return nullptr;
 }
 
 std::vector<int> TRestRun::GetEventEntriesWithConditions(const string cuts, int startingIndex,
@@ -1378,6 +1430,13 @@ string TRestRun::GetRunInformation(string infoname) {
         return result;
     }
 
+    if (fHostmgr->GetProcessRunner() != nullptr) {
+        result = fHostmgr->GetProcessRunner()->GetProcInfo(infoname);
+        if (result != "") {
+            return result;
+        }
+    }
+
     return infoname;
 }
 
@@ -1410,7 +1469,7 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 TRestMetadata* TRestRun::GetMetadata(TString name, TFile* f) {
@@ -1441,7 +1500,7 @@ TRestMetadata* TRestRun::GetMetadata(TString name, TFile* f) {
         //}
     }
 
-    return NULL;
+    return nullptr;
 }
 
 std::vector<std::string> TRestRun::GetMetadataStructureNames() {

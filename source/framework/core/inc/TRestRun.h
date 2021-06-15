@@ -43,7 +43,6 @@ class TRestRun : public TRestMetadata {
     vector<TRestMetadata*> fInputMetadata;  //!
 
     // temp data member
-    TString fInputFormat;              //!
     vector<TString> fInputFileNames;   //!
     TFile* fInputFile;                 //!
     TFile* fOutputFile;                //!
@@ -58,6 +57,7 @@ class TRestRun : public TRestMetadata {
     Long64_t fTotalBytes;              //!
     int fEventBranchLoc;               //!
     int fEventIndexCounter = 0;        //!
+    bool fHangUpEndFile = false;       //!
    public:
     /// REST run class
     void Initialize();
@@ -66,6 +66,7 @@ class TRestRun : public TRestMetadata {
     // file operation
     void OpenInputFile(int i);
     void OpenInputFile(TString filename, string mode = "");
+    void AddInputFileExternal(string file);
     void ReadFileInfo(string filename);
     void ReadInputFileMetadata();
     void ReadInputFileTrees();
@@ -141,13 +142,8 @@ class TRestRun : public TRestMetadata {
     TFile* GetOutputFile() { return fOutputFile; }
     int GetCurrentEntry() { return fCurrentEvent; }
     Long64_t GetBytesReaded() { return fBytesReaded; }
-    Long64_t GetTotalBytes() { return fTotalBytes; }
-    int GetEntries() {
-        if (fAnalysisTree != nullptr) {
-            return fAnalysisTree->GetEntries();
-        }
-        return REST_MAXIMUM_EVENTS;
-    }
+    Long64_t GetTotalBytes();
+    int GetEntries();
 
     TRestEvent* GetInputEvent() { return fInputEvent; }
     TRestEvent* GetEventWithID(Int_t eventID, Int_t subEventID = -1, TString tag = "");
@@ -205,6 +201,8 @@ class TRestRun : public TRestMetadata {
     void SetEndTimeStamp(Double_t tStamp) { fEndTime = tStamp; }
     void SetTotalBytes(Long64_t b) { fTotalBytes = b; }
     void SetHistoricMetadataSaving(bool save) { fSaveHistoricData = save; }
+    void HangUpEndFile() { fHangUpEndFile = true; }
+    void ReleaseEndFile() { fHangUpEndFile = false; }
     // Printers
     void PrintStartDate();
     void PrintEndDate();
@@ -234,7 +232,7 @@ class TRestRun : public TRestMetadata {
 
     Int_t Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 
-    // Constructor & Destructor
+    // Construtor & Destructor
     TRestRun();
     TRestRun(string rootfilename);
     ~TRestRun();
