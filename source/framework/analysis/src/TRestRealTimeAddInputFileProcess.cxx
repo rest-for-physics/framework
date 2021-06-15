@@ -22,8 +22,8 @@
 /////////////////////////////////////////////////////////////////////////
 /// Write the process description Here
 /// 
-/// A process that does nothing to dataflow but starts a server
-/// listening through TRestMessenger metadata interface to get new files to add. 
+/// A process that does nothing to dataflow but starts a server listening through 
+/// TRestMessenger metadata interface to get new files to add to TRestRun. 
 /// 
 /// Once placed in the process chain, it will call TRestRun to hang up at the 
 /// end of external file. Then it will listen through TRestMessenger specific 
@@ -42,14 +42,16 @@
 /// restSendMessage 116027 "7786->/data2/2MM/M1/graw/CoBo_AsAd2_2020-07-13T13:43:13.698_0001.graw"
 /// \endcode
 /// 
-/// This means adding a new file to run 7786. We can see in window 1 the process runs again.
+/// Here 116027 is a token for TRestMessenger connection, defined in the previous rml. 
+/// This command means sending a message to token 116027 poll telling to add a new file 
+/// to run 7786. We can see in window 1 the process runs again. 
 /// Finally in window 2 we input:
 /// 
 /// \code
 /// restSendMessage 116027 "7786->finish"
 /// \endcode
 /// 
-/// We can see the process quit normally after all the files has been processed
+/// We can see from window 1 the process quit normally after all the files has been processed.
 /// 
 /// \class TRestRealTimeAddInputFileProcess
 ///
