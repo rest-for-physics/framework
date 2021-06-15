@@ -253,7 +253,11 @@ class TRestMetadata : public TNamed {
 
     Int_t GetVersionCode();
     /// Returns a string with the path used for data storage
-    TString GetDataPath() { return GetParameter("mainDataPath", ""); }
+    TString GetDataPath() {
+        string dataPath = GetParameter("mainDataPath", "");
+        if (dataPath == "") dataPath = "./";
+        return dataPath;
+    }
 
     /// returns the verboselevel in type of REST_Verbose_Level enumerator
     REST_Verbose_Level GetVerboseLevel() { return fVerboseLevel; }
