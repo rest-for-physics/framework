@@ -20,13 +20,13 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestMessengerAndReceiver
-#define RestCore_TRestMessengerAndReceiver
+#ifndef RestCore_TRestMessenger
+#define RestCore_TRestMessenger
 
 #include "TRestMetadata.h"
 #include "TRestRun.h"
 
-class TRestMessengerAndReceiver : public TRestMetadata {
+class TRestMessenger : public TRestMetadata {
    private:
 /////////////// through shm  //////////////
 #define Nmsg 100
@@ -97,13 +97,13 @@ class TRestMessengerAndReceiver : public TRestMetadata {
 
     virtual void PrintMetadata();
     // Constructor
-    TRestMessengerAndReceiver();
+    TRestMessenger();
     // Constructor
-    TRestMessengerAndReceiver(int token, string mode = "TwoWay");
+    TRestMessenger(int token, string mode = "TwoWay");
     // Destructor
-    ~TRestMessengerAndReceiver();
+    ~TRestMessenger();
 
-    ClassDef(TRestMessengerAndReceiver, 1);  // Template for a REST "event process" class inherited from
+    ClassDef(TRestMessenger, 1);  // Template for a REST "event process" class inherited from
                                              // TRestEventProcess
 };
 #endif

@@ -81,7 +81,7 @@
 ///
 #include "TRestRealTimeDrawingProcess.h"
 
-#include "TRestMessengerAndReceiver.h"
+#include "TRestMessenger.h"
 
 using namespace std;
 
@@ -213,7 +213,7 @@ void TRestRealTimeDrawingProcess::EndProcess() {
 }
 
 void TRestRealTimeDrawingProcess::DrawWithNotification() {
-    auto messager = GetMetadata<TRestMessengerAndReceiver>();
+    auto messager = GetMetadata<TRestMessenger>();
     int runNumber = StringToInteger(GetParameter("runNumber"));
     if (runNumber == -1) {
         ferr << "TRestRealTimeDrawingProcess::DrawWithNotification: runNumber must be given!" << endl;
