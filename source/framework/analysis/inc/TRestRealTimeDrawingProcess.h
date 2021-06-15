@@ -31,13 +31,13 @@
 //! long time while we want to see the result instantly.
 class TRestRealTimeDrawingProcess : public TRestEventProcess {
    private:
-    void Initialize();
-
     /// How many events passed when it starts next drawing
-    Long64_t fDrawInterval;
+    int fDrawInterval;
     /// How many events passed when it starts next drawing
     Int_t fThreadWaitTimeoutMs;
 
+    /// TRestAnalysisPlot object called for drawing
+    static vector<string> fProcessesToDraw;  //!
     /// TRestAnalysisPlot object called for drawing
     static vector<TRestAnalysisPlot*> fPlots;  //!
     /// Last drawn entry of analysis tree
@@ -49,19 +49,24 @@ class TRestRealTimeDrawingProcess : public TRestEventProcess {
     /// The event pointer is not used in this process
     TRestEvent* fEvent = nullptr;  //!
 
+    void InitProcess();
+    void EndProcess();
+
+    void Initialize();
+
    protected:
    public:
     any GetInputEvent() { return fEvent; }
     any GetOutputEvent() { return fEvent; }
 
-    void InitProcess();
     TRestEvent* ProcessEvent(TRestEvent* evInput);
-    void EndProcess();
 
     void PrintMetadata();
 
     /// Returns a new instance of this class
     void DrawWithNotification();
+
+    void DrawOnce();
 
     /// Returns the name of this process
     TString GetProcessName() { return (TString) "realtimedraw"; }
@@ -71,6 +76,6 @@ class TRestRealTimeDrawingProcess : public TRestEventProcess {
     ~TRestRealTimeDrawingProcess();
 
     // If new members are added, removed or modified in this class version number must be increased!
-    ClassDef(TRestRealTimeDrawingProcess, 2);
+    ClassDef(TRestRealTimeDrawingProcess, 3);
 };
 #endif

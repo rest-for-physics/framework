@@ -90,6 +90,7 @@ ClassImp(TRestRealTimeDrawingProcess);
 Long64_t TRestRealTimeDrawingProcess::fLastDrawnEntry = 0;
 map<TRestRealTimeDrawingProcess*, bool> TRestRealTimeDrawingProcess::fPauseResponse;
 bool TRestRealTimeDrawingProcess::fPauseInvoke;
+vector<string> TRestRealTimeDrawingProcess::fProcessesToDraw;
 vector<TRestAnalysisPlot*> TRestRealTimeDrawingProcess::fPlots;
 
 ///////////////////////////////////////////////
@@ -124,8 +125,8 @@ void TRestRealTimeDrawingProcess::InitProcess() {
     // accessible from TRestRun
 
     if (fPlots.size() == 0) {
-        TiXmlElement* ele = fElement->FirstChildElement("TRestAnalysisPlot");
-        while (ele != NULL) {
+        TiXmlElement* ele = GetElement("TRestAnalysisPlot");
+        while (ele != nullptr) {
             TRestAnalysisPlot* plt = new TRestAnalysisPlot();
             plt->SetHostmgr(this->fHostmgr);
             plt->LoadConfigFromElement(ele, fElementGlobal, fVariables);
@@ -133,7 +134,22 @@ void TRestRealTimeDrawingProcess::InitProcess() {
                          (TString)ToString(this));  // to prevent deleting canvas with same name
             fPlots.push_back(plt);
 
-            ele = ele->NextSiblingElement("TRestAnalysisPlot");
+            ele = GetNextElement(ele);
+        }
+    }
+
+    if (fProcessesToDraw.size() == 0) {
+        TiXmlElement* ele = GetElement("ProcessDrawing");
+        while (ele != nullptr) {
+            string proc = GetParameter("processName", ele);
+            if (GetFriendLive(proc) == nullptr) {
+                ferr << "TRestRealTimeDrawingProcess: cannot find process \"" << proc << "\" to call drawing!"
+                     << endl;
+                exit(1);
+            }
+            fProcessesToDraw.push_back(proc);
+
+            ele = GetNextElement(ele);
         }
     }
 }
@@ -183,13 +199,9 @@ TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* evInput) {
 
         // starts drawing
         info << "TRestRealTimeDrawingProcess: drawing..." << endl;
-        Long64_t totalentries = GetFullAnalysisTree()->GetEntries();
-        for (int i = 0; i < fPlots.size(); i++) {
-            fPlots[i]->SetTreeEntryRange(totalentries - fLastDrawnEntry, fLastDrawnEntry);
-            fPlots[i]->PlotCombinedCanvas();
-        }
+        DrawOnce();
 
-        fLastDrawnEntry = totalentries;
+        fLastDrawnEntry = GetFullAnalysisTree()->GetEntries();
         fPauseInvoke = false;
     }
 
@@ -202,13 +214,20 @@ TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* evInput) {
 void TRestRealTimeDrawingProcess::EndProcess() {
     if (fPauseInvoke == false) {
         info << "TRestRealTimeDrawingProcess: end drawing..." << endl;
-        Long64_t totalentries = GetFullAnalysisTree()->GetEntries();
-        for (int i = 0; i < fPlots.size(); i++) {
-            fPlots[i]->SetTreeEntryRange(totalentries - fLastDrawnEntry, fLastDrawnEntry);
-            fPlots[i]->PlotCombinedCanvas();
-        }
+        DrawOnce();
 
         fPauseInvoke = true;
+    }
+}
+
+void TRestRealTimeDrawingProcess::DrawOnce() {
+    Long64_t totalentries = GetFullAnalysisTree()->GetEntries();
+    for (int i = 0; i < fPlots.size(); i++) {
+        fPlots[i]->SetTreeEntryRange(totalentries - fLastDrawnEntry, fLastDrawnEntry);
+        fPlots[i]->PlotCombinedCanvas();
+    }
+    for (int i = 0; i < fProcessesToDraw.size(); i++) {
+        GetFriendLive(fProcessesToDraw[i])->Draw();
     }
 }
 
@@ -248,10 +267,25 @@ void TRestRealTimeDrawingProcess::DrawWithNotification() {
     }
 }
 
+///////////////////////////////////////////////
 /// \brief It prints out the process parameters stored in the
 /// metadata structure
 ///
 void TRestRealTimeDrawingProcess::PrintMetadata() {
     BeginPrintProcess();
+
+    metadata << "Number of AnalysisPlots added: " << fPlots.size() << endl;
+    for (auto p : fPlots) {
+        metadata << p->GetName();
+    }
+    metadata << endl;
+    metadata << "Number of process plots added: " << fProcessesToDraw.size() << endl;
+    for (auto p : fProcessesToDraw) {
+        metadata << p;
+    }
+    metadata << endl;
+    metadata << "Draw interval" << fDrawInterval << endl;
+    metadata << "Waiting time for other thread to stop " << fThreadWaitTimeoutMs << endl;
+
     EndPrintProcess();
 }
