@@ -639,69 +639,100 @@ string REST_StringHelper::ParameterNameToDataMemberName(string name) {
 }
 
 /////////////////////////////////////////////
-/// \brief Reads fuction with parameter options from strig and returns it as TF1*. 
+/// \brief Reads a function with parameter options from string and returns it as TF1*.
 ///
-/// > Function as string following ROOT::TFormula conventions for parameters. 
-/// They are defined between square brackets and allow initial values, fixed values and ranges. 
+/// > The function is defined as a string following ROOT::TFormula conventions for parameters.
+/// Inside the square brackets we allow parameter initialization, constant parameter and ranges.
 /// This has been created for fitting functions, where each parameter has its own restrictions.
-/// Examples: 
+///
+/// Examples:
 /// -- Initial value: [0=3.5]
 /// -- Fixed value: [0==3.5]
 /// -- Range: [0=3.5(1,5)] The parameter 0 begin at 3.5 and it can move between 1 and 5.
+///
 /// All parameters should be initialized.
 ///
-/// Input: String with function and parameter options.
-///        Two doubles with the range of the function.
+/// Input arguments:
+/// 	* String with function and parameter options.
+///     * Two doubles with the range of the function.
+///
 /// Output: TF1* with the interpreted fuction. It contains all restrictions, ranges, etc.
-
-TF1* REST_StringHelper::ExtractTF1FromString(std::string func, double init, double end) {
+///
+/// \warning This object will create a new TF1 object in memory, so the code creating a
+/// TF1 object using this method as a helper will be responsible to delete this object from
+/// memory.
+///
+/// \code
+/// TF1* ff = CreateTF1FromString(xxx);
+/// ...
+/// ff->DoSomething();
+/// ...
+/// delete ff;
+/// \endcode
+///
+TF1* REST_StringHelper::CreateTF1FromString(std::string func, double init, double end) {
     string tf1 = func;
     // Number of parameters
     size_t n = std::count(func.begin(), func.end(), '[');
-    // Reading options 
+    // Reading options
     int a = 0;
     int optPos[n];
-    std::vector<std::string> options (n); // Vector of strings of any size.
-    for(int i = 0; i < n; i++){
-        optPos[i]=func.find("[", a); 
-        options[i]=func.substr(func.find("[", a)+1, func.find("]", func.find("[", a))-func.find("[", a)-1 ); 
+    std::vector<std::string> options(n);  // Vector of strings of any size.
+    for (int i = 0; i < n; i++) {
+        optPos[i] = func.find("[", a);
+        options[i] =
+            func.substr(func.find("[", a) + 1, func.find("]", func.find("[", a)) - func.find("[", a) - 1);
         a = func.find("[", a) + 1;
     }
     // Removing options from function string
-    for(int i = 0; i < n; i++){tf1.replace(optPos[n-1-i]+1, (func.find("]", optPos[n-1-i])-optPos[n-1-i]-1), std::string(1, func[optPos[n-1-i]+1]) );}
-    
+    for (int i = 0; i < n; i++) {
+        tf1.replace(optPos[n - 1 - i] + 1, (func.find("]", optPos[n - 1 - i]) - optPos[n - 1 - i] - 1),
+                    std::string(1, func[optPos[n - 1 - i] + 1]));
+    }
+
     // Function
-    const char * tf1c = tf1.c_str();
-    TF1* f = new TF1("f",tf1c,init,end);
-    
+    const char* tf1c = tf1.c_str();
+    TF1* f = new TF1("f", tf1c, init, end);
+
     // Initial conditions
-    for(int i=0; i < n; i++){
-        if(options[i].find("=") != std::string::npos){
-            string op = options[i].substr(options[i].find_last_of("=")+1, options[i].find("(")-options[i].find_last_of("=")-1 ); 
-            if(isANumber(op)){f->SetParameter(i, stod(op));}
-            else{cout << "Initial condition for parameter " << i << " is not a number: " << op << endl;}
+    for (int i = 0; i < n; i++) {
+        if (options[i].find("=") != std::string::npos) {
+            string op = options[i].substr(options[i].find_last_of("=") + 1,
+                                          options[i].find("(") - options[i].find_last_of("=") - 1);
+            if (isANumber(op)) {
+                f->SetParameter(i, stod(op));
+            } else {
+                cout << "Initial condition for parameter " << i << " is not a number: " << op << endl;
+            }
+        } else {
+            cout << "No initial condition given for parameter " << i << "!" << endl;
         }
-        else{cout << "No initial condition given for parameter " << i << "!" << endl;}
     }
-    
+
     // Fixed values
-    for(int i=0; i < n; i++){
-        if( std::count(options[i].begin(), options[i].end(), '=') == 2){
-            string op = options[i].substr(options[i].find_last_of("=")+1, options[i].find("(")-options[i].find_last_of("=")-1 ); 
-            if(isANumber(op)){f->FixParameter(i, stod(op));}
-            //cout << "Parameter " << i << " fixed with value " << op << endl; 
+    for (int i = 0; i < n; i++) {
+        if (std::count(options[i].begin(), options[i].end(), '=') == 2) {
+            string op = options[i].substr(options[i].find_last_of("=") + 1,
+                                          options[i].find("(") - options[i].find_last_of("=") - 1);
+            if (isANumber(op)) {
+                f->FixParameter(i, stod(op));
+            }
+            // cout << "Parameter " << i << " fixed with value " << op << endl;
         }
     }
-    
+
     // Ranges
-    for(int i=0; i < n; i++){
-        if(options[i].find("(") != std::string::npos){
-            string op = options[i].substr(options[i].find("(")+1, options[i].find(")")-options[i].find("(")-1 ); 
-            f->SetParLimits(i, stod(op.substr(0, op.find(","))), stod(op.substr(op.find(",")+1, op.size()-1-op.find(",") )) );
-            //cout << "Parameter " << i << " range " << "(" << stod(op.substr(0, op.find(","))) << "," << stod(op.substr(op.find(",")+1, op.size()-1-op.find(",") )) << ")" << endl; 
+    for (int i = 0; i < n; i++) {
+        if (options[i].find("(") != std::string::npos) {
+            string op =
+                options[i].substr(options[i].find("(") + 1, options[i].find(")") - options[i].find("(") - 1);
+            f->SetParLimits(i, stod(op.substr(0, op.find(","))),
+                            stod(op.substr(op.find(",") + 1, op.size() - 1 - op.find(","))));
+            // cout << "Parameter " << i << " range " << "(" << stod(op.substr(0, op.find(","))) << "," <<
+            // stod(op.substr(op.find(",")+1, op.size()-1-op.find(",") )) << ")" << endl;
         }
     }
-    
+
     return f;
 }
 
