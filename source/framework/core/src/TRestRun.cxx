@@ -1553,6 +1553,9 @@ string TRestRun::ReplaceMetadataMembers(const string instr) {
         endPosition = 0;
     }
 
+    outstring = Replace(outstring, "<<", "[");
+    outstring = Replace(outstring, ">>", "]");
+
     return outstring;
 }
 
@@ -1573,6 +1576,10 @@ string TRestRun::ReplaceMetadataMembers(const string instr) {
 /// \return The corresponding class data member value in string format.
 ///
 string TRestRun::ReplaceMetadataMember(const string instr) {
+    if (instr.find("::") == string::npos && instr.find("->") == string::npos) {
+        return "<<" + instr + ">>";
+    }
+
     vector<string> results = Split(instr, "::", false, true);
     if (results.size() == 1) results = Split(instr, "->", false, true);
 
