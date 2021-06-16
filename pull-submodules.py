@@ -155,6 +155,7 @@ def main():
                              branchToPull = "master"
                              if( branchExistsPcs.stdout.decode("utf-8").rstrip("\n") != "0"):
                                  branchToPull = frameworkBranchName
+                                 print( "Pulling branch : " + branchToPull )
  
                              p = subprocess.run('cd {}/{} && git pull --tags origin {}'.format(root, submodule, branchToPull), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                              if(debug):
