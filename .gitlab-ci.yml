@@ -78,9 +78,6 @@ validateCode:
         - cd ${CI_PROJECT_DIR}/
         - python3 pull-submodules.py --force --dontask
         - python3 pipeline/validateProcesses.py source/libraries/
-    except:
-        variables:
-            - $CRONJOB == "YES"
 
 #axionLib:
 #  stage: libraries
@@ -128,9 +125,6 @@ build_latest:
     - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest
     - make install -j2
       #    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
-  except:
-      variables:
-        - $CRONJOB == "YES"
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install_latest
@@ -172,40 +166,24 @@ build_latest:
 loadRESTLibs:
   type: install
   script:
-    - cat ${CI_PROJECT_DIR}/install/thisREST.sh
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
-      ### Produces segmentation fault :(
-      #- root -b -q ${CI_PROJECT_DIR}/pipeline/loadLibraries.C
-    - restRoot -b -q
     - cat ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - restRoot -b -q
-  except:
-      variables:
-        - $CRONJOB == "YES"
 
 listRESTMacros:
   type: install
   script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - restManager ListMacros
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - restManager ListMacros
-  except:
-      variables:
-        - $CRONJOB == "YES"
 
 01_NLDBD:
   type: restG4
   script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD/
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install_latestexamples/01.NLDBD/
     - restG4 NLDBD.rml
     - geant4-config --version
     - restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
-  except:
-      variables:
-        - $CRONJOB == "YES"
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test.root
@@ -215,24 +193,18 @@ listRESTMacros:
   type: restG4
   script:
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD/
+    - cd ${CI_PROJECT_DIR}/install_latest/examples/01.NLDBD/
     - restG4 NLDBD.rml
     - geant4-config --version
     - restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
-  except:
-      variables:
-        - $CRONJOB == "YES"
 
 02_PandaXiiiMC:
   type: restG4
   script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC
     - restG4 Xe136bb0n.rml
     - restRoot -b -q ValidateG4.C'("Xe136bb0n_n2E06.root")'
-  except:
-      variables:
-        - $CRONJOB == "YES"
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/Xe136bb0n_n2E06.root
@@ -245,50 +217,38 @@ listRESTMacros:
     - cd ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC
     - restG4 Xe136bb0n.rml
     - restRoot -b -q ValidateG4.C'("Xe136bb0n_n2E06.root")'
-  except:
-      variables:
-        - $CRONJOB == "YES"
 
 LoadGas:
   type: metadata 
   script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/gas/
     - restRoot -b -q LoadGasFromServerAndValidate.C
   only:
       variables:
         - $CI_SERVER_HOST == "lfna.unizar.es"
-  except:
-      variables:
-        - $CRONJOB == "YES"
 
 GenerateGas:
   type: metadata 
   script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/gas/
     - restRoot -b -q GenerateDummyGas.C
   only:
       variables:
         - $CI_SERVER_HOST == "lfna.unizar.es"
-  except:
-      variables:
-        - $CRONJOB == "YES"
 
 AnalysisTree:
   type: core
   script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/analysistree/
     - restRoot -b -q simpleTree.cpp
-  except:
-      variables:
-        - $CRONJOB == "YES"
 
 GenerateReadout:
   type: metadata 
   script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/readout/
     - restManager --c generateReadout.rml --o readout.root
     - restRoot -b -q PrintReadout.C'("readout.root")' > /dev/null
@@ -296,14 +256,11 @@ GenerateReadout:
   only:
       variables:
         - $CI_SERVER_HOST == "lfna.unizar.es"
-  except:
-      variables:
-        - $CRONJOB == "YES"
 
 BasicReadout:
   type: metadata 
   script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - cd ${CI_PROJECT_DIR}/projects/basic-readouts/
     - ls
     - git status
@@ -313,23 +270,17 @@ BasicReadout:
   only:
       variables:
         - $CI_SERVER_HOST == "lfna.unizar.es"       
-  except:
-      variables:
-        - $CRONJOB == "YES"
 
 testMeta:
   type: restManager_generate
   script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/install/examples
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install_latest/examples
     - restManager --c saveMetadataFile.rml --o meta.root
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/install/examples/meta.root
+      - ${CI_PROJECT_DIR}/install_latest/examples/meta.root
     expire_in: 1 day
-  except:
-      variables:
-        - $CRONJOB == "YES"
 
 trexDM_data_latest: 
   type: restManager_process
@@ -357,9 +308,6 @@ trexDM_data_latest:
     paths:
       - ${CI_PROJECT_DIR}/pipeline/trex/Hits_01929.root
     expire_in: 1 day
-  except:
-    variables:
-      - $CRONJOB == "YES"
 
 pandaXIII_Topological: 
   type: restManager_process
@@ -374,9 +322,6 @@ pandaXIII_Topological:
     paths:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/trackParameter.png
     expire_in: 1 week
-  except:
-      variables:
-          - $CRONJOB
 
 pandaXIII_Topological_fromG4: 
   type: restManager_process
@@ -391,9 +336,6 @@ pandaXIII_Topological_fromG4:
     paths:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/testOutput.root
     expire_in: 1 week
-  except:
-      variables:
-        - $CRONJOB
 
 pandaXIII_data: 
   type: restManager_process
@@ -407,16 +349,13 @@ pandaXIII_data:
     paths:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_data/TriggerRate.png
     expire_in: 1 week
-  except:
-      variables:
-        - $CRONJOB
         
 EventSelection: 
   type: restManager_process
   script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/selection
-    - restManager --c g4Analysis.rml --f "${CI_PROJECT_DIR}/install/examples/01.NLDBD/Run00001_NLDBD_Test.root"
+    - restManager --c g4Analysis.rml --f "${CI_PROJECT_DIR}/install_latest/examples/01.NLDBD/Run00001_NLDBD_Test.root"
     - restManager --c g4OnSelection.rml --f Run00001_NLDBD_Test_g4Analysis.root
     - restRoot -b -q Validate.C'("Run00001_NLDBD_Test_EvSelection.root")'
     
@@ -424,30 +363,21 @@ EventSelection:
     paths:
       - ${CI_PROJECT_DIR}/pipeline/selection/IDs.txt
     expire_in: 1 week
-  except:
-      variables:
-        - $CRONJOB
 
 AnalysisPlot:
   type: postProcessing
   script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/analysisPlot/
     - restManager --c summary.rml --f ${CI_PROJECT_DIR}/pipeline/trex/Hits_01929.root
-  except:
-      variables:
-        - $CRONJOB == "YES"
 
 deploy:
   type: deploy
   only:
     - tags
   script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - rest-config --welcome
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/install
-  except:
-      variables:
-        - $CRONJOB == "YES"
+      - ${CI_PROJECT_DIR}/install_latest
