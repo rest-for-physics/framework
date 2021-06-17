@@ -91,9 +91,8 @@ void TRestRealTimeAddInputFileProcess::InitProcess() {
         exit(1);
     }
 
-    fRunInfo->HangUpEndFile();
-
     if (fMonitorThread == NULL) {
+        fRunInfo->HangUpEndFile();
         fMonitorFlag = 1;
         // SysMonitorFunc(fPid, fRefreshRate);
         fMonitorThread = new thread(&TRestRealTimeAddInputFileProcess::FileNotificationFunc, this);
