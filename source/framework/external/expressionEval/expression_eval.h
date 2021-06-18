@@ -72,6 +72,7 @@ enum TokenKind {
     tkInvalid,
     tkIdent, tkFloat,
     tkParensOpen, tkParensClose,
+    tkBracketOpen, tkBracketClose,
     tkMul, tkDiv, tkPlus, tkMinus,
     tkLess, tkGreater, tkLessEq, tkGreaterEq,
     tkEqual, tkUnequal,
@@ -83,6 +84,8 @@ static inline string toString(TokenKind tkKind){
     switch(tkKind) {
         case tkParensOpen : return "(";
         case tkParensClose : return ")";
+        case tkBracketOpen : return "[";
+        case tkBracketClose : return "]";
         case tkMul : return "*";
         case tkDiv : return "/";
         case tkPlus : return "+";
@@ -138,6 +141,7 @@ static inline Token toIdentAndClear(string &s){
 
 enum NodeKind {
     nkUnary, nkBinary, nkFloat, nkIdent,
+    nkBracketExpr, // for map access
     nkExpression // for root as well as parens
     // , nkCall (for sqrt, pow etc), ?
 };
@@ -171,6 +175,10 @@ static inline string toString(NodeKind kind){
 	case nkExpression:
 	    result = "nkExpression";
 	    break;
+	case nkBracketExpr:
+	    result = "nkBracketExpr";
+	    break;
+
 	default: break;
     }
     return result;
@@ -217,6 +225,20 @@ public:
     virtual shared_ptr<Node> GetExprNode() {
 	throw domain_error("Invalid call to `GetExprNode` for node of kind " + toString(kind));
 	return nullptr;
+    };
+    virtual shared_ptr<Node> GetNode() {
+	throw domain_error("Invalid call to `GetNode` for node of kind " + toString(kind));
+	return nullptr;
+    };
+    virtual shared_ptr<Node> GetArg() {
+	throw domain_error("Invalid call to `GetArg` for node of kind " + toString(kind));
+	return nullptr;
+    };
+    virtual void SetNode(shared_ptr<Node> node) {
+	throw domain_error("Invalid call to `SetNode` for node of kind " + toString(kind));
+    };
+    virtual void SetArg(shared_ptr<Node> node) {
+	throw domain_error("Invalid call to `SetArg` for node of kind " + toString(kind));
     };
     virtual void SetExprNode(shared_ptr<Node>) {
 	throw domain_error("Invalid call to `SetExprNode` for node of kind " + toString(kind));
@@ -278,6 +300,22 @@ public:
     void SetExprNode(shared_ptr<Node> n) override {node = n;};
     shared_ptr<Node> node;
 };
+
+class BracketExprNode: public Node {
+public:
+    // this node is bracket expressions, i.e. map access via
+    // `foo[bar]`
+    BracketExprNode(shared_ptr<Node> node, shared_ptr<Node> arg): node(node), arg(arg) {
+	kind = nkBracketExpr;
+    };
+    shared_ptr<Node> GetNode() override { return node; };
+    void SetNode(shared_ptr<Node> n) override { node = n; };
+    shared_ptr<Node> GetArg() override { return arg; };
+    void SetArg(shared_ptr<Node> n) override { arg = n; };
+    shared_ptr<Node> node;
+    shared_ptr<Node> arg;
+};
+
 
 using Expression = shared_ptr<Node>;
 
@@ -358,6 +396,9 @@ inline string astToStr(shared_ptr<Node> n){
         case nkExpression:
             res += "(" + astToStr(n->GetExprNode()) + ")";
             break;
+        case nkBracketExpr:
+            res += "([] " + astToStr(n->GetNode()) + " " + astToStr(n->GetArg()) + ")";
+            break;
     }
     return res;
 }
@@ -394,6 +435,10 @@ static inline shared_ptr<Node> expressionNode(){
     return shared_ptr<Node>(new ExpressionNode(nullptr));
 }
 
+static inline shared_ptr<Node> bracketExprNode(){
+    return shared_ptr<Node>(new BracketExprNode(nullptr, nullptr));
+}
+
 static inline shared_ptr<Node> identOrFloatNode(Token tok){
     try{
         double val = stod(tok.name);
@@ -409,11 +454,13 @@ static inline bool binaryOrUnary(vector<Token> tokens, int idx){
     if((idx > 0 &&
 	(tokens[idx-1].kind == tkFloat ||
 	 tokens[idx-1].kind == tkIdent ||
-	 tokens[idx-1].kind == tkParensClose)) &&
+	 tokens[idx-1].kind == tkParensClose ||
+	 tokens[idx-1].kind == tkBracketClose)) &&
        (((size_t)idx <= tokens.size() - 1 &&
 	 (tokens[idx+1].kind == tkFloat ||
 	  tokens[idx+1].kind == tkIdent ||
-	  tokens[idx+1].kind == tkParensOpen)))){
+	  tokens[idx+1].kind == tkParensOpen ||
+	  tokens[idx+1].kind == tkBracketOpen)))){
         return true;
     }
     else{
@@ -429,6 +476,13 @@ inline shared_ptr<Node> parseNode(Token tok, vector<Token>& tokens, int idx){
             break;
         case tkParensClose:
 	    throw domain_error(string("tkParensClose is an invalid token to parse. It is handled implicitly ") +
+			       string("by a recursive call to `tokensToAst`!"));
+	    break;
+        case tkBracketOpen:
+	    result = bracketExprNode();
+            break;
+        case tkBracketClose:
+	    throw domain_error(string("tkBracketClose is an invalid token to parse. It is handled implicitly ") +
 			       string("by a recursive call to `tokensToAst`!"));
 	    break;
         case tkMul:
@@ -502,6 +556,8 @@ inline shared_ptr<Node> parseNode(Token tok, vector<Token>& tokens, int idx){
 
 static inline int getPrecedence(TokenKind tkKind){
     switch(tkKind) {
+        case tkBracketOpen : return 11;
+        case tkBracketClose : return 11;
         case tkParensOpen : return 10;
         case tkParensClose : return 10;
         case tkMul : return 9;
@@ -658,6 +714,25 @@ static inline int findClosingParens(vector<Token> tokens, int idx){
 		       string(" in `verifyTokens`!"));
 }
 
+static inline int findClosingBracket(vector<Token> tokens, int idx){
+    // TODO: could be combined with closing parens, if we hand an additional argument what
+    // we are looking for
+    for(size_t i = (size_t)idx; i < tokens.size(); i++){
+	switch(tokens[i].kind){
+	    case tkBracketOpen:
+		throw domain_error(string("Nested bracket expressions are not supported."));
+		break;
+	    case tkBracketClose:
+		return i;
+	    default: break;
+	}
+    }
+    throw domain_error(string("Encounterd end of `findClosingBracket`. Points to invalid vector of tokens") +
+		       string(" because no closing parens were found. Should have thrown earlier exception") +
+		       string(" in `verifyTokens`!"));
+}
+
+
 static inline Expression tokensToAst(vector<Token> tokens){
     // parses the given vector of tokens into an AST. Done by respecting operator precedence
     Expression result = nullptr;
@@ -670,13 +745,40 @@ static inline Expression tokensToAst(vector<Token> tokens){
         // float / ident. Thene decide where to attach the resulting thing based
         // on precedence table
         int opIdx = idx;
+	// current token
         auto tok = tokens[idx];
+	// next operator we will encounter (may be this node)
         auto nextOp = nextOpTok(tokens, ref(opIdx));
         int precedence = getPrecedence(tok.kind);
 
         // order switch statement based on precedence.
         n = parseNode(tok, ref(tokens), idx);
 
+	// for some nodes we do eager parsing, jump ahead and parse everything part that node
+	// TODO: can't we do the same for regular parens and then have simpler stuff without
+	// the whole set last node stuff? No, that won't help too much, because that's due to
+	// parsing from left to right
+	switch(nextOp.kind){
+	    case tkBracketOpen: {
+		// parse bracket expression directly
+		// current node needs to be an ident, make that exception
+		if(n->kind != nkIdent){
+		    throw domain_error("Bracket expression may only be used on identifiers");
+		}
+		// find closing bracket of this (idx+2 because we skip ahead)
+		int closingIdx = findClosingBracket(tokens, idx+2);
+		// now get the argument
+		auto argNode = tokensToAst(sliceCopy(tokens, idx+2, closingIdx-1));
+		auto brExp = bracketExprNode();
+		// assign the node and argument
+		brExp->SetNode(n);
+		brExp->SetArg(argNode);
+		n = brExp;
+		idx = closingIdx;
+		break;
+	    }
+	    default: break;
+	}
 	// possiblyy fully parse the expression node
 	if(n->kind == nkExpression){
 	    // recurse and set the result to this expression
@@ -687,12 +789,11 @@ static inline Expression tokensToAst(vector<Token> tokens){
 	    n->SetExprNode(exprNode);
 	    idx = closingIdx;
 	}
-
         if(result == nullptr){
             // start by result being first node (e.g. pure string or float)
             result = n;
         }
-        // check if we are looking at a unary/binary op, if so build tree
+        // check if we are looking at a unary/binary op, if so build tree.
         if(nextOp.kind == tok.kind){
             switch(n->kind){
                 case nkBinary:
@@ -723,6 +824,9 @@ static inline Expression tokensToAst(vector<Token> tokens){
 		case nkExpression:
 		    result = n;
 		    break;
+		case nkBracketExpr:
+		    result = n;
+		    break;
 		default: break;
             }
             // append to last
@@ -740,6 +844,7 @@ static inline Expression tokensToAst(vector<Token> tokens){
 #ifdef DEBUG_EXPRESSIONS
     cout << "Resulting expression " << astToStr(result) << endl;
 #endif
+
     return result;
 }
 
@@ -852,32 +957,32 @@ inline Either<double, bool> orCmp(Either<double, bool> x, Either<double, bool> y
     }
 }
 
-inline Either<double, bool> evaluate(map<string, float> m, shared_ptr<Node> n){
+inline Either<double, bool> evaluate(map<string, float> m, map<string, map<int, float>> maps, shared_ptr<Node> n){
     switch(n->kind){
 	case nkBinary:
 	    // recurse on both childern
 	    switch(n->GetBinaryOp()){
-		case boMul: return multiply(evaluate(m, n->GetLeft()), evaluate(m, n->GetRight()));
-		case boDiv: return divide(evaluate(m, n->GetLeft()), evaluate(m, n->GetRight()));
-		case boPlus: return plusCmp(evaluate(m, n->GetLeft()), evaluate(m, n->GetRight()));
-		case boMinus: return minusCmp(evaluate(m, n->GetLeft()), evaluate(m, n->GetRight()));
-		case boLess: return lessCmp(evaluate(m, n->GetLeft()), evaluate(m, n->GetRight()));
-		case boGreater: return greaterCmp(evaluate(m, n->GetLeft()), evaluate(m, n->GetRight()));
-		case boLessEq: return lessEq(evaluate(m, n->GetLeft()), evaluate(m, n->GetRight()));
-		case boGreaterEq: return greaterEq(evaluate(m, n->GetLeft()), evaluate(m, n->GetRight()));
-		case boEqual: return equal(evaluate(m, n->GetLeft()), evaluate(m, n->GetRight()));
-		case boUnequal: return unequal(evaluate(m, n->GetLeft()), evaluate(m, n->GetRight()));
-		case boAnd: return andCmp(evaluate(m, n->GetLeft()), evaluate(m, n->GetRight()));
-		case boOr: return orCmp(evaluate(m, n->GetLeft()), evaluate(m, n->GetRight()));
+		case boMul: return multiply(evaluate(m, maps, n->GetLeft()), evaluate(m, maps, n->GetRight()));
+		case boDiv: return divide(evaluate(m, maps, n->GetLeft()), evaluate(m, maps, n->GetRight()));
+		case boPlus: return plusCmp(evaluate(m, maps, n->GetLeft()), evaluate(m, maps, n->GetRight()));
+		case boMinus: return minusCmp(evaluate(m, maps, n->GetLeft()), evaluate(m, maps, n->GetRight()));
+		case boLess: return lessCmp(evaluate(m, maps, n->GetLeft()), evaluate(m, maps, n->GetRight()));
+		case boGreater: return greaterCmp(evaluate(m, maps, n->GetLeft()), evaluate(m, maps, n->GetRight()));
+		case boLessEq: return lessEq(evaluate(m, maps, n->GetLeft()), evaluate(m, maps, n->GetRight()));
+		case boGreaterEq: return greaterEq(evaluate(m, maps, n->GetLeft()), evaluate(m, maps, n->GetRight()));
+		case boEqual: return equal(evaluate(m, maps, n->GetLeft()), evaluate(m, maps, n->GetRight()));
+		case boUnequal: return unequal(evaluate(m, maps, n->GetLeft()), evaluate(m, maps, n->GetRight()));
+		case boAnd: return andCmp(evaluate(m, maps, n->GetLeft()), evaluate(m, maps, n->GetRight()));
+		case boOr: return orCmp(evaluate(m, maps, n->GetLeft()), evaluate(m, maps, n->GetRight()));
 		default:
 		    throw runtime_error("Invalid binary op kind for token " + astToStr(n));
 	    }
 	case nkUnary:
 	    // apply unary op
 	    switch(n->GetUnaryOp()){
-		case uoPlus: return evaluate(m, n->GetUnaryNode());
-		case uoMinus: return negative(evaluate(m, n->GetUnaryNode()));
-		case uoNot: return negateCmp(evaluate(m, n->GetUnaryNode()));
+		case uoPlus: return evaluate(m, maps, n->GetUnaryNode());
+		case uoMinus: return negative(evaluate(m, maps, n->GetUnaryNode()));
+		case uoNot: return negateCmp(evaluate(m, maps, n->GetUnaryNode()));
 	    }
 	case nkIdent:
 	    // return value stored for ident
@@ -886,7 +991,13 @@ inline Either<double, bool> evaluate(map<string, float> m, shared_ptr<Node> n){
 	case nkFloat:
 	    return Left<double, bool>(n->GetVal());
 	case nkExpression:
-	    return evaluate(m, n->GetExprNode());
+	    return evaluate(m, maps, n->GetExprNode());
+	case nkBracketExpr:
+	    // get identifier from maps
+	    auto obs = n->GetNode();
+	    auto mapObs = maps[obs->GetIdent()];
+	    auto arg = n->GetArg();
+	    return Left<double, bool>(mapObs[(int)arg->GetVal()]);
     }
     throw logic_error("Invalid code branch in `evaluate`. Should never end up here!");
 }
@@ -905,6 +1016,7 @@ static inline void verifyTokens(vector<Token> tokens){
     bool lastWasUnaryOp = false;
     bool lastWasIdentOrFloat = false;
     int parensCounter = 0;
+    bool inBracket = false;
     //int idx = 0;
     for(auto tok : tokens){
 	switch(tok.kind){
@@ -916,6 +1028,18 @@ static inline void verifyTokens(vector<Token> tokens){
 		if(parensCounter < 0){
 		    throw runtime_error("Parsing of expression faild. Closing parenthesis before opening!");
 		}
+		break;
+	    case tkBracketOpen :
+		if(inBracket){
+		    throw runtime_error("Nested bracket expressions not allowed.");
+		}
+		inBracket = true;
+		break;
+	    case tkBracketClose :
+		if(!inBracket){
+		    throw runtime_error("Closing bracket without opening bracket not allowed.");
+		}
+		inBracket = false;
 		break;
 	    case tkMul :
 		raiseIfLastOp(lastWasBinaryOp, lastWasUnaryOp, lastWasIdentOrFloat);
@@ -1024,6 +1148,14 @@ inline Expression parseExpression(string s){
                 addTokenIfValid(ref(tokens), toIdentAndClear(ref(curBuf)));
                 addTokenIfValid(ref(tokens), Token(tkParensClose));
                 break;
+            case '[':
+                addTokenIfValid(ref(tokens), toIdentAndClear(ref(curBuf)));
+                addTokenIfValid(ref(tokens), Token(tkBracketOpen));
+                break;
+            case ']':
+                addTokenIfValid(ref(tokens), toIdentAndClear(ref(curBuf)));
+                addTokenIfValid(ref(tokens), Token(tkBracketClose));
+                break;
             case '*':
                 addTokenIfValid(ref(tokens), toIdentAndClear(ref(curBuf)));
                 addTokenIfValid(ref(tokens), Token(tkMul));
@@ -1124,6 +1256,10 @@ inline Expression parseExpression(string s){
 		}
 		else if(curBuf == "or"){
 		    addTokenIfValid(ref(tokens), Token(tkOr));
+		    curBuf.clear();
+		}
+		else if(curBuf == "not"){
+		    addTokenIfValid(ref(tokens), Token(tkNot));
 		    curBuf.clear();
 		}
 		else{
