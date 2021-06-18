@@ -361,7 +361,23 @@ trexDM_data_latest:
     variables:
       - $CRONJOB == "YES"
 
-pandaXIII_Topological: 
+expressionEvaluation:
+  type: restManager_process
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/pipeline/expressionEvaluation
+    - cp ${CI_PROJECT_DIR}/pipeline/trex/Hits_01929.root .
+    - restManager --c expressionEvalCi.rml --f Hits_01929.root
+    - root -b -q validateExpressionEval.C
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/pipeline/expressionEvaluation/Hits_exprEval_01929.root
+    expire_in: 1 day
+  except:
+      variables:
+        - $CRONJOB == "YES"
+
+pandaXIII_Topological:
   type: restManager_process
   script:
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
