@@ -61,3 +61,6 @@
 [submodule "projects/iaxo-analysis"]
 	path = projects/iaxo-analysis
 	url = git@lfna.unizar.es:iaxo/iaxo-analysis.git
+[submodule "doc/userguide"]
+	path = doc/userguide
+	url = https://github.com/rest-for-physics/rest-docs.github.io.git

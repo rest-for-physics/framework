@@ -3,6 +3,7 @@
 #define RestTools_REST_StringHelper
 #pragma once
 
+#include <TF1.h>
 #include <TFormula.h>
 #include <TVector2.h>
 #include <TVector3.h>
@@ -90,6 +91,8 @@ std::string TrimAndLower(std::string s);
 
 string DataMemberNameToParameterName(string name);
 string ParameterNameToDataMemberName(string name);
+
+TF1* CreateTF1FromString(std::string func, double init, double end);
 
 };  // namespace REST_StringHelper
 using namespace REST_StringHelper;

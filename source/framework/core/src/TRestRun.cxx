@@ -1088,7 +1088,7 @@ void TRestRun::SetInputEvent(TRestEvent* eve) {
             //	TBranch *br = (TBranch*)branches->At(fEventBranchLoc);
             //	br->SetAddress(0);
             //}
-            if (fInputEvent != nullptr){
+            if (fInputEvent != nullptr) {
                 fEventTree->SetBranchAddress((TString)fInputEvent->ClassName() + "Branch", 0);
                 fEventTree->SetBranchStatus((TString)fInputEvent->ClassName() + "Branch", false);
             }
@@ -1099,10 +1099,10 @@ void TRestRun::SetInputEvent(TRestEvent* eve) {
                 if ((string)br->GetName() == brname) {
                     debug << "Setting input event.. Type: " << eve->ClassName() << " Address: " << eve
                           << endl;
-                    //if (fInputEvent != nullptr && (char*)fInputEvent != (char*)eve) {
+                    // if (fInputEvent != nullptr && (char*)fInputEvent != (char*)eve) {
                     //    delete fInputEvent;
                     //}
-                  
+
                     fInputEvent = eve;
                     fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
                     fEventTree->SetBranchStatus(brname.c_str(), false);
@@ -1494,6 +1494,9 @@ string TRestRun::ReplaceMetadataMembers(const string instr) {
         endPosition = 0;
     }
 
+    outstring = Replace(outstring, "<<", "[");
+    outstring = Replace(outstring, ">>", "]");
+
     return outstring;
 }
 
@@ -1514,6 +1517,10 @@ string TRestRun::ReplaceMetadataMembers(const string instr) {
 /// \return The corresponding class data member value in string format.
 ///
 string TRestRun::ReplaceMetadataMember(const string instr) {
+    if (instr.find("::") == string::npos && instr.find("->") == string::npos) {
+        return "<<" + instr + ">>";
+    }
+
     vector<string> results = Split(instr, "::", false, true);
     if (results.size() == 1) results = Split(instr, "->", false, true);
 
