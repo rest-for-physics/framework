@@ -161,6 +161,7 @@ TRestEvent* TRestExpressionEvaluationProcess::ProcessEvent(TRestEvent* eventInpu
     for(auto exprPair : fExprMap) {
         auto value = evaluate(exprPair.second);
         if(!value.isLeft()){
+	    // store the boolean result as an integer
             fAnalysisTree->SetObservableValue((string)exprPair.first, (int)value.getRight());
         }
         else{
@@ -255,34 +256,58 @@ Either<double, bool> TRestExpressionEvaluationProcess::evaluate(Expression e){
                 case uoMinus: return negative(evaluate(e->GetUnaryNode()));
                 case uoNot: return negateCmp(evaluate(e->GetUnaryNode()));
             }
+        case nkIdent: {
+            // return value stored for ident
+            // TODO: check if element exists in map (/in REST)
+            auto ident = e->GetIdent();
+            if(fAnalysisTree->GetObservableType(ident) == "int"){
+                return Left<double, bool>((double)fAnalysisTree->GetObservableValue<int>(ident));
+            }
+            else{
+                return Left<double, bool>(fAnalysisTree->GetObservableValue<double>(ident));
+            }
+            break;
+        }
+        case nkFloat:
+            return Left<double, bool>(e->GetVal());
+        case nkExpression:
+            return evaluate(e->GetExprNode());
+        case nkBracketExpr: {
+            // get the observable ident
+            auto obs = e->GetNode();
+            // put into verify
+            assert(obs->kind == nkIdent);
+            if (fAnalysisTree->GetObservableType(obs->GetIdent()) == "map<int,double>") {
+                auto argMap = fAnalysisTree->GetObservableValue<map<int, Double_t>>(obs->GetIdent());
+                auto argVal = e->GetArg();
+                assert(argVal->kind == nkFloat);
+		// NOTE: we access the map with `[]` to not raise in case the key does not exist. In the
+		// majority of use cases in REST a non existing key just means this key is not part of
+		// *this* event. Instead we just get a 0.
+                return Left<double, bool>((double)argMap[(int)argVal->GetVal()]);
 	    }
-	case nkIdent: {
-	    // return value stored for ident
-	    // TODO: check if element exists in map (/in REST)
-	    auto ident = e->GetIdent();
-	    if(fAnalysisTree->GetObservableType(ident) == "int"){
-		return Left<double, bool>((double)fAnalysisTree->GetObservableValue<int>(ident));
+	    else if (fAnalysisTree->GetObservableType(obs->GetIdent()) == "map<int,int>"){
+                auto argMap = fAnalysisTree->GetObservableValue<map<int, int>>(obs->GetIdent());
+                auto argVal = e->GetArg();
+                assert(argVal->kind == nkFloat);
+		// deal with int argument, just convert to double
+		// NOTE: we access the map with `[]` to not raise in case the key does not exist. In the
+		// majority of use cases in REST a non existing key just means this key is not part of
+		// *this* event. Instead we just get a 0.
+                return Left<double, bool>((double)argMap[(int)argVal->GetVal()]);
 	    }
 	    else{
-		return Left<double, bool>(fAnalysisTree->GetObservableValue<double>(ident));
+		if (!fAnalysisTree->ObservableExists(obs->GetIdent())){
+		    throw runtime_error("Invalid observable of name: `" + string(obs->GetIdent()) + "`. " +
+					"No such obsverable found in tree");
+		}
+		else{
+		    throw runtime_error("Invalid type of observable: `" + string(obs->GetIdent()) + "`. " +
+					"Expected a type of map<int, double> or map<int, int>. Got: `" +
+					string(fAnalysisTree->GetObservableType(obs->GetIdent())) + "`.");
+		}
 	    }
-	    break;
-	}
-	case nkFloat:
-	    return Left<double, bool>(e->GetVal());
-	case nkExpression:
-	    return evaluate(e->GetExprNode());
-	case nkBracketExpr: {
-	    // get the observable ident
-	    auto obs = e->GetNode();
-	    // put into verify
-	    assert(obs->kind == nkIdent);
-	    assert(fAnalysisTree->GetObservableType(obs->GetIdent()) == "map<int,double>");
-	    auto argMap = fAnalysisTree->GetObservableValue<map<int, Double_t>>(obs->GetIdent());
-	    auto argVal = e->GetArg();
-	    assert(argVal->kind == nkFloat);
-	    return Left<double, bool>((double)argMap[(int)argVal->GetVal()]);
-	}
+        }
     }
     throw logic_error("Invalid code branch in `evaluate`. Should never end up here!");
 }
