@@ -272,6 +272,17 @@ Either<double, bool> TRestExpressionEvaluationProcess::evaluate(Expression e){
 	    return Left<double, bool>(e->GetVal());
 	case nkExpression:
 	    return evaluate(e->GetExprNode());
+	case nkBracketExpr: {
+	    // get the observable ident
+	    auto obs = e->GetNode();
+	    // put into verify
+	    assert(obs->kind == nkIdent);
+	    assert(fAnalysisTree->GetObservableType(obs->GetIdent()) == "map<int,double>");
+	    auto argMap = fAnalysisTree->GetObservableValue<map<int, Double_t>>(obs->GetIdent());
+	    auto argVal = e->GetArg();
+	    assert(argVal->kind == nkFloat);
+	    return Left<double, bool>((double)argMap[(int)argVal->GetVal()]);
+	}
     }
     throw logic_error("Invalid code branch in `evaluate`. Should never end up here!");
 }
