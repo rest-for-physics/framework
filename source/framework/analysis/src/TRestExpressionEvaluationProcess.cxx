@@ -85,7 +85,6 @@
 ///     <item name="veto4638" expr="peakTime[4638]"/>
 ///     <!-- a filtering expression accessing an observable that is map<int, Double>
 ///     <item filter="peakTime[4638] < 300"/>
-
 ///   </expressionset>
 /// </addProcess>
 /// ```
@@ -161,27 +160,27 @@ TRestEvent* TRestExpressionEvaluationProcess::ProcessEvent(TRestEvent* eventInpu
     // first evaluate expressions that are used for their return values
     for(auto exprPair : fExprMap) {
         auto value = evaluate(exprPair.second);
-	if(!value.isLeft()){
-	    fAnalysisTree->SetObservableValue((string)exprPair.first, (double)value.getRight());
-	}
-	else{
-	    fAnalysisTree->SetObservableValue((string)exprPair.first, value.getLeft());
-	}
+        if(!value.isLeft()){
+            fAnalysisTree->SetObservableValue((string)exprPair.first, (int)value.getRight());
+        }
+        else{
+            fAnalysisTree->SetObservableValue((string)exprPair.first, value.getLeft());
+        }
     }
     // now evaluate any filtering expressions for their side effect
     for(auto exprPair : fFilterMap) {
         auto value = evaluate(exprPair.second);
-	if(value.isLeft()){
-	    // if this evaluation yields a floating point variable, throw
-	    throw runtime_error("The given filter expression " + astToStr(exprPair.second) + " returns a " +
-				"floating point value instead of a boolean. Mark it as `expr` instead " +
-				"to store the result of this expression.");
-	}
-	else if(!value.getRight()){
-	    // if the boolean expression returned false, throw out this event
-	    return NULL;
-	}
-	// else the filter is true, which means we keep the event
+        if(value.isLeft()){
+            // if this evaluation yields a floating point variable, throw
+            throw runtime_error("The given filter expression " + astToStr(exprPair.second) + " returns a " +
+                                "floating point value instead of a boolean. Mark it as `expr` instead " +
+                                "to store the result of this expression.");
+        }
+        else if(!value.getRight()){
+            // if the boolean expression returned false, throw out this event
+            return NULL;
+        }
+        // else the filter is true, which means we keep the event
     }
     // fill the tree with the computation of the mapping expressions
     fAnalysisTree->Fill();
@@ -196,20 +195,20 @@ void TRestExpressionEvaluationProcess::InitFromConfigFile() {
     // filtering expressions.
     auto exprMap = GetExprStrings();
     for(auto namePair: exprMap) {
-	// get the pair corresponding to this field (`expr` or `filter`)
-	auto exprPair = namePair.second;
-	// is filter?
-	if(exprPair.first.size() > 0){
-	    // is a filter expression
-	    Expression expr = parseExpression(exprPair.first);
-	    fFilterMap[namePair.first] = expr;
-	}
-	else{
-	    assert(exprPair.second.size() > 0);
-	    // is a mapping `expr` expression
-	    Expression expr = parseExpression(exprPair.second);
-	    fExprMap[namePair.first] = expr;
-	}
+        // get the pair corresponding to this field (`expr` or `filter`)
+        auto exprPair = namePair.second;
+        // is filter?
+        if(exprPair.first.size() > 0){
+            // is a filter expression
+            Expression expr = parseExpression(exprPair.first);
+            fFilterMap[namePair.first] = expr;
+        }
+        else{
+            assert(exprPair.second.size() > 0);
+            // is a mapping `expr` expression
+            Expression expr = parseExpression(exprPair.second);
+            fExprMap[namePair.first] = expr;
+        }
     }
 }
 
@@ -220,10 +219,10 @@ void TRestExpressionEvaluationProcess::PrintMetadata() {
     BeginPrintProcess();
 
     for(auto exprPair: fExprMap){
-	metadata << exprPair.first << " : " << astToStr(exprPair.second) << endl;
+        metadata << exprPair.first << " : " << astToStr(exprPair.second) << endl;
     }
     for(auto exprPair: fFilterMap){
-	metadata << exprPair.first << " : " << astToStr(exprPair.second) << endl;
+        metadata << exprPair.first << " : " << astToStr(exprPair.second) << endl;
     }
 
     EndPrintProcess();
@@ -231,30 +230,31 @@ void TRestExpressionEvaluationProcess::PrintMetadata() {
 
 Either<double, bool> TRestExpressionEvaluationProcess::evaluate(Expression e){
     switch(e->kind){
-	case nkBinary:
-	    // recurse on both childern
-	    switch(e->GetBinaryOp()){
-		case boMul: return multiply(evaluate(e->GetLeft()), evaluate(e->GetRight()));
-		case boDiv: return divide(evaluate(e->GetLeft()), evaluate(e->GetRight()));
-		case boPlus: return plusCmp(evaluate(e->GetLeft()), evaluate(e->GetRight()));
-		case boMinus: return minusCmp(evaluate(e->GetLeft()), evaluate(e->GetRight()));
-		case boLess: return lessCmp(evaluate(e->GetLeft()), evaluate(e->GetRight()));
-		case boGreater: return greaterCmp(evaluate(e->GetLeft()), evaluate(e->GetRight()));
-		case boLessEq: return lessEq(evaluate(e->GetLeft()), evaluate(e->GetRight()));
-		case boGreaterEq: return greaterEq(evaluate(e->GetLeft()), evaluate(e->GetRight()));
-		case boEqual: return equal(evaluate(e->GetLeft()), evaluate(e->GetRight()));
-		case boUnequal: return unequal(evaluate(e->GetLeft()), evaluate(e->GetRight()));
-		case boAnd: return andCmp(evaluate(e->GetLeft()), evaluate(e->GetRight()));
-		case boOr: return orCmp(evaluate(e->GetLeft()), evaluate(e->GetRight()));
-		default:
-		    throw runtime_error("Invalid binary op kind for token " + astToStr(e));
-	    }
-	case nkUnary:
-	    // apply unary op
-	    switch(e->GetUnaryOp()){
-		case uoPlus: return evaluate(e->GetUnaryNode());
-		case uoMinus: return negative(evaluate(e->GetUnaryNode()));
-		case uoNot: return negateCmp(evaluate(e->GetUnaryNode()));
+        case nkBinary:
+            // recurse on both childern
+            switch(e->GetBinaryOp()){
+                case boMul: return multiply(evaluate(e->GetLeft()), evaluate(e->GetRight()));
+                case boDiv: return divide(evaluate(e->GetLeft()), evaluate(e->GetRight()));
+                case boPlus: return plusCmp(evaluate(e->GetLeft()), evaluate(e->GetRight()));
+                case boMinus: return minusCmp(evaluate(e->GetLeft()), evaluate(e->GetRight()));
+                case boLess: return lessCmp(evaluate(e->GetLeft()), evaluate(e->GetRight()));
+                case boGreater: return greaterCmp(evaluate(e->GetLeft()), evaluate(e->GetRight()));
+                case boLessEq: return lessEq(evaluate(e->GetLeft()), evaluate(e->GetRight()));
+                case boGreaterEq: return greaterEq(evaluate(e->GetLeft()), evaluate(e->GetRight()));
+                case boEqual: return equal(evaluate(e->GetLeft()), evaluate(e->GetRight()));
+                case boUnequal: return unequal(evaluate(e->GetLeft()), evaluate(e->GetRight()));
+                case boAnd: return andCmp(evaluate(e->GetLeft()), evaluate(e->GetRight()));
+                case boOr: return orCmp(evaluate(e->GetLeft()), evaluate(e->GetRight()));
+                default:
+                    throw runtime_error("Invalid binary op kind for token " + astToStr(e));
+            }
+        case nkUnary:
+            // apply unary op
+            switch(e->GetUnaryOp()){
+                case uoPlus: return evaluate(e->GetUnaryNode());
+                case uoMinus: return negative(evaluate(e->GetUnaryNode()));
+                case uoNot: return negateCmp(evaluate(e->GetUnaryNode()));
+            }
 	    }
 	case nkIdent: {
 	    // return value stored for ident
