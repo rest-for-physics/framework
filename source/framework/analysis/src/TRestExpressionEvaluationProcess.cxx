@@ -29,18 +29,36 @@
 ///
 /// Both floating point as well as boolean expressions are supported. For boolean
 /// results the data is stored as integers for better compatibility with other
-/// boolean variables used in REST.
+/// boolean variables used in REST. In addition boolean expressions can be used
+/// as a mapping as well as a filter. If they are used as a filter only events that
+/// pass the condition will be kept in the resulting tree.
 ///
 /// The return type is determined automatically from the expression.
 ///
 /// The expression strings are defined within a special `<expressionset>` tag
 /// in the RML file under this process to allow for iteration over all child
 /// tags.
-/// Within that tag an arbitrary number of `<item>` tags can be added, which
-/// must have a `name` and an `expr` field. The `name` field is the name of
-/// the resulting observable. The `expr` field is similar to the syntax for
-/// ROOT cut strings given to `TTree::draw` to perform filtering on a tree before
-/// drawing it with a few small differences (see below).
+/// Within that tag an arbitrary number of `<item>` tags can be added, which must
+/// be of one of two types:
+/// - mapping expressions: a `name` and an `expr` field is required. The `name` field is the name of
+///   the resulting observable. The `expr` field is a string describing an expression to be
+///   evaluated for each event in the tree. The resulting value will be stored as a variable
+///   under `name`. The syntax is similar to the syntax for ROOT cut strings
+///   given to `TTree::draw` to perform filtering on a tree before drawing it with
+///   some small differences (see below).
+/// - filtering expressions: only a `filter` field is required. The `filter` field must contain
+///   a boolean expression. The syntax is otherwise the same as for mapping expressions. It will
+///   be used to determine whether an event will be dropped (expression evaluated to false) or
+///   kept (expression evaluated to true).
+///
+/// The syntax for these expressions supports a selection of different things:
+/// - identifiers referring to observables in the tree: `hitsAna_energy`, ...
+/// - math operations: `*`, `/`, `+`, `-`
+/// - boolean expressions: `>`, `>=`, `<`, `<=`, `==`, `!=`, `and`, `or`, `not`
+/// - bracket expressions: `foo[0]`, `bar[4]`
+/// Bracket expressions are used to access observables that store a `map<int, double>`. Thus the
+/// argument to the identifier in front of the brackets must be an integer. The result will be a
+/// double. Other maps could be supported in the future if such a need were to arise.
 ///
 /// A simple example:
 ///
@@ -61,6 +79,13 @@
 ///     <item name="boolOrExprMultiple" expr="hitsAna_energy < 5000.0 or tckAna_nTracks_X==1"/>
 ///     <!-- a complicated expression of nested parenthesis and multiple expressions -->
 ///     <item name="boolComplicated" expr="(hitsAna_energy / 1000.0) < 5.0 or (tckAna_nTracks_X==1 and tckAna_nTracks_Y==1)"/>
+///     <!-- an expression used as a filter. I.e. if the predicate is true we keep the event, else drop it -->
+///     <item filter="hitsAna_energy < 3000"/>
+///     <!-- a mapping expression accessing a specific element from an observable that is map<int, Double>
+///     <item name="veto4638" expr="peakTime[4638]"/>
+///     <!-- a filtering expression accessing an observable that is map<int, Double>
+///     <item filter="peakTime[4638] < 300"/>
+
 ///   </expressionset>
 /// </addProcess>
 /// ```
