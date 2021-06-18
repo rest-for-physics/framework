@@ -38,7 +38,12 @@
 class TRestExpressionEvaluationProcess : public TRestEventProcess {
    private:
     TRestEvent* fEvent;  //!
+    // fExprMap stores expressions that are evaluated for their value and the resulting values
+    // stored in the output file.
     std::map<string, Expression> fExprMap;
+    // fFilterMap stores filtering expressions which are used for their side effects. If their
+    // evaluated value is true we keep the event and else drop it.
+    std::map<string, Expression> fFilterMap;
 
     /// A list with the event ids that have been selected.
     std::vector<Int_t> fEventIds;  //<

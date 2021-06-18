@@ -118,7 +118,10 @@ class TRestMetadata : public TNamed {
     string GetKEYDefinition(std::string keyName, string buffer);
     string GetKEYDefinition(std::string keyName, size_t& Position, string buffer);
     string GetParameter(std::string parName, size_t& pos, std::string inputString);
-    map<string, string> GetExprStrings();
+    // expression strings map a name to an expression. There are two kinds of expressions:
+    // - `expr`: the first argument of the pair. A regular expression that is evaluated and
+    //   the result will be stored
+    map<string, pair<string, string>> GetExprStrings();
     string GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition = 0);
 
     // some utils

@@ -1896,26 +1896,46 @@ string TRestMetadata::GetParameter(string parName, size_t& pos, string inputStri
 
 
 ///////////////////////////////////////////////
-/// \brief Returns a map<string, string> containing the names and
+/// \brief Returns a map<string, pair<string, string>> containing the names and
 /// expressions within the <expressionset> of a TRestExpressionEvaluationProcess
 /// tag.
+///
+/// The `pair` is used to differentiate between the two possible expressions:
+/// - `expr`: an expression to be evaluated and its resulting value stored
+///   as a new observable
+/// - `filter`: a filter to be applied on the tree. The result must be a boolean
+///   value. If the value is true, we keep the event. If it is false we drop it.
+///
+/// The first argument is a `name`. The name is not required for filters and will
+/// be ignored. For expressions it will be used as the observable name.
 ///
 /// This method is only used for the TRestExpressionEvaluationProcess and
 /// thus the name of the tag ("expressionset") is hardcoded at the moment.
 ///
-map<string, string> TRestMetadata::GetExprStrings() {
-    map<string, string> result;
+map<string, pair<string, string>> TRestMetadata::GetExprStrings() {
+    map<string, pair<string, string>> result;
 
     TiXmlElement* exprset = fElement->FirstChildElement("expressionset");
     if (exprset == NULL) return result;
 
     TiXmlElement* item = exprset->FirstChildElement();
     while(item != NULL) {
+	// first check for `filter` as  we do not need a name in this case
+	const char* filter = item->Attribute("filter");
 	const char* name = item->Attribute("name");
-	if (name == NULL) return result;
 	const char* expr = item->Attribute("expr");
-	if (expr == NULL) return result;
-	result[string(name)] = string(expr);
+	if(filter != NULL){
+	    // add filter with or without name
+	    string fname = "filter" + to_string(result.size());
+	    result[fname] = make_pair<string, string>(string(filter), "");
+	}
+	else if (name == NULL or expr == NULL){
+	    // if no filter given we need both a name and expression
+	    return result;
+	}
+        else{
+	    result[string(name)] = make_pair<string, string>("", string(expr));
+	}
 	item = item->NextSiblingElement();
     }
     return result;
