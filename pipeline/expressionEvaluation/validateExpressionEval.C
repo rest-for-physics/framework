@@ -26,17 +26,17 @@
     map<int, int> rawAnaHits692Vals;
     // walk through tree
     for(int i = 0; i < t->GetEntries(); i++){
-	t->GetEntry(i);
-	// break if milli energy does not match real energy
-	if((milliEnergy * 1000.0 - hitsAna_energy) > 1e-6) return 2;
-	// testExpr is just 5<10, so always true
-	if(!testExpr) return 3;
-	if(someBool) someBoolCountTrue++;
-	// have a filter for energy to be < 5000
-	if(hitsAna_energy >= 5000) return 4;
-	if(rawAna_test) rawAnaTestCountTrue++;
-	// increase count
-	rawAnaHits692Vals[rawAnaRisetime692]++;
+        t->GetEntry(i);
+        // break if milli energy does not match real energy
+        if((milliEnergy * 1000.0 - hitsAna_energy) > 1e-6) return 2;
+        // testExpr is just 5<10, so always true
+        if(!testExpr) return 3;
+        if(someBool) someBoolCountTrue++;
+        // have a filter for energy to be < 5000
+        if(hitsAna_energy >= 5000) return 4;
+        if(rawAna_test) rawAnaTestCountTrue++;
+        // increase count
+        rawAnaHits692Vals[rawAnaRisetime692]++;
     }
 
     // expect someBool to be true 22 times out of 53

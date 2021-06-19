@@ -8,36 +8,36 @@
 </globals>
 
 <TRestRun name="ExpressionEvalCI" title="ExpressionEvalCI" verboseLevel="silent">
-	<parameter name="experiment" value="IAXOD0"/>
-	<parameter name="runNumber" value="preserve"/>
-	<parameter name="runTag" value="preserve"/>
-	<parameter name="runType" value="${RUN_TYPE}"/>
-	<parameter name="runDescription" value=""/>
-	<parameter name="user" value="${USER}"/>
-	<parameter name="verboseLevel" value="0"/>
-	<parameter name="overwrite" value="off" />
+        <parameter name="experiment" value="IAXOD0"/>
+        <parameter name="runNumber" value="preserve"/>
+        <parameter name="runTag" value="preserve"/>
+        <parameter name="runType" value="${RUN_TYPE}"/>
+        <parameter name="runDescription" value=""/>
+        <parameter name="user" value="${USER}"/>
+        <parameter name="verboseLevel" value="0"/>
+        <parameter name="overwrite" value="off" />
 
-	<parameter name="inputFormat" value="Hits_[fRunNumber].root"/>
-	<parameter name="outputFile" value="Hits_exprEval_[fRunNumber].root" />
-	<parameter name="readOnly" value="false" />
+        <parameter name="inputFormat" value="Hits_[fRunNumber].root"/>
+        <parameter name="outputFile" value="Hits_exprEval_[fRunNumber].root" />
+        <parameter name="readOnly" value="false" />
 
 </TRestRun>
-	<TRestProcessRunner name="EvalSignals" title="EvalSignals" > <!-- <verboseLevel="info"> -->
-		<parameter name="firstEntry" value="0" />
-		<parameter name="lastEntry" value="0" />
-		<parameter name="eventsToProcess" value="0" />
-		<addProcess type="TRestExpressionEvaluationProcess" name="Testing" value="ON" verboseLevel="silent">
+        <TRestProcessRunner name="EvalSignals" title="EvalSignals" > <!-- <verboseLevel="info"> -->
+                <parameter name="firstEntry" value="0" />
+                <parameter name="lastEntry" value="0" />
+                <parameter name="eventsToProcess" value="0" />
+                <addProcess type="TRestExpressionEvaluationProcess" name="Testing" value="ON" verboseLevel="silent">
                   <expressionset>
-		    <item name="testExpr" expr="5<10"/>
+                    <item name="testExpr" expr="5<10"/>
                     <item filter="rawAna_risetime_map[692] < 25"/>
                     <item name="rawAna_test" expr="rawAna_risetime_map[692] < 20"/>
-		    <item filter="hitsAna_energy < 5000"/>
-		    <item name="someBool" expr="hitsAna_energy < 5000 and hitsAna_xySigmaBalance < 0.0"/>
+                    <item filter="hitsAna_energy < 5000"/>
+                    <item name="someBool" expr="hitsAna_energy < 5000 and hitsAna_xySigmaBalance < 0.0"/>
                     <item name="rawAnaRisetime692" expr="rawAna_risetime_map[692]"/>
-		    <item name="milliEnergy" expr="hitsAna_energy / 1000.0"/>
+                    <item name="milliEnergy" expr="hitsAna_energy / 1000.0"/>
                   </expressionset>
-		</addProcess>
+                </addProcess>
 
-	</TRestProcessRunner>
-	<addTask type="processEvents" value="ON" />
+        </TRestProcessRunner>
+        <addTask type="processEvents" value="ON" />
 </TRestManager>
