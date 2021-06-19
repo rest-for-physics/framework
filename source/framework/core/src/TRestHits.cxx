@@ -546,116 +546,49 @@ Double_t TRestHits::GetSigmaY() {
 
     return sigmaY = TMath::Sqrt(sigmaY2);
 }
-/**
-Double_t TRestHits::GetGaussSigmaX(Int_t nBins = 100) {
-	TH1::AddDirectory(kFALSE);
-    Double_t gausSigmaX = 0;
 
-     //double min = *min_element(fX.begin(), fX.end());
-     //double max = *max_element(fX.begin(), fX.end());
-
-
-   /*
-	TH1D* hX = new TH1D("hitsGaussHistoX", "hitsGaussHistoX", readoutChannels, startChannel, endChannel);
-	//hX->Sumw2();
-    for (int n = 0; n < GetNumberOfHits(); n++) hX->Fill(fX[n], fEnergy[n]);
-	*//**
-	for (int n = 0; n < GetNumberOfHits(); n++) {
-		hX->Fill(fX[n], fEnergy[n]);
-		cout << "fX[n] is " << fX[n] << endl;
-		cout << "energy is: " << fEnergy[n] << endl;
-	}
-	**/
-	//WriteHitToTextFile("/home/cristina/hits");
-   	/*TCanvas *c = new TCanvas("c","X position fit",200,10,500,500);
-	hX->Draw();
-
-    TF1* fit = new TF1("", "gaus", hX->GetMaximumBin() / (1/pitch) - 32, hX->GetMaximumBin() / (1/pitch) - 26);
-
-    hX->Fit(fit, "QRL");  // Q = quiet, no info in screen; N = no plot; R = fit in the function range; L = log likelihood fit (default is chi-square) ; W = Set all weights to 1 for non empty bins; ignore error bars; WW = Set all weights to 1 including empty bins; ignore error bars
-	
-	//cout << "Drawing fit" << endl;	
-	//fit->Draw();
-
-	c->Update();
-
-    gausSigmaX = fit->GetParameter(2);
-
-    //delete fit;
-	//delete hX;
-
-	TH1::AddDirectory(kTRUE);
-    
-    return gausSigmaX;
-     */
-    //return max;
-//}
-/**
-void TRestHits::WriteHitToTextFile(TString filename) {
+void TRestHits::WriteHitsToTextFile(TString filename) {
     FILE* fff = fopen(filename.Data(), "w");
-    for (int i = 0; i < GetNumberOfHits(); i++)
-        fprintf(fff, "%d\t%e\t%e\n", i, fX[i], fEnergy[i]);
+    for (int i = 0; i < GetNumberOfHits(); i++) {
+        if ((fType.size() == 0 ? !IsNaN(fX[i]) : fType[i] % X == 0))
+            fprintf(fff, "%d\t%e\t%e\t%e\t%e\n", i, fX[i], "NaN", fZ[i], fEnergy[i]);
+        if ((fType.size() == 0 ? !IsNaN(fY[i]) : fType[i] % Y == 0))		
+            fprintf(fff, "%d\t%e\t%e\t%e\t%e\n", i, "NaN", fY[i], fZ[i], fEnergy[i]);
+    }
     fclose(fff);
 }
-**/
 
 Double_t TRestHits::GetGaussSigmaX() {
 	Double_t gausSigmaX = 0;
 	Int_t nHits = GetNumberOfHits();
-	//cout << "nHits = " << n << endl;
 	Double_t x[nHits], y[nHits], ex[nHits], ey[nHits];
 	if (nHits <= 3) {	
 		gausSigmaX = 0;
 	} else {
-	//Data to fill the graph
 		for (int n = 0; n < GetNumberOfHits(); n++) {
-			//if ((fType.size() == 0 ? !IsNaN(fX[n]) : fType[n] % X == 0)){
-				//hX->Fill(fX[n], fEnergy[n]);
 				x[n] = fX[n];
 				y[n] = fEnergy[n];
-				//cout << "fX[n] = " << fX[n] << endl;
-				//cout << "energy = " << fEnergy[n] << endl;
-				//Including the errors
 				ex[n] = 0;
 				if (y[n] != 0) {
-					ey[n] = 11.2*sqrt(y[n]);		
+					ey[n] = 10*sqrt(y[n]);		
 				} else {
 					ey[n] = 0; 
 				}
-			//}	
 		}	
-		//Creating TGraph
 		TGraphErrors *grX = new TGraphErrors(nHits,x,y,ex,ey);
-		//TCanvas *c = new TCanvas; //DEBUG
-		//Defining range of the x axis in TGraph to better see the fit
-		//TAxis *axis = grX->GetXaxis();
-	   	//axis->SetLimits(-20.,20.);        
-		//grX -> Draw(); //For debugging. A: Axis are drawn around the graph; C: A smooth Curve is drawn; *: A Star is plotted at each point
-		//Finding the maximum
 		Double_t maxY =  MaxElement(nHits,grX->GetY());
 		Double_t maxX = grX->GetX()[LocMax(nHits,grX->GetY())];
-		//cout << "Max Y = " << maxY << " and the corresponding max X = " << maxX << endl;
-		     
 
-		//Fitting a gaussian to the points in the TGraph
-		TF1 *fit = new TF1("","gaus",maxX-5,maxX+5);
+		TF1 *fit = new TF1("","gaus");
 		fit->SetParameter(0,maxY);
 		fit->SetParameter(1,maxX);
 		fit->SetParameter(2, 2.0);
 		grX->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start parmaeters; R = Use the Range specified in the function range
 
-/**		TF1 *fit = new TF1("","gaus");
-		grX->Fit(fit, "Q");  // Q = quiet, no info in screen; N = no plot; B = no automatic start parmaeters; R = Use the Range specified in the function range
-**/
-		//c->Update(); //DEBUG
 		gausSigmaX = fit->GetParameter(2);
 
-		//delete fit;
-		//delete grX;
 	}
 
-    //if (areXZ()) return gausSigmaX;
-    //if (areYZ()) return 0;
 	return gausSigmaX;
 }
 
@@ -667,65 +600,64 @@ Double_t TRestHits::GetGaussSigmaY() {
 	if (nHits <= 3) {	
 		gausSigmaY = 0;
 	} else {
-	//Data to fill the graph
 		for (int n = 0; n < GetNumberOfHits(); n++) {
-			//if ((fType.size() == 0 ? !IsNaN(fY[n]) : fType[n] % Y == 0)) {
 				x[n] = fY[n];
 				y[n] = fEnergy[n];
-				//cout << "fY[n] = " << fX[n] << " || energy = " << fEnergy[n] << " || hit type = " << fType[n] << endl;
-				//Including the errors
 				ex[n] = 0;
 				if (y[n] != 0) {
-					ey[n] = 11.2*sqrt(y[n]);	
+					ey[n] = 10*sqrt(y[n]);	
 				} else {
 					ey[n] = 0; 
 				}
-			//}	
 		}	
-		//Creating TGraph
 		TGraphErrors *grY = new TGraphErrors(nHits,x,y,ex,ey);
-		//TCanvas *c = new TCanvas; //DEBUG
-		//grY -> Draw(); //For debugging. A: Axis are drawn around the graph; C: A smooth Curve is drawn; *: A Star is plotted at each point
 		Double_t maxY =  MaxElement(nHits,grY->GetY());
 		Double_t maxX = grY->GetX()[LocMax(nHits,grY->GetY())];
 		   
-		//Fitting a gaussian to the points in the TGraph
-		TF1 *fit = new TF1("","gaus",maxX-5,maxX+5);
+		TF1 *fit = new TF1("","gaus");
 		fit->SetParameter(0,maxY);
 		fit->SetParameter(1,maxX);
 		fit->SetParameter(2, 2.0);
 		grY->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start parmaeters; R = Use the Range specified in the function range
 
-		//c->Update(); //DEBUG
 		gausSigmaY = fit->GetParameter(2);
-
-		delete fit;
-		delete grY;
 	}
 	return gausSigmaY;
 }
-/**
-Double_t TRestHits::GetGaussSigmaY(Int_t readoutChannels, Int_t startChannel, Int_t endChannel, Double_t pitch) {
-	TH1::AddDirectory(kFALSE);
-    Double_t gausSigmaY = 0;
 
-	TH1D* hY = new TH1D("hitsGaussHistoY", "hitsGaussHistoY", readoutChannels, startChannel, endChannel);
+Double_t TRestHits::GetGaussSigmaZ() {
+	Double_t gausSigmaZ = 0;
+	Int_t nHits = GetNumberOfHits();
 
-    for (int n = 0; n < GetNumberOfHits(); n++) hY->Fill(fY[n], fEnergy[n]);
+	Double_t x[nHits], y[nHits], ex[nHits], ey[nHits];
+	if (nHits <= 3) {	
+		gausSigmaZ = 0;
+	} else {
+		for (int n = 0; n < GetNumberOfHits(); n++) {
+				x[n] = fZ[n];
+				y[n] = fEnergy[n];
+				ex[n] = 0;
+				if (y[n] != 0) {
+					ey[n] = 10*sqrt(y[n]);	
+				} else {
+					ey[n] = 0; 
+				}
+		}	
+		TGraphErrors *grZ = new TGraphErrors(nHits,x,y,ex,ey);
+		Double_t maxY =  MaxElement(nHits,grZ->GetY());
+		Double_t maxX = grZ->GetX()[LocMax(nHits,grZ->GetY())];
 
-    TF1* fit = new TF1("", "gaus", hY->GetMaximumBin() / (1/pitch) - 32, hY->GetMaximumBin() / (1/pitch) - 26);
+		TF1 *fit = new TF1("","gaus",maxX-5,maxX+5);
+		fit->SetParameter(0,maxY);
+		fit->SetParameter(1,maxX);
+		fit->SetParameter(2, 2.0);
+		grZ->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start parmaeters; R = Use the Range specified in the function range
 
-    hY->Fit(fit, "QNRL");  // Q = quiet, no info in screen; N = no plot; R = fit in the function range; L = log likelihood fit
-
-    gausSigmaY = fit->GetParameter(2);
-
-    delete fit;
-	delete hY;
-
-	TH1::AddDirectory(kTRUE);
-    return gausSigmaY;
+		gausSigmaZ = fit->GetParameter(2);
+	}
+	return gausSigmaZ;
 }
-**/
+
 Double_t TRestHits::GetSkewXY() {
     Double_t skewXY = 0;
     Double_t totalEnergy = this->GetTotalEnergy();

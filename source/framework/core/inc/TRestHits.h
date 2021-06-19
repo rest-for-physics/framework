@@ -131,7 +131,7 @@ class TRestHits : public TObject {
 
     Double_t GetGaussSigmaX();
     Double_t GetGaussSigmaY();
-    //Double_t GetGaussSigmaY(Int_t readoutChannels, Int_t startChannel, Int_t endChannel, Double_t pitch);
+    Double_t GetGaussSigmaZ();
 
     Double_t GetEnergyX();
     Double_t GetEnergyY();
@@ -192,7 +192,7 @@ class TRestHits : public TObject {
 
     Double_t GetTransversalProjection(TVector3 p0, TVector3 direction, TVector3 position);
 
-    void WriteHitToTextFile(TString filename);
+    void WriteHitsToTextFile(TString filename);
 
     virtual void PrintHits(Int_t nHits = -1);
 
