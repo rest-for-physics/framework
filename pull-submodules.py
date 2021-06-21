@@ -38,10 +38,10 @@ for x in range(narg - 1):
         sjtu = 1
         print("Adding submodules from sjtu repositories. You may be asked to enter password for it.")
     if ( sys.argv[x + 1].find("--latest") >= 0 ):
+        print("Pulling latest submodules from their git repository, instead of the version recorded by REST. This may cause the submodules to be uncompilable.")
+        latest = 1
         if( sys.argv[x + 1].find("--latest:") >= 0 ):
-            latest = 1
             fbName = sys.argv[x + 1][9:]
-            print("Pulling latest submodules from their git repository, instead of the version recorded by REST. This may cause the submodules to be uncompilable.")
     if (sys.argv[x + 1] == "--debug"):
         debug = 1
     if (sys.argv[x + 1] == "--dontask"):

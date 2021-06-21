@@ -132,7 +132,7 @@ TVector3 TRestMesh::GetPosition(Int_t nX, Int_t nY, Int_t nZ) {
         Double_t theta = (TMath::Pi() / (fNodesY - 1)) * nY;
         Double_t phi = (2 * TMath::Pi() / (fNodesY - 1)) * nZ - TMath::Pi();
 
-        TVector3 v;
+        TVector3 v(1, 0, 0);
         v.SetMag(r);
         v.SetTheta(theta);
         v.SetPhi(phi);
@@ -400,7 +400,7 @@ Int_t TRestMesh::GetNodeIndex(Int_t nx, Int_t ny, Int_t nz) {
 Int_t TRestMesh::GetGroupId(Double_t x, Double_t y, Double_t z) {
     Int_t nx, ny, nz;
     if (fIsSpherical) {
-        TVector3 v = TVector3(x, y, z);  // Because if one of them is nan, this might cause problems
+        TVector3 v(x, y, z);  // Because if one of them is nan, this might cause problems
         nx = GetNodeX(TVector3(x, y, z));
         ny = GetNodeY(TVector3(x, y, z));
         nz = GetNodeZ(TVector3(x, y, z));
@@ -518,7 +518,7 @@ void TRestMesh::AddNode(Double_t x, Double_t y, Double_t z, Double_t en) {
     Int_t nx, ny, nz;
 
     if (fIsSpherical) {
-        TVector3 v = TVector3(x, y, z);  // Because if one of them is nan, this might cause problems
+        TVector3 v(x, y, z);  // Because if one of them is nan, this might cause problems
         nx = GetNodeX(v);
         ny = GetNodeY(v);
         nz = GetNodeZ(v);
@@ -552,7 +552,7 @@ void TRestMesh::AddNode(Double_t x, Double_t y, Double_t z, Double_t en) {
 /// \brief If adds corresponding node to xyz-coordinates if not previously defined
 ///
 void TRestMesh::AddSphericalNode(Double_t r, Double_t theta, Double_t phi, Double_t en) {
-    TVector3 v;
+    TVector3 v(1, 0, 0);
     v.SetMag(r);
     v.SetTheta(theta);
     v.SetPhi(phi);
