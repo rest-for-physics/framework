@@ -119,6 +119,8 @@ class TRestMesh : public TObject {
     Int_t GetGroupId(Double_t x, Double_t y, Double_t z);
     Int_t GetGroupId(Int_t index);
 
+    Double_t GetGroupIdEnergy(Int_t index);
+
     Int_t FindNeighbourGroup(Int_t nx, Int_t ny, Int_t nz);
     Int_t FindForeignNeighbour(Int_t nx, Int_t ny, Int_t nz);
 

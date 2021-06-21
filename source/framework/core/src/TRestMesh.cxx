@@ -426,6 +426,19 @@ Int_t TRestMesh::GetGroupId(Int_t index) {
 }
 
 ///////////////////////////////////////////////
+/// \brief It returns the total energy of all nodes corresponding to the group id given by argument
+///
+Double_t TRestMesh::GetGroupIdEnergy(Int_t index) {
+    if (index > (int)nodeGroupID.size()) return 0.0;
+
+    Double_t sum = 0;
+    for (int n = 0; n < GetNumberOfNodes(); n++)
+        if (nodeGroupID[n] == index) sum += energy[n];
+
+    return sum;
+}
+
+///////////////////////////////////////////////
 /// \brief Returns the group id of the first node identified in the
 /// neighbour cell from cell=(nx,ny,nz).
 ///
