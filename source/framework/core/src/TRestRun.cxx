@@ -108,8 +108,9 @@ void TRestRun::Initialize() {
 /// 1. Read basic parameter. This is done by calling ReadAllParameters()
 /// 2. Initialize runnumber and input file name. They follow non-trival logic.
 /// 3. Construct default output file name with runNumber, runTag, etc.
-/// 4. Open input file(s), read the stored metadata and trees, read file name pattern.
-/// 5. Loop over sections to initialize metadata
+/// 4. Loop over sections to initialize metadata
+/// 5. Open input file(s), read the stored metadata and trees, read file name 
+/// pattern to TRestDetector metadata.
 ///
 void TRestRun::InitFromConfigFile() {
     debug << "Initializing TRestRun from config file, version: " << REST_RELEASE << endl;
