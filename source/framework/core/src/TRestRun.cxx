@@ -244,16 +244,7 @@ void TRestRun::InitFromConfigFile() {
         exit(1);
     }
 
-    // 4. Open input file(s)
-    OpenInputFile(0);
-    debug << "TRestRun::EndOfInit. InputFile pattern: \"" << fInputFileName << "\"" << endl;
-    info << "which matches :" << endl;
-    for (int i = 0; i < fInputFileNames.size(); i++) {
-        info << fInputFileNames[i] << endl;
-    }
-    essential << "(" << fInputFileNames.size() << " added files)" << endl;
-
-    // 5. Loop over sections to initialize metadata
+    // 4. Loop over sections to initialize metadata
     TiXmlElement* e = fElement->FirstChildElement();
     while (e != nullptr) {
         string keydeclare = e->Value();
@@ -314,6 +305,16 @@ void TRestRun::InitFromConfigFile() {
         }
         e = e->NextSiblingElement();
     }
+
+    // 5. Open input file(s). We open input file at the last stage in case the file name pattern
+    // reading requires TRestDetector
+    OpenInputFile(0);
+    debug << "TRestRun::EndOfInit. InputFile pattern: \"" << fInputFileName << "\"" << endl;
+    info << "which matches :" << endl;
+    for (int i = 0; i < fInputFileNames.size(); i++) {
+        info << fInputFileNames[i] << endl;
+    }
+    essential << "(" << fInputFileNames.size() << " added files)" << endl;
 }
 
 ///////////////////////////////////////////////
