@@ -356,7 +356,7 @@ void TRestMesh::Regrouping() {
                 nbIndex = FindForeignNeighbour(nde.X(), nde.Y(), nde.Z());
 
                 if (nbIndex != GROUP_NOT_FOUND) {
-                    nodeGroupID[nbIndex] = g;
+                    fNodeGroupID[nbIndex] = g;
                     change = true;
                 }
             }
@@ -377,7 +377,7 @@ void TRestMesh::Regrouping() {
     for (int i = 0; i < fNumberOfGroups; i++) {
         if (i != groups[i]) {
             for (int n = 0; n < GetNumberOfNodes(); n++)
-                if (GetGroupId(n) == groups[i]) nodeGroupID[n] = i;
+                if (GetGroupId(n) == groups[i]) fNodeGroupID[n] = i;
         }
     }
 }
@@ -388,7 +388,7 @@ void TRestMesh::Regrouping() {
 ///
 Int_t TRestMesh::GetNodeIndex(Int_t nx, Int_t ny, Int_t nz) {
     for (int i = 0; i < GetNumberOfNodes(); i++)
-        if (nodeX[i] == nx && nodeY[i] == ny && nodeZ[i] == nz) return i;
+        if (fNodeX[i] == nx && fNodeY[i] == ny && fNodeZ[i] == nz) return i;
     return -1;
 }
 
@@ -411,7 +411,7 @@ Int_t TRestMesh::GetGroupId(Double_t x, Double_t y, Double_t z) {
     }
 
     Int_t index = GetNodeIndex(nx, ny, nz);
-    if (index != NODE_NOT_SET) return nodeGroupID[index];
+    if (index != NODE_NOT_SET) return fNodeGroupID[index];
 
     return GROUP_NOT_FOUND;
 }
@@ -420,9 +420,22 @@ Int_t TRestMesh::GetGroupId(Double_t x, Double_t y, Double_t z) {
 /// \brief Returns the group id using the position inside the nodes vector.
 ///
 Int_t TRestMesh::GetGroupId(Int_t index) {
-    if (index > (int)nodeGroupID.size()) return GROUP_NOT_FOUND;
+    if (index > (int)fNodeGroupID.size()) return GROUP_NOT_FOUND;
 
-    return nodeGroupID[index];
+    return fNodeGroupID[index];
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the total energy of all nodes corresponding to the group id given by argument
+///
+Double_t TRestMesh::GetGroupIdEnergy(Int_t index) {
+    if (index > (int)fNodeGroupID.size()) return 0.0;
+
+    Double_t sum = 0;
+    for (int n = 0; n < GetNumberOfNodes(); n++)
+        if (fNodeGroupID[n] == index) sum += fEnergy[n];
+
+    return sum;
 }
 
 ///////////////////////////////////////////////
@@ -437,7 +450,7 @@ Int_t TRestMesh::FindNeighbourGroup(Int_t nx, Int_t ny, Int_t nz) {
             for (int k = nz - 1; k <= nz + 1; k++) {
                 if (i != nx || j != ny || k != nz) {
                     index = GetNodeIndex(i, j, k);
-                    if (index != NODE_NOT_SET) return nodeGroupID[index];
+                    if (index != NODE_NOT_SET) return fNodeGroupID[index];
                 }
             }
     return GROUP_NOT_FOUND;
@@ -453,14 +466,14 @@ Int_t TRestMesh::FindForeignNeighbour(Int_t nx, Int_t ny, Int_t nz) {
 
     if (index == NODE_NOT_SET) return GROUP_NOT_FOUND;
 
-    Int_t nodeGroup = nodeGroupID[index];
+    Int_t nodeGroup = fNodeGroupID[index];
 
     for (int i = nx - 1; i <= nx + 1; i++)
         for (int j = ny - 1; j <= ny + 1; j++)
             for (int k = nz - 1; k <= nz + 1; k++) {
                 if (i != nx || j != ny || k != nz) {
                     index = GetNodeIndex(i, j, k);
-                    if (index != NODE_NOT_SET && nodeGroupID[index] != nodeGroup) return index;
+                    if (index != NODE_NOT_SET && fNodeGroupID[index] != nodeGroup) return index;
                 }
             }
 
@@ -536,15 +549,15 @@ void TRestMesh::AddNode(Double_t x, Double_t y, Double_t z, Double_t en) {
             fNumberOfGroups++;
         }
 
-        nodeX.push_back(nx);
-        nodeY.push_back(ny);
-        nodeZ.push_back(nz);
-        nodeGroupID.push_back(gId);
-        energy.push_back(en);
+        fNodeX.push_back(nx);
+        fNodeY.push_back(ny);
+        fNodeZ.push_back(nz);
+        fNodeGroupID.push_back(gId);
+        fEnergy.push_back(en);
 
         fNumberOfNodes++;
     } else {
-        energy[index] += en;
+        fEnergy[index] += en;
     }
 }
 
@@ -569,15 +582,15 @@ void TRestMesh::AddSphericalNode(Double_t r, Double_t theta, Double_t phi, Doubl
             fNumberOfGroups++;
         }
 
-        nodeX.push_back(nx);
-        nodeY.push_back(ny);
-        nodeZ.push_back(nz);
-        nodeGroupID.push_back(gId);
-        energy.push_back(en);
+        fNodeX.push_back(nx);
+        fNodeY.push_back(ny);
+        fNodeZ.push_back(nz);
+        fNodeGroupID.push_back(gId);
+        fEnergy.push_back(en);
 
         fNumberOfNodes++;
     } else {
-        energy[index] += en;
+        fEnergy[index] += en;
     }
 }
 
@@ -585,10 +598,10 @@ void TRestMesh::AddSphericalNode(Double_t r, Double_t theta, Double_t phi, Doubl
 /// \brief It initializes all node vectors to zero
 ///
 void TRestMesh::RemoveNodes() {
-    nodeGroupID.clear();
-    nodeX.clear();
-    nodeY.clear();
-    nodeZ.clear();
+    fNodeGroupID.clear();
+    fNodeX.clear();
+    fNodeY.clear();
+    fNodeZ.clear();
     fNumberOfNodes = 0;
     fNumberOfGroups = 0;
 }
@@ -843,7 +856,7 @@ void TRestMesh::Print() {
               << " Number of groups : " << GetNumberOfGroups() << std::endl;
     std::cout << "---------------------------------------------" << std::endl;
     for (int i = 0; i < GetNumberOfNodes(); i++)
-        std::cout << "Group : " << nodeGroupID[i] << " X : " << nodeX[i] << " Y : " << nodeY[i]
-                  << " Z : " << nodeZ[i] << std::endl;
+        std::cout << "Group : " << fNodeGroupID[i] << " X : " << fNodeX[i] << " Y : " << fNodeY[i]
+                  << " Z : " << fNodeZ[i] << std::endl;
     std::cout << "---------------------------------------------" << std::endl;
 }
