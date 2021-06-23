@@ -102,7 +102,10 @@ REST_Verbose_Level gVerbose = REST_Warning;
 // initialize converter methods
 template <class T>
 string ToStringSimple(T source) {
-    return ToString(source);
+    ostringstream ss1;
+    ss1.precision(cout.precision());
+    ss1 << source;
+    return ss1.str();
 }
 AddConverter(ToStringSimple, StringToInteger, int);
 AddConverter(ToStringSimple, StringToDouble, double);
