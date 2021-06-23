@@ -1,3 +1,7 @@
 div.image img[src="trigger.png"]{ 
     width:500px; 
 }
+
+#projectname {
+	   font-size: 24px;
+   }
