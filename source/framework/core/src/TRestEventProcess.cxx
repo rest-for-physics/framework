@@ -68,6 +68,7 @@ TRestEventProcess::TRestEventProcess() {
     fObservablesDefined.clear();
     fObservablesUpdated.clear();
     fSingleThreadOnly = false;
+    fCanvasSize = TVector2(800, 600);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -160,9 +161,22 @@ void TRestEventProcess::SetAnalysisTree(TRestAnalysisTree* tree) {
 void TRestEventProcess::SetFriendProcess(TRestEventProcess* p) {
     if (p == nullptr) return;
     for (int i = 0; i < fFriendlyProcesses.size(); i++) {
-        if (fFriendlyProcesses[i]->GetName() == p->GetName()) return;
+        if (fFriendlyProcesses[i]->GetName() == p->GetName()) {
+            return;
+        }
     }
     fFriendlyProcesses.push_back(p);
+}
+
+/// Add parallel process to this process
+void TRestEventProcess::SetParallelProcess(TRestEventProcess* p) {
+    if (p == nullptr) return;
+    for (int i = 0; i < fParallelProcesses.size(); i++) {
+        if (fParallelProcesses[i] == p || this == p) {
+            return;
+        }
+    }
+    fParallelProcesses.push_back(p);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -249,7 +263,7 @@ TRestEventProcess* TRestEventProcess::GetFriend(string nameortype) {
         if (friendfromfile != nullptr && friendfromfile->InheritsFrom("TRestEventProcess")) {
             return (TRestEventProcess*)friendfromfile;
         }
-        return NULL;
+        return nullptr;
     } else {
         return proc;
     }
@@ -266,7 +280,14 @@ TRestEventProcess* TRestEventProcess::GetFriendLive(string nameortype) {
             return fFriendlyProcesses[i];
         }
     }
-    return NULL;
+    return nullptr;
+}
+
+TRestEventProcess* TRestEventProcess::GetParallel(int i) {
+    if (i >= 0 && i < fParallelProcesses.size()) {
+        return fParallelProcesses[i];
+    }
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -469,7 +490,7 @@ void TRestEventProcess::EndPrintProcess() {
 TRestAnalysisTree* TRestEventProcess::GetFullAnalysisTree() {
     if (fHostmgr != nullptr && fHostmgr->GetProcessRunner() != nullptr)
         return fHostmgr->GetProcessRunner()->GetOutputAnalysisTree();
-    return NULL;
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////

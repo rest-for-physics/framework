@@ -18,6 +18,6 @@ set(rest_macros ${rest_macros} "restMergeFiles")
 set(rest_macros ${rest_macros} "restMakeProcess")
 set(rest_macros ${rest_macros} "restPrintMetadata")
 set(rest_macros ${rest_macros} "restPrintFileContents")
-
+set(rest_macros ${rest_macros} "restSendMessage")
 
 set(rest_macros ${rest_macros} PARENT_SCOPE)

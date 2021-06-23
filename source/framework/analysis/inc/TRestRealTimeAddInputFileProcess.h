@@ -20,62 +20,56 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestRealTimeDrawingProcess
-#define RestCore_TRestRealTimeDrawingProcess
+#ifndef RESTProc_TRestRealTimeAddInputFileProcess
+#define RESTProc_TRestRealTimeAddInputFileProcess
 
-#include "TRestAnalysisPlot.h"
+#include "TRestEvent.h"
 #include "TRestEventProcess.h"
-#include "TVector2.h"
+#include "TRestMessenger.h"
 
-//! A process to draw analysis plots during processing, in case the process chain takes
-//! long time while we want to see the result instantly.
-class TRestRealTimeDrawingProcess : public TRestEventProcess {
+class TRestRealTimeAddInputFileProcess : public TRestEventProcess {
    private:
-    /// How many events passed when it starts next drawing
-    int fDrawInterval;
-    /// How many events passed when it starts next drawing
-    Int_t fThreadWaitTimeoutMs;
+    // We define specific input/output event data holders
+    TRestEvent* fEvent;                     //!
+    TRestMessenger* fMessenger;  //!
+    static thread* fMonitorThread;          //!
+    static int fMonitorFlag;        //!   //0: return, 1: run
 
-    /// TRestAnalysisPlot object called for drawing
-    static vector<string> fProcessesToDraw;  //!
-    /// TRestAnalysisPlot object called for drawing
-    static vector<TRestAnalysisPlot*> fPlots;  //!
-    /// Last drawn entry of analysis tree
-    static Long64_t fLastDrawnEntry;  //!
-    /// Pause signal send for other threads when start drawing
-    static bool fPauseInvoke;  //!
-    /// Pause response flag from other threads when recieving pause signal
-    static map<TRestRealTimeDrawingProcess*, bool> fPauseResponse;  //!
-    /// The event pointer is not used in this process
-    TRestEvent* fEvent = nullptr;  //!
-
-    void InitProcess();
-    void EndProcess();
+    void InitFromConfigFile();
 
     void Initialize();
 
-   protected:
+    // Add here the members or parameters for your event process.
+    // You should set their initial values here together.
+    // Note: add "//!" mark at the end of the member definition
+    // if you don't want to save them as "metadata".
+
    public:
     any GetInputEvent() { return fEvent; }
     any GetOutputEvent() { return fEvent; }
 
-    TRestEvent* ProcessEvent(TRestEvent* evInput);
+    void InitProcess();
 
-    void PrintMetadata();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
 
-    /// Returns a new instance of this class
-    void DrawWithNotification();
+    void EndProcess();
 
-    void DrawOnce();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    /// Returns the name of this process
-    TString GetProcessName() { return (TString) "realtimedraw"; }
+        // Write here how to print the added process members and parameters.
 
-    TRestRealTimeDrawingProcess();
+        EndPrintProcess();
+    }
 
-    ~TRestRealTimeDrawingProcess();
+    void FileNotificationFunc();
 
-    // If new members are added, removed or modified in this class version number must be increased!
-    ClassDef(TRestRealTimeDrawingProcess, 3);
+    TRestRealTimeAddInputFileProcess();
+    ~TRestRealTimeAddInputFileProcess();
+
+    // ROOT class definition helper. Increase the number in it every time
+    // you add/rename/remove the process parameters
+    ClassDef(TRestRealTimeAddInputFileProcess, 1);
+
 };
 #endif
