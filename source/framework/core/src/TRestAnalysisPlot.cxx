@@ -561,7 +561,7 @@ TRestAnalysisTree* TRestAnalysisPlot::GetTree(TString fileName) {
     return fRun->GetAnalysisTree();
 }
 
-TRestRun* TRestAnalysisPlot::GetTRestRunInfo(TString fileName) {
+TRestRun* TRestAnalysisPlot::GetRunInfo(TString fileName) {
     // in any case we directly return fRun. No need to reopen the given file
     if (fileName == fRun->GetInputFileName(0)) {
         return fRun;
@@ -600,7 +600,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     Double_t runLength = 0;
     Int_t totalEntries = 0;
     for (unsigned int n = 0; n < fRunInputFileName.size(); n++) {
-        auto run = GetTRestRunInfo(fRunInputFileName[n]);
+        auto run = GetRunInfo(fRunInputFileName[n]);
 
         Double_t endTimeStamp = run->GetEndTimestamp();
         Double_t startTimeStamp = run->GetStartTimestamp();
@@ -638,7 +638,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             pos = 0;
             label = Replace(label, "<<meanRate>>", Form("%5.2lf", meanRate), pos);
 
-            auto run = GetTRestRunInfo(fRunInputFileName[0]);
+            auto run = GetRunInfo(fRunInputFileName[0]);
             label = run->ReplaceMetadataMembers(label);
 
             TLatex* texxt = new TLatex(fPanels[n].posX[m], fPanels[n].posY[m], label.c_str());
@@ -693,7 +693,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             bool firstdraw = false;
             TH3F* hTotal = hist.ptr;
             for (unsigned int j = 0; j < fRunInputFileName.size(); j++) {
-                auto run = GetTRestRunInfo(fRunInputFileName[j]);
+                auto run = GetRunInfo(fRunInputFileName[j]);
                 // apply "classify" condition
                 bool flag = true;
                 auto iter = hist.classifyMap.begin();

@@ -134,7 +134,7 @@ class TRestAnalysisPlot : public TRestMetadata {
     void AddFileFromEnv();
 
     TRestAnalysisTree* GetTree(TString fileName);
-    TRestRun* GetTRestRunInfo(TString fileName);
+    TRestRun* GetRunInfo(TString fileName);
     bool IsDynamicRange(TString rangeString);
 
    protected:
