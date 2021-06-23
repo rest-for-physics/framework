@@ -24,6 +24,8 @@
 #include <TF1.h>
 #include <TH1.h>
 #include <TVector3.h>
+#include <TGraphErrors.h>
+#include <TCanvas.h>
 
 #include <iostream>
 
@@ -127,8 +129,9 @@ class TRestHits : public TObject {
     Double_t GetSkewXY();
     Double_t GetSkewZ();
 
-    Double_t GetGaussSigmaX(Int_t readoutChannels, Int_t startChannel, Int_t endChannel, Double_t pitch);
-    Double_t GetGaussSigmaY(Int_t readoutChannels, Int_t startChannel, Int_t endChannel, Double_t pitch);
+    Double_t GetGaussSigmaX();
+    Double_t GetGaussSigmaY();
+    Double_t GetGaussSigmaZ();
 
     Double_t GetEnergyX();
     Double_t GetEnergyY();
@@ -188,6 +191,8 @@ class TRestHits : public TObject {
     TVector2 GetProjection(Int_t n, Int_t m, TVector3 position);
 
     Double_t GetTransversalProjection(TVector3 p0, TVector3 direction, TVector3 position);
+
+    void WriteHitsToTextFile(TString filename);
 
     virtual void PrintHits(Int_t nHits = -1);
 
