@@ -16,11 +16,12 @@ class TRestThread;
 class TRestManager;
 
 enum ProcStatus {
-    kNormal,  //!< normal processing
-    kPause,   //!< pausing the process, showing a menu
-    kStep,    //!< step to next event. this state will then fall back to kPause
-    kStop,    //!< stopping the process, files will be saved
-    kIgnore,  //!< do not response to keyboard orders
+    kNormal,    //!< normal processing
+    kPause,     //!< pausing the process, showing a menu
+    kStep,      //!< step to next event. this state will then fall back to kPause
+    kStopping,  //!< caller to stop the process during the run
+    kIgnore,    //!< do not response to keyboard orders
+    kFinished,  //!< finished state of process running
 };
 
 /// Running the processes efficiently with fantastic display.
@@ -94,7 +95,6 @@ class TRestProcessRunner : public TRestMetadata {
     TRestEventProcess* InstantiateProcess(TString type, TiXmlElement* ele);
     void PrintProcessedEvents(Int_t rateE);
     string MakeProgressBar(int progress100, int length = 100);
-    void SetProcStatus(ProcStatus s) { fProcStatus = s; }
 
     // getters and setters
     TRestEvent* GetInputEvent();
@@ -109,6 +109,7 @@ class TRestProcessRunner : public TRestMetadata {
     int GetNProcessedEvents() { return fProcessedEvents; }
     double GetReadingSpeed();
     bool UseTestRun() const { return fUseTestRun; }
+    ProcStatus GetStatus() { return fProcStatus; }
 
     // Constructor & Destructor
     TRestProcessRunner();

@@ -60,16 +60,16 @@ class TRestMesh : public TObject {
     Int_t fNumberOfGroups = 0;
 
     /// A vector storing the group ID of the corresponding nodes activated
-    std::vector<Int_t> nodeGroupID;
+    std::vector<Int_t> fNodeGroupID;
     /// A vector storing the X-dimension cell id
-    std::vector<Int_t> nodeX;
+    std::vector<Int_t> fNodeX;
     /// A vector storing the Y-dimension cell id
-    std::vector<Int_t> nodeY;
+    std::vector<Int_t> fNodeY;
     /// A vector storing the Z-dimension cell id
-    std::vector<Int_t> nodeZ;
+    std::vector<Int_t> fNodeZ;
 
     /// A vector storing the total energy inside the cell id
-    std::vector<Double_t> energy;
+    std::vector<Double_t> fEnergy;
 
     /// A flag to indentify if we use cylindrical coordinates
     Bool_t fIsCylindrical = false;
@@ -103,12 +103,12 @@ class TRestMesh : public TObject {
 
     /// Returns a node by its position in the vector
     TVector3 GetNodeByIndex(Int_t index) {
-        TVector3 node(nodeX[index], nodeY[index], nodeZ[index]);
+        TVector3 node(fNodeX[index], fNodeY[index], fNodeZ[index]);
         return node;
     }
 
     /// Returns the energy at a particular node
-    Double_t GetEnergyAtNode(Int_t nx, Int_t ny, Int_t nz) { return energy[GetNodeIndex(nx, ny, nz)]; }
+    Double_t GetEnergyAtNode(Int_t nx, Int_t ny, Int_t nz) { return fEnergy[GetNodeIndex(nx, ny, nz)]; }
 
     void SetNodesFromHits(TRestHits* hits);
     void SetNodesFromSphericalHits(TRestHits* hits);
@@ -118,6 +118,8 @@ class TRestMesh : public TObject {
 
     Int_t GetGroupId(Double_t x, Double_t y, Double_t z);
     Int_t GetGroupId(Int_t index);
+
+    Double_t GetGroupIdEnergy(Int_t index);
 
     Int_t FindNeighbourGroup(Int_t nx, Int_t ny, Int_t nz);
     Int_t FindForeignNeighbour(Int_t nx, Int_t ny, Int_t nz);
