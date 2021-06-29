@@ -63,5 +63,7 @@ void TRestDummyMetadata::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     metadata << "Dummy : " << fDummy << endl;
+    metadata << "Dummy String : " << fDummyString << endl;
+
     metadata << endl;
 }

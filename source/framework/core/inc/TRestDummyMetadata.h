@@ -30,6 +30,8 @@ class TRestDummyMetadata : public TRestMetadata {
    protected:
     /// Documentation of my dummy member
     Double_t fDummy = 0;
+    /// Dummy string
+    TString fDummyString = "";
 
    public:
     void Initialize();
@@ -44,8 +46,16 @@ class TRestDummyMetadata : public TRestMetadata {
     ~TRestDummyMetadata();
 
     // Setters & Getters
+    // Should use "inline" when defining functions in the header
     inline Double_t GetDummy() const { return fDummy; }
+    // Here you don't pass as const reference since its a built-in type (Double_t = double)
     inline void SetDummy(Double_t dummy) { fDummy = dummy; }
+
+    inline TString GetDummyString() const { return fDummyString; }
+    // IMPORTANT! you should use const references whenever possible, such as in this case.
+    // Avoid copying large objects!
+    // All types, except built-in types (such as int, double...) should be passed via const reference
+    inline void SetDummyString(const TString& dummyString) { fDummyString = dummyString; }
 
     ClassDef(TRestDummyMetadata, 1);
 };
