@@ -42,7 +42,10 @@
 
 ClassImp(TRestDummyMetadata);
 
-TRestDummyMetadata::TRestDummyMetadata() { Initialize(); }
+// Initialize a const class member in the constructor
+TRestDummyMetadata::TRestDummyMetadata(Int_t dummyConstNumber = 0) : fDummyConstNumber(dummyConstNumber) {
+    Initialize();
+}
 
 TRestDummyMetadata::~TRestDummyMetadata() = default;
 
@@ -64,6 +67,7 @@ void TRestDummyMetadata::PrintMetadata() {
 
     metadata << "Dummy : " << fDummy << endl;
     metadata << "Dummy String : " << fDummyString << endl;
+    metadata << "Dummy Const Number : " << fDummyConstNumber << endl;
 
     metadata << endl;
 }

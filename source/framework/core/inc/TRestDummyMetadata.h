@@ -32,6 +32,10 @@ class TRestDummyMetadata : public TRestMetadata {
     Double_t fDummy = 0;
     /// Dummy string
     TString fDummyString = "";
+    /// Dummy CONSTANT member
+    // It is better to use 'const' class members whenever possible (they won't be modified).
+    // These members do not need a Setter.
+    const Int_t fDummyConstNumber;  // const members can be initialized here, but... (see constructor)
 
    public:
     void Initialize();
@@ -42,7 +46,7 @@ class TRestDummyMetadata : public TRestMetadata {
     void PrintMetadata();
 
     // Constructor & Destructor
-    TRestDummyMetadata();
+    TRestDummyMetadata(Int_t dummyConstNumber);
     ~TRestDummyMetadata();
 
     // Setters & Getters
@@ -56,6 +60,8 @@ class TRestDummyMetadata : public TRestMetadata {
     // Avoid copying large objects!
     // All types, except built-in types (such as int, double...) should be passed via const reference
     inline void SetDummyString(const TString& dummyString) { fDummyString = dummyString; }
+
+    inline Int_t GetDummyConstNumber() const { return fDummyConstNumber; }
 
     ClassDef(TRestDummyMetadata, 1);
 };
