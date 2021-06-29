@@ -43,6 +43,10 @@ class TRestDummyMetadata : public TRestMetadata {
     TRestDummyMetadata();
     ~TRestDummyMetadata();
 
+    // Setters & Getters
+    inline Double_t GetDummy() const { return fDummy; }
+    inline void SetDummy(Double_t dummy) { fDummy = dummy; }
+
     ClassDef(TRestDummyMetadata, 1);
 };
 

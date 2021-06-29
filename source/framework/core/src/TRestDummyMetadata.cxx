@@ -44,7 +44,7 @@ ClassImp(TRestDummyMetadata);
 
 TRestDummyMetadata::TRestDummyMetadata() { Initialize(); }
 
-TRestDummyMetadata::~TRestDummyMetadata() {}
+TRestDummyMetadata::~TRestDummyMetadata() = default;
 
 ///////////////////////////////////////////////
 /// \brief Set variables by default during initialization.
@@ -65,4 +65,3 @@ void TRestDummyMetadata::PrintMetadata() {
     metadata << "Dummy : " << fDummy << endl;
     metadata << endl;
 }
-
