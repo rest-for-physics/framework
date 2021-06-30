@@ -13,8 +13,8 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         message(FATAL_ERROR "Clang version must be at least 3.2!")
     endif ()
 endif ()
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED YES)
+
+
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-stdlib=libc++")
 endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
@@ -46,16 +46,36 @@ if (NOT DEFINED REST_WELCOME)
     set(REST_WELCOME ON)
 endif ()
 
-# Find ROOT libs and includes
 set(external_include_dirs)
 set(external_libs)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${DECAY_PATH}/cmake ${CMAKE_MODULE_PATH})
 set(CMAKE_MACOSX_RPATH 1)
 
+# ROOT libs and includes
+
 find_package(ROOT REQUIRED)
+
+execute_process(COMMAND root-config --has-cxx20 OUTPUT_VARIABLE HASCXX20)
+execute_process(COMMAND root-config --has-cxx17 OUTPUT_VARIABLE HASCXX17)
+execute_process(COMMAND root-config --has-cxx14 OUTPUT_VARIABLE HASCXX14)
+execute_process(COMMAND root-config --has-cxx11 OUTPUT_VARIABLE HASCXX11)
+
+set(CMAKE_CXX_STANDARD_REQUIRED YES)
+
+if (${HASCXX20} MATCHES "yes")
+    set(CMAKE_CXX_STANDARD 20)
+elseif (${HASCXX17} MATCHES "yes")
+    set(CMAKE_CXX_STANDARD 17)
+elseif (${HASCXX14} MATCHES "yes")
+    set(CMAKE_CXX_STANDARD 14)
+elseif (${HASCXX11} MATCHES "yes")
+    set(CMAKE_CXX_STANDARD 11)
+endif ()
+
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
 set(external_libs ${external_libs} "${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit -lSpectrum")
+
 
 # Switch to enable ROOT Eve functionality.
 if (NOT DEFINED REST_EVE)

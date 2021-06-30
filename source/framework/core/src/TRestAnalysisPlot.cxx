@@ -164,7 +164,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     fCanvasSize = StringTo2DVector(GetParameter("size", canvasdef, "(800,600)"));
     fCanvasDivisions = StringTo2DVector(GetParameter("divide", canvasdef, "(1,1)"));
     fCanvasDivisionMargins = StringTo2DVector(GetParameter("divideMargin", canvasdef, "(0.01, 0.01)"));
-    fCanvasSave = GetParameter("save", canvasdef, "/tmp/restplot.pdf");
+    fCanvasSave = GetDataPath() + GetParameter("save", canvasdef, "rest_AnalysisPlot.pdf");
     fPaletteStyle = StringToInteger(GetParameter("paletteStyle", canvasdef, "57"));
 #pragma endregion
 
@@ -421,7 +421,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
         string cutActive = GetParameter("value", cutele, "ON");
         if (ToUpper(cutActive) == "ON") {
             string cutVariable = GetParameter("variable", cutele);
-            if (cutVariable == "NO_SUCH_PARA") {
+            if (cutVariable == PARAMETER_NOT_FOUND_STR) {
                 ferr << "Variable was not found! There is a problem inside <cut definition. Check it."
                      << endl;
                 cout << "Contents of entire <histo definition : " << ElementToString(histele) << endl;
@@ -429,7 +429,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
             }
 
             string cutCondition = GetParameter("condition", cutele);
-            if (cutCondition == "NO_SUCH_PARA") {
+            if (cutCondition == PARAMETER_NOT_FOUND_STR) {
                 ferr << "Condition was not found! There is a problem inside <cut definition. Check it."
                      << endl;
                 cout << "Contents of entire <histo definition : " << ElementToString(histele) << endl;
@@ -455,7 +455,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
         string cutActive = GetParameter("value", cutstrele, "ON");
         if (ToUpper(cutActive) == "ON") {
             string cutStr = GetParameter("string", cutstrele);
-            if (cutStr == "NO_SUCH_PARA") {
+            if (cutStr == PARAMETER_NOT_FOUND_STR) {
                 ferr << "Cut string was not found! There is a problem inside <cutString definition. Check it."
                      << endl;
                 cout << "Contents of entire <histo definition : " << ElementToString(histele) << endl;
@@ -543,7 +543,7 @@ Int_t TRestAnalysisPlot::GetPlotIndex(TString plotName) {
     return -1;
 }
 
-TRestAnalysisTree* TRestAnalysisPlot::GetTreeFromFile(TString fileName) {
+TRestAnalysisTree* TRestAnalysisPlot::GetTree(TString fileName) {
     if (fileName == fRun->GetInputFileName(0)) {
         // this means the file is already opened by TRestRun
         return fRun->GetAnalysisTree();
@@ -553,8 +553,7 @@ TRestAnalysisTree* TRestAnalysisPlot::GetTreeFromFile(TString fileName) {
         return (TRestAnalysisTree*)fRun->GetOutputFile()->Get("AnalysisTree");
     }
     if (fHostmgr != nullptr && fHostmgr->GetProcessRunner() != nullptr &&
-        fHostmgr->GetProcessRunner()->GetTempOutputDataFile() != nullptr &&
-        fHostmgr->GetProcessRunner()->GetTempOutputDataFile()->GetName() == fileName) {
+        fHostmgr->GetProcessRunner()->GetStatus() != kFinished) {
         // this means the process is still ongoing
         return fHostmgr->GetProcessRunner()->GetOutputAnalysisTree();
     }
@@ -562,7 +561,7 @@ TRestAnalysisTree* TRestAnalysisPlot::GetTreeFromFile(TString fileName) {
     return fRun->GetAnalysisTree();
 }
 
-TRestRun* TRestAnalysisPlot::GetInfoFromFile(TString fileName) {
+TRestRun* TRestAnalysisPlot::GetRunInfo(TString fileName) {
     // in any case we directly return fRun. No need to reopen the given file
     if (fileName == fRun->GetInputFileName(0)) {
         return fRun;
@@ -571,8 +570,7 @@ TRestRun* TRestAnalysisPlot::GetInfoFromFile(TString fileName) {
         return fRun;
     }
     if (fHostmgr != nullptr && fHostmgr->GetProcessRunner() != nullptr &&
-        fHostmgr->GetProcessRunner()->GetTempOutputDataFile() != nullptr &&
-        fHostmgr->GetProcessRunner()->GetTempOutputDataFile()->GetName() == fileName) {
+        fHostmgr->GetProcessRunner()->GetStatus() != kFinished) {
         return fRun;
     }
     fRun->OpenInputFile(fileName);
@@ -602,7 +600,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     Double_t runLength = 0;
     Int_t totalEntries = 0;
     for (unsigned int n = 0; n < fRunInputFileName.size(); n++) {
-        auto run = GetInfoFromFile(fRunInputFileName[n]);
+        auto run = GetRunInfo(fRunInputFileName[n]);
 
         Double_t endTimeStamp = run->GetEndTimestamp();
         Double_t startTimeStamp = run->GetStartTimestamp();
@@ -640,7 +638,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             pos = 0;
             label = Replace(label, "<<meanRate>>", Form("%5.2lf", meanRate), pos);
 
-            auto run = GetInfoFromFile(fRunInputFileName[0]);
+            auto run = GetRunInfo(fRunInputFileName[0]);
             label = run->ReplaceMetadataMembers(label);
 
             TLatex* texxt = new TLatex(fPanels[n].posX[m], fPanels[n].posY[m], label.c_str());
@@ -695,7 +693,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             bool firstdraw = false;
             TH3F* hTotal = hist.ptr;
             for (unsigned int j = 0; j < fRunInputFileName.size(); j++) {
-                auto run = GetInfoFromFile(fRunInputFileName[j]);
+                auto run = GetRunInfo(fRunInputFileName[j]);
                 // apply "classify" condition
                 bool flag = true;
                 auto iter = hist.classifyMap.begin();
@@ -708,7 +706,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 }
                 if (!flag) continue;
 
-                TTree* tree = GetTreeFromFile(fRunInputFileName[j]);
+                TTree* tree = GetTree(fRunInputFileName[j]);
 
                 // call Draw() from analysis tree
                 int outVal;
@@ -760,7 +758,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             }
 
             if (hTotal == nullptr) {
-                warning << "Histogram \"" << nameString << "\" is NULL" << endl;
+                warning << "Histogram \"" << nameString << "\" is nullptr" << endl;
             } else if (firstdraw) {
                 // adjust the histogram
                 hTotal->SetTitle(plot.title.c_str());
@@ -834,9 +832,9 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             }
         }
         plot.histos[maxID]->Draw(plot.histos[maxID].drawOption.c_str());
-        if (((string)plot.histos[maxID]->ClassName()).find("TH1") != -1) {
-            plot.histos[maxID]->GetYaxis()->SetRangeUser(plot.logY, maxValue_Pad * 1.2);
-        }
+        // if (((string)plot.histos[maxID]->ClassName()).find("TH1") != -1) {
+        //    plot.histos[maxID]->GetYaxis()->SetRangeUser(plot.logY, maxValue_Pad * 1.2);
+        //}
 
         for (unsigned int i = 0; i < plot.histos.size(); i++) {
             // draw the remaining histo
@@ -940,21 +938,3 @@ void TRestAnalysisPlot::SaveHistoToPDF(TString fileName, Int_t nPlot, Int_t nHis
     delete c;
     return;
 }
-
-//
-// void TRestAnalysisPlot::SaveHistoToPDF(TH1D* h, Int_t n, TString fileName) {
-//    gErrorIgnoreLevel = 10;
-//
-//    TCanvas* c = new TCanvas(h->GetName(), h->GetTitle(), 800, 600);
-//
-//    h->Draw("colz");
-//
-//    h->SetTitle(fHistoTitle[n]);
-//    h->GetXaxis()->SetTitle(fHistoXLabel[n]);
-//    h->GetYaxis()->SetTitle(fHistoYLabel[n]);
-//
-//    h->Draw("colz");
-//    c->Print(fileName);
-//
-//    delete c;
-//}

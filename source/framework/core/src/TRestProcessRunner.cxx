@@ -146,20 +146,20 @@ void TRestProcessRunner::BeginOfInit() {
     }
     fRunInfo->SetCurrentEntry(fFirstEntry);
 
-    //fUseTestRun = StringToBool(GetParameter("useTestRun", "ON"));
-    //fUsePauseMenu = StringToBool(GetParameter("usePauseMenu", "OFF"));
+    // fUseTestRun = StringToBool(GetParameter("useTestRun", "ON"));
+    // fUsePauseMenu = StringToBool(GetParameter("usePauseMenu", "OFF"));
     if (!fUsePauseMenu || fVerboseLevel >= REST_Debug) fProcStatus = kIgnore;
     if (fOutputAnalysisStorage == false) {
         ferr << "output analysis must be turned on to process data!" << endl;
         exit(1);
     }
-    //fValidateObservables = StringToBool(GetParameter("validateObservables", "OFF"));
-    //fSortOutputEvents = StringToBool(GetParameter("sortOutputEvents", "ON"));
-    //fThreadNumber = StringToDouble(GetParameter("threadNumber", "1"));
-    //if (ToUpper(GetParameter("inputAnalysis", "ON")) == "ON") fOutputItem[0] = true;
-    //if (ToUpper(GetParameter("inputEvent", "OFF")) == "ON") fOutputItem[1] = true;
-    //if (ToUpper(GetParameter("outputEvent", "ON")) == "ON") fOutputItem[2] = true;
-    //fOutputItem[3] = true;
+    // fValidateObservables = StringToBool(GetParameter("validateObservables", "OFF"));
+    // fSortOutputEvents = StringToBool(GetParameter("sortOutputEvents", "ON"));
+    // fThreadNumber = StringToDouble(GetParameter("threadNumber", "1"));
+    // if (ToUpper(GetParameter("inputAnalysis", "ON")) == "ON") fOutputItem[0] = true;
+    // if (ToUpper(GetParameter("inputEvent", "OFF")) == "ON") fOutputItem[1] = true;
+    // if (ToUpper(GetParameter("outputEvent", "ON")) == "ON") fOutputItem[2] = true;
+    // fOutputItem[3] = true;
 
     // fOutputItem = Split(GetParameter("treeBranches",
     // "inputevent:outputevent:inputanalysis"), ":");
@@ -201,31 +201,36 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement* e) {
         }
 
         info << "adding process " << processType << " \"" << processName << "\"" << endl;
+        vector<TRestEventProcess*> processes;
         for (int i = 0; i < fThreadNumber; i++) {
             TRestEventProcess* p = InstantiateProcess(processType, e);
             if (p != nullptr) {
                 if (p->isExternal()) {
                     fRunInfo->SetExtProcess(p);
                     return 0;
-                } else if (p->GetVerboseLevel() >= REST_Debug || p->singleThreadOnly()) {
+                }
+                if (fThreadNumber > 1 && (p->GetVerboseLevel() >= REST_Debug || p->singleThreadOnly())) {
                     fProcStatus = kIgnore;
                     info << "multi-threading is disabled due to process \"" << p->GetName() << "\"" << endl;
                     info << "This process is in debug mode or is single thread only" << endl;
-
-                    if (fThreadNumber > 1) {
-                        for (i = fThreadNumber; i > 1; i--) {
-                            fThreads.erase(fThreads.end() - 1);
-                            fThreadNumber--;
-                        }
-                        fThreads[0]->AddProcess(p);
-
-                        break;
+                    for (i = fThreadNumber; i > 1; i--) {
+                        delete (*fThreads.end());
+                        fThreads.erase(fThreads.end() - 1);
+                        fThreadNumber--;
                     }
                 }
-                fThreads[i]->AddProcess(p);
+                processes.push_back(p);
             } else {
-                return 0;
+                return 1;
             }
+        }
+
+        for (int i = 0; i < fThreadNumber; i++) {
+            TRestEventProcess* p = processes[i];
+            for (int j = 0; j < fThreadNumber; j++) {
+                p->SetParallelProcess(processes[j]);
+            }
+            fThreads[i]->AddProcess(p);
         }
 
         fProcessNumber++;
@@ -424,7 +429,7 @@ void TRestProcessRunner::RunProcess() {
         if (fProcStatus == kPause) {
             PauseMenu();
         }
-        if (fProcStatus == kStop) {
+        if (fProcStatus == kStopping) {
             break;
         }
 
@@ -464,6 +469,8 @@ void TRestProcessRunner::RunProcess() {
     for (int i = 0; i < fThreadNumber; i++) {
         fThreads[i]->EndProcess();
     }
+
+    fProcStatus = kFinished;
 
 #ifdef TIME_MEASUREMENT
     high_resolution_clock::time_point t4 = high_resolution_clock::now();
@@ -654,7 +661,7 @@ void TRestProcessRunner::PauseMenu() {
             fOutputEvent->PrintEvent();
             break;
         } else if (b == 'q') {
-            fProcStatus = kStop;
+            fProcStatus = kStopping;
             break;
         } else if (b == 'p') {
             Console::CursorUp(menuupper);
@@ -713,11 +720,11 @@ Int_t TRestProcessRunner::GetNextevtFunc(TRestEvent* targetevt, TRestAnalysisTre
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
 #endif
     int n;
-    if (fProcessedEvents >= fEventsToProcess || targetevt == nullptr || fProcStatus == kStop) {
+    if (fProcessedEvents >= fEventsToProcess || targetevt == nullptr || fProcStatus == kStopping) {
         n = -1;
     } else {
         if (fInputAnalysisStorage == false) {
-            n = fRunInfo->GetNextEvent(targetevt, NULL);
+            n = fRunInfo->GetNextEvent(targetevt, nullptr);
         } else {
             n = fRunInfo->GetNextEvent(targetevt, targettree);
         }
@@ -738,7 +745,6 @@ Int_t TRestProcessRunner::GetNextevtFunc(TRestEvent* targetevt, TRestAnalysisTre
 /// simultaneously in two threads. As a result threads will not write their
 /// files together, thus preventing segmentaion violation.
 void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
-
     if (fSortOutputEvents) {
         // Make sure the thread has the minimum event id in the all the
         // threads. Otherwise just wait.
@@ -885,7 +891,7 @@ void TRestProcessRunner::ResetRunTimes() {
     writeTime = 0;
     deltaTime = 0;
 #endif
-    time_t tt = time(NULL);
+    time_t tt = time(nullptr);
     fProcessInfo["ProcessDate"] = Split(ToDateTimeString(tt), " ")[0];
 }
 
@@ -897,7 +903,7 @@ void TRestProcessRunner::ResetRunTimes() {
 /// xml section.
 TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type, TiXmlElement* ele) {
     TRestEventProcess* pc = REST_Reflection::Assembly((string)type);
-    if (pc == nullptr) return NULL;
+    if (pc == nullptr) return nullptr;
 
     pc->SetRunInfo(this->fRunInfo);
     pc->SetHostmgr(fHostmgr);
@@ -1035,7 +1041,7 @@ void TRestProcessRunner::PrintMetadata() {
     string status;
     if (fProcStatus == kNormal)
         status = "Normal";
-    else if (fProcStatus == kStop)
+    else if (fProcStatus == kStopping)
         status = "Terminated";
     else
         status = "Unknown";

@@ -21,10 +21,10 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestMessengerAndReceiver
+/// TRestMessenger
 ///
 /// This metadata helps to recieve/dispatch messages across processes(UNIX process)
-/// For example, we start two restManager with TRestMessengerAndReceiver added as metadata.
+/// For example, we start two restManager with TRestMessenger added as metadata.
 /// For one of them, we add a "sendMessage" task after "processEvent". Then, when the process
 /// chain finishes, it will dispatch the message containing, e.g., the output file name.
 /// Then, the other restManager can get the message and be notified that the file is done.
@@ -34,11 +34,11 @@
 /// By default it uses shared memory. Can be overridden by REST packages, adding more
 /// communication methods(http, kafka, etc.)
 ///
-/// Each TRestMessengerAndReceiver connects to a message pool in shared memory. Each message pool
+/// Each TRestMessenger connects to a message pool in shared memory. Each message pool
 /// is limited with 100 messages. Each message is limited with 256 bytes. When sending
 /// message, the message is added to the message pool. When receiving message, the logic
 /// is more like "consuming": message is taken out from the pool and given to the specific
-/// process. It will be erased after being consumed. TRestMessengerAndReceiver cannot consume
+/// process. It will be erased after being consumed. TRestMessenger cannot consume
 /// the message sent by self process.
 ///
 /// The rml definition is like follows. We need to add serval <pool sections in its config
@@ -47,7 +47,7 @@
 ///
 /// ```
 /// <TRestManager name="CoBoDataAnalysis" title="Example" verboseLevel="info" >
-///   <TRestMessengerAndReceiver name="Messager" title="Example" verboseLevel="info"
+///   <TRestMessenger name="Messager" title="Example" verboseLevel="info"
 ///     messageSource="outputfile" token="116027"/>
 ///   <addTask command="Messager->SendMessage()" value="ON"/>
 /// </TRestManager>
@@ -62,13 +62,13 @@
 /// 2020-Aug:   First implementation and concept
 ///             Ni Kaixiang
 ///
-/// \class      TRestMessengerAndReceiver
+/// \class      TRestMessenger
 /// \author     Ni Kaixiang
 ///
 /// <hr>
 ///
 
-#include "TRestMessengerAndReceiver.h"
+#include "TRestMessenger.h"
 
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -78,12 +78,12 @@
 #include "TRestProcessRunner.h"
 #include "TRestStringOutput.h"
 
-ClassImp(TRestMessengerAndReceiver);
+ClassImp(TRestMessenger);
 
 //______________________________________________________________________________
-TRestMessengerAndReceiver::TRestMessengerAndReceiver() { Initialize(); }
+TRestMessenger::TRestMessenger() { Initialize(); }
 
-TRestMessengerAndReceiver::~TRestMessengerAndReceiver() {
+TRestMessenger::~TRestMessenger() {
     // clear the shared memories
     if (fMessagePool != nullptr) {
         if (fMessagePool->owner == this) {
@@ -93,14 +93,14 @@ TRestMessengerAndReceiver::~TRestMessengerAndReceiver() {
     }
 }
 
-TRestMessengerAndReceiver::TRestMessengerAndReceiver(int token, string mode) {
+TRestMessenger::TRestMessenger(int token, string mode) {
     Initialize();
-    LoadConfigFromElement(StringToElement("<TRestMessengerAndReceiver token=\"" + ToString(token) +
+    LoadConfigFromElement(StringToElement("<TRestMessenger token=\"" + ToString(token) +
                                           "\" mode=\"" + mode + "\"/>"),
                           NULL, {});
 }
 
-void TRestMessengerAndReceiver::Initialize() {
+void TRestMessenger::Initialize() {
     fRun = nullptr;
     fMode = MessagePool_TwoWay;
 }
@@ -110,9 +110,9 @@ void TRestMessengerAndReceiver::Initialize() {
 #define SHMFLAG_OPEN (0640)
 
 // Example rml structure:
-//   <TRestMessengerAndReceiver name="Messager" title="Example" verboseLevel="info"
+//   <TRestMessenger name="Messager" title="Example" verboseLevel="info"
 //     messageSource="outputfile" token="116027" mode="auto"/>
-void TRestMessengerAndReceiver::InitFromConfigFile() {
+void TRestMessenger::InitFromConfigFile() {
     fRun = fHostmgr != nullptr ? fHostmgr->GetRunInfo() : NULL;
     string modestr = GetParameter("mode", "twoway");
     if (ToUpper(modestr) == "HOST") {
@@ -139,19 +139,19 @@ void TRestMessengerAndReceiver::InitFromConfigFile() {
         if (shmid == -1) {
             shmid = shmget(key, 30000, SHMFLAG_CREATEUNIQUE);
             if (shmid == -1) {
-                warning << "TRestMessengerAndReceiver: unknown error!" << endl;
+                warning << "TRestMessenger: unknown error!" << endl;
                 return;
             } else {
                 created = true;
             }
         } else {
-            warning << "TRestMessengerAndReceiver: shmget error!" << endl;
+            warning << "TRestMessenger: shmget error!" << endl;
             warning << "Shared memory not deleted? type \"ipcrm -m " << shmid << "\" in the bash" << endl;
             return;
         }
     } else if (fMode == MessagePool_Client) {
         if (shmid == -1) {
-            warning << "TRestMessengerAndReceiver: shmget error!" << endl;
+            warning << "TRestMessenger: shmget error!" << endl;
             warning << "Shared memory not initialized? Launch Host process first!" << endl;
             return;
         }
@@ -159,7 +159,7 @@ void TRestMessengerAndReceiver::InitFromConfigFile() {
         if (shmid == -1) {
             shmid = shmget(key, 30000, SHMFLAG_CREATEUNIQUE);
             if (shmid == -1) {
-                warning << "TRestMessengerAndReceiver: unknown error!" << endl;
+                warning << "TRestMessenger: unknown error!" << endl;
                 return;
             } else {
                 created = true;
@@ -181,7 +181,7 @@ void TRestMessengerAndReceiver::InitFromConfigFile() {
         cout << "Created shared memory: " << shmid << endl;
     } else {
         if (strcmp(message->name, this->GetName()) != 0) {
-            warning << "TRestMessengerAndReceiver: connected message pool name(" << message->name
+            warning << "TRestMessenger: connected message pool name(" << message->name
                     << ") is different with this(" << this->GetName() << ")!" << endl;
         }
         cout << "Connected to shared memory: " << shmid << endl;
@@ -193,7 +193,7 @@ void TRestMessengerAndReceiver::InitFromConfigFile() {
     fPoolSource = source;
 }
 
-bool TRestMessengerAndReceiver::lock(messagepool_t* pool, int timeoutMs) {
+bool TRestMessenger::lock(messagepool_t* pool, int timeoutMs) {
     int i = 0;
     while (pool->owner != nullptr && pool->owner != (void*)this) {
         usleep(1000);
@@ -208,7 +208,7 @@ bool TRestMessengerAndReceiver::lock(messagepool_t* pool, int timeoutMs) {
     return true;
 }
 
-bool TRestMessengerAndReceiver::unlock(messagepool_t* pool, int timeoutMs) {
+bool TRestMessenger::unlock(messagepool_t* pool, int timeoutMs) {
     int i = 0;
     while (pool->owner != nullptr && pool->owner != (void*)this) {
         usleep(1000);
@@ -224,9 +224,9 @@ bool TRestMessengerAndReceiver::unlock(messagepool_t* pool, int timeoutMs) {
     return true;
 }
 
-void TRestMessengerAndReceiver::AddPool(string message) {
+void TRestMessenger::AddPool(string message) {
     if (!IsConnected()) {
-        warning << "TRestMessengerAndReceiver: Not connected!" << endl;
+        warning << "TRestMessenger: Not connected!" << endl;
         return;
     }
 
@@ -257,13 +257,13 @@ void TRestMessengerAndReceiver::AddPool(string message) {
     unlock(pool);
 }
 
-void TRestMessengerAndReceiver::SendMessage(string message) {
+void TRestMessenger::SendMessage(string message) {
     if (!IsConnected()) {
-        warning << "TRestMessengerAndReceiver: Not connected!" << endl;
+        warning << "TRestMessenger: Not connected!" << endl;
         return;
     }
     if (fMode == MessagePool_Client) {
-        warning << "TRestMessengerAndReceiver: Forbidden to send message from client!" << endl;
+        warning << "TRestMessenger: Forbidden to send message from client!" << endl;
         return;
     }
 
@@ -282,11 +282,11 @@ void TRestMessengerAndReceiver::SendMessage(string message) {
     AddPool(message);
 }
 
-vector<string> TRestMessengerAndReceiver::ShowMessagePool() {
+vector<string> TRestMessenger::ShowMessagePool() {
     vector<string> result;
 
     if (!IsConnected()) {
-        warning << "TRestMessengerAndReceiver: Not connected!" << endl;
+        warning << "TRestMessenger: Not connected!" << endl;
         return result;
     }
 
@@ -308,13 +308,13 @@ vector<string> TRestMessengerAndReceiver::ShowMessagePool() {
     return result;
 }
 
-string TRestMessengerAndReceiver::ConsumeMessage() {
+string TRestMessenger::ConsumeMessage() {
     if (!IsConnected()) {
-        warning << "TRestMessengerAndReceiver: Not connected!" << endl;
+        warning << "TRestMessenger: Not connected!" << endl;
         return "";
     }
     if (fMode == MessagePool_Host) {
-        warning << "TRestMessengerAndReceiver: Forbidden to consume message from host!" << endl;
+        warning << "TRestMessenger: Forbidden to consume message from host!" << endl;
         return "";
     }
 
@@ -341,7 +341,7 @@ string TRestMessengerAndReceiver::ConsumeMessage() {
     return msg;
 }
 
-void TRestMessengerAndReceiver::PrintMetadata() {
+void TRestMessenger::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     if (IsConnected()) {
