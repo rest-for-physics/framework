@@ -13,7 +13,7 @@ import subprocess
 if len(sys.argv) >= 2:
     if sys.argv[1] == "--help":
         print("")
-        print("Usage: ./updateVersionHeader.py XXX.h [SE]")
+        print("Usage: ./generateVersionHeader.py XXX.h [SE]")
         print("")
         print("If any additional argument different from OFF is provided as [SE].\nSchema evolution will be defined as enabled.")
         print("")
@@ -30,7 +30,8 @@ if len(sys.argv) > 2:
 p = subprocess.Popen(['git branch'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
 out, err = p.communicate()
 
-if err != "":
+
+if len(str(err)) > 3:
     print("WARNING! git repository is not initialized. TRestVersion.h will not be generated! REST will use default version header...")
     exit(0)
 
