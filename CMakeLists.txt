@@ -183,4 +183,4 @@ include(thisREST)
 
 # Add permissions
 install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/bin/rest-config)")
-install(CODE "execute_process(COMMAND chmod 777 ${CMAKE_INSTALL_PREFIX})")
+install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX})")
