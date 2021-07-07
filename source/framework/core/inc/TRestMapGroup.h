@@ -25,31 +25,37 @@
 
 #include "TRestMetadata.h"
 
-/// The most simple metadata class to be used as a template
+/// Metadata class to create a std::map which can be defined in a RML file
 class TRestMapGroup : public TRestMetadata {
    protected:
-    /// Documentation of my dummy member
+    /// Vector of map keys from the RML
     std::vector<string> fGroupKeys;
+    /// Vector of map values from the RML
     std::vector<string> fGroupValues;
+    /// The map
     std::map<string, string> fMapGroup;
 
    public:
     void Initialize();
 
-    // Implement only if necessary
     void InitFromConfigFile();
+
+    void LoadConfig(std::string cfgFileName, std::string name = ""){};
 
     // Setters & Getters
     // Should use "inline" when defining functions in the header
     inline std::map<string, string> GetMapGroup() const { return fMapGroup; }
     inline void SetMapGroup(std::map<string, string> mapGroup) { fMapGroup = mapGroup; }
 
-    void ConstructMap();
+    /// Construct the map from the parameters given in the RML
+    std::map<string, string> ConstructMap();
 
+    /// Print the protected class members
     void PrintMetadata();
 
     // Constructor & Destructor
     TRestMapGroup();
+    TRestMapGroup(string cfgFileName, string name = "");
     ~TRestMapGroup();
 
     ClassDef(TRestMapGroup, 1);
