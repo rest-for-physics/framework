@@ -12,7 +12,7 @@ case "${unameOut}" in
     *)          machine="UNKNOWN:${unameOut}"
 esac
 
-ROOT_VERSION=6.20.00
+ROOT_VERSION=6.24.02
 ROOT_DIR=$HOME/apps/root-$ROOT_VERSION
 
 mkdir -p ${ROOT_DIR}
@@ -37,16 +37,15 @@ mv root-$ROOT_VERSION source
 mkdir -p ${ROOT_DIR}/build
 cd ${ROOT_DIR}/build
 
-cmake -Dgdml=ON -DCMAKE_INSTALL_PREFIX=${ROOT_DIR}/install  ../source
+cmake -DCMAKE_CXX_STANDARD=17 -Dgdml=ON -DCMAKE_INSTALL_PREFIX=${ROOT_DIR}/install  ../source
 make -j30
 make install
 
 cd ${CURRENT_DIR}
 
 echo ""
-echo "The following lines were added to your .bashrc file"
-echo ""
-echo "#Added by REST installROOT.sh script to setup ROOT environment" >> ~/.bashrc
+echo "Execute this to load the recently compiled ROOT version in your environment"
 echo "source ${ROOT_DIR}/install/bin/thisroot.sh"
-echo "source ${ROOT_DIR}/install/bin/thisroot.sh" >> ~/.bashrc
+#echo "#Added by REST installROOT.sh script to setup ROOT environment" >> ~/.bashrc
+#echo "source ${ROOT_DIR}/install/bin/thisroot.sh" >> ~/.bashrc
 echo ""
