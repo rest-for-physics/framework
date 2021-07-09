@@ -168,7 +168,7 @@ class TRestEventProcess : public TRestMetadata {
     virtual void InitFromConfigFile() {
         map<string, string> parameters = GetParametersList();
 
-        for (auto& [key, val] : parameters) val = fRunInfo->ReplaceMetadataMembers(val);
+        for (auto& p : parameters) p.second = fRunInfo->ReplaceMetadataMembers(p.second);
 
         ReadParametersList(parameters);
     }
