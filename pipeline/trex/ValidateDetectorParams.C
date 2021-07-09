@@ -22,5 +22,12 @@ Int_t ValidateDetectorParams(string fname) {
 
     if (det->GetDataMemberValue("fElectronicsShaping") != "0xF") return 7;
 
+    TRestDetectorHitsToSignalProcess* detSigPcs =
+        (TRestDetectorHitsToSignalProcess*)run->GetMetadata("signalToHits");
+
+    if (detSigPcs->GetDataMemberValue("fElectricField") != "960") return 8;
+    if (detSigPcs->GetDataMemberValue("fDriftVelocity") != "31.9976") return 9;
+    if (detSigPcs->GetDataMemberValue("fGasPressure") != "6") return 11;
+
     return 0;
 }

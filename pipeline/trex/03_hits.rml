@@ -17,7 +17,7 @@
 		<addProcess type="TRestDetectorSignalToHitsProcess" name="signalToHits" value="ON" verboseLevel="silent" 
 			electricField="${PRESSURE}*${DRIFT_FIELD}"
 			gasPressure="[detParam::fPressure]"
-			driftVelocity="2" 
+			driftVelocity=""
 			observable="all"
 			method="tripleMax" />
 
