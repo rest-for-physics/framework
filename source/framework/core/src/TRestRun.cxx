@@ -109,7 +109,7 @@ void TRestRun::Initialize() {
 /// 2. Initialize runnumber and input file name. They follow non-trival logic.
 /// 3. Construct default output file name with runNumber, runTag, etc.
 /// 4. Loop over sections to initialize metadata
-/// 5. Open input file(s), read the stored metadata and trees, read file name 
+/// 5. Open input file(s), read the stored metadata and trees, read file name
 /// pattern to TRestDetector metadata.
 ///
 void TRestRun::InitFromConfigFile() {
@@ -716,7 +716,7 @@ void TRestRun::ReadFileInfo(string filename) {
 
         pos = pos2 - 1;
     }
-    }
+}
 
 ///////////////////////////////////////////////
 /// \brief Reset file reading progress.
@@ -1528,6 +1528,7 @@ std::vector<std::string> TRestRun::GetMetadataStructureTitles() {
 /// \return The string with data members replaced
 ///
 string TRestRun::ReplaceMetadataMembers(const string instr) {
+    if (instr.find("[", 0) == (int)string::npos) return instr;
     string outstring = instr;
 
     int startPosition = 0;
