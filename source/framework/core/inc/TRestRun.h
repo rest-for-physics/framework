@@ -58,6 +58,9 @@ class TRestRun : public TRestMetadata {
     int fEventBranchLoc;               //!
     int fEventIndexCounter = 0;        //!
     bool fHangUpEndFile = false;       //!
+   private:
+    string ReplaceMetadataMember(const string instr);
+
    public:
     /// REST run class
     void Initialize();
@@ -165,7 +168,6 @@ class TRestRun : public TRestMetadata {
     std::vector<std::string> GetMetadataStructureTitles();
     int GetNumberOfMetadataStructures() { return fMetadata.size(); }
 
-    string ReplaceMetadataMember(const string instr);
     string GetMetadataMember(const string instr) { return ReplaceMetadataMember(instr); }
     string ReplaceMetadataMembers(string instr);
 
