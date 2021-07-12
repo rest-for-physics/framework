@@ -709,10 +709,10 @@ void TRestRun::ReadFileInfo(string filename) {
             }
         }
 
-        if (!inforead) {
+        // if (!inforead) {
             // 3. store file format fields to REST_ARGS as global parameter: aaa, bbb
-            REST_ARGS[formatsectionlist[i]] = infoFromFileName;
-        }
+            // REST_ARGS[formatsectionlist[i]] = infoFromFileName;
+        // }
 
         pos = pos2 - 1;
     }
