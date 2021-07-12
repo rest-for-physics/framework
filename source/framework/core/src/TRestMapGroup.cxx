@@ -85,29 +85,38 @@ TRestMapGroup::TRestMapGroup() { Initialize(); }
 /// defined using the parameter `searchPath` in globals section. See
 /// TRestMetadata description.
 ///
+///////////////////////////////////////////////
 /// \brief cfgFileName: a string giving the path to a RML file; name: name of the TRestMapGroup XML-section
+///
 TRestMapGroup::TRestMapGroup(string cfgFileName, string name) {
     Initialize();
     // LoadConfig(cfgFileName);
     LoadConfigFromFile(cfgFileName, name);
 }
 
+///////////////////////////////////////////////
 /// \brief Default destructor
+///
 TRestMapGroup::~TRestMapGroup() {}
 
+///////////////////////////////////////////////
 /// \brief Construct map from RML input
+///
 std::map<string, string> TRestMapGroup::ConstructMap() {
     for (unsigned int i = 0; i < fGroupKeys.size(); ++i) {
         fMapGroup[fGroupKeys[i]] = fGroupValues[i];
     }
     return fMapGroup;
 }
+
 ///////////////////////////////////////////////
 /// \brief Set variables by default during initialization.
 ///
 void TRestMapGroup::Initialize() { SetSectionName(this->ClassName()); }
-/// \brief Read Map Group from config file
+
 ///////////////////////////////////////////////
+/// \brief Read Map Group from config file
+///
 void TRestMapGroup::InitFromConfigFile() {
     TiXmlElement* groupDefinition = GetElement("MapGroup");
 
