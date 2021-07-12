@@ -165,7 +165,13 @@ class TRestEventProcess : public TRestMetadata {
 
    public:
     Int_t LoadSectionMetadata();
-    virtual void InitFromConfigFile() { ReadAllParameters(); }
+    virtual void InitFromConfigFile() {
+        map<string, string> parameters = GetParametersList();
+
+        for (auto& p : parameters) p.second = fRunInfo->ReplaceMetadataMembers(p.second);
+
+        ReadParametersList(parameters);
+    }
     vector<string> ReadObservables();
     // open a list of input files to be processed, only used if is external process
     virtual Bool_t OpenInputFiles(vector<string> files);
