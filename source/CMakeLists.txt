@@ -64,6 +64,11 @@ if( ${REST_G4} MATCHES ON )
     set( RESTLIB_GEANT4 ON )
 endif()
 
+if( ${REST_DAQ} MATCHES ON )
+	set( RESTLIB_RAW ON )
+endif()
+
+# Not sure if these lines are really needed. (Javier - 13/Jul/2021)
 if( ${RESTLIB_DETECTOR} MATCHES ON )
         if( ${RESTLIB_RAW} MATCHES ON)
             set( RESTLIB_CONNECTORS ON )
