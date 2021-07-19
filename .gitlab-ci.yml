@@ -236,9 +236,6 @@ GenerateReadout:
     - restManager --c generateReadout.rml --o readout.root
     - restRoot -b -q PrintReadout.C'("readout.root")' > /dev/null
     - diff validation.txt print.txt
-  only:
-      variables:
-        - $CI_SERVER_HOST == "lfna.unizar.es"
 
 BasicReadout:
   type: metadata 
@@ -250,9 +247,6 @@ BasicReadout:
     - git log
     - restRoot --m 1 -b -q GenerateReadouts.C'("basic.root")'
     - restRoot -b -q BasicValidation.C'("basic.root", "pixelDecoding")'
-  only:
-      variables:
-        - $CI_SERVER_HOST == "lfna.unizar.es"       
 
 testMeta:
   type: restManager_generate
