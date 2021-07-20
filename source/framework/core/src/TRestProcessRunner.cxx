@@ -253,7 +253,8 @@ void TRestProcessRunner::EndOfInit() {
     if (fRunInfo->GetFileProcess() != nullptr) {
         fInputEvent = fRunInfo->GetFileProcess()->GetOutputEvent();
     } else {
-        if (fThreads[0]->GetProcessnum() > 0 && fThreads[0]->GetProcess(0)->GetInputEvent().address != nullptr) {
+        if (fThreads[0]->GetProcessnum() > 0 &&
+            fThreads[0]->GetProcess(0)->GetInputEvent().address != nullptr) {
             string name = fThreads[0]->GetProcess(0)->GetInputEvent().type;
             TRestEvent* a = REST_Reflection::Assembly(name);
             a->Initialize();
@@ -879,6 +880,25 @@ void TRestProcessRunner::ConfigOutputFile() {
     }
 
     fRunInfo->MergeToOutputFile(files_to_merge, fTempOutputDataFile->GetName());
+
+    std::vector<string> mdNames = fRunInfo->GetMetadataStructureNames();
+    Int_t nErrors = 0;
+    for (int n = 0; n < mdNames.size(); n++)
+        if (fRunInfo->GetMetadata(mdNames[n])->GetError()) nErrors++;
+
+    if (nErrors) {
+        cout << endl;
+        ferr << "Something went wrong ... " << endl;
+        ferr << "Found a total of " << nErrors << " errors" << endl;
+        for (int n = 0; n < mdNames.size(); n++)
+            if (fRunInfo->GetMetadata(mdNames[n])->GetError()) {
+                cout << endl;
+                ferr << "Class: " << fRunInfo->GetMetadata(mdNames[n])->ClassName() << " Name: " << mdNames[n]
+                     << endl;
+                ferr << "Message: " << fRunInfo->GetMetadata(mdNames[n])->GetErrorMessage() << endl;
+            }
+        cout << endl;
+    }
 }
 
 // tools
