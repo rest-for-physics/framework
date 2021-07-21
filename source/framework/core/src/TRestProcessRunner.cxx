@@ -912,8 +912,7 @@ void TRestProcessRunner::ConfigOutputFile() {
                 cout << endl;
                 ferr << "Class: " << fRunInfo->GetMetadata(mdNames[n])->ClassName() << " Name: " << mdNames[n]
                      << endl;
-                warning << "Number of errors " << fRunInfo->GetMetadata(mdNames[n])->GetNumberOfErrors()
-                        << endl;
+                ferr << "Number of errors " << fRunInfo->GetMetadata(mdNames[n])->GetNumberOfErrors() << endl;
                 ferr << "Message: " << fRunInfo->GetMetadata(mdNames[n])->GetErrorMessage() << endl;
             }
         cout << endl;
