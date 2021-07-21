@@ -888,8 +888,7 @@ void TRestProcessRunner::ConfigOutputFile() {
 
     if (nErrors) {
         cout << endl;
-        ferr << "Something went wrong ... " << endl;
-        ferr << "Found a total of " << nErrors << " errors" << endl;
+        ferr << "Found a total of " << nErrors << " errors on TRestRun metadata classes" << endl;
         for (int n = 0; n < mdNames.size(); n++)
             if (fRunInfo->GetMetadata(mdNames[n])->GetError()) {
                 cout << endl;

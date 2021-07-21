@@ -156,11 +156,11 @@ bool TRestThread::TestRun() {
 
             fProcessChain[j]->BeginOfEventProcess(ProcessedEvent);
             ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
-            // if the output of ProcessEvent() is NULL we assume the event is cut. 
+            // if the output of ProcessEvent() is NULL we assume the event is cut.
             // we try to use GetOutputEvent()
             if (ProcessedEvent == nullptr) {
                 ProcessedEvent = fProcessChain[j]->GetOutputEvent();
-            } 
+            }
             // if still null we perform another try
             if (ProcessedEvent == nullptr) {
                 debug << "  ----  NULL" << endl;
@@ -430,7 +430,7 @@ void TRestThread::StartProcess() {
 
     while (fHostRunner->GetNextevtFunc(fInputEvent, fAnalysisTree) == 0) {
         ProcessEvent();
-        /*if (fOutputEvent != nullptr) */fHostRunner->FillThreadEventFunc(this);
+        /*if (fOutputEvent != nullptr) */ fHostRunner->FillThreadEventFunc(this);
     }
 
     // fHostRunner->WriteThreadFileFunc(this);
@@ -528,9 +528,10 @@ void TRestThread::ProcessEvent() {
             ProcessedEvent->CloneTo(fOutputEvent);
         }
 
-        GetChar("======= End of Event " +
-                ((fOutputEvent == nullptr) ? ToString(fInputEvent->GetID()) : ToString(fOutputEvent->GetID())) +
-                " =======");
+        GetChar(
+            "======= End of Event " +
+            ((fOutputEvent == nullptr) ? ToString(fInputEvent->GetID()) : ToString(fOutputEvent->GetID())) +
+            " =======");
     } else {
         for (unsigned int j = 0; j < fProcessChain.size(); j++) {
             fProcessChain[j]->BeginOfEventProcess(ProcessedEvent);
@@ -558,11 +559,26 @@ void TRestThread::EndProcess() {
     if (fOutputFile == nullptr) return;
 
     fOutputFile->cd();
+    Int_t nErrors = 0;
     for (unsigned int i = 0; i < fProcessChain.size(); i++) {
-        fProcessChain[i]->EndProcess();  // the processes must call
-                                         // "object->Write()" in this method
+        // The processes must call object->Write in this method
+        fProcessChain[i]->EndProcess();
+        if (fProcessChain[i]->GetError()) nErrors++;
+    }
+
+    if (nErrors) {
+        cout << endl;
+        ferr << "Found a total of " << nErrors << " errors in processes at thread " << fThreadId << endl;
+        cout << endl;
+        for (unsigned int i = 0; i < fProcessChain.size(); i++) {
+            if (fProcessChain[i]->GetError()) {
+                ferr << "Class: " << fProcessChain[i]->ClassName() << " Name: " << fProcessChain[i]->GetName()
+                     << endl;
+                ferr << "Message: " << fProcessChain[i]->GetErrorMessage() << endl;
+                cout << endl;
+            }
+        }
     }
 
     delete fAnalysisTree;
-    // fOutputFile->Close();
 }
