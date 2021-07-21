@@ -560,20 +560,38 @@ void TRestThread::EndProcess() {
 
     fOutputFile->cd();
     Int_t nErrors = 0;
+    Int_t nWarnings = 0;
     for (unsigned int i = 0; i < fProcessChain.size(); i++) {
         // The processes must call object->Write in this method
         fProcessChain[i]->EndProcess();
         if (fProcessChain[i]->GetError()) nErrors++;
+        if (fProcessChain[i]->GetWarning()) nWarnings++;
+    }
+
+    if (nWarnings) {
+        cout << endl;
+        warning << "Found a total of " << nWarnings << " process warnings at thread " << fThreadId << endl;
+        cout << endl;
+        for (unsigned int i = 0; i < fProcessChain.size(); i++) {
+            if (fProcessChain[i]->GetWarning()) {
+                warning << "Class: " << fProcessChain[i]->ClassName()
+                        << " Name: " << fProcessChain[i]->GetName() << endl;
+                warning << "Number of warnings " << fProcessChain[i]->GetNumberOfWarnings() << endl;
+                warning << "Message: " << fProcessChain[i]->GetWarningMessage() << endl;
+                cout << endl;
+            }
+        }
     }
 
     if (nErrors) {
         cout << endl;
-        ferr << "Found a total of " << nErrors << " errors in processes at thread " << fThreadId << endl;
+        ferr << "Found a total of " << nErrors << " process errors at thread " << fThreadId << endl;
         cout << endl;
         for (unsigned int i = 0; i < fProcessChain.size(); i++) {
             if (fProcessChain[i]->GetError()) {
                 ferr << "Class: " << fProcessChain[i]->ClassName() << " Name: " << fProcessChain[i]->GetName()
                      << endl;
+                ferr << "Number of errors " << fProcessChain[i]->GetNumberOfErrors() << endl;
                 ferr << "Message: " << fProcessChain[i]->GetErrorMessage() << endl;
                 cout << endl;
             }
