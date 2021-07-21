@@ -174,8 +174,14 @@ class TRestMetadata : public TNamed {
     /// It can be used as a way to identify that something went wrong using SetError method.
     Bool_t fError = false;  //!
 
+    /// It can be used as a way to identify that something went wrong using SetWarning method.
+    Bool_t fWarning = false;  //!
+
     /// A string to store an optional error message through method SetError.
     TString fErrorMessage = "";  //!
+
+    /// It can be used as a way to identify that something went wrong using SetWarning method.
+    TString fWarningMessage = "";  //!
 
     /// It allows to modify the error message. Only if SetError was called previously.
     void SetErrorMessage(TString message) {
@@ -189,10 +195,19 @@ class TRestMetadata : public TNamed {
     /// It returns true if an error was identified by a derived metadata class
     Bool_t GetError() { return fError; }
 
+    /// It returns true if an error was identified by a derived metadata class
+    Bool_t GetWarning() { return fWarning; }
+
     /// A metadata class may use this method to signal that something went wrong
     void SetError(TString message = "") {
         fError = true;
         fErrorMessage = message;
+    }
+
+    /// A metadata class may use this method to signal that something went wrong
+    void SetWarning(TString message = "") {
+        fWarning = true;
+        fWarningMessage = message;
     }
 
     /// Returns a string containing the error message
@@ -201,6 +216,14 @@ class TRestMetadata : public TNamed {
             return fErrorMessage;
         else
             return "No error!";
+    }
+
+    /// Returns a string containing the warning message
+    TString GetWarningMessage() {
+        if (GetWarning())
+            return fWarningMessage;
+        else
+            return "No warning!";
     }
 
     Int_t LoadConfigFromElement(TiXmlElement* eSectional, TiXmlElement* eGlobal,
