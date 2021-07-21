@@ -174,19 +174,20 @@ class TRestMetadata : public TNamed {
     /// It can be used as a way to identify that something went wrong using SetError method.
     Bool_t fError = false;  //!
 
+    /// It counts the number of errors notified
+    Int_t fNErrors = 0;  //!
+
     /// It can be used as a way to identify that something went wrong using SetWarning method.
     Bool_t fWarning = false;  //!
+
+    /// It counts the number of warnings notified
+    Int_t fNWarnings = 0;  //!
 
     /// A string to store an optional error message through method SetError.
     TString fErrorMessage = "";  //!
 
     /// It can be used as a way to identify that something went wrong using SetWarning method.
     TString fWarningMessage = "";  //!
-
-    /// It allows to modify the error message. Only if SetError was called previously.
-    void SetErrorMessage(TString message) {
-        if (GetError()) fErrorMessage = message;
-    }
 
     std::map<string, string> GetParametersList();
     void ReadAllParameters();
@@ -202,12 +203,14 @@ class TRestMetadata : public TNamed {
     void SetError(TString message = "") {
         fError = true;
         fErrorMessage = message;
+        fNErrors++;
     }
 
     /// A metadata class may use this method to signal that something went wrong
     void SetWarning(TString message = "") {
         fWarning = true;
         fWarningMessage = message;
+        fNWarnings++;
     }
 
     /// Returns a string containing the error message
@@ -225,6 +228,10 @@ class TRestMetadata : public TNamed {
         else
             return "No warning!";
     }
+
+    Int_t GetNumberOfErrors() { return fNErrors; }
+
+    Int_t GetNumberOfWarnings() { return fNWarnings; }
 
     Int_t LoadConfigFromElement(TiXmlElement* eSectional, TiXmlElement* eGlobal,
                                 map<string, string> envs = {});
