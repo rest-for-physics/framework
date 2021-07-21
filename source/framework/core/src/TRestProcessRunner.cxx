@@ -883,17 +883,37 @@ void TRestProcessRunner::ConfigOutputFile() {
 
     std::vector<string> mdNames = fRunInfo->GetMetadataStructureNames();
     Int_t nErrors = 0;
-    for (int n = 0; n < mdNames.size(); n++)
+    Int_t nWarnings = 0;
+    for (int n = 0; n < mdNames.size(); n++) {
         if (fRunInfo->GetMetadata(mdNames[n])->GetError()) nErrors++;
+        if (fRunInfo->GetMetadata(mdNames[n])->GetWarning()) nWarnings++;
+    }
+
+    if (nWarnings) {
+        cout << endl;
+        warning << "Found a total of " << nWarnings << " metadata warnings on TRestRun" << endl;
+        for (int n = 0; n < mdNames.size(); n++)
+            if (fRunInfo->GetMetadata(mdNames[n])->GetWarning()) {
+                cout << endl;
+                warning << "Class: " << fRunInfo->GetMetadata(mdNames[n])->ClassName()
+                        << " Name: " << mdNames[n] << endl;
+                warning << "Number of warnings " << fRunInfo->GetMetadata(mdNames[n])->GetNumberOfWarnings()
+                        << endl;
+                warning << "Message: " << fRunInfo->GetMetadata(mdNames[n])->GetWarningMessage() << endl;
+            }
+        cout << endl;
+    }
 
     if (nErrors) {
         cout << endl;
-        ferr << "Found a total of " << nErrors << " errors on TRestRun metadata classes" << endl;
+        ferr << "Found a total of " << nErrors << " metadata errors on TRestRun" << endl;
         for (int n = 0; n < mdNames.size(); n++)
             if (fRunInfo->GetMetadata(mdNames[n])->GetError()) {
                 cout << endl;
                 ferr << "Class: " << fRunInfo->GetMetadata(mdNames[n])->ClassName() << " Name: " << mdNames[n]
                      << endl;
+                warning << "Number of errors " << fRunInfo->GetMetadata(mdNames[n])->GetNumberOfErrors()
+                        << endl;
                 ferr << "Message: " << fRunInfo->GetMetadata(mdNames[n])->GetErrorMessage() << endl;
             }
         cout << endl;
