@@ -231,6 +231,8 @@ class TRestRun : public TRestMetadata {
     }
 
     void PrintEvent() { fInputEvent->PrintEvent(); }
+    void PrintErrors();
+    void PrintWarnings();
 
     Int_t Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 
