@@ -889,34 +889,12 @@ void TRestProcessRunner::ConfigOutputFile() {
         if (fRunInfo->GetMetadata(mdNames[n])->GetWarning()) nWarnings++;
     }
 
-    if (nWarnings) {
-        cout << endl;
-        warning << "Found a total of " << nWarnings << " metadata warnings on TRestRun" << endl;
-        for (int n = 0; n < mdNames.size(); n++)
-            if (fRunInfo->GetMetadata(mdNames[n])->GetWarning()) {
-                cout << endl;
-                warning << "Class: " << fRunInfo->GetMetadata(mdNames[n])->ClassName()
-                        << " Name: " << mdNames[n] << endl;
-                warning << "Number of warnings " << fRunInfo->GetMetadata(mdNames[n])->GetNumberOfWarnings()
-                        << endl;
-                warning << "Message: " << fRunInfo->GetMetadata(mdNames[n])->GetWarningMessage() << endl;
-            }
-        cout << endl;
-    }
-
-    if (nErrors) {
-        cout << endl;
-        ferr << "Found a total of " << nErrors << " metadata errors on TRestRun" << endl;
-        for (int n = 0; n < mdNames.size(); n++)
-            if (fRunInfo->GetMetadata(mdNames[n])->GetError()) {
-                cout << endl;
-                ferr << "Class: " << fRunInfo->GetMetadata(mdNames[n])->ClassName() << " Name: " << mdNames[n]
-                     << endl;
-                ferr << "Number of errors " << fRunInfo->GetMetadata(mdNames[n])->GetNumberOfErrors() << endl;
-                ferr << "Message: " << fRunInfo->GetMetadata(mdNames[n])->GetErrorMessage() << endl;
-            }
-        cout << endl;
-    }
+    if (nWarnings)
+        warning << nWarnings
+                << " process warnings were found! Use run0->PrintWarnings(); to get additional info." << endl;
+    if (nErrors)
+        ferr << nErrors << " process errors were found! Use run0->PrintErrors(); to get additional info."
+             << endl;
 }
 
 // tools
