@@ -1693,7 +1693,9 @@ Bool_t TRestRun::EvaluateMetadataMember(const string instr) {
     return false;
 }
 
-// Printers
+///////////////////////////////////////////////
+/// \brief Prints the basic run information
+///
 void TRestRun::PrintMetadata() {
     // cout.precision(10);
     TRestMetadata::PrintMetadata();
@@ -1721,6 +1723,9 @@ void TRestRun::PrintMetadata() {
     metadata << endl;
 }
 
+///////////////////////////////////////////////
+/// \brief Prints the run start date and time in human format
+///
 void TRestRun::PrintStartDate() {
     cout.precision(10);
 
@@ -1741,6 +1746,9 @@ void TRestRun::PrintStartDate() {
     cout << "++++++++++++++++++++++++" << endl;
 }
 
+///////////////////////////////////////////////
+/// \brief Prints the run end date and time in human format
+///
 void TRestRun::PrintEndDate() {
     cout << "----------------------" << endl;
     cout << "---- Run end date ----" << endl;
@@ -1759,6 +1767,10 @@ void TRestRun::PrintEndDate() {
     cout << "++++++++++++++++++++++++" << endl;
 }
 
+///////////////////////////////////////////////
+/// \brief Prints out all the warnings registered by metadata classes accessible to
+/// TRestRun, thats metadata and processes previously used in a data chain.
+///
 void TRestRun::PrintErrors() {
     Int_t nErrors = 0;
     for (int n = 0; n < fMetadata.size(); n++)
@@ -1772,13 +1784,19 @@ void TRestRun::PrintErrors() {
                 cout << endl;
                 ferr << "Class: " << fMetadata[n]->ClassName() << " Name: " << fMetadata[n]->GetName()
                      << endl;
-                ferr << "Number of errors " << fMetadata[n]->GetNumberOfErrors() << endl;
+                ferr << "Number of errors: " << fMetadata[n]->GetNumberOfErrors() << endl;
                 ferr << "Message: " << fMetadata[n]->GetErrorMessage() << endl;
             }
         cout << endl;
+    } else {
+        cout << "No errors found!" << endl;
     }
 }
 
+///////////////////////////////////////////////
+/// \brief Prints out all the warnings registered by metadata classes accessible to
+/// TRestRun, thats metadata and processes previously used in a data chain.
+///
 void TRestRun::PrintWarnings() {
     Int_t nWarnings = 0;
     for (int n = 0; n < fMetadata.size(); n++)
@@ -1792,10 +1810,12 @@ void TRestRun::PrintWarnings() {
                 cout << endl;
                 warning << "Class: " << fMetadata[n]->ClassName() << " Name: " << fMetadata[n]->GetName()
                         << endl;
-                warning << "Number of warnings " << fMetadata[n]->GetNumberOfWarnings() << endl;
+                warning << "Number of warnings: " << fMetadata[n]->GetNumberOfWarnings() << endl;
                 warning << "Message: " << fMetadata[n]->GetWarningMessage() << endl;
             }
         cout << endl;
+    } else {
+        cout << "No warnings found!" << endl;
     }
 }
 
