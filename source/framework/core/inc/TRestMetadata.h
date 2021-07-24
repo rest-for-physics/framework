@@ -203,6 +203,7 @@ class TRestMetadata : public TNamed {
     void SetError(TString message = "") {
         fError = true;
         fErrorMessage = message;
+        if (message != "" && GetVerboseLevel() >= REST_Warning) ferr << fErrorMessage << endl;
         fNErrors++;
     }
 
@@ -210,6 +211,7 @@ class TRestMetadata : public TNamed {
     void SetWarning(TString message = "") {
         fWarning = true;
         fWarningMessage = message;
+        if (message != "") warning << fWarningMessage << endl;
         fNWarnings++;
     }
 
