@@ -477,6 +477,7 @@ void TRestThread::AddProcess(TRestEventProcess* process) {
 /// result and saves it in the local output event.
 void TRestThread::ProcessEvent() {
     TRestEvent* ProcessedEvent = fInputEvent;
+    fProcessNullReturned = false;
 
     if (fVerboseLevel >= REST_Debug) {
 #ifdef TIME_MEASUREMENT
@@ -503,6 +504,7 @@ void TRestThread::ProcessEvent() {
                 cout << "------- End of process " + (string)fProcessChain[j]->GetName() +
                             " (NULL returned) -------"
                      << endl;
+                fProcessNullReturned = true;
                 break;
             } else {
                 cout << "------- End of process " + (string)fProcessChain[j]->GetName() + " -------" << endl;
@@ -525,7 +527,9 @@ void TRestThread::ProcessEvent() {
             fOutputEvent = ProcessedEvent;
         } else {
             cout << "Transferring output event..." << endl;
-            ProcessedEvent->CloneTo(fOutputEvent);
+            if (ProcessedEvent != nullptr) {
+                ProcessedEvent->CloneTo(fOutputEvent);
+            }
         }
 
         GetChar(
@@ -537,13 +541,18 @@ void TRestThread::ProcessEvent() {
             fProcessChain[j]->BeginOfEventProcess(ProcessedEvent);
             ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
             fProcessChain[j]->EndOfEventProcess();
-            if (ProcessedEvent == nullptr) break;
+            if (ProcessedEvent == nullptr) {
+                fProcessNullReturned = true;
+                break;
+            }
         }
 
         if (fHostRunner->UseTestRun()) {
             fOutputEvent = ProcessedEvent;
         } else {
-            ProcessedEvent->CloneTo(fOutputEvent);
+            if (ProcessedEvent != nullptr) {
+                ProcessedEvent->CloneTo(fOutputEvent);
+            }
         }
     }
 }
