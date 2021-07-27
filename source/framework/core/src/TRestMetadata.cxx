@@ -512,6 +512,14 @@ TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(this) {
 }
 
 ///////////////////////////////////////////////
+/// \brief TRestMetadata default destructor
+///
+TRestMetadata::~TRestMetadata() {
+    if (fElementGlobal) delete fElementGlobal;
+    if (fElement) delete fElement;
+}
+
+///////////////////////////////////////////////
 /// \brief Give the file name, find out the corresponding section. Then call the
 /// main starter.
 ///
@@ -2465,12 +2473,4 @@ TString TRestMetadata::GetWarningMessage() {
         return fWarningMessage;
     else
         return "No warning!";
-}
-
-///////////////////////////////////////////////
-/// \brief TRestMetadata default destructor
-///
-TRestMetadata::~TRestMetadata() {
-    if (fElementGlobal) delete fElementGlobal;
-    if (fElement) delete fElement;
 }
