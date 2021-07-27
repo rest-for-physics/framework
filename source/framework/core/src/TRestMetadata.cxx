@@ -2445,7 +2445,7 @@ void TRestMetadata::SetError(string message, bool print) {
     if (message != "") {
         fErrorMessage += message + "\n";
         if (print) {
-            ferr << message << noClass::endl;
+            cout << message << endl;
         }
     }
 }
@@ -2456,7 +2456,8 @@ void TRestMetadata::SetWarning(string message, bool print) {
     if (message != "") {
         fWarningMessage += message + "\n";
         if (print) {
-            warning << message << noClass::endl;
+            if (fVerboseLevel>=REST_Warning)
+            cout << message << endl;
         }
     }
 }
