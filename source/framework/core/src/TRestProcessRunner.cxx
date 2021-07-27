@@ -417,7 +417,7 @@ void TRestProcessRunner::RunProcess() {
             if (a == 'p') {
                 fProcStatus = kPause;
                 usleep(100000);  // wait 0.1s for the processes to finish;
-                TRestStringOutput cout(REST_Silent, COLOR_BOLDWHITE, "|", kBorderedMiddle);
+                TRestStringOutput cout(REST_Silent, COLOR_BOLDWHITE, "| |", kMiddle);
                 Console::ClearLinesAfterCursor();
                 cout << endl;
                 cout << "-" << endl;
@@ -512,7 +512,7 @@ void TRestProcessRunner::RunProcess() {
 /// 4. Print the latest processed event
 /// 5. Quit the process directly with file saved
 void TRestProcessRunner::PauseMenu() {
-    TRestStringOutput cout(REST_Silent, COLOR_BOLDWHITE, "|", kBorderedMiddle);
+    TRestStringOutput cout(REST_Silent, COLOR_BOLDWHITE, "| |", kMiddle);
     Console::ClearLinesAfterCursor();
 
     cout << "--------------MENU--------------" << endl;
