@@ -199,37 +199,20 @@ class TRestMetadata : public TNamed {
     /// It returns true if an error was identified by a derived metadata class
     Bool_t GetWarning() { return fWarning; }
 
-    /// A metadata class may use this method to signal that something went wrong
-    void SetError(TString message = "") {
-        fError = true;
-        fErrorMessage = message;
-        if (message != "" && GetVerboseLevel() >= REST_Warning) ferr << fErrorMessage << endl;
-        fNErrors++;
-    }
+    /// Add logs to messageBuffer
+    void AddLog(string log = "", bool print = true);
 
     /// A metadata class may use this method to signal that something went wrong
-    void SetWarning(TString message = "") {
-        fWarning = true;
-        fWarningMessage = message;
-        if (message != "") warning << fWarningMessage << endl;
-        fNWarnings++;
-    }
+    void SetError(string message = "", bool print = true);
+
+    /// A metadata class may use this method to signal that something went wrong
+    void SetWarning(string message = "", bool print = true);
 
     /// Returns a string containing the error message
-    TString GetErrorMessage() {
-        if (GetError())
-            return fErrorMessage;
-        else
-            return "No error!";
-    }
+    TString GetErrorMessage();
 
     /// Returns a string containing the warning message
-    TString GetWarningMessage() {
-        if (GetWarning())
-            return fWarningMessage;
-        else
-            return "No warning!";
-    }
+    TString GetWarningMessage();
 
     Int_t GetNumberOfErrors() { return fNErrors; }
 
