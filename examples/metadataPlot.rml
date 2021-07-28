@@ -10,13 +10,13 @@
 
 	<legendPosition x1="0.25" x2="0.5" y1="0.5" y2="0.65" option="lp" />
 
-	<canvas size="(1000,400)" divide="(1,1)" save="/var/www/html/tmp/canvas.png"/>
+	<canvas size="(1000,400)" divide="(1,1)" save="/tmp/canvas.pdf"/>
 
     <plot name="rate" title="Raw acquisition rate versus time" 
 	      xlabel="Date/Time" ylabel="Rate [Hz]" value="ON"
 		  logX="false" logY="true" legend="on" timeDisplay="on"
 		  xVariable="timestamp" yRange="(0.01,1.e4)"
-		  save="/var/www/html/tmp/plot.png" >
+		  save="/tmp/plot.pdf" >
 
 		  <graph name="meanRateBck" title="Background rate"
 			  lineColor="1" lineWidth="2" lineStyle="2"

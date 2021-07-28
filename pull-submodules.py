@@ -38,7 +38,7 @@ for x in range(narg - 1):
         sjtu = 1
         print("Adding submodules from sjtu repositories. You may be asked to enter password for it.")
     if ( sys.argv[x + 1].find("--latest") >= 0 ):
-        print("Pulling latest submodules from their git repository, instead of the version recorded by REST. This may cause the submodules to be uncompilable.")
+        print("\nPulling latest submodules from their git repository, instead of the version recorded by REST. \nThis may cause the submodules to be uncompilable.\n")
         latest = 1
         if( sys.argv[x + 1].find("--latest:") >= 0 ):
             fbName = sys.argv[x + 1][9:]
@@ -155,7 +155,7 @@ def main():
                              branchToPull = "master"
                              if( branchExistsPcs.stdout.decode("utf-8").rstrip("\n") != "0"):
                                  branchToPull = frameworkBranchName
-                                 print( "Pulling branch : " + branchToPull )
+                                 print( " --> Pulling branch : " + branchToPull + "  " , end='' )
  
                              p = subprocess.run('cd {}/{} && git pull --tags origin {}'.format(root, submodule, branchToPull), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                              if(debug):
