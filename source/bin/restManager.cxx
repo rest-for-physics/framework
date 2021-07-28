@@ -47,7 +47,7 @@ int fork_n_execute(string command) {
 }
 
 void PrintHelp() {
-    TRestStringOutput fout(COLOR_BOLDYELLOW, "", kHeaderedLeft);
+    TRestStringOutput fout(COLOR_BOLDYELLOW, "", kLeft);
     fout << " " << endl;
 
     fout.setheader("Usage1 : ./restManager ");

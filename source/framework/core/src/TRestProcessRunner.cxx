@@ -253,7 +253,8 @@ void TRestProcessRunner::EndOfInit() {
     if (fRunInfo->GetFileProcess() != nullptr) {
         fInputEvent = fRunInfo->GetFileProcess()->GetOutputEvent();
     } else {
-        if (fThreads[0]->GetProcessnum() > 0 && fThreads[0]->GetProcess(0)->GetInputEvent().address != nullptr) {
+        if (fThreads[0]->GetProcessnum() > 0 &&
+            fThreads[0]->GetProcess(0)->GetInputEvent().address != nullptr) {
             string name = fThreads[0]->GetProcess(0)->GetInputEvent().type;
             TRestEvent* a = REST_Reflection::Assembly(name);
             a->Initialize();
@@ -416,7 +417,7 @@ void TRestProcessRunner::RunProcess() {
             if (a == 'p') {
                 fProcStatus = kPause;
                 usleep(100000);  // wait 0.1s for the processes to finish;
-                TRestStringOutput cout(REST_Silent, COLOR_BOLDWHITE, "|", kBorderedMiddle);
+                TRestStringOutput cout(REST_Silent, COLOR_BOLDWHITE, "| |", kMiddle);
                 Console::ClearLinesAfterCursor();
                 cout << endl;
                 cout << "-" << endl;
@@ -511,7 +512,7 @@ void TRestProcessRunner::RunProcess() {
 /// 4. Print the latest processed event
 /// 5. Quit the process directly with file saved
 void TRestProcessRunner::PauseMenu() {
-    TRestStringOutput cout(REST_Silent, COLOR_BOLDWHITE, "|", kBorderedMiddle);
+    TRestStringOutput cout(REST_Silent, COLOR_BOLDWHITE, "| |", kMiddle);
     Console::ClearLinesAfterCursor();
 
     cout << "--------------MENU--------------" << endl;
@@ -879,6 +880,21 @@ void TRestProcessRunner::ConfigOutputFile() {
     }
 
     fRunInfo->MergeToOutputFile(files_to_merge, fTempOutputDataFile->GetName());
+
+    std::vector<string> mdNames = fRunInfo->GetMetadataStructureNames();
+    Int_t nErrors = 0;
+    Int_t nWarnings = 0;
+    for (int n = 0; n < mdNames.size(); n++) {
+        if (fRunInfo->GetMetadata(mdNames[n])->GetError()) nErrors++;
+        if (fRunInfo->GetMetadata(mdNames[n])->GetWarning()) nWarnings++;
+    }
+
+    if (nWarnings)
+        warning << nWarnings
+                << " process warnings were found! Use run0->PrintWarnings(); to get additional info." << endl;
+    if (nErrors)
+        ferr << nErrors << " process errors were found! Use run0->PrintErrors(); to get additional info."
+             << endl;
 }
 
 // tools
