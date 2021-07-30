@@ -164,7 +164,13 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     fCanvasSize = StringTo2DVector(GetParameter("size", canvasdef, "(800,600)"));
     fCanvasDivisions = StringTo2DVector(GetParameter("divide", canvasdef, "(1,1)"));
     fCanvasDivisionMargins = StringTo2DVector(GetParameter("divideMargin", canvasdef, "(0.01, 0.01)"));
-    fCanvasSave = GetDataPath() + GetParameter("save", canvasdef, "rest_AnalysisPlot.pdf");
+
+    string save = (string)GetParameter("save", canvasdef, "rest_AnalysisPlot.pdf");
+    if (save.rfind("/", 0) == 0)
+        fCanvasSave = (TString)save;
+    else
+        fCanvasSave = GetDataPath() + save;
+
     fPaletteStyle = StringToInteger(GetParameter("paletteStyle", canvasdef, "57"));
 #pragma endregion
 
