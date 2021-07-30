@@ -562,6 +562,9 @@ TRestAnalysisTree* TRestAnalysisPlot::GetTree(TString fileName) {
 }
 
 TRestRun* TRestAnalysisPlot::GetRunInfo(TString fileName) {
+    fRun->OpenInputFile(fileName);
+    return fRun;
+
     // in any case we directly return fRun. No need to reopen the given file
     if (fileName == fRun->GetInputFileName(0)) {
         return fRun;
