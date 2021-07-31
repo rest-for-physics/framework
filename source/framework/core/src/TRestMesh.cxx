@@ -137,6 +137,8 @@ TVector3 TRestMesh::GetPosition(Int_t nX, Int_t nY, Int_t nZ) {
         v.SetTheta(theta);
         v.SetPhi(phi);
 
+        return v;
+
     } else {
         Double_t x = fNetOrigin.X() + (fNetSizeX / (fNodesX - 1)) * nX;
         Double_t y = fNetOrigin.Y() + (fNetSizeY / (fNodesY - 1)) * nY;
