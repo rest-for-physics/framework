@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<!-- This plot template shows an example of AnalysisPlot implementation.
+     The file where we have applied a signalAnalysisProcess name sgnl.Ana -->
+
+
+<TRestManager name="SpecPlot" title="Example" verboseLevel="info" >
+
+	<globals>
+		<variable name="RUN1" value="10852" overwrite="false" />
+		<variable name="RUN2" value="10964" overwrite="false" />
+		<variable name="E_MIN_RUN1" value="0" overwrite="false" />
+		<variable name="E_MAX_RUN1" value="1e6" overwrite="false" />
+		<variable name="E_MIN_RUN2" value="0" overwrite="false" />
+		<variable name="E_MAX_RUN2" value="1e6" overwrite="false" />
+	</globals>
+
+    <TRestAnalysisPlot name="CalToBackComp" title="Calibration and background comparison" previewPlot="false" verboseLevel="info">
+
+		<addFile name="https://sultan.unizar.es/rest_pipeline/v2.3.8_${RUN1}.root"/>
+		<addFile name="https://sultan.unizar.es/rest_pipeline/v2.3.8_${RUN2}.root"/>
+
+		<canvas size="(800,600)" divide="(1,1)" save="/tmp/canvas.root" />
+
+		<globalCut variable="hitsAna_nHitsX" condition=">0" value="ON" />
+		<globalCut variable="hitsAna_nHitsY" condition=">0" value="ON" />
+		<globalCut variable="tckAna_nTracks_X" condition="==1" value="OFF"/>
+		<globalCut variable="tckAna_nTracks_Y" condition="==1" value="OFF"/>
+
+		<globalCut variable="hitsAna_xMean*hitsAna_xMean+hitsAna_yMean*hitsAna_yMean" condition="<100" value="OFF"/>
+
+		<plot name="NumberOfGoodSignals" title="Number of good signals" xlabel="Number of good signals" ylabel="Counts" logscale="false" stats="on" save="/tmp/plot.root" value="ON" >
+			<histo name="NumberSignals${RUN1}" lineColor="1" save="">
+				<variable name="sAna_NumberOfGoodSignals" range="(0,50)" nbins="50" />
+				<classify fRunNumber="${RUN1}"/>
+				<cut variable="hitsAna_energy" condition=">${E_MIN_RUN1}" value="ON"/>
+				<cut variable="hitsAna_energy" condition="<=${E_MAX_RUN1}"  value="ON"/>
+			</histo>
+			<histo name="NumberSignals${RUN2}" lineColor="2">
+				<variable name="sAna_NumberOfGoodSignals" range="(0,50)" nbins="50" />
+				<classify fRunNumber="${RUN2}"/>
+				<cut variable="hitsAna_energy" condition=">${E_MIN_RUN2}" value="ON"/>
+				<cut variable="hitsAna_energy" condition="<=${E_MAX_RUN2}"  value="ON"/>
+			</histo>
+		</plot>
+
+  </TRestAnalysisPlot>
+
+  <addTask command="CalToBackComp->PlotCombinedCanvas()" value="ON"/>
+
+</TRestManager>

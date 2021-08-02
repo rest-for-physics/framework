@@ -354,6 +354,14 @@ AnalysisPlot:
     - cd ${CI_PROJECT_DIR}/pipeline/analysisPlot/
     - restManager --c summary.rml --f ${CI_PROJECT_DIR}/pipeline/trex/Hits_01929.root
 
+AnalysisPlot2:
+  type: postProcessing
+  script:
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/pipeline/analysisPlot/
+    - restManager --batch --c classify.rml
+    - restRoot -b -q ValidateClassify.C
+
 deploy:
   type: deploy
   only:
