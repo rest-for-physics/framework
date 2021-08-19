@@ -305,7 +305,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
                 chainOutputType = fProcessChain[fProcessChain.size() - i]->GetOutputEvent().type;
             }
             fOutputEvent = REST_Reflection::Assembly(chainOutputType);
-            if (fOutputEvent == NULL) {
+            if (fOutputEvent == nullptr) {
                 exit(1);
             }
         }
