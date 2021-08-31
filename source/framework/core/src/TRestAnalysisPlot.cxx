@@ -164,7 +164,13 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     fCanvasSize = StringTo2DVector(GetParameter("size", canvasdef, "(800,600)"));
     fCanvasDivisions = StringTo2DVector(GetParameter("divide", canvasdef, "(1,1)"));
     fCanvasDivisionMargins = StringTo2DVector(GetParameter("divideMargin", canvasdef, "(0.01, 0.01)"));
-    fCanvasSave = GetDataPath() + GetParameter("save", canvasdef, "rest_AnalysisPlot.pdf");
+
+    string save = (string)GetParameter("save", canvasdef, "rest_AnalysisPlot.pdf");
+    if (save.rfind("/", 0) == 0)
+        fCanvasSave = (TString)save;
+    else
+        fCanvasSave = GetDataPath() + save;
+
     fPaletteStyle = StringToInteger(GetParameter("paletteStyle", canvasdef, "57"));
 #pragma endregion
 
@@ -544,7 +550,7 @@ Int_t TRestAnalysisPlot::GetPlotIndex(TString plotName) {
 }
 
 TRestAnalysisTree* TRestAnalysisPlot::GetTree(TString fileName) {
-    if (fileName == fRun->GetInputFileName(0)) {
+    if (fRun->GetInputFile() != NULL && fRun->GetInputFile()->GetName() == fileName){
         // this means the file is already opened by TRestRun
         return fRun->GetAnalysisTree();
     }
@@ -563,7 +569,7 @@ TRestAnalysisTree* TRestAnalysisPlot::GetTree(TString fileName) {
 
 TRestRun* TRestAnalysisPlot::GetRunInfo(TString fileName) {
     // in any case we directly return fRun. No need to reopen the given file
-    if (fileName == fRun->GetInputFileName(0)) {
+    if (fRun->GetInputFile() != NULL && fRun->GetInputFile()->GetName() == fileName){
         return fRun;
     }
     if (fileName == fRun->GetOutputFileName() && fRun->GetOutputFile() != nullptr) {

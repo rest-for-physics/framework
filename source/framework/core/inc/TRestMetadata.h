@@ -172,21 +172,22 @@ class TRestMetadata : public TNamed {
     map<string, string> fConstants;  //!
 
     /// It can be used as a way to identify that something went wrong using SetError method.
-    Bool_t fError = false;  //!
+    Bool_t fError = false;
+
+    /// It counts the number of errors notified
+    Int_t fNErrors = 0;
+
+    /// It can be used as a way to identify that something went wrong using SetWarning method.
+    Bool_t fWarning = false;
+
+    /// It counts the number of warnings notified
+    Int_t fNWarnings = 0;
 
     /// A string to store an optional error message through method SetError.
-    TString fErrorMessage = "";  //!
+    TString fErrorMessage = "";
 
-    /// A metadata class may use this method to signal that something went wrong
-    void SetError(TString message = "") {
-        fError = true;
-        fErrorMessage = message;
-    }
-
-    /// It allows to modify the error message. Only if SetError was called previously.
-    void SetErrorMessage(TString message) {
-        if (GetError()) fErrorMessage = message;
-    }
+    /// It can be used as a way to identify that something went wrong using SetWarning method.
+    TString fWarningMessage = "";
 
     std::map<string, string> GetParametersList();
     void ReadAllParameters();
@@ -195,13 +196,27 @@ class TRestMetadata : public TNamed {
     /// It returns true if an error was identified by a derived metadata class
     Bool_t GetError() { return fError; }
 
+    /// It returns true if an error was identified by a derived metadata class
+    Bool_t GetWarning() { return fWarning; }
+
+    /// Add logs to messageBuffer
+    void AddLog(string log = "", bool print = true);
+
+    /// A metadata class may use this method to signal that something went wrong
+    void SetError(string message = "", bool print = true);
+
+    /// A metadata class may use this method to signal that something went wrong
+    void SetWarning(string message = "", bool print = true);
+
     /// Returns a string containing the error message
-    TString GetErrorMessage() {
-        if (GetError())
-            return fErrorMessage;
-        else
-            return "No error!";
-    }
+    TString GetErrorMessage();
+
+    /// Returns a string containing the warning message
+    TString GetWarningMessage();
+
+    Int_t GetNumberOfErrors() { return fNErrors; }
+
+    Int_t GetNumberOfWarnings() { return fNWarnings; }
 
     Int_t LoadConfigFromElement(TiXmlElement* eSectional, TiXmlElement* eGlobal,
                                 map<string, string> envs = {});
@@ -296,7 +311,7 @@ class TRestMetadata : public TNamed {
     TRestMetadata(const char* cfgFileNamecfgFileName);
 
     /// Call CINT to generate streamers for this class
-    ClassDef(TRestMetadata, 8);
+    ClassDef(TRestMetadata, 9);
 };
 
 #endif

@@ -471,11 +471,10 @@ using namespace REST_Physics;
 map<string, string> TRestMetadata_UpdatedConfigFile;
 
 ClassImp(TRestMetadata);
-
-///////////////////////////////////////////////
+    ///////////////////////////////////////////////
 /// \brief TRestMetadata default constructor
 ///
-TRestMetadata::TRestMetadata() : endl(fVerboseLevel, messageBuffer) {
+TRestMetadata::TRestMetadata() : endl(this) {
     fStore = true;
     fElementGlobal = nullptr;
     fElement = nullptr;
@@ -495,7 +494,7 @@ TRestMetadata::TRestMetadata() : endl(fVerboseLevel, messageBuffer) {
 ///////////////////////////////////////////////
 /// \brief constructor
 ///
-TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(fVerboseLevel, messageBuffer) {
+TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(this) {
     fStore = true;
     fElementGlobal = nullptr;
     fElement = nullptr;
@@ -2408,4 +2407,71 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
             }
         }
     }
+}
+
+TRestStringOutput& TRestStringOutput::operator<<(endl_t et) {
+    if (et.TRestMetadataPtr->GetVerboseLevel() <= REST_Info) {
+        et.TRestMetadataPtr->AddLog(this->buf.str());
+    }
+
+    if (this->iserror) {
+        if (this->verbose == REST_Warning) {
+            et.TRestMetadataPtr->SetWarning(this->buf.str(), false);
+        }
+        if (this->verbose == REST_Silent) {
+            et.TRestMetadataPtr->SetError(this->buf.str(), false);
+        }
+    }
+
+    if (et.TRestMetadataPtr->GetVerboseLevel() >= this->verbose) {
+        this->flushstring();
+    } else {
+        this->resetstring();
+    }
+
+    return *this;
+}
+
+void TRestMetadata::AddLog(string log, bool print) {
+    messageBuffer += log + "\n";
+    if (messageBuffer.size() > 1000) {
+        messageBuffer.erase(0, messageBuffer.size() - 1000);
+    }
+}
+
+void TRestMetadata::SetError(string message, bool print) {
+    fError = true;
+    fNErrors++;
+    if (message != "") {
+        fErrorMessage += message + "\n";
+        if (print) {
+            cout << message << endl;
+        }
+    }
+}
+
+void TRestMetadata::SetWarning(string message, bool print) {
+    fWarning = true;
+    fNWarnings++;
+    if (message != "") {
+        fWarningMessage += message + "\n";
+        if (print) {
+            if (fVerboseLevel>=REST_Warning)
+            cout << message << endl;
+        }
+    }
+}
+
+TString TRestMetadata::GetErrorMessage() {
+    if (GetError())
+        return fErrorMessage;
+    else
+        return "No error!";
+}
+
+TString TRestMetadata::GetWarningMessage() {
+    if (GetWarning())
+        return fWarningMessage;
+    else
+        return "No warning!";
 }

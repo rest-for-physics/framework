@@ -137,6 +137,8 @@ TVector3 TRestMesh::GetPosition(Int_t nX, Int_t nY, Int_t nZ) {
         v.SetTheta(theta);
         v.SetPhi(phi);
 
+        return v;
+
     } else {
         Double_t x = fNetOrigin.X() + (fNetSizeX / (fNodesX - 1)) * nX;
         Double_t y = fNetOrigin.Y() + (fNetSizeY / (fNodesY - 1)) * nY;
@@ -428,7 +430,7 @@ Int_t TRestMesh::GetGroupId(Int_t index) {
 ///////////////////////////////////////////////
 /// \brief It returns the total energy of all nodes corresponding to the group id given by argument
 ///
-Double_t TRestMesh::GetGroupIdEnergy(Int_t index) {
+Double_t TRestMesh::GetGroupEnergy(Int_t index) {
     if (index > (int)fNodeGroupID.size()) return 0.0;
 
     Double_t sum = 0;
@@ -436,6 +438,23 @@ Double_t TRestMesh::GetGroupIdEnergy(Int_t index) {
         if (fNodeGroupID[n] == index) sum += fEnergy[n];
 
     return sum;
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the average position for all nodes weighted with their corresponding energy
+///
+TVector3 TRestMesh::GetGroupPosition(Int_t index) {
+    double nan = numeric_limits<double>::quiet_NaN();
+
+    if (index > (int)fNodeGroupID.size()) return TVector3(nan, nan, nan);
+
+    TVector3 v(0, 0, 0);
+    for (int n = 0; n < GetNumberOfNodes(); n++)
+        if (fNodeGroupID[n] == index) v += fEnergy[n] * GetPosition(fNodeX[n], fNodeY[n], fNodeZ[n]);
+
+    v *= 1. / GetGroupEnergy(index);
+
+    return v;
 }
 
 ///////////////////////////////////////////////

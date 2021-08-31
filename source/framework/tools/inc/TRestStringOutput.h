@@ -64,8 +64,8 @@ enum REST_Verbose_Level {
 #define REST_Warning REST_Essential
 
 //////////////////////////////////////////////////////////////////////////
-/// Enumerate of TRestStringOutput display format, include options for border and orientation
-enum REST_Display_Format { kBorderedLeft, kBorderedMiddle, kHeaderedLeft, kHeaderedMiddle };
+/// Enumerate of TRestStringOutput display orientation
+enum REST_Display_Orientation { kLeft = 1, kMiddle = 0 };
 
 //////////////////////////////////////////////////////////////////////////
 /// Console helper class, providing several static methods dealing with terminal
@@ -122,11 +122,10 @@ class Console {
 /// When calling `fout<<"hello world"<<endl;` inside metadata class, this class is
 /// passed to TRestStringOutput, who compares the verbose level to dicide whether to
 /// print, and saves the printed string to metadata class's string buffer.
+class TRestMetadata;
 struct endl_t {
-    endl_t(REST_Verbose_Level& v, string& s) : vref(v), sref(s) {}
-
-    REST_Verbose_Level& vref;
-    string& sref;
+    endl_t(TRestMetadata* ptr) { TRestMetadataPtr = ptr; }
+    TRestMetadata* TRestMetadataPtr = 0;
     friend ostream& operator<<(ostream& a, endl_t& et) { return (a << std::endl); }
 };
 
@@ -144,7 +143,8 @@ class TRestStringOutput {
     string color;
     string formatstring;
     bool useborder;
-    int orientation;  // 0->middle, 1->left, 2->right
+    bool iserror;
+    int orientation;  // 0->middle, 1->left
 
     stringstream buf;
     int length;
@@ -174,15 +174,17 @@ class TRestStringOutput {
     void setorientation(int o) { orientation = o; }
     void resetorientation() { orientation = 0; }
 
-    // style options: < : orientation left, ^ : orientation middle, > :
-    // orientation right, | : use border, - : use header
-    TRestStringOutput(string _color = COLOR_RESET, string BorderOrHeader = "",
-                      REST_Display_Format style = kBorderedLeft);
+    // If formatter is in mirror form(e.g., "|| ||","< >"), it will use such border
+    // to wrap the string to be displayed. otherwise the formatter is used as
+    // prefix(e.g., "-- Warning: ")
+    TRestStringOutput(string color = COLOR_RESET, string formatter = "",
+                      REST_Display_Orientation orientation = kLeft);
 
-    TRestStringOutput(REST_Verbose_Level v, string _color = COLOR_RESET, string BorderOrHeader = "",
-                      REST_Display_Format style = kBorderedLeft)
-        : TRestStringOutput(_color, BorderOrHeader, style) {
+    TRestStringOutput(REST_Verbose_Level v, string _color = COLOR_RESET, string formatter = "",
+                      REST_Display_Orientation orientation = kLeft, bool _iserror = false)
+        : TRestStringOutput(_color, formatter, orientation) {
         verbose = v;
+        iserror = _iserror;
     }
 
     template <class T>
