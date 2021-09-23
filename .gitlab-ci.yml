@@ -276,7 +276,7 @@ trexDM_data_latest:
     - sleep 30
     - ls -lrth
     - restManager --fork --c 02_signal.rml --f "RawData*.root"
-    - sleep 30
+    - sleep 60
     - ls -lrth
     - restManager --fork --c 03_hits.rml --f "Signals*.root"
     - sleep 30
