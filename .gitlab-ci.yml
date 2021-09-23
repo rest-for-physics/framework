@@ -274,10 +274,13 @@ trexDM_data_latest:
     - cp R01928_tagTest_Vm_250_Vd_160_Pr_6_Gain_0x0_Shape_0xF_Clock_0x4-068.aqs R01929_tagTest_Vm_250_Vd_160_Pr_6_Gain_0x0_Shape_0xF_Clock_0x4-068.aqs
     - restManager --fork --c 01_raw.rml --f "*.aqs"
     - sleep 30
+    - ls
     - restManager --fork --c 02_signal.rml --f "RawData*.root"
     - sleep 30
+    - ls
     - restManager --fork --c 03_hits.rml --f "Signals*.root"
     - sleep 30
+    - ls
     - restRoot -b -q ../MakeBasicTree.C'("Hits_01928.root")'
     - rm RawData_01928.root
     - rm Signals_01928.root
