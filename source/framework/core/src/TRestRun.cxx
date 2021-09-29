@@ -396,11 +396,11 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
             // own account, it will say it was me!
             // if (runUserTmp != "Null" && runTypeTmp != "preserve") fRunUser = runUserTmp;
 
-            if (runTagTmp != "Null" && runTagTmp != "preserve") fRunTag = runTagTmp;
-            if (runDescriptionTmp != "Null" && runDescriptionTmp != "preserve")
-                fRunDescription = runDescriptionTmp;
-            if (experimentNameTmp != "Null" && experimentNameTmp != "preserve")
-                fExperimentName = experimentNameTmp;
+            // if (runTagTmp != "Null" && runTagTmp != "preserve") fRunTag = runTagTmp;
+            // if (runDescriptionTmp != "Null" && runDescriptionTmp != "preserve")
+            //    fRunDescription = runDescriptionTmp;
+            // if (experimentNameTmp != "Null" && experimentNameTmp != "preserve")
+            //    fExperimentName = experimentNameTmp;
 
             // If version is lower than 2.2.1 we do not read/transfer the metadata to
             // output file?
@@ -1712,8 +1712,8 @@ void TRestRun::PrintMetadata() {
              << ")" << endl;
     metadata << "End Date/Time : " << ToDateTimeString(GetEndTimestamp()) << " (" << GetEndTimestamp() << ")"
              << endl;
-    metadata << "Input file : " << GetInputFileNamepattern() << endl;
-    metadata << "Output file : " << GetOutputFileName() << endl;
+    metadata << "Input file : " << TRestTools::GetPureFileName((string)GetInputFileNamepattern()) << endl;
+    metadata << "Output file : " << TRestTools::GetPureFileName((string)GetOutputFileName()) << endl;
     metadata << "Number of events : " << fEntriesSaved << endl;
     // metadata << "Input filename : " << fInputFilename << endl;
     // metadata << "Output filename : " << fOutputFilename << endl;
