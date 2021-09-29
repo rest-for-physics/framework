@@ -114,6 +114,7 @@ void TRestRun::Initialize() {
 ///
 void TRestRun::InitFromConfigFile() {
     debug << "Initializing TRestRun from config file, version: " << REST_RELEASE << endl;
+    fFromRML = true;
     ReSetVersion();
 
     // 1. Read basic parameter
@@ -389,18 +390,20 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
 
             // If the value was initialized from RML and is not preserve, we recover
             // back the value in RML
-            if (runTypeTmp != "Null" && runTypeTmp != "preserve") fRunType = runTypeTmp;
+            if (fFromRML) {
+                if (runTypeTmp != "Null" && runTypeTmp != "preserve") fRunType = runTypeTmp;
 
-            // We should not recover the user. Only when writting. If not when I open a file
-            // with restRoot just to read, and Print the run content from other user in my
-            // own account, it will say it was me!
-            // if (runUserTmp != "Null" && runTypeTmp != "preserve") fRunUser = runUserTmp;
+                // We should not recover the user. Only when writting. If not when I open a file
+                // with restRoot just to read, and Print the run content from other user in my
+                // own account, it will say it was me!
+                // if (runUserTmp != "Null" && runTypeTmp != "preserve") fRunUser = runUserTmp;
 
-            // if (runTagTmp != "Null" && runTagTmp != "preserve") fRunTag = runTagTmp;
-            // if (runDescriptionTmp != "Null" && runDescriptionTmp != "preserve")
-            //    fRunDescription = runDescriptionTmp;
-            // if (experimentNameTmp != "Null" && experimentNameTmp != "preserve")
-            //    fExperimentName = experimentNameTmp;
+                if (runTagTmp != "Null" && runTagTmp != "preserve") fRunTag = runTagTmp;
+                if (runDescriptionTmp != "Null" && runDescriptionTmp != "preserve")
+                    fRunDescription = runDescriptionTmp;
+                if (experimentNameTmp != "Null" && experimentNameTmp != "preserve")
+                    fExperimentName = experimentNameTmp;
+            }
 
             // If version is lower than 2.2.1 we do not read/transfer the metadata to
             // output file?
