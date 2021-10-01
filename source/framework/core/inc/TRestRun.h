@@ -58,6 +58,7 @@ class TRestRun : public TRestMetadata {
     int fEventBranchLoc;               //!
     int fEventIndexCounter = 0;        //!
     bool fHangUpEndFile = false;       //!
+    bool fFromRML = false;             //!
    private:
     string ReplaceMetadataMember(const string instr);
 
