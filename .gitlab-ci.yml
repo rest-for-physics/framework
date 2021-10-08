@@ -103,7 +103,7 @@ validateCode:
 #    - if [ -d ${CI_PROJECT_DIR}/build ]; then rm -Rf ${CI_PROJECT_DIR}/build; fi
 #    - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build/
 #    - if [ -d ${CI_PROJECT_DIR}/install ]; then rm -Rf ${CI_PROJECT_DIR}/install; fi
-#    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
+#    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install
 #    - make install -j2
 #      #    - . ${CI_PROJECT_DIR}/install/thisREST.sh
 #  except:
@@ -122,7 +122,7 @@ build_latest:
     - if [ -d ${CI_PROJECT_DIR}/build_latest ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest; fi
     - mkdir ${CI_PROJECT_DIR}/build_latest && cd ${CI_PROJECT_DIR}/build_latest/
     - if [ -d ${CI_PROJECT_DIR}/install_latest ]; then rm -Rf ${CI_PROJECT_DIR}/install_latest; fi
-    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest
+    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest
     - make install -j2
       #    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
   artifacts:
@@ -139,7 +139,7 @@ build_latest:
     #    - if [ -d ${CI_PROJECT_DIR}/build_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest2; fi
       #    - mkdir ${CI_PROJECT_DIR}/build_latest2 && cd ${CI_PROJECT_DIR}/build_latest2/
       #    - if [ -d ${CI_PROJECT_DIR}/install_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/install_latest2; fi
-      #    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest2
+      #    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest2
       #    - make install -j2
       #    - . ${CI_PROJECT_DIR}/install_latest2/thisREST.sh
       #  except:
@@ -155,7 +155,7 @@ build_latest:
     #    - if [ -d ${CI_PROJECT_DIR}/build_nkx ]; then rm -Rf ${CI_PROJECT_DIR}/build_nkx; fi
     #    - mkdir ${CI_PROJECT_DIR}/build_nkx && cd ${CI_PROJECT_DIR}/build_nkx/
     #    - if [ -d ${CI_PROJECT_DIR}/install_nkx]; then rm -Rf ${CI_PROJECT_DIR}/install_nkx; fi
-    #    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install_nkx
+    #    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install_nkx
     #    - make install -j2
   #    - cat ${CI_PROJECT_DIR}/install_nkx/thisREST.sh
 #    - . ${CI_PROJECT_DIR}/install_nkx/thisREST.sh

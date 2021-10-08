@@ -52,7 +52,7 @@ class RESTinstaller(installer):
         os.system("mkdir -p " + vars.opt["Install_Path"])
         os.chdir(vars.opt["Build_Path"])
         cmakecmd = "cmake " + vars.opt["Source_Path"]
-        cmakecmd = cmakecmd + " -DINSTALL_PREFIX=" + vars.opt["Install_Path"]
+        cmakecmd = cmakecmd + " -DCMAKE_INSTALL_PREFIX=" + vars.opt["Install_Path"]
         for flag in vars.cmakeflags:
             cmakecmd = cmakecmd + " " + flag
         print(cmakecmd)

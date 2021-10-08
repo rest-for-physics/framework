@@ -115,7 +115,7 @@ Go to the root directory of your local REST repository, assume it is `~/rest-fra
 cd ~/rest-framework
 mkdir build
 cd build
-cmake .. -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON -DINSTALL_PREFIX=../install/ 
+cmake .. -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON -DCMAKE_INSTALL_PREFIX=../install/ 
 make -j4 install
 ```
 

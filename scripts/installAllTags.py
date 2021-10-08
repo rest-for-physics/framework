@@ -40,7 +40,7 @@ out, err = p.communicate()
 if err == "" and "up-to-date" in out:
 	print("Master is already updated")
 else:
-	os.system( "cmake -DINSTALL_PREFIX=" + REST_Install_Path + "master" + " ../" )
+	os.system( "cmake -DCMAKE_INSTALL_PREFIX=" + REST_Install_Path + "master" + " ../" )
 	os.system ('/usr/bin/make clean' )
 	os.system ('/usr/bin/make -j4' )
 	os.system ('/usr/bin/make install' )
@@ -99,7 +99,7 @@ for x in gitTags:
 
 for tag in notInstalledTags:
 	os.system( "git checkout -b " + tag + " " + tag )
-	os.system( "cmake -DINSTALL_PREFIX=" + REST_Install_Path + tag + " ../" )
+	os.system( "cmake -DCMAKE_INSTALL_PREFIX=" + REST_Install_Path + tag + " ../" )
 	os.system ('/usr/bin/make clean' )
 	os.system ('/usr/bin/make -j4' )
 	os.system ('/usr/bin/make install' )

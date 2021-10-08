@@ -24,11 +24,11 @@ The following code shows how to compile and install the library, we assume the w
 ~/REST_v2/example/$ mkdir build
 
 // We enter the build directory and create the compilation environment
-~/REST_v2/example/build$ cmake -DINSTALL_PREFIX=../ ../
+~/REST_v2/example/build$ cmake -DCMAKE_INSTALL_PREFIX=../ ../
 
 // We have defined the library installation at the same example directory.
 // If not specified, by default it will install it at the REST_PATH location.
-// But if you have no rights you must specify the install path using -DINSTALL_PREFIX
+// But if you have no rights you must specify the install path using -DCMAKE_INSTALL_PREFIX
 
 // We compile and install the library
 ~/REST_v2/example/build$ make -j4
