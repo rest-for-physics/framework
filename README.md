@@ -1,7 +1,7 @@
 # The REST Framework
 [![DOI](https://zenodo.org/badge/324291710.svg)](http://doi.org/10.5281/zenodo.4528985)
 [![pipeline status](https://gitlab.cern.ch/rest-for-physics/framework/badges/master/pipeline.svg)](https://gitlab.cern.ch/rest-for-physics/framework/-/commits/master)
-[![website](https://img.shields.io/badge/user-guide-caa5d6.svg)](https://rest-for-physics.github.io)
+[![website](https://img.shields.io/badge/user-guide-E8B6FF.svg)](https://rest-for-physics.github.io)
 [![api](https://img.shields.io/badge/user-API-FFE96B.svg)](https://sultan.unizar.es/rest/)
 
 The REST-for-Physics (Rare Event Searches Toolkit) Framework is mainly written in C++ and it is fully integrated with [ROOT](https://root.cern.ch) I/O interface.
