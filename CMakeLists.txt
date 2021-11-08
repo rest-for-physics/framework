@@ -52,6 +52,15 @@ if (NOT DEFINED REST_SE)
 endif ()
 set(SCHEMA_EVOLUTION ${REST_SE})
 
+# Google Test
+include(FetchContent)
+FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
+)
+# Feel free to update the URL to the latest version (after verifying everything still works)
+FetchContent_MakeAvailable(googletest) # Needs CMake >= 3.14
+
 # Welcome message
 if (NOT DEFINED REST_WELCOME)
     set(REST_WELCOME ON)
