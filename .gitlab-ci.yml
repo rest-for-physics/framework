@@ -11,6 +11,9 @@ stages:
   # Project compilation validation
   - build
 
+  # Google Test
+  - test
+
   # REST libraries installed as sub-modules
   - libraries
 
@@ -122,7 +125,7 @@ build_latest:
     - if [ -d ${CI_PROJECT_DIR}/build_latest ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest; fi
     - mkdir ${CI_PROJECT_DIR}/build_latest && cd ${CI_PROJECT_DIR}/build_latest/
     - if [ -d ${CI_PROJECT_DIR}/install_latest ]; then rm -Rf ${CI_PROJECT_DIR}/install_latest; fi
-    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest
+    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DTEST=ON -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest
     - make install -j2
     #    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
   artifacts:
@@ -134,11 +137,11 @@ build_latest:
       #  image: lobis/root-geant4-garfieldpp:cxx14_ROOTv6-22-08_Geant4v10.4.2
       #  type: build
       #  script:
-      #    - cd ${CI_PROJECT_DIR}/
-      #    - python3 pull-submodules.py --force --dontask --latest
-      #    - if [ -d ${CI_PROJECT_DIR}/build_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest2; fi
-      #    - mkdir ${CI_PROJECT_DIR}/build_latest2 && cd ${CI_PROJECT_DIR}/build_latest2/
-      #    - if [ -d ${CI_PROJECT_DIR}/install_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/install_latest2; fi
+    #    - cd ${CI_PROJECT_DIR}/
+    #    - python3 pull-submodules.py --force --dontask --latest
+    #    - if [ -d ${CI_PROJECT_DIR}/build_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest2; fi
+    #    - mkdir ${CI_PROJECT_DIR}/build_latest2 && cd ${CI_PROJECT_DIR}/build_latest2/
+    #    - if [ -d ${CI_PROJECT_DIR}/install_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/install_latest2; fi
     #    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest2
     #    - make install -j2
     #    - . ${CI_PROJECT_DIR}/install_latest2/thisREST.sh
@@ -162,6 +165,16 @@ build_latest:
 #  except:
 #      variables:
 #        - $CRONJOB == "YES"
+
+google_test:
+  type: test
+  script:
+    - cd ${CI_PROJECT_DIR}/build_latest
+    - ctest
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/Testing
+    expire_in: 1 day
 
 loadRESTLibs:
   type: install
