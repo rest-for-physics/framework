@@ -166,19 +166,6 @@ build_latest:
 #      variables:
 #        - $CRONJOB == "YES"
 
-google_test:
-  type: test
-  script:
-    # TODO: Currently we need to build twice because tests have problems in the cmake, we have to fix this
-    - cd ${CI_PROJECT_DIR}/build_latest
-    - cmake .. -DTEST=ON -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
-    - make
-    - ctest
-  artifacts:
-    paths:
-      - ${CI_PROJECT_DIR}/Testing
-    expire_in: 1 day
-
 loadRESTLibs:
   type: install
   script:
@@ -191,6 +178,20 @@ listRESTMacros:
   script:
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - restManager ListMacros
+
+GoogleTest:
+  type: test
+  script:
+    # TODO: Currently we need to build twice because tests have problems in the cmake, we have to fix this
+    - if [ -d ${CI_PROJECT_DIR}/build_latest ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest; fi
+    - mkdir ${CI_PROJECT_DIR}/build_latest && cd ${CI_PROJECT_DIR}/build_latest
+    - cmake .. -DTEST=ON -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
+    - make
+    - ctest
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/build_latest/Testing
+    expire_in: 1 day
 
 01_NLDBD:
   type: restG4
