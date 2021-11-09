@@ -40,12 +40,25 @@ endif ()
 # Testing
 if (${TEST} MATCHES "ON") # OFF by default
     include(FetchContent)
+    # Feel free to update the URL to the latest version (after verifying everything still works)
     FetchContent_Declare(
             googletest
             URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
     )
-    # Feel free to update the URL to the latest version (after verifying everything still works)
-    FetchContent_MakeAvailable(googletest) # Needs CMake >= 3.14
+
+    # In CMake >= 3.14 this can all be replaced by a single command: FetchContent_MakeAvailable(googletest)
+    # https://www.fatalerrors.org/a/cmake-and-gtest-download-gtest-automatically-and-build-test-driven-environment.html
+    FetchContent_GetProperties(googletest)
+    if (NOT googletest_POPULATED)
+        FetchContent_Populate(googletest)
+        set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+        set(gtest_disable_pthreads ON CACHE BOOL "" FORCE)
+        # add the targets: gtest,gtest_main,gmock,gmock_main
+        add_subdirectory(
+                ${googletest_SOURCE_DIR}
+                ${googletest_BINARY_DIR}
+        )
+    endif ()
 
     enable_testing()
 endif ()
