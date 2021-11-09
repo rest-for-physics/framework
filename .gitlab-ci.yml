@@ -11,14 +11,14 @@ stages:
   # Project compilation validation
   - build
 
-  # Google Test
-  - test
-
   # REST libraries installed as sub-modules
   - libraries
 
   # Basic validation tests of installation
   - install
+
+  # Google Test
+  - test
 
   # Basic core validation tests
   - core
