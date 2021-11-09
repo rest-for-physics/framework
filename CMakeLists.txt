@@ -37,14 +37,18 @@ if (NOT DEFINED RESTLIB_MODEL)
     set(RESTLIB_MODEL OFF)
 endif ()
 
-# Google Test
-include(FetchContent)
-FetchContent_Declare(
-        googletest
-        URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
-)
-# Feel free to update the URL to the latest version (after verifying everything still works)
-FetchContent_MakeAvailable(googletest) # Needs CMake >= 3.14
+# Testing
+if (${TEST} MATCHES "ON") # OFF by default
+    include(FetchContent)
+    FetchContent_Declare(
+            googletest
+            URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
+    )
+    # Feel free to update the URL to the latest version (after verifying everything still works)
+    FetchContent_MakeAvailable(googletest) # Needs CMake >= 3.14
+
+    enable_testing()
+endif ()
 
 # Auto schema evolution for ROOT
 if (NOT DEFINED REST_SE)
