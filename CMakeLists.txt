@@ -53,12 +53,12 @@ if (${TEST} MATCHES "ON") # OFF by default
         FetchContent_Populate(googletest)
         set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
         set(gtest_disable_pthreads ON CACHE BOOL "" FORCE)
-        # add the targets: gtest,gtest_main,gmock,gmock_main
         add_subdirectory(
                 ${googletest_SOURCE_DIR}
                 ${googletest_BINARY_DIR}
         )
     endif ()
+    # End of lines that can be replaced by FetchContent_MakeAvailable(googletest)
 
     enable_testing()
 endif ()

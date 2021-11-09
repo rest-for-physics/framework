@@ -125,7 +125,7 @@ build_latest:
     - if [ -d ${CI_PROJECT_DIR}/build_latest ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest; fi
     - mkdir ${CI_PROJECT_DIR}/build_latest && cd ${CI_PROJECT_DIR}/build_latest/
     - if [ -d ${CI_PROJECT_DIR}/install_latest ]; then rm -Rf ${CI_PROJECT_DIR}/install_latest; fi
-    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DTEST=ON -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest
+    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest
     - make install -j2
     #    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
   artifacts:
@@ -169,7 +169,10 @@ build_latest:
 google_test:
   type: test
   script:
+    # TODO: Currently we need to build twice because tests have problems in the cmake, we have to fix this
     - cd ${CI_PROJECT_DIR}/build_latest
+    - cmake .. -DTEST=ON -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
+    - make
     - ctest
   artifacts:
     paths:
