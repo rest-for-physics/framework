@@ -38,11 +38,7 @@
 
 #include "TRestEventViewer.h"
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 24, 0)
 #define GEOM_SCALE 1
-#else
-#define GEOM_SCALE 0.1
-#endif
 
 class TRestEveEventViewer : public TRestEventViewer {
    protected:

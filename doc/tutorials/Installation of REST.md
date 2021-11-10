@@ -205,13 +205,13 @@ First of all, create a build directory wherever you want, here we assume it is d
 We then create the compilation environment using cmake (i.e., we define the REST install path, the compiler version, etc). If we do not specify the installation path, the default is <code>/usr/local/REST</code> (which requires admin privileges). We use cmake for this, with the following syntax:
 
 \code
- cmake -DINSTALL_PREFIX=/install/path/ $REST_v2
+ cmake -DCMAKE_INSTALL_PREFIX=/install/path/ $REST_v2
 \endcode
 
 Where *DINSTALL_PREFIX* will be the directory where headers, libraries and other required files will be installed. You can choose for example $REST_v2/install. Since *../* points to $REST_v2, you could execute
 
 \code
- cmake -DINSTALL_PREFIX=$REST_v2/install ../
+ cmake -DCMAKE_INSTALL_PREFIX=$REST_v2/install ../
 \endcode
 
 being $REST_v2 the full path directory pointing to your REST_v2 directory.
