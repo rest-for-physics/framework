@@ -291,7 +291,19 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
             debug << "Test Run complete!" << endl;
         } else {
             debug << "Initializing output event" << endl;
-            string chainOutputType = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent().type;
+            int i = 1;
+            string chainOutputType = fProcessChain[fProcessChain.size() - i]->GetOutputEvent().type;
+            while (chainOutputType == "TRestEvent") {
+                // if the output event of last process is in base type TRestEvent, this means
+                // the last process is a generic process. We need to trace upstream to find out
+                // the real output type
+                i++;
+                if (i == fProcessChain.size() + 1) {
+                    chainOutputType = fInputEvent->ClassName();
+                    break;
+                }
+                chainOutputType = fProcessChain[fProcessChain.size() - i]->GetOutputEvent().type;
+            }
             fOutputEvent = REST_Reflection::Assembly(chainOutputType);
             if (fOutputEvent == nullptr) {
                 exit(1);
