@@ -27,19 +27,6 @@
 #include "TRestRun.h"
 #include "TCut.h"
 
-/// A Collection of TCut objects initialized from rml, e.g:
-/// 
-/// <TRestCut/>
-///   <cut name="cc1" value="XX>10 AND XX<90"/>
-///   <cut name="cc2" value="sAna_ThresholdIntegral<100e3"/>
-/// </TRestCut>
-/// 
-/// Note that the notations " AND " and " OR " will be replaced by " && " and " || " 
-/// When saved to ROOT file, this class will save together all its TCut objects 
-/// Then we can easily draw the tree with these cuts:
-/// 
-/// AnalysisTree->Draw("xxx",*cc1)
-/// AnalysisTree->Draw("xxx",*cc1 && *cc2 )
 class TRestCut : public TRestMetadata {
 private:
 	vector<TCut> fCuts;
