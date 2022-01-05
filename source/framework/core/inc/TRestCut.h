@@ -23,31 +23,33 @@
 #ifndef RestCore_TRestCut
 #define RestCore_TRestCut
 
+#include "TCut.h"
 #include "TRestMetadata.h"
 #include "TRestRun.h"
-#include "TCut.h"
 
+//! A class to help on cuts definitions. To be used with TRestAnalysisTree
 class TRestCut : public TRestMetadata {
-private:
-	vector<TCut> fCuts;
+   private:
+    vector<TCut> fCuts;
 
-protected:
-	void Initialize() override;
-	void InitFromConfigFile() override;
-public:
-	void AddCut(TCut cut);
-	TCut GetCut(string name);
+   protected:
+    void Initialize() override;
+    void InitFromConfigFile() override;
 
-	void PrintMetadata() override;
+   public:
+    void AddCut(TCut cut);
+    TCut GetCut(string name);
 
-	Int_t Write(const char* name, Int_t option, Int_t bufsize) override;
+    void PrintMetadata() override;
 
-	// Constructor
-	TRestCut();
-	// Destructor
-	~TRestCut() {}
+    Int_t Write(const char* name, Int_t option, Int_t bufsize) override;
 
-	ClassDefOverride(TRestCut, 1);  // Template for a REST "event process" class inherited from
-										 // TRestEventProcess
+    // Constructor
+    TRestCut();
+    // Destructor
+    ~TRestCut() {}
+
+    ClassDefOverride(TRestCut, 1);  // Template for a REST "event process" class inherited from
+                                    // TRestEventProcess
 };
 #endif
