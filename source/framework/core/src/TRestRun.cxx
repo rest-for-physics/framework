@@ -1430,7 +1430,7 @@ string TRestRun::GetRunInformation(string infoname) {
         return result;
     }
 
-    result = GetDataMemberValue("f" + infoname);
+    result = GetDataMemberValue(ParameterNameToDataMemberName(infoname));
     if (result != "") {
         return result;
     }
