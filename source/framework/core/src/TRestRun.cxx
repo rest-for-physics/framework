@@ -1435,7 +1435,7 @@ string TRestRun::GetRunInformation(string infoname) {
         return result;
     }
 
-    if (fHostmgr->GetProcessRunner() != nullptr) {
+    if (fHostmgr && fHostmgr->GetProcessRunner() != nullptr) {
         result = fHostmgr->GetProcessRunner()->GetProcInfo(infoname);
         if (result != "") {
             return result;
