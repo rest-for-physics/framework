@@ -495,11 +495,11 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
     }
 
     // 5. read draw style(line color, width, fill style, etc.)
-    hist.lineColor = StringToInteger(GetParameter("lineColor", histele, "602"));
-    hist.lineWidth = StringToInteger(GetParameter("lineWidth", histele, "1"));
-    hist.lineStyle = StringToInteger(GetParameter("lineStyle", histele, "1"));
-    hist.fillStyle = StringToInteger(GetParameter("fillStyle", histele, "1001"));
-    hist.fillColor = StringToInteger(GetParameter("fillColor", histele, "0"));
+    hist.lineColor = GetStyleIDFromString(GetParameter("lineColor", histele, "602"));
+    hist.lineWidth = GetStyleIDFromString(GetParameter("lineWidth", histele, "1"));
+    hist.lineStyle = GetStyleIDFromString(GetParameter("lineStyle", histele, "1"));
+    hist.fillStyle = GetStyleIDFromString(GetParameter("fillStyle", histele, "1001"));
+    hist.fillColor = GetStyleIDFromString(GetParameter("fillColor", histele, "0"));
 
     return hist;
 }
@@ -585,6 +585,17 @@ TRestRun* TRestAnalysisPlot::GetRunInfo(TString fileName) {
 
 bool TRestAnalysisPlot::IsDynamicRange(TString rangeString) {
     return (string(rangeString)).find(",  ") != -1;
+}
+
+Int_t TRestAnalysisPlot::GetStyleIDFromString(string in) {
+    if (in.find_first_not_of("0123456789") == string::npos) {
+        return StringToInteger(in);
+    } else if (StyleIdMap.count(in) != 0) {
+        return StyleIdMap.at(in);
+    } else {
+        warning << "cannot find style id for \"" << in << "\"" << endl;
+    }
+    return -1;
 }
 
 void TRestAnalysisPlot::PlotCombinedCanvas() {

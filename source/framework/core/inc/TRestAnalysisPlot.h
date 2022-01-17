@@ -13,13 +13,77 @@
 #define RestCore_TRestAnalysisPlot
 
 #include <TLatex.h>
+#include <TRestRun.h>
+
 #include "TCanvas.h"
 #include "TH3D.h"
-
-#include <TRestRun.h>
 #include "TRestAnalysisTree.h"
 
 const int REST_MAX_TAGS = 15;
+
+// as enum "EColor" defined in Rtypes.h
+// as enum "ELineStyle" defined in TAttLine.h
+// as enum "EMarkerStyle" defined in TAttMarker.h
+const map<string, int> StyleIdMap{{"white", kWhite},
+                            {"black", kBlack},
+                            {"gray", kGray},
+                            {"red", kRed},
+                            {"green", kGreen},
+                            {"blue", kBlue},
+                            {"yellow", kYellow},
+                            {"magenta", kMagenta},
+                            {"cyan", kCyan},
+                            {"orange", kOrange},
+                            {"spring", kSpring},
+                            {"teal", kTeal},
+                            {"azure", kAzure},
+                            {"violet", kViolet},
+                            {"pink", kPink},
+
+                            {"solid", kSolid},
+                            {"dashed", kDashed},
+                            {"dotted", kDotted},
+                            {"dashDotted", kDashDotted},
+
+                            {"dot", kDot},
+                            {"plus", kPlus},
+                            {"star", kStar},
+                            {"circle", kCircle},
+                            {"multiply", kMultiply},
+                            {"fullDotSmall", kFullDotSmall},
+                            {"fullDotMedium", kFullDotMedium},
+                            {"fullDotLarge", kFullDotLarge},
+                            {"fullCircle", kFullCircle},
+                            {"fullSquare", kFullSquare},
+                            {"fullTriangleUp", kFullTriangleUp},
+                            {"fullTriangleDown", kFullTriangleDown},
+                            {"openCircle", kOpenCircle},
+                            {"openSquare", kOpenSquare},
+                            {"openTriangleUp", kOpenTriangleUp},
+                            {"openDiamond", kOpenDiamond},
+                            {"openCross", kOpenCross},
+                            {"fullStar", kFullStar},
+                            {"openStar", kOpenStar},
+                            {"openTriangleDown", kOpenTriangleDown},
+                            {"fullDiamond", kFullDiamond},
+                            {"fullCross", kFullCross},
+                            {"openDiamondCross", kOpenDiamondCross},
+                            {"openSquareDiagonal", kOpenSquareDiagonal},
+                            {"openThreeTriangles", kOpenThreeTriangles},
+                            {"octagonCross", kOctagonCross},
+                            {"fullThreeTriangles", kFullThreeTriangles},
+                            {"openFourTrianglesX", kOpenFourTrianglesX},
+                            {"fullFourTrianglesX", kFullFourTrianglesX},
+                            {"openDoubleDiamond", kOpenDoubleDiamond},
+                            {"fullDoubleDiamond", kFullDoubleDiamond},
+                            {"openFourTrianglesPlus", kOpenFourTrianglesPlus},
+                            {"fullFourTrianglesPlus", kFullFourTrianglesPlus},
+                            {"openCrossX", kOpenCrossX},
+                            {"fullCrossX", kFullCrossX},
+                            {"fourSquaresX", kFourSquaresX},
+                            {"fourSquaresPlus", kFourSquaresPlus}
+
+};
 
 class TRestAnalysisPlot : public TRestMetadata {
    public:
@@ -136,6 +200,7 @@ class TRestAnalysisPlot : public TRestMetadata {
     TRestAnalysisTree* GetTree(TString fileName);
     TRestRun* GetRunInfo(TString fileName);
     bool IsDynamicRange(TString rangeString);
+    Int_t GetStyleIDFromString(string in);
 
    protected:
    public:
