@@ -23,67 +23,24 @@ const int REST_MAX_TAGS = 15;
 
 // as enum "EColor" defined in Rtypes.h
 // as enum "ELineStyle" defined in TAttLine.h
-// as enum "EMarkerStyle" defined in TAttMarker.h
-const map<string, int> StyleIdMap{{"white", kWhite},
-                            {"black", kBlack},
-                            {"gray", kGray},
-                            {"red", kRed},
-                            {"green", kGreen},
-                            {"blue", kBlue},
-                            {"yellow", kYellow},
-                            {"magenta", kMagenta},
-                            {"cyan", kCyan},
-                            {"orange", kOrange},
-                            {"spring", kSpring},
-                            {"teal", kTeal},
-                            {"azure", kAzure},
-                            {"violet", kViolet},
-                            {"pink", kPink},
-
-                            {"solid", kSolid},
-                            {"dashed", kDashed},
-                            {"dotted", kDotted},
-                            {"dashDotted", kDashDotted},
-
-                            {"dot", kDot},
-                            {"plus", kPlus},
-                            {"star", kStar},
-                            {"circle", kCircle},
-                            {"multiply", kMultiply},
-                            {"fullDotSmall", kFullDotSmall},
-                            {"fullDotMedium", kFullDotMedium},
-                            {"fullDotLarge", kFullDotLarge},
-                            {"fullCircle", kFullCircle},
-                            {"fullSquare", kFullSquare},
-                            {"fullTriangleUp", kFullTriangleUp},
-                            {"fullTriangleDown", kFullTriangleDown},
-                            {"openCircle", kOpenCircle},
-                            {"openSquare", kOpenSquare},
-                            {"openTriangleUp", kOpenTriangleUp},
-                            {"openDiamond", kOpenDiamond},
-                            {"openCross", kOpenCross},
-                            {"fullStar", kFullStar},
-                            {"openStar", kOpenStar},
-                            {"openTriangleDown", kOpenTriangleDown},
-                            {"fullDiamond", kFullDiamond},
-                            {"fullCross", kFullCross},
-                            {"openDiamondCross", kOpenDiamondCross},
-                            {"openSquareDiagonal", kOpenSquareDiagonal},
-                            {"openThreeTriangles", kOpenThreeTriangles},
-                            {"octagonCross", kOctagonCross},
-                            {"fullThreeTriangles", kFullThreeTriangles},
-                            {"openFourTrianglesX", kOpenFourTrianglesX},
-                            {"fullFourTrianglesX", kFullFourTrianglesX},
-                            {"openDoubleDiamond", kOpenDoubleDiamond},
-                            {"fullDoubleDiamond", kFullDoubleDiamond},
-                            {"openFourTrianglesPlus", kOpenFourTrianglesPlus},
-                            {"fullFourTrianglesPlus", kFullFourTrianglesPlus},
-                            {"openCrossX", kOpenCrossX},
-                            {"fullCrossX", kFullCrossX},
-                            {"fourSquaresX", kFourSquaresX},
-                            {"fourSquaresPlus", kFourSquaresPlus}
-
-};
+// as enum "EFillStyle" defined in TAttFill.h
+const map<string, int> ColorIdMap{
+    {"white", kWhite},   {"black", kBlack},   {"gray", kGray},       {"red", kRed},       {"green", kGreen},
+    {"blue", kBlue},     {"yellow", kYellow}, {"magenta", kMagenta}, {"cyan", kCyan},     {"orange", kOrange},
+    {"spring", kSpring}, {"teal", kTeal},     {"azure", kAzure},     {"violet", kViolet}, {"pink", kPink}};
+const map<string, int> LineStyleMap{
+    {"solid", kSolid}, {"dashed", kDashed}, {"dotted", kDotted}, {"dashDotted", kDashDotted}};
+const map<string, int> FillStyleMap{
+    {"dotted", kFDotted1},        {"dashed", kFDashed1},    {"dotted1", kFDotted1},
+    {"dotted2", kFDotted2},       {"dotted3", kFDotted3},   {"hatched1", kFHatched1},
+    {"hatched2", kHatched2},      {"hatched3", kFHatched3}, {"hatched4", kFHatched4},
+    {"wicker", kFWicker},         {"scales", kFScales},     {"bricks", kFBricks},
+    {"snowflakes", kFSnowflakes}, {"circles", kFCircles},   {"tiles", kFTiles},
+    {"mondrian", kFMondrian},     {"diamonds", kFDiamonds}, {"waves1", kFWaves1},
+    {"dashed1", kFDashed1},       {"dashed2", kFDashed2},   {"alhambra", kFAlhambra},
+    {"waves2", kFWaves2},         {"stars1", kFStars1},     {"stars2", kFStars2},
+    {"pyramids", kFPyramids},     {"frieze", kFFrieze},     {"metopes", kFMetopes},
+    {"empty", kFEmpty},           {"solid", kFSolid}};
 
 class TRestAnalysisPlot : public TRestMetadata {
    public:
@@ -200,7 +157,9 @@ class TRestAnalysisPlot : public TRestMetadata {
     TRestAnalysisTree* GetTree(TString fileName);
     TRestRun* GetRunInfo(TString fileName);
     bool IsDynamicRange(TString rangeString);
-    Int_t GetStyleIDFromString(string in);
+    Int_t GetColorIDFromString(string in);
+    Int_t GetFillStyleIDFromString(string in);
+    Int_t GetLineStyleIDFromString(string in);
 
    protected:
    public:

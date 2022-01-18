@@ -495,11 +495,11 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
     }
 
     // 5. read draw style(line color, width, fill style, etc.)
-    hist.lineColor = GetStyleIDFromString(GetParameter("lineColor", histele, "602"));
-    hist.lineWidth = GetStyleIDFromString(GetParameter("lineWidth", histele, "1"));
-    hist.lineStyle = GetStyleIDFromString(GetParameter("lineStyle", histele, "1"));
-    hist.fillStyle = GetStyleIDFromString(GetParameter("fillStyle", histele, "1001"));
-    hist.fillColor = GetStyleIDFromString(GetParameter("fillColor", histele, "0"));
+    hist.lineColor = GetColorIDFromString(GetParameter("lineColor", histele, "602"));
+    hist.lineWidth = StringToInteger(GetParameter("lineWidth", histele, "1"));
+    hist.lineStyle = GetLineStyleIDFromString(GetParameter("lineStyle", histele, "1"));
+    hist.fillStyle = GetFillStyleIDFromString(GetParameter("fillStyle", histele, "1001"));
+    hist.fillColor = GetColorIDFromString(GetParameter("fillColor", histele, "0"));
 
     return hist;
 }
@@ -587,13 +587,35 @@ bool TRestAnalysisPlot::IsDynamicRange(TString rangeString) {
     return (string(rangeString)).find(",  ") != -1;
 }
 
-Int_t TRestAnalysisPlot::GetStyleIDFromString(string in) {
+Int_t TRestAnalysisPlot::GetColorIDFromString(string in) {
     if (in.find_first_not_of("0123456789") == string::npos) {
         return StringToInteger(in);
-    } else if (StyleIdMap.count(in) != 0) {
-        return StyleIdMap.at(in);
+    } else if (ColorIdMap.count(in) != 0) {
+        return ColorIdMap.at(in);
     } else {
-        warning << "cannot find style id for \"" << in << "\"" << endl;
+        warning << "cannot find color with name \"" << in << "\"" << endl;
+    }
+    return -1;
+}
+
+Int_t TRestAnalysisPlot::GetFillStyleIDFromString(string in) {
+    if (in.find_first_not_of("0123456789") == string::npos) {
+        return StringToInteger(in);
+    } else if (FillStyleMap.count(in) != 0) {
+        return FillStyleMap.at(in);
+    } else {
+        warning << "cannot find fill style with name \"" << in << "\"" << endl;
+    }
+    return -1;
+}
+
+Int_t TRestAnalysisPlot::GetLineStyleIDFromString(string in) {
+    if (in.find_first_not_of("0123456789") == string::npos) {
+        return StringToInteger(in);
+    } else if (LineStyleMap.count(in) != 0) {
+        return LineStyleMap.at(in);
+    } else {
+        warning << "cannot find line style with name \"" << in << "\"" << endl;
     }
     return -1;
 }
