@@ -21,4 +21,4 @@ restRootMacros
 REST_Detector_ViewReadout("readouts.root", "cathode")
 ```
 
-![readout][readout.png]
+![readout](readout.png)
