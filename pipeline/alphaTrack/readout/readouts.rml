@@ -1,0 +1,45 @@
+<?xml version="1.0" ?>
+<readouts>
+    <globals>
+        <!-- The pitch value in mm -->
+        <variable name="PITCH" value="2" overwrite="false" />
+        <!-- The number of modules per axis MxM -->
+        <variable name="N_MODULES" value="1" overwrite="false" />
+        <!-- The number of pixels per side PxP -->
+        <variable name="N_CHANNELS" value="60" overwrite="false" />
+    </globals>
+
+    <TRestDetectorReadout name="cathode" title="Cathode ${PITCH} mm-Pitch ${N_CHANNELS}+${N_CHANNELS} channels">
+
+        <constant name="pitch" value="${PITCH}" overwrite="false" />
+        <!-- The number of modules per axis MxM -->
+        <constant name="nModules" value="${N_MODULES}" overwrite="false" />
+
+        <!-- The number of pixels per side PxP -->
+        <constant name="nChannels" value="${N_CHANNELS}" overwrite="false" />
+        <constant name="pixelSize" value="${PITCH}/sqrt(2.)" />
+
+        <parameter name="mappingNodes" value="200" />
+        <include file="microbulkModule.rml" />
+        <readoutPlane position="(0,0,0)mm" planeVector="(0,0,1)" chargeCollection="1" cathodePosition="(0,0,50)mm">
+            <addReadoutModule id="0" name="module" origin="(-0.5*nChannels*pitch,-0.5*nChannels*pitch)" rotation="0" decodingFile="" firstDaqChannel="0" />
+        </readoutPlane>
+    </TRestDetectorReadout>
+
+    <TRestDetectorReadout name="readout" title="Readout ${PITCH} mm-Pitch ${N_CHANNELS}+${N_CHANNELS} channels">
+
+        <constant name="pitch" value="${PITCH}" overwrite="false" />
+        <!-- The number of modules per axis MxM -->
+        <constant name="nModules" value="${N_MODULES}" overwrite="false" />
+
+        <!-- The number of pixels per side PxP -->
+        <constant name="nChannels" value="${N_CHANNELS}" overwrite="false" />
+        <constant name="pixelSize" value="${PITCH}/sqrt(2.)" />
+
+        <parameter name="mappingNodes" value="200" />
+        <include file="microbulkModule.rml" />
+        <readoutPlane position="(0,0,50)mm" planeVector="(0,0,-1)" chargeCollection="1" cathodePosition="(0,0,0)mm">
+            <addReadoutModule id="0" name="module" origin="(-0.5*nChannels*pitch,-0.5*nChannels*pitch)" rotation="0" decodingFile="" firstDaqChannel="0" />
+        </readoutPlane>
+    </TRestDetectorReadout>
+</readouts>
