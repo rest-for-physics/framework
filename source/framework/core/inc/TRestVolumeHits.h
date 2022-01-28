@@ -20,8 +20,6 @@
 #ifndef RestCore_TRestVolumeHits
 #define RestCore_TRestVolumeHits
 
-#include <TObject.h>
-#include <TVector3.h>
 
 #include <iostream>
 
@@ -34,9 +32,8 @@ class TRestVolumeHits : public TRestHits {
     std::vector<Float_t> fSigmaZ;  // [fNHits] Sigma on Z axis for each volume hit (units microms)
 
    public:
-    void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t time, REST_HitType type,
-                Double_t sigmax, Double_t sigmay, Double_t sigmaz);
-    void AddHit(TVector3 pos, Double_t en, Double_t time, REST_HitType type, TVector3 sigma);
+    void AddHit(const Double_t &x, const Double_t &y, const Double_t &z, const Double_t &en, const Double_t &time, const TString &type, const Double_t &sigmax, const Double_t &sigmay, const Double_t &sigmaz);
+    void AddHit(const TVector3 &pos, const Double_t &en, const Double_t &time, const TString &type, const TVector3 &sigma);
     void AddHit(TRestVolumeHits& hits, Int_t n);
 
     void RemoveHits();
@@ -45,11 +42,6 @@ class TRestVolumeHits : public TRestHits {
     void RemoveHit(int n);
     void SortByEnergy();
     void SwapHits(Int_t i, Int_t j);
-
-    Bool_t areXY();
-    Bool_t areXZ();
-    Bool_t areYZ();
-    Bool_t areXYZ();
 
     // Setters
 

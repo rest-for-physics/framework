@@ -30,9 +30,8 @@ TRestVolumeHits::~TRestVolumeHits() {
     // TRestVolumeHits destructor
 }
 
-void TRestVolumeHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t time,
-                             REST_HitType type, Double_t sigmax, Double_t sigmay, Double_t sigmaz) {
-    if (fType.size() > 0 && type != fType[0]) {
+void TRestVolumeHits::AddHit(const Double_t &x, const Double_t &y, const Double_t &z, const Double_t &en, const Double_t &time, const TString &type, const Double_t &sigmax, const Double_t &sigmay, const Double_t &sigmaz) {
+    if ( type != fHits[0].fType) {
         cout << "Error! Cannot add different typed hits into TRestVolumeHits!" << endl;
         return;
     }
@@ -43,8 +42,8 @@ void TRestVolumeHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Do
     fSigmaZ.push_back((Float_t)sigmaz);
 }
 
-void TRestVolumeHits::AddHit(TVector3 pos, Double_t en, Double_t time, REST_HitType type, TVector3 sigma) {
-    if (fType.size() > 0 && type != fType[0]) {
+void TRestVolumeHits::AddHit(const TVector3 &pos, const Double_t &en, const Double_t &time, const TString &type, const TVector3 &sigma) {
+    if (type != fHits[0].fType) {
         cout << "Error! Cannot add different typed hits into TRestVolumeHits!" << endl;
         return;
     }
@@ -61,13 +60,13 @@ void TRestVolumeHits::AddHit(TRestVolumeHits& hits, Int_t n) {
     Double_t z = hits.GetZ(n);
     Double_t t = hits.GetTime(n);
     Double_t en = hits.GetEnergy(n);
-    REST_HitType type = hits.GetType(n);
+    TString type = hits.GetType(n);
 
     Double_t sx = hits.GetSigmaX(n);
     Double_t sy = hits.GetSigmaY(n);
     Double_t sz = hits.GetSigmaZ(n);
 
-    if (fType.size() > 0 && type != fType[0]) {
+    if (type != fHits[0].fType) {
         cout << "Error! Cannot add different typed hits into TRestVolumeHits!" << endl;
         return;
     }
@@ -83,38 +82,13 @@ void TRestVolumeHits::RemoveHits() {
     fSigmaZ.clear();
 }
 
-Bool_t TRestVolumeHits::areXY() {
-    if (fType.size() == 0)
-        return TMath::IsNaN(fZ[0]) && !TMath::IsNaN(fX[0]) && !TMath::IsNaN(fY[0]);
-    else
-        return fType[0] == XY;
-}
-Bool_t TRestVolumeHits::areXZ() {
-    if (fType.size() == 0)
-        return !TMath::IsNaN(fZ[0]) && !TMath::IsNaN(fX[0]) && TMath::IsNaN(fY[0]);
-    else
-        return fType[0] == XZ;
-}
-Bool_t TRestVolumeHits::areYZ() {
-    if (fType.size() == 0)
-        return !TMath::IsNaN(fZ[0]) && TMath::IsNaN(fX[0]) && !TMath::IsNaN(fY[0]);
-    else
-        return fType[0] == YZ;
-}
-Bool_t TRestVolumeHits::areXYZ() {
-    if (fType.size() == 0)
-        return !TMath::IsNaN(fZ[0]) && !TMath::IsNaN(fX[0]) && !TMath::IsNaN(fY[0]);
-    else
-        return fType[0] == XYZ;
-}
-
 void TRestVolumeHits::MergeHits(Int_t n, Int_t m) {
-    Double_t totalEnergy = fEnergy[n] + fEnergy[m];
+    Double_t totalEnergy = fHits.at(n).fEnergy + fHits.at(m).fEnergy;
 
     // TODO : This is wrong but not very important for the moment
-    fSigmaX[n] = (fSigmaX[n] * fEnergy[n] + fSigmaX[m] * fEnergy[m]) / totalEnergy;
-    fSigmaY[n] = (fSigmaY[n] * fEnergy[n] + fSigmaY[m] * fEnergy[m]) / totalEnergy;
-    fSigmaZ[n] = (fSigmaZ[n] * fEnergy[n] + fSigmaZ[m] * fEnergy[m]) / totalEnergy;
+    fSigmaX[n] = (fSigmaX[n] * fHits.at(n).fEnergy + fSigmaX[m] * fHits.at(m).fEnergy) / totalEnergy;
+    fSigmaY[n] = (fSigmaY[n] * fHits.at(n).fEnergy + fSigmaY[m] * fHits.at(m).fEnergy) / totalEnergy;
+    fSigmaZ[n] = (fSigmaZ[n] * fHits.at(n).fEnergy + fSigmaZ[m] * fHits.at(m).fEnergy) / totalEnergy;
 
     fSigmaX.erase(fSigmaX.begin() + m);
     fSigmaY.erase(fSigmaY.begin() + m);
@@ -127,27 +101,21 @@ void TRestVolumeHits::RemoveHit(int n) {
     TRestHits::RemoveHit(n);
 
     fSigmaX.erase(fSigmaX.begin() + n);
-    ;
+    
     fSigmaY.erase(fSigmaY.begin() + n);
-    ;
+    
     fSigmaZ.erase(fSigmaZ.begin() + n);
-    ;
+    
 }
 
 void TRestVolumeHits::SortByEnergy() {
-    while (!isSortedByEnergy()) {
-        for (int i = 0; i < GetNumberOfHits(); i++) {
-            for (int j = i + 1; j < GetNumberOfHits(); j++) {
-                if (GetEnergy(i) < GetEnergy(j)) SwapHits(i, j);
-            }
-        }
-    }
+    sort(fHits.begin(),fHits.end(),TRestHit::sortByEn);
 }
 
 void TRestVolumeHits::SwapHits(Int_t i, Int_t j) {
-    iter_swap(fSigmaX.begin() + i, fSigmaX.begin() + j);
-    iter_swap(fSigmaY.begin() + i, fSigmaY.begin() + j);
-    iter_swap(fSigmaZ.begin() + i, fSigmaZ.begin() + j);
+    swap(fSigmaX[i], fSigmaX[j]);
+    swap(fSigmaY[i], fSigmaY[j]);
+    swap(fSigmaZ[i], fSigmaZ[j]);
 
     TRestHits::SwapHits(i, j);
 }

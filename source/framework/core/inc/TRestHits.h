@@ -21,41 +21,17 @@
 #ifndef TRestSoft_TRestHits
 #define TRestSoft_TRestHits
 
-#include <TF1.h>
-#include <TH1.h>
-#include <TVector3.h>
-#include <TGraphErrors.h>
-#include <TCanvas.h>
-
 #include <iostream>
 
-#include "TArrayD.h"
-#include "TArrayI.h"
-#include "TCanvas.h"
-#include "TMath.h"
-#include "TMatrixD.h"
-#include "TObject.h"
+#include "TVector3.h"
 
-enum REST_HitType { unknown = -1, X = 2, Y = 3, Z = 5, XY = 6, XZ = 10, YZ = 15, XYZ = 30 };
-//! It let save an event as a set of punctual deposition.
-//! It saves a 3-coordinate position and an energy for each punctual deposition.
-class TRestHits : public TObject {
+#include "TRestHit.h"
+
+class TRestHits {
    public:
-    Int_t fNHits;         ///< Number of punctual energy depositions, it is the length
-                          ///< for all the array
-    Double_t fTotEnergy;  ///< Event total energy
 
-    std::vector<Float_t> fX;          // [fNHits] Position on X axis for each punctual
-                                      // deposition (units mm)
-    std::vector<Float_t> fY;          // [fNHits] Position on Y axis for each punctual
-                                      // deposition (units mm)
-    std::vector<Float_t> fZ;          // [fNHits] Position on Z axis for each punctual
-                                      // deposition (units mm)
-    std::vector<Float_t> fT;          // [fNHits] Absolute time information for each punctual deposition
-                                      // (units us, 0 is time of decay)
-    std::vector<Float_t> fEnergy;     // [fNHits] Energy deposited at each
-                                      // 3-coordinate position (units keV)
-    std::vector<REST_HitType> fType;  //
+    Double_t fTotEnergy;  ///< Event total energy
+    std::vector<TRestHit> fHits;
 
    public:
     //! Changes the origin of the Cartesian coordinate system
@@ -69,9 +45,12 @@ class TRestHits : public TObject {
                 TVector3 vMean);  // vMean is the mean position of the event from
                                   // GetMeanPosition()
 
-    void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
-    void AddHit(TVector3 pos, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
+    void AddHit(const Double_t &x, const Double_t &y, const Double_t &z, const Double_t &en, Double_t t = 0, TString = "XYZ");
+    void AddHit(const TVector3 &pos, const Double_t &en, Double_t t = 0, TString type = "XYZ");
+    void AddHit(const TRestHit &hit);
     void AddHit(TRestHits& hits, Int_t n);
+
+    TRestHit GetHit(Int_t n){return fHits.at(n);}
 
     void RemoveHits();
 
@@ -91,25 +70,17 @@ class TRestHits : public TObject {
 
     Bool_t isNaN(Int_t n);
 
-    void GetXArray(Float_t* x);
-    void GetYArray(Float_t* y);
-    void GetZArray(Float_t* z);
-
-    void InitializeXArray(Float_t x = 0);
-    void InitializeYArray(Float_t y = 0);
-    void InitializeZArray(Float_t z = 0);
-
     Double_t GetDistanceToNode(Int_t n);
 
     Bool_t isSortedByEnergy();
 
-    Int_t GetNumberOfHits() { return fNHits; }
+    Int_t GetNumberOfHits() { return fHits.size(); }
 
-    Double_t GetX(int n) { return ((Double_t)fX[n]); }     // return value in mm
-    Double_t GetY(int n) { return ((Double_t)fY[n]); }     // return value in mm
-    Double_t GetZ(int n) { return ((Double_t)fZ[n]); }     // return value in mm
-    Double_t GetTime(int n) { return ((Double_t)fT[n]); }  // return value in us
-    REST_HitType GetType(int n) { return fType[n]; }
+    Double_t GetX(int n) { return fHits.at(n).fX; }     // return value in mm
+    Double_t GetY(int n) { return fHits.at(n).fY; }     // return value in mm
+    Double_t GetZ(int n) { return fHits.at(n).fZ; }     // return value in mm
+    Double_t GetTime(int n) { return fHits.at(n).fT; }  // return value in us
+    TString GetType(int n) { return fHits.at(n).fType; }
 
     TVector3 GetPosition(int n);
     TVector3 GetVector(int i, int j);
@@ -136,7 +107,7 @@ class TRestHits : public TObject {
     Double_t GetEnergyX();
     Double_t GetEnergyY();
 
-    Double_t GetEnergy(int n) { return ((Double_t)fEnergy[n]); }  // return value in keV
+    Double_t GetEnergy(int n) { return ((Double_t)fHits.at(n).fEnergy); }  // return value in keV
 
     Bool_t isHitNInsidePrism(Int_t n, TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
                              Double_t theta);
@@ -196,86 +167,12 @@ class TRestHits : public TObject {
 
     virtual void PrintHits(Int_t nHits = -1);
 
-    class TRestHits_Iterator : public std::iterator<std::random_access_iterator_tag, TRestHits_Iterator> {
-       private:
-        int maxindex = 0;
-        int index = 0;
-        TRestHits* fHits = 0;
-        bool isaccessor = false;
-        float _x;
-        float _y;
-        float _z;
-        float _t;
-        float _e;
-        REST_HitType _type;
-
-       public:
-        float& x() { return isaccessor ? _x : fHits->fX[index]; }
-        float& y() { return isaccessor ? _y : fHits->fY[index]; }
-        float& z() { return isaccessor ? _z : fHits->fZ[index]; }
-        float& t() { return isaccessor ? _t : fHits->fT[index]; }
-        float& e() { return isaccessor ? _e : fHits->fEnergy[index]; }
-        REST_HitType& type() { return isaccessor ? _type : fHits->fType[index]; }
-
-        float x() const { return isaccessor ? _x : fHits->fX[index]; }
-        float y() const { return isaccessor ? _y : fHits->fY[index]; }
-        float z() const { return isaccessor ? _z : fHits->fZ[index]; }
-        float t() const { return isaccessor ? _t : fHits->fT[index]; }
-        float e() const { return isaccessor ? _e : fHits->fEnergy[index]; }
-        REST_HitType type() const { return isaccessor ? _type : fHits->fType[index]; }
-
-        void toaccessor();
-
-        TRestHits_Iterator operator*();
-        TRestHits_Iterator& operator++();
-        TRestHits_Iterator& operator+=(const int& n);
-        TRestHits_Iterator operator+(const int& n);
-        TRestHits_Iterator& operator--();
-        TRestHits_Iterator& operator-=(const int& n);
-        TRestHits_Iterator operator-(const int& n);
-        TRestHits_Iterator& operator=(const TRestHits_Iterator& iter);
-
-        friend int operator-(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
-            return i1.index - i2.index;
-        }
-        friend bool operator==(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
-            return i1.fHits == i2.fHits && i1.index == i2.index;
-        }
-        friend bool operator!=(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
-            return i1.fHits != i2.fHits || i1.index != i2.index;
-        }
-        friend bool operator>(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
-            // default comparsion logic
-            return i1.index > i2.index;
-        }
-        friend bool operator>=(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
-            // default comparsion logic
-            return i1.index >= i2.index;
-        }
-        friend bool operator<(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
-            return i1.index < i2.index;
-        }
-        friend bool operator<=(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
-            return i1.index <= i2.index;
-        }
-        friend void swap(TRestHits::TRestHits_Iterator i1, TRestHits::TRestHits_Iterator i2) {
-            if (i1.fHits == i2.fHits) {
-                i1.fHits->SwapHits(i1.index, i2.index);
-            }
-        }
-
-        TRestHits_Iterator(TRestHits* h, int _index);
-    };
-    TRestHits_Iterator begin() { return TRestHits_Iterator(this, 0); }
-    TRestHits_Iterator end() { return TRestHits_Iterator(this, fNHits); }
-    typedef TRestHits_Iterator iterator;
-
     // Construtor
     TRestHits();
     // Destructor
     ~TRestHits();
 
-    ClassDef(TRestHits, 5);
+    ClassDef(TRestHits, 6);
 };
 
 #endif
