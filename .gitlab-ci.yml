@@ -180,13 +180,13 @@ listRESTMacros:
   type: restG4
   script:
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/install_latest/examples/01.NLDBD/
+    - cd ${CI_PROJECT_DIR}/install_latest/examples/restG4/01.NLDBD/
     - restG4 NLDBD.rml
     - geant4-config --version
     - restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/install_latest/examples/01.NLDBD/Run00001_NLDBD_Test.root
+      - ${CI_PROJECT_DIR}/install_latest/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root
     expire_in: 1 day
 
 02_PandaXiiiMC:
@@ -336,7 +336,7 @@ EventSelection:
   script:
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/selection
-    - restManager --c g4Analysis.rml --f "${CI_PROJECT_DIR}/install_latest/examples/01.NLDBD/Run00001_NLDBD_Test.root"
+    - restManager --c g4Analysis.rml --f "${CI_PROJECT_DIR}/install_latest/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root"
     - restManager --c g4OnSelection.rml --f Run00001_NLDBD_Test_g4Analysis.root
     - restRoot -b -q Validate.C'("Run00001_NLDBD_Test_EvSelection.root")'
     
