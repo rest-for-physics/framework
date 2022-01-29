@@ -1,4 +1,4 @@
-<readoutModule name="module" size="((nChannels+1)*pitch-1*pitch/2,(nChannels+1)*pitch-pitch/2-pitch/4)" tolerance="1.e-1" >
+<readoutModule name="module" size="((nChannels+1)*pitch-1*pitch/2,(nChannels+1)*pitch-pitch/2-pitch/4)" tolerance="1.e-3" pixelTolerance="1.e-3" >
 
 	// Y-strips
 	<for variable="nCh" from="1" to="nChannels-2" step="1" >
