@@ -1,4 +1,6 @@
-This example shows how to include the detector response and the reconstruction of tracks from rawsignal detector data. The processes included have been adapted to facilitate the reconstruction of short energetic alpha tracks. Before using the example it is necessary to generate the Geant4 event MC data. You may use the following restG4 [example](https://github.com/rest-for-physics/restG4/examples/08.Alphas).
+This example shows how to include the detector response and the reconstruction of tracks from the raw detector data that has been at the same time produced from Geant4 MC data. 
+
+The processes included have been adapted to facilitate the reconstruction of short energetic alpha tracks. Before using the example it is necessary to generate the Geant4 event MC data. You may use the following restG4 [example](https://github.com/rest-for-physics/restG4/examples/08.Alphas).
 
 A quick recipe to generate the necessary data.
 

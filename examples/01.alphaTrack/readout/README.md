@@ -2,8 +2,8 @@
 Minimal script to generate the readouts file:
 
 ```
-TRestReadout *r1 = new TRestReadout("readouts.rml", "readout" );
-TRestReadout *r2 = new TRestReadout("readouts.rml", "cathode" );
+TRestDetectorReadout *r1 = new TRestDetectorReadout("readouts.rml", "readout" );
+TRestDetectorReadout *r2 = new TRestDetectorReadout("readouts.rml", "cathode" );
 
 TFile *f = new TFile( "readouts.root", "RECREATE" );
 r1->Write("readout");
