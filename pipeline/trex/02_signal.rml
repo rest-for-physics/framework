@@ -22,7 +22,7 @@
 			signalThreshold="${SGNL_TH}"
 			verboseLevel="silent"	/>
 
-		<addProcess type="TRestRawToDetectorSignalProcess" name="detSignal" value="${HIT_PROCESSING}" threshold="0.01" triggerStarts="0us" gain="1" />
+		<addProcess type="TRestRawToDetectorSignalProcess" name="detSignal" value="ON" threshold="0.01" triggerStarts="0us" gain="1" />
 
 		<addProcess type="TRestDetectorSignalChannelActivityProcess" name="chActivity" value="ON" verboseLevel="info" observable="all" >
 		    <parameter name="daqChannels" value="72*4*4" />
