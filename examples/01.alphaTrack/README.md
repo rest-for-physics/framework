@@ -2,7 +2,7 @@ This example shows how to include the detector response and the reconstruction o
 
 The processes included have been adapted to facilitate the reconstruction of short energetic alpha tracks. Before using the example it is necessary to generate the Geant4 event MC data. You may use the following restG4 [example](https://github.com/rest-for-physics/restG4/examples/08.Alphas).
 
-A quick recipe to generate the necessary data.
+A quick recipe to generate the necessary data follows.
 
 Copy this example at your working directory. Then copy the restG4 generator example.
 
