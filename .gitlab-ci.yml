@@ -222,11 +222,11 @@ listRESTMacros:
     type: examples
     script:
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/install_latest/examples/restG4/01.alphaTrack/
+    - cd ${CI_PROJECT_DIR}/install_latest/examples/01.alphaTrack/
+    - mkdir data
     - export RAW_PROCESSING=ON
     - export HIT_PROCESSING=ON
     - export TRACK_PROCESSING=ON
-    - mkdir data
     - restManager --c processing.rml --f ${CI_PROJECT_DIR}/install_latest/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
     - restRoot -b -q Validate.C'("data/Response_5MeV_1um.root")'
 
