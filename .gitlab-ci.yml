@@ -26,6 +26,9 @@ stages:
     # Stage to validate restG4 package examples
   - restG4
 
+    # Stage to validate framework examples
+  - examples
+
     # Stage to validate data chain processing constructions (TREX-DM data, PandaX-III topology, etc).
   - restManager_process
 
@@ -200,6 +203,32 @@ listRESTMacros:
     paths:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/Xe136bb0n_n2E06.root
     expire_in: 1 day
+
+08_alphas:
+  type: restG4
+  script:
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install_latest/examples/restG4/08.Alphas/
+    - mkdir data
+    - export REST_ENERGY=5
+    - export REST_FOIL=1
+    - restG4 alphas.rml
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install_latest/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
+    expire_in: 1 day
+
+01_alphaTrack:
+    type: examples
+    script:
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install_latest/examples/restG4/01.alphaTrack/
+    - export RAW_PROCESSING=ON
+    - export HIT_PROCESSING=ON
+    - export TRACK_PROCESSING=ON
+    - mkdir data
+    - restManager --c processing.rml --f ${CI_PROJECT_DIR}/install_latest/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
+    - restRoot -b -q Validate.C'("data/Response_5MeV_1um.root")'
 
 LoadGas:
   type: metadata 
