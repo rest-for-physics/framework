@@ -101,14 +101,16 @@
 		<addProcess type="TRestRawSignalAnalysisProcess" name="rawAna" title="Signal noise" value="${RAW_PROCESSING}" observable="all">
 		</addProcess>
 
-		<addProcess type="TRestRawZeroSuppresionProcess" name="zS" value="${RAW_PROCESSING}"
+		<addProcess type="TRestRawToDetectorSignalProcess" name="zS" value="${RAW_PROCESSING}"
+                        triggerStarts="0us"
+                        gain="1"
+                        threshold="0.01"
+                        zeroSuppression="true"
 			baseLineRange="(5,55)"
 			integralRange="(10,500)"
 			pointThreshold="2"
 			pointsOverThreshold="5"
 			signalThreshold="3" />
-
-		<addProcess type="TRestRawToDetectorSignalProcess" name="detSignal" value="${HIT_PROCESSING}" threshold="0.01" triggerStarts="0us" gain="1" />
 
 			<!-- Requires a bit of debugging 
 		<addProcess type="TRestDetectorSignalChannelActivityProcess" name="chActivity" value="${RAW_PROCESSING}" verboseLevel="info" observable="all" >
