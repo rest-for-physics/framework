@@ -54,7 +54,9 @@ before_script:
   - if [ -d "/opt/garfieldpp/install" ]; then export GARFIELD_HOME=/opt/garfieldpp/install; fi
   - if [ -d "/opt/garfieldpp/install" ]; then export HEED_DATABASE=$GARFIELD_HOME/Heed/heed++/database; fi
   - if [ -d "/opt/garfieldpp/install" ]; then export LD_LIBRARY_PATH=$GARFIELD_HOME/lib:$LD_LIBRARY_PATH; fi
-  - ls $GARFIELD_HOME
+  - if [[ -v GARFIELD_INSTALL ]]; then export GARFIELD_HOME=$GARFIELD_INSTALL; fi
+  - echo $GARFIELD_HOME
+  - echo $GARFIELD_INSTALL
   - python3 --version
   - apt update && apt install -y wget
 
