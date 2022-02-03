@@ -471,7 +471,7 @@ using namespace REST_Physics;
 map<string, string> TRestMetadata_UpdatedConfigFile;
 
 ClassImp(TRestMetadata);
-    ///////////////////////////////////////////////
+///////////////////////////////////////////////
 /// \brief TRestMetadata default constructor
 ///
 TRestMetadata::TRestMetadata() : endl(this) {
@@ -1121,8 +1121,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == nullptr) return;
-            if (localele->Attribute("expanded") == nullptr ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == nullptr
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1157,8 +1158,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == nullptr ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == nullptr
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -2361,7 +2363,7 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
                             << this->ClassName() << " find unit definition in parameter: " << name
                             << ", but the corresponding data member doesn't support it. Data member type: "
                             << datamember.type << endl;
-                        datamember.ParseString(val);
+                        datamember.ParseString(value);
                     }
                 } else {
                     datamember.ParseString(value);
@@ -2456,8 +2458,7 @@ void TRestMetadata::SetWarning(string message, bool print) {
     if (message != "") {
         fWarningMessage += message + "\n";
         if (print) {
-            if (fVerboseLevel>=REST_Warning)
-            cout << message << endl;
+            if (fVerboseLevel >= REST_Warning) cout << message << endl;
         }
     }
 }
