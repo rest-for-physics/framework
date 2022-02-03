@@ -1,4 +1,4 @@
-image: lobis/root-geant4-garfieldpp:cxx17_ROOTv6-25-01_Geant4v10.4.3
+image: ghcr.io/lobis/root-geant4-garfield:cxx17_ROOTv6-25-01_Geant4v10.4.3
 # image: nkx1231/root6-geant4-garfield:0.6
 
 variables:
