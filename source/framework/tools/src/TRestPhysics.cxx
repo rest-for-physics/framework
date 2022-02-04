@@ -63,6 +63,15 @@ TVector3 MoveToPlane(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a) {
 }
 
 ///////////////////////////////////////////////
+/// \brief This method will return the distance from `point` to the straight defined by `axisPoint` and
+/// `axisVector`.
+///
+Double_t DistanceToAxis(const TVector3& axisPoint, const TVector3& axisVector, const TVector3& point) {
+    TVector3 a = axisVector.Cross(axisPoint - point);
+    return a.Mag() / axisVector.Mag();
+}
+
+///////////////////////////////////////////////
 /// \brief This method will find the intersection of the trajectory defined by the vector starting at `pos`
 /// and  moving in direction `dir` and the plane defined by its normal vector `n` and the point `a`. This is
 /// equivalent to move/translate the position `pos` to the plane.
@@ -91,4 +100,4 @@ Double_t GetDistance(TVector3 v1, TVector3 v2) { return (v2 - v1).Mag(); }
 /// \brief This method returns the squared cartesian distance between vector v2 and v1.
 ///
 Double_t GetDistance2(TVector3 v1, TVector3 v2) { return (v2 - v1).Mag2(); }
-}
+}  // namespace REST_Physics
