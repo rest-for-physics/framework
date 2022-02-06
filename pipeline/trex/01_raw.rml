@@ -30,6 +30,13 @@
 			<parameter name="readoutEndChannel" value="250" />
 		</addProcess>
 
+		<addProcess type="TRestEventRateAnalysisProcess" name="rate" observable="all" value="ON" verboseLevel="info" >
+                <observable name="SecondsFromStart" type="double" value="ON" />
+                <observable name="HoursFromStart" type="double" value="ON" />
+                <observable name="EventTimeDelay" type="double" value="ON" />
+                <observable name="MeanRate_InHz" type="double" value="ON" />
+		</addProcess>
+
 		<addProcess type="TRestRawSignalAnalysisProcess" name="rawAna" value="ON"
 			baseLineRange="(${BL_MIN},${BL_MAX})" integralRange="(${INT_MIN},${INT_MAX})"
 			pointThreshold="${POINT_TH}" pointsOverThreshold="${NPOINTS}" signalThreshold="${SGNL_TH}"
@@ -41,10 +48,6 @@
                 <observable name="baselinesigma_map" type="map<int,double>" value="ON" />
                 <observable name="max_amplitude_map" type="map<int,double>" value="ON" />
                 <observable name="thr_integral_map" type="map<int,double>" value="ON" />
-                <observable name="SecondsFromStart" type="double" value="ON" />                     
-                <observable name="HoursFromStart" type="double" value="ON" />                          
-                <observable name="EventTimeDelay" type="double" value="ON" />                          
-                <observable name="MeanRate_InHz" type="double" value="ON" />                           
                 <observable name="BaseLineMean" type="double" value="ON" />                            
                 <observable name="BaseLineSigmaMean" type="double" value="ON" />                       
                 <observable name="TimeBinsLength" type="double" value="ON" />                          
