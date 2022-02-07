@@ -34,8 +34,6 @@ class TRestEventRateAnalysisProcess : public TRestEventProcess {
     Double_t fFirstEventTime;             //!
     vector<Double_t> fPreviousEventTime;  //!
 
-    time_t timeStored;  //!
-
     void Initialize();
 
    protected:
