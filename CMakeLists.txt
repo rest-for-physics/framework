@@ -1,5 +1,6 @@
-PROJECT(REST)
-CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
+PROJECT(REST LANGUAGES CXX HOMEPAGE_URL https://github.com/rest-for-physics/framework)
+
+cmake_minimum_required(VERSION 3.14)
 
 # Minimum compiler version
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -27,6 +28,7 @@ if (NOT DEFINED INSTALL_PREFIX)
         set(INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/install)
     endif ()
 endif ()
+
 get_filename_component(INSTALL_PREFIX_ABSOLUTE ${INSTALL_PREFIX} ABSOLUTE BASE_DIR "${CMAKE_BINARY_DIR}")
 set(REST_PATH ${INSTALL_PREFIX_ABSOLUTE})
 if (NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -58,6 +60,7 @@ set(CMAKE_MACOSX_RPATH 1)
 
 find_package(ROOT REQUIRED)
 
+# Use same cpp version as the ROOT install
 execute_process(COMMAND root-config --has-cxx20 OUTPUT_VARIABLE HASCXX20)
 execute_process(COMMAND root-config --has-cxx17 OUTPUT_VARIABLE HASCXX17)
 execute_process(COMMAND root-config --has-cxx14 OUTPUT_VARIABLE HASCXX14)
@@ -116,8 +119,9 @@ message(STATUS "external libraries to link: " ${external_libs})
 string(TIMESTAMP date "%Y-%m-%d %H:%M")
 
 # Start compile
-include(MacroRootDict)
+include(ThisGenerateRootDictionaries)
 add_subdirectory(source)
+
 message("")
 message(STATUS "rest Libraries: " ${rest_libraries_regular})
 message(STATUS "rest executables: " ${rest_exes})
