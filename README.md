@@ -39,9 +39,8 @@ Please, visit the [REST-for-Physics userguide](https://rest-for-physics.github.i
 
 ## Useful links or references
 
-- A REST overview guide can be found [here](doc/Chapters/4-the-rest-framework.md). 
 - An API doxygen documentation is frequently updated [here](https://sultan.unizar.es/rest/).
-- The REST Framework forum for open discussions is available [here](ezpc10.unizar.es).
+- The REST Framework forum for open discussions is available [here](https://rest-forum.unizar.es).
 - ROOT naming convention and coding rules are [Taligent rules](https://root.cern/TaligentDocs/TaligentOnline/DocumentRoot/1.0/Docs/books/WM/WM_63.html#HEADING77).
 
 ## Contributing
