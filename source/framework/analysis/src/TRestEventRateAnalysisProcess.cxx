@@ -118,8 +118,6 @@ void TRestEventRateAnalysisProcess::Initialize() {
 
     fFirstEventTime = -1;
     fPreviousEventTime.clear();
-
-    time(&timeStored);
 }
 
 ///////////////////////////////////////////////

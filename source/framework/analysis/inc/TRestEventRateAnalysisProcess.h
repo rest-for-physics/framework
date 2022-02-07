@@ -25,16 +25,17 @@
 
 #include "TRestEventProcess.h"
 
-//! A pure analysis process used to calculate event rates
+//! A pure analysis process used to calculate event rates and other time observables
 class TRestEventRateAnalysisProcess : public TRestEventProcess {
    private:
     /// A pointer to the input event
     TRestEvent* fEvent;  //!
 
-    Double_t fFirstEventTime;             //!
-    vector<Double_t> fPreviousEventTime;  //!
+    /// It registers the timestamp from the first event to calculate time from start observables
+    Double_t fFirstEventTime;  //!
 
-    time_t timeStored;  //!
+    /// It keeps a historic list of timestamps of the previous N events. Now fixed to N=10 events.
+    vector<Double_t> fPreviousEventTime;  //!
 
     void Initialize();
 
