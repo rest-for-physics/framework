@@ -33,10 +33,6 @@
     <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON">
 
       /// We define all observables except MinValue because it is not yet in validation chain
-      <observable name="SecondsFromStart" value="ON" />
-      <observable name="HoursFromStart" value="ON" />
-      <observable name="EventTimeDelay" value="ON" />
-      <observable name="MeanRate_InHz" value="ON" />
       <observable name="BaseLineMean" value="ON" />
       <observable name="BaseLineSigmaMean" value="ON" />
       <observable name="TimeBinsLength" value="ON" />
@@ -59,13 +55,14 @@
       <observable name="AveragePeakTime" value="ON" />
 
     </addProcess>
+    <addProcess type="TRestEventRateAnalysisProcess" name="rateAna" value="ON" observable="all"/>
     <addProcess type="TRestRawZeroSuppresionProcess" name="zS" value="ON" sampling="0.2us"/> 5MHz sampling
 
     <addProcess type="TRestRealTimeDrawingProcess" name="rD" value="ON" drawInterval="1000" >
       <TRestAnalysisPlot name="TriggerRatePlot"  previewPlot="false">
         <canvas size="(1000,800)" save="TriggerRate.png"/>
         <plot name="TriggerRate" title="Trigger Rate" xlabel="Seconds From Start" ylabel="Counts" value="ON" stats="ON">
-          <variable name="sAna_SecondsFromStart" range="auto" nbins="100" />
+          <variable name="rateAna_SecondsFromStart" range="auto" nbins="100" />
         </plot>
       </TRestAnalysisPlot>
     </addProcess>
