@@ -551,9 +551,9 @@ void TRestHits::WriteHitsToTextFile(TString filename) {
     FILE* fff = fopen(filename.Data(), "w");
     for (int i = 0; i < GetNumberOfHits(); i++) {
         if ((fType.size() == 0 ? !IsNaN(fX[i]) : fType[i] % X == 0))
-            fprintf(fff, "%d\t%e\t%e\t%e\t%e\n", i, fX[i], "NaN", fZ[i], fEnergy[i]);
+            fprintf(fff, "%d\t%e\t%s\t%e\t%e\n", i, fX[i], "NaN", fZ[i], fEnergy[i]);
         if ((fType.size() == 0 ? !IsNaN(fY[i]) : fType[i] % Y == 0))		
-            fprintf(fff, "%d\t%e\t%e\t%e\t%e\n", i, "NaN", fY[i], fZ[i], fEnergy[i]);
+            fprintf(fff, "%d\t%s\t%e\t%e\t%e\n", i, "NaN", fY[i], fZ[i], fEnergy[i]);
     }
     fclose(fff);
 }

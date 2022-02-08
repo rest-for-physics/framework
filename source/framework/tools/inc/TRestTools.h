@@ -91,6 +91,9 @@ class TRestTools {
     static int DownloadRemoteFile(string remoteFile, string localFile);
     static int UploadToServer(string localfile, string remotefile, string methodurl = "");
 
+	static void ChangeDirectory( string toDirectory );
+	static void ReturnToPreviousDirectory( );
+
     /// Rest tools class
     ClassDef(TRestTools, 1);
 };

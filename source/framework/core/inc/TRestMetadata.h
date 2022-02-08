@@ -306,6 +306,9 @@ class TRestMetadata : public TNamed {
     /// overwriting the write() method with fStore considered
     virtual Int_t Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 
+    TRestMetadata& operator=(const TRestMetadata&) = delete;
+    TRestMetadata(const TRestMetadata&) = delete;
+   
     TRestMetadata();
     ~TRestMetadata();
     TRestMetadata(const char* cfgFileNamecfgFileName);

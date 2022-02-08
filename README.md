@@ -24,155 +24,23 @@ Other objects included in the framework will help to add unit definitions, `REST
 
 Basic pure analysis tasks will also be included in this framework, such as a processes performing fundamental routines, such as performing generic fits on observables/branches found inside the analysis tree, producing a summary report, creating data quality rules definitions, or basic interfaces to external databases.
 
-## Getting Started
-
-This repository, *rest-framework*, centralizes all the activity or software ecosystem in the form of REST libraries, packages and projects. All official projects associated to `REST-for-Physics` will be usually linked to this repository as a **git submodule**. Cloning this repository and following these instructions will let you obtain all the REST libraries and other modules that are publicly accessible, and in addition those submodules where your GitHub user account was granted access.
-
-These instructions will get you a copy of the project up and running on your local machine. Additional details can be found in the [documentation](doc/Chapters/2-installing-rest.md) 
-
 ### Mirror repositories
 
 REST is mirrored to the following repositories where pipelines are executed, and where code can also be retrieved.
 
 - https://gitlab.cern.ch/rest-for-physics
-- https://lfna.unizar.es/rest-for-physics
 
-Code can be pulled for read-access from those mirrors, however, development is centralized at the main GitHub public repository.
-
-### Downloading REST
-The recommended way to download a copy of REST will be *cloning it* using the corresponding git command.
-
-The following commands will download the master branch to the `rest-framework` directory including all public submodules (libraries, packages, etc).
-
-```
-cd $HOME
-mkdir git
-cd git
-git clone https://github.com/rest-for-physics/framework.git rest-framework
-cd rest-framework
-## It is known to work with python version 3.5 but feel free to use a later version.
-python3 pull-submodules.py
-```
-
-If you have pulled changes in a particular submodule, or added your own commits, be aware that calling again to `python3 pull-submodules.py` will bring the state of submodules to the official ones at the main repository. REMOVING! any commits you may have at the submodule and that were not pushed to a remote.
-
-If you have access to private repositories, related to projects or experiments inside the REST community you may pull those executing an additional command.
-
-```
-python3 pull-submodules.py --lfna (or --sjtu)
-```
-
-on top of that, you might get the latest state of each submodule by executing
-
-```
-python3 pull-submodules.py --lfna --latest
-```
-
-But, if you wish to remain at the reference/official release, and get just the latest state from a particular submodule, it is possible to move to the given submodule and checkout its `master` branch.
-
-```
-cd source/libraries/xlib
-git checkout master
-git pull
-```
-
-It is also possible to exclude submodules from being pulled by using the `--exclude:` directive and comma separated submodule names.
-
-```
-python3 pull-submodules.py --exclude:axionlib,geant4lib,restG4
-```
-
-### Recovering a clean git state of rest-framework and submodules
-
-If you have added modifications to the rest-framework code and/or submodules. It is possible to fully clean your repository to be an identical copy to the one found at the remote repository.
-
-Notice that executing the following script (placed at the rest-framework root repository) will completely remove any changes or addons you have done at your local installation.
-
-```
-python3 pull-submodules.py --clean
-```
-
-If there is any untracked content you might still need to `git clean -d -f` to remove untracked items. If any untracked items or modified files are found at your source repository during compilation the `fCleanState` flag at `TRestMetadata` will be set to `OFF`.
+Code can be pulled for read-access from those mirrors, however, development is centralized at the main [GitHub public repository](https://github.com/rest-for-physics/).
 
 ### Installing
 
-The only mandatory prerequisite of REST is ROOT6. Details on the installation of ROOT will be found at the [ROOT's official site](https://root.cern.ch). 
-One may directly find binary distributions on its [download page](https://root.cern.ch/downloading-root), although compiling and installing on your system from source is recommended since it is important that ROOT and REST have been compiled for the same system architecture and compiler version.
+Please, visit the [REST-for-Physics userguide](https://rest-for-physics.github.io) for installation instructions.
 
-Before starting the REST installation, make sure you are running the desired ROOT version and binary.
-
-```
-root-config --version
-which root
-```
-
-After ROOT6 has been installed in the system, the compilation of REST should be straight forward. 
-Note that it is recommended to compile REST using the same version of g++ compiler used to compile ROOT.
-The detailed [installation guide](doc/Chapters/2-installing-rest.md), including compilation options, will be found at the [REST documentation](doc/Chapters/0-contents.md).
-
-Go to the root directory of your local REST repository, assume it is `~/rest-framework`, and execute the following commands.
-
-```
-cd ~/rest-framework
-mkdir build
-cd build
-cmake .. -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON -DCMAKE_INSTALL_PREFIX=../install/ 
-make -j4 install
-```
-
-If you do not need to link REST to `Geant4` and/or `Garfield` funtionalities, just set the compilation options to `OFF` or do not include them at the `cmake` command.
-
-**Remark**: If there is no structural changes in REST, such as new files or libraries, then `cmake` command needs to be executed only once. If you modify a source file and exectue `make -j4 install` the compilation system will recognize that it requires to compile that file. If you execute `cmake` again, then the full project will be compiled from scratch.
-
-We collected some [common problems](doc/Chapters/2-installing-rest.md#trouble-shooting) one may get into while installing REST.
-
-After all the compilation and installation process ends, you will end up with an installed REST version at `~/REST_v2/install/`. Test it now by doing:
-
-```
-source ../install/thisREST.sh
-rest-config --welcome
-rest-config --version
-restRoot
-```
-
-**IMPORTANT**: Execute the following command to configure your `.bashrc` to load REST in your system environment each time you open a new shell terminal.
-
- ```
- echo "source ~/REST_v2/install/master/thisREST.sh" >> .bashrc
- ```
- 
-### Troubleshooting
-
-- One of the major bottlenecks on REST installation is ROOT installation itself. It is recommended to compile ROOT from source. To help on this task we provide the following script [installROOT.py](scripts/installation/installROOT.py).
-- We recommend to have a look or just execute the script [installRequiredSoftware.py](scripts/installation/installRequiredSoftware.py) at Debian based Linux distributions, to install recommended software.
-- If ROOT compilation complains about Python libraries, you may need to install python development libraries in your system, and/or update your default python to V3. The following executions should help:
-```
- sudo apt-get install libpython3.7-dev
- sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
- ```
-
-
-## REST libraries
-
-The REST framework provides only the structure and support to create and use REST libraries. Few official REST libraries are maintained by the REST community at the [REST-for-Physics](https://github.com/rest-for-physics) namespace. Please, refer to the respective repositories and README.md documentation to get more insights about the features and functionalities of each library.
-
-By listing the contents of the *library* directory inside `rest-framework` (once you executed `pull-submodules.py`) you will quickly identify the available libraries. In order to enable a particular library, just get the library directory name, and use it to define a compilation flag as `-DRESTLIB_NAME`.
-
-For example, in order to compile REST including the `detector` and `raw` libraries, you should update the compilation system set-up by moving again to the build directory and executing:
-
-```
-cd build
-cmake .. -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON
-make -j4 install
-```
-
-**Remark:** Notice that once we pass an option to cmake, that option will be cached inside the cmake system. I.e. we do not need to provide the installation path we provided the first time, and any future calls to `cmake` will assume `detector` and `raw` libraries are enabled.
 
 ## Useful links or references
 
-- A REST overview guide can be found [here](doc/Chapters/4-the-rest-framework.md). 
 - An API doxygen documentation is frequently updated [here](https://sultan.unizar.es/rest/).
-- The REST Framework forum for open discussions is available [here](ezpc10.unizar.es).
+- The REST Framework forum for open discussions is available [here](https://rest-forum.unizar.es).
 - ROOT naming convention and coding rules are [Taligent rules](https://root.cern/TaligentDocs/TaligentOnline/DocumentRoot/1.0/Docs/books/WM/WM_63.html#HEADING77).
 
 ## Contributing
