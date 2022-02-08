@@ -214,7 +214,7 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement* e) {
                     info << "multi-threading is disabled due to process \"" << p->GetName() << "\"" << endl;
                     info << "This process is in debug mode or is single thread only" << endl;
                     for (i = fThreadNumber; i > 1; i--) {
-                        delete (*fThreads.end());
+                        delete (*(fThreads.end() - 1));
                         fThreads.erase(fThreads.end() - 1);
                         fThreadNumber--;
                     }
