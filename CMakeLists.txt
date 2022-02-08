@@ -116,6 +116,8 @@ message(STATUS "external libraries to link: " ${external_libs})
 string(TIMESTAMP date "%Y-%m-%d %H:%M")
 
 # Start compile
+
+include(AddTest)
 include(MacroRootDict)
 add_subdirectory(source)
 message("")

@@ -1,0 +1,6 @@
+macro(ADD_TEST)
+    if (TEST)
+        message(STATUS "Adding tests at ${CMAKE_CURRENT_SOURCE_DIR}")
+        add_subdirectory(test)
+    endif ()
+endmacro()
