@@ -1,3 +1,5 @@
+add_subdirectory(external)
+
 set(contents external/tinyxml tools core analysis)
 
 file(GLOB_RECURSE addon_src

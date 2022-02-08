@@ -16,6 +16,9 @@ if (TEST)
     FetchContent_MakeAvailable(googletest)
 endif ()
 
+return()
+# These are useful dependencies, we don't use them right now
+
 # YAML parser
 message(STATUS "- yaml-cpp")
 FetchContent_Declare(
