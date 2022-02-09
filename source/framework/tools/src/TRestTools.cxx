@@ -699,7 +699,14 @@ std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
 /// The file name is given in url format, and is parsed by TUrl. Various methods
 /// will be used, including scp, wget. Downloads to REST_USER_PATH + "/download/" + filename
 /// by default
-std::string TRestTools::DownloadRemoteFile(string url) {
+///
+/// This method will first check if the file is available locally at .rest/download directory.
+/// If it is available it will just return the local path to the file.
+///
+/// If force is enabled, then the file will be forced to download and overwrite the local file.
+/// The default is force=0
+///
+std::string TRestTools::DownloadRemoteFile(string url, int force) {
     string purename = TRestTools::GetPureFileName(url);
     if (purename == "") {
         cout << "error! (TRestTools::DownloadRemoteFile): url is not a file!" << endl;
@@ -713,9 +720,11 @@ std::string TRestTools::DownloadRemoteFile(string url) {
     } else {
         string fullpath = REST_USER_PATH + "/download/" + purename;
 
-        if (TRestTools::fileExists(fullpath)) {
+        if (!force && TRestTools::fileExists(fullpath)) {
             return fullpath;
         } else if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
+            return fullpath;
+        } else if (TRestTools::fileExists(fullpath)) {
             return fullpath;
         } else {
             return "";
