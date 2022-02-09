@@ -1,49 +1,50 @@
-image: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-25-01_Geant4-v10.4.3_Garfield-4.0
+#image: lobis/root-geant4-garfieldpp:cxx14_ROOTv6-25-01_Geant4v10.4.3
+image: nkx1231/root6-geant4-garfield:0.6
 
 variables:
 #    GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
-  # Basic checks to verify correctness of code
+    # Basic checks to verify correctness of code
   - pre-build
 
-  # Project compilation validation
+    # Project compilation validation
   - build
 
-  # REST libraries installed as sub-modules
+    # REST libraries installed as sub-modules
   - libraries
 
-  # Basic validation tests of installation
+    # Basic validation tests of installation
   - install
 
-  # Basic core validation tests
+    # Basic core validation tests
   - core
 
-  # Stage dedicated to validate metadata classes. gas, readout, g4Metadata, etc
+    # Stage dedicated to validate metadata classes. gas, readout, g4Metadata, etc
   - metadata
 
-  # Stage to validate restG4 package examples
+    # Stage to validate restG4 package examples
   - restG4
 
-  # Stage to validate data chain processing constructions (TREX-DM data, PandaX-III topology, etc).
+    # Stage to validate data chain processing constructions (TREX-DM data, PandaX-III topology, etc).
   - restManager_process
 
-  # Stage to validate tasks or executions over preprocessed data filesx
+    # Stage to validate tasks or executions over preprocessed data filesx
   - postProcessing
 
-  # Stage to validate other restManager tasks (metadata generation, script loading, etc).
+    # Stage to validate other restManager tasks (metadata generation, script loading, etc).
   - restManager_generate
 
-  # Scripts to launch more complete tests. TRestGas file generation, Geant4 physics validation, etc.
+    # Scripts to launch more complete tests. TRestGas file generation, Geant4 physics validation, etc.
   - deploy
 
 before_script:
   - pwd
   - export USER="test"
-  #  - export GIT_SSL_NO_VERIFY=1
+    #  - export GIT_SSL_NO_VERIFY=1
   - echo $CI_SERVER_HOST
   - echo $CRONJOB
-  # We redefine the HOME
+    # We redefine the HOME
   - export HOME=${CI_PROJECT_DIR}/install_latest/
   - if [ -d $HOME/.rest ]; then rm -Rf $HOME/.rest; fi
   - if [ -f "/opt/root/install/bin/thisroot.sh" ]; then source /opt/root/install/bin/thisroot.sh; fi
@@ -72,11 +73,11 @@ clang-format:
       - $CRONJOB == "YES"
 
 validateCode:
-  stage: pre-build
-  script:
-    - cd ${CI_PROJECT_DIR}/
-    - python3 pull-submodules.py --force --dontask
-    - python3 pipeline/validateProcesses.py source/libraries/
+    stage: pre-build
+    script:
+        - cd ${CI_PROJECT_DIR}/
+        - python3 pull-submodules.py --force --dontask
+        - python3 pipeline/validateProcesses.py source/libraries/
 
 #axionLib:
 #  stage: libraries
@@ -123,19 +124,19 @@ build_latest:
     - if [ -d ${CI_PROJECT_DIR}/install_latest ]; then rm -Rf ${CI_PROJECT_DIR}/install_latest; fi
     - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest
     - make install -j2
-    #    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
+      #    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install_latest
     expire_in: 1 day
 
-      #build_latest_root622_geant4v1042:
-      #  image: lobis/root-geant4-garfieldpp:cxx14_ROOTv6-22-08_Geant4v10.4.2
-      #  type: build
-      #  script:
-      #    - cd ${CI_PROJECT_DIR}/
-      #    - python3 pull-submodules.py --force --dontask --latest
-      #    - if [ -d ${CI_PROJECT_DIR}/build_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest2; fi
+    #build_latest_root622_geant4v1042:
+    #  image: lobis/root-geant4-garfieldpp:cxx14_ROOTv6-22-08_Geant4v10.4.2
+    #  type: build
+    #  script:
+    #    - cd ${CI_PROJECT_DIR}/
+    #    - python3 pull-submodules.py --force --dontask --latest
+    #    - if [ -d ${CI_PROJECT_DIR}/build_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest2; fi
       #    - mkdir ${CI_PROJECT_DIR}/build_latest2 && cd ${CI_PROJECT_DIR}/build_latest2/
       #    - if [ -d ${CI_PROJECT_DIR}/install_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/install_latest2; fi
       #    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest2
@@ -143,7 +144,7 @@ build_latest:
       #    - . ${CI_PROJECT_DIR}/install_latest2/thisREST.sh
       #  except:
       #      variables:
-    #        - $CRONJOB == "YES"
+      #        - $CRONJOB == "YES"
 
     #build_nkx:
     #  image: nkx1231/root6-geant4-garfield:0.6
@@ -201,24 +202,24 @@ listRESTMacros:
     expire_in: 1 day
 
 LoadGas:
-  type: metadata
+  type: metadata 
   script:
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/gas/
     - restRoot -b -q LoadGasFromServerAndValidate.C
   only:
-    variables:
-      - $CI_SERVER_HOST == "lfna.unizar.es"
+      variables:
+        - $CI_SERVER_HOST == "lfna.unizar.es"
 
 GenerateGas:
-  type: metadata
+  type: metadata 
   script:
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/gas/
     - restRoot -b -q GenerateDummyGas.C
   only:
-    variables:
-      - $CI_SERVER_HOST == "lfna.unizar.es"
+      variables:
+        - $CI_SERVER_HOST == "lfna.unizar.es"
 
 AnalysisTree:
   type: core
@@ -228,17 +229,17 @@ AnalysisTree:
     - restRoot -b -q simpleTree.cpp
 
 GenerateReadout:
-  type: metadata
+  type: metadata 
   script:
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/readout/
     - restManager --c generateReadout.rml --o readout.root
     - restRoot -b -q PrintReadout.C'("readout.root")' > /dev/null
       # We need to introduce basic validation here
-    #    - diff validation.txt print.txt
+      #    - diff validation.txt print.txt
 
 BasicReadout:
-  type: metadata
+  type: metadata 
   script:
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - cd ${CI_PROJECT_DIR}/projects/basic-readouts/
@@ -259,7 +260,7 @@ testMeta:
       - ${CI_PROJECT_DIR}/install_latest/examples/meta.root
     expire_in: 1 day
 
-trexDM_data_latest:
+trexDM_data_latest: 
   type: restManager_process
   script:
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
@@ -278,7 +279,7 @@ trexDM_data_latest:
       - ${CI_PROJECT_DIR}/pipeline/trex/Hits_01928.root
     expire_in: 1 day
 
-pandaXIII_Topological:
+pandaXIII_Topological: 
   type: restManager_process
   script:
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
@@ -292,7 +293,7 @@ pandaXIII_Topological:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/trackParameter.png
     expire_in: 1 week
 
-pandaXIII_Topological_fromG4:
+pandaXIII_Topological_fromG4: 
   type: restManager_process
   script:
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
@@ -306,7 +307,7 @@ pandaXIII_Topological_fromG4:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/testOutput.root
     expire_in: 1 week
 
-pandaXIII_data:
+pandaXIII_data: 
   type: restManager_process
   script:
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
@@ -318,8 +319,8 @@ pandaXIII_data:
     paths:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_data/TriggerRate.png
     expire_in: 1 week
-
-EventSelection:
+        
+EventSelection: 
   type: restManager_process
   script:
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
@@ -327,7 +328,7 @@ EventSelection:
     - restManager --c g4Analysis.rml --f "${CI_PROJECT_DIR}/install_latest/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root"
     - restManager --c g4OnSelection.rml --f Run00001_NLDBD_Test_g4Analysis.root
     - restRoot -b -q Validate.C'("Run00001_NLDBD_Test_EvSelection.root")'
-
+    
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/pipeline/selection/IDs.txt
