@@ -11,3 +11,5 @@ if (NOT ${REST_EVE} MATCHES "ON")
 endif (NOT ${REST_EVE} MATCHES "ON")
 
 COMPILEDIR(RestFramework)
+
+ADD_TEST()
