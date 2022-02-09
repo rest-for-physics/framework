@@ -27,7 +27,6 @@ else ()
     set(loadMPFR "")
 endif ()
 
-
 if (${REST_GARFIELD} MATCHES "ON")
     if (DEFINED ENV{GARFIELD_INSTALL})
         set(loadGarfield "\n\# if GARFIELD is enabled we load the same Garfield environment used in compilation
