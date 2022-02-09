@@ -1,4 +1,5 @@
-PROJECT(REST)
+PROJECT(REST LANGUAGES CXX HOMEPAGE_URL https://github.com/rest-for-physics/framework)
+
 CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 
 # Minimum compiler version
@@ -114,6 +115,10 @@ message(STATUS "external libraries to link: " ${external_libs})
 
 # Gather some information
 string(TIMESTAMP date "%Y-%m-%d %H:%M")
+
+# Enable testing (-DTEST=ON flag)
+include(Testing)
+ENABLE_TESTING_CONDITIONALLY()
 
 # Start compile
 include(MacroRootDict)
