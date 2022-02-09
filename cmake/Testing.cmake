@@ -6,6 +6,7 @@ macro(ENABLE_TESTING_CONDITIONALLY)
     if (TEST)
         message(STATUS "Testing enabled (Disabled by default, enabled via -DTEST=ON flag)")
         enable_testing()
+        add_compile_definitions(REST_TESTING_ENABLED)
     endif ()
 endmacro()
 
