@@ -713,9 +713,9 @@ std::string TRestTools::DownloadRemoteFile(string url) {
     } else {
         string fullpath = REST_USER_PATH + "/download/" + purename;
 
-        if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
+        if (TRestTools::fileExists(fullpath)) {
             return fullpath;
-        } else if (TRestTools::fileExists(fullpath)) {
+        } else if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
             return fullpath;
         } else {
             return "";
