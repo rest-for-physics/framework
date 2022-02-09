@@ -141,11 +141,11 @@ build_latest:
       #    - if [ -d ${CI_PROJECT_DIR}/build_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest2; fi
       #    - mkdir ${CI_PROJECT_DIR}/build_latest2 && cd ${CI_PROJECT_DIR}/build_latest2/
       #    - if [ -d ${CI_PROJECT_DIR}/install_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/install_latest2; fi
-      #    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest2
-      #    - make install -j2
-      #    - . ${CI_PROJECT_DIR}/install_latest2/thisREST.sh
-      #  except:
-      #      variables:
+    #    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest2
+    #    - make install -j2
+    #    - . ${CI_PROJECT_DIR}/install_latest2/thisREST.sh
+    #  except:
+    #      variables:
     #        - $CRONJOB == "YES"
 
     #build_nkx:
@@ -237,7 +237,7 @@ GenerateReadout:
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/readout/
     - restManager --c generateReadout.rml --o readout.root
     - restRoot -b -q PrintReadout.C'("readout.root")' > /dev/null
-      # We need to introduce basic validation here
+    # We need to introduce basic validation here
     #    - diff validation.txt print.txt
 
 BasicReadout:
