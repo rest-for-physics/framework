@@ -91,8 +91,8 @@ class TRestTools {
     static int DownloadRemoteFile(string remoteFile, string localFile);
     static int UploadToServer(string localfile, string remotefile, string methodurl = "");
 
-	static void ChangeDirectory( string toDirectory );
-	static void ReturnToPreviousDirectory( );
+    static void ChangeDirectory(string toDirectory);
+    static void ReturnToPreviousDirectory();
 
     /// Rest tools class
     ClassDef(TRestTools, 1);
@@ -124,7 +124,7 @@ inline void SetInitLevel(T* name, int level) {
     struct __##classname##_Init {                                   \
         __##classname##_Init() {                                    \
             REST_ARGS[#objname] = #classname;                       \
-            if (objname != nullptr) {                                  \
+            if (objname != nullptr) {                               \
                 if (REST_InitTools::CanOverwrite(objname, level)) { \
                     delete objname;                                 \
                     objname = new classname();                      \

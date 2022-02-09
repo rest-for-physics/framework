@@ -30,9 +30,9 @@
 class TRestRealTimeAddInputFileProcess : public TRestEventProcess {
    private:
     // We define specific input/output event data holders
-    TRestEvent* fEvent;                     //!
-    TRestMessenger* fMessenger;  //!
-    static thread* fMonitorThread;          //!
+    TRestEvent* fEvent;             //!
+    TRestMessenger* fMessenger;     //!
+    static thread* fMonitorThread;  //!
     static int fMonitorFlag;        //!   //0: return, 1: run
 
     void InitFromConfigFile();
@@ -70,6 +70,5 @@ class TRestRealTimeAddInputFileProcess : public TRestEventProcess {
     // ROOT class definition helper. Increase the number in it every time
     // you add/rename/remove the process parameters
     ClassDef(TRestRealTimeAddInputFileProcess, 1);
-
 };
 #endif

@@ -308,7 +308,8 @@ Bool_t TRestBrowser::OpenFile(TString filename) {
                     string eventtype = Replace((string)br->GetName(), "Branch", "");
                     fEventTypeComboBox->AddEntry(eventtype.c_str(), fEventTypeComboBox->GetNumberOfEntries());
                     // we make the entry of input event being selected
-                    if (r->GetInputEvent() != nullptr && (string)r->GetInputEvent()->ClassName() == eventtype) {
+                    if (r->GetInputEvent() != nullptr &&
+                        (string)r->GetInputEvent()->ClassName() == eventtype) {
                         fEventTypeComboBox->Select(fEventTypeComboBox->GetNumberOfEntries() - 1, false);
                     }
                 }

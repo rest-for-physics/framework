@@ -308,7 +308,7 @@ class TRestMetadata : public TNamed {
 
     TRestMetadata& operator=(const TRestMetadata&) = delete;
     TRestMetadata(const TRestMetadata&) = delete;
-   
+
     TRestMetadata();
     ~TRestMetadata();
     TRestMetadata(const char* cfgFileNamecfgFileName);

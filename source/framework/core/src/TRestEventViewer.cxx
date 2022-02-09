@@ -23,7 +23,7 @@ ClassImp(TRestEventViewer)
     //______________________________________________________________________________
     TRestEventViewer::TRestEventViewer() {
     // TRestEventViewer default constructor
-    //Initialize();
+    // Initialize();
     fPad = nullptr;
     fCanvas = nullptr;
 }
@@ -36,7 +36,7 @@ TRestEventViewer::~TRestEventViewer() {
 
 void TRestEventViewer::Initialize() {
     fPad = nullptr;
-    
+
     if (fCanvas != nullptr) delete fCanvas;
     fCanvas = new TCanvas("Event Viewer", "Event Viewer");
 

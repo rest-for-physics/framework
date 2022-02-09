@@ -202,7 +202,7 @@ Int_t TRestEventProcess::LoadSectionMetadata() {
             if (ele->Value() != nullptr && (string)ele->Value() == "cut") {
                 if (ele->Attribute("name") != nullptr && ele->Attribute("value") != nullptr) {
                     string name = ele->Attribute("name");
-                    name = (string) this->GetName() + "_" + name;
+                    name = (string)this->GetName() + "_" + name;
                     TVector2 value = StringTo2DVector(ele->Attribute("value"));
                     if (value.X() != value.Y()) fCuts.push_back(pair<string, TVector2>(name, value));
                 }
