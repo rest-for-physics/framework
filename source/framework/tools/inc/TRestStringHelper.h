@@ -92,6 +92,8 @@ std::string TrimAndLower(std::string s);
 string DataMemberNameToParameterName(string name);
 string ParameterNameToDataMemberName(string name);
 
+std::vector<pair<string, string>> GetRootXmlElementsFromRml(string filename);
+
 TF1* CreateTF1FromString(std::string func, double init, double end);
 
 };  // namespace REST_StringHelper

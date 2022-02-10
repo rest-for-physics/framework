@@ -1,5 +1,7 @@
 #include "TRestStringHelper.h"
 
+#include <fstream>
+
 #include <thread>
 
 #include "Rtypes.h"
@@ -279,7 +281,7 @@ Int_t REST_StringHelper::DiffString(const string& source, const string& target) 
     if (m == 0) return n;
     if (n == 0) return m;
     // Construct a matrix
-    typedef vector<vector<int> > Tmatrix;
+    typedef vector<vector<int>> Tmatrix;
     Tmatrix matrix(n + 1);
     for (int i = 0; i <= n; i++) matrix[i].resize(m + 1);
 
@@ -636,6 +638,17 @@ string REST_StringHelper::ParameterNameToDataMemberName(string name) {
     } else {
         return "";
     }
+}
+
+std::vector<pair<string, string>> REST_StringHelper::GetRootXmlElementsFromRml(string filename) {
+    std::vector<pair<string, string>> elements;
+
+    std::string file_content;
+    std::getline(std::ifstream(filename.c_str()), file_content, '\0');
+
+    cout << file_content << endl;
+
+    return elements;
 }
 
 /////////////////////////////////////////////
