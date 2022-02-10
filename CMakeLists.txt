@@ -58,6 +58,8 @@ set(CMAKE_MACOSX_RPATH 1)
 
 find_package(ROOT REQUIRED)
 
+set(ROOTCINT_EXECUTABLE $ENV{ROOTSYS}/bin/rootcint)
+
 execute_process(COMMAND root-config --has-cxx20 OUTPUT_VARIABLE HASCXX20)
 execute_process(COMMAND root-config --has-cxx17 OUTPUT_VARIABLE HASCXX17)
 execute_process(COMMAND root-config --has-cxx14 OUTPUT_VARIABLE HASCXX14)
