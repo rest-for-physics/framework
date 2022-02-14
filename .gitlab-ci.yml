@@ -172,6 +172,12 @@ loadRESTLibs:
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - restRoot -b -q
 
+loadRESTMacros:
+  type: install
+  script:
+    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
+    - restRoot --m 1 -b -q 
+
 listRESTMacros:
   type: install
   script:
