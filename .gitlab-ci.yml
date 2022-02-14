@@ -1,4 +1,4 @@
-image: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-24-06_Geant4-v10.4.3_Garfield-4.0
+image: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-20-06_Geant4-v10.4.3_Garfield-4.0
 # image: nkx1231/root6-geant4-garfield:0.6
 
 variables:
@@ -138,9 +138,9 @@ build_latest:
       #  script:
       #    - cd ${CI_PROJECT_DIR}/
       #    - python3 pull-submodules.py --force --dontask --latest
-      #    - if [ -d ${CI_PROJECT_DIR}/build_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest2; fi
-      #    - mkdir ${CI_PROJECT_DIR}/build_latest2 && cd ${CI_PROJECT_DIR}/build_latest2/
-      #    - if [ -d ${CI_PROJECT_DIR}/install_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/install_latest2; fi
+    #    - if [ -d ${CI_PROJECT_DIR}/build_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/build_latest2; fi
+    #    - mkdir ${CI_PROJECT_DIR}/build_latest2 && cd ${CI_PROJECT_DIR}/build_latest2/
+    #    - if [ -d ${CI_PROJECT_DIR}/install_latest2 ]; then rm -Rf ${CI_PROJECT_DIR}/install_latest2; fi
     #    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install_latest2
     #    - make install -j2
     #    - . ${CI_PROJECT_DIR}/install_latest2/thisREST.sh

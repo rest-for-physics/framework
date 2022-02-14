@@ -56,7 +56,22 @@ set(CMAKE_MACOSX_RPATH 1)
 
 # ROOT libs and includes
 
-find_package(ROOT REQUIRED)
+set(ROOT_REQUIRED_LIBRARIES Geom Gdml Minuit Spectrum)
+# Switch to enable ROOT Eve functionality.
+if (NOT DEFINED REST_EVE)
+    set(REST_EVE ON)
+endif ()
+if (${REST_EVE} MATCHES "ON")
+    add_definitions(-DUSE_Eve)
+    list(APPEND rest_features "Eve")
+    set(ROOT_REQUIRED_LIBRARIES ${ROOT_REQUIRED_LIBRARIES} Eve RGL)
+else ()
+    set(excludes ${excludes} TRestEveEventViewer)
+endif (${REST_EVE} MATCHES "ON")
+
+find_package(ROOT REQUIRED COMPONENTS ${ROOT_REQUIRED_LIBRARIES})
+
+message(STATUS "ROOT LIBRARIES: ${ROOT_LIBRARIES}")
 
 set(ROOTCINT_EXECUTABLE $ENV{ROOTSYS}/bin/rootcint)
 
@@ -78,19 +93,6 @@ elseif (${HASCXX11} MATCHES "yes")
 endif ()
 
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
-set(external_libs ${external_libs} "${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit -lSpectrum")
-
-# Switch to enable ROOT Eve functionality.
-if (NOT DEFINED REST_EVE)
-    set(REST_EVE ON)
-endif ()
-if (${REST_EVE} MATCHES "ON")
-    add_definitions(-DUSE_Eve)
-    list(APPEND rest_features "Eve")
-    set(external_libs "${external_libs} -lEve -lRGL")
-else ()
-    set(excludes ${excludes} TRestEveEventViewer)
-endif (${REST_EVE} MATCHES "ON")
 
 # This is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProccess.
 if (NOT DEFINED SQL)
