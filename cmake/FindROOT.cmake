@@ -66,10 +66,6 @@ else()
       OUTPUT_VARIABLE ROOT_LIBRARY_DIR
       OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-
-    set(ROOTCINT_EXECUTABLE $ENV{ROOTSYS}/bin/rootcint)
-	set(GENREFLEX_EXECUTABLE $ENV{ROOTSYS}/bin/genreflex)
-
     execute_process(
       COMMAND ${ROOT_CONFIG_EXECUTABLE} --version
       OUTPUT_VARIABLE ROOT_VERSION
@@ -85,6 +81,8 @@ else()
       OUTPUT_VARIABLE ROOT_BIN_DIR
       OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+    set(ROOTCINT_EXECUTABLE ${ROOT_BIN_DIR}/rootcint)
+    set(GENREFLEX_EXECUTABLE ${ROOT_BIN_DIR}/genreflex)
 
     # Make variables changeble to the advanced user
     mark_as_advanced(ROOT_CONFIG_EXECUTABLE)
