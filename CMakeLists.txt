@@ -75,7 +75,7 @@ message(STATUS "ROOT LIBRARIES: ${ROOT_LIBRARIES}")
 
 set(external_libs "${external_libs};${ROOT_LIBRARIES}")
 
-set(ROOTCINT_EXECUTABLE $ENV{ROOTSYS}/bin/rootcint)
+set(ROOTCINT_EXECUTABLE ${ROOT_rootcint_CMD})
 
 execute_process(COMMAND root-config --has-cxx20 OUTPUT_VARIABLE HASCXX20)
 execute_process(COMMAND root-config --has-cxx17 OUTPUT_VARIABLE HASCXX17)
