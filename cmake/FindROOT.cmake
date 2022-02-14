@@ -15,7 +15,9 @@
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
   if(DEFINED ENV{ROOTSYS})
-   set(ROOTSYS $ENV{ROOTSYS})
+    set(ROOTSYS $ENV{ROOTSYS})
+  else()
+    message(FATAL_ERROR "ROOTSYS environment variable is undefined. Did you forget to source the `thisroot.bat`?")
   endif()
 
   if(NOT ROOTSYS)
