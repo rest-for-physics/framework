@@ -56,7 +56,7 @@ set(CMAKE_MACOSX_RPATH 1)
 
 # ROOT libs and includes
 
-set(ROOT_REQUIRED_LIBRARIES Geom Gdml Minuit Spectrum)
+set(ROOT_REQUIRED_LIBRARIES Core RIO Geom Gdml Minuit Spectrum)
 # Switch to enable ROOT Eve functionality.
 if (NOT DEFINED REST_EVE)
     set(REST_EVE ON)
