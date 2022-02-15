@@ -61,6 +61,7 @@ int main(int argc, char* argv[]) {
     bool debug = false;
     if (gVerbose >= REST_Debug) debug = true;
 
+    gROOT->ProcessLine("#include <TRestStringHelper.h>");
     // load rest library and macros
     TRestTools::LoadRESTLibrary(silent);
     if (loadMacros) {
