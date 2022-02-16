@@ -1,11 +1,10 @@
 #include <TApplication.h>
 #include <TROOT.h>
-#include <TRint.h>
-#include <TSystem.h>
-
 #include <TRestMetadata.h>
 #include <TRestRun.h>
 #include <TRestTools.h>
+#include <TRint.h>
+#include <TSystem.h>
 
 #include "TRestVersion.h"
 
@@ -74,6 +73,7 @@ int main(int argc, char* argv[]) {
 
             gROOT->ProcessLine((".L " + c).c_str());
         }
+        if (debug) printf("All macros loaded");
     }
 
     // load input root file with TRestRun, initialize input event, analysis tree and metadata structures
