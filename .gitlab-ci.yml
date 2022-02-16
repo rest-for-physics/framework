@@ -274,28 +274,17 @@ trexDM_data_latest:
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/trex
     - wget https://sultan.unizar.es/trexdm-readouts/readouts_v2.3.root
-    - cp R01928_tagTest_Vm_250_Vd_160_Pr_6_Gain_0x0_Shape_0xF_Clock_0x4-068.aqs R01929_tagTest_Vm_250_Vd_160_Pr_6_Gain_0x0_Shape_0xF_Clock_0x4-068.aqs
-    - restManager --fork --c 01_raw.rml --f "*.aqs"
-    - sleep 60
-    - ls -lrt
-    - restManager --fork --c 02_signal.rml --f "RawData*.root"
-    - sleep 60
-    - ls -lrt
-    - restManager --fork --c 03_hits.rml --f "Signals*.root"
-    - sleep 30
-    - ls -lrt
+    - restManager --c 01_raw.rml --f R01928_tagTest_Vm_250_Vd_160_Pr_6_Gain_0x0_Shape_0xF_Clock_0x4-068.aqs
+    - restManager --c 02_signal.rml --f RawData_01928.root
+    - restManager --c 03_hits.rml --f Signals_01928.root
     - restRoot -b -q ../MakeBasicTree.C'("Hits_01928.root")'
     - rm RawData_01928.root
     - rm Signals_01928.root
     - root -b -q ../ValidateTrees.C'("validation.root")'
-    - restRoot -b -q ../MakeBasicTree.C'("Hits_01929.root")'
-    - rm RawData_01929.root
-    - rm Signals_01929.root
-    - root -b -q ../ValidateTrees.C'("validation.root")'
-    - restRoot -b -q ValidateDetectorParams.C'("Hits_01929.root")'
+    - restRoot -b -q ValidateDetectorParams.C'("Hits_01928.root")'
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/pipeline/trex/Hits_01929.root
+      - ${CI_PROJECT_DIR}/pipeline/trex/Hits_01928.root
     expire_in: 1 day
 
 pandaXIII_Topological:
@@ -358,7 +347,7 @@ AnalysisPlot:
   script:
     - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/analysisPlot/
-    - restManager --c summary.rml --f ${CI_PROJECT_DIR}/pipeline/trex/Hits_01929.root
+    - restManager --c summary.rml --f ${CI_PROJECT_DIR}/pipeline/trex/Hits_01928.root
 
 AnalysisPlot2:
   type: postProcessing
