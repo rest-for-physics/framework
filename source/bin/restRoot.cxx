@@ -73,14 +73,14 @@ int main(int argc, char* argv[]) {
 
             gROOT->ProcessLine((".L " + c).c_str());
         }
-        if (debug) printf("All macros loaded");
-        // temporary
-        if (debug) {
-            printf("Exiting");
-            exit(0);
-        }
+        if (debug) printf("All macros loaded\n");
     }
 
+    // temporary
+    if (debug) {
+        printf("After loading macros\n");
+        // exit(0);
+    }
     // load input root file with TRestRun, initialize input event, analysis tree and metadata structures
     int Nfile = 0;
     for (int i = 1; i < argc; i++) {
@@ -142,9 +142,21 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    // temporary
+    if (debug) {
+        printf("Before App Run\n");
+        // exit(0);
+    }
+
     // display root's command line
-    TRint theApp("App", &argc, argv);
-    theApp.Run();
+    TRint app("App", &argc, argv);
+    app.Run();
+
+    // temporary
+    if (debug) {
+        printf("After App Run\n");
+        // exit(0);
+    }
 
     return 0;
 }
