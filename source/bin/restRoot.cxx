@@ -74,6 +74,11 @@ int main(int argc, char* argv[]) {
             gROOT->ProcessLine((".L " + c).c_str());
         }
         if (debug) printf("All macros loaded");
+        // temporary
+        if (debug) {
+            printf("Exiting");
+            exit(0);
+        }
     }
 
     // load input root file with TRestRun, initialize input event, analysis tree and metadata structures
@@ -88,7 +93,7 @@ int main(int argc, char* argv[]) {
             string runcmd = Form("TRestRun* run%i = (TRestRun*)%s;", Nfile, ToString(runTmp).c_str());
             if (debug) printf("%s\n", runcmd.c_str());
             gROOT->ProcessLine(runcmd.c_str());
-            if (runTmp->GetInputEvent() != NULL) {
+            if (runTmp->GetInputEvent()) {
                 string eventType = runTmp->GetInputEvent()->ClassName();
 
                 printf("Attaching event %s as ev%i...\n", eventType.c_str(), Nfile);
