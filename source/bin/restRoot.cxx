@@ -26,6 +26,7 @@ int main(int argc, char* argv[]) {
                 case 'v':
                     gVerbose = StringToVerboseLevel(argv[i + 1]);
                     break;
+                    // We get out at the end of execution without ROOT interactive shell
                 case 'q':
                     quit = true;
                     break;
