@@ -4,13 +4,12 @@ on:
   workflow_dispatch:
 
 env:
-  RUNNER: ubuntu-latest
   DOCKER_IMAGE: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-25-01_Geant4-v10.4.3_Garfield-4.0
   REST_PATH: /rest/install
 
 jobs:
   Check-Image:
-    runs-on: ${{ env.RUNNER }}
+    runs-on: ubuntu-latest
     container:
       image: ${{ env.DOCKER_IMAGE }}
 
@@ -51,7 +50,7 @@ jobs:
 
   Build-and-Install:
     needs: Check-Image
-    runs-on: ${{ env.RUNNER }}
+    runs-on: ubuntu-latest
     container:
       image: ${{ env.DOCKER_IMAGE }}
 
@@ -76,7 +75,7 @@ jobs:
 
   Basic-Checks:
     needs: Build-and-Install
-    runs-on: ${{ env.RUNNER }}
+    runs-on: ubuntu-latest
     container:
       image: ${{ env.DOCKER_IMAGE }}
 
