@@ -68,7 +68,14 @@ jobs:
 
       - name: REST config
         run: |
-          ${REST_PATH}/bin/rest-config --version
-          ${REST_PATH}/bin/rest-config --libs
-          ${REST_PATH}/bin/rest-config --flags
-          ${REST_PATH}/bin/rest-config --commit
+          . ${REST_PATH}/thisREST.sh
+          rest-config --version
+          rest-config --libs
+          rest-config --flags
+          rest-config --commit
+
+      - name: RestRoot
+        run: |
+          . ${REST_PATH}/thisREST.sh
+          cd /pipeline/analysistree/
+          restRoot -b -q simpleTree.cpp
