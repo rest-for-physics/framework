@@ -1,5 +1,6 @@
 // This macro will extract the double observables and will fill a tree with std::vector<double>
-Int_t MakeBasicTree(string inputRunFile, string outputRootFile = "results.root") {
+Int_t MakeBasicTree(TString inputRunFile, TString outputRootFile = "results.root") {
+    cout << "Running 'MakeBasicTree'" << endl;
     TRestRun* run = new TRestRun(inputRunFile);
 
     TRestAnalysisTree* aTree = run->GetAnalysisTree();
@@ -35,6 +36,8 @@ Int_t MakeBasicTree(string inputRunFile, string outputRootFile = "results.root")
 
     cout << "Writing TTree into '" << outFile->GetName() << "'" endl;
     outFile->Close();
+
+    cout << "Finished running 'MakeBasicTree'" << endl;
 
     return 0;
 }
