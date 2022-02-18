@@ -61,7 +61,11 @@ jobs:
         run: |
           mkdir -p build
           cd build
+<<<<<<< HEAD
           cmake .. -DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
+=======
+          cmake .. -DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH } -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
+>>>>>>> master
           make -j$(nproc)
           make install
 
