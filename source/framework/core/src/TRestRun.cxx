@@ -1821,4 +1821,3 @@ void TRestRun::PrintWarnings() {
         cout << "No warnings found!" << endl;
     }
 }
-

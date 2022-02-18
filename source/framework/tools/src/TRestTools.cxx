@@ -699,7 +699,14 @@ std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
 /// The file name is given in url format, and is parsed by TUrl. Various methods
 /// will be used, including scp, wget. Downloads to REST_USER_PATH + "/download/" + filename
 /// by default
-std::string TRestTools::DownloadRemoteFile(string url) {
+///
+/// This method will first check if the file is available locally at .rest/download directory.
+/// If it is available it will just return the local path to the file.
+///
+/// If force is enabled, then the file will be forced to download and overwrite the local file.
+/// The default is force=0
+///
+std::string TRestTools::DownloadRemoteFile(string url, int force) {
     string purename = TRestTools::GetPureFileName(url);
     if (purename == "") {
         cout << "error! (TRestTools::DownloadRemoteFile): url is not a file!" << endl;
@@ -713,7 +720,9 @@ std::string TRestTools::DownloadRemoteFile(string url) {
     } else {
         string fullpath = REST_USER_PATH + "/download/" + purename;
 
-        if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
+        if (!force && TRestTools::fileExists(fullpath)) {
+            return fullpath;
+        } else if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
             return fullpath;
         } else if (TRestTools::fileExists(fullpath)) {
             return fullpath;
@@ -815,32 +824,30 @@ int TRestTools::UploadToServer(string filelocal, string remotefile, string metho
     return 0;
 }
 
-void TRestTools::ChangeDirectory( string toDirectory ) {
+void TRestTools::ChangeDirectory(string toDirectory) {
+    char originDirectory[256];
+    sprintf(originDirectory, "%s", getenv("PWD"));
+    chdir(toDirectory.c_str());
 
-        char originDirectory[256];
-        sprintf(originDirectory, "%s", getenv("PWD"));
-        chdir(toDirectory.c_str());
+    string fullPath = "";
+    if (toDirectory[0] == '/')
+        fullPath = toDirectory;
+    else
+        fullPath = (string)originDirectory + "/" + toDirectory;
 
-		string fullPath = "";
-		if( toDirectory[0] == '/' )
-			fullPath = toDirectory;
-		else
-			fullPath = (string) originDirectory + "/" + toDirectory;
-
-		setenv ( "PWD", fullPath.c_str(), 1 );
-		setenv ( "OLDPWD", originDirectory, 1 );
+    setenv("PWD", fullPath.c_str(), 1);
+    setenv("OLDPWD", originDirectory, 1);
 }
 
-void TRestTools::ReturnToPreviousDirectory( ) {
+void TRestTools::ReturnToPreviousDirectory() {
+    char originDirectory[256];
+    sprintf(originDirectory, "%s", getenv("PWD"));
 
-        char originDirectory[256];
-        sprintf(originDirectory, "%s", getenv("PWD"));
+    char newDirectory[256];
+    sprintf(newDirectory, "%s", getenv("OLDPWD"));
 
-        char newDirectory[256];
-        sprintf(newDirectory, "%s", getenv("OLDPWD"));
+    setenv("PWD", newDirectory, 1);
+    setenv("OLDPWD", originDirectory, 1);
 
-		setenv ( "PWD", newDirectory, 1 );
-		setenv ( "OLDPWD", originDirectory, 1 );
-
-		chdir( newDirectory );
+    chdir(newDirectory);
 }

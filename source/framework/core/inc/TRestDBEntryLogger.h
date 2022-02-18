@@ -33,7 +33,7 @@
 // It will ask the user to fill a run information text file.
 class TRestDBEntryLogger : public TRestMetadata {
    private:
-    TRestRun* fRun; //!
+    TRestRun* fRun;  //!
 
     bool fSkipIfNotEmpty;
     string fTextOpenCommand = "vim";
@@ -49,7 +49,7 @@ class TRestDBEntryLogger : public TRestMetadata {
    public:
     // getters
     string operator[](string itemname) { return Get(itemname); }
-    string Get(string itemname) { return fMetainfo.count(itemname)==0? "": fMetainfo[itemname]; }
+    string Get(string itemname) { return fMetainfo.count(itemname) == 0 ? "" : fMetainfo[itemname]; }
     int GetEntries() { return fMetainfo.size(); }
 
     void PrintMetadata();
@@ -59,6 +59,6 @@ class TRestDBEntryLogger : public TRestMetadata {
     ~TRestDBEntryLogger() {}
 
     ClassDef(TRestDBEntryLogger, 1);  // Template for a REST "event process" class inherited from
-                                         // TRestEventProcess
+                                      // TRestEventProcess
 };
 #endif

@@ -75,7 +75,7 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
             fInvokeMethod = funcName;
             // indicates whether the argument is string/TString/const char *. If so, the value would be 1. We
             // need to add "" mark when constructing command. Otherwise the value is 0.
-            
+
             TList* list = f->GetListOfMethodArgs();
             for (int i = 0; i < list->GetSize(); i++) {
                 TMethodArg* arg = (TMethodArg*)list->At(i);

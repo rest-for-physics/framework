@@ -21,11 +21,11 @@
 #ifndef TRestSoft_TRestHits
 #define TRestSoft_TRestHits
 
+#include <TCanvas.h>
 #include <TF1.h>
+#include <TGraphErrors.h>
 #include <TH1.h>
 #include <TVector3.h>
-#include <TGraphErrors.h>
-#include <TCanvas.h>
 
 #include <iostream>
 

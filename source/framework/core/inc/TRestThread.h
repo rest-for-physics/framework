@@ -33,10 +33,10 @@ class TRestThread : public TRestMetadata {
     TFile* fOutputFile;                        //!
     TTree* fEventTree;                         //!
 
-    std::thread t;      //!
-    Bool_t isFinished;  //!
-    Bool_t fProcessNullReturned; //!
-   
+    std::thread t;                //!
+    Bool_t isFinished;            //!
+    Bool_t fProcessNullReturned;  //!
+
    public:
     void Initialize();
     void InitFromConfigFile() {}

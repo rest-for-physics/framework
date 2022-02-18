@@ -22,16 +22,16 @@
 
 //////////////////////////////////////////////////////////////////////////
 /// TRestCut is a Collection of TCut objects initialized from rml and stored with the output file, e.g:
-/// 
+///
 /// <TRestCut/>
 ///   <cut name="cc1" value="XX>10 AND XX<90"/>
 ///   <cut name="cc2" value="sAna_ThresholdIntegral<100e3"/>
 /// </TRestCut>
-/// 
-/// Note that the notations " AND " and " OR " will be replaced by " && " and " || " 
-/// When saved to ROOT file, this class will save together all its TCut objects 
+///
+/// Note that the notations " AND " and " OR " will be replaced by " && " and " || "
+/// When saved to ROOT file, this class will save together all its TCut objects
 /// Then we can easily draw from analysis tree with these cuts:
-/// 
+///
 /// AnalysisTree->Draw("xxx",*cc1)
 /// AnalysisTree->Draw("xxx",*cc1 && *cc2 )
 ///
@@ -60,13 +60,9 @@
 ClassImp(TRestCut);
 
 //______________________________________________________________________________
-TRestCut::TRestCut() { 
-    Initialize();
-}
+TRestCut::TRestCut() { Initialize(); }
 
-void TRestCut::Initialize() {
-    fCuts.clear();
-}
+void TRestCut::Initialize() { fCuts.clear(); }
 
 void TRestCut::InitFromConfigFile() {
     auto ele = GetElement("cut");
@@ -106,11 +102,11 @@ TCut TRestCut::GetCut(string name) {
 }
 
 void TRestCut::PrintMetadata() {
-	TRestMetadata::PrintMetadata();
-	metadata << " " << endl;
-	metadata << "Number of TCut objects added: " << fCuts.size() << endl;
-	metadata << " " << endl;
-	metadata << "+++" << endl;
+    TRestMetadata::PrintMetadata();
+    metadata << " " << endl;
+    metadata << "Number of TCut objects added: " << fCuts.size() << endl;
+    metadata << " " << endl;
+    metadata << "+++" << endl;
 }
 
 Int_t TRestCut::Write(const char* name, Int_t option, Int_t bufsize) {
@@ -121,5 +117,4 @@ Int_t TRestCut::Write(const char* name, Int_t option, Int_t bufsize) {
     }
 
     return TRestMetadata::Write(name, option, bufsize);
-
 }

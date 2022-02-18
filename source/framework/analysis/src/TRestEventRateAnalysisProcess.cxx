@@ -165,4 +165,3 @@ TRestEvent* TRestEventRateAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fEvent;
 }
-
