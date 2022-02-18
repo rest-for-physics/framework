@@ -46,7 +46,7 @@ jobs:
 
   Build:
     needs: Check-Image
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     container:
       image: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-25-01_Geant4-v10.4.3_Garfield-4.0
     env:
