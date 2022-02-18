@@ -138,9 +138,12 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    cout << "A" << endl;
     // display root's command line
     TRint app("App", &argc, argv);
+    cout << "B" << endl;
     app.Run();
+    cout << "C" << endl;
 
     return 0;
 }
