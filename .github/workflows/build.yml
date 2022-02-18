@@ -11,7 +11,7 @@ jobs:
   Check-Image:
     runs-on: ubuntu-latest
     container:
-      image: ${{ env.DOCKER_IMAGE }}
+      image: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-25-01_Geant4-v10.4.3_Garfield-4.0
 
     steps:
       - name: Check ROOT is available in non-interactive shell
@@ -52,7 +52,7 @@ jobs:
     needs: Check-Image
     runs-on: ubuntu-latest
     container:
-      image: ${{ env.DOCKER_IMAGE }}
+      image: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-25-01_Geant4-v10.4.3_Garfield-4.0
 
     steps:
       - uses: actions/checkout@v2
@@ -77,7 +77,7 @@ jobs:
     needs: Build-and-Install
     runs-on: ubuntu-latest
     container:
-      image: ${{ env.DOCKER_IMAGE }}
+      image: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-25-01_Geant4-v10.4.3_Garfield-4.0
 
     steps:
       - uses: actions/checkout@v2
