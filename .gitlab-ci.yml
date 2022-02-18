@@ -1,4 +1,4 @@
-image: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-20-06_Geant4-v10.4.3_Garfield-4.0
+image: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-25-01_Geant4-v10.4.3_Garfield-4.0
 # image: nkx1231/root6-geant4-garfield:0.6
 
 variables:
@@ -59,6 +59,7 @@ before_script:
   - echo $GARFIELD_INSTALL
   - python3 --version
   - apt update && apt install -y wget
+  - root -q
 
 clang-format:
   stage: pre-build
