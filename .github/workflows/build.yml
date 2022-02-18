@@ -15,6 +15,7 @@ jobs:
           root-config --version
           root-config --prefix
           root-config --cflags
+          root -q
       - name: Check Geant4 is available in non-interactive shell
         run: |
           geant4-config --version
