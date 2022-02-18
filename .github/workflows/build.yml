@@ -3,11 +3,16 @@ name: Build and Test
 on:
   workflow_dispatch:
 
+env:
+  RUNNER: ubuntu-latest
+  DOCKER_IMAGE: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-25-01_Geant4-v10.4.3_Garfield-4.0
+  REST_PATH: /rest/install
+
 jobs:
   Check-Image:
-    runs-on: ubuntu-latest
+    runs-on: ${{ env.RUNNER }}
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-25-01_Geant4-v10.4.3_Garfield-4.0
+      image: ${{ env.DOCKER_IMAGE }}
 
     steps:
       - name: Check ROOT is available in non-interactive shell
@@ -44,13 +49,11 @@ jobs:
           MediumMagboltz gas;
           return 0;' -q
 
-  Build:
+  Build-and-Install:
     needs: Check-Image
-    runs-on: ubuntu-latest
+    runs-on: ${{ env.RUNNER }}
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-25-01_Geant4-v10.4.3_Garfield-4.0
-    env:
-      REST_PATH: /rest/install
+      image: ${{ env.DOCKER_IMAGE }}
 
     steps:
       - uses: actions/checkout@v2
@@ -58,7 +61,7 @@ jobs:
       - name: Pull Submodules
         run: yes | python3 pull-submodules.py --clean
 
-      - name: Build
+      - name: Build and Install
         run: |
           mkdir -p build
           cd build
@@ -66,9 +69,28 @@ jobs:
           make -j$(nproc)
           make install
 
+      - uses: actions/upload-artifact@master
+        with:
+          name: framework-install
+          path: ${{ env.REST_PATH }}
+
+  Basic-Checks:
+    needs: Build-and-Install
+    runs-on: ${{ env.RUNNER }}
+    container:
+      image: ${{ env.DOCKER_IMAGE }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@master
+        with:
+          name: framework-install
+          path: ${{ env.REST_PATH }}
+
       - name: REST config
         run: |
-          . ${REST_PATH}/thisREST.sh
+          . ${{ env.REST_PATH }}/thisREST.sh
           rest-config --version
           rest-config --libs
           rest-config --flags
@@ -76,6 +98,6 @@ jobs:
 
       - name: RestRoot
         run: |
-          . ${REST_PATH}/thisREST.sh
+          . ${{ env.REST_PATH }}/thisREST.sh
           cd /pipeline/analysistree/
           restRoot -b -q simpleTree.cpp
