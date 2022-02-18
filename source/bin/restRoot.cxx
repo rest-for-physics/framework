@@ -16,7 +16,6 @@ int main(int argc, char* argv[]) {
     setenv("REST_VERSION", REST_RELEASE, 1);
 
     Int_t loadMacros = 0;
-    bool quit = false;
     for (int i = 1; i < argc; i++) {
         char* c = &argv[i][0];
         if (*c == '-') {
@@ -27,9 +26,6 @@ int main(int argc, char* argv[]) {
                     gVerbose = StringToVerboseLevel(argv[i + 1]);
                     break;
                     // We get out at the end of execution without ROOT interactive shell
-                case 'q':
-                    quit = true;
-                    break;
                 case 'm':
                     loadMacros = StringToInteger(argv[i + 1]);
                     break;
@@ -140,10 +136,6 @@ int main(int argc, char* argv[]) {
             argv[i] = (char*)"";
             Nfile++;
         }
-    }
-
-    if (quit) {
-        return 0;
     }
 
     // display root's command line
