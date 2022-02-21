@@ -466,11 +466,12 @@ void TRestProcessRunner::RunProcess() {
         if (finish) break;
     }
 
+    // make analysis tree filled with observables, which may used in EndProcess()
     fAnalysisTree->GetEntry(fAnalysisTree->GetEntries() - 1);
     for (int i = 0; i < fThreadNumber; i++) {
         fThreads[i]->EndProcess();
     }
-
+    if (fRunInfo->GetFileProcess() != NULL) fRunInfo->GetFileProcess()->EndProcess();
     fProcStatus = kFinished;
 
 #ifdef TIME_MEASUREMENT

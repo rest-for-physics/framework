@@ -804,7 +804,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
             goto GetEventExt;
         }
         fInputEvent = eve;
-        if (fFileProcess != nullptr) fFileProcess->EndProcess();
+        // if (fFileProcess != nullptr) fFileProcess->EndProcess();
         return -1;
     }
 
