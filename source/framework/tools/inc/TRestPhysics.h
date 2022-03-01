@@ -58,6 +58,12 @@ const double naturalElectron = 0.302822120214353;
 /// A kelvin in eV
 const double kelvinToeV = 86.172809e-6;
 
+/// Average Sun-Earth distance in m
+const double AU = 1.49597870691E11;
+
+// Solar radius in m
+const double solarRadius = 6.95700E8;
+
 TVector3 MoveToPlane(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a);
 
 TVector3 MoveByDistance(TVector3 pos, TVector3 dir, Double_t d);
