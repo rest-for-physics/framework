@@ -471,7 +471,9 @@ void TRestProcessRunner::RunProcess() {
     for (int i = 0; i < fThreadNumber; i++) {
         fThreads[i]->EndProcess();
     }
-    if (fRunInfo->GetFileProcess() != NULL) fRunInfo->GetFileProcess()->EndProcess();
+    if (fRunInfo->GetFileProcess()) {
+        fRunInfo->GetFileProcess()->EndProcess();
+    }
     fProcStatus = kFinished;
 
 #ifdef TIME_MEASUREMENT
