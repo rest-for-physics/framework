@@ -1,5 +1,6 @@
-image: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-25-01_Geant4-v10.4.3_Garfield-4.0
-# image: nkx1231/root6-geant4-garfield:0.6
+
+image: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-26-00_Geant4-v10.4.3_Garfield-af4a1451
+#image: nkx1231/root6-geant4-garfield:0.6
 
 variables:
 #    GIT_SUBMODULE_STRATEGY: recursive
@@ -143,7 +144,8 @@ build_latest:
       #    - make install -j2
       #    - . ${CI_PROJECT_DIR}/install_latest2/thisREST.sh
       #  except:
-      #      variables:
+
+    #      variables:
     #        - $CRONJOB == "YES"
 
     #build_nkx:
@@ -235,7 +237,8 @@ GenerateReadout:
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/readout/
     - restManager --c generateReadout.rml --o readout.root
     - restRoot -b -q PrintReadout.C'("readout.root")' > /dev/null
-      # We need to introduce basic validation here
+
+    # We need to introduce basic validation here
     #    - diff validation.txt print.txt
 
 BasicReadout:

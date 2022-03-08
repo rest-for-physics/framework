@@ -132,7 +132,14 @@ class TRestMetadata : public TNamed {
     // Load global setting for the rml section, e.g., name, title.
     virtual Int_t LoadSectionMetadata();
     /// To make settings from rml file. This method must be implemented in the derived class.
-    virtual void InitFromConfigFile() = 0;
+    virtual void InitFromConfigFile() {
+        map<string, string> parameters = GetParametersList();
+
+        for (auto& p : parameters) p.second = ReplaceMathematicalExpressions(p.second);
+
+        ReadParametersList(parameters);
+    }
+
     /// Method called after the object is retrieved from root file.
     virtual void InitFromRootFile() {}
 
@@ -191,6 +198,13 @@ class TRestMetadata : public TNamed {
 
     std::map<string, string> GetParametersList();
     void ReadAllParameters();
+
+    // Making class constructors protected to keep this class abstract
+    TRestMetadata& operator=(const TRestMetadata&) = delete;
+    TRestMetadata(const TRestMetadata&) = delete;
+
+    TRestMetadata();
+    TRestMetadata(const char* cfgFileNamecfgFileName);
 
    public:
     /// It returns true if an error was identified by a derived metadata class
@@ -306,12 +320,7 @@ class TRestMetadata : public TNamed {
     /// overwriting the write() method with fStore considered
     virtual Int_t Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 
-    TRestMetadata& operator=(const TRestMetadata&) = delete;
-    TRestMetadata(const TRestMetadata&) = delete;
-   
-    TRestMetadata();
     ~TRestMetadata();
-    TRestMetadata(const char* cfgFileNamecfgFileName);
 
     /// Call CINT to generate streamers for this class
     ClassDef(TRestMetadata, 9);
