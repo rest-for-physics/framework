@@ -11,7 +11,7 @@ string(STRIP "${REST_PATH}" REST_PATH)
 if (NOT "${REST_PATH_ENV}" STREQUAL "${REST_PATH}")
     message(SEND_ERROR "REST installation found at ${REST_PATH} but 'REST_PATH' env variable points to $ENV{REST_PATH}")
     set(REST_FOUND False)
-endif()
+endif ()
 
 execute_process(COMMAND rest-config --libs OUTPUT_VARIABLE REST_LIBRARIES)
 string(STRIP ${REST_LIBRARIES} REST_LIBRARIES) # It is necessary to strip the whitespaces, or it will give error
