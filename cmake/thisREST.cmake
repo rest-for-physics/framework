@@ -2,44 +2,44 @@
 
 ## We identify the thisroot.sh script for the corresponding ROOT version
 execute_process(COMMAND root-config --prefix
-	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} 
-	OUTPUT_VARIABLE ROOT_PATH)
+        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+        OUTPUT_VARIABLE ROOT_PATH)
 string(REGEX REPLACE "\n$" "" ROOT_PATH "${ROOT_PATH}")
-set ( thisROOT "${ROOT_PATH}/bin/thisroot.sh" )
+set(thisROOT "${ROOT_PATH}/bin/thisroot.sh")
 
 ## We identify the geant4.sh script for the corresponding Geant4 version
 execute_process(COMMAND geant4-config --prefix
-	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} 
-	OUTPUT_VARIABLE GEANT4_PATH)
+        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+        OUTPUT_VARIABLE GEANT4_PATH)
 string(REGEX REPLACE "\n$" "" GEANT4_PATH "${GEANT4_PATH}")
-set ( thisGeant4 "${GEANT4_PATH}/bin/geant4.sh" )
+set(thisGeant4 "${GEANT4_PATH}/bin/geant4.sh")
 
 if (${REST_G4} MATCHES "ON")
-	set ( loadG4 "\# if geant4.sh script is found we load the same Geant4 version as used in compilation\n if [[ -f \"${thisGeant4}\" && ${thisGeant4} != /usr/* ]]; then
-		source ${thisGeant4}\n fi\n" )
+    set(loadG4 "\# if geant4.sh script is found we load the same Geant4 version as used in compilation\n if [[ -f \"${thisGeant4}\" && ${thisGeant4} != /usr/* ]]; then
+		source ${thisGeant4}\n fi\n")
 else ()
-    set( loadG4 "")
+    set(loadG4 "")
 endif (${REST_G4} MATCHES "ON")
 
-if( DEFINED MPFR_PATH )
-    set( loadMPFR "export LD_LIBRARY_PATH=${MPFR_PATH}/lib:\$LD_LIBRARY_PATH")
+if (DEFINED MPFR_PATH)
+    set(loadMPFR "export LD_LIBRARY_PATH=${MPFR_PATH}/lib:\$LD_LIBRARY_PATH")
 else ()
-    set( loadMPFR "")
-endif()
+    set(loadMPFR "")
+endif ()
 
 
 if (${REST_GARFIELD} MATCHES "ON")
-	set ( loadGarfield "\n\# if GARFIELD is enabled we load the same Garfield environment used in compilation
+    set(loadGarfield "\n\# if GARFIELD is enabled we load the same Garfield environment used in compilation
 export GARFIELD_HOME=$ENV{GARFIELD_HOME}
 export HEED_DATABASE=\$GARFIELD_HOME/Heed/heed++/database
-export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH" )
+export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH")
 else ()
-    set( loadGarfield "")
+    set(loadGarfield "")
 endif (${REST_GARFIELD} MATCHES "ON")
 
 # install thisREST script, sh VERSION
-install( CODE
-"
+install(CODE
+        "
 
 file( WRITE \${CMAKE_INSTALL_PREFIX}/thisREST.sh
 
@@ -94,16 +94,16 @@ fi
 \"
 )
         "
-)
+        )
 
 
-foreach(mac ${rest_macros})
+foreach (mac ${rest_macros})
 
-string(REPLACE " " "" mac ${mac})
-string(REPLACE "rest" "" m ${mac})
+    string(REPLACE " " "" mac ${mac})
+    string(REPLACE "rest" "" m ${mac})
 
-install( CODE
-"
+    install(CODE
+            "
 file( APPEND \${CMAKE_INSTALL_PREFIX}/thisREST.sh 
 
 \"
@@ -111,13 +111,13 @@ alias ${mac}=\\\"restManager ${m}\\\"
 \"
 )
         "
-)
+            )
 
-endforeach(mac ${rest_macros})
+endforeach (mac ${rest_macros})
 
 # install thisREST script, csh VERSION
-install( CODE
-"
+install(CODE
+        "
 file( WRITE \${CMAKE_INSTALL_PREFIX}/thisREST.csh 
 
 \"\#!/bin/csh
@@ -141,16 +141,16 @@ endif
 \"
 )
         "
-)
+        )
 
 
-foreach(mac ${rest_macros})
+foreach (mac ${rest_macros})
 
-string(REPLACE " " "" mac ${mac})
-string(REPLACE "rest" "" m ${mac})
+    string(REPLACE " " "" mac ${mac})
+    string(REPLACE "rest" "" m ${mac})
 
-install( CODE
-"
+    install(CODE
+            "
 file( APPEND \${CMAKE_INSTALL_PREFIX}/thisREST.csh 
 
 \"
@@ -158,14 +158,14 @@ alias ${mac} \\\"restManager ${m}\\\"
 \"
 )
         "
-)
+            )
 
-endforeach(mac ${rest_macros})
+endforeach (mac ${rest_macros})
 
 
 #install rest-config
-install( CODE
-"
+install(CODE
+        "
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CollectGitInfo.cmake)
 
 message(STATUS \"Installing: \${CMAKE_INSTALL_PREFIX}/bin/rest-config\")
@@ -287,4 +287,4 @@ fi
 \"
 )
         "
-)
+        )
