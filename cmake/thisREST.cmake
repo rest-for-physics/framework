@@ -27,15 +27,25 @@ else ()
     set(loadMPFR "")
 endif ()
 
-
+set(loadGarfield "")
 if (${REST_GARFIELD} MATCHES "ON")
-    set(loadGarfield "\n\# if GARFIELD is enabled we load the same Garfield environment used in compilation
+    if (DEFINED ENV{GARFIELD_INSTALL})
+        # this is the recommended way to source newer Garfield installations
+        set(loadGarfield "
+# if GARFIELD is enabled we load the same Garfield environment used in compilation
+source $ENV{GARFIELD_INSTALL}/share/Garfield/setupGarfield.sh
+")
+    else ()
+        set(loadGarfield "
+# if GARFIELD is enabled we load the same Garfield environment used in compilation
 export GARFIELD_HOME=$ENV{GARFIELD_HOME}
 export HEED_DATABASE=\$GARFIELD_HOME/Heed/heed++/database
-export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH")
-else ()
-    set(loadGarfield "")
-endif (${REST_GARFIELD} MATCHES "ON")
+export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH
+")
+    endif ()
+endif ()
+
+message(STATUS "GARFIELD: ${loadGarfield}")
 
 # install thisREST script, sh VERSION
 install(CODE
