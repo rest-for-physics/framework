@@ -45,8 +45,6 @@ export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH
     endif ()
 endif ()
 
-message(STATUS "GARFIELD: ${loadGarfield}")
-
 # install thisREST script, sh VERSION
 install(CODE
         "
