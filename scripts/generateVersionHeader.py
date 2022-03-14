@@ -139,8 +139,10 @@ print('You should generate a new Git tag now!\n')
 print('-----> git tag -a v' + str(a) + '.' + str(b) + '.' + str(c)
       + ' -m "Update to version v' + str(a) + '.' + str(b) + '.'
       + str(c) + '"\n')
-print('And push the changes to repository\n')
-print('-----> git push --tags\n')
+print('And push the changes to repository. You should also push your branch to GitHub if you have not already.\n'
+      )
+print('-----> git push origin v' + str(a) + '.' + str(b) + '.' + str(c)
+      + '\n')
 print('IMPORTANT. Summarize the changes in the tag generated at the Gitlab repository website.\n'
       )
 
