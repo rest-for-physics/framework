@@ -64,3 +64,6 @@
 [submodule "doc/userguide"]
 	path = doc/userguide
 	url = https://github.com/rest-for-physics/rest-docs.github.io.git
+[submodule "projects/detector-project"]
+	path = projects/detector-project
+	url = git@github.com:rest-for-physics/detector-project.git
