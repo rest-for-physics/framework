@@ -194,6 +194,8 @@ class TRestHits : public TObject {
 
     void WriteHitsToTextFile(TString filename);
 
+    static void GetBoundaries(std::vector<double> &val, double &max, double &min, int &nBins, double offset=10);
+
     virtual void PrintHits(Int_t nHits = -1);
 
     class TRestHits_Iterator : public std::iterator<std::random_access_iterator_tag, TRestHits_Iterator> {
