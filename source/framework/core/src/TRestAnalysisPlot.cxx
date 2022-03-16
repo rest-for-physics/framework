@@ -247,6 +247,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             plot.gridY = StringToBool(GetParameter("gridY", plotele, "false"));
             plot.gridX = StringToBool(GetParameter("gridX", plotele, "false"));
             plot.normalize = StringToDouble(GetParameter("norm", plotele, ""));
+            plot.scale = GetParameter("scale", plotele, "");
             plot.labelX = GetParameter("xlabel", plotele, "");
             plot.labelY = GetParameter("ylabel", plotele, "");
             plot.ticksX = StringToInteger(GetParameter("xticks", plotele, "510"));
@@ -843,7 +844,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             continue;
         }
 
-        // scale the histograms
+        // normalize the histograms
         if (plot.normalize > 0) {
             for (unsigned int i = 0; i < plot.histos.size(); i++) {
                 if (plot.histos[i].ptr == nullptr) continue;
@@ -852,6 +853,18 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                     scale = plot.normalize / plot.histos[i].ptr->Integral();
                     plot.histos[i].ptr->Scale(scale);
                 }
+            }
+        }
+
+       // scale the histograms
+       if (plot.scale != "") {
+            for (unsigned int i = 0; i < plot.histos.size(); i++) {
+                if (plot.histos[i].ptr == nullptr) continue;
+                Double_t scale = 1.;
+                if(plot.scale == "binSize")scale =  1./plot.histos[i].ptr->GetXaxis()->GetBinWidth(1);
+                else scale=StringToDouble(plot.scale);
+
+                plot.histos[i].ptr->Scale(scale);
             }
         }
 

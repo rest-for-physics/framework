@@ -70,6 +70,7 @@ class TRestAnalysisPlot : public TRestMetadata {
         string title;
 
         Double_t normalize;
+        string scale;
         Bool_t logX;
         Bool_t logY;
         Bool_t logZ;
