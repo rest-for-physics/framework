@@ -77,7 +77,7 @@
 			<observable name="zMean" value="ON" />
 		</addProcess>
 
-		<addProcess type="TRestDetectorHitsToSignalProcess" name="hitsToSignal" title="A hits to signal template" value="${RAW_PROCESSING}" >
+		<addProcess type="TRestDetectorHitsToSignalProcess" name="hitsToSignal" title="A hits to signal template" value="${HIT_PROCESSING}" >
 			<parameter name="driftVelocity" value="" />
 		</addProcess>
 
@@ -102,10 +102,10 @@
 		</addProcess>
 
 		<addProcess type="TRestRawToDetectorSignalProcess" name="zS" value="${RAW_PROCESSING}"
-                        triggerStarts="0us"
-                        gain="1"
-                        threshold="0.01"
-                        zeroSuppression="true"
+      triggerStarts="0us"
+      gain="1"
+      threshold="0.01"
+      zeroSuppression="true"
 			baseLineRange="(5,55)"
 			integralRange="(10,500)"
 			pointThreshold="2"
@@ -122,10 +122,8 @@
 		<addProcess type="TRestDetectorSignalToHitsProcess" name="signalToHits" value="${HIT_PROCESSING}"
 			observable="all" method="all" />
 
-		<addProcess type="TRestDetectorHitsToTrackFastProcess" name="hitsToTrack" title="" value="OFF">
-			<parameter name="netOrigin" value="(-100,-100,-100)" units="mm" />
-			<parameter name="netSize" value="200" units="mm" />
-			<parameter name="cellResolution" value="2" units="mm" />
+		<addProcess type="TRestDetectorHitsToTrackProcess" name="hitsToTrack" title="" value="${TRACK_PROCESSING}">
+			<parameter name="clusterDistance" value="1" units="cm" />
 		</addProcess>
 
 		<addProcess type="TRestDetectorHitsToTrackProcess" name="hitsToTrack" title="" value="${TRACK_PROCESSING}" 

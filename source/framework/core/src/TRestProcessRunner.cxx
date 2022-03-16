@@ -214,7 +214,7 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement* e) {
                     info << "multi-threading is disabled due to process \"" << p->GetName() << "\"" << endl;
                     info << "This process is in debug mode or is single thread only" << endl;
                     for (i = fThreadNumber; i > 1; i--) {
-                        delete (*fThreads.end());
+                        delete (*(fThreads.end() - 1));
                         fThreads.erase(fThreads.end() - 1);
                         fThreadNumber--;
                     }
@@ -466,11 +466,14 @@ void TRestProcessRunner::RunProcess() {
         if (finish) break;
     }
 
+    // make analysis tree filled with observables, which may used in EndProcess()
     fAnalysisTree->GetEntry(fAnalysisTree->GetEntries() - 1);
     for (int i = 0; i < fThreadNumber; i++) {
         fThreads[i]->EndProcess();
     }
-
+    if (fRunInfo->GetFileProcess()) {
+        fRunInfo->GetFileProcess()->EndProcess();
+    }
     fProcStatus = kFinished;
 
 #ifdef TIME_MEASUREMENT
