@@ -102,15 +102,15 @@
 		</addProcess>
 
 		<addProcess type="TRestRawToDetectorSignalProcess" name="zS" value="${RAW_PROCESSING}"
-      triggerStarts="0us"
-      gain="1"
-      threshold="0.01"
-      zeroSuppression="true"
-			baseLineRange="(5,55)"
-			integralRange="(10,500)"
-			pointThreshold="2"
-			pointsOverThreshold="5"
-			signalThreshold="3" />
+                  triggerStarts="0us"
+                  gain="1"
+                  threshold="0.01"
+                  zeroSuppression="true"
+		  baseLineRange="(5,55)"
+		  integralRange="(10,500)"
+		  pointThreshold="2"
+		  nPointsOverThreshold="5"
+		  signalThreshold="3" />
 
 			<!-- Requires a bit of debugging 
 		<addProcess type="TRestDetectorSignalChannelActivityProcess" name="chActivity" value="${RAW_PROCESSING}" verboseLevel="info" observable="all" >
