@@ -26,6 +26,8 @@ stages:
   # Stage to validate restG4 package examples
   - restG4
 
+  # Stage to validate framework examples
+  - examples
 
   # Stage to validate data chain processing constructions (TREX-DM data, PandaX-III topology, etc).
   - restManager_process
