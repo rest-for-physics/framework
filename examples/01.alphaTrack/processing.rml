@@ -122,12 +122,15 @@
 		<addProcess type="TRestDetectorSignalToHitsProcess" name="signalToHits" value="${HIT_PROCESSING}"
 			observable="all" method="all" />
 
+                <addProcess type="TRestDetectorHitsToTrackFastProcess" name="hitsToTrackFast" title="" value="OFF">
+                       <parameter name="netOrigin" value="(-100,-100,-100)" units="mm" />
+                       <parameter name="netSize" value="200" units="mm" />
+                       <parameter name="cellResolution" value="2" units="mm" />
+                </addProcess>
+
 		<addProcess type="TRestDetectorHitsToTrackProcess" name="hitsToTrack" title="" value="${TRACK_PROCESSING}">
 			<parameter name="clusterDistance" value="1" units="cm" />
 		</addProcess>
-
-		<addProcess type="TRestDetectorHitsToTrackProcess" name="hitsToTrack" title="" value="${TRACK_PROCESSING}" 
-			clusterDistance="2.5mm" />
 
 		<addProcess type="TRestTrackReductionProcess" name="reduction" title="" value="${TRACK_PROCESSING}">
 			<parameter name="startingDistance" value="0.15mm" />
