@@ -56,7 +56,9 @@
 
     </addProcess>
     <addProcess type="TRestEventRateAnalysisProcess" name="rateAna" value="ON" observable="all"/>
-    <addProcess type="TRestRawZeroSuppresionProcess" name="zS" value="ON" sampling="0.2us"/> 5MHz sampling
+    <addProcess type="TRestRawToDetectorSignalProcess" name="rawToSignal" value="ON"
+         sampling="0.2us"
+         zeroSuppression="true" />
 
     <addProcess type="TRestRealTimeDrawingProcess" name="rD" value="ON" drawInterval="1000" >
       <TRestAnalysisPlot name="TriggerRatePlot"  previewPlot="false">
