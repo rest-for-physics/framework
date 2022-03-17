@@ -15,14 +15,17 @@
 set(Garfield_DIR $ENV{GARFIELD_HOME})
 
 find_path(Garfield_INCLUDE_DIRS Sensor.hh
-        HINTS ${Garfield_DIR}/include/ ${Garfield_DIR}/include/Garfield ${Garfield_INC_DIR}
-        ${Garfield_DIR}/Include)
+        HINTS ${Garfield_DIR}/Include/ ${Garfield_DIR}/Include/Garfield
+        ${Garfield_DIR}/include/ ${Garfield_DIR}/include/Garfield)
+
+find_path(Garfield_INCLUDE_Heed_DIRS HeedChamber.hh
+        HINTS ${Garfield_DIR}/Heed/)
 
 #message(STATUS Garfield_INCLUDE_DIRS ${Garfield_INCLUDE_DIRS})
 
 find_library(Garfield_LIBRARIES NAMES libGarfield.so Garfield
         HINTS ${Garfield_DIR}/lib ${Garfield_LIB_DIR}
-        $ENV{GARFIELD_HOME}/lib)
+        $ENV{GARFIELD_DIR}/lib)
 #message(STATUS Garfield_LIBRARIES ${Garfield_LIBRARIES})
 
 #if (${Garfield_LIBRARY_DIR})
