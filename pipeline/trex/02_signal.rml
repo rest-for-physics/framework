@@ -21,7 +21,7 @@
 		       baseLineRange="(${BL_MIN},${BL_MAX})"
 		       integralRange="(${INT_MIN},${INT_MAX})"
 		       pointThreshold="${POINT_TH}"
-		       pointsOverThreshold="${NPOINTS}"
+		       nPointsOverThreshold="${NPOINTS}"
 		       sampling="${SAMPLING}"
 		       signalThreshold="${SGNL_TH}"
 		       verboseLevel="silent" />
