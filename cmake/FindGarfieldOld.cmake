@@ -1,35 +1,23 @@
-
-# - Try to find Garfield++ instalation
+# - Try to find Garfield++ installation
 # This module sets up Garfield information
 # It defines:
-# Garfield_FOUND          If Garfiled++ is found
+# Garfield_FOUND          If Garfield++ is found
 # Garfield_INCLUDE_DIRS   PATH to the include directories
 # Garfield_LIBRARIES      the libraries needed to use Garfield++
 
-#message(STATUS "Looking for Garfield ...")
+message(STATUS "Looking for Garfield using 'FindGarfieldOld.cmake'")
 
-# Alternative paths which can be defined by user
-#set(Garfield_DIR "" CACHE PATH "Directory where Garfield is installed")
-#set(Garfield_INC_DIR "" CACHE PATH "Alternative directory for Garfield includes")
-#set(Garfield_LIB_DIR "" CACHE PATH "Alternative directory for Garfield libraries")
 set(Garfield_DIR $ENV{GARFIELD_HOME})
 
 find_path(Garfield_INCLUDE_DIRS Sensor.hh
-        HINTS ${Garfield_DIR}/Include/ ${Garfield_DIR}/Include/Garfield
-        ${Garfield_DIR}/include/ ${Garfield_DIR}/include/Garfield)
+        HINTS ${Garfield_DIR}/Include ${Garfield_DIR}/Include/Garfield
+        ${Garfield_DIR}/include ${Garfield_DIR}/include/Garfield)
 
 find_path(Garfield_INCLUDE_Heed_DIRS HeedChamber.hh
-        HINTS ${Garfield_DIR}/Heed/)
-
-#message(STATUS Garfield_INCLUDE_DIRS ${Garfield_INCLUDE_DIRS})
+        HINTS ${Garfield_DIR}/Heed)
 
 find_library(Garfield_LIBRARIES NAMES libGarfield.so Garfield
         HINTS ${Garfield_DIR}/lib ${Garfield_LIB_DIR})
-#message(STATUS Garfield_LIBRARIES ${Garfield_LIBRARIES})
-
-#if (${Garfield_LIBRARY_DIR})
-#  set (Garfield_LIBRARIES -L${Garfield_LIBRARY_DIR} -lGarfield)
-#endif()
 
 if (Garfield_INCLUDE_DIRS AND Garfield_LIBRARIES)
     set(Garfield_FOUND TRUE)
@@ -57,7 +45,7 @@ else (Garfield_FOUND)
     endif (Garfield_FIND_REQUIRED)
 endif (Garfield_FOUND)
 
-# Make variables changeble to the advanced user
+# Make variables changeable to the advanced user
 mark_as_advanced(Garfield_INCLUDE_DIRS)
 mark_as_advanced(Garfield_LIBRARIES)
 mark_as_advanced(Garfield_LIBRARY_DIR)
