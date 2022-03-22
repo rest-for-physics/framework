@@ -24,8 +24,7 @@ find_path(Garfield_INCLUDE_Heed_DIRS HeedChamber.hh
 #message(STATUS Garfield_INCLUDE_DIRS ${Garfield_INCLUDE_DIRS})
 
 find_library(Garfield_LIBRARIES NAMES libGarfield.so Garfield
-        HINTS ${Garfield_DIR}/lib ${Garfield_LIB_DIR}
-        $ENV{GARFIELD_DIR}/lib)
+        HINTS ${Garfield_DIR}/lib ${Garfield_LIB_DIR})
 #message(STATUS Garfield_LIBRARIES ${Garfield_LIBRARIES})
 
 #if (${Garfield_LIBRARY_DIR})
