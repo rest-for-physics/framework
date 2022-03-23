@@ -108,7 +108,7 @@ Load REST Libraries:
     - echo ${CI_PROJECT_DIR}/install/thisREST.sh
     - cat ${CI_PROJECT_DIR}/install/thisREST.sh
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
-    - echo $REST_PATH"
+    - echo $REST_PATH
     - restRoot -b -q
 
 List REST Macros:
