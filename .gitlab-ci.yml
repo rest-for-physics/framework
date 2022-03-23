@@ -48,6 +48,7 @@ before_script:
   - echo $CRONJOB
   # We redefine the HOME
   - export HOME=${CI_PROJECT_DIR}/install/
+  - rm -rf $HOME/.rest
   # Check versions
   - root-config --version
   - geant4-config --version
