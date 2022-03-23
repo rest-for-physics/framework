@@ -7,6 +7,7 @@ include(FetchContent)
 
 # Google Test
 if (TEST)
+    # https://google.github.io/googletest/quickstart-cmake.html
     message(STATUS "- Google Test")
     FetchContent_Declare(
             googletest
@@ -17,7 +18,9 @@ if (TEST)
 endif ()
 
 return()
-# These are useful dependencies, we don't use them right now
+
+# Here it is shown how to use CMake FetchContent to use external git repositories as dependencies.
+# These are useful dependencies that we may use in the future.
 
 # YAML parser
 message(STATUS "- yaml-cpp")
