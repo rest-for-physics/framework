@@ -1,6 +1,6 @@
 PROJECT(REST LANGUAGES CXX HOMEPAGE_URL https://rest-for-physics.github.io)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
+PROJECT(REST)
 
 # Minimum compiler version
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -14,7 +14,6 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         message(FATAL_ERROR "Clang version must be at least 3.2!")
     endif ()
 endif ()
-
 
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-stdlib=libc++")
