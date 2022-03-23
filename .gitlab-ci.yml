@@ -8,6 +8,9 @@ stages:
   # Basic checks to verify correctness of code
   - pre-build
 
+  # Build and run tests
+  - test
+
   # Project compilation validation
   - build
 
@@ -109,7 +112,7 @@ validateCode:
 #
 
 build_and_test:
-  type: build
+  type: test
   script:
     - cd ${CI_PROJECT_DIR}
     - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH}
