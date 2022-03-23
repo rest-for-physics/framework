@@ -14,6 +14,7 @@ target_link_libraries(
         ${TESTING_EXECUTABLE} PUBLIC
         gtest_main
         RestFramework
+        stdc++fs # <filesystem>
 )
 
 include(GoogleTest)

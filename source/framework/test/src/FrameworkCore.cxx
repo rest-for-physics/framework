@@ -22,7 +22,21 @@ TEST(FrameworkCore, TestFiles) {
 TEST(FrameworkCore, TRestRun) {
     const auto basicRunRml = FILES_PATH / "TRestRunBasic.rml";
 
-    auto run = TRestRun();
+    auto run = TRestRun(basicRunRml);
+
     run.PrintAllMetadata();
-    EXPECT_TRUE(&run != nullptr);
+
+    EXPECT_TRUE(run.GetExperimentName() == "TRestRun Basic Test");
+
+    EXPECT_TRUE(run.GetRunType() == "Test");
+
+    EXPECT_TRUE(run.GetRunNumber() == 1);
+
+    EXPECT_TRUE(run.GetRunTag() == "Test");
+
+    // EXPECT_TRUE(run.GetOutputFileName() == "Run1_Test_[fExperimentName].root");
+
+    EXPECT_TRUE(run.GetRunDescription() == "This is a test for TRestRun");
+
+    // EXPECT_TRUE(run.GetVerboseLevel() == 3);
 }
