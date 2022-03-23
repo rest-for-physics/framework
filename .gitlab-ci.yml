@@ -85,7 +85,12 @@ Build and Test:
     - cmake ${CI_PROJECT_DIR}
       -DTEST=ON -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
     - make -j2
-    - ctest
+    - ctest --verbose -O ${CI_PROJECT_DIR}/build/Testing/summary.txt
+
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/build/Testing
+    expire_in: 1 day
 
 Build and Install:
   type: build
