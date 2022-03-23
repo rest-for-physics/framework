@@ -27,20 +27,27 @@ else ()
     set(loadMPFR "")
 endif ()
 
-
+set(loadGarfield "")
 if (${REST_GARFIELD} MATCHES "ON")
-    set(loadGarfield "\n\# if GARFIELD is enabled we load the same Garfield environment used in compilation
+    if (DEFINED ENV{GARFIELD_INSTALL})
+        # this is the recommended way to source newer Garfield installations
+        set(loadGarfield "
+# if GARFIELD is enabled we load the same Garfield environment used in compilation
+source $ENV{GARFIELD_INSTALL}/share/Garfield/setupGarfield.sh
+")
+    else ()
+        set(loadGarfield "
+# if GARFIELD is enabled we load the same Garfield environment used in compilation
 export GARFIELD_HOME=$ENV{GARFIELD_HOME}
 export HEED_DATABASE=\$GARFIELD_HOME/Heed/heed++/database
-export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH")
-else ()
-    set(loadGarfield "")
-endif (${REST_GARFIELD} MATCHES "ON")
+export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH
+")
+    endif ()
+endif ()
 
 # install thisREST script, sh VERSION
 install(CODE
         "
-
 file( WRITE \${CMAKE_INSTALL_PREFIX}/thisREST.sh
 
 \"\#!/bin/bash
@@ -162,14 +169,12 @@ alias ${mac} \\\"restManager ${m}\\\"
 
 endforeach (mac ${rest_macros})
 
-
-#install rest-config
+# install rest-config
 install(CODE
         "
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CollectGitInfo.cmake)
 
 message(STATUS \"Installing: \${CMAKE_INSTALL_PREFIX}/bin/rest-config\")
-
 
 file( WRITE \${CMAKE_INSTALL_PREFIX}/bin/rest-config
 
@@ -212,6 +217,11 @@ echo \${GIT_TAG}
 
 fi
 
+if [ $option = \\\"--prefix\\\" ] ; then
+echo ${CMAKE_INSTALL_PREFIX}
+
+fi
+
 if [ $option = \\\"--commit\\\" ] ; then
 echo \${GIT_COMMIT}
 
@@ -250,7 +260,7 @@ echo \\\"  Compilation date : ${date}  \\\"
 echo \\\"  Official release : \${REST_OFFICIAL_RELEASE} \\\"
 echo \\\"  Clean state : \${GIT_CLEANSTATE} \\\"
 echo \\\"  \\\"
-echo \\\"  Installed at : $REST_PATH  \\\"
+echo \\\"  Installed at : \${CMAKE_INSTALL_PREFIX}  \\\"
 echo \\\"  \\\"
 echo \\\"  REST-for-Physics site : rest-for-physics.github.io  \\\"
 echo \\\"  \\\"
@@ -264,24 +274,20 @@ fi
 fi
 
 if [ $option = \\\"--help\\\" ] ; then
-echo \\\"  Usage :                                                                      \\\"
-echo \\\"  rest-config [--incdir]  : Shows the directory of headers                      \\\"
-echo \\\"  rest-config [--libdir]  : Shows the directory of library                      \\\"
-echo \\\"  rest-config [--libs]    : Prints regular REST libraries                       \\\"
-echo \\\"  rest-config [--exes]    : Prints a list of REST executables with alias        \\\"
-echo \\\"  rest-config [--version] : Prints the version of REST                          \\\"
-echo \\\"  rest-config [--welcome] : Prints the welcome message                          \\\"
-echo \\\"  rest-config [--flags]   : Prints cmake flags defined when installing          \\\"
+echo \\\"  Usage :                                                                                              \\\"
+echo \\\"  rest-config [--version] : Prints the version of REST                                                 \\\"
+echo \\\"  rest-config [--prefix]  : Prints REST installation directory                                         \\\"
+echo \\\"  rest-config [--incdir]  : Shows the directory of headers                                             \\\"
+echo \\\"  rest-config [--libdir]  : Shows the directory of library                                             \\\"
+echo \\\"  rest-config [--libs]    : Prints regular REST libraries                                              \\\"
+echo \\\"  rest-config [--exes]    : Prints a list of REST executables with alias                               \\\"
+echo \\\"  rest-config [--welcome] : Prints the welcome message                                                 \\\"
+echo \\\"  rest-config [--flags]   : Prints cmake flags defined when installing                                 \\\"
 echo \\\"  rest-config [--release] : Prints 'Yes' if the compilation corresponds with an official git tag.      \\\"
-echo \\\"  rest-config [--clean] : Prints 'Yes' if no local modifications were found during compilation   \\\"
-
+echo \\\"  rest-config [--clean]   : Prints 'Yes' if no local modifications were found during compilation       \\\"
 fi
 
-
 fi
-
-
-
 
 
 \"
