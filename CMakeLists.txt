@@ -1,4 +1,4 @@
-PROJECT(REST LANGUAGES CXX HOMEPAGE_URL https://github.com/rest-for-physics/framework)
+PROJECT(REST LANGUAGES CXX HOMEPAGE_URL https://rest-for-physics.github.io)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 
