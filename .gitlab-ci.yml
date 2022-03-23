@@ -110,6 +110,7 @@ Load REST Libraries:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - printenv
     - echo $REST_PATH
+    - ls $REST_PATH/bin
     - root -l $REST_PATH/scripts/LoadRESTScripts.C -b -q
     - restRoot -b -q
 
