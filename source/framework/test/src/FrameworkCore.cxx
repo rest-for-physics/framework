@@ -20,6 +20,8 @@ TEST(FrameworkCore, TestFiles) {
 }
 
 TEST(FrameworkCore, TRestRun) {
+    GTEST_SKIP();
+
     const auto basicRunRml = FILES_PATH / "TRestRunBasic.rml";
 
     auto run = TRestRun(basicRunRml);
