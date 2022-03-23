@@ -68,7 +68,7 @@ clang-format:
       - $CRONJOB
       - $CRONJOB == "YES"
 
-validateCode:
+Validate Code:
   stage: pre-build
   script:
     - cd ${CI_PROJECT_DIR}/
@@ -117,7 +117,7 @@ Build and Install:
       - ${CI_PROJECT_DIR}/install
     expire_in: 1 day
 
-loadRESTLibs:
+Load REST Libraries:
   type: install
   script:
     - echo ${CI_PROJECT_DIR}/install/thisREST.sh
@@ -125,7 +125,7 @@ loadRESTLibs:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - restRoot -b -q
 
-listRESTMacros:
+List REST Macros:
   type: install
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
@@ -156,7 +156,7 @@ listRESTMacros:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/Xe136bb0n_n2E06.root
     expire_in: 1 day
 
-LoadGas:
+Load Gas:
   type: metadata
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
@@ -166,7 +166,7 @@ LoadGas:
     variables:
       - $CI_SERVER_HOST == "lfna.unizar.es"
 
-GenerateGas:
+Generate Gas:
   type: metadata
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
@@ -235,7 +235,7 @@ TREX-DM Latest Data:
       - ${CI_PROJECT_DIR}/pipeline/trex/Hits_01928.root
     expire_in: 1 day
 
-pandaXIII Topological:
+PandaXIII Topological:
   type: restManager_process
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
@@ -249,7 +249,7 @@ pandaXIII Topological:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/trackParameter.png
     expire_in: 1 week
 
-pandaXIII Topological from Geant4:
+PandaXIII Topological from Geant4:
   type: restManager_process
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
@@ -263,7 +263,7 @@ pandaXIII Topological from Geant4:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/testOutput.root
     expire_in: 1 week
 
-pandaXIII data:
+PandaXIII Data:
   type: restManager_process
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
