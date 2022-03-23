@@ -108,10 +108,6 @@ Load REST Libraries:
     - echo ${CI_PROJECT_DIR}/install/thisREST.sh
     - cat ${CI_PROJECT_DIR}/install/thisREST.sh
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
-    - printenv
-    - echo $REST_PATH
-    - ls $REST_PATH/bin
-    - $REST_PATH/bin/restRoot -b -q
     - restRoot -b -q
 
 List REST Macros:
