@@ -80,7 +80,7 @@ Build and Test:
   type: test
   script:
     - cd ${CI_PROJECT_DIR}
-    - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH}
+    - yes | python3 pull-submodules.py --force --latest:${CI_COMMIT_BRANCH}
     - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build
     - cmake ${CI_PROJECT_DIR} -DTEST=ON -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
     - make -j2
@@ -96,6 +96,7 @@ Build and Install:
   type: build
   script:
     - cd ${CI_PROJECT_DIR}
+    - yes | python3 pull-submodules.py --force --latest:${CI_COMMIT_BRANCH}
     - rm -rf ${CI_PROJECT_DIR}/build && mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build
     - rm -rf ${CI_PROJECT_DIR}/install
     - cmake ${CI_PROJECT_DIR} -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install -DREST_WELCOME=OFF
