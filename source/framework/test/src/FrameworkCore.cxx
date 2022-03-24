@@ -20,25 +20,19 @@ TEST(FrameworkCore, TestFiles) {
 }
 
 TEST(FrameworkCore, TRestRun) {
-    GTEST_SKIP();
-
     const auto basicRunRml = FILES_PATH / "TRestRunBasic.rml";
 
-    auto run = TRestRun(basicRunRml);
+    TRestRun run;
+
+    run.LoadConfigFromFile(basicRunRml);
 
     run.PrintAllMetadata();
 
     EXPECT_TRUE(run.GetExperimentName() == "TRestRun Basic Test");
-
     EXPECT_TRUE(run.GetRunType() == "Test");
-
     EXPECT_TRUE(run.GetRunNumber() == 1);
-
     EXPECT_TRUE(run.GetRunTag() == "Test");
-
-    // EXPECT_TRUE(run.GetOutputFileName() == "Run1_Test_[fExperimentName].root");
-
+    // EXPECT_TRUE(run.GetOutputFileName() == "Run[fRunNumber]_[fRunTag]_[fExperimentName].root");
     EXPECT_TRUE(run.GetRunDescription() == "This is a test for TRestRun");
-
-    // EXPECT_TRUE(run.GetVerboseLevel() == 3);
+    EXPECT_TRUE(run.GetVerboseLevelString() == "debug");
 }
