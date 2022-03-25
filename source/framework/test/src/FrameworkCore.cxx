@@ -9,6 +9,7 @@ namespace fs = std::filesystem;
 using namespace std;
 
 #define FILES_PATH fs::path(__FILE__).parent_path().parent_path() / "files"
+#define BASIC_TRESTRUN_RML FILES_PATH / "TRestRunBasic.rml"
 
 TEST(FrameworkCore, TestFiles) {
     cout << "FrameworkCore test files path: " << FILES_PATH << endl;
@@ -17,14 +18,14 @@ TEST(FrameworkCore, TestFiles) {
     EXPECT_TRUE(fs::is_directory(FILES_PATH));
     // Check it's not empty
     EXPECT_TRUE(!fs::is_empty(FILES_PATH));
+    // Check required files exist
+    EXPECT_TRUE(fs::exists(BASIC_TRESTRUN_RML));
 }
 
 TEST(FrameworkCore, TRestRun) {
-    const auto basicRunRml = FILES_PATH / "TRestRunBasic.rml";
-
     TRestRun run;
 
-    run.LoadConfigFromFile(basicRunRml);
+    run.LoadConfigFromFile(BASIC_TRESTRUN_RML);
 
     run.PrintAllMetadata();
 
