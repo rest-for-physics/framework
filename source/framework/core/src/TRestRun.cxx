@@ -41,7 +41,7 @@ TRestRun::TRestRun() { Initialize(); }
 TRestRun::TRestRun(string filename) {
     if (filename.find(".root") == string::npos) {
         Initialize();
-        OpenInputFile(rootfilename);
+        OpenInputFile(filename);
     } else if (filename.find(".rml") == string::npos) {
         Initialize();
         LoadConfigFromFile(filename);    
