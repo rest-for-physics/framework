@@ -1,4 +1,4 @@
-set(TESTING_EXECUTABLE testFramework)
+set(TESTING_EXECUTABLE testRestFramework)
 
 enable_testing()
 
