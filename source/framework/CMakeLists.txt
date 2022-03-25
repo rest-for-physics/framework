@@ -12,4 +12,4 @@ endif (NOT ${REST_EVE} MATCHES "ON")
 
 COMPILEDIR(RestFramework)
 
-ADD_TEST()
+ADD_LIBRARY_TEST()
