@@ -46,7 +46,7 @@ TRestRun::TRestRun(string filename) {
         Initialize();
         LoadConfigFromFile(filename);    
     } else {
-        ferr << "TRestRun::TRestRun(): input file error!" << endl;
+        // ferr << "TRestRun::TRestRun(): input file error!" << endl;
     }
 }
 
