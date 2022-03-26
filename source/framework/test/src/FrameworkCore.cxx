@@ -55,7 +55,6 @@ TEST(FrameworkCore, TRestMetadata) {
     meta.LoadConfigFromFile(BASIC_TRESTMETADATA_RML, "metadata");
 
     meta.PrintMetadata();
-    //cout << meta.GetParameter("p1") << endl;
 
     EXPECT_TRUE(meta.GetParameter("p1") == "75");
     EXPECT_TRUE(meta.GetParameter("p2") == "12.32");
