@@ -39,14 +39,14 @@ ClassImp(TRestRun);
 TRestRun::TRestRun() { Initialize(); }
 
 TRestRun::TRestRun(string filename) {
-    if (filename.find(".root") == string::npos) {
+    if (filename.find(".root") != string::npos) {
         Initialize();
         OpenInputFile(filename);
-    } else if (filename.find(".rml") == string::npos) {
+    } else if (filename.find(".rml") != string::npos) {
         Initialize();
-        LoadConfigFromFile(filename);    
+        LoadConfigFromFile(filename);
     } else {
-        // ferr << "TRestRun::TRestRun(): input file error!" << endl;
+        ferr << "TRestRun::TRestRun(): input file error!" << endl;
     }
 }
 
