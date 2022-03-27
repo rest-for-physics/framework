@@ -108,7 +108,7 @@ struct TiXmlCursor {
         Implements the interface to the "Visitor pattern" (see the Accept() method.)
         If you call the Accept() method, it requires being passed a TiXmlVisitor
         class to handle callbacks. For nodes that contain other nodes (Document, Element)
-        you will get called with a VisitEnter/VisitExit std::pair. Nodes that are always leaves
+        you will get called with a VisitEnter/VisitExit pair. Nodes that are always leaves
         are simply called with Visit().
 
         If you return 'true' from a Visit method, recursive parsing will continue. If you return
@@ -189,7 +189,7 @@ class TiXmlBase {
     virtual ~TiXmlBase() {}
 
     /**	All TinyXml classes can print themselves to a filestream
-            or the std::string class (TiXmlString in non-STL mode, std::string
+            or the string class (TiXmlString in non-STL mode, std::string
             in STL mode.) Either or both cfile and str can be null.
 
             This is a formatted print, and will insert
@@ -203,7 +203,7 @@ class TiXmlBase {
             not. In order to make everyone happy, these global, static functions
             are provided to set whether or not TinyXml will condense all white space
             into a single space or not. The default is to condense. Note changing this
-            value is not std::thread safe.
+            value is not thread safe.
     */
     static void SetCondenseWhiteSpace(bool condense) { condenseWhiteSpace = condense; }
 
@@ -242,7 +242,7 @@ class TiXmlBase {
     virtual const char* Parse(const char* p, TiXmlParsingData* data,
                               TiXmlEncoding encoding /*= TIXML_ENCODING_UNKNOWN */) = 0;
 
-    /** Expands entities in a std::string. Note this should not contian the tag's '<', '>', etc,
+    /** Expands entities in a string. Note this should not contian the tag's '<', '>', etc,
             or they will be transformed into entities!
     */
     static void EncodeString(const TIXML_STRING& str, TIXML_STRING* out);
@@ -284,7 +284,7 @@ class TiXmlBase {
     static bool StreamTo(std::istream* in, int character, TIXML_STRING* tag);
 #endif
 
-    /*	Reads an XML name into the std::string provided. Returns
+    /*	Reads an XML name into the string provided. Returns
             a pointer just past the last character of the name,
             or 0 if the function has an error.
     */
@@ -294,7 +294,7 @@ class TiXmlBase {
             Wickedly complex options, but it keeps the (sensitive) code in one place.
     */
     static const char* ReadText(const char* in,           // where to start
-                                TIXML_STRING* text,       // the std::string read
+                                TIXML_STRING* text,       // the string read
                                 bool ignoreWhiteSpace,    // whether to keep the white space
                                 const char* endTag,       // what ends this text
                                 bool ignoreCase,          // whether to ignore case in the end tag
@@ -438,7 +438,7 @@ class TiXmlNode : public TiXmlBase {
             Element:	name of the element
             Comment:	the comment text
             Unknown:	the tag contents
-            Text:		the text std::string
+            Text:		the text string
             @endverbatim
 
             The subclasses will wrap this function.
@@ -461,7 +461,7 @@ class TiXmlNode : public TiXmlBase {
             Element:	name of the element
             Comment:	the comment text
             Unknown:	the tag contents
-            Text:		the text std::string
+            Text:		the text string
             @endverbatim
     */
     void SetValue(const char* _value) { value = _value; }
@@ -786,7 +786,7 @@ class TiXmlNode : public TiXmlBase {
     void operator=(const TiXmlNode& base);  // not allowed.
 };
 
-/** An attribute is a name-value std::pair. Elements have an arbitrary
+/** An attribute is a name-value pair. Elements have an arbitrary
         number of attributes, each with a unique name.
 
         @note The attributes are not TiXmlNodes, since they are not
@@ -829,10 +829,10 @@ class TiXmlAttribute : public TiXmlBase {
     int IntValue() const;        ///< Return the value of this attribute, converted to an integer.
     double DoubleValue() const;  ///< Return the value of this attribute, converted to a double.
 
-    // Get the tinyxml std::string representation
+    // Get the tinyxml string representation
     const TIXML_STRING& NameTStr() const { return name; }
 
-    /** QueryIntValue examines the value std::string. It is an alternative to the
+    /** QueryIntValue examines the value string. It is an alternative to the
             IntValue() method with richer error checking.
             If the value is an integer, it is stored in 'value' and
             the call returns TIXML_SUCCESS. If it is not
@@ -842,7 +842,7 @@ class TiXmlAttribute : public TiXmlBase {
             which is the opposite of almost all other TinyXml calls.
     */
     int QueryIntValue(int* _value) const;
-    /// QueryDoubleValue examines the value std::string. See QueryIntValue().
+    /// QueryDoubleValue examines the value string. See QueryIntValue().
     int QueryDoubleValue(double* _value) const;
 
     void SetName(const char* _name) { name = _name; }      ///< Set the name of this attribute.
@@ -1023,7 +1023,7 @@ class TiXmlElement : public TiXmlNode {
             attribute into the specified type. Very easy, very powerful, but
             be careful to make sure to call this with the correct type.
 
-            NOTE: This method doesn't work correctly for 'std::string' types that contain spaces.
+            NOTE: This method doesn't work correctly for 'string' types that contain spaces.
 
             @return TIXML_SUCCESS, TIXML_WRONG_TYPE, or TIXML_NO_ATTRIBUTE
     */
@@ -1099,7 +1099,7 @@ class TiXmlElement : public TiXmlNode {
             and accessing it directly.
 
             If the first child of 'this' is a TiXmlText, the GetText()
-            returns the character std::string of the Text node, else null is returned.
+            returns the character string of the Text node, else null is returned.
 
             This is a convenient method for getting the text of simple contained text:
             @verbatim
@@ -1314,9 +1314,9 @@ class TiXmlDeclaration : public TiXmlNode {
 
     virtual ~TiXmlDeclaration() {}
 
-    /// Version. Will return an empty std::string if none was found.
+    /// Version. Will return an empty string if none was found.
     const char* Version() const { return version.c_str(); }
-    /// Encoding. Will return an empty std::string if none was found.
+    /// Encoding. Will return an empty string if none was found.
     const char* Encoding() const { return encoding.c_str(); }
     /// Is this a standalone document?
     const char* Standalone() const { return standalone.c_str(); }
@@ -1476,7 +1476,7 @@ class TiXmlDocument : public TiXmlNode {
     /// Contains a textual (english) description of the error if one occurs.
     const char* ErrorDesc() const { return errorDesc.c_str(); }
 
-    /** Generally, you probably want the error std::string ( ErrorDesc() ). But if you
+    /** Generally, you probably want the error string ( ErrorDesc() ). But if you
             prefer the ErrorId, this function will fetch it.
     */
     int ErrorId() const { return errorId; }
@@ -1535,7 +1535,7 @@ class TiXmlDocument : public TiXmlNode {
     /** Write the document to standard out using formatted printing ("pretty print"). */
     void Print() const { Print(stdout, 0); }
 
-    /* Write the document to a std::string using formatted printing ("pretty print"). This
+    /* Write the document to a string using formatted printing ("pretty print"). This
             will allocate a character array (new char[]) and return it as a pointer. The
             calling code pust call delete[] on the return char* to avoid a memory leak.
     */
@@ -1775,17 +1775,17 @@ class TiXmlPrinter : public TiXmlVisitor {
     virtual bool Visit(const TiXmlUnknown& unknown);
 
     /** Set the indent characters for printing. By default 4 spaces
-            but tab (\t) is also useful, or null/empty std::string for no indentation.
+            but tab (\t) is also useful, or null/empty string for no indentation.
     */
     void SetIndent(const char* _indent) { indent = _indent ? _indent : ""; }
-    /// Query the indention std::string.
+    /// Query the indention string.
     const char* Indent() { return indent.c_str(); }
-    /** Set the line breaking std::string. By default set to newline (\n).
+    /** Set the line breaking string. By default set to newline (\n).
             Some operating systems prefer other characters, or can be
-            set to the null/empty std::string for no indenation.
+            set to the null/empty string for no indenation.
     */
     void SetLineBreak(const char* _lineBreak) { lineBreak = _lineBreak ? _lineBreak : ""; }
-    /// Query the current line breaking std::string.
+    /// Query the current line breaking string.
     const char* LineBreak() { return lineBreak.c_str(); }
 
     /** Switch over to "stream printing" which is the most dense formatting without
@@ -1797,7 +1797,7 @@ class TiXmlPrinter : public TiXmlVisitor {
     }
     /// Return the result.
     const char* CStr() { return buffer.c_str(); }
-    /// Return the length of the result std::string.
+    /// Return the length of the result string.
     size_t Size() { return buffer.size(); }
 
 #ifdef TIXML_USE_STL

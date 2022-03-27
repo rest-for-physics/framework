@@ -48,7 +48,7 @@ distribution.
    Its purpose is to allow compiling TinyXML on compilers with no or poor STL support.
    Only the member functions relevant to the TinyXML project have been implemented.
    The buffer allocation is made by a simplistic power of 2 like mechanism : if we increase
-   a std::string and there's no more room, we allocate a buffer twice as big as we need.
+   a string and there's no more room, we allocate a buffer twice as big as we need.
 */
 class TiXmlString {
    public:
@@ -67,13 +67,13 @@ class TiXmlString {
         memcpy(start(), copy.data(), length());
     }
 
-    // TiXmlString constructor, based on a std::string
+    // TiXmlString constructor, based on a string
     TIXML_EXPLICIT TiXmlString(const char* copy) : rep_(0) {
         init(static_cast<size_type>(strlen(copy)));
         memcpy(start(), copy, length());
     }
 
-    // TiXmlString constructor, based on a std::string
+    // TiXmlString constructor, based on a string
     TIXML_EXPLICIT TiXmlString(const char* str, size_type len) : rep_(0) {
         init(len);
         memcpy(start(), str, len);
@@ -112,7 +112,7 @@ class TiXmlString {
     // Checks if a TiXmlString is empty
     bool empty() const { return rep_->size == 0; }
 
-    // Return capacity of std::string
+    // Return capacity of string
     size_type capacity() const { return rep_->capacity; }
 
     // single char extraction
@@ -127,10 +127,10 @@ class TiXmlString {
         return rep_->str[index];
     }
 
-    // find a char in a std::string. Return TiXmlString::npos if not found
+    // find a char in a string. Return TiXmlString::npos if not found
     size_type find(char lookup) const { return find(lookup, 0); }
 
-    // find a char in a std::string from an offset. Return TiXmlString::npos if not found
+    // find a char in a string from an offset. Return TiXmlString::npos if not found
     size_type find(char tofind, size_type offset) const {
         if (offset >= length()) return npos;
 
