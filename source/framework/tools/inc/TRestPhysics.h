@@ -31,8 +31,8 @@
 /// This namespace serves to define physics constants and other basic physical operations
 namespace REST_Physics {
 
-/// Vacuum permitivity in F/m
-const double vacuumPermitivity = 8.854E-12;
+/// Vacuum permittivity in F/m
+const double vacuumPermittivity = 8.854E-12;
 /// Vacuum permeability in H/m
 const double vacuumPermeability = 4E-7 * 3.141592653589793;
 /// Speed of light in m/s
@@ -41,8 +41,8 @@ const double speedLight = 2.99792458E8;
 const double qElectron = 1.602E-19;
 /// Electron mass in Kg
 const double mElectron = 9.107E-31;
-/// Boltzman  constant in J/K
-const double kBoltzman = 1.380E-23;
+/// Boltzmann  constant in J/K
+const double kBoltzmann = 1.380E-23;
 /// Planck constant in J*s
 const double hPlanck = 1.054E-34;
 
