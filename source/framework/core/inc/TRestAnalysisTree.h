@@ -125,7 +125,7 @@ class TRestAnalysisTree : public TTree {
     T GetObservableValue(Int_t n) {
         // id check
         if (n >= fNObservables) {
-            std::cout << "Error! TRestAnalysisTree::GetObservableValue(): index outside limits!" << std::endl;
+            std::cout << "Error! TRestAnalysisTree::GetObservableValue(): index outside limits!" << endl;
             return T();
         }
         return fObservables[n].GetValue<T>();
@@ -153,7 +153,7 @@ class TRestAnalysisTree : public TTree {
     void SetObservableValue(const Int_t& id, const T& value) {
         // id check
         if (id >= fNObservables) {
-            std::cout << "Error! TRestAnalysisTree::SetObservableValue(): index outside limits!" << std::endl;
+            std::cout << "Error! TRestAnalysisTree::SetObservableValue(): index outside limits!" << endl;
             return;
         }
         fObservables[id].SetValue(value);

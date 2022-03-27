@@ -117,7 +117,7 @@ class Console {
 /// This class serves as an end-line mark for TRestStringOutput in TRestMetadata class.
 ///
 /// It keeps a reference of the metadata class's verbose level and std::string buffer.
-/// When calling `fout<<"hello world"<<std::endl;` inside metadata class, this class is
+/// When calling `fout<<"hello world"<<endl;` inside metadata class, this class is
 /// passed to TRestStringOutput, who compares the verbose level to dicide whether to
 /// print, and saves the printed std::string to metadata class's std::string buffer.
 class TRestMetadata;
@@ -133,7 +133,7 @@ struct endl_t {
 ///
 /// To use this tool class in the other classes, include this header file.
 /// You will get several global output objects: fout, info, essential, debug, etc.
-/// they works similarly as std::cout: `fout<<"hello world"<<std::endl;`. It is also possible
+/// they works similarly as std::cout: `fout<<"hello world"<<endl;`. It is also possible
 /// to initialize a local TRestStringOutput object. Then one can costomize output color,
 /// border and orientation on that.
 class TRestStringOutput {
@@ -203,9 +203,9 @@ namespace noClass {
 ///
 /// Calls TRestStringOutput to flushstring().
 ///
-/// When calling `fout<<"hello world"<<std::endl;` outside metadata class, the pointer of
+/// When calling `fout<<"hello world"<<endl;` outside metadata class, the pointer of
 /// method is passed to TRestStringOutput, who calls back to this method giving its
-/// reference. This logic is same as std::endl.
+/// reference. This logic is same as endl.
 inline void endl(TRestStringOutput& input) { input.flushstring(); }
 };  // namespace noClass
 using namespace noClass;

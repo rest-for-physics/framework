@@ -286,7 +286,7 @@ void TRestStringOutput::setlength(int n) {
 void TRestStringOutput::flushstring() {
     if (Console::CompatibilityMode)  // this means we are using condor
     {
-        std::cout << buf.str() << std::endl;
+        std::cout << buf.str() << endl;
     } else {
         printf("\033[K");
         if (orientation == kMiddle) {
@@ -295,9 +295,9 @@ void TRestStringOutput::flushstring() {
             int blankwidth = (Console::GetWidth() - 2 - length) / 2;
 
             std::cout << color << string(blankwidth, ' ') << FormattingPrintString(buf.str())
-                      << string(blankwidth, ' ') << COLOR_RESET << std::endl;
+                      << string(blankwidth, ' ') << COLOR_RESET << endl;
         } else {
-            std::cout << color << FormattingPrintString(buf.str()) << COLOR_RESET << std::endl;
+            std::cout << color << FormattingPrintString(buf.str()) << COLOR_RESET << endl;
         }
     }
     resetstring();

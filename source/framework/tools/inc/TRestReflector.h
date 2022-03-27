@@ -319,8 +319,8 @@ class TRestReflector {
     template <typename T>
     T GetValue() {
         if (typeid(T) != *this->typeinfo) {
-            std::cout << "In TRestReflector::GetValue() : type unmatch! " << std::endl;
-            std::cout << "Input: " << GetTypeName<T>() << ", this: " << this->type << std::endl;
+            std::cout << "In TRestReflector::GetValue() : type unmatch! " << endl;
+            std::cout << "Input: " << GetTypeName<T>() << ", this: " << this->type << endl;
             return T();
         }
         if (address != nullptr) return *(T*)(address);
@@ -330,8 +330,8 @@ class TRestReflector {
     template <class T>
     void SetValue(const T& val) {
         if (typeid(T) != *this->typeinfo) {
-            std::cout << "In TRestReflector::SetValue() : type unmatch! " << std::endl;
-            std::cout << "Input: " << GetTypeName<T>() << ", this: " << std::string(this->type) << std::endl;
+            std::cout << "In TRestReflector::SetValue() : type unmatch! " << endl;
+            std::cout << "Input: " << GetTypeName<T>() << ", this: " << std::string(this->type) << endl;
             return;
         }
         if (address != nullptr) *((T*)(address)) = val;
@@ -387,7 +387,7 @@ class TRestReflector {
         cl = REST_Reflection::GetClassQuick<T>();
         DataType_Info dt = DataType_Info((T*)0);
         if (cl == nullptr && dt.size == 0) {
-            std::cout << "In TRestReflector::TRestReflector() : unrecognized type! " << std::endl;
+            std::cout << "In TRestReflector::TRestReflector() : unrecognized type! " << endl;
             return;
         }
 
@@ -455,7 +455,7 @@ class Converter : RESTVirtualConverter {
         ParseStringFunc = _ParseStringFunc;
         std::string typestr = REST_Reflection::GetTypeName<T>();
         if (RESTConverterMethodBase.count(typestr) > 0) {
-            std::cout << "Warning! converter for type: " << typestr << " already added!" << std::endl;
+            std::cout << "Warning! converter for type: " << typestr << " already added!" << endl;
         } else {
             RESTConverterMethodBase[typestr] = this;
         }

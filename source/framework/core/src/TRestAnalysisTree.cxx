@@ -591,11 +591,11 @@ void TRestAnalysisTree::PrintObservables() {
     }
 
     cout.precision(15);
-    std::cout << "Entry : " << fReadEntry << std::endl;
-    std::cout << "> Event ID : " << GetEventID() << std::endl;
-    std::cout << "> Event Time : " << GetTimeStamp() << std::endl;
-    std::cout << "> Event Tag : " << GetSubEventTag() << std::endl;
-    std::cout << "-----------------------------------------" << std::endl;
+    std::cout << "Entry : " << fReadEntry << endl;
+    std::cout << "> Event ID : " << GetEventID() << endl;
+    std::cout << "> Event Time : " << GetTimeStamp() << endl;
+    std::cout << "> Event Tag : " << GetSubEventTag() << endl;
+    std::cout << "-----------------------------------------" << endl;
     cout.precision(6);
 
     for (int n = 0; n < GetNumberOfObservables(); n++) {
@@ -612,7 +612,7 @@ void TRestAnalysisTree::PrintObservable(int n) {
     int lengthRemaining = Console::GetWidth() - 14 - 45 - 13;
 
     std::cout << "Observable : " << ToString(fObservableNames[n], 45)
-              << "    Value : " << ToString(obsVal, lengthRemaining) << std::endl;
+              << "    Value : " << ToString(obsVal, lengthRemaining) << endl;
 }
 
 Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
