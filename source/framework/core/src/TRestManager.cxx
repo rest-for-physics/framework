@@ -32,7 +32,10 @@
 #include "TRestTask.h"
 #include "TSystem.h"
 
+
+using namespace std;
 ClassImp(TRestManager);
+
 
 TRestManager::TRestManager() { Initialize(); }
 

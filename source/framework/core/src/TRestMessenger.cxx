@@ -78,7 +78,10 @@
 #include "TRestProcessRunner.h"
 #include "TRestStringOutput.h"
 
+
+using namespace std;
 ClassImp(TRestMessenger);
+
 
 //______________________________________________________________________________
 TRestMessenger::TRestMessenger() { Initialize(); }

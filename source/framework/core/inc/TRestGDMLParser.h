@@ -18,22 +18,22 @@ class TRestGDMLParser : public TRestMetadata {
    public:
     TRestGDMLParser() {}
     ~TRestGDMLParser() {}
-    string filestr = "";
-    string path = "";
-    string outPath = REST_USER_PATH + "/gdml/";
-    string outfilename = "";
-    string gdmlVersion = "0.0";
-    map<string, string> entityVersion;
+    std::string filestr = "";
+    std::string path = "";
+    std::string outPath = REST_USER_PATH + "/gdml/";
+    std::string outfilename = "";
+    std::string gdmlVersion = "0.0";
+    std::map<std::string, std::string> entityVersion;
 
-    string GetEntityVersion(string name);
+    std::string GetEntityVersion(std::string name);
 
-    string GetGDMLVersion();
+    std::string GetGDMLVersion();
 
-    string GetOutputGDMLFile();
+    std::string GetOutputGDMLFile();
 
-    void Load(string file);
+    void Load(std::string file);
 
-    TGeoManager* GetGeoManager(string gdmlFile) {
+    TGeoManager* GetGeoManager(std::string gdmlFile) {
         Load(gdmlFile);
         fGeo = TGeoManager::Import(GetOutputGDMLFile().c_str());
         return fGeo;
@@ -47,7 +47,7 @@ class TRestGDMLParser : public TRestMetadata {
 
     void ReplaceEntity();
 
-    void ReplaceAttributeWithKeyWord(string keyword);
+    void ReplaceAttributeWithKeyWord(std::string keyword);
 
     ClassDef(TRestGDMLParser, 1);
 };

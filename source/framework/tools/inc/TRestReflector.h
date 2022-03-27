@@ -27,7 +27,7 @@
 
 #include "TRestStringHelper.h"
 
-using namespace std;
+
 
 class TRestEventProcess;
 
@@ -37,11 +37,11 @@ namespace REST_Reflection {
     struct DataType_Info {
     char name[20]{'u','n','k','n','o','w','n', 0};
     Int_t size = 0;
-    const type_info* typeinfo = 0;
+    const std::type_info* typeinfo = 0;
 
     DataType_Info() {}
 
-    DataType_Info(string name) {
+    DataType_Info(std::string name) {
         switch (ToHash(name)) {
             case ToHash("char"):
                 typeinfo = &typeid(char);
@@ -186,7 +186,7 @@ namespace REST_Reflection {
 
     template <typename T>
     DataType_Info(T* obj) {
-        string name = "";
+        std::string name = "";
         if (typeid(T) == typeid(char)) {
             name = "char";
         } else if (typeid(T) == typeid(short)) {
@@ -232,15 +232,15 @@ namespace REST_Reflection {
 
 };
 
-extern map<void*, TClass*> RESTListOfClasses_typeid;
-extern map<string, TClass*> RESTListOfClasses_typename;
+extern std::map<void*, TClass*> RESTListOfClasses_typeid;
+extern std::map<std::string, TClass*> RESTListOfClasses_typename;
 
-/// Wrap the string type name into ROOT type identifier "TClass"
+/// Wrap the std::string type name into ROOT type identifier "TClass"
 ///
-/// Quicker than TClass::GetClass() since it stores limited objects in the map, no need to
+/// Quicker than TClass::GetClass() since it stores limited objects in the std::map, no need to
 /// iterate all the valid types. Do not call this method before main function.
 /// 
-inline TClass* GetClassQuick(string type) {
+inline TClass* GetClassQuick(std::string type) {
     auto iter = RESTListOfClasses_typename.find(type);
     if (iter != RESTListOfClasses_typename.end()) {
         return iter->second;
@@ -255,7 +255,7 @@ inline TClass* GetClassQuick(string type) {
 /////////////////////////////
 /// \brief Get the type of a "class" object, returning the wrapped type identifier "TClass". 
 ///
-/// Quicker than TClass::GetClass() since it stores limited objects in the map, no need to 
+/// Quicker than TClass::GetClass() since it stores limited objects in the std::map, no need to 
 /// iterate all the valid types. Do not call this method before main function.
 /// 
 template <typename T>
@@ -279,7 +279,7 @@ std::string GetTypeName() {
     if (cl != nullptr) {
         return cl->GetName();
     }
-    return string(DataType_Info((T*)0).name);
+    return std::string(DataType_Info((T*)0).name);
 }
 /// Get the type name of an object
 template <class T>
@@ -296,11 +296,11 @@ class TRestReflector {
 
    public:
     /// Name field
-    string name = "";
+    std::string name = "";
     /// Type of the wrapped object
-    string type = "";
+    std::string type = "";
     /// value of typeid(T).name() of the wrapped object
-    const type_info* typeinfo = 0;
+    const std::type_info* typeinfo = 0;
     /// Address of the wrapped object
     char* address = 0;
     /// Size of the object
@@ -314,13 +314,13 @@ class TRestReflector {
     /// Deep copy the content of the wrapped object to `to`.
     void operator>>(TRestReflector to);
     /// Output overload by calling ToString();
-    friend ostream& operator<<(ostream& cin, TRestReflector ptr) { return cin << ptr.ToString(); }
+    friend std::ostream& operator<<(std::ostream& cin, TRestReflector ptr) { return cin << ptr.ToString(); }
     /// Get the value of the wrapped type, not recommended to use
     template <typename T>
     T GetValue() {
         if (typeid(T) != *this->typeinfo) {
-            cout << "In TRestReflector::GetValue() : type unmatch! " << endl;
-            cout << "Input: " << GetTypeName<T>() << ", this: " << this->type << endl;
+            std::cout << "In TRestReflector::GetValue() : type unmatch! " << std::endl;
+            std::cout << "Input: " << GetTypeName<T>() << ", this: " << this->type << std::endl;
             return T();
         }
         if (address != nullptr) return *(T*)(address);
@@ -330,30 +330,30 @@ class TRestReflector {
     template <class T>
     void SetValue(const T& val) {
         if (typeid(T) != *this->typeinfo) {
-            cout << "In TRestReflector::SetValue() : type unmatch! " << endl;
-            cout << "Input: " << GetTypeName<T>() << ", this: " << string(this->type) << endl;
+            std::cout << "In TRestReflector::SetValue() : type unmatch! " << std::endl;
+            std::cout << "Input: " << GetTypeName<T>() << ", this: " << std::string(this->type) << std::endl;
             return;
         }
         if (address != nullptr) *((T*)(address)) = val;
     }
-    /// Convert the wrapped object to string
-    string ToString();
-    /// Set the value of the wrapped object from string
-    void ParseString(string str);
+    /// Convert the wrapped object to std::string
+    std::string ToString();
+    /// Set the value of the wrapped object from std::string
+    void ParseString(std::string str);
     /// Assembly a new object, and save its address. The old object will be destroied if not null
     void Assembly();
     /// Destroy the current object. It will make the class to be zombie.
     void Destroy();
-    /// Print the Hex memory map of the wrappered object
+    /// Print the Hex memory std::map of the wrappered object
     void PrintMemory(int bytepreline = 16);
     /// Find the class's datamember as TRestReflector object, including those from base class
-    TRestReflector GetDataMember(string name);
+    TRestReflector GetDataMember(std::string name);
     /// Get the i-th datamember of the class, ignoring those from base class
     TRestReflector GetDataMember(int ID);
-    /// Get a list of the class's datamembers as a vector of string, including those from base class
-    vector<string> GetListOfDataMembers();
-    /// Get the value of datamember as string.
-    string GetDataMemberValueString(string name);
+    /// Get a list of the class's datamembers as a std::vector of std::string, including those from base class
+    std::vector<std::string> GetListOfDataMembers();
+    /// Get the value of datamember as std::string.
+    std::string GetDataMemberValueString(std::string name);
     /// Get the number of data members of a class
     int GetNumberOfDataMembers();
 
@@ -367,7 +367,7 @@ class TRestReflector {
     /// Default constructor
     TRestReflector() {}
     /// Constructor from a certain address and a certain type.
-    TRestReflector(void* address, const string& type);
+    TRestReflector(void* address, const std::string& type);
     /// Constructor to wrap an object. Any typed object can be revieved as argument.
     template <class T>
     TRestReflector(const T& obj) {
@@ -387,7 +387,7 @@ class TRestReflector {
         cl = REST_Reflection::GetClassQuick<T>();
         DataType_Info dt = DataType_Info((T*)0);
         if (cl == nullptr && dt.size == 0) {
-            cout << "In TRestReflector::TRestReflector() : unrecognized type! " << endl;
+            std::cout << "In TRestReflector::TRestReflector() : unrecognized type! " << std::endl;
             return;
         }
 
@@ -408,12 +408,12 @@ class TRestReflector {
 ///////////////////////////////////////////////
 /// \brief Assembly an object of type: typeName, returning the allocated memory address and size
 ///
-TRestReflector Assembly(string typeName);
+TRestReflector Assembly(std::string typeName);
 
 ///////////////////////////////////////////////
 /// \brief Wrap information an object of type: typeName, memory is not allocated
 ///
-TRestReflector WrapType(string typeName);
+TRestReflector WrapType(std::string typeName);
 
 ///////////////////////////////////////////////
 /// \brief Deep copy the content of object `from` to `to`
@@ -428,34 +428,34 @@ typedef REST_Reflection::TRestReflector RESTValue;
 
 class RESTVirtualConverter {
    public:
-    virtual string ToString(void* obj) = 0;
-    virtual void ParseString(void* obj, string str) = 0;
+    virtual std::string ToString(void* obj) = 0;
+    virtual void ParseString(void* obj, std::string str) = 0;
     virtual void CloneObj(void* from, void* to) = 0;
 };
 
 // type name, {toString method, parseString method}
-extern map<string, RESTVirtualConverter*> RESTConverterMethodBase;
+extern std::map<std::string, RESTVirtualConverter*> RESTConverterMethodBase;
 
 template <class T>
 class Converter : RESTVirtualConverter {
    public:
-    string (*ToStringFunc)(T);
-    T (*ParseStringFunc)(string);
+    std::string (*ToStringFunc)(T);
+    T (*ParseStringFunc)(std::string);
     static Converter<T>* thisptr;
 
-    string ToString(void* obj) override { return ToStringFunc(*(T*)obj); }
-    void ParseString(void* obj, string str) override {
+    std::string ToString(void* obj) override { return ToStringFunc(*(T*)obj); }
+    void ParseString(void* obj, std::string str) override {
         T newobj = ParseStringFunc(str);
         *((T*)(obj)) = newobj;
     }
     void CloneObj(void* from, void* to) override { *((T*)(to)) = *((T*)(from)); }
 
-    Converter(string (*_ToStringFunc)(T), T (*_ParseStringFunc)(string)) {
+    Converter(std::string (*_ToStringFunc)(T), T (*_ParseStringFunc)(std::string)) {
         ToStringFunc = _ToStringFunc;
         ParseStringFunc = _ParseStringFunc;
-        string typestr = REST_Reflection::GetTypeName<T>();
+        std::string typestr = REST_Reflection::GetTypeName<T>();
         if (RESTConverterMethodBase.count(typestr) > 0) {
-            cout << "Warning! converter for type: " << typestr << " already added!" << endl;
+            std::cout << "Warning! converter for type: " << typestr << " already added!" << std::endl;
         } else {
             RESTConverterMethodBase[typestr] = this;
         }

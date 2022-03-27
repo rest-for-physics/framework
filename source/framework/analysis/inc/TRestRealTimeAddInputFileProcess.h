@@ -32,7 +32,7 @@ class TRestRealTimeAddInputFileProcess : public TRestEventProcess {
     // We define specific input/output event data holders
     TRestEvent* fEvent;                     //!
     TRestMessenger* fMessenger;  //!
-    static thread* fMonitorThread;          //!
+    static std::thread* fMonitorThread;          //!
     static int fMonitorFlag;        //!   //0: return, 1: run
 
     void InitFromConfigFile();

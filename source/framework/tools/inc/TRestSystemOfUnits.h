@@ -17,7 +17,7 @@
 #include <iostream>
 #include <map>
 #include <string>
-using namespace std;
+
 
 #include <TString.h>
 #include <TVector2.h>
@@ -38,25 +38,25 @@ enum Physical_Unit { Energy, Time, Distance, Mass, Electric, Magnetic, Pressure,
 class TRestSystemOfUnits {
    private:
     // stores a list of base units for composite units
-    vector<int> fComponents;
+    std::vector<int> fComponents;
     // stores a list of units order for composite units
-    vector<double> fComponentOrder;
+    std::vector<double> fComponentOrder;
 
     Bool_t fZombie;
 
     double fScaleCombined;
 
     /// Get the type of the units
-    int GetUnitType(string singleUnit);
+    int GetUnitType(std::string singleUnit);
     /// Get the scale of the unit to convert to the REST standard units
-    double GetUnitScale(string singleUnit);
+    double GetUnitScale(std::string singleUnit);
 
    public:
-    /// Constructor from a unit string
-    TRestSystemOfUnits(string unitsStr);
+    /// Constructor from a unit std::string
+    TRestSystemOfUnits(std::string unitsStr);
     /// Whether this unit is zombie(invalid)
     bool IsZombie() const { return fZombie; }
-    string ToStandardDefinition();
+    std::string ToStandardDefinition();
 
     friend Double_t operator*(const Double_t& val, const TRestSystemOfUnits& units) {
         if (units.fZombie) return val;
@@ -69,26 +69,26 @@ class TRestSystemOfUnits {
     }
 };
 
-bool IsBasicUnit(string in);
-bool IsUnit(string in);
+bool IsBasicUnit(std::string in);
+bool IsUnit(std::string in);
 
-double GetScaleToStandardUnit(string unitsdef);
-string GetStandardUnitDefinition(string unitsdef);
-string FindRESTUnitsInString(string InString);
-string RemoveUnitsFromString(string s);
-Double_t ConvertValueToRESTUnits(Double_t value, string unitsStr);
-Double_t ConvertRESTUnitsValueToCustomUnits(Double_t value, string unitsStr);
+double GetScaleToStandardUnit(std::string unitsdef);
+std::string GetStandardUnitDefinition(std::string unitsdef);
+std::string FindRESTUnitsInString(std::string InString);
+std::string RemoveUnitsFromString(std::string s);
+Double_t ConvertValueToRESTUnits(Double_t value, std::string unitsStr);
+Double_t ConvertRESTUnitsValueToCustomUnits(Double_t value, std::string unitsStr);
 
-Double_t GetDblValueInString(string in);
-TVector2 Get2DVectorValueInString(string in);
-TVector3 Get3DVectorValueInString(string in);
+Double_t GetDblValueInString(std::string in);
+TVector2 Get2DVectorValueInString(std::string in);
+TVector3 Get3DVectorValueInString(std::string in);
 
-Double_t GetValueInRESTUnits(string in);
-Double_t GetDblValueInRESTUnits(string in);
-TVector2 Get2DVectorInRESTUnits(string in);
-TVector3 Get3DVectorInRESTUnits(string in);
+Double_t GetValueInRESTUnits(std::string in);
+Double_t GetDblValueInRESTUnits(std::string in);
+TVector2 Get2DVectorInRESTUnits(std::string in);
+TVector3 Get3DVectorInRESTUnits(std::string in);
 
-double _AddUnit(string name, int type, double scale);
+double _AddUnit(std::string name, int type, double scale);
 
 // energy unit multiplier
 AddUnit(meV, REST_Units::Energy, 1e6);

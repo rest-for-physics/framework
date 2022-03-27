@@ -24,7 +24,7 @@
 #define __RestCore_TRestPhysics_H__
 
 #include <iostream>
-using namespace std;
+
 
 #include "TString.h"
 #include "TVector3.h"

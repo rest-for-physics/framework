@@ -1,5 +1,8 @@
 #include "TRestStringOutput.h"
+
 #include "TRestStringHelper.h"
+
+using namespace std;
 
 bool Console::CompatibilityMode = false;
 
@@ -176,7 +179,6 @@ char mirrorchar(char c) {
     }
 }
 
-
 #define TRestStringOutput_BestLength 100
 TRestStringOutput::TRestStringOutput(string _color, string formatter, REST_Display_Orientation _orientation) {
     iserror = false;
@@ -196,7 +198,7 @@ TRestStringOutput::TRestStringOutput(string _color, string formatter, REST_Displ
     if (formatter[formatter.size() / 2] != ' ') {
         useborder = false;
     }
-    
+
     if (useborder) {
         formatstring = formatter.substr(0, formatter.size() / 2);
         formatstring = Replace(formatstring, " ", "");
@@ -216,8 +218,8 @@ TRestStringOutput::TRestStringOutput(string _color, string formatter, REST_Displ
 }
 
 void TRestStringOutput::resetstring() {
-    buf.clear(); 
-    buf.str(""); 
+    buf.clear();
+    buf.str("");
 }
 
 string TRestStringOutput::FormattingPrintString(string input) {

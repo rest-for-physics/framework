@@ -17,15 +17,15 @@
 ///_______________________________________________________________________________
 
 #include "TRestVolumeHits.h"
+
 using namespace std;
 
-ClassImp(TRestVolumeHits)
-    //______________________________________________________________________________
-    TRestVolumeHits::TRestVolumeHits() {
+ClassImp(TRestVolumeHits);
+
+TRestVolumeHits::TRestVolumeHits() {
     // TRestVolumeHits default constructor
 }
 
-//______________________________________________________________________________
 TRestVolumeHits::~TRestVolumeHits() {
     // TRestVolumeHits destructor
 }

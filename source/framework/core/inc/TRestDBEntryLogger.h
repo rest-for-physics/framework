@@ -36,8 +36,8 @@ class TRestDBEntryLogger : public TRestMetadata {
     TRestRun* fRun; //!
 
     bool fSkipIfNotEmpty;
-    string fTextOpenCommand = "vim";
-    map<string, string> fMetainfo;
+    std::string fTextOpenCommand = "vim";
+    std::map<std::string, std::string> fMetainfo;
 
     void InitFromConfigFile();
 
@@ -48,8 +48,8 @@ class TRestDBEntryLogger : public TRestMetadata {
    protected:
    public:
     // getters
-    string operator[](string itemname) { return Get(itemname); }
-    string Get(string itemname) { return fMetainfo.count(itemname)==0? "": fMetainfo[itemname]; }
+    std::string operator[](std::string itemname) { return Get(itemname); }
+    std::string Get(std::string itemname) { return fMetainfo.count(itemname)==0? "": fMetainfo[itemname]; }
     int GetEntries() { return fMetainfo.size(); }
 
     void PrintMetadata();

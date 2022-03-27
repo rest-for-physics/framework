@@ -26,7 +26,7 @@ class TRestThread : public TRestMetadata {
     Int_t fThreadId;
 
     TRestProcessRunner* fHostRunner;           //!
-    vector<TRestEventProcess*> fProcessChain;  //!
+    std::vector<TRestEventProcess*> fProcessChain;  //!
     TRestAnalysisTree* fAnalysisTree;          //!
     TRestEvent* fInputEvent;                   //!
     TRestEvent* fOutputEvent;                  //!

@@ -6,7 +6,10 @@
 #endif
 #include "sys/wait.h"
 
+
+using namespace std;
 ClassImp(TRestBenchMarkProcess);
+
 
 thread* TRestBenchMarkProcess::fMonitorThread = nullptr;
 int TRestBenchMarkProcess::fMonitorFlag = 0;

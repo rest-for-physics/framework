@@ -82,7 +82,7 @@
 using namespace std;
 
 ClassImp(TRestAnalysisTree) using namespace std;
-//______________________________________________________________________________
+
 TRestAnalysisTree::TRestAnalysisTree() : TTree() {
     SetName("AnalysisTree");
     SetTitle("REST Analysis tree");

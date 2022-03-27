@@ -70,17 +70,17 @@ class TRestMetadata : public TNamed {
    private:
     void ReadEnvInElement(TiXmlElement* e, bool overwrite = true);
     void ReadElement(TiXmlElement* e, bool recursive = false);
-    void ReplaceForLoopVars(TiXmlElement* e, map<string, string> forLoopVar);
-    void ExpandForLoopOnce(TiXmlElement* e, map<string, string> forLoopVar);
-    void ExpandForLoops(TiXmlElement* e, map<string, string> forLoopVar);
+    void ReplaceForLoopVars(TiXmlElement* e, std::map<std::string, std::string> forLoopVar);
+    void ExpandForLoopOnce(TiXmlElement* e, std::map<std::string, std::string> forLoopVar);
+    void ExpandForLoops(TiXmlElement* e, std::map<std::string, std::string> forLoopVar);
     void ExpandIfSections(TiXmlElement* e);
     void ExpandIncludeFile(TiXmlElement* e);
-    string GetUnits(TiXmlElement* e);
-    string FieldNamesToUpper(string inputString);
-    void ReadOneParameter(string name, string value);
+    std::string GetUnits(TiXmlElement* e);
+    std::string FieldNamesToUpper(std::string inputString);
+    void ReadOneParameter(std::string name, std::string value);
     TiXmlElement* ReplaceElementAttributes(TiXmlElement* e);
 
-    /// REST version string, only used for archive and retrieve
+    /// REST version std::string, only used for archive and retrieve
     TString fVersion = REST_RELEASE;  //<
     TString fCommit = REST_COMMIT;    //<
     TString fLibraryVersion = "0";    //<
@@ -91,7 +91,8 @@ class TRestMetadata : public TNamed {
    protected:
     // new xml utilities
     std::string GetFieldValue(std::string parName, TiXmlElement* e);
-    string GetParameter(std::string parName, TiXmlElement* e, TString defaultValue = PARAMETER_NOT_FOUND_STR);
+    std::string GetParameter(std::string parName, TiXmlElement* e,
+                             TString defaultValue = PARAMETER_NOT_FOUND_STR);
     Double_t GetDblParameterWithUnits(std::string parName, TiXmlElement* e,
                                       Double_t defaultVal = PARAMETER_NOT_FOUND_DBL);
     TVector2 Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* e,
@@ -103,27 +104,27 @@ class TRestMetadata : public TNamed {
     TiXmlElement* GetNextElement(TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName);
-    pair<string, string> GetParameterAndUnits(string parname, TiXmlElement* e = nullptr);
-    TiXmlElement* StringToElement(string definition);
-    string ElementToString(TiXmlElement* ele);
+    std::pair<std::string, std::string> GetParameterAndUnits(std::string parname, TiXmlElement* e = nullptr);
+    TiXmlElement* StringToElement(std::string definition);
+    std::string ElementToString(TiXmlElement* ele);
 
     // old xml parser interface.
-    string GetKEYStructure(std::string keyName);
-    string GetKEYStructure(std::string keyName, size_t& Position);
-    string GetKEYStructure(std::string keyName, string buffer);
-    string GetKEYStructure(std::string keyName, size_t& Position, string buffer);
-    string GetKEYStructure(std::string keyName, size_t& Position, TiXmlElement* ele);
-    string GetKEYDefinition(std::string keyName);
-    string GetKEYDefinition(std::string keyName, size_t& Position);
-    string GetKEYDefinition(std::string keyName, string buffer);
-    string GetKEYDefinition(std::string keyName, size_t& Position, string buffer);
-    string GetParameter(std::string parName, size_t& pos, std::string inputString);
-    string GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition = 0);
+    std::string GetKEYStructure(std::string keyName);
+    std::string GetKEYStructure(std::string keyName, size_t& Position);
+    std::string GetKEYStructure(std::string keyName, std::string buffer);
+    std::string GetKEYStructure(std::string keyName, size_t& Position, std::string buffer);
+    std::string GetKEYStructure(std::string keyName, size_t& Position, TiXmlElement* ele);
+    std::string GetKEYDefinition(std::string keyName);
+    std::string GetKEYDefinition(std::string keyName, size_t& Position);
+    std::string GetKEYDefinition(std::string keyName, std::string buffer);
+    std::string GetKEYDefinition(std::string keyName, size_t& Position, std::string buffer);
+    std::string GetParameter(std::string parName, size_t& pos, std::string inputString);
+    std::string GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition = 0);
 
     // some utils
     std::string ReplaceVariables(const std::string buffer);
     std::string ReplaceConstants(const std::string buffer);
-    string SearchFile(string filename);
+    std::string SearchFile(std::string filename);
     TString GetSearchPath();
     void ReSetVersion();
     void UnSetVersion();
@@ -133,7 +134,7 @@ class TRestMetadata : public TNamed {
     virtual Int_t LoadSectionMetadata();
     /// To make settings from rml file. This method must be implemented in the derived class.
     virtual void InitFromConfigFile() {
-        map<string, string> parameters = GetParametersList();
+        std::map<std::string, std::string> parameters = GetParametersList();
 
         for (auto& p : parameters) p.second = ReplaceMathematicalExpressions(p.second);
 
@@ -143,7 +144,7 @@ class TRestMetadata : public TNamed {
     /// Method called after the object is retrieved from root file.
     virtual void InitFromRootFile() {}
 
-    void ReadParametersList(std::map<string, string>& list);
+    void ReadParametersList(std::map<std::string, std::string>& list);
 
     //////////////////////////////////////////////////
     /// Data members
@@ -173,10 +174,10 @@ class TRestMetadata : public TNamed {
     TiXmlElement* fElement;  //!
     /// Saving the global element, to be passed to the resident class, if necessary.
     TiXmlElement* fElementGlobal;  //!
-    /// Saving a list of rml variables. name-value pair.
-    map<string, string> fVariables;  //!
-    /// Saving a list of rml constants. name-value pair. Constants are temporary for this class only.
-    map<string, string> fConstants;  //!
+    /// Saving a list of rml variables. name-value std::pair.
+    std::map<std::string, std::string> fVariables;  //!
+    /// Saving a list of rml constants. name-value std::pair. Constants are temporary for this class only.
+    std::map<std::string, std::string> fConstants;  //!
 
     /// It can be used as a way to identify that something went wrong using SetError method.
     Bool_t fError = false;
@@ -190,13 +191,13 @@ class TRestMetadata : public TNamed {
     /// It counts the number of warnings notified
     Int_t fNWarnings = 0;
 
-    /// A string to store an optional error message through method SetError.
+    /// A std::string to store an optional error message through method SetError.
     TString fErrorMessage = "";
 
     /// It can be used as a way to identify that something went wrong using SetWarning method.
     TString fWarningMessage = "";
 
-    std::map<string, string> GetParametersList();
+    std::map<std::string, std::string> GetParametersList();
     void ReadAllParameters();
 
     // Making class constructors protected to keep this class abstract
@@ -214,18 +215,18 @@ class TRestMetadata : public TNamed {
     Bool_t GetWarning() { return fWarning; }
 
     /// Add logs to messageBuffer
-    void AddLog(string log = "", bool print = true);
+    void AddLog(std::string log = "", bool print = true);
 
     /// A metadata class may use this method to signal that something went wrong
-    void SetError(string message = "", bool print = true);
+    void SetError(std::string message = "", bool print = true);
 
     /// A metadata class may use this method to signal that something went wrong
-    void SetWarning(string message = "", bool print = true);
+    void SetWarning(std::string message = "", bool print = true);
 
-    /// Returns a string containing the error message
+    /// Returns a std::string containing the error message
     TString GetErrorMessage();
 
-    /// Returns a string containing the warning message
+    /// Returns a std::string containing the warning message
     TString GetWarningMessage();
 
     Int_t GetNumberOfErrors() { return fNErrors; }
@@ -233,8 +234,8 @@ class TRestMetadata : public TNamed {
     Int_t GetNumberOfWarnings() { return fNWarnings; }
 
     Int_t LoadConfigFromElement(TiXmlElement* eSectional, TiXmlElement* eGlobal,
-                                map<string, string> envs = {});
-    Int_t LoadConfigFromFile(string cfgFileName, string sectionName = "");
+                                std::map<std::string, std::string> envs = {});
+    Int_t LoadConfigFromFile(std::string cfgFileName, std::string sectionName = "");
     Int_t LoadConfigFromBuffer();
 
     /// Making default settings.
@@ -256,7 +257,7 @@ class TRestMetadata : public TNamed {
     void PrintConfigBuffer();  // *MENU*
 
     /// Writes the config buffer to a file in append mode
-    void WriteConfigBuffer(string fname);
+    void WriteConfigBuffer(std::string fname);
 
     /// Print the buffered message
     void PrintMessageBuffer();  // *MENU*
@@ -266,9 +267,9 @@ class TRestMetadata : public TNamed {
 
     std::string GetConfigBuffer();
 
-    string GetDataMemberValue(string memberName);
+    std::string GetDataMemberValue(std::string memberName);
 
-    std::vector<string> GetDataMemberValues(string memberName);
+    std::vector<std::string> GetDataMemberValues(std::string memberName);
 
     TString GetVersion();  // *MENU*
 
@@ -281,9 +282,9 @@ class TRestMetadata : public TNamed {
     Bool_t isCleanState() { return fCleanState; }
 
     Int_t GetVersionCode();
-    /// Returns a string with the path used for data storage
+    /// Returns a std::string with the path used for data storage
     TString GetDataPath() {
-        string dataPath = GetParameter("mainDataPath", "");
+        std::string dataPath = GetParameter("mainDataPath", "");
         if (dataPath == "") dataPath = "./";
         return dataPath;
     }
@@ -294,16 +295,16 @@ class TRestMetadata : public TNamed {
     /// returns the verboselevel in type of TString
     TString GetVerboseLevelString();
 
-    /// Gets a string with the path used for data storage
+    /// Gets a std::string with the path used for data storage
     TString GetMainDataPath() { return GetDataPath(); }
 
     std::string GetParameter(std::string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR);  // *MENU*
 
     Double_t GetDblParameterWithUnits(std::string parName, Double_t defaultValue = PARAMETER_NOT_FOUND_DBL);
 
-    TVector2 Get2DVectorParameterWithUnits(string parName, TVector2 defaultValue = TVector2(-1, -1));
+    TVector2 Get2DVectorParameterWithUnits(std::string parName, TVector2 defaultValue = TVector2(-1, -1));
 
-    TVector3 Get3DVectorParameterWithUnits(string parName, TVector3 defaultValue = TVector3(-1, -1, -1));
+    TVector3 Get3DVectorParameterWithUnits(std::string parName, TVector3 defaultValue = TVector3(-1, -1, -1));
 
     /// If this method is called the metadata information will **not** be stored in disk.
     void DoNotStore() { fStore = false; }

@@ -1,13 +1,14 @@
 #include <TApplication.h>
 #include <TROOT.h>
-#include <TRint.h>
-#include <TSystem.h>
-
 #include <TRestMetadata.h>
 #include <TRestRun.h>
 #include <TRestTools.h>
+#include <TRint.h>
+#include <TSystem.h>
 
 #include "TRestVersion.h"
+
+using namespace std;
 
 // Note!
 // Don't use cout in the main function!

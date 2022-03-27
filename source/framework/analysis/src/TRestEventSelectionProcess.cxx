@@ -75,7 +75,10 @@
 
 #include "TRestEventSelectionProcess.h"
 
+
+using namespace std;
 ClassImp(TRestEventSelectionProcess);
+
 
 ///////////////////////////////////////////////
 /// \brief Default constructor

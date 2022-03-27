@@ -5,7 +5,10 @@
 
 #include "TRestDBEntryLogger.h"
 
+
+using namespace std;
 ClassImp(TRestDBEntryLogger);
+
 
 //______________________________________________________________________________
 TRestDBEntryLogger::TRestDBEntryLogger() { Initialize(); }

@@ -66,7 +66,10 @@
 
 #include "TRestRealTimeAddInputFileProcess.h"
 
+
+using namespace std;
 ClassImp(TRestRealTimeAddInputFileProcess);
+
 
 thread* TRestRealTimeAddInputFileProcess::fMonitorThread = NULL;
 int TRestRealTimeAddInputFileProcess::fMonitorFlag = 0;

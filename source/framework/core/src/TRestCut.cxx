@@ -57,7 +57,10 @@
 
 #include "TRestCut.h"
 
+
+using namespace std;
 ClassImp(TRestCut);
+
 
 //______________________________________________________________________________
 TRestCut::TRestCut() { 

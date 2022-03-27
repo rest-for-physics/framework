@@ -35,7 +35,7 @@ class TRestProcessRunner : public TRestMetadata {
     TRestEvent* fOutputEvent;  //!
 
     // self variables for processing
-    vector<TRestThread*> fThreads;     //!
+    std::vector<TRestThread*> fThreads;     //!
     TFile* fTempOutputDataFile;        //!
     TTree* fEventTree;                 //!
     TRestAnalysisTree* fAnalysisTree;  //!
@@ -56,7 +56,7 @@ class TRestProcessRunner : public TRestMetadata {
     Int_t fFirstEntry;
     Int_t fEventsToProcess;
     Int_t fProcessedEvents;
-    map<string, string> fProcessInfo;
+    std::map<std::string, std::string> fProcessInfo;
 
    public:
     /// REST run class
@@ -66,19 +66,19 @@ class TRestProcessRunner : public TRestMetadata {
         if (fElement != nullptr) {
             TiXmlElement* e = fElement->FirstChildElement();
             while (e != nullptr) {
-                string value = e->Value();
+                std::string value = e->Value();
                 if (value == "variable" || value == "myParameter" || value == "constant") {
                     e = e->NextSiblingElement();
                     continue;
                 }
-                ReadConfig((string)e->Value(), e);
+                ReadConfig((std::string)e->Value(), e);
                 e = e->NextSiblingElement();
             }
         }
         EndOfInit();
     }
     void BeginOfInit();
-    Int_t ReadConfig(string keydeclare, TiXmlElement* e);
+    Int_t ReadConfig(std::string keydeclare, TiXmlElement* e);
     void EndOfInit();
     void PrintMetadata();
 
@@ -94,14 +94,14 @@ class TRestProcessRunner : public TRestMetadata {
     void ResetRunTimes();
     TRestEventProcess* InstantiateProcess(TString type, TiXmlElement* ele);
     void PrintProcessedEvents(Int_t rateE);
-    string MakeProgressBar(int progress100, int length = 100);
+    std::string MakeProgressBar(int progress100, int length = 100);
 
     // getters and setters
     TRestEvent* GetInputEvent();
     TRestAnalysisTree* GetInputAnalysisTree();
     TRestAnalysisTree* GetOutputAnalysisTree() { return fAnalysisTree; }
     TFile* GetTempOutputDataFile() { return fTempOutputDataFile; }
-    string GetProcInfo(string infoname) {
+    std::string GetProcInfo(std::string infoname) {
         return fProcessInfo[infoname] == "" ? infoname : fProcessInfo[infoname];
     }
     int GetNThreads() { return fThreadNumber; }

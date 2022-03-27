@@ -1,5 +1,7 @@
 #include "TRestGDMLParser.h"
 
+using namespace std;
+
 string TRestGDMLParser::GetEntityVersion(string name) {
     for (auto& i : entityVersion) {
         if (i.first == name) {
