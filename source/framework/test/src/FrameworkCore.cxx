@@ -50,7 +50,7 @@ TEST(FrameworkCore, TRestMetadata) {
     };
 
     TRestMetadataTest restMetadataTest;
-    restMetadataTest.LoadConfigFromFile(BASIC_TRESTMETADATA_RML, "metadata");
+    restMetadataTest.LoadConfigFromFile(BASIC_TRESTMETADATA_RML, "TRestMetadataTest");
 
     restMetadataTest.PrintMetadata();
 
