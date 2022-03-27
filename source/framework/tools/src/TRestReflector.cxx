@@ -145,10 +145,10 @@ void TRestReflector::ParseString(string str) {
     }
 }
 
-int TRestReflector::InitDictionary() const {
+int TRestReflector::InitDictionary() {
     if (is_data_type) return 0;
 
-    if (cl != nullptr) {
+    if (cl) {
         if (cl->GetCollectionProxy() && dynamic_cast<TEmulatedCollectionProxy*>(cl->GetCollectionProxy())) {
             // cout << "In TRestReflector::CloneTo() : the target is an stl collection but does not have a "
             //	"compiled CollectionProxy. Please generate the dictionary for this collection."

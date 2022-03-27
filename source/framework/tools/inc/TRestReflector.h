@@ -34,7 +34,7 @@ namespace REST_Reflection {
 struct DataType_Info {
     char name[20]{'u', 'n', 'k', 'n', 'o', 'w', 'n', 0};
     Int_t size = 0;
-    const type_info* typeinfo = 0;
+    const std::type_info* typeinfo = nullptr;
 
     DataType_Info() {}
 
@@ -286,7 +286,7 @@ std::string GetTypeName(T obj) {
 class TRestReflector {
    private:
     /// Prepare the ROOT dictionary for this type
-    int InitDictionary() const;
+    int InitDictionary();
     /// If on heap, we can call Destroy() to TRestReflector. True only when initialized from Assembly()
     bool onHeap = false;
 
@@ -296,7 +296,7 @@ class TRestReflector {
     /// Type of the wrapped object
     std::string type = "";
     /// value of typeid(T).name() of the wrapped object
-    const type_info* typeinfo = 0;
+    const std::type_info* typeinfo = 0;
     /// Address of the wrapped object
     char* address = nullptr;
     /// Size of the object
