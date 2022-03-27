@@ -30,29 +30,29 @@
 
 #define UNUSED(x) (void)x
 
-const string PARAMETER_NOT_FOUND_STR = "NO_SUCH_PARA";
+const std::string PARAMETER_NOT_FOUND_STR = "NO_SUCH_PARA";
 const double PARAMETER_NOT_FOUND_DBL = -99999999;
 
-extern string REST_COMMIT;
-extern string REST_PATH;
-extern string REST_USER;
-extern string REST_USER_PATH;
+extern std::string REST_COMMIT;
+extern std::string REST_PATH;
+extern std::string REST_USER;
+extern std::string REST_USER_PATH;
 
 #include "TObject.h"
 
-extern map<string, string> REST_ARGS;
+extern std::map<std::string, std::string> REST_ARGS;
 /// A generic class with useful static methods.
 class TRestTools {
    public:
-    static std::vector<string> GetOptions(string optionsStr);
+    static std::vector<std::string> GetOptions(std::string optionsStr);
 
     static void LoadRESTLibrary(bool silent = false);
 
-    static int ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data);
-    static int ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data);
+    static int ReadASCIITable(std::string fName, std::vector<std::vector<Double_t>>& data);
+    static int ReadASCIITable(std::string fName, std::vector<std::vector<Float_t>>& data);
 
     template <typename T>
-    static int ReadBinaryTable(string fName, std::vector<std::vector<T>>& data, Int_t columns);
+    static int ReadBinaryTable(std::string fName, std::vector<std::vector<T>>& data, Int_t columns);
 
     template <typename T>
     static T GetMaxValueFromTable(std::vector<std::vector<T>> data, Int_t column);
@@ -66,30 +66,30 @@ class TRestTools {
     template <typename T>
     static int PrintTable(std::vector<std::vector<T>> data, Int_t start = 0, Int_t end = 0);
 
-    static Int_t isValidFile(const string& path);
+    static Int_t isValidFile(const std::string& path);
     static bool fileExists(const std::string& filename);
     static bool isRootFile(const std::string& filename);
     static bool isURL(const std::string& filename);
     static bool isPathWritable(const std::string& path);
     static bool isAbsolutePath(const std::string& path);
-    static string RemoveMultipleSlash(string);
-    static string ToAbsoluteName(string filename);
-    static vector<string> GetSubdirectories(const string& path, int recursion = -1);
-    static std::pair<string, string> SeparatePathAndName(const std::string fullname);
+    static std::string RemoveMultipleSlash(std::string);
+    static std::string ToAbsoluteName(std::string filename);
+    static std::vector<std::string> GetSubdirectories(const std::string& path, int recursion = -1);
+    static std::pair<std::string, std::string> SeparatePathAndName(const std::string fullname);
     static std::string GetPureFileName(std::string fullpathFileName);
-    static std::string SearchFileInPath(vector<string> path, string filename);
+    static std::string SearchFileInPath(std::vector<std::string> path, std::string filename);
     static Int_t ChecktheFile(std::string cfgFileName);
-    static std::vector<string> GetFilesMatchingPattern(string pattern);
-    static int ConvertVersionCode(string in);
+    static std::vector<std::string> GetFilesMatchingPattern(std::string pattern);
+    static int ConvertVersionCode(std::string in);
     static std::istream& GetLine(std::istream& is, std::string& t);
 
-    static std::string Execute(string cmd);
+    static std::string Execute(std::string cmd);
 
-    static std::string DownloadRemoteFile(string remoteFile);
-    static int DownloadRemoteFile(string remoteFile, string localFile);
-    static int UploadToServer(string localfile, string remotefile, string methodurl = "");
+    static std::string DownloadRemoteFile(std::string remoteFile);
+    static int DownloadRemoteFile(std::string remoteFile, std::string localFile);
+    static int UploadToServer(std::string localfile, std::string remotefile, std::string methodurl = "");
 
-    static void ChangeDirectory(string toDirectory);
+    static void ChangeDirectory(std::string toDirectory);
     static void ReturnToPreviousDirectory();
 
     /// Rest tools class

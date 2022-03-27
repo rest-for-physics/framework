@@ -90,9 +90,9 @@ class Console {
     /// get one char from keyboard. don't need to press enter.
     static int ReadKey();
     /// returns the whole input line in string. need to press enter.
-    static string ReadLine();
+    static std::string ReadLine();
     /// write the string to the console. doesn't append line ending mark.
-    static void WriteLine(string content);
+    static void WriteLine(std::string content);
     /// move up cursor by n lines.
     static void CursorUp(int n);
     /// move down cursor by n lines. If hits buttom of the console, it won't keep moving
@@ -138,8 +138,8 @@ struct endl_t {
 /// border and orientation on that.
 class TRestStringOutput {
    protected:
-    string color;
-    string formatstring;
+    std::string color;
+    std::string formatstring;
     bool useborder;
     bool iserror;
     int orientation;  // 0->middle, 1->left
@@ -153,17 +153,17 @@ class TRestStringOutput {
     void unlock();
 
    public:
-    string FormattingPrintString(string input);
+    std::string FormattingPrintString(std::string input);
     void resetstring();
     void flushstring();
-    void setcolor(string colordef) { color = colordef; }
-    void setheader(string headerdef) {
+    void setcolor(std::string colordef) { color = colordef; }
+    void setheader(std::string headerdef) {
         formatstring = headerdef;
         useborder = false;
     }
     void resetcolor() { color = COLOR_RESET; }
     void resetheader() { formatstring = ""; }
-    void setborder(string b) {
+    void setborder(std::string b) {
         formatstring = b;
         useborder = true;
     }
@@ -175,10 +175,10 @@ class TRestStringOutput {
     // If formatter is in mirror form(e.g., "|| ||","< >"), it will use such border
     // to wrap the string to be displayed. otherwise the formatter is used as
     // prefix(e.g., "-- Warning: ")
-    TRestStringOutput(string color = COLOR_RESET, string formatter = "",
+    TRestStringOutput(std::string color = COLOR_RESET, std::string formatter = "",
                       REST_Display_Orientation orientation = kLeft);
 
-    TRestStringOutput(REST_Verbose_Level v, string _color = COLOR_RESET, string formatter = "",
+    TRestStringOutput(REST_Verbose_Level v, std::string _color = COLOR_RESET, std::string formatter = "",
                       REST_Display_Orientation orientation = kLeft, bool _iserror = false)
         : TRestStringOutput(_color, formatter, orientation) {
         verbose = v;
