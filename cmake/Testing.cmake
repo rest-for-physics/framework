@@ -28,7 +28,6 @@ macro(ADD_LIBRARY_TEST)
         string(REGEX REPLACE "^.(.*)" "${FIRST_LETTER}\\1" DIR_NAME_CAPITALIZED "${DIR_NAME}")
 
         set(LIBRARY_NAME "Rest${DIR_NAME_CAPITALIZED}")
-        message(STATUS "TESTING: ${LIBRARY_NAME}")
 
         set(TESTING_EXECUTABLE "test${LIBRARY_NAME}")
 
