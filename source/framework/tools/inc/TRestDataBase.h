@@ -7,9 +7,7 @@
 #include <map>
 #include <vector>
 
-using namespace std;
-
-// Contains basic information of the row. These information also appears in TRestRun.
+// Contains basic information of the row. This information also appears in TRestRun.
 // One or more DBEntry objects stores the information of one run.
 //
 // * During run querying, the information shows the corresponding run information

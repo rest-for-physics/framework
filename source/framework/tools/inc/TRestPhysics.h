@@ -23,11 +23,10 @@
 #ifndef __RestCore_TRestPhysics_H__
 #define __RestCore_TRestPhysics_H__
 
-#include <iostream>
-using namespace std;
+#include <TString.h>
+#include <TVector3.h>
 
-#include "TString.h"
-#include "TVector3.h"
+#include <iostream>
 
 /// This namespace serves to define physics constants and other basic physical operations
 namespace REST_Physics {

@@ -21,8 +21,6 @@
 #endif
 #endif  // WIN32
 
-using namespace std;
-
 //////////////////////////////////////////////////////////////////////////
 /// String identifiers for terminal colors
 #define COLOR_RESET "\033[0m"
@@ -209,7 +207,7 @@ namespace noClass {
 /// method is passed to TRestStringOutput, who calls back to this method giving its
 /// reference. This logic is same as std::endl.
 inline void endl(TRestStringOutput& input) { input.flushstring(); }
-};  // namespace REST_StringOutput
+};  // namespace noClass
 using namespace noClass;
 
 /// \relates TRestStringOutput

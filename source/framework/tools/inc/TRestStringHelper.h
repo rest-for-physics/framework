@@ -22,8 +22,6 @@
 
 #include "TRestStringOutput.h"
 
-using namespace std;
-
 /// String helper classes. Declared static to be able to have direct access to the methods
 namespace REST_StringHelper {
 
