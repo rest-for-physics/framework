@@ -4,6 +4,9 @@
 #include "TRestStringOutput.h"
 #include "TRestSystemOfUnits.h"
 #include "TRestTools.h"
+
+using namespace std;
+
 //////////////////////////////////////////////////////////////////////////
 /// This script initializes REST global variables in sequence to clearify
 /// their dependency, therefore avoiding seg.fault during startup. All

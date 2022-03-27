@@ -26,7 +26,7 @@
 #include "TRestBrowser.h"
 
 using namespace std;
-//______________________________________________________________________________
+
 TRestBrowser::TRestBrowser() {
     if ((TDirectory*)gDirectory != nullptr && gDirectory->GetFile() != nullptr) {
         Initialize();
@@ -44,18 +44,16 @@ TRestBrowser::TRestBrowser(TString viewerName) {
     SetViewer(viewerName);
 }
 
-//______________________________________________________________________________
 TRestBrowser::~TRestBrowser() {
-    if (frmMain != nullptr) frmMain->Cleanup();
-    // delete frmMain;
+    if (frmMain) frmMain->Cleanup();
 }
 
-void TRestBrowser::Initialize(TString opt) {
+void TRestBrowser::Initialize(const TString& opt) {
     pureAnalysis = kFALSE;
 
     r = new TRestRun();
 
-    b = new TBrowser("Browser", 0, "REST Browser", opt);
+    b = new TBrowser("Browser", nullptr, "REST Browser", opt);
     TGMainFrame* fr = b->GetBrowserImp()->GetMainFrame();
     if (fr == nullptr) {
         warning << "No x11 interface is available. Cannot call the browser window!" << endl;
@@ -93,7 +91,7 @@ void TRestBrowser::SetViewer(TRestEventViewer* eV) {
     }
 }
 
-void TRestBrowser::SetViewer(TString viewerName) {
+void TRestBrowser::SetViewer(const TString& viewerName) {
     if (Count((string)viewerName, "Viewer") > 0) {
         TRestEventViewer* viewer = REST_Reflection::Assembly((string)viewerName);
         if (viewer != nullptr) {
@@ -289,7 +287,7 @@ Bool_t TRestBrowser::LoadEventId(Int_t id, Int_t subid) {
     return kTRUE;
 }
 
-Bool_t TRestBrowser::OpenFile(TString filename) {
+Bool_t TRestBrowser::OpenFile(const TString& filename) {
     if (filename.Contains("http") || TRestTools::fileExists(filename.Data())) {
         fInputFileName = filename;
 
@@ -308,7 +306,8 @@ Bool_t TRestBrowser::OpenFile(TString filename) {
                     string eventtype = Replace((string)br->GetName(), "Branch", "");
                     fEventTypeComboBox->AddEntry(eventtype.c_str(), fEventTypeComboBox->GetNumberOfEntries());
                     // we make the entry of input event being selected
-                    if (r->GetInputEvent() != nullptr && (string)r->GetInputEvent()->ClassName() == eventtype) {
+                    if (r->GetInputEvent() != nullptr &&
+                        (string)r->GetInputEvent()->ClassName() == eventtype) {
                         fEventTypeComboBox->Select(fEventTypeComboBox->GetNumberOfEntries() - 1, false);
                     }
                 }

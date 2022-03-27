@@ -57,6 +57,7 @@
 #include "TDataMember.h"
 #include "TRestManager.h"
 #include "TRestRun.h"
+
 using namespace std;
 
 ClassImp(TRestEventProcess);
@@ -202,7 +203,7 @@ Int_t TRestEventProcess::LoadSectionMetadata() {
             if (ele->Value() != nullptr && (string)ele->Value() == "cut") {
                 if (ele->Attribute("name") != nullptr && ele->Attribute("value") != nullptr) {
                     string name = ele->Attribute("name");
-                    name = (string) this->GetName() + "_" + name;
+                    name = (string)this->GetName() + "_" + name;
                     TVector2 value = StringTo2DVector(ele->Attribute("value"));
                     if (value.X() != value.Y()) fCuts.push_back(pair<string, TVector2>(name, value));
                 }
@@ -256,7 +257,7 @@ TRestMetadata* TRestEventProcess::GetMetadata(string name) {
 /// and acts differently according to the added friends. For example, we can
 /// retrieve some common parameters from the friend process. We can also re-use
 /// the input/output event to compare the difference.
-TRestEventProcess* TRestEventProcess::GetFriend(string nameortype) {
+TRestEventProcess* TRestEventProcess::GetFriend(const string& nameortype) {
     TRestEventProcess* proc = GetFriendLive(nameortype);
     if (proc == nullptr) {
         TRestMetadata* friendfromfile = GetMetadata(nameortype);
@@ -273,7 +274,7 @@ TRestEventProcess* TRestEventProcess::GetFriend(string nameortype) {
 /// \brief Get friendly TRestEventProcess object
 ///
 /// Only lively process(in the process chain) is searched.
-TRestEventProcess* TRestEventProcess::GetFriendLive(string nameortype) {
+TRestEventProcess* TRestEventProcess::GetFriendLive(const string& nameortype) {
     for (int i = 0; i < fFriendlyProcesses.size(); i++) {
         if ((string)fFriendlyProcesses[i]->GetName() == nameortype ||
             (string)fFriendlyProcesses[i]->ClassName() == nameortype) {

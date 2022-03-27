@@ -36,7 +36,7 @@ class TRestVolumeHits : public TRestHits {
    public:
     void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t time, REST_HitType type,
                 Double_t sigmax, Double_t sigmay, Double_t sigmaz);
-    void AddHit(TVector3 pos, Double_t en, Double_t time, REST_HitType type, TVector3 sigma);
+    void AddHit(const TVector3& pos, Double_t en, Double_t time, REST_HitType type, const TVector3& sigma);
     void AddHit(TRestVolumeHits& hits, Int_t n);
 
     void RemoveHits();

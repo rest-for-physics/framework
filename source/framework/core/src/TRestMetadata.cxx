@@ -445,12 +445,12 @@
 #include "TRestMetadata.h"
 
 #include <TMath.h>
+#include <v5/TFormula.h>
 
 #include <iomanip>
 
 #include "TRestDataBase.h"
 #include "TStreamerInfo.h"
-#include "v5/TFormula.h"
 
 // implementation of version methods in namespace rest_version
 /*
@@ -515,15 +515,15 @@ TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(this) {
 /// \brief TRestMetadata default destructor
 ///
 TRestMetadata::~TRestMetadata() {
-    if (fElementGlobal) delete fElementGlobal;
-    if (fElement) delete fElement;
+    delete fElementGlobal;
+    delete fElement;
 }
 
 ///////////////////////////////////////////////
 /// \brief Give the file name, find out the corresponding section. Then call the
 /// main starter.
 ///
-Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) {
+Int_t TRestMetadata::LoadConfigFromFile(const string& cfgFileName, string sectionName) {
     fConfigFileName = cfgFileName;
     if (TRestTools::fileExists(fConfigFileName)) {
         if (sectionName == "") {
@@ -599,7 +599,7 @@ Int_t TRestMetadata::LoadConfigFromElement(TiXmlElement* eSectional, TiXmlElemen
         return 0;
     }
     fElement = theElement;
-    fElementGlobal = eGlobal ? (TiXmlElement*)eGlobal->Clone() : NULL;
+    fElementGlobal = eGlobal ? (TiXmlElement*)eGlobal->Clone() : nullptr;
     fVariables = envs;
 
     int result = LoadSectionMetadata();
@@ -681,7 +681,7 @@ Int_t TRestMetadata::LoadSectionMetadata() {
 /// ReplaceMathematicalExpressions() in sequence. "name" attribute won't be
 /// replaced by constants to avoid conflict.
 TiXmlElement* TRestMetadata::ReplaceElementAttributes(TiXmlElement* e) {
-    if (e == nullptr) return NULL;
+    if (e == nullptr) return nullptr;
 
     debug << "Entering ... TRestMetadata::ReplaceElementAttributes" << endl;
 
@@ -1354,7 +1354,7 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlEleme
 }
 
 TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
-                                                      TVector2 defaultVal) {
+                                                      const TVector2& defaultVal) {
     if (ele == nullptr) return defaultVal;
     pair<string, string> val_unit = GetParameterAndUnits(parName, ele);
     string val = val_unit.first;
@@ -1372,7 +1372,7 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXml
 }
 
 TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
-                                                      TVector3 defaultVal) {
+                                                      const TVector3& defaultVal) {
     if (ele == nullptr) return defaultVal;
     pair<string, string> val_unit = GetParameterAndUnits(parName, ele);
     string val = val_unit.first;
@@ -1384,7 +1384,7 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXml
         Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
         Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
-        return TVector3(valueX, valueY, valueZ);
+        return {valueX, valueY, valueZ};
     }
 
     return defaultVal;
@@ -1458,7 +1458,7 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, Double_t d
     return defaultVal;
 }
 
-TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TVector2 defaultVal) {
+TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, const TVector2& defaultVal) {
     pair<string, string> val_unit = GetParameterAndUnits(parName);
     string val = val_unit.first;
     string unit = val_unit.second;
@@ -1468,12 +1468,12 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TVect
         TVector2 value = StringTo2DVector(val);
         Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
-        return TVector2(valueX, valueY);
+        return {valueX, valueY};
     }
     return defaultVal;
 }
 
-TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVector3 defaultVal) {
+TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, const TVector3& defaultVal) {
     pair<string, string> val_unit = GetParameterAndUnits(parName);
     string val = val_unit.first;
     string unit = val_unit.second;
@@ -1484,7 +1484,7 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVect
         Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
         Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
-        return TVector3(valueX, valueY, valueZ);
+        return {valueX, valueY, valueZ};
     }
     return defaultVal;
 }
@@ -1554,7 +1554,7 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
         rootele = rootele->NextSiblingElement();
     }
 
-    return NULL;
+    return nullptr;
     /*ferr << "Cannot find xml element with name \""<< NameOrDecalre <<"\" in rml
     file \"" << cfgFileName << endl; GetChar(); exit(1);*/
 }
@@ -1572,7 +1572,7 @@ TiXmlElement* TRestMetadata::GetElement(std::string eleDeclare, TiXmlElement* e)
 /// \brief Get the next sibling xml element of this element, with same eleDeclare
 ///
 TiXmlElement* TRestMetadata::GetNextElement(TiXmlElement* e) {
-    if (e == nullptr) return NULL;
+    if (e == nullptr) return nullptr;
     return e->NextSiblingElement(e->Value());
 }
 
@@ -1590,7 +1590,7 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
 ///
 TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::string eleName,
                                                 TiXmlElement* e) {
-    if (e == nullptr) return NULL;
+    if (e == nullptr) return nullptr;
     if (eleDeclare == "")  // find only with name
     {
         TiXmlElement* ele = e->FirstChildElement();
@@ -1613,7 +1613,7 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
         return ele;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 ///////////////////////////////////////////////
@@ -1687,10 +1687,10 @@ pair<string, string> TRestMetadata::GetParameterAndUnits(string parName, TiXmlEl
 ///
 /// This method creates TiXmlElement object with the alloator "new".
 /// Be advised to delete the object after using it!
-TiXmlElement* TRestMetadata::StringToElement(string definition) {
-    TiXmlElement* ele = new TiXmlElement("temp");
+static TiXmlElement* TRestMetadata::StringToElement(string definition) {
+    auto ele = new TiXmlElement("temp");
     // TiXmlDocument*doc = new TiXmlDocument();
-    ele->Parse(definition.c_str(), NULL, TIXML_ENCODING_UTF8);
+    ele->Parse(definition.c_str(), nullptr, TIXML_ENCODING_UTF8);
     return ele;
 }
 

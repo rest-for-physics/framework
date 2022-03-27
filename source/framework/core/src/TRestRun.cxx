@@ -32,28 +32,20 @@
 #include "TRestManager.h"
 #include "TRestVersion.h"
 
+using namespace std;
+
 std::mutex mutex2;
 
 ClassImp(TRestRun);
 
 TRestRun::TRestRun() { Initialize(); }
 
-TRestRun::TRestRun(string rootfilename) {
+TRestRun::TRestRun(const string& rootfilename) {
     Initialize();
     OpenInputFile(rootfilename);
 }
 
-TRestRun::~TRestRun() {
-    // if (fEventTree != nullptr) {
-    //    delete fEventTree;
-    //}
-
-    // if (fAnalysisTree != nullptr) {
-    //    delete fAnalysisTree;
-    //}
-
-    CloseFile();
-}
+TRestRun::~TRestRun() { CloseFile(); }
 
 ///////////////////////////////////////////////
 /// \brief Set variables by default during initialization.
@@ -97,8 +89,6 @@ void TRestRun::Initialize() {
     fEventBranchLoc = -1;
     fFileProcess = nullptr;
     fSaveHistoricData = true;
-
-    return;
 }
 
 ///////////////////////////////////////////////
@@ -339,7 +329,7 @@ void TRestRun::OpenInputFile(int i) {
 /// 2. update its class's data(version, tag, user, etc.) to the same as the one stored in the input file.
 /// 3. link the input event and observables to the corresponding tree
 ///
-void TRestRun::OpenInputFile(TString filename, string mode) {
+void TRestRun::OpenInputFile(TString filename, const string& mode) {
     CloseFile();
     if (!filename.Contains("http") && !TRestTools::fileExists((string)filename)) {
         ferr << "input file \"" << filename << "\" does not exist!" << endl;
@@ -832,7 +822,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 /// \code Run[fRunNumber]_Proc_[LastProcess].root \endcode
 /// and generates:
 /// \code Run00000_T2018-01-01_08:00:00_Proc_sAna.root \endcode
-TString TRestRun::FormFormat(TString FilenameFormat) {
+TString TRestRun::FormFormat(const TString& FilenameFormat) {
     string inString = (string)FilenameFormat;
     string outString = (string)FilenameFormat;
 
@@ -880,7 +870,7 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
 TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilename) {
     debug << "TRestRun::FormOutputFile. target : " << outputfilename << endl;
     string filename;
-    TFileMerger* m = new TFileMerger(false);
+    auto m = new TFileMerger(false);
     if (outputfilename == "") {
         filename = fOutputFileName;
         info << "Creating file : " << filename << endl;
@@ -1184,7 +1174,7 @@ void TRestRun::AddEventBranch(TRestEvent* eve) {
 ///
 /// The metadata class can be recovered to the same condition as when it is
 /// saved.
-void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t store) {
+void TRestRun::ImportMetadata(const TString& File, const TString& name, const TString& type, Bool_t store) {
     auto fileold = File;
     File = SearchFile(File.Data());
     if (File == "") {
@@ -1198,7 +1188,7 @@ void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t s
         return;
     }
 
-    TFile* f = new TFile(File);
+    auto f = new TFile(File);
     // TODO give error in case we try to obtain a class that is not TRestMetadata
     if (type == "" && name == "") {
         ferr << "(ImportMetadata) : metadata type and name is not "
@@ -1259,7 +1249,7 @@ int TRestRun::GetEntries() {
 }
 
 // Getters
-TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString tag) {
+TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, const TString& tag) {
     if (fAnalysisTree != nullptr) {
         int nentries = fAnalysisTree->GetEntries();
 
@@ -1477,7 +1467,7 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
     return nullptr;
 }
 
-TRestMetadata* TRestRun::GetMetadata(TString name, TFile* f) {
+TRestMetadata* TRestRun::GetMetadata(const TString& name, TFile* f) {
     if (f != nullptr) {
         TIter nextkey(f->GetListOfKeys());
         TKey* key;
@@ -1821,4 +1811,3 @@ void TRestRun::PrintWarnings() {
         cout << "No warnings found!" << endl;
     }
 }
-

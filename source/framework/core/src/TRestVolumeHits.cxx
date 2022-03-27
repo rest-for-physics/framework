@@ -17,11 +17,12 @@
 ///_______________________________________________________________________________
 
 #include "TRestVolumeHits.h"
+
 using namespace std;
 
-ClassImp(TRestVolumeHits)
-    //______________________________________________________________________________
-    TRestVolumeHits::TRestVolumeHits() {
+ClassImp(TRestVolumeHits);
+
+TRestVolumeHits::TRestVolumeHits() {
     // TRestVolumeHits default constructor
 }
 
@@ -43,7 +44,8 @@ void TRestVolumeHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Do
     fSigmaZ.push_back((Float_t)sigmaz);
 }
 
-void TRestVolumeHits::AddHit(TVector3 pos, Double_t en, Double_t time, REST_HitType type, TVector3 sigma) {
+void TRestVolumeHits::AddHit(const TVector3& pos, Double_t en, Double_t time, REST_HitType type,
+                             const TVector3& sigma) {
     if (fType.size() > 0 && type != fType[0]) {
         cout << "Error! Cannot add different typed hits into TRestVolumeHits!" << endl;
         return;

@@ -126,7 +126,7 @@ class TRestMesh : public TObject {
     Int_t FindForeignNeighbour(Int_t nx, Int_t ny, Int_t nz);
 
     void SetOrigin(Double_t oX, Double_t oY, Double_t oZ);
-    void SetOrigin(TVector3 pos);
+    void SetOrigin(const TVector3& pos);
 
     void SetSize(Double_t sX, Double_t sY, Double_t sZ);
 
@@ -175,8 +175,8 @@ class TRestMesh : public TObject {
 
     void RemoveNodes();
 
-    Bool_t IsInside(TVector3 pos);
-    Bool_t IsInsideBoundingBox(TVector3 pos);
+    Bool_t IsInside(const TVector3& pos);
+    Bool_t IsInsideBoundingBox(const TVector3& pos);
 
     std::vector<TVector3> GetTrackBoundaries(TVector3 pos, TVector3 dir, Bool_t particle = true);
     std::vector<TVector3> GetTrackBoundariesCylinder(TVector3 pos, TVector3 dir, Bool_t particle = true);
@@ -187,7 +187,7 @@ class TRestMesh : public TObject {
     TRestMesh();
 
     TRestMesh(Double_t size, Int_t nodes);
-    TRestMesh(TVector3 size, TVector3 position, Int_t nx, Int_t ny, Int_t nz);
+    TRestMesh(const TVector3& size, const TVector3& position, Int_t nx, Int_t ny, Int_t nz);
     // Destructor
     ~TRestMesh();
 

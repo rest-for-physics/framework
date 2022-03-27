@@ -58,7 +58,9 @@
 ///
 
 #include "TRestMesh.h"
+
 #include "TRestPhysics.h"
+
 using namespace std;
 using namespace TMath;
 
@@ -88,7 +90,7 @@ TRestMesh::TRestMesh(Double_t size, Int_t nodes) {
 ///////////////////////////////////////////////
 /// \brief Constructor specifying the size, origin, and number of nodes in each dimension.
 ///
-TRestMesh::TRestMesh(TVector3 size, TVector3 position, Int_t nx, Int_t ny, Int_t nz) {
+TRestMesh::TRestMesh(const TVector3& size, const TVector3& position, Int_t nx, Int_t ny, Int_t nz) {
     fNetSizeX = size.X();
     fNetSizeY = size.Y();
     fNetSizeZ = size.Z();
@@ -143,10 +145,10 @@ TVector3 TRestMesh::GetPosition(Int_t nX, Int_t nY, Int_t nZ) {
         Double_t x = fNetOrigin.X() + (fNetSizeX / (fNodesX - 1)) * nX;
         Double_t y = fNetOrigin.Y() + (fNetSizeY / (fNodesY - 1)) * nY;
         Double_t z = fNetOrigin.Z() + (fNetSizeZ / (fNodesZ - 1)) * nZ;
-        return TVector3(x, y, z);
+        return {x, y, z};
     }
 
-    return TVector3(0, 0, 0);
+    return {0, 0, 0};
 }
 
 ///////////////////////////////////////////////
@@ -512,7 +514,7 @@ void TRestMesh::SetOrigin(Double_t oX, Double_t oY, Double_t oZ) {
 ///////////////////////////////////////////////
 /// \brief Sets the origin of the bounding-box and initializes the nodes vector to zero.
 ///
-void TRestMesh::SetOrigin(TVector3 pos) {
+void TRestMesh::SetOrigin(const TVector3& pos) {
     fNetOrigin = pos;
     // TODO instead of removing nodes we might need just to re-translate the
     // existing nodes
@@ -628,7 +630,7 @@ void TRestMesh::RemoveNodes() {
 ///////////////////////////////////////////////
 /// \brief It returns true if the position is found inside the grid (box,sphere or cylinder).
 ///
-Bool_t TRestMesh::IsInside(TVector3 pos) {
+Bool_t TRestMesh::IsInside(const TVector3& pos) {
     if (pos.Z() < fNetOrigin.Z() || pos.Z() > fNetOrigin.Z() + fNetSizeZ) return false;
 
     if (IsSpherical()) {
@@ -660,7 +662,7 @@ Bool_t TRestMesh::IsInside(TVector3 pos) {
 ///////////////////////////////////////////////
 /// \brief It returns true if the position is found inside the bounding box
 ///
-Bool_t TRestMesh::IsInsideBoundingBox(TVector3 pos) {
+Bool_t TRestMesh::IsInsideBoundingBox(const TVector3& pos) {
     if (pos.Z() < fNetOrigin.Z() || pos.Z() > fNetOrigin.Z() + fNetSizeZ) return false;
     if (pos.X() < fNetOrigin.X() || pos.X() > fNetOrigin.X() + fNetSizeX) return false;
     if (pos.Y() < fNetOrigin.Y() || pos.Y() > fNetOrigin.Y() + fNetSizeY) return false;
@@ -777,8 +779,8 @@ std::vector<TVector3> TRestMesh::GetTrackBoundaries(TVector3 pos, TVector3 dir, 
             // Both should be positive so that the particle is approaching the volume
             if (d1 < 0 || d2 < 0) boundaries.clear();
 
-            // The first boundary will be always related to the closer IN boundary
-            // If it is no the case we exchange them.
+            // The first boundary will always be related to the closer IN boundary
+            // If it is not the case we exchange them.
             if (d1 > d2) iter_swap(boundaries.begin(), boundaries.begin() + 1);
         }
     }
@@ -795,7 +797,7 @@ std::vector<TVector3> TRestMesh::GetTrackBoundariesCylinder(TVector3 pos, TVecto
     std::vector<TVector3> boundaries;
     boundaries.clear();
 
-    // By definition we take the first component as the radius of the cylinder
+    // By definition, we take the first component as the radius of the cylinder
     Double_t R2 = fNetSizeX * fNetSizeX / 4.;
 
     TVector3 pos2D = TVector3(pos.X() - netCenter.X(), pos.Y() - netCenter.Y(), 0);
@@ -808,7 +810,7 @@ std::vector<TVector3> TRestMesh::GetTrackBoundariesCylinder(TVector3 pos, TVecto
     Double_t posMag2 = pos2D.Mag2();
     Double_t root = product2 - dirMag2 * (posMag2 - R2);
 
-    // For simplicity we ignore tangencial tracks. Those that produce 1-solution.
+    // For simplicity, we ignore tangential tracks. Those that produce 1-solution.
     // If root < 0 there is no real solution to the intersection
     if (root > 0) {
         Double_t t1 = (-product - TMath::Sqrt(root)) / dirMag2;
@@ -859,8 +861,8 @@ std::vector<TVector3> TRestMesh::GetTrackBoundariesCylinder(TVector3 pos, TVecto
         // Both should be positive so that the particle is approaching the volume
         if (d1 < 0 || d2 < 0) boundaries.clear();
 
-        // The first boundary will be always related to the closer IN boundary
-        // If it is no the case we exchange them.
+        // The first boundary will always be related to the closer IN boundary
+        // If it is not the case we exchange them.
         if (d1 > d2) iter_swap(boundaries.begin(), boundaries.begin() + 1);
     }
 

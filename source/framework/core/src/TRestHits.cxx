@@ -19,7 +19,9 @@
 ///_______________________________________________________________________________
 
 #include "TRestHits.h"
-#include "TROOT.h"
+
+#include <TROOT.h>
+
 using namespace std;
 using namespace TMath;
 
@@ -127,8 +129,8 @@ Double_t TRestHits::GetEnergyIntegral() {
     return sum;
 }
 
-Bool_t TRestHits::isHitNInsidePrism(Int_t n, TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
-                                    Double_t theta) {
+Bool_t TRestHits::isHitNInsidePrism(Int_t n, const TVector3& x0, const TVector3& x1, Double_t sizeX,
+                                    Double_t sizeY, Double_t theta) {
     TVector3 axis = x1 - x0;
 
     Double_t prismLength = axis.Mag();
@@ -143,7 +145,7 @@ Bool_t TRestHits::isHitNInsidePrism(Int_t n, TVector3 x0, TVector3 x1, Double_t 
     return false;
 }
 
-Double_t TRestHits::GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
+Double_t TRestHits::GetEnergyInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX, Double_t sizeY,
                                      Double_t theta) {
     Double_t energy = 0.;
 
@@ -153,8 +155,8 @@ Double_t TRestHits::GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, D
     return energy;
 }
 
-Int_t TRestHits::GetNumberOfHitsInsidePrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
-                                            Double_t theta) {
+Int_t TRestHits::GetNumberOfHitsInsidePrism(const TVector3& x0, const TVector3& x1, Double_t sizeX,
+                                            Double_t sizeY, Double_t theta) {
     Int_t hits = 0;
 
     for (int n = 0; n < GetNumberOfHits(); n++)
@@ -163,7 +165,7 @@ Int_t TRestHits::GetNumberOfHitsInsidePrism(TVector3 x0, TVector3 x1, Double_t s
     return hits;
 }
 
-Bool_t TRestHits::isHitNInsideCylinder(Int_t n, TVector3 x0, TVector3 x1, Double_t radius) {
+Bool_t TRestHits::isHitNInsideCylinder(Int_t n, const TVector3& x0, const TVector3& x1, Double_t radius) {
     /* cout << "TRestHits::isHitNInsideCylinder has not been validated." << endl;
      cout << "After validation this output should be removed" << endl;*/
 
@@ -201,7 +203,7 @@ Double_t TRestHits::GetEnergyInCylinder(Int_t i, Int_t j, Double_t radius) {
     return GetEnergyInCylinder(this->GetPosition(i), this->GetPosition(j), radius);
 }
 
-Double_t TRestHits::GetEnergyInCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
+Double_t TRestHits::GetEnergyInCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) {
     Double_t energy = 0.;
     for (int n = 0; n < GetNumberOfHits(); n++) {
         if (isHitNInsideCylinder(n, x0, x1, radius)) energy += this->GetEnergy(n);
@@ -214,7 +216,7 @@ Int_t TRestHits::GetNumberOfHitsInsideCylinder(Int_t i, Int_t j, Double_t radius
     return GetNumberOfHitsInsideCylinder(this->GetPosition(i), this->GetPosition(j), radius);
 }
 
-Int_t TRestHits::GetNumberOfHitsInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
+Int_t TRestHits::GetNumberOfHitsInsideCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) {
     Int_t hits = 0;
     for (int n = 0; n < GetNumberOfHits(); n++)
         if (isHitNInsideCylinder(n, x0, x1, radius)) hits++;
@@ -222,7 +224,7 @@ Int_t TRestHits::GetNumberOfHitsInsideCylinder(TVector3 x0, TVector3 x1, Double_
     return hits;
 }
 
-Double_t TRestHits::GetEnergyInSphere(TVector3 pos0, Double_t radius) {
+Double_t TRestHits::GetEnergyInSphere(const TVector3& pos0, Double_t radius) {
     return GetEnergyInSphere(pos0.X(), pos0.Y(), pos0.Z(), radius);
 }
 
@@ -240,7 +242,7 @@ Double_t TRestHits::GetEnergyInSphere(Double_t x0, Double_t y0, Double_t z0, Dou
     return sum;
 }
 
-Bool_t TRestHits::isHitNInsideSphere(Int_t n, TVector3 pos0, Double_t radius) {
+Bool_t TRestHits::isHitNInsideSphere(Int_t n, const TVector3& pos0, Double_t radius) {
     return isHitNInsideSphere(n, pos0.X(), pos0.Y(), pos0.Z(), radius);
 }
 
@@ -268,7 +270,7 @@ void TRestHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t
     fTotEnergy += en;
 }
 
-void TRestHits::AddHit(TVector3 pos, Double_t en, Double_t t, REST_HitType type) {
+void TRestHits::AddHit(const TVector3& pos, Double_t en, Double_t t, REST_HitType type) {
     fNHits++;
 
     fX.push_back((Float_t)(pos.X()));
@@ -309,7 +311,7 @@ void TRestHits::Translate(Int_t n, double x, double y, double z) {
     fZ[n] += z;
 }
 
-void TRestHits::RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, TVector3 vMean) {
+void TRestHits::RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, const TVector3& vMean) {
     TVector3 position = GetPosition(n);
     TVector3 vHit = position - vMean;
 
@@ -322,7 +324,7 @@ void TRestHits::RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamm
     fZ[n] = vHit[2] + vMean[2];
 }
 
-void TRestHits::Rotate(Int_t n, Double_t alpha, TVector3 vAxis, TVector3 vMean) {
+void TRestHits::Rotate(Int_t n, Double_t alpha, const TVector3& vAxis, const TVector3& vMean) {
     TVector3 vHit;
 
     vHit[0] = fX[n] - vMean[0];
@@ -547,115 +549,117 @@ Double_t TRestHits::GetSigmaY() {
     return sigmaY = TMath::Sqrt(sigmaY2);
 }
 
-void TRestHits::WriteHitsToTextFile(TString filename) {
+void TRestHits::WriteHitsToTextFile(const TString& filename) {
     FILE* fff = fopen(filename.Data(), "w");
     for (int i = 0; i < GetNumberOfHits(); i++) {
         if ((fType.size() == 0 ? !IsNaN(fX[i]) : fType[i] % X == 0))
             fprintf(fff, "%d\t%e\t%s\t%e\t%e\n", i, fX[i], "NaN", fZ[i], fEnergy[i]);
-        if ((fType.size() == 0 ? !IsNaN(fY[i]) : fType[i] % Y == 0))		
+        if ((fType.size() == 0 ? !IsNaN(fY[i]) : fType[i] % Y == 0))
             fprintf(fff, "%d\t%s\t%e\t%e\t%e\n", i, "NaN", fY[i], fZ[i], fEnergy[i]);
     }
     fclose(fff);
 }
 
 Double_t TRestHits::GetGaussSigmaX() {
-	Double_t gausSigmaX = 0;
-	Int_t nHits = GetNumberOfHits();
-	Double_t x[nHits], y[nHits], ex[nHits], ey[nHits];
-	if (nHits <= 3) {	
-		gausSigmaX = 0;
-	} else {
-		for (int n = 0; n < GetNumberOfHits(); n++) {
-				x[n] = fX[n];
-				y[n] = fEnergy[n];
-				ex[n] = 0;
-				if (y[n] != 0) {
-					ey[n] = 10*sqrt(y[n]);		
-				} else {
-					ey[n] = 0; 
-				}
-		}	
-		TGraphErrors *grX = new TGraphErrors(nHits,x,y,ex,ey);
-		Double_t maxY =  MaxElement(nHits,grX->GetY());
-		Double_t maxX = grX->GetX()[LocMax(nHits,grX->GetY())];
+    Double_t gausSigmaX = 0;
+    Int_t nHits = GetNumberOfHits();
+    Double_t x[nHits], y[nHits], ex[nHits], ey[nHits];
+    if (nHits <= 3) {
+        gausSigmaX = 0;
+    } else {
+        for (int n = 0; n < GetNumberOfHits(); n++) {
+            x[n] = fX[n];
+            y[n] = fEnergy[n];
+            ex[n] = 0;
+            if (y[n] != 0) {
+                ey[n] = 10 * sqrt(y[n]);
+            } else {
+                ey[n] = 0;
+            }
+        }
+        auto grX = new TGraphErrors(nHits, x, y, ex, ey);
+        Double_t maxY = MaxElement(nHits, grX->GetY());
+        Double_t maxX = grX->GetX()[LocMax(nHits, grX->GetY())];
 
-		TF1 *fit = new TF1("","gaus");
-		fit->SetParameter(0,maxY);
-		fit->SetParameter(1,maxX);
-		fit->SetParameter(2, 2.0);
-		grX->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start parmaeters; R = Use the Range specified in the function range
+        TF1* fit = new TF1("", "gaus");
+        fit->SetParameter(0, maxY);
+        fit->SetParameter(1, maxX);
+        fit->SetParameter(2, 2.0);
+        grX->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
+                               // parmaeters; R = Use the Range specified in the function range
 
-		gausSigmaX = fit->GetParameter(2);
+        gausSigmaX = fit->GetParameter(2);
+    }
 
-	}
-
-	return gausSigmaX;
+    return gausSigmaX;
 }
 
 Double_t TRestHits::GetGaussSigmaY() {
-	Double_t gausSigmaY = 0;
-	Int_t nHits = GetNumberOfHits();
+    Double_t gausSigmaY = 0;
+    Int_t nHits = GetNumberOfHits();
 
-	Double_t x[nHits], y[nHits], ex[nHits], ey[nHits];
-	if (nHits <= 3) {	
-		gausSigmaY = 0;
-	} else {
-		for (int n = 0; n < GetNumberOfHits(); n++) {
-				x[n] = fY[n];
-				y[n] = fEnergy[n];
-				ex[n] = 0;
-				if (y[n] != 0) {
-					ey[n] = 10*sqrt(y[n]);	
-				} else {
-					ey[n] = 0; 
-				}
-		}	
-		TGraphErrors *grY = new TGraphErrors(nHits,x,y,ex,ey);
-		Double_t maxY =  MaxElement(nHits,grY->GetY());
-		Double_t maxX = grY->GetX()[LocMax(nHits,grY->GetY())];
-		   
-		TF1 *fit = new TF1("","gaus");
-		fit->SetParameter(0,maxY);
-		fit->SetParameter(1,maxX);
-		fit->SetParameter(2, 2.0);
-		grY->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start parmaeters; R = Use the Range specified in the function range
+    Double_t x[nHits], y[nHits], ex[nHits], ey[nHits];
+    if (nHits <= 3) {
+        gausSigmaY = 0;
+    } else {
+        for (int n = 0; n < GetNumberOfHits(); n++) {
+            x[n] = fY[n];
+            y[n] = fEnergy[n];
+            ex[n] = 0;
+            if (y[n] != 0) {
+                ey[n] = 10 * sqrt(y[n]);
+            } else {
+                ey[n] = 0;
+            }
+        }
+        auto grY = new TGraphErrors(nHits, x, y, ex, ey);
+        Double_t maxY = MaxElement(nHits, grY->GetY());
+        Double_t maxX = grY->GetX()[LocMax(nHits, grY->GetY())];
 
-		gausSigmaY = fit->GetParameter(2);
-	}
-	return gausSigmaY;
+        TF1* fit = new TF1("", "gaus");
+        fit->SetParameter(0, maxY);
+        fit->SetParameter(1, maxX);
+        fit->SetParameter(2, 2.0);
+        grY->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
+                               // parmaeters; R = Use the Range specified in the function range
+
+        gausSigmaY = fit->GetParameter(2);
+    }
+    return gausSigmaY;
 }
 
 Double_t TRestHits::GetGaussSigmaZ() {
-	Double_t gausSigmaZ = 0;
-	Int_t nHits = GetNumberOfHits();
+    Double_t gausSigmaZ = 0;
+    Int_t nHits = GetNumberOfHits();
 
-	Double_t x[nHits], y[nHits], ex[nHits], ey[nHits];
-	if (nHits <= 3) {	
-		gausSigmaZ = 0;
-	} else {
-		for (int n = 0; n < GetNumberOfHits(); n++) {
-				x[n] = fZ[n];
-				y[n] = fEnergy[n];
-				ex[n] = 0;
-				if (y[n] != 0) {
-					ey[n] = 10*sqrt(y[n]);	
-				} else {
-					ey[n] = 0; 
-				}
-		}	
-		TGraphErrors *grZ = new TGraphErrors(nHits,x,y,ex,ey);
-		Double_t maxY =  MaxElement(nHits,grZ->GetY());
-		Double_t maxX = grZ->GetX()[LocMax(nHits,grZ->GetY())];
+    Double_t x[nHits], y[nHits], ex[nHits], ey[nHits];
+    if (nHits <= 3) {
+        gausSigmaZ = 0;
+    } else {
+        for (int n = 0; n < GetNumberOfHits(); n++) {
+            x[n] = fZ[n];
+            y[n] = fEnergy[n];
+            ex[n] = 0;
+            if (y[n] != 0) {
+                ey[n] = 10 * sqrt(y[n]);
+            } else {
+                ey[n] = 0;
+            }
+        }
+        auto grZ = new TGraphErrors(nHits, x, y, ex, ey);
+        Double_t maxY = MaxElement(nHits, grZ->GetY());
+        Double_t maxX = grZ->GetX()[LocMax(nHits, grZ->GetY())];
 
-		TF1 *fit = new TF1("","gaus",maxX-5,maxX+5);
-		fit->SetParameter(0,maxY);
-		fit->SetParameter(1,maxX);
-		fit->SetParameter(2, 2.0);
-		grZ->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start parmaeters; R = Use the Range specified in the function range
+        TF1* fit = new TF1("", "gaus", maxX - 5, maxX + 5);
+        fit->SetParameter(0, maxY);
+        fit->SetParameter(1, maxX);
+        fit->SetParameter(2, 2.0);
+        grZ->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
+                               // parmaeters; R = Use the Range specified in the function range
 
-		gausSigmaZ = fit->GetParameter(2);
-	}
-	return gausSigmaZ;
+        gausSigmaZ = fit->GetParameter(2);
+    }
+    return gausSigmaZ;
 }
 
 Double_t TRestHits::GetSkewXY() {
@@ -696,8 +700,8 @@ Double_t TRestHits::GetSkewZ() {
     return skewZ /= (totalEnergy * sigmaZ * sigmaZ * sigmaZ);
 }
 
-Double_t TRestHits::GetMeanPositionXInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
-                                            Double_t theta) {
+Double_t TRestHits::GetMeanPositionXInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX,
+                                            Double_t sizeY, Double_t theta) {
     Double_t meanX = 0;
     Double_t totalEnergy = 0;
     for (int n = 0; n < GetNumberOfHits(); n++) {
@@ -713,8 +717,8 @@ Double_t TRestHits::GetMeanPositionXInPrism(TVector3 x0, TVector3 x1, Double_t s
     return meanX;
 }
 
-Double_t TRestHits::GetMeanPositionYInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
-                                            Double_t theta) {
+Double_t TRestHits::GetMeanPositionYInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX,
+                                            Double_t sizeY, Double_t theta) {
     Double_t meanY = 0;
     Double_t totalEnergy = 0;
     for (int n = 0; n < GetNumberOfHits(); n++) {
@@ -729,8 +733,8 @@ Double_t TRestHits::GetMeanPositionYInPrism(TVector3 x0, TVector3 x1, Double_t s
 
     return meanY;
 }
-Double_t TRestHits::GetMeanPositionZInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
-                                            Double_t theta) {
+Double_t TRestHits::GetMeanPositionZInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX,
+                                            Double_t sizeY, Double_t theta) {
     Double_t meanZ = 0;
     Double_t totalEnergy = 0;
     for (int n = 0; n < GetNumberOfHits(); n++) {
@@ -745,15 +749,15 @@ Double_t TRestHits::GetMeanPositionZInPrism(TVector3 x0, TVector3 x1, Double_t s
     return meanZ;
 }
 
-TVector3 TRestHits::GetMeanPositionInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
-                                           Double_t theta) {
+TVector3 TRestHits::GetMeanPositionInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX,
+                                           Double_t sizeY, Double_t theta) {
     TVector3 mean(GetMeanPositionXInPrism(x0, x1, sizeX, sizeY, theta),
                   GetMeanPositionYInPrism(x0, x1, sizeX, sizeY, theta),
                   GetMeanPositionZInPrism(x0, x1, sizeX, sizeY, theta));
     return mean;
 }
 
-Double_t TRestHits::GetMeanPositionXInCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
+Double_t TRestHits::GetMeanPositionXInCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) {
     Double_t meanX = 0;
     Double_t totalEnergy = 0;
     for (int n = 0; n < GetNumberOfHits(); n++) {
@@ -769,7 +773,7 @@ Double_t TRestHits::GetMeanPositionXInCylinder(TVector3 x0, TVector3 x1, Double_
     return meanX;
 }
 
-Double_t TRestHits::GetMeanPositionYInCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
+Double_t TRestHits::GetMeanPositionYInCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) {
     Double_t meanY = 0;
     Double_t totalEnergy = 0;
     for (int n = 0; n < GetNumberOfHits(); n++) {
@@ -785,7 +789,7 @@ Double_t TRestHits::GetMeanPositionYInCylinder(TVector3 x0, TVector3 x1, Double_
     return meanY;
 }
 
-Double_t TRestHits::GetMeanPositionZInCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
+Double_t TRestHits::GetMeanPositionZInCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) {
     Double_t meanZ = 0;
     Double_t totalEnergy = 0;
     for (int n = 0; n < GetNumberOfHits(); n++) {
@@ -800,7 +804,7 @@ Double_t TRestHits::GetMeanPositionZInCylinder(TVector3 x0, TVector3 x1, Double_
     return meanZ;
 }
 
-TVector3 TRestHits::GetMeanPositionInCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
+TVector3 TRestHits::GetMeanPositionInCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) {
     TVector3 mean(GetMeanPositionXInCylinder(x0, x1, radius), GetMeanPositionYInCylinder(x0, x1, radius),
                   GetMeanPositionZInCylinder(x0, x1, radius));
     return mean;
@@ -855,7 +859,7 @@ Int_t TRestHits::GetMostEnergeticHitInRange(Int_t n, Int_t m) {
     return hit;
 }
 
-Int_t TRestHits::GetClosestHit(TVector3 position) {
+Int_t TRestHits::GetClosestHit(const TVector3& position) {
     Int_t closestHit = 0;
 
     Double_t minDistance = 1.e30;
@@ -872,22 +876,23 @@ Int_t TRestHits::GetClosestHit(TVector3 position) {
     return closestHit;
 }
 
-TVector2 TRestHits::GetProjection(Int_t n, Int_t m, TVector3 position) {
+TVector2 TRestHits::GetProjection(Int_t n, Int_t m, const TVector3& position) {
     TVector3 nodesSegment = this->GetVector(n, m);
 
     TVector3 origin = position - this->GetPosition(m);
 
-    if (origin == TVector3(0, 0, 0)) return TVector2(0, 0);
+    if (origin == TVector3(0, 0, 0)) return {0, 0};
 
     Double_t longitudinal = nodesSegment.Unit().Dot(origin);
-    if (origin == nodesSegment) return TVector2(longitudinal, 0);
+    if (origin == nodesSegment) return {longitudinal, 0};
 
     Double_t transversal = TMath::Sqrt(origin.Mag2() - longitudinal * longitudinal);
 
-    return TVector2(longitudinal, transversal);
+    return {longitudinal, transversal};
 }
 
-Double_t TRestHits::GetTransversalProjection(TVector3 p0, TVector3 direction, TVector3 position) {
+Double_t TRestHits::GetTransversalProjection(const TVector3& p0, const TVector3& direction,
+                                             const TVector3& position) {
     TVector3 oX = position - p0;
 
     if (oX == TVector3(0, 0, 0)) return 0;
@@ -1021,9 +1026,9 @@ TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator+=(const i
 
 TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator+(const int& n) {
     if (index + n >= maxindex) {
-        return TRestHits_Iterator(fHits, maxindex);
+        return {fHits, maxindex};
     } else {
-        return TRestHits_Iterator(fHits, index + n);
+        return {fHits, index + n};
     }
 }
 
@@ -1044,9 +1049,9 @@ TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator-=(const i
 
 TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator-(const int& n) {
     if (index - n <= 0) {
-        return TRestHits_Iterator(fHits, 0);
+        return {fHits, 0};
     } else {
-        return TRestHits_Iterator(fHits, index - n);
+        return {fHits, index - n};
     }
 }
 

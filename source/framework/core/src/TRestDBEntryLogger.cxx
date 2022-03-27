@@ -1,13 +1,14 @@
+#include "TRestDBEntryLogger.h"
+
 #include "TRestDataBase.h"
 #include "TRestManager.h"
 #include "TRestProcessRunner.h"
 #include "TRestStringOutput.h"
 
-#include "TRestDBEntryLogger.h"
+using namespace std;
 
 ClassImp(TRestDBEntryLogger);
 
-//______________________________________________________________________________
 TRestDBEntryLogger::TRestDBEntryLogger() { Initialize(); }
 
 void TRestDBEntryLogger::InitFromConfigFile() {

@@ -81,8 +81,8 @@
 
 using namespace std;
 
-ClassImp(TRestAnalysisTree) using namespace std;
-//______________________________________________________________________________
+ClassImp(TRestAnalysisTree);
+
 TRestAnalysisTree::TRestAnalysisTree() : TTree() {
     SetName("AnalysisTree");
     SetTitle("REST Analysis tree");

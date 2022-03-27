@@ -28,9 +28,13 @@
 
 #include "TRestManager.h"
 
-#include "TInterpreter.h"
-#include "TRestTask.h"
-#include "TSystem.h"
+#include <TInterpreter.h>
+#include <TRestTask.h>
+#include <TSystem.h>
+
+#include <utility>
+
+using namespace std;
 
 ClassImp(TRestManager);
 
@@ -67,7 +71,7 @@ int TRestManager::LoadSectionMetadata() { return TRestMetadata::LoadSectionMetad
 /// 3. C++ style command: call gInterpreter to execute it.
 /// Other types of declarations will be omitted.
 ///
-Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
+Int_t TRestManager::ReadConfig(const string& keydeclare, TiXmlElement* e) {
     // if (keydeclare == "TRestRun") {
     //	TRestRun* fRunInfo = new TRestRun();
     //	fRunInfo->SetHostmgr(this);
@@ -156,37 +160,37 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
 }
 
 void TRestManager::InitFromTask(string taskName, vector<string> arguments) {
-    TRestTask* tsk = TRestTask::GetTaskFromMacro(taskName);
+    TRestTask* tsk = TRestTask::GetTaskFromMacro(std::move(taskName));
     if (tsk == nullptr) {
         gSystem->Exit(-1);
     }
     tsk->SetArgumentValue(arguments);
-    tsk->RunTask(NULL);
+    tsk->RunTask(nullptr);
     gSystem->Exit(0);
 }
 
 ///////////////////////////////////////////////
 /// \brief Get the application metadata class, according to the type
 ///
-TRestMetadata* TRestManager::GetMetadataClass(string type) {
+TRestMetadata* TRestManager::GetMetadataClass(const string& type) {
     for (int i = 0; i < fMetaObjects.size(); i++) {
         if ((string)fMetaObjects[i]->ClassName() == type) {
             return fMetaObjects[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 ///////////////////////////////////////////////
 /// \brief Get the application metadata class, according to the name
 ///
-TRestMetadata* TRestManager::GetMetadata(string name) {
+TRestMetadata* TRestManager::GetMetadata(const string& name) {
     for (int i = 0; i < fMetaObjects.size(); i++) {
         if (fMetaObjects[i]->GetName() == name) {
             return fMetaObjects[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 ///////////////////////////////////////////////
@@ -194,4 +198,4 @@ TRestMetadata* TRestManager::GetMetadata(string name) {
 ///
 /// Not implemented.
 ///
-void TRestManager::PrintMetadata() { return; }
+void TRestManager::PrintMetadata() {}

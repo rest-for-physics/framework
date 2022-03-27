@@ -80,7 +80,6 @@
 
 ClassImp(TRestMessenger);
 
-//______________________________________________________________________________
 TRestMessenger::TRestMessenger() { Initialize(); }
 
 TRestMessenger::~TRestMessenger() {
@@ -93,11 +92,11 @@ TRestMessenger::~TRestMessenger() {
     }
 }
 
-TRestMessenger::TRestMessenger(int token, string mode) {
+TRestMessenger::TRestMessenger(int token, const string& mode) {
     Initialize();
-    LoadConfigFromElement(StringToElement("<TRestMessenger token=\"" + ToString(token) +
-                                          "\" mode=\"" + mode + "\"/>"),
-                          NULL, {});
+    LoadConfigFromElement(
+        StringToElement("<TRestMessenger token=\"" + ToString(token) + "\" mode=\"" + mode + "\"/>"), NULL,
+        {});
 }
 
 void TRestMessenger::Initialize() {
@@ -113,7 +112,7 @@ void TRestMessenger::Initialize() {
 //   <TRestMessenger name="Messager" title="Example" verboseLevel="info"
 //     messageSource="outputfile" token="116027" mode="auto"/>
 void TRestMessenger::InitFromConfigFile() {
-    fRun = fHostmgr != nullptr ? fHostmgr->GetRunInfo() : NULL;
+    fRun = fHostmgr != nullptr ? fHostmgr->GetRunInfo() : nullptr;
     string modestr = GetParameter("mode", "twoway");
     if (ToUpper(modestr) == "HOST") {
         fMode = MessagePool_Host;
@@ -173,7 +172,7 @@ void TRestMessenger::InitFromConfigFile() {
         return;
     }
 
-    if ((string) this->GetName() == "defaultName") SetName(message->name);
+    if ((string)this->GetName() == "defaultName") SetName(message->name);
 
     if (created) {
         message->Reset();
@@ -295,9 +294,9 @@ vector<string> TRestMessenger::ShowMessagePool() {
         return result;
     }
 
-    for (int i = 0; i < Nmsg; i++) {
-        if (!fMessagePool->messages[i].IsEmpty()) {
-            string msg = string(fMessagePool->messages[i].content);
+    for (auto& message : fMessagePool->messages) {
+        if (!message.IsEmpty()) {
+            string msg = string(message.content);
             if (msg != "") {
                 result.push_back(msg);
             }
@@ -324,14 +323,14 @@ string TRestMessenger::ConsumeMessage() {
     }
 
     string msg = "";
-    for (int i = 0; i < Nmsg; i++) {
-        if (!fMessagePool->messages[i].IsEmpty()) {
+    for (auto& message : fMessagePool->messages) {
+        if (!message.IsEmpty()) {
             // the process shall not consume the message provided by itself
-            if (fMessagePool->messages[i].provider != this) {
+            if (message.provider != this) {
                 // form the message
-                msg = string(fMessagePool->messages[i].content);
+                msg = string(message.content);
                 // clear this message because it will be consumed
-                fMessagePool->messages[i].Reset();
+                message.Reset();
                 break;
             }
         }

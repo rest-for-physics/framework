@@ -26,7 +26,7 @@ enum REST_TASKMODE { TASK_ERROR = -1, TASK_MACRO = 0, TASK_CPPCMD = 1, TASK_CLAS
 /// Wrapping REST macros into tasks
 class TRestTask : public TRestMetadata {
    protected:
-    TRestTask(TString TaskString, REST_TASKMODE mode = TASK_MACRO);
+    TRestTask(const TString& TaskString, REST_TASKMODE mode = TASK_MACRO);
 
     int fNRequiredArgument;
     REST_TASKMODE fMode;
@@ -46,7 +46,7 @@ class TRestTask : public TRestMetadata {
     void SetArgumentValue(vector<string> arg);
 
     static TRestTask* GetTaskFromMacro(TString Name);
-    static TRestTask* GetTaskFromCommand(TString cmd);
+    static TRestTask* GetTaskFromCommand(const TString& cmd);
 
     virtual void RunTask(TRestManager*);
     virtual void PrintArgumentHelp();

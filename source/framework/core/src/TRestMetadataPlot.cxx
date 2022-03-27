@@ -232,14 +232,15 @@
 ///
 
 #include "TRestMetadataPlot.h"
+
 #include "TRestManager.h"
 #include "TRestTools.h"
+
 using namespace std;
 
+#include <TGraph.h>
 #include <TLegend.h>
 #include <TStyle.h>
-
-#include <TGraph.h>
 
 #include <ctime>
 
@@ -273,9 +274,7 @@ TRestMetadataPlot::TRestMetadataPlot(const char* cfgFileName, const char* name) 
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestMetadataPlot::~TRestMetadataPlot() {
-    if (fRun != nullptr) delete fRun;
-}
+TRestMetadataPlot::~TRestMetadataPlot() { delete fRun; }
 
 ///////////////////////////////////////////////
 /// \brief Initialization of TRestMetadataPlot data members

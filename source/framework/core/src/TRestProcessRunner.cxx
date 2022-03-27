@@ -22,19 +22,24 @@
 /// <hr>
 //////////////////////////////////////////////////////////////////////////
 
-#include "Math/MinimizerOptions.h"
-#include "TInterpreter.h"
-#include "TMinuitMinimizer.h"
-#include "TMutex.h"
-#include "TROOT.h"
+#include <Math/MinimizerOptions.h>
+#include <TInterpreter.h>
+#include <TMinuitMinimizer.h>
+#include <TMutex.h>
+#include <TROOT.h>
+
+#include <chrono>
+
 #include "TRestManager.h"
 #include "TRestThread.h"
+
+using namespace std;
+using namespace chrono;
 
 std::mutex mutexx;
 
 #ifdef TIME_MEASUREMENT
-#include <chrono>
-using namespace chrono;
+
 int deltaTime;
 int writeTime;
 int readTime;
@@ -183,7 +188,7 @@ void TRestProcessRunner::BeginOfInit() {
 /// InstantiateProcess() The processes will be added into each TRestThread
 /// instance. If the process is external process, then it will be sent to
 /// TRestRun.
-Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement* e) {
+Int_t TRestProcessRunner::ReadConfig(const string& keydeclare, TiXmlElement* e) {
     if (keydeclare == "addProcess") {
         string active = GetParameter("value", e, "");
         if (active != "" && ToUpper(active) != "ON") return 0;

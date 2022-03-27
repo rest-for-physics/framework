@@ -25,6 +25,8 @@
 
 #include "TRestThread.h"
 
+using namespace std;
+
 #ifdef TIME_MEASUREMENT
 #include <chrono>
 using namespace chrono;
@@ -230,7 +232,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
             outputConfig[i] = true;
         }
     }
-    if (outputConfig[3] == false) {
+    if (!outputConfig[3]) {
         cout << "Error! output analysis must be on!" << endl;
         exit(1);
     }
@@ -305,7 +307,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
         // avoid duplicated branch
         // if event type is same, we only create branch for the last of this type
         // event
-        if (outputConfig[1] == true) {
+        if (outputConfig[1]) {
             // outputConfig[1]: the input events of each processes in the process chain(can be many)
 
             // the input event of process chain
@@ -340,7 +342,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
             }
         }
 
-        if (outputConfig[2] == true) {
+        if (outputConfig[2]) {
             // outputConfig[2]: output event: the output event of the last process in the process chain
             TRestEvent* evt = fOutputEvent;
             {
@@ -394,7 +396,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
         fEventTree = new TTree((TString) "EventTree_" + ToString(fThreadId), "dummyTree");
         // fEventTree->CreateEventBranches();
 
-        if (outputConfig[2] == true) {
+        if (outputConfig[2]) {
             TString BranchName = (TString)fInputEvent->GetName() + "Branch";
             if (fEventTree->GetBranch(BranchName) == nullptr)  // avoid duplicated branch
                 fEventTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);

@@ -37,7 +37,7 @@ class TRestCut : public TRestMetadata {
     void InitFromConfigFile() override;
 
    public:
-    void AddCut(TCut cut);
+    void AddCut(const TCut& cut);
     TCut GetCut(string name);
 
     void PrintMetadata() override;

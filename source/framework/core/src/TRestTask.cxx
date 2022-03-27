@@ -27,11 +27,14 @@
 
 #include "TRestTask.h"
 
-#include "TFunction.h"
-#include "TMethodArg.h"
+#include <TFunction.h>
+#include <TMethodArg.h>
+
 #include "TRestManager.h"
 #include "TRestReflector.h"
 #include "TRestStringHelper.h"
+
+using namespace std;
 
 ClassImp(TRestTask);
 
@@ -52,7 +55,7 @@ TRestTask::TRestTask() {
 /// The first method in the file is identified with its name and require
 /// arguments saved in the class. They will be used in forming the command
 /// line in the method TRestTask::InitTask()
-TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
+TRestTask::TRestTask(const TString& TaskString, REST_TASKMODE mode) {
     Initialize();
     fNRequiredArgument = 0;
     fMode = mode;
@@ -75,7 +78,7 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
             fInvokeMethod = funcName;
             // indicates whether the argument is string/TString/const char *. If so, the value would be 1. We
             // need to add "" mark when constructing command. Otherwise the value is 0.
-            
+
             TList* list = f->GetListOfMethodArgs();
             for (int i = 0; i < list->GetSize(); i++) {
                 TMethodArg* arg = (TMethodArg*)list->At(i);
@@ -270,12 +273,12 @@ TRestTask* TRestTask::GetTaskFromMacro(TString taskName) {
                      << " loaded but method not found. Make sure it contains the method with same name as "
                         "file name"
                      << noClass::endl;
-                return NULL;
+                return nullptr;
             }
             return tsk;
         } else {
             ferr << "Task file: " << macfiles[0] << " contains error" << noClass::endl;
-            return NULL;
+            return nullptr;
         }
 
     } else {
@@ -287,17 +290,17 @@ TRestTask* TRestTask::GetTaskFromMacro(TString taskName) {
         }
     }
     ferr << "REST ERROR. Task : " << taskName << " not found!!" << noClass::endl;
-    return NULL;
+    return nullptr;
 }
 
-TRestTask* TRestTask::GetTaskFromCommand(TString cmd) {
+TRestTask* TRestTask::GetTaskFromCommand(const TString& cmd) {
     REST_TASKMODE mode = TASK_CPPCMD;
     if (((string)cmd).find("->") == -1) mode = TASK_SHELLCMD;
 
     auto tsk = new TRestTask(cmd, mode);
     if (tsk->GetMode() == TASK_ERROR) {
         delete tsk;
-        return NULL;
+        return nullptr;
     } else {
         return tsk;
     }
