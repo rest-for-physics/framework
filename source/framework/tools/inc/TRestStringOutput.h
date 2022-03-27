@@ -124,7 +124,7 @@ class TRestMetadata;
 struct endl_t {
     endl_t(TRestMetadata* ptr) { TRestMetadataPtr = ptr; }
     TRestMetadata* TRestMetadataPtr = 0;
-    friend ostream& operator<<(ostream& a, endl_t& et) { return (a << std::endl); }
+    friend std::ostream& operator<<(std::ostream& a, endl_t& et) { return (a << std::endl); }
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -144,7 +144,7 @@ class TRestStringOutput {
     bool iserror;
     int orientation;  // 0->middle, 1->left
 
-    stringstream buf;
+    std::stringstream buf;
     int length;
 
     REST_Verbose_Level verbose;

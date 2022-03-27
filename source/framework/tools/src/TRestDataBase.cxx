@@ -53,6 +53,8 @@
 /// \endcode
 ///
 
+using namespace std;
+
 DBEntry::DBEntry(vector<string> items) {
     this->runNr = atoi(items[0].c_str());
     this->type = items[1];

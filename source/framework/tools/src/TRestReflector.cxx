@@ -6,6 +6,8 @@
 #include "TStreamerInfo.h"
 #include "TSystem.h"
 
+using namespace std;
+
 namespace REST_Reflection {
 ////////////////////////////////////////////////////////////////
 ///
@@ -54,7 +56,7 @@ namespace REST_Reflection {
 ///
 TRestReflector::TRestReflector(void* _address, const string& _type) {
     address = (char*)_address;
-    onheap = false;
+    onHeap = false;
     cl = GetClassQuick(_type);
     DataType_Info dt = DataType_Info(_type);
     if (cl == nullptr && dt.size == 0) {
@@ -64,30 +66,30 @@ TRestReflector::TRestReflector(void* _address, const string& _type) {
 
     typeinfo = cl == 0 ? dt.typeinfo : cl->GetTypeInfo();
     is_data_type = dt.size > 0;
-    size = cl == 0 ? dt.size : cl->Size();
-    type = cl == 0 ? dt.name : cl->GetName();
+    size = cl == nullptr ? dt.size : cl->Size();
+    type = cl == nullptr ? dt.name : cl->GetName();
 
     InitDictionary();
 }
 
 void TRestReflector::Assembly() {
-    if (!IsZombie() && onheap) {
+    if (!IsZombie() && onHeap) {
         Destroy();
     }
 
     if (cl != nullptr) {
         address = (char*)cl->New();
-        onheap = true;
+        onHeap = true;
     } else if (is_data_type) {
         address = (char*)malloc(size);
         memset(address, 0, size);
-        onheap = true;
+        onHeap = true;
     }
 }
 
 void TRestReflector::Destroy() {
     if (address == nullptr) return;
-    if (onheap == false) {
+    if (!onHeap) {
         // It can only delete/free objects on heap memory
         cout << "In TRestReflector::Destroy() : cannot free on stack memory!" << endl;
         return;
@@ -143,7 +145,7 @@ void TRestReflector::ParseString(string str) {
     }
 }
 
-int TRestReflector::InitDictionary() {
+int TRestReflector::InitDictionary() const {
     if (is_data_type) return 0;
 
     if (cl != nullptr) {

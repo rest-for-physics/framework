@@ -265,7 +265,7 @@ TClass* GetClassQuick() {
         RESTListOfClasses_typeid[typeidaddr] = cl;
         return cl;
     }
-    return NULL;
+    return nullptr;
 }
 
 /// Get the type name of an object
@@ -286,9 +286,9 @@ std::string GetTypeName(T obj) {
 class TRestReflector {
    private:
     /// Prepare the ROOT dictionary for this type
-    int InitDictionary();
-    /// If on heap, we can call Destroy() to TRestReflector. True only when initailized from Assembly()
-    bool onheap = false;
+    int InitDictionary() const;
+    /// If on heap, we can call Destroy() to TRestReflector. True only when initialized from Assembly()
+    bool onHeap = false;
 
    public:
     /// Name field
@@ -310,13 +310,13 @@ class TRestReflector {
     /// Deep copy the content of the wrapped object to `to`.
     void operator>>(TRestReflector to);
     /// Output overload by calling ToString();
-    friend ostream& operator<<(ostream& cin, TRestReflector ptr) { return cin << ptr.ToString(); }
+    friend std::ostream& operator<<(std::ostream& cin, TRestReflector ptr) { return cin << ptr.ToString(); }
     /// Get the value of the wrapped type, not recommended to use
     template <typename T>
     T GetValue() {
         if (typeid(T) != *this->typeinfo) {
-            cout << "In TRestReflector::GetValue() : type unmatch! " << std::endl;
-            cout << "Input: " << GetTypeName<T>() << ", this: " << this->type << std::endl;
+            std::cout << "In TRestReflector::GetValue() : type unmatch! " << std::endl;
+            std::cout << "Input: " << GetTypeName<T>() << ", this: " << this->type << std::endl;
             return T();
         }
         if (address != nullptr) return *(T*)(address);
@@ -326,8 +326,8 @@ class TRestReflector {
     template <class T>
     void SetValue(const T& val) {
         if (typeid(T) != *this->typeinfo) {
-            cout << "In TRestReflector::SetValue() : type unmatch! " << std::endl;
-            cout << "Input: " << GetTypeName<T>() << ", this: " << std::string(this->type) << std::endl;
+            std::cout << "In TRestReflector::SetValue() : type unmatch! " << std::endl;
+            std::cout << "Input: " << GetTypeName<T>() << ", this: " << std::string(this->type) << std::endl;
             return;
         }
         if (address != nullptr) *((T*)(address)) = val;
@@ -379,11 +379,11 @@ class TRestReflector {
 
     template <class T>
     void InitFromTemplate() {
-        onheap = false;
+        onHeap = false;
         cl = REST_Reflection::GetClassQuick<T>();
         DataType_Info dt = DataType_Info((T*)0);
         if (cl == nullptr && dt.size == 0) {
-            cout << "In TRestReflector::TRestReflector() : unrecognized type! " << std::endl;
+            std::cout << "In TRestReflector::TRestReflector() : unrecognized type! " << std::endl;
             return;
         }
 
@@ -450,7 +450,7 @@ class Converter : RESTVirtualConverter {
         ParseStringFunc = _ParseStringFunc;
         std::string typestr = REST_Reflection::GetTypeName<T>();
         if (RESTConverterMethodBase.count(typestr) > 0) {
-            cout << "Warning! converter for type: " << typestr << " already added!" << std::endl;
+            std::cout << "Warning! converter for type: " << typestr << " already added!" << std::endl;
         } else {
             RESTConverterMethodBase[typestr] = this;
         }
@@ -459,6 +459,6 @@ class Converter : RESTVirtualConverter {
 
 #define AddConverter(ToStringFunc, ParseStringFunc, type) \
     template <>                                           \
-    Converter<type>* Converter<type>::thisptr = new Converter<type>(&ToStringFunc, &ParseStringFunc);
+    Converter<type>* Converter<type>::thisptr = new Converter<type>(&(ToStringFunc), &(ParseStringFunc));
 
 #endif
