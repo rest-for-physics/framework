@@ -32,19 +32,19 @@ class TRestMySQLToAnalysisProcess : public TRestEventProcess {
     TRestEvent* fEvent = nullptr;  //!
 
     /// The host indentification name or IP
-    string fDBServerName;  //!
+    std::string fDBServerName;  //!
 
     /// The database username
-    string fDBUserName;  //!
+    std::string fDBUserName;  //!
 
     /// The database user password
-    string fDBUserPass;  //!
+    std::string fDBUserPass;  //!
 
     /// The database name
-    string fDBName;  //<
+    std::string fDBName;  //<
 
     /// The database table
-    string fDBTable;  //<
+    std::string fDBTable;  //<
 
     /// The name of the entries defined by user that will be retrieved at the SQL database
     std::vector<TString> fSQLVariables;  //<
@@ -73,7 +73,7 @@ class TRestMySQLToAnalysisProcess : public TRestEventProcess {
     /// A boolean to output a warning message just once inside the process
     Bool_t fCheckSQL = true;  //!
 
-    string BuildQueryString();
+    std::string BuildQueryString();
 
     void FillDBArrays();
 

@@ -161,7 +161,7 @@ bool TRestThread::TestRun() {
             // if the output of ProcessEvent() is NULL we assume the event is cut.
             // we try to use GetOutputEvent()
             if (ProcessedEvent == nullptr) {
-                ProcessedEvent = fProcessChain[j]->GetOutputEvent();
+                ProcessedEvent = (TRestEvent*)fProcessChain[j]->GetOutputEvent();
             }
             // if still null we perform another try
             if (ProcessedEvent == nullptr) {
@@ -169,7 +169,7 @@ bool TRestThread::TestRun() {
                 break;
             }
             // check if the output event is same as the processed event
-            TRestEvent* outputevent = fProcessChain[j]->GetOutputEvent();
+            auto outputevent = (TRestEvent*)fProcessChain[j]->GetOutputEvent();
             if (outputevent != ProcessedEvent) {
                 warning << "Test run, in " << fProcessChain[j]->ClassName()
                         << " : output event is different with process returned event! Please check to assign "
@@ -294,7 +294,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
         } else {
             debug << "Initializing output event" << endl;
             string chainOutputType = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent().type;
-            fOutputEvent = REST_Reflection::Assembly(chainOutputType);
+            fOutputEvent = (TRestEvent*)REST_Reflection::Assembly(chainOutputType);
             if (fOutputEvent == nullptr) {
                 exit(1);
             }
@@ -326,17 +326,17 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
             }
             // the input event of other processes
             for (unsigned int i = 0; i < fProcessChain.size(); i++) {
-                TRestEvent* evt = fProcessChain[i]->GetOutputEvent();
-                if (evt != nullptr) {
-                    TString BranchName = (TString)evt->GetName() + "Branch";
+                auto event = (TRestEvent*)fProcessChain[i]->GetOutputEvent();
+                if (event) {
+                    TString BranchName = (TString)event->GetName() + "Branch";
                     if (branchesToAdd.size() == 0)
-                        branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
+                        branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, event));
                     else
                         for (int j = 0; j < branchesToAdd.size(); j++) {
                             if (branchesToAdd[j].first == BranchName)
-                                branchesToAdd[j].second = evt;
+                                branchesToAdd[j].second = event;
                             else if (j == branchesToAdd.size() - 1)
-                                branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
+                                branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, event));
                         }
                 }
             }
@@ -384,7 +384,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
         debug << "Thread " << fThreadId << " Ready!" << endl;
     } else {
         string tmp = fHostRunner->GetInputEvent()->ClassName();
-        fInputEvent = REST_Reflection::Assembly(tmp);
+        fInputEvent = (TRestEvent*)REST_Reflection::Assembly(tmp);
         fOutputEvent = fInputEvent;
         fOutputFile = new TFile(threadFileName.c_str(), "recreate");
         fOutputFile->SetCompressionLevel(0);
@@ -432,7 +432,7 @@ void TRestThread::StartProcess() {
 
     while (fHostRunner->GetNextevtFunc(fInputEvent, fAnalysisTree) == 0) {
         ProcessEvent();
-        /*if (fOutputEvent != nullptr) */ fHostRunner->FillThreadEventFunc(this);
+        /*if (fOutputEvent) */ fHostRunner->FillThreadEventFunc(this);
     }
 
     // fHostRunner->WriteThreadFileFunc(this);
@@ -529,7 +529,7 @@ void TRestThread::ProcessEvent() {
             fOutputEvent = ProcessedEvent;
         } else {
             cout << "Transferring output event..." << endl;
-            if (ProcessedEvent != nullptr) {
+            if (ProcessedEvent) {
                 ProcessedEvent->CloneTo(fOutputEvent);
             }
         }
@@ -552,7 +552,7 @@ void TRestThread::ProcessEvent() {
         if (fHostRunner->UseTestRun()) {
             fOutputEvent = ProcessedEvent;
         } else {
-            if (ProcessedEvent != nullptr) {
+            if (ProcessedEvent) {
                 ProcessedEvent->CloneTo(fOutputEvent);
             }
         }

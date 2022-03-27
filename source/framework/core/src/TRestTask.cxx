@@ -283,8 +283,8 @@ TRestTask* TRestTask::GetTaskFromMacro(TString taskName) {
 
     } else {
         // initialize from a class which is inherited from TRestTask
-        TRestTask* tsk = REST_Reflection::Assembly((string)taskName);
-        if (tsk != nullptr && tsk->InheritsFrom("TRestTask")) {
+        auto tsk = (TRestTask*)REST_Reflection::Assembly((string)taskName);
+        if (tsk && tsk->InheritsFrom("TRestTask")) {
             tsk->SetMode(TASK_CLASS);
             return tsk;
         }

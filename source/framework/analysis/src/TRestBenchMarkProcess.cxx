@@ -1,10 +1,13 @@
 #include "TRestBenchMarkProcess.h"
+
 #include "TRestManager.h"
 #include "TRestProcessRunner.h"
 #ifndef __APPLE__
-#include "sys/sysinfo.h"
+#include <sys/sysinfo.h>
 #endif
-#include "sys/wait.h"
+#include <sys/wait.h>
+
+using namespace std;
 
 ClassImp(TRestBenchMarkProcess);
 
@@ -17,7 +20,6 @@ float TRestBenchMarkProcess::fProcessSpeedInHz = 0;
 int TRestBenchMarkProcess::fLastEventNumber = 0;
 ULong64_t TRestBenchMarkProcess::fStartTime = 0;
 
-//______________________________________________________________________________
 TRestBenchMarkProcess::TRestBenchMarkProcess() { Initialize(); }
 
 void TRestBenchMarkProcess::Initialize() {

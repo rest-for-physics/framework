@@ -24,7 +24,6 @@
 #define RestCore_TRestSummaryProcess
 
 #include "TRestEventProcess.h"
-
 #include "TVector2.h"
 
 //! A process to define basic data members to serve as a metadata summary in a data processing chain.

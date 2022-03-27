@@ -25,13 +25,13 @@ class TRestThread : public TRestMetadata {
    private:
     Int_t fThreadId;
 
-    TRestProcessRunner* fHostRunner;           //!
-    vector<TRestEventProcess*> fProcessChain;  //!
-    TRestAnalysisTree* fAnalysisTree;          //!
-    TRestEvent* fInputEvent;                   //!
-    TRestEvent* fOutputEvent;                  //!
-    TFile* fOutputFile;                        //!
-    TTree* fEventTree;                         //!
+    TRestProcessRunner* fHostRunner;                //!
+    std::vector<TRestEventProcess*> fProcessChain;  //!
+    TRestAnalysisTree* fAnalysisTree;               //!
+    TRestEvent* fInputEvent;                        //!
+    TRestEvent* fOutputEvent;                       //!
+    TFile* fOutputFile;                             //!
+    TTree* fEventTree;                              //!
 
     std::thread t;                //!
     Bool_t isFinished;            //!

@@ -36,9 +36,10 @@
 ///
 /// <hr>
 ///
+#include "TRestDataQualityRules.h"
+
 #include <iostream>
 
-#include "TRestDataQualityRules.h"
 using namespace std;
 
 ClassImp(TRestDataQualityRules);

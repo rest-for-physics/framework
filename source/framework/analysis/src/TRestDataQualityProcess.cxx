@@ -46,6 +46,7 @@
 /// <hr>
 ///
 #include "TRestDataQualityProcess.h"
+
 using namespace std;
 
 ClassImp(TRestDataQualityProcess);

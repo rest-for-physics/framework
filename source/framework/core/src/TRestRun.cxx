@@ -261,7 +261,7 @@ void TRestRun::InitFromConfigFile() {
             } else if (processName == "") {
                 warning << "Event process " << processType << " has no name, it will be skipped" << endl;
             }
-            TRestEventProcess* pc = REST_Reflection::Assembly(processType);
+            auto pc = (TRestEventProcess*)REST_Reflection::Assembly(processType);
             if (!pc->isExternal()) {
                 warning << "This is not an external file process!" << endl;
             } else {
@@ -285,7 +285,7 @@ void TRestRun::InitFromConfigFile() {
             //    ExpandIncludeFile(e);
             //}
 
-            TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
+            auto meta = (TRestMetadata*)REST_Reflection::Assembly(keydeclare);
             if (meta == nullptr) {
                 warning << "failed to add metadata \"" << keydeclare << "\"" << endl;
                 e = e->NextSiblingElement();
@@ -329,7 +329,7 @@ void TRestRun::OpenInputFile(int i) {
 /// 2. update its class's data(version, tag, user, etc.) to the same as the one stored in the input file.
 /// 3. link the input event and observables to the corresponding tree
 ///
-void TRestRun::OpenInputFile(TString filename, const string& mode) {
+void TRestRun::OpenInputFile(const TString& filename, const string& mode) {
     CloseFile();
     if (!filename.Contains("http") && !TRestTools::fileExists((string)filename)) {
         ferr << "input file \"" << filename << "\" does not exist!" << endl;
@@ -431,7 +431,7 @@ void TRestRun::OpenInputFile(TString filename, const string& mode) {
     } else {
         fInputFile = nullptr;
         fAnalysisTree = nullptr;
-        if (fFileProcess != nullptr) {
+        if (fFileProcess) {
             fFileProcess->OpenInputFiles(Vector_cast<TString, string>(fInputFileNames));
             fFileProcess->InitProcess();
         }
@@ -443,7 +443,7 @@ void TRestRun::OpenInputFile(TString filename, const string& mode) {
 
 void TRestRun::AddInputFileExternal(string file) {
     mutex2.lock();
-    if (fFileProcess != nullptr) {
+    if (fFileProcess) {
         bool add = fFileProcess->AddInputFile(file);
         if (add == false) {
             ferr << "failed to add input file!" << endl;
@@ -455,7 +455,7 @@ void TRestRun::AddInputFileExternal(string file) {
 
 void TRestRun::ReadInputFileMetadata() {
     TFile* f = fInputFile;
-    if (f != nullptr) {
+    if (f) {
         fInputMetadata.clear();
 
         TIter nextkey(f->GetListOfKeys());
@@ -500,17 +500,17 @@ void TRestRun::ReadInputFileMetadata() {
 }
 
 void TRestRun::ReadInputFileTrees() {
-    if (fInputFile != nullptr) {
+    if (fInputFile) {
         debug << "Finding TRestAnalysisTree.." << endl;
         TTree* _eventTree = nullptr;
         string filename = fInputFile->GetName();
 
-        if (fInputFile->Get("AnalysisTree") != nullptr) {
+        if (fInputFile->Get("AnalysisTree")) {
             fAnalysisTree = (TRestAnalysisTree*)fInputFile->Get("AnalysisTree");
             fAnalysisTree->GetEntry(0);  // we call GetEntry() to connect branches
 
             _eventTree = (TTree*)fInputFile->Get("EventTree");
-        } else if (fInputFile->FindKey("TRestAnalysisTree") != nullptr) {
+        } else if (fInputFile->FindKey("TRestAnalysisTree")) {
             // This is v2.1.6- version of input file, we directly find EventTree and
             // AnalysisTree. The old name pattern is "TRestXXXEventTree-eventBranch"
             // and "TRestAnalysisTree"
@@ -541,7 +541,7 @@ void TRestRun::ReadInputFileTrees() {
             exit(1);
         }
 
-        if (_eventTree != nullptr) {
+        if (_eventTree) {
             fEventTree = _eventTree;
 
             debug << "Finding event branch.." << endl;
@@ -556,7 +556,7 @@ void TRestRun::ReadInputFileTrees() {
                         info << "This file may be a pure analysis file" << endl;
                     } else {
                         string type = Replace(br->GetName(), "Branch", "", 0);
-                        fInputEvent = REST_Reflection::Assembly(type);
+                        fInputEvent = (TRestEvent*)REST_Reflection::Assembly(type);
                         fInputEvent->InitializeWithMetadata(this);
                         fEventTree->SetBranchAddress(br->GetName(), &fInputEvent);
                         fEventBranchLoc = branches->GetLast();
@@ -564,15 +564,15 @@ void TRestRun::ReadInputFileTrees() {
                     }
                 }
             } else {
-                string brname = (string)fInputEvent->ClassName() + "Branch";
-                if (fEventTree->GetBranch(brname.c_str()) == nullptr) {
+                string branchName = (string)fInputEvent->ClassName() + "Branch";
+                if (!fEventTree->GetBranch(branchName.c_str())) {
                     warning << "REST WARNING (OpenInputFile) : No matched event branch "
                                "inside file : "
                             << filename << endl;
-                    warning << "Branch required: " << brname << endl;
+                    warning << "Branch required: " << branchName << endl;
                 } else {
-                    fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
-                    debug << brname << " is found and set!" << endl;
+                    fEventTree->SetBranchAddress(branchName.c_str(), &fInputEvent);
+                    debug << branchName << " is found and set!" << endl;
                 }
             }
         } else {
@@ -682,7 +682,7 @@ void TRestRun::ReadFileInfo(string filename) {
             vector<string> class_datamember = Split(formatsectionlist[i], "::");
             if (class_datamember.size() > 1) {
                 TRestMetadata* meta = GetMetadataClass(class_datamember[0]);
-                if (meta != nullptr) {
+                if (meta) {
                     RESTValue member = RESTValue(meta, meta->ClassName()).GetDataMember(class_datamember[1]);
                     if (!member.IsZombie()) {
                         member.ParseString(infoFromFileName);
@@ -719,7 +719,7 @@ void TRestRun::ReadFileInfo(string filename) {
 /// the process to reload the file.
 void TRestRun::ResetEntry() {
     fCurrentEvent = 0;
-    if (fFileProcess != nullptr) {
+    if (fFileProcess) {
         fFileProcess->ResetEntry();
     }
 }
@@ -732,11 +732,11 @@ void TRestRun::ResetEntry() {
 /// writing event data into target event calls the method TRestEvent::CloneTo()
 /// writing observable data into target analysistree calls memcpy
 /// It requires same branch structure, but we didn't verify it here.
-Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettree) {
+Int_t TRestRun::GetNextEvent(TRestEvent* targetEvent, TRestAnalysisTree* targetTree) {
     bool messageShown = false;
     TRestEvent* eve = fInputEvent;
 
-    if (fFileProcess != nullptr) {
+    if (fFileProcess) {
         debug << "TRestRun: getting next event from external process" << endl;
     GetEventExt:
         mutex2.lock();
@@ -745,24 +745,24 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
         fFileProcess->EndOfEventProcess();
         mutex2.unlock();
         fBytesReaded = fFileProcess->GetTotalBytesReaded();
-        if (targettree != nullptr) {
+        if (targetTree) {
             for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
-                targettree->SetObservable(n, fAnalysisTree->GetObservable(n));
+                targetTree->SetObservable(n, fAnalysisTree->GetObservable(n));
         }
         fCurrentEvent++;
     } else {
         debug << "TRestRun: getting next event from root file" << endl;
-        if (fAnalysisTree != nullptr) {
+        if (fAnalysisTree) {
             if (fCurrentEvent >= fAnalysisTree->GetEntriesFast()) {
                 eve = nullptr;
             } else {
                 eve->Initialize();
                 fBytesReaded += fAnalysisTree->GetEntry(fCurrentEvent);
-                if (targettree != nullptr) {
+                if (targetTree) {
                     for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
-                        targettree->SetObservable(n, fAnalysisTree->GetObservable(n));
+                        targetTree->SetObservable(n, fAnalysisTree->GetObservable(n));
                 }
-                if (fEventTree != nullptr) {
+                if (fEventTree) {
                     fBytesReaded += ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))
                                         ->GetEntry(fCurrentEvent);
                     // fBytesReaded += fEventTree->GetEntry(fCurrentEvent);
@@ -782,7 +782,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
     // cout << fHangUpEndFile << endl;
 
     if (eve == nullptr) {
-        if (fHangUpEndFile && fFileProcess != nullptr) {
+        if (fHangUpEndFile && fFileProcess) {
             // if hangup is set, we continue calling ProcessEvent() of the
             // external process, until there is non-null event yielded
             if (!messageShown) {
@@ -794,7 +794,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
             goto GetEventExt;
         }
         fInputEvent = eve;
-        // if (fFileProcess != nullptr) fFileProcess->EndProcess();
+        // if (fFileProcess ) fFileProcess->EndProcess();
         return -1;
     }
 
@@ -804,8 +804,8 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
         fInputEvent->SetID(fCurrentEvent - 1);
     }
 
-    targetevt->Initialize();
-    fInputEvent->CloneTo(targetevt);
+    targetEvent->Initialize();
+    fInputEvent->CloneTo(targetEvent);
 
     return 0;
 }
@@ -937,7 +937,7 @@ TFile* TRestRun::FormOutputFile() {
 }
 
 TFile* TRestRun::UpdateOutputFile() {
-    if (fOutputFile != nullptr) {
+    if (fOutputFile) {
         if (fOutputFile->IsOpen()) {
             fOutputFile->ReOpen("update");
         }
@@ -974,9 +974,9 @@ void TRestRun::WriteWithDataBase() {
 
     // record the entries saved
     fEntriesSaved = -1;
-    if (fOutputFile != nullptr) {
+    if (fOutputFile) {
         tree = (TRestAnalysisTree*)fOutputFile->Get("AnalysisTree");
-        if (tree != nullptr) {
+        if (tree) {
             fEntriesSaved = tree->GetEntries();
         }
     }
@@ -1029,10 +1029,10 @@ void TRestRun::WriteWithDataBase() {
 ///
 void TRestRun::CloseFile() {
     fEntriesSaved = -1;
-    if (fAnalysisTree != nullptr) {
+    if (fAnalysisTree) {
         fEntriesSaved = fAnalysisTree->GetEntries();
         if (fAnalysisTree->GetEntries() > 0 && fInputFile == nullptr) {
-            if (fOutputFile != nullptr) {
+            if (fOutputFile) {
                 fAnalysisTree->Write(0, kWriteDelete);
                 this->Write(0, kWriteDelete);
             }
@@ -1041,7 +1041,7 @@ void TRestRun::CloseFile() {
         fAnalysisTree = nullptr;
     }
 
-    if (fEventTree != nullptr) {
+    if (fEventTree) {
         if (fEventTree->GetEntries() > 0 && fInputFile == nullptr) fEventTree->Write(0, kWriteDelete);
         delete fEventTree;
         fEventTree = nullptr;
@@ -1059,12 +1059,12 @@ void TRestRun::CloseFile() {
         }
     }
 
-    if (fOutputFile != nullptr) {
+    if (fOutputFile) {
         fOutputFile->Close();
         delete fOutputFile;
         fOutputFile = nullptr;
     }
-    if (fInputFile != nullptr) {
+    if (fInputFile) {
         fInputFile->Close();
         fInputFile = nullptr;
     }
@@ -1074,12 +1074,12 @@ void TRestRun::CloseFile() {
 /// \brief Set external file process
 ///
 void TRestRun::SetExtProcess(TRestEventProcess* p) {
-    if (fFileProcess == nullptr && p != nullptr) {
+    if (fFileProcess == nullptr && p) {
         fFileProcess = p;
 
         fFileProcess->OpenInputFiles(Vector_cast<TString, string>(fInputFileNames));
         fFileProcess->InitProcess();
-        fInputEvent = fFileProcess->GetOutputEvent();
+        fInputEvent = (TRestEvent*)fFileProcess->GetOutputEvent();
         if (fInputEvent == nullptr) {
             ferr << "The external process \"" << p->GetName() << "\" doesn't yield any output event!" << endl;
             exit(1);
@@ -1098,7 +1098,7 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
         // fAnalysisTree->CreateBranches();
         info << "The external file process has been set! Name : " << fFileProcess->GetName() << endl;
     } else {
-        if (fFileProcess != nullptr) {
+        if (fFileProcess) {
             ferr << "There can only be one file process!" << endl;
             exit(1);
         }
@@ -1115,13 +1115,13 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
 /// this method, it can be retargeted to other branches corresponding to the
 /// given event.
 void TRestRun::SetInputEvent(TRestEvent* eve) {
-    if (eve != nullptr) {
-        if (fEventTree != nullptr) {
+    if (eve) {
+        if (fEventTree) {
             // if (fEventBranchLoc != -1) {
             //	TBranch *br = (TBranch*)branches->At(fEventBranchLoc);
             //	br->SetAddress(0);
             //}
-            if (fInputEvent != nullptr) {
+            if (fInputEvent) {
                 fEventTree->SetBranchAddress((TString)fInputEvent->ClassName() + "Branch", 0);
                 fEventTree->SetBranchStatus((TString)fInputEvent->ClassName() + "Branch", false);
             }
@@ -1132,7 +1132,7 @@ void TRestRun::SetInputEvent(TRestEvent* eve) {
                 if ((string)br->GetName() == brname) {
                     debug << "Setting input event.. Type: " << eve->ClassName() << " Address: " << eve
                           << endl;
-                    // if (fInputEvent != nullptr && (char*)fInputEvent != (char*)eve) {
+                    // if (fInputEvent  && (char*)fInputEvent != (char*)eve) {
                     //    delete fInputEvent;
                     //}
 
@@ -1159,8 +1159,8 @@ void TRestRun::SetInputEvent(TRestEvent* eve) {
 /// \brief Add an event branch in output EventTree
 ///
 void TRestRun::AddEventBranch(TRestEvent* eve) {
-    if (eve != nullptr) {
-        if (fEventTree != nullptr) {
+    if (eve) {
+        if (fEventTree) {
             string evename = (string)eve->ClassName();
             string brname = evename + "Branch";
             fEventTree->Branch(brname.c_str(), eve);
@@ -1174,21 +1174,22 @@ void TRestRun::AddEventBranch(TRestEvent* eve) {
 ///
 /// The metadata class can be recovered to the same condition as when it is
 /// saved.
-void TRestRun::ImportMetadata(const TString& File, const TString& name, const TString& type, Bool_t store) {
-    auto fileold = File;
-    File = SearchFile(File.Data());
+void TRestRun::ImportMetadata(const TString& fileName, const TString& name, const TString& type,
+                              Bool_t store) {
+    const auto& fildOld = fileName;
+    auto File = SearchFile(fileName.Data());
     if (File == "") {
-        ferr << "(ImportMetadata): The file " << fileold << " does not exist!" << endl;
+        ferr << "(ImportMetadata): The file " << fildOld << " does not exist!" << endl;
         ferr << endl;
         return;
     }
-    if (!TRestTools::isRootFile(File.Data())) {
+    if (!TRestTools::isRootFile(fileName.Data())) {
         ferr << "(ImportMetadata) : The file " << File << " is not root file!" << endl;
         ferr << "If you want to initialize metadata from rml file, use <TRest section!" << endl;
         return;
     }
 
-    auto f = new TFile(File);
+    auto f = new TFile(fileName);
     // TODO give error in case we try to obtain a class that is not TRestMetadata
     if (type == "" && name == "") {
         ferr << "(ImportMetadata) : metadata type and name is not "
@@ -1235,14 +1236,14 @@ Double_t TRestRun::GetRunLength() {
 }
 
 Long64_t TRestRun::GetTotalBytes() {
-    if (fFileProcess != nullptr) {
+    if (fFileProcess) {
         fTotalBytes = fFileProcess->GetTotalBytes();
     }
     return fTotalBytes;
 }
 
 int TRestRun::GetEntries() {
-    if (fAnalysisTree != nullptr) {
+    if (fAnalysisTree) {
         return fAnalysisTree->GetEntries();
     }
     return REST_MAXIMUM_EVENTS;
@@ -1250,7 +1251,7 @@ int TRestRun::GetEntries() {
 
 // Getters
 TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, const TString& tag) {
-    if (fAnalysisTree != nullptr) {
+    if (fAnalysisTree) {
         int nentries = fAnalysisTree->GetEntries();
 
         // set analysis tree to read only three branches
@@ -1266,7 +1267,7 @@ TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, const TStr
             if (fAnalysisTree->GetEventID() == eventID) {
                 if (subEventID != -1 && fAnalysisTree->GetSubEventID() != subEventID) continue;
                 if (tag != "" && fAnalysisTree->GetSubEventTag() != tag) continue;
-                if (fEventTree != nullptr) fEventTree->GetEntry(i);
+                if (fEventTree) fEventTree->GetEntry(i);
                 fAnalysisTree->SetBranchStatus("*", true);
                 fAnalysisTree->GetEntry(i);
                 fCurrentEvent = i;
@@ -1425,7 +1426,7 @@ string TRestRun::GetRunInformation(string infoname) {
         return result;
     }
 
-    if (fHostmgr && fHostmgr->GetProcessRunner() != nullptr) {
+    if (fHostmgr && fHostmgr->GetProcessRunner()) {
         result = fHostmgr->GetProcessRunner()->GetProcInfo(infoname);
         if (result != "") {
             return result;
@@ -1436,17 +1437,17 @@ string TRestRun::GetRunInformation(string infoname) {
 }
 
 TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
-    if (f != nullptr) {
+    if (f) {
         TIter nextkey(f->GetListOfKeys());
         TKey* key;
         while ((key = (TKey*)nextkey())) {
             string kName = key->GetClassName();
 
-            if (REST_Reflection::GetClassQuick(kName.c_str()) != nullptr &&
+            if (REST_Reflection::GetClassQuick(kName.c_str()) &&
                 REST_Reflection::GetClassQuick(kName.c_str())->InheritsFrom(type)) {
                 TRestMetadata* a = (TRestMetadata*)f->Get(key->GetName());
 
-                if (a != nullptr && a->InheritsFrom("TRestMetadata")) {
+                if (a && a->InheritsFrom("TRestMetadata")) {
                     return a;
                 } else {
                     warning << "TRestRun::GetMetadataClass() : The object to import is "
@@ -1459,7 +1460,7 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
         for (int i = 0; i < fMetadata.size(); i++)
             if (fMetadata[i]->InheritsFrom(type)) return fMetadata[i];
 
-        if (fInputFile != nullptr && this->GetVersionCode() >= TRestTools::ConvertVersionCode("2.2.1")) {
+        if (fInputFile && this->GetVersionCode() >= TRestTools::ConvertVersionCode("2.2.1")) {
             return GetMetadataClass(type, fInputFile);
         }
     }
@@ -1468,7 +1469,7 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
 }
 
 TRestMetadata* TRestRun::GetMetadata(const TString& name, TFile* f) {
-    if (f != nullptr) {
+    if (f) {
         TIter nextkey(f->GetListOfKeys());
         TKey* key;
         while ((key = (TKey*)nextkey())) {
@@ -1490,7 +1491,7 @@ TRestMetadata* TRestRun::GetMetadata(const TString& name, TFile* f) {
         for (unsigned int i = 0; i < fMetadata.size(); i++)
             if (fMetadata[i]->GetName() == name) return fMetadata[i];
 
-        // if (fInputFile != nullptr && this->GetVersionCode() >=
+        // if (fInputFile  && this->GetVersionCode() >=
         // ConvertVersionCode("2.2.1")) { 	return GetMetadata(name, fInputFile);
         //}
     }

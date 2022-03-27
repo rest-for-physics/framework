@@ -88,9 +88,10 @@
 ///
 /// <hr>
 ///
+#include "TRestEventRateAnalysisProcess.h"
+
 #include "TRestDataBase.h"
 
-#include "TRestEventRateAnalysisProcess.h"
 using namespace std;
 
 ClassImp(TRestEventRateAnalysisProcess);
@@ -165,4 +166,3 @@ TRestEvent* TRestEventRateAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fEvent;
 }
-

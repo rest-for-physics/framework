@@ -74,6 +74,7 @@
 /// <hr>
 ///
 #include "TRestMySQLToAnalysisProcess.h"
+
 using namespace std;
 
 #if defined USE_SQL

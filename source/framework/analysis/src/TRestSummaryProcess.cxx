@@ -82,6 +82,7 @@
 /// <hr>
 ///
 #include "TRestSummaryProcess.h"
+
 using namespace std;
 
 ClassImp(TRestSummaryProcess);

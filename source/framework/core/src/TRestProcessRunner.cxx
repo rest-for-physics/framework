@@ -256,14 +256,14 @@ void TRestProcessRunner::EndOfInit() {
     debug << "Validating process chain..." << endl;
 
     if (fRunInfo->GetFileProcess() != nullptr) {
-        fInputEvent = fRunInfo->GetFileProcess()->GetOutputEvent();
+        fInputEvent = (TRestEvent*)fRunInfo->GetFileProcess()->GetOutputEvent();
     } else {
         if (fThreads[0]->GetProcessnum() > 0 &&
             fThreads[0]->GetProcess(0)->GetInputEvent().address != nullptr) {
             string name = fThreads[0]->GetProcess(0)->GetInputEvent().type;
-            TRestEvent* a = REST_Reflection::Assembly(name);
-            a->Initialize();
-            fRunInfo->SetInputEvent(a);
+            auto event = (TRestEvent*)REST_Reflection::Assembly(name);
+            event->Initialize();
+            fRunInfo->SetInputEvent(event);
         }
         fInputEvent = fRunInfo->GetInputEvent();
     }
@@ -889,7 +889,7 @@ void TRestProcessRunner::ConfigOutputFile() {
 
     fRunInfo->MergeToOutputFile(files_to_merge, fTempOutputDataFile->GetName());
 
-    std::vector<string> mdNames = fRunInfo->GetMetadataStructureNames();
+    vector<string> mdNames = fRunInfo->GetMetadataStructureNames();
     Int_t nErrors = 0;
     Int_t nWarnings = 0;
     for (int n = 0; n < mdNames.size(); n++) {
@@ -926,8 +926,8 @@ void TRestProcessRunner::ResetRunTimes() {
 /// type name. Then it asks the process object to LoadConfigFromFile() with an
 /// xml section.
 TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type, TiXmlElement* ele) {
-    TRestEventProcess* pc = REST_Reflection::Assembly((string)type);
-    if (pc == nullptr) return nullptr;
+    auto pc = (TRestEventProcess*)REST_Reflection::Assembly((string)type);
+    if (!pc) return nullptr;
 
     pc->SetRunInfo(this->fRunInfo);
     pc->SetHostmgr(fHostmgr);

@@ -67,7 +67,7 @@ class TRestRun : public TRestMetadata {
 
     // file operation
     void OpenInputFile(int i);
-    void OpenInputFile(TString filename, std::string mode = "");
+    void OpenInputFile(const TString& filename, const std::string& mode = "");
     void AddInputFileExternal(std::string file);
     void ReadFileInfo(std::string filename);
     void ReadInputFileMetadata();
@@ -75,12 +75,12 @@ class TRestRun : public TRestMetadata {
 
     void ResetEntry();
 
-    Int_t GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettree);
+    Int_t GetNextEvent(TRestEvent* targetEvent, TRestAnalysisTree* targetTree);
     void GetEntry(int i) {
-        if (fAnalysisTree != nullptr) {
+        if (fAnalysisTree) {
             fAnalysisTree->GetEntry(i);
         }
-        if (fEventTree != nullptr) {
+        if (fEventTree) {
             fEventTree->GetEntry(i);
         }
 
@@ -115,7 +115,7 @@ class TRestRun : public TRestMetadata {
 
     /// add metadata object to the metadata list
     void AddMetadata(TRestMetadata* meta) {
-        if (meta != nullptr) {
+        if (meta) {
             fMetadata.push_back(meta);
         } else {
             warning << "REST Warning! A null matadata wants to be added in TRestRun!" << endl;
@@ -200,7 +200,7 @@ class TRestRun : public TRestMetadata {
         std::string cleanUser = RemoveWhiteSpaces((std::string)user);
         fRunUser = (TString)cleanUser;
     }
-    void SetRunDescription(TString description) { fRunDescription = description; }
+    inline void SetRunDescription(const TString& description) { fRunDescription = description; }
     void SetStartTimeStamp(Double_t tStamp) { fStartTime = tStamp; }
     void SetEndTimeStamp(Double_t tStamp) { fEndTime = tStamp; }
     void SetTotalBytes(Long64_t b) { fTotalBytes = b; }
@@ -217,19 +217,19 @@ class TRestRun : public TRestMetadata {
         for (unsigned int i = 0; i < fMetadata.size(); i++) fMetadata[i]->PrintMetadata();
     }
     void PrintTrees() {
-        if (fEventTree != nullptr) {
+        if (fEventTree) {
             fout << endl;
             fout << "=====EventTree=====" << endl;
             fEventTree->Print();
         }
-        if (fAnalysisTree != nullptr) {
+        if (fAnalysisTree) {
             fout << endl;
             fout << "=====AnalysisTree=====" << endl;
             fAnalysisTree->Print();
         }
     }
     void PrintObservables() {
-        if (fAnalysisTree != nullptr) fAnalysisTree->PrintObservables();
+        if (fAnalysisTree) fAnalysisTree->PrintObservables();
     }
 
     void PrintEvent() { fInputEvent->PrintEvent(); }
@@ -240,10 +240,10 @@ class TRestRun : public TRestMetadata {
 
     // Constructor & Destructor
     TRestRun();
-    TRestRun(std::string rootfilename);
+    TRestRun(const std::string& rootfilename);
     ~TRestRun();
 
-    ClassDef(TRestRun, 4);
+    ClassDef(TRestRun, 5);
 };
 
 #endif
