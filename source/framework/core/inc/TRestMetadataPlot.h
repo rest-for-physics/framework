@@ -88,7 +88,7 @@ class TRestMetadataPlot : public TRestMetadata {
         /// The user defined range in the y-axis
         TVector2 yRange;
         /// A vector containning the properties of the graphs inside the plot
-        vector<Graph_Info_Set> graphs;
+        std::vector<Graph_Info_Set> graphs;
     };
 
     /// This structure is used to register the values from a <panel definition inside the RML
@@ -96,11 +96,11 @@ class TRestMetadataPlot : public TRestMetadata {
         /// The font size to be used in the panel labels
         Float_t font_size;
         /// The x-position of labels used inside the panel
-        vector<Float_t> posX;
+        std::vector<Float_t> posX;
         /// The y-position of labels used inside the panel
-        vector<Float_t> posY;
+        std::vector<Float_t> posY;
         /// The string containing the text to be drawn in the panel
-        vector<std::string> label;
+        std::vector<std::string> label;
     };
 
    private:
@@ -150,19 +150,19 @@ class TRestMetadataPlot : public TRestMetadata {
     TString fLegendOption = "lp";
 
     /// A vector with the defined plots
-    vector<Plot_Info_Set> fPlots;
+    std::vector<Plot_Info_Set> fPlots;
 
     /// A vector with the defined panels
-    vector<Panel_Info> fPanels;
+    std::vector<Panel_Info> fPanels;
 
     /// A vector to double check that there are no repeated graph names
-    vector<string> fPlotNamesCheck;  //!
+    std::vector<std::string> fPlotNamesCheck;  //!
 
     /// TRestRun to handle output file
     TRestRun* fRun;  //!
 
     /// To keep a list of files used
-    std::vector<string> fRunInputFileName;  //!
+    std::vector<std::string> fRunInputFileName;  //!
 
     /// Output canvas
     TCanvas* fCombinedCanvas;  //!

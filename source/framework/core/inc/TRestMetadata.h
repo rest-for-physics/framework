@@ -99,17 +99,17 @@ class TRestMetadata : public TNamed {
                              TString defaultValue = PARAMETER_NOT_FOUND_STR);
     Double_t GetDblParameterWithUnits(std::string parName, TiXmlElement* e,
                                       Double_t defaultVal = PARAMETER_NOT_FOUND_DBL);
-    TVector2 Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* e,
-                                           TVector2 defaultValue = TVector2(-1, -1));
-    TVector3 Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* e,
-                                           TVector3 defaultValue = TVector3(-1, -1, -1));
-    TiXmlElement* GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre = "");
+    TVector2 Get2DVectorParameterWithUnits(const std::string& parName, TiXmlElement* e,
+                                           const TVector2& defaultValue = {-1, -1});
+    TVector3 Get3DVectorParameterWithUnits(const std::string& parName, TiXmlElement* e,
+                                           const TVector3& defaultValue = {-1, -1, -1});
+    TiXmlElement* GetElementFromFile(const std::string& cfgFileName, const std::string& nameOrDeclare = "");
     TiXmlElement* GetElement(std::string eleDeclare, TiXmlElement* e = nullptr);
     TiXmlElement* GetNextElement(TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName);
-    std::pair<std::string, std::string> GetParameterAndUnits(std::string parname, TiXmlElement* e = nullptr);
-    TiXmlElement* StringToElement(std::string definition);
+    std::pair<std::string, std::string> GetParameterAndUnits(std::string parName, TiXmlElement* e = nullptr);
+    TiXmlElement* StringToElement(const std::string& definition);
     std::string ElementToString(TiXmlElement* ele);
 
     // old xml parser interface.
@@ -293,7 +293,7 @@ class TRestMetadata : public TNamed {
         return dataPath;
     }
 
-    /// returns the verboselevel in type of REST_Verbose_Level enumerator
+    /// returns the verbose level in type of REST_Verbose_Level enumerator
     REST_Verbose_Level GetVerboseLevel() { return fVerboseLevel; }
 
     /// returns the verbose level in type of TString
@@ -306,22 +306,24 @@ class TRestMetadata : public TNamed {
 
     Double_t GetDblParameterWithUnits(std::string parName, Double_t defaultValue = PARAMETER_NOT_FOUND_DBL);
 
-    TVector2 Get2DVectorParameterWithUnits(std::string parName, TVector2 defaultValue = TVector2(-1, -1));
+    TVector2 Get2DVectorParameterWithUnits(const std::string& parName,
+                                           const TVector2& defaultValue = {-1, -1});
 
-    TVector3 Get3DVectorParameterWithUnits(std::string parName, TVector3 defaultValue = TVector3(-1, -1, -1));
+    TVector3 Get3DVectorParameterWithUnits(const std::string& parName,
+                                           const TVector3& defaultValue = {-1, -1, -1});
 
     /// If this method is called the metadata information will **not** be stored in disk.
-    void DoNotStore() { fStore = false; }
+    inline void DoNotStore() { fStore = false; }
     /// If this method is called the metadata information will be stored in disk.
-    void Store() { fStore = true; }
+    inline void Store() { fStore = true; }
     /// set the section name, clear the section content
-    void SetSectionName(std::string sName) { fSectionName = sName; }
+    inline void SetSectionName(const std::string& sName) { fSectionName = sName; }
     /// set config file path from external
-    void SetConfigFile(std::string cfgFileName) { fConfigFileName = cfgFileName; }
+    inline void SetConfigFile(const std::string& cfgFileName) { fConfigFileName = cfgFileName; }
     /// Set the host manager for this class.
-    void SetHostmgr(TRestManager* m) { fHostmgr = m; }
+    inline void SetHostmgr(TRestManager* m) { fHostmgr = m; }
     /// sets the verbose level
-    void SetVerboseLevel(REST_Verbose_Level v) { fVerboseLevel = v; }
+    inline void SetVerboseLevel(REST_Verbose_Level v) { fVerboseLevel = v; }
     /// overwriting the write() method with fStore considered
     virtual Int_t Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0);
 
@@ -331,4 +333,4 @@ class TRestMetadata : public TNamed {
     ClassDef(TRestMetadata, 9);
 };
 
-#endif
+#endif  // RestCore_TRestMetadata

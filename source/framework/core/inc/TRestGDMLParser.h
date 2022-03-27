@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include "TRestMetadata.h"
+#include "TRestTools.h"
 
 ///////////////////////////////////////////
 // we must preprocess gdml file because of a bug in TGDMLParse::Value() in ROOT6

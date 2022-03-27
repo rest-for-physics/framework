@@ -525,16 +525,17 @@ TRestMetadata::~TRestMetadata() {
 ///
 Int_t TRestMetadata::LoadConfigFromFile(const string& cfgFileName, const string& sectionName) {
     fConfigFileName = cfgFileName;
+    string sectionNameToLoad = sectionName;
     if (TRestTools::fileExists(fConfigFileName)) {
         if (sectionName == "") {
-            sectionName = this->ClassName();
+            sectionNameToLoad = this->ClassName();
         }
 
         // find the xml section corresponding to the sectionName
-        TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, sectionName);
+        TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, sectionNameToLoad);
         if (Sectional == nullptr) {
-            ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName << "\""
-                 << endl;
+            ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionNameToLoad
+                 << "\"" << endl;
             ferr << "in config file: " << fConfigFileName << endl;
             exit(1);
         }
@@ -1353,7 +1354,7 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlEleme
     return defaultVal;
 }
 
-TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
+TVector2 TRestMetadata::Get2DVectorParameterWithUnits(const std::string& parName, TiXmlElement* ele,
                                                       const TVector2& defaultVal) {
     if (ele == nullptr) return defaultVal;
     pair<string, string> val_unit = GetParameterAndUnits(parName, ele);
@@ -1365,13 +1366,13 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXml
         TVector2 value = StringTo2DVector(val);
         Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
-        return TVector2(valueX, valueY);
+        return {valueX, valueY};
     }
 
     return defaultVal;
 }
 
-TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
+TVector3 TRestMetadata::Get3DVectorParameterWithUnits(const std::string& parName, TiXmlElement* ele,
                                                       const TVector3& defaultVal) {
     if (ele == nullptr) return defaultVal;
     pair<string, string> val_unit = GetParameterAndUnits(parName, ele);
@@ -1458,7 +1459,8 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, Double_t d
     return defaultVal;
 }
 
-TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, const TVector2& defaultVal) {
+TVector2 TRestMetadata::Get2DVectorParameterWithUnits(const std::string& parName,
+                                                      const TVector2& defaultVal) {
     pair<string, string> val_unit = GetParameterAndUnits(parName);
     string val = val_unit.first;
     string unit = val_unit.second;
@@ -1473,7 +1475,8 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, const
     return defaultVal;
 }
 
-TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, const TVector3& defaultVal) {
+TVector3 TRestMetadata::Get3DVectorParameterWithUnits(const std::string& parName,
+                                                      const TVector3& defaultVal) {
     pair<string, string> val_unit = GetParameterAndUnits(parName);
     string val = val_unit.first;
     string unit = val_unit.second;
@@ -1504,7 +1507,8 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, const
 /// Exits the whole program if the xml file does not exist, or is in wrong in
 /// syntax. Returns NULL if no element matches NameOrDecalre
 ///
-TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre) {
+TiXmlElement* TRestMetadata::GetElementFromFile(const std::string& cfgFileName,
+                                                const std::string& nameOrDeclare) {
     TiXmlDocument doc;
     TiXmlElement* rootele;
 
@@ -1527,27 +1531,27 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
         ferr << "The rml file \"" << cfgFileName << "\" does not contain any valid elements!" << endl;
         exit(1);
     }
-    if (NameOrDecalre == "") {
+    if (nameOrDeclare == "") {
         return (TiXmlElement*)rootele->Clone();
     }
     // search with either name or declare in either root element or sub-root
     // element
     while (rootele != nullptr) {
-        if (rootele->Value() != nullptr && (string)rootele->Value() == NameOrDecalre) {
+        if (rootele->Value() != nullptr && (string)rootele->Value() == nameOrDeclare) {
             return (TiXmlElement*)rootele->Clone();
         }
 
-        if (rootele->Attribute("name") != nullptr && (string)rootele->Attribute("name") == NameOrDecalre) {
+        if (rootele->Attribute("name") != nullptr && (string)rootele->Attribute("name") == nameOrDeclare) {
             return (TiXmlElement*)rootele->Clone();
         }
 
-        TiXmlElement* etemp = GetElement(NameOrDecalre, rootele);
+        TiXmlElement* etemp = GetElement(nameOrDeclare, rootele);
         if (etemp != nullptr) {
             return (TiXmlElement*)etemp->Clone();
         }
 
-        etemp = GetElementWithName("", NameOrDecalre, rootele);
-        if (etemp != nullptr) {
+        etemp = GetElementWithName("", nameOrDeclare, rootele);
+        if (etemp) {
             return (TiXmlElement*)etemp->Clone();
         }
 
@@ -1594,8 +1598,8 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
     if (eleDeclare == "")  // find only with name
     {
         TiXmlElement* ele = e->FirstChildElement();
-        while (ele != nullptr) {
-            if (ele->Attribute("name") != nullptr && (string)ele->Attribute("name") == eleName) {
+        while (ele) {
+            if (ele->Attribute("name") && (string)ele->Attribute("name") == eleName) {
                 return ele;
             }
             ele = ele->NextSiblingElement();
@@ -1604,8 +1608,8 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
     } else  // find with name and declare
     {
         TiXmlElement* ele = e->FirstChildElement(eleDeclare.c_str());
-        while (ele != nullptr) {
-            if (ele->Attribute("name") != nullptr && (string)ele->Attribute("name") == eleName) {
+        while (ele) {
+            if (ele->Attribute("name") && (string)ele->Attribute("name") == eleName) {
                 return ele;
             }
             ele = ele->NextSiblingElement(eleDeclare.c_str());
@@ -1669,7 +1673,7 @@ pair<string, string> TRestMetadata::GetParameterAndUnits(string parName, TiXmlEl
         // then try to find unit in corresponding "parameter" section
         if (unit == "") {
             TiXmlElement* paraele = GetElementWithName("parameter", parName, e);
-            if (paraele != nullptr) {
+            if (paraele) {
                 unit = GetUnits(paraele);
             }
         }
@@ -1685,11 +1689,10 @@ pair<string, string> TRestMetadata::GetParameterAndUnits(string parName, TiXmlEl
 ///////////////////////////////////////////////
 /// \brief Parsing a string into TiXmlElement object
 ///
-/// This method creates TiXmlElement object with the alloator "new".
+/// This method creates TiXmlElement object with the allocator "new".
 /// Be advised to delete the object after using it!
-static TiXmlElement* TRestMetadata::StringToElement(string definition) {
+TiXmlElement* TRestMetadata::StringToElement(const string& definition) {
     auto ele = new TiXmlElement("temp");
-    // TiXmlDocument*doc = new TiXmlDocument();
     ele->Parse(definition.c_str(), nullptr, TIXML_ENCODING_UTF8);
     return ele;
 }
@@ -1700,12 +1703,12 @@ static TiXmlElement* TRestMetadata::StringToElement(string definition) {
 /// This method does't arrange the output. All the contents are written in one
 /// line.
 string TRestMetadata::ElementToString(TiXmlElement* ele) {
-    if (ele != nullptr) {
+    if (ele) {
         // remove comments
         TiXmlNode* n = ele->FirstChild();
-        while (n != nullptr) {
+        while (n) {
             TiXmlComment* cmt = n->ToComment();
-            if (cmt != nullptr) {
+            if (cmt) {
                 TiXmlNode* nn = n;
                 n = n->NextSibling();
                 ele->RemoveChild(nn);
@@ -1774,10 +1777,10 @@ string TRestMetadata::GetKEYStructure(std::string keyName, size_t& fromPosition,
     debug << "Finding " << fromPosition << "th appearance of KEY Structure \"" << keyName << "\"..." << endl;
 
     TiXmlElement* childele = ele->FirstChildElement(keyName);
-    for (int i = 0; childele != nullptr && i < fromPosition; i++) {
+    for (int i = 0; childele && i < fromPosition; i++) {
         childele = childele->NextSiblingElement(keyName);
     }
-    if (childele != nullptr) {
+    if (childele) {
         string result = ElementToString(childele);
         fromPosition = fromPosition + 1;
         debug << "Found Key : " << result << endl;
@@ -1838,9 +1841,10 @@ string TRestMetadata::GetKEYDefinition(string keyName, size_t& fromPosition, str
     }
 
     string result = buffer.substr(startPos, endPos - startPos + 1);
-    if (result[result.size() - 2] != '/') result.insert(result.size() - 1, 1, '/');
-    // cout << result << endl << endl;
-    // getchar();
+    if (result[result.size() - 2] != '/') {
+        result.insert(result.size() - 1, 1, '/');
+    }
+
     return result;
 }
 
@@ -1855,7 +1859,7 @@ string TRestMetadata::FieldNamesToUpper(string definition) {
     if (e == nullptr) return NULL;
 
     TiXmlAttribute* attr = e->FirstAttribute();
-    while (attr != nullptr) {
+    while (attr) {
         string parName = std::string(attr->Name());
 
         size_t pos = 0;
@@ -1920,7 +1924,7 @@ string TRestMetadata::ReplaceVariables(const string buffer) {
         int replacePos = startPosition;
         int replaceLen = endPosition - startPosition + 1;
 
-        string sysenv = getenv(expression.c_str()) != nullptr ? getenv(expression.c_str()) : "";
+        string sysenv = getenv(expression.c_str()) ? getenv(expression.c_str()) : "";
         string proenv = fVariables.count(expression) > 0 ? fVariables[expression] : "";
         string argenv = REST_ARGS.count(expression) > 0 ? REST_ARGS[expression] : "";
 
@@ -2015,7 +2019,7 @@ void TRestMetadata::PrintTimeStamp(Double_t timeStamp) {
 /// \brief Prints current config buffer on screen
 ///
 void TRestMetadata::PrintConfigBuffer() {
-    if (fElement != nullptr) {
+    if (fElement) {
         fElement->Print(stdout, 0);
         cout << endl;
     } else {
@@ -2031,7 +2035,7 @@ void TRestMetadata::PrintConfigBuffer() {
 }
 
 void TRestMetadata::WriteConfigBuffer(string fname) {
-    if (fElement != nullptr) {
+    if (fElement) {
         FILE* f = fopen(fname.c_str(), "at");
         fElement->Print(f, 0);
         fclose(f);
@@ -2206,8 +2210,8 @@ TString TRestMetadata::GetSearchPath() {
     // Then we skip adding user paths
     if (fElement) {
         TiXmlElement* ele = fElement->FirstChildElement("searchPath");
-        while (ele != nullptr) {
-            if (ele->Attribute("value") != nullptr) {
+        while (ele) {
+            if (ele->Attribute("value")) {
                 result += (string)ele->Attribute("value") + ":";
             }
             ele = ele->NextSiblingElement("searchPath");
@@ -2291,7 +2295,7 @@ std::map<string, string> TRestMetadata::GetParametersList() {
 
     // Loop over attribute set
     auto paraattr = fElement->FirstAttribute();
-    while (paraattr != nullptr) {
+    while (paraattr) {
         string name = paraattr->Name();
         string value = paraattr->Value();
 
@@ -2304,7 +2308,7 @@ std::map<string, string> TRestMetadata::GetParametersList() {
 
     // Loop over <parameter section
     auto paraele = fElement->FirstChildElement("parameter");
-    while (paraele != nullptr) {
+    while (paraele) {
         string name = paraele->Attribute("name");
         string value = paraele->Attribute("value");
         // In case <parameter section contains units definitions in extra attribute field,
