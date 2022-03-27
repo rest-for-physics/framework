@@ -11,7 +11,7 @@ using namespace std;
 
 #define FILES_PATH fs::path(__FILE__).parent_path().parent_path() / "files"
 #define BASIC_TRESTRUN_RML FILES_PATH / "TRestRunBasic.rml"
-#define BASIC_TRESTMETADATA_RML FILES_PATH / "metadata.rml"
+#define BASIC_TRESTMETADATA_RML FILES_PATH / "TRestMetadataTest.rml"
 
 TEST(FrameworkCore, TestFiles) {
     cout << "FrameworkCore test files path: " << FILES_PATH << endl;
@@ -43,18 +43,18 @@ TEST(FrameworkCore, TRestRun) {
 
 TEST(FrameworkCore, TRestMetadata) {
     // Create new TRestMetadata class
-    class metadataTestClass : public TRestMetadata {
+    class TRestMetadataTest : public TRestMetadata {
         int fP1;
         double fP2;
         string fP3;
     };
 
-    metadataTestClass meta;
-    meta.LoadConfigFromFile(BASIC_TRESTMETADATA_RML, "metadata");
+    TRestMetadataTest restMetadataTest;
+    restMetadataTest.LoadConfigFromFile(BASIC_TRESTMETADATA_RML, "metadata");
 
-    meta.PrintMetadata();
+    restMetadataTest.PrintMetadata();
 
-    EXPECT_TRUE(meta.GetParameter("p1") == "75");
-    EXPECT_TRUE(meta.GetParameter("p2") == "12.32");
-    EXPECT_TRUE(meta.GetParameter("p3") == "Aloha");
+    EXPECT_TRUE(restMetadataTest.GetParameter("p1") == "75");
+    EXPECT_TRUE(restMetadataTest.GetParameter("p2") == "12.32");
+    EXPECT_TRUE(restMetadataTest.GetParameter("p3") == "Aloha");
 }
