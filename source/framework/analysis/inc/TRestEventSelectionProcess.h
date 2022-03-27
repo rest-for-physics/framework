@@ -24,7 +24,9 @@
 #define RestProcess_TRestEventSelectionProcess
 
 #include <TH1D.h>
+
 #include <iostream>
+
 #include "TRestEventProcess.h"
 
 //! A template process to serve as an example to create new TRestRawSignalEventProcess

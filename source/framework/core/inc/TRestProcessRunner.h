@@ -35,12 +35,12 @@ class TRestProcessRunner : public TRestMetadata {
     TRestEvent* fOutputEvent;  //!
 
     // self variables for processing
-    std::vector<TRestThread*> fThreads;     //!
-    TFile* fTempOutputDataFile;        //!
-    TTree* fEventTree;                 //!
-    TRestAnalysisTree* fAnalysisTree;  //!
-    ProcStatus fProcStatus;            //!
-    Int_t fNBranches;                  //!
+    std::vector<TRestThread*> fThreads;  //!
+    TFile* fTempOutputDataFile;          //!
+    TTree* fEventTree;                   //!
+    TRestAnalysisTree* fAnalysisTree;    //!
+    ProcStatus fProcStatus;              //!
+    Int_t fNBranches;                    //!
 
     // metadata
     Bool_t fUseTestRun;

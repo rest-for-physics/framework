@@ -22,20 +22,17 @@
 #include "TClassEdit.h"
 #include "TDataMember.h"
 #include "TDataType.h"
+#include "TRestStringHelper.h"
 #include "TStreamerElement.h"
 #include "TVirtualStreamerInfo.h"
-
-#include "TRestStringHelper.h"
-
-
 
 class TRestEventProcess;
 
 /// This namespace serves for the reflection functionality
 namespace REST_Reflection {
 
-    struct DataType_Info {
-    char name[20]{'u','n','k','n','o','w','n', 0};
+struct DataType_Info {
+    char name[20]{'u', 'n', 'k', 'n', 'o', 'w', 'n', 0};
     Int_t size = 0;
     const std::type_info* typeinfo = 0;
 
@@ -229,7 +226,6 @@ namespace REST_Reflection {
             typeinfo = &typeid(T);
         }
     }
-
 };
 
 extern std::map<void*, TClass*> RESTListOfClasses_typeid;
@@ -239,7 +235,7 @@ extern std::map<std::string, TClass*> RESTListOfClasses_typename;
 ///
 /// Quicker than TClass::GetClass() since it stores limited objects in the std::map, no need to
 /// iterate all the valid types. Do not call this method before main function.
-/// 
+///
 inline TClass* GetClassQuick(std::string type) {
     auto iter = RESTListOfClasses_typename.find(type);
     if (iter != RESTListOfClasses_typename.end()) {
@@ -253,11 +249,11 @@ inline TClass* GetClassQuick(std::string type) {
 }
 
 /////////////////////////////
-/// \brief Get the type of a "class" object, returning the wrapped type identifier "TClass". 
+/// \brief Get the type of a "class" object, returning the wrapped type identifier "TClass".
 ///
-/// Quicker than TClass::GetClass() since it stores limited objects in the std::map, no need to 
+/// Quicker than TClass::GetClass() since it stores limited objects in the std::map, no need to
 /// iterate all the valid types. Do not call this method before main function.
-/// 
+///
 template <typename T>
 TClass* GetClassQuick() {
     void* typeidaddr = (void*)&typeid(T);
@@ -402,7 +398,6 @@ class TRestReflector {
 
         InitDictionary();
     }
-
 };
 
 ///////////////////////////////////////////////

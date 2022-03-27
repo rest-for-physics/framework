@@ -14,14 +14,13 @@
 #ifndef RestCore_TRestSystemOfUnits
 #define RestCore_TRestSystemOfUnits
 
-#include <iostream>
-#include <map>
-#include <string>
-
-
 #include <TString.h>
 #include <TVector2.h>
 #include <TVector3.h>
+
+#include <iostream>
+#include <map>
+#include <string>
 
 #ifdef REST_UnitsAdd_Caller
 #define AddUnit(name, type, scale) const double name = _AddUnit(#name, type, scale)

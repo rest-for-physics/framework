@@ -1,7 +1,9 @@
 #include <TFile.h>
 #include <TTree.h>
+
 #include <iostream>
 #include <vector>
+
 Int_t ValidateTrees(TString validationFile) {
     TFile* f = new TFile("results.root");
     TTree* tr = (TTree*)f->Get("bTree");

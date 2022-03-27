@@ -78,10 +78,8 @@
 #include "TRestProcessRunner.h"
 #include "TRestStringOutput.h"
 
-
 using namespace std;
 ClassImp(TRestMessenger);
-
 
 //______________________________________________________________________________
 TRestMessenger::TRestMessenger() { Initialize(); }
@@ -98,9 +96,9 @@ TRestMessenger::~TRestMessenger() {
 
 TRestMessenger::TRestMessenger(int token, string mode) {
     Initialize();
-    LoadConfigFromElement(StringToElement("<TRestMessenger token=\"" + ToString(token) +
-                                          "\" mode=\"" + mode + "\"/>"),
-                          NULL, {});
+    LoadConfigFromElement(
+        StringToElement("<TRestMessenger token=\"" + ToString(token) + "\" mode=\"" + mode + "\"/>"), NULL,
+        {});
 }
 
 void TRestMessenger::Initialize() {
@@ -176,7 +174,7 @@ void TRestMessenger::InitFromConfigFile() {
         return;
     }
 
-    if ((string) this->GetName() == "defaultName") SetName(message->name);
+    if ((string)this->GetName() == "defaultName") SetName(message->name);
 
     if (created) {
         message->Reset();

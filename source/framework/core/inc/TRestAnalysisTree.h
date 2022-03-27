@@ -38,13 +38,13 @@ class TRestAnalysisTree : public TTree {
     Int_t fSubRunOrigin;    //!
 
     //
-    Int_t fStatus = 0;                       //!
-    Int_t fSetObservableCalls = 0;           //!
-    Int_t fSetObservableIndex = 0;           //!
-    Bool_t fQuickSetObservableValue = true;  //!
-    std::vector<RESTValue> fObservables;     //!
+    Int_t fStatus = 0;                            //!
+    Int_t fSetObservableCalls = 0;                //!
+    Int_t fSetObservableIndex = 0;                //!
+    Bool_t fQuickSetObservableValue = true;       //!
+    std::vector<RESTValue> fObservables;          //!
     std::map<std::string, int> fObservableIdMap;  //!
-    TTree* fROOTTree;                        //!
+    TTree* fROOTTree;                             //!
 
     // for storage
     Int_t fNObservables;

@@ -1,4 +1,5 @@
 #include "TRestBenchMarkProcess.h"
+
 #include "TRestManager.h"
 #include "TRestProcessRunner.h"
 #ifndef __APPLE__
@@ -6,10 +7,8 @@
 #endif
 #include "sys/wait.h"
 
-
 using namespace std;
 ClassImp(TRestBenchMarkProcess);
-
 
 thread* TRestBenchMarkProcess::fMonitorThread = nullptr;
 int TRestBenchMarkProcess::fMonitorFlag = 0;

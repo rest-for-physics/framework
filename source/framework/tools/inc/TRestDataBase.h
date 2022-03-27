@@ -7,8 +7,6 @@
 #include <map>
 #include <vector>
 
-
-
 // Contains basic information of the row. These information also appears in TRestRun.
 // One or more DBEntry objects stores the information of one run.
 //

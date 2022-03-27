@@ -49,11 +49,12 @@ class TRestAnalysisPlot : public TRestMetadata {
         std::string range;  // output histo std::string for TTree::Draw(), e.g. name+range = htemp(100,0,1000)
         Bool_t status;
 
-        std::string plotString;                // draw std::string for TTree::Draw()
-        std::string cutString;                 // cut std::string for TTree::Draw()
-        std::map<std::string, std::string> classifyMap;  // select the input files to draw the histogram, if their
-                                          // TRestRun::Get() returns the assumed std::string
-        std::string drawOption;                // draw option for TTree::Draw()
+        std::string plotString;  // draw std::string for TTree::Draw()
+        std::string cutString;   // cut std::string for TTree::Draw()
+        std::map<std::string, std::string>
+            classifyMap;         // select the input files to draw the histogram, if their
+                                 // TRestRun::Get() returns the assumed std::string
+        std::string drawOption;  // draw option for TTree::Draw()
 
         Int_t lineColor;
         Int_t lineWidth;

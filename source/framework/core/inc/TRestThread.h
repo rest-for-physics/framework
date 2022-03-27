@@ -25,18 +25,18 @@ class TRestThread : public TRestMetadata {
    private:
     Int_t fThreadId;
 
-    TRestProcessRunner* fHostRunner;           //!
+    TRestProcessRunner* fHostRunner;                //!
     std::vector<TRestEventProcess*> fProcessChain;  //!
-    TRestAnalysisTree* fAnalysisTree;          //!
-    TRestEvent* fInputEvent;                   //!
-    TRestEvent* fOutputEvent;                  //!
-    TFile* fOutputFile;                        //!
-    TTree* fEventTree;                         //!
+    TRestAnalysisTree* fAnalysisTree;               //!
+    TRestEvent* fInputEvent;                        //!
+    TRestEvent* fOutputEvent;                       //!
+    TFile* fOutputFile;                             //!
+    TTree* fEventTree;                              //!
 
-    std::thread t;      //!
-    Bool_t isFinished;  //!
-    Bool_t fProcessNullReturned; //!
-   
+    std::thread t;                //!
+    Bool_t isFinished;            //!
+    Bool_t fProcessNullReturned;  //!
+
    public:
     void Initialize();
     void InitFromConfigFile() {}

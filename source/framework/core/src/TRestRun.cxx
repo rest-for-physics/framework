@@ -34,10 +34,8 @@
 
 std::mutex mutex2;
 
-
 using namespace std;
 ClassImp(TRestRun);
-
 
 TRestRun::TRestRun() { Initialize(); }
 
@@ -1824,4 +1822,3 @@ void TRestRun::PrintWarnings() {
         cout << "No warnings found!" << endl;
     }
 }
-

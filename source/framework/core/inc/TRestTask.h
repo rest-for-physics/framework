@@ -21,8 +21,6 @@
 
 class TRestManager;
 
-
-
 enum REST_TASKMODE { TASK_ERROR = -1, TASK_MACRO = 0, TASK_CPPCMD = 1, TASK_CLASS = 2, TASK_SHELLCMD = 3 };
 
 /// Wrapping REST macros into tasks
@@ -34,9 +32,9 @@ class TRestTask : public TRestMetadata {
     REST_TASKMODE fMode;
     std::string fInvokeObject = "";
     std::string fInvokeMethod = "";
-    // indicates whether the argument is std::string/TString/const char *. If so, the value would be 1. We need to
-    // add "" mark when constructing command. Otherwise the value is 0.
-    std::vector<int> fArgumentTypes;     //!
+    // indicates whether the argument is std::string/TString/const char *. If so, the value would be 1. We
+    // need to add "" mark when constructing command. Otherwise the value is 0.
+    std::vector<int> fArgumentTypes;          //!
     std::vector<std::string> fArgumentNames;  //!
     std::vector<std::string> fArgumentValues;
     std::string fConstructedCommand = "";

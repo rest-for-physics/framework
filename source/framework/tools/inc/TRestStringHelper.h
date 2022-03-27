@@ -22,8 +22,6 @@
 
 #include "TRestStringOutput.h"
 
-
-
 /// String helper classes. Declared static to be able to have direct access to the methods
 namespace REST_StringHelper {
 
@@ -41,7 +39,7 @@ Long64_t StringToLong(std::string in);
 TVector3 StringTo3DVector(std::string in);
 TVector2 StringTo2DVector(std::string in);
 std::vector<std::string> Split(std::string in, std::string separator, bool allowBlankString = false,
-                          bool removeWhiteSpaces = false, int startPos = -1);
+                               bool removeWhiteSpaces = false, int startPos = -1);
 std::vector<double> StringToElements(std::string in, std::string separator, bool allowBlankString = false,
                                      bool removeWhiteSpaces = false, int starPos = -1);
 std::string RemoveWhiteSpaces(std::string in);
