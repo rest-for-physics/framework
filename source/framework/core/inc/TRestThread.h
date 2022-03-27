@@ -33,10 +33,10 @@ class TRestThread : public TRestMetadata {
     TFile* fOutputFile;                        //!
     TTree* fEventTree;                         //!
 
-    std::thread t;      //!
-    Bool_t isFinished;  //!
-    Bool_t fProcessNullReturned; //!
-   
+    std::thread t;                //!
+    Bool_t isFinished;            //!
+    Bool_t fProcessNullReturned;  //!
+
    public:
     void Initialize();
     void InitFromConfigFile() {}
@@ -56,13 +56,13 @@ class TRestThread : public TRestMetadata {
 
     // getter and setter
     void SetThreadId(Int_t id);
-    void SetOutputTree(TRestAnalysisTree* t) { fAnalysisTree = t; }
+    void SetOutputTree(TRestAnalysisTree* analysisTree) { fAnalysisTree = analysisTree; }
     void SetProcessRunner(TRestProcessRunner* r) { fHostRunner = r; }
 
     Int_t GetThreadId() { return fThreadId; }
     TRestEvent* GetInputEvent() { return fInputEvent; }
     TFile* GetOutputFile() { return fOutputFile; };
-    TRestEvent* GetOutputEvent() { return fProcessNullReturned ? 0 : fOutputEvent; }
+    TRestEvent* GetOutputEvent() { return fProcessNullReturned ? nullptr : fOutputEvent; }
     Int_t GetProcessnum() { return fProcessChain.size(); }
     TRestEventProcess* GetProcess(int i) { return fProcessChain[i]; }
     TRestAnalysisTree* GetAnalysisTree() { return fAnalysisTree; }

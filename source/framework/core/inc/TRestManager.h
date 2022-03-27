@@ -24,7 +24,7 @@ class TRestManager : public TRestMetadata {
         if (fElement != nullptr) {
             TiXmlElement* e = fElement->FirstChildElement();
             while (e != nullptr) {
-                string value = e->Value();
+                std::string value = e->Value();
                 if (value == "variable" || value == "myParameter" || value == "constant") {
                     e = e->NextSiblingElement();
                     continue;

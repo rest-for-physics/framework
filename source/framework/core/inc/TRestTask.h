@@ -30,20 +30,20 @@ class TRestTask : public TRestMetadata {
 
     int fNRequiredArgument;
     REST_TASKMODE fMode;
-    string fInvokeObject = "";
-    string fInvokeMethod = "";
+    std::string fInvokeObject = "";
+    std::string fInvokeMethod = "";
     // indicates whether the argument is string/TString/const char *. If so, the value would be 1. We need to
     // add "" mark when constructing command. Otherwise, the value is 0.
-    vector<int> fArgumentTypes;     //!
-    vector<string> fArgumentNames;  //!
-    vector<string> fArgumentValues;
-    string fConstructedCommand = "";
+    vector<int> fArgumentTypes;          //!
+    vector<std::string> fArgumentNames;  //!
+    vector<std::string> fArgumentValues;
+    std::string fConstructedCommand = "";
 
    public:
     // define default values here
     void InitFromConfigFile();
 
-    void SetArgumentValue(vector<string> arg);
+    void SetArgumentValue(vector<std::string> arg);
 
     static TRestTask* GetTaskFromMacro(TString Name);
     static TRestTask* GetTaskFromCommand(const TString& cmd);

@@ -73,14 +73,14 @@ class TRestMessenger : public TRestMetadata {
     TRestRun* fRun;  //!
 
     CommMode fMode;
-    string fPoolToken;   // to establish communication
-    string fPoolSource;  // describes the source of message to be send. e.g. OUTPUTFILE, RUNNUMBER
+    std::string fPoolToken;   // to establish communication
+    std::string fPoolSource;  // describes the source of message to be sent. e.g. OUTPUTFILE, RUNNUMBER
 
     virtual void InitFromConfigFile();
 
     virtual void Initialize();
 
-    virtual void AddPool(string message);
+    virtual void AddPool(std::string message);
 
     bool lock(messagepool_t* pool, int timeoutMs = 1000);
 
@@ -89,21 +89,21 @@ class TRestMessenger : public TRestMetadata {
    public:
     virtual bool IsConnected() { return fMessagePool != nullptr; }
 
-    virtual void SendMessage(string message = "");
+    virtual void SendMessage(std::string message = "");
 
-    virtual vector<string> ShowMessagePool();
+    virtual vector<std::string> ShowMessagePool();
 
-    virtual string ConsumeMessage();
+    virtual std::string ConsumeMessage();
 
     virtual void PrintMetadata();
     // Constructor
     TRestMessenger();
     // Constructor
-    TRestMessenger(int token, string mode = "TwoWay");
+    TRestMessenger(int token, std::string mode = "TwoWay");
     // Destructor
     ~TRestMessenger();
 
     ClassDef(TRestMessenger, 1);  // Template for a REST "event process" class inherited from
-                                             // TRestEventProcess
+                                  // TRestEventProcess
 };
 #endif

@@ -82,11 +82,11 @@ class TRestEventProcess : public TRestMetadata {
     /// It defines if observable names should be added to the validation list
     bool fValidateObservables = false;  //!
     /// Stores the list of process observables updated when processing this event
-    map<string, int> fObservablesUpdated;  //!     [name, id in AnalysisTree]
+    map<std::string, int> fObservablesUpdated;  //!     [name, id in AnalysisTree]
     /// Stores the list of all the appeared process observables in the code
-    map<string, int> fObservablesDefined;  //!     [name, id in AnalysisTree]
+    map<std::string, int> fObservablesDefined;  //!     [name, id in AnalysisTree]
     /// Stores cut definitions. Any listed observables should be in the range.
-    vector<pair<string, TVector2>> fCuts;  //!  [name, cut range]
+    vector<pair<std::string, TVector2>> fCuts;  //!  [name, cut range]
 
     // utils
     void BeginPrintProcess();
@@ -99,12 +99,12 @@ class TRestEventProcess : public TRestMetadata {
     /// conversion.
     template <class T>
     T* GetMetadata() {
-        string type = REST_Reflection::GetTypeName<T>();
+        std::string type = REST_Reflection::GetTypeName<T>();
         return (T*)GetMetadata(type);
     }
-    TRestMetadata* GetMetadata(string nameortype);
-    TRestEventProcess* GetFriend(string nameortype);
-    TRestEventProcess* GetFriendLive(string nameortype);
+    TRestMetadata* GetMetadata(std::string nameortype);
+    TRestEventProcess* GetFriend(std::string nameortype);
+    TRestEventProcess* GetFriendLive(std::string nameortype);
     int GetNumberOfParallelProcesses() { return fParallelProcesses.size(); }
     TRestEventProcess* GetParallel(int i);
     //////////////////////////////////////////////////////////////////////////
@@ -114,9 +114,9 @@ class TRestEventProcess : public TRestMetadata {
     /// If use dynamic observable, it will try to create new observable
     /// in the AnalysisTree if the observable is not found
     template <class T>
-    void SetObservableValue(string name, const T& value) {
+    void SetObservableValue(std::string name, const T& value) {
         if (fAnalysisTree != nullptr) {
-            string obsname = this->GetName() + (string) "_" + (string)name;
+            std::string obsname = this->GetName() + (std::string) "_" + (std::string)name;
 
             if (fValidateObservables) {
                 int id = fAnalysisTree->GetObservableID(obsname);
@@ -166,18 +166,18 @@ class TRestEventProcess : public TRestMetadata {
    public:
     Int_t LoadSectionMetadata();
     virtual void InitFromConfigFile() {
-        map<string, string> parameters = GetParametersList();
+        map<std::string, std::string> parameters = GetParametersList();
 
         for (auto& p : parameters)
             p.second = ReplaceMathematicalExpressions(fRunInfo->ReplaceMetadataMembers(p.second));
 
         ReadParametersList(parameters);
     }
-    vector<string> ReadObservables();
+    vector<std::string> ReadObservables();
     // open a list of input files to be processed, only used if is external process
-    virtual Bool_t OpenInputFiles(vector<string> files);
+    virtual Bool_t OpenInputFiles(vector<std::string> files);
     // add an input file during process
-    virtual Bool_t AddInputFile(string file) { return false; }
+    virtual Bool_t AddInputFile(std::string file) { return false; }
     // reset the entry by moving file ptr to 0 with fseek
     virtual Bool_t ResetEntry() { return false; }
 
@@ -230,7 +230,7 @@ class TRestEventProcess : public TRestMetadata {
     TRestAnalysisTree* GetFullAnalysisTree();
     /// Get canvas
     TCanvas* GetCanvas() { return fCanvas; }
-    std::vector<string> GetListOfAddedObservables();
+    std::vector<std::string> GetListOfAddedObservables();
 
     // Constructor
     TRestEventProcess();

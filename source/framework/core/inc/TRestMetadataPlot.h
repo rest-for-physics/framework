@@ -34,15 +34,15 @@ class TRestMetadataPlot : public TRestMetadata {
     /// This structure is used to register the values from a <graph definition inside the RML
     struct Graph_Info_Set {
         /// The name to be used for the corresponding ROOT TGraph object
-        string name;
+        std::string name;
         /// The title to be used inside TLegend object
-        string title;
+        std::string title;
         /// The metadata class and data member definition to be plotted
-        string yVariable;
+        std::string yVariable;
         /// An optional rule to be used for run selection
-        string metadataRule;
+        std::string metadataRule;
         /// The option to be passed to the Draw method
-        string drawOption;
+        std::string drawOption;
         /// The line color to be assigned to the corresponding TGraph
         Int_t lineColor;
         /// The line width to be assigned to the corresponding TGraph
@@ -64,11 +64,11 @@ class TRestMetadataPlot : public TRestMetadata {
     /// This structure is used to register the values from a <plot definition inside the RML
     struct Plot_Info_Set {
         /// The name that will be used for the TGraph object.
-        string name;
+        std::string name;
         /// A title that will be visible in top of the plot
-        string title;
+        std::string title;
         /// The corresponding metadata variable to be used in the X-axis
-        string xVariable;
+        std::string xVariable;
         /// It true a logarithmic scale will be used on the x-axis.
         Bool_t logX;
         /// It true a logarithmic scale will be used on the y-axis.
@@ -78,11 +78,11 @@ class TRestMetadataPlot : public TRestMetadata {
         /// It true a time/date calendar format will be used on the x-axis
         Bool_t timeDisplay;
         /// The label or title to be given to the x-axis.
-        string labelX;
+        std::string labelX;
         /// The label or title to be given to the y-axis.
-        string labelY;
+        std::string labelY;
         /// The filename where the file will be saved
-        string save;
+        std::string save;
         /// The user defined range in the x-axis
         TVector2 xRange;
         /// The user defined range in the y-axis
@@ -100,7 +100,7 @@ class TRestMetadataPlot : public TRestMetadata {
         /// The y-position of labels used inside the panel
         vector<Float_t> posY;
         /// The string containing the text to be drawn in the panel
-        vector<string> label;
+        vector<std::string> label;
     };
 
    private:
