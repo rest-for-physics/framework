@@ -1,6 +1,6 @@
 
-#include <TRestRun.h>
 #include <TRestMetadata.h>
+#include <TRestRun.h>
 #include <gtest/gtest.h>
 
 #include <filesystem>
@@ -22,6 +22,7 @@ TEST(FrameworkCore, TestFiles) {
     EXPECT_TRUE(!fs::is_empty(FILES_PATH));
     // Check required files exist
     EXPECT_TRUE(fs::exists(BASIC_TRESTRUN_RML));
+    EXPECT_TRUE(fs::exists(BASIC_TRESTMETADATA_RML));
 }
 
 TEST(FrameworkCore, TRestRun) {
@@ -41,16 +42,13 @@ TEST(FrameworkCore, TRestRun) {
 }
 
 TEST(FrameworkCore, TRestMetadata) {
-    // Check required files exist
-    EXPECT_TRUE(fs::exists(BASIC_TRESTMETADATA_RML));
-    
     // Create new TRestMetadata class
-    class metadataTestClass: public TRestMetadata{
+    class metadataTestClass : public TRestMetadata {
         int fP1;
         double fP2;
         string fP3;
     };
-    
+
     metadataTestClass meta;
     meta.LoadConfigFromFile(BASIC_TRESTMETADATA_RML, "metadata");
 
@@ -59,5 +57,4 @@ TEST(FrameworkCore, TRestMetadata) {
     EXPECT_TRUE(meta.GetParameter("p1") == "75");
     EXPECT_TRUE(meta.GetParameter("p2") == "12.32");
     EXPECT_TRUE(meta.GetParameter("p3") == "Aloha");
-    
 }
