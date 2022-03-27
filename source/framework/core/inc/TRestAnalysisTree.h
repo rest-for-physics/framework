@@ -125,7 +125,7 @@ class TRestAnalysisTree : public TTree {
     T GetObservableValue(Int_t n) {
         // id check
         if (n >= fNObservables) {
-            cout << "Error! TRestAnalysisTree::GetObservableValue(): index outside limits!" << endl;
+            std::cout << "Error! TRestAnalysisTree::GetObservableValue(): index outside limits!" << std::endl;
             return T();
         }
         return fObservables[n].GetValue<T>();
@@ -153,7 +153,7 @@ class TRestAnalysisTree : public TTree {
     void SetObservableValue(const Int_t& id, const T& value) {
         // id check
         if (id >= fNObservables) {
-            cout << "Error! TRestAnalysisTree::SetObservableValue(): index outside limits!" << endl;
+            std::cout << "Error! TRestAnalysisTree::SetObservableValue(): index outside limits!" << std::endl;
             return;
         }
         fObservables[id].SetValue(value);
@@ -243,10 +243,10 @@ class TRestAnalysisTree : public TTree {
 
     TString GetStringWithObservableNames();
 
-    vector<std::string> GetCutObservables(const std::string cut_str);
+    std::vector<std::string> GetCutObservables(const std::string cut_str);
 
-    void EnableBranches(vector<std::string> obsNames);
-    void DisableBranches(vector<std::string> obsNames);
+    void EnableBranches(std::vector<std::string> obsNames);
+    void DisableBranches(std::vector<std::string> obsNames);
 
     void EnableAllBranches();
     void DisableAllBranches();

@@ -152,7 +152,7 @@ void TRestGDMLParser::ReplaceEntity() {
     }
 }
 
-void TRestGDMLParser::ReplaceAttributeWithKeyWord(string keyword) {
+void TRestGDMLParser::ReplaceAttributeWithKeyWord(const string& keyword) {
     int n;
     while ((n = filestr.find(keyword, 0)) != -1) {
         int pos1 = 0, pos2 = 0;

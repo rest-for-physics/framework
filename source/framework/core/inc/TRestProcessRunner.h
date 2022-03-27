@@ -35,12 +35,12 @@ class TRestProcessRunner : public TRestMetadata {
     TRestEvent* fOutputEvent;  //!
 
     // self variables for processing
-    vector<TRestThread*> fThreads;     //!
-    TFile* fTempOutputDataFile;        //!
-    TTree* fEventTree;                 //!
-    TRestAnalysisTree* fAnalysisTree;  //!
-    ProcStatus fProcStatus;            //!
-    Int_t fNBranches;                  //!
+    std::vector<TRestThread*> fThreads;  //!
+    TFile* fTempOutputDataFile;          //!
+    TTree* fEventTree;                   //!
+    TRestAnalysisTree* fAnalysisTree;    //!
+    ProcStatus fProcStatus;              //!
+    Int_t fNBranches;                    //!
 
     // metadata
     Bool_t fUseTestRun;
@@ -56,16 +56,16 @@ class TRestProcessRunner : public TRestMetadata {
     Int_t fFirstEntry;
     Int_t fEventsToProcess;
     Int_t fProcessedEvents;
-    map<std::string, std::string> fProcessInfo;
+    std::map<std::string, std::string> fProcessInfo;
 
    public:
     /// REST run class
     void Initialize();
     void InitFromConfigFile() {
         BeginOfInit();
-        if (fElement != nullptr) {
+        if (fElement) {
             TiXmlElement* e = fElement->FirstChildElement();
-            while (e != nullptr) {
+            while (e) {
                 std::string value = e->Value();
                 if (value == "variable" || value == "myParameter" || value == "constant") {
                     e = e->NextSiblingElement();

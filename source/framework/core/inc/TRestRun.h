@@ -37,26 +37,26 @@ class TRestRun : public TRestMetadata {
     Int_t fEntriesSaved;
 
     // data-like metadata objects
-    vector<TRestMetadata*> fMetadata;       //!
-    vector<TRestMetadata*> fInputMetadata;  //!
+    std::vector<TRestMetadata*> fMetadata;       //!
+    std::vector<TRestMetadata*> fInputMetadata;  //!
 
     // temp data member
-    vector<TString> fInputFileNames;   //!
-    TFile* fInputFile;                 //!
-    TFile* fOutputFile;                //!
-    TRestEvent* fInputEvent;           //!
-    TTree* fEventTree;                 //!
-    TRestAnalysisTree* fAnalysisTree;  //!
-    bool fOverwrite;                   //!
-    bool fSaveHistoricData;            //!
-    TRestEventProcess* fFileProcess;   //!
-    int fCurrentEvent;                 //!
-    Long64_t fBytesReaded;             //!
-    Long64_t fTotalBytes;              //!
-    int fEventBranchLoc;               //!
-    int fEventIndexCounter = 0;        //!
-    bool fHangUpEndFile = false;       //!
-    bool fFromRML = false;             //!
+    std::vector<TString> fInputFileNames;  //!
+    TFile* fInputFile;                     //!
+    TFile* fOutputFile;                    //!
+    TRestEvent* fInputEvent;               //!
+    TTree* fEventTree;                     //!
+    TRestAnalysisTree* fAnalysisTree;      //!
+    bool fOverwrite;                       //!
+    bool fSaveHistoricData;                //!
+    TRestEventProcess* fFileProcess;       //!
+    int fCurrentEvent;                     //!
+    Long64_t fBytesReaded;                 //!
+    Long64_t fTotalBytes;                  //!
+    int fEventBranchLoc;                   //!
+    int fEventIndexCounter = 0;            //!
+    bool fHangUpEndFile = false;           //!
+    bool fFromRML = false;                 //!
    private:
     std::string ReplaceMetadataMember(const std::string instr);
 
@@ -98,7 +98,7 @@ class TRestRun : public TRestMetadata {
     }
 
     TString FormFormat(const TString& FilenameFormat);
-    TFile* MergeToOutputFile(vector<std::string> filefullnames, std::string outputfilename = "");
+    TFile* MergeToOutputFile(std::vector<std::string> filefullnames, std::string outputfilename = "");
     TFile* FormOutputFile();
     TFile* UpdateOutputFile();
 
@@ -136,7 +136,7 @@ class TRestRun : public TRestMetadata {
     Double_t GetEndTimestamp() { return fEndTime; }
     TString GetExperimentName() { return fExperimentName; }
 
-    vector<TString> GetInputFileNames() { return fInputFileNames; }
+    std::vector<TString> GetInputFileNames() { return fInputFileNames; }
     std::string GetInputFileName(int i) {
         return i < fInputFileNames.size() ? (std::string)fInputFileNames[i] : "";
     }

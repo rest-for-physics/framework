@@ -16,7 +16,7 @@
 class TRestManager : public TRestMetadata {
    private:
     /// app-like metadata objects
-    vector<TRestMetadata*> fMetaObjects;  //!
+    std::vector<TRestMetadata*> fMetaObjects;  //!
 
    public:
     void Initialize();
@@ -29,28 +29,28 @@ class TRestManager : public TRestMetadata {
                     e = e->NextSiblingElement();
                     continue;
                 }
-                ReadConfig((string)e->Value(), e);
+                ReadConfig((std::string)e->Value(), e);
                 e = e->NextSiblingElement();
             }
         }
     }
     int LoadSectionMetadata();
-    Int_t ReadConfig(string keydeclare, TiXmlElement* e);
+    Int_t ReadConfig(const std::string& keydeclare, TiXmlElement* e);
 
-    void InitFromTask(string taskName, vector<string> arguments);
-
-    // void LaunchTasks();
+    void InitFromTask(std::string taskName, std::vector<std::string> arguments);
 
     void PrintMetadata();
 
-    TRestProcessRunner* GetProcessRunner() {
+    inline TRestProcessRunner* GetProcessRunner() {
         return (TRestProcessRunner*)GetMetadataClass("TRestProcessRunner");
     }
-    TRestRun* GetRunInfo() { return (TRestRun*)GetMetadataClass("TRestRun"); }
-    TRestAnalysisPlot* GetAnaPlot() { return (TRestAnalysisPlot*)GetMetadataClass("TRestAnalysisPlot"); }
+    inline TRestRun* GetRunInfo() { return (TRestRun*)GetMetadataClass("TRestRun"); }
+    inline TRestAnalysisPlot* GetAnaPlot() {
+        return (TRestAnalysisPlot*)GetMetadataClass("TRestAnalysisPlot");
+    }
 
-    TRestMetadata* GetMetadata(string name);
-    TRestMetadata* GetMetadataClass(string type);
+    TRestMetadata* GetMetadata(const std::string& name);
+    TRestMetadata* GetMetadataClass(const std::string& type);
 
     TRestManager();
     ~TRestManager();

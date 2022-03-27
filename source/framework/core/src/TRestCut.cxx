@@ -99,7 +99,7 @@ TCut TRestCut::GetCut(const string& name) {
             return c;
         }
     }
-    return TCut();
+    return {};
 }
 
 void TRestCut::PrintMetadata() {

@@ -24,13 +24,13 @@ const int REST_MAX_TAGS = 15;
 // as enum "EColor" defined in Rtypes.h
 // as enum "ELineStyle" defined in TAttLine.h
 // as enum "EFillStyle" defined in TAttFill.h
-const map<std::string, int> ColorIdMap{
+const std::map<std::string, int> ColorIdMap{
     {"white", kWhite},   {"black", kBlack},   {"gray", kGray},       {"red", kRed},       {"green", kGreen},
     {"blue", kBlue},     {"yellow", kYellow}, {"magenta", kMagenta}, {"cyan", kCyan},     {"orange", kOrange},
     {"spring", kSpring}, {"teal", kTeal},     {"azure", kAzure},     {"violet", kViolet}, {"pink", kPink}};
-const map<std::string, int> LineStyleMap{
+const std::map<std::string, int> LineStyleMap{
     {"solid", kSolid}, {"dashed", kDashed}, {"dotted", kDotted}, {"dashDotted", kDashDotted}};
-const map<std::string, int> FillStyleMap{
+const std::map<std::string, int> FillStyleMap{
     {"dotted", kFDotted1},        {"dashed", kFDashed1},    {"dotted1", kFDotted1},
     {"dotted2", kFDotted2},       {"dotted3", kFDotted3},   {"hatched1", kFHatched1},
     {"hatched2", kHatched2},      {"hatched3", kFHatched3}, {"hatched4", kFHatched4},
@@ -49,11 +49,11 @@ class TRestAnalysisPlot : public TRestMetadata {
         std::string range;  // output histo string for TTree::Draw(), e.g. name+range = htemp(100,0,1000)
         Bool_t status;
 
-        std::string plotString;                     // draw string for TTree::Draw()
-        std::string cutString;                      // cut string for TTree::Draw()
-        map<std::string, std::string> classifyMap;  // select the input files to draw the histogram, if their
-                                                    // TRestRun::Get() returns the assumed string
-        std::string drawOption;                     // draw option for TTree::Draw()
+        std::string plotString;                          // draw string for TTree::Draw()
+        std::string cutString;                           // cut string for TTree::Draw()
+        std::map<std::string, std::string> classifyMap;  // select the input files to draw the histogram, if
+                                                         // their TRestRun::Get() returns the assumed string
+        std::string drawOption;                          // draw option for TTree::Draw()
 
         Int_t lineColor;
         Int_t lineWidth;
@@ -100,16 +100,16 @@ class TRestAnalysisPlot : public TRestMetadata {
 
         std::string save;
 
-        vector<Histo_Info_Set> histos;
+        std::vector<Histo_Info_Set> histos;
     };
 
     struct Panel_Info {
         Float_t font_size;
 
-        vector<Float_t> posX;
-        vector<Float_t> posY;
+        std::vector<Float_t> posX;
+        std::vector<Float_t> posY;
 
-        vector<std::string> label;
+        std::vector<std::string> label;
     };
 
    private:
@@ -138,10 +138,10 @@ class TRestAnalysisPlot : public TRestMetadata {
     Double_t fLegendY2 = 0.88;
 
     // plots information
-    vector<Plot_Info_Set> fPlots;
-    vector<Panel_Info> fPanels;
+    std::vector<Plot_Info_Set> fPlots;
+    std::vector<Panel_Info> fPanels;
 
-    vector<std::string> fPlotNamesCheck;  //!
+    std::vector<std::string> fPlotNamesCheck;  //!
 
 #ifndef __CINT__
     TRestRun* fRun;                          //! TRestRun to handle output file

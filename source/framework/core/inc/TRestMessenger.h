@@ -48,11 +48,11 @@ class TRestMessenger : public TRestMetadata {
         message_t messages[Nmsg];  //! max 100 messages, each 256 char length
         void Reset() {
             owner = nullptr;
-            for (int i = 0; i < MsgLength; i++) {
-                name[i] = 0;
+            for (char& i : name) {
+                i = 0;
             }
-            for (int i = 0; i < Nmsg; i++) {
-                messages[i].Reset();
+            for (auto& message : messages) {
+                message.Reset();
             }
         }
         int RequirePos() {
@@ -91,15 +91,14 @@ class TRestMessenger : public TRestMetadata {
 
     virtual void SendMessage(std::string message = "");
 
-    virtual vector<std::string> ShowMessagePool();
+    virtual std::vector<std::string> ShowMessagePool();
 
     virtual std::string ConsumeMessage();
 
     virtual void PrintMetadata();
-    // Constructor
+    // Constructors
     TRestMessenger();
-    // Constructor
-    TRestMessenger(int token, std::string mode = "TwoWay");
+    TRestMessenger(int token, const std::string& mode = "TwoWay");
     // Destructor
     ~TRestMessenger();
 

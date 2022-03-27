@@ -232,15 +232,15 @@ Int_t TRestEventProcess::LoadSectionMetadata() {
 ///
 /// Either name or type as input argument is accepted. For example,
 /// GetMetadata("TRestDetectorReadout"), GetMetadata("readout_140")
-TRestMetadata* TRestEventProcess::GetMetadata(string name) {
+TRestMetadata* TRestEventProcess::GetMetadata(const string& nameOrType) {
     TRestMetadata* m = nullptr;
     if (fRunInfo != nullptr) {
-        m = fRunInfo->GetMetadata(name);
-        if (m == nullptr) m = fRunInfo->GetMetadataClass(name);
+        m = fRunInfo->GetMetadata(nameOrType);
+        if (m == nullptr) m = fRunInfo->GetMetadataClass(nameOrType);
     }
     if (fHostmgr != nullptr) {
-        if (m == nullptr) m = fHostmgr->GetMetadata(name);
-        if (m == nullptr) m = fHostmgr->GetMetadataClass(name);
+        if (m == nullptr) m = fHostmgr->GetMetadata(nameOrType);
+        if (m == nullptr) m = fHostmgr->GetMetadataClass(nameOrType);
     }
     return m;
 }
@@ -257,10 +257,10 @@ TRestMetadata* TRestEventProcess::GetMetadata(string name) {
 /// and acts differently according to the added friends. For example, we can
 /// retrieve some common parameters from the friend process. We can also re-use
 /// the input/output event to compare the difference.
-TRestEventProcess* TRestEventProcess::GetFriend(const string& nameortype) {
-    TRestEventProcess* proc = GetFriendLive(nameortype);
+TRestEventProcess* TRestEventProcess::GetFriend(const string& nameOrType) {
+    TRestEventProcess* proc = GetFriendLive(nameOrType);
     if (proc == nullptr) {
-        TRestMetadata* friendfromfile = GetMetadata(nameortype);
+        TRestMetadata* friendfromfile = GetMetadata(nameOrType);
         if (friendfromfile != nullptr && friendfromfile->InheritsFrom("TRestEventProcess")) {
             return (TRestEventProcess*)friendfromfile;
         }
@@ -274,10 +274,10 @@ TRestEventProcess* TRestEventProcess::GetFriend(const string& nameortype) {
 /// \brief Get friendly TRestEventProcess object
 ///
 /// Only lively process(in the process chain) is searched.
-TRestEventProcess* TRestEventProcess::GetFriendLive(const string& nameortype) {
+TRestEventProcess* TRestEventProcess::GetFriendLive(const string& nameOrType) {
     for (int i = 0; i < fFriendlyProcesses.size(); i++) {
-        if ((string)fFriendlyProcesses[i]->GetName() == nameortype ||
-            (string)fFriendlyProcesses[i]->ClassName() == nameortype) {
+        if ((string)fFriendlyProcesses[i]->GetName() == nameOrType ||
+            (string)fFriendlyProcesses[i]->ClassName() == nameOrType) {
             return fFriendlyProcesses[i];
         }
     }
@@ -334,8 +334,8 @@ cout << GetName() << ": Process initialization..." << endl;
 /// input event
 void TRestEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
     debug << "Entering " << ClassName() << "::BeginOfEventProcess, Initializing output event..." << endl;
-    if (inEv != nullptr && GetOutputEvent().address != nullptr && (TRestEvent*)GetOutputEvent() != inEv) {
-        TRestEvent* outEv = GetOutputEvent();
+    if (inEv && GetOutputEvent().address && (TRestEvent*)GetOutputEvent() != inEv) {
+        auto outEv = (TRestEvent*)GetOutputEvent();
         outEv->Initialize();
 
         outEv->SetID(inEv->GetID());

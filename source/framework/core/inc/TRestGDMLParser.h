@@ -23,9 +23,9 @@ class TRestGDMLParser : public TRestMetadata {
     std::string outPath = REST_USER_PATH + "/gdml/";
     std::string outfilename = "";
     std::string gdmlVersion = "0.0";
-    map<std::string, std::string> entityVersion;
+    std::map<std::string, std::string> entityVersion;
 
-    std::string GetEntityVersion(std::string name);
+    std::string GetEntityVersion(const std::string& name);
 
     std::string GetGDMLVersion();
 
@@ -47,9 +47,9 @@ class TRestGDMLParser : public TRestMetadata {
 
     void ReplaceEntity();
 
-    void ReplaceAttributeWithKeyWord(std::string keyword);
+    void ReplaceAttributeWithKeyWord(const std::string& keyword);
 
-    ClassDef(TRestGDMLParser, 1);
+    ClassDef(TRestGDMLParser, 2);
 };
 
 #endif

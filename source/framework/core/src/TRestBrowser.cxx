@@ -93,8 +93,8 @@ void TRestBrowser::SetViewer(TRestEventViewer* eV) {
 
 void TRestBrowser::SetViewer(const TString& viewerName) {
     if (Count((string)viewerName, "Viewer") > 0) {
-        TRestEventViewer* viewer = REST_Reflection::Assembly((string)viewerName);
-        if (viewer != nullptr) {
+        auto viewer = (TRestEventViewer*)REST_Reflection::Assembly((string)viewerName);
+        if (viewer) {
             SetViewer(viewer);
         } else {
             ferr << viewerName << " not recoginzed! Did you install the corresponding library?" << endl;
@@ -383,9 +383,9 @@ void TRestBrowser::RowValueChangedAction(Long_t val) {
 
 void TRestBrowser::EventTypeChangedAction(Int_t id) {
     string eventtype = fEventTypeComboBox->GetSelectedEntry()->GetTitle();
-    TRestEvent* eve = REST_Reflection::Assembly(eventtype);
+    auto eve = (TRestEvent*)REST_Reflection::Assembly(eventtype);
 
-    if (eve != nullptr) {
+    if (eve) {
         r->SetInputEvent(eve);
         RowValueChangedAction(0);
     }

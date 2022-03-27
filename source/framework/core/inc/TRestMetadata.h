@@ -30,8 +30,11 @@
 #include <TStreamerElement.h>
 #include <TVirtualStreamerInfo.h>
 
+#include <map>
 #include <mutex>
+#include <string>
 #include <thread>
+#include <vector>
 
 #include "TRestDataBase.h"
 #include "TRestPhysics.h"
@@ -71,9 +74,9 @@ class TRestMetadata : public TNamed {
    private:
     void ReadEnvInElement(TiXmlElement* e, bool overwrite = true);
     void ReadElement(TiXmlElement* e, bool recursive = false);
-    void ReplaceForLoopVars(TiXmlElement* e, map<std::string, std::string> forLoopVar);
-    void ExpandForLoopOnce(TiXmlElement* e, map<std::string, std::string> forLoopVar);
-    void ExpandForLoops(TiXmlElement* e, map<std::string, std::string> forLoopVar);
+    void ReplaceForLoopVars(TiXmlElement* e, std::map<std::string, std::string> forLoopVar);
+    void ExpandForLoopOnce(TiXmlElement* e, std::map<std::string, std::string> forLoopVar);
+    void ExpandForLoops(TiXmlElement* e, std::map<std::string, std::string> forLoopVar);
     void ExpandIfSections(TiXmlElement* e);
     void ExpandIncludeFile(TiXmlElement* e);
     std::string GetUnits(TiXmlElement* e);
@@ -105,7 +108,7 @@ class TRestMetadata : public TNamed {
     TiXmlElement* GetNextElement(TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName);
-    pair<std::string, std::string> GetParameterAndUnits(std::string parname, TiXmlElement* e = nullptr);
+    std::pair<std::string, std::string> GetParameterAndUnits(std::string parname, TiXmlElement* e = nullptr);
     TiXmlElement* StringToElement(std::string definition);
     std::string ElementToString(TiXmlElement* ele);
 
@@ -135,7 +138,7 @@ class TRestMetadata : public TNamed {
     virtual Int_t LoadSectionMetadata();
     /// To make settings from rml file. This method must be implemented in the derived class.
     virtual void InitFromConfigFile() {
-        map<std::string, std::string> parameters = GetParametersList();
+        std::map<std::string, std::string> parameters = GetParametersList();
 
         for (auto& p : parameters) p.second = ReplaceMathematicalExpressions(p.second);
 
@@ -176,9 +179,9 @@ class TRestMetadata : public TNamed {
     /// Saving the global element, to be passed to the resident class, if necessary.
     TiXmlElement* fElementGlobal;  //!
     /// Saving a list of rml variables. name-value pair.
-    map<std::string, std::string> fVariables;  //!
+    std::map<std::string, std::string> fVariables;  //!
     /// Saving a list of rml constants. name-value pair. Constants are temporary for this class only.
-    map<std::string, std::string> fConstants;  //!
+    std::map<std::string, std::string> fConstants;  //!
 
     /// It can be used as a way to identify that something went wrong using SetError method.
     Bool_t fError = false;
@@ -235,8 +238,8 @@ class TRestMetadata : public TNamed {
     Int_t GetNumberOfWarnings() { return fNWarnings; }
 
     Int_t LoadConfigFromElement(TiXmlElement* eSectional, TiXmlElement* eGlobal,
-                                map<std::string, std::string> envs = {});
-    Int_t LoadConfigFromFile(std::string cfgFileName, std::string sectionName = "");
+                                std::map<std::string, std::string> envs = {});
+    Int_t LoadConfigFromFile(const std::string& cfgFileName, const std::string& sectionName = "");
     Int_t LoadConfigFromBuffer();
 
     /// Making default settings.

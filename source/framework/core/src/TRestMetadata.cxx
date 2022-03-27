@@ -523,7 +523,7 @@ TRestMetadata::~TRestMetadata() {
 /// \brief Give the file name, find out the corresponding section. Then call the
 /// main starter.
 ///
-Int_t TRestMetadata::LoadConfigFromFile(const string& cfgFileName, string sectionName) {
+Int_t TRestMetadata::LoadConfigFromFile(const string& cfgFileName, const string& sectionName) {
     fConfigFileName = cfgFileName;
     if (TRestTools::fileExists(fConfigFileName)) {
         if (sectionName == "") {

@@ -93,8 +93,8 @@ Int_t TRestManager::ReadConfig(const string& keydeclare, TiXmlElement* e) {
     // cout << "----------- " << gROOT->FindObject("SJTU_Proto") << endl;
 
     if (Count(keydeclare, "TRest") > 0) {
-        TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
-        if (meta == nullptr) return -1;
+        auto meta = (TRestMetadata*)REST_Reflection::Assembly(keydeclare);
+        if (!meta) return -1;
         meta->SetHostmgr(this);
         fMetaObjects.push_back(meta);
         meta->SetConfigFile(fConfigFileName);

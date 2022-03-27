@@ -37,7 +37,7 @@ class TRestDBEntryLogger : public TRestMetadata {
 
     bool fSkipIfNotEmpty;
     std::string fTextOpenCommand = "vim";
-    map<std::string, std::string> fMetainfo;
+    std::map<std::string, std::string> fMetainfo;
 
     void InitFromConfigFile();
 

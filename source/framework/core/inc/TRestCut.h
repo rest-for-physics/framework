@@ -30,7 +30,7 @@
 //! A class to help on cuts definitions. To be used with TRestAnalysisTree
 class TRestCut : public TRestMetadata {
    private:
-    vector<TCut> fCuts;
+    std::vector<TCut> fCuts;
 
    protected:
     void Initialize() override;
@@ -38,7 +38,7 @@ class TRestCut : public TRestMetadata {
 
    public:
     void AddCut(const TCut& cut);
-    TCut GetCut(std::string name);
+    TCut GetCut(const std::string& name);
 
     void PrintMetadata() override;
 
