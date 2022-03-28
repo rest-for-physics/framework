@@ -1,9 +1,8 @@
 
 message(STATUS "External dependencies:")
 
-set(FETCHCONTENT_QUIET ON)
-
 include(FetchContent)
+set(FETCHCONTENT_QUIET ON)
 
 # Google Test
 if (TEST)

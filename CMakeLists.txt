@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.16)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 
 PROJECT(REST)
 
@@ -98,7 +98,7 @@ endif ()
 
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
 
-# This is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProccess.
+# This is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProcess.
 if (NOT DEFINED SQL)
     set(SQL OFF)
 endif ()
@@ -123,13 +123,13 @@ message(STATUS "external libraries to link: " ${external_libs})
 # Gather some information
 string(TIMESTAMP date "%Y-%m-%d %H:%M")
 
-# Enable testing (-DTEST=ON flag)
+# Enable testing (-DTEST=ON flag, it is OFF by default)
 include(Testing)
-ENABLE_TESTING_CONDITIONALLY()
 
 # Start compile
 include(MacroRootDict)
 add_subdirectory(source)
+
 message("")
 message(STATUS "rest Libraries: " ${rest_libraries_regular})
 message(STATUS "rest executables: " ${rest_exes})
