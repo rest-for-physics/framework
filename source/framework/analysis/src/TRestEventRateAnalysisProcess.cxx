@@ -124,13 +124,13 @@ void TRestEventRateAnalysisProcess::Initialize() {
 /// \brief Process initialization.
 ///
 void TRestEventRateAnalysisProcess::InitProcess() {
-    if (fRunInfo->GetStartTimestamp() != 0) {
+    if (fRunInfo != NULL && fRunInfo->GetStartTimestamp() != 0) {
         fFirstEventTime = fRunInfo->GetStartTimestamp();
     } else {
         fFirstEventTime = -1;
     }
-    
-    if (GetNumberOfParallelProcesses() == 1) { 
+
+    if (GetNumberOfParallelProcesses() <= 1) { 
         // if is run under single thread mode, we add rate observables
         fRateAnalysis = true;
     }
