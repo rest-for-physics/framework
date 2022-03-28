@@ -129,6 +129,14 @@ void TRestEventRateAnalysisProcess::InitProcess() {
     } else {
         fFirstEventTime = -1;
     }
+    
+    if (GetNumberOfParallelProcesses() == 1) { 
+        // if is run under single thread mode, we add rate observables
+        fRateAnalysis = true;
+    }
+    else {
+        fRateAnalysis = false;
+    }
 }
 
 ///////////////////////////////////////////////
@@ -143,23 +151,24 @@ TRestEvent* TRestEventRateAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     SetObservableValue("SecondsFromStart", secondsFromStart);
     SetObservableValue("HoursFromStart", secondsFromStart / 3600.);
 
-    Double_t evTimeDelay = 0;
-    if (fPreviousEventTime.size() > 0) evTimeDelay = fEvent->GetTime() - fPreviousEventTime.back();
-    SetObservableValue("EventTimeDelay", evTimeDelay);
+    if(fRateAnalysis){
+        Double_t evTimeDelay = 0;
+        if (fPreviousEventTime.size() > 0) evTimeDelay = fEvent->GetTime() - fPreviousEventTime.back();
+        SetObservableValue("EventTimeDelay", evTimeDelay);
 
-    Double_t meanRate = 0;
-    if (fPreviousEventTime.size() == 10) meanRate = 10. / (fEvent->GetTime() - fPreviousEventTime.front());
-    SetObservableValue("MeanRate_InHz", meanRate);
+        Double_t meanRate = 0;
+        if (fPreviousEventTime.size() == 10) meanRate = 10. / (fEvent->GetTime() - fPreviousEventTime.front());
+        SetObservableValue("MeanRate_InHz", meanRate);
 
-    if (GetVerboseLevel() >= REST_Debug) {
-        for (auto i : fObservablesDefined) {
-            fAnalysisTree->PrintObservable(i.second);
+        if (GetVerboseLevel() >= REST_Debug) {
+            for (auto i : fObservablesDefined) {
+                fAnalysisTree->PrintObservable(i.second);
+            }
         }
+
+        fPreviousEventTime.push_back(fEvent->GetTimeStamp());
+        if (fPreviousEventTime.size() > 10) fPreviousEventTime.erase(fPreviousEventTime.begin());
     }
-
-    fPreviousEventTime.push_back(fEvent->GetTimeStamp());
-    if (fPreviousEventTime.size() > 10) fPreviousEventTime.erase(fPreviousEventTime.begin());
-
     // If cut condition matches the event will be not registered.
     if (ApplyCut()) return NULL;
 
