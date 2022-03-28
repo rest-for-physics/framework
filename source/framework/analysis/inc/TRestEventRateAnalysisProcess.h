@@ -55,10 +55,12 @@ class TRestEventRateAnalysisProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        if (fRateAnalysis)
-			   metadata << "Rate analysis is on under single thread mode" << endl;
-		  else
-			   metadata << "Rate analysis is off due to multi-thread" << endl;
+        if (fRateAnalysis) {
+		metadata << "Rate analysis is on under single thread mode" << endl;
+	}
+	else {
+		metadata << "Rate analysis is off due to multi-thread" << endl;
+	}
        
         EndPrintProcess();
     }
