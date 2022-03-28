@@ -129,14 +129,9 @@ void TRestEventRateAnalysisProcess::InitProcess() {
     } else {
         fFirstEventTime = -1;
     }
-
-    if (GetNumberOfParallelProcesses() <= 1) { 
-        // if is run under single thread mode, we add rate observables
-        fRateAnalysis = true;
-    }
-    else {
-        fRateAnalysis = false;
-    }
+    
+    // if is run under single thread mode, we add rate observables
+    fRateAnalysis = GetNumberOfParallelProcesses() <= 1;
 }
 
 ///////////////////////////////////////////////
