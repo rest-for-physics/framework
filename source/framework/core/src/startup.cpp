@@ -27,6 +27,10 @@ map<string, RESTVirtualConverter*> RESTConverterMethodBase = {};
 struct __REST_CONST_INIT {
    public:
     __REST_CONST_INIT() {
+// TODO: fix to avoid this dirty fix
+#ifdef REST_TESTING_ENABLED
+        return;
+#endif
         REST_COMMIT = TRestTools::Execute("rest-config --commit");
 
         char* _REST_PATH = getenv("REST_PATH");
