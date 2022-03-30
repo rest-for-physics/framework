@@ -155,16 +155,28 @@ List REST Macros:
 08_alphas:
   type: restG4
   script:
-    - . ${CI_PROJECT_DIR}/install_latest/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/install_latest/examples/restG4/08.Alphas/
+    - source ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples/restG4/08.Alphas/
     - mkdir data
     - export REST_ENERGY=5
     - export REST_FOIL=1
     - restG4 alphas.rml
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/install_latest/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
+      - ${CI_PROJECT_DIR}/install/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
     expire_in: 1 day
+
+01_alphaTrack:
+    type: examples
+    script:
+    - source ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples/01.alphaTrack/
+    - mkdir data
+    - export RAW_PROCESSING=ON
+    - export HIT_PROCESSING=ON
+    - export TRACK_PROCESSING=ON
+    - restManager --c processing.rml --f ${CI_PROJECT_DIR}/install/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
+    - restRoot -b -q Validate.C'("data/Response_5MeV_1um.root")'
 
 Load Gas:
   type: metadata
