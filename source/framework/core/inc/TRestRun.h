@@ -59,13 +59,15 @@ class TRestRun : public TRestMetadata {
     int fEventIndexCounter = 0;        //!
     bool fHangUpEndFile = false;       //!
     bool fFromRML = false;             //!
+   
+    void InitFromConfigFile();
+   
    private:
     string ReplaceMetadataMember(const string instr);
 
    public:
     /// REST run class
     void Initialize();
-    void InitFromConfigFile();
 
     // file operation
     void OpenInputFile(int i);
@@ -239,7 +241,7 @@ class TRestRun : public TRestMetadata {
 
     // Construtor & Destructor
     TRestRun();
-    TRestRun(string rootfilename);
+    TRestRun(string filename);
     ~TRestRun();
 
     ClassDef(TRestRun, 4);

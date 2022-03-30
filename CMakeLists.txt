@@ -1,5 +1,6 @@
-PROJECT(REST)
 CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
+
+PROJECT(REST)
 
 # Minimum compiler version
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -13,7 +14,6 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         message(FATAL_ERROR "Clang version must be at least 3.2!")
     endif ()
 endif ()
-
 
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-stdlib=libc++")
@@ -98,7 +98,7 @@ endif ()
 
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
 
-# This is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProccess.
+# This is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProcess.
 if (NOT DEFINED SQL)
     set(SQL OFF)
 endif ()
@@ -123,9 +123,13 @@ message(STATUS "external libraries to link: " ${external_libs})
 # Gather some information
 string(TIMESTAMP date "%Y-%m-%d %H:%M")
 
+# Enable testing (-DTEST=ON flag, it is OFF by default)
+include(Testing)
+
 # Start compile
 include(MacroRootDict)
 add_subdirectory(source)
+
 message("")
 message(STATUS "rest Libraries: " ${rest_libraries_regular})
 message(STATUS "rest executables: " ${rest_exes})

@@ -189,11 +189,11 @@ class TRestEventProcess : public TRestMetadata {
     /// To be executed at the beginning of the run (outside event loop)
     virtual void InitProcess() {}
     /// Begin of event process, preparation work. Called right before ProcessEvent()
-    void BeginOfEventProcess(TRestEvent* evInput = nullptr);
+    virtual void BeginOfEventProcess(TRestEvent* evInput = nullptr);
     /// Process one event
     virtual TRestEvent* ProcessEvent(TRestEvent* evInput) = 0;
     /// End of event process. Nothing to do. Called directly after ProcessEvent()
-    void EndOfEventProcess(TRestEvent* evInput = nullptr);
+    virtual void EndOfEventProcess(TRestEvent* evInput = nullptr);
     /// To be executed at the end of the run (outside event loop)
     virtual void EndProcess() {}
 
