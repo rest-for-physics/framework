@@ -55,6 +55,8 @@
 #include "TSystem.h"
 #include "TUrl.h"
 
+#include <curl/curl.h>
+
 ClassImp(TRestTools);
 
 ///////////////////////////////////////////////
@@ -729,6 +731,7 @@ std::string TRestTools::DownloadRemoteFile(string url) {
 ///
 /// The file name is given in url format, and is parsed by TUrl. Various methods
 /// will be used, including scp, wget. returns 0 if succeed.
+///
 int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
     TUrl url(remoteFile.c_str());
 
@@ -769,6 +772,60 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
     }
 
     return -1;
+}
+
+///////////////////////////////////////////////
+/// \brief It performs a POST web protocol request using a set of keys and values given
+/// by argument, and places the result inside `content`.
+///
+int TRestTools::POSTRequest(std::string& file_content, std::vector<std::string> keys,
+                            std::vector<std::string> values) {
+    if (keys.size() != values.size()) {
+        ferr << "The number of keys and values does not match!" << endl;
+        return 1;
+    }
+
+    CURL* curl;
+    CURLcode res;
+
+    string filename = REST_USER_PATH + "/download/curl.out";
+
+    /* In windows, this will init the winsock stuff */
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    FILE* f = fopen(filename.c_str(), "wt");
+
+    std::string request = "";
+    for (unsigned int n = 0; n < keys.size(); n++) {
+        if (n > 0) request += "&";
+        request += keys[n] + "=" + values[n];
+    }
+    cout << request << endl;
+    /* get a curl handle */
+    curl = curl_easy_init();
+    if (curl) {
+        /* First set the URL that is about to receive our POST. This URL can
+           just as well be a https:// URL if that is what should receive the
+           data. */
+        curl_easy_setopt(curl, CURLOPT_URL, "https://henke.lbl.gov/cgi-bin/laymir.pl");
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)f);
+        /* Now specify the POST data */
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.c_str());
+
+        /* Perform the request, res will get the return code */
+        res = curl_easy_perform(curl);
+        /* Check for errors */
+        if (res != CURLE_OK) ferr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << endl;
+
+        /* always cleanup */
+        curl_easy_cleanup(curl);
+    }
+    fclose(f);
+    curl_global_cleanup();
+
+    std::getline(std::ifstream(filename), file_content, '\0');
+
+    return 0;
 }
 
 ///////////////////////////////////////////////
@@ -815,32 +872,30 @@ int TRestTools::UploadToServer(string filelocal, string remotefile, string metho
     return 0;
 }
 
-void TRestTools::ChangeDirectory( string toDirectory ) {
+void TRestTools::ChangeDirectory(string toDirectory) {
+    char originDirectory[256];
+    sprintf(originDirectory, "%s", getenv("PWD"));
+    chdir(toDirectory.c_str());
 
-        char originDirectory[256];
-        sprintf(originDirectory, "%s", getenv("PWD"));
-        chdir(toDirectory.c_str());
+    string fullPath = "";
+    if (toDirectory[0] == '/')
+        fullPath = toDirectory;
+    else
+        fullPath = (string)originDirectory + "/" + toDirectory;
 
-		string fullPath = "";
-		if( toDirectory[0] == '/' )
-			fullPath = toDirectory;
-		else
-			fullPath = (string) originDirectory + "/" + toDirectory;
-
-		setenv ( "PWD", fullPath.c_str(), 1 );
-		setenv ( "OLDPWD", originDirectory, 1 );
+    setenv("PWD", fullPath.c_str(), 1);
+    setenv("OLDPWD", originDirectory, 1);
 }
 
-void TRestTools::ReturnToPreviousDirectory( ) {
+void TRestTools::ReturnToPreviousDirectory() {
+    char originDirectory[256];
+    sprintf(originDirectory, "%s", getenv("PWD"));
 
-        char originDirectory[256];
-        sprintf(originDirectory, "%s", getenv("PWD"));
+    char newDirectory[256];
+    sprintf(newDirectory, "%s", getenv("OLDPWD"));
 
-        char newDirectory[256];
-        sprintf(newDirectory, "%s", getenv("OLDPWD"));
+    setenv("PWD", newDirectory, 1);
+    setenv("OLDPWD", originDirectory, 1);
 
-		setenv ( "PWD", newDirectory, 1 );
-		setenv ( "OLDPWD", originDirectory, 1 );
-
-		chdir( newDirectory );
+    chdir(newDirectory);
 }
