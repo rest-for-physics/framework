@@ -162,7 +162,7 @@ void TRestManager::InitFromTask(string taskName, vector<string> arguments) {
         gSystem->Exit(-1);
     }
     tsk->SetArgumentValue(arguments);
-    tsk->RunTask(NULL);
+    tsk->RunTask(nullptr);
     gSystem->Exit(0);
 }
 
@@ -175,7 +175,7 @@ TRestMetadata* TRestManager::GetMetadataClass(string type) {
             return fMetaObjects[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 ///////////////////////////////////////////////
@@ -187,7 +187,7 @@ TRestMetadata* TRestManager::GetMetadata(string name) {
             return fMetaObjects[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 ///////////////////////////////////////////////

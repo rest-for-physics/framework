@@ -132,7 +132,7 @@ TRestEvent* TRestEventSelectionProcess::ProcessEvent(TRestEvent* eventInput) {
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 ///////////////////////////////////////////////

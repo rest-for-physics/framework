@@ -97,7 +97,7 @@ TRestMessenger::~TRestMessenger() {
 TRestMessenger::TRestMessenger(int token, string mode) {
     Initialize();
     LoadConfigFromElement(
-        StringToElement("<TRestMessenger token=\"" + ToString(token) + "\" mode=\"" + mode + "\"/>"), NULL,
+        StringToElement("<TRestMessenger token=\"" + ToString(token) + "\" mode=\"" + mode + "\"/>"), nullptr,
         {});
 }
 
@@ -114,7 +114,7 @@ void TRestMessenger::Initialize() {
 //   <TRestMessenger name="Messager" title="Example" verboseLevel="info"
 //     messageSource="outputfile" token="116027" mode="auto"/>
 void TRestMessenger::InitFromConfigFile() {
-    fRun = fHostmgr != nullptr ? fHostmgr->GetRunInfo() : NULL;
+    fRun = fHostmgr != nullptr ? fHostmgr->GetRunInfo() : nullptr;
     string modestr = GetParameter("mode", "twoway");
     if (ToUpper(modestr) == "HOST") {
         fMode = MessagePool_Host;
@@ -168,7 +168,7 @@ void TRestMessenger::InitFromConfigFile() {
         }
     }
 
-    messagepool_t* message = (messagepool_t*)shmat(shmid, NULL, 0);
+    messagepool_t* message = (messagepool_t*)shmat(shmid, nullptr, 0);
     if (message == nullptr) {
         printf("shmat error\n");
         return;
