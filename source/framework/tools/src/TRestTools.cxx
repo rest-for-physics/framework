@@ -777,54 +777,10 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
 /// \brief It performs a POST web protocol request using a set of keys and values given
 /// by argument, and places the result inside `content`.
 ///
-int TRestTools::POSTRequest(std::string& file_content, std::vector<std::string> keys,
-                            std::vector<std::string> values) {
-    if (keys.size() != values.size()) {
-        ferr << "The number of keys and values does not match!" << endl;
-        return 1;
-    }
-
-    CURL* curl;
-    CURLcode res;
-
-    string filename = REST_USER_PATH + "/download/curl.out";
-
-    /* In windows, this will init the winsock stuff */
-    curl_global_init(CURL_GLOBAL_ALL);
-
-    FILE* f = fopen(filename.c_str(), "wt");
-
-    std::string request = "";
-    for (unsigned int n = 0; n < keys.size(); n++) {
-        if (n > 0) request += "&";
-        request += keys[n] + "=" + values[n];
-    }
-    cout << request << endl;
-    /* get a curl handle */
-    curl = curl_easy_init();
-    if (curl) {
-        /* First set the URL that is about to receive our POST. This URL can
-           just as well be a https:// URL if that is what should receive the
-           data. */
-        curl_easy_setopt(curl, CURLOPT_URL, "https://henke.lbl.gov/cgi-bin/laymir.pl");
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)f);
-        /* Now specify the POST data */
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.c_str());
-
-        /* Perform the request, res will get the return code */
-        res = curl_easy_perform(curl);
-        /* Check for errors */
-        if (res != CURLE_OK) ferr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << endl;
-
-        /* always cleanup */
-        curl_easy_cleanup(curl);
-    }
-    fclose(f);
-    curl_global_cleanup();
-
-    std::getline(std::ifstream(filename), file_content, '\0');
-
-    return 0;
+int TRestTools::POSTRequest(const std::string& url, const std::map<std::string, std::string>& parameters) {
+    cpr::Response r = cpr::Post(cpr::Url{url}, parameters);
+    r.status_code;  // if it's not 200 something probably went wrong
+    return r.text;  // JSON text string
 }
 
 ///////////////////////////////////////////////
