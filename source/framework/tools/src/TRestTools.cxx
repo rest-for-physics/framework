@@ -774,16 +774,6 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
 }
 
 ///////////////////////////////////////////////
-/// \brief It performs a POST web protocol request using a set of keys and values given
-/// by argument, and places the result inside `content`.
-///
-int TRestTools::POSTRequest(const std::string& url, const std::map<std::string, std::string>& parameters) {
-    cpr::Response r = cpr::Post(cpr::Url{url}, parameters);
-    r.status_code;  // if it's not 200 something probably went wrong
-    return r.text;  // JSON text string
-}
-
-///////////////////////////////////////////////
 /// Upload the local file to remote file, method url will overwrite the login information
 /// inside remote file.
 ///
