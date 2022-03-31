@@ -42,7 +42,7 @@ class TRestRun : public TRestMetadata {
     std::vector<TRestMetadata*> fMetadata;       //!
     std::vector<TRestMetadata*> fInputMetadata;  //!
 
-    // temp data member
+    // temp data members
     std::vector<TString> fInputFileNames;  //!
     TFile* fInputFile;                     //!
     TFile* fOutputFile;                    //!
@@ -59,13 +59,15 @@ class TRestRun : public TRestMetadata {
     int fEventIndexCounter = 0;            //!
     bool fHangUpEndFile = false;           //!
     bool fFromRML = false;                 //!
+
+    void InitFromConfigFile();
+
    private:
     std::string ReplaceMetadataMember(const std::string instr);
 
    public:
     /// REST run class
     void Initialize();
-    void InitFromConfigFile();
 
     // file operation
     void OpenInputFile(int i);
@@ -238,11 +240,11 @@ class TRestRun : public TRestMetadata {
     void PrintErrors();
     void PrintWarnings();
 
-    Int_t Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
+    Int_t Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0);
 
-    // Construtor & Destructor
+    // Constructor & Destructor
     TRestRun();
-    TRestRun(std::string rootfilename);
+    TRestRun(std::string filename);
     ~TRestRun();
 
     ClassDef(TRestRun, 4);
