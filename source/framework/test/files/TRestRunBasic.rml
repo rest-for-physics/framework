@@ -1,0 +1,31 @@
+<?xml version="4.0" encoding="UTF-8" standalone="no" ?>
+
+<test>
+
+    <globals>
+        <parameter name="globalVariable" value="global"/>
+    </globals>
+
+    <TRestRun name="Basic Run" title="Basic Run Title">
+
+        <parameter name="experimentName" value="TRestRun Basic Test"/>
+
+        <parameter name="runType" value="Test"/>
+
+        <parameter name="runNumber" value="1"/>
+
+        <parameter name="runTag" value="Test"/>
+
+        <parameter name="outputFile" value="Run[fRunNumber]_[fRunTag]_[fExperimentName].root"/>
+
+        <parameter name="runDescription" value="This is a test for TRestRun"/>
+
+        <parameter name="verboseLevel" value="3"/>
+
+        <parameter name="overwrite" value="off"/>
+
+        <parameter name="readOnly" value="false"/>
+
+    </TRestRun>
+
+</test>

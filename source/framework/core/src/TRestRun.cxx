@@ -38,9 +38,16 @@ ClassImp(TRestRun);
 
 TRestRun::TRestRun() { Initialize(); }
 
-TRestRun::TRestRun(string rootfilename) {
-    Initialize();
-    OpenInputFile(rootfilename);
+TRestRun::TRestRun(string filename) {
+    if (filename.find(".root") != string::npos) {
+        Initialize();
+        OpenInputFile(filename);
+    } else if (filename.find(".rml") != string::npos) {
+        Initialize();
+        LoadConfigFromFile(filename);
+    } else {
+        ferr << "TRestRun::TRestRun(): input file error!" << endl;
+    }
 }
 
 TRestRun::~TRestRun() {
@@ -804,7 +811,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
             goto GetEventExt;
         }
         fInputEvent = eve;
-        if (fFileProcess != nullptr) fFileProcess->EndProcess();
+        // if (fFileProcess != nullptr) fFileProcess->EndProcess();
         return -1;
     }
 

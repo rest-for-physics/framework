@@ -1,5 +1,6 @@
-PROJECT(REST)
 CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
+
+PROJECT(REST)
 
 # Minimum compiler version
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -13,7 +14,6 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         message(FATAL_ERROR "Clang version must be at least 3.2!")
     endif ()
 endif ()
-
 
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-stdlib=libc++")
@@ -58,6 +58,27 @@ set(CMAKE_MACOSX_RPATH 1)
 
 find_package(ROOT REQUIRED)
 
+set(ROOT_REQUIRED_LIBRARIES Core RIO Geom Gdml Minuit Spectrum XMLIO)
+# Switch to enable ROOT Eve functionality.
+if (NOT DEFINED REST_EVE)
+    set(REST_EVE ON)
+endif ()
+if (${REST_EVE} MATCHES "ON")
+    add_definitions(-DUSE_Eve)
+    list(APPEND rest_features "Eve")
+    set(ROOT_REQUIRED_LIBRARIES ${ROOT_REQUIRED_LIBRARIES} Eve RGL)
+else ()
+    set(excludes ${excludes} TRestEveEventViewer)
+endif (${REST_EVE} MATCHES "ON")
+
+find_package(ROOT REQUIRED COMPONENTS ${ROOT_REQUIRED_LIBRARIES})
+
+message(STATUS "ROOT LIBRARIES: ${ROOT_LIBRARIES}")
+
+set(external_libs "${external_libs};${ROOT_LIBRARIES}")
+
+set(ROOTCINT_EXECUTABLE ${ROOT_rootcint_CMD})
+
 execute_process(COMMAND root-config --has-cxx20 OUTPUT_VARIABLE HASCXX20)
 execute_process(COMMAND root-config --has-cxx17 OUTPUT_VARIABLE HASCXX17)
 execute_process(COMMAND root-config --has-cxx14 OUTPUT_VARIABLE HASCXX14)
@@ -76,21 +97,8 @@ elseif (${HASCXX11} MATCHES "yes")
 endif ()
 
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
-set(external_libs ${external_libs} "${ROOT_LIBRARIES} -lGui -lGeom -lGdml -lMinuit -lSpectrum")
 
-# Switch to enable ROOT Eve functionality.
-if (NOT DEFINED REST_EVE)
-    set(REST_EVE ON)
-endif ()
-if (${REST_EVE} MATCHES "ON")
-    add_definitions(-DUSE_Eve)
-    list(APPEND rest_features "Eve")
-    set(external_libs "${external_libs} -lEve -lRGL")
-else ()
-    set(excludes ${excludes} TRestEveEventViewer)
-endif (${REST_EVE} MATCHES "ON")
-
-# This is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProccess.
+# This is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProcess.
 if (NOT DEFINED SQL)
     set(SQL OFF)
 endif ()
@@ -115,9 +123,13 @@ message(STATUS "external libraries to link: " ${external_libs})
 # Gather some information
 string(TIMESTAMP date "%Y-%m-%d %H:%M")
 
+# Enable testing (-DTEST=ON flag, it is OFF by default)
+include(Testing)
+
 # Start compile
 include(MacroRootDict)
 add_subdirectory(source)
+
 message("")
 message(STATUS "rest Libraries: " ${rest_libraries_regular})
 message(STATUS "rest executables: " ${rest_exes})

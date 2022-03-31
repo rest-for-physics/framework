@@ -95,14 +95,20 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     headerfile << "#include \"" << outputevent << ".h\"" << endl;
     headerfile << "#include \"TRestEventProcess.h\"" << endl;
     headerfile << endl;
+    headerfile << "/// TODO Write here a brief description. Just one line!" << endl;
     headerfile << "class " << name << " : public TRestEventProcess {" << endl;
     headerfile << "private:" << endl;
-    headerfile << "    // We define specific input/output event data holders" << endl;
 
     if (inputevent == outputevent) {
+        headerfile << "    "
+                   << "/// A pointer to the specific " << inputevent << " input event" << endl;
         headerfile << "    " << inputevent << "* " << inputeventname << ";  //!" << endl;
     } else {
+        headerfile << "    "
+                   << "/// A pointer to the specific " << inputevent << " input event" << endl;
         headerfile << "    " << inputevent << "* " << inputeventname << ";  //!" << endl;
+        headerfile << "    "
+                   << "/// A pointer to the specific " << outputevent << " output event" << endl;
         headerfile << "    " << outputevent << "* " << outputeventname << ";  //!" << endl;
     }
 
@@ -112,7 +118,14 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     headerfile << "    // Add here the members or parameters for your event process." << endl;
     headerfile << "    // You can set their default values here together. " << endl;
     headerfile << "    // Note: add \"//!\" mark at the end of the member definition" << endl;
-    headerfile << "    // if you don't want to save them as \"metadata\"." << endl;
+    headerfile << "    // if you don't want to save them to disk." << endl;
+    headerfile << "" << endl;
+    headerfile << "    /// REMOVE THIS MEMBER! A dummy member that will be written to the ROOT file." << endl;
+    headerfile << "    Double_t fDummy = 3.14; //<" << endl;
+    headerfile << "" << endl;
+    headerfile << "    /// REMOVE THIS MEMBER! A dummy member that will be NOT written to the ROOT file."
+               << endl;
+    headerfile << "    Double_t fDummyVar = 3.14; //!" << endl;
     headerfile << endl;
     headerfile << "public:" << endl;
     headerfile << "    any GetInputEvent() { return " << inputeventname << "; }" << endl;
@@ -124,6 +137,7 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     headerfile << endl;
     headerfile << "    void EndProcess();" << endl;
     headerfile << endl;
+    headerfile << "    ///  It prints out the process parameters stored in the metadata structure" << endl;
     headerfile << "    void PrintMetadata() {" << endl;
     headerfile << "        BeginPrintProcess();" << endl;
     headerfile << endl;
@@ -172,45 +186,92 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     sourcefile << " * If not, see http://www.gnu.org/licenses/.                             *" << endl;
     sourcefile << " * For the list of contributors see $REST_PATH/CREDITS.                  *" << endl;
     sourcefile << " *************************************************************************/" << endl;
-    sourcefile << " /////////////////////////////////////////////////////////////////////////" << endl;
-    sourcefile << " /// Write the process description Here                                   " << endl;
-    sourcefile << " ///                                                                      " << endl;
-    sourcefile << " /// \\class " << name << "                                             " << endl;
-    sourcefile << " ///                                                                      " << endl;
-    sourcefile << " ///----------------------------------------------------------------------" << endl;
-    sourcefile << " ///                                                                      " << endl;
-    sourcefile << " /// By REST process template generator                                   " << endl;
-    sourcefile << " /// User: " << getenv("USER") << endl;
-    sourcefile << " /// Date: " << ToDateTimeString(time(0)) << endl;
-    sourcefile << " ///                                                                      " << endl;
-    sourcefile << " /// <hr>                                                                 " << endl;
-    sourcefile << " /////////////////////////////////////////////////////////////////////////" << endl;
+    sourcefile << "" << endl;
+    sourcefile << "/////////////////////////////////////////////////////////////////////////" << endl;
+    sourcefile << "/// Write the process description Here                                   " << endl;
+    sourcefile << "/// " << endl;
+    sourcefile << "/// ### Parameters" << endl;
+    sourcefile << "/// Describe any parameters this process receives: " << endl;
+    sourcefile << "/// * **parameter1**: This parameter ..." << endl;
+    sourcefile << "/// * **parameter2**: This parameter is ..." << endl;
+    sourcefile << "/// " << endl;
+    sourcefile << "/// " << endl;
+    sourcefile << "/// ### Examples" << endl;
+    sourcefile << "/// Give examples of usage and RML descriptions that can be tested.      " << endl;
+    sourcefile << "/// \\code" << endl;
+    sourcefile << "///     <WRITE A CODE EXAMPLE HERE>" << endl;
+    sourcefile << "/// \\endcode" << endl;
+    sourcefile << "/// " << endl;
+    sourcefile << "/// ### Running pipeline example" << endl;
+    sourcefile << "/// Add the examples to a pipeline to guarantee the code will be running " << endl;
+    sourcefile << "/// on future framework upgrades.                                        " << endl;
+    sourcefile << "/// " << endl;
+    sourcefile << "/// " << endl;
+    sourcefile << "/// Please, add any figure that may help to ilustrate the process        " << endl;
+    sourcefile << "/// " << endl;
+    sourcefile
+        << "/// \\htmlonly <style>div.image img[src=\"trigger.png\"]{width:500px;}</style> \\endhtmlonly"
+        << endl;
+    sourcefile << "/// ![An ilustration of the trigger definition](trigger.png)             " << endl;
+    sourcefile << "/// " << endl;
+    sourcefile << "/// The png image should be uploaded to the ./images/ directory          " << endl;
+    sourcefile << "///                                                                      " << endl;
+    sourcefile << "///----------------------------------------------------------------------" << endl;
+    sourcefile << "///                                                                      " << endl;
+    sourcefile << "/// REST-for-Physics - Software for Rare Event Searches Toolkit 		    " << endl;
+    sourcefile << "///                                                                      " << endl;
+    sourcefile << "/// History of developments:                                             " << endl;
+    sourcefile << "///                                                                      " << endl;
+    sourcefile << "/// YEAR-Month: First implementation of " << name << endl;
+    sourcefile << "/// WRITE YOUR FULL NAME " << endl;
+    sourcefile << "///                                                                      " << endl;
+    sourcefile << "/// \\class " << name << "                                               " << endl;
+    sourcefile << "/// \\author: TODO. Write full name and e-mail:        " << getenv("USER") << endl;
+    sourcefile << "///                                                                      " << endl;
+    sourcefile << "/// <hr>                                                                 " << endl;
+    sourcefile << "///                                                                      " << endl;
     sourcefile << endl;
     sourcefile << "#include \"" << name << ".h\"" << endl;
     sourcefile << endl;
     sourcefile << "ClassImp(" << name << ");" << endl;
     sourcefile << endl;
+    sourcefile << "///////////////////////////////////////////////                          " << endl;
+    sourcefile << "/// \\brief Default constructor                                          " << endl;
+    sourcefile << "///                                                                      " << endl;
     sourcefile << name << "::" << name << "() {" << endl;
     sourcefile << "    Initialize();" << endl;
     sourcefile << "}" << endl;
     sourcefile << endl;
+    sourcefile << "///////////////////////////////////////////////                          " << endl;
+    sourcefile << "/// \\brief Default destructor                                           " << endl;
+    sourcefile << "///                                                                      " << endl;
     sourcefile << name << "::~" << name << "() {" << endl;
     if (outputeventname != inputeventname) {
         sourcefile << "    delete " << outputeventname << ";" << endl;
     }
     sourcefile << "}" << endl;
     sourcefile << endl;
+    sourcefile << "///////////////////////////////////////////////                          " << endl;
+    sourcefile << "/// \\brief Function to initialize input/output event members and define  " << endl;
+    sourcefile << "/// the section name                                                     " << endl;
+    sourcefile << "///                                                                      " << endl;
     sourcefile << "void " << name << "::Initialize() {" << endl;
     sourcefile << "    SetSectionName(this->ClassName());" << endl;
+    sourcefile << "    SetLibraryVersion(LIBRARY_VERSION);" << endl;
     sourcefile << "    " << inputeventname << " = NULL;" << endl;
     if (outputeventname != inputeventname) {
         sourcefile << "    " << outputeventname << " = new " << outputevent << "();" << endl;
     }
     sourcefile << endl;
-    sourcefile << "    // Assign default values for the members here" << endl;
+    sourcefile << "    // Initialize here the values of class data members if needed       " << endl;
     sourcefile << endl;
     sourcefile << "}" << endl;
     sourcefile << endl;
+    sourcefile << "///////////////////////////////////////////////                           " << endl;
+    sourcefile << "/// \\brief Process initialization. Observable names can be re-interpreted " << endl;
+    sourcefile << "/// here. Any action in the process required before starting event process " << endl;
+    sourcefile << "/// might be added here.                                                 " << endl;
+    sourcefile << "///                                                                      " << endl;
     sourcefile << "void " << name << "::InitProcess() {" << endl;
     sourcefile << "    // Write here the jobs to do before processing" << endl;
     sourcefile << "    // i.e., initialize histograms and auxiliary vectors," << endl;
@@ -218,6 +279,9 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     sourcefile << endl;
     sourcefile << "}" << endl;
     sourcefile << endl;
+    sourcefile << "///////////////////////////////////////////////                          " << endl;
+    sourcefile << "/// \\brief The main processing event function                           " << endl;
+    sourcefile << "///                                                                      " << endl;
     sourcefile << "TRestEvent* " << name << "::ProcessEvent(TRestEvent * evInput) {" << endl;
     sourcefile << "    " << inputeventname << " = (" << inputevent << "*)evInput;" << endl;
     sourcefile << endl;
@@ -229,6 +293,10 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     sourcefile << "    return " << outputeventname << ";" << endl;
     sourcefile << "}" << endl;
     sourcefile << endl;
+    sourcefile << "///////////////////////////////////////////////                          " << endl;
+    sourcefile << "/// \\brief Function to include required actions after all events have been" << endl;
+    sourcefile << "/// processed.                                                            " << endl;
+    sourcefile << "///                                                                       " << endl;
     sourcefile << "void " << name << "::EndProcess() {" << endl;
     sourcefile << "    // Write here the jobs to do when all the events are processed" << endl;
     sourcefile << endl;
