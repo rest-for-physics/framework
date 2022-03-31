@@ -88,7 +88,7 @@ void TRestRun::Initialize() {
     fInputFileName = "null";
     fOutputFileName = "rest_default.root";
 
-    fBytesReaded = 0;
+    fBytesRead = 0;
     fTotalBytes = -1;
     fOverwrite = true;
     fEntriesSaved = -1;
@@ -762,7 +762,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
         eve = fFileProcess->ProcessEvent(nullptr);
         fFileProcess->EndOfEventProcess();
         mutex2.unlock();
-        fBytesReaded = fFileProcess->GetTotalBytesReaded();
+        fBytesRead = fFileProcess->GetTotalBytesReaded();
         if (targettree != nullptr) {
             for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
                 targettree->SetObservable(n, fAnalysisTree->GetObservable(n));
@@ -775,13 +775,13 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
                 eve = nullptr;
             } else {
                 eve->Initialize();
-                fBytesReaded += fAnalysisTree->GetEntry(fCurrentEvent);
+                fBytesRead += fAnalysisTree->GetEntry(fCurrentEvent);
                 if (targettree != nullptr) {
                     for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
                         targettree->SetObservable(n, fAnalysisTree->GetObservable(n));
                 }
                 if (fEventTree != nullptr) {
-                    fBytesReaded += ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))
+                    fBytesRead += ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))
                                         ->GetEntry(fCurrentEvent);
                     // fBytesReaded += fEventTree->GetEntry(fCurrentEvent);
                 }

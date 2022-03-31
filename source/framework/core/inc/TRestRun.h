@@ -53,7 +53,7 @@ class TRestRun : public TRestMetadata {
     bool fSaveHistoricData;                //!
     TRestEventProcess* fFileProcess;       //!
     int fCurrentEvent;                     //!
-    Long64_t fBytesReaded;                 //!
+    Long64_t fBytesRead;                   //!
     Long64_t fTotalBytes;                  //!
     int fEventBranchLoc;                   //!
     int fEventIndexCounter = 0;            //!
@@ -149,7 +149,7 @@ class TRestRun : public TRestMetadata {
     TFile* GetInputFile() { return fInputFile; }
     TFile* GetOutputFile() { return fOutputFile; }
     int GetCurrentEntry() { return fCurrentEvent; }
-    Long64_t GetBytesReaded() { return fBytesReaded; }
+    Long64_t GetBytesReaded() { return fBytesRead; }
     Long64_t GetTotalBytes();
     int GetEntries();
 
@@ -247,7 +247,7 @@ class TRestRun : public TRestMetadata {
     TRestRun(std::string filename);
     ~TRestRun();
 
-    ClassDef(TRestRun, 4);
+    ClassDef(TRestRun, 5);
 };
 
 #endif
