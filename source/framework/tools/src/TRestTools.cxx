@@ -778,7 +778,7 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
 /// \brief It performs a POST web protocol request using a set of keys and values given
 /// by argument, and returns the result as a string.
 ///
-std::string TRestTools::POSTRequest(const std::map<std::string, std::string>& keys) {
+std::string TRestTools::POSTRequest(const std::string& url, const std::map<std::string, std::string>& keys) {
     CURL* curl;
     CURLcode res;
 
@@ -791,9 +791,9 @@ std::string TRestTools::POSTRequest(const std::map<std::string, std::string>& ke
 
     std::string request = "";
     int n = 0;
-    for (auto const& [key, val] : symbolTable) {
+    for (auto const& x : keys) {
         if (n > 0) request += "&";
-        request += key + "=" + val;
+        request += x.first + "=" + x.second;
         n++;
     }
     /* get a curl handle */
@@ -802,7 +802,7 @@ std::string TRestTools::POSTRequest(const std::map<std::string, std::string>& ke
         /* First set the URL that is about to receive our POST. This URL can
            just as well be a https:// URL if that is what should receive the
            data. */
-        curl_easy_setopt(curl, CURLOPT_URL, "https://henke.lbl.gov/cgi-bin/laymir.pl");
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)f);
         /* Now specify the POST data */
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.c_str());
