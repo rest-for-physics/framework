@@ -67,7 +67,7 @@ void TRestCut::Initialize() { fCuts.clear(); }
 
 void TRestCut::InitFromConfigFile() {
     auto ele = GetElement("cut");
-    while (ele != NULL) {
+    while (ele != nullptr) {
         string name = GetParameter("name", ele, "");
         string cutStr = GetParameter("value", ele, "");
         cutStr = Replace(cutStr, " AND ", " && ");

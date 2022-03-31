@@ -88,7 +88,7 @@ TGeoManager* TRestGDMLParser::CreateGeoM() {
         chdir(originDirectory);
         return geo2;
     }
-    return NULL;
+    return nullptr;
 }
 
 void TRestGDMLParser::PrintContent() { cout << filestr << endl; }

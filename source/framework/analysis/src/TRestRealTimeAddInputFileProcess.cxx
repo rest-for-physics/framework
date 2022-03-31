@@ -67,9 +67,10 @@
 #include "TRestRealTimeAddInputFileProcess.h"
 
 using namespace std;
+
 ClassImp(TRestRealTimeAddInputFileProcess);
 
-thread* TRestRealTimeAddInputFileProcess::fMonitorThread = NULL;
+thread* TRestRealTimeAddInputFileProcess::fMonitorThread = nullptr;
 int TRestRealTimeAddInputFileProcess::fMonitorFlag = 0;
 
 TRestRealTimeAddInputFileProcess::TRestRealTimeAddInputFileProcess() { Initialize(); }
@@ -78,7 +79,7 @@ TRestRealTimeAddInputFileProcess::~TRestRealTimeAddInputFileProcess() {}
 
 void TRestRealTimeAddInputFileProcess::Initialize() {
     SetSectionName(this->ClassName());
-    fEvent = NULL;
+    fEvent = nullptr;
 
     // Assign initial values for the parameters here
 }
@@ -87,12 +88,12 @@ void TRestRealTimeAddInputFileProcess::InitProcess() {
     // Write here the jobs to do before processing
     fMessenger = GetMetadata<TRestMessenger>();
 
-    if (fMessenger == NULL) {
+    if (fMessenger == nullptr) {
         ferr << "messenger not found!" << endl;
         exit(1);
     }
 
-    if (fMonitorThread == NULL) {
+    if (fMonitorThread == nullptr) {
         fRunInfo->HangUpEndFile();
         fMonitorFlag = 1;
         // SysMonitorFunc(fPid, fRefreshRate);
@@ -146,12 +147,12 @@ void TRestRealTimeAddInputFileProcess::FileNotificationFunc() {
 
 void TRestRealTimeAddInputFileProcess::EndProcess() {
     // Write here the jobs to do when all the events are processed
-    if (fMonitorThread != NULL) {
+    if (fMonitorThread != nullptr) {
         fMonitorFlag = 0;
         usleep(2000);
         // fMonitorThread->join();
         delete fMonitorThread;
-        fMonitorThread = NULL;
+        fMonitorThread = nullptr;
     }
 }
 

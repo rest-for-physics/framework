@@ -245,7 +245,7 @@ inline TClass* GetClassQuick(std::string type) {
         RESTListOfClasses_typename[type] = cl;
         return cl;
     }
-    return NULL;
+    return nullptr;
 }
 
 /////////////////////////////
@@ -265,7 +265,7 @@ TClass* GetClassQuick() {
         RESTListOfClasses_typeid[typeidaddr] = cl;
         return cl;
     }
-    return NULL;
+    return nullptr;
 }
 
 /// Get the type name of an object
