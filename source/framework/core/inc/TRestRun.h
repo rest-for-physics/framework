@@ -129,82 +129,82 @@ class TRestRun : public TRestMetadata {
     void SkipEventTree() {}
 
     // Getters
-    Int_t GetParentRunNumber() { return fParentRunNumber; }
-    Int_t GetRunNumber() { return fRunNumber; }
-    TString GetRunType() { return fRunType; }
-    TString GetRunUser() { return fRunUser; }
-    TString GetRunTag() { return fRunTag; }
-    TString GetRunDescription() { return fRunDescription; }
+    Int_t GetParentRunNumber() const { return fParentRunNumber; }
+    Int_t GetRunNumber() const { return fRunNumber; }
+    TString GetRunType() const { return fRunType; }
+    TString GetRunUser() const { return fRunUser; }
+    TString GetRunTag() const { return fRunTag; }
+    TString GetRunDescription() const { return fRunDescription; }
     Double_t GetRunLength();
-    Double_t GetStartTimestamp() { return fStartTime; }
-    Double_t GetEndTimestamp() { return fEndTime; }
-    TString GetExperimentName() { return fExperimentName; }
+    Double_t GetStartTimestamp() const { return fStartTime; }
+    Double_t GetEndTimestamp() const { return fEndTime; }
+    TString GetExperimentName() const { return fExperimentName; }
 
-    std::vector<TString> GetInputFileNames() { return fInputFileNames; }
-    std::string GetInputFileName(int i) {
+    std::vector<TString> GetInputFileNames() const { return fInputFileNames; }
+    std::string GetInputFileName(int i) const {
         return i < fInputFileNames.size() ? (std::string)fInputFileNames[i] : "";
     }
-    std::string GetInputFileNamepattern() { return (std::string)fInputFileName; }
-    TString GetOutputFileName() { return fOutputFileName; }
-    TFile* GetInputFile() { return fInputFile; }
-    TFile* GetOutputFile() { return fOutputFile; }
-    int GetCurrentEntry() { return fCurrentEvent; }
-    Long64_t GetBytesReaded() { return fBytesRead; }
+    std::string GetInputFileNamepattern() const { return (std::string)fInputFileName; }
+    TString GetOutputFileName() const { return fOutputFileName; }
+    TFile* GetInputFile() const { return fInputFile; }
+    TFile* GetOutputFile() const { return fOutputFile; }
+    int GetCurrentEntry() const { return fCurrentEvent; }
+    Long64_t GetBytesReaded() const { return fBytesRead; }
     Long64_t GetTotalBytes();
     int GetEntries();
 
-    TRestEvent* GetInputEvent() { return fInputEvent; }
+    TRestEvent* GetInputEvent() const { return fInputEvent; }
     TRestEvent* GetEventWithID(Int_t eventID, Int_t subEventID = -1, TString tag = "");
-    std::vector<int> GetEventEntriesWithConditions(const std::string, int startingIndex = 0,
+    std::vector<int> GetEventEntriesWithConditions(const std::string&, int startingIndex = 0,
                                                    int maxNumber = -1);
-    std::vector<int> GetEventIdsWithConditions(const std::string, int startingIndex = 0, int maxNumber = -1);
-    TRestEvent* GetNextEventWithConditions(const std::string);
-    TRestEventProcess* GetFileProcess() { return fFileProcess; }
-    std::string GetRunInformation(std::string infoname);
+    std::vector<int> GetEventIdsWithConditions(const std::string&, int startingIndex = 0, int maxNumber = -1);
+    TRestEvent* GetNextEventWithConditions(const std::string&);
+    TRestEventProcess* GetFileProcess() const { return fFileProcess; }
+    std::string GetRunInformation(std::string info);
     Int_t GetObservableID(std::string name) { return fAnalysisTree->GetObservableID(name); }
     Bool_t ObservableExists(std::string name) { return fAnalysisTree->ObservableExists(name); }
-    TString GetInputEventName() { return fInputEvent->ClassName(); }
-    TRestAnalysisTree* GetAnalysisTree() { return fAnalysisTree; }
-    TTree* GetEventTree() { return fEventTree; }
-    Int_t GetInputFileNumber() { return fFileProcess == nullptr ? fInputFileNames.size() : 1; }
+    TString GetInputEventName() const { return fInputEvent->ClassName(); }
+    TRestAnalysisTree* GetAnalysisTree() const { return fAnalysisTree; }
+    TTree* GetEventTree() const { return fEventTree; }
+    Int_t GetInputFileNumber() const { return fFileProcess == nullptr ? fInputFileNames.size() : 1; }
 
-    TRestMetadata* GetMetadata(TString name, TFile* f = 0);
-    TRestMetadata* GetMetadataClass(TString type, TFile* f = 0);
+    TRestMetadata* GetMetadata(TString name, TFile* f = nullptr);
+    TRestMetadata* GetMetadataClass(TString type, TFile* f = nullptr);
     std::vector<std::string> GetMetadataStructureNames();
     std::vector<std::string> GetMetadataStructureTitles();
     int GetNumberOfMetadataStructures() { return fMetadata.size(); }
 
-    std::string GetMetadataMember(const std::string instr) { return ReplaceMetadataMember(instr); }
+    std::string GetMetadataMember(const std::string& instr) { return ReplaceMetadataMember(instr); }
     std::string ReplaceMetadataMembers(std::string instr);
 
-    Bool_t EvaluateMetadataMember(const std::string instr);
+    Bool_t EvaluateMetadataMember(const std::string& instr);
 
     // Setters
-    void SetInputFileName(std::string s) {
+    void SetInputFileName(const std::string& s) {
         fInputFileName = s;
         fInputFileNames = Vector_cast<std::string, TString>(
             TRestTools::GetFilesMatchingPattern((std::string)fInputFileName));
     }
-    void SetOutputFileName(std::string s) { fOutputFileName = s; }
+    void SetOutputFileName(const std::string& s) { fOutputFileName = s; }
     void SetExtProcess(TRestEventProcess* p);
     void SetCurrentEntry(int i) { fCurrentEvent = i; }
     // void AddFileTask(TRestFileTask* t) { fFileTasks.push_back(t); }
     void SetInputEvent(TRestEvent* eve);
     void SetRunNumber(Int_t number) { fRunNumber = number; }
     void SetParentRunNumber(Int_t number) { fParentRunNumber = number; }
-    void SetRunType(TString type) {
+    void SetRunType(const TString& type) {
         std::string cleanType = RemoveWhiteSpaces((std::string)type);
         fRunType = (TString)cleanType;
     }
-    void SetRunTag(TString tag) {
+    void SetRunTag(const TString& tag) {
         std::string cleanTag = RemoveWhiteSpaces((std::string)tag);
         fRunTag = (TString)cleanTag;
     }
-    void SetRunUser(TString user) {
+    void SetRunUser(const TString& user) {
         std::string cleanUser = RemoveWhiteSpaces((std::string)user);
         fRunUser = (TString)cleanUser;
     }
-    void SetRunDescription(TString description) { fRunDescription = description; }
+    void SetRunDescription(const TString& description) { fRunDescription = description; }
     void SetStartTimeStamp(Double_t tStamp) { fStartTime = tStamp; }
     void SetEndTimeStamp(Double_t tStamp) { fEndTime = tStamp; }
     void SetTotalBytes(Long64_t b) { fTotalBytes = b; }
@@ -244,7 +244,7 @@ class TRestRun : public TRestMetadata {
 
     // Constructor & Destructor
     TRestRun();
-    TRestRun(std::string filename);
+    TRestRun(const std::string& filename);
     ~TRestRun();
 
     ClassDef(TRestRun, 5);

@@ -32,14 +32,15 @@
 #include "TRestManager.h"
 #include "TRestVersion.h"
 
-std::mutex mutex2;
-
 using namespace std;
+
+mutex mutex2;
+
 ClassImp(TRestRun);
 
 TRestRun::TRestRun() { Initialize(); }
 
-TRestRun::TRestRun(string filename) {
+TRestRun::TRestRun(const string& filename) {
     if (filename.find(".root") != string::npos) {
         Initialize();
         OpenInputFile(filename);
@@ -782,7 +783,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
                 }
                 if (fEventTree != nullptr) {
                     fBytesRead += ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))
-                                        ->GetEntry(fCurrentEvent);
+                                      ->GetEntry(fCurrentEvent);
                     // fBytesReaded += fEventTree->GetEntry(fCurrentEvent);
                 }
                 fCurrentEvent++;
@@ -1297,7 +1298,7 @@ TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString ta
     return nullptr;
 }
 
-std::vector<int> TRestRun::GetEventEntriesWithConditions(const string cuts, int startingIndex,
+std::vector<int> TRestRun::GetEventEntriesWithConditions(const string& cuts, int startingIndex,
                                                          int maxNumber) {
     std::vector<int> eventIds;
     // parsing cuts
@@ -1394,7 +1395,7 @@ std::vector<int> TRestRun::GetEventEntriesWithConditions(const string cuts, int 
     return eventIds;
 }
 
-std::vector<int> TRestRun::GetEventIdsWithConditions(const string cuts, int startingIndex, int maxNumber) {
+std::vector<int> TRestRun::GetEventIdsWithConditions(const string& cuts, int startingIndex, int maxNumber) {
     auto indices = GetEventEntriesWithConditions(cuts, startingIndex, maxNumber);
     std::vector<int> ids;
     for (int i = 0; i < indices.size(); i++) {
@@ -1410,7 +1411,7 @@ std::vector<int> TRestRun::GetEventIdsWithConditions(const string cuts, int star
 /// \param conditions: string specifying conditions, supporting multiple conditions separated by ":",
 /// allowed symbols include "<", "<=", ">", ">=", "=", "==". For example "A>=2.2:B==4".
 /// \return TRestEvent
-TRestEvent* TRestRun::GetNextEventWithConditions(const string cuts) {
+TRestEvent* TRestRun::GetNextEventWithConditions(const string& cuts) {
     // we retrieve only one index starting from position set by the counter and increase by one
     if (fEventIndexCounter >= GetEntries()) {
         fEventIndexCounter = 0;
@@ -1427,30 +1428,30 @@ TRestEvent* TRestRun::GetNextEventWithConditions(const string cuts) {
     }
 }
 
-string TRestRun::GetRunInformation(string infoname) {
-    string result = GetParameter(infoname, "");
+string TRestRun::GetRunInformation(string info) {
+    string result = GetParameter(info, "");
     if (result != "") {
         return result;
     }
 
-    result = GetDataMemberValue(infoname);
+    result = GetDataMemberValue(info);
     if (result != "") {
         return result;
     }
 
-    result = GetDataMemberValue(ParameterNameToDataMemberName(infoname));
+    result = GetDataMemberValue(ParameterNameToDataMemberName(info));
     if (result != "") {
         return result;
     }
 
     if (fHostmgr && fHostmgr->GetProcessRunner() != nullptr) {
-        result = fHostmgr->GetProcessRunner()->GetProcInfo(infoname);
+        result = fHostmgr->GetProcessRunner()->GetProcInfo(info);
         if (result != "") {
             return result;
         }
     }
 
-    return infoname;
+    return info;
 }
 
 TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
@@ -1654,7 +1655,7 @@ string TRestRun::ReplaceMetadataMember(const string instr) {
 /// \return The result of the evaluated expression. If the input string is empty
 /// it will return true.
 ///
-Bool_t TRestRun::EvaluateMetadataMember(const string instr) {
+Bool_t TRestRun::EvaluateMetadataMember(const string& instr) {
     if (instr == "") return true;
 
     std::vector<string> oper = {"=", "==", "<=", "<", ">=", ">", "!="};
