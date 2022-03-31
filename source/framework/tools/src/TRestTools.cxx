@@ -776,15 +776,9 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
 
 ///////////////////////////////////////////////
 /// \brief It performs a POST web protocol request using a set of keys and values given
-/// by argument, and places the result inside `content`.
+/// by argument, and returns the result as a string.
 ///
-int TRestTools::POSTRequest(std::string& file_content, std::vector<std::string> keys,
-                            std::vector<std::string> values) {
-    if (keys.size() != values.size()) {
-        ferr << "The number of keys and values does not match!" << endl;
-        return 1;
-    }
-
+std::string TRestTools::POSTRequest(const std::map<std::string, std::string>& keys) {
     CURL* curl;
     CURLcode res;
 
@@ -796,11 +790,12 @@ int TRestTools::POSTRequest(std::string& file_content, std::vector<std::string> 
     FILE* f = fopen(filename.c_str(), "wt");
 
     std::string request = "";
-    for (unsigned int n = 0; n < keys.size(); n++) {
+    int n = 0;
+    for (auto const& [key, val] : symbolTable) {
         if (n > 0) request += "&";
-        request += keys[n] + "=" + values[n];
+        request += key + "=" + val;
+        n++;
     }
-    cout << request << endl;
     /* get a curl handle */
     curl = curl_easy_init();
     if (curl) {
@@ -823,9 +818,10 @@ int TRestTools::POSTRequest(std::string& file_content, std::vector<std::string> 
     fclose(f);
     curl_global_cleanup();
 
+    std::string file_content = "";
     std::getline(std::ifstream(filename), file_content, '\0');
 
-    return 0;
+    return file_content;
 }
 
 ///////////////////////////////////////////////

@@ -90,8 +90,7 @@ class TRestTools {
     static std::string DownloadRemoteFile(std::string remoteFile);
     static int DownloadRemoteFile(std::string remoteFile, std::string localFile);
     static int UploadToServer(std::string localfile, std::string remotefile, std::string methodurl = "");
-    static int POSTRequest(std::string& file_content, std::vector<std::string> keys,
-                           std::vector<std::string> values);
+    static std::string POSTRequest(const std::map<std::string, std::string>& keys);
 
     static void ChangeDirectory(string toDirectory);
     static void ReturnToPreviousDirectory();
