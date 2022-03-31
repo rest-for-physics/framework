@@ -15,3 +15,9 @@ if (TEST)
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE) # Windows only
     FetchContent_MakeAvailable(googletest)
 endif ()
+
+include(FetchContent)
+FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git
+        GIT_TAG 21f42cf882d0b7e5ae9e3434574fc47e187728de)
+# The commit hash for 1.8.0. Replace with the latest from: https://github.com/libcpr/cpr/releases
+FetchContent_MakeAvailable(cpr)

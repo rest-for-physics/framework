@@ -43,6 +43,7 @@
 ///
 #include "TRestTools.h"
 
+#include <cpr/cpr.h>
 #include <dirent.h>
 
 #include <iostream>
@@ -54,8 +55,6 @@
 #include "TRestStringOutput.h"
 #include "TSystem.h"
 #include "TUrl.h"
-
-#include <curl/curl.h>
 
 ClassImp(TRestTools);
 
@@ -830,7 +829,7 @@ int TRestTools::POSTRequest(std::string& file_content, std::vector<std::string> 
 
 ///////////////////////////////////////////////
 /// Upload the local file to remote file, method url will overwrite the login information
-/// inside remotefile.
+/// inside remote file.
 ///
 /// Example: UploadToServer("/home/nkx/abc.txt", "https://sultan.unizar.es/gasFiles/gases.rml",
 /// "ssh://nkx:M123456@:8322") Then, the local file abc.txt will be uploaded to the server, renamed to
