@@ -45,9 +45,11 @@
 
 #include <dirent.h>
 
+#include <chrono>
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <thread>
 
 #include "TClass.h"
 #include "TRestStringHelper.h"
@@ -762,7 +764,7 @@ std::string TRestTools::DownloadRemoteFile(string url) {
             out = TRestTools::DownloadRemoteFile(url, fullpath);
             if (out == 1024) {
                 warning << "Retrying download in 5 seconds" << endl;
-                sleep(5);
+                std::this_thread::sleep_for(std::chrono::seconds(5));
             }
             attempts--;
         } while (out == 1024 && attempts > 0);
