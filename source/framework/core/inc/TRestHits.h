@@ -21,11 +21,11 @@
 #ifndef TRestSoft_TRestHits
 #define TRestSoft_TRestHits
 
+#include <TCanvas.h>
 #include <TF1.h>
+#include <TGraphErrors.h>
 #include <TH1.h>
 #include <TVector3.h>
-#include <TGraphErrors.h>
-#include <TCanvas.h>
 
 #include <iostream>
 
@@ -84,10 +84,10 @@ class TRestHits : public TObject {
     virtual void SwapHits(Int_t i, Int_t j);
     virtual void RemoveHit(int n);
 
-    virtual Bool_t areXY();
-    virtual Bool_t areXZ();
-    virtual Bool_t areYZ();
-    virtual Bool_t areXYZ();
+    virtual Bool_t areXY() const;
+    virtual Bool_t areXZ() const;
+    virtual Bool_t areYZ() const;
+    virtual Bool_t areXYZ() const;
 
     Bool_t isNaN(Int_t n);
 
@@ -103,13 +103,13 @@ class TRestHits : public TObject {
 
     Bool_t isSortedByEnergy();
 
-    Int_t GetNumberOfHits() { return fNHits; }
+    Int_t GetNumberOfHits() const { return fNHits; }
 
-    Double_t GetX(int n) { return ((Double_t)fX[n]); }     // return value in mm
-    Double_t GetY(int n) { return ((Double_t)fY[n]); }     // return value in mm
-    Double_t GetZ(int n) { return ((Double_t)fZ[n]); }     // return value in mm
-    Double_t GetTime(int n) { return ((Double_t)fT[n]); }  // return value in us
-    REST_HitType GetType(int n) { return fType[n]; }
+    Double_t GetX(int n) const { return ((Double_t)fX[n]); }     // return value in mm
+    Double_t GetY(int n) const { return ((Double_t)fY[n]); }     // return value in mm
+    Double_t GetZ(int n) const { return ((Double_t)fZ[n]); }     // return value in mm
+    Double_t GetTime(int n) const { return ((Double_t)fT[n]); }  // return value in us
+    REST_HitType GetType(int n) const { return fType[n]; }
 
     TVector3 GetPosition(int n);
     TVector3 GetVector(int i, int j);
@@ -136,7 +136,7 @@ class TRestHits : public TObject {
     Double_t GetEnergyX();
     Double_t GetEnergyY();
 
-    Double_t GetEnergy(int n) { return ((Double_t)fEnergy[n]); }  // return value in keV
+    Double_t GetEnergy(int n) const { return ((Double_t)fEnergy[n]); }  // return value in keV
 
     Bool_t isHitNInsidePrism(Int_t n, TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
                              Double_t theta);
@@ -174,11 +174,11 @@ class TRestHits : public TObject {
     Double_t GetMeanHitEnergy();
 
     Double_t GetEnergyIntegral();
-    Double_t GetTotalDepositedEnergy() { return fTotEnergy; }
-    Double_t GetTotalEnergy() { return fTotEnergy; }
-    Double_t GetEnergy() { return fTotEnergy; }
-    Double_t GetDistance2(int n, int m);
-    Double_t GetDistance(int N, int M) { return TMath::Sqrt(GetDistance2(N, M)); }
+    Double_t GetTotalDepositedEnergy() const { return fTotEnergy; }
+    Double_t GetTotalEnergy() const { return fTotEnergy; }
+    Double_t GetEnergy() const { return fTotEnergy; }
+    Double_t GetDistance2(int n, int m) const;
+    Double_t GetDistance(int N, int M) const { return TMath::Sqrt(GetDistance2(N, M)); }
     Double_t GetTotalDistance();
 
     Double_t GetHitsPathLength(Int_t n = 0, Int_t m = 0);
@@ -200,7 +200,7 @@ class TRestHits : public TObject {
        private:
         int maxindex = 0;
         int index = 0;
-        TRestHits* fHits = 0;
+        TRestHits* fHits = nullptr;
         bool isaccessor = false;
         float _x;
         float _y;
@@ -249,7 +249,7 @@ class TRestHits : public TObject {
             return i1.index > i2.index;
         }
         friend bool operator>=(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
-            // default comparsion logic
+            // default comparison logic
             return i1.index >= i2.index;
         }
         friend bool operator<(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
@@ -270,7 +270,7 @@ class TRestHits : public TObject {
     TRestHits_Iterator end() { return TRestHits_Iterator(this, fNHits); }
     typedef TRestHits_Iterator iterator;
 
-    // Construtor
+    // Constructor
     TRestHits();
     // Destructor
     ~TRestHits();
