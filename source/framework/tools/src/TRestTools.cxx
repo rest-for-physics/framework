@@ -132,7 +132,7 @@ template int TRestTools::PrintTable<Double_t>(std::vector<std::vector<Double_t>>
 /// Allowed types are Int_t, Float_t and Double_t.
 ///
 template <typename T>
-int TRestTools::ExportASCIITable(std::string fname, std::vector<std::vector<T>> data) {
+int TRestTools::ExportASCIITable(std::string fname, std::vector<std::vector<T>>& data) {
     ofstream file(fname);
     if (!file.is_open()) {
         ferr << "Unable to open file for writting : " << fname << endl;
@@ -150,10 +150,11 @@ int TRestTools::ExportASCIITable(std::string fname, std::vector<std::vector<T>> 
     return 0;
 }
 
-template int TRestTools::ExportASCIITable<Int_t>(std::string fname, std::vector<std::vector<Int_t>> data);
-template int TRestTools::ExportASCIITable<Float_t>(std::string fname, std::vector<std::vector<Float_t>> data);
+template int TRestTools::ExportASCIITable<Int_t>(std::string fname, std::vector<std::vector<Int_t>>& data);
+template int TRestTools::ExportASCIITable<Float_t>(std::string fname,
+                                                   std::vector<std::vector<Float_t>>& data);
 template int TRestTools::ExportASCIITable<Double_t>(std::string fname,
-                                                    std::vector<std::vector<Double_t>> data);
+                                                    std::vector<std::vector<Double_t>>& data);
 
 ///////////////////////////////////////////////
 /// \brief Reads a binary file containning a fixed-columns table with values
