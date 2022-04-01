@@ -263,7 +263,7 @@ template Double_t TRestTools::GetLowestIncreaseFromTable<Double_t>(std::vector<s
 ///
 /// Only works with Double_t vector since we use StringToDouble method.
 ///
-int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data) {
+int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data, Int_t skipLines) {
     if (!TRestTools::isValidFile((string)fName)) {
         cout << "TRestTools::ReadASCIITable. Error" << endl;
         cout << "Cannot open file : " << fName << endl;
@@ -278,6 +278,11 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
     std::vector<std::vector<string>> values;
 
     for (string line; std::getline(fin, line);) {
+        if (skipLines > 0) {
+            skipLines--;
+            continue
+        }
+
         if (line.find("#") == string::npos) {
             std::istringstream in(line);
             values.push_back(
@@ -309,7 +314,7 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
 ///
 /// This version works with Float_t vector since we use StringToFloat method.
 ///
-int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data) {
+int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines) {
     if (!TRestTools::isValidFile((string)fName)) {
         cout << "TRestTools::ReadASCIITable. Error" << endl;
         cout << "Cannot open file : " << fName << endl;
@@ -324,6 +329,11 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& 
     std::vector<std::vector<string>> values;
 
     for (string line; std::getline(fin, line);) {
+        if (skipLines > 0) {
+            skipLines--;
+            continue
+        }
+
         if (line.find("#") == string::npos) {
             std::istringstream in(line);
             values.push_back(
