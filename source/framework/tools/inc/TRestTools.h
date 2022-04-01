@@ -68,6 +68,9 @@ class TRestTools {
     template <typename T>
     static int PrintTable(std::vector<std::vector<T>> data, Int_t start = 0, Int_t end = 0);
 
+    template <typename T>
+    static int ExportASCIITable(std::string fname, std::vector<std::vector<T>> data);
+
     static Int_t isValidFile(const string& path);
     static bool fileExists(const std::string& filename);
     static bool isRootFile(const std::string& filename);

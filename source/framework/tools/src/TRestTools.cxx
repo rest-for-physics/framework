@@ -128,6 +128,34 @@ template int TRestTools::PrintTable<Double_t>(std::vector<std::vector<Double_t>>
                                               Int_t end);
 
 ///////////////////////////////////////////////
+/// \brief Writes the contents of the vector table given as argument to `fname`.
+/// Allowed types are Int_t, Float_t and Double_t.
+///
+template <typename T>
+int TRestTools::ExportASCIITable(std::string fname, std::vector<std::vector<T>> data) {
+    ofstream file(fname);
+    if (!file.is_open()) {
+        ferr << "Unable to open file for writting : " << fname << endl;
+        return 1;
+    }
+
+    for (int n = 0; n < data.size(); n++)
+        for (int m = 0; m < data[n].size(); m++) {
+            file << data[n][m];
+            if (m + 1 < data[n].size()) file << "\t";
+            if (m + 1 == data[n].size()) file << "\n";
+        }
+    file.close();
+
+    return 0;
+}
+
+template int TRestTools::ExportASCIITable<Int_t>(std::string fname, std::vector<std::vector<Int_t>> data);
+template int TRestTools::ExportASCIITable<Float_t>(std::string fname, std::vector<std::vector<Float_t>> data);
+template int TRestTools::ExportASCIITable<Double_t>(std::string fname,
+                                                    std::vector<std::vector<Double_t>> data);
+
+///////////////////////////////////////////////
 /// \brief Reads a binary file containning a fixed-columns table with values
 ///
 /// This method will open the file fName. This file should contain a
@@ -180,7 +208,8 @@ template int TRestTools::ReadBinaryTable<Double_t>(string fName, std::vector<std
                                                    Int_t columns);
 
 ///////////////////////////////////////////////
-/// \brief It returns the maximum value for a particular `column` from the table given by argument.
+/// \brief It returns the maximum value for a particular `column` from the table given by
+/// argument.
 ///
 /// This method is available for tables of type Float_t, Double_t and Int_t.
 ///
@@ -202,7 +231,8 @@ template Double_t TRestTools::GetMaxValueFromTable<Double_t>(std::vector<std::ve
                                                              Int_t column);
 
 ///////////////////////////////////////////////
-/// \brief It returns the minimum value for a particular `column` from the table given by argument.
+/// \brief It returns the minimum value for a particular `column` from the table given by
+/// argument.
 ///
 /// This method is available for tables of type Float_t, Double_t and Int_t.
 ///
@@ -224,13 +254,13 @@ template Double_t TRestTools::GetMinValueFromTable<Double_t>(std::vector<std::ve
                                                              Int_t column);
 
 ///////////////////////////////////////////////
-/// \brief It returns the lowest increase, different from zero, between the elements of a particular `column`
-/// from the table given by argument.
+/// \brief It returns the lowest increase, different from zero, between the elements of a
+/// particular `column` from the table given by argument.
 ///
 /// This method is available for tables of type Float_t, Double_t and Int_t.
 ///
-/// \warning This method will not check every possible column element difference. It will only look for
-/// consecutive elements steps.
+/// \warning This method will not check every possible column element difference. It will only
+/// look for consecutive elements steps.
 ///
 template <typename T>
 T TRestTools::GetLowestIncreaseFromTable(std::vector<std::vector<T>> data, Int_t column) {
@@ -839,8 +869,8 @@ std::string TRestTools::POSTRequest(const std::string& url, const std::map<std::
 /// inside remotefile.
 ///
 /// Example: UploadToServer("/home/nkx/abc.txt", "https://sultan.unizar.es/gasFiles/gases.rml",
-/// "ssh://nkx:M123456@:8322") Then, the local file abc.txt will be uploaded to the server, renamed to
-/// gases.rml and overwrite it
+/// "ssh://nkx:M123456@:8322") Then, the local file abc.txt will be uploaded to the server,
+/// renamed to gases.rml and overwrite it
 int TRestTools::UploadToServer(string filelocal, string remotefile, string methodurl) {
     if (!TRestTools::fileExists(filelocal)) {
         cout << "error! local file not exist!" << endl;
