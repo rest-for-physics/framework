@@ -62,15 +62,13 @@ class TRestHits : public TObject {
     void Translate(Int_t n, Double_t x, Double_t y, Double_t z);
     /// Event is rotated in XYZ.
     void RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma,
-                    TVector3 vMean);  // vMean is the mean position of the event
-                                      // from GetMeanPosition()
+                    const TVector3& vMean);  // vMean is the mean position of the event from GetMeanPosition()
     /// Rotation around an arbitrary axis vAxis
-    void Rotate(Int_t n, Double_t alpha, TVector3 vAxis,
-                TVector3 vMean);  // vMean is the mean position of the event from
-                                  // GetMeanPosition()
+    void Rotate(Int_t n, Double_t alpha, const TVector3& vAxis,
+                const TVector3& vMean);  // vMean is the mean position of the event from GetMeanPosition()
 
     void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
-    void AddHit(TVector3 pos, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
+    void AddHit(const TVector3& pos, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
     void AddHit(TRestHits& hits, Int_t n);
 
     void RemoveHits();
@@ -138,36 +136,37 @@ class TRestHits : public TObject {
 
     inline Double_t GetEnergy(int n) const { return ((Double_t)fEnergy[n]); }  // return value in keV
 
-    Bool_t isHitNInsidePrism(Int_t n, TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
+    Bool_t isHitNInsidePrism(Int_t n, const TVector3& x0, const TVector3& x1, Double_t sizeX, Double_t sizeY,
                              Double_t theta) const;
-    Int_t GetNumberOfHitsInsidePrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
+    Int_t GetNumberOfHitsInsidePrism(const TVector3& x0, const TVector3& x1, Double_t sizeX, Double_t sizeY,
                                      Double_t theta) const;
-    Double_t GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta) const;
-    Double_t GetMeanPositionXInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
+    Double_t GetEnergyInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX, Double_t sizeY,
+                              Double_t theta) const;
+    Double_t GetMeanPositionXInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX, Double_t sizeY,
                                      Double_t theta) const;
-    Double_t GetMeanPositionYInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
+    Double_t GetMeanPositionYInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX, Double_t sizeY,
                                      Double_t theta) const;
-    Double_t GetMeanPositionZInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
+    Double_t GetMeanPositionZInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX, Double_t sizeY,
                                      Double_t theta) const;
-    TVector3 GetMeanPositionInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
+    TVector3 GetMeanPositionInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX, Double_t sizeY,
                                     Double_t theta) const;
 
-    Bool_t isHitNInsideCylinder(Int_t n, TVector3 x0, TVector3 x1, Double_t radius) const;
+    Bool_t isHitNInsideCylinder(Int_t n, const TVector3& x0, const TVector3& x1, Double_t radius) const;
 
-    Int_t GetNumberOfHitsInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius) const;
+    Int_t GetNumberOfHitsInsideCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) const;
     Int_t GetNumberOfHitsInsideCylinder(Int_t i, Int_t j, Double_t radius) const;
 
-    Double_t GetEnergyInCylinder(TVector3 x0, TVector3 x1, Double_t radius) const;
+    Double_t GetEnergyInCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) const;
     Double_t GetEnergyInCylinder(Int_t i, Int_t j, Double_t radius) const;
-    Double_t GetMeanPositionXInCylinder(TVector3 x0, TVector3 x1, Double_t radius) const;
-    Double_t GetMeanPositionYInCylinder(TVector3 x0, TVector3 x1, Double_t radius) const;
-    Double_t GetMeanPositionZInCylinder(TVector3 x0, TVector3 x1, Double_t radius) const;
-    TVector3 GetMeanPositionInCylinder(TVector3 x0, TVector3 x1, Double_t radius) const;
+    Double_t GetMeanPositionXInCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) const;
+    Double_t GetMeanPositionYInCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) const;
+    Double_t GetMeanPositionZInCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) const;
+    TVector3 GetMeanPositionInCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) const;
 
-    Bool_t isHitNInsideSphere(Int_t n, TVector3 pos0, Double_t radius) const;
+    Bool_t isHitNInsideSphere(Int_t n, const TVector3& pos0, Double_t radius) const;
     Bool_t isHitNInsideSphere(Int_t n, Double_t x0, Double_t y0, Double_t z0, Double_t radius) const;
 
-    Double_t GetEnergyInSphere(TVector3 pos0, Double_t radius) const;
+    Double_t GetEnergyInSphere(const TVector3& pos0, Double_t radius) const;
     Double_t GetEnergyInSphere(Double_t x, Double_t y, Double_t z, Double_t radius) const;
 
     Double_t GetMaximumHitEnergy() const;
@@ -187,11 +186,12 @@ class TRestHits : public TObject {
     Double_t GetHitsTwist(Int_t n, Int_t m) const;
     Double_t GetHitsTwistWeighted(Int_t n, Int_t m) const;
 
-    Int_t GetClosestHit(TVector3 position) const;
+    Int_t GetClosestHit(const TVector3& position) const;
 
-    TVector2 GetProjection(Int_t n, Int_t m, TVector3 position) const;
+    TVector2 GetProjection(Int_t n, Int_t m, const TVector3& position) const;
 
-    Double_t GetTransversalProjection(TVector3 p0, TVector3 direction, TVector3 position) const;
+    Double_t GetTransversalProjection(const TVector3& p0, const TVector3& direction,
+                                      const TVector3& position) const;
 
     void WriteHitsToTextFile(TString filename);
 
