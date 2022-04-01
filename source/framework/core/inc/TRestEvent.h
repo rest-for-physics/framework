@@ -87,7 +87,7 @@ class TRestEvent : public TObject {
     virtual void Initialize() = 0;
     virtual void InitializeWithMetadata(TRestRun* r);
 
-    virtual void PrintEvent();
+    virtual void PrintEvent() const;
 
     //////////////////////////////////////////////////////////////////////////
     /// \brief Draw the event

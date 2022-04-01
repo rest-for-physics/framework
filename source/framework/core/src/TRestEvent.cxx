@@ -175,7 +175,7 @@ void TRestEvent::InitializeWithMetadata(TRestRun* r) { Initialize(); }
 /// You may want to call the base class inside the re-implemented one,
 /// by calling TRestEvent::PrintEvent();
 ///
-void TRestEvent::PrintEvent() {
+void TRestEvent::PrintEvent() const {
     cout << "*******************************************************" << endl;
     cout << " EVENT ID : " << GetID() << endl;
     cout << " TIME : " << GetTimeStamp().AsString() << endl;
