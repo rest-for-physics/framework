@@ -847,15 +847,14 @@ Double_t TRestHits::GetDistanceToNode(Int_t n) const {
 }
 
 Int_t TRestHits::GetMostEnergeticHitInRange(Int_t n, Int_t m) const {
-    Int_t maxEn = 0;
+    double maxEnergy = 0;
     Int_t hit = -1;
     for (int i = n; i < m; i++) {
-        if (GetEnergy(i) > maxEn) {
-            maxEn = GetEnergy(i);
+        if (GetEnergy(i) > maxEnergy) {
+            maxEnergy = GetEnergy(i);
             hit = i;
         }
     }
-    // if (hit == -1) cout << "REST warning : No largest hit found! No hits?" << endl;
     return hit;
 }
 
