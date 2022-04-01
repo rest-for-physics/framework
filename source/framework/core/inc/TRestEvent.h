@@ -55,34 +55,34 @@ class TRestEvent : public TObject {
 
    public:
     // Setters
-    void SetRunOrigin(Int_t run_origin) { fRunOrigin = run_origin; }
-    void SetSubRunOrigin(Int_t sub_run_origin) { fSubRunOrigin = sub_run_origin; }
+    inline void SetRunOrigin(Int_t run_origin) { fRunOrigin = run_origin; }
+    inline void SetSubRunOrigin(Int_t sub_run_origin) { fSubRunOrigin = sub_run_origin; }
 
-    void SetID(Int_t id) { fEventID = id; }
-    void SetSubID(Int_t id) { fSubEventID = id; }
-    void SetSubEventTag(TString tag) { fSubEventTag = tag; }
+    inline void SetID(Int_t id) { fEventID = id; }
+    inline void SetSubID(Int_t id) { fSubEventID = id; }
+    inline void SetSubEventTag(const TString& tag) { fSubEventTag = tag; }
 
     void SetTime(Double_t time);
     void SetTime(Double_t seconds, Double_t nanoseconds);
-    void SetTimeStamp(TTimeStamp time) { fEventTime = time; }
+    inline void SetTimeStamp(const TTimeStamp& time) { fEventTime = time; }
 
-    void SetState(Bool_t state) { fOk = state; }
-    void SetOK(Bool_t state) { fOk = state; }
+    inline void SetState(Bool_t state) { fOk = state; }
+    inline void SetOK(Bool_t state) { fOk = state; }
 
     void SetEventInfo(TRestEvent* eve);
 
     // Getters
-    Int_t GetID() { return fEventID; }
-    Int_t GetSubID() { return fSubEventID; }
-    TString GetSubEventTag() { return fSubEventTag; }
+    inline Int_t GetID() const { return fEventID; }
+    inline Int_t GetSubID() const { return fSubEventID; }
+    inline TString GetSubEventTag() const { return fSubEventTag; }
 
-    Int_t GetRunOrigin() { return fRunOrigin; }
-    Int_t GetSubRunOrigin() { return fSubRunOrigin; }
+    inline Int_t GetRunOrigin() const { return fRunOrigin; }
+    inline Int_t GetSubRunOrigin() const { return fSubRunOrigin; }
 
-    Double_t GetTime() { return fEventTime.AsDouble(); }
-    TTimeStamp GetTimeStamp() { return fEventTime; }
+    inline Double_t GetTime() const { return fEventTime.AsDouble(); }
+    inline TTimeStamp GetTimeStamp() const { return fEventTime; }
 
-    Bool_t isOk() { return fOk; }
+    inline Bool_t isOk() const { return fOk; }
 
     virtual void Initialize() = 0;
     virtual void InitializeWithMetadata(TRestRun* r);
@@ -93,7 +93,7 @@ class TRestEvent : public TObject {
     /// \brief Draw the event
     ///
     /// To be implemented in the derived class
-    virtual TPad* DrawEvent(TString option = "") {
+    virtual TPad* DrawEvent(const TString& option = "") {
         UNUSED(option);
         return new TPad();
     }
@@ -105,6 +105,6 @@ class TRestEvent : public TObject {
     // Destructor
     virtual ~TRestEvent();
 
-    ClassDef(TRestEvent, 1);  // REST event superclass
+    ClassDef(TRestEvent, 2);  // REST event superclass
 };
 #endif
