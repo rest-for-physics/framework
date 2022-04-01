@@ -852,7 +852,7 @@ Double_t TRestHits::GetDistanceToNode(Int_t n) const {
 }
 
 Int_t TRestHits::GetMostEnergeticHitInRange(Int_t n, Int_t m) const {
-    double maxEnergy = 0;
+    Int_t maxEnergy = 0;
     Int_t hit = -1;
     for (int i = n; i < m; i++) {
         if (GetEnergy(i) > maxEnergy) {
