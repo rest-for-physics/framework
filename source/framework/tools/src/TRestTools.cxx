@@ -740,7 +740,8 @@ std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
 ///
 /// The file name is given in url format, and is parsed by TUrl. Various methods
 /// will be used, including scp, wget. Downloads to REST_USER_PATH + "/download/" + filename
-/// by default
+/// by default.
+///
 std::string TRestTools::DownloadRemoteFile(string url) {
     string purename = TRestTools::GetPureFileName(url);
     if (purename == "") {
@@ -754,8 +755,18 @@ std::string TRestTools::DownloadRemoteFile(string url) {
         return Replace(url, "local:", "");
     } else {
         string fullpath = REST_USER_PATH + "/download/" + purename;
+        int out;
+        int attempts = 10;
+        do {
+            out = TRestTools::DownloadRemoteFile(url, fullpath);
+            if (out == 1024) {
+                warning << "Retrying download in 5 seconds" << endl;
+                sleep(5);
+            }
+            attempts--;
+        } while (out == 1024 && attempts > 0);
 
-        if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
+        if (out == 0) {
             return fullpath;
         } else if (TRestTools::fileExists(fullpath)) {
             return fullpath;
@@ -795,8 +806,14 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
             return 0;
         } else {
             ferr << "download failed! (" << remoteFile << ")" << endl;
-            if (a == 1024) ferr << "Network connection problem?" << endl;
-            if (a == 2048) ferr << "File does NOT exist in remotely?" << endl;
+            if (a == 1024) {
+                ferr << "Network connection problem?" << endl;
+                return 1024;
+            }
+            if (a == 2048) {
+                ferr << "File does NOT exist in remotely?" << endl;
+                return 2048;
+            }
         }
     } else if ((string)url.GetProtocol() == "ssh") {
         string cmd = "scp -P " + ToString(url.GetPort() == 0 ? 22 : url.GetPort()) + " " + url.GetUser() +
