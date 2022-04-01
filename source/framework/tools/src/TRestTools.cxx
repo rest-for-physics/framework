@@ -280,7 +280,7 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
     for (string line; std::getline(fin, line);) {
         if (skipLines > 0) {
             skipLines--;
-            continue
+            continue;
         }
 
         if (line.find("#") == string::npos) {
@@ -331,7 +331,7 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& 
     for (string line; std::getline(fin, line);) {
         if (skipLines > 0) {
             skipLines--;
-            continue
+            continue;
         }
 
         if (line.find("#") == string::npos) {
