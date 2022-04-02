@@ -71,6 +71,9 @@ class TRestTools {
     template <typename T>
     static int ExportASCIITable(std::string fname, std::vector<std::vector<T>>& data);
 
+    template <typename T>
+    static int ExportBinaryTable(std::string fname, std::vector<std::vector<T>>& data);
+
     static Int_t isValidFile(const string& path);
     static bool fileExists(const std::string& filename);
     static bool isRootFile(const std::string& filename);

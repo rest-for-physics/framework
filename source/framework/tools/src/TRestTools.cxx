@@ -159,6 +159,33 @@ template int TRestTools::ExportASCIITable<Double_t>(std::string fname,
                                                     std::vector<std::vector<Double_t>>& data);
 
 ///////////////////////////////////////////////
+/// \brief Writes the contents of the vector table given as argument to `fname` as a binary file.
+/// Allowed types are Int_t, Float_t and Double_t.
+///
+template <typename T>
+int TRestTools::ExportBinaryTable(std::string fname, std::vector<std::vector<T>>& data) {
+    ofstream file(fname, ios::out | ios::binary);
+    if (!file.is_open()) {
+        ferr << "Unable to open file for writting : " << fname << endl;
+        return 1;
+    }
+
+    for (int n = 0; n < data.size(); n++)
+        for (int m = 0; m < data[n].size(); m++) {
+            file.write((char*)&data[n][m], sizeof(T));
+        }
+    file.close();
+
+    return 0;
+}
+
+template int TRestTools::ExportBinaryTable<Int_t>(std::string fname, std::vector<std::vector<Int_t>>& data);
+template int TRestTools::ExportBinaryTable<Float_t>(std::string fname,
+                                                    std::vector<std::vector<Float_t>>& data);
+template int TRestTools::ExportBinaryTable<Double_t>(std::string fname,
+                                                     std::vector<std::vector<Double_t>>& data);
+
+///////////////////////////////////////////////
 /// \brief Reads a binary file containning a fixed-columns table with values
 ///
 /// This method will open the file fName. This file should contain a
