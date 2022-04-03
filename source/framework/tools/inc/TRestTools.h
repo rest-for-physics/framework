@@ -57,10 +57,10 @@ class TRestTools {
     static int ReadBinaryTable(string fName, std::vector<std::vector<T>>& data, Int_t columns);
 
     template <typename T>
-    static T GetMaxValueFromTable(std::vector<std::vector<T>> data, Int_t column);
+    static T GetMaxValueFromTable(const std::vector<std::vector<T>>& data, Int_t column = -1);
 
     template <typename T>
-    static T GetMinValueFromTable(std::vector<std::vector<T>> data, Int_t column);
+    static T GetMinValueFromTable(const std::vector<std::vector<T>>& data, Int_t column = -1);
 
     template <typename T>
     static T GetLowestIncreaseFromTable(std::vector<std::vector<T>> data, Int_t column);

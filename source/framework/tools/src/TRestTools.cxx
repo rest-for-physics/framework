@@ -239,48 +239,72 @@ template int TRestTools::ReadBinaryTable<Double_t>(string fName, std::vector<std
 
 ///////////////////////////////////////////////
 /// \brief It returns the maximum value for a particular `column` from the table given by
-/// argument.
+/// argument. If no column is specified in the arguments, then it gets the maximum from the
+/// full table.
 ///
 /// This method is available for tables of type Float_t, Double_t and Int_t.
 ///
 template <typename T>
-T TRestTools::GetMaxValueFromTable(std::vector<std::vector<T>> data, Int_t column) {
-    if (data.size() == 0 || data[0].size() <= column) return 0;
-    T maxValue = data[0][column];
-    for (int n = 0; n < data.size(); n++)
-        if (maxValue < data[n][column]) maxValue = data[n][column];
+T TRestTools::GetMaxValueFromTable(const std::vector<std::vector<T>>& data, Int_t column) {
+    if (data.size() == 0) return 0;
+    if (column != -1 && data[0].size() <= column) return 0;
+
+    T maxValue = data[0][0];
+    if (column == -1) {
+        for (int n = 0; n < data.size(); n++)
+            for (int c = 0; c < data[n].size(); c++)
+                if (maxValue < data[n][c]) maxValue = data[n][c];
+    } else {
+        maxValue = data[0][column];
+        for (int n = 0; n < data.size(); n++)
+            if (maxValue < data[n][column]) maxValue = data[n][column];
+    }
+
     return maxValue;
 }
 
-template Int_t TRestTools::GetMaxValueFromTable<Int_t>(std::vector<std::vector<Int_t>> data, Int_t column);
+template Int_t TRestTools::GetMaxValueFromTable<Int_t>(const std::vector<std::vector<Int_t>>& data,
+                                                       Int_t column);
 
-template Float_t TRestTools::GetMaxValueFromTable<Float_t>(std::vector<std::vector<Float_t>> data,
+template Float_t TRestTools::GetMaxValueFromTable<Float_t>(const std::vector<std::vector<Float_t>>& data,
                                                            Int_t column);
 
-template Double_t TRestTools::GetMaxValueFromTable<Double_t>(std::vector<std::vector<Double_t>> data,
+template Double_t TRestTools::GetMaxValueFromTable<Double_t>(const std::vector<std::vector<Double_t>>& data,
                                                              Int_t column);
 
 ///////////////////////////////////////////////
 /// \brief It returns the minimum value for a particular `column` from the table given by
-/// argument.
+/// argument. If no column is specified in the arguments, then it gets the minimum from the
+/// full table.
 ///
 /// This method is available for tables of type Float_t, Double_t and Int_t.
 ///
 template <typename T>
-T TRestTools::GetMinValueFromTable(std::vector<std::vector<T>> data, Int_t column) {
-    if (data.size() == 0 || data[0].size() <= column) return 0;
-    T minValue = data[0][column];
-    for (int n = 0; n < data.size(); n++)
-        if (minValue > data[n][column]) minValue = data[n][column];
+T TRestTools::GetMinValueFromTable(const std::vector<std::vector<T>>& data, Int_t column) {
+    if (data.size() == 0) return 0;
+    if (column != -1 && data[0].size() <= column) return 0;
+
+    T minValue = data[0][0];
+    if (column == -1) {
+        for (int n = 0; n < data.size(); n++)
+            for (int c = 0; c < data[n].size(); c++)
+                if (minValue > data[n][c]) minValue = data[n][c];
+    } else {
+        minValue = data[0][column];
+        for (int n = 0; n < data.size(); n++)
+            if (minValue > data[n][column]) minValue = data[n][column];
+    }
+
     return minValue;
 }
 
-template Int_t TRestTools::GetMinValueFromTable<Int_t>(std::vector<std::vector<Int_t>> data, Int_t column);
+template Int_t TRestTools::GetMinValueFromTable<Int_t>(const std::vector<std::vector<Int_t>>& data,
+                                                       Int_t column);
 
-template Float_t TRestTools::GetMinValueFromTable<Float_t>(std::vector<std::vector<Float_t>> data,
+template Float_t TRestTools::GetMinValueFromTable<Float_t>(const std::vector<std::vector<Float_t>>& data,
                                                            Int_t column);
 
-template Double_t TRestTools::GetMinValueFromTable<Double_t>(std::vector<std::vector<Double_t>> data,
+template Double_t TRestTools::GetMinValueFromTable<Double_t>(const std::vector<std::vector<Double_t>>& data,
                                                              Int_t column);
 
 ///////////////////////////////////////////////
