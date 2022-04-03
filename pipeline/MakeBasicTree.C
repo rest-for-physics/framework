@@ -3,41 +3,42 @@ Int_t MakeBasicTree(const char* inputFilename, const char* outputFilename = "res
                     Bool_t check = true) {
     TRestRun run(inputFilename);
 
-    TRestAnalysisTree* aTree = run.GetAnalysisTree();
+    TRestAnalysisTree* analysisTree = run.GetAnalysisTree();
 
     std::vector<double> obsValues;
-    for (int n = 0; n < aTree->GetNumberOfObservables(); n++) {
-        if (aTree->GetObservableType(n) == "double") obsValues.push_back(0);
+    for (int n = 0; n < analysisTree->GetNumberOfObservables(); n++) {
+        if (analysisTree->GetObservableType(n) == "double") obsValues.push_back(0);
     }
 
     TFile* outFile = new TFile(outputFilename, "RECREATE");
-    TTree* myTree = new TTree("bTree", "basicTree");
+    TTree* outTree = new TTree("bTree", "basicTree");
 
-    myTree->Branch("doubleObservables", &obsValues);
+    outTree->Branch("doubleObservables", &obsValues);
 
     for (int n = 0; n < run.GetEntries(); n++) {
         run.GetEntry(n);
         // cout << "Entry : " << n << endl;
 
         obsValues.clear();
-        for (int m = 0; m < aTree->GetNumberOfObservables(); m++) {
-            if (aTree->GetObservableType(m) == "double") {
+        for (int m = 0; m < analysisTree->GetNumberOfObservables(); m++) {
+            if (analysisTree->GetObservableType(m) == "double") {
                 if (n == 0) {
-                    cout << "index: " << obsValues.size() << ", obsName: " << aTree->GetObservableName(m)
-                         << " value: " << aTree->GetObservableValue<Double_t>(m) << endl;
+                    cout << "index: " << obsValues.size()
+                         << ", obsName: " << analysisTree->GetObservableName(m)
+                         << " value: " << analysisTree->GetObservableValue<Double_t>(m) << endl;
                 }
-                obsValues.push_back(aTree->GetObservableValue<Double_t>(m));
+                obsValues.push_back(analysisTree->GetObservableValue<Double_t>(m));
             }
         }
-        myTree->Fill();
+        outTree->Fill();
     }
 
     // check all trees have the same number of elements
-    if (run.GetEntries() != aTree->GetEntries() || run.GetEntries() != myTree->GetEntries()) {
+    if (run.GetEntries() != analysisTree->GetEntries() || run.GetEntries() != outTree->GetEntries()) {
         cout << "ERROR: mismatch in number of tree entries" << endl;
         return 1;
     }
-    myTree->Write();
+    outTree->Write();
     outFile->Close();
 
     // check output file tree has the correct number of entries
@@ -54,6 +55,8 @@ Int_t MakeBasicTree(const char* inputFilename, const char* outputFilename = "res
             return 1;
         }
     }
+
+    cout << "Finished `MakeBasicTree.C` macro. Number of entries: " << run.GetEntries() << endl;
 
     return 0;
 }
