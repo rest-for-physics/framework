@@ -498,6 +498,11 @@ Int_t REST_StringHelper::StringToInteger(string in) {
 ///
 string REST_StringHelper::IntegerToString(Int_t n) { return Form("%d", n); }
 
+///////////////////////////////////////////////
+/// \brief Gets a string from a double
+///
+string REST_StringHelper::DoubleToString(Double_t d) { return Form("%4.2lf", d); }
+
 Bool_t REST_StringHelper::StringToBool(std::string in) {
     return (ToUpper(in) == "TRUE" || ToUpper(in) == "ON");
 }
