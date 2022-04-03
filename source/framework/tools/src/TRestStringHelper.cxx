@@ -187,15 +187,38 @@ std::vector<string> REST_StringHelper::Split(std::string in, string separator, b
 /// \brief Convert the input string into a  vector of double elements
 ///
 /// e.g. Input: "1,2,3,4", Output: {1.,2.,3.,4.}
-std::vector<double> REST_StringHelper::StringToElements(std::string in, string separator,
-                                                        bool allowBlankString, bool removeWhiteSpaces,
-                                                        int startPos) {
-std:
+///
+std::vector<double> REST_StringHelper::StringToElements(std::string in, string separator) {
     vector<double> result;
-    vector<string> vec_str =
-        REST_StringHelper::Split(in, separator, allowBlankString, removeWhiteSpaces, startPos);
+    vector<string> vec_str = REST_StringHelper::Split(in, separator);
     for (unsigned int i = 0; i < vec_str.size(); i++) {
         double temp = REST_StringHelper::StringToDouble(vec_str[i]);
+        result.push_back(temp);
+    }
+
+    return result;
+}
+
+///////////////////////////////////////////////
+/// \brief Convert the input string `in` into a vector of double elements
+///
+/// Called as `StringToElements( in, "[", ",", "]" );` will get the
+/// elements from a string with the following format "[a,b,c]" where a,b,c
+/// are double numbers.
+///
+std::vector<double> REST_StringHelper::StringToElements(std::string in, string headChar, string separator,
+                                                        string tailChar) {
+    std::vector<double> result;
+    size_t startPos = in.find(headChar);
+    size_t endPos = in.find(tailChar);
+    if (startPos == string::npos || endPos == string::npos) {
+        ferr << "StringToElements wrong arguments!" << endl;
+        return result;
+    }
+    std::vector<string> values = Split(in.substr(startPos + 1, endPos - startPos - 1), ",");
+
+    for (unsigned int i = 0; i < values.size(); i++) {
+        double temp = REST_StringHelper::StringToDouble(values[i]);
         result.push_back(temp);
     }
 
