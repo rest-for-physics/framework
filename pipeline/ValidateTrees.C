@@ -10,7 +10,7 @@ Int_t ValidateTrees(const char* validationFilename, const char* inputFilename = 
     std::vector<double>* inputObservableVector = 0;
     inputTree->SetBranchAddress("doubleObservables", &inputObservableVector);
 
-    TFile validationFile(inputFilename);
+    TFile validationFile(validationFilename);
     TTree* validationTree = validationFile.Get<TTree>("bTree");
     std::vector<double>* validationObservableVector = 0;
     validationTree->SetBranchAddress("doubleObservables", &validationObservableVector);
