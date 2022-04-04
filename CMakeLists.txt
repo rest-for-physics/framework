@@ -75,7 +75,14 @@ find_package(ROOT REQUIRED COMPONENTS ${ROOT_REQUIRED_LIBRARIES})
 
 message(STATUS "ROOT LIBRARIES: ${ROOT_LIBRARIES}")
 
-set(external_libs "${external_libs};${ROOT_LIBRARIES};-lcurl")
+set(external_libs "${external_libs};${ROOT_LIBRARIES}")
+
+find_library ( CURL_LIB curl )
+if( NOT "${CURL_LIB}" MATCHES "NOTFOUND")
+	add_definitions(-DUSE_Curl)
+	message ( STATUS "Found CURL: ${CURL_LIB}" )
+	set(external_libs "${external_libs};-lcurl")
+endif( NOT "${CURL_LIB}" MATCHES "NOTFOUND")
 
 set(ROOTCINT_EXECUTABLE ${ROOT_rootcint_CMD})
 
