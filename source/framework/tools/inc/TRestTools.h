@@ -48,8 +48,10 @@ class TRestTools {
 
     static void LoadRESTLibrary(bool silent = false);
 
-    static int ReadASCIITable(std::string fName, std::vector<std::vector<Double_t>>& data);
-    static int ReadASCIITable(std::string fName, std::vector<std::vector<Float_t>>& data);
+    static int ReadASCIITable(std::string fName, std::vector<std::vector<Double_t>>& data,
+                              Int_t skipLines = 0);
+    static int ReadASCIITable(std::string fName, std::vector<std::vector<Float_t>>& data,
+                              Int_t skipLines = 0);
 
     template <typename T>
     static int ReadBinaryTable(std::string fName, std::vector<std::vector<T>>& data, Int_t columns);
@@ -66,6 +68,9 @@ class TRestTools {
     template <typename T>
     static int PrintTable(std::vector<std::vector<T>> data, Int_t start = 0, Int_t end = 0);
 
+    template <typename T>
+    static int ExportASCIITable(std::string fname, std::vector<std::vector<T>>& data);
+
     static Int_t isValidFile(const std::string& path);
     static bool fileExists(const std::string& filename);
     static bool isRootFile(const std::string& filename);
@@ -76,9 +81,9 @@ class TRestTools {
     static std::string ToAbsoluteName(std::string filename);
     static std::vector<std::string> GetSubdirectories(const std::string& path, int recursion = -1);
     static std::pair<std::string, std::string> SeparatePathAndName(const std::string fullname);
-    static std::string GetPureFileName(std::string fullpathFileName);
+    static std::string GetPureFileName(std::string fullPathFileName);
     static std::string SearchFileInPath(std::vector<std::string> path, std::string filename);
-    static Int_t ChecktheFile(std::string cfgFileName);
+    static Int_t CheckTheFile(std::string cfgFileName);
     static std::vector<std::string> GetFilesMatchingPattern(std::string pattern);
     static int ConvertVersionCode(std::string in);
     static std::istream& GetLine(std::istream& is, std::string& t);
@@ -87,8 +92,9 @@ class TRestTools {
 
     static std::string DownloadRemoteFile(std::string remoteFile);
     static int DownloadRemoteFile(std::string remoteFile, std::string localFile);
-    static int UploadToServer(std::string localfile, std::string remotefile, std::string methodurl = "");
+    static int UploadToServer(std::string localFile, std::string remoteFile, std::string methodUrl = "");
 
+    static std::string POSTRequest(const std::string& url, const std::map<std::string, std::string>& keys);
     static void ChangeDirectory(std::string toDirectory);
     static void ReturnToPreviousDirectory();
 
@@ -118,19 +124,19 @@ inline void SetInitLevel(T* name, int level) {
     GlobalVarInit<T>::level = level;
 }
 
-#define MakeGlobal(classname, objname, level)                       \
+#define MakeGlobal(classname, objName, level)                       \
     struct __##classname##_Init {                                   \
         __##classname##_Init() {                                    \
-            REST_ARGS[#objname] = #classname;                       \
-            if (objname != nullptr) {                               \
-                if (REST_InitTools::CanOverwrite(objname, level)) { \
-                    delete objname;                                 \
-                    objname = new classname();                      \
-                    REST_InitTools::SetInitLevel(objname, level);   \
+            REST_ARGS[#objName] = #classname;                       \
+            if ((objName) != nullptr) {                             \
+                if (REST_InitTools::CanOverwrite(objName, level)) { \
+                    delete (objName);                               \
+                    (objName) = new classname();                    \
+                    REST_InitTools::SetInitLevel(objName, level);   \
                 }                                                   \
             } else {                                                \
-                objname = new classname();                          \
-                REST_InitTools::SetInitLevel(objname, level);       \
+                (objName) = new classname();                        \
+                REST_InitTools::SetInitLevel(objName, level);       \
             }                                                       \
         }                                                           \
     };                                                              \
