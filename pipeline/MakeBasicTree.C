@@ -56,6 +56,11 @@ Int_t MakeBasicTree(const char* inputFilename, const char* outputFilename = "res
         }
     }
 
+    if (run.GetEntries() == 0) {
+        cout << "ERROR: Macro finished without issues but number of final entries is 0" << endl;
+        return 1;
+    }
+
     cout << "Finished `MakeBasicTree.C` macro. Number of entries: " << run.GetEntries() << endl;
 
     return 0;
