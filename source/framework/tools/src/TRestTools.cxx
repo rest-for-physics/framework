@@ -281,7 +281,7 @@ template Double_t TRestTools::GetMaxValueFromTable<Double_t>(const std::vector<s
 ///
 template <typename T>
 T TRestTools::GetMinValueFromTable(const std::vector<std::vector<T>>& data, Int_t column) {
-    if (data.size() == 0) return 0;
+    if (data.empty()) return 0;
     if (column != -1 && data[0].size() <= column) return 0;
 
     T minValue = data[0][0];
