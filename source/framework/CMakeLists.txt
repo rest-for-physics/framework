@@ -10,6 +10,13 @@ if (NOT ${REST_EVE} MATCHES "ON")
     set(excludes TRestEveEventViewer)
 endif (NOT ${REST_EVE} MATCHES "ON")
 
+find_library(CURL_LIB curl)
+if (NOT ${CURL_LIB} MATCHES "CURL_LIB-NOTFOUND")
+    add_compile_definitions(USE_Curl)
+    message(STATUS "Found curl library: ${CURL_LIB}")
+    set(external_libs "${external_libs};-lcurl")
+endif ()
+
 COMPILEDIR(RestFramework)
 
 ADD_LIBRARY_TEST()

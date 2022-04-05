@@ -75,7 +75,7 @@ find_package(ROOT REQUIRED COMPONENTS ${ROOT_REQUIRED_LIBRARIES})
 
 message(STATUS "ROOT LIBRARIES: ${ROOT_LIBRARIES}")
 
-set(external_libs "${external_libs};${ROOT_LIBRARIES};-lcurl")
+set(external_libs "${external_libs};${ROOT_LIBRARIES}")
 
 set(ROOTCINT_EXECUTABLE ${ROOT_rootcint_CMD})
 
