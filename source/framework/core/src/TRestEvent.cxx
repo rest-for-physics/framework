@@ -74,7 +74,6 @@ void TRestEvent::Initialize() {
     fSubEventID = 0;
     fSubEventTag = "";
     fOk = true;
-
     fPad = nullptr;
 }
 
@@ -82,18 +81,18 @@ void TRestEvent::Initialize() {
 /// Set the time of the event
 ///
 void TRestEvent::SetTime(Double_t time) {
-    Int_t sec = (Int_t)time;
-    Int_t nsec = (Int_t)((time - sec) * 1E9);
+    auto seconds = (Int_t)time;
+    auto nanoseconds = (Int_t)((time - seconds) * 1E9);
 
-    fEventTime.SetSec(sec);
-    fEventTime.SetNanoSec(nsec);
+    fEventTime.SetSec(seconds);
+    fEventTime.SetNanoSec(nanoseconds);
 }
 
 //////////////////////////////////////////////////////////////////////////
 /// \brief Clone the content of this TRestEvent object to another
 ///
 /// This method uses default root streamer to do the copying. The efficiency is
-/// low. Override recommanded.
+/// low. Override recommended.
 void TRestEvent::CloneTo(TRestEvent* target) {
     if (this->ClassName() != target->ClassName()) {
         cout << "In TRestEvent::CloneTo() : Event type doesn't match! (This :" << this->ClassName()
@@ -126,12 +125,12 @@ void TRestEvent::CloneTo(TRestEvent* target) {
 /// Set the time of the event
 ///
 void TRestEvent::SetTime(Double_t seconds, Double_t nanoseconds) {
-    fEventTime.SetSec(seconds);
-    fEventTime.SetNanoSec(nanoseconds);
+    fEventTime.SetSec((Int_t)seconds);
+    fEventTime.SetNanoSec((Int_t)nanoseconds);
 }
 
 //////////////////////////////////////////////////////////////////////////
-/// Copy the six univeral information in TRestEvent from another TRestEvent
+/// Copy the six universal information in TRestEvent from another TRestEvent
 ///
 void TRestEvent::SetEventInfo(TRestEvent* eve) {
     if (eve != nullptr) {
@@ -177,7 +176,7 @@ void TRestEvent::InitializeWithMetadata(TRestRun* r) { Initialize(); }
 /// You may want to call the base class inside the re-implemented one,
 /// by calling TRestEvent::PrintEvent();
 ///
-void TRestEvent::PrintEvent() {
+void TRestEvent::PrintEvent() const {
     cout << "*******************************************************" << endl;
     cout << " EVENT ID : " << GetID() << endl;
     cout << " TIME : " << GetTimeStamp().AsString() << endl;
