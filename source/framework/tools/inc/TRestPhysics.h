@@ -69,7 +69,14 @@ TVector3 MoveToPlane(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a);
 TVector3 MoveByDistance(TVector3 pos, TVector3 dir, Double_t d);
 TVector3 MoveByDistanceFast(TVector3 pos, TVector3 dir, Double_t d);
 
-TVector3 GetPlaneVectorIntersection(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a);
+TVector3 GetPlaneVectorIntersection(const TVector3& pos, const TVector3& dir, TVector3 const& n,
+                                    TVector3 const& a);
+
+TVector3 GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, const TVector3& d,
+                                   const TVector3& v);
+
+TVector3 GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, const TMatrixD& M,
+                                   const TVector3& v);
 
 Double_t DistanceToAxis(const TVector3& axisPoint, const TVector3& axisVector, const TVector3& point);
 

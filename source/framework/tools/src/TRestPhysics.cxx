@@ -76,9 +76,27 @@ Double_t DistanceToAxis(const TVector3& axisPoint, const TVector3& axisVector, c
 /// and  moving in direction `dir` and the plane defined by its normal vector `n` and the point `a`. This is
 /// equivalent to move/translate the position `pos` to the plane.
 ///
-TVector3 GetPlaneVectorIntersection(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a) {
+TVector3 GetPlaneVectorIntersection(const TVector3& pos, const TVector3& dir, const TVector3& n,
+                                    const TVector3& a) {
     return MoveToPlane(pos, dir, n, a);
 }
+
+///////////////////////////////////////////////
+/// \brief This method will find the intersection of the trajectory defined by the vector starting at `pos`
+/// and  moving in direction `dir` and the cone defined by its axis vector `d` and the vertex`v`. The
+/// resulting TVector3 will be the position of the particle placed at the cone surface.
+///
+TVector3 GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, const TVector3& d,
+                                   const TVector3& v);
+
+///////////////////////////////////////////////
+/// \brief This method will find the intersection of the trajectory defined by the vector starting at `pos`
+/// and moving in direction `dir` and the cone defined by its characteristic matrix `M`, which is built
+/// using the cone axis vector `d` as `d^T x d`,  and the vertex`v`. The resulting TVector3 will be the
+/// position of the particle placed at the cone surface.
+///
+TVector3 GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, const TMatrixD& M,
+                                   const TVector3& v);
 
 ///////////////////////////////////////////////
 /// \brief This method transports a position `pos` by a distance `d` in the direction defined by `dir`.
