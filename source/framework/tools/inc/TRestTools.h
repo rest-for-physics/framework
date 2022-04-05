@@ -50,8 +50,8 @@ class TRestTools {
 
     static void LoadRESTLibrary(bool silent = false);
 
-    static int ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data);
-    static int ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data);
+    static int ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data, Int_t skipLines = 0);
+    static int ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines = 0);
 
     template <typename T>
     static int ReadBinaryTable(string fName, std::vector<std::vector<T>>& data, Int_t columns);
@@ -67,6 +67,9 @@ class TRestTools {
 
     template <typename T>
     static int PrintTable(std::vector<std::vector<T>> data, Int_t start = 0, Int_t end = 0);
+
+    template <typename T>
+    static int ExportASCIITable(std::string fname, std::vector<std::vector<T>>& data);
 
     static Int_t isValidFile(const string& path);
     static bool fileExists(const std::string& filename);
@@ -87,12 +90,13 @@ class TRestTools {
 
     static std::string Execute(string cmd);
 
-    static std::string DownloadRemoteFile(string remoteFile);
-    static int DownloadRemoteFile(string remoteFile, string localFile);
-    static int UploadToServer(string localfile, string remotefile, string methodurl = "");
+    static std::string DownloadRemoteFile(std::string remoteFile);
+    static int DownloadRemoteFile(std::string remoteFile, std::string localFile);
+    static int UploadToServer(std::string localfile, std::string remotefile, std::string methodurl = "");
+    static std::string POSTRequest(const std::string& url, const std::map<std::string, std::string>& keys);
 
-	static void ChangeDirectory( string toDirectory );
-	static void ReturnToPreviousDirectory( );
+    static void ChangeDirectory(string toDirectory);
+    static void ReturnToPreviousDirectory();
 
     /// Rest tools class
     ClassDef(TRestTools, 1);
@@ -124,7 +128,7 @@ inline void SetInitLevel(T* name, int level) {
     struct __##classname##_Init {                                   \
         __##classname##_Init() {                                    \
             REST_ARGS[#objname] = #classname;                       \
-            if (objname != nullptr) {                                  \
+            if (objname != nullptr) {                               \
                 if (REST_InitTools::CanOverwrite(objname, level)) { \
                     delete objname;                                 \
                     objname = new classname();                      \
