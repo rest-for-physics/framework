@@ -10,6 +10,8 @@ if (NOT ${REST_EVE} MATCHES "ON")
     set(excludes TRestEveEventViewer)
 endif (NOT ${REST_EVE} MATCHES "ON")
 
+set(external_libs "${external_libs};-lcurl")
+
 COMPILEDIR(RestFramework)
 
 ADD_LIBRARY_TEST()

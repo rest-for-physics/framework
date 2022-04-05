@@ -2216,6 +2216,8 @@ TString TRestMetadata::GetSearchPath() {
 
     if (getenv("configPath")) result += getenv("configPath") + (string) ":";
     result += REST_PATH + "/data/:";
+    // We give priority to the official /data/ path.
+    result += REST_USER_PATH + ":";
     if (result.back() == ':') result.erase(result.size() - 1);
 
     return ReplaceConstants(ReplaceVariables(result));
