@@ -816,6 +816,8 @@ std::string TRestTools::DownloadRemoteFile(string url) {
             if (out == 1024) {
                 warning << "Retrying download in 5 seconds" << endl;
                 std::this_thread::sleep_for(std::chrono::seconds(5));
+            } else if (attempts < 10) {
+                success << "Download suceeded after " << 10 - attempts << " attempts" << endl;
             }
             attempts--;
         } while (out == 1024 && attempts > 0);
