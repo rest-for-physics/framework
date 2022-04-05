@@ -840,6 +840,8 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
 /// by argument, and returns the result as a string.
 ///
 std::string TRestTools::POSTRequest(const std::string& url, const std::map<std::string, std::string>& keys) {
+    std::string file_content = "";
+#ifdef USE_Curl
     CURL* curl;
     CURLcode res;
 
@@ -879,8 +881,13 @@ std::string TRestTools::POSTRequest(const std::string& url, const std::map<std::
     fclose(f);
     curl_global_cleanup();
 
-    std::string file_content = "";
     std::getline(std::ifstream(filename), file_content, '\0');
+#else
+    ferr << "TRestTools::POSTRequest. REST framework was compiled without CURL support" << endl;
+    ferr << "Please recompile REST after installing curl development libraries." << endl;
+    ferr << "Depending on your system this might be: curl-dev, curl-devel or libcurl-openssl-dev. " << endl;
+    ferr << "No file will be downloaded" << endl;
+#endif
 
     return file_content;
 }
