@@ -43,7 +43,8 @@ void TRestVolumeHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Do
     fSigmaZ.push_back((Float_t)sigmaz);
 }
 
-void TRestVolumeHits::AddHit(TVector3 pos, Double_t en, Double_t time, REST_HitType type, TVector3 sigma) {
+void TRestVolumeHits::AddHit(const TVector3& pos, Double_t en, Double_t time, REST_HitType type,
+                             const TVector3& sigma) {
     if (fType.size() > 0 && type != fType[0]) {
         cout << "Error! Cannot add different typed hits into TRestVolumeHits!" << endl;
         return;
@@ -55,7 +56,7 @@ void TRestVolumeHits::AddHit(TVector3 pos, Double_t en, Double_t time, REST_HitT
     fSigmaZ.push_back((Float_t)sigma.Z());
 }
 
-void TRestVolumeHits::AddHit(TRestVolumeHits& hits, Int_t n) {
+void TRestVolumeHits::AddHit(const TRestVolumeHits& hits, Int_t n) {
     Double_t x = hits.GetX(n);
     Double_t y = hits.GetY(n);
     Double_t z = hits.GetZ(n);
@@ -83,25 +84,25 @@ void TRestVolumeHits::RemoveHits() {
     fSigmaZ.clear();
 }
 
-Bool_t TRestVolumeHits::areXY() {
+Bool_t TRestVolumeHits::areXY() const {
     if (fType.size() == 0)
         return TMath::IsNaN(fZ[0]) && !TMath::IsNaN(fX[0]) && !TMath::IsNaN(fY[0]);
     else
         return fType[0] == XY;
 }
-Bool_t TRestVolumeHits::areXZ() {
+Bool_t TRestVolumeHits::areXZ() const {
     if (fType.size() == 0)
         return !TMath::IsNaN(fZ[0]) && !TMath::IsNaN(fX[0]) && TMath::IsNaN(fY[0]);
     else
         return fType[0] == XZ;
 }
-Bool_t TRestVolumeHits::areYZ() {
+Bool_t TRestVolumeHits::areYZ() const {
     if (fType.size() == 0)
         return !TMath::IsNaN(fZ[0]) && TMath::IsNaN(fX[0]) && !TMath::IsNaN(fY[0]);
     else
         return fType[0] == YZ;
 }
-Bool_t TRestVolumeHits::areXYZ() {
+Bool_t TRestVolumeHits::areXYZ() const {
     if (fType.size() == 0)
         return !TMath::IsNaN(fZ[0]) && !TMath::IsNaN(fX[0]) && !TMath::IsNaN(fY[0]);
     else
@@ -127,11 +128,8 @@ void TRestVolumeHits::RemoveHit(int n) {
     TRestHits::RemoveHit(n);
 
     fSigmaX.erase(fSigmaX.begin() + n);
-    ;
     fSigmaY.erase(fSigmaY.begin() + n);
-    ;
     fSigmaZ.erase(fSigmaZ.begin() + n);
-    ;
 }
 
 void TRestVolumeHits::SortByEnergy() {
