@@ -17,30 +17,30 @@
 ///_______________________________________________________________________________
 
 #include "TRestVolumeHits.h"
+
 using namespace std;
 
-ClassImp(TRestVolumeHits)
-    //______________________________________________________________________________
-    TRestVolumeHits::TRestVolumeHits() {
+ClassImp(TRestVolumeHits);
+
+TRestVolumeHits::TRestVolumeHits() {
     // TRestVolumeHits default constructor
 }
 
-//______________________________________________________________________________
 TRestVolumeHits::~TRestVolumeHits() {
     // TRestVolumeHits destructor
 }
 
 void TRestVolumeHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t time,
-                             REST_HitType type, Double_t sigmax, Double_t sigmay, Double_t sigmaz) {
+                             REST_HitType type, Double_t sigmaX, Double_t sigmaY, Double_t sigmaZ) {
     if (fType.size() > 0 && type != fType[0]) {
         cout << "Error! Cannot add different typed hits into TRestVolumeHits!" << endl;
         return;
     }
 
     TRestHits::AddHit(x, y, z, en, time, type);
-    fSigmaX.push_back((Float_t)sigmax);
-    fSigmaY.push_back((Float_t)sigmay);
-    fSigmaZ.push_back((Float_t)sigmaz);
+    fSigmaX.push_back((Float_t)sigmaX);
+    fSigmaY.push_back((Float_t)sigmaY);
+    fSigmaZ.push_back((Float_t)sigmaZ);
 }
 
 void TRestVolumeHits::AddHit(const TVector3& pos, Double_t en, Double_t time, REST_HitType type,
@@ -150,11 +150,11 @@ void TRestVolumeHits::SwapHits(Int_t i, Int_t j) {
     TRestHits::SwapHits(i, j);
 }
 
-TVector3 TRestVolumeHits::GetSigma(int n) {
+TVector3 TRestVolumeHits::GetSigma(int n) const {
     return TVector3(((Double_t)fSigmaX[n]), ((Double_t)fSigmaY[n]), ((Double_t)fSigmaZ[n]));
 }
 
-void TRestVolumeHits::PrintHits() {
+void TRestVolumeHits::PrintHits() const {
     for (int n = 0; n < GetNumberOfHits(); n++) {
         cout << "Hit " << n << " X: " << GetX(n) << " Y: " << GetY(n) << " Z: " << GetZ(n)
              << " sX: " << GetSigmaX(n) << " sY: " << GetSigmaY(n) << " sZ: " << GetSigmaZ(n)
