@@ -24,6 +24,7 @@
 #define RestCore_TRestMetadata
 
 #define TIXML_USE_STL
+
 #include <TApplication.h>
 #include <TClass.h>
 #include <TStreamerElement.h>
@@ -291,7 +292,7 @@ class TRestMetadata : public TNamed {
     /// returns the verboselevel in type of REST_Verbose_Level enumerator
     REST_Verbose_Level GetVerboseLevel() { return fVerboseLevel; }
 
-    /// returns the verboselevel in type of TString
+    /// returns the verbose level in type of TString
     TString GetVerboseLevelString();
 
     /// Gets a string with the path used for data storage
@@ -313,12 +314,12 @@ class TRestMetadata : public TNamed {
     void SetSectionName(std::string sName) { fSectionName = sName; }
     /// set config file path from external
     void SetConfigFile(std::string cfgFileName) { fConfigFileName = cfgFileName; }
-    /// Set the hoster manager for this class.
+    /// Set the host manager for this class.
     void SetHostmgr(TRestManager* m) { fHostmgr = m; }
-    /// sets the verboselevel
+    /// sets the verbose level
     void SetVerboseLevel(REST_Verbose_Level v) { fVerboseLevel = v; }
     /// overwriting the write() method with fStore considered
-    virtual Int_t Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
+    virtual Int_t Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0);
 
     ~TRestMetadata();
 
