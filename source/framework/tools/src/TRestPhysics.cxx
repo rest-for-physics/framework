@@ -87,7 +87,16 @@ TVector3 GetPlaneVectorIntersection(const TVector3& pos, const TVector3& dir, co
 /// resulting TVector3 will be the position of the particle placed at the cone surface.
 ///
 TVector3 GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, const TVector3& d,
-                                   const TVector3& v);
+                                   const TVector3& v) {
+    double cAxis[3];
+    d.GetXYZ(cAxis);
+
+    TVectorD coneAxis(3, cAxis);
+
+    TMatrixD M(3, 3);
+    M.Rank1Update(coneAxis, coneAxis);
+    return GetConeVectorIntersection(pos, dir, M, v);
+}
 
 ///////////////////////////////////////////////
 /// \brief This method will find the intersection of the trajectory defined by the vector starting at `pos`
@@ -96,7 +105,11 @@ TVector3 GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, con
 /// position of the particle placed at the cone surface.
 ///
 TVector3 GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, const TMatrixD& M,
-                                   const TVector3& v);
+                                   const TVector3& v) {
+    M.Print();
+
+    return TVector3(0, 0, 0);
+}
 
 ///////////////////////////////////////////////
 /// \brief This method transports a position `pos` by a distance `d` in the direction defined by `dir`.

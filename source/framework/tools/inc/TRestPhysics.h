@@ -26,8 +26,10 @@
 #include <iostream>
 using namespace std;
 
+#include "TMatrixD.h"
 #include "TString.h"
 #include "TVector3.h"
+#include "TVectorD.h"
 
 /// This namespace serves to define physics constants and other basic physical operations
 namespace REST_Physics {
