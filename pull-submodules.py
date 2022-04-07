@@ -20,39 +20,39 @@ debug = 0
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 
 narg = len(sys.argv)
-lfna = 0
-sjtu = 0
-latest = 0
-debug = 0
-force = 0
-dontask = 0
-clean = 0
+lfna = False
+sjtu = False
+latest = False
+debug = False
+force = False
+dontask = False
+clean = False
 fbName = ""
 
 exclude_elems = ""
 for x in range(narg - 1):
     if sys.argv[x + 1] == "--lfna":
-        lfna = 1
+        lfna = True
         print(
             "Adding submodules from lfna repositories. \nBe aware that you should add your local system public ssh to your GitLab and/or GitHub account!\nIt is usually placed at ~/.ssh/id_rsa.pub.\nIf it does not exist just create a new one using 'ssh-keygen -t rsa'.\n\nATTENTION: If a password it is requested the reason behind is no public key for this system is found at the remote repository.\nOnce you do that, only repositories where you have access rights will be pulled.\n\nIf no password is requested everything went fine!\n")
     if sys.argv[x + 1] == "--sjtu":
-        sjtu = 1
+        sjtu = True
         print("Adding submodules from sjtu repositories. You may be asked to enter password for it.")
     if sys.argv[x + 1].find("--latest") >= 0:
         print(
             "\nPulling latest submodules from their git repository, instead of the version recorded by REST. \nThis may cause the submodules to be uncompilable.\n")
-        latest = 1
+        latest = True
         if sys.argv[x + 1].find("--latest:") >= 0:
             fbName = sys.argv[x + 1][9:]
     if sys.argv[x + 1] == "--debug":
-        debug = 1
+        debug = True
     if sys.argv[x + 1] == "--dontask":
-        dontask = 1
+        dontask = True
     if sys.argv[x + 1] == "--force":
-        force = 1
+        force = True
     if sys.argv[x + 1] == "--clean":
-        force = 1
-        clean = 1
+        force = True
+        clean = True
     if sys.argv[x + 1].find("--exclude:") >= 0:
         exclude_elems = sys.argv[x + 1][10:].split(",")
 
@@ -109,8 +109,8 @@ def main():
                                     exclude = True
 
                             if (not exclude and url.find("github") != -1) or (
-                                    url.find("lfna.unizar.es") != -1 and lfna == 1) or (
-                                    url.find("gitlab.pandax.sjtu.edu.cn") != -1 and sjtu == 1):
+                                    url.find("lfna.unizar.es") != -1 and lfna) or (
+                                    url.find("gitlab.pandax.sjtu.edu.cn") != -1 and sjtu):
                                 print(fullpath.rstrip(), end='')
                                 # init
                                 p = subprocess.run('cd {} && git submodule init {}'.format(root, submodule), shell=True,
@@ -128,7 +128,7 @@ def main():
                                         print(errorOutput)
                                     continue
                                 # if 'force', override the changes with git reset
-                                if force == 1:
+                                if force:
                                     p = subprocess.run('cd {}/{} && git reset --hard'.format(root, submodule),
                                                        shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                                     if debug:
@@ -158,7 +158,7 @@ def main():
                                     continue
                                 # if latest, pull the latest commit instead of the one
                                 # recorded in the main repo
-                                if latest == 1:
+                                if latest:
                                     command = 'git ls-remote --heads ' + url + ' ' + frameworkBranchName + ' | wc -l'
                                     branchExistsPcs = subprocess.run(command, shell=True, stdout=subprocess.PIPE,
                                                                      stderr=subprocess.PIPE)
