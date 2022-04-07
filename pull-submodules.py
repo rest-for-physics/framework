@@ -113,7 +113,8 @@ def main():
                                     url.find("gitlab.pandax.sjtu.edu.cn") != -1 and sjtu):
                                 print(fullpath.rstrip(), end='')
                                 # init
-                                p = subprocess.run('cd {} && git submodule init {}'.format(root, submodule), shell=True,
+                                p = subprocess.run(f"cd {root} && git submodule init {submodule}",  #
+                                                   shell=True,
                                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                                 if debug:
                                     print(p.stdout.decode("utf-8"))
@@ -129,7 +130,7 @@ def main():
                                     continue
                                 # if 'force', override the changes with git reset
                                 if force:
-                                    p = subprocess.run('cd {}/{} && git reset --hard'.format(root, submodule),
+                                    p = subprocess.run(f"cd {root}/{submodule} && git reset --hard",  #
                                                        shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                                     if debug:
                                         print(p.stdout.decode("utf-8"))
@@ -137,12 +138,12 @@ def main():
                                     errorOutput = p.stderr.decode("utf-8")
                                     if errorOutput.find("failed") != -1 or errorOutput.find("error") != -1:
                                         print("[\033[91m Failed \x1b[0m]")
-                                        if (debug):
+                                        if debug:
                                             print("Message: ")
                                             print(errorOutput)
                                         continue
                                 # update submodule
-                                p = subprocess.run('cd {} && git submodule update {}'.format(root, submodule),
+                                p = subprocess.run(f"cd {root} && git submodule update {submodule}",  #
                                                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                                 if debug:
                                     print(p.stdout.decode("utf-8"))
@@ -159,9 +160,11 @@ def main():
                                 # if latest, pull the latest commit instead of the one
                                 # recorded in the main repo
                                 if latest:
-                                    command = 'git ls-remote --heads ' + url + ' ' + frameworkBranchName + ' | wc -l'
-                                    branchExistsPcs = subprocess.run(command, shell=True, stdout=subprocess.PIPE,
-                                                                     stderr=subprocess.PIPE)
+                                    branchExistsPcs = subprocess.run(
+                                        f"git ls-remote --heads {url} {frameworkBranchName} | wc -l",  #
+                                        shell=True,
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE)
 
                                     branchToPull = "master"
                                     if branchExistsPcs.stdout.decode("utf-8").rstrip("\n") != "0":
@@ -169,7 +172,7 @@ def main():
                                         print(" --> Pulling branch : " + branchToPull + "  ", end='')
 
                                     p = subprocess.run(
-                                        'cd {}/{} && git pull --tags origin {}'.format(root, submodule, branchToPull),
+                                        f"cd {root}/{submodule} && git pull --tags origin {branchToPull}",  #
                                         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                                     if debug:
                                         print(p.stdout.decode("utf-8"))
@@ -182,7 +185,8 @@ def main():
                                             print(errorOutput)
                                         continue
                                 # get commit id
-                                p = subprocess.run('cd {}/{} && git rev-parse HEAD'.format(root, submodule), shell=True,
+                                p = subprocess.run(f"cd {root}/{submodule} && git rev-parse HEAD",  #
+                                                   shell=True,
                                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
                                 if errorOutput.find("failed") == -1 and errorOutput.find("error") == -1:
