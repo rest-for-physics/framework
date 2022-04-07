@@ -180,7 +180,7 @@ Are you sure to proceed? (y/n)
                                         print(" --> Pulling branch : " + branchToPull + "  ", end='')
 
                                     p = subprocess.run(
-                                        f"cd {root}/{submodule} && git pull --tags origin {branchToPull}",  #
+                                        f"cd {root}/{submodule} && git checkout origin/{branchToPull} && git pull",  #
                                         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                                     if debug:
                                         print(p.stdout.decode("utf-8"))
