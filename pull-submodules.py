@@ -15,8 +15,6 @@ import os
 import sys
 import subprocess
 
-debug = 0
-
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 
 narg = len(sys.argv)
@@ -64,7 +62,10 @@ def main():
 
     if force and not dontask:
         answer = input(
-            "This will override local changes on the files. And will bring your local repository to a clean state\nAre you sure to proceed? (y/n) ")
+            """\
+This will override local changes on the files. And will bring your local repository to a clean state
+Are you sure to proceed? (y/n)
+            """)
         if answer != "y":
             sys.exit(0)
 
@@ -72,24 +73,24 @@ def main():
         print("Force pulling submodules.")
 
     if fbName == "":
-        bNamePcs = subprocess.run('git rev-parse --abbrev-ref HEAD', shell=True, stdout=subprocess.PIPE,
+        bNamePcs = subprocess.run("git rev-parse --abbrev-ref HEAD", shell=True, stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE)
         frameworkBranchName = bNamePcs.stdout.decode("utf-8").rstrip("\n")
     else:
         frameworkBranchName = fbName
 
-    print("Framework branch name: " + frameworkBranchName)
+    print(f"Framework branch name: {frameworkBranchName}")
 
     # In case the above command failed, also go through all submodules and update
     # them individually
     for root, dirs, files in os.walk(PROJECT_ROOT):
         for filename in files:
-            if filename == '.gitmodules':
+            if filename == ".gitmodules":
                 with open(os.path.join(root, filename), 'r') as gitmodules_file:
                     for line in gitmodules_file:
                         line = line.replace(' ', '')
-                        if 'path=' in line:
-                            submodule = line.replace('path=', '').strip()
+                        if "path=" in line:
+                            submodule = line.replace("path=", '').strip()
                             fullpath = os.path.join(root, submodule).replace(' ', '')
                             if fullpath.find("project") >= 0:
                                 fullpath = fullpath[fullpath.find("project"):]
@@ -100,8 +101,8 @@ def main():
                             if fullpath.find("scripts") >= 0:
                                 fullpath = fullpath[fullpath.find("scripts"):]
 
-                        if 'url=' in line:
-                            url = line.replace('url=', '').strip()
+                        if "url=" in line:
+                            url = line.replace("url=", '').strip()
 
                             exclude = False
                             for exclude_element in exclude_elems:
@@ -193,9 +194,9 @@ def main():
                                     print("[\033[92m OK \x1b[0m] (" + p.stdout.decode("utf-8")[0:7] + ")")
 
     if clean:
-        p = subprocess.run('git clean -xfd', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        p = subprocess.run('git reset --hard', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.run("git clean -xfd", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.run("git reset --hard", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
