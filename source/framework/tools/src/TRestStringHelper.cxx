@@ -212,7 +212,6 @@ std::vector<double> REST_StringHelper::StringToElements(std::string in, string h
     size_t startPos = in.find(headChar);
     size_t endPos = in.find(tailChar);
     if (startPos == string::npos || endPos == string::npos) {
-        ferr << "StringToElements wrong arguments!" << endl;
         return result;
     }
     std::vector<string> values = Split(in.substr(startPos + 1, endPos - startPos - 1), ",");
