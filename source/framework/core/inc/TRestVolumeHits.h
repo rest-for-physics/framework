@@ -46,10 +46,10 @@ class TRestVolumeHits : public TRestHits {
     void SortByEnergy();
     void SwapHits(Int_t i, Int_t j);
 
-    Bool_t areXY() const override;
-    Bool_t areXZ() const override;
-    Bool_t areYZ() const override;
-    Bool_t areXYZ() const override;
+    Bool_t areXY() const;
+    Bool_t areXZ() const;
+    Bool_t areYZ() const;
+    Bool_t areXYZ() const;
 
     // Setters
 

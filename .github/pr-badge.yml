@@ -8,7 +8,7 @@
 - label: "PR Size"
   message: "Medium: $additions"
   color: "orange"
-  when: "$additions > 100 and $additions < 201"
+  when: "$additions > 99 && $additions < 201"
 - label: "PR Size"
   message: "Ok: $additions"
   color: "green"
