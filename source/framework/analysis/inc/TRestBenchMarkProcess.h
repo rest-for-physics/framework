@@ -38,14 +38,14 @@ class TRestBenchMarkProcess : public TRestEventProcess {
 
     double fRefreshRate;  // in Hz
 
-    static thread* fMonitorThread;   //!
-    static int fMonitorFlag;         //!   //0: return, 1: run
-    static float fCPUUsageInPct;     //!
-    static float fMemUsageInMB;      //!
-    static float fReadingInMBs;      //!
-    static float fProcessSpeedInHz;  //!
-    static int fLastEventNumber;     //!
-    static ULong64_t fStartTime;     //!
+    static std::thread* fMonitorThread;  //!
+    static int fMonitorFlag;             //!   //0: return, 1: run
+    static float fCPUUsageInPct;         //!
+    static float fMemUsageInMB;          //!
+    static float fReadingInMBs;          //!
+    static float fProcessSpeedInHz;      //!
+    static int fLastEventNumber;         //!
+    static ULong64_t fStartTime;         //!
 
     void Initialize();
 

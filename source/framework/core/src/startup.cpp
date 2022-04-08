@@ -10,6 +10,8 @@
 /// global variables in libRestTools, if depend on other global variable,
 /// should be placed here for initialization.
 
+using namespace std;
+
 string REST_COMMIT;
 string REST_PATH;
 string REST_USER;

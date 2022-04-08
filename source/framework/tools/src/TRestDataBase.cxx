@@ -12,6 +12,8 @@
 #include "TSystem.h"
 #include "TUrl.h"
 
+using namespace std;
+
 //////////////////////////////////////////////////////////////////////////
 /// Interface class of REST database accessibility.
 ///

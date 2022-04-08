@@ -21,8 +21,6 @@
 #endif
 #endif  // WIN32
 
-using namespace std;
-
 //////////////////////////////////////////////////////////////////////////
 /// String identifiers for terminal colors
 #define COLOR_RESET "\033[0m"
@@ -91,10 +89,10 @@ class Console {
     static int Read();
     /// get one char from keyboard. don't need to press enter.
     static int ReadKey();
-    /// returns the whole input line in string. need to press enter.
-    static string ReadLine();
-    /// write the string to the console. doesn't append line ending mark.
-    static void WriteLine(string content);
+    /// returns the whole input line in std::string. need to press enter.
+    static std::string ReadLine();
+    /// write the std::string to the console. doesn't append line ending mark.
+    static void WriteLine(std::string content);
     /// move up cursor by n lines.
     static void CursorUp(int n);
     /// move down cursor by n lines. If hits buttom of the console, it won't keep moving
@@ -118,35 +116,35 @@ class Console {
 //////////////////////////////////////////////////////////////////////////
 /// This class serves as an end-line mark for TRestStringOutput in TRestMetadata class.
 ///
-/// It keeps a reference of the metadata class's verbose level and string buffer.
+/// It keeps a reference of the metadata class's verbose level and std::string buffer.
 /// When calling `fout<<"hello world"<<endl;` inside metadata class, this class is
 /// passed to TRestStringOutput, who compares the verbose level to dicide whether to
-/// print, and saves the printed string to metadata class's string buffer.
+/// print, and saves the printed std::string to metadata class's std::string buffer.
 class TRestMetadata;
 struct endl_t {
     endl_t(TRestMetadata* ptr) { TRestMetadataPtr = ptr; }
     TRestMetadata* TRestMetadataPtr = 0;
-    friend ostream& operator<<(ostream& a, endl_t& et) { return (a << std::endl); }
+    friend std::ostream& operator<<(std::ostream& a, endl_t& et) { return (a << std::endl); }
 };
 
 //////////////////////////////////////////////////////////////////////////
-/// This class serves as an universal string output tool, aiming at leveling,
+/// This class serves as an universal std::string output tool, aiming at leveling,
 /// rendering, and auto saving for the output message.
 ///
 /// To use this tool class in the other classes, include this header file.
 /// You will get several global output objects: fout, info, essential, debug, etc.
-/// they works similarly as cout: `fout<<"hello world"<<endl;`. It is also possible
+/// they works similarly as std::cout: `fout<<"hello world"<<endl;`. It is also possible
 /// to initialize a local TRestStringOutput object. Then one can costomize output color,
 /// border and orientation on that.
 class TRestStringOutput {
    protected:
-    string color;
-    string formatstring;
+    std::string color;
+    std::string formatstring;
     bool useborder;
     bool iserror;
     int orientation;  // 0->middle, 1->left
 
-    stringstream buf;
+    std::stringstream buf;
     int length;
 
     REST_Verbose_Level verbose;
@@ -155,17 +153,17 @@ class TRestStringOutput {
     void unlock();
 
    public:
-    string FormattingPrintString(string input);
+    std::string FormattingPrintString(std::string input);
     void resetstring();
     void flushstring();
-    void setcolor(string colordef) { color = colordef; }
-    void setheader(string headerdef) {
+    void setcolor(std::string colordef) { color = colordef; }
+    void setheader(std::string headerdef) {
         formatstring = headerdef;
         useborder = false;
     }
     void resetcolor() { color = COLOR_RESET; }
     void resetheader() { formatstring = ""; }
-    void setborder(string b) {
+    void setborder(std::string b) {
         formatstring = b;
         useborder = true;
     }
@@ -175,12 +173,12 @@ class TRestStringOutput {
     void resetorientation() { orientation = 0; }
 
     // If formatter is in mirror form(e.g., "|| ||","< >"), it will use such border
-    // to wrap the string to be displayed. otherwise the formatter is used as
+    // to wrap the std::string to be displayed. otherwise the formatter is used as
     // prefix(e.g., "-- Warning: ")
-    TRestStringOutput(string color = COLOR_RESET, string formatter = "",
+    TRestStringOutput(std::string color = COLOR_RESET, std::string formatter = "",
                       REST_Display_Orientation orientation = kLeft);
 
-    TRestStringOutput(REST_Verbose_Level v, string _color = COLOR_RESET, string formatter = "",
+    TRestStringOutput(REST_Verbose_Level v, std::string _color = COLOR_RESET, std::string formatter = "",
                       REST_Display_Orientation orientation = kLeft, bool _iserror = false)
         : TRestStringOutput(_color, formatter, orientation) {
         verbose = v;
@@ -207,9 +205,9 @@ namespace noClass {
 ///
 /// When calling `fout<<"hello world"<<endl;` outside metadata class, the pointer of
 /// method is passed to TRestStringOutput, who calls back to this method giving its
-/// reference. This logic is same as std::endl.
+/// reference. This logic is same as endl.
 inline void endl(TRestStringOutput& input) { input.flushstring(); }
-};  // namespace REST_StringOutput
+};  // namespace noClass
 using namespace noClass;
 
 /// \relates TRestStringOutput

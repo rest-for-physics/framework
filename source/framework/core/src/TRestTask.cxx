@@ -33,6 +33,8 @@
 #include "TRestReflector.h"
 #include "TRestStringHelper.h"
 
+using namespace std;
+
 ClassImp(TRestTask);
 
 ///////////////////////////////////////////////
@@ -75,7 +77,7 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
             fInvokeMethod = funcName;
             // indicates whether the argument is string/TString/const char *. If so, the value would be 1. We
             // need to add "" mark when constructing command. Otherwise the value is 0.
-            
+
             TList* list = f->GetListOfMethodArgs();
             for (int i = 0; i < list->GetSize(); i++) {
                 TMethodArg* arg = (TMethodArg*)list->At(i);
@@ -270,12 +272,12 @@ TRestTask* TRestTask::GetTaskFromMacro(TString taskName) {
                      << " loaded but method not found. Make sure it contains the method with same name as "
                         "file name"
                      << noClass::endl;
-                return NULL;
+                return nullptr;
             }
             return tsk;
         } else {
             ferr << "Task file: " << macfiles[0] << " contains error" << noClass::endl;
-            return NULL;
+            return nullptr;
         }
 
     } else {
@@ -287,7 +289,7 @@ TRestTask* TRestTask::GetTaskFromMacro(TString taskName) {
         }
     }
     ferr << "REST ERROR. Task : " << taskName << " not found!!" << noClass::endl;
-    return NULL;
+    return nullptr;
 }
 
 TRestTask* TRestTask::GetTaskFromCommand(TString cmd) {
@@ -297,7 +299,7 @@ TRestTask* TRestTask::GetTaskFromCommand(TString cmd) {
     auto tsk = new TRestTask(cmd, mode);
     if (tsk->GetMode() == TASK_ERROR) {
         delete tsk;
-        return NULL;
+        return nullptr;
     } else {
         return tsk;
     }

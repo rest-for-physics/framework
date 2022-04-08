@@ -6,6 +6,8 @@
 #include "TStreamerInfo.h"
 #include "TSystem.h"
 
+using namespace std;
+
 namespace REST_Reflection {
 ////////////////////////////////////////////////////////////////
 ///
