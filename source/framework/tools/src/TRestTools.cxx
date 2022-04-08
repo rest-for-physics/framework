@@ -223,9 +223,10 @@ int TRestTools::ReadBinaryTable(string fName, std::vector<std::vector<T>>& data,
     }
 
     std::vector<T> dataArray(columns);
+    fin.read(reinterpret_cast<char*>(&dataArray[0]), columns * sizeof(T));
     while (fin.good()) {
-        fin.read(reinterpret_cast<char*>(&dataArray[0]), columns * sizeof(T));
         data.push_back(dataArray);
+        fin.read(reinterpret_cast<char*>(&dataArray[0]), columns * sizeof(T));
     }
     return 1;
 }
