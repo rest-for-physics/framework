@@ -76,10 +76,10 @@ TVector3 GetPlaneVectorIntersection(const TVector3& pos, const TVector3& dir, TV
 
 TMatrixD GetConeMatrix(const TVector3& d, const Double_t& cosTheta);
 
-TVector3 GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, const TVector3& d,
+Double_t GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, const TVector3& d,
                                    const TVector3& v, const Double_t& cosTheta);
-TVector3 GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, const TMatrixD& M,
-                                   const TVector3& v);
+Double_t GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, const TMatrixD& M,
+                                   const TVector3& axis, const TVector3& v);
 
 Double_t DistanceToAxis(const TVector3& axisPoint, const TVector3& axisVector, const TVector3& point);
 
