@@ -54,7 +54,9 @@ class TRestTools {
     static int ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines = 0);
 
     template <typename T>
-    static int ReadBinaryTable(string fName, std::vector<std::vector<T>>& data, Int_t columns);
+    static int ReadBinaryTable(string fName, std::vector<std::vector<T>>& data, Int_t columns = -1);
+
+    static int GetBinaryFileColumns(string fname);
 
     template <typename T>
     static T GetMaxValueFromTable(const std::vector<std::vector<T>>& data, Int_t column = -1);

@@ -204,9 +204,18 @@ template int TRestTools::ExportBinaryTable<Double_t>(std::string fname,
 template <typename T>
 int TRestTools::ReadBinaryTable(string fName, std::vector<std::vector<T>>& data, Int_t columns) {
     if (!TRestTools::isValidFile((string)fName)) {
-        cout << "TRestTools::ReadBinaryTable. Error." << endl;
-        cout << "Cannot open file : " << fName << endl;
+        ferr << "TRestTools::ReadBinaryTable. Error." << endl;
+        ferr << "Cannot open file : " << fName << endl;
         return 0;
+    }
+
+    if (columns == -1) {
+        columns = GetBinaryFileColumns(fName);
+        if (columns == -1) {
+            ferr << "TRestTools::ReadBinaryTable. Format extension error." << endl;
+            ferr << "Please, specify the number of columns at the method 3rd argument" << endl;
+            return 0;
+        }
     }
 
     std::ifstream fin(fName, std::ios::binary);
@@ -237,6 +246,33 @@ template int TRestTools::ReadBinaryTable<Float_t>(string fName, std::vector<std:
                                                   Int_t columns);
 template int TRestTools::ReadBinaryTable<Double_t>(string fName, std::vector<std::vector<Double_t>>& data,
                                                    Int_t columns);
+
+int TRestTools::GetBinaryFileColumns(string fname) {
+    string extension = GetFileNameExtension(fname);
+    if (extension.find("N") != 0) {
+        ferr << "Wrong filename extension." << endl;
+        ferr << "Cannot guess the number of columns" << endl;
+        return -1;
+    }
+
+    size_t pos = extension.find("i");
+    if (pos != string::npos) {
+        return StringToInteger(extension.substr(1, pos - 1));
+    }
+
+    pos = extension.find("f");
+    if (pos != string::npos) {
+        return StringToInteger(extension.substr(1, pos - 1));
+    }
+
+    pos = extension.find("d");
+    if (pos != string::npos) {
+        return StringToInteger(extension.substr(1, pos - 1));
+    }
+
+    ferr << "Format " << ToUpper(extension) << " not recognized" << endl;
+    return -1;
+}
 
 ///////////////////////////////////////////////
 /// \brief It returns the maximum value for a particular `column` from the table given by
