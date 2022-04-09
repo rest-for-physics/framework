@@ -29,13 +29,13 @@
 //! A process to define and store quality numbers
 class TRestDataQualityProcess : public TRestEventProcess {
    private:
-    /// A vector of custom quality numbers
+    /// A std::vector of custom quality numbers
     std::vector<UInt_t> fQualityNumber;  //<
 
-    /// A vector of tag names for each quality number
+    /// A std::vector of tag names for each quality number
     std::vector<TString> fQualityTag;  //<
 
-    /// A vector with the rule definitions for each quality number
+    /// A std::vector with the rule definitions for each quality number
     std::vector<TRestDataQualityRules> fRules;  //<
 
     TRestEvent* fEvent = nullptr;  //!

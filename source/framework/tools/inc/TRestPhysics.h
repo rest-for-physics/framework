@@ -24,7 +24,6 @@
 #define __RestCore_TRestPhysics_H__
 
 #include <iostream>
-using namespace std;
 
 #include "TMatrixD.h"
 #include "TString.h"

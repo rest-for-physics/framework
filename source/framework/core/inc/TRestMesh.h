@@ -59,16 +59,16 @@ class TRestMesh : public TObject {
     /// Total number of groups found
     Int_t fNumberOfGroups = 0;
 
-    /// A vector storing the group ID of the corresponding nodes activated
+    /// A std::vector storing the group ID of the corresponding nodes activated
     std::vector<Int_t> fNodeGroupID;
-    /// A vector storing the X-dimension cell id
+    /// A std::vector storing the X-dimension cell id
     std::vector<Int_t> fNodeX;
-    /// A vector storing the Y-dimension cell id
+    /// A std::vector storing the Y-dimension cell id
     std::vector<Int_t> fNodeY;
-    /// A vector storing the Z-dimension cell id
+    /// A std::vector storing the Z-dimension cell id
     std::vector<Int_t> fNodeZ;
 
-    /// A vector storing the total energy inside the cell id
+    /// A std::vector storing the total energy inside the cell id
     std::vector<Double_t> fEnergy;
 
     /// A flag to indentify if we use cylindrical coordinates
@@ -101,7 +101,7 @@ class TRestMesh : public TObject {
     /// Returns true if the coordinate system is set to spherical
     Bool_t IsSpherical() { return fIsSpherical; }
 
-    /// Returns a node by its position in the vector
+    /// Returns a node by its position in the std::vector
     TVector3 GetNodeByIndex(Int_t index) {
         TVector3 node(fNodeX[index], fNodeY[index], fNodeZ[index]);
         return node;
@@ -160,7 +160,7 @@ class TRestMesh : public TObject {
 
     /// Returns the origin of the grid (bottom-left corner)
     TVector3 GetOrigin() { return fNetOrigin; }
-    /// Returns a vector with the size/dimensions of the bounding box
+    /// Returns a std::vector with the size/dimensions of the bounding box
     TVector3 GetNetSize() { return TVector3(fNetSizeX, fNetSizeY, fNetSizeZ); }
     TVector3 GetNetCenter();
     TVector3 GetVertex(Int_t id);

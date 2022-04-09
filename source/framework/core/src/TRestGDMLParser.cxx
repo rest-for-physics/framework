@@ -1,5 +1,7 @@
 #include "TRestGDMLParser.h"
 
+using namespace std;
+
 string TRestGDMLParser::GetEntityVersion(string name) {
     for (auto& i : entityVersion) {
         if (i.first == name) {
@@ -86,7 +88,7 @@ TGeoManager* TRestGDMLParser::CreateGeoM() {
         chdir(originDirectory);
         return geo2;
     }
-    return NULL;
+    return nullptr;
 }
 
 void TRestGDMLParser::PrintContent() { cout << filestr << endl; }

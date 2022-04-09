@@ -78,6 +78,7 @@
 #include "TRestProcessRunner.h"
 #include "TRestStringOutput.h"
 
+using namespace std;
 ClassImp(TRestMessenger);
 
 //______________________________________________________________________________
@@ -95,9 +96,9 @@ TRestMessenger::~TRestMessenger() {
 
 TRestMessenger::TRestMessenger(int token, string mode) {
     Initialize();
-    LoadConfigFromElement(StringToElement("<TRestMessenger token=\"" + ToString(token) +
-                                          "\" mode=\"" + mode + "\"/>"),
-                          NULL, {});
+    LoadConfigFromElement(
+        StringToElement("<TRestMessenger token=\"" + ToString(token) + "\" mode=\"" + mode + "\"/>"), nullptr,
+        {});
 }
 
 void TRestMessenger::Initialize() {
@@ -113,7 +114,7 @@ void TRestMessenger::Initialize() {
 //   <TRestMessenger name="Messager" title="Example" verboseLevel="info"
 //     messageSource="outputfile" token="116027" mode="auto"/>
 void TRestMessenger::InitFromConfigFile() {
-    fRun = fHostmgr != nullptr ? fHostmgr->GetRunInfo() : NULL;
+    fRun = fHostmgr != nullptr ? fHostmgr->GetRunInfo() : nullptr;
     string modestr = GetParameter("mode", "twoway");
     if (ToUpper(modestr) == "HOST") {
         fMode = MessagePool_Host;
@@ -167,13 +168,13 @@ void TRestMessenger::InitFromConfigFile() {
         }
     }
 
-    messagepool_t* message = (messagepool_t*)shmat(shmid, NULL, 0);
+    messagepool_t* message = (messagepool_t*)shmat(shmid, nullptr, 0);
     if (message == nullptr) {
         printf("shmat error\n");
         return;
     }
 
-    if ((string) this->GetName() == "defaultName") SetName(message->name);
+    if ((string)this->GetName() == "defaultName") SetName(message->name);
 
     if (created) {
         message->Reset();

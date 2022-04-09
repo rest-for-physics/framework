@@ -232,14 +232,15 @@
 ///
 
 #include "TRestMetadataPlot.h"
+
 #include "TRestManager.h"
 #include "TRestTools.h"
+
 using namespace std;
 
+#include <TGraph.h>
 #include <TLegend.h>
 #include <TStyle.h>
-
-#include <TGraph.h>
 
 #include <ctime>
 

@@ -265,14 +265,14 @@ void TRestMySQLToAnalysisProcess::PrintMetadata() {
 ///
 void TRestMySQLToAnalysisProcess::FillDBArrays() {
 #if defined USE_SQL
-    MYSQL* conn = mysql_init(NULL);
+    MYSQL* conn = mysql_init(nullptr);
     if (conn == nullptr) {
         ferr << "TRestMySQLToAnalysisProcess::InitProcess. mysql_init() failed" << endl;
         exit(1);
     }
 
     if (!mysql_real_connect(conn, fDBServerName.c_str(), fDBUserName.c_str(), fDBUserPass.c_str(),
-                            fDBName.c_str(), 0, NULL, 0)) {
+                            fDBName.c_str(), 0, nullptr, 0)) {
         ferr << "TRestMySQLToAnalysisProcess::InitProcess. Connection to DB failed!" << endl;
         ferr << mysql_error(conn) << endl;
         exit(1);

@@ -13,11 +13,12 @@
 ///_______________________________________________________________________________
 
 #include "TRestEveEventViewer.h"
+
 using namespace std;
 
-ClassImp(TRestEveEventViewer)
-    //______________________________________________________________________________
-    TRestEveEventViewer::TRestEveEventViewer() {
+ClassImp(TRestEveEventViewer);
+
+TRestEveEventViewer::TRestEveEventViewer() {
     Initialize();
     fEnergyDeposits = new TEvePointSet();
     fEnergyDeposits->SetElementName("Energy deposits");

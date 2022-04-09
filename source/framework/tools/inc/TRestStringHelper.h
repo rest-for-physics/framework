@@ -22,12 +22,10 @@
 
 #include "TRestStringOutput.h"
 
-using namespace std;
-
 /// String helper classes. Declared static to be able to have direct access to the methods
 namespace REST_StringHelper {
 
-Int_t GetChar(string hint = "Press a KEY to continue ...");
+Int_t GetChar(std::string hint = "Press a KEY to continue ...");
 Int_t isANumber(std::string in);
 Int_t isAExpression(std::string in);
 std::string ReplaceMathematicalExpressions(std::string buffer, std::string errorMessage = "");
@@ -48,33 +46,33 @@ std::vector<double> StringToElements(std::string in, string headChar, string sep
 std::string RemoveWhiteSpaces(std::string in);
 std::string Replace(std::string in, std::string thisString, std::string byThisString, size_t fromPosition = 0,
                     Int_t N = 0);
-std::string EscapeSpecialLetters(string in);
-string ToDateTimeString(time_t time);
-time_t StringToTimeStamp(string time);
-REST_Verbose_Level StringToVerboseLevel(string in);
-ULong64_t ToHash(string str);
+std::string EscapeSpecialLetters(std::string in);
+std::string ToDateTimeString(time_t time);
+time_t StringToTimeStamp(std::string time);
+REST_Verbose_Level StringToVerboseLevel(std::string in);
+ULong64_t ToHash(std::string str);
 constexpr ULong64_t ToHash(const char* str, ULong64_t last_value = 0xCBF29CE484222325ull) {
     return *str ? ToHash(str + 1, (*str ^ last_value) * 0x100000001B3ull) : last_value;
 }
 Int_t Count(std::string s, std::string sbstring);
-Int_t FindNthStringPosition(const string& in, size_t pos, const string& strToFind, size_t nth);
-Int_t DiffString(const string& source, const string& target);
+Int_t FindNthStringPosition(const std::string& in, size_t pos, const std::string& strToFind, size_t nth);
+Int_t DiffString(const std::string& source, const std::string& target);
 template <class T>
-string ToString(T source, int length = -1, char fill = ' ') {
-    stringstream ss1;
+std::string ToString(T source, int length = -1, char fill = ' ') {
+    std::stringstream ss1;
     ss1 << source;
-    string s = ss1.str();
+    std::string s = ss1.str();
     if (length < 0) {
         return s;
     } else if (s.size() < length) {
-        return s + string(length - s.size(), fill);
+        return s + std::string(length - s.size(), fill);
     } else {
         return s.substr(0, length);
     }
 }
 template <class T1, class T2>
-inline vector<T2> Vector_cast(vector<T1> vecstring) {
-    vector<T2> result;
+inline std::vector<T2> Vector_cast(std::vector<T1> vecstring) {
+    std::vector<T2> result;
     for (T1 s : vecstring) {
         result.push_back((T2)s);
     }
@@ -90,8 +88,8 @@ std::string Trim(std::string s, const char* t = " \t\n\r\f\v");
 std::string TrimAndUpper(std::string s);
 std::string TrimAndLower(std::string s);
 
-string DataMemberNameToParameterName(string name);
-string ParameterNameToDataMemberName(string name);
+std::string DataMemberNameToParameterName(std::string name);
+std::string ParameterNameToDataMemberName(std::string name);
 
 TF1* CreateTF1FromString(std::string func, double init, double end);
 
@@ -100,7 +98,7 @@ using namespace REST_StringHelper;
 
 #ifdef WIN32
 inline void setenv(const char* __name, const char* __value, int __replace);
-inline string get_current_dir_name();
+inline std::string get_current_dir_name();
 #define __PRETTY_FUNCTION__ __FUNCTION__
 #define M_PI 3.14159265358979323846
 #endif
