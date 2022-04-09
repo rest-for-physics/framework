@@ -160,7 +160,6 @@ template int TRestTools::ExportASCIITable<Double_t>(std::string fname,
                                                     std::vector<std::vector<Double_t>>& data);
 
 ///////////////////////////////////////////////
-<<<<<<< HEAD
 /// \brief Writes the contents of the vector table given as argument to `fname` as a binary file.
 /// Allowed types are Int_t, Float_t and Double_t.
 ///
@@ -189,9 +188,6 @@ template int TRestTools::ExportBinaryTable<Double_t>(std::string fname,
 
 ///////////////////////////////////////////////
 /// \brief Reads a binary file containning a fixed-columns table with values
-=======
-/// \brief Reads a binary file containing a fixed-columns table with values
->>>>>>> origin/master
 ///
 /// This method will open the file fName. This file should contain a
 /// table with numeric values of the type specified inside the syntax < >.
