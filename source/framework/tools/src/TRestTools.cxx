@@ -195,7 +195,7 @@ template int TRestTools::ExportBinaryTable<Double_t>(std::string fname,
 ///
 /// \code
 /// std::vector<std::vector <Float_t> > fvec;
-/// ReadBinaryFile( "myfile.bin", fvec, 6);
+/// ReadBinaryTable( "myfile.bin", fvec, 6);
 /// \endcode
 ///
 /// The values on the table will be loaded in the matrix provided through the
@@ -536,6 +536,20 @@ std::pair<string, string> TRestTools::SeparatePathAndName(string fullname) {
         result.second = fullname.substr(pos + 1, fullname.size() - pos - 1);
     }
     return result;
+}
+
+///////////////////////////////////////////////
+/// \brief Gets the file extension as the substring found after the lastest "."
+///
+/// Input: "/home/jgalan/abc.txt" Output: "txt"
+///
+string TRestTools::GetFileNameExtension(string fullname) {
+    int pos = fullname.find_last_of('.', -1);
+
+    if (pos != -1) {
+        return fullname.substr(pos + 1, fullname.size() - pos - 1);
+    }
+    return fullname;
 }
 
 ///////////////////////////////////////////////
