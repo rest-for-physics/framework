@@ -56,6 +56,8 @@ class TRestTools {
     template <typename T>
     static int ReadBinaryTable(std::string fName, std::vector<std::vector<T>>& data, Int_t columns = -1);
 
+    static Bool_t IsBinaryFile(std::string fname);
+
     static std::string GetFileNameExtension(std::string fullname);
 
     static int GetBinaryFileColumns(std::string fname);

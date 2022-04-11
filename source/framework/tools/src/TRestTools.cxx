@@ -248,6 +248,23 @@ template int TRestTools::ReadBinaryTable<Float_t>(string fName, std::vector<std:
 template int TRestTools::ReadBinaryTable<Double_t>(string fName, std::vector<std::vector<Double_t>>& data,
                                                    Int_t columns);
 
+///////////////////////////////////////////////
+/// \brief It identifies if the filename extension follows the formatting ".Nxyzf", where the
+/// number of columns is `xyz`, and the last character is the type of data (f/d/i), float,
+/// double and integer respectively.
+///
+Bool_t TRestTools::IsBinaryFile(string fname) {
+    if (GetBinaryFileColumns(fname) > 0) return true;
+    return false;
+}
+
+///////////////////////////////////////////////
+/// \brief It extracts the number of columns from the filename extension given by argument.
+/// The file will containing a binary formatted table with a fixed number of rows and columns.
+///
+/// The filename extension will be : ".Nxyzf", where the number of columns is `xyz`, and the
+/// last character is the type of data (f/d/i), float, double and integer respectively.
+///
 int TRestTools::GetBinaryFileColumns(string fname) {
     string extension = GetFileNameExtension(fname);
     if (extension.find("N") != 0) {
