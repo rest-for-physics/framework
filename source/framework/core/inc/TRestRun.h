@@ -77,7 +77,7 @@ class TRestRun : public TRestMetadata {
 
     void ResetEntry();
 
-    Int_t GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettree);
+    Int_t GetNextEvent(TRestEvent* targetEvent, TRestAnalysisTree* targetTree);
     void GetEntry(int i) {
         if (fAnalysisTree != nullptr) {
             fAnalysisTree->GetEntry(i);
@@ -165,9 +165,9 @@ class TRestRun : public TRestMetadata {
     std::vector<int> GetEventIdsWithConditions(const std::string&, int startingIndex = 0, int maxNumber = -1);
     TRestEvent* GetNextEventWithConditions(const std::string&);
     inline TRestEventProcess* GetFileProcess() const { return fFileProcess; }
-    std::string GetRunInformation(std::string info);
-    inline Int_t GetObservableID(std::string name) { return fAnalysisTree->GetObservableID(name); }
-    inline Bool_t ObservableExists(std::string name) { return fAnalysisTree->ObservableExists(name); }
+    std::string GetRunInformation(const std::string& info);
+    inline Int_t GetObservableID(const std::string& name) { return fAnalysisTree->GetObservableID(name); }
+    inline Bool_t ObservableExists(const std::string& name) { return fAnalysisTree->ObservableExists(name); }
     inline TString GetInputEventName() const { return fInputEvent->ClassName(); }
     inline TRestAnalysisTree* GetAnalysisTree() const { return fAnalysisTree; }
     inline TTree* GetEventTree() const { return fEventTree; }

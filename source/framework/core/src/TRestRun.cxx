@@ -1429,7 +1429,7 @@ TRestEvent* TRestRun::GetNextEventWithConditions(const string& cuts) {
     }
 }
 
-string TRestRun::GetRunInformation(string info) {
+string TRestRun::GetRunInformation(const string& info) {
     string result = GetParameter(info, "");
     if (result != "") {
         return result;
