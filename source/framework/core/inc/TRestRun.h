@@ -151,7 +151,14 @@ class TRestRun : public TRestMetadata {
     Long64_t GetTotalBytes();
     int GetEntries() const;
 
+    /// Calling `GetInputEvent()` will return a basic `TRestEvent*`
     inline TRestEvent* GetInputEvent() const { return fInputEvent; }
+    /// Calling `GetInputEvent<TRestGeant4Event>()` will return a `TRestGeant4Event*`
+    template <class T>
+    inline T* GetInputEvent() {
+        return static_cast<T*>(fInputEvent);
+    }
+
     TRestEvent* GetEventWithID(Int_t eventID, Int_t subEventID = -1, const TString& tag = "");
     std::vector<int> GetEventEntriesWithConditions(const std::string&, int startingIndex = 0,
                                                    int maxNumber = -1);
