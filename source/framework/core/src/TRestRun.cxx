@@ -1133,8 +1133,8 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
 /// The input event is by default the last branch in EventTree, by calling
 /// this method, it can be retargeted to other branches corresponding to the
 /// given event.
-void TRestRun::SetInputEvent(TRestEvent* eve) {
-    if (eve != nullptr) {
+void TRestRun::SetInputEvent(TRestEvent* event) {
+    if (event != nullptr) {
         if (fEventTree != nullptr) {
             // if (fEventBranchLoc != -1) {
             //	TBranch *br = (TBranch*)branches->At(fEventBranchLoc);
@@ -1145,31 +1145,31 @@ void TRestRun::SetInputEvent(TRestEvent* eve) {
                 fEventTree->SetBranchStatus((TString)fInputEvent->ClassName() + "Branch", false);
             }
             TObjArray* branches = fEventTree->GetListOfBranches();
-            string brname = (string)eve->ClassName() + "Branch";
+            string branchName = (string)event->ClassName() + "Branch";
             for (int i = 0; i <= branches->GetLast(); i++) {
                 TBranch* br = (TBranch*)branches->At(i);
-                if ((string)br->GetName() == brname) {
-                    debug << "Setting input event.. Type: " << eve->ClassName() << " Address: " << eve
+                if ((string)br->GetName() == branchName) {
+                    debug << "Setting input event.. Type: " << event->ClassName() << " Address: " << event
                           << endl;
                     // if (fInputEvent != nullptr && (char*)fInputEvent != (char*)eve) {
                     //    delete fInputEvent;
                     //}
 
-                    fInputEvent = eve;
-                    fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
-                    fEventTree->SetBranchStatus(brname.c_str(), false);
+                    fInputEvent = event;
+                    fEventTree->SetBranchAddress(branchName.c_str(), &fInputEvent);
+                    fEventTree->SetBranchStatus(branchName.c_str(), false);
                     fEventBranchLoc = i;
                     break;
                 } else if (i == branches->GetLast()) {
                     warning << "REST Warning : (TRestRun) cannot find corresponding "
                                "branch in event tree!"
                             << endl;
-                    warning << "Event Type : " << eve->ClassName() << endl;
+                    warning << "Event Type : " << event->ClassName() << endl;
                     warning << "Input event not set!" << endl;
                 }
             }
         } else {
-            fInputEvent = eve;
+            fInputEvent = event;
         }
     }
 }
@@ -1181,8 +1181,8 @@ void TRestRun::AddEventBranch(TRestEvent* eve) {
     if (eve != nullptr) {
         if (fEventTree != nullptr) {
             string evename = (string)eve->ClassName();
-            string brname = evename + "Branch";
-            fEventTree->Branch(brname.c_str(), eve);
+            string branchName = evename + "Branch";
+            fEventTree->Branch(branchName.c_str(), eve);
             fEventTree->SetTitle((evename + "Tree").c_str());
         }
     }
@@ -1726,7 +1726,7 @@ void TRestRun::PrintMetadata() {
              << ")" << endl;
     metadata << "End Date/Time : " << ToDateTimeString(GetEndTimestamp()) << " (" << GetEndTimestamp() << ")"
              << endl;
-    metadata << "Input file : " << TRestTools::GetPureFileName((string)GetInputFileNamepattern()) << endl;
+    metadata << "Input file : " << TRestTools::GetPureFileName((string)GetInputFileNamePattern()) << endl;
     metadata << "Output file : " << TRestTools::GetPureFileName((string)GetOutputFileName()) << endl;
     metadata << "Number of events : " << fEntriesSaved << endl;
     // metadata << "Input filename : " << fInputFilename << endl;

@@ -142,7 +142,7 @@ class TRestRun : public TRestMetadata {
     inline std::string GetInputFileName(int i) const {
         return i < fInputFileNames.size() ? (std::string)fInputFileNames[i] : "";
     }
-    inline std::string GetInputFileNamepattern() const { return fInputFileName.Data(); }
+    inline std::string GetInputFileNamePattern() const { return fInputFileName.Data(); }
     inline TString GetOutputFileName() const { return fOutputFileName; }
     inline TFile* GetInputFile() const { return fInputFile; }
     inline TFile* GetOutputFile() const { return fOutputFile; }
@@ -187,7 +187,7 @@ class TRestRun : public TRestMetadata {
     void SetExtProcess(TRestEventProcess* p);
     inline void SetCurrentEntry(int i) { fCurrentEvent = i; }
     // void AddFileTask(TRestFileTask* t) { fFileTasks.push_back(t); }
-    void SetInputEvent(TRestEvent* eve);
+    void SetInputEvent(TRestEvent* event);
     inline void SetRunNumber(Int_t number) { fRunNumber = number; }
     inline void SetParentRunNumber(Int_t number) { fParentRunNumber = number; }
     inline void SetRunType(const TString& type) {
@@ -203,9 +203,9 @@ class TRestRun : public TRestMetadata {
         fRunUser = (TString)cleanUser;
     }
     inline void SetRunDescription(const TString& description) { fRunDescription = description; }
-    inline void SetStartTimeStamp(Double_t tStamp) { fStartTime = tStamp; }
-    inline void SetEndTimeStamp(Double_t tStamp) { fEndTime = tStamp; }
-    inline void SetTotalBytes(Long64_t b) { fTotalBytes = b; }
+    inline void SetStartTimeStamp(Double_t timestamp) { fStartTime = timestamp; }
+    inline void SetEndTimeStamp(Double_t timestamp) { fEndTime = timestamp; }
+    inline void SetTotalBytes(Long64_t totalBytes) { fTotalBytes = totalBytes; }
     inline void SetHistoricMetadataSaving(bool save) { fSaveHistoricData = save; }
     inline void HangUpEndFile() { fHangUpEndFile = true; }
     inline void ReleaseEndFile() { fHangUpEndFile = false; }
