@@ -61,7 +61,7 @@ class TRestRun : public TRestMetadata {
     void InitFromConfigFile();
 
    private:
-    std::string ReplaceMetadataMember(const std::string instr);
+    std::string ReplaceMetadataMember(const std::string& instr);
 
    public:
     /// REST run class
@@ -69,9 +69,9 @@ class TRestRun : public TRestMetadata {
 
     // file operation
     void OpenInputFile(int i);
-    void OpenInputFile(TString filename, std::string mode = "");
-    void AddInputFileExternal(std::string file);
-    void ReadFileInfo(std::string filename);
+    void OpenInputFile(const TString& filename, const std::string& mode = "");
+    void AddInputFileExternal(const std::string& file);
+    void ReadFileInfo(const std::string& filename);
     void ReadInputFileMetadata();
     void ReadInputFileTrees();
 
@@ -99,7 +99,7 @@ class TRestRun : public TRestMetadata {
         GetEntry(fCurrentEvent + 1);
     }
 
-    TString FormFormat(TString FilenameFormat);
+    TString FormFormat(const TString& FilenameFormat);
     TFile* MergeToOutputFile(std::vector<std::string> filefullnames, std::string outputfilename = "");
     TFile* FormOutputFile();
     TFile* UpdateOutputFile();
@@ -113,7 +113,7 @@ class TRestRun : public TRestMetadata {
 
     void CloseFile();
 
-    void ImportMetadata(TString rootFile, TString name, TString type, Bool_t store);
+    void ImportMetadata(const TString& rootFile, const TString& name, const TString& type, Bool_t store);
 
     /// add metadata object to the metadata list
     inline void AddMetadata(TRestMetadata* meta) {
@@ -152,7 +152,7 @@ class TRestRun : public TRestMetadata {
     int GetEntries() const;
 
     inline TRestEvent* GetInputEvent() const { return fInputEvent; }
-    TRestEvent* GetEventWithID(Int_t eventID, Int_t subEventID = -1, TString tag = "");
+    TRestEvent* GetEventWithID(Int_t eventID, Int_t subEventID = -1, const TString& tag = "");
     std::vector<int> GetEventEntriesWithConditions(const std::string&, int startingIndex = 0,
                                                    int maxNumber = -1);
     std::vector<int> GetEventIdsWithConditions(const std::string&, int startingIndex = 0, int maxNumber = -1);
@@ -166,14 +166,14 @@ class TRestRun : public TRestMetadata {
     inline TTree* GetEventTree() const { return fEventTree; }
     inline Int_t GetInputFileNumber() const { return fFileProcess == nullptr ? fInputFileNames.size() : 1; }
 
-    TRestMetadata* GetMetadata(TString name, TFile* f = nullptr);
-    TRestMetadata* GetMetadataClass(TString type, TFile* f = nullptr);
+    TRestMetadata* GetMetadata(const TString& name, TFile* f = nullptr);
+    TRestMetadata* GetMetadataClass(const TString& type, TFile* f = nullptr);
     std::vector<std::string> GetMetadataStructureNames();
     std::vector<std::string> GetMetadataStructureTitles();
     inline int GetNumberOfMetadataStructures() const { return fMetadata.size(); }
 
     inline std::string GetMetadataMember(const std::string& instr) { return ReplaceMetadataMember(instr); }
-    std::string ReplaceMetadataMembers(std::string instr);
+    std::string ReplaceMetadataMembers(const std::string& instr);
 
     Bool_t EvaluateMetadataMember(const std::string& instr);
 
