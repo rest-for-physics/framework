@@ -1248,8 +1248,10 @@ Int_t TRestRun::Write(const char* name, Int_t option, Int_t bufsize) {
     return TRestMetadata::Write(name, option, bufsize);
 }
 
-Double_t TRestRun::GetRunLength() {
-    if (fEndTime - fStartTime == -1) cout << "Run time is not set" << endl;
+Double_t TRestRun::GetRunLength() const {
+    if (fEndTime - fStartTime == -1) {
+        cout << "Run time is not set\n";
+    }
     return fEndTime - fStartTime;
 }
 
@@ -1260,7 +1262,7 @@ Long64_t TRestRun::GetTotalBytes() {
     return fTotalBytes;
 }
 
-int TRestRun::GetEntries() {
+int TRestRun::GetEntries() const {
     if (fAnalysisTree != nullptr) {
         return fAnalysisTree->GetEntries();
     }
