@@ -348,7 +348,7 @@ void TRestRun::OpenInputFile(int i) {
 /// 2. update its class's data(version, tag, user, etc.) to the same as the one stored in the input file.
 /// 3. link the input event and observables to the corresponding tree
 ///
-void TRestRun::OpenInputFile(TString filename, string mode) {
+void TRestRun::OpenInputFile(const TString& filename, const string& mode) {
     CloseFile();
     if (!filename.Contains("http") && !TRestTools::fileExists((string)filename)) {
         ferr << "input file \"" << filename << "\" does not exist!" << endl;
@@ -460,11 +460,11 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
         info << "Input file is not REST root file, an external process is needed!" << endl;
 }
 
-void TRestRun::AddInputFileExternal(string file) {
+void TRestRun::AddInputFileExternal(const string& file) {
     mutex2.lock();
     if (fFileProcess != nullptr) {
         bool add = fFileProcess->AddInputFile(file);
-        if (add == false) {
+        if (!add) {
             ferr << "failed to add input file!" << endl;
         }
         fInputFileNames.push_back(file);
@@ -609,7 +609,7 @@ void TRestRun::ReadInputFileTrees() {
 /// 1. matched file name formats
 /// 2. Created time and date
 /// 3. File size and entries
-void TRestRun::ReadFileInfo(string filename) {
+void TRestRun::ReadFileInfo(const string& filename) {
     debug << "begin collecting basic file info..." << filename << endl;
 
     // basic file info: modify time, total bytes, etc.
@@ -841,7 +841,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 /// \code Run[fRunNumber]_Proc_[LastProcess].root \endcode
 /// and generates:
 /// \code Run00000_T2018-01-01_08:00:00_Proc_sAna.root \endcode
-TString TRestRun::FormFormat(TString FilenameFormat) {
+TString TRestRun::FormFormat(const TString& FilenameFormat) {
     string inString = (string)FilenameFormat;
     string outString = (string)FilenameFormat;
 
@@ -1133,8 +1133,8 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
 /// The input event is by default the last branch in EventTree, by calling
 /// this method, it can be retargeted to other branches corresponding to the
 /// given event.
-void TRestRun::SetInputEvent(TRestEvent* eve) {
-    if (eve != nullptr) {
+void TRestRun::SetInputEvent(TRestEvent* event) {
+    if (event != nullptr) {
         if (fEventTree != nullptr) {
             // if (fEventBranchLoc != -1) {
             //	TBranch *br = (TBranch*)branches->At(fEventBranchLoc);
@@ -1145,31 +1145,31 @@ void TRestRun::SetInputEvent(TRestEvent* eve) {
                 fEventTree->SetBranchStatus((TString)fInputEvent->ClassName() + "Branch", false);
             }
             TObjArray* branches = fEventTree->GetListOfBranches();
-            string brname = (string)eve->ClassName() + "Branch";
+            string branchName = (string)event->ClassName() + "Branch";
             for (int i = 0; i <= branches->GetLast(); i++) {
                 TBranch* br = (TBranch*)branches->At(i);
-                if ((string)br->GetName() == brname) {
-                    debug << "Setting input event.. Type: " << eve->ClassName() << " Address: " << eve
+                if ((string)br->GetName() == branchName) {
+                    debug << "Setting input event.. Type: " << event->ClassName() << " Address: " << event
                           << endl;
                     // if (fInputEvent != nullptr && (char*)fInputEvent != (char*)eve) {
                     //    delete fInputEvent;
                     //}
 
-                    fInputEvent = eve;
-                    fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
-                    fEventTree->SetBranchStatus(brname.c_str(), false);
+                    fInputEvent = event;
+                    fEventTree->SetBranchAddress(branchName.c_str(), &fInputEvent);
+                    fEventTree->SetBranchStatus(branchName.c_str(), false);
                     fEventBranchLoc = i;
                     break;
                 } else if (i == branches->GetLast()) {
                     warning << "REST Warning : (TRestRun) cannot find corresponding "
                                "branch in event tree!"
                             << endl;
-                    warning << "Event Type : " << eve->ClassName() << endl;
+                    warning << "Event Type : " << event->ClassName() << endl;
                     warning << "Input event not set!" << endl;
                 }
             }
         } else {
-            fInputEvent = eve;
+            fInputEvent = event;
         }
     }
 }
@@ -1181,8 +1181,8 @@ void TRestRun::AddEventBranch(TRestEvent* eve) {
     if (eve != nullptr) {
         if (fEventTree != nullptr) {
             string evename = (string)eve->ClassName();
-            string brname = evename + "Branch";
-            fEventTree->Branch(brname.c_str(), eve);
+            string branchName = evename + "Branch";
+            fEventTree->Branch(branchName.c_str(), eve);
             fEventTree->SetTitle((evename + "Tree").c_str());
         }
     }
@@ -1193,21 +1193,20 @@ void TRestRun::AddEventBranch(TRestEvent* eve) {
 ///
 /// The metadata class can be recovered to the same condition as when it is
 /// saved.
-void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t store) {
-    auto fileold = File;
-    File = SearchFile(File.Data());
-    if (File == "") {
-        ferr << "(ImportMetadata): The file " << fileold << " does not exist!" << endl;
+void TRestRun::ImportMetadata(const TString& File, const TString& name, const TString& type, Bool_t store) {
+    const TString thisFile = SearchFile(File.Data());
+    if (thisFile == "") {
+        ferr << "(ImportMetadata): The file " << thisFile << " does not exist!" << endl;
         ferr << endl;
         return;
     }
-    if (!TRestTools::isRootFile(File.Data())) {
-        ferr << "(ImportMetadata) : The file " << File << " is not root file!" << endl;
+    if (!TRestTools::isRootFile(thisFile.Data())) {
+        ferr << "(ImportMetadata) : The file " << thisFile << " is not root file!" << endl;
         ferr << "If you want to initialize metadata from rml file, use <TRest section!" << endl;
         return;
     }
 
-    TFile* f = new TFile(File);
+    TFile* f = new TFile(thisFile);
     // TODO give error in case we try to obtain a class that is not TRestMetadata
     if (type == "" && name == "") {
         ferr << "(ImportMetadata) : metadata type and name is not "
@@ -1248,8 +1247,10 @@ Int_t TRestRun::Write(const char* name, Int_t option, Int_t bufsize) {
     return TRestMetadata::Write(name, option, bufsize);
 }
 
-Double_t TRestRun::GetRunLength() {
-    if (fEndTime - fStartTime == -1) cout << "Run time is not set" << endl;
+Double_t TRestRun::GetRunLength() const {
+    if (fEndTime - fStartTime == -1) {
+        cout << "Run time is not set\n";
+    }
     return fEndTime - fStartTime;
 }
 
@@ -1260,7 +1261,7 @@ Long64_t TRestRun::GetTotalBytes() {
     return fTotalBytes;
 }
 
-int TRestRun::GetEntries() {
+int TRestRun::GetEntries() const {
     if (fAnalysisTree != nullptr) {
         return fAnalysisTree->GetEntries();
     }
@@ -1268,7 +1269,7 @@ int TRestRun::GetEntries() {
 }
 
 // Getters
-TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString tag) {
+TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, const TString& tag) {
     if (fAnalysisTree != nullptr) {
         int nentries = fAnalysisTree->GetEntries();
 
@@ -1428,7 +1429,7 @@ TRestEvent* TRestRun::GetNextEventWithConditions(const string& cuts) {
     }
 }
 
-string TRestRun::GetRunInformation(string info) {
+string TRestRun::GetRunInformation(const string& info) {
     string result = GetParameter(info, "");
     if (result != "") {
         return result;
@@ -1454,7 +1455,7 @@ string TRestRun::GetRunInformation(string info) {
     return info;
 }
 
-TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
+TRestMetadata* TRestRun::GetMetadataClass(const TString& type, TFile* f) {
     if (f != nullptr) {
         TIter nextkey(f->GetListOfKeys());
         TKey* key;
@@ -1486,7 +1487,7 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
     return nullptr;
 }
 
-TRestMetadata* TRestRun::GetMetadata(TString name, TFile* f) {
+TRestMetadata* TRestRun::GetMetadata(const TString& name, TFile* f) {
     if (f != nullptr) {
         TIter nextkey(f->GetListOfKeys());
         TKey* key;
@@ -1539,7 +1540,7 @@ std::vector<std::string> TRestRun::GetMetadataStructureTitles() {
 ///
 /// \return The string with data members replaced
 ///
-string TRestRun::ReplaceMetadataMembers(const string instr) {
+string TRestRun::ReplaceMetadataMembers(const string& instr) {
     if (instr.find("[", 0) == (int)string::npos) return instr;
     string outstring = instr;
 
@@ -1590,7 +1591,7 @@ string TRestRun::ReplaceMetadataMembers(const string instr) {
 ///
 /// \return The corresponding class data member value in string format.
 ///
-string TRestRun::ReplaceMetadataMember(const string instr) {
+string TRestRun::ReplaceMetadataMember(const string& instr) {
     if (instr.find("::") == string::npos && instr.find("->") == string::npos) {
         return "<<" + instr + ">>";
     }
@@ -1724,7 +1725,7 @@ void TRestRun::PrintMetadata() {
              << ")" << endl;
     metadata << "End Date/Time : " << ToDateTimeString(GetEndTimestamp()) << " (" << GetEndTimestamp() << ")"
              << endl;
-    metadata << "Input file : " << TRestTools::GetPureFileName((string)GetInputFileNamepattern()) << endl;
+    metadata << "Input file : " << TRestTools::GetPureFileName((string)GetInputFileNamePattern()) << endl;
     metadata << "Output file : " << TRestTools::GetPureFileName((string)GetOutputFileName()) << endl;
     metadata << "Number of events : " << fEntriesSaved << endl;
     // metadata << "Input filename : " << fInputFilename << endl;
