@@ -268,8 +268,6 @@ Bool_t TRestTools::IsBinaryFile(string fname) {
 int TRestTools::GetBinaryFileColumns(string fname) {
     string extension = GetFileNameExtension(fname);
     if (extension.find("N") != 0) {
-        ferr << "Wrong filename extension." << endl;
-        ferr << "Cannot guess the number of columns" << endl;
         return -1;
     }
 
@@ -603,6 +601,22 @@ string TRestTools::GetFileNameExtension(string fullname) {
     if (pos != -1) {
         return fullname.substr(pos + 1, fullname.size() - pos - 1);
     }
+    return fullname;
+}
+
+///////////////////////////////////////////////
+/// \brief Gets the filename root as the substring found before the lastest "."
+///
+/// Input: "/home/jgalan/abc.txt" Output: "abc"
+///
+string TRestTools::GetFileNameRoot(string fullname) {
+    int pos1 = fullname.find_last_of('/', -1);
+    int pos2 = fullname.find_last_of('.', -1);
+
+    if (pos1 != string::npos && pos2 != string::npos) return fullname.substr(pos1 + 1, pos2 - pos1 - 1);
+
+    if (pos1 == string::npos && pos2 != string::npos) return fullname.substr(0, pos2);
+
     return fullname;
 }
 

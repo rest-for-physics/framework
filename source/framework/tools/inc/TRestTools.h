@@ -59,6 +59,7 @@ class TRestTools {
     static Bool_t IsBinaryFile(std::string fname);
 
     static std::string GetFileNameExtension(std::string fullname);
+    static std::string GetFileNameRoot(std::string fullname);
 
     static int GetBinaryFileColumns(std::string fname);
 
