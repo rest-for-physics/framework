@@ -43,6 +43,7 @@
 ///
 #include "TRestTools.h"
 
+#include <curl/curl.h>
 #include <dirent.h>
 
 #include <chrono>
@@ -57,7 +58,7 @@
 #include "TSystem.h"
 #include "TUrl.h"
 
-#include <curl/curl.h>
+using namespace std;
 
 ClassImp(TRestTools);
 
@@ -159,7 +160,7 @@ template int TRestTools::ExportASCIITable<Double_t>(std::string fname,
                                                     std::vector<std::vector<Double_t>>& data);
 
 ///////////////////////////////////////////////
-/// \brief Reads a binary file containning a fixed-columns table with values
+/// \brief Reads a binary file containing a fixed-columns table with values
 ///
 /// This method will open the file fName. This file should contain a
 /// table with numeric values of the type specified inside the syntax < >.
@@ -287,10 +288,10 @@ template Double_t TRestTools::GetLowestIncreaseFromTable<Double_t>(std::vector<s
                                                                    Int_t column);
 
 ///////////////////////////////////////////////
-/// \brief Reads an ASCII file containning a table with values
+/// \brief Reads an ASCII file containing a table with values
 ///
 /// This method will open the file fName. This file should contain a tabulated
-/// ASCII table containning numeric values. The values on the table will be
+/// ASCII table containing numeric values. The values on the table will be
 /// loaded in the matrix provided through the argument `data`. The content of
 /// `data` will be cleared in this method.
 ///
@@ -323,8 +324,7 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
         }
     }
 
-    // Filling the double values table (TODO error handling in case ToDouble
-    // conversion fails)
+    // Filling the double values table (TODO error handling in case ToDouble conversion fails)
     for (int n = 0; n < values.size(); n++) {
         std::vector<Double_t> dblTmp;
         dblTmp.clear();
@@ -338,10 +338,10 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
 }
 
 ///////////////////////////////////////////////
-/// \brief Reads an ASCII file containning a table with values
+/// \brief Reads an ASCII file containing a table with values
 ///
 /// This method will open the file fName. This file should contain a tabulated
-/// ASCII table containning numeric values. The values on the table will be
+/// ASCII table containing numeric values. The values on the table will be
 /// loaded in the matrix provided through the argument `data`. The content of
 /// `data` will be cleared in this method.
 ///
@@ -422,8 +422,9 @@ bool TRestTools::isRootFile(const string& filename) {
 /// \brief Returns true if **filename** is an *http* address.
 ///
 bool TRestTools::isURL(const string& filename) {
-    if (filename.find("http") == 0) return true;
-
+    if (filename.find("http") == 0) {
+        return true;
+    }
     return false;
 }
 
@@ -511,9 +512,9 @@ string TRestTools::RemoveMultipleSlash(string str) {
 /// Input: "/home/nkx/abc.txt", Returns: "abc.txt"
 /// Input: "/home/nkx/", Output: ""
 ///
-string TRestTools::GetPureFileName(string fullpathFileName) {
-    fullpathFileName = RemoveMultipleSlash(fullpathFileName);
-    return SeparatePathAndName(fullpathFileName).second;
+string TRestTools::GetPureFileName(string fullPathFileName) {
+    fullPathFileName = RemoveMultipleSlash(fullPathFileName);
+    return SeparatePathAndName(fullPathFileName).second;
 }
 
 ///////////////////////////////////////////////
@@ -606,9 +607,9 @@ string TRestTools::SearchFileInPath(vector<string> paths, string filename) {
 /// \brief Checks if the config file can be openned. It returns OK in case of
 /// success, ERROR otherwise.
 ///
-Int_t TRestTools::ChecktheFile(string FileName) {
+Int_t TRestTools::CheckTheFile(std::string cfgFileName) {
     ifstream ifs;
-    ifs.open(FileName.c_str());
+    ifs.open(cfgFileName.c_str());
 
     if (!ifs) {
         return -1;
@@ -898,15 +899,15 @@ std::string TRestTools::POSTRequest(const std::string& url, const std::map<std::
 /// Example: UploadToServer("/home/nkx/abc.txt", "https://sultan.unizar.es/gasFiles/gases.rml",
 /// "ssh://nkx:M123456@:8322") Then, the local file abc.txt will be uploaded to the server,
 /// renamed to gases.rml and overwrite it
-int TRestTools::UploadToServer(string filelocal, string remotefile, string methodurl) {
-    if (!TRestTools::fileExists(filelocal)) {
+int TRestTools::UploadToServer(string localFile, string remoteFile, string methodUrl) {
+    if (!TRestTools::fileExists(localFile)) {
         cout << "error! local file not exist!" << endl;
         return -1;
     }
     // construct path
     // [proto://][user[:passwd]@]host[:port]/file.ext[#anchor][?options]
-    TUrl url(remotefile.c_str());
-    TUrl method(methodurl.c_str());
+    TUrl url(remoteFile.c_str());
+    TUrl method(methodUrl.c_str());
     if (method.GetProtocol() != (string) "") url.SetProtocol(method.GetProtocol());
     if (method.GetPort() != 0) url.SetPort(method.GetPort());
     if (method.GetUser() != (string) "") url.SetUser(method.GetUser());
@@ -916,7 +917,7 @@ int TRestTools::UploadToServer(string filelocal, string remotefile, string metho
         // maybe we use curl to upload to http in future
     } else if ((string)url.GetProtocol() == "ssh") {
         string cmd = "scp -P " + ToString(url.GetPort() == 0 ? 22 : url.GetPort()) + " " +
-                     EscapeSpecialLetters(filelocal) + " " + url.GetUser() + "@" + url.GetHost() + ":" +
+                     EscapeSpecialLetters(localFile) + " " + url.GetUser() + "@" + url.GetHost() + ":" +
                      EscapeSpecialLetters(url.GetFile());
         cout << cmd << endl;
         int a = system(cmd.c_str());

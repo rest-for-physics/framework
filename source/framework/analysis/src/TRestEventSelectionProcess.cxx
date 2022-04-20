@@ -23,17 +23,17 @@
 //////////////////////////////////////////////////////////////////////////
 /// The TRestEventSelectionProcess allows procesing of selected events only.
 ///
-/// There are two ways of selecting events: 
+/// There are two ways of selecting events:
 ///
 /// * Providing a txt file with the IDs of the events to be processed (fileWithIDs).
-/// It reads the list, if an event is not in the list it returns NULL, 
+/// It reads the list, if an event is not in the list it returns NULL,
 /// ends the processing and continues with the next event.
 ///
 /// * Providing a root file (fileWithIDs) and the conditions to select the events (conditions).
-/// Only events that satisfy the conditions will be processed. 
+/// Only events that satisfy the conditions will be processed.
 ///
 /// Examples for rml files:
-/// <addProcess type="TRestEventSelectionProcess" name="evSelection" fileWithIDs="/path/to/file/IDs.txt" 
+/// <addProcess type="TRestEventSelectionProcess" name="evSelection" fileWithIDs="/path/to/file/IDs.txt"
 /// value="ON"  verboseLevel="info"/>
 ///
 /// <addProcess type="TRestEventSelectionProcess" name="evSelection" fileWithIDs="/path/to/file/File.root"
@@ -75,6 +75,7 @@
 
 #include "TRestEventSelectionProcess.h"
 
+using namespace std;
 ClassImp(TRestEventSelectionProcess);
 
 ///////////////////////////////////////////////
@@ -100,22 +101,21 @@ void TRestEventSelectionProcess::Initialize() {
 ///
 ///
 void TRestEventSelectionProcess::InitProcess() {
-
-    if (fFileWithIDs.substr(fFileWithIDs.length() - 4)==".txt"){
+    if (fFileWithIDs.substr(fFileWithIDs.length() - 4) == ".txt") {
         string line;
         ifstream File(fFileWithIDs);
-        
-        if (File.is_open()){
-          while ( getline(File,line) ){
-            fList.push_back(stoi(line));
-          }
-          File.close();
+
+        if (File.is_open()) {
+            while (getline(File, line)) {
+                fList.push_back(stoi(line));
+            }
+            File.close();
         }
     }
-    
-    else if(fFileWithIDs.substr(fFileWithIDs.length() - 4)=="root"){
-        TRestRun* run = new TRestRun(fFileWithIDs);        
-        fList = run->GetEventIdsWithConditions(fConditions);      
+
+    else if (fFileWithIDs.substr(fFileWithIDs.length() - 4) == "root") {
+        TRestRun* run = new TRestRun(fFileWithIDs);
+        fList = run->GetEventIdsWithConditions(fConditions);
         delete run;
     }
 }
@@ -126,11 +126,13 @@ void TRestEventSelectionProcess::InitProcess() {
 TRestEvent* TRestEventSelectionProcess::ProcessEvent(TRestEvent* eventInput) {
     fEvent = eventInput;
 
-    for(int i=0; i < fList.size(); i++){
-        if(fList[i] == fEvent->GetID()){return fEvent;}
+    for (int i = 0; i < fList.size(); i++) {
+        if (fList[i] == fEvent->GetID()) {
+            return fEvent;
+        }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 ///////////////////////////////////////////////
@@ -140,7 +142,7 @@ void TRestEventSelectionProcess::PrintMetadata() {
     BeginPrintProcess();
 
     metadata << "File with IDs: " << fFileWithIDs << endl;
-    if(fFileWithIDs.substr(fFileWithIDs.length() - 4)=="root"){
+    if (fFileWithIDs.substr(fFileWithIDs.length() - 4) == "root") {
         metadata << "Conditions: " << fConditions << endl;
     }
 

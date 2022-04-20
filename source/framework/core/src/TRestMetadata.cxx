@@ -599,7 +599,7 @@ Int_t TRestMetadata::LoadConfigFromElement(TiXmlElement* eSectional, TiXmlElemen
         return 0;
     }
     fElement = theElement;
-    fElementGlobal = eGlobal ? (TiXmlElement*)eGlobal->Clone() : NULL;
+    fElementGlobal = eGlobal ? (TiXmlElement*)eGlobal->Clone() : nullptr;
     fVariables = envs;
 
     int result = LoadSectionMetadata();
@@ -681,7 +681,7 @@ Int_t TRestMetadata::LoadSectionMetadata() {
 /// ReplaceMathematicalExpressions() in sequence. "name" attribute won't be
 /// replaced by constants to avoid conflict.
 TiXmlElement* TRestMetadata::ReplaceElementAttributes(TiXmlElement* e) {
-    if (e == nullptr) return NULL;
+    if (e == nullptr) return nullptr;
 
     debug << "Entering ... TRestMetadata::ReplaceElementAttributes" << endl;
 
@@ -1554,7 +1554,7 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
         rootele = rootele->NextSiblingElement();
     }
 
-    return NULL;
+    return nullptr;
     /*ferr << "Cannot find xml element with name \""<< NameOrDecalre <<"\" in rml
     file \"" << cfgFileName << endl; GetChar(); exit(1);*/
 }
@@ -1572,7 +1572,7 @@ TiXmlElement* TRestMetadata::GetElement(std::string eleDeclare, TiXmlElement* e)
 /// \brief Get the next sibling xml element of this element, with same eleDeclare
 ///
 TiXmlElement* TRestMetadata::GetNextElement(TiXmlElement* e) {
-    if (e == nullptr) return NULL;
+    if (e == nullptr) return nullptr;
     return e->NextSiblingElement(e->Value());
 }
 
@@ -1590,7 +1590,7 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
 ///
 TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::string eleName,
                                                 TiXmlElement* e) {
-    if (e == nullptr) return NULL;
+    if (e == nullptr) return nullptr;
     if (eleDeclare == "")  // find only with name
     {
         TiXmlElement* ele = e->FirstChildElement();
@@ -1613,7 +1613,7 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
         return ele;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 ///////////////////////////////////////////////
@@ -1690,7 +1690,7 @@ pair<string, string> TRestMetadata::GetParameterAndUnits(string parName, TiXmlEl
 TiXmlElement* TRestMetadata::StringToElement(string definition) {
     TiXmlElement* ele = new TiXmlElement("temp");
     // TiXmlDocument*doc = new TiXmlDocument();
-    ele->Parse(definition.c_str(), NULL, TIXML_ENCODING_UTF8);
+    ele->Parse(definition.c_str(), nullptr, TIXML_ENCODING_UTF8);
     return ele;
 }
 
@@ -1852,7 +1852,7 @@ string TRestMetadata::GetKEYDefinition(string keyName, size_t& fromPosition, str
 string TRestMetadata::FieldNamesToUpper(string definition) {
     string result = definition;
     TiXmlElement* e = StringToElement(definition);
-    if (e == nullptr) return NULL;
+    if (e == nullptr) return nullptr;
 
     TiXmlAttribute* attr = e->FirstAttribute();
     while (attr != nullptr) {

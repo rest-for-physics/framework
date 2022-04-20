@@ -58,7 +58,9 @@
 ///
 
 #include "TRestMesh.h"
+
 #include "TRestPhysics.h"
+
 using namespace std;
 using namespace TMath;
 
@@ -872,10 +874,10 @@ std::vector<TVector3> TRestMesh::GetTrackBoundariesCylinder(TVector3 pos, TVecto
 ///
 void TRestMesh::Print() {
     std::cout << "Mesh. Number of nodes : " << GetNumberOfNodes()
-              << " Number of groups : " << GetNumberOfGroups() << std::endl;
-    std::cout << "---------------------------------------------" << std::endl;
+              << " Number of groups : " << GetNumberOfGroups() << endl;
+    std::cout << "---------------------------------------------" << endl;
     for (int i = 0; i < GetNumberOfNodes(); i++)
         std::cout << "Group : " << fNodeGroupID[i] << " X : " << fNodeX[i] << " Y : " << fNodeY[i]
-                  << " Z : " << fNodeZ[i] << std::endl;
-    std::cout << "---------------------------------------------" << std::endl;
+                  << " Z : " << fNodeZ[i] << endl;
+    std::cout << "---------------------------------------------" << endl;
 }

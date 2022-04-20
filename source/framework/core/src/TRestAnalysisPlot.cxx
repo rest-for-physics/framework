@@ -23,7 +23,7 @@
 using namespace std;
 
 ClassImp(TRestAnalysisPlot);
-//______________________________________________________________________________
+
 TRestAnalysisPlot::TRestAnalysisPlot() { Initialize(); }
 
 TRestAnalysisPlot::TRestAnalysisPlot(const char* cfgFileName, const char* name) : TRestMetadata(cfgFileName) {
@@ -551,7 +551,7 @@ Int_t TRestAnalysisPlot::GetPlotIndex(TString plotName) {
 }
 
 TRestAnalysisTree* TRestAnalysisPlot::GetTree(TString fileName) {
-    if (fRun->GetInputFile() != NULL && fRun->GetInputFile()->GetName() == fileName){
+    if (fRun->GetInputFile() != nullptr && fRun->GetInputFile()->GetName() == fileName) {
         // this means the file is already opened by TRestRun
         return fRun->GetAnalysisTree();
     }
@@ -570,7 +570,7 @@ TRestAnalysisTree* TRestAnalysisPlot::GetTree(TString fileName) {
 
 TRestRun* TRestAnalysisPlot::GetRunInfo(TString fileName) {
     // in any case we directly return fRun. No need to reopen the given file
-    if (fRun->GetInputFile() != NULL && fRun->GetInputFile()->GetName() == fileName){
+    if (fRun->GetInputFile() != nullptr && fRun->GetInputFile()->GetName() == fileName) {
         return fRun;
     }
     if (fileName == fRun->GetOutputFileName() && fRun->GetOutputFile() != nullptr) {

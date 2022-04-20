@@ -1,5 +1,8 @@
 #include "TRestStringOutput.h"
+
 #include "TRestStringHelper.h"
+
+using namespace std;
 
 bool Console::CompatibilityMode = false;
 
@@ -176,7 +179,6 @@ char mirrorchar(char c) {
     }
 }
 
-
 #define TRestStringOutput_BestLength 100
 TRestStringOutput::TRestStringOutput(string _color, string formatter, REST_Display_Orientation _orientation) {
     iserror = false;
@@ -196,7 +198,7 @@ TRestStringOutput::TRestStringOutput(string _color, string formatter, REST_Displ
     if (formatter[formatter.size() / 2] != ' ') {
         useborder = false;
     }
-    
+
     if (useborder) {
         formatstring = formatter.substr(0, formatter.size() / 2);
         formatstring = Replace(formatstring, " ", "");
@@ -216,8 +218,8 @@ TRestStringOutput::TRestStringOutput(string _color, string formatter, REST_Displ
 }
 
 void TRestStringOutput::resetstring() {
-    buf.clear(); 
-    buf.str(""); 
+    buf.clear();
+    buf.str("");
 }
 
 string TRestStringOutput::FormattingPrintString(string input) {
@@ -284,7 +286,7 @@ void TRestStringOutput::setlength(int n) {
 void TRestStringOutput::flushstring() {
     if (Console::CompatibilityMode)  // this means we are using condor
     {
-        std::cout << buf.str() << std::endl;
+        std::cout << buf.str() << endl;
     } else {
         printf("\033[K");
         if (orientation == kMiddle) {
@@ -293,9 +295,9 @@ void TRestStringOutput::flushstring() {
             int blankwidth = (Console::GetWidth() - 2 - length) / 2;
 
             std::cout << color << string(blankwidth, ' ') << FormattingPrintString(buf.str())
-                      << string(blankwidth, ' ') << COLOR_RESET << std::endl;
+                      << string(blankwidth, ' ') << COLOR_RESET << endl;
         } else {
-            std::cout << color << FormattingPrintString(buf.str()) << COLOR_RESET << std::endl;
+            std::cout << color << FormattingPrintString(buf.str()) << COLOR_RESET << endl;
         }
     }
     resetstring();
