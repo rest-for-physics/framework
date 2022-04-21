@@ -519,4 +519,10 @@ MACRO(COMPILELIB dependency)
     set(dirs_included ${dirs_to_include} PARENT_SCOPE)
     set(library_added ${libname})
     set(library_added ${library_added} PARENT_SCOPE)
+
+    # define REST_*Lib e.g. REST_DetectorLib using library name
+    string(REGEX REPLACE "^Rest(.+)$" "REST_\\1Lib" DEFINE_VARIABLE_NAME ${libname})
+    message(DEBUG "Adding compile definition: ${DEFINE_VARIABLE_NAME}")
+    add_compile_definitions(${DEFINE_VARIABLE_NAME})
+
 ENDMACRO()
