@@ -260,7 +260,7 @@ Bool_t TRestTools::IsBinaryFile(string fname) {
 
 ///////////////////////////////////////////////
 /// \brief It extracts the number of columns from the filename extension given by argument.
-/// The file will containing a binary formatted table with a fixed number of rows and columns.
+/// The file should contain a binary formatted table with a fixed number of rows and columns.
 ///
 /// The filename extension will be : ".Nxyzf", where the number of columns is `xyz`, and the
 /// last character is the type of data (f/d/i), float, double and integer respectively.
@@ -289,6 +289,28 @@ int TRestTools::GetBinaryFileColumns(string fname) {
     ferr << "Format " << ToUpper(extension) << " not recognized" << endl;
     return -1;
 }
+
+///////////////////////////////////////////////
+/// \brief It transposes the std::vector<std::vector> table given in the argument.
+/// It will transform rows in columns.
+///
+template <typename T>
+void TRestTools::TransposeTable(std::vector<std::vector<T>>& data) {
+    if (data.size() == 0) return;
+
+    std::vector<std::vector<T>> trans_vec(data[0].size(), std::vector<T>());
+
+    for (int i = 0; i < data.size(); i++)
+        for (int j = 0; j < data[i].size(); j++) trans_vec[j].push_back(data[i][j]);
+
+    data = trans_vec;
+}
+
+template void TRestTools::TransposeTable<Double_t>(std::vector<std::vector<Double_t>>& data);
+
+template void TRestTools::TransposeTable<Float_t>(std::vector<std::vector<Float_t>>& data);
+
+template void TRestTools::TransposeTable<Int_t>(std::vector<std::vector<Int_t>>& data);
 
 ///////////////////////////////////////////////
 /// \brief It returns the maximum value for a particular `column` from the table given by
