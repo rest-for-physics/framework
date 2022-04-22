@@ -54,13 +54,19 @@ class TRestTools {
                               Int_t skipLines = 0);
 
     template <typename T>
-    static int ReadBinaryTable(std::string fName, std::vector<std::vector<T>>& data, Int_t columns);
+    static int ReadBinaryTable(std::string fName, std::vector<std::vector<T>>& data, Int_t columns = -1);
+
+    static Bool_t IsBinaryFile(std::string fname);
+
+    static std::string GetFileNameExtension(std::string fullname);
+
+    static int GetBinaryFileColumns(std::string fname);
 
     template <typename T>
-    static T GetMaxValueFromTable(std::vector<std::vector<T>> data, Int_t column);
+    static T GetMaxValueFromTable(const std::vector<std::vector<T>>& data, Int_t column = -1);
 
     template <typename T>
-    static T GetMinValueFromTable(std::vector<std::vector<T>> data, Int_t column);
+    static T GetMinValueFromTable(const std::vector<std::vector<T>>& data, Int_t column = -1);
 
     template <typename T>
     static T GetLowestIncreaseFromTable(std::vector<std::vector<T>> data, Int_t column);
@@ -70,6 +76,9 @@ class TRestTools {
 
     template <typename T>
     static int ExportASCIITable(std::string fname, std::vector<std::vector<T>>& data);
+
+    template <typename T>
+    static int ExportBinaryTable(std::string fname, std::vector<std::vector<T>>& data);
 
     static Int_t isValidFile(const std::string& path);
     static bool fileExists(const std::string& filename);

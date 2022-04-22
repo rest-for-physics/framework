@@ -34,14 +34,16 @@ Float_t StringToFloat(std::string in);
 Double_t StringToDouble(std::string in);
 Int_t StringToInteger(std::string in);
 std::string IntegerToString(Int_t n);
+std::string DoubleToString(Double_t d);
 Bool_t StringToBool(std::string in);
 Long64_t StringToLong(std::string in);
 TVector3 StringTo3DVector(std::string in);
 TVector2 StringTo2DVector(std::string in);
 std::vector<std::string> Split(std::string in, std::string separator, bool allowBlankString = false,
                                bool removeWhiteSpaces = false, int startPos = -1);
-std::vector<double> StringToElements(std::string in, std::string separator, bool allowBlankString = false,
-                                     bool removeWhiteSpaces = false, int starPos = -1);
+std::vector<double> StringToElements(std::string in, std::string separator);
+std::vector<double> StringToElements(std::string in, std::string headChar, std::string separator,
+                                     std::string tailChar);
 std::string RemoveWhiteSpaces(std::string in);
 std::string Replace(std::string in, std::string thisString, std::string byThisString, size_t fromPosition = 0,
                     Int_t N = 0);
