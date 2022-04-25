@@ -160,7 +160,34 @@ template int TRestTools::ExportASCIITable<Double_t>(std::string fname,
                                                     std::vector<std::vector<Double_t>>& data);
 
 ///////////////////////////////////////////////
-/// \brief Reads a binary file containing a fixed-columns table with values
+/// \brief Writes the contents of the vector table given as argument to `fname` as a binary file.
+/// Allowed types are Int_t, Float_t and Double_t.
+///
+template <typename T>
+int TRestTools::ExportBinaryTable(std::string fname, std::vector<std::vector<T>>& data) {
+    ofstream file(fname, ios::out | ios::binary);
+    if (!file.is_open()) {
+        ferr << "Unable to open file for writting : " << fname << endl;
+        return 1;
+    }
+
+    for (int n = 0; n < data.size(); n++)
+        for (int m = 0; m < data[n].size(); m++) {
+            file.write((char*)&data[n][m], sizeof(T));
+        }
+    file.close();
+
+    return 0;
+}
+
+template int TRestTools::ExportBinaryTable<Int_t>(std::string fname, std::vector<std::vector<Int_t>>& data);
+template int TRestTools::ExportBinaryTable<Float_t>(std::string fname,
+                                                    std::vector<std::vector<Float_t>>& data);
+template int TRestTools::ExportBinaryTable<Double_t>(std::string fname,
+                                                     std::vector<std::vector<Double_t>>& data);
+
+///////////////////////////////////////////////
+/// \brief Reads a binary file containning a fixed-columns table with values
 ///
 /// This method will open the file fName. This file should contain a
 /// table with numeric values of the type specified inside the syntax < >.
@@ -169,7 +196,7 @@ template int TRestTools::ExportASCIITable<Double_t>(std::string fname,
 ///
 /// \code
 /// std::vector<std::vector <Float_t> > fvec;
-/// ReadBinaryFile( "myfile.bin", fvec, 6);
+/// ReadBinaryTable( "myfile.bin", fvec, 6);
 /// \endcode
 ///
 /// The values on the table will be loaded in the matrix provided through the
@@ -178,9 +205,18 @@ template int TRestTools::ExportASCIITable<Double_t>(std::string fname,
 template <typename T>
 int TRestTools::ReadBinaryTable(string fName, std::vector<std::vector<T>>& data, Int_t columns) {
     if (!TRestTools::isValidFile((string)fName)) {
-        cout << "TRestTools::ReadBinaryTable. Error." << endl;
-        cout << "Cannot open file : " << fName << endl;
+        ferr << "TRestTools::ReadBinaryTable. Error." << endl;
+        ferr << "Cannot open file : " << fName << endl;
         return 0;
+    }
+
+    if (columns == -1) {
+        columns = GetBinaryFileColumns(fName);
+        if (columns == -1) {
+            ferr << "TRestTools::ReadBinaryTable. Format extension error." << endl;
+            ferr << "Please, specify the number of columns at the method 3rd argument" << endl;
+            return 0;
+        }
     }
 
     std::ifstream fin(fName, std::ios::binary);
@@ -197,9 +233,10 @@ int TRestTools::ReadBinaryTable(string fName, std::vector<std::vector<T>>& data,
     }
 
     std::vector<T> dataArray(columns);
+    fin.read(reinterpret_cast<char*>(&dataArray[0]), columns * sizeof(T));
     while (fin.good()) {
-        fin.read(reinterpret_cast<char*>(&dataArray[0]), columns * sizeof(T));
         data.push_back(dataArray);
+        fin.read(reinterpret_cast<char*>(&dataArray[0]), columns * sizeof(T));
     }
     return 1;
 }
@@ -212,49 +249,117 @@ template int TRestTools::ReadBinaryTable<Double_t>(string fName, std::vector<std
                                                    Int_t columns);
 
 ///////////////////////////////////////////////
+/// \brief It identifies if the filename extension follows the formatting ".Nxyzf", where the
+/// number of columns is `xyz`, and the last character is the type of data (f/d/i), float,
+/// double and integer respectively.
+///
+Bool_t TRestTools::IsBinaryFile(string fname) {
+    if (GetBinaryFileColumns(fname) > 0) return true;
+    return false;
+}
+
+///////////////////////////////////////////////
+/// \brief It extracts the number of columns from the filename extension given by argument.
+/// The file will containing a binary formatted table with a fixed number of rows and columns.
+///
+/// The filename extension will be : ".Nxyzf", where the number of columns is `xyz`, and the
+/// last character is the type of data (f/d/i), float, double and integer respectively.
+///
+int TRestTools::GetBinaryFileColumns(string fname) {
+    string extension = GetFileNameExtension(fname);
+    if (extension.find("N") != 0) {
+        ferr << "Wrong filename extension." << endl;
+        ferr << "Cannot guess the number of columns" << endl;
+        return -1;
+    }
+
+    size_t pos = extension.find("i");
+    if (pos != string::npos) {
+        return StringToInteger(extension.substr(1, pos - 1));
+    }
+
+    pos = extension.find("f");
+    if (pos != string::npos) {
+        return StringToInteger(extension.substr(1, pos - 1));
+    }
+
+    pos = extension.find("d");
+    if (pos != string::npos) {
+        return StringToInteger(extension.substr(1, pos - 1));
+    }
+
+    ferr << "Format " << ToUpper(extension) << " not recognized" << endl;
+    return -1;
+}
+
+///////////////////////////////////////////////
 /// \brief It returns the maximum value for a particular `column` from the table given by
-/// argument.
+/// argument. If no column is specified in the arguments, then it gets the maximum from the
+/// full table.
 ///
 /// This method is available for tables of type Float_t, Double_t and Int_t.
 ///
 template <typename T>
-T TRestTools::GetMaxValueFromTable(std::vector<std::vector<T>> data, Int_t column) {
-    if (data.size() == 0 || data[0].size() <= column) return 0;
-    T maxValue = data[0][column];
-    for (int n = 0; n < data.size(); n++)
-        if (maxValue < data[n][column]) maxValue = data[n][column];
+T TRestTools::GetMaxValueFromTable(const std::vector<std::vector<T>>& data, Int_t column) {
+    if (data.size() == 0) return 0;
+    if (column != -1 && data[0].size() <= column) return 0;
+
+    T maxValue = data[0][0];
+    if (column == -1) {
+        for (int n = 0; n < data.size(); n++)
+            for (int c = 0; c < data[n].size(); c++)
+                if (maxValue < data[n][c]) maxValue = data[n][c];
+    } else {
+        maxValue = data[0][column];
+        for (int n = 0; n < data.size(); n++)
+            if (maxValue < data[n][column]) maxValue = data[n][column];
+    }
+
     return maxValue;
 }
 
-template Int_t TRestTools::GetMaxValueFromTable<Int_t>(std::vector<std::vector<Int_t>> data, Int_t column);
+template Int_t TRestTools::GetMaxValueFromTable<Int_t>(const std::vector<std::vector<Int_t>>& data,
+                                                       Int_t column);
 
-template Float_t TRestTools::GetMaxValueFromTable<Float_t>(std::vector<std::vector<Float_t>> data,
+template Float_t TRestTools::GetMaxValueFromTable<Float_t>(const std::vector<std::vector<Float_t>>& data,
                                                            Int_t column);
 
-template Double_t TRestTools::GetMaxValueFromTable<Double_t>(std::vector<std::vector<Double_t>> data,
+template Double_t TRestTools::GetMaxValueFromTable<Double_t>(const std::vector<std::vector<Double_t>>& data,
                                                              Int_t column);
 
 ///////////////////////////////////////////////
 /// \brief It returns the minimum value for a particular `column` from the table given by
-/// argument.
+/// argument. If no column is specified in the arguments, then it gets the minimum from the
+/// full table.
 ///
 /// This method is available for tables of type Float_t, Double_t and Int_t.
 ///
 template <typename T>
-T TRestTools::GetMinValueFromTable(std::vector<std::vector<T>> data, Int_t column) {
-    if (data.size() == 0 || data[0].size() <= column) return 0;
-    T minValue = data[0][column];
-    for (int n = 0; n < data.size(); n++)
-        if (minValue > data[n][column]) minValue = data[n][column];
+T TRestTools::GetMinValueFromTable(const std::vector<std::vector<T>>& data, Int_t column) {
+    if (data.empty()) return 0;
+    if (column != -1 && data[0].size() <= column) return 0;
+
+    T minValue = data[0][0];
+    if (column == -1) {
+        for (int n = 0; n < data.size(); n++)
+            for (int c = 0; c < data[n].size(); c++)
+                if (minValue > data[n][c]) minValue = data[n][c];
+    } else {
+        minValue = data[0][column];
+        for (int n = 0; n < data.size(); n++)
+            if (minValue > data[n][column]) minValue = data[n][column];
+    }
+
     return minValue;
 }
 
-template Int_t TRestTools::GetMinValueFromTable<Int_t>(std::vector<std::vector<Int_t>> data, Int_t column);
+template Int_t TRestTools::GetMinValueFromTable<Int_t>(const std::vector<std::vector<Int_t>>& data,
+                                                       Int_t column);
 
-template Float_t TRestTools::GetMinValueFromTable<Float_t>(std::vector<std::vector<Float_t>> data,
+template Float_t TRestTools::GetMinValueFromTable<Float_t>(const std::vector<std::vector<Float_t>>& data,
                                                            Int_t column);
 
-template Double_t TRestTools::GetMinValueFromTable<Double_t>(std::vector<std::vector<Double_t>> data,
+template Double_t TRestTools::GetMinValueFromTable<Double_t>(const std::vector<std::vector<Double_t>>& data,
                                                              Int_t column);
 
 ///////////////////////////////////////////////
@@ -485,6 +590,20 @@ std::pair<string, string> TRestTools::SeparatePathAndName(string fullname) {
         result.second = fullname.substr(pos + 1, fullname.size() - pos - 1);
     }
     return result;
+}
+
+///////////////////////////////////////////////
+/// \brief Gets the file extension as the substring found after the lastest "."
+///
+/// Input: "/home/jgalan/abc.txt" Output: "txt"
+///
+string TRestTools::GetFileNameExtension(string fullname) {
+    int pos = fullname.find_last_of('.', -1);
+
+    if (pos != -1) {
+        return fullname.substr(pos + 1, fullname.size() - pos - 1);
+    }
+    return fullname;
 }
 
 ///////////////////////////////////////////////
@@ -766,6 +885,8 @@ std::string TRestTools::DownloadRemoteFile(string url) {
             if (out == 1024) {
                 warning << "Retrying download in 5 seconds" << endl;
                 std::this_thread::sleep_for(std::chrono::seconds(5));
+            } else if (attempts < 10) {
+                success << "Download suceeded after " << 10 - attempts << " attempts" << endl;
             }
             attempts--;
         } while (out == 1024 && attempts > 0);
