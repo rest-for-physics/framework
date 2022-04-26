@@ -53,8 +53,8 @@ class TRestBenchMarkProcess : public TRestEventProcess {
 
    protected:
    public:
-   inline any GetInputEvent() const { return fEvent; }
-   inline any GetOutputEvent() const { return fEvent; }
+    inline any GetInputEvent() const { return fEvent; }
+    inline any GetOutputEvent() const { return fEvent; }
 
     void InitProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);

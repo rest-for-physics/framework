@@ -61,8 +61,8 @@ class TRestDataQualityProcess : public TRestEventProcess {
 
    protected:
    public:
-   inline any GetInputEvent() const { return fEvent; }
-   inline any GetOutputEvent() const { return fEvent; }
+    inline any GetInputEvent() const { return fEvent; }
+    inline any GetOutputEvent() const { return fEvent; }
 
     TRestEvent* ProcessEvent(TRestEvent* evInput);
 

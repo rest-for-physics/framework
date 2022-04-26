@@ -265,7 +265,8 @@ TRestMetadataPlot::TRestMetadataPlot() { Initialize(); }
 /// \param name The name of the specific metadata. It will be used to find the
 /// corresponding TRestGeant4Metadata section inside the RML.
 ///
-TRestMetadataPlot::TRestMetadataPlot(const char* configFilename, const char* name) : TRestMetadata(configFilename) {
+TRestMetadataPlot::TRestMetadataPlot(const char* configFilename, const char* name)
+    : TRestMetadata(configFilename) {
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);

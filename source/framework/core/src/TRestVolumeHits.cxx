@@ -162,53 +162,48 @@ void TRestVolumeHits::PrintHits() const {
     }
 }
 
+void TRestVolumeHits::kMeansClustering(TRestVolumeHits* hits, TRestVolumeHits& vHits, int maxIt) {
+    const int nodes = vHits.GetNumberOfHits();
+    TRestVolumeHits volHits[nodes];
+    // std::cout<<"Nhits "<<hits->GetNumberOfHits()<<" Nodes "<<nodes<<std::endl;
+    TVector3 nullVector = TVector3(0, 0, 0);
+    std::vector<TVector3> centroid(nodes);
+    std::vector<TVector3> centroidOld(nodes, nullVector);
 
+    for (int h = 0; h < nodes; h++) centroid[h] = vHits.GetPosition(h);
 
-void TRestVolumeHits::kMeansClustering(TRestVolumeHits *hits, TRestVolumeHits &vHits, int maxIt){
-
-        const int nodes = vHits.GetNumberOfHits();
-        TRestVolumeHits volHits[nodes];
-        //std::cout<<"Nhits "<<hits->GetNumberOfHits()<<" Nodes "<<nodes<<std::endl;
-        TVector3 nullVector = TVector3(0,0,0);
-        std::vector<TVector3> centroid(nodes);
-        std::vector<TVector3> centroidOld(nodes,nullVector);
-
-          for(int h=0;h<nodes; h++)centroid[h] = vHits.GetPosition(h);
-         
-           for(int it=0;it<maxIt;it++){
-             for(int n=0;n<nodes;n++)volHits[n].RemoveHits();
-               for (int i = 0; i < hits->GetNumberOfHits(); i++){
-                 double minDist=1E9;
-                 int clIndex=-1;
-                   for(int n=0;n<nodes;n++){
-                     TVector3 hitPos =hits->GetPosition(i);
-                     double dist = (centroid[n] - hitPos).Mag();
-                       if(dist < minDist){
-                         minDist=dist;
-                         clIndex=n;
-                       }
-                   }
-                 //cout<<minDist<<" "<<clIndex<<endl;
-                 volHits[clIndex].AddHit(*hits,i);
-               }
-              bool converge=true;
-                for(int n=0;n<nodes;n++){
-                  centroid[n] = volHits[n].GetMeanPosition();
-                  converge &= (centroid[n] == centroidOld[n]);
-                  centroidOld[n] = centroid[n];
+    for (int it = 0; it < maxIt; it++) {
+        for (int n = 0; n < nodes; n++) volHits[n].RemoveHits();
+        for (int i = 0; i < hits->GetNumberOfHits(); i++) {
+            double minDist = 1E9;
+            int clIndex = -1;
+            for (int n = 0; n < nodes; n++) {
+                TVector3 hitPos = hits->GetPosition(i);
+                double dist = (centroid[n] - hitPos).Mag();
+                if (dist < minDist) {
+                    minDist = dist;
+                    clIndex = n;
                 }
-              if(converge){
-              break;
-              }
-           }
+            }
+            // cout<<minDist<<" "<<clIndex<<endl;
+            volHits[clIndex].AddHit(*hits, i);
+        }
+        bool converge = true;
+        for (int n = 0; n < nodes; n++) {
+            centroid[n] = volHits[n].GetMeanPosition();
+            converge &= (centroid[n] == centroidOld[n]);
+            centroidOld[n] = centroid[n];
+        }
+        if (converge) {
+            break;
+        }
+    }
 
-       vHits.RemoveHits();
-       const TVector3 sigma(0., 0., 0.);
-         for(int n=0;n<nodes;n++){
-             if(volHits[n].GetNumberOfHits()>0)
-             vHits.AddHit(volHits[n].GetMeanPosition(),volHits[n].GetTotalEnergy(),0,volHits[n].GetType(0),sigma);
-         }
-
+    vHits.RemoveHits();
+    const TVector3 sigma(0., 0., 0.);
+    for (int n = 0; n < nodes; n++) {
+        if (volHits[n].GetNumberOfHits() > 0)
+            vHits.AddHit(volHits[n].GetMeanPosition(), volHits[n].GetTotalEnergy(), 0, volHits[n].GetType(0),
+                         sigma);
+    }
 }
-
-

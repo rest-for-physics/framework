@@ -187,10 +187,10 @@ class TRestMetadataPlot : public TRestMetadata {
     Int_t GetPlotIndex(TString plotName);
 
     /// It will return the canvas size in pixel units
-   inline TVector2 GetCanvasSize() const { return fCanvasSize; }
+    inline TVector2 GetCanvasSize() const { return fCanvasSize; }
 
     /// It will return the number of divisions inside the canvas
-   inline TVector2 GetCanvasDivisions() const { return fCanvasDivisions; }
+    inline TVector2 GetCanvasDivisions() const { return fCanvasDivisions; }
 
     void GenerateCanvas();
 

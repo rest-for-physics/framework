@@ -13,8 +13,8 @@
 #define RestCore_TRestPointLikeAnaProcess
 
 #include <TRestSignalEvent.h>
-#include "TRestDetectorReadout.h"
 
+#include "TRestDetectorReadout.h"
 #include "TRestEventProcess.h"
 
 class TRestPointLikeAnaProcess : public TRestEventProcess {

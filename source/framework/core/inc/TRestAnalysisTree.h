@@ -98,16 +98,16 @@ class TRestAnalysisTree : public TTree {
     /////////////// Getters ////////////////
 
     // Get the status of this tree. This call will not evaluate the status.
-   inline int GetStatus() const { return fStatus; }
+    inline int GetStatus() const { return fStatus; }
     Int_t GetObservableID(const std::string& obsName);
     Bool_t ObservableExists(const std::string& obsName);
-   inline Int_t GetEventID() const { return fEventID; }
-   inline Int_t GetSubEventID() const { return fSubEventID; }
-   inline Double_t GetTimeStamp() const { return fTimeStamp; }
-   inline TString GetSubEventTag() const { return *fSubEventTag; }
-   inline Int_t GetRunOrigin() const { return fRunOrigin; }
-   inline Int_t GetSubRunOrigin() const { return fSubRunOrigin; }
-   inline Int_t GetNumberOfObservables() const { return fNObservables; }
+    inline Int_t GetEventID() const { return fEventID; }
+    inline Int_t GetSubEventID() const { return fSubEventID; }
+    inline Double_t GetTimeStamp() const { return fTimeStamp; }
+    inline TString GetSubEventTag() const { return *fSubEventTag; }
+    inline Int_t GetRunOrigin() const { return fRunOrigin; }
+    inline Int_t GetSubRunOrigin() const { return fSubRunOrigin; }
+    inline Int_t GetNumberOfObservables() const { return fNObservables; }
 
     // observable method
     RESTValue GetObservable(std::string obsName);

@@ -16,7 +16,6 @@
 
 #include "TCanvas.h"
 #include "TH1D.h"
-
 #include "TRestEventProcess.h"
 
 class TRestAnalysisHistogramViewerProcess : public TRestEventProcess {

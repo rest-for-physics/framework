@@ -25,29 +25,28 @@
 CLANG_FORMAT="clang-format"
 
 if [ $# -eq 0 ]; then
-    echo ' '
-    echo 'This script formats the source directory /path/to/source/'
-    echo 'given as the only argument. Only .cxx and .h files will be '
-    echo 'reformatted.'
-    echo ' '
-    echo 'The formatting will consider the .clang-format file closer to'
-    echo 'the source directory given. '
-    echo ' '
-    echo 'Usage : ./reformat-clang.sh /path/to/source/'
-    echo ' '
-    echo 'Use carefully! :)'
+  echo ' '
+  echo 'This script formats the source directory /path/to/source/'
+  echo 'given as the only argument. Only .cxx and .h files will be '
+  echo 'reformatted.'
+  echo ' '
+  echo 'The formatting will consider the .clang-format file closer to'
+  echo 'the source directory given. '
+  echo ' '
+  echo 'Usage : ./reformat-clang.sh /path/to/source/'
+  echo ' '
+  echo 'Use carefully! :)'
 
-    exit 1
+  exit 1
 fi
 
 pathNow=$PWD
 
-for DIRECTORY in $1
-do
-    echo "Formatting code under $DIRECTORY/"
-    cd $DIRECTORY
-    echo "$DIRECTORY" \( -name '*.h' -or -name '*.cxx' -or -name '*.cc' -or -name '*.C' \) -print0 | xargs -0 "$CLANG_FORMAT" -i
-    find "$DIRECTORY" \( -name '*.h' -or -name '*.cxx' -or -name '*.cc' -or -name '*.C' \) -print0 | xargs -0 "$CLANG_FORMAT" -i
-    cd $pathNow
-    echo "DONE!"
+for DIRECTORY in $1; do
+  echo "Formatting code under $DIRECTORY/"
+  cd $DIRECTORY
+  echo "$DIRECTORY" \( -name '*.h' -or -name '*.cxx' -or -name '*.cc' -or -name '*.C' \) -print0 | xargs -0 "$CLANG_FORMAT" -i
+  find "$DIRECTORY" \( -name '*.h' -or -name '*.cxx' -or -name '*.cc' -or -name '*.C' \) -print0 | xargs -0 "$CLANG_FORMAT" -i
+  cd $pathNow
+  echo "DONE!"
 done

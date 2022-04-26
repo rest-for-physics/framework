@@ -14,6 +14,7 @@
 
 #include <TRestLinearTrackEvent.h>
 #include <TRestTrackEvent.h>
+
 #include "TRestEventProcess.h"
 
 class TRestTrackLinearizationProcess : public TRestEventProcess {

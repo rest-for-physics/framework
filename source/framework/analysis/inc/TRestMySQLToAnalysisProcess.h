@@ -89,8 +89,8 @@ class TRestMySQLToAnalysisProcess : public TRestEventProcess {
     void LoadDefaultConfig();
 
    public:
-   inline any GetInputEvent() const { return fEvent; }
-   inline any GetOutputEvent() const { return fEvent; }
+    inline any GetInputEvent() const { return fEvent; }
+    inline any GetOutputEvent() const { return fEvent; }
 
     TRestEvent* ProcessEvent(TRestEvent* evInput);
 

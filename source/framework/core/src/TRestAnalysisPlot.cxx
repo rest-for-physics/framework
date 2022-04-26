@@ -26,7 +26,8 @@ ClassImp(TRestAnalysisPlot);
 
 TRestAnalysisPlot::TRestAnalysisPlot() { Initialize(); }
 
-TRestAnalysisPlot::TRestAnalysisPlot(const char* configFilename, const char* name) : TRestMetadata(configFilename) {
+TRestAnalysisPlot::TRestAnalysisPlot(const char* configFilename, const char* name)
+    : TRestMetadata(configFilename) {
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);
@@ -43,11 +44,9 @@ void TRestAnalysisPlot::Initialize() {
     fDrawFirstEntry = 0;
 }
 
-
 TRestAnalysisPlot::~TRestAnalysisPlot() {
     if (fRun != nullptr) delete fRun;
 }
-
 
 void TRestAnalysisPlot::InitFromConfigFile() {
     size_t position = 0;
@@ -856,13 +855,15 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             }
         }
 
-       // scale the histograms
-       if (plot.scale != "") {
+        // scale the histograms
+        if (plot.scale != "") {
             for (unsigned int i = 0; i < plot.histos.size(); i++) {
                 if (plot.histos[i].ptr == nullptr) continue;
                 Double_t scale = 1.;
-                if(plot.scale == "binSize")scale =  1./plot.histos[i].ptr->GetXaxis()->GetBinWidth(1);
-                else scale=StringToDouble(plot.scale);
+                if (plot.scale == "binSize")
+                    scale = 1. / plot.histos[i].ptr->GetXaxis()->GetBinWidth(1);
+                else
+                    scale = StringToDouble(plot.scale);
 
                 plot.histos[i].ptr->Scale(scale);
             }

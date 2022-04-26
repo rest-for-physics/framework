@@ -24,14 +24,12 @@ TRestEveEventViewer::TRestEveEventViewer() {
     fEnergyDeposits->SetElementName("Energy deposits");
 }
 
-
 TRestEveEventViewer::~TRestEveEventViewer() {
     delete fEnergyDeposits;
     // TRestEveEventViewer destructor
     DeleteCurrentEvent();
     DeleteGeometry();
 }
-
 
 void TRestEveEventViewer::Initialize() {
     gEve = TEveManager::Create();

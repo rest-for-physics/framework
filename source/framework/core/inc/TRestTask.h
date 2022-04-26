@@ -52,7 +52,7 @@ class TRestTask : public TRestMetadata {
     virtual void PrintArgumentHelp();
 
     void SetMode(REST_TASKMODE mod) { fMode = mod; }
-   inline REST_TASKMODE GetMode() const { return fMode; }
+    inline REST_TASKMODE GetMode() const { return fMode; }
 
     // Constructor & Destructor
     TRestTask();

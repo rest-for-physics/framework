@@ -13,11 +13,9 @@
 #include "TRestSignalDeconvolutionProcess.h"
 using namespace std;
 
-#include <TRestFFT.h>
-
-#include <TFile.h>
-
 #include <TCanvas.h>
+#include <TFile.h>
+#include <TRestFFT.h>
 
 TRestFFT* responseFFT;
 // TRestFFT *cleanFFT;

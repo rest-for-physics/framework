@@ -24,14 +24,12 @@ using namespace std;
 
 ClassImp(TRestEventViewer);
 
-
 TRestEventViewer::TRestEventViewer() {
     // TRestEventViewer default constructor
     // Initialize();
     fPad = nullptr;
     fCanvas = nullptr;
 }
-
 
 TRestEventViewer::~TRestEventViewer() {
     // TRestEventViewer destructor
