@@ -64,3 +64,6 @@
 [submodule "doc/userguide"]
 	path = doc/userguide
 	url = https://github.com/rest-for-physics/rest-docs.github.io.git
+[submodule "projects/alphacamm"]
+	path = projects/alphacamm
+	url = git@lfna.unizar.es:gifna/alphacamm.git

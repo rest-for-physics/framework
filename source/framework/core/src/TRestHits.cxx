@@ -562,6 +562,26 @@ void TRestHits::WriteHitsToTextFile(TString filename) {
     fclose(fff);
 }
 
+void TRestHits::GetBoundaries(std::vector<double> &dist, double &max, double &min, int &nBins, double offset){
+ 
+  std::sort(dist.begin(),dist.end());
+  max=dist.back();
+  min=dist.front();
+
+  double minDiff = 1E6;
+  double prevVal=1E6;
+   for (const auto &h : dist){
+     double diff = std::abs( h - prevVal);
+     if(diff>0 && diff<minDiff )minDiff=diff;
+     prevVal=h;
+   }
+
+  max += offset*minDiff + minDiff/2.;
+  min -= offset*minDiff + minDiff/2.;
+  nBins = std::round((max-min)/minDiff);
+
+}
+
 Double_t TRestHits::GetGaussSigmaX() {
     Double_t gausSigmaX = 0;
     Int_t nHits = GetNumberOfHits();

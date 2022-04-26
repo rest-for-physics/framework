@@ -101,12 +101,16 @@
 		<addProcess type="TRestRawSignalAnalysisProcess" name="rawAna" title="Signal noise" value="${RAW_PROCESSING}" observable="all">
 		</addProcess>
 
-		<addProcess type="TRestRawZeroSuppresionProcess" name="zS" value="${RAW_PROCESSING}"
-			baseLineRange="(5,55)"
-			integralRange="(10,500)"
-			pointThreshold="2"
-			pointsOverThreshold="5"
-			signalThreshold="3" />
+		<addProcess type="TRestRawToDetectorSignalProcess" name="zS" value="${RAW_PROCESSING}"
+                  triggerStarts="0us"
+                  gain="1"
+                  threshold="0.01"
+                  zeroSuppression="true"
+		  baseLineRange="(5,55)"
+		  integralRange="(10,500)"
+		  pointThreshold="2"
+		  nPointsOverThreshold="5"
+		  signalThreshold="3" />
 
 			<!-- Requires a bit of debugging 
 		<addProcess type="TRestDetectorSignalChannelActivityProcess" name="chActivity" value="${RAW_PROCESSING}" verboseLevel="info" observable="all" >
@@ -117,6 +121,12 @@
 
 		<addProcess type="TRestDetectorSignalToHitsProcess" name="signalToHits" value="${HIT_PROCESSING}"
 			observable="all" method="all" />
+
+                <addProcess type="TRestDetectorHitsToTrackFastProcess" name="hitsToTrackFast" title="" value="OFF">
+                       <parameter name="netOrigin" value="(-100,-100,-100)" units="mm" />
+                       <parameter name="netSize" value="200" units="mm" />
+                       <parameter name="cellResolution" value="2" units="mm" />
+                </addProcess>
 
 		<addProcess type="TRestDetectorHitsToTrackProcess" name="hitsToTrack" title="" value="${TRACK_PROCESSING}">
 			<parameter name="clusterDistance" value="1" units="cm" />
