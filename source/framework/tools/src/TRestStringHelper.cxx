@@ -535,6 +535,10 @@ Bool_t REST_StringHelper::StringToBool(std::string in) {
 }
 
 Long64_t REST_StringHelper::StringToLong(std::string in) {
+    if (in.find_first_of("eE") != string::npos) {
+        // in case for scientific numbers
+        return (Long64_t)StringToDouble(in);
+    }
     stringstream strIn;
     strIn << in;
     long long llNum;
