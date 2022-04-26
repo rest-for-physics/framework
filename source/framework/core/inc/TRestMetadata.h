@@ -59,8 +59,8 @@ namespace REST_VersionGlob {
         TString GetRESTVersion();
         int GetRESTVersionCode();
 };
-inline TString GetRESTVersion() { return REST_VersionGlob::GetRESTVersion(); }
-inline int GetRESTVersionCode() { return REST_VersionGlob::GetRESTVersionCode(); }
+inline TString GetRESTVersion() const { return REST_VersionGlob::GetRESTVersion(); }
+inline int GetRESTVersionCode() const { return REST_VersionGlob::GetRESTVersionCode(); }
 
 */
 
@@ -210,10 +210,10 @@ class TRestMetadata : public TNamed {
 
    public:
     /// It returns true if an error was identified by a derived metadata class
-    Bool_t GetError() { return fError; }
+    inline Bool_t GetError() const { return fError; }
 
     /// It returns true if an error was identified by a derived metadata class
-    Bool_t GetWarning() { return fWarning; }
+    inline Bool_t GetWarning() const { return fWarning; }
 
     /// Add logs to messageBuffer
     void AddLog(std::string log = "", bool print = true);
@@ -230,9 +230,9 @@ class TRestMetadata : public TNamed {
     /// Returns a std::string containing the warning message
     TString GetWarningMessage();
 
-    Int_t GetNumberOfErrors() { return fNErrors; }
+    inline Int_t GetNumberOfErrors() const { return fNErrors; }
 
-    Int_t GetNumberOfWarnings() { return fNWarnings; }
+    inline Int_t GetNumberOfWarnings() const { return fNWarnings; }
 
     Int_t LoadConfigFromElement(TiXmlElement* eSectional, TiXmlElement* eGlobal,
                                 std::map<std::string, std::string> envs = {});
@@ -258,7 +258,7 @@ class TRestMetadata : public TNamed {
     void PrintConfigBuffer();  // *MENU*
 
     /// Writes the config buffer to a file in append mode
-    void WriteConfigBuffer(std::string fname);
+    void WriteConfigBuffer(std::string fName);
 
     /// Print the buffered message
     void PrintMessageBuffer();  // *MENU*
@@ -278,26 +278,28 @@ class TRestMetadata : public TNamed {
 
     TString GetLibraryVersion();
 
-    Bool_t isOfficialRelease() { return fOfficialRelease; }
+    Bool_t isOfficialRelease() const { return fOfficialRelease; }
 
-    Bool_t isCleanState() { return fCleanState; }
+    Bool_t isCleanState() const { return fCleanState; }
 
     Int_t GetVersionCode();
     /// Returns a std::string with the path used for data storage
-    TString GetDataPath() {
+    inline TString GetDataPath() {
         std::string dataPath = GetParameter("mainDataPath", "");
-        if (dataPath == "") dataPath = "./";
+        if (dataPath == "") {
+            dataPath = "./";
+        }
         return dataPath;
     }
 
-    /// returns the verboselevel in type of REST_Verbose_Level enumerator
-    REST_Verbose_Level GetVerboseLevel() { return fVerboseLevel; }
+    /// returns the verbose level in type of REST_Verbose_Level enumerator
+    inline REST_Verbose_Level GetVerboseLevel() const { return fVerboseLevel; }
 
     /// returns the verbose level in type of TString
     TString GetVerboseLevelString();
 
     /// Gets a std::string with the path used for data storage
-    TString GetMainDataPath() { return GetDataPath(); }
+    inline TString GetMainDataPath() { return GetDataPath(); }
 
     std::string GetParameter(std::string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR);  // *MENU*
 

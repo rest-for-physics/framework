@@ -73,8 +73,8 @@ class TRestSummaryProcess : public TRestEventProcess {
 
    protected:
    public:
-    any GetInputEvent() { return fEvent; }
-    any GetOutputEvent() { return fEvent; }
+   inline any GetInputEvent() const { return fEvent; }
+   inline any GetOutputEvent() const { return fEvent; }
 
     TRestEvent* ProcessEvent(TRestEvent* evInput);
 

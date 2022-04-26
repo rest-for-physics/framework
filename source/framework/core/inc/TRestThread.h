@@ -59,11 +59,11 @@ class TRestThread : public TRestMetadata {
     void SetOutputTree(TRestAnalysisTree* t) { fAnalysisTree = t; }
     void SetProcessRunner(TRestProcessRunner* r) { fHostRunner = r; }
 
-    Int_t GetThreadId() { return fThreadId; }
+   inline Int_t GetThreadId() const { return fThreadId; }
     TRestEvent* GetInputEvent() { return fInputEvent; }
     TFile* GetOutputFile() { return fOutputFile; };
     TRestEvent* GetOutputEvent() { return fProcessNullReturned ? 0 : fOutputEvent; }
-    Int_t GetProcessnum() { return fProcessChain.size(); }
+   inline Int_t GetProcessnum() const { return fProcessChain.size(); }
     TRestEventProcess* GetProcess(int i) { return fProcessChain[i]; }
     TRestAnalysisTree* GetAnalysisTree() { return fAnalysisTree; }
     TTree* GetEventTree() { return fEventTree; }

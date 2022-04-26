@@ -59,7 +59,7 @@ class TRestDataQualityRules : public TObject {
         fBits.clear();
     }
 
-    Int_t GetNumberOfRules() { return fTypes.size(); }
+   inline Int_t GetNumberOfRules() const { return fTypes.size(); }
 
     std::vector<TString> GetTypes() { return fTypes; }
 

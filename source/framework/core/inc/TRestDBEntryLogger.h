@@ -52,7 +52,7 @@ class TRestDBEntryLogger : public TRestMetadata {
     std::string Get(std::string itemname) {
         return fMetainfo.count(itemname) == 0 ? "" : fMetainfo[itemname];
     }
-    int GetEntries() { return fMetainfo.size(); }
+   inline int GetEntries() const { return fMetainfo.size(); }
 
     void PrintMetadata();
     // Constructor

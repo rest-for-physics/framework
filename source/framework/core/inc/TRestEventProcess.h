@@ -108,7 +108,7 @@ class TRestEventProcess : public TRestMetadata {
     inline size_t GetNumberOfParallelProcesses() const { return fParallelProcesses.size(); }
     TRestEventProcess* GetParallel(int i);
     //////////////////////////////////////////////////////////////////////////
-    /// \brief Set observable value for analysistree.
+    /// \brief Set observable value for AnalysisTree.
     ///
     /// It will rename the observable to "processName_obsName"
     /// If use dynamic observable, it will try to create new observable
@@ -116,28 +116,28 @@ class TRestEventProcess : public TRestMetadata {
     template <class T>
     inline void SetObservableValue(std::string name, const T& value) {
         if (fAnalysisTree != nullptr) {
-            std::string obsname = this->GetName() + (std::string) "_" + (std::string)name;
+            std::string obsName = this->GetName() + (std::string) "_" + (std::string)name;
 
             if (fValidateObservables) {
-                int id = fAnalysisTree->GetObservableID(obsname);
+                int id = fAnalysisTree->GetObservableID(obsName);
                 if (id != -1) {
-                    fObservablesDefined[obsname] = id;
-                    fObservablesUpdated[obsname] = id;
-                    fAnalysisTree->SetObservable(obsname, value);
+                    fObservablesDefined[obsName] = id;
+                    fObservablesUpdated[obsName] = id;
+                    fAnalysisTree->SetObservable(obsName, value);
                 } else if (fDynamicObs) {
-                    fAnalysisTree->SetObservable(obsname, value);
-                    int n = fAnalysisTree->GetObservableID(obsname);
+                    fAnalysisTree->SetObservable(obsName, value);
+                    int n = fAnalysisTree->GetObservableID(obsName);
                     if (n != -1) {
-                        fObservablesDefined[obsname] = id;
-                        fObservablesUpdated[obsname] = id;
+                        fObservablesDefined[obsName] = id;
+                        fObservablesUpdated[obsName] = id;
                     }
                 }
             } else {
-                int id = fAnalysisTree->GetObservableID(obsname);
+                int id = fAnalysisTree->GetObservableID(obsName);
                 if (id != -1) {
                     fAnalysisTree->SetObservableValue(id, value);
                 } else if (fDynamicObs) {
-                    fAnalysisTree->SetObservableValue(obsname, value);
+                    fAnalysisTree->SetObservableValue(obsName, value);
                 }
             }
         }
@@ -157,10 +157,9 @@ class TRestEventProcess : public TRestMetadata {
     Int_t LoadSectionMetadata();
     inline virtual void InitFromConfigFile() {
         std::map<std::string, std::string> parameters = GetParametersList();
-
-        for (auto& p : parameters)
+        for (auto& p : parameters) {
             p.second = ReplaceMathematicalExpressions(fRunInfo->ReplaceMetadataMembers(p.second));
-
+        }
         ReadParametersList(parameters);
     }
     std::vector<std::string> ReadObservables();
@@ -172,8 +171,6 @@ class TRestEventProcess : public TRestMetadata {
     virtual Bool_t ResetEntry() { return false; }
 
     inline void SetObservableValidation(bool validate) { fValidateObservables = validate; }
-    // void EnableObservableValidation() { fValidateObservables = true; }
-    // void DisableObservableValidation() { fValidateObservables = false; }
 
     // process running methods
     /// To be executed at the beginning of the run (outside event loop)
@@ -201,9 +198,9 @@ class TRestEventProcess : public TRestMetadata {
 
     // getters
     /// Get pointer to input event. Must be implemented in the derived class
-    virtual RESTValue GetInputEvent() = 0;
+    virtual RESTValue GetInputEvent() const = 0;
     /// Get pointer to output event. Must be implemented in the derived class
-    virtual RESTValue GetOutputEvent() = 0;
+    virtual RESTValue GetOutputEvent() const = 0;
     /// Interface to external file reading, get the total bytes of input binary file. To be implemented in
     /// external processes.
     virtual Long64_t GetTotalBytes() const { return -1; }

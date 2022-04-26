@@ -43,15 +43,14 @@ class TRestEventRateAnalysisProcess : public TRestEventProcess {
     // add here the members of your event process
 
    public:
-    any GetInputEvent() { return fEvent; }
-    any GetOutputEvent() { return fEvent; }
+    inline any GetInputEvent() const { return fEvent; }
+    inline any GetOutputEvent() const { return fEvent; }
 
     void InitProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
 
     void PrintMetadata() {
         BeginPrintProcess();
-
         EndPrintProcess();
     }
 

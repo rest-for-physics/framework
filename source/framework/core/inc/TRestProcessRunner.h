@@ -104,12 +104,12 @@ class TRestProcessRunner : public TRestMetadata {
     std::string GetProcInfo(std::string infoname) {
         return fProcessInfo[infoname] == "" ? infoname : fProcessInfo[infoname];
     }
-    int GetNThreads() { return fThreadNumber; }
-    int GetNProcesses() { return fProcessNumber; }
-    int GetNProcessedEvents() { return fProcessedEvents; }
+   inline int GetNThreads() const { return fThreadNumber; }
+   inline int GetNProcesses() const { return fProcessNumber; }
+   inline int GetNProcessedEvents() const { return fProcessedEvents; }
     double GetReadingSpeed();
     bool UseTestRun() const { return fUseTestRun; }
-    ProcStatus GetStatus() { return fProcStatus; }
+   inline ProcStatus GetStatus() const { return fProcStatus; }
 
     // Constructor & Destructor
     TRestProcessRunner();

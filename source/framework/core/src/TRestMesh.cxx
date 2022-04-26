@@ -681,7 +681,7 @@ TVector3 TRestMesh::GetNetCenter() {
 /// \brief It returns the position of both boundary vertex, bottom vertex identified with id = 0 and top
 /// vertex identified with id = 1.
 ///
-TVector3 TRestMesh::GetVertex(Int_t id) {
+TVector3 TRestMesh::GetVertex(Int_t id) const {
     if (id == 0) return fNetOrigin;
     if (id == 1) return fNetOrigin + TVector3(fNetSizeX, fNetSizeY, fNetSizeZ);
     return TVector3(0, 0, 0);

@@ -455,8 +455,8 @@
 // implementation of version methods in namespace rest_version
 /*
 namespace REST_VersionGlob {
-        TString GetRESTVersion() { return REST_RELEASE; }
-        int GetRESTVersionCode() { return ConvertVersionCode(REST_RELEASE); }
+       inline TString GetRESTVersion() const { return REST_RELEASE; }
+       inline int GetRESTVersionCode() const { return ConvertVersionCode(REST_RELEASE); }
 }
 */
 using namespace std;
