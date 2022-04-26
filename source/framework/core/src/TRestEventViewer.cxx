@@ -24,7 +24,7 @@ using namespace std;
 
 ClassImp(TRestEventViewer);
 
-//______________________________________________________________________________
+
 TRestEventViewer::TRestEventViewer() {
     // TRestEventViewer default constructor
     // Initialize();
@@ -32,7 +32,7 @@ TRestEventViewer::TRestEventViewer() {
     fCanvas = nullptr;
 }
 
-//______________________________________________________________________________
+
 TRestEventViewer::~TRestEventViewer() {
     // TRestEventViewer destructor
     // DeleteCurrentEvent(  );

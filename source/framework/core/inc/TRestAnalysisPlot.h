@@ -190,7 +190,7 @@ class TRestAnalysisPlot : public TRestMetadata {
 
     // Construtor
     TRestAnalysisPlot();
-    TRestAnalysisPlot(const char* cfgFileName, const char* name = "");
+    TRestAnalysisPlot(const char* configFilename, const char* name = "");
     // Destructor
     virtual ~TRestAnalysisPlot();
 

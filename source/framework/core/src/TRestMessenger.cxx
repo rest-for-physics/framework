@@ -81,7 +81,7 @@
 using namespace std;
 ClassImp(TRestMessenger);
 
-//______________________________________________________________________________
+
 TRestMessenger::TRestMessenger() { Initialize(); }
 
 TRestMessenger::~TRestMessenger() {

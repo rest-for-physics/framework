@@ -26,7 +26,7 @@ ClassImp(TRestAnalysisPlot);
 
 TRestAnalysisPlot::TRestAnalysisPlot() { Initialize(); }
 
-TRestAnalysisPlot::TRestAnalysisPlot(const char* cfgFileName, const char* name) : TRestMetadata(cfgFileName) {
+TRestAnalysisPlot::TRestAnalysisPlot(const char* configFilename, const char* name) : TRestMetadata(configFilename) {
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);
@@ -43,12 +43,12 @@ void TRestAnalysisPlot::Initialize() {
     fDrawFirstEntry = 0;
 }
 
-//______________________________________________________________________________
+
 TRestAnalysisPlot::~TRestAnalysisPlot() {
     if (fRun != nullptr) delete fRun;
 }
 
-//______________________________________________________________________________
+
 void TRestAnalysisPlot::InitFromConfigFile() {
     size_t position = 0;
     if (fHostmgr->GetRunInfo() != nullptr) {

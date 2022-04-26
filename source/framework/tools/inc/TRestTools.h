@@ -92,7 +92,7 @@ class TRestTools {
     static std::pair<std::string, std::string> SeparatePathAndName(const std::string fullname);
     static std::string GetPureFileName(std::string fullPathFileName);
     static std::string SearchFileInPath(std::vector<std::string> path, std::string filename);
-    static Int_t CheckTheFile(std::string cfgFileName);
+    static Int_t CheckTheFile(std::string configFilename);
     static std::vector<std::string> GetFilesMatchingPattern(std::string pattern);
     static int ConvertVersionCode(std::string in);
     static std::istream& GetLine(std::istream& is, std::string& t);

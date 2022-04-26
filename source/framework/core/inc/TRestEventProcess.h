@@ -54,7 +54,7 @@ class TRestEventProcess : public TRestMetadata {
     /// according to the friend processes added. It can also get parameter or output event
     /// from friend processes
     std::vector<TRestEventProcess*> fFriendlyProcesses;  //!
-    /// Stores a list of parallel processes if multithread is enabled
+    /// Stores a list of parallel processes if multithreading is enabled
     std::vector<TRestEventProcess*> fParallelProcesses;  //!
    protected:
     ///< Canvas for some viewer event
@@ -72,7 +72,7 @@ class TRestEventProcess : public TRestMetadata {
     /// It defines if the process reads event data from an external source.
     bool fIsExternal = false;  //!
     /// It defines if the process can run only under single std::thread mode. If true, the whole process
-    /// chain will not use multithread. Useful for processes with viewing functionality. Always true for
+    /// chain will not use multithreading. Useful for processes with viewing functionality. Always true for
     /// external processes.
     bool fSingleThreadOnly = false;  //!
     /// not used, keep for compatibility
@@ -102,10 +102,10 @@ class TRestEventProcess : public TRestMetadata {
         std::string type = REST_Reflection::GetTypeName<T>();
         return (T*)GetMetadata(type);
     }
-    TRestMetadata* GetMetadata(std::string nameortype);
-    TRestEventProcess* GetFriend(std::string nameortype);
-    TRestEventProcess* GetFriendLive(std::string nameortype);
-    int GetNumberOfParallelProcesses() { return fParallelProcesses.size(); }
+    TRestMetadata* GetMetadata(std::string nameOrType);
+    TRestEventProcess* GetFriend(std::string nameOrType);
+    TRestEventProcess* GetFriendLive(std::string nameOrType);
+    inline size_t GetNumberOfParallelProcesses() const { return fParallelProcesses.size(); }
     TRestEventProcess* GetParallel(int i);
     //////////////////////////////////////////////////////////////////////////
     /// \brief Set observable value for analysistree.
@@ -114,7 +114,7 @@ class TRestEventProcess : public TRestMetadata {
     /// If use dynamic observable, it will try to create new observable
     /// in the AnalysisTree if the observable is not found
     template <class T>
-    void SetObservableValue(std::string name, const T& value) {
+    inline void SetObservableValue(std::string name, const T& value) {
         if (fAnalysisTree != nullptr) {
             std::string obsname = this->GetName() + (std::string) "_" + (std::string)name;
 
@@ -140,24 +140,14 @@ class TRestEventProcess : public TRestMetadata {
                     fAnalysisTree->SetObservableValue(obsname, value);
                 }
             }
-            // if (fObservableInfo.count(obsname) != 0) {
-            //    if (fValidateObservables) fObservableForValidation[obsname] = fObservableInfo[obsname];
-            //    fAnalysisTree->SetObservableValue(fObservableInfo[obsname], value);
-            //} else if (fDynamicObs && fObservableInfo.count(obsname) == 0) {
-            //    // create new branch for this observable
-            //    int n = fAnalysisTree->AddObservable<T>(obsname);
-            //    if (n != -1) {
-            //        fObservableInfo[obsname] = n;
-            //        if (fValidateObservables) fObservableForValidation[obsname] = fObservableInfo[obsname];
-            //        fAnalysisTree->SetObservableValue(fObservableInfo[obsname], value);
-            //    }
-            //}
         }
     }
 
     /// Create the canvas
-    void CreateCanvas() {
-        if (fCanvas != nullptr) return;
+    inline void CreateCanvas() {
+        if (fCanvas != nullptr) {
+            return;
+        }
         fCanvas = new TCanvas(this->GetName(), this->GetTitle(), fCanvasSize.X(), fCanvasSize.Y());
     }
 
@@ -165,7 +155,7 @@ class TRestEventProcess : public TRestMetadata {
 
    public:
     Int_t LoadSectionMetadata();
-    virtual void InitFromConfigFile() {
+    inline virtual void InitFromConfigFile() {
         std::map<std::string, std::string> parameters = GetParametersList();
 
         for (auto& p : parameters)
@@ -181,7 +171,7 @@ class TRestEventProcess : public TRestMetadata {
     // reset the entry by moving file ptr to 0 with fseek
     virtual Bool_t ResetEntry() { return false; }
 
-    void SetObservableValidation(bool validate) { fValidateObservables = validate; }
+    inline void SetObservableValidation(bool validate) { fValidateObservables = validate; }
     // void EnableObservableValidation() { fValidateObservables = true; }
     // void DisableObservableValidation() { fValidateObservables = false; }
 
@@ -203,7 +193,7 @@ class TRestEventProcess : public TRestMetadata {
     /// Set TRestRun for this process
     void SetRunInfo(TRestRun* r) { fRunInfo = r; }
     /// Set canvas size
-    void SetCanvasSize(Int_t x, Int_t y) { fCanvasSize = TVector2(x, y); }
+    inline void SetCanvasSize(Int_t x, Int_t y) { fCanvasSize = TVector2(x, y); }
     /// Add friendly process to this process
     void SetFriendProcess(TRestEventProcess* p);
     /// Add parallel process to this process
@@ -216,20 +206,20 @@ class TRestEventProcess : public TRestMetadata {
     virtual RESTValue GetOutputEvent() = 0;
     /// Interface to external file reading, get the total bytes of input binary file. To be implemented in
     /// external processes.
-    virtual Long64_t GetTotalBytes() { return -1; }
-    /// Interface to external file reading, get the readed bytes. To be implemented in external processes.
-    virtual Long64_t GetTotalBytesReaded() { return 0; }
+    virtual Long64_t GetTotalBytes() const { return -1; }
+    /// Interface to external file reading, get the read bytes. To be implemented in external processes.
+    virtual Long64_t GetTotalBytesRead() const { return 0; }
     /// Return whether this process is single std::thread only
-    Bool_t singleThreadOnly() { return fSingleThreadOnly; }
+    Bool_t singleThreadOnly() const { return fSingleThreadOnly; }
     /// Return whether this process is external process
-    Bool_t isExternal() { return fIsExternal; }
+    Bool_t isExternal() const { return fIsExternal; }
     /// Return the pointer of the hosting TRestRun object
-    TRestRun* GetRunInfo() { return fRunInfo; }
+    TRestRun* GetRunInfo() const { return fRunInfo; }
     /// Return the local analysis tree (dummy)
-    TRestAnalysisTree* GetAnalysisTree() { return fAnalysisTree; }
+    TRestAnalysisTree* GetAnalysisTree() const { return fAnalysisTree; }
     TRestAnalysisTree* GetFullAnalysisTree();
     /// Get canvas
-    TCanvas* GetCanvas() { return fCanvas; }
+    TCanvas* GetCanvas() const { return fCanvas; }
     std::vector<std::string> GetListOfAddedObservables();
 
     // Constructor

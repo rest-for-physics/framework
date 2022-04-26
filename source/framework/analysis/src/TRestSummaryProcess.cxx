@@ -103,12 +103,12 @@ TRestSummaryProcess::TRestSummaryProcess() { Initialize(); }
 /// defined using the parameter `searchPath` in globals section. See
 /// TRestMetadata description.
 ///
-/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param configFilename A const char* giving the path to an RML file.
 ///
-TRestSummaryProcess::TRestSummaryProcess(char* cfgFileName) {
+TRestSummaryProcess::TRestSummaryProcess(char* configFilename) {
     Initialize();
 
-    LoadConfig(cfgFileName);
+    LoadConfig(configFilename);
 }
 
 ///////////////////////////////////////////////
@@ -132,12 +132,12 @@ void TRestSummaryProcess::LoadDefaultConfig() {
 /// the path to the config file must be specified using full path, absolute or
 /// relative.
 ///
-/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param configFilename A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestSummaryProcess section inside the RML.
 ///
-void TRestSummaryProcess::LoadConfig(std::string cfgFilename, std::string name) {
-    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
+void TRestSummaryProcess::LoadConfig(std::string configFilename, std::string name) {
+    if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////

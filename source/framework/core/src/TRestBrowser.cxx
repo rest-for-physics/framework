@@ -44,7 +44,7 @@ TRestBrowser::TRestBrowser(TString viewerName) {
     SetViewer(viewerName);
 }
 
-//______________________________________________________________________________
+
 TRestBrowser::~TRestBrowser() {
     if (frmMain != nullptr) frmMain->Cleanup();
     // delete frmMain;

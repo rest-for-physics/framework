@@ -195,7 +195,7 @@ class TRestMetadataPlot : public TRestMetadata {
     void GenerateCanvas();
 
     TRestMetadataPlot();
-    TRestMetadataPlot(const char* cfgFileName, const char* name = "");
+    TRestMetadataPlot(const char* configFilename, const char* name = "");
 
     virtual ~TRestMetadataPlot();
 

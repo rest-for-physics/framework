@@ -163,7 +163,7 @@ void TRestVolumeHits::PrintHits() const {
 }
 
 
-//______________________________________________________________________________
+
 void TRestVolumeHits::kMeansClustering(TRestVolumeHits *hits, TRestVolumeHits &vHits, int maxIt){
 
         const int nodes = vHits.GetNumberOfHits();

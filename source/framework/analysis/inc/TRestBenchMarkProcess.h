@@ -49,7 +49,7 @@ class TRestBenchMarkProcess : public TRestEventProcess {
 
     void Initialize();
 
-    void SysMonitorFunc(int pid, double refreshrate = 1);
+    void SysMonitorFunc(int pid, double refreshRate = 1);
 
    protected:
    public:

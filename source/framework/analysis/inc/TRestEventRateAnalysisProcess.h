@@ -55,7 +55,7 @@ class TRestEventRateAnalysisProcess : public TRestEventProcess {
         EndPrintProcess();
     }
 
-    TString GetProcessName() { return (TString) "eventRateAnalysis"; }
+    inline TString GetProcessName() const { return (TString) "eventRateAnalysis"; }
 
     TRestEventRateAnalysisProcess();   // Constructor
     ~TRestEventRateAnalysisProcess();  // Destructor

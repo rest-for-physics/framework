@@ -261,11 +261,11 @@ TRestMetadataPlot::TRestMetadataPlot() { Initialize(); }
 /// The default behaviour is that the config file must be specified with
 /// full path, absolute or relative.
 ///
-/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param configFilename A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
 /// corresponding TRestGeant4Metadata section inside the RML.
 ///
-TRestMetadataPlot::TRestMetadataPlot(const char* cfgFileName, const char* name) : TRestMetadata(cfgFileName) {
+TRestMetadataPlot::TRestMetadataPlot(const char* configFilename, const char* name) : TRestMetadata(configFilename) {
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);

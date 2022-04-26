@@ -315,7 +315,7 @@ bool TRestEventProcess::ApplyCut() {
 }
 
 /*
-//______________________________________________________________________________
+
 void TRestEventProcess::InitProcess()
 {
 // virtual function to be executed once at the beginning of process
@@ -356,7 +356,7 @@ void TRestEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
 }
 
 /*
-//______________________________________________________________________________
+
 void TRestEventProcess::ProcessEvent( TRestEvent *eventInput )
 {
 // virtual function to be executed for every event to be processed
@@ -384,7 +384,7 @@ void TRestEventProcess::EndOfEventProcess(TRestEvent* evInput) {
 }
 
 /*
-//______________________________________________________________________________
+
 void TRestEventProcess::EndProcess()
 {
 // virtual function to be executed once at the end of the process

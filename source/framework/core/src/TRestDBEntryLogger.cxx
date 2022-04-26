@@ -8,7 +8,7 @@
 using namespace std;
 ClassImp(TRestDBEntryLogger);
 
-//______________________________________________________________________________
+
 TRestDBEntryLogger::TRestDBEntryLogger() { Initialize(); }
 
 void TRestDBEntryLogger::InitFromConfigFile() {

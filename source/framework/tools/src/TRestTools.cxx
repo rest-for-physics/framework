@@ -726,9 +726,9 @@ string TRestTools::SearchFileInPath(vector<string> paths, string filename) {
 /// \brief Checks if the config file can be openned. It returns OK in case of
 /// success, ERROR otherwise.
 ///
-Int_t TRestTools::CheckTheFile(std::string cfgFileName) {
+Int_t TRestTools::CheckTheFile(std::string configFilename) {
     ifstream ifs;
-    ifs.open(cfgFileName.c_str());
+    ifs.open(configFilename.c_str());
 
     if (!ifs) {
         return -1;

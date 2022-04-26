@@ -66,7 +66,7 @@ class TRestDataQualityProcess : public TRestEventProcess {
 
     TRestEvent* ProcessEvent(TRestEvent* evInput);
 
-    void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string configFilename, std::string name = "");
 
     void PrintMetadata();
 
@@ -74,10 +74,10 @@ class TRestDataQualityProcess : public TRestEventProcess {
     TRestEventProcess* Maker() { return new TRestDataQualityProcess; }
 
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "dataQuality"; }
+    inline TString GetProcessName() const { return (TString) "dataQuality"; }
 
     TRestDataQualityProcess();
-    TRestDataQualityProcess(char* cfgFileName);
+    TRestDataQualityProcess(char* configFilename);
 
     ~TRestDataQualityProcess();
 

@@ -103,7 +103,7 @@
 /// \code
 ///
 /// void LoadConfigFromFile();
-/// void LoadConfigFromFile(const char *cfgFileName, string sectionName = "");
+/// void LoadConfigFromFile(const char *configFilename, string sectionName = "");
 /// void LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);
 /// void LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal,
 /// map<string, string> envs);
@@ -494,7 +494,7 @@ TRestMetadata::TRestMetadata() : endl(this) {
 ///////////////////////////////////////////////
 /// \brief constructor
 ///
-TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(this) {
+TRestMetadata::TRestMetadata(const char* configFilename) : endl(this) {
     fStore = true;
     fElementGlobal = nullptr;
     fElement = nullptr;
@@ -503,7 +503,7 @@ TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(this) {
     fConstants.clear();
     fHostmgr = nullptr;
 
-    fConfigFileName = cfgFileName;
+    fConfigFileName = configFilename;
     configBuffer = "";
     metadata.setlength(100);
 
@@ -523,8 +523,8 @@ TRestMetadata::~TRestMetadata() {
 /// \brief Give the file name, find out the corresponding section. Then call the
 /// main starter.
 ///
-Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) {
-    fConfigFileName = cfgFileName;
+Int_t TRestMetadata::LoadConfigFromFile(string configFilename, string sectionName) {
+    fConfigFileName = configFilename;
     if (TRestTools::fileExists(fConfigFileName)) {
         if (sectionName == "") {
             sectionName = this->ClassName();
@@ -1504,11 +1504,11 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVect
 /// Exits the whole program if the xml file does not exist, or is in wrong in
 /// syntax. Returns NULL if no element matches NameOrDecalre
 ///
-TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre) {
+TiXmlElement* TRestMetadata::GetElementFromFile(std::string configFilename, std::string NameOrDecalre) {
     TiXmlDocument doc;
     TiXmlElement* rootele;
 
-    string filename = cfgFileName;
+    string filename = configFilename;
     if (TRestMetadata_UpdatedConfigFile.count(filename) > 0)
         filename = TRestMetadata_UpdatedConfigFile[filename];
 
@@ -1524,7 +1524,7 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
 
     rootele = doc.RootElement();
     if (rootele == nullptr) {
-        ferr << "The rml file \"" << cfgFileName << "\" does not contain any valid elements!" << endl;
+        ferr << "The rml file \"" << configFilename << "\" does not contain any valid elements!" << endl;
         exit(1);
     }
     if (NameOrDecalre == "") {
@@ -1556,7 +1556,7 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
 
     return nullptr;
     /*ferr << "Cannot find xml element with name \""<< NameOrDecalre <<"\" in rml
-    file \"" << cfgFileName << endl; GetChar(); exit(1);*/
+    file \"" << configFilename << endl; GetChar(); exit(1);*/
 }
 
 ///////////////////////////////////////////////

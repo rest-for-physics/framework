@@ -19,7 +19,6 @@ float TRestBenchMarkProcess::fProcessSpeedInHz = 0;
 int TRestBenchMarkProcess::fLastEventNumber = 0;
 ULong64_t TRestBenchMarkProcess::fStartTime = 0;
 
-//______________________________________________________________________________
 TRestBenchMarkProcess::TRestBenchMarkProcess() { Initialize(); }
 
 void TRestBenchMarkProcess::Initialize() {
@@ -36,7 +35,7 @@ void TRestBenchMarkProcess::Initialize() {
     fRefreshRate = 10;
 }
 
-void TRestBenchMarkProcess::SysMonitorFunc(int pid, double refreshrate) {
+void TRestBenchMarkProcess::SysMonitorFunc(int pid, double refreshRate) {
     while (fMonitorFlag == 1) {
         string topOutput = TRestTools::Execute(Form("top -bn 1 -p %i | grep %i", pid, pid));
         auto topItems = Split(topOutput, " ", false, true);
@@ -47,9 +46,9 @@ void TRestBenchMarkProcess::SysMonitorFunc(int pid, double refreshrate) {
         fMemUsageInMB /= 1000;                                                          // convert kB to MB
         fReadingInMBs = fHostmgr->GetProcessRunner()->GetReadingSpeed() / 1024 / 1024;  // convert byte to MB
         int Neve = fHostmgr->GetProcessRunner()->GetNProcessedEvents();
-        fProcessSpeedInHz = (Neve - fLastEventNumber) * refreshrate;
+        fProcessSpeedInHz = (Neve - fLastEventNumber) * refreshRate;
 
-        usleep(1e6 / refreshrate);
+        usleep(1e6 / refreshRate);
     }
 }
 

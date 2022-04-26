@@ -100,7 +100,7 @@ class TRestMetadata : public TNamed {
                                            TVector2 defaultValue = TVector2(-1, -1));
     TVector3 Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* e,
                                            TVector3 defaultValue = TVector3(-1, -1, -1));
-    TiXmlElement* GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre = "");
+    TiXmlElement* GetElementFromFile(std::string configFilename, std::string NameOrDecalre = "");
     TiXmlElement* GetElement(std::string eleDeclare, TiXmlElement* e = nullptr);
     TiXmlElement* GetNextElement(TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement* e);
@@ -206,7 +206,7 @@ class TRestMetadata : public TNamed {
     TRestMetadata(const TRestMetadata&) = delete;
 
     TRestMetadata();
-    TRestMetadata(const char* cfgFileNamecfgFileName);
+    TRestMetadata(const char* configFilename);
 
    public:
     /// It returns true if an error was identified by a derived metadata class
@@ -236,7 +236,7 @@ class TRestMetadata : public TNamed {
 
     Int_t LoadConfigFromElement(TiXmlElement* eSectional, TiXmlElement* eGlobal,
                                 std::map<std::string, std::string> envs = {});
-    Int_t LoadConfigFromFile(std::string cfgFileName, std::string sectionName = "");
+    Int_t LoadConfigFromFile(std::string configFilename, std::string sectionName = "");
     Int_t LoadConfigFromBuffer();
 
     /// Making default settings.
@@ -314,7 +314,7 @@ class TRestMetadata : public TNamed {
     /// set the section name, clear the section content
     void SetSectionName(std::string sName) { fSectionName = sName; }
     /// set config file path from external
-    void SetConfigFile(std::string cfgFileName) { fConfigFileName = cfgFileName; }
+    void SetConfigFile(std::string configFilename) { fConfigFileName = configFilename; }
     /// Set the host manager for this class.
     void SetHostmgr(TRestManager* m) { fHostmgr = m; }
     /// sets the verbose level

@@ -763,7 +763,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
         eve = fFileProcess->ProcessEvent(nullptr);
         fFileProcess->EndOfEventProcess();
         mutex2.unlock();
-        fBytesRead = fFileProcess->GetTotalBytesReaded();
+        fBytesRead = fFileProcess->GetTotalBytesRead();
         if (targettree != nullptr) {
             for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
                 targettree->SetObservable(n, fAnalysisTree->GetObservable(n));

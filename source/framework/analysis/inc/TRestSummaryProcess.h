@@ -78,7 +78,7 @@ class TRestSummaryProcess : public TRestEventProcess {
 
     TRestEvent* ProcessEvent(TRestEvent* evInput);
 
-    void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string configFilename, std::string name = "");
 
     void PrintMetadata();
 
@@ -86,10 +86,10 @@ class TRestSummaryProcess : public TRestEventProcess {
     TRestEventProcess* Maker() { return new TRestSummaryProcess; }
 
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "summary"; }
+    inline TString GetProcessName() const { return (TString) "summary"; }
 
     TRestSummaryProcess();
-    TRestSummaryProcess(char* cfgFileName);
+    TRestSummaryProcess(char* configFilename);
 
     ~TRestSummaryProcess();
 
