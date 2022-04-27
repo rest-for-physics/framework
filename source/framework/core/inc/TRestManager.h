@@ -41,7 +41,7 @@ class TRestManager : public TRestMetadata {
 
     // void LaunchTasks();
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     TRestProcessRunner* GetProcessRunner() {
         return (TRestProcessRunner*)GetMetadataClass("TRestProcessRunner");

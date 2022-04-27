@@ -40,8 +40,6 @@ class TRestEventSelectionProcess : public TRestEventProcess {
     /// A list with the event ids that have been selected.
     // std::vector<Int_t> fEventIds;  //<
 
-    // void InitFromConfigFile();
-
     void Initialize() override;
 
    protected:

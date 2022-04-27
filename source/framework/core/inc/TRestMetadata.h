@@ -278,9 +278,9 @@ class TRestMetadata : public TNamed {
 
     TString GetLibraryVersion();
 
-    Bool_t isOfficialRelease() const { return fOfficialRelease; }
+    inline Bool_t isOfficialRelease() const { return fOfficialRelease; }
 
-    Bool_t isCleanState() const { return fCleanState; }
+    inline Bool_t isCleanState() const { return fCleanState; }
 
     Int_t GetVersionCode();
     /// Returns a std::string with the path used for data storage

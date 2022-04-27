@@ -39,7 +39,7 @@ class TRestDBEntryLogger : public TRestMetadata {
     std::string fTextOpenCommand = "vim";
     std::map<std::string, std::string> fMetainfo;
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
     void Initialize();
 
@@ -54,7 +54,7 @@ class TRestDBEntryLogger : public TRestMetadata {
     }
     inline int GetEntries() const { return fMetainfo.size(); }
 
-    void PrintMetadata();
+    void PrintMetadata() override;
     // Constructor
     TRestDBEntryLogger();
     // Destructor

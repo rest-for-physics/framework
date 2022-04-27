@@ -95,7 +95,7 @@ class TRestMessenger : public TRestMetadata {
 
     virtual std::string ConsumeMessage();
 
-    virtual void PrintMetadata();
+    void PrintMetadata() override;
     // Constructor
     TRestMessenger();
     // Constructor

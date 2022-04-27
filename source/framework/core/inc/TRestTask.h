@@ -41,7 +41,7 @@ class TRestTask : public TRestMetadata {
 
    public:
     // define default values here
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
     void SetArgumentValue(std::vector<std::string> arg);
 

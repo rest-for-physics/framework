@@ -58,7 +58,7 @@ class TRestRun : public TRestMetadata {
     bool fHangUpEndFile = false;           //!
     bool fFromRML = false;                 //!
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
    private:
     std::string ReplaceMetadataMember(const std::string& instr);
@@ -220,7 +220,7 @@ class TRestRun : public TRestMetadata {
     void PrintStartDate();
     void PrintEndDate();
 
-    void PrintMetadata();
+    void PrintMetadata() override;
     inline void PrintAllMetadata() {
         PrintMetadata();
         for (unsigned int i = 0; i < fMetadata.size(); i++) fMetadata[i]->PrintMetadata();

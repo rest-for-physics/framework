@@ -156,7 +156,7 @@ class TRestEventProcess : public TRestMetadata {
    public:
     virtual const char* GetProcessName() const = 0;
     Int_t LoadSectionMetadata();
-    inline virtual void InitFromConfigFile() {
+    virtual void InitFromConfigFile() {
         std::map<std::string, std::string> parameters = GetParametersList();
         for (auto& p : parameters) {
             p.second = ReplaceMathematicalExpressions(fRunInfo->ReplaceMetadataMembers(p.second));
