@@ -27,16 +27,17 @@ using namespace std;
 /// 1+1 --> expression
 /// sin(1.5) --> expression
 /// 123456789 --> not expression, It is a pure number that can be directly parsed.
+/// ./123 --> not expression, it is a path
+/// 333/555 --> is expression. But it may also be a path. We should avoid using paths like that
 Int_t REST_StringHelper::isAExpression(string in) {
     bool symbol = false;
-    bool numeric = false;
     
     if (in.length() < 2) // minimum expression: 3%
         return 0;
 
     vector<string> funcs{"sqrt", "log", "exp", "gaus", "cos", "sin", "tan", "atan", "acos", "asin"};
-    for (int i = 0; i < funcs.size(); i++) {
-        if (in.find(funcs[i]) != std::string::npos) {
+    for (const auto& item : funcs) {
+        if (in.find(item) != std::string::npos) {
             symbol = true;
             break;
         }
@@ -58,8 +59,8 @@ Int_t REST_StringHelper::isAExpression(string in) {
 
     if (symbol) {
         string temp = in;
-        for (int i = 0; i < funcs.size(); i++) {
-            temp = Replace(temp, funcs[i], "0", 0);
+        for (const auto& item : funcs) {
+            temp = Replace(temp, item, "0", 0);
         }
         if (temp.find_first_not_of("-0123456789e+*/.,)( ^%") == std::string::npos) {
             if (temp.find("/") == 0 || temp.find("./") == 0 || temp.find("../") == 0)
