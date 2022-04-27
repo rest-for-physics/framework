@@ -42,17 +42,17 @@ class TRestEventSelectionProcess : public TRestEventProcess {
 
     // void InitFromConfigFile();
 
-    void Initialize();
+    void Initialize() override;
 
    protected:
    public:
     any GetInputEvent() const override { return fEvent; }
     any GetOutputEvent() const override { return fEvent; }
 
-    void InitProcess();
-    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void InitProcess() override;
+    TRestEvent* ProcessEvent(TRestEvent* eventInput) override;
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     // Constructor
     TRestEventSelectionProcess();
@@ -61,6 +61,6 @@ class TRestEventSelectionProcess : public TRestEventProcess {
 
     const char* GetProcessName() const override { return "EventSelectionProcess"; }
 
-    ClassDef(TRestEventSelectionProcess, 3);
+    ClassDefOverride(TRestEventSelectionProcess, 3);
 };
 #endif

@@ -35,9 +35,9 @@ class TRestRealTimeAddInputFileProcess : public TRestEventProcess {
     static std::thread* fMonitorThread;  //!
     static int fMonitorFlag;             //!   //0: return, 1: run
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     // Add here the members or parameters for your event process.
     // You should set their initial values here together.
@@ -48,13 +48,13 @@ class TRestRealTimeAddInputFileProcess : public TRestEventProcess {
     any GetInputEvent() const override { return fEvent; }
     any GetOutputEvent() const override { return fEvent; }
 
-    void InitProcess();
+    void InitProcess() override;
 
-    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    TRestEvent* ProcessEvent(TRestEvent* eventInput) override;
 
-    void EndProcess();
+    void EndProcess() override;
 
-    void PrintMetadata() {
+    void PrintMetadata() override {
         BeginPrintProcess();
 
         // Write here how to print the added process members and parameters.
@@ -69,6 +69,6 @@ class TRestRealTimeAddInputFileProcess : public TRestEventProcess {
 
     const char* GetProcessName() const override { return "RealTimeAddInputFileProcess"; }
 
-    ClassDef(TRestRealTimeAddInputFileProcess, 1);
+    ClassDefOverride(TRestRealTimeAddInputFileProcess, 1);
 };
 #endif

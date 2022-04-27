@@ -37,7 +37,7 @@ class TRestEventRateAnalysisProcess : public TRestEventProcess {
     /// It keeps a historic list of timestamps of the previous N events. Now fixed to N=10 events.
     std::vector<Double_t> fPreviousEventTime;  //!
 
-    void Initialize();
+    void Initialize() override;
 
    protected:
     // add here the members of your event process
@@ -46,10 +46,10 @@ class TRestEventRateAnalysisProcess : public TRestEventProcess {
     any GetInputEvent() const override { return fEvent; }
     any GetOutputEvent() const override { return fEvent; }
 
-    void InitProcess();
-    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void InitProcess() override;
+    TRestEvent* ProcessEvent(TRestEvent* eventInput) override;
 
-    void PrintMetadata() {
+    void PrintMetadata() override {
         BeginPrintProcess();
         EndPrintProcess();
     }
@@ -59,6 +59,6 @@ class TRestEventRateAnalysisProcess : public TRestEventProcess {
     TRestEventRateAnalysisProcess();   // Constructor
     ~TRestEventRateAnalysisProcess();  // Destructor
 
-    ClassDef(TRestEventRateAnalysisProcess, 1);
+    ClassDefOverride(TRestEventRateAnalysisProcess, 1);
 };
 #endif

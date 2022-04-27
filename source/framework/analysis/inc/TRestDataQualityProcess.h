@@ -40,12 +40,12 @@ class TRestDataQualityProcess : public TRestEventProcess {
 
     TRestEvent* fEvent = nullptr;  //!
 
-    void InitProcess();
-    void EndProcess();
+    void InitProcess() override;
+    void EndProcess() override;
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     void LoadDefaultConfig();
 
@@ -64,11 +64,11 @@ class TRestDataQualityProcess : public TRestEventProcess {
     any GetInputEvent() const override { return fEvent; }
     any GetOutputEvent() const override { return fEvent; }
 
-    TRestEvent* ProcessEvent(TRestEvent* evInput);
+    TRestEvent* ProcessEvent(TRestEvent* evInput) override;
 
     void LoadConfig(std::string configFilename, std::string name = "");
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     /// Returns a new instance of this class
     TRestEventProcess* Maker() { return new TRestDataQualityProcess; }
@@ -82,6 +82,6 @@ class TRestDataQualityProcess : public TRestEventProcess {
     ~TRestDataQualityProcess();
 
     // If new members are added, removed or modified in this class version number must be increased!
-    ClassDef(TRestDataQualityProcess, 1);
+    ClassDefOverride(TRestDataQualityProcess, 1);
 };
 #endif

@@ -62,12 +62,12 @@ class TRestSummaryProcess : public TRestEventProcess {
     /// The event pointer is not used in this process
     TRestEvent* fEvent = nullptr;  //!
 
-    void InitProcess();
-    void EndProcess();
+    void InitProcess() override;
+    void EndProcess() override;
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     void LoadDefaultConfig();
 
@@ -76,11 +76,11 @@ class TRestSummaryProcess : public TRestEventProcess {
     any GetInputEvent() const override { return fEvent; }
     any GetOutputEvent() const override { return fEvent; }
 
-    TRestEvent* ProcessEvent(TRestEvent* evInput);
+    TRestEvent* ProcessEvent (TRestEvent* evInput) override;
 
     void LoadConfig(std::string configFilename, std::string name = "");
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     /// Returns a new instance of this class
     TRestEventProcess* Maker() { return new TRestSummaryProcess; }
@@ -94,6 +94,6 @@ class TRestSummaryProcess : public TRestEventProcess {
     ~TRestSummaryProcess();
 
     // If new members are added, removed or modified in this class version number must be increased!
-    ClassDef(TRestSummaryProcess, 2);
+    ClassDefOverride(TRestSummaryProcess, 2);
 };
 #endif

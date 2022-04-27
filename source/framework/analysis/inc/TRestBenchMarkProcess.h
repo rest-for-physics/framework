@@ -47,7 +47,7 @@ class TRestBenchMarkProcess : public TRestEventProcess {
     static int fLastEventNumber;         //!
     static ULong64_t fStartTime;         //!
 
-    void Initialize();
+    void Initialize() override;
 
     void SysMonitorFunc(int pid, double refreshRate = 1);
 
@@ -56,11 +56,11 @@ class TRestBenchMarkProcess : public TRestEventProcess {
     any GetInputEvent() const override { return fEvent; }
     any GetOutputEvent() const override { return fEvent; }
 
-    void InitProcess();
-    TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndProcess();
+    void InitProcess() override;
+    TRestEvent* ProcessEvent(TRestEvent* eventInput) override;
+    void EndProcess() override;
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     // Constructor
     TRestBenchMarkProcess();
@@ -69,6 +69,6 @@ class TRestBenchMarkProcess : public TRestEventProcess {
 
     const char* GetProcessName() const override { return "BenchMarkProcess"; }
 
-    ClassDef(TRestBenchMarkProcess, 1);
+    ClassDefOverride(TRestBenchMarkProcess, 1);
 };
 #endif

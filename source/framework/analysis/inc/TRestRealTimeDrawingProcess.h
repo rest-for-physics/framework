@@ -49,19 +49,19 @@ class TRestRealTimeDrawingProcess : public TRestEventProcess {
     /// The event pointer is not used in this process
     TRestEvent* fEvent = nullptr;  //!
 
-    void InitProcess();
-    void EndProcess();
+    void InitProcess() override;
+    void EndProcess() override;
 
-    void Initialize();
+    void Initialize() override;
 
    protected:
    public:
     any GetInputEvent() const override { return fEvent; }
     any GetOutputEvent() const override { return fEvent; }
 
-    TRestEvent* ProcessEvent(TRestEvent* evInput);
+    TRestEvent* ProcessEvent(TRestEvent* evInput) override;
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     /// Returns a new instance of this class
     void DrawWithNotification();
@@ -76,6 +76,6 @@ class TRestRealTimeDrawingProcess : public TRestEventProcess {
     ~TRestRealTimeDrawingProcess();
 
     // If new members are added, removed or modified in this class version number must be increased!
-    ClassDef(TRestRealTimeDrawingProcess, 3);
+    ClassDefOverride(TRestRealTimeDrawingProcess, 3);
 };
 #endif
