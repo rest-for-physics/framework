@@ -24,9 +24,9 @@ using namespace std;
 /// By logic, mathematical expressions must have: +-*/e^% in the middle, or % in the end, or math functions in the beginning.
 /// despite those symbols, the string should be purely numeric.
 /// example: 
-/// 1+1 : expression
-/// sin(1.5) : expression
-/// 123456789 : not expression, It is a pure number that can be directly parsed.
+/// 1+1 --> expression
+/// sin(1.5) --> expression
+/// 123456789 --> not expression, It is a pure number that can be directly parsed.
 Int_t REST_StringHelper::isAExpression(string in) {
     bool symbol = false;
     bool numeric = false;
