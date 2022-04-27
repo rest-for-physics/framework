@@ -105,7 +105,7 @@ TRestSummaryProcess::TRestSummaryProcess() { Initialize(); }
 ///
 /// \param configFilename A const char* giving the path to an RML file.
 ///
-TRestSummaryProcess::TRestSummaryProcess(char* configFilename) {
+TRestSummaryProcess::TRestSummaryProcess(const char* configFilename) {
     Initialize();
 
     LoadConfig(configFilename);

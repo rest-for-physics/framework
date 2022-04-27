@@ -77,7 +77,7 @@ class TRestDataQualityProcess : public TRestEventProcess {
     inline const char* GetProcessName() const { return "dataQuality"; }
 
     TRestDataQualityProcess();
-    TRestDataQualityProcess(char* configFilename);
+    TRestDataQualityProcess(const char* configFilename);
 
     ~TRestDataQualityProcess();
 

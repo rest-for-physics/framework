@@ -101,7 +101,7 @@ TRestMySQLToAnalysisProcess::TRestMySQLToAnalysisProcess() { Initialize(); }
 ///
 /// \param configFilename A const char* giving the path to an RML file.
 ///
-TRestMySQLToAnalysisProcess::TRestMySQLToAnalysisProcess(char* configFilename) {
+TRestMySQLToAnalysisProcess::TRestMySQLToAnalysisProcess(const char* configFilename) {
     Initialize();
     LoadConfig(configFilename);
 }

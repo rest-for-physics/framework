@@ -69,7 +69,7 @@ TRestDataQualityProcess::TRestDataQualityProcess() { Initialize(); }
 ///
 /// \param configFilename A const char* giving the path to an RML file.
 ///
-TRestDataQualityProcess::TRestDataQualityProcess(char* configFilename) {
+TRestDataQualityProcess::TRestDataQualityProcess(const char* configFilename) {
     Initialize();
 
     LoadConfig(configFilename);

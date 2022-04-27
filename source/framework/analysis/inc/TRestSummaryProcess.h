@@ -89,7 +89,7 @@ class TRestSummaryProcess : public TRestEventProcess {
     inline const char* GetProcessName() const { return "summary"; }
 
     TRestSummaryProcess();
-    TRestSummaryProcess(char* configFilename);
+    TRestSummaryProcess(const char* configFilename);
 
     ~TRestSummaryProcess();
 
