@@ -188,7 +188,7 @@ class TRestAnalysisPlot : public TRestMetadata {
     }
     void PlotCombinedCanvas();
 
-    // Construtor
+    // Constructor
     TRestAnalysisPlot();
     TRestAnalysisPlot(const char* configFilename, const char* name = "");
     // Destructor

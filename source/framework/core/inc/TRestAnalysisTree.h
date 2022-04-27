@@ -266,7 +266,7 @@ class TRestAnalysisTree : public TTree {
 
     Int_t WriteAsTTree(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 
-    // Construtor
+    // Constructor
     TRestAnalysisTree();
     TRestAnalysisTree(TString name, TString title);
     static TRestAnalysisTree* ConvertFromTTree(TTree* tree);

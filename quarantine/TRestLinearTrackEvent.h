@@ -145,7 +145,7 @@ class TRestLinearTrackEvent : public TRestEvent {
 
     TPad* DrawEvent(TString option = "");
 
-    // Construtor
+    // Constructor
     TRestLinearTrackEvent();
     // Destructor
     virtual ~TRestLinearTrackEvent();

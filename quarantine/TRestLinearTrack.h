@@ -123,7 +123,7 @@ class TRestLinearTrack : public TObject {
 
     void Print(Bool_t fullInfo = false);
 
-    // Construtor
+    // Constructor
     TRestLinearTrack();
     // Destructor
     virtual ~TRestLinearTrack();
