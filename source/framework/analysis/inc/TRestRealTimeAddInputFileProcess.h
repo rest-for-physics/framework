@@ -45,8 +45,8 @@ class TRestRealTimeAddInputFileProcess : public TRestEventProcess {
     // if you don't want to save them as "metadata".
 
    public:
-    inline any GetInputEvent() const { return fEvent; }
-    inline any GetOutputEvent() const { return fEvent; }
+    any GetInputEvent() const override { return fEvent; }
+    any GetOutputEvent() const override { return fEvent; }
 
     void InitProcess();
 
