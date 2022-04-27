@@ -515,8 +515,8 @@ TRestMetadata::TRestMetadata(const char* configFilename) : endl(this) {
 /// \brief TRestMetadata default destructor
 ///
 TRestMetadata::~TRestMetadata() {
-    if (fElementGlobal) delete fElementGlobal;
-    if (fElement) delete fElement;
+    delete fElementGlobal;
+    delete fElement;
 }
 
 ///////////////////////////////////////////////
