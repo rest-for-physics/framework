@@ -154,6 +154,7 @@ class TRestEventProcess : public TRestMetadata {
     bool ApplyCut();
 
    public:
+    virtual const char* GetProcessName() const = 0;
     Int_t LoadSectionMetadata();
     inline virtual void InitFromConfigFile() {
         std::map<std::string, std::string> parameters = GetParametersList();

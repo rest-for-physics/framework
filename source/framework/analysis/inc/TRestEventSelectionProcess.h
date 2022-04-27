@@ -59,6 +59,8 @@ class TRestEventSelectionProcess : public TRestEventProcess {
     // Destructor
     ~TRestEventSelectionProcess() {}
 
+    inline const char* GetProcessName() const { return "EventSelectionProcess"; }
+
     ClassDef(TRestEventSelectionProcess, 3);
 };
 #endif

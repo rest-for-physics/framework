@@ -67,8 +67,8 @@ class TRestRealTimeAddInputFileProcess : public TRestEventProcess {
     TRestRealTimeAddInputFileProcess();
     ~TRestRealTimeAddInputFileProcess();
 
-    // ROOT class definition helper. Increase the number in it every time
-    // you add/rename/remove the process parameters
+    inline const char* GetProcessName() const { return "RealTimeAddInputFileProcess"; }
+
     ClassDef(TRestRealTimeAddInputFileProcess, 1);
 };
 #endif

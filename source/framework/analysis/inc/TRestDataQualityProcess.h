@@ -74,7 +74,7 @@ class TRestDataQualityProcess : public TRestEventProcess {
     TRestEventProcess* Maker() { return new TRestDataQualityProcess; }
 
     /// Returns the name of this process
-    inline TString GetProcessName() const { return (TString) "dataQuality"; }
+    inline const char* GetProcessName() const { return "dataQuality"; }
 
     TRestDataQualityProcess();
     TRestDataQualityProcess(char* configFilename);

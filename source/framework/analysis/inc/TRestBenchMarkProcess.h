@@ -67,7 +67,8 @@ class TRestBenchMarkProcess : public TRestEventProcess {
     // Destructor
     ~TRestBenchMarkProcess() {}
 
-    ClassDef(TRestBenchMarkProcess, 1);  // Template for a REST "event process" class inherited from
-                                         // TRestEventProcess
+    inline const char* GetProcessName() const { return "BenchMarkProcess"; }
+
+    ClassDef(TRestBenchMarkProcess, 1);
 };
 #endif
