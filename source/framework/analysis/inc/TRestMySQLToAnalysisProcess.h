@@ -92,7 +92,7 @@ class TRestMySQLToAnalysisProcess : public TRestEventProcess {
     any GetInputEvent() const override { return fEvent; }
     any GetOutputEvent() const override { return fEvent; }
 
-    TRestEvent* ProcessEvent(TRestEvent* evInput) override;
+    TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
 
     void LoadConfig(const std::string& configFilename, const std::string& name = "");
 

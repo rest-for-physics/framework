@@ -50,7 +50,7 @@ class TRestRealTimeAddInputFileProcess : public TRestEventProcess {
 
     void InitProcess() override;
 
-    TRestEvent* ProcessEvent(TRestEvent* eventInput) override;
+    TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
 
     void EndProcess() override;
 

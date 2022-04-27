@@ -47,7 +47,7 @@ class TRestEventRateAnalysisProcess : public TRestEventProcess {
     any GetOutputEvent() const override { return fEvent; }
 
     void InitProcess() override;
-    TRestEvent* ProcessEvent(TRestEvent* eventInput) override;
+    TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
 
     void PrintMetadata() override {
         BeginPrintProcess();

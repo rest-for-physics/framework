@@ -57,7 +57,7 @@ class TRestBenchMarkProcess : public TRestEventProcess {
     any GetOutputEvent() const override { return fEvent; }
 
     void InitProcess() override;
-    TRestEvent* ProcessEvent(TRestEvent* eventInput) override;
+    TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
     void EndProcess() override;
 
     void PrintMetadata() override;

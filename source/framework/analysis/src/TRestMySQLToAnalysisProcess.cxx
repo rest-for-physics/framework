@@ -161,8 +161,8 @@ void TRestMySQLToAnalysisProcess::Initialize() { SetSectionName(this->ClassName(
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestMySQLToAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
-    fEvent = evInput;
+TRestEvent* TRestMySQLToAnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fEvent = inputEvent;
 
 #if defined USE_SQL
     debug << "TRestMySQLToAnalysisProcess. Ev ID : " << fEvent->GetID() << endl;

@@ -122,8 +122,8 @@ void TRestDataQualityProcess::Initialize() { SetSectionName(this->ClassName()); 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestDataQualityProcess::ProcessEvent(TRestEvent* evInput) {
-    fEvent = evInput;
+TRestEvent* TRestDataQualityProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fEvent = inputEvent;
 
     // This process does nothing at the event-by-event level
 

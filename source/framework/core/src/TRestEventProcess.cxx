@@ -357,7 +357,7 @@ void TRestEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
 
 /*
 
-void TRestEventProcess::ProcessEvent( TRestEvent *eventInput )
+void TRestEventProcess::ProcessEvent( TRestEvent *inputEvent )
 {
 // virtual function to be executed for every event to be processed
 }
@@ -366,7 +366,7 @@ void TRestEventProcess::ProcessEvent( TRestEvent *eventInput )
 //////////////////////////////////////////////////////////////////////////
 /// \brief End of event process. Validate the updated observable number matches total defined observable
 /// number
-void TRestEventProcess::EndOfEventProcess(TRestEvent* evInput) {
+void TRestEventProcess::EndOfEventProcess(TRestEvent* inputEvent) {
     debug << "Entering TRestEventProcess::EndOfEventProcess (" << ClassName() << ")" << endl;
     if (fValidateObservables) {
         if (fObservablesDefined.size() != fObservablesUpdated.size()) {

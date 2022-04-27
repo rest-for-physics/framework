@@ -70,8 +70,8 @@ void TRestBenchMarkProcess::InitProcess() {
     fStartTime = chrono::high_resolution_clock::now().time_since_epoch().count();
 }
 
-TRestEvent* TRestBenchMarkProcess::ProcessEvent(TRestEvent* eventInput) {
-    fEvent = eventInput;
+TRestEvent* TRestBenchMarkProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fEvent = inputEvent;
 
     ULong64_t time = chrono::high_resolution_clock::now().time_since_epoch().count();
     SetObservableValue("RunningTime", (time - fStartTime) / 1e9);

@@ -158,8 +158,8 @@ void TRestSummaryProcess::Initialize() { SetSectionName(this->ClassName()); }
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestSummaryProcess::ProcessEvent(TRestEvent* evInput) {
-    fEvent = evInput;
+TRestEvent* TRestSummaryProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fEvent = inputEvent;
 
     // This process does nothing at the event-by-event level
 
