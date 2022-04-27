@@ -8,6 +8,7 @@
 #include "sys/wait.h"
 
 using namespace std;
+
 ClassImp(TRestBenchMarkProcess);
 
 thread* TRestBenchMarkProcess::fMonitorThread = nullptr;

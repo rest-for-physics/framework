@@ -189,7 +189,7 @@ class TRestEventProcess : public TRestMetadata {
     /// Set analysis tree of this process, then add observables to it
     void SetAnalysisTree(TRestAnalysisTree* tree);
     /// Set TRestRun for this process
-    void SetRunInfo(TRestRun* r) { fRunInfo = r; }
+    inline  void SetRunInfo(TRestRun* r) { fRunInfo = r; }
     /// Set canvas size
     inline void SetCanvasSize(Int_t x, Int_t y) { fCanvasSize = TVector2(x, y); }
     /// Add friendly process to this process
