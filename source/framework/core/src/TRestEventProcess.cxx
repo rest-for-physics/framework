@@ -291,36 +291,6 @@ TRestEventProcess* TRestEventProcess::GetParallel(int i) {
     return nullptr;
 }
 
-template <class T>
-void TRestEventProcess::SetObservableValue(const string& name, const T& value) {
-    if (fAnalysisTree != nullptr) {
-        string obsName = this->GetName() + (string) "_" + (string)name;
-
-        if (fValidateObservables) {
-            int id = fAnalysisTree->GetObservableID(obsName);
-            if (id != -1) {
-                fObservablesDefined[obsName] = id;
-                fObservablesUpdated[obsName] = id;
-                fAnalysisTree->SetObservable(obsName, value);
-            } else if (fDynamicObs) {
-                fAnalysisTree->SetObservable(obsName, value);
-                int n = fAnalysisTree->GetObservableID(obsName);
-                if (n != -1) {
-                    fObservablesDefined[obsName] = id;
-                    fObservablesUpdated[obsName] = id;
-                }
-            }
-        } else {
-            int id = fAnalysisTree->GetObservableID(obsName);
-            if (id != -1) {
-                fAnalysisTree->SetObservableValue(id, value);
-            } else if (fDynamicObs) {
-                fAnalysisTree->SetObservableValue(obsName, value);
-            }
-        }
-    }
-}
-
 //////////////////////////////////////////////////////////////////////////
 /// \brief Apply cut according to the cut conditions saved in fCut
 ///
@@ -526,7 +496,7 @@ TRestAnalysisTree* TRestEventProcess::GetFullAnalysisTree() {
 
 //////////////////////////////////////////////////////////////////////////
 /// Get list of observables, convert map to vector.
-vector<string> TRestEventProcess::GetListOfAddedObservables() {
+std::vector<string> TRestEventProcess::GetListOfAddedObservables() {
     vector<string> list;
     auto iter = fObservablesDefined.begin();
     while (iter != fObservablesDefined.end()) {

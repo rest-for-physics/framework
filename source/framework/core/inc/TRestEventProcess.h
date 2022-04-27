@@ -114,7 +114,34 @@ class TRestEventProcess : public TRestMetadata {
     /// If use dynamic observable, it will try to create new observable
     /// in the AnalysisTree if the observable is not found
     template <class T>
-    void SetObservableValue(const std::string& name, const T& value);
+    inline void SetObservableValue(std::string name, const T& value) {
+        if (fAnalysisTree != nullptr) {
+            std::string obsName = this->GetName() + (std::string) "_" + (std::string)name;
+
+            if (fValidateObservables) {
+                int id = fAnalysisTree->GetObservableID(obsName);
+                if (id != -1) {
+                    fObservablesDefined[obsName] = id;
+                    fObservablesUpdated[obsName] = id;
+                    fAnalysisTree->SetObservable(obsName, value);
+                } else if (fDynamicObs) {
+                    fAnalysisTree->SetObservable(obsName, value);
+                    int n = fAnalysisTree->GetObservableID(obsName);
+                    if (n != -1) {
+                        fObservablesDefined[obsName] = id;
+                        fObservablesUpdated[obsName] = id;
+                    }
+                }
+            } else {
+                int id = fAnalysisTree->GetObservableID(obsName);
+                if (id != -1) {
+                    fAnalysisTree->SetObservableValue(id, value);
+                } else if (fDynamicObs) {
+                    fAnalysisTree->SetObservableValue(obsName, value);
+                }
+            }
+        }
+    }
 
     /// Create the canvas
     inline void CreateCanvas() {
