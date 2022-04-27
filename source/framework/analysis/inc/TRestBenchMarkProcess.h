@@ -67,7 +67,7 @@ class TRestBenchMarkProcess : public TRestEventProcess {
     // Destructor
     ~TRestBenchMarkProcess() {}
 
-    inline const char* GetProcessName() const { return "BenchMarkProcess"; }
+    const char* GetProcessName() const override { return "BenchMarkProcess"; }
 
     ClassDef(TRestBenchMarkProcess, 1);
 };

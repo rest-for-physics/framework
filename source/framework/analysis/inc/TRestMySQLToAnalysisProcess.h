@@ -102,7 +102,7 @@ class TRestMySQLToAnalysisProcess : public TRestEventProcess {
     TRestEventProcess* Maker() { return new TRestMySQLToAnalysisProcess; }
 
     /// Returns the name of this process
-    inline const char* GetProcessName() const { return "SQLToAnalysisProces"; }
+    const char* GetProcessName() const override { return "SQLToAnalysisProces"; }
 
     TRestMySQLToAnalysisProcess();
     TRestMySQLToAnalysisProcess(const char* configFilename);

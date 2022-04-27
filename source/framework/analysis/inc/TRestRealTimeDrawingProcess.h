@@ -69,7 +69,7 @@ class TRestRealTimeDrawingProcess : public TRestEventProcess {
     void DrawOnce();
 
     /// Returns the name of this process
-    inline const char* GetProcessName() const { return "realtimedraw"; }
+    const char* GetProcessName() const override { return "realtimedraw"; }
 
     TRestRealTimeDrawingProcess();
 

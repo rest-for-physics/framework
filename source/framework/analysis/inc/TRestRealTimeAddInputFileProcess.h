@@ -67,7 +67,7 @@ class TRestRealTimeAddInputFileProcess : public TRestEventProcess {
     TRestRealTimeAddInputFileProcess();
     ~TRestRealTimeAddInputFileProcess();
 
-    inline const char* GetProcessName() const { return "RealTimeAddInputFileProcess"; }
+    const char* GetProcessName() const override { return "RealTimeAddInputFileProcess"; }
 
     ClassDef(TRestRealTimeAddInputFileProcess, 1);
 };

@@ -86,7 +86,7 @@ class TRestSummaryProcess : public TRestEventProcess {
     TRestEventProcess* Maker() { return new TRestSummaryProcess; }
 
     /// Returns the name of this process
-    inline const char* GetProcessName() const { return "summary"; }
+    const char* GetProcessName() const override { return "summary"; }
 
     TRestSummaryProcess();
     TRestSummaryProcess(const char* configFilename);

@@ -54,7 +54,7 @@ class TRestEventRateAnalysisProcess : public TRestEventProcess {
         EndPrintProcess();
     }
 
-    inline const char* GetProcessName() const { return "eventRateAnalysis"; }
+    const char* GetProcessName() const override { return "eventRateAnalysis"; }
 
     TRestEventRateAnalysisProcess();   // Constructor
     ~TRestEventRateAnalysisProcess();  // Destructor
