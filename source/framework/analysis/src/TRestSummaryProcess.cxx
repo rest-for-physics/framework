@@ -136,7 +136,7 @@ void TRestSummaryProcess::LoadDefaultConfig() {
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestSummaryProcess section inside the RML.
 ///
-void TRestSummaryProcess::LoadConfig(std::string configFilename, std::string name) {
+void TRestSummaryProcess::LoadConfig(const string& configFilename, const string& name) {
     if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
 }
 

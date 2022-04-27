@@ -131,7 +131,7 @@ void TRestMySQLToAnalysisProcess::LoadDefaultConfig() {
 /// \param name The name of the specific metadata. It will be used to find the
 /// corresponding TRestMySQLToAnalysisProcess section inside the RML.
 ///
-void TRestMySQLToAnalysisProcess::LoadConfig(std::string configFilename, std::string name) {
+void TRestMySQLToAnalysisProcess::LoadConfig(const string& configFilename, const string& name) {
     if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
 }
 

@@ -100,7 +100,7 @@ void TRestDataQualityProcess::LoadDefaultConfig() {
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestDataQualityProcess section inside the RML.
 ///
-void TRestDataQualityProcess::LoadConfig(std::string configFilename, std::string name) {
+void TRestDataQualityProcess::LoadConfig(const string& configFilename, const string& name) {
     if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
 }
 

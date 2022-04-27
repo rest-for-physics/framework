@@ -98,7 +98,7 @@ class TRestEventProcess : public TRestMetadata {
     /// mis-spelling. For example: `fReadout = GetMetadata<TRestReadout>();`. No need for type
     /// conversion.
     template <class T>
-    T* GetMetadata() {
+    inline T* GetMetadata() {
         std::string type = REST_Reflection::GetTypeName<T>();
         return (T*)GetMetadata(type);
     }
@@ -189,7 +189,7 @@ class TRestEventProcess : public TRestMetadata {
     /// Set analysis tree of this process, then add observables to it
     void SetAnalysisTree(TRestAnalysisTree* tree);
     /// Set TRestRun for this process
-    inline  void SetRunInfo(TRestRun* r) { fRunInfo = r; }
+    inline void SetRunInfo(TRestRun* r) { fRunInfo = r; }
     /// Set canvas size
     inline void SetCanvasSize(Int_t x, Int_t y) { fCanvasSize = TVector2(x, y); }
     /// Add friendly process to this process
@@ -208,16 +208,16 @@ class TRestEventProcess : public TRestMetadata {
     /// Interface to external file reading, get the read bytes. To be implemented in external processes.
     virtual Long64_t GetTotalBytesRead() const { return 0; }
     /// Return whether this process is single std::thread only
-    Bool_t singleThreadOnly() const { return fSingleThreadOnly; }
+    inline Bool_t singleThreadOnly() const { return fSingleThreadOnly; }
     /// Return whether this process is external process
-    Bool_t isExternal() const { return fIsExternal; }
+    inline Bool_t isExternal() const { return fIsExternal; }
     /// Return the pointer of the hosting TRestRun object
-    TRestRun* GetRunInfo() const { return fRunInfo; }
+    inline TRestRun* GetRunInfo() const { return fRunInfo; }
     /// Return the local analysis tree (dummy)
-    TRestAnalysisTree* GetAnalysisTree() const { return fAnalysisTree; }
+    inline TRestAnalysisTree* GetAnalysisTree() const { return fAnalysisTree; }
     TRestAnalysisTree* GetFullAnalysisTree();
     /// Get canvas
-    TCanvas* GetCanvas() const { return fCanvas; }
+    inline TCanvas* GetCanvas() const { return fCanvas; }
     std::vector<std::string> GetListOfAddedObservables();
 
     // Constructor

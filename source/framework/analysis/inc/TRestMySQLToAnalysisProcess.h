@@ -80,11 +80,11 @@ class TRestMySQLToAnalysisProcess : public TRestEventProcess {
     Double_t GetDBValueAtTimestamp(Int_t index, Double_t timestamp);
 
    protected:
-    void InitProcess() override ;
+    void InitProcess() override;
 
-    void InitFromConfigFile() override ;
+    void InitFromConfigFile() override;
 
-    void Initialize() override ;
+    void Initialize() override;
 
     void LoadDefaultConfig();
 
@@ -92,9 +92,9 @@ class TRestMySQLToAnalysisProcess : public TRestEventProcess {
     any GetInputEvent() const override { return fEvent; }
     any GetOutputEvent() const override { return fEvent; }
 
-    TRestEvent* ProcessEvent(TRestEvent* evInput) override ;
+    TRestEvent* ProcessEvent(TRestEvent* evInput) override;
 
-    void LoadConfig(std::string configFilename, std::string name = "");
+    void LoadConfig(const std::string& configFilename, const std::string& name = "");
 
     void PrintMetadata() override;
 
