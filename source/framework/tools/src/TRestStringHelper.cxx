@@ -29,7 +29,7 @@ using namespace std;
 /// 123456789 --> not expression, It is a pure number that can be directly parsed.
 /// ./123 --> not expression, it is a path
 /// 333/555 --> is expression. But it may also be a path. We should avoid using paths like that
-Int_t REST_StringHelper::isAExpression(string in) {
+Int_t REST_StringHelper::isAExpression(const string& in) {
     bool symbol = false;
     
     if (in.length() < 2) // minimum expression: 3%

@@ -27,7 +27,7 @@ namespace REST_StringHelper {
 
 Int_t GetChar(std::string hint = "Press a KEY to continue ...");
 Int_t isANumber(std::string in);
-Int_t isAExpression(std::string in);
+Int_t isAExpression(const std::string& in);
 std::string ReplaceMathematicalExpressions(std::string buffer, std::string errorMessage = "");
 std::string EvaluateExpression(std::string exp);
 Float_t StringToFloat(std::string in);
