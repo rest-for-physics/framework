@@ -13,7 +13,7 @@ stages:
   # Project compilation validation
   - build
 
-  # REST libraries installed as sub-modules
+  # REST libraries installed as submodules
   - libraries
 
   # Basic validation tests of installation
@@ -34,7 +34,7 @@ stages:
   # Stage to validate data chain processing constructions (TREX-DM data, PandaX-III topology, etc).
   - restManager_process
 
-  # Stage to validate tasks or executions over preprocessed data filesx
+  # Stage to validate tasks or executions over preprocessed data files
   - postProcessing
 
   # Stage to validate other restManager tasks (metadata generation, script loading, etc).
@@ -85,7 +85,7 @@ Build and Test:
     - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH}
     - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build
     - cmake ${CI_PROJECT_DIR}
-      -DTEST=ON -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
+      -DTEST=ON -DREST_GARFIELD=OFF -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
     - make -j2
     - ctest --verbose -O ${CI_PROJECT_DIR}/build/Testing/summary.txt
 
