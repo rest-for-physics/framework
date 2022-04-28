@@ -98,7 +98,7 @@ void TRestDataQualityProcess::LoadDefaultConfig() {
 ///
 /// \param configFilename A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// correspondig TRestDataQualityProcess section inside the RML.
+/// corresponding TRestDataQualityProcess section inside the RML.
 ///
 void TRestDataQualityProcess::LoadConfig(const string& configFilename, const string& name) {
     if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
