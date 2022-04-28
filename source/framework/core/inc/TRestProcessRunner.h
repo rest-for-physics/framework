@@ -60,8 +60,8 @@ class TRestProcessRunner : public TRestMetadata {
 
    public:
     /// REST run class
-    void Initialize();
-    void InitFromConfigFile() {
+    void Initialize() override;
+    void InitFromConfigFile() override {
         BeginOfInit();
         if (fElement != nullptr) {
             TiXmlElement* e = fElement->FirstChildElement();
@@ -115,7 +115,7 @@ class TRestProcessRunner : public TRestMetadata {
     TRestProcessRunner();
     ~TRestProcessRunner();
 
-    ClassDef(TRestProcessRunner, 6);
+    ClassDefOverride(TRestProcessRunner, 6);
 };
 
 #endif

@@ -58,7 +58,7 @@ class TRestTask : public TRestMetadata {
     TRestTask();
     ~TRestTask(){};
 
-    ClassDef(TRestTask, 1);
+    ClassDefOverride(TRestTask, 1);
 };
 
 #endif

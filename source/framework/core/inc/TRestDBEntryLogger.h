@@ -41,7 +41,7 @@ class TRestDBEntryLogger : public TRestMetadata {
 
     void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     void AskForFilling(int run_id);
 
@@ -60,7 +60,7 @@ class TRestDBEntryLogger : public TRestMetadata {
     // Destructor
     ~TRestDBEntryLogger() {}
 
-    ClassDef(TRestDBEntryLogger, 1);  // Template for a REST "event process" class inherited from
+    ClassDefOverride(TRestDBEntryLogger, 1);  // Template for a REST "event process" class inherited from
                                       // TRestEventProcess
 };
 #endif

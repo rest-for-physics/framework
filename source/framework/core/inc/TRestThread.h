@@ -38,8 +38,8 @@ class TRestThread : public TRestMetadata {
     Bool_t fProcessNullReturned;  //!
 
    public:
-    void Initialize();
-    void InitFromConfigFile() {}
+    void Initialize() override;
+    void InitFromConfigFile() override {}
 
     void AddProcess(TRestEventProcess* process);
     void PrepareToProcess(bool* outputConfig = nullptr);
@@ -71,7 +71,7 @@ class TRestThread : public TRestMetadata {
     TRestThread() { Initialize(); }
     ~TRestThread(){};
 
-    ClassDef(TRestThread, 1);
+    ClassDefOverride(TRestThread, 1);
 };
 
 #endif

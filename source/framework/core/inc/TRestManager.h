@@ -19,8 +19,8 @@ class TRestManager : public TRestMetadata {
     std::vector<TRestMetadata*> fMetaObjects;  //!
 
    public:
-    void Initialize();
-    void InitFromConfigFile() {
+    void Initialize() override;
+    void InitFromConfigFile() override {
         if (fElement != nullptr) {
             TiXmlElement* e = fElement->FirstChildElement();
             while (e != nullptr) {
@@ -34,7 +34,7 @@ class TRestManager : public TRestMetadata {
             }
         }
     }
-    int LoadSectionMetadata();
+    int LoadSectionMetadata() override;
     Int_t ReadConfig(std::string keydeclare, TiXmlElement* e);
 
     void InitFromTask(std::string taskName, std::vector<std::string> arguments);
@@ -56,7 +56,7 @@ class TRestManager : public TRestMetadata {
     ~TRestManager();
 
     /// Call CINT to generate streamers for this class
-    ClassDef(TRestManager, 1);
+    ClassDefOverride(TRestManager, 1);
 };
 
 #endif
