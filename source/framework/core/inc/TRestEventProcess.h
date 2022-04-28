@@ -155,8 +155,8 @@ class TRestEventProcess : public TRestMetadata {
 
    public:
     virtual const char* GetProcessName() const = 0;
-    Int_t LoadSectionMetadata();
-    virtual void InitFromConfigFile() {
+    Int_t LoadSectionMetadata() override;
+    virtual void InitFromConfigFile() override {
         std::map<std::string, std::string> parameters = GetParametersList();
         for (auto& p : parameters) {
             p.second = ReplaceMathematicalExpressions(fRunInfo->ReplaceMetadataMembers(p.second));
@@ -225,6 +225,6 @@ class TRestEventProcess : public TRestMetadata {
     // Destructor
     ~TRestEventProcess();
 
-    ClassDef(TRestEventProcess, 3);  // Base class for a REST process
+    ClassDefOverride(TRestEventProcess, 3);  // Base class for a REST process
 };
 #endif

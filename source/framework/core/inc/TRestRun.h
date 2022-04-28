@@ -65,7 +65,7 @@ class TRestRun : public TRestMetadata {
 
    public:
     /// REST run class
-    void Initialize();
+    void Initialize() override;
 
     // file operation
     void OpenInputFile(int i);
@@ -245,14 +245,14 @@ class TRestRun : public TRestMetadata {
     void PrintErrors();
     void PrintWarnings();
 
-    Int_t Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0);
+    Int_t Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0) override;
 
     // Constructor & Destructor
     TRestRun();
     TRestRun(const std::string& filename);
     ~TRestRun();
 
-    ClassDef(TRestRun, 5);
+    ClassDefOverride(TRestRun, 5);
 };
 
 #endif
