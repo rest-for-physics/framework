@@ -152,7 +152,7 @@ List REST Macros:
     expire_in: 1 day
 
 08_alphas:
-  type: restG4
+  stage: restG4
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples/restG4/08.Alphas/
@@ -166,7 +166,7 @@ List REST Macros:
     expire_in: 1 day
 
 01_alphaTrack:
-  type: examples
+  stage: examples
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples/01.alphaTrack/
