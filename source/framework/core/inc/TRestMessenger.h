@@ -104,6 +104,6 @@ class TRestMessenger : public TRestMetadata {
     ~TRestMessenger();
 
     ClassDefOverride(TRestMessenger, 1);  // Template for a REST "event process" class inherited from
-                                  // TRestEventProcess
+                                          // TRestEventProcess
 };
 #endif
