@@ -85,7 +85,7 @@ Build and Test:
     - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH}
     - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build
     - cmake ${CI_PROJECT_DIR}
-      -DTEST=ON -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
+      -DTEST=ON -DREST_GARFIELD=OFF -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
     - make -j2
     - ctest --verbose -O ${CI_PROJECT_DIR}/build/Testing/summary.txt
 
@@ -166,8 +166,8 @@ List REST Macros:
     expire_in: 1 day
 
 01_alphaTrack:
-    type: examples
-    script:
+  type: examples
+  script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples/01.alphaTrack/
     - mkdir data
