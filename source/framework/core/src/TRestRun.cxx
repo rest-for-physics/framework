@@ -164,6 +164,7 @@ void TRestRun::InitFromConfigFile() {
         fRunNumber = atoi(runNstr.c_str());
         fStartTime = gDataBase->query_run(fRunNumber).tstart;
         fEndTime = gDataBase->query_run(fRunNumber).tend;
+        fRunDuration = fEndTime - fStartTime;
     }
 
     if (ToUpper(inputname) == "AUTO") {
@@ -624,6 +625,7 @@ void TRestRun::ReadFileInfo(const string& filename) {
     fclose(fp);
     if (fEndTime == 0) {
         fEndTime = buf.st_mtime;
+        fRunDuration = fEndTime - fStartTime;
     }
 
     if (TRestTools::isRootFile((string)filename)) {
@@ -1006,6 +1008,7 @@ void TRestRun::WriteWithDataBase() {
         time_t timev;
         time(&timev);
         fEndTime = (Double_t)timev;
+        fRunDuration = fEndTime - fStartTime;
     }
 
     fRunUser = REST_USER;
@@ -1251,7 +1254,7 @@ Double_t TRestRun::GetRunLength() const {
     if (fEndTime - fStartTime == -1) {
         cout << "Run time is not set\n";
     }
-    return fEndTime - fStartTime;
+    return fRunDuration;
 }
 
 Long64_t TRestRun::GetTotalBytes() {

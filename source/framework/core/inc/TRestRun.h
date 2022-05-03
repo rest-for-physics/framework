@@ -17,24 +17,44 @@ class TRestEventProcess;
 /// Data provider and manager in REST
 class TRestRun : public TRestMetadata {
    protected:
-    // run info
-    Int_t fRunNumber;  //< first identification number
-    Int_t fParentRunNumber;
-    TString fRunClassName;
-    TString fRunType;  //< Stores bit by bit the type of run. e.g. calibration, background, pedestal,
-                       // simulation, data taking
-    TString fRunUser;  //< To identify the author it has created the run. It might be also a word describing
-                       // the origin of the run (I.e. REST_Prototype, T-REX, etc)
-    TString fRunTag;   //< A tag to be written to the output file
-    TString fRunDescription;  //< A word or sentence describing the run (I.e. Fe55 calibration, cosmics, etc)
+    /// The primary run identification number
+    Int_t fRunNumber;  //<
+
+    /// Parent run number of subrun number
+    Int_t fParentRunNumber;  //<
+
+    /// A string to define the run type to the user convenience: restG4, data, calibration, background, etc
+    TString fRunType;
+
+    /// It identifies the user that produced the file
+    TString fRunUser;  //<
+
+    /// A run tag or keyword describing the data that contains this run: Co60_Neon_1bar, Pb210_Argon_10bar
+    TString fRunTag;  //<
+
+    /// A more detailed description of the contents of this run
+    TString fRunDescription;  //<
+
+    /// The name of the project or experiment this run belongs to: IAXO, TREX-DM, PandaX-III, R&D-micromegas
     TString fExperimentName;
 
-    // program data
-    TString fInputFileName;
+    /// The input filename in the case that the run contains already processed data
+    TString fInputFileName;  //<
+
+    /// The output filename. It should match the name of the file where this run is stored
     TString fOutputFileName;
-    Double_t fStartTime;  ///< Event absolute starting time/date (unix timestamp)
-    Double_t fEndTime;    ///< Event absolute ending time/date (unix timestamp)
-    Int_t fEntriesSaved;
+
+    /// Event absolute starting time/date (unix timestamp)
+    Double_t fStartTime;  //<
+
+    /// Event absolute ending time/date (unix timestamp)
+    Double_t fEndTime;  //<
+
+    /// Number of entries found inside the event and analysis tree
+    Int_t fEntriesSaved;  //<
+
+    /// The effective run duration in seconds
+    Double_t fRunDuration = 0;  //<
 
     // data-like metadata objects
     std::vector<TRestMetadata*> fMetadata;       //!
@@ -252,7 +272,7 @@ class TRestRun : public TRestMetadata {
     TRestRun(const std::string& filename);
     ~TRestRun();
 
-    ClassDef(TRestRun, 5);
+    ClassDef(TRestRun, 6);
 };
 
 #endif
