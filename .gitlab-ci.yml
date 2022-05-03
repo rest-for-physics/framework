@@ -78,16 +78,16 @@ Validate Code:
     - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH}
     - python3 pipeline/validateProcesses.py source/libraries/
 
-  #Build and Test:
-  #  stage: test
-  #  script:
-  #    - cd ${CI_PROJECT_DIR}
-  #    - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH}
-  #    - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build
-  #    - cmake ${CI_PROJECT_DIR}
-  #      -DTEST=ON -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
-  #    - make -j2
-  #    - ctest --verbose -O ${CI_PROJECT_DIR}/build/Testing/summary.txt
+Build and Test:
+  stage: test
+  script:
+    - cd ${CI_PROJECT_DIR}
+    - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH}
+    - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build
+    - cmake ${CI_PROJECT_DIR}
+      -DTEST=ON -DREST_GARFIELD=OFF -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
+    - make -j2
+    - ctest --verbose -O ${CI_PROJECT_DIR}/build/Testing/summary.txt
 
   # artifacts:
   # name: "Testing"
