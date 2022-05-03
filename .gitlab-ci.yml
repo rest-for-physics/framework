@@ -223,7 +223,7 @@ Basic Readout:
     - git submodule update --init
     - git pull
     - ls
-    - restRoot --m 1 -b -q GenerateReadouts.C'("basic.root")'
+    - restRoot -b -q GenerateReadouts.C'("basic.root")'
     - restRoot -b -q BasicValidation.C'("basic.root", "pixelDecoding")'
 
 Test Metadata:
