@@ -89,11 +89,11 @@ Validate Code:
   #    - make -j2
   #    - ctest --verbose -O ${CI_PROJECT_DIR}/build/Testing/summary.txt
 
-  artifacts:
-    name: "Testing"
-    paths:
-      - ${CI_PROJECT_DIR}/build/Testing
-    expire_in: 1 day
+  # artifacts:
+  # name: "Testing"
+  #   paths:
+  #     - ${CI_PROJECT_DIR}/build/Testing
+  #   expire_in: 1 day
 
 Build and Install:
   stage: build
@@ -220,9 +220,9 @@ Basic Readout:
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/projects/basic-readouts/
+    - git submodule update --init
+    - git pull
     - ls
-    - git status
-    - git log
     - restRoot --m 1 -b -q GenerateReadouts.C'("basic.root")'
     - restRoot -b -q BasicValidation.C'("basic.root", "pixelDecoding")'
 
