@@ -142,7 +142,7 @@ Int_t REST_MakeMetadata(TString name) {
     sourcefile
         << "/// \\htmlonly <style>div.image img[src=\"trigger.png\"]{width:500px;}</style> \\endhtmlonly"
         << endl;
-    sourcefile << "/// ![An ilustration of the trigger definition](trigger.png)             " << endl;
+    sourcefile << "/// ![An illustration of the trigger definition](trigger.png)             " << endl;
     sourcefile << "/// " << endl;
     sourcefile << "/// The png image should be uploaded to the ./images/ directory          " << endl;
     sourcefile << "///                                                                      " << endl;
@@ -233,7 +233,7 @@ Int_t REST_MakeMetadata(TString name) {
     cout << "* " << name << ".cxx" << endl;
     cout << endl;
     cout << "Put the two files into proper directories and re-run cmake/make" << endl;
-    cout << "Remember to replace REMOVE/UPDATE statements by meaningfull documentation" << endl;
+    cout << "Remember to replace REMOVE/UPDATE statements by meaningful documentation" << endl;
     cout << "--------------------------------" << endl;
     cout << endl;
 
