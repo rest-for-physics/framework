@@ -1,8 +1,9 @@
-#include <iostream>
 
-#include "TRestReflector.h"
-#include "TRestStringHelper.h"
-#include "TString.h"
+#include <TRestReflector.h>
+#include <TRestStringHelper.h>
+#include <TString.h>
+
+#include <iostream>
 
 #ifndef RESTTask_MakeMetadata
 #define RESTTask_MakeMetadata
@@ -29,7 +30,7 @@ Int_t REST_MakeMetadata(TString name) {
     headerfile << " * This file is part of the REST software framework.                     *" << endl;
     headerfile << " *                                                                       *" << endl;
     headerfile << " * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *" << endl;
-    headerfile << " * For more information see http://gifna.unizar.es/trex                  *" << endl;
+    headerfile << " * For more information see https://gifna.unizar.es/trex                 *" << endl;
     headerfile << " *                                                                       *" << endl;
     headerfile << " * REST is free software: you can redistribute it and/or modify          *" << endl;
     headerfile << " * it under the terms of the GNU General Public License as published by  *" << endl;
@@ -43,7 +44,7 @@ Int_t REST_MakeMetadata(TString name) {
     headerfile << " *                                                                       *" << endl;
     headerfile << " * You should have a copy of the GNU General Public License along with   *" << endl;
     headerfile << " * REST in $REST_PATH/LICENSE.                                           *" << endl;
-    headerfile << " * If not, see http://www.gnu.org/licenses/.                             *" << endl;
+    headerfile << " * If not, see https://www.gnu.org/licenses/.                            *" << endl;
     headerfile << " * For the list of contributors see $REST_PATH/CREDITS.                  *" << endl;
     headerfile << " *************************************************************************/" << endl;
     headerfile << endl;
@@ -99,7 +100,7 @@ Int_t REST_MakeMetadata(TString name) {
     sourcefile << " * This file is part of the REST software framework.                     *" << endl;
     sourcefile << " *                                                                       *" << endl;
     sourcefile << " * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *" << endl;
-    sourcefile << " * For more information see http://gifna.unizar.es/trex                  *" << endl;
+    sourcefile << " * For more information see https://gifna.unizar.es/trex                 *" << endl;
     sourcefile << " *                                                                       *" << endl;
     sourcefile << " * REST is free software: you can redistribute it and/or modify          *" << endl;
     sourcefile << " * it under the terms of the GNU General Public License as published by  *" << endl;
@@ -113,12 +114,12 @@ Int_t REST_MakeMetadata(TString name) {
     sourcefile << " *                                                                       *" << endl;
     sourcefile << " * You should have a copy of the GNU General Public License along with   *" << endl;
     sourcefile << " * REST in $REST_PATH/LICENSE.                                           *" << endl;
-    sourcefile << " * If not, see http://www.gnu.org/licenses/.                             *" << endl;
+    sourcefile << " * If not, see https://www.gnu.org/licenses/.                            *" << endl;
     sourcefile << " * For the list of contributors see $REST_PATH/CREDITS.                  *" << endl;
     sourcefile << " *************************************************************************/" << endl;
     sourcefile << "" << endl;
     sourcefile << "/////////////////////////////////////////////////////////////////////////" << endl;
-    sourcefile << "/// Write the class description Here                                   " << endl;
+    sourcefile << "/// Write the class description Here                                     " << endl;
     sourcefile << "/// " << endl;
     sourcefile << "/// ### Parameters" << endl;
     sourcefile << "/// Describe any parameters this process receives: " << endl;
@@ -137,7 +138,7 @@ Int_t REST_MakeMetadata(TString name) {
     sourcefile << "/// on future framework upgrades.                                        " << endl;
     sourcefile << "/// " << endl;
     sourcefile << "/// " << endl;
-    sourcefile << "/// Please, add any figure that may help to ilustrate the process        " << endl;
+    sourcefile << "/// Please, add any figure that may help to illustrate the process       " << endl;
     sourcefile << "/// " << endl;
     sourcefile
         << "/// \\htmlonly <style>div.image img[src=\"trigger.png\"]{width:500px;}</style> \\endhtmlonly"
@@ -148,7 +149,7 @@ Int_t REST_MakeMetadata(TString name) {
     sourcefile << "///                                                                      " << endl;
     sourcefile << "///----------------------------------------------------------------------" << endl;
     sourcefile << "///                                                                      " << endl;
-    sourcefile << "/// REST-for-Physics - Software for Rare Event Searches Toolkit 		    " << endl;
+    sourcefile << "/// REST-for-Physics - Software for Rare Event Searches Toolkit 	    " << endl;
     sourcefile << "///                                                                      " << endl;
     sourcefile << "/// History of developments:                                             " << endl;
     sourcefile << "///                                                                      " << endl;
@@ -200,14 +201,14 @@ Int_t REST_MakeMetadata(TString name) {
     sourcefile << "}" << endl;
     sourcefile << endl;
     sourcefile << "///////////////////////////////////////////////                          " << endl;
-    sourcefile << "/// \\brief Function to initialize input/output event members and define  " << endl;
+    sourcefile << "/// \\brief Function to initialize input/output event members and define " << endl;
     sourcefile << "/// the section name                                                     " << endl;
     sourcefile << "///                                                                      " << endl;
     sourcefile << "void " << name << "::Initialize() {" << endl;
     sourcefile << "    SetSectionName(this->ClassName());" << endl;
     sourcefile << "    SetLibraryVersion(LIBRARY_VERSION);" << endl;
     sourcefile << endl;
-    sourcefile << "    // REMOVE COMMENT. Initialize here any special data members if needed       " << endl;
+    sourcefile << "    // REMOVE COMMENT. Initialize here any special data members if needed" << endl;
     sourcefile << endl;
     sourcefile << "}" << endl;
     sourcefile << endl;
@@ -219,7 +220,7 @@ Int_t REST_MakeMetadata(TString name) {
     sourcefile << "void " << name << "::PrintMetadata() {" << endl;
     sourcefile << "    TRestMetadata::PrintMetadata();" << endl;
     sourcefile << endl;
-    sourcefile << "    metadata << \" - Dummy member : \" << fDummy<< endl;" << endl;
+    sourcefile << "    metadata << \" - Dummy member : \" << fDummy << endl;" << endl;
     sourcefile << "}" << endl;
     sourcefile << endl;
 
