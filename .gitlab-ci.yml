@@ -1,6 +1,6 @@
 image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
 
-variables:
+# variables:
 #    GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
@@ -13,7 +13,7 @@ stages:
   # Project compilation validation
   - build
 
-  # REST libraries installed as sub-modules
+  # REST libraries installed as submodules
   - libraries
 
   # Basic validation tests of installation
@@ -34,7 +34,7 @@ stages:
   # Stage to validate data chain processing constructions (TREX-DM data, PandaX-III topology, etc).
   - restManager_process
 
-  # Stage to validate tasks or executions over preprocessed data filesx
+  # Stage to validate tasks or executions over preprocessed data files
   - postProcessing
 
   # Stage to validate other restManager tasks (metadata generation, script loading, etc).
@@ -89,11 +89,11 @@ Build and Test:
     - make -j2
     - ctest --verbose -O ${CI_PROJECT_DIR}/build/Testing/summary.txt
 
-  # artifacts:
-  # name: "Testing"
-  #   paths:
-  #     - ${CI_PROJECT_DIR}/build/Testing
-  #   expire_in: 1 day
+  artifacts:
+    name: "Testing"
+    paths:
+      - ${CI_PROJECT_DIR}/build/Testing
+    expire_in: 1 day
 
 Build and Install:
   stage: build
@@ -152,7 +152,7 @@ List REST Macros:
     expire_in: 1 day
 
 08_alphas:
-  type: restG4
+  stage: restG4
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples/restG4/08.Alphas/
@@ -166,8 +166,8 @@ List REST Macros:
     expire_in: 1 day
 
 01_alphaTrack:
-    type: examples
-    script:
+  stage: examples
+  script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples/01.alphaTrack/
     - mkdir data
