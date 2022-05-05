@@ -525,6 +525,8 @@ TRestMetadata::~TRestMetadata() {
 ///
 Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) {
     fConfigFileName = cfgFileName;
+    if (!TRestTools::fileExists(fConfigFileName)) fConfigFileName = SearchFile(fConfigFileName);
+
     if (TRestTools::fileExists(fConfigFileName)) {
         if (sectionName == "") {
             sectionName = this->ClassName();

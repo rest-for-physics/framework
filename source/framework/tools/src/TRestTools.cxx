@@ -260,7 +260,7 @@ Bool_t TRestTools::IsBinaryFile(string fname) {
 
 ///////////////////////////////////////////////
 /// \brief It extracts the number of columns from the filename extension given by argument.
-/// The file will containing a binary formatted table with a fixed number of rows and columns.
+/// The file should contain a binary formatted table with a fixed number of rows and columns.
 ///
 /// The filename extension will be : ".Nxyzf", where the number of columns is `xyz`, and the
 /// last character is the type of data (f/d/i), float, double and integer respectively.
@@ -268,8 +268,6 @@ Bool_t TRestTools::IsBinaryFile(string fname) {
 int TRestTools::GetBinaryFileColumns(string fname) {
     string extension = GetFileNameExtension(fname);
     if (extension.find("N") != 0) {
-        ferr << "Wrong filename extension." << endl;
-        ferr << "Cannot guess the number of columns" << endl;
         return -1;
     }
 
@@ -291,6 +289,28 @@ int TRestTools::GetBinaryFileColumns(string fname) {
     ferr << "Format " << ToUpper(extension) << " not recognized" << endl;
     return -1;
 }
+
+///////////////////////////////////////////////
+/// \brief It transposes the std::vector<std::vector> table given in the argument.
+/// It will transform rows in columns.
+///
+template <typename T>
+void TRestTools::TransposeTable(std::vector<std::vector<T>>& data) {
+    if (data.size() == 0) return;
+
+    std::vector<std::vector<T>> trans_vec(data[0].size(), std::vector<T>());
+
+    for (int i = 0; i < data.size(); i++)
+        for (int j = 0; j < data[i].size(); j++) trans_vec[j].push_back(data[i][j]);
+
+    data = trans_vec;
+}
+
+template void TRestTools::TransposeTable<Double_t>(std::vector<std::vector<Double_t>>& data);
+
+template void TRestTools::TransposeTable<Float_t>(std::vector<std::vector<Float_t>>& data);
+
+template void TRestTools::TransposeTable<Int_t>(std::vector<std::vector<Int_t>>& data);
 
 ///////////////////////////////////////////////
 /// \brief It returns the maximum value for a particular `column` from the table given by
@@ -603,6 +623,22 @@ string TRestTools::GetFileNameExtension(string fullname) {
     if (pos != -1) {
         return fullname.substr(pos + 1, fullname.size() - pos - 1);
     }
+    return fullname;
+}
+
+///////////////////////////////////////////////
+/// \brief Gets the filename root as the substring found before the lastest "."
+///
+/// Input: "/home/jgalan/abc.txt" Output: "abc"
+///
+string TRestTools::GetFileNameRoot(string fullname) {
+    int pos1 = fullname.find_last_of('/', -1);
+    int pos2 = fullname.find_last_of('.', -1);
+
+    if (pos1 != string::npos && pos2 != string::npos) return fullname.substr(pos1 + 1, pos2 - pos1 - 1);
+
+    if (pos1 == string::npos && pos2 != string::npos) return fullname.substr(0, pos2);
+
     return fullname;
 }
 
