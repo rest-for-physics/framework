@@ -632,8 +632,8 @@ string TRestTools::GetFileNameExtension(string fullname) {
 /// Input: "/home/jgalan/abc.txt" Output: "abc"
 ///
 string TRestTools::GetFileNameRoot(string fullname) {
-    int pos1 = fullname.find_last_of('/', -1);
-    int pos2 = fullname.find_last_of('.', -1);
+    size_t pos1 = fullname.find_last_of('/', -1);
+    size_t pos2 = fullname.find_last_of('.', -1);
 
     if (pos1 != string::npos && pos2 != string::npos) return fullname.substr(pos1 + 1, pos2 - pos1 - 1);
 
