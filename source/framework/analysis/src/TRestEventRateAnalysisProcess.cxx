@@ -29,7 +29,7 @@
 ///  as follows:
 ///
 /// \code
-/// <addProcess type="TRestEventRateAnalysisProcess" name="rate" observables="all" />
+/// <addProcess type="TRestEventRateAnalysisProcess" name="rate" observable="all" />
 /// \endcode
 ///
 /// or
