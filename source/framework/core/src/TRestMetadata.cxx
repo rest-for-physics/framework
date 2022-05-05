@@ -444,13 +444,13 @@
 
 #include "TRestMetadata.h"
 
+#include <TFormula.h>
 #include <TMath.h>
+#include <TStreamerInfo.h>
 
 #include <iomanip>
 
 #include "TRestDataBase.h"
-#include "TStreamerInfo.h"
-#include "v5/TFormula.h"
 
 // implementation of version methods in namespace rest_version
 /*
