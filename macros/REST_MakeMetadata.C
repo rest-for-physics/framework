@@ -76,7 +76,7 @@ Int_t REST_MakeMetadata(TString name) {
     headerFile << "    void PrintMetadata();" << endl;
     headerFile << endl;
     headerFile << "    " << name << "();" << endl;
-    headerFile << "    " << name << "(const char* cfgFileName, std::string name = \"\")" << endl;
+    headerFile << "    " << name << "(const char* configFilename, std::string name = \"\")" << endl;
     headerFile << "    ~" << name << "();" << endl;
     headerFile << endl;
     headerFile << "    // REMOVE COMMENT. ROOT class definition helper. Increase the number in it every time"
@@ -183,12 +183,12 @@ Int_t REST_MakeMetadata(TString name) {
     sourceFile << "/// The default behaviour is that the config file must be specified with" << endl;
     sourceFile << "/// full path, absolute or relative." << endl;
     sourceFile << "///" << endl;
-    sourceFile << "/// \\param cfgFileName A const char* giving the path to an RML file." << endl;
+    sourceFile << "/// \\param configFilename A const char* giving the path to an RML file." << endl;
     sourceFile << "/// \\param name The name of the specific metadata. It will be used to find the" << endl;
     sourceFile << "/// corresponding TRestAxionMagneticField section inside the RML." << endl;
     sourceFile << "///" << endl;
     sourceFile << name << "::" << name
-               << "(const char* cfgFileName, string name) : TRestMetadata(cfgFileName) {" << endl;
+               << "(const char* configFilename, string name) : TRestMetadata(configFilename) {" << endl;
     sourceFile << "    LoadConfigFromFile(fConfigFileName, name);" << endl;
     sourceFile << "" << endl;
     sourceFile << "	 if (GetVerboseLevel() >= REST_Info) PrintMetadata();" << endl;

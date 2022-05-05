@@ -27,10 +27,10 @@ ClassImp(TRestSignalDeconvolutionProcess)
 }
 
 //______________________________________________________________________________
-TRestSignalDeconvolutionProcess::TRestSignalDeconvolutionProcess(char* cfgFileName) {
+TRestSignalDeconvolutionProcess::TRestSignalDeconvolutionProcess(const char* configFilename) {
     Initialize();
 
-    if (LoadConfigFromFile(cfgFileName) == -1) LoadDefaultConfig();
+    if (LoadConfigFromFile(configFilename) == -1) LoadDefaultConfig();
 
     PrintMetadata();
     // TRestSignalDeconvolutionProcess default constructor
@@ -45,8 +45,8 @@ TRestSignalDeconvolutionProcess::~TRestSignalDeconvolutionProcess() {
     delete responseFFT;
 }
 
-void TRestSignalDeconvolutionProcess::LoadConfig(string cfgFilename) {
-    if (LoadConfigFromFile(cfgFilename)) LoadDefaultConfig();
+void TRestSignalDeconvolutionProcess::LoadConfig(string configFilename) {
+    if (LoadConfigFromFile(configFilename)) LoadDefaultConfig();
 
     PrintMetadata();
 }

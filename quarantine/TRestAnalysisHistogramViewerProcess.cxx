@@ -26,10 +26,10 @@ ClassImp(TRestAnalysisHistogramViewerProcess)
 }
 
 //______________________________________________________________________________
-TRestAnalysisHistogramViewerProcess::TRestAnalysisHistogramViewerProcess(char* cfgFileName) {
+TRestAnalysisHistogramViewerProcess::TRestAnalysisHistogramViewerProcess(const char* configFilename) {
     Initialize();
 
-    if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
+    if (LoadConfigFromFile(configFilename)) LoadDefaultConfig();
 }
 
 //______________________________________________________________________________
@@ -45,8 +45,8 @@ void TRestAnalysisHistogramViewerProcess::Initialize() {
     fOutputTrackEvent = new TRestTrackEvent();
 }
 
-void TRestAnalysisHistogramViewerProcess::LoadConfig(std::string cfgFilename, std::string name) {
-    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
+void TRestAnalysisHistogramViewerProcess::LoadConfig(std::string configFilename, std::string name) {
+    if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
 }
 
 //______________________________________________________________________________

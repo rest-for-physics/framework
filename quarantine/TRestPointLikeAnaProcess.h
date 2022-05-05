@@ -51,7 +51,7 @@ class TRestPointLikeAnaProcess : public TRestEventProcess {
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
     void EndProcess();
 
-    void LoadConfig(std::string cfgFilename);
+    void LoadConfig(std::string configFilename);
 
     void PrintMetadata() {
         BeginPrintProcess();
@@ -72,7 +72,7 @@ class TRestPointLikeAnaProcess : public TRestEventProcess {
 
     // Constructor
     TRestPointLikeAnaProcess();
-    TRestPointLikeAnaProcess(char* cfgFileName);
+    TRestPointLikeAnaProcess(const char* configFilename);
     // Destructor
     ~TRestPointLikeAnaProcess();
 
