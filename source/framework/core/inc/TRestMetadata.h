@@ -232,7 +232,7 @@ class TRestMetadata : public TNamed {
 
     Int_t LoadConfigFromElement(TiXmlElement* eSectional, TiXmlElement* eGlobal,
                                 std::map<std::string, std::string> envs = {});
-    Int_t LoadConfigFromFile(std::string configFilename, std::string sectionName = "");
+    Int_t LoadConfigFromFile(const std::string& configFilename, const std::string& sectionName = "");
     Int_t LoadConfigFromBuffer();
 
     /// Making default settings.

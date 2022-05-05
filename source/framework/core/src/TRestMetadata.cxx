@@ -523,50 +523,48 @@ TRestMetadata::~TRestMetadata() {
 /// \brief Give the file name, find out the corresponding section. Then call the
 /// main starter.
 ///
-Int_t TRestMetadata::LoadConfigFromFile(string configFilename, string sectionName) {
+Int_t TRestMetadata::LoadConfigFromFile(const string& configFilename, const string& sectionName) {
     fConfigFileName = configFilename;
-    if (TRestTools::fileExists(fConfigFileName)) {
-        if (sectionName == "") {
-            sectionName = this->ClassName();
-        }
-
-        // find the xml section corresponding to the sectionName
-        TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, sectionName);
-        if (Sectional == nullptr) {
-            ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName << "\""
-                 << endl;
-            ferr << "in config file: " << fConfigFileName << endl;
-            exit(1);
-        }
-
-        // find the "globals" section. Multiple sections are supported.
-        TiXmlElement* rootEle = GetElementFromFile(fConfigFileName);
-        TiXmlElement* Global = GetElement("globals", rootEle);
-        if (Global != nullptr) ReadElement(Global);
-        if (Global != nullptr && Global->NextSiblingElement("globals") != nullptr) {
-            TiXmlElement* ele = Global->NextSiblingElement("globals");
-            if (ele != nullptr) ReadElement(ele);
-            while (ele != nullptr) {
-                TiXmlElement* e = ele->FirstChildElement();
-                while (e != nullptr) {
-                    Global->InsertEndChild(*e);
-                    e = e->NextSiblingElement();
-                }
-                ele = ele->NextSiblingElement("globals");
-            }
-        }
-
-        // call the real loading method
-        int result = LoadConfigFromElement(Sectional, Global, {});
-        delete Sectional;
-        delete rootEle;
-        return result;
-    } else {
+    if (!TRestTools::fileExists(fConfigFileName)) {
         ferr << "Filename : " << fConfigFileName << endl;
         ferr << "Config File does not exist. Right path/filename?" << endl;
         GetChar();
         return -1;
     }
+
+    const string thisSectionName = sectionName.empty() ? this->ClassName() : sectionName;
+
+    // find the xml section corresponding to the sectionName
+    TiXmlElement* sectional = GetElementFromFile(fConfigFileName, thisSectionName);
+    if (sectional == nullptr) {
+        ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << thisSectionName << "\""
+             << endl;
+        ferr << "in config file: " << fConfigFileName << endl;
+        exit(1);
+    }
+
+    // find the "globals" section. Multiple sections are supported.
+    TiXmlElement* rootEle = GetElementFromFile(fConfigFileName);
+    TiXmlElement* global = GetElement("globals", rootEle);
+    if (global != nullptr) ReadElement(global);
+    if (global != nullptr && global->NextSiblingElement("globals") != nullptr) {
+        TiXmlElement* ele = global->NextSiblingElement("globals");
+        if (ele != nullptr) ReadElement(ele);
+        while (ele != nullptr) {
+            TiXmlElement* e = ele->FirstChildElement();
+            while (e != nullptr) {
+                global->InsertEndChild(*e);
+                e = e->NextSiblingElement();
+            }
+            ele = ele->NextSiblingElement("globals");
+        }
+    }
+
+    // call the real loading method
+    int result = LoadConfigFromElement(sectional, global, {});
+    delete sectional;
+    delete rootEle;
+    return result;
 }
 
 ///////////////////////////////////////////////
@@ -1986,8 +1984,8 @@ string TRestMetadata::SearchFile(string filename) {
     if (TRestTools::fileExists(filename)) {
         return filename;
     } else {
-        auto pathstring = GetSearchPath();
-        auto paths = Split((string)pathstring, ":");
+        auto pathString = GetSearchPath();
+        auto paths = Split((string)pathString, ":");
         return TRestTools::SearchFileInPath(paths, filename);
     }
 }
