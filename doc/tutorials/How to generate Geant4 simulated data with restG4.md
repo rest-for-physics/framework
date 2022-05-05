@@ -87,7 +87,7 @@ These working examples can be launched with *restG4* command. In these examples,
 
 The restG4 command receives up to two arguments,
 
-1. the RML file containning the TRestGeant4Metadata, TRestRun and TRestPhysicsLists sections,
+1. the RML file containing the TRestGeant4Metadata, TRestRun and TRestPhysicsLists sections,
 2. and the name of the TRestGeant4Metadata section to be used.
 
 The execution of *restG4* follows this scheme,
@@ -120,7 +120,7 @@ restG4 restG4.rml MuonShower
 restG4 restG4.rml Cd109
 ~~~
 
-After, the proper execution of the *restG4* command we will find our results file, containning TRestGeant4Event data, inside the directory *REST_DATAPATH* we have defined in our system.
+After, the proper execution of the *restG4* command we will find our results file, containing TRestGeant4Event data, inside the directory *REST_DATAPATH* we have defined in our system.
 
 You can visualize the generated Geant4 events, that produced an energy deposit in the sensitive volume of the detector using the `REST_VIEWER_G4Event` script available when launching *restG4*, or print detailed event information using `REST_UTILS_PrintG4Event`.
 

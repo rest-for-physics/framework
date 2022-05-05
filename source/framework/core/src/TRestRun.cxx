@@ -402,7 +402,7 @@ void TRestRun::OpenInputFile(const TString& filename, const string& mode) {
             if (fFromRML) {
                 if (runTypeTmp != "Null" && runTypeTmp != "preserve") fRunType = runTypeTmp;
 
-                // We should not recover the user. Only when writting. If not when I open a file
+                // We should not recover the user. Only when writing. If not when I open a file
                 // with restRoot just to read, and Print the run content from other user in my
                 // own account, it will say it was me!
                 // if (runUserTmp != "Null" && runTypeTmp != "preserve") fRunUser = runUserTmp;

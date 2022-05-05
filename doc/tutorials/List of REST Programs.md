@@ -34,4 +34,4 @@ This is just an indexing list of existing programs included with REST compilatio
 
 **restDrawEvents** : It draws the events one by one, using the specific TRestEvent::Draw method implemented in the specific event data type found inside the REST file. 
 
-**restG4PrintParticles** : It prints the name of all the different particles registered inside a REST file containning a TRestGeant4Event data type.
+**restG4PrintParticles** : It prints the name of all the different particles registered inside a REST file containing a TRestGeant4Event data type.

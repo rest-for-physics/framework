@@ -67,7 +67,7 @@ class TRestMySQLToAnalysisProcess : public TRestEventProcess {
     /// Defines the internal sampling of the retrieved data for quick access
     Double_t fSampling;  //!
 
-    /// A matrix containning extracted SQL data with fixed time bin
+    /// A matrix containing extracted SQL data with fixed time bin
     std::vector<std::vector<Double_t> > fDBdata;  //!
 
     /// A boolean to output a warning message just once inside the process

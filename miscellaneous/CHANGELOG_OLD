@@ -142,7 +142,7 @@ TRestEvent changes :
 TRestRun changes : 
 ------------------
 
-* New members have been added containning a vector of event ids `fEventIDs` and a vector of sub-event ids `fSubEventIDs`. 
+* New members have been added containing a vector of event ids `fEventIDs` and a vector of sub-event ids `fSubEventIDs`.
     - These vectors contain the same entries as the analysis and event tree.
     - They are used for quick search of events with an specific event and subevent id.
 
@@ -199,7 +199,7 @@ Added TRestReadoutPlane:
 TRestG4Event changes:
 ---------------------
 
-* Added member `fTotalDepositedEnergy` containning the total energy deposited in the event.
+* Added member `fTotalDepositedEnergy` containing the total energy deposited in the event.
 
 * Added a new vector member `fVolumeDepositedEnergy` to store the energy deposited in each of the active volumes.
     - We can access it through the method `GetEnergyDepositedInVolume( Int_t id )`. The id is related to the volume list stored in `TRestG4Metadata`.
@@ -301,7 +301,7 @@ Example :
 
 # Changes on data
 
-* data/definitions : New directory containning common definitions : `readouts.rml`, `materials.xml`, `gases.rml`
+* data/definitions : New directory containing common definitions : `readouts.rml`, `materials.xml`, `gases.rml`
        In order to implement materials.xml in specific configurations we just use a symbolic link.
        materials.xml symlink has been added to the different geometries in the configuration directories.
 
@@ -312,7 +312,7 @@ Example:
   <section gas nameref="Gas name" file="{REST_PATH}/data/definitions/gases.rml" >
 ---
 
-* data/distributions : Added `HighEnergyGammaBiasing.root` distribution containning the resulting gamma after biasing in a water tank (see README).
+* data/distributions : Added `HighEnergyGammaBiasing.root` distribution containing the resulting gamma after biasing in a water tank (see README).
 
 
 # Changes in restcore
@@ -520,7 +520,7 @@ Merge : #36
 == RESTPROCESSES ==
 
 - TRestElectronDiffusionProcess.
-    + fGas is properly initialized to NULL solving problem of segmentation fault when we use a TBrowser to open a file containning this process.
+    + fGas is properly initialized to NULL solving problem of segmentation fault when we use a TBrowser to open a file containing this process.
 
 - TRestPathMinimizationProcess. 
     + Added error handling in case Heldkarp minimization method fails.
@@ -595,7 +595,7 @@ Author : Javier Galan
 Merge : #30
 ==========================================================
 
-- TRestRun. Added time measurement for event processing, writting and reading. The time measurement will print out on screen after it has finished processing all the events. It can be deactivated by commenting out the line #define TIME_MEASUREMENT. In future this might be given as an option for the compiler.
+- TRestRun. Added time measurement for event processing, writing and reading. The time measurement will print out on screen after it has finished processing all the events. It can be deactivated by commenting out the line #define TIME_MEASUREMENT. In future this might be given as an option for the compiler.
 
 - TRestEvent. Added a new member, fOK. This member is initialized to true by the original input process (restG4 or restAGET, ...). The processes may set the status of the event to a BAD state using this member in case something went wrong processing that event.
 

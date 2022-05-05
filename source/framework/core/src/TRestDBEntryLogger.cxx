@@ -92,7 +92,7 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
     while (getline(ifs, s)) {
         if (!valid) {
             if (s[0] != '-') {
-                warning << "TRestDBEntryLogger: DataBase writting cancelled" << endl;
+                warning << "TRestDBEntryLogger: DataBase writing cancelled" << endl;
                 ifs.close();
                 return;
             } else {
@@ -187,7 +187,7 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
         }
     }
 
-    fout << "TRestDBEntryLogger: DataBase writting successful" << endl;
+    fout << "TRestDBEntryLogger: DataBase writing successful" << endl;
 }
 
 void TRestDBEntryLogger::Initialize() {}

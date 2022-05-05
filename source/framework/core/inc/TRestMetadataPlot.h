@@ -87,7 +87,7 @@ class TRestMetadataPlot : public TRestMetadata {
         TVector2 xRange;
         /// The user defined range in the y-axis
         TVector2 yRange;
-        /// A std::vector containning the properties of the graphs inside the plot
+        /// A std::vector containing the properties of the graphs inside the plot
         std::vector<Graph_Info_Set> graphs;
     };
 

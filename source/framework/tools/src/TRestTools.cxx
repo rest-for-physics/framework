@@ -141,7 +141,7 @@ template <typename T>
 int TRestTools::ExportASCIITable(std::string fname, std::vector<std::vector<T>>& data) {
     ofstream file(fname);
     if (!file.is_open()) {
-        ferr << "Unable to open file for writting : " << fname << endl;
+        ferr << "Unable to open file for writing : " << fname << endl;
         return 1;
     }
 
@@ -170,7 +170,7 @@ template <typename T>
 int TRestTools::ExportBinaryTable(std::string fname, std::vector<std::vector<T>>& data) {
     ofstream file(fname, ios::out | ios::binary);
     if (!file.is_open()) {
-        ferr << "Unable to open file for writting : " << fname << endl;
+        ferr << "Unable to open file for writing : " << fname << endl;
         return 1;
     }
 
@@ -190,7 +190,7 @@ template int TRestTools::ExportBinaryTable<Double_t>(std::string fname,
                                                      std::vector<std::vector<Double_t>>& data);
 
 ///////////////////////////////////////////////
-/// \brief Reads a binary file containning a fixed-columns table with values
+/// \brief Reads a binary file containing a fixed-columns table with values
 ///
 /// This method will open the file fName. This file should contain a
 /// table with numeric values of the type specified inside the syntax < >.
