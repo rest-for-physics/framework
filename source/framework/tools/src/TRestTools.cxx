@@ -43,7 +43,9 @@
 ///
 #include "TRestTools.h"
 
-#include <curl/curl.h>
+#include <TClass.h>
+#include <TSystem.h>
+#include <TUrl.h>
 #include <dirent.h>
 
 #include <chrono>
@@ -52,11 +54,12 @@
 #include <memory>
 #include <thread>
 
-#include "TClass.h"
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
-#include "TSystem.h"
-#include "TUrl.h"
+
+#ifdef USE_Curl
+#include <curl/curl.h>
+#endif
 
 using namespace std;
 
