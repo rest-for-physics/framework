@@ -201,10 +201,6 @@ class TRestMetadata : public TNamed {
     std::map<std::string, std::string> GetParametersList();
     void ReadAllParameters();
 
-    // Making class constructors protected to keep this class abstract
-    TRestMetadata& operator=(const TRestMetadata&) = delete;
-    TRestMetadata(const TRestMetadata&) = delete;
-
     TRestMetadata();
     TRestMetadata(const char* configFilename);
 
@@ -325,6 +321,10 @@ class TRestMetadata : public TNamed {
     virtual Int_t Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0);
 
     ~TRestMetadata();
+
+    // Making class constructors protected to keep this class abstract
+    TRestMetadata& operator=(const TRestMetadata&) = delete;
+    TRestMetadata(const TRestMetadata&) = delete;
 
     /// Call CINT to generate streamers for this class
     ClassDef(TRestMetadata, 9);
