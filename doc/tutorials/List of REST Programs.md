@@ -24,7 +24,7 @@ This is just an indexing list of existing programs included with REST compilatio
 
 **restPrintRunInfo** : It prints the metadata information inside a REST file.
 
-**restPrintAllMetadata** : It prints on screen all the metadata information containned in a REST file. TRestRun metadata, readout, gas, processes metadata, etc.
+**restPrintAllMetadata** : It prints on screen all the metadata information contained in a REST file. TRestRun metadata, readout, gas, processes metadata, etc.
 
 **restPrintFileContents** : It prints on screen the ROOT objects stored in a REST file.
 
