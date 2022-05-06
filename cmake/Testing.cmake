@@ -9,13 +9,6 @@ if (TEST)
     add_compile_definitions(REST_TESTING_ENABLED)
 endif ()
 
-macro(ADD_TEST)
-    if (TEST)
-        message(STATUS "Adding tests at ${CMAKE_CURRENT_SOURCE_DIR}")
-        add_subdirectory(test)
-    endif ()
-endmacro()
-
 macro(ADD_LIBRARY_TEST)
     if (TEST)
         message(STATUS "Adding tests at ${CMAKE_CURRENT_SOURCE_DIR}")
@@ -31,13 +24,9 @@ macro(ADD_LIBRARY_TEST)
 
         enable_testing()
 
-        add_executable(${TESTING_EXECUTABLE})
-
         FILE(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test/src/*.cxx)
-        target_sources(
-                ${TESTING_EXECUTABLE} PUBLIC
-                ${SOURCES}
-        )
+
+        add_executable(${TESTING_EXECUTABLE} ${SOURCES})
 
         target_link_libraries(
                 ${TESTING_EXECUTABLE} PUBLIC
