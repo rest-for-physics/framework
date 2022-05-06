@@ -38,7 +38,9 @@ macro(ADD_LIBRARY_TEST)
 
         include(GoogleTest)
 
-        gtest_discover_tests(${TESTING_EXECUTABLE})
-
+        gtest_add_tests(
+                TARGET ${TESTING_EXECUTABLE}
+                SOURCES ${SOURCES}
+        )
     endif ()
 endmacro()
