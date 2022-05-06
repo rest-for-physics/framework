@@ -87,6 +87,7 @@ Build and Test:
     - cmake ${CI_PROJECT_DIR}
       -DTEST=ON -DREST_GARFIELD=OFF -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
     - make -j2
+    - LD_LIBRARY_PATH=${CI_PROJECT_DIR}/build/rootdict:$LD_LIBRARY_PATH
     - ctest --verbose -O ${CI_PROJECT_DIR}/build/Testing/summary.txt
 
   artifacts:
