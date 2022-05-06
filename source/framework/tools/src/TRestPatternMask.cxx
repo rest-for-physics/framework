@@ -112,7 +112,7 @@ TRestPatternMask::~TRestPatternMask() {}
 void TRestPatternMask::RotateAndTranslate(Double_t& x, Double_t& y) {
     TVector2 pos(x, y);
 
-    pos.Rotate(-fRotationAngle);
+    pos = pos.Rotate(-fRotationAngle);
     pos -= fOffset;
 
     x = pos.X();
