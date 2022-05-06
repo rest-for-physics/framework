@@ -1,6 +1,6 @@
 image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
 
-variables:
+# variables:
 #    GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
@@ -13,7 +13,7 @@ stages:
   # Project compilation validation
   - build
 
-  # REST libraries installed as sub-modules
+  # REST libraries installed as submodules
   - libraries
 
   # Basic validation tests of installation
@@ -28,10 +28,13 @@ stages:
   # Stage to validate restG4 package examples
   - restG4
 
+  # Stage to validate framework examples
+  - examples
+
   # Stage to validate data chain processing constructions (TREX-DM data, PandaX-III topology, etc).
   - restManager_process
 
-  # Stage to validate tasks or executions over preprocessed data filesx
+  # Stage to validate tasks or executions over preprocessed data files
   - postProcessing
 
   # Stage to validate other restManager tasks (metadata generation, script loading, etc).
@@ -82,7 +85,7 @@ Build and Test:
     - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH}
     - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build
     - cmake ${CI_PROJECT_DIR}
-      -DTEST=ON -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
+      -DTEST=ON -DREST_GARFIELD=OFF -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
     - make -j2
     - ctest --verbose -O ${CI_PROJECT_DIR}/build/Testing/summary.txt
 
@@ -148,6 +151,32 @@ List REST Macros:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/Xe136bb0n_n2E06.root
     expire_in: 1 day
 
+08_alphas:
+  stage: restG4
+  script:
+    - source ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples/restG4/08.Alphas/
+    - mkdir data
+    - export REST_ENERGY=5
+    - export REST_FOIL=1
+    - restG4 alphas.rml
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
+    expire_in: 1 day
+
+01_alphaTrack:
+  stage: examples
+  script:
+    - source ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples/01.alphaTrack/
+    - mkdir data
+    - export RAW_PROCESSING=ON
+    - export HIT_PROCESSING=ON
+    - export TRACK_PROCESSING=ON
+    - restManager --c processing.rml --f ${CI_PROJECT_DIR}/install/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
+    - restRoot -b -q Validate.C'("data/Response_5MeV_1um.root")'
+
 Load Gas:
   stage: metadata
   script:
@@ -190,11 +219,9 @@ Basic Readout:
   stage: metadata
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/projects/basic-readouts/
-    - ls
-    - git status
-    - git log
-    - restRoot --m 1 -b -q GenerateReadouts.C'("basic.root")'
+    - cd ${CI_PROJECT_DIR}/projects/basic-readouts
+    - git submodule update --init .
+    - restRoot -b -q GenerateReadouts.C'("basic.root")'
     - restRoot -b -q BasicValidation.C'("basic.root", "pixelDecoding")'
 
 Test Metadata:

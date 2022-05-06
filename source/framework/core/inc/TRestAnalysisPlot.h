@@ -71,6 +71,7 @@ class TRestAnalysisPlot : public TRestMetadata {
         std::string title;
 
         Double_t normalize;
+        std::string scale;
         Bool_t logX;
         Bool_t logY;
         Bool_t logZ;
