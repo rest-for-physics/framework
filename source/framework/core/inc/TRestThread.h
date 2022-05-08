@@ -21,7 +21,7 @@
 #include "TRestProcessRunner.h"
 
 /// Threaded worker of a process chain
-class TRestThread : public TRestMetadata {
+class TRestThread {
    private:
     Int_t fThreadId;
 
@@ -36,6 +36,8 @@ class TRestThread : public TRestMetadata {
     std::thread t;                //!
     Bool_t isFinished;            //!
     Bool_t fProcessNullReturned;  //!
+    Int_t fCompressionLevel;      //!
+    Int_t fVerboseLevel;          //!
 
    public:
     void Initialize();
@@ -58,6 +60,8 @@ class TRestThread : public TRestMetadata {
     void SetThreadId(Int_t id);
     void SetOutputTree(TRestAnalysisTree* t) { fAnalysisTree = t; }
     void SetProcessRunner(TRestProcessRunner* r) { fHostRunner = r; }
+    void SetCompressionLevel(Int_t comp) { fCompressionLevel = comp; }
+    void SetVerboseLevel(Int_t verb) { fVerboseLevel = verb; }
 
     Int_t GetThreadId() { return fThreadId; }
     TRestEvent* GetInputEvent() { return fInputEvent; }
@@ -68,6 +72,7 @@ class TRestThread : public TRestMetadata {
     TRestAnalysisTree* GetAnalysisTree() { return fAnalysisTree; }
     TTree* GetEventTree() { return fEventTree; }
     Bool_t Finished() { return isFinished; }
+    Int_t GetVerboseLevel() { return fVerboseLevel; }
 
     // Constructor & Destructor
     TRestThread() { Initialize(); }
