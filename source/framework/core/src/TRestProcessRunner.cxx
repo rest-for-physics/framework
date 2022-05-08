@@ -23,6 +23,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "Math/MinimizerOptions.h"
+#include "TBranchRef.h"
 #include "TInterpreter.h"
 #include "TMinuitMinimizer.h"
 #include "TMutex.h"
@@ -30,13 +31,12 @@
 #include "TRestManager.h"
 #include "TRestThread.h"
 
-std::mutex mutexx;
+std::mutex mutex_write;
 
 using namespace std;
-
 #ifdef TIME_MEASUREMENT
 #include <chrono>
-using namespace chrono;
+using namespace std::chrono;
 int deltaTime;
 int writeTime;
 int readTime;
@@ -68,16 +68,21 @@ void TRestProcessRunner::Initialize() {
     fOutputEvent = nullptr;
     fEventTree = nullptr;
     fAnalysisTree = nullptr;
-    fTempOutputDataFile = nullptr;
+    fOutputDataFile = nullptr;
+    fOutputDataFileName = "";
+
     fThreads.clear();
     fProcessInfo.clear();
 
     fThreadNumber = 0;
     fFirstEntry = 0;
+    fNFilesSplit = 0;
     fEventsToProcess = 0;
     fProcessedEvents = 0;
     fProcessNumber = 0;
     fProcStatus = kNormal;
+    fFileSplitSize = 10000000000LL;  // 10GB maximum
+    fFileCompression = 2;            // default compression level
 
     fUseTestRun = true;
     fUsePauseMenu = true;
@@ -148,6 +153,12 @@ void TRestProcessRunner::BeginOfInit() {
     }
     fRunInfo->SetCurrentEntry(fFirstEntry);
 
+    if (fFileSplitSize < 50000000LL || fFileSplitSize > 100000000000LL) {
+        warning << "automatic file splitting size cannot < 10MB or > 100GB, setting to default (10GB)."
+                << endl;
+        fFileSplitSize = 10000000000LL;
+    }
+
     // fUseTestRun = StringToBool(GetParameter("useTestRun", "ON"));
     // fUsePauseMenu = StringToBool(GetParameter("usePauseMenu", "OFF"));
     if (!fUsePauseMenu || fVerboseLevel >= REST_Debug) fProcStatus = kIgnore;
@@ -173,6 +184,7 @@ void TRestProcessRunner::BeginOfInit() {
         t->SetProcessRunner(this);
         t->SetVerboseLevel(fVerboseLevel);
         t->SetThreadId(i);
+        t->SetCompressionLevel(fFileCompression);
         fThreads.push_back(t);
     }
 }
@@ -211,14 +223,18 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement* e) {
                     fRunInfo->SetExtProcess(p);
                     return 0;
                 }
-                if (fThreadNumber > 1 && (p->GetVerboseLevel() >= REST_Debug || p->singleThreadOnly())) {
+                if ((p->GetVerboseLevel() >= REST_Debug || p->singleThreadOnly())) {
+                    fUsePauseMenu = false;
                     fProcStatus = kIgnore;
-                    info << "multi-threading is disabled due to process \"" << p->GetName() << "\"" << endl;
-                    info << "This process is in debug mode or is single thread only" << endl;
-                    for (i = fThreadNumber; i > 1; i--) {
-                        delete (*(fThreads.end() - 1));
-                        fThreads.erase(fThreads.end() - 1);
-                        fThreadNumber--;
+                    if (fThreadNumber > 1) {
+                        info << "multi-threading is disabled due to process \"" << p->GetName() << "\""
+                             << endl;
+                        info << "This process is in debug mode or is single thread only" << endl;
+                        for (i = fThreadNumber; i > 1; i--) {
+                            // delete (*fThreads.end());
+                            fThreads.erase(fThreads.end() - 1);
+                            fThreadNumber--;
+                        }
                     }
                 }
                 processes.push_back(p);
@@ -313,9 +329,13 @@ void TRestProcessRunner::RunProcess() {
     debug << "Creating output File " << fRunInfo->GetOutputFileName() << endl;
 
     TString filename = fRunInfo->FormFormat(fRunInfo->GetOutputFileName());
-    fTempOutputDataFile = new TFile(filename, "recreate");
-    if (!fTempOutputDataFile->IsOpen()) {
-        ferr << "Failed to create output file: " << fTempOutputDataFile << endl;
+    fOutputDataFileName = filename;
+    fOutputDataFile = new TFile(filename, "recreate");
+    // set compression level here will cause problem in pipeline
+    // we must set in each threadCompression
+    // fOutputDataFile->SetCompressionLevel(fFile);
+    if (!fOutputDataFile->IsOpen()) {
+        ferr << "Failed to create output file: " << fOutputDataFile->GetName() << endl;
         exit(1);
     }
     info << endl;
@@ -353,25 +373,24 @@ void TRestProcessRunner::RunProcess() {
     fout << "=" << endl;
 
     // copy thread's event tree to local
-    fTempOutputDataFile->cd();
+    fOutputDataFile->cd();
     TTree* tree = fThreads[0]->GetEventTree();
     if (tree != nullptr) {
-        fEventTree = (TRestAnalysisTree*)tree->Clone();
+        fEventTree = (TTree*)tree->Clone();
         fEventTree->SetName("EventTree");
-        string outputeventname;
-        if (fThreads[0]->GetOutputEvent() != nullptr) {
-            outputeventname = fThreads[0]->GetOutputEvent()->ClassName();
-        }
-
-        fEventTree->SetTitle((outputeventname + "Tree").c_str());
-        fEventTree->SetDirectory(fTempOutputDataFile);
+        fEventTree->SetTitle("REST Event Tree");
+        fEventTree->SetDirectory(fOutputDataFile);
+        fEventTree->SetMaxTreeSize(100000000000LL > fFileSplitSize * 2
+                                       ? 100000000000LL
+                                       : fFileSplitSize * 2);  // the default size is 100GB
     } else {
         fEventTree = nullptr;
     }
 
     // initialize analysis tree
     fAnalysisTree = new TRestAnalysisTree("AnalysisTree", "REST Process Analysis Tree");
-    fAnalysisTree->SetDirectory(fTempOutputDataFile);
+    fAnalysisTree->SetDirectory(fOutputDataFile);
+    fAnalysisTree->SetMaxTreeSize(100000000000LL > fFileSplitSize * 2 ? 100000000000LL : fFileSplitSize * 2);
 
     tree = fThreads[0]->GetAnalysisTree();
     if (tree != nullptr) {
@@ -380,6 +399,8 @@ void TRestProcessRunner::RunProcess() {
         ferr << "Threads are not initialized! No AnalysisTree!" << endl;
         exit(1);
     }
+
+    ConfigOutputFile();
 
     // reset runner
     this->ResetRunTimes();
@@ -451,10 +472,7 @@ void TRestProcessRunner::RunProcess() {
         while (getchar() != '\n')
             ;  // clear buffer
 
-    // CursorDown(4);
-
     essential << "Waiting for processes to finish ..." << endl;
-
     while (1) {
 #ifdef WIN32
         _sleep(50);
@@ -468,8 +486,9 @@ void TRestProcessRunner::RunProcess() {
         if (finish) break;
     }
 
-    // make analysis tree filled with observables, which may used in EndProcess()
+    // make dummy analysis tree filled with observables
     fAnalysisTree->GetEntry(fAnalysisTree->GetEntries() - 1);
+    // call EndProcess() for all processes
     for (int i = 0; i < fThreadNumber; i++) {
         fThreads[i]->EndProcess();
     }
@@ -504,6 +523,7 @@ void TRestProcessRunner::RunProcess() {
 
     if (fRunInfo->GetOutputFileName() != "/dev/null") {
         ConfigOutputFile();
+        MergeOutputFile();
     }
 }
 
@@ -644,7 +664,7 @@ void TRestProcessRunner::PauseMenu() {
             if (pid == 0) {
                 fout << "Child process created! pid: " << getpid() << endl;
                 info << "Restarting threads" << endl;
-                mutexx.unlock();
+                mutex_write.unlock();
                 for (int i = 0; i < fThreadNumber; i++) {
                     fThreads[i]->StartThread();
                 }
@@ -714,7 +734,7 @@ void TRestProcessRunner::PauseMenu() {
 /// over. This method returns -1.
 ///
 Int_t TRestProcessRunner::GetNextevtFunc(TRestEvent* targetevt, TRestAnalysisTree* targettree) {
-    mutexx.lock();  // lock on
+    mutex_write.lock();  // lock on
     while (fProcStatus == kPause) {
 #ifdef WIN32
         _sleep(50);
@@ -740,7 +760,7 @@ Int_t TRestProcessRunner::GetNextevtFunc(TRestEvent* targetevt, TRestAnalysisTre
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
     readTime += (int)duration_cast<microseconds>(t2 - t1).count();
 #endif
-    mutexx.unlock();
+    mutex_write.unlock();
     return n;
 }
 
@@ -779,7 +799,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
     }
 
     // Start event saving, entering mutex lock region.
-    mutexx.lock();
+    mutex_write.lock();
 #ifdef TIME_MEASUREMENT
     high_resolution_clock::time_point t5 = high_resolution_clock::now();
 #endif
@@ -824,6 +844,74 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
         }
         fProcessedEvents++;
 
+        // cout << fTempOutputDataFile << " " << fTempOutputDataFile->GetEND() << " " <<
+        // fAnalysisTree->GetDirectory() << endl; cout << fAutoSplitFileSize << endl; switch file if file size
+        // reaches target
+        if (fOutputDataFile->GetEND() > fFileSplitSize) {
+            if (fAnalysisTree->GetDirectory() == (TDirectory*)fOutputDataFile) {
+                fNFilesSplit++;
+                cout << "TRestProcessRunner: file size reaches limit (" << fFileSplitSize
+                     << " bytes), switching to new file with index " << fNFilesSplit << endl;
+
+                // wait 0.1s for the process to finish
+                usleep(100000);
+                for (int i = 0; i < fThreadNumber; i++) {
+                    for (int j = 0; j < fProcessNumber; j++) {
+                        auto proc = fThreads[i]->GetProcess(j);
+                        proc->NotifyAnalysisTreeReset();
+                    }
+                }
+
+                fAnalysisTree->AutoSave();
+                fAnalysisTree->Reset();
+
+                if (fEventTree != nullptr) {
+                    fEventTree->AutoSave();
+                    fEventTree->Reset();
+                }
+
+                // write some information to the first(main) data file
+                fRunInfo->SetNFilesSplit(fNFilesSplit);
+                if (fOutputDataFile->GetName() != fOutputDataFileName) {
+                    TFile* Mainfile = new TFile(fOutputDataFileName, "update");
+                    WriteMetadata();
+                    Mainfile->Close();
+                    delete Mainfile;
+                } else {
+                    WriteMetadata();
+                }
+
+                TFile* newfile = new TFile(fOutputDataFileName + "." + ToString(fNFilesSplit), "recreate");
+
+                TBranch* branch = 0;
+                fAnalysisTree->SetDirectory(newfile);
+                TIter nextb1(fAnalysisTree->GetListOfBranches());
+                while ((branch = (TBranch*)nextb1())) {
+                    branch->SetFile(newfile);
+                }
+                if (fAnalysisTree->GetBranchRef()) {
+                    fAnalysisTree->GetBranchRef()->SetFile(newfile);
+                }
+
+                if (fEventTree != nullptr) {
+                    fEventTree->SetDirectory(newfile);
+                    TIter nextb2(fEventTree->GetListOfBranches());
+                    while ((branch = (TBranch*)nextb2())) {
+                        branch->SetFile(newfile);
+                    }
+                    if (fEventTree->GetBranchRef()) {
+                        fEventTree->GetBranchRef()->SetFile(newfile);
+                    }
+                }
+
+                fOutputDataFile->Close();
+                delete fOutputDataFile;
+                fOutputDataFile = newfile;
+            } else {
+                ferr << "internal error!" << endl;
+            }
+        }
+
 #ifdef TIME_MEASUREMENT
         high_resolution_clock::time_point t6 = high_resolution_clock::now();
         writeTime += (int)duration_cast<microseconds>(t6 - t5).count();
@@ -834,7 +922,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
             cout << "Processed events:" << fProcessedEvents << endl;
         }
     }
-    mutexx.unlock();
+    mutex_write.unlock();
 }
 
 ///////////////////////////////////////////////
@@ -843,63 +931,58 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
 /// It first saves process metadata in to the main output file, then calls
 /// TRestRun::FormOutputFile() to merge the main file with process's tmp file.
 void TRestProcessRunner::ConfigOutputFile() {
-    essential << "Configuring output file, merging thread files together" << endl;
+    essential << "Configuring output file, writing metadata and tree objects" << endl;
 #ifdef TIME_MEASUREMENT
     fProcessInfo["ProcessTime"] = ToString(deltaTime) + "ms";
 #endif
+    // write tree
+    fOutputDataFile->cd();
+    if (fEventTree != nullptr) fEventTree->Write(0, kWriteDelete);
+    if (fAnalysisTree != nullptr) fAnalysisTree->Write(0, kWriteDelete);
 
-    vector<string> files_to_merge;
+    // go back to the first file
+    if (fOutputDataFile->GetName() != fOutputDataFileName) {
+        delete fOutputDataFile;
+        fOutputDataFile = new TFile(fOutputDataFileName, "update");
+    }
+    // write metadata
+    WriteMetadata();
+}
 
-    // add data file
-    // string savemetadata = GetParameter("saveMetadata", "true");
-    // if (savemetadata == "true" || savemetadata == "True" || savemetadata ==
-    // "yes" || savemetadata == "ON")
-    //{
-    fTempOutputDataFile->cd();
+void TRestProcessRunner::WriteMetadata() {
     fRunInfo->Write();
     this->Write();
     char tmpString[256];
     if (fRunInfo->GetFileProcess() != nullptr) {
-        sprintf(tmpString, "Process-%d. %s", 0, fRunInfo->GetFileProcess()->GetName());
-        fRunInfo->GetFileProcess()->Write();
+        // sprintf(tmpString, "Process-%d. %s", 0, fRunInfo->GetFileProcess()->GetName());
+        fRunInfo->GetFileProcess()->Write(0, kWriteDelete);
     }
     for (int i = 0; i < fProcessNumber; i++) {
-        sprintf(tmpString, "Process-%d. %s", i + 1, fThreads[0]->GetProcess(i)->GetName());
-        fThreads[0]->GetProcess(i)->Write();
+        // sprintf(tmpString, "Process-%d. %s", i + 1, fThreads[0]->GetProcess(i)->GetName());
+        fThreads[0]->GetProcess(i)->Write(0, kWriteDelete);
     }
+}
 
-    //}
-    if (fEventTree != nullptr) fEventTree->Write(0, kWriteDelete);
-    if (fAnalysisTree != nullptr) fAnalysisTree->Write(0, kWriteDelete);
-    fTempOutputDataFile->Close();
-    // files_to_merge.push_back(fTempOutputDataFile->GetName());
-
+///////////////////////////////////////////////
+/// \brief Forming an output file
+///
+/// It first saves process metadata in to the main output file, then calls
+/// TRestRun::FormOutputFile() to merge the main file with process's tmp file.
+void TRestProcessRunner::MergeOutputFile() {
+    essential << "Merging thread files together" << endl;
     // add threads file
     // processes may have their own TObject output. They are stored in the threads
     // file these files are mush smaller that data file, so they are merged to the
     // data file.
+    vector<string> files_to_merge;
     for (int i = 0; i < fThreadNumber; i++) {
         TFile* f = fThreads[i]->GetOutputFile();
         if (f != nullptr) f->Close();
         files_to_merge.push_back(f->GetName());
     }
 
-    fRunInfo->MergeToOutputFile(files_to_merge, fTempOutputDataFile->GetName());
-
-    std::vector<string> mdNames = fRunInfo->GetMetadataStructureNames();
-    Int_t nErrors = 0;
-    Int_t nWarnings = 0;
-    for (int n = 0; n < mdNames.size(); n++) {
-        if (fRunInfo->GetMetadata(mdNames[n])->GetError()) nErrors++;
-        if (fRunInfo->GetMetadata(mdNames[n])->GetWarning()) nWarnings++;
-    }
-
-    if (nWarnings)
-        warning << nWarnings
-                << " process warnings were found! Use run0->PrintWarnings(); to get additional info." << endl;
-    if (nErrors)
-        ferr << nErrors << " process errors were found! Use run0->PrintErrors(); to get additional info."
-             << endl;
+    fOutputDataFile->Close();
+    fRunInfo->MergeToOutputFile(files_to_merge, fOutputDataFile->GetName());
 }
 
 // tools
@@ -1072,7 +1155,8 @@ void TRestProcessRunner::PrintMetadata() {
     metadata << "Analysis tree branches : " << fNBranches << endl;
     metadata << "Thread number : " << fThreadNumber << endl;
     metadata << "Processes in each thread : " << fProcessNumber << endl;
-
+    metadata << "File auto split size: " << fFileSplitSize << endl;
+    metadata << "File compression level: " << fFileCompression << endl;
     // cout << "Input filename : " << fInputFilename << endl;
     // cout << "Output filename : " << fOutputFilename << endl;
     // cout << "Number of initial events : " << GetNumberOfEvents() << endl;
