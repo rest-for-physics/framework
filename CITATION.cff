@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 title: "REST-for-Physics"
 message: "If you use this software, please cite it as below."
-doi: "10.5281/zenodo.6487675"
+doi: "10.5281/zenodo.4528985"
 date-released: "2021-02-10"
 authors:
 - family-names: "Altenmüller"
