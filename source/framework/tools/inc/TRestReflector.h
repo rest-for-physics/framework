@@ -445,20 +445,24 @@ class Converter : RESTVirtualConverter {
     }
     void CloneObj(void* from, void* to) override { *((T*)(to)) = *((T*)(from)); }
 
-    Converter(std::string (*_ToStringFunc)(T), T (*_ParseStringFunc)(std::string)) {
+    Converter(std::string type_name, std::string (*_ToStringFunc)(T), T (*_ParseStringFunc)(std::string)) {
         ToStringFunc = _ToStringFunc;
         ParseStringFunc = _ParseStringFunc;
-        std::string typestr = REST_Reflection::GetTypeName<T>();
-        if (RESTConverterMethodBase.count(typestr) > 0) {
-            std::cout << "Warning! converter for type: " << typestr << " already added!" << endl;
+        if (RESTConverterMethodBase.count(type_name) > 0) {
+            std::cout << "Warning! converter for type: " << type_name << " already added!" << endl;
         } else {
-            RESTConverterMethodBase[typestr] = this;
+            RESTConverterMethodBase[type_name] = this;
+        }
+
+        std::string type_name_actual = REST_Reflection::GetTypeName<T>();  // in case ROOT redefines type name
+        if (RESTConverterMethodBase.count(type_name_actual) == 0) {
+            RESTConverterMethodBase[type_name_actual] = this;
         }
     }
 };
 
 #define AddConverter(ToStringFunc, ParseStringFunc, type) \
     template <>                                           \
-    Converter<type>* Converter<type>::thisptr = new Converter<type>(&ToStringFunc, &ParseStringFunc);
+    Converter<type>* Converter<type>::thisptr = new Converter<type>(#type, &ToStringFunc, &ParseStringFunc);
 
 #endif
