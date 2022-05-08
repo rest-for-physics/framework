@@ -35,6 +35,7 @@ class TRestRun : public TRestMetadata {
     Double_t fStartTime;  ///< Event absolute starting time/date (unix timestamp)
     Double_t fEndTime;    ///< Event absolute ending time/date (unix timestamp)
     Int_t fEntriesSaved;
+    Int_t fNFilesSplit;  // Number of files being split. Used when retrieveing
 
     // data-like metadata objects
     std::vector<TRestMetadata*> fMetadata;       //!
@@ -126,6 +127,10 @@ class TRestRun : public TRestMetadata {
     void AddEventBranch(TRestEvent* eve);
     void SkipEventTree() {}
 
+    void cd() {
+        if (fInputFile != NULL) fInputFile->cd();
+    }
+
     // Getters
     inline Int_t GetParentRunNumber() const { return fParentRunNumber; }
     inline Int_t GetRunNumber() const { return fRunNumber; }
@@ -214,6 +219,7 @@ class TRestRun : public TRestMetadata {
     inline void SetEndTimeStamp(Double_t timestamp) { fEndTime = timestamp; }
     inline void SetTotalBytes(Long64_t totalBytes) { fTotalBytes = totalBytes; }
     inline void SetHistoricMetadataSaving(bool save) { fSaveHistoricData = save; }
+    inline void SetNFilesSplit(int n) { fNFilesSplit = n; }
     inline void HangUpEndFile() { fHangUpEndFile = true; }
     inline void ReleaseEndFile() { fHangUpEndFile = false; }
     // Printers
@@ -252,7 +258,7 @@ class TRestRun : public TRestMetadata {
     TRestRun(const std::string& filename);
     ~TRestRun();
 
-    ClassDef(TRestRun, 5);
+    ClassDef(TRestRun, 6);
 };
 
 #endif
