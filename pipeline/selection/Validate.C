@@ -7,6 +7,8 @@ Int_t Validate(TString fname) {
     TFile* f = new TFile(fname);
     TTree* tr = (TTree*)f->Get("AnalysisTree");
 
+    tr->Scan("eventID:g4Ana_totalEdep:g4Ana_energyPrimary");
+
     if (tr->GetEntries() != 3) {
         cout << "Number of entries is not the same!" << endl;
         cout << "Expected: 3. Obtained: " << tr->GetEntries() << endl;
@@ -14,7 +16,7 @@ Int_t Validate(TString fname) {
     }
 
     // Check IDs.
-    std::vector<Int_t> ids = {0, 3, 6};
+    std::vector<Int_t> ids = {0, 1, 4};
     for (Int_t i = 0; i < tr->GetEntries(); i++) {
         tr->GetEntry(i);
         if (tr->GetLeaf("eventID")->GetValue(0) != ids[i]) {
