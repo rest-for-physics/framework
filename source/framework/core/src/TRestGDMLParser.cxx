@@ -31,7 +31,7 @@ void TRestGDMLParser::Load(const string& filename) {
 
         fFileString = ReplaceConstants(ReplaceVariables(fFileString));
 
-        cout << "GDML: initializating variables" << endl;
+        cout << "TRestGDMLParser: initializing variables" << endl;
         int pos = fFileString.find("<gdml", 0);
         if (pos != -1) {
             string elementstr = fFileString.substr(pos, -1);
@@ -42,7 +42,7 @@ void TRestGDMLParser::Load(const string& filename) {
             LoadSectionMetadata();
         }
 
-        cout << "GDML: replacing expressions in GDML" << endl;
+        cout << "TRestGDMLParser: replacing expressions in GDML" << endl;
         ReplaceEntity();
         fFileString = Replace(fFileString, "= \"", "=\"");
         fFileString = Replace(fFileString, " =\"", "=\"");
@@ -59,7 +59,7 @@ void TRestGDMLParser::Load(const string& filename) {
         string fname = TRestTools::SeparatePathAndName(filenameAbsolute).second;
         // we have to use a unique identifier on the file to prevent collision when launching multiple jobs
         fOutputGdmlFilename = fOutputGdmlDirectory + "PID" + std::to_string(getpid()) + "_" + fname;
-        cout << "GDML: creating temporary file at: \"" << fOutputGdmlFilename << "\"" << endl;
+        cout << "TRestGDMLParser: creating temporary file at: \"" << fOutputGdmlFilename << "\"" << endl;
 
         outf.open(fOutputGdmlFilename, ios::trunc);
         outf << fFileString << endl;
@@ -100,14 +100,14 @@ void TRestGDMLParser::ReplaceEntity() {
         int pos4 = fFileString.find("\"", pos3);
         string entityfile = RemoveWhiteSpaces(fFileString.substr(pos3, pos4 - pos3));
 
-        cout << "GDML: replacing entitiy: " << entityName << ", file: " << entityfile << endl;
+        cout << "TRestGDMLParser: replacing entitiy: " << entityName << ", file: " << entityfile << endl;
 
         if ((int)entityfile.find("http") != -1) {
             string entityfiledl =
                 fOutputGdmlDirectory + "PID" + std::to_string(getpid()) + "_" + entityName + ".xml";
             int a = TRestTools::DownloadRemoteFile(entityfile, entityfiledl);
             if (a != 0) {
-                cout << "GDML: Download failed!" << endl;
+                cout << "TRestGDMLParser: Download failed!" << endl;
                 exit(1);
             }
             entityfile = entityfiledl;
@@ -141,7 +141,7 @@ void TRestGDMLParser::ReplaceEntity() {
                 exit(0);
             }
         } else {
-            cout << "GDML: Warning! redundant entity: \"" << entityName << "\"" << endl;
+            cout << "TRestGDMLParser: Warning! redundant entity: \"" << entityName << "\"" << endl;
         }
         pos++;
     }
