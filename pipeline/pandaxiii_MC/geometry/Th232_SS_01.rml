@@ -26,7 +26,7 @@
 
   <TRestGeant4Metadata name="restG4 Simulation run" title="Simulation of Th232 decay from vessel.">
 
-    <parameter name="Nevents" value="4000000"/>
+    <parameter name="nEvents" value="4000000"/>
     <parameter name="gdml_file" value="/home/zhoubugao/REST/geometry_bgzou/main.gdml"/>
     <parameter name="maxTargetStepSize" value="500" units="um" />
     <parameter name="subEventTimeDelay" value="100" units="us" />
