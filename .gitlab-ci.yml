@@ -7,11 +7,11 @@ stages:
   # Basic checks to verify correctness of code
   - pre-build
 
-  # Build and run tests
-  - test
-
   # Project compilation validation
   - build
+
+  # Build and run tests
+  - test
 
   # REST libraries installed as submodules
   - libraries
@@ -78,23 +78,6 @@ Validate Code:
     - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH}
     - python3 pipeline/validateProcesses.py source/libraries/
 
-Build and Test:
-  stage: test
-  script:
-    - cd ${CI_PROJECT_DIR}
-    - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH}
-    - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build
-    - cmake ${CI_PROJECT_DIR}
-      -DTEST=ON -DREST_GARFIELD=OFF -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
-    - make -j2
-    - ctest --verbose -O ${CI_PROJECT_DIR}/build/Testing/summary.txt
-
-  artifacts:
-    name: "Testing"
-    paths:
-      - ${CI_PROJECT_DIR}/build/Testing
-    expire_in: 1 day
-
 Build and Install:
   stage: build
   script:
@@ -110,6 +93,24 @@ Build and Install:
     name: "Install"
     paths:
       - ${CI_PROJECT_DIR}/install
+    expire_in: 1 day
+
+Build and Test:
+  stage: test
+  script:
+    - source ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}
+    - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH}
+    - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build
+    - cmake ${CI_PROJECT_DIR}
+      -DTEST=ON -DREST_GARFIELD=OFF -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
+    - make -j2
+    - ctest --verbose -O ${CI_PROJECT_DIR}/build/Testing/summary.txt
+
+  artifacts:
+    name: "Testing"
+    paths:
+      - ${CI_PROJECT_DIR}/build/Testing
     expire_in: 1 day
 
 Load REST Libraries:

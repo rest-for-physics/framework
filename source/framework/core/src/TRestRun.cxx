@@ -34,7 +34,7 @@
 
 using namespace std;
 
-mutex mutex2;
+std::mutex mutex_read;
 
 ClassImp(TRestRun);
 
@@ -93,6 +93,7 @@ void TRestRun::Initialize() {
     fTotalBytes = -1;
     fOverwrite = true;
     fEntriesSaved = -1;
+    fNFilesSplit = 0;
 
     fInputMetadata.clear();
     fMetadata.clear();
@@ -162,8 +163,6 @@ void TRestRun::InitFromConfigFile() {
 
     if (ToUpper(runNstr) != "AUTO") {
         fRunNumber = atoi(runNstr.c_str());
-        fStartTime = gDataBase->query_run(fRunNumber).tstart;
-        fEndTime = gDataBase->query_run(fRunNumber).tend;
     }
 
     if (ToUpper(inputname) == "AUTO") {
@@ -182,6 +181,7 @@ void TRestRun::InitFromConfigFile() {
             fRunNumber = -1;
         }
 
+        // add a new run
         if (fRunNumber == 0) {
             fRunNumber = db->get_lastrun() + 1;
             DBEntry entry;
@@ -191,6 +191,18 @@ void TRestRun::InitFromConfigFile() {
             entry.type = fRunType;
             entry.version = REST_RELEASE;
             db->set_run(entry);
+        }
+    }
+
+    // get some run information
+    if (fRunNumber != -1) {
+        DBEntry entry = gDataBase->query_run(fRunNumber);
+        if (!entry.IsZombie()) {
+            fStartTime = entry.tstart;
+            fEndTime = entry.tend;
+            fRunDescription = entry.description;
+            fRunTag = entry.tag;
+            fRunType = entry.type;
         }
     }
 
@@ -435,17 +447,20 @@ void TRestRun::OpenInputFile(const TString& filename, const string& mode) {
             ReadInputFileTrees();
             fCurrentEvent = 0;
         } else {
-            fAnalysisTree = nullptr;
+            warning << "TRestRun object not found in file! The input file is problematic!" << endl;
 
-            // set its analysistree as the first TTree object in the file, if exists
-            TIter nextkey(fInputFile->GetListOfKeys());
-            TKey* key;
-            while ((key = (TKey*)nextkey())) {
-                if ((string)key->GetClassName() == "TTree") {
-                    fAnalysisTree =
-                        TRestAnalysisTree::ConvertFromTTree((TTree*)fInputFile->Get(key->GetName()));
-                }
-            }
+            ReadInputFileTrees();
+            // fAnalysisTree = nullptr;
+
+            //// set its analysistree as the first TTree object in the file, if exists
+            // TIter nextkey(fInputFile->GetListOfKeys());
+            // TKey* key;
+            // while ((key = (TKey*)nextkey())) {
+            //    if ((string)key->GetClassName() == "TTree") {
+            //        fAnalysisTree =
+            //            TRestAnalysisTree::ConvertFromTTree((TTree*)fInputFile->Get(key->GetName()));
+            //    }
+            //}
         }
     } else {
         fInputFile = nullptr;
@@ -461,7 +476,7 @@ void TRestRun::OpenInputFile(const TString& filename, const string& mode) {
 }
 
 void TRestRun::AddInputFileExternal(const string& file) {
-    mutex2.lock();
+    mutex_read.lock();
     if (fFileProcess != nullptr) {
         bool add = fFileProcess->AddInputFile(file);
         if (!add) {
@@ -469,7 +484,7 @@ void TRestRun::AddInputFileExternal(const string& file) {
         }
         fInputFileNames.push_back(file);
     }
-    mutex2.unlock();
+    mutex_read.unlock();
 }
 
 void TRestRun::ReadInputFileMetadata() {
@@ -526,7 +541,30 @@ void TRestRun::ReadInputFileTrees() {
 
         if (fInputFile->Get("AnalysisTree") != nullptr) {
             fAnalysisTree = (TRestAnalysisTree*)fInputFile->Get("AnalysisTree");
-            fAnalysisTree->GetEntry(0);  // we call GetEntry() to connect branches
+
+            if (fNFilesSplit > 0) {  // fNFilesSplit=1: split to 1 additional file
+                essential << "Linking analysis tree from split data files" << endl;
+                fAnalysisTree =
+                    (TRestAnalysisTree*)
+                        fAnalysisTree->Clone();  // we must make a copy to have TBrowser correctly browsed.
+                for (int i = 1; i <= fNFilesSplit; i++) {
+                    string filename = fInputFile->GetName() + (string) "." + ToString(i);
+                    info << filename << " --> ";
+                    info << (fAnalysisTree->AddChainFile(filename) ? "success" : "failed") << endl;
+                }
+                if (fAnalysisTree->GetChain() == nullptr ||
+                    fAnalysisTree->GetChain()->GetNtrees() != fNFilesSplit + 1) {
+                    ferr << "Error adding split files, files missing?" << endl;
+                    ferr << "Your data could be incomplete!" << endl;
+                }
+            }
+
+            // Note: we call GetEntries() to initialize total entry number
+            // Otherwise the child analysis tree's observables will be reset
+            // on the next call of GetEntries()
+            fAnalysisTree->GetEntries();
+            // Call GetEntry() to initialize observables and connect branches
+            fAnalysisTree->GetEntry(0);
 
             _eventTree = (TTree*)fInputFile->Get("EventTree");
         } else if (fInputFile->FindKey("TRestAnalysisTree") != nullptr) {
@@ -561,7 +599,23 @@ void TRestRun::ReadInputFileTrees() {
         }
 
         if (_eventTree != nullptr) {
-            fEventTree = _eventTree;
+            if (fNFilesSplit > 0) {
+                // eventTree shall be initailized as TChain
+                delete _eventTree;
+                essential << "Linking event tree from split data files" << endl;
+                TChain* _fEventTree = new TChain("EventTree");
+                info << fInputFile->GetName() << " --> ";
+                info << (_fEventTree->Add(fInputFile->GetName()) ? "success" : "failed") << endl;
+
+                for (int i = 1; i <= fNFilesSplit; i++) {
+                    string filename = fInputFile->GetName() + (string) "." + ToString(i);
+                    info << filename << " --> ";
+                    info << (_fEventTree->Add(filename.c_str()) ? "success" : "failed") << endl;
+                }
+                fEventTree = _fEventTree;
+            } else {
+                fEventTree = _eventTree;
+            }
 
             debug << "Finding event branch.." << endl;
             if (fInputEvent == nullptr) {
@@ -758,43 +812,40 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
     if (fFileProcess != nullptr) {
         debug << "TRestRun: getting next event from external process" << endl;
     GetEventExt:
-        mutex2.lock();
+        mutex_read.lock();
         fFileProcess->BeginOfEventProcess();
         eve = fFileProcess->ProcessEvent(nullptr);
         fFileProcess->EndOfEventProcess();
-        mutex2.unlock();
+        mutex_read.unlock();
         fBytesRead = fFileProcess->GetTotalBytesReaded();
-        if (targettree != nullptr) {
-            for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
-                targettree->SetObservable(n, fAnalysisTree->GetObservable(n));
-        }
+        // if (targettree != nullptr) {
+        //    for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
+        //        targettree->SetObservable(n, fAnalysisTree->GetObservable(n));
+        //}
         fCurrentEvent++;
     } else {
         debug << "TRestRun: getting next event from root file" << endl;
-        if (fAnalysisTree != nullptr) {
-            if (fCurrentEvent >= fAnalysisTree->GetEntriesFast()) {
+        if (fAnalysisTree == nullptr) {
+            warning << "error to get event from input file, missing analysis tree from input file" << endl;
+            eve = nullptr;
+        } else {
+            if (fCurrentEvent >= fAnalysisTree->GetTree()->GetEntriesFast()) {
                 eve = nullptr;
             } else {
-                eve->Initialize();
-                fBytesRead += fAnalysisTree->GetEntry(fCurrentEvent);
                 if (targettree != nullptr) {
+                    // normal reading procedure
+                    eve->Initialize();
+                    fBytesRead += fAnalysisTree->GetEntry(fCurrentEvent);
                     for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
                         targettree->SetObservable(n, fAnalysisTree->GetObservable(n));
                 }
                 if (fEventTree != nullptr) {
                     fBytesRead += ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))
-                                      ->GetEntry(fCurrentEvent);
+                                        ->GetEntry(fCurrentEvent);
                     // fBytesReaded += fEventTree->GetEntry(fCurrentEvent);
                 }
                 fCurrentEvent++;
             }
-        }
-
-        else {
-            warning << "error to get event from input file, missing file process or "
-                       "analysis tree"
-                    << endl;
-            eve = nullptr;
         }
     }
 
@@ -1595,7 +1646,6 @@ string TRestRun::ReplaceMetadataMember(const string& instr) {
     if (instr.find("::") == string::npos && instr.find("->") == string::npos) {
         return "<<" + instr + ">>";
     }
-
     vector<string> results = Split(instr, "::", false, true);
     if (results.size() == 1) results = Split(instr, "->", false, true);
 
@@ -1727,6 +1777,14 @@ void TRestRun::PrintMetadata() {
              << endl;
     metadata << "Input file : " << TRestTools::GetPureFileName((string)GetInputFileNamePattern()) << endl;
     metadata << "Output file : " << TRestTools::GetPureFileName((string)GetOutputFileName()) << endl;
+    if (fInputFile != nullptr) {
+        metadata << "Data file : " << fInputFile->GetName();
+        if (fNFilesSplit > 0) {
+            metadata << " (Splitted into " << fNFilesSplit + 1 << " files)" << endl;
+        } else {
+            metadata << endl;
+        }
+    }
     metadata << "Number of events : " << fEntriesSaved << endl;
     // metadata << "Input filename : " << fInputFilename << endl;
     // metadata << "Output filename : " << fOutputFilename << endl;
@@ -1759,9 +1817,6 @@ void TRestRun::PrintStartDate() {
     cout << "++++++++++++++++++++++++" << endl;
 }
 
-///////////////////////////////////////////////
-/// \brief Prints the run end date and time in human format
-///
 void TRestRun::PrintEndDate() {
     cout << "----------------------" << endl;
     cout << "---- Run end date ----" << endl;
