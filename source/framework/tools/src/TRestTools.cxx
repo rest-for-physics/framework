@@ -43,7 +43,9 @@
 ///
 #include "TRestTools.h"
 
+#ifdef USE_Curl
 #include <curl/curl.h>
+#endif
 #include <dirent.h>
 
 #include <chrono>
