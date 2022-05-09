@@ -38,7 +38,7 @@ class TRestGDMLParser : public TRestMetadata {
         return fGeoManager;
     }
 
-    TGeoManager* CreateGeoM();
+    TGeoManager* CreateGeoManager();
 
     void InitFromConfigFile() override {}
 
@@ -46,9 +46,9 @@ class TRestGDMLParser : public TRestMetadata {
 
     void ReplaceEntity();
 
-    void ReplaceAttributeWithKeyWord(std::string keyword);
+    void ReplaceAttributeWithKeyWord(const std::string& keyword);
 
-    ClassDef(TRestGDMLParser, 2);
+    ClassDefOverride(TRestGDMLParser, 2);
 };
 
 #endif
