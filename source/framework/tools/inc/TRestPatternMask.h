@@ -23,6 +23,8 @@
 #ifndef REST_TRestPatternMask
 #define REST_TRestPatternMask
 
+#include <TCanvas.h>
+
 #include <TRestMetadata.h>
 
 /// An abstract class used to encapsulate different mask pattern class definitions.
@@ -37,10 +39,13 @@ class TRestPatternMask : public TRestMetadata {
     /// The pattern type (Stripped/Grid/Spider/Rings)
     std::string fPatternType = "";  //<
 
+    /// A canvas for drawing
+    TCanvas* fCanvas = nullptr;  //!
+
+   protected:
     /// The maximum mask radius in mm (if 0 it will be infinite)
     Double_t fMaskRadius = 0;
 
-   protected:
     /// It defines the mask type. To be called by the inherited class constructor.
     void SetType(const std::string& type) { fPatternType = type; }
 
@@ -52,7 +57,7 @@ class TRestPatternMask : public TRestMetadata {
    public:
     Bool_t HitsPattern(Double_t x, Double_t y);
 
-    virtual Int_t GetRegion(Double_t& x, Double_t& y);
+    virtual Int_t GetRegion(Double_t x, Double_t y) = 0;
 
     /// It returns the mask pattern type
     std::string GetType() { return fPatternType; }
@@ -75,9 +80,9 @@ class TRestPatternMask : public TRestMetadata {
     /// It defines the mask radius
     void SetMaskRadius(const Double_t& radius) { fMaskRadius = radius; }
 
-    // void InitFromConfigFile();
-
     void PrintMetadata();
+
+    TCanvas* DrawMonteCarlo(Int_t nSamples = 10000);
 
     ~TRestPatternMask();
 

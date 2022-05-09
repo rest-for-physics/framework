@@ -62,6 +62,12 @@
 /// <hr>
 ///
 
+#include "TAxis.h"
+#include "TColor.h"
+#include "TGraph.h"
+#include "TH1F.h"
+#include "TRandom3.h"
+
 #include "TRestPatternMask.h"
 
 ClassImp(TRestPatternMask);
@@ -97,12 +103,6 @@ TRestPatternMask::TRestPatternMask(const char* cfgFileName, std::string name) : 
 TRestPatternMask::~TRestPatternMask() {}
 
 ///////////////////////////////////////////////
-/// \brief Function to initialize input/output event members and define
-/// the section name
-///
-// void TRestPatternMask::Initialize() { SetSectionName(this->ClassName()); }
-
-///////////////////////////////////////////////
 /// \brief It produces an effective mask rotation and translation for the
 /// point x,y.
 ///
@@ -112,8 +112,8 @@ TRestPatternMask::~TRestPatternMask() {}
 void TRestPatternMask::RotateAndTranslate(Double_t& x, Double_t& y) {
     TVector2 pos(x, y);
 
-    pos = pos.Rotate(-fRotationAngle);
     pos -= fOffset;
+    pos = pos.Rotate(-fRotationAngle);
 
     x = pos.X();
     y = pos.Y();
@@ -127,40 +127,6 @@ bool TRestPatternMask::HitsPattern(Double_t x, Double_t y) {
     return false;
 }
 
-///////////////////////////////////////////////
-/// \brief It returns a number identifying the region where the particle
-/// with coordinates (x,y) felt in. The method MUST be implemented at the
-/// inherited class.
-///
-/// To include mask radius limits and rotation at the inherited class, just
-/// call this method at the re-implementation.
-///
-/// ```
-/// if( TRestPatternMask::GetRegion(x,y) == 0 ) return 0;
-/// ```
-///
-/// Then the values of x,y will be compatible with the offset and rotation
-/// defined inside this class
-///
-Int_t TRestPatternMask::GetRegion(Double_t& x, Double_t& y) {
-    if (fMaskRadius > 0 && x * x + y * y > fMaskRadius * fMaskRadius) return 0;
-
-    RotateAndTranslate(x, y);
-
-    return 1;
-}
-
-/////////////////////////////////////////////
-/// \brief Initialization of TRestPatternMask field members through a RML file
-///
-/*
-void TRestPatternMask::InitFromConfigFile() {
-    TRestMetadata::InitFromConfigFile();
-
-    // If we recover the metadata class from ROOT file we will need to call Initialize ourselves
-    this->Initialize();
-} */
-
 /////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
 ///
@@ -173,3 +139,88 @@ void TRestPatternMask::PrintMetadata() {
     metadata << "----" << endl;
 }
 
+/////////////////////////////////////////////
+/// \brief TOBE written
+///
+TCanvas* TRestPatternMask::DrawMonteCarlo(Int_t nSamples) {
+    if (fCanvas != NULL) {
+        delete fCanvas;
+        fCanvas = NULL;
+    }
+    fCanvas = new TCanvas("canv", "This is the canvas title", 1400, 1200);
+    fCanvas->Draw();
+
+    TPad* pad1 = new TPad("pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97);
+    pad1->Draw();
+
+    fCanvas->SetRightMargin(0.09);
+    fCanvas->SetLeftMargin(0.15);
+    fCanvas->SetBottomMargin(0.15);
+
+    /// Generating Montecarlo
+    std::map<int, std::vector<TVector2> > points;
+
+    TRandom3* rnd = new TRandom3(0);
+
+    for (int n = 0; n < nSamples; n++) {
+        Double_t x = 3 * (rnd->Rndm() - 0.5) * fMaskRadius + fOffset.X();
+        Double_t y = 3 * (rnd->Rndm() - 0.5) * fMaskRadius + fOffset.Y();
+
+        Int_t id = GetRegion(x, y);
+
+        if (points.count(id) == 0) {
+            std::vector<TVector2> a;
+            a.push_back(TVector2(x, y));
+            points[id] = a;
+        } else {
+            points[id].push_back(TVector2(x, y));
+        }
+    }
+
+    std::vector<EColor> colors{kOrange, kGreen, kPink};
+
+    std::vector<TGraph*> gridGraphs;
+    Int_t nGraphs = 0;
+    for (const auto& x : points) {
+        std::string grname = "gr" + IntegerToString(nGraphs);
+        TGraph* gr = new TGraph();
+        gr->SetName(grname.c_str());
+
+        for (int n = 0; n < x.second.size(); n++) {
+            gr->SetPoint(gr->GetN(), x.second[n].X(), x.second[n].Y());
+        }
+
+        if (nGraphs == 0) {
+            gr->SetLineColor(kBlack);
+            gr->SetMarkerColor(kBlack);
+            gr->SetMarkerSize(0.6);
+            gr->SetLineWidth(2);
+        } else {
+            gr->SetMarkerColor((nGraphs * 2) % 29 + 20);
+            gr->SetLineColor((nGraphs * 2) % 29 + 20);
+            gr->SetMarkerSize(0.6);
+            gr->SetLineWidth(2);
+        }
+
+        gr->SetMarkerStyle(20);
+        gridGraphs.push_back(gr);
+        nGraphs++;
+    }
+
+    gridGraphs[0]->GetXaxis()->SetLimits(fOffset.X() - 1.75 * fMaskRadius, fOffset.X() + 1.75 * fMaskRadius);
+    gridGraphs[0]->GetHistogram()->SetMaximum(fOffset.Y() + 1.75 * fMaskRadius);
+    gridGraphs[0]->GetHistogram()->SetMinimum(fOffset.Y() - 1.75 * fMaskRadius);
+
+    gridGraphs[0]->GetXaxis()->SetTitle("X [mm]");
+    gridGraphs[0]->GetXaxis()->SetTitleSize(0.05);
+    gridGraphs[0]->GetXaxis()->SetLabelSize(0.05);
+    gridGraphs[0]->GetYaxis()->SetTitle("Y[mm]");
+    gridGraphs[0]->GetYaxis()->SetTitleOffset(1.5);
+    gridGraphs[0]->GetYaxis()->SetTitleSize(0.05);
+    gridGraphs[0]->GetYaxis()->SetLabelSize(0.05);
+    pad1->SetLogy();
+    gridGraphs[0]->Draw("AP");
+    for (int n = 1; n < nGraphs; n++) gridGraphs[n]->Draw("P");
+
+    return fCanvas;
+}
