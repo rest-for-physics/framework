@@ -64,6 +64,8 @@
 
 #include "TRestGridMask.h"
 
+#include "TRandom3.h"
+
 ClassImp(TRestGridMask);
 
 ///////////////////////////////////////////////
@@ -109,14 +111,58 @@ void TRestGridMask::Initialize() {
 
 ///////////////////////////////////////////////
 /// \brief It returns a number identifying the region where the particle
-/// with coordinates (x,y) felt in. If the particle hits the pattern, then
-/// it will return 0.
+/// with coordinates (x,y) felt in. The method returns 0 if the particle
+/// hits the pattern.
+///
+/// The particle will be counter-rotated to emulate the mask rotation
+/// using the method TRestPatternMask::RotateAndTranslate.
 ///
 Int_t TRestGridMask::GetRegion(Double_t x, Double_t y) {
-    std::cout << "xB: " << x << " yB: " << y << std::endl;
-    if (TRestPatternMask::GetRegion(x, y) == 0) return 0;
-    std::cout << "xA: " << x << " yA: " << y << std::endl;
-    return 1;
+    RotateAndTranslate(x, y);
+
+    if (fMaskRadius > 0 && x * x + y * y > fMaskRadius * fMaskRadius) return 0;
+
+    Double_t xEval = fGridThickness / 2. + x;
+
+    Int_t xcont = 0;
+    if (xEval > 0) {
+        while (xEval > fGridGap) {
+            xEval -= fGridGap;
+            xcont++;
+        }
+    } else {
+        while (xEval < 0) {
+            xEval += fGridGap;
+            xcont--;
+        }
+    }
+
+    if (xEval < fGridThickness) return 0;
+
+    Double_t yEval = fGridThickness / 2. + y;
+
+    Int_t ycont = 0;
+    if (yEval > 0) {
+        while (yEval > fGridGap) {
+            yEval -= fGridGap;
+            ycont++;
+        }
+    } else {
+        while (yEval < 0) {
+            yEval += fGridGap;
+            ycont--;
+        }
+    }
+
+    if (yEval < fGridThickness) return 0;
+
+    xcont = xcont % fModulus;
+    if (xcont < 0) xcont += fModulus;
+
+    ycont = ycont % fModulus;
+    if (ycont < 0) ycont += fModulus;
+
+    return 1 + fModulus * ycont + xcont;
 }
 
 /////////////////////////////////////////////
@@ -130,4 +176,3 @@ void TRestGridMask::PrintMetadata() {
     metadata << " - Grid thickness : " << fGridThickness << " mm" << endl;
     metadata << "+++++" << endl;
 }
-

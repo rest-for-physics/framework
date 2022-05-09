@@ -36,8 +36,11 @@ class TRestGridMask : public TRestPatternMask {
     /// The width of the grid structure mm
     Double_t fGridThickness = 0.5;  //<
 
+    /// It defines the maximum number of cells in each axis
+    Int_t fModulus = 10;
+
    public:
-    Int_t GetRegion(Double_t x, Double_t y);
+    virtual Int_t GetRegion(Double_t x, Double_t y);
 
     /// It returns the gap/periodicity of the grid in mm
     Double_t GetGridGap() { return fGridGap; }
@@ -46,8 +49,6 @@ class TRestGridMask : public TRestPatternMask {
     Double_t GetGridThickness() { return fGridGap; }
 
     void PrintMetadata();
-
-    //   void InitFromConfigFile();
 
     TRestGridMask();
     TRestGridMask(const char* cfgFileName, std::string name = "");
