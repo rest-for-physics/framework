@@ -21,31 +21,72 @@
  *************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////
-/// Write the class description Here
+/// This class defines a squared patterned grid. It defines a periodicity
+/// and a thickness for the grid pattern. The method TRestGridMask::GetRegion
+/// will return a unique id for each square delimited by the grid pattern.
 ///
-/// ### Parameters
-/// Describe any parameters this process receives:
-/// * **parameter1**: This parameter ...
-/// * **parameter2**: This parameter is ...
+/// The grid structure is centered in (0,0) and it can be shifted using
+/// the offset defined inside TRestPatternMask. The pattern will be only
+/// delimited by the limits imposed inside TRestPatternMask.
 ///
+/// ### Specific grid metadata parameters
+///
+/// * **gridGap**: This parameter defines the grid periodicity.
+/// * **gridThickness**: The thickness of the grid.
+/// * **modulus**: A number that defines the range of ids used to identify
+/// the different regions inside the grid. If modulus is 10, then we will
+/// only be able to identify up to 100 unique regions. If a larger amount
+/// of regions is found, it will happen that two regions will be assigned
+/// the same id.
+///
+/// ### Common pattern metadata parameters
+///
+/// On top of the metadata class parameters, we may define common pattern
+/// parameters to induce an offset and rotation to the pattern.
+///
+/// * **offset**: A parameter to shift the pattern window mask.
+/// * **rotationAngle**: An angle given in radians to rotate the pattern.
+/// * **maskRadius**: A radius defining the limits of the circular mask.
 ///
 /// ### Examples
-/// Give examples of usage and RML descriptions that can be tested.
+///
+/// Mask pattern RML definitions can be found inside the file
+/// `REST_PATH/examples/masks.rml`.
+///
+/// The following definition ilustrates a complete RML implementation of a
+/// TRestGridMask.
+///
 /// \code
-///     <WRITE A CODE EXAMPLE HERE>
+///	<TRestGridMask name="strongback" verboseLevel="warning">
+///		<parameter name="maskRadius" value="20" />
+///		<parameter name="offset" value="(1,2)cm" />
+///		<parameter name="rotationAngle" value="0.5" />
+///
+///		<parameter name="gridGap" value="1cm" />
+///		<parameter name="gridThickness" value="2mm" />
+///	</TRestGridMask>
 /// \endcode
 ///
-/// ### Running pipeline example
-/// Add the examples to a pipeline to guarantee the code will be running
-/// on future framework upgrades.
+/// The basic use of this class is provided by the TRestGridMask::GetRegion
+/// method. For example:
 ///
+/// \code
+///     TRestGridMask mask("masks.rml", "grid");
+///     Int_t id = mask.GetRegion( 12.5, 4.3 );
+/// 	std::cout << "Region id is : " << id << endl;
+/// \endcode
 ///
-/// Please, add any figure that may help to illustrate the process
+/// The following figure may be generated using the TRestPatternMask::DrawMonteCarlo
+/// method.
 ///
-/// \htmlonly <style>div.image img[src="trigger.png"]{width:500px;}</style> \endhtmlonly
-/// ![An illustration of the trigger definition](trigger.png)
+/// \code
+///     TRestGridMask mask("masks.rml", "grid");
+///     TCanvas *c = mask.DrawMonteCarlo(30000);
+///     c->Draw();
+/// \endcode
 ///
-/// The png image should be uploaded to the ./images/ directory
+/// \htmlonly <style>div.image img[src="gridmask.png"]{width:500px;}</style> \endhtmlonly
+/// ![An illustration of the montecarlo mask test using DrawMonteCarlo](gridmask.png)
 ///
 ///----------------------------------------------------------------------
 ///
@@ -53,11 +94,11 @@
 ///
 /// History of developments:
 ///
-/// YEAR-Month: First implementation of TRestGridMask
-/// WRITE YOUR FULL NAME
+/// 2022-05: First implementation of TRestGridMask
+/// Javier Galan
 ///
 /// \class TRestGridMask
-/// \author: TODO. Write full name and e-mail:        jgalan
+/// \author: Javier Galan - javier.galan@unizar.es
 ///
 /// <hr>
 ///
@@ -85,7 +126,7 @@ TRestGridMask::TRestGridMask() : TRestPatternMask() { Initialize(); }
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// corresponding TRestAxionMagneticField section inside the RML.
+/// corresponding TRestGridMask section inside the RML.
 ///
 TRestGridMask::TRestGridMask(const char* cfgFileName, std::string name) : TRestPatternMask(cfgFileName) {
     Initialize();

@@ -25,7 +25,7 @@
 
 #include <TRestPatternMask.h>
 
-/// A mask definning a squared grid pattern
+/// A class used to define a grid mask pattern
 class TRestGridMask : public TRestPatternMask {
    private:
     void Initialize();
@@ -33,10 +33,10 @@ class TRestGridMask : public TRestPatternMask {
     /// The periodity of the grid structure in mm
     Double_t fGridGap = 1;  //<
 
-    /// The width of the grid structure mm
+    /// The width of the grid structure in mm
     Double_t fGridThickness = 0.5;  //<
 
-    /// It defines the maximum number of cells in each axis
+    /// It defines the maximum number of cells/regions in each axis
     Int_t fModulus = 10;
 
    public:
