@@ -1,5 +1,7 @@
 #include "TRestGDMLParser.h"
 
+#include <filesystem>
+
 using namespace std;
 
 string TRestGDMLParser::GetEntityVersion(const string& name) const {
@@ -31,7 +33,7 @@ void TRestGDMLParser::Load(const string& filename) {
 
         fFileString = ReplaceConstants(ReplaceVariables(fFileString));
 
-        cout << "TRestGDMLParser: initializing variables" << endl;
+        cout << "TRestGDMLParser: Initializing variables" << endl;
         int pos = fFileString.find("<gdml", 0);
         if (pos != -1) {
             string elementString = fFileString.substr(pos, -1);
@@ -42,7 +44,7 @@ void TRestGDMLParser::Load(const string& filename) {
             LoadSectionMetadata();
         }
 
-        cout << "TRestGDMLParser: replacing expressions in GDML" << endl;
+        cout << "TRestGDMLParser: Replacing expressions in GDML" << endl;
         ReplaceEntity();
         fFileString = Replace(fFileString, "= \"", "=\"");
         fFileString = Replace(fFileString, " =\"", "=\"");
@@ -58,16 +60,24 @@ void TRestGDMLParser::Load(const string& filename) {
         string filenameNoPath = TRestTools::SeparatePathAndName(filenameAbsolute).second;
         // we have to use a unique identifier on the file to prevent collision when launching multiple jobs
         fOutputGdmlFilename = fOutputGdmlDirectory + "PID" + std::to_string(getpid()) + "_" + filenameNoPath;
-        cout << "TRestGDMLParser: creating temporary file at: \"" << fOutputGdmlFilename << "\"" << endl;
+        cout << "TRestGDMLParser: Creating temporary file at: \"" << fOutputGdmlFilename << "\"" << endl;
 
-        ofstream outf;
-        outf.open(fOutputGdmlFilename, ios::trunc);
-        outf << fFileString << endl;
-        outf.close();
+        filesystem::create_directories(fOutputGdmlDirectory);
+
+        ofstream outputFile;
+        outputFile.open(fOutputGdmlFilename, ios::trunc);
+        outputFile << fFileString << endl;
+        outputFile.close();
+
+        std::ifstream fileToCheckExistence(fOutputGdmlFilename);
+        if (!fileToCheckExistence) {
+            std::cout << "TRestGDMLParser: Problem writing temporary file." << std::endl;
+            exit(1);
+        }
 
     } else {
-        ferr << "Filename : " << filename << endl;
-        ferr << "File does not exist. Right path/filename?" << endl;
+        ferr << "TRestGDMLParser: Input GDML file: \"" << filename
+             << "\" does not exist. Please double check your current path and filename" << endl;
         exit(1);
     }
 }
@@ -78,10 +88,10 @@ TGeoManager* TRestGDMLParser::CreateGeoManager() {
         char originDirectory[256];
         sprintf(originDirectory, "%s", getenv("PWD"));
         chdir(fOutputGdmlDirectory.c_str());
-        TGeoManager* geo2 = new TGeoManager();
-        geo2->Import(fOutputGdmlFilename.c_str());
+        auto geoManager = new TGeoManager();
+        geoManager->Import(fOutputGdmlFilename.c_str());
         chdir(originDirectory);
-        return geo2;
+        return geoManager;
     }
     return nullptr;
 }
@@ -94,13 +104,12 @@ void TRestGDMLParser::ReplaceEntity() {
         int pos1 = fFileString.find_first_not_of(" ", pos + 8);
         int pos2 = fFileString.find("SYSTEM", pos1);
         string entityName = RemoveWhiteSpaces(fFileString.substr(pos1, pos2 - pos1));
-        // cout << entityName << endl;
 
         int pos3 = fFileString.find("\"", pos2) + 1;
         int pos4 = fFileString.find("\"", pos3);
         string entityFile = RemoveWhiteSpaces(fFileString.substr(pos3, pos4 - pos3));
 
-        cout << "TRestGDMLParser: replacing entity: " << entityName << ", file: " << entityFile << endl;
+        cout << "TRestGDMLParser: Replacing entity: " << entityName << ", file: " << entityFile << endl;
 
         if ((int)entityFile.find("http") != -1) {
             string entityField =
@@ -118,9 +127,10 @@ void TRestGDMLParser::ReplaceEntity() {
         int pos5 = 0;
         if ((pos5 = fFileString.find("&" + entityName + ";")) != -1) {
             if (TRestTools::fileExists(entityFile)) {
-                std::ifstream t(entityFile);
-                std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-                t.close();
+                std::ifstream entityFileRead(entityFile);
+                std::string str((std::istreambuf_iterator<char>(entityFileRead)),
+                                std::istreambuf_iterator<char>());
+                entityFileRead.close();
 
                 str = ReplaceConstants(ReplaceVariables(str));
 
