@@ -39,6 +39,9 @@ class TRestGDMLParser : public TRestMetadata {
     }
 
     TGeoManager* CreateGeoManager();
+    [[deprecated("Use CreateGeoManager() instead.")]] inline TGeoManager* CreateGeoM() {
+        return CreateGeoManager();
+    }
 
     void InitFromConfigFile() override {}
 
