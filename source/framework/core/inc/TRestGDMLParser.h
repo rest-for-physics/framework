@@ -13,30 +13,30 @@
 
 class TRestGDMLParser : public TRestMetadata {
    private:
-    TGeoManager* fGeo;
+    TGeoManager* fGeoManager;
 
    public:
     TRestGDMLParser() {}
     ~TRestGDMLParser() {}
-    std::string filestr = "";
-    std::string path = "";
-    std::string outPath = REST_USER_PATH + "/gdml/";
-    std::string outfilename = "";
-    std::string gdmlVersion = "0.0";
-    std::map<std::string, std::string> entityVersion;
+    std::string fFileString;
+    std::string fPath;
+    std::string fOutputGdmlDirectory = REST_USER_PATH + "/gdml/";
+    std::string fOutputGdmlFilename;
+    std::string fGdmlVersion = "0.0";
+    std::map<std::string, std::string> fEntityVersionMap;
 
-    std::string GetEntityVersion(std::string name);
+    std::string GetEntityVersion(const std::string& name) const;
 
-    std::string GetGDMLVersion();
+    inline std::string GetGDMLVersion() const { return fGdmlVersion; }
 
-    std::string GetOutputGDMLFile();
+    inline std::string GetOutputGDMLFile() const { return fOutputGdmlFilename; }
 
-    void Load(std::string file);
+    void Load(const std::string& filename);
 
-    TGeoManager* GetGeoManager(std::string gdmlFile) {
-        Load(gdmlFile);
-        fGeo = TGeoManager::Import(GetOutputGDMLFile().c_str());
-        return fGeo;
+    inline TGeoManager* GetGeoManager(const std::string& gdmlFilename) {
+        Load(gdmlFilename);
+        fGeoManager = TGeoManager::Import(GetOutputGDMLFile().c_str());
+        return fGeoManager;
     }
 
     TGeoManager* CreateGeoM();
@@ -49,7 +49,7 @@ class TRestGDMLParser : public TRestMetadata {
 
     void ReplaceAttributeWithKeyWord(std::string keyword);
 
-    ClassDef(TRestGDMLParser, 1);
+    ClassDef(TRestGDMLParser, 2);
 };
 
 #endif

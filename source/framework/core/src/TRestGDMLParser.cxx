@@ -2,44 +2,39 @@
 
 using namespace std;
 
-string TRestGDMLParser::GetEntityVersion(string name) {
-    for (auto& i : entityVersion) {
-        if (i.first == name) {
-            return i.second;
-            break;
+string TRestGDMLParser::GetEntityVersion(const string& name) const {
+    for (auto& [entityName, entityVersion] : fEntityVersionMap) {
+        if (entityName == name) {
+            return entityVersion;
         }
     }
     return "0.0";
 }
 
-string TRestGDMLParser::GetGDMLVersion() { return gdmlVersion; }
+void TRestGDMLParser::Load(const string& filename) {
+    const auto filenameAbsolute = TRestTools::ToAbsoluteName(filename);
+    if (TRestTools::fileExists(filenameAbsolute)) {
+        fConfigFileName = filenameAbsolute;
+        fPath = TRestTools::SeparatePathAndName(filenameAbsolute).first;
 
-string TRestGDMLParser::GetOutputGDMLFile() { return outfilename; }
-
-void TRestGDMLParser::Load(string file) {
-    file = TRestTools::ToAbsoluteName(file);
-    if (TRestTools::fileExists(file)) {
-        fConfigFileName = file;
-        path = TRestTools::SeparatePathAndName(file).first;
-
-        std::ifstream t(file);
+        std::ifstream t(filenameAbsolute);
         std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-        filestr = str;
+        fFileString = str;
         t.close();
 
-        int pp = filestr.find("##VERSION", 0);
+        int pp = fFileString.find("##VERSION", 0);
         if (pp != string::npos) {
-            int pp2 = filestr.find("##", pp + 4);
-            if (pp2 != string::npos) gdmlVersion = filestr.substr(pp + 9, pp2 - pp - 9);
-            gdmlVersion = ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(gdmlVersion)));
+            int pp2 = fFileString.find("##", pp + 4);
+            if (pp2 != string::npos) fGdmlVersion = fFileString.substr(pp + 9, pp2 - pp - 9);
+            fGdmlVersion = ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(fGdmlVersion)));
         }
 
-        filestr = ReplaceConstants(ReplaceVariables(filestr));
+        fFileString = ReplaceConstants(ReplaceVariables(fFileString));
 
         cout << "GDML: initializating variables" << endl;
-        int pos = filestr.find("<gdml", 0);
+        int pos = fFileString.find("<gdml", 0);
         if (pos != -1) {
-            string elementstr = filestr.substr(pos, -1);
+            string elementstr = fFileString.substr(pos, -1);
 
             fElement = StringToElement(elementstr);
             fElementGlobal = GetElement("define", fElement);
@@ -49,9 +44,9 @@ void TRestGDMLParser::Load(string file) {
 
         cout << "GDML: replacing expressions in GDML" << endl;
         ReplaceEntity();
-        filestr = Replace(filestr, "= \"", "=\"");
-        filestr = Replace(filestr, " =\"", "=\"");
-        filestr = Replace(filestr, " = \"", "=\"");
+        fFileString = Replace(fFileString, "= \"", "=\"");
+        fFileString = Replace(fFileString, " =\"", "=\"");
+        fFileString = Replace(fFileString, " = \"", "=\"");
 
         ReplaceAttributeWithKeyWord("cos(");
         ReplaceAttributeWithKeyWord("sin(");
@@ -61,17 +56,17 @@ void TRestGDMLParser::Load(string file) {
         ReplaceAttributeWithKeyWord("exp(");
 
         ofstream outf;
-        string fname = TRestTools::SeparatePathAndName(file).second;
+        string fname = TRestTools::SeparatePathAndName(filenameAbsolute).second;
         // we have to use a unique identifier on the file to prevent collision when launching multiple jobs
-        outfilename = outPath + "PID" + std::to_string(getpid()) + "_" + fname;
-        cout << "GDML: creating temporary file at: \"" << outfilename << "\"" << endl;
+        fOutputGdmlFilename = fOutputGdmlDirectory + "PID" + std::to_string(getpid()) + "_" + fname;
+        cout << "GDML: creating temporary file at: \"" << fOutputGdmlFilename << "\"" << endl;
 
-        outf.open(outfilename, ios::trunc);
-        outf << filestr << endl;
+        outf.open(fOutputGdmlFilename, ios::trunc);
+        outf << fFileString << endl;
         outf.close();
 
     } else {
-        ferr << "Filename : " << file << endl;
+        ferr << "Filename : " << filename << endl;
         ferr << "File does not exist. Right path/filename?" << endl;
         exit(0);
     }
@@ -79,36 +74,37 @@ void TRestGDMLParser::Load(string file) {
 
 TGeoManager* TRestGDMLParser::CreateGeoM() {
     // We must change to the gdml file directory, otherwise ROOT cannot load.
-    if (outfilename != "") {
+    if (!fOutputGdmlFilename.empty()) {
         char originDirectory[256];
         sprintf(originDirectory, "%s", getenv("PWD"));
-        chdir(outPath.c_str());
+        chdir(fOutputGdmlDirectory.c_str());
         TGeoManager* geo2 = new TGeoManager();
-        geo2->Import(outfilename.c_str());
+        geo2->Import(fOutputGdmlFilename.c_str());
         chdir(originDirectory);
         return geo2;
     }
     return nullptr;
 }
 
-void TRestGDMLParser::PrintContent() { cout << filestr << endl; }
+void TRestGDMLParser::PrintContent() { cout << fFileString << endl; }
 
 void TRestGDMLParser::ReplaceEntity() {
     int pos = 0;
-    while ((pos = filestr.find("<!ENTITY", pos)) != -1) {
-        int pos1 = filestr.find_first_not_of(" ", pos + 8);
-        int pos2 = filestr.find("SYSTEM", pos1);
-        string entityname = RemoveWhiteSpaces(filestr.substr(pos1, pos2 - pos1));
-        // cout << entityname << endl;
+    while ((pos = fFileString.find("<!ENTITY", pos)) != -1) {
+        int pos1 = fFileString.find_first_not_of(" ", pos + 8);
+        int pos2 = fFileString.find("SYSTEM", pos1);
+        string entityName = RemoveWhiteSpaces(fFileString.substr(pos1, pos2 - pos1));
+        // cout << entityName << endl;
 
-        int pos3 = filestr.find("\"", pos2) + 1;
-        int pos4 = filestr.find("\"", pos3);
-        string entityfile = RemoveWhiteSpaces(filestr.substr(pos3, pos4 - pos3));
+        int pos3 = fFileString.find("\"", pos2) + 1;
+        int pos4 = fFileString.find("\"", pos3);
+        string entityfile = RemoveWhiteSpaces(fFileString.substr(pos3, pos4 - pos3));
 
-        cout << "GDML: replacing entitiy: " << entityname << ", file: " << entityfile << endl;
+        cout << "GDML: replacing entitiy: " << entityName << ", file: " << entityfile << endl;
 
         if ((int)entityfile.find("http") != -1) {
-            string entityfiledl = outPath + "PID" + std::to_string(getpid()) + "_" + entityname + ".xml";
+            string entityfiledl =
+                fOutputGdmlDirectory + "PID" + std::to_string(getpid()) + "_" + entityName + ".xml";
             int a = TRestTools::DownloadRemoteFile(entityfile, entityfiledl);
             if (a != 0) {
                 cout << "GDML: Download failed!" << endl;
@@ -116,11 +112,11 @@ void TRestGDMLParser::ReplaceEntity() {
             }
             entityfile = entityfiledl;
         } else {
-            entityfile = path + entityfile;
+            entityfile = fPath + entityfile;
         }
 
         int pos5 = 0;
-        if ((pos5 = filestr.find("&" + entityname + ";")) != -1) {
+        if ((pos5 = fFileString.find("&" + entityName + ";")) != -1) {
             if (TRestTools::fileExists(entityfile)) {
                 std::ifstream t(entityfile);
                 std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
@@ -128,24 +124,24 @@ void TRestGDMLParser::ReplaceEntity() {
 
                 str = ReplaceConstants(ReplaceVariables(str));
 
-                entityVersion[entityname] = "";
+                fEntityVersionMap[entityName] = "";
                 int pp = str.find("##VERSION", 0);
                 if (pp != string::npos) {
                     int pp2 = str.find("##", pp + 4);
                     if (pp2 != string::npos) {
-                        entityVersion[entityname] = str.substr(pp + 9, pp2 - pp - 9);
+                        fEntityVersionMap[entityName] = str.substr(pp + 9, pp2 - pp - 9);
                     }
                 }
 
                 // cout << "replacing entity..." << endl;
-                filestr.replace(pos5, entityname.length() + 2, str);
+                fFileString.replace(pos5, entityName.length() + 2, str);
             } else {
-                cout << "GDML ERROR! No matching reference file for entity: \"" << entityname << "\"" << endl;
+                cout << "GDML ERROR! No matching reference file for entity: \"" << entityName << "\"" << endl;
                 cout << "file name: \"" << entityfile << "\"" << endl;
                 exit(0);
             }
         } else {
-            cout << "GDML: Warning! redundant entity: \"" << entityname << "\"" << endl;
+            cout << "GDML: Warning! redundant entity: \"" << entityName << "\"" << endl;
         }
         pos++;
     }
@@ -153,22 +149,22 @@ void TRestGDMLParser::ReplaceEntity() {
 
 void TRestGDMLParser::ReplaceAttributeWithKeyWord(string keyword) {
     int n;
-    while ((n = filestr.find(keyword, 0)) != -1) {
+    while ((n = fFileString.find(keyword, 0)) != -1) {
         int pos1 = 0, pos2 = 0;
         for (int i = n; i >= 0; i--) {
-            if (filestr[i] == '"') {
+            if (fFileString[i] == '"') {
                 pos1 = i + 1;
                 break;
             }
         }
 
-        for (unsigned int i = n; i < filestr.size(); i++) {
-            if (filestr[i] == '"') {
+        for (unsigned int i = n; i < fFileString.size(); i++) {
+            if (fFileString[i] == '"') {
                 pos2 = i;
                 break;
             }
         }
-        string target = filestr.substr(pos1, pos2 - pos1);
+        string target = fFileString.substr(pos1, pos2 - pos1);
         // cout << target << endl;
         string replace = ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(target)));
         // cout << replace << endl;
@@ -182,6 +178,6 @@ void TRestGDMLParser::ReplaceAttributeWithKeyWord(string keyword) {
             cout << replace << endl;
             exit(0);
         }
-        filestr.replace(pos1, pos2 - pos1, replace);
+        fFileString.replace(pos1, pos2 - pos1, replace);
     }
 }
