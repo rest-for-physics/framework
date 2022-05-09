@@ -21,31 +21,28 @@
  *************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////
-/// Write the class description Here
+/// This pure abstract class will help to encapsulate different pattern
+/// masks. It defines common public methods TRestPatternMask::GetRegion and
+/// TRestPatternMask::HitsPattern that allow to identify the region were
+/// a (x,y) coordinate was found, or if has hitted the pattern structure
+/// defined at the inherited class.
+///
+/// The rotation members are stored in this class to allow a common
+/// definition of rotation and translation parameters for any pattern.
 ///
 /// ### Parameters
-/// Describe any parameters this process receives:
-/// * **parameter1**: This parameter ...
-/// * **parameter2**: This parameter is ...
+/// The following parameters are common to any TRestPatternMask.
+/// * **offset**: A parameter to shift the pattern window mask.
+/// * **rotationAngle**: An angle given in radians to rotate the pattern.
+/// * **maskRadius**: A radius defining the limits of the circular mask. If
+/// it is equal to zero, the mask has no limits.
 ///
+/// The inherited class should implement the pure abstract method
+/// TRestPatternMask::GetRegion integrating the logic to identify regions
+/// and the pattern mask.
 ///
-/// ### Examples
-/// Give examples of usage and RML descriptions that can be tested.
-/// \code
-///     <WRITE A CODE EXAMPLE HERE>
-/// \endcode
-///
-/// ### Running pipeline example
-/// Add the examples to a pipeline to guarantee the code will be running
-/// on future framework upgrades.
-///
-///
-/// Please, add any figure that may help to illustrate the process
-///
-/// \htmlonly <style>div.image img[src="trigger.png"]{width:500px;}</style> \endhtmlonly
-/// ![An illustration of the trigger definition](trigger.png)
-///
-/// The png image should be uploaded to the ./images/ directory
+/// Some examples are : TRestGridMask, TRestStrippedMap, TRestSpiderMask
+/// and TRestRingsMask.
 ///
 ///----------------------------------------------------------------------
 ///
@@ -53,11 +50,11 @@
 ///
 /// History of developments:
 ///
-/// YEAR-Month: First implementation of TRestPatternMask
-/// WRITE YOUR FULL NAME
+/// 2022-May: First implementation of TRestPatternMask
+/// Javier Galan
 ///
 /// \class TRestPatternMask
-/// \author: TODO. Write full name and e-mail:        jgalan
+/// \author: Javier Galan - javier.galan@unizar.es
 ///
 /// <hr>
 ///
@@ -140,7 +137,9 @@ void TRestPatternMask::PrintMetadata() {
 }
 
 /////////////////////////////////////////////
-/// \brief TOBE written
+/// \brief It generates a Monte Carlo with positions and paints them the returned canvas.
+/// Each unique region is associated with different colors. If there are too many colors,
+/// they might be repited for different region ids.
 ///
 TCanvas* TRestPatternMask::DrawMonteCarlo(Int_t nSamples) {
     if (fCanvas != NULL) {
