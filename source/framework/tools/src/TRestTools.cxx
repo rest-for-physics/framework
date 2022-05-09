@@ -43,7 +43,9 @@
 ///
 #include "TRestTools.h"
 
+#ifdef USE_Curl
 #include <curl/curl.h>
+#endif
 #include <dirent.h>
 
 #include <chrono>
@@ -413,6 +415,31 @@ template Double_t TRestTools::GetLowestIncreaseFromTable<Double_t>(std::vector<s
                                                                    Int_t column);
 
 ///////////////////////////////////////////////
+/// \brief It returns the lowest increase, different from zero, between the elements of a
+/// particular `column` from the table given by argument.
+///
+/// This method is available for tables of type Float_t, Double_t and Int_t.
+///
+/// \warning This method will not check every possible column element difference. It will only
+/// look for consecutive elements steps.
+///
+template <typename T>
+T TRestTools::GetIntegralFromTable(const std::vector<std::vector<T>>& data) {
+    if (data.size() == 0) return 0;
+    T sum = 0;
+    for (int n = 0; n < data.size(); n++) {
+        for (int m = 0; m < data[n].size(); m++) sum += data[n][m];
+    }
+    return sum;
+}
+
+template Int_t TRestTools::GetIntegralFromTable<Int_t>(const std::vector<std::vector<Int_t>>& data);
+
+template Float_t TRestTools::GetIntegralFromTable<Float_t>(const std::vector<std::vector<Float_t>>& data);
+
+template Double_t TRestTools::GetIntegralFromTable<Double_t>(const std::vector<std::vector<Double_t>>& data);
+
+///////////////////////////////////////////////
 /// \brief Reads an ASCII file containing a table with values
 ///
 /// This method will open the file fName. This file should contain a tabulated
@@ -632,8 +659,8 @@ string TRestTools::GetFileNameExtension(string fullname) {
 /// Input: "/home/jgalan/abc.txt" Output: "abc"
 ///
 string TRestTools::GetFileNameRoot(string fullname) {
-    int pos1 = fullname.find_last_of('/', -1);
-    int pos2 = fullname.find_last_of('.', -1);
+    size_t pos1 = fullname.find_last_of('/', -1);
+    size_t pos2 = fullname.find_last_of('.', -1);
 
     if (pos1 != string::npos && pos2 != string::npos) return fullname.substr(pos1 + 1, pos2 - pos1 - 1);
 
