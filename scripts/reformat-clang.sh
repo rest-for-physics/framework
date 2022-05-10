@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# This script reformats source files using the clang-format utility.
+# This script will reformat source files using the clang-format utility.
 # Set the list of source directories on the "for" line below.
 #
 # The file .clang-format in this directory specifies the formatting parameters.
 #
 # Files are changed in-place, so make sure you don't have anything open in an
-# editor, and you may want to commit before formatting in case of awryness.
+# editor, and you may want to commit before formatting in case something bad happens.
 #
 # Note that clang-format is not included with OS X or Xcode; you must
 # install it yourself.  There are multiple ways to do this:
@@ -22,46 +22,42 @@
 # - Build the LLVM tools from source. See the documentation at <http://llvm.org>.
 
 # Change this if your clang-format executable is somewhere else
+
 CLANG_FORMAT="clang-format"
 
 if [ $# -eq 0 ]; then
-    echo ' '
-    echo 'This script formats the source directory /path/to/source/'
-    echo 'given as the only argument. Only .cxx and .h files will be '
-    echo 'reformatted.'
-    echo ' '
-    echo 'The formatting will consider the .clang-format file closer to'
-    echo 'the source directory given. '
-    echo ' '
-    echo 'Usage : ./reformat-clang.sh /path/to/source/'
-    echo ' '
-    echo 'Use carefully! :)'
+  echo ' '
+  echo 'This script formats the source directory /path/to/source/'
+  echo 'given as the only argument. Only *.h, *.cxx, *.cc and *.C files will be '
+  echo 'reformatted.'
+  echo ' '
+  echo 'The formatting will consider the .clang-format file closer to'
+  echo 'the source directory given.'
+  echo ' '
+  echo 'Usage: ./reformat-clang.sh /path/to/source/'
+  echo ' '
+  echo 'Use carefully! :)'
 
-    exit 1
+  exit 1
 fi
 
-pathNow=$PWD
 pathToFormat=$(readlink -f $1)
 
-if [ -d "$pathToFormat" ] ; then
-    echo "$pathToFormat is a directory"
-    for DIRECTORY in $pathToFormat
-    do
-      echo "Formatting code under $DIRECTORY/"
-      #find "$DIRECTORY" \( -name '*.h' -or -name '*.cxx' -or -name '*.cc' -or -name '*.C' \) -print0 | xargs -0 "$CLANG_FORMAT"
-      find "$DIRECTORY" \( -name '*.h' -or -name '*.cxx' -or -name '*.cc' -or -name '*.C' \) -print0 | xargs -0 "$CLANG_FORMAT" -i
-      echo "DONE!"
-    done
-elif [ -f "$pathToFormat" ] ; then
-   echo "$pathToFormat is a file";
-   ext="${pathToFormat##*.}"
-   #echo "$ext"
-      if [[ "$ext" == "h" || "$ext" == "cxx" || "$ext" == "cc" || "$ext" == "C" ]]; then
-         echo "$CLANG_FORMAT -i $pathToFormat"
-            eval "$CLANG_FORMAT -i $pathToFormat"
-         else
-            echo "Not valid extension $ext, valid extensions are *.h, *.cxx, *.cc and *.C"
-       fi
+if [ -d "$pathToFormat" ]; then
+  for DIRECTORY in $pathToFormat; do
+    echo "Formatting code under $DIRECTORY/"
+    find "$DIRECTORY" \( -name '*.h' -or -name '*.cxx' -or -name '*.cc' -or -name '*.C' \) -print0 | xargs -0 "$CLANG_FORMAT" -i
+    echo "DONE!"
+  done
+elif [ -f "$pathToFormat" ]; then
+  echo "Formatting file \"$pathToFormat\""
+  ext="${pathToFormat##*.}"
+  if [[ "$ext" == "h" || "$ext" == "cxx" || "$ext" == "cc" || "$ext" == "C" ]]; then
+    echo "$CLANG_FORMAT -i $pathToFormat"
+    eval "$CLANG_FORMAT -i $pathToFormat"
+  else
+    echo "Not valid extension $ext, valid extensions are *.h, *.cxx, *.cc and *.C"
+  fi
 else
-   echo "$pathToFormat is not valid file or directory";
+  echo "$pathToFormat is not valid file or directory"
 fi
