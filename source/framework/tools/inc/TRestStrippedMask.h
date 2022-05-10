@@ -46,7 +46,10 @@ class TRestStrippedMask : public TRestPatternMask {
     Double_t GetStripsGap() { return fStripsGap; }
 
     /// It returns the thickness of the strips in mm
-    Double_t GetStripsThickness() { return fStripsGap; }
+    Double_t GetStripsThickness() { return fStripsThickness; }
+
+    /// It returns the modulus used to define a finite set of ids
+    Int_t GetModulus() { return fModulus; }
 
     void PrintMetadata();
 

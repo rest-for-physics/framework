@@ -37,7 +37,7 @@ class TRestGridMask : public TRestPatternMask {
     Double_t fGridThickness = 0.5;  //<
 
     /// It defines the maximum number of cells/regions in each axis
-    Int_t fModulus = 10;
+    Int_t fModulus = 10;  //<
 
    public:
     virtual Int_t GetRegion(Double_t x, Double_t y);
@@ -46,7 +46,10 @@ class TRestGridMask : public TRestPatternMask {
     Double_t GetGridGap() { return fGridGap; }
 
     /// It returns the thickness of the grid in mm
-    Double_t GetGridThickness() { return fGridGap; }
+    Double_t GetGridThickness() { return fGridThickness; }
+
+    /// It returns the modulus used to define a finite set of ids
+    Int_t GetModulus() { return fModulus; }
 
     void PrintMetadata();
 
