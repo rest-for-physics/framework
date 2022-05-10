@@ -29,11 +29,11 @@
 class TRestMapGroup : public TRestMetadata {
    protected:
     /// Vector of map keys from the RML
-    std::vector<string> fGroupKeys;
+    std::vector<std::string> fGroupKeys;
     /// Vector of map values from the RML
-    std::vector<string> fGroupValues;
+    std::vector<std::string> fGroupValues;
     /// The map
-    std::map<string, string> fMapGroup;
+    std::map<std::string, std::string> fMapGroup;
 
    public:
     void Initialize();
@@ -44,18 +44,18 @@ class TRestMapGroup : public TRestMetadata {
 
     // Setters & Getters
     // Should use "inline" when defining functions in the header
-    inline std::map<string, string> GetMapGroup() const { return fMapGroup; }
-    inline void SetMapGroup(std::map<string, string> mapGroup) { fMapGroup = mapGroup; }
+    inline std::map<std::string, std::string> GetMapGroup() const { return fMapGroup; }
+    inline void SetMapGroup(std::map<std::string, std::string> mapGroup) { fMapGroup = mapGroup; }
 
     /// Construct the map from the parameters given in the RML
-    std::map<string, string> ConstructMap();
+    std::map<std::string, std::string> ConstructMap();
 
     /// Print the protected class members
     void PrintMetadata();
 
     // Constructor & Destructor
     TRestMapGroup();
-    TRestMapGroup(string cfgFileName, string name = "");
+    TRestMapGroup(std::string cfgFileName, std::string name = "");
     ~TRestMapGroup();
 
     ClassDef(TRestMapGroup, 1);

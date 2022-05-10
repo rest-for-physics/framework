@@ -88,7 +88,7 @@ TRestMapGroup::TRestMapGroup() { Initialize(); }
 ///////////////////////////////////////////////
 /// \brief cfgFileName: a string giving the path to a RML file; name: name of the TRestMapGroup XML-section
 ///
-TRestMapGroup::TRestMapGroup(string cfgFileName, string name) {
+TRestMapGroup::TRestMapGroup(std::string cfgFileName, std::string name) {
     Initialize();
     // LoadConfig(cfgFileName);
     LoadConfigFromFile(cfgFileName, name);
@@ -102,7 +102,7 @@ TRestMapGroup::~TRestMapGroup() {}
 ///////////////////////////////////////////////
 /// \brief Construct map from RML input
 ///
-std::map<string, string> TRestMapGroup::ConstructMap() {
+std::map<std::string, std::string> TRestMapGroup::ConstructMap() {
     for (unsigned int i = 0; i < fGroupKeys.size(); ++i) {
         fMapGroup[fGroupKeys[i]] = fGroupValues[i];
     }
