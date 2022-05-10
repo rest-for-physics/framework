@@ -113,18 +113,18 @@
 /// If no arguments are provided, LoadConfigFromFile() will only call the Initialize()
 /// method. If given the rml file name, it will find out the needed rml sections. We
 /// can also directly give the xml sections to the method. Two xml sections are used
-/// to startup the class: the section for the class and a global section. Additionaly
+/// to startup the class: the section for the class and a global section. Additionally
 /// we can give a map object to the method to import additional variables.
 ///
 /// The "section for the class" is an xml section with the value of class name.
-/// It is the main information souce for the class's startup. The "global"
+/// It is the main information source for the class's startup. The "global"
 /// section is a special xml section in the rml file, containing global information
 /// which could be seen by all the class sections.
 ///
 /// With the xml sections given, LoadConfigFromFile() first merge them together. Then it
 /// calls LoadSectionMetadata(), which loads some universal parameters like
 /// name, title and verbose level. This method also preprocesses the config
-/// sections, expanding the include/for decinition and replacing the variables.
+/// sections, expanding the include/for definition and replacing the variables.
 /// After this, LoadConfigFromFile() calls the method InitFromConfigFile().
 ///
 /// **InitFromConfigFile()** is a pure virtual method and every child classes have
@@ -515,8 +515,8 @@ TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(this) {
 /// \brief TRestMetadata default destructor
 ///
 TRestMetadata::~TRestMetadata() {
-    if (fElementGlobal) delete fElementGlobal;
-    if (fElement) delete fElement;
+    delete fElementGlobal;
+    delete fElement;
 }
 
 ///////////////////////////////////////////////
@@ -564,7 +564,7 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
         delete rootEle;
         return result;
     } else {
-        ferr << "Filename : " << fConfigFileName << endl;
+        ferr << "Filename: " << fConfigFileName << endl;
         ferr << "Config File does not exist. Right path/filename?" << endl;
         GetChar();
         return -1;
@@ -628,7 +628,7 @@ Int_t TRestMetadata::LoadConfigFromBuffer() {
 ///////////////////////////////////////////////
 /// \brief This method does some preparation of xml section.
 ///
-/// Preparation includes: seting the name, title and verbose level of the
+/// Preparation includes: setting the name, title and verbose level of the
 /// current class. Finding out and saving the env sections.
 ///
 /// By calling TRestMetadata::ReadElement(), is also expands for loops and
@@ -1271,7 +1271,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
 /// If still not found, it returns the default value.
 ///
 /// \param parName The name of the parameter from which we want to obtain the
-/// value. \param defaultValue The default value if the paremeter is not found
+/// value. \param defaultValue The default value if the parameter is not found
 ///
 /// \return A string of result
 string TRestMetadata::GetParameter(std::string parName, TString defaultValue) {
@@ -1309,7 +1309,7 @@ string TRestMetadata::GetParameter(std::string parName, TString defaultValue) {
 ///
 /// \param parName The name of the parameter from which we want to obtain the
 /// value. \param e The target eml element where the program is to search the
-/// parameter \param defaultValue The default value if the paremeter is not
+/// parameter \param defaultValue The default value if the parameter is not
 /// found
 ///
 /// \return A string of result, with env and expressions replaced
