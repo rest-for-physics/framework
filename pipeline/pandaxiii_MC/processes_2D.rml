@@ -439,18 +439,19 @@
         <observable name="Qratio_Y_R30" value="ON" />
         <parameter name="hitsToCheckFraction" value="0.25" />
     </TRestTrackBlobAnalysisProcess>
-    <TRestRawZeroSuppresionProcess name="zS" title="" verboseLevel="silent">
-        <!-- This parameter is used to define the baseline calculation -->
-        <parameter name="baseLineRange" value="(50,120)" />
+    <TRestRawToDetectorSignalProcess name="zS" title="" verboseLevel="silent">
         <!-- These parameters define the integral with threshold. 
          threshold : number of baseline noise sigmas to consider a point for integration.
          pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
          minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
         -->
+        <!-- This parameter is used to define the baseline calculation -->
+        <parameter name="baseLineRange" value="(50,120)" />
+        <parameter name="zeroSuppression" value="true" />
         <parameter name="pointThreshold" value="1.9" />
-        <parameter name="pointsOverThreshold" value="10" />
+        <parameter name="nPointsOverThreshold" value="10" />
         <parameter name="signalThreshold" value="2.8" />
-    </TRestRawZeroSuppresionProcess>
+    </TRestRawToDetectorSignalProcess>
     <TRestRawSignalAnalysisProcess name="sAna" title="" verboseLevel="silent">
         <!-- This parameter defines every how many seconds a signal will be drawn.
          In case the value is zero. There will not be any drawing. -->
@@ -465,7 +466,7 @@
          minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
         -->
         <parameter name="pointThreshold" value="1.9" />
-        <parameter name="pointsOverThreshold" value="10" />
+        <parameter name="nPointsOverThreshold" value="10" />
         <parameter name="signalThreshold" value="2.8" />
         <!-- ++++++++++++++++++++++
          Observable definitions

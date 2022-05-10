@@ -4,7 +4,8 @@
 #include <TSystem.h>
 
 #include "TRestStringOutput.h"
-//#include <REST_General_CreateHisto.hh>
+
+using namespace std;
 
 char cfgFileName[256];
 char iFile[256];

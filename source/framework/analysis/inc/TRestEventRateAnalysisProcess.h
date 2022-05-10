@@ -35,7 +35,7 @@ class TRestEventRateAnalysisProcess : public TRestEventProcess {
     Double_t fFirstEventTime;  //!
 
     /// It keeps a historic list of timestamps of the previous N events. Now fixed to N=10 events.
-    vector<Double_t> fPreviousEventTime;  //!
+    std::vector<Double_t> fPreviousEventTime;  //!
 
     void Initialize();
 

@@ -19,10 +19,8 @@ endmacro()
 macro(ADD_LIBRARY_TEST)
     if (TEST)
         message(STATUS "Adding tests at ${CMAKE_CURRENT_SOURCE_DIR}")
-        set(TESTING_EXECUTABLE testRestGeant4)
 
         get_filename_component(DIR_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
-
         string(SUBSTRING ${DIR_NAME} 0 1 FIRST_LETTER)
         string(TOUPPER ${FIRST_LETTER} FIRST_LETTER)
         string(REGEX REPLACE "^.(.*)" "${FIRST_LETTER}\\1" DIR_NAME_CAPITALIZED "${DIR_NAME}")

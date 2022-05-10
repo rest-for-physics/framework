@@ -2,6 +2,7 @@
 #include <limits>
 
 #include "TRestStringHelper.h"
+
 using namespace std;
 
 namespace REST_Units {
@@ -250,6 +251,13 @@ double _AddUnit(string name, int type, double scale) {
 ///
 TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
     unitsStr = Trim(unitsStr);
+
+    // We skip for the moment parameters/fields that contain elements {,,,}.
+    if (unitsStr.find("{") != string::npos || unitsStr.find("}") != string::npos) {
+        fZombie = true;
+        return;
+    }
+
     if (unitsStr == "") {
         fZombie = true;
         return;

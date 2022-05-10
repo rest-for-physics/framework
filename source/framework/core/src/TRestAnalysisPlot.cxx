@@ -23,7 +23,7 @@
 using namespace std;
 
 ClassImp(TRestAnalysisPlot);
-//______________________________________________________________________________
+
 TRestAnalysisPlot::TRestAnalysisPlot() { Initialize(); }
 
 TRestAnalysisPlot::TRestAnalysisPlot(const char* cfgFileName, const char* name) : TRestMetadata(cfgFileName) {
@@ -247,6 +247,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             plot.gridY = StringToBool(GetParameter("gridY", plotele, "false"));
             plot.gridX = StringToBool(GetParameter("gridX", plotele, "false"));
             plot.normalize = StringToDouble(GetParameter("norm", plotele, ""));
+            plot.scale = GetParameter("scale", plotele, "");
             plot.labelX = GetParameter("xlabel", plotele, "");
             plot.labelY = GetParameter("ylabel", plotele, "");
             plot.ticksX = StringToInteger(GetParameter("xticks", plotele, "510"));
@@ -550,7 +551,7 @@ Int_t TRestAnalysisPlot::GetPlotIndex(TString plotName) {
 }
 
 TRestAnalysisTree* TRestAnalysisPlot::GetTree(TString fileName) {
-    if (fRun->GetInputFile() != NULL && fRun->GetInputFile()->GetName() == fileName){
+    if (fRun->GetInputFile() != nullptr && fRun->GetInputFile()->GetName() == fileName) {
         // this means the file is already opened by TRestRun
         return fRun->GetAnalysisTree();
     }
@@ -569,7 +570,7 @@ TRestAnalysisTree* TRestAnalysisPlot::GetTree(TString fileName) {
 
 TRestRun* TRestAnalysisPlot::GetRunInfo(TString fileName) {
     // in any case we directly return fRun. No need to reopen the given file
-    if (fRun->GetInputFile() != NULL && fRun->GetInputFile()->GetName() == fileName){
+    if (fRun->GetInputFile() != nullptr && fRun->GetInputFile()->GetName() == fileName) {
         return fRun;
     }
     if (fileName == fRun->GetOutputFileName() && fRun->GetOutputFile() != nullptr) {
@@ -843,7 +844,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             continue;
         }
 
-        // scale the histograms
+        // normalize the histograms
         if (plot.normalize > 0) {
             for (unsigned int i = 0; i < plot.histos.size(); i++) {
                 if (plot.histos[i].ptr == nullptr) continue;
@@ -852,6 +853,18 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                     scale = plot.normalize / plot.histos[i].ptr->Integral();
                     plot.histos[i].ptr->Scale(scale);
                 }
+            }
+        }
+
+       // scale the histograms
+       if (plot.scale != "") {
+            for (unsigned int i = 0; i < plot.histos.size(); i++) {
+                if (plot.histos[i].ptr == nullptr) continue;
+                Double_t scale = 1.;
+                if(plot.scale == "binSize")scale =  1./plot.histos[i].ptr->GetXaxis()->GetBinWidth(1);
+                else scale=StringToDouble(plot.scale);
+
+                plot.histos[i].ptr->Scale(scale);
             }
         }
 

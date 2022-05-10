@@ -35,9 +35,9 @@ class TRestVolumeHits : public TRestHits {
 
    public:
     void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t time, REST_HitType type,
-                Double_t sigmax, Double_t sigmay, Double_t sigmaz);
-    void AddHit(TVector3 pos, Double_t en, Double_t time, REST_HitType type, TVector3 sigma);
-    void AddHit(TRestVolumeHits& hits, Int_t n);
+                Double_t sigmaX, Double_t sigmaY, Double_t sigmaZ);
+    void AddHit(const TVector3& pos, Double_t en, Double_t time, REST_HitType type, const TVector3& sigma);
+    void AddHit(const TRestVolumeHits& hits, Int_t n);
 
     void RemoveHits();
     void MergeHits(Int_t n, Int_t m);
@@ -46,26 +46,30 @@ class TRestVolumeHits : public TRestHits {
     void SortByEnergy();
     void SwapHits(Int_t i, Int_t j);
 
-    Bool_t areXY();
-    Bool_t areXZ();
-    Bool_t areYZ();
-    Bool_t areXYZ();
+    Bool_t areXY() const;
+    Bool_t areXZ() const;
+    Bool_t areYZ() const;
+    Bool_t areXYZ() const;
 
     // Setters
 
     // Getters
-    Double_t GetSigmaX(int n) { return fSigmaX[n]; }  // return value in mm
-    Double_t GetSigmaY(int n) { return fSigmaY[n]; }  // return value in mm
-    Double_t GetSigmaZ(int n) { return fSigmaZ[n]; }  // return value in mm
+    inline Double_t GetSigmaX(int n) const { return fSigmaX[n]; }  // return value in mm
+    inline Double_t GetSigmaY(int n) const { return fSigmaY[n]; }  // return value in mm
+    inline Double_t GetSigmaZ(int n) const { return fSigmaZ[n]; }  // return value in mm
 
-    TVector3 GetSigma(int n);
+    TVector3 GetSigma(int n) const;
 
-    void PrintHits();
+    void PrintHits() const;
 
-    Double_t GetClusterSize(int n) {
+    inline Double_t GetClusterSize(int n) const {
         return TMath::Sqrt(fSigmaX[n] * fSigmaX[n] + fSigmaY[n] * fSigmaY[n] + fSigmaZ[n] * fSigmaZ[n]);
     }
-    Double_t GetXYSize(int n) { return TMath::Sqrt(fSigmaX[n] * fSigmaX[n] + fSigmaY[n] * fSigmaY[n]); }
+    inline Double_t GetXYSize(int n) const {
+        return TMath::Sqrt(fSigmaX[n] * fSigmaX[n] + fSigmaY[n] * fSigmaY[n]);
+    }
+
+    static void kMeansClustering(TRestVolumeHits *hits, TRestVolumeHits &vHits, int maxIt =100);
 
     // Constructor & Destructor
     TRestVolumeHits();

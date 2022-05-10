@@ -1,13 +1,14 @@
 #include <TApplication.h>
 #include <TROOT.h>
-#include <TRint.h>
-#include <TSystem.h>
-
 #include <TRestMetadata.h>
 #include <TRestRun.h>
 #include <TRestTools.h>
+#include <TRint.h>
+#include <TSystem.h>
 
 #include "TRestVersion.h"
+
+using namespace std;
 
 // Note!
 // Don't use cout in the main function!
@@ -63,6 +64,9 @@ int main(int argc, char* argv[]) {
 
     // load rest library and macros
     TRestTools::LoadRESTLibrary(silent);
+
+    gROOT->ProcessLine("#include <TRestStringHelper.h>");
+    gROOT->ProcessLine("#include <TRestPhysics.h>");
     if (loadMacros) {
         if (!silent) printf("= Loading macros ...\n");
         auto a = TRestTools::Execute(

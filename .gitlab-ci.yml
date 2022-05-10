@@ -1,7 +1,6 @@
-image: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-26-00_Geant4-v10.4.3_Garfield-af4a1451
-#image: nkx1231/root6-geant4-garfield:0.6
+image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
 
-variables:
+# variables:
 #    GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
@@ -14,7 +13,7 @@ stages:
   # Project compilation validation
   - build
 
-  # REST libraries installed as sub-modules
+  # REST libraries installed as submodules
   - libraries
 
   # Basic validation tests of installation
@@ -29,10 +28,13 @@ stages:
   # Stage to validate restG4 package examples
   - restG4
 
+  # Stage to validate framework examples
+  - examples
+
   # Stage to validate data chain processing constructions (TREX-DM data, PandaX-III topology, etc).
   - restManager_process
 
-  # Stage to validate tasks or executions over preprocessed data filesx
+  # Stage to validate tasks or executions over preprocessed data files
   - postProcessing
 
   # Stage to validate other restManager tasks (metadata generation, script loading, etc).
@@ -73,17 +75,17 @@ Validate Code:
   stage: pre-build
   script:
     - cd ${CI_PROJECT_DIR}/
-    - python3 pull-submodules.py --force --dontask
+    - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH}
     - python3 pipeline/validateProcesses.py source/libraries/
 
 Build and Test:
-  type: test
+  stage: test
   script:
     - cd ${CI_PROJECT_DIR}
     - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH}
     - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build
     - cmake ${CI_PROJECT_DIR}
-      -DTEST=ON -DREST_GARFIELD=ON -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
+      -DTEST=ON -DREST_GARFIELD=OFF -DREST_G4=ON -DRESTLIB_DETECTOR=ON -DRESTLIB_RAW=ON -DRESTLIB_TRACK=ON
     - make -j2
     - ctest --verbose -O ${CI_PROJECT_DIR}/build/Testing/summary.txt
 
@@ -94,7 +96,7 @@ Build and Test:
     expire_in: 1 day
 
 Build and Install:
-  type: build
+  stage: build
   script:
     - cd ${CI_PROJECT_DIR}
     - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH}
@@ -111,7 +113,7 @@ Build and Install:
     expire_in: 1 day
 
 Load REST Libraries:
-  type: install
+  stage: install
   script:
     - echo ${CI_PROJECT_DIR}/install/thisREST.sh
     - cat ${CI_PROJECT_DIR}/install/thisREST.sh
@@ -119,13 +121,13 @@ Load REST Libraries:
     - restRoot -b -q
 
 List REST Macros:
-  type: install
+  stage: install
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - restManager ListMacros
 
 01_NLDBD:
-  type: restG4
+  stage: restG4
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples/restG4/01.NLDBD/
@@ -138,7 +140,7 @@ List REST Macros:
     expire_in: 1 day
 
 02_PandaXiiiMC:
-  type: restG4
+  stage: restG4
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC
@@ -149,8 +151,34 @@ List REST Macros:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/Xe136bb0n_n2E06.root
     expire_in: 1 day
 
+08_alphas:
+  stage: restG4
+  script:
+    - source ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples/restG4/08.Alphas/
+    - mkdir data
+    - export REST_ENERGY=5
+    - export REST_FOIL=1
+    - restG4 alphas.rml
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
+    expire_in: 1 day
+
+01_alphaTrack:
+  stage: examples
+  script:
+    - source ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples/01.alphaTrack/
+    - mkdir data
+    - export RAW_PROCESSING=ON
+    - export HIT_PROCESSING=ON
+    - export TRACK_PROCESSING=ON
+    - restManager --c processing.rml --f ${CI_PROJECT_DIR}/install/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
+    - restRoot -b -q Validate.C'("data/Response_5MeV_1um.root")'
+
 Load Gas:
-  type: metadata
+  stage: metadata
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/gas/
@@ -160,7 +188,7 @@ Load Gas:
       - $CI_SERVER_HOST == "lfna.unizar.es"
 
 Generate Gas:
-  type: metadata
+  stage: metadata
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/gas/
@@ -170,14 +198,14 @@ Generate Gas:
       - $CI_SERVER_HOST == "lfna.unizar.es"
 
 AnalysisTree:
-  type: core
+  stage: core
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/analysistree/
     - restRoot -b -q simpleTree.cpp
 
 Generate Readout:
-  type: metadata
+  stage: metadata
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/readout/
@@ -188,18 +216,16 @@ Generate Readout:
     #    - diff validation.txt print.txt
 
 Basic Readout:
-  type: metadata
+  stage: metadata
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/projects/basic-readouts/
-    - ls
-    - git status
-    - git log
-    - restRoot --m 1 -b -q GenerateReadouts.C'("basic.root")'
+    - cd ${CI_PROJECT_DIR}/projects/basic-readouts
+    - git submodule update --init .
+    - restRoot -b -q GenerateReadouts.C'("basic.root")'
     - restRoot -b -q BasicValidation.C'("basic.root", "pixelDecoding")'
 
 Test Metadata:
-  type: restManager_generate
+  stage: restManager_generate
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples
@@ -210,7 +236,7 @@ Test Metadata:
     expire_in: 1 day
 
 TREX-DM Latest Data:
-  type: restManager_process
+  stage: restManager_process
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/trex
@@ -229,7 +255,7 @@ TREX-DM Latest Data:
     expire_in: 1 day
 
 PandaXIII Topological:
-  type: restManager_process
+  stage: restManager_process
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC
@@ -243,7 +269,7 @@ PandaXIII Topological:
     expire_in: 1 week
 
 PandaXIII Topological from Geant4:
-  type: restManager_process
+  stage: restManager_process
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC
@@ -257,7 +283,7 @@ PandaXIII Topological from Geant4:
     expire_in: 1 week
 
 PandaXIII Data:
-  type: restManager_process
+  stage: restManager_process
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/pandaxiii_data
@@ -270,7 +296,7 @@ PandaXIII Data:
     expire_in: 1 week
 
 Event Selection:
-  type: restManager_process
+  stage: restManager_process
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/selection
@@ -284,14 +310,14 @@ Event Selection:
     expire_in: 1 week
 
 AnalysisPlot:
-  type: postProcessing
+  stage: postProcessing
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/analysisPlot/
     - restManager --c summary.rml --f ${CI_PROJECT_DIR}/pipeline/trex/Hits_01928.root
 
 AnalysisPlot2:
-  type: postProcessing
+  stage: postProcessing
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/analysisPlot/
@@ -299,7 +325,7 @@ AnalysisPlot2:
     - restRoot -b -q ValidateClassify.C
 
 Deploy:
-  type: deploy
+  stage: deploy
   only:
     - tags
   script:

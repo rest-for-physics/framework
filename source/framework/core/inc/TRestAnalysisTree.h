@@ -38,13 +38,13 @@ class TRestAnalysisTree : public TTree {
     Int_t fSubRunOrigin;    //!
 
     //
-    Int_t fStatus = 0;                       //!
-    Int_t fSetObservableCalls = 0;           //!
-    Int_t fSetObservableIndex = 0;           //!
-    Bool_t fQuickSetObservableValue = true;  //!
-    std::vector<RESTValue> fObservables;     //!
-    std::map<string, int> fObservableIdMap;  //!
-    TTree* fROOTTree;                        //!
+    Int_t fStatus = 0;                            //!
+    Int_t fSetObservableCalls = 0;                //!
+    Int_t fSetObservableIndex = 0;                //!
+    Bool_t fQuickSetObservableValue = true;       //!
+    std::vector<RESTValue> fObservables;          //!
+    std::map<std::string, int> fObservableIdMap;  //!
+    TTree* fROOTTree;                             //!
 
     // for storage
     Int_t fNObservables;
@@ -99,8 +99,8 @@ class TRestAnalysisTree : public TTree {
 
     // Get the status of this tree. This call will not evaluate the status.
     int GetStatus() { return fStatus; }
-    Int_t GetObservableID(const string& obsName);
-    Bool_t ObservableExists(const string& obsName);
+    Int_t GetObservableID(const std::string& obsName);
+    Bool_t ObservableExists(const std::string& obsName);
     Int_t GetEventID() { return fEventID; }
     Int_t GetSubEventID() { return fSubEventID; }
     Double_t GetTimeStamp() { return fTimeStamp; }
@@ -110,13 +110,13 @@ class TRestAnalysisTree : public TTree {
     Int_t GetNumberOfObservables() { return fNObservables; }
 
     // observable method
-    RESTValue GetObservable(string obsName);
+    RESTValue GetObservable(std::string obsName);
     RESTValue GetObservable(Int_t n);
     TString GetObservableName(Int_t n);
     TString GetObservableDescription(Int_t n);
     TString GetObservableType(Int_t n);
-    TString GetObservableType(string obsName);
-    Double_t GetDblObservableValue(string obsName);
+    TString GetObservableType(std::string obsName);
+    Double_t GetDblObservableValue(std::string obsName);
     Double_t GetDblObservableValue(Int_t n);
 
     ///////////////////////////////////////////////
@@ -125,7 +125,7 @@ class TRestAnalysisTree : public TTree {
     T GetObservableValue(Int_t n) {
         // id check
         if (n >= fNObservables) {
-            cout << "Error! TRestAnalysisTree::GetObservableValue(): index outside limits!" << endl;
+            std::cout << "Error! TRestAnalysisTree::GetObservableValue(): index outside limits!" << endl;
             return T();
         }
         return fObservables[n].GetValue<T>();
@@ -136,10 +136,10 @@ class TRestAnalysisTree : public TTree {
     /// The returned value is directly the type.
     ///
     /// Example:
-    /// `vector<int> v = AnalysisTree->GetObservableValue<vector<int>>("myvec1");`
+    /// `std::vector<int> v = AnalysisTree->GetObservableValue<std::vector<int>>("myvec1");`
     /// `double a = AnalysisTree->GetObservableValue<double>("myval");`
     template <class T>
-    T GetObservableValue(string obsName) {
+    T GetObservableValue(std::string obsName) {
         Int_t id = GetObservableID(obsName);
         if (id == -1) {
             return T();
@@ -153,7 +153,7 @@ class TRestAnalysisTree : public TTree {
     void SetObservableValue(const Int_t& id, const T& value) {
         // id check
         if (id >= fNObservables) {
-            cout << "Error! TRestAnalysisTree::SetObservableValue(): index outside limits!" << endl;
+            std::cout << "Error! TRestAnalysisTree::SetObservableValue(): index outside limits!" << endl;
             return;
         }
         fObservables[id].SetValue(value);
@@ -162,7 +162,7 @@ class TRestAnalysisTree : public TTree {
     /// \brief Set the value of observable. May not check the name.
     ///
     /// Any type of input value is accepted. We can directly set value from a
-    /// vector or map object. If the observable does not exist, it will create
+    /// std::vector or std::map object. If the observable does not exist, it will create
     /// a new one if the tree is not filled yet. If fQuickSetObservableValue == true
     /// we directly set the observable whose index is equal to fSetObservableIndex,
     /// and increase fSetObservableIndex at each call of this method. Otherwise we
@@ -187,9 +187,9 @@ class TRestAnalysisTree : public TTree {
     /// TRestAnalysisTree* tree = new TRestAnalysisTree();
     /// tree->DisableQuickObservableValueSetting()
     /// tree->SetObservableValue("myval", 20);
-    /// tree->SetObservableValue("myvec", vector<int>{11,23,37,41});
+    /// tree->SetObservableValue("myvec", std::vector<int>{11,23,37,41});
     /// tree->Fill();
-    /// tree->SetObservableValue("myvec", vector<int>{2,3,5,7});
+    /// tree->SetObservableValue("myvec", std::vector<int>{2,3,5,7});
     /// tree->SetObservableValue("myval", 30);
     /// tree->Fill();
     /// tree->SetObservableValue("myval", 40);
@@ -197,7 +197,7 @@ class TRestAnalysisTree : public TTree {
     ///
     /// \endcode
     template <class T>
-    void SetObservableValue(const string& name, const T& value) {
+    void SetObservableValue(const std::string& name, const T& value) {
         if (fQuickSetObservableValue && fStatus == Filled && fSetObservableCalls == fNObservables) {
             SetObservableValue(fSetObservableIndex, value);
             fSetObservableIndex++;
@@ -218,7 +218,7 @@ class TRestAnalysisTree : public TTree {
     }
 
     void SetObservable(Int_t id, RESTValue obs);
-    void SetObservable(string name, RESTValue value);
+    void SetObservable(std::string name, RESTValue value);
 
     void PrintObservables();
     void PrintObservable(int N);
@@ -238,15 +238,15 @@ class TRestAnalysisTree : public TTree {
 
     Int_t GetEntry(Long64_t entry = 0, Int_t getall = 0);
 
-    Bool_t EvaluateCuts(const string expression);
-    Bool_t EvaluateCut(const string expression);
+    Bool_t EvaluateCuts(const std::string expression);
+    Bool_t EvaluateCut(const std::string expression);
 
     TString GetStringWithObservableNames();
 
-    vector<string> GetCutObservables(const string cut_str);
+    std::vector<std::string> GetCutObservables(const std::string cut_str);
 
-    void EnableBranches(vector<string> obsNames);
-    void DisableBranches(vector<string> obsNames);
+    void EnableBranches(std::vector<std::string> obsNames);
+    void DisableBranches(std::vector<std::string> obsNames);
 
     void EnableAllBranches();
     void DisableAllBranches();

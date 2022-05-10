@@ -21,38 +21,38 @@
  *************************************************************************/
 /////////////////////////////////////////////////////////////////////////
 /// Write the process description Here
-/// 
-/// A process that does nothing to dataflow but starts a server listening through 
-/// TRestMessenger metadata interface to get new files to add to TRestRun. 
-/// 
-/// Once placed in the process chain, it will call TRestRun to hang up at the 
-/// end of external file. Then it will listen through TRestMessenger specific 
+///
+/// A process that does nothing to dataflow but starts a server listening through
+/// TRestMessenger metadata interface to get new files to add to TRestRun.
+///
+/// Once placed in the process chain, it will call TRestRun to hang up at the
+/// end of external file. Then it will listen through TRestMessenger specific
 /// message. If the message is valid, it will call TRestRun to add file lively
-/// 
-/// For example, in bash window 1, we launch restManager using example rml: 
-/// 
+///
+/// For example, in bash window 1, we launch restManager using example rml:
+///
 /// \code
-/// restManager --c realtimeCoboAnalysis.rml --d 7786 --batch --i "/data2/2MM/M1/graw/CoBo_AsAd*_2020-07-13T13:43:13*_0000.graw" --o abc.root
-/// \endcode
-/// 
+/// restManager --c realtimeCoboAnalysis.rml --d 7786 --batch --i
+/// "/data2/2MM/M1/graw/CoBo_AsAd*_2020-07-13T13:43:13*_0000.graw" --o abc.root \endcode
+///
 /// Here `--d 7786` means we define the run number as 7786. REST will run the process
-/// And hang up after the file is finished. Then in bash window 2, we run: 
-/// 
+/// And hang up after the file is finished. Then in bash window 2, we run:
+///
 /// \code
 /// restSendMessage 116027 "7786->/data2/2MM/M1/graw/CoBo_AsAd2_2020-07-13T13:43:13.698_0001.graw"
 /// \endcode
-/// 
-/// Here 116027 is a token for TRestMessenger connection, defined in the previous rml. 
-/// This command means sending a message to token 116027 poll telling to add a new file 
-/// to run 7786. We can see in window 1 the process runs again. 
+///
+/// Here 116027 is a token for TRestMessenger connection, defined in the previous rml.
+/// This command means sending a message to token 116027 poll telling to add a new file
+/// to run 7786. We can see in window 1 the process runs again.
 /// Finally in window 2 we input:
-/// 
+///
 /// \code
 /// restSendMessage 116027 "7786->finish"
 /// \endcode
-/// 
+///
 /// We can see from window 1 the process quit normally after all the files has been processed.
-/// 
+///
 /// \class TRestRealTimeAddInputFileProcess
 ///
 ///----------------------------------------------------------------------
@@ -66,9 +66,11 @@
 
 #include "TRestRealTimeAddInputFileProcess.h"
 
+using namespace std;
+
 ClassImp(TRestRealTimeAddInputFileProcess);
 
-thread* TRestRealTimeAddInputFileProcess::fMonitorThread = NULL;
+thread* TRestRealTimeAddInputFileProcess::fMonitorThread = nullptr;
 int TRestRealTimeAddInputFileProcess::fMonitorFlag = 0;
 
 TRestRealTimeAddInputFileProcess::TRestRealTimeAddInputFileProcess() { Initialize(); }
@@ -77,7 +79,7 @@ TRestRealTimeAddInputFileProcess::~TRestRealTimeAddInputFileProcess() {}
 
 void TRestRealTimeAddInputFileProcess::Initialize() {
     SetSectionName(this->ClassName());
-    fEvent = NULL;
+    fEvent = nullptr;
 
     // Assign initial values for the parameters here
 }
@@ -86,12 +88,12 @@ void TRestRealTimeAddInputFileProcess::InitProcess() {
     // Write here the jobs to do before processing
     fMessenger = GetMetadata<TRestMessenger>();
 
-    if (fMessenger == NULL) {
+    if (fMessenger == nullptr) {
         ferr << "messenger not found!" << endl;
         exit(1);
     }
 
-    if (fMonitorThread == NULL) {
+    if (fMonitorThread == nullptr) {
         fRunInfo->HangUpEndFile();
         fMonitorFlag = 1;
         // SysMonitorFunc(fPid, fRefreshRate);
@@ -135,8 +137,7 @@ void TRestRealTimeAddInputFileProcess::FileNotificationFunc() {
                     // maybe other processes need it
                     fMessenger->SendMessage(message);
                 }
-            }
-            else {
+            } else {
                 warning << "illegal message!" << endl;
             }
         }
@@ -146,12 +147,12 @@ void TRestRealTimeAddInputFileProcess::FileNotificationFunc() {
 
 void TRestRealTimeAddInputFileProcess::EndProcess() {
     // Write here the jobs to do when all the events are processed
-    if (fMonitorThread != NULL) {
+    if (fMonitorThread != nullptr) {
         fMonitorFlag = 0;
         usleep(2000);
         // fMonitorThread->join();
         delete fMonitorThread;
-        fMonitorThread = NULL;
+        fMonitorThread = nullptr;
     }
 }
 
