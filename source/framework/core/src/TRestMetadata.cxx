@@ -515,8 +515,8 @@ TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(this) {
 /// \brief TRestMetadata default destructor
 ///
 TRestMetadata::~TRestMetadata() {
-    if (fElementGlobal) delete fElementGlobal;
-    if (fElement) delete fElement;
+    delete fElementGlobal;
+    delete fElement;
 }
 
 ///////////////////////////////////////////////
@@ -564,7 +564,7 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
         delete rootEle;
         return result;
     } else {
-        ferr << "Filename : " << fConfigFileName << endl;
+        ferr << "Filename: " << fConfigFileName << endl;
         ferr << "Config File does not exist. Right path/filename?" << endl;
         GetChar();
         return -1;
@@ -628,7 +628,7 @@ Int_t TRestMetadata::LoadConfigFromBuffer() {
 ///////////////////////////////////////////////
 /// \brief This method does some preparation of xml section.
 ///
-/// Preparation includes: seting the name, title and verbose level of the
+/// Preparation includes: setting the name, title and verbose level of the
 /// current class. Finding out and saving the env sections.
 ///
 /// By calling TRestMetadata::ReadElement(), is also expands for loops and
