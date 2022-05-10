@@ -41,13 +41,27 @@ if [ $# -eq 0 ]; then
 fi
 
 pathNow=$PWD
+pathToFormat=$(readlink -f $1)
 
-for DIRECTORY in $1
-do
-    echo "Formatting code under $DIRECTORY/"
-    cd $DIRECTORY
-    echo "$DIRECTORY" \( -name '*.h' -or -name '*.cxx' -or -name '*.cc' -or -name '*.C' \) -print0 | xargs -0 "$CLANG_FORMAT" -i
-    find "$DIRECTORY" \( -name '*.h' -or -name '*.cxx' -or -name '*.cc' -or -name '*.C' \) -print0 | xargs -0 "$CLANG_FORMAT" -i
-    cd $pathNow
-    echo "DONE!"
-done
+if [ -d "$pathToFormat" ] ; then
+    echo "$pathToFormat is a directory"
+    for DIRECTORY in $pathToFormat
+    do
+      echo "Formatting code under $DIRECTORY/"
+      #find "$DIRECTORY" \( -name '*.h' -or -name '*.cxx' -or -name '*.cc' -or -name '*.C' \) -print0 | xargs -0 "$CLANG_FORMAT"
+      find "$DIRECTORY" \( -name '*.h' -or -name '*.cxx' -or -name '*.cc' -or -name '*.C' \) -print0 | xargs -0 "$CLANG_FORMAT" -i
+      echo "DONE!"
+    done
+elif [ -f "$pathToFormat" ] ; then
+   echo "$pathToFormat is a file";
+   ext="${pathToFormat##*.}"
+   #echo "$ext"
+      if [[ "$ext" == "h" || "$ext" == "cxx" || "$ext" == "cc" || "$ext" == "C" ]]; then
+         echo "$CLANG_FORMAT -i $pathToFormat"
+            eval "$CLANG_FORMAT -i $pathToFormat"
+         else
+            echo "Not valid extension $ext, valid extensions are *.h, *.cxx, *.cc and *.C"
+       fi
+else
+   echo "$pathToFormat is not valid file or directory";
+fi
