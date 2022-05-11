@@ -9,7 +9,7 @@ endif ()
 # Installing clang-format pre-commit hook if prerequisites are met and it doesn't exist yet.
 
 if (NOT EXISTS ${PROJECT_SOURCE_DIR}/.git)
-    message(WARNING ".git directory not found at the root of the repository (${PROJECT_SOURCE_DIR}), skipping formatting in pre-commit hook")
+    message(WARNING ".git directory not found at the root of the repository (${PROJECT_SOURCE_DIR}), skipping formatting in pre-commit hook. Perhaps you are compiling in a remote host?")
     return()
 endif ()
 
