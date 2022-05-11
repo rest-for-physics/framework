@@ -515,7 +515,7 @@ Float_t REST_StringHelper::StringToFloat(string in) {
 /// \brief Gets an integer from a string.
 ///
 Int_t REST_StringHelper::StringToInteger(string in) {
-    // If we find an hexadecimal number
+    // If we find a hexadecimal number
     if (in.find("0x") != std::string::npos) return (Int_t)std::stoul(in, nullptr, 16);
 
     return (Int_t)StringToDouble(in);
