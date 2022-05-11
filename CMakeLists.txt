@@ -84,16 +84,19 @@ execute_process(COMMAND root-config --has-cxx17 OUTPUT_VARIABLE HASCXX17)
 execute_process(COMMAND root-config --has-cxx14 OUTPUT_VARIABLE HASCXX14)
 execute_process(COMMAND root-config --has-cxx11 OUTPUT_VARIABLE HASCXX11)
 
+execute_process(COMMAND root-config --cflags OUTPUT_VARIABLE ROOT_CFLAGS)
+
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 if (${HASCXX20} MATCHES "yes")
     set(CMAKE_CXX_STANDARD 20)
 elseif (${HASCXX17} MATCHES "yes")
     set(CMAKE_CXX_STANDARD 17)
-elseif (${HASCXX14} MATCHES "yes")
-    set(CMAKE_CXX_STANDARD 14)
-elseif (${HASCXX11} MATCHES "yes")
-    set(CMAKE_CXX_STANDARD 11)
+else ()
+    message(FATAL_ERROR "Minimum C++ standard version is 17,
+            while the root version is compiled with an older
+            C++ standard, check root-config --cflags ${ROOT_CFLAGS}"
+           )
 endif ()
 
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
