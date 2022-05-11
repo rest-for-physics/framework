@@ -2,7 +2,7 @@
 
 STYLE=$PWD/.clang-format
 echo "$STYLE"
-if [ -n "$STYLE" ] ; then
+if [ -n "$STYLE" ]; then
   STYLEARG="-style=file"
 else
   STYLEARG=""
@@ -17,12 +17,12 @@ format_file() {
 }
 
 case "${1}" in
-  --about )
-    echo "Runs clang-format on source files"
-    ;;
-  * )
-    for file in `git diff-index --cached --name-only HEAD | grep -iE '\.(cxx|cc|h|C)$' ` ; do
-      format_file "$file"
-    done
-    ;;
+--about)
+  echo "Runs clang-format on source files"
+  ;;
+*)
+  for file in $(git diff-index --cached --name-only HEAD | grep -iE '\.(cxx|cc|h|C)$'); do
+    format_file "$file"
+  done
+  ;;
 esac
