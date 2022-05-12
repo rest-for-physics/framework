@@ -45,7 +45,7 @@ class TRestAnalysisTree : public TTree {
     Bool_t fQuickSetObservableValue = true;       //!
     std::vector<RESTValue> fObservables;          //!
     std::map<std::string, int> fObservableIdMap;  //!
-    TChain* fChain = NULL;                        //! in case multiple files for reading
+    TChain* fChain = nullptr;                        //! in case multiple files for reading
 
     // for storage
     Int_t fNObservables;
