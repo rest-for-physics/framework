@@ -29,16 +29,13 @@ XML_LINT="xmllint"
 if [ $# -eq 0 ]; then
   echo ' '
   echo 'This script formats the source directory /path/to/source/'
-  echo 'given as the only argument. Only *.h, *.cxx, *.cc and *.C files will be '
-  echo 'reformatted.'
+  echo 'given as the only argument. Only *.h, *.cxx, *.cc, *.C and *.rml files will be reformatted.'
   echo ' '
-  echo 'The formatting will consider the .clang-format file closer to'
-  echo 'the source directory given.'
+  echo 'The formatting will consider the .clang-format file closer to the source directory given.'
   echo ' '
-  echo 'Usage: ./reformat-clang.sh /path/to/source/'
+  echo 'Usage: ./reformat-files.sh /path/to/source/'
   echo ' '
   echo 'Use carefully! :)'
-
   exit 1
 fi
 
