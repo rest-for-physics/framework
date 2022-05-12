@@ -30,11 +30,11 @@
 
 #include "TRestHits.h"
 
-const int NODE_NOT_SET = -1;
-const int GROUP_NOT_FOUND = -1;
-const int NODE_NOT_FOUND = -1;
+constexpr int NODE_NOT_SET = -1;
+constexpr int GROUP_NOT_FOUND = -1;
+constexpr int NODE_NOT_FOUND = -1;
 
-/// A basic class inhereting from TObject to help creating a node grid definition
+/// A basic class inheriting from TObject to help creating a node grid definition
 class TRestMesh : public TObject {
    protected:
     /// The bottom-left corner of the bounding-box grid.

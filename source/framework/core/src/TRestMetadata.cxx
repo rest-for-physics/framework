@@ -525,18 +525,17 @@ TRestMetadata::~TRestMetadata() {
 ///
 Int_t TRestMetadata::LoadConfigFromFile(const string& configFilename, const string& sectionName) {
     fConfigFileName = configFilename;
+
+    const string thisSectionName = sectionName.empty() ? this->ClassName() : sectionName;
+
     if (!TRestTools::fileExists(fConfigFileName)) fConfigFileName = SearchFile(fConfigFileName);
 
     if (TRestTools::fileExists(fConfigFileName)) {
-        if (sectionName == "") {
-            sectionName = this->ClassName();
-        }
-
         // find the xml section corresponding to the sectionName
-        TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, sectionName);
+        TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, thisSectionName);
         if (Sectional == nullptr) {
-            ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName << "\""
-                 << endl;
+            ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << thisSectionName
+                 << "\"" << endl;
             ferr << "in config file: " << fConfigFileName << endl;
             exit(1);
         }
@@ -569,8 +568,6 @@ Int_t TRestMetadata::LoadConfigFromFile(const string& configFilename, const stri
         GetChar();
         return -1;
     }
-
-    const string thisSectionName = sectionName.empty() ? this->ClassName() : sectionName;
 
     // find the xml section corresponding to the sectionName
     TiXmlElement* sectional = GetElementFromFile(fConfigFileName, thisSectionName);
