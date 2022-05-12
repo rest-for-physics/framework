@@ -70,13 +70,26 @@ Int_t REST_MakeMetadata(TString name) {
     headerFile << "    /// REMOVE MEMBER. A dummy member that will be NOT written to the ROOT file." << endl;
     headerFile << "    Double_t fDummyVar = 3.14; //!" << endl;
     headerFile << endl;
+    headerFile << "public:" << endl;
+    headerFile << "    /// UPDATE Documentation of dummy getter" << endl;
+    headerFile << "    Double_t GetDummy() { return fDummy;}" << endl;
+    headerFile << endl;
+    headerFile << "    /// UPDATE Documentation of dummy getter" << endl;
+    headerFile << "    Double_t GetDummyVar() { return fDummy;}" << endl;
+    headerFile << endl;
+    headerFile << "    /// UPDATE Documentation of dummy setter" << endl;
+    headerFile << "    void SetDummy( const Double_t &dummy) { fDummy = dummy;}" << endl;
+    headerFile << endl;
+    headerFile << "    /// UPDATE Documentation of dummy setter" << endl;
+    headerFile << "    void SetDummyVar( const Double_t &dummy) { fDummyVar = dummy;}" << endl;
+    headerFile << endl;
     headerFile << "    void Initialize();" << endl;
     headerFile << endl;
     headerFile << "public:" << endl;
     headerFile << "    void PrintMetadata();" << endl;
     headerFile << endl;
     headerFile << "    " << name << "();" << endl;
-    headerFile << "    " << name << "(const char* cfgFileName, std::string name = \"\")" << endl;
+    headerFile << "    " << name << "(const char* cfgFileName, std::string name = \"\");" << endl;
     headerFile << "    ~" << name << "();" << endl;
     headerFile << endl;
     headerFile << "    // REMOVE COMMENT. ROOT class definition helper. Increase the number in it every time"
@@ -188,7 +201,7 @@ Int_t REST_MakeMetadata(TString name) {
     sourceFile << "/// corresponding TRestAxionMagneticField section inside the RML." << endl;
     sourceFile << "///" << endl;
     sourceFile << name << "::" << name
-               << "(const char* cfgFileName, string name) : TRestMetadata(cfgFileName) {" << endl;
+               << "(const char* cfgFileName, std::string name) : TRestMetadata(cfgFileName) {" << endl;
     sourceFile << "    LoadConfigFromFile(fConfigFileName, name);" << endl;
     sourceFile << "" << endl;
     sourceFile << "	 if (GetVerboseLevel() >= REST_Info) PrintMetadata();" << endl;
@@ -206,6 +219,8 @@ Int_t REST_MakeMetadata(TString name) {
     sourceFile << "///                                                                      " << endl;
     sourceFile << "void " << name << "::Initialize() {" << endl;
     sourceFile << "    SetSectionName(this->ClassName());" << endl;
+    sourceFile << "    // REMOVE COMMENT. Remove SetLibraryVersion line code if" << endl;
+    sourceFile << "    // your metadata class is a framework class." << endl;
     sourceFile << "    SetLibraryVersion(LIBRARY_VERSION);" << endl;
     sourceFile << endl;
     sourceFile << "    // REMOVE COMMENT. Initialize here any special data members if needed" << endl;
