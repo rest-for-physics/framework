@@ -54,11 +54,15 @@ class TRestTools {
                               Int_t skipLines = 0);
 
     template <typename T>
+    static void TransposeTable(std::vector<std::vector<T>>& data);
+
+    template <typename T>
     static int ReadBinaryTable(std::string fName, std::vector<std::vector<T>>& data, Int_t columns = -1);
 
     static Bool_t IsBinaryFile(std::string fname);
 
     static std::string GetFileNameExtension(std::string fullname);
+    static std::string GetFileNameRoot(std::string fullname);
 
     static int GetBinaryFileColumns(std::string fname);
 
@@ -70,6 +74,9 @@ class TRestTools {
 
     template <typename T>
     static T GetLowestIncreaseFromTable(std::vector<std::vector<T>> data, Int_t column);
+
+    template <typename T>
+    static T GetIntegralFromTable(const std::vector<std::vector<T>>& data);
 
     template <typename T>
     static int PrintTable(std::vector<std::vector<T>> data, Int_t start = 0, Int_t end = 0);

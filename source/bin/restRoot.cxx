@@ -138,6 +138,8 @@ int main(int argc, char* argv[]) {
 
             argv[i] = (char*)"";
             Nfile++;
+        } else if (TRestTools::isRootFile(opt)) {
+            printf("\nFile %s not found ... !!\n", opt.c_str());
         }
     }
 

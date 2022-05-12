@@ -22,19 +22,19 @@
   </TRestRun>
 
   <TRestGeant4Metadata name="restG4 Simulation run" title="Simulation of Xe136bb0n decay from gas.">
-    <!-- <parameter name="Nevents" value="1000000"/>-->
-    <parameter name="Nevents" value="500"/>
-    <parameter name="gdml_file" value="geometry/main.gdml"/>
-    <parameter name="subEventTimeDelay" value="100us" />
-    <parameter name="seed" value="1" />
+      <!-- <parameter name="nEvents" value="1000000"/>-->
+      <parameter name="nEvents" value="500"/>
+      <parameter name="gdmlFile" value="geometry/main.gdml"/>
+      <parameter name="subEventTimeDelay" value="100us"/>
+      <parameter name="seed" value="1"/>
 
-    <generator type="volume" from="Gas" >
-      <source use="Xe136bb0n.dat">
-      </source>
-    </generator>
+      <generator type="volume" from="Gas">
+          <source use="Xe136bb0n.dat">
+          </source>
+      </generator>
 
-    <storage sensitiveVolume="Gas">
-      <parameter name="energyRange" value="(0,10)MeV" />
+      <storage sensitiveVolume="Gas">
+          <parameter name="energyRange" value="(0,10)MeV"/>
       <activeVolume name="Gas" chance="1" maxStepSize="200um" />
     </storage>
 
