@@ -60,10 +60,10 @@ if [ -d "$pathToFormat" ]; then
   for DIRECTORY in $pathToFormat; do
     echo "Formatting code under $DIRECTORY/"
     if [[ -z "$CLANG_FORMAT_DISABLED" ]]; then
-          find "$DIRECTORY" \( -name '*.h' -or -name '*.cxx' -or -name '*.cc' -or -name '*.C' \) -print0 | xargs -0 "$CLANG_FORMAT" -i
+      find "$DIRECTORY" \( -name '*.h' -or -name '*.cxx' -or -name '*.cc' -or -name '*.C' \) -print0 | xargs -0 "$CLANG_FORMAT" -i
     fi
     if [[ -z "$XML_LINT_DISABLED" ]]; then
-          find "$DIRECTORY" -name "*.rml" -type f -exec $XML_LINT --output '{}' --format '{}' \;
+      find "$DIRECTORY" -name "*.rml" -type f -exec $XML_LINT --output '{}' --format '{}' \;
     fi
     echo "Done formatting all files in '$DIRECTORY'"
   done
