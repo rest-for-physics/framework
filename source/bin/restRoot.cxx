@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) {
             }
 
             // command line EventTree object
-            if (runTmp->GetEventTree() != NULL) {
+            if (runTmp->GetEventTree() != nullptr) {
                 printf("Attaching ev_tree%i...\n", Nfile);
                 string evcmd =
                     Form("TTree* ev_tree%i = (TTree*)%s;", Nfile, ToString(runTmp->GetEventTree()).c_str());
