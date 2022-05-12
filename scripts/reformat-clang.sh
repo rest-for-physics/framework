@@ -47,7 +47,8 @@ if [ -d "$pathToFormat" ]; then
   for DIRECTORY in $pathToFormat; do
     echo "Formatting code under $DIRECTORY/"
     find "$DIRECTORY" \( -name '*.h' -or -name '*.cxx' -or -name '*.cc' -or -name '*.C' \) -print0 | xargs -0 "$CLANG_FORMAT" -i
-    echo "DONE!"
+    find "$DIRECTORY" -name "*.rml" -type f -exec xmllint --output '{}' --format '{}' \;
+    echo "Done formatting all files in '$DIRECTORY'"
   done
 elif [ -f "$pathToFormat" ]; then
   echo "Formatting file \"$pathToFormat\""
@@ -55,8 +56,10 @@ elif [ -f "$pathToFormat" ]; then
   if [[ "$ext" == "h" || "$ext" == "cxx" || "$ext" == "cc" || "$ext" == "C" ]]; then
     echo "$CLANG_FORMAT -i $pathToFormat"
     eval "$CLANG_FORMAT -i $pathToFormat"
+  elif [[ "$ext" == "rml" ]]; then
+    xmllint --output "$pathToFormat" --format "$pathToFormat"
   else
-    echo "Not valid extension $ext, valid extensions are *.h, *.cxx, *.cc and *.C"
+    echo "Not valid extension $ext, valid extensions are *.h, *.cxx, *.cc, *.C or *.rml"
   fi
 else
   echo "$pathToFormat is not valid file or directory"
