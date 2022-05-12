@@ -24,6 +24,7 @@
 # Change this if your clang-format executable is somewhere else
 
 CLANG_FORMAT="clang-format"
+XML_LINT="xmllint"
 
 if [ $# -eq 0 ]; then
   echo ' '
@@ -41,13 +42,29 @@ if [ $# -eq 0 ]; then
   exit 1
 fi
 
+echo "Begin formatting!"
+
+if ! type -P $CLANG_FORMAT; then
+  echo "WARNING: '$CLANG_FORMAT' was not found in your system! we cannot format code files"
+  CLANG_FORMAT_DISABLED=True
+fi
+
+if ! type -P $XML_LINT; then
+  echo "WARNING: '$XML_LINT' was not found in your system! we cannot format *.rml files"
+  XML_LINT_DISABLED=True
+fi
+
 pathToFormat=$(readlink -f $1)
 
 if [ -d "$pathToFormat" ]; then
   for DIRECTORY in $pathToFormat; do
     echo "Formatting code under $DIRECTORY/"
-    find "$DIRECTORY" \( -name '*.h' -or -name '*.cxx' -or -name '*.cc' -or -name '*.C' \) -print0 | xargs -0 "$CLANG_FORMAT" -i
-    find "$DIRECTORY" -name "*.rml" -type f -exec xmllint --output '{}' --format '{}' \;
+    if [[ -z "$CLANG_FORMAT_DISABLED" ]]; then
+          find "$DIRECTORY" \( -name '*.h' -or -name '*.cxx' -or -name '*.cc' -or -name '*.C' \) -print0 | xargs -0 "$CLANG_FORMAT" -i
+    fi
+    if [[ -z "$XML_LINT_DISABLED" ]]; then
+          find "$DIRECTORY" -name "*.rml" -type f -exec $XML_LINT --output '{}' --format '{}' \;
+    fi
     echo "Done formatting all files in '$DIRECTORY'"
   done
 elif [ -f "$pathToFormat" ]; then
@@ -57,7 +74,7 @@ elif [ -f "$pathToFormat" ]; then
     echo "$CLANG_FORMAT -i $pathToFormat"
     eval "$CLANG_FORMAT -i $pathToFormat"
   elif [[ "$ext" == "rml" ]]; then
-    xmllint --output "$pathToFormat" --format "$pathToFormat"
+    $XML_LINT --output "$pathToFormat" --format "$pathToFormat"
   else
     echo "Not valid extension $ext, valid extensions are *.h, *.cxx, *.cc, *.C or *.rml"
   fi
