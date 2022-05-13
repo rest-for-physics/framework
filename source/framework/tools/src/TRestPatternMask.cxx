@@ -27,6 +27,10 @@
 /// a (x,y) coordinate was found, or if has hitted the pattern structure
 /// defined at the inherited class.
 ///
+/// \note The mask will always be centered at (0,0). The offset applied
+/// in this class will only affect the pattern. Any global offset needs
+/// to be introduced externally.
+///
 /// The rotation members are stored in this class to allow a common
 /// definition of rotation and translation parameters for any pattern.
 ///
@@ -39,7 +43,9 @@
 ///
 /// The inherited class should implement the pure abstract method
 /// TRestPatternMask::GetRegion integrating the logic to identify regions
-/// and the pattern mask.
+/// and the pattern mask. The inherited GetRegion method implementation
+/// should call TRestPatternMask::ApplyCommonMaskTransformation to define mask
+/// offset, rotation and radial limit.
 ///
 /// Some examples are : TRestGridMask, TRestStrippedMap, TRestSpiderMask
 /// and TRestRingsMask.
@@ -106,14 +112,18 @@ TRestPatternMask::~TRestPatternMask() {}
 /// Remark: The window is centered, it is just the pattern that we want
 /// to shift.
 ///
-void TRestPatternMask::RotateAndTranslate(Double_t& x, Double_t& y) {
+Int_t TRestPatternMask::ApplyCommonMaskTransformation(Double_t& x, Double_t& y) {
+    if (fMaskRadius > 0 && x * x + y * y > fMaskRadius * fMaskRadius) return 0;
+
     TVector2 pos(x, y);
 
-    pos -= fOffset;
     pos = pos.Rotate(-fRotationAngle);
+    pos -= fOffset;
 
     x = pos.X();
     y = pos.Y();
+
+    return 1;
 }
 
 ///////////////////////////////////////////////
@@ -162,8 +172,8 @@ TCanvas* TRestPatternMask::DrawMonteCarlo(Int_t nSamples) {
     TRandom3* rnd = new TRandom3(0);
 
     for (int n = 0; n < nSamples; n++) {
-        Double_t x = 3 * (rnd->Rndm() - 0.5) * fMaskRadius + fOffset.X();
-        Double_t y = 3 * (rnd->Rndm() - 0.5) * fMaskRadius + fOffset.Y();
+        Double_t x = 2.5 * (rnd->Rndm() - 0.5) * fMaskRadius;
+        Double_t y = 2.5 * (rnd->Rndm() - 0.5) * fMaskRadius;
 
         Int_t id = GetRegion(x, y);
 
@@ -206,9 +216,9 @@ TCanvas* TRestPatternMask::DrawMonteCarlo(Int_t nSamples) {
         nGraphs++;
     }
 
-    gridGraphs[0]->GetXaxis()->SetLimits(fOffset.X() - 1.75 * fMaskRadius, fOffset.X() + 1.75 * fMaskRadius);
-    gridGraphs[0]->GetHistogram()->SetMaximum(fOffset.Y() + 1.75 * fMaskRadius);
-    gridGraphs[0]->GetHistogram()->SetMinimum(fOffset.Y() - 1.75 * fMaskRadius);
+    gridGraphs[0]->GetXaxis()->SetLimits(-1.25 * fMaskRadius, 1.25 * fMaskRadius);
+    gridGraphs[0]->GetHistogram()->SetMaximum(1.25 * fMaskRadius);
+    gridGraphs[0]->GetHistogram()->SetMinimum(-1.25 * fMaskRadius);
 
     gridGraphs[0]->GetXaxis()->SetTitle("X [mm]");
     gridGraphs[0]->GetXaxis()->SetTitleSize(0.05);

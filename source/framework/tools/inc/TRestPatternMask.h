@@ -49,7 +49,7 @@ class TRestPatternMask : public TRestMetadata {
     /// It defines the mask type. To be called by the inherited class constructor.
     void SetType(const std::string& type) { fPatternType = type; }
 
-    void RotateAndTranslate(Double_t& x, Double_t& y);
+    Int_t ApplyCommonMaskTransformation(Double_t& x, Double_t& y);
 
     TRestPatternMask();
     TRestPatternMask(const char* cfgFileName, std::string name = "");

@@ -158,12 +158,10 @@ void TRestStrippedMask::Initialize() {
 /// hits the pattern.
 ///
 /// The particle will be counter-rotated to emulate the mask rotation
-/// using the method TRestPatternMask::RotateAndTranslate.
+/// using the method TRestPatternMask::ApplyCommonMaskTransformation
 ///
 Int_t TRestStrippedMask::GetRegion(Double_t x, Double_t y) {
-    RotateAndTranslate(x, y);
-
-    if (fMaskRadius > 0 && x * x + y * y > fMaskRadius * fMaskRadius) return 0;
+    if (ApplyCommonMaskTransformation(x, y) == 0) return 0;
 
     Double_t xEval = fStripsThickness / 2. + x;
 
@@ -181,8 +179,6 @@ Int_t TRestStrippedMask::GetRegion(Double_t x, Double_t y) {
     }
 
     if (xEval < fStripsThickness) return 0;
-
-    Double_t yEval = fStripsThickness / 2. + y;
 
     xcont = xcont % fModulus;
     if (xcont < 0) xcont += fModulus;

@@ -1,0 +1,17 @@
+<masks>
+	<TRestGridMask name="strongback" verboseLevel="warning">
+		<parameter name="maskRadius" value="20" />
+		<parameter name="offset" value="(5,5)mm" />
+		<parameter name="rotationAngle" value="0.5" />
+		<parameter name="gridGap" value="1cm" />
+		<parameter name="gridThickness" value="2mm" />
+	</TRestGridMask>
+
+	<TRestStrippedMask name="stripped" verboseLevel="warning">
+		<parameter name="maskRadius" value="2cm" />
+		<parameter name="offset" value="(3,3)mm" />
+		<parameter name="rotationAngle" value="0.5" />
+		<parameter name="stripsGap" value="12mm" />
+		<parameter name="stripsThickness" value="1.2mm" />
+	</TRestStrippedMask>
+</masks>

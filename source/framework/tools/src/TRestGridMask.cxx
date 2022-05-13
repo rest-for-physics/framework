@@ -155,13 +155,11 @@ void TRestGridMask::Initialize() {
 /// with coordinates (x,y) felt in. The method returns 0 if the particle
 /// hits the pattern.
 ///
-/// The particle will be counter-rotated to emulate the mask rotation
-/// using the method TRestPatternMask::RotateAndTranslate.
+/// The particle will be counter-rotated to emulate the mask offset and
+/// rotation using the method TRestPatternMask::ApplyCommonMaskTransformation
 ///
 Int_t TRestGridMask::GetRegion(Double_t x, Double_t y) {
-    RotateAndTranslate(x, y);
-
-    if (fMaskRadius > 0 && x * x + y * y > fMaskRadius * fMaskRadius) return 0;
+    if (ApplyCommonMaskTransformation(x, y) == 0) return 0;
 
     Double_t xEval = fGridThickness / 2. + x;
 
