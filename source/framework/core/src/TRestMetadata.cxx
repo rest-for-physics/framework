@@ -103,7 +103,7 @@
 /// \code
 ///
 /// void LoadConfigFromFile();
-/// void LoadConfigFromFile(const char *cfgFileName, string sectionName = "");
+/// void LoadConfigFromFile(const char *configFilename, string sectionName = "");
 /// void LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);
 /// void LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal,
 /// map<string, string> envs);
@@ -113,18 +113,18 @@
 /// If no arguments are provided, LoadConfigFromFile() will only call the Initialize()
 /// method. If given the rml file name, it will find out the needed rml sections. We
 /// can also directly give the xml sections to the method. Two xml sections are used
-/// to startup the class: the section for the class and a global section. Additionaly
+/// to startup the class: the section for the class and a global section. Additionally
 /// we can give a map object to the method to import additional variables.
 ///
 /// The "section for the class" is an xml section with the value of class name.
-/// It is the main information souce for the class's startup. The "global"
+/// It is the main information source for the class's startup. The "global"
 /// section is a special xml section in the rml file, containing global information
 /// which could be seen by all the class sections.
 ///
 /// With the xml sections given, LoadConfigFromFile() first merge them together. Then it
 /// calls LoadSectionMetadata(), which loads some universal parameters like
 /// name, title and verbose level. This method also preprocesses the config
-/// sections, expanding the include/for decinition and replacing the variables.
+/// sections, expanding the include/for definition and replacing the variables.
 /// After this, LoadConfigFromFile() calls the method InitFromConfigFile().
 ///
 /// **InitFromConfigFile()** is a pure virtual method and every child classes have
@@ -444,19 +444,19 @@
 
 #include "TRestMetadata.h"
 
+#include <TFormula.h>
 #include <TMath.h>
+#include <TStreamerInfo.h>
 
 #include <iomanip>
 
 #include "TRestDataBase.h"
-#include "TStreamerInfo.h"
-#include "v5/TFormula.h"
 
 // implementation of version methods in namespace rest_version
 /*
 namespace REST_VersionGlob {
-        TString GetRESTVersion() { return REST_RELEASE; }
-        int GetRESTVersionCode() { return ConvertVersionCode(REST_RELEASE); }
+       inline TString GetRESTVersion() const { return REST_RELEASE; }
+       inline int GetRESTVersionCode() const { return ConvertVersionCode(REST_RELEASE); }
 }
 */
 using namespace std;
@@ -494,7 +494,7 @@ TRestMetadata::TRestMetadata() : endl(this) {
 ///////////////////////////////////////////////
 /// \brief constructor
 ///
-TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(this) {
+TRestMetadata::TRestMetadata(const char* configFilename) : endl(this) {
     fStore = true;
     fElementGlobal = nullptr;
     fElement = nullptr;
@@ -503,7 +503,7 @@ TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(this) {
     fConstants.clear();
     fHostmgr = nullptr;
 
-    fConfigFileName = cfgFileName;
+    fConfigFileName = configFilename;
     configBuffer = "";
     metadata.setlength(100);
 
@@ -515,28 +515,27 @@ TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(this) {
 /// \brief TRestMetadata default destructor
 ///
 TRestMetadata::~TRestMetadata() {
-    if (fElementGlobal) delete fElementGlobal;
-    if (fElement) delete fElement;
+    delete fElementGlobal;
+    delete fElement;
 }
 
 ///////////////////////////////////////////////
 /// \brief Give the file name, find out the corresponding section. Then call the
 /// main starter.
 ///
-Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) {
-    fConfigFileName = cfgFileName;
+Int_t TRestMetadata::LoadConfigFromFile(const string& configFilename, const string& sectionName) {
+    fConfigFileName = configFilename;
+
+    const string thisSectionName = sectionName.empty() ? this->ClassName() : sectionName;
+
     if (!TRestTools::fileExists(fConfigFileName)) fConfigFileName = SearchFile(fConfigFileName);
 
     if (TRestTools::fileExists(fConfigFileName)) {
-        if (sectionName == "") {
-            sectionName = this->ClassName();
-        }
-
         // find the xml section corresponding to the sectionName
-        TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, sectionName);
+        TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, thisSectionName);
         if (Sectional == nullptr) {
-            ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName << "\""
-                 << endl;
+            ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << thisSectionName
+                 << "\"" << endl;
             ferr << "in config file: " << fConfigFileName << endl;
             exit(1);
         }
@@ -564,11 +563,43 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
         delete rootEle;
         return result;
     } else {
-        ferr << "Filename : " << fConfigFileName << endl;
+        ferr << "Filename: " << fConfigFileName << endl;
         ferr << "Config File does not exist. Right path/filename?" << endl;
         GetChar();
         return -1;
     }
+
+    // find the xml section corresponding to the sectionName
+    TiXmlElement* sectional = GetElementFromFile(fConfigFileName, thisSectionName);
+    if (sectional == nullptr) {
+        ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << thisSectionName << "\""
+             << endl;
+        ferr << "in config file: " << fConfigFileName << endl;
+        exit(1);
+    }
+
+    // find the "globals" section. Multiple sections are supported.
+    TiXmlElement* rootEle = GetElementFromFile(fConfigFileName);
+    TiXmlElement* global = GetElement("globals", rootEle);
+    if (global != nullptr) ReadElement(global);
+    if (global != nullptr && global->NextSiblingElement("globals") != nullptr) {
+        TiXmlElement* ele = global->NextSiblingElement("globals");
+        if (ele != nullptr) ReadElement(ele);
+        while (ele != nullptr) {
+            TiXmlElement* e = ele->FirstChildElement();
+            while (e != nullptr) {
+                global->InsertEndChild(*e);
+                e = e->NextSiblingElement();
+            }
+            ele = ele->NextSiblingElement("globals");
+        }
+    }
+
+    // call the real loading method
+    int result = LoadConfigFromElement(sectional, global, {});
+    delete sectional;
+    delete rootEle;
+    return result;
 }
 
 ///////////////////////////////////////////////
@@ -628,7 +659,7 @@ Int_t TRestMetadata::LoadConfigFromBuffer() {
 ///////////////////////////////////////////////
 /// \brief This method does some preparation of xml section.
 ///
-/// Preparation includes: seting the name, title and verbose level of the
+/// Preparation includes: setting the name, title and verbose level of the
 /// current class. Finding out and saving the env sections.
 ///
 /// By calling TRestMetadata::ReadElement(), is also expands for loops and
@@ -1271,7 +1302,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
 /// If still not found, it returns the default value.
 ///
 /// \param parName The name of the parameter from which we want to obtain the
-/// value. \param defaultValue The default value if the paremeter is not found
+/// value. \param defaultValue The default value if the parameter is not found
 ///
 /// \return A string of result
 string TRestMetadata::GetParameter(std::string parName, TString defaultValue) {
@@ -1309,7 +1340,7 @@ string TRestMetadata::GetParameter(std::string parName, TString defaultValue) {
 ///
 /// \param parName The name of the parameter from which we want to obtain the
 /// value. \param e The target eml element where the program is to search the
-/// parameter \param defaultValue The default value if the paremeter is not
+/// parameter \param defaultValue The default value if the parameter is not
 /// found
 ///
 /// \return A string of result, with env and expressions replaced
@@ -1506,11 +1537,11 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVect
 /// Exits the whole program if the xml file does not exist, or is in wrong in
 /// syntax. Returns NULL if no element matches NameOrDecalre
 ///
-TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre) {
+TiXmlElement* TRestMetadata::GetElementFromFile(std::string configFilename, std::string NameOrDecalre) {
     TiXmlDocument doc;
     TiXmlElement* rootele;
 
-    string filename = cfgFileName;
+    string filename = configFilename;
     if (TRestMetadata_UpdatedConfigFile.count(filename) > 0)
         filename = TRestMetadata_UpdatedConfigFile[filename];
 
@@ -1526,7 +1557,7 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
 
     rootele = doc.RootElement();
     if (rootele == nullptr) {
-        ferr << "The rml file \"" << cfgFileName << "\" does not contain any valid elements!" << endl;
+        ferr << "The rml file \"" << configFilename << "\" does not contain any valid elements!" << endl;
         exit(1);
     }
     if (NameOrDecalre == "") {
@@ -1558,7 +1589,7 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
 
     return nullptr;
     /*ferr << "Cannot find xml element with name \""<< NameOrDecalre <<"\" in rml
-    file \"" << cfgFileName << endl; GetChar(); exit(1);*/
+    file \"" << configFilename << endl; GetChar(); exit(1);*/
 }
 
 ///////////////////////////////////////////////
@@ -1988,8 +2019,8 @@ string TRestMetadata::SearchFile(string filename) {
     if (TRestTools::fileExists(filename)) {
         return filename;
     } else {
-        auto pathstring = GetSearchPath();
-        auto paths = Split((string)pathstring, ":");
+        auto pathString = GetSearchPath();
+        auto paths = Split((string)pathString, ":");
         return TRestTools::SearchFileInPath(paths, filename);
     }
 }

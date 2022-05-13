@@ -99,12 +99,11 @@ TRestMySQLToAnalysisProcess::TRestMySQLToAnalysisProcess() { Initialize(); }
 /// defined using the parameter `searchPath` in globals section. See
 /// TRestMetadata description.
 ///
-/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param configFilename A const char* giving the path to an RML file.
 ///
-TRestMySQLToAnalysisProcess::TRestMySQLToAnalysisProcess(char* cfgFileName) {
+TRestMySQLToAnalysisProcess::TRestMySQLToAnalysisProcess(const char* configFilename) {
     Initialize();
-
-    LoadConfig(cfgFileName);
+    LoadConfig(configFilename);
 }
 
 ///////////////////////////////////////////////
@@ -128,12 +127,12 @@ void TRestMySQLToAnalysisProcess::LoadDefaultConfig() {
 /// the path to the config file must be specified using full path, absolute or
 /// relative.
 ///
-/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param configFilename A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// correspondig TRestMySQLToAnalysisProcess section inside the RML.
+/// corresponding TRestMySQLToAnalysisProcess section inside the RML.
 ///
-void TRestMySQLToAnalysisProcess::LoadConfig(std::string cfgFilename, std::string name) {
-    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
+void TRestMySQLToAnalysisProcess::LoadConfig(const string& configFilename, const string& name) {
+    if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
@@ -162,8 +161,8 @@ void TRestMySQLToAnalysisProcess::Initialize() { SetSectionName(this->ClassName(
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestMySQLToAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
-    fEvent = evInput;
+TRestEvent* TRestMySQLToAnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fEvent = inputEvent;
 
 #if defined USE_SQL
     debug << "TRestMySQLToAnalysisProcess. Ev ID : " << fEvent->GetID() << endl;

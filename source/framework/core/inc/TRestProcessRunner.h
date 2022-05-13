@@ -60,8 +60,8 @@ class TRestProcessRunner : public TRestMetadata {
 
    public:
     /// REST run class
-    void Initialize();
-    void InitFromConfigFile() {
+    void Initialize() override;
+    void InitFromConfigFile() override {
         BeginOfInit();
         if (fElement != nullptr) {
             TiXmlElement* e = fElement->FirstChildElement();
@@ -80,7 +80,7 @@ class TRestProcessRunner : public TRestMetadata {
     void BeginOfInit();
     Int_t ReadConfig(std::string keydeclare, TiXmlElement* e);
     void EndOfInit();
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     // core functionality
     void ReadProcInfo();
@@ -104,18 +104,18 @@ class TRestProcessRunner : public TRestMetadata {
     std::string GetProcInfo(std::string infoname) {
         return fProcessInfo[infoname] == "" ? infoname : fProcessInfo[infoname];
     }
-    int GetNThreads() { return fThreadNumber; }
-    int GetNProcesses() { return fProcessNumber; }
-    int GetNProcessedEvents() { return fProcessedEvents; }
+    inline int GetNThreads() const { return fThreadNumber; }
+    inline int GetNProcesses() const { return fProcessNumber; }
+    inline int GetNProcessedEvents() const { return fProcessedEvents; }
     double GetReadingSpeed();
     bool UseTestRun() const { return fUseTestRun; }
-    ProcStatus GetStatus() { return fProcStatus; }
+    inline ProcStatus GetStatus() const { return fProcStatus; }
 
     // Constructor & Destructor
     TRestProcessRunner();
     ~TRestProcessRunner();
 
-    ClassDef(TRestProcessRunner, 6);
+    ClassDefOverride(TRestProcessRunner, 6);
 };
 
 #endif

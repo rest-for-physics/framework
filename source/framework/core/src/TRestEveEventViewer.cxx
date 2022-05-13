@@ -24,7 +24,6 @@ TRestEveEventViewer::TRestEveEventViewer() {
     fEnergyDeposits->SetElementName("Energy deposits");
 }
 
-//______________________________________________________________________________
 TRestEveEventViewer::~TRestEveEventViewer() {
     delete fEnergyDeposits;
     // TRestEveEventViewer destructor
@@ -32,7 +31,6 @@ TRestEveEventViewer::~TRestEveEventViewer() {
     DeleteGeometry();
 }
 
-//______________________________________________________________________________
 void TRestEveEventViewer::Initialize() {
     gEve = TEveManager::Create();
     gEve->GetBrowser()->DontCallClose();

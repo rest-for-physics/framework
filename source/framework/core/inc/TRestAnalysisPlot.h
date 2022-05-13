@@ -179,8 +179,8 @@ class TRestAnalysisPlot : public TRestMetadata {
     void SetOutputPlotsFilename(TString fname) { fCanvasSave = fname; }
 
     Int_t GetPlotIndex(TString plotName);
-    TVector2 GetCanvasSize() { return fCanvasSize; }
-    TVector2 GetCanvasDivisions() { return fCanvasDivisions; }
+    inline TVector2 GetCanvasSize() const { return fCanvasSize; }
+    inline TVector2 GetCanvasDivisions() const { return fCanvasDivisions; }
 
     void SetTreeEntryRange(Long64_t NEntries = TTree::kMaxEntries, Long64_t FirstEntry = 0) {
         fDrawNEntries = NEntries;
@@ -188,9 +188,9 @@ class TRestAnalysisPlot : public TRestMetadata {
     }
     void PlotCombinedCanvas();
 
-    // Construtor
+    // Constructor
     TRestAnalysisPlot();
-    TRestAnalysisPlot(const char* cfgFileName, const char* name = "");
+    TRestAnalysisPlot(const char* configFilename, const char* name = "");
     // Destructor
     virtual ~TRestAnalysisPlot();
 

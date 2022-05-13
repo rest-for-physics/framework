@@ -67,12 +67,12 @@ TRestDataQualityProcess::TRestDataQualityProcess() { Initialize(); }
 /// defined using the parameter `searchPath` in globals section. See
 /// TRestMetadata description.
 ///
-/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param configFilename A const char* giving the path to an RML file.
 ///
-TRestDataQualityProcess::TRestDataQualityProcess(char* cfgFileName) {
+TRestDataQualityProcess::TRestDataQualityProcess(const char* configFilename) {
     Initialize();
 
-    LoadConfig(cfgFileName);
+    LoadConfig(configFilename);
 }
 
 ///////////////////////////////////////////////
@@ -96,12 +96,12 @@ void TRestDataQualityProcess::LoadDefaultConfig() {
 /// the path to the config file must be specified using full path, absolute or
 /// relative.
 ///
-/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param configFilename A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// correspondig TRestDataQualityProcess section inside the RML.
+/// corresponding TRestDataQualityProcess section inside the RML.
 ///
-void TRestDataQualityProcess::LoadConfig(std::string cfgFilename, std::string name) {
-    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
+void TRestDataQualityProcess::LoadConfig(const string& configFilename, const string& name) {
+    if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
@@ -122,8 +122,8 @@ void TRestDataQualityProcess::Initialize() { SetSectionName(this->ClassName()); 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestDataQualityProcess::ProcessEvent(TRestEvent* evInput) {
-    fEvent = evInput;
+TRestEvent* TRestDataQualityProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fEvent = inputEvent;
 
     // This process does nothing at the event-by-event level
 

@@ -123,8 +123,8 @@ void TRestEventSelectionProcess::InitProcess() {
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestEventSelectionProcess::ProcessEvent(TRestEvent* eventInput) {
-    fEvent = eventInput;
+TRestEvent* TRestEventSelectionProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fEvent = inputEvent;
 
     for (int i = 0; i < fList.size(); i++) {
         if (fList[i] == fEvent->GetID()) {

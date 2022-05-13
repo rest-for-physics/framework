@@ -67,7 +67,7 @@ class TRestMySQLToAnalysisProcess : public TRestEventProcess {
     /// Defines the internal sampling of the retrieved data for quick access
     Double_t fSampling;  //!
 
-    /// A matrix containning extracted SQL data with fixed time bin
+    /// A matrix containing extracted SQL data with fixed time bin
     std::vector<std::vector<Double_t> > fDBdata;  //!
 
     /// A boolean to output a warning message just once inside the process
@@ -80,36 +80,36 @@ class TRestMySQLToAnalysisProcess : public TRestEventProcess {
     Double_t GetDBValueAtTimestamp(Int_t index, Double_t timestamp);
 
    protected:
-    void InitProcess();
+    void InitProcess() override;
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     void LoadDefaultConfig();
 
    public:
-    any GetInputEvent() { return fEvent; }
-    any GetOutputEvent() { return fEvent; }
+    any GetInputEvent() const override { return fEvent; }
+    any GetOutputEvent() const override { return fEvent; }
 
-    TRestEvent* ProcessEvent(TRestEvent* evInput);
+    TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
 
-    void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(const std::string& configFilename, const std::string& name = "");
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     /// Returns a new instance of this class
     TRestEventProcess* Maker() { return new TRestMySQLToAnalysisProcess; }
 
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "SQLToAnalysisProces"; }
+    const char* GetProcessName() const override { return "SQLToAnalysisProces"; }
 
     TRestMySQLToAnalysisProcess();
-    TRestMySQLToAnalysisProcess(char* cfgFileName);
+    TRestMySQLToAnalysisProcess(const char* configFilename);
 
     ~TRestMySQLToAnalysisProcess();
 
     // If new members are added, removed or modified in this class version number must be increased!
-    ClassDef(TRestMySQLToAnalysisProcess, 1);
+    ClassDefOverride(TRestMySQLToAnalysisProcess, 1);
 };
 #endif
