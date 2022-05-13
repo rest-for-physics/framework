@@ -9,7 +9,7 @@ stages:
 
   # Build and run tests
   - test
-  
+
   # Project compilation validation
   - build
 
@@ -81,7 +81,6 @@ Validate Code:
 Build and Test:
   stage: test
   script:
-    - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}
     - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH}
     - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build
