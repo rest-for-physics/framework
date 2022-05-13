@@ -141,6 +141,7 @@ void TRestPatternMask::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     metadata << " - Type : " << fPatternType << endl;
+    metadata << " - Mask radius : " << fMaskRadius << " mm" << endl;
     metadata << " - Offset : (" << fOffset.X() << ", " << fOffset.Y() << ") mm" << endl;
     metadata << " - Rotation angle : " << fRotationAngle * 180. / TMath::Pi() << " degrees" << endl;
     metadata << "----" << endl;
