@@ -7,7 +7,7 @@ reformatCommand="bash $gitPath/scripts/reformat-files.sh"
 format_file() {
   file="$1"
   if [ -f $file ]; then
-    reformatCommand $1
+    $reformatCommand $1
     git add $1
   fi
 }
