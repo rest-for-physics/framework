@@ -1,6 +1,8 @@
 #!/bin/bash
 
-STYLE=$PWD/.clang-format
+gitcmd=$(git rev-parse --show-superproject-working-tree)
+gitpath=$(readlink -f $gitcmd)
+STYLE=$gitpath/.clang-format
 echo "$STYLE"
 if [ -n "$STYLE" ]; then
   STYLEARG="-style=file"
