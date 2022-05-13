@@ -1,6 +1,10 @@
 #!/bin/bash
 
 gitCommand=$(git rev-parse --show-superproject-working-tree)
+if [ -z $gitCommand ]; then
+  gitCommand=$(git rev-parse --show-toplevel)
+fi
+
 gitPath=$(readlink -f $gitCommand)
 reformatCommand="bash $gitPath/scripts/reformat-files.sh"
 
