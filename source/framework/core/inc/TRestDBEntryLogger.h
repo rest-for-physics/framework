@@ -39,9 +39,9 @@ class TRestDBEntryLogger : public TRestMetadata {
     std::string fTextOpenCommand = "vim";
     std::map<std::string, std::string> fMetainfo;
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     void AskForFilling(int run_id);
 
@@ -52,15 +52,15 @@ class TRestDBEntryLogger : public TRestMetadata {
     std::string Get(std::string itemname) {
         return fMetainfo.count(itemname) == 0 ? "" : fMetainfo[itemname];
     }
-    int GetEntries() { return fMetainfo.size(); }
+    inline int GetEntries() const { return fMetainfo.size(); }
 
-    void PrintMetadata();
+    void PrintMetadata() override;
     // Constructor
     TRestDBEntryLogger();
     // Destructor
     ~TRestDBEntryLogger() {}
 
-    ClassDef(TRestDBEntryLogger, 1);  // Template for a REST "event process" class inherited from
-                                      // TRestEventProcess
+    ClassDefOverride(TRestDBEntryLogger, 1);  // Template for a REST "event process" class inherited from
+                                              // TRestEventProcess
 };
 #endif

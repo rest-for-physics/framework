@@ -7,7 +7,7 @@
 
 using namespace std;
 
-char cfgFileName[256];
+char configFilename[256];
 char iFile[256];
 
 const int maxForksAllowed = 32;
@@ -90,7 +90,7 @@ Bool_t doFork = false;
 std::vector<std::string> input_files;
 
 void ParseInputFileArgs(const char* argv) {
-    if (argv == NULL) return;
+    if (argv == nullptr) return;
 
     if (REST_ARGS.count("inputFileName") > 0) {
         string input_old = REST_ARGS["inputFileName"];
@@ -167,7 +167,7 @@ int main(int argc, char* argv[]) {
                     switch (*c) {
                         case 'c':
                             REST_ARGS["configFile"] = args[i + 1];
-                            sprintf(cfgFileName, "%s", args[i + 1].c_str());
+                            sprintf(configFilename, "%s", args[i + 1].c_str());
                             break;
                         case 'd':
                             REST_ARGS["runNumber"] = args[i + 1];
@@ -235,11 +235,11 @@ int main(int argc, char* argv[]) {
                 fout << "Creating TRestManager" << endl;
                 TRestManager* mgr = new TRestManager();
 
-                auto path = TRestTools::SeparatePathAndName(cfgFileName).first;
+                auto path = TRestTools::SeparatePathAndName(configFilename).first;
                 fout << "path:" << path << endl;
                 setenv("configPath", path.c_str(), 1);
 
-                mgr->LoadConfigFromFile(cfgFileName);
+                mgr->LoadConfigFromFile(configFilename);
 
                 fout << "Done!" << endl;
                 // a->GetChar();

@@ -18,14 +18,13 @@
 #ifndef RestDAQ_TRestLinearTrack
 #define RestDAQ_TRestLinearTrack
 
-#include <iostream>
-
 #include <TMath.h>
 #include <TObject.h>
-#include <TVector3.h>
-
 #include <TRestEvent.h>
 #include <TRestSignal.h>
+#include <TVector3.h>
+
+#include <iostream>
 
 class TRestLinearTrack : public TObject {
    protected:
@@ -124,7 +123,7 @@ class TRestLinearTrack : public TObject {
 
     void Print(Bool_t fullInfo = false);
 
-    // Construtor
+    // Constructor
     TRestLinearTrack();
     // Destructor
     virtual ~TRestLinearTrack();

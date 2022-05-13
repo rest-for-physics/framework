@@ -101,7 +101,7 @@ else ()
     message(FATAL_ERROR "Minimum C++ standard version is 17,
             while the root version is compiled with an older
             C++ standard, check root-config --cflags ${ROOT_CFLAGS}"
-           )
+            )
 endif ()
 
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})

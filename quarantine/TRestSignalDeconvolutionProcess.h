@@ -56,7 +56,7 @@ class TRestSignalDeconvolutionProcess : public TRestEventProcess {
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
     void EndProcess();
 
-    void LoadConfig(std::string cfgFilename);
+    void LoadConfig(std::string configFilename);
 
     void PrintMetadata() {
         BeginPrintProcess();
@@ -82,7 +82,7 @@ class TRestSignalDeconvolutionProcess : public TRestEventProcess {
 
     // Constructor
     TRestSignalDeconvolutionProcess();
-    TRestSignalDeconvolutionProcess(char* cfgFileName);
+    TRestSignalDeconvolutionProcess(const char* configFilename);
     // Destructor
     ~TRestSignalDeconvolutionProcess();
 
