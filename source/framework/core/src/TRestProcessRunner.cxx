@@ -855,9 +855,9 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
 
                 // wait 0.1s for the process to finish
                 usleep(100000);
-                for (int i = 0; i < fThreadNumber; i++) {
+                for (auto th : fThreads) {
                     for (int j = 0; j < fProcessNumber; j++) {
-                        auto proc = fThreads[i]->GetProcess(j);
+                        auto proc = th->GetProcess(j);
                         proc->NotifyAnalysisTreeReset();
                     }
                 }
@@ -873,17 +873,16 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
                 // write some information to the first(main) data file
                 fRunInfo->SetNFilesSplit(fNFilesSplit);
                 if (fOutputDataFile->GetName() != fOutputDataFileName) {
-                    TFile* Mainfile = new TFile(fOutputDataFileName, "update");
+                    auto Mainfile = std::unique_ptr<TFile>{TFile::Open(fOutputDataFileName, "update")};
                     WriteMetadata();
                     Mainfile->Close();
-                    delete Mainfile;
                 } else {
                     WriteMetadata();
                 }
 
                 TFile* newfile = new TFile(fOutputDataFileName + "." + ToString(fNFilesSplit), "recreate");
 
-                TBranch* branch = 0;
+                TBranch* branch = nullptr;
                 fAnalysisTree->SetDirectory(newfile);
                 TIter nextb1(fAnalysisTree->GetListOfBranches());
                 while ((branch = (TBranch*)nextb1())) {

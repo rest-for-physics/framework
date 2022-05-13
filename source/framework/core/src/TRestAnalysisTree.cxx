@@ -1010,7 +1010,7 @@ Int_t TRestAnalysisTree::WriteAsTTree(const char* name, Int_t option, Int_t bufs
 /// <param name="file"> The input file that contains another AnalysisTree with same run id </param>
 /// <returns></returns>
 Bool_t TRestAnalysisTree::AddChainFile(string _file) {
-    TFile* file = new TFile(_file.c_str(), "read");
+    auto file = std::unique_ptr<TFile>{TFile::Open(_file.c_str(), "update")};
     if (!file->IsOpen()) {
         warning << "TRestAnalysisTree::AddChainFile(): failed to open file " << _file << endl;
         return false;
@@ -1022,7 +1022,6 @@ Bool_t TRestAnalysisTree::AddChainFile(string _file) {
             if (tree->GetRunOrigin() == this->GetRunOrigin()) {
                 // this is a valid tree
                 delete tree;
-                delete file;
 
                 if (fChain == nullptr) {
                     fChain = new TChain("AnalysisTree", "Chained AnalysisTree");
@@ -1039,8 +1038,6 @@ Bool_t TRestAnalysisTree::AddChainFile(string _file) {
     }
     warning << "TRestAnalysisTree::AddChainFile(): invalid file, file does not contain an AnalysisTree!"
             << endl;
-
-    delete file;
 
     return false;
 }

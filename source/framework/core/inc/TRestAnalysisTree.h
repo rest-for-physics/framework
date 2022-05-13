@@ -136,7 +136,7 @@ class TRestAnalysisTree : public TTree {
             std::cout << "Error! TRestAnalysisTree::GetObservableValue(): index outside limits!" << endl;
             return T();
         }
-        if (fChain != NULL) {
+        if (fChain != nullptr) {
             return ((TRestAnalysisTree*)fChain->GetTree())->GetObservableValue<T>(n);
         }
         return fObservables[n].GetValue<T>();
@@ -167,7 +167,7 @@ class TRestAnalysisTree : public TTree {
             std::cout << "Error! TRestAnalysisTree::SetObservableValue(): index outside limits!" << endl;
             return;
         }
-        if (fChain != NULL) {
+        if (fChain != nullptr) {
             std::cout << "Error! cannot set observable! AnalysisTree is in chain state" << endl;
             return;
         }
