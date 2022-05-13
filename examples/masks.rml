@@ -21,7 +21,7 @@
 		<parameter name="rotationAngle" value="0.5" />
 
 		<parameter name="ringsGap" value="12mm" />
-		<parameter name="ringsThickness" value="10mm" />
+		<parameter name="ringsThickness" value="9mm" />
 		<parameter name="initialRadius" value="3cm" />
 		<parameter name="nRings" value="5" />
 	</TRestRingsMask>
