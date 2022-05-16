@@ -12,7 +12,7 @@ This document will show you step by step to write new processes/metadata classes
 
 ## Compiling and installing the example included in REST
 
-Inside the REST repository you will find a directory named *example*. This directory is a *dummy* library containning a *dummy* TRestSignalEvent process (mySignalProcess) and a *dummy* TRestMetadata structure (myMetadata). This is a fully working example, therefore you can just compile it, and install to verify how the integration with REST is done.
+Inside the REST repository you will find a directory named *example*. This directory is a *dummy* library containing a *dummy* TRestSignalEvent process (mySignalProcess) and a *dummy* TRestMetadata structure (myMetadata). This is a fully working example, therefore you can just compile it, and install to verify how the integration with REST is done.
 
 The following code shows how to compile and install the library, we assume the working directory is now *REST_v2*.
 
@@ -168,7 +168,7 @@ One last step is required to define the name of the new library. Just open the *
 set( MY_LIBRARY "MyRESTLibrary" )
 \endcode
 
-by the name of your library containning REST, or Rest, inside its name. For example,
+by the name of your library containing REST, or Rest, inside its name. For example,
 
 \code 
 set( MY_LIBRARY "MyProjectRESTLibrary" )

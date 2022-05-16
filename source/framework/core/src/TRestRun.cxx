@@ -402,7 +402,7 @@ void TRestRun::OpenInputFile(const TString& filename, const string& mode) {
             if (fFromRML) {
                 if (runTypeTmp != "Null" && runTypeTmp != "preserve") fRunType = runTypeTmp;
 
-                // We should not recover the user. Only when writting. If not when I open a file
+                // We should not recover the user. Only when writing. If not when I open a file
                 // with restRoot just to read, and Print the run content from other user in my
                 // own account, it will say it was me!
                 // if (runUserTmp != "Null" && runTypeTmp != "preserve") fRunUser = runUserTmp;
@@ -667,6 +667,7 @@ void TRestRun::ReadFileInfo(const string& filename) {
         int pos1 = name.find(formatprefixlist[i], pos + 1) + formatprefixlist[i].size();
         if (formatprefixlist[i] == "") pos1 = 0;
         int pos2 = name.find(formatprefixlist[i + 1], pos1);
+        if (formatprefixlist[i + 1] == "") pos2 = name.length();
         if (pos1 == -1 || pos2 == -1) {
             warning << "File pattern matching: file format mismatch!" << endl;
             return;
@@ -763,7 +764,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
         eve = fFileProcess->ProcessEvent(nullptr);
         fFileProcess->EndOfEventProcess();
         mutex2.unlock();
-        fBytesRead = fFileProcess->GetTotalBytesReaded();
+        fBytesRead = fFileProcess->GetTotalBytesRead();
         if (targettree != nullptr) {
             for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
                 targettree->SetObservable(n, fAnalysisTree->GetObservable(n));

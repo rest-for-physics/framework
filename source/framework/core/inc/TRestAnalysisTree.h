@@ -98,16 +98,16 @@ class TRestAnalysisTree : public TTree {
     /////////////// Getters ////////////////
 
     // Get the status of this tree. This call will not evaluate the status.
-    int GetStatus() { return fStatus; }
+    inline int GetStatus() const { return fStatus; }
     Int_t GetObservableID(const std::string& obsName);
     Bool_t ObservableExists(const std::string& obsName);
-    Int_t GetEventID() { return fEventID; }
-    Int_t GetSubEventID() { return fSubEventID; }
-    Double_t GetTimeStamp() { return fTimeStamp; }
-    TString GetSubEventTag() { return *fSubEventTag; }
-    Int_t GetRunOrigin() { return fRunOrigin; }
-    Int_t GetSubRunOrigin() { return fSubRunOrigin; }
-    Int_t GetNumberOfObservables() { return fNObservables; }
+    inline Int_t GetEventID() const { return fEventID; }
+    inline Int_t GetSubEventID() const { return fSubEventID; }
+    inline Double_t GetTimeStamp() const { return fTimeStamp; }
+    inline TString GetSubEventTag() const { return *fSubEventTag; }
+    inline Int_t GetRunOrigin() const { return fRunOrigin; }
+    inline Int_t GetSubRunOrigin() const { return fSubRunOrigin; }
+    inline Int_t GetNumberOfObservables() const { return fNObservables; }
 
     // observable method
     RESTValue GetObservable(std::string obsName);
@@ -266,7 +266,7 @@ class TRestAnalysisTree : public TTree {
 
     Int_t WriteAsTTree(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 
-    // Construtor
+    // Constructor
     TRestAnalysisTree();
     TRestAnalysisTree(TString name, TString title);
     static TRestAnalysisTree* ConvertFromTTree(TTree* tree);

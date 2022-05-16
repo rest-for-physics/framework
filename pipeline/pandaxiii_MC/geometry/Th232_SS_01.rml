@@ -28,13 +28,13 @@
 
     <parameter name="nEvents" value="4000000"/>
     <parameter name="gdmlFile" value="/home/zhoubugao/REST/geometry_bgzou/main.gdml"/>
-    <parameter name="maxTargetStepSize" value="500" units="um" />
-    <parameter name="subEventTimeDelay" value="100" units="us" />
+    <parameter name="maxTargetStepSize" value="500" units="um"/>
+    <parameter name="subEventTimeDelay" value="100" units="us"/>
 
-    <generator type="volume" from="VesselWall" >
+    <generator type="volume" from="VesselWall">
       <source particle="Th232" fullChain="on">
-        <angularDist type="isotropic" />
-        <energyDist type="mono" energy="0" units="keV" />
+        <angularDist type="isotropic"/>
+        <energyDist type="mono" energy="0" units="keV"/>
       </source>
     </generator>
 

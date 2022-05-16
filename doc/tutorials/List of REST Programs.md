@@ -24,7 +24,7 @@ This is just an indexing list of existing programs included with REST compilatio
 
 **restPrintRunInfo** : It prints the metadata information inside a REST file.
 
-**restPrintAllMetadata** : It prints on screen all the metadata information containned in a REST file. TRestRun metadata, readout, gas, processes metadata, etc.
+**restPrintAllMetadata** : It prints on screen all the metadata information contained in a REST file. TRestRun metadata, readout, gas, processes metadata, etc.
 
 **restPrintFileContents** : It prints on screen the ROOT objects stored in a REST file.
 
@@ -34,4 +34,4 @@ This is just an indexing list of existing programs included with REST compilatio
 
 **restDrawEvents** : It draws the events one by one, using the specific TRestEvent::Draw method implemented in the specific event data type found inside the REST file. 
 
-**restG4PrintParticles** : It prints the name of all the different particles registered inside a REST file containning a TRestGeant4Event data type.
+**restG4PrintParticles** : It prints the name of all the different particles registered inside a REST file containing a TRestGeant4Event data type.

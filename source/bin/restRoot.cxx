@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
             string runcmd = Form("TRestRun* run%i = (TRestRun*)%s;", Nfile, ToString(runTmp).c_str());
             if (debug) printf("%s\n", runcmd.c_str());
             gROOT->ProcessLine(runcmd.c_str());
-            if (runTmp->GetInputEvent() != NULL) {
+            if (runTmp->GetInputEvent() != nullptr) {
                 string eventType = runTmp->GetInputEvent()->ClassName();
 
                 printf("Attaching event %s as ev%i...\n", eventType.c_str(), Nfile);
@@ -138,6 +138,8 @@ int main(int argc, char* argv[]) {
 
             argv[i] = (char*)"";
             Nfile++;
+        } else if (TRestTools::isRootFile(opt)) {
+            printf("\nFile %s not found ... !!\n", opt.c_str());
         }
     }
 

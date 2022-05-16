@@ -134,8 +134,8 @@ void TRestEventRateAnalysisProcess::InitProcess() {
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestEventRateAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
-    fEvent = evInput;
+TRestEvent* TRestEventRateAnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fEvent = inputEvent;
 
     if (fFirstEventTime == -1) fFirstEventTime = fEvent->GetTime();
 

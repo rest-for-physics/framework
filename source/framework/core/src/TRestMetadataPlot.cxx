@@ -57,7 +57,7 @@
 /// the class/object or the name ROOT name associated to the class, and that it is
 /// usually retrieved using the method `GetName()`.
 ///
-/// ## 2. Writting the RML metadata section
+/// ## 2. writing the RML metadata section
 ///
 /// The RML section allows to define the main properties of the canvas to be
 /// generated, basic or common properties of each plot, and the definition of the
@@ -181,7 +181,7 @@
 ///
 /// ### Adding panels
 ///
-/// Additionally, we can add a pad to the canvas containning basic information. As it
+/// Additionally, we can add a pad to the canvas containing basic information. As it
 /// is implemented, this panel will only be able to gather the run information from the
 /// first file given in the filelist. Therefore it might be useful to show only
 /// information common to all the files.
@@ -261,11 +261,12 @@ TRestMetadataPlot::TRestMetadataPlot() { Initialize(); }
 /// The default behaviour is that the config file must be specified with
 /// full path, absolute or relative.
 ///
-/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param configFilename A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
 /// corresponding TRestGeant4Metadata section inside the RML.
 ///
-TRestMetadataPlot::TRestMetadataPlot(const char* cfgFileName, const char* name) : TRestMetadata(cfgFileName) {
+TRestMetadataPlot::TRestMetadataPlot(const char* configFilename, const char* name)
+    : TRestMetadata(configFilename) {
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);

@@ -54,7 +54,7 @@ The framework exploits the Git tagging system to produce its own versioning syst
 ## Versioning
 
 Any **metadata** object written with REST **will be stamped** with few metadata members that will allow to identify the state of the code when the object was produced. Those data members are:
-  - *fVersion*: A string containning the human version number.
+  - *fVersion*: A string containing the human version number.
   - *fCommit*: The latest commit hash value when the compilation took place.
   - *fLibraryVersion*: The human version library. It is fixed by CMakeLists at the library submodules.
   - *fOfficialRelease*: It will be true if the commit was tagged at the repository.

@@ -103,7 +103,7 @@
 /// \code
 ///
 /// void LoadConfigFromFile();
-/// void LoadConfigFromFile(const char *cfgFileName, string sectionName = "");
+/// void LoadConfigFromFile(const char *configFilename, string sectionName = "");
 /// void LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);
 /// void LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal,
 /// map<string, string> envs);
@@ -444,19 +444,19 @@
 
 #include "TRestMetadata.h"
 
+#include <TFormula.h>
 #include <TMath.h>
+#include <TStreamerInfo.h>
 
 #include <iomanip>
 
 #include "TRestDataBase.h"
-#include "TStreamerInfo.h"
-#include "v5/TFormula.h"
 
 // implementation of version methods in namespace rest_version
 /*
 namespace REST_VersionGlob {
-        TString GetRESTVersion() { return REST_RELEASE; }
-        int GetRESTVersionCode() { return ConvertVersionCode(REST_RELEASE); }
+       inline TString GetRESTVersion() const { return REST_RELEASE; }
+       inline int GetRESTVersionCode() const { return ConvertVersionCode(REST_RELEASE); }
 }
 */
 using namespace std;
@@ -494,7 +494,7 @@ TRestMetadata::TRestMetadata() : endl(this) {
 ///////////////////////////////////////////////
 /// \brief constructor
 ///
-TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(this) {
+TRestMetadata::TRestMetadata(const char* configFilename) : endl(this) {
     fStore = true;
     fElementGlobal = nullptr;
     fElement = nullptr;
@@ -503,7 +503,7 @@ TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(this) {
     fConstants.clear();
     fHostmgr = nullptr;
 
-    fConfigFileName = cfgFileName;
+    fConfigFileName = configFilename;
     configBuffer = "";
     metadata.setlength(100);
 
@@ -523,20 +523,19 @@ TRestMetadata::~TRestMetadata() {
 /// \brief Give the file name, find out the corresponding section. Then call the
 /// main starter.
 ///
-Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) {
-    fConfigFileName = cfgFileName;
+Int_t TRestMetadata::LoadConfigFromFile(const string& configFilename, const string& sectionName) {
+    fConfigFileName = configFilename;
+
+    const string thisSectionName = sectionName.empty() ? this->ClassName() : sectionName;
+
     if (!TRestTools::fileExists(fConfigFileName)) fConfigFileName = SearchFile(fConfigFileName);
 
     if (TRestTools::fileExists(fConfigFileName)) {
-        if (sectionName == "") {
-            sectionName = this->ClassName();
-        }
-
         // find the xml section corresponding to the sectionName
-        TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, sectionName);
+        TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, thisSectionName);
         if (Sectional == nullptr) {
-            ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName << "\""
-                 << endl;
+            ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << thisSectionName
+                 << "\"" << endl;
             ferr << "in config file: " << fConfigFileName << endl;
             exit(1);
         }
@@ -569,6 +568,38 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
         GetChar();
         return -1;
     }
+
+    // find the xml section corresponding to the sectionName
+    TiXmlElement* sectional = GetElementFromFile(fConfigFileName, thisSectionName);
+    if (sectional == nullptr) {
+        ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << thisSectionName << "\""
+             << endl;
+        ferr << "in config file: " << fConfigFileName << endl;
+        exit(1);
+    }
+
+    // find the "globals" section. Multiple sections are supported.
+    TiXmlElement* rootEle = GetElementFromFile(fConfigFileName);
+    TiXmlElement* global = GetElement("globals", rootEle);
+    if (global != nullptr) ReadElement(global);
+    if (global != nullptr && global->NextSiblingElement("globals") != nullptr) {
+        TiXmlElement* ele = global->NextSiblingElement("globals");
+        if (ele != nullptr) ReadElement(ele);
+        while (ele != nullptr) {
+            TiXmlElement* e = ele->FirstChildElement();
+            while (e != nullptr) {
+                global->InsertEndChild(*e);
+                e = e->NextSiblingElement();
+            }
+            ele = ele->NextSiblingElement("globals");
+        }
+    }
+
+    // call the real loading method
+    int result = LoadConfigFromElement(sectional, global, {});
+    delete sectional;
+    delete rootEle;
+    return result;
 }
 
 ///////////////////////////////////////////////
@@ -1506,11 +1537,11 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVect
 /// Exits the whole program if the xml file does not exist, or is in wrong in
 /// syntax. Returns NULL if no element matches NameOrDecalre
 ///
-TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre) {
+TiXmlElement* TRestMetadata::GetElementFromFile(std::string configFilename, std::string NameOrDecalre) {
     TiXmlDocument doc;
     TiXmlElement* rootele;
 
-    string filename = cfgFileName;
+    string filename = configFilename;
     if (TRestMetadata_UpdatedConfigFile.count(filename) > 0)
         filename = TRestMetadata_UpdatedConfigFile[filename];
 
@@ -1526,7 +1557,7 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
 
     rootele = doc.RootElement();
     if (rootele == nullptr) {
-        ferr << "The rml file \"" << cfgFileName << "\" does not contain any valid elements!" << endl;
+        ferr << "The rml file \"" << configFilename << "\" does not contain any valid elements!" << endl;
         exit(1);
     }
     if (NameOrDecalre == "") {
@@ -1558,7 +1589,7 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
 
     return nullptr;
     /*ferr << "Cannot find xml element with name \""<< NameOrDecalre <<"\" in rml
-    file \"" << cfgFileName << endl; GetChar(); exit(1);*/
+    file \"" << configFilename << endl; GetChar(); exit(1);*/
 }
 
 ///////////////////////////////////////////////
@@ -1988,8 +2019,8 @@ string TRestMetadata::SearchFile(string filename) {
     if (TRestTools::fileExists(filename)) {
         return filename;
     } else {
-        auto pathstring = GetSearchPath();
-        auto paths = Split((string)pathstring, ":");
+        auto pathString = GetSearchPath();
+        auto paths = Split((string)pathString, ":");
         return TRestTools::SearchFileInPath(paths, filename);
     }
 }
@@ -2218,7 +2249,8 @@ TString TRestMetadata::GetSearchPath() {
 
     if (getenv("configPath")) result += getenv("configPath") + (string) ":";
     result += REST_PATH + "/data/:";
-    // We give priority to the official /data/ path.
+    result += REST_PATH + "/examples/:";
+    // We give priority to the official /data/ and /examples/ path.
     result += REST_USER_PATH + ":";
     if (result.back() == ':') result.erase(result.size() - 1);
 
