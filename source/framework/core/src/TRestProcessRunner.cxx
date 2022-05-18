@@ -949,6 +949,7 @@ void TRestProcessRunner::ConfigOutputFile() {
 }
 
 void TRestProcessRunner::WriteMetadata() {
+    fRunInfo->SetNFilesSplit(fNFilesSplit);
     fRunInfo->Write();
     this->Write();
     char tmpString[256];

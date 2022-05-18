@@ -837,6 +837,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
                     // normal reading procedure
                     eve->Initialize();
                     fBytesRead += fAnalysisTree->GetEntry(fCurrentEvent);
+                    targettree->SetEventInfo(fAnalysisTree);
                     for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
                         targettree->SetObservable(n, fAnalysisTree->GetObservable(n));
                 }
