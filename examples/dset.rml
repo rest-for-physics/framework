@@ -1,0 +1,6 @@
+
+	<TRestDataSet name = "Muons_9bar"/>
+		<parameter name = "StartTime" value = "2022/04/28 00:00" />
+		<parameter name = "EndTime" value = "2022/04/28 23:59" />
+		<parameter name = "filePattern" value="test*.root"/>
+	</TRestDataSet>
