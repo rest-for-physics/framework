@@ -60,7 +60,6 @@
 using namespace std;
 ClassImp(TRestCut);
 
-//______________________________________________________________________________
 TRestCut::TRestCut() { Initialize(); }
 
 void TRestCut::Initialize() { fCuts.clear(); }

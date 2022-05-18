@@ -18,10 +18,10 @@ ClassImp(TRestTrackLinearizationProcess);
 
 TRestTrackLinearizationProcess::TRestTrackLinearizationProcess() { Initialize(); }
 
-TRestTrackLinearizationProcess::TRestTrackLinearizationProcess(char* cfgFileName) {
+TRestTrackLinearizationProcess::TRestTrackLinearizationProcess(const char* configFilename) {
     Initialize();
 
-    if (LoadConfigFromFile(cfgFileName) == -1) LoadDefaultConfig();
+    if (LoadConfigFromFile(configFilename) == -1) LoadDefaultConfig();
     PrintMetadata();
 }
 
@@ -47,8 +47,8 @@ void TRestTrackLinearizationProcess::Initialize() {
     fDivisions = 100;
 }
 
-void TRestTrackLinearizationProcess::LoadConfig(string cfgFilename) {
-    if (LoadConfigFromFile(cfgFilename) == -1) LoadDefaultConfig();
+void TRestTrackLinearizationProcess::LoadConfig(string configFilename) {
+    if (LoadConfigFromFile(configFilename) == -1) LoadDefaultConfig();
 
     PrintMetadata();
 }

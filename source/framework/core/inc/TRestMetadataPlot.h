@@ -87,7 +87,7 @@ class TRestMetadataPlot : public TRestMetadata {
         TVector2 xRange;
         /// The user defined range in the y-axis
         TVector2 yRange;
-        /// A std::vector containning the properties of the graphs inside the plot
+        /// A std::vector containing the properties of the graphs inside the plot
         std::vector<Graph_Info_Set> graphs;
     };
 
@@ -187,15 +187,15 @@ class TRestMetadataPlot : public TRestMetadata {
     Int_t GetPlotIndex(TString plotName);
 
     /// It will return the canvas size in pixel units
-    TVector2 GetCanvasSize() { return fCanvasSize; }
+    inline TVector2 GetCanvasSize() const { return fCanvasSize; }
 
     /// It will return the number of divisions inside the canvas
-    TVector2 GetCanvasDivisions() { return fCanvasDivisions; }
+    inline TVector2 GetCanvasDivisions() const { return fCanvasDivisions; }
 
     void GenerateCanvas();
 
     TRestMetadataPlot();
-    TRestMetadataPlot(const char* cfgFileName, const char* name = "");
+    TRestMetadataPlot(const char* configFilename, const char* name = "");
 
     virtual ~TRestMetadataPlot();
 

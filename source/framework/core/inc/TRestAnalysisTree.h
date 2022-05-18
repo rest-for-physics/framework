@@ -97,7 +97,7 @@ class TRestAnalysisTree : public TTree {
     /////////////// Getters ////////////////
 
     // Get the status of this tree. This call will not evaluate the status.
-    int GetStatus() { return fStatus; }
+    inline int GetStatus() const { return fStatus; }
     Int_t GetObservableID(const std::string& obsName);
     Bool_t ObservableExists(const std::string& obsName);
     // six basic event prameters
@@ -369,7 +369,7 @@ class TRestAnalysisTree : public TTree {
     }
     void ResetBranchAddresses() { fChain ? fChain->ResetBranchAddresses() : TTree::ResetBranchAddresses(); }
 
-    // Construtor
+    // Constructor
     TRestAnalysisTree();
     TRestAnalysisTree(TString name, TString title);
     static TRestAnalysisTree* ConvertFromTTree(TTree* tree);

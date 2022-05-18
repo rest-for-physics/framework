@@ -220,12 +220,12 @@ void TRestTask::RunTask(TRestManager* mgr) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Defalut helper method both for TRestTask and any TRestTask-inherted
+/// \brief Default helper method both for TRestTask and any TRestTask-inherited
 /// class
 ///
 void TRestTask::PrintArgumentHelp() {
     if (fMode == 0) {
-        ferr << fInvokeMethod << "() Gets invailed input!" << endl;
+        ferr << fInvokeMethod << "() Gets invalided input!" << endl;
         cout << "You should give the following arguments (* is mandatory input):" << endl;
         int n = fArgumentNames.size();
         for (int i = 0; i < n; i++) {
@@ -233,7 +233,7 @@ void TRestTask::PrintArgumentHelp() {
         }
     } else if (fMode == 1) {
     } else if (fMode == 2) {
-        ferr << "Macro class \"" << this->ClassName() << "\" gets invailed input!" << endl;
+        ferr << "Macro class \"" << this->ClassName() << "\" gets invalided input!" << endl;
         ferr << "You should give the following arguments ( * : necessary input):" << endl;
         int n = any(this).GetNumberOfDataMembers();
         for (int i = 1; i < n; i++) {
@@ -255,7 +255,7 @@ void TRestTask::PrintArgumentHelp() {
 /// TClass::GetClass() to find if there is a TRestTask-inherted class which has
 /// this name. If so, it returns the found class, if not, it finds a
 /// corresponding macro file and calls gInterpreter to load it, and then
-/// instaintiates a TRestTask class wrapping this file.
+/// instantiates a TRestTask class wrapping this file.
 TRestTask* TRestTask::GetTaskFromMacro(TString taskName) {
     string macfilelists =
         TRestTools::Execute("find $REST_PATH/macros -name *" + (string)taskName + (string) ".*");

@@ -14,6 +14,7 @@
 
 #include <TRestLinearTrackEvent.h>
 #include <TRestTrackEvent.h>
+
 #include "TRestEventProcess.h"
 
 class TRestTrackLinearizationProcess : public TRestEventProcess {
@@ -47,7 +48,7 @@ class TRestTrackLinearizationProcess : public TRestEventProcess {
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
     void LoadDefaultConfig();
 
-    void LoadConfig(std::string cfgFilename);
+    void LoadConfig(std::string configFilename);
 
     void PrintMetadata() {
         BeginPrintProcess();
@@ -60,7 +61,7 @@ class TRestTrackLinearizationProcess : public TRestEventProcess {
 
     // Constructor
     TRestTrackLinearizationProcess();
-    TRestTrackLinearizationProcess(char* cfgFileName);
+    TRestTrackLinearizationProcess(const char* configFilename);
     // Destructor
     ~TRestTrackLinearizationProcess();
 

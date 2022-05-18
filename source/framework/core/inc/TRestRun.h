@@ -59,14 +59,14 @@ class TRestRun : public TRestMetadata {
     bool fHangUpEndFile = false;           //!
     bool fFromRML = false;                 //!
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
    private:
     std::string ReplaceMetadataMember(const std::string& instr);
 
    public:
     /// REST run class
-    void Initialize();
+    void Initialize() override;
 
     // file operation
     void OpenInputFile(int i);
@@ -226,7 +226,7 @@ class TRestRun : public TRestMetadata {
     void PrintStartDate();
     void PrintEndDate();
 
-    void PrintMetadata();
+    void PrintMetadata() override;
     inline void PrintAllMetadata() {
         PrintMetadata();
         for (unsigned int i = 0; i < fMetadata.size(); i++) fMetadata[i]->PrintMetadata();
@@ -251,14 +251,14 @@ class TRestRun : public TRestMetadata {
     void PrintErrors();
     void PrintWarnings();
 
-    Int_t Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0);
+    Int_t Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0) override;
 
     // Constructor & Destructor
     TRestRun();
     TRestRun(const std::string& filename);
     ~TRestRun();
 
-    ClassDef(TRestRun, 6);
+    ClassDefOverride(TRestRun, 6);
 };
 
 #endif

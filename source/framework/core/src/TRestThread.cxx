@@ -132,9 +132,9 @@ void TRestThread::SetThreadId(Int_t id) {
 /// The reason we use test run is that we need to determine the real output
 /// event address of a process chain. This is because when we write our code
 /// like this: \code TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(
-/// TRestEvent *evInput )
+/// TRestEvent *inputEvent )
 /// {
-/// 	fSignalEvent = (TRestRawSignalEvent *)evInput;
+/// 	fSignalEvent = (TRestRawSignalEvent *)inputEvent;
 /// 	fOutputEvent = fSignalEvent;
 ///		...
 /// }
@@ -176,7 +176,7 @@ bool TRestThread::TestRun() {
             if (outputevent != ProcessedEvent) {
                 warning << "Test run, in " << fProcessChain[j]->ClassName()
                         << " : output event is different with process returned event! Please check to assign "
-                           "the TRestEvent datamember as evInput in ProcessEvent() method"
+                           "the TRestEvent datamember as inputEvent in ProcessEvent() method"
                         << endl;
             }
 

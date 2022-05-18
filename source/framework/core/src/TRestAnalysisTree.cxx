@@ -980,7 +980,7 @@ Double_t TRestAnalysisTree::GetObservableMinimum(TString obsName, Double_t xLow,
 }
 
 ///////////////////////////////////////////////
-/// \brief It returns a string containning all the observables that exist in the analysis tree.
+/// \brief It returns a string containing all the observables that exist in the analysis tree.
 ///
 TString TRestAnalysisTree::GetStringWithObservableNames() {
     Int_t nEntries = GetEntries();
