@@ -40,8 +40,7 @@ class TRestThread {
     Int_t fVerboseLevel;          //!
 
    public:
-    void Initialize() override;
-    void InitFromConfigFile() override {}
+    void Initialize();
 
     void AddProcess(TRestEventProcess* process);
     void PrepareToProcess(bool* outputConfig = nullptr);
@@ -76,7 +75,7 @@ class TRestThread {
     TRestThread() { Initialize(); }
     ~TRestThread(){};
 
-    ClassDefOverride(TRestThread, 1);
+    ClassDef(TRestThread, 1);
 };
 
 #endif
