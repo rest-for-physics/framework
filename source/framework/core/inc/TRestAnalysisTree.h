@@ -103,13 +103,13 @@ class TRestAnalysisTree : public TTree {
     // six basic event prameters
     Int_t GetEventID() { return fChain ? ((TRestAnalysisTree*)fChain->GetTree())->GetEventID() : fEventID; }
     Int_t GetSubEventID() {
-        return fChain ? ((TRestAnalysisTree*)fChain->GetTree())->GetEventID() : fSubEventID;
+        return fChain ? ((TRestAnalysisTree*)fChain->GetTree())->GetSubEventID() : fSubEventID;
     }
     Double_t GetTimeStamp() {
-        return fChain ? ((TRestAnalysisTree*)fChain->GetTree())->GetEventID() : fTimeStamp;
+        return fChain ? ((TRestAnalysisTree*)fChain->GetTree())->GetTimeStamp() : fTimeStamp;
     }
     TString GetSubEventTag() {
-        return fChain ? ((TRestAnalysisTree*)fChain->GetTree())->GetEventID() : *fSubEventTag;
+        return fChain ? ((TRestAnalysisTree*)fChain->GetTree())->GetSubEventTag() : *fSubEventTag;
     }
     // we suppose all the chained trees have same run and sub run id.
     // so there is no need to call fChain->GetTree()
@@ -241,6 +241,7 @@ class TRestAnalysisTree : public TTree {
     void SetRunOrigin(Int_t run_origin) { fRunOrigin = run_origin; }
     void SetSubRunOrigin(Int_t sub_run_origin) { fSubRunOrigin = sub_run_origin; }
 
+    void SetEventInfo(TRestAnalysisTree* tree);
     void SetEventInfo(TRestEvent* evt);
     Int_t Fill();
 
