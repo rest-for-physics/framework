@@ -70,6 +70,7 @@ if (${RESTLIB_DETECTOR} MATCHES ON)
     endif ()
 endif ()
 
+set(LIBRARY_DIRECTORIES)
 # loop all the dirs and compile if option is ON
 foreach (dir ${dirs})
     SUBDIRLIST(subdirs "${CMAKE_CURRENT_SOURCE_DIR}/${dir}")
@@ -78,13 +79,33 @@ foreach (dir ${dirs})
         DIRNAME2OPTION(option ${fullname})
 
         if (${${option}} MATCHES "ON")
-            add_subdirectory(${fullname})
+            string(REGEX MATCH "^libraries/*" match ${fullname})
+            if (NOT ${match} STREQUAL "")
+                # it is a library directory
+                set(LIBRARY_DIRECTORIES "${LIBRARY_DIRECTORIES};${fullname}")
+            else ()
+                add_subdirectory(${fullname})
+            endif ()
             set(rest_include_dirs ${rest_include_dirs} ${dirs_included})
             set(rest_libraries ${rest_libraries} ${library_added})
             set(rest_packages ${rest_packages} ${package_added})
             set(rest_features ${rest_features} ${feature_added})
         endif ()
     endforeach ()
+endforeach ()
+
+foreach (libraryDirectory ${LIBRARY_DIRECTORIES})
+    # Get library name: e.g. libraries/geant4 -> geant4
+    string(REGEX REPLACE "^libraries/(.+)" "\\1" libraryName "${libraryDirectory}")
+    # Get capitalized library name: e.g. geant4 -> Geant4
+    string(SUBSTRING ${libraryName} 0 1 firstLetter)
+    string(TOUPPER ${firstLetter} firstLetter)
+    string(REGEX REPLACE "^.(.*)" "${firstLetter}\\1" libraryName "${libraryName}")
+    # Form compile definition: e.g
+    string(REGEX REPLACE "^(.+)$" "REST_\\1Lib" LIBRARY_COMPILE_DEFINITION ${libraryName})
+
+    add_compile_definitions(${LIBRARY_COMPILE_DEFINITION})
+    add_subdirectory(${libraryDirectory})
 endforeach ()
 
 # remove duplicates
