@@ -842,9 +842,16 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
                         targettree->SetObservable(n, fAnalysisTree->GetObservable(n));
                 }
                 if (fEventTree != nullptr) {
-                    fBytesRead += ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))
-                                        ->GetEntry(fCurrentEvent);
-                    // fBytesReaded += fEventTree->GetEntry(fCurrentEvent);
+                    if (fEventTree->IsA() == TChain::Class()) {
+                        Long64_t entry = fEventTree->LoadTree(fCurrentEvent);
+                        fBytesReaded += ((TBranch*)fEventTree->GetTree()->GetListOfBranches()->UncheckedAt(
+                                             fEventBranchLoc))
+                                            ->GetEntry(entry);
+                    } else {
+                        fBytesReaded +=
+                            ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))
+                                ->GetEntry(fCurrentEvent);
+                    }
                 }
                 fCurrentEvent++;
             }
