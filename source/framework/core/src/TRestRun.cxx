@@ -844,11 +844,11 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
                 if (fEventTree != nullptr) {
                     if (fEventTree->IsA() == TChain::Class()) {
                         Long64_t entry = fEventTree->LoadTree(fCurrentEvent);
-                        fBytesReaded += ((TBranch*)fEventTree->GetTree()->GetListOfBranches()->UncheckedAt(
+                        fBytesRead += ((TBranch*)fEventTree->GetTree()->GetListOfBranches()->UncheckedAt(
                                              fEventBranchLoc))
                                             ->GetEntry(entry);
                     } else {
-                        fBytesReaded +=
+                        fBytesRead +=
                             ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))
                                 ->GetEntry(fCurrentEvent);
                     }
