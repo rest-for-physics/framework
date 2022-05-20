@@ -111,7 +111,7 @@ Build and Install:
     paths:
       - ${CI_PROJECT_DIR}/install
     expire_in: 1 day
-
+    
 Load REST Libraries:
   stage: install
   script:
@@ -301,8 +301,12 @@ Event Selection:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/selection
     - restManager --c g4Analysis.rml --f "${CI_PROJECT_DIR}/install/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root"
+    
     - restManager --c g4OnSelection.rml --f Run00001_NLDBD_Test_g4Analysis.root
     - restRoot -b -q Validate.C'("Run00001_NLDBD_Test_EvSelection.root")'
+    
+    - restManager --c g4EvSelectionIDsFromFile.rml --f Run00001_NLDBD_Test_g4Analysis.root
+    - restRoot -b -q ValidateIDsFromFile.C'("Run00001_NLDBD_Test_EvSelectionIDsFromFile.root")'
 
   artifacts:
     paths:
