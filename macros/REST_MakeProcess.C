@@ -133,6 +133,8 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     headerfile << endl;
     headerfile << "    void InitProcess() override;" << endl;
     headerfile << endl;
+    headerfile << "const char* GetProcessName() const override { return \"CHANGEME!\"; }" << endl;
+    headerfile << endl;
     headerfile << "    TRestEvent* ProcessEvent (TRestEvent* eventInput) override;" << endl;
     headerfile << endl;
     headerfile << "    void EndProcess() override;" << endl;
