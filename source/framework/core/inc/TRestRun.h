@@ -128,7 +128,7 @@ class TRestRun : public TRestMetadata {
     void SkipEventTree() {}
 
     void cd() {
-        if (fInputFile != NULL) fInputFile->cd();
+        if (fInputFile != nullptr) fInputFile->cd();
     }
 
     // Getters
