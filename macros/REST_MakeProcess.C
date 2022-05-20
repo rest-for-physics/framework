@@ -113,7 +113,7 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     }
 
     headerfile << endl;
-    headerfile << "    void Initialize();" << endl;
+    headerfile << "    void Initialize() override;" << endl;
     headerfile << endl;
     headerfile << "    // Add here the members or parameters for your event process." << endl;
     headerfile << "    // You can set their default values here together. " << endl;
@@ -128,17 +128,17 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     headerfile << "    Double_t fDummyVar = 3.14; //!" << endl;
     headerfile << endl;
     headerfile << "public:" << endl;
-    headerfile << "    any GetInputEvent() { return " << inputeventname << "; }" << endl;
-    headerfile << "    any GetOutputEvent() { return " << outputeventname << "; }" << endl;
+    headerfile << "    any GetInputEvent() const override { return " << inputeventname << "; }" << endl;
+    headerfile << "    any GetOutputEvent() const override { return " << outputeventname << "; }" << endl;
     headerfile << endl;
-    headerfile << "    void InitProcess();" << endl;
+    headerfile << "    void InitProcess() override;" << endl;
     headerfile << endl;
-    headerfile << "    TRestEvent* ProcessEvent(TRestEvent* eventInput);" << endl;
+    headerfile << "    TRestEvent* ProcessEvent (TRestEvent* eventInput) override;" << endl;
     headerfile << endl;
-    headerfile << "    void EndProcess();" << endl;
+    headerfile << "    void EndProcess() override;" << endl;
     headerfile << endl;
     headerfile << "    ///  It prints out the process parameters stored in the metadata structure" << endl;
-    headerfile << "    void PrintMetadata() {" << endl;
+    headerfile << "    void PrintMetadata() override {" << endl;
     headerfile << "        BeginPrintProcess();" << endl;
     headerfile << endl;
     headerfile << "        // Write here how to print the added process members and parameters." << endl;
@@ -151,7 +151,7 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     headerfile << endl;
     headerfile << "    // ROOT class definition helper. Increase the number in it every time" << endl;
     headerfile << "    // you add/rename/remove the process parameters" << endl;
-    headerfile << "    ClassDef(" << name << ", 1);" << endl;
+    headerfile << "    ClassDefOverride(" << name << ", 1);" << endl;
     headerfile << endl;
     headerfile << "};" << endl;
     headerfile << "#endif" << endl;
