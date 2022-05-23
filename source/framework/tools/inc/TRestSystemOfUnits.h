@@ -24,9 +24,9 @@
 #include <string>
 
 #ifdef REST_UnitsAdd_Caller
-#define AddUnit(name, type, scale) const double name = _AddUnit(#name, type, scale)
+#define AddUnit(name, type, scale) constexpr double name = _AddUnit(#name, type, scale)
 #else
-#define AddUnit(name, type, scale) const double name = scale
+#define AddUnit(name, type, scale) constexpr double name = scale
 #endif
 
 /// This namespace defines the unit conversion for different units which are understood by REST.
