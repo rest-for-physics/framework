@@ -33,7 +33,7 @@
 namespace REST_Units {
 
 // We use more common physics units instead of SI unit
-enum Physical_Unit { Energy, Time, Distance, Mass, Electric, Magnetic, Pressure, Angle, NOT_A_UNIT = -1 };
+enum Physical_Unit { Energy, Time, Length, Mass, Electric, Magnetic, Pressure, Angle, NOT_A_UNIT = -1 };
 
 class TRestSystemOfUnits {
    private:
@@ -112,10 +112,10 @@ AddUnit(mon, REST_Units::Time, 3.85e-13);
 AddUnit(yr, REST_Units::Time, 3.17e-14);
 
 // distance unit multiplier
-AddUnit(um, REST_Units::Distance, 1e3);
-AddUnit(mm, REST_Units::Distance, 1.);
-AddUnit(cm, REST_Units::Distance, 1e-1);
-AddUnit(m, REST_Units::Distance, 1e-3);
+AddUnit(um, REST_Units::Length, 1e3);
+AddUnit(mm, REST_Units::Length, 1.);
+AddUnit(cm, REST_Units::Length, 1e-1);
+AddUnit(m, REST_Units::Length, 1e-3);
 
 // mass unit multiplier
 AddUnit(mg, REST_Units::Mass, 1e6);
