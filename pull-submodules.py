@@ -192,10 +192,10 @@ Are you sure to proceed? (y/n)
                                     branchToPull = "master"
                                     if branchExistsPcs.stdout.decode("utf-8").rstrip("\n") != "0":
                                         branchToPull = frameworkBranchName
-                                        print(" --> Pulling branch : " + branchToPull + "  ", end='')
+                                    print(f" --> Pulling branch: {branchToPull}", end='')
 
                                     p = subprocess.run(
-                                        f"cd {root}/{submodule} && git checkout origin/{branchToPull} && git pull",  #
+                                        f"cd {root}/{submodule} && git fetch && git checkout {branchToPull} && git pull",  #
                                         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                                     if debug:
                                         print(p.stdout.decode("utf-8"))
