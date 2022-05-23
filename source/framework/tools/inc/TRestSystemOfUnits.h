@@ -14,6 +14,7 @@
 #ifndef RestCore_TRestSystemOfUnits
 #define RestCore_TRestSystemOfUnits
 
+#include <TMath.h>
 #include <TString.h>
 #include <TVector2.h>
 #include <TVector3.h>
@@ -143,6 +144,13 @@ AddUnit(kPa, REST_Units::Pressure, 101.325);
 AddUnit(Pa, REST_Units::Pressure, 101325);
 AddUnit(mPa, REST_Units::Pressure, 10132500);
 
+// angle field unit multiplier
+AddUnit(rad, REST_Units::Angle, 1.);
+AddUnit(radian, REST_Units::Angle, 1.);
+AddUnit(radians, REST_Units::Angle, 1.);
+AddUnit(deg, REST_Units::Angle, TMath::DegToRad());
+AddUnit(degree, REST_Units::Angle, TMath::DegToRad());
+AddUnit(degrees, REST_Units::Angle, TMath::DegToRad());
 }  // namespace REST_Units
 
 typedef REST_Units::TRestSystemOfUnits units;
