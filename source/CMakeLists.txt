@@ -85,12 +85,12 @@ foreach (dir ${dirs})
             set(rest_packages ${rest_packages} ${package_added})
             set(rest_features ${rest_features} ${feature_added})
 
-			if ( NOT library_added STREQUAL "") 
-				# define REST_*Lib e.g. REST_DetectorLib using library name: RestDetector -> REST_DetectorLib
-				string(REGEX REPLACE "^Rest(.+)$" "REST_\\1Lib" DEFINE_VARIABLE_NAME ${library_added})
-				message(STATUS "Adding compile definition: ${DEFINE_VARIABLE_NAME}")
-				add_compile_definitions(${DEFINE_VARIABLE_NAME})
-			endif ( NOT library_added STREQUAL "") 
+            if ( NOT library_added STREQUAL "") 
+                # define REST_*Lib e.g. REST_DetectorLib using library name: RestDetector -> REST_DetectorLib
+                string(REGEX REPLACE "^Rest(.+)$" "REST_\\1Lib" DEFINE_VARIABLE_NAME ${library_added})
+                message(STATUS "Adding compile definition: ${DEFINE_VARIABLE_NAME}")
+                add_compile_definitions(${DEFINE_VARIABLE_NAME})
+            endif ( NOT library_added STREQUAL "") 
         endif ()
     endforeach ()
 endforeach ()
