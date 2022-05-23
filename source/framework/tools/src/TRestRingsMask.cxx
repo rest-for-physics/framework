@@ -76,7 +76,7 @@
 /// \code
 ///     TRestRingsMask mask("masks.rml", "rings");
 ///     Int_t id = mask.GetRegion( 12.5, 4.3 );
-/// 	std::cout << "Region id is : " << id << endl;
+///     std::cout << "Region id is : " << id << endl;
 /// \endcode
 ///
 /// The following figure may be generated using the TRestPatternMask::DrawMonteCarlo
@@ -87,6 +87,7 @@
 ///     mask.GenerateRings();
 ///     TCanvas *c = mask.DrawMonteCarlo(30000);
 ///     c->Draw();
+///     c->Print("output.png");
 /// \endcode
 ///
 /// \htmlonly <style>div.image img[src="ringsmask.png"]{width:500px;}</style> \endhtmlonly
