@@ -24,6 +24,21 @@ dontask = False
 clean = False
 fbName = ""
 
+if( len(sys.argv ) <= 1 ):
+    print( " " )
+    print( "pull-submodules.py requires arguments." )
+    print( " " )
+    print( " - clean : It will restore all submodules to the official release versions" )
+    print( " - latest : It will pull the master branch of each submodule" )
+    print( " " )
+    print( "Usage: " )
+    print( "python3 pull-submodules.py --clean" )
+    print( "python3 pull-submodules.py --latest" )
+    print ( " ")
+    print( "When using --clean make sure the framework local repository is at an official release" )
+    print ( " " )
+    sys.exit(1)
+
 exclude_elems = ""
 for x in range(len(sys.argv) - 1):
     if sys.argv[x + 1] == "--lfna":

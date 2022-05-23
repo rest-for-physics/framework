@@ -196,6 +196,8 @@ class TRestEventProcess : public TRestMetadata {
     void SetFriendProcess(TRestEventProcess* p);
     /// Add parallel process to this process
     void SetParallelProcess(TRestEventProcess* p);
+    /// In case the analysis tree is reset(switched to new file), some process needs to have action
+    virtual void NotifyAnalysisTreeReset() {}
 
     // getters
     /// Get pointer to input event. Must be implemented in the derived class

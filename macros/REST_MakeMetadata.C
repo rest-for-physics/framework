@@ -85,16 +85,19 @@ Int_t REST_MakeMetadata(TString name) {
     headerFile << "    /// UPDATE Documentation of dummy setter" << endl;
     headerFile << "    void SetDummyVar( const Double_t &dummy) { fDummyVar = dummy;}" << endl;
     headerFile << endl;
-    headerFile << "    void PrintMetadata();" << endl;
+    headerFile << "    void Initialize() override;" << endl;
+    headerFile << endl;
+    headerFile << "public:" << endl;
+    headerFile << "    void PrintMetadata() override;" << endl;
     headerFile << endl;
     headerFile << "    " << name << "();" << endl;
-    headerFile << "    " << name << "(const char* configFilename, std::string name = \"\")" << endl;
+    headerFile << "    " << name << "(const char* configFilename, std::string name = \"\");" << endl;
     headerFile << "    ~" << name << "();" << endl;
     headerFile << endl;
     headerFile << "    // REMOVE COMMENT. ROOT class definition helper. Increase the number in it every time"
                << endl;
     headerFile << "    // you add/rename/remove the metadata members" << endl;
-    headerFile << "    ClassDef(" << name << ", 1);" << endl;
+    headerFile << "    ClassDefOverride(" << name << ", 1);" << endl;
     headerFile << endl;
     headerFile << "};" << endl;
     headerFile << "#endif" << endl;

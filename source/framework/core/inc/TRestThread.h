@@ -21,7 +21,7 @@
 #include "TRestProcessRunner.h"
 
 /// Threaded worker of a process chain
-class TRestThread : public TRestMetadata {
+class TRestThread {
    private:
     Int_t fThreadId;
 
@@ -36,10 +36,11 @@ class TRestThread : public TRestMetadata {
     std::thread t;                //!
     Bool_t isFinished;            //!
     Bool_t fProcessNullReturned;  //!
+    Int_t fCompressionLevel;      //!
+    Int_t fVerboseLevel;          //!
 
    public:
-    void Initialize() override;
-    void InitFromConfigFile() override {}
+    void Initialize();
 
     void AddProcess(TRestEventProcess* process);
     void PrepareToProcess(bool* outputConfig = nullptr);
@@ -54,8 +55,10 @@ class TRestThread : public TRestMetadata {
 
     // getter and setter
     void SetThreadId(Int_t id);
-    inline void SetOutputTree(TRestAnalysisTree* analysisTree) { fAnalysisTree = analysisTree; }
+    inline void SetOutputTree(TRestAnalysisTree* t) { fAnalysisTree = t; }
     inline void SetProcessRunner(TRestProcessRunner* r) { fHostRunner = r; }
+    inline void SetCompressionLevel(Int_t comp) { fCompressionLevel = comp; }
+    inline void SetVerboseLevel(Int_t verb) { fVerboseLevel = verb; }
 
     inline Int_t GetThreadId() const { return fThreadId; }
     inline TRestEvent* GetInputEvent() { return fInputEvent; }
@@ -64,14 +67,15 @@ class TRestThread : public TRestMetadata {
     inline Int_t GetProcessnum() const { return fProcessChain.size(); }
     inline TRestEventProcess* GetProcess(int i) const { return fProcessChain[i]; }
     inline TRestAnalysisTree* GetAnalysisTree() const { return fAnalysisTree; }
-    inline TTree* GetEventTree() const { return fEventTree; }
+    inline TTree* GetEventTree() { return fEventTree; }
     inline Bool_t Finished() const { return isFinished; }
+    inline Int_t GetVerboseLevel() const { return fVerboseLevel; }
 
     // Constructor & Destructor
     TRestThread() { Initialize(); }
     ~TRestThread(){};
 
-    ClassDefOverride(TRestThread, 1);
+    ClassDef(TRestThread, 1);
 };
 
 #endif

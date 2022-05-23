@@ -42,7 +42,7 @@ struct DBEntry {
 
     std::string value = "";
 
-    bool IsZombie() { return runNr == 0 && type == "" && value == ""; }
+    bool IsZombie() { return runNr == 0 || (type == "" && value == ""); }
 };
 
 struct DBFile {
