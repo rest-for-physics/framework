@@ -18,12 +18,12 @@ ClassImp(TRestPointLikeAnaProcess)
 }
 
 //______________________________________________________________________________
-TRestPointLikeAnaProcess::TRestPointLikeAnaProcess(char* cfgFileName) {
+TRestPointLikeAnaProcess::TRestPointLikeAnaProcess(const char* configFilename) {
     Initialize();
 
-    if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
+    if (LoadConfigFromFile(configFilename)) LoadDefaultConfig();
 
-    fReadout = new TRestDetectorReadout(cfgFileName);
+    fReadout = new TRestDetectorReadout(configFilename);
 }
 
 //______________________________________________________________________________
@@ -61,10 +61,10 @@ void TRestPointLikeAnaProcess::Initialize() {
     fReadout = NULL;
 }
 
-void TRestPointLikeAnaProcess::LoadConfig(string cfgFilename) {
-    if (LoadConfigFromFile(cfgFilename)) LoadDefaultConfig();
+void TRestPointLikeAnaProcess::LoadConfig(string configFilename) {
+    if (LoadConfigFromFile(configFilename)) LoadDefaultConfig();
 
-    // fReadout = new TRestDetectorReadout( cfgFilename.c_str() );
+    // fReadout = new TRestDetectorReadout( configFilename.c_str() );
 }
 
 //______________________________________________________________________________
@@ -73,7 +73,7 @@ void TRestPointLikeAnaProcess::InitProcess() {
 
     fReadout = GetMetadata<TRestDetectorReadout>();
 
-    if (fReadout == NULL) cout << "REST ERRORRRR : Readout has not been initialized" << endl;
+    if (fReadout == NULL) cout << "REST ERROR: Readout has not been initialized" << endl;
 
     /*
         // Get the gain factor from a file

@@ -26,7 +26,7 @@
  
     <addProcess type="TRestEventSelectionProcess" name="evSelection" fileWithIDs="Run00001_NLDBD_Test_g4Analysis.root" conditions="g4Ana_totalEdep<2400 AND g4Ana_energyPrimary>1000" value="ON"  verboseLevel="info"/>
     
-    <addProcess type="TRestEventSelectionProcess" name="evSelection" fileWithIDs="IDs.txt" value="ON"  verboseLevel="info"/>
+    <!--<addProcess type="TRestEventSelectionProcess" name="evSelection" fileWithIDs="IDs.txt" value="ON"  verboseLevel="info"/>-->
 
   </TRestProcessRunner>
   

@@ -157,8 +157,8 @@ void TRestRealTimeDrawingProcess::InitProcess() {
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* evInput) {
-    fEvent = evInput;
+TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fEvent = inputEvent;
     if (fDrawInterval == 0) {
         return fEvent;
     }

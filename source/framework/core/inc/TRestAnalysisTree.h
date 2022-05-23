@@ -23,6 +23,7 @@
 #ifndef RestCore_TRestAnalysisTree
 #define RestCore_TRestAnalysisTree
 
+#include "TChain.h"
 #include "TRestEvent.h"
 #include "TRestReflector.h"
 #include "TTree.h"
@@ -44,7 +45,7 @@ class TRestAnalysisTree : public TTree {
     Bool_t fQuickSetObservableValue = true;       //!
     std::vector<RESTValue> fObservables;          //!
     std::map<std::string, int> fObservableIdMap;  //!
-    TTree* fROOTTree;                             //!
+    TChain* fChain = nullptr;                        //! in case multiple files for reading
 
     // for storage
     Int_t fNObservables;
@@ -87,8 +88,6 @@ class TRestAnalysisTree : public TTree {
         //!< There are branches in the tree with data. There are observables in the list.
         //! Once filled, it is forbidden to add new observable to the tree.
         Filled = 5,
-        //!< first status when constructed from ROOT tree
-        ROOTTree = 6
     };
 
     TRestAnalysisTree(TTree* tree);
@@ -98,13 +97,22 @@ class TRestAnalysisTree : public TTree {
     /////////////// Getters ////////////////
 
     // Get the status of this tree. This call will not evaluate the status.
-    int GetStatus() { return fStatus; }
+    inline int GetStatus() const { return fStatus; }
     Int_t GetObservableID(const std::string& obsName);
     Bool_t ObservableExists(const std::string& obsName);
-    Int_t GetEventID() { return fEventID; }
-    Int_t GetSubEventID() { return fSubEventID; }
-    Double_t GetTimeStamp() { return fTimeStamp; }
-    TString GetSubEventTag() { return *fSubEventTag; }
+    // six basic event prameters
+    Int_t GetEventID() { return fChain ? ((TRestAnalysisTree*)fChain->GetTree())->GetEventID() : fEventID; }
+    Int_t GetSubEventID() {
+        return fChain ? ((TRestAnalysisTree*)fChain->GetTree())->GetSubEventID() : fSubEventID;
+    }
+    Double_t GetTimeStamp() {
+        return fChain ? ((TRestAnalysisTree*)fChain->GetTree())->GetTimeStamp() : fTimeStamp;
+    }
+    TString GetSubEventTag() {
+        return fChain ? ((TRestAnalysisTree*)fChain->GetTree())->GetSubEventTag() : *fSubEventTag;
+    }
+    // we suppose all the chained trees have same run and sub run id.
+    // so there is no need to call fChain->GetTree()
     Int_t GetRunOrigin() { return fRunOrigin; }
     Int_t GetSubRunOrigin() { return fSubRunOrigin; }
     Int_t GetNumberOfObservables() { return fNObservables; }
@@ -127,6 +135,9 @@ class TRestAnalysisTree : public TTree {
         if (n >= fNObservables) {
             std::cout << "Error! TRestAnalysisTree::GetObservableValue(): index outside limits!" << endl;
             return T();
+        }
+        if (fChain != nullptr) {
+            return ((TRestAnalysisTree*)fChain->GetTree())->GetObservableValue<T>(n);
         }
         return fObservables[n].GetValue<T>();
     }
@@ -154,6 +165,10 @@ class TRestAnalysisTree : public TTree {
         // id check
         if (id >= fNObservables) {
             std::cout << "Error! TRestAnalysisTree::SetObservableValue(): index outside limits!" << endl;
+            return;
+        }
+        if (fChain != nullptr) {
+            std::cout << "Error! cannot set observable! AnalysisTree is in chain state" << endl;
             return;
         }
         fObservables[id].SetValue(value);
@@ -226,6 +241,7 @@ class TRestAnalysisTree : public TTree {
     void SetRunOrigin(Int_t run_origin) { fRunOrigin = run_origin; }
     void SetSubRunOrigin(Int_t sub_run_origin) { fSubRunOrigin = sub_run_origin; }
 
+    void SetEventInfo(TRestAnalysisTree* tree);
     void SetEventInfo(TRestEvent* evt);
     Int_t Fill();
 
@@ -266,7 +282,94 @@ class TRestAnalysisTree : public TTree {
 
     Int_t WriteAsTTree(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 
-    // Construtor
+    Bool_t AddChainFile(std::string file);
+
+    TTree* GetTree() const;
+
+    TChain* GetChain() { return fChain; }
+
+    Long64_t LoadTree(Long64_t entry);
+
+    Long64_t GetEntries() const;
+
+    Long64_t GetEntries(const char* sel);
+
+    void Browse(TBrowser* b) { fChain ? fChain->Browse(b) : TTree::Browse(b); }
+    Long64_t Draw(const char* varexp, const TCut& selection, Option_t* option = "",
+                  Long64_t nentries = kMaxEntries, Long64_t firstentry = 0) {
+        return fChain ? fChain->Draw(varexp, selection, option, nentries, firstentry)
+                      : TTree::Draw(varexp, selection, option, nentries, firstentry);
+    }
+    Long64_t Draw(const char* varexp, const char* selection, Option_t* option = "",
+                  Long64_t nentries = kMaxEntries, Long64_t firstentry = 0) {
+        return fChain ? fChain->Draw(varexp, selection, option, nentries, firstentry)
+                      : TTree::Draw(varexp, selection, option, nentries, firstentry);
+    }
+    void Draw(Option_t* opt) { fChain ? fChain->Draw(opt) : TTree::Draw(opt); }
+    TBranch* FindBranch(const char* name) {
+        return fChain ? fChain->FindBranch(name) : TTree::FindBranch(name);
+    }
+    TLeaf* FindLeaf(const char* name) { return fChain ? fChain->FindLeaf(name) : TTree::FindLeaf(name); }
+    TBranch* GetBranch(const char* name) { return fChain ? fChain->GetBranch(name) : TTree::GetBranch(name); }
+    Bool_t GetBranchStatus(const char* branchname) const {
+        return fChain ? fChain->GetBranchStatus(branchname) : TTree::GetBranchStatus(branchname);
+    }
+    Long64_t GetCacheSize() const { return fChain ? fChain->GetCacheSize() : TTree::GetCacheSize(); }
+    Long64_t GetChainEntryNumber(Long64_t entry) const {
+        return fChain ? fChain->GetChainEntryNumber(entry) : TTree::GetChainEntryNumber(entry);
+    }
+    Long64_t GetEntryNumber(Long64_t entry) const {
+        return fChain ? fChain->GetEntryNumber(entry) : TTree::GetEntryNumber(entry);
+    }
+    Long64_t GetReadEntry() const { return fChain ? fChain->GetReadEntry() : TTree::GetReadEntry(); }
+
+    TLeaf* GetLeaf(const char* branchname, const char* leafname) {
+        return fChain ? fChain->GetLeaf(branchname, leafname) : TTree::GetLeaf(branchname, leafname);
+    }
+    TLeaf* GetLeaf(const char* name) { return fChain ? fChain->GetLeaf(name) : TTree::GetLeaf(name); }
+    TObjArray* GetListOfBranches() {
+        return fChain ? fChain->GetListOfBranches() : TTree::GetListOfBranches();
+    }
+    TObjArray* GetListOfLeaves() { return fChain ? fChain->GetListOfLeaves() : TTree::GetListOfLeaves(); }
+    Long64_t Process(const char* filename, Option_t* option = "", Long64_t nentries = kMaxEntries,
+                     Long64_t firstentry = 0) {
+        return fChain ? fChain->Process(filename, option, nentries, firstentry)
+                      : TTree::Process(filename, option, nentries, firstentry);
+    }
+    Long64_t Process(TSelector* selector, Option_t* option = "", Long64_t nentries = kMaxEntries,
+                     Long64_t firstentry = 0) {
+        return fChain ? fChain->Process(selector, option, nentries, firstentry)
+                      : TTree::Process(selector, option, nentries, firstentry);
+    }
+    Long64_t Scan(const char* varexp = "", const char* selection = "", Option_t* option = "",
+                  Long64_t nentries = kMaxEntries, Long64_t firstentry = 0) {
+        return fChain ? fChain->Scan(varexp, selection, option, nentries, firstentry)
+                      : TTree::Scan(varexp, selection, option, nentries, firstentry);
+    }
+    Int_t SetBranchAddress(const char* bname, void* add, TBranch** ptr = 0) {
+        return fChain ? fChain->SetBranchAddress(bname, add, ptr) : TTree::SetBranchAddress(bname, add, ptr);
+    }
+    Int_t SetBranchAddress(const char* bname, void* add, TBranch** ptr, TClass* realClass, EDataType datatype,
+                           Bool_t isptr) {
+        return fChain ? fChain->SetBranchAddress(bname, add, ptr, realClass, datatype, isptr)
+                      : TTree::SetBranchAddress(bname, add, ptr, realClass, datatype, isptr);
+    }
+    Int_t SetBranchAddress(const char* bname, void* add, TClass* realClass, EDataType datatype,
+                           Bool_t isptr) {
+        return fChain ? fChain->SetBranchAddress(bname, add, realClass, datatype, isptr)
+                      : TTree::SetBranchAddress(bname, add, realClass, datatype, isptr);
+    }
+    void SetBranchStatus(const char* bname, Bool_t status = 1, UInt_t* found = 0) {
+        fChain ? fChain->SetBranchStatus(bname, status, found) : TTree::SetBranchStatus(bname, status, found);
+    }
+    void SetDirectory(TDirectory* dir) { fChain ? fChain->SetDirectory(dir) : TTree::SetDirectory(dir); }
+
+    void ResetBranchAddress(TBranch* br) {
+        fChain ? fChain->ResetBranchAddress(br) : TTree::ResetBranchAddress(br);
+    }
+    void ResetBranchAddresses() { fChain ? fChain->ResetBranchAddresses() : TTree::ResetBranchAddresses(); }
+
+    // Constructor
     TRestAnalysisTree();
     TRestAnalysisTree(TString name, TString title);
     static TRestAnalysisTree* ConvertFromTTree(TTree* tree);

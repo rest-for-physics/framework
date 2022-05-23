@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
             string runcmd = Form("TRestRun* run%i = (TRestRun*)%s;", Nfile, ToString(runTmp).c_str());
             if (debug) printf("%s\n", runcmd.c_str());
             gROOT->ProcessLine(runcmd.c_str());
-            if (runTmp->GetInputEvent() != NULL) {
+            if (runTmp->GetInputEvent() != nullptr) {
                 string eventType = runTmp->GetInputEvent()->ClassName();
 
                 printf("Attaching event %s as ev%i...\n", eventType.c_str(), Nfile);
@@ -102,6 +102,36 @@ int main(int argc, char* argv[]) {
                 gROOT->ProcessLine(evcmd.c_str());
                 runTmp->GetEntry(0);
             }
+
+            // command line AnalysisTree object
+            if (runTmp->GetAnalysisTree() != nullptr) {
+                // if (runTmp->GetAnalysisTree()->GetChain() != nullptr) {
+                //    printf("Attaching ana_tree%i...\n", Nfile);
+                //    string evcmd = Form("TChain* ana_tree%i = (TChain*)%s;", Nfile,
+                //        ToString(runTmp->GetAnalysisTree()->GetChain()).c_str());
+                //    if (debug) printf("%s\n", evcmd.c_str());
+                //    gROOT->ProcessLine(evcmd.c_str());
+                //}
+                // else
+                //{
+                printf("Attaching ana_tree%i...\n", Nfile);
+                string evcmd = Form("TRestAnalysisTree* ana_tree%i = (TRestAnalysisTree*)%s;", Nfile,
+                                    ToString(runTmp->GetAnalysisTree()).c_str());
+                if (debug) printf("%s\n", evcmd.c_str());
+                gROOT->ProcessLine(evcmd.c_str());
+                // runTmp->GetEntry(0);
+                //}
+            }
+
+            // command line EventTree object
+            if (runTmp->GetEventTree() != nullptr) {
+                printf("Attaching ev_tree%i...\n", Nfile);
+                string evcmd =
+                    Form("TTree* ev_tree%i = (TTree*)%s;", Nfile, ToString(runTmp->GetEventTree()).c_str());
+                if (debug) printf("%s\n", evcmd.c_str());
+                gROOT->ProcessLine(evcmd.c_str());
+            }
+
 
             printf("\n%s\n", "Attaching metadata structures...");
             Int_t Nmetadata = runTmp->GetNumberOfMetadataStructures();
@@ -138,6 +168,8 @@ int main(int argc, char* argv[]) {
 
             argv[i] = (char*)"";
             Nfile++;
+        } else if (TRestTools::isRootFile(opt)) {
+            printf("\nFile %s not found ... !!\n", opt.c_str());
         }
     }
 

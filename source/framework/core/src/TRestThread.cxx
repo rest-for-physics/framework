@@ -49,6 +49,9 @@ void TRestThread::Initialize() {
     fProcessChain.clear();
 
     isFinished = false;
+
+    fCompressionLevel = 1;
+    fVerboseLevel = REST_Essential;
 }
 
 ///////////////////////////////////////////////
@@ -129,9 +132,9 @@ void TRestThread::SetThreadId(Int_t id) {
 /// The reason we use test run is that we need to determine the real output
 /// event address of a process chain. This is because when we write our code
 /// like this: \code TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(
-/// TRestEvent *evInput )
+/// TRestEvent *inputEvent )
 /// {
-/// 	fSignalEvent = (TRestRawSignalEvent *)evInput;
+/// 	fSignalEvent = (TRestRawSignalEvent *)inputEvent;
 /// 	fOutputEvent = fSignalEvent;
 ///		...
 /// }
@@ -173,7 +176,7 @@ bool TRestThread::TestRun() {
             if (outputevent != ProcessedEvent) {
                 warning << "Test run, in " << fProcessChain[j]->ClassName()
                         << " : output event is different with process returned event! Please check to assign "
-                           "the TRestEvent datamember as evInput in ProcessEvent() method"
+                           "the TRestEvent datamember as inputEvent in ProcessEvent() method"
                         << endl;
             }
 
@@ -218,7 +221,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
     debug << "Entering TRestThread::PrepareToProcess" << endl;
 
     string threadFileName;
-    if (fHostRunner->GetTempOutputDataFile()->GetName() == (string) "/dev/null") {
+    if (fHostRunner->GetOutputDataFile()->GetName() == (string) "/dev/null") {
         threadFileName = "/dev/null";
     } else {
         threadFileName = "/tmp/rest_thread_tmp" + ToString(this) + ".root";
@@ -240,7 +243,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
     if (fProcessChain.size() > 0) {
         debug << "TRestThread: Creating file : " << threadFileName << endl;
         fOutputFile = new TFile(threadFileName.c_str(), "recreate");
-        fOutputFile->SetCompressionLevel(0);
+        fOutputFile->SetCompressionLevel(fCompressionLevel);
         fAnalysisTree = new TRestAnalysisTree("AnalysisTree_" + ToString(fThreadId), "dummyTree");
         fAnalysisTree->DisableQuickObservableValueSetting();
 
@@ -387,7 +390,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
         fInputEvent = REST_Reflection::Assembly(tmp);
         fOutputEvent = fInputEvent;
         fOutputFile = new TFile(threadFileName.c_str(), "recreate");
-        fOutputFile->SetCompressionLevel(0);
+        fOutputFile->SetCompressionLevel(fCompressionLevel);
         fOutputFile->cd();
 
         debug << "Creating Analysis Tree..." << endl;

@@ -43,9 +43,14 @@
 ///
 #include "TRestTools.h"
 
+#include <TClass.h>
+#include <TSystem.h>
+#include <TUrl.h>
+
 #ifdef USE_Curl
 #include <curl/curl.h>
 #endif
+
 #include <dirent.h>
 
 #include <chrono>
@@ -54,11 +59,8 @@
 #include <memory>
 #include <thread>
 
-#include "TClass.h"
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
-#include "TSystem.h"
-#include "TUrl.h"
 
 using namespace std;
 
@@ -140,7 +142,7 @@ template <typename T>
 int TRestTools::ExportASCIITable(std::string fname, std::vector<std::vector<T>>& data) {
     ofstream file(fname);
     if (!file.is_open()) {
-        ferr << "Unable to open file for writting : " << fname << endl;
+        ferr << "Unable to open file for writing : " << fname << endl;
         return 1;
     }
 
@@ -169,7 +171,7 @@ template <typename T>
 int TRestTools::ExportBinaryTable(std::string fname, std::vector<std::vector<T>>& data) {
     ofstream file(fname, ios::out | ios::binary);
     if (!file.is_open()) {
-        ferr << "Unable to open file for writting : " << fname << endl;
+        ferr << "Unable to open file for writing : " << fname << endl;
         return 1;
     }
 
@@ -189,7 +191,7 @@ template int TRestTools::ExportBinaryTable<Double_t>(std::string fname,
                                                      std::vector<std::vector<Double_t>>& data);
 
 ///////////////////////////////////////////////
-/// \brief Reads a binary file containning a fixed-columns table with values
+/// \brief Reads a binary file containing a fixed-columns table with values
 ///
 /// This method will open the file fName. This file should contain a
 /// table with numeric values of the type specified inside the syntax < >.
@@ -789,9 +791,9 @@ string TRestTools::SearchFileInPath(vector<string> paths, string filename) {
 /// \brief Checks if the config file can be openned. It returns OK in case of
 /// success, ERROR otherwise.
 ///
-Int_t TRestTools::CheckTheFile(std::string cfgFileName) {
+Int_t TRestTools::CheckTheFile(std::string configFilename) {
     ifstream ifs;
-    ifs.open(cfgFileName.c_str());
+    ifs.open(configFilename.c_str());
 
     if (!ifs) {
         return -1;

@@ -9,26 +9,26 @@ namespace fs = std::filesystem;
 
 using namespace std;
 
-#define FILES_PATH fs::path(__FILE__).parent_path().parent_path() / "files"
-#define BASIC_TRESTRUN_RML FILES_PATH / "TRestRunBasic.rml"
-#define BASIC_TRESTMETADATA_RML FILES_PATH / "TRestMetadataTest.rml"
+const auto filesPath = fs::path(__FILE__).parent_path().parent_path() / "files";
+const auto basicRunRml = filesPath / "TRestRunBasic.rml";
+const auto basicMetadataRml = filesPath / "TRestMetadataTest.rml";
 
 TEST(FrameworkCore, TestFiles) {
-    cout << "FrameworkCore test files path: " << FILES_PATH << endl;
+    cout << "FrameworkCore test files path: " << filesPath << endl;
 
     // Check dir exists and is a directory
-    EXPECT_TRUE(fs::is_directory(FILES_PATH));
+    EXPECT_TRUE(fs::is_directory(filesPath));
     // Check it's not empty
-    EXPECT_TRUE(!fs::is_empty(FILES_PATH));
+    EXPECT_TRUE(!fs::is_empty(filesPath));
     // Check required files exist
-    EXPECT_TRUE(fs::exists(BASIC_TRESTRUN_RML));
-    EXPECT_TRUE(fs::exists(BASIC_TRESTMETADATA_RML));
+    EXPECT_TRUE(fs::exists(basicRunRml));
+    EXPECT_TRUE(fs::exists(basicMetadataRml));
 }
 
 TEST(FrameworkCore, TRestRun) {
     TRestRun run;
 
-    run.LoadConfigFromFile(BASIC_TRESTRUN_RML);
+    run.LoadConfigFromFile(basicRunRml);
 
     run.PrintAllMetadata();
 
@@ -50,7 +50,7 @@ TEST(FrameworkCore, TRestMetadata) {
     };
 
     TRestMetadataTest restMetadataTest;
-    restMetadataTest.LoadConfigFromFile(BASIC_TRESTMETADATA_RML, "TRestMetadataTest");
+    restMetadataTest.LoadConfigFromFile(basicMetadataRml, "TRestMetadataTest");
 
     restMetadataTest.PrintMetadata();
 

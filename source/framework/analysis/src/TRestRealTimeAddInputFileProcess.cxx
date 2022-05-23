@@ -102,8 +102,8 @@ void TRestRealTimeAddInputFileProcess::InitProcess() {
     }
 }
 
-TRestEvent* TRestRealTimeAddInputFileProcess::ProcessEvent(TRestEvent* evInput) {
-    fEvent = (TRestEvent*)evInput;
+TRestEvent* TRestRealTimeAddInputFileProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fEvent = (TRestEvent*)inputEvent;
 
     // Write here the main logic of process: TRestRealTimeAddInputFileProcess
     // Read data from input event, write data to output event, and save observables to tree

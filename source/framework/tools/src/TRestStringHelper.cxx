@@ -21,27 +21,56 @@ using namespace std;
 /// \brief Returns 1 only if valid mathematical expression keywords (or numbers)
 /// are found in the string **in**. If not it returns 0.
 ///
-Int_t REST_StringHelper::isAExpression(string in) {
-    string temp = in;
-    vector<string> replace{"sqrt", "log", "exp", "gaus", "cos", "sin", "tan", "atan", "acos", "asin"};
-    for (int i = 0; i < replace.size(); i++) {
-        temp = Replace(temp, replace[i], "0", 0);
+/// By logic, mathematical expressions must have: +-*/e^% in the middle, or % in the end, or math functions in the beginning.
+/// despite those symbols, the string should be purely numeric.
+/// example: 
+/// 1+1 --> expression
+/// sin(1.5) --> expression
+/// 123456789 --> not expression, It is a pure number that can be directly parsed.
+/// ./123 --> not expression, it is a path
+/// 333/555 --> is expression. But it may also be a path. We should avoid using paths like that
+Int_t REST_StringHelper::isAExpression(const string& in) {
+    bool symbol = false;
+    
+    if (in.length() < 2) // minimum expression: 3%
+        return 0;
+
+    vector<string> funcs{"sqrt", "log", "exp", "gaus", "cos", "sin", "tan", "atan", "acos", "asin"};
+    for (const auto& item : funcs) {
+        if (in.find(item) != std::string::npos) {
+            symbol = true;
+            break;
+        }
     }
 
-    if (temp.length() == 0)
-        return 0;
-    else if (temp.length() == 1) {
-        if (temp.find_first_not_of("0123456789") == std::string::npos) {
-            return 1;
-        } else {
-            return 0;
+    if (!symbol) {
+		int pos = in.find_first_of("+-*/e^%");
+		if (pos > 0 && pos < in.size() - 1) {
+			symbol = true;
+		}
+	}
+
+	if (!symbol) {
+		int pos = in.find_first_of("%");
+		if (pos == in.size() - 1) {
+			symbol = true;
         }
-    } else {
+    }
+
+    if (symbol) {
+        string temp = in;
+        for (const auto& item : funcs) {
+            temp = Replace(temp, item, "0", 0);
+        }
         if (temp.find_first_not_of("-0123456789e+*/.,)( ^%") == std::string::npos) {
             if (temp.find("/") == 0 || temp.find("./") == 0 || temp.find("../") == 0)
                 return 0;  // identify path
             return 1;
         }
+    }
+    else
+    {
+        return 0;
     }
 
     return 0;
@@ -486,7 +515,7 @@ Float_t REST_StringHelper::StringToFloat(string in) {
 /// \brief Gets an integer from a string.
 ///
 Int_t REST_StringHelper::StringToInteger(string in) {
-    // If we find an hexadecimal number
+    // If we find a hexadecimal number
     if (in.find("0x") != std::string::npos) return (Int_t)std::stoul(in, nullptr, 16);
 
     return (Int_t)StringToDouble(in);
@@ -507,6 +536,10 @@ Bool_t REST_StringHelper::StringToBool(std::string in) {
 }
 
 Long64_t REST_StringHelper::StringToLong(std::string in) {
+    if (in.find_first_of("eE") != string::npos) {
+        // in case for scientific numbers
+        return (Long64_t)StringToDouble(in);
+    }
     stringstream strIn;
     strIn << in;
     long long llNum;

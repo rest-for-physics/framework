@@ -59,8 +59,8 @@ namespace REST_VersionGlob {
         TString GetRESTVersion();
         int GetRESTVersionCode();
 };
-inline TString GetRESTVersion() { return REST_VersionGlob::GetRESTVersion(); }
-inline int GetRESTVersionCode() { return REST_VersionGlob::GetRESTVersionCode(); }
+inline TString GetRESTVersion() const { return REST_VersionGlob::GetRESTVersion(); }
+inline int GetRESTVersionCode() const { return REST_VersionGlob::GetRESTVersionCode(); }
 
 */
 
@@ -100,7 +100,7 @@ class TRestMetadata : public TNamed {
                                            TVector2 defaultValue = TVector2(-1, -1));
     TVector3 Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* e,
                                            TVector3 defaultValue = TVector3(-1, -1, -1));
-    TiXmlElement* GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre = "");
+    TiXmlElement* GetElementFromFile(std::string configFilename, std::string NameOrDecalre = "");
     TiXmlElement* GetElement(std::string eleDeclare, TiXmlElement* e = nullptr);
     TiXmlElement* GetNextElement(TiXmlElement* e);
     TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement* e);
@@ -201,19 +201,15 @@ class TRestMetadata : public TNamed {
     std::map<std::string, std::string> GetParametersList();
     void ReadAllParameters();
 
-    // Making class constructors protected to keep this class abstract
-    TRestMetadata& operator=(const TRestMetadata&) = delete;
-    TRestMetadata(const TRestMetadata&) = delete;
-
     TRestMetadata();
-    TRestMetadata(const char* cfgFileNamecfgFileName);
+    TRestMetadata(const char* configFilename);
 
    public:
     /// It returns true if an error was identified by a derived metadata class
-    Bool_t GetError() { return fError; }
+    inline Bool_t GetError() const { return fError; }
 
     /// It returns true if an error was identified by a derived metadata class
-    Bool_t GetWarning() { return fWarning; }
+    inline Bool_t GetWarning() const { return fWarning; }
 
     /// Add logs to messageBuffer
     void AddLog(std::string log = "", bool print = true);
@@ -230,13 +226,13 @@ class TRestMetadata : public TNamed {
     /// Returns a std::string containing the warning message
     TString GetWarningMessage();
 
-    Int_t GetNumberOfErrors() { return fNErrors; }
+    inline Int_t GetNumberOfErrors() const { return fNErrors; }
 
-    Int_t GetNumberOfWarnings() { return fNWarnings; }
+    inline Int_t GetNumberOfWarnings() const { return fNWarnings; }
 
     Int_t LoadConfigFromElement(TiXmlElement* eSectional, TiXmlElement* eGlobal,
                                 std::map<std::string, std::string> envs = {});
-    Int_t LoadConfigFromFile(std::string cfgFileName, std::string sectionName = "");
+    Int_t LoadConfigFromFile(const std::string& configFilename, const std::string& sectionName = "");
     Int_t LoadConfigFromBuffer();
 
     /// Making default settings.
@@ -258,7 +254,7 @@ class TRestMetadata : public TNamed {
     void PrintConfigBuffer();  // *MENU*
 
     /// Writes the config buffer to a file in append mode
-    void WriteConfigBuffer(std::string fname);
+    void WriteConfigBuffer(std::string fName);
 
     /// Print the buffered message
     void PrintMessageBuffer();  // *MENU*
@@ -278,26 +274,28 @@ class TRestMetadata : public TNamed {
 
     TString GetLibraryVersion();
 
-    Bool_t isOfficialRelease() { return fOfficialRelease; }
+    inline Bool_t isOfficialRelease() const { return fOfficialRelease; }
 
-    Bool_t isCleanState() { return fCleanState; }
+    inline Bool_t isCleanState() const { return fCleanState; }
 
     Int_t GetVersionCode();
     /// Returns a std::string with the path used for data storage
-    TString GetDataPath() {
+    inline TString GetDataPath() {
         std::string dataPath = GetParameter("mainDataPath", "");
-        if (dataPath == "") dataPath = "./";
+        if (dataPath == "") {
+            dataPath = "./";
+        }
         return dataPath;
     }
 
-    /// returns the verboselevel in type of REST_Verbose_Level enumerator
-    REST_Verbose_Level GetVerboseLevel() { return fVerboseLevel; }
+    /// returns the verbose level in type of REST_Verbose_Level enumerator
+    inline REST_Verbose_Level GetVerboseLevel() const { return fVerboseLevel; }
 
     /// returns the verbose level in type of TString
     TString GetVerboseLevelString();
 
     /// Gets a std::string with the path used for data storage
-    TString GetMainDataPath() { return GetDataPath(); }
+    inline TString GetMainDataPath() { return GetDataPath(); }
 
     std::string GetParameter(std::string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR);  // *MENU*
 
@@ -314,7 +312,7 @@ class TRestMetadata : public TNamed {
     /// set the section name, clear the section content
     void SetSectionName(std::string sName) { fSectionName = sName; }
     /// set config file path from external
-    void SetConfigFile(std::string cfgFileName) { fConfigFileName = cfgFileName; }
+    void SetConfigFile(std::string configFilename) { fConfigFileName = configFilename; }
     /// Set the host manager for this class.
     void SetHostmgr(TRestManager* m) { fHostmgr = m; }
     /// sets the verbose level
@@ -323,6 +321,10 @@ class TRestMetadata : public TNamed {
     virtual Int_t Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0);
 
     ~TRestMetadata();
+
+    // Making class constructors protected to keep this class abstract
+    TRestMetadata& operator=(const TRestMetadata&) = delete;
+    TRestMetadata(const TRestMetadata&) = delete;
 
     /// Call CINT to generate streamers for this class
     ClassDef(TRestMetadata, 9);

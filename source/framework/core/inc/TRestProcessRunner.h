@@ -36,11 +36,14 @@ class TRestProcessRunner : public TRestMetadata {
 
     // self variables for processing
     std::vector<TRestThread*> fThreads;  //!
-    TFile* fTempOutputDataFile;          //!
-    TTree* fEventTree;                   //!
-    TRestAnalysisTree* fAnalysisTree;    //!
-    ProcStatus fProcStatus;              //!
-    Int_t fNBranches;                    //!
+    TFile* fOutputDataFile;       //! the TFile pointer being used
+    TString fOutputDataFileName;  //! indicates the name of the first file created as output data file. The actual
+                                  //! output file maybe changed if tree is too large
+    TTree* fEventTree;            //!
+    TRestAnalysisTree* fAnalysisTree;  //!
+    ProcStatus fProcStatus;            //!
+    Int_t fNBranches;                  //!
+    Int_t fNFilesSplit;                //! Number of files being split.
 
     // metadata
     Bool_t fUseTestRun;
@@ -56,12 +59,18 @@ class TRestProcessRunner : public TRestMetadata {
     Int_t fFirstEntry;
     Int_t fEventsToProcess;
     Int_t fProcessedEvents;
+
+    Long64_t fFileSplitSize;  // in bytes
+    Int_t fFileCompression;   // 1~9
     std::map<std::string, std::string> fProcessInfo;
+
+    // bool fOutputItem[4] = {
+    //    false};  // the on/off status for item: inputAnalysis, inputEvent, outputEvent, outputAnalysis
 
    public:
     /// REST run class
-    void Initialize();
-    void InitFromConfigFile() {
+    void Initialize() override;
+    void InitFromConfigFile() override {
         BeginOfInit();
         if (fElement != nullptr) {
             TiXmlElement* e = fElement->FirstChildElement();
@@ -80,7 +89,7 @@ class TRestProcessRunner : public TRestMetadata {
     void BeginOfInit();
     Int_t ReadConfig(std::string keydeclare, TiXmlElement* e);
     void EndOfInit();
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     // core functionality
     void ReadProcInfo();
@@ -89,6 +98,8 @@ class TRestProcessRunner : public TRestMetadata {
     Int_t GetNextevtFunc(TRestEvent* targetevt, TRestAnalysisTree* targettree);
     void FillThreadEventFunc(TRestThread* t);
     void ConfigOutputFile();
+    void MergeOutputFile();
+    void WriteMetadata();
 
     // tools
     void ResetRunTimes();
@@ -100,22 +111,23 @@ class TRestProcessRunner : public TRestMetadata {
     TRestEvent* GetInputEvent();
     TRestAnalysisTree* GetInputAnalysisTree();
     TRestAnalysisTree* GetOutputAnalysisTree() { return fAnalysisTree; }
-    TFile* GetTempOutputDataFile() { return fTempOutputDataFile; }
+    TFile* GetOutputDataFile() { return fOutputDataFile; }
     std::string GetProcInfo(std::string infoname) {
         return fProcessInfo[infoname] == "" ? infoname : fProcessInfo[infoname];
     }
-    int GetNThreads() { return fThreadNumber; }
-    int GetNProcesses() { return fProcessNumber; }
-    int GetNProcessedEvents() { return fProcessedEvents; }
+    inline int GetNThreads() const { return fThreadNumber; }
+    inline int GetNProcesses() const { return fProcessNumber; }
+    inline int GetNProcessedEvents() const { return fProcessedEvents; }
     double GetReadingSpeed();
     bool UseTestRun() const { return fUseTestRun; }
-    ProcStatus GetStatus() { return fProcStatus; }
+    inline ProcStatus GetStatus() const { return fProcStatus; }
+    inline Long64_t GetFileSplitSize() const { return fFileSplitSize; }
 
     // Constructor & Destructor
     TRestProcessRunner();
     ~TRestProcessRunner();
 
-    ClassDef(TRestProcessRunner, 6);
+    ClassDefOverride(TRestProcessRunner, 7);
 };
 
 #endif

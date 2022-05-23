@@ -35,6 +35,7 @@ class TRestRun : public TRestMetadata {
     Double_t fStartTime;  ///< Event absolute starting time/date (unix timestamp)
     Double_t fEndTime;    ///< Event absolute ending time/date (unix timestamp)
     Int_t fEntriesSaved;
+    Int_t fNFilesSplit;  // Number of files being split. Used when retrieveing
 
     // data-like metadata objects
     std::vector<TRestMetadata*> fMetadata;       //!
@@ -58,14 +59,14 @@ class TRestRun : public TRestMetadata {
     bool fHangUpEndFile = false;           //!
     bool fFromRML = false;                 //!
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
    private:
     std::string ReplaceMetadataMember(const std::string& instr);
 
    public:
     /// REST run class
-    void Initialize();
+    void Initialize() override;
 
     // file operation
     void OpenInputFile(int i);
@@ -125,6 +126,10 @@ class TRestRun : public TRestMetadata {
     }
     void AddEventBranch(TRestEvent* eve);
     void SkipEventTree() {}
+
+    void cd() {
+        if (fInputFile != nullptr) fInputFile->cd();
+    }
 
     // Getters
     inline Int_t GetParentRunNumber() const { return fParentRunNumber; }
@@ -214,13 +219,14 @@ class TRestRun : public TRestMetadata {
     inline void SetEndTimeStamp(Double_t timestamp) { fEndTime = timestamp; }
     inline void SetTotalBytes(Long64_t totalBytes) { fTotalBytes = totalBytes; }
     inline void SetHistoricMetadataSaving(bool save) { fSaveHistoricData = save; }
+    inline void SetNFilesSplit(int n) { fNFilesSplit = n; }
     inline void HangUpEndFile() { fHangUpEndFile = true; }
     inline void ReleaseEndFile() { fHangUpEndFile = false; }
     // Printers
     void PrintStartDate();
     void PrintEndDate();
 
-    void PrintMetadata();
+    void PrintMetadata() override;
     inline void PrintAllMetadata() {
         PrintMetadata();
         for (unsigned int i = 0; i < fMetadata.size(); i++) fMetadata[i]->PrintMetadata();
@@ -245,14 +251,14 @@ class TRestRun : public TRestMetadata {
     void PrintErrors();
     void PrintWarnings();
 
-    Int_t Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0);
+    Int_t Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0) override;
 
     // Constructor & Destructor
     TRestRun();
     TRestRun(const std::string& filename);
     ~TRestRun();
 
-    ClassDef(TRestRun, 5);
+    ClassDefOverride(TRestRun, 6);
 };
 
 #endif

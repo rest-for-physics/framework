@@ -24,37 +24,34 @@
 class TRestBrowser {
    protected:
 #ifndef __CINT__
-    TGMainFrame* frmMain = 0;  //!
+    TGMainFrame* frmMain = nullptr;                 //!
+    TGVerticalFrame* fVFrame = nullptr;             //! < The main vertical frame for browser controlling
+    TGLabel* fEventRowLabel = nullptr;              //!
+    TGLabel* fEventIdLabel = nullptr;               //!
+    TGLabel* fEventSubIdLabel = nullptr;            //!
+    TGNumberEntry* fEventRowNumberBox = nullptr;    //! For row number.
+    TGNumberEntry* fEventIdNumberBox = nullptr;     //! For Event number.
+    TGNumberEntry* fEventSubIdNumberBox = nullptr;  //! For sub Event number.
 
-    // Frames and buttons
+    TGLabel* fEventTypeLabel = nullptr;        //!
+    TGComboBox* fEventTypeComboBox = nullptr;  //!
 
-    TGVerticalFrame* fVFrame = 0;             //! < The main vertical frame for browser controlling
-    TGLabel* fEventRowLabel = 0;              //!
-    TGLabel* fEventIdLabel = 0;               //!
-    TGLabel* fEventSubIdLabel = 0;            //!
-    TGNumberEntry* fEventRowNumberBox = 0;    //! For row number.
-    TGNumberEntry* fEventIdNumberBox = 0;     //! For Event number.
-    TGNumberEntry* fEventSubIdNumberBox = 0;  //! For sub Event number.
+    TGLabel* fPlotOptionLabel = nullptr;        //!
+    TGTextEntry* fPlotOptionTextBox = nullptr;  //! TextBox for plot options
+    TGTextButton* fButOptPrev = nullptr;        //! Previous plot option
+    TGTextButton* fButOptRefresh = nullptr;     //! Refresh plot
+    TGTextButton* fButOptNext = nullptr;        //! Next plot option
 
-    TGLabel* fEventTypeLabel = 0;        //!
-    TGComboBox* fEventTypeComboBox = 0;  //!
+    TGPictureButton* fMenuOpen = nullptr;  //! Open file button
+    TGTextButton* fExit = nullptr;         //! Exit button
 
-    TGLabel* fPlotOptionLabel = 0;        //!
-    TGTextEntry* fPlotOptionTextBox = 0;  //! TextBox for plot options
-    TGTextButton* fButOptPrev = 0;        //! Previous plot option
-    TGTextButton* fButOptRefresh = 0;     //! Refresh plot
-    TGTextButton* fButOptNext = 0;        //! Next plot option
+    TCanvas* fCanDefault = nullptr;  //!
+    Int_t fEventRow = 0;             //!
+    Int_t fEventId = 0;              //!
+    Int_t fEventSubId = 0;           //!
 
-    TGPictureButton* fMenuOpen = 0;  //! Open file button
-    TGTextButton* fExit = 0;         //! Exit button
-
-    TCanvas* fCanDefault = 0;  //!
-    Int_t fEventRow = 0;       //!
-    Int_t fEventId = 0;        //!
-    Int_t fEventSubId = 0;     //!
-
-    TBrowser* b = 0;  //!
-    TRestRun* r = 0;  //!
+    TBrowser* b = nullptr;  //!
+    TRestRun* r = nullptr;  //!
 #endif
 
    private:
@@ -62,7 +59,7 @@ class TRestBrowser {
     Bool_t pureAnalysis;
     TString fInputFileName;
 
-    TRestEventViewer* fEventViewer = 0;  //!
+    TRestEventViewer* fEventViewer = nullptr;  //!
 
     void SetViewer(TRestEventViewer* eV);
     void SetViewer(TString viewerName);
@@ -79,10 +76,10 @@ class TRestBrowser {
 
     // setters
     void SetInputEvent(TRestEvent*);
-    void SetWindowName(TString wName) { frmMain->SetWindowName(wName.Data()); }
+    inline void SetWindowName(const TString& windowName) { frmMain->SetWindowName(windowName.Data()); }
 
     // getters
-    TRestEventViewer* GetViewer() { return fEventViewer; }
+    inline TRestEventViewer* GetViewer() const { return fEventViewer; }
 
     // actions
     void LoadFileAction();

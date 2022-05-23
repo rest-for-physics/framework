@@ -47,27 +47,28 @@ class TRestBenchMarkProcess : public TRestEventProcess {
     static int fLastEventNumber;         //!
     static ULong64_t fStartTime;         //!
 
-    void Initialize();
+    void Initialize() override;
 
-    void SysMonitorFunc(int pid, double refreshrate = 1);
+    void SysMonitorFunc(int pid, double refreshRate = 1);
 
    protected:
    public:
-    any GetInputEvent() { return fEvent; }
-    any GetOutputEvent() { return fEvent; }
+    any GetInputEvent() const override { return fEvent; }
+    any GetOutputEvent() const override { return fEvent; }
 
-    void InitProcess();
-    TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndProcess();
+    void InitProcess() override;
+    TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
+    void EndProcess() override;
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     // Constructor
     TRestBenchMarkProcess();
     // Destructor
     ~TRestBenchMarkProcess() {}
 
-    ClassDef(TRestBenchMarkProcess, 1);  // Template for a REST "event process" class inherited from
-                                         // TRestEventProcess
+    const char* GetProcessName() const override { return "BenchMarkProcess"; }
+
+    ClassDefOverride(TRestBenchMarkProcess, 1);
 };
 #endif
