@@ -24,7 +24,7 @@
 #include <string>
 
 #ifdef REST_UnitsAdd_Caller
-#define AddUnit(name, type, scale) constexpr double name = _AddUnit(#name, type, scale)
+#define AddUnit(name, type, scale) double name = _AddUnit(#name, type, scale)
 #else
 #define AddUnit(name, type, scale) constexpr double name = scale
 #endif
@@ -33,17 +33,7 @@
 namespace REST_Units {
 
 // We use more common physics units instead of SI unit
-enum Physical_Unit {
-    Energy,
-    Time,
-    Length,
-    Mass,
-    ElectricField,
-    MagneticField,
-    Pressure,
-    Angle,
-    NOT_A_UNIT = -1
-};
+enum Physical_Unit { Energy, Time, Length, Mass, Voltage, MagneticField, Pressure, Angle, NOT_A_UNIT = -1 };
 
 class TRestSystemOfUnits {
    private:
@@ -121,7 +111,7 @@ AddUnit(day, REST_Units::Time, 1.16e-11);
 AddUnit(mon, REST_Units::Time, 3.85e-13);
 AddUnit(yr, REST_Units::Time, 3.17e-14);
 
-// distance unit multiplier
+// length unit multiplier
 AddUnit(um, REST_Units::Length, 1e3);
 AddUnit(mm, REST_Units::Length, 1.);
 AddUnit(cm, REST_Units::Length, 1e-1);
@@ -134,10 +124,10 @@ AddUnit(g, REST_Units::Mass, 1e3);
 AddUnit(kg, REST_Units::Mass, 1.);
 AddUnit(ton, REST_Units::Mass, 1e-3);
 
-// e-potential unit multiplier
-AddUnit(mV, REST_Units::ElectricField, 1.e3);
-AddUnit(V, REST_Units::ElectricField, 1.);
-AddUnit(kV, REST_Units::ElectricField, 1.e-3);
+// voltage unit multiplier
+AddUnit(mV, REST_Units::Voltage, 1.e3);
+AddUnit(V, REST_Units::Voltage, 1.);
+AddUnit(kV, REST_Units::Voltage, 1.e-3);
 
 // magnetic field unit multiplier
 AddUnit(mT, REST_Units::MagneticField, 1.e3);
@@ -154,7 +144,7 @@ AddUnit(kPa, REST_Units::Pressure, 101.325);
 AddUnit(Pa, REST_Units::Pressure, 101325);
 AddUnit(mPa, REST_Units::Pressure, 10132500);
 
-// angle field unit multiplier
+// angle unit multiplier
 AddUnit(rad, REST_Units::Angle, 1.);
 AddUnit(radian, REST_Units::Angle, 1.);
 AddUnit(radians, REST_Units::Angle, 1.);
