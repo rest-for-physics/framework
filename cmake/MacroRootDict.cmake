@@ -521,8 +521,8 @@ MACRO(COMPILELIB dependency)
     set(library_added ${library_added} PARENT_SCOPE)
 
     # define REST_*Lib e.g. REST_DetectorLib using library name: RestDetector -> REST_DetectorLib
-    string(REGEX REPLACE "^Rest(.+)$" "REST_\\1Lib" DEFINE_VARIABLE_NAME ${libname})
-    message(STATUS "Adding compile definition: ${DEFINE_VARIABLE_NAME}")
-    add_compile_definitions(${DEFINE_VARIABLE_NAME})
+	# string(REGEX REPLACE "^Rest(.+)$" "REST_\\1Lib" DEFINE_VARIABLE_NAME ${libname})
+	# message(STATUS "Adding compile definition: ${DEFINE_VARIABLE_NAME}")
+	# add_compile_definitions(${DEFINE_VARIABLE_NAME})
 
 ENDMACRO()
