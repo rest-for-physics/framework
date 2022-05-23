@@ -158,9 +158,9 @@ AddUnit(mPa, REST_Units::Pressure, 10132500);
 AddUnit(rad, REST_Units::Angle, 1.);
 AddUnit(radian, REST_Units::Angle, 1.);
 AddUnit(radians, REST_Units::Angle, 1.);
-AddUnit(deg, REST_Units::Angle, TMath::DegToRad());
-AddUnit(degree, REST_Units::Angle, TMath::DegToRad());
-AddUnit(degrees, REST_Units::Angle, TMath::DegToRad());
+AddUnit(deg, REST_Units::Angle, TMath::RadToDeg());
+AddUnit(degree, REST_Units::Angle, TMath::RadToDeg());
+AddUnit(degrees, REST_Units::Angle, TMath::RadToDeg());
 }  // namespace REST_Units
 
 typedef REST_Units::TRestSystemOfUnits units;
