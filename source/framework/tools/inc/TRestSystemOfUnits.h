@@ -33,7 +33,17 @@
 namespace REST_Units {
 
 // We use more common physics units instead of SI unit
-enum Physical_Unit { Energy, Time, Length, Mass, Electric, Magnetic, Pressure, Angle, NOT_A_UNIT = -1 };
+enum Physical_Unit {
+    Energy,
+    Time,
+    Length,
+    Mass,
+    ElectricField,
+    MagneticField,
+    Pressure,
+    Angle,
+    NOT_A_UNIT = -1
+};
 
 class TRestSystemOfUnits {
    private:
@@ -125,14 +135,14 @@ AddUnit(kg, REST_Units::Mass, 1.);
 AddUnit(ton, REST_Units::Mass, 1e-3);
 
 // e-potential unit multiplier
-AddUnit(mV, REST_Units::Electric, 1.e3);
-AddUnit(V, REST_Units::Electric, 1.);
-AddUnit(kV, REST_Units::Electric, 1.e-3);
+AddUnit(mV, REST_Units::ElectricField, 1.e3);
+AddUnit(V, REST_Units::ElectricField, 1.);
+AddUnit(kV, REST_Units::ElectricField, 1.e-3);
 
 // magnetic field unit multiplier
-AddUnit(mT, REST_Units::Magnetic, 1.e3);
-AddUnit(T, REST_Units::Magnetic, 1.);
-AddUnit(G, REST_Units::Magnetic, 1.e4);
+AddUnit(mT, REST_Units::MagneticField, 1.e3);
+AddUnit(T, REST_Units::MagneticField, 1.);
+AddUnit(G, REST_Units::MagneticField, 1.e4);
 
 // pressure field unit multiplier
 AddUnit(bar, REST_Units::Pressure, 1.);
