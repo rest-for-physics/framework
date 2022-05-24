@@ -30,7 +30,7 @@ void TRestBenchMarkProcess::Initialize() {
 #else
     fCPUNumber = 0;
     fMemNumber = 0;
-    RESTFerr << "TRestBenchMarkProcess is not available yet on MACOS!!" << RESTendl;
+    RESTError << "TRestBenchMarkProcess is not available yet on MACOS!!" << RESTendl;
 #endif
     fPid = getpid();
     fRefreshRate = 10;
@@ -55,7 +55,7 @@ void TRestBenchMarkProcess::SysMonitorFunc(int pid, double refreshRate) {
 
 void TRestBenchMarkProcess::InitProcess() {
     if (fHostmgr == nullptr || fHostmgr->GetProcessRunner() == nullptr) {
-        RESTFerr << "TRestBenchMarkProcess: the process is not hosted by TRestProcessRunner!" << RESTendl;
+        RESTError << "TRestBenchMarkProcess: the process is not hosted by TRestProcessRunner!" << RESTendl;
         exit(1);
     }
 

@@ -80,9 +80,9 @@ Int_t TRestThread::ValidateChain(TRestEvent* input) {
                    inEvent.cl->InheritsFrom("TRestEvent")) {
             processes.push_back(fProcessChain[i]);
         } else {
-            RESTFerr << "Process: " << fProcessChain[i]->ClassName()
-                     << " not properly written, the input/output event is illegal!" << RESTendl;
-            RESTFerr << "Hint: they must be inherited from TRestEvent" << RESTendl;
+            RESTError << "Process: " << fProcessChain[i]->ClassName()
+                      << " not properly written, the input/output event is illegal!" << RESTendl;
+            RESTError << "Hint: they must be inherited from TRestEvent" << RESTendl;
             abort();
         }
     }
@@ -91,7 +91,7 @@ Int_t TRestThread::ValidateChain(TRestEvent* input) {
         // verify that the input event of first process is OK
         if (input != nullptr) {
             if ((string)input->ClassName() != processes[0]->GetInputEvent().type) {
-                RESTFerr << "(ValidateChain): Input event type does not match!" << RESTendl;
+                RESTError << "(ValidateChain): Input event type does not match!" << RESTendl;
                 cout << "Input type of the first non-external process in chain: "
                      << processes[0]->GetInputEvent().type << endl;
                 cout << "The event type from file: " << input->ClassName() << endl;
@@ -107,13 +107,13 @@ Int_t TRestThread::ValidateChain(TRestEvent* input) {
             string nextinEventType = processes[i + 1]->GetInputEvent().type;
             if (outEventType != nextinEventType && outEventType != "TRestEvent" &&
                 nextinEventType != "TRestEvent") {
-                RESTFerr << "(ValidateChain): Event process input/output does not match" << RESTendl;
-                RESTFerr << "The event output for process " << processes[i]->GetName() << " is "
-                         << outEventType << RESTendl;
-                RESTFerr << "The event input for process " << processes[i + 1]->GetName() << " is "
-                         << nextinEventType << RESTendl;
-                RESTFerr << "No events will be processed. Please correctly connect the process chain!"
-                         << RESTendl;
+                RESTError << "(ValidateChain): Event process input/output does not match" << RESTendl;
+                RESTError << "The event output for process " << processes[i]->GetName() << " is "
+                          << outEventType << RESTendl;
+                RESTError << "The event input for process " << processes[i + 1]->GetName() << " is "
+                          << nextinEventType << RESTendl;
+                RESTError << "No events will be processed. Please correctly connect the process chain!"
+                          << RESTendl;
                 GetChar();
                 return -1;
             }
@@ -253,9 +253,10 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
 
         RESTDebug << "TRestThread: Finding first input event of process chain..." << RESTendl;
         if (fHostRunner->GetInputEvent() == nullptr) {
-            RESTFerr << "Input event is not initialized from TRestRun! Please check your input file and file "
-                        "reading process!"
-                     << RESTendl;
+            RESTError
+                << "Input event is not initialized from TRestRun! Please check your input file and file "
+                   "reading process!"
+                << RESTendl;
             exit(1);
         }
         fInputEvent = (TRestEvent*)fHostRunner->GetInputEvent()->Clone();
@@ -270,8 +271,8 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
 
         RESTDebug << "TRestThread: Reading input event and input observable..." << RESTendl;
         if (fHostRunner->GetNextevtFunc(fInputEvent, fAnalysisTree) != 0) {
-            RESTFerr << "In thread " << fThreadId << ")::Failed to read input event, process cannot start!"
-                     << RESTendl;
+            RESTError << "In thread " << fThreadId << ")::Failed to read input event, process cannot start!"
+                      << RESTendl;
             exit(1);
         }
 
@@ -289,12 +290,12 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
         if (fHostRunner->UseTestRun()) {
             RESTDebug << "Test Run..." << RESTendl;
             if (!TestRun()) {
-                RESTFerr << "In thread " << fThreadId << ")::test run failed!" << RESTendl;
-                RESTFerr << "One of the processes has NULL pointer fOutputEvent!" << RESTendl;
+                RESTError << "In thread " << fThreadId << ")::test run failed!" << RESTendl;
+                RESTError << "One of the processes has NULL pointer fOutputEvent!" << RESTendl;
                 if (fVerboseLevel < TRestStringOutput::REST_Verbose_Level::REST_Debug)
-                    RESTFerr << "To see more detail, turn on debug mode for "
-                                "TRestProcessRunner!"
-                             << RESTendl;
+                    RESTError << "To see more detail, turn on debug mode for "
+                                 "TRestProcessRunner!"
+                              << RESTendl;
                 exit(1);
             }
             RESTDebug << "Test Run complete!" << RESTendl;
@@ -592,8 +593,8 @@ void TRestThread::EndProcess() {
                     << " process warnings were found! Use run0->PrintWarnings(); to get additional info."
                     << RESTendl;
     if (nErrors)
-        RESTFerr << nErrors << " process errors were found! Use run0->PrintErrors(); to get additional info."
-                 << RESTendl;
+        RESTError << nErrors << " process errors were found! Use run0->PrintErrors(); to get additional info."
+                  << RESTendl;
 
     delete fAnalysisTree;
 }

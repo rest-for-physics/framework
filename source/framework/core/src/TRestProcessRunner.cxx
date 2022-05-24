@@ -108,14 +108,14 @@ void TRestProcessRunner::BeginOfInit() {
     if (fHostmgr != nullptr) {
         fRunInfo = fHostmgr->GetRunInfo();
         if (fRunInfo == nullptr) {
-            RESTFerr << "File IO has not been specified, " << RESTendl;
-            RESTFerr << "please make sure the \"TRestFiles\" section is ahead of the "
-                        "\"TRestProcessRunner\" section"
-                     << RESTendl;
+            RESTError << "File IO has not been specified, " << RESTendl;
+            RESTError << "please make sure the \"TRestFiles\" section is ahead of the "
+                         "\"TRestProcessRunner\" section"
+                      << RESTendl;
             exit(0);
         }
     } else {
-        RESTFerr << "manager not initialized!" << RESTendl;
+        RESTError << "manager not initialized!" << RESTendl;
         exit(0);
     }
 
@@ -125,8 +125,8 @@ void TRestProcessRunner::BeginOfInit() {
     // I believe it is risky to exit() at TRestThread without closing threads.
     // It is a guess (J.G.)
     if (!fRunInfo->GetFileProcess() && fRunInfo->GetEntries() == 0) {
-        RESTFerr << "TRestProcessRunner::BeginOfInit. The input file is a valid REST file but entries are 0!"
-                 << RESTendl;
+        RESTError << "TRestProcessRunner::BeginOfInit. The input file is a valid REST file but entries are 0!"
+                  << RESTendl;
         exit(1);
     }
 
@@ -164,7 +164,7 @@ void TRestProcessRunner::BeginOfInit() {
     if (!fUsePauseMenu || fVerboseLevel >= TRestStringOutput::REST_Verbose_Level::REST_Debug)
         fProcStatus = kIgnore;
     if (fOutputAnalysisStorage == false) {
-        RESTFerr << "output analysis must be turned on to process data!" << RESTendl;
+        RESTError << "output analysis must be turned on to process data!" << RESTendl;
         exit(1);
     }
     // fValidateObservables = StringToBool(GetParameter("validateObservables", "OFF"));
@@ -283,7 +283,7 @@ void TRestProcessRunner::EndOfInit() {
         fInputEvent = fRunInfo->GetInputEvent();
     }
     if (fInputEvent == nullptr) {
-        RESTFerr << "Cannot determine input event, validating process chain failed!" << RESTendl;
+        RESTError << "Cannot determine input event, validating process chain failed!" << RESTendl;
         exit(1);
     }
 
@@ -337,7 +337,7 @@ void TRestProcessRunner::RunProcess() {
     // we must set in each threadCompression
     // fOutputDataFile->SetCompressionLevel(fFile);
     if (!fOutputDataFile->IsOpen()) {
-        RESTFerr << "Failed to create output file: " << fOutputDataFile->GetName() << RESTendl;
+        RESTError << "Failed to create output file: " << fOutputDataFile->GetName() << RESTendl;
         exit(1);
     }
     RESTInfo << RESTendl;
@@ -398,7 +398,7 @@ void TRestProcessRunner::RunProcess() {
     if (tree != nullptr) {
         fNBranches = tree->GetNbranches();
     } else {
-        RESTFerr << "Threads are not initialized! No AnalysisTree!" << RESTendl;
+        RESTError << "Threads are not initialized! No AnalysisTree!" << RESTendl;
         exit(1);
     }
 
@@ -915,7 +915,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
                 delete fOutputDataFile;
                 fOutputDataFile = newfile;
             } else {
-                RESTFerr << "internal error!" << RESTendl;
+                RESTError << "internal error!" << RESTendl;
             }
         }
 

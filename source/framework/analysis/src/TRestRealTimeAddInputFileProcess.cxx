@@ -89,7 +89,7 @@ void TRestRealTimeAddInputFileProcess::InitProcess() {
     fMessenger = GetMetadata<TRestMessenger>();
 
     if (fMessenger == nullptr) {
-        RESTFerr << "messenger not found!" << RESTendl;
+        RESTError << "messenger not found!" << RESTendl;
         exit(1);
     }
 

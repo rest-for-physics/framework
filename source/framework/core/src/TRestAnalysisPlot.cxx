@@ -232,8 +232,9 @@ void TRestAnalysisPlot::InitFromConfigFile() {
         if (ToUpper(active) == "ON") {
             int N = fPlots.size();
             if (N >= maxPlots) {
-                RESTFerr << "Your canvas divisions (" << fCanvasDivisions.X() << " , " << fCanvasDivisions.Y()
-                         << ") are not enough to show " << N + 1 << " plots" << RESTendl;
+                RESTError << "Your canvas divisions (" << fCanvasDivisions.X() << " , "
+                          << fCanvasDivisions.Y() << ") are not enough to show " << N + 1 << " plots"
+                          << RESTendl;
                 exit(1);
             }
             Plot_Info_Set plot;
@@ -309,9 +310,9 @@ void TRestAnalysisPlot::InitFromConfigFile() {
         if (ToUpper(active) == "ON") {
             int N = fPanels.size();
             if (N >= maxPlots) {
-                RESTFerr << "Your canvas divisions (" << fCanvasDivisions.X() << " , " << fCanvasDivisions.Y()
-                         << ") are not enough to show " << fPlots.size() << " plots, and " << N + 1
-                         << " info panels" << RESTendl;
+                RESTError << "Your canvas divisions (" << fCanvasDivisions.X() << " , "
+                          << fCanvasDivisions.Y() << ") are not enough to show " << fPlots.size()
+                          << " plots, and " << N + 1 << " info panels" << RESTendl;
                 exit(1);
             }
 
@@ -351,10 +352,10 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
 
     for (int n = 0; n < fPlotNamesCheck.size(); n++)
         if (hist.name == fPlotNamesCheck[n]) {
-            RESTFerr
+            RESTError
                 << "Repeated plot/histo names were found! Please, use different names for different plots!"
                 << RESTendl;
-            RESTFerr << "<plot/histo name=\"" << hist.name << "\" already defined!" << RESTendl;
+            RESTError << "<plot/histo name=\"" << hist.name << "\" already defined!" << RESTendl;
             exit(1);
         }
 
@@ -429,16 +430,16 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
         if (ToUpper(cutActive) == "ON") {
             string cutVariable = GetParameter("variable", cutele);
             if (cutVariable == PARAMETER_NOT_FOUND_STR) {
-                RESTFerr << "Variable was not found! There is a problem inside <cut definition. Check it."
-                         << RESTendl;
+                RESTError << "Variable was not found! There is a problem inside <cut definition. Check it."
+                          << RESTendl;
                 cout << "Contents of entire <histo definition : " << ElementToString(histele) << endl;
                 cout << endl;
             }
 
             string cutCondition = GetParameter("condition", cutele);
             if (cutCondition == PARAMETER_NOT_FOUND_STR) {
-                RESTFerr << "Condition was not found! There is a problem inside <cut definition. Check it."
-                         << RESTendl;
+                RESTError << "Condition was not found! There is a problem inside <cut definition. Check it."
+                          << RESTendl;
                 cout << "Contents of entire <histo definition : " << ElementToString(histele) << endl;
                 cout << endl;
             }
@@ -463,7 +464,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
         if (ToUpper(cutActive) == "ON") {
             string cutStr = GetParameter("string", cutstrele);
             if (cutStr == PARAMETER_NOT_FOUND_STR) {
-                RESTFerr
+                RESTError
                     << "Cut string was not found! There is a problem inside <cutString definition. Check it."
                     << RESTendl;
                 cout << "Contents of entire <histo definition : " << ElementToString(histele) << endl;
@@ -763,15 +764,15 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                     RESTInfo << "File: " << fRunInputFileName[j] << ": No entries are drawn" << RESTendl;
                     RESTInfo << "AnalysisTree is empty? cut is too hard?" << RESTendl;
                 } else if (outVal == -1) {
-                    RESTFerr << RESTendl;
-                    RESTFerr
+                    RESTError << RESTendl;
+                    RESTError
                         << "TRestAnalysisPlot::PlotCombinedCanvas. Plot string not properly constructed. "
                            "Does the analysis observable exist inside the file?"
                         << RESTendl;
-                    RESTFerr << "Use \" restManager PrintTrees FILE.ROOT\" to get a list of "
-                                "existing observables."
-                             << RESTendl;
-                    RESTFerr << RESTendl;
+                    RESTError << "Use \" restManager PrintTrees FILE.ROOT\" to get a list of "
+                                 "existing observables."
+                              << RESTendl;
+                    RESTError << RESTendl;
                     exit(1);
                 }
 

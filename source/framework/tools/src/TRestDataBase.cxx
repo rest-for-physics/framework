@@ -108,7 +108,7 @@ DBFile DBFile::ParseFile(string _filename) {
     int result = stat(_fullname.c_str(), &buf);
 
     if (result != 0) {
-        RESTFerr << "DBFile::ParseFile: Failed to load file \"" << _fullname << "\"!" << RESTendl;
+        RESTError << "DBFile::ParseFile: Failed to load file \"" << _fullname << "\"!" << RESTendl;
     } else {
         file.fileSize = buf.st_size;
         file.evtRate = 0;

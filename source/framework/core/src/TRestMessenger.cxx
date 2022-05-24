@@ -215,7 +215,7 @@ bool TRestMessenger::unlock(messagepool_t* pool, int timeoutMs) {
         usleep(1000);
         i++;
         if (i >= timeoutMs) {
-            RESTFerr << "unlocking pool failed!" << RESTendl;
+            RESTError << "unlocking pool failed!" << RESTendl;
             abort();
         }
     }

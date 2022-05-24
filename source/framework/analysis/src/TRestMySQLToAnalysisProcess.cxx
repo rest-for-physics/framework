@@ -207,21 +207,22 @@ void TRestMySQLToAnalysisProcess::InitFromConfigFile() {
 
     fDBServerName = GetParameter("server", "");
     if (fDBServerName == "")
-        RESTFerr << "TRestMySQLToAnalysisProcess. Database server name not found!" << RESTendl;
+        RESTError << "TRestMySQLToAnalysisProcess. Database server name not found!" << RESTendl;
 
     fDBName = GetParameter("database", "");
-    if (fDBName == "") RESTFerr << "TRestMySQLToAnalysisProcess. Database not found!" << RESTendl;
+    if (fDBName == "") RESTError << "TRestMySQLToAnalysisProcess. Database not found!" << RESTendl;
 
     fDBUserName = GetParameter("user", "");
     if (fDBUserName == "")
-        RESTFerr << "TRestMySQLToAnalysisProcess. Database user name not found!" << RESTendl;
+        RESTError << "TRestMySQLToAnalysisProcess. Database user name not found!" << RESTendl;
 
     fDBUserPass = GetParameter("password", "");
     if (fDBUserPass == "")
-        RESTFerr << "TRestMySQLToAnalysisProcess. Database user password not found!" << RESTendl;
+        RESTError << "TRestMySQLToAnalysisProcess. Database user password not found!" << RESTendl;
 
     fDBTable = GetParameter("table", "");
-    if (fDBTable == "") RESTFerr << "TRestMySQLToAnalysisProcess. Database table name not found!" << RESTendl;
+    if (fDBTable == "")
+        RESTError << "TRestMySQLToAnalysisProcess. Database table name not found!" << RESTendl;
 
     string definition;
     while ((definition = GetKEYDefinition("dbEntry", pos)) != "") {
@@ -271,32 +272,32 @@ void TRestMySQLToAnalysisProcess::FillDBArrays() {
 #if defined USE_SQL
     MYSQL* conn = mysql_init(nullptr);
     if (conn == nullptr) {
-        RESTFerr << "TRestMySQLToAnalysisProcess::InitProcess. mysql_init() failed" << RESTendl;
+        RESTError << "TRestMySQLToAnalysisProcess::InitProcess. mysql_init() failed" << RESTendl;
         exit(1);
     }
 
     if (!mysql_real_connect(conn, fDBServerName.c_str(), fDBUserName.c_str(), fDBUserPass.c_str(),
                             fDBName.c_str(), 0, nullptr, 0)) {
-        RESTFerr << "TRestMySQLToAnalysisProcess::InitProcess. Connection to DB failed!" << RESTendl;
-        RESTFerr << mysql_error(conn) << RESTendl;
+        RESTError << "TRestMySQLToAnalysisProcess::InitProcess. Connection to DB failed!" << RESTendl;
+        RESTError << mysql_error(conn) << RESTendl;
         exit(1);
     }
 
     string sqlQuery = BuildQueryString();
     RESTDebug << sqlQuery << RESTendl;
     if (mysql_query(conn, sqlQuery.c_str())) {
-        RESTFerr << "Error making query to SQL database" << RESTendl;
-        RESTFerr << mysql_error(conn) << RESTendl;
-        RESTFerr << "Query string : " << sqlQuery << RESTendl;
+        RESTError << "Error making query to SQL database" << RESTendl;
+        RESTError << mysql_error(conn) << RESTendl;
+        RESTError << "Query string : " << sqlQuery << RESTendl;
         exit(1);
     }
 
     MYSQL_RES* result = mysql_store_result(conn);
 
     if (result == nullptr) {
-        RESTFerr << "Error getting result from SQL query" << RESTendl;
-        RESTFerr << mysql_error(conn) << RESTendl;
-        RESTFerr << "Query string : " << sqlQuery << RESTendl;
+        RESTError << "Error getting result from SQL query" << RESTendl;
+        RESTError << mysql_error(conn) << RESTendl;
+        RESTError << "Query string : " << sqlQuery << RESTendl;
         exit(1);
     }
 
@@ -307,8 +308,8 @@ void TRestMySQLToAnalysisProcess::FillDBArrays() {
     fSampling = (fEndTimestamp - fStartTimestamp) / num_rows / 2;
 
     if (num_rows < 3) {
-        RESTFerr << "Not enough data found on the event data range" << RESTendl;
-        RESTFerr
+        RESTError << "Not enough data found on the event data range" << RESTendl;
+        RESTError
             << "If no database entries exist remove TRestMySQLToAnalysisProcess from your processing chain"
             << RESTendl;
         // We take the decision to stop processing to make sure we are aware of the problem.

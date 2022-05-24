@@ -142,7 +142,7 @@ template <typename T>
 int TRestTools::ExportASCIITable(std::string fname, std::vector<std::vector<T>>& data) {
     ofstream file(fname);
     if (!file.is_open()) {
-        RESTFerr << "Unable to open file for writing : " << fname << RESTendl;
+        RESTError << "Unable to open file for writing : " << fname << RESTendl;
         return 1;
     }
 
@@ -171,7 +171,7 @@ template <typename T>
 int TRestTools::ExportBinaryTable(std::string fname, std::vector<std::vector<T>>& data) {
     ofstream file(fname, ios::out | ios::binary);
     if (!file.is_open()) {
-        RESTFerr << "Unable to open file for writing : " << fname << RESTendl;
+        RESTError << "Unable to open file for writing : " << fname << RESTendl;
         return 1;
     }
 
@@ -209,16 +209,16 @@ template int TRestTools::ExportBinaryTable<Double_t>(std::string fname,
 template <typename T>
 int TRestTools::ReadBinaryTable(string fName, std::vector<std::vector<T>>& data, Int_t columns) {
     if (!TRestTools::isValidFile((string)fName)) {
-        RESTFerr << "TRestTools::ReadBinaryTable. Error." << RESTendl;
-        RESTFerr << "Cannot open file : " << fName << RESTendl;
+        RESTError << "TRestTools::ReadBinaryTable. Error." << RESTendl;
+        RESTError << "Cannot open file : " << fName << RESTendl;
         return 0;
     }
 
     if (columns == -1) {
         columns = GetBinaryFileColumns(fName);
         if (columns == -1) {
-            RESTFerr << "TRestTools::ReadBinaryTable. Format extension error." << RESTendl;
-            RESTFerr << "Please, specify the number of columns at the method 3rd argument" << RESTendl;
+            RESTError << "TRestTools::ReadBinaryTable. Format extension error." << RESTendl;
+            RESTError << "Please, specify the number of columns at the method 3rd argument" << RESTendl;
             return 0;
         }
     }
@@ -290,7 +290,7 @@ int TRestTools::GetBinaryFileColumns(string fname) {
         return StringToInteger(extension.substr(1, pos - 1));
     }
 
-    RESTFerr << "Format " << ToUpper(extension) << " not recognized" << RESTendl;
+    RESTError << "Format " << ToUpper(extension) << " not recognized" << RESTendl;
     return -1;
 }
 
@@ -995,13 +995,13 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
             rename(localFiletmp.c_str(), localFile.c_str());
             return 0;
         } else {
-            RESTFerr << "download failed! (" << remoteFile << ")" << RESTendl;
+            RESTError << "download failed! (" << remoteFile << ")" << RESTendl;
             if (a == 1024) {
-                RESTFerr << "Network connection problem?" << RESTendl;
+                RESTError << "Network connection problem?" << RESTendl;
                 return 1024;
             }
             if (a == 2048) {
-                RESTFerr << "File does NOT exist in remotely?" << RESTendl;
+                RESTError << "File does NOT exist in remotely?" << RESTendl;
                 return 2048;
             }
         }
@@ -1015,7 +1015,7 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
             return 0;
         }
     } else {
-        RESTFerr << "unknown protocol!" << RESTendl;
+        RESTError << "unknown protocol!" << RESTendl;
     }
 
     return -1;
@@ -1060,7 +1060,7 @@ std::string TRestTools::POSTRequest(const std::string& url, const std::map<std::
         res = curl_easy_perform(curl);
         /* Check for errors */
         if (res != CURLE_OK)
-            RESTFerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << RESTendl;
+            RESTError << "curl_easy_perform() failed: " << curl_easy_strerror(res) << RESTendl;
 
         /* always cleanup */
         curl_easy_cleanup(curl);
@@ -1070,11 +1070,11 @@ std::string TRestTools::POSTRequest(const std::string& url, const std::map<std::
 
     std::getline(std::ifstream(filename), file_content, '\0');
 #else
-    RESTFerr << "TRestTools::POSTRequest. REST framework was compiled without CURL support" << RESTendl;
-    RESTFerr << "Please recompile REST after installing curl development libraries." << RESTendl;
-    RESTFerr << "Depending on your system this might be: curl-dev, curl-devel or libcurl-openssl-dev. "
-             << RESTendl;
-    RESTFerr << "No file will be downloaded" << RESTendl;
+    RESTError << "TRestTools::POSTRequest. REST framework was compiled without CURL support" << RESTendl;
+    RESTError << "Please recompile REST after installing curl development libraries." << RESTendl;
+    RESTError << "Depending on your system this might be: curl-dev, curl-devel or libcurl-openssl-dev. "
+              << RESTendl;
+    RESTError << "No file will be downloaded" << RESTendl;
 #endif
 
     return file_content;
@@ -1111,11 +1111,11 @@ int TRestTools::UploadToServer(string localFile, string remoteFile, string metho
         int a = system(cmd.c_str());
 
         if (a != 0) {
-            RESTFerr << __PRETTY_FUNCTION__ << RESTendl;
-            RESTFerr << "problem copying gases definitions to remote server" << RESTendl;
-            RESTFerr << "Please report this problem at "
-                        "http://gifna.unizar.es/rest-forum/"
-                     << RESTendl;
+            RESTError << __PRETTY_FUNCTION__ << RESTendl;
+            RESTError << "problem copying gases definitions to remote server" << RESTendl;
+            RESTError << "Please report this problem at "
+                         "http://gifna.unizar.es/rest-forum/"
+                      << RESTendl;
             return -1;
         }
 

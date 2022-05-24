@@ -401,8 +401,9 @@ void TRestMetadataPlot::InitFromConfigFile() {
         if (ToUpper(active) == "ON") {
             int N = fPlots.size();
             if (N >= maxPlots) {
-                RESTFerr << "Your canvas divisions (" << fCanvasDivisions.X() << " , " << fCanvasDivisions.Y()
-                         << ") are not enough to show " << N + 1 << " plots" << RESTendl;
+                RESTError << "Your canvas divisions (" << fCanvasDivisions.X() << " , "
+                          << fCanvasDivisions.Y() << ") are not enough to show " << N + 1 << " plots"
+                          << RESTendl;
                 exit(1);
             }
 
@@ -467,9 +468,9 @@ void TRestMetadataPlot::InitFromConfigFile() {
         if (ToUpper(active) == "ON") {
             int N = fPanels.size();
             if (N >= maxPlots) {
-                RESTFerr << "Your canvas divisions (" << fCanvasDivisions.X() << " , " << fCanvasDivisions.Y()
-                         << ") are not enough to show " << fPlots.size() << " plots, and " << N + 1
-                         << " info panels" << RESTendl;
+                RESTError << "Your canvas divisions (" << fCanvasDivisions.X() << " , "
+                          << fCanvasDivisions.Y() << ") are not enough to show " << fPlots.size()
+                          << " plots, and " << N + 1 << " info panels" << RESTendl;
                 exit(1);
             }
 
@@ -515,15 +516,15 @@ TRestMetadataPlot::Graph_Info_Set TRestMetadataPlot::SetupGraphFromConfigFile(Ti
 
     for (int n = 0; n < fPlotNamesCheck.size(); n++)
         if (graph.name == fPlotNamesCheck[n]) {
-            RESTFerr
+            RESTError
                 << "Repeated plot/graph names were found! Please, use different names for different plots!"
                 << RESTendl;
-            RESTFerr << "<plot/graph name=\"" << graph.name << "\" already defined!" << RESTendl;
+            RESTError << "<plot/graph name=\"" << graph.name << "\" already defined!" << RESTendl;
             exit(1);
         }
 
     if (graph.yVariable == "") {
-        RESTFerr << "Problem reading yVariable from graph with name : " << graph.name << RESTendl;
+        RESTError << "Problem reading yVariable from graph with name : " << graph.name << RESTendl;
         exit(2);
     }
 
@@ -618,7 +619,7 @@ void TRestMetadataPlot::GenerateCanvas() {
     if (fNFiles == 0) AddFileFromEnv();
 
     if (fNFiles == 0) {
-        RESTFerr << "TRestMetadataPlot: No input files are added!" << RESTendl;
+        RESTError << "TRestMetadataPlot: No input files are added!" << RESTendl;
         exit(1);
     }
 

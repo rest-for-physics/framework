@@ -76,8 +76,8 @@ void TRestGDMLParser::Load(const string& filename) {
         }
 
     } else {
-        RESTFerr << "TRestGDMLParser: Input GDML file: \"" << filename
-                 << "\" does not exist. Please double check your current path and filename" << RESTendl;
+        RESTError << "TRestGDMLParser: Input GDML file: \"" << filename
+                  << "\" does not exist. Please double check your current path and filename" << RESTendl;
         exit(1);
     }
 }

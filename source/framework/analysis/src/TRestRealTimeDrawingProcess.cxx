@@ -143,8 +143,8 @@ void TRestRealTimeDrawingProcess::InitProcess() {
         while (ele != nullptr) {
             string proc = GetParameter("processName", ele);
             if (GetFriendLive(proc) == nullptr) {
-                RESTFerr << "TRestRealTimeDrawingProcess: cannot find process \"" << proc
-                         << "\" to call drawing!" << RESTendl;
+                RESTError << "TRestRealTimeDrawingProcess: cannot find process \"" << proc
+                          << "\" to call drawing!" << RESTendl;
                 exit(1);
             }
             fProcessesToDraw.push_back(proc);
@@ -235,8 +235,9 @@ void TRestRealTimeDrawingProcess::DrawWithNotification() {
     auto messager = GetMetadata<TRestMessenger>();
     int runNumber = StringToInteger(GetParameter("runNumber"));
     if (runNumber == -1) {
-        RESTFerr << "TRestRealTimeDrawingProcess::DrawWithNotification: runNumber must be given!" << RESTendl;
-        RESTFerr << "consider adding \"--d xx\" in restManager command" << RESTendl;
+        RESTError << "TRestRealTimeDrawingProcess::DrawWithNotification: runNumber must be given!"
+                  << RESTendl;
+        RESTError << "consider adding \"--d xx\" in restManager command" << RESTendl;
         abort();
     }
     while (true) {

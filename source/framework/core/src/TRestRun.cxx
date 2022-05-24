@@ -48,7 +48,7 @@ TRestRun::TRestRun(const string& filename) {
         Initialize();
         LoadConfigFromFile(filename);
     } else {
-        RESTFerr << "TRestRun::TRestRun(): input file error!" << RESTendl;
+        RESTError << "TRestRun::TRestRun(): input file error!" << RESTendl;
     }
 }
 
@@ -150,9 +150,9 @@ void TRestRun::InitFromConfigFile() {
         }
     }
     if (ToUpper(runNstr) == "AUTO" && ToUpper(inputname) == "AUTO") {
-        RESTFerr << "TRestRun: run number and input file name cannot both be "
-                    "\"AUTO\""
-                 << RESTendl;
+        RESTError << "TRestRun: run number and input file name cannot both be "
+                     "\"AUTO\""
+                  << RESTendl;
         exit(1);
     }
 
@@ -208,7 +208,7 @@ void TRestRun::InitFromConfigFile() {
 
     if (fInputFileNames.size() == 0) {
         if (fInputFileName != "") {
-            RESTFerr << "cannot find the input file!" << RESTendl;
+            RESTError << "cannot find the input file!" << RESTendl;
             exit(1);
         } else {
             RESTWarning << "no input file added" << RESTendl;
@@ -262,8 +262,8 @@ void TRestRun::InitFromConfigFile() {
         system((TString) "mkdir -p " + outputdir);
     }
     if (!TRestTools::isPathWritable(outputdir)) {
-        RESTFerr << "TRestRun: Output path does not exist or it is not writable." << RESTendl;
-        RESTFerr << "Path : " << outputdir << RESTendl;
+        RESTError << "TRestRun: Output path does not exist or it is not writable." << RESTendl;
+        RESTError << "Path : " << outputdir << RESTendl;
         exit(1);
     }
 
@@ -364,7 +364,7 @@ void TRestRun::OpenInputFile(int i) {
 void TRestRun::OpenInputFile(const TString& filename, const string& mode) {
     CloseFile();
     if (!filename.Contains("http") && !TRestTools::fileExists((string)filename)) {
-        RESTFerr << "input file \"" << filename << "\" does not exist!" << RESTendl;
+        RESTError << "input file \"" << filename << "\" does not exist!" << RESTendl;
         exit(1);
     }
 
@@ -481,7 +481,7 @@ void TRestRun::AddInputFileExternal(const string& file) {
     if (fFileProcess != nullptr) {
         bool add = fFileProcess->AddInputFile(file);
         if (!add) {
-            RESTFerr << "failed to add input file!" << RESTendl;
+            RESTError << "failed to add input file!" << RESTendl;
         }
         fInputFileNames.push_back(file);
     }
@@ -503,9 +503,9 @@ void TRestRun::ReadInputFileMetadata() {
 
             TRestMetadata* a = (TRestMetadata*)f->Get(key->GetName());
             if (!a) {
-                RESTFerr << "TRestRun::ReadInputFileMetadata." << RESTendl;
-                RESTFerr << "Key name : " << key->GetName() << RESTendl;
-                RESTFerr << "Hidden key? Please, report this problem." << RESTendl;
+                RESTError << "TRestRun::ReadInputFileMetadata." << RESTendl;
+                RESTError << "Key name : " << key->GetName() << RESTendl;
+                RESTError << "Hidden key? Please, report this problem." << RESTendl;
             } else if (a->InheritsFrom("TRestMetadata") && a->ClassName() != (TString) "TRestRun") {
                 /*
                 //we make sure there is no repeated class added
@@ -555,8 +555,8 @@ void TRestRun::ReadInputFileTrees() {
                 }
                 if (fAnalysisTree->GetChain() == nullptr ||
                     fAnalysisTree->GetChain()->GetNtrees() != fNFilesSplit + 1) {
-                    RESTFerr << "Error adding split files, files missing?" << RESTendl;
-                    RESTFerr << "Your data could be incomplete!" << RESTendl;
+                    RESTError << "Error adding split files, files missing?" << RESTendl;
+                    RESTError << "Your data could be incomplete!" << RESTendl;
                 }
             }
 
@@ -593,9 +593,9 @@ void TRestRun::ReadInputFileTrees() {
             //	fAnalysisTree->SetEntries(Tree2->GetEntries());
             RESTDebug << "Old REST file successfully recovered!" << RESTendl;
         } else {
-            RESTFerr << "(OpenInputFile) : AnalysisTree was not found" << RESTendl;
-            RESTFerr << "Inside file : " << filename << RESTendl;
-            RESTFerr << "This may be not REST output file!" << RESTendl;
+            RESTError << "(OpenInputFile) : AnalysisTree was not found" << RESTendl;
+            RESTError << "Inside file : " << filename << RESTendl;
+            RESTError << "This may be not REST output file!" << RESTendl;
             exit(1);
         }
 
@@ -672,8 +672,8 @@ void TRestRun::ReadFileInfo(const string& filename) {
     struct stat buf;
     FILE* fp = fopen(filename.c_str(), "rb");
     if (!fp) {
-        RESTFerr << "TRestRun::ReadFileInfo. Something went wrong with fopen()!" << strerror(errno)
-                 << RESTendl;
+        RESTError << "TRestRun::ReadFileInfo. Something went wrong with fopen()!" << strerror(errno)
+                  << RESTendl;
         exit(1);
     }
     int fd = fileno(fp);
@@ -977,7 +977,7 @@ TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilena
         }
     } else {
         fOutputFileName = "";
-        RESTFerr << "(Merge files) failed to merge process files." << RESTendl;
+        RESTError << "(Merge files) failed to merge process files." << RESTendl;
         exit(1);
     }
 
@@ -1040,7 +1040,7 @@ TFile* TRestRun::UpdateOutputFile() {
         return fOutputFile;
 
     } else {
-        RESTFerr << "TRestRun::UpdateOutputFile(): output file is closed" << RESTendl;
+        RESTError << "TRestRun::UpdateOutputFile(): output file is closed" << RESTendl;
     }
     return nullptr;
 }
@@ -1169,8 +1169,8 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
         fFileProcess->InitProcess();
         fInputEvent = fFileProcess->GetOutputEvent();
         if (fInputEvent == nullptr) {
-            RESTFerr << "The external process \"" << p->GetName() << "\" doesn't yield any output event!"
-                     << RESTendl;
+            RESTError << "The external process \"" << p->GetName() << "\" doesn't yield any output event!"
+                      << RESTendl;
             exit(1);
         } else {
             fInputEvent->SetRunOrigin(fRunNumber);
@@ -1188,7 +1188,7 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
         RESTInfo << "The external file process has been set! Name : " << fFileProcess->GetName() << RESTendl;
     } else {
         if (fFileProcess != nullptr) {
-            RESTFerr << "There can only be one file process!" << RESTendl;
+            RESTError << "There can only be one file process!" << RESTendl;
             exit(1);
         }
         if (p == nullptr) {
@@ -1266,22 +1266,22 @@ void TRestRun::AddEventBranch(TRestEvent* eve) {
 void TRestRun::ImportMetadata(const TString& File, const TString& name, const TString& type, Bool_t store) {
     const TString thisFile = SearchFile(File.Data());
     if (thisFile == "") {
-        RESTFerr << "(ImportMetadata): The file " << thisFile << " does not exist!" << RESTendl;
-        RESTFerr << RESTendl;
+        RESTError << "(ImportMetadata): The file " << thisFile << " does not exist!" << RESTendl;
+        RESTError << RESTendl;
         return;
     }
     if (!TRestTools::isRootFile(thisFile.Data())) {
-        RESTFerr << "(ImportMetadata) : The file " << thisFile << " is not root file!" << RESTendl;
-        RESTFerr << "If you want to initialize metadata from rml file, use <TRest section!" << RESTendl;
+        RESTError << "(ImportMetadata) : The file " << thisFile << " is not root file!" << RESTendl;
+        RESTError << "If you want to initialize metadata from rml file, use <TRest section!" << RESTendl;
         return;
     }
 
     TFile* f = new TFile(thisFile);
     // TODO give error in case we try to obtain a class that is not TRestMetadata
     if (type == "" && name == "") {
-        RESTFerr << "(ImportMetadata) : metadata type and name is not "
-                    "specified!"
-                 << RESTendl;
+        RESTError << "(ImportMetadata) : metadata type and name is not "
+                     "specified!"
+                  << RESTendl;
         return;
     }
 
@@ -1621,7 +1621,7 @@ string TRestRun::ReplaceMetadataMembers(const string& instr) {
         string s = outstring.substr(startPosition + 1, endPosition - startPosition - 1);
         int cont = count(s.begin(), s.end(), '[') - count(s.begin(), s.end(), ']');
 
-        if (cont < 0) RESTFerr << "This is a coding error at ReplaceMetadataMembers!" << RESTendl;
+        if (cont < 0) RESTError << "This is a coding error at ReplaceMetadataMembers!" << RESTendl;
 
         // We search for the enclosing ]. Since we might find a vector index inside.
         while (cont > 0) {
@@ -1700,7 +1700,7 @@ string TRestRun::ReplaceMetadataMember(const string& instr) {
         }
 
     } else
-        RESTFerr << "TRestRun::ReplaceMetadataMember. Wrong number of elements found" << RESTendl;
+        RESTError << "TRestRun::ReplaceMetadataMember. Wrong number of elements found" << RESTendl;
 
     RESTWarning << "TRestRun::ReplaceMetadataMember. " << instr << " not found!" << RESTendl;
     return "";
@@ -1866,14 +1866,14 @@ void TRestRun::PrintErrors() {
 
     if (nErrors) {
         cout << endl;
-        RESTFerr << "Found a total of " << nErrors << " metadata errors" << RESTendl;
+        RESTError << "Found a total of " << nErrors << " metadata errors" << RESTendl;
         for (int n = 0; n < fMetadata.size(); n++)
             if (fMetadata[n]->GetError()) {
                 cout << endl;
-                RESTFerr << "Class: " << fMetadata[n]->ClassName() << " Name: " << fMetadata[n]->GetName()
-                         << RESTendl;
-                RESTFerr << "Number of errors: " << fMetadata[n]->GetNumberOfErrors() << RESTendl;
-                RESTFerr << "Message: " << fMetadata[n]->GetErrorMessage() << RESTendl;
+                RESTError << "Class: " << fMetadata[n]->ClassName() << " Name: " << fMetadata[n]->GetName()
+                          << RESTendl;
+                RESTError << "Number of errors: " << fMetadata[n]->GetNumberOfErrors() << RESTendl;
+                RESTError << "Message: " << fMetadata[n]->GetErrorMessage() << RESTendl;
             }
         cout << endl;
     } else {

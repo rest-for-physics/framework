@@ -105,8 +105,8 @@ std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer
         string evaluated = EvaluateExpression(Expressions[i]);
         if (evaluated == "RESTerror") {
             result += Expressions[i] + ",";
-            RESTFerr << "ReplaceMathematicalExpressions. Error on RML syntax!" << RESTendl;
-            if (errorMessage != "") RESTFerr << errorMessage << RESTendl;
+            RESTError << "ReplaceMathematicalExpressions. Error on RML syntax!" << RESTendl;
+            if (errorMessage != "") RESTError << errorMessage << RESTendl;
         } else
             result += evaluated + ",";
     }

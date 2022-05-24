@@ -415,7 +415,7 @@ void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, RESTValue& obs) {
                     type = "bool";
                     break;
                 default:
-                    RESTFerr << "Unsupported leaf definition: " << leafdef << "! Assuming int" << RESTendl;
+                    RESTError << "Unsupported leaf definition: " << leafdef << "! Assuming int" << RESTendl;
                     type = "int";
             }
         } else {
@@ -430,8 +430,8 @@ void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, RESTValue& obs) {
                     type = "vector<double>";
                     break;
                 default:
-                    RESTFerr << "Unsupported leaf definition: " << leafdef << "! Assuming vector<int>"
-                             << RESTendl;
+                    RESTError << "Unsupported leaf definition: " << leafdef << "! Assuming vector<int>"
+                              << RESTendl;
                     type = "vector<int>";
             }
         }

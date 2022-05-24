@@ -534,9 +534,9 @@ Int_t TRestMetadata::LoadConfigFromFile(const string& configFilename, const stri
         // find the xml section corresponding to the sectionName
         TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, thisSectionName);
         if (Sectional == nullptr) {
-            RESTFerr << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName
-                     << "\"" << RESTendl;
-            RESTFerr << "in config file: " << fConfigFileName << RESTendl;
+            RESTError << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName
+                      << "\"" << RESTendl;
+            RESTError << "in config file: " << fConfigFileName << RESTendl;
             exit(1);
         }
 
@@ -563,8 +563,8 @@ Int_t TRestMetadata::LoadConfigFromFile(const string& configFilename, const stri
         delete rootEle;
         return result;
     } else {
-        RESTFerr << "Filename: " << fConfigFileName << RESTendl;
-        RESTFerr << "Config File does not exist. Right path/filename?" << RESTendl;
+        RESTError << "Filename: " << fConfigFileName << RESTendl;
+        RESTError << "Config File does not exist. Right path/filename?" << RESTendl;
         GetChar();
         return -1;
     }
@@ -572,9 +572,9 @@ Int_t TRestMetadata::LoadConfigFromFile(const string& configFilename, const stri
     // find the xml section corresponding to the sectionName
     TiXmlElement* sectional = GetElementFromFile(fConfigFileName, thisSectionName);
     if (sectional == nullptr) {
-        RESTFerr << "cannot find xml section \"" << ClassName() << "\" with name \"" << thisSectionName
-                 << "\"" << RESTendl;
-        RESTFerr << "in config file: " << fConfigFileName << RESTendl;
+        RESTError << "cannot find xml section \"" << ClassName() << "\" with name \"" << thisSectionName
+                  << "\"" << RESTendl;
+        RESTError << "in config file: " << fConfigFileName << RESTendl;
         exit(1);
     }
 
@@ -979,9 +979,9 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
             string outputBuffer = val;
 
             if (outputBuffer.find("[") != (int)string::npos || outputBuffer.find("]") != (int)string::npos) {
-                RESTFerr << "TRestMetadata::ReplaceForLoopVars. Old for-loop construction identified"
-                         << RESTendl;
-                RESTFerr << "Please, replace [] variable nomenclature by ${}." << RESTendl;
+                RESTError << "TRestMetadata::ReplaceForLoopVars. Old for-loop construction identified"
+                          << RESTendl;
+                RESTError << "Please, replace [] variable nomenclature by ${}." << RESTendl;
                 exit(1);
             }
 
@@ -1005,8 +1005,8 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
                     outputBuffer.replace(replacePos, replaceLen, proenv);
                     endPosition = 0;
                 } else {
-                    RESTFerr << this->ClassName() << ", replace for loop env : cannot find \"{" << expression
-                             << "}\"" << RESTendl;
+                    RESTError << this->ClassName() << ", replace for loop env : cannot find \"{" << expression
+                              << "}\"" << RESTendl;
                     exit(1);
                 }
             }
@@ -1129,8 +1129,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     }
 
     if (filename == "") {
-        RESTFerr << "TRestMetadata::ExpandIncludeFile. Include file \"" << _filename << "\" does not exist!"
-                 << RESTendl;
+        RESTError << "TRestMetadata::ExpandIncludeFile. Include file \"" << _filename << "\" does not exist!"
+                  << RESTendl;
         exit(1);
         return;
     }
@@ -1166,7 +1166,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
 
             TiXmlElement* ele = GetElementFromFile(filename);
             if (ele == nullptr) {
-                RESTFerr
+                RESTError
                     << "TRestMetadata::ExpandIncludeFile. No xml elements contained in the include file \""
                     << filename << "\"" << RESTendl;
                 exit(1);
@@ -1206,8 +1206,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
             // get the root element
             TiXmlElement* rootele = GetElementFromFile(filename);
             if (rootele == nullptr) {
-                RESTFerr << "TRestMetaddata::ExpandIncludeFile. Include file " << filename
-                         << " is of wrong xml format!" << RESTendl;
+                RESTError << "TRestMetaddata::ExpandIncludeFile. Include file " << filename
+                          << " is of wrong xml format!" << RESTendl;
                 exit(1);
                 return;
             }
@@ -1545,19 +1545,19 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string configFilename, std:
         filename = TRestMetadata_UpdatedConfigFile[filename];
 
     if (!TRestTools::fileExists(filename)) {
-        RESTFerr << "Config file does not exist. The file is: " << filename << RESTendl;
+        RESTError << "Config file does not exist. The file is: " << filename << RESTendl;
         exit(1);
     }
 
     if (!doc.LoadFile(filename.c_str())) {
-        RESTFerr << "Failed to load xml file, syntax maybe wrong. The file is: " << filename << RESTendl;
+        RESTError << "Failed to load xml file, syntax maybe wrong. The file is: " << filename << RESTendl;
         exit(1);
     }
 
     rootele = doc.RootElement();
     if (rootele == nullptr) {
-        RESTFerr << "The rml file \"" << configFilename << "\" does not contain any valid elements!"
-                 << RESTendl;
+        RESTError << "The rml file \"" << configFilename << "\" does not contain any valid elements!"
+                  << RESTendl;
         exit(1);
     }
     if (NameOrDecalre == "") {
@@ -1968,8 +1968,8 @@ string TRestMetadata::ReplaceVariables(const string buffer) {
             outputBuffer.replace(replacePos, replaceLen, proenv);
             endPosition = 0;
         } else {
-            RESTFerr << this->ClassName() << ", replace env : cannot find \"${" << expression
-                     << "}\" in either system or program env, exiting..." << RESTendl;
+            RESTError << this->ClassName() << ", replace env : cannot find \"${" << expression
+                      << "}\" in either system or program env, exiting..." << RESTendl;
             exit(1);
         }
     }
@@ -2079,7 +2079,7 @@ void TRestMetadata::WriteConfigBuffer(string fname) {
         return;
     }
 
-    RESTFerr << "Something missing here. Call the police" << RESTendl;
+    RESTError << "Something missing here. Call the police" << RESTendl;
 }
 
 void TRestMetadata::PrintMessageBuffer() { cout << messageBuffer << endl; }
@@ -2130,9 +2130,9 @@ TString TRestMetadata::GetLibraryVersion() { return fLibraryVersion; }
 /// allowed to update version.
 void TRestMetadata::ReSetVersion() {
     if (!this->InheritsFrom("TRestRun"))
-        RESTFerr << "version is a static value, you cannot set version "
-                    "for a class!"
-                 << RESTendl;
+        RESTError << "version is a static value, you cannot set version "
+                     "for a class!"
+                  << RESTendl;
     else {
         fVersion = REST_RELEASE;
     }
@@ -2143,9 +2143,9 @@ void TRestMetadata::ReSetVersion() {
 /// Only TRestRun is allowed to update version.
 void TRestMetadata::UnSetVersion() {
     if (!this->InheritsFrom("TRestRun"))
-        RESTFerr << "version is a static value, you cannot set version "
-                    "for a class!"
-                 << RESTendl;
+        RESTError << "version is a static value, you cannot set version "
+                     "for a class!"
+                  << RESTendl;
     else {
         fVersion = -1;
         fCommit = -1;

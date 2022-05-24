@@ -283,11 +283,11 @@ Bool_t TRestDataQualityProcess::EvaluateMetadataRule(TString value, TVector2 ran
             // If the metadata value is in range we return true
             if (dblVal >= range.X() && dblVal <= range.Y()) return true;
         } else {
-            RESTFerr << "TRestDataQualityProcess::EvaluateMetadataRule." << RESTendl;
-            RESTFerr << "Metadata class " << results[0] << " is not available inside TRestRun" << RESTendl;
+            RESTError << "TRestDataQualityProcess::EvaluateMetadataRule." << RESTendl;
+            RESTError << "Metadata class " << results[0] << " is not available inside TRestRun" << RESTendl;
         }
     } else
-        RESTFerr << "TRestDataQualityProcess::EvaluateMetadataRule. Wrong number of elements found"
-                 << RESTendl;
+        RESTError << "TRestDataQualityProcess::EvaluateMetadataRule. Wrong number of elements found"
+                  << RESTendl;
     return false;
 }

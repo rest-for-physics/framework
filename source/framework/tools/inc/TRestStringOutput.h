@@ -213,8 +213,8 @@ inline void PrintWelcome() { system("rest-config --welcome"); }
 // initialize formatted message output tool
 static TRestStringOutput RESTFout(TRestStringOutput::REST_Verbose_Level::REST_Silent, COLOR_BOLDBLUE,
                                   "[== ==]", TRestStringOutput::REST_Display_Orientation::kMiddle);
-static TRestStringOutput RESTFerr(TRestStringOutput::REST_Verbose_Level::REST_Silent, COLOR_BOLDRED,
-                                  "-- Error : ", TRestStringOutput::REST_Display_Orientation::kLeft, true);
+static TRestStringOutput RESTError(TRestStringOutput::REST_Verbose_Level::REST_Silent, COLOR_BOLDRED,
+                                   "-- Error : ", TRestStringOutput::REST_Display_Orientation::kLeft, true);
 static TRestStringOutput RESTWarning(TRestStringOutput::REST_Verbose_Level::REST_Warning, COLOR_BOLDYELLOW,
                                      "-- Warning : ", TRestStringOutput::REST_Display_Orientation::kLeft,
                                      true);

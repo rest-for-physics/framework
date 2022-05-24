@@ -98,9 +98,9 @@ void TRestBrowser::SetViewer(TString viewerName) {
         if (viewer != nullptr) {
             SetViewer(viewer);
         } else {
-            RESTFerr << viewerName << " not recoginzed! Did you install the corresponding library?"
-                     << RESTendl;
-            RESTFerr << "Also check EVE feature is turned on in REST for 3d event viewing." << RESTendl;
+            RESTError << viewerName << " not recoginzed! Did you install the corresponding library?"
+                      << RESTendl;
+            RESTError << "Also check EVE feature is turned on in REST for 3d event viewing." << RESTendl;
             RESTWarning << "Using default event viewer" << RESTendl;
         }
     } else {
@@ -221,7 +221,7 @@ Bool_t TRestBrowser::LoadEventEntry(Int_t n) {
         r->GetEntry(n);
         TRestEvent* ev = r->GetInputEvent();
         if (!ev) {
-            RESTFerr << "internal error!" << RESTendl;
+            RESTError << "internal error!" << RESTendl;
             return kFALSE;
         } else {
             fEventRow = r->GetCurrentEntry();
@@ -326,7 +326,7 @@ Bool_t TRestBrowser::OpenFile(TString filename) {
 
         TRestEvent* ev = r->GetInputEvent();
         if (!ev) {
-            RESTFerr << "internal error!" << RESTendl;
+            RESTError << "internal error!" << RESTendl;
         } else {
             fEventRowNumberBox->SetIntNumber(r->GetCurrentEntry());
             fEventIdNumberBox->SetIntNumber(ev->GetID());
@@ -334,7 +334,7 @@ Bool_t TRestBrowser::OpenFile(TString filename) {
         }
         return true;
     } else {
-        RESTFerr << "file: " << filename << " does not exist!" << RESTendl;
+        RESTError << "file: " << filename << " does not exist!" << RESTendl;
     }
     return false;
 }
