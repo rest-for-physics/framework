@@ -91,16 +91,16 @@ Int_t REST_DataSummary(TString pattern, TString startDate = "", TString endDate 
         }
 
         if (runEndTimeStamp - runStartTimeStamp <= 0) {
-            warning << "Problem with start/end timestamps" << endl;
-            warning << "Skipping file : " << TRestTools::GetPureFileName(files[n]) << endl;
+            RESTWarning << "Problem with start/end timestamps" << RESTendl;
+            RESTWarning << "Skipping file : " << TRestTools::GetPureFileName(files[n]) << RESTendl;
             continue;
         }
 
         for (int m = 0; m < metadataConditions.size(); m++) {
             cout << metadataConditions[m] << endl;
             if (!run->EvaluateMetadataMember(metadataConditions[m])) {
-                warning << "Condition : " << metadataConditions[m] << " not satisfied" << endl;
-                warning << "Skipping file : " << TRestTools::GetPureFileName(files[n]) << endl;
+                RESTWarning << "Condition : " << metadataConditions[m] << " not satisfied" << RESTendl;
+                RESTWarning << "Skipping file : " << TRestTools::GetPureFileName(files[n]) << RESTendl;
                 continue;
             }
         }

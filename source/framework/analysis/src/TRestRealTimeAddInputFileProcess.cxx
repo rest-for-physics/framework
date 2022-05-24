@@ -89,7 +89,7 @@ void TRestRealTimeAddInputFileProcess::InitProcess() {
     fMessenger = GetMetadata<TRestMessenger>();
 
     if (fMessenger == nullptr) {
-        ferr << "messenger not found!" << endl;
+        RESTFerr << "messenger not found!" << RESTendl;
         exit(1);
     }
 
@@ -115,7 +115,7 @@ void TRestRealTimeAddInputFileProcess::FileNotificationFunc() {
     while (fMonitorFlag == 1) {
         string message = fMessenger->ConsumeMessage();
         if (message != "") {
-            essential << "Recieveing message: " << message << endl;
+            RESTEssential << "Recieveing message: " << message << RESTendl;
             // 7788->/data2/2MM/M1/graw/CoBo_AsAd1_2020-07-19T13:50:49.519_0000.graw
             // 7788->finish
 
@@ -125,12 +125,12 @@ void TRestRealTimeAddInputFileProcess::FileNotificationFunc() {
                 if (runid == fRunInfo->GetRunNumber()) {
                     string msgContent = runid_filename[1];
                     if (TRestTools::fileExists(msgContent)) {
-                        essential << "Adding file... " << endl;
+                        RESTEssential << "Adding file... " << RESTendl;
                         fRunInfo->AddInputFileExternal(msgContent);
                     } else if (msgContent == "finish") {
                         fRunInfo->ReleaseEndFile();
                     } else {
-                        warning << "illegal message!" << endl;
+                        RESTWarning << "illegal message!" << RESTendl;
                     }
                 } else {
                     // if the runnumber does not match, we put this message back to pool
@@ -138,7 +138,7 @@ void TRestRealTimeAddInputFileProcess::FileNotificationFunc() {
                     fMessenger->SendMessage(message);
                 }
             } else {
-                warning << "illegal message!" << endl;
+                RESTWarning << "illegal message!" << RESTendl;
             }
         }
         usleep(1000);

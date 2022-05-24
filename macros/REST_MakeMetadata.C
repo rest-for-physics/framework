@@ -16,13 +16,13 @@
 //*******************************************************************************************************
 Int_t REST_MakeMetadata(TString name) {
     if (name.First("TRest") != 0) {
-        ferr << "invalid process name! REST process name must be start with \"TRest\" " << endl;
+        RESTFerr << "invalid process name! REST process name must be start with \"TRest\" " << RESTendl;
         return -1;
     }
 
     ofstream headerFile(name + ".h");
     if (headerFile.fail()) {
-        ferr << "failed to create file!" << endl;
+        RESTFerr << "failed to create file!" << RESTendl;
         return -1;
     }
 
@@ -105,7 +105,7 @@ Int_t REST_MakeMetadata(TString name) {
 
     ofstream sourceFile(name + ".cxx");
     if (headerFile.fail()) {
-        ferr << "failed to create file!" << endl;
+        RESTFerr << "failed to create file!" << RESTendl;
         return -1;
     }
 

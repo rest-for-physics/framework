@@ -51,7 +51,7 @@ void TRestThread::Initialize() {
     isFinished = false;
 
     fCompressionLevel = 1;
-    fVerboseLevel = REST_Essential;
+    fVerboseLevel = TRestStringOutput::REST_Verbose_Level::REST_Essential;
 }
 
 ///////////////////////////////////////////////
@@ -65,7 +65,7 @@ void TRestThread::Initialize() {
 /// event of the later process. Both of them cannot be null.
 ///
 Int_t TRestThread::ValidateChain(TRestEvent* input) {
-    info << "thread " << fThreadId << ": validating process chain" << endl;
+    RESTInfo << "thread " << fThreadId << ": validating process chain" << RESTendl;
 
     // add the non-general processes to list for validation
     vector<TRestEventProcess*> processes;
@@ -74,15 +74,15 @@ Int_t TRestThread::ValidateChain(TRestEvent* input) {
         RESTValue outEvent = fProcessChain[i]->GetOutputEvent();
 
         if (outEvent.type == "TRestEvent" && inEvent.type == "TRestEvent") {
-            info << "general process: " << fProcessChain[i]->GetName() << endl;
+            RESTInfo << "general process: " << fProcessChain[i]->GetName() << RESTendl;
             continue;
         } else if (outEvent.cl && outEvent.cl->InheritsFrom("TRestEvent") && inEvent.cl &&
                    inEvent.cl->InheritsFrom("TRestEvent")) {
             processes.push_back(fProcessChain[i]);
         } else {
-            ferr << "Process: " << fProcessChain[i]->ClassName()
-                 << " not properly written, the input/output event is illegal!" << endl;
-            ferr << "Hint: they must be inherited from TRestEvent" << endl;
+            RESTFerr << "Process: " << fProcessChain[i]->ClassName()
+                     << " not properly written, the input/output event is illegal!" << RESTendl;
+            RESTFerr << "Hint: they must be inherited from TRestEvent" << RESTendl;
             abort();
         }
     }
@@ -91,7 +91,7 @@ Int_t TRestThread::ValidateChain(TRestEvent* input) {
         // verify that the input event of first process is OK
         if (input != nullptr) {
             if ((string)input->ClassName() != processes[0]->GetInputEvent().type) {
-                ferr << "(ValidateChain): Input event type does not match!" << endl;
+                RESTFerr << "(ValidateChain): Input event type does not match!" << RESTendl;
                 cout << "Input type of the first non-external process in chain: "
                      << processes[0]->GetInputEvent().type << endl;
                 cout << "The event type from file: " << input->ClassName() << endl;
@@ -107,12 +107,13 @@ Int_t TRestThread::ValidateChain(TRestEvent* input) {
             string nextinEventType = processes[i + 1]->GetInputEvent().type;
             if (outEventType != nextinEventType && outEventType != "TRestEvent" &&
                 nextinEventType != "TRestEvent") {
-                ferr << "(ValidateChain): Event process input/output does not match" << endl;
-                ferr << "The event output for process " << processes[i]->GetName() << " is " << outEventType
-                     << endl;
-                ferr << "The event input for process " << processes[i + 1]->GetName() << " is "
-                     << nextinEventType << endl;
-                ferr << "No events will be processed. Please correctly connect the process chain!" << endl;
+                RESTFerr << "(ValidateChain): Event process input/output does not match" << RESTendl;
+                RESTFerr << "The event output for process " << processes[i]->GetName() << " is "
+                         << outEventType << RESTendl;
+                RESTFerr << "The event input for process " << processes[i + 1]->GetName() << " is "
+                         << nextinEventType << RESTendl;
+                RESTFerr << "No events will be processed. Please correctly connect the process chain!"
+                         << RESTendl;
                 GetChar();
                 return -1;
             }
@@ -123,7 +124,8 @@ Int_t TRestThread::ValidateChain(TRestEvent* input) {
 
 void TRestThread::SetThreadId(Int_t id) {
     fThreadId = id;
-    if (fThreadId != 0 && fVerboseLevel > REST_Essential) fVerboseLevel = REST_Essential;
+    if (fThreadId != 0 && fVerboseLevel > TRestStringOutput::REST_Verbose_Level::REST_Essential)
+        fVerboseLevel = TRestStringOutput::REST_Verbose_Level::REST_Essential;
 }
 
 ///////////////////////////////////////////////
@@ -149,13 +151,13 @@ void TRestThread::SetThreadId(Int_t id) {
 /// returns false when fOutputEvent is null after 5 times of retry, returns true
 /// when fOutputEvent address is determined.
 bool TRestThread::TestRun() {
-    debug << "Processing ..." << endl;
+    RESTDebug << "Processing ..." << RESTendl;
     for (int i = 0; i < 5; i++) {
         TRestEvent* ProcessedEvent = fInputEvent;
-        debug << "Test run " << i << " : Input Event ---- " << fInputEvent->ClassName() << "(" << fInputEvent
-              << ")" << endl;
+        RESTDebug << "Test run " << i << " : Input Event ---- " << fInputEvent->ClassName() << "("
+                  << fInputEvent << ")" << RESTendl;
         for (unsigned int j = 0; j < fProcessChain.size(); j++) {
-            debug << "t" << fThreadId << "p" << j << ": " << fProcessChain[j]->ClassName() << endl;
+            RESTDebug << "t" << fThreadId << "p" << j << ": " << fProcessChain[j]->ClassName() << RESTendl;
 
             fProcessChain[j]->SetObservableValidation(true);
 
@@ -168,32 +170,34 @@ bool TRestThread::TestRun() {
             }
             // if still null we perform another try
             if (ProcessedEvent == nullptr) {
-                debug << "  ----  NULL" << endl;
+                RESTDebug << "  ----  NULL" << RESTendl;
                 break;
             }
             // check if the output event is same as the processed event
             TRestEvent* outputevent = fProcessChain[j]->GetOutputEvent();
             if (outputevent != ProcessedEvent) {
-                warning << "Test run, in " << fProcessChain[j]->ClassName()
-                        << " : output event is different with process returned event! Please check to assign "
-                           "the TRestEvent datamember as inputEvent in ProcessEvent() method"
-                        << endl;
+                RESTWarning
+                    << "Test run, in " << fProcessChain[j]->ClassName()
+                    << " : output event is different with process returned event! Please check to assign "
+                       "the TRestEvent datamember as inputEvent in ProcessEvent() method"
+                    << RESTendl;
             }
 
             fProcessChain[j]->EndOfEventProcess();
 
             fProcessChain[j]->SetObservableValidation(false);
 
-            debug << " ....  " << ProcessedEvent->ClassName() << "(" << ProcessedEvent << ")" << endl;
+            RESTDebug << " ....  " << ProcessedEvent->ClassName() << "(" << ProcessedEvent << ")" << RESTendl;
         }
 
         fOutputEvent = ProcessedEvent;
         fHostRunner->GetNextevtFunc(fInputEvent, fAnalysisTree);
         if (fOutputEvent != nullptr) {
-            debug << "Output Event ---- " << fOutputEvent->ClassName() << "(" << fOutputEvent << ")" << endl;
+            RESTDebug << "Output Event ---- " << fOutputEvent->ClassName() << "(" << fOutputEvent << ")"
+                      << RESTendl;
             break;
         } else {
-            debug << "Null output, trying again" << endl;
+            RESTDebug << "Null output, trying again" << RESTendl;
         }
     }
     if (fOutputEvent == nullptr) {
@@ -218,7 +222,7 @@ bool TRestThread::TestRun() {
 /// Note: this methed runs under single thread node, so there is no conflict
 /// when creating files.
 void TRestThread::PrepareToProcess(bool* outputConfig) {
-    debug << "Entering TRestThread::PrepareToProcess" << endl;
+    RESTDebug << "Entering TRestThread::PrepareToProcess" << RESTendl;
 
     string threadFileName;
     if (fHostRunner->GetOutputDataFile()->GetName() == (string) "/dev/null") {
@@ -241,17 +245,17 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
     }
 
     if (fProcessChain.size() > 0) {
-        debug << "TRestThread: Creating file : " << threadFileName << endl;
+        RESTDebug << "TRestThread: Creating file : " << threadFileName << RESTendl;
         fOutputFile = new TFile(threadFileName.c_str(), "recreate");
         fOutputFile->SetCompressionLevel(fCompressionLevel);
         fAnalysisTree = new TRestAnalysisTree("AnalysisTree_" + ToString(fThreadId), "dummyTree");
         fAnalysisTree->DisableQuickObservableValueSetting();
 
-        debug << "TRestThread: Finding first input event of process chain..." << endl;
+        RESTDebug << "TRestThread: Finding first input event of process chain..." << RESTendl;
         if (fHostRunner->GetInputEvent() == nullptr) {
-            ferr << "Input event is not initialized from TRestRun! Please check your input file and file "
-                    "reading process!"
-                 << endl;
+            RESTFerr << "Input event is not initialized from TRestRun! Please check your input file and file "
+                        "reading process!"
+                     << RESTendl;
             exit(1);
         }
         fInputEvent = (TRestEvent*)fHostRunner->GetInputEvent()->Clone();
@@ -264,38 +268,38 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
             exit(1);
         }
 
-        debug << "TRestThread: Reading input event and input observable..." << endl;
+        RESTDebug << "TRestThread: Reading input event and input observable..." << RESTendl;
         if (fHostRunner->GetNextevtFunc(fInputEvent, fAnalysisTree) != 0) {
-            ferr << "In thread " << fThreadId << ")::Failed to read input event, process cannot start!"
-                 << endl;
+            RESTFerr << "In thread " << fThreadId << ")::Failed to read input event, process cannot start!"
+                     << RESTendl;
             exit(1);
         }
 
-        debug << "TRestThread: Init process..." << endl;
+        RESTDebug << "TRestThread: Init process..." << RESTendl;
         for (unsigned int i = 0; i < fProcessChain.size(); i++) {
             fProcessChain[i]->SetAnalysisTree(fAnalysisTree);
             for (unsigned int j = 0; j < fProcessChain.size(); j++) {
                 fProcessChain[i]->SetFriendProcess(fProcessChain[j]);
             }
-            debug << "InitProcess() process for " << fProcessChain[i]->ClassName() << endl;
+            RESTDebug << "InitProcess() process for " << fProcessChain[i]->ClassName() << RESTendl;
             fProcessChain[i]->InitProcess();
         }
 
         // test run
         if (fHostRunner->UseTestRun()) {
-            debug << "Test Run..." << endl;
+            RESTDebug << "Test Run..." << RESTendl;
             if (!TestRun()) {
-                ferr << "In thread " << fThreadId << ")::test run failed!" << endl;
-                ferr << "One of the processes has NULL pointer fOutputEvent!" << endl;
-                if (fVerboseLevel < REST_Debug)
-                    ferr << "To see more detail, turn on debug mode for "
-                            "TRestProcessRunner!"
-                         << endl;
+                RESTFerr << "In thread " << fThreadId << ")::test run failed!" << RESTendl;
+                RESTFerr << "One of the processes has NULL pointer fOutputEvent!" << RESTendl;
+                if (fVerboseLevel < TRestStringOutput::REST_Verbose_Level::REST_Debug)
+                    RESTFerr << "To see more detail, turn on debug mode for "
+                                "TRestProcessRunner!"
+                             << RESTendl;
                 exit(1);
             }
-            debug << "Test Run complete!" << endl;
+            RESTDebug << "Test Run complete!" << RESTendl;
         } else {
-            debug << "Initializing output event" << endl;
+            RESTDebug << "Initializing output event" << RESTendl;
             string chainOutputType = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent().type;
             fOutputEvent = REST_Reflection::Assembly(chainOutputType);
             if (fOutputEvent == nullptr) {
@@ -384,7 +388,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
             fProcessChain[i]->InitProcess();
         }
 
-        debug << "Thread " << fThreadId << " Ready!" << endl;
+        RESTDebug << "Thread " << fThreadId << " Ready!" << RESTendl;
     } else {
         string tmp = fHostRunner->GetInputEvent()->ClassName();
         fInputEvent = REST_Reflection::Assembly(tmp);
@@ -393,7 +397,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
         fOutputFile->SetCompressionLevel(fCompressionLevel);
         fOutputFile->cd();
 
-        debug << "Creating Analysis Tree..." << endl;
+        RESTDebug << "Creating Analysis Tree..." << RESTendl;
         fAnalysisTree = new TRestAnalysisTree("AnalysisTree_" + ToString(fThreadId), "dummyTree");
         fAnalysisTree->DisableQuickObservableValueSetting();
         fEventTree = new TTree((TString) "EventTree_" + ToString(fThreadId), "dummyTree");
@@ -460,7 +464,7 @@ void TRestThread::StartThread() {
 /// higher. Note that we cannot use "debug" verbose level under compatibility
 /// output mode, i.e. in condor jobs.
 void TRestThread::AddProcess(TRestEventProcess* process) {
-    debug << "Entering TRestThread::AddProcess" << endl;
+    RESTDebug << "Entering TRestThread::AddProcess" << RESTendl;
 
     fProcessChain.push_back(process);
     // if (Console::CompatibilityMode && process->GetVerboseLevel() >= REST_Debug) {
@@ -484,7 +488,7 @@ void TRestThread::ProcessEvent() {
     TRestEvent* ProcessedEvent = fInputEvent;
     fProcessNullReturned = false;
 
-    if (fVerboseLevel >= REST_Debug) {
+    if (fVerboseLevel >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
 #ifdef TIME_MEASUREMENT
         vector<int> processtime(fProcessChain.size());
 #endif
@@ -515,7 +519,8 @@ void TRestThread::ProcessEvent() {
                 cout << "------- End of process " + (string)fProcessChain[j]->GetName() + " -------" << endl;
             }
 
-            if (fProcessChain[j]->GetVerboseLevel() >= REST_Extreme && j < fProcessChain.size() - 1) {
+            if (fProcessChain[j]->GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Extreme &&
+                j < fProcessChain.size() - 1) {
                 GetChar();
             }
         }
@@ -568,7 +573,7 @@ void TRestThread::ProcessEvent() {
 /// This method is called back at the end of TRestProcessRunner::RunProcess() in
 /// TRestProcessRunner.
 void TRestThread::EndProcess() {
-    info << "TRestThread : Writing temp file. Thread id : " << fThreadId << endl;
+    RESTInfo << "TRestThread : Writing temp file. Thread id : " << fThreadId << RESTendl;
 
     if (fOutputFile == nullptr) return;
 
@@ -583,11 +588,12 @@ void TRestThread::EndProcess() {
     }
 
     if (nWarnings)
-        warning << nWarnings
-                << " process warnings were found! Use run0->PrintWarnings(); to get additional info." << endl;
+        RESTWarning << nWarnings
+                    << " process warnings were found! Use run0->PrintWarnings(); to get additional info."
+                    << RESTendl;
     if (nErrors)
-        ferr << nErrors << " process errors were found! Use run0->PrintErrors(); to get additional info."
-             << endl;
+        RESTFerr << nErrors << " process errors were found! Use run0->PrintErrors(); to get additional info."
+                 << RESTendl;
 
     delete fAnalysisTree;
 }

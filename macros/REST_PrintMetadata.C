@@ -10,17 +10,17 @@
 //***
 //*******************************************************************************************************
 Int_t REST_Metadata(TString fName, TString objName = "") {
-    TRestStringOutput cout;
-    cout.setorientation(1);
+    TRestStringOutput RESTcout;
+    RESTcout.setorientation(TRestStringOutput::REST_Display_Orientation::kLeft);
 
     TString fileName = fName;
 
-    cout << "Filename : " << fileName << endl;
+    RESTcout << "Filename : " << fileName << RESTendl;
 
     string fname = fileName.Data();
 
     if (!TRestTools::fileExists(fname)) {
-        cout << "WARNING. Input file does not exist" << endl;
+        RESTcout << "WARNING. Input file does not exist" << RESTendl;
         exit(1);
     }
 
@@ -33,12 +33,12 @@ Int_t REST_Metadata(TString fName, TString objName = "") {
         if (((string)(key->GetClassName())).find("TRest") != -1) {
             TObject* obj = f->Get(key->GetName());
             if (obj == NULL) {
-                cout << "Cannot Get object with name \"" << key->GetName() << "\"!" << endl;
-                cout << "The name may contain illegel characters which was legel in previous version."
-                     << endl;
+                RESTcout << "Cannot Get object with name \"" << key->GetName() << "\"!" << RESTendl;
+                RESTcout << "The name may contain illegel characters which was legel in previous version."
+                         << RESTendl;
             } else if (obj->InheritsFrom("TRestMetadata")) {
                 if (objName == "" || objName == obj->ClassName() || objName == obj->GetName()) {
-                    cout << n << "th object : " << endl;
+                    RESTcout << n << "th object : " << RESTendl;
                     ((TRestMetadata*)obj)->PrintMetadata();
                 }
             }

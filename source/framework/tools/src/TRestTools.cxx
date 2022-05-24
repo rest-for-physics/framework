@@ -142,7 +142,7 @@ template <typename T>
 int TRestTools::ExportASCIITable(std::string fname, std::vector<std::vector<T>>& data) {
     ofstream file(fname);
     if (!file.is_open()) {
-        ferr << "Unable to open file for writing : " << fname << endl;
+        RESTFerr << "Unable to open file for writing : " << fname << RESTendl;
         return 1;
     }
 
@@ -171,7 +171,7 @@ template <typename T>
 int TRestTools::ExportBinaryTable(std::string fname, std::vector<std::vector<T>>& data) {
     ofstream file(fname, ios::out | ios::binary);
     if (!file.is_open()) {
-        ferr << "Unable to open file for writing : " << fname << endl;
+        RESTFerr << "Unable to open file for writing : " << fname << RESTendl;
         return 1;
     }
 
@@ -209,16 +209,16 @@ template int TRestTools::ExportBinaryTable<Double_t>(std::string fname,
 template <typename T>
 int TRestTools::ReadBinaryTable(string fName, std::vector<std::vector<T>>& data, Int_t columns) {
     if (!TRestTools::isValidFile((string)fName)) {
-        ferr << "TRestTools::ReadBinaryTable. Error." << endl;
-        ferr << "Cannot open file : " << fName << endl;
+        RESTFerr << "TRestTools::ReadBinaryTable. Error." << RESTendl;
+        RESTFerr << "Cannot open file : " << fName << RESTendl;
         return 0;
     }
 
     if (columns == -1) {
         columns = GetBinaryFileColumns(fName);
         if (columns == -1) {
-            ferr << "TRestTools::ReadBinaryTable. Format extension error." << endl;
-            ferr << "Please, specify the number of columns at the method 3rd argument" << endl;
+            RESTFerr << "TRestTools::ReadBinaryTable. Format extension error." << RESTendl;
+            RESTFerr << "Please, specify the number of columns at the method 3rd argument" << RESTendl;
             return 0;
         }
     }
@@ -290,7 +290,7 @@ int TRestTools::GetBinaryFileColumns(string fname) {
         return StringToInteger(extension.substr(1, pos - 1));
     }
 
-    ferr << "Format " << ToUpper(extension) << " not recognized" << endl;
+    RESTFerr << "Format " << ToUpper(extension) << " not recognized" << RESTendl;
     return -1;
 }
 
@@ -948,10 +948,10 @@ std::string TRestTools::DownloadRemoteFile(string url) {
         do {
             out = TRestTools::DownloadRemoteFile(url, fullpath);
             if (out == 1024) {
-                warning << "Retrying download in 5 seconds" << endl;
+                RESTWarning << "Retrying download in 5 seconds" << RESTendl;
                 std::this_thread::sleep_for(std::chrono::seconds(5));
             } else if (attempts < 10) {
-                success << "Download suceeded after " << 10 - attempts << " attempts" << endl;
+                RESTSuccess << "Download suceeded after " << 10 - attempts << " attempts" << RESTendl;
             }
             attempts--;
         } while (out == 1024 && attempts > 0);
@@ -976,8 +976,8 @@ std::string TRestTools::DownloadRemoteFile(string url) {
 int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
     TUrl url(remoteFile.c_str());
 
-    info << "Downloading remote file : " << remoteFile << endl;
-    info << "To local file : " << localFile << endl;
+    RESTInfo << "Downloading remote file : " << remoteFile << RESTendl;
+    RESTInfo << "To local file : " << localFile << RESTendl;
 
     string localFiletmp = localFile + ".restdownload";
     if ((string)url.GetProtocol() == "https" || (string)url.GetProtocol() == "http") {
@@ -988,20 +988,20 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
 
         string cmd = "wget --no-check-certificate " + EscapeSpecialLetters(remoteFile) + " -O " +
                      EscapeSpecialLetters(localFiletmp) + " -q";
-        debug << cmd << endl;
+        RESTDebug << cmd << RESTendl;
         int a = system(cmd.c_str());
 
         if (a == 0) {
             rename(localFiletmp.c_str(), localFile.c_str());
             return 0;
         } else {
-            ferr << "download failed! (" << remoteFile << ")" << endl;
+            RESTFerr << "download failed! (" << remoteFile << ")" << RESTendl;
             if (a == 1024) {
-                ferr << "Network connection problem?" << endl;
+                RESTFerr << "Network connection problem?" << RESTendl;
                 return 1024;
             }
             if (a == 2048) {
-                ferr << "File does NOT exist in remotely?" << endl;
+                RESTFerr << "File does NOT exist in remotely?" << RESTendl;
                 return 2048;
             }
         }
@@ -1015,7 +1015,7 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
             return 0;
         }
     } else {
-        ferr << "unknown protocol!" << endl;
+        RESTFerr << "unknown protocol!" << RESTendl;
     }
 
     return -1;
@@ -1059,7 +1059,8 @@ std::string TRestTools::POSTRequest(const std::string& url, const std::map<std::
         /* Perform the request, res will get the return code */
         res = curl_easy_perform(curl);
         /* Check for errors */
-        if (res != CURLE_OK) ferr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << endl;
+        if (res != CURLE_OK)
+            RESTFerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << RESTendl;
 
         /* always cleanup */
         curl_easy_cleanup(curl);
@@ -1069,10 +1070,11 @@ std::string TRestTools::POSTRequest(const std::string& url, const std::map<std::
 
     std::getline(std::ifstream(filename), file_content, '\0');
 #else
-    ferr << "TRestTools::POSTRequest. REST framework was compiled without CURL support" << endl;
-    ferr << "Please recompile REST after installing curl development libraries." << endl;
-    ferr << "Depending on your system this might be: curl-dev, curl-devel or libcurl-openssl-dev. " << endl;
-    ferr << "No file will be downloaded" << endl;
+    RESTFerr << "TRestTools::POSTRequest. REST framework was compiled without CURL support" << RESTendl;
+    RESTFerr << "Please recompile REST after installing curl development libraries." << RESTendl;
+    RESTFerr << "Depending on your system this might be: curl-dev, curl-devel or libcurl-openssl-dev. "
+             << RESTendl;
+    RESTFerr << "No file will be downloaded" << RESTendl;
 #endif
 
     return file_content;
@@ -1109,11 +1111,11 @@ int TRestTools::UploadToServer(string localFile, string remoteFile, string metho
         int a = system(cmd.c_str());
 
         if (a != 0) {
-            ferr << __PRETTY_FUNCTION__ << endl;
-            ferr << "problem copying gases definitions to remote server" << endl;
-            ferr << "Please report this problem at "
-                    "http://gifna.unizar.es/rest-forum/"
-                 << endl;
+            RESTFerr << __PRETTY_FUNCTION__ << RESTendl;
+            RESTFerr << "problem copying gases definitions to remote server" << RESTendl;
+            RESTFerr << "Please report this problem at "
+                        "http://gifna.unizar.es/rest-forum/"
+                     << RESTendl;
             return -1;
         }
 

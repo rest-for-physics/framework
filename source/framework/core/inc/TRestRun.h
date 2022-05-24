@@ -88,8 +88,8 @@ class TRestRun : public TRestMetadata {
         }
 
         if (i >= GetEntries()) {
-            warning << "TRestRun::GetEntry. Entry requested out of limits" << endl;
-            warning << "Total number of entries is : " << GetEntries() << endl;
+            RESTWarning << "TRestRun::GetEntry. Entry requested out of limits" << RESTendl;
+            RESTWarning << "Total number of entries is : " << GetEntries() << RESTendl;
         }
 
         fCurrentEvent = i;
@@ -121,7 +121,7 @@ class TRestRun : public TRestMetadata {
         if (meta != nullptr) {
             fMetadata.push_back(meta);
         } else {
-            warning << "REST Warning! A null metadata wants to be added in TRestRun!" << endl;
+            RESTWarning << "REST Warning! A null metadata wants to be added in TRestRun!" << RESTendl;
         }
     }
     void AddEventBranch(TRestEvent* eve);
@@ -233,13 +233,13 @@ class TRestRun : public TRestMetadata {
     }
     inline void PrintTrees() const {
         if (fEventTree != nullptr) {
-            fout << endl;
-            fout << "=====EventTree=====" << endl;
+            RESTFout << RESTendl;
+            RESTFout << "=====EventTree=====" << RESTendl;
             fEventTree->Print();
         }
         if (fAnalysisTree != nullptr) {
-            fout << endl;
-            fout << "=====AnalysisTree=====" << endl;
+            RESTFout << RESTendl;
+            RESTFout << "=====AnalysisTree=====" << RESTendl;
             fAnalysisTree->Print();
         }
     }

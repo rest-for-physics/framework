@@ -108,7 +108,7 @@ DBFile DBFile::ParseFile(string _filename) {
     int result = stat(_fullname.c_str(), &buf);
 
     if (result != 0) {
-        ferr << "DBFile::ParseFile: Failed to load file \"" << _fullname << "\"!" << endl;
+        RESTFerr << "DBFile::ParseFile: Failed to load file \"" << _fullname << "\"!" << RESTendl;
     } else {
         file.fileSize = buf.st_size;
         file.evtRate = 0;
@@ -194,9 +194,9 @@ int TRestDataBase::set_run(DBEntry info, bool overwrite) {
     if (TRestTools::isPathWritable(REST_USER_PATH)) {
         TRestTools::Execute("echo " + ToString(newRunNr + 1) + " > " + runFilename);
     } else {
-        warning << "runNumber file not writable. auto run number "
-                   "increment is disabled"
-                << endl;
+        RESTWarning << "runNumber file not writable. auto run number "
+                       "increment is disabled"
+                    << RESTendl;
     }
 
     return newRunNr;
@@ -230,7 +230,7 @@ DBEntry TRestDataBase::query_data(DBEntry _info) {
     if (match.size() == 1) {
         return match[0];
     } else if (match.size() > 1) {
-        warning << "multiple metadata found! returning the first!" << endl;
+        RESTWarning << "multiple metadata found! returning the first!" << RESTendl;
         return match[0];
     } else {
         return DBEntry();

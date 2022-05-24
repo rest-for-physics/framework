@@ -96,9 +96,9 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
         string name;
         string call;
         if (Split(cmd, "->").size() != 2) {
-            warning << "command"
-                    << " \"" << cmd << "\" "
-                    << "is illegal!" << endl;
+            RESTWarning << "command"
+                        << " \"" << cmd << "\" "
+                        << "is illegal!" << RESTendl;
             fMode = TASK_ERROR;
             return;
         } else {
@@ -109,9 +109,9 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
         int p1 = call.find_first_of("(");
         int p2 = call.find_last_of(")");
         if (p1 == -1 || p2 == -1 || p1 >= p2) {
-            warning << "command"
-                    << " \"" << cmd << "\" "
-                    << "is illegal!" << endl;
+            RESTWarning << "command"
+                        << " \"" << cmd << "\" "
+                        << "is illegal!" << RESTendl;
             fMode = TASK_ERROR;
             return;
         }
@@ -153,14 +153,14 @@ void TRestTask::SetArgumentValue(vector<string> arg) {
 ///
 void TRestTask::RunTask(TRestManager* mgr) {
     if (fInvokeMethod == "") {
-        ferr << "no task specified for TRestTask!!!" << endl;
+        RESTFerr << "no task specified for TRestTask!!!" << RESTendl;
         exit(-1);
     } else {
         if (fMode == TASK_MACRO) {
             // call gInterpreter to run a command
             for (int i = 0; i < fArgumentValues.size(); i++) {
                 if (fArgumentValues[i] == "NOT SET") {
-                    ferr << "TRestTask : argument " << i << " not set! Task will not run!" << endl;
+                    RESTFerr << "TRestTask : argument " << i << " not set! Task will not run!" << RESTendl;
                 }
             }
 
@@ -183,14 +183,14 @@ void TRestTask::RunTask(TRestManager* mgr) {
         } else if (fMode == TASK_CPPCMD) {
             //
             if (mgr == nullptr) {
-                ferr << "no target specified for the command:" << endl;
-                ferr << fConstructedCommand << endl;
+                RESTFerr << "no target specified for the command:" << RESTendl;
+                RESTFerr << fConstructedCommand << RESTendl;
                 exit(-1);
             } else {
                 TRestMetadata* meta = mgr->GetMetadata(fInvokeObject);
                 if (meta == nullptr) {
-                    ferr << "cannot file metadata: " << fInvokeObject << " in TRestManager" << endl;
-                    ferr << "command: " << fConstructedCommand << endl;
+                    RESTFerr << "cannot file metadata: " << fInvokeObject << " in TRestManager" << RESTendl;
+                    RESTFerr << "command: " << fConstructedCommand << RESTendl;
                     exit(-1);
                 } else {
                     string type = meta->ClassName();
@@ -200,15 +200,16 @@ void TRestTask::RunTask(TRestManager* mgr) {
                     TInterpreter::EErrorCode err;
                     gInterpreter->ProcessLine(cmd.c_str(), &err);
                     if (err != TInterpreter::kNoError) {
-                        ferr << "TRestTask::RunTask(): unknown error" << endl;
-                        ferr << "code: " << err << endl;
+                        RESTFerr << "TRestTask::RunTask(): unknown error" << RESTendl;
+                        RESTFerr << "code: " << err << RESTendl;
                         exit(-1);
                     }
                     gInterpreter->ProcessLine(fConstructedCommand.c_str(), &err);
                     if (err != TInterpreter::kNoError) {
-                        ferr << "TRestTask: failed to execute cpp command, error code: " << err << endl;
-                        ferr << fConstructedCommand << endl;
-                        ferr << "Check your <AddTask section!" << endl;
+                        RESTFerr << "TRestTask: failed to execute cpp command, error code: " << err
+                                 << RESTendl;
+                        RESTFerr << fConstructedCommand << RESTendl;
+                        RESTFerr << "Check your <AddTask section!" << RESTendl;
                         exit(-1);
                     }
                 }
@@ -225,7 +226,7 @@ void TRestTask::RunTask(TRestManager* mgr) {
 ///
 void TRestTask::PrintArgumentHelp() {
     if (fMode == 0) {
-        ferr << fInvokeMethod << "() Gets invalided input!" << endl;
+        RESTFerr << fInvokeMethod << "() Gets invalided input!" << RESTendl;
         cout << "You should give the following arguments (* is mandatory input):" << endl;
         int n = fArgumentNames.size();
         for (int i = 0; i < n; i++) {
@@ -233,12 +234,12 @@ void TRestTask::PrintArgumentHelp() {
         }
     } else if (fMode == 1) {
     } else if (fMode == 2) {
-        ferr << "Macro class \"" << this->ClassName() << "\" gets invalided input!" << endl;
-        ferr << "You should give the following arguments ( * : necessary input):" << endl;
+        RESTFerr << "Macro class \"" << this->ClassName() << "\" gets invalided input!" << RESTendl;
+        RESTFerr << "You should give the following arguments ( * : necessary input):" << RESTendl;
         int n = any(this).GetNumberOfDataMembers();
         for (int i = 1; i < n; i++) {
-            if (i < fNRequiredArgument + 1) ferr << "*";
-            ferr << any(this).GetDataMember(i).name << endl;
+            if (i < fNRequiredArgument + 1) RESTFerr << "*";
+            RESTFerr << any(this).GetDataMember(i).name << RESTendl;
         }
     }
 }
@@ -262,21 +263,22 @@ TRestTask* TRestTask::GetTaskFromMacro(TString taskName) {
     auto macfiles = Split(macfilelists, "\n");
 
     if (macfiles.size() != 0 && macfiles[0] != "") {
-        info << "Found MacroFile " << macfiles[0] << noClass::endl;
+        RESTInfo << "Found MacroFile " << macfiles[0] << TRestStringOutput::RESTendl;
         // system("echo \"#define REST_MANAGER\" > /tmp/tmpMacro.c");
         // system(("cat " + macfiles[0] + " >> /tmp/tmpMacro.c").c_str());
         if (gInterpreter->LoadFile(macfiles[0].c_str()) == 0) {
             TRestTask* tsk = new TRestTask(macfiles[0].c_str(), TASK_MACRO);
             if (tsk->GetMode() == TASK_ERROR) {
-                ferr << "Task file: " << macfiles[0]
-                     << " loaded but method not found. Make sure it contains the method with same name as "
-                        "file name"
-                     << noClass::endl;
+                RESTFerr
+                    << "Task file: " << macfiles[0]
+                    << " loaded but method not found. Make sure it contains the method with same name as "
+                       "file name"
+                    << TRestStringOutput::RESTendl;
                 return nullptr;
             }
             return tsk;
         } else {
-            ferr << "Task file: " << macfiles[0] << " contains error" << noClass::endl;
+            RESTFerr << "Task file: " << macfiles[0] << " contains error" << TRestStringOutput::RESTendl;
             return nullptr;
         }
 
@@ -288,7 +290,7 @@ TRestTask* TRestTask::GetTaskFromMacro(TString taskName) {
             return tsk;
         }
     }
-    ferr << "REST ERROR. Task : " << taskName << " not found!!" << noClass::endl;
+    RESTFerr << "REST ERROR. Task : " << taskName << " not found!!" << TRestStringOutput::RESTendl;
     return nullptr;
 }
 

@@ -141,9 +141,9 @@ TRestEvent* TRestEventSelectionProcess::ProcessEvent(TRestEvent* inputEvent) {
 void TRestEventSelectionProcess::PrintMetadata() {
     BeginPrintProcess();
 
-    metadata << "File with IDs: " << fFileWithIDs << endl;
+    RESTMetadata << "File with IDs: " << fFileWithIDs << RESTendl;
     if (fFileWithIDs.substr(fFileWithIDs.length() - 4) == "root") {
-        metadata << "Conditions: " << fConditions << endl;
+        RESTMetadata << "Conditions: " << fConditions << RESTendl;
     }
 
     EndPrintProcess();

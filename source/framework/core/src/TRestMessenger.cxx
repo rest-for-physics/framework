@@ -139,27 +139,28 @@ void TRestMessenger::InitFromConfigFile() {
         if (shmid == -1) {
             shmid = shmget(key, 30000, SHMFLAG_CREATEUNIQUE);
             if (shmid == -1) {
-                warning << "TRestMessenger: unknown error!" << endl;
+                RESTWarning << "TRestMessenger: unknown error!" << RESTendl;
                 return;
             } else {
                 created = true;
             }
         } else {
-            warning << "TRestMessenger: shmget error!" << endl;
-            warning << "Shared memory not deleted? type \"ipcrm -m " << shmid << "\" in the bash" << endl;
+            RESTWarning << "TRestMessenger: shmget error!" << RESTendl;
+            RESTWarning << "Shared memory not deleted? type \"ipcrm -m " << shmid << "\" in the bash"
+                        << RESTendl;
             return;
         }
     } else if (fMode == MessagePool_Client) {
         if (shmid == -1) {
-            warning << "TRestMessenger: shmget error!" << endl;
-            warning << "Shared memory not initialized? Launch Host process first!" << endl;
+            RESTWarning << "TRestMessenger: shmget error!" << RESTendl;
+            RESTWarning << "Shared memory not initialized? Launch Host process first!" << RESTendl;
             return;
         }
     } else if (fMode == MessagePool_TwoWay) {
         if (shmid == -1) {
             shmid = shmget(key, 30000, SHMFLAG_CREATEUNIQUE);
             if (shmid == -1) {
-                warning << "TRestMessenger: unknown error!" << endl;
+                RESTWarning << "TRestMessenger: unknown error!" << RESTendl;
                 return;
             } else {
                 created = true;
@@ -181,8 +182,8 @@ void TRestMessenger::InitFromConfigFile() {
         cout << "Created shared memory: " << shmid << endl;
     } else {
         if (strcmp(message->name, this->GetName()) != 0) {
-            warning << "TRestMessenger: connected message pool name(" << message->name
-                    << ") is different with this(" << this->GetName() << ")!" << endl;
+            RESTWarning << "TRestMessenger: connected message pool name(" << message->name
+                        << ") is different with this(" << this->GetName() << ")!" << RESTendl;
         }
         cout << "Connected to shared memory: " << shmid << endl;
     }
@@ -214,7 +215,7 @@ bool TRestMessenger::unlock(messagepool_t* pool, int timeoutMs) {
         usleep(1000);
         i++;
         if (i >= timeoutMs) {
-            ferr << "unlocking pool failed!" << endl;
+            RESTFerr << "unlocking pool failed!" << RESTendl;
             abort();
         }
     }
@@ -226,7 +227,7 @@ bool TRestMessenger::unlock(messagepool_t* pool, int timeoutMs) {
 
 void TRestMessenger::AddPool(string message) {
     if (!IsConnected()) {
-        warning << "TRestMessenger: Not connected!" << endl;
+        RESTWarning << "TRestMessenger: Not connected!" << RESTendl;
         return;
     }
 
@@ -234,13 +235,13 @@ void TRestMessenger::AddPool(string message) {
         message = message.substr(0, MsgLength - 2);
     }
     if (message == "") {
-        warning << "cannot add empty message!" << endl;
+        RESTWarning << "cannot add empty message!" << RESTendl;
         return;
     }
 
     messagepool_t* pool = fMessagePool;
     if (!lock(pool)) {
-        warning << "cannot add message to pool: " << pool->name << ": lock failed!" << endl;
+        RESTWarning << "cannot add message to pool: " << pool->name << ": lock failed!" << RESTendl;
         return;
     }
 
@@ -251,7 +252,7 @@ void TRestMessenger::AddPool(string message) {
         strcpy(msg.content, message.c_str());
         memcpy(&pool->messages[pos], &msg, sizeof(msg));
     } else {
-        warning << "cannot send message: message pool is full!" << endl;
+        RESTWarning << "cannot send message: message pool is full!" << RESTendl;
     }
 
     unlock(pool);
@@ -259,11 +260,11 @@ void TRestMessenger::AddPool(string message) {
 
 void TRestMessenger::SendMessage(string message) {
     if (!IsConnected()) {
-        warning << "TRestMessenger: Not connected!" << endl;
+        RESTWarning << "TRestMessenger: Not connected!" << RESTendl;
         return;
     }
     if (fMode == MessagePool_Client) {
-        warning << "TRestMessenger: Forbidden to send message from client!" << endl;
+        RESTWarning << "TRestMessenger: Forbidden to send message from client!" << RESTendl;
         return;
     }
 
@@ -286,12 +287,12 @@ vector<string> TRestMessenger::ShowMessagePool() {
     vector<string> result;
 
     if (!IsConnected()) {
-        warning << "TRestMessenger: Not connected!" << endl;
+        RESTWarning << "TRestMessenger: Not connected!" << RESTendl;
         return result;
     }
 
     if (!lock(fMessagePool)) {
-        warning << "cannot read message to pool: " << fMessagePool->name << ": lock failed!" << endl;
+        RESTWarning << "cannot read message to pool: " << fMessagePool->name << ": lock failed!" << RESTendl;
         return result;
     }
 
@@ -310,16 +311,16 @@ vector<string> TRestMessenger::ShowMessagePool() {
 
 string TRestMessenger::ConsumeMessage() {
     if (!IsConnected()) {
-        warning << "TRestMessenger: Not connected!" << endl;
+        RESTWarning << "TRestMessenger: Not connected!" << RESTendl;
         return "";
     }
     if (fMode == MessagePool_Host) {
-        warning << "TRestMessenger: Forbidden to consume message from host!" << endl;
+        RESTWarning << "TRestMessenger: Forbidden to consume message from host!" << RESTendl;
         return "";
     }
 
     if (!lock(fMessagePool)) {
-        warning << "cannot read message to pool: " << fMessagePool->name << ": lock failed!" << endl;
+        RESTWarning << "cannot read message to pool: " << fMessagePool->name << ": lock failed!" << RESTendl;
         return "";
     }
 
@@ -345,13 +346,13 @@ void TRestMessenger::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     if (IsConnected()) {
-        metadata << "Connected : "
-                 << " (token: " << fPoolToken << ", shmid: " << fShmId << ", source: " << fPoolSource << ")"
-                 << endl;
+        RESTMetadata << "Connected : "
+                     << " (token: " << fPoolToken << ", shmid: " << fShmId << ", source: " << fPoolSource
+                     << ")" << RESTendl;
     } else {
-        metadata << "Not Connected" << endl;
+        RESTMetadata << "Not Connected" << RESTendl;
     }
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-    metadata << endl;
-    metadata << endl;
+    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
+    RESTMetadata << RESTendl;
+    RESTMetadata << RESTendl;
 }

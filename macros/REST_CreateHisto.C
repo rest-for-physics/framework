@@ -18,14 +18,14 @@
 //*******************************************************************************************************
 Int_t REST_CreateHisto(string varName, string rootFileName, TString histoName, int startVal = 0,
                        int endVal = 1000, int bins = 1000, Double_t normFactor = 1) {
-    TRestStringOutput cout;
+    TRestStringOutput RESTcout;
 
     std::vector<string> inputFilesNew = TRestTools::GetFilesMatchingPattern(rootFileName);
 
     TH1D* h = new TH1D(histoName, histoName, bins, startVal, endVal);
 
     if (inputFilesNew.size() == 0) {
-        cout << "Files not found!" << endl;
+        RESTcout << "Files not found!" << RESTendl;
         return -1;
     }
 
@@ -38,9 +38,9 @@ Int_t REST_CreateHisto(string varName, string rootFileName, TString histoName, i
 
         Int_t obsID = run->GetAnalysisTree()->GetObservableID(varName);
         if (obsID == -1) {
-            cout << endl;
-            cout.setcolor(COLOR_BOLDRED);
-            cout << "No observable \"" << varName << "\" in file " << inputFilesNew[n] << endl;
+            RESTcout << RESTendl;
+            RESTcout.setcolor(COLOR_BOLDRED);
+            RESTcout << "No observable \"" << varName << "\" in file " << inputFilesNew[n] << RESTendl;
             continue;
         }
         for (int i = 0; i < run->GetEntries(); i++) {
@@ -58,7 +58,7 @@ Int_t REST_CreateHisto(string varName, string rootFileName, TString histoName, i
     h->Write(histoName);
     f->Close();
 
-    cout << "Written histogram " << histoName << " into " << rootFileName << endl;
+    RESTcout << "Written histogram " << histoName << " into " << rootFileName << RESTendl;
 
     return 0;
 };

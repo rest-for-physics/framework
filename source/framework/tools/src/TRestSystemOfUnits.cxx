@@ -280,7 +280,7 @@ TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
                         orderprefix = -1;
                     } else if (unitsStr[pos1 - 1] == '-' || unitsStr[pos1 - 1] == '*') {
                     } else {
-                        warning << "illegeal unit combiner \"" << unitsStr[pos1 - 1] << "\"" << endl;
+                        RESTWarning << "illegeal unit combiner \"" << unitsStr[pos1 - 1] << "\"" << RESTendl;
                     }
                 }
 
@@ -315,8 +315,8 @@ TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
             //            << endl;
             //}
             if (pos == unitsStr.size() - 1) {
-                warning << "last character inside \"" << unitsStr << "\" \"" << unitsStr[pos]
-                        << "\" unrecognized in unit definition!" << endl;
+                RESTWarning << "last character inside \"" << unitsStr << "\" \"" << unitsStr[pos]
+                            << "\" unrecognized in unit definition!" << RESTendl;
             }
 
             pos++;

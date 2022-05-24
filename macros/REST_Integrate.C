@@ -17,19 +17,19 @@
 //***
 //*******************************************************************************************************
 Int_t REST_Integrate(string varName, string rootFileName, double startVal, double endVal) {
-    TRestStringOutput cout;
-    cout << "Variable name : " << varName << endl;
-    cout << "Integration range : ( " << startVal << " , " << endVal << " ) " << endl;
+    TRestStringOutput RESTcout;
+    RESTcout << "Variable name : " << varName << RESTendl;
+    RESTcout << "Integration range : ( " << startVal << " , " << endVal << " ) " << RESTendl;
 
     if (startVal >= endVal) {
-        cout << "Start or End integration values not properly defined!!!" << endl;
+        RESTcout << "Start or End integration values not properly defined!!!" << RESTendl;
         return -1;
     }
 
     std::vector<string> inputFilesNew = TRestTools::GetFilesMatchingPattern(rootFileName);
 
     if (inputFilesNew.size() == 0) {
-        cout << "Files not found!" << endl;
+        RESTcout << "Files not found!" << RESTendl;
         return -1;
     }
 
@@ -43,9 +43,9 @@ Int_t REST_Integrate(string varName, string rootFileName, double startVal, doubl
 
         Int_t obsID = run->GetAnalysisTree()->GetObservableID(varName);
         if (obsID == -1) {
-            cout << endl;
-            cout.setcolor(COLOR_BOLDRED);
-            cout << "No observable \"" << varName << "\" in file " << inputFilesNew[n] << endl;
+            RESTcout << RESTendl;
+            RESTcout.setcolor(COLOR_BOLDRED);
+            RESTcout << "No observable \"" << varName << "\" in file " << inputFilesNew[n] << RESTendl;
             continue;
         }
         for (int i = 0; i < run->GetEntries(); i++) {
@@ -55,13 +55,13 @@ Int_t REST_Integrate(string varName, string rootFileName, double startVal, doubl
         }
     }
 
-    cout.setcolor(COLOR_BOLDBLUE);
-    cout.setborder("*");
-    cout << endl;
-    cout << "=" << endl;
-    cout << "Integral : " << integral << endl;
-    cout << "=" << endl;
-    cout << endl;
+    RESTcout.setcolor(COLOR_BOLDBLUE);
+    RESTcout.setborder("*");
+    RESTcout << RESTendl;
+    RESTcout << "=" << RESTendl;
+    RESTcout << "Integral : " << integral << RESTendl;
+    RESTcout << "=" << RESTendl;
+    RESTcout << RESTendl;
 
     delete run;
 
