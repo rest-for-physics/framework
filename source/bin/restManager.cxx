@@ -216,8 +216,8 @@ int main(int argc, char* argv[]) {
 
             int pid = 0;
             if (doFork && input_files.size() > maxForksAllowed) {
-                RESTFerr << "Fork list is larger than " << maxForksAllowed
-                         << " files. Please, use a glob pattern producing a shorter list" << RESTendl;
+                RESTError << "Fork list is larger than " << maxForksAllowed
+                          << " files. Please, use a glob pattern producing a shorter list" << RESTendl;
             } else if (doFork) {
                 for (unsigned int n = 0; n < input_files.size(); n++) {
                     string command = "restManager";
