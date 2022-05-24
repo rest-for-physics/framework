@@ -10,17 +10,17 @@
 //***
 //*******************************************************************************************************
 Int_t REST_Metadata(TString fName, TString objName = "") {
-    TRestStringOutput RESTcout;
-    RESTcout.setorientation(TRestStringOutput::REST_Display_Orientation::kLeft);
+    TRestStringOutput RESTLog;
+    RESTLog.setorientation(TRestStringOutput::REST_Display_Orientation::kLeft);
 
     TString fileName = fName;
 
-    RESTcout << "Filename : " << fileName << RESTendl;
+    RESTLog << "Filename : " << fileName << RESTendl;
 
     string fname = fileName.Data();
 
     if (!TRestTools::fileExists(fname)) {
-        RESTcout << "WARNING. Input file does not exist" << RESTendl;
+        RESTLog << "WARNING. Input file does not exist" << RESTendl;
         exit(1);
     }
 
@@ -33,12 +33,12 @@ Int_t REST_Metadata(TString fName, TString objName = "") {
         if (((string)(key->GetClassName())).find("TRest") != -1) {
             TObject* obj = f->Get(key->GetName());
             if (obj == NULL) {
-                RESTcout << "Cannot Get object with name \"" << key->GetName() << "\"!" << RESTendl;
-                RESTcout << "The name may contain illegel characters which was legel in previous version."
-                         << RESTendl;
+                RESTLog << "Cannot Get object with name \"" << key->GetName() << "\"!" << RESTendl;
+                RESTLog << "The name may contain illegel characters which was legel in previous version."
+                        << RESTendl;
             } else if (obj->InheritsFrom("TRestMetadata")) {
                 if (objName == "" || objName == obj->ClassName() || objName == obj->GetName()) {
-                    RESTcout << n << "th object : " << RESTendl;
+                    RESTLog << n << "th object : " << RESTendl;
                     ((TRestMetadata*)obj)->PrintMetadata();
                 }
             }

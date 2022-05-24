@@ -17,12 +17,12 @@
 //***
 //*******************************************************************************************************
 Int_t REST_IntegrateSmearing(string varName, string rootFileName, double Middle) {
-    TRestStringOutput RESTcout;
+    TRestStringOutput RESTLog;
 
     std::vector<string> inputFilesNew = TRestTools::GetFilesMatchingPattern(rootFileName);
 
     if (inputFilesNew.size() == 0) {
-        RESTcout << "Files not found!" << RESTendl;
+        RESTLog << "Files not found!" << RESTendl;
         return -1;
     }
 
@@ -41,12 +41,12 @@ Int_t REST_IntegrateSmearing(string varName, string rootFileName, double Middle)
 
         Int_t obsID = run->GetAnalysisTree()->GetObservableID(varName);
         if (obsID == -1) {
-            RESTcout << RESTendl;
-            RESTcout.setcolor(COLOR_BOLDRED);
-            RESTcout << "No observable \"" << varName << "\" in file " << inputFilesNew[n] << RESTendl;
+            RESTLog << RESTendl;
+            RESTLog.setcolor(COLOR_BOLDRED);
+            RESTLog << "No observable \"" << varName << "\" in file " << inputFilesNew[n] << RESTendl;
             continue;
         }
-        RESTcout << "Entries : " << run->GetEntries() << RESTendl;
+        RESTLog << "Entries : " << run->GetEntries() << RESTendl;
         TH1D* h = new TH1D("histo", "histo", 180, Qbb - 90, Qbb + 90);
         Int_t peak = 0;
         for (int i = 0; i < run->GetEntries(); i++) {
@@ -78,18 +78,18 @@ Int_t REST_IntegrateSmearing(string varName, string rootFileName, double Middle)
             contribution_3 += gausFunc->Integral(mean - 2 * sigma_3, mean + 2 * sigma_3);
         }
 
-        RESTcout.setcolor(COLOR_BOLDBLUE);
-        RESTcout.setborder("*");
-        RESTcout << RESTendl;
-        RESTcout << "=" << RESTendl;
-        RESTcout << "Total events : " << run->GetEntries() << RESTendl;
-        RESTcout << " " << RESTendl;
-        RESTcout << "FWHM = 0.5% -> " << contribution_1 << RESTendl;
-        RESTcout << "FWHM = 1.% -> " << contribution_2 << RESTendl;
-        RESTcout << "FWHM = 3.% -> " << contribution_3 << RESTendl;
-        RESTcout << "peak : " << peak << RESTendl;
-        RESTcout << "=" << RESTendl;
-        RESTcout << RESTendl;
+        RESTLog.setcolor(COLOR_BOLDBLUE);
+        RESTLog.setborder("*");
+        RESTLog << RESTendl;
+        RESTLog << "=" << RESTendl;
+        RESTLog << "Total events : " << run->GetEntries() << RESTendl;
+        RESTLog << " " << RESTendl;
+        RESTLog << "FWHM = 0.5% -> " << contribution_1 << RESTendl;
+        RESTLog << "FWHM = 1.% -> " << contribution_2 << RESTendl;
+        RESTLog << "FWHM = 3.% -> " << contribution_3 << RESTendl;
+        RESTLog << "peak : " << peak << RESTendl;
+        RESTLog << "=" << RESTendl;
+        RESTLog << RESTendl;
 
         delete run;
     }

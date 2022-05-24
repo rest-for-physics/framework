@@ -233,13 +233,13 @@ class TRestRun : public TRestMetadata {
     }
     inline void PrintTrees() const {
         if (fEventTree != nullptr) {
-            RESTFout << RESTendl;
-            RESTFout << "=====EventTree=====" << RESTendl;
+            RESTcout << RESTendl;
+            RESTcout << "=====EventTree=====" << RESTendl;
             fEventTree->Print();
         }
         if (fAnalysisTree != nullptr) {
-            RESTFout << RESTendl;
-            RESTFout << "=====AnalysisTree=====" << RESTendl;
+            RESTcout << RESTendl;
+            RESTcout << "=====AnalysisTree=====" << RESTendl;
             fAnalysisTree->Print();
         }
     }

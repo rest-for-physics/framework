@@ -49,41 +49,41 @@ int fork_n_execute(string command) {
 
 void PrintHelp() {
     TRestStringOutput fout(COLOR_BOLDYELLOW, "", TRestStringOutput::REST_Display_Orientation::kLeft);
-    RESTFout << " " << RESTendl;
+    RESTcout << " " << RESTendl;
 
-    RESTFout.setheader("Usage1 : ./restManager ");
-    RESTFout << "--c CONFIG_FILE [--i/f INPUT] [--o OUTPUT] [--j THREADS] [--e EVENTS_TO_PROCESS] [--v "
+    RESTcout.setheader("Usage1 : ./restManager ");
+    RESTcout << "--c CONFIG_FILE [--i/f INPUT] [--o OUTPUT] [--j THREADS] [--e EVENTS_TO_PROCESS] [--v "
                 "VERBOSELEVEL] [--d RUNID] [--p PDF_PLOTS.pdf]"
              << RESTendl;
-    RESTFout.setheader("Usage2 : ./restManager ");
-    RESTFout << "TASK_NAME ARG1 ARG2 ARG3" << RESTendl;
+    RESTcout.setheader("Usage2 : ./restManager ");
+    RESTcout << "TASK_NAME ARG1 ARG2 ARG3" << RESTendl;
 
-    RESTFout.setcolor(COLOR_WHITE);
-    RESTFout.setheader("");
-    RESTFout << " " << RESTendl;
-    RESTFout.setheader("CONFIG_FILE: ");
-    RESTFout << "-" << RESTendl;
-    RESTFout << "The rml configuration file. It should contain a TRestManager section. This "
+    RESTcout.setcolor(COLOR_WHITE);
+    RESTcout.setheader("");
+    RESTcout << " " << RESTendl;
+    RESTcout.setheader("CONFIG_FILE: ");
+    RESTcout << "-" << RESTendl;
+    RESTcout << "The rml configuration file. It should contain a TRestManager section. This "
                 "argument MUST be provided. The others can be also specified in the rml file."
              << RESTendl;
-    RESTFout.setheader("INPUT      : ");
-    RESTFout << "-" << RESTendl;
-    RESTFout << "Input file name. If not given it will be acquired from the rml file. If you want "
+    RESTcout.setheader("INPUT      : ");
+    RESTcout << "-" << RESTendl;
+    RESTcout << "Input file name. If not given it will be acquired from the rml file. If you want "
                 "to use multiple input file, you can either specify the string of matching pattern with "
                 "quotation marks surrounding it, or put the file names in a .list file."
              << RESTendl;
-    RESTFout.setheader("OUTPUT     : ");
-    RESTFout << "-" << RESTendl;
-    RESTFout << "Output file name. It can be given as a name string (abc.root), or as an expression "
+    RESTcout.setheader("OUTPUT     : ");
+    RESTcout << "-" << RESTendl;
+    RESTcout << "Output file name. It can be given as a name string (abc.root), or as an expression "
                 "with naming fields to be replaced (Run[RunNumber]_[Tag].root)."
              << RESTendl;
-    RESTFout.setheader("THREADS    : ");
-    RESTFout << "-" << RESTendl;
-    RESTFout << "Enable specific number of threads to run the jobs. In most time 3~6 threads are "
+    RESTcout.setheader("THREADS    : ");
+    RESTcout << "-" << RESTendl;
+    RESTcout << "Enable specific number of threads to run the jobs. In most time 3~6 threads are "
                 "enough to make full use of computer power. Maximum is 15."
              << RESTendl;
-    RESTFout.setheader("");
-    RESTFout << "=" << RESTendl;
+    RESTcout.setheader("");
+    RESTcout << "=" << RESTendl;
 }
 
 Bool_t doFork = false;
@@ -128,19 +128,19 @@ int main(int argc, char* argv[]) {
         // handle special arguments like "--batch"
         for (int i = 1; i < args.size(); i++) {
             if (args[i] == "--batch") {
-                RESTFout << "you are in batch mode, all graphical displays off" << RESTendl;
+                RESTcout << "you are in batch mode, all graphical displays off" << RESTendl;
                 argCApp = 2;
                 args.erase(args.begin() + i);
             }
             if (args[i] == "--fork") {
-                RESTFout << "Fork is enabled!" << RESTendl;
+                RESTcout << "Fork is enabled!" << RESTendl;
                 argCApp = 2;
                 args.erase(args.begin() + i);
                 doFork = true;
             }
         }
         if (Console::CompatibilityMode) {
-            RESTFout << "you are in compatibility mode, all graphical displays off" << RESTendl;
+            RESTcout << "you are in compatibility mode, all graphical displays off" << RESTendl;
             argCApp = 2;
         }
     }
@@ -201,18 +201,18 @@ int main(int argc, char* argv[]) {
                             REST_ARGS["pdfFilename"] = args[i + 1];
                             break;
                         default:
-                            RESTFout << RESTendl;
+                            RESTcout << RESTendl;
                             PrintHelp();
                             return 0;
                     }
                 }
             }
 
-            RESTFout << RESTendl;
-            RESTFout.setcolor(COLOR_BOLDBLUE);
-            RESTFout.setorientation(TRestStringOutput::REST_Display_Orientation::kMiddle);
-            RESTFout << "Launching TRestManager..." << RESTendl;
-            RESTFout << RESTendl;
+            RESTcout << RESTendl;
+            RESTcout.setcolor(COLOR_BOLDBLUE);
+            RESTcout.setorientation(TRestStringOutput::REST_Display_Orientation::kMiddle);
+            RESTcout << "Launching TRestManager..." << RESTendl;
+            RESTcout << RESTendl;
 
             int pid = 0;
             if (doFork && input_files.size() > maxForksAllowed) {
@@ -227,22 +227,22 @@ int main(int argc, char* argv[]) {
                     }
                     command +=
                         " --f " + input_files[n] + " >> /tmp/" + getenv("USER") + "_out." + ToString(n);
-                    RESTFout << "Executing : " << command << RESTendl;
+                    RESTcout << "Executing : " << command << RESTendl;
                     fork_n_execute(command);
                 }
                 exit(0);
             } else {
-                RESTFout << "Creating TRestManager" << RESTendl;
+                RESTcout << "Creating TRestManager" << RESTendl;
                 TRestManager* mgr = new TRestManager();
 
                 auto path = TRestTools::SeparatePathAndName(configFilename).first;
-                RESTFout << "path:" << path << RESTendl;
+                RESTcout << "path:" << path << RESTendl;
 
                 setenv("configPath", path.c_str(), 1);
 
                 mgr->LoadConfigFromFile(configFilename);
 
-                RESTFout << "Done!" << RESTendl;
+                RESTcout << "Done!" << RESTendl;
                 // a->GetChar();
 
                 delete mgr;
@@ -255,7 +255,7 @@ int main(int argc, char* argv[]) {
                 argumentlist.push_back(args[i]);
             }
             string type = (args[1]);
-            RESTFout << "Initializing " << type << RESTendl;
+            RESTcout << "Initializing " << type << RESTendl;
             TRestManager* a = new TRestManager();
             a->InitFromTask(type, argumentlist);
         }

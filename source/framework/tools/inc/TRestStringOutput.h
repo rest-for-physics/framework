@@ -211,7 +211,7 @@ inline void PrintWelcome() { system("rest-config --welcome"); }
 /// formatted message output, used for print metadata
 // initialize formatted message output tool
 // initialize formatted message output tool
-static TRestStringOutput RESTFout(TRestStringOutput::REST_Verbose_Level::REST_Silent, COLOR_BOLDBLUE,
+static TRestStringOutput RESTcout(TRestStringOutput::REST_Verbose_Level::REST_Silent, COLOR_BOLDBLUE,
                                   "[== ==]", TRestStringOutput::REST_Display_Orientation::kMiddle);
 static TRestStringOutput RESTError(TRestStringOutput::REST_Verbose_Level::REST_Silent, COLOR_BOLDRED,
                                    "-- Error : ", TRestStringOutput::REST_Display_Orientation::kLeft, true);

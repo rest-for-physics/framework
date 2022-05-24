@@ -364,15 +364,15 @@ void TRestProcessRunner::RunProcess() {
         }
     } else {
         if (fRunInfo->GetFileProcess() != nullptr) {
-            RESTFout << "(external) " << fRunInfo->GetFileProcess()->ClassName() << " : "
+            RESTcout << "(external) " << fRunInfo->GetFileProcess()->ClassName() << " : "
                      << fRunInfo->GetFileProcess()->GetName() << RESTendl;
         }
         for (int i = 0; i < fProcessNumber; i++) {
-            RESTFout << "++ " << fThreads[0]->GetProcess(i)->ClassName() << " : "
+            RESTcout << "++ " << fThreads[0]->GetProcess(i)->ClassName() << " : "
                      << fThreads[0]->GetProcess(i)->GetName() << RESTendl;
         }
     }
-    RESTFout << "=" << RESTendl;
+    RESTcout << "=" << RESTendl;
 
     // copy thread's event tree to local
     fOutputDataFile->cd();
@@ -426,7 +426,7 @@ void TRestProcessRunner::RunProcess() {
 #endif
 
     // start the thread!
-    RESTFout << this->ClassName() << ": Starting the Process.." << RESTendl;
+    RESTcout << this->ClassName() << ": Starting the Process.." << RESTendl;
     for (int i = 0; i < fThreadNumber; i++) {
         fThreads[i]->StartThread();
     }
@@ -442,15 +442,14 @@ void TRestProcessRunner::RunProcess() {
             if (a == 'p') {
                 fProcStatus = kPause;
                 usleep(100000);  // wait 0.1s for the processes to finish;
-                TRestStringOutput RESTcout(TRestStringOutput::REST_Verbose_Level::REST_Silent,
-                                           COLOR_BOLDWHITE, "| |",
-                                           TRestStringOutput::REST_Display_Orientation::kMiddle);
+                TRestStringOutput RESTLog(TRestStringOutput::REST_Verbose_Level::REST_Silent, COLOR_BOLDWHITE,
+                                          "| |", TRestStringOutput::REST_Display_Orientation::kMiddle);
                 Console::ClearLinesAfterCursor();
-                RESTcout << RESTendl;
-                RESTcout << "-" << RESTendl;
-                RESTcout << "PROCESS PAUSED!" << RESTendl;
-                RESTcout << "-" << RESTendl;
-                RESTcout << " " << RESTendl;
+                RESTLog << RESTendl;
+                RESTLog << "-" << RESTendl;
+                RESTLog << "PROCESS PAUSED!" << RESTendl;
+                RESTLog << "-" << RESTendl;
+                RESTLog << " " << RESTendl;
             }
         }
 
@@ -513,7 +512,7 @@ void TRestProcessRunner::RunProcess() {
     gROOTMutex = nullptr;
     gInterpreterMutex = nullptr;
 
-    RESTFout << this->ClassName() << ": " << fProcessedEvents << " processed events" << RESTendl;
+    RESTcout << this->ClassName() << ": " << fProcessedEvents << " processed events" << RESTendl;
 
 #ifdef TIME_MEASUREMENT
     RESTInfo << "Total processing time : " << ((Double_t)deltaTime) / 1000. << " ms" << RESTendl;
@@ -543,20 +542,20 @@ void TRestProcessRunner::RunProcess() {
 /// 4. Print the latest processed event
 /// 5. Quit the process directly with file saved
 void TRestProcessRunner::PauseMenu() {
-    TRestStringOutput RESTcout(TRestStringOutput::REST_Verbose_Level::REST_Silent, COLOR_BOLDWHITE, "| |",
-                               TRestStringOutput::REST_Display_Orientation::kMiddle);
+    TRestStringOutput RESTLog(TRestStringOutput::REST_Verbose_Level::REST_Silent, COLOR_BOLDWHITE, "| |",
+                              TRestStringOutput::REST_Display_Orientation::kMiddle);
     Console::ClearLinesAfterCursor();
 
-    RESTcout << "--------------MENU--------------" << RESTendl;
-    RESTcout << "\"v\" : change the verbose level" << RESTendl;
-    RESTcout << "\"n\" : push foward one event, then pause" << RESTendl;
-    RESTcout << "\"l\" : print the latest processed event" << RESTendl;
-    RESTcout << "\"d\" : detach the current process" << RESTendl;
-    RESTcout << "\"q\" : stop and quit the process" << RESTendl;
-    RESTcout << "press \"p\" to continue process..." << RESTendl;
-    RESTcout << "-" << RESTendl;
-    RESTcout << RESTendl;
-    RESTcout << RESTendl;
+    RESTLog << "--------------MENU--------------" << RESTendl;
+    RESTLog << "\"v\" : change the verbose level" << RESTendl;
+    RESTLog << "\"n\" : push foward one event, then pause" << RESTendl;
+    RESTLog << "\"l\" : print the latest processed event" << RESTendl;
+    RESTLog << "\"d\" : detach the current process" << RESTendl;
+    RESTLog << "\"q\" : stop and quit the process" << RESTendl;
+    RESTLog << "press \"p\" to continue process..." << RESTendl;
+    RESTLog << "-" << RESTendl;
+    RESTLog << RESTendl;
+    RESTLog << RESTendl;
     int menuupper = 15;
     int infobar = 11;
     while (1) {
@@ -566,20 +565,20 @@ void TRestProcessRunner::PauseMenu() {
 
         if (b == 'v') {
             Console::CursorUp(infobar);
-            RESTcout.setcolor(COLOR_BOLDGREEN);
-            RESTcout << "Changing verbose level for all the processes..." << RESTendl;
-            RESTcout.setcolor(COLOR_BOLDWHITE);
+            RESTLog.setcolor(COLOR_BOLDGREEN);
+            RESTLog << "Changing verbose level for all the processes..." << RESTendl;
+            RESTLog.setcolor(COLOR_BOLDWHITE);
             Console::CursorDown(1);
             Console::ClearLinesAfterCursor();
-            RESTcout << "type \"0\"/\"s\" to set level silent" << RESTendl;
-            RESTcout << "type \"1\"/\"e\" to set level essential" << RESTendl;
-            RESTcout << "type \"2\"/\"i\" to set level info" << RESTendl;
-            RESTcout << "type \"3\"/\"d\" to set level debug" << RESTendl;
-            RESTcout << "type \"4\"/\"x\" to set level extreme" << RESTendl;
-            RESTcout << "type other to return the pause menu" << RESTendl;
-            RESTcout << "-" << RESTendl;
-            RESTcout << RESTendl;
-            RESTcout << RESTendl;
+            RESTLog << "type \"0\"/\"s\" to set level silent" << RESTendl;
+            RESTLog << "type \"1\"/\"e\" to set level essential" << RESTendl;
+            RESTLog << "type \"2\"/\"i\" to set level info" << RESTendl;
+            RESTLog << "type \"3\"/\"d\" to set level debug" << RESTendl;
+            RESTLog << "type \"4\"/\"x\" to set level extreme" << RESTendl;
+            RESTLog << "type other to return the pause menu" << RESTendl;
+            RESTLog << "-" << RESTendl;
+            RESTLog << RESTendl;
+            RESTLog << RESTendl;
             while (1) {
                 Console::CursorUp(1);
                 int c = Console::Read();
@@ -599,9 +598,9 @@ void TRestProcessRunner::PauseMenu() {
                     l = TRestStringOutput::REST_Verbose_Level::REST_Extreme;
                 } else {
                     Console::CursorUp(infobar);
-                    RESTcout.setcolor(COLOR_BOLDYELLOW);
-                    RESTcout << "Verbose level not set!" << RESTendl;
-                    RESTcout.setcolor(COLOR_BOLDWHITE);
+                    RESTLog.setcolor(COLOR_BOLDYELLOW);
+                    RESTLog << "Verbose level not set!" << RESTendl;
+                    RESTLog.setcolor(COLOR_BOLDWHITE);
                     break;
                 }
 
@@ -614,30 +613,30 @@ void TRestProcessRunner::PauseMenu() {
                     }
                 }
                 Console::CursorUp(infobar);
-                RESTcout.setcolor(COLOR_BOLDGREEN);
-                RESTcout << "Verbose level has been set to " << ToString(static_cast<int>(l)) << "!"
-                         << RESTendl;
-                RESTcout.setcolor(COLOR_BOLDWHITE);
+                RESTLog.setcolor(COLOR_BOLDGREEN);
+                RESTLog << "Verbose level has been set to " << ToString(static_cast<int>(l)) << "!"
+                        << RESTendl;
+                RESTLog.setcolor(COLOR_BOLDWHITE);
                 break;
             }
             Console::ClearLinesAfterCursor();
             break;
         } else if (b == 'd') {
             Console::CursorUp(infobar);
-            RESTcout.setcolor(COLOR_BOLDGREEN);
-            RESTcout << "Detaching restManager to backend" << RESTendl;
-            RESTcout.setcolor(COLOR_BOLDWHITE);
+            RESTLog.setcolor(COLOR_BOLDGREEN);
+            RESTLog << "Detaching restManager to backend" << RESTendl;
+            RESTLog.setcolor(COLOR_BOLDWHITE);
             Console::CursorDown(1);
             Console::ClearLinesAfterCursor();
-            RESTcout << "type filename for output redirect" << RESTendl;
-            RESTcout << "leave blank to redirect to /dev/null" << RESTendl;
-            RESTcout << " " << RESTendl;
-            RESTcout << " " << RESTendl;
-            RESTcout << " " << RESTendl;
-            RESTcout << " " << RESTendl;
-            RESTcout << "-" << RESTendl;
-            RESTcout << RESTendl;
-            RESTcout << RESTendl;
+            RESTLog << "type filename for output redirect" << RESTendl;
+            RESTLog << "leave blank to redirect to /dev/null" << RESTendl;
+            RESTLog << " " << RESTendl;
+            RESTLog << " " << RESTendl;
+            RESTLog << " " << RESTendl;
+            RESTLog << " " << RESTendl;
+            RESTLog << "-" << RESTendl;
+            RESTLog << RESTendl;
+            RESTLog << RESTendl;
 
             string file;
 
@@ -647,17 +646,17 @@ void TRestProcessRunner::PauseMenu() {
             if (TRestTools::fileExists(file)) {
                 if (!TRestTools::isPathWritable(file)) {
                     Console::CursorUp(infobar);
-                    RESTcout.setcolor(COLOR_BOLDYELLOW);
-                    RESTcout << "file not writeable!" << RESTendl;
-                    RESTcout.setcolor(COLOR_BOLDWHITE);
+                    RESTLog.setcolor(COLOR_BOLDYELLOW);
+                    RESTLog << "file not writeable!" << RESTendl;
+                    RESTLog.setcolor(COLOR_BOLDWHITE);
                     break;
                 }
             } else {
                 if (!TRestTools::isPathWritable(TRestTools::SeparatePathAndName(file).first)) {
                     Console::CursorUp(infobar);
-                    RESTcout.setcolor(COLOR_BOLDYELLOW);
-                    RESTcout << "path not writeable!" << RESTendl;
-                    RESTcout.setcolor(COLOR_BOLDWHITE);
+                    RESTLog.setcolor(COLOR_BOLDYELLOW);
+                    RESTLog << "path not writeable!" << RESTendl;
+                    RESTLog.setcolor(COLOR_BOLDWHITE);
                     break;
                 }
             }
@@ -670,7 +669,7 @@ void TRestProcessRunner::PauseMenu() {
             }
             // child process
             if (pid == 0) {
-                RESTFout << "Child process created! pid: " << getpid() << RESTendl;
+                RESTcout << "Child process created! pid: " << getpid() << RESTendl;
                 RESTInfo << "Restarting threads" << RESTendl;
                 mutex_write.unlock();
                 for (int i = 0; i < fThreadNumber; i++) {
@@ -710,9 +709,9 @@ void TRestProcessRunner::PauseMenu() {
             // CursorUp(1);
         } else {
             Console::CursorUp(infobar);
-            RESTcout.setcolor(COLOR_BOLDYELLOW);
-            RESTcout << "Invailed option \"" << (char)b << "\" (key value: " << b << ") !" << RESTendl;
-            RESTcout.setcolor(COLOR_BOLDWHITE);
+            RESTLog.setcolor(COLOR_BOLDYELLOW);
+            RESTLog << "Invailed option \"" << (char)b << "\" (key value: " << b << ") !" << RESTendl;
+            RESTLog.setcolor(COLOR_BOLDWHITE);
             Console::CursorDown(infobar - 1);
         }
     }

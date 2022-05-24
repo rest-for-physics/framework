@@ -39,7 +39,7 @@ void TRestDBEntryLogger::InitFromConfigFile() {
         } else if (!fSkipIfNotEmpty) {
             AskForFilling(runs[0]);
         } else {
-            RESTFout << "TRestDBEntryLogger: skipping existing run" << RESTendl;
+            RESTcout << "TRestDBEntryLogger: skipping existing run" << RESTendl;
         }
     }
 }
@@ -187,7 +187,7 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
         }
     }
 
-    RESTFout << "TRestDBEntryLogger: DataBase writing successful" << RESTendl;
+    RESTcout << "TRestDBEntryLogger: DataBase writing successful" << RESTendl;
 }
 
 void TRestDBEntryLogger::Initialize() {}

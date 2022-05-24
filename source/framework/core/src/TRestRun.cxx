@@ -992,9 +992,9 @@ TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilena
     RESTDebug << "TRestRun::FormOutputFile. Calling WriteWithDataBase()" << RESTendl;
     this->WriteWithDataBase();
 
-    RESTFout << this->ClassName() << " Created ..." << RESTendl;
-    RESTFout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << RESTendl;
-    RESTFout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second
+    RESTcout << this->ClassName() << " Created ..." << RESTendl;
+    RESTcout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << RESTendl;
+    RESTcout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second
              << RESTendl;
     return fOutputFile;
 }
@@ -1015,9 +1015,9 @@ TFile* TRestRun::FormOutputFile() {
     fEventTree->Write();
     this->WriteWithDataBase();
 
-    RESTFout << "TRestRun: Output File Created." << RESTendl;
-    RESTFout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << RESTendl;
-    RESTFout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second
+    RESTcout << "TRestRun: Output File Created." << RESTendl;
+    RESTcout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << RESTendl;
+    RESTcout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second
              << RESTendl;
     return fOutputFile;
 }
@@ -1033,9 +1033,9 @@ TFile* TRestRun::UpdateOutputFile() {
         fEventTree->Write(0, kWriteDelete);
         this->WriteWithDataBase();
 
-        RESTFout << "TRestRun: Output File Updated." << RESTendl;
-        RESTFout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << RESTendl;
-        RESTFout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second
+        RESTcout << "TRestRun: Output File Updated." << RESTendl;
+        RESTcout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << RESTendl;
+        RESTcout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second
                  << RESTendl;
         return fOutputFile;
 
@@ -1108,7 +1108,7 @@ void TRestRun::WriteWithDataBase() {
     RESTDebug << "TResRun::WriteWithDataBase. Run number is : " << fRunNumber << RESTendl;
     if (fRunNumber != -1) {
         int fileid = gDataBase->set_runfile(fRunNumber, (string)fOutputFileName);
-        RESTFout << "DataBase Entry Added! Run Number: " << fRunNumber << ", File ID: " << fileid << RESTendl;
+        RESTcout << "DataBase Entry Added! Run Number: " << fRunNumber << ", File ID: " << fileid << RESTendl;
     }
 }
 

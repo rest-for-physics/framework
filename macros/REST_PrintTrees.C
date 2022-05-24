@@ -26,10 +26,10 @@ Int_t REST_PrintTrees(TString fName, Int_t Entry = 0) {
 
     run->GetEntry(Entry);
 
-    TRestStringOutput RESTFout;
-    RESTFout.setcolor(COLOR_BOLDBLUE);
-    RESTFout << RESTendl;
-    RESTFout << "=====AnalysisTree Contents, Entry " << Entry << "=====" << RESTendl;
+    TRestStringOutput RESTLog;
+    RESTLog.setcolor(COLOR_BOLDBLUE);
+    RESTLog << RESTendl;
+    RESTLog << "=====AnalysisTree Contents, Entry " << Entry << "=====" << RESTendl;
 
     run->PrintObservables();
 
