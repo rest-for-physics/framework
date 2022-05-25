@@ -57,7 +57,7 @@ void TRestBrowser::Initialize(TString opt) {
     b = new TBrowser("Browser", 0, "REST Browser", opt);
     TGMainFrame* fr = b->GetBrowserImp()->GetMainFrame();
     if (fr == nullptr) {
-        warning << "No x11 interface is available. Cannot call the browser window!" << endl;
+        RESTWarning << "No x11 interface is available. Cannot call the browser window!" << RESTendl;
         exit(1);
     }
     fr->DontCallClose();
@@ -98,9 +98,10 @@ void TRestBrowser::SetViewer(TString viewerName) {
         if (viewer != nullptr) {
             SetViewer(viewer);
         } else {
-            ferr << viewerName << " not recoginzed! Did you install the corresponding library?" << endl;
-            ferr << "Also check EVE feature is turned on in REST for 3d event viewing." << endl;
-            warning << "Using default event viewer" << endl;
+            RESTError << viewerName << " not recoginzed! Did you install the corresponding library?"
+                      << RESTendl;
+            RESTError << "Also check EVE feature is turned on in REST for 3d event viewing." << RESTendl;
+            RESTWarning << "Using default event viewer" << RESTendl;
         }
     } else {
         cout << "illegal viewer : " << viewerName << endl;
@@ -208,11 +209,11 @@ void TRestBrowser::SetInputEvent(TRestEvent* eve) {
 
 Bool_t TRestBrowser::LoadEventEntry(Int_t n) {
     if (r->GetInputFile() == nullptr || r->GetInputFile()->IsZombie()) {
-        warning << "TRestBrowser::LoadEventEntry. No File..." << endl;
+        RESTWarning << "TRestBrowser::LoadEventEntry. No File..." << RESTendl;
         return kFALSE;
     }
     if (pureAnalysis) {
-        warning << "TRestBrowser::LoadEventEntry. This is a pure analysis file..." << endl;
+        RESTWarning << "TRestBrowser::LoadEventEntry. This is a pure analysis file..." << RESTendl;
         return kFALSE;
     }
 
@@ -220,7 +221,7 @@ Bool_t TRestBrowser::LoadEventEntry(Int_t n) {
         r->GetEntry(n);
         TRestEvent* ev = r->GetInputEvent();
         if (!ev) {
-            ferr << "internal error!" << endl;
+            RESTError << "internal error!" << RESTendl;
             return kFALSE;
         } else {
             fEventRow = r->GetCurrentEntry();
@@ -233,7 +234,7 @@ Bool_t TRestBrowser::LoadEventEntry(Int_t n) {
             r->GetAnalysisTree()->PrintObservables();
         }
     } else {
-        warning << "TRestBrowser::LoadEventEntry. Event out of limits" << endl;
+        RESTWarning << "TRestBrowser::LoadEventEntry. Event out of limits" << RESTendl;
         return kFALSE;
     }
 
@@ -249,19 +250,19 @@ Bool_t TRestBrowser::LoadEventEntry(Int_t n) {
 
 Bool_t TRestBrowser::LoadEventId(Int_t id, Int_t subid) {
     if (r->GetInputFile() == nullptr || r->GetInputFile()->IsZombie()) {
-        warning << "TRestBrowser::LoadEventEntry. No File..." << endl;
+        RESTWarning << "TRestBrowser::LoadEventEntry. No File..." << RESTendl;
         return kFALSE;
     }
     if (pureAnalysis) {
         cout << "" << endl;
-        warning << "TRestBrowser::LoadEventEntry. This is a pure analysis file..." << endl;
+        RESTWarning << "TRestBrowser::LoadEventEntry. This is a pure analysis file..." << RESTendl;
         return kFALSE;
     }
 
     if (r->GetAnalysisTree() != nullptr && r->GetAnalysisTree()->GetEntries() > 0) {
         TRestEvent* ev = r->GetEventWithID(id, subid);
         if (!ev) {
-            warning << "Event ID : " << id << " with sub ID : " << subid << " not found!" << endl;
+            RESTWarning << "Event ID : " << id << " with sub ID : " << subid << " not found!" << RESTendl;
             return kFALSE;
         } else {
             fEventRow = r->GetCurrentEntry();
@@ -274,7 +275,7 @@ Bool_t TRestBrowser::LoadEventId(Int_t id, Int_t subid) {
             r->GetAnalysisTree()->PrintObservables();
         }
     } else {
-        warning << "TRestBrowser::LoadEventEntry. Event out of limits" << endl;
+        RESTWarning << "TRestBrowser::LoadEventEntry. Event out of limits" << RESTendl;
         return kFALSE;
     }
 
@@ -325,7 +326,7 @@ Bool_t TRestBrowser::OpenFile(TString filename) {
 
         TRestEvent* ev = r->GetInputEvent();
         if (!ev) {
-            ferr << "internal error!" << endl;
+            RESTError << "internal error!" << RESTendl;
         } else {
             fEventRowNumberBox->SetIntNumber(r->GetCurrentEntry());
             fEventIdNumberBox->SetIntNumber(ev->GetID());
@@ -333,7 +334,7 @@ Bool_t TRestBrowser::OpenFile(TString filename) {
         }
         return true;
     } else {
-        ferr << "file: " << filename << " does not exist!" << endl;
+        RESTError << "file: " << filename << " does not exist!" << RESTendl;
     }
     return false;
 }
@@ -372,7 +373,7 @@ void TRestBrowser::RowValueChangedAction(Long_t val) {
     int rowold = fEventRow;
     fEventRow = (Int_t)fEventRowNumberBox->GetNumber();
 
-    debug << "TRestBrowser::LoadEventAction. Entry:" << fEventRow << endl;
+    RESTDebug << "TRestBrowser::LoadEventAction. Entry:" << fEventRow << RESTendl;
 
     bool success = LoadEventEntry(fEventRow);
 
@@ -399,7 +400,8 @@ void TRestBrowser::IdValueChangedAction(Long_t val) {
     fEventId = (Int_t)fEventIdNumberBox->GetNumber();
     fEventSubId = (Int_t)fEventSubIdNumberBox->GetNumber();
 
-    debug << "TRestBrowser::LoadEventAction. Event ID: " << fEventId << ", Sub ID: " << fEventSubId << endl;
+    RESTDebug << "TRestBrowser::LoadEventAction. Event ID: " << fEventId << ", Sub ID: " << fEventSubId
+              << RESTendl;
 
     bool success = LoadEventId(fEventId, fEventSubId);
 

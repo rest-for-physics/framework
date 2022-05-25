@@ -23,23 +23,36 @@ force = False
 dontask = False
 clean = False
 fbName = ""
+onlylibs = False
 
-if( len(sys.argv ) <= 1 ):
-    print( " " )
-    print( "pull-submodules.py requires arguments." )
-    print( " " )
-    print( " - clean : It will restore all submodules to the official release versions" )
-    print( " - latest : It will pull the master branch of each submodule" )
+def print_help():
+    print( " pull-submodules.py is a helper script to pull REST-for-Physics related submodules" )
     print( " " )
     print( "Usage: " )
     print( "python3 pull-submodules.py --clean" )
     print( "python3 pull-submodules.py --latest" )
+    print( " " )
+    print( " --clean : It will restore all submodules to the official release versions" )
+    print( " --latest : It will pull the master branch of each submodule" )
     print ( " ")
     print( "When using --clean make sure the framework local repository is at an official release" )
     print ( " " )
+    print ( " Other complementary options: " )
+    print ( "  --force : It will override changes using git reset" )
+    print ( "  --dontask : It wont ask when overriding changes" )
+    print ( "  --lfna : It will pull LFNA Git repositories. SSH grant required" )
+    print ( "  --sjtu : It will pull SJTU Git repositories. SSH grant required" )
+    print ( "  --exclude:lib1,lib2 will prevent lib1,lib2 from being pulled" )
+    print ( "  --onlylibs: It will pull only the REST library submodules" )
+    print ( " " )
+
+if( len(sys.argv ) <= 1 ):
+    print( " " )
+    print( "ERROR pull-submodules.py requires arguments." )
+    print_help()
     sys.exit(1)
 
-exclude_elems = ""
+exclude_elems = ["userguide", "data", "external"]
 for x in range(len(sys.argv) - 1):
     if sys.argv[x + 1] == "--lfna":
         lfna = True
@@ -72,11 +85,19 @@ This may cause the submodules to be uncompilable.
         dontask = True
     if sys.argv[x + 1] == "--force":
         force = True
+    if sys.argv[x + 1] == "--onlylibs":
+        onlylibs = True
     if sys.argv[x + 1] == "--clean":
         force = True
         clean = True
+    if sys.argv[x + 1] == "--help" or sys.argv[x + 1] == "-h":
+        print_help()
+        sys.exit(1)
     if sys.argv[x + 1].find("--exclude:") >= 0:
-        exclude_elems = sys.argv[x + 1][10:].split(",")
+        elems = sys.argv[x + 1][10:].split(",")
+        for y in elems:
+            exclude_elems.append(y)
+
 
 
 def main():
@@ -113,6 +134,7 @@ Are you sure to proceed? (y/n)
                     for line in gitmodules_file:
                         line = line.replace(' ', '')
                         if "path=" in line:
+                            exclude = False
                             submodule = line.replace("path=", '').strip()
                             fullpath = os.path.join(root, submodule).replace(' ', '')
                             if fullpath.find("project") >= 0:
@@ -124,10 +146,15 @@ Are you sure to proceed? (y/n)
                             if fullpath.find("scripts") >= 0:
                                 fullpath = fullpath[fullpath.find("scripts"):]
 
+                            for exclude_element in exclude_elems:
+                                if fullpath.lower().find(exclude_element.lower()) > 0:
+                                    exclude = True
+                            if onlylibs and fullpath.lower().find("libraries") == -1:
+                                exclude = True
+
                         if "url=" in line:
                             url = line.replace("url=", '').strip()
 
-                            exclude = False
                             for exclude_element in exclude_elems:
                                 if url.lower().find(exclude_element.lower()) > 0:
                                     exclude = True

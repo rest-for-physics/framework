@@ -21,18 +21,16 @@ using namespace std;
 /// \brief Returns 1 only if valid mathematical expression keywords (or numbers)
 /// are found in the string **in**. If not it returns 0.
 ///
-/// By logic, mathematical expressions must have: +-*/e^% in the middle, or % in the end, or math functions in the beginning.
-/// despite those symbols, the string should be purely numeric.
-/// example: 
-/// 1+1 --> expression
+/// By logic, mathematical expressions must have: +-*/e^% in the middle, or % in the end, or math functions in
+/// the beginning. despite those symbols, the string should be purely numeric. example: 1+1 --> expression
 /// sin(1.5) --> expression
 /// 123456789 --> not expression, It is a pure number that can be directly parsed.
 /// ./123 --> not expression, it is a path
 /// 333/555 --> is expression. But it may also be a path. We should avoid using paths like that
 Int_t REST_StringHelper::isAExpression(const string& in) {
     bool symbol = false;
-    
-    if (in.length() < 2) // minimum expression: 3%
+
+    if (in.length() < 2)  // minimum expression: 3%
         return 0;
 
     vector<string> funcs{"sqrt", "log", "exp", "gaus", "cos", "sin", "tan", "atan", "acos", "asin"};
@@ -44,16 +42,16 @@ Int_t REST_StringHelper::isAExpression(const string& in) {
     }
 
     if (!symbol) {
-		int pos = in.find_first_of("+-*/e^%");
-		if (pos > 0 && pos < in.size() - 1) {
-			symbol = true;
-		}
-	}
+        int pos = in.find_first_of("+-*/e^%");
+        if (pos > 0 && pos < in.size() - 1) {
+            symbol = true;
+        }
+    }
 
-	if (!symbol) {
-		int pos = in.find_first_of("%");
-		if (pos == in.size() - 1) {
-			symbol = true;
+    if (!symbol) {
+        int pos = in.find_first_of("%");
+        if (pos == in.size() - 1) {
+            symbol = true;
         }
     }
 
@@ -67,9 +65,7 @@ Int_t REST_StringHelper::isAExpression(const string& in) {
                 return 0;  // identify path
             return 1;
         }
-    }
-    else
-    {
+    } else {
         return 0;
     }
 
@@ -109,8 +105,8 @@ std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer
         string evaluated = EvaluateExpression(Expressions[i]);
         if (evaluated == "RESTerror") {
             result += Expressions[i] + ",";
-            ferr << "ReplaceMathematicalExpressions. Error on RML syntax!" << endl;
-            if (errorMessage != "") ferr << errorMessage << endl;
+            RESTError << "ReplaceMathematicalExpressions. Error on RML syntax!" << RESTendl;
+            if (errorMessage != "") RESTError << errorMessage << RESTendl;
         } else
             result += evaluated + ",";
     }
@@ -144,7 +140,8 @@ std::string REST_StringHelper::EvaluateExpression(std::string exp) {
     ostringstream sss;
     Double_t number = formula.EvalPar(0);
     if (number > 0 && number < 1.e-300) {
-        warning << "REST_StringHelper::EvaluateExpresssion. Expression not recognized --> " << exp << endl;
+        RESTWarning << "REST_StringHelper::EvaluateExpresssion. Expression not recognized --> " << exp
+                    << RESTendl;
         return (string) "RESTerror";
     }
 
@@ -479,14 +476,15 @@ time_t REST_StringHelper::StringToTimeStamp(string time) {
     return time1;
 }
 
-REST_Verbose_Level REST_StringHelper::StringToVerboseLevel(string in) {
-    if (ToUpper(in) == "SILENT" || in == "0") return REST_Silent;
-    if (ToUpper(in) == "ESSENTIAL" || ToUpper(in) == "WARNING" || in == "1") return REST_Essential;
-    if (ToUpper(in) == "INFO" || in == "2") return REST_Info;
-    if (ToUpper(in) == "DEBUG" || in == "3") return REST_Debug;
-    if (ToUpper(in) == "EXTREME" || in == "4") return REST_Extreme;
+TRestStringOutput::REST_Verbose_Level REST_StringHelper::StringToVerboseLevel(string in) {
+    if (ToUpper(in) == "SILENT" || in == "0") return TRestStringOutput::REST_Verbose_Level::REST_Silent;
+    if (ToUpper(in) == "ESSENTIAL" || ToUpper(in) == "WARNING" || in == "1")
+        return TRestStringOutput::REST_Verbose_Level::REST_Essential;
+    if (ToUpper(in) == "INFO" || in == "2") return TRestStringOutput::REST_Verbose_Level::REST_Info;
+    if (ToUpper(in) == "DEBUG" || in == "3") return TRestStringOutput::REST_Verbose_Level::REST_Debug;
+    if (ToUpper(in) == "EXTREME" || in == "4") return TRestStringOutput::REST_Verbose_Level::REST_Extreme;
 
-    return REST_Essential;
+    return TRestStringOutput::REST_Verbose_Level::REST_Essential;
 }
 
 ///////////////////////////////////////////////

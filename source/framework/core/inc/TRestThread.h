@@ -33,11 +33,11 @@ class TRestThread {
     TFile* fOutputFile;                             //!
     TTree* fEventTree;                              //!
 
-    std::thread t;                //!
-    Bool_t isFinished;            //!
-    Bool_t fProcessNullReturned;  //!
-    Int_t fCompressionLevel;      //!
-    Int_t fVerboseLevel;          //!
+    std::thread t;                                        //!
+    Bool_t isFinished;                                    //!
+    Bool_t fProcessNullReturned;                          //!
+    Int_t fCompressionLevel;                              //!
+    TRestStringOutput::REST_Verbose_Level fVerboseLevel;  //!
 
    public:
     void Initialize();
@@ -58,18 +58,18 @@ class TRestThread {
     inline void SetOutputTree(TRestAnalysisTree* t) { fAnalysisTree = t; }
     inline void SetProcessRunner(TRestProcessRunner* r) { fHostRunner = r; }
     inline void SetCompressionLevel(Int_t comp) { fCompressionLevel = comp; }
-    inline void SetVerboseLevel(Int_t verb) { fVerboseLevel = verb; }
+    inline void SetVerboseLevel(TRestStringOutput::REST_Verbose_Level verb) { fVerboseLevel = verb; }
 
     inline Int_t GetThreadId() const { return fThreadId; }
     inline TRestEvent* GetInputEvent() { return fInputEvent; }
-    inline  TFile* GetOutputFile() { return fOutputFile; };
+    inline TFile* GetOutputFile() { return fOutputFile; };
     inline TRestEvent* GetOutputEvent() { return fProcessNullReturned ? 0 : fOutputEvent; }
-    inline  Int_t GetProcessnum() const { return fProcessChain.size(); }
+    inline Int_t GetProcessnum() const { return fProcessChain.size(); }
     inline TRestEventProcess* GetProcess(int i) const { return fProcessChain[i]; }
     inline TRestAnalysisTree* GetAnalysisTree() const { return fAnalysisTree; }
     inline TTree* GetEventTree() { return fEventTree; }
     inline Bool_t Finished() const { return isFinished; }
-    inline Int_t GetVerboseLevel() const { return fVerboseLevel; }
+    inline TRestStringOutput::REST_Verbose_Level GetVerboseLevel() const { return fVerboseLevel; }
 
     // Constructor & Destructor
     TRestThread() { Initialize(); }

@@ -151,7 +151,7 @@ TRestEvent* TRestEventRateAnalysisProcess::ProcessEvent(TRestEvent* inputEvent) 
     if (fPreviousEventTime.size() == 10) meanRate = 10. / (fEvent->GetTime() - fPreviousEventTime.front());
     SetObservableValue("MeanRate_InHz", meanRate);
 
-    if (GetVerboseLevel() >= REST_Debug) {
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
         for (auto i : fObservablesDefined) {
             fAnalysisTree->PrintObservable(i.second);
         }
