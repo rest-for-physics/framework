@@ -106,7 +106,7 @@ void TRestDataSet::Initialize() {
     // REMOVE COMMENT. Initialize here any special data members if needed
 }
 
-void TRestDataSet::SiderealTime() { ss >> std::get_time(&fStartTime); }
+void TRestDataSet::SiderealTime() {}  // ss >> std::get_time(&fStartTime); }
 
 /////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
