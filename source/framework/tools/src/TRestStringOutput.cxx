@@ -214,7 +214,7 @@ TRestStringOutput::TRestStringOutput(string _color, string formatter, REST_Displ
         Console::CompatibilityMode = true;
     }
 
-    verbose = REST_Essential;
+    verbose = REST_Verbose_Level::REST_Essential;
 }
 
 void TRestStringOutput::resetstring() {
@@ -238,7 +238,7 @@ string TRestStringOutput::FormattingPrintString(string input) {
         int Lfmt = formatstring.size();
 
         int startblank;
-        if (useborder || orientation == kMiddle) {
+        if (useborder || orientation == TRestStringOutput::REST_Display_Orientation::kMiddle) {
             startblank = (length - Lstr) / 2;
         } else {
             startblank = Lfmt;
@@ -286,18 +286,18 @@ void TRestStringOutput::setlength(int n) {
 void TRestStringOutput::flushstring() {
     if (Console::CompatibilityMode)  // this means we are using condor
     {
-        std::cout << buf.str() << endl;
+        std::cout << buf.str() << std::endl;
     } else {
         printf("\033[K");
-        if (orientation == kMiddle) {
+        if (orientation == TRestStringOutput::REST_Display_Orientation::kMiddle) {
             // we always reset the length of TRestStringOutput in case the console is resized
             setlength(TRestStringOutput_BestLength);
             int blankwidth = (Console::GetWidth() - 2 - length) / 2;
 
             std::cout << color << string(blankwidth, ' ') << FormattingPrintString(buf.str())
-                      << string(blankwidth, ' ') << COLOR_RESET << endl;
+                      << string(blankwidth, ' ') << COLOR_RESET << std::endl;
         } else {
-            std::cout << color << FormattingPrintString(buf.str()) << COLOR_RESET << endl;
+            std::cout << color << FormattingPrintString(buf.str()) << COLOR_RESET << std::endl;
         }
     }
     resetstring();

@@ -92,18 +92,7 @@ const __REST_CONST_INIT REST_CONST_INIT;
 TRestDataBase* gDataBase = nullptr;
 MakeGlobal(TRestDataBase, gDataBase, 1);
 
-// initialize formatted message output tool
-TRestStringOutput fout(REST_Silent, COLOR_BOLDBLUE, "[== ==]", kMiddle);
-TRestStringOutput ferr(REST_Silent, COLOR_BOLDRED, "-- Error : ", kLeft, true);
-TRestStringOutput warning(REST_Warning, COLOR_BOLDYELLOW, "-- Warning : ", kLeft, true);
-TRestStringOutput essential(REST_Essential, COLOR_BOLDGREEN, "", kMiddle);
-TRestStringOutput metadata(REST_Essential, COLOR_BOLDGREEN, "|| ||", kMiddle);
-TRestStringOutput info(REST_Info, COLOR_BLUE, "-- Info : ", kLeft);
-TRestStringOutput success(REST_Info, COLOR_GREEN, "-- Success : ", kLeft);
-TRestStringOutput debug(REST_Debug, COLOR_RESET, "-- Debug : ", kLeft);
-TRestStringOutput extreme(REST_Extreme, COLOR_RESET, "-- Extreme : ", kLeft);
-
-REST_Verbose_Level gVerbose = REST_Warning;
+TRestStringOutput::REST_Verbose_Level gVerbose = TRestStringOutput::REST_Verbose_Level::REST_Warning;
 
 // initialize converter methods
 template <class T>

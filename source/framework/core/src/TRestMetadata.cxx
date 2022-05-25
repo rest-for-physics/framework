@@ -474,7 +474,7 @@ ClassImp(TRestMetadata);
 ///////////////////////////////////////////////
 /// \brief TRestMetadata default constructor
 ///
-TRestMetadata::TRestMetadata() : endl(this) {
+TRestMetadata::TRestMetadata() : RESTendl(this) {
     fStore = true;
     fElementGlobal = nullptr;
     fElement = nullptr;
@@ -485,7 +485,7 @@ TRestMetadata::TRestMetadata() : endl(this) {
 
     fConfigFileName = "null";
     configBuffer = "";
-    metadata.setlength(100);
+    RESTMetadata.setlength(100);
 
     if (TRestTools::Execute("rest-config --release") == "Yes") fOfficialRelease = true;
     if (TRestTools::Execute("rest-config --clean") == "Yes") fCleanState = true;
@@ -494,7 +494,7 @@ TRestMetadata::TRestMetadata() : endl(this) {
 ///////////////////////////////////////////////
 /// \brief constructor
 ///
-TRestMetadata::TRestMetadata(const char* configFilename) : endl(this) {
+TRestMetadata::TRestMetadata(const char* configFilename) : RESTendl(this) {
     fStore = true;
     fElementGlobal = nullptr;
     fElement = nullptr;
@@ -505,7 +505,7 @@ TRestMetadata::TRestMetadata(const char* configFilename) : endl(this) {
 
     fConfigFileName = configFilename;
     configBuffer = "";
-    metadata.setlength(100);
+    RESTMetadata.setlength(100);
 
     if (TRestTools::Execute("rest-config --release") == "Yes") fOfficialRelease = true;
     if (TRestTools::Execute("rest-config --clean") == "Yes") fCleanState = true;
@@ -534,9 +534,9 @@ Int_t TRestMetadata::LoadConfigFromFile(const string& configFilename, const stri
         // find the xml section corresponding to the sectionName
         TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, thisSectionName);
         if (Sectional == nullptr) {
-            ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << thisSectionName
-                 << "\"" << endl;
-            ferr << "in config file: " << fConfigFileName << endl;
+            RESTError << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName
+                      << "\"" << RESTendl;
+            RESTError << "in config file: " << fConfigFileName << RESTendl;
             exit(1);
         }
 
@@ -563,8 +563,8 @@ Int_t TRestMetadata::LoadConfigFromFile(const string& configFilename, const stri
         delete rootEle;
         return result;
     } else {
-        ferr << "Filename: " << fConfigFileName << endl;
-        ferr << "Config File does not exist. Right path/filename?" << endl;
+        RESTError << "Filename: " << fConfigFileName << RESTendl;
+        RESTError << "Config File does not exist. Right path/filename?" << RESTendl;
         GetChar();
         return -1;
     }
@@ -572,9 +572,9 @@ Int_t TRestMetadata::LoadConfigFromFile(const string& configFilename, const stri
     // find the xml section corresponding to the sectionName
     TiXmlElement* sectional = GetElementFromFile(fConfigFileName, thisSectionName);
     if (sectional == nullptr) {
-        ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << thisSectionName << "\""
-             << endl;
-        ferr << "in config file: " << fConfigFileName << endl;
+        RESTError << "cannot find xml section \"" << ClassName() << "\" with name \"" << thisSectionName
+                  << "\"" << RESTendl;
+        RESTError << "in config file: " << fConfigFileName << RESTendl;
         exit(1);
     }
 
@@ -637,7 +637,7 @@ Int_t TRestMetadata::LoadConfigFromElement(TiXmlElement* eSectional, TiXmlElemen
 
     int result = LoadSectionMetadata();
     if (result == 0) InitFromConfigFile();
-    debug << ClassName() << " has finished preparing config data" << endl;
+    RESTDebug << ClassName() << " has finished preparing config data" << RESTendl;
     return result;
 }
 
@@ -667,10 +667,10 @@ Int_t TRestMetadata::LoadConfigFromBuffer() {
 ///
 Int_t TRestMetadata::LoadSectionMetadata() {
     // get debug level
-    string debugStr = GetParameter("verboseLevel", ToString(fVerboseLevel));
+    string debugStr = GetParameter("verboseLevel", ToString(static_cast<int>(fVerboseLevel)));
     fVerboseLevel = StringToVerboseLevel(debugStr);
 
-    debug << "Loading Config for : " << this->ClassName() << endl;
+    RESTDebug << "Loading Config for : " << this->ClassName() << RESTendl;
 
     // set env first from global section
     if (fElementGlobal != nullptr) {
@@ -694,7 +694,7 @@ Int_t TRestMetadata::LoadSectionMetadata() {
     ReadElement(fElement);
 
     // get debug level again in case it is defined in the included file
-    debugStr = GetParameter("verboseLevel", ToString(fVerboseLevel));
+    debugStr = GetParameter("verboseLevel", ToString(static_cast<int>(fVerboseLevel)));
     fVerboseLevel = StringToVerboseLevel(debugStr);
 
     // fill the general metadata info: name, title, fstore
@@ -716,14 +716,14 @@ Int_t TRestMetadata::LoadSectionMetadata() {
 TiXmlElement* TRestMetadata::ReplaceElementAttributes(TiXmlElement* e) {
     if (e == nullptr) return nullptr;
 
-    debug << "Entering ... TRestMetadata::ReplaceElementAttributes" << endl;
+    RESTDebug << "Entering ... TRestMetadata::ReplaceElementAttributes" << RESTendl;
 
     std::string parName = "";
     TiXmlAttribute* attr = e->FirstAttribute();
     while (attr != nullptr) {
         const char* val = attr->Value();
         const char* name = attr->Name();
-        debug << "Element name : " << name << " value : " << val << endl;
+        RESTDebug << "Element name : " << name << " value : " << val << RESTendl;
 
         string newVal = val != nullptr ? val : "";
         newVal = ReplaceVariables(newVal);
@@ -775,7 +775,7 @@ void TRestMetadata::ReadEnvInElement(TiXmlElement* e, bool overwrite) {
         if (!overwrite && fVariables.count(name) > 0) return;
         fConstants[name] = value;
     } else if ((string)e->Value() == "myParameter") {
-        warning << "myParameter is obsolete now! use \"constant\" instead" << endl;
+        RESTWarning << "myParameter is obsolete now! use \"constant\" instead" << RESTendl;
         if (!overwrite && fVariables.count(name) > 0) return;
         fConstants[name] = value;
     }
@@ -790,7 +790,7 @@ void TRestMetadata::ReadEnvInElement(TiXmlElement* e, bool overwrite) {
 /// sections will also be processed. Before expansion,
 /// ReplaceElementAttributes() will first be called.
 void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
-    debug << ClassName() << "::ReadElement(<" << e->Value() << ")" << endl;
+    RESTDebug << ClassName() << "::ReadElement(<" << e->Value() << ")" << RESTendl;
     if (e == nullptr) return;
 
     ReplaceElementAttributes(e);
@@ -809,12 +809,12 @@ void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
         while (contentelement != nullptr) {
             TiXmlElement* nxt = contentelement->NextSiblingElement();
             if (recursive || ((string)contentelement->Value()).find("TRest") == -1) {
-                debug << "into child element \"" << contentelement->Value() << "\" of \"" << e->Value()
-                      << "\"" << endl;
+                RESTDebug << "into child element \"" << contentelement->Value() << "\" of \"" << e->Value()
+                          << "\"" << RESTendl;
                 ReadElement(contentelement, recursive);
             } else {
-                debug << "skipping child element \"" << contentelement->Value() << "\" of \"" << e->Value()
-                      << "\"" << endl;
+                RESTDebug << "skipping child element \"" << contentelement->Value() << "\" of \""
+                          << e->Value() << "\"" << RESTendl;
             }
             contentelement = nxt;
         }
@@ -853,7 +853,7 @@ void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
     const char* condition = e->Attribute("condition");
 
     if (condition == nullptr || string(condition).find_first_of("=!<>") == -1) {
-        warning << "Invalid \"IF\" structure!" << endl;
+        RESTWarning << "Invalid \"IF\" structure!" << RESTendl;
         return;
     }
 
@@ -867,7 +867,7 @@ void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
     } else if (p1 > 0) {
         v1 = string(condition).substr(0, p1);
     } else {
-        warning << "Invalid \"IF\" structure!" << endl;
+        RESTWarning << "Invalid \"IF\" structure!" << RESTendl;
         return;
     }
 
@@ -911,7 +911,7 @@ void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
             if (v1 <= v2) matches = true;
         }
     } else {
-        warning << "Invalid \"IF\" structure!" << endl;
+        RESTWarning << "Invalid \"IF\" structure!" << RESTendl;
         return;
     }
 
@@ -922,7 +922,7 @@ void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
         while (contentelement != nullptr) {
             TiXmlElement* attachedelement = (TiXmlElement*)contentelement->Clone();
             ReadElement(attachedelement, true);
-            // debug << *attachedelement << endl;
+            // RESTDebug << *attachedelement << RESTendl;
             parele->InsertBeforeChild(e, *attachedelement);
             delete attachedelement;
             contentelement = contentelement->NextSiblingElement();
@@ -950,7 +950,7 @@ void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e, map<string, string> forLo
             TiXmlElement* attachedelement = (TiXmlElement*)contentelement->Clone();
             ReplaceForLoopVars(attachedelement, forLoopVar);
             ReadElement(attachedelement, true);
-            // debug << *attachedelement << endl;
+            // RESTDebug << *attachedelement << RESTendl;
             parele->InsertBeforeChild(e, *attachedelement);
             delete attachedelement;
             contentelement = contentelement->NextSiblingElement();
@@ -964,13 +964,13 @@ void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e, map<string, string> forLo
 void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forLoopVar) {
     if (e == nullptr) return;
 
-    debug << "Entering ... TRestMetadata::ReplaceForLoopVars" << endl;
+    RESTDebug << "Entering ... TRestMetadata::ReplaceForLoopVars" << RESTendl;
     std::string parName = "";
     TiXmlAttribute* attr = e->FirstAttribute();
     while (attr != nullptr) {
         const char* val = attr->Value();
         const char* name = attr->Name();
-        debug << "Attribute name : " << name << " value : " << val << endl;
+        RESTDebug << "Attribute name : " << name << " value : " << val << RESTendl;
 
         if (strcmp(name, "name") == 0) parName = (string)val;
 
@@ -979,8 +979,9 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
             string outputBuffer = val;
 
             if (outputBuffer.find("[") != (int)string::npos || outputBuffer.find("]") != (int)string::npos) {
-                ferr << "TRestMetadata::ReplaceForLoopVars. Old for-loop construction identified" << endl;
-                ferr << "Please, replace [] variable nomenclature by ${}." << endl;
+                RESTError << "TRestMetadata::ReplaceForLoopVars. Old for-loop construction identified"
+                          << RESTendl;
+                RESTError << "Please, replace [] variable nomenclature by ${}." << RESTendl;
                 exit(1);
             }
 
@@ -1004,8 +1005,8 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
                     outputBuffer.replace(replacePos, replaceLen, proenv);
                     endPosition = 0;
                 } else {
-                    ferr << this->ClassName() << ", replace for loop env : cannot find \"{" << expression
-                         << "}\"" << endl;
+                    RESTError << this->ClassName() << ", replace for loop env : cannot find \"{" << expression
+                              << "}\"" << RESTendl;
                     exit(1);
                 }
             }
@@ -1030,7 +1031,7 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
 void TRestMetadata::ExpandForLoops(TiXmlElement* e, map<string, string> forloopvar) {
     if (e == nullptr) return;
     if ((string)e->Value() != "for") return;
-    debug << "Entering ... ExpandForLoops" << endl;
+    RESTDebug << "Entering ... ExpandForLoops" << RESTendl;
     ReplaceElementAttributes(e);
 
     TString varname = TString(e->Attribute("variable"));
@@ -1039,8 +1040,8 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e, map<string, string> forloopv
     TString varstep = TString(e->Attribute("step"));
     TString varin = TString(e->Attribute("in"));
 
-    debug << "variable: " << varname << " from: " << varfrom << " to: " << varto << " step: " << varstep
-          << " in: " << varin << endl;
+    RESTDebug << "variable: " << varname << " from: " << varfrom << " to: " << varto << " step: " << varstep
+              << " in: " << varin << RESTendl;
 
     if ((varin == "") && (varname == "" || varfrom == "" || varto == "")) return;
     if (varstep == "") varstep = "1";
@@ -1052,13 +1053,13 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e, map<string, string> forloopv
     string _to = (string)varto;
     string _step = (string)varstep;
     string _in = (string)varin;
-    debug << "_from: " << _from << " _to: " << _to << " _step: " << _step << endl;
+    RESTDebug << "_from: " << _from << " _to: " << _to << " _step: " << _step << RESTendl;
     if (isANumber(_from) && isANumber(_to) && isANumber(_step)) {
         double from = StringToDouble(_from);
         double to = StringToDouble(_to);
         double step = StringToDouble(_step);
 
-        debug << "----expanding for loop----" << endl;
+        RESTDebug << "----expanding for loop----" << RESTendl;
         double i = 0;
         for (i = from; i <= to; i = i + step) {
             forloopvar[_name] = ToString(i);
@@ -1067,12 +1068,12 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e, map<string, string> forloopv
         }
         parele->RemoveChild(e);
 
-        if (fVerboseLevel >= REST_Extreme) parele->Print(stdout, 0);
-        debug << "----end of for loop----" << endl;
+        if (fVerboseLevel >= TRestStringOutput::REST_Verbose_Level::REST_Extreme) parele->Print(stdout, 0);
+        RESTDebug << "----end of for loop----" << RESTendl;
     } else if (_in != "") {
         vector<string> loopvars = Split(_in, ":");
 
-        debug << "----expanding for loop----" << endl;
+        RESTDebug << "----expanding for loop----" << RESTendl;
         for (string loopvar : loopvars) {
             forloopvar[_name] = loopvar;
             fVariables[_name] = loopvar;
@@ -1080,8 +1081,8 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e, map<string, string> forloopv
         }
         parele->RemoveChild(e);
 
-        if (fVerboseLevel >= REST_Extreme) parele->Print(stdout, 0);
-        debug << "----end of for loop----" << endl;
+        if (fVerboseLevel >= TRestStringOutput::REST_Verbose_Level::REST_Extreme) parele->Print(stdout, 0);
+        RESTDebug << "----end of for loop----" << RESTendl;
     }
     // variable defined in for loop should be temporal
     fVariables.erase(_name);
@@ -1108,7 +1109,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e, map<string, string> forloopv
 /// name="sAna" file="abc.rml"/> \endcode If the target file is a root file,
 /// there will be a different way to load, see TRestRun::ImportMetadata()
 void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
-    debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
+    RESTDebug << "Entering ... " << __PRETTY_FUNCTION__ << RESTendl;
     if (e == nullptr) return;
 
     ReplaceElementAttributes(e);
@@ -1128,14 +1129,14 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     }
 
     if (filename == "") {
-        ferr << "TRestMetadata::ExpandIncludeFile. Include file \"" << _filename << "\" does not exist!"
-             << endl;
+        RESTError << "TRestMetadata::ExpandIncludeFile. Include file \"" << _filename << "\" does not exist!"
+                  << RESTendl;
         exit(1);
         return;
     }
     if (!TRestTools::isRootFile(filename))  // root file inclusion is implemented in TRestRun
     {
-        debug << "----expanding include file----" << endl;
+        RESTDebug << "----expanding include file----" << RESTendl;
         // we find the local element(the element to receive content)
         // and the remote element(the element to provide content)
         TiXmlElement* remoteele = nullptr;
@@ -1157,7 +1158,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
             if (localele->Attribute("expanded") == nullptr
                     ? false
                     : ((string)localele->Attribute("expanded") == "true")) {
-                debug << "----already expanded----" << endl;
+                RESTDebug << "----already expanded----" << RESTendl;
                 return;
             }
 
@@ -1165,8 +1166,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
 
             TiXmlElement* ele = GetElementFromFile(filename);
             if (ele == nullptr) {
-                ferr << "TRestMetadata::ExpandIncludeFile. No xml elements contained in the include file \""
-                     << filename << "\"" << endl;
+                RESTError
+                    << "TRestMetadata::ExpandIncludeFile. No xml elements contained in the include file \""
+                    << filename << "\"" << RESTendl;
                 exit(1);
             }
             while (ele != nullptr) {
@@ -1194,7 +1196,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
             if (localele->Attribute("expanded") == nullptr
                     ? false
                     : ((string)localele->Attribute("expanded") == "true")) {
-                debug << "----already expanded----" << endl;
+                RESTDebug << "----already expanded----" << RESTendl;
                 return;
             }
 
@@ -1204,8 +1206,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
             // get the root element
             TiXmlElement* rootele = GetElementFromFile(filename);
             if (rootele == nullptr) {
-                ferr << "TRestMetaddata::ExpandIncludeFile. Include file " << filename
-                     << " is of wrong xml format!" << endl;
+                RESTError << "TRestMetaddata::ExpandIncludeFile. Include file " << filename
+                          << " is of wrong xml format!" << RESTendl;
                 exit(1);
                 return;
             }
@@ -1236,9 +1238,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
                     }
                     // more than 1 elements found
                     if (eles.size() > 1) {
-                        warning << "(expand include file): find multiple xml sections with same name!"
-                                << endl;
-                        warning << "Using the first one!" << endl;
+                        RESTWarning << "(expand include file): find multiple xml sections with same name!"
+                                    << RESTendl;
+                        RESTWarning << "Using the first one!" << RESTendl;
                     }
 
                     if (eles.size() > 0) remoteele = (TiXmlElement*)eles[0]->Clone();
@@ -1247,18 +1249,19 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
                 }
 
                 if (remoteele == nullptr) {
-                    warning << "Cannot find the needed xml section in "
-                               "include file!"
-                            << endl;
-                    warning << "type: \"" << type << "\" , name: \"" << name << "\" . Skipping" << endl;
-                    warning << endl;
+                    RESTWarning << "Cannot find the needed xml section in "
+                                   "include file!"
+                                << RESTendl;
+                    RESTWarning << "type: \"" << type << "\" , name: \"" << name << "\" . Skipping"
+                                << RESTendl;
+                    RESTWarning << RESTendl;
                     return;
                 }
                 delete rootele;
             }
         }
 
-        debug << "Target xml element spotted" << endl;
+        RESTDebug << "Target xml element spotted" << RESTendl;
 
         ///////////////////////////////////////
         // begin inserting remote element into local element
@@ -1284,13 +1287,13 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         }
 
         localele->SetAttribute("expanded", "true");
-        if (fVerboseLevel >= REST_Debug) {
+        if (fVerboseLevel >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
             localele->Print(stdout, 0);
             cout << endl;
         }
         delete remoteele;
-        debug << nattr << " attributes and " << nele << " xml elements added by inclusion" << endl;
-        debug << "----end of expansion file----" << endl;
+        RESTDebug << nattr << " attributes and " << nele << " xml elements added by inclusion" << RESTendl;
+        RESTDebug << "----end of expansion file----" << RESTendl;
     }
 }
 
@@ -1346,9 +1349,7 @@ string TRestMetadata::GetParameter(std::string parName, TString defaultValue) {
 /// \return A string of result, with env and expressions replaced
 string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString defaultValue) {
     if (e == nullptr) {
-        if (GetVerboseLevel() > REST_Debug) {
-            cout << "Element is null" << endl;
-        }
+        RESTDebug << "Element is null" << RESTendl;
         return (string)defaultValue;
     }
     string result = (string)defaultValue;
@@ -1362,7 +1363,7 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
         if (element != nullptr && element->Attribute("value") != nullptr) {
             result = element->Attribute("value");
         } else {
-            debug << ClassName() << ": Parameter : " << parName << " not found!" << endl;
+            RESTDebug << ClassName() << ": Parameter : " << parName << " not found!" << RESTendl;
         }
     }
 
@@ -1432,9 +1433,7 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXml
 ///
 std::string TRestMetadata::GetFieldValue(std::string parName, TiXmlElement* e) {
     if (e == nullptr) {
-        if (GetVerboseLevel() > REST_Debug) {
-            cout << "Element is null" << endl;
-        }
+        RESTDebug << "Element is null" << RESTendl;
         return "Not defined";
     }
     const char* val = e->Attribute(parName.c_str());
@@ -1546,18 +1545,19 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string configFilename, std:
         filename = TRestMetadata_UpdatedConfigFile[filename];
 
     if (!TRestTools::fileExists(filename)) {
-        ferr << "Config file does not exist. The file is: " << filename << endl;
+        RESTError << "Config file does not exist. The file is: " << filename << RESTendl;
         exit(1);
     }
 
     if (!doc.LoadFile(filename.c_str())) {
-        ferr << "Failed to load xml file, syntax maybe wrong. The file is: " << filename << endl;
+        RESTError << "Failed to load xml file, syntax maybe wrong. The file is: " << filename << RESTendl;
         exit(1);
     }
 
     rootele = doc.RootElement();
     if (rootele == nullptr) {
-        ferr << "The rml file \"" << configFilename << "\" does not contain any valid elements!" << endl;
+        RESTError << "The rml file \"" << configFilename << "\" does not contain any valid elements!"
+                  << RESTendl;
         exit(1);
     }
     if (NameOrDecalre == "") {
@@ -1658,7 +1658,7 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
 ///	e.g. <... value="3" units="mm" .../>
 string TRestMetadata::GetUnits(TiXmlElement* e) {
     if (e == nullptr) {
-        warning << "TRestMetadata::GetUnits(): NULL element given!" << endl;
+        RESTWarning << "TRestMetadata::GetUnits(): NULL element given!" << RESTendl;
         return "";
     }
 
@@ -1804,7 +1804,8 @@ string TRestMetadata::GetKEYStructure(std::string keyName, size_t& fromPosition,
 string TRestMetadata::GetKEYStructure(std::string keyName, size_t& fromPosition, TiXmlElement* ele) {
     size_t position = fromPosition;
 
-    debug << "Finding " << fromPosition << "th appearance of KEY Structure \"" << keyName << "\"..." << endl;
+    RESTDebug << "Finding " << fromPosition << "th appearance of KEY Structure \"" << keyName << "\"..."
+              << RESTendl;
 
     TiXmlElement* childele = ele->FirstChildElement(keyName);
     for (int i = 0; childele != nullptr && i < fromPosition; i++) {
@@ -1813,12 +1814,12 @@ string TRestMetadata::GetKEYStructure(std::string keyName, size_t& fromPosition,
     if (childele != nullptr) {
         string result = ElementToString(childele);
         fromPosition = fromPosition + 1;
-        debug << "Found Key : " << result << endl;
-        // debug << "New position : " << fromPosition << endl;
+        RESTDebug << "Found Key : " << result << RESTendl;
+        // RESTDebug << "New position : " << fromPosition << RESTendl;
         return result;
     }
 
-    debug << "Finding hit the end, KEY Structure not found!!" << endl;
+    RESTDebug << "Finding hit the end, KEY Structure not found!!" << RESTendl;
     return "";
 }
 
@@ -1938,7 +1939,7 @@ string TRestMetadata::GetParameter(string parName, size_t& pos, string inputStri
 /// found, try to replace <variable section, if still not found, try to replace
 /// with command line arguments. If all not found, return the initial value.
 string TRestMetadata::ReplaceVariables(const string buffer) {
-    debug << "Entering ... TRestMetadata::ReplaceVariables (" << buffer << ")" << endl;
+    RESTDebug << "Entering ... TRestMetadata::ReplaceVariables (" << buffer << ")" << RESTendl;
     string outputBuffer = buffer;
 
     // replace variables with mark ${}
@@ -1967,13 +1968,13 @@ string TRestMetadata::ReplaceVariables(const string buffer) {
             outputBuffer.replace(replacePos, replaceLen, proenv);
             endPosition = 0;
         } else {
-            ferr << this->ClassName() << ", replace env : cannot find \"${" << expression
-                 << "}\" in either system or program env, exiting..." << endl;
+            RESTError << this->ClassName() << ", replace env : cannot find \"${" << expression
+                      << "}\" in either system or program env, exiting..." << RESTendl;
             exit(1);
         }
     }
 
-    if (buffer != outputBuffer) debug << "Replaced by : " << outputBuffer << endl;
+    if (buffer != outputBuffer) RESTDebug << "Replaced by : " << outputBuffer << RESTendl;
     return outputBuffer;
 }
 
@@ -1982,7 +1983,7 @@ string TRestMetadata::ReplaceVariables(const string buffer) {
 ///
 /// Constans are the substrings directly appeared in the buffer
 string TRestMetadata::ReplaceConstants(const string buffer) {
-    debug << "Entering ... TRestMetadata::ReplaceConstants (" << buffer << ")" << endl;
+    RESTDebug << "Entering ... TRestMetadata::ReplaceConstants (" << buffer << ")" << RESTendl;
     string outputBuffer = buffer;
 
     int startPosition = 0;
@@ -2005,7 +2006,7 @@ string TRestMetadata::ReplaceConstants(const string buffer) {
         }
     }
 
-    if (buffer != outputBuffer) debug << "Replaced by : " << outputBuffer << endl;
+    if (buffer != outputBuffer) RESTDebug << "Replaced by : " << outputBuffer << RESTendl;
     return outputBuffer;
 }
 
@@ -2078,7 +2079,7 @@ void TRestMetadata::WriteConfigBuffer(string fname) {
         return;
     }
 
-    ferr << "Something missing here. Call the police" << endl;
+    RESTError << "Something missing here. Call the police" << RESTendl;
 }
 
 void TRestMetadata::PrintMessageBuffer() { cout << messageBuffer << endl; }
@@ -2088,24 +2089,25 @@ void TRestMetadata::PrintMessageBuffer() { cout << messageBuffer << endl; }
 /// metadata class.
 ///
 void TRestMetadata::PrintMetadata() {
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-    metadata << this->ClassName() << " content" << endl;
-    metadata << "Config file : " << fConfigFileName << endl;
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-    metadata << "Name : " << GetName() << endl;
-    metadata << "Title : " << GetTitle() << endl;
-    metadata << "REST Version : " << GetVersion() << endl;
+    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
+    RESTMetadata << this->ClassName() << " content" << RESTendl;
+    RESTMetadata << "Config file : " << fConfigFileName << RESTendl;
+    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
+    RESTMetadata << "Name : " << GetName() << RESTendl;
+    RESTMetadata << "Title : " << GetTitle() << RESTendl;
+    RESTMetadata << "REST Version : " << GetVersion() << RESTendl;
     if (fOfficialRelease)
-        metadata << "REST Official release: Yes" << endl;
+        RESTMetadata << "REST Official release: Yes" << RESTendl;
     else
-        metadata << "REST Official release: No" << endl;
+        RESTMetadata << "REST Official release: No" << RESTendl;
     if (fCleanState)
-        metadata << "Clean state: Yes" << endl;
+        RESTMetadata << "Clean state: Yes" << RESTendl;
     else
-        metadata << "Clean state: No" << endl;
-    metadata << "REST Commit : " << GetCommit() << endl;
-    if (GetLibraryVersion() != "0.0") metadata << "REST Library version : " << GetLibraryVersion() << endl;
-    metadata << "---------------------------------------" << endl;
+        RESTMetadata << "Clean state: No" << RESTendl;
+    RESTMetadata << "REST Commit : " << GetCommit() << RESTendl;
+    if (GetLibraryVersion() != "0.0")
+        RESTMetadata << "REST Library version : " << GetLibraryVersion() << RESTendl;
+    RESTMetadata << "---------------------------------------" << RESTendl;
 }
 
 ///////////////////////////////////////////////
@@ -2128,9 +2130,9 @@ TString TRestMetadata::GetLibraryVersion() { return fLibraryVersion; }
 /// allowed to update version.
 void TRestMetadata::ReSetVersion() {
     if (!this->InheritsFrom("TRestRun"))
-        ferr << "version is a static value, you cannot set version "
-                "for a class!"
-             << endl;
+        RESTError << "version is a static value, you cannot set version "
+                     "for a class!"
+                  << RESTendl;
     else {
         fVersion = REST_RELEASE;
     }
@@ -2141,9 +2143,9 @@ void TRestMetadata::ReSetVersion() {
 /// Only TRestRun is allowed to update version.
 void TRestMetadata::UnSetVersion() {
     if (!this->InheritsFrom("TRestRun"))
-        ferr << "version is a static value, you cannot set version "
-                "for a class!"
-             << endl;
+        RESTError << "version is a static value, you cannot set version "
+                     "for a class!"
+                  << RESTendl;
     else {
         fVersion = -1;
         fCommit = -1;
@@ -2203,10 +2205,10 @@ std::vector<string> TRestMetadata::GetDataMemberValues(string memberName) {
 ///
 TString TRestMetadata::GetVerboseLevelString() {
     TString level = "unknown";
-    if (this->GetVerboseLevel() == REST_Debug) level = "debug";
-    if (this->GetVerboseLevel() == REST_Info) level = "info";
-    if (this->GetVerboseLevel() == REST_Essential) level = "warning";
-    if (this->GetVerboseLevel() == REST_Silent) level = "silent";
+    if (this->GetVerboseLevel() == TRestStringOutput::REST_Verbose_Level::REST_Debug) level = "debug";
+    if (this->GetVerboseLevel() == TRestStringOutput::REST_Verbose_Level::REST_Info) level = "info";
+    if (this->GetVerboseLevel() == TRestStringOutput::REST_Verbose_Level::REST_Essential) level = "warning";
+    if (this->GetVerboseLevel() == TRestStringOutput::REST_Verbose_Level::REST_Silent) level = "silent";
 
     return level;
 }
@@ -2349,7 +2351,7 @@ std::map<string, string> TRestMetadata::GetParametersList() {
         TString units = paraele->Attribute("units");
 
         if (name == "") {
-            warning << "bad <parameter section: " << *paraele << endl;
+            RESTWarning << "bad <parameter section: " << *paraele << RESTendl;
         } else {
             if (parameters.count(name) == 0) {
                 parameters[name] = value + units;
@@ -2372,8 +2374,8 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
         if (datamembername != "") {
             RESTValue datamember = thisactual.GetDataMember(datamembername);
             if (!datamember.IsZombie()) {
-                debug << this->ClassName() << "::ReadAllParameters(): parsing value \"" << value
-                      << "\" to data member \"" << datamembername << "\"" << endl;
+                RESTDebug << this->ClassName() << "::ReadAllParameters(): parsing value \"" << value
+                          << "\" to data member \"" << datamembername << "\"" << RESTendl;
 
                 if (REST_Units::FindRESTUnitsInString(value) != "") {
                     // there is units contained in this parameter.
@@ -2395,10 +2397,10 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
                         Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
                         *(TVector3*)datamember = TVector3(valueX, valueY, valueZ);
                     } else {
-                        warning
+                        RESTWarning
                             << this->ClassName() << " find unit definition in parameter: " << name
                             << ", but the corresponding data member doesn't support it. Data member type: "
-                            << datamember.type << endl;
+                            << datamember.type << RESTendl;
                         datamember.ParseString(value);
                     }
                 } else {
@@ -2408,8 +2410,8 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
                 // this mean the datamember is found with type not recognized.
                 // We won't try to find the misspelling
             } else {
-                debug << this->ClassName() << "::ReadAllParameters(): parameter \"" << name
-                      << "\" not recognized for automatic load" << endl;
+                RESTDebug << this->ClassName() << "::ReadAllParameters(): parameter \"" << name
+                          << "\" not recognized for automatic load" << RESTendl;
                 vector<string> availableparameters;
 
                 vector<string> datamembers = thisactual.GetListOfDataMembers();
@@ -2437,9 +2439,9 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
                 // we regard the unset parameter with less than 2 characters different from
                 // the data member as "misspelling" parameter. We prompt a warning for it.
                 if (hintParameter != "" && mindiff <= 2) {
-                    warning << this->ClassName() << "::ReadAllParameters(): parameter \"" << name
-                            << "\" not recognized for automatic load, did you mean \"" << hintParameter
-                            << "\" ?" << endl;
+                    RESTWarning << this->ClassName() << "::ReadAllParameters(): parameter \"" << name
+                                << "\" not recognized for automatic load, did you mean \"" << hintParameter
+                                << "\" ?" << RESTendl;
                     GetChar();
                 }
             }
@@ -2448,15 +2450,15 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
 }
 
 TRestStringOutput& TRestStringOutput::operator<<(endl_t et) {
-    if (et.TRestMetadataPtr->GetVerboseLevel() <= REST_Info) {
+    if (et.TRestMetadataPtr->GetVerboseLevel() <= TRestStringOutput::REST_Verbose_Level::REST_Info) {
         et.TRestMetadataPtr->AddLog(this->buf.str());
     }
 
     if (this->iserror) {
-        if (this->verbose == REST_Warning) {
+        if (this->verbose == TRestStringOutput::REST_Verbose_Level::REST_Warning) {
             et.TRestMetadataPtr->SetWarning(this->buf.str(), false);
         }
-        if (this->verbose == REST_Silent) {
+        if (this->verbose == TRestStringOutput::REST_Verbose_Level::REST_Silent) {
             et.TRestMetadataPtr->SetError(this->buf.str(), false);
         }
     }
@@ -2494,7 +2496,7 @@ void TRestMetadata::SetWarning(string message, bool print) {
     if (message != "") {
         fWarningMessage += message + "\n";
         if (print) {
-            if (fVerboseLevel >= REST_Warning) cout << message << endl;
+            RESTWarning << message << RESTendl;
         }
     }
 }

@@ -197,7 +197,7 @@ void TRestSummaryProcess::EndProcess() {
         fMinimum[x.first] = this->GetFullAnalysisTree()->GetObservableMinimum(x.first, range.X(), range.Y());
     }
 
-    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -246,31 +246,35 @@ void TRestSummaryProcess::InitFromConfigFile() {
 void TRestSummaryProcess::PrintMetadata() {
     BeginPrintProcess();
 
-    metadata << " - Mean rate : " << fMeanRate << " Hz" << endl;
-    metadata << " - Mean rate sigma : " << fMeanRateSigma << " Hz" << endl;
+    RESTMetadata << " - Mean rate : " << fMeanRate << " Hz" << RESTendl;
+    RESTMetadata << " - Mean rate sigma : " << fMeanRateSigma << " Hz" << RESTendl;
     for (auto const& x : fAverage) {
-        metadata << " " << endl;
-        metadata << x.first << " average:" << x.second << endl;
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << x.first << " average:" << x.second << RESTendl;
         TVector2 a = fAverageRange[x.first];
-        if (a.X() != -1 && a.Y() != -1) metadata << "    range : (" << a.X() << ", " << a.Y() << ")" << endl;
+        if (a.X() != -1 && a.Y() != -1)
+            RESTMetadata << "    range : (" << a.X() << ", " << a.Y() << ")" << RESTendl;
     }
     for (auto const& x : fRMS) {
-        metadata << " " << endl;
-        metadata << x.first << " RMS:" << x.second << endl;
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << x.first << " RMS:" << x.second << RESTendl;
         TVector2 a = fRMSRange[x.first];
-        if (a.X() != -1 && a.Y() != -1) metadata << "    range : (" << a.X() << ", " << a.Y() << ")" << endl;
+        if (a.X() != -1 && a.Y() != -1)
+            RESTMetadata << "    range : (" << a.X() << ", " << a.Y() << ")" << RESTendl;
     }
     for (auto const& x : fMaximum) {
-        metadata << " " << endl;
-        metadata << x.first << " Maximum:" << x.second << endl;
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << x.first << " Maximum:" << x.second << RESTendl;
         TVector2 a = fMaximumRange[x.first];
-        if (a.X() != -1 && a.Y() != -1) metadata << "    range : (" << a.X() << ", " << a.Y() << ")" << endl;
+        if (a.X() != -1 && a.Y() != -1)
+            RESTMetadata << "    range : (" << a.X() << ", " << a.Y() << ")" << RESTendl;
     }
     for (auto const& x : fMinimum) {
-        metadata << " " << endl;
-        metadata << x.first << " Minimum:" << x.second << endl;
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << x.first << " Minimum:" << x.second << RESTendl;
         TVector2 a = fMinimumRange[x.first];
-        if (a.X() != -1 && a.Y() != -1) metadata << "    range : (" << a.X() << ", " << a.Y() << ")" << endl;
+        if (a.X() != -1 && a.Y() != -1)
+            RESTMetadata << "    range : (" << a.X() << ", " << a.Y() << ")" << RESTendl;
     }
     EndPrintProcess();
 }

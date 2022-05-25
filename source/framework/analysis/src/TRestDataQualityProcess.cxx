@@ -156,7 +156,7 @@ void TRestDataQualityProcess::EndProcess() {
         }
     }
 
-    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 
     ///// Just some examples accessing analysis tree
     ///// We can get now any entry.
@@ -187,8 +187,8 @@ void TRestDataQualityProcess::InitFromConfigFile() {
 
         TRestDataQualityRules rules;
 
-        debug << "Quality number tag : " << name << endl;
-        debug << "------------------" << endl;
+        RESTDebug << "Quality number tag : " << name << RESTendl;
+        RESTDebug << "------------------" << RESTendl;
 
         size_t position_2 = 0;
         string ruleDefinition;
@@ -213,17 +213,17 @@ void TRestDataQualityProcess::InitFromConfigFile() {
             // If everything in TODO is ok we push the rule!
             rules.AddRule(type, value, range, bit);
 
-            debug << "Rule " << rules.GetNumberOfRules() << endl;
-            debug << "+++++++++++" << endl;
-            debug << "Type : " << type << endl;
-            debug << "Value : " << value << endl;
-            debug << "Bit : " << bit << endl;
-            debug << "Range : (" << range.X() << ", " << range.Y() << ")" << endl;
+            RESTDebug << "Rule " << rules.GetNumberOfRules() << RESTendl;
+            RESTDebug << "+++++++++++" << RESTendl;
+            RESTDebug << "Type : " << type << RESTendl;
+            RESTDebug << "Value : " << value << RESTendl;
+            RESTDebug << "Bit : " << bit << RESTendl;
+            RESTDebug << "Range : (" << range.X() << ", " << range.Y() << ")" << RESTendl;
         }
         fRules.push_back(rules);
     }
 
-    if (GetVerboseLevel() >= REST_Extreme) GetChar();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Extreme) GetChar();
 }
 
 ///////////////////////////////////////////////
@@ -234,33 +234,33 @@ void TRestDataQualityProcess::PrintMetadata() {
     BeginPrintProcess();
 
     for (int n = 0; n < fQualityNumber.size(); n++) {
-        metadata << "    " << endl;
-        metadata << "xxxxxxxxxxxxxxxxxxxxxx" << endl;
-        metadata << " tag : " << fQualityTag[n] << ". Quality number : " << fQualityNumber[n] << endl;
-        metadata << "xxxxxxxxxxxxxxxxxxxxxx" << endl;
-        metadata << "  " << endl;
-        metadata << "Rules that have been found in range:" << endl;
-        metadata << "  -----------------  " << endl;
+        RESTMetadata << "    " << RESTendl;
+        RESTMetadata << "xxxxxxxxxxxxxxxxxxxxxx" << RESTendl;
+        RESTMetadata << " tag : " << fQualityTag[n] << ". Quality number : " << fQualityNumber[n] << RESTendl;
+        RESTMetadata << "xxxxxxxxxxxxxxxxxxxxxx" << RESTendl;
+        RESTMetadata << "  " << RESTendl;
+        RESTMetadata << "Rules that have been found in range:" << RESTendl;
+        RESTMetadata << "  -----------------  " << RESTendl;
         Int_t rulesInRange = 0;
         for (int r = 0; r < fRules[n].GetNumberOfRules(); r++)
             if (isBitEnabled(fQualityNumber[n], fRules[n].GetBit(r))) {
-                metadata << fRules[n].GetValue(r) << " is in range (" << fRules[n].GetRange(r).X() << ", "
-                         << fRules[n].GetRange(r).Y() << ")" << endl;
+                RESTMetadata << fRules[n].GetValue(r) << " is in range (" << fRules[n].GetRange(r).X() << ", "
+                             << fRules[n].GetRange(r).Y() << ")" << RESTendl;
                 rulesInRange++;
             }
-        if (!rulesInRange) metadata << "No rules found in range!" << endl;
-        metadata << " " << endl;
+        if (!rulesInRange) RESTMetadata << "No rules found in range!" << RESTendl;
+        RESTMetadata << " " << RESTendl;
 
-        metadata << "Rules that have NOT been found in range:" << endl;
-        metadata << "  -----------------  " << endl;
+        RESTMetadata << "Rules that have NOT been found in range:" << RESTendl;
+        RESTMetadata << "  -----------------  " << RESTendl;
         Int_t rulesOutRange = 0;
         for (int r = 0; r < fRules[n].GetNumberOfRules(); r++)
             if (!isBitEnabled(fQualityNumber[n], fRules[n].GetBit(r))) {
-                metadata << fRules[n].GetValue(r) << " is NOT in range (" << fRules[n].GetRange(r).X() << ", "
-                         << fRules[n].GetRange(r).Y() << ")" << endl;
+                RESTMetadata << fRules[n].GetValue(r) << " is NOT in range (" << fRules[n].GetRange(r).X()
+                             << ", " << fRules[n].GetRange(r).Y() << ")" << RESTendl;
                 rulesOutRange++;
             }
-        if (!rulesOutRange) metadata << "No rules found outside range!" << endl;
+        if (!rulesOutRange) RESTMetadata << "No rules found outside range!" << RESTendl;
     }
 
     EndPrintProcess();
@@ -283,10 +283,11 @@ Bool_t TRestDataQualityProcess::EvaluateMetadataRule(TString value, TVector2 ran
             // If the metadata value is in range we return true
             if (dblVal >= range.X() && dblVal <= range.Y()) return true;
         } else {
-            ferr << "TRestDataQualityProcess::EvaluateMetadataRule." << endl;
-            ferr << "Metadata class " << results[0] << " is not available inside TRestRun" << endl;
+            RESTError << "TRestDataQualityProcess::EvaluateMetadataRule." << RESTendl;
+            RESTError << "Metadata class " << results[0] << " is not available inside TRestRun" << RESTendl;
         }
     } else
-        ferr << "TRestDataQualityProcess::EvaluateMetadataRule. Wrong number of elements found" << endl;
+        RESTError << "TRestDataQualityProcess::EvaluateMetadataRule. Wrong number of elements found"
+                  << RESTendl;
     return false;
 }

@@ -23,47 +23,31 @@
 
 //////////////////////////////////////////////////////////////////////////
 /// String identifiers for terminal colors
-#define COLOR_RESET "\033[0m"
-#define COLOR_BLACK "\033[30m"                    /* Black */
-#define COLOR_RED "\033[31m"                      /* Red */
-#define COLOR_GREEN "\033[32m"                    /* Green */
-#define COLOR_YELLOW "\033[33m"                   /* Yellow */
-#define COLOR_BLUE "\033[34m"                     /* Blue */
-#define COLOR_MAGENTA "\033[35m"                  /* Magenta */
-#define COLOR_CYAN "\033[36m"                     /* Cyan */
-#define COLOR_WHITE "\033[37m"                    /* White */
-#define COLOR_BOLDBLACK "\033[1m\033[30m"         /* Bold Black */
-#define COLOR_BOLDRED "\033[1m\033[31m"           /* Bold Red */
-#define COLOR_BOLDGREEN "\033[1m\033[32m"         /* Bold Green */
-#define COLOR_BOLDYELLOW "\033[1m\033[33m"        /* Bold Yellow */
-#define COLOR_BOLDBLUE "\033[1m\033[34m"          /* Bold Blue */
-#define COLOR_BOLDMAGENTA "\033[1m\033[35m"       /* Bold Magenta */
-#define COLOR_BOLDCYAN "\033[1m\033[36m"          /* Bold Cyan */
-#define COLOR_BOLDWHITE "\033[1m\033[37m"         /* Bold White */
-#define COLOR_BACKGROUNDBLACK "\033[1m\033[40m"   /* BACKGROUND Black */
-#define COLOR_BACKGROUNDRED "\033[1m\033[41m"     /* BACKGROUND Red */
-#define COLOR_BACKGROUNDGREEN "\033[1m\033[42m"   /* BACKGROUND Green */
-#define COLOR_BACKGROUNDYELLOW "\033[1m\033[43m"  /* BACKGROUND Yellow */
-#define COLOR_BACKGROUNDBLUE "\033[1m\033[44m"    /* BACKGROUND Blue */
-#define COLOR_BACKGROUNDMAGENTA "\033[1m\033[45m" /* BACKGROUND Magenta */
-#define COLOR_BACKGROUNDCYAN "\033[1m\033[46m"    /* BACKGROUND Cyan */
-#define COLOR_BACKGROUNDWHITE "\033[1m\033[47m"   /* BACKGROUND White */
-
-//////////////////////////////////////////////////////////////////////////
-/// Enumerate of verbose level, containing five levels
-enum REST_Verbose_Level {
-    REST_Silent,     //!< show minimum information of the software, as well as error
-                     //!< messages
-    REST_Essential,  //!< +show some essential information, as well as warnings
-    REST_Info,       //!< +show most of the infomation for each steps
-    REST_Debug,      //!< +show the defined debug messages
-    REST_Extreme     //!< show everything
-};
-#define REST_Warning REST_Essential
-
-//////////////////////////////////////////////////////////////////////////
-/// Enumerate of TRestStringOutput display orientation
-enum REST_Display_Orientation { kLeft = 1, kMiddle = 0 };
+constexpr const char* const COLOR_RESET = "\033[0m";
+constexpr const char* const COLOR_BLACK = "\033[30m";                    /* Black */
+constexpr const char* const COLOR_RED = "\033[31m";                      /* Red */
+constexpr const char* const COLOR_GREEN = "\033[32m";                    /* Green */
+constexpr const char* const COLOR_YELLOW = "\033[33m";                   /* Yellow */
+constexpr const char* const COLOR_BLUE = "\033[34m";                     /* Blue */
+constexpr const char* const COLOR_MAGENTA = "\033[35m";                  /* Magenta */
+constexpr const char* const COLOR_CYAN = "\033[36m";                     /* Cyan */
+constexpr const char* const COLOR_WHITE = "\033[37m";                    /* White */
+constexpr const char* const COLOR_BOLDBLACK = "\033[1m\033[30m";         /* Bold Black */
+constexpr const char* const COLOR_BOLDRED = "\033[1m\033[31m";           /* Bold Red */
+constexpr const char* const COLOR_BOLDGREEN = "\033[1m\033[32m";         /* Bold Green */
+constexpr const char* const COLOR_BOLDYELLOW = "\033[1m\033[33m";        /* Bold Yellow */
+constexpr const char* const COLOR_BOLDBLUE = "\033[1m\033[34m";          /* Bold Blue */
+constexpr const char* const COLOR_BOLDMAGENTA = "\033[1m\033[35m";       /* Bold Magenta */
+constexpr const char* const COLOR_BOLDCYAN = "\033[1m\033[36m";          /* Bold Cyan */
+constexpr const char* const COLOR_BOLDWHITE = "\033[1m\033[37m";         /* Bold White */
+constexpr const char* const COLOR_BACKGROUNDBLACK = "\033[1m\033[40m";   /* BACKGROUND Black */
+constexpr const char* const COLOR_BACKGROUNDRED = "\033[1m\033[41m";     /* BACKGROUND Red */
+constexpr const char* const COLOR_BACKGROUNDGREEN = "\033[1m\033[42m";   /* BACKGROUND Green */
+constexpr const char* const COLOR_BACKGROUNDYELLOW = "\033[1m\033[43m";  /* BACKGROUND Yellow */
+constexpr const char* const COLOR_BACKGROUNDBLUE = "\033[1m\033[44m";    /* BACKGROUND Blue */
+constexpr const char* const COLOR_BACKGROUNDMAGENTA = "\033[1m\033[45m"; /* BACKGROUND Magenta */
+constexpr const char* const COLOR_BACKGROUNDCYAN = "\033[1m\033[46m";    /* BACKGROUND Cyan */
+constexpr const char* const COLOR_BACKGROUNDWHITE = "\033[1m\033[47m";   /* BACKGROUND White */
 
 //////////////////////////////////////////////////////////////////////////
 /// Console helper class, providing several static methods dealing with terminal
@@ -123,7 +107,7 @@ class Console {
 class TRestMetadata;
 struct endl_t {
     endl_t(TRestMetadata* ptr) { TRestMetadataPtr = ptr; }
-    TRestMetadata* TRestMetadataPtr = 0;
+    TRestMetadata* TRestMetadataPtr = nullptr;
     friend std::ostream& operator<<(std::ostream& a, endl_t& et) { return (a << std::endl); }
 };
 
@@ -137,12 +121,29 @@ struct endl_t {
 /// to initialize a local TRestStringOutput object. Then one can costomize output color,
 /// border and orientation on that.
 class TRestStringOutput {
+   public:
+    //////////////////////////////////////////////////////////////////////////
+    /// Enumerate of verbose level, containing five levels
+    enum class REST_Verbose_Level {
+        REST_Silent = 0,     //!< show minimum information of the software, as well as error
+                             //!< messages
+        REST_Essential = 1,  //!< +show some essential information, as well as warnings
+        REST_Warning = REST_Essential,
+        REST_Info = 2,    //!< +show most of the infomation for each steps
+        REST_Debug = 3,   //!< +show the defined debug messages
+        REST_Extreme = 4  //!< show everything
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Enumerate of TRestStringOutput display orientation
+    enum class REST_Display_Orientation { kLeft = 1, kMiddle = 0 };
+
    protected:
     std::string color;
     std::string formatstring;
     bool useborder;
     bool iserror;
-    int orientation;  // 0->middle, 1->left
+    REST_Display_Orientation orientation;  // 0->middle, 1->left
 
     std::stringstream buf;
     int length;
@@ -153,6 +154,9 @@ class TRestStringOutput {
     void unlock();
 
    public:
+    REST_Verbose_Level GetVerboseLevel() { return verbose; }
+    std::string GetBuffer() { return buf.str(); }
+    bool isError() { return iserror; }
     std::string FormattingPrintString(std::string input);
     void resetstring();
     void flushstring();
@@ -169,61 +173,66 @@ class TRestStringOutput {
     }
     void resetborder() { formatstring = ""; }
     void setlength(int n);
-    void setorientation(int o) { orientation = o; }
-    void resetorientation() { orientation = 0; }
+    void setorientation(REST_Display_Orientation o) { orientation = o; }
+    void resetorientation() { orientation = REST_Display_Orientation::kMiddle; }
+    static void RESTendl(TRestStringOutput& input) { input.flushstring(); }
 
     // If formatter is in mirror form(e.g., "|| ||","< >"), it will use such border
     // to wrap the std::string to be displayed. otherwise the formatter is used as
     // prefix(e.g., "-- Warning: ")
-    TRestStringOutput(std::string color = COLOR_RESET, std::string formatter = "",
-                      REST_Display_Orientation orientation = kLeft);
+    TRestStringOutput(
+        std::string color = COLOR_RESET, std::string formatter = "",
+        REST_Display_Orientation orientation = TRestStringOutput::REST_Display_Orientation::kLeft);
 
-    TRestStringOutput(REST_Verbose_Level v, std::string _color = COLOR_RESET, std::string formatter = "",
-                      REST_Display_Orientation orientation = kLeft, bool _iserror = false)
+    TRestStringOutput(
+        REST_Verbose_Level v, std::string _color = COLOR_RESET, std::string formatter = "",
+        REST_Display_Orientation orientation = TRestStringOutput::REST_Display_Orientation::kLeft,
+        bool _iserror = false)
         : TRestStringOutput(_color, formatter, orientation) {
         verbose = v;
         iserror = _iserror;
     }
 
     template <class T>
-    TRestStringOutput& operator<<(T content) {
+    TRestStringOutput& operator<<(T const& content) {
         buf << content;
         return *this;
     }
 
     TRestStringOutput& operator<<(void (*pfunc)(TRestStringOutput&));
-
+    friend TRestStringOutput& operator<<(TRestMetadata& mt, TRestStringOutput& so);
     TRestStringOutput& operator<<(endl_t et);
 };
-
-namespace noClass {
-//////////////////////////////////////////////////////////////////////////
-/// \relates TRestStringOutput
-/// This method serves as an end-line mark for TRestStringOutput.
-///
-/// Calls TRestStringOutput to flushstring().
-///
-/// When calling `fout<<"hello world"<<endl;` outside metadata class, the pointer of
-/// method is passed to TRestStringOutput, who calls back to this method giving its
-/// reference. This logic is same as endl.
-inline void endl(TRestStringOutput& input) { input.flushstring(); }
-};  // namespace noClass
-using namespace noClass;
 
 /// \relates TRestStringOutput
 /// print a welcome message by calling shell script "rest-config"
 inline void PrintWelcome() { system("rest-config --welcome"); }
 
 /// formatted message output, used for print metadata
-extern TRestStringOutput fout;
-extern TRestStringOutput ferr;
-extern TRestStringOutput warning;
-extern TRestStringOutput essential;
-extern TRestStringOutput metadata;
-extern TRestStringOutput info;
-extern TRestStringOutput success;
-extern TRestStringOutput debug;
-extern TRestStringOutput extreme;
+// initialize formatted message output tool
+// initialize formatted message output tool
+static TRestStringOutput RESTcout(TRestStringOutput::REST_Verbose_Level::REST_Silent, COLOR_BOLDBLUE,
+                                  "[== ==]", TRestStringOutput::REST_Display_Orientation::kMiddle);
+static TRestStringOutput RESTError(TRestStringOutput::REST_Verbose_Level::REST_Silent, COLOR_BOLDRED,
+                                   "-- Error : ", TRestStringOutput::REST_Display_Orientation::kLeft, true);
+static TRestStringOutput RESTWarning(TRestStringOutput::REST_Verbose_Level::REST_Warning, COLOR_BOLDYELLOW,
+                                     "-- Warning : ", TRestStringOutput::REST_Display_Orientation::kLeft,
+                                     true);
+static TRestStringOutput RESTEssential(TRestStringOutput::REST_Verbose_Level::REST_Essential, COLOR_BOLDGREEN,
+                                       "", TRestStringOutput::REST_Display_Orientation::kMiddle);
+static TRestStringOutput RESTMetadata(TRestStringOutput::REST_Verbose_Level::REST_Essential, COLOR_BOLDGREEN,
+                                      "|| ||", TRestStringOutput::REST_Display_Orientation::kMiddle);
+static TRestStringOutput RESTInfo(TRestStringOutput::REST_Verbose_Level::REST_Info, COLOR_BLUE,
+                                  "-- Info : ", TRestStringOutput::REST_Display_Orientation::kLeft);
+static TRestStringOutput RESTSuccess(TRestStringOutput::REST_Verbose_Level::REST_Info, COLOR_GREEN,
+                                     "-- Success : ", TRestStringOutput::REST_Display_Orientation::kLeft);
+static TRestStringOutput RESTDebug(TRestStringOutput::REST_Verbose_Level::REST_Debug, COLOR_RESET,
+                                   "-- Debug : ", TRestStringOutput::REST_Display_Orientation::kLeft);
+static TRestStringOutput RESTExtreme(TRestStringOutput::REST_Verbose_Level::REST_Extreme, COLOR_RESET,
+                                     "-- Extreme : ", TRestStringOutput::REST_Display_Orientation::kLeft);
 
-extern REST_Verbose_Level gVerbose;
+static void RESTendl(TRestStringOutput& input) { input.flushstring(); }
+
+extern TRestStringOutput::REST_Verbose_Level gVerbose;
+
 #endif

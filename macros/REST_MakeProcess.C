@@ -20,9 +20,9 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     //    --> generate a data-conversion process template form TRestDetectorHitsEvent to TRestTrackEvent
 
     if (name.First("TRest") != 0 || name.Contains("Process") == false) {
-        ferr << "invalid process name! REST process name must be start with \"TRest\" and ends with "
-                "\"Process\"!"
-             << endl;
+        RESTError << "invalid process name! REST process name must be start with \"TRest\" and ends with "
+                     "\"Process\"!"
+                  << RESTendl;
         return -1;
     }
 
@@ -62,7 +62,7 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
 
     ofstream headerfile(name + ".h");
     if (headerfile.fail()) {
-        ferr << "failed to create file!" << endl;
+        RESTError << "failed to create file!" << RESTendl;
         return -1;
     }
 
@@ -163,7 +163,7 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
 
     ofstream sourcefile(name + ".cxx");
     if (headerfile.fail()) {
-        ferr << "failed to create file!" << endl;
+        RESTError << "failed to create file!" << RESTendl;
         return -1;
     }
 
