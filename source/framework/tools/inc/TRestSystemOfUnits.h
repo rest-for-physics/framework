@@ -14,6 +14,7 @@
 #ifndef RestCore_TRestSystemOfUnits
 #define RestCore_TRestSystemOfUnits
 
+#include <TMath.h>
 #include <TString.h>
 #include <TVector2.h>
 #include <TVector3.h>
@@ -23,16 +24,16 @@
 #include <string>
 
 #ifdef REST_UnitsAdd_Caller
-#define AddUnit(name, type, scale) const double name = _AddUnit(#name, type, scale)
+#define AddUnit(name, type, scale) double name = _AddUnit(#name, type, scale)
 #else
-#define AddUnit(name, type, scale) const double name = scale
+#define AddUnit(name, type, scale) constexpr double name = scale
 #endif
 
 /// This namespace defines the unit conversion for different units which are understood by REST.
 namespace REST_Units {
 
 // We use more common physics units instead of SI unit
-enum Physical_Unit { Energy, Time, Distance, Mass, Electric, Magnetic, Pressure, NOT_A_UNIT = -1 };
+enum Physical_Unit { Energy, Time, Length, Mass, Voltage, MagneticField, Pressure, Angle, NOT_A_UNIT = -1 };
 
 class TRestSystemOfUnits {
    private:
@@ -110,11 +111,11 @@ AddUnit(day, REST_Units::Time, 1.16e-11);
 AddUnit(mon, REST_Units::Time, 3.85e-13);
 AddUnit(yr, REST_Units::Time, 3.17e-14);
 
-// distance unit multiplier
-AddUnit(um, REST_Units::Distance, 1e3);
-AddUnit(mm, REST_Units::Distance, 1.);
-AddUnit(cm, REST_Units::Distance, 1e-1);
-AddUnit(m, REST_Units::Distance, 1e-3);
+// length unit multiplier
+AddUnit(um, REST_Units::Length, 1e3);
+AddUnit(mm, REST_Units::Length, 1.);
+AddUnit(cm, REST_Units::Length, 1e-1);
+AddUnit(m, REST_Units::Length, 1e-3);
 
 // mass unit multiplier
 AddUnit(mg, REST_Units::Mass, 1e6);
@@ -123,15 +124,15 @@ AddUnit(g, REST_Units::Mass, 1e3);
 AddUnit(kg, REST_Units::Mass, 1.);
 AddUnit(ton, REST_Units::Mass, 1e-3);
 
-// e-potential unit multiplier
-AddUnit(mV, REST_Units::Electric, 1.e3);
-AddUnit(V, REST_Units::Electric, 1.);
-AddUnit(kV, REST_Units::Electric, 1.e-3);
+// voltage unit multiplier
+AddUnit(mV, REST_Units::Voltage, 1.e3);
+AddUnit(V, REST_Units::Voltage, 1.);
+AddUnit(kV, REST_Units::Voltage, 1.e-3);
 
 // magnetic field unit multiplier
-AddUnit(mT, REST_Units::Magnetic, 1.e3);
-AddUnit(T, REST_Units::Magnetic, 1.);
-AddUnit(G, REST_Units::Magnetic, 1.e4);
+AddUnit(mT, REST_Units::MagneticField, 1.e3);
+AddUnit(T, REST_Units::MagneticField, 1.);
+AddUnit(G, REST_Units::MagneticField, 1.e4);
 
 // pressure field unit multiplier
 AddUnit(bar, REST_Units::Pressure, 1.);
@@ -143,6 +144,13 @@ AddUnit(kPa, REST_Units::Pressure, 101.325);
 AddUnit(Pa, REST_Units::Pressure, 101325);
 AddUnit(mPa, REST_Units::Pressure, 10132500);
 
+// angle unit multiplier
+AddUnit(rad, REST_Units::Angle, 1.);
+AddUnit(radian, REST_Units::Angle, 1.);
+AddUnit(radians, REST_Units::Angle, 1.);
+AddUnit(deg, REST_Units::Angle, TMath::RadToDeg());
+AddUnit(degree, REST_Units::Angle, TMath::RadToDeg());
+AddUnit(degrees, REST_Units::Angle, TMath::RadToDeg());
 }  // namespace REST_Units
 
 typedef REST_Units::TRestSystemOfUnits units;
