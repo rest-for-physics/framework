@@ -103,6 +103,36 @@ int main(int argc, char* argv[]) {
                 runTmp->GetEntry(0);
             }
 
+            // command line AnalysisTree object
+            if (runTmp->GetAnalysisTree() != nullptr) {
+                // if (runTmp->GetAnalysisTree()->GetChain() != nullptr) {
+                //    printf("Attaching ana_tree%i...\n", Nfile);
+                //    string evcmd = Form("TChain* ana_tree%i = (TChain*)%s;", Nfile,
+                //        ToString(runTmp->GetAnalysisTree()->GetChain()).c_str());
+                //    if (debug) printf("%s\n", evcmd.c_str());
+                //    gROOT->ProcessLine(evcmd.c_str());
+                //}
+                // else
+                //{
+                printf("Attaching ana_tree%i...\n", Nfile);
+                string evcmd = Form("TRestAnalysisTree* ana_tree%i = (TRestAnalysisTree*)%s;", Nfile,
+                                    ToString(runTmp->GetAnalysisTree()).c_str());
+                if (debug) printf("%s\n", evcmd.c_str());
+                gROOT->ProcessLine(evcmd.c_str());
+                // runTmp->GetEntry(0);
+                //}
+            }
+
+            // command line EventTree object
+            if (runTmp->GetEventTree() != nullptr) {
+                printf("Attaching ev_tree%i...\n", Nfile);
+                string evcmd =
+                    Form("TTree* ev_tree%i = (TTree*)%s;", Nfile, ToString(runTmp->GetEventTree()).c_str());
+                if (debug) printf("%s\n", evcmd.c_str());
+                gROOT->ProcessLine(evcmd.c_str());
+            }
+
+
             printf("\n%s\n", "Attaching metadata structures...");
             Int_t Nmetadata = runTmp->GetNumberOfMetadataStructures();
             map<string, int> metanames;
