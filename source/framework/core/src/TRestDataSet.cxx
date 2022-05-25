@@ -106,12 +106,16 @@ void TRestDataSet::Initialize() {
     // REMOVE COMMENT. Initialize here any special data members if needed
 }
 
+void TRestDataSet::SiderealTime() { ss >> std::get_time(&fStartTime); }
+
 /////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
 ///
 void TRestDataSet::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << " StartTime : " << fStartTime << endl;
-    metadata << " EndTime : " << fEndTime << endl;
+    metadata << " - StartTime : " << fStartTime << endl;
+    metadata << " - EndTime : " << fEndTime << endl;
+    metadata << " - File pattern : " << fFilePattern << endl;
+    metadata << "----" << endl;
 }

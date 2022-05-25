@@ -35,17 +35,17 @@ class TRestDataSet : public TRestMetadata {
     // Note: add "//!" mark at the end of the member definition
     // if you don't want to save them to disk. The following dummy member are given as examples.
 
-    ROOT::RDataFrame fDataset = 0;  //!
-    std::string fStartTime = "";    //<
-    std::string fEndTime = "";      //<
-    std::string fFilePattern = "";  //<
-    TTimeStamp* fStartTimeStamp;    //!
-    TTimeStamp* fEndTimeStamp;      //!
+    ROOT::RDataFrame fDataset = 0;   //!
+    std::string fStartTime = "";     //<
+    std::string fEndTime = "";       //<
+    std::string fFilePattern = "";   //<
+    TTimeStamp fStartTimeStamp = 0;  //!
+    TTimeStamp fEndTimeStamp = 0;    //!
 
    public:
     void PrintMetadata();
     void Initialize();
-
+    void SiderealTime();
     TRestDataSet();
     TRestDataSet(const char* cfgFileName, std::string name = "");
     ~TRestDataSet();
