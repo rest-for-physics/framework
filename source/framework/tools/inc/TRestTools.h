@@ -94,7 +94,7 @@ class TRestTools {
     static bool isPathWritable(const std::string& path);
     static bool isAbsolutePath(const std::string& path);
     static std::string RemoveMultipleSlash(std::string);
-    static std::string ToAbsoluteName(std::string filename);
+    static std::string ToAbsoluteName(const std::string& filename);
     static std::vector<std::string> GetSubdirectories(const std::string& path, int recursion = -1);
     static std::pair<std::string, std::string> SeparatePathAndName(const std::string fullname);
     static std::string GetPureFileName(std::string fullPathFileName);

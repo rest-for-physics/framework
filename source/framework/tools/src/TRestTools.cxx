@@ -54,6 +54,7 @@
 #include <dirent.h>
 
 #include <chrono>
+#include <filesystem>
 #include <iostream>
 #include <limits>
 #include <memory>
@@ -706,12 +707,12 @@ string TRestTools::GetPureFileName(string fullPathFileName) {
 /// the directory the system is at the moment of the method call,
 /// through the PWD system variable.
 ///
-string TRestTools::ToAbsoluteName(string filename) {
+string TRestTools::ToAbsoluteName(const string& filename) {
     string result = filename;
     if (filename[0] == '~') {
         result = (string)getenv("HOME") + filename.substr(1, -1);
     } else if (filename[0] != '/') {
-        result = (string)getenv("PWD") + "/" + filename;
+        result = filesystem::weakly_canonical(filename);
     }
     result = RemoveMultipleSlash(result);
     return result;
