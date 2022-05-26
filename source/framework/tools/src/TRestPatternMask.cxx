@@ -97,7 +97,7 @@ TRestPatternMask::TRestPatternMask() : TRestMetadata() { Initialize(); }
 TRestPatternMask::TRestPatternMask(const char* cfgFileName, std::string name) : TRestMetadata(cfgFileName) {
     // Initialize();
 
-    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -140,11 +140,11 @@ bool TRestPatternMask::HitsPattern(Double_t x, Double_t y) {
 void TRestPatternMask::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << " - Type : " << fPatternType << endl;
-    metadata << " - Mask radius : " << fMaskRadius << " mm" << endl;
-    metadata << " - Offset : (" << fOffset.X() << ", " << fOffset.Y() << ") mm" << endl;
-    metadata << " - Rotation angle : " << fRotationAngle * 180. / TMath::Pi() << " degrees" << endl;
-    metadata << "----" << endl;
+    RESTMetadata << " - Type : " << fPatternType << RESTendl;
+    RESTMetadata << " - Mask radius : " << fMaskRadius << " mm" << RESTendl;
+    RESTMetadata << " - Offset : (" << fOffset.X() << ", " << fOffset.Y() << ") mm" << RESTendl;
+    RESTMetadata << " - Rotation angle : " << fRotationAngle * 180. / TMath::Pi() << " degrees" << RESTendl;
+    RESTMetadata << "----" << RESTendl;
 }
 
 /////////////////////////////////////////////
@@ -187,8 +187,6 @@ TCanvas* TRestPatternMask::DrawMonteCarlo(Int_t nSamples) {
         }
     }
 
-    std::vector<EColor> colors{kOrange, kGreen, kPink};
-
     std::vector<TGraph*> gridGraphs;
     Int_t nGraphs = 0;
     for (const auto& x : points) {
@@ -206,8 +204,8 @@ TCanvas* TRestPatternMask::DrawMonteCarlo(Int_t nSamples) {
             gr->SetMarkerSize(0.6);
             gr->SetLineWidth(2);
         } else {
-            gr->SetMarkerColor((nGraphs * 2) % 29 + 20);
-            gr->SetLineColor((nGraphs * 2) % 29 + 20);
+            gr->SetMarkerColor((nGraphs * 3) % 29 + 20);
+            gr->SetLineColor((nGraphs * 3) % 29 + 20);
             gr->SetMarkerSize(0.6);
             gr->SetLineWidth(2);
         }
@@ -222,12 +220,12 @@ TCanvas* TRestPatternMask::DrawMonteCarlo(Int_t nSamples) {
     gridGraphs[0]->GetHistogram()->SetMinimum(-1.25 * fMaskRadius);
 
     gridGraphs[0]->GetXaxis()->SetTitle("X [mm]");
-    gridGraphs[0]->GetXaxis()->SetTitleSize(0.05);
-    gridGraphs[0]->GetXaxis()->SetLabelSize(0.05);
+    gridGraphs[0]->GetXaxis()->SetTitleSize(0.04);
+    gridGraphs[0]->GetXaxis()->SetLabelSize(0.04);
     gridGraphs[0]->GetYaxis()->SetTitle("Y[mm]");
     gridGraphs[0]->GetYaxis()->SetTitleOffset(1.5);
-    gridGraphs[0]->GetYaxis()->SetTitleSize(0.05);
-    gridGraphs[0]->GetYaxis()->SetLabelSize(0.05);
+    gridGraphs[0]->GetYaxis()->SetTitleSize(0.04);
+    gridGraphs[0]->GetYaxis()->SetLabelSize(0.04);
     pad1->SetLogy();
     gridGraphs[0]->Draw("AP");
     for (int n = 1; n < nGraphs; n++) gridGraphs[n]->Draw("P");
