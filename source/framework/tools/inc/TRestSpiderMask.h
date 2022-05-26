@@ -25,7 +25,7 @@
 
 #include <TRestPatternMask.h>
 
-/// A class used to define a spider structure mask pattern
+/// A class used to define and generate a spider structure mask
 class TRestSpiderMask : public TRestPatternMask {
    private:
     void Initialize();
@@ -39,10 +39,10 @@ class TRestSpiderMask : public TRestPatternMask {
     /// The spider structure will be effective from this radius, in mm. Default is from 20 mm.
     Double_t fInitialRadius = 20.;  //<
 
-    /// It defines the forbidden (cosine) angular ranges imposed by the spider structure (0,Pi)
+    /// Used internally to define the forbidden (cosine) angular ranges imposed by the spider structure (0,Pi)
     std::vector<std::pair<Double_t, Double_t>> fPositiveRanges;  //!
 
-    /// It defines the forbidden (cosine) angular ranges imposed by the spider structure (Pi,2Pi)
+    /// Used internally to define the forbidden (cosine) ang. ranges imposed by the spider structure (Pi,2Pi)
     std::vector<std::pair<Double_t, Double_t>> fNegativeRanges;  //!
 
    public:
@@ -53,10 +53,10 @@ class TRestSpiderMask : public TRestPatternMask {
     /// It returns the gap/periodicity of the spider structure arms in radians
     Double_t GetArmsSeparationAngle() { return fArmsSeparationAngle; }
 
-    /// It returns the angular width of each spider in radians
+    /// It returns the angular width of each spider arm in radians
     Double_t GetArmsWidth() { return fArmsWidth; }
 
-    /// It returns the most inner ring radius
+    /// It returns the inner ring radius that defines the inner start of the spider structure
     Double_t GetInitialRadius() { return fInitialRadius; }
 
     void PrintMetadata();

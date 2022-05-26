@@ -21,26 +21,28 @@
  *************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////
-/// This class defines a set of spider limited by an inner/outter radii.
-///
-/// The spider radii can be initialized by a set of specific metadata
-/// parameters defined inside this class.
+/// This class is used to generate a spider mask structure defined by arms
+/// distributed at a fixed angular period, defined by `fArmsSeparationAngle`,
 ///
 /// The spider pattern is centered in (0,0) and it can be shifted using
 /// the offset defined inside TRestPatternMask. It must be noted that
-/// it is the pattern that will be shifted and not the mask.
+/// it is the pattern that will be shifted and not the mask. The circular
+/// mask imposed by TRestPatternMask will still be centered at (0,0).
 ///
 /// ### Specific spider metadata parameters
 ///
-/// * **spiderGap**: This parameter defines the spider periodicity.
-/// * **spiderThickness**: The thickness of the spider.
-/// * **initialRadius**: The most inner ring radius
-/// * **nSpider**: The number of spider to be created
+/// * **armsSeparationAngle**: This parameter defines the spider periodicity
+/// in radians.
+/// * **armsWidth**: The width of each arm in radians.
+/// * **initialRadius**: The radius from which the ring structure starts to
+/// be effective.
 ///
-/// \note Those parameters can be used to define the generation of a
-/// periodic ring pattern. However, it is possible to define any arbitrary
-/// ring structure using the method TRestSpiderMask::GenerateSpider. In
-/// that case, the previous parametersr should be left undefined.
+/// \note Once those parameters have been initialized, and when using this
+/// class in a stand-alone mode, we need to call the method
+/// TRestSpiderMask::GenerateSpider in order to initialize the internal
+/// data members TRestSpiderMask::fPositiveRanges and
+/// TRestSpiderMask::fNegativeRanges that are effectively used inside the
+/// TRestSpiderMask::GetRegion calculation.
 ///
 /// ### Common pattern metadata parameters
 ///
@@ -59,15 +61,15 @@
 /// TRestSpiderMask.
 ///
 /// \code
-///	<TRestSpiderMask name="spider" verboseLevel="warning">
-///		<parameter name="maskRadius" value="9cm" />
-///		<parameter name="offset" value="(3,3)mm" />
+///  <TRestSpiderMask name="spider3" verboseLevel="info">
+///    <parameter name="maskRadius" value="20cm"/>
+///    <parameter name="offset" value="(0,0)cm"/>
+///    <parameter name="rotationAngle" value="30deg"/>
 ///
-///		<parameter name="spiderGap" value="12mm" />
-///		<parameter name="spiderThickness" value="10mm" />
-///		<parameter name="initialRadius" value="3cm" />
-///		<parameter name="nSpider" value="5" />
-///	</TRestSpiderMask>
+///    <parameter name="armsWidth" value="5deg"/>
+///    <parameter name="armsSeparationAngle" value="60degrees"/>
+///    <parameter name="initialRadius" value="6cm"/>
+///  </TRestSpiderMask>
 /// \endcode
 ///
 /// The basic use of this class is provided by the TRestSpiderMask::GetRegion
@@ -80,17 +82,17 @@
 /// \endcode
 ///
 /// The following figure may be generated using the TRestPatternMask::DrawMonteCarlo
-/// method.
+/// method, using `spider1`, `spider2` and `spider3` definitions.
 ///
 /// \code
-///     TRestSpiderMask mask("masks.rml", "spider");
+///     TRestSpiderMask mask("masks.rml", "spider2");
 ///     mask.GenerateSpider();
 ///     TCanvas *c = mask.DrawMonteCarlo(30000);
 ///     c->Draw();
-///     c->Print("output.png");
+///     c->Print("spider2.png");
 /// \endcode
 ///
-/// \htmlonly <style>div.image img[src="spidermask.png"]{width:500px;}</style> \endhtmlonly
+/// \htmlonly <style>div.image img[src="spidermask.png"]{width:1000px;}</style> \endhtmlonly
 /// ![An illustration of the montecarlo mask test using DrawMonteCarlo](spidermask.png)
 ///
 ///----------------------------------------------------------------------
@@ -163,7 +165,7 @@ void TRestSpiderMask::Initialize() {
 /// hits the pattern.
 ///
 /// The particle will be counter-rotated to emulate the mask rotation
-/// using the method TRestPatternMask::RotateAndTranslate.
+/// using the method TRestPatternMask::ApplyCommonMaskTransformation
 ///
 Int_t TRestSpiderMask::GetRegion(Double_t x, Double_t y) {
     if (ApplyCommonMaskTransformation(x, y) == 0) return 0;
