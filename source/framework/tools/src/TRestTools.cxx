@@ -1125,30 +1125,4 @@ int TRestTools::UploadToServer(string localFile, string remoteFile, string metho
     return 0;
 }
 
-void TRestTools::ChangeDirectory(string toDirectory) {
-    char originDirectory[256];
-    sprintf(originDirectory, "%s", getenv("PWD"));
-    chdir(toDirectory.c_str());
-
-    string fullPath = "";
-    if (toDirectory[0] == '/')
-        fullPath = toDirectory;
-    else
-        fullPath = (string)originDirectory + "/" + toDirectory;
-
-    setenv("PWD", fullPath.c_str(), 1);
-    setenv("OLDPWD", originDirectory, 1);
-}
-
-void TRestTools::ReturnToPreviousDirectory() {
-    char originDirectory[256];
-    sprintf(originDirectory, "%s", getenv("PWD"));
-
-    char newDirectory[256];
-    sprintf(newDirectory, "%s", getenv("OLDPWD"));
-
-    setenv("PWD", newDirectory, 1);
-    setenv("OLDPWD", originDirectory, 1);
-
-    chdir(newDirectory);
-}
+void TRestTools::ChangeDirectory(const string& toDirectory) { filesystem::current_path(toDirectory); }

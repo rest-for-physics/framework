@@ -111,8 +111,7 @@ class TRestTools {
     static int UploadToServer(std::string localFile, std::string remoteFile, std::string methodUrl = "");
 
     static std::string POSTRequest(const std::string& url, const std::map<std::string, std::string>& keys);
-    static void ChangeDirectory(std::string toDirectory);
-    static void ReturnToPreviousDirectory();
+    static void ChangeDirectory(const std::string& toDirectory);
 
     /// Rest tools class
     ClassDef(TRestTools, 1);
