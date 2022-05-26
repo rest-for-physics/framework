@@ -25,55 +25,39 @@
 
 #include <TRestPatternMask.h>
 
-/// A class used to define a rings mask pattern
+/// A class used to define a spider structure mask pattern
 class TRestSpiderMask : public TRestPatternMask {
    private:
     void Initialize();
 
-    /// The periodity of the rings structure in mm. Optionally used to initialize the rings.
-    Double_t fSpiderGap = 0;  //!
+    /// The angle between two consecutive spider arms measured in radians.
+    Double_t fArmsSeparationAngle = 0;  //<
 
-    /// The width of the rings structure in mm. Optionally used to initialize the rings.
-    Double_t fSpiderThickness = 0;  //!
+    /// The width of each specific spider arm. Measured in radians. Default is 2.5 degrees.
+    Double_t fArmsWidth = TMath::Pi() / 18. / 4.;  //<
 
-    /// The number of rings inside the structure.
-    Int_t fNSpider = 0;  //!
+    /// The spider structure will be effective from this radius, in mm. Default is from 20 mm.
+    Double_t fInitialRadius = 20.;  //<
 
-    /// The initial radius for the inner ring
-    Double_t fInitialRadius = 0;  //!
+    /// It defines the forbidden (cosine) angular ranges imposed by the spider structure (0,Pi)
+    std::vector<std::pair<Double_t, Double_t>> fPositiveRanges;  //!
 
-    /// A pair containing inner/outter radius for each ring
-    std::vector<std::pair<Double_t, Double_t>> fSpiderRadii;  //<
+    /// It defines the forbidden (cosine) angular ranges imposed by the spider structure (Pi,2Pi)
+    std::vector<std::pair<Double_t, Double_t>> fNegativeRanges;  //!
 
    public:
     void GenerateSpider();
 
     virtual Int_t GetRegion(Double_t x, Double_t y);
 
-    /// It returns the gap/periodicity of the rings in mm
-    Double_t GetSpiderGap() { return fSpiderGap; }
+    /// It returns the gap/periodicity of the spider structure arms in radians
+    Double_t GetArmsSeparationAngle() { return fArmsSeparationAngle; }
 
-    /// It returns the thickness of the rings in mm
-    Double_t GetSpiderThickness() { return fSpiderThickness; }
-
-    /// It returns the number of rings to be generated
-    Double_t GetNumberOfSpider() { return fNSpider; }
+    /// It returns the angular width of each spider in radians
+    Double_t GetArmsWidth() { return fArmsWidth; }
 
     /// It returns the most inner ring radius
     Double_t GetInitialRadius() { return fInitialRadius; }
-
-    /// It allows to redefine the inner and outter rings radii directly
-    void SetRadii(const std::vector<Double_t>& innerR, const std::vector<Double_t>& outterR) {
-        if (innerR.size() != outterR.size()) {
-            warning << "TRestSpiderMask::SetRadii. Vectors have not the same size!" << endl;
-            return;
-        }
-
-        for (int n = 0; n < innerR.size(); n++) {
-            std::pair<Double_t, Double_t> p(innerR[n], outterR[n]);
-            fSpiderRadii.push_back(p);
-        }
-    }
 
     void PrintMetadata();
 
