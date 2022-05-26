@@ -621,56 +621,26 @@ bool TRestTools::isAbsolutePath(const string& path) {
 /// Input: "abc.txt" and ":", Output: { ".", "abc.txt" }
 /// Input: "/home/nkx/" and ":", Output: { "/home/nkx/", "" }
 ///
-std::pair<string, string> TRestTools::SeparatePathAndName(string fullname) {
-    fullname = RemoveMultipleSlash(fullname);
-    pair<string, string> result;
-    int pos = fullname.find_last_of('/', -1);
-
-    if (pos == -1) {
-        result.first = ".";
-        result.second = fullname;
-    } else if (pos == 0) {
-        result.first = "/";
-        result.second = fullname.substr(1, fullname.size() - 1);
-    } else if (pos == fullname.size() - 1) {
-        result.first = fullname;
-        result.second = "";
-    } else {
-        result.first = fullname.substr(0, pos + 1);
-        result.second = fullname.substr(pos + 1, fullname.size() - pos - 1);
-    }
-    return result;
+std::pair<string, string> TRestTools::SeparatePathAndName(const string& fullname) {
+    filesystem::path path(fullname);
+    return {path.parent_path(), path.filename()};
 }
 
 ///////////////////////////////////////////////
-/// \brief Gets the file extension as the substring found after the lastest "."
+/// \brief Gets the file extension as the substring found after the latest "."
 ///
 /// Input: "/home/jgalan/abc.txt" Output: "txt"
 ///
-string TRestTools::GetFileNameExtension(string fullname) {
-    int pos = fullname.find_last_of('.', -1);
-
-    if (pos != -1) {
-        return fullname.substr(pos + 1, fullname.size() - pos - 1);
-    }
-    return fullname;
+string TRestTools::GetFileNameExtension(const string& fullname) {
+    return filesystem::path(fullname).extension();
 }
 
 ///////////////////////////////////////////////
-/// \brief Gets the filename root as the substring found before the lastest "."
+/// \brief Gets the filename root as the substring found before the latest "."
 ///
 /// Input: "/home/jgalan/abc.txt" Output: "abc"
 ///
-string TRestTools::GetFileNameRoot(string fullname) {
-    size_t pos1 = fullname.find_last_of('/', -1);
-    size_t pos2 = fullname.find_last_of('.', -1);
-
-    if (pos1 != string::npos && pos2 != string::npos) return fullname.substr(pos1 + 1, pos2 - pos1 - 1);
-
-    if (pos1 == string::npos && pos2 != string::npos) return fullname.substr(0, pos2);
-
-    return fullname;
-}
+string TRestTools::GetFileNameRoot(const string& fullname) { return filesystem::path(fullname).stem(); }
 
 ///////////////////////////////////////////////
 /// \brief Returns the input string but without multiple slashes ("/")

@@ -61,8 +61,8 @@ class TRestTools {
 
     static Bool_t IsBinaryFile(std::string fname);
 
-    static std::string GetFileNameExtension(std::string fullname);
-    static std::string GetFileNameRoot(std::string fullname);
+    static std::string GetFileNameExtension(const std::string& fullname);
+    static std::string GetFileNameRoot(const std::string& fullname);
 
     static int GetBinaryFileColumns(std::string fname);
 
@@ -96,7 +96,7 @@ class TRestTools {
     static std::string RemoveMultipleSlash(std::string);
     static std::string ToAbsoluteName(const std::string& filename);
     static std::vector<std::string> GetSubdirectories(const std::string& path, int recursion = -1);
-    static std::pair<std::string, std::string> SeparatePathAndName(const std::string fullname);
+    static std::pair<std::string, std::string> SeparatePathAndName(const std::string& fullname);
     static std::string GetPureFileName(const std::string& fullPathFileName);
     static std::string SearchFileInPath(std::vector<std::string> path, std::string filename);
     static Int_t CheckTheFile(std::string configFilename);

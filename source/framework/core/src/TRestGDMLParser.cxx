@@ -119,7 +119,7 @@ void TRestGDMLParser::ReplaceEntity() {
             }
             entityFile = entityField;
         } else {
-            entityFile = fPath + entityFile;
+            entityFile = fPath + "/" + entityFile;
         }
 
         int pos5 = 0;
