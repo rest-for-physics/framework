@@ -672,7 +672,32 @@ string TRestTools::GetPureFileName(const string& path) { return filesystem::path
 ///////////////////////////////////////////////
 /// \brief It takes a path and returns its absolute path
 ///
-string TRestTools::ToAbsoluteName(const string& filename) { return filesystem::weakly_canonical(filename); }
+string TRestTools::ToAbsoluteName(const string& filename) {
+    filesystem::path path;
+    for (const auto directory : filesystem::path(filename)) {
+        if (path.empty() && directory == "~") {
+            // path starts with ~
+            const auto envVariableHome = getenv("HOME");
+            if (envVariableHome == nullptr) {
+                cout << "TRestTools::ToAbsoluteName - ERROR - "
+                        "cannot resolve ~ because 'HOME' env variable does not exist"
+                     << endl;
+                exit(1);
+            }
+            const auto userHomePath = filesystem::path(envVariableHome);
+            if (userHomePath.empty()) {
+                cout << "TRestTools::ToAbsoluteName - ERROR - "
+                        "cannot resolve ~ because 'HOME' env variable is not set to a valid value"
+                     << endl;
+                exit(1);
+            }
+            path /= userHomePath;
+        } else {
+            path /= directory;
+        }
+    }
+    return filesystem::weakly_canonical(path);
+}
 
 ///////////////////////////////////////////////
 /// \brief It lists all the subdirectories inside path and adds
