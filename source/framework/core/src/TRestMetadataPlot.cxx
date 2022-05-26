@@ -304,11 +304,11 @@ void TRestMetadataPlot::InitFromConfigFile() {
     }
 
 #pragma region ReadLabels
-    debug << "TRestMetadataPlot: Reading canvas settings" << endl;
+    RESTDebug << "TRestMetadataPlot: Reading canvas settings" << RESTendl;
     position = 0;
     TiXmlElement* formatDefinition = GetElement("labels");
     if (formatDefinition != nullptr) {
-        if (GetVerboseLevel() >= REST_Debug) {
+        if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
             cout << formatDefinition << endl;
             cout << "Reading format definition : " << endl;
             cout << "---------------------------" << endl;
@@ -332,7 +332,7 @@ void TRestMetadataPlot::InitFromConfigFile() {
         if (fLabelScaleX == -1) fLabelScaleX = 1.3;
         if (fLabelScaleY == -1) fLabelScaleY = 1.3;
 
-        if (GetVerboseLevel() >= REST_Debug) {
+        if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
             cout << "ticks scale X : " << fTicksScaleX << endl;
             cout << "ticks scale Y : " << fTicksScaleY << endl;
             cout << "label scale X : " << fLabelScaleX << endl;
@@ -340,7 +340,7 @@ void TRestMetadataPlot::InitFromConfigFile() {
             cout << "label offset X : " << fLabelOffsetX << endl;
             cout << "label offset Y : " << fLabelOffsetY << endl;
 
-            if (GetVerboseLevel() >= REST_Extreme) GetChar();
+            if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Extreme) GetChar();
         }
     }
 #pragma endregion
@@ -349,7 +349,7 @@ void TRestMetadataPlot::InitFromConfigFile() {
     position = 0;
     TiXmlElement* legendDefinition = GetElement("legendPosition");
     if (legendDefinition != nullptr) {
-        if (GetVerboseLevel() >= REST_Debug) {
+        if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
             cout << legendDefinition << endl;
             cout << "Reading legend definition : " << endl;
             cout << "---------------------------" << endl;
@@ -367,11 +367,11 @@ void TRestMetadataPlot::InitFromConfigFile() {
         if (fLegendX2 == -1) fLegendX2 = 0.88;
         if (fLegendY2 == -1) fLegendY2 = 0.88;
 
-        if (GetVerboseLevel() >= REST_Debug) {
+        if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
             cout << "x1 : " << fLegendX1 << " y1 : " << fLegendY1 << endl;
             cout << "x2 : " << fLegendX2 << " y2 : " << fLegendY2 << endl;
 
-            if (GetVerboseLevel() >= REST_Extreme) GetChar();
+            if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Extreme) GetChar();
         }
 
         fLegendOption = GetFieldValue("option", legendDefinition);
@@ -393,7 +393,7 @@ void TRestMetadataPlot::InitFromConfigFile() {
 #pragma endregion
 
 #pragma region ReadPlot
-    debug << "TRestMetadataPlot: Reading plot sections" << endl;
+    RESTDebug << "TRestMetadataPlot: Reading plot sections" << RESTendl;
     Int_t maxPlots = (Int_t)fCanvasDivisions.X() * (Int_t)fCanvasDivisions.Y();
     TiXmlElement* plotele = fElement->FirstChildElement("plot");
     while (plotele != nullptr) {
@@ -401,8 +401,9 @@ void TRestMetadataPlot::InitFromConfigFile() {
         if (ToUpper(active) == "ON") {
             int N = fPlots.size();
             if (N >= maxPlots) {
-                ferr << "Your canvas divisions (" << fCanvasDivisions.X() << " , " << fCanvasDivisions.Y()
-                     << ") are not enough to show " << N + 1 << " plots" << endl;
+                RESTError << "Your canvas divisions (" << fCanvasDivisions.X() << " , "
+                          << fCanvasDivisions.Y() << ") are not enough to show " << N + 1 << " plots"
+                          << RESTendl;
                 exit(1);
             }
 
@@ -422,18 +423,18 @@ void TRestMetadataPlot::InitFromConfigFile() {
             plot.yRange = StringTo2DVector(GetParameter("yRange", plotele, "(-1,-1)"));
             plot.xRange = StringTo2DVector(GetParameter("xRange", plotele, "(-1,-1)"));
 
-            debug << " Plot parameters read from <plot section " << endl;
-            debug << " --------------------------------------- " << endl;
-            debug << "- name: " << plot.name << endl;
-            debug << "- title: " << plot.title << endl;
-            debug << "- xVariable: " << plot.xVariable << endl;
-            debug << "- logX: " << plot.logX << endl;
-            debug << "- logY: " << plot.logY << endl;
-            debug << "- X-label : " << plot.labelX << endl;
-            debug << "- Y-label : " << plot.labelY << endl;
-            debug << "- legendOn: " << plot.legendOn << endl;
-            debug << "- timeDisplay: " << plot.timeDisplay << endl;
-            debug << "- save : " << plot.save << endl;
+            RESTDebug << " Plot parameters read from <plot section " << RESTendl;
+            RESTDebug << " --------------------------------------- " << RESTendl;
+            RESTDebug << "- name: " << plot.name << RESTendl;
+            RESTDebug << "- title: " << plot.title << RESTendl;
+            RESTDebug << "- xVariable: " << plot.xVariable << RESTendl;
+            RESTDebug << "- logX: " << plot.logX << RESTendl;
+            RESTDebug << "- logY: " << plot.logY << RESTendl;
+            RESTDebug << "- X-label : " << plot.labelX << RESTendl;
+            RESTDebug << "- Y-label : " << plot.labelY << RESTendl;
+            RESTDebug << "- legendOn: " << plot.legendOn << RESTendl;
+            RESTDebug << "- timeDisplay: " << plot.timeDisplay << RESTendl;
+            RESTDebug << "- save : " << plot.save << RESTendl;
 
             TiXmlElement* graphele = plotele->FirstChildElement("graph");
             if (graphele == nullptr) {
@@ -444,8 +445,8 @@ void TRestMetadataPlot::InitFromConfigFile() {
             while (graphele != nullptr) {
                 Graph_Info_Set graph = SetupGraphFromConfigFile(graphele, plot);
 
-                debug << "Graph name : " << graph.name << endl;
-                debug << "Graph variable : " << graph.yVariable << endl;
+                RESTDebug << "Graph name : " << graph.name << RESTendl;
+                RESTDebug << "Graph variable : " << graph.yVariable << RESTendl;
 
                 plot.graphs.push_back(graph);
 
@@ -459,7 +460,7 @@ void TRestMetadataPlot::InitFromConfigFile() {
 #pragma endregion
 
 #pragma region ReadPanel
-    debug << "TRestMetadataPlot: Reading panel sections" << endl;
+    RESTDebug << "TRestMetadataPlot: Reading panel sections" << RESTendl;
     maxPlots -= fPlots.size();  // remaining spaces on canvas
     TiXmlElement* panelele = fElement->FirstChildElement("panel");
     while (panelele != nullptr) {
@@ -467,9 +468,9 @@ void TRestMetadataPlot::InitFromConfigFile() {
         if (ToUpper(active) == "ON") {
             int N = fPanels.size();
             if (N >= maxPlots) {
-                ferr << "Your canvas divisions (" << fCanvasDivisions.X() << " , " << fCanvasDivisions.Y()
-                     << ") are not enough to show " << fPlots.size() << " plots, and " << N + 1
-                     << " info panels" << endl;
+                RESTError << "Your canvas divisions (" << fCanvasDivisions.X() << " , "
+                          << fCanvasDivisions.Y() << ") are not enough to show " << fPlots.size()
+                          << " plots, and " << N + 1 << " info panels" << RESTendl;
                 exit(1);
             }
 
@@ -491,11 +492,11 @@ void TRestMetadataPlot::InitFromConfigFile() {
     }
 
     for (int n = 0; n < fPanels.size(); n++) {
-        extreme << "Panel " << n << " with font size : " << fPanels[n].font_size << endl;
+        RESTExtreme << "Panel " << n << " with font size : " << fPanels[n].font_size << RESTendl;
         for (int m = 0; m < fPanels[n].posX.size(); m++) {
-            extreme << "Label : " << fPanels[n].label[m] << endl;
-            extreme << "Pos X : " << fPanels[n].posX[m] << endl;
-            extreme << "Pos Y : " << fPanels[n].posY[m] << endl;
+            RESTExtreme << "Label : " << fPanels[n].label[m] << RESTendl;
+            RESTExtreme << "Pos X : " << fPanels[n].posX[m] << RESTendl;
+            RESTExtreme << "Pos Y : " << fPanels[n].posY[m] << RESTendl;
         }
     }
 #pragma endregion
@@ -515,14 +516,15 @@ TRestMetadataPlot::Graph_Info_Set TRestMetadataPlot::SetupGraphFromConfigFile(Ti
 
     for (int n = 0; n < fPlotNamesCheck.size(); n++)
         if (graph.name == fPlotNamesCheck[n]) {
-            ferr << "Repeated plot/graph names were found! Please, use different names for different plots!"
-                 << endl;
-            ferr << "<plot/graph name=\"" << graph.name << "\" already defined!" << endl;
+            RESTError
+                << "Repeated plot/graph names were found! Please, use different names for different plots!"
+                << RESTendl;
+            RESTError << "<plot/graph name=\"" << graph.name << "\" already defined!" << RESTendl;
             exit(1);
         }
 
     if (graph.yVariable == "") {
-        ferr << "Problem reading yVariable from graph with name : " << graph.name << endl;
+        RESTError << "Problem reading yVariable from graph with name : " << graph.name << RESTendl;
         exit(2);
     }
 
@@ -544,8 +546,8 @@ TRestMetadataPlot::Graph_Info_Set TRestMetadataPlot::SetupGraphFromConfigFile(Ti
 /// adds it to the list of input files beloning to this class.
 ///
 void TRestMetadataPlot::AddFile(TString fileName) {
-    debug << "TRestMetadataPlot::AddFile. Adding file. " << endl;
-    debug << "File name: " << fileName << endl;
+    RESTDebug << "TRestMetadataPlot::AddFile. Adding file. " << RESTendl;
+    RESTDebug << "File name: " << fileName << RESTendl;
 
     // TODO: How do we check here that the run is valid?
     fRunInputFileName.push_back((string)fileName);
@@ -580,7 +582,7 @@ void TRestMetadataPlot::AddFileFromEnv() {
     auto files = TRestTools::GetFilesMatchingPattern(filepattern);
 
     for (unsigned int n = 0; n < files.size(); n++) {
-        essential << "Adding file : " << files[n] << endl;
+        RESTEssential << "Adding file : " << files[n] << RESTendl;
         AddFile(files[n]);
     }
 }
@@ -592,7 +594,7 @@ Int_t TRestMetadataPlot::GetPlotIndex(TString plotName) {
     for (unsigned int n = 0; n < fPlots.size(); n++)
         if (fPlots[n].name == plotName) return n;
 
-    warning << "TRestMetadataPlot::GetPlotIndex. Plot name " << plotName << " not found" << endl;
+    RESTWarning << "TRestMetadataPlot::GetPlotIndex. Plot name " << plotName << " not found" << RESTendl;
     return -1;
 }
 
@@ -601,9 +603,9 @@ Int_t TRestMetadataPlot::GetPlotIndex(TString plotName) {
 /// and generating the plots inside the main canvas.
 ///
 void TRestMetadataPlot::GenerateCanvas() {
-    info << "--------------------------" << endl;
-    info << "Starting to GenerateCanvas" << endl;
-    info << "--------------------------" << endl;
+    RESTInfo << "--------------------------" << RESTendl;
+    RESTInfo << "Starting to GenerateCanvas" << RESTendl;
+    RESTInfo << "--------------------------" << RESTendl;
     // Add files, first use <addFile section definition
     TiXmlElement* ele = fElement->FirstChildElement("addFile");
     while (ele != nullptr) {
@@ -617,7 +619,7 @@ void TRestMetadataPlot::GenerateCanvas() {
     if (fNFiles == 0) AddFileFromEnv();
 
     if (fNFiles == 0) {
-        ferr << "TRestMetadataPlot: No input files are added!" << endl;
+        RESTError << "TRestMetadataPlot: No input files are added!" << RESTendl;
         exit(1);
     }
 
@@ -653,7 +655,7 @@ void TRestMetadataPlot::GenerateCanvas() {
             run->SetHistoricMetadataSaving(false);
             run->OpenInputFile(fRunInputFileName[n]);
 
-            info << "Loading timestamps from file : " << fRunInputFileName[n] << endl;
+            RESTInfo << "Loading timestamps from file : " << fRunInputFileName[n] << RESTendl;
 
             Double_t endTimeStamp = run->GetEndTimestamp();
             Double_t startTimeStamp = run->GetStartTimestamp();
@@ -731,7 +733,7 @@ void TRestMetadataPlot::GenerateCanvas() {
             TString graphName = graph.name;
             TString graphVariable = graph.yVariable;
 
-            if (GetVerboseLevel() >= REST_Debug) {
+            if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
                 cout << endl;
                 cout << "--------------------------------------" << endl;
                 cout << "Graph name : " << graphName << endl;
@@ -754,7 +756,7 @@ void TRestMetadataPlot::GenerateCanvas() {
 
             // We build the corresponding TGraph extracting the points from each file
             for (unsigned int j = 0; j < fRunInputFileName.size(); j++) {
-                info << "Loading file : " << fRunInputFileName[j] << endl;
+                RESTInfo << "Loading file : " << fRunInputFileName[j] << RESTendl;
 
                 TRestRun* run = new TRestRun();
                 run->SetHistoricMetadataSaving(false);
@@ -803,20 +805,20 @@ void TRestMetadataPlot::GenerateCanvas() {
 
             // In case of problems we output this
             if (xData.size() == 0) {
-                warning << "TRestMetadataPlot: no input file matches condition for graph: " << graph.name
-                        << endl;
-                warning << "This graph is empty and it will not be plotted" << endl;
+                RESTWarning << "TRestMetadataPlot: no input file matches condition for graph: " << graph.name
+                            << RESTendl;
+                RESTWarning << "This graph is empty and it will not be plotted" << RESTendl;
                 plot.graphs.erase(plot.graphs.begin() + i);
                 i--;
             }
 
             if (xData.size() == 1) {
-                warning << "TRestMetadataPlot: Only 1-point for graph: " << graph.name << endl;
-                warning << "X: " << xData[0] << " Y: " << yData[0] << endl;
+                RESTWarning << "TRestMetadataPlot: Only 1-point for graph: " << graph.name << RESTendl;
+                RESTWarning << "X: " << xData[0] << " Y: " << yData[0] << RESTendl;
             }
 
             for (int nn = 0; nn < xData.size(); nn++)
-                debug << "X: " << xData[nn] << " Y: " << yData[nn] << endl;
+                RESTDebug << "X: " << xData[nn] << " Y: " << yData[nn] << RESTendl;
 
             // adjust the graph
             TGraph* gr_temp = new TGraph(xData.size(), &xData[0], &yData[0]);
@@ -855,7 +857,7 @@ void TRestMetadataPlot::GenerateCanvas() {
         }
 
         if (graphCollectionPlot.size() == 0) {
-            warning << "TRestMetadataPlot: pad empty for the plot: " << plot.name << endl;
+            RESTWarning << "TRestMetadataPlot: pad empty for the plot: " << plot.name << RESTendl;
             continue;
         }
 

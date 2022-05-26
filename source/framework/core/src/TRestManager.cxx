@@ -103,19 +103,19 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
     else if (keydeclare == "addTask") {
         string active = GetParameter("value", e, "");
         if (active != "ON" && active != "On" && active != "on") {
-            debug << "Inactived task : \"" << ElementToString(e) << "\"" << endl;
+            RESTDebug << "Inactived task : \"" << ElementToString(e) << "\"" << RESTendl;
             return 0;
         }
-        debug << "Loading Task...";
+        RESTDebug << "Loading Task...";
 
         const char* type = e->Attribute("type");
         const char* cmd = e->Attribute("command");
         if (type == nullptr && cmd == nullptr) {
-            warning << "command or type should be given!" << endl;
+            RESTWarning << "command or type should be given!" << RESTendl;
             return -1;
         }
         if (type != nullptr) {
-            debug << " \"" << type << "\" " << endl;
+            RESTDebug << " \"" << type << "\" " << RESTendl;
             if ((string)type == "processEvents") {
                 auto pr = GetProcessRunner();
                 if (pr != nullptr) pr->RunProcess();
@@ -131,8 +131,8 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
             } else {
                 TRestTask* tsk = TRestTask::GetTaskFromMacro(type);
                 if (tsk == nullptr) {
-                    warning << "REST ERROR. Task : " << type << " not found!!" << endl;
-                    warning << "This task will be skipped." << endl;
+                    RESTWarning << "REST ERROR. Task : " << type << " not found!!" << RESTendl;
+                    RESTWarning << "This task will be skipped." << RESTendl;
                     return -1;
                 }
                 tsk->LoadConfigFromElement(e, fElementGlobal);
@@ -140,12 +140,12 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
                 return 0;
             }
         } else if (cmd != nullptr) {
-            debug << " \"" << cmd << "\" " << endl;
+            RESTDebug << " \"" << cmd << "\" " << RESTendl;
 
             TRestTask* tsk = TRestTask::GetTaskFromCommand(cmd);
             if (tsk == nullptr) {
-                warning << "REST ERROR. Command : " << cmd << " cannot be parsed!!" << endl;
-                warning << "This task will be skipped." << endl;
+                RESTWarning << "REST ERROR. Command : " << cmd << " cannot be parsed!!" << RESTendl;
+                RESTWarning << "This task will be skipped." << RESTendl;
                 return -1;
             }
             tsk->RunTask(this);

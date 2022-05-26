@@ -50,7 +50,7 @@ std::string Replace(std::string in, std::string thisString, std::string byThisSt
 std::string EscapeSpecialLetters(std::string in);
 std::string ToDateTimeString(time_t time);
 time_t StringToTimeStamp(std::string time);
-REST_Verbose_Level StringToVerboseLevel(std::string in);
+TRestStringOutput::REST_Verbose_Level StringToVerboseLevel(std::string in);
 ULong64_t ToHash(std::string str);
 constexpr ULong64_t ToHash(const char* str, ULong64_t last_value = 0xCBF29CE484222325ull) {
     return *str ? ToHash(str + 1, (*str ^ last_value) * 0x100000001B3ull) : last_value;

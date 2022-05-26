@@ -415,7 +415,7 @@ void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, RESTValue& obs) {
                     type = "bool";
                     break;
                 default:
-                    ferr << "Unsupported leaf definition: " << leafdef << "! Assuming int" << endl;
+                    RESTError << "Unsupported leaf definition: " << leafdef << "! Assuming int" << RESTendl;
                     type = "int";
             }
         } else {
@@ -430,7 +430,8 @@ void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, RESTValue& obs) {
                     type = "vector<double>";
                     break;
                 default:
-                    ferr << "Unsupported leaf definition: " << leafdef << "! Assuming vector<int>" << endl;
+                    RESTError << "Unsupported leaf definition: " << leafdef << "! Assuming vector<int>"
+                              << RESTendl;
                     type = "vector<int>";
             }
         }
@@ -458,7 +459,7 @@ void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, RESTValue& obs) {
         string val(ptr, lf->GetLen());
         obs.SetValue(val);
     } else {
-        warning << "Unsupported observable type to convert from TLeaf!" << endl;
+        RESTWarning << "Unsupported observable type to convert from TLeaf!" << RESTendl;
     }
 }
 
@@ -1028,7 +1029,7 @@ Int_t TRestAnalysisTree::WriteAsTTree(const char* name, Int_t option, Int_t bufs
 Bool_t TRestAnalysisTree::AddChainFile(string _file) {
     auto file = std::unique_ptr<TFile>{TFile::Open(_file.c_str(), "update")};
     if (!file->IsOpen()) {
-        warning << "TRestAnalysisTree::AddChainFile(): failed to open file " << _file << endl;
+        RESTWarning << "TRestAnalysisTree::AddChainFile(): failed to open file " << _file << RESTendl;
         return false;
     }
 
@@ -1045,15 +1046,17 @@ Bool_t TRestAnalysisTree::AddChainFile(string _file) {
                 }
                 return fChain->Add(_file.c_str()) == 1;
             }
-            warning << "TRestAnalysisTree::AddChainFile(): invalid file, AnalysisTree in file has different "
-                       "run id!"
-                    << endl;
+            RESTWarning
+                << "TRestAnalysisTree::AddChainFile(): invalid file, AnalysisTree in file has different "
+                   "run id!"
+                << RESTendl;
         }
-        warning << "TRestAnalysisTree::AddChainFile(): invalid file, AnalysisTree in file is empty!" << endl;
+        RESTWarning << "TRestAnalysisTree::AddChainFile(): invalid file, AnalysisTree in file is empty!"
+                    << RESTendl;
         delete tree;
     }
-    warning << "TRestAnalysisTree::AddChainFile(): invalid file, file does not contain an AnalysisTree!"
-            << endl;
+    RESTWarning << "TRestAnalysisTree::AddChainFile(): invalid file, file does not contain an AnalysisTree!"
+                << RESTendl;
 
     return false;
 }

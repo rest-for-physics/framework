@@ -105,8 +105,8 @@ std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer
         string evaluated = EvaluateExpression(Expressions[i]);
         if (evaluated == "RESTerror") {
             result += Expressions[i] + ",";
-            ferr << "ReplaceMathematicalExpressions. Error on RML syntax!" << endl;
-            if (errorMessage != "") ferr << errorMessage << endl;
+            RESTError << "ReplaceMathematicalExpressions. Error on RML syntax!" << RESTendl;
+            if (errorMessage != "") RESTError << errorMessage << RESTendl;
         } else
             result += evaluated + ",";
     }
@@ -140,7 +140,8 @@ std::string REST_StringHelper::EvaluateExpression(std::string exp) {
     ostringstream sss;
     Double_t number = formula.EvalPar(0);
     if (number > 0 && number < 1.e-300) {
-        warning << "REST_StringHelper::EvaluateExpresssion. Expression not recognized --> " << exp << endl;
+        RESTWarning << "REST_StringHelper::EvaluateExpresssion. Expression not recognized --> " << exp
+                    << RESTendl;
         return (string) "RESTerror";
     }
 
@@ -475,14 +476,15 @@ time_t REST_StringHelper::StringToTimeStamp(string time) {
     return time1;
 }
 
-REST_Verbose_Level REST_StringHelper::StringToVerboseLevel(string in) {
-    if (ToUpper(in) == "SILENT" || in == "0") return REST_Silent;
-    if (ToUpper(in) == "ESSENTIAL" || ToUpper(in) == "WARNING" || in == "1") return REST_Essential;
-    if (ToUpper(in) == "INFO" || in == "2") return REST_Info;
-    if (ToUpper(in) == "DEBUG" || in == "3") return REST_Debug;
-    if (ToUpper(in) == "EXTREME" || in == "4") return REST_Extreme;
+TRestStringOutput::REST_Verbose_Level REST_StringHelper::StringToVerboseLevel(string in) {
+    if (ToUpper(in) == "SILENT" || in == "0") return TRestStringOutput::REST_Verbose_Level::REST_Silent;
+    if (ToUpper(in) == "ESSENTIAL" || ToUpper(in) == "WARNING" || in == "1")
+        return TRestStringOutput::REST_Verbose_Level::REST_Essential;
+    if (ToUpper(in) == "INFO" || in == "2") return TRestStringOutput::REST_Verbose_Level::REST_Info;
+    if (ToUpper(in) == "DEBUG" || in == "3") return TRestStringOutput::REST_Verbose_Level::REST_Debug;
+    if (ToUpper(in) == "EXTREME" || in == "4") return TRestStringOutput::REST_Verbose_Level::REST_Extreme;
 
-    return REST_Essential;
+    return TRestStringOutput::REST_Verbose_Level::REST_Essential;
 }
 
 ///////////////////////////////////////////////

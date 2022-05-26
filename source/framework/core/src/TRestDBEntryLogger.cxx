@@ -13,7 +13,7 @@ TRestDBEntryLogger::TRestDBEntryLogger() { Initialize(); }
 void TRestDBEntryLogger::InitFromConfigFile() {
     // check environment
     if (gDataBase == nullptr) {
-        ferr << "REST database is not initailized!" << endl;
+        RESTError << "REST database is not initailized!" << RESTendl;
         abort();
     }
 
@@ -39,7 +39,7 @@ void TRestDBEntryLogger::InitFromConfigFile() {
         } else if (!fSkipIfNotEmpty) {
             AskForFilling(runs[0]);
         } else {
-            fout << "TRestDBEntryLogger: skipping existing run" << endl;
+            RESTcout << "TRestDBEntryLogger: skipping existing run" << RESTendl;
         }
     }
 }
@@ -92,7 +92,7 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
     while (getline(ifs, s)) {
         if (!valid) {
             if (s[0] != '-') {
-                warning << "TRestDBEntryLogger: DataBase writing cancelled" << endl;
+                RESTWarning << "TRestDBEntryLogger: DataBase writing cancelled" << RESTendl;
                 ifs.close();
                 return;
             } else {
@@ -187,7 +187,7 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
         }
     }
 
-    fout << "TRestDBEntryLogger: DataBase writing successful" << endl;
+    RESTcout << "TRestDBEntryLogger: DataBase writing successful" << RESTendl;
 }
 
 void TRestDBEntryLogger::Initialize() {}

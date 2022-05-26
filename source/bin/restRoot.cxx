@@ -57,10 +57,10 @@ int main(int argc, char* argv[]) {
     }
 
     bool silent = false;
-    if (gVerbose == REST_Silent) silent = true;
+    if (gVerbose == TRestStringOutput::REST_Verbose_Level::REST_Silent) silent = true;
 
     bool debug = false;
-    if (gVerbose >= REST_Debug) debug = true;
+    if (gVerbose >= TRestStringOutput::REST_Verbose_Level::REST_Debug) debug = true;
 
     // load rest library and macros
     TRestTools::LoadRESTLibrary(silent);

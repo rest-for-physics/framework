@@ -164,9 +164,10 @@ class TRestMetadata : public TNamed {
     std::string messageBuffer;
 
     /// Verbose level used to print debug info
-    REST_Verbose_Level fVerboseLevel;  //!
+    TRestStringOutput::REST_Verbose_Level fVerboseLevel;  //!
     /// Termination flag object for TRestStringOutput
-    endl_t endl;  //!
+    endl_t RESTendl;  //!
+
     /// All metadata classes can be initialized and managed by TRestManager
     TRestManager* fHostmgr;  //!
     /// This variable is used to determine if the metadata structure should be stored in the ROOT file.
@@ -288,8 +289,8 @@ class TRestMetadata : public TNamed {
         return dataPath;
     }
 
-    /// returns the verbose level in type of REST_Verbose_Level enumerator
-    inline REST_Verbose_Level GetVerboseLevel() const { return fVerboseLevel; }
+    /// returns the verboselevel in type of REST_Verbose_Level enumerator
+    inline TRestStringOutput::REST_Verbose_Level GetVerboseLevel() { return fVerboseLevel; }
 
     /// returns the verbose level in type of TString
     TString GetVerboseLevelString();
@@ -315,8 +316,9 @@ class TRestMetadata : public TNamed {
     void SetConfigFile(std::string configFilename) { fConfigFileName = configFilename; }
     /// Set the host manager for this class.
     void SetHostmgr(TRestManager* m) { fHostmgr = m; }
+
     /// sets the verbose level
-    void SetVerboseLevel(REST_Verbose_Level v) { fVerboseLevel = v; }
+    void SetVerboseLevel(TRestStringOutput::REST_Verbose_Level v) { fVerboseLevel = v; }
     /// overwriting the write() method with fStore considered
     virtual Int_t Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0);
 

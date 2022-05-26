@@ -104,18 +104,18 @@ void TRestProcessRunner::Initialize() {
 /// 2. Tree branch list. can be inputAnalysis, inputEvent, outputEvent.
 /// 3. Number of thread needed. A list TRestThread will then be instantiated.
 void TRestProcessRunner::BeginOfInit() {
-    info << endl;
+    RESTInfo << RESTendl;
     if (fHostmgr != nullptr) {
         fRunInfo = fHostmgr->GetRunInfo();
         if (fRunInfo == nullptr) {
-            ferr << "File IO has not been specified, " << endl;
-            ferr << "please make sure the \"TRestFiles\" section is ahead of the "
-                    "\"TRestProcessRunner\" section"
-                 << endl;
+            RESTError << "File IO has not been specified, " << RESTendl;
+            RESTError << "please make sure the \"TRestFiles\" section is ahead of the "
+                         "\"TRestProcessRunner\" section"
+                      << RESTendl;
             exit(0);
         }
     } else {
-        ferr << "manager not initialized!" << endl;
+        RESTError << "manager not initialized!" << RESTendl;
         exit(0);
     }
 
@@ -125,8 +125,8 @@ void TRestProcessRunner::BeginOfInit() {
     // I believe it is risky to exit() at TRestThread without closing threads.
     // It is a guess (J.G.)
     if (!fRunInfo->GetFileProcess() && fRunInfo->GetEntries() == 0) {
-        ferr << "TRestProcessRunner::BeginOfInit. The input file is a valid REST file but entries are 0!"
-             << endl;
+        RESTError << "TRestProcessRunner::BeginOfInit. The input file is a valid REST file but entries are 0!"
+                  << RESTendl;
         exit(1);
     }
 
@@ -139,14 +139,14 @@ void TRestProcessRunner::BeginOfInit() {
         fEventsToProcess = lastEntry - fFirstEntry;
     } else if (fEventsToProcess > 0 && lastEntry - fFirstEntry > 0 &&
                lastEntry - fFirstEntry != fEventsToProcess) {
-        warning << "Conflict number of events to process!" << endl;
+        RESTWarning << "Conflict number of events to process!" << RESTendl;
     } else if (fEventsToProcess > 0 && lastEntry - fFirstEntry == 0) {
         lastEntry = fFirstEntry + fEventsToProcess;
     } else if (fEventsToProcess == 0 && fFirstEntry == 0 && lastEntry == 0) {
         fEventsToProcess = REST_MAXIMUM_EVENTS;
         lastEntry = REST_MAXIMUM_EVENTS;
     } else {
-        warning << "error setting of event number" << endl;
+        RESTWarning << "error setting of event number" << RESTendl;
         fEventsToProcess = fEventsToProcess > 0 ? fEventsToProcess : REST_MAXIMUM_EVENTS;
         fFirstEntry = fFirstEntry > 0 ? fFirstEntry : 0;
         lastEntry = lastEntry == fFirstEntry + fEventsToProcess ? lastEntry : REST_MAXIMUM_EVENTS;
@@ -154,16 +154,17 @@ void TRestProcessRunner::BeginOfInit() {
     fRunInfo->SetCurrentEntry(fFirstEntry);
 
     if (fFileSplitSize < 50000000LL || fFileSplitSize > 100000000000LL) {
-        warning << "automatic file splitting size cannot < 10MB or > 100GB, setting to default (10GB)."
-                << endl;
+        RESTWarning << "automatic file splitting size cannot < 10MB or > 100GB, setting to default (10GB)."
+                    << RESTendl;
         fFileSplitSize = 10000000000LL;
     }
 
     // fUseTestRun = StringToBool(GetParameter("useTestRun", "ON"));
     // fUsePauseMenu = StringToBool(GetParameter("usePauseMenu", "OFF"));
-    if (!fUsePauseMenu || fVerboseLevel >= REST_Debug) fProcStatus = kIgnore;
+    if (!fUsePauseMenu || fVerboseLevel >= TRestStringOutput::REST_Verbose_Level::REST_Debug)
+        fProcStatus = kIgnore;
     if (fOutputAnalysisStorage == false) {
-        ferr << "output analysis must be turned on to process data!" << endl;
+        RESTError << "output analysis must be turned on to process data!" << RESTendl;
         exit(1);
     }
     // fValidateObservables = StringToBool(GetParameter("validateObservables", "OFF"));
@@ -207,14 +208,14 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement* e) {
         string processType = GetParameter("type", e, "");
 
         if (processType == "") {
-            warning << "Bad expression of addProcess" << endl;
+            RESTWarning << "Bad expression of addProcess" << RESTendl;
             return 0;
         } else if (processName == "") {
-            warning << "Event process " << processType << " has no name, it will be skipped" << endl;
+            RESTWarning << "Event process " << processType << " has no name, it will be skipped" << RESTendl;
             return 0;
         }
 
-        info << "adding process " << processType << " \"" << processName << "\"" << endl;
+        RESTInfo << "adding process " << processType << " \"" << processName << "\"" << RESTendl;
         vector<TRestEventProcess*> processes;
         for (int i = 0; i < fThreadNumber; i++) {
             TRestEventProcess* p = InstantiateProcess(processType, e);
@@ -223,13 +224,14 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement* e) {
                     fRunInfo->SetExtProcess(p);
                     return 0;
                 }
-                if ((p->GetVerboseLevel() >= REST_Debug || p->singleThreadOnly())) {
+                if ((p->GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug ||
+                     p->singleThreadOnly())) {
                     fUsePauseMenu = false;
                     fProcStatus = kIgnore;
                     if (fThreadNumber > 1) {
-                        info << "multi-threading is disabled due to process \"" << p->GetName() << "\""
-                             << endl;
-                        info << "This process is in debug mode or is single thread only" << endl;
+                        RESTInfo << "multi-threading is disabled due to process \"" << p->GetName() << "\""
+                                 << RESTendl;
+                        RESTInfo << "This process is in debug mode or is single thread only" << RESTendl;
                         for (i = fThreadNumber; i > 1; i--) {
                             // delete (*fThreads.end());
                             fThreads.erase(fThreads.end() - 1);
@@ -252,7 +254,7 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement* e) {
         }
 
         fProcessNumber++;
-        debug << "process \"" << processType << "\" has been added!" << endl;
+        RESTDebug << "process \"" << processType << "\" has been added!" << RESTendl;
         return 0;
     }
 
@@ -266,7 +268,7 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement* e) {
 /// Validation of the process chain. Finally it calls ReadProcInfo() and create
 /// a process info list
 void TRestProcessRunner::EndOfInit() {
-    debug << "Validating process chain..." << endl;
+    RESTDebug << "Validating process chain..." << RESTendl;
 
     if (fRunInfo->GetFileProcess() != nullptr) {
         fInputEvent = fRunInfo->GetFileProcess()->GetOutputEvent();
@@ -281,7 +283,7 @@ void TRestProcessRunner::EndOfInit() {
         fInputEvent = fRunInfo->GetInputEvent();
     }
     if (fInputEvent == nullptr) {
-        ferr << "Cannot determine input event, validating process chain failed!" << endl;
+        RESTError << "Cannot determine input event, validating process chain failed!" << RESTendl;
         exit(1);
     }
 
@@ -326,7 +328,7 @@ void TRestProcessRunner::ReadProcInfo() {
 /// 8. Call ConfigOutputFile() method to save the output file
 ///
 void TRestProcessRunner::RunProcess() {
-    debug << "Creating output File " << fRunInfo->GetOutputFileName() << endl;
+    RESTDebug << "Creating output File " << fRunInfo->GetOutputFileName() << RESTendl;
 
     TString filename = fRunInfo->FormFormat(fRunInfo->GetOutputFileName());
     fOutputDataFileName = filename;
@@ -335,11 +337,11 @@ void TRestProcessRunner::RunProcess() {
     // we must set in each threadCompression
     // fOutputDataFile->SetCompressionLevel(fFile);
     if (!fOutputDataFile->IsOpen()) {
-        ferr << "Failed to create output file: " << fOutputDataFile->GetName() << endl;
+        RESTError << "Failed to create output file: " << fOutputDataFile->GetName() << RESTendl;
         exit(1);
     }
-    info << endl;
-    info << "TRestProcessRunner : preparing threads..." << endl;
+    RESTInfo << RESTendl;
+    RESTInfo << "TRestProcessRunner : preparing threads..." << RESTendl;
     fRunInfo->ResetEntry();
     fRunInfo->SetCurrentEntry(fFirstEntry);
     for (int i = 0; i < fThreadNumber; i++) {
@@ -348,13 +350,13 @@ void TRestProcessRunner::RunProcess() {
 
     // print metadata
     if (fRunInfo->GetFileProcess() != nullptr) {
-        essential << this->ClassName() << ": 1 + " << fProcessNumber << " processes loaded, " << fThreadNumber
-                  << " threads prepared!" << endl;
+        RESTEssential << this->ClassName() << ": 1 + " << fProcessNumber << " processes loaded, "
+                      << fThreadNumber << " threads prepared!" << RESTendl;
     } else {
-        essential << this->ClassName() << ": " << fProcessNumber << " processes loaded, " << fThreadNumber
-                  << " threads prepared!" << endl;
+        RESTEssential << this->ClassName() << ": " << fProcessNumber << " processes loaded, " << fThreadNumber
+                      << " threads prepared!" << RESTendl;
     }
-    if (fVerboseLevel >= REST_Essential) {
+    if (fVerboseLevel >= TRestStringOutput::REST_Verbose_Level::REST_Essential) {
         if (fRunInfo->GetFileProcess() != nullptr) fRunInfo->GetFileProcess()->PrintMetadata();
 
         for (int i = 0; i < fProcessNumber; i++) {
@@ -362,15 +364,15 @@ void TRestProcessRunner::RunProcess() {
         }
     } else {
         if (fRunInfo->GetFileProcess() != nullptr) {
-            fout << "(external) " << fRunInfo->GetFileProcess()->ClassName() << " : "
-                 << fRunInfo->GetFileProcess()->GetName() << endl;
+            RESTcout << "(external) " << fRunInfo->GetFileProcess()->ClassName() << " : "
+                     << fRunInfo->GetFileProcess()->GetName() << RESTendl;
         }
         for (int i = 0; i < fProcessNumber; i++) {
-            fout << "++ " << fThreads[0]->GetProcess(i)->ClassName() << " : "
-                 << fThreads[0]->GetProcess(i)->GetName() << endl;
+            RESTcout << "++ " << fThreads[0]->GetProcess(i)->ClassName() << " : "
+                     << fThreads[0]->GetProcess(i)->GetName() << RESTendl;
         }
     }
-    fout << "=" << endl;
+    RESTcout << "=" << RESTendl;
 
     // copy thread's event tree to local
     fOutputDataFile->cd();
@@ -396,7 +398,7 @@ void TRestProcessRunner::RunProcess() {
     if (tree != nullptr) {
         fNBranches = tree->GetNbranches();
     } else {
-        ferr << "Threads are not initialized! No AnalysisTree!" << endl;
+        RESTError << "Threads are not initialized! No AnalysisTree!" << RESTendl;
         exit(1);
     }
 
@@ -424,7 +426,7 @@ void TRestProcessRunner::RunProcess() {
 #endif
 
     // start the thread!
-    fout << this->ClassName() << ": Starting the Process.." << endl;
+    RESTcout << this->ClassName() << ": Starting the Process.." << RESTendl;
     for (int i = 0; i < fThreadNumber; i++) {
         fThreads[i]->StartThread();
     }
@@ -440,13 +442,14 @@ void TRestProcessRunner::RunProcess() {
             if (a == 'p') {
                 fProcStatus = kPause;
                 usleep(100000);  // wait 0.1s for the processes to finish;
-                TRestStringOutput cout(REST_Silent, COLOR_BOLDWHITE, "| |", kMiddle);
+                TRestStringOutput RESTLog(TRestStringOutput::REST_Verbose_Level::REST_Silent, COLOR_BOLDWHITE,
+                                          "| |", TRestStringOutput::REST_Display_Orientation::kMiddle);
                 Console::ClearLinesAfterCursor();
-                cout << endl;
-                cout << "-" << endl;
-                cout << "PROCESS PAUSED!" << endl;
-                cout << "-" << endl;
-                cout << " " << endl;
+                RESTLog << RESTendl;
+                RESTLog << "-" << RESTendl;
+                RESTLog << "PROCESS PAUSED!" << RESTendl;
+                RESTLog << "-" << RESTendl;
+                RESTLog << " " << RESTendl;
             }
         }
 
@@ -472,7 +475,8 @@ void TRestProcessRunner::RunProcess() {
         while (getchar() != '\n')
             ;  // clear buffer
 
-    essential << "Waiting for processes to finish ..." << endl;
+    RESTEssential << "Waiting for processes to finish ..." << RESTendl;
+
     while (1) {
 #ifdef WIN32
         _sleep(50);
@@ -508,17 +512,18 @@ void TRestProcessRunner::RunProcess() {
     gROOTMutex = nullptr;
     gInterpreterMutex = nullptr;
 
-    fout << this->ClassName() << ": " << fProcessedEvents << " processed events" << endl;
+    RESTcout << this->ClassName() << ": " << fProcessedEvents << " processed events" << RESTendl;
 
 #ifdef TIME_MEASUREMENT
-    info << "Total processing time : " << ((Double_t)deltaTime) / 1000. << " ms" << endl;
-    info << "Average read time from disk (per event) : " << ((Double_t)readTime) / fProcessedEvents / 1000.
-         << " ms" << endl;
-    info << "Average process time (per event) : "
-         << ((Double_t)(deltaTime - readTime - writeTime)) / fProcessedEvents / 1000. << " ms" << endl;
-    info << "Average write time to disk (per event) : " << ((Double_t)writeTime) / fProcessedEvents / 1000.
-         << " ms" << endl;
-    info << "=" << endl;
+    RESTInfo << "Total processing time : " << ((Double_t)deltaTime) / 1000. << " ms" << RESTendl;
+    RESTInfo << "Average read time from disk (per event) : "
+             << ((Double_t)readTime) / fProcessedEvents / 1000. << " ms" << RESTendl;
+    RESTInfo << "Average process time (per event) : "
+             << ((Double_t)(deltaTime - readTime - writeTime)) / fProcessedEvents / 1000. << " ms"
+             << RESTendl;
+    RESTInfo << "Average write time to disk (per event) : "
+             << ((Double_t)writeTime) / fProcessedEvents / 1000. << " ms" << RESTendl;
+    RESTInfo << "=" << RESTendl;
 #endif
 
     if (fRunInfo->GetOutputFileName() != "/dev/null") {
@@ -537,19 +542,20 @@ void TRestProcessRunner::RunProcess() {
 /// 4. Print the latest processed event
 /// 5. Quit the process directly with file saved
 void TRestProcessRunner::PauseMenu() {
-    TRestStringOutput cout(REST_Silent, COLOR_BOLDWHITE, "| |", kMiddle);
+    TRestStringOutput RESTLog(TRestStringOutput::REST_Verbose_Level::REST_Silent, COLOR_BOLDWHITE, "| |",
+                              TRestStringOutput::REST_Display_Orientation::kMiddle);
     Console::ClearLinesAfterCursor();
 
-    cout << "--------------MENU--------------" << endl;
-    cout << "\"v\" : change the verbose level" << endl;
-    cout << "\"n\" : push foward one event, then pause" << endl;
-    cout << "\"l\" : print the latest processed event" << endl;
-    cout << "\"d\" : detach the current process" << endl;
-    cout << "\"q\" : stop and quit the process" << endl;
-    cout << "press \"p\" to continue process..." << endl;
-    cout << "-" << endl;
-    cout << endl;
-    cout << endl;
+    RESTLog << "--------------MENU--------------" << RESTendl;
+    RESTLog << "\"v\" : change the verbose level" << RESTendl;
+    RESTLog << "\"n\" : push foward one event, then pause" << RESTendl;
+    RESTLog << "\"l\" : print the latest processed event" << RESTendl;
+    RESTLog << "\"d\" : detach the current process" << RESTendl;
+    RESTLog << "\"q\" : stop and quit the process" << RESTendl;
+    RESTLog << "press \"p\" to continue process..." << RESTendl;
+    RESTLog << "-" << RESTendl;
+    RESTLog << RESTendl;
+    RESTLog << RESTendl;
     int menuupper = 15;
     int infobar = 11;
     while (1) {
@@ -559,42 +565,42 @@ void TRestProcessRunner::PauseMenu() {
 
         if (b == 'v') {
             Console::CursorUp(infobar);
-            cout.setcolor(COLOR_BOLDGREEN);
-            cout << "Changing verbose level for all the processes..." << endl;
-            cout.setcolor(COLOR_BOLDWHITE);
+            RESTLog.setcolor(COLOR_BOLDGREEN);
+            RESTLog << "Changing verbose level for all the processes..." << RESTendl;
+            RESTLog.setcolor(COLOR_BOLDWHITE);
             Console::CursorDown(1);
             Console::ClearLinesAfterCursor();
-            cout << "type \"0\"/\"s\" to set level silent" << endl;
-            cout << "type \"1\"/\"e\" to set level essential" << endl;
-            cout << "type \"2\"/\"i\" to set level info" << endl;
-            cout << "type \"3\"/\"d\" to set level debug" << endl;
-            cout << "type \"4\"/\"x\" to set level extreme" << endl;
-            cout << "type other to return the pause menu" << endl;
-            cout << "-" << endl;
-            cout << endl;
-            cout << endl;
+            RESTLog << "type \"0\"/\"s\" to set level silent" << RESTendl;
+            RESTLog << "type \"1\"/\"e\" to set level essential" << RESTendl;
+            RESTLog << "type \"2\"/\"i\" to set level info" << RESTendl;
+            RESTLog << "type \"3\"/\"d\" to set level debug" << RESTendl;
+            RESTLog << "type \"4\"/\"x\" to set level extreme" << RESTendl;
+            RESTLog << "type other to return the pause menu" << RESTendl;
+            RESTLog << "-" << RESTendl;
+            RESTLog << RESTendl;
+            RESTLog << RESTendl;
             while (1) {
                 Console::CursorUp(1);
                 int c = Console::Read();
                 if (c != '\n')
                     while (Console::Read() != '\n')
                         ;
-                REST_Verbose_Level l;
+                TRestStringOutput::REST_Verbose_Level l;
                 if (c == '0' || c == 's') {
-                    l = REST_Silent;
+                    l = TRestStringOutput::REST_Verbose_Level::REST_Silent;
                 } else if (c == '1' || c == 'e') {
-                    l = REST_Essential;
+                    l = TRestStringOutput::REST_Verbose_Level::REST_Essential;
                 } else if (c == '2' || c == 'i') {
-                    l = REST_Info;
+                    l = TRestStringOutput::REST_Verbose_Level::REST_Info;
                 } else if (c == '3' || c == 'd') {
-                    l = REST_Debug;
+                    l = TRestStringOutput::REST_Verbose_Level::REST_Debug;
                 } else if (c == '4' || c == 'x') {
-                    l = REST_Extreme;
+                    l = TRestStringOutput::REST_Verbose_Level::REST_Extreme;
                 } else {
                     Console::CursorUp(infobar);
-                    cout.setcolor(COLOR_BOLDYELLOW);
-                    cout << "Verbose level not set!" << endl;
-                    cout.setcolor(COLOR_BOLDWHITE);
+                    RESTLog.setcolor(COLOR_BOLDYELLOW);
+                    RESTLog << "Verbose level not set!" << RESTendl;
+                    RESTLog.setcolor(COLOR_BOLDWHITE);
                     break;
                 }
 
@@ -607,29 +613,30 @@ void TRestProcessRunner::PauseMenu() {
                     }
                 }
                 Console::CursorUp(infobar);
-                cout.setcolor(COLOR_BOLDGREEN);
-                cout << "Verbose level has been set to " << ToString(l) << "!" << endl;
-                cout.setcolor(COLOR_BOLDWHITE);
+                RESTLog.setcolor(COLOR_BOLDGREEN);
+                RESTLog << "Verbose level has been set to " << ToString(static_cast<int>(l)) << "!"
+                        << RESTendl;
+                RESTLog.setcolor(COLOR_BOLDWHITE);
                 break;
             }
             Console::ClearLinesAfterCursor();
             break;
         } else if (b == 'd') {
             Console::CursorUp(infobar);
-            cout.setcolor(COLOR_BOLDGREEN);
-            cout << "Detaching restManager to backend" << endl;
-            cout.setcolor(COLOR_BOLDWHITE);
+            RESTLog.setcolor(COLOR_BOLDGREEN);
+            RESTLog << "Detaching restManager to backend" << RESTendl;
+            RESTLog.setcolor(COLOR_BOLDWHITE);
             Console::CursorDown(1);
             Console::ClearLinesAfterCursor();
-            cout << "type filename for output redirect" << endl;
-            cout << "leave blank to redirect to /dev/null" << endl;
-            cout << " " << endl;
-            cout << " " << endl;
-            cout << " " << endl;
-            cout << " " << endl;
-            cout << "-" << endl;
-            cout << endl;
-            cout << endl;
+            RESTLog << "type filename for output redirect" << RESTendl;
+            RESTLog << "leave blank to redirect to /dev/null" << RESTendl;
+            RESTLog << " " << RESTendl;
+            RESTLog << " " << RESTendl;
+            RESTLog << " " << RESTendl;
+            RESTLog << " " << RESTendl;
+            RESTLog << "-" << RESTendl;
+            RESTLog << RESTendl;
+            RESTLog << RESTendl;
 
             string file;
 
@@ -639,17 +646,17 @@ void TRestProcessRunner::PauseMenu() {
             if (TRestTools::fileExists(file)) {
                 if (!TRestTools::isPathWritable(file)) {
                     Console::CursorUp(infobar);
-                    cout.setcolor(COLOR_BOLDYELLOW);
-                    cout << "file not writeable!" << endl;
-                    cout.setcolor(COLOR_BOLDWHITE);
+                    RESTLog.setcolor(COLOR_BOLDYELLOW);
+                    RESTLog << "file not writeable!" << RESTendl;
+                    RESTLog.setcolor(COLOR_BOLDWHITE);
                     break;
                 }
             } else {
                 if (!TRestTools::isPathWritable(TRestTools::SeparatePathAndName(file).first)) {
                     Console::CursorUp(infobar);
-                    cout.setcolor(COLOR_BOLDYELLOW);
-                    cout << "path not writeable!" << endl;
-                    cout.setcolor(COLOR_BOLDWHITE);
+                    RESTLog.setcolor(COLOR_BOLDYELLOW);
+                    RESTLog << "path not writeable!" << RESTendl;
+                    RESTLog.setcolor(COLOR_BOLDWHITE);
                     break;
                 }
             }
@@ -662,13 +669,13 @@ void TRestProcessRunner::PauseMenu() {
             }
             // child process
             if (pid == 0) {
-                fout << "Child process created! pid: " << getpid() << endl;
-                info << "Restarting threads" << endl;
+                RESTcout << "Child process created! pid: " << getpid() << RESTendl;
+                RESTInfo << "Restarting threads" << RESTendl;
                 mutex_write.unlock();
                 for (int i = 0; i < fThreadNumber; i++) {
                     fThreads[i]->StartThread();
                 }
-                info << "Re-directing output to " << file << endl;
+                RESTInfo << "Re-directing output to " << file << RESTendl;
                 freopen(file.c_str(), "w", stdout);
                 Console::CompatibilityMode = true;
             }
@@ -677,7 +684,7 @@ void TRestProcessRunner::PauseMenu() {
                 exit(0);
             }
             fProcStatus = kNormal;
-            info << "Continue processing..." << endl;
+            RESTInfo << "Continue processing..." << RESTendl;
             break;
         } else if (b == 'n') {
             fProcStatus = kStep;
@@ -692,7 +699,7 @@ void TRestProcessRunner::PauseMenu() {
         } else if (b == 'p') {
             Console::CursorUp(menuupper);
             Console::ClearLinesAfterCursor();
-            if (fVerboseLevel >= REST_Debug) {
+            if (fVerboseLevel >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
                 fProcStatus = kIgnore;
             } else {
                 fProcStatus = kNormal;
@@ -702,9 +709,9 @@ void TRestProcessRunner::PauseMenu() {
             // CursorUp(1);
         } else {
             Console::CursorUp(infobar);
-            cout.setcolor(COLOR_BOLDYELLOW);
-            cout << "Invailed option \"" << (char)b << "\" (key value: " << b << ") !" << endl;
-            cout.setcolor(COLOR_BOLDWHITE);
+            RESTLog.setcolor(COLOR_BOLDYELLOW);
+            RESTLog << "Invailed option \"" << (char)b << "\" (key value: " << b << ") !" << RESTendl;
+            RESTLog.setcolor(COLOR_BOLDWHITE);
             Console::CursorDown(infobar - 1);
         }
     }
@@ -907,7 +914,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
                 delete fOutputDataFile;
                 fOutputDataFile = newfile;
             } else {
-                ferr << "internal error!" << endl;
+                RESTError << "internal error!" << RESTendl;
             }
         }
 
@@ -930,7 +937,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
 /// It first saves process metadata in to the main output file, then calls
 /// TRestRun::FormOutputFile() to merge the main file with process's tmp file.
 void TRestProcessRunner::ConfigOutputFile() {
-    essential << "Configuring output file, writing metadata and tree objects" << endl;
+    RESTEssential << "Configuring output file, writing metadata and tree objects" << RESTendl;
 #ifdef TIME_MEASUREMENT
     fProcessInfo["ProcessTime"] = ToString(deltaTime) + "ms";
 #endif
@@ -969,7 +976,7 @@ void TRestProcessRunner::WriteMetadata() {
 /// It first saves process metadata in to the main output file, then calls
 /// TRestRun::FormOutputFile() to merge the main file with process's tmp file.
 void TRestProcessRunner::MergeOutputFile() {
-    essential << "Merging thread files together" << endl;
+    RESTEssential << "Merging thread files together" << RESTendl;
     // add threads file
     // processes may have their own TObject output. They are stored in the threads
     // file these files are mush smaller that data file, so they are merged to the
@@ -1095,7 +1102,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
                 cout << s1 << s2 << s3 << endl;
                 prog_last_printed = (int)prog;
             }
-        } else if (fThreads[0]->GetVerboseLevel() < REST_Debug) {
+        } else if (fThreads[0]->GetVerboseLevel() < TRestStringOutput::REST_Verbose_Level::REST_Debug) {
             printf("%s", (s1 + s2 + s3 + "\r").c_str());
             fflush(stdout);
         }
@@ -1150,18 +1157,18 @@ void TRestProcessRunner::PrintMetadata() {
     else
         status = "Unknown";
 
-    metadata << "Status : " << status << endl;
-    metadata << "Processesed events : " << fProcessedEvents << endl;
-    metadata << "Analysis tree branches : " << fNBranches << endl;
-    metadata << "Thread number : " << fThreadNumber << endl;
-    metadata << "Processes in each thread : " << fProcessNumber << endl;
-    metadata << "File auto split size: " << fFileSplitSize << endl;
-    metadata << "File compression level: " << fFileCompression << endl;
+    RESTMetadata << "Status : " << status << RESTendl;
+    RESTMetadata << "Processesed events : " << fProcessedEvents << RESTendl;
+    RESTMetadata << "Analysis tree branches : " << fNBranches << RESTendl;
+    RESTMetadata << "Thread number : " << fThreadNumber << RESTendl;
+    RESTMetadata << "Processes in each thread : " << fProcessNumber << RESTendl;
+    RESTMetadata << "File auto split size: " << fFileSplitSize << RESTendl;
+    RESTMetadata << "File compression level: " << fFileCompression << RESTendl;
     // cout << "Input filename : " << fInputFilename << endl;
     // cout << "Output filename : " << fOutputFilename << endl;
     // cout << "Number of initial events : " << GetNumberOfEvents() << endl;
     // cout << "Number of processed events : " << fProcessedEvents << endl;
-    metadata << "******************************************" << endl;
-    metadata << endl;
-    metadata << endl;
+    RESTMetadata << "******************************************" << RESTendl;
+    RESTMetadata << RESTendl;
+    RESTMetadata << RESTendl;
 }
