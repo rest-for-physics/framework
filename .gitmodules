@@ -69,4 +69,4 @@
 	url = git@lfna.unizar.es:gifna/alphacamm.git
 [submodule "source/libraries/legacy"]
 	path = source/libraries/legacy
-	url = https://github.com/rest-for-physics/geant4lib.git
+	url = https://github.com/rest-for-physics/legacylib.git
