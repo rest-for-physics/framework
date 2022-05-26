@@ -135,7 +135,7 @@ TRestStrippedMask::TRestStrippedMask(const char* cfgFileName, std::string name)
 
     LoadConfigFromFile(fConfigFileName, name);
 
-    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -192,8 +192,8 @@ Int_t TRestStrippedMask::GetRegion(Double_t x, Double_t y) {
 void TRestStrippedMask::PrintMetadata() {
     TRestPatternMask::PrintMetadata();
 
-    metadata << "-----" << endl;
-    metadata << " - Strips gap : " << fStripsGap << " mm" << endl;
-    metadata << " - Strips thickness : " << fStripsThickness << " mm" << endl;
-    metadata << "+++++" << endl;
+    RESTMetadata << "-----" << RESTendl;
+    RESTMetadata << " - Strips gap : " << fStripsGap << " mm" << RESTendl;
+    RESTMetadata << " - Strips thickness : " << fStripsThickness << " mm" << RESTendl;
+    RESTMetadata << "+++++" << RESTendl;
 }

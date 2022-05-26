@@ -73,7 +73,7 @@
 /// \code
 ///     TRestGridMask mask("masks.rml", "grid");
 ///     Int_t id = mask.GetRegion( 12.5, 4.3 );
-/// 	std::cout << "Region id is : " << id << endl;
+/// 	std::cout << "Region id is : " << id << RESTendl;
 /// \endcode
 ///
 /// The following figure may be generated using the TRestPatternMask::DrawMonteCarlo
@@ -133,7 +133,7 @@ TRestGridMask::TRestGridMask(const char* cfgFileName, std::string name) : TRestP
 
     LoadConfigFromFile(fConfigFileName, name);
 
-    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -210,8 +210,8 @@ Int_t TRestGridMask::GetRegion(Double_t x, Double_t y) {
 void TRestGridMask::PrintMetadata() {
     TRestPatternMask::PrintMetadata();
 
-    metadata << "-----" << endl;
-    metadata << " - Grid gap : " << fGridGap << " mm" << endl;
-    metadata << " - Grid thickness : " << fGridThickness << " mm" << endl;
-    metadata << "+++++" << endl;
+    RESTMetadata << "-----" << RESTendl;
+    RESTMetadata << " - Grid gap : " << fGridGap << " mm" << RESTendl;
+    RESTMetadata << " - Grid thickness : " << fGridThickness << " mm" << RESTendl;
+    RESTMetadata << "+++++" << RESTendl;
 }

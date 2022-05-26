@@ -138,7 +138,7 @@ TRestRingsMask::TRestRingsMask(const char* cfgFileName, std::string name) : TRes
 
     LoadConfigFromFile(fConfigFileName, name);
 
-    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -178,12 +178,8 @@ Int_t TRestRingsMask::GetRegion(Double_t x, Double_t y) {
 }
 
 ///////////////////////////////////////////////
-/// \brief It returns a number identifying the region where the particle
-/// with coordinates (x,y) felt in. The method returns 0 if the particle
-/// hits the pattern.
-///
-/// The particle will be counter-rotated to emulate the mask rotation
-/// using the method TRestPatternMask::RotateAndTranslate.
+/// \brief It will initialize the variable fRingsRadii using the 
+/// number of radius, initial radius, the rings gap and thickness.
 ///
 void TRestRingsMask::GenerateRings() {
     fRingsRadii.clear();
@@ -202,26 +198,26 @@ void TRestRingsMask::GenerateRings() {
 void TRestRingsMask::PrintMetadata() {
     TRestPatternMask::PrintMetadata();
 
-    if (fRingsGap > 0) metadata << " - Rings gap : " << fRingsGap << " mm" << endl;
-    if (fRingsThickness > 0) metadata << " - Rings thickness : " << fRingsThickness << " mm" << endl;
-    if (fNRings > 0) metadata << " - Number of rings : " << fNRings << endl;
-    if (fInitialRadius > 0) metadata << " - Initial radius : " << fInitialRadius << " mm" << endl;
-    if (fNRings > 0) metadata << "-----" << endl;
+    if (fRingsGap > 0) RESTMetadata << " - Rings gap : " << fRingsGap << " mm" << RESTendl;
+    if (fRingsThickness > 0) RESTMetadata << " - Rings thickness : " << fRingsThickness << " mm" << RESTendl;
+    if (fNRings > 0) RESTMetadata << " - Number of rings : " << fNRings << RESTendl;
+    if (fInitialRadius > 0) RESTMetadata << " - Initial radius : " << fInitialRadius << " mm" << RESTendl;
+    if (fNRings > 0) RESTMetadata << "-----" << RESTendl;
     if (fRingsRadii.size() > 0) {
-        metadata << "Inner radii : (";
+        RESTMetadata << "Inner radii : (";
         for (int n = 0; n < fRingsRadii.size(); n++) {
-            if (n > 0) metadata << ", ";
-            metadata << fRingsRadii[n].first;
+            if (n > 0) RESTMetadata << ", ";
+            RESTMetadata << fRingsRadii[n].first;
         }
-        metadata << ")" << endl;
+        RESTMetadata << ")" << RESTendl;
     }
     if (fRingsRadii.size() > 0) {
-        metadata << "Outter radii : (";
+        RESTMetadata << "Outter radii : (";
         for (int n = 0; n < fRingsRadii.size(); n++) {
-            if (n > 0) metadata << ", ";
-            metadata << fRingsRadii[n].second;
+            if (n > 0) RESTMetadata << ", ";
+            RESTMetadata << fRingsRadii[n].second;
         }
-        metadata << ")" << endl;
+        RESTMetadata << ")" << RESTendl;
     }
-    metadata << "----" << endl;
+    RESTMetadata << "----" << RESTendl;
 }

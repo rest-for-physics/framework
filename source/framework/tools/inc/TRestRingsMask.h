@@ -31,16 +31,16 @@ class TRestRingsMask : public TRestPatternMask {
     void Initialize();
 
     /// The periodity of the rings structure in mm. Optionally used to initialize the rings.
-    Double_t fRingsGap = 0;  //!
+    Double_t fRingsGap = 0;  //<
 
     /// The width of the rings structure in mm. Optionally used to initialize the rings.
-    Double_t fRingsThickness = 0;  //!
+    Double_t fRingsThickness = 0;  //<
 
     /// The number of rings inside the structure.
-    Int_t fNRings = 0;  //!
+    Int_t fNRings = 0;  //<
 
     /// The initial radius for the inner ring
-    Double_t fInitialRadius = 0;  //!
+    Double_t fInitialRadius = 0;  //<
 
     /// A pair containing inner/outter radius for each ring
     std::vector<std::pair<Double_t, Double_t>> fRingsRadii;  //<
@@ -65,7 +65,7 @@ class TRestRingsMask : public TRestPatternMask {
     /// It allows to redefine the inner and outter rings radii directly
     void SetRadii(const std::vector<Double_t>& innerR, const std::vector<Double_t>& outterR) {
         if (innerR.size() != outterR.size()) {
-            warning << "TRestRingsMask::SetRadii. Vectors have not the same size!" << endl;
+            RESTWarning << "TRestRingsMask::SetRadii. Vectors have not the same size!" << RESTendl;
             return;
         }
 
