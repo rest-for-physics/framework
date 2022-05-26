@@ -697,26 +697,12 @@ string TRestTools::RemoveMultipleSlash(string str) {
 /// Input: "/home/nkx/abc.txt", Returns: "abc.txt"
 /// Input: "/home/nkx/", Output: ""
 ///
-string TRestTools::GetPureFileName(string fullPathFileName) {
-    fullPathFileName = RemoveMultipleSlash(fullPathFileName);
-    return SeparatePathAndName(fullPathFileName).second;
-}
+string TRestTools::GetPureFileName(const string& path) { return filesystem::path(path).filename(); }
 
 ///////////////////////////////////////////////
-/// \brief It takes a filename and adds it a full path based on
-/// the directory the system is at the moment of the method call,
-/// through the PWD system variable.
+/// \brief It takes a path and returns its absolute path
 ///
-string TRestTools::ToAbsoluteName(const string& filename) {
-    string result = filename;
-    if (filename[0] == '~') {
-        result = (string)getenv("HOME") + filename.substr(1, -1);
-    } else if (filename[0] != '/') {
-        result = filesystem::weakly_canonical(filename);
-    }
-    result = RemoveMultipleSlash(result);
-    return result;
-}
+string TRestTools::ToAbsoluteName(const string& filename) { return filesystem::weakly_canonical(filename); }
 
 ///////////////////////////////////////////////
 /// \brief It lists all the subdirectories inside path and adds

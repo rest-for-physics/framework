@@ -97,7 +97,7 @@ class TRestTools {
     static std::string ToAbsoluteName(const std::string& filename);
     static std::vector<std::string> GetSubdirectories(const std::string& path, int recursion = -1);
     static std::pair<std::string, std::string> SeparatePathAndName(const std::string fullname);
-    static std::string GetPureFileName(std::string fullPathFileName);
+    static std::string GetPureFileName(const std::string& fullPathFileName);
     static std::string SearchFileInPath(std::vector<std::string> path, std::string filename);
     static Int_t CheckTheFile(std::string configFilename);
     static std::vector<std::string> GetFilesMatchingPattern(std::string pattern);

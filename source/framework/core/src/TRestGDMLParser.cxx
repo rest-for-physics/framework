@@ -84,12 +84,11 @@ void TRestGDMLParser::Load(const string& filename) {
 TGeoManager* TRestGDMLParser::CreateGeoManager() {
     // We must change to the gdml file directory, otherwise ROOT cannot load.
     if (!fOutputGdmlFilename.empty()) {
-        char originDirectory[256];
-        sprintf(originDirectory, "%s", getenv("PWD"));
-        chdir(fOutputGdmlDirectory.c_str());
+        const auto currentPath = filesystem::current_path();
+        filesystem::current_path(fOutputGdmlDirectory);
         auto geoManager = new TGeoManager();
         geoManager->Import(fOutputGdmlFilename.c_str());
-        chdir(originDirectory);
+        filesystem::current_path(currentPath);
         return geoManager;
     }
     return nullptr;
