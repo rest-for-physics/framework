@@ -33,6 +33,7 @@
 #undef GetClassName
 #else
 #include "unistd.h"
+#include <sys/stat.h>
 #endif  // !WIN32
 
 #include "TRestDataBase.h"
@@ -684,7 +685,7 @@ void TRestRun::ReadFileInfo(const string& filename) {
                   << RESTendl;
         exit(1);
     }
-    int fd = _fileno(fp);
+    int fd = fileno(fp);
     fstat(fd, &buf);
     fclose(fp);
     if (fEndTime == 0) {
@@ -880,7 +881,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
                 RESTEssential << "external process file reading reaches end, waiting for more files"
                               << RESTendl;
             }
-            _sleep(1000);
+            usleep(1000000);
             messageShown = true;
             fCurrentEvent--;
             goto GetEventExt;

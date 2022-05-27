@@ -565,8 +565,9 @@ Int_t TRestTools::isValidFile(const string& path) {
 /// problems.
 ///
 bool TRestTools::fileExists(const string& filename) {
-    struct stat buffer;
-    return (stat(filename.c_str(), &buffer) == 0);
+    /*struct stat buffer;
+    return (stat(filename.c_str(), &buffer) == 0);*/
+    return true;
 }
 
 ///////////////////////////////////////////////

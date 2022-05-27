@@ -97,8 +97,19 @@ TF1* CreateTF1FromString(std::string func, double init, double end);
 using namespace REST_StringHelper;
 
 #ifdef WIN32
+#include <process.h>
 inline void setenv(const char* __name, const char* __value, int __replace) {
     _putenv(((std::string)__name + "=" + (std::string)__value).c_str());
+}
+inline int getpid() { return _getpid(); }
+inline int fileno(FILE* fp) { return _fileno(fp); }
+
+inline void usleep(int usec) {
+    if (usec >= 1000) {
+        _sleep(usec / 1000);
+    } else {
+        _sleep(1);
+    }
 }
 #define __PRETTY_FUNCTION__ __FUNCTION__
 #define M_PI 3.14159265358979323846
