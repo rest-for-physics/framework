@@ -47,8 +47,11 @@
 /// should call TRestPatternMask::ApplyCommonMaskTransformation to define mask
 /// offset, rotation and radial limit.
 ///
-/// Some examples are : TRestGridMask, TRestStrippedMap, TRestSpiderMask
-/// and TRestRingsMask.
+/// Some examples are : TRestGridMask, TRestStrippedMask, TRestSpiderMask
+/// and TRestRingsMask. More details on each class documentation.
+///
+/// \htmlonly <style>div.image img[src="masks.png"]{width:1000px;}</style> \endhtmlonly
+/// ![An illustration of the different masks implemented](ringsmask.png)
 ///
 ///----------------------------------------------------------------------
 ///
@@ -95,8 +98,6 @@ TRestPatternMask::TRestPatternMask() : TRestMetadata() { Initialize(); }
 /// corresponding TRestAxionMagneticField section inside the RML.
 ///
 TRestPatternMask::TRestPatternMask(const char* cfgFileName, std::string name) : TRestMetadata(cfgFileName) {
-    // Initialize();
-
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
