@@ -19,6 +19,10 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-stdlib=libc++")
 endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+    set(CMAKE_CXX_STANDARD 17)
+endif (CMAKE_SYSTEM_NAME MATCHES "Windows")
+
 # https://github.com/rest-for-physics/framework/issues/162
 if (${CMAKE_VERSION} VERSION_LESS "3.21")
     cmake_policy(SET CMP0082 OLD)
@@ -71,7 +75,7 @@ endif ()
 if (${REST_EVE} MATCHES "ON")
     add_definitions(-DUSE_Eve)
     list(APPEND rest_features "Eve")
-    set(ROOT_REQUIRED_LIBRARIES ${ROOT_REQUIRED_LIBRARIES} Eve RGL)
+    set(ROOT_REQUIRED_LIBRARIES ${ROOT_REQUIRED_LIBRARIES} Eve RGL Gui)
 else ()
     set(excludes ${excludes} TRestEveEventViewer)
 endif (${REST_EVE} MATCHES "ON")
@@ -80,7 +84,11 @@ find_package(ROOT REQUIRED COMPONENTS ${ROOT_REQUIRED_LIBRARIES})
 
 message(STATUS "ROOT LIBRARIES: ${ROOT_LIBRARIES}")
 
-set(external_libs "${external_libs};${ROOT_LIBRARIES};stdc++fs")
+set(external_libs "${external_libs};${ROOT_LIBRARIES}")
+
+if (NOT CMAKE_SYSTEM_NAME MATCHES "Windows")
+    set(external_libs "${external_libs};stdc++fs")
+endif ()
 
 set(ROOTCINT_EXECUTABLE ${ROOT_rootcint_CMD})
 
@@ -98,7 +106,7 @@ if (${HASCXX20} MATCHES "yes")
 elseif (${HASCXX17} MATCHES "yes")
     set(CMAKE_CXX_STANDARD 17)
 else ()
-    message(FATAL_ERROR "Minimum C++ standard version is 17,
+    message("Minimum C++ standard version is 17,
             while the root version is compiled with an older
             C++ standard, check root-config --cflags ${ROOT_CFLAGS}"
             )
@@ -143,7 +151,7 @@ add_subdirectory(source)
 
 message("")
 message(STATUS "rest Libraries: " ${rest_libraries_regular})
-message(STATUS "rest executables: " ${rest_exes})
+message(STATUS "rest executables: " ${rest_exes_str})
 message(STATUS "rest macros: " ${rest_macros_str})
 message("")
 
@@ -194,17 +202,49 @@ file(GLOB cmake_scripts
         "cmake/scripts/*"
         )
 install(FILES ${cmake_scripts} DESTINATION cmake)
-# Copy pcm files
-install(CODE
-        "
-file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/*.pcm\")
-file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/lib)
-"
-        )
 
-# Create thisREST.sh
-include(thisREST)
 
-# Add permissions
-install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/bin/rest-config)")
-install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX})")
+
+
+
+if (CMAKE_SYSTEM_NAME MATCHES "Windows") # we must call library install here in windows
+    foreach(lib  ${rest_libraries})
+    install(TARGETS ${lib}
+                    RUNTIME DESTINATION bin
+                    LIBRARY DESTINATION bin
+                    ARCHIVE DESTINATION lib)
+    endforeach()
+
+    foreach(exe  ${rest_exes})
+    install(TARGETS ${exe}
+                    RUNTIME DESTINATION bin
+                    LIBRARY DESTINATION bin
+                    ARCHIVE DESTINATION lib)
+    endforeach()
+
+    # Copy pcm files to bin
+    install(CODE
+            "
+    file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/*.pcm\")
+    file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/bin)
+    "
+            )
+
+else()
+
+    # Copy pcm files to lib
+    install(CODE
+            "
+    file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/*.pcm\")
+    file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/lib)
+    "
+            )
+
+    # Create thisREST.sh
+    include(thisREST)
+
+    # Add permissions
+    install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/bin/rest-config)")
+    install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX})")
+
+endif()

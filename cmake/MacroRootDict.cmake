@@ -119,7 +119,7 @@ MACRO(GEN_ROOT_DICT_SOURCE _dict_src_filename)
 
     # We modify the list of headers to be given to ROOTCINT command.
     # We must remove/clean the full path from the main header
-    list(GET ROOT_DICT_INPUT_HEADERS 0 MAIN_HEADER)
+list(GET ROOT_DICT_INPUT_HEADERS 0 MAIN_HEADER)
     get_filename_component(MAIN_HEADER_CLEAN ${MAIN_HEADER} NAME)
     list(GET ROOT_DICT_INPUT_HEADERS 1 LINKDEF_HEADER)
     set(ROOT_DICT_INPUT_HEADERS_CLEAN ${MAIN_HEADER_CLEAN} ${LINKDEF_HEADER})
@@ -315,17 +315,11 @@ MACRO(COMPILEDIR libname)
 
     include_directories(${local_include_dirs})
     add_library(${libname} SHARED ${contentfiles} ${addon_src})
-
-
+    target_link_libraries(${libname} ${local_libraries} ${external_libs})
+    
     if (CMAKE_SYSTEM_NAME MATCHES "Windows")
         set_target_properties(${libname} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-        target_link_libraries(${libname} ${local_libraries} ${external_libs})
-        install(TARGETS ${libname}
-                RUNTIME DESTINATION bin
-                LIBRARY DESTINATION bin
-                ARCHIVE DESTINATION lib)
     else ()
-        target_link_libraries(${libname} ${local_libraries} ${external_libs})
         install(TARGETS ${libname}
                 RUNTIME DESTINATION bin
                 LIBRARY DESTINATION lib

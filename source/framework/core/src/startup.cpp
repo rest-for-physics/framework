@@ -12,11 +12,18 @@
 
 using namespace std;
 
-string REST_COMMIT;
-string REST_PATH;
-string REST_USER;
-string REST_USER_PATH;
-map<string, string> REST_ARGS = {};
+EXPORT_DEF string REST_COMMIT;
+EXPORT_DEF string REST_PATH;
+EXPORT_DEF string REST_USER;
+EXPORT_DEF string REST_USER_PATH;
+EXPORT_DEF map<string, string> REST_ARGS = {};
+
+#ifdef WIN32
+EXPORT_DEF bool REST_Display_CompatibilityMode = true;
+#else
+bool REST_Display_CompatibilityMode = false;
+#endif  // WIN32
+
 namespace REST_Reflection {
 map<void*, TClass*> RESTListOfClasses_typeid = {};
 map<string, TClass*> RESTListOfClasses_typename = {};
@@ -61,25 +68,25 @@ struct __REST_CONST_INIT {
         } else {
             string restUserPath = (string)_REST_USERHOME + "/.rest";
             // check the directory exists
-            if (!TRestTools::fileExists(restUserPath)) {
-                mkdir(restUserPath.c_str(), S_IRWXU);
-            }
-            // check the runNumber file
-            if (!TRestTools::fileExists(restUserPath + "/runNumber")) {
-                TRestTools::Execute("echo 1 > " + restUserPath + "/runNumber");
-            }
-            // check the dataURL file
-            // if (!TRestTools::fileExists(restUserPath + "/dataURL")) {
-            //    TRestTools::Execute("cp " + REST_PATH + "/data/dataURL " + restUserPath + "/");
+            //if (!TRestTools::fileExists(restUserPath)) {
+            //    mkdir(restUserPath.c_str(), S_IRWXU);
             //}
-            // check the download directory
-            if (!TRestTools::fileExists(restUserPath + "/download")) {
-                mkdir((restUserPath + "/download").c_str(), S_IRWXU);
-            }
-            // check the gdml directory
-            if (!TRestTools::fileExists(restUserPath + "/gdml")) {
-                mkdir((restUserPath + "/gdml").c_str(), S_IRWXU);
-            }
+            //// check the runNumber file
+            //if (!TRestTools::fileExists(restUserPath + "/runNumber")) {
+            //    TRestTools::Execute("echo 1 > " + restUserPath + "/runNumber");
+            //}
+            //// check the dataURL file
+            //// if (!TRestTools::fileExists(restUserPath + "/dataURL")) {
+            ////    TRestTools::Execute("cp " + REST_PATH + "/data/dataURL " + restUserPath + "/");
+            ////}
+            //// check the download directory
+            //if (!TRestTools::fileExists(restUserPath + "/download")) {
+            //    mkdir((restUserPath + "/download").c_str(), S_IRWXU);
+            //}
+            //// check the gdml directory
+            //if (!TRestTools::fileExists(restUserPath + "/gdml")) {
+            //    mkdir((restUserPath + "/gdml").c_str(), S_IRWXU);
+            //}
 
             // now we don't need to check write accessibility in other methods in REST
             REST_USER_PATH = restUserPath;

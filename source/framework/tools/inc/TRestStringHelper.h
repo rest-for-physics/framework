@@ -9,7 +9,6 @@
 #include <TVector3.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/stat.h>
 
 #include <algorithm>
 #include <cstdio>
@@ -98,8 +97,9 @@ TF1* CreateTF1FromString(std::string func, double init, double end);
 using namespace REST_StringHelper;
 
 #ifdef WIN32
-inline void setenv(const char* __name, const char* __value, int __replace);
-inline std::string get_current_dir_name();
+inline void setenv(const char* __name, const char* __value, int __replace) {
+    _putenv(((std::string)__name + "=" + (std::string)__value).c_str());
+}
 #define __PRETTY_FUNCTION__ __FUNCTION__
 #define M_PI 3.14159265358979323846
 #endif

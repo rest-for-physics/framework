@@ -64,7 +64,7 @@ void TRestGDMLParser::Load(const string& filename) {
 
     string filenameNoPath = TRestTools::SeparatePathAndName(filenameAbsolute).second;
     // we have to use a unique identifier on the file to prevent collision when launching multiple jobs
-    fOutputGdmlFilename = fOutputGdmlDirectory + "PID" + std::to_string(getpid()) + "_" + filenameNoPath;
+    fOutputGdmlFilename = fOutputGdmlDirectory + "PID" + std::to_string(_getpid()) + "_" + filenameNoPath;
     cout << "TRestGDMLParser: Creating temporary file at: \"" << fOutputGdmlFilename << "\"" << endl;
 
     filesystem::create_directories(fOutputGdmlDirectory);
@@ -111,7 +111,7 @@ void TRestGDMLParser::ReplaceEntity() {
 
         if ((int)entityFile.find("http") != -1) {
             string entityField =
-                fOutputGdmlDirectory + "PID" + std::to_string(getpid()) + "_" + entityName + ".xml";
+                fOutputGdmlDirectory + "PID" + std::to_string(_getpid()) + "_" + entityName + ".xml";
             int a = TRestTools::DownloadRemoteFile(entityFile, entityField);
             if (a != 0) {
                 cout << "TRestGDMLParser: Download failed!" << endl;

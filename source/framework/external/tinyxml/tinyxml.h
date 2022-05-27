@@ -31,7 +31,11 @@ distribution.
 #pragma warning(disable : 4786)
 #endif
 
-#include <assert.h>
+#ifdef WIN32    
+#define assert(expression) ((void)0)
+#else 
+#include < assert.h>
+#endif
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -2,9 +2,13 @@
 
 #include "TRestStringHelper.h"
 
+#ifdef WIN32
+#include "conio.h"
+#endif // WIN32
+
 using namespace std;
 
-bool Console::CompatibilityMode = false;
+
 
 int Console::GetWidth() {
 #ifdef WIN32
@@ -64,7 +68,7 @@ int Console::Read() { return getchar(); }
 
 int Console::ReadKey() {
 #ifdef WIN32
-    return getch();
+    return _getch();
 #else
     struct termios tm, tm_old;
     int fd = 0, ch;
@@ -211,7 +215,7 @@ TRestStringOutput::TRestStringOutput(string _color, string formatter, REST_Displ
     if (length > 500 || length < 20)  // unsupported console, we will fall back to compatibility modes
     {
         length = -1;
-        Console::CompatibilityMode = true;
+        REST_Display_CompatibilityMode = true;
     }
 
     verbose = REST_Verbose_Level::REST_Essential;
@@ -270,7 +274,7 @@ string TRestStringOutput::FormattingPrintString(string input) {
 }
 
 void TRestStringOutput::setlength(int n) {
-    if (!Console::CompatibilityMode) {
+    if (!REST_Display_CompatibilityMode) {
         if (n >= Console::GetWidth() - 2) {
             length = Console::GetWidth() - 2;
         } else if (n <= 0) {
@@ -284,7 +288,7 @@ void TRestStringOutput::setlength(int n) {
 }
 
 void TRestStringOutput::flushstring() {
-    if (Console::CompatibilityMode)  // this means we are using condor
+    if (REST_Display_CompatibilityMode)  // this means we are using condor
     {
         std::cout << buf.str() << std::endl;
     } else {

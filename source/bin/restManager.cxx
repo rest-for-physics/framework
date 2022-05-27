@@ -12,13 +12,11 @@ char iFile[256];
 
 const int maxForksAllowed = 32;
 
-#ifdef WIN32
-void setenv(const char* __name, const char* __value, int __replace) {
-    _putenv(((string)__name + "=" + (string)__value).c_str());
-}
-#endif
 
 int fork_n_execute(string command) {
+#ifdef WIN32
+    return -1;
+#else
     int status;
     pid_t pid;
 
@@ -45,6 +43,7 @@ int fork_n_execute(string command) {
        status = -1;
        */
     return status;
+#endif  // !WIN32
 }
 
 void PrintHelp() {
@@ -139,7 +138,7 @@ int main(int argc, char* argv[]) {
                 doFork = true;
             }
         }
-        if (Console::CompatibilityMode) {
+        if (REST_Display_CompatibilityMode) {
             RESTcout << "you are in compatibility mode, all graphical displays off" << RESTendl;
             argCApp = 2;
         }

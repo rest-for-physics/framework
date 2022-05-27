@@ -12,9 +12,6 @@
 #include "v5/TFormula.h"
 #endif
 
-#include <dirent.h>
-#include <unistd.h>
-
 using namespace std;
 
 ///////////////////////////////////////////////
@@ -161,12 +158,12 @@ Int_t REST_StringHelper::GetChar(string hint) {
         t.detach();
 
         cout << hint << endl;
-        int result = Console::CompatibilityMode ? 1 : getchar();
+        int result = REST_Display_CompatibilityMode ? 1 : getchar();
         gSystem->ExitLoop();
         return result;
     } else {
         cout << hint << endl;
-        return Console::CompatibilityMode ? 1 : getchar();
+        return REST_Display_CompatibilityMode ? 1 : getchar();
     }
     return -1;
 }
@@ -734,7 +731,7 @@ TF1* REST_StringHelper::CreateTF1FromString(std::string func, double init, doubl
     size_t n = std::count(func.begin(), func.end(), '[');
     // Reading options
     int a = 0;
-    int optPos[n];
+    vector<int> optPos(n);
     std::vector<std::string> options(n);  // Vector of strings of any size.
     for (int i = 0; i < n; i++) {
         optPos[i] = func.find("[", a);
@@ -794,10 +791,3 @@ TF1* REST_StringHelper::CreateTF1FromString(std::string func, double init, doubl
     return f;
 }
 
-#ifdef WIN32
-string get_current_dir_name() {
-    char pBuf[MAX_PATH];
-    GetCurrentDirectory(MAX_PATH, pBuf);
-    return string(pBuf);
-}
-#endif

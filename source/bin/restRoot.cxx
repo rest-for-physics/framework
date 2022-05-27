@@ -14,7 +14,7 @@ using namespace std;
 // Don't use cout in the main function!
 // This will make cout un-usable in the command line!
 int main(int argc, char* argv[]) {
-    // set the env and debug status
+     // set the env and debug status
     setenv("REST_VERSION", REST_RELEASE, 1);
 
     Int_t loadMacros = 0;
@@ -172,7 +172,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // display root's command line
+     // display root's command line
     TRint theApp("App", &argc, argv);
     theApp.Run();
 

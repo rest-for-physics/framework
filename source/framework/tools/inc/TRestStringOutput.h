@@ -4,13 +4,15 @@
 #include <RConfig.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+//#include <unistd.h>
 
 #include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+
+#include "TRestTools.h"
 
 #ifndef WIN32
 #include <fcntl.h>
@@ -93,8 +95,6 @@ class Console {
     static void ClearCurrentLine();
     /// clear lines after the cursor.
     static void ClearLinesAfterCursor();
-    /// indicates whether the output tool should work under compatibility mode for nonatty
-    static bool CompatibilityMode;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -233,6 +233,7 @@ static TRestStringOutput RESTExtreme(TRestStringOutput::REST_Verbose_Level::REST
 
 static void RESTendl(TRestStringOutput& input) { input.flushstring(); }
 
-extern TRestStringOutput::REST_Verbose_Level gVerbose;
-
+EXPORT_EXTERN TRestStringOutput::REST_Verbose_Level gVerbose;
+/// indicates whether the output tool should work under compatibility mode for nonatty
+EXPORT_EXTERN bool REST_Display_CompatibilityMode;
 #endif

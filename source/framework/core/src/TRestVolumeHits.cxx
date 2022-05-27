@@ -164,7 +164,7 @@ void TRestVolumeHits::PrintHits() const {
 
 void TRestVolumeHits::kMeansClustering(TRestVolumeHits* hits, TRestVolumeHits& vHits, int maxIt) {
     const int nodes = vHits.GetNumberOfHits();
-    TRestVolumeHits volHits[nodes];
+    vector<TRestVolumeHits> volHits(nodes);
     // std::cout<<"Nhits "<<hits->GetNumberOfHits()<<" Nodes "<<nodes<<std::endl;
     TVector3 nullVector = TVector3(0, 0, 0);
     std::vector<TVector3> centroid(nodes);

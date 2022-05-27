@@ -26,6 +26,14 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "TRestRun.h"
+#ifdef WIN32
+#include <io.h>
+#include <process.h>
+#include <windows.h>
+#undef GetClassName
+#else
+#include "unistd.h"
+#endif  // !WIN32
 
 #include "TRestDataBase.h"
 #include "TRestEventProcess.h"
@@ -676,7 +684,7 @@ void TRestRun::ReadFileInfo(const string& filename) {
                   << RESTendl;
         exit(1);
     }
-    int fd = fileno(fp);
+    int fd = _fileno(fp);
     fstat(fd, &buf);
     fclose(fp);
     if (fEndTime == 0) {
@@ -872,7 +880,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
                 RESTEssential << "external process file reading reaches end, waiting for more files"
                               << RESTendl;
             }
-            sleep(1);
+            _sleep(1000);
             messageShown = true;
             fCurrentEvent--;
             goto GetEventExt;
@@ -1285,7 +1293,7 @@ void TRestRun::ImportMetadata(const TString& File, const TString& name, const TS
         return;
     }
 
-    TRestMetadata* meta;
+    TRestMetadata* meta = nullptr;
     if (name != "") {
         meta = GetMetadata(name, f);
     } else if (type != "") {
