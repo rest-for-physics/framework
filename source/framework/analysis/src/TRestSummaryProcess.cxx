@@ -103,12 +103,12 @@ TRestSummaryProcess::TRestSummaryProcess() { Initialize(); }
 /// defined using the parameter `searchPath` in globals section. See
 /// TRestMetadata description.
 ///
-/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param configFilename A const char* giving the path to an RML file.
 ///
-TRestSummaryProcess::TRestSummaryProcess(char* cfgFileName) {
+TRestSummaryProcess::TRestSummaryProcess(const char* configFilename) {
     Initialize();
 
-    LoadConfig(cfgFileName);
+    LoadConfig(configFilename);
 }
 
 ///////////////////////////////////////////////
@@ -132,12 +132,12 @@ void TRestSummaryProcess::LoadDefaultConfig() {
 /// the path to the config file must be specified using full path, absolute or
 /// relative.
 ///
-/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param configFilename A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// correspondig TRestSummaryProcess section inside the RML.
+/// corresponding TRestSummaryProcess section inside the RML.
 ///
-void TRestSummaryProcess::LoadConfig(std::string cfgFilename, std::string name) {
-    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
+void TRestSummaryProcess::LoadConfig(const string& configFilename, const string& name) {
+    if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
@@ -158,8 +158,8 @@ void TRestSummaryProcess::Initialize() { SetSectionName(this->ClassName()); }
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestSummaryProcess::ProcessEvent(TRestEvent* evInput) {
-    fEvent = evInput;
+TRestEvent* TRestSummaryProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fEvent = inputEvent;
 
     // This process does nothing at the event-by-event level
 
@@ -197,7 +197,7 @@ void TRestSummaryProcess::EndProcess() {
         fMinimum[x.first] = this->GetFullAnalysisTree()->GetObservableMinimum(x.first, range.X(), range.Y());
     }
 
-    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -246,31 +246,35 @@ void TRestSummaryProcess::InitFromConfigFile() {
 void TRestSummaryProcess::PrintMetadata() {
     BeginPrintProcess();
 
-    metadata << " - Mean rate : " << fMeanRate << " Hz" << endl;
-    metadata << " - Mean rate sigma : " << fMeanRateSigma << " Hz" << endl;
+    RESTMetadata << " - Mean rate : " << fMeanRate << " Hz" << RESTendl;
+    RESTMetadata << " - Mean rate sigma : " << fMeanRateSigma << " Hz" << RESTendl;
     for (auto const& x : fAverage) {
-        metadata << " " << endl;
-        metadata << x.first << " average:" << x.second << endl;
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << x.first << " average:" << x.second << RESTendl;
         TVector2 a = fAverageRange[x.first];
-        if (a.X() != -1 && a.Y() != -1) metadata << "    range : (" << a.X() << ", " << a.Y() << ")" << endl;
+        if (a.X() != -1 && a.Y() != -1)
+            RESTMetadata << "    range : (" << a.X() << ", " << a.Y() << ")" << RESTendl;
     }
     for (auto const& x : fRMS) {
-        metadata << " " << endl;
-        metadata << x.first << " RMS:" << x.second << endl;
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << x.first << " RMS:" << x.second << RESTendl;
         TVector2 a = fRMSRange[x.first];
-        if (a.X() != -1 && a.Y() != -1) metadata << "    range : (" << a.X() << ", " << a.Y() << ")" << endl;
+        if (a.X() != -1 && a.Y() != -1)
+            RESTMetadata << "    range : (" << a.X() << ", " << a.Y() << ")" << RESTendl;
     }
     for (auto const& x : fMaximum) {
-        metadata << " " << endl;
-        metadata << x.first << " Maximum:" << x.second << endl;
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << x.first << " Maximum:" << x.second << RESTendl;
         TVector2 a = fMaximumRange[x.first];
-        if (a.X() != -1 && a.Y() != -1) metadata << "    range : (" << a.X() << ", " << a.Y() << ")" << endl;
+        if (a.X() != -1 && a.Y() != -1)
+            RESTMetadata << "    range : (" << a.X() << ", " << a.Y() << ")" << RESTendl;
     }
     for (auto const& x : fMinimum) {
-        metadata << " " << endl;
-        metadata << x.first << " Minimum:" << x.second << endl;
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << x.first << " Minimum:" << x.second << RESTendl;
         TVector2 a = fMinimumRange[x.first];
-        if (a.X() != -1 && a.Y() != -1) metadata << "    range : (" << a.X() << ", " << a.Y() << ")" << endl;
+        if (a.X() != -1 && a.Y() != -1)
+            RESTMetadata << "    range : (" << a.X() << ", " << a.Y() << ")" << RESTendl;
     }
     EndPrintProcess();
 }

@@ -4,9 +4,10 @@
 #include <TSystem.h>
 
 #include "TRestStringOutput.h"
-//#include <REST_General_CreateHisto.hh>
 
-char cfgFileName[256];
+using namespace std;
+
+char configFilename[256];
 char iFile[256];
 
 const int maxForksAllowed = 32;
@@ -47,49 +48,49 @@ int fork_n_execute(string command) {
 }
 
 void PrintHelp() {
-    TRestStringOutput fout(COLOR_BOLDYELLOW, "", kLeft);
-    fout << " " << endl;
+    TRestStringOutput fout(COLOR_BOLDYELLOW, "", TRestStringOutput::REST_Display_Orientation::kLeft);
+    RESTcout << " " << RESTendl;
 
-    fout.setheader("Usage1 : ./restManager ");
-    fout << "--c CONFIG_FILE [--i/f INPUT] [--o OUTPUT] [--j THREADS] [--e EVENTS_TO_PROCESS] [--v "
-            "VERBOSELEVEL] [--d RUNID] [--p PDF_PLOTS.pdf]"
-         << endl;
-    fout.setheader("Usage2 : ./restManager ");
-    fout << "TASK_NAME ARG1 ARG2 ARG3" << endl;
+    RESTcout.setheader("Usage1 : ./restManager ");
+    RESTcout << "--c CONFIG_FILE [--i/f INPUT] [--o OUTPUT] [--j THREADS] [--e EVENTS_TO_PROCESS] [--v "
+                "VERBOSELEVEL] [--d RUNID] [--p PDF_PLOTS.pdf]"
+             << RESTendl;
+    RESTcout.setheader("Usage2 : ./restManager ");
+    RESTcout << "TASK_NAME ARG1 ARG2 ARG3" << RESTendl;
 
-    fout.setcolor(COLOR_WHITE);
-    fout.setheader("");
-    fout << " " << endl;
-    fout.setheader("CONFIG_FILE: ");
-    fout << "-" << endl;
-    fout << "The rml configuration file. It should contain a TRestManager section. This "
-            "argument MUST be provided. The others can be also specified in the rml file."
-         << endl;
-    fout.setheader("INPUT      : ");
-    fout << "-" << endl;
-    fout << "Input file name. If not given it will be acquired from the rml file. If you want "
-            "to use multiple input file, you can either specify the string of matching pattern with "
-            "quotation marks surrounding it, or put the file names in a .list file."
-         << endl;
-    fout.setheader("OUTPUT     : ");
-    fout << "-" << endl;
-    fout << "Output file name. It can be given as a name string (abc.root), or as an expression "
-            "with naming fields to be replaced (Run[RunNumber]_[Tag].root)."
-         << endl;
-    fout.setheader("THREADS    : ");
-    fout << "-" << endl;
-    fout << "Enable specific number of threads to run the jobs. In most time 3~6 threads are "
-            "enough to make full use of computer power. Maximum is 15."
-         << endl;
-    fout.setheader("");
-    fout << "=" << endl;
+    RESTcout.setcolor(COLOR_WHITE);
+    RESTcout.setheader("");
+    RESTcout << " " << RESTendl;
+    RESTcout.setheader("CONFIG_FILE: ");
+    RESTcout << "-" << RESTendl;
+    RESTcout << "The rml configuration file. It should contain a TRestManager section. This "
+                "argument MUST be provided. The others can be also specified in the rml file."
+             << RESTendl;
+    RESTcout.setheader("INPUT      : ");
+    RESTcout << "-" << RESTendl;
+    RESTcout << "Input file name. If not given it will be acquired from the rml file. If you want "
+                "to use multiple input file, you can either specify the string of matching pattern with "
+                "quotation marks surrounding it, or put the file names in a .list file."
+             << RESTendl;
+    RESTcout.setheader("OUTPUT     : ");
+    RESTcout << "-" << RESTendl;
+    RESTcout << "Output file name. It can be given as a name string (abc.root), or as an expression "
+                "with naming fields to be replaced (Run[RunNumber]_[Tag].root)."
+             << RESTendl;
+    RESTcout.setheader("THREADS    : ");
+    RESTcout << "-" << RESTendl;
+    RESTcout << "Enable specific number of threads to run the jobs. In most time 3~6 threads are "
+                "enough to make full use of computer power. Maximum is 15."
+             << RESTendl;
+    RESTcout.setheader("");
+    RESTcout << "=" << RESTendl;
 }
 
 Bool_t doFork = false;
 std::vector<std::string> input_files;
 
 void ParseInputFileArgs(const char* argv) {
-    if (argv == NULL) return;
+    if (argv == nullptr) return;
 
     if (REST_ARGS.count("inputFileName") > 0) {
         string input_old = REST_ARGS["inputFileName"];
@@ -127,19 +128,19 @@ int main(int argc, char* argv[]) {
         // handle special arguments like "--batch"
         for (int i = 1; i < args.size(); i++) {
             if (args[i] == "--batch") {
-                fout << "you are in batch mode, all graphical displays off" << endl;
+                RESTcout << "you are in batch mode, all graphical displays off" << RESTendl;
                 argCApp = 2;
                 args.erase(args.begin() + i);
             }
             if (args[i] == "--fork") {
-                fout << "Fork is enabled!" << endl;
+                RESTcout << "Fork is enabled!" << RESTendl;
                 argCApp = 2;
                 args.erase(args.begin() + i);
                 doFork = true;
             }
         }
         if (Console::CompatibilityMode) {
-            fout << "you are in compatibility mode, all graphical displays off" << endl;
+            RESTcout << "you are in compatibility mode, all graphical displays off" << RESTendl;
             argCApp = 2;
         }
     }
@@ -166,7 +167,7 @@ int main(int argc, char* argv[]) {
                     switch (*c) {
                         case 'c':
                             REST_ARGS["configFile"] = args[i + 1];
-                            sprintf(cfgFileName, "%s", args[i + 1].c_str());
+                            sprintf(configFilename, "%s", args[i + 1].c_str());
                             break;
                         case 'd':
                             REST_ARGS["runNumber"] = args[i + 1];
@@ -200,23 +201,23 @@ int main(int argc, char* argv[]) {
                             REST_ARGS["pdfFilename"] = args[i + 1];
                             break;
                         default:
-                            fout << endl;
+                            RESTcout << RESTendl;
                             PrintHelp();
                             return 0;
                     }
                 }
             }
 
-            fout << endl;
-            fout.setcolor(COLOR_BOLDBLUE);
-            fout.setorientation(0);
-            fout << "Launching TRestManager..." << endl;
-            fout << endl;
+            RESTcout << RESTendl;
+            RESTcout.setcolor(COLOR_BOLDBLUE);
+            RESTcout.setorientation(TRestStringOutput::REST_Display_Orientation::kMiddle);
+            RESTcout << "Launching TRestManager..." << RESTendl;
+            RESTcout << RESTendl;
 
             int pid = 0;
             if (doFork && input_files.size() > maxForksAllowed) {
-                ferr << "Fork list is larger than " << maxForksAllowed
-                     << " files. Please, use a glob pattern producing a shorter list" << endl;
+                RESTError << "Fork list is larger than " << maxForksAllowed
+                          << " files. Please, use a glob pattern producing a shorter list" << RESTendl;
             } else if (doFork) {
                 for (unsigned int n = 0; n < input_files.size(); n++) {
                     string command = "restManager";
@@ -226,21 +227,22 @@ int main(int argc, char* argv[]) {
                     }
                     command +=
                         " --f " + input_files[n] + " >> /tmp/" + getenv("USER") + "_out." + ToString(n);
-                    fout << "Executing : " << command << endl;
+                    RESTcout << "Executing : " << command << RESTendl;
                     fork_n_execute(command);
                 }
                 exit(0);
             } else {
-                fout << "Creating TRestManager" << endl;
+                RESTcout << "Creating TRestManager" << RESTendl;
                 TRestManager* mgr = new TRestManager();
 
-                auto path = TRestTools::SeparatePathAndName(cfgFileName).first;
-                fout << "path:" << path << endl;
+                auto path = TRestTools::SeparatePathAndName(configFilename).first;
+                RESTcout << "path:" << path << RESTendl;
+
                 setenv("configPath", path.c_str(), 1);
 
-                mgr->LoadConfigFromFile(cfgFileName);
+                mgr->LoadConfigFromFile(configFilename);
 
-                fout << "Done!" << endl;
+                RESTcout << "Done!" << RESTendl;
                 // a->GetChar();
 
                 delete mgr;
@@ -253,7 +255,7 @@ int main(int argc, char* argv[]) {
                 argumentlist.push_back(args[i]);
             }
             string type = (args[1]);
-            fout << "Initializing " << type << endl;
+            RESTcout << "Initializing " << type << RESTendl;
             TRestManager* a = new TRestManager();
             a->InitFromTask(type, argumentlist);
         }

@@ -58,7 +58,9 @@
 ///
 
 #include "TRestMesh.h"
+
 #include "TRestPhysics.h"
+
 using namespace std;
 using namespace TMath;
 
@@ -679,10 +681,14 @@ TVector3 TRestMesh::GetNetCenter() {
 /// \brief It returns the position of both boundary vertex, bottom vertex identified with id = 0 and top
 /// vertex identified with id = 1.
 ///
-TVector3 TRestMesh::GetVertex(Int_t id) {
-    if (id == 0) return fNetOrigin;
-    if (id == 1) return fNetOrigin + TVector3(fNetSizeX, fNetSizeY, fNetSizeZ);
-    return TVector3(0, 0, 0);
+TVector3 TRestMesh::GetVertex(Int_t id) const {
+    if (id == 0) {
+        return fNetOrigin;
+    }
+    if (id == 1) {
+        return fNetOrigin + TVector3(fNetSizeX, fNetSizeY, fNetSizeZ);
+    }
+    return {0, 0, 0};
 }
 
 ///////////////////////////////////////////////
@@ -872,10 +878,10 @@ std::vector<TVector3> TRestMesh::GetTrackBoundariesCylinder(TVector3 pos, TVecto
 ///
 void TRestMesh::Print() {
     std::cout << "Mesh. Number of nodes : " << GetNumberOfNodes()
-              << " Number of groups : " << GetNumberOfGroups() << std::endl;
-    std::cout << "---------------------------------------------" << std::endl;
+              << " Number of groups : " << GetNumberOfGroups() << endl;
+    std::cout << "---------------------------------------------" << endl;
     for (int i = 0; i < GetNumberOfNodes(); i++)
         std::cout << "Group : " << fNodeGroupID[i] << " X : " << fNodeX[i] << " Y : " << fNodeY[i]
-                  << " Z : " << fNodeZ[i] << std::endl;
-    std::cout << "---------------------------------------------" << std::endl;
+                  << " Z : " << fNodeZ[i] << endl;
+    std::cout << "---------------------------------------------" << endl;
 }

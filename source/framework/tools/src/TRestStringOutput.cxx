@@ -1,5 +1,8 @@
 #include "TRestStringOutput.h"
+
 #include "TRestStringHelper.h"
+
+using namespace std;
 
 bool Console::CompatibilityMode = false;
 
@@ -176,7 +179,6 @@ char mirrorchar(char c) {
     }
 }
 
-
 #define TRestStringOutput_BestLength 100
 TRestStringOutput::TRestStringOutput(string _color, string formatter, REST_Display_Orientation _orientation) {
     iserror = false;
@@ -196,7 +198,7 @@ TRestStringOutput::TRestStringOutput(string _color, string formatter, REST_Displ
     if (formatter[formatter.size() / 2] != ' ') {
         useborder = false;
     }
-    
+
     if (useborder) {
         formatstring = formatter.substr(0, formatter.size() / 2);
         formatstring = Replace(formatstring, " ", "");
@@ -212,12 +214,12 @@ TRestStringOutput::TRestStringOutput(string _color, string formatter, REST_Displ
         Console::CompatibilityMode = true;
     }
 
-    verbose = REST_Essential;
+    verbose = REST_Verbose_Level::REST_Essential;
 }
 
 void TRestStringOutput::resetstring() {
-    buf.clear(); 
-    buf.str(""); 
+    buf.clear();
+    buf.str("");
 }
 
 string TRestStringOutput::FormattingPrintString(string input) {
@@ -236,7 +238,7 @@ string TRestStringOutput::FormattingPrintString(string input) {
         int Lfmt = formatstring.size();
 
         int startblank;
-        if (useborder || orientation == kMiddle) {
+        if (useborder || orientation == TRestStringOutput::REST_Display_Orientation::kMiddle) {
             startblank = (length - Lstr) / 2;
         } else {
             startblank = Lfmt;
@@ -287,7 +289,7 @@ void TRestStringOutput::flushstring() {
         std::cout << buf.str() << std::endl;
     } else {
         printf("\033[K");
-        if (orientation == kMiddle) {
+        if (orientation == TRestStringOutput::REST_Display_Orientation::kMiddle) {
             // we always reset the length of TRestStringOutput in case the console is resized
             setlength(TRestStringOutput_BestLength);
             int blankwidth = (Console::GetWidth() - 2 - length) / 2;

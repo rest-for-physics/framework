@@ -1,13 +1,14 @@
 #include <TApplication.h>
 #include <TROOT.h>
-#include <TRint.h>
-#include <TSystem.h>
-
 #include <TRestMetadata.h>
 #include <TRestRun.h>
 #include <TRestTools.h>
+#include <TRint.h>
+#include <TSystem.h>
 
 #include "TRestVersion.h"
+
+using namespace std;
 
 // Note!
 // Don't use cout in the main function!
@@ -56,13 +57,16 @@ int main(int argc, char* argv[]) {
     }
 
     bool silent = false;
-    if (gVerbose == REST_Silent) silent = true;
+    if (gVerbose == TRestStringOutput::REST_Verbose_Level::REST_Silent) silent = true;
 
     bool debug = false;
-    if (gVerbose >= REST_Debug) debug = true;
+    if (gVerbose >= TRestStringOutput::REST_Verbose_Level::REST_Debug) debug = true;
 
     // load rest library and macros
     TRestTools::LoadRESTLibrary(silent);
+
+    gROOT->ProcessLine("#include <TRestStringHelper.h>");
+    gROOT->ProcessLine("#include <TRestPhysics.h>");
     if (loadMacros) {
         if (!silent) printf("= Loading macros ...\n");
         auto a = TRestTools::Execute(
@@ -88,7 +92,7 @@ int main(int argc, char* argv[]) {
             string runcmd = Form("TRestRun* run%i = (TRestRun*)%s;", Nfile, ToString(runTmp).c_str());
             if (debug) printf("%s\n", runcmd.c_str());
             gROOT->ProcessLine(runcmd.c_str());
-            if (runTmp->GetInputEvent() != NULL) {
+            if (runTmp->GetInputEvent() != nullptr) {
                 string eventType = runTmp->GetInputEvent()->ClassName();
 
                 printf("Attaching event %s as ev%i...\n", eventType.c_str(), Nfile);
@@ -97,6 +101,35 @@ int main(int argc, char* argv[]) {
                 if (debug) printf("%s\n", evcmd.c_str());
                 gROOT->ProcessLine(evcmd.c_str());
                 runTmp->GetEntry(0);
+            }
+
+            // command line AnalysisTree object
+            if (runTmp->GetAnalysisTree() != nullptr) {
+                // if (runTmp->GetAnalysisTree()->GetChain() != nullptr) {
+                //    printf("Attaching ana_tree%i...\n", Nfile);
+                //    string evcmd = Form("TChain* ana_tree%i = (TChain*)%s;", Nfile,
+                //        ToString(runTmp->GetAnalysisTree()->GetChain()).c_str());
+                //    if (debug) printf("%s\n", evcmd.c_str());
+                //    gROOT->ProcessLine(evcmd.c_str());
+                //}
+                // else
+                //{
+                printf("Attaching ana_tree%i...\n", Nfile);
+                string evcmd = Form("TRestAnalysisTree* ana_tree%i = (TRestAnalysisTree*)%s;", Nfile,
+                                    ToString(runTmp->GetAnalysisTree()).c_str());
+                if (debug) printf("%s\n", evcmd.c_str());
+                gROOT->ProcessLine(evcmd.c_str());
+                // runTmp->GetEntry(0);
+                //}
+            }
+
+            // command line EventTree object
+            if (runTmp->GetEventTree() != nullptr) {
+                printf("Attaching ev_tree%i...\n", Nfile);
+                string evcmd =
+                    Form("TTree* ev_tree%i = (TTree*)%s;", Nfile, ToString(runTmp->GetEventTree()).c_str());
+                if (debug) printf("%s\n", evcmd.c_str());
+                gROOT->ProcessLine(evcmd.c_str());
             }
 
             printf("\n%s\n", "Attaching metadata structures...");
@@ -134,6 +167,8 @@ int main(int argc, char* argv[]) {
 
             argv[i] = (char*)"";
             Nfile++;
+        } else if (TRestTools::isRootFile(opt)) {
+            printf("\nFile %s not found ... !!\n", opt.c_str());
         }
     }
 

@@ -24,7 +24,6 @@
 #define RestCore_TRestSummaryProcess
 
 #include "TRestEventProcess.h"
-
 #include "TVector2.h"
 
 //! A process to define basic data members to serve as a metadata summary in a data processing chain.
@@ -63,38 +62,38 @@ class TRestSummaryProcess : public TRestEventProcess {
     /// The event pointer is not used in this process
     TRestEvent* fEvent = nullptr;  //!
 
-    void InitProcess();
-    void EndProcess();
+    void InitProcess() override;
+    void EndProcess() override;
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     void LoadDefaultConfig();
 
    protected:
    public:
-    any GetInputEvent() { return fEvent; }
-    any GetOutputEvent() { return fEvent; }
+    any GetInputEvent() const override { return fEvent; }
+    any GetOutputEvent() const override { return fEvent; }
 
-    TRestEvent* ProcessEvent(TRestEvent* evInput);
+    TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
 
-    void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(const std::string& configFilename, const std::string& name = "");
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     /// Returns a new instance of this class
     TRestEventProcess* Maker() { return new TRestSummaryProcess; }
 
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "summary"; }
+    const char* GetProcessName() const override { return "summary"; }
 
     TRestSummaryProcess();
-    TRestSummaryProcess(char* cfgFileName);
+    TRestSummaryProcess(const char* configFilename);
 
     ~TRestSummaryProcess();
 
     // If new members are added, removed or modified in this class version number must be increased!
-    ClassDef(TRestSummaryProcess, 2);
+    ClassDefOverride(TRestSummaryProcess, 2);
 };
 #endif

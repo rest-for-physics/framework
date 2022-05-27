@@ -67,3 +67,7 @@
 [submodule "projects/detector-project"]
 	path = projects/detector-project
 	url = git@github.com:rest-for-physics/detector-project.git
+[submodule "projects/alphacamm"]
+	path = projects/alphacamm
+	url = git@lfna.unizar.es:gifna/alphacamm.git
+

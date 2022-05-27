@@ -32,15 +32,24 @@
 #include "TRestManager.h"
 #include "TRestVersion.h"
 
-std::mutex mutex2;
+using namespace std;
+
+std::mutex mutex_read;
 
 ClassImp(TRestRun);
 
 TRestRun::TRestRun() { Initialize(); }
 
-TRestRun::TRestRun(string rootfilename) {
-    Initialize();
-    OpenInputFile(rootfilename);
+TRestRun::TRestRun(const string& filename) {
+    if (filename.find(".root") != string::npos) {
+        Initialize();
+        OpenInputFile(filename);
+    } else if (filename.find(".rml") != string::npos) {
+        Initialize();
+        LoadConfigFromFile(filename);
+    } else {
+        RESTError << "TRestRun::TRestRun(): input file error!" << RESTendl;
+    }
 }
 
 TRestRun::~TRestRun() {
@@ -80,10 +89,11 @@ void TRestRun::Initialize() {
     fInputFileName = "null";
     fOutputFileName = "rest_default.root";
 
-    fBytesReaded = 0;
+    fBytesRead = 0;
     fTotalBytes = -1;
     fOverwrite = true;
     fEntriesSaved = -1;
+    fNFilesSplit = 0;
 
     fInputMetadata.clear();
     fMetadata.clear();
@@ -113,7 +123,7 @@ void TRestRun::Initialize() {
 /// pattern to TRestDetector metadata.
 ///
 void TRestRun::InitFromConfigFile() {
-    debug << "Initializing TRestRun from config file, version: " << REST_RELEASE << endl;
+    RESTDebug << "Initializing TRestRun from config file, version: " << REST_RELEASE << RESTendl;
     fFromRML = true;
     ReSetVersion();
 
@@ -133,16 +143,16 @@ void TRestRun::InitFromConfigFile() {
     inputname = TRestTools::RemoveMultipleSlash(inputname);
     string inputnameold = GetParameter("inputFile", "default");
     if (inputnameold != "default") {
-        warning << "Parameter \"inputFile\" in rml is obsolete! Please update it to \"inputFileName\""
-                << endl;
+        RESTWarning << "Parameter \"inputFile\" in rml is obsolete! Please update it to \"inputFileName\""
+                    << RESTendl;
         if (inputname == "") {
             inputname = inputnameold;
         }
     }
     if (ToUpper(runNstr) == "AUTO" && ToUpper(inputname) == "AUTO") {
-        ferr << "TRestRun: run number and input file name cannot both be "
-                "\"AUTO\""
-             << endl;
+        RESTError << "TRestRun: run number and input file name cannot both be "
+                     "\"AUTO\""
+                  << RESTendl;
         exit(1);
     }
 
@@ -153,8 +163,6 @@ void TRestRun::InitFromConfigFile() {
 
     if (ToUpper(runNstr) != "AUTO") {
         fRunNumber = atoi(runNstr.c_str());
-        fStartTime = gDataBase->query_run(fRunNumber).tstart;
-        fEndTime = gDataBase->query_run(fRunNumber).tend;
     }
 
     if (ToUpper(inputname) == "AUTO") {
@@ -173,6 +181,7 @@ void TRestRun::InitFromConfigFile() {
             fRunNumber = -1;
         }
 
+        // add a new run
         if (fRunNumber == 0) {
             fRunNumber = db->get_lastrun() + 1;
             DBEntry entry;
@@ -185,12 +194,24 @@ void TRestRun::InitFromConfigFile() {
         }
     }
 
+    // get some run information
+    if (fRunNumber != -1) {
+        DBEntry entry = gDataBase->query_run(fRunNumber);
+        if (!entry.IsZombie()) {
+            fStartTime = entry.tstart;
+            fEndTime = entry.tend;
+            fRunDescription = entry.description;
+            fRunTag = entry.tag;
+            fRunType = entry.type;
+        }
+    }
+
     if (fInputFileNames.size() == 0) {
         if (fInputFileName != "") {
-            ferr << "cannot find the input file!" << endl;
+            RESTError << "cannot find the input file!" << RESTendl;
             exit(1);
         } else {
-            warning << "no input file added" << endl;
+            RESTWarning << "no input file added" << RESTendl;
         }
         // throw;
     }
@@ -200,8 +221,8 @@ void TRestRun::InitFromConfigFile() {
     string outputname = GetParameter("outputFileName", "default");
     string outputnameold = GetParameter("outputFile", "default");
     if (outputnameold != "default") {
-        warning << "Parameter \"outputFile\" in rml is obsolete! Please update it to \"outputFileName\""
-                << endl;
+        RESTWarning << "Parameter \"outputFile\" in rml is obsolete! Please update it to \"outputFileName\""
+                    << RESTendl;
         if (outputname == "default") {
             outputname = outputnameold;
         }
@@ -241,8 +262,8 @@ void TRestRun::InitFromConfigFile() {
         system((TString) "mkdir -p " + outputdir);
     }
     if (!TRestTools::isPathWritable(outputdir)) {
-        ferr << "TRestRun: Output path does not exist or it is not writable." << endl;
-        ferr << "Path : " << outputdir << endl;
+        RESTError << "TRestRun: Output path does not exist or it is not writable." << RESTendl;
+        RESTError << "Path : " << outputdir << RESTendl;
         exit(1);
     }
 
@@ -254,9 +275,9 @@ void TRestRun::InitFromConfigFile() {
             if (e->Attribute("file") != nullptr) {
                 ImportMetadata(e->Attribute("file"), e->Attribute("name"), e->Attribute("type"), true);
             } else {
-                warning << "Wrong definition of addMetadata! Metadata name or file name "
-                           "is not given!"
-                        << endl;
+                RESTWarning << "Wrong definition of addMetadata! Metadata name or file name "
+                               "is not given!"
+                            << RESTendl;
             }
         } else if (keydeclare == "addProcess") {
             bool active = StringToBool(GetParameter("value", e, ""));
@@ -267,13 +288,14 @@ void TRestRun::InitFromConfigFile() {
             string processName = GetParameter("name", e, "");
             string processType = GetParameter("type", e, "");
             if (processType == "") {
-                warning << "Bad expression of addProcess" << endl;
+                RESTWarning << "Bad expression of addProcess" << RESTendl;
             } else if (processName == "") {
-                warning << "Event process " << processType << " has no name, it will be skipped" << endl;
+                RESTWarning << "Event process " << processType << " has no name, it will be skipped"
+                            << RESTendl;
             }
             TRestEventProcess* pc = REST_Reflection::Assembly(processType);
             if (!pc->isExternal()) {
-                warning << "This is not an external file process!" << endl;
+                RESTWarning << "This is not an external file process!" << RESTendl;
             } else {
                 pc->LoadConfigFromElement(e, fElementGlobal);
                 pc->SetRunInfo(this);
@@ -283,9 +305,9 @@ void TRestRun::InitFromConfigFile() {
             }
         } else if (Count(keydeclare, "TRest") > 0) {
             if (e->Attribute("file") != nullptr && TRestTools::isRootFile(e->Attribute("file"))) {
-                warning << "TRestRun: A root file is being included in section <" << keydeclare
-                        << " ! To import metadata from this file, use <addMetadata" << endl;
-                warning << "Skipping..." << endl;
+                RESTWarning << "TRestRun: A root file is being included in section <" << keydeclare
+                            << " ! To import metadata from this file, use <addMetadata" << RESTendl;
+                RESTWarning << "Skipping..." << RESTendl;
             }
             // if (e->Attribute("file") != nullptr && (string)e->Attribute("file") == "server") {
             //    // read meta-sections from database
@@ -297,7 +319,7 @@ void TRestRun::InitFromConfigFile() {
 
             TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
             if (meta == nullptr) {
-                warning << "failed to add metadata \"" << keydeclare << "\"" << endl;
+                RESTWarning << "failed to add metadata \"" << keydeclare << "\"" << RESTendl;
                 e = e->NextSiblingElement();
                 continue;
             }
@@ -311,12 +333,12 @@ void TRestRun::InitFromConfigFile() {
     // 5. Open input file(s). We open input file at the last stage in case the file name pattern
     // reading requires TRestDetector
     OpenInputFile(0);
-    debug << "TRestRun::EndOfInit. InputFile pattern: \"" << fInputFileName << "\"" << endl;
-    info << "which matches :" << endl;
+    RESTDebug << "TRestRun::EndOfInit. InputFile pattern: \"" << fInputFileName << "\"" << RESTendl;
+    RESTInfo << "which matches :" << RESTendl;
     for (int i = 0; i < fInputFileNames.size(); i++) {
-        info << fInputFileNames[i] << endl;
+        RESTInfo << fInputFileNames[i] << RESTendl;
     }
-    essential << "(" << fInputFileNames.size() << " added files)" << endl;
+    RESTEssential << "(" << fInputFileNames.size() << " added files)" << RESTendl;
 }
 
 ///////////////////////////////////////////////
@@ -325,7 +347,7 @@ void TRestRun::InitFromConfigFile() {
 void TRestRun::OpenInputFile(int i) {
     if (fInputFileNames.size() > i) {
         TString Filename = fInputFileNames[i];
-        info << "opening... " << Filename << endl;
+        RESTInfo << "opening... " << Filename << RESTendl;
         OpenInputFile((string)Filename);
     }
 }
@@ -339,10 +361,10 @@ void TRestRun::OpenInputFile(int i) {
 /// 2. update its class's data(version, tag, user, etc.) to the same as the one stored in the input file.
 /// 3. link the input event and observables to the corresponding tree
 ///
-void TRestRun::OpenInputFile(TString filename, string mode) {
+void TRestRun::OpenInputFile(const TString& filename, const string& mode) {
     CloseFile();
     if (!filename.Contains("http") && !TRestTools::fileExists((string)filename)) {
-        ferr << "input file \"" << filename << "\" does not exist!" << endl;
+        RESTError << "input file \"" << filename << "\" does not exist!" << RESTendl;
         exit(1);
     }
 
@@ -393,7 +415,7 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
             if (fFromRML) {
                 if (runTypeTmp != "Null" && runTypeTmp != "preserve") fRunType = runTypeTmp;
 
-                // We should not recover the user. Only when writting. If not when I open a file
+                // We should not recover the user. Only when writing. If not when I open a file
                 // with restRoot just to read, and Print the run content from other user in my
                 // own account, it will say it was me!
                 // if (runUserTmp != "Null" && runTypeTmp != "preserve") fRunUser = runUserTmp;
@@ -414,29 +436,32 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
                     this->GetVersionCode() <= REST_VERSION(2, 1, 8)) {
                     ReadInputFileMetadata();
                 } else {
-                    warning << "-- W : The metadata version found on input file is lower "
-                               "than 2.2.1!"
-                            << endl;
-                    warning << "-- W : metadata from input file will not be read" << endl;
+                    RESTWarning << "-- W : The metadata version found on input file is lower "
+                                   "than 2.2.1!"
+                                << RESTendl;
+                    RESTWarning << "-- W : metadata from input file will not be read" << RESTendl;
                 }
             }
 
-            debug << "Initializing input file : version code : " << this->GetVersionCode() << endl;
-            debug << "Input file version : " << this->GetVersion() << endl;
+            RESTDebug << "Initializing input file : version code : " << this->GetVersionCode() << RESTendl;
+            RESTDebug << "Input file version : " << this->GetVersion() << RESTendl;
             ReadInputFileTrees();
             fCurrentEvent = 0;
         } else {
-            fAnalysisTree = nullptr;
+            RESTWarning << "TRestRun object not found in file! The input file is problematic!" << RESTendl;
 
-            // set its analysistree as the first TTree object in the file, if exists
-            TIter nextkey(fInputFile->GetListOfKeys());
-            TKey* key;
-            while ((key = (TKey*)nextkey())) {
-                if ((string)key->GetClassName() == "TTree") {
-                    fAnalysisTree =
-                        TRestAnalysisTree::ConvertFromTTree((TTree*)fInputFile->Get(key->GetName()));
-                }
-            }
+            ReadInputFileTrees();
+            // fAnalysisTree = nullptr;
+
+            //// set its analysistree as the first TTree object in the file, if exists
+            // TIter nextkey(fInputFile->GetListOfKeys());
+            // TKey* key;
+            // while ((key = (TKey*)nextkey())) {
+            //    if ((string)key->GetClassName() == "TTree") {
+            //        fAnalysisTree =
+            //            TRestAnalysisTree::ConvertFromTTree((TTree*)fInputFile->Get(key->GetName()));
+            //    }
+            //}
         }
     } else {
         fInputFile = nullptr;
@@ -448,19 +473,19 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
     }
 
     if (fAnalysisTree == nullptr && fFileProcess == nullptr)
-        info << "Input file is not REST root file, an external process is needed!" << endl;
+        RESTInfo << "Input file is not REST root file, an external process is needed!" << RESTendl;
 }
 
-void TRestRun::AddInputFileExternal(string file) {
-    mutex2.lock();
+void TRestRun::AddInputFileExternal(const string& file) {
+    mutex_read.lock();
     if (fFileProcess != nullptr) {
         bool add = fFileProcess->AddInputFile(file);
-        if (add == false) {
-            ferr << "failed to add input file!" << endl;
+        if (!add) {
+            RESTError << "failed to add input file!" << RESTendl;
         }
         fInputFileNames.push_back(file);
     }
-    mutex2.unlock();
+    mutex_read.unlock();
 }
 
 void TRestRun::ReadInputFileMetadata() {
@@ -473,14 +498,14 @@ void TRestRun::ReadInputFileMetadata() {
         // we should make sure the input metadata has unique names
         set<string> addednames;
         while ((key = (TKey*)nextkey())) {
-            debug << "Reading key with name : " << key->GetName() << endl;
+            RESTDebug << "Reading key with name : " << key->GetName() << RESTendl;
             if (addednames.count(key->GetName()) != 0) continue;
 
             TRestMetadata* a = (TRestMetadata*)f->Get(key->GetName());
             if (!a) {
-                ferr << "TRestRun::ReadInputFileMetadata." << endl;
-                ferr << "Key name : " << key->GetName() << endl;
-                ferr << "Hidden key? Please, report this problem." << endl;
+                RESTError << "TRestRun::ReadInputFileMetadata." << RESTendl;
+                RESTError << "Key name : " << key->GetName() << RESTendl;
+                RESTError << "Hidden key? Please, report this problem." << RESTendl;
             } else if (a->InheritsFrom("TRestMetadata") && a->ClassName() != (TString) "TRestRun") {
                 /*
                 //we make sure there is no repeated class added
@@ -511,20 +536,43 @@ void TRestRun::ReadInputFileMetadata() {
 
 void TRestRun::ReadInputFileTrees() {
     if (fInputFile != nullptr) {
-        debug << "Finding TRestAnalysisTree.." << endl;
+        RESTDebug << "Finding TRestAnalysisTree.." << RESTendl;
         TTree* _eventTree = nullptr;
         string filename = fInputFile->GetName();
 
         if (fInputFile->Get("AnalysisTree") != nullptr) {
             fAnalysisTree = (TRestAnalysisTree*)fInputFile->Get("AnalysisTree");
-            fAnalysisTree->GetEntry(0);  // we call GetEntry() to connect branches
+
+            if (fNFilesSplit > 0) {  // fNFilesSplit=1: split to 1 additional file
+                RESTEssential << "Linking analysis tree from split data files" << RESTendl;
+                fAnalysisTree =
+                    (TRestAnalysisTree*)
+                        fAnalysisTree->Clone();  // we must make a copy to have TBrowser correctly browsed.
+                for (int i = 1; i <= fNFilesSplit; i++) {
+                    string filename = fInputFile->GetName() + (string) "." + ToString(i);
+                    RESTInfo << filename << " --> ";
+                    RESTInfo << (fAnalysisTree->AddChainFile(filename) ? "success" : "failed") << RESTendl;
+                }
+                if (fAnalysisTree->GetChain() == nullptr ||
+                    fAnalysisTree->GetChain()->GetNtrees() != fNFilesSplit + 1) {
+                    RESTError << "Error adding split files, files missing?" << RESTendl;
+                    RESTError << "Your data could be incomplete!" << RESTendl;
+                }
+            }
+
+            // Note: we call GetEntries() to initialize total entry number
+            // Otherwise the child analysis tree's observables will be reset
+            // on the next call of GetEntries()
+            fAnalysisTree->GetEntries();
+            // Call GetEntry() to initialize observables and connect branches
+            fAnalysisTree->GetEntry(0);
 
             _eventTree = (TTree*)fInputFile->Get("EventTree");
         } else if (fInputFile->FindKey("TRestAnalysisTree") != nullptr) {
             // This is v2.1.6- version of input file, we directly find EventTree and
             // AnalysisTree. The old name pattern is "TRestXXXEventTree-eventBranch"
             // and "TRestAnalysisTree"
-            warning << "Loading root file from old version REST!" << endl;
+            RESTWarning << "Loading root file from old version REST!" << RESTendl;
             fAnalysisTree = (TRestAnalysisTree*)fInputFile->Get("TRestAnalysisTree");
             fAnalysisTree->GetEntry(0);
 
@@ -543,18 +591,34 @@ void TRestRun::ReadInputFileTrees() {
             }
             // if(Tree2!=nullptr)
             //	fAnalysisTree->SetEntries(Tree2->GetEntries());
-            debug << "Old REST file successfully recovered!" << endl;
+            RESTDebug << "Old REST file successfully recovered!" << RESTendl;
         } else {
-            ferr << "(OpenInputFile) : AnalysisTree was not found" << endl;
-            ferr << "Inside file : " << filename << endl;
-            ferr << "This may be not REST output file!" << endl;
+            RESTError << "(OpenInputFile) : AnalysisTree was not found" << RESTendl;
+            RESTError << "Inside file : " << filename << RESTendl;
+            RESTError << "This may be not REST output file!" << RESTendl;
             exit(1);
         }
 
         if (_eventTree != nullptr) {
-            fEventTree = _eventTree;
+            if (fNFilesSplit > 0) {
+                // eventTree shall be initailized as TChain
+                delete _eventTree;
+                RESTEssential << "Linking event tree from split data files" << RESTendl;
+                TChain* _fEventTree = new TChain("EventTree");
+                RESTInfo << fInputFile->GetName() << " --> ";
+                RESTInfo << (_fEventTree->Add(fInputFile->GetName()) ? "success" : "failed") << RESTendl;
 
-            debug << "Finding event branch.." << endl;
+                for (int i = 1; i <= fNFilesSplit; i++) {
+                    string filename = fInputFile->GetName() + (string) "." + ToString(i);
+                    RESTInfo << filename << " --> ";
+                    RESTInfo << (_fEventTree->Add(filename.c_str()) ? "success" : "failed") << RESTendl;
+                }
+                fEventTree = _fEventTree;
+            } else {
+                fEventTree = _eventTree;
+            }
+
+            RESTDebug << "Finding event branch.." << RESTendl;
             if (fInputEvent == nullptr) {
                 TObjArray* branches = fEventTree->GetListOfBranches();
                 // get the last event branch as input event branch
@@ -562,32 +626,33 @@ void TRestRun::ReadInputFileTrees() {
                     TBranch* br = (TBranch*)branches->At(branches->GetLast());
 
                     if (br == nullptr || Count(br->GetName(), "EventBranch") == 0) {
-                        info << "No event branch inside file : " << filename << endl;
-                        info << "This file may be a pure analysis file" << endl;
+                        RESTInfo << "No event branch inside file : " << filename << RESTendl;
+                        RESTInfo << "This file may be a pure analysis file" << RESTendl;
                     } else {
                         string type = Replace(br->GetName(), "Branch", "", 0);
                         fInputEvent = REST_Reflection::Assembly(type);
                         fInputEvent->InitializeWithMetadata(this);
                         fEventTree->SetBranchAddress(br->GetName(), &fInputEvent);
                         fEventBranchLoc = branches->GetLast();
-                        debug << "found event branch of event type: " << fInputEvent->ClassName() << endl;
+                        RESTDebug << "found event branch of event type: " << fInputEvent->ClassName()
+                                  << RESTendl;
                     }
                 }
             } else {
                 string brname = (string)fInputEvent->ClassName() + "Branch";
                 if (fEventTree->GetBranch(brname.c_str()) == nullptr) {
-                    warning << "REST WARNING (OpenInputFile) : No matched event branch "
-                               "inside file : "
-                            << filename << endl;
-                    warning << "Branch required: " << brname << endl;
+                    RESTWarning << "REST WARNING (OpenInputFile) : No matched event branch "
+                                   "inside file : "
+                                << filename << RESTendl;
+                    RESTWarning << "Branch required: " << brname << RESTendl;
                 } else {
                     fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
-                    debug << brname << " is found and set!" << endl;
+                    RESTDebug << brname << " is found and set!" << RESTendl;
                 }
             }
         } else {
-            debug << "TRestRun:OpenInputFile. EventTree was not found" << endl;
-            debug << "This is a pure analysis file!" << endl;
+            RESTDebug << "TRestRun:OpenInputFile. EventTree was not found" << RESTendl;
+            RESTDebug << "This is a pure analysis file!" << RESTendl;
             fInputEvent = nullptr;
         }
     }
@@ -600,14 +665,15 @@ void TRestRun::ReadInputFileTrees() {
 /// 1. matched file name formats
 /// 2. Created time and date
 /// 3. File size and entries
-void TRestRun::ReadFileInfo(string filename) {
-    debug << "begin collecting basic file info..." << filename << endl;
+void TRestRun::ReadFileInfo(const string& filename) {
+    RESTDebug << "begin collecting basic file info..." << filename << RESTendl;
 
     // basic file info: modify time, total bytes, etc.
     struct stat buf;
     FILE* fp = fopen(filename.c_str(), "rb");
     if (!fp) {
-        ferr << "TRestRun::ReadFileInfo. Something went wrong with fopen()!" << strerror(errno) << endl;
+        RESTError << "TRestRun::ReadFileInfo. Something went wrong with fopen()!" << strerror(errno)
+                  << RESTendl;
         exit(1);
     }
     int fd = fileno(fp);
@@ -621,7 +687,7 @@ void TRestRun::ReadFileInfo(string filename) {
         fTotalBytes = buf.st_size;
     }
 
-    debug << "begin matching file name pattern for more file info..." << endl;
+    RESTDebug << "begin matching file name pattern for more file info..." << RESTendl;
     // format example:
     // run[fRunNumber]_cobo[aaa]_frag[bbb]_Vm[TRestDetector::fAmplificationVoltage].graw
     // we are going to match it with inputfile:
@@ -652,22 +718,23 @@ void TRestRun::ReadFileInfo(string filename) {
     pos = -1;
     for (int i = 0; i < formatsectionlist.size() && i < formatprefixlist.size() - 1; i++) {
         if (i != 0 && formatprefixlist[i] == "") {
-            warning << "file format reference contains error!" << endl;
+            RESTWarning << "file format reference contains error!" << RESTendl;
             return;
         }
         int pos1 = name.find(formatprefixlist[i], pos + 1) + formatprefixlist[i].size();
         if (formatprefixlist[i] == "") pos1 = 0;
         int pos2 = name.find(formatprefixlist[i + 1], pos1);
+        if (formatprefixlist[i + 1] == "") pos2 = name.length();
         if (pos1 == -1 || pos2 == -1) {
-            warning << "File pattern matching: file format mismatch!" << endl;
+            RESTWarning << "File pattern matching: file format mismatch!" << RESTendl;
             return;
         }
 
         string infoFromFileName = name.substr(pos1, pos2 - pos1);
 
-        debug << "File pattern matching. key: " << formatsectionlist[i] << " (between the mark \""
-              << formatprefixlist[i] << "\" and \"" << formatprefixlist[i + 1]
-              << "\"), value: " << infoFromFileName << endl;
+        RESTDebug << "File pattern matching. key: " << formatsectionlist[i] << " (between the mark \""
+                  << formatprefixlist[i] << "\" and \"" << formatprefixlist[i + 1]
+                  << "\"), value: " << infoFromFileName << RESTendl;
 
         // run[fRunNumber]_cobo[aaa]_frag[bbb]_Vm[TRestDetector::fAmplificationVoltage].graw
         bool inforead = false;
@@ -679,9 +746,9 @@ void TRestRun::ReadFileInfo(string filename) {
                     member.ParseString(infoFromFileName);
                     inforead = true;
                 } else {
-                    warning << "TRestRun: file name format field \"" << formatsectionlist[i]
-                            << "\"(value = " << infoFromFileName
-                            << ") not registered, data member does not exist in TRestRun!" << endl;
+                    RESTWarning << "TRestRun: file name format field \"" << formatsectionlist[i]
+                                << "\"(value = " << infoFromFileName
+                                << ") not registered, data member does not exist in TRestRun!" << RESTendl;
                 }
             }
         }
@@ -699,15 +766,15 @@ void TRestRun::ReadFileInfo(string filename) {
                         meta->UpdateMetadataMembers();
                         inforead = true;
                     } else {
-                        warning << "TRestRun: file name format field \"" << formatsectionlist[i]
-                                << "\"(value = " << infoFromFileName
-                                << ") not registered, metadata exist but without such datamember field!"
-                                << endl;
+                        RESTWarning << "TRestRun: file name format field \"" << formatsectionlist[i]
+                                    << "\"(value = " << infoFromFileName
+                                    << ") not registered, metadata exist but without such datamember field!"
+                                    << RESTendl;
                     }
                 } else {
-                    warning << "TRestRun: file name format field \"" << formatsectionlist[i]
-                            << "\"(value = " << infoFromFileName
-                            << ") not registered, metadata does not exist!" << endl;
+                    RESTWarning << "TRestRun: file name format field \"" << formatsectionlist[i]
+                                << "\"(value = " << infoFromFileName
+                                << ") not registered, metadata does not exist!" << RESTendl;
                 }
             }
         }
@@ -747,45 +814,51 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
     TRestEvent* eve = fInputEvent;
 
     if (fFileProcess != nullptr) {
-        debug << "TRestRun: getting next event from external process" << endl;
+        RESTDebug << "TRestRun: getting next event from external process" << RESTendl;
     GetEventExt:
-        mutex2.lock();
+        mutex_read.lock();
         fFileProcess->BeginOfEventProcess();
         eve = fFileProcess->ProcessEvent(nullptr);
         fFileProcess->EndOfEventProcess();
-        mutex2.unlock();
-        fBytesReaded = fFileProcess->GetTotalBytesReaded();
-        if (targettree != nullptr) {
-            for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
-                targettree->SetObservable(n, fAnalysisTree->GetObservable(n));
-        }
+        mutex_read.unlock();
+        fBytesRead = fFileProcess->GetTotalBytesRead();
+        // if (targettree != nullptr) {
+        //    for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
+        //        targettree->SetObservable(n, fAnalysisTree->GetObservable(n));
+        //}
         fCurrentEvent++;
     } else {
-        debug << "TRestRun: getting next event from root file" << endl;
-        if (fAnalysisTree != nullptr) {
-            if (fCurrentEvent >= fAnalysisTree->GetEntriesFast()) {
+        RESTDebug << "TRestRun: getting next event from root file" << RESTendl;
+        if (fAnalysisTree == nullptr) {
+            RESTWarning << "error to get event from input file, missing analysis tree from input file"
+                        << RESTendl;
+            eve = nullptr;
+        } else {
+            if (fCurrentEvent >= fAnalysisTree->GetTree()->GetEntriesFast()) {
                 eve = nullptr;
             } else {
-                eve->Initialize();
-                fBytesReaded += fAnalysisTree->GetEntry(fCurrentEvent);
                 if (targettree != nullptr) {
+                    // normal reading procedure
+                    eve->Initialize();
+                    fBytesRead += fAnalysisTree->GetEntry(fCurrentEvent);
+                    targettree->SetEventInfo(fAnalysisTree);
                     for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
                         targettree->SetObservable(n, fAnalysisTree->GetObservable(n));
                 }
                 if (fEventTree != nullptr) {
-                    fBytesReaded += ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))
-                                        ->GetEntry(fCurrentEvent);
-                    // fBytesReaded += fEventTree->GetEntry(fCurrentEvent);
+                    if (fEventTree->IsA() == TChain::Class()) {
+                        Long64_t entry = fEventTree->LoadTree(fCurrentEvent);
+                        fBytesRead += ((TBranch*)fEventTree->GetTree()->GetListOfBranches()->UncheckedAt(
+                                           fEventBranchLoc))
+                                          ->GetEntry(entry);
+                    } else {
+                        fBytesRead +=
+                            ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))
+                                ->GetEntry(fCurrentEvent);
+                    }
                 }
                 fCurrentEvent++;
             }
-        }
-
-        else {
-            warning << "error to get event from input file, missing file process or "
-                       "analysis tree"
-                    << endl;
-            eve = nullptr;
         }
     }
 
@@ -796,7 +869,8 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
             // if hangup is set, we continue calling ProcessEvent() of the
             // external process, until there is non-null event yielded
             if (!messageShown) {
-                essential << "external process file reading reaches end, waiting for more files" << endl;
+                RESTEssential << "external process file reading reaches end, waiting for more files"
+                              << RESTendl;
             }
             sleep(1);
             messageShown = true;
@@ -832,11 +906,11 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 /// \code Run[fRunNumber]_Proc_[LastProcess].root \endcode
 /// and generates:
 /// \code Run00000_T2018-01-01_08:00:00_Proc_sAna.root \endcode
-TString TRestRun::FormFormat(TString FilenameFormat) {
+TString TRestRun::FormFormat(const TString& FilenameFormat) {
     string inString = (string)FilenameFormat;
     string outString = (string)FilenameFormat;
 
-    debug << "TRestRun::FormFormat. In string : " << inString << endl;
+    RESTDebug << "TRestRun::FormFormat. In string : " << inString << RESTendl;
 
     int pos = 0;
     while (1) {
@@ -848,8 +922,8 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
         string target = inString.substr(pos1 + 1, pos2 - pos1 - 1);  // without []
         string replacestr = GetRunInformation(target);
 
-        debug << "TRestRun::FormFormat. target : " << target << endl;
-        debug << "TRestRun::FormFormat. replacestr : " << replacestr << endl;
+        RESTDebug << "TRestRun::FormFormat. target : " << target << RESTendl;
+        RESTDebug << "TRestRun::FormFormat. replacestr : " << replacestr << RESTendl;
 
         // If we form an output file we are willing to form the output filename
         // using the latest version. But the version is set just before we
@@ -878,20 +952,20 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
 /// This method is used to create output file after TRestProcessRunner is finished.
 /// The metadata objects will also be written into the file.
 TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilename) {
-    debug << "TRestRun::FormOutputFile. target : " << outputfilename << endl;
+    RESTDebug << "TRestRun::FormOutputFile. target : " << outputfilename << RESTendl;
     string filename;
     TFileMerger* m = new TFileMerger(false);
     if (outputfilename == "") {
         filename = fOutputFileName;
-        info << "Creating file : " << filename << endl;
+        RESTInfo << "Creating file : " << filename << RESTendl;
         m->OutputFile(filename.c_str(), "RECREATE");
     } else {
         filename = outputfilename;
-        info << "Creating file : " << filename << endl;
+        RESTInfo << "Creating file : " << filename << RESTendl;
         m->OutputFile(filename.c_str(), "UPDATE");
     }
 
-    debug << "TRestRun::FormOutputFile. Starting to add files" << endl;
+    RESTDebug << "TRestRun::FormOutputFile. Starting to add files" << RESTendl;
 
     for (int i = 0; i < filenames.size(); i++) {
         m->AddFile(filenames[i].c_str(), false);
@@ -903,7 +977,7 @@ TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilena
         }
     } else {
         fOutputFileName = "";
-        ferr << "(Merge files) failed to merge process files." << endl;
+        RESTError << "(Merge files) failed to merge process files." << RESTendl;
         exit(1);
     }
 
@@ -915,12 +989,13 @@ TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilena
 
     // write metadata into the output file
     fOutputFile = new TFile(fOutputFileName, "update");
-    debug << "TRestRun::FormOutputFile. Calling WriteWithDataBase()" << endl;
+    RESTDebug << "TRestRun::FormOutputFile. Calling WriteWithDataBase()" << RESTendl;
     this->WriteWithDataBase();
 
-    fout << this->ClassName() << " Created ..." << endl;
-    fout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << endl;
-    fout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second << endl;
+    RESTcout << this->ClassName() << " Created ..." << RESTendl;
+    RESTcout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << RESTendl;
+    RESTcout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second
+             << RESTendl;
     return fOutputFile;
 }
 
@@ -940,9 +1015,10 @@ TFile* TRestRun::FormOutputFile() {
     fEventTree->Write();
     this->WriteWithDataBase();
 
-    fout << "TRestRun: Output File Created." << endl;
-    fout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << endl;
-    fout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second << endl;
+    RESTcout << "TRestRun: Output File Created." << RESTendl;
+    RESTcout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << RESTendl;
+    RESTcout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second
+             << RESTendl;
     return fOutputFile;
 }
 
@@ -957,13 +1033,14 @@ TFile* TRestRun::UpdateOutputFile() {
         fEventTree->Write(0, kWriteDelete);
         this->WriteWithDataBase();
 
-        fout << "TRestRun: Output File Updated." << endl;
-        fout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << endl;
-        fout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second << endl;
+        RESTcout << "TRestRun: Output File Updated." << RESTendl;
+        RESTcout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << RESTendl;
+        RESTcout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second
+                 << RESTendl;
         return fOutputFile;
 
     } else {
-        ferr << "TRestRun::UpdateOutputFile(): output file is closed" << endl;
+        RESTError << "TRestRun::UpdateOutputFile(): output file is closed" << RESTendl;
     }
     return nullptr;
 }
@@ -980,7 +1057,7 @@ TFile* TRestRun::UpdateOutputFile() {
 void TRestRun::WriteWithDataBase() {
     TRestAnalysisTree* tree = nullptr;
 
-    debug << "TRestRun::WriteWithDataBase. Getting entries in analysisTree" << endl;
+    RESTDebug << "TRestRun::WriteWithDataBase. Getting entries in analysisTree" << RESTendl;
 
     // record the entries saved
     fEntriesSaved = -1;
@@ -990,7 +1067,7 @@ void TRestRun::WriteWithDataBase() {
             fEntriesSaved = tree->GetEntries();
         }
     }
-    debug << "TRestRun::WriteWithDataBase. Entries found : " << fEntriesSaved << endl;
+    RESTDebug << "TRestRun::WriteWithDataBase. Entries found : " << fEntriesSaved << RESTendl;
 
     // If time was not written by any other process we record the current time
     if (fEndTime == 0) {
@@ -1002,15 +1079,16 @@ void TRestRun::WriteWithDataBase() {
     fRunUser = REST_USER;
 
     // save metadata objects in file
-    debug << "TRestRun::WriteWithDataBase. Calling this->Write(0,kWriteDelete)" << endl;
+    RESTDebug << "TRestRun::WriteWithDataBase. Calling this->Write(0,kWriteDelete)" << RESTendl;
     this->Write(0, kWriteDelete);
-    debug << "TRestRun::WriteWithDataBase. Succeed" << endl;
-    debug << "TRestRun::WriteWithDataBase. fMetadata.size() == " << fMetadata.size() << endl;
+    RESTDebug << "TRestRun::WriteWithDataBase. Succeed" << RESTendl;
+    RESTDebug << "TRestRun::WriteWithDataBase. fMetadata.size() == " << fMetadata.size() << RESTendl;
     for (int i = 0; i < fMetadata.size(); i++) {
         bool historic = false;
-        debug << "TRestRun::WriteWithDataBase. fInputMetadata.size() == " << fInputMetadata.size() << endl;
+        RESTDebug << "TRestRun::WriteWithDataBase. fInputMetadata.size() == " << fInputMetadata.size()
+                  << RESTendl;
         for (int j = 0; j < fInputMetadata.size(); j++) {
-            debug << fMetadata[i]->GetName() << " == " << fInputMetadata[j]->GetName() << endl;
+            RESTDebug << fMetadata[i]->GetName() << " == " << fInputMetadata[j]->GetName() << RESTendl;
             if (fMetadata[i] == fInputMetadata[j]) {
                 historic = true;
                 break;
@@ -1018,19 +1096,19 @@ void TRestRun::WriteWithDataBase() {
         }
 
         if (!historic) {
-            debug << "NO historic" << endl;
+            RESTDebug << "NO historic" << RESTendl;
             fMetadata[i]->Write(fMetadata[i]->GetName(), kWriteDelete);
         } else {
-            debug << "IS historic" << endl;
+            RESTDebug << "IS historic" << RESTendl;
             if (fSaveHistoricData) fMetadata[i]->Write(fMetadata[i]->GetName(), kWriteDelete);
         }
     }
 
     // write to database
-    debug << "TResRun::WriteWithDataBase. Run number is : " << fRunNumber << endl;
+    RESTDebug << "TResRun::WriteWithDataBase. Run number is : " << fRunNumber << RESTendl;
     if (fRunNumber != -1) {
         int fileid = gDataBase->set_runfile(fRunNumber, (string)fOutputFileName);
-        fout << "DataBase Entry Added! Run Number: " << fRunNumber << ", File ID: " << fileid << endl;
+        RESTcout << "DataBase Entry Added! Run Number: " << fRunNumber << ", File ID: " << fileid << RESTendl;
     }
 }
 
@@ -1091,7 +1169,8 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
         fFileProcess->InitProcess();
         fInputEvent = fFileProcess->GetOutputEvent();
         if (fInputEvent == nullptr) {
-            ferr << "The external process \"" << p->GetName() << "\" doesn't yield any output event!" << endl;
+            RESTError << "The external process \"" << p->GetName() << "\" doesn't yield any output event!"
+                      << RESTendl;
             exit(1);
         } else {
             fInputEvent->SetRunOrigin(fRunNumber);
@@ -1106,14 +1185,14 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
 
         GetNextEvent(fInputEvent, 0);
         // fAnalysisTree->CreateBranches();
-        info << "The external file process has been set! Name : " << fFileProcess->GetName() << endl;
+        RESTInfo << "The external file process has been set! Name : " << fFileProcess->GetName() << RESTendl;
     } else {
         if (fFileProcess != nullptr) {
-            ferr << "There can only be one file process!" << endl;
+            RESTError << "There can only be one file process!" << RESTendl;
             exit(1);
         }
         if (p == nullptr) {
-            warning << "Given file process is null, skipping..." << endl;
+            RESTWarning << "Given file process is null, skipping..." << RESTendl;
         }
     }
 }
@@ -1124,8 +1203,8 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
 /// The input event is by default the last branch in EventTree, by calling
 /// this method, it can be retargeted to other branches corresponding to the
 /// given event.
-void TRestRun::SetInputEvent(TRestEvent* eve) {
-    if (eve != nullptr) {
+void TRestRun::SetInputEvent(TRestEvent* event) {
+    if (event != nullptr) {
         if (fEventTree != nullptr) {
             // if (fEventBranchLoc != -1) {
             //	TBranch *br = (TBranch*)branches->At(fEventBranchLoc);
@@ -1136,31 +1215,31 @@ void TRestRun::SetInputEvent(TRestEvent* eve) {
                 fEventTree->SetBranchStatus((TString)fInputEvent->ClassName() + "Branch", false);
             }
             TObjArray* branches = fEventTree->GetListOfBranches();
-            string brname = (string)eve->ClassName() + "Branch";
+            string branchName = (string)event->ClassName() + "Branch";
             for (int i = 0; i <= branches->GetLast(); i++) {
                 TBranch* br = (TBranch*)branches->At(i);
-                if ((string)br->GetName() == brname) {
-                    debug << "Setting input event.. Type: " << eve->ClassName() << " Address: " << eve
-                          << endl;
+                if ((string)br->GetName() == branchName) {
+                    RESTDebug << "Setting input event.. Type: " << event->ClassName() << " Address: " << event
+                              << RESTendl;
                     // if (fInputEvent != nullptr && (char*)fInputEvent != (char*)eve) {
                     //    delete fInputEvent;
                     //}
 
-                    fInputEvent = eve;
-                    fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
-                    fEventTree->SetBranchStatus(brname.c_str(), false);
+                    fInputEvent = event;
+                    fEventTree->SetBranchAddress(branchName.c_str(), &fInputEvent);
+                    fEventTree->SetBranchStatus(branchName.c_str(), false);
                     fEventBranchLoc = i;
                     break;
                 } else if (i == branches->GetLast()) {
-                    warning << "REST Warning : (TRestRun) cannot find corresponding "
-                               "branch in event tree!"
-                            << endl;
-                    warning << "Event Type : " << eve->ClassName() << endl;
-                    warning << "Input event not set!" << endl;
+                    RESTWarning << "REST Warning : (TRestRun) cannot find corresponding "
+                                   "branch in event tree!"
+                                << RESTendl;
+                    RESTWarning << "Event Type : " << event->ClassName() << RESTendl;
+                    RESTWarning << "Input event not set!" << RESTendl;
                 }
             }
         } else {
-            fInputEvent = eve;
+            fInputEvent = event;
         }
     }
 }
@@ -1172,8 +1251,8 @@ void TRestRun::AddEventBranch(TRestEvent* eve) {
     if (eve != nullptr) {
         if (fEventTree != nullptr) {
             string evename = (string)eve->ClassName();
-            string brname = evename + "Branch";
-            fEventTree->Branch(brname.c_str(), eve);
+            string branchName = evename + "Branch";
+            fEventTree->Branch(branchName.c_str(), eve);
             fEventTree->SetTitle((evename + "Tree").c_str());
         }
     }
@@ -1184,26 +1263,25 @@ void TRestRun::AddEventBranch(TRestEvent* eve) {
 ///
 /// The metadata class can be recovered to the same condition as when it is
 /// saved.
-void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t store) {
-    auto fileold = File;
-    File = SearchFile(File.Data());
-    if (File == "") {
-        ferr << "(ImportMetadata): The file " << fileold << " does not exist!" << endl;
-        ferr << endl;
+void TRestRun::ImportMetadata(const TString& File, const TString& name, const TString& type, Bool_t store) {
+    const TString thisFile = SearchFile(File.Data());
+    if (thisFile == "") {
+        RESTError << "(ImportMetadata): The file " << thisFile << " does not exist!" << RESTendl;
+        RESTError << RESTendl;
         return;
     }
-    if (!TRestTools::isRootFile(File.Data())) {
-        ferr << "(ImportMetadata) : The file " << File << " is not root file!" << endl;
-        ferr << "If you want to initialize metadata from rml file, use <TRest section!" << endl;
+    if (!TRestTools::isRootFile(thisFile.Data())) {
+        RESTError << "(ImportMetadata) : The file " << thisFile << " is not root file!" << RESTendl;
+        RESTError << "If you want to initialize metadata from rml file, use <TRest section!" << RESTendl;
         return;
     }
 
-    TFile* f = new TFile(File);
+    TFile* f = new TFile(thisFile);
     // TODO give error in case we try to obtain a class that is not TRestMetadata
     if (type == "" && name == "") {
-        ferr << "(ImportMetadata) : metadata type and name is not "
-                "specified!"
-             << endl;
+        RESTError << "(ImportMetadata) : metadata type and name is not "
+                     "specified!"
+                  << RESTendl;
         return;
     }
 
@@ -1239,8 +1317,10 @@ Int_t TRestRun::Write(const char* name, Int_t option, Int_t bufsize) {
     return TRestMetadata::Write(name, option, bufsize);
 }
 
-Double_t TRestRun::GetRunLength() {
-    if (fEndTime - fStartTime == -1) cout << "Run time is not set" << endl;
+Double_t TRestRun::GetRunLength() const {
+    if (fEndTime - fStartTime == -1) {
+        cout << "Run time is not set\n";
+    }
     return fEndTime - fStartTime;
 }
 
@@ -1251,7 +1331,7 @@ Long64_t TRestRun::GetTotalBytes() {
     return fTotalBytes;
 }
 
-int TRestRun::GetEntries() {
+int TRestRun::GetEntries() const {
     if (fAnalysisTree != nullptr) {
         return fAnalysisTree->GetEntries();
     }
@@ -1259,7 +1339,7 @@ int TRestRun::GetEntries() {
 }
 
 // Getters
-TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString tag) {
+TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, const TString& tag) {
     if (fAnalysisTree != nullptr) {
         int nentries = fAnalysisTree->GetEntries();
 
@@ -1289,7 +1369,7 @@ TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString ta
     return nullptr;
 }
 
-std::vector<int> TRestRun::GetEventEntriesWithConditions(const string cuts, int startingIndex,
+std::vector<int> TRestRun::GetEventEntriesWithConditions(const string& cuts, int startingIndex,
                                                          int maxNumber) {
     std::vector<int> eventIds;
     // parsing cuts
@@ -1386,7 +1466,7 @@ std::vector<int> TRestRun::GetEventEntriesWithConditions(const string cuts, int 
     return eventIds;
 }
 
-std::vector<int> TRestRun::GetEventIdsWithConditions(const string cuts, int startingIndex, int maxNumber) {
+std::vector<int> TRestRun::GetEventIdsWithConditions(const string& cuts, int startingIndex, int maxNumber) {
     auto indices = GetEventEntriesWithConditions(cuts, startingIndex, maxNumber);
     std::vector<int> ids;
     for (int i = 0; i < indices.size(); i++) {
@@ -1402,7 +1482,7 @@ std::vector<int> TRestRun::GetEventIdsWithConditions(const string cuts, int star
 /// \param conditions: string specifying conditions, supporting multiple conditions separated by ":",
 /// allowed symbols include "<", "<=", ">", ">=", "=", "==". For example "A>=2.2:B==4".
 /// \return TRestEvent
-TRestEvent* TRestRun::GetNextEventWithConditions(const string cuts) {
+TRestEvent* TRestRun::GetNextEventWithConditions(const string& cuts) {
     // we retrieve only one index starting from position set by the counter and increase by one
     if (fEventIndexCounter >= GetEntries()) {
         fEventIndexCounter = 0;
@@ -1419,33 +1499,33 @@ TRestEvent* TRestRun::GetNextEventWithConditions(const string cuts) {
     }
 }
 
-string TRestRun::GetRunInformation(string infoname) {
-    string result = GetParameter(infoname, "");
+string TRestRun::GetRunInformation(const string& info) {
+    string result = GetParameter(info, "");
     if (result != "") {
         return result;
     }
 
-    result = GetDataMemberValue(infoname);
+    result = GetDataMemberValue(info);
     if (result != "") {
         return result;
     }
 
-    result = GetDataMemberValue(ParameterNameToDataMemberName(infoname));
+    result = GetDataMemberValue(ParameterNameToDataMemberName(info));
     if (result != "") {
         return result;
     }
 
     if (fHostmgr && fHostmgr->GetProcessRunner() != nullptr) {
-        result = fHostmgr->GetProcessRunner()->GetProcInfo(infoname);
+        result = fHostmgr->GetProcessRunner()->GetProcInfo(info);
         if (result != "") {
             return result;
         }
     }
 
-    return infoname;
+    return info;
 }
 
-TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
+TRestMetadata* TRestRun::GetMetadataClass(const TString& type, TFile* f) {
     if (f != nullptr) {
         TIter nextkey(f->GetListOfKeys());
         TKey* key;
@@ -1459,9 +1539,9 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
                 if (a != nullptr && a->InheritsFrom("TRestMetadata")) {
                     return a;
                 } else {
-                    warning << "TRestRun::GetMetadataClass() : The object to import is "
-                               "not inherited from TRestMetadata"
-                            << endl;
+                    RESTWarning << "TRestRun::GetMetadataClass() : The object to import is "
+                                   "not inherited from TRestMetadata"
+                                << RESTendl;
                 }
             }
         }
@@ -1477,7 +1557,7 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
     return nullptr;
 }
 
-TRestMetadata* TRestRun::GetMetadata(TString name, TFile* f) {
+TRestMetadata* TRestRun::GetMetadata(const TString& name, TFile* f) {
     if (f != nullptr) {
         TIter nextkey(f->GetListOfKeys());
         TKey* key;
@@ -1490,9 +1570,9 @@ TRestMetadata* TRestRun::GetMetadata(TString name, TFile* f) {
                 if (a->InheritsFrom("TRestMetadata")) {
                     return a;
                 } else {
-                    warning << "TRestRun::GetMetadata() : The object to import is not "
-                               "inherited from TRestMetadata"
-                            << endl;
+                    RESTWarning << "TRestRun::GetMetadata() : The object to import is not "
+                                   "inherited from TRestMetadata"
+                                << RESTendl;
                 }
             }
         }
@@ -1530,7 +1610,7 @@ std::vector<std::string> TRestRun::GetMetadataStructureTitles() {
 ///
 /// \return The string with data members replaced
 ///
-string TRestRun::ReplaceMetadataMembers(const string instr) {
+string TRestRun::ReplaceMetadataMembers(const string& instr) {
     if (instr.find("[", 0) == (int)string::npos) return instr;
     string outstring = instr;
 
@@ -1541,7 +1621,7 @@ string TRestRun::ReplaceMetadataMembers(const string instr) {
         string s = outstring.substr(startPosition + 1, endPosition - startPosition - 1);
         int cont = count(s.begin(), s.end(), '[') - count(s.begin(), s.end(), ']');
 
-        if (cont < 0) ferr << "This is a coding error at ReplaceMetadataMembers!" << endl;
+        if (cont < 0) RESTError << "This is a coding error at ReplaceMetadataMembers!" << RESTendl;
 
         // We search for the enclosing ]. Since we might find a vector index inside.
         while (cont > 0) {
@@ -1581,11 +1661,10 @@ string TRestRun::ReplaceMetadataMembers(const string instr) {
 ///
 /// \return The corresponding class data member value in string format.
 ///
-string TRestRun::ReplaceMetadataMember(const string instr) {
+string TRestRun::ReplaceMetadataMember(const string& instr) {
     if (instr.find("::") == string::npos && instr.find("->") == string::npos) {
         return "<<" + instr + ">>";
     }
-
     vector<string> results = Split(instr, "::", false, true);
     if (results.size() == 1) results = Split(instr, "->", false, true);
 
@@ -1604,8 +1683,8 @@ string TRestRun::ReplaceMetadataMember(const string instr) {
 
         if (GetMetadata(results[0])) {
             if (index >= this->GetMetadata(results[0])->GetDataMemberValues(results[1]).size()) {
-                warning << "TRestRun::ReplaceMetadataMember. Index out of range!" << endl;
-                warning << "Returning the first element" << endl;
+                RESTWarning << "TRestRun::ReplaceMetadataMember. Index out of range!" << RESTendl;
+                RESTWarning << "Returning the first element" << RESTendl;
                 index = 0;
             }
             return this->GetMetadata(results[0])->GetDataMemberValues(results[1])[index];
@@ -1613,17 +1692,17 @@ string TRestRun::ReplaceMetadataMember(const string instr) {
 
         if (GetMetadataClass(results[0])) {
             if (index >= this->GetMetadataClass(results[0])->GetDataMemberValues(results[1]).size()) {
-                warning << "TRestRun::ReplaceMetadataMember. Index out of range!" << endl;
-                warning << "Returning the first element" << endl;
+                RESTWarning << "TRestRun::ReplaceMetadataMember. Index out of range!" << RESTendl;
+                RESTWarning << "Returning the first element" << RESTendl;
                 index = 0;
             }
             return this->GetMetadataClass(results[0])->GetDataMemberValues(results[1])[index];
         }
 
     } else
-        ferr << "TRestRun::ReplaceMetadataMember. Wrong number of elements found" << endl;
+        RESTError << "TRestRun::ReplaceMetadataMember. Wrong number of elements found" << RESTendl;
 
-    warning << "TRestRun::ReplaceMetadataMember. " << instr << " not found!" << endl;
+    RESTWarning << "TRestRun::ReplaceMetadataMember. " << instr << " not found!" << RESTendl;
     return "";
 }
 
@@ -1646,7 +1725,7 @@ string TRestRun::ReplaceMetadataMember(const string instr) {
 /// \return The result of the evaluated expression. If the input string is empty
 /// it will return true.
 ///
-Bool_t TRestRun::EvaluateMetadataMember(const string instr) {
+Bool_t TRestRun::EvaluateMetadataMember(const string& instr) {
     if (instr == "") return true;
 
     std::vector<string> oper = {"=", "==", "<=", "<", ">=", ">", "!="};
@@ -1665,13 +1744,13 @@ Bool_t TRestRun::EvaluateMetadataMember(const string instr) {
     }
 
     if (expOp == "") {
-        warning << "TRestRun::EvaluateMetadataMember. Not valid operator found in expression : " << instr
-                << endl;
+        RESTWarning << "TRestRun::EvaluateMetadataMember. Not valid operator found in expression : " << instr
+                    << RESTendl;
         return false;
     }
 
     if (results.size() != 2) {
-        warning << "TRestRun::EvaluateMetadataMember. Not valid expression : " << instr << endl;
+        RESTWarning << "TRestRun::EvaluateMetadataMember. Not valid expression : " << instr << RESTendl;
         return false;
     }
 
@@ -1703,27 +1782,36 @@ void TRestRun::PrintMetadata() {
     // cout.precision(10);
     TRestMetadata::PrintMetadata();
 
-    metadata << "Version : " << this->GetVersion() << endl;
-    metadata << "Parent run number : " << GetParentRunNumber() << endl;
-    metadata << "Run number : " << GetRunNumber() << endl;
-    metadata << "Experiment/project : " << GetExperimentName() << endl;
-    metadata << "Run type : " << GetRunType() << endl;
-    metadata << "Run tag : " << GetRunTag() << endl;
-    metadata << "Run user : " << GetRunUser() << endl;
-    metadata << "Run description : " << GetRunDescription() << endl;
-    metadata << "Start Date/Time : " << ToDateTimeString(GetStartTimestamp()) << " (" << GetStartTimestamp()
-             << ")" << endl;
-    metadata << "End Date/Time : " << ToDateTimeString(GetEndTimestamp()) << " (" << GetEndTimestamp() << ")"
-             << endl;
-    metadata << "Input file : " << TRestTools::GetPureFileName((string)GetInputFileNamepattern()) << endl;
-    metadata << "Output file : " << TRestTools::GetPureFileName((string)GetOutputFileName()) << endl;
-    metadata << "Number of events : " << fEntriesSaved << endl;
+    RESTMetadata << "Version : " << this->GetVersion() << RESTendl;
+    RESTMetadata << "Parent run number : " << GetParentRunNumber() << RESTendl;
+    RESTMetadata << "Run number : " << GetRunNumber() << RESTendl;
+    RESTMetadata << "Experiment/project : " << GetExperimentName() << RESTendl;
+    RESTMetadata << "Run type : " << GetRunType() << RESTendl;
+    RESTMetadata << "Run tag : " << GetRunTag() << RESTendl;
+    RESTMetadata << "Run user : " << GetRunUser() << RESTendl;
+    RESTMetadata << "Run description : " << GetRunDescription() << RESTendl;
+    RESTMetadata << "Start Date/Time : " << ToDateTimeString(GetStartTimestamp()) << " ("
+                 << GetStartTimestamp() << ")" << RESTendl;
+    RESTMetadata << "End Date/Time : " << ToDateTimeString(GetEndTimestamp()) << " (" << GetEndTimestamp()
+                 << ")" << RESTendl;
+    RESTMetadata << "Input file : " << TRestTools::GetPureFileName((string)GetInputFileNamePattern())
+                 << RESTendl;
+    RESTMetadata << "Output file : " << TRestTools::GetPureFileName((string)GetOutputFileName()) << RESTendl;
+    if (fInputFile != nullptr) {
+        RESTMetadata << "Data file : " << fInputFile->GetName();
+        if (fNFilesSplit > 0) {
+            RESTMetadata << " (Splitted into " << fNFilesSplit + 1 << " files)" << RESTendl;
+        } else {
+            RESTMetadata << RESTendl;
+        }
+    }
+    RESTMetadata << "Number of events : " << fEntriesSaved << RESTendl;
     // metadata << "Input filename : " << fInputFilename << endl;
     // metadata << "Output filename : " << fOutputFilename << endl;
     // metadata << "Number of initial events : " << GetNumberOfEvents() << endl;
     // metadata << "Number of processed events : " << fProcessedEvents << endl;
-    metadata << "---------------------------------------" << endl;
-    metadata << endl;
+    RESTMetadata << "---------------------------------------" << RESTendl;
+    RESTMetadata << RESTendl;
 }
 
 ///////////////////////////////////////////////
@@ -1749,9 +1837,6 @@ void TRestRun::PrintStartDate() {
     cout << "++++++++++++++++++++++++" << endl;
 }
 
-///////////////////////////////////////////////
-/// \brief Prints the run end date and time in human format
-///
 void TRestRun::PrintEndDate() {
     cout << "----------------------" << endl;
     cout << "---- Run end date ----" << endl;
@@ -1781,14 +1866,14 @@ void TRestRun::PrintErrors() {
 
     if (nErrors) {
         cout << endl;
-        ferr << "Found a total of " << nErrors << " metadata errors" << endl;
+        RESTError << "Found a total of " << nErrors << " metadata errors" << RESTendl;
         for (int n = 0; n < fMetadata.size(); n++)
             if (fMetadata[n]->GetError()) {
                 cout << endl;
-                ferr << "Class: " << fMetadata[n]->ClassName() << " Name: " << fMetadata[n]->GetName()
-                     << endl;
-                ferr << "Number of errors: " << fMetadata[n]->GetNumberOfErrors() << endl;
-                ferr << "Message: " << fMetadata[n]->GetErrorMessage() << endl;
+                RESTError << "Class: " << fMetadata[n]->ClassName() << " Name: " << fMetadata[n]->GetName()
+                          << RESTendl;
+                RESTError << "Number of errors: " << fMetadata[n]->GetNumberOfErrors() << RESTendl;
+                RESTError << "Message: " << fMetadata[n]->GetErrorMessage() << RESTendl;
             }
         cout << endl;
     } else {
@@ -1807,18 +1892,17 @@ void TRestRun::PrintWarnings() {
 
     if (nWarnings) {
         cout << endl;
-        warning << "Found a total of " << nWarnings << " metadata warnings" << endl;
+        RESTWarning << "Found a total of " << nWarnings << " metadata warnings" << RESTendl;
         for (int n = 0; n < fMetadata.size(); n++)
             if (fMetadata[n]->GetWarning()) {
                 cout << endl;
-                warning << "Class: " << fMetadata[n]->ClassName() << " Name: " << fMetadata[n]->GetName()
-                        << endl;
-                warning << "Number of warnings: " << fMetadata[n]->GetNumberOfWarnings() << endl;
-                warning << "Message: " << fMetadata[n]->GetWarningMessage() << endl;
+                RESTWarning << "Class: " << fMetadata[n]->ClassName() << " Name: " << fMetadata[n]->GetName()
+                            << RESTendl;
+                RESTWarning << "Number of warnings: " << fMetadata[n]->GetNumberOfWarnings() << RESTendl;
+                RESTWarning << "Message: " << fMetadata[n]->GetWarningMessage() << RESTendl;
             }
         cout << endl;
     } else {
         cout << "No warnings found!" << endl;
     }
 }
-

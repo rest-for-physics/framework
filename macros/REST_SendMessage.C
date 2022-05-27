@@ -17,7 +17,6 @@
 //***
 //*******************************************************************************************************
 Int_t REST_SendMessage(int token, TString message) {
-
     TRestMessenger m(token);
 
     m.SendMessage((string)message);

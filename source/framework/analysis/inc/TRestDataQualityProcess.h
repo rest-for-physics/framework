@@ -29,23 +29,23 @@
 //! A process to define and store quality numbers
 class TRestDataQualityProcess : public TRestEventProcess {
    private:
-    /// A vector of custom quality numbers
+    /// A std::vector of custom quality numbers
     std::vector<UInt_t> fQualityNumber;  //<
 
-    /// A vector of tag names for each quality number
+    /// A std::vector of tag names for each quality number
     std::vector<TString> fQualityTag;  //<
 
-    /// A vector with the rule definitions for each quality number
+    /// A std::vector with the rule definitions for each quality number
     std::vector<TRestDataQualityRules> fRules;  //<
 
     TRestEvent* fEvent = nullptr;  //!
 
-    void InitProcess();
-    void EndProcess();
+    void InitProcess() override;
+    void EndProcess() override;
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     void LoadDefaultConfig();
 
@@ -61,27 +61,27 @@ class TRestDataQualityProcess : public TRestEventProcess {
 
    protected:
    public:
-    any GetInputEvent() { return fEvent; }
-    any GetOutputEvent() { return fEvent; }
+    any GetInputEvent() const override { return fEvent; }
+    any GetOutputEvent() const override { return fEvent; }
 
-    TRestEvent* ProcessEvent(TRestEvent* evInput);
+    TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
 
-    void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(const std::string& configFilename, const std::string& name = "");
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     /// Returns a new instance of this class
     TRestEventProcess* Maker() { return new TRestDataQualityProcess; }
 
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "dataQuality"; }
+    const char* GetProcessName() const override { return "dataQuality"; }
 
     TRestDataQualityProcess();
-    TRestDataQualityProcess(char* cfgFileName);
+    TRestDataQualityProcess(const char* configFilename);
 
     ~TRestDataQualityProcess();
 
     // If new members are added, removed or modified in this class version number must be increased!
-    ClassDef(TRestDataQualityProcess, 1);
+    ClassDefOverride(TRestDataQualityProcess, 1);
 };
 #endif

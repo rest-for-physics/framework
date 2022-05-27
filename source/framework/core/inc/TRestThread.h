@@ -21,59 +21,60 @@
 #include "TRestProcessRunner.h"
 
 /// Threaded worker of a process chain
-class TRestThread : public TRestMetadata {
+class TRestThread {
    private:
     Int_t fThreadId;
 
-    TRestProcessRunner* fHostRunner;           //!
-    vector<TRestEventProcess*> fProcessChain;  //!
-    TRestAnalysisTree* fAnalysisTree;          //!
-    TRestEvent* fInputEvent;                   //!
-    TRestEvent* fOutputEvent;                  //!
-    TFile* fOutputFile;                        //!
-    TTree* fEventTree;                         //!
+    TRestProcessRunner* fHostRunner;                //!
+    std::vector<TRestEventProcess*> fProcessChain;  //!
+    TRestAnalysisTree* fAnalysisTree;               //!
+    TRestEvent* fInputEvent;                        //!
+    TRestEvent* fOutputEvent;                       //!
+    TFile* fOutputFile;                             //!
+    TTree* fEventTree;                              //!
 
-    std::thread t;      //!
-    Bool_t isFinished;  //!
-    Bool_t fProcessNullReturned; //!
-   
+    std::thread t;                                        //!
+    Bool_t isFinished;                                    //!
+    Bool_t fProcessNullReturned;                          //!
+    Int_t fCompressionLevel;                              //!
+    TRestStringOutput::REST_Verbose_Level fVerboseLevel;  //!
+
    public:
     void Initialize();
-    void InitFromConfigFile() {}
 
     void AddProcess(TRestEventProcess* process);
-    void PrepareToProcess(bool* outputConfig = 0);
+    void PrepareToProcess(bool* outputConfig = nullptr);
     bool TestRun();
     void StartProcess();
 
     void ProcessEvent();
-    // void FillEvent();
     void EndProcess();
-
     void StartThread();
 
     Int_t ValidateChain(TRestEvent* input);
 
     // getter and setter
     void SetThreadId(Int_t id);
-    void SetOutputTree(TRestAnalysisTree* t) { fAnalysisTree = t; }
-    void SetProcessRunner(TRestProcessRunner* r) { fHostRunner = r; }
+    inline void SetOutputTree(TRestAnalysisTree* t) { fAnalysisTree = t; }
+    inline void SetProcessRunner(TRestProcessRunner* r) { fHostRunner = r; }
+    inline void SetCompressionLevel(Int_t comp) { fCompressionLevel = comp; }
+    inline void SetVerboseLevel(TRestStringOutput::REST_Verbose_Level verb) { fVerboseLevel = verb; }
 
-    Int_t GetThreadId() { return fThreadId; }
-    TRestEvent* GetInputEvent() { return fInputEvent; }
-    TFile* GetOutputFile() { return fOutputFile; };
-    TRestEvent* GetOutputEvent() { return fProcessNullReturned ? 0 : fOutputEvent; }
-    Int_t GetProcessnum() { return fProcessChain.size(); }
-    TRestEventProcess* GetProcess(int i) { return fProcessChain[i]; }
-    TRestAnalysisTree* GetAnalysisTree() { return fAnalysisTree; }
-    TTree* GetEventTree() { return fEventTree; }
-    Bool_t Finished() { return isFinished; }
+    inline Int_t GetThreadId() const { return fThreadId; }
+    inline TRestEvent* GetInputEvent() { return fInputEvent; }
+    inline TFile* GetOutputFile() { return fOutputFile; };
+    inline TRestEvent* GetOutputEvent() { return fProcessNullReturned ? 0 : fOutputEvent; }
+    inline Int_t GetProcessnum() const { return fProcessChain.size(); }
+    inline TRestEventProcess* GetProcess(int i) const { return fProcessChain[i]; }
+    inline TRestAnalysisTree* GetAnalysisTree() const { return fAnalysisTree; }
+    inline TTree* GetEventTree() { return fEventTree; }
+    inline Bool_t Finished() const { return isFinished; }
+    inline TRestStringOutput::REST_Verbose_Level GetVerboseLevel() const { return fVerboseLevel; }
 
     // Constructor & Destructor
     TRestThread() { Initialize(); }
     ~TRestThread(){};
 
-    /// Calling CINT
     ClassDef(TRestThread, 1);
 };
 
