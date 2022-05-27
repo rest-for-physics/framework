@@ -28,7 +28,7 @@
 /// A class used to define a grid mask pattern
 class TRestGridMask : public TRestPatternMask {
    private:
-    void Initialize();
+    void Initialize() override;
 
     /// The periodity of the grid structure in mm
     Double_t fGridGap = 1;  //<
@@ -40,7 +40,7 @@ class TRestGridMask : public TRestPatternMask {
     Int_t fModulus = 10;  //<
 
    public:
-    virtual Int_t GetRegion(Double_t x, Double_t y);
+    virtual Int_t GetRegion(Double_t x, Double_t y) override;
 
     /// It returns the gap/periodicity of the grid in mm
     Double_t GetGridGap() { return fGridGap; }
@@ -51,12 +51,12 @@ class TRestGridMask : public TRestPatternMask {
     /// It returns the modulus used to define a finite set of ids
     Int_t GetModulus() { return fModulus; }
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     TRestGridMask();
     TRestGridMask(const char* cfgFileName, std::string name = "");
     ~TRestGridMask();
 
-    ClassDef(TRestGridMask, 1);
+    ClassDefOverride(TRestGridMask, 1);
 };
 #endif

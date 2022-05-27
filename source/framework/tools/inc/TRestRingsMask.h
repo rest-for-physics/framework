@@ -28,7 +28,7 @@
 /// A class used to define a rings mask pattern
 class TRestRingsMask : public TRestPatternMask {
    private:
-    void Initialize();
+    void Initialize() override;
 
     /// The periodity of the rings structure in mm. Optionally used to initialize the rings.
     Double_t fRingsGap = 0;  //<
@@ -48,7 +48,7 @@ class TRestRingsMask : public TRestPatternMask {
    public:
     void GenerateRings();
 
-    virtual Int_t GetRegion(Double_t x, Double_t y);
+    virtual Int_t GetRegion(Double_t x, Double_t y) override;
 
     /// It returns the gap/periodicity of the rings in mm
     Double_t GetRingsGap() { return fRingsGap; }
@@ -75,12 +75,12 @@ class TRestRingsMask : public TRestPatternMask {
         }
     }
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     TRestRingsMask();
     TRestRingsMask(const char* cfgFileName, std::string name = "");
     ~TRestRingsMask();
 
-    ClassDef(TRestRingsMask, 1);
+    ClassDefOverride(TRestRingsMask, 1);
 };
 #endif

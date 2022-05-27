@@ -28,7 +28,7 @@
 /// A class used to define a stripped mask pattern
 class TRestStrippedMask : public TRestPatternMask {
    private:
-    void Initialize();
+    void Initialize() override;
 
     /// The periodity of the stripped structure in mm
     Double_t fStripsGap = 1;  //<
@@ -40,7 +40,7 @@ class TRestStrippedMask : public TRestPatternMask {
     Int_t fModulus = 10;
 
    public:
-    virtual Int_t GetRegion(Double_t x, Double_t y);
+    virtual Int_t GetRegion(Double_t x, Double_t y) override;
 
     /// It returns the gap/periodicity of the strips in mm
     Double_t GetStripsGap() { return fStripsGap; }
@@ -51,12 +51,12 @@ class TRestStrippedMask : public TRestPatternMask {
     /// It returns the modulus used to define a finite set of ids
     Int_t GetModulus() { return fModulus; }
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     TRestStrippedMask();
     TRestStrippedMask(const char* cfgFileName, std::string name = "");
     ~TRestStrippedMask();
 
-    ClassDef(TRestStrippedMask, 1);
+    ClassDefOverride(TRestStrippedMask, 1);
 };
 #endif
