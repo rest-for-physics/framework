@@ -70,7 +70,7 @@ Int_t REST_MakeMetadata(TString name) {
     headerFile << "    /// REMOVE MEMBER. A dummy member that will be NOT written to the ROOT file." << endl;
     headerFile << "    Double_t fDummyVar = 3.14; //!" << endl;
     headerFile << endl;
-    headerFile << "    void Initialize();" << endl;
+    headerFile << "    void Initialize() override;" << endl;
     headerFile << endl;
     headerFile << "public:" << endl;
     headerFile << "    /// UPDATE Documentation of dummy getter" << endl;
@@ -84,8 +84,6 @@ Int_t REST_MakeMetadata(TString name) {
     headerFile << endl;
     headerFile << "    /// UPDATE Documentation of dummy setter" << endl;
     headerFile << "    void SetDummyVar( const Double_t &dummy) { fDummyVar = dummy;}" << endl;
-    headerFile << endl;
-    headerFile << "    void Initialize() override;" << endl;
     headerFile << endl;
     headerFile << "public:" << endl;
     headerFile << "    void PrintMetadata() override;" << endl;
