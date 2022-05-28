@@ -31,24 +31,24 @@
 #define UNUSED(x) (void)x
 
 #ifdef WIN32
-#define EXPORT_EXTERN __declspec(dllimport)
-#define EXPORT_DEF __declspec(dllexport)
+#define EXTERN_DEF __declspec(dllimport)
+#define EXTERN_IMP __declspec(dllexport)
 #else
-#define EXPORT_EXTERN extern
-#define EXPORT_DEF
+#define EXTERN_DEF extern
+#define EXTERN_IMP
 #endif
 
 const std::string PARAMETER_NOT_FOUND_STR = "NO_SUCH_PARA";
 const double PARAMETER_NOT_FOUND_DBL = -99999999;
 
-EXPORT_EXTERN std::string REST_COMMIT;
-EXPORT_EXTERN std::string REST_PATH;
-EXPORT_EXTERN std::string REST_USER;
-EXPORT_EXTERN std::string REST_USER_PATH;
+EXTERN_DEF std::string REST_COMMIT;
+EXTERN_DEF std::string REST_PATH;
+EXTERN_DEF std::string REST_USER;
+EXTERN_DEF std::string REST_USER_PATH;
 
 #include "TObject.h"
 
-EXPORT_EXTERN std::map<std::string, std::string> REST_ARGS;
+EXTERN_DEF std::map<std::string, std::string> REST_ARGS;
 /// A generic class with useful static methods.
 class TRestTools {
    public:

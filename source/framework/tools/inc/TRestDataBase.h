@@ -127,6 +127,6 @@ class TRestDataBase {
     virtual int set_data(DBEntry info, bool overwrite = true) { return 0; }
 };
 
-EXPORT_EXTERN TRestDataBase* gDataBase;
+EXTERN_DEF TRestDataBase* gDataBase;
 
 #endif

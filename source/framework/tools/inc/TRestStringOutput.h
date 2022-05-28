@@ -233,7 +233,7 @@ static TRestStringOutput RESTExtreme(TRestStringOutput::REST_Verbose_Level::REST
 
 static void RESTendl(TRestStringOutput& input) { input.flushstring(); }
 
-EXPORT_EXTERN TRestStringOutput::REST_Verbose_Level gVerbose;
+EXTERN_DEF TRestStringOutput::REST_Verbose_Level gVerbose;
 /// indicates whether the output tool should work under compatibility mode for nonatty
-EXPORT_EXTERN bool REST_Display_CompatibilityMode;
+EXTERN_DEF bool REST_Display_CompatibilityMode;
 #endif

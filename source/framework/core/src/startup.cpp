@@ -12,14 +12,14 @@
 
 using namespace std;
 
-EXPORT_DEF string REST_COMMIT;
-EXPORT_DEF string REST_PATH;
-EXPORT_DEF string REST_USER;
-EXPORT_DEF string REST_USER_PATH;
-EXPORT_DEF map<string, string> REST_ARGS = {};
+EXTERN_IMP string REST_COMMIT;
+EXTERN_IMP string REST_PATH;
+EXTERN_IMP string REST_USER;
+EXTERN_IMP string REST_USER_PATH;
+EXTERN_IMP map<string, string> REST_ARGS = {};
 
 #ifdef WIN32
-EXPORT_DEF bool REST_Display_CompatibilityMode = true;
+EXTERN_IMP bool REST_Display_CompatibilityMode = true;
 #else
 bool REST_Display_CompatibilityMode = false;
 #endif  // WIN32
