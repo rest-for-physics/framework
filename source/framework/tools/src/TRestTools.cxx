@@ -87,33 +87,41 @@ std::vector<string> TRestTools::GetOptions(string optionsStr) { return Split(opt
 /// TRestMetadata::GetDataMemberRef()
 ///
 void TRestTools::LoadRESTLibrary(bool silent) {
-    //string ldpath = REST_PATH + "/lib/";
-    //ldpath += ":" + REST_USER_PATH + "/userlib/";
-    //vector<string> ldpaths = Split(ldpath, ":");
+    const set<string> library_extension{".so", ".dylib", ".dll"};
+    
+    vector<string> ldpaths;
+#ifdef WIN32
+    ldpaths.push_back(REST_PATH + "/bin/");
+#else
+    ldpaths.push_back(REST_PATH + "/lib/");
+#endif  // WIN32
+    ldpaths.push_back(REST_USER_PATH + "/userlib/");
 
-    //vector<string> fileList;
-    //for (string path : ldpaths) {
-    //    DIR* dir;
-    //    struct dirent* ent;
-    //    if ((dir = opendir(path.c_str())) != nullptr) {
-    //        /* print all the files and directories within directory */
-    //        while ((ent = readdir(dir)) != nullptr) {
-    //            string fName(ent->d_name);
-    //            if ((fName.find("REST") != -1 || fName.find("Rest") != -1))
-    //                if (fName.find(".dylib") != -1 || fName.find(".so") != -1) fileList.push_back(fName);
-    //        }
-    //        closedir(dir);
-    //    }
-    //}
+    vector<string> fileList;
+    for (string _path : ldpaths) {
+        std::filesystem::path path(_path);
+        if (exists(path)) {
+            std::filesystem::directory_iterator iter(path);
+            for (auto& it : iter) {
+                if (it.is_regular_file()) {
+                    if (it.path().string().find("REST") != -1 || it.path().string().find("Rest") != -1) {
+                        if (library_extension.count(it.path().extension().string()) > 0) {
+                            fileList.push_back(it.path().string());
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-    //// load the found REST libraries
-    //if (!silent) cout << "\n= REST Version: " << Execute("rest-config --version") << endl;
-    //if (!silent) cout << "= Loading libraries ..." << endl;
-    //for (unsigned int n = 0; n < fileList.size(); n++) {
-    //    if (!silent) cout << " - " << fileList[n] << endl;
-    //    gSystem->Load(fileList[n].c_str());
-    //}
-    //if (!silent) cout << endl;
+    // load the found REST libraries
+    if (!silent) cout << "\n= REST Version: " << Execute("rest-config --version") << endl;
+    if (!silent) cout << "= Loading libraries ..." << endl;
+    for (unsigned int n = 0; n < fileList.size(); n++) {
+        if (!silent) cout << " - " << fileList[n] << endl;
+        gSystem->Load(fileList[n].c_str());
+    }
+    if (!silent) cout << endl;
 }
 
 ///////////////////////////////////////////////
@@ -716,37 +724,25 @@ string TRestTools::ToAbsoluteName(const string& filename) {
 ///
 /// Otherwise recurse only certain times.
 ///
-vector<string> TRestTools::GetSubdirectories(const string& path, int recursion) {
+vector<string> TRestTools::GetSubdirectories(const string& _path, int recursion) {
     vector<string> result;
-    //if (auto dir = opendir(path.c_str())) {
-    //    while (1) {
-    //        auto f = readdir(dir);
-    //        if (f == nullptr) {
-    //            break;
-    //        }
-    //        if (f->d_name[0] == '.') continue;
 
-    //        string ipath;
-    //        if (path[path.size() - 1] != '/') {
-    //            ipath = path + "/" + f->d_name + "/";
-    //        } else {
-    //            ipath = path + f->d_name + "/";
-    //        }
+    std::filesystem::path path(_path);
+    if (exists(path)) {
+        std::filesystem::directory_iterator iter(path);
+        for (auto& it : iter) {
 
-    //        // if (f->d_type == DT_DIR)
-    //        if (opendir(ipath.c_str()))  // to make sure it is a directory
-    //        {
-    //            result.push_back(ipath);
+            if (it.is_directory()) {
+                result.push_back(it.path().string());
 
-    //            if (recursion != 0) {
-    //                vector<string> subD = GetSubdirectories(ipath, recursion - 1);
-    //                result.insert(result.begin(), subD.begin(), subD.end());
-    //                //, cb);
-    //            }
-    //        }
-    //    }
-    //    closedir(dir);
-    //}
+                if (recursion != 0) {
+                    vector<string> subD = GetSubdirectories(it.path().string(), recursion - 1);
+                    result.insert(result.begin(), subD.begin(), subD.end());
+                }
+            }
+        }
+    }
+
     return result;
 }
 
@@ -863,11 +859,14 @@ int TRestTools::ConvertVersionCode(string in) {
 /// \brief Executes a shell command and returns its output in a string
 ///
 string TRestTools::Execute(string cmd) {
-#ifndef WIN32
-
     std::array<char, 128> buffer;
     string result;
+#ifdef WIN32
+    std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(("powershell.exe " + cmd).c_str(), "r"), _pclose);
+#else
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
+#endif  // WIN32
+
     if (!pipe) {
         throw std::runtime_error("popen() failed!");
     }
@@ -880,9 +879,7 @@ string TRestTools::Execute(string cmd) {
 
     return result;
 
-#endif  // WIN32
 
-    return "";
 }
 
 ///////////////////////////////////////////////
