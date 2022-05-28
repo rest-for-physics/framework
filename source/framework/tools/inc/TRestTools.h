@@ -45,6 +45,7 @@ EXTERN_DEF std::string REST_COMMIT;
 EXTERN_DEF std::string REST_PATH;
 EXTERN_DEF std::string REST_USER;
 EXTERN_DEF std::string REST_USER_PATH;
+EXTERN_DEF std::string REST_TMP_PATH;
 
 #include "TObject.h"
 

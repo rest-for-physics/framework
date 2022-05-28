@@ -24,8 +24,10 @@ EXTERN_IMP string REST_USER_PATH;
 EXTERN_IMP map<string, string> REST_ARGS = {};
 
 #ifdef WIN32
+EXTERN_IMP string REST_TMP_PATH = std::filesystem::temp_directory_path().string();
 EXTERN_IMP bool REST_Display_CompatibilityMode = true;
 #else
+string REST_TMP_PATH = "/tmp/";
 bool REST_Display_CompatibilityMode = false;
 #endif  // WIN32
 

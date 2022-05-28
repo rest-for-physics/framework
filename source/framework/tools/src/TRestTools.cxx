@@ -796,30 +796,14 @@ vector<string> TRestTools::GetFilesMatchingPattern(string pattern) {
         vector<string> items = Split(pattern, "\n");
 
         for (auto item : items) {
-            if (item.find_first_of("*") >= 0 || item.find_first_of("?") >= 0) {
+            if (item.find_first_of("*") != string::npos || item.find_first_of("?") != string::npos) {
+
                 string a = Execute("find " + item);
                 auto b = Split(a, "\n");
 
                 for (int i = 0; i < b.size(); i++) {
                     outputFileNames.push_back(b[i]);
                 }
-
-                // char command[256];
-                // sprintf(command, "find %s > /tmp/RESTTools_fileList.tmp",
-                // pattern.Data());
-
-                // system(command);
-
-                // FILE *fin = fopen("/tmp/RESTTools_fileList.tmp", "r");
-                // char str[256];
-                // while (fscanf(fin, "%s\n", str) != EOF)
-                //{
-                //	TString newFile = str;
-                //	outputFileNames.push_back(newFile);
-                //}
-                // fclose(fin);
-
-                // system("rm /tmp/RESTTools_fileList.tmp");
             } else {
                 if (fileExists(item)) outputFileNames.push_back(item);
             }
