@@ -2,6 +2,8 @@
 
 #include <filesystem>
 
+#include "RVersion.h"
+#include "TEnv.h"
 #include "TRestDataBase.h"
 #include "TRestReflector.h"
 #include "TRestStringHelper.h"
@@ -46,6 +48,12 @@ struct __REST_CONST_INIT {
 #else
         REST_COMMIT = TRestTools::Execute("rest-config --commit");
 #endif
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,22,0)
+        // we are not ready to use the new web-browser
+        gEnv->SetValue("Browser.Name", "TRootBrowser");
+#endif
+
 
         char* _REST_PATH = getenv("REST_PATH");
         char* _REST_USER = getenv("USER");

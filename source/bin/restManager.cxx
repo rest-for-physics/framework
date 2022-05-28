@@ -128,6 +128,7 @@ int main(int argc, char* argv[]) {
         for (int i = 1; i < args.size(); i++) {
             if (args[i] == "--batch") {
                 RESTcout << "you are in batch mode, all graphical displays off" << RESTendl;
+                REST_Display_CompatibilityMode = true;
                 argCApp = 2;
                 args.erase(args.begin() + i);
             }
@@ -139,8 +140,8 @@ int main(int argc, char* argv[]) {
             }
         }
         if (REST_Display_CompatibilityMode) {
-            RESTcout << "you are in compatibility mode, all graphical displays off" << RESTendl;
-            argCApp = 2;
+            RESTcout << "display under compatibility mode" << RESTendl;
+            //argCApp = 2;
         }
     }
     TApplication app("app", &argCApp, argVApp);
