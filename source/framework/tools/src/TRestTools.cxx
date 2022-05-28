@@ -115,7 +115,6 @@ void TRestTools::LoadRESTLibrary(bool silent) {
     }
 
     // load the found REST libraries
-    if (!silent) cout << "\n= REST Version: " << Execute("rest-config --version") << endl;
     if (!silent) cout << "= Loading libraries ..." << endl;
     for (unsigned int n = 0; n < fileList.size(); n++) {
         if (!silent) cout << " - " << fileList[n] << endl;
@@ -558,11 +557,8 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& 
 ///////////////////////////////////////////////
 /// \brief Returns true if the file with path filename exists.
 ///
-Int_t TRestTools::isValidFile(const string& path) {
-    //struct stat buffer;
-    //stat(path.c_str(), &buffer);
-    //return S_ISREG(buffer.st_mode);
-    return 0;
+Int_t TRestTools::isValidFile(const string& path) { 
+    return std::filesystem::is_regular_file(path);
 }
 
 ///////////////////////////////////////////////
@@ -573,9 +569,7 @@ Int_t TRestTools::isValidFile(const string& path) {
 /// problems.
 ///
 bool TRestTools::fileExists(const string& filename) {
-    /*struct stat buffer;
-    return (stat(filename.c_str(), &buffer) == 0);*/
-    return true;
+    return std::filesystem::exists(filename);
 }
 
 ///////////////////////////////////////////////

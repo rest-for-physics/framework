@@ -1,9 +1,12 @@
+#include <filesystem>
+
 #include "TRestDataBase.h"
 #include "TRestReflector.h"
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
 #include "TRestSystemOfUnits.h"
 #include "TRestTools.h"
+#include "TRestVersion.h"
 //////////////////////////////////////////////////////////////////////////
 /// This script initializes REST global variables in sequence to clearify
 /// their dependency, therefore avoiding seg.fault during startup. All
@@ -34,8 +37,13 @@ map<string, RESTVirtualConverter*> RESTConverterMethodBase = {};
 struct __REST_CONST_INIT {
    public:
     __REST_CONST_INIT() {
-
+#ifdef WIN32
+        REST_COMMIT = REST_GIT_COMMIT;
+#else
         REST_COMMIT = TRestTools::Execute("rest-config --commit");
+#endif
+
+
 
         char* _REST_PATH = getenv("REST_PATH");
         char* _REST_USER = getenv("USER");
@@ -51,6 +59,25 @@ struct __REST_CONST_INIT {
             REST_PATH = _REST_PATH;
         }
 
+
+#ifdef WIN32
+        if (_REST_USERHOME == nullptr || _REST_USERHOME == nullptr) {
+            char* systemdir = getenv("SystemDrive");
+            char* homepath = getenv("HOMEPATH");
+            if (systemdir != nullptr && homepath != nullptr) {
+                string userhome = string(systemdir) + string(homepath);
+
+                std::filesystem::path path(userhome);
+                if (exists(path)) {
+                    REST_USER_PATH = userhome + "\\.rest";
+                    REST_USER = path.stem().string();
+                    RESTEssential << "Setting REST user path: " << REST_USER_PATH << RESTendl;
+                }
+            } else {
+                RESTWarning << "Lacking system env \"SystemDrive\" and \"HOMEPATH\"!" << RESTendl;
+            }
+        }
+#else
         if (_REST_USER == nullptr) {
             RESTWarning << "Lacking system env \"USER\"!" << RESTendl;
             RESTWarning << "Setting user name to : \"defaultUser\"" << RESTendl;
@@ -67,29 +94,30 @@ struct __REST_CONST_INIT {
             REST_USER_PATH = REST_PATH + "/data";
         } else {
             string restUserPath = (string)_REST_USERHOME + "/.rest";
-            // check the directory exists
-            //if (!TRestTools::fileExists(restUserPath)) {
-            //    mkdir(restUserPath.c_str(), S_IRWXU);
-            //}
-            //// check the runNumber file
-            //if (!TRestTools::fileExists(restUserPath + "/runNumber")) {
-            //    TRestTools::Execute("echo 1 > " + restUserPath + "/runNumber");
-            //}
-            //// check the dataURL file
-            //// if (!TRestTools::fileExists(restUserPath + "/dataURL")) {
-            ////    TRestTools::Execute("cp " + REST_PATH + "/data/dataURL " + restUserPath + "/");
-            ////}
-            //// check the download directory
-            //if (!TRestTools::fileExists(restUserPath + "/download")) {
-            //    mkdir((restUserPath + "/download").c_str(), S_IRWXU);
-            //}
-            //// check the gdml directory
-            //if (!TRestTools::fileExists(restUserPath + "/gdml")) {
-            //    mkdir((restUserPath + "/gdml").c_str(), S_IRWXU);
-            //}
-
-            // now we don't need to check write accessibility in other methods in REST
             REST_USER_PATH = restUserPath;
+        }
+#endif
+        if (REST_USER_PATH != "") {
+            // check the data directories
+            if (!TRestTools::fileExists(REST_USER_PATH)) {
+                std::filesystem::create_directory(REST_USER_PATH);
+            }
+            // check the runNumber file
+            if (!TRestTools::fileExists(REST_USER_PATH + "/runNumber")) {
+                TRestTools::Execute("echo 1 > " + REST_USER_PATH + "/runNumber");
+            }
+            // check the dataURL file
+            // if (!TRestTools::fileExists(restUserPath + "/dataURL")) {
+            //    TRestTools::Execute("cp " + REST_PATH + "/data/dataURL " + restUserPath + "/");
+            //}
+            // check the download directory
+            if (!TRestTools::fileExists(REST_USER_PATH + "/download")) {
+                std::filesystem::create_directory(REST_USER_PATH + "/download");
+            }
+            // check the gdml directory
+            if (!TRestTools::fileExists(REST_USER_PATH + "/gdml")) {
+                std::filesystem::create_directory(REST_USER_PATH + "/gdml");
+            }
         }
     }
 };

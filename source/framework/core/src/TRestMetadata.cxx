@@ -507,8 +507,13 @@ TRestMetadata::TRestMetadata(const char* configFilename) : RESTendl(this) {
     configBuffer = "";
     RESTMetadata.setlength(100);
 
+#ifdef WIN32
+    fOfficialRelease = true;
+    fCleanState = true;
+#else
     if (TRestTools::Execute("rest-config --release") == "Yes") fOfficialRelease = true;
     if (TRestTools::Execute("rest-config --clean") == "Yes") fCleanState = true;
+#endif
 }
 
 ///////////////////////////////////////////////
