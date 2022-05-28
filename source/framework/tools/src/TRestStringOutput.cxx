@@ -2,12 +2,12 @@
 
 #include "TRestStringHelper.h"
 
-#ifdef WIN32
-#include "conio.h"
-#endif // WIN32
-
 using namespace std;
 
+#ifdef WIN32
+#include <Windows.h>
+#include <conio.h>
+#endif  // WIN32
 
 
 int Console::GetWidth() {
@@ -134,8 +134,13 @@ void Console::ClearScreen() {
 }
 
 void Console::ClearCurrentLine() {
+#ifdef WIN32
+    printf("\r");
+    fflush(stdout);
+#else
     printf("\033[K");
     fflush(stdout);
+#endif  // WIN32
 }
 
 void Console::ClearLinesAfterCursor() {
@@ -184,7 +189,8 @@ char mirrorchar(char c) {
 }
 
 #define TRestStringOutput_BestLength 100
-TRestStringOutput::TRestStringOutput(string _color, string formatter, REST_Display_Orientation _orientation) {
+TRestStringOutput::TRestStringOutput(COLORCODE_TYPE _color, string formatter,
+                                     REST_Display_Orientation _orientation) {
     iserror = false;
     color = _color;
     orientation = _orientation;
@@ -287,21 +293,37 @@ void TRestStringOutput::setlength(int n) {
     }
 }
 
+#ifdef WIN32
+// use >> 4 << 4 to extract first 4 bytes from COLOR_RESET, which means the background color
+#define SET_COLOR(color) \
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (COLOR_RESET >> 4 << 4) + color);
+#define RESET_COLOR() SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), COLOR_RESET);
+#else
+#define SET_COLOR(color) std::cout << color;
+#define RESET_COLOR() std::cout << COLOR_RESET;
+#endif  // WIN32
+
 void TRestStringOutput::flushstring() {
     if (REST_Display_CompatibilityMode)  // this means we are using condor
     {
         std::cout << buf.str() << std::endl;
     } else {
-        printf("\033[K");
+        Console::ClearCurrentLine();
         if (orientation == TRestStringOutput::REST_Display_Orientation::kMiddle) {
             // we always reset the length of TRestStringOutput in case the console is resized
             setlength(TRestStringOutput_BestLength);
             int blankwidth = (Console::GetWidth() - 2 - length) / 2;
 
-            std::cout << color << string(blankwidth, ' ') << FormattingPrintString(buf.str())
-                      << string(blankwidth, ' ') << COLOR_RESET << std::endl;
+            SET_COLOR(color);
+            std::cout << string(blankwidth, ' ') << FormattingPrintString(buf.str())
+                      << string(blankwidth, ' ');
+            RESET_COLOR()
+            std::cout << std::endl;
         } else {
-            std::cout << color << FormattingPrintString(buf.str()) << COLOR_RESET << std::endl;
+            SET_COLOR(color);
+            std::cout << FormattingPrintString(buf.str());
+            RESET_COLOR()
+            std::cout << std::endl;
         }
     }
     resetstring();

@@ -27,11 +27,12 @@ EXTERN_IMP map<string, string> REST_ARGS = {};
 
 #ifdef WIN32
 EXTERN_IMP string REST_TMP_PATH = std::filesystem::temp_directory_path().string();
-EXTERN_IMP bool REST_Display_CompatibilityMode = true;
+EXTERN_IMP int COLOR_RESET = 7;
 #else
 string REST_TMP_PATH = "/tmp/";
-bool REST_Display_CompatibilityMode = false;
 #endif  // WIN32
+
+EXTERN_IMP bool REST_Display_CompatibilityMode = false;
 
 namespace REST_Reflection {
 EXTERN_IMP map<void*, TClass*> RESTListOfClasses_typeid = {};
@@ -54,7 +55,20 @@ struct __REST_CONST_INIT {
         gEnv->SetValue("Browser.Name", "TRootBrowser");
 #endif
 
+#ifdef WIN32
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        CHAR_INFO info[1];
+        SMALL_RECT rect;
+        rect.Bottom = 1;
+        rect.Top = 0;
+        rect.Left = 0;
+        rect.Right = 1;
 
+        ReadConsoleOutput(hConsole, info, {1, 1}, {0, 0}, &rect);
+
+        COLOR_RESET = info[0].Attributes;
+#endif  // WIN32
+        
         char* _REST_PATH = getenv("REST_PATH");
         char* _REST_USER = getenv("USER");
         char* _REST_USERHOME = getenv("HOME");
@@ -92,7 +106,6 @@ struct __REST_CONST_INIT {
                 RESTWarning << "Lacking system env \"SystemDrive\" and \"HOMEPATH\"!" << RESTendl;
             }
         }
-
 #else
         if (_REST_PATH == nullptr) {
             RESTError << "Lacking system env \"REST_PATH\"! Cannot start!" << RESTendl;
