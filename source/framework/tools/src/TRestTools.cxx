@@ -111,6 +111,8 @@ void TRestTools::LoadRESTLibrary(bool silent) {
                     }
                 }
             }
+        } else {
+            RESTWarning << "Directory " << _path << " for library loading not exist" << RESTendl;
         }
     }
 

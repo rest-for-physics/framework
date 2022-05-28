@@ -228,8 +228,8 @@ struct DataType_Info {
     }
 };
 
-extern std::map<void*, TClass*> RESTListOfClasses_typeid;
-extern std::map<std::string, TClass*> RESTListOfClasses_typename;
+EXTERN_DEF std::map<void*, TClass*> RESTListOfClasses_typeid;
+EXTERN_DEF std::map<std::string, TClass*> RESTListOfClasses_typename;
 
 /// Wrap the std::string type name into ROOT type identifier "TClass"
 ///
@@ -429,7 +429,7 @@ class RESTVirtualConverter {
 };
 
 // type name, {toString method, parseString method}
-extern std::map<std::string, RESTVirtualConverter*> RESTConverterMethodBase;
+EXTERN_DEF std::map<std::string, RESTVirtualConverter*> RESTConverterMethodBase;
 
 template <class T>
 class Converter : RESTVirtualConverter {

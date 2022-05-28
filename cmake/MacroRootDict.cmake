@@ -9,7 +9,7 @@ SET(LD_LIBRARY_PATH_CONTENTS $ENV{${LD_LIBRARY_PATH_VAR}})
 SET(ROOT_CINT_WRAPPER ${LD_LIBRARY_PATH_VAR}=${ROOT_LIBRARY_DIR}:${LD_LIBRARY_PATH_CONTENTS} ${ROOTCINT_EXECUTABLE})
 
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
-    SET(ROOT_CINT_WRAPPER ${ROOTCINT_EXECUTABLE})
+    SET(ROOT_CINT_WRAPPER ${ROOTCINT_EXECUTABLE} -D_HAS_STD_BYTE=0)
 endif ()
 
 IF (NOT DEFINED ROOT_DICT_OUTPUT_DIR)
@@ -502,10 +502,14 @@ MACRO(COMPILELIB dependency)
     target_link_libraries(${libname} ${libs_to_link} ${external_libs})
 
     # install
-    install(TARGETS ${libname}
-            RUNTIME DESTINATION bin
-            LIBRARY DESTINATION lib
-            ARCHIVE DESTINATION lib/static)
+        if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+        set_target_properties(${libname} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+    else ()
+        install(TARGETS ${libname}
+                RUNTIME DESTINATION bin
+                LIBRARY DESTINATION lib
+                ARCHIVE DESTINATION lib/static)
+    endif ()
 
     file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h")
     INSTALL(FILES ${Headers} DESTINATION include)

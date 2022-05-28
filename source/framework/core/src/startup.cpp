@@ -1,3 +1,5 @@
+#include <Windows.h>
+
 #include <filesystem>
 
 #include "TRestDataBase.h"
@@ -28,10 +30,10 @@ bool REST_Display_CompatibilityMode = false;
 #endif  // WIN32
 
 namespace REST_Reflection {
-map<void*, TClass*> RESTListOfClasses_typeid = {};
-map<string, TClass*> RESTListOfClasses_typename = {};
+EXTERN_IMP map<void*, TClass*> RESTListOfClasses_typeid = {};
+EXTERN_IMP map<string, TClass*> RESTListOfClasses_typename = {};
 }  // namespace REST_Reflection
-map<string, RESTVirtualConverter*> RESTConverterMethodBase = {};
+EXTERN_IMP map<string, RESTVirtualConverter*> RESTConverterMethodBase = {};
 
 // initialize REST constants
 struct __REST_CONST_INIT {
@@ -43,24 +45,27 @@ struct __REST_CONST_INIT {
         REST_COMMIT = TRestTools::Execute("rest-config --commit");
 #endif
 
-
-
         char* _REST_PATH = getenv("REST_PATH");
         char* _REST_USER = getenv("USER");
         char* _REST_USERHOME = getenv("HOME");
 
+#ifdef WIN32
         if (_REST_PATH == nullptr) {
-            RESTError << "Lacking system env \"REST_PATH\"! Cannot start!" << RESTendl;
-            RESTError << "You need to source \"thisREST.sh\" first" << RESTendl;
-            #ifndef REST_TESTING_ENABLED
-            abort();
-            #endif
+            TCHAR ProgramDir[MAX_PATH + 1];
+            GetModuleFileName(0, ProgramDir, MAX_PATH);
+            std::filesystem::path path(ProgramDir);
+            if (exists(path)) {
+                REST_PATH = path.parent_path().parent_path().string();
+                RESTEssential << "Set REST path: " << REST_PATH << RESTendl;
+            } else {
+                RESTError << "Lacking system env \"REST_PATH\"! Cannot start!" << RESTendl;
+                RESTError << "You need to source \"thisREST.sh\" first" << RESTendl;
+                abort();
+            }
         } else {
             REST_PATH = _REST_PATH;
         }
 
-
-#ifdef WIN32
         if (_REST_USERHOME == nullptr || _REST_USERHOME == nullptr) {
             char* systemdir = getenv("SystemDrive");
             char* homepath = getenv("HOMEPATH");
@@ -71,13 +76,24 @@ struct __REST_CONST_INIT {
                 if (exists(path)) {
                     REST_USER_PATH = userhome + "\\.rest";
                     REST_USER = path.stem().string();
-                    RESTEssential << "Setting REST user path: " << REST_USER_PATH << RESTendl;
+                    RESTEssential << "Set REST user path: " << REST_USER_PATH << RESTendl;
                 }
             } else {
                 RESTWarning << "Lacking system env \"SystemDrive\" and \"HOMEPATH\"!" << RESTendl;
             }
         }
+
 #else
+        if (_REST_PATH == nullptr) {
+            RESTError << "Lacking system env \"REST_PATH\"! Cannot start!" << RESTendl;
+            RESTError << "You need to source \"thisREST.sh\" first" << RESTendl;
+#ifndef REST_TESTING_ENABLED
+            abort();
+#endif
+        } else {
+            REST_PATH = _REST_PATH;
+        }
+
         if (_REST_USER == nullptr) {
             RESTWarning << "Lacking system env \"USER\"!" << RESTendl;
             RESTWarning << "Setting user name to : \"defaultUser\"" << RESTendl;
@@ -124,7 +140,7 @@ struct __REST_CONST_INIT {
 const __REST_CONST_INIT REST_CONST_INIT;
 
 // initialize gDataBase
-TRestDataBase* gDataBase = nullptr;
+EXTERN_IMP TRestDataBase* gDataBase = nullptr;
 MakeGlobal(TRestDataBase, gDataBase, 1);
 
 TRestStringOutput::REST_Verbose_Level gVerbose = TRestStringOutput::REST_Verbose_Level::REST_Warning;

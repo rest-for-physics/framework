@@ -108,9 +108,10 @@ inline void usleep(int usec) {
     if (usec >= 1000) {
         _sleep(usec / 1000);
     } else {
-        _sleep(1);
+        _sleep(1); // sleep minimum 1ms on windows
     }
 }
+inline void sleep(int sec) { _sleep(1000 * sec); }
 #define __PRETTY_FUNCTION__ __FUNCTION__
 #define M_PI 3.14159265358979323846
 #endif
