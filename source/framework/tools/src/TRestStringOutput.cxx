@@ -1,5 +1,4 @@
 #include "TRestStringOutput.h"
-
 #include "TRestStringHelper.h"
 
 using namespace std;
@@ -9,10 +8,11 @@ using namespace std;
 #include <conio.h>
 #endif  // WIN32
 
-
 int Console::GetWidth() {
 #ifdef WIN32
-    return 100;
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    return csbi.srWindow.Right - csbi.srWindow.Left + 1;
 #else
     if (isatty(fileno(stdout))) {
         struct winsize w;
@@ -25,7 +25,9 @@ int Console::GetWidth() {
 
 int Console::GetHeight() {
 #ifdef WIN32
-    return 100;
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    return csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
 #else
     if (isatty(fileno(stdout))) {
         struct winsize w;
