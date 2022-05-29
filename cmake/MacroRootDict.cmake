@@ -112,14 +112,14 @@ MACRO(GEN_ROOT_DICT_SOURCE _dict_src_filename)
     # TODO check for ROOT_CINT_EXECUTABLE
     file(MAKE_DIRECTORY ${ROOT_DICT_OUTPUT_DIR})
     # need to prefix all include dirs with -I
-    set(_dict_includes)
+    set(_dict_includes "-I../include") 
     FOREACH (_inc ${ROOT_DICT_INCLUDE_DIRS})
         SET(_dict_includes "${_dict_includes}\t-I${_inc}")  #fg: the \t fixes a wired string expansion
     ENDFOREACH ()
 
     # We modify the list of headers to be given to ROOTCINT command.
     # We must remove/clean the full path from the main header
-list(GET ROOT_DICT_INPUT_HEADERS 0 MAIN_HEADER)
+    list(GET ROOT_DICT_INPUT_HEADERS 0 MAIN_HEADER)
     get_filename_component(MAIN_HEADER_CLEAN ${MAIN_HEADER} NAME)
     list(GET ROOT_DICT_INPUT_HEADERS 1 LINKDEF_HEADER)
     set(ROOT_DICT_INPUT_HEADERS_CLEAN ${MAIN_HEADER_CLEAN} ${LINKDEF_HEADER})
