@@ -1,6 +1,8 @@
-#include <Windows.h>
-
 #include <filesystem>
+
+#ifdef WIN32
+#include <Windows.h>
+#endif  // WIN32
 
 #include "RVersion.h"
 #include "TEnv.h"
