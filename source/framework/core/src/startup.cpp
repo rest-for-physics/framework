@@ -38,7 +38,7 @@ namespace REST_Reflection {
 EXTERN_IMP map<void*, TClass*> RESTListOfClasses_typeid = {};
 EXTERN_IMP map<string, TClass*> RESTListOfClasses_typename = {};
 }  // namespace REST_Reflection
-EXTERN_IMP map<string, RESTVirtualConverter*> RESTConverterMethodBase = {};
+EXTERN_IMP map<size_t, RESTVirtualConverter*> RESTConverterMethodBase = {};
 
 // initialize REST constants
 struct __REST_CONST_INIT {
@@ -180,7 +180,7 @@ AddConverter(ToStringSimple, StringToInteger, int);
 AddConverter(ToStringSimple, StringToDouble, double);
 AddConverter(ToStringSimple, StringToBool, bool);
 AddConverter(ToStringSimple, StringToFloat, float);
-AddConverter(ToStringSimple, StringToLong, Long64_t);
+AddConverter(ToStringSimple, StringToLong, long long);
 
 char StringToChar(string in) { return in.size() > 0 ? (char)in[0] : 0; }
 AddConverter(ToStringSimple, StringToChar, char);
