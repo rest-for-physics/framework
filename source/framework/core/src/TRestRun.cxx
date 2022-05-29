@@ -504,7 +504,7 @@ void TRestRun::ReadInputFileMetadata() {
             if (!TClass::GetClass(key->GetClassName())->IsLoaded()) {
                 RESTError << "-- Class " << key->GetClassName() << " has no dictionary!" << RESTendl;
                 RESTError << "- Any relevant REST library missing? " << RESTendl;
-                RESTError << "- File reading will continue without loading " << key->GetClassName()
+                RESTError << "- File reading will continue without loading key: " << key->GetName()
                           << RESTendl;
                 continue;
             }
