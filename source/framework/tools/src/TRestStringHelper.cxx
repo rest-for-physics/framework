@@ -611,6 +611,14 @@ std::string REST_StringHelper::ToUpper(std::string s) {
 }
 
 ///////////////////////////////////////////////
+/// \brief Convert the first character of a string to upper case.
+///
+std::string REST_StringHelper::FirstToUpper(std::string s) {
+    s[0] = *REST_StringHelper::ToUpper(std::string(&s[0], 1)).c_str();
+    return s;
+}
+
+///////////////////////////////////////////////
 /// \brief Convert string to its lower case. Alternative of TString::ToLower
 ///
 std::string REST_StringHelper::ToLower(std::string s) {
