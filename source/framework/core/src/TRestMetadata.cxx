@@ -657,6 +657,54 @@ Int_t TRestMetadata::LoadConfigFromBuffer() {
 }
 
 ///////////////////////////////////////////////
+/// \brief This method will retrieve a new TRestMetadata instance of a child element
+/// of the present TRestMetadata instance. I.e. `TRestChildClass` in the following
+/// example:
+///
+/// \code
+///    <TRestThisMetadataClass ...
+///         <TRestChildClass ...>
+/// \endcode
+///
+/// Two optional arguments may help to restrict the search to a particular metadata
+/// class name and user given name.
+///
+/// - *pattern*: If a pattern value is given, then the pattern must be contained inside
+/// the metadata class name. I.e. pattern="TRestGeant4" will require that the class
+/// belongs to the geant4 library.
+///
+/// - *name*: It can be specified a specific given name.
+///
+/// Otherwise, the first child section that satisfies that it starts by `TRest` will be
+/// returned.
+///
+/// If no child element is found `nullptr` will be returned.
+///
+TRestMetadata* TRestMetadata::GetChildMetadata(std::string pattern, std::string name) {
+    auto paraele = fElement->FirstChildElement();
+    while (paraele != nullptr) {
+        std::string xmlChild = paraele->Value();
+        if (xmlChild.find("TRest") == 0) {
+            if (pattern == "" || xmlChild.find(pattern) != string::npos) {
+                if (name != "" && name == (string)paraele->Attribute("name")) {
+                    TClass* c = TClass::GetClass(xmlChild.c_str());
+                    if (c)  // this means we have the metadata class was found
+                    {
+                        TRestMetadata* md = (TRestMetadata*)c->New();
+                        TiXmlElement* rootEle = GetElementFromFile(fConfigFileName);
+                        TiXmlElement* Global = GetElement("globals", rootEle);
+                        md->LoadConfigFromElement(paraele, Global, {});
+                        return md;
+                    }
+                }
+            }
+        }
+        paraele = paraele->NextSiblingElement();
+    }
+    return nullptr;
+}
+
+///////////////////////////////////////////////
 /// \brief This method does some preparation of xml section.
 ///
 /// Preparation includes: setting the name, title and verbose level of the
@@ -838,12 +886,13 @@ void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
 /// \endcode
 /// "evaluate" specifies the shell command, the output of which is used.
 /// "condition" specifies the comparing condition.
-/// So here if the home directory is "/home/nkx", the process "TRestRawZeroSuppresionProcess" will be added
-/// If the current date is larger than 2019-08-21, the process "TRestDetectorSignalToHitsProcess" will be
-/// added
+/// So here if the home directory is "/home/nkx", the process "TRestRawZeroSuppresionProcess" will be
+/// added If the current date is larger than 2019-08-21, the process "TRestDetectorSignalToHitsProcess"
+/// will be added
 ///
-/// Supports condition markers: `==`, `!=`, `>`, `<`, `<=`, `>=`. Its better to escape the ">", "<" markers.
-/// Note that the `>`, `<` calculation is also valid for strings. The ordering is according to the alphabet
+/// Supports condition markers: `==`, `!=`, `>`, `<`, `<=`, `>=`. Its better to escape the ">", "<"
+/// markers. Note that the `>`, `<` calculation is also valid for strings. The ordering is according to
+/// the alphabet
 ///
 void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
     if (e == nullptr) return;
@@ -1166,9 +1215,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
 
             TiXmlElement* ele = GetElementFromFile(filename);
             if (ele == nullptr) {
-                RESTError
-                    << "TRestMetadata::ExpandIncludeFile. No xml elements contained in the include file \""
-                    << filename << "\"" << RESTendl;
+                RESTError << "TRestMetadata::ExpandIncludeFile. No xml elements contained in the include "
+                             "file \""
+                          << filename << "\"" << RESTendl;
                 exit(1);
             }
             while (ele != nullptr) {
@@ -2397,10 +2446,10 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
                         Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
                         *(TVector3*)datamember = TVector3(valueX, valueY, valueZ);
                     } else {
-                        RESTWarning
-                            << this->ClassName() << " find unit definition in parameter: " << name
-                            << ", but the corresponding data member doesn't support it. Data member type: "
-                            << datamember.type << RESTendl;
+                        RESTWarning << this->ClassName() << " find unit definition in parameter: " << name
+                                    << ", but the corresponding data member doesn't support it. Data "
+                                       "member type: "
+                                    << datamember.type << RESTendl;
                         datamember.ParseString(value);
                     }
                 } else {
