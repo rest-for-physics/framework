@@ -763,7 +763,7 @@ string TRestTools::SearchFileInPath(vector<string> paths, string filename) {
             // search also in subdirectory, but only 5 times of recursion
             vector<string> pathsExpanded = GetSubdirectories(paths[i], 5);
             for (int j = 0; j < pathsExpanded.size(); j++)
-                if (fileExists(pathsExpanded[j] + filename)) return pathsExpanded[j] + filename;
+                if (fileExists(pathsExpanded[j] + "/" + filename)) return pathsExpanded[j] + filename;
         }
     }
     return "";
