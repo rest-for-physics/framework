@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+
 #include "TRestTask.h"
 using namespace std;
 
@@ -25,10 +26,10 @@ Int_t REST_PrintTrees(TString fName, Int_t Entry = 0) {
 
     run->GetEntry(Entry);
 
-    TRestStringOutput fout;
-    fout.setcolor(COLOR_BOLDBLUE);
-    fout << endl;
-    fout << "=====AnalysisTree Contents, Entry " << Entry << "=====" << endl;
+    TRestStringOutput RESTLog;
+    RESTLog.setcolor(COLOR_BOLDBLUE);
+    RESTLog << RESTendl;
+    RESTLog << "=====AnalysisTree Contents, Entry " << Entry << "=====" << RESTendl;
 
     run->PrintObservables();
 

@@ -6,6 +6,8 @@
 #include "TStreamerInfo.h"
 #include "TSystem.h"
 
+using namespace std;
+
 namespace REST_Reflection {
 ////////////////////////////////////////////////////////////////
 ///
@@ -227,7 +229,7 @@ int TRestReflector::InitDictionary() {
         }
 
         int b =
-            system(Form("gcc %s -std=c++11 -I`root-config --incdir` "
+            system(Form("gcc %s `root-config --cflags` "
                         "`root-config --libs` -lGui -lGeom -lGdml -lMinuit -L/usr/lib64 "
                         "-lstdc++ -shared -fPIC -o %s",
                         cxxfilename.c_str(), sofilename.c_str()));

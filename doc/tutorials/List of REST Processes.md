@@ -80,7 +80,7 @@ TRestRawAFTERToSignalProcess                   | rawdata               | TRestRa
 TRestCoBoAsAdToSignalProcess                | rawdata               | TRestRawSignalEvent   | Transforms CoBoAsAd data into raw signal event.
 TRestRawMultiCoBoAsAdToSignalProcess           | rawdata               | TRestRawSignalEvent   | Transforms CoBoAsAd data into raw signal event. General version using several CoBoAsAd cards. Event data might be splitted between different data files. The process receives a list of all the files in a given run.
 TRestFEMINOSToSignalProcess                 | rawdata               | TRestRawSignalEvent        | Transforms FEMINOS data into SignalEvent.
-TRestRawMultiFEMINOSToSignalProcess            | rawdata               | TRestRawSignalEvent        | Transforms FEMINOS data into SignalEvent.  General version using several Feminos cards. Full event data is containned in one single file.
+TRestRawMultiFEMINOSToSignalProcess            | rawdata               | TRestRawSignalEvent        | Transforms FEMINOS data into SignalEvent.  General version using several Feminos cards. Full event data is contained in one single file.
 
 ## Viewer processes
 

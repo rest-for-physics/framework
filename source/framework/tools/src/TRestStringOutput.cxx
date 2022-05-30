@@ -1,5 +1,9 @@
 #include "TRestStringOutput.h"
 
+#include "TRestStringHelper.h"
+
+using namespace std;
+
 bool Console::CompatibilityMode = false;
 
 int Console::GetWidth() {
@@ -140,40 +144,6 @@ void Console::ClearLinesAfterCursor() {
     fflush(stdout);
 }
 
-#define TRestStringOutput_BestLength 100
-TRestStringOutput::TRestStringOutput(string _color, string BorderOrHeader, REST_Display_Format style) {
-    color = _color;
-    formatstring = BorderOrHeader;
-
-    if (style == kBorderedLeft) {
-        orientation = 1;
-        useborder = true;
-    } else if (style == kBorderedMiddle) {
-        orientation = 0;
-        useborder = true;
-    } else if (style == kHeaderedLeft) {
-        orientation = 1;
-        useborder = false;
-    } else if (style == kHeaderedMiddle) {
-        orientation = 0;
-        useborder = false;
-    }
-
-    setlength(TRestStringOutput_BestLength);
-    resetstring();
-    if (length > 500 || length < 20)  // unsupported console, we will fall back to compatibility modes
-    {
-        length = -1;
-        Console::CompatibilityMode = true;
-    }
-
-    verbose = REST_Essential;
-}
-
-void TRestStringOutput::resetstring() {
-    buf.clear();  //清空流
-    buf.str("");  //清空流缓存
-}
 char mirrorchar(char c) {
     switch (c) {
         default:
@@ -209,6 +179,49 @@ char mirrorchar(char c) {
     }
 }
 
+#define TRestStringOutput_BestLength 100
+TRestStringOutput::TRestStringOutput(string _color, string formatter, REST_Display_Orientation _orientation) {
+    iserror = false;
+    color = _color;
+    orientation = _orientation;
+    // check if is border expression
+    useborder = true;
+    if (formatter.size() < 2) {
+        useborder = false;
+    }
+    for (unsigned int i = 0; i < formatter.size() / 2; i++) {
+        if (mirrorchar(formatter[i]) != formatter[formatter.size() - i - 1]) {
+            useborder = false;
+            break;
+        }
+    }
+    if (formatter[formatter.size() / 2] != ' ') {
+        useborder = false;
+    }
+
+    if (useborder) {
+        formatstring = formatter.substr(0, formatter.size() / 2);
+        formatstring = Replace(formatstring, " ", "");
+    } else {
+        formatstring = formatter;
+    }
+
+    setlength(TRestStringOutput_BestLength);
+    resetstring();
+    if (length > 500 || length < 20)  // unsupported console, we will fall back to compatibility modes
+    {
+        length = -1;
+        Console::CompatibilityMode = true;
+    }
+
+    verbose = REST_Verbose_Level::REST_Essential;
+}
+
+void TRestStringOutput::resetstring() {
+    buf.clear();
+    buf.str("");
+}
+
 string TRestStringOutput::FormattingPrintString(string input) {
     if (input == "") return "";
 
@@ -225,7 +238,7 @@ string TRestStringOutput::FormattingPrintString(string input) {
         int Lfmt = formatstring.size();
 
         int startblank;
-        if (useborder || orientation == 0) {
+        if (useborder || orientation == TRestStringOutput::REST_Display_Orientation::kMiddle) {
             startblank = (length - Lstr) / 2;
         } else {
             startblank = Lfmt;
@@ -276,7 +289,7 @@ void TRestStringOutput::flushstring() {
         std::cout << buf.str() << std::endl;
     } else {
         printf("\033[K");
-        if (orientation == 0) {
+        if (orientation == TRestStringOutput::REST_Display_Orientation::kMiddle) {
             // we always reset the length of TRestStringOutput in case the console is resized
             setlength(TRestStringOutput_BestLength);
             int blankwidth = (Console::GetWidth() - 2 - length) / 2;
@@ -294,22 +307,5 @@ TRestStringOutput& TRestStringOutput::operator<<(void (*pfunc)(TRestStringOutput
     if (gVerbose >= verbose) {
         ((*pfunc)(*this));
     }
-    return *this;
-}
-
-TRestStringOutput& TRestStringOutput::operator<<(endl_t et) {
-    if (et.vref <= REST_Info) {
-        et.sref += buf.str() + "\n";
-        if (et.sref.size() > 1000) {
-            et.sref.erase(0, et.sref.size() - 1000);
-        }
-    }
-
-    if (et.vref >= verbose) {
-        flushstring();
-    } else {
-        resetstring();
-    }
-
     return *this;
 }

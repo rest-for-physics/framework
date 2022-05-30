@@ -7,4 +7,4 @@ DerivePointerAlignment: false
 PointerAlignment: Left
 
 IndentWidth: 4
-ColumnLimit : 110
+ColumnLimit: 110

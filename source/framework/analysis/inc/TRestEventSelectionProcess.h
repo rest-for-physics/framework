@@ -24,39 +24,41 @@
 #define RestProcess_TRestEventSelectionProcess
 
 #include <TH1D.h>
+
 #include <iostream>
+
 #include "TRestEventProcess.h"
 
 //! A template process to serve as an example to create new TRestRawSignalEventProcess
 class TRestEventSelectionProcess : public TRestEventProcess {
    private:
     TRestEvent* fEvent;  //!
-    string fFileWithIDs = "";
-    string fConditions = "";
+    std::string fFileWithIDs = "";
+    std::string fConditions = "";
     std::vector<Int_t> fList;
 
     /// A list with the event ids that have been selected.
     // std::vector<Int_t> fEventIds;  //<
 
-    // void InitFromConfigFile();
-
-    void Initialize();
+    void Initialize() override;
 
    protected:
    public:
-    any GetInputEvent() { return fEvent; }
-    any GetOutputEvent() { return fEvent; }
+    any GetInputEvent() const override { return fEvent; }
+    any GetOutputEvent() const override { return fEvent; }
 
-    void InitProcess();
-    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void InitProcess() override;
+    TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     // Constructor
     TRestEventSelectionProcess();
     // Destructor
     ~TRestEventSelectionProcess() {}
 
-    ClassDef(TRestEventSelectionProcess, 3);
+    const char* GetProcessName() const override { return "EventSelectionProcess"; }
+
+    ClassDefOverride(TRestEventSelectionProcess, 3);
 };
 #endif

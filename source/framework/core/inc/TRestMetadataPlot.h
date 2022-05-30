@@ -34,15 +34,15 @@ class TRestMetadataPlot : public TRestMetadata {
     /// This structure is used to register the values from a <graph definition inside the RML
     struct Graph_Info_Set {
         /// The name to be used for the corresponding ROOT TGraph object
-        string name;
+        std::string name;
         /// The title to be used inside TLegend object
-        string title;
+        std::string title;
         /// The metadata class and data member definition to be plotted
-        string yVariable;
+        std::string yVariable;
         /// An optional rule to be used for run selection
-        string metadataRule;
+        std::string metadataRule;
         /// The option to be passed to the Draw method
-        string drawOption;
+        std::string drawOption;
         /// The line color to be assigned to the corresponding TGraph
         Int_t lineColor;
         /// The line width to be assigned to the corresponding TGraph
@@ -64,11 +64,11 @@ class TRestMetadataPlot : public TRestMetadata {
     /// This structure is used to register the values from a <plot definition inside the RML
     struct Plot_Info_Set {
         /// The name that will be used for the TGraph object.
-        string name;
+        std::string name;
         /// A title that will be visible in top of the plot
-        string title;
+        std::string title;
         /// The corresponding metadata variable to be used in the X-axis
-        string xVariable;
+        std::string xVariable;
         /// It true a logarithmic scale will be used on the x-axis.
         Bool_t logX;
         /// It true a logarithmic scale will be used on the y-axis.
@@ -78,17 +78,17 @@ class TRestMetadataPlot : public TRestMetadata {
         /// It true a time/date calendar format will be used on the x-axis
         Bool_t timeDisplay;
         /// The label or title to be given to the x-axis.
-        string labelX;
+        std::string labelX;
         /// The label or title to be given to the y-axis.
-        string labelY;
+        std::string labelY;
         /// The filename where the file will be saved
-        string save;
+        std::string save;
         /// The user defined range in the x-axis
         TVector2 xRange;
         /// The user defined range in the y-axis
         TVector2 yRange;
-        /// A vector containning the properties of the graphs inside the plot
-        vector<Graph_Info_Set> graphs;
+        /// A std::vector containing the properties of the graphs inside the plot
+        std::vector<Graph_Info_Set> graphs;
     };
 
     /// This structure is used to register the values from a <panel definition inside the RML
@@ -96,11 +96,11 @@ class TRestMetadataPlot : public TRestMetadata {
         /// The font size to be used in the panel labels
         Float_t font_size;
         /// The x-position of labels used inside the panel
-        vector<Float_t> posX;
+        std::vector<Float_t> posX;
         /// The y-position of labels used inside the panel
-        vector<Float_t> posY;
-        /// The string containing the text to be drawn in the panel
-        vector<string> label;
+        std::vector<Float_t> posY;
+        /// The std::string containing the text to be drawn in the panel
+        std::vector<std::string> label;
     };
 
    private:
@@ -116,7 +116,7 @@ class TRestMetadataPlot : public TRestMetadata {
     /// The number of canvas divisions on X and Y.
     TVector2 fCanvasDivisions;
 
-    /// A string to define the output filename where to store the canvas.
+    /// A std::string to define the output filename where to store the canvas.
     TString fCanvasSave;
 
     /// The font label size
@@ -149,20 +149,20 @@ class TRestMetadataPlot : public TRestMetadata {
     /// The legend drawing option
     TString fLegendOption = "lp";
 
-    /// A vector with the defined plots
-    vector<Plot_Info_Set> fPlots;
+    /// A std::vector with the defined plots
+    std::vector<Plot_Info_Set> fPlots;
 
-    /// A vector with the defined panels
-    vector<Panel_Info> fPanels;
+    /// A std::vector with the defined panels
+    std::vector<Panel_Info> fPanels;
 
-    /// A vector to double check that there are no repeated graph names
-    vector<string> fPlotNamesCheck;  //!
+    /// A std::vector to double check that there are no repeated graph names
+    std::vector<std::string> fPlotNamesCheck;  //!
 
     /// TRestRun to handle output file
     TRestRun* fRun;  //!
 
     /// To keep a list of files used
-    std::vector<string> fRunInputFileName;  //!
+    std::vector<std::string> fRunInputFileName;  //!
 
     /// Output canvas
     TCanvas* fCombinedCanvas;  //!
@@ -187,15 +187,15 @@ class TRestMetadataPlot : public TRestMetadata {
     Int_t GetPlotIndex(TString plotName);
 
     /// It will return the canvas size in pixel units
-    TVector2 GetCanvasSize() { return fCanvasSize; }
+    inline TVector2 GetCanvasSize() const { return fCanvasSize; }
 
     /// It will return the number of divisions inside the canvas
-    TVector2 GetCanvasDivisions() { return fCanvasDivisions; }
+    inline TVector2 GetCanvasDivisions() const { return fCanvasDivisions; }
 
     void GenerateCanvas();
 
     TRestMetadataPlot();
-    TRestMetadataPlot(const char* cfgFileName, const char* name = "");
+    TRestMetadataPlot(const char* configFilename, const char* name = "");
 
     virtual ~TRestMetadataPlot();
 

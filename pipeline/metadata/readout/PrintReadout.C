@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+
 #include "TRestDetectorReadout.h"
 #include "TRestTask.h"
 
@@ -33,7 +34,7 @@ void PrintReadout(TString fName) {
     while ((key = (TKey*)nextkey())) {
         if (((string)(key->GetClassName())).find("TRestDetectorReadout") != -1) {
             TObject* obj = f->Get(key->GetName());
-            TRestDetectorReadout readout = *(TRestDetectorReadout*)obj;
+            TRestDetectorReadout& readout = *(TRestDetectorReadout*)obj;
             readout[0].Print(1);
         }
         n++;

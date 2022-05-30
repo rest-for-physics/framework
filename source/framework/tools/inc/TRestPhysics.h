@@ -24,10 +24,11 @@
 #define __RestCore_TRestPhysics_H__
 
 #include <iostream>
-using namespace std;
 
+#include "TMatrixD.h"
 #include "TString.h"
 #include "TVector3.h"
+#include "TVectorD.h"
 
 /// This namespace serves to define physics constants and other basic physical operations
 namespace REST_Physics {
@@ -58,12 +59,28 @@ const double naturalElectron = 0.302822120214353;
 /// A kelvin in eV
 const double kelvinToeV = 86.172809e-6;
 
+/// Average Sun-Earth distance in m
+const double AU = 1.49597870691E11;
+
+// Solar radius in m
+const double solarRadius = 6.95700E8;
+
 TVector3 MoveToPlane(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a);
 
 TVector3 MoveByDistance(TVector3 pos, TVector3 dir, Double_t d);
 TVector3 MoveByDistanceFast(TVector3 pos, TVector3 dir, Double_t d);
 
-TVector3 GetPlaneVectorIntersection(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a);
+TVector3 GetPlaneVectorIntersection(const TVector3& pos, const TVector3& dir, TVector3 const& n,
+                                    TVector3 const& a);
+
+TMatrixD GetConeMatrix(const TVector3& d, const Double_t& cosTheta);
+
+Double_t GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, const TVector3& d,
+                                   const TVector3& v, const Double_t& cosTheta);
+Double_t GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, const TMatrixD& M,
+                                   const TVector3& axis, const TVector3& v);
+
+Double_t DistanceToAxis(const TVector3& axisPoint, const TVector3& axisVector, const TVector3& point);
 
 Double_t GetDistance(TVector3 v1, TVector3 v2);
 Double_t GetDistance2(TVector3 v1, TVector3 v2);

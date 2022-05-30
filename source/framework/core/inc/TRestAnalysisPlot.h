@@ -13,26 +13,48 @@
 #define RestCore_TRestAnalysisPlot
 
 #include <TLatex.h>
+#include <TRestRun.h>
+
 #include "TCanvas.h"
 #include "TH3D.h"
-
-#include <TRestRun.h>
 #include "TRestAnalysisTree.h"
 
 const int REST_MAX_TAGS = 15;
 
+// as enum "EColor" defined in Rtypes.h
+// as enum "ELineStyle" defined in TAttLine.h
+// as enum "EFillStyle" defined in TAttFill.h
+const std::map<std::string, int> ColorIdMap{
+    {"white", kWhite},   {"black", kBlack},   {"gray", kGray},       {"red", kRed},       {"green", kGreen},
+    {"blue", kBlue},     {"yellow", kYellow}, {"magenta", kMagenta}, {"cyan", kCyan},     {"orange", kOrange},
+    {"spring", kSpring}, {"teal", kTeal},     {"azure", kAzure},     {"violet", kViolet}, {"pink", kPink}};
+const std::map<std::string, int> LineStyleMap{
+    {"solid", kSolid}, {"dashed", kDashed}, {"dotted", kDotted}, {"dashDotted", kDashDotted}};
+const std::map<std::string, int> FillStyleMap{
+    {"dotted", kFDotted1},        {"dashed", kFDashed1},    {"dotted1", kFDotted1},
+    {"dotted2", kFDotted2},       {"dotted3", kFDotted3},   {"hatched1", kFHatched1},
+    {"hatched2", kHatched2},      {"hatched3", kFHatched3}, {"hatched4", kFHatched4},
+    {"wicker", kFWicker},         {"scales", kFScales},     {"bricks", kFBricks},
+    {"snowflakes", kFSnowflakes}, {"circles", kFCircles},   {"tiles", kFTiles},
+    {"mondrian", kFMondrian},     {"diamonds", kFDiamonds}, {"waves1", kFWaves1},
+    {"dashed1", kFDashed1},       {"dashed2", kFDashed2},   {"alhambra", kFAlhambra},
+    {"waves2", kFWaves2},         {"stars1", kFStars1},     {"stars2", kFStars2},
+    {"pyramids", kFPyramids},     {"frieze", kFFrieze},     {"metopes", kFMetopes},
+    {"empty", kFEmpty},           {"solid", kFSolid}};
+
 class TRestAnalysisPlot : public TRestMetadata {
    public:
     struct Histo_Info_Set {
-        string name;   // will be shown in the legend
-        string range;  // output histo string for TTree::Draw(), e.g. name+range = htemp(100,0,1000)
+        std::string name;   // will be shown in the legend
+        std::string range;  // output histo std::string for TTree::Draw(), e.g. name+range = htemp(100,0,1000)
         Bool_t status;
 
-        string plotString;                // draw string for TTree::Draw()
-        string cutString;                 // cut string for TTree::Draw()
-        map<string, string> classifyMap;  // select the input files to draw the histogram, if their
-                                          // TRestRun::Get() returns the assumed string
-        string drawOption;                // draw option for TTree::Draw()
+        std::string plotString;  // draw std::string for TTree::Draw()
+        std::string cutString;   // cut std::string for TTree::Draw()
+        std::map<std::string, std::string>
+            classifyMap;         // select the input files to draw the histogram, if their
+                                 // TRestRun::Get() returns the assumed std::string
+        std::string drawOption;  // draw option for TTree::Draw()
 
         Int_t lineColor;
         Int_t lineWidth;
@@ -45,10 +67,11 @@ class TRestAnalysisPlot : public TRestMetadata {
     };
 
     struct Plot_Info_Set {
-        string name;
-        string title;
+        std::string name;
+        std::string title;
 
         Double_t normalize;
+        std::string scale;
         Bool_t logX;
         Bool_t logY;
         Bool_t logZ;
@@ -63,8 +86,8 @@ class TRestAnalysisPlot : public TRestMetadata {
 
         Bool_t timeDisplay;
 
-        string labelX;
-        string labelY;
+        std::string labelX;
+        std::string labelY;
 
         TVector2 rangeX;  // absolute x range(e.g. 1000~3000 keV), same as SetRangeUser()
         TVector2 rangeY;  // absolute y range(e.g. 1000~3000 keV), same as SetRangeUser()
@@ -77,18 +100,18 @@ class TRestAnalysisPlot : public TRestMetadata {
         Int_t ticksX;
         Int_t ticksY;
 
-        string save;
+        std::string save;
 
-        vector<Histo_Info_Set> histos;
+        std::vector<Histo_Info_Set> histos;
     };
 
     struct Panel_Info {
         Float_t font_size;
 
-        vector<Float_t> posX;
-        vector<Float_t> posY;
+        std::vector<Float_t> posX;
+        std::vector<Float_t> posY;
 
-        vector<string> label;
+        std::vector<std::string> label;
     };
 
    private:
@@ -117,10 +140,10 @@ class TRestAnalysisPlot : public TRestMetadata {
     Double_t fLegendY2 = 0.88;
 
     // plots information
-    vector<Plot_Info_Set> fPlots;
-    vector<Panel_Info> fPanels;
+    std::vector<Plot_Info_Set> fPlots;
+    std::vector<Panel_Info> fPanels;
 
-    vector<string> fPlotNamesCheck;  //!
+    std::vector<std::string> fPlotNamesCheck;  //!
 
 #ifndef __CINT__
     TRestRun* fRun;                          //! TRestRun to handle output file
@@ -136,6 +159,9 @@ class TRestAnalysisPlot : public TRestMetadata {
     TRestAnalysisTree* GetTree(TString fileName);
     TRestRun* GetRunInfo(TString fileName);
     bool IsDynamicRange(TString rangeString);
+    Int_t GetColorIDFromString(std::string in);
+    Int_t GetFillStyleIDFromString(std::string in);
+    Int_t GetLineStyleIDFromString(std::string in);
 
    protected:
    public:
@@ -153,8 +179,8 @@ class TRestAnalysisPlot : public TRestMetadata {
     void SetOutputPlotsFilename(TString fname) { fCanvasSave = fname; }
 
     Int_t GetPlotIndex(TString plotName);
-    TVector2 GetCanvasSize() { return fCanvasSize; }
-    TVector2 GetCanvasDivisions() { return fCanvasDivisions; }
+    inline TVector2 GetCanvasSize() const { return fCanvasSize; }
+    inline TVector2 GetCanvasDivisions() const { return fCanvasDivisions; }
 
     void SetTreeEntryRange(Long64_t NEntries = TTree::kMaxEntries, Long64_t FirstEntry = 0) {
         fDrawNEntries = NEntries;
@@ -162,9 +188,9 @@ class TRestAnalysisPlot : public TRestMetadata {
     }
     void PlotCombinedCanvas();
 
-    // Construtor
+    // Constructor
     TRestAnalysisPlot();
-    TRestAnalysisPlot(const char* cfgFileName, const char* name = "");
+    TRestAnalysisPlot(const char* configFilename, const char* name = "");
     // Destructor
     virtual ~TRestAnalysisPlot();
 

@@ -10,6 +10,8 @@
 /// global variables in libRestTools, if depend on other global variable,
 /// should be placed here for initialization.
 
+using namespace std;
+
 string REST_COMMIT;
 string REST_PATH;
 string REST_USER;
@@ -25,6 +27,7 @@ map<string, RESTVirtualConverter*> RESTConverterMethodBase = {};
 struct __REST_CONST_INIT {
    public:
     __REST_CONST_INIT() {
+
         REST_COMMIT = TRestTools::Execute("rest-config --commit");
 
         char* _REST_PATH = getenv("REST_PATH");
@@ -32,15 +35,18 @@ struct __REST_CONST_INIT {
         char* _REST_USERHOME = getenv("HOME");
 
         if (_REST_PATH == nullptr) {
-            cout << "REST ERROR!! Lacking system env \"REST_PATH\"! Cannot start!" << endl;
-            cout << "You need to source \"thisREST.sh\" first" << endl;
+            RESTError << "Lacking system env \"REST_PATH\"! Cannot start!" << RESTendl;
+            RESTError << "You need to source \"thisREST.sh\" first" << RESTendl;
+            #ifndef REST_TESTING_ENABLED
             abort();
+            #endif
+        } else {
+            REST_PATH = _REST_PATH;
         }
-        REST_PATH = _REST_PATH;
 
         if (_REST_USER == nullptr) {
-            cout << "REST WARNING!! Lacking system env \"USER\"!" << endl;
-            cout << "Setting user name to : \"defaultUser\"" << endl;
+            RESTWarning << "Lacking system env \"USER\"!" << RESTendl;
+            RESTWarning << "Setting user name to : \"defaultUser\"" << RESTendl;
             REST_USER = "defaultUser";
             setenv("USER", REST_USER.c_str(), true);
 
@@ -49,8 +55,8 @@ struct __REST_CONST_INIT {
         }
 
         if (_REST_USERHOME == nullptr) {
-            cout << "REST WARNING!! Lacking system env \"HOME\"!" << endl;
-            cout << "Setting REST temp path to : " << REST_PATH + "/data" << endl;
+            RESTWarning << "Lacking system env \"HOME\"!" << RESTendl;
+            RESTWarning << "Setting REST temp path to : " << REST_PATH + "/data" << RESTendl;
             REST_USER_PATH = REST_PATH + "/data";
         } else {
             string restUserPath = (string)_REST_USERHOME + "/.rest";
@@ -86,18 +92,7 @@ const __REST_CONST_INIT REST_CONST_INIT;
 TRestDataBase* gDataBase = nullptr;
 MakeGlobal(TRestDataBase, gDataBase, 1);
 
-// initialize formatted message output tool
-TRestStringOutput fout(REST_Silent, COLOR_BOLDBLUE, "[==", kBorderedMiddle);
-TRestStringOutput ferr(REST_Silent, COLOR_BOLDRED, "-- Error : ", kHeaderedLeft);
-TRestStringOutput warning(REST_Warning, COLOR_BOLDYELLOW, "-- Warning : ", kHeaderedLeft);
-TRestStringOutput essential(REST_Essential, COLOR_BOLDGREEN, "", kHeaderedMiddle);
-TRestStringOutput metadata(REST_Essential, COLOR_BOLDGREEN, "||", kBorderedMiddle);
-TRestStringOutput info(REST_Info, COLOR_BLUE, "-- Info : ", kHeaderedLeft);
-TRestStringOutput success(REST_Info, COLOR_GREEN, "-- Success : ", kHeaderedLeft);
-TRestStringOutput debug(REST_Debug, COLOR_RESET, "-- Debug : ", kHeaderedLeft);
-TRestStringOutput extreme(REST_Extreme, COLOR_RESET, "-- Extreme : ", kHeaderedLeft);
-
-REST_Verbose_Level gVerbose = REST_Warning;
+TRestStringOutput::REST_Verbose_Level gVerbose = TRestStringOutput::REST_Verbose_Level::REST_Warning;
 
 // initialize converter methods
 template <class T>

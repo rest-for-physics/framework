@@ -1,10 +1,13 @@
 #include "TRestBenchMarkProcess.h"
+
 #include "TRestManager.h"
 #include "TRestProcessRunner.h"
 #ifndef __APPLE__
 #include "sys/sysinfo.h"
 #endif
 #include "sys/wait.h"
+
+using namespace std;
 
 ClassImp(TRestBenchMarkProcess);
 
@@ -17,7 +20,6 @@ float TRestBenchMarkProcess::fProcessSpeedInHz = 0;
 int TRestBenchMarkProcess::fLastEventNumber = 0;
 ULong64_t TRestBenchMarkProcess::fStartTime = 0;
 
-//______________________________________________________________________________
 TRestBenchMarkProcess::TRestBenchMarkProcess() { Initialize(); }
 
 void TRestBenchMarkProcess::Initialize() {
@@ -28,13 +30,13 @@ void TRestBenchMarkProcess::Initialize() {
 #else
     fCPUNumber = 0;
     fMemNumber = 0;
-    ferr << "TRestBenchMarkProcess is not available yet on MACOS!!" << endl;
+    RESTError << "TRestBenchMarkProcess is not available yet on MACOS!!" << RESTendl;
 #endif
     fPid = getpid();
     fRefreshRate = 10;
 }
 
-void TRestBenchMarkProcess::SysMonitorFunc(int pid, double refreshrate) {
+void TRestBenchMarkProcess::SysMonitorFunc(int pid, double refreshRate) {
     while (fMonitorFlag == 1) {
         string topOutput = TRestTools::Execute(Form("top -bn 1 -p %i | grep %i", pid, pid));
         auto topItems = Split(topOutput, " ", false, true);
@@ -45,15 +47,15 @@ void TRestBenchMarkProcess::SysMonitorFunc(int pid, double refreshrate) {
         fMemUsageInMB /= 1000;                                                          // convert kB to MB
         fReadingInMBs = fHostmgr->GetProcessRunner()->GetReadingSpeed() / 1024 / 1024;  // convert byte to MB
         int Neve = fHostmgr->GetProcessRunner()->GetNProcessedEvents();
-        fProcessSpeedInHz = (Neve - fLastEventNumber) * refreshrate;
+        fProcessSpeedInHz = (Neve - fLastEventNumber) * refreshRate;
 
-        usleep(1e6 / refreshrate);
+        usleep(1e6 / refreshRate);
     }
 }
 
 void TRestBenchMarkProcess::InitProcess() {
     if (fHostmgr == nullptr || fHostmgr->GetProcessRunner() == nullptr) {
-        ferr << "TRestBenchMarkProcess: the process is not hosted by TRestProcessRunner!" << endl;
+        RESTError << "TRestBenchMarkProcess: the process is not hosted by TRestProcessRunner!" << RESTendl;
         exit(1);
     }
 
@@ -68,8 +70,8 @@ void TRestBenchMarkProcess::InitProcess() {
     fStartTime = chrono::high_resolution_clock::now().time_since_epoch().count();
 }
 
-TRestEvent* TRestBenchMarkProcess::ProcessEvent(TRestEvent* eventInput) {
-    fEvent = eventInput;
+TRestEvent* TRestBenchMarkProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fEvent = inputEvent;
 
     ULong64_t time = chrono::high_resolution_clock::now().time_since_epoch().count();
     SetObservableValue("RunningTime", (time - fStartTime) / 1e9);
@@ -94,12 +96,13 @@ void TRestBenchMarkProcess::EndProcess() {
 void TRestBenchMarkProcess::PrintMetadata() {
     BeginPrintProcess();
 
-    metadata << "REST pid: " << fPid << endl;
-    metadata << "Number of CPUs: " << fCPUNumber << endl;
-    metadata << "Total Memory: " << round((double)fMemNumber / 1024 / 1024 * 10) / 10 << " GB" << endl;
-    metadata << "System information refresh rate: " << fRefreshRate << " Hz" << endl;
-    metadata << "Monitoring thread: " << fMonitorThread
-             << ", status: " << (fMonitorFlag == 0 ? "stopped" : "running") << endl;
+    RESTMetadata << "REST pid: " << fPid << RESTendl;
+    RESTMetadata << "Number of CPUs: " << fCPUNumber << RESTendl;
+    RESTMetadata << "Total Memory: " << round((double)fMemNumber / 1024 / 1024 * 10) / 10 << " GB"
+                 << RESTendl;
+    RESTMetadata << "System information refresh rate: " << fRefreshRate << " Hz" << RESTendl;
+    RESTMetadata << "Monitoring thread: " << fMonitorThread
+                 << ", status: " << (fMonitorFlag == 0 ? "stopped" : "running") << RESTendl;
 
     EndPrintProcess();
 }

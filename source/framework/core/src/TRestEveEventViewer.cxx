@@ -13,17 +13,17 @@
 ///_______________________________________________________________________________
 
 #include "TRestEveEventViewer.h"
+
 using namespace std;
 
-ClassImp(TRestEveEventViewer)
-    //______________________________________________________________________________
-    TRestEveEventViewer::TRestEveEventViewer() {
+ClassImp(TRestEveEventViewer);
+
+TRestEveEventViewer::TRestEveEventViewer() {
     Initialize();
     fEnergyDeposits = new TEvePointSet();
     fEnergyDeposits->SetElementName("Energy deposits");
 }
 
-//______________________________________________________________________________
 TRestEveEventViewer::~TRestEveEventViewer() {
     delete fEnergyDeposits;
     // TRestEveEventViewer destructor
@@ -31,7 +31,6 @@ TRestEveEventViewer::~TRestEveEventViewer() {
     DeleteGeometry();
 }
 
-//______________________________________________________________________________
 void TRestEveEventViewer::Initialize() {
     gEve = TEveManager::Create();
     gEve->GetBrowser()->DontCallClose();
