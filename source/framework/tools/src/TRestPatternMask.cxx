@@ -128,24 +128,35 @@ Int_t TRestPatternMask::ApplyCommonMaskTransformation(Double_t& x, Double_t& y) 
 }
 
 ///////////////////////////////////////////////
-/// \brief Returns true if the pattern was hitted.
+/// \brief Returns true if the pattern was hit. If (x,y) it is inside a region
+/// then, the pattern was not hit by (x,y).
 ///
 bool TRestPatternMask::HitsPattern(Double_t x, Double_t y) {
-    if (GetRegion(x, y) > 0) return true;
-    return false;
+    if (GetRegion(x, y) > 0) return false;
+    return true;
 }
 
 /////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
+/// \brief Prints on screen the information about the metadata members of TRestPatternMask
 ///
 void TRestPatternMask::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    RESTMetadata << " - Type : " << fPatternType << RESTendl;
+    RESTMetadata << " - Pattern type : " << fPatternType << RESTendl;
     RESTMetadata << " - Mask radius : " << fMaskRadius << " mm" << RESTendl;
     RESTMetadata << " - Offset : (" << fOffset.X() << ", " << fOffset.Y() << ") mm" << RESTendl;
     RESTMetadata << " - Rotation angle : " << fRotationAngle * 180. / TMath::Pi() << " degrees" << RESTendl;
     RESTMetadata << "----" << RESTendl;
+}
+
+/////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members without header
+///
+void TRestPatternMask::Print() {
+    RESTMetadata << " - Pattern type : " << fPatternType << RESTendl;
+    RESTMetadata << " - Mask radius : " << fMaskRadius << " mm" << RESTendl;
+    RESTMetadata << " - Offset : (" << fOffset.X() << ", " << fOffset.Y() << ") mm" << RESTendl;
+    RESTMetadata << " - Rotation angle : " << fRotationAngle * 180. / TMath::Pi() << " degrees" << RESTendl;
 }
 
 /////////////////////////////////////////////
