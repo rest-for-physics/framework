@@ -210,8 +210,18 @@ Int_t TRestGridMask::GetRegion(Double_t x, Double_t y) {
 void TRestGridMask::PrintMetadata() {
     TRestPatternMask::PrintMetadata();
 
-    RESTMetadata << "-----" << RESTendl;
     RESTMetadata << " - Grid gap : " << fGridGap << " mm" << RESTendl;
     RESTMetadata << " - Grid thickness : " << fGridThickness << " mm" << RESTendl;
     RESTMetadata << "+++++" << RESTendl;
+}
+
+/////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
+///
+void TRestGridMask::Print() {
+    TRestPatternMask::Print();
+
+    RESTMetadata << "----" << RESTendl;
+    RESTMetadata << " - Grid gap : " << fGridGap << " mm" << RESTendl;
+    RESTMetadata << " - Grid thickness : " << fGridThickness << " mm" << RESTendl;
 }
