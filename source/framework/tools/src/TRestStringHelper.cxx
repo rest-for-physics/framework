@@ -614,6 +614,7 @@ std::string REST_StringHelper::ToUpper(std::string s) {
 /// \brief Convert the first character of a string to upper case.
 ///
 std::string REST_StringHelper::FirstToUpper(std::string s) {
+    if (s.length() == 0) return s;
     s[0] = *REST_StringHelper::ToUpper(std::string(&s[0], 1)).c_str();
     return s;
 }
