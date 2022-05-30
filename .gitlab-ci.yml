@@ -9,7 +9,7 @@ stages:
 
   # Build and run tests
   - test
-  
+
   # Project compilation validation
   - build
 
