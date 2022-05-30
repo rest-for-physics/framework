@@ -68,12 +68,6 @@ if( ${REST_DAQ} MATCHES ON )
 	set( RESTLIB_RAW ON )
 endif()
 
-if( ${REST_DAQ} MATCHES ON )
-    if (${RESTLIB_RAW} MATCHES OFF)
-        set(RESTLIB_RAW ON)
-    endif ()
-endif ()
-
 if (${RESTLIB_DETECTOR} MATCHES ON)
     if (${RESTLIB_RAW} MATCHES ON)
         set(RESTLIB_CONNECTORS ON)
