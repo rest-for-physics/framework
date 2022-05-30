@@ -52,7 +52,7 @@ struct __REST_CONST_INIT {
         REST_COMMIT = TRestTools::Execute("rest-config --commit");
 #endif
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,22,0)
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,26,0)
         // we are not ready to use the new web-browser
         gEnv->SetValue("Browser.Name", "TRootBrowser");
 #endif
