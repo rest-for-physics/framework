@@ -114,6 +114,8 @@ struct __REST_CONST_INIT {
             RESTError << "You need to source \"thisREST.sh\" first" << RESTendl;
 #ifndef REST_TESTING_ENABLED
             abort();
+#else
+            return;
 #endif
         } else {
             REST_PATH = _REST_PATH;
