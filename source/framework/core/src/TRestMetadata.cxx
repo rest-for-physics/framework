@@ -2314,6 +2314,7 @@ void TRestMetadata::ReadParametersList(std::map<string, string>& list) {
 /// \brief It retrieves a map of all parameter:value found in the metadata class
 ///
 std::map<string, string> TRestMetadata::GetParametersList() {
+    RESTDebug << "TRestMetadata::GetParametersList" << RESTendl;
     // we shall first add all the parameters to a temporary map to avoid
     // first parameter being overriden by the repeated parameter section
     map<string, string> parameters;
@@ -2364,13 +2365,70 @@ std::map<string, string> TRestMetadata::GetParametersList() {
     return parameters;
 }
 
+///////////////////////////////////////////////
+/// \brief It retrieves a list of children TRestXYZ metadata classes found inside the
+/// present instance.
+///
+std::vector<std::pair<std::string, std::string>> TRestMetadata::GetChildrenList() {
+    RESTDebug << "TRestMetadata::GetChildrenList" << RESTendl;
+
+    std::vector<std::pair<std::string, std::string>> metadataChildren;
+
+    auto paraele = fElement->FirstChildElement();
+    while (paraele != nullptr) {
+        std::string xmlChild = paraele->Value();
+        if (xmlChild.find("TRest") == 0) {
+            std::string name = (string)paraele->Attribute("name");
+            std::pair entry = {xmlChild, name};
+            metadataChildren.push_back(entry);
+
+            this->InstantiateChild(xmlChild, name, paraele);
+        }
+
+        paraele = paraele->NextSiblingElement();
+    }
+
+    //   InstantiateChild(metadataChildren[0].first, metadataChildren[0].second);
+
+    return metadataChildren;
+}
+
+void TRestMetadata::InstantiateChild(const std::string& className, const std::string& childName,
+                                     TiXmlElement* e) {
+    std::cout << "ThisClassName: " << this->ClassName() << std::endl;
+    RESTValue thisactual(this, this->ClassName());
+    string datamembername = ParameterNameToDataMemberName(childName);
+
+    if (datamembername != "") {
+        std::cout << "DATA member: " << datamembername << std::endl;
+        RESTValue datamember = thisactual.GetDataMember(datamembername);
+        std::cout << "Type: " << datamember.type << std::endl;
+        if (!datamember.IsZombie()) {
+            RESTDebug << this->ClassName() << "::InstantiateChildren(): parsing \"" << className
+                      << "::" << childName << "\" definition to data member \"" << datamembername << "\""
+                      << RESTendl;
+
+            TClass* c = TClass::GetClass(className.c_str());
+            if (c)  // this means we have the package installed
+            {
+                TRestMetadata* md = (TRestMetadata*)c->New();
+                TiXmlElement* rootEle = GetElementFromFile(fConfigFileName);
+                TiXmlElement* Global = GetElement("globals", rootEle);
+                md->LoadConfigFromElement(e, Global, {});
+            }
+        }
+    }
+}
+
 void TRestMetadata::ReadOneParameter(string name, string value) {
     if (name == "name" || name == "title" || name == "verboseLevel" || name == "type" || name == "value" ||
         name == "store") {
         // we omit these parameters since they are already loaded in LoadSectionMetadata()
     } else {
+        std::cout << "CName: " << this->ClassName() << std::endl;
         RESTValue thisactual(this, this->ClassName());
         string datamembername = ParameterNameToDataMemberName(name);
+        cout << "Parameter name: " << name << " value: " << value << endl;
         if (datamembername != "") {
             RESTValue datamember = thisactual.GetDataMember(datamembername);
             if (!datamember.IsZombie()) {
@@ -2397,10 +2455,10 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
                         Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
                         *(TVector3*)datamember = TVector3(valueX, valueY, valueZ);
                     } else {
-                        RESTWarning
-                            << this->ClassName() << " find unit definition in parameter: " << name
-                            << ", but the corresponding data member doesn't support it. Data member type: "
-                            << datamember.type << RESTendl;
+                        RESTWarning << this->ClassName() << " find unit definition in parameter: " << name
+                                    << ", but the corresponding data member doesn't support "
+                                       "it. Data member type: "
+                                    << datamember.type << RESTendl;
                         datamember.ParseString(value);
                     }
                 } else {

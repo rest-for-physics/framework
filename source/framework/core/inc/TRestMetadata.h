@@ -135,11 +135,17 @@ class TRestMetadata : public TNamed {
     virtual Int_t LoadSectionMetadata();
     /// To make settings from rml file. This method must be implemented in the derived class.
     virtual void InitFromConfigFile() {
+        RESTDebug << "TRestMetadata::InitFromConfigFile" << RESTendl;
         std::map<std::string, std::string> parameters = GetParametersList();
 
         for (auto& p : parameters) p.second = ReplaceMathematicalExpressions(p.second);
 
         ReadParametersList(parameters);
+
+        /// For the moment this method will attempt to instantiate, just like that for testing
+        std::vector<std::pair<std::string, std::string>> mdChildren = GetChildrenList();
+
+        //       for (const auto x : mdChildren) std::cout << x.first << " : " << x.second << std::endl;
     }
 
     /// Method called after the object is retrieved from root file.
@@ -200,7 +206,12 @@ class TRestMetadata : public TNamed {
     TString fWarningMessage = "";
 
     std::map<std::string, std::string> GetParametersList();
+
     void ReadAllParameters();
+
+    std::vector<std::pair<std::string, std::string>> GetChildrenList();
+
+    void InstantiateChild(const std::string& className, const std::string& childName, TiXmlElement* e);
 
     TRestMetadata();
     TRestMetadata(const char* configFilename);
