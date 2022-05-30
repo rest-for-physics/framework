@@ -52,7 +52,7 @@ if( len(sys.argv ) <= 1 ):
     print_help()
     sys.exit(1)
 
-exclude_elems = ["userguide", "data", "external"]
+exclude_elems = ["userguide", "data"]
 for x in range(len(sys.argv) - 1):
     if sys.argv[x + 1] == "--lfna":
         lfna = True
