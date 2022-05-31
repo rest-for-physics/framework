@@ -57,6 +57,7 @@ class TRestPatternMask : public TRestMetadata {
    public:
     Bool_t HitsPattern(Double_t x, Double_t y);
 
+    /// To be implemented at the inherited class with the pattern and region identification logic
     virtual Int_t GetRegion(Double_t x, Double_t y) = 0;
 
     /// It returns the mask pattern type
