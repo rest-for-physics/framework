@@ -508,8 +508,8 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
 }
 
 void TRestAnalysisPlot::AddFile(TString fileName) {
-    RESTDebug << "TRestAnalysisPlot::AddFile. Adding file. " << RESTendl;
-    RESTDebug << "File name: " << fileName << RESTendl;
+    RESTInfo << "TRestAnalysisPlot::AddFile. Adding file. " << RESTendl;
+    RESTInfo << "File name: " << fileName << RESTendl;
     fRunInputFileName.push_back((string)fileName);
     fNFiles++;
 }
@@ -740,7 +740,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 bool flag = true;
                 auto iter = hist.classifyMap.begin();
                 while (iter != hist.classifyMap.end()) {
-                    if (run->GetRunInformation(iter->first) != iter->second) {
+		    if (run->GetRunInformation(iter->first).find(iter->second) == string::npos ) {
                         flag = false;
                         break;
                     }
@@ -792,7 +792,10 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                             hTotal->SetCanExtend(TH1::kAllAxes);
                             tree->Draw(plotString + ">>+" + hTotal->GetName(), cutString, optString,
                                        fDrawNEntries, fDrawFirstEntry);
-                            hTotal->SetDirectory(0);
+			    RESTInfo << "AnalysisTree->Draw(\"" << plotString << ">>+" << hTotal->GetName() << "\", \"" << cutString
+				 << "\", \"" << optString << "\", " << fDrawNEntries << ", " << fDrawFirstEntry << ")"
+				 << RESTendl;
+			    hTotal->SetDirectory(0);
                         } else {
                             hTotal->Add(hh);
                         }
