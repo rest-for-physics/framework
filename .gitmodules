@@ -67,6 +67,9 @@
 [submodule "projects/alphacamm"]
 	path = projects/alphacamm
 	url = git@lfna.unizar.es:gifna/alphacamm.git
+[submodule "source/libraries/legacy"]
+	path = source/libraries/legacy
+	url = https://github.com/rest-for-physics/legacylib.git
 [submodule "source/packages/restDAQ"]
 	path = source/packages/restDAQ
 	url = https://github.com/rest-for-physics/restDAQ.git
