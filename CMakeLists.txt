@@ -20,7 +20,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 # https://github.com/rest-for-physics/framework/issues/162
-if (${CMAKE_VERSION} VERSION_LESS "3.21")
+if (${CMAKE_VERSION} VERSION_LESS "3.23")
     cmake_policy(SET CMP0082 OLD)
 endif ()
 
