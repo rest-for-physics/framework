@@ -60,6 +60,8 @@ class TRestPatternMask : public TRestMetadata {
    public:
     Int_t GetMaxRegions() { return fMaxRegions; }
 
+    void SetMaxRegions(Int_t regions) { fMaxRegions = regions; }
+
     Bool_t HitsPattern(Double_t x, Double_t y);
 
     /// To be implemented at the inherited class with the pattern and region identification logic
