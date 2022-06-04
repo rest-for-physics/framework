@@ -201,7 +201,7 @@ Int_t TRestGridMask::GetRegion(Double_t x, Double_t y) {
     ycont = ycont % fModulus;
     if (ycont < 0) ycont += fModulus;
 
-    return 1 + fModulus * ycont + xcont;
+    return 1 + (fModulus * ycont + xcont) % fMaxRegions;
 }
 
 /////////////////////////////////////////////

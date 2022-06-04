@@ -183,7 +183,7 @@ Int_t TRestStrippedMask::GetRegion(Double_t x, Double_t y) {
     xcont = xcont % fModulus;
     if (xcont < 0) xcont += fModulus;
 
-    return 1 + xcont;
+    return 1 + xcont % fMaxRegions;
 }
 
 /////////////////////////////////////////////

@@ -177,23 +177,23 @@ Int_t TRestSpiderMask::GetRegion(Double_t x, Double_t y) {
     Double_t cos_angle = y / d;
 
     if (x >= 0) {
-        int region = 1;
+        int region = 0;
         for (unsigned int n = 0; n < fPositiveRanges.size() - 1; n++) {
             if (cos_angle < fPositiveRanges[n].second && cos_angle > fPositiveRanges[n + 1].first)
-                return region;
+                return region % fMaxRegions + 1;
             region++;
         }
-        if (cos_angle < fPositiveRanges.back().second && cos_angle >= -1) return region;
+        if (cos_angle < fPositiveRanges.back().second && cos_angle >= -1) return region % fMaxRegions + 1;
 
     } else {
         int region = fPositiveRanges.size();
 
-        if (cos_angle < fNegativeRanges[0].first && cos_angle >= -1) return region;
+        if (cos_angle < fNegativeRanges[0].first && cos_angle >= -1) return region % fMaxRegions + 1;
         region++;
 
         for (unsigned int n = 0; n < fNegativeRanges.size() - 1; n++) {
             if (cos_angle > fNegativeRanges[n].second && cos_angle < fNegativeRanges[n + 1].first)
-                return region;
+                return region % fMaxRegions + 1;
             region++;
         }
     }

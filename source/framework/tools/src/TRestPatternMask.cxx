@@ -155,6 +155,7 @@ void TRestPatternMask::PrintMetadata() {
 void TRestPatternMask::Print() {
     RESTMetadata << " - Pattern type : " << fPatternType << RESTendl;
     RESTMetadata << " - Mask radius : " << fMaskRadius << " mm" << RESTendl;
+    RESTMetadata << " - Max regions : " << fMaxRegions << RESTendl;
     RESTMetadata << " - Offset : (" << fOffset.X() << ", " << fOffset.Y() << ") mm" << RESTendl;
     RESTMetadata << " - Rotation angle : " << fRotationAngle * 180. / TMath::Pi() << " degrees" << RESTendl;
 }

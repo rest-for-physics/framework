@@ -169,16 +169,16 @@ Int_t TRestRingsMask::GetRegion(Double_t x, Double_t y) {
     if (ApplyCommonMaskTransformation(x, y) == 0) return 0;
 
     Double_t r = TMath::Sqrt(x * x + y * y);
-    int cont = 1;
+    int cont = 0;
     for (const auto& ringRadius : fRingsRadii) {
-        if (r < ringRadius.second && r >= ringRadius.first) return cont;
+        if (r < ringRadius.second && r >= ringRadius.first) return cont % fMaxRegions + 1;
         cont++;
     }
     return 0;
 }
 
 ///////////////////////////////////////////////
-/// \brief It will initialize the variable fRingsRadii using the 
+/// \brief It will initialize the variable fRingsRadii using the
 /// number of radius, initial radius, the rings gap and thickness.
 ///
 void TRestRingsMask::GenerateRings() {
