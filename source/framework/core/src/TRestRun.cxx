@@ -508,9 +508,21 @@ void TRestRun::ReadInputFileMetadata() {
         set<string> addednames;
         while ((key = (TKey*)nextkey())) {
             RESTDebug << "Reading key with name : " << key->GetName() << RESTendl;
+            RESTDebug << "Key type (class) : " << key->GetClassName() << RESTendl;
+
+            if (!TClass::GetClass(key->GetClassName())->IsLoaded()) {
+                RESTError << "-- Class " << key->GetClassName() << " has no dictionary!" << RESTendl;
+                RESTError << "- Any relevant REST library missing? " << RESTendl;
+                RESTError << "- File reading will continue without loading key: " << key->GetName()
+                          << RESTendl;
+                continue;
+            }
+
             if (addednames.count(key->GetName()) != 0) continue;
 
             TRestMetadata* a = (TRestMetadata*)f->Get(key->GetName());
+            RESTDebug << "Key of type : " << a->ClassName() << "(" << a << ")" << RESTendl;
+
             if (!a) {
                 RESTError << "TRestRun::ReadInputFileMetadata." << RESTendl;
                 RESTError << "Key name : " << key->GetName() << RESTendl;
