@@ -52,8 +52,8 @@ class TRestGridMask : public TRestPatternMask {
     Int_t GetModulus() { return fModulus; }
 
     void PrintMetadata() override;
-
-    void Print() override;
+    void PrintMaskMembers() override;
+    void PrintMask() override;
 
     TRestGridMask();
     TRestGridMask(const char* cfgFileName, std::string name = "");

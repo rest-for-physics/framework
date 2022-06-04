@@ -76,6 +76,8 @@ class TRestRingsMask : public TRestPatternMask {
     }
 
     void PrintMetadata() override;
+    void PrintMaskMembers() override;
+    void PrintMask() override;
 
     TRestRingsMask();
     TRestRingsMask(const char* cfgFileName, std::string name = "");

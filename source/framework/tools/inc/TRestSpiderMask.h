@@ -29,7 +29,6 @@
 class TRestSpiderMask : public TRestPatternMask {
    private:
     void Initialize() override;
-
     /// The angle between two consecutive spider arms measured in radians.
     Double_t fArmsSeparationAngle = 0;  //<
 
@@ -60,6 +59,8 @@ class TRestSpiderMask : public TRestPatternMask {
     Double_t GetInitialRadius() { return fInitialRadius; }
 
     void PrintMetadata() override;
+    void PrintMaskMembers() override;
+    void PrintMask() override;
 
     TRestSpiderMask();
     TRestSpiderMask(const char* cfgFileName, std::string name = "");

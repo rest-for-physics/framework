@@ -52,6 +52,8 @@ class TRestStrippedMask : public TRestPatternMask {
     Int_t GetModulus() { return fModulus; }
 
     void PrintMetadata() override;
+    void PrintMaskMembers() override;
+    void PrintMask() override;
 
     TRestStrippedMask();
     TRestStrippedMask(const char* cfgFileName, std::string name = "");

@@ -187,13 +187,30 @@ Int_t TRestStrippedMask::GetRegion(Double_t x, Double_t y) {
 }
 
 /////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
+/// \brief Prints on screen the complete information about the metadata members from this class
 ///
 void TRestStrippedMask::PrintMetadata() {
     TRestPatternMask::PrintMetadata();
 
-    RESTMetadata << "-----" << RESTendl;
+    PrintMaskMembers();
+    RESTMetadata << "++++" << RESTendl;
+}
+
+/////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members of TRestRingsMask,
+/// including common pattern headers, but without common metadata headers.
+///
+void TRestStrippedMask::PrintMask() {
+    PrintCommonPatternMembers();
+    RESTMetadata << "----" << RESTendl;
+    PrintMaskMembers();
+}
+
+/////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members of TRestRingsMask,
+/// excluding common metadata headers.
+///
+void TRestStrippedMask::PrintMaskMembers() {
     RESTMetadata << " - Strips gap : " << fStripsGap << " mm" << RESTendl;
     RESTMetadata << " - Strips thickness : " << fStripsThickness << " mm" << RESTendl;
-    RESTMetadata << "+++++" << RESTendl;
 }

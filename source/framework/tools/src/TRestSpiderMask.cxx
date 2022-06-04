@@ -277,15 +277,32 @@ void TRestSpiderMask::GenerateSpider() {
 }
 
 /////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
+/// \brief Prints on screen the complete information about the metadata members from this class
 ///
 void TRestSpiderMask::PrintMetadata() {
     TRestPatternMask::PrintMetadata();
 
+    PrintMaskMembers();
+    RESTMetadata << "----" << RESTendl;
+}
+
+/////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members of TRestRingsMask,
+/// including common pattern headers, but without common metadata headers.
+///
+void TRestSpiderMask::PrintMask() {
+    PrintCommonPatternMembers();
+    RESTMetadata << "----" << RESTendl;
+    PrintMaskMembers();
+}
+
+/////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members of TRestRingsMask,
+/// excluding common metadata headers.
+///
+void TRestSpiderMask::PrintMaskMembers() {
     RESTMetadata << " - Arms separation angle : " << fArmsSeparationAngle * units("degrees") << " degrees"
                  << RESTendl;
     RESTMetadata << " - Arms angular width : " << fArmsWidth * units("degrees") << " degrees" << RESTendl;
     RESTMetadata << " - Spider start radius : " << fInitialRadius * units("cm") << " cm" << RESTendl;
-
-    RESTMetadata << "----" << RESTendl;
 }

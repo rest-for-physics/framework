@@ -86,9 +86,12 @@ class TRestPatternMask : public TRestMetadata {
     /// It defines the mask radius
     void SetMaskRadius(const Double_t& radius) { fMaskRadius = radius; }
 
-    void PrintMetadata() override;
+    void PrintCommonPatternMembers();
 
-    virtual void Print();
+    virtual void PrintMaskMembers() = 0;
+    virtual void PrintMask() = 0;
+
+    void PrintMetadata() override;
 
     TCanvas* DrawMonteCarlo(Int_t nSamples = 10000);
 

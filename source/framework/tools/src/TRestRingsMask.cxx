@@ -154,7 +154,7 @@ void TRestRingsMask::Initialize() {
     SetSectionName(this->ClassName());
     SetType("Rings");
 
-    GenerateRings();
+    if (fNRings > 0) GenerateRings();
 }
 
 ///////////////////////////////////////////////
@@ -193,17 +193,36 @@ void TRestRingsMask::GenerateRings() {
 }
 
 /////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
+/// \brief Prints on screen the information about the metadata members from this class
 ///
 void TRestRingsMask::PrintMetadata() {
     TRestPatternMask::PrintMetadata();
 
+    PrintMaskMembers();
+    RESTMetadata << "----" << RESTendl;
+}
+
+/////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members of TRestRingsMask,
+/// including common pattern headers, but without common metadata headers.
+///
+void TRestRingsMask::PrintMask() {
+    PrintCommonPatternMembers();
+    RESTMetadata << "----" << RESTendl;
+    PrintMaskMembers();
+}
+
+/////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members of TRestRingsMask,
+/// excluding common metadata headers.
+///
+void TRestRingsMask::PrintMaskMembers() {
     if (fRingsGap > 0) RESTMetadata << " - Rings gap : " << fRingsGap << " mm" << RESTendl;
     if (fRingsThickness > 0) RESTMetadata << " - Rings thickness : " << fRingsThickness << " mm" << RESTendl;
     if (fNRings > 0) RESTMetadata << " - Number of rings : " << fNRings << RESTendl;
     if (fInitialRadius > 0) RESTMetadata << " - Initial radius : " << fInitialRadius << " mm" << RESTendl;
-    if (fNRings > 0) RESTMetadata << "-----" << RESTendl;
     if (fRingsRadii.size() > 0) {
+        if (fNRings > 0) RESTMetadata << "-----" << RESTendl;
         RESTMetadata << "Inner radii : (";
         for (int n = 0; n < fRingsRadii.size(); n++) {
             if (n > 0) RESTMetadata << ", ";
@@ -219,5 +238,4 @@ void TRestRingsMask::PrintMetadata() {
         }
         RESTMetadata << ")" << RESTendl;
     }
-    RESTMetadata << "----" << RESTendl;
 }

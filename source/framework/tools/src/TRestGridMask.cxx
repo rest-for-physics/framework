@@ -205,23 +205,30 @@ Int_t TRestGridMask::GetRegion(Double_t x, Double_t y) {
 }
 
 /////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
+/// \brief Prints on screen the complete information about the metadata members from this class
 ///
 void TRestGridMask::PrintMetadata() {
     TRestPatternMask::PrintMetadata();
 
-    RESTMetadata << " - Grid gap : " << fGridGap << " mm" << RESTendl;
-    RESTMetadata << " - Grid thickness : " << fGridThickness << " mm" << RESTendl;
-    RESTMetadata << "+++++" << RESTendl;
+    PrintMaskMembers();
+    RESTMetadata << "----" << RESTendl;
 }
 
 /////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
+/// \brief Prints on screen the information about the metadata members of TRestRingsMask,
+/// including common pattern headers, but without common metadata headers.
 ///
-void TRestGridMask::Print() {
-    TRestPatternMask::Print();
-
+void TRestGridMask::PrintMask() {
+    PrintCommonPatternMembers();
     RESTMetadata << "----" << RESTendl;
+    PrintMaskMembers();
+}
+
+/////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members of TRestRingsMask,
+/// excluding common metadata headers.
+///
+void TRestGridMask::PrintMaskMembers() {
     RESTMetadata << " - Grid gap : " << fGridGap << " mm" << RESTendl;
     RESTMetadata << " - Grid thickness : " << fGridThickness << " mm" << RESTendl;
 }
