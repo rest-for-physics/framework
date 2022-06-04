@@ -21,36 +21,11 @@
  *************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////
-/// This class is used to generate a combined mask structure defined by arms
-/// distributed at a fixed angular period, defined by `fArmsSeparationAngle`,
+/// This class is used to generate a combined mask structure by combining
+/// any of the predefined existing masks inheriting from TRestPatternMask.
 ///
-/// The combined pattern is centered in (0,0) and it can be shifted using
-/// the offset defined inside TRestPatternMask. It must be noted that
-/// it is the pattern that will be shifted and not the mask. The circular
-/// mask imposed by TRestPatternMask will still be centered at (0,0).
-///
-/// ### Specific combined metadata parameters
-///
-/// * **armsSeparationAngle**: This parameter defines the combined periodicity
-/// in radians.
-/// * **armsWidth**: The width of each arm in radians.
-/// * **initialRadius**: The radius from which the ring structure starts to
-/// be effective.
-///
-/// \note Once those parameters have been initialized, and when using this
-/// class in a stand-alone mode, we need to call the method
-/// TRestCombinedMask::GenerateCombined in order to initialize the internal
-/// data members TRestCombinedMask::fPositiveRanges and
-/// TRestCombinedMask::fNegativeRanges that are effectively used inside the
-/// TRestCombinedMask::GetRegion calculation.
-///
-/// ### Common pattern metadata parameters
-///
-/// On top of the metadata class parameters, we may define common pattern
-/// parameters to induce an offset and rotation to the pattern.
-///
-/// * **offset**: A parameter to shift the combined pattern.
-/// * **maskRadius**: A radius defining the limits of the circular mask.
+/// The implementation of TRestCombinedMask::GetRegion method will use the
+/// region ids of each internal mask to generate a new unique region id.
 ///
 /// ### Examples
 ///
@@ -62,13 +37,13 @@
 ///
 /// \code
 ///  <TRestCombinedMask name="combined3" verboseLevel="info">
-///    <parameter name="maskRadius" value="20cm"/>
-///    <parameter name="offset" value="(0,0)cm"/>
-///    <parameter name="rotationAngle" value="30deg"/>
+///       <TRestSpiderMask ...>
+///           ...
+///       </TRestSpiderMask>
 ///
-///    <parameter name="armsWidth" value="5deg"/>
-///    <parameter name="armsSeparationAngle" value="60degrees"/>
-///    <parameter name="initialRadius" value="6cm"/>
+///       <TRestRingsMask ...>
+///           ...
+///       </TRestRingsMask>
 ///  </TRestCombinedMask>
 /// \endcode
 ///
