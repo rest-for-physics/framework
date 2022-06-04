@@ -57,14 +57,14 @@
 /// \endcode
 ///
 /// The following figure may be generated using the TRestPatternMask::DrawMonteCarlo
-/// method, using `combined1`, `combined2` and `combined3` definitions.
+/// method, using the `combined` definition.
 ///
 /// \code
-///     TRestCombinedMask mask("masks.rml", "combined2");
+///     TRestCombinedMask mask("masks.rml", "combined");
 ///     mask.GenerateCombined();
 ///     TCanvas *c = mask.DrawMonteCarlo(30000);
 ///     c->Draw();
-///     c->Print("combined2.png");
+///     c->Print("combined.png");
 /// \endcode
 ///
 /// \htmlonly <style>div.image img[src="combinedmask.png"]{width:600px;}</style> \endhtmlonly
