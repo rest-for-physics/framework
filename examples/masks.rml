@@ -1,50 +1,69 @@
 <?xml version="1.0"?>
 <masks>
-  <TRestGridMask name="strongback" verboseLevel="warning">
-    <parameter name="maskRadius" value="20"/>
-    <parameter name="offset" value="(5,5)mm"/>
-    <parameter name="rotationAngle" value="0.5"/>
-    <parameter name="gridGap" value="1cm"/>
-    <parameter name="gridThickness" value="2mm"/>
-  </TRestGridMask>
-  <TRestStrippedMask name="stripped" verboseLevel="warning">
-    <parameter name="maskRadius" value="2cm"/>
-    <parameter name="offset" value="(3,3)mm"/>
-    <parameter name="rotationAngle" value="0.5"/>
-    <parameter name="stripsGap" value="12mm"/>
-    <parameter name="stripsThickness" value="1.2mm"/>
-  </TRestStrippedMask>
-  <TRestRingsMask name="rings" verboseLevel="warning">
-    <parameter name="maskRadius" value="9cm"/>
-    <parameter name="offset" value="(3,3)mm"/>
-    <parameter name="rotationAngle" value="0.5"/>
-    <parameter name="ringsGap" value="12mm"/>
-    <parameter name="ringsThickness" value="9mm"/>
-    <parameter name="initialRadius" value="3cm"/>
-    <parameter name="nRings" value="5"/>
-  </TRestRingsMask>
-  <TRestSpiderMask name="spider1" verboseLevel="info">
-    <parameter name="maskRadius" value="20cm"/>
-    <parameter name="offset" value="(0,0)cm"/>
-    <parameter name="rotationAngle" value="10"/>
-    <parameter name="armsWidth" value="5deg"/>
-    <parameter name="armsSeparationAngle" value="80degrees"/>
-    <parameter name="initialRadius" value="12cm"/>
-  </TRestSpiderMask>
-  <TRestSpiderMask name="spider2" verboseLevel="info">
-    <parameter name="maskRadius" value="20cm"/>
-    <parameter name="offset" value="(0,0)cm"/>
-    <parameter name="rotationAngle" value="0"/>
-    <parameter name="armsWidth" value="5deg"/>
-    <parameter name="armsSeparationAngle" value="30degrees"/>
-    <parameter name="initialRadius" value="3cm"/>
-  </TRestSpiderMask>
-  <TRestSpiderMask name="spider3" verboseLevel="info">
-    <parameter name="maskRadius" value="20cm"/>
-    <parameter name="offset" value="(0,0)cm"/>
-    <parameter name="rotationAngle" value="30deg"/>
-    <parameter name="armsWidth" value="5deg"/>
-    <parameter name="armsSeparationAngle" value="60degrees"/>
-    <parameter name="initialRadius" value="6cm"/>
-  </TRestSpiderMask>
+    <TRestGridMask name="strongback" verboseLevel="warning">
+        <parameter name="maskRadius" value="20"/>
+        <parameter name="offset" value="(5,5)mm"/>
+        <parameter name="rotationAngle" value="0.5"/>
+        <parameter name="gridGap" value="1cm"/>
+        <parameter name="gridThickness" value="2mm"/>
+    </TRestGridMask>
+    <TRestStrippedMask name="stripped" verboseLevel="warning">
+        <parameter name="maskRadius" value="2cm"/>
+        <parameter name="offset" value="(3,3)mm"/>
+        <parameter name="rotationAngle" value="0.5"/>
+        <parameter name="stripsGap" value="12mm"/>
+        <parameter name="stripsThickness" value="1.2mm"/>
+    </TRestStrippedMask>
+    <TRestRingsMask name="rings" verboseLevel="warning">
+        <parameter name="maskRadius" value="9cm"/>
+        <parameter name="offset" value="(3,3)mm"/>
+        <parameter name="rotationAngle" value="0.5"/>
+        <parameter name="ringsGap" value="12mm"/>
+        <parameter name="ringsThickness" value="9mm"/>
+        <parameter name="initialRadius" value="3cm"/>
+        <parameter name="nRings" value="5"/>
+    </TRestRingsMask>
+    <TRestSpiderMask name="spider1" verboseLevel="info">
+        <parameter name="maskRadius" value="20cm"/>
+        <parameter name="offset" value="(0,0)cm"/>
+        <parameter name="rotationAngle" value="10"/>
+        <parameter name="armsWidth" value="5deg"/>
+        <parameter name="armsSeparationAngle" value="80degrees"/>
+        <parameter name="initialRadius" value="12cm"/>
+    </TRestSpiderMask>
+    <TRestSpiderMask name="spider2" verboseLevel="info">
+        <parameter name="maskRadius" value="20cm"/>
+        <parameter name="offset" value="(0,0)cm"/>
+        <parameter name="rotationAngle" value="0"/>
+        <parameter name="armsWidth" value="5deg"/>
+        <parameter name="armsSeparationAngle" value="30degrees"/>
+        <parameter name="initialRadius" value="3cm"/>
+    </TRestSpiderMask>
+    <TRestSpiderMask name="spider3" verboseLevel="info">
+        <parameter name="maskRadius" value="20cm"/>
+        <parameter name="offset" value="(0,0)cm"/>
+        <parameter name="rotationAngle" value="30deg"/>
+        <parameter name="armsWidth" value="5deg"/>
+        <parameter name="armsSeparationAngle" value="60degrees"/>
+        <parameter name="initialRadius" value="6cm"/>
+    </TRestSpiderMask>
+    <TRestCombinedMask name="combined" verboseLevel="warning">
+        <TRestSpiderMask name="spider1" verboseLevel="warning">
+            <parameter name="maskRadius" value="20cm"/>
+            <parameter name="offset" value="(0,0)cm"/>
+            <parameter name="rotationAngle" value="10deg"/>
+            <parameter name="armsWidth" value="5deg"/>
+            <parameter name="armsSeparationAngle" value="30deg"/>
+            <parameter name="initialRadius" value="12cm"/>
+        </TRestSpiderMask>
+        <TRestRingsMask name="rings" verboseLevel="warning">
+            <parameter name="maskRadius" value="20cm"/>
+            <parameter name="offset" value="(0,0)mm"/>
+            <parameter name="rotationAngle" value="0.5rads"/>
+            <parameter name="ringsGap" value="12mm"/>
+            <parameter name="ringsThickness" value="9mm"/>
+            <parameter name="initialRadius" value="12cm"/>
+            <parameter name="nRings" value="10"/>
+        </TRestRingsMask>
+    </TRestCombinedMask>
 </masks>
