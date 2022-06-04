@@ -287,7 +287,7 @@ void TRestSpiderMask::PrintMetadata() {
 }
 
 /////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestRingsMask,
+/// \brief Prints on screen the information about the metadata members from this class,
 /// including common pattern headers, but without common metadata headers.
 ///
 void TRestSpiderMask::PrintMask() {
@@ -297,7 +297,7 @@ void TRestSpiderMask::PrintMask() {
 }
 
 /////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestRingsMask,
+/// \brief Prints on screen the information about the metadata members from this class,
 /// excluding common metadata headers.
 ///
 void TRestSpiderMask::PrintMaskMembers() {
@@ -305,4 +305,26 @@ void TRestSpiderMask::PrintMaskMembers() {
                  << RESTendl;
     RESTMetadata << " - Arms angular width : " << fArmsWidth * units("degrees") << " degrees" << RESTendl;
     RESTMetadata << " - Spider start radius : " << fInitialRadius * units("cm") << " cm" << RESTendl;
+
+    if (fPositiveRanges.size() > 0) {
+        RESTMetadata << "-------------------------------" << RESTendl;
+        for (int n = 0; n < fPositiveRanges.size(); n++) {
+            RESTDebug << "n : " << n << " from : " << 180 * fPositiveRanges[n].first / TMath::Pi() << " to "
+                      << 180 * fPositiveRanges[n].second / TMath::Pi() << RESTendl;
+        }
+
+        RESTMetadata << "Positive ranges : {";
+        for (int n = 0; n < fPositiveRanges.size(); n++) {
+            if (n > 0) RESTMetadata << ", ";
+            RESTMetadata << "(" << fPositiveRanges[n].first << ", " << fPositiveRanges[n].second << ")";
+        }
+        RESTMetadata << "}" << RESTendl;
+
+        RESTMetadata << "Negative ranges : {";
+        for (int n = 0; n < fNegativeRanges.size(); n++) {
+            if (n > 0) RESTMetadata << ", ";
+            RESTMetadata << "(" << fNegativeRanges[n].first << ", " << fNegativeRanges[n].second << ")";
+        }
+        RESTMetadata << "}" << RESTendl;
+    }
 }
