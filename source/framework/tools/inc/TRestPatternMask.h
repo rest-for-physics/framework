@@ -44,7 +44,10 @@ class TRestPatternMask : public TRestMetadata {
 
    protected:
     /// The maximum mask radius in mm (if 0 it will be infinite)
-    Double_t fMaskRadius = 0;
+    Double_t fMaskRadius = 0;  //<
+
+    /// The maximum number of regions allowed in each mask
+    Int_t fMaxRegions = 100;  //<
 
     /// It defines the mask type. To be called by the inherited class constructor.
     void SetType(const std::string& type) { fPatternType = type; }
@@ -55,6 +58,8 @@ class TRestPatternMask : public TRestMetadata {
     TRestPatternMask(const char* cfgFileName, std::string name = "");
 
    public:
+    Int_t GetMaxRegions() { return fMaxRegions; }
+
     Bool_t HitsPattern(Double_t x, Double_t y);
 
     /// To be implemented at the inherited class with the pattern and region identification logic
