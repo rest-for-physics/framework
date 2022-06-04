@@ -28,11 +28,11 @@
 /// A class used to define and generate a combined structure mask
 class TRestCombinedMask : public TRestPatternMask {
    private:
-    void Initialize() override;
-
     std::vector<TRestPatternMask*> fMasks;
 
    public:
+    void Initialize() override;
+
     void AddMask(TRestPatternMask* mask) { fMasks.push_back(mask); }
 
     Int_t GetRegion(Double_t x, Double_t y) override;
