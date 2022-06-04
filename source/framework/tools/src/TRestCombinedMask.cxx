@@ -67,7 +67,7 @@
 ///     c->Print("combined2.png");
 /// \endcode
 ///
-/// \htmlonly <style>div.image img[src="combinedmask.png"]{width:1000px;}</style> \endhtmlonly
+/// \htmlonly <style>div.image img[src="combinedmask.png"]{width:600px;}</style> \endhtmlonly
 /// ![An illustration of the montecarlo mask test using DrawMonteCarlo](combinedmask.png)
 ///
 ///----------------------------------------------------------------------
