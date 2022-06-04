@@ -156,6 +156,8 @@ TRestCombinedMask::~TRestCombinedMask() {}
 void TRestCombinedMask::Initialize() {
     SetSectionName(this->ClassName());
     SetType("Combined");
+
+    for (const auto mask : fMasks) mask->Initialize();
 }
 
 ///////////////////////////////////////////////
