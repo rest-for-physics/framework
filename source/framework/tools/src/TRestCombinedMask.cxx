@@ -157,7 +157,10 @@ void TRestCombinedMask::Initialize() {
     SetSectionName(this->ClassName());
     SetType("Combined");
 
-    for (const auto mask : fMasks) mask->Initialize();
+    for (const auto mask : fMasks) {
+        mask->Initialize();
+        if (mask->GetMaskRadius() > fMaskRadius) fMaskRadius = mask->GetMaskRadius();
+    }
 }
 
 ///////////////////////////////////////////////
