@@ -1,6 +1,6 @@
 add_subdirectory(external)
 
-set(contents external/tinyxml tools core analysis)
+set(contents external/tinyxml tools core analysis masks)
 
 file(GLOB_RECURSE addon_src
         "tiny*cpp"
