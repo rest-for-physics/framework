@@ -44,11 +44,13 @@ struct __REST_CONST_INIT {
         }
 
         if (_REST_USER == nullptr) {
-            RESTWarning << "Lacking system env \"USER\"!" << RESTendl;
             const string systemUsername = TRestTools::Execute("whoami");
             if (!systemUsername.empty()) {
                 REST_USER = systemUsername;
             } else {
+                RESTWarning
+                    << R"(Cannot find username. "USER" env variable is not set and "whoami" utility is not working)"
+                    << RESTendl;
                 REST_USER = "defaultUser";
             }
             RESTWarning << "Setting user name to : \"" << REST_USER << "\"" << RESTendl;
