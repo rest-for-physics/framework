@@ -791,19 +791,42 @@ Int_t TRestTools::CheckTheFile(std::string configFilename) {
 ///
 vector<string> TRestTools::GetFilesMatchingPattern(string pattern) {
     std::vector<string> outputFileNames;
-
     if (pattern != "") {
         vector<string> items = Split(pattern, "\n");
-
         for (auto item : items) {
-            if (item.find_first_of("*") != string::npos || item.find_first_of("?") != string::npos) {
+            if (item.find_first_of("*?") != string::npos) {
 
+#ifdef WIN32
+                item = Replace(item, "/", "\\");
+                string item_trim = item.substr(0, item.find_first_of("*?"));// trim string to before wildcard character
+                auto path_name = SeparatePathAndName(item_trim);
+                string _path = path_name.first;
+                if (!std::filesystem::exists(_path)) {
+                    RESTError << "TRestTools::GetFilesMatchingPattern(): path " << _path
+                                << " does not exist!"
+                        << RESTendl;
+                    return outputFileNames;
+                }
+
+                std::filesystem::path path(_path);
+                std::filesystem::recursive_directory_iterator iter(path);
+                for (auto& it : iter) {
+                    if (it.is_regular_file()) {
+                        string filename = it.path().string();
+                        if (MatchString(filename, item)) {
+                            outputFileNames.push_back(it.path().string());
+                        }
+                    }
+                }
+#else
                 string a = Execute("find " + item);
                 auto b = Split(a, "\n");
 
                 for (int i = 0; i < b.size(); i++) {
                     outputFileNames.push_back(b[i]);
                 }
+#endif
+
             } else {
                 if (fileExists(item)) outputFileNames.push_back(item);
             }
