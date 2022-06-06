@@ -738,13 +738,11 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 auto run = GetRunInfo(fRunInputFileName[j]);
                 // apply "classify" condition
                 bool flag = true;
-                auto iter = hist.classifyMap.begin();
-                while (iter != hist.classifyMap.end()) {
-		    if (run->GetRunInformation(iter->first).find(iter->second) == string::npos ) {
+                for (const auto& [inputFile, info] : hist.classifyMap) {
+                    if (run->GetRunInformation(inputFile).find(info) == string::npos) {
                         flag = false;
                         break;
                     }
-                    iter++;
                 }
                 if (!flag) continue;
 
@@ -792,10 +790,10 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                             hTotal->SetCanExtend(TH1::kAllAxes);
                             tree->Draw(plotString + ">>+" + hTotal->GetName(), cutString, optString,
                                        fDrawNEntries, fDrawFirstEntry);
-			    RESTInfo << "AnalysisTree->Draw(\"" << plotString << ">>+" << hTotal->GetName() << "\", \"" << cutString
-				 << "\", \"" << optString << "\", " << fDrawNEntries << ", " << fDrawFirstEntry << ")"
-				 << RESTendl;
-			    hTotal->SetDirectory(0);
+                            RESTInfo << "AnalysisTree->Draw(\"" << plotString << ">>+" << hTotal->GetName()
+                                     << "\", \"" << cutString << "\", \"" << optString << "\", "
+                                     << fDrawNEntries << ", " << fDrawFirstEntry << ")" << RESTendl;
+                            hTotal->SetDirectory(0);
                         } else {
                             hTotal->Add(hh);
                         }
