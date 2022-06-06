@@ -298,88 +298,63 @@ Int_t REST_StringHelper::FindNthStringPosition(const string& in, size_t pos, con
     return FindNthStringPosition(in, found_pos + 1, strToFind, nth - 1);
 }
 
+/// \brief This method matches a string with certain matcher. Returns true if matched. 
+/// Supports wildcard characters.
+///
+/// wildcard character include * and ?. * can replace any number of characters, and ? can 
+/// replace a single character.
+/// 
+/// e.g. (string, matcher)
+/// "abcddd", "abc?d" --> not matched
+/// "abcddd", "abc??d" --> matched
+/// "abcddd", "abc*d" --> matched
+/// 
+/// Note that this method performs equal-match action. It is not matching substring 
+/// for the input string. So:
+/// "abcddd", "a?c" --> not matched
+/// 
+/// Source code from
+/// https://blog.csdn.net/dalao_whs/article/details/110477705
+///
 Bool_t REST_StringHelper::MatchString(std::string str, std::string matcher) {
     if (str.size() > 256 || matcher.size() > 256) {
         RESTError << "REST_StringHelper::MatchString(): string size too large" << RESTendl;
         return false;
     }
 
-    //if (!equal) {
-        // source code https://blog.csdn.net/dalao_whs/article/details/110477705
     vector<vector<bool>> dp(256, vector<bool>(256));
-        int n2 = str.size();
-        int n1 = matcher.size();
-        dp[0][0] = true;
-        int i = 0, j = 0;
-        for (int i = 0; i < n1; i++) {
-            if (matcher[i] != '*') {
-                break;
-            }
-            if (i == n1 - 1 && matcher[i] == '*') {
-                return true;
-            }
+    int n2 = str.size();
+    int n1 = matcher.size();
+    dp[0][0] = true;
+    int i = 0, j = 0;
+    for (int i = 0; i < n1; i++) {
+        if (matcher[i] != '*') {
+            break;
         }
-        for (i = 1; matcher.at(i - 1) == '*'; i++) {
-            dp[i][0] = true;
-        }
-        for (i = 1; i <= n1; i++) {
-            for (j = 1; j <= n2; j++) {
-                if (matcher.at(i - 1) == '*' && (dp[i - 1][j - 1] || dp[i][j - 1] || dp[i - 1][j])) {
-                    dp[i][j] = true;
-                } else if (matcher.at(i - 1) == '?' && dp[i - 1][j - 1]) {
-                    dp[i][j] = true;
-                } else if (matcher.at(i - 1) == str.at(j - 1) && dp[i - 1][j - 1]) {
-                    dp[i][j] = true;
-                }
-            }
-        }
-        if (dp[n1][n2]) {
+        if (i == n1 - 1 && matcher[i] == '*') {
             return true;
-        } else {
-            return false;
         }
-    //}
+    }
+    for (i = 1; matcher.at(i - 1) == '*'; i++) {
+        dp[i][0] = true;
+    }
+    for (i = 1; i <= n1; i++) {
+        for (j = 1; j <= n2; j++) {
+            if (matcher.at(i - 1) == '*' && (dp[i - 1][j - 1] || dp[i][j - 1] || dp[i - 1][j])) {
+                dp[i][j] = true;
+            } else if (matcher.at(i - 1) == '?' && dp[i - 1][j - 1]) {
+                dp[i][j] = true;
+            } else if (matcher.at(i - 1) == str.at(j - 1) && dp[i - 1][j - 1]) {
+                dp[i][j] = true;
+            }
+        }
+    }
+    if (dp[n1][n2]) {
+        return true;
+    } else {
+        return false;
+    }
 
-    //else {
-    //    // source code https://www.likecs.com/show-389602.html
-
-    //    int slen1 = str.size();
-    //    int slen2 = matcher.size();
-    //    vector<vector<bool>> matchmap(128, vector<bool>(128));
-    //    matchmap[0][0] = 1;
-    //    int i, j, k;
-    //    for (i = 1; i <= slen1; ++i) {
-    //        for (j = 1; j <= slen2; ++j) {
-    //            if (matchmap[i - 1][j - 1]) {
-    //                if (str[i - 1] == matcher[j - 1] || matcher[j - 1] == '?') {
-    //                    matchmap[i][j] = 1;
-    //                    if (i == slen1 && j < slen2) {
-    //                        for (k = j + 1; k <= slen2; ++k) {
-    //                            if ('*' == matcher[k - 1]) {
-    //                                matchmap[i][k] = 1;
-    //                            } else {
-    //                                break;
-    //                            }
-    //                        }
-    //                    }
-    //                } else if (matcher[j - 1] == '*') {
-    //                    for (k = i - 1; k <= slen1; ++k) {
-    //                        matchmap[k][j] = 1;
-    //                    }
-    //                }
-    //            }
-    //        }
-    //        for (k = 1; k <= matcher; ++k) {
-    //            if (matchmap[i][k]) {
-    //                break;
-    //            }
-    //        }
-    //        if (k > slen2) {
-    //            return 0;
-    //        }
-    //    }
-    //    return matchmap[slen1][slen2];
-    //}
     return false;
 }
 
@@ -409,7 +384,7 @@ Int_t REST_StringHelper::DiffString(const string& source, const string& target) 
     if (m == 0) return n;
     if (n == 0) return m;
     // Construct a matrix
-    typedef vector<vector<int> > Tmatrix;
+    typedef vector<vector<int>> Tmatrix;
     Tmatrix matrix(n + 1);
     for (int i = 0; i <= n; i++) matrix[i].resize(m + 1);
 
