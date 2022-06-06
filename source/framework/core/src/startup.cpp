@@ -27,7 +27,6 @@ map<string, RESTVirtualConverter*> RESTConverterMethodBase = {};
 struct __REST_CONST_INIT {
    public:
     __REST_CONST_INIT() {
-
         REST_COMMIT = TRestTools::Execute("rest-config --commit");
 
         char* _REST_PATH = getenv("REST_PATH");
@@ -37,17 +36,22 @@ struct __REST_CONST_INIT {
         if (_REST_PATH == nullptr) {
             RESTError << "Lacking system env \"REST_PATH\"! Cannot start!" << RESTendl;
             RESTError << "You need to source \"thisREST.sh\" first" << RESTendl;
-            #ifndef REST_TESTING_ENABLED
+#ifndef REST_TESTING_ENABLED
             abort();
-            #endif
+#endif
         } else {
             REST_PATH = _REST_PATH;
         }
 
         if (_REST_USER == nullptr) {
             RESTWarning << "Lacking system env \"USER\"!" << RESTendl;
-            RESTWarning << "Setting user name to : \"defaultUser\"" << RESTendl;
-            REST_USER = "defaultUser";
+            const string systemUsername = TRestTools::Execute("whoami");
+            if (!systemUsername.empty()) {
+                REST_USER = systemUsername;
+            } else {
+                REST_USER = "defaultUser";
+            }
+            RESTWarning << "Setting user name to : \"" << REST_USER << "\"" << RESTendl;
             setenv("USER", REST_USER.c_str(), true);
 
         } else {
