@@ -38,7 +38,7 @@ stages:
   - postProcessing
 
   # Stage to validate other restManager tasks (metadata generation, script loading, etc).
-  - restManager_generate
+  - restManager generate
 
   # Scripts to launch more complete tests. TRestGas file generation, Geant4 physics validation, etc.
   - deploy
