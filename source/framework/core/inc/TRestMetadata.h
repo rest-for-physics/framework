@@ -236,7 +236,7 @@ class TRestMetadata : public TNamed {
     Int_t LoadConfigFromFile(const std::string& configFilename, const std::string& sectionName = "");
     Int_t LoadConfigFromBuffer();
 
-    TRestMetadata* GetChildMetadata(std::string pattern = "", std::string name = "");
+    TRestMetadata* InstantiateChildMetadata(std::string pattern = "", std::string name = "");
 
     /// Making default settings.
     virtual void Initialize() {}

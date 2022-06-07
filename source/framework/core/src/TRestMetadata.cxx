@@ -680,7 +680,7 @@ Int_t TRestMetadata::LoadConfigFromBuffer() {
 ///
 /// If no child element is found `nullptr` will be returned.
 ///
-TRestMetadata* TRestMetadata::GetChildMetadata(std::string pattern, std::string name) {
+TRestMetadata* TRestMetadata::InstantiateChildMetadata(std::string pattern, std::string name) {
     auto paraele = fElement->FirstChildElement();
     while (paraele != nullptr) {
         std::string xmlChild = paraele->Value();
