@@ -32,7 +32,7 @@ stages:
   - examples
 
   # Stage to validate data chain processing constructions (TREX-DM data, PandaX-III topology, etc).
-  - restManager_process
+  - restManager process
 
   # Stage to validate tasks or executions over preprocessed data files
   - postProcessing
@@ -111,7 +111,7 @@ Build and Install:
     paths:
       - ${CI_PROJECT_DIR}/install
     expire_in: 1 day
-    
+
 Load REST Libraries:
   stage: install
   script:
@@ -225,7 +225,7 @@ Basic Readout:
     - restRoot -b -q BasicValidation.C'("basic.root", "pixelDecoding")'
 
 Test Metadata:
-  stage: restManager_generate
+  stage: restManager generate
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples
@@ -236,7 +236,7 @@ Test Metadata:
     expire_in: 1 day
 
 TREX-DM Latest Data:
-  stage: restManager_process
+  stage: restManager process
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/trex
@@ -255,7 +255,7 @@ TREX-DM Latest Data:
     expire_in: 1 day
 
 PandaXIII Topological:
-  stage: restManager_process
+  stage: restManager process
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC
@@ -269,7 +269,7 @@ PandaXIII Topological:
     expire_in: 1 week
 
 PandaXIII Topological from Geant4:
-  stage: restManager_process
+  stage: restManager process
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC
@@ -283,7 +283,7 @@ PandaXIII Topological from Geant4:
     expire_in: 1 week
 
 PandaXIII Data:
-  stage: restManager_process
+  stage: restManager process
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/pandaxiii_data
@@ -296,15 +296,15 @@ PandaXIII Data:
     expire_in: 1 week
 
 Event Selection:
-  stage: restManager_process
+  stage: restManager process
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/selection
     - restManager --c g4Analysis.rml --f "${CI_PROJECT_DIR}/install/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root"
-    
+
     - restManager --c g4OnSelection.rml --f Run00001_NLDBD_Test_g4Analysis.root
     - restRoot -b -q Validate.C'("Run00001_NLDBD_Test_EvSelection.root")'
-    
+
     - restManager --c g4EvSelectionIDsFromFile.rml --f Run00001_NLDBD_Test_g4Analysis.root
     - restRoot -b -q ValidateIDsFromFile.C'("Run00001_NLDBD_Test_EvSelectionIDsFromFile.root")'
 
