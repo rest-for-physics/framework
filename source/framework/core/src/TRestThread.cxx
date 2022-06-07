@@ -228,7 +228,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
     if (fHostRunner->GetOutputDataFile()->GetName() == (string) "/dev/null") {
         threadFileName = "/dev/null";
     } else {
-        threadFileName = "/tmp/rest_thread_tmp" + ToString(this) + ".root";
+        threadFileName = REST_TMP_PATH + "rest_thread_tmp" + ToString(this) + ".root";
     }
 
     bool outputConfigToDel = false;

@@ -56,7 +56,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     if (fRun == nullptr) {
         fRun = new TRestRun();
         fRun->SetHistoricMetadataSaving(false);
-        string defaultFileName = "/tmp/restplot_" + REST_USER + ".root";
+        string defaultFileName = REST_TMP_PATH + "restplot_" + REST_USER + ".root";
         string outputname = GetParameter("outputFile", defaultFileName);
         if (outputname != "null" && outputname != "/dev/null") {
             fRun->SetOutputFileName(outputname);

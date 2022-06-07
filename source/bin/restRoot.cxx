@@ -10,6 +10,14 @@
 
 using namespace std;
 
+#ifdef WIN32
+// in windows the pointer address from string conversion is without "0x", we must add
+// the prefix so that ROOT can correctly initialize run/metadata objects
+#define PTR_ADDR_PREFIX "0x"  
+#else
+#define PTR_ADDR_PREFIX ""
+#endif  // WIN32
+
 // Note!
 // Don't use cout in the main function!
 // This will make cout un-usable in the command line!
@@ -89,7 +97,8 @@ int main(int argc, char* argv[]) {
             printf("\nAttaching file %s as run%i...\n", opt.c_str(), Nfile);
 
             TRestRun* runTmp = new TRestRun(opt);
-            string runcmd = Form("TRestRun* run%i = (TRestRun*)%s;", Nfile, ToString(runTmp).c_str());
+            string runcmd =
+                Form("TRestRun* run%i = (TRestRun*)%s;", Nfile, (PTR_ADDR_PREFIX + ToString(runTmp)).c_str());
             if (debug) printf("%s\n", runcmd.c_str());
             gROOT->ProcessLine(runcmd.c_str());
             if (runTmp->GetInputEvent() != nullptr) {
@@ -97,7 +106,7 @@ int main(int argc, char* argv[]) {
 
                 printf("Attaching event %s as ev%i...\n", eventType.c_str(), Nfile);
                 string evcmd = Form("%s* ev%i = (%s*)%s;", eventType.c_str(), Nfile, eventType.c_str(),
-                                    ToString(runTmp->GetInputEvent()).c_str());
+                                    (PTR_ADDR_PREFIX + ToString(runTmp->GetInputEvent())).c_str());
                 if (debug) printf("%s\n", evcmd.c_str());
                 gROOT->ProcessLine(evcmd.c_str());
                 runTmp->GetEntry(0);
@@ -116,7 +125,7 @@ int main(int argc, char* argv[]) {
                 //{
                 printf("Attaching ana_tree%i...\n", Nfile);
                 string evcmd = Form("TRestAnalysisTree* ana_tree%i = (TRestAnalysisTree*)%s;", Nfile,
-                                    ToString(runTmp->GetAnalysisTree()).c_str());
+                                    (PTR_ADDR_PREFIX + ToString(runTmp->GetAnalysisTree())).c_str());
                 if (debug) printf("%s\n", evcmd.c_str());
                 gROOT->ProcessLine(evcmd.c_str());
                 // runTmp->GetEntry(0);
@@ -126,8 +135,8 @@ int main(int argc, char* argv[]) {
             // command line EventTree object
             if (runTmp->GetEventTree() != nullptr) {
                 printf("Attaching ev_tree%i...\n", Nfile);
-                string evcmd =
-                    Form("TTree* ev_tree%i = (TTree*)%s;", Nfile, ToString(runTmp->GetEventTree()).c_str());
+                string evcmd = Form("TTree* ev_tree%i = (TTree*)%s;", Nfile,
+                                    (PTR_ADDR_PREFIX + ToString(runTmp->GetEventTree())).c_str());
                 if (debug) printf("%s\n", evcmd.c_str());
                 gROOT->ProcessLine(evcmd.c_str());
             }
@@ -153,7 +162,7 @@ int main(int argc, char* argv[]) {
                 printf("- %s (%s)\n", metaFixed.c_str(), metaType.c_str());
 
                 string mdcmd = Form("%s* %s = (%s*)%s;", metaType.c_str(), metaFixed.c_str(),
-                                    metaType.c_str(), ToString(md).c_str());
+                                    metaType.c_str(), (PTR_ADDR_PREFIX + ToString(md)).c_str());
 
                 if (debug) printf("%s\n", mdcmd.c_str());
 

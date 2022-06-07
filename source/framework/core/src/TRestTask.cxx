@@ -167,7 +167,8 @@ void TRestTask::RunTask(TRestManager* mgr) {
             fConstructedCommand = fInvokeMethod + "(";
             for (int i = 0; i < fArgumentValues.size(); i++) {
                 if (fArgumentTypes[i] == 1) {
-                    fConstructedCommand += "\"" + fArgumentValues[i] + "\"";
+                    fConstructedCommand +=
+                        "\"" + Replace(fArgumentValues[i], "\\", "\\\\", 0) + "\"";
                 } else {
                     fConstructedCommand += fArgumentValues[i];
                 }
@@ -258,9 +259,14 @@ void TRestTask::PrintArgumentHelp() {
 /// corresponding macro file and calls gInterpreter to load it, and then
 /// instantiates a TRestTask class wrapping this file.
 TRestTask* TRestTask::GetTaskFromMacro(TString taskName) {
+// string macfile = TRestTools::SearchFileInPath({REST_PATH + "/macros"}, "REST_" + (string)taskName + ".C")
+#ifdef WIN32
+    auto macfiles = TRestTools::GetFilesMatchingPattern(REST_PATH + "/macros/*" + (string)taskName + ".*");
+#else
     string macfilelists =
         TRestTools::Execute("find $REST_PATH/macros -name *" + (string)taskName + (string) ".*");
     auto macfiles = Split(macfilelists, "\n");
+#endif
 
     if (macfiles.size() != 0 && macfiles[0] != "") {
         RESTInfo << "Found MacroFile " << macfiles[0] << TRestStringOutput::RESTendl;
