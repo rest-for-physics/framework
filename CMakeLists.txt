@@ -19,11 +19,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-stdlib=libc++")
 endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
-if (CMAKE_SYSTEM_NAME MATCHES "Windows")
-    set(CMAKE_CXX_STANDARD 17)
-    add_definitions(-D_HAS_STD_BYTE=0)
-endif (CMAKE_SYSTEM_NAME MATCHES "Windows")
-
 # https://github.com/rest-for-physics/framework/issues/162 & https://github.com/rest-for-physics/framework/issues/236
 if (${CMAKE_VERSION} VERSION_LESS "3.23")
     cmake_policy(SET CMP0082 OLD)
@@ -85,14 +80,16 @@ find_package(ROOT REQUIRED COMPONENTS ${ROOT_REQUIRED_LIBRARIES})
 
 message(STATUS "ROOT LIBRARIES: ${ROOT_LIBRARIES}")
 
+set(ROOTCINT_EXECUTABLE ${ROOT_rootcint_CMD})
+
 set(external_libs "${external_libs};${ROOT_LIBRARIES}")
 
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(external_libs "${external_libs};Ws2_32")
+    set(CMAKE_CXX_STANDARD 17)
+    add_definitions(-D_HAS_STD_BYTE=0)
 else()
     set(external_libs "${external_libs};stdc++fs")
-
-    set(ROOTCINT_EXECUTABLE ${ROOT_rootcint_CMD})
 
     execute_process(COMMAND root-config --has-cxx20 OUTPUT_VARIABLE HASCXX20)
     execute_process(COMMAND root-config --has-cxx17 OUTPUT_VARIABLE HASCXX17)

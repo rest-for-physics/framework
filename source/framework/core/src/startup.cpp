@@ -52,7 +52,7 @@ struct __REST_CONST_INIT {
         REST_COMMIT = TRestTools::Execute("rest-config --commit");
 #endif
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,26,0)
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 26, 0)
         // we are not ready to use the new web-browser
         gEnv->SetValue("Browser.Name", "TRootBrowser");
 #endif
@@ -70,10 +70,14 @@ struct __REST_CONST_INIT {
 
         COLOR_RESET = info[0].Attributes;
 #endif  // WIN32
-        
-        char* _REST_PATH = getenv("REST_PATH");
-        char* _REST_USER = getenv("USER");
-        char* _REST_USERHOME = getenv("HOME");
+
+        // char* _REST_PATH = getenv("REST_PATH");
+        // char* _REST_USER = getenv("USER");
+        // char* _REST_USERHOME = getenv("HOME");
+
+        char* _REST_PATH = 0;
+        char* _REST_USER = 0;
+        char* _REST_USERHOME = 0;
 
 #ifdef WIN32
         if (_REST_PATH == nullptr) {
@@ -82,10 +86,9 @@ struct __REST_CONST_INIT {
             std::filesystem::path path(ProgramDir);
             if (exists(path)) {
                 REST_PATH = path.parent_path().parent_path().string();
-                RESTEssential << "Set REST path: " << REST_PATH << RESTendl;
+                RESTEssential << "Setting REST path to: " << REST_PATH << RESTendl;
             } else {
                 RESTError << "Lacking system env \"REST_PATH\"! Cannot start!" << RESTendl;
-                RESTError << "You need to source \"thisREST.sh\" first" << RESTendl;
                 abort();
             }
         } else {
@@ -102,7 +105,8 @@ struct __REST_CONST_INIT {
                 if (exists(path)) {
                     REST_USER_PATH = userhome + "\\.rest";
                     REST_USER = path.stem().string();
-                    RESTEssential << "Set REST user path: " << REST_USER_PATH << RESTendl;
+                    RESTEssential << "Setting user name to : \"" << REST_USER << "\"" << RESTendl;
+                    RESTEssential << "Setting REST temp path to: " << REST_USER_PATH << RESTendl;
                 }
             } else {
                 RESTWarning << "Lacking system env \"SystemDrive\" and \"HOMEPATH\"!" << RESTendl;
@@ -110,23 +114,39 @@ struct __REST_CONST_INIT {
         }
 #else
         if (_REST_PATH == nullptr) {
-            RESTError << "Lacking system env \"REST_PATH\"! Cannot start!" << RESTendl;
-            RESTError << "You need to source \"thisREST.sh\" first" << RESTendl;
-#ifndef REST_TESTING_ENABLED
-            abort();
-#endif
+            // use some other sources of information that indicates REST_PATH
+            // /proc/3102456/exe -> /home/nkx/REST_v2/bin/restRoot
+            int pid = getpid();
+            string lsresult = TRestTools::Execute("ls /proc/" + ToString(pid) + "/exe -l");
+            auto lsresolve = Split(lsresult, "->");
+            if (lsresolve.size() == 2) {
+                if (lsresolve[1].find("bin")) {
+                    std::filesystem::path path(lsresolve[1]);
+                    REST_PATH = path.parent_path().parent_path().string();
+                    RESTWarning << "Lacking system env \"REST_PATH\"!" << RESTendl;
+                    RESTWarning << "You need to source \"thisREST.sh\" first!" << RESTendl;
+                    RESTWarning << "Setting REST path to the executable path: " << REST_PATH << RESTendl;
+                } else {
+                    std::filesystem::path path(lsresolve[1]);
+                    REST_PATH = path.parent_path().string();
+                    RESTWarning << "Lacking system env \"REST_PATH\"!" << RESTendl;
+                    RESTWarning << "REST not installed? Setting to path: " << REST_PATH << RESTendl;
+                }
+            } else {
+                RESTError << "Lacking system env \"REST_PATH\"! Cannot start!" << RESTendl;
+                abort();
+            }
         } else {
             REST_PATH = _REST_PATH;
         }
 
         if (_REST_USER == nullptr) {
+            RESTWarning << "Lacking system env \"USER\"!" << RESTendl;
             const string systemUsername = TRestTools::Execute("whoami");
             if (!systemUsername.empty()) {
                 REST_USER = systemUsername;
             } else {
-                RESTWarning
-                    << R"(Cannot find username. "USER" env variable is not set and "whoami" utility is not working)"
-                    << RESTendl;
+                RESTWarning << R"(Cannot find username with "whoami" utility)" << RESTendl;
                 REST_USER = "defaultUser";
             }
             RESTWarning << "Setting user name to : \"" << REST_USER << "\"" << RESTendl;
@@ -138,8 +158,8 @@ struct __REST_CONST_INIT {
 
         if (_REST_USERHOME == nullptr) {
             RESTWarning << "Lacking system env \"HOME\"!" << RESTendl;
-            RESTWarning << "Setting REST temp path to : " << REST_PATH + "/data" << RESTendl;
-            REST_USER_PATH = REST_PATH + "/data";
+            REST_USER_PATH = REST_TMP_PATH + "/rest_PID" + getpid() + "/";
+            RESTWarning << "Setting REST temp path to : " << REST_USER_PATH << RESTendl;
         } else {
             string restUserPath = (string)_REST_USERHOME + "/.rest";
             REST_USER_PATH = restUserPath;
