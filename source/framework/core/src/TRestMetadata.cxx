@@ -683,7 +683,7 @@ Int_t TRestMetadata::LoadConfigFromBuffer() {
 ///
 /// If no child element is found with the required criteria, `nullptr` will be returned.
 ///
-TRestMetadata* TRestMetadata::GetChildMetadata(int index, std::string pattern) {
+TRestMetadata* TRestMetadata::InstantiateChildMetadata(int index, std::string pattern) {
     int count = 0;
     auto paraele = fElement->FirstChildElement();
     while (paraele != nullptr) {
@@ -734,13 +734,13 @@ TRestMetadata* TRestMetadata::GetChildMetadata(int index, std::string pattern) {
 ///
 /// If no child element is found with the required criteria, `nullptr` will be returned.
 ///
-TRestMetadata* TRestMetadata::GetChildMetadata(std::string pattern, std::string name) {
+TRestMetadata* TRestMetadata::InstantiateChildMetadata(std::string pattern, std::string name) {
     auto paraele = fElement->FirstChildElement();
     while (paraele != nullptr) {
         std::string xmlChild = paraele->Value();
         if (xmlChild.find("TRest") == 0) {
-            if (pattern == "" || xmlChild.find(pattern) != string::npos) {
-                if (name == "" || name != "" && name == (string)paraele->Attribute("name")) {
+            if (pattern.empty() || xmlChild.find(pattern) != string::npos) {
+                if (name.empty() || !name.empty() && name == (string)paraele->Attribute("name")) {
                     TClass* c = TClass::GetClass(xmlChild.c_str());
                     if (c)  // this means we have the metadata class was found
                     {
