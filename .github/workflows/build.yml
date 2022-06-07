@@ -7,7 +7,7 @@ jobs:
   Check-Image:
     runs-on: self-hosted
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-20-06_Geant4-v10.4.3_Garfield-4.0
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
 
     steps:
       - name: Check ROOT is available in non-interactive shell
@@ -47,7 +47,7 @@ jobs:
     needs: Check-Image
     runs-on: self-hosted
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-20-06_Geant4-v10.4.3_Garfield-4.0
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     env:
       REST_PATH: /rest/install
 

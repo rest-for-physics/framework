@@ -1,4 +1,4 @@
-image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-test
+image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
 
 # variables:
 #    GIT_SUBMODULE_STRATEGY: recursive
