@@ -20,7 +20,7 @@ Int_t Validate(const char* filename) {
 
     // Check IDs.
     bool success = true;
-    constexpr std::vector<size_t> ids = {5, 15, 19, 22, 29, 46, 50, 58, 65, 80, 88, 89, 93, 95, 97, 99};
+    const std::vector<size_t> ids = {5, 15, 19, 22, 29, 46, 50, 58, 65, 80, 88, 89, 93, 95, 97, 99};
     for (Int_t i = 0; i < analysisTree->GetEntries(); i++) {
         analysisTree->GetEntry(i);
         if (analysisTree->GetLeaf("eventID")->GetValue(0) != ids[i]) {
