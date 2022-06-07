@@ -228,9 +228,10 @@ class TRestHits : public TObject {
         float e() const { return isaccessor ? _e : fHits->fEnergy[index]; }
         REST_HitType type() const { return isaccessor ? _type : fHits->fType[index]; }
 
+        // accessor: hit data is copied to self. The class acts like "TRestHit"
         void toaccessor();
 
-        TRestHits_Iterator operator*();
+        TRestHits_Iterator operator*() const;
         TRestHits_Iterator& operator++();
         TRestHits_Iterator& operator+=(const int& n);
         TRestHits_Iterator operator+(const int& n);

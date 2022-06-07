@@ -387,7 +387,7 @@ void TRestMetadataPlot::InitFromConfigFile() {
         fCanvasDivisions = StringTo2DVector(GetFieldValue("divide", canvasDefinition));
         fCanvasSave = GetFieldValue("save", canvasDefinition);
         if (fCanvasSave == "Not defined") {
-            fCanvasSave = GetParameter("pdfFilename", "/tmp/restplot.pdf");
+            fCanvasSave = GetParameter("pdfFilename", REST_TMP_PATH + "restplot.pdf");
         }
     }
 #pragma endregion
