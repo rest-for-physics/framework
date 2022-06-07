@@ -133,15 +133,14 @@ void TRestMapGroup::InitFromConfigFile() {
 void TRestMapGroup::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << "Group Map (key => value): " << endl;
+    RESTMetadata << "Group Map (key => value): " << RESTendl;
     for (auto i = fMapGroup.begin(); i != fMapGroup.end(); ++i) {
-        metadata << i->first << " => " << i->second << endl;
+        RESTMetadata << i->first << " => " << i->second << RESTendl;
     }
-    metadata << "Input values from RML file: " << endl;
+    RESTMetadata << "Input values from RML file: " << RESTendl;
     for (unsigned int i = 0; i < fGroupKeys.size(); i++) {
-        metadata << "key = " << fGroupKeys[i] << "; value = " << fGroupValues[i] << endl;
+        RESTMetadata << "key = " << fGroupKeys[i] << "; value = " << fGroupValues[i] << RESTendl;
     }
 
-    metadata << endl;
+    RESTMetadata << RESTendl;
 }
-
