@@ -259,8 +259,8 @@ PandaX-III Topological:
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC
-    - restManager --c AllProcesses.rml --i testInput.root --o testOutput.root --j 1 --e 10
-    - restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
+    - restManager --c AllProcesses.rml --i Xe136bb0n_n2E06.root --o Xe136bb0n_n2E06_processed.root --j 1 --e 10
+    - restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_n2E06_processed.root")'
     - restRoot -b -q ../ValidateTrees.C'("validation.root")'
     - restManager --c plots.rml --i testOutput.root
   artifacts:
