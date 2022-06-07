@@ -254,7 +254,7 @@ TREX-DM Latest Data:
       - ${CI_PROJECT_DIR}/pipeline/trex/Hits_01928.root
     expire_in: 1 day
 
-PandaXIII Topological:
+PandaX-III Topological:
   stage: restManager process
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
@@ -268,7 +268,7 @@ PandaXIII Topological:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/trackParameter.png
     expire_in: 1 week
 
-PandaXIII Topological from Geant4:
+PandaX-III Topological from Geant4:
   stage: restManager process
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
@@ -282,7 +282,7 @@ PandaXIII Topological from Geant4:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/testOutput.root
     expire_in: 1 week
 
-PandaXIII Data:
+PandaX-III Data:
   stage: restManager process
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
