@@ -73,6 +73,8 @@ TVector3 MoveByDistanceFast(TVector3 pos, TVector3 dir, Double_t d);
 TVector3 GetPlaneVectorIntersection(const TVector3& pos, const TVector3& dir, TVector3 const& n,
                                     TVector3 const& a);
 
+TVector3 GetConeNormal(const TVector3& pos, const Double_t& alpha, const Double_t& R = 0);
+
 TMatrixD GetConeMatrix(const TVector3& d, const Double_t& cosTheta);
 
 Double_t GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, const TVector3& d,
