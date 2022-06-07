@@ -165,11 +165,11 @@ void TRestCombinedMask::InitFromConfigFile() {
     TRestMetadata::InitFromConfigFile();
 
     int cont = 0;
-    TRestPatternMask* msk = (TRestPatternMask*)this->GetChildMetadata(cont, "Mask");
+    TRestPatternMask* msk = (TRestPatternMask*)this->InstantiateChildMetadata(cont, "Mask");
     while (msk != nullptr) {
         AddMask(msk);
         cont++;
-        msk = (TRestPatternMask*)this->GetChildMetadata(cont, "Mask");
+        msk = (TRestPatternMask*)this->InstantiateChildMetadata(cont, "Mask");
     }
 }
 
