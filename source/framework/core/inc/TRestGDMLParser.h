@@ -3,8 +3,6 @@
 #define restG4_TRestGDMLParser
 
 #include <TGeoManager.h>
-#include <unistd.h>
-
 #include "TRestMetadata.h"
 
 // we must preprocess gdml file because of a bug in TGDMLParse::Value() in ROOT6
@@ -19,7 +17,8 @@ class TRestGDMLParser : public TRestMetadata {
 
     std::string fFileString = "";
     std::string fPath = "";
-    std::string fOutputGdmlDirectory = REST_USER_PATH.empty() ? "/tmp/gdml/" : REST_USER_PATH + "/gdml/";
+    std::string fOutputGdmlDirectory =
+        REST_USER_PATH.empty() ? REST_TMP_PATH + "/gdml/" : REST_USER_PATH + "/gdml/";
     std::string fOutputGdmlFilename = "";
     std::string fGdmlVersion = "0.0";
     std::map<std::string, std::string> fEntityVersionMap{};

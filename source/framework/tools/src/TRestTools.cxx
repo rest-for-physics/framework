@@ -51,7 +51,11 @@
 #include <curl/curl.h>
 #endif
 
-#include <dirent.h>
+#ifdef WIN32
+#include <io.h>
+#else
+#include "unistd.h"
+#endif  // !WIN32
 
 #include <chrono>
 #include <filesystem>
@@ -83,27 +87,36 @@ std::vector<string> TRestTools::GetOptions(string optionsStr) { return Split(opt
 /// TRestMetadata::GetDataMemberRef()
 ///
 void TRestTools::LoadRESTLibrary(bool silent) {
-    string ldpath = REST_PATH + "/lib/";
-    ldpath += ":" + REST_USER_PATH + "/userlib/";
-    vector<string> ldpaths = Split(ldpath, ":");
+    const set<string> library_extension{".so", ".dylib", ".dll"};
+    
+    vector<string> ldpaths;
+#ifdef WIN32
+    ldpaths.push_back(REST_PATH + "/bin/");
+#else
+    ldpaths.push_back(REST_PATH + "/lib/");
+#endif  // WIN32
+    ldpaths.push_back(REST_USER_PATH + "/userlib/");
 
     vector<string> fileList;
-    for (string path : ldpaths) {
-        DIR* dir;
-        struct dirent* ent;
-        if ((dir = opendir(path.c_str())) != nullptr) {
-            /* print all the files and directories within directory */
-            while ((ent = readdir(dir)) != nullptr) {
-                string fName(ent->d_name);
-                if ((fName.find("REST") != -1 || fName.find("Rest") != -1))
-                    if (fName.find(".dylib") != -1 || fName.find(".so") != -1) fileList.push_back(fName);
+    for (string _path : ldpaths) {
+        std::filesystem::path path(_path);
+        if (exists(path)) {
+            std::filesystem::directory_iterator iter(path);
+            for (auto& it : iter) {
+                if (it.is_regular_file()) {
+                    if (it.path().string().find("REST") != -1 || it.path().string().find("Rest") != -1) {
+                        if (library_extension.count(it.path().extension().string()) > 0) {
+                            fileList.push_back(it.path().string());
+                        }
+                    }
+                }
             }
-            closedir(dir);
+        } else {
+            // RESTWarning << "Directory " << _path << " for library loading not exist" << RESTendl;
         }
     }
 
     // load the found REST libraries
-    if (!silent) cout << "\n= REST Version: " << Execute("rest-config --version") << endl;
     if (!silent) cout << "= Loading libraries ..." << endl;
     for (unsigned int n = 0; n < fileList.size(); n++) {
         if (!silent) cout << " - " << fileList[n] << endl;
@@ -546,10 +559,8 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& 
 ///////////////////////////////////////////////
 /// \brief Returns true if the file with path filename exists.
 ///
-Int_t TRestTools::isValidFile(const string& path) {
-    struct stat buffer;
-    stat(path.c_str(), &buffer);
-    return S_ISREG(buffer.st_mode);
+Int_t TRestTools::isValidFile(const string& path) { 
+    return std::filesystem::is_regular_file(path);
 }
 
 ///////////////////////////////////////////////
@@ -560,8 +571,7 @@ Int_t TRestTools::isValidFile(const string& path) {
 /// problems.
 ///
 bool TRestTools::fileExists(const string& filename) {
-    struct stat buffer;
-    return (stat(filename.c_str(), &buffer) == 0);
+    return std::filesystem::exists(filename);
 }
 
 ///////////////////////////////////////////////
@@ -623,7 +633,7 @@ bool TRestTools::isAbsolutePath(const string& path) {
 ///
 std::pair<string, string> TRestTools::SeparatePathAndName(const string& fullname) {
     filesystem::path path(fullname);
-    return {path.parent_path(), path.filename()};
+    return {path.parent_path().string(), path.filename().string()};
 }
 
 ///////////////////////////////////////////////
@@ -632,7 +642,7 @@ std::pair<string, string> TRestTools::SeparatePathAndName(const string& fullname
 /// Input: "/home/jgalan/abc.txt" Output: "txt"
 ///
 string TRestTools::GetFileNameExtension(const string& fullname) {
-    return filesystem::path(fullname).extension();
+    return filesystem::path(fullname).extension().string();
 }
 
 ///////////////////////////////////////////////
@@ -640,7 +650,9 @@ string TRestTools::GetFileNameExtension(const string& fullname) {
 ///
 /// Input: "/home/jgalan/abc.txt" Output: "abc"
 ///
-string TRestTools::GetFileNameRoot(const string& fullname) { return filesystem::path(fullname).stem(); }
+string TRestTools::GetFileNameRoot(const string& fullname) {
+    return filesystem::path(fullname).stem().string();
+}
 
 ///////////////////////////////////////////////
 /// \brief Returns the input string but without multiple slashes ("/")
@@ -667,7 +679,7 @@ string TRestTools::RemoveMultipleSlash(string str) {
 /// Input: "/home/nkx/abc.txt", Returns: "abc.txt"
 /// Input: "/home/nkx/", Output: ""
 ///
-string TRestTools::GetPureFileName(const string& path) { return filesystem::path(path).filename(); }
+string TRestTools::GetPureFileName(const string& path) { return filesystem::path(path).filename().string(); }
 
 ///////////////////////////////////////////////
 /// \brief It takes a path and returns its absolute path
@@ -696,7 +708,7 @@ string TRestTools::ToAbsoluteName(const string& filename) {
             path /= directory;
         }
     }
-    return filesystem::weakly_canonical(path);
+    return filesystem::weakly_canonical(path).string();
 }
 
 ///////////////////////////////////////////////
@@ -708,37 +720,25 @@ string TRestTools::ToAbsoluteName(const string& filename) {
 ///
 /// Otherwise recurse only certain times.
 ///
-vector<string> TRestTools::GetSubdirectories(const string& path, int recursion) {
+vector<string> TRestTools::GetSubdirectories(const string& _path, int recursion) {
     vector<string> result;
-    if (auto dir = opendir(path.c_str())) {
-        while (1) {
-            auto f = readdir(dir);
-            if (f == nullptr) {
-                break;
-            }
-            if (f->d_name[0] == '.') continue;
 
-            string ipath;
-            if (path[path.size() - 1] != '/') {
-                ipath = path + "/" + f->d_name + "/";
-            } else {
-                ipath = path + f->d_name + "/";
-            }
+    std::filesystem::path path(_path);
+    if (exists(path)) {
+        std::filesystem::directory_iterator iter(path);
+        for (auto& it : iter) {
 
-            // if (f->d_type == DT_DIR)
-            if (opendir(ipath.c_str()))  // to make sure it is a directory
-            {
-                result.push_back(ipath);
+            if (it.is_directory()) {
+                result.push_back(it.path().string());
 
                 if (recursion != 0) {
-                    vector<string> subD = GetSubdirectories(ipath, recursion - 1);
+                    vector<string> subD = GetSubdirectories(it.path().string(), recursion - 1);
                     result.insert(result.begin(), subD.begin(), subD.end());
-                    //, cb);
                 }
             }
         }
-        closedir(dir);
     }
+
     return result;
 }
 
@@ -763,7 +763,7 @@ string TRestTools::SearchFileInPath(vector<string> paths, string filename) {
             // search also in subdirectory, but only 5 times of recursion
             vector<string> pathsExpanded = GetSubdirectories(paths[i], 5);
             for (int j = 0; j < pathsExpanded.size(); j++)
-                if (fileExists(pathsExpanded[j] + filename)) return pathsExpanded[j] + filename;
+                if (fileExists(pathsExpanded[j] + "/" + filename)) return pathsExpanded[j] + "/" + filename;
         }
     }
     return "";
@@ -791,35 +791,42 @@ Int_t TRestTools::CheckTheFile(std::string configFilename) {
 ///
 vector<string> TRestTools::GetFilesMatchingPattern(string pattern) {
     std::vector<string> outputFileNames;
-
     if (pattern != "") {
         vector<string> items = Split(pattern, "\n");
-
         for (auto item : items) {
-            if (item.find_first_of("*") >= 0 || item.find_first_of("?") >= 0) {
+            if (item.find_first_of("*?") != string::npos) {
+
+#ifdef WIN32
+                item = Replace(item, "/", "\\");
+                string item_trim = item.substr(0, item.find_first_of("*?"));// trim string to before wildcard character
+                auto path_name = SeparatePathAndName(item_trim);
+                string _path = path_name.first;
+                if (!std::filesystem::exists(_path)) {
+                    RESTError << "TRestTools::GetFilesMatchingPattern(): path " << _path
+                                << " does not exist!"
+                        << RESTendl;
+                    return outputFileNames;
+                }
+
+                std::filesystem::path path(_path);
+                std::filesystem::recursive_directory_iterator iter(path);
+                for (auto& it : iter) {
+                    if (it.is_regular_file()) {
+                        string filename = it.path().string();
+                        if (MatchString(filename, item)) {
+                            outputFileNames.push_back(it.path().string());
+                        }
+                    }
+                }
+#else
                 string a = Execute("find " + item);
                 auto b = Split(a, "\n");
 
                 for (int i = 0; i < b.size(); i++) {
                     outputFileNames.push_back(b[i]);
                 }
+#endif
 
-                // char command[256];
-                // sprintf(command, "find %s > /tmp/RESTTools_fileList.tmp",
-                // pattern.Data());
-
-                // system(command);
-
-                // FILE *fin = fopen("/tmp/RESTTools_fileList.tmp", "r");
-                // char str[256];
-                // while (fscanf(fin, "%s\n", str) != EOF)
-                //{
-                //	TString newFile = str;
-                //	outputFileNames.push_back(newFile);
-                //}
-                // fclose(fin);
-
-                // system("rm /tmp/RESTTools_fileList.tmp");
             } else {
                 if (fileExists(item)) outputFileNames.push_back(item);
             }
@@ -857,7 +864,12 @@ int TRestTools::ConvertVersionCode(string in) {
 string TRestTools::Execute(string cmd) {
     std::array<char, 128> buffer;
     string result;
+#ifdef WIN32
+    std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(("powershell.exe " + cmd).c_str(), "r"), _pclose);
+#else
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
+#endif  // WIN32
+
     if (!pipe) {
         throw std::runtime_error("popen() failed!");
     }
@@ -869,6 +881,8 @@ string TRestTools::Execute(string cmd) {
         result = result.substr(0, result.size() - 1);  // remove last "\n"
 
     return result;
+
+
 }
 
 ///////////////////////////////////////////////

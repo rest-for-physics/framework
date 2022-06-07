@@ -115,6 +115,7 @@ set(rest_libraries ${rest_libraries} PARENT_SCOPE)
 set(rest_packages ${rest_packages} PARENT_SCOPE)
 set(rest_features ${rest_features} PARENT_SCOPE)
 
+# construct REST library regulat string(-L/home/xxx/REST/lib -lxxx)
 set(rest_libraries_regular "-L${CMAKE_INSTALL_PREFIX}/lib ")
 foreach (lib ${rest_libraries})
     set(rest_libraries_regular "${rest_libraries_regular} -l${lib} ")
@@ -122,6 +123,14 @@ endforeach (lib)
 set(rest_libraries_regular ${rest_libraries_regular} PARENT_SCOPE)
 
 set(rest_exes ${rest_exes} PARENT_SCOPE)
+# construct REST exes string(separate with blank)
+set(rest_exes_str)
+foreach (exe ${rest_exes})
+    set(rest_exes_str "${rest_exes_str}${exe} ")
+endforeach (exe ${rest_exes})
+set(rest_exes_str ${rest_exes_str} PARENT_SCOPE)
+
+
 set(rest_macros ${rest_macros} PARENT_SCOPE)
 # construct REST macros string(separate with blank)
 set(rest_macros_str)
