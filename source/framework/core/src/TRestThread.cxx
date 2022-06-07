@@ -404,18 +404,14 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
         fEventTree = new TTree((TString) "EventTree_" + ToString(fThreadId), "dummyTree");
         // fEventTree->CreateEventBranches();
 
-        if (outputConfig[2] == true) {
+        if (outputConfig[2]) {
             TString BranchName = (TString)fInputEvent->GetName() + "Branch";
             if (fEventTree->GetBranch(BranchName) == nullptr)  // avoid duplicated branch
+            {
                 fEventTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);
+            }
         }
-        // currently external process analysis is not supported!
-
-        // if (fEventTree->GetListOfBranches()->GetLast() < 1)
-        //{
-        //	delete fEventTree; fEventTree = nullptr;
-        //}
-        // fAnalysisTree->CreateBranches();
+        // currently, external process analysis is not supported!
     }
     if (outputConfigToDel) delete outputConfig;
 }
@@ -432,7 +428,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
 /// Note: The methods GetNextevtFunc() and FillThreadEventFunc() are all from
 /// TRestProcessRunner. The later two will call back the method FillEvent(),
 /// EndProcess() in this class. The idea to do so is to make a unified
-/// managemenet of these i-o related methods. In TRestRun the three methods are
+/// management of these i-o related methods. In TRestRun the three methods are
 /// mutex locked. They will be paused until the host run allows it to run. This
 /// prevents segmentation violation due to simultaneously read/write.
 void TRestThread::StartProcess() {
