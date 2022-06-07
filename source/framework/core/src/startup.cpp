@@ -132,37 +132,50 @@ struct __REST_CONST_INIT {
                     RESTWarning << "Lacking system env \"REST_PATH\"!" << RESTendl;
                     RESTWarning << "REST not installed? Setting to path: " << REST_PATH << RESTendl;
                 }
+
+                // set also REST_USER and REST_USER_PATH in this case
+                REST_USER_PATH = REST_TMP_PATH + "/rest_PID" + getpid() + "/";
+                RESTWarning << "Setting REST temp path to : " << REST_USER_PATH << RESTendl;
+
+                const string systemUsername = TRestTools::Execute("whoami");
+                if (!systemUsername.empty()) {
+                    REST_USER = systemUsername;
+                } else {
+                    RESTWarning << R"(Cannot find username with "whoami" utility)" << RESTendl;
+                    REST_USER = "defaultUser";
+                }
+                RESTWarning << "Setting user name to : \"" << REST_USER << "\"" << RESTendl;
             } else {
                 RESTError << "Lacking system env \"REST_PATH\"! Cannot start!" << RESTendl;
                 abort();
             }
         } else {
             REST_PATH = _REST_PATH;
-        }
 
-        if (_REST_USER == nullptr) {
-            RESTWarning << "Lacking system env \"USER\"!" << RESTendl;
-            const string systemUsername = TRestTools::Execute("whoami");
-            if (!systemUsername.empty()) {
-                REST_USER = systemUsername;
+            if (_REST_USER == nullptr) {
+                RESTWarning << "Lacking system env \"USER\"!" << RESTendl;
+                const string systemUsername = TRestTools::Execute("whoami");
+                if (!systemUsername.empty()) {
+                    REST_USER = systemUsername;
+                } else {
+                    RESTWarning << R"(Cannot find username with "whoami" utility)" << RESTendl;
+                    REST_USER = "defaultUser";
+                }
+                RESTWarning << "Setting user name to : \"" << REST_USER << "\"" << RESTendl;
+                setenv("USER", REST_USER.c_str(), true);
+
             } else {
-                RESTWarning << R"(Cannot find username with "whoami" utility)" << RESTendl;
-                REST_USER = "defaultUser";
+                REST_USER = _REST_USER;
             }
-            RESTWarning << "Setting user name to : \"" << REST_USER << "\"" << RESTendl;
-            setenv("USER", REST_USER.c_str(), true);
 
-        } else {
-            REST_USER = _REST_USER;
-        }
-
-        if (_REST_USERHOME == nullptr) {
-            RESTWarning << "Lacking system env \"HOME\"!" << RESTendl;
-            REST_USER_PATH = REST_TMP_PATH + "/rest_PID" + getpid() + "/";
-            RESTWarning << "Setting REST temp path to : " << REST_USER_PATH << RESTendl;
-        } else {
-            string restUserPath = (string)_REST_USERHOME + "/.rest";
-            REST_USER_PATH = restUserPath;
+            if (_REST_USERHOME == nullptr) {
+                RESTWarning << "Lacking system env \"HOME\"!" << RESTendl;
+                REST_USER_PATH = REST_TMP_PATH + "/rest_PID" + getpid() + "/";
+                RESTWarning << "Setting REST temp path to : " << REST_USER_PATH << RESTendl;
+            } else {
+                string restUserPath = (string)_REST_USERHOME + "/.rest";
+                REST_USER_PATH = restUserPath;
+            }
         }
 #endif
         if (REST_USER_PATH != "") {
