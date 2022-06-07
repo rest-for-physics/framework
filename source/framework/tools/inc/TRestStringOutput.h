@@ -118,18 +118,17 @@ struct endl_t {
 /// To use this tool class in the other classes, include this header file.
 /// You will get several global output objects: fout, info, essential, debug, etc.
 /// they works similarly as std::cout: `fout<<"hello world"<<endl;`. It is also possible
-/// to initialize a local TRestStringOutput object. Then one can costomize output color,
+/// to initialize a local TRestStringOutput object. Then one can customize output color,
 /// border and orientation on that.
 class TRestStringOutput {
    public:
     //////////////////////////////////////////////////////////////////////////
     /// Enumerate of verbose level, containing five levels
     enum class REST_Verbose_Level {
-        REST_Silent = 0,     //!< show minimum information of the software, as well as error
-                             //!< messages
+        REST_Silent = 0,     //!< show minimum information of the software, as well as error messages
         REST_Essential = 1,  //!< +show some essential information, as well as warnings
         REST_Warning = REST_Essential,
-        REST_Info = 2,    //!< +show most of the infomation for each steps
+        REST_Info = 2,    //!< +show most of the information for each steps
         REST_Debug = 3,   //!< +show the defined debug messages
         REST_Extreme = 4  //!< show everything
     };
@@ -149,9 +148,6 @@ class TRestStringOutput {
     int length;
 
     REST_Verbose_Level verbose;
-
-    void lock();
-    void unlock();
 
    public:
     REST_Verbose_Level GetVerboseLevel() { return verbose; }
