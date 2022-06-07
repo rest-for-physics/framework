@@ -109,7 +109,7 @@ if (${HASCXX20} MATCHES "yes")
 elseif (${HASCXX17} MATCHES "yes")
     set(CMAKE_CXX_STANDARD 17)
 else ()
-    message("Minimum C++ standard version is 17,
+    message(FATAL_ERROR "Minimum C++ standard version is 17,
             while the root version is compiled with an older
             C++ standard, check root-config --cflags ${ROOT_CFLAGS}"
             )
