@@ -71,13 +71,13 @@ struct __REST_CONST_INIT {
         COLOR_RESET = info[0].Attributes;
 #endif  // WIN32
 
-        // char* _REST_PATH = getenv("REST_PATH");
-        // char* _REST_USER = getenv("USER");
-        // char* _REST_USERHOME = getenv("HOME");
+         char* _REST_PATH = getenv("REST_PATH");
+         char* _REST_USER = getenv("USER");
+         char* _REST_USERHOME = getenv("HOME");
 
-        char* _REST_PATH = 0;
-        char* _REST_USER = 0;
-        char* _REST_USERHOME = 0;
+        //char* _REST_PATH = 0;
+        //char* _REST_USER = 0;
+        //char* _REST_USERHOME = 0;
 
 #ifdef WIN32
         if (_REST_PATH == nullptr) {
@@ -118,7 +118,7 @@ struct __REST_CONST_INIT {
             // /proc/3102456/exe -> /home/nkx/REST_v2/bin/restRoot
             int pid = getpid();
             string lsresult = TRestTools::Execute("ls /proc/" + ToString(pid) + "/exe -l");
-            auto lsresolve = Split(lsresult, "->");
+            auto lsresolve = Split(lsresult, "->", true, true);
             if (lsresolve.size() == 2) {
                 if (lsresolve[1].find("bin")) {
                     std::filesystem::path path(lsresolve[1]);
