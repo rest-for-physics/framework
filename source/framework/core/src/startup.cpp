@@ -114,17 +114,22 @@ struct __REST_CONST_INIT {
             RESTError << "You need to source \"thisREST.sh\" first" << RESTendl;
 #ifndef REST_TESTING_ENABLED
             abort();
-#else
-            return;
 #endif
         } else {
             REST_PATH = _REST_PATH;
         }
 
         if (_REST_USER == nullptr) {
-            RESTWarning << "Lacking system env \"USER\"!" << RESTendl;
-            RESTWarning << "Setting user name to : \"defaultUser\"" << RESTendl;
-            REST_USER = "defaultUser";
+            const string systemUsername = TRestTools::Execute("whoami");
+            if (!systemUsername.empty()) {
+                REST_USER = systemUsername;
+            } else {
+                RESTWarning
+                    << R"(Cannot find username. "USER" env variable is not set and "whoami" utility is not working)"
+                    << RESTendl;
+                REST_USER = "defaultUser";
+            }
+            RESTWarning << "Setting user name to : \"" << REST_USER << "\"" << RESTendl;
             setenv("USER", REST_USER.c_str(), true);
 
         } else {
