@@ -301,16 +301,16 @@ Int_t REST_StringHelper::FindNthStringPosition(const string& in, size_t pos, con
 /// \brief This method matches a string with certain matcher. Returns true if matched. 
 /// Supports wildcard characters.
 ///
-/// wildcard character include * and ?. * can replace any number of characters, and ? can 
-/// replace a single character.
+/// Wildcard character includes "*" and "?". "*" means to replace any number of any characters
+/// "?" means to replace a single arbitary character.
 /// 
 /// e.g. (string, matcher)
 /// "abcddd", "abc?d" --> not matched
 /// "abcddd", "abc??d" --> matched
 /// "abcddd", "abc*d" --> matched
 /// 
-/// Note that this method performs equal-match action. It is not matching substring 
-/// for the input string. So:
+/// Note that this method is in equal-match logic. It is not matching substrings. So:
+/// "abcddd", "abcddd" --> matched
 /// "abcddd", "a?c" --> not matched
 /// 
 /// Source code from

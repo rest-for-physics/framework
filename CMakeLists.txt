@@ -91,28 +91,29 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(external_libs "${external_libs};Ws2_32")
 else()
     set(external_libs "${external_libs};stdc++fs")
-endif ()
 
-set(ROOTCINT_EXECUTABLE ${ROOT_rootcint_CMD})
+    set(ROOTCINT_EXECUTABLE ${ROOT_rootcint_CMD})
 
-execute_process(COMMAND root-config --has-cxx20 OUTPUT_VARIABLE HASCXX20)
-execute_process(COMMAND root-config --has-cxx17 OUTPUT_VARIABLE HASCXX17)
-execute_process(COMMAND root-config --has-cxx14 OUTPUT_VARIABLE HASCXX14)
-execute_process(COMMAND root-config --has-cxx11 OUTPUT_VARIABLE HASCXX11)
+    execute_process(COMMAND root-config --has-cxx20 OUTPUT_VARIABLE HASCXX20)
+    execute_process(COMMAND root-config --has-cxx17 OUTPUT_VARIABLE HASCXX17)
+    execute_process(COMMAND root-config --has-cxx14 OUTPUT_VARIABLE HASCXX14)
+    execute_process(COMMAND root-config --has-cxx11 OUTPUT_VARIABLE HASCXX11)
 
-execute_process(COMMAND root-config --cflags OUTPUT_VARIABLE ROOT_CFLAGS)
+    execute_process(COMMAND root-config --cflags OUTPUT_VARIABLE ROOT_CFLAGS)
 
-set(CMAKE_CXX_STANDARD_REQUIRED YES)
+    set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
-if (${HASCXX20} MATCHES "yes")
-    set(CMAKE_CXX_STANDARD 20)
-elseif (${HASCXX17} MATCHES "yes")
-    set(CMAKE_CXX_STANDARD 17)
-else ()
-    message(FATAL_ERROR "Minimum C++ standard version is 17,
-            while the root version is compiled with an older
-            C++ standard, check root-config --cflags ${ROOT_CFLAGS}"
-            )
+    if (${HASCXX20} MATCHES "yes")
+        set(CMAKE_CXX_STANDARD 20)
+    elseif (${HASCXX17} MATCHES "yes")
+        set(CMAKE_CXX_STANDARD 17)
+    else ()
+        message(FATAL_ERROR "Minimum C++ standard version is 17,
+                while the root version is compiled with an older
+                C++ standard, check root-config --cflags ${ROOT_CFLAGS}"
+                )
+    endif ()
+
 endif ()
 
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
