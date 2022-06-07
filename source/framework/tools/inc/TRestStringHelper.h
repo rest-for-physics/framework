@@ -83,6 +83,8 @@ inline std::vector<T2> Vector_cast(std::vector<T1> vecstring) {
 std::string ToUpper(std::string in);
 std::string ToLower(std::string in);
 
+std::string FirstToUpper(std::string s);
+
 std::string RightTrim(std::string s, const char* t = " \t\n\r\f\v");
 std::string LeftTrim(std::string s, const char* t = " \t\n\r\f\v");
 std::string Trim(std::string s, const char* t = " \t\n\r\f\v");

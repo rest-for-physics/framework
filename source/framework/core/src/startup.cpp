@@ -27,10 +27,6 @@ map<string, RESTVirtualConverter*> RESTConverterMethodBase = {};
 struct __REST_CONST_INIT {
    public:
     __REST_CONST_INIT() {
-// TODO: fix to avoid this dirty fix
-#ifdef REST_TESTING_ENABLED
-        return;
-#endif
         REST_COMMIT = TRestTools::Execute("rest-config --commit");
 
         char* _REST_PATH = getenv("REST_PATH");
@@ -38,16 +34,26 @@ struct __REST_CONST_INIT {
         char* _REST_USERHOME = getenv("HOME");
 
         if (_REST_PATH == nullptr) {
-            cout << "REST ERROR!! Lacking system env \"REST_PATH\"! Cannot start!" << endl;
-            cout << "You need to source \"thisREST.sh\" first" << endl;
+            RESTError << "Lacking system env \"REST_PATH\"! Cannot start!" << RESTendl;
+            RESTError << "You need to source \"thisREST.sh\" first" << RESTendl;
+#ifndef REST_TESTING_ENABLED
             abort();
+#endif
+        } else {
+            REST_PATH = _REST_PATH;
         }
-        REST_PATH = _REST_PATH;
 
         if (_REST_USER == nullptr) {
-            cout << "REST WARNING!! Lacking system env \"USER\"!" << endl;
-            cout << "Setting user name to : \"defaultUser\"" << endl;
-            REST_USER = "defaultUser";
+            const string systemUsername = TRestTools::Execute("whoami");
+            if (!systemUsername.empty()) {
+                REST_USER = systemUsername;
+            } else {
+                RESTWarning
+                    << R"(Cannot find username. "USER" env variable is not set and "whoami" utility is not working)"
+                    << RESTendl;
+                REST_USER = "defaultUser";
+            }
+            RESTWarning << "Setting user name to : \"" << REST_USER << "\"" << RESTendl;
             setenv("USER", REST_USER.c_str(), true);
 
         } else {
@@ -55,8 +61,8 @@ struct __REST_CONST_INIT {
         }
 
         if (_REST_USERHOME == nullptr) {
-            cout << "REST WARNING!! Lacking system env \"HOME\"!" << endl;
-            cout << "Setting REST temp path to : " << REST_PATH + "/data" << endl;
+            RESTWarning << "Lacking system env \"HOME\"!" << RESTendl;
+            RESTWarning << "Setting REST temp path to : " << REST_PATH + "/data" << RESTendl;
             REST_USER_PATH = REST_PATH + "/data";
         } else {
             string restUserPath = (string)_REST_USERHOME + "/.rest";
