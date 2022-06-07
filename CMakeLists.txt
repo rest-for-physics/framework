@@ -19,7 +19,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-stdlib=libc++")
 endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
-# https://github.com/rest-for-physics/framework/issues/162
+# https://github.com/rest-for-physics/framework/issues/162 & https://github.com/rest-for-physics/framework/issues/236
 if (${CMAKE_VERSION} VERSION_LESS "3.23")
     cmake_policy(SET CMP0082 OLD)
 endif ()
