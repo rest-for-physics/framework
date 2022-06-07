@@ -70,6 +70,8 @@ TVector3 MoveToPlane(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a);
 TVector3 MoveByDistance(TVector3 pos, TVector3 dir, Double_t d);
 TVector3 MoveByDistanceFast(TVector3 pos, TVector3 dir, Double_t d);
 
+TVector3 GetVectorReflection(const TVector3& dir, const TVector3& n);
+
 TVector3 GetPlaneVectorIntersection(const TVector3& pos, const TVector3& dir, TVector3 const& n,
                                     TVector3 const& a);
 

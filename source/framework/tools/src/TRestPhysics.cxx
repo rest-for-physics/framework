@@ -106,6 +106,12 @@ TMatrixD GetConeMatrix(const TVector3& d, const Double_t& cosTheta) {
 }
 
 ///////////////////////////////////////////////
+/// \brief This method will return the reflected vector respect to a plane defined by its
+/// normal vector `n`. The normal vector should be already normalized!
+///
+TVector3 GetVectorReflection(const TVector3& dir, const TVector3& n) { return dir - 2 * dir.Dot(n) * n; }
+
+///////////////////////////////////////////////
 /// \brief This method will return a vector that is normal to the cone surface. The position `pos`
 /// should be at the cone surface, and the angle `alpha` should be the angle that defines the
 /// cone construction.
