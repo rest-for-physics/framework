@@ -685,8 +685,8 @@ TRestMetadata* TRestMetadata::InstantiateChildMetadata(std::string pattern, std:
     while (paraele != nullptr) {
         std::string xmlChild = paraele->Value();
         if (xmlChild.find("TRest") == 0) {
-            if (pattern == "" || xmlChild.find(pattern) != string::npos) {
-                if (name != "" && name == (string)paraele->Attribute("name")) {
+            if (pattern.empty() || xmlChild.find(pattern) != string::npos) {
+                if (!name.empty() && name == (string)paraele->Attribute("name")) {
                     TClass* c = TClass::GetClass(xmlChild.c_str());
                     if (c)  // this means we have the metadata class was found
                     {
