@@ -13,13 +13,14 @@
 ///                 Created as part of the conceptualization of existing REST
 ///                 software.
 ///                 Javier Galan
-///		nov 2015:
-///		    Changed vectors fX fY fZ and fEnergy from <Int_t> to
-///< Float_t> 	            JuanAn Garcia
+///             nov 2015:
+///                 Changed vectors fX fY fZ and fEnergy from <Int_t> to
+///< Float_t>               JuanAn Garcia
 ///_______________________________________________________________________________
 
 #include "TRestHits.h"
 
+#include <limits.h>
 #include "TROOT.h"
 
 using namespace std;
@@ -584,23 +585,45 @@ void TRestHits::GetBoundaries(std::vector<double>& dist, double& max, double& mi
 Double_t TRestHits::GetGaussSigmaX() {
     Double_t gausSigmaX = 0;
     Int_t nHits = GetNumberOfHits();
-    Double_t x[nHits], y[nHits], ex[nHits], ey[nHits];
     if (nHits <= 3) {
         gausSigmaX = 0;
     } else {
-        for (int n = 0; n < GetNumberOfHits(); n++) {
-            x[n] = fX[n];
-            y[n] = fEnergy[n];
-            ex[n] = 0;
-            if (y[n] != 0) {
-                ey[n] = 10 * sqrt(y[n]);
+        Int_t nAdd = 0;
+        bool doHitCorr = nHits <= 18;
+        if (doHitCorr) {
+            nAdd = 2;
+        }
+        Int_t nElems = nHits + nAdd;
+        Double_t x[nElems], y[nElems], ex[nElems], ey[nElems];
+        Int_t k = nAdd / 2;
+        Double_t xMin = std::numeric_limits<double>::max();
+        Double_t xMax = std::numeric_limits<double>::lowest();
+        for (int n = 0; n < GetNumberOfHits(); k++, n++) {
+            x[k] = fX[n];
+            y[k] = fEnergy[n];
+            ex[k] = 0;
+            xMin = min(xMin, x[k]);
+            xMax = max(xMax, x[k]);
+            if (y[k] != 0) {
+                ey[k] = 10 * sqrt(y[k]);
             } else {
-                ey[n] = 0;
+                ey[k] = 0;
             }
         }
-        TGraphErrors* grX = new TGraphErrors(nHits, x, y, ex, ey);
-        Double_t maxY = MaxElement(nHits, grX->GetY());
-        Double_t maxX = grX->GetX()[LocMax(nHits, grX->GetY())];
+        if (doHitCorr) {
+            Int_t h = nHits + nAdd / 2;
+            x[0] = xMin - 0.5;
+            x[h] = xMax + 0.5;
+            y[0] = 70.0;
+            y[h] = 70.0;
+            ex[0] = 0.0;
+            ex[h] = 0.0;
+            ey[0] = 70.0;
+            ey[h] = 70.0;
+        }
+        TGraphErrors* grX = new TGraphErrors(nElems, x, y, ex, ey);
+        Double_t maxY = MaxElement(nElems, grX->GetY());
+        Double_t maxX = grX->GetX()[LocMax(nElems, grX->GetY())];
 
         TF1* fit = new TF1("", "gaus");
         fit->SetParameter(0, maxY);
