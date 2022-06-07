@@ -126,7 +126,7 @@ List REST Macros:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - restManager ListMacros
 
-01_NLDBD:
+01.NLDBD:
   stage: restG4
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
@@ -139,7 +139,7 @@ List REST Macros:
       - ${CI_PROJECT_DIR}/install/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root
     expire_in: 1 day
 
-02_PandaXiiiMC:
+PandaX-III MC:
   stage: restG4
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
@@ -151,7 +151,7 @@ List REST Macros:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/Xe136bb0n_n2E06.root
     expire_in: 1 day
 
-08_alphas:
+08.alphas:
   stage: restG4
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
@@ -165,7 +165,7 @@ List REST Macros:
       - ${CI_PROJECT_DIR}/install/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
     expire_in: 1 day
 
-01_alphaTrack:
+01.alphaTrack:
   stage: examples
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
