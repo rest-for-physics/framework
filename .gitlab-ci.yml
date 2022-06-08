@@ -259,10 +259,10 @@ PandaX-III Topological from reference file:
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC
-    - restManager --c AllProcesses.rml --i Xe136bb0n_N1E1_reference.root --o Xe136bb0n_N1E1_reference_processed.root --j 1 --e 10
-    - restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_N1E1_reference_processed.root")'
-    - restRoot -b -q ../ValidateTrees.C'("validation.root")'
-    - restManager --c plots.rml --i Xe136bb0n_N1E1_reference_processed.root
+    - restManager --c AllProcesses.rml --i Xe136bb0n_small_reference.root --o Xe136bb0n_small_reference_processed.root --j 1 --e 10
+    - restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_small_reference_processed.root")'
+    - restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
+    - restManager --c plots.rml --i Xe136bb0n_small_reference_processed.root
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/trackParameter.png
@@ -276,7 +276,7 @@ PandaX-III Topological from Geant4:
     - echo "using just-generated g4 file"
     - restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 10
     - restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_processed.root")'
-    - restRoot -b -q ../ValidateTrees.C'("validation.root")'
+    - restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC/Xe136bb0n_processed.root

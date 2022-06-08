@@ -47,6 +47,6 @@ Int_t ValidateG4(const char* filename) {
 
     // Other tests like opening other metadata classes. Detector TGeoManager, etc.
 
-    cout << "G4 file good" << endl;
+    cout << "Validation passes" << endl;
     return 0;
 }
