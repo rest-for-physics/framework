@@ -12,9 +12,6 @@
 #include "v5/TFormula.h"
 #endif
 
-#include <dirent.h>
-#include <unistd.h>
-
 using namespace std;
 
 ///////////////////////////////////////////////
@@ -161,12 +158,12 @@ Int_t REST_StringHelper::GetChar(string hint) {
         t.detach();
 
         cout << hint << endl;
-        int result = Console::CompatibilityMode ? 1 : getchar();
+        int result = REST_Display_CompatibilityMode ? 1 : getchar();
         gSystem->ExitLoop();
         return result;
     } else {
         cout << hint << endl;
-        return Console::CompatibilityMode ? 1 : getchar();
+        return REST_Display_CompatibilityMode ? 1 : getchar();
     }
     return -1;
 }
@@ -301,6 +298,66 @@ Int_t REST_StringHelper::FindNthStringPosition(const string& in, size_t pos, con
     return FindNthStringPosition(in, found_pos + 1, strToFind, nth - 1);
 }
 
+/// \brief This method matches a string with certain matcher. Returns true if matched. 
+/// Supports wildcard characters.
+///
+/// Wildcard character includes "*" and "?". "*" means to replace any number of any characters
+/// "?" means to replace a single arbitary character.
+/// 
+/// e.g. (string, matcher)
+/// "abcddd", "abc?d" --> not matched
+/// "abcddd", "abc??d" --> matched
+/// "abcddd", "abc*d" --> matched
+/// 
+/// Note that this method is in equal-match logic. It is not matching substrings. So:
+/// "abcddd", "abcddd" --> matched
+/// "abcddd", "a?c" --> not matched
+/// 
+/// Source code from
+/// https://blog.csdn.net/dalao_whs/article/details/110477705
+///
+Bool_t REST_StringHelper::MatchString(std::string str, std::string matcher) {
+    if (str.size() > 256 || matcher.size() > 256) {
+        RESTError << "REST_StringHelper::MatchString(): string size too large" << RESTendl;
+        return false;
+    }
+
+    vector<vector<bool>> dp(256, vector<bool>(256));
+    int n2 = str.size();
+    int n1 = matcher.size();
+    dp[0][0] = true;
+    int i = 0, j = 0;
+    for (int i = 0; i < n1; i++) {
+        if (matcher[i] != '*') {
+            break;
+        }
+        if (i == n1 - 1 && matcher[i] == '*') {
+            return true;
+        }
+    }
+    for (i = 1; matcher.at(i - 1) == '*'; i++) {
+        dp[i][0] = true;
+    }
+    for (i = 1; i <= n1; i++) {
+        for (j = 1; j <= n2; j++) {
+            if (matcher.at(i - 1) == '*' && (dp[i - 1][j - 1] || dp[i][j - 1] || dp[i - 1][j])) {
+                dp[i][j] = true;
+            } else if (matcher.at(i - 1) == '?' && dp[i - 1][j - 1]) {
+                dp[i][j] = true;
+            } else if (matcher.at(i - 1) == str.at(j - 1) && dp[i - 1][j - 1]) {
+                dp[i][j] = true;
+            }
+        }
+    }
+    if (dp[n1][n2]) {
+        return true;
+    } else {
+        return false;
+    }
+
+    return false;
+}
+
 /// \brief Returns the number of different characters between two strings
 ///
 /// This algorithm is case insensitive. It matches the two strings in pieces
@@ -327,7 +384,7 @@ Int_t REST_StringHelper::DiffString(const string& source, const string& target) 
     if (m == 0) return n;
     if (n == 0) return m;
     // Construct a matrix
-    typedef vector<vector<int> > Tmatrix;
+    typedef vector<vector<int>> Tmatrix;
     Tmatrix matrix(n + 1);
     for (int i = 0; i <= n; i++) matrix[i].resize(m + 1);
 
@@ -611,6 +668,15 @@ std::string REST_StringHelper::ToUpper(std::string s) {
 }
 
 ///////////////////////////////////////////////
+/// \brief Convert the first character of a string to upper case.
+///
+std::string REST_StringHelper::FirstToUpper(std::string s) {
+    if (s.length() == 0) return s;
+    s[0] = *REST_StringHelper::ToUpper(std::string(&s[0], 1)).c_str();
+    return s;
+}
+
+///////////////////////////////////////////////
 /// \brief Convert string to its lower case. Alternative of TString::ToLower
 ///
 std::string REST_StringHelper::ToLower(std::string s) {
@@ -734,7 +800,7 @@ TF1* REST_StringHelper::CreateTF1FromString(std::string func, double init, doubl
     size_t n = std::count(func.begin(), func.end(), '[');
     // Reading options
     int a = 0;
-    int optPos[n];
+    vector<int> optPos(n);
     std::vector<std::string> options(n);  // Vector of strings of any size.
     for (int i = 0; i < n; i++) {
         optPos[i] = func.find("[", a);
@@ -793,11 +859,3 @@ TF1* REST_StringHelper::CreateTF1FromString(std::string func, double init, doubl
 
     return f;
 }
-
-#ifdef WIN32
-string get_current_dir_name() {
-    char pBuf[MAX_PATH];
-    GetCurrentDirectory(MAX_PATH, pBuf);
-    return string(pBuf);
-}
-#endif

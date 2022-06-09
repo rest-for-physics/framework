@@ -51,7 +51,7 @@
 /// and TRestRingsMask. More details on each class documentation.
 ///
 /// \htmlonly <style>div.image img[src="masks.png"]{width:1000px;}</style> \endhtmlonly
-/// ![An illustration of the different masks implemented](ringsmask.png)
+/// ![An illustration of the different masks implemented](masks.png)
 ///
 ///----------------------------------------------------------------------
 ///

@@ -14,7 +14,7 @@ foreach (file ${files})
     ADD_EXECUTABLE(${name} ${file})
     TARGET_LINK_LIBRARIES(${name} ${rest_libraries} ${external_libs})
     install(TARGETS ${name} RUNTIME DESTINATION bin)
-    set(rest_exes "${rest_exes}${name} ")
+    set(rest_exes ${rest_exes} ${name})
 
 endforeach (file)
 

@@ -9,7 +9,7 @@ SET(LD_LIBRARY_PATH_CONTENTS $ENV{${LD_LIBRARY_PATH_VAR}})
 SET(ROOT_CINT_WRAPPER ${LD_LIBRARY_PATH_VAR}=${ROOT_LIBRARY_DIR}:${LD_LIBRARY_PATH_CONTENTS} ${ROOTCINT_EXECUTABLE})
 
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
-    SET(ROOT_CINT_WRAPPER ${ROOTCINT_EXECUTABLE})
+    SET(ROOT_CINT_WRAPPER ${ROOTCINT_EXECUTABLE} -D_HAS_STD_BYTE=0)
 endif ()
 
 IF (NOT DEFINED ROOT_DICT_OUTPUT_DIR)
@@ -112,7 +112,7 @@ MACRO(GEN_ROOT_DICT_SOURCE _dict_src_filename)
     # TODO check for ROOT_CINT_EXECUTABLE
     file(MAKE_DIRECTORY ${ROOT_DICT_OUTPUT_DIR})
     # need to prefix all include dirs with -I
-    set(_dict_includes)
+    set(_dict_includes "-I../include") 
     FOREACH (_inc ${ROOT_DICT_INCLUDE_DIRS})
         SET(_dict_includes "${_dict_includes}\t-I${_inc}")  #fg: the \t fixes a wired string expansion
     ENDFOREACH ()
@@ -315,17 +315,11 @@ MACRO(COMPILEDIR libname)
 
     include_directories(${local_include_dirs})
     add_library(${libname} SHARED ${contentfiles} ${addon_src})
-
-
+    target_link_libraries(${libname} ${local_libraries} ${external_libs})
+    
     if (CMAKE_SYSTEM_NAME MATCHES "Windows")
         set_target_properties(${libname} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-        target_link_libraries(${libname} ${local_libraries} ${external_libs})
-        install(TARGETS ${libname}
-                RUNTIME DESTINATION bin
-                LIBRARY DESTINATION bin
-                ARCHIVE DESTINATION lib)
     else ()
-        target_link_libraries(${libname} ${local_libraries} ${external_libs})
         install(TARGETS ${libname}
                 RUNTIME DESTINATION bin
                 LIBRARY DESTINATION lib
@@ -508,10 +502,14 @@ MACRO(COMPILELIB dependency)
     target_link_libraries(${libname} ${libs_to_link} ${external_libs})
 
     # install
-    install(TARGETS ${libname}
-            RUNTIME DESTINATION bin
-            LIBRARY DESTINATION lib
-            ARCHIVE DESTINATION lib/static)
+        if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+        set_target_properties(${libname} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+    else ()
+        install(TARGETS ${libname}
+                RUNTIME DESTINATION bin
+                LIBRARY DESTINATION lib
+                ARCHIVE DESTINATION lib/static)
+    endif ()
 
     file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h")
     INSTALL(FILES ${Headers} DESTINATION include)
@@ -519,10 +517,4 @@ MACRO(COMPILELIB dependency)
     set(dirs_included ${dirs_to_include} PARENT_SCOPE)
     set(library_added ${libname})
     set(library_added ${library_added} PARENT_SCOPE)
-
-    # define REST_*Lib e.g. REST_DetectorLib using library name: RestDetector -> REST_DetectorLib
-    string(REGEX REPLACE "^Rest(.+)$" "REST_\\1Lib" DEFINE_VARIABLE_NAME ${libname})
-    message(STATUS "Adding compile definition: ${DEFINE_VARIABLE_NAME}")
-    add_compile_definitions(${DEFINE_VARIABLE_NAME})
-
 ENDMACRO()

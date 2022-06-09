@@ -584,7 +584,7 @@ void TRestHits::GetBoundaries(std::vector<double>& dist, double& max, double& mi
 Double_t TRestHits::GetGaussSigmaX() {
     Double_t gausSigmaX = 0;
     Int_t nHits = GetNumberOfHits();
-    Double_t x[nHits], y[nHits], ex[nHits], ey[nHits];
+    vector<Double_t> x(nHits), y(nHits), ex(nHits), ey(nHits);
     if (nHits <= 3) {
         gausSigmaX = 0;
     } else {
@@ -598,7 +598,7 @@ Double_t TRestHits::GetGaussSigmaX() {
                 ey[n] = 0;
             }
         }
-        TGraphErrors* grX = new TGraphErrors(nHits, x, y, ex, ey);
+        TGraphErrors* grX = new TGraphErrors(nHits, &x[0], &y[0], &ex[0], &ey[0]);
         Double_t maxY = MaxElement(nHits, grX->GetY());
         Double_t maxX = grX->GetX()[LocMax(nHits, grX->GetY())];
 
@@ -619,7 +619,7 @@ Double_t TRestHits::GetGaussSigmaY() {
     Double_t gausSigmaY = 0;
     Int_t nHits = GetNumberOfHits();
 
-    Double_t x[nHits], y[nHits], ex[nHits], ey[nHits];
+    vector<Double_t> x(nHits), y(nHits), ex(nHits), ey(nHits);
     if (nHits <= 3) {
         gausSigmaY = 0;
     } else {
@@ -633,7 +633,7 @@ Double_t TRestHits::GetGaussSigmaY() {
                 ey[n] = 0;
             }
         }
-        TGraphErrors* grY = new TGraphErrors(nHits, x, y, ex, ey);
+        TGraphErrors* grY = new TGraphErrors(nHits, &x[0], &y[0], &ex[0], &ey[0]);
         Double_t maxY = MaxElement(nHits, grY->GetY());
         Double_t maxX = grY->GetX()[LocMax(nHits, grY->GetY())];
 
@@ -653,7 +653,7 @@ Double_t TRestHits::GetGaussSigmaZ() {
     Double_t gausSigmaZ = 0;
     Int_t nHits = GetNumberOfHits();
 
-    Double_t x[nHits], y[nHits], ex[nHits], ey[nHits];
+    vector<Double_t> x(nHits), y(nHits), ex(nHits), ey(nHits);
     if (nHits <= 3) {
         gausSigmaZ = 0;
     } else {
@@ -667,7 +667,7 @@ Double_t TRestHits::GetGaussSigmaZ() {
                 ey[n] = 0;
             }
         }
-        TGraphErrors* grZ = new TGraphErrors(nHits, x, y, ex, ey);
+        TGraphErrors* grZ = new TGraphErrors(nHits, &x[0], &y[0], &ex[0], &ey[0]);
         Double_t maxY = MaxElement(nHits, grZ->GetY());
         Double_t maxX = grZ->GetX()[LocMax(nHits, grZ->GetY())];
 
@@ -1026,7 +1026,7 @@ void TRestHits::TRestHits_Iterator::toaccessor() {
     isaccessor = true;
 }
 
-TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator*() {
+TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator*() const {
     TRestHits_Iterator i(*this);
     i.toaccessor();
     return i;
