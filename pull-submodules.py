@@ -222,7 +222,7 @@ Are you sure to proceed? (y/n)
                                     print(f" --> Pulling branch: {branchToPull}", end='')
 
                                     p = subprocess.run(
-                                        f"cd {root}/{submodule} && git fetch && git checkout {branchToPull} && git pull origin {branchToPull}",  #
+                                        f"cd {root}/{submodule} && git fetch && git checkout {branchToPull} && git pull",  #
                                         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                                     if debug:
                                         print(p.stdout.decode("utf-8"))
