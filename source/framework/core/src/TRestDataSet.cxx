@@ -63,6 +63,8 @@
 ///
 
 #include "TRestDataSet.h"
+#include "TRestRun.h"
+#include "TRestTools.h"
 
 ClassImp(TRestDataSet);
 
@@ -106,8 +108,52 @@ void TRestDataSet::Initialize() {
     // REMOVE COMMENT. Initialize here any special data members if needed
 }
 
-void TRestDataSet::SiderealTime() {}  // ss >> std::get_time(&fStartTime); }
+std::vector<std::string> TRestDataSet::FileSelect() {
+    // Introduce data for time zone GMT +01:00
+    std::tm ts{};
+    std::tm te{};
+    std::istringstream ss(fStartTime);
+    std::istringstream se(fEndTime);
 
+    ss >> std::get_time(&ts, "%Y-%m-%dT%H:%M:%S");
+    se >> std::get_time(&te, "%Y-%m-%dT%H:%M:%S");
+    if (ss.fail()) {
+        throw std::runtime_error{"failed to parse time string -- StartTime"};
+    }
+    if (se.fail()) {
+        throw std::runtime_error{"failed to parse time string -- EndTime"};
+    }
+    std::time_t time_stamp_start = mktime(&ts);
+    std::time_t time_stamp_end = mktime(&te);
+
+    // Selecting files
+
+    //   TRestRun::SetInputFileName(fFilePattern);
+
+    std::cout.precision(10);
+    std::vector<std::string> fileNames = TRestTools::GetFilesMatchingPattern(fFilePattern);
+
+    std::vector<std::string> fileSelected;
+
+    for (const auto& file : fileNames) {
+        TRestRun* run = new TRestRun(file);
+        double runStart = run->GetStartTimestamp();
+        double runEnd = run->GetEndTimestamp();
+
+        if (runStart >= time_stamp_start && runEnd <= time_stamp_end) {
+            fileSelected.push_back(file);
+        }
+
+        // std::cout << "File : " << file << std::endl;
+        //  std::cout << "RS : " << runStart << std::endl;
+        // std::cout << "RE : " << runEnd << std::endl;
+        delete run;
+    }
+    //   for (const auto& i : fileSelected) {
+    //     std::cout << "File Selected : " << i << std::endl;
+    //}
+    return fileSelected;
+}
 /////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
 ///

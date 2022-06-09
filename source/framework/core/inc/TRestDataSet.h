@@ -45,7 +45,7 @@ class TRestDataSet : public TRestMetadata {
    public:
     void PrintMetadata();
     void Initialize();
-    void SiderealTime();
+    std::vector<std::string> FileSelect();
     TRestDataSet();
     TRestDataSet(const char* cfgFileName, std::string name = "");
     ~TRestDataSet();
