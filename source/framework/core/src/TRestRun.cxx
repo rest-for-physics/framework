@@ -652,6 +652,18 @@ void TRestRun::ReadInputFileTrees() {
                     } else {
                         string type = Replace(br->GetName(), "Branch", "", 0);
                         fInputEvent = REST_Reflection::Assembly(type);
+
+                        if (fInputEvent == nullptr) {
+                            RESTError << "TRestRun:OpenInputFile. Cannot initialize input event, event "
+                                           "tree not read"
+                                        << RESTendl;
+                            RESTError
+                                << "Please install corresponding libraries to provide root dictionaries for "
+                                   "class reading."
+                                << RESTendl;
+                            return;
+                        }
+
                         fInputEvent->InitializeWithMetadata(this);
                         fEventTree->SetBranchAddress(br->GetName(), &fInputEvent);
                         fEventBranchLoc = branches->GetLast();

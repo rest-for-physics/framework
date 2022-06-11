@@ -242,8 +242,13 @@ inline TClass* GetClassQuick(std::string type) {
         return iter->second;
     } else {
         TClass* cl = TClass::GetClass(type.c_str());
-        RESTListOfClasses_typename[type] = cl;
-        return cl;
+        if (cl != NULL && cl->HasDictionary()) {
+            RESTListOfClasses_typename[type] = cl;
+            return cl;
+        } else {
+            RESTListOfClasses_typename[type] = nullptr;
+            return nullptr;
+        }
     }
     return nullptr;
 }
