@@ -16,7 +16,7 @@ set(thisGeant4 "${GEANT4_PATH}/bin/geant4.sh")
 
 if (${REST_G4} MATCHES "ON")
     set(loadG4 "\# if geant4.sh script is found we load the same Geant4 version as used in compilation\n if [[ -f \\\"${thisGeant4}\\\" ]]; then
-		source ${thisGeant4}\n fi\n")
+    source ${thisGeant4}\n fi\n")
 else ()
     set(loadG4 "")
 endif (${REST_G4} MATCHES "ON")
