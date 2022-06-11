@@ -17,7 +17,7 @@ stages:
   - libraries
 
   # Basic validation tests of installation
-  - install
+  - simpleRun
 
   # Basic core validation tests
   - core
@@ -113,7 +113,7 @@ Build and Install:
     expire_in: 1 day
     
 Load REST Libraries:
-  stage: install
+  stage: simpleRun
   script:
     - echo ${CI_PROJECT_DIR}/install/thisREST.sh
     - cat ${CI_PROJECT_DIR}/install/thisREST.sh
@@ -121,10 +121,24 @@ Load REST Libraries:
     - restRoot -b -q
 
 List REST Macros:
-  stage: install
+  stage: simpleRun
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - restManager ListMacros
+
+Open v2.2 Files:
+  stage: simpleRun
+  script:
+    - source ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/pipeline/fileopening
+    - restRoot -b -q v2.2.30_hits.root
+
+Open v2.3 Files:
+  stage: simpleRun
+  script:
+    - source ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/pipeline/fileopening
+    - restRoot -b -q v2.2.30_hits.root
 
 01_NLDBD:
   stage: restG4
