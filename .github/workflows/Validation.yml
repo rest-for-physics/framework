@@ -110,7 +110,6 @@ jobs:
       with:
        repository: rest-for-physics/framework
        path: framework
-       ref: master
     - name: Checkout framework branch
       run: |
        cd framework
@@ -163,7 +162,6 @@ jobs:
       with:
        repository: rest-for-physics/framework
        path: framework
-       ref: master
     - name: Checkout framework branch
       run: |
        cd framework
@@ -243,7 +241,6 @@ jobs:
       with:
        repository: rest-for-physics/framework
        path: framework
-       ref: master
     - name: Checkout framework branch
       run: |
        cd framework
@@ -298,7 +295,6 @@ jobs:
       with:
        repository: rest-for-physics/framework
        path: framework
-       ref: master
     - name: Checkout framework branch
       run: |
        cd framework
