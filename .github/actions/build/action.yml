@@ -26,14 +26,7 @@ runs:
     - name: Checkout framework branch
       run: |
         cd framework
-        git fetch
-        var=$(git ls-remote --heads origin ${{ inputs.branch }})
-        if [ -z $var ]; then
-          git pull
-        else 
-          git checkout ${{ inputs.branch }}
-          git pull
-        fi
+        ./scripts/checkoutRemoteBranch.sh ${{ inputs.branch }}
         python3 pull-submodules.py --force --dontask --latest:${{ inputs.branch }}
       shell: bash
     - name: Build and install
