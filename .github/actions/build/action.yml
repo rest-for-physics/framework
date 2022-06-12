@@ -27,7 +27,7 @@ runs:
       run: |
         cd framework
         git fetch
-        var=$(git ls-remote --heads origin ${{ inputs.branch }}
+        var=$(git ls-remote --heads origin ${{ inputs.branch }})
         if [ -z $var ]; then
           git pull
         else 
