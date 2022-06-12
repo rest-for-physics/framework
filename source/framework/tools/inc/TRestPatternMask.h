@@ -82,6 +82,8 @@ class TRestPatternMask : public TRestMetadata {
 
     void PrintMetadata() override;
 
+    virtual void Print();
+
     TCanvas* DrawMonteCarlo(Int_t nSamples = 10000);
 
     ~TRestPatternMask();
