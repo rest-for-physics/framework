@@ -77,11 +77,11 @@ int main(int argc, char* argv[]) {
     gROOT->ProcessLine("#include <TRestPhysics.h>");
     if (loadMacros) {
         if (!silent) printf("= Loading macros ...\n");
-        auto a = TRestTools::Execute(
-            "find $REST_PATH/macros | grep REST_[^/]*.C | grep -v \"swo\" | grep -v "
-            "\"CMakeLists\" | grep -v \"swp\"  | grep -v \"svn\"");
-        auto b = Split(a, "\n");
-        for (auto c : b) {
+        auto a = TRestTools::GetFilesMatchingPattern(REST_PATH + "/macros/*REST_*.C");
+        for (auto c : a) {
+            if (c.find("swp") != string::npos || c.find("svn") != string::npos ||
+                c.find("swo") != string::npos)
+                continue;
             if (debug) printf("Loading macro : %s\n", c.c_str());
 
             gROOT->ProcessLine((".L " + c).c_str());
