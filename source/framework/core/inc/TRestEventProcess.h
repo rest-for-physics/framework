@@ -259,4 +259,9 @@ class TRestEventProcess : public TRestMetadata {
 
     ClassDefOverride(TRestEventProcess, 3);  // Base class for a REST process
 };
+
+#define _ApplyCut(evt)        \
+    if (ApplyCut()) return NULL; \
+    return evt;
+
 #endif
