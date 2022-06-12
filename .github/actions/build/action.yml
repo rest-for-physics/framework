@@ -22,10 +22,18 @@ runs:
       with:
        repository: rest-for-physics/framework
        path: framework
+       ref: master
     - name: Checkout framework branch
       run: |
         cd framework
-        ./scripts/checkoutRemoteBranch.sh ${{ inputs.branch }}
+        git fetch
+        var=$(git ls-remote --heads origin ${{ inputs.branch }}
+        if [ -z $var ]; then
+          git pull
+        else 
+          git checkout ${{ inputs.branch }}
+          git pull
+        fi
         python3 pull-submodules.py --force --dontask --latest:${{ inputs.branch }}
       shell: bash
     - name: Build and install
