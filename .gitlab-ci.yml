@@ -99,7 +99,7 @@ Build and Install:
   stage: build
   script:
     - cd ${CI_PROJECT_DIR}
-    - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH} --exlude:iaxo,detector-template
+    - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH} --exclude:iaxo,detector-template
     - rm -rf ${CI_PROJECT_DIR}/build && mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build
     - rm -rf ${CI_PROJECT_DIR}/install
     - cmake ${CI_PROJECT_DIR} -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install
@@ -219,7 +219,9 @@ Basic Readout:
   stage: metadata
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/projects/basic-examples/basic-readouts
+    - cd ${CI_PROJECT_DIR}/projects/basic-examples/
+    - git submodule update --init .
+    - cd basic-readouts
     - git submodule update --init .
     - restRoot -b -q GenerateReadouts.C'("basic.root")'
     - restRoot -b -q BasicValidation.C'("basic.root", "pixelDecoding")'
