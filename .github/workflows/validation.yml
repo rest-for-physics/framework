@@ -4,9 +4,9 @@ name: Validation
 on:
   # Triggers the workflow on push or pull request events but only for the "master" branch
   push:
-    branches: [ 'master' ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ 'master' ]
+    branches: [ "master" ]
   release:
 
   # Allows you to run this workflow manually from the Actions tab
@@ -33,9 +33,9 @@ jobs:
       - name: Build and install
         uses: ./.github/actions/build
         with:
-          cmakeflags: '-DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON -DTEST=ON'
-          branch: '${{ env.BRANCH_NAME }}'
-          buildpath: build
+          cmake-flags: "-DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON -DTEST=ON"
+          branch: ${{ env.BRANCH_NAME }}
+          build-path: build
       - name: Test
         run: |
           source framework/install/thisREST.sh
@@ -52,8 +52,8 @@ jobs:
       - name: Build and install
         uses: ./.github/actions/build
         with:
-          cmakeflags: '-DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON'
-          branch: '${{ env.BRANCH_NAME }}'
+          cmake-flags: "-DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
+          branch: ${{ env.BRANCH_NAME }}
       - name: Test REST
         run: |
           printenv
@@ -84,8 +84,8 @@ jobs:
       - name: Build and install
         uses: ./.github/actions/build
         with:
-          cmakeflags: '-DCMAKE_INSTALL_PREFIX=installOld -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON'
-          branch: '${{ env.BRANCH_NAME }}'
+          cmake-flags: "-DCMAKE_INSTALL_PREFIX=installOld -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
+          branch: ${{ env.BRANCH_NAME }}
       - name: Test REST
         run: |
           printenv
