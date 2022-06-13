@@ -4,13 +4,14 @@
 #include <iostream>
 #include <vector>
 
-Int_t Validate(const char* filename) {
+Int_t Validate(const char* filename, const bool isReferenceGeant4Version = false) {
     TFile* file = TFile::Open(filename);
     TTree* analysisTree = file->Get<TTree>("AnalysisTree");
 
     analysisTree->Scan("eventID:g4Ana_totalEdep:g4Ana_energyPrimary");
 
-    constexpr size_t expectedNumberOfEntries = 16;
+    const size_t expectedNumberOfEntries = (!isReferenceGeant4Version) ? 16 : 19;
+
     if (analysisTree->GetEntries() != expectedNumberOfEntries) {
         cout << "Number of entries is not the same!" << endl;
         cout << "Expected: " << expectedNumberOfEntries << ". Obtained: " << analysisTree->GetEntries()
