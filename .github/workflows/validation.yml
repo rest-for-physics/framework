@@ -21,7 +21,6 @@ defaults:
   run:
     shell: bash
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
   build-test:
@@ -74,32 +73,6 @@ jobs:
           name: rest-install
           path: ${{ env.REST_PATH }}
           retention-days: 1
-
-  framework-install-reference:
-    name: Build with reference version of dependencies
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-reference-jun2022
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build and install
-        uses: ./.github/actions/build
-        with:
-          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
-          branch: ${{ env.BRANCH_NAME }}
-      - name: Test REST
-        run: |
-          printenv
-          cat ${{ env.REST_PATH }}/thisREST.sh
-          source ${{ env.REST_PATH }}/thisREST.sh
-          restManager ListMacros
-          restRoot -b -q
-      - name: Cache framework installation
-        id: framework-install-cache-reference
-        uses: actions/cache@v3
-        with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
-          path: ${{ env.REST_PATH }}
 
   metadata:
     name: "Metadata"
@@ -156,7 +129,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-dev
-    needs: [ framework-install-reference ]
+    needs: [ framework-install ]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -168,7 +141,7 @@ jobs:
           ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
       - name: Restore cache
         uses: actions/cache@v3
-        id: framework-install-cache-reference
+        id: framework-install-cache
         with:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
           path: ${{ env.REST_PATH }}
@@ -284,8 +257,8 @@ jobs:
     name: Run examples
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-reference-jun2022
-    needs: [ framework-install-reference ]
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-dev
+    needs: [ framework-install ]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -297,7 +270,7 @@ jobs:
           ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
       - name: Restore cache
         uses: actions/cache@v3
-        id: framework-install-cache-reference
+        id: framework-install-cache
         with:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
           path: ${{ env.REST_PATH }}
@@ -369,3 +342,31 @@ jobs:
           name: AlphaTrack
           path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
           retention-days: 1
+
+  # Reference dependencies version
+
+  framework-install-reference:
+    name: Build with reference version of dependencies
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-reference-jun2022
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and install
+        uses: ./.github/actions/build
+        with:
+          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
+          branch: ${{ env.BRANCH_NAME }}
+      - name: Test REST
+        run: |
+          printenv
+          cat ${{ env.REST_PATH }}/thisREST.sh
+          source ${{ env.REST_PATH }}/thisREST.sh
+          restManager ListMacros
+          restRoot -b -q
+      - name: Cache framework installation
+        id: framework-install-cache-reference
+        uses: actions/cache@v3
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
