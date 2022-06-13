@@ -33,5 +33,5 @@ runs:
         cd framework
         mkdir -p ${{ inputs.build-path }}
         cmake -B ${{ inputs.build-path }} ${{ inputs.cmake-flags }}
-        make -C ${{ inputs.build-path }} -j6 install
+        make -C ${{ inputs.build-path }} -j8 install
       shell: bash
