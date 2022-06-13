@@ -320,12 +320,12 @@ jobs:
           export REST_ENERGY=5
           export REST_FOIL=1
           restG4 alphas.rml
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: Alphas
-          path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
-          retention-days: 1
+      #      - name: Upload Artifacts
+      #        uses: actions/upload-artifact@v3
+      #        with:
+      #          name: Alphas
+      #          path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
+      #          retention-days: 1
       - name: 01_alphaTrack
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
@@ -373,7 +373,7 @@ jobs:
 
 
   pandax-iii-reference:
-    name: "Reference PandaX-III"
+    name: "PandaX-III on reference version"
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-reference-jun2022
