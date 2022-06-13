@@ -75,7 +75,7 @@ Validate Code:
   stage: pre-build
   script:
     - cd ${CI_PROJECT_DIR}/
-    - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH}
+    - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH} --exclude:iaxo,detector-template
     - python3 pipeline/validateProcesses.py source/libraries/
 
 Build and Test:
