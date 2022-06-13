@@ -327,7 +327,7 @@ jobs:
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/selection
-          restManager --c g4Analysis.rml --f ../../installOld/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root
+          restManager --c g4Analysis.rml --f ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root
           restManager --c g4OnSelection.rml --f Run00001_NLDBD_Test_g4Analysis.root
           restRoot -b -q Validate.C'("Run00001_NLDBD_Test_EvSelection.root")'
           restManager --c g4EvSelectionIDsFromFile.rml --f Run00001_NLDBD_Test_g4Analysis.root
