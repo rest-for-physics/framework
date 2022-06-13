@@ -63,11 +63,14 @@ jobs:
           source ${{ env.REST_PATH }}/thisREST.sh
           restManager ListMacros
           restRoot -b -q
+      - name: Create unique hash for action keys
+        run: |
+          echo "CACHEHASH=$(cat /proc/sys/kernel/random/uuid)" >> $GITHUB_ENV
       - name: Cache framework installation
         id: framework-install-cache
         uses: actions/cache@v3
         with:
-          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ env.cachehash }}
           path: ${{ env.REST_PATH }}
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
@@ -95,11 +98,14 @@ jobs:
           source ${{ env.REST_PATH_REF }}/thisREST.sh
           restManager ListMacros
           restRoot -b -q
+      - name: Create unique hash for action keys
+        run: |
+          echo "CACHEHASH_REF=$(cat /proc/sys/kernel/random/uuid)" >> $GITHUB_ENV
       - name: Cache framework installation
         id: framework-install-cache-reference
         uses: actions/cache@v3
         with:
-          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ github.sha }}-reference
+          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ env.cachehash_ref }}
           path: ${{ env.REST_PATH_REF }}
 
   metadata:
@@ -121,7 +127,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache
         with:
-          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ env.cachehash }}
           path: ${{ env.REST_PATH }}
       # Not used in gitlab pipeline, checks $CI_SERVER_HOST
       - name: Load Gas
@@ -171,7 +177,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache-reference
         with:
-          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ github.sha }}-reference
+          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ env.cachehash_ref }}
           path: ${{ env.REST_PATH_REF }}
       - name: 02_PandaXiiiMC
         run: |
@@ -247,7 +253,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache
         with:
-          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ env.cachehash }}
           path: ${{ env.REST_PATH }}
       - name: TREX-DM Latest Data
         run: |
@@ -299,7 +305,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache-reference
         with:
-          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ github.sha }}-reference
+          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ env.cachehash_ref }}
           path: ${{ env.REST_PATH_REF }}
       - name: Test Metadata
         run: |
