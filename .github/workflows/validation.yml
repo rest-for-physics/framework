@@ -180,7 +180,7 @@ jobs:
           echo "using just-generated g4 file"
           restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 10
           restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_processed.root")'
-          # restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
+          restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -412,7 +412,7 @@ jobs:
           restManager --c AllProcesses.rml --i Xe136bb0n_small_reference.root --o Xe136bb0n_small_reference_processed.root --j 1 --e 10
           restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_small_reference_processed.root")'
           restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
-          # restManager --c plots.rml --i Xe136bb0n_small_reference_processed.root
+          restManager --c plots.rml --i Xe136bb0n_small_reference_processed.root
       - name: PandaXIII Topological from Geant4
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
@@ -420,7 +420,7 @@ jobs:
           echo "using just-generated g4 file"
           restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 10
           restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_processed.root")'
-          restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
+          # restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
