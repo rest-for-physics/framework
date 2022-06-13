@@ -1,18 +1,18 @@
-name: 'build'
-description: 'Build and install framework'
+name: "build"
+description: "Build and install framework"
 inputs:
   branch:
-    description: 'Branch to checkout framework repo'
+    description: "Branch to checkout framework repo"
     required: true
-    default: 'master'
-  cmakeflags:
-    description: 'CMake flags for the build'
+    default: "master"
+  cmake-flags:
+    description: "CMake flags for the build"
     required: true
-    default: '-DCMAKE_INSTALL_PREFIX=install -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON'
-  buildpath:
-    description: 'Path where the framework is built'
+    default: "-DCMAKE_INSTALL_PREFIX=install -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
+  build-path:
+    description: "Path where the framework is built"
     required: false
-    default: 'build'
+    default: "build"
 
 runs:
   using: "composite"
@@ -31,7 +31,7 @@ runs:
     - name: Build and install
       run: |
         cd framework
-        mkdir -p ${{ inputs.buildpath }}
-        cmake -B ${{ inputs.buildpath }} ${{ inputs.cmakeflags }}
-        make -C ${{ inputs.buildpath }} -j8 install
+        mkdir -p ${{ inputs.build-path }}
+        cmake -B ${{ inputs.build-path }} ${{ inputs.cmake-flags }}
+        make -C ${{ inputs.build-path }} -j8 install
       shell: bash
