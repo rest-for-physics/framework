@@ -219,7 +219,7 @@ Basic Readout:
   stage: metadata
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/projects/basic-readouts
+    - cd ${CI_PROJECT_DIR}/projects/basic-examples/basic-readouts
     - git submodule update --init .
     - restRoot -b -q GenerateReadouts.C'("basic.root")'
     - restRoot -b -q BasicValidation.C'("basic.root", "pixelDecoding")'
