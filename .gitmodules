@@ -49,3 +49,6 @@
 [submodule "projects/detector-template"]
 	path = projects/detector-template
 	url = git@github.com:rest-for-physics/detector-template.git
+[submodule "projects/basic-examples"]
+	path = projects/basic-examples
+	url = https://github.com/rest-for-physics/basic-examples.git
