@@ -420,13 +420,12 @@ jobs:
           echo "using just-generated g4 file"
           restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 10
           restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_processed.root")'
-          # restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
+          restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation_G4_v10.4.3.root")'
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: PandaTestOutput
-          # path: framework/pipeline/pandaxiii_MC/Xe136bb0n_processed.root
-          path: framework/pipeline/pandaxiii_MC/results.root
+          path: framework/pipeline/pandaxiii_MC/Xe136bb0n_processed.root
           retention-days: 1
       - name: PandaXIII Data
         run: |
