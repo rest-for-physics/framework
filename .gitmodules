@@ -4,18 +4,6 @@
 [submodule "source/libraries/model"]
 	path = source/libraries/model
 	url = git@lfna.unizar.es:gifna/RestModelLib.git
-[submodule "projects/trexdm-simulations"]
-	path = projects/trexdm-simulations
-	url = git@lfna.unizar.es:gifna/trexdm-simulations.git
-[submodule "projects/trexdm-readouts"]
-	path = projects/trexdm-readouts
-	url = git@lfna.unizar.es:gifna/trexdm-readouts.git
-[submodule "projects/trexdm-geometry"]
-	path = projects/trexdm-geometry
-	url = git@lfna.unizar.es:gifna/trexdm-geometry.git
-[submodule "projects/trexdm-quickana"]
-	path = projects/trexdm-quickana
-	url = git@lfna.unizar.es:gifna/trexdm-quickana.git
 [submodule "projects/iaxo-simulations"]
 	path = projects/iaxo-simulations
 	url = git@lfna.unizar.es:iaxo/iaxo-simulations.git
