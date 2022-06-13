@@ -370,3 +370,73 @@ jobs:
         with:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
           path: ${{ env.REST_PATH }}
+
+
+  pandax-iii-reference:
+    name: "Reference PandaX-III"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-reference-jun2022
+    needs: [ framework-install-reference ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: rest-for-physics/framework
+          path: framework
+      - name: Checkout framework branch
+        run: |
+          cd framework
+          ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: framework-install-cache-reference
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      - name: 02_PandaXiiiMC
+        run: |
+          source  ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/pandaxiii_MC
+          restG4 Xe136bb0n.rml -o Xe136bb0n.root
+          restRoot -b -q ValidateG4.C'("Xe136bb0n.root")'
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Xe136bb
+          path: framework/pipeline/pandaxiii_MC/Xe136bb0n_n2E06.root
+          retention-days: 1
+      - name: PandaXIII Topological
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/pandaxiii_MC
+          restManager --c AllProcesses.rml --i Xe136bb0n_small_reference.root --o Xe136bb0n_small_reference_processed.root --j 1 --e 10
+          restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_small_reference_processed.root")'
+          restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
+          # restManager --c plots.rml --i Xe136bb0n_small_reference_processed.root
+      - name: PandaXIII Topological from Geant4
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/pandaxiii_MC
+          echo "using just-generated g4 file"
+          restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 10
+          restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_processed.root")'
+          restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: PandaTestOutput
+          path: framework/pipeline/pandaxiii_MC/testOutput.root
+          retention-days: 1
+      - name: PandaXIII Data
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/pandaxiii_data
+          restManager --c P3AutoChain.rml --i CoBo_AsAd0_2019-03-15.graw --o testOutput.root --j 1
+          restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
+          restRoot -b -q ../ValidateTrees.C'("validation.root")'
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: PandaTriggerRate
+          path: framework/pipeline/pandaxiii_data/TriggerRate.png
+          retention-days: 1
