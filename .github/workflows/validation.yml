@@ -155,7 +155,7 @@ jobs:
     name: "PandaX-III"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-reference-jun2022
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-dev
     needs: [ framework-install-reference ]
     steps:
       - uses: actions/checkout@v3
@@ -176,8 +176,8 @@ jobs:
         run: |
           source  ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
-          restG4 Xe136bb0n.rml
-          restRoot -b -q ValidateG4.C'("Xe136bb0n_n2E06.root")'
+          restG4 Xe136bb0n.rml -o Xe136bb0n.root
+          restRoot -b -q ValidateG4.C'("Xe136bb0n.root")'
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -188,9 +188,10 @@ jobs:
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
-          restManager --c AllProcesses.rml --i testInput.root --o testOutput.root --j 1 --e 10
-          restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
-          restRoot -b -q ../ValidateTrees.C'("validation.root")'
+          restManager --c AllProcesses.rml --i Xe136bb0n_small_reference.root --o Xe136bb0n_small_reference_processed.root --j 1 --e 10
+          restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_small_reference_processed.root")'
+          restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
+          # restManager --c plots.rml --i Xe136bb0n_small_reference_processed.root
       # This command is failing in the docker, reproducible locally, not clear why...
       #        echo | sleep 5 | restManager --c plots.rml --i testOutput.root
       #    - name: Upload Artifacts
@@ -204,9 +205,9 @@ jobs:
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
           echo "using just-generated g4 file"
-          restManager --c AllProcesses.rml --i Xe136bb0n_n2E06.root --o testOutput.root --j 1 --e 10
-          restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
-          restRoot -b -q ../ValidateTrees.C'("validation.root")'
+          restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 10
+          restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_processed.root")'
+          restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
