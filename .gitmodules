@@ -4,15 +4,6 @@
 [submodule "source/libraries/model"]
 	path = source/libraries/model
 	url = git@lfna.unizar.es:gifna/RestModelLib.git
-[submodule "projects/iaxo-simulations"]
-	path = projects/iaxo-simulations
-	url = git@lfna.unizar.es:iaxo/iaxo-simulations.git
-[submodule "projects/iaxo-geometry"]
-	path = projects/iaxo-geometry
-	url = git@lfna.unizar.es:iaxo/iaxo-geometry.git
-[submodule "projects/iaxo-readouts"]
-	path = projects/iaxo-readouts
-	url = git@lfna.unizar.es:iaxo/iaxo-readouts.git
 [submodule "source/libraries/geant4"]
 	path = source/libraries/geant4
 	url = https://github.com/rest-for-physics/geant4lib.git
@@ -40,9 +31,6 @@
 [submodule "source/packages/restP3DB"]
 	path = source/packages/restP3DB
 	url = https://gitlab.pandax.sjtu.edu.cn/pandax-iii/restp3db.git
-[submodule "projects/iaxo-analysis"]
-	path = projects/iaxo-analysis
-	url = git@lfna.unizar.es:iaxo/iaxo-analysis.git
 [submodule "doc/userguide"]
 	path = doc/userguide
 	url = https://github.com/rest-for-physics/rest-docs.github.io.git
