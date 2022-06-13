@@ -500,6 +500,17 @@ jobs:
           name: EventSelection
           path: framework/pipeline/selection/IDs.txt
           retention-days: 1
+      - name: 07_decay
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd ${{ env.REST_PATH }}/examples/restG4/07.FullChainDecay/
+          restG4 fullChain.rml -o Run00001_U238_FullChainDecay.root
+          restRoot -b -q Validate.C'("Run00001_U238_FullChainDecay.root", 15)'
+          restG4 singleDecay.rml -o Run00002_U238_SingleChainDecay.root
+          restRoot -b -q Validate.C'("Run00002_U238_SingleChainDecay.root", 1)'
+          export REST_ISOTOPE=Be7
+          restG4 singleDecay.rml
+          restRoot -b -q Validate.C'("Run00002_Be7_SingleChainDecay.root", 1)'
       - name: 08_alphas
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
