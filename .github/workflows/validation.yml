@@ -15,7 +15,6 @@ on:
 env:
   CMAKE_BUILD_TYPE: Release
   REST_PATH: /rest/framework/install
-  REST_PATH_REF: /rest/framework/installref
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 defaults:
@@ -63,14 +62,11 @@ jobs:
           source ${{ env.REST_PATH }}/thisREST.sh
           restManager ListMacros
           restRoot -b -q
-      - name: Create unique hash for action keys
-        run: |
-          echo "cachehash=$(cat /proc/sys/kernel/random/uuid)" >> $GITHUB_ENV
       - name: Cache framework installation
         id: framework-install-cache
         uses: actions/cache@v3
         with:
-          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ env.cachehash }}
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
@@ -89,24 +85,21 @@ jobs:
       - name: Build and install
         uses: ./.github/actions/build
         with:
-          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH_REF }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
+          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
           branch: ${{ env.BRANCH_NAME }}
       - name: Test REST
         run: |
           printenv
-          cat ${{ env.REST_PATH_REF }}/thisREST.sh
-          source ${{ env.REST_PATH_REF }}/thisREST.sh
+          cat ${{ env.REST_PATH }}/thisREST.sh
+          source ${{ env.REST_PATH }}/thisREST.sh
           restManager ListMacros
           restRoot -b -q
-      - name: Create unique hash for action keys
-        run: |
-          echo "cachehash_ref=$(cat /proc/sys/kernel/random/uuid)" >> $GITHUB_ENV
       - name: Cache framework installation
         id: framework-install-cache-reference
         uses: actions/cache@v3
         with:
-          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ env.cachehash_ref }}
-          path: ${{ env.REST_PATH_REF }}
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
 
   metadata:
     name: "Metadata"
@@ -127,7 +120,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache
         with:
-          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ env.cachehash }}
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       # Not used in gitlab pipeline, checks $CI_SERVER_HOST
       - name: Load Gas
@@ -177,11 +170,11 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache-reference
         with:
-          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ env.cachehash_ref }}
-          path: ${{ env.REST_PATH_REF }}
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
       - name: 02_PandaXiiiMC
         run: |
-          source  ${{ env.REST_PATH_REF }}/thisREST.sh
+          source  ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
           restG4 Xe136bb0n.rml
           restRoot -b -q ValidateG4.C'("Xe136bb0n_n2E06.root")'
@@ -193,7 +186,7 @@ jobs:
           retention-days: 1
       - name: PandaXIII Topological
         run: |
-          source ${{ env.REST_PATH_REF }}/thisREST.sh
+          source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
           restManager --c AllProcesses.rml --i testInput.root --o testOutput.root --j 1 --e 10
           restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
@@ -208,7 +201,7 @@ jobs:
       #        retention-days: 1
       - name: PandaXIII Topological from Geant4
         run: |
-          source ${{ env.REST_PATH_REF }}/thisREST.sh
+          source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
           echo "using just-generated g4 file"
           restManager --c AllProcesses.rml --i Xe136bb0n_n2E06.root --o testOutput.root --j 1 --e 10
@@ -222,7 +215,7 @@ jobs:
           retention-days: 1
       - name: PandaXIII Data
         run: |
-          source ${{ env.REST_PATH_REF }}/thisREST.sh
+          source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_data
           restManager --c P3AutoChain.rml --i CoBo_AsAd0_2019-03-15.graw --o testOutput.root --j 1
           restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
@@ -253,7 +246,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache
         with:
-          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ env.cachehash }}
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: TREX-DM Latest Data
         run: |
@@ -305,36 +298,36 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache-reference
         with:
-          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ env.cachehash_ref }}
-          path: ${{ env.REST_PATH_REF }}
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
       - name: Test Metadata
         run: |
-          source ${{ env.REST_PATH_REF }}/thisREST.sh
-          cd ${{ env.REST_PATH_REF }}/examples
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd ${{ env.REST_PATH }}/examples
           restManager --c saveMetadataFile.rml --o meta.root
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: Metadata
-          path: ${{ env.REST_PATH_REF }}/examples/meta.root
+          path: ${{ env.REST_PATH }}/examples/meta.root
           retention-days: 1
       - name: 01_NLDBD
         run: |
-          source ${{ env.REST_PATH_REF }}/thisREST.sh
-          cd ${{ env.REST_PATH_REF }}/examples/restG4/01.NLDBD/
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/
           restG4 NLDBD.rml
           restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: NLDBD
-          path: ${{ env.REST_PATH_REF }}/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root
+          path: ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root
           retention-days: 1
       - name: Event Selection
         run: |
-          source ${{ env.REST_PATH_REF }}/thisREST.sh
+          source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/selection
-          restManager --c g4Analysis.rml --f ${{ env.REST_PATH_REF }}/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root
+          restManager --c g4Analysis.rml --f ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root
           restManager --c g4OnSelection.rml --f Run00001_NLDBD_Test_g4Analysis.root
           restRoot -b -q Validate.C'("Run00001_NLDBD_Test_EvSelection.root")'
           restManager --c g4EvSelectionIDsFromFile.rml --f Run00001_NLDBD_Test_g4Analysis.root
@@ -347,8 +340,8 @@ jobs:
           retention-days: 1
       - name: 08_alphas
         run: |
-          source ${{ env.REST_PATH_REF }}/thisREST.sh
-          cd ${{ env.REST_PATH_REF }}/examples/restG4/08.Alphas/
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd ${{ env.REST_PATH }}/examples/restG4/08.Alphas/
           mkdir data
           export REST_ENERGY=5
           export REST_FOIL=1
@@ -357,12 +350,12 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Alphas
-          path: ${{ env.REST_PATH_REF }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
+          path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
           retention-days: 1
       - name: 01_alphaTrack
         run: |
-          source ${{ env.REST_PATH_REF }}/thisREST.sh
-          cd ${{ env.REST_PATH_REF }}/examples/01.alphaTrack/
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd ${{ env.REST_PATH }}/examples/01.alphaTrack/
           mkdir data
           export RAW_PROCESSING=ON
           export HIT_PROCESSING=ON
@@ -373,5 +366,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: AlphaTrack
-          path: ${{ env.REST_PATH_REF }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
+          path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
           retention-days: 1
