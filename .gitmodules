@@ -46,3 +46,6 @@
 [submodule "projects/trexdm"]
 	path = projects/trexdm
 	url = git@lfna.unizar.es:gifna/trexdm-project.git
+[submodule "projects/iaxo"]
+	path = projects/iaxo
+	url = git@github.com:iaxo/iaxo.git
