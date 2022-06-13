@@ -65,7 +65,7 @@ jobs:
           restRoot -b -q
       - name: Create unique hash for action keys
         run: |
-          echo "CACHEHASH=$(cat /proc/sys/kernel/random/uuid)" >> $GITHUB_ENV
+          echo "cachehash=$(cat /proc/sys/kernel/random/uuid)" >> $GITHUB_ENV
       - name: Cache framework installation
         id: framework-install-cache
         uses: actions/cache@v3
@@ -100,7 +100,7 @@ jobs:
           restRoot -b -q
       - name: Create unique hash for action keys
         run: |
-          echo "CACHEHASH_REF=$(cat /proc/sys/kernel/random/uuid)" >> $GITHUB_ENV
+          echo "cachehash_ref=$(cat /proc/sys/kernel/random/uuid)" >> $GITHUB_ENV
       - name: Cache framework installation
         id: framework-install-cache-reference
         uses: actions/cache@v3
