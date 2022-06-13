@@ -97,7 +97,7 @@ jobs:
       id: framework-install-cache-old
       uses: actions/cache@v3
       with:
-        key: ${{ github.sha }}
+        key: ${{ github.sha }}-old
         path: framework/installOld
 
   Metadata:
@@ -170,7 +170,7 @@ jobs:
       uses: actions/cache@v3
       id: framework-install-cache-old
       with:
-        key: ${{ github.sha }}
+        key: ${{ github.sha }}-old
         path:  framework/installOld
     - name: 02_PandaXiiiMC
       run: |
@@ -303,7 +303,7 @@ jobs:
       uses: actions/cache@v3
       id: framework-install-cache-old
       with:
-        key: ${{ github.sha }}
+        key: ${{ github.sha }}-old
         path:  framework/installOld
     - name: Test Metadata
       run: |
