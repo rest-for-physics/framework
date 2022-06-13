@@ -49,3 +49,6 @@
 [submodule "projects/iaxo"]
 	path = projects/iaxo
 	url = git@github.com:iaxo/iaxo.git
+[submodule "projects/detector-template"]
+	path = projects/detector-template
+	url = git@github.com:rest-for-physics/detector-template.git
