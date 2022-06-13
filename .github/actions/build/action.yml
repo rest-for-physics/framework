@@ -13,15 +13,15 @@ inputs:
     description: 'Path where the framework is built'
     required: false
     default: 'build'
-    
+
 runs:
   using: "composite"
   steps:
     - name: Checkout repo
       uses: actions/checkout@v3
       with:
-       repository: rest-for-physics/framework
-       path: framework
+        repository: rest-for-physics/framework
+        path: framework
     - name: Checkout framework branch
       run: |
         cd framework
