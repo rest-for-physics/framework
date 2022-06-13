@@ -395,7 +395,7 @@ jobs:
           path: ${{ env.REST_PATH }}
       - name: 02_PandaXiiiMC
         run: |
-          source  ${{ env.REST_PATH }}/thisREST.sh
+          source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
           restG4 Xe136bb0n.rml -o Xe136bb0n.root
           restRoot -b -q ValidateG4.C'("Xe136bb0n.root")'
@@ -439,4 +439,94 @@ jobs:
         with:
           name: PandaTriggerRate
           path: framework/pipeline/pandaxiii_data/TriggerRate.png
+          retention-days: 1
+
+  examples-reference:
+    name: Run examples on reference version
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-reference-jun2022
+    needs: [ framework-install-reference ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: rest-for-physics/framework
+          path: framework
+      - name: Checkout framework branch
+        run: |
+          cd framework
+          ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: framework-install-cache-reference
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      - name: Test Metadata
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd ${{ env.REST_PATH }}/examples
+          restManager --c saveMetadataFile.rml --o meta.root
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Metadata
+          path: ${{ env.REST_PATH }}/examples/meta.root
+          retention-days: 1
+      - name: 01_NLDBD
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/
+          restG4 NLDBD.rml
+          restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: NLDBD
+          path: ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root
+          retention-days: 1
+      - name: Event Selection
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/selection
+          restManager --c g4Analysis.rml --f ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root
+          restManager --c g4OnSelection.rml --f Run00001_NLDBD_Test_g4Analysis.root
+          restRoot -b -q Validate.C'("Run00001_NLDBD_Test_EvSelection.root")'
+          restManager --c g4EvSelectionIDsFromFile.rml --f Run00001_NLDBD_Test_g4Analysis.root
+          restRoot -b -q ValidateIDsFromFile.C'("Run00001_NLDBD_Test_EvSelectionIDsFromFile.root")'
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: EventSelection
+          path: framework/pipeline/selection/IDs.txt
+          retention-days: 1
+      - name: 08_alphas
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd ${{ env.REST_PATH }}/examples/restG4/08.Alphas/
+          mkdir data
+          export REST_ENERGY=5
+          export REST_FOIL=1
+          restG4 alphas.rml
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Alphas
+          path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
+          retention-days: 1
+      - name: 01_alphaTrack
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd ${{ env.REST_PATH }}/examples/01.alphaTrack/
+          mkdir data
+          export RAW_PROCESSING=ON
+          export HIT_PROCESSING=ON
+          export TRACK_PROCESSING=ON
+          restManager --c processing.rml --f ../restG4/08.Alphas/data/Run_5MeV_1um.root
+          restRoot -b -q Validate.C'("data/Response_5MeV_1um.root")'
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: AlphaTrack
+          path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
           retention-days: 1
