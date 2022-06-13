@@ -67,3 +67,6 @@
 [submodule "projects/basic-examples"]
 	path = projects/basic-examples
 	url = git@github.com:rest-for-physics/basic-examples.git
+[submodule "projects/trexdm"]
+	path = projects/trexdm
+	url = git@lfna.unizar.es:gifna/trexdm-project.git
