@@ -11,6 +11,8 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  # Allows you to run this workflow from submodules
+  workflow_call:
 
 env:
   CMAKE_BUILD_TYPE: Release
