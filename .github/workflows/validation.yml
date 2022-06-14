@@ -336,12 +336,12 @@ jobs:
           export TRACK_PROCESSING=ON
           restManager --c processing.rml --f ../restG4/08.Alphas/data/Run_5MeV_1um.root
           restRoot -b -q Validate.C'("data/Response_5MeV_1um.root")'
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: AlphaTrack
-          path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
-          retention-days: 1
+      #       - name: Upload Artifacts
+      #         uses: actions/upload-artifact@v3
+      #         with:
+      #           name: AlphaTrack
+      #           path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
+      #           retention-days: 1
 
   # Reference dependencies version
 
