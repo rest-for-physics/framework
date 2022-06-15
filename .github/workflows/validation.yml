@@ -121,7 +121,6 @@ jobs:
       - name: Basic Readout
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
-          cd ${CI_PROJECT_DIR}/projects/basic-examples/
           cd framework/projects/basic-examples/
           git submodule update --init .
           cd basic-readouts
