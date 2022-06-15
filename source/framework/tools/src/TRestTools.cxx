@@ -795,19 +795,19 @@ string TRestTools::SearchFileInPath(vector<string> paths, string filename) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Checks if the config file can be openned. It returns OK in case of
-/// success, ERROR otherwise.
+/// \brief Checks if the config file can be opened (and thus exists).
+/// It returns true in case of success, false otherwise.
 ///
-Int_t TRestTools::CheckTheFile(std::string configFilename) {
+bool TRestTools::CheckFileIsAccessible(const std::string& filename) {
     ifstream ifs;
-    ifs.open(configFilename.c_str());
+    ifs.open(filename.c_str());
 
     if (!ifs) {
-        return -1;
-    } else
+        return false;
+    } else {
         ifs.close();
-
-    return 0;
+    }
+    return true;
 }
 
 ///////////////////////////////////////////////
