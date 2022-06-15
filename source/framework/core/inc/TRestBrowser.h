@@ -50,8 +50,8 @@ class TRestBrowser {
     Int_t fEventId = 0;              //!
     Int_t fEventSubId = 0;           //!
 
-    TBrowser* b = nullptr;  //!
-    TRestRun* r = nullptr;  //!
+    TBrowser* fBrowser = nullptr;  //!
+    TRestRun* fRestRun = nullptr;  //!
 #endif
 
    private:
@@ -62,17 +62,17 @@ class TRestBrowser {
     TRestEventViewer* fEventViewer = nullptr;  //!
 
     void SetViewer(TRestEventViewer* eV);
-    void SetViewer(TString viewerName);
+    void SetViewer(const TString& viewerName);
     void SetButtons();
-    Bool_t LoadEventId(Int_t id, Int_t subid = -1);
+    Bool_t LoadEventId(Int_t eventID, Int_t subEventID = -1);
     Bool_t LoadEventEntry(Int_t n);
 #endif
 
    public:
     // tool method
-    void Initialize(TString opt = "FI");
+    void Initialize(const TString& opt = "FI");
     void InitFromConfigFile();
-    Bool_t OpenFile(TString filename);
+    Bool_t OpenFile(const TString& filename);
 
     // setters
     void SetInputEvent(TRestEvent*);
@@ -96,7 +96,7 @@ class TRestBrowser {
 
     // Constructors
     TRestBrowser();
-    TRestBrowser(TString viewerName);
+    TRestBrowser(const TString& viewerName);
 
     // Destructor
     ~TRestBrowser();
