@@ -131,7 +131,7 @@ Open v2.2 Files:
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/fileopening
-    - restRoot -b -q v2.2.30_hits.root
+    - restManager PrintTrees v2.2.30_hits.root
 
 01_NLDBD:
   stage: restG4
