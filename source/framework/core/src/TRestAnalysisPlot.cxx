@@ -67,8 +67,12 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     TiXmlElement* ele = GetElement("addFile");
     while (ele != nullptr) {
         std::string inputfile = GetParameter("name", ele);
-        std::vector<std::string> infiles = TRestTools::GetFilesMatchingPattern(inputfile);
-        for (const auto& f : infiles) this->AddFile(f);
+        if (inputfile.find("http") == 0)
+            this->AddFile(inputfile);
+        else {
+            std::vector<std::string> infiles = TRestTools::GetFilesMatchingPattern(inputfile);
+            for (const auto& f : infiles) this->AddFile(f);
+        }
         ele = GetNextElement(ele);
     }
     // try to add files from external TRestRun handler
