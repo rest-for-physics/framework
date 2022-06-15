@@ -86,7 +86,7 @@ Build and Test:
     - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build
     - cmake ${CI_PROJECT_DIR} -DTEST=ON -DREST_ALL_LIBS=ON
       -DREST_GARFIELD=OFF -DREST_G4=ON -DREST_WELCOME=OFF -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install-test
-    - make -j2
+    - make -j2 install
     - source ${CI_PROJECT_DIR}/install-test/thisREST.sh
     - ctest --output-on-failure -O ${CI_PROJECT_DIR}/build/Testing/summary.txt
 
