@@ -124,7 +124,7 @@ class TRestRun : public TRestMetadata {
             RESTWarning << "REST Warning! A null metadata wants to be added in TRestRun!" << RESTendl;
         }
     }
-    void AddEventBranch(TRestEvent* eve);
+    void AddEventBranch(TRestEvent* event);
     void SkipEventTree() {}
 
     void cd() {
@@ -178,8 +178,8 @@ class TRestRun : public TRestMetadata {
     inline TTree* GetEventTree() const { return fEventTree; }
     inline Int_t GetInputFileNumber() const { return fFileProcess == nullptr ? fInputFileNames.size() : 1; }
 
-    TRestMetadata* GetMetadata(const TString& name, TFile* f = nullptr);
-    TRestMetadata* GetMetadataClass(const TString& type, TFile* f = nullptr);
+    TRestMetadata* GetMetadata(const TString& name, TFile* file = nullptr);
+    TRestMetadata* GetMetadataClass(const TString& type, TFile* file = nullptr);
     std::vector<std::string> GetMetadataStructureNames();
     std::vector<std::string> GetMetadataStructureTitles();
     inline int GetNumberOfMetadataStructures() const { return fMetadata.size(); }

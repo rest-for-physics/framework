@@ -1227,25 +1227,17 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
 void TRestRun::SetInputEvent(TRestEvent* event) {
     if (event != nullptr) {
         if (fEventTree != nullptr) {
-            // if (fEventBranchLoc != -1) {
-            //	TBranch *br = (TBranch*)branches->At(fEventBranchLoc);
-            //	br->SetAddress(0);
-            //}
             if (fInputEvent != nullptr) {
-                fEventTree->SetBranchAddress((TString)fInputEvent->ClassName() + "Branch", 0);
+                fEventTree->SetBranchAddress((TString)fInputEvent->ClassName() + "Branch", nullptr);
                 fEventTree->SetBranchStatus((TString)fInputEvent->ClassName() + "Branch", false);
             }
             TObjArray* branches = fEventTree->GetListOfBranches();
             string branchName = (string)event->ClassName() + "Branch";
             for (int i = 0; i <= branches->GetLast(); i++) {
-                TBranch* br = (TBranch*)branches->At(i);
-                if ((string)br->GetName() == branchName) {
+                auto branch = (TBranch*)branches->At(i);
+                if ((string)branch->GetName() == branchName) {
                     RESTDebug << "Setting input event.. Type: " << event->ClassName() << " Address: " << event
                               << RESTendl;
-                    // if (fInputEvent != nullptr && (char*)fInputEvent != (char*)eve) {
-                    //    delete fInputEvent;
-                    //}
-
                     fInputEvent = event;
                     fEventTree->SetBranchAddress(branchName.c_str(), &fInputEvent);
                     fEventTree->SetBranchStatus(branchName.c_str(), false);
@@ -1268,13 +1260,13 @@ void TRestRun::SetInputEvent(TRestEvent* event) {
 ///////////////////////////////////////////////
 /// \brief Add an event branch in output EventTree
 ///
-void TRestRun::AddEventBranch(TRestEvent* eve) {
-    if (eve != nullptr) {
+void TRestRun::AddEventBranch(TRestEvent* event) {
+    if (event != nullptr) {
         if (fEventTree != nullptr) {
-            string evename = (string)eve->ClassName();
-            string branchName = evename + "Branch";
-            fEventTree->Branch(branchName.c_str(), eve);
-            fEventTree->SetTitle((evename + "Tree").c_str());
+            string eventName = (string)event->ClassName();
+            string branchName = eventName + "Branch";
+            fEventTree->Branch(branchName.c_str(), event);
+            fEventTree->SetTitle((eventName + "Tree").c_str());
         }
     }
 }
@@ -1297,7 +1289,7 @@ void TRestRun::ImportMetadata(const TString& File, const TString& name, const TS
         return;
     }
 
-    TFile* f = new TFile(thisFile);
+    TFile* file = TFile::Open(thisFile);
     // TODO give error in case we try to obtain a class that is not TRestMetadata
     if (type == "" && name == "") {
         RESTError << "(ImportMetadata) : metadata type and name is not "
@@ -1308,17 +1300,17 @@ void TRestRun::ImportMetadata(const TString& File, const TString& name, const TS
 
     TRestMetadata* meta = nullptr;
     if (name != "") {
-        meta = GetMetadata(name, f);
+        meta = GetMetadata(name, file);
     } else if (type != "") {
-        meta = GetMetadataClass(type, f);
+        meta = GetMetadataClass(type, file);
     }
 
     if (meta == nullptr) {
         cout << "REST ERROR (ImportMetadata) : " << name << " does not exist." << endl;
         cout << "Inside root file : " << File << endl;
         GetChar();
-        f->Close();
-        delete f;
+        file->Close();
+        delete file;
         return;
     }
 
@@ -1329,8 +1321,8 @@ void TRestRun::ImportMetadata(const TString& File, const TString& name, const TS
 
     fMetadata.push_back(meta);
     meta->LoadConfigFromBuffer();
-    f->Close();
-    delete f;
+    file->Close();
+    delete file;
 }
 
 Int_t TRestRun::Write(const char* name, Int_t option, Int_t bufsize) {
@@ -1362,7 +1354,7 @@ int TRestRun::GetEntries() const {
 // Getters
 TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, const TString& tag) {
     if (fAnalysisTree != nullptr) {
-        int nentries = fAnalysisTree->GetEntries();
+        int nEntries = fAnalysisTree->GetEntries();
 
         // set analysis tree to read only three branches
         fAnalysisTree->SetBranchStatus("*", false);
@@ -1372,7 +1364,7 @@ TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, const TStr
 
         // just look through the whole analysis tree and find the entry
         // this is not good!
-        for (int i = 0; i < nentries; i++) {
+        for (int i = 0; i < nEntries; i++) {
             fAnalysisTree->GetEntry(i);
             if (fAnalysisTree->GetEventID() == eventID) {
                 if (subEventID != -1 && fAnalysisTree->GetSubEventID() != subEventID) continue;
@@ -1397,7 +1389,7 @@ std::vector<int> TRestRun::GetEventEntriesWithConditions(const string& cuts, int
     std::vector<string> observables;
     std::vector<string> operators;
     std::vector<Double_t> values;
-    // it is necessary that this vector vector is sorted from longest to shortest
+    // it is necessary that this vector is sorted from longest to shortest
     const std::vector<string> validOperators = {"==", "<=", ">=", "=", ">", "<"};
 
     vector<string> cutsVector = Split(cuts, "&&", false, true);
@@ -1546,19 +1538,19 @@ string TRestRun::GetRunInformation(const string& info) {
     return info;
 }
 
-TRestMetadata* TRestRun::GetMetadataClass(const TString& type, TFile* f) {
-    if (f != nullptr) {
-        TIter nextkey(f->GetListOfKeys());
+TRestMetadata* TRestRun::GetMetadataClass(const TString& type, TFile* file) {
+    if (file != nullptr) {
+        TIter nextkey(file->GetListOfKeys());
         TKey* key;
         while ((key = (TKey*)nextkey())) {
             string kName = key->GetClassName();
 
             if (REST_Reflection::GetClassQuick(kName.c_str()) != nullptr &&
                 REST_Reflection::GetClassQuick(kName.c_str())->InheritsFrom(type)) {
-                TRestMetadata* a = (TRestMetadata*)f->Get(key->GetName());
+                TRestMetadata* metadata = file->Get<TRestMetadata>(key->GetName());
 
-                if (a != nullptr && a->InheritsFrom("TRestMetadata")) {
-                    return a;
+                if (metadata != nullptr && metadata->InheritsFrom("TRestMetadata")) {
+                    return metadata;
                 } else {
                     RESTWarning << "TRestRun::GetMetadataClass() : The object to import is "
                                    "not inherited from TRestMetadata"
@@ -1578,18 +1570,18 @@ TRestMetadata* TRestRun::GetMetadataClass(const TString& type, TFile* f) {
     return nullptr;
 }
 
-TRestMetadata* TRestRun::GetMetadata(const TString& name, TFile* f) {
-    if (f != nullptr) {
-        TIter nextkey(f->GetListOfKeys());
+TRestMetadata* TRestRun::GetMetadata(const TString& name, TFile* file) {
+    if (file != nullptr) {
+        TIter nextkey(file->GetListOfKeys());
         TKey* key;
         while ((key = (TKey*)nextkey())) {
             string kName = key->GetName();
 
             if (kName == name) {
-                TRestMetadata* a = (TRestMetadata*)f->Get(name);
+                TRestMetadata* metadata = file->Get<TRestMetadata>(name);
 
-                if (a->InheritsFrom("TRestMetadata")) {
-                    return a;
+                if (metadata->InheritsFrom("TRestMetadata")) {
+                    return metadata;
                 } else {
                     RESTWarning << "TRestRun::GetMetadata() : The object to import is not "
                                    "inherited from TRestMetadata"
@@ -1600,10 +1592,6 @@ TRestMetadata* TRestRun::GetMetadata(const TString& name, TFile* f) {
     } else {
         for (unsigned int i = 0; i < fMetadata.size(); i++)
             if (fMetadata[i]->GetName() == name) return fMetadata[i];
-
-        // if (fInputFile != nullptr && this->GetVersionCode() >=
-        // ConvertVersionCode("2.2.1")) { 	return GetMetadata(name, fInputFile);
-        //}
     }
 
     return nullptr;
