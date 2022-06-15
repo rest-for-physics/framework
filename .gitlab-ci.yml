@@ -78,17 +78,17 @@ Validate Code:
     - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH} --exclude:iaxo,detector-template
     - python3 pipeline/validateProcesses.py source/libraries/
 
-Build and Test:
-  stage: test
-  script:
-    #- cd ${CI_PROJECT_DIR}
-    #- python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH} --exclude:iaxo,detector-template
-    #- mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build
-    #- cmake ${CI_PROJECT_DIR} -DTEST=ON -DREST_ALL_LIBS=ON
-    #  -DREST_GARFIELD=OFF -DREST_G4=ON -DREST_WELCOME=OFF -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install-test
-    #- make -j2 install
-    #- source ${CI_PROJECT_DIR}/install-test/thisREST.sh
-    #- ctest --output-on-failure -O ${CI_PROJECT_DIR}/build/Testing/summary.txt
+#Build and Test:
+#  stage: test
+#  script:
+#    - cd ${CI_PROJECT_DIR}
+#    - python3 pull-submodules.py --force --dontask --latest:${CI_COMMIT_BRANCH} --exclude:iaxo,detector-template
+#    - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build
+#    - cmake ${CI_PROJECT_DIR} -DTEST=ON -DREST_ALL_LIBS=ON
+#      -DREST_GARFIELD=OFF -DREST_G4=ON -DREST_WELCOME=OFF -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install-test
+#    - make -j2 install
+#    - source ${CI_PROJECT_DIR}/install-test/thisREST.sh
+#    - ctest --output-on-failure -O ${CI_PROJECT_DIR}/build/Testing/summary.txt
 
   artifacts:
     name: "Testing"
