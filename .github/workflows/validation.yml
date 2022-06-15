@@ -119,7 +119,9 @@ jobs:
       - name: Basic Readout
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
-          cd framework/projects/basic-readouts
+          cd ${CI_PROJECT_DIR}/projects/basic-examples/
+          git submodule update --init .
+          cd basic-readouts
           git submodule update --init .
           restRoot -b -q GenerateReadouts.C'("basic.root")'
           restRoot -b -q BasicValidation.C'("basic.root", "pixelDecoding")'
