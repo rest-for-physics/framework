@@ -11,6 +11,8 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  # Allows you to run this workflow from submodules
+  workflow_call:
 
 env:
   CMAKE_BUILD_TYPE: Release
@@ -31,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build and install
-        uses: ./.github/actions/build
+        uses: rest-for-physics/framework/.github/actions/build@master
         with:
           cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON -DTEST=ON"
           branch: ${{ env.BRANCH_NAME }}
@@ -50,7 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build and install
-        uses: ./.github/actions/build
+        uses: rest-for-physics/framework/.github/actions/build@master
         with:
           cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
           branch: ${{ env.BRANCH_NAME }}
@@ -119,7 +121,9 @@ jobs:
       - name: Basic Readout
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
-          cd framework/projects/basic-readouts
+          cd framework/projects/basic-examples/
+          git submodule update --init .
+          cd basic-readouts
           git submodule update --init .
           restRoot -b -q GenerateReadouts.C'("basic.root")'
           restRoot -b -q BasicValidation.C'("basic.root", "pixelDecoding")'
@@ -353,7 +357,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build and install
-        uses: ./.github/actions/build
+        uses: rest-for-physics/framework/.github/actions/build@master
         with:
           cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
           branch: ${{ env.BRANCH_NAME }}
