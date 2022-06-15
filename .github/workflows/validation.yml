@@ -355,7 +355,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build and install
-        uses: uses: rest-for-physics/framework/.github/actions/build@master
+        uses: rest-for-physics/framework/.github/actions/build@master
         with:
           cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
           branch: ${{ env.BRANCH_NAME }}
