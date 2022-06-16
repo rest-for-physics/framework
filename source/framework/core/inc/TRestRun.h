@@ -256,6 +256,9 @@ class TRestRun : public TRestMetadata {
     // Constructor & Destructor
     TRestRun();
     TRestRun(const std::string& filename);
+    inline TRestRun(const char* filename) { TRestRun(std::string(filename)); }
+    inline TRestRun(const TString& filename) { TRestRun(filename.Data()); }
+
     ~TRestRun();
 
     ClassDefOverride(TRestRun, 6);
