@@ -150,6 +150,8 @@ Int_t TRestCombinedMask::GetRegion(Double_t x, Double_t y) {
     Int_t region = 0;
     for (const auto mask : fMasks) {
         Int_t id = mask->GetRegion(x, y);
+        RESTDebug << "TRestCombinedMask::GetRegion. Mask type: " << mask->GetType() << " region : " << id
+                  << RESTendl;
         if (id == 0) return 0;
 
         region = id + region * mask->GetMaxRegions();
