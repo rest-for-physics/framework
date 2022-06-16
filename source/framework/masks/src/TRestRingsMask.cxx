@@ -239,3 +239,12 @@ void TRestRingsMask::PrintMaskMembers() {
         RESTMetadata << ")" << RESTendl;
     }
 }
+
+/////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members of TRestRingsMask,
+/// excluding common metadata headers.
+///
+void TRestRingsMask::PrintRings() {
+    for (int n = 0; n < fRingsRadii.size(); n++)
+        std::cout << fRingsRadii[n].first << " - " << fRingsRadii[n].second << std::endl;
+}
