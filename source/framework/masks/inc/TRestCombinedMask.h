@@ -39,6 +39,7 @@ class TRestCombinedMask : public TRestPatternMask {
         if (index < fMasks.size()) {
             return fMasks[index];
         }
+        if (index == 0) RESTError << "TRestCombinedMask does not contain any masks" << RESTendl;
         return fMasks[0];
     }
 
