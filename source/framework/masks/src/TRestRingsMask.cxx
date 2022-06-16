@@ -246,5 +246,5 @@ void TRestRingsMask::PrintMaskMembers() {
 ///
 void TRestRingsMask::PrintRings() {
     for (int n = 0; n < fRingsRadii.size(); n++)
-        std::cout << fRingsRadii[n].first << " - " << fRingsRadii[n].second << std::endl;
+        std::cout << n << " - " << fRingsRadii[n].first << " - " << fRingsRadii[n].second << std::endl;
 }

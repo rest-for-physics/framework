@@ -39,6 +39,7 @@ class TRestCombinedMask : public TRestPatternMask {
         if (index < fMasks.size()) {
             return fMasks[index];
         }
+        return fMasks[0];
     }
 
     Int_t GetRegion(Double_t x, Double_t y) override;
