@@ -41,6 +41,26 @@ TEST(FrameworkCore, TRestRun) {
     EXPECT_TRUE(run.GetVerboseLevelString() == "debug");
 }
 
+TEST(FrameworkCore, TRestRun_store) {
+    const auto& store = TRestRun::GetGlobalStore();
+    EXPECT_EQ(store.empty(), true);
+
+    {
+        TRestRun run;
+        EXPECT_EQ(store.size() == 1, true);
+
+        TRestRun run2;
+        EXPECT_EQ(store.size() == 2, true);
+
+        auto run3 = new TRestRun();
+        EXPECT_EQ(store.size() == 3, true);
+        delete run3;
+        EXPECT_EQ(store.size() == 2, true);
+    }
+
+    EXPECT_EQ(store.empty(), true);
+}
+
 TEST(FrameworkCore, TRestMetadata) {
     // Create new TRestMetadata class
     class TRestMetadataTest : public TRestMetadata {

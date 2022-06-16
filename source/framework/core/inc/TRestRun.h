@@ -64,6 +64,8 @@ class TRestRun : public TRestMetadata {
    private:
     std::string ReplaceMetadataMember(const std::string& instr);
 
+    static std::vector<const TRestRun*> fGlobalRunStore;  //!
+
    public:
     /// REST run class
     void Initialize() override;
@@ -254,6 +256,8 @@ class TRestRun : public TRestMetadata {
 
     Int_t Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0) override;
 
+    inline static const std::vector<const TRestRun*>& GetGlobalStore() { return fGlobalRunStore; }
+
     // Constructor & Destructor
     TRestRun();
     TRestRun(const std::string& filename);
@@ -262,7 +266,7 @@ class TRestRun : public TRestMetadata {
 
     ~TRestRun();
 
-    ClassDefOverride(TRestRun, 6);
+    ClassDefOverride(TRestRun, 7);
 };
 
 #endif

@@ -48,6 +48,8 @@ std::mutex mutex_read;
 
 ClassImp(TRestRun);
 
+vector<const TRestRun*> TRestRun::fGlobalRunStore = {};
+
 TRestRun::TRestRun() { Initialize(); }
 
 TRestRun::TRestRun(const string& filename) {
@@ -63,15 +65,11 @@ TRestRun::TRestRun(const string& filename) {
 }
 
 TRestRun::~TRestRun() {
-    // if (fEventTree != nullptr) {
-    //    delete fEventTree;
-    //}
-
-    // if (fAnalysisTree != nullptr) {
-    //    delete fAnalysisTree;
-    //}
-
     CloseFile();
+
+    // Remove this run from global store on deletion
+    fGlobalRunStore.erase(std::remove(fGlobalRunStore.begin(), fGlobalRunStore.end(), this),
+                          fGlobalRunStore.end());
 }
 
 ///////////////////////////////////////////////
@@ -117,6 +115,19 @@ void TRestRun::Initialize() {
     fEventBranchLoc = -1;
     fFileProcess = nullptr;
     fSaveHistoricData = true;
+
+    // Insert pointer to global run store. Avoid inserting same address more than once.
+    // TRestRun destructor should clear when objects are deleted
+    bool inserted = false;
+    for (const auto& run : fGlobalRunStore) {
+        if (run == this) {
+            inserted = true;
+            break;
+        }
+    }
+    if (!inserted) {
+        fGlobalRunStore.push_back(this);
+    }
 }
 
 ///////////////////////////////////////////////
