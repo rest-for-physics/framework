@@ -101,7 +101,8 @@ class TRestRun : public TRestMetadata {
     }
 
     TString FormFormat(const TString& FilenameFormat);
-    TFile* MergeToOutputFile(std::vector<std::string> filefullnames, std::string outputfilename = "");
+    TFile* MergeToOutputFile(const std::vector<std::string>& filefullnames,
+                             const std::string& outputfilename = "");
     TFile* FormOutputFile();
     TFile* UpdateOutputFile();
 
