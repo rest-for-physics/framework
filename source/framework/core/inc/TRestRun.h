@@ -35,7 +35,7 @@ class TRestRun : public TRestMetadata {
     Double_t fStartTime;  ///< Event absolute starting time/date (unix timestamp)
     Double_t fEndTime;    ///< Event absolute ending time/date (unix timestamp)
     Int_t fEntriesSaved;
-    Int_t fNFilesSplit;  // Number of files being split. Used when retrieveing
+    Int_t fNFilesSplit;  // Number of files being split. Used when retrieving
 
     // data-like metadata objects
     std::vector<TRestMetadata*> fMetadata;       //!
@@ -79,7 +79,7 @@ class TRestRun : public TRestMetadata {
     void ResetEntry();
 
     Int_t GetNextEvent(TRestEvent* targetEvent, TRestAnalysisTree* targetTree);
-    void GetEntry(int i) {
+    inline void GetEntry(int i) {
         if (fAnalysisTree != nullptr) {
             fAnalysisTree->GetEntry(i);
         }
@@ -95,7 +95,7 @@ class TRestRun : public TRestMetadata {
         fCurrentEvent = i;
     }
 
-    void GetNextEntry() {
+    inline void GetNextEntry() {
         if (fCurrentEvent + 1 >= GetEntries()) fCurrentEvent = -1;
         GetEntry(fCurrentEvent + 1);
     }
@@ -105,7 +105,7 @@ class TRestRun : public TRestMetadata {
     TFile* FormOutputFile();
     TFile* UpdateOutputFile();
 
-    void PassOutputFile() {
+    inline void PassOutputFile() {
         fOutputFile = fInputFile;
         fOutputFileName = fOutputFile->GetName();
     }
@@ -127,7 +127,7 @@ class TRestRun : public TRestMetadata {
     void AddEventBranch(TRestEvent* event);
     void SkipEventTree() {}
 
-    void cd() {
+    inline void cd() {
         if (fInputFile != nullptr) fInputFile->cd();
     }
 
@@ -229,7 +229,7 @@ class TRestRun : public TRestMetadata {
     void PrintMetadata() override;
     inline void PrintAllMetadata() {
         PrintMetadata();
-        for (unsigned int i = 0; i < fMetadata.size(); i++) fMetadata[i]->PrintMetadata();
+        for (auto& metadata : fMetadata) metadata->PrintMetadata();
     }
     inline void PrintTrees() const {
         if (fEventTree != nullptr) {
