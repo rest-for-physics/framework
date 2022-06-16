@@ -154,7 +154,7 @@ class TRestRun : public TRestMetadata {
     inline int GetCurrentEntry() const { return fCurrentEvent; }
     inline Long64_t GetBytesReaded() const { return fBytesRead; }
     Long64_t GetTotalBytes();
-    int GetEntries() const;
+    Long64_t GetEntries() const;
 
     /// Calling `GetInputEvent()` will return a basic `TRestEvent*`
     inline TRestEvent* GetInputEvent() const { return fInputEvent; }

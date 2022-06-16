@@ -32,8 +32,9 @@
 #include <windows.h>
 #undef GetClassName
 #else
-#include "unistd.h"
 #include <sys/stat.h>
+
+#include "unistd.h"
 #endif  // !WIN32
 
 #include "TRestDataBase.h"
@@ -1151,7 +1152,7 @@ void TRestRun::CloseFile() {
     }
 
     if (fEventTree != nullptr) {
-        if (fEventTree->GetEntries() > 0 && fInputFile == nullptr) fEventTree->Write(0, kWriteDelete);
+        if (fEventTree->GetEntries() > 0 && fInputFile == nullptr) fEventTree->Write(nullptr, kWriteDelete);
         delete fEventTree;
         fEventTree = nullptr;
     }
@@ -1204,7 +1205,7 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
         p->SetAnalysisTree(fAnalysisTree);
         fTotalBytes = p->GetTotalBytes();
 
-        GetNextEvent(fInputEvent, 0);
+        GetNextEvent(fInputEvent, nullptr);
         // fAnalysisTree->CreateBranches();
         RESTInfo << "The external file process has been set! Name : " << fFileProcess->GetName() << RESTendl;
     } else {
@@ -1344,7 +1345,7 @@ Long64_t TRestRun::GetTotalBytes() {
     return fTotalBytes;
 }
 
-int TRestRun::GetEntries() const {
+Long64_t TRestRun::GetEntries() const {
     if (fAnalysisTree != nullptr) {
         return fAnalysisTree->GetEntries();
     }
