@@ -131,7 +131,7 @@ TVector3 GetConeNormal(const TVector3& pos, const Double_t& alpha, const Double_
     Double_t cosA = TMath::Cos(alpha);
     Double_t sinA = TMath::Sin(alpha);
 
-    return -TVector3(cosA * pos.X() / R, cosA * pos.Y() / R, sinA);
+    return -TVector3(cosA * pos.X() / r, cosA * pos.Y() / r, sinA);
 }
 
 ///////////////////////////////////////////////
