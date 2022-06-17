@@ -53,6 +53,8 @@ class TRestGridMask : public TRestPatternMask {
 
     void PrintMetadata() override;
 
+    void Print() override;
+
     TRestGridMask();
     TRestGridMask(const char* cfgFileName, std::string name = "");
     ~TRestGridMask();
