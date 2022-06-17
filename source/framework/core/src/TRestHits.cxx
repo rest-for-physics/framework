@@ -589,7 +589,8 @@ Double_t TRestHits::GetGaussSigmaX() {
         gausSigmaX = 0;
     } else {
         Int_t nAdd = 0;
-        bool doHitCorr = nHits <= 18;
+        bool doHitCorr = true;
+        // bool doHitCorr = nHits <= 18; //in case we want to apply it only to the smaller events
         if (doHitCorr) {
             nAdd = 2;
         }
@@ -610,8 +611,70 @@ Double_t TRestHits::GetGaussSigmaX() {
                 ey[k] = 0;
             }
         }
+        Int_t h = nHits + nAdd / 2;
         if (doHitCorr) {
-            Int_t h = nHits + nAdd / 2;
+            x[0] = xMin - 0.5;
+            x[h] = xMax + 0.5;
+            y[0] = 0.0;
+            y[h] = 70.0;
+            ex[0] = 0.0;
+            ex[h] = 0.0;
+            ey[0] = 70.0;
+            ey[h] = 70.0;
+        }
+        TGraphErrors* grX = new TGraphErrors(nElems, x, y, ex, ey);
+        // TCanvas *c = new TCanvas("c","X position fit",200,10,500,500);
+        // grX->Draw();
+        // Defining the starting parameters for the fit.
+        Double_t maxY = MaxElement(nElems, grX->GetY());
+        Double_t maxX = grX->GetX()[LocMax(nElems, grX->GetY())];
+        Double_t sigma = abs(x[0] - x[h]) / 2.0;
+        // std::cout << "maxX: " << maxX << ", maxY: " << maxY << ", sigma: " << sigma << std::endl;
+
+        TF1* fit = new TF1("", "gaus");
+        fit->SetParameter(0, maxY);
+        fit->SetParameter(1, maxX);
+        fit->SetParameter(2, sigma);
+        grX->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
+                               // parameters; R = Use the Range specified in the function range
+
+        gausSigmaX = fit->GetParameter(2);
+    }
+
+    return abs(gausSigmaX);
+}
+
+Double_t TRestHits::GetGaussSigmaY() {
+    Double_t gausSigmaY = 0;
+    Int_t nHits = GetNumberOfHits();
+    if (nHits <= 3) {
+        gausSigmaY = 0;
+    } else {
+        Int_t nAdd = 0;
+        // bool doHitCorr = true;
+        bool doHitCorr = nHits <= 18;
+        if (doHitCorr) {
+            nAdd = 2;
+        }
+        Int_t nElems = nHits + nAdd;
+        Double_t x[nElems], y[nElems], ex[nElems], ey[nElems];
+        Int_t k = nAdd / 2;
+        Double_t xMin = std::numeric_limits<double>::max();
+        Double_t xMax = std::numeric_limits<double>::lowest();
+        for (int n = 0; n < GetNumberOfHits(); k++, n++) {
+            x[k] = fY[n];
+            y[k] = fEnergy[n];
+            ex[k] = 0;
+            xMin = min(xMin, x[k]);
+            xMax = max(xMax, x[k]);
+            if (y[k] != 0) {
+                ey[k] = 10 * sqrt(y[k]);
+            } else {
+                ey[k] = 0;
+            }
+        }
+        Int_t h = nHits + nAdd / 2;
+        if (doHitCorr) {
             x[0] = xMin - 0.5;
             x[h] = xMax + 0.5;
             y[0] = 70.0;
@@ -621,55 +684,25 @@ Double_t TRestHits::GetGaussSigmaX() {
             ey[0] = 70.0;
             ey[h] = 70.0;
         }
-        TGraphErrors* grX = new TGraphErrors(nElems, x, y, ex, ey);
-        Double_t maxY = MaxElement(nElems, grX->GetY());
-        Double_t maxX = grX->GetX()[LocMax(nElems, grX->GetY())];
+        TGraphErrors* grY = new TGraphErrors(nElems, x, y, ex, ey);
+        // TCanvas *c = new TCanvas("c","X position fit",200,10,500,500);
+        // grY->Draw();
+        // Defining the starting parameters for the fit.
+        Double_t maxY = MaxElement(nElems, grY->GetY());
+        Double_t maxX = grY->GetX()[LocMax(nElems, grY->GetY())];
+        Double_t sigma = abs(x[0] - x[h]) / 2.0;
 
         TF1* fit = new TF1("", "gaus");
         fit->SetParameter(0, maxY);
         fit->SetParameter(1, maxX);
-        fit->SetParameter(2, 2.0);
-        grX->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
-                               // parmaeters; R = Use the Range specified in the function range
-
-        gausSigmaX = fit->GetParameter(2);
-    }
-
-    return gausSigmaX;
-}
-
-Double_t TRestHits::GetGaussSigmaY() {
-    Double_t gausSigmaY = 0;
-    Int_t nHits = GetNumberOfHits();
-
-    Double_t x[nHits], y[nHits], ex[nHits], ey[nHits];
-    if (nHits <= 3) {
-        gausSigmaY = 0;
-    } else {
-        for (int n = 0; n < GetNumberOfHits(); n++) {
-            x[n] = fY[n];
-            y[n] = fEnergy[n];
-            ex[n] = 0;
-            if (y[n] != 0) {
-                ey[n] = 10 * sqrt(y[n]);
-            } else {
-                ey[n] = 0;
-            }
-        }
-        TGraphErrors* grY = new TGraphErrors(nHits, x, y, ex, ey);
-        Double_t maxY = MaxElement(nHits, grY->GetY());
-        Double_t maxX = grY->GetX()[LocMax(nHits, grY->GetY())];
-
-        TF1* fit = new TF1("", "gaus");
-        fit->SetParameter(0, maxY);
-        fit->SetParameter(1, maxX);
-        fit->SetParameter(2, 2.0);
+        fit->SetParameter(2, sigma);
         grY->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
-                               // parmaeters; R = Use the Range specified in the function range
+                               // parameters; R = Use the Range specified in the function range
 
         gausSigmaY = fit->GetParameter(2);
     }
-    return gausSigmaY;
+
+    return abs(gausSigmaY);
 }
 
 Double_t TRestHits::GetGaussSigmaZ() {
@@ -699,11 +732,11 @@ Double_t TRestHits::GetGaussSigmaZ() {
         fit->SetParameter(1, maxX);
         fit->SetParameter(2, 2.0);
         grZ->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
-                               // parmaeters; R = Use the Range specified in the function range
+                               // parameters; R = Use the Range specified in the function range
 
         gausSigmaZ = fit->GetParameter(2);
     }
-    return gausSigmaZ;
+    return abs(gausSigmaZ);
 }
 
 Double_t TRestHits::GetSkewXY() const {
