@@ -288,7 +288,7 @@ TRestEventProcess* TRestEventProcess::GetFriendLive(string nameortype) {
 /// \brief Get a list of parallel processes from this process
 ///
 /// Parallel process means the process in other threads. It differs from "friend process"
-/// in differnt axis. For example, we set up the process chain with one 
+/// in another dimension. For example, we set up the process chain with one 
 /// `TRestRawSignalAnalysisProcess` and one `TRestRawToSignalProcess`, and calls 2 threads to
 /// run the data. Then, for `TRestRawSignalAnalysisProcess` in thread 1, it has a parallel 
 /// process `TRestRawSignalAnalysisProcess` from thread 2, and a friend process 

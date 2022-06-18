@@ -77,14 +77,14 @@ int main(int argc, char* argv[]) {
     gROOT->ProcessLine("#include <TRestPhysics.h>");
     if (loadMacros) {
         if (!silent) printf("= Loading macros ...\n");
-        auto a = TRestTools::GetFilesMatchingPattern(REST_PATH + "/macros/*REST_*.C");
-        for (auto c : a) {
-            if (c.find("swp") != string::npos || c.find("svn") != string::npos ||
-                c.find("swo") != string::npos)
+        auto macfiles = TRestTools::GetFilesMatchingPattern(REST_PATH + "/macros/*REST_*.C");
+        for (auto macfile : macfiles) {
+            if (macfile.find("swp") != string::npos || macfile.find("svn") != string::npos ||
+                macfile.find("swo") != string::npos)
                 continue;
-            if (debug) printf("Loading macro : %s\n", c.c_str());
+            if (debug) printf("Loading macro : %s\n", macfile.c_str());
 
-            gROOT->ProcessLine((".L " + c).c_str());
+            gROOT->ProcessLine((".L " + macfile).c_str());
         }
     }
 
