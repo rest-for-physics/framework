@@ -921,6 +921,10 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
         fInputEvent->SetID(fCurrentEvent - 1);
     }
 
+    if (fInputEvent->GetRunOrigin() == 0) {
+        fInputEvent->SetRunOrigin(fRunNumber);
+    }
+
     targetevt->Initialize();
     fInputEvent->CloneTo(targetevt);
 
