@@ -112,6 +112,11 @@ TMatrixD GetConeMatrix(const TVector3& d, const Double_t& cosTheta) {
 TVector3 GetVectorReflection(const TVector3& dir, const TVector3& n) { return dir - 2 * dir.Dot(n) * n; }
 
 ///////////////////////////////////////////////
+/// \brief This method will return the angle in radians between 2 vectors.
+///
+Double_t GetVectorsAngle(const TVector3& v1, const TVector3& v2) { return TMath::ACos(v1.Dot(v2)); }
+
+///////////////////////////////////////////////
 /// \brief This method will return a vector that is normal to the cone surface. The position `pos`
 /// should be at the cone surface, and the angle `alpha` should be the angle that defines the
 /// cone construction.
