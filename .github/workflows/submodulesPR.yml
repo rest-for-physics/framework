@@ -61,10 +61,10 @@ jobs:
          cd ../submodule
          #Check submodule PR if any
          gh pr status
-         isopen=$(gh pr list --state open)
+         isopen=$(gh pr list --base env.BRANCH_NAME)
            if [[ -z $isopen ]]; then
              echo "Creating PR"
-             gh pr create --head  ${{ github.actor }}:$(git rev-parse --abbrev-ref HEAD) --title '$fr_title' --body '$fr_body'
+             gh pr create --head --title '$fr_title' --body '$fr_body'
            else
              echo "Updating PR"
            fi
