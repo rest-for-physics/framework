@@ -54,9 +54,9 @@ jobs:
          cd framework
          #echo "PR_TITLE=$(gh pr view --json title -t '{{ .title }}')" >> $GITHUB_ENV
          #echo "PR_BODY=$(gh pr view --json body -t '{{ .body }}')" >> $GITHUB_ENV
-         fr_number=$(gh pr view --json number -t '{{ .number }}')
-         fr_title=$(gh pr view --json title -t '{{ .title }}')
-         fr_body=$(gh pr view --json body -t '{{ .body }}')
+         echo "fr_number=$(gh pr view --json number -t '{{ .number }}')"
+         echo "fr_title=$(gh pr view --json title -t '{{ .title }}')"
+         echo "fr_body=$(gh pr view --json body -t '{{ .body }}')"
 
          cd ../submodule
          #Check submodule PR if any
