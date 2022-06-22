@@ -3,7 +3,7 @@ name: Automatic submodule pull request
 on:
   pull_request:
     branches: [ "master" ]
-    types: ["ready_for_review", "opened", "reopened" ]
+    types: ["synchronize", "opened", "reopened" ]
 
   workflow_dispatch:
 
