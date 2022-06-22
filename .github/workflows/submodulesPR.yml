@@ -52,11 +52,12 @@ jobs:
        if: ${{ env.HEAD == env.BRANCH_NAME}}
        run: |
          cd framework
-         #echo "PR_TITLE=$(gh pr view --json title -t '{{ .title }}')" >> $GITHUB_ENV
-         #echo "PR_BODY=$(gh pr view --json body -t '{{ .body }}')" >> $GITHUB_ENV
-         fr_number=$(gh pr view --json number -t '{{ .number }}')
-         fr_title=\"$(gh pr view --json title -t '{{ .title }}')\"
-         fr_body=\"$(gh pr view --json body -t '{{ .body }}')\"
+         echo "PR_TITLE=$(gh pr view --json title -t '{{ .title }}')" >> $GITHUB_ENV
+         echo "PR_BODY=$(gh pr view --json body -t '{{ .body }}')" >> $GITHUB_ENV
+         echo "PR_NUMBER=$(gh pr view --json number -t '{{ .number }}')" >> $GITHUB_ENV
+
+         echo $PR_TITLE
+         echo $PR_BODY
 
          cd ../submodule
          #Check submodule PR if any
@@ -64,7 +65,7 @@ jobs:
          isopen=$(gh pr list --base env.BRANCH_NAME)
            if [[ -z $isopen ]]; then
              echo "Creating PR"
-             gh pr create --title $fr_title --body $fr_body
+             gh pr create --title "$PR_TITLE" --body "echo $PR_BODY"
            else
              echo "Updating PR"
            fi
