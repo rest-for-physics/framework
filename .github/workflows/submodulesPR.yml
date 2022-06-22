@@ -65,7 +65,7 @@ jobs:
          isopen=$(gh pr list --base env.BRANCH_NAME)
            if [[ -z $isopen ]]; then
              echo "Creating PR"
-             gh pr create --title "$PR_TITLE" --body "echo $PR_BODY"
+             gh pr create --title "echo $PR_TITLE" --body "echo $PR_BODY"
            else
              echo "Updating PR"
            fi
