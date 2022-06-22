@@ -1,0 +1,71 @@
+name: Automatic submodule pull request
+
+on:
+  pull_request:
+    branches: [ "master" ]
+    types: ["ready_for_review", "opened", "reopened" ]
+
+  workflow_dispatch:
+
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  pr-auto:
+    strategy:
+      matrix:
+        submodules: ["rest-for-physics/legacylib", "rest-for-physics/restDAQ"]
+    runs-on: ubuntu-latest
+    if: github.head_ref || github.ref_name != 'master'
+    steps:
+     - uses: actions/checkout@v3
+       with:
+         ref: ${{ env.BRANCH_NAME }}
+         path: framework
+     - name: Checkout submodule
+       uses: actions/checkout@v3
+       with: 
+         repository: ${{ matrix.submodules }}
+         path: submodule
+     - name: Check submodule branch
+       run: |
+         cd submodule
+          var=$(git ls-remote --heads origin ${{ env.BRANCH_NAME }})
+          if [ -z $var ]; then
+            echo "Branch "${{ env.BRANCH_NAME }}" not found in " ${{ env.BRANCH_NAME }}
+          else
+            echo "HEAD=$(echo ${{ env.BRANCH_NAME }})" >> $GITHUB_ENV
+            #git fetch
+            git checkout ${{ env.BRANCH_NAME }}
+            git pull
+          fi
+     - name: Open PR
+       if: ${{ env.HEAD == env.BRANCH_NAME}}
+       run: |
+         cd framework
+         #echo "PR_TITLE=$(gh pr view --json title -t '{{ .title }}')" >> $GITHUB_ENV
+         #echo "PR_BODY=$(gh pr view --json body -t '{{ .body }}')" >> $GITHUB_ENV
+         fr_number=$(gh pr view --json number -t '{{ .number }}')
+         fr_title=$(gh pr view --json title -t '{{ .title }}')
+         fr_body=$(gh pr view --json body -t '{{ .body }}')
+
+         cd ../submodule
+         #Check submodule PR if any
+         gh pr status
+         isopen=$(gh pr list --state open)
+           if [[ -z $isopen ]]; then
+             echo "Creating PR"
+             gh pr create --head  ${{ github.actor }}:$(git rev-parse --abbrev-ref HEAD) --title '$fr_title' --body '$fr_body'
+           else
+             echo "Updating PR"
+           fi
+
