@@ -52,9 +52,9 @@ jobs:
        if: ${{ env.HEAD == env.BRANCH_NAME}}
        run: |
          cd framework
-         echo "PR_TITLE=$(gh pr view --json title -t '{{ .title }}')" >> $GITHUB_ENV
-         echo "PR_BODY=$(gh pr view --json body -t '{{ .body }}')" >> $GITHUB_ENV
-         echo "PR_NUMBER=$(gh pr view --json number -t '{{ .number }}')" >> $GITHUB_ENV
+         PR_TITLE=$(gh pr view --json title -t '{{ .title }}')
+         PR_BODY=$(gh pr view --json body -t '{{ .body }}')
+         PR_NUMBER=$(gh pr view --json number -t '{{ .number }}')
 
          echo $PR_TITLE
          echo $PR_BODY
