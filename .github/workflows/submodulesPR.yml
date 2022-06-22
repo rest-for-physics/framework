@@ -41,10 +41,10 @@ jobs:
          cd submodule
           var=$(git ls-remote --heads origin ${{ env.BRANCH_NAME }})
           if [ -z $var ]; then
-            echo "Branch "${{ env.BRANCH_NAME }}" not found in " ${{ env.BRANCH_NAME }}
+            echo "Branch "${{ env.BRANCH_NAME }}" not found in " ${{ matrix.submodules }}
           else
             echo "HEAD=$(echo ${{ env.BRANCH_NAME }})" >> $GITHUB_ENV
-            #git fetch
+            git fetch
             git checkout ${{ env.BRANCH_NAME }}
             git pull
           fi
