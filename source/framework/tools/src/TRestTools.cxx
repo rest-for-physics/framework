@@ -93,7 +93,7 @@ void TRestTools::LoadRESTLibrary(bool silent) {
 
     vector<string> ldPaths;
 #ifdef WIN32
-    ldpaths.push_back(REST_PATH + "/bin/");
+    ldPaths.push_back(REST_PATH + "/bin/");
 #else
     ldPaths.push_back(REST_PATH + "/lib/");
 #endif  // WIN32
@@ -130,7 +130,7 @@ void TRestTools::LoadRESTLibrary(bool silent) {
             if (excluded) {
                 continue;
             }
-            fileList.emplace_back(it.path());
+            fileList.emplace_back(it.path().string());
         }
     }
 
