@@ -13,7 +13,7 @@ using namespace std;
 #ifdef WIN32
 // in windows the pointer address from string conversion is without "0x", we must add
 // the prefix so that ROOT can correctly initialize run/metadata objects
-#define PTR_ADDR_PREFIX "0x"  
+#define PTR_ADDR_PREFIX "0x"
 #else
 #define PTR_ADDR_PREFIX ""
 #endif  // WIN32
@@ -75,6 +75,7 @@ int main(int argc, char* argv[]) {
 
     gROOT->ProcessLine("#include <TRestStringHelper.h>");
     gROOT->ProcessLine("#include <TRestPhysics.h>");
+    gROOT->ProcessLine("#include <TRestSystemOfUnits.h>");
     if (loadMacros) {
         if (!silent) printf("= Loading macros ...\n");
         auto macfiles = TRestTools::GetFilesMatchingPattern(REST_PATH + "/macros/*REST_*.C");

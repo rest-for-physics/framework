@@ -298,21 +298,21 @@ Int_t REST_StringHelper::FindNthStringPosition(const string& in, size_t pos, con
     return FindNthStringPosition(in, found_pos + 1, strToFind, nth - 1);
 }
 
-/// \brief This method matches a string with certain matcher. Returns true if matched. 
+/// \brief This method matches a string with certain matcher. Returns true if matched.
 /// Supports wildcard characters.
 ///
 /// Wildcard character includes "*" and "?". "*" means to replace any number of any characters
 /// "?" means to replace a single arbitary character.
-/// 
+///
 /// e.g. (string, matcher)
 /// "abcddd", "abc?d" --> not matched
 /// "abcddd", "abc??d" --> matched
 /// "abcddd", "abc*d" --> matched
-/// 
+///
 /// Note that this method is in equal-match logic. It is not matching substrings. So:
 /// "abcddd", "abcddd" --> matched
 /// "abcddd", "a?c" --> not matched
-/// 
+///
 /// Source code from
 /// https://blog.csdn.net/dalao_whs/article/details/110477705
 ///
@@ -579,12 +579,12 @@ Int_t REST_StringHelper::StringToInteger(string in) {
 ///////////////////////////////////////////////
 /// \brief Gets a string from an integer.
 ///
-string REST_StringHelper::IntegerToString(Int_t n) { return Form("%d", n); }
+string REST_StringHelper::IntegerToString(Int_t n, std::string format) { return Form(format.c_str(), n); }
 
 ///////////////////////////////////////////////
 /// \brief Gets a string from a double
 ///
-string REST_StringHelper::DoubleToString(Double_t d) { return Form("%4.2lf", d); }
+string REST_StringHelper::DoubleToString(Double_t d, std::string format) { return Form(format.c_str(), d); }
 
 Bool_t REST_StringHelper::StringToBool(std::string in) {
     return (ToUpper(in) == "TRUE" || ToUpper(in) == "ON");
