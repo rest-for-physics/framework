@@ -932,6 +932,24 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 }
 
 ///////////////////////////////////////////////
+/// \brief Calls GetEntry() for both AnalysisTree and EventTree
+void TRestRun::GetEntry(int i) {
+    if (fAnalysisTree != nullptr) {
+        fAnalysisTree->GetEntry(i);
+    }
+    if (fEventTree != nullptr) {
+        fEventTree->GetEntry(i);
+    }
+
+    if (i >= GetEntries()) {
+        RESTWarning << "TRestRun::GetEntry. Entry requested out of limits" << RESTendl;
+        RESTWarning << "Total number of entries is : " << GetEntries() << RESTendl;
+    }
+
+    fCurrentEvent = i;
+}
+
+///////////////////////////////////////////////
 /// \brief Form output file name according to file info list, proc info list and
 /// run data.
 ///

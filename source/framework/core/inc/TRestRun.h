@@ -79,21 +79,7 @@ class TRestRun : public TRestMetadata {
     void ResetEntry();
 
     Int_t GetNextEvent(TRestEvent* targetEvent, TRestAnalysisTree* targetTree);
-    void GetEntry(int i) {
-        if (fAnalysisTree != nullptr) {
-            fAnalysisTree->GetEntry(i);
-        }
-        if (fEventTree != nullptr) {
-            fEventTree->GetEntry(i);
-        }
-
-        if (i >= GetEntries()) {
-            RESTWarning << "TRestRun::GetEntry. Entry requested out of limits" << RESTendl;
-            RESTWarning << "Total number of entries is : " << GetEntries() << RESTendl;
-        }
-
-        fCurrentEvent = i;
-    }
+    void GetEntry(int i);
 
     void GetNextEntry() {
         if (fCurrentEvent + 1 >= GetEntries()) fCurrentEvent = -1;
