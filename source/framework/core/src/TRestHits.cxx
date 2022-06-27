@@ -589,13 +589,13 @@ Double_t TRestHits::GetGaussSigmaX() {
         gausSigmaX = 0;
     } else {
         Int_t nAdd = 0;
-        bool doHitCorr = true;
-        // bool doHitCorr = nHits <= 18; //in case we want to apply it only to the smaller events
-        if (doHitCorr) {
+        bool doHitCorrection = true;
+        // bool doHitCorrection = nHits <= 18; //in case we want to apply it only to the smaller events
+        if (doHitCorrection) {
             nAdd = 2;
         }
         Int_t nElems = nHits + nAdd;
-        Double_t x[nElems], y[nElems], ex[nElems], ey[nElems];
+        vector<Double_t> x(nElems), y(nElems), ex(nElems), ey(nElems);
         Int_t k = nAdd / 2;
         Double_t xMin = std::numeric_limits<double>::max();
         Double_t xMax = std::numeric_limits<double>::lowest();
@@ -612,7 +612,7 @@ Double_t TRestHits::GetGaussSigmaX() {
             }
         }
         Int_t h = nHits + nAdd / 2;
-        if (doHitCorr) {
+        if (doHitCorrection) {
             x[0] = xMin - 0.5;
             x[h] = xMax + 0.5;
             y[0] = 0.0;
@@ -622,7 +622,7 @@ Double_t TRestHits::GetGaussSigmaX() {
             ey[0] = 70.0;
             ey[h] = 70.0;
         }
-        TGraphErrors* grX = new TGraphErrors(nElems, x, y, ex, ey);
+        TGraphErrors* grX = new TGraphErrors(nElems, &x[0], &y[0], &ex[0], &ey[0]);
         // TCanvas *c = new TCanvas("c","X position fit",200,10,500,500);
         // grX->Draw();
         // Defining the starting parameters for the fit.
@@ -651,13 +651,13 @@ Double_t TRestHits::GetGaussSigmaY() {
         gausSigmaY = 0;
     } else {
         Int_t nAdd = 0;
-        // bool doHitCorr = true;
-        bool doHitCorr = nHits <= 18;
-        if (doHitCorr) {
+        // bool doHitCorrection = true;
+        bool doHitCorrection = nHits <= 18;
+        if (doHitCorrection) {
             nAdd = 2;
         }
         Int_t nElems = nHits + nAdd;
-        Double_t x[nElems], y[nElems], ex[nElems], ey[nElems];
+        vector<Double_t> x(nElems), y(nElems), ex(nElems), ey(nElems);
         Int_t k = nAdd / 2;
         Double_t xMin = std::numeric_limits<double>::max();
         Double_t xMax = std::numeric_limits<double>::lowest();
@@ -674,7 +674,7 @@ Double_t TRestHits::GetGaussSigmaY() {
             }
         }
         Int_t h = nHits + nAdd / 2;
-        if (doHitCorr) {
+        if (doHitCorrection) {
             x[0] = xMin - 0.5;
             x[h] = xMax + 0.5;
             y[0] = 70.0;
@@ -684,7 +684,7 @@ Double_t TRestHits::GetGaussSigmaY() {
             ey[0] = 70.0;
             ey[h] = 70.0;
         }
-        TGraphErrors* grY = new TGraphErrors(nElems, x, y, ex, ey);
+        TGraphErrors* grY = new TGraphErrors(nElems, &x[0], &y[0], &ex[0], &ey[0]);
         // TCanvas *c = new TCanvas("c","X position fit",200,10,500,500);
         // grY->Draw();
         // Defining the starting parameters for the fit.
@@ -709,7 +709,7 @@ Double_t TRestHits::GetGaussSigmaZ() {
     Double_t gausSigmaZ = 0;
     Int_t nHits = GetNumberOfHits();
 
-    Double_t x[nHits], y[nHits], ex[nHits], ey[nHits];
+    vector<Double_t> x(nHits), y(nHits), ex(nHits), ey(nHits);
     if (nHits <= 3) {
         gausSigmaZ = 0;
     } else {
@@ -723,7 +723,7 @@ Double_t TRestHits::GetGaussSigmaZ() {
                 ey[n] = 0;
             }
         }
-        TGraphErrors* grZ = new TGraphErrors(nHits, x, y, ex, ey);
+        TGraphErrors* grZ = new TGraphErrors(nHits, &x[0], &y[0], &ex[0], &ey[0]);
         Double_t maxY = MaxElement(nHits, grZ->GetY());
         Double_t maxX = grZ->GetX()[LocMax(nHits, grZ->GetY())];
 
