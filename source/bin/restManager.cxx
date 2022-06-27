@@ -12,13 +12,10 @@ char iFile[256];
 
 const int maxForksAllowed = 32;
 
-#ifdef WIN32
-void setenv(const char* __name, const char* __value, int __replace) {
-    _putenv(((string)__name + "=" + (string)__value).c_str());
-}
-#endif
-
 int fork_n_execute(string command) {
+#ifdef WIN32
+    return -1;
+#else
     int status;
     pid_t pid;
 
@@ -45,6 +42,7 @@ int fork_n_execute(string command) {
        status = -1;
        */
     return status;
+#endif  // !WIN32
 }
 
 void PrintHelp() {
@@ -129,6 +127,7 @@ int main(int argc, char* argv[]) {
         for (int i = 1; i < args.size(); i++) {
             if (args[i] == "--batch") {
                 RESTcout << "you are in batch mode, all graphical displays off" << RESTendl;
+                REST_Display_CompatibilityMode = true;
                 argCApp = 2;
                 args.erase(args.begin() + i);
             }
@@ -139,9 +138,9 @@ int main(int argc, char* argv[]) {
                 doFork = true;
             }
         }
-        if (Console::CompatibilityMode) {
-            RESTcout << "you are in compatibility mode, all graphical displays off" << RESTendl;
-            argCApp = 2;
+        if (REST_Display_CompatibilityMode) {
+            RESTcout << "display under compatibility mode" << RESTendl;
+            // argCApp = 2;
         }
     }
     TApplication app("app", &argCApp, argVApp);

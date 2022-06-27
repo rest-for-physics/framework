@@ -1,0 +1,547 @@
+name: Validation
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "master" branch
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  release:
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  # Allows you to run this workflow from submodules
+  workflow_call:
+
+env:
+  CMAKE_BUILD_TYPE: Release
+  REST_PATH: /rest/framework/install
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+
+  build-test:
+    name: Build and run tests
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and install
+        uses: rest-for-physics/framework/.github/actions/build@master
+        with:
+          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON -DTEST=ON"
+          branch: ${{ env.BRANCH_NAME }}
+          build-path: build
+      - name: Test
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/build
+          ctest --output-on-failure
+
+  framework-install:
+    name: Build and cache installation
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and install
+        uses: rest-for-physics/framework/.github/actions/build@master
+        with:
+          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
+          branch: ${{ env.BRANCH_NAME }}
+      - name: Test REST
+        run: |
+          printenv
+          cat ${{ env.REST_PATH }}/thisREST.sh
+          source ${{ env.REST_PATH }}/thisREST.sh
+          restManager ListMacros
+          restRoot -b -q
+      - name: Cache framework installation
+        id: framework-install-cache
+        uses: actions/cache@v3
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: rest-install
+          path: ${{ env.REST_PATH }}
+          retention-days: 1
+
+  metadata:
+    name: "Metadata"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    needs: [ framework-install ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: rest-for-physics/framework
+          path: framework
+      - name: Checkout framework branch
+        run: |
+          cd framework
+          ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: framework-install-cache
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      # Not used in gitlab pipeline, checks $CI_SERVER_HOST
+      - name: Load Gas
+        run: |
+          source   ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/metadata/gas/
+          restRoot -b -q LoadGasFromServerAndValidate.C
+      # Not working, not used in gitlab pipeline
+      #- name: Generate Gas
+      #  run: |
+      #    source ${{ env.REST_PATH }}/thisREST.sh
+      #    source $(root-config --bindir)/thisroot.sh
+      #    cd framework/pipeline/metadata/gas/
+      #    restRoot -b -q GenerateDummyGas.C
+      - name: Generate Readout
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/metadata/readout/
+          restManager --c generateReadout.rml --o readout.root
+          restRoot -b -q PrintReadout.C'("readout.root")' > /dev/null
+      # We need to introduce basic validation here
+      #    - diff validation.txt print.txt
+      - name: Basic Readout
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/projects/basic-examples/
+          git submodule update --init .
+          cd basic-readouts
+          git submodule update --init .
+          restRoot -b -q GenerateReadouts.C'("basic.root")'
+          restRoot -b -q BasicValidation.C'("basic.root", "pixelDecoding")'
+
+  pandax-iii:
+    name: "PandaX-III"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    needs: [ framework-install ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: rest-for-physics/framework
+          path: framework
+      - name: Checkout framework branch
+        run: |
+          cd framework
+          ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: framework-install-cache
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      - name: 02_PandaXiiiMC
+        run: |
+          source  ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/pandaxiii_MC
+          restG4 Xe136bb0n.rml -o Xe136bb0n.root
+          restRoot -b -q ValidateG4.C'("Xe136bb0n.root")'
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Xe136bb
+          path: framework/pipeline/pandaxiii_MC/Xe136bb0n.root
+          retention-days: 1
+      - name: PandaXIII Topological
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/pandaxiii_MC
+          restManager --c AllProcesses.rml --i Xe136bb0n_small_reference.root --o Xe136bb0n_small_reference_processed.root --j 1 --e 10
+          restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_small_reference_processed.root")'
+          restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
+          # restManager --c plots.rml --i Xe136bb0n_small_reference_processed.root
+      # This command is failing in the docker, reproducible locally, not clear why...
+      #        echo | sleep 5 | restManager --c plots.rml --i testOutput.root
+      #    - name: Upload Artifacts
+      #      uses: actions/upload-artifact@v3
+      #      with:
+      #        name: PandaTrackParam
+      #        path: framework/pipeline/pandaxiii_MC/trackParameter.png
+      #        retention-days: 1
+      - name: PandaXIII Topological from Geant4
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/pandaxiii_MC
+          echo "using just-generated g4 file"
+          restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 10
+          restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_processed.root")'
+          restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: PandaTestOutput
+          path: framework/pipeline/pandaxiii_MC/Xe136bb0n_processed.root
+          retention-days: 1
+      - name: PandaXIII Data
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/pandaxiii_data
+          restManager --c P3AutoChain.rml --i CoBo_AsAd0_2019-03-15.graw --o testOutput.root --j 1
+          restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
+          restRoot -b -q ../ValidateTrees.C'("validation.root")'
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: PandaTriggerRate
+          path: framework/pipeline/pandaxiii_data/TriggerRate.png
+          retention-days: 1
+
+  trex-dm:
+    name: "TREX-DM"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    needs: [ framework-install ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: rest-for-physics/framework
+          path: framework
+      - name: Checkout framework branch
+        run: |
+          cd framework
+          ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: framework-install-cache
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      - name: TREX-DM Latest Data
+        run: |
+          source  ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/trex
+          wget https://sultan.unizar.es/trexdm-readouts/readouts_v2.3.root
+          restManager --c 01_raw.rml --f R01928_tagTest_Vm_250_Vd_160_Pr_6_Gain_0x0_Shape_0xF_Clock_0x4-068.aqs
+          restManager --c 02_signal.rml --f RawData_01928.root
+          restManager --c 03_hits.rml --f Signals_01928.root
+          restRoot -b -q ../MakeBasicTree.C'("Hits_01928.root")'
+          rm RawData_01928.root
+          rm Signals_01928.root
+          root -b -q ../ValidateTrees.C'("validation.root")'
+          restRoot -b -q ValidateDetectorParams.C'("Hits_01928.root")'
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: TREXHits
+          path: framework/pipeline/trex/Hits_01928.root
+          retention-days: 1
+      - name: AnalysisPlot
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/analysisPlot/
+          restManager --c summary.rml --f ../trex/Hits_01928.root
+      - name: AnalysisPlot2
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/analysisPlot/
+          restManager --batch --c classify.rml
+          restRoot -b -q ValidateClassify.C
+
+  examples:
+    name: Run examples
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    needs: [ framework-install ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: rest-for-physics/framework
+          path: framework
+      - name: Checkout framework branch
+        run: |
+          cd framework
+          ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: framework-install-cache
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      - name: Test Metadata
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd ${{ env.REST_PATH }}/examples
+          restManager --c saveMetadataFile.rml --o meta.root
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Metadata
+          path: ${{ env.REST_PATH }}/examples/meta.root
+          retention-days: 1
+      - name: 01_NLDBD
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/
+          restG4 NLDBD.rml
+          restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: NLDBD
+          path: ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root
+          retention-days: 1
+      - name: Event Selection
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/selection
+          restManager --c g4Analysis.rml --f ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root
+          restManager --c g4OnSelection.rml --f Run00001_NLDBD_Test_g4Analysis.root
+          restRoot -b -q Validate.C'("Run00001_NLDBD_Test_EvSelection.root")'
+          restManager --c g4EvSelectionIDsFromFile.rml --f Run00001_NLDBD_Test_g4Analysis.root
+          restRoot -b -q ValidateIDsFromFile.C'("Run00001_NLDBD_Test_EvSelectionIDsFromFile.root")'
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: EventSelection
+          path: framework/pipeline/selection/IDs.txt
+          retention-days: 1
+      - name: 08_alphas
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd ${{ env.REST_PATH }}/examples/restG4/08.Alphas/
+          mkdir data
+          export REST_ENERGY=5
+          export REST_FOIL=1
+          restG4 alphas.rml
+      #      - name: Upload Artifacts
+      #        uses: actions/upload-artifact@v3
+      #        with:
+      #          name: Alphas
+      #          path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
+      #          retention-days: 1
+      - name: 01_alphaTrack
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd ${{ env.REST_PATH }}/examples/01.alphaTrack/
+          mkdir data
+          export RAW_PROCESSING=ON
+          export HIT_PROCESSING=ON
+          export TRACK_PROCESSING=ON
+          restManager --c processing.rml --f ../restG4/08.Alphas/data/Run_5MeV_1um.root
+          restRoot -b -q Validate.C'("data/Response_5MeV_1um.root")'
+      #       - name: Upload Artifacts
+      #         uses: actions/upload-artifact@v3
+      #         with:
+      #           name: AlphaTrack
+      #           path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
+      #           retention-days: 1
+
+  # Reference dependencies version
+
+  framework-install-reference:
+    name: Build with reference version of dependencies
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-reference-jun2022
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and install
+        uses: rest-for-physics/framework/.github/actions/build@master
+        with:
+          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
+          branch: ${{ env.BRANCH_NAME }}
+      - name: Test REST
+        run: |
+          printenv
+          cat ${{ env.REST_PATH }}/thisREST.sh
+          source ${{ env.REST_PATH }}/thisREST.sh
+          restManager ListMacros
+          restRoot -b -q
+      - name: Cache framework installation
+        id: framework-install-cache-reference
+        uses: actions/cache@v3
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+
+
+  pandax-iii-reference:
+    name: "PandaX-III on reference version"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-reference-jun2022
+    needs: [ framework-install-reference ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: rest-for-physics/framework
+          path: framework
+      - name: Checkout framework branch
+        run: |
+          cd framework
+          ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: framework-install-cache-reference
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      - name: 02_PandaXiiiMC
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/pandaxiii_MC
+          restG4 Xe136bb0n.rml -o Xe136bb0n.root
+          restRoot -b -q ValidateG4.C'("Xe136bb0n.root")'
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Xe136bb
+          path: framework/pipeline/pandaxiii_MC/Xe136bb0n.root
+          retention-days: 1
+      - name: PandaXIII Topological
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/pandaxiii_MC
+          restManager --c AllProcesses.rml --i Xe136bb0n_small_reference.root --o Xe136bb0n_small_reference_processed.root --j 1 --e 10
+          restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_small_reference_processed.root")'
+          restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
+          # restManager --c plots.rml --i Xe136bb0n_small_reference_processed.root
+      - name: PandaXIII Topological from Geant4
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/pandaxiii_MC
+          echo "using just-generated g4 file"
+          restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 10
+          restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_processed.root")'
+          restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation_G4_v10.4.3.root")'
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: PandaTestOutput
+          path: framework/pipeline/pandaxiii_MC/Xe136bb0n_processed.root
+          retention-days: 1
+      - name: PandaXIII Data
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/pandaxiii_data
+          restManager --c P3AutoChain.rml --i CoBo_AsAd0_2019-03-15.graw --o testOutput.root --j 1
+          restRoot -b -q ../MakeBasicTree.C'("testOutput.root")'
+          restRoot -b -q ../ValidateTrees.C'("validation.root")'
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: PandaTriggerRate
+          path: framework/pipeline/pandaxiii_data/TriggerRate.png
+          retention-days: 1
+
+  examples-reference:
+    name: Run examples on reference version
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-reference-jun2022
+    needs: [ framework-install-reference ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: rest-for-physics/framework
+          path: framework
+      - name: Checkout framework branch
+        run: |
+          cd framework
+          ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: framework-install-cache-reference
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      - name: Test Metadata
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd ${{ env.REST_PATH }}/examples
+          restManager --c saveMetadataFile.rml --o meta.root
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Metadata
+          path: ${{ env.REST_PATH }}/examples/meta.root
+          retention-days: 1
+      - name: 01_NLDBD
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/
+          restG4 NLDBD.rml
+          restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: NLDBD
+          path: ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root
+          retention-days: 1
+      - name: Event Selection
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/selection
+          restManager --c g4Analysis.rml --f ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root
+          restManager --c g4OnSelection.rml --f Run00001_NLDBD_Test_g4Analysis.root
+          restRoot -b -q Validate.C'("Run00001_NLDBD_Test_EvSelection.root", true)'
+          restManager --c g4EvSelectionIDsFromFile.rml --f Run00001_NLDBD_Test_g4Analysis.root
+          restRoot -b -q ValidateIDsFromFile.C'("Run00001_NLDBD_Test_EvSelectionIDsFromFile.root")'
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: EventSelection
+          path: framework/pipeline/selection/IDs.txt
+          retention-days: 1
+      - name: 07_decay
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd ${{ env.REST_PATH }}/examples/restG4/07.FullChainDecay/
+          restG4 fullChain.rml -o Run00001_U238_FullChainDecay.root
+          restRoot -b -q Validate.C'("Run00001_U238_FullChainDecay.root", 15)'
+          restG4 singleDecay.rml -o Run00002_U238_SingleChainDecay.root
+          restRoot -b -q Validate.C'("Run00002_U238_SingleChainDecay.root", 1)'
+          export REST_ISOTOPE=Be7
+          restG4 singleDecay.rml
+          restRoot -b -q Validate.C'("Run00002_Be7_SingleChainDecay.root", 1)'
+      - name: 08_alphas
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd ${{ env.REST_PATH }}/examples/restG4/08.Alphas/
+          mkdir data
+          export REST_ENERGY=5
+          export REST_FOIL=1
+          restG4 alphas.rml
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Alphas
+          path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
+          retention-days: 1
+      - name: 01_alphaTrack
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd ${{ env.REST_PATH }}/examples/01.alphaTrack/
+          mkdir data
+          export RAW_PROCESSING=ON
+          export HIT_PROCESSING=ON
+          export TRACK_PROCESSING=ON
+          restManager --c processing.rml --f ../restG4/08.Alphas/data/Run_5MeV_1um.root
+          restRoot -b -q Validate.C'("data/Response_5MeV_1um.root")'
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: AlphaTrack
+          path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
+          retention-days: 1

@@ -31,6 +31,12 @@
 #include "TRestManager.h"
 #include "TRestThread.h"
 
+#ifdef WIN32
+#include <io.h>
+#else
+#include "unistd.h"
+#endif  // !WIN32
+
 std::mutex mutex_write;
 
 using namespace std;
@@ -460,11 +466,7 @@ void TRestProcessRunner::RunProcess() {
             break;
         }
 
-#ifdef WIN32
-        _sleep(50);
-#else
         usleep(printInterval);
-#endif
 
         // cout << eventsToProcess << " " << fProcessedEvents << " " << lastEntry <<
         // " " << fCurrentEvent << endl; cout << fProcessedEvents << "\r";
@@ -478,11 +480,7 @@ void TRestProcessRunner::RunProcess() {
     RESTEssential << "Waiting for processes to finish ..." << RESTendl;
 
     while (1) {
-#ifdef WIN32
-        _sleep(50);
-#else
         usleep(100000);
-#endif
         bool finish = fThreads[0]->Finished();
         for (int i = 1; i < fThreadNumber; i++) {
             finish = finish && fThreads[i]->Finished();
@@ -661,6 +659,9 @@ void TRestProcessRunner::PauseMenu() {
                 }
             }
 
+#ifdef WIN32
+            RESTWarning << "fork not available on windows!" << RESTendl;
+#else
             pid_t pid;
             pid = fork();
             if (pid < 0) {
@@ -677,7 +678,7 @@ void TRestProcessRunner::PauseMenu() {
                 }
                 RESTInfo << "Re-directing output to " << file << RESTendl;
                 freopen(file.c_str(), "w", stdout);
-                Console::CompatibilityMode = true;
+                REST_Display_CompatibilityMode = true;
             }
             // father process
             else {
@@ -685,6 +686,9 @@ void TRestProcessRunner::PauseMenu() {
             }
             fProcStatus = kNormal;
             RESTInfo << "Continue processing..." << RESTendl;
+
+#endif  // WIN32
+
             break;
         } else if (b == 'n') {
             fProcStatus = kStep;
@@ -743,11 +747,7 @@ void TRestProcessRunner::PauseMenu() {
 Int_t TRestProcessRunner::GetNextevtFunc(TRestEvent* targetevt, TRestAnalysisTree* targettree) {
     mutex_write.lock();  // lock on
     while (fProcStatus == kPause) {
-#ifdef WIN32
-        _sleep(50);
-#else
         usleep(100000);
-#endif
     }
 #ifdef TIME_MEASUREMENT
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
@@ -1087,7 +1087,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
         string s2(buffer);
 
         int barlength = 0;
-        if (Console::CompatibilityMode) {
+        if (REST_Display_CompatibilityMode) {
             barlength = 50;
         } else {
             barlength = Console::GetWidth() - s1.size() - s2.size() - 9;
@@ -1097,7 +1097,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
 
         delete[] buffer;
 
-        if (Console::CompatibilityMode) {
+        if (REST_Display_CompatibilityMode) {
             if (((int)prog) != prog_last_printed) {
                 cout << s1 << s2 << s3 << endl;
                 prog_last_printed = (int)prog;

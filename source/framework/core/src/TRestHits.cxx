@@ -1082,7 +1082,7 @@ void TRestHits::TRestHits_Iterator::toaccessor() {
     isaccessor = true;
 }
 
-TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator*() {
+TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator*() const {
     TRestHits_Iterator i(*this);
     i.toaccessor();
     return i;
