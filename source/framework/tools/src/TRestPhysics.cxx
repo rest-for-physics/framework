@@ -106,6 +106,40 @@ TMatrixD GetConeMatrix(const TVector3& d, const Double_t& cosTheta) {
 }
 
 ///////////////////////////////////////////////
+/// \brief This method will return the reflected vector respect to a plane defined by its
+/// normal vector `n`. The normal vector should be already normalized!
+///
+TVector3 GetVectorReflection(const TVector3& dir, const TVector3& n) { return dir - 2 * dir.Dot(n) * n; }
+
+///////////////////////////////////////////////
+/// \brief This method will return the angle in radians between 2 vectors.
+///
+Double_t GetVectorsAngle(const TVector3& v1, const TVector3& v2) { return TMath::ACos(v1.Dot(v2)); }
+
+///////////////////////////////////////////////
+/// \brief This method will return a vector that is normal to the cone surface. The position `pos`
+/// should be at the cone surface, and the angle `alpha` should be the angle that defines the
+/// cone construction.
+///
+/// It is assumed that the vertex is found at the right of `pos`.
+///
+/// Optionally, the radius of the cone at the given `pos` can be provided to facilitate the
+/// calculation
+///
+TVector3 GetConeNormal(const TVector3& pos, const Double_t& alpha, const Double_t& R) {
+    Double_t r = 0;
+    if (R == 0)
+        r = TMath::Sqrt(pos.X() * pos.X() + pos.Y() * pos.Y());
+    else
+        r = R;
+
+    Double_t cosA = TMath::Cos(alpha);
+    Double_t sinA = TMath::Sin(alpha);
+
+    return -TVector3(cosA * pos.X() / r, cosA * pos.Y() / r, sinA);
+}
+
+///////////////////////////////////////////////
 /// \brief This method will find the intersection of the trajectory defined by the vector starting at
 /// `pos` and  moving in direction `dir` and the cone defined by its axis vector `d` and the vertex`v`.
 /// The cosine of the angle defining the cone should be also given inside the `cosTheta` argument.
