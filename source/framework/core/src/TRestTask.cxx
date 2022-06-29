@@ -204,7 +204,7 @@ void TRestTask::RunTask(TRestManager* mgr) {
                 } else {
                     string type = meta->ClassName();
                     string cmd = Form("%s* %s = (%s*)%s;", type.c_str(), fInvokeObject.c_str(), type.c_str(),
-                                      (PTR_ADDR_PREFIX+ToString(meta)).c_str());
+                                      (PTR_ADDR_PREFIX + ToString(meta)).c_str());
 
                     TInterpreter::EErrorCode err;
                     gInterpreter->ProcessLine(cmd.c_str(), &err);
