@@ -30,4 +30,4 @@ jobs:
       with:
         branch: ${{ env.BRANCH_NAME }}
         repository: ${{ matrix.submodules }}
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.REST_TOKEN }}
