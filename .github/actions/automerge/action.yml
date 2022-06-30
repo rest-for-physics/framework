@@ -29,7 +29,6 @@ runs:
             echo "::set-output name=exist::false"
           else
             echo "Branch "${{ inputs.branch }}" found in " ${{ inputs.repository }}
-            git
             git fetch
             git checkout ${{ inputs.branch }}
             git pull
