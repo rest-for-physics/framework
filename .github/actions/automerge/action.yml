@@ -1,0 +1,75 @@
+name: "Automatic PR checks and merge"
+description: "Checks if a particular branch and pull request exist in a repository"
+inputs:
+  branch:
+    description: "Branch to checkout"
+    required: true
+  repository:
+    description: "Repository"
+    required: true
+  token:
+    description: "Authentification token"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.repository }}
+        path: repository
+    - name: Check repository branch
+      id: repositoryBranch
+      run: |
+        cd repository
+          var=$(git ls-remote --heads origin ${{ inputs.branch }})
+          if [[ -z $var ]]; then
+            echo "Branch "${{ inputs.branch }}" not found in " ${{ inputs.repository }}
+          else
+            echo "Branch "${{ inputs.branch }}" found in " ${{ inputs.repository }}
+            echo "::set-output name=exist::true"
+          fi
+      shell: bash
+    - name: Check PR
+      id: PRCheck
+      if:  steps.repositoryBranch.outputs.exist == 'true'
+      run: |
+        cd repository
+        #Check PR
+        gh auth status
+        gh pr status
+        gh pr view
+        prurl=$(gh pr view --json url -t '{{ .url }}')
+        echo "::set-output name=prurl::$prurl"
+        gh pr list
+        propen=$(gh pr list --head ${{ inputs.branch }} --state open )
+        prreview=$(gh pr list --head ${{ inputs.branch }} --state open --search "review:required" )
+        prapproved=$(gh pr list --head ${{ inputs.branch }} --state open --search "review:approved" )
+        prstatus=$(gh pr list --head ${{ inputs.branch }} --state open --search "status" )
+        echo "PR open " $propen " Review required " $prreview " Review approved " $prapproved " Status " $prstatus
+          if [[ -z $propen ]]; then
+            echo "No PR found or approved for branch " ${{ inputs.branch }} " in " ${{ inputs.repository }}  " merge is not allowed"
+            exit 1
+          else
+            echo "::set-output name=mergeable::true"
+          fi
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+      shell: bash 
+    - name: Print outputs
+      run: |
+        echo "Mergeable " ${{ steps.PRCheck.outputs.mergeable }}
+        echo "PR url " ${{ steps.PRCheck.outputs.prurl }}
+      shell: bash
+    - name: Merge PR
+      if: (github.event.action == 'closed' && github.event.pull_request.merged == true && steps.PRCheck.outputs.mergeable == 'true' && steps.repositoryBranch.outputs.exist == 'true')
+      run: |
+        cd repository
+        gh auth status
+        echo "actor " ${{ github.actor }}
+        gh pr merge --auto --merge "$PR_URL"
+      env:
+        PR_URL: ${{ steps.PRCheck.outputs.prurl }}
+        GITHUB_TOKEN: ${{ inputs.token }}
+      shell: bash
