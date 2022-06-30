@@ -26,64 +26,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Checkout submodules
-      uses: actions/checkout@v3
-      with: 
+      uses: ./.github/actions/automerge
+      with:
+        branch: ${{ env.BRANCH_NAME }}
         repository: ${{ matrix.submodules }}
-        path: submodule
-    - name: Check submodule branch
-      id: submoduleBranch
-      run: |
-        cd submodule
-        var=$(git ls-remote --heads origin ${{ env.BRANCH_NAME }})
-        echo $var
-        if [[ -z $var ]]; then
-          echo "Branch "${{ env.BRANCH_NAME }}" not found in " ${{ matrix.submodules }}
-          echo "::set-output name=exist::false"
-        else
-          echo "HEAD=$(echo ${{ env.BRANCH_NAME }})" >> $GITHUB_ENV
-          git fetch
-          git checkout ${{ env.BRANCH_NAME }}
-          git pull
-          echo "::set-output name=exist::true"
-        fi
-    - name: Check PR
-      id: PRCheck
-      if:  steps.submoduleBranch.outputs.exist == 'true'
-      run: |
-        cd submodule
-        #Check submodule PR
-        #gh config set git_protocol ssh --host github.com
-        gh auth status
-        gh pr status
-        gh pr view
-        prurl=$(gh pr view --json url -t '{{ .url }}')
-        echo "::set-output name=submoduleprurl::$prurl"
-        gh pr list
-        propen=$(gh pr list --head ${{ env.BRANCH_NAME }} --state open )
-        prreview=$(gh pr list --head ${{ env.BRANCH_NAME }} --state open --search "review:required" )
-        prapproved=$(gh pr list --head ${{ env.BRANCH_NAME }} --state open --search "review:approved" )
-        prstatus=$(gh pr list --head ${{ env.BRANCH_NAME }} --state open --search "status" )
-        echo "PR open " $propen " Review required " $prreview " Review approved " $prapproved " Status " $prstatus
-          if [[ -z $propen ]]; then
-            echo "No PR found or approved for branch " ${{ env.BRANCH_NAME }} " in submodule " ${{ matrix.submodules }}  " merge is not allowed"
-            exit 1
-          else
-            echo "::set-output name=mergeable::true"
-          fi
-      env:
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-    - name: Check output
-      run: |
-        echo "Mergeable " ${{ steps.PRCheck.outputs.mergeable }}
-        echo "Submodule PR url " ${{ steps.PRCheck.outputs.submoduleprurl }}
-    - name: Merge submodules
-      if: (github.event.action == 'closed' && github.event.pull_request.merged == true && steps.PRCheck.outputs.mergeable == 'true' && steps.submoduleBranch.outputs.exist == 'true')
-      run: |
-        cd submodule
-        #gh config set git_protocol ssh --host github.com
-        gh auth status
-        echo "actor " ${{ github.actor }}
-        gh pr merge --auto --merge "$PR_URL"
-      env:
-        PR_URL: ${{ steps.PRCheck.outputs.submoduleprurl }}
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        token: ${{ secrets.GITHUB_TOKEN }}
