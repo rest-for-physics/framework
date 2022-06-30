@@ -55,10 +55,10 @@ runs:
         #prstatus=$(gh pr list --head ${{ inputs.branch }} --state open --search "status" )
         #echo "PR open " $propen " Review required " $prreview " Review approved " $prapproved " Status " $prstatus
           if [[ $mergeStateStatus == "CLEAN" ]]; then
+            echo "::set-output name=mergeable::true"
+          else
             echo "No valid PR found for branch " ${{ inputs.branch }} " in " ${{ inputs.repository }}  " merge is not allowed"
             exit 1
-          else
-            echo "::set-output name=mergeable::true"
           fi
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
