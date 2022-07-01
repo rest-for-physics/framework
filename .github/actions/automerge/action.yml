@@ -42,18 +42,17 @@ runs:
         cd repository
         #Check PR
         gh auth status
-        gh pr status
         gh pr view
         prurl=$(gh pr view --json url -t '{{ .url }}')
         echo "::set-output name=prurl::$prurl"
         mergeStateStatus=$(gh pr view --json mergeStateStatus -t '{{ .mergeStateStatus }}')
         echo "MergeStateStatus " $mergeStateStatus
         echo "::set-output name=mergeStateStatus::$mergeStateStatus"
-        prState=$(gh pr status --json state -t '{{ .state }}')
+        prState=$(gh pr view --json state -t '{{ .state }}')
         echo "::set-output name=prState::$prState"
         echo "PullRequestState " $prState
         echo "::set-output name=mergeStateStatus::$mergeStateStatus"
-        review=$(gh pr status --json reviewDecision -t '{{ .reviewDecision }}')
+        review=$(gh pr view --json reviewDecision -t '{{ .reviewDecision }}')
         echo "::set-output name=review::$review"
         echo "Review decision " $review
           if [[ $prState == "MERGED" ]]; then
