@@ -54,7 +54,7 @@ runs:
         echo "PullRequestState " $prState
           if [[ $prState == "MERGED" ]]; then
             echo "PR already merged"
-          elif [[ $mergeStateStatus == "CLEAN" ]]; then
+          elif [[ $mergeStateStatus == "CLEAN" ]]
             echo "PR is in a clean state and can be merged"
           else
             echo "No valid PR found for branch " ${{ inputs.branch }} " in " ${{ inputs.repository }}  " merge is not allowed"
