@@ -49,9 +49,14 @@ runs:
         mergeStateStatus=$(gh pr view --json mergeStateStatus -t '{{ .mergeStateStatus }}')
         echo "MergeStateStatus " $mergeStateStatus
         echo "::set-output name=mergeStateStatus::$mergeStateStatus"
-        prState=$(gh pr status --json pullRequestState -t '{{ .pullRequestState }}')
+        prState=$($(gh pr status --json state -t '{{ .state }}'))
+        echo "::set-output name=prState::$prState"
         echo "PullRequestState " $prState
-          if [[ $mergeStateStatus != "CLEAN" ]]; then
+          if [[ $prState == "MERGED" ]]; then
+            echo "PR already merged"
+          elif [[ $mergeStateStatus == "CLEAN" ]]; then
+            echo "PR is in a clean state and can be merged"
+          else
             echo "No valid PR found for branch " ${{ inputs.branch }} " in " ${{ inputs.repository }}  " merge is not allowed"
             exit 1
           fi
@@ -65,18 +70,12 @@ runs:
         echo "PR url " ${{ steps.PRCheck.outputs.prurl }}
       shell: bash
     - name: Merge PR
-      if: (github.event.action == 'closed' && github.event.pull_request.merged == true && steps.PRCheck.outputs.mergeStateStatus == 'CLEAN' && steps.repositoryBranch.outputs.exist == 'true')
+      if: (github.event.action == 'closed' && github.event.pull_request.merged == true && steps.PRCheck.outputs.mergeStateStatus == 'CLEAN' && steps.PRCheck.outputs.prState != 'MERGED')
       run: |
         cd repository
         gh auth status
         echo "actor " ${{ github.actor }}
-        prState=$(gh pr status --json pullRequestState -t '{{ .pullRequestState }}')
-        echo "PullRequestState " $prState
-          if [[ $prState == "MERGED" ]]; then
-            echo "PR already merged, doing nothing"
-          else
-            gh pr merge --auto --merge "$PR_URL"
-          fi
+        gh pr merge --auto --merge "$PR_URL"
       env:
         PR_URL: ${{ steps.PRCheck.outputs.prurl }}
         GITHUB_TOKEN: ${{ inputs.token }}
