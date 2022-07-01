@@ -52,10 +52,14 @@ runs:
         prState=$(gh pr status --json state -t '{{ .state }}')
         echo "::set-output name=prState::$prState"
         echo "PullRequestState " $prState
+        echo "::set-output name=mergeStateStatus::$mergeStateStatus"
+        review=$(gh pr status --json reviewDecision -t '{{ .reviewDecision }}')
+        echo "::set-output name=review::$review"
+        echo "Review decision " $review
           if [[ $prState == "MERGED" ]]; then
             echo "PR already merged"
-          elif [[ $mergeStateStatus == "CLEAN" ]]; then
-            echo "PR is in a clean state and can be merged"
+          elif [[ $review == "APPROVED" ]]; then
+            echo "PR is approved and mergeStateStatus is " $mergeStateStatus
           else
             echo "No valid PR found for branch " ${{ inputs.branch }} " in " ${{ inputs.repository }}  " merge is not allowed"
             exit 1
@@ -67,11 +71,12 @@ runs:
       if:  steps.repositoryBranch.outputs.exist == 'true'
       run: |
         echo "Merge status " ${{ steps.PRCheck.outputs.mergeStateStatus }}
+        echo "PR REVIEW " ${{ steps.PRCheck.outputs.review }}
         echo "PR url " ${{ steps.PRCheck.outputs.prurl }}
         echo "PR state " ${{ steps.PRCheck.outputs.prState }}
       shell: bash
     - name: Merge PR
-      if: (github.event.action == 'closed' && github.event.pull_request.merged == true && steps.PRCheck.outputs.mergeStateStatus == 'CLEAN' && steps.PRCheck.outputs.prState != 'MERGED')
+      if: (github.event.action == 'closed' && github.event.pull_request.merged == true && steps.PRCheck.outputs.review == 'APPROVED' && steps.PRCheck.outputs.prState != 'MERGED')
       run: |
         cd repository
         gh auth status
