@@ -93,8 +93,10 @@ class TRestRun : public TRestMetadata {
         }
 
         fCurrentEvent = i;
-        
-        if (fInputEvent != nullptr) fInputEvent->fRun = this;
+
+        if (fInputEvent != nullptr) {
+            fInputEvent->InitializeReferences(this);
+        }
     }
 
     void GetNextEntry() {

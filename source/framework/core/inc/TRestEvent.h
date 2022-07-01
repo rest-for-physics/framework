@@ -86,7 +86,16 @@ class TRestEvent : public TObject {
     inline Bool_t isOk() const { return fOk; }
 
     virtual void Initialize() = 0;
-    virtual void InitializeWithMetadata(TRestRun* r);
+    virtual void InitializeWithMetadata(TRestRun* run);
+
+    //////////////////////////////////////////////////////////////////////////
+    /// \brief Initialize dynamical references when loading the event from a root file
+    ///
+    /// This method should only be called from `TRestRun::GetEntry` and it will give the corresponding
+    /// `TRestEvent` access to the instance of `TRestRun`.
+    /// In a derived class such as `TRestGeant4Event`, it can be overwritten to give each track access to the
+    /// event
+    virtual void InitializeReferences(TRestRun* run);
 
     virtual void PrintEvent() const;
 
@@ -105,8 +114,6 @@ class TRestEvent : public TObject {
     TRestEvent();
     // Destructor
     virtual ~TRestEvent();
-
-    friend class TRestRun;
 
     ClassDef(TRestEvent, 2);
 };
