@@ -49,7 +49,7 @@ runs:
         mergeStateStatus=$(gh pr view --json mergeStateStatus -t '{{ .mergeStateStatus }}')
         echo "MergeStateStatus " $mergeStateStatus
         echo "::set-output name=mergeStateStatus::$mergeStateStatus"
-        prState=$($(gh pr status --json state -t '{{ .state }}'))
+        prState=$(gh pr status --json state -t '{{ .state }}')
         echo "::set-output name=prState::$prState"
         echo "PullRequestState " $prState
           if [[ $prState == "MERGED" ]]; then
