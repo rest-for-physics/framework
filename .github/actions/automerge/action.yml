@@ -54,7 +54,7 @@ runs:
         echo "PullRequestState " $prState
           if [[ $prState == "MERGED" ]]; then
             echo "PR already merged"
-          elif [[ $mergeStateStatus == "CLEAN" ]]
+          elif [[ $mergeStateStatus == "CLEAN" ]]; then
             echo "PR is in a clean state and can be merged"
           else
             echo "No valid PR found for branch " ${{ inputs.branch }} " in " ${{ inputs.repository }}  " merge is not allowed"
@@ -68,6 +68,7 @@ runs:
       run: |
         echo "Merge status " ${{ steps.PRCheck.outputs.mergeStateStatus }}
         echo "PR url " ${{ steps.PRCheck.outputs.prurl }}
+        echo "PR state " ${{ steps.PRCheck.outputs.prState }}
       shell: bash
     - name: Merge PR
       if: (github.event.action == 'closed' && github.event.pull_request.merged == true && steps.PRCheck.outputs.mergeStateStatus == 'CLEAN' && steps.PRCheck.outputs.prState != 'MERGED')
