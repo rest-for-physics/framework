@@ -49,7 +49,7 @@ runs:
         mergeStateStatus=$(gh pr view --json mergeStateStatus -t '{{ .mergeStateStatus }}')
         echo "MergeStateStatus " $mergeStateStatus
         echo "::set-output name=mergeStateStatus::$mergeStateStatus"
-        prState=$(gh pr view --json pullRequestState -t '{{ .pullRequestState }}')
+        prState=$(gh pr status --json pullRequestState -t '{{ .pullRequestState }}')
         echo "PullRequestState " $prState
           if [[ $mergeStateStatus != "CLEAN" ]]; then
             echo "No valid PR found for branch " ${{ inputs.branch }} " in " ${{ inputs.repository }}  " merge is not allowed"
@@ -70,7 +70,7 @@ runs:
         cd repository
         gh auth status
         echo "actor " ${{ github.actor }}
-        prState=$(gh pr view --json pullRequestState -t '{{ .pullRequestState }}')
+        prState=$(gh pr status --json pullRequestState -t '{{ .pullRequestState }}')
         echo "PullRequestState " $prState
           if [[ $prState == "MERGED" ]]; then
             echo "PR already merged, doing nothing"
