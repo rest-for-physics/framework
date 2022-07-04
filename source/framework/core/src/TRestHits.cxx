@@ -20,17 +20,14 @@
 
 #include "TRestHits.h"
 
-#include "TROOT.h"
+#include <TROOT.h>
 
 using namespace std;
 using namespace TMath;
 
 ClassImp(TRestHits);
 
-TRestHits::TRestHits() {
-    fNHits = 0;
-    fTotEnergy = 0;
-}
+TRestHits::TRestHits() {}
 
 TRestHits::~TRestHits() {}
 
@@ -262,6 +259,7 @@ Bool_t TRestHits::isHitNInsideSphere(Int_t n, Double_t x0, Double_t y0, Double_t
 
 void TRestHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t, REST_HitType type) {
     fNHits++;
+
     fX.push_back((Float_t)(x));
     fY.push_back((Float_t)(y));
     fZ.push_back((Float_t)(z));
@@ -269,7 +267,7 @@ void TRestHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t
     fEnergy.push_back((Float_t)(en));
     fType.push_back(type);
 
-    fTotEnergy += en;
+    fTotalEnergy += en;
 }
 
 void TRestHits::AddHit(const TVector3& pos, Double_t en, Double_t t, REST_HitType type) {
@@ -282,7 +280,7 @@ void TRestHits::AddHit(const TVector3& pos, Double_t en, Double_t t, REST_HitTyp
     fEnergy.push_back((Float_t)(en));
     fType.push_back(type);
 
-    fTotEnergy += en;
+    fTotalEnergy += en;
 }
 
 void TRestHits::AddHit(TRestHits& hits, Int_t n) {
@@ -298,13 +296,13 @@ void TRestHits::AddHit(TRestHits& hits, Int_t n) {
 
 void TRestHits::RemoveHits() {
     fNHits = 0;
+    fTotalEnergy = 0;
     fX.clear();
     fY.clear();
     fZ.clear();
     fT.clear();
     fEnergy.clear();
     fType.clear();
-    fTotEnergy = 0;
 }
 
 void TRestHits::Translate(Int_t n, double x, double y, double z) {
@@ -390,7 +388,7 @@ Bool_t TRestHits::isSortedByEnergy() const {
 }
 
 void TRestHits::RemoveHit(int n) {
-    fTotEnergy -= GetEnergy(n);
+    fTotalEnergy -= GetEnergy(n);
     fX.erase(fX.begin() + n);
     fY.erase(fY.begin() + n);
     fZ.erase(fZ.begin() + n);
@@ -454,6 +452,7 @@ Double_t TRestHits::GetEnergyY() const {
 
     return totalEnergy;
 }
+
 Double_t TRestHits::GetMeanPositionX() const {
     Double_t meanX = 0;
     Double_t totalEnergy = 0;
@@ -582,11 +581,11 @@ void TRestHits::GetBoundaries(std::vector<double>& dist, double& max, double& mi
 }
 
 Double_t TRestHits::GetGaussSigmaX() {
-    Double_t gausSigmaX = 0;
+    Double_t gaussSigmaX = 0;
     Int_t nHits = GetNumberOfHits();
     vector<Double_t> x(nHits), y(nHits), ex(nHits), ey(nHits);
     if (nHits <= 3) {
-        gausSigmaX = 0;
+        gaussSigmaX = 0;
     } else {
         for (int n = 0; n < GetNumberOfHits(); n++) {
             x[n] = fX[n];
@@ -607,12 +606,12 @@ Double_t TRestHits::GetGaussSigmaX() {
         fit->SetParameter(1, maxX);
         fit->SetParameter(2, 2.0);
         grX->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
-                               // parmaeters; R = Use the Range specified in the function range
+                               // parameters; R = Use the Range specified in the function range
 
-        gausSigmaX = fit->GetParameter(2);
+        gaussSigmaX = fit->GetParameter(2);
     }
 
-    return gausSigmaX;
+    return gaussSigmaX;
 }
 
 Double_t TRestHits::GetGaussSigmaY() {
@@ -642,7 +641,7 @@ Double_t TRestHits::GetGaussSigmaY() {
         fit->SetParameter(1, maxX);
         fit->SetParameter(2, 2.0);
         grY->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
-                               // parmaeters; R = Use the Range specified in the function range
+                               // parameters; R = Use the Range specified in the function range
 
         gausSigmaY = fit->GetParameter(2);
     }
@@ -650,12 +649,12 @@ Double_t TRestHits::GetGaussSigmaY() {
 }
 
 Double_t TRestHits::GetGaussSigmaZ() {
-    Double_t gausSigmaZ = 0;
+    Double_t gaussSigmaZ = 0;
     Int_t nHits = GetNumberOfHits();
 
     vector<Double_t> x(nHits), y(nHits), ex(nHits), ey(nHits);
     if (nHits <= 3) {
-        gausSigmaZ = 0;
+        gaussSigmaZ = 0;
     } else {
         for (int n = 0; n < GetNumberOfHits(); n++) {
             x[n] = fZ[n];
@@ -676,11 +675,11 @@ Double_t TRestHits::GetGaussSigmaZ() {
         fit->SetParameter(1, maxX);
         fit->SetParameter(2, 2.0);
         grZ->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
-                               // parmaeters; R = Use the Range specified in the function range
+                               // parameters; R = Use the Range specified in the function range
 
-        gausSigmaZ = fit->GetParameter(2);
+        gaussSigmaZ = fit->GetParameter(2);
     }
-    return gausSigmaZ;
+    return gaussSigmaZ;
 }
 
 Double_t TRestHits::GetSkewXY() const {
@@ -754,6 +753,7 @@ Double_t TRestHits::GetMeanPositionYInPrism(const TVector3& x0, const TVector3& 
 
     return meanY;
 }
+
 Double_t TRestHits::GetMeanPositionZInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX,
                                             Double_t sizeY, Double_t theta) const {
     Double_t meanZ = 0;
@@ -1011,36 +1011,36 @@ void TRestHits::PrintHits(Int_t nHits) const {
 TRestHits::TRestHits_Iterator::TRestHits_Iterator(TRestHits* h, int _index) {
     fHits = h;
     index = _index;
-    maxindex = fHits->GetNumberOfHits();
+    maxIndex = fHits->GetNumberOfHits();
     if (index < 0) index = 0;
-    if (index >= maxindex) index = maxindex;
+    if (index >= maxIndex) index = maxIndex;
 }
 
-void TRestHits::TRestHits_Iterator::toaccessor() {
+void TRestHits::TRestHits_Iterator::toAccessor() {
     _x = x();
     _y = y();
     _z = z();
     _t = t();
     _e = e();
     _type = type();
-    isaccessor = true;
+    isAccessor = true;
 }
 
 TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator*() const {
     TRestHits_Iterator i(*this);
-    i.toaccessor();
+    i.toAccessor();
     return i;
 }
 
 TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator++() {
     index++;
-    if (index >= maxindex) index = maxindex;
+    if (index >= maxIndex) index = maxIndex;
     return *this;
 }
 
 TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator+=(const int& n) {
-    if (index + n >= maxindex) {
-        index = maxindex;
+    if (index + n >= maxIndex) {
+        index = maxIndex;
     } else {
         index += n;
     }
@@ -1048,8 +1048,8 @@ TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator+=(const i
 }
 
 TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator+(const int& n) {
-    if (index + n >= maxindex) {
-        return TRestHits_Iterator(fHits, maxindex);
+    if (index + n >= maxIndex) {
+        return TRestHits_Iterator(fHits, maxIndex);
     } else {
         return TRestHits_Iterator(fHits, index + n);
     }
@@ -1079,7 +1079,7 @@ TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator-(const int
 }
 
 TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator=(const TRestHits_Iterator& iter) {
-    if (isaccessor) {
+    if (isAccessor) {
         (fHits ? fHits->fX[index] : x()) = iter.x();
         (fHits ? fHits->fY[index] : y()) = iter.y();
         (fHits ? fHits->fZ[index] : z()) = iter.z();
