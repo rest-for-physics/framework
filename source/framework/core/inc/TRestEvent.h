@@ -115,6 +115,6 @@ class TRestEvent : public TObject {
     // Destructor
     virtual ~TRestEvent();
 
-    ClassDef(TRestEvent, 2);
+    ClassDef(TRestEvent, 1);
 };
 #endif
