@@ -35,7 +35,7 @@ class TRestRun : public TRestMetadata {
     Double_t fStartTime;  ///< Event absolute starting time/date (unix timestamp)
     Double_t fEndTime;    ///< Event absolute ending time/date (unix timestamp)
     Int_t fEntriesSaved;
-    Int_t fNFilesSplit;  // Number of files being split. Used when retrieveing
+    Int_t fNFilesSplit;  // Number of files being split. Used when retrieving
 
     // data-like metadata objects
     std::vector<TRestMetadata*> fMetadata;       //!
@@ -79,7 +79,8 @@ class TRestRun : public TRestMetadata {
     void ResetEntry();
 
     Int_t GetNextEvent(TRestEvent* targetEvent, TRestAnalysisTree* targetTree);
-    void GetEntry(int i);
+
+    void GetEntry(Long64_t entry);
 
     void GetNextEntry() {
         if (fCurrentEvent + 1 >= GetEntries()) fCurrentEvent = -1;
@@ -140,7 +141,7 @@ class TRestRun : public TRestMetadata {
     inline int GetCurrentEntry() const { return fCurrentEvent; }
     inline Long64_t GetBytesReaded() const { return fBytesRead; }
     Long64_t GetTotalBytes();
-    int GetEntries() const;
+    Long64_t GetEntries() const;
 
     /// Calling `GetInputEvent()` will return a basic `TRestEvent*`
     inline TRestEvent* GetInputEvent() const { return fInputEvent; }

@@ -32,8 +32,9 @@
 #include <windows.h>
 #undef GetClassName
 #else
-#include "unistd.h"
 #include <sys/stat.h>
+
+#include "unistd.h"
 #endif  // !WIN32
 
 #include "TRestDataBase.h"
@@ -655,8 +656,8 @@ void TRestRun::ReadInputFileTrees() {
 
                         if (fInputEvent == nullptr) {
                             RESTError << "TRestRun:OpenInputFile. Cannot initialize input event, event "
-                                           "tree not read"
-                                        << RESTendl;
+                                         "tree not read"
+                                      << RESTendl;
                             RESTError
                                 << "Please install corresponding libraries to provide root dictionaries for "
                                    "class reading."
@@ -933,20 +934,24 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 
 ///////////////////////////////////////////////
 /// \brief Calls GetEntry() for both AnalysisTree and EventTree
-void TRestRun::GetEntry(int i) {
-    if (fAnalysisTree != nullptr) {
-        fAnalysisTree->GetEntry(i);
-    }
-    if (fEventTree != nullptr) {
-        fEventTree->GetEntry(i);
-    }
-
-    if (i >= GetEntries()) {
+void TRestRun::GetEntry(Long64_t entry) {
+    if (entry >= GetEntries()) {
         RESTWarning << "TRestRun::GetEntry. Entry requested out of limits" << RESTendl;
         RESTWarning << "Total number of entries is : " << GetEntries() << RESTendl;
     }
 
-    fCurrentEvent = i;
+    if (fAnalysisTree != nullptr) {
+        fAnalysisTree->GetEntry(entry);
+    }
+    if (fEventTree != nullptr) {
+        fEventTree->GetEntry(entry);
+    }
+
+    if (fInputEvent != nullptr) {
+        fInputEvent->InitializeReferences(this);
+    }
+
+    fCurrentEvent = entry;
 }
 
 ///////////////////////////////////////////////
@@ -1378,7 +1383,7 @@ Long64_t TRestRun::GetTotalBytes() {
     return fTotalBytes;
 }
 
-int TRestRun::GetEntries() const {
+Long64_t TRestRun::GetEntries() const {
     if (fAnalysisTree != nullptr) {
         return fAnalysisTree->GetEntries();
     }
