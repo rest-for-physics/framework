@@ -35,7 +35,7 @@ class TRestRun : public TRestMetadata {
     Double_t fStartTime;  ///< Event absolute starting time/date (unix timestamp)
     Double_t fEndTime;    ///< Event absolute ending time/date (unix timestamp)
     Int_t fEntriesSaved;
-    Int_t fNFilesSplit;  // Number of files being split. Used when retrieveing
+    Int_t fNFilesSplit;  // Number of files being split. Used when retrieving
 
     // data-like metadata objects
     std::vector<TRestMetadata*> fMetadata;       //!
@@ -93,6 +93,10 @@ class TRestRun : public TRestMetadata {
         }
 
         fCurrentEvent = i;
+
+        if (fInputEvent != nullptr) {
+            fInputEvent->InitializeReferences(this);
+        }
     }
 
     void GetNextEntry() {
