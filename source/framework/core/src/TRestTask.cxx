@@ -167,7 +167,8 @@ void TRestTask::RunTask(TRestManager* mgr) {
             fConstructedCommand = fInvokeMethod + "(";
             for (int i = 0; i < fArgumentValues.size(); i++) {
                 if (fArgumentTypes[i] == 1) {
-                    fConstructedCommand += "\"" + Replace(fArgumentValues[i], "\\", "\\\\", 0) + "\"";
+                    fConstructedCommand +=
+                        "\"" + Replace(fArgumentValues[i], "\\", "\\\\", 0) + "\"";
                 } else {
                     fConstructedCommand += fArgumentValues[i];
                 }

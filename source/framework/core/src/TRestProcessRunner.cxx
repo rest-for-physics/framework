@@ -37,6 +37,8 @@
 #include "unistd.h"
 #endif  // !WIN32
 
+
+
 std::mutex mutex_write;
 
 using namespace std;
@@ -687,7 +689,8 @@ void TRestProcessRunner::PauseMenu() {
             fProcStatus = kNormal;
             RESTInfo << "Continue processing..." << RESTendl;
 
-#endif  // WIN32
+#endif // WIN32
+
 
             break;
         } else if (b == 'n') {

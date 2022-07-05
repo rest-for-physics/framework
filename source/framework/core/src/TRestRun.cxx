@@ -32,8 +32,8 @@
 #include <windows.h>
 #undef GetClassName
 #else
-#include <sys/stat.h>
 #include "unistd.h"
+#include <sys/stat.h>
 #endif  // !WIN32
 
 #include "TRestDataBase.h"
