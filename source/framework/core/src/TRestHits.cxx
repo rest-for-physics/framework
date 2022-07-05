@@ -616,7 +616,7 @@ Double_t TRestHits::GetGaussSigmaX() {
             x[0] = xMin - 0.5;
             x[h] = xMax + 0.5;
             y[0] = 0.0;
-            y[h] = 70.0;
+            y[h] = 0.0;
             ex[0] = 0.0;
             ex[h] = 0.0;
             ey[0] = 70.0;
@@ -677,8 +677,8 @@ Double_t TRestHits::GetGaussSigmaY() {
         if (doHitCorrection) {
             x[0] = xMin - 0.5;
             x[h] = xMax + 0.5;
-            y[0] = 70.0;
-            y[h] = 70.0;
+            y[0] = 0.0;
+            y[h] = 0.0;
             ex[0] = 0.0;
             ex[h] = 0.0;
             ey[0] = 70.0;
@@ -724,6 +724,8 @@ Double_t TRestHits::GetGaussSigmaZ() {
             }
         }
         TGraphErrors* grZ = new TGraphErrors(nHits, &x[0], &y[0], &ex[0], &ey[0]);
+        // TCanvas *c = new TCanvas("c","Z position fit",200,10,500,500);
+        // grZ->Draw();
         Double_t maxY = MaxElement(nHits, grZ->GetY());
         Double_t maxX = grZ->GetX()[LocMax(nHits, grZ->GetY())];
 
