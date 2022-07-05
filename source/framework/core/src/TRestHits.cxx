@@ -651,8 +651,8 @@ Double_t TRestHits::GetGaussSigmaY() {
         gausSigmaY = 0;
     } else {
         Int_t nAdd = 0;
-        // bool doHitCorrection = true;
-        bool doHitCorrection = nHits <= 18;
+        bool doHitCorrection = true;
+        // bool doHitCorrection = nHits <= 18;
         if (doHitCorrection) {
             nAdd = 2;
         }
