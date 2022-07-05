@@ -12,6 +12,7 @@ char iFile[256];
 
 const int maxForksAllowed = 32;
 
+
 int fork_n_execute(string command) {
 #ifdef WIN32
     return -1;
@@ -140,7 +141,7 @@ int main(int argc, char* argv[]) {
         }
         if (REST_Display_CompatibilityMode) {
             RESTcout << "display under compatibility mode" << RESTendl;
-            // argCApp = 2;
+            //argCApp = 2;
         }
     }
     TApplication app("app", &argCApp, argVApp);

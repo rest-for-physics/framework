@@ -65,16 +65,17 @@ constexpr int COLOR_CYAN = 9;
 constexpr int COLOR_WHITE = 7;
 
 // we don't use font setting for windows
-constexpr int COLOR_BOLDBLACK = COLOR_BLACK;
-constexpr int COLOR_BOLDRED = COLOR_RED;
-constexpr int COLOR_BOLDGREEN = COLOR_GREEN;
-constexpr int COLOR_BOLDYELLOW = COLOR_YELLOW;
-constexpr int COLOR_BOLDBLUE = COLOR_BLUE;
-constexpr int COLOR_BOLDMAGENTA = COLOR_MAGENTA;
-constexpr int COLOR_BOLDCYAN = COLOR_CYAN;
-constexpr int COLOR_BOLDWHITE = COLOR_WHITE;
+constexpr int COLOR_BOLDBLACK = COLOR_BLACK;         
+constexpr int COLOR_BOLDRED = COLOR_RED;         
+constexpr int COLOR_BOLDGREEN = COLOR_GREEN;     
+constexpr int COLOR_BOLDYELLOW = COLOR_YELLOW;   
+constexpr int COLOR_BOLDBLUE = COLOR_BLUE;       
+constexpr int COLOR_BOLDMAGENTA = COLOR_MAGENTA; 
+constexpr int COLOR_BOLDCYAN = COLOR_CYAN;       
+constexpr int COLOR_BOLDWHITE = COLOR_WHITE;     
 
 #endif  // WIN32
+
 
 //////////////////////////////////////////////////////////////////////////
 /// Console helper class, providing several static methods dealing with terminal

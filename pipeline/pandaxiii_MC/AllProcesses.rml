@@ -1,6 +1,12 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <TRestManager>
-    <globals><!-- Environment --><variable name="REST_PITCH" value="3" overwrite="false"/><parameter name="outputLevel" value="observable"/><!-- Globals proper --><!--<parameter name="mainDataPath" value="${REST_DATAPATH}" />--><parameter name="verboseLevel" value="silent"/>%options are : silent, warning, info, debug
+    <globals>
+        <!-- Environment -->
+        <variable name="REST_PITCH" value="3" overwrite="false"/>
+        <parameter name="outputLevel" value="observable"/>
+        <!-- Globals proper -->
+        <!--<parameter name="mainDataPath" value="${REST_DATAPATH}" />-->
+        <parameter name="verboseLevel" value="silent"/>%options are : silent, warning, info, debug
         <parameter name="seed" value="5"/>
         // set to 0 as random seed
     </globals>
@@ -32,7 +38,8 @@
         <addProcess type="TRestGeant4AnalysisProcess" name="g4Ana" value="ON" file="processes_2D.rml"/>
         <addProcess type="TRestGeant4BlobAnalysisProcess" name="g4Blob" value="OFF" file="processes_2D.rml"/>
         <addProcess type="TRestGeant4ToDetectorHitsProcess" name="G4ToHits" value="ON" file="processes_2D.rml"/>
-        <addProcess type="TRestDetectorElectronDiffusionProcess" name="eDiff_1kVcm_10atm" value="ON" file="processes_2D.rml"/>
+        <addProcess type="TRestDetectorElectronDiffusionProcess" name="eDiff_1kVcm_10atm" value="ON"
+                    file="processes_2D.rml"/>
         <addProcess type="TRestDetectorHitsAnalysisProcess" name="hitsAnaDiff" value="ON" file="processes_2D.rml"/>
         <addProcess type="TRestDetectorHitsSmearingProcess" name="smear_3FWHM" value="ON" file="processes_2D.rml"/>
         <addProcess type="TRestDetectorHitsAnalysisProcess" name="hitsAnaSmear" value="ON" file="processes_2D.rml"/>
@@ -47,6 +54,7 @@
         <addProcess type="TRestTrackDetachIsolatedNodesProcess" name="detach" value="OFF" file="processes_2D.rml"/>
         <addProcess type="TRestTrackReconnectionProcess" name="trackReconnection" value="ON" file="processes_2D.rml"/>
         <addProcess type="TRestTrackAnalysisProcess" name="tckAnaFinal_2D" value="ON" file="processes_2D.rml"/>
+
         <addProcess type="TRestTrackBlobAnalysisProcess" name="tckBlob_2D" value="ON" file="processes_2D.rml"/>
         <addProcess type="TRestTrackDrawMarkersProcess" name="draw" value="OFF" file="processes_2D.rml"/>
         <!-- Now we need to define in the manager the tasks we will perform.

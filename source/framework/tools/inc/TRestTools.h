@@ -148,8 +148,8 @@ inline void SetInitLevel(T* name, int level) {
     GlobalVarInit<T>::level = level;
 }
 
-// Initialize global variable with vertain class, overwriting the
-// dummy variable of its base class.
+// Initialize global variable with vertain class, overwriting the 
+// dummy variable of its base class. 
 // For example, we initialize gDataBase as TRestDataBase in Framework
 // library. When we load restP3DB library, this object will be overwritten
 // by a new TRestDataBaseP3DB class object, by calling this macro

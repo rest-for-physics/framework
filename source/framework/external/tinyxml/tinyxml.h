@@ -33,7 +33,7 @@ distribution.
 
 #ifdef WIN32
 #undef assert
-#define assert(expression) ((void)0)
+#define assert(expression) ((void)0) 
 #else
 #include <assert.h>
 #endif
