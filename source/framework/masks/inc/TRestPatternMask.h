@@ -44,7 +44,10 @@ class TRestPatternMask : public TRestMetadata {
 
    protected:
     /// The maximum mask radius in mm (if 0 it will be infinite)
-    Double_t fMaskRadius = 0;
+    Double_t fMaskRadius = 0;  //<
+
+    /// The maximum number of regions allowed in each mask
+    Int_t fMaxRegions = 100;  //<
 
     /// It defines the mask type. To be called by the inherited class constructor.
     void SetType(const std::string& type) { fPatternType = type; }
@@ -55,8 +58,13 @@ class TRestPatternMask : public TRestMetadata {
     TRestPatternMask(const char* cfgFileName, std::string name = "");
 
    public:
+    Int_t GetMaxRegions() { return fMaxRegions; }
+
+    void SetMaxRegions(Int_t regions) { fMaxRegions = regions; }
+
     Bool_t HitsPattern(Double_t x, Double_t y);
 
+    /// To be implemented at the inherited class with the pattern and region identification logic
     virtual Int_t GetRegion(Double_t x, Double_t y) = 0;
 
     /// It returns the mask pattern type
@@ -80,9 +88,12 @@ class TRestPatternMask : public TRestMetadata {
     /// It defines the mask radius
     void SetMaskRadius(const Double_t& radius) { fMaskRadius = radius; }
 
-    void PrintMetadata() override;
+    void PrintCommonPatternMembers();
 
-    virtual void Print();
+    virtual void PrintMaskMembers() = 0;
+    virtual void PrintMask() = 0;
+
+    void PrintMetadata() override;
 
     TCanvas* DrawMonteCarlo(Int_t nSamples = 10000);
 

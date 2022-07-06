@@ -20,51 +20,45 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef REST_TRestSpiderMask
-#define REST_TRestSpiderMask
+#ifndef REST_TRestStrippedMask
+#define REST_TRestStrippedMask
 
 #include <TRestPatternMask.h>
 
-/// A class used to define and generate a spider structure mask
-class TRestSpiderMask : public TRestPatternMask {
+/// A class used to define a stripped mask pattern
+class TRestStrippedMask : public TRestPatternMask {
    private:
     void Initialize() override;
 
-    /// The angle between two consecutive spider arms measured in radians.
-    Double_t fArmsSeparationAngle = 0;  //<
+    /// The periodity of the stripped structure in mm
+    Double_t fStripsGap = 1;  //<
 
-    /// The width of each specific spider arm. Measured in radians. Default is 2.5 degrees.
-    Double_t fArmsWidth = TMath::Pi() / 18. / 4.;  //<
+    /// The width of the stripped structure in mm
+    Double_t fStripsThickness = 0.5;  //<
 
-    /// The spider structure will be effective from this radius, in mm. Default is from 20 mm.
-    Double_t fInitialRadius = 20.;  //<
-
-    /// Used internally to define the forbidden (cosine) angular ranges imposed by the spider structure (0,Pi)
-    std::vector<std::pair<Double_t, Double_t>> fPositiveRanges;  //!
-
-    /// Used internally to define the forbidden (cosine) ang. ranges imposed by the spider structure (Pi,2Pi)
-    std::vector<std::pair<Double_t, Double_t>> fNegativeRanges;  //!
+    /// It defines the maximum number of cells/regions in each axis
+    Int_t fModulus = 10;
 
    public:
-    void GenerateSpider();
-
     virtual Int_t GetRegion(Double_t x, Double_t y) override;
 
-    /// It returns the gap/periodicity of the spider structure arms in radians
-    Double_t GetArmsSeparationAngle() { return fArmsSeparationAngle; }
+    /// It returns the gap/periodicity of the strips in mm
+    Double_t GetStripsGap() { return fStripsGap; }
 
-    /// It returns the angular width of each spider arm in radians
-    Double_t GetArmsWidth() { return fArmsWidth; }
+    /// It returns the thickness of the strips in mm
+    Double_t GetStripsThickness() { return fStripsThickness; }
 
-    /// It returns the inner ring radius that defines the inner start of the spider structure
-    Double_t GetInitialRadius() { return fInitialRadius; }
+    /// It returns the modulus used to define a finite set of ids
+    Int_t GetModulus() { return fModulus; }
 
     void PrintMetadata() override;
+    void PrintMaskMembers() override;
+    void PrintMask() override;
 
-    TRestSpiderMask();
-    TRestSpiderMask(const char* cfgFileName, std::string name = "");
-    ~TRestSpiderMask();
+    TRestStrippedMask();
+    TRestStrippedMask(const char* cfgFileName, std::string name = "");
+    ~TRestStrippedMask();
 
-    ClassDefOverride(TRestSpiderMask, 1);
+    ClassDefOverride(TRestStrippedMask, 1);
 };
 #endif
