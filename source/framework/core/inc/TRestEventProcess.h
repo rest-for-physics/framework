@@ -261,7 +261,7 @@ class TRestEventProcess : public TRestMetadata {
 };
 
 #define _ApplyCut(evt)        \
-    if (ApplyCut()) return NULL; \
+    if (ApplyCut()) return nullptr; \
     return evt;
 
 #endif
