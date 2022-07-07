@@ -174,7 +174,7 @@ class TRestHits : public TObject {
     Double_t GetMeanHitEnergy() const;
 
     void CalculateTotalDepositedEnergy() { fTotEnergy = GetEnergyIntegral(); }
-    inline Double_t GetEnergyIntegral() const;
+    Double_t GetEnergyIntegral() const;
     inline Double_t GetTotalDepositedEnergy() const { return fTotEnergy; }
     inline Double_t GetTotalEnergy() const { return fTotEnergy; }
     inline Double_t GetEnergy() const { return fTotEnergy; }
