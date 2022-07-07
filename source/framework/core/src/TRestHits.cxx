@@ -123,10 +123,9 @@ void TRestHits::InitializeZArray(Float_t z) {
     for (int i = 0; i < GetNumberOfHits(); i++) fZ[i] = z;
 }
 
-Double_t TRestHits::CalculateTotalDepositedEnergy() {
+Double_t TRestHits::GetEnergyIntegral() const {
     Double_t sum = 0;
     for (int i = 0; i < GetNumberOfHits(); i++) sum += GetEnergy(i);
-    fTotEnergy = sum;
     return sum;
 }
 
