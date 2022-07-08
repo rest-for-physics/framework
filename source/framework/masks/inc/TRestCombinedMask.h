@@ -20,45 +20,41 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef REST_TRestGridMask
-#define REST_TRestGridMask
+#ifndef REST_TRestCombinedMask
+#define REST_TRestCombinedMask
 
 #include <TRestPatternMask.h>
 
-/// A class used to define a grid mask pattern
-class TRestGridMask : public TRestPatternMask {
+/// A class used to define and generate a combined structure mask
+class TRestCombinedMask : public TRestPatternMask {
    private:
-    void Initialize() override;
-
-    /// The periodity of the grid structure in mm
-    Double_t fGridGap = 1;  //<
-
-    /// The width of the grid structure in mm
-    Double_t fGridThickness = 0.5;  //<
-
-    /// It defines the maximum number of cells/regions in each axis
-    Int_t fModulus = 10;  //<
+    std::vector<TRestPatternMask*> fMasks;
 
    public:
-    virtual Int_t GetRegion(Double_t x, Double_t y) override;
+    void Initialize() override;
 
-    /// It returns the gap/periodicity of the grid in mm
-    Double_t GetGridGap() { return fGridGap; }
+    void AddMask(TRestPatternMask* mask) { fMasks.push_back(mask); }
 
-    /// It returns the thickness of the grid in mm
-    Double_t GetGridThickness() { return fGridThickness; }
+    TRestPatternMask* const& GetMask(int index) const {
+        if (index < fMasks.size()) {
+            return fMasks[index];
+        }
+        if (index == 0) RESTError << "TRestCombinedMask does not contain any masks" << RESTendl;
+        return fMasks[0];
+    }
 
-    /// It returns the modulus used to define a finite set of ids
-    Int_t GetModulus() { return fModulus; }
+    Int_t GetRegion(Double_t x, Double_t y) override;
+
+    void InitFromConfigFile() override;
 
     void PrintMetadata() override;
+    void PrintMaskMembers() override;
+    void PrintMask() override;
 
-    void Print() override;
+    TRestCombinedMask();
+    TRestCombinedMask(const char* cfgFileName, std::string name = "");
+    ~TRestCombinedMask();
 
-    TRestGridMask();
-    TRestGridMask(const char* cfgFileName, std::string name = "");
-    ~TRestGridMask();
-
-    ClassDefOverride(TRestGridMask, 1);
+    ClassDefOverride(TRestCombinedMask, 1);
 };
 #endif

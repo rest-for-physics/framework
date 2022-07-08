@@ -20,43 +20,45 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef REST_TRestStrippedMask
-#define REST_TRestStrippedMask
+#ifndef REST_TRestGridMask
+#define REST_TRestGridMask
 
 #include <TRestPatternMask.h>
 
-/// A class used to define a stripped mask pattern
-class TRestStrippedMask : public TRestPatternMask {
+/// A class used to define a grid mask pattern
+class TRestGridMask : public TRestPatternMask {
    private:
     void Initialize() override;
 
-    /// The periodity of the stripped structure in mm
-    Double_t fStripsGap = 1;  //<
+    /// The periodity of the grid structure in mm
+    Double_t fGridGap = 1;  //<
 
-    /// The width of the stripped structure in mm
-    Double_t fStripsThickness = 0.5;  //<
+    /// The width of the grid structure in mm
+    Double_t fGridThickness = 0.5;  //<
 
     /// It defines the maximum number of cells/regions in each axis
-    Int_t fModulus = 10;
+    Int_t fModulus = 10;  //<
 
    public:
     virtual Int_t GetRegion(Double_t x, Double_t y) override;
 
-    /// It returns the gap/periodicity of the strips in mm
-    Double_t GetStripsGap() { return fStripsGap; }
+    /// It returns the gap/periodicity of the grid in mm
+    Double_t GetGridGap() { return fGridGap; }
 
-    /// It returns the thickness of the strips in mm
-    Double_t GetStripsThickness() { return fStripsThickness; }
+    /// It returns the thickness of the grid in mm
+    Double_t GetGridThickness() { return fGridThickness; }
 
     /// It returns the modulus used to define a finite set of ids
     Int_t GetModulus() { return fModulus; }
 
     void PrintMetadata() override;
+    void PrintMaskMembers() override;
+    void PrintMask() override;
 
-    TRestStrippedMask();
-    TRestStrippedMask(const char* cfgFileName, std::string name = "");
-    ~TRestStrippedMask();
+    TRestGridMask();
+    TRestGridMask(const char* cfgFileName, std::string name = "");
+    ~TRestGridMask();
 
-    ClassDefOverride(TRestStrippedMask, 1);
+    ClassDefOverride(TRestGridMask, 1);
 };
 #endif
