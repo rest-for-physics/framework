@@ -44,7 +44,7 @@ class TRestHits {
     std::vector<Float_t> fX;          // [fNHits] Position on X axis for each punctual deposition (units mm)
     std::vector<Float_t> fY;          // [fNHits] Position on Y axis for each punctual deposition (units mm)
     std::vector<Float_t> fZ;          // [fNHits] Position on Z axis for each punctual deposition (units mm)
-    std::vector<Float_t> fT;          // [fNHits] Absolute time information for each punctual deposition
+    std::vector<Float_t> fTime;       // [fNHits] Absolute time information for each punctual deposition
                                       // (units us, 0 is time of decay)
     std::vector<Float_t> fEnergy;     // [fNHits] Energy deposited at each 3-coordinate position (units keV)
     std::vector<REST_HitType> fType;  //
@@ -80,24 +80,24 @@ class TRestHits {
 
     Bool_t isNaN(Int_t n) const;
 
-    void GetXArray(Float_t* x) const;
-    void GetYArray(Float_t* y) const;
-    void GetZArray(Float_t* z) const;
-
-    void InitializeXArray(Float_t x = 0);
-    void InitializeYArray(Float_t y = 0);
-    void InitializeZArray(Float_t z = 0);
-
     Double_t GetDistanceToNode(Int_t n) const;
 
     Bool_t isSortedByEnergy() const;
 
     inline size_t GetNumberOfHits() const { return fNHits; }
 
-    inline Double_t GetX(int n) const { return ((Double_t)fX[n]); }     // return value in mm
-    inline Double_t GetY(int n) const { return ((Double_t)fY[n]); }     // return value in mm
-    inline Double_t GetZ(int n) const { return ((Double_t)fZ[n]); }     // return value in mm
-    inline Double_t GetTime(int n) const { return ((Double_t)fT[n]); }  // return value in us
+    inline std::vector<Float_t> GetX() const { return fX; }
+    inline std::vector<Float_t> GetY() const { return fY; }
+    inline std::vector<Float_t> GetZ() const { return fZ; }
+    inline std::vector<Float_t> GetTime() const { return fTime; }
+    inline std::vector<Float_t> GetEnergyVector() const { return fEnergy; }  // GetEnergy returns total energy
+
+    inline Double_t GetX(int n) const { return ((Double_t)fX[n]); }            // return value in mm
+    inline Double_t GetY(int n) const { return ((Double_t)fY[n]); }            // return value in mm
+    inline Double_t GetZ(int n) const { return ((Double_t)fZ[n]); }            // return value in mm
+    inline Double_t GetTime(int n) const { return ((Double_t)fTime[n]); }      // return value in us
+    inline Double_t GetEnergy(int n) const { return ((Double_t)fEnergy[n]); }  // return value in keV
+
     inline REST_HitType GetType(int n) const { return fType[n]; }
 
     TVector3 GetPosition(int n) const;
@@ -124,8 +124,6 @@ class TRestHits {
 
     Double_t GetEnergyX() const;
     Double_t GetEnergyY() const;
-
-    inline Double_t GetEnergy(int n) const { return ((Double_t)fEnergy[n]); }  // return value in keV
 
     Bool_t isHitNInsidePrism(Int_t n, const TVector3& x0, const TVector3& x1, Double_t sizeX, Double_t sizeY,
                              Double_t theta) const;
@@ -208,14 +206,14 @@ class TRestHits {
         float& x() { return isAccessor ? _x : fHits->fX[index]; }
         float& y() { return isAccessor ? _y : fHits->fY[index]; }
         float& z() { return isAccessor ? _z : fHits->fZ[index]; }
-        float& t() { return isAccessor ? _t : fHits->fT[index]; }
+        float& t() { return isAccessor ? _t : fHits->fTime[index]; }
         float& e() { return isAccessor ? _e : fHits->fEnergy[index]; }
         REST_HitType& type() { return isAccessor ? _type : fHits->fType[index]; }
 
         float x() const { return isAccessor ? _x : fHits->fX[index]; }
         float y() const { return isAccessor ? _y : fHits->fY[index]; }
         float z() const { return isAccessor ? _z : fHits->fZ[index]; }
-        float t() const { return isAccessor ? _t : fHits->fT[index]; }
+        float t() const { return isAccessor ? _t : fHits->fTime[index]; }
         float e() const { return isAccessor ? _e : fHits->fEnergy[index]; }
         REST_HitType type() const { return isAccessor ? _type : fHits->fType[index]; }
 
