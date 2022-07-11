@@ -406,7 +406,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: Xe136bb
+          name: Xe136bbRef
           path: framework/pipeline/pandaxiii_MC/Xe136bb0n.root
           retention-days: 1
       - name: PandaXIII Topological
@@ -428,7 +428,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: PandaTestOutput
+          name: PandaTestOutputRef
           path: framework/pipeline/pandaxiii_MC/Xe136bb0n_processed.root
           retention-days: 1
       - name: PandaXIII Data
@@ -441,7 +441,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: PandaTriggerRate
+          name: PandaTriggerRateRef
           path: framework/pipeline/pandaxiii_data/TriggerRate.png
           retention-days: 1
 
@@ -474,7 +474,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: Metadata
+          name: MetadataRef
           path: ${{ env.REST_PATH }}/examples/meta.root
           retention-days: 1
       - name: 01_NLDBD
@@ -486,7 +486,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: NLDBD
+          name: NLDBDRef
           path: ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root
           retention-days: 1
       - name: Event Selection
@@ -501,7 +501,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: EventSelection
+          name: EventSelectionRef
           path: framework/pipeline/selection/IDs.txt
           retention-days: 1
       - name: 07_decay
@@ -526,7 +526,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: Alphas
+          name: AlphasRef
           path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
           retention-days: 1
       - name: 01_alphaTrack
