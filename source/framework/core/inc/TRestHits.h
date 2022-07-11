@@ -21,40 +21,32 @@
 #ifndef TRestSoft_TRestHits
 #define TRestSoft_TRestHits
 
+#include <TArrayD.h>
+#include <TArrayI.h>
 #include <TCanvas.h>
 #include <TF1.h>
 #include <TGraphErrors.h>
 #include <TH1.h>
+#include <TMath.h>
+#include <TMatrixD.h>
 #include <TVector3.h>
 
 #include <iostream>
 
-#include "TArrayD.h"
-#include "TArrayI.h"
-#include "TCanvas.h"
-#include "TMath.h"
-#include "TMatrixD.h"
-#include "TObject.h"
-
 enum REST_HitType { unknown = -1, X = 2, Y = 3, Z = 5, XY = 6, XZ = 10, YZ = 15, XYZ = 30 };
-//! It let save an event as a set of punctual deposition.
+//! Allows saving an event as a set of punctual deposition.
 //! It saves a 3-coordinate position and an energy for each punctual deposition.
-class TRestHits : public TObject {
+class TRestHits {
    public:
-    Int_t fNHits;         ///< Number of punctual energy depositions, it is the length
-                          ///< for all the array
+    Int_t fNHits;         ///< Number of punctual energy depositions, it is the length for all the arrays
     Double_t fTotEnergy;  ///< Event total energy
 
-    std::vector<Float_t> fX;          // [fNHits] Position on X axis for each punctual
-                                      // deposition (units mm)
-    std::vector<Float_t> fY;          // [fNHits] Position on Y axis for each punctual
-                                      // deposition (units mm)
-    std::vector<Float_t> fZ;          // [fNHits] Position on Z axis for each punctual
-                                      // deposition (units mm)
+    std::vector<Float_t> fX;          // [fNHits] Position on X axis for each punctual deposition (units mm)
+    std::vector<Float_t> fY;          // [fNHits] Position on Y axis for each punctual deposition (units mm)
+    std::vector<Float_t> fZ;          // [fNHits] Position on Z axis for each punctual deposition (units mm)
     std::vector<Float_t> fT;          // [fNHits] Absolute time information for each punctual deposition
                                       // (units us, 0 is time of decay)
-    std::vector<Float_t> fEnergy;     // [fNHits] Energy deposited at each
-                                      // 3-coordinate position (units keV)
+    std::vector<Float_t> fEnergy;     // [fNHits] Energy deposited at each 3-coordinate position (units keV)
     std::vector<REST_HitType> fType;  //
 
    public:
@@ -71,13 +63,12 @@ class TRestHits : public TObject {
     void AddHit(const TVector3& pos, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
     void AddHit(TRestHits& hits, Int_t n);
 
-    void RemoveHits();
-
     Int_t GetMostEnergeticHitInRange(Int_t n, Int_t m) const;
 
     Double_t GetMaximumHitDistance() const;
     Double_t GetMaximumHitDistance2() const;
 
+    virtual void RemoveHits();
     virtual void MergeHits(int n, int m);
     virtual void SwapHits(Int_t i, Int_t j);
     virtual void RemoveHit(int n);
