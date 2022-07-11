@@ -27,12 +27,9 @@ using namespace TMath;
 
 ClassImp(TRestHits);
 
-TRestHits::TRestHits() {
-    fNHits = 0;
-    fTotEnergy = 0;
-}
+TRestHits::TRestHits() = default;
 
-TRestHits::~TRestHits() {}
+TRestHits::~TRestHits() = default;
 
 Bool_t TRestHits::areXY() const {
     for (int i = 0; i < GetNumberOfHits(); i++) {
@@ -269,7 +266,7 @@ void TRestHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t
     fEnergy.push_back((Float_t)(en));
     fType.push_back(type);
 
-    fTotEnergy += en;
+    fTotalEnergy += en;
 }
 
 void TRestHits::AddHit(const TVector3& pos, Double_t en, Double_t t, REST_HitType type) {
@@ -282,7 +279,7 @@ void TRestHits::AddHit(const TVector3& pos, Double_t en, Double_t t, REST_HitTyp
     fEnergy.push_back((Float_t)(en));
     fType.push_back(type);
 
-    fTotEnergy += en;
+    fTotalEnergy += en;
 }
 
 void TRestHits::AddHit(TRestHits& hits, Int_t n) {
@@ -304,7 +301,7 @@ void TRestHits::RemoveHits() {
     fT.clear();
     fEnergy.clear();
     fType.clear();
-    fTotEnergy = 0;
+    fTotalEnergy = 0;
 }
 
 void TRestHits::Translate(Int_t n, double x, double y, double z) {
@@ -390,7 +387,7 @@ Bool_t TRestHits::isSortedByEnergy() const {
 }
 
 void TRestHits::RemoveHit(int n) {
-    fTotEnergy -= GetEnergy(n);
+    fTotalEnergy -= GetEnergy(n);
     fX.erase(fX.begin() + n);
     fY.erase(fY.begin() + n);
     fZ.erase(fZ.begin() + n);

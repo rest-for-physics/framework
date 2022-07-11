@@ -38,8 +38,8 @@ enum REST_HitType { unknown = -1, X = 2, Y = 3, Z = 5, XY = 6, XZ = 10, YZ = 15,
 //! It saves a 3-coordinate position and an energy for each punctual deposition.
 class TRestHits {
    public:
-    Int_t fNHits;         ///< Number of punctual energy depositions, it is the length for all the arrays
-    Double_t fTotEnergy;  ///< Event total energy
+    Int_t fNHits = 0;  ///< Number of punctual energy depositions, it is the length for all the arrays
+    Double_t fTotalEnergy = 0;  ///< Event total energy
 
     std::vector<Float_t> fX;          // [fNHits] Position on X axis for each punctual deposition (units mm)
     std::vector<Float_t> fY;          // [fNHits] Position on Y axis for each punctual deposition (units mm)
@@ -165,9 +165,9 @@ class TRestHits {
     Double_t GetMeanHitEnergy() const;
 
     Double_t GetEnergyIntegral() const;
-    inline Double_t GetTotalDepositedEnergy() const { return fTotEnergy; }
-    inline Double_t GetTotalEnergy() const { return fTotEnergy; }
-    inline Double_t GetEnergy() const { return fTotEnergy; }
+    inline Double_t GetTotalDepositedEnergy() const { return fTotalEnergy; }
+    inline Double_t GetTotalEnergy() const { return fTotalEnergy; }
+    inline Double_t GetEnergy() const { return fTotalEnergy; }
     Double_t GetDistance2(int n, int m) const;
     inline Double_t GetDistance(int N, int M) const { return TMath::Sqrt(GetDistance2(N, M)); }
     Double_t GetTotalDistance() const;
@@ -241,7 +241,7 @@ class TRestHits {
             return i1.fHits != i2.fHits || i1.index != i2.index;
         }
         friend bool operator>(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
-            // default comparsion logic
+            // default comparison logic
             return i1.index > i2.index;
         }
         friend bool operator>=(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
@@ -271,7 +271,7 @@ class TRestHits {
     // Destructor
     ~TRestHits();
 
-    ClassDef(TRestHits, 5);
+    ClassDef(TRestHits, 6);
 };
 
 #endif
