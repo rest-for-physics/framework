@@ -32,9 +32,11 @@
 #include <windows.h>
 #undef GetClassName
 #else
-#include "unistd.h"
 #include <sys/stat.h>
+#include <unistd.h>
 #endif  // !WIN32
+
+#include <filesystem>
 
 #include "TRestDataBase.h"
 #include "TRestEventProcess.h"
@@ -61,17 +63,7 @@ TRestRun::TRestRun(const string& filename) {
     }
 }
 
-TRestRun::~TRestRun() {
-    // if (fEventTree != nullptr) {
-    //    delete fEventTree;
-    //}
-
-    // if (fAnalysisTree != nullptr) {
-    //    delete fAnalysisTree;
-    //}
-
-    CloseFile();
-}
+TRestRun::~TRestRun() { CloseFile(); }
 
 ///////////////////////////////////////////////
 /// \brief Set variables by default during initialization.
@@ -116,8 +108,6 @@ void TRestRun::Initialize() {
     fEventBranchLoc = -1;
     fFileProcess = nullptr;
     fSaveHistoricData = true;
-
-    return;
 }
 
 ///////////////////////////////////////////////
@@ -1021,17 +1011,19 @@ TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilena
 }
 
 ///////////////////////////////////////////////
-/// \brief Create a new TFile as REST output file. Writing metadata objects into
-/// it.
+/// \brief Create a new TFile as REST output file. Writing metadata objects into it.
 ///
 TFile* TRestRun::FormOutputFile() {
     CloseFile();
+
     fOutputFileName = FormFormat(fOutputFileName);
+    // remove unwanted "./" etc. from the path while resolving them
+    fOutputFileName = std::filesystem::weakly_canonical(fOutputFileName.Data());
+
     fOutputFile = new TFile(fOutputFileName, "recreate");
     fAnalysisTree = new TRestAnalysisTree("AnalysisTree", "AnalysisTree");
     fEventTree = new TTree("EventTree", "EventTree");
-    // fAnalysisTree->CreateBranches();
-    // fEventTree->CreateEventBranches();
+
     fAnalysisTree->Write();
     fEventTree->Write();
     this->WriteWithDataBase();
