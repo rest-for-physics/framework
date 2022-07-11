@@ -263,7 +263,7 @@ class TRestHits {
         TRestHits_Iterator(TRestHits* h, int _index);
     };
     inline TRestHits_Iterator begin() { return {this, 0}; }
-    inline TRestHits_Iterator end() { return {this, fNHits}; }
+    inline TRestHits_Iterator end() { return {this, static_cast<int>(fNHits)}; }
     typedef TRestHits_Iterator iterator;
 
     // Constructor
