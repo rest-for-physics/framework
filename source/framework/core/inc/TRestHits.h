@@ -86,11 +86,13 @@ class TRestHits {
 
     inline size_t GetNumberOfHits() const { return fNHits; }
 
-    inline std::vector<Float_t> GetX() const { return fX; }
-    inline std::vector<Float_t> GetY() const { return fY; }
-    inline std::vector<Float_t> GetZ() const { return fZ; }
-    inline std::vector<Float_t> GetTime() const { return fTime; }
-    inline std::vector<Float_t> GetEnergyVector() const { return fEnergy; }  // GetEnergy returns total energy
+    inline const std::vector<Float_t>& GetX() const { return fX; }
+    inline const std::vector<Float_t>& GetY() const { return fY; }
+    inline const std::vector<Float_t>& GetZ() const { return fZ; }
+    inline const std::vector<Float_t>& GetTime() const { return fTime; }
+    inline const std::vector<Float_t>& GetEnergyVector() const {
+        return fEnergy;
+    }  // GetEnergy returns total energy
 
     inline Double_t GetX(int n) const { return ((Double_t)fX[n]); }            // return value in mm
     inline Double_t GetY(int n) const { return ((Double_t)fY[n]); }            // return value in mm
