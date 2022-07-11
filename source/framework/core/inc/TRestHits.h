@@ -37,8 +37,8 @@ enum REST_HitType { unknown = -1, X = 2, Y = 3, Z = 5, XY = 6, XZ = 10, YZ = 15,
 //! Allows saving an event as a set of punctual deposition.
 //! It saves a 3-coordinate position and an energy for each punctual deposition.
 class TRestHits {
-   public:
-    Int_t fNHits = 0;  ///< Number of punctual energy depositions, it is the length for all the arrays
+   protected:
+    size_t fNHits = 0;  ///< Number of punctual energy depositions, it is the length for all the arrays
     Double_t fTotalEnergy = 0;  ///< Event total energy
 
     std::vector<Float_t> fX;          // [fNHits] Position on X axis for each punctual deposition (units mm)
@@ -92,7 +92,7 @@ class TRestHits {
 
     Bool_t isSortedByEnergy() const;
 
-    inline Int_t GetNumberOfHits() const { return fNHits; }
+    inline size_t GetNumberOfHits() const { return fNHits; }
 
     inline Double_t GetX(int n) const { return ((Double_t)fX[n]); }     // return value in mm
     inline Double_t GetY(int n) const { return ((Double_t)fY[n]); }     // return value in mm
