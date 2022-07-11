@@ -193,10 +193,10 @@ class TRestHits {
 
     class TRestHits_Iterator : public std::iterator<std::random_access_iterator_tag, TRestHits_Iterator> {
        private:
-        int maxindex = 0;
+        int maxIndex = 0;
         int index = 0;
         TRestHits* fHits = nullptr;
-        bool isaccessor = false;
+        bool isAccessor = false;
         float _x;
         float _y;
         float _z;
@@ -205,19 +205,19 @@ class TRestHits {
         REST_HitType _type;
 
        public:
-        float& x() { return isaccessor ? _x : fHits->fX[index]; }
-        float& y() { return isaccessor ? _y : fHits->fY[index]; }
-        float& z() { return isaccessor ? _z : fHits->fZ[index]; }
-        float& t() { return isaccessor ? _t : fHits->fT[index]; }
-        float& e() { return isaccessor ? _e : fHits->fEnergy[index]; }
-        REST_HitType& type() { return isaccessor ? _type : fHits->fType[index]; }
+        float& x() { return isAccessor ? _x : fHits->fX[index]; }
+        float& y() { return isAccessor ? _y : fHits->fY[index]; }
+        float& z() { return isAccessor ? _z : fHits->fZ[index]; }
+        float& t() { return isAccessor ? _t : fHits->fT[index]; }
+        float& e() { return isAccessor ? _e : fHits->fEnergy[index]; }
+        REST_HitType& type() { return isAccessor ? _type : fHits->fType[index]; }
 
-        float x() const { return isaccessor ? _x : fHits->fX[index]; }
-        float y() const { return isaccessor ? _y : fHits->fY[index]; }
-        float z() const { return isaccessor ? _z : fHits->fZ[index]; }
-        float t() const { return isaccessor ? _t : fHits->fT[index]; }
-        float e() const { return isaccessor ? _e : fHits->fEnergy[index]; }
-        REST_HitType type() const { return isaccessor ? _type : fHits->fType[index]; }
+        float x() const { return isAccessor ? _x : fHits->fX[index]; }
+        float y() const { return isAccessor ? _y : fHits->fY[index]; }
+        float z() const { return isAccessor ? _z : fHits->fZ[index]; }
+        float t() const { return isAccessor ? _t : fHits->fT[index]; }
+        float e() const { return isAccessor ? _e : fHits->fEnergy[index]; }
+        REST_HitType type() const { return isAccessor ? _type : fHits->fType[index]; }
 
         // accessor: hit data is copied to self. The class acts like "TRestHit"
         void toaccessor();
@@ -262,8 +262,8 @@ class TRestHits {
 
         TRestHits_Iterator(TRestHits* h, int _index);
     };
-    inline TRestHits_Iterator begin() { return TRestHits_Iterator(this, 0); }
-    inline TRestHits_Iterator end() { return TRestHits_Iterator(this, fNHits); }
+    inline TRestHits_Iterator begin() { return {this, 0}; }
+    inline TRestHits_Iterator end() { return {this, fNHits}; }
     typedef TRestHits_Iterator iterator;
 
     // Constructor

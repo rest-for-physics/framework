@@ -1008,9 +1008,9 @@ void TRestHits::PrintHits(Int_t nHits) const {
 TRestHits::TRestHits_Iterator::TRestHits_Iterator(TRestHits* h, int _index) {
     fHits = h;
     index = _index;
-    maxindex = fHits->GetNumberOfHits();
+    maxIndex = fHits->GetNumberOfHits();
     if (index < 0) index = 0;
-    if (index >= maxindex) index = maxindex;
+    if (index >= maxIndex) index = maxIndex;
 }
 
 void TRestHits::TRestHits_Iterator::toaccessor() {
@@ -1020,7 +1020,7 @@ void TRestHits::TRestHits_Iterator::toaccessor() {
     _t = t();
     _e = e();
     _type = type();
-    isaccessor = true;
+    isAccessor = true;
 }
 
 TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator*() const {
@@ -1031,13 +1031,13 @@ TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator*() const {
 
 TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator++() {
     index++;
-    if (index >= maxindex) index = maxindex;
+    if (index >= maxIndex) index = maxIndex;
     return *this;
 }
 
 TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator+=(const int& n) {
-    if (index + n >= maxindex) {
-        index = maxindex;
+    if (index + n >= maxIndex) {
+        index = maxIndex;
     } else {
         index += n;
     }
@@ -1045,8 +1045,8 @@ TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator+=(const i
 }
 
 TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator+(const int& n) {
-    if (index + n >= maxindex) {
-        return TRestHits_Iterator(fHits, maxindex);
+    if (index + n >= maxIndex) {
+        return TRestHits_Iterator(fHits, maxIndex);
     } else {
         return TRestHits_Iterator(fHits, index + n);
     }
@@ -1076,7 +1076,7 @@ TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator-(const int
 }
 
 TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator=(const TRestHits_Iterator& iter) {
-    if (isaccessor) {
+    if (isAccessor) {
         (fHits ? fHits->fX[index] : x()) = iter.x();
         (fHits ? fHits->fY[index] : y()) = iter.y();
         (fHits ? fHits->fZ[index] : z()) = iter.z();
