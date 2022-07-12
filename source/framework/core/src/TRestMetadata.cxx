@@ -705,6 +705,7 @@ TRestMetadata* TRestMetadata::InstantiateChildMetadata(int index, std::string pa
                     if (c)  // this means we have the metadata class was found
                     {
                         TRestMetadata* md = (TRestMetadata*)c->New();
+                        md->SetConfigFile(fConfigFileName);
                         TiXmlElement* rootEle = GetElementFromFile(fConfigFileName);
                         TiXmlElement* Global = GetElement("globals", rootEle);
                         md->LoadConfigFromElement(paraele, Global, {});
