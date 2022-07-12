@@ -642,6 +642,18 @@ void TRestRun::ReadInputFileTrees() {
                     } else {
                         string type = Replace(br->GetName(), "Branch", "", 0);
                         fInputEvent = REST_Reflection::Assembly(type);
+
+                        if (fInputEvent == nullptr) {
+                            RESTError << "TRestRun:OpenInputFile. Cannot initialize input event, event "
+                                         "tree not read"
+                                      << RESTendl;
+                            RESTError
+                                << "Please install corresponding libraries to provide root dictionaries for "
+                                   "class reading."
+                                << RESTendl;
+                            return;
+                        }
+
                         fInputEvent->InitializeWithMetadata(this);
                         fEventTree->SetBranchAddress(br->GetName(), &fInputEvent);
                         fEventBranchLoc = branches->GetLast();
@@ -899,10 +911,36 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
         fInputEvent->SetID(fCurrentEvent - 1);
     }
 
+    if (fInputEvent->GetRunOrigin() == 0) {
+        fInputEvent->SetRunOrigin(fRunNumber);
+    }
+
     targetevt->Initialize();
     fInputEvent->CloneTo(targetevt);
 
     return 0;
+}
+
+///////////////////////////////////////////////
+/// \brief Calls GetEntry() for both AnalysisTree and EventTree
+void TRestRun::GetEntry(Long64_t entry) {
+    if (entry >= GetEntries()) {
+        RESTWarning << "TRestRun::GetEntry. Entry requested out of limits" << RESTendl;
+        RESTWarning << "Total number of entries is : " << GetEntries() << RESTendl;
+    }
+
+    if (fAnalysisTree != nullptr) {
+        fAnalysisTree->GetEntry(entry);
+    }
+    if (fEventTree != nullptr) {
+        fEventTree->GetEntry(entry);
+    }
+
+    if (fInputEvent != nullptr) {
+        fInputEvent->InitializeReferences(this);
+    }
+
+    fCurrentEvent = entry;
 }
 
 ///////////////////////////////////////////////
@@ -1336,7 +1374,7 @@ Long64_t TRestRun::GetTotalBytes() {
     return fTotalBytes;
 }
 
-int TRestRun::GetEntries() const {
+Long64_t TRestRun::GetEntries() const {
     if (fAnalysisTree != nullptr) {
         return fAnalysisTree->GetEntries();
     }

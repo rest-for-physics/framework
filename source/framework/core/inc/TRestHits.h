@@ -164,6 +164,7 @@ class TRestHits {
     Double_t GetMinimumHitEnergy() const;
     Double_t GetMeanHitEnergy() const;
 
+    void CalculateTotalDepositedEnergy() { fTotEnergy = GetEnergyIntegral(); }
     Double_t GetEnergyIntegral() const;
     inline Double_t GetTotalDepositedEnergy() const { return fTotalEnergy; }
     inline Double_t GetTotalEnergy() const { return fTotalEnergy; }
