@@ -32,9 +32,11 @@
 #include <windows.h>
 #undef GetClassName
 #else
-#include "unistd.h"
 #include <sys/stat.h>
+#include <unistd.h>
 #endif  // !WIN32
+
+#include <filesystem>
 
 #include "TRestDataBase.h"
 #include "TRestEventProcess.h"
@@ -61,17 +63,7 @@ TRestRun::TRestRun(const string& filename) {
     }
 }
 
-TRestRun::~TRestRun() {
-    // if (fEventTree != nullptr) {
-    //    delete fEventTree;
-    //}
-
-    // if (fAnalysisTree != nullptr) {
-    //    delete fAnalysisTree;
-    //}
-
-    CloseFile();
-}
+TRestRun::~TRestRun() { CloseFile(); }
 
 ///////////////////////////////////////////////
 /// \brief Set variables by default during initialization.
@@ -116,8 +108,6 @@ void TRestRun::Initialize() {
     fEventBranchLoc = -1;
     fFileProcess = nullptr;
     fSaveHistoricData = true;
-
-    return;
 }
 
 ///////////////////////////////////////////////
@@ -327,6 +317,7 @@ void TRestRun::InitFromConfigFile() {
             //}
 
             TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
+            meta->SetConfigFile(fConfigFileName);
             if (meta == nullptr) {
                 RESTWarning << "failed to add metadata \"" << keydeclare << "\"" << RESTendl;
                 e = e->NextSiblingElement();
@@ -652,6 +643,18 @@ void TRestRun::ReadInputFileTrees() {
                     } else {
                         string type = Replace(br->GetName(), "Branch", "", 0);
                         fInputEvent = REST_Reflection::Assembly(type);
+
+                        if (fInputEvent == nullptr) {
+                            RESTError << "TRestRun:OpenInputFile. Cannot initialize input event, event "
+                                         "tree not read"
+                                      << RESTendl;
+                            RESTError
+                                << "Please install corresponding libraries to provide root dictionaries for "
+                                   "class reading."
+                                << RESTendl;
+                            return;
+                        }
+
                         fInputEvent->InitializeWithMetadata(this);
                         fEventTree->SetBranchAddress(br->GetName(), &fInputEvent);
                         fEventBranchLoc = branches->GetLast();
@@ -909,10 +912,36 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
         fInputEvent->SetID(fCurrentEvent - 1);
     }
 
+    if (fInputEvent->GetRunOrigin() == 0) {
+        fInputEvent->SetRunOrigin(fRunNumber);
+    }
+
     targetevt->Initialize();
     fInputEvent->CloneTo(targetevt);
 
     return 0;
+}
+
+///////////////////////////////////////////////
+/// \brief Calls GetEntry() for both AnalysisTree and EventTree
+void TRestRun::GetEntry(Long64_t entry) {
+    if (entry >= GetEntries()) {
+        RESTWarning << "TRestRun::GetEntry. Entry requested out of limits" << RESTendl;
+        RESTWarning << "Total number of entries is : " << GetEntries() << RESTendl;
+    }
+
+    if (fAnalysisTree != nullptr) {
+        fAnalysisTree->GetEntry(entry);
+    }
+    if (fEventTree != nullptr) {
+        fEventTree->GetEntry(entry);
+    }
+
+    if (fInputEvent != nullptr) {
+        fInputEvent->InitializeReferences(this);
+    }
+
+    fCurrentEvent = entry;
 }
 
 ///////////////////////////////////////////////
@@ -1021,17 +1050,19 @@ TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilena
 }
 
 ///////////////////////////////////////////////
-/// \brief Create a new TFile as REST output file. Writing metadata objects into
-/// it.
+/// \brief Create a new TFile as REST output file. Writing metadata objects into it.
 ///
 TFile* TRestRun::FormOutputFile() {
     CloseFile();
+
     fOutputFileName = FormFormat(fOutputFileName);
+    // remove unwanted "./" etc. from the path while resolving them
+    fOutputFileName = std::filesystem::weakly_canonical(fOutputFileName.Data());
+
     fOutputFile = new TFile(fOutputFileName, "recreate");
     fAnalysisTree = new TRestAnalysisTree("AnalysisTree", "AnalysisTree");
     fEventTree = new TTree("EventTree", "EventTree");
-    // fAnalysisTree->CreateBranches();
-    // fEventTree->CreateEventBranches();
+
     fAnalysisTree->Write();
     fEventTree->Write();
     this->WriteWithDataBase();
@@ -1344,7 +1375,7 @@ Long64_t TRestRun::GetTotalBytes() {
     return fTotalBytes;
 }
 
-int TRestRun::GetEntries() const {
+Long64_t TRestRun::GetEntries() const {
     if (fAnalysisTree != nullptr) {
         return fAnalysisTree->GetEntries();
     }

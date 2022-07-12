@@ -20,19 +20,16 @@
 
 #include "TRestHits.h"
 
-#include "TROOT.h"
+#include <TROOT.h>
 
 using namespace std;
 using namespace TMath;
 
 ClassImp(TRestHits);
 
-TRestHits::TRestHits() {
-    fNHits = 0;
-    fTotEnergy = 0;
-}
+TRestHits::TRestHits() = default;
 
-TRestHits::~TRestHits() {}
+TRestHits::~TRestHits() = default;
 
 Bool_t TRestHits::areXY() const {
     for (int i = 0; i < GetNumberOfHits(); i++) {
@@ -85,42 +82,6 @@ Bool_t TRestHits::areXYZ() const {
 Bool_t TRestHits::isNaN(Int_t n) const {
     if (IsNaN(GetX(n)) && IsNaN(GetY(n)) && IsNaN(GetZ(n))) return true;
     return false;
-}
-
-void TRestHits::GetXArray(Float_t* x) const {
-    if (areYZ()) {
-        for (int i = 0; i < GetNumberOfHits(); i++) x[i] = 0;
-    } else {
-        for (int i = 0; i < GetNumberOfHits(); i++) x[i] = GetX(i);
-    }
-}
-
-void TRestHits::GetYArray(Float_t* y) const {
-    if (areXZ()) {
-        for (int i = 0; i < GetNumberOfHits(); i++) y[i] = 0;
-    } else {
-        for (int i = 0; i < GetNumberOfHits(); i++) y[i] = GetY(i);
-    }
-}
-
-void TRestHits::GetZArray(Float_t* z) const {
-    if (areXY()) {
-        for (int i = 0; i < GetNumberOfHits(); i++) z[i] = 0;
-    } else {
-        for (int i = 0; i < GetNumberOfHits(); i++) z[i] = GetZ(i);
-    }
-}
-
-void TRestHits::InitializeXArray(Float_t x) {
-    for (int i = 0; i < GetNumberOfHits(); i++) fX[i] = x;
-}
-
-void TRestHits::InitializeYArray(Float_t y) {
-    for (int i = 0; i < GetNumberOfHits(); i++) fY[i] = y;
-}
-
-void TRestHits::InitializeZArray(Float_t z) {
-    for (int i = 0; i < GetNumberOfHits(); i++) fZ[i] = z;
 }
 
 Double_t TRestHits::GetEnergyIntegral() const {
@@ -265,11 +226,11 @@ void TRestHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t
     fX.push_back((Float_t)(x));
     fY.push_back((Float_t)(y));
     fZ.push_back((Float_t)(z));
-    fT.push_back((Float_t)t);
+    fTime.push_back((Float_t)t);
     fEnergy.push_back((Float_t)(en));
     fType.push_back(type);
 
-    fTotEnergy += en;
+    fTotalEnergy += en;
 }
 
 void TRestHits::AddHit(const TVector3& pos, Double_t en, Double_t t, REST_HitType type) {
@@ -278,11 +239,11 @@ void TRestHits::AddHit(const TVector3& pos, Double_t en, Double_t t, REST_HitTyp
     fX.push_back((Float_t)(pos.X()));
     fY.push_back((Float_t)(pos.Y()));
     fZ.push_back((Float_t)(pos.Z()));
-    fT.push_back((Float_t)t);
+    fTime.push_back((Float_t)t);
     fEnergy.push_back((Float_t)(en));
     fType.push_back(type);
 
-    fTotEnergy += en;
+    fTotalEnergy += en;
 }
 
 void TRestHits::AddHit(TRestHits& hits, Int_t n) {
@@ -301,10 +262,10 @@ void TRestHits::RemoveHits() {
     fX.clear();
     fY.clear();
     fZ.clear();
-    fT.clear();
+    fTime.clear();
     fEnergy.clear();
     fType.clear();
-    fTotEnergy = 0;
+    fTotalEnergy = 0;
 }
 
 void TRestHits::Translate(Int_t n, double x, double y, double z) {
@@ -361,13 +322,13 @@ void TRestHits::MergeHits(int n, int m) {
     fX[n] = (fX[n] * fEnergy[n] + fX[m] * fEnergy[m]) / totalEnergy;
     fY[n] = (fY[n] * fEnergy[n] + fY[m] * fEnergy[m]) / totalEnergy;
     fZ[n] = (fZ[n] * fEnergy[n] + fZ[m] * fEnergy[m]) / totalEnergy;
-    fT[n] = (fT[n] * fEnergy[n] + fT[m] * fEnergy[m]) / totalEnergy;
+    fTime[n] = (fTime[n] * fEnergy[n] + fTime[m] * fEnergy[m]) / totalEnergy;
     fEnergy[n] += fEnergy[m];
 
     fX.erase(fX.begin() + m);
     fY.erase(fY.begin() + m);
     fZ.erase(fZ.begin() + m);
-    fT.erase(fT.begin() + m);
+    fTime.erase(fTime.begin() + m);
     fEnergy.erase(fEnergy.begin() + m);
     fType.erase(fType.begin() + m);
     fNHits--;
@@ -379,7 +340,7 @@ void TRestHits::SwapHits(Int_t i, Int_t j) {
     iter_swap(fZ.begin() + i, fZ.begin() + j);
     iter_swap(fEnergy.begin() + i, fEnergy.begin() + j);
     iter_swap(fType.begin() + i, fType.begin() + j);
-    iter_swap(fT.begin() + i, fT.begin() + j);
+    iter_swap(fTime.begin() + i, fTime.begin() + j);
 }
 
 Bool_t TRestHits::isSortedByEnergy() const {
@@ -390,11 +351,11 @@ Bool_t TRestHits::isSortedByEnergy() const {
 }
 
 void TRestHits::RemoveHit(int n) {
-    fTotEnergy -= GetEnergy(n);
+    fTotalEnergy -= GetEnergy(n);
     fX.erase(fX.begin() + n);
     fY.erase(fY.begin() + n);
     fZ.erase(fZ.begin() + n);
-    fT.erase(fT.begin() + n);
+    fTime.erase(fTime.begin() + n);
     fEnergy.erase(fEnergy.begin() + n);
     fType.erase(fType.begin() + n);
     fNHits--;
@@ -1011,9 +972,9 @@ void TRestHits::PrintHits(Int_t nHits) const {
 TRestHits::TRestHits_Iterator::TRestHits_Iterator(TRestHits* h, int _index) {
     fHits = h;
     index = _index;
-    maxindex = fHits->GetNumberOfHits();
+    maxIndex = fHits->GetNumberOfHits();
     if (index < 0) index = 0;
-    if (index >= maxindex) index = maxindex;
+    if (index >= maxIndex) index = maxIndex;
 }
 
 void TRestHits::TRestHits_Iterator::toaccessor() {
@@ -1023,7 +984,7 @@ void TRestHits::TRestHits_Iterator::toaccessor() {
     _t = t();
     _e = e();
     _type = type();
-    isaccessor = true;
+    isAccessor = true;
 }
 
 TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator*() const {
@@ -1034,13 +995,13 @@ TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator*() const {
 
 TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator++() {
     index++;
-    if (index >= maxindex) index = maxindex;
+    if (index >= maxIndex) index = maxIndex;
     return *this;
 }
 
 TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator+=(const int& n) {
-    if (index + n >= maxindex) {
-        index = maxindex;
+    if (index + n >= maxIndex) {
+        index = maxIndex;
     } else {
         index += n;
     }
@@ -1048,8 +1009,8 @@ TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator+=(const i
 }
 
 TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator+(const int& n) {
-    if (index + n >= maxindex) {
-        return TRestHits_Iterator(fHits, maxindex);
+    if (index + n >= maxIndex) {
+        return TRestHits_Iterator(fHits, maxIndex);
     } else {
         return TRestHits_Iterator(fHits, index + n);
     }
@@ -1079,12 +1040,12 @@ TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator-(const int
 }
 
 TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator=(const TRestHits_Iterator& iter) {
-    if (isaccessor) {
+    if (isAccessor) {
         (fHits ? fHits->fX[index] : x()) = iter.x();
         (fHits ? fHits->fY[index] : y()) = iter.y();
         (fHits ? fHits->fZ[index] : z()) = iter.z();
         (fHits ? fHits->fEnergy[index] : e()) = iter.e();
-        (fHits ? fHits->fT[index] : t()) = iter.t();
+        (fHits ? fHits->fTime[index] : t()) = iter.t();
         (fHits ? fHits->fType[index] : type()) = iter.type();
     } else {
         fHits = iter.fHits;
