@@ -328,6 +328,7 @@ void TRestRun::InitFromConfigFile() {
             //}
 
             TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
+            meta->SetConfigFile(fConfigFileName);
             if (meta == nullptr) {
                 RESTWarning << "failed to add metadata \"" << keydeclare << "\"" << RESTendl;
                 e = e->NextSiblingElement();
