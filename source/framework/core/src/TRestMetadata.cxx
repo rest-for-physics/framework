@@ -702,9 +702,11 @@ TRestMetadata* TRestMetadata::InstantiateChildMetadata(int index, std::string pa
             if (pattern == "" || xmlChild.find(pattern) != string::npos) {
                 if (count == index) {
                     TClass* c = TClass::GetClass(xmlChild.c_str());
-                    if (c)  // this means we have the metadata class was found
+                    if (c)  // this means that the metadata class was found
                     {
                         TRestMetadata* md = (TRestMetadata*)c->New();
+                        if (!md) return nullptr;
+                        md->SetConfigFile(fConfigFileName);
                         TiXmlElement* rootEle = GetElementFromFile(fConfigFileName);
                         TiXmlElement* Global = GetElement("globals", rootEle);
                         md->LoadConfigFromElement(paraele, Global, {});

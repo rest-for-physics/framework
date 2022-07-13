@@ -322,6 +322,7 @@ void TRestRun::InitFromConfigFile() {
                 e = e->NextSiblingElement();
                 continue;
             }
+            meta->SetConfigFile(fConfigFileName);
             meta->SetHostmgr(fHostmgr);
             fMetadata.push_back(meta);
             meta->LoadConfigFromElement(e, fElementGlobal);
