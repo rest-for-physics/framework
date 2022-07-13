@@ -323,6 +323,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 
             Panel_Info panel;
             panel.font_size = StringToDouble(GetParameter("font_size", panelele, "0.1"));
+            panel.precision = StringToInteger(GetParameter("precision", panelele, "2"));
 
             TiXmlElement* labelele = GetElement("label", panelele);
             while (labelele != nullptr) {
@@ -686,7 +687,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             label = Replace(label, "<<meanRate>>", Form("%5.2lf", meanRate), pos);
 
             auto run = GetRunInfo(fRunInputFileName[0]);
-            label = run->ReplaceMetadataMembers(label);
+            label = run->ReplaceMetadataMembers(label, fPanels[n].precision);
 
             TLatex* texxt = new TLatex(fPanels[n].posX[m], fPanels[n].posY[m], label.c_str());
             texxt->SetTextColor(1);

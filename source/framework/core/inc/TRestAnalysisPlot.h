@@ -107,6 +107,7 @@ class TRestAnalysisPlot : public TRestMetadata {
 
     struct Panel_Info {
         Float_t font_size;
+        Int_t precision;
 
         std::vector<Float_t> posX;
         std::vector<Float_t> posY;
