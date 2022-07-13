@@ -2308,13 +2308,25 @@ string TRestMetadata::GetDataMemberValue(string memberName) {
 ///
 /// All kinds of data member can be found, including non-streamed
 /// data member and base-class data member
-std::vector<string> TRestMetadata::GetDataMemberValues(string memberName) {
+///
+/// If precision value is higher than 0, then the resulting values will be
+/// truncated after finding ".". This can be used to define a float precision.
+///
+std::vector<string> TRestMetadata::GetDataMemberValues(string memberName, Int_t precision) {
     string result = GetDataMemberValue(memberName);
 
     result = Replace(result, "{", "");
     result = Replace(result, "}", "");
 
-    return Split(result, ",");
+    std::vector<std::string> results = Split(result, ",");
+
+    if (precision > 0)
+        for (auto& x : results) {
+            if (REST_StringHelper::isANumber(x) && x.find(".") != string::npos)
+                x = x.substr(0, x.find(".") + precision + 1);
+        }
+
+    return results;
 }
 
 ///////////////////////////////////////////////

@@ -1650,7 +1650,7 @@ std::vector<std::string> TRestRun::GetMetadataStructureTitles() {
 ///
 /// \return The string with data members replaced
 ///
-string TRestRun::ReplaceMetadataMembers(const string& instr) {
+string TRestRun::ReplaceMetadataMembers(const string& instr, Int_t precision) {
     if (instr.find("[", 0) == (int)string::npos) return instr;
     string outstring = instr;
 
@@ -1673,7 +1673,7 @@ string TRestRun::ReplaceMetadataMembers(const string& instr) {
         if (endPosition == (int)string::npos) break;
 
         string expressionToReplace = outstring.substr(startPosition + 1, endPosition - startPosition - 1);
-        string value = ReplaceMetadataMember(expressionToReplace);
+        string value = ReplaceMetadataMember(expressionToReplace, precision);
 
         outstring.replace(startPosition, endPosition - startPosition + 1, value);
         endPosition = 0;
@@ -1701,7 +1701,7 @@ string TRestRun::ReplaceMetadataMembers(const string& instr) {
 ///
 /// \return The corresponding class data member value in string format.
 ///
-string TRestRun::ReplaceMetadataMember(const string& instr) {
+string TRestRun::ReplaceMetadataMember(const string& instr, Int_t precision) {
     if (instr.find("::") == string::npos && instr.find("->") == string::npos) {
         return "<<" + instr + ">>";
     }
@@ -1722,21 +1722,22 @@ string TRestRun::ReplaceMetadataMember(const string& instr) {
         }
 
         if (GetMetadata(results[0])) {
-            if (index >= this->GetMetadata(results[0])->GetDataMemberValues(results[1]).size()) {
+            if (index >= this->GetMetadata(results[0])->GetDataMemberValues(results[1], precision).size()) {
                 RESTWarning << "TRestRun::ReplaceMetadataMember. Index out of range!" << RESTendl;
                 RESTWarning << "Returning the first element" << RESTendl;
                 index = 0;
             }
-            return this->GetMetadata(results[0])->GetDataMemberValues(results[1])[index];
+            return this->GetMetadata(results[0])->GetDataMemberValues(results[1], precision)[index];
         }
 
         if (GetMetadataClass(results[0])) {
-            if (index >= this->GetMetadataClass(results[0])->GetDataMemberValues(results[1]).size()) {
+            if (index >=
+                this->GetMetadataClass(results[0])->GetDataMemberValues(results[1], precision).size()) {
                 RESTWarning << "TRestRun::ReplaceMetadataMember. Index out of range!" << RESTendl;
                 RESTWarning << "Returning the first element" << RESTendl;
                 index = 0;
             }
-            return this->GetMetadataClass(results[0])->GetDataMemberValues(results[1])[index];
+            return this->GetMetadataClass(results[0])->GetDataMemberValues(results[1], precision)[index];
         }
 
     } else

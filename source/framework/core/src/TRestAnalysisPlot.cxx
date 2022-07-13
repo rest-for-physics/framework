@@ -242,7 +242,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
                           << RESTendl;
                 exit(1);
             }
-            Plot_Info_Set plot;
+            PlotInfoSet plot;
             plot.name = RemoveWhiteSpaces(GetParameter("name", plotele, "plot_" + ToString(N)));
             plot.title = GetParameter("title", plotele, plot.name);
             plot.logY = StringToBool(GetParameter("logscale", plotele, "false"));
@@ -321,8 +321,9 @@ void TRestAnalysisPlot::InitFromConfigFile() {
                 exit(1);
             }
 
-            Panel_Info panel;
+            PanelInfo panel;
             panel.font_size = StringToDouble(GetParameter("font_size", panelele, "0.1"));
+            panel.precision = StringToInteger(GetParameter("precision", panelele, "2"));
 
             TiXmlElement* labelele = GetElement("label", panelele);
             while (labelele != nullptr) {
@@ -350,7 +351,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 #pragma endregion
 
 TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFile(TiXmlElement* histele,
-                                                                                  Plot_Info_Set plot) {
+                                                                                  PlotInfoSet plot) {
     Histo_Info_Set hist;
     hist.name = RemoveWhiteSpaces(GetParameter("name", histele, plot.name));
     hist.drawOption = GetParameter("option", histele, "colz");
@@ -686,7 +687,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             label = Replace(label, "<<meanRate>>", Form("%5.2lf", meanRate), pos);
 
             auto run = GetRunInfo(fRunInputFileName[0]);
-            label = run->ReplaceMetadataMembers(label);
+            label = run->ReplaceMetadataMembers(label, fPanels[n].precision);
 
             TLatex* texxt = new TLatex(fPanels[n].posX[m], fPanels[n].posY[m], label.c_str());
             texxt->SetTextColor(1);
@@ -698,7 +699,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     // start drawing plots
     vector<TH3F*> histCollectionAll;
     for (unsigned int n = 0; n < fPlots.size(); n++) {
-        Plot_Info_Set& plot = fPlots[n];
+        PlotInfoSet& plot = fPlots[n];
 
         TPad* targetPad = (TPad*)fCombinedCanvas->cd(n + 1 + fPanels.size());
         targetPad->SetLogx(plot.logX);
