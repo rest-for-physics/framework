@@ -66,7 +66,7 @@ class TRestAnalysisPlot : public TRestMetadata {
         TH3F* operator->() { return ptr; }
     };
 
-    struct Plot_Info_Set {
+    struct PlotInfoSet {
         std::string name;
         std::string title;
 
@@ -105,7 +105,7 @@ class TRestAnalysisPlot : public TRestMetadata {
         std::vector<Histo_Info_Set> histos;
     };
 
-    struct Panel_Info {
+    struct PanelInfo {
         Float_t font_size;
         Int_t precision;
 
@@ -117,7 +117,7 @@ class TRestAnalysisPlot : public TRestMetadata {
 
    private:
     void InitFromConfigFile() override;
-    Histo_Info_Set SetupHistogramFromConfigFile(TiXmlElement* ele, Plot_Info_Set info);
+    Histo_Info_Set SetupHistogramFromConfigFile(TiXmlElement* ele, PlotInfoSet info);
 
     Int_t fNFiles;
     // canvas option
@@ -141,8 +141,8 @@ class TRestAnalysisPlot : public TRestMetadata {
     Double_t fLegendY2 = 0.88;
 
     // plots information
-    std::vector<Plot_Info_Set> fPlots;
-    std::vector<Panel_Info> fPanels;
+    std::vector<PlotInfoSet> fPlots;
+    std::vector<PanelInfo> fPanels;
 
     std::vector<std::string> fPlotNamesCheck;  //!
 
