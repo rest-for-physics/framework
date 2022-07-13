@@ -270,7 +270,7 @@ class TRestMetadata : public TNamed {
 
     std::string GetDataMemberValue(std::string memberName);
 
-    std::vector<std::string> GetDataMemberValues(std::string memberName);
+    std::vector<std::string> GetDataMemberValues(std::string memberName, Int_t precision = 0);
 
     TString GetVersion();  // *MENU*
 
