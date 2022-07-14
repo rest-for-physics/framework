@@ -1673,7 +1673,7 @@ string TRestRun::ReplaceMetadataMembers(const string& instr, Int_t precision) {
         if (endPosition == (int)string::npos) break;
 
         string expressionToReplace = outstring.substr(startPosition + 1, endPosition - startPosition - 1);
-        string value = ReplaceMetadataMember(expressionToReplace, precision);
+        string value = ReplaceMetadataMember(expressionToReplace);
 
         outstring.replace(startPosition, endPosition - startPosition + 1, value);
         endPosition = 0;
@@ -1682,7 +1682,7 @@ string TRestRun::ReplaceMetadataMembers(const string& instr, Int_t precision) {
     outstring = Replace(outstring, "<<", "[");
     outstring = Replace(outstring, ">>", "]");
 
-    return REST_StringHelper::ReplaceMathematicalExpressions(outstring);
+    return REST_StringHelper::ReplaceMathematicalExpressions(outstring, precision);
 }
 
 ///////////////////////////////////////////////
