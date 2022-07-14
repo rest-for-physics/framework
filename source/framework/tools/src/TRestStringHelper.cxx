@@ -71,10 +71,27 @@ Int_t REST_StringHelper::isAExpression(const string& in) {
 }
 
 ///////////////////////////////////////////////
+/// \brief It crops a floating number given inside the string `in` with the given precision.
+/// I.e. CropWithPrecision("3.48604", 2) will return "3.48".
+///
+/// It will not round the number. Perhaps on the next update of this method.
+///
+std::string REST_StringHelper::CropWithPrecision(std::string in, Int_t precision) {
+    if (precision == 0) return in;
+    if (REST_StringHelper::isANumber(in) && in.find(".") != string::npos) {
+        std::string rootStr;
+        if (in.find("e") != string::npos) rootStr = in.substr(in.find("e"), -1);
+        return in.substr(0, in.find(".") + precision + 1) + rootStr;
+    }
+    return in;
+}
+
+///////////////////////////////////////////////
 /// \brief Evaluates and replaces valid mathematical expressions found in the
 /// input string **buffer**.
 ///
-std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer, std::string errorMessage) {
+std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer, Int_t precision,
+                                                              std::string errorMessage) {
     buffer = Replace(buffer, " AND ", " && ");
     buffer = Replace(buffer, " OR ", " || ");
 
@@ -85,11 +102,11 @@ std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer
 
         if (!isAExpression(expr)) return buffer;
 
-        std::string evalExpr = ReplaceMathematicalExpressions(expr);
+        std::string evalExpr = ReplaceMathematicalExpressions(expr, precision);
         expr = "'" + expr + "'";
         std::string newbuff = Replace(buffer, expr, evalExpr);
 
-        return ReplaceMathematicalExpressions(newbuff, errorMessage);
+        return ReplaceMathematicalExpressions(newbuff, precision, errorMessage);
     }
 
     // we spilt the unit part and the expresstion part
@@ -128,6 +145,7 @@ std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer
     if (erased) {
         result = "(" + result + ")";
     }
+    result = CropWithPrecision(result, precision);
 
     return result + unit;
 }
