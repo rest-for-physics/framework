@@ -607,26 +607,6 @@ string REST_StringHelper::IntegerToString(Int_t n, std::string format) { return 
 ///
 string REST_StringHelper::DoubleToString(Double_t d, std::string format) { return Form(format.c_str(), d); }
 
-///////////////////////////////////////////////
-/// \brief It will transform a string containing units("UNIT"), where UNIT is any REST valid
-/// physical unit, to its corresponding scaling factor.
-///
-std::string REST_StringHelper::UnitConversion(std::string in) {
-    std::string inIn = RemoveWhiteSpaces(in);
-    size_t pos1 = inIn.find("units(\"");
-    if (pos1 != 0) {
-        pos1 = inIn.find("units(\'");
-        if (pos1 != 0) return in;
-    }
-
-    size_t pos2 = in.find(")");
-
-    std::string unit = inIn.substr(7, pos2 - 8);
-    //   std::cout << unit << std::endl;
-
-    return DoubleToString(1. * units(unit));
-}
-
 Bool_t REST_StringHelper::StringToBool(std::string in) {
     return (ToUpper(in) == "TRUE" || ToUpper(in) == "ON");
 }
