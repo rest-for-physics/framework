@@ -20,6 +20,7 @@
 #include <sstream>
 
 #include "TRestStringOutput.h"
+#include "TRestSystemOfUnits.h"
 
 /// String helper classes. Declared static to be able to have direct access to the methods
 namespace REST_StringHelper {
@@ -34,6 +35,7 @@ Double_t StringToDouble(std::string in);
 Int_t StringToInteger(std::string in);
 std::string IntegerToString(Int_t n, std::string format = "%d");
 std::string DoubleToString(Double_t d, std::string format = "%4.2lf");
+std::string UnitConversion(std::string in);
 Bool_t StringToBool(std::string in);
 Long64_t StringToLong(std::string in);
 TVector3 StringTo3DVector(std::string in);
