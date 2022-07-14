@@ -2322,8 +2322,11 @@ std::vector<string> TRestMetadata::GetDataMemberValues(string memberName, Int_t 
 
     if (precision > 0)
         for (auto& x : results) {
-            if (REST_StringHelper::isANumber(x) && x.find(".") != string::npos)
-                x = x.substr(0, x.find(".") + precision + 1);
+            if (REST_StringHelper::isANumber(x) && x.find(".") != string::npos) {
+                std::string rootStr;
+                if (x.find("e") != string::npos) rootStr = x.substr(x.find("e"), -1);
+                x = x.substr(0, x.find(".") + precision + 1) + rootStr;
+            }
         }
 
     return results;
