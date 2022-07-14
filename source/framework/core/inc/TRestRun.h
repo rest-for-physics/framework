@@ -62,7 +62,7 @@ class TRestRun : public TRestMetadata {
     void InitFromConfigFile() override;
 
    private:
-    std::string ReplaceMetadataMember(const std::string& instr, Int_t precision = 2);
+    std::string ReplaceMetadataMember(const std::string& instr, Int_t precision = 0);
 
    public:
     /// REST run class
