@@ -74,6 +74,11 @@ Int_t REST_StringHelper::isAExpression(const string& in) {
 /// \brief Evaluates and replaces valid mathematical expressions found in the
 /// input string **buffer**.
 ///
+/// The buffer string may define sub-expressions that will be evaluated by using single quotes.
+///
+/// I.e. The sentence "The following operation 3 x 4 is '3*4'" will be translated to
+/// "The following operatin 3 x 4 is 12".
+///
 std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer, std::string errorMessage) {
     buffer = Replace(buffer, " AND ", " && ");
     buffer = Replace(buffer, " OR ", " || ");
