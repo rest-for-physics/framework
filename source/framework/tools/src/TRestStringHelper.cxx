@@ -24,6 +24,7 @@ using namespace std;
 /// 123456789 --> not expression, It is a pure number that can be directly parsed.
 /// ./123 --> not expression, it is a path
 /// 333/555 --> is expression. But it may also be a path. We should avoid using paths like that
+///
 Int_t REST_StringHelper::isAExpression(const string& in) {
     bool symbol = false;
 
@@ -76,6 +77,21 @@ Int_t REST_StringHelper::isAExpression(const string& in) {
 std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer, std::string errorMessage) {
     buffer = Replace(buffer, " AND ", " && ");
     buffer = Replace(buffer, " OR ", " || ");
+
+    if (buffer.find("'") != string::npos && std::count(buffer.begin(), buffer.end(), '\'') % 2 == 0) {
+        size_t pos1 = buffer.find("'");
+        size_t pos2 = buffer.find("'", pos1 + 1);
+        string expr = buffer.substr(pos1 + 1, pos2 - pos1 - 1);
+
+        if (!isAExpression(expr)) return buffer;
+
+        std::string evalExpr = ReplaceMathematicalExpressions(expr);
+        expr = "'" + expr + "'";
+        std::string newbuff = Replace(buffer, expr, evalExpr);
+
+        return ReplaceMathematicalExpressions(newbuff, errorMessage);
+    }
+
     // we spilt the unit part and the expresstion part
     int pos = buffer.find_last_of("1234567890().");
 
