@@ -90,6 +90,11 @@ std::string REST_StringHelper::CropWithPrecision(std::string in, Int_t precision
 /// \brief Evaluates and replaces valid mathematical expressions found in the
 /// input string **buffer**.
 ///
+/// The buffer string may define sub-expressions that will be evaluated by using single quotes.
+///
+/// I.e. The sentence "The following operation 3 x 4 is '3*4'" will be translated to
+/// "The following operatin 3 x 4 is 12".
+///
 std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer, Int_t precision,
                                                               std::string errorMessage) {
     buffer = Replace(buffer, " AND ", " && ");
