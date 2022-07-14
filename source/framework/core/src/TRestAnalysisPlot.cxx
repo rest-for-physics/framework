@@ -275,7 +275,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
                 histele = plotele;
             }
             while (histele != nullptr) {
-                Histo_Info_Set hist = SetupHistogramFromConfigFile(histele, plot);
+                HistoInfoSet hist = SetupHistogramFromConfigFile(histele, plot);
                 // add global cut
                 for (unsigned int i = 0; i < globalCuts.size(); i++) {
                     if (i > 0 || hist.cutString != "") hist.cutString += " && ";
@@ -283,10 +283,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
                         cout << "Adding global cut : " << globalCuts[i] << endl;
                     hist.cutString += globalCuts[i];
                 }
-                //// add "SAME" option
-                // if (plot.histos.size() > 0) {
-                //    hist.drawOption += " SAME";
-                //}
+                hist.weight = GetParameter("weight", histele, "");
 
                 if (hist.plotString == "") {
                     RESTWarning << "No variables or histograms defined in the plot, skipping!" << RESTendl;
@@ -350,9 +347,9 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 }
 #pragma endregion
 
-TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFile(TiXmlElement* histele,
-                                                                                  PlotInfoSet plot) {
-    Histo_Info_Set hist;
+TRestAnalysisPlot::HistoInfoSet TRestAnalysisPlot::SetupHistogramFromConfigFile(TiXmlElement* histele,
+                                                                                PlotInfoSet plot) {
+    HistoInfoSet hist;
     hist.name = RemoveWhiteSpaces(GetParameter("name", histele, plot.name));
     hist.drawOption = GetParameter("option", histele, "colz");
 
@@ -714,7 +711,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
         // draw each histogram in the pad
         for (unsigned int i = 0; i < plot.histos.size(); i++) {
-            Histo_Info_Set& hist = plot.histos[i];
+            HistoInfoSet& hist = plot.histos[i];
 
             TString plotString = hist.plotString;
             TString nameString = hist.name;
@@ -725,6 +722,11 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             size_t pos = 0;
             rangeString = Replace((string)rangeString, "MIN_TIME", (string)Form("%9f", startTime), pos);
             rangeString = Replace((string)rangeString, "MAX_TIME", (string)Form("%9f", endTime), pos);
+
+            if (cutString == "")
+                cutString = hist.weight;
+            else if (hist.weight != "")
+                cutString = "(" + cutString + ") * " + hist.weight;
 
             if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
                 cout << endl;
