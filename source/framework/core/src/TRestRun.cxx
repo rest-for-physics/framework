@@ -1682,7 +1682,7 @@ string TRestRun::ReplaceMetadataMembers(const string& instr, Int_t precision) {
     outstring = Replace(outstring, "<<", "[");
     outstring = Replace(outstring, ">>", "]");
 
-    return outstring;
+    return REST_StringHelper::ReplaceMathematicalExpressions(outstring);
 }
 
 ///////////////////////////////////////////////
