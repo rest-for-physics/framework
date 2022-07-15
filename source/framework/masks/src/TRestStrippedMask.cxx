@@ -21,23 +21,23 @@
  *************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////
-/// This class defines a squared patterned grid. It defines a periodicity
-/// and a thickness for the grid pattern. The method TRestGridMask::GetRegion
-/// will return a unique id for each square delimited by the grid pattern.
+/// This class defines a stripped pattern. It defines a periodicity
+/// and a thickness for the strips. The method TRestStrippedMask::GetRegion
+/// will return a unique id for each region in between strips.
 ///
-/// The grid structure is centered in (0,0) and it can be shifted using
+/// The stripped structure is centered in (0,0) and it can be shifted using
 /// the offset defined inside TRestPatternMask. The pattern will be only
 /// delimited by the limits imposed inside TRestPatternMask.
 ///
-/// ### Specific grid metadata parameters
+/// ### Specific stripped metadata parameters
 ///
-/// * **gridGap**: This parameter defines the grid periodicity.
-/// * **gridThickness**: The thickness of the grid.
+/// * **stripsGap**: This parameter defines the strips periodicity.
+/// * **stripsThickness**: The thickness of the strips.
 /// * **modulus**: A number that defines the range of ids used to identify
-/// the different regions inside the grid. If modulus is 10, then we will
-/// only be able to identify up to 100 unique regions. If a larger amount
-/// of regions is found, it will happen that two regions will be assigned
-/// the same id.
+/// the different regions inside the stripped pattern. If modulus is 10,
+/// then we will only be able to identify up to 100 unique regions. If a
+/// larger amount of regions is found, it will happen that two regions will
+/// be assigned the same id.
 ///
 /// ### Common pattern metadata parameters
 ///
@@ -54,39 +54,40 @@
 /// `REST_PATH/examples/masks.rml`.
 ///
 /// The following definition ilustrates a complete RML implementation of a
-/// TRestGridMask.
+/// TRestStrippedMask.
 ///
 /// \code
-///	<TRestGridMask name="strongback" verboseLevel="warning">
-///		<parameter name="maskRadius" value="20" />
+///	<TRestStrippedMask name="strongback" verboseLevel="warning">
+///		<parameter name="maskRadius" value="10" />
 ///		<parameter name="offset" value="(1,2)cm" />
-///		<parameter name="rotationAngle" value="0.5" />
+///		<parameter name="rotationAngle" value="0.2" />
 ///
-///		<parameter name="gridGap" value="1cm" />
-///		<parameter name="gridThickness" value="2mm" />
-///	</TRestGridMask>
+///		<parameter name="stripsGap" value="4mm" />
+///		<parameter name="stripsThickness" value="0.5mm" />
+///	</TRestStrippedMask>
 /// \endcode
 ///
-/// The basic use of this class is provided by the TRestGridMask::GetRegion
+/// The basic use of this class is provided by the TRestStrippedMask::GetRegion
 /// method. For example:
 ///
 /// \code
-///     TRestGridMask mask("masks.rml", "grid");
+///     TRestStrippedMask mask("masks.rml", "stripped");
 ///     Int_t id = mask.GetRegion( 12.5, 4.3 );
-/// 	std::cout << "Region id is : " << id << RESTendl;
+/// 	std::cout << "Region id is : " << id << endl;
 /// \endcode
 ///
 /// The following figure may be generated using the TRestPatternMask::DrawMonteCarlo
 /// method.
 ///
 /// \code
-///     TRestGridMask mask("masks.rml", "grid");
+///     TRestStrippedMask mask("masks.rml", "stripped");
 ///     TCanvas *c = mask.DrawMonteCarlo(30000);
-///     c->Draw();
+///		c->Draw();
+///     c->Print("strippedmask.png");
 /// \endcode
 ///
-/// \htmlonly <style>div.image img[src="gridmask.png"]{width:500px;}</style> \endhtmlonly
-/// ![An illustration of the montecarlo mask test using DrawMonteCarlo](gridmask.png)
+/// \htmlonly <style>div.image img[src="strippedmask.png"]{width:500px;}</style> \endhtmlonly
+/// ![An illustration of the montecarlo mask test using DrawMonteCarlo](strippedmask.png)
 ///
 ///----------------------------------------------------------------------
 ///
@@ -94,25 +95,25 @@
 ///
 /// History of developments:
 ///
-/// 2022-05: First implementation of TRestGridMask
+/// 2022-05: First implementation of TRestStrippedMask
 /// Javier Galan
 ///
-/// \class TRestGridMask
+/// \class TRestStrippedMask
 /// \author: Javier Galan - javier.galan@unizar.es
 ///
 /// <hr>
 ///
 
-#include "TRestGridMask.h"
+#include "TRestStrippedMask.h"
 
 #include "TRandom3.h"
 
-ClassImp(TRestGridMask);
+ClassImp(TRestStrippedMask);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestGridMask::TRestGridMask() : TRestPatternMask() { Initialize(); }
+TRestStrippedMask::TRestStrippedMask() : TRestPatternMask() { Initialize(); }
 
 /////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -126,9 +127,10 @@ TRestGridMask::TRestGridMask() : TRestPatternMask() { Initialize(); }
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// corresponding TRestGridMask section inside the RML.
+/// corresponding TRestStrippedMask section inside the RML.
 ///
-TRestGridMask::TRestGridMask(const char* cfgFileName, std::string name) : TRestPatternMask(cfgFileName) {
+TRestStrippedMask::TRestStrippedMask(const char* cfgFileName, std::string name)
+    : TRestPatternMask(cfgFileName) {
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);
@@ -139,15 +141,15 @@ TRestGridMask::TRestGridMask(const char* cfgFileName, std::string name) : TRestP
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestGridMask::~TRestGridMask() {}
+TRestStrippedMask::~TRestStrippedMask() {}
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize input/output event members and define
 /// the section name
 ///
-void TRestGridMask::Initialize() {
+void TRestStrippedMask::Initialize() {
     SetSectionName(this->ClassName());
-    SetType("Grid");
+    SetType("Stripped");
 }
 
 ///////////////////////////////////////////////
@@ -155,73 +157,60 @@ void TRestGridMask::Initialize() {
 /// with coordinates (x,y) felt in. The method returns 0 if the particle
 /// hits the pattern.
 ///
-/// The particle will be counter-rotated to emulate the mask offset and
-/// rotation using the method TRestPatternMask::ApplyCommonMaskTransformation
+/// The particle will be counter-rotated to emulate the mask rotation
+/// using the method TRestPatternMask::ApplyCommonMaskTransformation
 ///
-Int_t TRestGridMask::GetRegion(Double_t x, Double_t y) {
+Int_t TRestStrippedMask::GetRegion(Double_t x, Double_t y) {
     if (ApplyCommonMaskTransformation(x, y) == 0) return 0;
 
-    Double_t xEval = fGridThickness / 2. + x;
+    Double_t xEval = fStripsThickness / 2. + x;
 
     Int_t xcont = 0;
     if (xEval > 0) {
-        while (xEval > fGridGap) {
-            xEval -= fGridGap;
+        while (xEval > fStripsGap) {
+            xEval -= fStripsGap;
             xcont++;
         }
     } else {
         while (xEval < 0) {
-            xEval += fGridGap;
+            xEval += fStripsGap;
             xcont--;
         }
     }
 
-    if (xEval < fGridThickness) return 0;
-
-    Double_t yEval = fGridThickness / 2. + y;
-
-    Int_t ycont = 0;
-    if (yEval > 0) {
-        while (yEval > fGridGap) {
-            yEval -= fGridGap;
-            ycont++;
-        }
-    } else {
-        while (yEval < 0) {
-            yEval += fGridGap;
-            ycont--;
-        }
-    }
-
-    if (yEval < fGridThickness) return 0;
+    if (xEval < fStripsThickness) return 0;
 
     xcont = xcont % fModulus;
     if (xcont < 0) xcont += fModulus;
 
-    ycont = ycont % fModulus;
-    if (ycont < 0) ycont += fModulus;
-
-    return 1 + fModulus * ycont + xcont;
+    return 1 + xcont % fMaxRegions;
 }
 
 /////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
+/// \brief Prints on screen the complete information about the metadata members from this class
 ///
-void TRestGridMask::PrintMetadata() {
+void TRestStrippedMask::PrintMetadata() {
     TRestPatternMask::PrintMetadata();
 
-    RESTMetadata << " - Grid gap : " << fGridGap << " mm" << RESTendl;
-    RESTMetadata << " - Grid thickness : " << fGridThickness << " mm" << RESTendl;
-    RESTMetadata << "+++++" << RESTendl;
+    PrintMaskMembers();
+    RESTMetadata << "++++" << RESTendl;
 }
 
 /////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
+/// \brief Prints on screen the information about the metadata members of TRestRingsMask,
+/// including common pattern headers, but without common metadata headers.
 ///
-void TRestGridMask::Print() {
-    TRestPatternMask::Print();
-
+void TRestStrippedMask::PrintMask() {
+    PrintCommonPatternMembers();
     RESTMetadata << "----" << RESTendl;
-    RESTMetadata << " - Grid gap : " << fGridGap << " mm" << RESTendl;
-    RESTMetadata << " - Grid thickness : " << fGridThickness << " mm" << RESTendl;
+    PrintMaskMembers();
+}
+
+/////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members of TRestRingsMask,
+/// excluding common metadata headers.
+///
+void TRestStrippedMask::PrintMaskMembers() {
+    RESTMetadata << " - Strips gap : " << fStripsGap << " mm" << RESTendl;
+    RESTMetadata << " - Strips thickness : " << fStripsThickness << " mm" << RESTendl;
 }
