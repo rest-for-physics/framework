@@ -1128,10 +1128,10 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
                 }
             }
 
-            e->SetAttribute(
-                name, ReplaceMathematicalExpressions(
-                          outputBuffer, "Please, check parameter name: " + parName + " (ReplaceForLoopVars)")
-                          .c_str());
+            e->SetAttribute(name, ReplaceMathematicalExpressions(
+                                      outputBuffer, 0,
+                                      "Please, check parameter name: " + parName + " (ReplaceForLoopVars)")
+                                      .c_str());
         }
 
         attr = attr->Next();
@@ -1484,7 +1484,7 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
         }
     }
 
-    return ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(result)),
+    return ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(result)), 0,
                                           "Please, check parameter name: " + parName);
 }
 
@@ -2308,13 +2308,21 @@ string TRestMetadata::GetDataMemberValue(string memberName) {
 ///
 /// All kinds of data member can be found, including non-streamed
 /// data member and base-class data member
-std::vector<string> TRestMetadata::GetDataMemberValues(string memberName) {
+///
+/// If precision value is higher than 0, then the resulting values will be
+/// truncated after finding ".". This can be used to define a float precision.
+///
+std::vector<string> TRestMetadata::GetDataMemberValues(string memberName, Int_t precision) {
     string result = GetDataMemberValue(memberName);
 
     result = Replace(result, "{", "");
     result = Replace(result, "}", "");
 
-    return Split(result, ",");
+    std::vector<std::string> results = REST_StringHelper::Split(result, ",");
+
+    for (auto& x : results) x = REST_StringHelper::CropWithPrecision(x, precision);
+
+    return results;
 }
 
 ///////////////////////////////////////////////

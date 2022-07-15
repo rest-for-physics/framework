@@ -62,7 +62,7 @@ class TRestRun : public TRestMetadata {
     void InitFromConfigFile() override;
 
    private:
-    std::string ReplaceMetadataMember(const std::string& instr);
+    std::string ReplaceMetadataMember(const std::string& instr, Int_t precision = 0);
 
    public:
     /// REST run class
@@ -172,7 +172,7 @@ class TRestRun : public TRestMetadata {
     inline int GetNumberOfMetadataStructures() const { return fMetadata.size(); }
 
     inline std::string GetMetadataMember(const std::string& instr) { return ReplaceMetadataMember(instr); }
-    std::string ReplaceMetadataMembers(const std::string& instr);
+    std::string ReplaceMetadataMembers(const std::string& instr, Int_t precision = 2);
 
     Bool_t EvaluateMetadataMember(const std::string& instr);
 
