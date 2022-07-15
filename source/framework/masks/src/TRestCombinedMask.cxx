@@ -21,32 +21,11 @@
  *************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////
-/// This class defines a stripped pattern. It defines a periodicity
-/// and a thickness for the strips. The method TRestStrippedMask::GetRegion
-/// will return a unique id for each region in between strips.
+/// This class is used to generate a combined mask structure by combining
+/// any of the predefined existing masks inheriting from TRestPatternMask.
 ///
-/// The stripped structure is centered in (0,0) and it can be shifted using
-/// the offset defined inside TRestPatternMask. The pattern will be only
-/// delimited by the limits imposed inside TRestPatternMask.
-///
-/// ### Specific stripped metadata parameters
-///
-/// * **stripsGap**: This parameter defines the strips periodicity.
-/// * **stripsThickness**: The thickness of the strips.
-/// * **modulus**: A number that defines the range of ids used to identify
-/// the different regions inside the stripped pattern. If modulus is 10,
-/// then we will only be able to identify up to 100 unique regions. If a
-/// larger amount of regions is found, it will happen that two regions will
-/// be assigned the same id.
-///
-/// ### Common pattern metadata parameters
-///
-/// On top of the metadata class parameters, we may define common pattern
-/// parameters to induce an offset and rotation to the pattern.
-///
-/// * **offset**: A parameter to shift the pattern window mask.
-/// * **rotationAngle**: An angle given in radians to rotate the pattern.
-/// * **maskRadius**: A radius defining the limits of the circular mask.
+/// The implementation of TRestCombinedMask::GetRegion method will use the
+/// region ids of each internal mask to generate a new unique region id.
 ///
 /// ### Examples
 ///
@@ -54,40 +33,42 @@
 /// `REST_PATH/examples/masks.rml`.
 ///
 /// The following definition ilustrates a complete RML implementation of a
-/// TRestStrippedMask.
+/// TRestCombinedMask.
 ///
 /// \code
-///	<TRestStrippedMask name="strongback" verboseLevel="warning">
-///		<parameter name="maskRadius" value="10" />
-///		<parameter name="offset" value="(1,2)cm" />
-///		<parameter name="rotationAngle" value="0.2" />
+///  <TRestCombinedMask name="combined3" verboseLevel="info">
+///       <TRestSpiderMask ...>
+///           ...
+///       </TRestSpiderMask>
 ///
-///		<parameter name="stripsGap" value="4mm" />
-///		<parameter name="stripsThickness" value="0.5mm" />
-///	</TRestStrippedMask>
+///       <TRestRingsMask ...>
+///           ...
+///       </TRestRingsMask>
+///  </TRestCombinedMask>
 /// \endcode
 ///
-/// The basic use of this class is provided by the TRestStrippedMask::GetRegion
+/// The basic use of this class is provided by the TRestCombinedMask::GetRegion
 /// method. For example:
 ///
 /// \code
-///     TRestStrippedMask mask("masks.rml", "stripped");
+///     TRestCombinedMask mask("masks.rml", "combined");
 ///     Int_t id = mask.GetRegion( 12.5, 4.3 );
-/// 	std::cout << "Region id is : " << id << endl;
+///     std::cout << "Region id is : " << id << endl;
 /// \endcode
 ///
 /// The following figure may be generated using the TRestPatternMask::DrawMonteCarlo
-/// method.
+/// method, using the `combined` definition.
 ///
 /// \code
-///     TRestStrippedMask mask("masks.rml", "stripped");
+///     TRestCombinedMask mask("masks.rml", "combined");
+///     mask.GenerateCombined();
 ///     TCanvas *c = mask.DrawMonteCarlo(30000);
-///		c->Draw();
-///     c->Print("strippedmask.png");
+///     c->Draw();
+///     c->Print("combined.png");
 /// \endcode
 ///
-/// \htmlonly <style>div.image img[src="strippedmask.png"]{width:500px;}</style> \endhtmlonly
-/// ![An illustration of the montecarlo mask test using DrawMonteCarlo](strippedmask.png)
+/// \htmlonly <style>div.image img[src="combinedmask.png"]{width:600px;}</style> \endhtmlonly
+/// ![An illustration of the montecarlo mask test using DrawMonteCarlo](combinedmask.png)
 ///
 ///----------------------------------------------------------------------
 ///
@@ -95,25 +76,25 @@
 ///
 /// History of developments:
 ///
-/// 2022-05: First implementation of TRestStrippedMask
+/// 2022-06: First implementation of TRestCombinedMask
 /// Javier Galan
 ///
-/// \class TRestStrippedMask
+/// \class TRestCombinedMask
 /// \author: Javier Galan - javier.galan@unizar.es
 ///
 /// <hr>
 ///
 
-#include "TRestStrippedMask.h"
+#include "TRestCombinedMask.h"
 
 #include "TRandom3.h"
 
-ClassImp(TRestStrippedMask);
+ClassImp(TRestCombinedMask);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestStrippedMask::TRestStrippedMask() : TRestPatternMask() { Initialize(); }
+TRestCombinedMask::TRestCombinedMask() : TRestPatternMask() { Initialize(); }
 
 /////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -127,9 +108,9 @@ TRestStrippedMask::TRestStrippedMask() : TRestPatternMask() { Initialize(); }
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// corresponding TRestStrippedMask section inside the RML.
+/// corresponding TRestCombinedMask section inside the RML.
 ///
-TRestStrippedMask::TRestStrippedMask(const char* cfgFileName, std::string name)
+TRestCombinedMask::TRestCombinedMask(const char* cfgFileName, std::string name)
     : TRestPatternMask(cfgFileName) {
     Initialize();
 
@@ -141,15 +122,20 @@ TRestStrippedMask::TRestStrippedMask(const char* cfgFileName, std::string name)
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestStrippedMask::~TRestStrippedMask() {}
+TRestCombinedMask::~TRestCombinedMask() {}
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize input/output event members and define
 /// the section name
 ///
-void TRestStrippedMask::Initialize() {
+void TRestCombinedMask::Initialize() {
     SetSectionName(this->ClassName());
-    SetType("Stripped");
+    SetType("Combined");
+
+    for (const auto mask : fMasks) {
+        mask->Initialize();
+        if (mask->GetMaskRadius() > fMaskRadius) fMaskRadius = mask->GetMaskRadius();
+    }
 }
 
 ///////////////////////////////////////////////
@@ -160,40 +146,65 @@ void TRestStrippedMask::Initialize() {
 /// The particle will be counter-rotated to emulate the mask rotation
 /// using the method TRestPatternMask::ApplyCommonMaskTransformation
 ///
-Int_t TRestStrippedMask::GetRegion(Double_t x, Double_t y) {
-    if (ApplyCommonMaskTransformation(x, y) == 0) return 0;
+Int_t TRestCombinedMask::GetRegion(Double_t x, Double_t y) {
+    Int_t region = 0;
+    for (const auto mask : fMasks) {
+        Int_t id = mask->GetRegion(x, y);
+        RESTDebug << "TRestCombinedMask::GetRegion. Mask type: " << mask->GetType() << " region : " << id
+                  << RESTendl;
+        if (id == 0) return 0;
 
-    Double_t xEval = fStripsThickness / 2. + x;
-
-    Int_t xcont = 0;
-    if (xEval > 0) {
-        while (xEval > fStripsGap) {
-            xEval -= fStripsGap;
-            xcont++;
-        }
-    } else {
-        while (xEval < 0) {
-            xEval += fStripsGap;
-            xcont--;
-        }
+        region = id + region * mask->GetMaxRegions();
     }
 
-    if (xEval < fStripsThickness) return 0;
+    return region;
+}
 
-    xcont = xcont % fModulus;
-    if (xcont < 0) xcont += fModulus;
+///////////////////////////////////////////////
+/// \brief Implements class initialization through RML
+///
+void TRestCombinedMask::InitFromConfigFile() {
+    TRestMetadata::InitFromConfigFile();
 
-    return 1 + xcont;
+    int cont = 0;
+    TRestPatternMask* msk = (TRestPatternMask*)this->InstantiateChildMetadata(cont, "Mask");
+    while (msk != nullptr) {
+        AddMask(msk);
+        cont++;
+        msk = (TRestPatternMask*)this->InstantiateChildMetadata(cont, "Mask");
+    }
 }
 
 /////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
+/// \brief Prints on screen the complete information about the metadata members from this class
 ///
-void TRestStrippedMask::PrintMetadata() {
+void TRestCombinedMask::PrintMetadata() {
     TRestPatternMask::PrintMetadata();
 
-    RESTMetadata << "-----" << RESTendl;
-    RESTMetadata << " - Strips gap : " << fStripsGap << " mm" << RESTendl;
-    RESTMetadata << " - Strips thickness : " << fStripsThickness << " mm" << RESTendl;
-    RESTMetadata << "+++++" << RESTendl;
+    PrintMask();
+
+    Int_t cont = 1;
+    for (const auto mask : fMasks) {
+        RESTMetadata << " == MASK " << cont << " == " << RESTendl;
+        cont++;
+        mask->PrintMask();
+        RESTMetadata << "++++" << RESTendl;
+    }
+}
+
+/////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members from this class,
+/// including common pattern headers, but without common metadata headers.
+///
+void TRestCombinedMask::PrintMask() {
+    PrintMaskMembers();
+    RESTMetadata << "++++" << RESTendl;
+}
+
+/////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members from this class
+/// excluding common metadata headers and any formatting.
+///
+void TRestCombinedMask::PrintMaskMembers() {
+    RESTMetadata << " - Number of masks : " << fMasks.size() << RESTendl;
 }

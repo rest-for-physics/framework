@@ -154,7 +154,7 @@ void TRestRingsMask::Initialize() {
     SetSectionName(this->ClassName());
     SetType("Rings");
 
-    GenerateRings();
+    if (fNRings > 0) GenerateRings();
 }
 
 ///////////////////////////////////////////////
@@ -169,16 +169,16 @@ Int_t TRestRingsMask::GetRegion(Double_t x, Double_t y) {
     if (ApplyCommonMaskTransformation(x, y) == 0) return 0;
 
     Double_t r = TMath::Sqrt(x * x + y * y);
-    int cont = 1;
+    int cont = 0;
     for (const auto& ringRadius : fRingsRadii) {
-        if (r < ringRadius.second && r >= ringRadius.first) return cont;
+        if (r < ringRadius.second && r >= ringRadius.first) return cont % fMaxRegions + 1;
         cont++;
     }
     return 0;
 }
 
 ///////////////////////////////////////////////
-/// \brief It will initialize the variable fRingsRadii using the 
+/// \brief It will initialize the variable fRingsRadii using the
 /// number of radius, initial radius, the rings gap and thickness.
 ///
 void TRestRingsMask::GenerateRings() {
@@ -193,17 +193,36 @@ void TRestRingsMask::GenerateRings() {
 }
 
 /////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
+/// \brief Prints on screen the information about the metadata members from this class
 ///
 void TRestRingsMask::PrintMetadata() {
     TRestPatternMask::PrintMetadata();
 
+    PrintMaskMembers();
+    RESTMetadata << "----" << RESTendl;
+}
+
+/////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members of TRestRingsMask,
+/// including common pattern headers, but without common metadata headers.
+///
+void TRestRingsMask::PrintMask() {
+    PrintCommonPatternMembers();
+    RESTMetadata << "----" << RESTendl;
+    PrintMaskMembers();
+}
+
+/////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members of TRestRingsMask,
+/// excluding common metadata headers.
+///
+void TRestRingsMask::PrintMaskMembers() {
     if (fRingsGap > 0) RESTMetadata << " - Rings gap : " << fRingsGap << " mm" << RESTendl;
     if (fRingsThickness > 0) RESTMetadata << " - Rings thickness : " << fRingsThickness << " mm" << RESTendl;
     if (fNRings > 0) RESTMetadata << " - Number of rings : " << fNRings << RESTendl;
     if (fInitialRadius > 0) RESTMetadata << " - Initial radius : " << fInitialRadius << " mm" << RESTendl;
-    if (fNRings > 0) RESTMetadata << "-----" << RESTendl;
     if (fRingsRadii.size() > 0) {
+        if (fNRings > 0) RESTMetadata << "-----" << RESTendl;
         RESTMetadata << "Inner radii : (";
         for (int n = 0; n < fRingsRadii.size(); n++) {
             if (n > 0) RESTMetadata << ", ";
@@ -219,5 +238,13 @@ void TRestRingsMask::PrintMetadata() {
         }
         RESTMetadata << ")" << RESTendl;
     }
-    RESTMetadata << "----" << RESTendl;
+}
+
+/////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members of TRestRingsMask,
+/// excluding common metadata headers.
+///
+void TRestRingsMask::PrintRings() {
+    for (int n = 0; n < fRingsRadii.size(); n++)
+        std::cout << n << " - " << fRingsRadii[n].first << " - " << fRingsRadii[n].second << std::endl;
 }

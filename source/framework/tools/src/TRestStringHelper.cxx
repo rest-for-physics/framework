@@ -24,6 +24,7 @@ using namespace std;
 /// 123456789 --> not expression, It is a pure number that can be directly parsed.
 /// ./123 --> not expression, it is a path
 /// 333/555 --> is expression. But it may also be a path. We should avoid using paths like that
+///
 Int_t REST_StringHelper::isAExpression(const string& in) {
     bool symbol = false;
 
@@ -70,12 +71,49 @@ Int_t REST_StringHelper::isAExpression(const string& in) {
 }
 
 ///////////////////////////////////////////////
+/// \brief It crops a floating number given inside the string `in` with the given precision.
+/// I.e. CropWithPrecision("3.48604", 2) will return "3.48".
+///
+/// It will not round the number. Perhaps on the next update of this method.
+///
+std::string REST_StringHelper::CropWithPrecision(std::string in, Int_t precision) {
+    if (precision == 0) return in;
+    if (REST_StringHelper::isANumber(in) && in.find(".") != string::npos) {
+        std::string rootStr;
+        if (in.find("e") != string::npos) rootStr = in.substr(in.find("e"), -1);
+        return in.substr(0, in.find(".") + precision + 1) + rootStr;
+    }
+    return in;
+}
+
+///////////////////////////////////////////////
 /// \brief Evaluates and replaces valid mathematical expressions found in the
 /// input string **buffer**.
 ///
-std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer, std::string errorMessage) {
+/// The buffer string may define sub-expressions that will be evaluated by using single quotes.
+///
+/// I.e. The sentence "The following operation 3 x 4 is '3*4'" will be translated to
+/// "The following operatin 3 x 4 is 12".
+///
+std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer, Int_t precision,
+                                                              std::string errorMessage) {
     buffer = Replace(buffer, " AND ", " && ");
     buffer = Replace(buffer, " OR ", " || ");
+
+    if (buffer.find("'") != string::npos && std::count(buffer.begin(), buffer.end(), '\'') % 2 == 0) {
+        size_t pos1 = buffer.find("'");
+        size_t pos2 = buffer.find("'", pos1 + 1);
+        string expr = buffer.substr(pos1 + 1, pos2 - pos1 - 1);
+
+        if (!isAExpression(expr)) return buffer;
+
+        std::string evalExpr = ReplaceMathematicalExpressions(expr, precision);
+        expr = "'" + expr + "'";
+        std::string newbuff = Replace(buffer, expr, evalExpr);
+
+        return ReplaceMathematicalExpressions(newbuff, precision, errorMessage);
+    }
+
     // we spilt the unit part and the expresstion part
     int pos = buffer.find_last_of("1234567890().");
 
@@ -112,6 +150,7 @@ std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer
     if (erased) {
         result = "(" + result + ")";
     }
+    result = CropWithPrecision(result, precision);
 
     return result + unit;
 }

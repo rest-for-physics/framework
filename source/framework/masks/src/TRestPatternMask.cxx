@@ -144,6 +144,7 @@ void TRestPatternMask::PrintMetadata() {
 
     RESTMetadata << " - Pattern type : " << fPatternType << RESTendl;
     RESTMetadata << " - Mask radius : " << fMaskRadius << " mm" << RESTendl;
+    RESTMetadata << " - Max regions : " << fMaxRegions << RESTendl;
     RESTMetadata << " - Offset : (" << fOffset.X() << ", " << fOffset.Y() << ") mm" << RESTendl;
     RESTMetadata << " - Rotation angle : " << fRotationAngle * 180. / TMath::Pi() << " degrees" << RESTendl;
     RESTMetadata << "----" << RESTendl;
@@ -152,9 +153,10 @@ void TRestPatternMask::PrintMetadata() {
 /////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members without header
 ///
-void TRestPatternMask::Print() {
+void TRestPatternMask::PrintCommonPatternMembers() {
     RESTMetadata << " - Pattern type : " << fPatternType << RESTendl;
     RESTMetadata << " - Mask radius : " << fMaskRadius << " mm" << RESTendl;
+    RESTMetadata << " - Max regions : " << fMaxRegions << RESTendl;
     RESTMetadata << " - Offset : (" << fOffset.X() << ", " << fOffset.Y() << ") mm" << RESTendl;
     RESTMetadata << " - Rotation angle : " << fRotationAngle * 180. / TMath::Pi() << " degrees" << RESTendl;
 }
