@@ -585,7 +585,7 @@ void TRestHits::GetBoundaries(std::vector<double>& dist, double& max, double& mi
 Double_t TRestHits::GetGaussSigmaX() {
     Double_t gausSigmaX = 0;
     Int_t nHits = GetNumberOfHits();
-    if (nHits <= 3) {
+    if (nHits <= 0) {
         gausSigmaX = 0;
     } else {
         Int_t nAdd = 0;
@@ -647,12 +647,11 @@ Double_t TRestHits::GetGaussSigmaX() {
 Double_t TRestHits::GetGaussSigmaY() {
     Double_t gausSigmaY = 0;
     Int_t nHits = GetNumberOfHits();
-    if (nHits <= 3) {
+    if (nHits <= 0) {
         gausSigmaY = 0;
     } else {
         Int_t nAdd = 0;
         bool doHitCorrection = true;
-        // bool doHitCorrection = nHits <= 18;
         if (doHitCorrection) {
             nAdd = 2;
         }
@@ -708,12 +707,11 @@ Double_t TRestHits::GetGaussSigmaY() {
 Double_t TRestHits::GetGaussSigmaZ() {
     Double_t gausSigmaZ = 0;
     Int_t nHits = GetNumberOfHits();
-    if (nHits <= 3) {
+    if (nHits <= 0) {
         gausSigmaZ = 0;
     } else {
         Int_t nAdd = 0;
         bool doHitCorrection = true;
-        // bool doHitCorrection = nHits <= 18;
         if (doHitCorrection) {
             nAdd = 2;
         }
