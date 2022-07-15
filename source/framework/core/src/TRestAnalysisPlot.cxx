@@ -259,7 +259,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             plot.ticksY = StringToInteger(GetParameter("yticks", plotele, "510"));
             plot.marginBottom = StringToDouble(GetParameter("marginBottom", plotele, "0.15"));
             plot.marginTop = StringToDouble(GetParameter("marginTop", plotele, "0.07"));
-            plot.marginLeft = StringToDouble(GetParameter("marginLeft", plotele, "0.18"));
+            plot.marginLeft = StringToDouble(GetParameter("marginLeft", plotele, "0.25"));
             plot.marginRight = StringToDouble(GetParameter("marginRight", plotele, "0.1"));
             plot.legendOn = StringToBool(GetParameter("legend", plotele, "OFF"));
             plot.staticsOn = StringToBool(GetParameter("stats", plotele, "OFF"));
@@ -819,12 +819,12 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 hTotal->GetXaxis()->SetTitle(plot.labelX.c_str());
                 hTotal->GetYaxis()->SetTitle(plot.labelY.c_str());
 
-                hTotal->GetXaxis()->SetLabelSize(fTicksScaleX * hTotal->GetXaxis()->GetLabelSize());
-                hTotal->GetYaxis()->SetLabelSize(fTicksScaleY * hTotal->GetYaxis()->GetLabelSize());
-                hTotal->GetXaxis()->SetTitleSize(fLabelScaleX * hTotal->GetXaxis()->GetTitleSize());
-                hTotal->GetYaxis()->SetTitleSize(fLabelScaleY * hTotal->GetYaxis()->GetTitleSize());
-                hTotal->GetXaxis()->SetTitleOffset(fLabelOffsetX * hTotal->GetXaxis()->GetTitleOffset());
-                hTotal->GetYaxis()->SetTitleOffset(fLabelOffsetY * hTotal->GetYaxis()->GetTitleOffset());
+                hTotal->GetXaxis()->SetLabelSize(1.1 * hTotal->GetXaxis()->GetLabelSize());
+                hTotal->GetYaxis()->SetLabelSize(1.1 * hTotal->GetYaxis()->GetLabelSize());
+                hTotal->GetXaxis()->SetTitleSize(1.1 * hTotal->GetXaxis()->GetTitleSize());
+                hTotal->GetYaxis()->SetTitleSize(1.1 * hTotal->GetYaxis()->GetTitleSize());
+                hTotal->GetXaxis()->SetTitleOffset(1 * hTotal->GetXaxis()->GetTitleOffset());
+                hTotal->GetYaxis()->SetTitleOffset(1 * hTotal->GetYaxis()->GetTitleOffset());
                 hTotal->GetXaxis()->SetNdivisions(plot.ticksX);
                 hTotal->GetYaxis()->SetNdivisions(plot.ticksY);
 
@@ -906,7 +906,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             // draw the remaining histo
             if (plot.histos[i].ptr == nullptr) continue;
             if (i != maxID) {
-                plot.histos[i]->Draw((plot.histos[maxID].drawOption + "same").c_str());
+                plot.histos[i]->Draw((plot.histos[i].drawOption + "same").c_str());
             }
         }
 
@@ -930,6 +930,9 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         }
 
         // save pad
+        targetPad->SetRightMargin(plot.marginRight);
+        targetPad->SetLeftMargin(plot.marginLeft);
+        targetPad->SetBottomMargin(plot.marginBottom);
         targetPad->Update();
         if (plot.save != "") targetPad->Print(plot.save.c_str());
 
@@ -978,6 +981,9 @@ void TRestAnalysisPlot::SavePlotToPDF(TString fileName, Int_t n) {
     }
 
     TPad* pad = (TPad*)fCombinedCanvas->GetPad(n);
+    pad->SetRightMargin(fPlots[n - 1].marginRight);
+    pad->SetLeftMargin(fPlots[n - 1].marginLeft);
+    pad->SetBottomMargin(fPlots[n - 1].marginBottom);
 
     TCanvas* c = new TCanvas(fPlots[n - 1].name.c_str(), fPlots[n - 1].name.c_str(), 800, 600);
     pad->DrawClone();
