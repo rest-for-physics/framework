@@ -752,7 +752,12 @@ void TRestHits::GetBoundaries(std::vector<double>& dist, double& max, double& mi
     min -= offset * minDiff + minDiff / 2.;
     nBins = std::round((max - min) / minDiff);
 }
-
+///////////////////////////////////////////////
+/// \brief It computes the gaussian sigma in the X-coordinate.
+/// It adds a hit to the right and a hit to the left, with energy = 0 +/- 70 ADC.
+/// Then it fits a gaussian to the hits and extracts the sigma. The hits are just added
+/// for fitting purposes and do not go into any further processing.
+///
 Double_t TRestHits::GetGaussSigmaX() {
     Double_t gausSigmaX = 0;
     Int_t nHits = GetNumberOfHits();
@@ -814,7 +819,10 @@ Double_t TRestHits::GetGaussSigmaX() {
 
     return abs(gausSigmaX);
 }
-
+/// \brief It computes the gaussian sigma in the Y-coordinate.
+/// It adds a hit to the right and a hit to the left, with energy = 0 +/- 70 ADC.
+/// Then it fits a gaussian to the hits and extracts the sigma. The hits are just added
+/// for fitting purposes and do not go into any further processing.
 Double_t TRestHits::GetGaussSigmaY() {
     Double_t gausSigmaY = 0;
     Int_t nHits = GetNumberOfHits();
@@ -874,7 +882,10 @@ Double_t TRestHits::GetGaussSigmaY() {
 
     return abs(gausSigmaY);
 }
-
+/// \brief It computes the gaussian sigma in the Z-coordinate.
+/// It adds a hit to the right and a hit to the left, with energy = 0 +/- 70 ADC.
+/// Then it fits a gaussian to the hits and extracts the sigma. The hits are just added
+/// for fitting purposes and do not go into any further processing.
 Double_t TRestHits::GetGaussSigmaZ() {
     Double_t gausSigmaZ = 0;
     Int_t nHits = GetNumberOfHits();
