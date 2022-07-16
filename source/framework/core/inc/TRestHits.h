@@ -1,22 +1,24 @@
-//////////////////////////////////////////////////////////////////////////
-///
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestHits.h
-///
-///             Event class to store hits
-///
-///             sept 2015:   First concept
-///                 Created as part of the conceptualization of existing REST
-///                 software.
-///                 Javier Galan
-///
-///		        nov 2015:
-///		            Changed vectors fX fY fZ and fEnergy from <Int_t> to
-///< Float_t> 	                JuanAn Garcia
-///
-//////////////////////////////////////////////////////////////////////////
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
 #ifndef TRestSoft_TRestHits
 #define TRestSoft_TRestHits
@@ -34,30 +36,35 @@
 #include <iostream>
 
 enum REST_HitType { unknown = -1, X = 2, Y = 3, Z = 5, XY = 6, XZ = 10, YZ = 15, XYZ = 30 };
-//! Allows saving an event as a set of punctual deposition.
-//! It saves a 3-coordinate position and an energy for each punctual deposition.
+
+/// It saves a 3-coordinate position and an energy for each punctual deposition.
 class TRestHits {
    protected:
     size_t fNHits = 0;  ///< Number of punctual energy depositions, it is the length for all the arrays
     Double_t fTotalEnergy = 0;  ///< Event total energy
 
-    std::vector<Float_t> fX;          // [fNHits] Position on X axis for each punctual deposition (units mm)
-    std::vector<Float_t> fY;          // [fNHits] Position on Y axis for each punctual deposition (units mm)
-    std::vector<Float_t> fZ;          // [fNHits] Position on Z axis for each punctual deposition (units mm)
-    std::vector<Float_t> fTime;       // [fNHits] Absolute time information for each punctual deposition
-                                      // (units us, 0 is time of decay)
-    std::vector<Float_t> fEnergy;     // [fNHits] Energy deposited at each 3-coordinate position (units keV)
-    std::vector<REST_HitType> fType;  //
+    /// Position on X axis for each punctual deposition (units mm)
+    std::vector<Float_t> fX;  // [fNHits]
+
+    /// Position on Y axis for each punctual deposition (units mm)
+    std::vector<Float_t> fY;  // [fNHits]
+
+    /// Position on Z axis for each punctual deposition (units mm)
+    std::vector<Float_t> fZ;  // [fNHits]
+
+    /// Absolute time information for each punctual deposition (units us, 0 is time of decay)
+    std::vector<Float_t> fTime;  // [fNHits]
+
+    /// Energy deposited at each 3-coordinate position (units keV)
+    std::vector<Float_t> fEnergy;  // [fNHits]
+
+    /// The type of hit X,Y,XY,XYZ, ...
+    std::vector<REST_HitType> fType;
 
    public:
-    //! Changes the origin of the Cartesian coordinate system
     void Translate(Int_t n, Double_t x, Double_t y, Double_t z);
-    /// Event is rotated in XYZ.
-    void RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma,
-                    const TVector3& vMean);  // vMean is the mean position of the event from GetMeanPosition()
-    /// Rotation around an arbitrary axis vAxis
-    void Rotate(Int_t n, Double_t alpha, const TVector3& vAxis,
-                const TVector3& vMean);  // vMean is the mean position of the event from GetMeanPosition()
+    void RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, const TVector3& vMean);
+    void Rotate(Int_t n, Double_t alpha, const TVector3& vAxis, const TVector3& vMean);
 
     void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
     void AddHit(const TVector3& pos, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
@@ -90,9 +97,7 @@ class TRestHits {
     inline const std::vector<Float_t>& GetY() const { return fY; }
     inline const std::vector<Float_t>& GetZ() const { return fZ; }
     inline const std::vector<Float_t>& GetTime() const { return fTime; }
-    inline const std::vector<Float_t>& GetEnergyVector() const {
-        return fEnergy;
-    }  // GetEnergy returns total energy
+    inline const std::vector<Float_t>& GetEnergyVector() const { return fEnergy; }
 
     inline Double_t GetX(int n) const { return ((Double_t)fX[n]); }            // return value in mm
     inline Double_t GetY(int n) const { return ((Double_t)fY[n]); }            // return value in mm
@@ -267,9 +272,7 @@ class TRestHits {
     inline TRestHits_Iterator end() { return {this, static_cast<int>(fNHits)}; }
     typedef TRestHits_Iterator iterator;
 
-    // Constructor
     TRestHits();
-    // Destructor
     ~TRestHits();
 
     ClassDef(TRestHits, 6);
