@@ -40,8 +40,15 @@
 ///
 /// It contains also more sophisticated methods to perform physical calculations
 /// and parameterize the properties of a group of hits or cluster such as
-/// performing a gaussian fit to the hit distribution, such as TRestHits::GetGaussSigmaZ,
-/// determine the number of hits or the total energy contained in a particular
+/// performing a gaussian fit to the hit distribution, such as TRestHits::GetGaussSigmaX,
+/// where two hits are added, one to each side of the event, and a Gaussian is fitted.
+/// The hits are added so that the fit works even for small events as shown in the figure below.
+/// The parameter sigma is extracted from the fit and its absolute value is returned.
+///
+/// \htmlonly <style>div.image img[src="hitsGaussianFit.png"]{width:500px;}</style> \endhtmlonly
+/// ![An illustration of the GetGaussSigmaX method and why two hits are added.](hitsGaussianFit.png)
+///
+/// Other methods determine the number of hits or the total energy contained in a particular
 /// geometrical shape, see for example TRestHits::GetEnergyInCylinder, and different
 /// physical quantities on such fiducialization, i.e. TRestHits::GetMeanPositionInPrism.
 ///
