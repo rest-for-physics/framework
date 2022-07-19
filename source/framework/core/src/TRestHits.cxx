@@ -78,6 +78,8 @@
 #include <limits.h>
 #include "TROOT.h"
 
+#include "TFitResult.h"
+
 using namespace std;
 using namespace TMath;
 
@@ -818,25 +820,16 @@ Double_t TRestHits::GetGaussSigmaX() {
         fit->SetParameter(0, maxY);
         fit->SetParameter(1, maxX);
         fit->SetParameter(2, sigma);
-        grX->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
-                               // parameters; R = Use the Range specified in the function range
+        TFitResultPtr fitResult =
+            grX->Fit(fit, "QNBS");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
+                                    // parameters; R = Use the Range specified in the function range; S = save
+                                    // and return the fit result.
+        if (fitResult->IsValid()) {
+            gausSigmaX = fit->GetParameter(2);
+        } else {
+            return -1.0;  // the fit failed, return -1 to indicate failure
+        }
 
-        gausSigmaX = fit->GetParameter(2);
-        /*
-                //Ideally we would do the following to tag failing fits, but it is not working at the moment.
-
-                TFitResultPtr fitResult = grX->Fit(fit, "QNBS");  // Q = quiet, no info in screen; N = no
-           plot; B = no automatic start
-                                       // parameters; R = Use the Range specified in the function range; S =
-           save and return the fit result.
-                //auto res = *fitResult;
-                if(fitResult->isValid()){
-                    gausSigmaX = fit->GetParameter(2);
-                }
-                else{
-                    return -1.0; // the fit failed, return -1 to indicate failure
-                }
-        */
         delete (grX);
         delete (fit);
     }
@@ -898,10 +891,15 @@ Double_t TRestHits::GetGaussSigmaY() {
         fit->SetParameter(0, maxY);
         fit->SetParameter(1, maxX);
         fit->SetParameter(2, sigma);
-        grY->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
-                               // parameters; R = Use the Range specified in the function range
-
-        gausSigmaY = fit->GetParameter(2);
+        TFitResultPtr fitResult =
+            grY->Fit(fit, "QNBS");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
+                                    // parameters; R = Use the Range specified in the function range; S = save
+                                    // and return the fit result.
+        if (fitResult->IsValid()) {
+            gausSigmaY = fit->GetParameter(2);
+        } else {
+            return -1.0;  // the fit failed, return -1 to indicate failure
+        }
 
         delete (grY);
         delete (fit);
@@ -964,10 +962,15 @@ Double_t TRestHits::GetGaussSigmaZ() {
         fit->SetParameter(0, maxY);
         fit->SetParameter(1, maxX);
         fit->SetParameter(2, sigma);
-        grZ->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
-                               // parameters; R = Use the Range specified in the function range
-
-        gausSigmaZ = fit->GetParameter(2);
+        TFitResultPtr fitResult =
+            grZ->Fit(fit, "QNBS");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
+                                    // parameters; R = Use the Range specified in the function range; S = save
+                                    // and return the fit result.
+        if (fitResult->IsValid()) {
+            gausSigmaZ = fit->GetParameter(2);
+        } else {
+            return -1.0;  // the fit failed, return -1 to indicate failure
+        }
 
         delete (grZ);
         delete (fit);
