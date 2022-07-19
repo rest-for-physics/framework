@@ -822,6 +822,23 @@ Double_t TRestHits::GetGaussSigmaX() {
                                // parameters; R = Use the Range specified in the function range
 
         gausSigmaX = fit->GetParameter(2);
+        /*
+                //Ideally we would do the following to tag failing fits, but it is not working at the moment.
+
+                TFitResultPtr fitResult = grX->Fit(fit, "QNBS");  // Q = quiet, no info in screen; N = no
+           plot; B = no automatic start
+                                       // parameters; R = Use the Range specified in the function range; S =
+           save and return the fit result.
+                //auto res = *fitResult;
+                if(fitResult->isValid()){
+                    gausSigmaX = fit->GetParameter(2);
+                }
+                else{
+                    return -1.0; // the fit failed, return -1 to indicate failure
+                }
+        */
+        delete (grX);
+        delete (fit);
     }
 
     return abs(gausSigmaX);
@@ -885,6 +902,9 @@ Double_t TRestHits::GetGaussSigmaY() {
                                // parameters; R = Use the Range specified in the function range
 
         gausSigmaY = fit->GetParameter(2);
+
+        delete (grY);
+        delete (fit);
     }
 
     return abs(gausSigmaY);
@@ -948,6 +968,9 @@ Double_t TRestHits::GetGaussSigmaZ() {
                                // parameters; R = Use the Range specified in the function range
 
         gausSigmaZ = fit->GetParameter(2);
+
+        delete (grZ);
+        delete (fit);
     }
 
     return abs(gausSigmaZ);
