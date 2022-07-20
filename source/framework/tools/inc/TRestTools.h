@@ -88,6 +88,9 @@ class TRestTools {
     static T GetIntegralFromTable(const std::vector<std::vector<T>>& data);
 
     template <typename T>
+    static std::vector<T> GetColumnFromTable(const std::vector<std::vector<T>>& data, int column);
+
+    template <typename T>
     static int PrintTable(std::vector<std::vector<T>> data, Int_t start = 0, Int_t end = 0);
 
     template <typename T>

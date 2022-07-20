@@ -27,13 +27,15 @@ namespace REST_StringHelper {
 Int_t GetChar(std::string hint = "Press a KEY to continue ...");
 Int_t isANumber(std::string in);
 Int_t isAExpression(const std::string& in);
-std::string ReplaceMathematicalExpressions(std::string buffer, std::string errorMessage = "");
+std::string CropWithPrecision(std::string in, Int_t precision);
+std::string ReplaceMathematicalExpressions(std::string buffer, Int_t precision = 0,
+                                           std::string errorMessage = "");
 std::string EvaluateExpression(std::string exp);
 Float_t StringToFloat(std::string in);
 Double_t StringToDouble(std::string in);
 Int_t StringToInteger(std::string in);
-std::string IntegerToString(Int_t n);
-std::string DoubleToString(Double_t d);
+std::string IntegerToString(Int_t n, std::string format = "%d");
+std::string DoubleToString(Double_t d, std::string format = "%4.2lf");
 Bool_t StringToBool(std::string in);
 Long64_t StringToLong(std::string in);
 TVector3 StringTo3DVector(std::string in);
@@ -111,7 +113,7 @@ inline void usleep(int usec) {
     if (usec >= 1000) {
         _sleep(usec / 1000);
     } else {
-        _sleep(1); // sleep minimum 1ms on windows
+        _sleep(1);  // sleep minimum 1ms on windows
     }
 }
 inline void sleep(int sec) { _sleep(1000 * sec); }

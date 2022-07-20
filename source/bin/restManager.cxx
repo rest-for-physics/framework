@@ -1,9 +1,9 @@
 #include <TApplication.h>
-#include <TRestManager.h>
-#include <TRestTools.h>
 #include <TSystem.h>
 
+#include "TRestManager.h"
 #include "TRestStringOutput.h"
+#include "TRestTools.h"
 
 using namespace std;
 
@@ -11,7 +11,6 @@ char configFilename[256];
 char iFile[256];
 
 const int maxForksAllowed = 32;
-
 
 int fork_n_execute(string command) {
 #ifdef WIN32
@@ -113,7 +112,9 @@ int main(int argc, char* argv[]) {
 
     // preprocess arguments
     vector<string> args;
-    for (int i = 0; i < argc; i++) args.push_back(argv[i]);
+    for (int i = 0; i < argc; i++) {
+        args.emplace_back(argv[i]);
+    }
 
     // TApplication arguments
     int argCApp = 1;
@@ -141,7 +142,7 @@ int main(int argc, char* argv[]) {
         }
         if (REST_Display_CompatibilityMode) {
             RESTcout << "display under compatibility mode" << RESTendl;
-            //argCApp = 2;
+            // argCApp = 2;
         }
     }
     TApplication app("app", &argCApp, argVApp);

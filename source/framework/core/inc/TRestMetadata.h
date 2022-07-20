@@ -236,6 +236,7 @@ class TRestMetadata : public TNamed {
     Int_t LoadConfigFromFile(const std::string& configFilename, const std::string& sectionName = "");
     Int_t LoadConfigFromBuffer();
 
+    TRestMetadata* InstantiateChildMetadata(int index, std::string pattern = "");
     TRestMetadata* InstantiateChildMetadata(std::string pattern = "", std::string name = "");
 
     /// Making default settings.
@@ -269,7 +270,7 @@ class TRestMetadata : public TNamed {
 
     std::string GetDataMemberValue(std::string memberName);
 
-    std::vector<std::string> GetDataMemberValues(std::string memberName);
+    std::vector<std::string> GetDataMemberValues(std::string memberName, Int_t precision = 0);
 
     TString GetVersion();  // *MENU*
 

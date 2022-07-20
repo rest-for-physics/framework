@@ -40,7 +40,7 @@ int Console::GetHeight() {
 
 bool Console::kbhit() {
 #ifdef WIN32
-    return kbhit();
+    return _kbhit();
 #else
     struct termios oldt, newt;
     int ch;

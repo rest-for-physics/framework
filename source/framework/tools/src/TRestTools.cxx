@@ -87,40 +87,58 @@ std::vector<string> TRestTools::GetOptions(string optionsStr) { return Split(opt
 /// TRestMetadata::GetDataMemberRef()
 ///
 void TRestTools::LoadRESTLibrary(bool silent) {
-    const set<string> library_extension{".so", ".dylib", ".dll"};
-    
-    vector<string> ldpaths;
+    const set<string> libraryExtension{".so", ".dylib", ".dll"};
+    const set<string> excludedLibraries{
+        "restG4"};  // Ignoring package libraries if they exist. TODO: do not hardcode this
+
+    vector<string> ldPaths;
 #ifdef WIN32
-    ldpaths.push_back(REST_PATH + "/bin/");
+    ldPaths.push_back(REST_PATH + "/bin/");
 #else
-    ldpaths.push_back(REST_PATH + "/lib/");
+    ldPaths.push_back(REST_PATH + "/lib/");
 #endif  // WIN32
-    ldpaths.push_back(REST_USER_PATH + "/userlib/");
+    ldPaths.push_back(REST_USER_PATH + "/userlib/");
 
     vector<string> fileList;
-    for (string _path : ldpaths) {
-        std::filesystem::path path(_path);
-        if (exists(path)) {
-            std::filesystem::directory_iterator iter(path);
-            for (auto& it : iter) {
-                if (it.is_regular_file()) {
-                    if (it.path().string().find("REST") != -1 || it.path().string().find("Rest") != -1) {
-                        if (library_extension.count(it.path().extension().string()) > 0) {
-                            fileList.push_back(it.path().string());
-                        }
-                    }
+    for (const std::filesystem::path path : ldPaths) {
+        if (!exists(path)) {
+            // RESTWarning << "Directory " << string(path) << " for library loading not exist" << RESTendl;
+            continue;
+        }
+        for (const auto& it : std::filesystem::directory_iterator(path)) {
+            if (!it.is_regular_file()) {
+                continue;
+            }
+            if (libraryExtension.count(it.path().extension().string()) == 0) {
+                // needs correct extension e.g. ".so"
+                continue;
+            }
+            const TString pathRootString = it.path().string();
+            if (!pathRootString.Contains("Rest", TString::ECaseCompare::kIgnoreCase)) {
+                // e.g. "libRestFramework.so"
+                continue;
+            }
+            // Check if library is excluded from loading e.g. is from a package
+            bool excluded = false;
+            for (const TString excludedLibrary : excludedLibraries) {
+                if (pathRootString.Contains(excludedLibrary, TString::ECaseCompare::kIgnoreCase)) {
+                    excluded = true;
+                    // RESTWarning << "Library '" << pathRootString << "' excluded from loading" << RESTendl;
+                    break;
                 }
             }
-        } else {
-            // RESTWarning << "Directory " << _path << " for library loading not exist" << RESTendl;
+            if (excluded) {
+                continue;
+            }
+            fileList.emplace_back(it.path().string());
         }
     }
 
     // load the found REST libraries
     if (!silent) cout << "= Loading libraries ..." << endl;
-    for (unsigned int n = 0; n < fileList.size(); n++) {
-        if (!silent) cout << " - " << fileList[n] << endl;
-        gSystem->Load(fileList[n].c_str());
+    for (const auto& library : fileList) {
+        if (!silent) cout << " - " << library << endl;
+        gSystem->Load(library.c_str());
     }
     if (!silent) cout << endl;
 }
@@ -456,6 +474,31 @@ template Float_t TRestTools::GetIntegralFromTable<Float_t>(const std::vector<std
 template Double_t TRestTools::GetIntegralFromTable<Double_t>(const std::vector<std::vector<Double_t>>& data);
 
 ///////////////////////////////////////////////
+/// \brief It returns a vector with the values extracted from the particular `column` inside the `data` table
+/// given by argument.
+///
+/// This method is available for tables of type Float_t, Double_t and Int_t.
+///
+template <typename T>
+std::vector<T> TRestTools::GetColumnFromTable(const std::vector<std::vector<T>>& data, int column) {
+    std::vector<T> columnData;
+    if (data.size() == 0 || data[0].size() <= column) return columnData;
+
+    for (int n = 0; n < data.size(); n++) columnData.push_back(data[n][column]);
+
+    return columnData;
+}
+
+template std::vector<Int_t> TRestTools::GetColumnFromTable<Int_t>(const std::vector<std::vector<Int_t>>& data,
+                                                                  int column);
+
+template std::vector<Float_t> TRestTools::GetColumnFromTable<Float_t>(
+    const std::vector<std::vector<Float_t>>& data, int column);
+
+template std::vector<Double_t> TRestTools::GetColumnFromTable<Double_t>(
+    const std::vector<std::vector<Double_t>>& data, int column);
+
+///////////////////////////////////////////////
 /// \brief Reads an ASCII file containing a table with values
 ///
 /// This method will open the file fName. This file should contain a tabulated
@@ -559,9 +602,7 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& 
 ///////////////////////////////////////////////
 /// \brief Returns true if the file with path filename exists.
 ///
-Int_t TRestTools::isValidFile(const string& path) { 
-    return std::filesystem::is_regular_file(path);
-}
+Int_t TRestTools::isValidFile(const string& path) { return std::filesystem::is_regular_file(path); }
 
 ///////////////////////////////////////////////
 /// \brief Returns true if the file (or directory) with path filename exists.
@@ -570,9 +611,7 @@ Int_t TRestTools::isValidFile(const string& path) {
 /// We should call `isValidFile` to check if we will be able to open it without
 /// problems.
 ///
-bool TRestTools::fileExists(const string& filename) {
-    return std::filesystem::exists(filename);
-}
+bool TRestTools::fileExists(const string& filename) { return std::filesystem::exists(filename); }
 
 ///////////////////////////////////////////////
 /// \brief Returns true if the **filename** has *.root* extension.
@@ -727,7 +766,6 @@ vector<string> TRestTools::GetSubdirectories(const string& _path, int recursion)
     if (exists(path)) {
         std::filesystem::directory_iterator iter(path);
         for (auto& it : iter) {
-
             if (it.is_directory()) {
                 result.push_back(it.path().string());
 
@@ -795,16 +833,15 @@ vector<string> TRestTools::GetFilesMatchingPattern(string pattern) {
         vector<string> items = Split(pattern, "\n");
         for (auto item : items) {
             if (item.find_first_of("*?") != string::npos) {
-
 #ifdef WIN32
                 item = Replace(item, "/", "\\");
-                string item_trim = item.substr(0, item.find_first_of("*?"));// trim string to before wildcard character
+                string item_trim =
+                    item.substr(0, item.find_first_of("*?"));  // trim string to before wildcard character
                 auto path_name = SeparatePathAndName(item_trim);
                 string _path = path_name.first;
                 if (!std::filesystem::exists(_path)) {
-                    RESTError << "TRestTools::GetFilesMatchingPattern(): path " << _path
-                                << " does not exist!"
-                        << RESTendl;
+                    RESTError << "TRestTools::GetFilesMatchingPattern(): path " << _path << " does not exist!"
+                              << RESTendl;
                     return outputFileNames;
                 }
 
@@ -881,8 +918,6 @@ string TRestTools::Execute(string cmd) {
         result = result.substr(0, result.size() - 1);  // remove last "\n"
 
     return result;
-
-
 }
 
 ///////////////////////////////////////////////

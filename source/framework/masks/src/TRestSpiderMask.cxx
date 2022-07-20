@@ -177,23 +177,23 @@ Int_t TRestSpiderMask::GetRegion(Double_t x, Double_t y) {
     Double_t cos_angle = y / d;
 
     if (x >= 0) {
-        int region = 1;
+        int region = 0;
         for (unsigned int n = 0; n < fPositiveRanges.size() - 1; n++) {
             if (cos_angle < fPositiveRanges[n].second && cos_angle > fPositiveRanges[n + 1].first)
-                return region;
+                return region % fMaxRegions + 1;
             region++;
         }
-        if (cos_angle < fPositiveRanges.back().second && cos_angle >= -1) return region;
+        if (cos_angle < fPositiveRanges.back().second && cos_angle >= -1) return region % fMaxRegions + 1;
 
     } else {
         int region = fPositiveRanges.size();
 
-        if (cos_angle < fNegativeRanges[0].first && cos_angle >= -1) return region;
+        if (cos_angle < fNegativeRanges[0].first && cos_angle >= -1) return region % fMaxRegions + 1;
         region++;
 
         for (unsigned int n = 0; n < fNegativeRanges.size() - 1; n++) {
             if (cos_angle > fNegativeRanges[n].second && cos_angle < fNegativeRanges[n + 1].first)
-                return region;
+                return region % fMaxRegions + 1;
             region++;
         }
     }
@@ -277,15 +277,54 @@ void TRestSpiderMask::GenerateSpider() {
 }
 
 /////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
+/// \brief Prints on screen the complete information about the metadata members from this class
 ///
 void TRestSpiderMask::PrintMetadata() {
     TRestPatternMask::PrintMetadata();
 
+    PrintMaskMembers();
+    RESTMetadata << "----" << RESTendl;
+}
+
+/////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members from this class,
+/// including common pattern headers, but without common metadata headers.
+///
+void TRestSpiderMask::PrintMask() {
+    PrintCommonPatternMembers();
+    RESTMetadata << "----" << RESTendl;
+    PrintMaskMembers();
+}
+
+/////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members from this class,
+/// excluding common metadata headers.
+///
+void TRestSpiderMask::PrintMaskMembers() {
     RESTMetadata << " - Arms separation angle : " << fArmsSeparationAngle * units("degrees") << " degrees"
                  << RESTendl;
     RESTMetadata << " - Arms angular width : " << fArmsWidth * units("degrees") << " degrees" << RESTendl;
     RESTMetadata << " - Spider start radius : " << fInitialRadius * units("cm") << " cm" << RESTendl;
 
-    RESTMetadata << "----" << RESTendl;
+    if (fPositiveRanges.size() > 0) {
+        RESTMetadata << "-------------------------------" << RESTendl;
+        for (int n = 0; n < fPositiveRanges.size(); n++) {
+            RESTDebug << "n : " << n << " from : " << 180 * fPositiveRanges[n].first / TMath::Pi() << " to "
+                      << 180 * fPositiveRanges[n].second / TMath::Pi() << RESTendl;
+        }
+
+        RESTMetadata << "Positive ranges : {";
+        for (int n = 0; n < fPositiveRanges.size(); n++) {
+            if (n > 0) RESTMetadata << ", ";
+            RESTMetadata << "(" << fPositiveRanges[n].first << ", " << fPositiveRanges[n].second << ")";
+        }
+        RESTMetadata << "}" << RESTendl;
+
+        RESTMetadata << "Negative ranges : {";
+        for (int n = 0; n < fNegativeRanges.size(); n++) {
+            if (n > 0) RESTMetadata << ", ";
+            RESTMetadata << "(" << fNegativeRanges[n].first << ", " << fNegativeRanges[n].second << ")";
+        }
+        RESTMetadata << "}" << RESTendl;
+    }
 }
