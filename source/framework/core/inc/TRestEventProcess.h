@@ -108,25 +108,26 @@ class TRestEventProcess : public TRestMetadata {
     inline size_t GetNumberOfParallelProcesses() const { return fParallelProcesses.size(); }
     TRestEventProcess* GetParallel(int i);
     //////////////////////////////////////////////////////////////////////////
-    /// \brief Get a list of data members from parallel processes which is same to 
+    /// \brief Get a list of data members from parallel processes which is same to
     /// this process's certain data member.
     ///
-    /// This method can be used in merging and exporting histograms at the end of the 
+    /// This method can be used in merging and exporting histograms at the end of the
     /// process, to support multi-thread run.
-    /// 
-    /// Because all the parallel processes are in same data structure, this method directly 
+    ///
+    /// Because all the parallel processes are in same data structure, this method directly
     /// gets the data members by accessing certain offset.
-    /// 
+    ///
     /// Usage: (suppose we defined fHist as data member)
     /// auto hists = this->GetParallelObjects(&fHist);
-    /// for (auto h : hists) { fHist->Add(h); } 
-    /// 
+    /// for (auto h : hists) { fHist->Add(h); }
+    ///
     template <class T>
     std::vector<T> GetParallelDataMembers(T* member_of_process) {
         std::vector<T> result;
         int offset = (int)((char*)member_of_process - (char*)this);
         if (offset <= 0 || offset > this->IsA()->GetClassSize()) {
-            std::cout << this->ClassName() << "::GetParallelDataMembers(): invalid object input!" << std::endl;
+            std::cout << this->ClassName() << "::GetParallelDataMembers(): invalid object input!"
+                      << std::endl;
             return result;
         }
         for (int i = 0; i < GetNumberOfParallelProcesses(); i++) {
@@ -260,7 +261,7 @@ class TRestEventProcess : public TRestMetadata {
     ClassDefOverride(TRestEventProcess, 3);  // Base class for a REST process
 };
 
-#define _ApplyCut(evt)        \
+#define _ApplyCut(evt)              \
     if (ApplyCut()) return nullptr; \
     return evt;
 

@@ -454,13 +454,14 @@ class Converter : RESTVirtualConverter {
         ToStringFunc = _ToStringFunc;
         ParseStringFunc = _ParseStringFunc;
         if (RESTConverterMethodBase.count(typeid(T).hash_code()) > 0) {
-            std::cout << "Warning! converter for type: " << typeid(T).name() << " already added!" << std::endl;
+            std::cout << "Warning! converter for type: " << typeid(T).name() << " already added!"
+                      << std::endl;
         } else {
             RESTConverterMethodBase[typeid(T).hash_code()] = this;
         }
 
-        //std::string type_name_actual = REST_Reflection::GetTypeName<T>();  // in case ROOT redefines type name
-        //if (RESTConverterMethodBase.count(type_name_actual) == 0) {
+        // std::string type_name_actual = REST_Reflection::GetTypeName<T>();  // in case ROOT redefines type
+        // name if (RESTConverterMethodBase.count(type_name_actual) == 0) {
         //    RESTConverterMethodBase[type_name_actual] = this;
         //}
     }
