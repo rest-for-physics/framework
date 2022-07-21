@@ -228,8 +228,8 @@ struct DataType_Info {
     }
 };
 
-extern std::map<void*, TClass*> RESTListOfClasses_typeid;
-extern std::map<std::string, TClass*> RESTListOfClasses_typename;
+EXTERN_DEF std::map<void*, TClass*> RESTListOfClasses_typeid;
+EXTERN_DEF std::map<std::string, TClass*> RESTListOfClasses_typename;
 
 /// Wrap the std::string type name into ROOT type identifier "TClass"
 ///
@@ -242,8 +242,13 @@ inline TClass* GetClassQuick(std::string type) {
         return iter->second;
     } else {
         TClass* cl = TClass::GetClass(type.c_str());
-        RESTListOfClasses_typename[type] = cl;
-        return cl;
+        if (cl != nullptr && cl->HasDictionary()) {
+            RESTListOfClasses_typename[type] = cl;
+            return cl;
+        } else {
+            RESTListOfClasses_typename[type] = nullptr;
+            return nullptr;
+        }
     }
     return nullptr;
 }
@@ -429,7 +434,7 @@ class RESTVirtualConverter {
 };
 
 // type name, {toString method, parseString method}
-extern std::map<std::string, RESTVirtualConverter*> RESTConverterMethodBase;
+EXTERN_DEF std::map<size_t, RESTVirtualConverter*> RESTConverterMethodBase;
 
 template <class T>
 class Converter : RESTVirtualConverter {
@@ -445,24 +450,25 @@ class Converter : RESTVirtualConverter {
     }
     void CloneObj(void* from, void* to) override { *((T*)(to)) = *((T*)(from)); }
 
-    Converter(std::string type_name, std::string (*_ToStringFunc)(T), T (*_ParseStringFunc)(std::string)) {
+    Converter(std::string (*_ToStringFunc)(T), T (*_ParseStringFunc)(std::string)) {
         ToStringFunc = _ToStringFunc;
         ParseStringFunc = _ParseStringFunc;
-        if (RESTConverterMethodBase.count(type_name) > 0) {
-            std::cout << "Warning! converter for type: " << type_name << " already added!" << std::endl;
+        if (RESTConverterMethodBase.count(typeid(T).hash_code()) > 0) {
+            std::cout << "Warning! converter for type: " << typeid(T).name() << " already added!"
+                      << std::endl;
         } else {
-            RESTConverterMethodBase[type_name] = this;
+            RESTConverterMethodBase[typeid(T).hash_code()] = this;
         }
 
-        std::string type_name_actual = REST_Reflection::GetTypeName<T>();  // in case ROOT redefines type name
-        if (RESTConverterMethodBase.count(type_name_actual) == 0) {
-            RESTConverterMethodBase[type_name_actual] = this;
-        }
+        // std::string type_name_actual = REST_Reflection::GetTypeName<T>();  // in case ROOT redefines type
+        // name if (RESTConverterMethodBase.count(type_name_actual) == 0) {
+        //    RESTConverterMethodBase[type_name_actual] = this;
+        //}
     }
 };
 
 #define AddConverter(ToStringFunc, ParseStringFunc, type) \
     template <>                                           \
-    Converter<type>* Converter<type>::thisptr = new Converter<type>(#type, &ToStringFunc, &ParseStringFunc);
+    Converter<type>* Converter<type>::thisptr = new Converter<type>(&ToStringFunc, &ParseStringFunc);
 
 #endif

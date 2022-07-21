@@ -1,6 +1,6 @@
 add_subdirectory(external)
 
-set(contents external/tinyxml tools core analysis)
+set(contents external/tinyxml tools core analysis masks)
 
 file(GLOB_RECURSE addon_src
         "tiny*cpp"
@@ -9,6 +9,10 @@ file(GLOB_RECURSE addon_src
 if (NOT ${REST_EVE} MATCHES "ON")
     set(excludes TRestEveEventViewer)
 endif (NOT ${REST_EVE} MATCHES "ON")
+
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+    set(excludes TRestBenchMarkProcess TRestRealTimeAddInputFileProcess TRestRealTimeDrawingProcess TRestMessenger ${excludes})
+endif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
 find_library(CURL_LIB curl)
 if (NOT ${CURL_LIB} STREQUAL "CURL_LIB-NOTFOUND")

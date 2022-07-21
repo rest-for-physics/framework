@@ -4,13 +4,15 @@
 #include <RConfig.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+//#include <unistd.h>
 
 #include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+
+#include "TRestTools.h"
 
 #ifndef WIN32
 #include <fcntl.h>
@@ -19,10 +21,10 @@
 #ifndef __APPLE__
 #include <termio.h>
 #endif
-#endif  // WIN32
 
 //////////////////////////////////////////////////////////////////////////
 /// String identifiers for terminal colors
+#define COLORCODE_TYPE std::string
 constexpr const char* const COLOR_RESET = "\033[0m";
 constexpr const char* const COLOR_BLACK = "\033[30m";                    /* Black */
 constexpr const char* const COLOR_RED = "\033[31m";                      /* Red */
@@ -48,6 +50,31 @@ constexpr const char* const COLOR_BACKGROUNDBLUE = "\033[1m\033[44m";    /* BACK
 constexpr const char* const COLOR_BACKGROUNDMAGENTA = "\033[1m\033[45m"; /* BACKGROUND Magenta */
 constexpr const char* const COLOR_BACKGROUNDCYAN = "\033[1m\033[46m";    /* BACKGROUND Cyan */
 constexpr const char* const COLOR_BACKGROUNDWHITE = "\033[1m\033[47m";   /* BACKGROUND White */
+
+#else
+#define COLORCODE_TYPE int
+EXTERN_DEF int COLOR_RESET;
+
+constexpr int COLOR_BLACK = 0;
+constexpr int COLOR_RED = 4;
+constexpr int COLOR_GREEN = 2;
+constexpr int COLOR_YELLOW = 14;
+constexpr int COLOR_BLUE = 1;
+constexpr int COLOR_MAGENTA = 5;
+constexpr int COLOR_CYAN = 9;
+constexpr int COLOR_WHITE = 7;
+
+// we don't use font setting for windows
+constexpr int COLOR_BOLDBLACK = COLOR_BLACK;
+constexpr int COLOR_BOLDRED = COLOR_RED;
+constexpr int COLOR_BOLDGREEN = COLOR_GREEN;
+constexpr int COLOR_BOLDYELLOW = COLOR_YELLOW;
+constexpr int COLOR_BOLDBLUE = COLOR_BLUE;
+constexpr int COLOR_BOLDMAGENTA = COLOR_MAGENTA;
+constexpr int COLOR_BOLDCYAN = COLOR_CYAN;
+constexpr int COLOR_BOLDWHITE = COLOR_WHITE;
+
+#endif  // WIN32
 
 //////////////////////////////////////////////////////////////////////////
 /// Console helper class, providing several static methods dealing with terminal
@@ -93,8 +120,6 @@ class Console {
     static void ClearCurrentLine();
     /// clear lines after the cursor.
     static void ClearLinesAfterCursor();
-    /// indicates whether the output tool should work under compatibility mode for nonatty
-    static bool CompatibilityMode;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -118,18 +143,17 @@ struct endl_t {
 /// To use this tool class in the other classes, include this header file.
 /// You will get several global output objects: fout, info, essential, debug, etc.
 /// they works similarly as std::cout: `fout<<"hello world"<<endl;`. It is also possible
-/// to initialize a local TRestStringOutput object. Then one can costomize output color,
+/// to initialize a local TRestStringOutput object. Then one can customize output color,
 /// border and orientation on that.
 class TRestStringOutput {
    public:
     //////////////////////////////////////////////////////////////////////////
     /// Enumerate of verbose level, containing five levels
     enum class REST_Verbose_Level {
-        REST_Silent = 0,     //!< show minimum information of the software, as well as error
-                             //!< messages
+        REST_Silent = 0,     //!< show minimum information of the software, as well as error messages
         REST_Essential = 1,  //!< +show some essential information, as well as warnings
         REST_Warning = REST_Essential,
-        REST_Info = 2,    //!< +show most of the infomation for each steps
+        REST_Info = 2,    //!< +show most of the information for each steps
         REST_Debug = 3,   //!< +show the defined debug messages
         REST_Extreme = 4  //!< show everything
     };
@@ -139,7 +163,7 @@ class TRestStringOutput {
     enum class REST_Display_Orientation { kLeft = 1, kMiddle = 0 };
 
    protected:
-    std::string color;
+    COLORCODE_TYPE color;
     std::string formatstring;
     bool useborder;
     bool iserror;
@@ -150,9 +174,6 @@ class TRestStringOutput {
 
     REST_Verbose_Level verbose;
 
-    void lock();
-    void unlock();
-
    public:
     REST_Verbose_Level GetVerboseLevel() { return verbose; }
     std::string GetBuffer() { return buf.str(); }
@@ -160,7 +181,7 @@ class TRestStringOutput {
     std::string FormattingPrintString(std::string input);
     void resetstring();
     void flushstring();
-    void setcolor(std::string colordef) { color = colordef; }
+    void setcolor(COLORCODE_TYPE colordef) { color = colordef; }
     void setheader(std::string headerdef) {
         formatstring = headerdef;
         useborder = false;
@@ -181,11 +202,11 @@ class TRestStringOutput {
     // to wrap the std::string to be displayed. otherwise the formatter is used as
     // prefix(e.g., "-- Warning: ")
     TRestStringOutput(
-        std::string color = COLOR_RESET, std::string formatter = "",
+        COLORCODE_TYPE color = COLOR_RESET, std::string formatter = "",
         REST_Display_Orientation orientation = TRestStringOutput::REST_Display_Orientation::kLeft);
 
     TRestStringOutput(
-        REST_Verbose_Level v, std::string _color = COLOR_RESET, std::string formatter = "",
+        REST_Verbose_Level v, COLORCODE_TYPE _color = COLOR_RESET, std::string formatter = "",
         REST_Display_Orientation orientation = TRestStringOutput::REST_Display_Orientation::kLeft,
         bool _iserror = false)
         : TRestStringOutput(_color, formatter, orientation) {
@@ -233,6 +254,7 @@ static TRestStringOutput RESTExtreme(TRestStringOutput::REST_Verbose_Level::REST
 
 static void RESTendl(TRestStringOutput& input) { input.flushstring(); }
 
-extern TRestStringOutput::REST_Verbose_Level gVerbose;
-
+EXTERN_DEF TRestStringOutput::REST_Verbose_Level gVerbose;
+/// indicates whether the output tool should work under compatibility mode for nonatty
+EXTERN_DEF bool REST_Display_CompatibilityMode;
 #endif

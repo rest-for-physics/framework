@@ -52,7 +52,7 @@ if( len(sys.argv ) <= 1 ):
     print_help()
     sys.exit(1)
 
-exclude_elems = ["userguide", "data", "external"]
+exclude_elems = ["userguide", "data"]
 for x in range(len(sys.argv) - 1):
     if sys.argv[x + 1] == "--lfna":
         lfna = True
@@ -222,7 +222,7 @@ Are you sure to proceed? (y/n)
                                     print(f" --> Pulling branch: {branchToPull}", end='')
 
                                     p = subprocess.run(
-                                        f"cd {root}/{submodule} && git fetch && git checkout {branchToPull} && git pull",  #
+                                        f"cd {root}/{submodule} && git fetch && git checkout {branchToPull} && git pull origin {branchToPull}",  #
                                         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                                     if debug:
                                         print(p.stdout.decode("utf-8"))

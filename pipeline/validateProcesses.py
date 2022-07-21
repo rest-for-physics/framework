@@ -20,10 +20,26 @@ def validateProcess(className):
         data = file.read()
 
         data = data[data.find("ProcessEvent"):]
-        data = getMethodDefinition(data)
         data = removeCppComment(data)
+        data = getMethodDefinition(data)
+        #data = removeCppComment(data)
 
-        returnPos = data.find("RETURN ")
+        # we shall find only "return fXXXEvent" and "return nullptr"
+        # other cases might be for example lambda func
+        returnPos = 0
+        while returnPos < len(data):
+            returnPos = data.find("RETURN ", returnPos)
+            if data.find("EVENT", returnPos) - returnPos > 25 or data.find("EVENT", returnPos) == -1:
+               returnPos = returnPos + 6;
+            else:
+                break
+            if data.find("NULL", returnPos) - returnPos > 25 or data.find("NULL", returnPos) == -1:
+               returnPos = returnPos + 6;
+            else:
+                break
+
+        print(returnPos);
+
         map = getObservablePositions(data)
 
         if returnPos != -1:
