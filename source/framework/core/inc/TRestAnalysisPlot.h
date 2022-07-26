@@ -44,13 +44,14 @@ const std::map<std::string, int> FillStyleMap{
 
 class TRestAnalysisPlot : public TRestMetadata {
    public:
-    struct Histo_Info_Set {
+    struct HistoInfoSet {
         std::string name;   // will be shown in the legend
         std::string range;  // output histo std::string for TTree::Draw(), e.g. name+range = htemp(100,0,1000)
         Bool_t status;
 
         std::string plotString;  // draw std::string for TTree::Draw()
         std::string cutString;   // cut std::string for TTree::Draw()
+        std::string weight;
         std::map<std::string, std::string>
             classifyMap;         // select the input files to draw the histogram, if their
                                  // TRestRun::Get() returns the assumed std::string
@@ -102,7 +103,7 @@ class TRestAnalysisPlot : public TRestMetadata {
 
         std::string save;
 
-        std::vector<Histo_Info_Set> histos;
+        std::vector<HistoInfoSet> histos;
     };
 
     struct PanelInfo {
@@ -117,7 +118,7 @@ class TRestAnalysisPlot : public TRestMetadata {
 
    private:
     void InitFromConfigFile() override;
-    Histo_Info_Set SetupHistogramFromConfigFile(TiXmlElement* ele, PlotInfoSet info);
+    HistoInfoSet SetupHistogramFromConfigFile(TiXmlElement* ele, PlotInfoSet info);
 
     Int_t fNFiles;
     // canvas option

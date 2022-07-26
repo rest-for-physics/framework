@@ -278,43 +278,12 @@ void TRestRun::InitFromConfigFile() {
                                "is not given!"
                             << RESTendl;
             }
-        } else if (keydeclare == "addProcess") {
-            bool active = StringToBool(GetParameter("value", e, ""));
-            if (!active) {
-                e = e->NextSiblingElement();
-                continue;
-            }
-            string processName = GetParameter("name", e, "");
-            string processType = GetParameter("type", e, "");
-            if (processType == "") {
-                RESTWarning << "Bad expression of addProcess" << RESTendl;
-            } else if (processName == "") {
-                RESTWarning << "Event process " << processType << " has no name, it will be skipped"
-                            << RESTendl;
-            }
-            TRestEventProcess* pc = REST_Reflection::Assembly(processType);
-            if (!pc->isExternal()) {
-                RESTWarning << "This is not an external file process!" << RESTendl;
-            } else {
-                pc->LoadConfigFromElement(e, fElementGlobal);
-                pc->SetRunInfo(this);
-                pc->SetHostmgr(fHostmgr);
-
-                SetExtProcess(pc);
-            }
         } else if (Count(keydeclare, "TRest") > 0) {
             if (e->Attribute("file") != nullptr && TRestTools::isRootFile(e->Attribute("file"))) {
                 RESTWarning << "TRestRun: A root file is being included in section <" << keydeclare
                             << " ! To import metadata from this file, use <addMetadata" << RESTendl;
                 RESTWarning << "Skipping..." << RESTendl;
             }
-            // if (e->Attribute("file") != nullptr && (string)e->Attribute("file") == "server") {
-            //    // read meta-sections from database
-            //    auto url = gDataBase->query_data(DBEntry(fRunNumber, "META_RML", e->Value())).value;
-            //    string file = TRestTools::DownloadRemoteFile(url);
-            //    e->SetAttribute("file", file.c_str());
-            //    ExpandIncludeFile(e);
-            //}
 
             TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
             if (meta == nullptr) {
@@ -1673,7 +1642,7 @@ string TRestRun::ReplaceMetadataMembers(const string& instr, Int_t precision) {
         if (endPosition == (int)string::npos) break;
 
         string expressionToReplace = outstring.substr(startPosition + 1, endPosition - startPosition - 1);
-        string value = ReplaceMetadataMember(expressionToReplace, precision);
+        string value = ReplaceMetadataMember(expressionToReplace);
 
         outstring.replace(startPosition, endPosition - startPosition + 1, value);
         endPosition = 0;
@@ -1682,7 +1651,7 @@ string TRestRun::ReplaceMetadataMembers(const string& instr, Int_t precision) {
     outstring = Replace(outstring, "<<", "[");
     outstring = Replace(outstring, ">>", "]");
 
-    return outstring;
+    return REST_StringHelper::ReplaceMathematicalExpressions(outstring, precision);
 }
 
 ///////////////////////////////////////////////

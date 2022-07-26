@@ -1128,10 +1128,10 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
                 }
             }
 
-            e->SetAttribute(
-                name, ReplaceMathematicalExpressions(
-                          outputBuffer, "Please, check parameter name: " + parName + " (ReplaceForLoopVars)")
-                          .c_str());
+            e->SetAttribute(name, ReplaceMathematicalExpressions(
+                                      outputBuffer, 0,
+                                      "Please, check parameter name: " + parName + " (ReplaceForLoopVars)")
+                                      .c_str());
         }
 
         attr = attr->Next();
@@ -1484,7 +1484,7 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
         }
     }
 
-    return ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(result)),
+    return ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(result)), 0,
                                           "Please, check parameter name: " + parName);
 }
 
@@ -2318,13 +2318,9 @@ std::vector<string> TRestMetadata::GetDataMemberValues(string memberName, Int_t 
     result = Replace(result, "{", "");
     result = Replace(result, "}", "");
 
-    std::vector<std::string> results = Split(result, ",");
+    std::vector<std::string> results = REST_StringHelper::Split(result, ",");
 
-    if (precision > 0)
-        for (auto& x : results) {
-            if (REST_StringHelper::isANumber(x) && x.find(".") != string::npos)
-                x = x.substr(0, x.find(".") + precision + 1);
-        }
+    for (auto& x : results) x = REST_StringHelper::CropWithPrecision(x, precision);
 
     return results;
 }
