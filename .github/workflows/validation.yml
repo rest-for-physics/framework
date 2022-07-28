@@ -178,18 +178,23 @@ jobs:
           cd framework/pipeline/pandaxiii_MC
           restG4 Xe136bb0n.rml -o Xe136bb0n.root
           restRoot -b -q ValidateG4.C'("Xe136bb0n.root")'
-      - name: 02_PandaXiiiMC small for reference # We can use this artifact to update the validation reference file
+      - name: 02_PandaXiiiMC small for reference # We can use these artifacts to update the validation reference file
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
-          restG4 Xe136bb0n.rml -o Xe136bb0n_small.root -n 1
+          restG4 Xe136bb0n.rml -o Xe136bb0n_small_reference_pipeline.root -n 1
+          restManager --c AllProcesses.rml --i Xe136bb0n_small_reference_pipeline.root --o Xe136bb0n_small_reference_processed_pipeline.root
+          restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_small_reference_processed_pipeline.root", "Xe136bb0n_validation_pipeline.root")'
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: Xe136bb
           path: |
             framework/pipeline/pandaxiii_MC/Xe136bb0n.root
-            framework/pipeline/pandaxiii_MC/Xe136bb0n_small.root
+            framework/pipeline/pandaxiii_MC/Xe136bb0n_small_reference_pipeline.root
+            framework/pipeline/pandaxiii_MC/Xe136bb0n_small_reference_processed_pipeline.root
+            framework/pipeline/pandaxiii_MC/Xe136bb0n_validation_pipeline.root
           retention-days: 1
       - name: PandaXIII Topological
         run: |
