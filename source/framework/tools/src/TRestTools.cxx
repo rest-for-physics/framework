@@ -617,9 +617,7 @@ bool TRestTools::fileExists(const string& filename) { return std::filesystem::ex
 /// \brief Returns true if the **filename** has *.root* extension.
 ///
 bool TRestTools::isRootFile(const string& filename) {
-    if (GetFileNameExtension(filename) == ".root") return true;
-
-    return false;
+    return GetFileNameExtension(filename) == ".root";
 }
 
 ///////////////////////////////////////////////
