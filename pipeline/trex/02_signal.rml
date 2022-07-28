@@ -13,14 +13,18 @@
 
 		<parameter name="eventsToProcess" value="0" />
 
-		<addProcess type="TRestRawZeroSuppresionProcess" name="zS" value="ON"
-			baseLineRange="(${BL_MIN},${BL_MAX})"
-			integralRange="(${INT_MIN},${INT_MAX})"
-			pointThreshold="${POINT_TH}"
-			pointsOverThreshold="${NPOINTS}"
-			sampling="${SAMPLING}"
-			signalThreshold="${SGNL_TH}"
-			verboseLevel="silent"	/>
+		<addProcess type="TRestRawToDetectorSignalProcess" name="detSignal" value="ON"
+		       threshold="0.01"
+		       triggerStarts="0us"
+		       gain="1"
+		       zeroSuppression="true"
+		       baseLineRange="(${BL_MIN},${BL_MAX})"
+		       integralRange="(${INT_MIN},${INT_MAX})"
+		       pointThreshold="${POINT_TH}"
+		       nPointsOverThreshold="${NPOINTS}"
+		       sampling="${SAMPLING}"
+		       signalThreshold="${SGNL_TH}"
+		       verboseLevel="silent" />
 
 		<addProcess type="TRestDetectorSignalChannelActivityProcess" name="chActivity" value="ON" verboseLevel="info" observable="all" >
 		    <parameter name="daqChannels" value="72*4*4" />

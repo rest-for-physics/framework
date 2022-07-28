@@ -1,0 +1,37 @@
+name: "build"
+description: "Build and install framework"
+inputs:
+  branch:
+    description: "Branch to checkout framework repo"
+    required: true
+    default: "master"
+  cmake-flags:
+    description: "CMake flags for the build"
+    required: true
+    default: "-DCMAKE_INSTALL_PREFIX=install -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
+  build-path:
+    description: "Path where the framework is built"
+    required: false
+    default: "build"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+      with:
+        repository: rest-for-physics/framework
+        path: framework
+    - name: Checkout framework branch
+      run: |
+        cd framework
+        ./scripts/checkoutRemoteBranch.sh ${{ inputs.branch }}
+        python3 pull-submodules.py --force --dontask --latest:${{ inputs.branch }}
+      shell: bash
+    - name: Build and install
+      run: |
+        cd framework
+        mkdir -p ${{ inputs.build-path }}
+        cmake -B ${{ inputs.build-path }} ${{ inputs.cmake-flags }}
+        make -C ${{ inputs.build-path }} -j8 install
+      shell: bash

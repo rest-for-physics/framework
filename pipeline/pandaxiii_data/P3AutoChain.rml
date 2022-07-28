@@ -31,7 +31,7 @@
 
     <addProcess type="TRestRawMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON"/>
     <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON">
-
+      <parameter name="pointsOverThreshold" value="3" />
       /// We define all observables except MinValue because it is not yet in validation chain
       <observable name="BaseLineMean" value="ON" />
       <observable name="BaseLineSigmaMean" value="ON" />
@@ -56,8 +56,12 @@
 
     </addProcess>
     <addProcess type="TRestEventRateAnalysisProcess" name="rateAna" value="ON" observable="all"/>
-    <addProcess type="TRestRawZeroSuppresionProcess" name="zS" value="ON" sampling="0.2us"/> 5MHz sampling
-
+    <addProcess type="TRestRawToDetectorSignalProcess" name="rawSignalToSignal" value="ON">
+       <parameter name="sampling" value="0.2us"/>
+       <parameter name="zeroSuppression" value="true"/>
+       <parameter name="nPointsOverThreshold" value="3" />
+    </addProcess>
+    
     <addProcess type="TRestRealTimeDrawingProcess" name="rD" value="ON" drawInterval="1000" >
       <TRestAnalysisPlot name="TriggerRatePlot"  previewPlot="false">
         <canvas size="(1000,800)" save="TriggerRate.png"/>
@@ -78,7 +82,6 @@
     <parameter name="mainDataPath" value="" />
 
     <parameter name="pointThreshold" value="3" />
-    <parameter name="pointsOverThreshold" value="3" />
   </globals>
 
 </TRestManager>

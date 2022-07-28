@@ -1,107 +1,214 @@
+#include <filesystem>
+
+#ifdef WIN32
+#include <Windows.h>
+#endif  // WIN32
+
+#include "RVersion.h"
+#include "TEnv.h"
 #include "TRestDataBase.h"
 #include "TRestReflector.h"
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
 #include "TRestSystemOfUnits.h"
 #include "TRestTools.h"
+#include "TRestVersion.h"
 //////////////////////////////////////////////////////////////////////////
 /// This script initializes REST global variables in sequence to clearify
 /// their dependency, therefore avoiding seg.fault during startup. All
 /// global variables in libRestTools, if depend on other global variable,
 /// should be placed here for initialization.
 
-string REST_COMMIT;
-string REST_PATH;
-string REST_USER;
-string REST_USER_PATH;
-map<string, string> REST_ARGS = {};
+using namespace std;
+
+EXTERN_IMP string REST_COMMIT;
+EXTERN_IMP string REST_PATH;
+EXTERN_IMP string REST_USER;
+EXTERN_IMP string REST_USER_PATH;
+EXTERN_IMP map<string, string> REST_ARGS = {};
+
+#ifdef WIN32
+EXTERN_IMP string REST_TMP_PATH = std::filesystem::temp_directory_path().string();
+EXTERN_IMP int COLOR_RESET = 7;
+#else
+string REST_TMP_PATH = "/tmp/";
+#endif  // WIN32
+
+EXTERN_IMP bool REST_Display_CompatibilityMode = false;
+
 namespace REST_Reflection {
-map<void*, TClass*> RESTListOfClasses_typeid = {};
-map<string, TClass*> RESTListOfClasses_typename = {};
+EXTERN_IMP map<void*, TClass*> RESTListOfClasses_typeid = {};
+EXTERN_IMP map<string, TClass*> RESTListOfClasses_typename = {};
 }  // namespace REST_Reflection
-map<string, RESTVirtualConverter*> RESTConverterMethodBase = {};
+EXTERN_IMP map<size_t, RESTVirtualConverter*> RESTConverterMethodBase = {};
 
 // initialize REST constants
 struct __REST_CONST_INIT {
    public:
     __REST_CONST_INIT() {
-// TODO: fix to avoid this dirty fix
-#ifdef REST_TESTING_ENABLED
-        return;
-#endif
+#ifdef WIN32
+        REST_COMMIT = REST_GIT_COMMIT;
+#else
         REST_COMMIT = TRestTools::Execute("rest-config --commit");
+#endif
 
-        char* _REST_PATH = getenv("REST_PATH");
-        char* _REST_USER = getenv("USER");
-        char* _REST_USERHOME = getenv("HOME");
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 26, 0)
+        // we are not ready to use the new web-browser
+        gEnv->SetValue("Browser.Name", "TRootBrowser");
+#endif
 
+#ifdef WIN32
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        CHAR_INFO info[1];
+        SMALL_RECT rect;
+        rect.Bottom = 1;
+        rect.Top = 0;
+        rect.Left = 0;
+        rect.Right = 1;
+
+        ReadConsoleOutput(hConsole, info, {1, 1}, {0, 0}, &rect);
+
+        COLOR_RESET = info[0].Attributes;
+#endif  // WIN32
+
+         char* _REST_PATH = getenv("REST_PATH");
+         char* _REST_USER = getenv("USER");
+         char* _REST_USERHOME = getenv("HOME");
+
+        //char* _REST_PATH = 0;
+        //char* _REST_USER = 0;
+        //char* _REST_USERHOME = 0;
+
+#ifdef WIN32
         if (_REST_PATH == nullptr) {
-            cout << "REST ERROR!! Lacking system env \"REST_PATH\"! Cannot start!" << endl;
-            cout << "You need to source \"thisREST.sh\" first" << endl;
-            abort();
-        }
-        REST_PATH = _REST_PATH;
-
-        if (_REST_USER == nullptr) {
-            cout << "REST WARNING!! Lacking system env \"USER\"!" << endl;
-            cout << "Setting user name to : \"defaultUser\"" << endl;
-            REST_USER = "defaultUser";
-            setenv("USER", REST_USER.c_str(), true);
-
+            TCHAR ProgramDir[MAX_PATH + 1];
+            GetModuleFileName(0, ProgramDir, MAX_PATH);
+            std::filesystem::path path(ProgramDir);
+            if (exists(path)) {
+                REST_PATH = path.parent_path().parent_path().string();
+                RESTEssential << "Setting REST path to: " << REST_PATH << RESTendl;
+            } else {
+                RESTError << "Lacking system env \"REST_PATH\"! Cannot start!" << RESTendl;
+                abort();
+            }
         } else {
-            REST_USER = _REST_USER;
+            REST_PATH = _REST_PATH;
         }
 
-        if (_REST_USERHOME == nullptr) {
-            cout << "REST WARNING!! Lacking system env \"HOME\"!" << endl;
-            cout << "Setting REST temp path to : " << REST_PATH + "/data" << endl;
-            REST_USER_PATH = REST_PATH + "/data";
+        if (_REST_USERHOME == nullptr || _REST_USERHOME == nullptr) {
+            char* systemdir = getenv("SystemDrive");
+            char* homepath = getenv("HOMEPATH");
+            if (systemdir != nullptr && homepath != nullptr) {
+                string userhome = string(systemdir) + string(homepath);
+
+                std::filesystem::path path(userhome);
+                if (exists(path)) {
+                    REST_USER_PATH = userhome + "\\.rest";
+                    REST_USER = path.stem().string();
+                    RESTEssential << "Setting user name to : \"" << REST_USER << "\"" << RESTendl;
+                    RESTEssential << "Setting REST temp path to: " << REST_USER_PATH << RESTendl;
+                }
+            } else {
+                RESTWarning << "Lacking system env \"SystemDrive\" and \"HOMEPATH\"!" << RESTendl;
+            }
+        }
+#else
+        if (_REST_PATH == nullptr) {
+            // use some other sources of information that indicates REST_PATH
+            // /proc/3102456/exe -> /home/nkx/REST_v2/bin/restRoot
+            int pid = getpid();
+            string lsresult = TRestTools::Execute("ls /proc/" + ToString(pid) + "/exe -l");
+            auto lsresolve = Split(lsresult, "->", true, true);
+            if (lsresolve.size() == 2) {
+                if (lsresolve[1].find("bin")) {
+                    std::filesystem::path path(lsresolve[1]);
+                    REST_PATH = path.parent_path().parent_path().string();
+                    RESTWarning << "Lacking system env \"REST_PATH\"!" << RESTendl;
+                    RESTWarning << "You need to source \"thisREST.sh\" first!" << RESTendl;
+                    RESTWarning << "Setting REST path to the executable path: " << REST_PATH << RESTendl;
+                } else {
+                    std::filesystem::path path(lsresolve[1]);
+                    REST_PATH = path.parent_path().string();
+                    RESTWarning << "Lacking system env \"REST_PATH\"!" << RESTendl;
+                    RESTWarning << "REST not installed? Setting to path: " << REST_PATH << RESTendl;
+                }
+
+                // set also REST_USER and REST_USER_PATH in this case
+                REST_USER_PATH = REST_TMP_PATH + "/rest_PID" + getpid() + "/";
+                RESTWarning << "Setting REST temp path to : " << REST_USER_PATH << RESTendl;
+
+                const string systemUsername = TRestTools::Execute("whoami");
+                if (!systemUsername.empty()) {
+                    REST_USER = systemUsername;
+                } else {
+                    RESTWarning << R"(Cannot find username with "whoami" utility)" << RESTendl;
+                    REST_USER = "defaultUser";
+                }
+                RESTWarning << "Setting user name to : \"" << REST_USER << "\"" << RESTendl;
+            } else {
+                RESTError << "Lacking system env \"REST_PATH\"! Cannot start!" << RESTendl;
+                abort();
+            }
         } else {
-            string restUserPath = (string)_REST_USERHOME + "/.rest";
-            // check the directory exists
-            if (!TRestTools::fileExists(restUserPath)) {
-                mkdir(restUserPath.c_str(), S_IRWXU);
+            REST_PATH = _REST_PATH;
+
+            if (_REST_USER == nullptr) {
+                RESTWarning << "Lacking system env \"USER\"!" << RESTendl;
+                const string systemUsername = TRestTools::Execute("whoami");
+                if (!systemUsername.empty()) {
+                    REST_USER = systemUsername;
+                } else {
+                    RESTWarning << R"(Cannot find username with "whoami" utility)" << RESTendl;
+                    REST_USER = "defaultUser";
+                }
+                RESTWarning << "Setting user name to : \"" << REST_USER << "\"" << RESTendl;
+                setenv("USER", REST_USER.c_str(), true);
+
+            } else {
+                REST_USER = _REST_USER;
+            }
+
+            if (_REST_USERHOME == nullptr) {
+                RESTWarning << "Lacking system env \"HOME\"!" << RESTendl;
+                REST_USER_PATH = REST_TMP_PATH + "/rest_PID" + getpid() + "/";
+                RESTWarning << "Setting REST temp path to : " << REST_USER_PATH << RESTendl;
+            } else {
+                string restUserPath = (string)_REST_USERHOME + "/.rest";
+                REST_USER_PATH = restUserPath;
+            }
+        }
+#endif
+        if (REST_USER_PATH != "") {
+            // check the data directories
+            if (!TRestTools::fileExists(REST_USER_PATH)) {
+                std::filesystem::create_directory(REST_USER_PATH);
             }
             // check the runNumber file
-            if (!TRestTools::fileExists(restUserPath + "/runNumber")) {
-                TRestTools::Execute("echo 1 > " + restUserPath + "/runNumber");
+            if (!TRestTools::fileExists(REST_USER_PATH + "/runNumber")) {
+                TRestTools::Execute("echo 1 > " + REST_USER_PATH + "/runNumber");
             }
             // check the dataURL file
             // if (!TRestTools::fileExists(restUserPath + "/dataURL")) {
             //    TRestTools::Execute("cp " + REST_PATH + "/data/dataURL " + restUserPath + "/");
             //}
             // check the download directory
-            if (!TRestTools::fileExists(restUserPath + "/download")) {
-                mkdir((restUserPath + "/download").c_str(), S_IRWXU);
+            if (!TRestTools::fileExists(REST_USER_PATH + "/download")) {
+                std::filesystem::create_directory(REST_USER_PATH + "/download");
             }
             // check the gdml directory
-            if (!TRestTools::fileExists(restUserPath + "/gdml")) {
-                mkdir((restUserPath + "/gdml").c_str(), S_IRWXU);
+            if (!TRestTools::fileExists(REST_USER_PATH + "/gdml")) {
+                std::filesystem::create_directory(REST_USER_PATH + "/gdml");
             }
-
-            // now we don't need to check write accessibility in other methods in REST
-            REST_USER_PATH = restUserPath;
         }
     }
 };
 const __REST_CONST_INIT REST_CONST_INIT;
 
 // initialize gDataBase
-TRestDataBase* gDataBase = nullptr;
+EXTERN_IMP TRestDataBase* gDataBase = nullptr;
 MakeGlobal(TRestDataBase, gDataBase, 1);
 
-// initialize formatted message output tool
-TRestStringOutput fout(REST_Silent, COLOR_BOLDBLUE, "[== ==]", kMiddle);
-TRestStringOutput ferr(REST_Silent, COLOR_BOLDRED, "-- Error : ", kLeft, true);
-TRestStringOutput warning(REST_Warning, COLOR_BOLDYELLOW, "-- Warning : ", kLeft, true);
-TRestStringOutput essential(REST_Essential, COLOR_BOLDGREEN, "", kMiddle);
-TRestStringOutput metadata(REST_Essential, COLOR_BOLDGREEN, "|| ||", kMiddle);
-TRestStringOutput info(REST_Info, COLOR_BLUE, "-- Info : ", kLeft);
-TRestStringOutput success(REST_Info, COLOR_GREEN, "-- Success : ", kLeft);
-TRestStringOutput debug(REST_Debug, COLOR_RESET, "-- Debug : ", kLeft);
-TRestStringOutput extreme(REST_Extreme, COLOR_RESET, "-- Extreme : ", kLeft);
-
-REST_Verbose_Level gVerbose = REST_Warning;
+TRestStringOutput::REST_Verbose_Level gVerbose = TRestStringOutput::REST_Verbose_Level::REST_Warning;
 
 // initialize converter methods
 template <class T>
@@ -115,7 +222,7 @@ AddConverter(ToStringSimple, StringToInteger, int);
 AddConverter(ToStringSimple, StringToDouble, double);
 AddConverter(ToStringSimple, StringToBool, bool);
 AddConverter(ToStringSimple, StringToFloat, float);
-AddConverter(ToStringSimple, StringToLong, Long64_t);
+AddConverter(ToStringSimple, StringToLong, long long);
 
 char StringToChar(string in) { return in.size() > 0 ? (char)in[0] : 0; }
 AddConverter(ToStringSimple, StringToChar, char);

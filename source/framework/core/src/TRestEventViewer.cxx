@@ -17,18 +17,20 @@
 ///_______________________________________________________________________________
 
 #include "TRestEventViewer.h"
+
 #include "TRestBrowser.h"
 
-ClassImp(TRestEventViewer)
-    //______________________________________________________________________________
-    TRestEventViewer::TRestEventViewer() {
+using namespace std;
+
+ClassImp(TRestEventViewer);
+
+TRestEventViewer::TRestEventViewer() {
     // TRestEventViewer default constructor
-    //Initialize();
+    // Initialize();
     fPad = nullptr;
     fCanvas = nullptr;
 }
 
-//______________________________________________________________________________
 TRestEventViewer::~TRestEventViewer() {
     // TRestEventViewer destructor
     // DeleteCurrentEvent(  );
@@ -36,7 +38,7 @@ TRestEventViewer::~TRestEventViewer() {
 
 void TRestEventViewer::Initialize() {
     fPad = nullptr;
-    
+
     if (fCanvas != nullptr) delete fCanvas;
     fCanvas = new TCanvas("Event Viewer", "Event Viewer");
 

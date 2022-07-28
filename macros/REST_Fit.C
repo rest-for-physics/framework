@@ -17,12 +17,12 @@
 //***
 //*******************************************************************************************************
 Int_t REST_Fit(string varName, string rootFileName, double startVal, double endVal, int nBins = 100) {
-    TRestStringOutput cout;
-    cout << "Variable name : " << varName << endl;
-    cout << "Fit range : ( " << startVal << " , " << endVal << " ) " << endl;
+    TRestStringOutput RESTLog;
+    RESTLog << "Variable name : " << varName << RESTendl;
+    RESTLog << "Fit range : ( " << startVal << " , " << endVal << " ) " << RESTendl;
 
     if (startVal >= endVal) {
-        cout << "Start or End integration values not properly defined!!!" << endl;
+        RESTLog << "Start or End integration values not properly defined!!!" << RESTendl;
         return -1;
     }
 
@@ -33,7 +33,7 @@ Int_t REST_Fit(string varName, string rootFileName, double startVal, double endV
     TRestRun* run = new TRestRun();
 
     if (inputFilesNew.size() == 0) {
-        cout << "Files not found!" << endl;
+        RESTLog << "Files not found!" << RESTendl;
         return -1;
     }
 
@@ -44,9 +44,9 @@ Int_t REST_Fit(string varName, string rootFileName, double startVal, double endV
 
         Int_t obsID = run->GetAnalysisTree()->GetObservableID(varName);
         if (obsID == -1) {
-            cout << endl;
-            cout.setcolor(COLOR_BOLDRED);
-            cout << "No observable \"" << varName << "\" in file " << inputFilesNew[n] << endl;
+            RESTLog << RESTendl;
+            RESTLog.setcolor(COLOR_BOLDRED);
+            RESTLog << "No observable \"" << varName << "\" in file " << inputFilesNew[n] << RESTendl;
             continue;
         }
         for (int i = 0; i < run->GetEntries(); i++) {

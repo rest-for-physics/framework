@@ -15,8 +15,8 @@ string(REGEX REPLACE "\n$" "" GEANT4_PATH "${GEANT4_PATH}")
 set(thisGeant4 "${GEANT4_PATH}/bin/geant4.sh")
 
 if (${REST_G4} MATCHES "ON")
-    set(loadG4 "\# if geant4.sh script is found we load the same Geant4 version as used in compilation\n if [[ -f \"${thisGeant4}\" && ${thisGeant4} != /usr/* ]]; then
-		source ${thisGeant4}\n fi\n")
+    set(loadG4 "\# if geant4.sh script is found we load the same Geant4 version as used in compilation\n if [[ -f \\\"${thisGeant4}\\\" ]]; then
+    source ${thisGeant4}\n fi\n")
 else ()
     set(loadG4 "")
 endif (${REST_G4} MATCHES "ON")
@@ -63,8 +63,8 @@ else
 fi
 
 \# if thisroot.sh script is found we load the same ROOT version as used in compilation
-if [[ -f \\\"${thisROOT}\\\" && ${thisROOT} != /usr/* ]]; then
-	source ${thisROOT}
+if [[ -f \\\"${thisROOT}\\\" ]]; then
+    source ${thisROOT}
 fi
 
 ${loadG4}

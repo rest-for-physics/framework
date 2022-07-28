@@ -46,6 +46,7 @@ class TRestEvent : public TObject {
     TTimeStamp fEventTime;  ///< Absolute event time
     Bool_t fOk;  ///< Flag to be used by processes to define an event status. fOk=true is the default.
 
+    TRestRun* fRun = nullptr;  //!
 #ifndef __CINT__
 
     TPad* fPad;  //!
@@ -55,45 +56,54 @@ class TRestEvent : public TObject {
 
    public:
     // Setters
-    void SetRunOrigin(Int_t run_origin) { fRunOrigin = run_origin; }
-    void SetSubRunOrigin(Int_t sub_run_origin) { fSubRunOrigin = sub_run_origin; }
+    inline void SetRunOrigin(Int_t run_origin) { fRunOrigin = run_origin; }
+    inline void SetSubRunOrigin(Int_t sub_run_origin) { fSubRunOrigin = sub_run_origin; }
 
-    void SetID(Int_t id) { fEventID = id; }
-    void SetSubID(Int_t id) { fSubEventID = id; }
-    void SetSubEventTag(TString tag) { fSubEventTag = tag; }
+    inline void SetID(Int_t id) { fEventID = id; }
+    inline void SetSubID(Int_t id) { fSubEventID = id; }
+    inline void SetSubEventTag(const TString& tag) { fSubEventTag = tag; }
 
     void SetTime(Double_t time);
     void SetTime(Double_t seconds, Double_t nanoseconds);
-    void SetTimeStamp(TTimeStamp time) { fEventTime = time; }
+    inline void SetTimeStamp(const TTimeStamp& time) { fEventTime = time; }
 
-    void SetState(Bool_t state) { fOk = state; }
-    void SetOK(Bool_t state) { fOk = state; }
+    inline void SetState(Bool_t state) { fOk = state; }
+    inline void SetOK(Bool_t state) { fOk = state; }
 
     void SetEventInfo(TRestEvent* eve);
 
     // Getters
-    Int_t GetID() { return fEventID; }
-    Int_t GetSubID() { return fSubEventID; }
-    TString GetSubEventTag() { return fSubEventTag; }
+    inline Int_t GetID() const { return fEventID; }
+    inline Int_t GetSubID() const { return fSubEventID; }
+    inline TString GetSubEventTag() const { return fSubEventTag; }
 
-    Int_t GetRunOrigin() { return fRunOrigin; }
-    Int_t GetSubRunOrigin() { return fSubRunOrigin; }
+    inline Int_t GetRunOrigin() const { return fRunOrigin; }
+    inline Int_t GetSubRunOrigin() const { return fSubRunOrigin; }
 
-    Double_t GetTime() { return fEventTime.AsDouble(); }
-    TTimeStamp GetTimeStamp() { return fEventTime; }
+    inline Double_t GetTime() const { return fEventTime.AsDouble(); }
+    inline TTimeStamp GetTimeStamp() const { return fEventTime; }
 
-    Bool_t isOk() { return fOk; }
+    inline Bool_t isOk() const { return fOk; }
 
     virtual void Initialize() = 0;
-    virtual void InitializeWithMetadata(TRestRun* r);
+    virtual void InitializeWithMetadata(TRestRun* run);
 
-    virtual void PrintEvent();
+    //////////////////////////////////////////////////////////////////////////
+    /// \brief Initialize dynamical references when loading the event from a root file
+    ///
+    /// This method should only be called from `TRestRun::GetEntry` and it will give the corresponding
+    /// `TRestEvent` access to the instance of `TRestRun`.
+    /// In a derived class such as `TRestGeant4Event`, it can be overwritten to give each track access to the
+    /// event
+    virtual void InitializeReferences(TRestRun* run);
+
+    virtual void PrintEvent() const;
 
     //////////////////////////////////////////////////////////////////////////
     /// \brief Draw the event
     ///
     /// To be implemented in the derived class
-    virtual TPad* DrawEvent(TString option = "") {
+    virtual TPad* DrawEvent(const TString& option = "") {
         UNUSED(option);
         return new TPad();
     }
@@ -105,6 +115,6 @@ class TRestEvent : public TObject {
     // Destructor
     virtual ~TRestEvent();
 
-    ClassDef(TRestEvent, 1);  // REST event superclass
+    ClassDef(TRestEvent, 1);
 };
 #endif

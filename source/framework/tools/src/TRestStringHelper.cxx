@@ -12,48 +12,108 @@
 #include "v5/TFormula.h"
 #endif
 
-#include <dirent.h>
-#include <unistd.h>
-
 using namespace std;
 
 ///////////////////////////////////////////////
 /// \brief Returns 1 only if valid mathematical expression keywords (or numbers)
 /// are found in the string **in**. If not it returns 0.
 ///
-Int_t REST_StringHelper::isAExpression(string in) {
-    string temp = in;
-    vector<string> replace{"sqrt", "log", "exp", "gaus", "cos", "sin", "tan", "atan", "acos", "asin"};
-    for (int i = 0; i < replace.size(); i++) {
-        temp = Replace(temp, replace[i], "0", 0);
+/// By logic, mathematical expressions must have: +-*/e^% in the middle, or % in the end, or math functions in
+/// the beginning. despite those symbols, the string should be purely numeric. example: 1+1 --> expression
+/// sin(1.5) --> expression
+/// 123456789 --> not expression, It is a pure number that can be directly parsed.
+/// ./123 --> not expression, it is a path
+/// 333/555 --> is expression. But it may also be a path. We should avoid using paths like that
+///
+Int_t REST_StringHelper::isAExpression(const string& in) {
+    bool symbol = false;
+
+    if (in.length() < 2)  // minimum expression: 3%
+        return 0;
+
+    vector<string> funcs{"sqrt", "log", "exp", "gaus", "cos", "sin", "tan", "atan", "acos", "asin"};
+    for (const auto& item : funcs) {
+        if (in.find(item) != std::string::npos) {
+            symbol = true;
+            break;
+        }
     }
 
-    if (temp.length() == 0)
-        return 0;
-    else if (temp.length() == 1) {
-        if (temp.find_first_not_of("0123456789") == std::string::npos) {
-            return 1;
-        } else {
-            return 0;
+    if (!symbol) {
+        int pos = in.find_first_of("+-*/e^%");
+        if (pos > 0 && pos < in.size() - 1) {
+            symbol = true;
         }
-    } else {
+    }
+
+    if (!symbol) {
+        int pos = in.find_first_of("%");
+        if (pos == in.size() - 1) {
+            symbol = true;
+        }
+    }
+
+    if (symbol) {
+        string temp = in;
+        for (const auto& item : funcs) {
+            temp = Replace(temp, item, "0", 0);
+        }
         if (temp.find_first_not_of("-0123456789e+*/.,)( ^%") == std::string::npos) {
             if (temp.find("/") == 0 || temp.find("./") == 0 || temp.find("../") == 0)
                 return 0;  // identify path
             return 1;
         }
+    } else {
+        return 0;
     }
 
     return 0;
 }
 
 ///////////////////////////////////////////////
+/// \brief It crops a floating number given inside the string `in` with the given precision.
+/// I.e. CropWithPrecision("3.48604", 2) will return "3.48".
+///
+/// It will not round the number. Perhaps on the next update of this method.
+///
+std::string REST_StringHelper::CropWithPrecision(std::string in, Int_t precision) {
+    if (precision == 0) return in;
+    if (REST_StringHelper::isANumber(in) && in.find(".") != string::npos) {
+        std::string rootStr;
+        if (in.find("e") != string::npos) rootStr = in.substr(in.find("e"), -1);
+        return in.substr(0, in.find(".") + precision + 1) + rootStr;
+    }
+    return in;
+}
+
+///////////////////////////////////////////////
 /// \brief Evaluates and replaces valid mathematical expressions found in the
 /// input string **buffer**.
 ///
-std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer, std::string errorMessage) {
+/// The buffer string may define sub-expressions that will be evaluated by using single quotes.
+///
+/// I.e. The sentence "The following operation 3 x 4 is '3*4'" will be translated to
+/// "The following operatin 3 x 4 is 12".
+///
+std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer, Int_t precision,
+                                                              std::string errorMessage) {
     buffer = Replace(buffer, " AND ", " && ");
     buffer = Replace(buffer, " OR ", " || ");
+
+    if (buffer.find("'") != string::npos && std::count(buffer.begin(), buffer.end(), '\'') % 2 == 0) {
+        size_t pos1 = buffer.find("'");
+        size_t pos2 = buffer.find("'", pos1 + 1);
+        string expr = buffer.substr(pos1 + 1, pos2 - pos1 - 1);
+
+        if (!isAExpression(expr)) return buffer;
+
+        std::string evalExpr = ReplaceMathematicalExpressions(expr, precision);
+        expr = "'" + expr + "'";
+        std::string newbuff = Replace(buffer, expr, evalExpr);
+
+        return ReplaceMathematicalExpressions(newbuff, precision, errorMessage);
+    }
+
     // we spilt the unit part and the expresstion part
     int pos = buffer.find_last_of("1234567890().");
 
@@ -80,8 +140,8 @@ std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer
         string evaluated = EvaluateExpression(Expressions[i]);
         if (evaluated == "RESTerror") {
             result += Expressions[i] + ",";
-            ferr << "ReplaceMathematicalExpressions. Error on RML syntax!" << endl;
-            if (errorMessage != "") ferr << errorMessage << endl;
+            RESTError << "ReplaceMathematicalExpressions. Error on RML syntax!" << RESTendl;
+            if (errorMessage != "") RESTError << errorMessage << RESTendl;
         } else
             result += evaluated + ",";
     }
@@ -90,6 +150,7 @@ std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer
     if (erased) {
         result = "(" + result + ")";
     }
+    result = CropWithPrecision(result, precision);
 
     return result + unit;
 }
@@ -115,7 +176,8 @@ std::string REST_StringHelper::EvaluateExpression(std::string exp) {
     ostringstream sss;
     Double_t number = formula.EvalPar(0);
     if (number > 0 && number < 1.e-300) {
-        warning << "REST_StringHelper::EvaluateExpresssion. Expression not recognized --> " << exp << endl;
+        RESTWarning << "REST_StringHelper::EvaluateExpresssion. Expression not recognized --> " << exp
+                    << RESTendl;
         return (string) "RESTerror";
     }
 
@@ -135,12 +197,12 @@ Int_t REST_StringHelper::GetChar(string hint) {
         t.detach();
 
         cout << hint << endl;
-        int result = Console::CompatibilityMode ? 1 : getchar();
+        int result = REST_Display_CompatibilityMode ? 1 : getchar();
         gSystem->ExitLoop();
         return result;
     } else {
         cout << hint << endl;
-        return Console::CompatibilityMode ? 1 : getchar();
+        return REST_Display_CompatibilityMode ? 1 : getchar();
     }
     return -1;
 }
@@ -187,15 +249,37 @@ std::vector<string> REST_StringHelper::Split(std::string in, string separator, b
 /// \brief Convert the input string into a  vector of double elements
 ///
 /// e.g. Input: "1,2,3,4", Output: {1.,2.,3.,4.}
-std::vector<double> REST_StringHelper::StringToElements(std::string in, string separator,
-                                                        bool allowBlankString, bool removeWhiteSpaces,
-                                                        int startPos) {
-std:
+///
+std::vector<double> REST_StringHelper::StringToElements(std::string in, string separator) {
     vector<double> result;
-    vector<string> vec_str =
-        REST_StringHelper::Split(in, separator, allowBlankString, removeWhiteSpaces, startPos);
+    vector<string> vec_str = REST_StringHelper::Split(in, separator);
     for (unsigned int i = 0; i < vec_str.size(); i++) {
         double temp = REST_StringHelper::StringToDouble(vec_str[i]);
+        result.push_back(temp);
+    }
+
+    return result;
+}
+
+///////////////////////////////////////////////
+/// \brief Convert the input string `in` into a vector of double elements
+///
+/// Called as `StringToElements( in, "[", ",", "]" );` will get the
+/// elements from a string with the following format "[a,b,c]" where a,b,c
+/// are double numbers.
+///
+std::vector<double> REST_StringHelper::StringToElements(std::string in, string headChar, string separator,
+                                                        string tailChar) {
+    std::vector<double> result;
+    size_t startPos = in.find(headChar);
+    size_t endPos = in.find(tailChar);
+    if (startPos == string::npos || endPos == string::npos) {
+        return result;
+    }
+    std::vector<string> values = Split(in.substr(startPos + 1, endPos - startPos - 1), ",");
+
+    for (unsigned int i = 0; i < values.size(); i++) {
+        double temp = REST_StringHelper::StringToDouble(values[i]);
         result.push_back(temp);
     }
 
@@ -253,6 +337,66 @@ Int_t REST_StringHelper::FindNthStringPosition(const string& in, size_t pos, con
     return FindNthStringPosition(in, found_pos + 1, strToFind, nth - 1);
 }
 
+/// \brief This method matches a string with certain matcher. Returns true if matched.
+/// Supports wildcard characters.
+///
+/// Wildcard character includes "*" and "?". "*" means to replace any number of any characters
+/// "?" means to replace a single arbitary character.
+///
+/// e.g. (string, matcher)
+/// "abcddd", "abc?d" --> not matched
+/// "abcddd", "abc??d" --> matched
+/// "abcddd", "abc*d" --> matched
+///
+/// Note that this method is in equal-match logic. It is not matching substrings. So:
+/// "abcddd", "abcddd" --> matched
+/// "abcddd", "a?c" --> not matched
+///
+/// Source code from
+/// https://blog.csdn.net/dalao_whs/article/details/110477705
+///
+Bool_t REST_StringHelper::MatchString(std::string str, std::string matcher) {
+    if (str.size() > 256 || matcher.size() > 256) {
+        RESTError << "REST_StringHelper::MatchString(): string size too large" << RESTendl;
+        return false;
+    }
+
+    vector<vector<bool>> dp(256, vector<bool>(256));
+    int n2 = str.size();
+    int n1 = matcher.size();
+    dp[0][0] = true;
+    int i = 0, j = 0;
+    for (int i = 0; i < n1; i++) {
+        if (matcher[i] != '*') {
+            break;
+        }
+        if (i == n1 - 1 && matcher[i] == '*') {
+            return true;
+        }
+    }
+    for (i = 1; matcher.at(i - 1) == '*'; i++) {
+        dp[i][0] = true;
+    }
+    for (i = 1; i <= n1; i++) {
+        for (j = 1; j <= n2; j++) {
+            if (matcher.at(i - 1) == '*' && (dp[i - 1][j - 1] || dp[i][j - 1] || dp[i - 1][j])) {
+                dp[i][j] = true;
+            } else if (matcher.at(i - 1) == '?' && dp[i - 1][j - 1]) {
+                dp[i][j] = true;
+            } else if (matcher.at(i - 1) == str.at(j - 1) && dp[i - 1][j - 1]) {
+                dp[i][j] = true;
+            }
+        }
+    }
+    if (dp[n1][n2]) {
+        return true;
+    } else {
+        return false;
+    }
+
+    return false;
+}
+
 /// \brief Returns the number of different characters between two strings
 ///
 /// This algorithm is case insensitive. It matches the two strings in pieces
@@ -279,7 +423,7 @@ Int_t REST_StringHelper::DiffString(const string& source, const string& target) 
     if (m == 0) return n;
     if (n == 0) return m;
     // Construct a matrix
-    typedef vector<vector<int> > Tmatrix;
+    typedef vector<vector<int>> Tmatrix;
     Tmatrix matrix(n + 1);
     for (int i = 0; i <= n; i++) matrix[i].resize(m + 1);
 
@@ -428,14 +572,15 @@ time_t REST_StringHelper::StringToTimeStamp(string time) {
     return time1;
 }
 
-REST_Verbose_Level REST_StringHelper::StringToVerboseLevel(string in) {
-    if (ToUpper(in) == "SILENT" || in == "0") return REST_Silent;
-    if (ToUpper(in) == "ESSENTIAL" || ToUpper(in) == "WARNING" || in == "1") return REST_Essential;
-    if (ToUpper(in) == "INFO" || in == "2") return REST_Info;
-    if (ToUpper(in) == "DEBUG" || in == "3") return REST_Debug;
-    if (ToUpper(in) == "EXTREME" || in == "4") return REST_Extreme;
+TRestStringOutput::REST_Verbose_Level REST_StringHelper::StringToVerboseLevel(string in) {
+    if (ToUpper(in) == "SILENT" || in == "0") return TRestStringOutput::REST_Verbose_Level::REST_Silent;
+    if (ToUpper(in) == "ESSENTIAL" || ToUpper(in) == "WARNING" || in == "1")
+        return TRestStringOutput::REST_Verbose_Level::REST_Essential;
+    if (ToUpper(in) == "INFO" || in == "2") return TRestStringOutput::REST_Verbose_Level::REST_Info;
+    if (ToUpper(in) == "DEBUG" || in == "3") return TRestStringOutput::REST_Verbose_Level::REST_Debug;
+    if (ToUpper(in) == "EXTREME" || in == "4") return TRestStringOutput::REST_Verbose_Level::REST_Extreme;
 
-    return REST_Essential;
+    return TRestStringOutput::REST_Verbose_Level::REST_Essential;
 }
 
 ///////////////////////////////////////////////
@@ -464,7 +609,7 @@ Float_t REST_StringHelper::StringToFloat(string in) {
 /// \brief Gets an integer from a string.
 ///
 Int_t REST_StringHelper::StringToInteger(string in) {
-    // If we find an hexadecimal number
+    // If we find a hexadecimal number
     if (in.find("0x") != std::string::npos) return (Int_t)std::stoul(in, nullptr, 16);
 
     return (Int_t)StringToDouble(in);
@@ -473,13 +618,22 @@ Int_t REST_StringHelper::StringToInteger(string in) {
 ///////////////////////////////////////////////
 /// \brief Gets a string from an integer.
 ///
-string REST_StringHelper::IntegerToString(Int_t n) { return Form("%d", n); }
+string REST_StringHelper::IntegerToString(Int_t n, std::string format) { return Form(format.c_str(), n); }
+
+///////////////////////////////////////////////
+/// \brief Gets a string from a double
+///
+string REST_StringHelper::DoubleToString(Double_t d, std::string format) { return Form(format.c_str(), d); }
 
 Bool_t REST_StringHelper::StringToBool(std::string in) {
     return (ToUpper(in) == "TRUE" || ToUpper(in) == "ON");
 }
 
 Long64_t REST_StringHelper::StringToLong(std::string in) {
+    if (in.find_first_of("eE") != string::npos) {
+        // in case for scientific numbers
+        return (Long64_t)StringToDouble(in);
+    }
     stringstream strIn;
     strIn << in;
     long long llNum;
@@ -549,6 +703,15 @@ TVector2 REST_StringHelper::StringTo2DVector(string in) {
 ///
 std::string REST_StringHelper::ToUpper(std::string s) {
     transform(s.begin(), s.end(), s.begin(), (int (*)(int))toupper);
+    return s;
+}
+
+///////////////////////////////////////////////
+/// \brief Convert the first character of a string to upper case.
+///
+std::string REST_StringHelper::FirstToUpper(std::string s) {
+    if (s.length() == 0) return s;
+    s[0] = *REST_StringHelper::ToUpper(std::string(&s[0], 1)).c_str();
     return s;
 }
 
@@ -676,7 +839,7 @@ TF1* REST_StringHelper::CreateTF1FromString(std::string func, double init, doubl
     size_t n = std::count(func.begin(), func.end(), '[');
     // Reading options
     int a = 0;
-    int optPos[n];
+    vector<int> optPos(n);
     std::vector<std::string> options(n);  // Vector of strings of any size.
     for (int i = 0; i < n; i++) {
         optPos[i] = func.find("[", a);
@@ -735,11 +898,3 @@ TF1* REST_StringHelper::CreateTF1FromString(std::string func, double init, doubl
 
     return f;
 }
-
-#ifdef WIN32
-string get_current_dir_name() {
-    char pBuf[MAX_PATH];
-    GetCurrentDirectory(MAX_PATH, pBuf);
-    return string(pBuf);
-}
-#endif

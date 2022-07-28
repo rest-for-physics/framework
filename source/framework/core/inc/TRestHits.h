@@ -1,207 +1,208 @@
-//////////////////////////////////////////////////////////////////////////
-///
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestHits.h
-///
-///             Event class to store hits
-///
-///             sept 2015:   First concept
-///                 Created as part of the conceptualization of existing REST
-///                 software.
-///                 Javier Galan
-///
-///		        nov 2015:
-///		            Changed vectors fX fY fZ and fEnergy from <Int_t> to
-///< Float_t> 	                JuanAn Garcia
-///
-//////////////////////////////////////////////////////////////////////////
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
 #ifndef TRestSoft_TRestHits
 #define TRestSoft_TRestHits
 
-#include <TF1.h>
-#include <TH1.h>
-#include <TVector3.h>
-#include <TGraphErrors.h>
+#include <TArrayD.h>
+#include <TArrayI.h>
 #include <TCanvas.h>
+#include <TF1.h>
+#include <TGraphErrors.h>
+#include <TH1.h>
+#include <TMath.h>
+#include <TMatrixD.h>
+#include <TVector3.h>
 
 #include <iostream>
 
-#include "TArrayD.h"
-#include "TArrayI.h"
-#include "TCanvas.h"
-#include "TMath.h"
-#include "TMatrixD.h"
-#include "TObject.h"
-
 enum REST_HitType { unknown = -1, X = 2, Y = 3, Z = 5, XY = 6, XZ = 10, YZ = 15, XYZ = 30 };
-//! It let save an event as a set of punctual deposition.
-//! It saves a 3-coordinate position and an energy for each punctual deposition.
-class TRestHits : public TObject {
-   public:
-    Int_t fNHits;         ///< Number of punctual energy depositions, it is the length
-                          ///< for all the array
-    Double_t fTotEnergy;  ///< Event total energy
 
-    std::vector<Float_t> fX;          // [fNHits] Position on X axis for each punctual
-                                      // deposition (units mm)
-    std::vector<Float_t> fY;          // [fNHits] Position on Y axis for each punctual
-                                      // deposition (units mm)
-    std::vector<Float_t> fZ;          // [fNHits] Position on Z axis for each punctual
-                                      // deposition (units mm)
-    std::vector<Float_t> fT;          // [fNHits] Absolute time information for each punctual deposition
-                                      // (units us, 0 is time of decay)
-    std::vector<Float_t> fEnergy;     // [fNHits] Energy deposited at each
-                                      // 3-coordinate position (units keV)
-    std::vector<REST_HitType> fType;  //
+/// It saves a 3-coordinate position and an energy for each punctual deposition.
+class TRestHits {
+   protected:
+    size_t fNHits = 0;  ///< Number of punctual energy depositions, it is the length for all the arrays
+    Double_t fTotalEnergy = 0;  ///< Event total energy
+
+    /// Position on X axis for each punctual deposition (units mm)
+    std::vector<Float_t> fX;  // [fNHits]
+
+    /// Position on Y axis for each punctual deposition (units mm)
+    std::vector<Float_t> fY;  // [fNHits]
+
+    /// Position on Z axis for each punctual deposition (units mm)
+    std::vector<Float_t> fZ;  // [fNHits]
+
+    /// Absolute time information for each punctual deposition (units us, 0 is time of decay)
+    std::vector<Float_t> fTime;  // [fNHits]
+
+    /// Energy deposited at each 3-coordinate position (units keV)
+    std::vector<Float_t> fEnergy;  // [fNHits]
+
+    /// The type of hit X,Y,XY,XYZ, ...
+    std::vector<REST_HitType> fType;
 
    public:
-    //! Changes the origin of the Cartesian coordinate system
     void Translate(Int_t n, Double_t x, Double_t y, Double_t z);
-    /// Event is rotated in XYZ.
-    void RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma,
-                    TVector3 vMean);  // vMean is the mean position of the event
-                                      // from GetMeanPosition()
-    /// Rotation around an arbitrary axis vAxis
-    void Rotate(Int_t n, Double_t alpha, TVector3 vAxis,
-                TVector3 vMean);  // vMean is the mean position of the event from
-                                  // GetMeanPosition()
+    void RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, const TVector3& vMean);
+    void Rotate(Int_t n, Double_t alpha, const TVector3& vAxis, const TVector3& vMean);
 
     void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
-    void AddHit(TVector3 pos, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
+    void AddHit(const TVector3& pos, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
     void AddHit(TRestHits& hits, Int_t n);
 
-    void RemoveHits();
+    Int_t GetMostEnergeticHitInRange(Int_t n, Int_t m) const;
 
-    Int_t GetMostEnergeticHitInRange(Int_t n, Int_t m);
+    Double_t GetMaximumHitDistance() const;
+    Double_t GetMaximumHitDistance2() const;
 
-    Double_t GetMaximumHitDistance();
-    Double_t GetMaximumHitDistance2();
-
+    virtual void RemoveHits();
     virtual void MergeHits(int n, int m);
     virtual void SwapHits(Int_t i, Int_t j);
     virtual void RemoveHit(int n);
 
-    virtual Bool_t areXY();
-    virtual Bool_t areXZ();
-    virtual Bool_t areYZ();
-    virtual Bool_t areXYZ();
+    virtual Bool_t areXY() const;
+    virtual Bool_t areXZ() const;
+    virtual Bool_t areYZ() const;
+    virtual Bool_t areXYZ() const;
 
-    Bool_t isNaN(Int_t n);
+    Bool_t isNaN(Int_t n) const;
 
-    void GetXArray(Float_t* x);
-    void GetYArray(Float_t* y);
-    void GetZArray(Float_t* z);
+    Double_t GetDistanceToNode(Int_t n) const;
 
-    void InitializeXArray(Float_t x = 0);
-    void InitializeYArray(Float_t y = 0);
-    void InitializeZArray(Float_t z = 0);
+    Bool_t isSortedByEnergy() const;
 
-    Double_t GetDistanceToNode(Int_t n);
+    inline size_t GetNumberOfHits() const { return fNHits; }
 
-    Bool_t isSortedByEnergy();
+    inline const std::vector<Float_t>& GetX() const { return fX; }
+    inline const std::vector<Float_t>& GetY() const { return fY; }
+    inline const std::vector<Float_t>& GetZ() const { return fZ; }
+    inline const std::vector<Float_t>& GetTime() const { return fTime; }
+    inline const std::vector<Float_t>& GetEnergyVector() const { return fEnergy; }
 
-    Int_t GetNumberOfHits() { return fNHits; }
+    inline Double_t GetX(int n) const { return ((Double_t)fX[n]); }            // return value in mm
+    inline Double_t GetY(int n) const { return ((Double_t)fY[n]); }            // return value in mm
+    inline Double_t GetZ(int n) const { return ((Double_t)fZ[n]); }            // return value in mm
+    inline Double_t GetTime(int n) const { return ((Double_t)fTime[n]); }      // return value in us
+    inline Double_t GetEnergy(int n) const { return ((Double_t)fEnergy[n]); }  // return value in keV
 
-    Double_t GetX(int n) { return ((Double_t)fX[n]); }     // return value in mm
-    Double_t GetY(int n) { return ((Double_t)fY[n]); }     // return value in mm
-    Double_t GetZ(int n) { return ((Double_t)fZ[n]); }     // return value in mm
-    Double_t GetTime(int n) { return ((Double_t)fT[n]); }  // return value in us
-    REST_HitType GetType(int n) { return fType[n]; }
+    inline REST_HitType GetType(int n) const { return fType[n]; }
 
-    TVector3 GetPosition(int n);
-    TVector3 GetVector(int i, int j);
+    TVector3 GetPosition(int n) const;
+    TVector3 GetVector(int i, int j) const;
 
-    Int_t GetNumberOfHitsX();
-    Int_t GetNumberOfHitsY();
+    Int_t GetNumberOfHitsX() const;
+    Int_t GetNumberOfHitsY() const;
 
-    Double_t GetMeanPositionX();
-    Double_t GetMeanPositionY();
-    Double_t GetMeanPositionZ();
-    TVector3 GetMeanPosition();
+    Double_t GetMeanPositionX() const;
+    Double_t GetMeanPositionY() const;
+    Double_t GetMeanPositionZ() const;
+    TVector3 GetMeanPosition() const;
 
-    Double_t GetSigmaXY2();
-    Double_t GetSigmaX();
-    Double_t GetSigmaY();
-    Double_t GetSigmaZ2();
-    Double_t GetSkewXY();
-    Double_t GetSkewZ();
+    Double_t GetSigmaXY2() const;
+    Double_t GetSigmaX() const;
+    Double_t GetSigmaY() const;
+    Double_t GetSigmaZ2() const;
+    Double_t GetSkewXY() const;
+    Double_t GetSkewZ() const;
 
     Double_t GetGaussSigmaX();
     Double_t GetGaussSigmaY();
     Double_t GetGaussSigmaZ();
 
-    Double_t GetEnergyX();
-    Double_t GetEnergyY();
+    Double_t GetEnergyX() const;
+    Double_t GetEnergyY() const;
 
-    Double_t GetEnergy(int n) { return ((Double_t)fEnergy[n]); }  // return value in keV
+    Bool_t isHitNInsidePrism(Int_t n, const TVector3& x0, const TVector3& x1, Double_t sizeX, Double_t sizeY,
+                             Double_t theta) const;
+    Int_t GetNumberOfHitsInsidePrism(const TVector3& x0, const TVector3& x1, Double_t sizeX, Double_t sizeY,
+                                     Double_t theta) const;
+    Double_t GetEnergyInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX, Double_t sizeY,
+                              Double_t theta) const;
+    Double_t GetMeanPositionXInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX, Double_t sizeY,
+                                     Double_t theta) const;
+    Double_t GetMeanPositionYInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX, Double_t sizeY,
+                                     Double_t theta) const;
+    Double_t GetMeanPositionZInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX, Double_t sizeY,
+                                     Double_t theta) const;
+    TVector3 GetMeanPositionInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX, Double_t sizeY,
+                                    Double_t theta) const;
 
-    Bool_t isHitNInsidePrism(Int_t n, TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
-                             Double_t theta);
-    Int_t GetNumberOfHitsInsidePrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
-                                     Double_t theta);
-    Double_t GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta);
-    Double_t GetMeanPositionXInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
-                                     Double_t theta);
-    Double_t GetMeanPositionYInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
-                                     Double_t theta);
-    Double_t GetMeanPositionZInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
-                                     Double_t theta);
-    TVector3 GetMeanPositionInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta);
+    Bool_t isHitNInsideCylinder(Int_t n, const TVector3& x0, const TVector3& x1, Double_t radius) const;
 
-    Bool_t isHitNInsideCylinder(Int_t n, TVector3 x0, TVector3 x1, Double_t radius);
+    Int_t GetNumberOfHitsInsideCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) const;
+    Int_t GetNumberOfHitsInsideCylinder(Int_t i, Int_t j, Double_t radius) const;
 
-    Int_t GetNumberOfHitsInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius);
-    Int_t GetNumberOfHitsInsideCylinder(Int_t i, Int_t j, Double_t radius);
+    Double_t GetEnergyInCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) const;
+    Double_t GetEnergyInCylinder(Int_t i, Int_t j, Double_t radius) const;
+    Double_t GetMeanPositionXInCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) const;
+    Double_t GetMeanPositionYInCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) const;
+    Double_t GetMeanPositionZInCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) const;
+    TVector3 GetMeanPositionInCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) const;
 
-    Double_t GetEnergyInCylinder(TVector3 x0, TVector3 x1, Double_t radius);
-    Double_t GetEnergyInCylinder(Int_t i, Int_t j, Double_t radius);
-    Double_t GetMeanPositionXInCylinder(TVector3 x0, TVector3 x1, Double_t radius);
-    Double_t GetMeanPositionYInCylinder(TVector3 x0, TVector3 x1, Double_t radius);
-    Double_t GetMeanPositionZInCylinder(TVector3 x0, TVector3 x1, Double_t radius);
-    TVector3 GetMeanPositionInCylinder(TVector3 x0, TVector3 x1, Double_t radius);
+    Bool_t isHitNInsideSphere(Int_t n, const TVector3& pos0, Double_t radius) const;
+    Bool_t isHitNInsideSphere(Int_t n, Double_t x0, Double_t y0, Double_t z0, Double_t radius) const;
 
-    Bool_t isHitNInsideSphere(Int_t n, TVector3 pos0, Double_t radius);
-    Bool_t isHitNInsideSphere(Int_t n, Double_t x0, Double_t y0, Double_t z0, Double_t radius);
+    Double_t GetEnergyInSphere(const TVector3& pos0, Double_t radius) const;
+    Double_t GetEnergyInSphere(Double_t x, Double_t y, Double_t z, Double_t radius) const;
 
-    Double_t GetEnergyInSphere(TVector3 pos0, Double_t radius);
-    Double_t GetEnergyInSphere(Double_t x, Double_t y, Double_t z, Double_t radius);
+    Double_t GetMaximumHitEnergy() const;
+    Double_t GetMinimumHitEnergy() const;
+    Double_t GetMeanHitEnergy() const;
 
-    Double_t GetMaximumHitEnergy();
-    Double_t GetMinimumHitEnergy();
-    Double_t GetMeanHitEnergy();
+    inline void CalculateTotalDepositedEnergy() { fTotalEnergy = GetEnergyIntegral(); }
+    Double_t GetEnergyIntegral() const;
+    inline Double_t GetTotalDepositedEnergy() const { return fTotalEnergy; }
+    inline Double_t GetTotalEnergy() const { return fTotalEnergy; }
+    inline Double_t GetEnergy() const { return fTotalEnergy; }
+    Double_t GetDistance2(int n, int m) const;
+    inline Double_t GetDistance(int N, int M) const { return TMath::Sqrt(GetDistance2(N, M)); }
+    Double_t GetTotalDistance() const;
 
-    Double_t GetEnergyIntegral();
-    Double_t GetTotalDepositedEnergy() { return fTotEnergy; }
-    Double_t GetTotalEnergy() { return fTotEnergy; }
-    Double_t GetEnergy() { return fTotEnergy; }
-    Double_t GetDistance2(int n, int m);
-    Double_t GetDistance(int N, int M) { return TMath::Sqrt(GetDistance2(N, M)); }
-    Double_t GetTotalDistance();
+    Double_t GetHitsPathLength(Int_t n = 0, Int_t m = 0) const;
 
-    Double_t GetHitsPathLength(Int_t n = 0, Int_t m = 0);
+    Double_t GetHitsTwist(Int_t n, Int_t m) const;
+    Double_t GetHitsTwistWeighted(Int_t n, Int_t m) const;
 
-    Double_t GetHitsTwist(Int_t n, Int_t m);
-    Double_t GetHitsTwistWeighted(Int_t n, Int_t m);
+    Int_t GetClosestHit(const TVector3& position) const;
 
-    Int_t GetClosestHit(TVector3 position);
+    TVector2 GetProjection(Int_t n, Int_t m, const TVector3& position) const;
 
-    TVector2 GetProjection(Int_t n, Int_t m, TVector3 position);
-
-    Double_t GetTransversalProjection(TVector3 p0, TVector3 direction, TVector3 position);
+    Double_t GetTransversalProjection(const TVector3& p0, const TVector3& direction,
+                                      const TVector3& position) const;
 
     void WriteHitsToTextFile(TString filename);
 
-    virtual void PrintHits(Int_t nHits = -1);
+    static void GetBoundaries(std::vector<double>& val, double& max, double& min, int& nBins,
+                              double offset = 10);
+
+    virtual void PrintHits(Int_t nHits = -1) const;
 
     class TRestHits_Iterator : public std::iterator<std::random_access_iterator_tag, TRestHits_Iterator> {
        private:
-        int maxindex = 0;
+        int maxIndex = 0;
         int index = 0;
-        TRestHits* fHits = 0;
-        bool isaccessor = false;
+        TRestHits* fHits = nullptr;
+        bool isAccessor = false;
         float _x;
         float _y;
         float _z;
@@ -210,23 +211,24 @@ class TRestHits : public TObject {
         REST_HitType _type;
 
        public:
-        float& x() { return isaccessor ? _x : fHits->fX[index]; }
-        float& y() { return isaccessor ? _y : fHits->fY[index]; }
-        float& z() { return isaccessor ? _z : fHits->fZ[index]; }
-        float& t() { return isaccessor ? _t : fHits->fT[index]; }
-        float& e() { return isaccessor ? _e : fHits->fEnergy[index]; }
-        REST_HitType& type() { return isaccessor ? _type : fHits->fType[index]; }
+        float& x() { return isAccessor ? _x : fHits->fX[index]; }
+        float& y() { return isAccessor ? _y : fHits->fY[index]; }
+        float& z() { return isAccessor ? _z : fHits->fZ[index]; }
+        float& t() { return isAccessor ? _t : fHits->fTime[index]; }
+        float& e() { return isAccessor ? _e : fHits->fEnergy[index]; }
+        REST_HitType& type() { return isAccessor ? _type : fHits->fType[index]; }
 
-        float x() const { return isaccessor ? _x : fHits->fX[index]; }
-        float y() const { return isaccessor ? _y : fHits->fY[index]; }
-        float z() const { return isaccessor ? _z : fHits->fZ[index]; }
-        float t() const { return isaccessor ? _t : fHits->fT[index]; }
-        float e() const { return isaccessor ? _e : fHits->fEnergy[index]; }
-        REST_HitType type() const { return isaccessor ? _type : fHits->fType[index]; }
+        float x() const { return isAccessor ? _x : fHits->fX[index]; }
+        float y() const { return isAccessor ? _y : fHits->fY[index]; }
+        float z() const { return isAccessor ? _z : fHits->fZ[index]; }
+        float t() const { return isAccessor ? _t : fHits->fTime[index]; }
+        float e() const { return isAccessor ? _e : fHits->fEnergy[index]; }
+        REST_HitType type() const { return isAccessor ? _type : fHits->fType[index]; }
 
+        // accessor: hit data is copied to self. The class acts like "TRestHit"
         void toaccessor();
 
-        TRestHits_Iterator operator*();
+        TRestHits_Iterator operator*() const;
         TRestHits_Iterator& operator++();
         TRestHits_Iterator& operator+=(const int& n);
         TRestHits_Iterator operator+(const int& n);
@@ -245,11 +247,11 @@ class TRestHits : public TObject {
             return i1.fHits != i2.fHits || i1.index != i2.index;
         }
         friend bool operator>(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
-            // default comparsion logic
+            // default comparison logic
             return i1.index > i2.index;
         }
         friend bool operator>=(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
-            // default comparsion logic
+            // default comparison logic
             return i1.index >= i2.index;
         }
         friend bool operator<(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
@@ -266,16 +268,14 @@ class TRestHits : public TObject {
 
         TRestHits_Iterator(TRestHits* h, int _index);
     };
-    TRestHits_Iterator begin() { return TRestHits_Iterator(this, 0); }
-    TRestHits_Iterator end() { return TRestHits_Iterator(this, fNHits); }
+    inline TRestHits_Iterator begin() { return {this, 0}; }
+    inline TRestHits_Iterator end() { return {this, static_cast<int>(fNHits)}; }
     typedef TRestHits_Iterator iterator;
 
-    // Construtor
     TRestHits();
-    // Destructor
     ~TRestHits();
 
-    ClassDef(TRestHits, 5);
+    ClassDef(TRestHits, 6);
 };
 
 #endif

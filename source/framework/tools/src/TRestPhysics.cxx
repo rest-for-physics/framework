@@ -21,8 +21,10 @@
  *************************************************************************/
 
 #include "TRestPhysics.h"
+
 #include <iostream>
 #include <limits>
+
 using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
@@ -76,8 +78,136 @@ Double_t DistanceToAxis(const TVector3& axisPoint, const TVector3& axisVector, c
 /// and  moving in direction `dir` and the plane defined by its normal vector `n` and the point `a`. This is
 /// equivalent to move/translate the position `pos` to the plane.
 ///
-TVector3 GetPlaneVectorIntersection(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a) {
+TVector3 GetPlaneVectorIntersection(const TVector3& pos, const TVector3& dir, const TVector3& n,
+                                    const TVector3& a) {
     return MoveToPlane(pos, dir, n, a);
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the cone matrix M = d^T x d - cosTheta^2 x I, extracted from the document
+/// by "David Eberly, Geometric Tools, Redmond WA 98052, Intersection of a Line and a Cone".
+///
+TMatrixD GetConeMatrix(const TVector3& d, const Double_t& cosTheta) {
+    double cAxis[3];
+    d.GetXYZ(cAxis);
+
+    TVectorD coneAxis(3, cAxis);
+
+    TMatrixD M(3, 3);
+    M.Rank1Update(coneAxis, coneAxis);
+
+    double cT2 = cosTheta * cosTheta;
+    TMatrixD gamma(3, 3);
+    gamma.UnitMatrix();
+    gamma *= cT2;
+
+    M -= gamma;
+    return M;
+}
+
+///////////////////////////////////////////////
+/// \brief This method will return the reflected vector respect to a plane defined by its
+/// normal vector `n`. The normal vector should be already normalized!
+///
+TVector3 GetVectorReflection(const TVector3& dir, const TVector3& n) { return dir - 2 * dir.Dot(n) * n; }
+
+///////////////////////////////////////////////
+/// \brief This method will return the angle in radians between 2 vectors.
+///
+Double_t GetVectorsAngle(const TVector3& v1, const TVector3& v2) { return TMath::ACos(v1.Dot(v2)); }
+
+///////////////////////////////////////////////
+/// \brief This method will return a vector that is normal to the cone surface. The position `pos`
+/// should be at the cone surface, and the angle `alpha` should be the angle that defines the
+/// cone construction.
+///
+/// It is assumed that the vertex is found at the right of `pos`.
+///
+/// Optionally, the radius of the cone at the given `pos` can be provided to facilitate the
+/// calculation
+///
+TVector3 GetConeNormal(const TVector3& pos, const Double_t& alpha, const Double_t& R) {
+    Double_t r = 0;
+    if (R == 0)
+        r = TMath::Sqrt(pos.X() * pos.X() + pos.Y() * pos.Y());
+    else
+        r = R;
+
+    Double_t cosA = TMath::Cos(alpha);
+    Double_t sinA = TMath::Sin(alpha);
+
+    return -TVector3(cosA * pos.X() / r, cosA * pos.Y() / r, sinA);
+}
+
+///////////////////////////////////////////////
+/// \brief This method will find the intersection of the trajectory defined by the vector starting at
+/// `pos` and  moving in direction `dir` and the cone defined by its axis vector `d` and the vertex`v`.
+/// The cosine of the angle defining the cone should be also given inside the `cosTheta` argument.
+///
+/// This method will return `t`, which is the value the particle position, `pos`, needs to be displaced
+/// by the vector, `dir`, to get the particle at the surface of the cone. If the particle does not
+/// cross the cone, then the value returned will be zero (no particle displacement).
+//
+/// This method is based on the document by "David Eberly, Geometric Tools, Redmond WA 98052,
+/// Intersection of a Line and a Cone".
+///
+Double_t GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, const TVector3& d,
+                                   const TVector3& v, const Double_t& cosTheta) {
+    TMatrixD M = GetConeMatrix(d, cosTheta);
+    return GetConeVectorIntersection(pos, dir, M, d, v);
+}
+
+///////////////////////////////////////////////
+/// \brief This method will find the intersection of the trajectory defined by the vector starting at `pos`
+/// and moving in direction `dir` and the cone defined by its characteristic matrix `M`, which is built
+/// using the cone axis vector `d` as `d^T x d`,  and the vertex`v`. The resulting TVector3 will be the
+/// position of the particle placed at the cone surface.
+///
+/// This method will return `t`, which is the value the particle position, `pos`, needs to be displaced
+/// by the vector, `dir`, to get the particle at the surface of the cone. If the particle does not
+/// cross the cone, then the value returned will be zero (no particle displacement).
+///
+/// This method is based on the document by "David Eberly, Geometric Tools, Redmond WA 98052,
+/// Intersection of a Line and a Cone".
+///
+Double_t GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, const TMatrixD& M,
+                                   const TVector3& axis, const TVector3& v) {
+    double u[3];
+    dir.GetXYZ(u);
+    TMatrixD U(3, 1, u);
+    TMatrixD Ut(1, 3, u);
+
+    double delta[3];
+    TVector3 deltaV = pos - v;
+    deltaV.GetXYZ(delta);
+    TMatrixD D(3, 1, delta);
+    TMatrixD Dt(1, 3, delta);
+
+    TMatrixD C2 = Ut * M * U;
+    Double_t c2 = C2[0][0];
+
+    TMatrixD C1 = Ut * M * D;
+    Double_t c1 = C1[0][0];
+
+    TMatrixD C0 = Dt * M * D;
+    Double_t c0 = C0[0][0];
+
+    Double_t root = c1 * c1 - c0 * c2;
+    if (root < 0) return 0;
+
+    Double_t t1 = (-c1 + TMath::Sqrt(root)) / c2;
+    Double_t t2 = (-c1 - TMath::Sqrt(root)) / c2;
+
+    // The projections along the cone axis. If positive then the solution
+    // gives the cone intersection with the side defined by `axis`
+    Double_t h1 = t1 * dir.Dot(axis) + axis.Dot(deltaV);
+    Double_t h2 = t2 * dir.Dot(axis) + axis.Dot(deltaV);
+
+    // We use it to select the root we are interested in
+    if (h2 > 0)
+        return t2;
+    else
+        return t1;
 }
 
 ///////////////////////////////////////////////

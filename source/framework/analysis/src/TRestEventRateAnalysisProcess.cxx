@@ -29,7 +29,7 @@
 ///  as follows:
 ///
 /// \code
-/// <addProcess type="TRestEventRateAnalysisProcess" name="rate" observables="all" />
+/// <addProcess type="TRestEventRateAnalysisProcess" name="rate" observable="all" />
 /// \endcode
 ///
 /// or
@@ -88,9 +88,9 @@
 ///
 /// <hr>
 ///
-#include "TRestDataBase.h"
-
 #include "TRestEventRateAnalysisProcess.h"
+
+#include "TRestDataBase.h"
 using namespace std;
 
 ClassImp(TRestEventRateAnalysisProcess);
@@ -137,8 +137,8 @@ void TRestEventRateAnalysisProcess::InitProcess() {
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestEventRateAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
-    fEvent = evInput;
+TRestEvent* TRestEventRateAnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fEvent = inputEvent;
 
     if (fFirstEventTime == -1) fFirstEventTime = fEvent->GetTime();
 
@@ -155,7 +155,7 @@ TRestEvent* TRestEventRateAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         if (fPreviousEventTime.size() == 10) meanRate = 10. / (fEvent->GetTime() - fPreviousEventTime.front());
         SetObservableValue("MeanRate_InHz", meanRate);
 
-        if (GetVerboseLevel() >= REST_Debug) {
+        if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
             for (auto i : fObservablesDefined) {
                 fAnalysisTree->PrintObservable(i.second);
             }
@@ -169,4 +169,3 @@ TRestEvent* TRestEventRateAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fEvent;
 }
-

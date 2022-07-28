@@ -17,10 +17,13 @@
 //***
 //*******************************************************************************************************
 Int_t REST_SendMessage(int token, TString message) {
+#ifndef WIN32
 
     TRestMessenger m(token);
 
     m.SendMessage((string)message);
+
+#endif  // !WIN32
 
     return 0;
 };

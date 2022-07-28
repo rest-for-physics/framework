@@ -18,15 +18,14 @@
 #ifndef RestDAQ_TRestLinearTrackEvent
 #define RestDAQ_TRestLinearTrackEvent
 
-#include <iostream>
-
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TObject.h>
-#include <TRestSignal.h>
-
 #include <TRestEvent.h>
 #include <TRestLinearTrack.h>
+#include <TRestSignal.h>
+
+#include <iostream>
 
 class TRestLinearTrackEvent : public TRestEvent {
    protected:
@@ -146,7 +145,7 @@ class TRestLinearTrackEvent : public TRestEvent {
 
     TPad* DrawEvent(TString option = "");
 
-    // Construtor
+    // Constructor
     TRestLinearTrackEvent();
     // Destructor
     virtual ~TRestLinearTrackEvent();

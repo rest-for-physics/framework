@@ -43,17 +43,31 @@
 ///
 #include "TRestTools.h"
 
-#include <dirent.h>
+#include <TClass.h>
+#include <TSystem.h>
+#include <TUrl.h>
 
+#ifdef USE_Curl
+#include <curl/curl.h>
+#endif
+
+#ifdef WIN32
+#include <io.h>
+#else
+#include "unistd.h"
+#endif  // !WIN32
+
+#include <chrono>
+#include <filesystem>
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <thread>
 
-#include "TClass.h"
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
-#include "TSystem.h"
-#include "TUrl.h"
+
+using namespace std;
 
 ClassImp(TRestTools);
 
@@ -73,31 +87,58 @@ std::vector<string> TRestTools::GetOptions(string optionsStr) { return Split(opt
 /// TRestMetadata::GetDataMemberRef()
 ///
 void TRestTools::LoadRESTLibrary(bool silent) {
-    string ldpath = REST_PATH + "/lib/";
-    ldpath += ":" + REST_USER_PATH + "/userlib/";
-    vector<string> ldpaths = Split(ldpath, ":");
+    const set<string> libraryExtension{".so", ".dylib", ".dll"};
+    const set<string> excludedLibraries{
+        "restG4"};  // Ignoring package libraries if they exist. TODO: do not hardcode this
+
+    vector<string> ldPaths;
+#ifdef WIN32
+    ldPaths.push_back(REST_PATH + "/bin/");
+#else
+    ldPaths.push_back(REST_PATH + "/lib/");
+#endif  // WIN32
+    ldPaths.push_back(REST_USER_PATH + "/userlib/");
 
     vector<string> fileList;
-    for (string path : ldpaths) {
-        DIR* dir;
-        struct dirent* ent;
-        if ((dir = opendir(path.c_str())) != nullptr) {
-            /* print all the files and directories within directory */
-            while ((ent = readdir(dir)) != nullptr) {
-                string fName(ent->d_name);
-                if ((fName.find("REST") != -1 || fName.find("Rest") != -1))
-                    if (fName.find(".dylib") != -1 || fName.find(".so") != -1) fileList.push_back(fName);
+    for (const std::filesystem::path path : ldPaths) {
+        if (!exists(path)) {
+            // RESTWarning << "Directory " << string(path) << " for library loading not exist" << RESTendl;
+            continue;
+        }
+        for (const auto& it : std::filesystem::directory_iterator(path)) {
+            if (!it.is_regular_file()) {
+                continue;
             }
-            closedir(dir);
+            if (libraryExtension.count(it.path().extension().string()) == 0) {
+                // needs correct extension e.g. ".so"
+                continue;
+            }
+            const TString pathRootString = it.path().string();
+            if (!pathRootString.Contains("Rest", TString::ECaseCompare::kIgnoreCase)) {
+                // e.g. "libRestFramework.so"
+                continue;
+            }
+            // Check if library is excluded from loading e.g. is from a package
+            bool excluded = false;
+            for (const TString excludedLibrary : excludedLibraries) {
+                if (pathRootString.Contains(excludedLibrary, TString::ECaseCompare::kIgnoreCase)) {
+                    excluded = true;
+                    // RESTWarning << "Library '" << pathRootString << "' excluded from loading" << RESTendl;
+                    break;
+                }
+            }
+            if (excluded) {
+                continue;
+            }
+            fileList.emplace_back(it.path().string());
         }
     }
 
     // load the found REST libraries
-    if (!silent) cout << "\n= REST Version: " << Execute("rest-config --version") << endl;
     if (!silent) cout << "= Loading libraries ..." << endl;
-    for (unsigned int n = 0; n < fileList.size(); n++) {
-        if (!silent) cout << " - " << fileList[n] << endl;
-        gSystem->Load(fileList[n].c_str());
+    for (const auto& library : fileList) {
+        if (!silent) cout << " - " << library << endl;
+        gSystem->Load(library.c_str());
     }
     if (!silent) cout << endl;
 }
@@ -126,7 +167,63 @@ template int TRestTools::PrintTable<Double_t>(std::vector<std::vector<Double_t>>
                                               Int_t end);
 
 ///////////////////////////////////////////////
-/// \brief Reads a binary file containning a fixed-columns table with values
+/// \brief Writes the contents of the vector table given as argument to `fname`.
+/// Allowed types are Int_t, Float_t and Double_t.
+///
+template <typename T>
+int TRestTools::ExportASCIITable(std::string fname, std::vector<std::vector<T>>& data) {
+    ofstream file(fname);
+    if (!file.is_open()) {
+        RESTError << "Unable to open file for writing : " << fname << RESTendl;
+        return 1;
+    }
+
+    for (int n = 0; n < data.size(); n++)
+        for (int m = 0; m < data[n].size(); m++) {
+            file << data[n][m];
+            if (m + 1 < data[n].size()) file << "\t";
+            if (m + 1 == data[n].size()) file << "\n";
+        }
+    file.close();
+
+    return 0;
+}
+
+template int TRestTools::ExportASCIITable<Int_t>(std::string fname, std::vector<std::vector<Int_t>>& data);
+template int TRestTools::ExportASCIITable<Float_t>(std::string fname,
+                                                   std::vector<std::vector<Float_t>>& data);
+template int TRestTools::ExportASCIITable<Double_t>(std::string fname,
+                                                    std::vector<std::vector<Double_t>>& data);
+
+///////////////////////////////////////////////
+/// \brief Writes the contents of the vector table given as argument to `fname` as a binary file.
+/// Allowed types are Int_t, Float_t and Double_t.
+///
+template <typename T>
+int TRestTools::ExportBinaryTable(std::string fname, std::vector<std::vector<T>>& data) {
+    ofstream file(fname, ios::out | ios::binary);
+    if (!file.is_open()) {
+        RESTError << "Unable to open file for writing : " << fname << RESTendl;
+        return 1;
+    }
+
+    for (int n = 0; n < data.size(); n++)
+        for (int m = 0; m < data[n].size(); m++) {
+            file.write((char*)&data[n][m], sizeof(T));
+        }
+    file.close();
+
+    return 0;
+}
+
+template int TRestTools::ExportBinaryTable<Int_t>(std::string fname, std::vector<std::vector<Int_t>>& data);
+template int TRestTools::ExportBinaryTable<Float_t>(std::string fname,
+                                                    std::vector<std::vector<Float_t>>& data);
+template int TRestTools::ExportBinaryTable<Double_t>(std::string fname,
+                                                     std::vector<std::vector<Double_t>>& data);
+
+///////////////////////////////////////////////
+/// \brief Reads a binary file containing a fixed-columns table with values
 ///
 /// This method will open the file fName. This file should contain a
 /// table with numeric values of the type specified inside the syntax < >.
@@ -135,7 +232,7 @@ template int TRestTools::PrintTable<Double_t>(std::vector<std::vector<Double_t>>
 ///
 /// \code
 /// std::vector<std::vector <Float_t> > fvec;
-/// ReadBinaryFile( "myfile.bin", fvec, 6);
+/// ReadBinaryTable( "myfile.bin", fvec, 6);
 /// \endcode
 ///
 /// The values on the table will be loaded in the matrix provided through the
@@ -144,9 +241,18 @@ template int TRestTools::PrintTable<Double_t>(std::vector<std::vector<Double_t>>
 template <typename T>
 int TRestTools::ReadBinaryTable(string fName, std::vector<std::vector<T>>& data, Int_t columns) {
     if (!TRestTools::isValidFile((string)fName)) {
-        cout << "TRestTools::ReadBinaryTable. Error." << endl;
-        cout << "Cannot open file : " << fName << endl;
+        RESTError << "TRestTools::ReadBinaryTable. Error." << RESTendl;
+        RESTError << "Cannot open file : " << fName << RESTendl;
         return 0;
+    }
+
+    if (columns == -1) {
+        columns = GetBinaryFileColumns(fName);
+        if (columns == -1) {
+            RESTError << "TRestTools::ReadBinaryTable. Format extension error." << RESTendl;
+            RESTError << "Please, specify the number of columns at the method 3rd argument" << RESTendl;
+            return 0;
+        }
     }
 
     std::ifstream fin(fName, std::ios::binary);
@@ -163,9 +269,10 @@ int TRestTools::ReadBinaryTable(string fName, std::vector<std::vector<T>>& data,
     }
 
     std::vector<T> dataArray(columns);
+    fin.read(reinterpret_cast<char*>(&dataArray[0]), columns * sizeof(T));
     while (fin.good()) {
-        fin.read(reinterpret_cast<char*>(&dataArray[0]), columns * sizeof(T));
         data.push_back(dataArray);
+        fin.read(reinterpret_cast<char*>(&dataArray[0]), columns * sizeof(T));
     }
     return 1;
 }
@@ -178,57 +285,147 @@ template int TRestTools::ReadBinaryTable<Double_t>(string fName, std::vector<std
                                                    Int_t columns);
 
 ///////////////////////////////////////////////
-/// \brief It returns the maximum value for a particular `column` from the table given by argument.
+/// \brief It identifies if the filename extension follows the formatting ".Nxyzf", where the
+/// number of columns is `xyz`, and the last character is the type of data (f/d/i), float,
+/// double and integer respectively.
+///
+Bool_t TRestTools::IsBinaryFile(string fname) {
+    if (GetBinaryFileColumns(fname) > 0) return true;
+    return false;
+}
+
+///////////////////////////////////////////////
+/// \brief It extracts the number of columns from the filename extension given by argument.
+/// The file should contain a binary formatted table with a fixed number of rows and columns.
+///
+/// The filename extension will be : ".Nxyzf", where the number of columns is `xyz`, and the
+/// last character is the type of data (f/d/i), float, double and integer respectively.
+///
+int TRestTools::GetBinaryFileColumns(string fname) {
+    string extension = GetFileNameExtension(fname);
+    if (extension.find("N") != 0) {
+        return -1;
+    }
+
+    size_t pos = extension.find("i");
+    if (pos != string::npos) {
+        return StringToInteger(extension.substr(1, pos - 1));
+    }
+
+    pos = extension.find("f");
+    if (pos != string::npos) {
+        return StringToInteger(extension.substr(1, pos - 1));
+    }
+
+    pos = extension.find("d");
+    if (pos != string::npos) {
+        return StringToInteger(extension.substr(1, pos - 1));
+    }
+
+    RESTError << "Format " << ToUpper(extension) << " not recognized" << RESTendl;
+    return -1;
+}
+
+///////////////////////////////////////////////
+/// \brief It transposes the std::vector<std::vector> table given in the argument.
+/// It will transform rows in columns.
+///
+template <typename T>
+void TRestTools::TransposeTable(std::vector<std::vector<T>>& data) {
+    if (data.size() == 0) return;
+
+    std::vector<std::vector<T>> trans_vec(data[0].size(), std::vector<T>());
+
+    for (int i = 0; i < data.size(); i++)
+        for (int j = 0; j < data[i].size(); j++) trans_vec[j].push_back(data[i][j]);
+
+    data = trans_vec;
+}
+
+template void TRestTools::TransposeTable<Double_t>(std::vector<std::vector<Double_t>>& data);
+
+template void TRestTools::TransposeTable<Float_t>(std::vector<std::vector<Float_t>>& data);
+
+template void TRestTools::TransposeTable<Int_t>(std::vector<std::vector<Int_t>>& data);
+
+///////////////////////////////////////////////
+/// \brief It returns the maximum value for a particular `column` from the table given by
+/// argument. If no column is specified in the arguments, then it gets the maximum from the
+/// full table.
 ///
 /// This method is available for tables of type Float_t, Double_t and Int_t.
 ///
 template <typename T>
-T TRestTools::GetMaxValueFromTable(std::vector<std::vector<T>> data, Int_t column) {
-    if (data.size() == 0 || data[0].size() <= column) return 0;
-    T maxValue = data[0][column];
-    for (int n = 0; n < data.size(); n++)
-        if (maxValue < data[n][column]) maxValue = data[n][column];
+T TRestTools::GetMaxValueFromTable(const std::vector<std::vector<T>>& data, Int_t column) {
+    if (data.size() == 0) return 0;
+    if (column != -1 && data[0].size() <= column) return 0;
+
+    T maxValue = data[0][0];
+    if (column == -1) {
+        for (int n = 0; n < data.size(); n++)
+            for (int c = 0; c < data[n].size(); c++)
+                if (maxValue < data[n][c]) maxValue = data[n][c];
+    } else {
+        maxValue = data[0][column];
+        for (int n = 0; n < data.size(); n++)
+            if (maxValue < data[n][column]) maxValue = data[n][column];
+    }
+
     return maxValue;
 }
 
-template Int_t TRestTools::GetMaxValueFromTable<Int_t>(std::vector<std::vector<Int_t>> data, Int_t column);
+template Int_t TRestTools::GetMaxValueFromTable<Int_t>(const std::vector<std::vector<Int_t>>& data,
+                                                       Int_t column);
 
-template Float_t TRestTools::GetMaxValueFromTable<Float_t>(std::vector<std::vector<Float_t>> data,
+template Float_t TRestTools::GetMaxValueFromTable<Float_t>(const std::vector<std::vector<Float_t>>& data,
                                                            Int_t column);
 
-template Double_t TRestTools::GetMaxValueFromTable<Double_t>(std::vector<std::vector<Double_t>> data,
+template Double_t TRestTools::GetMaxValueFromTable<Double_t>(const std::vector<std::vector<Double_t>>& data,
                                                              Int_t column);
 
 ///////////////////////////////////////////////
-/// \brief It returns the minimum value for a particular `column` from the table given by argument.
+/// \brief It returns the minimum value for a particular `column` from the table given by
+/// argument. If no column is specified in the arguments, then it gets the minimum from the
+/// full table.
 ///
 /// This method is available for tables of type Float_t, Double_t and Int_t.
 ///
 template <typename T>
-T TRestTools::GetMinValueFromTable(std::vector<std::vector<T>> data, Int_t column) {
-    if (data.size() == 0 || data[0].size() <= column) return 0;
-    T minValue = data[0][column];
-    for (int n = 0; n < data.size(); n++)
-        if (minValue > data[n][column]) minValue = data[n][column];
+T TRestTools::GetMinValueFromTable(const std::vector<std::vector<T>>& data, Int_t column) {
+    if (data.empty()) return 0;
+    if (column != -1 && data[0].size() <= column) return 0;
+
+    T minValue = data[0][0];
+    if (column == -1) {
+        for (int n = 0; n < data.size(); n++)
+            for (int c = 0; c < data[n].size(); c++)
+                if (minValue > data[n][c]) minValue = data[n][c];
+    } else {
+        minValue = data[0][column];
+        for (int n = 0; n < data.size(); n++)
+            if (minValue > data[n][column]) minValue = data[n][column];
+    }
+
     return minValue;
 }
 
-template Int_t TRestTools::GetMinValueFromTable<Int_t>(std::vector<std::vector<Int_t>> data, Int_t column);
+template Int_t TRestTools::GetMinValueFromTable<Int_t>(const std::vector<std::vector<Int_t>>& data,
+                                                       Int_t column);
 
-template Float_t TRestTools::GetMinValueFromTable<Float_t>(std::vector<std::vector<Float_t>> data,
+template Float_t TRestTools::GetMinValueFromTable<Float_t>(const std::vector<std::vector<Float_t>>& data,
                                                            Int_t column);
 
-template Double_t TRestTools::GetMinValueFromTable<Double_t>(std::vector<std::vector<Double_t>> data,
+template Double_t TRestTools::GetMinValueFromTable<Double_t>(const std::vector<std::vector<Double_t>>& data,
                                                              Int_t column);
 
 ///////////////////////////////////////////////
-/// \brief It returns the lowest increase, different from zero, between the elements of a particular `column`
-/// from the table given by argument.
+/// \brief It returns the lowest increase, different from zero, between the elements of a
+/// particular `column` from the table given by argument.
 ///
 /// This method is available for tables of type Float_t, Double_t and Int_t.
 ///
-/// \warning This method will not check every possible column element difference. It will only look for
-/// consecutive elements steps.
+/// \warning This method will not check every possible column element difference. It will only
+/// look for consecutive elements steps.
 ///
 template <typename T>
 T TRestTools::GetLowestIncreaseFromTable(std::vector<std::vector<T>> data, Int_t column) {
@@ -252,16 +449,66 @@ template Double_t TRestTools::GetLowestIncreaseFromTable<Double_t>(std::vector<s
                                                                    Int_t column);
 
 ///////////////////////////////////////////////
-/// \brief Reads an ASCII file containning a table with values
+/// \brief It returns the lowest increase, different from zero, between the elements of a
+/// particular `column` from the table given by argument.
+///
+/// This method is available for tables of type Float_t, Double_t and Int_t.
+///
+/// \warning This method will not check every possible column element difference. It will only
+/// look for consecutive elements steps.
+///
+template <typename T>
+T TRestTools::GetIntegralFromTable(const std::vector<std::vector<T>>& data) {
+    if (data.size() == 0) return 0;
+    T sum = 0;
+    for (int n = 0; n < data.size(); n++) {
+        for (int m = 0; m < data[n].size(); m++) sum += data[n][m];
+    }
+    return sum;
+}
+
+template Int_t TRestTools::GetIntegralFromTable<Int_t>(const std::vector<std::vector<Int_t>>& data);
+
+template Float_t TRestTools::GetIntegralFromTable<Float_t>(const std::vector<std::vector<Float_t>>& data);
+
+template Double_t TRestTools::GetIntegralFromTable<Double_t>(const std::vector<std::vector<Double_t>>& data);
+
+///////////////////////////////////////////////
+/// \brief It returns a vector with the values extracted from the particular `column` inside the `data` table
+/// given by argument.
+///
+/// This method is available for tables of type Float_t, Double_t and Int_t.
+///
+template <typename T>
+std::vector<T> TRestTools::GetColumnFromTable(const std::vector<std::vector<T>>& data, int column) {
+    std::vector<T> columnData;
+    if (data.size() == 0 || data[0].size() <= column) return columnData;
+
+    for (int n = 0; n < data.size(); n++) columnData.push_back(data[n][column]);
+
+    return columnData;
+}
+
+template std::vector<Int_t> TRestTools::GetColumnFromTable<Int_t>(const std::vector<std::vector<Int_t>>& data,
+                                                                  int column);
+
+template std::vector<Float_t> TRestTools::GetColumnFromTable<Float_t>(
+    const std::vector<std::vector<Float_t>>& data, int column);
+
+template std::vector<Double_t> TRestTools::GetColumnFromTable<Double_t>(
+    const std::vector<std::vector<Double_t>>& data, int column);
+
+///////////////////////////////////////////////
+/// \brief Reads an ASCII file containing a table with values
 ///
 /// This method will open the file fName. This file should contain a tabulated
-/// ASCII table containning numeric values. The values on the table will be
+/// ASCII table containing numeric values. The values on the table will be
 /// loaded in the matrix provided through the argument `data`. The content of
 /// `data` will be cleared in this method.
 ///
 /// Only works with Double_t vector since we use StringToDouble method.
 ///
-int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data) {
+int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data, Int_t skipLines) {
     if (!TRestTools::isValidFile((string)fName)) {
         cout << "TRestTools::ReadASCIITable. Error" << endl;
         cout << "Cannot open file : " << fName << endl;
@@ -276,6 +523,11 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
     std::vector<std::vector<string>> values;
 
     for (string line; std::getline(fin, line);) {
+        if (skipLines > 0) {
+            skipLines--;
+            continue;
+        }
+
         if (line.find("#") == string::npos) {
             std::istringstream in(line);
             values.push_back(
@@ -283,8 +535,7 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
         }
     }
 
-    // Filling the double values table (TODO error handling in case ToDouble
-    // conversion fails)
+    // Filling the double values table (TODO error handling in case ToDouble conversion fails)
     for (int n = 0; n < values.size(); n++) {
         std::vector<Double_t> dblTmp;
         dblTmp.clear();
@@ -298,16 +549,16 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
 }
 
 ///////////////////////////////////////////////
-/// \brief Reads an ASCII file containning a table with values
+/// \brief Reads an ASCII file containing a table with values
 ///
 /// This method will open the file fName. This file should contain a tabulated
-/// ASCII table containning numeric values. The values on the table will be
+/// ASCII table containing numeric values. The values on the table will be
 /// loaded in the matrix provided through the argument `data`. The content of
 /// `data` will be cleared in this method.
 ///
 /// This version works with Float_t vector since we use StringToFloat method.
 ///
-int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data) {
+int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines) {
     if (!TRestTools::isValidFile((string)fName)) {
         cout << "TRestTools::ReadASCIITable. Error" << endl;
         cout << "Cannot open file : " << fName << endl;
@@ -322,6 +573,11 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& 
     std::vector<std::vector<string>> values;
 
     for (string line; std::getline(fin, line);) {
+        if (skipLines > 0) {
+            skipLines--;
+            continue;
+        }
+
         if (line.find("#") == string::npos) {
             std::istringstream in(line);
             values.push_back(
@@ -346,11 +602,7 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& 
 ///////////////////////////////////////////////
 /// \brief Returns true if the file with path filename exists.
 ///
-Int_t TRestTools::isValidFile(const string& path) {
-    struct stat buffer;
-    stat(path.c_str(), &buffer);
-    return S_ISREG(buffer.st_mode);
-}
+Int_t TRestTools::isValidFile(const string& path) { return std::filesystem::is_regular_file(path); }
 
 ///////////////////////////////////////////////
 /// \brief Returns true if the file (or directory) with path filename exists.
@@ -359,10 +611,7 @@ Int_t TRestTools::isValidFile(const string& path) {
 /// We should call `isValidFile` to check if we will be able to open it without
 /// problems.
 ///
-bool TRestTools::fileExists(const string& filename) {
-    struct stat buffer;
-    return (stat(filename.c_str(), &buffer) == 0);
-}
+bool TRestTools::fileExists(const string& filename) { return std::filesystem::exists(filename); }
 
 ///////////////////////////////////////////////
 /// \brief Returns true if the **filename** has *.root* extension.
@@ -377,8 +626,9 @@ bool TRestTools::isRootFile(const string& filename) {
 /// \brief Returns true if **filename** is an *http* address.
 ///
 bool TRestTools::isURL(const string& filename) {
-    if (filename.find("http") == 0) return true;
-
+    if (filename.find("http") == 0) {
+        return true;
+    }
     return false;
 }
 
@@ -420,25 +670,27 @@ bool TRestTools::isAbsolutePath(const string& path) {
 /// Input: "abc.txt" and ":", Output: { ".", "abc.txt" }
 /// Input: "/home/nkx/" and ":", Output: { "/home/nkx/", "" }
 ///
-std::pair<string, string> TRestTools::SeparatePathAndName(string fullname) {
-    fullname = RemoveMultipleSlash(fullname);
-    pair<string, string> result;
-    int pos = fullname.find_last_of('/', -1);
+std::pair<string, string> TRestTools::SeparatePathAndName(const string& fullname) {
+    filesystem::path path(fullname);
+    return {path.parent_path().string(), path.filename().string()};
+}
 
-    if (pos == -1) {
-        result.first = ".";
-        result.second = fullname;
-    } else if (pos == 0) {
-        result.first = "/";
-        result.second = fullname.substr(1, fullname.size() - 1);
-    } else if (pos == fullname.size() - 1) {
-        result.first = fullname;
-        result.second = "";
-    } else {
-        result.first = fullname.substr(0, pos + 1);
-        result.second = fullname.substr(pos + 1, fullname.size() - pos - 1);
-    }
-    return result;
+///////////////////////////////////////////////
+/// \brief Gets the file extension as the substring found after the latest "."
+///
+/// Input: "/home/jgalan/abc.txt" Output: "txt"
+///
+string TRestTools::GetFileNameExtension(const string& fullname) {
+    return filesystem::path(fullname).extension().string();
+}
+
+///////////////////////////////////////////////
+/// \brief Gets the filename root as the substring found before the latest "."
+///
+/// Input: "/home/jgalan/abc.txt" Output: "abc"
+///
+string TRestTools::GetFileNameRoot(const string& fullname) {
+    return filesystem::path(fullname).stem().string();
 }
 
 ///////////////////////////////////////////////
@@ -466,25 +718,36 @@ string TRestTools::RemoveMultipleSlash(string str) {
 /// Input: "/home/nkx/abc.txt", Returns: "abc.txt"
 /// Input: "/home/nkx/", Output: ""
 ///
-string TRestTools::GetPureFileName(string fullpathFileName) {
-    fullpathFileName = RemoveMultipleSlash(fullpathFileName);
-    return SeparatePathAndName(fullpathFileName).second;
-}
+string TRestTools::GetPureFileName(const string& path) { return filesystem::path(path).filename().string(); }
 
 ///////////////////////////////////////////////
-/// \brief It takes a filename and adds it a full path based on
-/// the directory the system is at the moment of the method call,
-/// through the PWD system variable.
+/// \brief It takes a path and returns its absolute path
 ///
-string TRestTools::ToAbsoluteName(string filename) {
-    string result = filename;
-    if (filename[0] == '~') {
-        result = (string)getenv("HOME") + filename.substr(1, -1);
-    } else if (filename[0] != '/') {
-        result = (string)getenv("PWD") + "/" + filename;
+string TRestTools::ToAbsoluteName(const string& filename) {
+    filesystem::path path;
+    for (const auto directory : filesystem::path(filename)) {
+        if (path.empty() && directory == "~") {
+            // path starts with ~
+            const auto envVariableHome = getenv("HOME");
+            if (envVariableHome == nullptr) {
+                cout << "TRestTools::ToAbsoluteName - ERROR - "
+                        "cannot resolve ~ because 'HOME' env variable does not exist"
+                     << endl;
+                exit(1);
+            }
+            const auto userHomePath = filesystem::path(envVariableHome);
+            if (userHomePath.empty()) {
+                cout << "TRestTools::ToAbsoluteName - ERROR - "
+                        "cannot resolve ~ because 'HOME' env variable is not set to a valid value"
+                     << endl;
+                exit(1);
+            }
+            path /= userHomePath;
+        } else {
+            path /= directory;
+        }
     }
-    result = RemoveMultipleSlash(result);
-    return result;
+    return filesystem::weakly_canonical(path).string();
 }
 
 ///////////////////////////////////////////////
@@ -496,37 +759,24 @@ string TRestTools::ToAbsoluteName(string filename) {
 ///
 /// Otherwise recurse only certain times.
 ///
-vector<string> TRestTools::GetSubdirectories(const string& path, int recursion) {
+vector<string> TRestTools::GetSubdirectories(const string& _path, int recursion) {
     vector<string> result;
-    if (auto dir = opendir(path.c_str())) {
-        while (1) {
-            auto f = readdir(dir);
-            if (f == nullptr) {
-                break;
-            }
-            if (f->d_name[0] == '.') continue;
 
-            string ipath;
-            if (path[path.size() - 1] != '/') {
-                ipath = path + "/" + f->d_name + "/";
-            } else {
-                ipath = path + f->d_name + "/";
-            }
-
-            // if (f->d_type == DT_DIR)
-            if (opendir(ipath.c_str()))  // to make sure it is a directory
-            {
-                result.push_back(ipath);
+    std::filesystem::path path(_path);
+    if (exists(path)) {
+        std::filesystem::directory_iterator iter(path);
+        for (auto& it : iter) {
+            if (it.is_directory()) {
+                result.push_back(it.path().string());
 
                 if (recursion != 0) {
-                    vector<string> subD = GetSubdirectories(ipath, recursion - 1);
+                    vector<string> subD = GetSubdirectories(it.path().string(), recursion - 1);
                     result.insert(result.begin(), subD.begin(), subD.end());
-                    //, cb);
                 }
             }
         }
-        closedir(dir);
     }
+
     return result;
 }
 
@@ -551,26 +801,26 @@ string TRestTools::SearchFileInPath(vector<string> paths, string filename) {
             // search also in subdirectory, but only 5 times of recursion
             vector<string> pathsExpanded = GetSubdirectories(paths[i], 5);
             for (int j = 0; j < pathsExpanded.size(); j++)
-                if (fileExists(pathsExpanded[j] + filename)) return pathsExpanded[j] + filename;
+                if (fileExists(pathsExpanded[j] + "/" + filename)) return pathsExpanded[j] + "/" + filename;
         }
     }
     return "";
 }
 
 ///////////////////////////////////////////////
-/// \brief Checks if the config file can be openned. It returns OK in case of
-/// success, ERROR otherwise.
+/// \brief Checks if the config file can be opened (and thus exists).
+/// It returns true in case of success, false otherwise.
 ///
-Int_t TRestTools::ChecktheFile(string FileName) {
+bool TRestTools::CheckFileIsAccessible(const std::string& filename) {
     ifstream ifs;
-    ifs.open(FileName.c_str());
+    ifs.open(filename.c_str());
 
     if (!ifs) {
-        return -1;
-    } else
+        return false;
+    } else {
         ifs.close();
-
-    return 0;
+    }
+    return true;
 }
 
 ///////////////////////////////////////////////
@@ -579,35 +829,41 @@ Int_t TRestTools::ChecktheFile(string FileName) {
 ///
 vector<string> TRestTools::GetFilesMatchingPattern(string pattern) {
     std::vector<string> outputFileNames;
-
     if (pattern != "") {
         vector<string> items = Split(pattern, "\n");
-
         for (auto item : items) {
-            if (item.find_first_of("*") >= 0 || item.find_first_of("?") >= 0) {
+            if (item.find_first_of("*?") != string::npos) {
+#ifdef WIN32
+                item = Replace(item, "/", "\\");
+                string item_trim =
+                    item.substr(0, item.find_first_of("*?"));  // trim string to before wildcard character
+                auto path_name = SeparatePathAndName(item_trim);
+                string _path = path_name.first;
+                if (!std::filesystem::exists(_path)) {
+                    RESTError << "TRestTools::GetFilesMatchingPattern(): path " << _path << " does not exist!"
+                              << RESTendl;
+                    return outputFileNames;
+                }
+
+                std::filesystem::path path(_path);
+                std::filesystem::recursive_directory_iterator iter(path);
+                for (auto& it : iter) {
+                    if (it.is_regular_file()) {
+                        string filename = it.path().string();
+                        if (MatchString(filename, item)) {
+                            outputFileNames.push_back(it.path().string());
+                        }
+                    }
+                }
+#else
                 string a = Execute("find " + item);
                 auto b = Split(a, "\n");
 
                 for (int i = 0; i < b.size(); i++) {
                     outputFileNames.push_back(b[i]);
                 }
+#endif
 
-                // char command[256];
-                // sprintf(command, "find %s > /tmp/RESTTools_fileList.tmp",
-                // pattern.Data());
-
-                // system(command);
-
-                // FILE *fin = fopen("/tmp/RESTTools_fileList.tmp", "r");
-                // char str[256];
-                // while (fscanf(fin, "%s\n", str) != EOF)
-                //{
-                //	TString newFile = str;
-                //	outputFileNames.push_back(newFile);
-                //}
-                // fclose(fin);
-
-                // system("rm /tmp/RESTTools_fileList.tmp");
             } else {
                 if (fileExists(item)) outputFileNames.push_back(item);
             }
@@ -645,7 +901,12 @@ int TRestTools::ConvertVersionCode(string in) {
 string TRestTools::Execute(string cmd) {
     std::array<char, 128> buffer;
     string result;
+#ifdef WIN32
+    std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(("powershell.exe " + cmd).c_str(), "r"), _pclose);
+#else
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
+#endif  // WIN32
+
     if (!pipe) {
         throw std::runtime_error("popen() failed!");
     }
@@ -698,7 +959,8 @@ std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
 ///
 /// The file name is given in url format, and is parsed by TUrl. Various methods
 /// will be used, including scp, wget. Downloads to REST_USER_PATH + "/download/" + filename
-/// by default
+/// by default.
+///
 std::string TRestTools::DownloadRemoteFile(string url) {
     string purename = TRestTools::GetPureFileName(url);
     if (purename == "") {
@@ -712,8 +974,20 @@ std::string TRestTools::DownloadRemoteFile(string url) {
         return Replace(url, "local:", "");
     } else {
         string fullpath = REST_USER_PATH + "/download/" + purename;
+        int out;
+        int attempts = 10;
+        do {
+            out = TRestTools::DownloadRemoteFile(url, fullpath);
+            if (out == 1024) {
+                RESTWarning << "Retrying download in 5 seconds" << RESTendl;
+                std::this_thread::sleep_for(std::chrono::seconds(5));
+            } else if (attempts < 10) {
+                RESTSuccess << "Download suceeded after " << 10 - attempts << " attempts" << RESTendl;
+            }
+            attempts--;
+        } while (out == 1024 && attempts > 0);
 
-        if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
+        if (out == 0) {
             return fullpath;
         } else if (TRestTools::fileExists(fullpath)) {
             return fullpath;
@@ -729,11 +1003,12 @@ std::string TRestTools::DownloadRemoteFile(string url) {
 ///
 /// The file name is given in url format, and is parsed by TUrl. Various methods
 /// will be used, including scp, wget. returns 0 if succeed.
+///
 int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
     TUrl url(remoteFile.c_str());
 
-    info << "Downloading remote file : " << remoteFile << endl;
-    info << "To local file : " << localFile << endl;
+    RESTInfo << "Downloading remote file : " << remoteFile << RESTendl;
+    RESTInfo << "To local file : " << localFile << RESTendl;
 
     string localFiletmp = localFile + ".restdownload";
     if ((string)url.GetProtocol() == "https" || (string)url.GetProtocol() == "http") {
@@ -744,16 +1019,22 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
 
         string cmd = "wget --no-check-certificate " + EscapeSpecialLetters(remoteFile) + " -O " +
                      EscapeSpecialLetters(localFiletmp) + " -q";
-        debug << cmd << endl;
+        RESTDebug << cmd << RESTendl;
         int a = system(cmd.c_str());
 
         if (a == 0) {
             rename(localFiletmp.c_str(), localFile.c_str());
             return 0;
         } else {
-            ferr << "download failed! (" << remoteFile << ")" << endl;
-            if (a == 1024) ferr << "Network connection problem?" << endl;
-            if (a == 2048) ferr << "File does NOT exist in remotely?" << endl;
+            RESTError << "download failed! (" << remoteFile << ")" << RESTendl;
+            if (a == 1024) {
+                RESTError << "Network connection problem?" << RESTendl;
+                return 1024;
+            }
+            if (a == 2048) {
+                RESTError << "File does NOT exist in remotely?" << RESTendl;
+                return 2048;
+            }
         }
     } else if ((string)url.GetProtocol() == "ssh") {
         string cmd = "scp -P " + ToString(url.GetPort() == 0 ? 22 : url.GetPort()) + " " + url.GetUser() +
@@ -765,10 +1046,69 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
             return 0;
         }
     } else {
-        ferr << "unknown protocol!" << endl;
+        RESTError << "unknown protocol!" << RESTendl;
     }
 
     return -1;
+}
+
+///////////////////////////////////////////////
+/// \brief It performs a POST web protocol request using a set of keys and values given
+/// by argument, and returns the result as a string.
+///
+std::string TRestTools::POSTRequest(const std::string& url, const std::map<std::string, std::string>& keys) {
+    std::string file_content = "";
+#ifdef USE_Curl
+    CURL* curl;
+    CURLcode res;
+
+    string filename = REST_USER_PATH + "/download/curl.out";
+
+    /* In windows, this will init the winsock stuff */
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    FILE* f = fopen(filename.c_str(), "wt");
+
+    std::string request = "";
+    int n = 0;
+    for (auto const& x : keys) {
+        if (n > 0) request += "&";
+        request += x.first + "=" + x.second;
+        n++;
+    }
+    /* get a curl handle */
+    curl = curl_easy_init();
+    if (curl) {
+        /* First set the URL that is about to receive our POST. This URL can
+           just as well be a https:// URL if that is what should receive the
+           data. */
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)f);
+        /* Now specify the POST data */
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.c_str());
+
+        /* Perform the request, res will get the return code */
+        res = curl_easy_perform(curl);
+        /* Check for errors */
+        if (res != CURLE_OK)
+            RESTError << "curl_easy_perform() failed: " << curl_easy_strerror(res) << RESTendl;
+
+        /* always cleanup */
+        curl_easy_cleanup(curl);
+    }
+    fclose(f);
+    curl_global_cleanup();
+
+    std::getline(std::ifstream(filename), file_content, '\0');
+#else
+    RESTError << "TRestTools::POSTRequest. REST framework was compiled without CURL support" << RESTendl;
+    RESTError << "Please recompile REST after installing curl development libraries." << RESTendl;
+    RESTError << "Depending on your system this might be: curl-dev, curl-devel or libcurl-openssl-dev. "
+              << RESTendl;
+    RESTError << "No file will be downloaded" << RESTendl;
+#endif
+
+    return file_content;
 }
 
 ///////////////////////////////////////////////
@@ -776,17 +1116,17 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
 /// inside remotefile.
 ///
 /// Example: UploadToServer("/home/nkx/abc.txt", "https://sultan.unizar.es/gasFiles/gases.rml",
-/// "ssh://nkx:M123456@:8322") Then, the local file abc.txt will be uploaded to the server, renamed to
-/// gases.rml and overwrite it
-int TRestTools::UploadToServer(string filelocal, string remotefile, string methodurl) {
-    if (!TRestTools::fileExists(filelocal)) {
+/// "ssh://nkx:M123456@:8322") Then, the local file abc.txt will be uploaded to the server,
+/// renamed to gases.rml and overwrite it
+int TRestTools::UploadToServer(string localFile, string remoteFile, string methodUrl) {
+    if (!TRestTools::fileExists(localFile)) {
         cout << "error! local file not exist!" << endl;
         return -1;
     }
     // construct path
     // [proto://][user[:passwd]@]host[:port]/file.ext[#anchor][?options]
-    TUrl url(remotefile.c_str());
-    TUrl method(methodurl.c_str());
+    TUrl url(remoteFile.c_str());
+    TUrl method(methodUrl.c_str());
     if (method.GetProtocol() != (string) "") url.SetProtocol(method.GetProtocol());
     if (method.GetPort() != 0) url.SetPort(method.GetPort());
     if (method.GetUser() != (string) "") url.SetUser(method.GetUser());
@@ -796,17 +1136,17 @@ int TRestTools::UploadToServer(string filelocal, string remotefile, string metho
         // maybe we use curl to upload to http in future
     } else if ((string)url.GetProtocol() == "ssh") {
         string cmd = "scp -P " + ToString(url.GetPort() == 0 ? 22 : url.GetPort()) + " " +
-                     EscapeSpecialLetters(filelocal) + " " + url.GetUser() + "@" + url.GetHost() + ":" +
+                     EscapeSpecialLetters(localFile) + " " + url.GetUser() + "@" + url.GetHost() + ":" +
                      EscapeSpecialLetters(url.GetFile());
         cout << cmd << endl;
         int a = system(cmd.c_str());
 
         if (a != 0) {
-            ferr << __PRETTY_FUNCTION__ << endl;
-            ferr << "problem copying gases definitions to remote server" << endl;
-            ferr << "Please report this problem at "
-                    "http://gifna.unizar.es/rest-forum/"
-                 << endl;
+            RESTError << __PRETTY_FUNCTION__ << RESTendl;
+            RESTError << "problem copying gases definitions to remote server" << RESTendl;
+            RESTError << "Please report this problem at "
+                         "http://gifna.unizar.es/rest-forum/"
+                      << RESTendl;
             return -1;
         }
 
@@ -815,32 +1155,4 @@ int TRestTools::UploadToServer(string filelocal, string remotefile, string metho
     return 0;
 }
 
-void TRestTools::ChangeDirectory( string toDirectory ) {
-
-        char originDirectory[256];
-        sprintf(originDirectory, "%s", getenv("PWD"));
-        chdir(toDirectory.c_str());
-
-		string fullPath = "";
-		if( toDirectory[0] == '/' )
-			fullPath = toDirectory;
-		else
-			fullPath = (string) originDirectory + "/" + toDirectory;
-
-		setenv ( "PWD", fullPath.c_str(), 1 );
-		setenv ( "OLDPWD", originDirectory, 1 );
-}
-
-void TRestTools::ReturnToPreviousDirectory( ) {
-
-        char originDirectory[256];
-        sprintf(originDirectory, "%s", getenv("PWD"));
-
-        char newDirectory[256];
-        sprintf(newDirectory, "%s", getenv("OLDPWD"));
-
-		setenv ( "PWD", newDirectory, 1 );
-		setenv ( "OLDPWD", originDirectory, 1 );
-
-		chdir( newDirectory );
-}
+void TRestTools::ChangeDirectory(const string& toDirectory) { filesystem::current_path(toDirectory); }
