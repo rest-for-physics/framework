@@ -1548,14 +1548,15 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXml
 /// A version of GetParameter() but only find parameter in the fields of xml
 /// element. If not found, the returned string is "Not defined"
 ///
-std::string TRestMetadata::GetFieldValue(std::string parName, TiXmlElement* e) {
+string TRestMetadata::GetFieldValue(const string& parName, const TiXmlElement* e,
+                                    const string& defaultValue) const {
     if (e == nullptr) {
         RESTDebug << "Element is null" << RESTendl;
-        return "Not defined";
+        return defaultValue;
     }
     const char* val = e->Attribute(parName.c_str());
     if (val == nullptr) {
-        return "Not defined";
+        return defaultValue;
     }
 
     string result = (string)val;

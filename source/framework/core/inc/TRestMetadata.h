@@ -91,7 +91,8 @@ class TRestMetadata : public TNamed {
 
    protected:
     // new xml utilities
-    std::string GetFieldValue(std::string parName, TiXmlElement* e);
+    std::string GetFieldValue(const std::string& parName, const TiXmlElement* e,
+                              const std::string& defaultValue = "Not defined") const;
     std::string GetParameter(std::string parName, TiXmlElement* e,
                              TString defaultValue = PARAMETER_NOT_FOUND_STR);
     Double_t GetDblParameterWithUnits(std::string parName, TiXmlElement* e,
