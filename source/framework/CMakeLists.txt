@@ -21,6 +21,21 @@ if (NOT ${CURL_LIB} STREQUAL "CURL_LIB-NOTFOUND")
     set(external_libs "${external_libs};-lcurl;-lstdc++fs")
 endif ()
 
+find_path( MPFR_FOUND mpfr.h )
+if( MPFR_FOUND MATCHES "MPFR_FOUND-NOTFOUND" )
+	if( EXISTS ${MPFR_PATH}/include/mpfr.h )
+		set( MPFR_FOUND FOUND )
+	endif()
+endif()
+
+if( MPFR_FOUND MATCHES "MPFR_FOUND-NOTFOUND" )
+	message( FATAL_ERROR "MPFR library was not found. Adding the location to the installation path may solve this problem.\n Use -DMPFR_PATH=/path/to/mpfr/" )
+else()
+	set( external_include_dirs ${external_include_dirs} ${MPFR_PATH}/include )
+    set( external_libs "${external_libs};-lmpfr")
+	link_directories( ${MPFR_PATH}/lib )
+endif()
+
 COMPILEDIR(RestFramework)
 
 ADD_LIBRARY_TEST()
