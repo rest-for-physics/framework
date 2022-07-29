@@ -625,8 +625,8 @@ string REST_StringHelper::IntegerToString(Int_t n, std::string format) { return 
 ///
 string REST_StringHelper::DoubleToString(Double_t d, std::string format) { return Form(format.c_str(), d); }
 
-Bool_t REST_StringHelper::StringToBool(std::string in) {
-    return (ToUpper(in) == "TRUE" || ToUpper(in) == "ON");
+Bool_t REST_StringHelper::StringToBool(const std::string& in) {
+    return (ToUpper(in) == "TRUE" || ToUpper(in) == "ON" || ToUpper(in) == "1");
 }
 
 Long64_t REST_StringHelper::StringToLong(std::string in) {
