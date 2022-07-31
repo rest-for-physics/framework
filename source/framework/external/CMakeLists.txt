@@ -26,4 +26,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(fmt)
 install(DIRECTORY ${fmt_SOURCE_DIR}/include DESTINATION .)
 
+set(local_include_dirs ${local_include_dirs} ${fmt_SOURCE_DIR}/include PARENT_SCOPE)
+set(external_libs "${external_libs};fmt" PARENT_SCOPE)
+
 message(STATUS "End of external dependencies")
