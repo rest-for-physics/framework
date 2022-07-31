@@ -1,5 +1,5 @@
 
-message(STATUS "External dependencies:")
+message(STATUS "Begin of external dependencies")
 
 include(FetchContent)
 set(FETCHCONTENT_QUIET ON)
@@ -15,3 +15,15 @@ if (TEST)
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE) # Windows only
     FetchContent_MakeAvailable(googletest)
 endif ()
+
+# c++ modern string formatting (https://github.com/fmtlib/fmt)
+message(STATUS "- fmt")
+FetchContent_Declare(
+        fmt
+        GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+        GIT_TAG 9.0.0
+)
+FetchContent_MakeAvailable(fmt)
+install(DIRECTORY ${fmt_SOURCE_DIR}/include DESTINATION .)
+
+message(STATUS "End of external dependencies")
