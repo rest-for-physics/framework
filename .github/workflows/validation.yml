@@ -95,10 +95,10 @@ jobs:
           path: ${{ env.REST_PATH }}
       - name: Open V2.2 file
         run: |
-          source  ${{ env.REST_PATH }}/thisREST.sh
+          source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/fileopening
           restManager PrintTrees v2.2.30_hits.root
-          
+
   metadata:
     name: "Metadata"
     runs-on: ubuntu-latest
@@ -123,7 +123,7 @@ jobs:
       # Not used in gitlab pipeline, checks $CI_SERVER_HOST
       - name: Load Gas
         run: |
-          source   ${{ env.REST_PATH }}/thisREST.sh
+          source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/metadata/gas/
           restRoot -b -q LoadGasFromServerAndValidate.C
       # Not working, not used in gitlab pipeline
@@ -174,10 +174,10 @@ jobs:
           path: ${{ env.REST_PATH }}
       - name: 02_PandaXiiiMC
         run: |
-          source  ${{ env.REST_PATH }}/thisREST.sh
+          source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
-          restG4 Xe136bb0n.rml -o Xe136bb0n.root
-          restRoot -b -q ValidateG4.C'("Xe136bb0n.root")'
+          restG4 ${{ env.REST_PATH }}/examples/restG4/05.PandaXIII/Xe136bb0n.rml -o Xe136bb0n.root
+          restRoot -b -q ${{ env.REST_PATH }}/examples/restG4/05.PandaXIII/Validate.C'("Xe136bb0n.root")'
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -251,7 +251,7 @@ jobs:
           path: ${{ env.REST_PATH }}
       - name: TREX-DM Latest Data
         run: |
-          source  ${{ env.REST_PATH }}/thisREST.sh
+          source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/trex
           wget https://sultan.unizar.es/trexdm-readouts/readouts_v2.3.root
           restManager --c 01_raw.rml --f R01928_tagTest_Vm_250_Vd_160_Pr_6_Gain_0x0_Shape_0xF_Clock_0x4-068.aqs
@@ -424,8 +424,8 @@ jobs:
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
-          restG4 Xe136bb0n.rml -o Xe136bb0n.root
-          restRoot -b -q ValidateG4.C'("Xe136bb0n.root")'
+          restG4 ${{ env.REST_PATH }}/examples/restG4/05.PandaXIII/Xe136bb0n.rml -o Xe136bb0n.root
+          restRoot -b -q ${{ env.REST_PATH }}/examples/restG4/05.PandaXIII/ValidateG4.C'("Xe136bb0n.root")'
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
