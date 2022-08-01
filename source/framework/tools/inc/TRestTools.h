@@ -23,6 +23,8 @@
 #ifndef RestCore_TRestTools
 #define RestCore_TRestTools
 
+#include <TObject.h>
+
 #include <map>
 #include <memory>
 #include <string>
@@ -46,10 +48,8 @@ EXTERN_DEF std::string REST_PATH;
 EXTERN_DEF std::string REST_USER;
 EXTERN_DEF std::string REST_USER_PATH;
 EXTERN_DEF std::string REST_TMP_PATH;
-
-#include "TObject.h"
-
 EXTERN_DEF std::map<std::string, std::string> REST_ARGS;
+
 /// A generic class with useful static methods.
 class TRestTools {
    public:
@@ -151,8 +151,7 @@ inline void SetInitLevel(T* name, int level) {
     GlobalVarInit<T>::level = level;
 }
 
-// Initialize global variable with vertain class, overwriting the 
-// dummy variable of its base class. 
+// Initialize global variable with certain class, overwriting the dummy variable of its base class.
 // For example, we initialize gDataBase as TRestDataBase in Framework
 // library. When we load restP3DB library, this object will be overwritten
 // by a new TRestDataBaseP3DB class object, by calling this macro
@@ -175,5 +174,25 @@ inline void SetInitLevel(T* name, int level) {
     const __##classname##_Init classname##_Init;
 
 }  // namespace REST_InitTools
+
+namespace fmt {
+enum Quantities { ENERGY, LENGTH, TIME };
+class ValueWithQuantity {
+   public:
+    ValueWithQuantity(double value, Quantities quantity) : fValue(value), fQuantity(quantity){};
+    double GetValue() const { return fValue; }
+    std::string ToString() const;
+
+    inline operator std::string() const { return ToString(); }
+
+   private:
+    const double fValue;
+    const Quantities fQuantity;
+};
+
+inline std::string ToEnergyString(double value) { return (std::string)ValueWithQuantity(value, ENERGY); }
+inline std::string ToTimeString(double value) { return (std::string)ValueWithQuantity(value, TIME); }
+inline std::string ToLengthString(double value) { return (std::string)ValueWithQuantity(value, LENGTH); }
+};  // namespace fmt
 
 #endif
