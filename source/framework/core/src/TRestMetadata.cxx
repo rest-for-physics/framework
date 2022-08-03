@@ -814,12 +814,11 @@ Int_t TRestMetadata::LoadSectionMetadata() {
     fVerboseLevel = StringToVerboseLevel(debugStr);
 
     // fill the general metadata info: name, title, fstore
-    this->SetName(GetParameter("name", "defaultName").c_str());
-    this->SetTitle(GetParameter("title", "defaultTitle").c_str());
+    this->SetName(GetParameter("name", "default" + string(this->ClassName())).c_str());
+    this->SetTitle(GetParameter("title", "Default " + string(this->ClassName())).c_str());
     this->SetSectionName(this->ClassName());
     fStore =
         ToUpper(GetParameter("store", "true")) == "TRUE" || ToUpper(GetParameter("store", "true")) == "ON";
-
     return 0;
 }
 
