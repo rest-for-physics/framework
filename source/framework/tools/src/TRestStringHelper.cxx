@@ -625,10 +625,10 @@ string REST_StringHelper::IntegerToString(Int_t n, string format) { return Form(
 ///
 string REST_StringHelper::DoubleToString(Double_t d, string format) { return Form(format.c_str(), d); }
 
-Bool_t REST_StringHelper::StringToBool(const string& booleanString) {
+Bool_t REST_StringHelper::StringToBool(string booleanString) {
     const auto booleanStringUpper = ToUpper(booleanString);
-    return (booleanStringUpper == "TRUE" || booleanStringUpper == "ON" ||
-            booleanStringUpper == to_string(true));
+    return booleanStringUpper == "TRUE" || booleanStringUpper == "ON" ||
+           booleanStringUpper == to_string(true);
 }
 
 Long64_t REST_StringHelper::StringToLong(string in) {
