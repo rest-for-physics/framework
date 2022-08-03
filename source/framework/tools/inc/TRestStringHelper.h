@@ -36,7 +36,7 @@ Double_t StringToDouble(std::string in);
 Int_t StringToInteger(std::string in);
 std::string IntegerToString(Int_t n, std::string format = "%d");
 std::string DoubleToString(Double_t d, std::string format = "%4.2lf");
-Bool_t StringToBool(const std::string& booleanString);
+Bool_t StringToBool(std::string booleanString);
 Long64_t StringToLong(std::string in);
 TVector3 StringTo3DVector(std::string in);
 TVector2 StringTo2DVector(std::string in);
