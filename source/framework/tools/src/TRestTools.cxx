@@ -46,6 +46,8 @@
 #include <TClass.h>
 #include <TSystem.h>
 #include <TUrl.h>
+#include <fmt/color.h>
+#include <fmt/core.h>
 
 #ifdef USE_Curl
 #include <curl/curl.h>
@@ -68,6 +70,7 @@
 #include "TRestStringOutput.h"
 
 using namespace std;
+using namespace fmt;
 
 ClassImp(TRestTools);
 
@@ -616,9 +619,7 @@ bool TRestTools::fileExists(const string& filename) { return std::filesystem::ex
 ///////////////////////////////////////////////
 /// \brief Returns true if the **filename** has *.root* extension.
 ///
-bool TRestTools::isRootFile(const string& filename) {
-    return GetFileNameExtension(filename) == ".root";
-}
+bool TRestTools::isRootFile(const string& filename) { return GetFileNameExtension(filename) == ".root"; }
 
 ///////////////////////////////////////////////
 /// \brief Returns true if **filename** is an *http* address.
@@ -1154,3 +1155,42 @@ int TRestTools::UploadToServer(string localFile, string remoteFile, string metho
 }
 
 void TRestTools::ChangeDirectory(const string& toDirectory) { filesystem::current_path(toDirectory); }
+
+string fmt::ValueWithQuantity::ToString() const {
+    string unit;
+    auto value = fValue;
+    if (fQuantity == ENERGY) {
+        unit = "eV";
+        value *= 1E3;  // since we store energy in keV, not in eV
+
+    } else if (fQuantity == TIME) {
+        unit = "s";  // time is stored in seconds
+
+    } else if (fQuantity == LENGTH) {
+        unit = "m";
+        value *= 1E-3;  // since we store length in mm, not in m
+    } else {
+        return "";
+    }
+
+    const auto abs = TMath::Abs(value);
+    if (abs == 0) {
+        return format("{}", 0);
+    } else if (abs < 1E-6) {
+        return format("{:0.2f} {}{}", value * 1E9, "n", unit);
+    } else if (abs < 1E-3) {
+        return format("{:0.2f} {}{}", value * 1E6, "u", unit);
+    } else if (abs < 1E0) {
+        return format("{:0.2f} {}{}", value * 1E3, "m", unit);
+    } else if (abs < 1E3) {
+        return format("{:0.2f} {}{}", value * 1E0, "", unit);
+    } else if (abs < 1E6) {
+        return format("{:0.2f} {}{}", value * 1E-3, "k", unit);
+    } else if (abs < 1E9) {
+        return format("{:0.2f} {}{}", value * 1E-6, "M", unit);
+    } else if (abs < 1E12) {
+        return format("{:0.2f} {}{}", value * 1E-9, "G", unit);
+    } else {
+        return format("{:0.2f} {}{}", value * 1E-12, "T", unit);
+    }
+}
