@@ -24,7 +24,10 @@
 class TRestBrowser {
    protected:
 #ifndef __CINT__
-    TGMainFrame* frmMain = nullptr;                 //!
+    TGMainFrame* frmMain = nullptr;      //!
+    TGMainFrame* frmBot = 0;  //!
+
+    // Frames and buttons on left//!
     TGVerticalFrame* fVFrame = nullptr;             //! < The main vertical frame for browser controlling
     TGLabel* fEventRowLabel = nullptr;              //!
     TGLabel* fEventIdLabel = nullptr;               //!
@@ -45,6 +48,13 @@ class TRestBrowser {
     TGPictureButton* fMenuOpen = nullptr;  //! Open file button
     TGTextButton* fExit = nullptr;         //! Exit button
 
+    // Frames and buttons on bottom
+    TGVerticalFrame* fHFrame = 0;         //!
+    TGLabel* fSelectionTextBoxLabel = 0;  //!
+    TGTextEntry* fSelectionTextBox = 0;   //! TextBox for plot options
+    TGTextButton* fButEvePrev = 0;        //! Previous plot option
+    TGTextButton* fButEveNext = 0;        //! Refresh plot
+
     TCanvas* fCanDefault = nullptr;  //!
     Int_t fEventRow = 0;             //!
     Int_t fEventId = 0;              //!
@@ -63,7 +73,8 @@ class TRestBrowser {
 
     void SetViewer(TRestEventViewer* eV);
     void SetViewer(const TString& viewerName);
-    void SetButtons();
+    void SetLeftPanelButtons();
+    void SetBottomPanelButtons();
     Bool_t LoadEventId(Int_t eventID, Int_t subEventID = -1);
     Bool_t LoadEventEntry(Int_t n);
 #endif
@@ -87,6 +98,8 @@ class TRestBrowser {
 
     void RowValueChangedAction(Long_t val);
     void IdValueChangedAction(Long_t val);
+    void NextEventAction();
+    void PreviousEventAction();
 
     void EventTypeChangedAction(Int_t id);
 
