@@ -103,7 +103,7 @@ TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir
         return pos + root1 * dir;
     }
     else if (pos.Z() + root2 * dir.Z() > -lMirr and pos.Z() + root2 * dir.Z() < 0){
-        return pos + root1 * dir;
+        return pos + root2 * dir;
     }
     RESTError << "No intersection found" << RESTendl;
     return pos + 0 * dir;
@@ -120,7 +120,7 @@ TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& di
                                          const Double_t& R3, const Double_t& lMirr, const Double_t& focal) {
     Double_t beta = 3 * alpha;
     Double_t e = 2 * R3 * TMath::Tan(beta);
-    Double_t g = 2.0 * R3 * TMath::Tan(beta) / (focal + R3 * TMath::Cot(2.0 * alpha));
+    Double_t g = 2 * R3 * TMath::Tan(beta) / (focal + R3 * TMath::Cot(2 * alpha));
     Double_t a = dir.X() * dir.X() + dir.Y() * dir.Y() - g * dir.Z() * dir.Z();
     Double_t b = 2 * (pos.X() * dir.X() + pos.Y() * dir.Y() - g * dir.Z() * pos.Z()) + e * dir.Z();
     Double_t halfb = b / 2;
@@ -132,7 +132,7 @@ TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& di
         return pos + root1 * dir;
     }
     else if (pos.Z() + root2 * dir.Z() > 0 and pos.Z() + root2 * dir.Z() < lMirr){
-        return pos + root1 * dir;
+        return pos + root2 * dir;
     }
     RESTError << "No intersection found" << RESTendl;
     return pos + 0 * dir;
@@ -193,6 +193,19 @@ TVector3 GetConeNormal(const TVector3& pos, const Double_t& alpha, const Double_
 
     return -TVector3(cosA * pos.X() / r, cosA * pos.Y() / r, sinA);
 }
+
+    
+TVector3 GetParabolicNormal(const TVector3& pos, const Double_t& alpha, const Double_t& R3){
+    TVector3 normalVec = pos;
+    Double_t m = 1 / (R3 * TMath::Tan(alpha) / TMath::Sqrt(R3 * R3 + R3 * 2 * TMath::Tan(alpha) * (- pos.Z())));
+    Double_t n = TMath::Sqrt(pos.X() * pos.X() + pos.Y() * pos.Y()) - m * pos.Z();
+    normalVec.SetZ(pos.Z() - (- n / m));
+    return normalVec;
+}
+  
+TVector3 GetHyperbolicNormal(const TVector3& pos, const Double_t& alpha, const Double_t& R3, const Double_t& focal){
+}
+
 
 ///////////////////////////////////////////////
 /// \brief This method will find the intersection of the trajectory defined by the vector starting at
