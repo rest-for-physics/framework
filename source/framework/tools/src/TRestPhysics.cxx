@@ -207,7 +207,7 @@ TVector3 GetParabolicNormal(const TVector3& pos, const Double_t& alpha, const Do
         1 / (R3 * TMath::Tan(alpha) / TMath::Sqrt(R3 * R3 + R3 * 2 * TMath::Tan(alpha) * (-pos.Z())));
     Double_t n = TMath::Sqrt(pos.X() * pos.X() + pos.Y() * pos.Y()) - m * pos.Z();
     normalVec.SetZ(pos.Z() - (-n / m));
-    return normalVec;
+    return normalVec.Unit();
 }
 
 ///////////////////////////////////////////////
@@ -227,7 +227,7 @@ TVector3 GetHyperbolicNormal(const TVector3& pos, const Double_t& alpha, const D
                                                 (1.0 + (-z) / (focal + R3 / TMath::Tan(2 * alpha)))));
     Double_t n = TMath::Sqrt(pos.X() * pos.X() + pos.Y() * pos.Y()) - m * pos.Z();
     normalVec.SetZ(pos.Z() - (-n / m));
-    return normalVec;
+    return normalVec.Unit();
 }
 
 ///////////////////////////////////////////////
