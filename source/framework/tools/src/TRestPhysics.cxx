@@ -218,13 +218,12 @@ TVector3 GetParabolicNormal(const TVector3& pos, const Double_t& alpha, const Do
 ///
 TVector3 GetHyperbolicNormal(const TVector3& pos, const Double_t& alpha, const Double_t& R3,
                              const Double_t& focal) {
-    Double_t z = 1;  /// This is just a temp value to fix compilation issues
     TVector3 normalVec = pos;
     Double_t beta = 3 * alpha;
     /// Just replaced here *TMath::Cot by /TMath::Tan to fix compilation issues
-    Double_t m = 1 / (R3 * TMath::Tan(beta) * (1 + 2 * (-z) / (focal + R3 / TMath::Tan(2 * alpha))) /
-                      TMath::Sqrt(R3 * R3 + R3 * 2 * TMath::Tan(beta) * (-z) *
-                                                (1.0 + (-z) / (focal + R3 / TMath::Tan(2 * alpha)))));
+    Double_t m = 1 / (R3 * TMath::Tan(beta) * (1 - 2 * pos.Z() / (focal + R3 / TMath::Tan(2 * alpha))) /
+                      TMath::Sqrt(R3 * R3 - R3 * 2 * TMath::Tan(beta) * pos.Z() *
+                                                (1.0 - pos.Z() / (focal + R3 / TMath::Tan(2 * alpha)))));
     Double_t n = TMath::Sqrt(pos.X() * pos.X() + pos.Y() * pos.Y()) - m * pos.Z();
     normalVec.SetZ(pos.Z() - (-n / m));
     return normalVec.Unit();
