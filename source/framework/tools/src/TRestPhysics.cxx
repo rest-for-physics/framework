@@ -86,7 +86,7 @@ TVector3 GetPlaneVectorIntersection(const TVector3& pos, const TVector3& dir, co
 //////////////////////////////////////////////
 /// This method will find the intersection between a vector and a parabolic shape where `alpha` is the angle
 /// between the optical axis and the paraboloid at the plane where the paraboloid has a radius of `R3`.
-/// The paraboloid is rotational symmetric around the optical axis. `Alpha` in rad.
+/// The paraboloid is rotationally symmetric around the optical axis. `alpha` in rad.
 /// The region in which the intersection can happen here is between `-lMirr` and 0 on the z (optical) axis
 ///
 /// In case no intersection is found this method returns the unmodified input position
@@ -112,7 +112,7 @@ TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir
 //////////////////////////////////////////////
 /// This method will find the intersection between a vector and a hyperbolic shape where 3 * `alpha` is the
 /// angle between the optical axis and the hyperboloid at the plane where the hyperboloid has a radius of
-/// `R3`. The hyperboloid is rotational symmetric around the optical axis. `Alpha` in rad. hTe region in which
+/// `R3`. The hyperboloid is rotationally symmetric around the optical axis. `alpha` in rad. The region in which
 /// the intersection can happen here is between 0 and `lMirr` on the `z` (optical) axis
 ///
 /// In case no intersection is found this method returns the unmodified input position
