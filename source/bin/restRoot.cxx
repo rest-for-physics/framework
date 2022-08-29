@@ -78,14 +78,20 @@ int main(int argc, char* argv[]) {
     gROOT->ProcessLine("#include <TRestSystemOfUnits.h>");
     if (loadMacros) {
         if (!silent) printf("= Loading macros ...\n");
-        auto filesMatchingPattern = TRestTools::GetFilesMatchingPattern(REST_PATH + "/macros/*/REST_*.C");
-        for (const auto& file : filesMatchingPattern) {
-            if (file.find("swp") != string::npos || file.find("svn") != string::npos ||
-                file.find("swo") != string::npos)
-                continue;
-            if (debug) printf("Loading macro : %s\n", file.c_str());
+        vector<string> macroFiles;
+        const vector<string> patterns = {
+            REST_PATH + "/macros/REST_*.C",   // framework
+            REST_PATH + "/macros/*/REST_*.C"  // libraries
+        };
+        for (const auto& pattern : patterns) {
+            for (const auto& macroFile : TRestTools::GetFilesMatchingPattern(pattern)) {
+                macroFiles.push_back(macroFile);
+            }
+        }
 
-            gROOT->ProcessLine((".L " + file).c_str());
+        for (const auto& macroFile : macroFiles) {
+            if (debug) printf("Loading macro : %s\n", macroFile.c_str());
+            gROOT->ProcessLine((".L " + macroFile).c_str());
         }
     }
 
