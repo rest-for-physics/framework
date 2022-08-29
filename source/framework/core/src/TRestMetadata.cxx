@@ -668,8 +668,65 @@ Int_t TRestMetadata::LoadConfigFromBuffer() {
 
 ///////////////////////////////////////////////
 /// \brief This method will retrieve a new TRestMetadata instance of a child element
-/// of the present TRestMetadata instance. I.e. `TRestChildClass` in the following
-/// example:
+/// of the present TRestMetadata instance based on the `index` given by argument,
+/// which defines the element order to be retrieved, 0 for first element found, 1 for
+/// the second element found, etc.
+///
+/// In brief, it will create an instance of `TRestChildClass` in the following example:
+///
+/// \code
+///    <TRestThisMetadataClass ...
+///         <TRestChildClass ...> <!-- if index = 0 -->
+///         <TRestChildClass ...> <!-- if index = 1 -->
+///         <TRestChildClass ...> <!-- if index = 2 -->
+/// \endcode
+///
+/// An optional argument may help to restrict the search to a particular metadata
+/// element.
+///
+/// - *pattern*: If a pattern value is given, then the pattern must be contained inside
+/// the metadata class name. I.e. pattern="TRestGeant4" will require that the class
+/// belongs to the geant4 library.
+///
+/// Otherwise, the first child section that satisfies that it starts by `TRest` will be
+/// considered.
+///
+/// If no child element is found with the required criteria, `nullptr` will be returned.
+///
+TRestMetadata* TRestMetadata::InstantiateChildMetadata(int index, std::string pattern) {
+    int count = 0;
+    auto paraele = fElement->FirstChildElement();
+    while (paraele != nullptr) {
+        std::string xmlChild = paraele->Value();
+        if (xmlChild.find("TRest") == 0) {
+            if (pattern == "" || xmlChild.find(pattern) != string::npos) {
+                if (count == index) {
+                    TClass* c = TClass::GetClass(xmlChild.c_str());
+                    if (c)  // this means that the metadata class was found
+                    {
+                        TRestMetadata* md = (TRestMetadata*)c->New();
+                        if (!md) return nullptr;
+                        md->SetConfigFile(fConfigFileName);
+                        TiXmlElement* rootEle = GetElementFromFile(fConfigFileName);
+                        TiXmlElement* Global = GetElement("globals", rootEle);
+                        md->LoadConfigFromElement(paraele, Global, {});
+                        md->Initialize();
+                        return md;
+                    }
+                }
+                count++;
+            }
+        }
+        paraele = paraele->NextSiblingElement();
+    }
+    return nullptr;
+}
+
+///////////////////////////////////////////////
+/// \brief This method will retrieve a new TRestMetadata instance of a child element
+/// of the present TRestMetadata instance based on the `name` given by argument.
+///
+/// In brief, it will create an instance of `TRestChildClass` in the following example:
 ///
 /// \code
 ///    <TRestThisMetadataClass ...
@@ -688,7 +745,7 @@ Int_t TRestMetadata::LoadConfigFromBuffer() {
 /// Otherwise, the first child section that satisfies that it starts by `TRest` will be
 /// returned.
 ///
-/// If no child element is found `nullptr` will be returned.
+/// If no child element is found with the required criteria, `nullptr` will be returned.
 ///
 TRestMetadata* TRestMetadata::InstantiateChildMetadata(std::string pattern, std::string name) {
     auto paraele = fElement->FirstChildElement();
@@ -696,7 +753,7 @@ TRestMetadata* TRestMetadata::InstantiateChildMetadata(std::string pattern, std:
         std::string xmlChild = paraele->Value();
         if (xmlChild.find("TRest") == 0) {
             if (pattern.empty() || xmlChild.find(pattern) != string::npos) {
-                if (!name.empty() && name == (string)paraele->Attribute("name")) {
+                if (name.empty() || !name.empty() && name == (string)paraele->Attribute("name")) {
                     TClass* c = TClass::GetClass(xmlChild.c_str());
                     if (c)  // this means we have the metadata class was found
                     {
@@ -704,6 +761,7 @@ TRestMetadata* TRestMetadata::InstantiateChildMetadata(std::string pattern, std:
                         TiXmlElement* rootEle = GetElementFromFile(fConfigFileName);
                         TiXmlElement* Global = GetElement("globals", rootEle);
                         md->LoadConfigFromElement(paraele, Global, {});
+                        md->Initialize();
                         return md;
                     }
                 }
@@ -1070,10 +1128,10 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
                 }
             }
 
-            e->SetAttribute(
-                name, ReplaceMathematicalExpressions(
-                          outputBuffer, "Please, check parameter name: " + parName + " (ReplaceForLoopVars)")
-                          .c_str());
+            e->SetAttribute(name, ReplaceMathematicalExpressions(
+                                      outputBuffer, 0,
+                                      "Please, check parameter name: " + parName + " (ReplaceForLoopVars)")
+                                      .c_str());
         }
 
         attr = attr->Next();
@@ -1426,7 +1484,7 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
         }
     }
 
-    return ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(result)),
+    return ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(result)), 0,
                                           "Please, check parameter name: " + parName);
 }
 
@@ -2250,13 +2308,21 @@ string TRestMetadata::GetDataMemberValue(string memberName) {
 ///
 /// All kinds of data member can be found, including non-streamed
 /// data member and base-class data member
-std::vector<string> TRestMetadata::GetDataMemberValues(string memberName) {
+///
+/// If precision value is higher than 0, then the resulting values will be
+/// truncated after finding ".". This can be used to define a float precision.
+///
+std::vector<string> TRestMetadata::GetDataMemberValues(string memberName, Int_t precision) {
     string result = GetDataMemberValue(memberName);
 
     result = Replace(result, "{", "");
     result = Replace(result, "}", "");
 
-    return Split(result, ",");
+    std::vector<std::string> results = REST_StringHelper::Split(result, ",");
+
+    for (auto& x : results) x = REST_StringHelper::CropWithPrecision(x, precision);
+
+    return results;
 }
 
 ///////////////////////////////////////////////

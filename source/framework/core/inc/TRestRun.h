@@ -35,7 +35,7 @@ class TRestRun : public TRestMetadata {
     Double_t fStartTime;  ///< Event absolute starting time/date (unix timestamp)
     Double_t fEndTime;    ///< Event absolute ending time/date (unix timestamp)
     Int_t fEntriesSaved;
-    Int_t fNFilesSplit;  // Number of files being split. Used when retrieveing
+    Int_t fNFilesSplit;  // Number of files being split. Used when retrieving
 
     // data-like metadata objects
     std::vector<TRestMetadata*> fMetadata;       //!
@@ -62,7 +62,7 @@ class TRestRun : public TRestMetadata {
     void InitFromConfigFile() override;
 
    private:
-    std::string ReplaceMetadataMember(const std::string& instr);
+    std::string ReplaceMetadataMember(const std::string& instr, Int_t precision = 0);
 
    public:
     /// REST run class
@@ -79,21 +79,8 @@ class TRestRun : public TRestMetadata {
     void ResetEntry();
 
     Int_t GetNextEvent(TRestEvent* targetEvent, TRestAnalysisTree* targetTree);
-    void GetEntry(int i) {
-        if (fAnalysisTree != nullptr) {
-            fAnalysisTree->GetEntry(i);
-        }
-        if (fEventTree != nullptr) {
-            fEventTree->GetEntry(i);
-        }
 
-        if (i >= GetEntries()) {
-            RESTWarning << "TRestRun::GetEntry. Entry requested out of limits" << RESTendl;
-            RESTWarning << "Total number of entries is : " << GetEntries() << RESTendl;
-        }
-
-        fCurrentEvent = i;
-    }
+    void GetEntry(Long64_t entry);
 
     void GetNextEntry() {
         if (fCurrentEvent + 1 >= GetEntries()) fCurrentEvent = -1;
@@ -154,7 +141,7 @@ class TRestRun : public TRestMetadata {
     inline int GetCurrentEntry() const { return fCurrentEvent; }
     inline Long64_t GetBytesReaded() const { return fBytesRead; }
     Long64_t GetTotalBytes();
-    int GetEntries() const;
+    Long64_t GetEntries() const;
 
     /// Calling `GetInputEvent()` will return a basic `TRestEvent*`
     inline TRestEvent* GetInputEvent() const { return fInputEvent; }
@@ -185,7 +172,7 @@ class TRestRun : public TRestMetadata {
     inline int GetNumberOfMetadataStructures() const { return fMetadata.size(); }
 
     inline std::string GetMetadataMember(const std::string& instr) { return ReplaceMetadataMember(instr); }
-    std::string ReplaceMetadataMembers(const std::string& instr);
+    std::string ReplaceMetadataMembers(const std::string& instr, Int_t precision = 2);
 
     Bool_t EvaluateMetadataMember(const std::string& instr);
 

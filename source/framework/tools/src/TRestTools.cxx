@@ -93,7 +93,7 @@ void TRestTools::LoadRESTLibrary(bool silent) {
 
     vector<string> ldPaths;
 #ifdef WIN32
-    ldpaths.push_back(REST_PATH + "/bin/");
+    ldPaths.push_back(REST_PATH + "/bin/");
 #else
     ldPaths.push_back(REST_PATH + "/lib/");
 #endif  // WIN32
@@ -130,7 +130,7 @@ void TRestTools::LoadRESTLibrary(bool silent) {
             if (excluded) {
                 continue;
             }
-            fileList.emplace_back(it.path());
+            fileList.emplace_back(it.path().string());
         }
     }
 
@@ -474,6 +474,31 @@ template Float_t TRestTools::GetIntegralFromTable<Float_t>(const std::vector<std
 template Double_t TRestTools::GetIntegralFromTable<Double_t>(const std::vector<std::vector<Double_t>>& data);
 
 ///////////////////////////////////////////////
+/// \brief It returns a vector with the values extracted from the particular `column` inside the `data` table
+/// given by argument.
+///
+/// This method is available for tables of type Float_t, Double_t and Int_t.
+///
+template <typename T>
+std::vector<T> TRestTools::GetColumnFromTable(const std::vector<std::vector<T>>& data, int column) {
+    std::vector<T> columnData;
+    if (data.size() == 0 || data[0].size() <= column) return columnData;
+
+    for (int n = 0; n < data.size(); n++) columnData.push_back(data[n][column]);
+
+    return columnData;
+}
+
+template std::vector<Int_t> TRestTools::GetColumnFromTable<Int_t>(const std::vector<std::vector<Int_t>>& data,
+                                                                  int column);
+
+template std::vector<Float_t> TRestTools::GetColumnFromTable<Float_t>(
+    const std::vector<std::vector<Float_t>>& data, int column);
+
+template std::vector<Double_t> TRestTools::GetColumnFromTable<Double_t>(
+    const std::vector<std::vector<Double_t>>& data, int column);
+
+///////////////////////////////////////////////
 /// \brief Reads an ASCII file containing a table with values
 ///
 /// This method will open the file fName. This file should contain a tabulated
@@ -592,9 +617,7 @@ bool TRestTools::fileExists(const string& filename) { return std::filesystem::ex
 /// \brief Returns true if the **filename** has *.root* extension.
 ///
 bool TRestTools::isRootFile(const string& filename) {
-    if (filename.find(".root") == string::npos) return false;
-
-    return true;
+    return GetFileNameExtension(filename) == ".root";
 }
 
 ///////////////////////////////////////////////
