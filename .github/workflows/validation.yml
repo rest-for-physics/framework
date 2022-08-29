@@ -425,7 +425,7 @@ jobs:
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
           restG4 ${{ env.REST_PATH }}/examples/restG4/05.PandaXIII/Xe136bb0n.rml -o Xe136bb0n.root
-          restRoot -b -q ${{ env.REST_PATH }}/examples/restG4/05.PandaXIII/ValidateG4.C'("Xe136bb0n.root")'
+          restRoot -b -q ${{ env.REST_PATH }}/examples/restG4/05.PandaXIII/Validate.C'("Xe136bb0n.root")'
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
