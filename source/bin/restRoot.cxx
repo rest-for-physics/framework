@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
     gROOT->ProcessLine("#include <TRestSystemOfUnits.h>");
     if (loadMacros) {
         if (!silent) printf("= Loading macros ...\n");
-        auto filesMatchingPattern = TRestTools::GetFilesMatchingPattern(REST_PATH + "/macros/*REST_*.C");
+        auto filesMatchingPattern = TRestTools::GetFilesMatchingPattern(REST_PATH + "/macros/*/REST_*.C");
         for (const auto& file : filesMatchingPattern) {
             if (file.find("swp") != string::npos || file.find("svn") != string::npos ||
                 file.find("swo") != string::npos)
