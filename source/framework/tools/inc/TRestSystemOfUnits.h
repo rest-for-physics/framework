@@ -151,6 +151,8 @@ AddUnit(radians, REST_Units::Angle, 1.);
 AddUnit(deg, REST_Units::Angle, TMath::RadToDeg());
 AddUnit(degree, REST_Units::Angle, TMath::RadToDeg());
 AddUnit(degrees, REST_Units::Angle, TMath::RadToDeg());
+AddUnit(arcmin, REST_Units::Angle, TMath::RadToDeg() * 60.);
+AddUnit(arcmin, REST_Units::Angle, TMath::RadToDeg() * 3600.);
 }  // namespace REST_Units
 
 typedef REST_Units::TRestSystemOfUnits units;
