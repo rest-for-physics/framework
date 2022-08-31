@@ -63,7 +63,10 @@ TRestComplex::TRestComplex(mpfr::mpreal re, mpfr::mpreal im, Bool_t polar) : fRe
 ////////////////////////////////////////////////////////////////////////////////
 
 std::ostream& operator<<(std::ostream& out, const TRestComplex& c) {
+    int pr = out.precision();
+    out.precision(mpfr::bits2digits(mpfr::mpreal::get_default_prec()));
     out << "(" << c.fRe << "," << c.fIm << "i)";
+    out.precision(pr);
     return out;
 }
 
