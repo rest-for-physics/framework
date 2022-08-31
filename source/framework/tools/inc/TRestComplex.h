@@ -70,6 +70,8 @@ class TRestComplex {
         mpfr::mpreal::set_default_prec(mpfr::digits2bits(precision));
     }
 
+    static int GetPrecision() { return mpfr::bits2digits(mpfr::mpreal::get_default_prec()); }
+
     // constants
     static TRestComplex I() { return TRestComplex(0, 1); }
     static TRestComplex One() { return TRestComplex(1, 0); }
