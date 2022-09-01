@@ -242,13 +242,8 @@ inline TClass* GetClassQuick(std::string type) {
         return iter->second;
     } else {
         TClass* cl = TClass::GetClass(type.c_str());
-        if (cl != nullptr && cl->HasDictionary()) {
-            RESTListOfClasses_typename[type] = cl;
-            return cl;
-        } else {
-            RESTListOfClasses_typename[type] = nullptr;
-            return nullptr;
-        }
+        RESTListOfClasses_typename[type] = cl;
+        return cl;
     }
     return nullptr;
 }
@@ -454,13 +449,14 @@ class Converter : RESTVirtualConverter {
         ToStringFunc = _ToStringFunc;
         ParseStringFunc = _ParseStringFunc;
         if (RESTConverterMethodBase.count(typeid(T).hash_code()) > 0) {
-            std::cout << "Warning! converter for type: " << typeid(T).name() << " already added!" << std::endl;
+            std::cout << "Warning! converter for type: " << typeid(T).name() << " already added!"
+                      << std::endl;
         } else {
             RESTConverterMethodBase[typeid(T).hash_code()] = this;
         }
 
-        //std::string type_name_actual = REST_Reflection::GetTypeName<T>();  // in case ROOT redefines type name
-        //if (RESTConverterMethodBase.count(type_name_actual) == 0) {
+        // std::string type_name_actual = REST_Reflection::GetTypeName<T>();  // in case ROOT redefines type
+        // name if (RESTConverterMethodBase.count(type_name_actual) == 0) {
         //    RESTConverterMethodBase[type_name_actual] = this;
         //}
     }
