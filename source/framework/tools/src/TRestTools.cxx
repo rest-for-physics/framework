@@ -1162,10 +1162,9 @@ string fmt::ValueWithQuantity::ToString() const {
     if (fQuantity == ENERGY) {
         unit = "eV";
         value *= 1E3;  // since we store energy in keV, not in eV
-
     } else if (fQuantity == TIME) {
-        unit = "s";  // time is stored in seconds
-
+        unit = "s";  // time is stored in microseconds
+        value *= 1E-6;
     } else if (fQuantity == LENGTH) {
         unit = "m";
         value *= 1E-3;  // since we store length in mm, not in m
