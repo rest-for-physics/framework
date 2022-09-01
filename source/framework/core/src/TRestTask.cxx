@@ -37,14 +37,6 @@ using namespace std;
 
 ClassImp(TRestTask);
 
-#ifdef WIN32
-// in windows the pointer address from string conversion is without "0x", we must add
-// the prefix so that ROOT can correctly initialize run/metadata objects
-#define PTR_ADDR_PREFIX "0x"
-#else
-#define PTR_ADDR_PREFIX ""
-#endif  // WIN32
-
 ///////////////////////////////////////////////
 /// \brief TRestTask default constructor
 ///
@@ -175,8 +167,7 @@ void TRestTask::RunTask(TRestManager* mgr) {
             fConstructedCommand = fInvokeMethod + "(";
             for (int i = 0; i < fArgumentValues.size(); i++) {
                 if (fArgumentTypes[i] == 1) {
-                    fConstructedCommand +=
-                        "\"" + Replace(fArgumentValues[i], "\\", "\\\\", 0) + "\"";
+                    fConstructedCommand += "\"" + Replace(fArgumentValues[i], "\\", "\\\\", 0) + "\"";
                 } else {
                     fConstructedCommand += fArgumentValues[i];
                 }
@@ -204,7 +195,7 @@ void TRestTask::RunTask(TRestManager* mgr) {
                 } else {
                     string type = meta->ClassName();
                     string cmd = Form("%s* %s = (%s*)%s;", type.c_str(), fInvokeObject.c_str(), type.c_str(),
-                                      (PTR_ADDR_PREFIX + ToString(meta)).c_str());
+                                      ToString(meta).c_str());
 
                     TInterpreter::EErrorCode err;
                     gInterpreter->ProcessLine(cmd.c_str(), &err);

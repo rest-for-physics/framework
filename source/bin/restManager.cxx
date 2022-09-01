@@ -1,9 +1,9 @@
 #include <TApplication.h>
+#include <TRestManager.h>
+#include <TRestTools.h>
 #include <TSystem.h>
 
-#include "TRestManager.h"
 #include "TRestStringOutput.h"
-#include "TRestTools.h"
 
 using namespace std;
 
@@ -112,9 +112,7 @@ int main(int argc, char* argv[]) {
 
     // preprocess arguments
     vector<string> args;
-    for (int i = 0; i < argc; i++) {
-        args.emplace_back(argv[i]);
-    }
+    for (int i = 0; i < argc; i++) args.push_back(argv[i]);
 
     // TApplication arguments
     int argCApp = 1;

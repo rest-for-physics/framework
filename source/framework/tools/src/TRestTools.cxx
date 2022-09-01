@@ -93,7 +93,7 @@ void TRestTools::LoadRESTLibrary(bool silent) {
 
     vector<string> ldPaths;
 #ifdef WIN32
-    ldPaths.push_back(REST_PATH + "/bin/");
+    ldpaths.push_back(REST_PATH + "/bin/");
 #else
     ldPaths.push_back(REST_PATH + "/lib/");
 #endif  // WIN32
@@ -130,7 +130,7 @@ void TRestTools::LoadRESTLibrary(bool silent) {
             if (excluded) {
                 continue;
             }
-            fileList.emplace_back(it.path().string());
+            fileList.emplace_back(it.path());
         }
     }
 
@@ -616,9 +616,7 @@ bool TRestTools::fileExists(const string& filename) { return std::filesystem::ex
 ///////////////////////////////////////////////
 /// \brief Returns true if the **filename** has *.root* extension.
 ///
-bool TRestTools::isRootFile(const string& filename) {
-    return GetFileNameExtension(filename) == ".root";
-}
+bool TRestTools::isRootFile(const string& filename) { return GetFileNameExtension(filename) == ".root"; }
 
 ///////////////////////////////////////////////
 /// \brief Returns true if **filename** is an *http* address.
