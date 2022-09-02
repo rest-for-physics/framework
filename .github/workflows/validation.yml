@@ -76,29 +76,6 @@ jobs:
           path: ${{ env.REST_PATH }}
           retention-days: 1
 
-  filecompatibility:
-    name: "Previous Version File Compatibility"
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
-    needs: [ framework-install ]
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          repository: rest-for-physics/framework
-          path: framework
-      - name: Restore cache
-        uses: actions/cache@v3
-        id: framework-install-cache
-        with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
-          path: ${{ env.REST_PATH }}
-      - name: Open V2.2 file
-        run: |
-          source ${{ env.REST_PATH }}/thisREST.sh
-          cd framework/pipeline/fileopening
-          restManager PrintTrees v2.2.30_hits.root
-
   metadata:
     name: "Metadata"
     runs-on: ubuntu-latest
