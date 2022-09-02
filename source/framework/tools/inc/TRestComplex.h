@@ -26,29 +26,6 @@
 #include "TObject.h"
 #include "mpreal.h"
 
-/*class TRestComplex {
-   public:
-    static void SetPrecision(Int_t precision);
-
-    static ComplexReal ComplexAddition(const ComplexReal& a, const ComplexReal& b);
-
-    static ComplexReal ComplexSubstraction(const ComplexReal& a, const ComplexReal& b);
-
-    static ComplexReal ComplexProduct(const ComplexReal& a, const ComplexReal& b);
-
-    static ComplexReal ComplexProduct(const mpfr::mpreal& value, const ComplexReal& a);
-
-    static ComplexReal ComplexCocient(const ComplexReal& a, const ComplexReal& b);
-
-    static ComplexReal ComplexConjugate(const ComplexReal& a);
-
-    static mpfr::mpreal Mag(const ComplexReal& a);
-
-    static ComplexReal SetComplexReal(const mpfr::mpreal& r, const mpfr::mpreal& i);
-
-    ClassDef(TRestComplex, 1);
-}; */
-
 #include <string>
 #include "Rtypes.h"
 
