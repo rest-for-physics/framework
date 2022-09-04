@@ -23,6 +23,7 @@
 #ifndef RestCore_TRestEventProcess
 #define RestCore_TRestEventProcess
 
+#include <limits>
 #include "TCanvas.h"
 #include "TNamed.h"
 #include "TRestAnalysisTree.h"
@@ -179,7 +180,7 @@ class TRestEventProcess : public TRestMetadata {
         if (fAnalysisTree != NULL) {
             return fAnalysisTree->GetObservableValue<T>(name);
         }
-        return T();
+        return std::numeric_limits<T>::quiet_NaN();
     }
 
     /// Create the canvas
