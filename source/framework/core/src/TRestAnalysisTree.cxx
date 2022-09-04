@@ -137,6 +137,7 @@ void TRestAnalysisTree::Initialize() {
     fChain = nullptr;
 
     fObservableIdMap.clear();
+    fObservableIdSearchMap.clear();
     fObservableDescriptions.clear();
     fObservableNames.clear();
     fObservables.clear();
@@ -157,6 +158,68 @@ Int_t TRestAnalysisTree::GetObservableID(const string& obsName) {
     }
     // if (!ObservableExists(obsName)) return -1;
     // return fObservableIdMap[obsName];
+}
+
+///////////////////////////////////////////////
+/// \brief Get the index of the observable, erasing the prefix if exists
+///
+/// Ignores prefix like "sAna_". Case sensitive, misspelling prompted.
+/// If not exist, it will return -1.
+Int_t TRestAnalysisTree::GetMatchedObservableID(const string& obsName) {
+    // if (ObservableExists(obsName)) return GetObservableID(obsName);
+    auto iter = fObservableIdSearchMap.find(obsName);
+    if (iter != fObservableIdSearchMap.end()) {
+        return iter->second;
+    } else {
+        vector<int> diffs;
+        for (int i = 0; i < fObservableNames.size(); i++) {
+            string obs = (string)fObservableNames[i];
+            int diff1 = DiffString(obs, obsName);
+
+            obs = obs.substr(obs.find('_') + 1, -1);
+            int diff2 = DiffString(obs, obsName);
+
+            diffs.push_back(min(diff1, diff2));
+        }
+
+        int matchedcount = 0;
+        int minpos = 0;
+        int min = 1e5;
+        for (int i = 0; i < diffs.size(); i++) {
+            if (min > diffs[i]) {
+                min = diffs[i];
+                minpos = i;
+            }
+            if (diffs[i] == 0) {
+                matchedcount++;
+            }
+        }
+
+        if (matchedcount == 1) {
+            cout << "TRestAnalysisTree::GetObservableID(): Find observable " << fObservableNames[minpos]
+                 << " for obs name: " << obsName << endl;
+            fObservableIdSearchMap[obsName] = minpos;
+            return minpos;
+        } else if (matchedcount == 0) {
+            RESTError << "TRestAnalysisTree::GetObservableID(): No Matching observable found" << RESTendl;
+            if (min <= 2) {
+                RESTError << "did you mean \"" << fObservableNames[minpos] << "\" ?" << RESTendl;
+                fObservableIdSearchMap[obsName] = -1;
+                return -1;
+            }
+        } else {
+            RESTWarning << "TRestAnalysisTree::GetObservableID(): Multiple observables found" << RESTendl;
+            RESTWarning
+                << "Please specify the full observable name (e.g, sAna_ThresholdIntegral) in your code. "
+                << RESTendl;
+            RESTWarning << "Returning the first matched observable : " << fObservableNames[minpos]
+                        << RESTendl;
+            fObservableIdSearchMap[obsName] = minpos;
+            return minpos;
+        }
+    }
+    fObservableIdSearchMap[obsName] = -1;
+    return -1;
 }
 
 ///////////////////////////////////////////////
@@ -1031,6 +1094,10 @@ Bool_t TRestAnalysisTree::AddChainFile(string _file) {
     if (!file->IsOpen()) {
         RESTWarning << "TRestAnalysisTree::AddChainFile(): failed to open file " << _file << RESTendl;
         return false;
+    }
+
+    if (this->GetRunOrigin() == 0) {
+        this->GetEntry(0);
     }
 
     TRestAnalysisTree* tree = (TRestAnalysisTree*)file->Get("AnalysisTree");
