@@ -139,7 +139,7 @@ class TRestAnalysisTree : public TTree {
             std::cout << "Error! TRestAnalysisTree::GetObservableValue(): index outside limits!" << std::endl;
             return std::numeric_limits<T>::quiet_NaN();
         }
-        if (fChain != NULL) {
+        if (fChain != nullptr) {
             return ((TRestAnalysisTree*)fChain->GetTree())->GetObservableValue<T>(n);
         }
         return fObservables[n].GetValue<T>();

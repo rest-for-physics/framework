@@ -177,7 +177,7 @@ class TRestEventProcess : public TRestMetadata {
 
     template <class T>
     T GetObservableValue(const std::string& name) {
-        if (fAnalysisTree != NULL) {
+        if (fAnalysisTree != nullptr) {
             return fAnalysisTree->GetObservableValue<T>(name);
         }
         return std::numeric_limits<T>::quiet_NaN();

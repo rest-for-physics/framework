@@ -732,12 +732,12 @@ Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
 }
 
 void TRestAnalysisTree::SetEventInfo(TRestAnalysisTree* tree) {
-    if (fChain != NULL) {
+    if (fChain != nullptr) {
         cout << "Error! cannot fill tree. AnalysisTree is in chain state" << endl;
         return;
     }
 
-    if (tree != NULL) {
+    if (tree != nullptr) {
         fEventID = tree->GetEventID();
         fSubEventID = tree->GetSubEventID();
         fTimeStamp = tree->GetTimeStamp();
