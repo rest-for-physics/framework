@@ -611,7 +611,13 @@ void TRestRun::ReadInputFileTrees() {
                         RESTInfo << "This file may be a pure analysis file" << RESTendl;
                     } else {
                         string type = Replace(br->GetName(), "Branch", "", 0);
-                        fInputEvent = REST_Reflection::Assembly(type);
+                        TClass* cl = TClass::GetClass(type.c_str());
+                        if (cl->HasDictionary()) {
+                            fInputEvent = REST_Reflection::Assembly(type);
+                        } else if (fInputEvent != nullptr) {
+                            delete fInputEvent;
+                            fInputEvent = nullptr;
+                        }
 
                         if (fInputEvent == nullptr) {
                             RESTError << "TRestRun:OpenInputFile. Cannot initialize input event, event "

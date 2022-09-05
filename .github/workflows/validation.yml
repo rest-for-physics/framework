@@ -76,7 +76,7 @@ jobs:
           path: ${{ env.REST_PATH }}
           retention-days: 1
 
-  filecompatibility:
+  file-compatibility:
     name: "Previous Version File Compatibility"
     runs-on: ubuntu-latest
     container:
