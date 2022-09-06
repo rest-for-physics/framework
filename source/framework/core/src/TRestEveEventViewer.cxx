@@ -47,16 +47,29 @@ void TRestEveEventViewer::Initialize() {
 void TRestEveEventViewer::SetGeometry(TGeoManager* geo) {
     TRestEventViewer::SetGeometry(geo);
 
-    if (fGeometry == nullptr) return;
+    if (fGeometry == nullptr) {
+        return;
+    }
 
-    TObjArray* arr = fGeometry->GetListOfVolumes();
-    Int_t nVolumes = arr->GetEntries();
+    constexpr double transparencyLevel = 85;
+    for (int i = 0; i < fGeometry->GetListOfVolumes()->GetEntries(); i++) {
+        auto volume = fGeometry->GetVolume(i);
+        auto material = volume->GetMaterial();
+        if (material->GetDensity() <= 0.01) {
+            volume->SetTransparency(95);
+            if (material->GetDensity() <= 0.001) {
+                // We consider this vacuum for display purposes
+                volume->SetVisibility(kFALSE);
+            }
+        } else {
+            volume->SetTransparency(transparencyLevel);
+        }
+    }
 
-    for (int i = 0; i < nVolumes; i++) fGeometry->GetVolume(i)->SetTransparency(85);
+    TEveGeoTopNode* eveGeoTopNode = new TEveGeoTopNode(fGeometry, fGeometry->GetTopNode());
+    eveGeoTopNode->SetVisLevel(5);
 
-    TEveGeoTopNode* en = new TEveGeoTopNode(fGeometry, fGeometry->GetTopNode());
-
-    gEve->AddGlobalElement(en);
+    gEve->AddGlobalElement(eveGeoTopNode);
 
     viewer3D->AddScene(gEve->GetGlobalScene());
 }
@@ -123,7 +136,7 @@ void TRestEveEventViewer::DrawTab() {
 
     TGLViewer* v = gEve->GetDefaultGLViewer();
     // v->GetClipSet()->SetClipType(TGLClip::EType(1));
-    v->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kFALSE, 0);
+    v->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kFALSE, nullptr);
     v->SetStyle(TGLRnrCtx::kOutline);
     v->RefreshPadEditor(v);
 
@@ -131,7 +144,7 @@ void TRestEveEventViewer::DrawTab() {
     v->DoDraw();
 
     TGLViewer* v2 = viewer3D->GetGLViewer();
-    v2->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kFALSE, 0);
+    v2->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kFALSE, nullptr);
     v2->SetStyle(TGLRnrCtx::kOutline);
     v2->RefreshPadEditor(v);
     v2->DoDraw();
@@ -154,6 +167,6 @@ void TRestEveEventViewer::AddSphericalHit(double x, double y, double z, double r
     fEnergyDeposits->SetOwnIds(kTRUE);
     fEnergyDeposits->SetNextPoint(x * GEOM_SCALE, y * GEOM_SCALE, z * GEOM_SCALE);
     fEnergyDeposits->SetMarkerColor(kYellow);
-    fEnergyDeposits->SetMarkerSize(radius);
+    fEnergyDeposits->SetMarkerSize(Size_t(radius));
     fEnergyDeposits->SetMarkerStyle(4);
 }
