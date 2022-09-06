@@ -1260,6 +1260,7 @@ void TRestRun::SetInputEvent(TRestEvent* event) {
         } else {
             fInputEvent = event;
         }
+        this->GetEntry(fCurrentEvent);
     }
 }
 
