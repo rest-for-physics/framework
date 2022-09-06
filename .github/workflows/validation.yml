@@ -120,8 +120,10 @@ jobs:
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline
-          source validateMacros.sh
+          export DISPLAY=localhost:0.0
+          restRoot -b -q 2> error.log
           cat error.log
+          source validateMacros.sh
 
   metadata:
     name: "Metadata"

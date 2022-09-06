@@ -1,5 +1,3 @@
-export DISPLAY=localhost:0.0
-restRootMacros -b -q 2> error.log
 if [[ -s error.log ]]
 then
 	echo "No clean output"
