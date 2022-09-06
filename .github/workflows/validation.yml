@@ -100,7 +100,7 @@ jobs:
           restManager PrintTrees v2.2.30_hits.root
 
   macros-health:
-    name: "Checking that macros produce no warnings"
+    name: "Macros with clean error output"
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
@@ -119,9 +119,8 @@ jobs:
       - name: Load restRootMacros
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
-          export DISPLAY=0
-          restRootMacros -b -q 2> error.log
-          if [[ -s error.log ]] ; then ; return 1; else; return 0; fi
+          cd framework/pipeline
+          source validateMacros.sh
           cat error.log
 
   metadata:
