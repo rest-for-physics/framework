@@ -99,6 +99,31 @@ jobs:
           cd framework/pipeline/fileopening
           restManager PrintTrees v2.2.30_hits.root
 
+  macros-health:
+    name: "Checking that macros produce no warnings"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    needs: [ framework-install ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: rest-for-physics/framework
+          path: framework
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: framework-install-cache
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      - name: Load restRootMacros
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          export DISPLAY=0
+          restRootMacros -b -q 2> error.log
+          if [[ -s error.log ]] ; then ; return 1; else; return 0; fi
+          cat error.log
+
   metadata:
     name: "Metadata"
     runs-on: ubuntu-latest
