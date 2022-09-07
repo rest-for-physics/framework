@@ -122,6 +122,7 @@ jobs:
           cd framework/pipeline
           export DISPLAY=localhost:0.0
           restRoot -b -q 2> error.log
+          cat error.log | grep "warning" > error.log
           cat error.log
           source validateMacros.sh
 
