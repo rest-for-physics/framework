@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 import os,sys
 
 with open('error.log') as f:
