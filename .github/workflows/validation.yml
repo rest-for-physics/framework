@@ -125,8 +125,6 @@ jobs:
           restRoot -b -q 2> error2.log
           echo "Listing"
           ls
-          echo "cat error2.log > error.log"
-          cat error2.log | grep "warning" > error.log
           echo "cat error.log"
           cat error.log
           echo "source validateMacros.sh"

@@ -1,3 +1,5 @@
+grep -r "warning" error2.log > error.log
+
 if [[ -s error.log ]]
 then
 	echo "No clean output"
