@@ -121,13 +121,8 @@ jobs:
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline
           export DISPLAY=localhost:0.0
-          echo "Launching restRoot"
-          restRoot -b -q 2> error2.log
-          echo "Listing"
-          ls
-          echo "cat error2.log"
-          cat error2.log
-          echo "source validateMacros.sh"
+          restRoot -b -q 2> error.log
+          echo "Running validation script"
           python3 validateMacros.py
 
   metadata:
