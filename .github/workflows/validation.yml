@@ -216,7 +216,7 @@ jobs:
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
           echo "using just-generated g4 file"
-          restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 10
+          restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 5
           restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_processed.root")'
           restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
       - name: Upload Artifacts
