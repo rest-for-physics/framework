@@ -128,7 +128,7 @@ jobs:
           echo "cat error2.log"
           cat error2.log
           echo "source validateMacros.sh"
-          source validateMacros.sh
+          python3 validateMacros.py
 
   metadata:
     name: "Metadata"
