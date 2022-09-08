@@ -121,9 +121,13 @@ jobs:
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline
           export DISPLAY=localhost:0.0
+          echo "Launching restRoot"
           restRoot -b -q 2> error.log
+          echo "cat error.log > error.log"
           cat error.log | grep "warning" > error.log
+          echo "cat error.log"
           cat error.log
+          echo "source validateMacros.sh"
           source validateMacros.sh
 
   metadata:
