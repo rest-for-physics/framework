@@ -1,4 +1,5 @@
-grep -r "warning" error2.log > error.log
+echo "Calling grep"
+grep -q -r "warning" error2.log > error.log
 
 if [[ -s error.log ]]
 then
