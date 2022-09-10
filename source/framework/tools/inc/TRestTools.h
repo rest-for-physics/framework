@@ -24,6 +24,8 @@
 #define RestCore_TRestTools
 
 #include <TObject.h>
+#include <TString.h>
+#include <TVector3.h>
 
 #include <map>
 #include <memory>
@@ -175,7 +177,6 @@ inline void SetInitLevel(T* name, int level) {
 
 }  // namespace REST_InitTools
 
-namespace fmt {
 enum Quantities { ENERGY, LENGTH, TIME };
 class ValueWithQuantity {
    public:
@@ -193,6 +194,13 @@ class ValueWithQuantity {
 inline std::string ToEnergyString(double value) { return (std::string)ValueWithQuantity(value, ENERGY); }
 inline std::string ToTimeString(double value) { return (std::string)ValueWithQuantity(value, TIME); }
 inline std::string ToLengthString(double value) { return (std::string)ValueWithQuantity(value, LENGTH); }
-};  // namespace fmt
+
+inline std::string VectorToString(const TVector3& v) {
+    return TString::Format("(%0.3f, %0.3f, %0.3f)", v.X(), v.Y(), v.Z()).Data();
+}
+
+inline std::string VectorToString(const TVector2& v) {
+    return TString::Format("(%0.3f, %0.3f)", v.X(), v.Y()).Data();
+}
 
 #endif

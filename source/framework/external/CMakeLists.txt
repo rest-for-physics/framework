@@ -16,17 +16,17 @@ if (TEST)
     FetchContent_MakeAvailable(googletest)
 endif ()
 
-# c++ modern string formatting (https://github.com/fmtlib/fmt)
-message(STATUS "- fmt")
-FetchContent_Declare(
-        fmt
-        GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-        GIT_TAG 9.0.0
-)
-FetchContent_MakeAvailable(fmt)
-install(DIRECTORY ${fmt_SOURCE_DIR}/include DESTINATION .)
-
-set(local_include_dirs ${local_include_dirs} ${fmt_SOURCE_DIR}/include PARENT_SCOPE)
-set(external_libs "${external_libs};fmt" PARENT_SCOPE)
-
-message(STATUS "End of external dependencies")
+# # c++ modern string formatting (https://github.com/fmtlib/fmt)
+# message(STATUS "- fmt")
+# FetchContent_Declare(
+#         fmt
+#         GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+#         GIT_TAG 9.0.0
+# )
+# FetchContent_MakeAvailable(fmt)
+# install(DIRECTORY ${fmt_SOURCE_DIR}/include DESTINATION .)
+# 
+# set(local_include_dirs ${local_include_dirs} ${fmt_SOURCE_DIR}/include PARENT_SCOPE)
+# set(external_libs "${external_libs};fmt" PARENT_SCOPE)
+# 
+# message(STATUS "End of external dependencies")
