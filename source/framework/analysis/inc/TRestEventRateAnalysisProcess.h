@@ -36,11 +36,11 @@ class TRestEventRateAnalysisProcess : public TRestEventProcess {
 
     /// It keeps a historic list of timestamps of the previous N events. Now fixed to N=10 events.
     std::vector<Double_t> fPreviousEventTime;  //!
-   
+
     /// It indicates whether to add rate observables which is correct only under single thread run.
-    bool fRateAnalysis = false;//!
-   
-    void Initialize();
+    bool fRateAnalysis = false;  //!
+
+    void Initialize() override;
 
    protected:
     // add here the members of your event process
@@ -56,12 +56,11 @@ class TRestEventRateAnalysisProcess : public TRestEventProcess {
         BeginPrintProcess();
 
         if (fRateAnalysis) {
-	          RESTMetadata << "Rate analysis is on under single thread mode" << RESTendl;
-	      }
-	      else {
-		        RESTMetadata << "Rate analysis is off due to multi-thread" << RESTendl;
-	      }
-       
+            RESTMetadata << "Rate analysis is on under single thread mode" << RESTendl;
+        } else {
+            RESTMetadata << "Rate analysis is off due to multi-thread" << RESTendl;
+        }
+
         EndPrintProcess();
     }
 
