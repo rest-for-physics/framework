@@ -114,7 +114,7 @@ void TRestTools::LoadRESTLibrary(bool silent) {
                 continue;
             }
             const TString pathRootString = it.path().string();
-            std::string libName = TRestTools::SeparatePathAndName(pathRootString).second;
+            TString libName = TRestTools::SeparatePathAndName((std::string)pathRootString).second;
             if (!libName.Contains("Rest")) {
                 // e.g. "libRestFramework.so"
                 continue;
