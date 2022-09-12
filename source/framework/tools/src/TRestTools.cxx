@@ -46,8 +46,6 @@
 #include <TClass.h>
 #include <TSystem.h>
 #include <TUrl.h>
-#include <fmt/color.h>
-#include <fmt/core.h>
 
 #ifdef USE_Curl
 #include <curl/curl.h>
@@ -70,7 +68,6 @@
 #include "TRestStringOutput.h"
 
 using namespace std;
-using namespace fmt;
 
 ClassImp(TRestTools);
 
@@ -1156,7 +1153,7 @@ int TRestTools::UploadToServer(string localFile, string remoteFile, string metho
 
 void TRestTools::ChangeDirectory(const string& toDirectory) { filesystem::current_path(toDirectory); }
 
-string fmt::ValueWithQuantity::ToString() const {
+string ValueWithQuantity::ToString() const {
     string unit;
     auto value = fValue;
     if (fQuantity == ENERGY) {
@@ -1174,22 +1171,22 @@ string fmt::ValueWithQuantity::ToString() const {
 
     const auto abs = TMath::Abs(value);
     if (abs == 0) {
-        return format("{}", 0);
+        return TString::Format("%0.2d", 0).Data();
     } else if (abs < 1E-6) {
-        return format("{:0.2f} {}{}", value * 1E9, "n", unit);
+        return TString::Format("%0.2f %s%s", value * 1E9, "n", unit.c_str()).Data();
     } else if (abs < 1E-3) {
-        return format("{:0.2f} {}{}", value * 1E6, "u", unit);
+        return TString::Format("%0.2f %s%s", value * 1E6, "u", unit.c_str()).Data();
     } else if (abs < 1E0) {
-        return format("{:0.2f} {}{}", value * 1E3, "m", unit);
+        return TString::Format("%0.2f %s%s", value * 1E3, "m", unit.c_str()).Data();
     } else if (abs < 1E3) {
-        return format("{:0.2f} {}{}", value * 1E0, "", unit);
+        return TString::Format("%0.2f %s%s", value * 1E0, "", unit.c_str()).Data();
     } else if (abs < 1E6) {
-        return format("{:0.2f} {}{}", value * 1E-3, "k", unit);
+        return TString::Format("%0.2f %s%s", value * 1E-3, "k", unit.c_str()).Data();
     } else if (abs < 1E9) {
-        return format("{:0.2f} {}{}", value * 1E-6, "M", unit);
+        return TString::Format("%0.2f %s%s", value * 1E-6, "M", unit.c_str()).Data();
     } else if (abs < 1E12) {
-        return format("{:0.2f} {}{}", value * 1E-9, "G", unit);
+        return TString::Format("%0.2f %s%s", value * 1E-9, "G", unit.c_str()).Data();
     } else {
-        return format("{:0.2f} {}{}", value * 1E-12, "T", unit);
+        return TString::Format("%0.2f %s%s", value * 1E-12, "T", unit.c_str()).Data();
     }
 }

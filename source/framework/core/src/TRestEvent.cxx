@@ -49,11 +49,7 @@
 
 #include "TRestEvent.h"
 
-#include <fmt/color.h>
-#include <fmt/core.h>
-
 using namespace std;
-using namespace fmt;
 
 ClassImp(TRestEvent);
 
@@ -183,13 +179,13 @@ void TRestEvent::InitializeReferences(TRestRun* run) { fRun = run; }
 /// by calling TRestEvent::PrintEvent();
 ///
 void TRestEvent::PrintEvent() const {
-    print("\n");
-    print(fg(color::orange_red) | emphasis::bold, "EventID: {} - SubEventID: {}\n", fEventID, fSubEventID);
-    print(fg(color::steel_blue), "- Timestamp: {}\n", fEventTime.AsString());
+    cout << endl;
+    cout << TString::Format("EventID: %d - SubEventID: %d", fEventID, fSubEventID).Data() << endl;
+    cout << TString::Format("- Timestamp: %s", fEventTime.AsString()) << endl;
     if (!fSubEventTag.IsNull()) {
-        print("- Tag: {}\n", fSubEventTag);
+        cout << "- Tag: " << fSubEventTag << endl;
     }
     if (!fOk) {
-        print(fg(color::red) | emphasis::bold, "- Status not OK\n");
+        cout << "- Status not OK" << endl;
     }
 }
