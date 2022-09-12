@@ -114,14 +114,15 @@ void TRestTools::LoadRESTLibrary(bool silent) {
                 continue;
             }
             const TString pathRootString = it.path().string();
-            if (!pathRootString.Contains("Rest", TString::ECaseCompare::kIgnoreCase)) {
+            std::string libName = TRestTools::SeparatePathAndName(pathRootString).second;
+            if (!libName.Contains("Rest")) {
                 // e.g. "libRestFramework.so"
                 continue;
             }
             // Check if library is excluded from loading e.g. is from a package
             bool excluded = false;
             for (const TString excludedLibrary : excludedLibraries) {
-                if (pathRootString.Contains(excludedLibrary, TString::ECaseCompare::kIgnoreCase)) {
+                if (libName.Contains(excludedLibrary)) {
                     excluded = true;
                     // RESTWarning << "Library '" << pathRootString << "' excluded from loading" << RESTendl;
                     break;
@@ -616,9 +617,7 @@ bool TRestTools::fileExists(const string& filename) { return std::filesystem::ex
 ///////////////////////////////////////////////
 /// \brief Returns true if the **filename** has *.root* extension.
 ///
-bool TRestTools::isRootFile(const string& filename) {
-    return GetFileNameExtension(filename) == ".root";
-}
+bool TRestTools::isRootFile(const string& filename) { return GetFileNameExtension(filename) == ".root"; }
 
 ///////////////////////////////////////////////
 /// \brief Returns true if **filename** is an *http* address.
