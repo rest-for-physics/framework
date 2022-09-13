@@ -23,6 +23,7 @@
 #ifndef RestCore_TRestAnalysisTree
 #define RestCore_TRestAnalysisTree
 
+#include <limits>
 #include "TChain.h"
 #include "TRestEvent.h"
 #include "TRestReflector.h"
@@ -39,13 +40,14 @@ class TRestAnalysisTree : public TTree {
     Int_t fSubRunOrigin;    //!
 
     //
-    Int_t fStatus = 0;                            //!
-    Int_t fSetObservableCalls = 0;                //!
-    Int_t fSetObservableIndex = 0;                //!
-    Bool_t fQuickSetObservableValue = true;       //!
-    std::vector<RESTValue> fObservables;          //!
-    std::map<std::string, int> fObservableIdMap;  //!
-    TChain* fChain = nullptr;                     //! in case multiple files for reading
+    Int_t fStatus = 0;                                  //!
+    Int_t fSetObservableCalls = 0;                      //!
+    Int_t fSetObservableIndex = 0;                      //!
+    Bool_t fQuickSetObservableValue = true;             //!
+    std::vector<RESTValue> fObservables;                //!
+    std::map<std::string, int> fObservableIdMap;        //!
+    std::map<std::string, int> fObservableIdSearchMap;  //! used for quick search of certain observables
+    TChain* fChain = nullptr;                           //! in case multiple files for reading
 
     // for storage
     Int_t fNObservables;
@@ -99,6 +101,7 @@ class TRestAnalysisTree : public TTree {
     // Get the status of this tree. This call will not evaluate the status.
     inline int GetStatus() const { return fStatus; }
     Int_t GetObservableID(const std::string& obsName);
+    Int_t GetMatchedObservableID(const std::string& obsName);
     Bool_t ObservableExists(const std::string& obsName);
     // six basic event prameters
     Int_t GetEventID() { return fChain ? ((TRestAnalysisTree*)fChain->GetTree())->GetEventID() : fEventID; }
@@ -134,7 +137,7 @@ class TRestAnalysisTree : public TTree {
         // id check
         if (n >= fNObservables) {
             std::cout << "Error! TRestAnalysisTree::GetObservableValue(): index outside limits!" << std::endl;
-            return T();
+            return std::numeric_limits<T>::quiet_NaN();
         }
         if (fChain != nullptr) {
             return ((TRestAnalysisTree*)fChain->GetTree())->GetObservableValue<T>(n);
@@ -153,7 +156,11 @@ class TRestAnalysisTree : public TTree {
     T GetObservableValue(std::string obsName) {
         Int_t id = GetObservableID(obsName);
         if (id == -1) {
-            return T();
+            // try to find matched observables
+            id = GetMatchedObservableID(obsName);
+            if (id == -1) {
+                return std::numeric_limits<T>::quiet_NaN();
+            }
         }
         return GetObservableValue<T>(id);
     }
