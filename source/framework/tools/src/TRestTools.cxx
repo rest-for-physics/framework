@@ -115,14 +115,14 @@ void TRestTools::LoadRESTLibrary(bool silent) {
             }
             const TString pathRootString = it.path().string();
             TString libName = TRestTools::SeparatePathAndName((std::string)pathRootString).second;
-            if (!libName.Contains("Rest")) {
+            if (!libName.Contains("Rest", TString::kExact)) {
                 // e.g. "libRestFramework.so"
                 continue;
             }
             // Check if library is excluded from loading e.g. is from a package
             bool excluded = false;
             for (const TString excludedLibrary : excludedLibraries) {
-                if (libName.Contains(excludedLibrary)) {
+                if (libName.Contains(excludedLibrary, TString::kIgnoreCase)) {
                     excluded = true;
                     // RESTWarning << "Library '" << pathRootString << "' excluded from loading" << RESTendl;
                     break;
