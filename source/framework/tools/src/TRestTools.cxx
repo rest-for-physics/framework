@@ -114,14 +114,15 @@ void TRestTools::LoadRESTLibrary(bool silent) {
                 continue;
             }
             const TString pathRootString = it.path().string();
-            if (!pathRootString.Contains("Rest", TString::ECaseCompare::kIgnoreCase)) {
+            TString libName = TRestTools::SeparatePathAndName((std::string)pathRootString).second;
+            if (!libName.Contains("Rest")) {
                 // e.g. "libRestFramework.so"
                 continue;
             }
             // Check if library is excluded from loading e.g. is from a package
             bool excluded = false;
             for (const TString excludedLibrary : excludedLibraries) {
-                if (pathRootString.Contains(excludedLibrary, TString::ECaseCompare::kIgnoreCase)) {
+                if (libName.Contains(excludedLibrary)) {
                     excluded = true;
                     // RESTWarning << "Library '" << pathRootString << "' excluded from loading" << RESTendl;
                     break;
@@ -1171,7 +1172,7 @@ string ValueWithQuantity::ToString() const {
 
     const auto abs = TMath::Abs(value);
     if (abs == 0) {
-        return TString::Format("%0.2d", 0).Data();
+        return TString::Format("%d", 0).Data();
     } else if (abs < 1E-6) {
         return TString::Format("%0.2f %s%s", value * 1E9, "n", unit.c_str()).Data();
     } else if (abs < 1E-3) {

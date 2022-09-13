@@ -928,7 +928,7 @@ Double_t TRestHits::GetGaussSigmaZ() {
         Double_t xMin = std::numeric_limits<double>::max();
         Double_t xMax = std::numeric_limits<double>::lowest();
         for (int n = 0; n < GetNumberOfHits(); k++, n++) {
-            x[k] = fY[n];
+            x[k] = fZ[n];
             y[k] = fEnergy[n];
             ex[k] = 0;
             xMin = min(xMin, x[k]);
