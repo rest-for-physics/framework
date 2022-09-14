@@ -89,7 +89,7 @@ std::vector<string> TRestTools::GetOptions(string optionsStr) { return Split(opt
 void TRestTools::LoadRESTLibrary(bool silent) {
     const set<string> libraryExtension{".so", ".dylib", ".dll"};
     const set<string> excludedLibraries{
-        "restG4"};  // Ignoring package libraries if they exist. TODO: do not hardcode this
+        "RestG4"};  // Ignoring package libraries if they exist. TODO: do not hardcode this
 
     vector<string> ldPaths;
 #ifdef WIN32
@@ -122,7 +122,7 @@ void TRestTools::LoadRESTLibrary(bool silent) {
             // Check if library is excluded from loading e.g. is from a package
             bool excluded = false;
             for (const TString excludedLibrary : excludedLibraries) {
-                if (libName.Contains(excludedLibrary, TString::kIgnoreCase)) {
+                if (libName.Contains(excludedLibrary, TString::kExact)) {
                     excluded = true;
                     // RESTWarning << "Library '" << pathRootString << "' excluded from loading" << RESTendl;
                     break;
