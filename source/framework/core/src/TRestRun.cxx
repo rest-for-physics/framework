@@ -470,7 +470,8 @@ void TRestRun::ReadInputFileMetadata() {
             RESTDebug << "Reading key with name : " << key->GetName() << RESTendl;
             RESTDebug << "Key type (class) : " << key->GetClassName() << RESTendl;
 
-            if (!TClass::GetClass(key->GetClassName())->IsLoaded()) {
+            if (!TClass::GetClass(key->GetClassName()) ||
+                !TClass::GetClass(key->GetClassName())->IsLoaded()) {
                 RESTError << "-- Class " << key->GetClassName() << " has no dictionary!" << RESTendl;
                 RESTError << "- Any relevant REST library missing? " << RESTendl;
                 RESTError << "- File reading will continue without loading key: " << key->GetName()
@@ -1056,8 +1057,8 @@ TFile* TRestRun::UpdateOutputFile() {
         }
 
         fOutputFile->cd();
-        fAnalysisTree->Write(0, kWriteDelete);
-        fEventTree->Write(0, kWriteDelete);
+        fAnalysisTree->Write(nullptr, kOverwrite);
+        fEventTree->Write(nullptr, kOverwrite);
         this->WriteWithDataBase();
 
         RESTcout << "TRestRun: Output File Updated." << RESTendl;
@@ -1106,8 +1107,8 @@ void TRestRun::WriteWithDataBase() {
     fRunUser = REST_USER;
 
     // save metadata objects in file
-    RESTDebug << "TRestRun::WriteWithDataBase. Calling this->Write(0,kWriteDelete)" << RESTendl;
-    this->Write(0, kWriteDelete);
+    RESTDebug << "TRestRun::WriteWithDataBase. Calling this->Write(0,kOverwrite)" << RESTendl;
+    this->Write(nullptr, kOverwrite);
     RESTDebug << "TRestRun::WriteWithDataBase. Succeed" << RESTendl;
     RESTDebug << "TRestRun::WriteWithDataBase. fMetadata.size() == " << fMetadata.size() << RESTendl;
     for (int i = 0; i < fMetadata.size(); i++) {
@@ -1124,10 +1125,10 @@ void TRestRun::WriteWithDataBase() {
 
         if (!historic) {
             RESTDebug << "NO historic" << RESTendl;
-            fMetadata[i]->Write(fMetadata[i]->GetName(), kWriteDelete);
+            fMetadata[i]->Write(fMetadata[i]->GetName(), kOverwrite);
         } else {
             RESTDebug << "IS historic" << RESTendl;
-            if (fSaveHistoricData) fMetadata[i]->Write(fMetadata[i]->GetName(), kWriteDelete);
+            if (fSaveHistoricData) fMetadata[i]->Write(fMetadata[i]->GetName(), kOverwrite);
         }
     }
 
@@ -1148,8 +1149,8 @@ void TRestRun::CloseFile() {
         fEntriesSaved = fAnalysisTree->GetEntries();
         if (fAnalysisTree->GetEntries() > 0 && fInputFile == nullptr) {
             if (fOutputFile != nullptr) {
-                fAnalysisTree->Write(0, kWriteDelete);
-                this->Write(0, kWriteDelete);
+                fAnalysisTree->Write(nullptr, kOverwrite);
+                this->Write(nullptr, kOverwrite);
             }
         }
         delete fAnalysisTree;
@@ -1157,7 +1158,7 @@ void TRestRun::CloseFile() {
     }
 
     if (fEventTree != nullptr) {
-        if (fEventTree->GetEntries() > 0 && fInputFile == nullptr) fEventTree->Write(0, kWriteDelete);
+        if (fEventTree->GetEntries() > 0 && fInputFile == nullptr) fEventTree->Write(nullptr, kOverwrite);
         delete fEventTree;
         fEventTree = nullptr;
     }
