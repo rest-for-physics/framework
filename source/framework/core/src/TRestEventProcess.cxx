@@ -125,7 +125,7 @@ vector<string> TRestEventProcess::ReadObservables() {
 
         if (ToUpper(value) == "ON") {
             if (obschr != nullptr) {
-                debug << this->ClassName() << " : setting observable \"" << obschr << "\"" << endl;
+                RESTDebug << this->ClassName() << " : setting observable \"" << obschr << "\"" << RESTendl;
                 // vector<string> tmp = Split(obsstring, ":");
                 obsnames.push_back(obschr);
                 obstypes.push_back(type);
@@ -191,7 +191,8 @@ Bool_t TRestEventProcess::OpenInputFiles(vector<string> files) { return false; }
 Int_t TRestEventProcess::LoadSectionMetadata() {
     TRestMetadata::LoadSectionMetadata();
 
-    if (ToUpper(GetParameter("observable", "")) == "ALL") {
+    if (ToUpper(GetParameter("observable", "")) == "ALL" ||
+        ToUpper(GetParameter("observables", "")) == "ALL") {
         fDynamicObs = true;
     }
 
@@ -284,6 +285,15 @@ TRestEventProcess* TRestEventProcess::GetFriendLive(string nameortype) {
     return nullptr;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// \brief Get a list of parallel processes from this process
+///
+/// Parallel process means the process in other threads. It differs from "friend process"
+/// in another dimension. For example, we set up the process chain with one
+/// `TRestRawSignalAnalysisProcess` and one `TRestRawToSignalProcess`, and calls 2 threads to
+/// run the data. Then, for `TRestRawSignalAnalysisProcess` in thread 1, it has a parallel
+/// process `TRestRawSignalAnalysisProcess` from thread 2, and a friend process
+/// `TRestRawToSignalProcess` from thread 1.
 TRestEventProcess* TRestEventProcess::GetParallel(int i) {
     if (i >= 0 && i < fParallelProcesses.size()) {
         return fParallelProcesses[i];
@@ -333,7 +343,8 @@ cout << GetName() << ": Process initialization..." << endl;
 /// as
 /// input event
 void TRestEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
-    debug << "Entering " << ClassName() << "::BeginOfEventProcess, Initializing output event..." << endl;
+    RESTDebug << "Entering " << ClassName() << "::BeginOfEventProcess, Initializing output event..."
+              << RESTendl;
     if (inEv != nullptr && GetOutputEvent().address != nullptr && (TRestEvent*)GetOutputEvent() != inEv) {
         TRestEvent* outEv = GetOutputEvent();
         outEv->Initialize();
@@ -367,16 +378,17 @@ void TRestEventProcess::ProcessEvent( TRestEvent *inputEvent )
 /// \brief End of event process. Validate the updated observable number matches total defined observable
 /// number
 void TRestEventProcess::EndOfEventProcess(TRestEvent* inputEvent) {
-    debug << "Entering TRestEventProcess::EndOfEventProcess (" << ClassName() << ")" << endl;
+    RESTDebug << "Entering TRestEventProcess::EndOfEventProcess (" << ClassName() << ")" << RESTendl;
     if (fValidateObservables) {
         if (fObservablesDefined.size() != fObservablesUpdated.size()) {
             for (auto x : fObservablesDefined) {
                 if (fObservablesUpdated.count(x.first) == 0) {
                     // the observable is added through <observable section but not set in the process
-                    warning << "The observable  '" << x.first << "' is defined but not set by "
-                            << this->ClassName()
-                            << ", the event is empty? Makesure all observables are set through ProcessEvent()"
-                            << endl;
+                    RESTWarning
+                        << "The observable  '" << x.first << "' is defined but not set by "
+                        << this->ClassName()
+                        << ", the event is empty? Makesure all observables are set through ProcessEvent()"
+                        << RESTendl;
                 }
             }
         }
@@ -400,32 +412,32 @@ cout << GetName() << ": Process ending..." << endl;
 /// Prints process type, name, title, verboselevel, outputlevel, input/output
 /// event type, and several separators
 void TRestEventProcess::BeginPrintProcess() {
-    metadata.setcolor(COLOR_BOLDGREEN);
-    metadata.setborder("||");
-    metadata.setlength(100);
+    RESTMetadata.setcolor(COLOR_BOLDGREEN);
+    RESTMetadata.setborder("||");
+    RESTMetadata.setlength(100);
     // metadata << " " << endl;
     cout << endl;
-    metadata << "=" << endl;
-    metadata << "Process : " << ClassName() << endl;
-    metadata << "Name: " << GetName() << "  Title: " << GetTitle()
-             << "  VerboseLevel: " << GetVerboseLevelString() << endl;
-    metadata << " ----------------------------------------------- " << endl;
-    metadata << " " << endl;
+    RESTMetadata << "=" << RESTendl;
+    RESTMetadata << "Process : " << ClassName() << RESTendl;
+    RESTMetadata << "Name: " << GetName() << "  Title: " << GetTitle()
+                 << "  VerboseLevel: " << GetVerboseLevelString() << RESTendl;
+    RESTMetadata << " ----------------------------------------------- " << RESTendl;
+    RESTMetadata << " " << RESTendl;
 
     if (fObservablesDefined.size() > 0) {
-        metadata << " Analysis tree observables added by this process " << endl;
-        metadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
+        RESTMetadata << " Analysis tree observables added by this process " << RESTendl;
+        RESTMetadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << RESTendl;
     }
 
     auto iter = fObservablesDefined.begin();
     while (iter != fObservablesDefined.end()) {
-        metadata << " ++ " << iter->first << endl;
+        RESTMetadata << " ++ " << iter->first << RESTendl;
         iter++;
     }
 
     if (fObservablesDefined.size() > 0) {
-        metadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
-        metadata << " " << endl;
+        RESTMetadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << RESTendl;
+        RESTMetadata << " " << RESTendl;
     }
 }
 
@@ -436,24 +448,24 @@ void TRestEventProcess::BeginPrintProcess() {
 /// Prints several separators. Prints cuts.
 void TRestEventProcess::EndPrintProcess() {
     if (fCuts.size() > 0) {
-        metadata << "Cuts enabled" << endl;
-        metadata << "------------" << endl;
+        RESTMetadata << "Cuts enabled" << RESTendl;
+        RESTMetadata << "------------" << RESTendl;
 
         auto iter = fCuts.begin();
         while (iter != fCuts.end()) {
             if (iter->second.X() != iter->second.Y())
-                metadata << iter->first << ", range : ( " << iter->second.X() << " , " << iter->second.Y()
-                         << " ) " << endl;
+                RESTMetadata << iter->first << ", range : ( " << iter->second.X() << " , " << iter->second.Y()
+                             << " ) " << RESTendl;
             iter++;
         }
     }
 
-    metadata << " " << endl;
-    metadata << "=" << endl;
-    metadata << endl;
-    metadata.resetcolor();
-    metadata.setborder("");
-    metadata.setlength(10000);
+    RESTMetadata << " " << RESTendl;
+    RESTMetadata << "=" << RESTendl;
+    RESTMetadata << RESTendl;
+    RESTMetadata.resetcolor();
+    RESTMetadata.setborder("");
+    RESTMetadata.setlength(10000);
 }
 
 ////////////////////////////////////////////////////////////////////////////

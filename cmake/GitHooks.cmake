@@ -13,13 +13,12 @@ if (NOT EXISTS ${PROJECT_SOURCE_DIR}/.git)
     return()
 endif ()
 
-if (EXISTS ${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit)
+if (NOT EXISTS ${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit)
+    # We cannot write the file from here because we need exec permissions
+    configure_file(${CMAKE_SOURCE_DIR}/cmake/utils/git_pre-commit.in ${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit)
+else ()
     message(DEBUG "git hook found at ${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit")
-    return()
 endif ()
-
-# We cannot write the file from here because we need exec permissions
-configure_file(${CMAKE_SOURCE_DIR}/cmake/utils/git_pre-commit.in ${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit)
 
 find_package(Git)
 

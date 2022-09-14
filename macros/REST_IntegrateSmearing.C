@@ -17,12 +17,12 @@
 //***
 //*******************************************************************************************************
 Int_t REST_IntegrateSmearing(string varName, string rootFileName, double Middle) {
-    TRestStringOutput cout;
+    TRestStringOutput RESTLog;
 
     std::vector<string> inputFilesNew = TRestTools::GetFilesMatchingPattern(rootFileName);
 
     if (inputFilesNew.size() == 0) {
-        cout << "Files not found!" << endl;
+        RESTLog << "Files not found!" << RESTendl;
         return -1;
     }
 
@@ -41,12 +41,12 @@ Int_t REST_IntegrateSmearing(string varName, string rootFileName, double Middle)
 
         Int_t obsID = run->GetAnalysisTree()->GetObservableID(varName);
         if (obsID == -1) {
-            cout << endl;
-            cout.setcolor(COLOR_BOLDRED);
-            cout << "No observable \"" << varName << "\" in file " << inputFilesNew[n] << endl;
+            RESTLog << RESTendl;
+            RESTLog.setcolor(COLOR_BOLDRED);
+            RESTLog << "No observable \"" << varName << "\" in file " << inputFilesNew[n] << RESTendl;
             continue;
         }
-        cout << "Entries : " << run->GetEntries() << endl;
+        RESTLog << "Entries : " << run->GetEntries() << RESTendl;
         TH1D* h = new TH1D("histo", "histo", 180, Qbb - 90, Qbb + 90);
         Int_t peak = 0;
         for (int i = 0; i < run->GetEntries(); i++) {
@@ -78,18 +78,18 @@ Int_t REST_IntegrateSmearing(string varName, string rootFileName, double Middle)
             contribution_3 += gausFunc->Integral(mean - 2 * sigma_3, mean + 2 * sigma_3);
         }
 
-        cout.setcolor(COLOR_BOLDBLUE);
-        cout.setborder("*");
-        cout << endl;
-        cout << "=" << endl;
-        cout << "Total events : " << run->GetEntries() << endl;
-        cout << " " << endl;
-        cout << "FWHM = 0.5% -> " << contribution_1 << endl;
-        cout << "FWHM = 1.% -> " << contribution_2 << endl;
-        cout << "FWHM = 3.% -> " << contribution_3 << endl;
-        cout << "peak : " << peak << endl;
-        cout << "=" << endl;
-        cout << endl;
+        RESTLog.setcolor(COLOR_BOLDBLUE);
+        RESTLog.setborder("*");
+        RESTLog << RESTendl;
+        RESTLog << "=" << RESTendl;
+        RESTLog << "Total events : " << run->GetEntries() << RESTendl;
+        RESTLog << " " << RESTendl;
+        RESTLog << "FWHM = 0.5% -> " << contribution_1 << RESTendl;
+        RESTLog << "FWHM = 1.% -> " << contribution_2 << RESTendl;
+        RESTLog << "FWHM = 3.% -> " << contribution_3 << RESTendl;
+        RESTLog << "peak : " << peak << RESTendl;
+        RESTLog << "=" << RESTendl;
+        RESTLog << RESTendl;
 
         delete run;
     }

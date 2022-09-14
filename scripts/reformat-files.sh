@@ -46,6 +46,7 @@ if ! type -P $CLANG_FORMAT; then
   CLANG_FORMAT_DISABLED=True
 fi
 
+export XMLLINT_INDENT="    "
 if ! type -P $XML_LINT; then
   echo "WARNING: '$XML_LINT' was not found in your system! we cannot format *.rml files"
   XML_LINT_DISABLED=True

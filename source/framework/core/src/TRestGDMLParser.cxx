@@ -14,70 +14,69 @@ string TRestGDMLParser::GetEntityVersion(const string& name) const {
 }
 
 void TRestGDMLParser::Load(const string& filename) {
-    const auto filenameAbsolute = TRestTools::ToAbsoluteName(filename);
-    if (TRestTools::fileExists(filenameAbsolute)) {
-        fConfigFileName = filenameAbsolute;
-        fPath = TRestTools::SeparatePathAndName(filenameAbsolute).first;
+    const string filenameAbsolute = TRestTools::ToAbsoluteName(filename);
+    if (!TRestTools::fileExists(filenameAbsolute)) {
+        RESTError << "TRestGDMLParser: Input GDML file: \"" << filenameAbsolute
+                  << "\" does not exist. Please double check your current path and filename" << RESTendl;
+        exit(1);
+    }
 
-        std::ifstream t(filenameAbsolute);
-        std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-        fFileString = str;
-        t.close();
+    fConfigFileName = filenameAbsolute;
+    fPath = TRestTools::SeparatePathAndName(filenameAbsolute).first;
 
-        int pp = fFileString.find("##VERSION", 0);
-        if (pp != string::npos) {
-            int pp2 = fFileString.find("##", pp + 4);
-            if (pp2 != string::npos) fGdmlVersion = fFileString.substr(pp + 9, pp2 - pp - 9);
-            fGdmlVersion = ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(fGdmlVersion)));
-        }
+    std::ifstream t(filenameAbsolute);
+    std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+    fFileString = str;
+    t.close();
 
-        fFileString = ReplaceConstants(ReplaceVariables(fFileString));
+    int pp = fFileString.find("##VERSION", 0);
+    if (pp != string::npos) {
+        int pp2 = fFileString.find("##", pp + 4);
+        if (pp2 != string::npos) fGdmlVersion = fFileString.substr(pp + 9, pp2 - pp - 9);
+        fGdmlVersion = ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(fGdmlVersion)));
+    }
 
-        cout << "TRestGDMLParser: Initializing variables" << endl;
-        int pos = fFileString.find("<gdml", 0);
-        if (pos != -1) {
-            string elementString = fFileString.substr(pos, -1);
+    fFileString = ReplaceConstants(ReplaceVariables(fFileString));
 
-            fElement = StringToElement(elementString);
-            fElementGlobal = GetElement("define", fElement);
+    cout << "TRestGDMLParser: Initializing variables" << endl;
+    int pos = fFileString.find("<gdml", 0);
+    if (pos != -1) {
+        string elementString = fFileString.substr(pos, -1);
 
-            LoadSectionMetadata();
-        }
+        fElement = StringToElement(elementString);
+        fElementGlobal = GetElement("define", fElement);
 
-        cout << "TRestGDMLParser: Replacing expressions in GDML" << endl;
-        ReplaceEntity();
-        fFileString = Replace(fFileString, "= \"", "=\"");
-        fFileString = Replace(fFileString, " =\"", "=\"");
-        fFileString = Replace(fFileString, " = \"", "=\"");
+        LoadSectionMetadata();
+    }
 
-        ReplaceAttributeWithKeyWord("cos(");
-        ReplaceAttributeWithKeyWord("sin(");
-        ReplaceAttributeWithKeyWord("tan(");
-        ReplaceAttributeWithKeyWord("sqrt(");
-        ReplaceAttributeWithKeyWord("log(");
-        ReplaceAttributeWithKeyWord("exp(");
+    cout << "TRestGDMLParser: Replacing expressions in GDML" << endl;
+    ReplaceEntity();
+    fFileString = Replace(fFileString, "= \"", "=\"");
+    fFileString = Replace(fFileString, " =\"", "=\"");
+    fFileString = Replace(fFileString, " = \"", "=\"");
 
-        string filenameNoPath = TRestTools::SeparatePathAndName(filenameAbsolute).second;
-        // we have to use a unique identifier on the file to prevent collision when launching multiple jobs
-        fOutputGdmlFilename = fOutputGdmlDirectory + "PID" + std::to_string(getpid()) + "_" + filenameNoPath;
-        cout << "TRestGDMLParser: Creating temporary file at: \"" << fOutputGdmlFilename << "\"" << endl;
+    ReplaceAttributeWithKeyWord("cos(");
+    ReplaceAttributeWithKeyWord("sin(");
+    ReplaceAttributeWithKeyWord("tan(");
+    ReplaceAttributeWithKeyWord("sqrt(");
+    ReplaceAttributeWithKeyWord("log(");
+    ReplaceAttributeWithKeyWord("exp(");
 
-        filesystem::create_directories(fOutputGdmlDirectory);
+    string filenameNoPath = TRestTools::SeparatePathAndName(filenameAbsolute).second;
+    // we have to use a unique identifier on the file to prevent collision when launching multiple jobs
+    fOutputGdmlFilename = fOutputGdmlDirectory + "PID" + std::to_string(getpid()) + "_" + filenameNoPath;
+    cout << "TRestGDMLParser: Creating temporary file at: \"" << fOutputGdmlFilename << "\"" << endl;
 
-        ofstream outputFile;
-        outputFile.open(fOutputGdmlFilename, ios::trunc);
-        outputFile << fFileString << endl;
-        outputFile.close();
+    filesystem::create_directories(fOutputGdmlDirectory);
 
-        std::ifstream fileToCheckExistence(fOutputGdmlFilename);
-        if (!fileToCheckExistence) {
-            std::cout << "TRestGDMLParser: Problem writing temporary file." << std::endl;
-            exit(1);
-        }
+    ofstream outputFile;
+    outputFile.open(fOutputGdmlFilename, ios::trunc);
+    outputFile << fFileString << endl;
+    outputFile.close();
 
-    } else {
-        ferr << "TRestGDMLParser: Input GDML file: \"" << filename
-             << "\" does not exist. Please double check your current path and filename" << endl;
+    std::ifstream fileToCheckExistence(fOutputGdmlFilename);
+    if (!fileToCheckExistence) {
+        std::cout << "TRestGDMLParser: Problem writing temporary file." << std::endl;
         exit(1);
     }
 }
@@ -85,12 +84,11 @@ void TRestGDMLParser::Load(const string& filename) {
 TGeoManager* TRestGDMLParser::CreateGeoManager() {
     // We must change to the gdml file directory, otherwise ROOT cannot load.
     if (!fOutputGdmlFilename.empty()) {
-        char originDirectory[256];
-        sprintf(originDirectory, "%s", getenv("PWD"));
-        chdir(fOutputGdmlDirectory.c_str());
+        const auto currentPath = filesystem::current_path();
+        filesystem::current_path(fOutputGdmlDirectory);
         auto geoManager = new TGeoManager();
         geoManager->Import(fOutputGdmlFilename.c_str());
-        chdir(originDirectory);
+        filesystem::current_path(currentPath);
         return geoManager;
     }
     return nullptr;
@@ -121,7 +119,7 @@ void TRestGDMLParser::ReplaceEntity() {
             }
             entityFile = entityField;
         } else {
-            entityFile = fPath + entityFile;
+            entityFile = fPath + "/" + entityFile;
         }
 
         int pos5 = 0;

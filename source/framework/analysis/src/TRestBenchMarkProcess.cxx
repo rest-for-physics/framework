@@ -30,7 +30,7 @@ void TRestBenchMarkProcess::Initialize() {
 #else
     fCPUNumber = 0;
     fMemNumber = 0;
-    ferr << "TRestBenchMarkProcess is not available yet on MACOS!!" << endl;
+    RESTError << "TRestBenchMarkProcess is not available yet on MACOS!!" << RESTendl;
 #endif
     fPid = getpid();
     fRefreshRate = 10;
@@ -55,7 +55,7 @@ void TRestBenchMarkProcess::SysMonitorFunc(int pid, double refreshRate) {
 
 void TRestBenchMarkProcess::InitProcess() {
     if (fHostmgr == nullptr || fHostmgr->GetProcessRunner() == nullptr) {
-        ferr << "TRestBenchMarkProcess: the process is not hosted by TRestProcessRunner!" << endl;
+        RESTError << "TRestBenchMarkProcess: the process is not hosted by TRestProcessRunner!" << RESTendl;
         exit(1);
     }
 
@@ -96,12 +96,13 @@ void TRestBenchMarkProcess::EndProcess() {
 void TRestBenchMarkProcess::PrintMetadata() {
     BeginPrintProcess();
 
-    metadata << "REST pid: " << fPid << endl;
-    metadata << "Number of CPUs: " << fCPUNumber << endl;
-    metadata << "Total Memory: " << round((double)fMemNumber / 1024 / 1024 * 10) / 10 << " GB" << endl;
-    metadata << "System information refresh rate: " << fRefreshRate << " Hz" << endl;
-    metadata << "Monitoring thread: " << fMonitorThread
-             << ", status: " << (fMonitorFlag == 0 ? "stopped" : "running") << endl;
+    RESTMetadata << "REST pid: " << fPid << RESTendl;
+    RESTMetadata << "Number of CPUs: " << fCPUNumber << RESTendl;
+    RESTMetadata << "Total Memory: " << round((double)fMemNumber / 1024 / 1024 * 10) / 10 << " GB"
+                 << RESTendl;
+    RESTMetadata << "System information refresh rate: " << fRefreshRate << " Hz" << RESTendl;
+    RESTMetadata << "Monitoring thread: " << fMonitorThread
+                 << ", status: " << (fMonitorFlag == 0 ? "stopped" : "running") << RESTendl;
 
     EndPrintProcess();
 }

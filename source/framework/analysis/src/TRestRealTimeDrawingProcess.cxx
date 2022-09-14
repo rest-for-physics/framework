@@ -143,8 +143,8 @@ void TRestRealTimeDrawingProcess::InitProcess() {
         while (ele != nullptr) {
             string proc = GetParameter("processName", ele);
             if (GetFriendLive(proc) == nullptr) {
-                ferr << "TRestRealTimeDrawingProcess: cannot find process \"" << proc << "\" to call drawing!"
-                     << endl;
+                RESTError << "TRestRealTimeDrawingProcess: cannot find process \"" << proc
+                          << "\" to call drawing!" << RESTendl;
                 exit(1);
             }
             fProcessesToDraw.push_back(proc);
@@ -177,8 +177,8 @@ TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* inputEvent) {
     if (GetFullAnalysisTree()->GetEntries() >= fDrawInterval + fLastDrawnEntry) {
         fPauseInvoke = true;
 
-        info << "TRestRealTimeDrawingProcess: reached drawing flag. Waiting for other processes to pause"
-             << endl;
+        RESTInfo << "TRestRealTimeDrawingProcess: reached drawing flag. Waiting for other processes to pause"
+                 << RESTendl;
         // wait while all other TRestRealTimeDrawingProcess is paused
         for (auto iter = fPauseResponse.begin(); iter != fPauseResponse.end(); iter++) {
             if (iter->first == this) continue;
@@ -188,9 +188,9 @@ TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* inputEvent) {
                 i++;
                 if (i > fThreadWaitTimeoutMs) {
                     // to prevent last event in the process chain
-                    warning
+                    RESTWarning
                         << "TRestRealTimeDrawingProcess: waiting time reaches maximum, plotting job aborted"
-                        << endl;
+                        << RESTendl;
                     fPauseInvoke = false;
                     return fEvent;
                 }
@@ -198,7 +198,7 @@ TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* inputEvent) {
         }
 
         // starts drawing
-        info << "TRestRealTimeDrawingProcess: drawing..." << endl;
+        RESTInfo << "TRestRealTimeDrawingProcess: drawing..." << RESTendl;
         DrawOnce();
 
         fLastDrawnEntry = GetFullAnalysisTree()->GetEntries();
@@ -213,7 +213,7 @@ TRestEvent* TRestRealTimeDrawingProcess::ProcessEvent(TRestEvent* inputEvent) {
 ///
 void TRestRealTimeDrawingProcess::EndProcess() {
     if (fPauseInvoke == false) {
-        info << "TRestRealTimeDrawingProcess: end drawing..." << endl;
+        RESTInfo << "TRestRealTimeDrawingProcess: end drawing..." << RESTendl;
         DrawOnce();
 
         fPauseInvoke = true;
@@ -235,15 +235,16 @@ void TRestRealTimeDrawingProcess::DrawWithNotification() {
     auto messager = GetMetadata<TRestMessenger>();
     int runNumber = StringToInteger(GetParameter("runNumber"));
     if (runNumber == -1) {
-        ferr << "TRestRealTimeDrawingProcess::DrawWithNotification: runNumber must be given!" << endl;
-        ferr << "consider adding \"--d xx\" in restManager command" << endl;
+        RESTError << "TRestRealTimeDrawingProcess::DrawWithNotification: runNumber must be given!"
+                  << RESTendl;
+        RESTError << "consider adding \"--d xx\" in restManager command" << RESTendl;
         abort();
     }
     while (true) {
         // consmue the message, take out from the message pool
         string message = messager->ConsumeMessage();
         if (message != "") {
-            info << "Recieveing message: " << message << endl;
+            RESTInfo << "Recieveing message: " << message << RESTendl;
             if (TRestTools::fileExists(message) && TRestTools::isRootFile(message)) {
                 TRestRun* run = new TRestRun(message);
                 int _runNumber = run->GetRunNumber();
@@ -256,9 +257,9 @@ void TRestRealTimeDrawingProcess::DrawWithNotification() {
                 } else {
                     // if the runnumber does not match, we put this message back to pool
                     // maybe other processes need it
-                    warning << "file: " << message << endl;
-                    warning << "It is not the file we wanted! runNumber in file: " << _runNumber
-                            << ", run we are processing: " << runNumber << endl;
+                    RESTWarning << "file: " << message << RESTendl;
+                    RESTWarning << "It is not the file we wanted! runNumber in file: " << _runNumber
+                                << ", run we are processing: " << runNumber << RESTendl;
                     messager->SendMessage(message);
                 }
             }
@@ -274,18 +275,18 @@ void TRestRealTimeDrawingProcess::DrawWithNotification() {
 void TRestRealTimeDrawingProcess::PrintMetadata() {
     BeginPrintProcess();
 
-    metadata << "Number of AnalysisPlots added: " << fPlots.size() << endl;
+    RESTMetadata << "Number of AnalysisPlots added: " << fPlots.size() << RESTendl;
     for (auto p : fPlots) {
-        metadata << p->GetName();
+        RESTMetadata << p->GetName();
     }
-    metadata << endl;
-    metadata << "Number of process plots added: " << fProcessesToDraw.size() << endl;
+    RESTMetadata << RESTendl;
+    RESTMetadata << "Number of process plots added: " << fProcessesToDraw.size() << RESTendl;
     for (auto p : fProcessesToDraw) {
-        metadata << p;
+        RESTMetadata << p;
     }
-    metadata << endl;
-    metadata << "Draw interval" << fDrawInterval << endl;
-    metadata << "Waiting time for other thread to stop " << fThreadWaitTimeoutMs << endl;
+    RESTMetadata << RESTendl;
+    RESTMetadata << "Draw interval" << fDrawInterval << RESTendl;
+    RESTMetadata << "Waiting time for other thread to stop " << fThreadWaitTimeoutMs << RESTendl;
 
     EndPrintProcess();
 }

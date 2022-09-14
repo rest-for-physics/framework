@@ -1,11 +1,11 @@
 #ifndef RestCore_TRestDataBase
 #define RestCore_TRestDataBase
 
-#include <sys/time.h>
-
 #include <iostream>
 #include <map>
 #include <vector>
+
+#include "TRestTools.h"
 
 // Contains basic information of the row. These information also appears in TRestRun.
 // One or more DBEntry objects stores the information of one run.
@@ -42,7 +42,7 @@ struct DBEntry {
 
     std::string value = "";
 
-    bool IsZombie() { return runNr == 0 && type == "" && value == ""; }
+    bool IsZombie() { return runNr == 0 || (type == "" && value == ""); }
 };
 
 struct DBFile {
@@ -127,6 +127,6 @@ class TRestDataBase {
     virtual int set_data(DBEntry info, bool overwrite = true) { return 0; }
 };
 
-extern TRestDataBase* gDataBase;
+EXTERN_DEF TRestDataBase* gDataBase;
 
 #endif
