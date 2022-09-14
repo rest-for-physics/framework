@@ -18,6 +18,7 @@ endif ()
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-stdlib=libc++")
 endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-lstdc++fs" )
 
 # https://github.com/rest-for-physics/framework/issues/162 & https://github.com/rest-for-physics/framework/issues/236
 if (${CMAKE_VERSION} VERSION_LESS "3.23")
@@ -131,6 +132,22 @@ if (${SQL} MATCHES "ON")
 else ()
     set(SQL OFF)
 endif (${SQL} MATCHES "ON")
+
+#### MPFR
+find_path(MPFR_INCLUDE mpfr.h HINTS ${MPFR_PATH} ${MPFR_PATH}/include) # path to include directory
+find_path(MPFR_LIB_PATH libmpfr.so HINTS ${MPFR_PATH} ${MPFR_PATH}/lib) # path to include directory
+find_library(MPFR_LIB mpfr HINTS ${MPFR_PATH} ${MPFR_PATH}/lib) # path to .so file
+
+if (NOT MPFR_INCLUDE MATCHES "MPFR_INCLUDE-NOTFOUND" AND NOT MPFR_LIB MATCHES "MPFR_LIB-NOTFOUND")
+    # MPFR is found
+    add_compile_definitions(USE_MPFR)
+    set(external_include_dirs ${external_include_dirs} ${MPFR_INCLUDE})
+    set(external_libs "${external_libs};${MPFR_LIB}")
+    link_directories(${MPFR_LIB})
+    message( STATUS "MPFR library : ${MPFR_LIB}" )
+else ()
+    message(WARNING "MPFR library was not found. Adding the location to the installation path may solve this problem.\n Use -DMPFR_PATH=/path/to/mpfr/")
+endif ()
 
 # Include directories for compilation
 include_directories(${external_include_dirs})
