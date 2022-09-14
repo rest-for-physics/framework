@@ -1174,20 +1174,33 @@ string ValueWithQuantity::ToString() const {
     if (abs == 0) {
         return TString::Format("%d", 0).Data();
     } else if (abs < 1E-6) {
-        return TString::Format("%0.2f %s%s", value * 1E9, "n", unit.c_str()).Data();
+        return TString::Format("%.2f %s%s", value * 1E9, "n", unit.c_str()).Data();
     } else if (abs < 1E-3) {
-        return TString::Format("%0.2f %s%s", value * 1E6, "u", unit.c_str()).Data();
+        return TString::Format("%.2f %s%s", value * 1E6, "u", unit.c_str()).Data();
     } else if (abs < 1E0) {
-        return TString::Format("%0.2f %s%s", value * 1E3, "m", unit.c_str()).Data();
+        return TString::Format("%.2f %s%s", value * 1E3, "m", unit.c_str()).Data();
     } else if (abs < 1E3) {
-        return TString::Format("%0.2f %s%s", value * 1E0, "", unit.c_str()).Data();
+        return TString::Format("%.2f %s%s", value * 1E0, "", unit.c_str()).Data();
     } else if (abs < 1E6) {
-        return TString::Format("%0.2f %s%s", value * 1E-3, "k", unit.c_str()).Data();
+        return TString::Format("%.2f %s%s", value * 1E-3, "k", unit.c_str()).Data();
     } else if (abs < 1E9) {
-        return TString::Format("%0.2f %s%s", value * 1E-6, "M", unit.c_str()).Data();
+        return TString::Format("%.2f %s%s", value * 1E-6, "M", unit.c_str()).Data();
     } else if (abs < 1E12) {
-        return TString::Format("%0.2f %s%s", value * 1E-9, "G", unit.c_str()).Data();
+        return TString::Format("%.2f %s%s", value * 1E-9, "G", unit.c_str()).Data();
     } else {
-        return TString::Format("%0.2f %s%s", value * 1E-12, "T", unit.c_str()).Data();
+        return TString::Format("%.2f %s%s", value * 1E-12, "T", unit.c_str()).Data();
+    }
+}
+
+string ToTimeStringLong(double seconds) {
+    const auto abs = TMath::Abs(seconds);
+    if (abs < 60) {
+        return TString::Format("%.2f %s", seconds, "seconds").Data();
+    } else if (abs < 60 * 60) {
+        return TString::Format("%.2f %s", seconds / 60.0, "minutes").Data();
+    } else if (abs < 60 * 60 * 24) {
+        return TString::Format("%.2f %s", seconds / (60.0 * 60.0), "hours").Data();
+    } else {
+        return TString::Format("%.2f %s", seconds / (60.0 * 60.0 * 24.0), "days").Data();
     }
 }

@@ -195,6 +195,8 @@ inline std::string ToEnergyString(double value) { return (std::string)ValueWithQ
 inline std::string ToTimeString(double value) { return (std::string)ValueWithQuantity(value, TIME); }
 inline std::string ToLengthString(double value) { return (std::string)ValueWithQuantity(value, LENGTH); }
 
+std::string ToTimeStringLong(double value);
+
 inline std::string VectorToString(const TVector3& v) {
     return TString::Format("(%0.3f, %0.3f, %0.3f)", v.X(), v.Y(), v.Z()).Data();
 }
