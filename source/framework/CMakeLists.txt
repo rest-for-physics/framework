@@ -21,15 +21,17 @@ if (NOT ${CURL_LIB} STREQUAL "CURL_LIB-NOTFOUND")
     set(external_libs "${external_libs};-lcurl;-lstdc++fs")
 endif ()
 
-find_path(MPFR_INCLUDE mpfr.h HINTS ${MPFR_PATH}) # path to include directory
-find_library(MPFR_LIB mpfr HINTS ${MPFR_PATH}) # path to .so file
+find_path(MPFR_INCLUDE mpfr.h HINTS ${MPFR_PATH} ${MPFR_PATH}/include) # path to include directory
+find_path(MPFR_LIB_PATH libmpfr.so HINTS ${MPFR_PATH} ${MPFR_PATH}/lib) # path to include directory
+find_library(MPFR_LIB mpfr HINTS ${MPFR_PATH} ${MPFR_PATH}/lib) # path to .so file
 
 if (NOT MPFR_INCLUDE MATCHES "MPFR_INCLUDE-NOTFOUND" AND NOT MPFR_LIB MATCHES "MPFR_LIB-NOTFOUND")
     # MPFR is found
     add_compile_definitions(USE_MPFR)
     set(external_include_dirs ${external_include_dirs} ${MPFR_INCLUDE})
-    set(external_libs "${external_libs};-lmpfr")
-    link_directories(${MPFR_LIB})
+    set(external_libs "${external_libs};${MPFR_LIB}")
+    link_directories(${MPFR_LIB_PATH})
+    message( STATUS "MPFR library directory : ${MPFR_LIB_PATH}" )
 else ()
     message(WARNING "MPFR library was not found. Adding the location to the installation path may solve this problem.\n Use -DMPFR_PATH=/path/to/mpfr/")
 endif ()
