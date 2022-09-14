@@ -1057,8 +1057,10 @@ TFile* TRestRun::UpdateOutputFile() {
         }
 
         fOutputFile->cd();
+
         fAnalysisTree->Write(nullptr, kOverwrite);
         fEventTree->Write(nullptr, kOverwrite);
+
         this->WriteWithDataBase();
 
         RESTcout << "TRestRun: Output File Updated." << RESTendl;
@@ -1107,17 +1109,19 @@ void TRestRun::WriteWithDataBase() {
     fRunUser = REST_USER;
 
     // save metadata objects in file
-    RESTDebug << "TRestRun::WriteWithDataBase. Calling this->Write(0,kOverwrite)" << RESTendl;
+
+    RESTDebug << "TRestRun::WriteWithDataBase. Calling this->Write(0, kOverwrite)" << RESTendl;
     this->Write(nullptr, kOverwrite);
+
     RESTDebug << "TRestRun::WriteWithDataBase. Succeed" << RESTendl;
     RESTDebug << "TRestRun::WriteWithDataBase. fMetadata.size() == " << fMetadata.size() << RESTendl;
-    for (int i = 0; i < fMetadata.size(); i++) {
+    for (auto& metadata : fMetadata) {
         bool historic = false;
         RESTDebug << "TRestRun::WriteWithDataBase. fInputMetadata.size() == " << fInputMetadata.size()
                   << RESTendl;
-        for (int j = 0; j < fInputMetadata.size(); j++) {
-            RESTDebug << fMetadata[i]->GetName() << " == " << fInputMetadata[j]->GetName() << RESTendl;
-            if (fMetadata[i] == fInputMetadata[j]) {
+        for (const auto& inputMetadata : fInputMetadata) {
+            RESTDebug << metadata->GetName() << " == " << inputMetadata->GetName() << RESTendl;
+            if (metadata == inputMetadata) {
                 historic = true;
                 break;
             }
@@ -1125,10 +1129,10 @@ void TRestRun::WriteWithDataBase() {
 
         if (!historic) {
             RESTDebug << "NO historic" << RESTendl;
-            fMetadata[i]->Write(fMetadata[i]->GetName(), kOverwrite);
+            metadata->Write(metadata->GetName(), kOverwrite);
         } else {
             RESTDebug << "IS historic" << RESTendl;
-            if (fSaveHistoricData) fMetadata[i]->Write(fMetadata[i]->GetName(), kOverwrite);
+            if (fSaveHistoricData) metadata->Write(metadata->GetName(), kOverwrite);
         }
     }
 
@@ -1211,7 +1215,7 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
         p->SetAnalysisTree(fAnalysisTree);
         fTotalBytes = p->GetTotalBytes();
 
-        GetNextEvent(fInputEvent, 0);
+        GetNextEvent(fInputEvent, nullptr);
         // fAnalysisTree->CreateBranches();
         RESTInfo << "The external file process has been set! Name : " << fFileProcess->GetName() << RESTendl;
     } else {

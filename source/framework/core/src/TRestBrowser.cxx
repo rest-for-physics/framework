@@ -24,7 +24,8 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "TRestBrowser.h"
-#include "TTreeFormula.h"
+
+#include <TTreeFormula.h>
 
 using namespace std;
 
@@ -82,10 +83,10 @@ void TRestBrowser::Initialize(const TString& opt) {
     fBrowser->StopEmbedding();
 
     //// frmMain->DontCallClose();
-    //frmMain->MapSubwindows();
+    // frmMain->MapSubwindows();
     //// frmMain->Resize();
-    //frmMain->Layout();
-    //frmMain->MapWindow();
+    // frmMain->Layout();
+    // frmMain->MapWindow();
 }
 
 void TRestBrowser::SetViewer(TRestEventViewer* eV) {

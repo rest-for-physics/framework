@@ -38,7 +38,7 @@
 
 #include "TRestEventViewer.h"
 
-#define GEOM_SCALE 1
+#define GEOM_SCALE 0.1
 
 class TRestEveEventViewer : public TRestEventViewer {
    protected:
@@ -64,8 +64,8 @@ class TRestEveEventViewer : public TRestEventViewer {
 
     char pointName[256];
 
-    Double_t fMinRadius;
-    Double_t fMaxRadius;
+    Double_t fMinRadius = 0.2;
+    Double_t fMaxRadius = 3.0;
 
    public:
     virtual void Initialize();

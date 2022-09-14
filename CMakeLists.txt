@@ -89,7 +89,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(external_libs "${external_libs};Ws2_32")
     set(CMAKE_CXX_STANDARD 17)
     add_definitions(-D_HAS_STD_BYTE=0)
-else()
+else ()
     set(external_libs "${external_libs};stdc++fs")
 
     execute_process(COMMAND root-config --has-cxx20 OUTPUT_VARIABLE HASCXX20)
@@ -206,39 +206,33 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/macros
         DESTINATION .
         COMPONENT install
         )
-install(
-        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data
         DESTINATION .
         COMPONENT install
-)
-install(
-        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts
+        )
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts
         DESTINATION .
         COMPONENT install
-)
+        )
 file(GLOB cmake_scripts
         "cmake/scripts/*"
         )
 install(FILES ${cmake_scripts} DESTINATION cmake)
 
-
-
-
-
 if (CMAKE_SYSTEM_NAME MATCHES "Windows") # we must call library install here in windows
-    foreach(lib  ${rest_libraries})
-    install(TARGETS ${lib}
-                    RUNTIME DESTINATION bin
-                    LIBRARY DESTINATION bin
-                    ARCHIVE DESTINATION lib)
-    endforeach()
+    foreach (lib ${rest_libraries})
+        install(TARGETS ${lib}
+                RUNTIME DESTINATION bin
+                LIBRARY DESTINATION bin
+                ARCHIVE DESTINATION lib)
+    endforeach ()
 
-    foreach(exe  ${rest_exes})
-    install(TARGETS ${exe}
-                    RUNTIME DESTINATION bin
-                    LIBRARY DESTINATION bin
-                    ARCHIVE DESTINATION lib)
-    endforeach()
+    foreach (exe ${rest_exes})
+        install(TARGETS ${exe}
+                RUNTIME DESTINATION bin
+                LIBRARY DESTINATION bin
+                ARCHIVE DESTINATION lib)
+    endforeach ()
 
     # Copy pcm files to bin
     install(CODE
@@ -248,8 +242,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows") # we must call library install here in 
     "
             )
 
-else()
-
+else ()
     # Copy pcm files to lib
     install(CODE
             "
@@ -265,4 +258,4 @@ else()
     install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/bin/rest-config)")
     install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX})")
 
-endif()
+endif ()
