@@ -203,17 +203,28 @@ jobs:
           cd framework/pipeline/pandaxiii_MC
           restG4 ${{ env.REST_PATH }}/examples/restG4/05.PandaXIII/Xe136bb0n.rml -o Xe136bb0n.root
           restRoot -b -q ${{ env.REST_PATH }}/examples/restG4/05.PandaXIII/Validate.C'("Xe136bb0n.root")'
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: Xe136bb
-          path: framework/pipeline/pandaxiii_MC/Xe136bb0n.root
-          retention-days: 1
+      #      - name: 02_PandaXiiiMC small for reference # We can use these artifacts to update the validation reference file
+      #        run: |
+      #          source ${{ env.REST_PATH }}/thisREST.sh
+      #          cd framework/pipeline/pandaxiii_MC
+      #          restG4 ${{ env.REST_PATH }}/examples/restG4/05.PandaXIII/Xe136bb0n.rml -o Xe136bb0n_small_reference_pipeline.root -n 5
+      #          restManager --c AllProcesses.rml --i Xe136bb0n_small_reference_pipeline.root --o Xe136bb0n_small_reference_processed_pipeline.root
+      #          restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_small_reference_processed_pipeline.root", "Xe136bb0n_validation_pipeline.root")'
+      #      - name: Upload Artifacts
+      #        uses: actions/upload-artifact@v3
+      #        with:
+      #          name: Xe136bb
+      #          path: |
+      #            framework/pipeline/pandaxiii_MC/Xe136bb0n.root
+      #            framework/pipeline/pandaxiii_MC/Xe136bb0n_small_reference_pipeline.root
+      #            framework/pipeline/pandaxiii_MC/Xe136bb0n_small_reference_processed_pipeline.root
+      #            framework/pipeline/pandaxiii_MC/Xe136bb0n_validation_pipeline.root
+      #          retention-days: 1
       - name: PandaXIII Topological
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
-          restManager --c AllProcesses.rml --i Xe136bb0n_small_reference.root --o Xe136bb0n_small_reference_processed.root --j 1 --e 10
+          restManager --c AllProcesses.rml --i Xe136bb0n_small_reference.root --o Xe136bb0n_small_reference_processed.root
           restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_small_reference_processed.root")'
           restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
           # restManager --c plots.rml --i Xe136bb0n_small_reference_processed.root
@@ -230,7 +241,7 @@ jobs:
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
           echo "using just-generated g4 file"
-          restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 10
+          restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 5
           restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_processed.root")'
           restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
       - name: Upload Artifacts
@@ -461,7 +472,7 @@ jobs:
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
-          restManager --c AllProcesses.rml --i Xe136bb0n_small_reference.root --o Xe136bb0n_small_reference_processed.root --j 1 --e 10
+          restManager --c AllProcesses.rml --i Xe136bb0n_small_reference.root --o Xe136bb0n_small_reference_processed.root --j 1 --e 5
           restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_small_reference_processed.root")'
           restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
           # restManager --c plots.rml --i Xe136bb0n_small_reference_processed.root
@@ -470,9 +481,10 @@ jobs:
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
           echo "using just-generated g4 file"
-          restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 10
+          restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 5
           restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_processed.root")'
-          restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation_G4_v10.4.3.root")'
+          # TODO: regenerate reference file
+          # restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation_G4_v10.4.3.root")'
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:

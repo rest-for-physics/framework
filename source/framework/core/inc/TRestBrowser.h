@@ -24,8 +24,8 @@
 class TRestBrowser {
    protected:
 #ifndef __CINT__
-    TGMainFrame* frmMain = nullptr;      //!
-    TGMainFrame* frmBot = 0;  //!
+    TGMainFrame* frmMain = nullptr;  //!
+    TGMainFrame* frmBot = nullptr;   //!
 
     // Frames and buttons on left//!
     TGVerticalFrame* fVFrame = nullptr;             //! < The main vertical frame for browser controlling
@@ -49,11 +49,11 @@ class TRestBrowser {
     TGTextButton* fExit = nullptr;         //! Exit button
 
     // Frames and buttons on bottom
-    TGVerticalFrame* fHFrame = 0;         //!
-    TGLabel* fSelectionTextBoxLabel = 0;  //!
-    TGTextEntry* fSelectionTextBox = 0;   //! TextBox for plot options
-    TGTextButton* fButEvePrev = 0;        //! Previous plot option
-    TGTextButton* fButEveNext = 0;        //! Refresh plot
+    TGVerticalFrame* fHFrame = nullptr;         //!
+    TGLabel* fSelectionTextBoxLabel = nullptr;  //!
+    TGTextEntry* fSelectionTextBox = nullptr;   //! TextBox for plot options
+    TGTextButton* fButEvePrev = nullptr;        //! Previous plot option
+    TGTextButton* fButEveNext = nullptr;        //! Refresh plot
 
     TCanvas* fCanDefault = nullptr;  //!
     Int_t fEventRow = 0;             //!
