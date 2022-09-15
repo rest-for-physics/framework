@@ -1,5 +1,7 @@
 import os,sys
 
+restRoot -b -q -m 1 2> error.log
+
 with open('error.log') as f:
     lines = f.readlines()
 

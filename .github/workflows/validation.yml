@@ -121,7 +121,6 @@ jobs:
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline
           export DISPLAY=localhost:0.0
-          restRoot -b -q -m 1 2> error.log
           echo "Running validation script"
           python3 validateMacros.py
 
