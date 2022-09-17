@@ -1,6 +1,6 @@
 import os,sys
 
-restRoot -b -q -m 1 2> error.log
+os.system("restRoot -b -q -m 1 > error.log 2>&1")
 
 with open('error.log') as f:
     lines = f.readlines()
