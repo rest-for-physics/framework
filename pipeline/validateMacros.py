@@ -7,9 +7,13 @@ with open('error.log') as f:
 
 for x in lines:
     if( x.find("warning:") >= 0 ):
+        print("Find warnings when launching restRoot!")
+        print(lines)
         sys.exit(1)
     if( x.find("error:") >= 0 ):
-        sys.exit(1)
+        print("Find error messages when launching restRoot!")
+        print(lines)
+        sys.exit(2)
 print("No warning found when loading macros")
 print("Succeed")
 sys.exit(0)
