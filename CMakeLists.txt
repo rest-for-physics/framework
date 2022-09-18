@@ -114,10 +114,10 @@ set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
 
 #####  mySQL  #####
 # This is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProcess.
-if (NOT DEFINED SQL)
-    set(SQL OFF)
+if (NOT DEFINED REST_SQL)
+    set(REST_SQL OFF)
 endif ()
-if (${SQL} MATCHES "ON")
+if (${REST_SQL} MATCHES "ON")
     list(APPEND rest_features "mySQL")
     add_definitions(-DUSE_SQL)
     include(FindSQL)
@@ -126,14 +126,14 @@ if (${SQL} MATCHES "ON")
     message(STATUS "SQL include directory: " ${SQL_INCLUDE_DIR})
     set(SQL ON)
 else ()
-    set(SQL OFF)
-endif (${SQL} MATCHES "ON")
+    set(REST_SQL OFF)
+endif (${REST_SQL} MATCHES "ON")
 
 #####  MPFR  #####
-if (NOT DEFINED MPFR)
-    set(MPFR OFF)
+if (NOT DEFINED REST_MPFR)
+    set(REST_MPFR OFF)
 endif ()
-if (${MPFR} MATCHES "ON")
+if (${REST_MPFR} MATCHES "ON")
     find_path(MPFR_INCLUDE mpfr.h HINTS ${MPFR_PATH} ${MPFR_PATH}/include) # path to include directory
     find_path(MPFR_LIB_PATH libmpfr.so HINTS ${MPFR_PATH} ${MPFR_PATH}/lib)
     find_library(MPFR_LIB mpfr HINTS ${MPFR_PATH} ${MPFR_PATH}/lib) # path to .so file
@@ -149,9 +149,9 @@ if (${MPFR} MATCHES "ON")
         message(ERROR "MPFR library was not found. Adding the location to the installation path may solve this problem.\n Use -DMPFR_PATH=/path/to/mpfr/")
     endif ()
 else ()
-    set(MPFR OFF)
+    set(REST_MPFR OFF)
     set(excludes ${excludes} TRestComplex)
-endif (${MPFR} MATCHES "ON")
+endif (${REST_MPFR} MATCHES "ON")
 
 #####  CURL  #####
 find_library(CURL_LIB curl)
