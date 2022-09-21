@@ -36,8 +36,8 @@ class TRestPatternMask : public TRestMetadata {
     /// An angle (in radians) used to introduce a rotation to the pattern
     Double_t fRotationAngle = 0;  //<
 
-    /// The pattern type (Stripped/Grid/Spider/Rings)
-    std::string fPatternType = "";  //<
+    /// The pattern type (None/Stripped/Grid/Spider/Rings)
+    std::string fPatternType = "None";  //<
 
     /// A canvas for drawing
     TCanvas* fCanvas = nullptr;  //!
