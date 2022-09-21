@@ -53,8 +53,7 @@ Int_t ValidateTrees(const char* validationFilename, const char* inputFilename = 
         }
 
         for (int m = 0; m < (*inputObservableVector).size(); m++) {
-            if ((Int_t)(1000. * (*inputObservableVector)[m]) !=
-                (Int_t)(1000. * (*validationObservableVector)[m])) {
+            if (std::abs((*inputObservableVector)[m] - (*validationObservableVector)[m]) > 0.01) {
                 cout << "Double Observable with index " << m << " in entry " << n
                      << " is not the same value!!" << endl;
                 printf("  value: %.15f, should be: %.15f\n", (*inputObservableVector)[m],
