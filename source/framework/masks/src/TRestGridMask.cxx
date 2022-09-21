@@ -159,7 +159,7 @@ void TRestGridMask::Initialize() {
 /// rotation using the method TRestPatternMask::ApplyCommonMaskTransformation
 ///
 Int_t TRestGridMask::GetRegion(Double_t x, Double_t y) {
-    if (ApplyCommonMaskTransformation(x, y) == 0) return 0;
+    if (TRestPatternMask::GetRegion(x, y) == 0) return 0;
 
     Double_t xEval = fGridThickness / 2. + x;
 

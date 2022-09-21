@@ -65,7 +65,10 @@ class TRestPatternMask : public TRestMetadata {
     Bool_t HitsPattern(Double_t x, Double_t y);
 
     /// To be implemented at the inherited class with the pattern and region identification logic
-    virtual Int_t GetRegion(Double_t x, Double_t y) = 0;
+    virtual Int_t GetRegion(Double_t x, Double_t y) {
+        if (ApplyCommonMaskTransformation(x, y) == 0) return 0;
+        return 1;
+    }
 
     /// It returns the mask pattern type
     std::string GetType() { return fPatternType; }
@@ -90,8 +93,8 @@ class TRestPatternMask : public TRestMetadata {
 
     void PrintCommonPatternMembers();
 
-    virtual void PrintMaskMembers() = 0;
-    virtual void PrintMask() = 0;
+    virtual void PrintMaskMembers() {}
+    virtual void PrintMask() { PrintCommonPatternMembers(); }
 
     void PrintMetadata() override;
 
