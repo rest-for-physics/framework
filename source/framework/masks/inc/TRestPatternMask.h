@@ -54,9 +54,6 @@ class TRestPatternMask : public TRestMetadata {
 
     Int_t ApplyCommonMaskTransformation(Double_t& x, Double_t& y);
 
-    TRestPatternMask();
-    TRestPatternMask(const char* cfgFileName, std::string name = "");
-
    public:
     Int_t GetMaxRegions() { return fMaxRegions; }
 
@@ -100,6 +97,8 @@ class TRestPatternMask : public TRestMetadata {
 
     TCanvas* DrawMonteCarlo(Int_t nSamples = 10000);
 
+    TRestPatternMask();
+    TRestPatternMask(const char* cfgFileName, std::string name = "");
     ~TRestPatternMask();
 
     ClassDefOverride(TRestPatternMask, 1);
