@@ -35,7 +35,8 @@
         <!-- ++++++++++++++++
              Adding processes
              ++++++++++++++++ -->
-        <addProcess type="TRestGeant4AnalysisProcess" name="g4Ana" value="ON" file="processes_2D.rml"/>
+        <!-- TODO: enable "TRestGeant4AnalysisProcess" again -->
+        <addProcess type="TRestGeant4AnalysisProcess" name="g4Ana" value="OFF" file="processes_2D.rml"/>
         <addProcess type="TRestGeant4BlobAnalysisProcess" name="g4Blob" value="OFF" file="processes_2D.rml"/>
         <addProcess type="TRestGeant4ToDetectorHitsProcess" name="G4ToHits" value="ON" file="processes_2D.rml"/>
         <addProcess type="TRestDetectorElectronDiffusionProcess" name="eDiff_1kVcm_10atm" value="ON"

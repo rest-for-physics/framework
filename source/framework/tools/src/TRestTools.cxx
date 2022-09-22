@@ -89,7 +89,7 @@ std::vector<string> TRestTools::GetOptions(string optionsStr) { return Split(opt
 void TRestTools::LoadRESTLibrary(bool silent) {
     const set<string> libraryExtension{".so", ".dylib", ".dll"};
     const set<string> excludedLibraries{
-        "restG4"};  // Ignoring package libraries if they exist. TODO: do not hardcode this
+        "RestG4"};  // Ignoring package libraries if they exist. TODO: do not hardcode this
 
     vector<string> ldPaths;
 #ifdef WIN32
@@ -114,14 +114,15 @@ void TRestTools::LoadRESTLibrary(bool silent) {
                 continue;
             }
             const TString pathRootString = it.path().string();
-            if (!pathRootString.Contains("Rest", TString::ECaseCompare::kIgnoreCase)) {
+            TString libName = TRestTools::SeparatePathAndName((std::string)pathRootString).second;
+            if (!libName.Contains("Rest", TString::kExact)) {
                 // e.g. "libRestFramework.so"
                 continue;
             }
             // Check if library is excluded from loading e.g. is from a package
             bool excluded = false;
             for (const TString excludedLibrary : excludedLibraries) {
-                if (pathRootString.Contains(excludedLibrary, TString::ECaseCompare::kIgnoreCase)) {
+                if (libName.Contains(excludedLibrary, TString::kExact)) {
                     excluded = true;
                     // RESTWarning << "Library '" << pathRootString << "' excluded from loading" << RESTendl;
                     break;
@@ -616,9 +617,7 @@ bool TRestTools::fileExists(const string& filename) { return std::filesystem::ex
 ///////////////////////////////////////////////
 /// \brief Returns true if the **filename** has *.root* extension.
 ///
-bool TRestTools::isRootFile(const string& filename) {
-    return GetFileNameExtension(filename) == ".root";
-}
+bool TRestTools::isRootFile(const string& filename) { return GetFileNameExtension(filename) == ".root"; }
 
 ///////////////////////////////////////////////
 /// \brief Returns true if **filename** is an *http* address.
@@ -1154,3 +1153,54 @@ int TRestTools::UploadToServer(string localFile, string remoteFile, string metho
 }
 
 void TRestTools::ChangeDirectory(const string& toDirectory) { filesystem::current_path(toDirectory); }
+
+string ValueWithQuantity::ToString() const {
+    string unit;
+    auto value = fValue;
+    if (fQuantity == ENERGY) {
+        unit = "eV";
+        value *= 1E3;  // since we store energy in keV, not in eV
+    } else if (fQuantity == TIME) {
+        unit = "s";  // time is stored in microseconds
+        value *= 1E-6;
+    } else if (fQuantity == LENGTH) {
+        unit = "m";
+        value *= 1E-3;  // since we store length in mm, not in m
+    } else {
+        return "";
+    }
+
+    const auto abs = TMath::Abs(value);
+    if (abs == 0) {
+        return TString::Format("%d", 0).Data();
+    } else if (abs < 1E-6) {
+        return TString::Format("%.2f %s%s", value * 1E9, "n", unit.c_str()).Data();
+    } else if (abs < 1E-3) {
+        return TString::Format("%.2f %s%s", value * 1E6, "u", unit.c_str()).Data();
+    } else if (abs < 1E0) {
+        return TString::Format("%.2f %s%s", value * 1E3, "m", unit.c_str()).Data();
+    } else if (abs < 1E3) {
+        return TString::Format("%.2f %s%s", value * 1E0, "", unit.c_str()).Data();
+    } else if (abs < 1E6) {
+        return TString::Format("%.2f %s%s", value * 1E-3, "k", unit.c_str()).Data();
+    } else if (abs < 1E9) {
+        return TString::Format("%.2f %s%s", value * 1E-6, "M", unit.c_str()).Data();
+    } else if (abs < 1E12) {
+        return TString::Format("%.2f %s%s", value * 1E-9, "G", unit.c_str()).Data();
+    } else {
+        return TString::Format("%.2f %s%s", value * 1E-12, "T", unit.c_str()).Data();
+    }
+}
+
+string ToTimeStringLong(double seconds) {
+    const auto abs = TMath::Abs(seconds);
+    if (abs < 60) {
+        return TString::Format("%.2f %s", seconds, "seconds").Data();
+    } else if (abs < 60 * 60) {
+        return TString::Format("%.2f %s", seconds / 60.0, "minutes").Data();
+    } else if (abs < 60 * 60 * 24) {
+        return TString::Format("%.2f %s", seconds / (60.0 * 60.0), "hours").Data();
+    } else {
+        return TString::Format("%.2f %s", seconds / (60.0 * 60.0 * 24.0), "days").Data();
+    }
+}

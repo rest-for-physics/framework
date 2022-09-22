@@ -243,7 +243,7 @@ TREX-DM Latest Data:
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/trex
-    - wget https://sultan.unizar.es/trexdm-readouts/readouts_v2.3.root
+    - wget --no-check-certificate https://sultan.unizar.es/trexdm-readouts/readouts_v2.3.root
     - restManager --c 01_raw.rml --f R01928_tagTest_Vm_250_Vd_160_Pr_6_Gain_0x0_Shape_0xF_Clock_0x4-068.aqs
     - restManager --c 02_signal.rml --f RawData_01928.root
     - restManager --c 03_hits.rml --f Signals_01928.root
@@ -262,7 +262,7 @@ PandaX-III Topological from reference file:
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC
-    - restManager --c AllProcesses.rml --i Xe136bb0n_small_reference.root --o Xe136bb0n_small_reference_processed.root --j 1 --e 10
+    - restManager --c AllProcesses.rml --i Xe136bb0n_small_reference.root --o Xe136bb0n_small_reference_processed.root --j 1 --e 5
     - restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_small_reference_processed.root")'
     - restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
     - restManager --c plots.rml --i Xe136bb0n_small_reference_processed.root
@@ -277,7 +277,7 @@ PandaX-III Topological from Geant4:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/pandaxiii_MC
     - echo "using just-generated g4 file"
-    - restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 10
+    - restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 5
     - restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_processed.root")'
     - restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
   artifacts:
