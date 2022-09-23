@@ -35,6 +35,7 @@ if (${REST_GARFIELD} MATCHES "ON")
 # if GARFIELD is enabled we load the same Garfield environment used in compilation
 source $ENV{GARFIELD_INSTALL}/share/Garfield/setupGarfield.sh
 ")
+		set(garfieldDir "$ENV{GARFIELD_INSTALL}")
     else ()
         set(loadGarfield "
 # if GARFIELD is enabled we load the same Garfield environment used in compilation
@@ -42,6 +43,7 @@ export GARFIELD_HOME=$ENV{GARFIELD_HOME}
 export HEED_DATABASE=\$GARFIELD_HOME/Heed/heed++/database
 export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH
 ")
+		set(garfieldDir "$ENV{GARFIELD_HOME}")
     endif ()
 endif ()
 
@@ -82,7 +84,7 @@ fi
 
 export REST_SOURCE=${CMAKE_CURRENT_SOURCE_DIR}
 export REST_PATH=\\\${thisdir}
-export ROOT_INCLUDE_PATH=\\\${thisdir}/include
+export ROOT_INCLUDE_PATH=\\\${thisdir}/include:${garfieldDir}/include
 export REST_INPUTDATA=\\\$REST_PATH/data
 export REST_GARFIELD_INCLUDE=${Garfield_INCLUDE_DIRS}
 export REST_GARFIELD_LIB=${Garfield_LIBRARIES}
