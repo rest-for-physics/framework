@@ -121,7 +121,6 @@ jobs:
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline
           export DISPLAY=localhost:0.0
-          export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:/usr/local/garfieldpp/install/include
           echo "Running validation script"
           python3 validateMacros.py
 
