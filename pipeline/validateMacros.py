@@ -6,11 +6,11 @@ with open('error.log') as f:
     lines = f.readlines()
 
 for x in lines:
-    if( x.find("warning:") >= 0 ):
+    if( x.find("warning") >= 0 || x.find("Warning") >= 0 ):
         print("Find warnings when launching restRoot!")
         print(lines)
         sys.exit(1)
-    if( x.find("error:") >= 0 ):
+    if( x.find("error") >= 0 || x.find("Error") >= 0):
         print("Find error messages when launching restRoot!")
         print(lines)
         sys.exit(2)
