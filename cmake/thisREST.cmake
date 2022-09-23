@@ -84,7 +84,7 @@ fi
 
 export REST_SOURCE=${CMAKE_CURRENT_SOURCE_DIR}
 export REST_PATH=\\\${thisdir}
-export ROOT_INCLUDE_PATH=\\\${thisdir}/include:\\\$ROOT_INCLUDE_PATH
+export ROOT_INCLUDE_PATH=\\\${thisdir}/include:${garfieldDir}/include:\\\$ROOT_INCLUDE_PATH
 export REST_INPUTDATA=\\\$REST_PATH/data
 export REST_GARFIELD_INCLUDE=${Garfield_INCLUDE_DIRS}
 export REST_GARFIELD_LIB=${Garfield_LIBRARIES}
