@@ -112,6 +112,7 @@ AddUnit(mon, REST_Units::Time, 3.85e-13);
 AddUnit(yr, REST_Units::Time, 3.17e-14);
 
 // length unit multiplier
+AddUnit(nm, REST_Units::Length, 1e6);
 AddUnit(um, REST_Units::Length, 1e3);
 AddUnit(mm, REST_Units::Length, 1.);
 AddUnit(cm, REST_Units::Length, 1e-1);
