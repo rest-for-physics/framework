@@ -28,6 +28,7 @@ else ()
 endif ()
 
 set(loadGarfield "")
+set(Garfield_INCLUDE_ENV "")
 if (${REST_GARFIELD} MATCHES "ON")
     if (DEFINED ENV{GARFIELD_INSTALL})
         # this is the recommended way to source newer Garfield installations
@@ -45,6 +46,7 @@ export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH
 ")
         set(Garfield_INSTALL "$ENV{GARFIELD_HOME}")
     endif ()
+    set(Garfield_INCLUDE_ENV ":$ENV{GARFIELD_INSTALL}/include")
 endif ()
 
 # install thisREST script, sh VERSION
@@ -84,7 +86,7 @@ fi
 
 export REST_SOURCE=${CMAKE_CURRENT_SOURCE_DIR}
 export REST_PATH=\\\${thisdir}
-export ROOT_INCLUDE_PATH=\\\${thisdir}/include:${Garfield_INSTALL}/include:\\\$ROOT_INCLUDE_PATH
+export ROOT_INCLUDE_PATH=\\\${thisdir}/include${Garfield_INCLUDE_ENV}:\\\$ROOT_INCLUDE_PATH
 export REST_INPUTDATA=\\\$REST_PATH/data
 export REST_GARFIELD_INCLUDE=${Garfield_INCLUDE_DIRS}
 export REST_GARFIELD_LIB=${Garfield_LIBRARIES}
