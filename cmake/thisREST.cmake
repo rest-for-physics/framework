@@ -92,7 +92,7 @@ export REST_GARFIELD_INCLUDE=${Garfield_INCLUDE_DIRS}
 export REST_GARFIELD_LIB=${Garfield_LIBRARIES}
 export PATH=\\\$REST_PATH/bin:\\\$_PATH
 export LD_LIBRARY_PATH=\\\$REST_PATH/lib:\\\$_LD_LIBRARY_PATH
-export LIBRARY_PATH=\\\$LIBRARY_PATH:\\\$REST_PATH/lib
+export LIBRARY_PATH=\\\$REST_PATH/lib:\\\$LIBRARY_PATH
 
 alias restRoot=\\\"restRoot -l\\\"
 alias restRootMacros=\\\"restRoot -l --m 1\\\"
