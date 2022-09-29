@@ -119,6 +119,7 @@ jobs:
       - name: Load restRootMacros
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
+          cat ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline
           export DISPLAY=localhost:0.0
           echo "Running validation script"
