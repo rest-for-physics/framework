@@ -15,8 +15,8 @@ string(REGEX REPLACE "\n$" "" GEANT4_PATH "${GEANT4_PATH}")
 set(thisGeant4 "${GEANT4_PATH}/bin/geant4.sh")
 
 if (${REST_G4} MATCHES "ON")
-    set(loadG4 "\# if geant4.sh script is found we load the same Geant4 version as used in compilation\n if [[ -f \\\"${thisGeant4}\\\" ]]; then
-    source ${thisGeant4}\n fi\n")
+    set(loadG4 "\# if geant4.sh script is found we load the same Geant4 version as used in compilation\nif [[ -f \\\"${thisGeant4}\\\" ]]; then
+    source ${thisGeant4}\nfi\n")
 else ()
     set(loadG4 "")
 endif (${REST_G4} MATCHES "ON")
@@ -76,12 +76,12 @@ ${loadMPFR}
 ${loadGarfield}
 
 if [ \\\$REST_PATH ] ; then
-echo switching to REST installed in \\\${thisdir}
-_PATH=`echo \\\$PATH | sed -e \\\"s\#\\\${REST_PATH}/bin:\#\#g\\\"`
-_LD_LIBRARY_PATH=`echo \\\$LD_LIBRARY_PATH | sed -e \\\"s\#\\\${REST_PATH}/lib:\#\#g\\\"`
+    echo switching to REST installed in \\\${thisdir}
+    _PATH=`echo \\\$PATH | sed -e \\\"s\#\\\${REST_PATH}/bin:\#\#g\\\"`
+    _LD_LIBRARY_PATH=`echo \\\$LD_LIBRARY_PATH | sed -e \\\"s\#\\\${REST_PATH}/lib:\#\#g\\\"`
 else
-_PATH=\\\$PATH
-_LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH
+    _PATH=\\\$PATH
+    _LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH
 fi
 
 export REST_SOURCE=${CMAKE_CURRENT_SOURCE_DIR}
@@ -97,16 +97,15 @@ export LIBRARY_PATH=\\\$LIBRARY_PATH:\\\$REST_PATH/lib
 alias restRoot=\\\"restRoot -l\\\"
 alias restRootMacros=\\\"restRoot -l --m 1\\\"
 
-\#alias restRoot=\\\"root -l \\\$REST_PATH/scripts/LoadRESTScripts.C\\\"
-
-if [ \\\$(rest-config --flags | grep \\\"REST_WELCOME=ON\\\") ];then
-rest-config --welcome
+if [ \\\$(rest-config --flags | grep \\\"REST_WELCOME=ON\\\") ]; then
+    rest-config --welcome
 fi
+
+# REST aliases
 \"
 )
         "
         )
-
 
 foreach (mac ${rest_macros})
 
@@ -115,10 +114,8 @@ foreach (mac ${rest_macros})
 
     install(CODE
             "
-file( APPEND \${CMAKE_INSTALL_PREFIX}/thisREST.sh 
-
-\"
-alias ${mac}=\\\"restManager ${m}\\\"
+file( APPEND \${CMAKE_INSTALL_PREFIX}/thisREST.sh
+\"alias ${mac}=\\\"restManager ${m}\\\"
 \"
 )
         "
@@ -163,8 +160,6 @@ foreach (mac ${rest_macros})
     install(CODE
             "
 file( APPEND \${CMAKE_INSTALL_PREFIX}/thisREST.csh 
-
-\"
 alias ${mac} \\\"restManager ${m}\\\"
 \"
 )
