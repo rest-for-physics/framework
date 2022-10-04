@@ -355,6 +355,7 @@ jobs:
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
           cd ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/
+          cat geometry/mySetupTemplate.gdml | grep ENTITY 
           restG4 NLDBD.rml
           restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
       - name: Upload Artifacts
@@ -544,6 +545,7 @@ jobs:
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
           cd ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/
+          sed -i 's/https:\/\/rest-for-physics.github.io\/materials\/rest.xml/https:\/\/rest-for-physics.github.io\/materials\/legacy\/v1.4\/rest.xml/g' geometry/mySetupTemplate.gdml
           restG4 NLDBD.rml
           restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
       - name: Upload Artifacts
