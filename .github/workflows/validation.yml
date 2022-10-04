@@ -585,6 +585,7 @@ jobs:
           mkdir data
           export REST_ENERGY=5
           export REST_FOIL=1
+          sed -i 's/https:\/\/rest-for-physics.github.io\/materials\/rest.xml/https:\/\/rest-for-physics.github.io\/materials\/legacy\/v1.4\/rest.xml/g' geometry/setup.gdml
           restG4 alphas.rml
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
