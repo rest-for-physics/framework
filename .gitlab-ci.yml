@@ -132,6 +132,10 @@ List REST Macros:
   script:
     - source ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples/restG4/01.NLDBD/
+    - cd geometry
+    - rm rest.xml
+    - wget https://rest-for-physics.github.io/materials/rest.xml
+    - cd ..
     - restG4 NLDBD.rml
     - geant4-config --version
     - restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
