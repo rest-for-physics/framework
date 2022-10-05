@@ -512,8 +512,8 @@ template std::vector<Double_t> TRestTools::GetColumnFromTable<Double_t>(
 ///
 /// Only works with Double_t vector since we use StringToDouble method.
 ///
-int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data, std::string separator,
-                               Int_t skipLines) {
+int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data, Int_t skipLines,
+                               std::string separator) {
     if (!TRestTools::isValidFile((string)fName)) {
         cout << "TRestTools::ReadASCIITable. Error" << endl;
         cout << "Cannot open file : " << fName << endl;
@@ -571,8 +571,8 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
 ///
 /// This version works with Float_t vector since we use StringToFloat method.
 ///
-int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data, std::string separator,
-                               Int_t skipLines) {
+int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines,
+                               std::string separator) {
     if (!TRestTools::isValidFile((string)fName)) {
         cout << "TRestTools::ReadASCIITable. Error" << endl;
         cout << "Cannot open file : " << fName << endl;
@@ -630,8 +630,8 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& 
 ///
 /// Only works with Double_t vector since we use StringToDouble method.
 ///
-int TRestTools::ReadCSVTable(std::string fName, std::vector<std::vector<Double_t>>& data, Int_t skipLines) {
-    return ReadASCIITable(fName, data, ",", skipLines);
+int TRestTools::ReadCSVFile(std::string fName, std::vector<std::vector<Double_t>>& data, Int_t skipLines) {
+    return ReadASCIITable(fName, data, skipLines, ",");
 }
 
 ///////////////////////////////////////////////
@@ -647,8 +647,8 @@ int TRestTools::ReadCSVTable(std::string fName, std::vector<std::vector<Double_t
 ///
 /// Only works with Float_t vector since we use StringToFloat method.
 ///
-int TRestTools::ReadCSVTable(std::string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines) {
-    return ReadASCIITable(fName, data, ",", skipLines);
+int TRestTools::ReadCSVFile(std::string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines) {
+    return ReadASCIITable(fName, data, skipLines, ",");
 }
 
 ///////////////////////////////////////////////
