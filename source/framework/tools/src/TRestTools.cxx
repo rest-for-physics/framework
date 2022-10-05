@@ -509,7 +509,8 @@ template std::vector<Double_t> TRestTools::GetColumnFromTable<Double_t>(
 ///
 /// Only works with Double_t vector since we use StringToDouble method.
 ///
-int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data, Int_t skipLines) {
+int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data, std::string separator,
+                               Int_t skipLines) {
     if (!TRestTools::isValidFile((string)fName)) {
         cout << "TRestTools::ReadASCIITable. Error" << endl;
         cout << "Cannot open file : " << fName << endl;
@@ -531,8 +532,13 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
 
         if (line.find("#") == string::npos) {
             std::istringstream in(line);
-            values.push_back(
-                std::vector<string>(std::istream_iterator<string>(in), std::istream_iterator<string>()));
+
+            std::string token;
+            std::vector<std::string> tokens;
+            while (std::getline(in, token, (char)separator[0])) {
+                tokens.push_back(token);
+            }
+            values.push_back(tokens);
         }
     }
 
@@ -559,7 +565,8 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
 ///
 /// This version works with Float_t vector since we use StringToFloat method.
 ///
-int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines) {
+int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data, std::string separator,
+                               Int_t skipLines) {
     if (!TRestTools::isValidFile((string)fName)) {
         cout << "TRestTools::ReadASCIITable. Error" << endl;
         cout << "Cannot open file : " << fName << endl;
@@ -581,13 +588,17 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& 
 
         if (line.find("#") == string::npos) {
             std::istringstream in(line);
-            values.push_back(
-                std::vector<string>(std::istream_iterator<string>(in), std::istream_iterator<string>()));
+
+            std::string token;
+            std::vector<std::string> tokens;
+            while (std::getline(in, token, (char)separator[0])) {
+                tokens.push_back(token);
+            }
+            values.push_back(tokens);
         }
     }
 
-    // Filling the float values table (TODO error handling in case ToFloat
-    // conversion fails)
+    // Filling the float values table (TODO error handling in case ToFloat conversion fails)
     for (int n = 0; n < values.size(); n++) {
         std::vector<Float_t> dblTmp;
         dblTmp.clear();
