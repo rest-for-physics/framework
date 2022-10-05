@@ -507,6 +507,9 @@ template std::vector<Double_t> TRestTools::GetColumnFromTable<Double_t>(
 /// loaded in the matrix provided through the argument `data`. The content of
 /// `data` will be cleared in this method.
 ///
+/// If any header in the file is present, it should be skipped using the argument `skipLines`
+/// or preceding any line inside the header using `#`.
+///
 /// Only works with Double_t vector since we use StringToDouble method.
 ///
 int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data, std::string separator,
@@ -563,6 +566,9 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
 /// loaded in the matrix provided through the argument `data`. The content of
 /// `data` will be cleared in this method.
 ///
+/// If any header in the file is present, it should be skipped using the argument `skipLines`
+/// or preceding any line inside the header using `#`.
+///
 /// This version works with Float_t vector since we use StringToFloat method.
 ///
 int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data, std::string separator,
@@ -609,6 +615,40 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& 
     }
 
     return 1;
+}
+
+///////////////////////////////////////////////
+/// \brief Reads a CSV file containing a table with comma separated values
+///
+/// This method will open the file fName. This file should contain a comma
+/// separated table containing numeric values. The values on the table will be
+/// loaded in the matrix provided through the argument `data`. The content of
+/// `data` will be cleared in this method.
+///
+/// If any header in the file is present, it should be skipped using the argument `skipLines`
+/// or preceding any line inside the header using `#`.
+///
+/// Only works with Double_t vector since we use StringToDouble method.
+///
+int TRestTools::ReadCSVTable(std::string fName, std::vector<std::vector<Double_t>>& data, Int_t skipLines) {
+    return ReadASCIITable(fName, data, ",", skipLines);
+}
+
+///////////////////////////////////////////////
+/// \brief Reads a CSV file containing a table with comma separated values
+///
+/// This method will open the file fName. This file should contain a comma
+/// separated table containing numeric values. The values on the table will be
+/// loaded in the matrix provided through the argument `data`. The content of
+/// `data` will be cleared in this method.
+///
+/// If any header in the file is present, it should be skipped using the argument `skipLines`
+/// or preceding any line inside the header using `#`.
+///
+/// Only works with Float_t vector since we use StringToFloat method.
+///
+int TRestTools::ReadCSVTable(std::string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines) {
+    return ReadASCIITable(fName, data, ",", skipLines);
 }
 
 ///////////////////////////////////////////////

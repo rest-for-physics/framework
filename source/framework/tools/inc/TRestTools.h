@@ -64,6 +64,9 @@ class TRestTools {
     static int ReadASCIITable(std::string fName, std::vector<std::vector<Float_t>>& data,
                               std::string separator = "\t", Int_t skipLines = 0);
 
+    static int ReadCSVTable(std::string fName, std::vector<std::vector<Double_t>>& data, Int_t skipLines = 0);
+    static int ReadCSVTable(std::string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines = 0);
+
     template <typename T>
     static void TransposeTable(std::vector<std::vector<T>>& data);
 
