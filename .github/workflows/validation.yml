@@ -355,7 +355,6 @@ jobs:
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
           cd ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/
-          cat geometry/mySetupTemplate.gdml | grep ENTITY 
           restG4 NLDBD.rml
           restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
       - name: Upload Artifacts
@@ -424,6 +423,10 @@ jobs:
         with:
           cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
           branch: ${{ env.BRANCH_NAME }}
+      - name: Use old materials for reference Geant4 version
+        run: |
+          cd ${{ env.REST_PATH }}
+          find . -name "*.gdml" | xargs sed -i 's/https:\/\/rest-for-physics.github.io\/materials\/rest.xml/https:\/\/rest-for-physics.github.io\/materials\/legacy\/v1.4\/rest.xml/g'
       - name: Test REST
         run: |
           printenv
@@ -545,7 +548,6 @@ jobs:
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
           cd ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/
-          sed -i 's/https:\/\/rest-for-physics.github.io\/materials\/rest.xml/https:\/\/rest-for-physics.github.io\/materials\/legacy\/v1.4\/rest.xml/g' geometry/mySetupTemplate.gdml
           restG4 NLDBD.rml
           restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
       - name: Upload Artifacts
@@ -587,7 +589,6 @@ jobs:
           mkdir data
           export REST_ENERGY=5
           export REST_FOIL=1
-          sed -i 's/https:\/\/rest-for-physics.github.io\/materials\/rest.xml/https:\/\/rest-for-physics.github.io\/materials\/legacy\/v1.4\/rest.xml/g' geometry/setup.gdml
           restG4 alphas.rml
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
