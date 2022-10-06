@@ -423,6 +423,10 @@ jobs:
         with:
           cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
           branch: ${{ env.BRANCH_NAME }}
+      - name: Use old materials for reference Geant4 version
+        run: |
+          cd ${{ env.REST_PATH }}
+          find . -name "*.gdml" | xargs sed -i 's/https:\/\/rest-for-physics.github.io\/materials\/rest.xml/https:\/\/rest-for-physics.github.io\/materials\/legacy\/v1.4\/rest.xml/g'
       - name: Test REST
         run: |
           printenv
