@@ -678,7 +678,9 @@ std::pair<string, string> TRestTools::SeparatePathAndName(const string& fullname
 /// Input: "/home/jgalan/abc.txt" Output: "txt"
 ///
 string TRestTools::GetFileNameExtension(const string& fullname) {
-    return filesystem::path(fullname).extension().string();
+    string extension = filesystem::path(fullname).extension().string();
+    if (extension.size() > 1) return extension.substr(1);
+    return extension;
 }
 
 ///////////////////////////////////////////////
