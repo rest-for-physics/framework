@@ -261,9 +261,8 @@ void TRestRun::InitFromConfigFile() {
         system((TString) "mkdir -p " + outputdir);
     }
     if (!TRestTools::isPathWritable(outputdir)) {
-        RESTError << "TRestRun: Output path does not exist or it is not writable." << RESTendl;
-        RESTError << "Path : " << outputdir << RESTendl;
-        exit(1);
+        RESTWarning << "TRestRun: Output path '" << outputdir << "' does not exist or it is not writable."
+                    << RESTendl;
     }
 
     // 4. Loop over sections to initialize metadata
