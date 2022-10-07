@@ -18,9 +18,10 @@
 //*** (nBinsX, Xlow, Xhigh, nBinsY, yLow, yHigh)
 //***
 //**********************************************************************************************************
-Int_t REST_GenerateResponseMatrix(std::string fname, std::string varX = "g4Ana_totalEdep",
-                                  std::string varY = "g4Ana_energyPrimary",
-                                  std::string range = "(150,0,15,150,0,15)") {
+Int_t REST_GenerateResponseMatrix(
+    std::string fname, std::string varX = "g4Ana_totalEdep", std::string varY = "g4Ana_energyPrimary",
+    std::string range = "(150,0,15,150,0,15)",
+    std::string cutCondition = "g4Ana_boundingSize < 10 && g4Ana_containsProcessPhot > 0") {
     TRestRun run(fname);
 
     TRestAnalysisTree* aTree = run.GetAnalysisTree();
@@ -30,7 +31,7 @@ Int_t REST_GenerateResponseMatrix(std::string fname, std::string varX = "g4Ana_t
     std::string drawCommand = varY + ":" + varX;
     if (range != "") drawCommand += ">>response" + range;
 
-    aTree->Draw((TString)drawCommand);
+    aTree->Draw((TString)drawCommand, (TString)cutCondition);
 
     TH2D* h = (TH2D*)aTree->GetHistogram();
 
