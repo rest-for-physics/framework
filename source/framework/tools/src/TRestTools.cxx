@@ -507,9 +507,13 @@ template std::vector<Double_t> TRestTools::GetColumnFromTable<Double_t>(
 /// loaded in the matrix provided through the argument `data`. The content of
 /// `data` will be cleared in this method.
 ///
+/// If any header in the file is present, it should be skipped using the argument `skipLines`
+/// or preceding any line inside the header using `#`.
+///
 /// Only works with Double_t vector since we use StringToDouble method.
 ///
-int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data, Int_t skipLines) {
+int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data, Int_t skipLines,
+                               std::string separator) {
     if (!TRestTools::isValidFile((string)fName)) {
         cout << "TRestTools::ReadASCIITable. Error" << endl;
         cout << "Cannot open file : " << fName << endl;
@@ -531,8 +535,13 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
 
         if (line.find("#") == string::npos) {
             std::istringstream in(line);
-            values.push_back(
-                std::vector<string>(std::istream_iterator<string>(in), std::istream_iterator<string>()));
+
+            std::string token;
+            std::vector<std::string> tokens;
+            while (std::getline(in, token, (char)separator[0])) {
+                tokens.push_back(token);
+            }
+            values.push_back(tokens);
         }
     }
 
@@ -557,9 +566,13 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
 /// loaded in the matrix provided through the argument `data`. The content of
 /// `data` will be cleared in this method.
 ///
+/// If any header in the file is present, it should be skipped using the argument `skipLines`
+/// or preceding any line inside the header using `#`.
+///
 /// This version works with Float_t vector since we use StringToFloat method.
 ///
-int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines) {
+int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines,
+                               std::string separator) {
     if (!TRestTools::isValidFile((string)fName)) {
         cout << "TRestTools::ReadASCIITable. Error" << endl;
         cout << "Cannot open file : " << fName << endl;
@@ -581,13 +594,17 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& 
 
         if (line.find("#") == string::npos) {
             std::istringstream in(line);
-            values.push_back(
-                std::vector<string>(std::istream_iterator<string>(in), std::istream_iterator<string>()));
+
+            std::string token;
+            std::vector<std::string> tokens;
+            while (std::getline(in, token, (char)separator[0])) {
+                tokens.push_back(token);
+            }
+            values.push_back(tokens);
         }
     }
 
-    // Filling the float values table (TODO error handling in case ToFloat
-    // conversion fails)
+    // Filling the float values table (TODO error handling in case ToFloat conversion fails)
     for (int n = 0; n < values.size(); n++) {
         std::vector<Float_t> dblTmp;
         dblTmp.clear();
@@ -598,6 +615,40 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& 
     }
 
     return 1;
+}
+
+///////////////////////////////////////////////
+/// \brief Reads a CSV file containing a table with comma separated values
+///
+/// This method will open the file fName. This file should contain a comma
+/// separated table containing numeric values. The values on the table will be
+/// loaded in the matrix provided through the argument `data`. The content of
+/// `data` will be cleared in this method.
+///
+/// If any header in the file is present, it should be skipped using the argument `skipLines`
+/// or preceding any line inside the header using `#`.
+///
+/// Only works with Double_t vector since we use StringToDouble method.
+///
+int TRestTools::ReadCSVFile(std::string fName, std::vector<std::vector<Double_t>>& data, Int_t skipLines) {
+    return ReadASCIITable(fName, data, skipLines, ",");
+}
+
+///////////////////////////////////////////////
+/// \brief Reads a CSV file containing a table with comma separated values
+///
+/// This method will open the file fName. This file should contain a comma
+/// separated table containing numeric values. The values on the table will be
+/// loaded in the matrix provided through the argument `data`. The content of
+/// `data` will be cleared in this method.
+///
+/// If any header in the file is present, it should be skipped using the argument `skipLines`
+/// or preceding any line inside the header using `#`.
+///
+/// Only works with Float_t vector since we use StringToFloat method.
+///
+int TRestTools::ReadCSVFile(std::string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines) {
+    return ReadASCIITable(fName, data, skipLines, ",");
 }
 
 ///////////////////////////////////////////////
@@ -617,7 +668,7 @@ bool TRestTools::fileExists(const string& filename) { return std::filesystem::ex
 ///////////////////////////////////////////////
 /// \brief Returns true if the **filename** has *.root* extension.
 ///
-bool TRestTools::isRootFile(const string& filename) { return GetFileNameExtension(filename) == ".root"; }
+bool TRestTools::isRootFile(const string& filename) { return GetFileNameExtension(filename) == "root"; }
 
 ///////////////////////////////////////////////
 /// \brief Returns true if **filename** is an *http* address.
@@ -678,7 +729,9 @@ std::pair<string, string> TRestTools::SeparatePathAndName(const string& fullname
 /// Input: "/home/jgalan/abc.txt" Output: "txt"
 ///
 string TRestTools::GetFileNameExtension(const string& fullname) {
-    return filesystem::path(fullname).extension().string();
+    string extension = filesystem::path(fullname).extension().string();
+    if (extension.size() > 1) return extension.substr(1);
+    return extension;
 }
 
 ///////////////////////////////////////////////
