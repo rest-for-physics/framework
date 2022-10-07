@@ -668,7 +668,7 @@ bool TRestTools::fileExists(const string& filename) { return std::filesystem::ex
 ///////////////////////////////////////////////
 /// \brief Returns true if the **filename** has *.root* extension.
 ///
-bool TRestTools::isRootFile(const string& filename) { return GetFileNameExtension(filename) == ".root"; }
+bool TRestTools::isRootFile(const string& filename) { return GetFileNameExtension(filename) == "root"; }
 
 ///////////////////////////////////////////////
 /// \brief Returns true if **filename** is an *http* address.
@@ -729,7 +729,9 @@ std::pair<string, string> TRestTools::SeparatePathAndName(const string& fullname
 /// Input: "/home/jgalan/abc.txt" Output: "txt"
 ///
 string TRestTools::GetFileNameExtension(const string& fullname) {
-    return filesystem::path(fullname).extension().string();
+    string extension = filesystem::path(fullname).extension().string();
+    if (extension.size() > 1) return extension.substr(1);
+    return extension;
 }
 
 ///////////////////////////////////////////////
