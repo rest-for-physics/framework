@@ -17,55 +17,61 @@
 //*** - `range` : If given, it defines the histogram limits and the binning. It is defined as:
 //*** (nBinsX, Xlow, Xhigh, nBinsY, yLow, yHigh)
 //***
+//*** Remark: The input fname might be a filelist given with a glob pattern
+//***
 //**********************************************************************************************************
-Int_t REST_GenerateResponseMatrix(
-    std::string fname, std::string varX = "g4Ana_totalEdep", std::string varY = "g4Ana_energyPrimary",
+Int_t GenerateResponseMatrix(
+    std::string fname, std::string varX = "g4Ana_energyPrimary", std::string varY = "g4Ana_totalEdep",
     std::string range = "(150,0,15,150,0,15)",
     std::string cutCondition = "g4Ana_boundingSize < 10 && g4Ana_containsProcessPhot > 0") {
-    TRestRun run(fname);
+    std::vector<string> files = TRestTools::GetFilesMatchingPattern(fname);
+    for (const auto& f : files) {
+        std::cout << "Reading file : " << f << std::endl;
+        TRestRun run(f);
 
-    TRestAnalysisTree* aTree = run.GetAnalysisTree();
+        TRestAnalysisTree* aTree = run.GetAnalysisTree();
 
-    TRestGeant4Metadata* g4Md = (TRestGeant4Metadata*)run.GetMetadataClass("TRestGeant4Metadata");
+        TRestGeant4Metadata* g4Md = (TRestGeant4Metadata*)run.GetMetadataClass("TRestGeant4Metadata");
 
-    std::string drawCommand = varY + ":" + varX;
-    if (range != "") drawCommand += ">>response" + range;
+        std::string drawCommand = varY + ":" + varX;
+        if (range != "") drawCommand += ">>response" + range;
 
-    aTree->Draw((TString)drawCommand, (TString)cutCondition);
+        aTree->Draw((TString)drawCommand, (TString)cutCondition);
 
-    TH2D* h = (TH2D*)aTree->GetHistogram();
+        TH2D* h = (TH2D*)aTree->GetHistogram();
 
-    /// We renormalize the values so that the values will be given
-    /// on the units of X and Y axis.
-    Double_t lowXValue = h->GetXaxis()->GetBinLowEdge(1);
-    Double_t highXValue = h->GetXaxis()->GetBinUpEdge(h->GetNbinsX());
-    Double_t normX = (highXValue - lowXValue) / h->GetNbinsX();
+        /// We renormalize the values so that the values will be given
+        /// on the units of X and Y axis.
+        Double_t lowXValue = h->GetXaxis()->GetBinLowEdge(1);
+        Double_t highXValue = h->GetXaxis()->GetBinUpEdge(h->GetNbinsX());
+        Double_t normX = (highXValue - lowXValue) / h->GetNbinsX();
 
-    Double_t lowYValue = h->GetYaxis()->GetBinLowEdge(1);
-    Double_t highYValue = h->GetYaxis()->GetBinUpEdge(h->GetNbinsY());
-    Double_t normY = (highYValue - lowYValue) / h->GetNbinsY();
+        Double_t lowYValue = h->GetYaxis()->GetBinLowEdge(1);
+        Double_t highYValue = h->GetYaxis()->GetBinUpEdge(h->GetNbinsY());
+        Double_t normY = (highYValue - lowYValue) / h->GetNbinsY();
 
-    std::vector<std::vector<Float_t> > responseData;
-    for (int n = 1; n <= h->GetNbinsX(); n++) {
-        std::vector<Float_t> primaryResponse;
-        for (int m = 1; m <= h->GetNbinsY(); m++) {
-            Double_t value = h->GetBinContent(n, m) / normX / normY / g4Md->GetNumberOfEvents();
-            primaryResponse.push_back(value);
+        std::vector<std::vector<Float_t> > responseData;
+        for (int n = 1; n <= h->GetNbinsX(); n++) {
+            std::vector<Float_t> primaryResponse;
+            for (int m = 1; m <= h->GetNbinsY(); m++) {
+                Double_t value = h->GetBinContent(n, m) / normX / normY / g4Md->GetNumberOfEvents();
+                primaryResponse.push_back(value);
+            }
+            responseData.push_back(primaryResponse);
         }
-        responseData.push_back(primaryResponse);
+
+        std::string output_fname =
+            (string)run.GetRunTag() + ".N" + REST_StringHelper::IntegerToString(responseData[0].size()) + "f";
+
+        std::cout << "Writting output binary file: " << output_fname << std::endl;
+
+        TRestTools::ExportBinaryTable(output_fname, responseData);
+
+        Double_t efficiency = h->Integral() / g4Md->GetNumberOfEvents();
+
+        std::cout << "Overall efficiency : " << efficiency << std::endl;
+        std::cout << "Number of primaries: " << g4Md->GetNumberOfEvents() << std::endl;
     }
-
-    std::string output_fname =
-        (string)run.GetRunTag() + ".N" + REST_StringHelper::IntegerToString(responseData[0].size()) + "f";
-
-    std::cout << "Writting output binary file: " << output_fname << std::endl;
-
-    TRestTools::ExportBinaryTable(output_fname, responseData);
-
-    Double_t efficiency = h->Integral() / g4Md->GetNumberOfEvents();
-
-    std::cout << "Overall efficiency : " << efficiency << std::endl;
-    std::cout << "Number of primaries: " << g4Md->GetNumberOfEvents() << std::endl;
 
     return 0;
 }
