@@ -261,9 +261,8 @@ void TRestRun::InitFromConfigFile() {
         system((TString) "mkdir -p " + outputdir);
     }
     if (!TRestTools::isPathWritable(outputdir)) {
-        RESTError << "TRestRun: Output path does not exist or it is not writable." << RESTendl;
-        RESTError << "Path : " << outputdir << RESTendl;
-        exit(1);
+        RESTWarning << "TRestRun: Output path '" << outputdir << "' does not exist or it is not writable."
+                    << RESTendl;
     }
 
     // 4. Loop over sections to initialize metadata
@@ -470,7 +469,8 @@ void TRestRun::ReadInputFileMetadata() {
             RESTDebug << "Reading key with name : " << key->GetName() << RESTendl;
             RESTDebug << "Key type (class) : " << key->GetClassName() << RESTendl;
 
-            if (!TClass::GetClass(key->GetClassName())->IsLoaded()) {
+            if (!TClass::GetClass(key->GetClassName()) ||
+                !TClass::GetClass(key->GetClassName())->IsLoaded()) {
                 RESTError << "-- Class " << key->GetClassName() << " has no dictionary!" << RESTendl;
                 RESTError << "- Any relevant REST library missing? " << RESTendl;
                 RESTError << "- File reading will continue without loading key: " << key->GetName()
@@ -611,7 +611,13 @@ void TRestRun::ReadInputFileTrees() {
                         RESTInfo << "This file may be a pure analysis file" << RESTendl;
                     } else {
                         string type = Replace(br->GetName(), "Branch", "", 0);
-                        fInputEvent = REST_Reflection::Assembly(type);
+                        TClass* cl = TClass::GetClass(type.c_str());
+                        if (cl->HasDictionary()) {
+                            fInputEvent = REST_Reflection::Assembly(type);
+                        } else if (fInputEvent != nullptr) {
+                            delete fInputEvent;
+                            fInputEvent = nullptr;
+                        }
 
                         if (fInputEvent == nullptr) {
                             RESTError << "TRestRun:OpenInputFile. Cannot initialize input event, event "
@@ -1050,8 +1056,10 @@ TFile* TRestRun::UpdateOutputFile() {
         }
 
         fOutputFile->cd();
-        fAnalysisTree->Write(0, kWriteDelete);
-        fEventTree->Write(0, kWriteDelete);
+
+        fAnalysisTree->Write(nullptr, kOverwrite);
+        fEventTree->Write(nullptr, kOverwrite);
+
         this->WriteWithDataBase();
 
         RESTcout << "TRestRun: Output File Updated." << RESTendl;
@@ -1100,17 +1108,19 @@ void TRestRun::WriteWithDataBase() {
     fRunUser = REST_USER;
 
     // save metadata objects in file
-    RESTDebug << "TRestRun::WriteWithDataBase. Calling this->Write(0,kWriteDelete)" << RESTendl;
-    this->Write(0, kWriteDelete);
+
+    RESTDebug << "TRestRun::WriteWithDataBase. Calling this->Write(0, kOverwrite)" << RESTendl;
+    this->Write(nullptr, kOverwrite);
+
     RESTDebug << "TRestRun::WriteWithDataBase. Succeed" << RESTendl;
     RESTDebug << "TRestRun::WriteWithDataBase. fMetadata.size() == " << fMetadata.size() << RESTendl;
-    for (int i = 0; i < fMetadata.size(); i++) {
+    for (auto& metadata : fMetadata) {
         bool historic = false;
         RESTDebug << "TRestRun::WriteWithDataBase. fInputMetadata.size() == " << fInputMetadata.size()
                   << RESTendl;
-        for (int j = 0; j < fInputMetadata.size(); j++) {
-            RESTDebug << fMetadata[i]->GetName() << " == " << fInputMetadata[j]->GetName() << RESTendl;
-            if (fMetadata[i] == fInputMetadata[j]) {
+        for (const auto& inputMetadata : fInputMetadata) {
+            RESTDebug << metadata->GetName() << " == " << inputMetadata->GetName() << RESTendl;
+            if (metadata == inputMetadata) {
                 historic = true;
                 break;
             }
@@ -1118,10 +1128,10 @@ void TRestRun::WriteWithDataBase() {
 
         if (!historic) {
             RESTDebug << "NO historic" << RESTendl;
-            fMetadata[i]->Write(fMetadata[i]->GetName(), kWriteDelete);
+            metadata->Write(metadata->GetName(), kOverwrite);
         } else {
             RESTDebug << "IS historic" << RESTendl;
-            if (fSaveHistoricData) fMetadata[i]->Write(fMetadata[i]->GetName(), kWriteDelete);
+            if (fSaveHistoricData) metadata->Write(metadata->GetName(), kOverwrite);
         }
     }
 
@@ -1142,8 +1152,8 @@ void TRestRun::CloseFile() {
         fEntriesSaved = fAnalysisTree->GetEntries();
         if (fAnalysisTree->GetEntries() > 0 && fInputFile == nullptr) {
             if (fOutputFile != nullptr) {
-                fAnalysisTree->Write(0, kWriteDelete);
-                this->Write(0, kWriteDelete);
+                fAnalysisTree->Write(nullptr, kOverwrite);
+                this->Write(nullptr, kOverwrite);
             }
         }
         delete fAnalysisTree;
@@ -1151,7 +1161,7 @@ void TRestRun::CloseFile() {
     }
 
     if (fEventTree != nullptr) {
-        if (fEventTree->GetEntries() > 0 && fInputFile == nullptr) fEventTree->Write(0, kWriteDelete);
+        if (fEventTree->GetEntries() > 0 && fInputFile == nullptr) fEventTree->Write(nullptr, kOverwrite);
         delete fEventTree;
         fEventTree = nullptr;
     }
@@ -1204,7 +1214,7 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
         p->SetAnalysisTree(fAnalysisTree);
         fTotalBytes = p->GetTotalBytes();
 
-        GetNextEvent(fInputEvent, 0);
+        GetNextEvent(fInputEvent, nullptr);
         // fAnalysisTree->CreateBranches();
         RESTInfo << "The external file process has been set! Name : " << fFileProcess->GetName() << RESTendl;
     } else {
@@ -1254,6 +1264,7 @@ void TRestRun::SetInputEvent(TRestEvent* event) {
         } else {
             fInputEvent = event;
         }
+        this->GetEntry(fCurrentEvent);
     }
 }
 

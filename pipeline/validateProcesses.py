@@ -19,7 +19,7 @@ def validateProcess(className):
     with open(className, 'r', encoding="utf-8") as file:
         data = file.read()
 
-        data = data[data.find("ProcessEvent"):]
+        data = data[data.find("::ProcessEvent"):]
         data = removeCppComment(data)
         data = getMethodDefinition(data)
         #data = removeCppComment(data)

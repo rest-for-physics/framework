@@ -89,7 +89,7 @@ std::vector<string> TRestTools::GetOptions(string optionsStr) { return Split(opt
 void TRestTools::LoadRESTLibrary(bool silent) {
     const set<string> libraryExtension{".so", ".dylib", ".dll"};
     const set<string> excludedLibraries{
-        "restG4"};  // Ignoring package libraries if they exist. TODO: do not hardcode this
+        "RestG4"};  // Ignoring package libraries if they exist. TODO: do not hardcode this
 
     vector<string> ldPaths;
 #ifdef WIN32
@@ -114,14 +114,15 @@ void TRestTools::LoadRESTLibrary(bool silent) {
                 continue;
             }
             const TString pathRootString = it.path().string();
-            if (!pathRootString.Contains("Rest", TString::ECaseCompare::kIgnoreCase)) {
+            TString libName = TRestTools::SeparatePathAndName((std::string)pathRootString).second;
+            if (!libName.Contains("Rest", TString::kExact)) {
                 // e.g. "libRestFramework.so"
                 continue;
             }
             // Check if library is excluded from loading e.g. is from a package
             bool excluded = false;
             for (const TString excludedLibrary : excludedLibraries) {
-                if (pathRootString.Contains(excludedLibrary, TString::ECaseCompare::kIgnoreCase)) {
+                if (libName.Contains(excludedLibrary, TString::kExact)) {
                     excluded = true;
                     // RESTWarning << "Library '" << pathRootString << "' excluded from loading" << RESTendl;
                     break;
@@ -506,9 +507,13 @@ template std::vector<Double_t> TRestTools::GetColumnFromTable<Double_t>(
 /// loaded in the matrix provided through the argument `data`. The content of
 /// `data` will be cleared in this method.
 ///
+/// If any header in the file is present, it should be skipped using the argument `skipLines`
+/// or preceding any line inside the header using `#`.
+///
 /// Only works with Double_t vector since we use StringToDouble method.
 ///
-int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data, Int_t skipLines) {
+int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data, Int_t skipLines,
+                               std::string separator) {
     if (!TRestTools::isValidFile((string)fName)) {
         cout << "TRestTools::ReadASCIITable. Error" << endl;
         cout << "Cannot open file : " << fName << endl;
@@ -530,8 +535,13 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
 
         if (line.find("#") == string::npos) {
             std::istringstream in(line);
-            values.push_back(
-                std::vector<string>(std::istream_iterator<string>(in), std::istream_iterator<string>()));
+
+            std::string token;
+            std::vector<std::string> tokens;
+            while (std::getline(in, token, (char)separator[0])) {
+                tokens.push_back(token);
+            }
+            values.push_back(tokens);
         }
     }
 
@@ -556,9 +566,13 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
 /// loaded in the matrix provided through the argument `data`. The content of
 /// `data` will be cleared in this method.
 ///
+/// If any header in the file is present, it should be skipped using the argument `skipLines`
+/// or preceding any line inside the header using `#`.
+///
 /// This version works with Float_t vector since we use StringToFloat method.
 ///
-int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines) {
+int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines,
+                               std::string separator) {
     if (!TRestTools::isValidFile((string)fName)) {
         cout << "TRestTools::ReadASCIITable. Error" << endl;
         cout << "Cannot open file : " << fName << endl;
@@ -580,13 +594,17 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& 
 
         if (line.find("#") == string::npos) {
             std::istringstream in(line);
-            values.push_back(
-                std::vector<string>(std::istream_iterator<string>(in), std::istream_iterator<string>()));
+
+            std::string token;
+            std::vector<std::string> tokens;
+            while (std::getline(in, token, (char)separator[0])) {
+                tokens.push_back(token);
+            }
+            values.push_back(tokens);
         }
     }
 
-    // Filling the float values table (TODO error handling in case ToFloat
-    // conversion fails)
+    // Filling the float values table (TODO error handling in case ToFloat conversion fails)
     for (int n = 0; n < values.size(); n++) {
         std::vector<Float_t> dblTmp;
         dblTmp.clear();
@@ -597,6 +615,40 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& 
     }
 
     return 1;
+}
+
+///////////////////////////////////////////////
+/// \brief Reads a CSV file containing a table with comma separated values
+///
+/// This method will open the file fName. This file should contain a comma
+/// separated table containing numeric values. The values on the table will be
+/// loaded in the matrix provided through the argument `data`. The content of
+/// `data` will be cleared in this method.
+///
+/// If any header in the file is present, it should be skipped using the argument `skipLines`
+/// or preceding any line inside the header using `#`.
+///
+/// Only works with Double_t vector since we use StringToDouble method.
+///
+int TRestTools::ReadCSVFile(std::string fName, std::vector<std::vector<Double_t>>& data, Int_t skipLines) {
+    return ReadASCIITable(fName, data, skipLines, ",");
+}
+
+///////////////////////////////////////////////
+/// \brief Reads a CSV file containing a table with comma separated values
+///
+/// This method will open the file fName. This file should contain a comma
+/// separated table containing numeric values. The values on the table will be
+/// loaded in the matrix provided through the argument `data`. The content of
+/// `data` will be cleared in this method.
+///
+/// If any header in the file is present, it should be skipped using the argument `skipLines`
+/// or preceding any line inside the header using `#`.
+///
+/// Only works with Float_t vector since we use StringToFloat method.
+///
+int TRestTools::ReadCSVFile(std::string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines) {
+    return ReadASCIITable(fName, data, skipLines, ",");
 }
 
 ///////////////////////////////////////////////
@@ -616,11 +668,7 @@ bool TRestTools::fileExists(const string& filename) { return std::filesystem::ex
 ///////////////////////////////////////////////
 /// \brief Returns true if the **filename** has *.root* extension.
 ///
-bool TRestTools::isRootFile(const string& filename) {
-    if (filename.find(".root") == string::npos) return false;
-
-    return true;
-}
+bool TRestTools::isRootFile(const string& filename) { return GetFileNameExtension(filename) == "root"; }
 
 ///////////////////////////////////////////////
 /// \brief Returns true if **filename** is an *http* address.
@@ -681,7 +729,9 @@ std::pair<string, string> TRestTools::SeparatePathAndName(const string& fullname
 /// Input: "/home/jgalan/abc.txt" Output: "txt"
 ///
 string TRestTools::GetFileNameExtension(const string& fullname) {
-    return filesystem::path(fullname).extension().string();
+    string extension = filesystem::path(fullname).extension().string();
+    if (extension.size() > 1) return extension.substr(1);
+    return extension;
 }
 
 ///////////////////////////////////////////////
@@ -1156,3 +1206,54 @@ int TRestTools::UploadToServer(string localFile, string remoteFile, string metho
 }
 
 void TRestTools::ChangeDirectory(const string& toDirectory) { filesystem::current_path(toDirectory); }
+
+string ValueWithQuantity::ToString() const {
+    string unit;
+    auto value = fValue;
+    if (fQuantity == ENERGY) {
+        unit = "eV";
+        value *= 1E3;  // since we store energy in keV, not in eV
+    } else if (fQuantity == TIME) {
+        unit = "s";  // time is stored in microseconds
+        value *= 1E-6;
+    } else if (fQuantity == LENGTH) {
+        unit = "m";
+        value *= 1E-3;  // since we store length in mm, not in m
+    } else {
+        return "";
+    }
+
+    const auto abs = TMath::Abs(value);
+    if (abs == 0) {
+        return TString::Format("%d", 0).Data();
+    } else if (abs < 1E-6) {
+        return TString::Format("%.2f %s%s", value * 1E9, "n", unit.c_str()).Data();
+    } else if (abs < 1E-3) {
+        return TString::Format("%.2f %s%s", value * 1E6, "u", unit.c_str()).Data();
+    } else if (abs < 1E0) {
+        return TString::Format("%.2f %s%s", value * 1E3, "m", unit.c_str()).Data();
+    } else if (abs < 1E3) {
+        return TString::Format("%.2f %s%s", value * 1E0, "", unit.c_str()).Data();
+    } else if (abs < 1E6) {
+        return TString::Format("%.2f %s%s", value * 1E-3, "k", unit.c_str()).Data();
+    } else if (abs < 1E9) {
+        return TString::Format("%.2f %s%s", value * 1E-6, "M", unit.c_str()).Data();
+    } else if (abs < 1E12) {
+        return TString::Format("%.2f %s%s", value * 1E-9, "G", unit.c_str()).Data();
+    } else {
+        return TString::Format("%.2f %s%s", value * 1E-12, "T", unit.c_str()).Data();
+    }
+}
+
+string ToTimeStringLong(double seconds) {
+    const auto abs = TMath::Abs(seconds);
+    if (abs < 60) {
+        return TString::Format("%.2f %s", seconds, "seconds").Data();
+    } else if (abs < 60 * 60) {
+        return TString::Format("%.2f %s", seconds / 60.0, "minutes").Data();
+    } else if (abs < 60 * 60 * 24) {
+        return TString::Format("%.2f %s", seconds / (60.0 * 60.0), "hours").Data();
+    } else {
+        return TString::Format("%.2f %s", seconds / (60.0 * 60.0 * 24.0), "days").Data();
+    }
+}

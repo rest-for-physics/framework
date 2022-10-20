@@ -142,11 +142,7 @@ bool TRestPatternMask::HitsPattern(Double_t x, Double_t y) {
 void TRestPatternMask::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    RESTMetadata << " - Pattern type : " << fPatternType << RESTendl;
-    RESTMetadata << " - Mask radius : " << fMaskRadius << " mm" << RESTendl;
-    RESTMetadata << " - Max regions : " << fMaxRegions << RESTendl;
-    RESTMetadata << " - Offset : (" << fOffset.X() << ", " << fOffset.Y() << ") mm" << RESTendl;
-    RESTMetadata << " - Rotation angle : " << fRotationAngle * 180. / TMath::Pi() << " degrees" << RESTendl;
+    PrintCommonPatternMembers();
     RESTMetadata << "----" << RESTendl;
 }
 
