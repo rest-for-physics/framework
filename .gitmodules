@@ -52,3 +52,6 @@
 [submodule "projects/basic-examples"]
 	path = projects/basic-examples
 	url = https://github.com/rest-for-physics/basic-examples.git
+[submodule "source/libraries/wimp"]
+	path = source/libraries/wimp
+	url = https://github.com/rest-for-physics/wimplib.git
