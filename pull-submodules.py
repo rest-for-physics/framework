@@ -203,7 +203,7 @@ Are you sure to proceed? (y/n)
 
     # if latest, pull the latest commit instead of the one recorded in the main repo
     if latest:
-        p = subprocess.run(f"git submodule foreach 'git fetch; git checkout {frameworkBranchName} || git checkout master; git pull'",  #
+        p = subprocess.run(f"git submodule foreach 'git fetch; if [ -z \"$(git ls-remote --heads origin {frameworkBranchName})\" ]; then git checkout master; else git checkout {frameworkBranchName};fi;git pull'",  #
                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if debug:
             print(p.stdout.decode("utf-8"))
