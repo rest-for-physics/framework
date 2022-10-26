@@ -170,7 +170,7 @@ Are you sure to proceed? (y/n)
                                 print("Pulling: ", end="") 
                                 print(fullpath.rstrip(), end='')
                                 # init
-                                p = subprocess.run(f"cd {root} && git submodule init {submodule}",  #
+                                p = subprocess.run(f"cd {root} && git submodule update --init {submodule}",  #
                                                    shell=True,
                                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                                 if debug:
@@ -184,73 +184,47 @@ Are you sure to proceed? (y/n)
                                     if debug:
                                         print("Message: ")
                                         print(errorOutput)
-                                    continue
-                                # if 'force', override the changes with git reset
-                                if force:
-                                    p = subprocess.run(f"cd {root}/{submodule} && git reset --hard",  #
-                                                       shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                                    if debug:
-                                        print(p.stdout.decode("utf-8"))
-                                        print(p.stderr.decode("utf-8"))
-                                    errorOutput = p.stderr.decode("utf-8")
-                                    if errorOutput.find("failed") != -1 or errorOutput.find("error") != -1:
-                                        print("[\033[91m Failed \x1b[0m]")
-                                        if debug:
-                                            print("Message: ")
-                                            print(errorOutput)
-                                        continue
-                                # update submodule
-                                p = subprocess.run(f"cd {root} && git submodule update {submodule}",  #
-                                                   shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                                if debug:
-                                    print(p.stdout.decode("utf-8"))
-                                    print(p.stderr.decode("utf-8"))
-                                if p.stdout.decode("utf-8").find("checkout") >= 0:
-                                    print(p.stdout.decode("utf-8"))
-                                errorOutput = p.stderr.decode("utf-8")
-                                if errorOutput.find("failed") != -1 or errorOutput.find("error") != -1:
-                                    print("[\033[91m Failed \x1b[0m]")
-                                    if debug:
-                                        print("Message: ")
-                                        print(errorOutput)
-                                    continue
-                                # if latest, pull the latest commit instead of the one recorded in the main repo
-                                if latest:
-                                    branchExistsPcs = subprocess.run(
-                                        f"git ls-remote --heads {url} {frameworkBranchName} | wc -l",  #
-                                        shell=True,
-                                        stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE)
+    # back to the git framework directory
+    p = subprocess.run(f"cd {root}",  #
+                       shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    # if 'force', override the changes with git reset
+    if force:
+        p = subprocess.run(f"git submodule foreach 'git reset --hard'",  #
+                           shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if debug:
+            print(p.stdout.decode("utf-8"))
+            print(p.stderr.decode("utf-8"))
+        errorOutput = p.stderr.decode("utf-8")
+        if errorOutput.find("failed") != -1 or errorOutput.find("error") != -1:
+            print("[\033[91m Failed \x1b[0m]")
+            if debug:
+                print("Message: ")
+                print(errorOutput)
 
-                                    branchToPull = "master"
-                                    if branchExistsPcs.stdout.decode("utf-8").rstrip("\n") != "0":
-                                        branchToPull = frameworkBranchName
-                                    print(f" --> Pulling branch: {branchToPull}", end='')
+    # if latest, pull the latest commit instead of the one recorded in the main repo
+    if latest:
+        p = subprocess.run(f"git submodule foreach 'git fetch; git checkout {frameworkBranchName} || git checkout master; git pull'",  #
+                           shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if debug:
+            print(p.stdout.decode("utf-8"))
+            print(p.stderr.decode("utf-8"))
+        errorOutput = p.stderr.decode("utf-8")
+        if errorOutput.find("failed") != -1 or errorOutput.find("error") != -1:
+            print("[\033[91m Failed \x1b[0m]")
+            if debug:
+                print("Message: ")
+                print(errorOutput)
+    # get commit id
+    p = subprocess.run(f"git submodule foreach 'git rev-parse HEAD'",  #
+                           shell=True,
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-                                    p = subprocess.run(
-                                        f"cd {root}/{submodule} && git fetch && git checkout {branchToPull} && git pull origin {branchToPull}",  #
-                                        shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                                    if debug:
-                                        print(p.stdout.decode("utf-8"))
-                                        print(p.stderr.decode("utf-8"))
-                                    errorOutput = p.stderr.decode("utf-8")
-                                    if errorOutput.find("failed") != -1 or errorOutput.find("error") != -1:
-                                        print("[\033[91m Failed \x1b[0m]")
-                                        if debug:
-                                            print("Message: ")
-                                            print(errorOutput)
-                                        continue
-                                # get commit id
-                                p = subprocess.run(f"cd {root}/{submodule} && git rev-parse HEAD",  #
-                                                   shell=True,
-                                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-                                if errorOutput.find("failed") == -1 and errorOutput.find("error") == -1:
-                                    print("[\033[92m OK \x1b[0m] (" + p.stdout.decode("utf-8")[0:7] + ")")
+    if errorOutput.find("failed") == -1 and errorOutput.find("error") == -1:
+        print("[\033[92m OK \x1b[0m] (" + p.stdout.decode("utf-8")[0:7] + ")")
 
     if clean:
-        subprocess.run("git clean -xfd", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        subprocess.run("git reset --hard", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subprocess.run(f"git clean -xfd", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subprocess.run(f"git reset --hard", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
 if __name__ == "__main__":
