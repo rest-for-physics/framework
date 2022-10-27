@@ -52,3 +52,6 @@
 [submodule "projects/basic-examples"]
 	path = projects/basic-examples
 	url = https://github.com/rest-for-physics/basic-examples.git
+[submodule "source/packages/restDAQ"]
+	path = source/packages/restDAQ
+	url = https://github.com/rest-for-physics/restDAQ.git
