@@ -1,14 +1,22 @@
 #include <TApplication.h>
 #include <TROOT.h>
-#include <TRestMetadata.h>
-#include <TRestRun.h>
-#include <TRestTools.h>
 #include <TRint.h>
 #include <TSystem.h>
 
+#include "TRestMetadata.h"
+#include "TRestRun.h"
+#include "TRestTools.h"
 #include "TRestVersion.h"
 
 using namespace std;
+
+#ifdef WIN32
+// in windows the pointer address from string conversion is without "0x", we must add
+// the prefix so that ROOT can correctly initialize run/metadata objects
+#define PTR_ADDR_PREFIX "0x"
+#else
+#define PTR_ADDR_PREFIX ""
+#endif  // WIN32
 
 // Note!
 // Don't use cout in the main function!
@@ -67,37 +75,45 @@ int main(int argc, char* argv[]) {
 
     gROOT->ProcessLine("#include <TRestStringHelper.h>");
     gROOT->ProcessLine("#include <TRestPhysics.h>");
+    gROOT->ProcessLine("#include <TRestSystemOfUnits.h>");
     if (loadMacros) {
         if (!silent) printf("= Loading macros ...\n");
-        auto a = TRestTools::Execute(
-            "find $REST_PATH/macros | grep REST_[^/]*.C | grep -v \"swo\" | grep -v "
-            "\"CMakeLists\" | grep -v \"swp\"  | grep -v \"svn\"");
-        auto b = Split(a, "\n");
-        for (auto c : b) {
-            if (debug) printf("Loading macro : %s\n", c.c_str());
+        vector<string> macroFiles;
+        const vector<string> patterns = {
+            REST_PATH + "/macros/REST_*.C",   // framework
+            REST_PATH + "/macros/*/REST_*.C"  // libraries
+        };
+        for (const auto& pattern : patterns) {
+            for (const auto& macroFile : TRestTools::GetFilesMatchingPattern(pattern)) {
+                macroFiles.push_back(macroFile);
+            }
+        }
 
-            gROOT->ProcessLine((".L " + c).c_str());
+        for (const auto& macroFile : macroFiles) {
+            if (debug) printf("Loading macro : %s\n", macroFile.c_str());
+            gROOT->ProcessLine((".L " + macroFile).c_str());
         }
     }
 
     // load input root file with TRestRun, initialize input event, analysis tree and metadata structures
-    int Nfile = 0;
+    int nFile = 0;
     for (int i = 1; i < argc; i++) {
         string opt = (string)argv[i];
         if (opt.find("http") != string::npos ||
             (TRestTools::fileExists(opt) && TRestTools::isRootFile(opt))) {
-            printf("\nAttaching file %s as run%i...\n", opt.c_str(), Nfile);
+            printf("\nAttaching file %s as run%i...\n", opt.c_str(), nFile);
 
             TRestRun* runTmp = new TRestRun(opt);
-            string runcmd = Form("TRestRun* run%i = (TRestRun*)%s;", Nfile, ToString(runTmp).c_str());
+            string runcmd =
+                Form("TRestRun* run%i = (TRestRun*)%s;", nFile, (PTR_ADDR_PREFIX + ToString(runTmp)).c_str());
             if (debug) printf("%s\n", runcmd.c_str());
             gROOT->ProcessLine(runcmd.c_str());
             if (runTmp->GetInputEvent() != nullptr) {
                 string eventType = runTmp->GetInputEvent()->ClassName();
 
-                printf("Attaching event %s as ev%i...\n", eventType.c_str(), Nfile);
-                string evcmd = Form("%s* ev%i = (%s*)%s;", eventType.c_str(), Nfile, eventType.c_str(),
-                                    ToString(runTmp->GetInputEvent()).c_str());
+                printf("Attaching event %s as ev%i...\n", eventType.c_str(), nFile);
+                string evcmd = Form("%s* ev%i = (%s*)%s;", eventType.c_str(), nFile, eventType.c_str(),
+                                    (PTR_ADDR_PREFIX + ToString(runTmp->GetInputEvent())).c_str());
                 if (debug) printf("%s\n", evcmd.c_str());
                 gROOT->ProcessLine(evcmd.c_str());
                 runTmp->GetEntry(0);
@@ -106,17 +122,17 @@ int main(int argc, char* argv[]) {
             // command line AnalysisTree object
             if (runTmp->GetAnalysisTree() != nullptr) {
                 // if (runTmp->GetAnalysisTree()->GetChain() != nullptr) {
-                //    printf("Attaching ana_tree%i...\n", Nfile);
-                //    string evcmd = Form("TChain* ana_tree%i = (TChain*)%s;", Nfile,
+                //    printf("Attaching ana_tree%i...\n", nFile);
+                //    string evcmd = Form("TChain* ana_tree%i = (TChain*)%s;", nFile,
                 //        ToString(runTmp->GetAnalysisTree()->GetChain()).c_str());
                 //    if (debug) printf("%s\n", evcmd.c_str());
                 //    gROOT->ProcessLine(evcmd.c_str());
                 //}
                 // else
                 //{
-                printf("Attaching ana_tree%i...\n", Nfile);
-                string evcmd = Form("TRestAnalysisTree* ana_tree%i = (TRestAnalysisTree*)%s;", Nfile,
-                                    ToString(runTmp->GetAnalysisTree()).c_str());
+                printf("Attaching ana_tree%i...\n", nFile);
+                string evcmd = Form("TRestAnalysisTree* ana_tree%i = (TRestAnalysisTree*)%s;", nFile,
+                                    (PTR_ADDR_PREFIX + ToString(runTmp->GetAnalysisTree())).c_str());
                 if (debug) printf("%s\n", evcmd.c_str());
                 gROOT->ProcessLine(evcmd.c_str());
                 // runTmp->GetEntry(0);
@@ -125,17 +141,17 @@ int main(int argc, char* argv[]) {
 
             // command line EventTree object
             if (runTmp->GetEventTree() != nullptr) {
-                printf("Attaching ev_tree%i...\n", Nfile);
-                string evcmd =
-                    Form("TTree* ev_tree%i = (TTree*)%s;", Nfile, ToString(runTmp->GetEventTree()).c_str());
+                printf("Attaching ev_tree%i...\n", nFile);
+                string evcmd = Form("TTree* ev_tree%i = (TTree*)%s;", nFile,
+                                    (PTR_ADDR_PREFIX + ToString(runTmp->GetEventTree())).c_str());
                 if (debug) printf("%s\n", evcmd.c_str());
                 gROOT->ProcessLine(evcmd.c_str());
             }
 
             printf("\n%s\n", "Attaching metadata structures...");
-            Int_t Nmetadata = runTmp->GetNumberOfMetadataStructures();
+            Int_t numberOfMetadataStructures = runTmp->GetNumberOfMetadataStructures();
             map<string, int> metanames;
-            for (int n = 0; n < Nmetadata; n++) {
+            for (int n = 0; n < numberOfMetadataStructures; n++) {
                 string metaName = runTmp->GetMetadataStructureNames()[n];
                 if (metaName.find("Historic") != -1) {
                     continue;
@@ -147,13 +163,13 @@ int main(int argc, char* argv[]) {
                 string metaFixed = Replace(metaName, "-", "_");
                 metaFixed = Replace(metaFixed, " ", "");
                 metaFixed = Replace(metaFixed, ".", "_");
-                metaFixed = "md" + ToString(Nfile) + "_" + metaFixed;
+                metaFixed = "md" + ToString(nFile) + "_" + metaFixed;
                 if (metanames.count(metaFixed) != 0) continue;
                 metanames[metaFixed] = 0;
                 printf("- %s (%s)\n", metaFixed.c_str(), metaType.c_str());
 
                 string mdcmd = Form("%s* %s = (%s*)%s;", metaType.c_str(), metaFixed.c_str(),
-                                    metaType.c_str(), ToString(md).c_str());
+                                    metaType.c_str(), (PTR_ADDR_PREFIX + ToString(md)).c_str());
 
                 if (debug) printf("%s\n", mdcmd.c_str());
 
@@ -166,7 +182,7 @@ int main(int argc, char* argv[]) {
             }
 
             argv[i] = (char*)"";
-            Nfile++;
+            nFile++;
         } else if (TRestTools::isRootFile(opt)) {
             printf("\nFile %s not found ... !!\n", opt.c_str());
         }

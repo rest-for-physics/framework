@@ -9,7 +9,6 @@
 #include <TVector3.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/stat.h>
 
 #include <algorithm>
 #include <cstdio>
@@ -28,14 +27,16 @@ namespace REST_StringHelper {
 Int_t GetChar(std::string hint = "Press a KEY to continue ...");
 Int_t isANumber(std::string in);
 Int_t isAExpression(const std::string& in);
-std::string ReplaceMathematicalExpressions(std::string buffer, std::string errorMessage = "");
+std::string CropWithPrecision(std::string in, Int_t precision);
+std::string ReplaceMathematicalExpressions(std::string buffer, Int_t precision = 0,
+                                           std::string errorMessage = "");
 std::string EvaluateExpression(std::string exp);
 Float_t StringToFloat(std::string in);
 Double_t StringToDouble(std::string in);
 Int_t StringToInteger(std::string in);
-std::string IntegerToString(Int_t n);
-std::string DoubleToString(Double_t d);
-Bool_t StringToBool(std::string in);
+std::string IntegerToString(Int_t n, std::string format = "%d");
+std::string DoubleToString(Double_t d, std::string format = "%4.2lf");
+Bool_t StringToBool(std::string booleanString);
 Long64_t StringToLong(std::string in);
 TVector3 StringTo3DVector(std::string in);
 TVector2 StringTo2DVector(std::string in);
@@ -57,6 +58,7 @@ constexpr ULong64_t ToHash(const char* str, ULong64_t last_value = 0xCBF29CE4842
 }
 Int_t Count(std::string s, std::string sbstring);
 Int_t FindNthStringPosition(const std::string& in, size_t pos, const std::string& strToFind, size_t nth);
+Bool_t MatchString(std::string str, std::string matcher);
 Int_t DiffString(const std::string& source, const std::string& target);
 template <class T>
 std::string ToString(T source, int length = -1, char fill = ' ') {
@@ -100,8 +102,21 @@ TF1* CreateTF1FromString(std::string func, double init, double end);
 using namespace REST_StringHelper;
 
 #ifdef WIN32
-inline void setenv(const char* __name, const char* __value, int __replace);
-inline std::string get_current_dir_name();
+#include <process.h>
+inline void setenv(const char* __name, const char* __value, int __replace) {
+    _putenv(((std::string)__name + "=" + (std::string)__value).c_str());
+}
+inline int getpid() { return _getpid(); }
+inline int fileno(FILE* fp) { return _fileno(fp); }
+
+inline void usleep(int usec) {
+    if (usec >= 1000) {
+        _sleep(usec / 1000);
+    } else {
+        _sleep(1);  // sleep minimum 1ms on windows
+    }
+}
+inline void sleep(int sec) { _sleep(1000 * sec); }
 #define __PRETTY_FUNCTION__ __FUNCTION__
 #define M_PI 3.14159265358979323846
 #endif

@@ -44,6 +44,7 @@ def print_help():
     print ( "  --sjtu : It will pull SJTU Git repositories. SSH grant required" )
     print ( "  --exclude:lib1,lib2 will prevent lib1,lib2 from being pulled" )
     print ( "  --onlylibs: It will pull only the REST library submodules" )
+    print ( "  --data: It will pull also data based repositories" )
     print ( " " )
 
 if( len(sys.argv ) <= 1 ):
@@ -53,7 +54,11 @@ if( len(sys.argv ) <= 1 ):
     sys.exit(1)
 
 exclude_elems = ["userguide", "data"]
+
 for x in range(len(sys.argv) - 1):
+    if sys.argv[x + 1] == "--data":
+        exclude_elems = ["userguide"]
+
     if sys.argv[x + 1] == "--lfna":
         lfna = True
         print("""\
@@ -162,6 +167,7 @@ Are you sure to proceed? (y/n)
                             if (not exclude and url.find("github") != -1) or (
                                     url.find("lfna.unizar.es") != -1 and lfna) or (
                                     url.find("gitlab.pandax.sjtu.edu.cn") != -1 and sjtu):
+                                print("Pulling: ", end="") 
                                 print(fullpath.rstrip(), end='')
                                 # init
                                 p = subprocess.run(f"cd {root} && git submodule init {submodule}",  #
@@ -222,7 +228,7 @@ Are you sure to proceed? (y/n)
                                     print(f" --> Pulling branch: {branchToPull}", end='')
 
                                     p = subprocess.run(
-                                        f"cd {root}/{submodule} && git fetch && git checkout {branchToPull} && git pull",  #
+                                        f"cd {root}/{submodule} && git fetch && git checkout {branchToPull} && git pull origin {branchToPull}",  #
                                         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                                     if debug:
                                         print(p.stdout.decode("utf-8"))

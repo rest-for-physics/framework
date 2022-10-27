@@ -5,13 +5,21 @@
 #include <vector>
 
 Int_t ValidateTrees(const char* validationFilename, const char* inputFilename = "results.root") {
-    TFile inputFile(inputFilename);
-    TTree* inputTree = inputFile.Get<TTree>("bTree");
+    TFile* inputFile = TFile::Open(inputFilename);
+    if (inputFile == nullptr) {
+        cout << "Input file '" << inputFilename << " does not exist" << endl;
+        exit(1);
+    }
+    TTree* inputTree = inputFile->Get<TTree>("bTree");
     std::vector<double>* inputObservableVector = 0;
     inputTree->SetBranchAddress("doubleObservables", &inputObservableVector);
 
-    TFile validationFile(validationFilename);
-    TTree* validationTree = validationFile.Get<TTree>("bTree");
+    TFile* validationFile = TFile::Open(validationFilename);
+    if (validationFile == nullptr) {
+        cout << "Validation file '" << validationFilename << " does not exist" << endl;
+        exit(1);
+    }
+    TTree* validationTree = validationFile->Get<TTree>("bTree");
     std::vector<double>* validationObservableVector = 0;
     validationTree->SetBranchAddress("doubleObservables", &validationObservableVector);
 
@@ -45,8 +53,7 @@ Int_t ValidateTrees(const char* validationFilename, const char* inputFilename = 
         }
 
         for (int m = 0; m < (*inputObservableVector).size(); m++) {
-            if ((Int_t)(1000. * (*inputObservableVector)[m]) !=
-                (Int_t)(1000. * (*validationObservableVector)[m])) {
+            if (std::abs((*inputObservableVector)[m] - (*validationObservableVector)[m]) > 0.01) {
                 cout << "Double Observable with index " << m << " in entry " << n
                      << " is not the same value!!" << endl;
                 printf("  value: %.15f, should be: %.15f\n", (*inputObservableVector)[m],

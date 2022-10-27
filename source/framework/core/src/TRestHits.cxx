@@ -1,39 +1,103 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
+
+//////////////////////////////////////////////////////////////////////////
+/// TRestHits is a generic data holder that defines an arbitrary physical quantity
+/// (usually the energy) in a 3-dimensional space (x,y,z). However, it also defines
+/// an optional time member that might be used to add additional information to the
+/// spatial event, such as it could be the drift time in a TPC. However, the final
+/// meaning of that member must be interpreted in the context of the event data
+/// processing algorithms, and/or the data type using the hits, such as:
+/// TRestGeant4Hits, TRestDetectorHits, ...
 ///
+/// On top of that, we may also define the hit type in particular scenarios where
+/// one of the spatial coordinates remains unknown, and we may have a REST_HitType
+/// that defines a XY, XZ, XYZ, etc, hit type.
 ///
-///             RESTSoft : Software for Rare Event Searches with TPCs
+/// This class defines typical transformations required by spatially defined
+/// physical quantities such as rotation or translation, basic hit distance
+/// calculation, and hit operations such as merging, adding/removing or swaping
+/// hits.
 ///
-///             TRestHits.cxx
+/// It contains also more sophisticated methods to perform physical calculations
+/// and parameterize the properties of a group of hits or cluster such as
+/// performing a gaussian fit to the hit distribution, such as TRestHits::GetGaussSigmaX,
+/// where two hits are added, one to each side of the event, and a Gaussian is fitted.
+/// The hits are added so that the fit works even for small events as shown in the figure below.
+/// The parameter sigma is extracted from the fit and its absolute value is returned.
 ///
-///             Event class to store hits
+/// \htmlonly <style>div.image img[src="hitsGaussianFit.png"]{width:500px;}</style> \endhtmlonly
+/// ![An illustration of the GetGaussSigmaX method and why two hits are added.](hitsGaussianFit.png)
 ///
-///             sept 2015:   First concept
-///                 Created as part of the conceptualization of existing REST
-///                 software.
-///                 Javier Galan
-///		nov 2015:
-///		    Changed vectors fX fY fZ and fEnergy from <Int_t> to
-///< Float_t> 	            JuanAn Garcia
-///_______________________________________________________________________________
+/// Other methods determine the number of hits or the total energy contained in a particular
+/// geometrical shape, see for example TRestHits::GetEnergyInCylinder, and different
+/// physical quantities on such fiducialization, i.e. TRestHits::GetMeanPositionInPrism.
+///
+///--------------------------------------------------------------------------
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2015-Sep: First concept. Created as part of the conceptualization of existing
+///           REST software.
+/// \author  Javier Galan (javier.galan@unizar.es)
+///
+/// 2015-Nov: Changed vectors fX fY fZ and fEnergy from <Int_t> to < Float_t>.
+/// \author   JuanAn Garcia (juanan318@gmail.com)
+///
+/// 2022-July: Introducing gausian hits fitting
+/// \author    Cristina Margalejo (cmargalejo@unizar.es)
+///
+/// \class TRestHits
+///
+/// <hr>
+///
 
 #include "TRestHits.h"
 
+#include <limits.h>
 #include "TROOT.h"
+
+#include "TFitResult.h"
 
 using namespace std;
 using namespace TMath;
 
 ClassImp(TRestHits);
 
-TRestHits::TRestHits() {
-    fNHits = 0;
-    fTotEnergy = 0;
-}
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestHits::TRestHits() = default;
 
-TRestHits::~TRestHits() {}
+///////////////////////////////////////////////
+/// \brief Default destructor
+///
+TRestHits::~TRestHits() = default;
 
+///////////////////////////////////////////////
+/// \brief It will return true only if all the hits inside are of type XY.
+///
 Bool_t TRestHits::areXY() const {
     for (int i = 0; i < GetNumberOfHits(); i++) {
         if (fType[i] != XY) {
@@ -46,6 +110,9 @@ Bool_t TRestHits::areXY() const {
     return false;
 }
 
+///////////////////////////////////////////////
+/// \brief It will return true only if all the hits inside are of type XZ.
+///
 Bool_t TRestHits::areXZ() const {
     for (int i = 0; i < GetNumberOfHits(); i++) {
         if (fType[i] != XZ) {
@@ -58,6 +125,9 @@ Bool_t TRestHits::areXZ() const {
     return false;
 }
 
+///////////////////////////////////////////////
+/// \brief It will return true only if all the hits inside are of type YZ.
+///
 Bool_t TRestHits::areYZ() const {
     for (int i = 0; i < GetNumberOfHits(); i++) {
         if (fType[i] != YZ) {
@@ -70,6 +140,9 @@ Bool_t TRestHits::areYZ() const {
     return false;
 }
 
+///////////////////////////////////////////////
+/// \brief It will return true only if all the hits inside are of type XYZ.
+///
 Bool_t TRestHits::areXYZ() const {
     for (int i = 0; i < GetNumberOfHits(); i++) {
         if (fType[i] != XYZ) {
@@ -82,53 +155,33 @@ Bool_t TRestHits::areXYZ() const {
     return false;
 }
 
+///////////////////////////////////////////////
+/// \brief It will return true only if all the 3-coordinates of hit number
+/// `n` are not a number,
+///
 Bool_t TRestHits::isNaN(Int_t n) const {
     if (IsNaN(GetX(n)) && IsNaN(GetY(n)) && IsNaN(GetZ(n))) return true;
     return false;
 }
 
-void TRestHits::GetXArray(Float_t* x) const {
-    if (areYZ()) {
-        for (int i = 0; i < GetNumberOfHits(); i++) x[i] = 0;
-    } else {
-        for (int i = 0; i < GetNumberOfHits(); i++) x[i] = GetX(i);
-    }
-}
-
-void TRestHits::GetYArray(Float_t* y) const {
-    if (areXZ()) {
-        for (int i = 0; i < GetNumberOfHits(); i++) y[i] = 0;
-    } else {
-        for (int i = 0; i < GetNumberOfHits(); i++) y[i] = GetY(i);
-    }
-}
-
-void TRestHits::GetZArray(Float_t* z) const {
-    if (areXY()) {
-        for (int i = 0; i < GetNumberOfHits(); i++) z[i] = 0;
-    } else {
-        for (int i = 0; i < GetNumberOfHits(); i++) z[i] = GetZ(i);
-    }
-}
-
-void TRestHits::InitializeXArray(Float_t x) {
-    for (int i = 0; i < GetNumberOfHits(); i++) fX[i] = x;
-}
-
-void TRestHits::InitializeYArray(Float_t y) {
-    for (int i = 0; i < GetNumberOfHits(); i++) fY[i] = y;
-}
-
-void TRestHits::InitializeZArray(Float_t z) {
-    for (int i = 0; i < GetNumberOfHits(); i++) fZ[i] = z;
-}
-
+///////////////////////////////////////////////
+/// \brief It returns the added energy integral.
+///
 Double_t TRestHits::GetEnergyIntegral() const {
     Double_t sum = 0;
     for (int i = 0; i < GetNumberOfHits(); i++) sum += GetEnergy(i);
     return sum;
 }
 
+///////////////////////////////////////////////
+/// \brief It determines if hit `n` is contained inside a prisma delimited between `x0` and `y0`
+/// vertex, and with face dimensions sizeX by sizeY. The angle theta should serve to rotate the
+/// prism along its axis to give full freedom.
+///
+/// TODO: It seems to me there is a problem with the rotation of the hits, which are rotated
+/// along Z axis, and not along the prism axis = x1-x0. As soon as the prism is aligned with Z
+/// no problem though.
+///
 Bool_t TRestHits::isHitNInsidePrism(Int_t n, const TVector3& x0, const TVector3& x1, Double_t sizeX,
                                     Double_t sizeY, Double_t theta) const {
     TVector3 axis = x1 - x0;
@@ -145,6 +198,11 @@ Bool_t TRestHits::isHitNInsidePrism(Int_t n, const TVector3& x0, const TVector3&
     return false;
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the total hit energy contained inside a prisma delimited between `x0` and `y0`
+/// vertex, and with face dimensions sizeX by sizeY. The angle theta should serve to rotate the
+/// prism along its axis to give full freedom.
+///
 Double_t TRestHits::GetEnergyInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX, Double_t sizeY,
                                      Double_t theta) const {
     Double_t energy = 0.;
@@ -155,6 +213,11 @@ Double_t TRestHits::GetEnergyInPrism(const TVector3& x0, const TVector3& x1, Dou
     return energy;
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the total number of hits contained inside a prisma delimited between `x0`
+/// and `y0` vertex, and with face dimensions sizeX by sizeY. The angle theta should serve to rotate
+/// the prism along its axis to give full freedom.
+///
 Int_t TRestHits::GetNumberOfHitsInsidePrism(const TVector3& x0, const TVector3& x1, Double_t sizeX,
                                             Double_t sizeY, Double_t theta) const {
     Int_t hits = 0;
@@ -165,32 +228,21 @@ Int_t TRestHits::GetNumberOfHitsInsidePrism(const TVector3& x0, const TVector3& 
     return hits;
 }
 
+///////////////////////////////////////////////
+/// \brief It determines if hit `n` is contained inside a cylinder with a given `radius` and
+/// delimited between `x0` and `x1` vertex.
+///
 Bool_t TRestHits::isHitNInsideCylinder(Int_t n, const TVector3& x0, const TVector3& x1,
                                        Double_t radius) const {
-    /* cout << "TRestHits::isHitNInsideCylinder has not been validated." << endl;
-     cout << "After validation this output should be removed" << endl;*/
-
     TVector3 axis = x1 - x0;
 
     Double_t cylLength = axis.Mag();
 
-    /* cout << "X0 : " << endl;
-     x0.Print();
-     cout << "Y0 : " << endl;
-     x1.Print();
-     cout << "Radius : " << radius << endl;
-
-     cout << "Absolute position" << endl;
-     this->GetPosition( n ).Print();*/
-
     TVector3 hitPos = this->GetPosition(n) - x0;
-    // cout << "HitPos" << endl;
-    //  hitPos.Print();
 
     Double_t l = axis.Dot(hitPos) / cylLength;
 
     if (l > 0 && l < cylLength) {
-        // cout << "Is inside length" << endl;
         Double_t hitPosNorm2 = hitPos.Mag2();
         Double_t r = TMath::Sqrt(hitPosNorm2 - l * l);
 
@@ -200,10 +252,18 @@ Bool_t TRestHits::isHitNInsideCylinder(Int_t n, const TVector3& x0, const TVecto
     return false;
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the total energy contained inside a cylinder with a given
+/// `radius` and delimited between the hit number `i` and the hit number `j`.
+///
 Double_t TRestHits::GetEnergyInCylinder(Int_t i, Int_t j, Double_t radius) const {
     return GetEnergyInCylinder(this->GetPosition(i), this->GetPosition(j), radius);
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the total energy contained inside a cylinder with a given
+/// `radius` and delimited between `x0` and `y0` vertex.
+///
 Double_t TRestHits::GetEnergyInCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) const {
     Double_t energy = 0.;
     for (int n = 0; n < GetNumberOfHits(); n++) {
@@ -213,10 +273,18 @@ Double_t TRestHits::GetEnergyInCylinder(const TVector3& x0, const TVector3& x1, 
     return energy;
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the total number of hits contained inside a cylinder with a given
+/// `radius` and delimited between the hit number `i` and the hit number `j`.
+///
 Int_t TRestHits::GetNumberOfHitsInsideCylinder(Int_t i, Int_t j, Double_t radius) const {
     return GetNumberOfHitsInsideCylinder(this->GetPosition(i), this->GetPosition(j), radius);
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the total number of hits contained inside a cylinder with a given
+/// `radius` and delimited between `x0` and `y0` vertex.
+///
 Int_t TRestHits::GetNumberOfHitsInsideCylinder(const TVector3& x0, const TVector3& x1,
                                                Double_t radius) const {
     Int_t hits = 0;
@@ -226,10 +294,18 @@ Int_t TRestHits::GetNumberOfHitsInsideCylinder(const TVector3& x0, const TVector
     return hits;
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the total energy contained in a sphere with position `pos0` for
+/// a given spherical `radius`.
+///
 Double_t TRestHits::GetEnergyInSphere(const TVector3& pos0, Double_t radius) const {
     return GetEnergyInSphere(pos0.X(), pos0.Y(), pos0.Z(), radius);
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the total energy contained in a sphere with position `x0`,`y0`
+/// and `y0` for a given `radius`.
+///
 Double_t TRestHits::GetEnergyInSphere(Double_t x0, Double_t y0, Double_t z0, Double_t radius) const {
     Double_t sum = 0;
     for (int i = 0; i < GetNumberOfHits(); i++) {
@@ -244,10 +320,18 @@ Double_t TRestHits::GetEnergyInSphere(Double_t x0, Double_t y0, Double_t z0, Dou
     return sum;
 }
 
+///////////////////////////////////////////////
+/// \brief It determines if the hit `n` is contained in a sphere with position `pos0`
+/// for a given sphereical `radius`.
+///
 Bool_t TRestHits::isHitNInsideSphere(Int_t n, const TVector3& pos0, Double_t radius) const {
     return isHitNInsideSphere(n, pos0.X(), pos0.Y(), pos0.Z(), radius);
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the total energy contained in a sphere with position `x0`,`y0`
+/// and `y0` for a given `radius`.
+///
 Bool_t TRestHits::isHitNInsideSphere(Int_t n, Double_t x0, Double_t y0, Double_t z0, Double_t radius) const {
     Double_t x = this->GetPosition(n).X();
     Double_t y = this->GetPosition(n).Y();
@@ -260,31 +344,40 @@ Bool_t TRestHits::isHitNInsideSphere(Int_t n, Double_t x0, Double_t y0, Double_t
     return kFALSE;
 }
 
+///////////////////////////////////////////////
+/// \brief Adds a new hit to the list of hits using explicit x,y,z values.
+///
 void TRestHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t, REST_HitType type) {
     fNHits++;
     fX.push_back((Float_t)(x));
     fY.push_back((Float_t)(y));
     fZ.push_back((Float_t)(z));
-    fT.push_back((Float_t)t);
+    fTime.push_back((Float_t)t);
     fEnergy.push_back((Float_t)(en));
     fType.push_back(type);
 
-    fTotEnergy += en;
+    fTotalEnergy += en;
 }
 
+///////////////////////////////////////////////
+/// \brief Adds a new hit to the list of hits using a TVector3.
+///
 void TRestHits::AddHit(const TVector3& pos, Double_t en, Double_t t, REST_HitType type) {
     fNHits++;
 
     fX.push_back((Float_t)(pos.X()));
     fY.push_back((Float_t)(pos.Y()));
     fZ.push_back((Float_t)(pos.Z()));
-    fT.push_back((Float_t)t);
+    fTime.push_back((Float_t)t);
     fEnergy.push_back((Float_t)(en));
     fType.push_back(type);
 
-    fTotEnergy += en;
+    fTotalEnergy += en;
 }
 
+///////////////////////////////////////////////
+/// \brief Adds a new hit to the list of hits using the hit `n` inside another TRestHits object.
+///
 void TRestHits::AddHit(TRestHits& hits, Int_t n) {
     Double_t x = hits.GetX(n);
     Double_t y = hits.GetY(n);
@@ -296,23 +389,33 @@ void TRestHits::AddHit(TRestHits& hits, Int_t n) {
     AddHit(x, y, z, en, t, type);
 }
 
+///////////////////////////////////////////////
+/// \brief It removes all hits inside the class.
+///
 void TRestHits::RemoveHits() {
     fNHits = 0;
     fX.clear();
     fY.clear();
     fZ.clear();
-    fT.clear();
+    fTime.clear();
     fEnergy.clear();
     fType.clear();
-    fTotEnergy = 0;
+    fTotalEnergy = 0;
 }
 
+///////////////////////////////////////////////
+/// \brief It moves hit `n` by a given amount (x,y,z).
+///
 void TRestHits::Translate(Int_t n, double x, double y, double z) {
     fX[n] += x;
     fY[n] += y;
     fZ[n] += z;
 }
 
+///////////////////////////////////////////////
+/// \brief It rotates hit `n` following rotations in Z, Y and X by angles gamma, beta and alpha. The
+/// rotation is performed with center at `vMean`.
+///
 void TRestHits::RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, const TVector3& vMean) {
     TVector3 position = GetPosition(n);
     TVector3 vHit = position - vMean;
@@ -326,6 +429,9 @@ void TRestHits::RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamm
     fZ[n] = vHit[2] + vMean[2];
 }
 
+///////////////////////////////////////////////
+/// \brief It rotates hit `n` by an angle akpha along the `vAxis` with center at `vMean`.
+///
 void TRestHits::Rotate(Int_t n, Double_t alpha, const TVector3& vAxis, const TVector3& vMean) {
     TVector3 vHit;
 
@@ -340,6 +446,9 @@ void TRestHits::Rotate(Int_t n, Double_t alpha, const TVector3& vAxis, const TVe
     fZ[n] = vHit[2] + vMean[2];
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the maximum hit energy
+///
 Double_t TRestHits::GetMaximumHitEnergy() const {
     Double_t energy = 0;
     for (int i = 0; i < GetNumberOfHits(); i++)
@@ -347,6 +456,9 @@ Double_t TRestHits::GetMaximumHitEnergy() const {
     return energy;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the minimum hit energy
+///
 Double_t TRestHits::GetMinimumHitEnergy() const {
     Double_t energy = GetMaximumHitEnergy();
     for (int i = 0; i < GetNumberOfHits(); i++)
@@ -354,34 +466,48 @@ Double_t TRestHits::GetMinimumHitEnergy() const {
     return energy;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the mean hits energy
+///
 Double_t TRestHits::GetMeanHitEnergy() const { return GetTotalEnergy() / GetNumberOfHits(); }
 
+///////////////////////////////////////////////
+/// \brief It merges hits `n` and `m` being the resulting hit placed at the weighted center
+/// and being its final energy the addition of the energies of the hits `n` and `m`.
+///
 void TRestHits::MergeHits(int n, int m) {
     Double_t totalEnergy = fEnergy[n] + fEnergy[m];
     fX[n] = (fX[n] * fEnergy[n] + fX[m] * fEnergy[m]) / totalEnergy;
     fY[n] = (fY[n] * fEnergy[n] + fY[m] * fEnergy[m]) / totalEnergy;
     fZ[n] = (fZ[n] * fEnergy[n] + fZ[m] * fEnergy[m]) / totalEnergy;
-    fT[n] = (fT[n] * fEnergy[n] + fT[m] * fEnergy[m]) / totalEnergy;
+    fTime[n] = (fTime[n] * fEnergy[n] + fTime[m] * fEnergy[m]) / totalEnergy;
     fEnergy[n] += fEnergy[m];
 
     fX.erase(fX.begin() + m);
     fY.erase(fY.begin() + m);
     fZ.erase(fZ.begin() + m);
-    fT.erase(fT.begin() + m);
+    fTime.erase(fTime.begin() + m);
     fEnergy.erase(fEnergy.begin() + m);
     fType.erase(fType.begin() + m);
     fNHits--;
 }
 
+///////////////////////////////////////////////
+/// \brief It exchanges hits `n` and `m` affecting to the ordering of the hits inside the
+/// list of hits.
+///
 void TRestHits::SwapHits(Int_t i, Int_t j) {
     iter_swap(fX.begin() + i, fX.begin() + j);
     iter_swap(fY.begin() + i, fY.begin() + j);
     iter_swap(fZ.begin() + i, fZ.begin() + j);
     iter_swap(fEnergy.begin() + i, fEnergy.begin() + j);
     iter_swap(fType.begin() + i, fType.begin() + j);
-    iter_swap(fT.begin() + i, fT.begin() + j);
+    iter_swap(fTime.begin() + i, fTime.begin() + j);
 }
 
+///////////////////////////////////////////////
+/// \brief It returns true if the hits are ordered in increasing energies.
+///
 Bool_t TRestHits::isSortedByEnergy() const {
     for (int i = 0; i < GetNumberOfHits() - 1; i++)
         if (GetEnergy(i + 1) > GetEnergy(i)) return false;
@@ -389,17 +515,23 @@ Bool_t TRestHits::isSortedByEnergy() const {
     return true;
 }
 
+///////////////////////////////////////////////
+/// \brief It removes the hit at position `n` from the list.
+///
 void TRestHits::RemoveHit(int n) {
-    fTotEnergy -= GetEnergy(n);
+    fTotalEnergy -= GetEnergy(n);
     fX.erase(fX.begin() + n);
     fY.erase(fY.begin() + n);
     fZ.erase(fZ.begin() + n);
-    fT.erase(fT.begin() + n);
+    fTime.erase(fTime.begin() + n);
     fEnergy.erase(fEnergy.begin() + n);
     fType.erase(fType.begin() + n);
     fNHits--;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the position of hit number `n`.
+///
 TVector3 TRestHits::GetPosition(int n) const {
     if ((fType.size() == 0 ? !IsNaN(fX[n]) : fType[n] == XY)) {
         return {(Double_t)fX[n], (Double_t)fY[n], 0};
@@ -413,8 +545,14 @@ TVector3 TRestHits::GetPosition(int n) const {
     return {(Double_t)fX[n], (Double_t)fY[n], (Double_t)fZ[n]};
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the vector that goes from hit `j` to hit `i`.
+///
 TVector3 TRestHits::GetVector(int i, int j) const { return GetPosition(i) - GetPosition(j); }
 
+///////////////////////////////////////////////
+/// \brief It returns the number of hits with a valid X coordinate
+///
 Int_t TRestHits::GetNumberOfHitsX() const {
     Int_t nHitsX = 0;
 
@@ -424,6 +562,9 @@ Int_t TRestHits::GetNumberOfHitsX() const {
     return nHitsX;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the number of hits with a valid Y coordinate
+///
 Int_t TRestHits::GetNumberOfHitsY() const {
     Int_t nHitsY = 0;
 
@@ -433,6 +574,9 @@ Int_t TRestHits::GetNumberOfHitsY() const {
     return nHitsY;
 }
 
+///////////////////////////////////////////////
+/// \brief It calculates the total energy of hits with a valid X coordinate
+///
 Double_t TRestHits::GetEnergyX() const {
     Double_t totalEnergy = 0;
     for (int n = 0; n < GetNumberOfHits(); n++) {
@@ -444,6 +588,9 @@ Double_t TRestHits::GetEnergyX() const {
     return totalEnergy;
 }
 
+///////////////////////////////////////////////
+/// \brief It calculates the total energy of hits with a valid Y coordinate
+///
 Double_t TRestHits::GetEnergyY() const {
     Double_t totalEnergy = 0;
     for (int n = 0; n < GetNumberOfHits(); n++) {
@@ -454,6 +601,11 @@ Double_t TRestHits::GetEnergyY() const {
 
     return totalEnergy;
 }
+
+///////////////////////////////////////////////
+/// \brief It calculates the mean X position weighting with the energy of the
+/// hits with a valid X coordinate
+///
 Double_t TRestHits::GetMeanPositionX() const {
     Double_t meanX = 0;
     Double_t totalEnergy = 0;
@@ -470,6 +622,10 @@ Double_t TRestHits::GetMeanPositionX() const {
     return meanX;
 }
 
+///////////////////////////////////////////////
+/// \brief It calculates the mean Y position weighting with the energy of the
+/// hits with a valid Y coordinate
+///
 Double_t TRestHits::GetMeanPositionY() const {
     Double_t meanY = 0;
     Double_t totalEnergy = 0;
@@ -486,6 +642,10 @@ Double_t TRestHits::GetMeanPositionY() const {
     return meanY;
 }
 
+///////////////////////////////////////////////
+/// \brief It calculates the mean Z position weighting with the energy of the
+/// hits with a valid Z coordinate
+///
 Double_t TRestHits::GetMeanPositionZ() const {
     Double_t meanZ = 0;
     Double_t totalEnergy = 0;
@@ -502,11 +662,19 @@ Double_t TRestHits::GetMeanPositionZ() const {
     return meanZ;
 }
 
+///////////////////////////////////////////////
+/// \brief It calculates the mean position weighting with the energy of the
+/// hits. Each coordinate is calculated considering the valid coordinates of
+/// each hit component.
+///
 TVector3 TRestHits::GetMeanPosition() const {
     TVector3 mean(GetMeanPositionX(), GetMeanPositionY(), GetMeanPositionZ());
     return mean;
 }
 
+///////////////////////////////////////////////
+/// \brief It calculates the 2-dimensional hits variance.
+///
 Double_t TRestHits::GetSigmaXY2() const {
     Double_t sigmaXY2 = 0;
     Double_t totalEnergy = this->GetTotalEnergy();
@@ -521,6 +689,9 @@ Double_t TRestHits::GetSigmaXY2() const {
     return sigmaXY2 /= totalEnergy;
 }
 
+///////////////////////////////////////////////
+/// \brief It calculates the hits standard deviation in the X-coordinate
+///
 Double_t TRestHits::GetSigmaX() const {
     Double_t sigmaX2 = 0;
     Double_t sigmaX = 0;
@@ -536,6 +707,9 @@ Double_t TRestHits::GetSigmaX() const {
     return sigmaX = TMath::Sqrt(sigmaX2);
 }
 
+///////////////////////////////////////////////
+/// \brief It calculates the hits standard deviation in the Y-coordinate
+///
 Double_t TRestHits::GetSigmaY() const {
     Double_t sigmaY2 = 0;
     Double_t sigmaY = 0;
@@ -551,6 +725,9 @@ Double_t TRestHits::GetSigmaY() const {
     return sigmaY = TMath::Sqrt(sigmaY2);
 }
 
+///////////////////////////////////////////////
+/// \brief It writes the hits to a plain text file
+///
 void TRestHits::WriteHitsToTextFile(TString filename) {
     FILE* fff = fopen(filename.Data(), "w");
     for (int i = 0; i < GetNumberOfHits(); i++) {
@@ -562,6 +739,10 @@ void TRestHits::WriteHitsToTextFile(TString filename) {
     fclose(fff);
 }
 
+///////////////////////////////////////////////
+/// \brief TODO This method is not using any TRestHits member. This probably means that it should
+/// be placed somewhere else.
+///
 void TRestHits::GetBoundaries(std::vector<double>& dist, double& max, double& min, int& nBins,
                               double offset) {
     std::sort(dist.begin(), dist.end());
@@ -580,109 +761,228 @@ void TRestHits::GetBoundaries(std::vector<double>& dist, double& max, double& mi
     min -= offset * minDiff + minDiff / 2.;
     nBins = std::round((max - min) / minDiff);
 }
-
+///////////////////////////////////////////////
+/// \brief It computes the gaussian sigma in the X-coordinate.
+/// It adds a hit to the right and a hit to the left, with energy = 0 +/- 70 ADC.
+/// Then it fits a gaussian to the hits and extracts the sigma. The hits are just added
+/// for fitting purposes and do not go into any further processing.
+///
 Double_t TRestHits::GetGaussSigmaX() {
     Double_t gausSigmaX = 0;
     Int_t nHits = GetNumberOfHits();
-    Double_t x[nHits], y[nHits], ex[nHits], ey[nHits];
-    if (nHits <= 3) {
+    if (nHits <= 0) {
         gausSigmaX = 0;
     } else {
-        for (int n = 0; n < GetNumberOfHits(); n++) {
-            x[n] = fX[n];
-            y[n] = fEnergy[n];
-            ex[n] = 0;
-            if (y[n] != 0) {
-                ey[n] = 10 * sqrt(y[n]);
+        Int_t nAdd = 0;
+        bool doHitCorrection = true;
+        // bool doHitCorrection = nHits <= 18; //in case we want to apply it only to the smaller events
+        if (doHitCorrection) {
+            nAdd = 2;
+        }
+        Int_t nElems = nHits + nAdd;
+        vector<Double_t> x(nElems), y(nElems), ex(nElems), ey(nElems);
+        Int_t k = nAdd / 2;
+        Double_t xMin = std::numeric_limits<double>::max();
+        Double_t xMax = std::numeric_limits<double>::lowest();
+        for (int n = 0; n < GetNumberOfHits(); k++, n++) {
+            x[k] = fX[n];
+            y[k] = fEnergy[n];
+            ex[k] = 0;
+            xMin = min(xMin, x[k]);
+            xMax = max(xMax, x[k]);
+            if (y[k] != 0) {
+                ey[k] = 10 * sqrt(y[k]);
             } else {
-                ey[n] = 0;
+                ey[k] = 0;
             }
         }
-        TGraphErrors* grX = new TGraphErrors(nHits, x, y, ex, ey);
-        Double_t maxY = MaxElement(nHits, grX->GetY());
-        Double_t maxX = grX->GetX()[LocMax(nHits, grX->GetY())];
+        Int_t h = nHits + nAdd / 2;
+        if (doHitCorrection) {
+            x[0] = xMin - 0.5;
+            x[h] = xMax + 0.5;
+            y[0] = 0.0;
+            y[h] = 0.0;
+            ex[0] = 0.0;
+            ex[h] = 0.0;
+            ey[0] = 70.0;
+            ey[h] = 70.0;
+        }
+        TGraphErrors* grX = new TGraphErrors(nElems, &x[0], &y[0], &ex[0], &ey[0]);
+        // TCanvas *c = new TCanvas("c","X position fit",200,10,500,500);
+        // grX->Draw();
+        // Defining the starting parameters for the fit.
+        Double_t maxY = MaxElement(nElems, grX->GetY());
+        Double_t maxX = grX->GetX()[LocMax(nElems, grX->GetY())];
+        Double_t sigma = abs(x[0] - x[h]) / 2.0;
+        // std::cout << "maxX: " << maxX << ", maxY: " << maxY << ", sigma: " << sigma << std::endl;
 
         TF1* fit = new TF1("", "gaus");
         fit->SetParameter(0, maxY);
         fit->SetParameter(1, maxX);
-        fit->SetParameter(2, 2.0);
-        grX->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
-                               // parmaeters; R = Use the Range specified in the function range
+        fit->SetParameter(2, sigma);
+        TFitResultPtr fitResult =
+            grX->Fit(fit, "QNBS");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
+                                    // parameters; R = Use the Range specified in the function range; S = save
+                                    // and return the fit result.
+        if (fitResult->IsValid()) {
+            gausSigmaX = fit->GetParameter(2);
+        } else {
+            return -1.0;  // the fit failed, return -1 to indicate failure
+        }
 
-        gausSigmaX = fit->GetParameter(2);
+        delete (grX);
+        delete (fit);
     }
 
-    return gausSigmaX;
+    return abs(gausSigmaX);
 }
-
+/// \brief It computes the gaussian sigma in the Y-coordinate.
+/// It adds a hit to the right and a hit to the left, with energy = 0 +/- 70 ADC.
+/// Then it fits a gaussian to the hits and extracts the sigma. The hits are just added
+/// for fitting purposes and do not go into any further processing.
 Double_t TRestHits::GetGaussSigmaY() {
     Double_t gausSigmaY = 0;
     Int_t nHits = GetNumberOfHits();
-
-    Double_t x[nHits], y[nHits], ex[nHits], ey[nHits];
-    if (nHits <= 3) {
+    if (nHits <= 0) {
         gausSigmaY = 0;
     } else {
-        for (int n = 0; n < GetNumberOfHits(); n++) {
-            x[n] = fY[n];
-            y[n] = fEnergy[n];
-            ex[n] = 0;
-            if (y[n] != 0) {
-                ey[n] = 10 * sqrt(y[n]);
+        Int_t nAdd = 0;
+        bool doHitCorrection = true;
+        if (doHitCorrection) {
+            nAdd = 2;
+        }
+        Int_t nElems = nHits + nAdd;
+        vector<Double_t> x(nElems), y(nElems), ex(nElems), ey(nElems);
+        Int_t k = nAdd / 2;
+        Double_t xMin = std::numeric_limits<double>::max();
+        Double_t xMax = std::numeric_limits<double>::lowest();
+        for (int n = 0; n < GetNumberOfHits(); k++, n++) {
+            x[k] = fY[n];
+            y[k] = fEnergy[n];
+            ex[k] = 0;
+            xMin = min(xMin, x[k]);
+            xMax = max(xMax, x[k]);
+            if (y[k] != 0) {
+                ey[k] = 10 * sqrt(y[k]);
             } else {
-                ey[n] = 0;
+                ey[k] = 0;
             }
         }
-        TGraphErrors* grY = new TGraphErrors(nHits, x, y, ex, ey);
-        Double_t maxY = MaxElement(nHits, grY->GetY());
-        Double_t maxX = grY->GetX()[LocMax(nHits, grY->GetY())];
+        Int_t h = nHits + nAdd / 2;
+        if (doHitCorrection) {
+            x[0] = xMin - 0.5;
+            x[h] = xMax + 0.5;
+            y[0] = 0.0;
+            y[h] = 0.0;
+            ex[0] = 0.0;
+            ex[h] = 0.0;
+            ey[0] = 70.0;
+            ey[h] = 70.0;
+        }
+        TGraphErrors* grY = new TGraphErrors(nElems, &x[0], &y[0], &ex[0], &ey[0]);
+        // TCanvas *c = new TCanvas("c","Y position fit",200,10,500,500);
+        // grY->Draw();
+        // Defining the starting parameters for the fit.
+        Double_t maxY = MaxElement(nElems, grY->GetY());
+        Double_t maxX = grY->GetX()[LocMax(nElems, grY->GetY())];
+        Double_t sigma = abs(x[0] - x[h]) / 2.0;
 
         TF1* fit = new TF1("", "gaus");
         fit->SetParameter(0, maxY);
         fit->SetParameter(1, maxX);
-        fit->SetParameter(2, 2.0);
-        grY->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
-                               // parmaeters; R = Use the Range specified in the function range
+        fit->SetParameter(2, sigma);
+        TFitResultPtr fitResult =
+            grY->Fit(fit, "QNBS");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
+                                    // parameters; R = Use the Range specified in the function range; S = save
+                                    // and return the fit result.
+        if (fitResult->IsValid()) {
+            gausSigmaY = fit->GetParameter(2);
+        } else {
+            return -1.0;  // the fit failed, return -1 to indicate failure
+        }
 
-        gausSigmaY = fit->GetParameter(2);
+        delete (grY);
+        delete (fit);
     }
-    return gausSigmaY;
-}
 
+    return abs(gausSigmaY);
+}
+/// \brief It computes the gaussian sigma in the Z-coordinate.
+/// It adds a hit to the right and a hit to the left, with energy = 0 +/- 70 ADC.
+/// Then it fits a gaussian to the hits and extracts the sigma. The hits are just added
+/// for fitting purposes and do not go into any further processing.
 Double_t TRestHits::GetGaussSigmaZ() {
     Double_t gausSigmaZ = 0;
     Int_t nHits = GetNumberOfHits();
-
-    Double_t x[nHits], y[nHits], ex[nHits], ey[nHits];
-    if (nHits <= 3) {
+    if (nHits <= 0) {
         gausSigmaZ = 0;
     } else {
-        for (int n = 0; n < GetNumberOfHits(); n++) {
-            x[n] = fZ[n];
-            y[n] = fEnergy[n];
-            ex[n] = 0;
-            if (y[n] != 0) {
-                ey[n] = 10 * sqrt(y[n]);
+        Int_t nAdd = 0;
+        bool doHitCorrection = true;
+        if (doHitCorrection) {
+            nAdd = 2;
+        }
+        Int_t nElems = nHits + nAdd;
+        vector<Double_t> x(nElems), y(nElems), ex(nElems), ey(nElems);
+        Int_t k = nAdd / 2;
+        Double_t xMin = std::numeric_limits<double>::max();
+        Double_t xMax = std::numeric_limits<double>::lowest();
+        for (int n = 0; n < GetNumberOfHits(); k++, n++) {
+            x[k] = fZ[n];
+            y[k] = fEnergy[n];
+            ex[k] = 0;
+            xMin = min(xMin, x[k]);
+            xMax = max(xMax, x[k]);
+            if (y[k] != 0) {
+                ey[k] = 10 * sqrt(y[k]);
             } else {
-                ey[n] = 0;
+                ey[k] = 0;
             }
         }
-        TGraphErrors* grZ = new TGraphErrors(nHits, x, y, ex, ey);
-        Double_t maxY = MaxElement(nHits, grZ->GetY());
-        Double_t maxX = grZ->GetX()[LocMax(nHits, grZ->GetY())];
+        Int_t h = nHits + nAdd / 2;
+        if (doHitCorrection) {
+            x[0] = xMin - 0.5;
+            x[h] = xMax + 0.5;
+            y[0] = 0.0;
+            y[h] = 0.0;
+            ex[0] = 0.0;
+            ex[h] = 0.0;
+            ey[0] = 70.0;
+            ey[h] = 70.0;
+        }
+        TGraphErrors* grZ = new TGraphErrors(nElems, &x[0], &y[0], &ex[0], &ey[0]);
+        // TCanvas *c = new TCanvas("c","Z position fit",200,10,500,500);
+        // grZ->Draw();
+        // Defining the starting parameters for the fit.
+        Double_t maxY = MaxElement(nElems, grZ->GetY());
+        Double_t maxX = grZ->GetX()[LocMax(nElems, grZ->GetY())];
+        Double_t sigma = abs(x[0] - x[h]) / 2.0;
 
-        TF1* fit = new TF1("", "gaus", maxX - 5, maxX + 5);
+        TF1* fit = new TF1("", "gaus");
         fit->SetParameter(0, maxY);
         fit->SetParameter(1, maxX);
-        fit->SetParameter(2, 2.0);
-        grZ->Fit(fit, "QNB");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
-                               // parmaeters; R = Use the Range specified in the function range
+        fit->SetParameter(2, sigma);
+        TFitResultPtr fitResult =
+            grZ->Fit(fit, "QNBS");  // Q = quiet, no info in screen; N = no plot; B = no automatic start
+                                    // parameters; R = Use the Range specified in the function range; S = save
+                                    // and return the fit result.
+        if (fitResult->IsValid()) {
+            gausSigmaZ = fit->GetParameter(2);
+        } else {
+            return -1.0;  // the fit failed, return -1 to indicate failure
+        }
 
-        gausSigmaZ = fit->GetParameter(2);
+        delete (grZ);
+        delete (fit);
     }
-    return gausSigmaZ;
+
+    return abs(gausSigmaZ);
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the 2-dimensional skewness on the XY-plane which is a measure of the hits
+/// distribution asymmetry.
+///
 Double_t TRestHits::GetSkewXY() const {
     Double_t skewXY = 0;
     Double_t totalEnergy = this->GetTotalEnergy();
@@ -698,6 +998,9 @@ Double_t TRestHits::GetSkewXY() const {
     return skewXY /= (totalEnergy * sigmaXY * sigmaXY * sigmaXY);
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the hits distribution variance on the Z-axis.
+///
 Double_t TRestHits::GetSigmaZ2() const {
     Double_t sigmaZ2 = 0;
     Double_t totalEnergy = this->GetTotalEnergy();
@@ -709,6 +1012,9 @@ Double_t TRestHits::GetSigmaZ2() const {
     return sigmaZ2 /= totalEnergy;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the hits distribution skewness, or asymmetry on the Z-axis.
+///
 Double_t TRestHits::GetSkewZ() const {
     Double_t skewZ = 0;
     Double_t totalEnergy = this->GetTotalEnergy();
@@ -721,6 +1027,11 @@ Double_t TRestHits::GetSkewZ() const {
     return skewZ /= (totalEnergy * sigmaZ * sigmaZ * sigmaZ);
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the mean X position of hits contained inside a prisma delimited between `x0`
+/// and `x1` vertex, and with face dimensions sizeX by sizeY. The angle theta should serve to rotate
+/// the prism along its axis to give full freedom.
+///
 Double_t TRestHits::GetMeanPositionXInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX,
                                             Double_t sizeY, Double_t theta) const {
     Double_t meanX = 0;
@@ -738,6 +1049,11 @@ Double_t TRestHits::GetMeanPositionXInPrism(const TVector3& x0, const TVector3& 
     return meanX;
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the mean Y position of hits contained inside a prisma delimited between `x0`
+/// and `x1` vertex, and with face dimensions sizeX by sizeY. The angle theta should serve to rotate
+/// the prism along its axis to give full freedom.
+///
 Double_t TRestHits::GetMeanPositionYInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX,
                                             Double_t sizeY, Double_t theta) const {
     Double_t meanY = 0;
@@ -754,6 +1070,12 @@ Double_t TRestHits::GetMeanPositionYInPrism(const TVector3& x0, const TVector3& 
 
     return meanY;
 }
+
+///////////////////////////////////////////////
+/// \brief It determines the mean Z position of hits contained inside a prisma delimited between `x0`
+/// and `x1` vertex, and with face dimensions sizeX by sizeY. The angle theta should serve to rotate
+/// the prism along its axis to give full freedom.
+///
 Double_t TRestHits::GetMeanPositionZInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX,
                                             Double_t sizeY, Double_t theta) const {
     Double_t meanZ = 0;
@@ -770,6 +1092,11 @@ Double_t TRestHits::GetMeanPositionZInPrism(const TVector3& x0, const TVector3& 
     return meanZ;
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the mean position of hits contained inside a prisma delimited between `x0`
+/// and `x1` vertex, and with face dimensions sizeX by sizeY. The angle theta should serve to rotate
+/// the prism along its axis to give full freedom.
+///
 TVector3 TRestHits::GetMeanPositionInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX,
                                            Double_t sizeY, Double_t theta) const {
     TVector3 mean(GetMeanPositionXInPrism(x0, x1, sizeX, sizeY, theta),
@@ -778,6 +1105,10 @@ TVector3 TRestHits::GetMeanPositionInPrism(const TVector3& x0, const TVector3& x
     return mean;
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the mean position X using the hits contained inside a cylinder with a
+/// given `radius` and delimited between `x0` and `x1` vertex.
+///
 Double_t TRestHits::GetMeanPositionXInCylinder(const TVector3& x0, const TVector3& x1,
                                                Double_t radius) const {
     Double_t meanX = 0;
@@ -795,6 +1126,10 @@ Double_t TRestHits::GetMeanPositionXInCylinder(const TVector3& x0, const TVector
     return meanX;
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the mean position Y using the hits contained inside a cylinder with a
+/// given `radius` and delimited between `x0` and `x1` vertex.
+///
 Double_t TRestHits::GetMeanPositionYInCylinder(const TVector3& x0, const TVector3& x1,
                                                Double_t radius) const {
     Double_t meanY = 0;
@@ -812,6 +1147,10 @@ Double_t TRestHits::GetMeanPositionYInCylinder(const TVector3& x0, const TVector
     return meanY;
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the mean position Z using the hits contained inside a cylinder with a
+/// given `radius` and delimited between `x0` and `x1` vertex.
+///
 Double_t TRestHits::GetMeanPositionZInCylinder(const TVector3& x0, const TVector3& x1,
                                                Double_t radius) const {
     Double_t meanZ = 0;
@@ -828,12 +1167,20 @@ Double_t TRestHits::GetMeanPositionZInCylinder(const TVector3& x0, const TVector
     return meanZ;
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the mean position using the hits contained inside a cylinder with a
+/// given `radius` and delimited between `x0` and `x1` vertex.
+///
 TVector3 TRestHits::GetMeanPositionInCylinder(const TVector3& x0, const TVector3& x1, Double_t radius) const {
     TVector3 mean(GetMeanPositionXInCylinder(x0, x1, radius), GetMeanPositionYInCylinder(x0, x1, radius),
                   GetMeanPositionZInCylinder(x0, x1, radius));
     return mean;
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the distance required to travel from hit `n` to hit `m` adding all
+/// the distances of the hits that are found between both.
+///
 Double_t TRestHits::GetHitsPathLength(Int_t n, Int_t m) const {
     if (n < 0) n = 0;
     if (m > GetNumberOfHits() - 1) m = GetNumberOfHits() - 1;
@@ -843,12 +1190,19 @@ Double_t TRestHits::GetHitsPathLength(Int_t n, Int_t m) const {
     return distance;
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the distance required to travel from the first to the last hit
+/// adding all the distances of the hits that are found between both.
+///
 Double_t TRestHits::GetTotalDistance() const {
     Double_t distance = 0;
     for (int i = 0; i < GetNumberOfHits() - 1; i++) distance += TMath::Sqrt(GetDistance2(i, i + 1));
     return distance;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the euclidian distance between hits `n` and `m`.
+///
 Double_t TRestHits::GetDistance2(int n, int m) const {
     Double_t dx = GetX(n) - GetX(m);
     Double_t dy = GetY(n) - GetY(m);
@@ -861,6 +1215,10 @@ Double_t TRestHits::GetDistance2(int n, int m) const {
     return dx * dx + dy * dy + dz * dz;
 }
 
+///////////////////////////////////////////////
+/// \brief It determines the distance required to travel from the first hit to the hit
+/// `n` adding all the distances of the hits that are found till the hit `n`.
+///
 Double_t TRestHits::GetDistanceToNode(Int_t n) const {
     Double_t distance = 0;
     if (n > GetNumberOfHits() - 1) n = GetNumberOfHits() - 1;
@@ -870,6 +1228,9 @@ Double_t TRestHits::GetDistanceToNode(Int_t n) const {
     return distance;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the most energetic hit found between hits `n` and `m`.
+///
 Int_t TRestHits::GetMostEnergeticHitInRange(Int_t n, Int_t m) const {
     Int_t maxEnergy = 0;
     Int_t hit = -1;
@@ -882,6 +1243,9 @@ Int_t TRestHits::GetMostEnergeticHitInRange(Int_t n, Int_t m) const {
     return hit;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the closest hit to a given `position`.
+///
 Int_t TRestHits::GetClosestHit(const TVector3& position) const {
     Int_t closestHit = 0;
 
@@ -899,6 +1263,10 @@ Int_t TRestHits::GetClosestHit(const TVector3& position) const {
     return closestHit;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the longitudinal and transversal projections of `position` to the
+/// axis defined by the hits `n` and `m`.
+///
 TVector2 TRestHits::GetProjection(Int_t n, Int_t m, const TVector3& position) const {
     TVector3 nodesSegment = this->GetVector(n, m);
 
@@ -914,6 +1282,10 @@ TVector2 TRestHits::GetProjection(Int_t n, Int_t m, const TVector3& position) co
     return {longitudinal, transversal};
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the transversal projection of `position` to the line defined by
+/// `position` and `direction`.
+///
 Double_t TRestHits::GetTransversalProjection(const TVector3& p0, const TVector3& direction,
                                              const TVector3& position) const {
     TVector3 oX = position - p0;
@@ -925,6 +1297,12 @@ Double_t TRestHits::GetTransversalProjection(const TVector3& p0, const TVector3&
     return TMath::Sqrt(oX.Mag2() - longitudinal * longitudinal);
 }
 
+//////////////////////////////////////////////
+/// \brief A parameter measuring how straight is a given sequence of hits. If the value
+/// is close to zero, the hits follow a straight path in average. I believe the value
+/// should be then -1 to 1 depending where the track is twisting. Or may be just a
+/// positive value giving the measurement of twist. Not 100% sure now.
+///
 Double_t TRestHits::GetHitsTwist(Int_t n, Int_t m) const {
     if (n < 0) n = 0;
     if (m == 0) m = this->GetNumberOfHits();
@@ -946,6 +1324,9 @@ Double_t TRestHits::GetHitsTwist(Int_t n, Int_t m) const {
     return sum / cont;
 }
 
+//////////////////////////////////////////////
+/// \brief Same as GetHitsTwist but weighting with the energy
+///
 Double_t TRestHits::GetHitsTwistWeighted(Int_t n, Int_t m) const {
     if (n < 0) n = 0;
     if (m == 0) m = this->GetNumberOfHits();
@@ -970,6 +1351,9 @@ Double_t TRestHits::GetHitsTwistWeighted(Int_t n, Int_t m) const {
     return sum / cont;
 }
 
+//////////////////////////////////////////////
+/// \brief It returns the maximum distance between 2-hits.
+///
 Double_t TRestHits::GetMaximumHitDistance() const {
     Double_t maxDistance = 0;
     for (int n = 0; n < this->GetNumberOfHits(); n++)
@@ -981,6 +1365,9 @@ Double_t TRestHits::GetMaximumHitDistance() const {
     return maxDistance;
 }
 
+//////////////////////////////////////////////
+/// \brief It returns the maximum squared distance between 2-hits.
+///
 Double_t TRestHits::GetMaximumHitDistance2() const {
     Double_t maxDistance = 0;
     for (int n = 0; n < this->GetNumberOfHits(); n++)
@@ -992,6 +1379,9 @@ Double_t TRestHits::GetMaximumHitDistance2() const {
     return maxDistance;
 }
 
+//////////////////////////////////////////////
+/// \brief It prints on screen the first `nHits` from the list.
+///
 void TRestHits::PrintHits(Int_t nHits) const {
     Int_t N = nHits;
 
@@ -1011,9 +1401,9 @@ void TRestHits::PrintHits(Int_t nHits) const {
 TRestHits::TRestHits_Iterator::TRestHits_Iterator(TRestHits* h, int _index) {
     fHits = h;
     index = _index;
-    maxindex = fHits->GetNumberOfHits();
+    maxIndex = fHits->GetNumberOfHits();
     if (index < 0) index = 0;
-    if (index >= maxindex) index = maxindex;
+    if (index >= maxIndex) index = maxIndex;
 }
 
 void TRestHits::TRestHits_Iterator::toaccessor() {
@@ -1023,10 +1413,10 @@ void TRestHits::TRestHits_Iterator::toaccessor() {
     _t = t();
     _e = e();
     _type = type();
-    isaccessor = true;
+    isAccessor = true;
 }
 
-TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator*() {
+TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator*() const {
     TRestHits_Iterator i(*this);
     i.toaccessor();
     return i;
@@ -1034,13 +1424,13 @@ TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator*() {
 
 TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator++() {
     index++;
-    if (index >= maxindex) index = maxindex;
+    if (index >= maxIndex) index = maxIndex;
     return *this;
 }
 
 TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator+=(const int& n) {
-    if (index + n >= maxindex) {
-        index = maxindex;
+    if (index + n >= maxIndex) {
+        index = maxIndex;
     } else {
         index += n;
     }
@@ -1048,8 +1438,8 @@ TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator+=(const i
 }
 
 TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator+(const int& n) {
-    if (index + n >= maxindex) {
-        return TRestHits_Iterator(fHits, maxindex);
+    if (index + n >= maxIndex) {
+        return TRestHits_Iterator(fHits, maxIndex);
     } else {
         return TRestHits_Iterator(fHits, index + n);
     }
@@ -1079,12 +1469,12 @@ TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator-(const int
 }
 
 TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator=(const TRestHits_Iterator& iter) {
-    if (isaccessor) {
+    if (isAccessor) {
         (fHits ? fHits->fX[index] : x()) = iter.x();
         (fHits ? fHits->fY[index] : y()) = iter.y();
         (fHits ? fHits->fZ[index] : z()) = iter.z();
         (fHits ? fHits->fEnergy[index] : e()) = iter.e();
-        (fHits ? fHits->fT[index] : t()) = iter.t();
+        (fHits ? fHits->fTime[index] : t()) = iter.t();
         (fHits ? fHits->fType[index] : type()) = iter.type();
     } else {
         fHits = iter.fHits;

@@ -47,4 +47,26 @@
         <parameter name="armsSeparationAngle" value="60degrees"/>
         <parameter name="initialRadius" value="6cm"/>
     </TRestSpiderMask>
+<<<<<<< HEAD
+=======
+    <TRestCombinedMask name="combined" verboseLevel="warning">
+        <TRestSpiderMask name="spider1" verboseLevel="warning">
+            <parameter name="maskRadius" value="20cm"/>
+            <parameter name="offset" value="(0,0)cm"/>
+            <parameter name="rotationAngle" value="10deg"/>
+            <parameter name="armsWidth" value="7deg"/>
+            <parameter name="armsSeparationAngle" value="30deg"/>
+            <parameter name="initialRadius" value="5cm"/>
+        </TRestSpiderMask>
+        <TRestRingsMask name="rings" verboseLevel="warning">
+            <parameter name="maskRadius" value="20cm"/>
+            <parameter name="offset" value="(0,0)mm"/>
+            <parameter name="rotationAngle" value="0"/>
+            <parameter name="ringsGap" value="25mm"/>
+            <parameter name="ringsThickness" value="15mm"/>
+            <parameter name="initialRadius" value="5cm"/>
+            <parameter name="nRings" value="6"/>
+        </TRestRingsMask>
+    </TRestCombinedMask>
+>>>>>>> 1194199d1179de9f15d0dab11e033b7718b8ac4b
 </masks>

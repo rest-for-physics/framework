@@ -4,27 +4,6 @@
 [submodule "source/libraries/model"]
 	path = source/libraries/model
 	url = git@lfna.unizar.es:gifna/RestModelLib.git
-[submodule "projects/trexdm-simulations"]
-	path = projects/trexdm-simulations
-	url = git@lfna.unizar.es:gifna/trexdm-simulations.git
-[submodule "projects/trexdm-readouts"]
-	path = projects/trexdm-readouts
-	url = git@lfna.unizar.es:gifna/trexdm-readouts.git
-[submodule "projects/trexdm-geometry"]
-	path = projects/trexdm-geometry
-	url = git@lfna.unizar.es:gifna/trexdm-geometry.git
-[submodule "projects/trexdm-quickana"]
-	path = projects/trexdm-quickana
-	url = git@lfna.unizar.es:gifna/trexdm-quickana.git
-[submodule "projects/iaxo-simulations"]
-	path = projects/iaxo-simulations
-	url = git@lfna.unizar.es:iaxo/iaxo-simulations.git
-[submodule "projects/iaxo-geometry"]
-	path = projects/iaxo-geometry
-	url = git@lfna.unizar.es:iaxo/iaxo-geometry.git
-[submodule "projects/iaxo-readouts"]
-	path = projects/iaxo-readouts
-	url = git@lfna.unizar.es:iaxo/iaxo-readouts.git
 [submodule "source/libraries/geant4"]
 	path = source/libraries/geant4
 	url = https://github.com/rest-for-physics/geant4lib.git
@@ -46,21 +25,12 @@
 [submodule "source/packages/restSQL"]
 	path = source/packages/restSQL
 	url = https://github.com/rest-for-physics/restSQL.git
-[submodule "projects/basic-geometries"]
-	path = projects/basic-geometries
-	url = https://github.com/rest-for-physics/basic-geometries.git
-[submodule "projects/basic-readouts"]
-	path = projects/basic-readouts
-	url = https://github.com/rest-for-physics/basic-readouts.git
 [submodule "scripts/batch-scripts"]
 	path = scripts/batch-scripts
 	url = https://github.com/rest-for-physics/batch-scripts.git
 [submodule "source/packages/restP3DB"]
 	path = source/packages/restP3DB
 	url = https://gitlab.pandax.sjtu.edu.cn/pandax-iii/restp3db.git
-[submodule "projects/iaxo-analysis"]
-	path = projects/iaxo-analysis
-	url = git@lfna.unizar.es:iaxo/iaxo-analysis.git
 [submodule "doc/userguide"]
 	path = doc/userguide
 	url = https://github.com/rest-for-physics/rest-docs.github.io.git
@@ -73,3 +43,15 @@
 [submodule "source/packages/restDAQ"]
 	path = source/packages/restDAQ
 	url = https://github.com/rest-for-physics/restDAQ.git
+[submodule "projects/trexdm"]
+	path = projects/trexdm
+	url = git@lfna.unizar.es:gifna/trexdm-project.git
+[submodule "projects/iaxo"]
+	path = projects/iaxo
+	url = git@github.com:iaxo/iaxo.git
+[submodule "projects/detector-template"]
+	path = projects/detector-template
+	url = git@github.com:rest-for-physics/detector-template.git
+[submodule "projects/basic-examples"]
+	path = projects/basic-examples
+	url = https://github.com/rest-for-physics/basic-examples.git

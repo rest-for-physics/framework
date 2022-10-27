@@ -24,7 +24,10 @@
 class TRestBrowser {
    protected:
 #ifndef __CINT__
-    TGMainFrame* frmMain = nullptr;                 //!
+    TGMainFrame* frmMain = nullptr;  //!
+    TGMainFrame* frmBot = nullptr;   //!
+
+    // Frames and buttons on left//!
     TGVerticalFrame* fVFrame = nullptr;             //! < The main vertical frame for browser controlling
     TGLabel* fEventRowLabel = nullptr;              //!
     TGLabel* fEventIdLabel = nullptr;               //!
@@ -45,13 +48,20 @@ class TRestBrowser {
     TGPictureButton* fMenuOpen = nullptr;  //! Open file button
     TGTextButton* fExit = nullptr;         //! Exit button
 
+    // Frames and buttons on bottom
+    TGVerticalFrame* fHFrame = nullptr;         //!
+    TGLabel* fSelectionTextBoxLabel = nullptr;  //!
+    TGTextEntry* fSelectionTextBox = nullptr;   //! TextBox for plot options
+    TGTextButton* fButEvePrev = nullptr;        //! Previous plot option
+    TGTextButton* fButEveNext = nullptr;        //! Refresh plot
+
     TCanvas* fCanDefault = nullptr;  //!
     Int_t fEventRow = 0;             //!
     Int_t fEventId = 0;              //!
     Int_t fEventSubId = 0;           //!
 
-    TBrowser* b = nullptr;  //!
-    TRestRun* r = nullptr;  //!
+    TBrowser* fBrowser = nullptr;  //!
+    TRestRun* fRestRun = nullptr;  //!
 #endif
 
    private:
@@ -62,17 +72,18 @@ class TRestBrowser {
     TRestEventViewer* fEventViewer = nullptr;  //!
 
     void SetViewer(TRestEventViewer* eV);
-    void SetViewer(TString viewerName);
-    void SetButtons();
-    Bool_t LoadEventId(Int_t id, Int_t subid = -1);
+    void SetViewer(const TString& viewerName);
+    void SetLeftPanelButtons();
+    void SetBottomPanelButtons();
+    Bool_t LoadEventId(Int_t eventID, Int_t subEventID = -1);
     Bool_t LoadEventEntry(Int_t n);
 #endif
 
    public:
     // tool method
-    void Initialize(TString opt = "FI");
+    void Initialize(const TString& opt = "FI");
     void InitFromConfigFile();
-    Bool_t OpenFile(TString filename);
+    Bool_t OpenFile(const TString& filename);
 
     // setters
     void SetInputEvent(TRestEvent*);
@@ -87,6 +98,8 @@ class TRestBrowser {
 
     void RowValueChangedAction(Long_t val);
     void IdValueChangedAction(Long_t val);
+    void NextEventAction();
+    void PreviousEventAction();
 
     void EventTypeChangedAction(Int_t id);
 
@@ -96,7 +109,7 @@ class TRestBrowser {
 
     // Constructors
     TRestBrowser();
-    TRestBrowser(TString viewerName);
+    TRestBrowser(const TString& viewerName);
 
     // Destructor
     ~TRestBrowser();
