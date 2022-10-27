@@ -330,6 +330,7 @@ class TRestAnalysisTree : public TTree {
     }
     Long64_t GetReadEntry() const { return fChain ? fChain->GetReadEntry() : TTree::GetReadEntry(); }
 
+    TH1* GetHistogram() { return fChain ? fChain->GetHistogram() : TTree::GetHistogram(); }
     TLeaf* GetLeaf(const char* branchname, const char* leafname) {
         return fChain ? fChain->GetLeaf(branchname, leafname) : TTree::GetLeaf(branchname, leafname);
     }
