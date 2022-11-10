@@ -143,7 +143,6 @@ jobs:
       - name: Test REST classes in PyROOT
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
-          cd ${{ env.REST_PATH }}/framework/pipeline/pyroot
           python3 -c """import ROOT;import REST;ROOT.TRestRun();ROOT.TRestGeant4Event()"""
 
   metadata:
