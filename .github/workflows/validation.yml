@@ -127,6 +127,24 @@ jobs:
           echo "Running validation script"
           python3 validateMacros.py
 
+  pyroot:
+    name: "PyROOT"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    needs: [ framework-install ]
+    steps:
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: framework-install-cache
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      - name: Test REST classes in PyROOT
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          python3 -c """import ROOT;import REST;ROOT.TRestRun();ROOT.TRestGeant4Event()"""
+
   metadata:
     name: "Metadata"
     runs-on: ubuntu-latest

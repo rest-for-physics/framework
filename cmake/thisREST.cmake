@@ -49,6 +49,7 @@ export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH
     set(Garfield_INCLUDE_ENV ":$ENV{GARFIELD_INSTALL}/include")
 endif ()
 
+message(STATUS "PYTHON BINDINGS: ${PYTHON_BINDINGS_INSTALL_DIR}")
 # install thisREST script, sh VERSION
 install(CODE
         "
@@ -93,6 +94,7 @@ export REST_GARFIELD_LIB=${Garfield_LIBRARIES}
 export PATH=\\\$REST_PATH/bin:\\\$_PATH
 export LD_LIBRARY_PATH=\\\$REST_PATH/lib:\\\$_LD_LIBRARY_PATH
 export LIBRARY_PATH=\\\$REST_PATH/lib:\\\$LIBRARY_PATH
+export PYTHONPATH=${PYTHON_BINDINGS_INSTALL_DIR}:\\\$PYTHONPATH
 
 alias restRoot=\\\"restRoot -l\\\"
 alias restRootMacros=\\\"restRoot -l --m 1\\\"
@@ -142,6 +144,7 @@ setenv PATH \\\$REST_PATH/bin:\\\$PATH
 setenv LD_LIBRARY_PATH \\\$REST_PATH/lib:\\\$LD_LIBRARY_PATH
 if ( \\\$?LIBRARY_PATH == 0 ) setenv LIBRARY_PATH
 setenv LIBRARY_PATH \\\${LIBRARY_PATH}:\\\$REST_PATH/lib
+setenv PYTHONPATH \\\${PYTHONPATH}:${PYTHON_BINDINGS_INSTALL_DIR}
 
 if ( `rest-config --flags | grep -c \\\"REST_WELCOME=ON\\\"` ) then
 rest-config --welcome
