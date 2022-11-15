@@ -26,13 +26,13 @@ runs:
           var=$(git ls-remote --heads origin ${{ inputs.branch }})
           if [[ -z $var ]]; then
             echo "Branch "${{ inputs.branch }}" not found in " ${{ inputs.repository }}
-            echo "::set-output name=exist::false"
+            echo "exist=false" >> $GITHUB_OUTPUT
           else
             echo "Branch "${{ inputs.branch }}" found in " ${{ inputs.repository }}
             git fetch
             git checkout ${{ inputs.branch }}
             git pull
-            echo "::set-output name=exist::true"
+            echo "exist=true" >> $GITHUB_OUTPUT
           fi
       shell: bash
     - name: Check PR
@@ -44,16 +44,15 @@ runs:
         gh auth status
         gh pr view
         prurl=$(gh pr view --json url -t '{{ .url }}')
-        echo "::set-output name=prurl::$prurl"
+        echo "prurl=$prurl" >> $GITHUB_OUTPUT
         mergeStateStatus=$(gh pr view --json mergeStateStatus -t '{{ .mergeStateStatus }}')
         echo "MergeStateStatus " $mergeStateStatus
-        echo "::set-output name=mergeStateStatus::$mergeStateStatus"
+        echo "mergeStateStatus=$mergeStateStatus" >> $GITHUB_OUTPUT
         prState=$(gh pr view --json state -t '{{ .state }}')
-        echo "::set-output name=prState::$prState"
+        echo "prState=$prState" >> $GITHUB_OUTPUT
         echo "PullRequestState " $prState
-        echo "::set-output name=mergeStateStatus::$mergeStateStatus"
         review=$(gh pr view --json reviewDecision -t '{{ .reviewDecision }}')
-        echo "::set-output name=review::$review"
+        echo "review=$review" >> $GITHUB_OUTPUT
         echo "Review decision " $review
           if [[ $prState == "MERGED" ]]; then
             echo "PR already merged"
