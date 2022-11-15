@@ -10,7 +10,7 @@ Int_t Validate(const char* filename, const bool isReferenceGeant4Version = false
 
     analysisTree->Scan("eventID:g4Ana_totalEdep:g4Ana_energyPrimary");
 
-    const size_t expectedNumberOfEntries = (!isReferenceGeant4Version) ? 16 : 19;
+    const size_t expectedNumberOfEntries = (!isReferenceGeant4Version) ? 10 : 19;
 
     if (analysisTree->GetEntries() != expectedNumberOfEntries) {
         cout << "Number of entries is not the same!" << endl;
@@ -23,7 +23,7 @@ Int_t Validate(const char* filename, const bool isReferenceGeant4Version = false
     bool success = true;
     const std::vector<size_t> ids =
         (!isReferenceGeant4Version)
-            ? std::vector<size_t>{5, 15, 19, 22, 29, 46, 50, 58, 65, 80, 88, 89, 93, 95, 97, 99}
+            ? std::vector<size_t>{5, 16, 18, 28, 32, 40, 42, 48, 53, 68}
             : std::vector<size_t>{7, 8, 10, 13, 14, 15, 17, 19, 25, 27, 37, 44, 55, 58, 77, 84, 90, 92, 94};
     for (Int_t i = 0; i < analysisTree->GetEntries(); i++) {
         analysisTree->GetEntry(i);

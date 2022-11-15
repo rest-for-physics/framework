@@ -14,6 +14,10 @@ on:
   # Allows you to run this workflow from submodules
   workflow_call:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   CMAKE_BUILD_TYPE: Release
   REST_PATH: /rest/framework/install
@@ -35,7 +39,7 @@ jobs:
       - name: Build and install
         uses: rest-for-physics/framework/.github/actions/build@master
         with:
-          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON -DTEST=ON"
+          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON -DREST_MPFR=ON -DTEST=ON"
           branch: ${{ env.BRANCH_NAME }}
           build-path: build
       - name: Test
@@ -54,7 +58,7 @@ jobs:
       - name: Build and install
         uses: rest-for-physics/framework/.github/actions/build@master
         with:
-          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
+          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON -DREST_MPFR=ON"
           branch: ${{ env.BRANCH_NAME }}
       - name: Test REST
         run: |
@@ -98,6 +102,52 @@ jobs:
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/fileopening
           restManager PrintTrees v2.2.30_hits.root
+
+  macros-health:
+    name: "Macros with clean error output"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    needs: [ framework-install ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: rest-for-physics/framework
+          path: framework
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: framework-install-cache
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      - name: Load restRootMacros
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cat ${{ env.REST_PATH }}/thisREST.sh
+          echo ${{ env.ROOT_INCLUDE_PATH}}
+          echo $ROOT_INCLUDE_PATH
+          cd framework/pipeline
+          export DISPLAY=localhost:0.0
+          echo "Running validation script"
+          python3 validateMacros.py
+
+  pyroot:
+    name: "PyROOT"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    needs: [ framework-install ]
+    steps:
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: framework-install-cache
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      - name: Test REST classes in PyROOT
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          python3 -c """import ROOT;import REST;ROOT.TRestRun();ROOT.TRestGeant4Event()"""
 
   metadata:
     name: "Metadata"
@@ -395,6 +445,10 @@ jobs:
         with:
           cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
           branch: ${{ env.BRANCH_NAME }}
+      - name: Use old materials for reference Geant4 version
+        run: |
+          cd ${{ env.REST_PATH }}
+          find . -name "*.gdml" | xargs sed -i 's/https:\/\/rest-for-physics.github.io\/materials\/rest.xml/https:\/\/rest-for-physics.github.io\/materials\/legacy\/v1.4\/rest.xml/g'
       - name: Test REST
         run: |
           printenv

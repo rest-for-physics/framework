@@ -213,6 +213,8 @@ class TRestEventProcess : public TRestMetadata {
 
     inline void SetObservableValidation(bool validate) { fValidateObservables = validate; }
 
+    inline void RegisterAllObservables(Bool_t value = true) { fDynamicObs = value; }
+
     // process running methods
     /// To be executed at the beginning of the run (outside event loop)
     virtual void InitProcess() {}

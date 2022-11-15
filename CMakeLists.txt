@@ -18,7 +18,7 @@ endif ()
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-stdlib=libc++")
 endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-lstdc++fs" )
+SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-lstdc++fs")
 
 # https://github.com/rest-for-physics/framework/issues/162 & https://github.com/rest-for-physics/framework/issues/236
 if (${CMAKE_VERSION} VERSION_LESS "3.23")
@@ -39,16 +39,6 @@ if (NOT DEFINED CMAKE_INSTALL_PREFIX)
     set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX_ABSOLUTE})
 endif ()
 
-if (NOT DEFINED RESTLIB_MODEL)
-    set(RESTLIB_MODEL OFF)
-endif ()
-
-# Auto schema evolution for ROOT
-if (NOT DEFINED REST_SE)
-    set(REST_SE ON)
-endif ()
-set(SCHEMA_EVOLUTION ${REST_SE})
-
 # Welcome message
 if (NOT DEFINED REST_WELCOME)
     set(REST_WELCOME ON)
@@ -60,11 +50,16 @@ set(external_libs)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${DECAY_PATH}/cmake ${CMAKE_MODULE_PATH})
 set(CMAKE_MACOSX_RPATH 1)
 
-# ROOT libs and includes
-
+#####  ROOT libs and includes  #####
 find_package(ROOT REQUIRED)
-
 set(ROOT_REQUIRED_LIBRARIES Core RIO Geom Gdml Minuit Spectrum XMLIO)
+
+# Auto schema evolution for ROOT
+if (NOT DEFINED REST_SE)
+    set(REST_SE ON)
+endif ()
+set(SCHEMA_EVOLUTION ${REST_SE})
+
 # Switch to enable ROOT Eve functionality.
 if (NOT DEFINED REST_EVE)
     set(REST_EVE ON)
@@ -111,18 +106,18 @@ else ()
                 C++ standard, check root-config --cflags ${ROOT_CFLAGS}"
                 )
     endif ()
-
 endif ()
 
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
 
-# This is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProcess.
-if (NOT DEFINED SQL)
-    set(SQL OFF)
-endif ()
 
-if (${SQL} MATCHES "ON")
-    list(APPEND rest_features "SQL")
+#####  mySQL  #####
+# This is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProcess.
+if (NOT DEFINED REST_SQL)
+    set(REST_SQL OFF)
+endif ()
+if (${REST_SQL} MATCHES "ON")
+    list(APPEND rest_features "mySQL")
     add_definitions(-DUSE_SQL)
     include(FindSQL)
     set(external_include_dirs ${external_include_dirs} ${SQL_INCLUDE_DIR})
@@ -130,24 +125,44 @@ if (${SQL} MATCHES "ON")
     message(STATUS "SQL include directory: " ${SQL_INCLUDE_DIR})
     set(SQL ON)
 else ()
-    set(SQL OFF)
-endif (${SQL} MATCHES "ON")
+    set(REST_SQL OFF)
+endif (${REST_SQL} MATCHES "ON")
 
-#### MPFR
-find_path(MPFR_INCLUDE mpfr.h HINTS ${MPFR_PATH} ${MPFR_PATH}/include) # path to include directory
-find_path(MPFR_LIB_PATH libmpfr.so HINTS ${MPFR_PATH} ${MPFR_PATH}/lib) # path to include directory
-find_library(MPFR_LIB mpfr HINTS ${MPFR_PATH} ${MPFR_PATH}/lib) # path to .so file
-
-if (NOT MPFR_INCLUDE MATCHES "MPFR_INCLUDE-NOTFOUND" AND NOT MPFR_LIB MATCHES "MPFR_LIB-NOTFOUND")
-    # MPFR is found
-    add_compile_definitions(USE_MPFR)
-    set(external_include_dirs ${external_include_dirs} ${MPFR_INCLUDE})
-    set(external_libs "${external_libs};${MPFR_LIB}")
-    link_directories(${MPFR_LIB})
-    message( STATUS "MPFR library : ${MPFR_LIB}" )
-else ()
-    message(WARNING "MPFR library was not found. Adding the location to the installation path may solve this problem.\n Use -DMPFR_PATH=/path/to/mpfr/")
+#####  MPFR  #####
+if (NOT DEFINED REST_MPFR)
+    set(REST_MPFR OFF)
 endif ()
+if (${REST_MPFR} MATCHES "ON")
+    find_path(MPFR_INCLUDE mpfr.h HINTS ${MPFR_PATH} ${MPFR_PATH}/include) # path to include directory
+    find_path(MPFR_LIB_PATH libmpfr.so HINTS ${MPFR_PATH} ${MPFR_PATH}/lib)
+    find_library(MPFR_LIB mpfr HINTS ${MPFR_PATH} ${MPFR_PATH}/lib) # path to .so file
+    if (NOT MPFR_INCLUDE MATCHES "MPFR_INCLUDE-NOTFOUND" AND NOT MPFR_LIB MATCHES "MPFR_LIB-NOTFOUND")
+        # MPFR is found
+        list(APPEND rest_features "MPFR")
+        add_compile_definitions(USE_MPFR)
+        set(external_include_dirs ${external_include_dirs} ${MPFR_INCLUDE})
+        set(external_libs "${external_libs};${MPFR_LIB}")
+        link_directories(${MPFR_LIB})
+        message(STATUS "MPFR library : ${MPFR_LIB}")
+    else ()
+        message(ERROR "MPFR library was not found. Adding the location to the installation path may solve this problem.\n Use -DMPFR_PATH=/path/to/mpfr/")
+    endif ()
+else ()
+    set(REST_MPFR OFF)
+    set(excludes ${excludes} TRestComplex)
+endif (${REST_MPFR} MATCHES "ON")
+
+#####  CURL  #####
+find_library(CURL_LIB curl)
+if (NOT ${CURL_LIB} STREQUAL "CURL_LIB-NOTFOUND")
+    list(APPEND rest_features "CURL")
+    add_compile_definitions(USE_Curl)
+    message(STATUS "Found curl library: ${CURL_LIB}")
+    set(external_libs "${external_libs};-lcurl")
+else ()
+    message(WARNING "CURL library was not found. ")
+endif ()
+
 
 # Include directories for compilation
 include_directories(${external_include_dirs})
@@ -250,6 +265,8 @@ else ()
     file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/lib)
     "
             )
+
+    add_subdirectory(python-bindings)
 
     # Create thisREST.sh
     include(thisREST)
