@@ -191,7 +191,7 @@
 /// \section metadata_replace Replacement of variables and expressions
 ///
 /// By default, LoadConfigFromFile() will look into only the first-level child sections
-/// of both global and sectional section. If the sections value is either
+/// of both global and sectional section. If the section value is either
 /// "variable" or "constant", the class will keep them for replacement.
 ///
 /// \code
@@ -208,7 +208,7 @@
 ///           <variable .... / > //this variable cannot be loaded by the class
 ///           "TRestDetectorReadout"
 ///       </TRestDetectorReadout>
-///       <parameter name="Ch" value="${nChannels}+${CHANNELS}-2" />
+///       <parameter name="Ch" value="nChannels+${CHANNELS}-2" />
 ///   </TRestRun>
 ///
 /// \endcode
