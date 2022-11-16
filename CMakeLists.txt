@@ -184,7 +184,7 @@ include(MacroRootDict)
 add_subdirectory(source)
 
 message("")
-message(STATUS "rest Libraries: " ${rest_libraries_regular})
+message(STATUS "rest libraries: " ${rest_libraries_regular})
 message(STATUS "rest executables: " ${rest_exes_str})
 message(STATUS "rest macros: " ${rest_macros_str})
 message("")
