@@ -14,6 +14,10 @@ on:
   # Allows you to run this workflow from submodules
   workflow_call:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   CMAKE_BUILD_TYPE: Release
   REST_PATH: /rest/framework/install
