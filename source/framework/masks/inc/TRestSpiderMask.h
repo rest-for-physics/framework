@@ -38,6 +38,9 @@ class TRestSpiderMask : public TRestPatternMask {
     /// The spider structure will be effective from this radius, in mm. Default is from 20 mm.
     Double_t fInitialRadius = 20.;  //<
 
+    /// Radius of an internal circular region defined inside the fInitialRadius. If 0, there will be no region
+    Double_t fInternalRegionRadius = 0.;  //<
+
     /// Used internally to define the forbidden (cosine) angular ranges imposed by the spider structure (0,Pi)
     std::vector<std::pair<Double_t, Double_t>> fPositiveRanges;  //!
 
