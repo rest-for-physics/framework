@@ -18,7 +18,7 @@ endif ()
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-stdlib=libc++")
 endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-lstdc++fs" )
+SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-lstdc++fs")
 
 # https://github.com/rest-for-physics/framework/issues/162 & https://github.com/rest-for-physics/framework/issues/236
 if (${CMAKE_VERSION} VERSION_LESS "3.23")
@@ -111,7 +111,6 @@ endif ()
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
 
 
-
 #####  mySQL  #####
 # This is to enable linking of SQL libraries. I.e. for process TRestSQLToAnalysisProcess.
 if (NOT DEFINED REST_SQL)
@@ -144,7 +143,7 @@ if (${REST_MPFR} MATCHES "ON")
         set(external_include_dirs ${external_include_dirs} ${MPFR_INCLUDE})
         set(external_libs "${external_libs};${MPFR_LIB}")
         link_directories(${MPFR_LIB})
-        message( STATUS "MPFR library : ${MPFR_LIB}" )
+        message(STATUS "MPFR library : ${MPFR_LIB}")
     else ()
         message(ERROR "MPFR library was not found. Adding the location to the installation path may solve this problem.\n Use -DMPFR_PATH=/path/to/mpfr/")
     endif ()
@@ -163,7 +162,6 @@ if (NOT ${CURL_LIB} STREQUAL "CURL_LIB-NOTFOUND")
 else ()
     message(WARNING "CURL library was not found. ")
 endif ()
-
 
 
 # Include directories for compilation
@@ -267,6 +265,8 @@ else ()
     file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/lib)
     "
             )
+
+    add_subdirectory(python-bindings)
 
     # Create thisREST.sh
     include(thisREST)
