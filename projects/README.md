@@ -1,8 +1,12 @@
-This directory will serve to link external repositories as a submodule and include different REST projects.
+This directory will serve to link external repositories as a submodule to include and promote different REST-for-Physics projects. Some projects may be private and they will require that users request access to them.
 
-We provide here access to public projects as `basic-readouts`, `basic-geometry` and `basic-simulations` that can also be used for validation.
+The REST-for-Physics projects contain detector data analysis, detector event reconstruction, detector Monte Carlo response, background simulations, detector setup geometries and detector readout definitions. Between other components.
 
-And also project related repositories related to `iaxo-` and `trexdm-` projects that will be accessible to collaboration members of each project.
+List of projects included:
+ - **Basic-Examples**: It gathers basic examples to serve as a first contact for new REST-for-Physics users.
+ - **IAXO**: The software project for the IAXO Collaboration.
+ - **TREX-DM**: The software project for the TREX-DM experiment.
+ - **AlphaCAMM**: The software project for the Alpha-CAMM project.
 
 ----
 

@@ -1,6 +1,11 @@
+
+# '-fPIC' flag necessary on some systems to prevent error
+add_compile_options("-fPIC")
+link_libraries("-fPIC")
+
 add_subdirectory(external)
 
-set(contents external/tinyxml tools core analysis)
+set(contents external/tinyxml tools core analysis masks)
 
 file(GLOB_RECURSE addon_src
         "tiny*cpp"
@@ -14,12 +19,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(excludes TRestBenchMarkProcess TRestRealTimeAddInputFileProcess TRestRealTimeDrawingProcess TRestMessenger ${excludes})
 endif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
-find_library(CURL_LIB curl)
-if (NOT ${CURL_LIB} STREQUAL "CURL_LIB-NOTFOUND")
-    add_compile_definitions(USE_Curl)
-    message(STATUS "Found curl library: ${CURL_LIB}")
-    set(external_libs "${external_libs};-lcurl;-lstdc++fs")
-endif ()
+set(external_libs "${external_libs};-lstdc++fs") # sometimes needed for <filesystem>
+
 
 COMPILEDIR(RestFramework)
 

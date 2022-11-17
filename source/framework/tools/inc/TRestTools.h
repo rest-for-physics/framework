@@ -23,6 +23,10 @@
 #ifndef RestCore_TRestTools
 #define RestCore_TRestTools
 
+#include <TObject.h>
+#include <TString.h>
+#include <TVector3.h>
+
 #include <map>
 #include <memory>
 #include <string>
@@ -46,10 +50,8 @@ EXTERN_DEF std::string REST_PATH;
 EXTERN_DEF std::string REST_USER;
 EXTERN_DEF std::string REST_USER_PATH;
 EXTERN_DEF std::string REST_TMP_PATH;
-
-#include "TObject.h"
-
 EXTERN_DEF std::map<std::string, std::string> REST_ARGS;
+
 /// A generic class with useful static methods.
 class TRestTools {
    public:
@@ -58,9 +60,12 @@ class TRestTools {
     static void LoadRESTLibrary(bool silent = false);
 
     static int ReadASCIITable(std::string fName, std::vector<std::vector<Double_t>>& data,
-                              Int_t skipLines = 0);
-    static int ReadASCIITable(std::string fName, std::vector<std::vector<Float_t>>& data,
-                              Int_t skipLines = 0);
+                              Int_t skipLines = 0, std::string separator = "\t");
+    static int ReadASCIITable(std::string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines = 0,
+                              std::string separator = "\t");
+
+    static int ReadCSVFile(std::string fName, std::vector<std::vector<Double_t>>& data, Int_t skipLines = 0);
+    static int ReadCSVFile(std::string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines = 0);
 
     template <typename T>
     static void TransposeTable(std::vector<std::vector<T>>& data);
@@ -88,6 +93,9 @@ class TRestTools {
     static T GetIntegralFromTable(const std::vector<std::vector<T>>& data);
 
     template <typename T>
+    static std::vector<T> GetColumnFromTable(const std::vector<std::vector<T>>& data, int column);
+
+    template <typename T>
     static int PrintTable(std::vector<std::vector<T>> data, Int_t start = 0, Int_t end = 0);
 
     template <typename T>
@@ -108,7 +116,7 @@ class TRestTools {
     static std::pair<std::string, std::string> SeparatePathAndName(const std::string& fullname);
     static std::string GetPureFileName(const std::string& fullPathFileName);
     static std::string SearchFileInPath(std::vector<std::string> path, std::string filename);
-    static Int_t CheckTheFile(std::string configFilename);
+    static bool CheckFileIsAccessible(const std::string&);
     static std::vector<std::string> GetFilesMatchingPattern(std::string pattern);
     static int ConvertVersionCode(std::string in);
     static std::istream& GetLine(std::istream& is, std::string& t);
@@ -148,8 +156,7 @@ inline void SetInitLevel(T* name, int level) {
     GlobalVarInit<T>::level = level;
 }
 
-// Initialize global variable with vertain class, overwriting the 
-// dummy variable of its base class. 
+// Initialize global variable with certain class, overwriting the dummy variable of its base class.
 // For example, we initialize gDataBase as TRestDataBase in Framework
 // library. When we load restP3DB library, this object will be overwritten
 // by a new TRestDataBaseP3DB class object, by calling this macro
@@ -172,5 +179,33 @@ inline void SetInitLevel(T* name, int level) {
     const __##classname##_Init classname##_Init;
 
 }  // namespace REST_InitTools
+
+enum Quantities { ENERGY, LENGTH, TIME };
+class ValueWithQuantity {
+   public:
+    ValueWithQuantity(double value, Quantities quantity) : fValue(value), fQuantity(quantity){};
+    double GetValue() const { return fValue; }
+    std::string ToString() const;
+
+    inline operator std::string() const { return ToString(); }
+
+   private:
+    const double fValue;
+    const Quantities fQuantity;
+};
+
+inline std::string ToEnergyString(double value) { return (std::string)ValueWithQuantity(value, ENERGY); }
+inline std::string ToTimeString(double value) { return (std::string)ValueWithQuantity(value, TIME); }
+inline std::string ToLengthString(double value) { return (std::string)ValueWithQuantity(value, LENGTH); }
+
+std::string ToTimeStringLong(double value);
+
+inline std::string VectorToString(const TVector3& v) {
+    return TString::Format("(%0.3f, %0.3f, %0.3f)", v.X(), v.Y(), v.Z()).Data();
+}
+
+inline std::string VectorToString(const TVector2& v) {
+    return TString::Format("(%0.3f, %0.3f)", v.X(), v.Y()).Data();
+}
 
 #endif

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ $(geant4-config --version | grep "10.4.2") ];then
+if [ $(geant4-config --version | grep "11.0.3") ];then
 
-echo Geant4 of version 10.4.2 has already been installed
+echo Geant4 of version 11.0.3 has already been installed
 echo prefix:
 echo $(geant4-config --prefix)
 echo cflags:
@@ -13,7 +13,7 @@ else
 set -e
 WP=$PWD
 
-G4_ROOT=geant4.10.04.p02
+G4_ROOT=geant4-v11.0.3
 G4_FILE=$G4_ROOT.tar.gz
 
 echo installing: $G4_ROOT
@@ -31,7 +31,7 @@ tar xvf $G4_FILE
 
 mkdir -p $G4_ROOT-build
 cd $G4_ROOT-build
-cmake ../$G4_ROOT -DGEANT4_USE_GDML=ON -DGEANT4_USE_QT=OFF -DCMAKE_INSTALL_PREFIX=$HOME/apps/$G4_ROOT-install -DGEANT4_INSTALL_DATA=ON -DGEANT4_INSTALL_DATA_TIMEOUT=7200
+cmake ../$G4_ROOT -DGEANT4_USE_GDML=ON -DGEANT4_USE_QT=OFF -DCMAKE_INSTALL_PREFIX=$HOME/apps/$G4_ROOT-install -DGEANT4_INSTALL_DATA=ON -DGEANT4_INSTALL_DATA_TIMEOUT=7200 -DCMAKE_CXX_STANDARD=17
 make -j30
 make install
 cd $WP

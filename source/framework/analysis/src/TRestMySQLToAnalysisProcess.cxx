@@ -157,7 +157,14 @@ void TRestMySQLToAnalysisProcess::InitProcess() {
 /// \brief Function to initialize input/output event members and define the
 /// section name and library version
 ///
-void TRestMySQLToAnalysisProcess::Initialize() { SetSectionName(this->ClassName()); }
+void TRestMySQLToAnalysisProcess::Initialize() {
+    SetSectionName(this->ClassName());
+
+#ifndef USE_SQL
+    RESTWarning << "TRestMySQLToAnalysisProcess. REST was compiled without mySQL support" << RESTendl;
+    RESTWarning << "This process will not be funcional" << RESTendl;
+#endif
+}
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function

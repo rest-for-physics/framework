@@ -168,7 +168,9 @@ void TRestEvent::RestartPad(Int_t nElements) {
     fPad->Draw();
 }
 
-void TRestEvent::InitializeWithMetadata(TRestRun* r) { Initialize(); }
+void TRestEvent::InitializeWithMetadata(TRestRun* run) { Initialize(); }
+
+void TRestEvent::InitializeReferences(TRestRun* run) { fRun = run; }
 
 //////////////////////////////////////////////////////////////////////////
 /// Run to print event data info on console
@@ -177,15 +179,13 @@ void TRestEvent::InitializeWithMetadata(TRestRun* r) { Initialize(); }
 /// by calling TRestEvent::PrintEvent();
 ///
 void TRestEvent::PrintEvent() const {
-    cout << "*******************************************************" << endl;
-    cout << " EVENT ID : " << GetID() << endl;
-    cout << " TIME : " << GetTimeStamp().AsString() << endl;
-    cout << " SUB-EVENT ID : " << GetSubID();
-    if (fSubEventTag != "") cout << "   SUB-EVENT TAG : \"" << fSubEventTag << "\"";
     cout << endl;
-    if (fOk)
-        cout << " Status : OK" << endl;
-    else
-        cout << " Status : NOT OK" << endl;
-    cout << "*******************************************************" << endl;
+    cout << TString::Format("EventID: %d - SubEventID: %d", fEventID, fSubEventID).Data() << endl;
+    cout << TString::Format("- Timestamp: %s", fEventTime.AsString()) << endl;
+    if (!fSubEventTag.IsNull()) {
+        cout << "- Tag: " << fSubEventTag << endl;
+    }
+    if (!fOk) {
+        cout << "- Status not OK" << endl;
+    }
 }

@@ -37,8 +37,6 @@
 #include "unistd.h"
 #endif  // !WIN32
 
-
-
 std::mutex mutex_write;
 
 using namespace std;
@@ -689,8 +687,7 @@ void TRestProcessRunner::PauseMenu() {
             fProcStatus = kNormal;
             RESTInfo << "Continue processing..." << RESTendl;
 
-#endif // WIN32
-
+#endif  // WIN32
 
             break;
         } else if (b == 'n') {
@@ -946,8 +943,8 @@ void TRestProcessRunner::ConfigOutputFile() {
 #endif
     // write tree
     fOutputDataFile->cd();
-    if (fEventTree != nullptr) fEventTree->Write(0, kWriteDelete);
-    if (fAnalysisTree != nullptr) fAnalysisTree->Write(0, kWriteDelete);
+    if (fEventTree != nullptr) fEventTree->Write(nullptr, kOverwrite);
+    if (fAnalysisTree != nullptr) fAnalysisTree->Write(nullptr, kOverwrite);
 
     // go back to the first file
     if (fOutputDataFile->GetName() != fOutputDataFileName) {
@@ -965,11 +962,11 @@ void TRestProcessRunner::WriteMetadata() {
     char tmpString[256];
     if (fRunInfo->GetFileProcess() != nullptr) {
         // sprintf(tmpString, "Process-%d. %s", 0, fRunInfo->GetFileProcess()->GetName());
-        fRunInfo->GetFileProcess()->Write(0, kWriteDelete);
+        fRunInfo->GetFileProcess()->Write(nullptr, kOverwrite);
     }
     for (int i = 0; i < fProcessNumber; i++) {
         // sprintf(tmpString, "Process-%d. %s", i + 1, fThreads[0]->GetProcess(i)->GetName());
-        fThreads[0]->GetProcess(i)->Write(0, kWriteDelete);
+        fThreads[0]->GetProcess(i)->Write(nullptr, kOverwrite);
     }
 }
 
@@ -1019,6 +1016,7 @@ TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type, TiXmlEle
     TRestEventProcess* pc = REST_Reflection::Assembly((string)type);
     if (pc == nullptr) return nullptr;
 
+    pc->SetConfigFile(fConfigFileName);
     pc->SetRunInfo(this->fRunInfo);
     pc->SetHostmgr(fHostmgr);
     pc->SetObservableValidation(fValidateObservables);

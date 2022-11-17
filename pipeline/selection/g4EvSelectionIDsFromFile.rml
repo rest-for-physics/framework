@@ -3,32 +3,34 @@
 
 <TRestManager name="RESTManagerSim" title="Template manager to select events from file.">
 
-  <globals>
-    <parameter name="verboseLevel" value="essential" /> <!--options are : silent(0), essential(1), info(2), debug(3), extreme(4)-->
-    <parameter name="inputFileName" value=""/>
-    <searchPath value="$ENV{REST_INPUTDATA}/definitions/"/>
-  </globals>
+    <globals>
+        <parameter name="verboseLevel"
+                   value="essential"/> <!--options are : silent(0), essential(1), info(2), debug(3), extreme(4)-->
+        <parameter name="inputFileName" value=""/>
+        <searchPath value="$ENV{REST_INPUTDATA}/definitions/"/>
+    </globals>
 
-  <TRestRun name="Run metadata" title="REST Metadata run info (template)" verboseLevel="info">
-    <parameter name="experimentName" value="Test"/>
-    <parameter name="runType" value="simulation"/>
-    <parameter name="runNumber" value="-1"/> 
-    <parameter name="runTag" value="preserve"/>
-    <parameter name="runDescription" value=""/>
-    <parameter name="user" value="${USER}"/>
-    <parameter name="verboseLevel" value="2"/>
-    <parameter name="outputFileName" value="Run00001_NLDBD_Test_EvSelectionIDsFromFile.root" />
-  </TRestRun>
+    <TRestRun name="Run metadata" title="REST Metadata run info (template)" verboseLevel="info">
+        <parameter name="experimentName" value="Test"/>
+        <parameter name="runType" value="simulation"/>
+        <parameter name="runNumber" value="-1"/>
+        <parameter name="runTag" value="preserve"/>
+        <parameter name="runDescription" value=""/>
+        <parameter name="user" value="${USER}"/>
+        <parameter name="verboseLevel" value="2"/>
+        <parameter name="outputFileName" value="Run00001_NLDBD_Test_EvSelectionIDsFromFile.root"/>
+    </TRestRun>
 
 
-  <TRestProcessRunner name="TemplateEventProcess" verboseLevel="info">
-    <parameter name="eventsToProcess" value="0" />
- 
-    
-    <addProcess type="TRestEventSelectionProcess" name="evSelection" fileWithIDs="IDs.txt" value="ON"  verboseLevel="info"/>
+    <TRestProcessRunner name="TemplateEventProcess" verboseLevel="info">
+        <parameter name="eventsToProcess" value="0"/>
 
-  </TRestProcessRunner>
-  
-  <addTask type="processEvents" value="ON" />
+
+        <addProcess type="TRestEventSelectionProcess" name="evSelection" fileWithIDs="IDs.txt" value="ON"
+                    verboseLevel="info"/>
+
+    </TRestProcessRunner>
+
+    <addTask type="processEvents" value="ON"/>
 
 </TRestManager>
