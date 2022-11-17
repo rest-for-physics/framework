@@ -58,8 +58,9 @@
 ///
 /// History of developments:
 ///
-/// 2021-Jun:  First implementation
+/// 2022-Nov:  First implementation
 ///		Konrad Altenmüller
+///
 ///
 /// <hr>
 //////////////////////////////////////////////////////////////////////////
@@ -103,8 +104,8 @@ TRestMapGroup::~TRestMapGroup() {}
 /// \brief Construct map from RML input
 ///
 std::map<std::string, std::string> TRestMapGroup::ConstructMap() {
-    for (unsigned int i = 0; i < fGroupKeys.size(); ++i) {
-        fMapGroup[fGroupKeys[i]] = fGroupValues[i];
+    for (unsigned int i = 0; i < fMapKeys.size(); ++i) {
+        fMapGroup[fMapKeys[i]] = fMapValues[i];
     }
     return fMapGroup;
 }
@@ -121,8 +122,8 @@ void TRestMapGroup::InitFromConfigFile() {
     TiXmlElement* groupDefinition = GetElement("MapGroup");
 
     while (groupDefinition != NULL) {
-        fGroupKeys.push_back(GetFieldValue("key", groupDefinition));
-        fGroupValues.push_back(GetFieldValue("value", groupDefinition));
+        fMapKeys.push_back(GetFieldValue("key", groupDefinition));
+        fMapValues.push_back(GetFieldValue("value", groupDefinition));
         groupDefinition = GetNextElement(groupDefinition);
     }
 }
@@ -138,8 +139,8 @@ void TRestMapGroup::PrintMetadata() {
         RESTMetadata << i->first << " => " << i->second << RESTendl;
     }
     RESTMetadata << "Input values from RML file: " << RESTendl;
-    for (unsigned int i = 0; i < fGroupKeys.size(); i++) {
-        RESTMetadata << "key = " << fGroupKeys[i] << "; value = " << fGroupValues[i] << RESTendl;
+    for (unsigned int i = 0; i < fMapKeys.size(); i++) {
+        RESTMetadata << "key = " << fMapKeys[i] << "; value = " << fMapValues[i] << RESTendl;
     }
 
     RESTMetadata << RESTendl;

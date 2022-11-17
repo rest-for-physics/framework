@@ -29,9 +29,9 @@
 class TRestMapGroup : public TRestMetadata {
    protected:
     /// Vector of map keys from the RML
-    std::vector<std::string> fGroupKeys;
+    std::vector<std::string> fMapKeys;
     /// Vector of map values from the RML
-    std::vector<std::string> fGroupValues;
+    std::vector<std::string> fMapValues;
     /// The map
     std::map<std::string, std::string> fMapGroup;
 
