@@ -50,7 +50,7 @@ class TRestSpiderMask : public TRestPatternMask {
    public:
     void GenerateSpider();
 
-    virtual Int_t GetRegion(Double_t x, Double_t y) override;
+    virtual Int_t GetRegion(Double_t& x, Double_t& y) override;
 
     /// It returns the gap/periodicity of the spider structure arms in radians
     Double_t GetArmsSeparationAngle() { return fArmsSeparationAngle; }

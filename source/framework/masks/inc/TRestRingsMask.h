@@ -48,7 +48,7 @@ class TRestRingsMask : public TRestPatternMask {
    public:
     void GenerateRings();
 
-    virtual Int_t GetRegion(Double_t x, Double_t y) override;
+    virtual Int_t GetRegion(Double_t& x, Double_t& y) override;
 
     /// It returns the gap/periodicity of the rings in mm
     Double_t GetRingsGap() { return fRingsGap; }

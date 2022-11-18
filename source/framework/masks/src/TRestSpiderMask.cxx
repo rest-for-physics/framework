@@ -170,7 +170,7 @@ void TRestSpiderMask::Initialize() {
 /// The particle will be counter-rotated to emulate the mask rotation
 /// using the method TRestPatternMask::ApplyCommonMaskTransformation
 ///
-Int_t TRestSpiderMask::GetRegion(Double_t x, Double_t y) {
+Int_t TRestSpiderMask::GetRegion(Double_t& x, Double_t& y) {
     if (TRestPatternMask::GetRegion(x, y)) return 0;
 
     Double_t d = TMath::Sqrt(x * x + y * y);
