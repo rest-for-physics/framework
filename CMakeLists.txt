@@ -136,11 +136,10 @@ if (${REST_MPFR} MATCHES "ON")
     find_path(MPFR_INCLUDE mpfr.h HINTS ${MPFR_PATH} ${MPFR_PATH}/include) # path to include directory
     find_path(MPFR_LIB_PATH libmpfr.so HINTS ${MPFR_PATH} ${MPFR_PATH}/lib)
     find_library(MPFR_LIB mpfr HINTS ${MPFR_PATH} ${MPFR_PATH}/lib) # path to .so file
-	add_definitions(-DUSE_MPFR)
+    add_compile_definitions(USE_MPFR)
     if (NOT MPFR_INCLUDE MATCHES "MPFR_INCLUDE-NOTFOUND" AND NOT MPFR_LIB MATCHES "MPFR_LIB-NOTFOUND")
         # MPFR is found
         list(APPEND rest_features "MPFR")
-        add_compile_definitions(USE_MPFR)
         set(external_include_dirs ${external_include_dirs} ${MPFR_INCLUDE})
         set(external_libs "${external_libs};${MPFR_LIB}")
         link_directories(${MPFR_LIB})
