@@ -69,6 +69,6 @@ class TRestSpiderMask : public TRestPatternMask {
     TRestSpiderMask(const char* cfgFileName, std::string name = "");
     ~TRestSpiderMask();
 
-    ClassDefOverride(TRestSpiderMask, 1);
+    ClassDefOverride(TRestSpiderMask, 2);
 };
 #endif
