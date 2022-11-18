@@ -49,7 +49,6 @@ export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH
     set(Garfield_INCLUDE_ENV ":$ENV{GARFIELD_INSTALL}/include")
 endif ()
 
-message(STATUS "PYTHON BINDINGS: ${PYTHON_BINDINGS_INSTALL_DIR}")
 # install thisREST script, sh VERSION
 install(CODE
         "

@@ -38,7 +38,7 @@
 /// files or previously `stored` TRestMetadata structures stored in a
 ///  ROOT file.
 ///
-/// ### RML file structure
+/// \section metadata_rml RML file structure
 ///
 /// A class deriving from TRestMetadata can retrieve information from a plain
 /// text configuration file (or RML file). The syntaxis in an RML file is
@@ -75,7 +75,7 @@
 /// "include", "for", "variable" and "constant" is reserved for the software.
 /// They works differently than others, which we will talk later.
 ///
-/// ### Sequencial start up procedure of a metadata class
+/// \section metadata_start Sequencial start up procedure of a metadata class
 ///
 /// The rml file is designed to start up/instruct all the metadata classes.
 /// Usually we implement the method Initialize() and calls it in the constructor
@@ -188,29 +188,28 @@
 /// \endcode
 ///
 ///
-/// ### Replacement of variables and expressions
+/// \section metadata_replace Replacement of variables and expressions
 ///
 /// By default, LoadConfigFromFile() will look into only the first-level child sections
-/// of both global and sectional section. if the section's value is either
+/// of both global and sectional section. If the section value is either
 /// "variable" or "constant", the class will keep them for replacement.
 ///
 /// \code
+///   <global>
+///       <variable name = "CHANNELS" value = "64" overwrite = "false" / >
+///       //this variable can be loaded by both
+///   </global>
 ///
 ///   <TRestRun name="userGivenName" title="User given title" >
-///       <variable name="nChannels" value="${CHANNELS}" /> //this variable
+///       <constant name="nChannels" value="${CHANNELS}" /> //this variable
 ///       will be added to the class "TRestDetectorReadout"
 ///
 ///       <TRestDetectorReadout name="aaaa" >
 ///           <variable .... / > //this variable cannot be loaded by the class
 ///           "TRestDetectorReadout"
 ///       </TRestDetectorReadout>
-///       <parameter name="Ch" value="nChannels+{CHANNELS}-2" />
+///       <parameter name="Ch" value="nChannels+${CHANNELS}-2" />
 ///   </TRestRun>
-///
-///   <global>
-///       <variable name = "CHANNELS" value = "64" overwrite = "false" / >
-///       //this variable can be loaded by both
-///   </global>
 ///
 /// \endcode
 ///
@@ -219,17 +218,18 @@
 ///
 /// 1. recognize the strings surrounded by "${}". Seek and replace in system
 /// env first. If not found, replace with variable/constant.
-/// 2. directly replace the strings matching the name of variable/constant
-/// by their value.
+/// 2. directly replace the strings matching the name of constant by their value.
 ///
 /// After replacement, LoadConfigFromFile() will call TFormula to evaluate the
 /// string if it is identified as an math expression.
 ///
 /// The result string of the field value is either a number string or a string
-/// with concrete content. In the exapmle code above, the section declared with
-/// "parameter" will have its field value reset to string 126.
+/// with concrete content. In the example code above, the section declared with
+/// `parameter` will have its field value reset to string 126.
 ///
-/// ### Including external RML files in a main RML file
+/// See also the section \ref metadata_globals.
+///
+/// \section metadata_external Including external RML files in a main RML file
 ///
 /// It is possible to link to other files in any section.
 /// There are two include modes:
@@ -252,7 +252,7 @@
 /// If the target file is a root file, there will be a different way to load,
 /// see TRestRun::ImportMetadata()
 ///
-/// ### For loop definition
+/// \section metadata_loop For loop definition
 ///
 /// The definition of FOR loops is implemented in RML in order to allow extense
 /// definitions, where many elements may need to be added to an existing array
@@ -295,7 +295,7 @@
 /// in each section. The second for loop definition will be expanded to 7 <TRestAnalysisPlot
 /// sections with nMod be valued 0,2,3,4,6,8,9 respectivelly.
 ///
-/// ### If definition
+/// \section metadata_if If definition
 ///
 /// It is supported in rml to use <if structure. If the condition matches, the inner
 /// sections of <if section will be expaned to and seen by the parent section.
@@ -326,32 +326,48 @@
 /// are not numbers, REST will perform string comparasion. The ordering is according to the alphabet.
 /// A common misleading fact is that "1235">"12345", rather than 1235<12345 as number.
 ///
-/// ### The globals section
+/// \section metadata_globals The globals section
 ///
-/// The *globals* section allows to specify few common definitions used in the
-/// REST framework. This section will maintain the same and will be passed
-/// though the whole sequencial startup procedure. If a section is to be used
-/// many times by different classes, it is better to put it in the global
-/// section.
+/// The *globals* section allows to specify common definitions that can be used by any other metadata or
+/// process definitions found in the same RML. We may define a parameter (such as the `sampling` rate of
+/// electronics) which is usually common to different rawsignal processes. Or we can define a
+/// particular value is to be used many times by different classes, it is better to create a `constant`
+/// or `variable` inside the `globals` section.
+///
+/// Possible key values included in this section are:
+/// - **searchPath**: It will be used by TRestMetadata::SearchFile to find the full path to a specific
+/// file. The paths defined this way will have priority over those defined internally inside REST. The
+/// method TRestMetadata::GetSearchPath returns the paths with the corresponding priority.
+///
+/// - **parameter**: It will be used as a metadata parameter by other metadata/process definitions. If
+/// a given metadata or process does not define that parameter, then this will be just ignored.
+///
+/// - **variable**: It defines an internal variable which will be used in the same way as an system
+/// environmental variable. Thus, when using it in other parts of the RML we must use the `${}` specifier.
+///
+/// - **constant**: It works the same way as a variable but we do not need to use the `${}` specifier.
 ///
 /// \code
 ///	<globals>
 ///		<searchPath value = "$ENV{REST_INPUTDATA}/definitions/" />
-///		<parameter name = "outputLevel" value = "internalvar" />
-///		<parameter name = "verboseLevel" value = "essential" />
-///		<parameter name = "inputFile" value = "${REST_INPUTFILE}" />
-///		<parameter name = "inputFormat" value =
-///"run[RunNumber]_file[Fragment]_[Time-d]_[Time].graw" /> 		<parameter
-/// name = "outputFile" value = "RUN[RunNumber]_[Time]_[LastProcess].root" />
-///< parameter name = "mainDataPath" value = "" />
+///		<parameter name="verboseLevel" value="info" />
+///		<parameter name="mainDataPath" value="" />
+/// 	<parameter name="sampling" value="5us" />
+///
+/// 	<variable name="DetectorPosZ" value="${SYSTEM_POSITION_Z}" />
+/// 	<variable name="field" value="5" /> // V/cm
+/// 	<constant name="OpticsPosZ" value="3" />
 ///	</globals>
 /// \endcode
 ///
-/// The global section will have effect on *all the metadata structures* (or
-/// sections) that are defined in a same RML file. It does not affect to other
-/// possible linked sections defined by reference using for example nameref.
 ///
-/// ### Universal file search path
+/// The global section will have effect on *all the metadata structures* (or sections) that are defined
+/// in a same RML file. It does not affect to other possible linked sections defined by reference using
+/// for example nameref.
+///
+/// See also the section \ref metadata_replace.
+///
+/// \section metadata_search Universal file search path
 ///
 /// Some times we don't want to write a long full path to specify files,
 /// especially when multiple files are in a same remote directory. REST provides
@@ -369,7 +385,7 @@
 /// Include definition has already adopted this search strategy. Child classes
 /// can also take advantage of it.
 ///
-/// ### Default fields for a section
+/// \section metadata_default Default fields for a section
 ///
 /// Three fields in the first line of an xml section will be looked for before
 /// anything else. They are: name, title, and verboseLevel. If not specified,
@@ -388,7 +404,7 @@
 /// \endcode
 ///
 ///
-/// ### Using physical units in fields definitions
+/// \section metadata_units Using physical units in fields definitions
 ///
 /// Some physical parameters are need to specify the unit so that the provided
 /// value makes sense. For example, when defining the electric field we must
@@ -412,7 +428,7 @@
 /// \endcode
 ///
 ///
-/// ### Other usefule public tools
+/// \section metadata_other Other useful public tools
 ///
 /// GetParameter(), GetElement(), GetElementWithName(), SearchFile(). Details
 /// are shown in the function's document
@@ -2359,6 +2375,7 @@ TString TRestMetadata::GetVerboseLevelString() {
 /// paths. To separate them, use inline method Split() provided by
 /// TRestStringHelper. Uniformed search path definition provides us uniformed
 /// file search tool, see TRestMetadata::SearchFile().
+///
 TString TRestMetadata::GetSearchPath() {
     string result = "";
 
