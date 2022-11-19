@@ -15,8 +15,9 @@ string(REGEX REPLACE "\n$" "" GEANT4_PATH "${GEANT4_PATH}")
 get_filename_component(GEANT4_BIN_DIR "${GEANT4_PATH}/bin/" REALPATH)
 
 if (${REST_G4} MATCHES "ON")
-    set(loadG4 "\# if geant4.sh script is found we load the same Geant4 version as used in compilation\nif [[ -f \\\"${thisGeant4}\\\" ]]; then
-    source ${thisGeant4}\nfi\n")
+    # https://github.com/rest-for-physics/framework/issues/331
+    set(loadG4 "\# if geant4.sh script is found we load the same Geant4 version as used in compilation\nif [[ -f \\\"${GEANT4_BIN_DIR}/geant4.sh\\\" ]]; then
+    [[ -n \\\"\\\${ZSH_VERSION}\\\" ]] && pushd ${GEANT4_BIN_DIR} > /dev/null\n    source ${GEANT4_BIN_DIR}/geant4.sh\n    [[ -n \\\"\\\${ZSH_VERSION}\\\" ]] && popd > /dev/null\nfi\n")
 else ()
     set(loadG4 "")
 endif (${REST_G4} MATCHES "ON")
