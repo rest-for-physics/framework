@@ -12,7 +12,7 @@ execute_process(COMMAND geant4-config --prefix
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
         OUTPUT_VARIABLE GEANT4_PATH)
 string(REGEX REPLACE "\n$" "" GEANT4_PATH "${GEANT4_PATH}")
-set(thisGeant4 "${GEANT4_PATH}/bin/geant4.sh")
+get_filename_component(GEANT4_BIN_DIR "${GEANT4_PATH}/bin/" REALPATH)
 
 if (${REST_G4} MATCHES "ON")
     set(loadG4 "\# if geant4.sh script is found we load the same Geant4 version as used in compilation\nif [[ -f \\\"${thisGeant4}\\\" ]]; then
