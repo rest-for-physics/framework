@@ -40,7 +40,7 @@ class TRestStrippedMask : public TRestPatternMask {
     Int_t fModulus = 10;
 
    public:
-    virtual Int_t GetRegion(Double_t x, Double_t y) override;
+    virtual Int_t GetRegion(Double_t& x, Double_t& y) override;
 
     /// It returns the gap/periodicity of the strips in mm
     Double_t GetStripsGap() { return fStripsGap; }
