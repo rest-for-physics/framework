@@ -174,15 +174,16 @@ void TRestBrowser::SetLeftPanelButtons() {
 
     auto switchButtonBar = new TGHorizontalFrame(fVFrame);
     {
-        fButOptPrev = new TGTextButton(switchButtonBar, "--");  ///< Load Event button
+        fButOptPrev = new TGPictureButton(switchButtonBar, gClient->GetPicture("bld_undo.png"));
         fButOptPrev->Connect("Clicked()", "TRestBrowser", this, "PreviousPlotOptionAction()");
         switchButtonBar->AddFrame(fButOptPrev, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
-        fButOptRefresh = new TGTextButton(switchButtonBar, "Plot");  ///< Load Event button
+        fButOptRefresh = new TGTextButton(switchButtonBar, "Plot");
         fButOptRefresh->Connect("Clicked()", "TRestBrowser", this, "PlotAction()");
         switchButtonBar->AddFrame(fButOptRefresh, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
-        fButOptNext = new TGTextButton(switchButtonBar, "++");  ///< Load Event button
+        fButOptNext = new TGPictureButton(switchButtonBar, gClient->GetPicture("bld_redo.png"));
+
         fButOptNext->Connect("Clicked()", "TRestBrowser", this, "NextPlotOptionAction()");
         switchButtonBar->AddFrame(fButOptNext, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
     }
@@ -193,7 +194,8 @@ void TRestBrowser::SetLeftPanelButtons() {
     fMenuOpen->Connect("Clicked()", "TRestBrowser", this, "LoadFileAction()");
     fVFrame->AddFrame(fMenuOpen, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
-    fExit = new TGTextButton(fVFrame, "EXIT");  ///< Exit button
+    fExit = new TGPictureButton(fVFrame, gClient->GetPicture("bld_exit.png"));
+
     fExit->Connect("Clicked()", "TRestBrowser", this, "ExitAction()");
     fVFrame->AddFrame(fExit, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
@@ -217,17 +219,17 @@ void TRestBrowser::SetBottomPanelButtons() {
     fSelectionTextBox = new TGTextEntry(fHFrame, "");
     fHFrame->AddFrame(fSelectionTextBox, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
-    auto bottonsbar = new TGHorizontalFrame(fHFrame);
+    auto bottomBar = new TGHorizontalFrame(fHFrame);
     {
-        fButEveNext = new TGTextButton(bottonsbar, "Previous Event");  ///< Exit button
+        fButEveNext = new TGTextButton(bottomBar, "Previous Event");  ///< Exit button
         fButEveNext->Connect("Clicked()", "TRestBrowser", this, "PreviousEventAction()");
-        bottonsbar->AddFrame(fButEveNext, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+        bottomBar->AddFrame(fButEveNext, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
-        fButEvePrev = new TGTextButton(bottonsbar, "Next Event");  ///< Exit button
+        fButEvePrev = new TGTextButton(bottomBar, "Next Event");  ///< Exit button
         fButEvePrev->Connect("Clicked()", "TRestBrowser", this, "NextEventAction()");
-        bottonsbar->AddFrame(fButEvePrev, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+        bottomBar->AddFrame(fButEvePrev, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
     }
-    fHFrame->AddFrame(bottonsbar, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+    fHFrame->AddFrame(bottomBar, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
     frmBot->AddFrame(fHFrame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
     frmBot->MapSubwindows();
@@ -378,7 +380,7 @@ Bool_t TRestBrowser::OpenFile(const TString& filename) {
 
 void TRestBrowser::NextPlotOptionAction() {
     string text = fPlotOptionTextBox->GetText();
-    if (text == "") {
+    if (text.empty()) {
         text = "0";
     } else if (isANumber(text)) {
         text = ToString(StringToInteger(text) + 1);
@@ -390,7 +392,7 @@ void TRestBrowser::NextPlotOptionAction() {
 
 void TRestBrowser::PreviousPlotOptionAction() {
     string text = fPlotOptionTextBox->GetText();
-    if (text == "") {
+    if (text.empty()) {
         text = "0";
     } else if (isANumber(text)) {
         text = ToString(StringToInteger(text) - 1);
@@ -452,7 +454,7 @@ void TRestBrowser::IdValueChangedAction(Long_t val) {
 
 void TRestBrowser::NextEventAction() {
     string sel = (string)fSelectionTextBox->GetText();
-    if (sel == "") {
+    if (sel.empty()) {
         fEventRow++;
         LoadEventEntry(fEventRow);
     } else {
@@ -460,7 +462,7 @@ void TRestBrowser::NextEventAction() {
         TTreeFormula formula("Selection", sel.c_str(), tree);
         if (formula.GetNdim() > 0) {  // valid expression
             fEventRow++;
-            while (1) {
+            while (true) {
                 tree->GetEntry(fEventRow);
                 if (formula.EvalInstance(fEventRow) == 1) {
                     LoadEventEntry(fEventRow);
@@ -482,7 +484,7 @@ void TRestBrowser::NextEventAction() {
 
 void TRestBrowser::PreviousEventAction() {
     string sel = (string)fSelectionTextBox->GetText();
-    if (sel == "") {
+    if (sel.empty()) {
         fEventRow--;
         LoadEventEntry(fEventRow);
     } else {
@@ -490,7 +492,7 @@ void TRestBrowser::PreviousEventAction() {
         TTreeFormula formula("Selection", sel.c_str(), tree);
         if (formula.GetNdim() > 0) {  // valid expression
             fEventRow--;
-            while (1) {
+            while (true) {
                 tree->GetEntry(fEventRow);
                 if (formula.EvalInstance(fEventRow) == 1) {
                     LoadEventEntry(fEventRow);

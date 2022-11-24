@@ -41,12 +41,12 @@ class TRestBrowser {
 
     TGLabel* fPlotOptionLabel = nullptr;        //!
     TGTextEntry* fPlotOptionTextBox = nullptr;  //! TextBox for plot options
-    TGTextButton* fButOptPrev = nullptr;        //! Previous plot option
+    TGPictureButton* fButOptPrev = nullptr;     //! Previous plot option
     TGTextButton* fButOptRefresh = nullptr;     //! Refresh plot
-    TGTextButton* fButOptNext = nullptr;        //! Next plot option
+    TGPictureButton* fButOptNext = nullptr;     //! Next plot option
 
     TGPictureButton* fMenuOpen = nullptr;  //! Open file button
-    TGTextButton* fExit = nullptr;         //! Exit button
+    TGPictureButton* fExit = nullptr;      //! Exit button
 
     // Frames and buttons on bottom
     TGVerticalFrame* fHFrame = nullptr;         //!
@@ -82,7 +82,7 @@ class TRestBrowser {
    public:
     // tool method
     void Initialize(const TString& opt = "FI");
-    void InitFromConfigFile();
+    static void InitFromConfigFile();
     Bool_t OpenFile(const TString& filename);
 
     // setters
@@ -94,7 +94,7 @@ class TRestBrowser {
 
     // actions
     void LoadFileAction();
-    void ExitAction();
+    static void ExitAction();
 
     void RowValueChangedAction(Long_t val);
     void IdValueChangedAction(Long_t val);
