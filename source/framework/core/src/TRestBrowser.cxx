@@ -120,8 +120,6 @@ void TRestBrowser::SetViewer(const TString& viewerName) {
 }
 
 void TRestBrowser::SetLeftPanelButtons() {
-    TString icondir = (TString)getenv("ROOTSYS") + "/icons/";
-
     fVFrame = new TGVerticalFrame(frmMain);
     fVFrame->Resize(300, 200);
 
