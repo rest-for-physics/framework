@@ -191,7 +191,7 @@ void TRestBrowser::SetLeftPanelButtons() {
     fVFrame->AddFrame(switchButtonBar, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
     // tool buttons
-    fMenuOpen = new TGPictureButton(fVFrame, gClient->GetPicture(icondir + "bld_open.png"));
+    fMenuOpen = new TGPictureButton(fVFrame, gClient->GetPicture("bld_open.png"));
     fMenuOpen->Connect("Clicked()", "TRestBrowser", this, "LoadFileAction()");
     fVFrame->AddFrame(fMenuOpen, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
