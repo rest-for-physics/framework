@@ -163,6 +163,7 @@ bool TRestThread::TestRun() {
 
             fProcessChain[j]->BeginOfEventProcess(ProcessedEvent);
             ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
+            if (fProcessChain[j]->ApplyCut()) ProcessedEvent = nullptr;
             // if the output of ProcessEvent() is NULL we assume the event is cut.
             // we try to use GetOutputEvent()
             if (ProcessedEvent == nullptr) {
