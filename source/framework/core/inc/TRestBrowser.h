@@ -1,24 +1,24 @@
 #ifndef RestCore_TRestBrowser
 #define RestCore_TRestBrowser
 
-#include <iostream>
+#include <TApplication.h>
+#include <TBrowser.h>
+#include <TCanvas.h>
+#include <TGButton.h>
+#include <TGComboBox.h>
+#include <TGDimension.h>
+#include <TGFileDialog.h>
+#include <TGFrame.h>
+#include <TGLabel.h>
+#include <TGNumberEntry.h>
+#include <TGTextEntry.h>
+#include <TObject.h>
+#include <TROOT.h>
+#include <TRestEventViewer.h>
+#include <TRestRun.h>
+#include <TSystem.h>
 
-#include "TApplication.h"
-#include "TBrowser.h"
-#include "TCanvas.h"
-#include "TGButton.h"
-#include "TGComboBox.h"
-#include "TGDimension.h"
-#include "TGFileDialog.h"
-#include "TGFrame.h"
-#include "TGLabel.h"
-#include "TGNumberEntry.h"
-#include "TGTextEntry.h"
-#include "TObject.h"
-#include "TROOT.h"
-#include "TRestEventViewer.h"
-#include "TRestRun.h"
-#include "TSystem.h"
+#include <iostream>
 
 /// Event browser for different input file
 class TRestBrowser {
