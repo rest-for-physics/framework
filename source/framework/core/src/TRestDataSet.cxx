@@ -90,7 +90,7 @@ TRestDataSet::TRestDataSet() { Initialize(); }
 TRestDataSet::TRestDataSet(const char* cfgFileName, std::string name) : TRestMetadata(cfgFileName) {
     LoadConfigFromFile(fConfigFileName, name);
 
-    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -160,8 +160,8 @@ std::vector<std::string> TRestDataSet::FileSelect() {
 void TRestDataSet::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << " - StartTime : " << fStartTime << endl;
-    metadata << " - EndTime : " << fEndTime << endl;
-    metadata << " - File pattern : " << fFilePattern << endl;
-    metadata << "----" << endl;
+    RESTMetadata << " - StartTime : " << fStartTime << RESTendl;
+    RESTMetadata << " - EndTime : " << fEndTime << RESTendl;
+    RESTMetadata << " - File pattern : " << fFilePattern << RESTendl;
+    RESTMetadata << "----" << RESTendl;
 }
