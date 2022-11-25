@@ -43,7 +43,7 @@ class TRestCombinedMask : public TRestPatternMask {
         return fMasks[0];
     }
 
-    Int_t GetRegion(Double_t x, Double_t y) override;
+    Int_t GetRegion(Double_t& x, Double_t& y) override;
 
     void InitFromConfigFile() override;
 

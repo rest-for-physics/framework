@@ -165,8 +165,8 @@ void TRestRingsMask::Initialize() {
 /// The particle will be counter-rotated to emulate the mask rotation
 /// using the method TRestPatternMask::RotateAndTranslate.
 ///
-Int_t TRestRingsMask::GetRegion(Double_t x, Double_t y) {
-    if (ApplyCommonMaskTransformation(x, y) == 0) return 0;
+Int_t TRestRingsMask::GetRegion(Double_t& x, Double_t& y) {
+    if (TRestPatternMask::GetRegion(x, y)) return 0;
 
     Double_t r = TMath::Sqrt(x * x + y * y);
     int cont = 0;

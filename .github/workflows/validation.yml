@@ -14,6 +14,10 @@ on:
   # Allows you to run this workflow from submodules
   workflow_call:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   CMAKE_BUILD_TYPE: Release
   REST_PATH: /rest/framework/install
@@ -35,7 +39,7 @@ jobs:
       - name: Build and install
         uses: rest-for-physics/framework/.github/actions/build@master
         with:
-          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON -DTEST=ON"
+          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON -DREST_MPFR=ON -DTEST=ON"
           branch: ${{ env.BRANCH_NAME }}
           build-path: build
       - name: Test
@@ -54,7 +58,7 @@ jobs:
       - name: Build and install
         uses: rest-for-physics/framework/.github/actions/build@master
         with:
-          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
+          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON -DREST_MPFR=ON"
           branch: ${{ env.BRANCH_NAME }}
       - name: Test REST
         run: |
@@ -98,6 +102,52 @@ jobs:
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/fileopening
           restManager PrintTrees v2.2.30_hits.root
+
+  macros-health:
+    name: "Macros with clean error output"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    needs: [ framework-install ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: rest-for-physics/framework
+          path: framework
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: framework-install-cache
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      - name: Load restRootMacros
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cat ${{ env.REST_PATH }}/thisREST.sh
+          echo ${{ env.ROOT_INCLUDE_PATH}}
+          echo $ROOT_INCLUDE_PATH
+          cd framework/pipeline
+          export DISPLAY=localhost:0.0
+          echo "Running validation script"
+          python3 validateMacros.py
+
+  pyroot:
+    name: "PyROOT"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    needs: [ framework-install ]
+    steps:
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: framework-install-cache
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      - name: Test REST classes in PyROOT
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          python3 -c """import ROOT;import REST;ROOT.TRestRun();ROOT.TRestGeant4Event()"""
 
   metadata:
     name: "Metadata"
@@ -178,17 +228,28 @@ jobs:
           cd framework/pipeline/pandaxiii_MC
           restG4 ${{ env.REST_PATH }}/examples/restG4/05.PandaXIII/Xe136bb0n.rml -o Xe136bb0n.root
           restRoot -b -q ${{ env.REST_PATH }}/examples/restG4/05.PandaXIII/Validate.C'("Xe136bb0n.root")'
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: Xe136bb
-          path: framework/pipeline/pandaxiii_MC/Xe136bb0n.root
-          retention-days: 1
+      #      - name: 02_PandaXiiiMC small for reference # We can use these artifacts to update the validation reference file
+      #        run: |
+      #          source ${{ env.REST_PATH }}/thisREST.sh
+      #          cd framework/pipeline/pandaxiii_MC
+      #          restG4 ${{ env.REST_PATH }}/examples/restG4/05.PandaXIII/Xe136bb0n.rml -o Xe136bb0n_small_reference_pipeline.root -n 5
+      #          restManager --c AllProcesses.rml --i Xe136bb0n_small_reference_pipeline.root --o Xe136bb0n_small_reference_processed_pipeline.root
+      #          restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_small_reference_processed_pipeline.root", "Xe136bb0n_validation_pipeline.root")'
+      #      - name: Upload Artifacts
+      #        uses: actions/upload-artifact@v3
+      #        with:
+      #          name: Xe136bb
+      #          path: |
+      #            framework/pipeline/pandaxiii_MC/Xe136bb0n.root
+      #            framework/pipeline/pandaxiii_MC/Xe136bb0n_small_reference_pipeline.root
+      #            framework/pipeline/pandaxiii_MC/Xe136bb0n_small_reference_processed_pipeline.root
+      #            framework/pipeline/pandaxiii_MC/Xe136bb0n_validation_pipeline.root
+      #          retention-days: 1
       - name: PandaXIII Topological
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
-          restManager --c AllProcesses.rml --i Xe136bb0n_small_reference.root --o Xe136bb0n_small_reference_processed.root --j 1 --e 10
+          restManager --c AllProcesses.rml --i Xe136bb0n_small_reference.root --o Xe136bb0n_small_reference_processed.root
           restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_small_reference_processed.root")'
           restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
           # restManager --c plots.rml --i Xe136bb0n_small_reference_processed.root
@@ -205,7 +266,7 @@ jobs:
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
           echo "using just-generated g4 file"
-          restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 10
+          restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 5
           restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_processed.root")'
           restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
       - name: Upload Artifacts
@@ -384,6 +445,10 @@ jobs:
         with:
           cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$GARFIELD_INSTALL -DREST_ALL_LIBS=ON -DREST_G4=ON -DREST_GARFIELD=ON"
           branch: ${{ env.BRANCH_NAME }}
+      - name: Use old materials for reference Geant4 version
+        run: |
+          cd ${{ env.REST_PATH }}
+          find . -name "*.gdml" | xargs sed -i 's/https:\/\/rest-for-physics.github.io\/materials\/rest.xml/https:\/\/rest-for-physics.github.io\/materials\/legacy\/v1.4\/rest.xml/g'
       - name: Test REST
         run: |
           printenv
@@ -436,7 +501,7 @@ jobs:
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
-          restManager --c AllProcesses.rml --i Xe136bb0n_small_reference.root --o Xe136bb0n_small_reference_processed.root --j 1 --e 10
+          restManager --c AllProcesses.rml --i Xe136bb0n_small_reference.root --o Xe136bb0n_small_reference_processed.root --j 1 --e 5
           restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_small_reference_processed.root")'
           restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
           # restManager --c plots.rml --i Xe136bb0n_small_reference_processed.root
@@ -445,9 +510,10 @@ jobs:
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
           echo "using just-generated g4 file"
-          restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 10
+          restManager --c AllProcesses.rml --i Xe136bb0n.root --o Xe136bb0n_processed.root --j 1 --e 5
           restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_processed.root")'
-          restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation_G4_v10.4.3.root")'
+          # TODO: regenerate reference file
+          # restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation_G4_v10.4.3.root")'
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:

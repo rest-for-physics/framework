@@ -36,8 +36,8 @@ class TRestPatternMask : public TRestMetadata {
     /// An angle (in radians) used to introduce a rotation to the pattern
     Double_t fRotationAngle = 0;  //<
 
-    /// The pattern type (Stripped/Grid/Spider/Rings)
-    std::string fPatternType = "";  //<
+    /// The pattern type (None/Stripped/Grid/Spider/Rings)
+    std::string fPatternType = "None";  //<
 
     /// A canvas for drawing
     TCanvas* fCanvas = nullptr;  //!
@@ -54,9 +54,6 @@ class TRestPatternMask : public TRestMetadata {
 
     Int_t ApplyCommonMaskTransformation(Double_t& x, Double_t& y);
 
-    TRestPatternMask();
-    TRestPatternMask(const char* cfgFileName, std::string name = "");
-
    public:
     Int_t GetMaxRegions() { return fMaxRegions; }
 
@@ -65,7 +62,10 @@ class TRestPatternMask : public TRestMetadata {
     Bool_t HitsPattern(Double_t x, Double_t y);
 
     /// To be implemented at the inherited class with the pattern and region identification logic
-    virtual Int_t GetRegion(Double_t x, Double_t y) = 0;
+    virtual Int_t GetRegion(Double_t& x, Double_t& y) {
+        if (ApplyCommonMaskTransformation(x, y) == 0) return 1;
+        return 0;
+    }
 
     /// It returns the mask pattern type
     std::string GetType() { return fPatternType; }
@@ -90,13 +90,15 @@ class TRestPatternMask : public TRestMetadata {
 
     void PrintCommonPatternMembers();
 
-    virtual void PrintMaskMembers() = 0;
-    virtual void PrintMask() = 0;
+    virtual void PrintMaskMembers() {}
+    virtual void PrintMask() { PrintCommonPatternMembers(); }
 
     void PrintMetadata() override;
 
     TCanvas* DrawMonteCarlo(Int_t nSamples = 10000);
 
+    TRestPatternMask();
+    TRestPatternMask(const char* cfgFileName, std::string name = "");
     ~TRestPatternMask();
 
     ClassDefOverride(TRestPatternMask, 1);
