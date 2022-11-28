@@ -19,7 +19,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(excludes TRestBenchMarkProcess TRestRealTimeAddInputFileProcess TRestRealTimeDrawingProcess TRestMessenger ${excludes})
 endif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
-set(external_libs "${external_libs};-lstdc++fs") # sometimes needed for <filesystem>
+# It is defined at the main CMakeLists.txt
+#set(external_libs "${external_libs};-lstdc++fs") # sometimes needed for <filesystem>
 
 
 COMPILEDIR(RestFramework)

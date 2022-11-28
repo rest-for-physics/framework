@@ -16,9 +16,10 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif ()
 
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-    SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-stdlib=libc++")
+    SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-fsanitize=address")
+else ()
+    SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-lstdc++fs")
 endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-lstdc++fs")
 
 # https://github.com/rest-for-physics/framework/issues/162 & https://github.com/rest-for-physics/framework/issues/236
 if (${CMAKE_VERSION} VERSION_LESS "3.23")
@@ -35,7 +36,9 @@ if (NOT DEFINED INSTALL_PREFIX)
 endif ()
 get_filename_component(INSTALL_PREFIX_ABSOLUTE ${INSTALL_PREFIX} ABSOLUTE BASE_DIR "${CMAKE_BINARY_DIR}")
 set(REST_PATH ${INSTALL_PREFIX_ABSOLUTE})
-if (NOT DEFINED CMAKE_INSTALL_PREFIX)
+if ( CMAKE_INSTALL_PREFIX STREQUAL "/usr/local" )
+    message(FATAL_ERROR "An install location has not been defined!  Please, define an installation directory using -DCMAKE_INSTALL_PREFIX. Do not use a system directory as installation path (such as /usr/local/). REST has not been designed to be installed as system libraries. \n Re-run cmake again using : cmake -DCMAKE_INSTALL_PREFIX=../install ..\n")
+
     set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX_ABSOLUTE})
 endif ()
 
@@ -85,7 +88,10 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(CMAKE_CXX_STANDARD 17)
     add_definitions(-D_HAS_STD_BYTE=0)
 else ()
-    set(external_libs "${external_libs};stdc++fs")
+
+    if (CMAKE_SYSTEM_NAME NOT MATCHES "Darwin")
+        set(external_libs "${external_libs};stdc++fs")
+    endif ()
 
     execute_process(COMMAND root-config --has-cxx20 OUTPUT_VARIABLE HASCXX20)
     execute_process(COMMAND root-config --has-cxx17 OUTPUT_VARIABLE HASCXX17)
@@ -234,7 +240,7 @@ file(GLOB cmake_scripts
         )
 install(FILES ${cmake_scripts} DESTINATION cmake)
 
-if (CMAKE_SYSTEM_NAME MATCHES "Windows") # we must call library install here in windows
+if (CMAKE_SYSTEM_NAME MATCHES "Windows" ) # we must call library install here in windows
     foreach (lib ${rest_libraries})
         install(TARGETS ${lib}
                 RUNTIME DESTINATION bin
@@ -257,6 +263,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows") # we must call library install here in 
     "
             )
 
+
 else ()
     # Copy pcm files to lib
     install(CODE
@@ -276,3 +283,28 @@ else ()
     install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX})")
 
 endif ()
+
+if (CMAKE_SYSTEM_NAME MATCHES "Darwin" ) # we must call library install here in MacOs
+    foreach (lib ${rest_libraries})
+        install(TARGETS ${lib}
+                RUNTIME DESTINATION bin
+                LIBRARY DESTINATION bin
+                ARCHIVE DESTINATION lib)
+    endforeach ()
+
+    foreach (exe ${rest_exes})
+        install(TARGETS ${exe}
+                RUNTIME DESTINATION bin
+                LIBRARY DESTINATION bin
+                ARCHIVE DESTINATION lib)
+    endforeach ()
+
+    # Copy pcm files to bin
+    install(CODE
+            "
+    file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/*.pcm\")
+    file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/bin)
+    "
+            )
+
+endif()
