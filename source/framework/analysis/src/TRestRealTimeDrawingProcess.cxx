@@ -83,6 +83,10 @@
 
 #include "TRestMessenger.h"
 
+#ifdef __APPLE__
+#include <unistd.h>
+#endif
+
 using namespace std;
 
 ClassImp(TRestRealTimeDrawingProcess);
