@@ -89,7 +89,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_definitions(-D_HAS_STD_BYTE=0)
 else ()
 
-    if (CMAKE_SYSTEM_NAME NOT MATCHES "Darwin")
+    if (NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
         set(external_libs "${external_libs};stdc++fs")
     endif ()
 
