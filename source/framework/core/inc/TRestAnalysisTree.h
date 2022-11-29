@@ -105,7 +105,7 @@ class TRestAnalysisTree : public TTree {
     Int_t GetObservableID(const std::string& obsName);
     Int_t GetMatchedObservableID(const std::string& obsName);
     Bool_t ObservableExists(const std::string& obsName);
-    // six basic event prameters
+    // six basic event parameters
     Int_t GetEventID() { return fChain ? ((TRestAnalysisTree*)fChain->GetTree())->GetEventID() : fEventID; }
     Int_t GetSubEventID() {
         return fChain ? ((TRestAnalysisTree*)fChain->GetTree())->GetSubEventID() : fSubEventID;
