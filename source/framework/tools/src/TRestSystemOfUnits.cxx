@@ -113,7 +113,7 @@ string FindRESTUnitsInString(string s) {
 /// can both be recognized
 ///
 string RemoveUnitsFromString(string s) {
-    string valstr1 = s.substr(0, s.find_first_not_of("1234567890(),.-eE"));
+    string valstr1 = s.substr(0, s.find_first_not_of("1234567890(),.-eE/: "));
 
     if (valstr1.size() == 0) {
         return "";
@@ -309,11 +309,6 @@ TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
             }
 
         } else {
-            // if (pos == 0 && unitsStr[pos] != '/') {
-            //    cout << unitsStr << endl;
-            //    warning << "first character \"" << unitsStr[pos] << "\" unrecognized in unit definition!"
-            //            << endl;
-            //}
             if (pos == unitsStr.size() - 1) {
                 RESTWarning << "last character inside \"" << unitsStr << "\" \"" << unitsStr[pos]
                             << "\" unrecognized in unit definition!" << RESTendl;
