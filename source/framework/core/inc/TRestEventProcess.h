@@ -23,10 +23,11 @@
 #ifndef RestCore_TRestEventProcess
 #define RestCore_TRestEventProcess
 
+#include <TCanvas.h>
+#include <TNamed.h>
+
 #include <limits>
 
-#include "TCanvas.h"
-#include "TNamed.h"
 #include "TRestAnalysisTree.h"
 #include "TRestEvent.h"
 #include "TRestMetadata.h"
@@ -104,9 +105,9 @@ class TRestEventProcess : public TRestMetadata {
         std::string type = REST_Reflection::GetTypeName<T>();
         return (T*)GetMetadata(type);
     }
-    TRestMetadata* GetMetadata(std::string nameOrType);
-    TRestEventProcess* GetFriend(std::string nameOrType);
-    TRestEventProcess* GetFriendLive(std::string nameOrType);
+    TRestMetadata* GetMetadata(const std::string& nameOrType);
+    TRestEventProcess* GetFriend(const std::string& nameOrType);
+    TRestEventProcess* GetFriendLive(const std::string& nameOrType);
     inline size_t GetNumberOfParallelProcesses() const { return fParallelProcesses.size(); }
     TRestEventProcess* GetParallel(int i);
     //////////////////////////////////////////////////////////////////////////
@@ -208,9 +209,9 @@ class TRestEventProcess : public TRestMetadata {
     }
     std::vector<std::string> ReadObservables();
     // open a list of input files to be processed, only used if is external process
-    virtual Bool_t OpenInputFiles(std::vector<std::string> files);
+    virtual Bool_t OpenInputFiles(const std::vector<std::string>& files);
     // add an input file during process
-    virtual Bool_t AddInputFile(std::string file) { return false; }
+    virtual Bool_t AddInputFile(const std::string& file) { return false; }
     // reset the entry by moving file ptr to 0 with fseek
     virtual Bool_t ResetEntry() { return false; }
 
