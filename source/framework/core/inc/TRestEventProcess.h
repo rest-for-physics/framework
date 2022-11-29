@@ -24,6 +24,7 @@
 #define RestCore_TRestEventProcess
 
 #include <limits>
+
 #include "TCanvas.h"
 #include "TNamed.h"
 #include "TRestAnalysisTree.h"
@@ -146,31 +147,33 @@ class TRestEventProcess : public TRestMetadata {
     /// If use dynamic observable, it will try to create new observable
     /// in the AnalysisTree if the observable is not found
     template <class T>
-    inline void SetObservableValue(std::string name, const T& value) {
-        if (fAnalysisTree != nullptr) {
-            std::string obsName = this->GetName() + (std::string) "_" + (std::string)name;
+    inline void SetObservableValue(const std::string& name, const T& value) {
+        if (fAnalysisTree == nullptr) {
+            return;
+        }
 
-            if (fValidateObservables) {
-                int id = fAnalysisTree->GetObservableID(obsName);
-                if (id != -1) {
+        std::string obsName = this->GetName() + '_' + name;
+
+        if (fValidateObservables) {
+            int id = fAnalysisTree->GetObservableID(obsName);
+            if (id != -1) {
+                fObservablesDefined[obsName] = id;
+                fObservablesUpdated[obsName] = id;
+                fAnalysisTree->SetObservable(obsName, value);
+            } else if (fDynamicObs) {
+                fAnalysisTree->SetObservable(obsName, value);
+                int n = fAnalysisTree->GetObservableID(obsName);
+                if (n != -1) {
                     fObservablesDefined[obsName] = id;
                     fObservablesUpdated[obsName] = id;
-                    fAnalysisTree->SetObservable(obsName, value);
-                } else if (fDynamicObs) {
-                    fAnalysisTree->SetObservable(obsName, value);
-                    int n = fAnalysisTree->GetObservableID(obsName);
-                    if (n != -1) {
-                        fObservablesDefined[obsName] = id;
-                        fObservablesUpdated[obsName] = id;
-                    }
                 }
-            } else {
-                int id = fAnalysisTree->GetObservableID(obsName);
-                if (id != -1) {
-                    fAnalysisTree->SetObservableValue(id, value);
-                } else if (fDynamicObs) {
-                    fAnalysisTree->SetObservableValue(obsName, value);
-                }
+            }
+        } else {
+            int id = fAnalysisTree->GetObservableID(obsName);
+            if (id != -1) {
+                fAnalysisTree->SetObservableValue(id, value);
+            } else if (fDynamicObs) {
+                fAnalysisTree->SetObservableValue(obsName, value);
             }
         }
     }
