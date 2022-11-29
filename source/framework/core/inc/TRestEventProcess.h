@@ -153,7 +153,7 @@ class TRestEventProcess : public TRestMetadata {
             return;
         }
 
-        std::string obsName = this->GetName() + "_" + name;
+        std::string obsName = std::string(this->GetName()) + "_" + name;
 
         if (fValidateObservables) {
             int id = fAnalysisTree->GetObservableID(obsName);
