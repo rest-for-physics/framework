@@ -51,7 +51,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${DECAY_PATH}/cmake ${CM
 set(CMAKE_MACOSX_RPATH 1)
 
 #####  ROOT libs and includes  #####
-find_package(ROOT REQUIRED)
+find_package(ROOT 6.24 REQUIRED)
 set(ROOT_REQUIRED_LIBRARIES Core RIO Geom Gdml Minuit Spectrum XMLIO)
 
 # Auto schema evolution for ROOT
