@@ -47,6 +47,15 @@
         <parameter name="armsSeparationAngle" value="60degrees"/>
         <parameter name="initialRadius" value="6cm"/>
     </TRestSpiderMask>
+    <TRestSpiderMask name="spider4" verboseLevel="info">
+        <parameter name="maskRadius" value="20cm"/>
+        <parameter name="offset" value="(0,0)cm"/>
+        <parameter name="rotationAngle" value="30deg"/>
+        <parameter name="armsWidth" value="5deg"/>
+        <parameter name="armsSeparationAngle" value="60degrees"/>
+        <parameter name="initialRadius" value="6cm"/>
+        <parameter name="internalRegionRadius" value="5cm"/>
+    </TRestSpiderMask>
     <TRestCombinedMask name="combined" verboseLevel="warning">
         <TRestSpiderMask name="spider1" verboseLevel="warning">
             <parameter name="maskRadius" value="20cm"/>
