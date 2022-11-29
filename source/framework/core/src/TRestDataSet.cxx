@@ -24,10 +24,8 @@
 /// Write the class description Here
 ///
 /// ### Parameters
-/// Describe any parameters this process receives:
-/// * **parameter1**: This parameter ...
-/// * **parameter2**: This parameter is ...
-///
+/// * **startTime**: Only files with start run after `startTime` will be considered.
+/// * **endTime**: Only files with end run before `endTime` will be considered.
 ///
 /// ### Examples
 /// Give examples of usage and RML descriptions that can be tested.
@@ -35,17 +33,6 @@
 ///     <WRITE A CODE EXAMPLE HERE>
 /// \endcode
 ///
-/// ### Running pipeline example
-/// Add the examples to a pipeline to guarantee the code will be running
-/// on future framework upgrades.
-///
-///
-/// Please, add any figure that may help to illustrate the process
-///
-/// \htmlonly <style>div.image img[src="trigger.png"]{width:500px;}</style> \endhtmlonly
-/// ![An illustration of the trigger definition](trigger.png)
-///
-/// The png image should be uploaded to the ./images/ directory
 ///
 ///----------------------------------------------------------------------
 ///
@@ -53,11 +40,11 @@
 ///
 /// History of developments:
 ///
-/// YEAR-Month: First implementation of TRestDataSet
-/// WRITE YOUR FULL NAME
+/// 2022-November: First implementation of TRestDataSet
+/// Javier Galan
 ///
 /// \class TRestDataSet
-/// \author: TODO. Write full name and e-mail:        victor
+/// \author: Javier Galan (javier.galan.lacarra@cern.ch)
 ///
 /// <hr>
 ///
@@ -108,32 +95,23 @@ void TRestDataSet::Initialize() {
     // REMOVE COMMENT. Initialize here any special data members if needed
 }
 
-std::vector<std::string> TRestDataSet::FileSelect() {
-    // Introduce data for time zone GMT +01:00
-    std::tm ts{};
-    std::tm te{};
-    std::istringstream ss(fStartTime);
-    std::istringstream se(fEndTime);
+///////////////////////////////////////////////
+/// \brief Function to determine the filenames that satisfy the dataset conditions
+///
+std::vector<std::string> TRestDataSet::FileSelection() {
+    fFileSelection.clear();
 
-    ss >> std::get_time(&ts, "%Y-%m-%dT%H:%M:%S");
-    se >> std::get_time(&te, "%Y-%m-%dT%H:%M:%S");
-    if (ss.fail()) {
-        throw std::runtime_error{"failed to parse time string -- StartTime"};
+    std::time_t time_stamp_start = REST_StringHelper::StringToTimeStamp(fStartTime);
+    std::time_t time_stamp_end = REST_StringHelper::StringToTimeStamp(fEndTime);
+
+    if (!time_stamp_end || !time_stamp_start) {
+        RESTError << "TRestDataSet::FileSelect. Start or end dates not properly formed. Please, check "
+                     "REST_StringHelper::StringToTimeStamp documentation for valid formats"
+                  << RESTendl;
+        return fFileSelection;
     }
-    if (se.fail()) {
-        throw std::runtime_error{"failed to parse time string -- EndTime"};
-    }
-    std::time_t time_stamp_start = mktime(&ts);
-    std::time_t time_stamp_end = mktime(&te);
 
-    // Selecting files
-
-    //   TRestRun::SetInputFileName(fFilePattern);
-
-    std::cout.precision(10);
     std::vector<std::string> fileNames = TRestTools::GetFilesMatchingPattern(fFilePattern);
-
-    std::vector<std::string> fileSelected;
 
     for (const auto& file : fileNames) {
         TRestRun* run = new TRestRun(file);
@@ -141,19 +119,16 @@ std::vector<std::string> TRestDataSet::FileSelect() {
         double runEnd = run->GetEndTimestamp();
 
         if (runStart >= time_stamp_start && runEnd <= time_stamp_end) {
-            fileSelected.push_back(file);
+            // TODO Add metadata conditions for file selection
+            fFileSelection.push_back(file);
         }
 
-        // std::cout << "File : " << file << std::endl;
-        //  std::cout << "RS : " << runStart << std::endl;
-        // std::cout << "RE : " << runEnd << std::endl;
         delete run;
     }
-    //   for (const auto& i : fileSelected) {
-    //     std::cout << "File Selected : " << i << std::endl;
-    //}
-    return fileSelected;
+
+    return fFileSelection;
 }
+
 /////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
 ///

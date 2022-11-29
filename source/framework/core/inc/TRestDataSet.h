@@ -27,31 +27,33 @@
 #include "TRestMetadata.h"
 #include "TTimeStamp.h"
 
-/// UPDATE Write here a brief description. Just one line!
+/// It allows to group a number of runs that satisfy given metadata conditions
 class TRestDataSet : public TRestMetadata {
    private:
-    // REMOVE COMMENT. Add here the members/parameters for your metadata class.
-    // You can set their default values here together.
-    // Note: add "//!" mark at the end of the member definition
-    // if you don't want to save them to disk. The following dummy member are given as examples.
+    /// All the selected runs will have a starting date after fStartTime
+    std::string fStartTime = "2000/01/01";  //<
+
+    /// All the selected runs will have an ending date before fEndTime
+    std::string fEndTime = "3000/12/31";  //<
+
+    /// A glob file pattern that must be satisfied by all files
+    std::string fFilePattern = "";  //<
 
     ROOT::RDataFrame fDataset = 0;   //!
-    std::string fStartTime = "";     //<
-    std::string fEndTime = "";       //<
-    std::string fFilePattern = "";   //<
     TTimeStamp fStartTimeStamp = 0;  //!
     TTimeStamp fEndTimeStamp = 0;    //!
+
+    /// A list populated by the FileSelection method using the conditions of the dataset
+    std::vector<string> fFileSelection;  //!
 
    public:
     void PrintMetadata();
     void Initialize();
-    std::vector<std::string> FileSelect();
+    std::vector<std::string> FileSelection();
     TRestDataSet();
     TRestDataSet(const char* cfgFileName, std::string name = "");
     ~TRestDataSet();
 
-    // REMOVE COMMENT. ROOT class definition helper. Increase the number in it every time
-    // you add/rename/remove the metadata members
     ClassDef(TRestDataSet, 1);
 };
 #endif
