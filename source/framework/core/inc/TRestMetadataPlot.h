@@ -117,7 +117,7 @@ class TRestMetadataPlot : public TRestMetadata {
     TVector2 fCanvasDivisions;
 
     /// A std::string to define the output filename where to store the canvas.
-    TString fCanvasSave;
+    std::string fCanvasSave;
 
     /// The font label size
     Int_t fLabelFont;
@@ -147,7 +147,7 @@ class TRestMetadataPlot : public TRestMetadata {
     Double_t fLegendY2 = 0.88;
 
     /// The legend drawing option
-    TString fLegendOption = "lp";
+    std::string fLegendOption = "lp";
 
     /// A std::vector with the defined plots
     std::vector<Plot_Info_Set> fPlots;
