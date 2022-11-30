@@ -90,7 +90,7 @@ This project is licensed under the GNU License - see the [LICENSE](LICENCE) file
 We acknowledge support from the the European Research Council (ERC) under the European Union’s Horizon 2020 research and innovation programme, grant agreement ERC-2017-AdG788781 (IAXO+), and from the Spanish Agencia Estatal de Investigacion under grant FPA2016-76978-C3-1-P
 
 <p align="center">
-<img src="miscellaneous/ResearchLogos.png" width="600">
+<img src="miscellaneous/ResearchLogos.png" width="580">
 </p>
 
 ![Insitution logos](miscellaneous/institution_logos.png)
