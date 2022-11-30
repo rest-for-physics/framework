@@ -23,11 +23,13 @@
 #ifndef RestCore_TRestAnalysisTree
 #define RestCore_TRestAnalysisTree
 
+#include <TChain.h>
+#include <TTree.h>
+
 #include <limits>
-#include "TChain.h"
+
 #include "TRestEvent.h"
 #include "TRestReflector.h"
-#include "TTree.h"
 
 //! REST core data-saving helper based on TTree
 class TRestAnalysisTree : public TTree {
@@ -103,7 +105,7 @@ class TRestAnalysisTree : public TTree {
     Int_t GetObservableID(const std::string& obsName);
     Int_t GetMatchedObservableID(const std::string& obsName);
     Bool_t ObservableExists(const std::string& obsName);
-    // six basic event prameters
+    // six basic event parameters
     Int_t GetEventID() { return fChain ? ((TRestAnalysisTree*)fChain->GetTree())->GetEventID() : fEventID; }
     Int_t GetSubEventID() {
         return fChain ? ((TRestAnalysisTree*)fChain->GetTree())->GetSubEventID() : fSubEventID;
@@ -121,13 +123,13 @@ class TRestAnalysisTree : public TTree {
     Int_t GetNumberOfObservables() { return fNObservables; }
 
     // observable method
-    RESTValue GetObservable(std::string obsName);
+    RESTValue GetObservable(const std::string& obsName);
     RESTValue GetObservable(Int_t n);
     TString GetObservableName(Int_t n);
     TString GetObservableDescription(Int_t n);
     TString GetObservableType(Int_t n);
-    TString GetObservableType(std::string obsName);
-    Double_t GetDblObservableValue(std::string obsName);
+    TString GetObservableType(const std::string& obsName);
+    Double_t GetDblObservableValue(const std::string& obsName);
     Double_t GetDblObservableValue(Int_t n);
 
     ///////////////////////////////////////////////
@@ -252,8 +254,8 @@ class TRestAnalysisTree : public TTree {
     void SetEventInfo(TRestEvent* evt);
     Int_t Fill();
 
-    RESTValue AddObservable(TString observableName, TString observableType = "double",
-                            TString description = "");
+    RESTValue AddObservable(const TString& observableName, const TString& observableType = "double",
+                            const TString& description = "");
     template <typename T>
     T& AddObservable(TString observableName, TString description = "") {
         return *(T*)AddObservable(observableName, REST_Reflection::GetTypeName<T>(), description);
@@ -261,12 +263,12 @@ class TRestAnalysisTree : public TTree {
 
     Int_t GetEntry(Long64_t entry = 0, Int_t getall = 0);
 
-    Bool_t EvaluateCuts(const std::string expression);
-    Bool_t EvaluateCut(const std::string expression);
+    Bool_t EvaluateCuts(const std::string& expression);
+    Bool_t EvaluateCut(const std::string& expression);
 
     TString GetStringWithObservableNames();
 
-    std::vector<std::string> GetCutObservables(const std::string cut_str);
+    std::vector<std::string> GetCutObservables(const std::string& cut_str);
 
     void EnableBranches(std::vector<std::string> obsNames);
     void DisableBranches(std::vector<std::string> obsNames);
@@ -277,19 +279,20 @@ class TRestAnalysisTree : public TTree {
     void EnableQuickObservableValueSetting();
     void DisableQuickObservableValueSetting();
 
-    Double_t GetObservableAverage(TString obsName, Double_t xLow = -1, Double_t xHigh = -1,
+    Double_t GetObservableAverage(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
                                   Int_t nBins = 1000);
 
-    Double_t GetObservableRMS(TString obsName, Double_t xLow = -1, Double_t xHigh = -1, Int_t nBins = 1000);
+    Double_t GetObservableRMS(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
+                              Int_t nBins = 1000);
 
-    Double_t GetObservableMinimum(TString obsName, Double_t xLow = -1, Double_t xHigh = -1,
+    Double_t GetObservableMinimum(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
                                   Int_t nBins = 1000);
-    Double_t GetObservableMaximum(TString obsName, Double_t xLow = -1, Double_t xHigh = -1,
+    Double_t GetObservableMaximum(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
                                   Int_t nBins = 1000);
 
     Int_t WriteAsTTree(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 
-    Bool_t AddChainFile(std::string file);
+    Bool_t AddChainFile(const std::string& file);
 
     TTree* GetTree() const;
 
@@ -379,7 +382,7 @@ class TRestAnalysisTree : public TTree {
 
     // Constructor
     TRestAnalysisTree();
-    TRestAnalysisTree(TString name, TString title);
+    TRestAnalysisTree(const TString& name, const TString& title);
     static TRestAnalysisTree* ConvertFromTTree(TTree* tree);
     // Destructor
     virtual ~TRestAnalysisTree();
