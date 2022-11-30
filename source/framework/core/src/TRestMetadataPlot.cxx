@@ -375,7 +375,7 @@ void TRestMetadataPlot::InitFromConfigFile() {
         }
 
         fLegendOption = GetFieldValue("option", legendDefinition);
-        if (fLegendOption.empty()) fLegendOption = "lp";
+        if (fLegendOption == "Not defined") fLegendOption = "lp";
     }
 #pragma endregion
 
@@ -386,7 +386,7 @@ void TRestMetadataPlot::InitFromConfigFile() {
         fCanvasSize = StringTo2DVector(GetFieldValue("size", canvasDefinition));
         fCanvasDivisions = StringTo2DVector(GetFieldValue("divide", canvasDefinition));
         fCanvasSave = GetFieldValue("save", canvasDefinition);
-        if (fCanvasSave.empty()) {
+        if (fCanvasSave == "Not defined") {
             fCanvasSave = GetParameter("pdfFilename", REST_TMP_PATH + "restplot.pdf");
         }
     }
@@ -917,8 +917,7 @@ void TRestMetadataPlot::GenerateCanvas() {
         if (plot.legendOn) {
             TLegend* legend = new TLegend(fLegendX1, fLegendY1, fLegendX2, fLegendY2);
             for (unsigned int i = 0; i < graphCollectionPlot.size(); i++)
-                legend->AddEntry(graphCollectionPlot[i], (TString)plot.graphs[i].title,
-                                 (TString)fLegendOption);
+                legend->AddEntry(graphCollectionPlot[i], (TString)plot.graphs[i].title, fLegendOption);
             legend->Draw("same");
         }
 
@@ -943,11 +942,11 @@ void TRestMetadataPlot::GenerateCanvas() {
 
     fCanvasSave = run->FormFormat(fCanvasSave);
     delete run;
-    if (fCanvasSave != "") fCombinedCanvas->Print((TString)fCanvasSave);
+    if (fCanvasSave != "") fCombinedCanvas->Print(fCanvasSave);
 
     // If the extension of the canvas save file is ROOT we store also the histograms
     if (TRestTools::isRootFile((string)fCanvasSave)) {
-        TFile* f = new TFile((TString)fCanvasSave, "UPDATE");
+        TFile* f = new TFile(fCanvasSave, "UPDATE");
         f->cd();
         for (unsigned int n = 0; n < graphCollectionAll.size(); n++) graphCollectionAll[n]->Write();
         f->Close();
