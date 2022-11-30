@@ -44,7 +44,21 @@ class TRestDataSet : public TRestMetadata {
     TTimeStamp fEndTimeStamp = 0;    //!
 
     /// A list populated by the FileSelection method using the conditions of the dataset
-    std::vector<string> fFileSelection;  //!
+    std::vector<std::string> fFileSelection;  //!
+
+    /// A list of metadata members where filters will be applied
+    std::vector<std::string> fFilterMetadata;  //!
+
+    /// If not empty it will check if the metadata member contains the value
+    std::vector<std::string> fFilterContains;  //!
+
+    /// If the corresponding element is not empty it will check if the metadata member is greater
+    std::vector<Double_t> fFilterGreaterThan;  //!
+
+    /// If the corresponding element is not empty it will check if the metadata member is lower
+    std::vector<Double_t> fFilterLowerThan;  //!
+
+    void InitFromConfigFile() override;
 
    public:
     void PrintMetadata();

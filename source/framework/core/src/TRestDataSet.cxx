@@ -28,9 +28,14 @@
 /// * **endTime**: Only files with end run before `endTime` will be considered.
 ///
 /// ### Examples
-/// Give examples of usage and RML descriptions that can be tested.
 /// \code
-///     <WRITE A CODE EXAMPLE HERE>
+///	<TRestDataSet name="28Nov_test">
+/// 	<parameter name="startTime" value = "2022/04/28 00:00" />
+/// 	<parameter name="endTime" value = "2022/04/28 23:59" />
+/// 	<parameter name="filePattern" value="test*.root"/>
+/// 	<filter metadata="TRestRun::fRunTag" contains="Baby" />
+///
+/// </TRestDataSet>
 /// \endcode
 ///
 ///
@@ -118,12 +123,33 @@ std::vector<std::string> TRestDataSet::FileSelection() {
         double runStart = run->GetStartTimestamp();
         double runEnd = run->GetEndTimestamp();
 
-        if (runStart >= time_stamp_start && runEnd <= time_stamp_end) {
-            // TODO Add metadata conditions for file selection
-            fFileSelection.push_back(file);
+        if (runStart < time_stamp_start && runEnd > time_stamp_end) {
+            delete run;
+            continue;
         }
 
+        int n = 0;
+        bool accept = true;
+        for (const auto md : fFilterMetadata) {
+            std::string mdValue = run->GetMetadataMember(md);
+
+            if (!fFilterContains[n].empty())
+                if (mdValue.find(fFilterContains[n]) == std::string::npos) accept = false;
+
+            if (fFilterGreaterThan[n] != -1) {
+                if (StringToDouble(mdValue) <= fFilterGreaterThan[n]) accept = false;
+            }
+
+            if (fFilterLowerThan[n] != -1)
+                if (StringToDouble(mdValue) >= fFilterLowerThan[n]) accept = false;
+
+            n++;
+        }
         delete run;
+
+        if (!accept) continue;
+
+        fFileSelection.push_back(file);
     }
 
     return fFileSelection;
@@ -139,4 +165,33 @@ void TRestDataSet::PrintMetadata() {
     RESTMetadata << " - EndTime : " << fEndTime << RESTendl;
     RESTMetadata << " - File pattern : " << fFilePattern << RESTendl;
     RESTMetadata << "----" << RESTendl;
+}
+
+///////////////////////////////////////////////
+/// \brief Initialization of specific TRestDataSet members through an RML file
+///
+void TRestDataSet::InitFromConfigFile() {
+    TRestMetadata::InitFromConfigFile();
+
+    TiXmlElement* filterDefinition = GetElement("filter");
+
+    while (filterDefinition != nullptr) {
+        std::string metadata = GetFieldValue("metadata", filterDefinition);
+        if (metadata.empty() || metadata == "Not defined") {
+            RESTError << "Filter key defined without metadata member!" << RESTendl;
+            exit(1);
+        }
+
+        fFilterMetadata.push_back(metadata);
+
+        std::string contains = GetFieldValue("contains", filterDefinition);
+        Double_t greaterThan = StringToDouble(GetFieldValue("greaterThan", filterDefinition));
+        Double_t lowerThan = StringToDouble(GetFieldValue("lowerThan", filterDefinition));
+
+        fFilterContains.push_back(contains);
+        fFilterGreaterThan.push_back(greaterThan);
+        fFilterLowerThan.push_back(lowerThan);
+
+        filterDefinition = GetNextElement(filterDefinition);
+    }
 }
