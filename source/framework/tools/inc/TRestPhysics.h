@@ -34,34 +34,34 @@
 namespace REST_Physics {
 
 /// Vacuum permitivity in F/m
-const double vacuumPermitivity = 8.854E-12;
+constexpr double vacuumPermitivity = 8.854E-12;
 /// Vacuum permeability in H/m
-const double vacuumPermeability = 4E-7 * 3.141592653589793;
+constexpr double vacuumPermeability = 4E-7 * 3.141592653589793;
 /// Speed of light in m/s
-const double lightSpeed = 2.99792458E8;
+constexpr double lightSpeed = 2.99792458E8;
 /// Electron charge in C
-const double qElectron = 1.602E-19;
+constexpr double qElectron = 1.602E-19;
 /// Electron mass in Kg
-const double mElectron = 9.107E-31;
+constexpr double mElectron = 9.107E-31;
 /// Boltzman  constant in J/K
-const double kBoltzman = 1.380E-23;
+constexpr double kBoltzman = 1.380E-23;
 /// Planck constant in J*s
-const double hPlanck = 1.054E-34;
+constexpr double hPlanck = 1.054E-34;
 
 /// A meter in eV
-const double PhMeterIneV = 5067731.236453719;  // 8.0655447654281218E5;// 506.773123645372;
+constexpr double PhMeterIneV = 5067731.236453719;  // 8.0655447654281218E5;// 506.773123645372;
 /// A second in eV (using natural units)
-const double secondIneV = 1519225802531030.2;
+constexpr double secondIneV = 1519225802531030.2;
 /// Electron charge in natural units
-const double naturalElectron = 0.302822120214353;
+constexpr double naturalElectron = 0.302822120214353;
 /// A kelvin in eV
-const double kelvinToeV = 86.172809e-6;
+constexpr double kelvinToeV = 86.172809e-6;
 
 /// Average Sun-Earth distance in m
-const double AU = 1.49597870691E11;
+constexpr double AU = 1.49597870691E11;
 
 // Solar radius in m
-const double solarRadius = 6.95700E8;
+constexpr double solarRadius = 6.95700E8;
 
 TVector3 MoveToPlane(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a);
 
@@ -101,6 +101,4 @@ Double_t GetDistance(TVector3 v1, TVector3 v2);
 Double_t GetDistance2(TVector3 v1, TVector3 v2);
 }  // namespace REST_Physics
 
-// dummy class
-// class TRestPhysics {};
 #endif
