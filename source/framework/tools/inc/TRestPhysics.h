@@ -52,8 +52,6 @@ const double hPlanck = 1.054E-34;
 const double PhMeterIneV = 5067731.236453719;  // 8.0655447654281218E5;// 506.773123645372;
 /// A second in eV (using natural units)
 const double secondIneV = 1519225802531030.2;
-/// Speed of light in m/s
-const double lightSpeed = 2.99792458E8;
 /// Electron charge in natural units
 const double naturalElectron = 0.302822120214353;
 /// A kelvin in eV
