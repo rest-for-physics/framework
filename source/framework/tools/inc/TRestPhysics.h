@@ -38,7 +38,7 @@ const double vacuumPermitivity = 8.854E-12;
 /// Vacuum permeability in H/m
 const double vacuumPermeability = 4E-7 * 3.141592653589793;
 /// Speed of light in m/s
-const double speedLight = 2.99792458E8;
+const double lightSpeed = 2.99792458E8;
 /// Electron charge in C
 const double qElectron = 1.602E-19;
 /// Electron mass in Kg
@@ -74,7 +74,7 @@ Double_t GetVectorsAngle(const TVector3& v1, const TVector3& v2);
 
 TVector3 GetPlaneVectorIntersection(const TVector3& pos, const TVector3& dir, TVector3 const& n,
                                     TVector3 const& a);
-  
+
 TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t& alpha,
                                         const Double_t& R3, const Double_t& lMirr);
 
@@ -82,10 +82,11 @@ TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& di
                                          const Double_t& R3, const Double_t& lMirr, const Double_t& focal);
 
 TVector3 GetConeNormal(const TVector3& pos, const Double_t& alpha, const Double_t& R = 0);
-  
+
 TVector3 GetParabolicNormal(const TVector3& pos, const Double_t& alpha, const Double_t& R3);
-  
-TVector3 GetHyperbolicNormal(const TVector3& pos, const Double_t& alpha, const Double_t& R3, const Double_t& focal);
+
+TVector3 GetHyperbolicNormal(const TVector3& pos, const Double_t& alpha, const Double_t& R3,
+                             const Double_t& focal);
 
 TMatrixD GetConeMatrix(const TVector3& d, const Double_t& cosTheta);
 
