@@ -4,6 +4,10 @@
 #include <Windows.h>
 #endif  // WIN32
 
+#ifdef __APPLE__
+#include <unistd.h>
+#endif
+
 #include "RVersion.h"
 #include "TEnv.h"
 #include "TRestDataBase.h"
