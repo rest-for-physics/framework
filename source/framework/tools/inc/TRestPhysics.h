@@ -23,12 +23,12 @@
 #ifndef __RestCore_TRestPhysics_H__
 #define __RestCore_TRestPhysics_H__
 
-#include <iostream>
+#include <TMatrixD.h>
+#include <TString.h>
+#include <TVector3.h>
+#include <TVectorD.h>
 
-#include "TMatrixD.h"
-#include "TString.h"
-#include "TVector3.h"
-#include "TVectorD.h"
+#include <iostream>
 
 /// This namespace serves to define physics constants and other basic physical operations
 namespace REST_Physics {
@@ -63,10 +63,10 @@ constexpr double AU = 1.49597870691E11;
 // Solar radius in m
 constexpr double solarRadius = 6.95700E8;
 
-TVector3 MoveToPlane(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a);
+TVector3 MoveToPlane(const TVector3& pos, const TVector3& dir, const TVector3& n, const TVector3& a);
 
-TVector3 MoveByDistance(TVector3 pos, TVector3 dir, Double_t d);
-TVector3 MoveByDistanceFast(TVector3 pos, TVector3 dir, Double_t d);
+TVector3 MoveByDistance(const TVector3& pos, const TVector3& dir, Double_t d);
+TVector3 MoveByDistanceFast(const TVector3& pos, const TVector3& dir, Double_t d);
 
 TVector3 GetVectorReflection(const TVector3& dir, const TVector3& n);
 
@@ -75,30 +75,30 @@ Double_t GetVectorsAngle(const TVector3& v1, const TVector3& v2);
 TVector3 GetPlaneVectorIntersection(const TVector3& pos, const TVector3& dir, TVector3 const& n,
                                     TVector3 const& a);
 
-TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t& alpha,
-                                        const Double_t& R3, const Double_t& lMirr);
+TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t alpha,
+                                        const Double_t R3, const Double_t lMirr);
 
-TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t& alpha,
-                                         const Double_t& R3, const Double_t& lMirr, const Double_t& focal);
+TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t alpha,
+                                         const Double_t R3, const Double_t lMirr, const Double_t focal);
 
-TVector3 GetConeNormal(const TVector3& pos, const Double_t& alpha, const Double_t& R = 0);
+TVector3 GetConeNormal(const TVector3& pos, const Double_t alpha, const Double_t R = 0);
 
-TVector3 GetParabolicNormal(const TVector3& pos, const Double_t& alpha, const Double_t& R3);
+TVector3 GetParabolicNormal(const TVector3& pos, const Double_t alpha, const Double_t R3);
 
-TVector3 GetHyperbolicNormal(const TVector3& pos, const Double_t& alpha, const Double_t& R3,
-                             const Double_t& focal);
+TVector3 GetHyperbolicNormal(const TVector3& pos, const Double_t alpha, const Double_t R3,
+                             const Double_t focal);
 
-TMatrixD GetConeMatrix(const TVector3& d, const Double_t& cosTheta);
+TMatrixD GetConeMatrix(const TVector3& d, const Double_t cosTheta);
 
 Double_t GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, const TVector3& d,
-                                   const TVector3& v, const Double_t& cosTheta);
+                                   const TVector3& v, const Double_t cosTheta);
 Double_t GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, const TMatrixD& M,
                                    const TVector3& axis, const TVector3& v);
 
 Double_t DistanceToAxis(const TVector3& axisPoint, const TVector3& axisVector, const TVector3& point);
 
-Double_t GetDistance(TVector3 v1, TVector3 v2);
-Double_t GetDistance2(TVector3 v1, TVector3 v2);
+Double_t GetDistance(const TVector3& v1, const TVector3& v2);
+Double_t GetDistance2(const TVector3& v1, const TVector3& v2);
 }  // namespace REST_Physics
 
 #endif
