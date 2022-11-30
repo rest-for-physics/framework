@@ -4,6 +4,8 @@
 #include "TRestProcessRunner.h"
 #ifndef __APPLE__
 #include "sys/sysinfo.h"
+#else
+#include <unistd.h>
 #endif
 #include "sys/wait.h"
 

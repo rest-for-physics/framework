@@ -73,6 +73,10 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
+#ifdef __APPLE__
+#include <unistd.h>
+#endif
+
 #include "TRestDataBase.h"
 #include "TRestManager.h"
 #include "TRestProcessRunner.h"

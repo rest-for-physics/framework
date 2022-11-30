@@ -57,6 +57,10 @@
 #include "unistd.h"
 #endif  // !WIN32
 
+#ifdef __APPLE__
+#include <array>
+#endif
+
 #include <chrono>
 #include <filesystem>
 #include <iostream>
@@ -93,6 +97,8 @@ void TRestTools::LoadRESTLibrary(bool silent) {
 
     vector<string> ldPaths;
 #ifdef WIN32
+    ldPaths.push_back(REST_PATH + "/bin/");
+#elif __APPLE__
     ldPaths.push_back(REST_PATH + "/bin/");
 #else
     ldPaths.push_back(REST_PATH + "/lib/");

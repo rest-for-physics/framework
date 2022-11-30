@@ -8,6 +8,10 @@ using namespace std;
 #include <conio.h>
 #endif  // WIN32
 
+#ifdef __APPLE__
+#include <unistd.h>
+#endif
+
 int Console::GetWidth() {
 #ifdef WIN32
     CONSOLE_SCREEN_BUFFER_INFO csbi;
