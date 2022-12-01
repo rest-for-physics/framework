@@ -195,9 +195,9 @@ class TRestEventProcess : public TRestMetadata {
         fCanvas = new TCanvas(this->GetName(), this->GetTitle(), fCanvasSize.X(), fCanvasSize.Y());
     }
 
+   public:
     bool ApplyCut();
 
-   public:
     virtual const char* GetProcessName() const = 0;
     Int_t LoadSectionMetadata() override;
     virtual void InitFromConfigFile() override {
