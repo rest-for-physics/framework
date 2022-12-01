@@ -163,6 +163,7 @@ bool TRestThread::TestRun() {
 
             fProcessChain[j]->BeginOfEventProcess(ProcessedEvent);
             ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
+            if (fProcessChain[j]->ApplyCut()) ProcessedEvent = nullptr;
             // if the output of ProcessEvent() is NULL we assume the event is cut.
             // we try to use GetOutputEvent()
             if (ProcessedEvent == nullptr) {
@@ -499,6 +500,7 @@ void TRestThread::ProcessEvent() {
 
             fProcessChain[j]->BeginOfEventProcess(ProcessedEvent);
             ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
+            if (fProcessChain[j]->ApplyCut()) ProcessedEvent = nullptr;
             fProcessChain[j]->EndOfEventProcess();
 
 #ifdef TIME_MEASUREMENT
@@ -547,6 +549,7 @@ void TRestThread::ProcessEvent() {
         for (unsigned int j = 0; j < fProcessChain.size(); j++) {
             fProcessChain[j]->BeginOfEventProcess(ProcessedEvent);
             ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
+            if (fProcessChain[j]->ApplyCut()) ProcessedEvent = nullptr;
             fProcessChain[j]->EndOfEventProcess();
             if (ProcessedEvent == nullptr) {
                 fProcessNullReturned = true;
