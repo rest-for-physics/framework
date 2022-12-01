@@ -33,7 +33,14 @@
 /// 	<parameter name="startTime" value = "2022/04/28 00:00" />
 /// 	<parameter name="endTime" value = "2022/04/28 23:59" />
 /// 	<parameter name="filePattern" value="test*.root"/>
+///
 /// 	<filter metadata="TRestRun::fRunTag" contains="Baby" />
+///
+///		// Will add to the final tree only the specific observables
+///		<addObservables list="g4Ana_totalEdep;hitsAna_energy" />
+///
+///		// Will add all the observables from the process `rawAna`
+///		<addProcessObservables list="rawAna" />
 ///
 /// </TRestDataSet>
 /// \endcode
@@ -163,7 +170,25 @@ void TRestDataSet::PrintMetadata() {
 
     RESTMetadata << " - StartTime : " << fStartTime << RESTendl;
     RESTMetadata << " - EndTime : " << fEndTime << RESTendl;
-    RESTMetadata << " - File pattern : " << fFilePattern << RESTendl;
+    RESTMetadata << " - Path : " << TRestTools::SeparatePathAndName(fFilePattern).first << RESTendl;
+    RESTMetadata << " - File pattern : " << TRestTools::SeparatePathAndName(fFilePattern).second << RESTendl;
+
+    RESTMetadata << "  " << RESTendl;
+
+    if (!fObservablesList.empty()) {
+        RESTMetadata << " Single observables added" << RESTendl;
+        RESTMetadata << "---------" << RESTendl;
+        for (const auto& l : fObservablesList) RESTMetadata << " - " << l << RESTendl;
+
+        RESTMetadata << "  " << RESTendl;
+    }
+
+    if (!fProcessObservablesList.empty()) {
+        RESTMetadata << " Process observables added" << RESTendl;
+        RESTMetadata << "---------" << RESTendl;
+        for (const auto& l : fProcessObservablesList) RESTMetadata << " - " << l << RESTendl;
+    }
+
     RESTMetadata << "----" << RESTendl;
 }
 
@@ -173,11 +198,11 @@ void TRestDataSet::PrintMetadata() {
 void TRestDataSet::InitFromConfigFile() {
     TRestMetadata::InitFromConfigFile();
 
+    /// Reading filters
     TiXmlElement* filterDefinition = GetElement("filter");
-
     while (filterDefinition != nullptr) {
         std::string metadata = GetFieldValue("metadata", filterDefinition);
-        if (metadata.empty() || metadata == "Not defined") {
+        if (metadata.empty()) {
             RESTError << "Filter key defined without metadata member!" << RESTendl;
             exit(1);
         }
@@ -193,5 +218,37 @@ void TRestDataSet::InitFromConfigFile() {
         fFilterLowerThan.push_back(lowerThan);
 
         filterDefinition = GetNextElement(filterDefinition);
+    }
+
+    /// Reading observables
+    TiXmlElement* observablesDefinition = GetElement("addObservables");
+    while (observablesDefinition != nullptr) {
+        std::string observables = GetFieldValue("list", observablesDefinition);
+        if (observables.empty()) {
+            RESTError << "<addObservables key does not contain a list!" << RESTendl;
+            exit(1);
+        }
+
+        std::vector<std::string> obsList = REST_StringHelper::Split(observables, ":");
+
+        for (const auto& l : obsList) fObservablesList.push_back(l);
+
+        observablesDefinition = GetNextElement(observablesDefinition);
+    }
+
+    /// Reading process observables
+    TiXmlElement* obsProcessDefinition = GetElement("addProcessObservables");
+    while (obsProcessDefinition != nullptr) {
+        std::string observables = GetFieldValue("list", obsProcessDefinition);
+        if (observables.empty()) {
+            RESTError << "<addProcessObservables key does not contain a list!" << RESTendl;
+            exit(1);
+        }
+
+        std::vector<std::string> obsList = REST_StringHelper::Split(observables, ":");
+
+        for (const auto& l : obsList) fProcessObservablesList.push_back(l);
+
+        obsProcessDefinition = GetNextElement(obsProcessDefinition);
     }
 }

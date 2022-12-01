@@ -39,6 +39,12 @@ class TRestDataSet : public TRestMetadata {
     /// A glob file pattern that must be satisfied by all files
     std::string fFilePattern = "";  //<
 
+    /// It contains a list of the observables that will be added to the final tree or exported file
+    std::vector<std::string> fObservablesList;  //<
+
+    /// It contains a list of the process where all observables should be added
+    std::vector<std::string> fProcessObservablesList;  //<
+
     ROOT::RDataFrame fDataset = 0;   //!
     TTimeStamp fStartTimeStamp = 0;  //!
     TTimeStamp fEndTimeStamp = 0;    //!
