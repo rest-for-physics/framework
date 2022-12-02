@@ -151,12 +151,11 @@ Int_t REST_MakeMetadata(TString name) {
     sourceFile << "/// on future framework upgrades.                                        " << endl;
     sourceFile << "/// " << endl;
     sourceFile << "/// " << endl;
-    sourceFile << "/// Please, add any figure that may help to illustrate the process       " << endl;
+    sourceFile << "/// Please, add any figure that may help to illustrate the process or metadata.  " << endl;
     sourceFile << "/// " << endl;
-    sourceFile
-        << "/// \\htmlonly <style>div.image img[src=\"trigger.png\"]{width:500px;}</style> \\endhtmlonly"
-        << endl;
-    sourceFile << "/// ![An illustration of the trigger definition](trigger.png)             " << endl;
+    sourceFile << "/// \\htmlonly <style>div.image img[src=\"image.png\"]{width:500px;}</style> \\endhtmlonly"
+               << endl;
+    sourceFile << "/// ![A figure title description](image.png)             " << endl;
     sourceFile << "/// " << endl;
     sourceFile << "/// The png image should be uploaded to the ./images/ directory          " << endl;
     sourceFile << "///                                                                      " << endl;
@@ -196,15 +195,17 @@ Int_t REST_MakeMetadata(TString name) {
     sourceFile << "/// The default behaviour is that the config file must be specified with" << endl;
     sourceFile << "/// full path, absolute or relative." << endl;
     sourceFile << "///" << endl;
-    sourceFile << "/// \\param configFilename A const char* giving the path to an RML file." << endl;
-    sourceFile << "/// \\param name The name of the specific metadata. It will be used to find the" << endl;
-    sourceFile << "/// corresponding TRestAxionMagneticField section inside the RML." << endl;
+    sourceFile << "/// \\param configFilename A const char* that defines the RML filename." << endl;
+    sourceFile << "/// \\param name The name of the metadata section. It will be used to find the" << endl;
+    sourceFile << "/// corresponding " << name << " section inside the RML." << endl;
     sourceFile << "///" << endl;
     sourceFile << name << "::" << name
                << "(const char* configFilename, std::string name) : TRestMetadata(configFilename) {" << endl;
     sourceFile << "    LoadConfigFromFile(fConfigFileName, name);" << endl;
     sourceFile << "" << endl;
-    sourceFile << "	 if (GetVerboseLevel() >= REST_Info) PrintMetadata();" << endl;
+    sourceFile
+        << "	 if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();"
+        << endl;
     sourceFile << "}" << endl;
     sourceFile << endl;
     sourceFile << "///////////////////////////////////////////////                          " << endl;
@@ -235,7 +236,7 @@ Int_t REST_MakeMetadata(TString name) {
     sourceFile << "void " << name << "::PrintMetadata() {" << endl;
     sourceFile << "    TRestMetadata::PrintMetadata();" << endl;
     sourceFile << endl;
-    sourceFile << "    metadata << \" - Dummy member : \" << fDummy << endl;" << endl;
+    sourceFile << "    RESTMetadata << \" - Dummy member : \" << fDummy << RESTendl;" << endl;
     sourceFile << "}" << endl;
     sourceFile << endl;
 

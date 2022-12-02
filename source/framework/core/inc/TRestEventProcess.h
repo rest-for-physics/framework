@@ -23,9 +23,11 @@
 #ifndef RestCore_TRestEventProcess
 #define RestCore_TRestEventProcess
 
+#include <TCanvas.h>
+#include <TNamed.h>
+
 #include <limits>
-#include "TCanvas.h"
-#include "TNamed.h"
+
 #include "TRestAnalysisTree.h"
 #include "TRestEvent.h"
 #include "TRestMetadata.h"
@@ -103,9 +105,9 @@ class TRestEventProcess : public TRestMetadata {
         std::string type = REST_Reflection::GetTypeName<T>();
         return (T*)GetMetadata(type);
     }
-    TRestMetadata* GetMetadata(std::string nameOrType);
-    TRestEventProcess* GetFriend(std::string nameOrType);
-    TRestEventProcess* GetFriendLive(std::string nameOrType);
+    TRestMetadata* GetMetadata(const std::string& nameOrType);
+    TRestEventProcess* GetFriend(const std::string& nameOrType);
+    TRestEventProcess* GetFriendLive(const std::string& nameOrType);
     inline size_t GetNumberOfParallelProcesses() const { return fParallelProcesses.size(); }
     TRestEventProcess* GetParallel(int i);
     //////////////////////////////////////////////////////////////////////////
@@ -146,31 +148,33 @@ class TRestEventProcess : public TRestMetadata {
     /// If use dynamic observable, it will try to create new observable
     /// in the AnalysisTree if the observable is not found
     template <class T>
-    inline void SetObservableValue(std::string name, const T& value) {
-        if (fAnalysisTree != nullptr) {
-            std::string obsName = this->GetName() + (std::string) "_" + (std::string)name;
+    inline void SetObservableValue(const std::string& name, const T& value) {
+        if (fAnalysisTree == nullptr) {
+            return;
+        }
 
-            if (fValidateObservables) {
-                int id = fAnalysisTree->GetObservableID(obsName);
-                if (id != -1) {
+        std::string obsName = std::string(this->GetName()) + "_" + name;
+
+        if (fValidateObservables) {
+            int id = fAnalysisTree->GetObservableID(obsName);
+            if (id != -1) {
+                fObservablesDefined[obsName] = id;
+                fObservablesUpdated[obsName] = id;
+                fAnalysisTree->SetObservable(obsName, value);
+            } else if (fDynamicObs) {
+                fAnalysisTree->SetObservable(obsName, value);
+                int n = fAnalysisTree->GetObservableID(obsName);
+                if (n != -1) {
                     fObservablesDefined[obsName] = id;
                     fObservablesUpdated[obsName] = id;
-                    fAnalysisTree->SetObservable(obsName, value);
-                } else if (fDynamicObs) {
-                    fAnalysisTree->SetObservable(obsName, value);
-                    int n = fAnalysisTree->GetObservableID(obsName);
-                    if (n != -1) {
-                        fObservablesDefined[obsName] = id;
-                        fObservablesUpdated[obsName] = id;
-                    }
                 }
-            } else {
-                int id = fAnalysisTree->GetObservableID(obsName);
-                if (id != -1) {
-                    fAnalysisTree->SetObservableValue(id, value);
-                } else if (fDynamicObs) {
-                    fAnalysisTree->SetObservableValue(obsName, value);
-                }
+            }
+        } else {
+            int id = fAnalysisTree->GetObservableID(obsName);
+            if (id != -1) {
+                fAnalysisTree->SetObservableValue(id, value);
+            } else if (fDynamicObs) {
+                fAnalysisTree->SetObservableValue(obsName, value);
             }
         }
     }
@@ -191,9 +195,9 @@ class TRestEventProcess : public TRestMetadata {
         fCanvas = new TCanvas(this->GetName(), this->GetTitle(), fCanvasSize.X(), fCanvasSize.Y());
     }
 
+   public:
     bool ApplyCut();
 
-   public:
     virtual const char* GetProcessName() const = 0;
     Int_t LoadSectionMetadata() override;
     virtual void InitFromConfigFile() override {
@@ -205,9 +209,9 @@ class TRestEventProcess : public TRestMetadata {
     }
     std::vector<std::string> ReadObservables();
     // open a list of input files to be processed, only used if is external process
-    virtual Bool_t OpenInputFiles(std::vector<std::string> files);
+    virtual Bool_t OpenInputFiles(const std::vector<std::string>& files);
     // add an input file during process
-    virtual Bool_t AddInputFile(std::string file) { return false; }
+    virtual Bool_t AddInputFile(const std::string& file) { return false; }
     // reset the entry by moving file ptr to 0 with fseek
     virtual Bool_t ResetEntry() { return false; }
 
