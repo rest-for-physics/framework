@@ -1,187 +1,187 @@
 #include "TRestGDMLParser.h"
 
+#include <filesystem>
+#ifdef __APPLE__
+#include <unistd.h>
+#endif
+
 using namespace std;
 
-string TRestGDMLParser::GetEntityVersion(string name) {
-    for (auto& i : entityVersion) {
-        if (i.first == name) {
-            return i.second;
-            break;
+string TRestGDMLParser::GetEntityVersion(const string& name) const {
+    for (auto& [entityName, entityVersion] : fEntityVersionMap) {
+        if (entityName == name) {
+            return entityVersion;
         }
     }
     return "0.0";
 }
 
-string TRestGDMLParser::GetGDMLVersion() { return gdmlVersion; }
+void TRestGDMLParser::Load(const string& filename) {
+    const string filenameAbsolute = TRestTools::ToAbsoluteName(filename);
+    if (!TRestTools::fileExists(filenameAbsolute)) {
+        RESTError << "TRestGDMLParser: Input GDML file: \"" << filenameAbsolute
+                  << "\" does not exist. Please double check your current path and filename" << RESTendl;
+        exit(1);
+    }
 
-string TRestGDMLParser::GetOutputGDMLFile() { return outfilename; }
+    fConfigFileName = filenameAbsolute;
+    fPath = TRestTools::SeparatePathAndName(filenameAbsolute).first;
 
-void TRestGDMLParser::Load(string file) {
-    file = TRestTools::ToAbsoluteName(file);
-    if (TRestTools::fileExists(file)) {
-        fConfigFileName = file;
-        path = TRestTools::SeparatePathAndName(file).first;
+    std::ifstream t(filenameAbsolute);
+    std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+    fFileString = str;
+    t.close();
 
-        std::ifstream t(file);
-        std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-        filestr = str;
-        t.close();
+    int pp = fFileString.find("##VERSION", 0);
+    if (pp != string::npos) {
+        int pp2 = fFileString.find("##", pp + 4);
+        if (pp2 != string::npos) fGdmlVersion = fFileString.substr(pp + 9, pp2 - pp - 9);
+        fGdmlVersion = ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(fGdmlVersion)));
+    }
 
-        int pp = filestr.find("##VERSION", 0);
-        if (pp != string::npos) {
-            int pp2 = filestr.find("##", pp + 4);
-            if (pp2 != string::npos) gdmlVersion = filestr.substr(pp + 9, pp2 - pp - 9);
-            gdmlVersion = ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(gdmlVersion)));
-        }
+    fFileString = ReplaceConstants(ReplaceVariables(fFileString));
 
-        filestr = ReplaceConstants(ReplaceVariables(filestr));
+    cout << "TRestGDMLParser: Initializing variables" << endl;
+    int pos = fFileString.find("<gdml", 0);
+    if (pos != -1) {
+        string elementString = fFileString.substr(pos, -1);
 
-        cout << "GDML: initializating variables" << endl;
-        int pos = filestr.find("<gdml", 0);
-        if (pos != -1) {
-            string elementstr = filestr.substr(pos, -1);
+        fElement = StringToElement(elementString);
+        fElementGlobal = GetElement("define", fElement);
 
-            fElement = StringToElement(elementstr);
-            fElementGlobal = GetElement("define", fElement);
+        LoadSectionMetadata();
+    }
 
-            LoadSectionMetadata();
-        }
+    cout << "TRestGDMLParser: Replacing expressions in GDML" << endl;
+    ReplaceEntity();
+    fFileString = Replace(fFileString, "= \"", "=\"");
+    fFileString = Replace(fFileString, " =\"", "=\"");
+    fFileString = Replace(fFileString, " = \"", "=\"");
 
-        cout << "GDML: replacing expressions in GDML" << endl;
-        ReplaceEntity();
-        filestr = Replace(filestr, "= \"", "=\"");
-        filestr = Replace(filestr, " =\"", "=\"");
-        filestr = Replace(filestr, " = \"", "=\"");
+    ReplaceAttributeWithKeyWord("cos(");
+    ReplaceAttributeWithKeyWord("sin(");
+    ReplaceAttributeWithKeyWord("tan(");
+    ReplaceAttributeWithKeyWord("sqrt(");
+    ReplaceAttributeWithKeyWord("log(");
+    ReplaceAttributeWithKeyWord("exp(");
 
-        ReplaceAttributeWithKeyWord("cos(");
-        ReplaceAttributeWithKeyWord("sin(");
-        ReplaceAttributeWithKeyWord("tan(");
-        ReplaceAttributeWithKeyWord("sqrt(");
-        ReplaceAttributeWithKeyWord("log(");
-        ReplaceAttributeWithKeyWord("exp(");
+    string filenameNoPath = TRestTools::SeparatePathAndName(filenameAbsolute).second;
+    // we have to use a unique identifier on the file to prevent collision when launching multiple jobs
+    fOutputGdmlFilename = fOutputGdmlDirectory + "PID" + std::to_string(getpid()) + "_" + filenameNoPath;
+    cout << "TRestGDMLParser: Creating temporary file at: \"" << fOutputGdmlFilename << "\"" << endl;
 
-        cout << "GDML: creating temporary file" << endl;
-        ofstream outf;
-        string fname = TRestTools::SeparatePathAndName(file).second;
-        // we have to use a unique identifier on the file to prevent collision when launching multiple jobs
-        outfilename = outPath + "PID" + std::to_string(getpid()) + "_" + fname;
-        outf.open(outfilename, ios::trunc);
-        outf << filestr << endl;
-        outf.close();
-        // getchar();
+    filesystem::create_directories(fOutputGdmlDirectory);
 
-    } else {
-        ferr << "Filename : " << file << endl;
-        ferr << "File does not exist. Right path/filename?" << endl;
-        exit(0);
+    ofstream outputFile;
+    outputFile.open(fOutputGdmlFilename, ios::trunc);
+    outputFile << fFileString << endl;
+    outputFile.close();
+
+    std::ifstream fileToCheckExistence(fOutputGdmlFilename);
+    if (!fileToCheckExistence) {
+        std::cout << "TRestGDMLParser: Problem writing temporary file." << std::endl;
+        exit(1);
     }
 }
 
-TGeoManager* TRestGDMLParser::CreateGeoM() {
+TGeoManager* TRestGDMLParser::CreateGeoManager() {
     // We must change to the gdml file directory, otherwise ROOT cannot load.
-    if (outfilename != "") {
-        char originDirectory[256];
-        sprintf(originDirectory, "%s", getenv("PWD"));
-        chdir(outPath.c_str());
-        TGeoManager* geo2 = new TGeoManager();
-        geo2->Import(outfilename.c_str());
-        chdir(originDirectory);
-        return geo2;
+    if (!fOutputGdmlFilename.empty()) {
+        const auto currentPath = filesystem::current_path();
+        filesystem::current_path(fOutputGdmlDirectory);
+        auto geoManager = new TGeoManager();
+        geoManager->Import(fOutputGdmlFilename.c_str());
+        filesystem::current_path(currentPath);
+        return geoManager;
     }
     return nullptr;
 }
 
-void TRestGDMLParser::PrintContent() { cout << filestr << endl; }
+void TRestGDMLParser::PrintContent() { cout << fFileString << endl; }
 
 void TRestGDMLParser::ReplaceEntity() {
     int pos = 0;
-    while ((pos = filestr.find("<!ENTITY", pos)) != -1) {
-        int pos1 = filestr.find_first_not_of(" ", pos + 8);
-        int pos2 = filestr.find("SYSTEM", pos1);
-        string entityname = RemoveWhiteSpaces(filestr.substr(pos1, pos2 - pos1));
-        // cout << entityname << endl;
+    while ((pos = fFileString.find("<!ENTITY", pos)) != -1) {
+        int pos1 = fFileString.find_first_not_of(" ", pos + 8);
+        int pos2 = fFileString.find("SYSTEM", pos1);
+        string entityName = RemoveWhiteSpaces(fFileString.substr(pos1, pos2 - pos1));
 
-        int pos3 = filestr.find("\"", pos2) + 1;
-        int pos4 = filestr.find("\"", pos3);
-        string entityfile = RemoveWhiteSpaces(filestr.substr(pos3, pos4 - pos3));
+        int pos3 = fFileString.find("\"", pos2) + 1;
+        int pos4 = fFileString.find("\"", pos3);
+        string entityFile = RemoveWhiteSpaces(fFileString.substr(pos3, pos4 - pos3));
 
-        cout << "GDML: replacing entitiy: " << entityname << ", file: " << entityfile << endl;
+        cout << "TRestGDMLParser: Replacing entity: " << entityName << ", file: " << entityFile << endl;
 
-        if ((int)entityfile.find("http") != -1) {
-            string entityfiledl = outPath + "PID" + std::to_string(getpid()) + "_" + entityname + ".xml";
-            int a = TRestTools::DownloadRemoteFile(entityfile, entityfiledl);
+        if ((int)entityFile.find("http") != -1) {
+            string entityField =
+                fOutputGdmlDirectory + "PID" + std::to_string(getpid()) + "_" + entityName + ".xml";
+            int a = TRestTools::DownloadRemoteFile(entityFile, entityField);
             if (a != 0) {
-                cout << "GDML: Download failed!" << endl;
+                cout << "TRestGDMLParser: Download failed!" << endl;
                 exit(1);
             }
-            entityfile = entityfiledl;
+            entityFile = entityField;
         } else {
-            entityfile = path + entityfile;
+            entityFile = fPath + "/" + entityFile;
         }
 
         int pos5 = 0;
-        if ((pos5 = filestr.find("&" + entityname + ";")) != -1) {
-            if (TRestTools::fileExists(entityfile)) {
-                std::ifstream t(entityfile);
-                std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-                t.close();
+        if ((pos5 = fFileString.find("&" + entityName + ";")) != -1) {
+            if (TRestTools::fileExists(entityFile)) {
+                std::ifstream entityFileRead(entityFile);
+                std::string str((std::istreambuf_iterator<char>(entityFileRead)),
+                                std::istreambuf_iterator<char>());
+                entityFileRead.close();
 
                 str = ReplaceConstants(ReplaceVariables(str));
 
-                entityVersion[entityname] = "";
+                fEntityVersionMap[entityName] = "";
                 int pp = str.find("##VERSION", 0);
                 if (pp != string::npos) {
                     int pp2 = str.find("##", pp + 4);
                     if (pp2 != string::npos) {
-                        entityVersion[entityname] = str.substr(pp + 9, pp2 - pp - 9);
+                        fEntityVersionMap[entityName] = str.substr(pp + 9, pp2 - pp - 9);
                     }
                 }
 
-                // cout << "replacing entity..." << endl;
-                filestr.replace(pos5, entityname.length() + 2, str);
+                fFileString.replace(pos5, entityName.length() + 2, str);
             } else {
-                cout << "GDML ERROR! No matching reference file for entity: \"" << entityname << "\"" << endl;
-                cout << "file name: \"" << entityfile << "\"" << endl;
-                exit(0);
+                cout << "GDML ERROR! No matching reference file for entity: \"" << entityName << "\"" << endl;
+                cout << "file name: \"" << entityFile << "\"" << endl;
+                exit(1);
             }
         } else {
-            cout << "GDML: Warning! redundant entity: \"" << entityname << "\"" << endl;
+            cout << "TRestGDMLParser: Warning! redundant entity: \"" << entityName << "\"" << endl;
         }
         pos++;
     }
 }
 
-void TRestGDMLParser::ReplaceAttributeWithKeyWord(string keyword) {
+void TRestGDMLParser::ReplaceAttributeWithKeyWord(const string& keyword) {
     int n;
-    while ((n = filestr.find(keyword, 0)) != -1) {
+    while ((n = fFileString.find(keyword, 0)) != -1) {
         int pos1 = 0, pos2 = 0;
         for (int i = n; i >= 0; i--) {
-            if (filestr[i] == '"') {
+            if (fFileString[i] == '"') {
                 pos1 = i + 1;
                 break;
             }
         }
 
-        for (unsigned int i = n; i < filestr.size(); i++) {
-            if (filestr[i] == '"') {
+        for (unsigned int i = n; i < fFileString.size(); i++) {
+            if (fFileString[i] == '"') {
                 pos2 = i;
                 break;
             }
         }
-        string target = filestr.substr(pos1, pos2 - pos1);
-        // cout << target << endl;
+        string target = fFileString.substr(pos1, pos2 - pos1);
         string replace = ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(target)));
-        // cout << replace << endl;
-        // cout << target << " " << ReplaceConstants(ReplaceVariables(target) << " "
-        // << replace << endl;
 
         if (replace == target) {
-            cout << "Error! failed to replace mathematical expressions! check the "
-                    "file!"
-                 << endl;
+            cout << "Error! failed to replace mathematical expressions! check the file!" << endl;
             cout << replace << endl;
-            exit(0);
+            exit(1);
         }
-        filestr.replace(pos1, pos2 - pos1, replace);
+        fFileString.replace(pos1, pos2 - pos1, replace);
     }
 }

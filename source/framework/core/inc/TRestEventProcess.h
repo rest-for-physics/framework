@@ -23,8 +23,11 @@
 #ifndef RestCore_TRestEventProcess
 #define RestCore_TRestEventProcess
 
-#include "TCanvas.h"
-#include "TNamed.h"
+#include <TCanvas.h>
+#include <TNamed.h>
+
+#include <limits>
+
 #include "TRestAnalysisTree.h"
 #include "TRestEvent.h"
 #include "TRestMetadata.h"
@@ -54,7 +57,7 @@ class TRestEventProcess : public TRestMetadata {
     /// according to the friend processes added. It can also get parameter or output event
     /// from friend processes
     std::vector<TRestEventProcess*> fFriendlyProcesses;  //!
-    /// Stores a list of parallel processes if multithread is enabled
+    /// Stores a list of parallel processes if multithreading is enabled
     std::vector<TRestEventProcess*> fParallelProcesses;  //!
    protected:
     ///< Canvas for some viewer event
@@ -72,7 +75,7 @@ class TRestEventProcess : public TRestMetadata {
     /// It defines if the process reads event data from an external source.
     bool fIsExternal = false;  //!
     /// It defines if the process can run only under single std::thread mode. If true, the whole process
-    /// chain will not use multithread. Useful for processes with viewing functionality. Always true for
+    /// chain will not use multithreading. Useful for processes with viewing functionality. Always true for
     /// external processes.
     bool fSingleThreadOnly = false;  //!
     /// not used, keep for compatibility
@@ -98,102 +101,133 @@ class TRestEventProcess : public TRestMetadata {
     /// mis-spelling. For example: `fReadout = GetMetadata<TRestReadout>();`. No need for type
     /// conversion.
     template <class T>
-    T* GetMetadata() {
+    inline T* GetMetadata() {
         std::string type = REST_Reflection::GetTypeName<T>();
         return (T*)GetMetadata(type);
     }
-    TRestMetadata* GetMetadata(std::string nameortype);
-    TRestEventProcess* GetFriend(std::string nameortype);
-    TRestEventProcess* GetFriendLive(std::string nameortype);
-    int GetNumberOfParallelProcesses() { return fParallelProcesses.size(); }
+    TRestMetadata* GetMetadata(const std::string& nameOrType);
+    TRestEventProcess* GetFriend(const std::string& nameOrType);
+    TRestEventProcess* GetFriendLive(const std::string& nameOrType);
+    inline size_t GetNumberOfParallelProcesses() const { return fParallelProcesses.size(); }
     TRestEventProcess* GetParallel(int i);
     //////////////////////////////////////////////////////////////////////////
-    /// \brief Set observable value for analysistree.
+    /// \brief Get a list of data members from parallel processes which is same to
+    /// this process's certain data member.
+    ///
+    /// This method can be used in merging and exporting histograms at the end of the
+    /// process, to support multi-thread run.
+    ///
+    /// Because all the parallel processes are in same data structure, this method directly
+    /// gets the data members by accessing certain offset.
+    ///
+    /// Usage: (suppose we defined fHist as data member)
+    /// auto hists = this->GetParallelObjects(&fHist);
+    /// for (auto h : hists) { fHist->Add(h); }
+    ///
+    template <class T>
+    std::vector<T> GetParallelDataMembers(T* member_of_process) {
+        std::vector<T> result;
+        int offset = (int)((char*)member_of_process - (char*)this);
+        if (offset <= 0 || offset > this->IsA()->GetClassSize()) {
+            std::cout << this->ClassName() << "::GetParallelDataMembers(): invalid object input!"
+                      << std::endl;
+            return result;
+        }
+        for (int i = 0; i < GetNumberOfParallelProcesses(); i++) {
+            char* proc = (char*)GetParallel(i);
+            if (proc == (char*)this) continue;
+
+            result.push_back(*(T*)(proc + offset));
+        }
+        return result;
+    }
+    //////////////////////////////////////////////////////////////////////////
+    /// \brief Set observable value for AnalysisTree.
     ///
     /// It will rename the observable to "processName_obsName"
     /// If use dynamic observable, it will try to create new observable
     /// in the AnalysisTree if the observable is not found
     template <class T>
-    void SetObservableValue(std::string name, const T& value) {
-        if (fAnalysisTree != nullptr) {
-            std::string obsname = this->GetName() + (std::string) "_" + (std::string)name;
+    inline void SetObservableValue(const std::string& name, const T& value) {
+        if (fAnalysisTree == nullptr) {
+            return;
+        }
 
-            if (fValidateObservables) {
-                int id = fAnalysisTree->GetObservableID(obsname);
-                if (id != -1) {
-                    fObservablesDefined[obsname] = id;
-                    fObservablesUpdated[obsname] = id;
-                    fAnalysisTree->SetObservable(obsname, value);
-                } else if (fDynamicObs) {
-                    fAnalysisTree->SetObservable(obsname, value);
-                    int n = fAnalysisTree->GetObservableID(obsname);
-                    if (n != -1) {
-                        fObservablesDefined[obsname] = id;
-                        fObservablesUpdated[obsname] = id;
-                    }
-                }
-            } else {
-                int id = fAnalysisTree->GetObservableID(obsname);
-                if (id != -1) {
-                    fAnalysisTree->SetObservableValue(id, value);
-                } else if (fDynamicObs) {
-                    fAnalysisTree->SetObservableValue(obsname, value);
+        std::string obsName = std::string(this->GetName()) + "_" + name;
+
+        if (fValidateObservables) {
+            int id = fAnalysisTree->GetObservableID(obsName);
+            if (id != -1) {
+                fObservablesDefined[obsName] = id;
+                fObservablesUpdated[obsName] = id;
+                fAnalysisTree->SetObservable(obsName, value);
+            } else if (fDynamicObs) {
+                fAnalysisTree->SetObservable(obsName, value);
+                int n = fAnalysisTree->GetObservableID(obsName);
+                if (n != -1) {
+                    fObservablesDefined[obsName] = id;
+                    fObservablesUpdated[obsName] = id;
                 }
             }
-            // if (fObservableInfo.count(obsname) != 0) {
-            //    if (fValidateObservables) fObservableForValidation[obsname] = fObservableInfo[obsname];
-            //    fAnalysisTree->SetObservableValue(fObservableInfo[obsname], value);
-            //} else if (fDynamicObs && fObservableInfo.count(obsname) == 0) {
-            //    // create new branch for this observable
-            //    int n = fAnalysisTree->AddObservable<T>(obsname);
-            //    if (n != -1) {
-            //        fObservableInfo[obsname] = n;
-            //        if (fValidateObservables) fObservableForValidation[obsname] = fObservableInfo[obsname];
-            //        fAnalysisTree->SetObservableValue(fObservableInfo[obsname], value);
-            //    }
-            //}
+        } else {
+            int id = fAnalysisTree->GetObservableID(obsName);
+            if (id != -1) {
+                fAnalysisTree->SetObservableValue(id, value);
+            } else if (fDynamicObs) {
+                fAnalysisTree->SetObservableValue(obsName, value);
+            }
         }
     }
 
+    template <class T>
+    T GetObservableValue(const std::string& name) {
+        if (fAnalysisTree != nullptr) {
+            return fAnalysisTree->GetObservableValue<T>(name);
+        }
+        return std::numeric_limits<T>::quiet_NaN();
+    }
+
     /// Create the canvas
-    void CreateCanvas() {
-        if (fCanvas != nullptr) return;
+    inline void CreateCanvas() {
+        if (fCanvas != nullptr) {
+            return;
+        }
         fCanvas = new TCanvas(this->GetName(), this->GetTitle(), fCanvasSize.X(), fCanvasSize.Y());
     }
 
+   public:
     bool ApplyCut();
 
-   public:
-    Int_t LoadSectionMetadata();
-    virtual void InitFromConfigFile() {
+    virtual const char* GetProcessName() const = 0;
+    Int_t LoadSectionMetadata() override;
+    virtual void InitFromConfigFile() override {
         std::map<std::string, std::string> parameters = GetParametersList();
-
-        for (auto& p : parameters)
+        for (auto& p : parameters) {
             p.second = ReplaceMathematicalExpressions(fRunInfo->ReplaceMetadataMembers(p.second));
-
+        }
         ReadParametersList(parameters);
     }
     std::vector<std::string> ReadObservables();
     // open a list of input files to be processed, only used if is external process
-    virtual Bool_t OpenInputFiles(std::vector<std::string> files);
+    virtual Bool_t OpenInputFiles(const std::vector<std::string>& files);
     // add an input file during process
-    virtual Bool_t AddInputFile(std::string file) { return false; }
+    virtual Bool_t AddInputFile(const std::string& file) { return false; }
     // reset the entry by moving file ptr to 0 with fseek
     virtual Bool_t ResetEntry() { return false; }
 
-    void SetObservableValidation(bool validate) { fValidateObservables = validate; }
-    // void EnableObservableValidation() { fValidateObservables = true; }
-    // void DisableObservableValidation() { fValidateObservables = false; }
+    inline void SetObservableValidation(bool validate) { fValidateObservables = validate; }
+
+    inline void RegisterAllObservables(Bool_t value = true) { fDynamicObs = value; }
 
     // process running methods
     /// To be executed at the beginning of the run (outside event loop)
     virtual void InitProcess() {}
     /// Begin of event process, preparation work. Called right before ProcessEvent()
-    virtual void BeginOfEventProcess(TRestEvent* evInput = nullptr);
+    virtual void BeginOfEventProcess(TRestEvent* inputEvent = nullptr);
     /// Process one event
-    virtual TRestEvent* ProcessEvent(TRestEvent* evInput) = 0;
+    virtual TRestEvent* ProcessEvent(TRestEvent* inputEvent) = 0;
     /// End of event process. Nothing to do. Called directly after ProcessEvent()
-    virtual void EndOfEventProcess(TRestEvent* evInput = nullptr);
+    virtual void EndOfEventProcess(TRestEvent* inputEvent = nullptr);
     /// To be executed at the end of the run (outside event loop)
     virtual void EndProcess() {}
 
@@ -201,35 +235,37 @@ class TRestEventProcess : public TRestMetadata {
     /// Set analysis tree of this process, then add observables to it
     void SetAnalysisTree(TRestAnalysisTree* tree);
     /// Set TRestRun for this process
-    void SetRunInfo(TRestRun* r) { fRunInfo = r; }
+    inline void SetRunInfo(TRestRun* r) { fRunInfo = r; }
     /// Set canvas size
-    void SetCanvasSize(Int_t x, Int_t y) { fCanvasSize = TVector2(x, y); }
+    inline void SetCanvasSize(Int_t x, Int_t y) { fCanvasSize = TVector2(x, y); }
     /// Add friendly process to this process
     void SetFriendProcess(TRestEventProcess* p);
     /// Add parallel process to this process
     void SetParallelProcess(TRestEventProcess* p);
+    /// In case the analysis tree is reset(switched to new file), some process needs to have action
+    virtual void NotifyAnalysisTreeReset() {}
 
     // getters
     /// Get pointer to input event. Must be implemented in the derived class
-    virtual RESTValue GetInputEvent() = 0;
+    virtual RESTValue GetInputEvent() const = 0;
     /// Get pointer to output event. Must be implemented in the derived class
-    virtual RESTValue GetOutputEvent() = 0;
+    virtual RESTValue GetOutputEvent() const = 0;
     /// Interface to external file reading, get the total bytes of input binary file. To be implemented in
     /// external processes.
-    virtual Long64_t GetTotalBytes() { return -1; }
-    /// Interface to external file reading, get the readed bytes. To be implemented in external processes.
-    virtual Long64_t GetTotalBytesReaded() { return 0; }
+    virtual Long64_t GetTotalBytes() const { return -1; }
+    /// Interface to external file reading, get the read bytes. To be implemented in external processes.
+    virtual Long64_t GetTotalBytesRead() const { return 0; }
     /// Return whether this process is single std::thread only
-    Bool_t singleThreadOnly() { return fSingleThreadOnly; }
+    inline Bool_t singleThreadOnly() const { return fSingleThreadOnly; }
     /// Return whether this process is external process
-    Bool_t isExternal() { return fIsExternal; }
+    inline Bool_t isExternal() const { return fIsExternal; }
     /// Return the pointer of the hosting TRestRun object
-    TRestRun* GetRunInfo() { return fRunInfo; }
+    inline TRestRun* GetRunInfo() const { return fRunInfo; }
     /// Return the local analysis tree (dummy)
-    TRestAnalysisTree* GetAnalysisTree() { return fAnalysisTree; }
+    inline TRestAnalysisTree* GetAnalysisTree() const { return fAnalysisTree; }
     TRestAnalysisTree* GetFullAnalysisTree();
     /// Get canvas
-    TCanvas* GetCanvas() { return fCanvas; }
+    inline TCanvas* GetCanvas() const { return fCanvas; }
     std::vector<std::string> GetListOfAddedObservables();
 
     // Constructor
@@ -237,6 +273,11 @@ class TRestEventProcess : public TRestMetadata {
     // Destructor
     ~TRestEventProcess();
 
-    ClassDef(TRestEventProcess, 3);  // Base class for a REST process
+    ClassDefOverride(TRestEventProcess, 3);  // Base class for a REST process
 };
+
+#define _ApplyCut(evt)              \
+    if (ApplyCut()) return nullptr; \
+    return evt;
+
 #endif

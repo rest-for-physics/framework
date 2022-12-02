@@ -41,7 +41,7 @@ class TRestTask : public TRestMetadata {
 
    public:
     // define default values here
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
     void SetArgumentValue(std::vector<std::string> arg);
 
@@ -52,13 +52,13 @@ class TRestTask : public TRestMetadata {
     virtual void PrintArgumentHelp();
 
     void SetMode(REST_TASKMODE mod) { fMode = mod; }
-    REST_TASKMODE GetMode() { return fMode; }
+    inline REST_TASKMODE GetMode() const { return fMode; }
 
     // Constructor & Destructor
     TRestTask();
     ~TRestTask(){};
 
-    ClassDef(TRestTask, 1);
+    ClassDefOverride(TRestTask, 1);
 };
 
 #endif

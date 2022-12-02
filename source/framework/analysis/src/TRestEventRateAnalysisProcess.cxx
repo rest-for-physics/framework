@@ -29,7 +29,7 @@
 ///  as follows:
 ///
 /// \code
-/// <addProcess type="TRestEventRateAnalysisProcess" name="rate" observables="all" />
+/// <addProcess type="TRestEventRateAnalysisProcess" name="rate" observable="all" />
 /// \endcode
 ///
 /// or
@@ -124,18 +124,21 @@ void TRestEventRateAnalysisProcess::Initialize() {
 /// \brief Process initialization.
 ///
 void TRestEventRateAnalysisProcess::InitProcess() {
-    if (fRunInfo->GetStartTimestamp() != 0) {
+    if (fRunInfo != NULL && fRunInfo->GetStartTimestamp() != 0) {
         fFirstEventTime = fRunInfo->GetStartTimestamp();
     } else {
         fFirstEventTime = -1;
     }
+    
+    // if is run under single thread mode, we add rate observables
+    fRateAnalysis = GetNumberOfParallelProcesses() <= 1;
 }
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestEventRateAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
-    fEvent = evInput;
+TRestEvent* TRestEventRateAnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fEvent = inputEvent;
 
     if (fFirstEventTime == -1) fFirstEventTime = fEvent->GetTime();
 
@@ -143,23 +146,24 @@ TRestEvent* TRestEventRateAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     SetObservableValue("SecondsFromStart", secondsFromStart);
     SetObservableValue("HoursFromStart", secondsFromStart / 3600.);
 
-    Double_t evTimeDelay = 0;
-    if (fPreviousEventTime.size() > 0) evTimeDelay = fEvent->GetTime() - fPreviousEventTime.back();
-    SetObservableValue("EventTimeDelay", evTimeDelay);
+    if(fRateAnalysis){
+        Double_t evTimeDelay = 0;
+        if (fPreviousEventTime.size() > 0) evTimeDelay = fEvent->GetTime() - fPreviousEventTime.back();
+        SetObservableValue("EventTimeDelay", evTimeDelay);
 
-    Double_t meanRate = 0;
-    if (fPreviousEventTime.size() == 10) meanRate = 10. / (fEvent->GetTime() - fPreviousEventTime.front());
-    SetObservableValue("MeanRate_InHz", meanRate);
+        Double_t meanRate = 0;
+        if (fPreviousEventTime.size() == 10) meanRate = 10. / (fEvent->GetTime() - fPreviousEventTime.front());
+        SetObservableValue("MeanRate_InHz", meanRate);
 
-    if (GetVerboseLevel() >= REST_Debug) {
-        for (auto i : fObservablesDefined) {
-            fAnalysisTree->PrintObservable(i.second);
+        if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
+            for (auto i : fObservablesDefined) {
+                fAnalysisTree->PrintObservable(i.second);
+            }
         }
+
+        fPreviousEventTime.push_back(fEvent->GetTimeStamp());
+        if (fPreviousEventTime.size() > 10) fPreviousEventTime.erase(fPreviousEventTime.begin());
     }
-
-    fPreviousEventTime.push_back(fEvent->GetTimeStamp());
-    if (fPreviousEventTime.size() > 10) fPreviousEventTime.erase(fPreviousEventTime.begin());
-
     // If cut condition matches the event will be not registered.
     if (ApplyCut()) return NULL;
 

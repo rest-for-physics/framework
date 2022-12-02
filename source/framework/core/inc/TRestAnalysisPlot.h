@@ -44,13 +44,14 @@ const std::map<std::string, int> FillStyleMap{
 
 class TRestAnalysisPlot : public TRestMetadata {
    public:
-    struct Histo_Info_Set {
+    struct HistoInfoSet {
         std::string name;   // will be shown in the legend
         std::string range;  // output histo std::string for TTree::Draw(), e.g. name+range = htemp(100,0,1000)
         Bool_t status;
 
         std::string plotString;  // draw std::string for TTree::Draw()
         std::string cutString;   // cut std::string for TTree::Draw()
+        std::string weight;
         std::map<std::string, std::string>
             classifyMap;         // select the input files to draw the histogram, if their
                                  // TRestRun::Get() returns the assumed std::string
@@ -66,7 +67,7 @@ class TRestAnalysisPlot : public TRestMetadata {
         TH3F* operator->() { return ptr; }
     };
 
-    struct Plot_Info_Set {
+    struct PlotInfoSet {
         std::string name;
         std::string title;
 
@@ -102,11 +103,12 @@ class TRestAnalysisPlot : public TRestMetadata {
 
         std::string save;
 
-        std::vector<Histo_Info_Set> histos;
+        std::vector<HistoInfoSet> histos;
     };
 
-    struct Panel_Info {
+    struct PanelInfo {
         Float_t font_size;
+        Int_t precision;
 
         std::vector<Float_t> posX;
         std::vector<Float_t> posY;
@@ -116,7 +118,7 @@ class TRestAnalysisPlot : public TRestMetadata {
 
    private:
     void InitFromConfigFile() override;
-    Histo_Info_Set SetupHistogramFromConfigFile(TiXmlElement* ele, Plot_Info_Set info);
+    HistoInfoSet SetupHistogramFromConfigFile(TiXmlElement* ele, PlotInfoSet info);
 
     Int_t fNFiles;
     // canvas option
@@ -140,8 +142,8 @@ class TRestAnalysisPlot : public TRestMetadata {
     Double_t fLegendY2 = 0.88;
 
     // plots information
-    std::vector<Plot_Info_Set> fPlots;
-    std::vector<Panel_Info> fPanels;
+    std::vector<PlotInfoSet> fPlots;
+    std::vector<PanelInfo> fPanels;
 
     std::vector<std::string> fPlotNamesCheck;  //!
 
@@ -179,8 +181,8 @@ class TRestAnalysisPlot : public TRestMetadata {
     void SetOutputPlotsFilename(TString fname) { fCanvasSave = fname; }
 
     Int_t GetPlotIndex(TString plotName);
-    TVector2 GetCanvasSize() { return fCanvasSize; }
-    TVector2 GetCanvasDivisions() { return fCanvasDivisions; }
+    inline TVector2 GetCanvasSize() const { return fCanvasSize; }
+    inline TVector2 GetCanvasDivisions() const { return fCanvasDivisions; }
 
     void SetTreeEntryRange(Long64_t NEntries = TTree::kMaxEntries, Long64_t FirstEntry = 0) {
         fDrawNEntries = NEntries;
@@ -188,9 +190,9 @@ class TRestAnalysisPlot : public TRestMetadata {
     }
     void PlotCombinedCanvas();
 
-    // Construtor
+    // Constructor
     TRestAnalysisPlot();
-    TRestAnalysisPlot(const char* cfgFileName, const char* name = "");
+    TRestAnalysisPlot(const char* configFilename, const char* name = "");
     // Destructor
     virtual ~TRestAnalysisPlot();
 

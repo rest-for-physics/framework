@@ -123,8 +123,8 @@ void TRestEventSelectionProcess::InitProcess() {
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestEventSelectionProcess::ProcessEvent(TRestEvent* eventInput) {
-    fEvent = eventInput;
+TRestEvent* TRestEventSelectionProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fEvent = inputEvent;
 
     for (int i = 0; i < fList.size(); i++) {
         if (fList[i] == fEvent->GetID()) {
@@ -141,9 +141,9 @@ TRestEvent* TRestEventSelectionProcess::ProcessEvent(TRestEvent* eventInput) {
 void TRestEventSelectionProcess::PrintMetadata() {
     BeginPrintProcess();
 
-    metadata << "File with IDs: " << fFileWithIDs << endl;
+    RESTMetadata << "File with IDs: " << fFileWithIDs << RESTendl;
     if (fFileWithIDs.substr(fFileWithIDs.length() - 4) == "root") {
-        metadata << "Conditions: " << fConditions << endl;
+        RESTMetadata << "Conditions: " << fConditions << RESTendl;
     }
 
     EndPrintProcess();

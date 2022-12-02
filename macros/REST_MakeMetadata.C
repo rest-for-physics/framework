@@ -16,13 +16,13 @@
 //*******************************************************************************************************
 Int_t REST_MakeMetadata(TString name) {
     if (name.First("TRest") != 0) {
-        ferr << "invalid process name! REST process name must be start with \"TRest\" " << endl;
+        RESTError << "invalid process name! REST process name must be start with \"TRest\" " << RESTendl;
         return -1;
     }
 
     ofstream headerFile(name + ".h");
     if (headerFile.fail()) {
-        ferr << "failed to create file!" << endl;
+        RESTError << "failed to create file!" << RESTendl;
         return -1;
     }
 
@@ -70,19 +70,32 @@ Int_t REST_MakeMetadata(TString name) {
     headerFile << "    /// REMOVE MEMBER. A dummy member that will be NOT written to the ROOT file." << endl;
     headerFile << "    Double_t fDummyVar = 3.14; //!" << endl;
     headerFile << endl;
-    headerFile << "    void Initialize();" << endl;
+    headerFile << "    void Initialize() override;" << endl;
     headerFile << endl;
     headerFile << "public:" << endl;
-    headerFile << "    void PrintMetadata();" << endl;
+    headerFile << "    /// UPDATE Documentation of dummy getter" << endl;
+    headerFile << "    Double_t GetDummy() { return fDummy;}" << endl;
+    headerFile << endl;
+    headerFile << "    /// UPDATE Documentation of dummy getter" << endl;
+    headerFile << "    Double_t GetDummyVar() { return fDummy;}" << endl;
+    headerFile << endl;
+    headerFile << "    /// UPDATE Documentation of dummy setter" << endl;
+    headerFile << "    void SetDummy( const Double_t &dummy) { fDummy = dummy;}" << endl;
+    headerFile << endl;
+    headerFile << "    /// UPDATE Documentation of dummy setter" << endl;
+    headerFile << "    void SetDummyVar( const Double_t &dummy) { fDummyVar = dummy;}" << endl;
+    headerFile << endl;
+    headerFile << "public:" << endl;
+    headerFile << "    void PrintMetadata() override;" << endl;
     headerFile << endl;
     headerFile << "    " << name << "();" << endl;
-    headerFile << "    " << name << "(const char* cfgFileName, std::string name = \"\")" << endl;
+    headerFile << "    " << name << "(const char* configFilename, std::string name = \"\");" << endl;
     headerFile << "    ~" << name << "();" << endl;
     headerFile << endl;
     headerFile << "    // REMOVE COMMENT. ROOT class definition helper. Increase the number in it every time"
                << endl;
     headerFile << "    // you add/rename/remove the metadata members" << endl;
-    headerFile << "    ClassDef(" << name << ", 1);" << endl;
+    headerFile << "    ClassDefOverride(" << name << ", 1);" << endl;
     headerFile << endl;
     headerFile << "};" << endl;
     headerFile << "#endif" << endl;
@@ -92,7 +105,7 @@ Int_t REST_MakeMetadata(TString name) {
 
     ofstream sourceFile(name + ".cxx");
     if (headerFile.fail()) {
-        ferr << "failed to create file!" << endl;
+        RESTError << "failed to create file!" << RESTendl;
         return -1;
     }
 
@@ -138,12 +151,11 @@ Int_t REST_MakeMetadata(TString name) {
     sourceFile << "/// on future framework upgrades.                                        " << endl;
     sourceFile << "/// " << endl;
     sourceFile << "/// " << endl;
-    sourceFile << "/// Please, add any figure that may help to illustrate the process       " << endl;
+    sourceFile << "/// Please, add any figure that may help to illustrate the process or metadata.  " << endl;
     sourceFile << "/// " << endl;
-    sourceFile
-        << "/// \\htmlonly <style>div.image img[src=\"trigger.png\"]{width:500px;}</style> \\endhtmlonly"
-        << endl;
-    sourceFile << "/// ![An illustration of the trigger definition](trigger.png)             " << endl;
+    sourceFile << "/// \\htmlonly <style>div.image img[src=\"image.png\"]{width:500px;}</style> \\endhtmlonly"
+               << endl;
+    sourceFile << "/// ![A figure title description](image.png)             " << endl;
     sourceFile << "/// " << endl;
     sourceFile << "/// The png image should be uploaded to the ./images/ directory          " << endl;
     sourceFile << "///                                                                      " << endl;
@@ -183,15 +195,17 @@ Int_t REST_MakeMetadata(TString name) {
     sourceFile << "/// The default behaviour is that the config file must be specified with" << endl;
     sourceFile << "/// full path, absolute or relative." << endl;
     sourceFile << "///" << endl;
-    sourceFile << "/// \\param cfgFileName A const char* giving the path to an RML file." << endl;
-    sourceFile << "/// \\param name The name of the specific metadata. It will be used to find the" << endl;
-    sourceFile << "/// corresponding TRestAxionMagneticField section inside the RML." << endl;
+    sourceFile << "/// \\param configFilename A const char* that defines the RML filename." << endl;
+    sourceFile << "/// \\param name The name of the metadata section. It will be used to find the" << endl;
+    sourceFile << "/// corresponding " << name << " section inside the RML." << endl;
     sourceFile << "///" << endl;
     sourceFile << name << "::" << name
-               << "(const char* cfgFileName, string name) : TRestMetadata(cfgFileName) {" << endl;
+               << "(const char* configFilename, std::string name) : TRestMetadata(configFilename) {" << endl;
     sourceFile << "    LoadConfigFromFile(fConfigFileName, name);" << endl;
     sourceFile << "" << endl;
-    sourceFile << "	 if (GetVerboseLevel() >= REST_Info) PrintMetadata();" << endl;
+    sourceFile
+        << "	 if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();"
+        << endl;
     sourceFile << "}" << endl;
     sourceFile << endl;
     sourceFile << "///////////////////////////////////////////////                          " << endl;
@@ -206,6 +220,8 @@ Int_t REST_MakeMetadata(TString name) {
     sourceFile << "///                                                                      " << endl;
     sourceFile << "void " << name << "::Initialize() {" << endl;
     sourceFile << "    SetSectionName(this->ClassName());" << endl;
+    sourceFile << "    // REMOVE COMMENT. Remove SetLibraryVersion line code if" << endl;
+    sourceFile << "    // your metadata class is a framework class." << endl;
     sourceFile << "    SetLibraryVersion(LIBRARY_VERSION);" << endl;
     sourceFile << endl;
     sourceFile << "    // REMOVE COMMENT. Initialize here any special data members if needed" << endl;
@@ -220,7 +236,7 @@ Int_t REST_MakeMetadata(TString name) {
     sourceFile << "void " << name << "::PrintMetadata() {" << endl;
     sourceFile << "    TRestMetadata::PrintMetadata();" << endl;
     sourceFile << endl;
-    sourceFile << "    metadata << \" - Dummy member : \" << fDummy << endl;" << endl;
+    sourceFile << "    RESTMetadata << \" - Dummy member : \" << fDummy << RESTendl;" << endl;
     sourceFile << "}" << endl;
     sourceFile << endl;
 

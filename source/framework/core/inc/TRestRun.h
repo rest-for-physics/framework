@@ -56,6 +56,10 @@ class TRestRun : public TRestMetadata {
     /// The effective run duration in seconds
     Double_t fRunDuration = 0;  //<
 
+    Int_t fEntriesSaved;
+    Int_t fNFilesSplit;  // Number of files being split. Used when retrieving
+
+
     // data-like metadata objects
     std::vector<TRestMetadata*> fMetadata;       //!
     std::vector<TRestMetadata*> fInputMetadata;  //!
@@ -78,14 +82,14 @@ class TRestRun : public TRestMetadata {
     bool fHangUpEndFile = false;           //!
     bool fFromRML = false;                 //!
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
    private:
-    std::string ReplaceMetadataMember(const std::string& instr);
+    std::string ReplaceMetadataMember(const std::string& instr, Int_t precision = 0);
 
    public:
     /// REST run class
-    void Initialize();
+    void Initialize() override;
 
     // file operation
     void OpenInputFile(int i);
@@ -98,21 +102,8 @@ class TRestRun : public TRestMetadata {
     void ResetEntry();
 
     Int_t GetNextEvent(TRestEvent* targetEvent, TRestAnalysisTree* targetTree);
-    void GetEntry(int i) {
-        if (fAnalysisTree != nullptr) {
-            fAnalysisTree->GetEntry(i);
-        }
-        if (fEventTree != nullptr) {
-            fEventTree->GetEntry(i);
-        }
 
-        if (i >= GetEntries()) {
-            warning << "TRestRun::GetEntry. Entry requested out of limits" << endl;
-            warning << "Total number of entries is : " << GetEntries() << endl;
-        }
-
-        fCurrentEvent = i;
-    }
+    void GetEntry(Long64_t entry);
 
     void GetNextEntry() {
         if (fCurrentEvent + 1 >= GetEntries()) fCurrentEvent = -1;
@@ -140,11 +131,15 @@ class TRestRun : public TRestMetadata {
         if (meta != nullptr) {
             fMetadata.push_back(meta);
         } else {
-            warning << "REST Warning! A null metadata wants to be added in TRestRun!" << endl;
+            RESTWarning << "REST Warning! A null metadata wants to be added in TRestRun!" << RESTendl;
         }
     }
-    void AddEventBranch(TRestEvent* eve);
+    void AddEventBranch(TRestEvent* event);
     void SkipEventTree() {}
+
+    void cd() {
+        if (fInputFile != nullptr) fInputFile->cd();
+    }
 
     // Getters
     inline Int_t GetParentRunNumber() const { return fParentRunNumber; }
@@ -169,7 +164,7 @@ class TRestRun : public TRestMetadata {
     inline int GetCurrentEntry() const { return fCurrentEvent; }
     inline Long64_t GetBytesReaded() const { return fBytesRead; }
     Long64_t GetTotalBytes();
-    int GetEntries() const;
+    Long64_t GetEntries() const;
 
     /// Calling `GetInputEvent()` will return a basic `TRestEvent*`
     inline TRestEvent* GetInputEvent() const { return fInputEvent; }
@@ -193,14 +188,14 @@ class TRestRun : public TRestMetadata {
     inline TTree* GetEventTree() const { return fEventTree; }
     inline Int_t GetInputFileNumber() const { return fFileProcess == nullptr ? fInputFileNames.size() : 1; }
 
-    TRestMetadata* GetMetadata(const TString& name, TFile* f = nullptr);
-    TRestMetadata* GetMetadataClass(const TString& type, TFile* f = nullptr);
+    TRestMetadata* GetMetadata(const TString& name, TFile* file = nullptr);
+    TRestMetadata* GetMetadataClass(const TString& type, TFile* file = nullptr);
     std::vector<std::string> GetMetadataStructureNames();
     std::vector<std::string> GetMetadataStructureTitles();
     inline int GetNumberOfMetadataStructures() const { return fMetadata.size(); }
 
     inline std::string GetMetadataMember(const std::string& instr) { return ReplaceMetadataMember(instr); }
-    std::string ReplaceMetadataMembers(const std::string& instr);
+    std::string ReplaceMetadataMembers(const std::string& instr, Int_t precision = 2);
 
     Bool_t EvaluateMetadataMember(const std::string& instr);
 
@@ -234,26 +229,27 @@ class TRestRun : public TRestMetadata {
     inline void SetEndTimeStamp(Double_t timestamp) { fEndTime = timestamp; }
     inline void SetTotalBytes(Long64_t totalBytes) { fTotalBytes = totalBytes; }
     inline void SetHistoricMetadataSaving(bool save) { fSaveHistoricData = save; }
+    inline void SetNFilesSplit(int n) { fNFilesSplit = n; }
     inline void HangUpEndFile() { fHangUpEndFile = true; }
     inline void ReleaseEndFile() { fHangUpEndFile = false; }
     // Printers
     void PrintStartDate();
     void PrintEndDate();
 
-    void PrintMetadata();
+    void PrintMetadata() override;
     inline void PrintAllMetadata() {
         PrintMetadata();
         for (unsigned int i = 0; i < fMetadata.size(); i++) fMetadata[i]->PrintMetadata();
     }
     inline void PrintTrees() const {
         if (fEventTree != nullptr) {
-            fout << endl;
-            fout << "=====EventTree=====" << endl;
+            RESTcout << RESTendl;
+            RESTcout << "=====EventTree=====" << RESTendl;
             fEventTree->Print();
         }
         if (fAnalysisTree != nullptr) {
-            fout << endl;
-            fout << "=====AnalysisTree=====" << endl;
+            RESTcout << RESTendl;
+            RESTcout << "=====AnalysisTree=====" << RESTendl;
             fAnalysisTree->Print();
         }
     }
@@ -265,14 +261,15 @@ class TRestRun : public TRestMetadata {
     void PrintErrors();
     void PrintWarnings();
 
-    Int_t Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0);
+    Int_t Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0) override;
 
     // Constructor & Destructor
     TRestRun();
     TRestRun(const std::string& filename);
     ~TRestRun();
 
-    ClassDef(TRestRun, 6);
+
+    ClassDefOverride(TRestRun, 7);
 };
 
 #endif

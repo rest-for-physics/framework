@@ -99,12 +99,11 @@ TRestMySQLToAnalysisProcess::TRestMySQLToAnalysisProcess() { Initialize(); }
 /// defined using the parameter `searchPath` in globals section. See
 /// TRestMetadata description.
 ///
-/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param configFilename A const char* giving the path to an RML file.
 ///
-TRestMySQLToAnalysisProcess::TRestMySQLToAnalysisProcess(char* cfgFileName) {
+TRestMySQLToAnalysisProcess::TRestMySQLToAnalysisProcess(const char* configFilename) {
     Initialize();
-
-    LoadConfig(cfgFileName);
+    LoadConfig(configFilename);
 }
 
 ///////////////////////////////////////////////
@@ -128,12 +127,12 @@ void TRestMySQLToAnalysisProcess::LoadDefaultConfig() {
 /// the path to the config file must be specified using full path, absolute or
 /// relative.
 ///
-/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param configFilename A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// correspondig TRestMySQLToAnalysisProcess section inside the RML.
+/// corresponding TRestMySQLToAnalysisProcess section inside the RML.
 ///
-void TRestMySQLToAnalysisProcess::LoadConfig(std::string cfgFilename, std::string name) {
-    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
+void TRestMySQLToAnalysisProcess::LoadConfig(const string& configFilename, const string& name) {
+    if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
@@ -147,9 +146,10 @@ void TRestMySQLToAnalysisProcess::InitProcess() {
     if (fSQLVariables.size() > 0)
         FillDBArrays();
     else {
-        warning << "TRestMySQLToAnalysisProcess::InitProcess. No data base field entries have been specified!"
-                << endl;
-        warning << "This process will do nothing!" << endl;
+        RESTWarning
+            << "TRestMySQLToAnalysisProcess::InitProcess. No data base field entries have been specified!"
+            << RESTendl;
+        RESTWarning << "This process will do nothing!" << RESTendl;
     }
 }
 
@@ -157,30 +157,38 @@ void TRestMySQLToAnalysisProcess::InitProcess() {
 /// \brief Function to initialize input/output event members and define the
 /// section name and library version
 ///
-void TRestMySQLToAnalysisProcess::Initialize() { SetSectionName(this->ClassName()); }
+void TRestMySQLToAnalysisProcess::Initialize() {
+    SetSectionName(this->ClassName());
+
+#ifndef USE_SQL
+    RESTWarning << "TRestMySQLToAnalysisProcess. REST was compiled without mySQL support" << RESTendl;
+    RESTWarning << "This process will not be funcional" << RESTendl;
+#endif
+}
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestMySQLToAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
-    fEvent = evInput;
+TRestEvent* TRestMySQLToAnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fEvent = inputEvent;
 
 #if defined USE_SQL
-    debug << "TRestMySQLToAnalysisProcess. Ev ID : " << fEvent->GetID() << endl;
-    debug << "TRestMySQLToAnalysisProcess. Get timestamp : " << fEvent->GetTime() << endl;
+    RESTDebug << "TRestMySQLToAnalysisProcess. Ev ID : " << fEvent->GetID() << RESTendl;
+    RESTDebug << "TRestMySQLToAnalysisProcess. Get timestamp : " << fEvent->GetTime() << RESTendl;
     for (int n = 0; n < fAnaTreeVariables.size(); n++)
-        debug << "TRestMySQLToAnalysisProcess. Variable : " << fAnaTreeVariables[n]
-              << " value : " << GetDBValueAtTimestamp(n, fEvent->GetTime()) << endl;
+        RESTDebug << "TRestMySQLToAnalysisProcess. Variable : " << fAnaTreeVariables[n]
+                  << " value : " << GetDBValueAtTimestamp(n, fEvent->GetTime()) << RESTendl;
 
-    if (GetVerboseLevel() >= REST_Extreme) GetChar();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Extreme) GetChar();
 
     for (int n = 0; n < fAnaTreeVariables.size(); n++)
         SetObservableValue((string)fAnaTreeVariables[n], GetDBValueAtTimestamp(n, fEvent->GetTime()));
 #else
     if (fCheckSQL) {
-        warning << "REST was not linked to SQL libraries. Run cmake using -DREST_SQL=ON" << endl;
-        warning << "Clearing process metadata info." << endl;
-        warning << "Please, remove this process from the data chain or enable support for MySQL." << endl;
+        RESTWarning << "REST was not linked to SQL libraries. Run cmake using -DREST_SQL=ON" << RESTendl;
+        RESTWarning << "Clearing process metadata info." << RESTendl;
+        RESTWarning << "Please, remove this process from the data chain or enable support for MySQL."
+                    << RESTendl;
 
         fAnaTreeVariables.clear();
         fSQLVariables.clear();
@@ -205,19 +213,23 @@ void TRestMySQLToAnalysisProcess::InitFromConfigFile() {
     size_t pos = 0;
 
     fDBServerName = GetParameter("server", "");
-    if (fDBServerName == "") ferr << "TRestMySQLToAnalysisProcess. Database server name not found!" << endl;
+    if (fDBServerName == "")
+        RESTError << "TRestMySQLToAnalysisProcess. Database server name not found!" << RESTendl;
 
     fDBName = GetParameter("database", "");
-    if (fDBName == "") ferr << "TRestMySQLToAnalysisProcess. Database not found!" << endl;
+    if (fDBName == "") RESTError << "TRestMySQLToAnalysisProcess. Database not found!" << RESTendl;
 
     fDBUserName = GetParameter("user", "");
-    if (fDBUserName == "") ferr << "TRestMySQLToAnalysisProcess. Database user name not found!" << endl;
+    if (fDBUserName == "")
+        RESTError << "TRestMySQLToAnalysisProcess. Database user name not found!" << RESTendl;
 
     fDBUserPass = GetParameter("password", "");
-    if (fDBUserPass == "") ferr << "TRestMySQLToAnalysisProcess. Database user password not found!" << endl;
+    if (fDBUserPass == "")
+        RESTError << "TRestMySQLToAnalysisProcess. Database user password not found!" << RESTendl;
 
     fDBTable = GetParameter("table", "");
-    if (fDBTable == "") ferr << "TRestMySQLToAnalysisProcess. Database table name not found!" << endl;
+    if (fDBTable == "")
+        RESTError << "TRestMySQLToAnalysisProcess. Database table name not found!" << RESTendl;
 
     string definition;
     while ((definition = GetKEYDefinition("dbEntry", pos)) != "") {
@@ -237,19 +249,19 @@ void TRestMySQLToAnalysisProcess::InitFromConfigFile() {
 void TRestMySQLToAnalysisProcess::PrintMetadata() {
     BeginPrintProcess();
 
-    metadata << "SQL data extracted from:" << endl;
-    metadata << "- database : " << fDBName << endl;
-    metadata << "- table : " << fDBTable << endl;
-    metadata << " " << endl;
+    RESTMetadata << "SQL data extracted from:" << RESTendl;
+    RESTMetadata << "- database : " << fDBName << RESTendl;
+    RESTMetadata << "- table : " << fDBTable << RESTendl;
+    RESTMetadata << " " << RESTendl;
 
-    metadata << "List of variables added to the analysis tree" << endl;
-    metadata << " ------------------------------------------ " << endl;
+    RESTMetadata << "List of variables added to the analysis tree" << RESTendl;
+    RESTMetadata << " ------------------------------------------ " << RESTendl;
     for (int n = 0; n < fAnaTreeVariables.size(); n++) {
-        metadata << " + SQL field : " << fSQLVariables[n] << endl;
-        metadata << "   - Tree name : " << fAnaTreeVariables[n] << endl;
-        metadata << "   - Min value : " << fMinValues[n] << endl;
-        metadata << "   - Max value : " << fMaxValues[n] << endl;
-        metadata << "  " << endl;
+        RESTMetadata << " + SQL field : " << fSQLVariables[n] << RESTendl;
+        RESTMetadata << "   - Tree name : " << fAnaTreeVariables[n] << RESTendl;
+        RESTMetadata << "   - Min value : " << fMinValues[n] << RESTendl;
+        RESTMetadata << "   - Max value : " << fMaxValues[n] << RESTendl;
+        RESTMetadata << "  " << RESTendl;
     }
     EndPrintProcess();
 }
@@ -267,32 +279,32 @@ void TRestMySQLToAnalysisProcess::FillDBArrays() {
 #if defined USE_SQL
     MYSQL* conn = mysql_init(nullptr);
     if (conn == nullptr) {
-        ferr << "TRestMySQLToAnalysisProcess::InitProcess. mysql_init() failed" << endl;
+        RESTError << "TRestMySQLToAnalysisProcess::InitProcess. mysql_init() failed" << RESTendl;
         exit(1);
     }
 
     if (!mysql_real_connect(conn, fDBServerName.c_str(), fDBUserName.c_str(), fDBUserPass.c_str(),
                             fDBName.c_str(), 0, nullptr, 0)) {
-        ferr << "TRestMySQLToAnalysisProcess::InitProcess. Connection to DB failed!" << endl;
-        ferr << mysql_error(conn) << endl;
+        RESTError << "TRestMySQLToAnalysisProcess::InitProcess. Connection to DB failed!" << RESTendl;
+        RESTError << mysql_error(conn) << RESTendl;
         exit(1);
     }
 
     string sqlQuery = BuildQueryString();
-    debug << sqlQuery << endl;
+    RESTDebug << sqlQuery << RESTendl;
     if (mysql_query(conn, sqlQuery.c_str())) {
-        ferr << "Error making query to SQL database" << endl;
-        ferr << mysql_error(conn) << endl;
-        ferr << "Query string : " << sqlQuery << endl;
+        RESTError << "Error making query to SQL database" << RESTendl;
+        RESTError << mysql_error(conn) << RESTendl;
+        RESTError << "Query string : " << sqlQuery << RESTendl;
         exit(1);
     }
 
     MYSQL_RES* result = mysql_store_result(conn);
 
     if (result == nullptr) {
-        ferr << "Error getting result from SQL query" << endl;
-        ferr << mysql_error(conn) << endl;
-        ferr << "Query string : " << sqlQuery << endl;
+        RESTError << "Error getting result from SQL query" << RESTendl;
+        RESTError << mysql_error(conn) << RESTendl;
+        RESTError << "Query string : " << sqlQuery << RESTendl;
         exit(1);
     }
 
@@ -303,9 +315,10 @@ void TRestMySQLToAnalysisProcess::FillDBArrays() {
     fSampling = (fEndTimestamp - fStartTimestamp) / num_rows / 2;
 
     if (num_rows < 3) {
-        ferr << "Not enough data found on the event data range" << endl;
-        ferr << "If no database entries exist remove TRestMySQLToAnalysisProcess from your processing chain"
-             << endl;
+        RESTError << "Not enough data found on the event data range" << RESTendl;
+        RESTError
+            << "If no database entries exist remove TRestMySQLToAnalysisProcess from your processing chain"
+            << RESTendl;
         // We take the decision to stop processing to make sure we are aware of the problem.
         // Specially to identify possible errors in this code.
         // But we might get more flexible with time, and this process just prompts a worning and does nothing.
@@ -345,7 +358,7 @@ void TRestMySQLToAnalysisProcess::FillDBArrays() {
         }
     }
 
-    debug << "Raw data size " << data.size() << endl;
+    RESTDebug << "Raw data size " << data.size() << RESTendl;
 
     fDBdata.clear();
     cout.precision(10);
@@ -380,12 +393,13 @@ void TRestMySQLToAnalysisProcess::FillDBArrays() {
         fDBdata.push_back(dataBuff);
     }
 
-    debug << "Added entries : " << fDBdata.size() << endl;
-    if (GetVerboseLevel() >= REST_Debug) TRestTools::PrintTable(fDBdata, 0, 5);
+    RESTDebug << "Added entries : " << fDBdata.size() << RESTendl;
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug)
+        TRestTools::PrintTable(fDBdata, 0, 5);
 
     mysql_close(conn);
 #else
-    warning << "REST was not linked to SQL libraries. Run cmake using -DREST_SQL=ON" << endl;
+    RESTWarning << "REST was not linked to SQL libraries. Run cmake using -DREST_SQL=ON" << RESTendl;
 #endif
 }
 

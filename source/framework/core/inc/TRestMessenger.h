@@ -76,9 +76,9 @@ class TRestMessenger : public TRestMetadata {
     std::string fPoolToken;   // to establish communication
     std::string fPoolSource;  // describes the source of message to be send. e.g. OUTPUTFILE, RUNNUMBER
 
-    virtual void InitFromConfigFile();
+    virtual void InitFromConfigFile() override;
 
-    virtual void Initialize();
+    virtual void Initialize() override;
 
     virtual void AddPool(std::string message);
 
@@ -95,7 +95,7 @@ class TRestMessenger : public TRestMetadata {
 
     virtual std::string ConsumeMessage();
 
-    virtual void PrintMetadata();
+    void PrintMetadata() override;
     // Constructor
     TRestMessenger();
     // Constructor
@@ -103,7 +103,7 @@ class TRestMessenger : public TRestMetadata {
     // Destructor
     ~TRestMessenger();
 
-    ClassDef(TRestMessenger, 1);  // Template for a REST "event process" class inherited from
-                                  // TRestEventProcess
+    ClassDefOverride(TRestMessenger, 1);  // Template for a REST "event process" class inherited from
+                                          // TRestEventProcess
 };
 #endif

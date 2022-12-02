@@ -1,60 +1,67 @@
 #ifndef RestCore_TRestBrowser
 #define RestCore_TRestBrowser
 
-#include <iostream>
+#include <TApplication.h>
+#include <TBrowser.h>
+#include <TCanvas.h>
+#include <TGButton.h>
+#include <TGComboBox.h>
+#include <TGDimension.h>
+#include <TGFileDialog.h>
+#include <TGFrame.h>
+#include <TGLabel.h>
+#include <TGNumberEntry.h>
+#include <TGTextEntry.h>
+#include <TObject.h>
+#include <TROOT.h>
+#include <TRestEventViewer.h>
+#include <TRestRun.h>
+#include <TSystem.h>
 
-#include "TApplication.h"
-#include "TBrowser.h"
-#include "TCanvas.h"
-#include "TGButton.h"
-#include "TGComboBox.h"
-#include "TGDimension.h"
-#include "TGFileDialog.h"
-#include "TGFrame.h"
-#include "TGLabel.h"
-#include "TGNumberEntry.h"
-#include "TGTextEntry.h"
-#include "TObject.h"
-#include "TROOT.h"
-#include "TRestEventViewer.h"
-#include "TRestRun.h"
-#include "TSystem.h"
+#include <iostream>
 
 /// Event browser for different input file
 class TRestBrowser {
    protected:
 #ifndef __CINT__
-    TGMainFrame* frmMain = 0;  //!
+    TGMainFrame* frmMain = nullptr;  //!
+    TGMainFrame* frmBot = nullptr;   //!
 
-    // Frames and buttons
+    // Frames and buttons on left//!
+    TGVerticalFrame* fVFrame = nullptr;             //! < The main vertical frame for browser controlling
+    TGLabel* fEventRowLabel = nullptr;              //!
+    TGLabel* fEventIdLabel = nullptr;               //!
+    TGLabel* fEventSubIdLabel = nullptr;            //!
+    TGNumberEntry* fEventRowNumberBox = nullptr;    //! For row number.
+    TGNumberEntry* fEventIdNumberBox = nullptr;     //! For Event number.
+    TGNumberEntry* fEventSubIdNumberBox = nullptr;  //! For sub Event number.
 
-    TGVerticalFrame* fVFrame = 0;             //! < The main vertical frame for browser controlling
-    TGLabel* fEventRowLabel = 0;              //!
-    TGLabel* fEventIdLabel = 0;               //!
-    TGLabel* fEventSubIdLabel = 0;            //!
-    TGNumberEntry* fEventRowNumberBox = 0;    //! For row number.
-    TGNumberEntry* fEventIdNumberBox = 0;     //! For Event number.
-    TGNumberEntry* fEventSubIdNumberBox = 0;  //! For sub Event number.
+    TGLabel* fEventTypeLabel = nullptr;        //!
+    TGComboBox* fEventTypeComboBox = nullptr;  //!
 
-    TGLabel* fEventTypeLabel = 0;        //!
-    TGComboBox* fEventTypeComboBox = 0;  //!
+    TGLabel* fPlotOptionLabel = nullptr;        //!
+    TGTextEntry* fPlotOptionTextBox = nullptr;  //! TextBox for plot options
+    TGPictureButton* fButOptPrev = nullptr;     //! Previous plot option
+    TGTextButton* fButOptRefresh = nullptr;     //! Refresh plot
+    TGPictureButton* fButOptNext = nullptr;     //! Next plot option
 
-    TGLabel* fPlotOptionLabel = 0;        //!
-    TGTextEntry* fPlotOptionTextBox = 0;  //! TextBox for plot options
-    TGTextButton* fButOptPrev = 0;        //! Previous plot option
-    TGTextButton* fButOptRefresh = 0;     //! Refresh plot
-    TGTextButton* fButOptNext = 0;        //! Next plot option
+    TGPictureButton* fMenuOpen = nullptr;  //! Open file button
+    TGPictureButton* fExit = nullptr;      //! Exit button
 
-    TGPictureButton* fMenuOpen = 0;  //! Open file button
-    TGTextButton* fExit = 0;         //! Exit button
+    // Frames and buttons on bottom
+    TGVerticalFrame* fHFrame = nullptr;         //!
+    TGLabel* fSelectionTextBoxLabel = nullptr;  //!
+    TGTextEntry* fSelectionTextBox = nullptr;   //! TextBox for plot options
+    TGTextButton* fButEvePrev = nullptr;        //! Previous plot option
+    TGTextButton* fButEveNext = nullptr;        //! Refresh plot
 
-    TCanvas* fCanDefault = 0;  //!
-    Int_t fEventRow = 0;       //!
-    Int_t fEventId = 0;        //!
-    Int_t fEventSubId = 0;     //!
+    TCanvas* fCanDefault = nullptr;  //!
+    Int_t fEventRow = 0;             //!
+    Int_t fEventId = 0;              //!
+    Int_t fEventSubId = 0;           //!
 
-    TBrowser* b = 0;  //!
-    TRestRun* r = 0;  //!
+    TBrowser* fBrowser = nullptr;  //!
+    TRestRun* fRestRun = nullptr;  //!
 #endif
 
    private:
@@ -62,34 +69,37 @@ class TRestBrowser {
     Bool_t pureAnalysis;
     TString fInputFileName;
 
-    TRestEventViewer* fEventViewer = 0;  //!
+    TRestEventViewer* fEventViewer = nullptr;  //!
 
     void SetViewer(TRestEventViewer* eV);
-    void SetViewer(TString viewerName);
-    void SetButtons();
-    Bool_t LoadEventId(Int_t id, Int_t subid = -1);
+    void SetViewer(const TString& viewerName);
+    void SetLeftPanelButtons();
+    void SetBottomPanelButtons();
+    Bool_t LoadEventId(Int_t eventID, Int_t subEventID = -1);
     Bool_t LoadEventEntry(Int_t n);
 #endif
 
    public:
     // tool method
-    void Initialize(TString opt = "FI");
-    void InitFromConfigFile();
-    Bool_t OpenFile(TString filename);
+    void Initialize(const TString& opt = "FI");
+    static void InitFromConfigFile();
+    Bool_t OpenFile(const TString& filename);
 
     // setters
     void SetInputEvent(TRestEvent*);
-    void SetWindowName(TString wName) { frmMain->SetWindowName(wName.Data()); }
+    inline void SetWindowName(const TString& windowName) { frmMain->SetWindowName(windowName.Data()); }
 
     // getters
-    TRestEventViewer* GetViewer() { return fEventViewer; }
+    inline TRestEventViewer* GetViewer() const { return fEventViewer; }
 
     // actions
     void LoadFileAction();
-    void ExitAction();
+    static void ExitAction();
 
     void RowValueChangedAction(Long_t val);
     void IdValueChangedAction(Long_t val);
+    void NextEventAction();
+    void PreviousEventAction();
 
     void EventTypeChangedAction(Int_t id);
 
@@ -99,7 +109,7 @@ class TRestBrowser {
 
     // Constructors
     TRestBrowser();
-    TRestBrowser(TString viewerName);
+    TRestBrowser(const TString& viewerName);
 
     // Destructor
     ~TRestBrowser();

@@ -30,11 +30,11 @@
 
 #include "TRestHits.h"
 
-const int NODE_NOT_SET = -1;
-const int GROUP_NOT_FOUND = -1;
-const int NODE_NOT_FOUND = -1;
+constexpr int NODE_NOT_SET = -1;
+constexpr int GROUP_NOT_FOUND = -1;
+constexpr int NODE_NOT_FOUND = -1;
 
-/// A basic class inhereting from TObject to help creating a node grid definition
+/// A basic class inheriting from TObject to help creating a node grid definition
 class TRestMesh : public TObject {
    protected:
     /// The bottom-left corner of the bounding-box grid.
@@ -82,9 +82,9 @@ class TRestMesh : public TObject {
     Double_t GetZ(Int_t nZ);
 
     /// Returns the total number of nodes added
-    Int_t GetNumberOfNodes() { return fNumberOfNodes; }
+    inline Int_t GetNumberOfNodes() const { return fNumberOfNodes; }
     /// Returns the total number of groups identified
-    Int_t GetNumberOfGroups() { return fNumberOfGroups; }
+    inline Int_t GetNumberOfGroups() const { return fNumberOfGroups; }
 
     TVector3 GetPosition(Int_t nX, Int_t nY, Int_t nZ);
 
@@ -145,30 +145,30 @@ class TRestMesh : public TObject {
     }
 
     /// Returns the number of nodes defined in the X-dimension
-    Int_t GetNodesX() { return fNodesX; }
+    inline Int_t GetNodesX() const { return fNodesX; }
     /// Returns the number of nodes defined in the Y-dimension
-    Int_t GetNodesY() { return fNodesY; }
+    inline Int_t GetNodesY() const { return fNodesY; }
     /// Returns the number of nodes defined in the Z-dimension
-    Int_t GetNodesZ() { return fNodesZ; }
+    inline Int_t GetNodesZ() const { return fNodesZ; }
 
     /// Returns the net size on X-dimension
-    Double_t GetNetSizeX() { return fNetSizeX; }
+    inline Double_t GetNetSizeX() const { return fNetSizeX; }
     /// Returns the net size on Y-dimension
-    Double_t GetNetSizeY() { return fNetSizeY; }
+    inline Double_t GetNetSizeY() const { return fNetSizeY; }
     /// Returns the net size on Z-dimension
-    Double_t GetNetSizeZ() { return fNetSizeZ; }
+    inline Double_t GetNetSizeZ() const { return fNetSizeZ; }
 
     /// Returns the origin of the grid (bottom-left corner)
-    TVector3 GetOrigin() { return fNetOrigin; }
+    inline TVector3 GetOrigin() const { return fNetOrigin; }
     /// Returns a std::vector with the size/dimensions of the bounding box
-    TVector3 GetNetSize() { return TVector3(fNetSizeX, fNetSizeY, fNetSizeZ); }
+    inline TVector3 GetNetSize() const { return {fNetSizeX, fNetSizeY, fNetSizeZ}; }
     TVector3 GetNetCenter();
-    TVector3 GetVertex(Int_t id);
+    TVector3 GetVertex(Int_t id) const;
 
     /// It returns the bottom boundary vertex
-    TVector3 GetBottomVertex() { return GetVertex(0); }
+    inline TVector3 GetBottomVertex() const { return GetVertex(0); }
     /// It returns the top boundary vertex
-    TVector3 GetTopVertex() { return GetVertex(1); }
+    inline TVector3 GetTopVertex() const { return GetVertex(1); }
 
     void AddNode(Double_t x, Double_t y, Double_t z, Double_t en = 0);
     void AddSphericalNode(Double_t x, Double_t y, Double_t z, Double_t en = 0);

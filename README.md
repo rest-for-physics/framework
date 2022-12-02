@@ -54,7 +54,7 @@ The framework exploits the Git tagging system to produce its own versioning syst
 ## Versioning
 
 Any **metadata** object written with REST **will be stamped** with few metadata members that will allow to identify the state of the code when the object was produced. Those data members are:
-  - *fVersion*: A string containning the human version number.
+  - *fVersion*: A string containing the human version number.
   - *fCommit*: The latest commit hash value when the compilation took place.
   - *fLibraryVersion*: The human version library. It is fixed by CMakeLists at the library submodules.
   - *fOfficialRelease*: It will be true if the commit was tagged at the repository.
@@ -68,20 +68,18 @@ I.e. Any file written after v2.2.1 should be readable without problems with any 
 
 A major change at 2.3 will prevent from backwards compatibility, since class names have been reviewed.
 
-## Main authors and contributing institutions
-
-* **Javier Galan, Igor G. Irastorza, Gloria Luzon** - *University of Zaragoza (Spain)*
-* **Ke Han, Kaixiang Ni** - *Shanghai Jiao Tong University (China)*
-* **Yann Bedfer, Damien Neyret** - *CEA Saclay (France)*
-* **Eduardo Picatoste, Cristian Cogollos** - *Universitat de Barcelona (Spain)*
-
-See also the list of [contributors]() who participated in this project.
-
 ## Publications
 
-- PandaX-III: Searching for neutrinoless double beta decay with high pressure 136Xe gas time projection chambers. [X. Chen et al., Science China Physics, Mechanics & Astronomy 60, 061011 (2017)](https://doi.org/10.1007/s11433-017-9028-0) [arXiv:1610.08883](https://arxiv.org/abs/1610.08883).
+- AlphaCAMM, a Micromegas-based camera for high-sensitivity screening of alpha surface contamination, [K. Altenmüller et al., Journal of Instrumentation, Volume 17, August 2022](https://doi.org/10.1088/1748-0221/17/08/P08035), [arXiv:2201.01859](https://doi.org/10.48550/arXiv.2201.01859).
+- REST-for-Physics, a ROOT-based framework for event oriented data analysis and combined Monte Carlo response, [K. Altenmüller, S. Cebrián, T. Dafni et al., , Computer Physics Communications, 108281, April 2022](https://doi.org/10.1016/j.cpc.2021.108281).
+- Topological background discrimination in the PandaX-III neutrinoless double beta decay experiment, [J Galan et al 2020 J. Phys. G: Nucl. Part. Phys. 47 045108](https://doi.org/10.1088/1361-6471/ab4dbe), [arxiv:1903.03979](https://doi.org/10.48550/arXiv.1903.03979).
 - Background assessment for the TREX Dark Matter experiment. [Castel, J., Cebrián, S., Coarasa, I. et al. Eur. Phys. J. C 79, 782 (2019)](https://doi.org/10.1140/epjc/s10052-019-7282-6). [arXiv:1812.04519](https://arxiv.org/abs/1812.04519).
-- Topological background discrimination in the PandaX-III neutrinoless double beta decay experiment. [J Galan et al 2020 J. Phys. G: Nucl. Part. Phys. 47 045108](https://doi.org/10.1088/1361-6471/ab4dbe). [arxiv:1903.03979]( https://arxiv.org/abs/1903.03979).
+- PandaX-III: Searching for neutrinoless double beta decay with high pressure 136Xe gas time projection chambers. [X. Chen et al., Science China Physics, Mechanics & Astronomy 60, 061011 (2017)](https://doi.org/10.1007/s11433-017-9028-0) [arXiv:1610.08883](https://arxiv.org/abs/1610.08883).
+
+## Presentations
+- REST-for-Physics, Luis Obis, [2022-May, ROOT Users Workshop, FermiLab](https://indico.fnal.gov/event/23628/contributions/240755/).
+- REST v2.0 : A data analysis and simulation framework for micro-patterned readout detectors., Javier Galan, [2016-Dec, 8th Symposium on Large TPCs for low-energy rare event detection, Paris](https://indico.cern.ch/event/473362/contributions/2334838/).
+
 
 ## License
 

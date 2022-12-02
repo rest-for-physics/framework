@@ -60,7 +60,6 @@
 using namespace std;
 ClassImp(TRestCut);
 
-//______________________________________________________________________________
 TRestCut::TRestCut() { Initialize(); }
 
 void TRestCut::Initialize() { fCuts.clear(); }
@@ -79,14 +78,15 @@ void TRestCut::InitFromConfigFile() {
 
 void TRestCut::AddCut(TCut cut) {
     if ((string)cut.GetName() == "") {
-        warning << "TRestCut::AddCut: cannot add cut without name!" << endl;
+        RESTWarning << "TRestCut::AddCut: cannot add cut without name!" << RESTendl;
     }
     if ((string)cut.GetTitle() == "") {
-        warning << "TRestCut::AddCut: cannot add empty cut!" << endl;
+        RESTWarning << "TRestCut::AddCut: cannot add empty cut!" << RESTendl;
     }
     for (auto c : fCuts) {
         if ((string)c.GetName() == (string)cut.GetName()) {
-            warning << "TRestCut::AddCut: cut with name \"" << c.GetName() << "\" already added!" << endl;
+            RESTWarning << "TRestCut::AddCut: cut with name \"" << c.GetName() << "\" already added!"
+                        << RESTendl;
             return;
         }
     }
@@ -104,10 +104,10 @@ TCut TRestCut::GetCut(string name) {
 
 void TRestCut::PrintMetadata() {
     TRestMetadata::PrintMetadata();
-    metadata << " " << endl;
-    metadata << "Number of TCut objects added: " << fCuts.size() << endl;
-    metadata << " " << endl;
-    metadata << "+++" << endl;
+    RESTMetadata << " " << RESTendl;
+    RESTMetadata << "Number of TCut objects added: " << fCuts.size() << RESTendl;
+    RESTMetadata << " " << RESTendl;
+    RESTMetadata << "+++" << RESTendl;
 }
 
 Int_t TRestCut::Write(const char* name, Int_t option, Int_t bufsize) {

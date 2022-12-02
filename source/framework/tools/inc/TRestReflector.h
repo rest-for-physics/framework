@@ -228,8 +228,8 @@ struct DataType_Info {
     }
 };
 
-extern std::map<void*, TClass*> RESTListOfClasses_typeid;
-extern std::map<std::string, TClass*> RESTListOfClasses_typename;
+EXTERN_DEF std::map<void*, TClass*> RESTListOfClasses_typeid;
+EXTERN_DEF std::map<std::string, TClass*> RESTListOfClasses_typename;
 
 /// Wrap the std::string type name into ROOT type identifier "TClass"
 ///
@@ -315,8 +315,8 @@ class TRestReflector {
     template <typename T>
     T GetValue() {
         if (typeid(T) != *this->typeinfo) {
-            std::cout << "In TRestReflector::GetValue() : type unmatch! " << endl;
-            std::cout << "Input: " << GetTypeName<T>() << ", this: " << this->type << endl;
+            std::cout << "In TRestReflector::GetValue() : type unmatch! " << std::endl;
+            std::cout << "Input: " << GetTypeName<T>() << ", this: " << this->type << std::endl;
             return T();
         }
         if (address != nullptr) return *(T*)(address);
@@ -326,8 +326,8 @@ class TRestReflector {
     template <class T>
     void SetValue(const T& val) {
         if (typeid(T) != *this->typeinfo) {
-            std::cout << "In TRestReflector::SetValue() : type unmatch! " << endl;
-            std::cout << "Input: " << GetTypeName<T>() << ", this: " << std::string(this->type) << endl;
+            std::cout << "In TRestReflector::SetValue() : type unmatch! " << std::endl;
+            std::cout << "Input: " << GetTypeName<T>() << ", this: " << std::string(this->type) << std::endl;
             return;
         }
         if (address != nullptr) *((T*)(address)) = val;
@@ -383,7 +383,7 @@ class TRestReflector {
         cl = REST_Reflection::GetClassQuick<T>();
         DataType_Info dt = DataType_Info((T*)0);
         if (cl == nullptr && dt.size == 0) {
-            std::cout << "In TRestReflector::TRestReflector() : unrecognized type! " << endl;
+            std::cout << "In TRestReflector::TRestReflector() : unrecognized type! " << std::endl;
             return;
         }
 
@@ -429,7 +429,7 @@ class RESTVirtualConverter {
 };
 
 // type name, {toString method, parseString method}
-extern std::map<std::string, RESTVirtualConverter*> RESTConverterMethodBase;
+EXTERN_DEF std::map<size_t, RESTVirtualConverter*> RESTConverterMethodBase;
 
 template <class T>
 class Converter : RESTVirtualConverter {
@@ -448,12 +448,17 @@ class Converter : RESTVirtualConverter {
     Converter(std::string (*_ToStringFunc)(T), T (*_ParseStringFunc)(std::string)) {
         ToStringFunc = _ToStringFunc;
         ParseStringFunc = _ParseStringFunc;
-        std::string typestr = REST_Reflection::GetTypeName<T>();
-        if (RESTConverterMethodBase.count(typestr) > 0) {
-            std::cout << "Warning! converter for type: " << typestr << " already added!" << endl;
+        if (RESTConverterMethodBase.count(typeid(T).hash_code()) > 0) {
+            std::cout << "Warning! converter for type: " << typeid(T).name() << " already added!"
+                      << std::endl;
         } else {
-            RESTConverterMethodBase[typestr] = this;
+            RESTConverterMethodBase[typeid(T).hash_code()] = this;
         }
+
+        // std::string type_name_actual = REST_Reflection::GetTypeName<T>();  // in case ROOT redefines type
+        // name if (RESTConverterMethodBase.count(type_name_actual) == 0) {
+        //    RESTConverterMethodBase[type_name_actual] = this;
+        //}
     }
 };
 

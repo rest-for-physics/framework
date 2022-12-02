@@ -24,7 +24,6 @@ TRestEveEventViewer::TRestEveEventViewer() {
     fEnergyDeposits->SetElementName("Energy deposits");
 }
 
-//______________________________________________________________________________
 TRestEveEventViewer::~TRestEveEventViewer() {
     delete fEnergyDeposits;
     // TRestEveEventViewer destructor
@@ -32,33 +31,79 @@ TRestEveEventViewer::~TRestEveEventViewer() {
     DeleteGeometry();
 }
 
-//______________________________________________________________________________
+void InitializePerspectiveView() {
+    const std::map<TString, TGLViewer::ECameraType> projectionsMap = {
+        {"Projection XY", TGLViewer::kCameraOrthoXnOY},  //
+        {"Projection XZ", TGLViewer::kCameraOrthoXnOZ},  //
+        {"Projection YZ", TGLViewer::kCameraOrthoZOY}    //
+    };
+    for (const auto& [name, cameraType] : projectionsMap) {
+        auto slot = TEveWindow::CreateWindowInTab(gEve->GetBrowser()->GetTabRight());
+        auto pack = slot->MakePack();
+        pack->SetElementName(name);
+        pack->SetHorizontal();
+        pack->SetShowTitleBar(kFALSE);
+        pack->NewSlot()->MakeCurrent();
+        auto f3DView = gEve->SpawnNewViewer("3D View", pack->GetName());
+        f3DView->AddScene(gEve->GetGlobalScene());
+        f3DView->AddScene(gEve->GetEventScene());
+        f3DView->GetGLViewer()->SetCurrentCamera(cameraType);
+    }
+}
+
 void TRestEveEventViewer::Initialize() {
     gEve = TEveManager::Create();
     gEve->GetBrowser()->DontCallClose();
 
-    fMinRadius = 0.2;
-    fMaxRadius = 3.;
-
     gEve->AddEvent(new TEveEventManager("Event", "Event"));
 
+    auto singleViewer = gEve->GetDefaultViewer();
+    singleViewer->SetElementName("SingleView");
+
+    singleViewer->GetGLViewer()->SetClearColor(kBlack);
+
+    InitializePerspectiveView();
     MultiView();
     DrawTab();
+
+    singleViewer->GetGLViewer()->SetStyle(TGLRnrCtx::kOutline);
+
+    gEve->GetBrowser()->GetTabRight()->SetTab(0);  // select the "SingleView" viewer as active
+
+    singleViewer->GetGLViewer()->CurrentCamera().Reset();
+    gEve->FullRedraw3D(kTRUE);
 }
 
 void TRestEveEventViewer::SetGeometry(TGeoManager* geo) {
     TRestEventViewer::SetGeometry(geo);
 
-    if (fGeometry == nullptr) return;
+    if (fGeometry == nullptr) {
+        return;
+    }
 
-    TObjArray* arr = fGeometry->GetListOfVolumes();
-    Int_t nVolumes = arr->GetEntries();
+    const unsigned int nVolumes = fGeometry->GetListOfVolumes()->GetEntries();
+    double transparencyLevel = 85;
+    if (nVolumes > 30) {
+        transparencyLevel = 90;
+    }
+    for (int i = 0; i < fGeometry->GetListOfVolumes()->GetEntries(); i++) {
+        auto volume = fGeometry->GetVolume(i);
+        auto material = volume->GetMaterial();
+        if (material->GetDensity() <= 0.01) {
+            volume->SetTransparency(99);
+            if (material->GetDensity() <= 0.001) {
+                // We consider this vacuum for display purposes
+                volume->SetVisibility(kFALSE);
+            }
+        } else {
+            volume->SetTransparency(transparencyLevel);
+        }
+    }
 
-    for (int i = 0; i < nVolumes; i++) fGeometry->GetVolume(i)->SetTransparency(85);
+    TEveGeoTopNode* eveGeoTopNode = new TEveGeoTopNode(fGeometry, fGeometry->GetTopNode());
+    eveGeoTopNode->SetVisLevel(5);
 
-    TEveGeoTopNode* en = new TEveGeoTopNode(fGeometry, fGeometry->GetTopNode());
-
-    gEve->AddGlobalElement(en);
+    gEve->AddGlobalElement(eveGeoTopNode);
 
     viewer3D->AddScene(gEve->GetGlobalScene());
 }
@@ -81,7 +126,7 @@ void TRestEveEventViewer::MultiView() {
     slot = TEveWindow::CreateWindowInTab(gEve->GetBrowser()->GetTabRight());
 
     pack = slot->MakePack();
-    pack->SetElementName("Tab");
+    pack->SetElementName("MultiView");
     pack->SetHorizontal();
     pack->SetShowTitleBar(kFALSE);
     pack->NewSlot()->MakeCurrent();
@@ -121,24 +166,9 @@ void TRestEveEventViewer::MultiView() {
 }
 
 void TRestEveEventViewer::DrawTab() {
-    gEve->FullRedraw3D(kTRUE);
-
-    TGLViewer* v = gEve->GetDefaultGLViewer();
-    // v->GetClipSet()->SetClipType(TGLClip::EType(1));
-    v->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kFALSE, 0);
-    v->SetStyle(TGLRnrCtx::kOutline);
-    v->RefreshPadEditor(v);
-
-    // v->CurrentCamera().RotateRad(-1.2, 0.5);
-    v->DoDraw();
-
     TGLViewer* v2 = viewer3D->GetGLViewer();
-    v2->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kFALSE, 0);
+    v2->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kFALSE, nullptr);
     v2->SetStyle(TGLRnrCtx::kOutline);
-    v2->RefreshPadEditor(v);
-    v2->DoDraw();
-
-    gEve->GetBrowser()->GetTabRight()->SetTab(1);
 }
 
 void TRestEveEventViewer::Update() {
@@ -151,11 +181,9 @@ void TRestEveEventViewer::Update() {
 }
 
 void TRestEveEventViewer::AddSphericalHit(double x, double y, double z, double radius, double en) {
-    // TEvePointSet* ps = new TEvePointSet();
-
     fEnergyDeposits->SetOwnIds(kTRUE);
     fEnergyDeposits->SetNextPoint(x * GEOM_SCALE, y * GEOM_SCALE, z * GEOM_SCALE);
     fEnergyDeposits->SetMarkerColor(kYellow);
-    fEnergyDeposits->SetMarkerSize(radius);
+    fEnergyDeposits->SetMarkerSize(Size_t(radius));
     fEnergyDeposits->SetMarkerStyle(4);
 }

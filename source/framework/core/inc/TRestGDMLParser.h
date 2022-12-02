@@ -3,53 +3,54 @@
 #define restG4_TRestGDMLParser
 
 #include <TGeoManager.h>
-#include <unistd.h>
-
 #include "TRestMetadata.h"
 
-///////////////////////////////////////////
 // we must preprocess gdml file because of a bug in TGDMLParse::Value() in ROOT6
-//
 
 class TRestGDMLParser : public TRestMetadata {
    private:
-    TGeoManager* fGeo;
+    TGeoManager* fGeoManager{};
 
    public:
-    TRestGDMLParser() {}
-    ~TRestGDMLParser() {}
-    std::string filestr = "";
-    std::string path = "";
-    std::string outPath = REST_USER_PATH + "/gdml/";
-    std::string outfilename = "";
-    std::string gdmlVersion = "0.0";
-    std::map<std::string, std::string> entityVersion;
+    TRestGDMLParser() = default;
+    ~TRestGDMLParser() = default;
 
-    std::string GetEntityVersion(std::string name);
+    std::string fFileString = "";
+    std::string fPath = "";
+    std::string fOutputGdmlDirectory =
+        REST_USER_PATH.empty() ? REST_TMP_PATH + "/gdml/" : REST_USER_PATH + "/gdml/";
+    std::string fOutputGdmlFilename = "";
+    std::string fGdmlVersion = "0.0";
+    std::map<std::string, std::string> fEntityVersionMap{};
 
-    std::string GetGDMLVersion();
+    std::string GetEntityVersion(const std::string& name) const;
 
-    std::string GetOutputGDMLFile();
+    inline std::string GetGDMLVersion() const { return fGdmlVersion; }
 
-    void Load(std::string file);
+    inline std::string GetOutputGDMLFile() const { return fOutputGdmlFilename; }
 
-    TGeoManager* GetGeoManager(std::string gdmlFile) {
-        Load(gdmlFile);
-        fGeo = TGeoManager::Import(GetOutputGDMLFile().c_str());
-        return fGeo;
+    void Load(const std::string& filename);
+
+    inline TGeoManager* GetGeoManager(const std::string& gdmlFilename) {
+        Load(gdmlFilename);
+        fGeoManager = TGeoManager::Import(GetOutputGDMLFile().c_str());
+        return fGeoManager;
     }
 
-    TGeoManager* CreateGeoM();
+    TGeoManager* CreateGeoManager();
+    [[deprecated("Use CreateGeoManager() instead.")]] inline TGeoManager* CreateGeoM() {
+        return CreateGeoManager();
+    }
 
-    void InitFromConfigFile() {}
+    void InitFromConfigFile() override {}
 
     void PrintContent();
 
     void ReplaceEntity();
 
-    void ReplaceAttributeWithKeyWord(std::string keyword);
+    void ReplaceAttributeWithKeyWord(const std::string& keyword);
 
-    ClassDef(TRestGDMLParser, 1);
+    ClassDefOverride(TRestGDMLParser, 2);
 };
 
 #endif

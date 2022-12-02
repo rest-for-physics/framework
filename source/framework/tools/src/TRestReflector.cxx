@@ -124,7 +124,7 @@ void TRestReflector::operator>>(TRestReflector to) { CloneAny(*this, to); }
 string TRestReflector::ToString() {
     if (type == "string") return *(string*)(address);
     if (address == nullptr) return "null";
-    RESTVirtualConverter* converter = RESTConverterMethodBase[type];
+    RESTVirtualConverter* converter = RESTConverterMethodBase[typeinfo->hash_code()];
     if (converter != nullptr) {
         return converter->ToString(address);
     } else {
@@ -136,7 +136,7 @@ void TRestReflector::ParseString(string str) {
     if (type == "string") {
         *(string*)(address) = str;
     } else {
-        RESTVirtualConverter* converter = RESTConverterMethodBase[type];
+        RESTVirtualConverter* converter = RESTConverterMethodBase[typeinfo->hash_code()];
         if (converter != nullptr) {
             converter->ParseString(address, str);
         } else {
@@ -278,7 +278,7 @@ void CloneAny(TRestReflector from, TRestReflector to) {
         return;
     }
 
-    RESTVirtualConverter* converter = RESTConverterMethodBase[from.type];
+    RESTVirtualConverter* converter = RESTConverterMethodBase[from.typeinfo->hash_code()];
     if (converter != nullptr) {
         converter->CloneObj(from.address, to.address);
     } else {

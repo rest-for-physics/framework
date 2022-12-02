@@ -52,9 +52,10 @@
 
 #include "TRestEventProcess.h"
 
-#include "TBuffer.h"
-#include "TClass.h"
-#include "TDataMember.h"
+#include <TBuffer.h>
+#include <TClass.h>
+#include <TDataMember.h>
+
 #include "TRestManager.h"
 #include "TRestRun.h"
 
@@ -97,9 +98,9 @@ TRestEventProcess::~TRestEventProcess() {}
 /// datamember observables.
 vector<string> TRestEventProcess::ReadObservables() {
     TiXmlElement* e = GetElement("observable");
-    vector<string> obsnames;
-    vector<string> obstypes;
-    vector<string> obsdesc;
+    vector<string> obsNames;
+    vector<string> obsTypes;
+    vector<string> obsDesc;
 
     while (e != nullptr) {
         const char* obschr = e->Attribute("name");
@@ -125,11 +126,11 @@ vector<string> TRestEventProcess::ReadObservables() {
 
         if (ToUpper(value) == "ON") {
             if (obschr != nullptr) {
-                debug << this->ClassName() << " : setting observable \"" << obschr << "\"" << endl;
+                RESTDebug << this->ClassName() << " : setting observable \"" << obschr << "\"" << RESTendl;
                 // vector<string> tmp = Split(obsstring, ":");
-                obsnames.push_back(obschr);
-                obstypes.push_back(type);
-                obsdesc.push_back(description);
+                obsNames.emplace_back(obschr);
+                obsTypes.push_back(type);
+                obsDesc.push_back(description);
             }
         }
 
@@ -137,16 +138,16 @@ vector<string> TRestEventProcess::ReadObservables() {
 
     }  // now we get a list of all observal names, we add them into fAnalysisTree and fObservableInfo
 
-    for (int i = 0; i < obsnames.size(); i++) {
-        string obsname = this->GetName() + (string) "_" + obsnames[i];
-        fAnalysisTree->AddObservable(obsname, obstypes[i], obsdesc[i]);
-        int id = fAnalysisTree->GetObservableID(obsname);
+    for (int i = 0; i < obsNames.size(); i++) {
+        string obsName = this->GetName() + (string) "_" + obsNames[i];
+        fAnalysisTree->AddObservable(obsName, obsTypes[i], obsDesc[i]);
+        int id = fAnalysisTree->GetObservableID(obsName);
         if (id != -1) {
-            fObservablesDefined[(string)GetName() + "_" + obsnames[i]] = id;
+            fObservablesDefined[(string)GetName() + "_" + obsNames[i]] = id;
         }
     }
 
-    return obsnames;
+    return obsNames;
 }
 
 void TRestEventProcess::SetAnalysisTree(TRestAnalysisTree* tree) {
@@ -161,8 +162,8 @@ void TRestEventProcess::SetAnalysisTree(TRestAnalysisTree* tree) {
 /// Processes can get access to each other's parameter and observable
 void TRestEventProcess::SetFriendProcess(TRestEventProcess* p) {
     if (p == nullptr) return;
-    for (int i = 0; i < fFriendlyProcesses.size(); i++) {
-        if (fFriendlyProcesses[i]->GetName() == p->GetName()) {
+    for (const auto& fFriendlyProcess : fFriendlyProcesses) {
+        if (fFriendlyProcess->GetName() == p->GetName()) {
             return;
         }
     }
@@ -172,8 +173,8 @@ void TRestEventProcess::SetFriendProcess(TRestEventProcess* p) {
 /// Add parallel process to this process
 void TRestEventProcess::SetParallelProcess(TRestEventProcess* p) {
     if (p == nullptr) return;
-    for (int i = 0; i < fParallelProcesses.size(); i++) {
-        if (fParallelProcesses[i] == p || this == p) {
+    for (const auto& fParallelProcess : fParallelProcesses) {
+        if (fParallelProcess == p || this == p) {
             return;
         }
     }
@@ -182,7 +183,7 @@ void TRestEventProcess::SetParallelProcess(TRestEventProcess* p) {
 
 //////////////////////////////////////////////////////////////////////////
 /// Interface to external file reading, open input file. To be implemented in external processes.
-Bool_t TRestEventProcess::OpenInputFiles(vector<string> files) { return false; }
+Bool_t TRestEventProcess::OpenInputFiles(const vector<string>& files) { return false; }
 
 //////////////////////////////////////////////////////////////////////////
 /// \brief Load extra section metadata: outputlevel after calling
@@ -191,7 +192,8 @@ Bool_t TRestEventProcess::OpenInputFiles(vector<string> files) { return false; }
 Int_t TRestEventProcess::LoadSectionMetadata() {
     TRestMetadata::LoadSectionMetadata();
 
-    if (ToUpper(GetParameter("observable", "")) == "ALL") {
+    if (ToUpper(GetParameter("observable", "")) == "ALL" ||
+        ToUpper(GetParameter("observables", "")) == "ALL") {
         fDynamicObs = true;
     }
 
@@ -232,7 +234,7 @@ Int_t TRestEventProcess::LoadSectionMetadata() {
 ///
 /// Either name or type as input argument is accepted. For example,
 /// GetMetadata("TRestDetectorReadout"), GetMetadata("readout_140")
-TRestMetadata* TRestEventProcess::GetMetadata(string name) {
+TRestMetadata* TRestEventProcess::GetMetadata(const string& name) {
     TRestMetadata* m = nullptr;
     if (fRunInfo != nullptr) {
         m = fRunInfo->GetMetadata(name);
@@ -257,10 +259,10 @@ TRestMetadata* TRestEventProcess::GetMetadata(string name) {
 /// and acts differently according to the added friends. For example, we can
 /// retrieve some common parameters from the friend process. We can also re-use
 /// the input/output event to compare the difference.
-TRestEventProcess* TRestEventProcess::GetFriend(string nameortype) {
-    TRestEventProcess* proc = GetFriendLive(nameortype);
+TRestEventProcess* TRestEventProcess::GetFriend(const string& nameOrType) {
+    TRestEventProcess* proc = GetFriendLive(nameOrType);
     if (proc == nullptr) {
-        TRestMetadata* friendfromfile = GetMetadata(nameortype);
+        TRestMetadata* friendfromfile = GetMetadata(nameOrType);
         if (friendfromfile != nullptr && friendfromfile->InheritsFrom("TRestEventProcess")) {
             return (TRestEventProcess*)friendfromfile;
         }
@@ -274,16 +276,25 @@ TRestEventProcess* TRestEventProcess::GetFriend(string nameortype) {
 /// \brief Get friendly TRestEventProcess object
 ///
 /// Only lively process(in the process chain) is searched.
-TRestEventProcess* TRestEventProcess::GetFriendLive(string nameortype) {
-    for (int i = 0; i < fFriendlyProcesses.size(); i++) {
-        if ((string)fFriendlyProcesses[i]->GetName() == nameortype ||
-            (string)fFriendlyProcesses[i]->ClassName() == nameortype) {
-            return fFriendlyProcesses[i];
+TRestEventProcess* TRestEventProcess::GetFriendLive(const string& nameOrType) {
+    for (const auto& fFriendlyProcess : fFriendlyProcesses) {
+        if ((string)fFriendlyProcess->GetName() == nameOrType ||
+            (string)fFriendlyProcess->ClassName() == nameOrType) {
+            return fFriendlyProcess;
         }
     }
     return nullptr;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// \brief Get a list of parallel processes from this process
+///
+/// Parallel process means the process in other threads. It differs from "friend process"
+/// in another dimension. For example, we set up the process chain with one
+/// `TRestRawSignalAnalysisProcess` and one `TRestRawToSignalProcess`, and calls 2 threads to
+/// run the data. Then, for `TRestRawSignalAnalysisProcess` in thread 1, it has a parallel
+/// process `TRestRawSignalAnalysisProcess` from thread 2, and a friend process
+/// `TRestRawToSignalProcess` from thread 1.
 TRestEventProcess* TRestEventProcess::GetParallel(int i) {
     if (i >= 0 && i < fParallelProcesses.size()) {
         return fParallelProcesses[i];
@@ -315,7 +326,7 @@ bool TRestEventProcess::ApplyCut() {
 }
 
 /*
-//______________________________________________________________________________
+
 void TRestEventProcess::InitProcess()
 {
 // virtual function to be executed once at the beginning of process
@@ -333,7 +344,8 @@ cout << GetName() << ": Process initialization..." << endl;
 /// as
 /// input event
 void TRestEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
-    debug << "Entering " << ClassName() << "::BeginOfEventProcess, Initializing output event..." << endl;
+    RESTDebug << "Entering " << ClassName() << "::BeginOfEventProcess, Initializing output event..."
+              << RESTendl;
     if (inEv != nullptr && GetOutputEvent().address != nullptr && (TRestEvent*)GetOutputEvent() != inEv) {
         TRestEvent* outEv = GetOutputEvent();
         outEv->Initialize();
@@ -356,8 +368,8 @@ void TRestEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
 }
 
 /*
-//______________________________________________________________________________
-void TRestEventProcess::ProcessEvent( TRestEvent *eventInput )
+
+void TRestEventProcess::ProcessEvent( TRestEvent *inputEvent )
 {
 // virtual function to be executed for every event to be processed
 }
@@ -366,17 +378,18 @@ void TRestEventProcess::ProcessEvent( TRestEvent *eventInput )
 //////////////////////////////////////////////////////////////////////////
 /// \brief End of event process. Validate the updated observable number matches total defined observable
 /// number
-void TRestEventProcess::EndOfEventProcess(TRestEvent* evInput) {
-    debug << "Entering TRestEventProcess::EndOfEventProcess (" << ClassName() << ")" << endl;
+void TRestEventProcess::EndOfEventProcess(TRestEvent* inputEvent) {
+    RESTDebug << "Entering TRestEventProcess::EndOfEventProcess (" << ClassName() << ")" << RESTendl;
     if (fValidateObservables) {
         if (fObservablesDefined.size() != fObservablesUpdated.size()) {
             for (auto x : fObservablesDefined) {
                 if (fObservablesUpdated.count(x.first) == 0) {
                     // the observable is added through <observable section but not set in the process
-                    warning << "The observable  '" << x.first << "' is defined but not set by "
-                            << this->ClassName()
-                            << ", the event is empty? Makesure all observables are set through ProcessEvent()"
-                            << endl;
+                    RESTWarning
+                        << "The observable  '" << x.first << "' is defined but not set by "
+                        << this->ClassName()
+                        << ", the event is empty? Makesure all observables are set through ProcessEvent()"
+                        << RESTendl;
                 }
             }
         }
@@ -384,7 +397,7 @@ void TRestEventProcess::EndOfEventProcess(TRestEvent* evInput) {
 }
 
 /*
-//______________________________________________________________________________
+
 void TRestEventProcess::EndProcess()
 {
 // virtual function to be executed once at the end of the process
@@ -400,32 +413,32 @@ cout << GetName() << ": Process ending..." << endl;
 /// Prints process type, name, title, verboselevel, outputlevel, input/output
 /// event type, and several separators
 void TRestEventProcess::BeginPrintProcess() {
-    metadata.setcolor(COLOR_BOLDGREEN);
-    metadata.setborder("||");
-    metadata.setlength(100);
+    RESTMetadata.setcolor(COLOR_BOLDGREEN);
+    RESTMetadata.setborder("||");
+    RESTMetadata.setlength(100);
     // metadata << " " << endl;
     cout << endl;
-    metadata << "=" << endl;
-    metadata << "Process : " << ClassName() << endl;
-    metadata << "Name: " << GetName() << "  Title: " << GetTitle()
-             << "  VerboseLevel: " << GetVerboseLevelString() << endl;
-    metadata << " ----------------------------------------------- " << endl;
-    metadata << " " << endl;
+    RESTMetadata << "=" << RESTendl;
+    RESTMetadata << "Process : " << ClassName() << RESTendl;
+    RESTMetadata << "Name: " << GetName() << "  Title: " << GetTitle()
+                 << "  VerboseLevel: " << GetVerboseLevelString() << RESTendl;
+    RESTMetadata << " ----------------------------------------------- " << RESTendl;
+    RESTMetadata << " " << RESTendl;
 
-    if (fObservablesDefined.size() > 0) {
-        metadata << " Analysis tree observables added by this process " << endl;
-        metadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
+    if (!fObservablesDefined.empty()) {
+        RESTMetadata << " Analysis tree observables added by this process " << RESTendl;
+        RESTMetadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << RESTendl;
     }
 
     auto iter = fObservablesDefined.begin();
     while (iter != fObservablesDefined.end()) {
-        metadata << " ++ " << iter->first << endl;
+        RESTMetadata << " ++ " << iter->first << RESTendl;
         iter++;
     }
 
-    if (fObservablesDefined.size() > 0) {
-        metadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
-        metadata << " " << endl;
+    if (!fObservablesDefined.empty()) {
+        RESTMetadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << RESTendl;
+        RESTMetadata << " " << RESTendl;
     }
 }
 
@@ -436,24 +449,24 @@ void TRestEventProcess::BeginPrintProcess() {
 /// Prints several separators. Prints cuts.
 void TRestEventProcess::EndPrintProcess() {
     if (fCuts.size() > 0) {
-        metadata << "Cuts enabled" << endl;
-        metadata << "------------" << endl;
+        RESTMetadata << "Cuts enabled" << RESTendl;
+        RESTMetadata << "------------" << RESTendl;
 
         auto iter = fCuts.begin();
         while (iter != fCuts.end()) {
             if (iter->second.X() != iter->second.Y())
-                metadata << iter->first << ", range : ( " << iter->second.X() << " , " << iter->second.Y()
-                         << " ) " << endl;
+                RESTMetadata << iter->first << ", range : ( " << iter->second.X() << " , " << iter->second.Y()
+                             << " ) " << RESTendl;
             iter++;
         }
     }
 
-    metadata << " " << endl;
-    metadata << "=" << endl;
-    metadata << endl;
-    metadata.resetcolor();
-    metadata.setborder("");
-    metadata.setlength(10000);
+    RESTMetadata << " " << RESTendl;
+    RESTMetadata << "=" << RESTendl;
+    RESTMetadata << RESTendl;
+    RESTMetadata.resetcolor();
+    RESTMetadata.setborder("");
+    RESTMetadata.setlength(10000);
 }
 
 ////////////////////////////////////////////////////////////////////////////

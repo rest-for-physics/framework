@@ -13,8 +13,8 @@
 #define RestCore_TRestPointLikeAnaProcess
 
 #include <TRestSignalEvent.h>
-#include "TRestDetectorReadout.h"
 
+#include "TRestDetectorReadout.h"
 #include "TRestEventProcess.h"
 
 class TRestPointLikeAnaProcess : public TRestEventProcess {
@@ -51,7 +51,7 @@ class TRestPointLikeAnaProcess : public TRestEventProcess {
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
     void EndProcess();
 
-    void LoadConfig(std::string cfgFilename);
+    void LoadConfig(std::string configFilename);
 
     void PrintMetadata() {
         BeginPrintProcess();
@@ -72,7 +72,7 @@ class TRestPointLikeAnaProcess : public TRestEventProcess {
 
     // Constructor
     TRestPointLikeAnaProcess();
-    TRestPointLikeAnaProcess(char* cfgFileName);
+    TRestPointLikeAnaProcess(const char* configFilename);
     // Destructor
     ~TRestPointLikeAnaProcess();
 
