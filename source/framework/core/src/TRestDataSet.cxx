@@ -99,13 +99,53 @@ TRestDataSet::TRestDataSet(const char* cfgFileName, std::string name) : TRestMet
 TRestDataSet::~TRestDataSet() {}
 
 ///////////////////////////////////////////////
-/// \brief Function to initialize input/output event members and define
-/// the section name
+/// \brief It will initialize the data frame with the filelist and column names
+/// (or observables) that have been defined by the user.
 ///
 void TRestDataSet::Initialize() {
     SetSectionName(this->ClassName());
 
-    // REMOVE COMMENT. Initialize here any special data members if needed
+    if (fTree != nullptr) {
+        RESTWarning << "Tree has already been loaded. Skipping TRestDataSet::LoadDataFrame ... " << RESTendl;
+        return;
+    }
+
+    if (fFileSelection.empty()) FileSelection();
+
+    if (fFileSelection.empty()) {
+        RESTWarning << "TRestDataSet::FileSelection produced an empty selection!" << RESTendl;
+        return;
+    }
+
+    ///// Disentangling process observables --> producing finalList
+    TRestRun* run = new TRestRun(fFileSelection[0]);
+    std::vector<std::string> finalList;
+    finalList.push_back("runOrigin");
+    finalList.push_back("eventID");
+    finalList.push_back("timeStamp");
+
+    for (const auto& obs : fObservablesList) finalList.push_back(obs);
+
+    std::vector<std::string> obsNames = run->GetAnalysisTree()->GetObservableNames();
+    for (const auto& name : obsNames) {
+        for (const auto& pcs : fProcessObservablesList) {
+            if (name.find(pcs) == 0) finalList.push_back(name);
+        }
+    }
+    delete run;
+
+    ROOT::EnableImplicitMT();
+
+    fDataSet = ROOT::RDataFrame("AnalysisTree", fFileSelection);
+
+    std::string user = getenv("USER");
+    std::string foutname = "/tmp/rest_output_" + user + ".root";
+    fDataSet.Snapshot("AnalysisTree", foutname, finalList);
+
+    fDataSet = ROOT::RDataFrame("AnalysisTree", foutname);
+
+    TFile* f = new TFile((TString)foutname);
+    fTree = (TTree*)f->Get("AnalysisTree");
 }
 
 ///////////////////////////////////////////////
@@ -241,7 +281,7 @@ void TRestDataSet::InitFromConfigFile() {
     }
 
     /// Reading observables
-    TiXmlElement* observablesDefinition = GetElement("addObservables");
+    TiXmlElement* observablesDefinition = GetElement("observables");
     while (observablesDefinition != nullptr) {
         std::string observables = GetFieldValue("list", observablesDefinition);
         if (observables.empty()) {
@@ -257,7 +297,7 @@ void TRestDataSet::InitFromConfigFile() {
     }
 
     /// Reading process observables
-    TiXmlElement* obsProcessDefinition = GetElement("addProcessObservables");
+    TiXmlElement* obsProcessDefinition = GetElement("processObservables");
     while (obsProcessDefinition != nullptr) {
         std::string observables = GetFieldValue("list", obsProcessDefinition);
         if (observables.empty()) {

@@ -45,9 +45,11 @@ class TRestDataSet : public TRestMetadata {
     /// It contains a list of the process where all observables should be added
     std::vector<std::string> fProcessObservablesList;  //<
 
-    ROOT::RDataFrame fDataset = 0;   //!
-    TTimeStamp fStartTimeStamp = 0;  //!
-    TTimeStamp fEndTimeStamp = 0;    //!
+    /// The resulting RDataFrame object after initialization
+    ROOT::RDataFrame fDataSet = 0;  //!
+
+    /// A pointer to the generated tree
+    TTree* fTree = 0;  //!
 
     /// A list populated by the FileSelection method using the conditions of the dataset
     std::vector<std::string> fFileSelection;  //!
@@ -66,10 +68,15 @@ class TRestDataSet : public TRestMetadata {
 
     void InitFromConfigFile() override;
 
+   protected:
+    virtual std::vector<std::string> FileSelection();
+
    public:
+    ROOT::RDataFrame GetDataFrame() { return fDataSet; }
+    TTree* GetTree() { return fTree; }
+
     void PrintMetadata();
     void Initialize();
-    std::vector<std::string> FileSelection();
     TRestDataSet();
     TRestDataSet(const char* cfgFileName, std::string name = "");
     ~TRestDataSet();
