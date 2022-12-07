@@ -30,6 +30,7 @@
 /// ### Examples
 /// \code
 ///	<TRestDataSet name="28Nov_test">
+///
 /// 	<parameter name="startTime" value = "2022/04/28 00:00" />
 /// 	<parameter name="endTime" value = "2022/04/28 23:59" />
 /// 	<parameter name="filePattern" value="test*.root"/>
@@ -187,6 +188,25 @@ void TRestDataSet::PrintMetadata() {
         RESTMetadata << " Process observables added" << RESTendl;
         RESTMetadata << "---------" << RESTendl;
         for (const auto& l : fProcessObservablesList) RESTMetadata << " - " << l << RESTendl;
+
+        RESTMetadata << "  " << RESTendl;
+    }
+
+    if (!fFilterMetadata.empty()) {
+        RESTMetadata << " Metadata filters" << RESTendl;
+        RESTMetadata << "---------" << RESTendl;
+
+        int n = 0;
+        for (const auto& mdFilter : fFilterMetadata) {
+            RESTMetadata << " - " << mdFilter << ".";
+
+            if (!fFilterContains[n].empty()) RESTMetadata << " Contains: " << fFilterContains[n];
+            if (fFilterGreaterThan[n] != -1) RESTMetadata << " Greater than: " << fFilterGreaterThan[n];
+            if (fFilterLowerThan[n] != -1) RESTMetadata << " Lower than: " << fFilterLowerThan[n];
+
+            RESTMetadata << RESTendl;
+            n++;
+        }
     }
 
     RESTMetadata << "----" << RESTendl;
