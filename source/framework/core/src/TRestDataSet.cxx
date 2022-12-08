@@ -21,15 +21,77 @@
  *************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////
-/// Write the class description Here
+/// This class allows to make a selection of ROOT data files that fulfill
+/// certain metadata conditions allowing to create a group of files that
+/// define a particular dataset. The files will be searched in a relative
+/// or absolute path that is given together the `filePattern` parameter.
 ///
-/// ### Parameters
-/// * **startTime**: Only files with start run after `startTime` will be considered.
-/// * **endTime**: Only files with end run before `endTime` will be considered.
+/// ### Basic file selection
 ///
-/// ### Examples
+/// We will be able to define the dates range where files will be
+/// accepted, using `startTime` and `endTime` parameters. The run start
+/// time and end time stored inside TRestRun will be evaluated to decide
+/// if the file should be considered.
+///
+/// A summary of the basic parameters follows:
+///
+/// * **filePattern**: A full path glob pattern to the files that will
+/// be considered. It is a first filter considering the path and the
+/// filename. Usual wild cards such as * or ? will be allowed to target
+/// a given range of files.
+/// * **startTime**: Only files with start run after `startTime` will be
+/// considered.
+/// * **endTime**: Only files with end run before `endTime` will be
+/// considered.
+///
+/// ### Metadata rules
+///
+/// We may add rules for any metadata class existing inside our ROOT
+/// datafiles. For such, we use the `filter` key where we define the
+/// metadata member name where we want to evaluate the rules. We need
+/// to define the `metadata` field where we specify the class name or
+/// metadata user given name, together with the metadata member we want
+/// to access, the metadata member must be named using the coventions
+/// defined inside the method TRestRun::ReplaceMetadataMembers.
+///
+/// Three optional fields can be used to apply the rule:
+///
+/// - **contains**: It will accept the file if the metadata member
+/// contains the string given inside this field, it can also be a
+/// number.
+/// - **greaterThan**: It will accept only runs with the corresponding
+/// metadata member above the given value. Obviously, the value must
+/// be a numeric value.
+/// - **lowerThan**: It will accept only runs with the corresponding
+/// metadata member below the given value. Obviously, the value must
+/// be a numeric value.
+///
+/// Example of metadata rule:
 /// \code
-///	<TRestDataSet name="28Nov_test">
+/// 	<filter metadata="TRestRun::fRunTag" contains="Baby" />
+/// \endcode
+///
+/// ### Branches (or observables) selection
+///
+/// Once the files that fulfill the given dates, filename pattern and
+/// metadata rules have been identified, the initialization will produce
+/// an instance to a ROOT::RDataFrame and an instance to a ROOT::TTree
+/// that will give access to the unified analysis tree. The available
+/// columns or branches at those instances will be defined by the user
+/// inside this metadata class, through the special keywords
+/// `observables` and `processObservables`.
+///
+/// - **observables**: This key will allow to add a list of observables
+/// present at the analysis tree to be considered for the new compilation.
+/// The values must be separated by colons, ":".
+///
+/// - **processObservables**: This key will allow to add a list of process
+/// names for which all the observables found inside will be added to
+/// the compilation. The values must be separated by colons, ":".
+///
+/// Their use can be seen in the following example:
+/// \code
+///	<TRestDataSet name="DummySet">
 ///
 /// 	<parameter name="startTime" value = "2022/04/28 00:00" />
 /// 	<parameter name="endTime" value = "2022/04/28 23:59" />
@@ -38,14 +100,59 @@
 /// 	<filter metadata="TRestRun::fRunTag" contains="Baby" />
 ///
 ///		// Will add to the final tree only the specific observables
-///		<addObservables list="g4Ana_totalEdep;hitsAna_energy" />
+///		<observables list="g4Ana_totalEdep;hitsAna_energy" />
 ///
 ///		// Will add all the observables from the process `rawAna`
-///		<addProcessObservables list="rawAna" />
+///		<processObservables list="rate,rawAna" />
 ///
 /// </TRestDataSet>
 /// \endcode
 ///
+/// ### Basic usage
+///
+/// The basic usage of this class is by loading the metadata class as any
+/// other metadata class.  After initialization, the user will get access
+/// to the internal RDataFrame and TTree data members, as shown in the
+/// following example:
+///
+/// \code
+/// restRoot
+/// [0] TRestDataSet d("dataset");
+/// [1] d.Initialize();
+/// [2] d.GetTree()->GetEntries()
+/// [3] d.GetDataFrame().GetColumnNames()
+/// \endcode
+///
+/// We can then use our favorite ROOT::RDataFrame or TTree methods.
+///
+/// ### Exporting datasets
+///
+/// On top of performing a compilation of runs to construct a dataset
+/// and access the data in a unified way, we may also save the generated
+/// dataset to disk. This feature might be used to generate easier to
+/// handle data compilations that have been extracted from an **official
+/// data repository**.
+///
+/// Different output formats are supported:
+///
+/// - `root`: It will store the simplified TTree with the observables
+/// selected by the user, and the corresponding dataset file selection.
+/// The root file will also contain a TRestDataSet object to allow future
+/// users of the output file generated to identify the origin of the data.
+///
+/// - `txt` or `csv`: It will create an ASCII table with a table where each
+/// column will contain the data of a given branch. A header will be
+/// written inside the file with all the information found inside the
+/// TRestDataSet instance.
+///
+///
+/// Example:
+/// \code
+/// restRoot
+/// [0] TRestDataSet d("dataset");
+/// [1] d.Initialize();
+/// [2] d.Export("mydataset.csv");
+/// [3] d.Export("mydataset.root");
 ///
 ///----------------------------------------------------------------------
 ///
@@ -61,7 +168,6 @@
 ///
 /// <hr>
 ///
-
 #include "TRestDataSet.h"
 #include "TRestRun.h"
 #include "TRestTools.h"
@@ -280,7 +386,7 @@ void TRestDataSet::InitFromConfigFile() {
     TiXmlElement* filterDefinition = GetElement("filter");
     while (filterDefinition != nullptr) {
         std::string metadata = GetFieldValue("metadata", filterDefinition);
-        if (metadata.empty()) {
+        if (metadata.empty() || metadata == "Not defined") {
             RESTError << "Filter key defined without metadata member!" << RESTendl;
             exit(1);
         }
@@ -288,6 +394,7 @@ void TRestDataSet::InitFromConfigFile() {
         fFilterMetadata.push_back(metadata);
 
         std::string contains = GetFieldValue("contains", filterDefinition);
+        if (contains == "Not defined") contains = "";
         Double_t greaterThan = StringToDouble(GetFieldValue("greaterThan", filterDefinition));
         Double_t lowerThan = StringToDouble(GetFieldValue("lowerThan", filterDefinition));
 
@@ -302,8 +409,8 @@ void TRestDataSet::InitFromConfigFile() {
     TiXmlElement* observablesDefinition = GetElement("observables");
     while (observablesDefinition != nullptr) {
         std::string observables = GetFieldValue("list", observablesDefinition);
-        if (observables.empty()) {
-            RESTError << "<addObservables key does not contain a list!" << RESTendl;
+        if (observables.empty() || observables == "Not defined") {
+            RESTError << "<observables key does not contain a list!" << RESTendl;
             exit(1);
         }
 
@@ -318,8 +425,8 @@ void TRestDataSet::InitFromConfigFile() {
     TiXmlElement* obsProcessDefinition = GetElement("processObservables");
     while (obsProcessDefinition != nullptr) {
         std::string observables = GetFieldValue("list", obsProcessDefinition);
-        if (observables.empty()) {
-            RESTError << "<addProcessObservables key does not contain a list!" << RESTendl;
+        if (observables.empty() || observables == "Not defined") {
+            RESTError << "<processObservables key does not contain a list!" << RESTendl;
             exit(1);
         }
 
