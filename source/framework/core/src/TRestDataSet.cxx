@@ -100,10 +100,10 @@
 ///    <filter metadata="TRestRun::fRunTag" contains="Baby" />
 ///
 ///    // Will add to the final tree only the specific observables
-///    <observables list="g4Ana_totalEdep;hitsAna_energy" />
+///    <observables list="g4Ana_totalEdep:hitsAna_energy" />
 ///
 ///    // Will add all the observables from the process `rawAna`
-///    <processObservables list="rate,rawAna" />
+///    <processObservables list="rate:rawAna" />
 ///
 /// </TRestDataSet>
 /// \endcode
@@ -153,6 +153,7 @@
 /// [1] d.Initialize();
 /// [2] d.Export("mydataset.csv");
 /// [3] d.Export("mydataset.root");
+/// \endcode
 ///
 ///----------------------------------------------------------------------
 ///
