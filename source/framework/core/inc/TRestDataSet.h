@@ -45,6 +45,18 @@ class TRestDataSet : public TRestMetadata {
     /// It contains a list of the process where all observables should be added
     std::vector<std::string> fProcessObservablesList;  //<
 
+    /// A list of metadata members where filters will be applied
+    std::vector<std::string> fFilterMetadata;  //<
+
+    /// If not empty it will check if the metadata member contains the value
+    std::vector<std::string> fFilterContains;  //<
+
+    /// If the corresponding element is not empty it will check if the metadata member is greater
+    std::vector<Double_t> fFilterGreaterThan;  //<
+
+    /// If the corresponding element is not empty it will check if the metadata member is lower
+    std::vector<Double_t> fFilterLowerThan;  //<
+
     /// The resulting RDataFrame object after initialization
     ROOT::RDataFrame fDataSet = 0;  //!
 
@@ -54,33 +66,33 @@ class TRestDataSet : public TRestMetadata {
     /// A list populated by the FileSelection method using the conditions of the dataset
     std::vector<std::string> fFileSelection;  //!
 
-    /// A list of metadata members where filters will be applied
-    std::vector<std::string> fFilterMetadata;  //!
-
-    /// If not empty it will check if the metadata member contains the value
-    std::vector<std::string> fFilterContains;  //!
-
-    /// If the corresponding element is not empty it will check if the metadata member is greater
-    std::vector<Double_t> fFilterGreaterThan;  //!
-
-    /// If the corresponding element is not empty it will check if the metadata member is lower
-    std::vector<Double_t> fFilterLowerThan;  //!
-
     void InitFromConfigFile() override;
 
    protected:
     virtual std::vector<std::string> FileSelection();
 
    public:
-    ROOT::RDataFrame GetDataFrame() { return fDataSet; }
-    TTree* GetTree() { return fTree; }
+    ROOT::RDataFrame GetDataFrame() {
+        if (fTree == nullptr) RESTWarning << "DataFrame has not been yet initialized" << RESTendl;
+        return fDataSet;
+    }
 
-    void PrintMetadata();
-    void Initialize();
+    TTree* GetTree() {
+        if (fTree == nullptr) RESTWarning << "Tree has not been yet initialized" << RESTendl;
+        return fTree;
+    }
+
+    Int_t GetNumberOfColumns() { return fDataSet.GetColumnNames().size(); }
+    Int_t GetNumberOfBranches() { return GetNumberOfColumns(); }
+
+    void Export(std::string fname);
+
+    void PrintMetadata() override;
+    void Initialize() override;
     TRestDataSet();
     TRestDataSet(const char* cfgFileName, std::string name = "");
     ~TRestDataSet();
 
-    ClassDef(TRestDataSet, 1);
+    ClassDefOverride(TRestDataSet, 1);
 };
 #endif

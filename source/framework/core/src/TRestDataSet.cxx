@@ -112,10 +112,8 @@ void TRestDataSet::Initialize() {
 
     if (fFileSelection.empty()) FileSelection();
 
-    if (fFileSelection.empty()) {
-        RESTWarning << "TRestDataSet::FileSelection produced an empty selection!" << RESTendl;
-        return;
-    }
+    // We are not ready yet
+    if (fFileSelection.empty()) return;
 
     ///// Disentangling process observables --> producing finalList
     TRestRun* run = new TRestRun(fFileSelection[0]);
@@ -133,6 +131,7 @@ void TRestDataSet::Initialize() {
         }
     }
     delete run;
+    ///////
 
     ROOT::EnableImplicitMT();
 
@@ -146,6 +145,19 @@ void TRestDataSet::Initialize() {
 
     TFile* f = new TFile((TString)foutname);
     fTree = (TTree*)f->Get("AnalysisTree");
+
+    int cont = 0;
+    std::string obsListStr;
+    for (const auto& l : finalList) {
+        if (cont > 0) obsListStr += ":";
+        obsListStr += l;
+        cont++;
+    }
+
+    // We do this so that later we can recover the values using TTree::GetVal
+    fTree->Draw((TString)obsListStr, "", "goff");
+
+    std::cout << " - Dataset initialized!" << std::endl;
 }
 
 ///////////////////////////////////////////////
@@ -165,6 +177,11 @@ std::vector<std::string> TRestDataSet::FileSelection() {
     }
 
     std::vector<std::string> fileNames = TRestTools::GetFilesMatchingPattern(fFilePattern);
+
+    if (!fileNames.empty()) {
+        RESTInfo << " - Starting to select files matching pattern. Total files : " << fileNames.size()
+                 << RESTendl;
+    }
 
     for (const auto& file : fileNames) {
         TRestRun* run = new TRestRun(file);
@@ -199,6 +216,7 @@ std::vector<std::string> TRestDataSet::FileSelection() {
 
         fFileSelection.push_back(file);
     }
+    RESTInfo << RESTendl;
 
     return fFileSelection;
 }
@@ -310,5 +328,66 @@ void TRestDataSet::InitFromConfigFile() {
         for (const auto& l : obsList) fProcessObservablesList.push_back(l);
 
         obsProcessDefinition = GetNextElement(obsProcessDefinition);
+    }
+}
+
+///////////////////////////////////////////////
+/// \brief It will generate an output file with the dataset compilation. Only the selected
+/// branches and the files that fulfill the metadata filter conditions will be included.
+///
+/// For the moment we produce two different output files.
+///
+/// - A plain-text (file recognized with `csv` or `txt` extension): It will produce a table
+/// with observable values, including a header of the dataset conditions.
+///
+/// - A root file (recognized through its `root` extension): It will write to disk an
+/// Snapshot of the current dataset, i.e. in standard TTree format, together with a copy
+/// of the TRestDataSet instance that contains the conditions used to generate the dataset.
+///
+void TRestDataSet::Export(std::string fname) {
+    if (TRestTools::GetFileNameExtension(fname) == "txt" ||
+        TRestTools::GetFileNameExtension(fname) == "csv") {
+        std::vector<std::string> dataTypes;
+        for (int n = 0; n < fTree->GetListOfBranches()->GetEntries(); n++) {
+            std::string bName = fTree->GetListOfBranches()->At(n)->GetName();
+            std::string type = fTree->GetLeaf((TString)bName)->GetTypeName();
+            dataTypes.push_back(type);
+            if (type != "Double_t" && type != "Int_t") {
+                RESTError << "Branch name : " << bName << " is type : " << type << RESTendl;
+                RESTError << "Only Int_t and Double_t types are allowed for "
+                             "exporting to ASCII table"
+                          << RESTendl;
+                RESTError << "File will not be generated" << RESTendl;
+                return;
+            }
+        }
+
+        FILE* f = fopen(fname.c_str(), "wt");
+        for (int n = 0; n < fTree->GetEntries(); n++) {
+            for (int m = 0; m < GetNumberOfBranches(); m++) {
+                std::string bName = fTree->GetListOfBranches()->At(m)->GetName();
+                if (m > 0) fprintf(f, "\t");
+                if (dataTypes[m] == "Double_t")
+                    if (bName == "timeStamp")
+                        fprintf(f, "%010.0lf", fTree->GetVal(m)[n]);
+                    else
+                        fprintf(f, "%05.3e", fTree->GetVal(m)[n]);
+                else
+                    fprintf(f, "%06d", (Int_t)fTree->GetVal(m)[n]);
+            }
+            fprintf(f, "\n");
+        }
+        fclose(f);
+
+        return;
+    } else if (TRestTools::GetFileNameExtension(fname) == "root") {
+        fDataSet.Snapshot("AnalysisTree", fname);
+
+        TFile* f = new TFile((TString)fname, "UPDATE");
+        this->Write();
+        f->Close();
+    } else {
+        RESTWarning << "TRestDataSet::Export. Extension " << TRestTools::GetFileNameExtension(fname)
+                    << " not recognized" << RESTendl;
     }
 }
