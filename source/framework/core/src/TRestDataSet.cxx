@@ -363,6 +363,37 @@ void TRestDataSet::Export(std::string fname) {
         }
 
         FILE* f = fopen(fname.c_str(), "wt");
+        ///// Writting header
+        fprintf(f, "### TRestDataSet generated file\n");
+        fprintf(f, "### \n");
+        fprintf(f, "### StartTime : %s\n", fStartTime.c_str());
+        fprintf(f, "### EndTime : %s\n", fEndTime.c_str());
+        fprintf(f, "###\n");
+        fprintf(f, "### Data path : %s\n", TRestTools::SeparatePathAndName(fFilePattern).first.c_str());
+        fprintf(f, "### File pattern : %s\n", TRestTools::SeparatePathAndName(fFilePattern).second.c_str());
+        fprintf(f, "###\n");
+        if (!fFilterMetadata.empty()) {
+            fprintf(f, "### Metadata filters : \n");
+            int n = 0;
+            for (const auto& md : fFilterMetadata) {
+                fprintf(f, "### - %s.", md.c_str());
+                if (!fFilterContains[n].empty()) fprintf(f, " Contains: %s.", fFilterContains[n].c_str());
+                if (fFilterGreaterThan[n] != -1) fprintf(f, " Greater than: %6.3lf.", fFilterGreaterThan[n]);
+                if (fFilterLowerThan[n] != -1) fprintf(f, " Lower than: %6.3lf.", fFilterLowerThan[n]);
+                fprintf(f, "\n");
+                n++;
+            }
+        }
+        fprintf(f, "###\n");
+        fprintf(f, "### Observables list: ");
+        for (int n = 0; n < fTree->GetListOfBranches()->GetEntries(); n++) {
+            std::string bName = fTree->GetListOfBranches()->At(n)->GetName();
+            fprintf(f, " %s", bName.c_str());
+        }
+        fprintf(f, "\n");
+        fprintf(f, "###\n");
+        fprintf(f, "### Data starts here\n");
+
         for (int n = 0; n < fTree->GetEntries(); n++) {
             for (int m = 0; m < GetNumberOfBranches(); m++) {
                 std::string bName = fTree->GetListOfBranches()->At(m)->GetName();
