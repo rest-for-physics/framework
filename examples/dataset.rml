@@ -1,6 +1,10 @@
-
-	<TRestDataSet name="Muons_9bar">
-		<parameter name="startTime" value = "2022/04/28 00:00" />
-		<parameter name="endTime" value = "2022/04/28 23:59" />
-		<parameter name="filePattern" value="test*.root"/>
-	</TRestDataSet>
+<?xml version="1.0"?>
+<TRestDataSet name="BabyIAXO">
+    <parameter name="startTime" value="2022/04/28 00:00"/>
+    <parameter name="endTime" value="2022/11/25 13:20"/>
+    <parameter name="filePattern" value="/home/jgalan/rest-framework/source/libraries/axion/examples/full-ray-tracing/BabyIAXO_TrueWolterMicromegasTest*.root"/>
+    <filter metadata="TRestRun::fRunNumber" greaterThan="370" lowerThan="375"/>
+    <filter metadata="TRestRun::fRunTag" contains="Test"/>
+    <observables list="window_transmission:optics_efficiency:axionPhoton_probability:axionPhoton_transmission:boreExitGate_transmission"/>
+    <processObservables list="final"/>
+</TRestDataSet>
