@@ -91,7 +91,7 @@
 ///
 /// Their use can be seen in the following example:
 /// \code
-///	<TRestDataSet name="DummySet">
+/// <TRestDataSet name="DummySet">
 ///
 ///    <parameter name="startTime" value = "2022/04/28 00:00" />
 ///    <parameter name="endTime" value = "2022/04/28 23:59" />
