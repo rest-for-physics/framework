@@ -93,17 +93,17 @@
 /// \code
 ///	<TRestDataSet name="DummySet">
 ///
-/// 	<parameter name="startTime" value = "2022/04/28 00:00" />
-/// 	<parameter name="endTime" value = "2022/04/28 23:59" />
-/// 	<parameter name="filePattern" value="test*.root"/>
+///    <parameter name="startTime" value = "2022/04/28 00:00" />
+///    <parameter name="endTime" value = "2022/04/28 23:59" />
+///    <parameter name="filePattern" value="test*.root"/>
 ///
-/// 	<filter metadata="TRestRun::fRunTag" contains="Baby" />
+///    <filter metadata="TRestRun::fRunTag" contains="Baby" />
 ///
-///		// Will add to the final tree only the specific observables
-///		<observables list="g4Ana_totalEdep;hitsAna_energy" />
+///    // Will add to the final tree only the specific observables
+///    <observables list="g4Ana_totalEdep;hitsAna_energy" />
 ///
-///		// Will add all the observables from the process `rawAna`
-///		<processObservables list="rate,rawAna" />
+///    // Will add all the observables from the process `rawAna`
+///    <processObservables list="rate,rawAna" />
 ///
 /// </TRestDataSet>
 /// \endcode
