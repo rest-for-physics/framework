@@ -57,6 +57,9 @@ class TRestDataSet : public TRestMetadata {
     /// If the corresponding element is not empty it will check if the metadata member is lower
     std::vector<Double_t> fFilterLowerThan;  //<
 
+    /// The total integrated run time of selected files
+    Double_t fTotalDuration = 0;  //<
+
     /// The resulting RDataFrame object after initialization
     ROOT::RDataFrame fDataSet = 0;  //!
 
@@ -84,6 +87,8 @@ class TRestDataSet : public TRestMetadata {
 
     Int_t GetNumberOfColumns() { return fDataSet.GetColumnNames().size(); }
     Int_t GetNumberOfBranches() { return GetNumberOfColumns(); }
+
+    Double_t GetTotalTimeInSeconds() { return fTotalDuration; }
 
     void Export(std::string fname);
 

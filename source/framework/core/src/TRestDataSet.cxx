@@ -290,6 +290,7 @@ std::vector<std::string> TRestDataSet::FileSelection() {
                  << RESTendl;
     }
 
+    fTotalDuration = 0;
     for (const auto& file : fileNames) {
         TRestRun* run = new TRestRun(file);
         double runStart = run->GetStartTimestamp();
@@ -321,6 +322,7 @@ std::vector<std::string> TRestDataSet::FileSelection() {
 
         if (!accept) continue;
 
+        fTotalDuration += run->GetEndTimestamp() - run->GetStartTimestamp();
         fFileSelection.push_back(file);
     }
     RESTInfo << RESTendl;
@@ -338,6 +340,10 @@ void TRestDataSet::PrintMetadata() {
     RESTMetadata << " - EndTime : " << fEndTime << RESTendl;
     RESTMetadata << " - Path : " << TRestTools::SeparatePathAndName(fFilePattern).first << RESTendl;
     RESTMetadata << " - File pattern : " << TRestTools::SeparatePathAndName(fFilePattern).second << RESTendl;
+    RESTMetadata << "  " << RESTendl;
+    RESTMetadata << " - Accumulated run time (seconds) : " << fTotalDuration << RESTendl;
+    RESTMetadata << " - Accumulated run time (hours) : " << fTotalDuration / 3600. << RESTendl;
+    RESTMetadata << " - Accumulated run time (days) : " << fTotalDuration / 3600. / 24. << RESTendl;
 
     RESTMetadata << "  " << RESTendl;
 
@@ -476,6 +482,10 @@ void TRestDataSet::Export(std::string fname) {
         fprintf(f, "### \n");
         fprintf(f, "### StartTime : %s\n", fStartTime.c_str());
         fprintf(f, "### EndTime : %s\n", fEndTime.c_str());
+        fprintf(f, "###\n");
+        fprintf(f, "### Accumulated run time (seconds) : %lf\n", fTotalDuration);
+        fprintf(f, "### Accumulated run time (hours) : %lf\n", fTotalDuration / 3600.);
+        fprintf(f, "### Accumulated run time (days) : %lf\n", fTotalDuration / 3600. / 24.);
         fprintf(f, "###\n");
         fprintf(f, "### Data path : %s\n", TRestTools::SeparatePathAndName(fFilePattern).first.c_str());
         fprintf(f, "### File pattern : %s\n", TRestTools::SeparatePathAndName(fFilePattern).second.c_str());
