@@ -64,7 +64,7 @@ class TRestDataSet : public TRestMetadata {
     ROOT::RDataFrame fDataSet = 0;  //!
 
     /// A pointer to the generated tree
-    TTree* fTree = 0;  //!
+    TTree* fTree = nullptr;  //!
 
     /// A list populated by the FileSelection method using the conditions of the dataset
     std::vector<std::string> fFileSelection;  //!
