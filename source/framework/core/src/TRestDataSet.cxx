@@ -321,6 +321,32 @@ std::vector<std::string> TRestDataSet::FileSelection() {
 
         if (!accept) continue;
 
+        for (auto& [name, properties] : fQuantity) {
+            Double_t value =
+                REST_StringHelper::StringToDouble(run.ReplaceMetadataMembers(properties.metadata));
+
+            if (properties.strategy == "accumulate") properties.value += value;
+
+            if (properties.strategy == "max")
+                if (properties.value == 0 || properties.value < value) properties.value = value;
+
+            if (properties.strategy == "min")
+                if (properties.value == 0 || properties.value > value) properties.value = value;
+
+            if (properties.strategy == "unique")
+                if (properties.value == 0)
+                    properties.value = value;
+                else if (properties.value != value) {
+                    RESTWarning << "TRestDataSet::FileSelection. Relevant quantity retrieval." << RESTendl;
+                    RESTWarning << "A unique metadata member used for the `" << name
+                                << "` quantity is not unique!!" << RESTendl;
+                    RESTWarning << "Pre-registered value : " << properties.value << " New value : " << value
+                                << RESTendl;
+                }
+
+            if (properties.strategy == "last") properties.value = value;
+        }
+
         fTotalDuration += run.GetEndTimestamp() - run.GetStartTimestamp();
         fFileSelection.push_back(file);
     }
@@ -487,7 +513,7 @@ void TRestDataSet::InitFromConfigFile() {
         quantity.metadata = metadata;
         quantity.strategy = strategy;
         quantity.description = description;
-        quantity.value = -1;
+        quantity.value = 0;
 
         fQuantity[name] = quantity;
 
