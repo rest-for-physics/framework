@@ -107,6 +107,8 @@ class TRestDataSet : public TRestMetadata {
     size_t GetNumberOfColumns() { return fDataSet.GetColumnNames().size(); }
     size_t GetNumberOfBranches() { return GetNumberOfColumns(); }
 
+    std::vector<std::string> GetFileSelection() { return fFileSelection; }
+
     Double_t GetTotalTimeInSeconds() const { return fTotalDuration; }
 
     void Export(const std::string& filename);
