@@ -347,24 +347,24 @@ void TRestDataSet::PrintMetadata() {
     RESTMetadata << "  " << RESTendl;
 
     if (!fObservablesList.empty()) {
-        RESTMetadata << " Single observables added" << RESTendl;
-        RESTMetadata << "---------" << RESTendl;
+        RESTMetadata << " Single observables added:" << RESTendl;
+        RESTMetadata << " -------------------------" << RESTendl;
         for (const auto& l : fObservablesList) RESTMetadata << " - " << l << RESTendl;
 
         RESTMetadata << "  " << RESTendl;
     }
 
     if (!fProcessObservablesList.empty()) {
-        RESTMetadata << " Process observables added" << RESTendl;
-        RESTMetadata << "---------" << RESTendl;
+        RESTMetadata << " Process observables added: " << RESTendl;
+        RESTMetadata << " -------------------------- " << RESTendl;
         for (const auto& l : fProcessObservablesList) RESTMetadata << " - " << l << RESTendl;
 
         RESTMetadata << "  " << RESTendl;
     }
 
     if (!fFilterMetadata.empty()) {
-        RESTMetadata << " Metadata filters" << RESTendl;
-        RESTMetadata << "---------" << RESTendl;
+        RESTMetadata << " Metadata filters: " << RESTendl;
+        RESTMetadata << " ----------------- " << RESTendl;
 
         int n = 0;
         for (const auto& mdFilter : fFilterMetadata) {
@@ -375,6 +375,24 @@ void TRestDataSet::PrintMetadata() {
             if (fFilterLowerThan[n] != -1) RESTMetadata << " Lower than: " << fFilterLowerThan[n];
 
             RESTMetadata << RESTendl;
+            n++;
+        }
+
+        RESTMetadata << "  " << RESTendl;
+    }
+
+    if (!fQuantityName.empty()) {
+        RESTMetadata << " Relevant quantities: " << RESTendl;
+        RESTMetadata << " -------------------- " << RESTendl;
+
+        int n = 0;
+        for (const auto& quantity : fQuantityName) {
+            RESTMetadata << " - Name : " << quantity << ". Value : " << fQuantityValue[n]
+                         << ". Strategy: " << fQuantityStrategy[n] << RESTendl;
+            RESTMetadata << " - Metadata: " << fQuantityMetadata[n] << RESTendl;
+            RESTMetadata << " - Description: " << fQuantityDescription[n] << RESTendl;
+
+            RESTMetadata << " " << RESTendl;
             n++;
         }
     }
@@ -441,6 +459,37 @@ void TRestDataSet::InitFromConfigFile() {
         for (const auto& l : obsList) fProcessObservablesList.push_back(l);
 
         obsProcessDefinition = GetNextElement(obsProcessDefinition);
+    }
+
+    /// Reading relevant quantities
+    TiXmlElement* quantityDefinition = GetElement("quantity");
+    while (quantityDefinition != nullptr) {
+        std::string name = GetFieldValue("name", quantityDefinition);
+        if (name.empty() || name == "Not defined") {
+            RESTError << "<quantity key does not contain a name!" << RESTendl;
+            exit(1);
+        }
+
+        std::string metadata = GetFieldValue("metadata", quantityDefinition);
+        if (metadata.empty() || metadata == "Not defined") {
+            RESTError << "<quantity key does not contain a metadata value!" << RESTendl;
+            exit(1);
+        }
+
+        std::string strategy = GetFieldValue("strategy", quantityDefinition);
+        if (strategy.empty() || strategy == "Not defined") {
+            strategy = "unique";
+        }
+
+        std::string description = GetFieldValue("description", quantityDefinition);
+
+        fQuantityName.push_back(name);
+        fQuantityMetadata.push_back(metadata);
+        fQuantityStrategy.push_back(strategy);
+        fQuantityDescription.push_back(description);
+        fQuantityValue.push_back(-1);
+
+        quantityDefinition = GetNextElement(quantityDefinition);
     }
 }
 

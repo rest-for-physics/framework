@@ -59,6 +59,21 @@ class TRestDataSet : public TRestMetadata {
     /// If the corresponding element is not empty it will check if the metadata member is lower
     std::vector<Double_t> fFilterLowerThan;  //<
 
+    /// The name of a relevant quantity we want to store together with the dataset
+    std::vector<std::string> fQuantityName;  //<
+
+    /// The associated metadata member used to register the relevant quantity
+    std::vector<std::string> fQuantityMetadata;  //<
+
+    /// It determines how to produce the relevant quantity (accumulate/unique/last)
+    std::vector<std::string> fQuantityStrategy;  //<
+
+    /// A user given description that can be used to define the relevant quantity
+    std::vector<std::string> fQuantityDescription;  //<
+
+    /// The numerical value for the relevant quantity
+    std::vector<Double_t> fQuantityValue;  //<
+
     /// The total integrated run time of selected files
     Double_t fTotalDuration = 0;  //<
 
