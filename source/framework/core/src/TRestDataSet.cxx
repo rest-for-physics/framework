@@ -52,7 +52,8 @@
 /// to define the `metadata` field where we specify the class name or
 /// metadata user given name, together with the metadata member we want
 /// to access, the metadata member must be named using the coventions
-/// defined inside the method TRestRun::ReplaceMetadataMembers.
+/// defined inside the methods TRestRun::ReplaceMetadataMember and
+/// TRestRun::ReplaceMetadataMembers.
 ///
 /// Three optional fields can be used to apply the rule:
 ///
@@ -135,15 +136,15 @@
 ///
 /// Different output formats are supported:
 ///
-/// - `root`: It will store the simplified TTree with the observables
-/// selected by the user, and the corresponding dataset file selection.
+/// - `root`: It will store the simplified `TTree` with the observables
+/// selected by the user and compiled with the corresponding file selection.
 /// The root file will also contain a TRestDataSet object to allow future
 /// users of the output file generated to identify the origin of the data.
 ///
-/// - `txt` or `csv`: It will create an ASCII table with a table where each
-/// column will contain the data of a given branch. A header will be
-/// written inside the file with all the information found inside the
-/// TRestDataSet instance.
+/// - `txt` or `csv`: It will create an ASCII table where each column
+/// will contain the data of a given branch. A header will be written
+/// inside the file with all the information found inside the TRestDataSet
+/// instance.
 ///
 ///
 /// Example:
@@ -154,6 +155,47 @@
 /// [2] d.Export("mydataset.csv");
 /// [3] d.Export("mydataset.root");
 /// \endcode
+///
+/// ### Relevant quantities
+///
+/// Sometimes we will be willing that our dataset contains few variables
+/// that are extremelly meaningful for the data compilation, and that will
+/// be required for further calculations or for the proper interpretation
+/// of the data. The key `<quantity` will allow the user to define relevant
+/// quantities that will be stored together with the dataset. These
+/// quantitites must be extracted from existing metadata members that are
+/// present at the original files. There are different fields allowed
+/// inside, such as: `name`, `metadata`, `strategy` and `description`.
+///
+/// Example:
+/// \code
+/// <quantity name="Nsim" metadata="[TRestProcessRunner::fEventsToProcess]"
+///           strategy="accumulate" description="The total number of simulated events."/>
+/// \endcode
+///
+/// The `name` field will be the user given name of the quantity. The
+/// `metadata` field inside the `<quantity` definition will allow to
+/// include a metadata member or a calculation based on a formula where
+/// metadata members intervine. The method TRestRun::ReplaceMetadataMembers
+/// is the responsible to translate the given metadata formula into a
+/// numeric value, check the documentation inside that method to find out
+/// the proper format of metadata members inside this field.
+///
+/// There are also different strategies for extracting the quantity value,
+/// which are defined by the user using the field `strategy`, the different
+/// options available are:
+/// - **accumulate**: It will add the value of the `metadata` definition
+/// for each of the selected files that will be included in the dataset.
+/// - **max**: It will register the maximum metadata value found in each
+/// of the files included in the dataset.
+/// - **min**: It will register the minimum metadata value found in each
+/// of the files included in the dataset.
+/// - **unique**: It will simply register the value of the metadata member.
+/// If the metadata member value found at each of the selected files is
+/// not exactly the same, then a warning output message will be prompted.
+/// - **last**: It will simply register the value of the metadata member
+/// from the last file in the list of selected files.
+///
 ///
 ///----------------------------------------------------------------------
 ///

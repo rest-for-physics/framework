@@ -94,21 +94,28 @@ class TRestDataSet : public TRestMetadata {
     virtual std::vector<std::string> FileSelection();
 
    public:
+    /// Gives access to the RDataFrame
     ROOT::RDataFrame GetDataFrame() const {
         if (fTree == nullptr) RESTWarning << "DataFrame has not been yet initialized" << RESTendl;
         return fDataSet;
     }
 
+    /// Gives access to the tree
     TTree* GetTree() const {
         if (fTree == nullptr) RESTWarning << "Tree has not been yet initialized" << RESTendl;
         return fTree;
     }
 
+    /// Number of variables (or observables)
     size_t GetNumberOfColumns() { return fDataSet.GetColumnNames().size(); }
+
+    /// Number of variables (or observables)
     size_t GetNumberOfBranches() { return GetNumberOfColumns(); }
 
+    /// It returns a list of the files that have been finally selected
     std::vector<std::string> GetFileSelection() { return fFileSelection; }
 
+    /// It returns the accumulated run time in seconds
     Double_t GetTotalTimeInSeconds() const { return fTotalDuration; }
 
     void Export(const std::string& filename);
