@@ -256,7 +256,7 @@ void TRestDataSet::Initialize() {
     SetSectionName(this->ClassName());
 
     if (fTree != nullptr) {
-        RESTWarning << "Tree has already been loaded. Skipping TRestDataSet::LoadDataFrame ... " << RESTendl;
+        RESTWarning << "Tree has already been loaded. Skipping TRestDataSet::Initialize ... " << RESTendl;
         return;
     }
 
@@ -619,6 +619,12 @@ void TRestDataSet::Export(const std::string& filename) {
                 fprintf(f, "\n");
                 n++;
             }
+        }
+        fprintf(f, "###\n");
+        fprintf(f, "### Relevant quantities: \n");
+        for (auto& [name, properties] : fQuantity) {
+            fprintf(f, "### - %s : %lf - %s\n", name.c_str(), properties.value,
+                    properties.description.c_str());
         }
         fprintf(f, "###\n");
         fprintf(f, "### Observables list: ");
