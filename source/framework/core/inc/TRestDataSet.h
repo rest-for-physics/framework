@@ -29,6 +29,20 @@
 
 #include "TRestMetadata.h"
 
+struct RelevantQuantity {
+    /// The associated metadata member used to register the relevant quantity
+    std::string metadata;
+
+    /// It determines how to produce the relevant quantity (accumulate/unique/last/max/min)
+    std::string strategy;
+
+    /// A user given description that can be used to define the relevant quantity
+    std::string description;
+
+    /// The quantity value
+    Double_t value;
+};
+
 /// It allows to group a number of runs that satisfy given metadata conditions
 class TRestDataSet : public TRestMetadata {
    private:
@@ -59,20 +73,8 @@ class TRestDataSet : public TRestMetadata {
     /// If the corresponding element is not empty it will check if the metadata member is lower
     std::vector<Double_t> fFilterLowerThan;  //<
 
-    /// The name of a relevant quantity we want to store together with the dataset
-    std::vector<std::string> fQuantityName;  //<
-
-    /// The associated metadata member used to register the relevant quantity
-    std::vector<std::string> fQuantityMetadata;  //<
-
-    /// It determines how to produce the relevant quantity (accumulate/unique/last)
-    std::vector<std::string> fQuantityStrategy;  //<
-
-    /// A user given description that can be used to define the relevant quantity
-    std::vector<std::string> fQuantityDescription;  //<
-
-    /// The numerical value for the relevant quantity
-    std::vector<Double_t> fQuantityValue;  //<
+    /// The properties of a relevant quantity that we want to store together with the dataset
+    std::map<std::string, RelevantQuantity> fQuantity;  //<
 
     /// The total integrated run time of selected files
     Double_t fTotalDuration = 0;  //<

@@ -381,16 +381,16 @@ void TRestDataSet::PrintMetadata() {
         RESTMetadata << "  " << RESTendl;
     }
 
-    if (!fQuantityName.empty()) {
+    if (!fQuantity.empty()) {
         RESTMetadata << " Relevant quantities: " << RESTendl;
         RESTMetadata << " -------------------- " << RESTendl;
 
         int n = 0;
-        for (const auto& quantity : fQuantityName) {
-            RESTMetadata << " - Name : " << quantity << ". Value : " << fQuantityValue[n]
-                         << ". Strategy: " << fQuantityStrategy[n] << RESTendl;
-            RESTMetadata << " - Metadata: " << fQuantityMetadata[n] << RESTendl;
-            RESTMetadata << " - Description: " << fQuantityDescription[n] << RESTendl;
+        for (auto const& [name, properties] : fQuantity) {
+            RESTMetadata << " - Name : " << name << ". Value : " << properties.value
+                         << ". Strategy: " << properties.strategy << RESTendl;
+            RESTMetadata << " - Metadata: " << properties.metadata << RESTendl;
+            RESTMetadata << " - Description: " << properties.description << RESTendl;
 
             RESTMetadata << " " << RESTendl;
             n++;
@@ -483,11 +483,13 @@ void TRestDataSet::InitFromConfigFile() {
 
         std::string description = GetFieldValue("description", quantityDefinition);
 
-        fQuantityName.push_back(name);
-        fQuantityMetadata.push_back(metadata);
-        fQuantityStrategy.push_back(strategy);
-        fQuantityDescription.push_back(description);
-        fQuantityValue.push_back(-1);
+        RelevantQuantity quantity;
+        quantity.metadata = metadata;
+        quantity.strategy = strategy;
+        quantity.description = description;
+        quantity.value = -1;
+
+        fQuantity[name] = quantity;
 
         quantityDefinition = GetNextElement(quantityDefinition);
     }
