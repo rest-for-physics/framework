@@ -23,9 +23,11 @@
 #ifndef REST_TRestDataSet
 #define REST_TRestDataSet
 
-#include "ROOT/RDataFrame.hxx"
+#include <TTimeStamp.h>
+
+#include <ROOT/RDataFrame.hxx>
+
 #include "TRestMetadata.h"
-#include "TTimeStamp.h"
 
 /// It allows to group a number of runs that satisfy given metadata conditions
 class TRestDataSet : public TRestMetadata {
@@ -64,7 +66,7 @@ class TRestDataSet : public TRestMetadata {
     ROOT::RDataFrame fDataSet = 0;  //!
 
     /// A pointer to the generated tree
-    TTree* fTree = 0;  //!
+    TTree* fTree = nullptr;  //!
 
     /// A list populated by the FileSelection method using the conditions of the dataset
     std::vector<std::string> fFileSelection;  //!
@@ -75,27 +77,27 @@ class TRestDataSet : public TRestMetadata {
     virtual std::vector<std::string> FileSelection();
 
    public:
-    ROOT::RDataFrame GetDataFrame() {
+    ROOT::RDataFrame GetDataFrame() const {
         if (fTree == nullptr) RESTWarning << "DataFrame has not been yet initialized" << RESTendl;
         return fDataSet;
     }
 
-    TTree* GetTree() {
+    TTree* GetTree() const {
         if (fTree == nullptr) RESTWarning << "Tree has not been yet initialized" << RESTendl;
         return fTree;
     }
 
-    Int_t GetNumberOfColumns() { return fDataSet.GetColumnNames().size(); }
-    Int_t GetNumberOfBranches() { return GetNumberOfColumns(); }
+    size_t GetNumberOfColumns() { return fDataSet.GetColumnNames().size(); }
+    size_t GetNumberOfBranches() { return GetNumberOfColumns(); }
 
-    Double_t GetTotalTimeInSeconds() { return fTotalDuration; }
+    Double_t GetTotalTimeInSeconds() const { return fTotalDuration; }
 
-    void Export(std::string fname);
+    void Export(const std::string& filename);
 
     void PrintMetadata() override;
     void Initialize() override;
     TRestDataSet();
-    TRestDataSet(const char* cfgFileName, std::string name = "");
+    TRestDataSet(const char* cfgFileName, const std::string& name = "");
     ~TRestDataSet();
 
     ClassDefOverride(TRestDataSet, 1);

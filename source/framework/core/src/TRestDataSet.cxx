@@ -170,6 +170,7 @@
 /// <hr>
 ///
 #include "TRestDataSet.h"
+
 #include "TRestRun.h"
 #include "TRestTools.h"
 
@@ -194,7 +195,7 @@ TRestDataSet::TRestDataSet() { Initialize(); }
 /// \param name The name of the specific metadata. It will be used to find the
 /// corresponding TRestAxionMagneticField section inside the RML.
 ///
-TRestDataSet::TRestDataSet(const char* cfgFileName, std::string name) : TRestMetadata(cfgFileName) {
+TRestDataSet::TRestDataSet(const char* cfgFileName, const std::string& name) : TRestMetadata(cfgFileName) {
     LoadConfigFromFile(fConfigFileName, name);
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
@@ -244,12 +245,12 @@ void TRestDataSet::Initialize() {
     fDataSet = ROOT::RDataFrame("AnalysisTree", fFileSelection);
 
     std::string user = getenv("USER");
-    std::string foutname = "/tmp/rest_output_" + user + ".root";
-    fDataSet.Snapshot("AnalysisTree", foutname, finalList);
+    std::string fOutName = "/tmp/rest_output_" + user + ".root";
+    fDataSet.Snapshot("AnalysisTree", fOutName, finalList);
 
-    fDataSet = ROOT::RDataFrame("AnalysisTree", foutname);
+    fDataSet = ROOT::RDataFrame("AnalysisTree", fOutName);
 
-    TFile* f = TFile::Open((TString)foutname);
+    TFile* f = TFile::Open(fOutName.c_str());
     fTree = (TTree*)f->Get("AnalysisTree");
 
     int cont = 0;
@@ -302,7 +303,7 @@ std::vector<std::string> TRestDataSet::FileSelection() {
 
         int n = 0;
         bool accept = true;
-        for (const auto md : fFilterMetadata) {
+        for (const auto& md : fFilterMetadata) {
             std::string mdValue = run.GetMetadataMember(md);
 
             if (!fFilterContains[n].empty())
@@ -456,9 +457,9 @@ void TRestDataSet::InitFromConfigFile() {
 /// Snapshot of the current dataset, i.e. in standard TTree format, together with a copy
 /// of the TRestDataSet instance that contains the conditions used to generate the dataset.
 ///
-void TRestDataSet::Export(std::string fname) {
-    if (TRestTools::GetFileNameExtension(fname) == "txt" ||
-        TRestTools::GetFileNameExtension(fname) == "csv") {
+void TRestDataSet::Export(const std::string& filename) {
+    if (TRestTools::GetFileNameExtension(filename) == "txt" ||
+        TRestTools::GetFileNameExtension(filename) == "csv") {
         std::vector<std::string> dataTypes;
         for (int n = 0; n < fTree->GetListOfBranches()->GetEntries(); n++) {
             std::string bName = fTree->GetListOfBranches()->At(n)->GetName();
@@ -474,8 +475,8 @@ void TRestDataSet::Export(std::string fname) {
             }
         }
 
-        FILE* f = fopen(fname.c_str(), "wt");
-        ///// Writting header
+        FILE* f = fopen(filename.c_str(), "wt");
+        ///// Writing header
         fprintf(f, "### TRestDataSet generated file\n");
         fprintf(f, "### \n");
         fprintf(f, "### StartTime : %s\n", fStartTime.c_str());
@@ -527,14 +528,14 @@ void TRestDataSet::Export(std::string fname) {
         fclose(f);
 
         return;
-    } else if (TRestTools::GetFileNameExtension(fname) == "root") {
-        fDataSet.Snapshot("AnalysisTree", fname);
+    } else if (TRestTools::GetFileNameExtension(filename) == "root") {
+        fDataSet.Snapshot("AnalysisTree", filename);
 
-        TFile* f = new TFile((TString)fname, "UPDATE");
+        TFile* f = TFile::Open(filename.c_str(), "UPDATE");
         this->Write();
         f->Close();
     } else {
-        RESTWarning << "TRestDataSet::Export. Extension " << TRestTools::GetFileNameExtension(fname)
+        RESTWarning << "TRestDataSet::Export. Extension " << TRestTools::GetFileNameExtension(filename)
                     << " not recognized" << RESTendl;
     }
 }
