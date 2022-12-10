@@ -223,7 +223,7 @@ void TRestDataSet::Initialize() {
     if (fFileSelection.empty()) return;
 
     ///// Disentangling process observables --> producing finalList
-    TRestRun* run = new TRestRun(fFileSelection[0]);
+    TRestRun run(fFileSelection[0]);
     std::vector<std::string> finalList;
     finalList.push_back("runOrigin");
     finalList.push_back("eventID");
@@ -231,13 +231,12 @@ void TRestDataSet::Initialize() {
 
     for (const auto& obs : fObservablesList) finalList.push_back(obs);
 
-    std::vector<std::string> obsNames = run->GetAnalysisTree()->GetObservableNames();
+    std::vector<std::string> obsNames = run.GetAnalysisTree()->GetObservableNames();
     for (const auto& name : obsNames) {
         for (const auto& pcs : fProcessObservablesList) {
             if (name.find(pcs) == 0) finalList.push_back(name);
         }
     }
-    delete run;
     ///////
 
     ROOT::EnableImplicitMT();
@@ -250,7 +249,7 @@ void TRestDataSet::Initialize() {
 
     fDataSet = ROOT::RDataFrame("AnalysisTree", foutname);
 
-    TFile* f = new TFile((TString)foutname);
+    TFile* f = TFile::Open((TString)foutname);
     fTree = (TTree*)f->Get("AnalysisTree");
 
     int cont = 0;
@@ -264,7 +263,7 @@ void TRestDataSet::Initialize() {
     // We do this so that later we can recover the values using TTree::GetVal
     fTree->Draw((TString)obsListStr, "", "goff");
 
-    std::cout << " - Dataset initialized!" << std::endl;
+    RESTInfo << " - Dataset initialized!" << RESTendl;
 }
 
 ///////////////////////////////////////////////
@@ -286,25 +285,25 @@ std::vector<std::string> TRestDataSet::FileSelection() {
     std::vector<std::string> fileNames = TRestTools::GetFilesMatchingPattern(fFilePattern);
 
     if (!fileNames.empty()) {
-        RESTInfo << " - Starting to select files matching pattern. Total files : " << fileNames.size()
-                 << RESTendl;
+        RESTInfo << "TRestDataSet::FileSelection. Starting file selection." << RESTendl;
+        RESTInfo << "Total files : " << fileNames.size() << RESTendl;
+        RESTInfo << "This process may take long computation time in case there are many files." << RESTendl;
     }
 
     fTotalDuration = 0;
     for (const auto& file : fileNames) {
-        TRestRun* run = new TRestRun(file);
-        double runStart = run->GetStartTimestamp();
-        double runEnd = run->GetEndTimestamp();
+        TRestRun run(file);
+        double runStart = run.GetStartTimestamp();
+        double runEnd = run.GetEndTimestamp();
 
         if (runStart < time_stamp_start && runEnd > time_stamp_end) {
-            delete run;
             continue;
         }
 
         int n = 0;
         bool accept = true;
         for (const auto md : fFilterMetadata) {
-            std::string mdValue = run->GetMetadataMember(md);
+            std::string mdValue = run.GetMetadataMember(md);
 
             if (!fFilterContains[n].empty())
                 if (mdValue.find(fFilterContains[n]) == std::string::npos) accept = false;
@@ -318,11 +317,10 @@ std::vector<std::string> TRestDataSet::FileSelection() {
 
             n++;
         }
-        delete run;
 
         if (!accept) continue;
 
-        fTotalDuration += run->GetEndTimestamp() - run->GetStartTimestamp();
+        fTotalDuration += run.GetEndTimestamp() - run.GetStartTimestamp();
         fFileSelection.push_back(file);
     }
     RESTInfo << RESTendl;
