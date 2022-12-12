@@ -506,7 +506,7 @@ void TRestDataSet::InitFromConfigFile() {
             exit(1);
         }
 
-        std::vector<std::string> obsList = REST_StringHelper::Split(observables, ":");
+        std::vector<std::string> obsList = REST_StringHelper::Split(observables, ",");
 
         for (const auto& l : obsList) fObservablesList.push_back(l);
 
@@ -522,7 +522,7 @@ void TRestDataSet::InitFromConfigFile() {
             exit(1);
         }
 
-        std::vector<std::string> obsList = REST_StringHelper::Split(observables, ":");
+        std::vector<std::string> obsList = REST_StringHelper::Split(observables, ",");
 
         for (const auto& l : obsList) fProcessObservablesList.push_back(l);
 
