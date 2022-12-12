@@ -882,6 +882,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
                 if (fOutputDataFile->GetName() != fOutputDataFileName) {
                     auto Mainfile = std::unique_ptr<TFile>{TFile::Open(fOutputDataFileName, "update")};
                     WriteMetadata();
+                    Mainfile->Write(0, TObject::kOverwrite);
                     Mainfile->Close();
                 } else {
                     WriteMetadata();
@@ -910,6 +911,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
                     }
                 }
 
+                fOutputDataFile->Write(0, TObject::kOverwrite);
                 fOutputDataFile->Close();
                 delete fOutputDataFile;
                 fOutputDataFile = newfile;
@@ -956,16 +958,16 @@ void TRestProcessRunner::ConfigOutputFile() {
 }
 
 void TRestProcessRunner::WriteMetadata() {
+    fOutputDataFile->cd();
     fRunInfo->SetNFilesSplit(fNFilesSplit);
-    fRunInfo->Write();
-    this->Write();
-    char tmpString[256];
+    fRunInfo->Write(0, TObject::kOverwrite);
+    this->Write(0, TObject::kWriteDelete);
     if (fRunInfo->GetFileProcess() != nullptr) {
-        // sprintf(tmpString, "Process-%d. %s", 0, fRunInfo->GetFileProcess()->GetName());
+        // std::cout << "Run. Process-0. " << fRunInfo->GetFileProcess()->GetName() << std::endl;
         fRunInfo->GetFileProcess()->Write(nullptr, kOverwrite);
     }
     for (int i = 0; i < fProcessNumber; i++) {
-        // sprintf(tmpString, "Process-%d. %s", i + 1, fThreads[0]->GetProcess(i)->GetName());
+        // std::cout << "Thread. Process-" << i + 1 << fThreads[0]->GetProcess(i)->GetName() << std::endl;
         fThreads[0]->GetProcess(i)->Write(nullptr, kOverwrite);
     }
 }
@@ -984,10 +986,15 @@ void TRestProcessRunner::MergeOutputFile() {
     vector<string> files_to_merge;
     for (int i = 0; i < fThreadNumber; i++) {
         TFile* f = fThreads[i]->GetOutputFile();
-        if (f != nullptr) f->Close();
+        if (f != nullptr) {
+            f->Write(0, TObject::kOverwrite);
+            f->Close();
+        }
         files_to_merge.push_back(f->GetName());
     }
 
+    fOutputDataFile->cd();
+    fOutputDataFile->Write(nullptr, TObject::kOverwrite);
     fOutputDataFile->Close();
     fRunInfo->MergeToOutputFile(files_to_merge, fOutputDataFile->GetName());
 }
