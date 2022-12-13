@@ -23,9 +23,11 @@ int fork_n_execute(string command) {
 
     if (pid == 0) {
         /* This is the child process */
-        system(command.c_str());  // execute the command
+        int z = system(command.c_str());  // execute the command
+        if (z != 0) printf("Problem executing command : %s", command.c_str());
         // we call exit() when system() returns to complete child process
         exit(EXIT_SUCCESS);
+
     } else if (pid < 0) {
         /* The fork failed */
         printf("Failed to fork(): %s ", command.c_str());
