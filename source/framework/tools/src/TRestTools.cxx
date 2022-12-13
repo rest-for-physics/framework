@@ -1070,7 +1070,11 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
     if ((string)url.GetProtocol() == "https" || (string)url.GetProtocol() == "http") {
         string path = TRestTools::SeparatePathAndName(localFiletmp).first;
         if (!TRestTools::fileExists(path)) {
-            system(("mkdir -p " + path).c_str());
+            int r = system(("mkdir -p " + path).c_str());
+            if (r != 0) {
+                std::cout << "mkdir failed to create director: " << path << std::endl;
+                return -1;
+            }
         }
 
         string cmd = "wget --no-check-certificate " + EscapeSpecialLetters(remoteFile) + " -O " +
