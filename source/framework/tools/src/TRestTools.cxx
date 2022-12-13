@@ -1072,7 +1072,7 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
         if (!TRestTools::fileExists(path)) {
             int r = system(("mkdir -p " + path).c_str());
             if (r != 0) {
-                std::cout << "mkdir failed to create director: " << path << std::endl;
+                std::cout << "mkdir failed to create directory: " << path << std::endl;
                 return -1;
             }
         }

@@ -259,7 +259,7 @@ void TRestRun::InitFromConfigFile() {
 
     if (!TRestTools::fileExists(outputdir)) {
         int z = system((TString) "mkdir -p " + outputdir);
-        if (z == 0) RESTError << "Problem creating directory : " << outputdir << RESTendl;
+        if (z != 0) RESTError << "Problem creating directory : " << outputdir << RESTendl;
     }
     if (!TRestTools::isPathWritable(outputdir)) {
         RESTWarning << "TRestRun: Output path '" << outputdir << "' does not exist or it is not writable."

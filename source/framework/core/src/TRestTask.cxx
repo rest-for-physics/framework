@@ -224,7 +224,7 @@ void TRestTask::RunTask(TRestManager* mgr) {
             }
         } else if (fMode == TASK_SHELLCMD) {
             int z = system(fConstructedCommand.c_str());
-            if (z == 0) RESTError << "Problem launching : " << fConstructedCommand << RESTendl;
+            if (z != 0) RESTError << "Problem launching : " << fConstructedCommand << RESTendl;
         }
     }
 }
