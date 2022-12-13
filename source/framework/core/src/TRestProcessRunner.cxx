@@ -677,7 +677,8 @@ void TRestProcessRunner::PauseMenu() {
                     fThreads[i]->StartThread();
                 }
                 RESTInfo << "Re-directing output to " << file << RESTendl;
-                freopen(file.c_str(), "w", stdout);
+                FILE* f = freopen(file.c_str(), "w", stdout);
+                if (f == nullptr) RESTWarning << "Couldnt redirect output for file: " << file << RESTendl;
                 REST_Display_CompatibilityMode = true;
             }
             // father process
