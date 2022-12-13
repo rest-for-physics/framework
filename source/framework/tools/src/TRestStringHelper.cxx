@@ -506,27 +506,17 @@ string REST_StringHelper::ToDateTimeString(time_t time) {
     hour = tm_->tm_hour;
     minute = tm_->tm_min;
     second = tm_->tm_sec;
-    char yearStr[5], monthStr[3], dayStr[3], hourStr[3], minuteStr[3], secondStr[3];
-    sprintf(yearStr, "%d", year);
-    sprintf(monthStr, "%d", month);
-    sprintf(dayStr, "%d", day);
-    sprintf(hourStr, "%d", hour);
-    sprintf(minuteStr, "%d", minute);
-    if (minuteStr[1] == '\0') {
-        minuteStr[2] = '\0';
-        minuteStr[1] = minuteStr[0];
-        minuteStr[0] = '0';
-    }
-    sprintf(secondStr, "%d", second);
-    if (secondStr[1] == '\0') {
-        secondStr[2] = '\0';
-        secondStr[1] = secondStr[0];
-        secondStr[0] = '0';
-    }
-    char s[20];
-    sprintf(s, "%s-%s-%s %s:%s:%s", yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr);
-    string str(s);
-    return str;
+
+    std::string yearStr = IntegerToString(year);
+    std::string monthStr = IntegerToString(month, "%02d");
+    std::string dayStr = IntegerToString(day, "%02d");
+    std::string hourStr = IntegerToString(hour, "%02d");
+    std::string minuteStr = IntegerToString(minute, "%02d");
+    std::string secondStr = IntegerToString(second, "%02d");
+
+    std::string date =
+        yearStr + "/" + monthStr + "/" + dayStr + " " + hourStr + ":" + minuteStr + ":" + secondStr;
+    return date;
 }
 
 ///////////////////////////////////////////////
