@@ -23,7 +23,7 @@ endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 if ( CMAKE_BUILD_TYPE MATCHES "Release" )
 	message( STATUS "Enabling warnings as errors" )
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wno-error=cast-function-type")
 endif ( CMAKE_BUILD_TYPE MATCHES "Release" )
 
 # https://github.com/rest-for-physics/framework/issues/162 & https://github.com/rest-for-physics/framework/issues/236
