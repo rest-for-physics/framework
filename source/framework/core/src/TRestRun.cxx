@@ -1396,6 +1396,9 @@ TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, const TStr
 
 std::vector<int> TRestRun::GetEventEntriesWithConditions(const string& cuts, int startingIndex,
                                                          int maxNumber) {
+    int max = maxNumber;
+    if (max < 0) max = GetEntries();
+
     std::vector<int> eventIds;
     // parsing cuts
     std::vector<string> observables;
@@ -1478,8 +1481,9 @@ std::vector<int> TRestRun::GetEventEntriesWithConditions(const string& cuts, int
                 comparisonResult = comparisonResult && (valueToCompareFrom >= values[j]);
             }
         }
+
         if (comparisonResult) {
-            if (maxNumber > 0 && eventIds.size() < (unsigned int)maxNumber) {
+            if ((int)eventIds.size() < max) {
                 eventIds.push_back(i);
             } else {
                 break;
@@ -1492,7 +1496,10 @@ std::vector<int> TRestRun::GetEventEntriesWithConditions(const string& cuts, int
 }
 
 std::vector<int> TRestRun::GetEventIdsWithConditions(const string& cuts, int startingIndex, int maxNumber) {
-    auto indices = GetEventEntriesWithConditions(cuts, startingIndex, maxNumber);
+    int max = maxNumber;
+    if (max < 0) max = GetEntries();
+
+    auto indices = GetEventEntriesWithConditions(cuts, startingIndex, max);
     std::vector<int> ids;
     for (unsigned int i = 0; i < indices.size(); i++) {
         GetEntry(indices[i]);
