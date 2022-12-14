@@ -241,14 +241,17 @@ MACRO(COMPILEDIR libname)
                     endforeach (exclude)
                 endif ()
 
+				#### We will remove those classes that do not inherit from TObject from dictionary generation
 				set(NOTDICT "FALSE")
-				set( nodicts "TRestReflector;TRestSystemOfUnits;TRestStringHelper;TRestPhysics" )
+				#### Probably all those classes should be on the same directory (framework/tools)
+				set( nodicts "TRestReflector;TRestSystemOfUnits;TRestStringHelper;TRestPhysics;TRestDataBase;TRestTools;TRestHits;TRestVolumeHits;TRestThread" )
 				foreach (nodict ${nodicts})
 					if ("${nodict}" STREQUAL "${class}")
 						set(NOTDICT "TRUE")
 						message( STATUS "Skipping dictionary generation for ${class}" )
 					endif ()
 				endforeach (nodict)
+				######################################
 
                 if (${SKIP} STREQUAL "FALSE")
                     set(ROOT_DICT_INCLUDE_DIRS ${local_include_dirs} ${external_include_dirs})
