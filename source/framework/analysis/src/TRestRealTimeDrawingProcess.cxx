@@ -226,11 +226,11 @@ void TRestRealTimeDrawingProcess::EndProcess() {
 
 void TRestRealTimeDrawingProcess::DrawOnce() {
     Long64_t totalentries = GetFullAnalysisTree()->GetEntries();
-    for (int i = 0; i < fPlots.size(); i++) {
+    for (unsigned int i = 0; i < fPlots.size(); i++) {
         fPlots[i]->SetTreeEntryRange(totalentries - fLastDrawnEntry, fLastDrawnEntry);
         fPlots[i]->PlotCombinedCanvas();
     }
-    for (int i = 0; i < fProcessesToDraw.size(); i++) {
+    for (unsigned int i = 0; i < fProcessesToDraw.size(); i++) {
         GetFriendLive(fProcessesToDraw[i])->Draw();
     }
 }
@@ -254,7 +254,7 @@ void TRestRealTimeDrawingProcess::DrawWithNotification() {
                 int _runNumber = run->GetRunNumber();
                 delete run;
                 if (_runNumber == runNumber) {
-                    for (int i = 0; i < fPlots.size(); i++) {
+                    for (unsigned int i = 0; i < fPlots.size(); i++) {
                         fPlots[i]->SetFile(message);
                         fPlots[i]->PlotCombinedCanvas();
                     }

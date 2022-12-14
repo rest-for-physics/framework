@@ -40,14 +40,14 @@ Int_t REST_StringHelper::isAExpression(const string& in) {
     }
 
     if (!symbol) {
-        int pos = in.find_first_of("+-*/e^%");
+        size_t pos = in.find_first_of("+-*/e^%");
         if (pos > 0 && pos < in.size() - 1) {
             symbol = true;
         }
     }
 
     if (!symbol) {
-        int pos = in.find_first_of("%");
+        size_t pos = in.find_first_of("%");
         if (pos == in.size() - 1) {
             symbol = true;
         }
@@ -132,7 +132,7 @@ string REST_StringHelper::ReplaceMathematicalExpressions(string buffer, Int_t pr
         erased = true;
     }
 
-    for (int i = 0; i < Expressions.size(); i++) {
+    for (unsigned int i = 0; i < Expressions.size(); i++) {
         if (!isAExpression(Expressions[i])) {
             result += Expressions[i] + ",";
             continue;
@@ -304,7 +304,7 @@ ULong64_t REST_StringHelper::ToHash(string str) {
     ULong64_t basis = 0xCBF29CE484222325ull;
     ULong64_t ret{basis};
 
-    for (int i = 0; i < str.size(); i++) {
+    for (unsigned int i = 0; i < str.size(); i++) {
         ret ^= str[i];
         ret *= prime;
     }
@@ -833,14 +833,14 @@ TF1* REST_StringHelper::CreateTF1FromString(string func, double init, double end
     int a = 0;
     vector<int> optPos(n);
     vector<string> options(n);  // Vector of strings of any size.
-    for (int i = 0; i < n; i++) {
+    for (unsigned int i = 0; i < n; i++) {
         optPos[i] = func.find("[", a);
         options[i] =
             func.substr(func.find("[", a) + 1, func.find("]", func.find("[", a)) - func.find("[", a) - 1);
         a = func.find("[", a) + 1;
     }
     // Removing options from function string
-    for (int i = 0; i < n; i++) {
+    for (unsigned int i = 0; i < n; i++) {
         tf1.replace(optPos[n - 1 - i] + 1, (func.find("]", optPos[n - 1 - i]) - optPos[n - 1 - i] - 1),
                     string(1, func[optPos[n - 1 - i] + 1]));
     }
@@ -850,7 +850,7 @@ TF1* REST_StringHelper::CreateTF1FromString(string func, double init, double end
     TF1* f = new TF1("f", tf1c, init, end);
 
     // Initial conditions
-    for (int i = 0; i < n; i++) {
+    for (unsigned int i = 0; i < n; i++) {
         if (options[i].find("=") != string::npos) {
             string op = options[i].substr(options[i].find_last_of("=") + 1,
                                           options[i].find("(") - options[i].find_last_of("=") - 1);
@@ -865,7 +865,7 @@ TF1* REST_StringHelper::CreateTF1FromString(string func, double init, double end
     }
 
     // Fixed values
-    for (int i = 0; i < n; i++) {
+    for (unsigned int i = 0; i < n; i++) {
         if (count(options[i].begin(), options[i].end(), '=') == 2) {
             string op = options[i].substr(options[i].find_last_of("=") + 1,
                                           options[i].find("(") - options[i].find_last_of("=") - 1);
@@ -877,7 +877,7 @@ TF1* REST_StringHelper::CreateTF1FromString(string func, double init, double end
     }
 
     // Ranges
-    for (int i = 0; i < n; i++) {
+    for (unsigned int i = 0; i < n; i++) {
         if (options[i].find("(") != string::npos) {
             string op =
                 options[i].substr(options[i].find("(") + 1, options[i].find(")") - options[i].find("(") - 1);

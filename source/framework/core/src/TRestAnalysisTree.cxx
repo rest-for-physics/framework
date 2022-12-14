@@ -183,7 +183,7 @@ Int_t TRestAnalysisTree::GetMatchedObservableID(const string& obsName) {
         int matchedCount = 0;
         int minPos = 0;
         int min = 1e5;
-        for (int i = 0; i < diffs.size(); i++) {
+        for (unsigned int i = 0; i < diffs.size(); i++) {
             if (min > diffs[i]) {
                 min = diffs[i];
                 minPos = i;
@@ -432,7 +432,7 @@ void TRestAnalysisTree::InitObservables() {
 void TRestAnalysisTree::MakeObservableIdMap() {
     if (fObservableIdMap.size() != fObservableNames.size()) {
         fObservableIdMap.clear();
-        for (int i = 0; i < fObservableNames.size(); i++) {
+        for (unsigned int i = 0; i < fObservableNames.size(); i++) {
             fObservableIdMap[(string)fObservableNames[i]] = i;
         }
         if (fObservableIdMap.size() != fObservableNames.size()) {
@@ -448,7 +448,7 @@ void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, RESTValue& obs) {
         // this means we need to determine the observable type first
         string type;
         string leafdef(lf->GetBranch()->GetTitle());
-        if (leafdef.find("[") == -1) {
+        if (leafdef.find("[") == string::npos) {
             // there is no [] mark in the leaf. The leaf is a single values
             switch (leafdef[leafdef.size() - 1]) {
                 case 'C':
@@ -622,7 +622,6 @@ RESTValue TRestAnalysisTree::AddObservable(const TString& observableName, const 
         return -1;
     }
 
-    Double_t x = 0;
     if (GetObservableID((string)observableName) == -1) {
         RESTValue ptr = REST_Reflection::Assembly((string)observableType);
         ptr.name = observableName;
@@ -790,7 +789,7 @@ void TRestAnalysisTree::SetObservable(Int_t id, RESTValue obs) {
             AddObservable(obs.name, obs.type);
             id = GetObservableID(obs.name);
         }
-    } else if (id == fObservables.size()) {
+    } else if (id == (int)fObservables.size()) {
         // this means we want to add observable directly
         AddObservable(obs.name, obs.type);
         id = GetObservableID(obs.name);
@@ -876,7 +875,7 @@ Bool_t TRestAnalysisTree::EvaluateCut(const string& cut) {
     if (cut.find("&&") != string::npos) return EvaluateCuts(cut);
 
     string operation, observable;
-    Double_t value;
+    Double_t value = -1;
     for (const auto& validOperator : validOperators) {
         if (cut.find(validOperator) != string::npos) {
             operation = validOperator;
@@ -913,7 +912,6 @@ vector<string> TRestAnalysisTree::GetCutObservables(const string& cut_str) {
     vector<string> obsNames;
     for (auto& cut : cuts) {
         string operation, observable;
-        Double_t value;
         for (const auto& validOperator : validOperators) {
             if (cut.find(validOperator) != string::npos) {
                 obsNames.push_back((string)cut.substr(0, cut.find(validOperator)));
@@ -1025,7 +1023,6 @@ Double_t TRestAnalysisTree::GetObservableMinimum(const TString& obsName, Double_
 /// \brief It returns a string containing all the observables that exist in the analysis tree.
 ///
 TString TRestAnalysisTree::GetStringWithObservableNames() {
-    Int_t nEntries = GetEntries();
     auto branches = GetListOfBranches();
     std::string branchNames = "";
     for (int i = 0; i < branches->GetEntries(); i++) {

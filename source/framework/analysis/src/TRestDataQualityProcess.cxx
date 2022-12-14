@@ -135,7 +135,7 @@ TRestEvent* TRestDataQualityProcess::ProcessEvent(TRestEvent* inputEvent) {
 ///
 void TRestDataQualityProcess::EndProcess() {
     /// We loop to each quality number definition
-    for (int n = 0; n < fQualityNumber.size(); n++) {
+    for (unsigned int n = 0; n < fQualityNumber.size(); n++) {
         /// We loop to each rule from the quality definition
         for (int r = 0; r < fRules[n].GetNumberOfRules(); r++) {
             // We implement metadata-based quality numbers
@@ -233,7 +233,7 @@ void TRestDataQualityProcess::InitFromConfigFile() {
 void TRestDataQualityProcess::PrintMetadata() {
     BeginPrintProcess();
 
-    for (int n = 0; n < fQualityNumber.size(); n++) {
+    for (unsigned int n = 0; n < fQualityNumber.size(); n++) {
         RESTMetadata << "    " << RESTendl;
         RESTMetadata << "xxxxxxxxxxxxxxxxxxxxxx" << RESTendl;
         RESTMetadata << " tag : " << fQualityTag[n] << ". Quality number : " << fQualityNumber[n] << RESTendl;

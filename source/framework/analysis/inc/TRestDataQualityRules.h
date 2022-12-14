@@ -69,28 +69,28 @@ class TRestDataQualityRules : public TObject {
 
     std::vector<Int_t> GetBits() { return fBits; }
 
-    TString GetType(Int_t n) {
+    TString GetType(unsigned int n) {
         if (fTypes.size() <= n)
             return "";
         else
             return fTypes[n];
     }
 
-    TString GetValue(Int_t n) {
+    TString GetValue(unsigned int n) {
         if (fValues.size() <= n)
             return "";
         else
             return fValues[n];
     }
 
-    TVector2 GetRange(Int_t n) {
+    TVector2 GetRange(unsigned int n) {
         if (fRanges.size() <= n)
             return TVector2(0, 0);
         else
             return fRanges[n];
     }
 
-    Int_t GetBit(Int_t n) {
+    Int_t GetBit(unsigned int n) {
         if (fBits.size() <= n)
             return -1;
         else

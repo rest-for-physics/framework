@@ -166,14 +166,14 @@ void TRestTask::RunTask(TRestManager* mgr) {
     } else {
         if (fMode == TASK_MACRO) {
             // call gInterpreter to run a command
-            for (int i = 0; i < fArgumentValues.size(); i++) {
+            for (unsigned int i = 0; i < fArgumentValues.size(); i++) {
                 if (fArgumentValues[i] == "NOT SET") {
                     RESTError << "TRestTask : argument " << i << " not set! Task will not run!" << RESTendl;
                 }
             }
 
             fConstructedCommand = fInvokeMethod + "(";
-            for (int i = 0; i < fArgumentValues.size(); i++) {
+            for (unsigned int i = 0; i < fArgumentValues.size(); i++) {
                 if (fArgumentTypes[i] == 1) {
                     fConstructedCommand += "\"" + Replace(fArgumentValues[i], "\\", "\\\\", 0) + "\"";
                 } else {
@@ -237,16 +237,16 @@ void TRestTask::PrintArgumentHelp() {
     if (fMode == 0) {
         RESTError << fInvokeMethod << "() Gets invalided input!" << RESTendl;
         cout << "You should give the following arguments (* is mandatory input):" << endl;
-        int n = fArgumentNames.size();
-        for (int i = 0; i < n; i++) {
+        unsigned int n = fArgumentNames.size();
+        for (unsigned int i = 0; i < n; i++) {
             cout << (i < fNRequiredArgument ? "*" : "") << fArgumentNames[i] << endl;
         }
     } else if (fMode == 1) {
     } else if (fMode == 2) {
         RESTError << "Macro class \"" << this->ClassName() << "\" gets invalided input!" << RESTendl;
         RESTError << "You should give the following arguments ( * : necessary input):" << RESTendl;
-        int n = any(this).GetNumberOfDataMembers();
-        for (int i = 1; i < n; i++) {
+        unsigned int n = any(this).GetNumberOfDataMembers();
+        for (unsigned int i = 1; i < n; i++) {
             if (i < fNRequiredArgument + 1) RESTError << "*";
             RESTError << any(this).GetDataMember(i).name << RESTendl;
         }
@@ -310,7 +310,7 @@ TRestTask* TRestTask::GetTaskFromMacro(TString taskName) {
 
 TRestTask* TRestTask::GetTaskFromCommand(TString cmd) {
     REST_TASKMODE mode = TASK_CPPCMD;
-    if (((string)cmd).find("->") == -1) mode = TASK_SHELLCMD;
+    if (((string)cmd).find("->") == string::npos) mode = TASK_SHELLCMD;
 
     auto tsk = new TRestTask(cmd, mode);
     if (tsk->GetMode() == TASK_ERROR) {

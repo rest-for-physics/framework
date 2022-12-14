@@ -20,41 +20,52 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef REST_TRestCombinedMask
-#define REST_TRestCombinedMask
+#ifndef REST_TRestLikelihood
+#define REST_TRestLikelihood
 
-#include <TRestPatternMask.h>
+#include "TRestMetadata.h"
 
-/// A class used to define and generate a combined structure mask
-class TRestCombinedMask : public TRestPatternMask {
+/// UPDATE Write here a brief description. Just one line!
+class TRestLikelihood : public TRestMetadata {
    private:
-    std::vector<TRestPatternMask*> fMasks;
+    /// It defines the parameter space for background and signal (e.g: x,y,energy)
+    std::vector<std::string> fObservables;  //<
 
-   public:
+    TRestAnalysisTree* fSignalTree = nullptr;  //!
+
+    TRestAnalysisTree* fBackgroundTree = nullptr;  //!
+
     void Initialize() override;
 
-    void AddMask(TRestPatternMask* mask) { fMasks.push_back(mask); }
+   protected:
+    /// TO BE DOCUMENTED
+    virtual Double_t GetSignal() = 0;
 
-    TRestPatternMask* const& GetMask(unsigned int index) const {
-        if (index < fMasks.size()) {
-            return fMasks[index];
-        }
-        if (index == 0) RESTError << "TRestCombinedMask does not contain any masks" << RESTendl;
-        return fMasks[0];
-    }
+    /// TO BE DOCUMENTED
+    virtual Double_t GetBackground() = 0;
 
-    Int_t GetRegion(Double_t& x, Double_t& y) override;
+   public:
+    /// UPDATE Documentation of dummy getter
+    Double_t GetDummy() { return fDummy; }
 
-    void InitFromConfigFile() override;
+    /// UPDATE Documentation of dummy getter
+    Double_t GetDummyVar() { return fDummy; }
 
+    /// UPDATE Documentation of dummy setter
+    void SetDummy(const Double_t& dummy) { fDummy = dummy; }
+
+    /// UPDATE Documentation of dummy setter
+    void SetDummyVar(const Double_t& dummy) { fDummyVar = dummy; }
+
+   public:
     void PrintMetadata() override;
-    void PrintMaskMembers() override;
-    void PrintMask() override;
 
-    TRestCombinedMask();
-    TRestCombinedMask(const char* cfgFileName, std::string name = "");
-    ~TRestCombinedMask();
+    TRestLikelihood();
+    TRestLikelihood(const char* configFilename, std::string name = "");
+    ~TRestLikelihood();
 
-    ClassDefOverride(TRestCombinedMask, 1);
+    // REMOVE COMMENT. ROOT class definition helper. Increase the number in it every time
+    // you add/rename/remove the metadata members
+    ClassDefOverride(TRestLikelihood, 1);
 };
 #endif

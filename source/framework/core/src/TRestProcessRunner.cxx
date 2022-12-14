@@ -960,7 +960,6 @@ void TRestProcessRunner::WriteMetadata() {
     fRunInfo->SetNFilesSplit(fNFilesSplit);
     fRunInfo->Write();
     this->Write();
-    char tmpString[256];
     if (fRunInfo->GetFileProcess() != nullptr) {
         // sprintf(tmpString, "Process-%d. %s", 0, fRunInfo->GetFileProcess()->GetName());
         fRunInfo->GetFileProcess()->Write(nullptr, kOverwrite);

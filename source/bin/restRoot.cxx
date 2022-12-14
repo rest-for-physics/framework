@@ -153,7 +153,7 @@ int main(int argc, char* argv[]) {
             map<string, int> metanames;
             for (int n = 0; n < numberOfMetadataStructures; n++) {
                 string metaName = runTmp->GetMetadataStructureNames()[n];
-                if (metaName.find("Historic") != -1) {
+                if (metaName.find("Historic") != string::npos) {
                     continue;
                 }
 

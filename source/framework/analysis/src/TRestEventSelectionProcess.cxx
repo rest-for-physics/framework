@@ -126,7 +126,7 @@ void TRestEventSelectionProcess::InitProcess() {
 TRestEvent* TRestEventSelectionProcess::ProcessEvent(TRestEvent* inputEvent) {
     fEvent = inputEvent;
 
-    for (int i = 0; i < fList.size(); i++) {
+    for (unsigned int i = 0; i < fList.size(); i++) {
         if (fList[i] == fEvent->GetID()) {
             return fEvent;
         }

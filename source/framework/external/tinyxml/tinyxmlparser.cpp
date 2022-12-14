@@ -714,7 +714,7 @@ inline TIXML_STRING NotifyPosition(const char* p, TiXmlCursor c) {
         }
 
         pointer = line;
-        for (int i = 0; i < pointer.size(); i++) {
+        for (unsigned int i = 0; i < pointer.size(); i++) {
             if (iswprint(pointer[i])) pointer[i] = ' ';
         }
         pointer += '^';

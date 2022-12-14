@@ -49,7 +49,6 @@ TRestAnalysisPlot::~TRestAnalysisPlot() {
 }
 
 void TRestAnalysisPlot::InitFromConfigFile() {
-    size_t position = 0;
     if (fHostmgr->GetRunInfo() != nullptr) {
         fRun = fHostmgr->GetRunInfo();
     }
@@ -87,7 +86,6 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 
 #pragma region ReadLabels
     RESTDebug << "TRestAnalysisPlot: Reading canvas settings" << RESTendl;
-    position = 0;
     TiXmlElement* formatDefinition = GetElement("labels");
     if (formatDefinition != nullptr) {
         if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
@@ -128,7 +126,6 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 #pragma endregion
 
 #pragma region ReadLegend
-    position = 0;
     TiXmlElement* legendDefinition = GetElement("legendPosition");
     if (legendDefinition != nullptr) {
         if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
@@ -159,7 +156,6 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 #pragma endregion
 
 #pragma region ReadCanvas
-    position = 0;
     TiXmlElement* canvasdef = fElement->FirstChildElement("canvas");
     if (canvasdef == nullptr) {
         canvasdef = fElement;
@@ -336,9 +332,9 @@ void TRestAnalysisPlot::InitFromConfigFile() {
         }
     }
 
-    for (int n = 0; n < fPanels.size(); n++) {
+    for (unsigned int n = 0; n < fPanels.size(); n++) {
         RESTExtreme << "Panel " << n << " with font size : " << fPanels[n].font_size << RESTendl;
-        for (int m = 0; m < fPanels[n].posX.size(); m++) {
+        for (unsigned int m = 0; m < fPanels[n].posX.size(); m++) {
             RESTExtreme << "Label : " << fPanels[n].label[m] << RESTendl;
             RESTExtreme << "Pos X : " << fPanels[n].posX[m] << RESTendl;
             RESTExtreme << "Pos Y : " << fPanels[n].posY[m] << RESTendl;
@@ -353,7 +349,7 @@ TRestAnalysisPlot::HistoInfoSet TRestAnalysisPlot::SetupHistogramFromConfigFile(
     hist.name = RemoveWhiteSpaces(GetParameter("name", histele, plot.name));
     hist.drawOption = GetParameter("option", histele, "colz");
 
-    for (int n = 0; n < fPlotNamesCheck.size(); n++)
+    for (unsigned int n = 0; n < fPlotNamesCheck.size(); n++)
         if (hist.name == fPlotNamesCheck[n]) {
             RESTError
                 << "Repeated plot/histo names were found! Please, use different names for different plots!"
@@ -401,7 +397,7 @@ TRestAnalysisPlot::HistoInfoSet TRestAnalysisPlot::SetupHistogramFromConfigFile(
 
     // 2. construct plot name for the hist
     string rangestr = "";
-    for (int i = 0; i < bins.size(); i++) {
+    for (unsigned int i = 0; i < bins.size(); i++) {
         string binsStr = ToString(bins[i]);
         if (bins[i] == -1) binsStr = " ";
 
@@ -590,7 +586,7 @@ TRestRun* TRestAnalysisPlot::GetRunInfo(TString fileName) {
 }
 
 bool TRestAnalysisPlot::IsDynamicRange(TString rangeString) {
-    return (string(rangeString)).find(",  ") != -1;
+    return (string(rangeString)).find(",  ") != string::npos;
 }
 
 Int_t TRestAnalysisPlot::GetColorIDFromString(string in) {
@@ -668,7 +664,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     runLength /= 3600.;
 
     for (unsigned int n = 0; n < fPanels.size(); n++) {
-        TPad* targetPad = (TPad*)fCombinedCanvas->cd(n + 1);
+        fCombinedCanvas->cd(n + 1);
         for (unsigned int m = 0; m < fPanels[n].posX.size(); m++) {
             string label = fPanels[n].label[m];
 
@@ -885,7 +881,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         // draw to the pad
         targetPad = (TPad*)fCombinedCanvas->cd(n + 1 + fPanels.size());
         Double_t maxValue_Pad = 0;
-        int maxID = 0;
+        unsigned int maxID = 0;
         for (unsigned int i = 0; i < plot.histos.size(); i++) {
             // need to draw the max histogram first, in order to prevent peak hidden problem
             if (plot.histos[i].ptr == nullptr) continue;
