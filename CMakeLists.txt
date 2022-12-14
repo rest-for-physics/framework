@@ -27,7 +27,6 @@ if ( CMAKE_BUILD_TYPE MATCHES "Release" )
 endif ( CMAKE_BUILD_TYPE MATCHES "Release" )
 
 if ( CMAKE_BUILD_TYPE MATCHES "Debug" )
-	message( STATUS "Enabling warnings as errors" )
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 endif ( CMAKE_BUILD_TYPE MATCHES "Release" )
 
