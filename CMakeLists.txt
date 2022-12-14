@@ -28,7 +28,7 @@ endif ( CMAKE_BUILD_TYPE MATCHES "Release" )
 
 if ( CMAKE_BUILD_TYPE MATCHES "Debug" )
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-endif ( CMAKE_BUILD_TYPE MATCHES "Release" )
+endif ( CMAKE_BUILD_TYPE MATCHES "Debug" )
 
 # https://github.com/rest-for-physics/framework/issues/162 & https://github.com/rest-for-physics/framework/issues/236
 if (${CMAKE_VERSION} VERSION_LESS "3.23")
