@@ -101,7 +101,7 @@ void TRestEventSelectionProcess::Initialize() {
 ///
 ///
 void TRestEventSelectionProcess::InitProcess() {
-    if (fFileWithIDs.substr(fFileWithIDs.length() - 4) == ".txt") {
+    if (TRestTools::GetFileNameExtension(fFileWithIDs) == "txt") {
         string line;
         ifstream File(fFileWithIDs);
 
@@ -111,9 +111,7 @@ void TRestEventSelectionProcess::InitProcess() {
             }
             File.close();
         }
-    }
-
-    else if (fFileWithIDs.substr(fFileWithIDs.length() - 4) == "root") {
+    } else if (TRestTools::GetFileNameExtension(fFileWithIDs) == "root") {
         TRestRun* run = new TRestRun(fFileWithIDs);
         fList = run->GetEventIdsWithConditions(fConditions);
         delete run;
