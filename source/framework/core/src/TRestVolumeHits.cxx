@@ -20,6 +20,8 @@
 
 using namespace std;
 
+ClassImp(TRestVolumeHits);
+
 TRestVolumeHits::TRestVolumeHits() {
     // TRestVolumeHits default constructor
 }

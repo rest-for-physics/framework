@@ -74,5 +74,7 @@ class TRestVolumeHits : public TRestHits {
     // Constructor & Destructor
     TRestVolumeHits();
     ~TRestVolumeHits();
+
+    ClassDef(TRestVolumeHits, 2);
 };
 #endif

@@ -83,6 +83,8 @@
 using namespace std;
 using namespace TMath;
 
+ClassImp(TRestHits);
+
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
