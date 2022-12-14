@@ -779,7 +779,7 @@ string TRestTools::GetPureFileName(const string& path) { return filesystem::path
 ///
 string TRestTools::ToAbsoluteName(const string& filename) {
     filesystem::path path;
-    for (const auto directory : filesystem::path(filename)) {
+    for (const auto& directory : filesystem::path(filename)) {
         if (path.empty() && directory == "~") {
             // path starts with ~
             const auto envVariableHome = getenv("HOME");
