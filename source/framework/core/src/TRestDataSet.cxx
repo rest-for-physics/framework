@@ -375,7 +375,7 @@ std::vector<std::string> TRestDataSet::FileSelection() {
             if (properties.strategy == "min")
                 if (properties.value == 0 || properties.value > value) properties.value = value;
 
-            if (properties.strategy == "unique")
+            if (properties.strategy == "unique") {
                 if (properties.value == 0)
                     properties.value = value;
                 else if (properties.value != value) {
@@ -385,6 +385,7 @@ std::vector<std::string> TRestDataSet::FileSelection() {
                     RESTWarning << "Pre-registered value : " << properties.value << " New value : " << value
                                 << RESTendl;
                 }
+            }
 
             if (properties.strategy == "last") properties.value = value;
         }
@@ -636,8 +637,8 @@ void TRestDataSet::Export(const std::string& filename) {
         fprintf(f, "###\n");
         fprintf(f, "### Data starts here\n");
 
-        for (int n = 0; n < fTree->GetEntries(); n++) {
-            for (int m = 0; m < GetNumberOfBranches(); m++) {
+        for (unsigned int n = 0; n < fTree->GetEntries(); n++) {
+            for (unsigned int m = 0; m < GetNumberOfBranches(); m++) {
                 std::string bName = fTree->GetListOfBranches()->At(m)->GetName();
                 if (m > 0) fprintf(f, "\t");
                 if (dataTypes[m] == "Double_t")
