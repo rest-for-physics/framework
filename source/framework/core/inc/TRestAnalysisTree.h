@@ -266,7 +266,7 @@ class TRestAnalysisTree : public TTree {
     Bool_t EvaluateCuts(const std::string& expression);
     Bool_t EvaluateCut(const std::string& expression);
 
-    TString GetStringWithObservableNames();
+    std::vector<std::string> GetObservableNames();
 
     std::vector<std::string> GetCutObservables(const std::string& cut_str);
 

@@ -193,7 +193,7 @@ Are you sure to proceed? (y/n)
     # if 'force', override the changes with git reset
     if force:
         print("Forcing reset: ", end="") 
-        p = subprocess.run(f"git submodule foreach 'git reset --hard'",  #
+        p = subprocess.run(f"git submodule foreach --recursive 'git reset --hard'",  #
                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if debug:
             print(p.stdout.decode("utf-8"))
@@ -210,7 +210,7 @@ Are you sure to proceed? (y/n)
     # if latest, pull the latest commit instead of the one recorded in the main repo
     if latest:
         print("Pulling submodules: ", end="") 
-        p = subprocess.run(f"git submodule foreach 'git fetch; if [ -z \"$(git ls-remote --heads origin {frameworkBranchName})\" ]; then git checkout master; else git checkout {frameworkBranchName};fi;git pull'",  #
+        p = subprocess.run(f"git submodule foreach  --recursive 'git fetch; if [ -z \"$(git ls-remote --heads origin {frameworkBranchName})\" ]; then git checkout master; else git checkout {frameworkBranchName};fi;git pull'",  #
                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if debug:
             print(p.stdout.decode("utf-8"))
@@ -224,7 +224,7 @@ Are you sure to proceed? (y/n)
         else:
             print("[\033[92m OK \x1b[0m]")
     # get commit id
-    p = subprocess.run(f"git submodule foreach 'git rev-parse HEAD'",  #
+    p = subprocess.run(f"git submodule foreach  --recursive 'git rev-parse HEAD'",  #
                            shell=True,
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print(p.stdout.decode("utf-8"))
