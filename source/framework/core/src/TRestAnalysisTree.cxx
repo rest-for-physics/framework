@@ -1022,18 +1022,19 @@ Double_t TRestAnalysisTree::GetObservableMinimum(const TString& obsName, Double_
 }
 
 ///////////////////////////////////////////////
-/// \brief It returns a string containing all the observables that exist in the analysis tree.
+/// \brief It returns a vector with strings containing all the observables that exist in
+/// the analysis tree.
 ///
-TString TRestAnalysisTree::GetStringWithObservableNames() {
-    Int_t nEntries = GetEntries();
+std::vector<std::string> TRestAnalysisTree::GetObservableNames() {
+    std::vector<std::string> names;
+
+    // Int_t nEntries = GetEntries();
     auto branches = GetListOfBranches();
-    std::string branchNames = "";
     for (int i = 0; i < branches->GetEntries(); i++) {
-        if (i > 0) branchNames += " ";
-        branchNames += (string)branches->At(i)->GetName();
+        names.push_back((string)branches->At(i)->GetName());
     }
 
-    return (TString)branchNames;
+    return names;
 }
 
 ///////////////////////////////////////////////
