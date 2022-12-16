@@ -1,0 +1,177 @@
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
+
+//////////////////////////////////////////////////////////////////////////
+/// The TRestLikelihoodProcess allows procesing of selected events only.
+///
+/// There are two ways of selecting events:
+///
+/// * Providing a txt file with the IDs of the events to be processed (fileWithIDs).
+/// It reads the list, if an event is not in the list it returns NULL,
+/// ends the processing and continues with the next event.
+///
+/// * Providing a root file (fileWithIDs) and the conditions to select the events (conditions).
+/// Only events that satisfy the conditions will be processed.
+///
+/// Examples for rml files:
+/// <addProcess type="TRestLikelihoodProcess" name="evSelection" fileWithIDs="/path/to/file/IDs.txt"
+/// value="ON"  verboseLevel="info"/>
+///
+/// <addProcess type="TRestLikelihoodProcess" name="evSelection" fileWithIDs="/path/to/file/File.root"
+/// conditions="observable<N" value="ON"  verboseLevel="info"/>
+///
+/// <hr>
+///
+/// \warning **? REST is under continous development.** This documentation
+/// is offered to you by the REST community. Your HELP is needed to keep this code
+/// up to date. Your feedback will be worth to support this software, please report
+/// any problems/suggestions you may find while using it at [The REST Framework
+/// forum](http://ezpc10.unizar.es). You are welcome to contribute fixing typos,
+/// updating information or adding/proposing new contributions. See also our
+/// <a href="https://github.com/rest-for-physics/framework/blob/master/CONTRIBUTING.md">Contribution
+/// Guide</a>.
+///
+///
+///--------------------------------------------------------------------------
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2022-Dec: First template: read probabilities and compute likelihood
+///              David Diez
+///
+/// \class      TRestLikelihoodProcess
+/// \author     David Diez
+///
+/// <hr>
+///
+
+#include "TRestLikelihoodProcess.h"
+
+using namespace std;
+ClassImp(TRestLikelihoodProcess);
+
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestLikelihoodProcess::TRestLikelihoodProcess() { Initialize(); }
+
+///////////////////////////////////////////////
+/// \brief Constructor loading data from a config file
+///
+/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// The default behaviour is that the config file must be specified with
+/// full path, absolute or relative.
+///
+/// \param configFilename A const char* giving the path to an RML file.
+///
+TRestLikelihoodProcess::TRestLikelihoodProcess(const char* configFilename) {
+    Initialize();
+
+    if (LoadConfigFromFile(configFilename)) LoadDefaultConfig();
+}
+
+///////////////////////////////////////////////
+/// \brief Function to initialize input/output event members and define the
+/// section name
+///
+/// In this case we re-use the initialization of TRestRawToSignalProcess
+/// interface class.
+///
+void TRestLikelihoodProcess::Initialize() {
+    SetSectionName(this->ClassName());
+
+    fEvent = nullptr;
+}
+
+///////////////////////////////////////////////
+/// \brief Function to load the default config in absence of RML input
+///
+void TRestLikelihoodProcess::LoadDefaultConfig() { SetTitle("Default config"); }
+
+///////////////////////////////////////////////
+/// \brief Process initialization.
+///
+///
+void TRestLikelihoodProcess::InitProcess() {
+    if (!TFile::IsOpen(fFileWithPdfs)) {
+        fFileHistos(TFile::Open(fFileWithPdfs));
+        if (!fFileHistos || fFileHistos->IsZombie()) {
+            std::cerr << "Error opening file " << fFileWithPdfs << endl;
+            exit(-1);
+        } else {
+            // String with observables to vector of strings
+            std::string line;
+            std::stringstream ss(fObservables);
+            while (std::getline(ss, line, ",")) {
+                fVectorObservables.push_back(line);
+                fObservablesHistos[line] = "h" + line;
+            }
+        }
+    }
+}
+
+///////////////////////////////////////////////
+/// \brief The main processing event function
+///
+TRestEvent* TRestLikelihoodProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fEvent = inputEvent;
+
+    // Look for prob of each observable on their pdfs and compute likelihood //
+
+    // Loop over observable list fVectorObservables
+    // Search its histogram
+    // Compute the prob asociated to its value
+    // Add log(1-p)-log(p)
+    // Add the log observable
+
+    int bin;
+    double p, logOdds;
+
+    for (int i = 0; i < fObservablesHistos.size(); i++) {
+        bin = fFileHistos->Get<TH1>(fObservablesHistos[fVectorObservables[i]])
+                  ->GetXaxis()
+                  ->FindBin(fEvent->GetObservablevalue(fVectorObservables[i]));
+        p = fFileHistos->Get<TH1>(fObservablesHistos[fVectorObservables[i]])->GetBinContent(bin);
+        logOdds += log(1. - p) - log(p);
+    }
+
+    SetObservableValue("logOdds", logOdds);
+
+    return fEvent;
+}
+
+///////////////////////////////////////////////
+/// \brief Prints on screen the process data members
+///
+void TRestLikelihoodProcess::PrintMetadata() {
+    BeginPrintProcess();
+
+    RESTMetadata << "File with PDFs: " << fFileWithPdfs << RESTendl;
+    RESTMetadata << "Selected observables for log-odds: " << fObservables << RESTendl;
+
+    EndPrintProcess();
+}
