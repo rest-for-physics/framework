@@ -5,7 +5,7 @@ link_libraries("-fPIC")
 
 add_subdirectory(external)
 
-set(contents external/tinyxml tools core analysis masks)
+set(contents external/tinyxml tools core analysis masks sensitivity)
 
 file(GLOB_RECURSE addon_src
         "tiny*cpp"
