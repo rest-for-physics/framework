@@ -507,7 +507,7 @@ string REST_StringHelper::ToDateTimeString(time_t time) {
     minute = tm_->tm_min;
     second = tm_->tm_sec;
 
-    std::string yearStr = IntegerToString(year);
+    string yearStr = IntegerToString(year);
     std::string monthStr = IntegerToString(month, "%02d");
     std::string dayStr = IntegerToString(day, "%02d");
     std::string hourStr = IntegerToString(hour, "%02d");
