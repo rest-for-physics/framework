@@ -1038,8 +1038,8 @@ TFile* TRestRun::FormOutputFile() {
     fAnalysisTree = new TRestAnalysisTree("AnalysisTree", "AnalysisTree");
     fEventTree = new TTree("EventTree", "EventTree");
 
-    fAnalysisTree->Write();
-    fEventTree->Write();
+    fAnalysisTree->Write(nullptr, TObject::kOverwrite);
+    fEventTree->Write(nullptr, TObject::kOverwrite);
     this->WriteWithDataBase();
 
     RESTcout << "TRestRun: Output File Created." << RESTendl;
@@ -1152,6 +1152,7 @@ void TRestRun::CloseFile() {
         fEntriesSaved = fAnalysisTree->GetEntries();
         if (fAnalysisTree->GetEntries() > 0 && fInputFile == nullptr) {
             if (fOutputFile != nullptr) {
+                fOutputFile->cd();
                 fAnalysisTree->Write(nullptr, kOverwrite);
                 this->Write(nullptr, kOverwrite);
             }
@@ -1179,6 +1180,7 @@ void TRestRun::CloseFile() {
     }
 
     if (fOutputFile != nullptr) {
+        fOutputFile->Write(0, TObject::kOverwrite);
         fOutputFile->Close();
         delete fOutputFile;
         fOutputFile = nullptr;
