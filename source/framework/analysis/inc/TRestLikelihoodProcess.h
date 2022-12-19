@@ -36,11 +36,10 @@ class TRestLikelihoodProcess : public TRestEventProcess {
     TRestEvent* fEvent;  //!
 
     std::string fFileWithPdfs = "";
-    std::string fObservables = "";
+    std::string fLikelihoodObservables = "";
 
-    TFile* fFileHistos;
+    TFile* fFileHistos = 0;
     std::vector<std::string> fVectorObservables;
-    std::unordered_map<std::string, std::string> fObservablesHistos;
 
     void Initialize() override;
 

@@ -21,23 +21,27 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// The TRestLikelihoodProcess allows procesing of selected events only.
+/// The TRestLikelihoodProcess can extract probability density functions (pdf) for several observables
+/// from a .root file and compute a new observable (some kind of likelihood) from them.
 ///
-/// There are two ways of selecting events:
+/// First observable added is LogOdds from:
 ///
-/// * Providing a txt file with the IDs of the events to be processed (fileWithIDs).
-/// It reads the list, if an event is not in the list it returns NULL,
-/// ends the processing and continues with the next event.
+/// GARCÍA PASCUAL, Juan Antonio. Solar Axion search with Micromegas Detectors in the CAST Experiment
+/// with 3He as buffer gas. Tesis Doctoral. Universidad de Zaragoza, Prensas de la Universidad.
 ///
-/// * Providing a root file (fileWithIDs) and the conditions to select the events (conditions).
-/// Only events that satisfy the conditions will be processed.
+/// It is the sum for all observables of log(1.-p)-log(p) (p= porb of observable i)
+///
+/// Input parameters:
+/// * fFileWithPdfs -> String with file name. Root file with pdf as histograms. Name of the histo has
+/// to be the same as the observable.
+/// * fLikelihoodObservables -> String with observables to compute LogOdds, separated by ','
+///
 ///
 /// Examples for rml files:
-/// <addProcess type="TRestLikelihoodProcess" name="evSelection" fileWithIDs="/path/to/file/IDs.txt"
-/// value="ON"  verboseLevel="info"/>
-///
-/// <addProcess type="TRestLikelihoodProcess" name="evSelection" fileWithIDs="/path/to/file/File.root"
-/// conditions="observable<N" value="ON"  verboseLevel="info"/>
+///    <addProcess type="TRestLikelihoodProcess" name="likelihood" verboseLevel="info" value="ON" >
+///        <parameter name="likelihoodObservables" value="rawAna_RiseTimeAvg,rawAna_BaseLineMean"/>
+///        <parameter name="fileWithPdfs" value="R01876_Histos_8keV.root"/>
+///    </addProcess>
 ///
 /// <hr>
 ///
@@ -117,22 +121,22 @@ void TRestLikelihoodProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 ///
 ///
 void TRestLikelihoodProcess::InitProcess() {
-    cout << "Entra en el InitProcess" << endl;
-    if (!fFileHistos->IsOpen()) {
-        cout << "Se abre bien por primera vez" << endl;
+    RESTDebug << "Starting InitProcess()" << RESTendl;
+
+    if (!fFileHistos) {
+        RESTDebug << "First time file is opened" << RESTendl;
         fFileHistos = TFile::Open(fFileWithPdfs.c_str());
         if (!fFileHistos || fFileHistos->IsZombie()) {
-            cout << "Zombie" << endl;
+            RESTDebug << "Zombie" << RESTendl;
             std::cerr << "Error opening file " << fFileWithPdfs << endl;
             exit(-1);
         } else {
             // String with observables to vector of strings
             std::string line;
-            std::istringstream ss(fObservables);
+            std::istringstream ss(fLikelihoodObservables);
             while (std::getline(ss, line, ',')) {
                 fVectorObservables.push_back(line);
-                fObservablesHistos[line] = "h" + line;
-                cout << "Lee observables" << endl;
+                RESTDebug << "Reading observables" << RESTendl;
             }
         }
     }
@@ -156,15 +160,14 @@ TRestEvent* TRestLikelihoodProcess::ProcessEvent(TRestEvent* inputEvent) {
     double p, logOdds;
     TH1* histo;
 
-    for (int i = 0; i < fObservablesHistos.size(); i++) {
-        histo = fFileHistos->Get<TH1>(fObservablesHistos[fVectorObservables[i]].c_str());
-        // string a = fVectorObservables[i];
+    for (int i = 0; i < fVectorObservables.size(); i++) {
+        histo = fFileHistos->Get<TH1>(fVectorObservables[i].c_str());
         bin = histo->GetXaxis()->FindBin(fAnalysisTree->GetObservableValue<double>(fVectorObservables[i]));
-        p = fFileHistos->Get<TH1>(fObservablesHistos[fVectorObservables[i]].c_str())->GetBinContent(bin);
+        p = fFileHistos->Get<TH1>(fVectorObservables[i].c_str())->GetBinContent(bin);
         logOdds += log(1. - p) - log(p);
     }
-
-    SetObservableValue("logOdds", logOdds);
+    RESTDebug << logOdds << RESTendl;
+    fAnalysisTree->SetObservableValue("LogOdds", logOdds);
 
     return fEvent;
 }
@@ -176,7 +179,7 @@ void TRestLikelihoodProcess::PrintMetadata() {
     BeginPrintProcess();
 
     RESTMetadata << "File with PDFs: " << fFileWithPdfs << RESTendl;
-    RESTMetadata << "Selected observables for log-odds: " << fObservables << RESTendl;
+    RESTMetadata << "Selected observables for log-odds: " << fLikelihoodObservables << RESTendl;
 
     EndPrintProcess();
 }
