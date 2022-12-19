@@ -936,7 +936,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     }
 
     // Preview plot. User can make some changed before saving
-    if (StringToBool(GetParameter("previewPlot", "TRUE"))) {
+    if (!REST_Display_CompatibilityMode && StringToBool(GetParameter("previewPlot", "TRUE"))) {
         GetChar();
     }
 
