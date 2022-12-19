@@ -23,6 +23,14 @@ if len(sys.argv) >= 2:
         print('')
         exit(1)
 
+print("Each REST official release takes the name of a researcher that did a major contribution to sciences.")
+print("We will search for particle physicists, physicists, mathematicians or any other discipline in that order." )
+print("We will then use the birthdate to decide which physicist or scientist deserves the name of the release.")
+print("")
+releaseName = input("Please, enter the name of the candidate!:  ")
+
+print( "Release name : " + str(releaseName) )
+
 outputHeader = 'TRestVersion.h'
 if len(sys.argv) >= 2:
     outputHeader = sys.argv[1]
@@ -106,6 +114,7 @@ f.write(' */\n')
 f.write('#define REST_RELEASE "' + restRelease + '"\n')
 f.write('#define REST_RELEASE_DATE "' + date + '"\n')
 f.write('#define REST_RELEASE_TIME "' + time + '"\n')
+f.write('#define REST_RELEASE_NAME "' + releaseName + '"\n')
 f.write('#define REST_GIT_COMMIT "' + commit[0:8] + '"\n')
 f.write('#define REST_VERSION_CODE ' + str(code) + '\n')
 f.write('#define REST_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))\n'
