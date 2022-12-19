@@ -84,10 +84,7 @@ class TRestDataQualityRules : public TObject {
     }
 
     TVector2 GetRange(unsigned int n) {
-        if (fRanges.size() <= n)
-            return TVector2(0, 0);
-        else
-            return fRanges[n];
+        return (n < fRanges.size()) ? fRanges[n] : {0, 0};
     }
 
     Int_t GetBit(unsigned int n) {
