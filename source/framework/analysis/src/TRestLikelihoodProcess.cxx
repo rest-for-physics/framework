@@ -117,18 +117,22 @@ void TRestLikelihoodProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 ///
 ///
 void TRestLikelihoodProcess::InitProcess() {
-    if (!TFile::IsOpen(fFileWithPdfs)) {
-        fFileHistos(TFile::Open(fFileWithPdfs));
+    cout << "Entra en el InitProcess" << endl;
+    if (!fFileHistos->IsOpen()) {
+        cout << "Se abre bien por primera vez" << endl;
+        fFileHistos = TFile::Open(fFileWithPdfs.c_str());
         if (!fFileHistos || fFileHistos->IsZombie()) {
+            cout << "Zombie" << endl;
             std::cerr << "Error opening file " << fFileWithPdfs << endl;
             exit(-1);
         } else {
             // String with observables to vector of strings
             std::string line;
-            std::stringstream ss(fObservables);
-            while (std::getline(ss, line, ",")) {
+            std::istringstream ss(fObservables);
+            while (std::getline(ss, line, ',')) {
                 fVectorObservables.push_back(line);
                 fObservablesHistos[line] = "h" + line;
+                cout << "Lee observables" << endl;
             }
         }
     }
@@ -150,12 +154,13 @@ TRestEvent* TRestLikelihoodProcess::ProcessEvent(TRestEvent* inputEvent) {
 
     int bin;
     double p, logOdds;
+    TH1* histo;
 
     for (int i = 0; i < fObservablesHistos.size(); i++) {
-        bin = fFileHistos->Get<TH1>(fObservablesHistos[fVectorObservables[i]])
-                  ->GetXaxis()
-                  ->FindBin(fEvent->GetObservablevalue(fVectorObservables[i]));
-        p = fFileHistos->Get<TH1>(fObservablesHistos[fVectorObservables[i]])->GetBinContent(bin);
+        histo = fFileHistos->Get<TH1>(fObservablesHistos[fVectorObservables[i]].c_str());
+        // string a = fVectorObservables[i];
+        bin = histo->GetXaxis()->FindBin(fAnalysisTree->GetObservableValue<double>(fVectorObservables[i]));
+        p = fFileHistos->Get<TH1>(fObservablesHistos[fVectorObservables[i]].c_str())->GetBinContent(bin);
         logOdds += log(1. - p) - log(p);
     }
 

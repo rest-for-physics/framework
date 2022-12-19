@@ -26,6 +26,7 @@
 #include <TH1D.h>
 
 #include <iostream>
+#include <vector>
 
 #include "TRestEventProcess.h"
 
@@ -37,9 +38,9 @@ class TRestLikelihoodProcess : public TRestEventProcess {
     std::string fFileWithPdfs = "";
     std::string fObservables = "";
 
-    std::unique_ptr<TFile> fFileHistos;
-    std::vector<string> fVectorObservables;
-    std::unordered_map<std::string, std::string>;
+    TFile* fFileHistos;
+    std::vector<std::string> fVectorObservables;
+    std::unordered_map<std::string, std::string> fObservablesHistos;
 
     void Initialize() override;
 
@@ -51,10 +52,12 @@ class TRestLikelihoodProcess : public TRestEventProcess {
     void InitProcess() override;
     TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
 
+    void LoadDefaultConfig();
     void PrintMetadata() override;
 
     // Constructor
     TRestLikelihoodProcess();
+    TRestLikelihoodProcess(const char* configFilename);
     // Destructor
     ~TRestLikelihoodProcess() {}
 
