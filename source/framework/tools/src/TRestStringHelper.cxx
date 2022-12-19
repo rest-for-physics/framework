@@ -132,7 +132,7 @@ string REST_StringHelper::ReplaceMathematicalExpressions(string buffer, Int_t pr
         erased = true;
     }
 
-    for (unsigned int i = 0; i < Expressions.size(); i++) {
+    for (size_t i = 0; i < Expressions.size(); i++) {
         if (!isAExpression(Expressions[i])) {
             result += Expressions[i] + ",";
             continue;
