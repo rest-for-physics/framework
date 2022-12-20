@@ -21,10 +21,11 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
+///
 /// The TRestLikelihoodProcess can extract probability density functions (pdf) for several observables
 /// from a .root file and compute a new observable (some kind of likelihood) from them.
 ///
-/// First observable added is LogOdds from:
+/// First observable added is **LogOdds** from:
 ///
 /// GARCÍA PASCUAL, Juan Antonio. Solar Axion search with Micromegas Detectors in the CAST Experiment
 /// with 3He as buffer gas. Tesis Doctoral. Universidad de Zaragoza, Prensas de la Universidad.
@@ -32,12 +33,12 @@
 /// It is the sum for all observables of log(1.-p)-log(p) (p= porb of observable i)
 ///
 /// Input parameters:
-/// * fFileWithPdfs -> String with file name. Root file with pdf as histograms. Name of the histo has
-/// to be the same as the observable.
-/// * fLikelihoodObservables -> String with observables to compute LogOdds, separated by ','
+/// * **fFileWithPdfs* -> String with file name. Root file with pdf as histograms. Name of the histo
+/// has to be the same as the observable.
+/// * **fLikelihoodObservables** -> String with observables to compute LogOdds, separated by ','
 ///
 ///
-/// Examples for rml files:
+/// Example for rml files:
 ///    <addProcess type="TRestLikelihoodProcess" name="likelihood" verboseLevel="info" value="ON" >
 ///        <parameter name="likelihoodObservables" value="rawAna_RiseTimeAvg,rawAna_BaseLineMean"/>
 ///        <parameter name="fileWithPdfs" value="R01876_Histos_8keV.root"/>
