@@ -67,7 +67,7 @@ std::string ToString(T source, int length = -1, char fill = ' ') {
     std::string s = ss1.str();
     if (length < 0) {
         return s;
-    } else if (s.size() < length) {
+    } else if (s.size() < (unsigned int)length) {
         return s + std::string(length - s.size(), fill);
     } else {
         return s.substr(0, length);

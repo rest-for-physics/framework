@@ -32,9 +32,9 @@ void TRestGDMLParser::Load(const string& filename) {
     fFileString = str;
     t.close();
 
-    int pp = fFileString.find("##VERSION", 0);
+    size_t pp = fFileString.find("##VERSION", 0);
     if (pp != string::npos) {
-        int pp2 = fFileString.find("##", pp + 4);
+        size_t pp2 = fFileString.find("##", pp + 4);
         if (pp2 != string::npos) fGdmlVersion = fFileString.substr(pp + 9, pp2 - pp - 9);
         fGdmlVersion = ReplaceMathematicalExpressions(ReplaceConstants(ReplaceVariables(fGdmlVersion)));
     }
@@ -136,9 +136,9 @@ void TRestGDMLParser::ReplaceEntity() {
                 str = ReplaceConstants(ReplaceVariables(str));
 
                 fEntityVersionMap[entityName] = "";
-                int pp = str.find("##VERSION", 0);
+                size_t pp = str.find("##VERSION", 0);
                 if (pp != string::npos) {
-                    int pp2 = str.find("##", pp + 4);
+                    size_t pp2 = str.find("##", pp + 4);
                     if (pp2 != string::npos) {
                         fEntityVersionMap[entityName] = str.substr(pp + 9, pp2 - pp - 9);
                     }

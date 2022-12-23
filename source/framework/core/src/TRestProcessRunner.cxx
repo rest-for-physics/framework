@@ -677,7 +677,8 @@ void TRestProcessRunner::PauseMenu() {
                     fThreads[i]->StartThread();
                 }
                 RESTInfo << "Re-directing output to " << file << RESTendl;
-                freopen(file.c_str(), "w", stdout);
+                FILE* f = freopen(file.c_str(), "w", stdout);
+                if (f == nullptr) RESTWarning << "Couldnt redirect output for file: " << file << RESTendl;
                 REST_Display_CompatibilityMode = true;
             }
             // father process
@@ -960,8 +961,9 @@ void TRestProcessRunner::ConfigOutputFile() {
 void TRestProcessRunner::WriteMetadata() {
     fOutputDataFile->cd();
     fRunInfo->SetNFilesSplit(fNFilesSplit);
-    fRunInfo->Write(0, TObject::kOverwrite);
-    this->Write(0, TObject::kWriteDelete);
+    fRunInfo->Write(nullptr, TObject::kOverwrite);
+    this->Write(nullptr, TObject::kWriteDelete);
+    
     if (fRunInfo->GetFileProcess() != nullptr) {
         // std::cout << "Run. Process-0. " << fRunInfo->GetFileProcess()->GetName() << std::endl;
         fRunInfo->GetFileProcess()->Write(nullptr, kOverwrite);

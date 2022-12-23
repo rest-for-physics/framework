@@ -93,7 +93,7 @@ class TRestTools {
     static T GetIntegralFromTable(const std::vector<std::vector<T>>& data);
 
     template <typename T>
-    static std::vector<T> GetColumnFromTable(const std::vector<std::vector<T>>& data, int column);
+    static std::vector<T> GetColumnFromTable(const std::vector<std::vector<T>>& data, unsigned int column);
 
     template <typename T>
     static int PrintTable(std::vector<std::vector<T>> data, Int_t start = 0, Int_t end = 0);
@@ -129,9 +129,6 @@ class TRestTools {
 
     static std::string POSTRequest(const std::string& url, const std::map<std::string, std::string>& keys);
     static void ChangeDirectory(const std::string& toDirectory);
-
-    /// Rest tools class
-    ClassDef(TRestTools, 1);
 };
 
 namespace REST_InitTools {
