@@ -47,10 +47,8 @@ class TRestEvent : public TObject {
     Bool_t fOk;  ///< Flag to be used by processes to define an event status. fOk=true is the default.
 
     TRestRun* fRun = nullptr;  //!
-#ifndef __CINT__
 
     TPad* fPad;  //!
-#endif
 
     void RestartPad(Int_t nElements);
 
