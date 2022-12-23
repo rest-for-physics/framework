@@ -111,7 +111,7 @@ MACRO(GEN_ROOT_DICT_LINKDEF_HEADER _namespace)
 	######### This code is used to identify and add std:: lists that use a struct to LinkDef
 
     FOREACH (_header ${_input_headers})
-        SET(${_namespace}_file_contents "${${_namespace}_file_contents}#ifdef __CINT__" \n)
+		SET(${_namespace}_file_contents "${${_namespace}_file_contents}#ifdef __ROOTCLING__" \n)
         SET(${_namespace}_file_contents "${${_namespace}_file_contents}#pragma link off all globals\;" \n)
         SET(${_namespace}_file_contents "${${_namespace}_file_contents}#pragma link off all classes\;" \n)
         SET(${_namespace}_file_contents "${${_namespace}_file_contents}#pragma link off all functions\;" \n)
