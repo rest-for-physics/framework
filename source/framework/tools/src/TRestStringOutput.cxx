@@ -264,7 +264,7 @@ string TRestStringOutput::FormattingPrintString(string input) {
         }
 
         string& border = formatstring;
-        for (unsigned int i = 0; i < Lfmt && i < length; i++) {
+        for (int i = 0; i < Lfmt && i < length; i++) {
             output[i] = border[i];
             output[length - i - 1] = mirrorchar(border[i]);
         }

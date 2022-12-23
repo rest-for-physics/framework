@@ -131,7 +131,7 @@ class TRestRun : public TRestMetadata {
     inline TString GetExperimentName() const { return fExperimentName; }
 
     inline std::vector<TString> GetInputFileNames() const { return fInputFileNames; }
-    inline std::string GetInputFileName(int i) const {
+    inline std::string GetInputFileName(unsigned int i) const {
         return i < fInputFileNames.size() ? (std::string)fInputFileNames[i] : "";
     }
     inline std::string GetInputFileNamePattern() const { return fInputFileName.Data(); }

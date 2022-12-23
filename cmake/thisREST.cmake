@@ -163,7 +163,7 @@ foreach (mac ${rest_macros})
     install(CODE
             "
 file( APPEND \${CMAKE_INSTALL_PREFIX}/thisREST.csh 
-alias ${mac} \\\"restManager ${m}\\\"
+\"alias ${mac} \\\"restManager ${m}\\\"
 \"
 )
         "
