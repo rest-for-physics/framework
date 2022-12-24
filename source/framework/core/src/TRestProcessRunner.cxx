@@ -882,11 +882,11 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
                 fRunInfo->SetNFilesSplit(fNFilesSplit);
                 if (fOutputDataFile->GetName() != fOutputDataFileName) {
                     auto Mainfile = std::unique_ptr<TFile>{TFile::Open(fOutputDataFileName, "update")};
-                    WriteMetadata();
+                    WriteProcessesMetadata();
                     Mainfile->Write(0, TObject::kOverwrite);
                     Mainfile->Close();
                 } else {
-                    WriteMetadata();
+                    WriteProcessesMetadata();
                 }
 
                 TFile* newfile = new TFile(fOutputDataFileName + "." + ToString(fNFilesSplit), "recreate");
@@ -955,10 +955,10 @@ void TRestProcessRunner::ConfigOutputFile() {
         fOutputDataFile = new TFile(fOutputDataFileName, "update");
     }
     // write metadata
-    WriteMetadata();
+    WriteProcessesMetadata();
 }
 
-void TRestProcessRunner::WriteMetadata() {
+void TRestProcessRunner::WriteProcessesMetadata() {
     if (!fRunInfo->GetOutputFile()) {
         // We are not ready yet to write
         return;
@@ -1004,7 +1004,7 @@ void TRestProcessRunner::MergeOutputFile() {
     fOutputDataFile->Write(nullptr, TObject::kOverwrite);
     fOutputDataFile->Close();
     fRunInfo->MergeToOutputFile(files_to_merge, fOutputDataFile->GetName());
-    WriteMetadata();
+    WriteProcessesMetadata();
 }
 
 // tools
