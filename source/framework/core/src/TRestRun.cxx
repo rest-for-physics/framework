@@ -983,11 +983,11 @@ TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilena
     TFileMerger* m = new TFileMerger(false);
     if (outputfilename == "") {
         filename = fOutputFileName;
-        RESTInfo << "Creating file : " << filename << RESTendl;
+        RESTInfo << "Creating file (recreate) : " << filename << RESTendl;
         m->OutputFile(filename.c_str(), "RECREATE");
     } else {
         filename = outputfilename;
-        RESTInfo << "Creating file : " << filename << RESTendl;
+        RESTInfo << "Creating file (update) : " << filename << RESTendl;
         m->OutputFile(filename.c_str(), "UPDATE");
     }
 
@@ -1149,6 +1149,7 @@ void TRestRun::WriteWithDataBase() {
 ///
 void TRestRun::CloseFile() {
     fEntriesSaved = -1;
+    std::cout << "File output pointer : " << fOutputFile << std::endl;
     if (fAnalysisTree != nullptr) {
         fEntriesSaved = fAnalysisTree->GetEntries();
         if (fAnalysisTree->GetEntries() > 0 && fInputFile == nullptr) {
@@ -1181,6 +1182,12 @@ void TRestRun::CloseFile() {
     }
 
     if (fOutputFile != nullptr) {
+        std::cout << "Closing file!!" << std::endl;
+        TIter nextkey(fOutputFile->GetListOfKeys());
+        TKey* key;
+        while ((key = (TKey*)nextkey())) {
+            std::cout << "Class name : " << key->GetClassName() << std::endl;
+        }
         fOutputFile->Write(0, TObject::kOverwrite);
         fOutputFile->Close();
         delete fOutputFile;

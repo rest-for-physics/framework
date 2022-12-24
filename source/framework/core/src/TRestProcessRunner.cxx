@@ -528,6 +528,9 @@ void TRestProcessRunner::RunProcess() {
         ConfigOutputFile();
         MergeOutputFile();
     }
+
+    fRunInfo->CloseFile();
+    std::cout << "File closed" << std::endl;
 }
 
 ///////////////////////////////////////////////
@@ -963,7 +966,7 @@ void TRestProcessRunner::WriteMetadata() {
     fRunInfo->SetNFilesSplit(fNFilesSplit);
     fRunInfo->Write(nullptr, TObject::kOverwrite);
     this->Write(nullptr, TObject::kWriteDelete);
-    
+
     if (fRunInfo->GetFileProcess() != nullptr) {
         // std::cout << "Run. Process-0. " << fRunInfo->GetFileProcess()->GetName() << std::endl;
         fRunInfo->GetFileProcess()->Write(nullptr, kOverwrite);
