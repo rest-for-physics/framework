@@ -959,11 +959,16 @@ void TRestProcessRunner::ConfigOutputFile() {
 }
 
 void TRestProcessRunner::WriteMetadata() {
-    fOutputDataFile->cd();
+    if (!fRunInfo->GetOutputFile()) {
+        // We are not ready yet to write
+        return;
+    }
+    fRunInfo->cd();
+
     fRunInfo->SetNFilesSplit(fNFilesSplit);
     fRunInfo->Write(nullptr, TObject::kOverwrite);
     this->Write(nullptr, TObject::kWriteDelete);
-    
+
     if (fRunInfo->GetFileProcess() != nullptr) {
         // std::cout << "Run. Process-0. " << fRunInfo->GetFileProcess()->GetName() << std::endl;
         fRunInfo->GetFileProcess()->Write(nullptr, kOverwrite);
@@ -999,6 +1004,7 @@ void TRestProcessRunner::MergeOutputFile() {
     fOutputDataFile->Write(nullptr, TObject::kOverwrite);
     fOutputDataFile->Close();
     fRunInfo->MergeToOutputFile(files_to_merge, fOutputDataFile->GetName());
+    WriteMetadata();
 }
 
 // tools
