@@ -23,7 +23,6 @@
 /// Event browser for different input file
 class TRestBrowser {
    protected:
-#ifndef __CINT__
     TGMainFrame* frmMain = nullptr;  //!
     TGMainFrame* frmBot = nullptr;   //!
 
@@ -62,12 +61,10 @@ class TRestBrowser {
 
     TBrowser* fBrowser = nullptr;  //!
     TRestRun* fRestRun = nullptr;  //!
-#endif
 
    private:
-#ifndef __CINT__
-    Bool_t pureAnalysis;
-    TString fInputFileName;
+    Bool_t pureAnalysis;     //!
+    TString fInputFileName;  //!
 
     TRestEventViewer* fEventViewer = nullptr;  //!
 
@@ -77,7 +74,6 @@ class TRestBrowser {
     void SetBottomPanelButtons();
     Bool_t LoadEventId(Int_t eventID, Int_t subEventID = -1);
     Bool_t LoadEventEntry(Int_t n);
-#endif
 
    public:
     // tool method
