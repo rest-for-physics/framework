@@ -45,6 +45,7 @@ def print_help():
     print ( "  --exclude:lib1,lib2 will prevent lib1,lib2 from being pulled" )
     print ( "  --onlylibs: It will pull only the REST library submodules" )
     print ( "  --data: It will pull also data based repositories" )
+    print ( "  --only:restG4,geant4lib will pull only the selected repositories." )
     print ( " " )
 
 if( len(sys.argv ) <= 1 ):
@@ -54,6 +55,7 @@ if( len(sys.argv ) <= 1 ):
     sys.exit(1)
 
 exclude_elems = ["userguide", "data"]
+only_elems = []
 
 for x in range(len(sys.argv) - 1):
     if sys.argv[x + 1] == "--data":
@@ -102,6 +104,10 @@ This may cause the submodules to be uncompilable.
         elems = sys.argv[x + 1][10:].split(",")
         for y in elems:
             exclude_elems.append(y)
+    if sys.argv[x + 1].find("--only:") >= 0:
+        elems = sys.argv[x + 1][7:].split(",")
+        for y in elems:
+            only_elems.append(y)
 
 
 
@@ -156,6 +162,10 @@ Are you sure to proceed? (y/n)
                                     exclude = True
                             if onlylibs and fullpath.lower().find("libraries") == -1:
                                 exclude = True
+                            for only_element in only_elems:
+                                exclude = True
+                                if fullpath.find(only_element) > 0:
+                                    exclude = False
 
                         if "url=" in line:
                             url = line.replace("url=", '').strip()
