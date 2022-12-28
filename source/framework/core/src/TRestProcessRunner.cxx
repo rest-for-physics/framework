@@ -959,11 +959,14 @@ void TRestProcessRunner::ConfigOutputFile() {
 }
 
 void TRestProcessRunner::WriteProcessesMetadata() {
-    if (!fRunInfo->GetOutputFile()) {
-        // We are not ready yet to write
-        return;
-    }
-    fRunInfo->cd();
+    if (fRunInfo->GetInputFile() == nullptr) {
+        if (!fRunInfo->GetOutputFile()) {
+            // We are not ready yet to write
+            return;
+        }
+        fRunInfo->cd();
+    } else
+        fOutputDataFile->cd();
 
     fRunInfo->SetNFilesSplit(fNFilesSplit);
     fRunInfo->Write(nullptr, TObject::kOverwrite);
@@ -1004,7 +1007,7 @@ void TRestProcessRunner::MergeOutputFile() {
     fOutputDataFile->Write(nullptr, TObject::kOverwrite);
     fOutputDataFile->Close();
     fRunInfo->MergeToOutputFile(files_to_merge, fOutputDataFile->GetName());
-    WriteProcessesMetadata();
+    if (fRunInfo->GetInputFile() == nullptr) WriteProcessesMetadata();
 }
 
 // tools
