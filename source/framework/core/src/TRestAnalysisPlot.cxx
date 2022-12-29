@@ -22,8 +22,6 @@
 
 using namespace std;
 
-ClassImp(TRestAnalysisPlot);
-
 TRestAnalysisPlot::TRestAnalysisPlot() { Initialize(); }
 
 TRestAnalysisPlot::TRestAnalysisPlot(const char* configFilename, const char* name)
