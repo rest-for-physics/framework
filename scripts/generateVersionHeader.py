@@ -146,7 +146,7 @@ print('-----> git add ../source/framework/core/inc/TRestVersion.h')
 print('-----> git commit -m "Updated TRestVersion.h to v2.' + str(b)
       + '.' + str(c) + '" ')
 print('\n')
-print('You should generate a new Git tag now!\n')
+print('Once your PR has been accepted and merged, you should generate a new Git tag at the master branch.\n')
 print('-----> git tag -a v' + str(a) + '.' + str(b) + '.' + str(c)
       + ' -m "Update to version v' + str(a) + '.' + str(b) + '.'
       + str(c) + '"\n')
