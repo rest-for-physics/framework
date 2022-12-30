@@ -193,5 +193,7 @@ class TRestAnalysisPlot : public TRestMetadata {
     TRestAnalysisPlot(const char* configFilename, const char* name = "");
     // Destructor
     virtual ~TRestAnalysisPlot();
+
+    ClassDefOverride(TRestAnalysisPlot, 4);
 };
 #endif
