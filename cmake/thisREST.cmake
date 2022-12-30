@@ -50,6 +50,33 @@ export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH
     set(Garfield_INCLUDE_ENV ":$ENV{GARFIELD_INSTALL}/include")
 endif ()
 
+file (STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/source/framework/core/inc/TRestVersion.h" lines)
+
+message( STATUS "########## Latest release info #############" )
+
+string(FIND "${lines}" "REST_RELEASE " FOUND_RELEASE )
+string( SUBSTRING "${lines}" ${FOUND_RELEASE} 50 release)
+string( SUBSTRING "${release}" 14 30 release)
+string(FIND "${release}" "\"" FOUND_RELEASE )
+string( SUBSTRING "${release}" 0 ${FOUND_RELEASE} release)
+message (STATUS "Release version : ${release}" )
+
+string(FIND "${lines}" "REST_RELEASE_NAME" FOUND_RELEASE_NAME )
+string( SUBSTRING "${lines}" ${FOUND_RELEASE_NAME} 50 releaseName)
+string( SUBSTRING "${releaseName}" 19 30 releaseName)
+string(FIND "${releaseName}" "\"" FOUND_RELEASE_NAME )
+string( SUBSTRING "${releaseName}" 0 ${FOUND_RELEASE_NAME} releaseName)
+message (STATUS "Release name : ${releaseName}" )
+
+string(FIND "${lines}" "REST_RELEASE_DATE" FOUND_RELEASE_DATE )
+string( SUBSTRING "${lines}" ${FOUND_RELEASE_DATE} 50 releaseDate)
+string( SUBSTRING "${releaseDate}" 19 30 releaseDate)
+string(FIND "${releaseDate}" "\"" FOUND_RELEASE_DATE )
+string( SUBSTRING "${releaseDate}" 0 ${FOUND_RELEASE_DATE} releaseDate)
+message (STATUS "Release date : ${releaseDate}" )
+message( STATUS "########## Latest release info #############" )
+message( "" )
+
 # install thisREST script, sh VERSION
 install(CODE
         "
@@ -259,6 +286,9 @@ echo \\\"  \\\"
 echo \\\"  Commit  : \${GIT_COMMIT} (\${GIT_DATE})  \\\"
 echo \\\"  Branch/Version : \${GIT_BRANCH}/\${GIT_TAG}  \\\"
 echo \\\"  Compilation date : ${date}  \\\"
+echo \\\"  \\\"
+echo \\\"  Latest release: : v${release} - ${releaseName} - ${releaseDate}  \\\"
+echo \\\"  \\\"
 echo \\\"  Official release : \${REST_OFFICIAL_RELEASE} \\\"
 echo \\\"  Clean state : \${GIT_CLEANSTATE} \\\"
 echo \\\"  \\\"
