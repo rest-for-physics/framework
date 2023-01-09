@@ -1,4 +1,3 @@
-
 import os
 from pathlib import Path
 
@@ -31,8 +30,8 @@ libraries = [
     str(rest_library_path / file)
     for file in os.listdir(rest_library_path)
     if Path(file).suffix in library_extensions
-       and Path(file).stem not in excluded
-       and Path(file).stem.startswith("libRest")
+    and Path(file).stem not in excluded
+    and Path(file).stem.startswith("libRest")
 ]
 
 for library in libraries:
