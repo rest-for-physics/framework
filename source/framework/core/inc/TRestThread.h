@@ -74,8 +74,6 @@ class TRestThread {
     // Constructor & Destructor
     TRestThread() { Initialize(); }
     ~TRestThread(){};
-
-    ClassDef(TRestThread, 1);
 };
 
 #endif
