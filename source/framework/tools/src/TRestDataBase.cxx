@@ -212,7 +212,7 @@ DBEntry TRestDataBase::query_data(DBEntry _info) {
         _info.version == "")
         return DBEntry();
 
-    for (int i = 0; i < fDataEntries.size(); i++) {
+    for (unsigned int i = 0; i < fDataEntries.size(); i++) {
         DBEntry info = fDataEntries[i];
 
         bool runmatch = (_info.runNr == 0 || info.runNr == 0 || info.runNr == _info.type);

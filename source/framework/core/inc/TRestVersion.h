@@ -11,12 +11,12 @@
                                                                  * #endif
                                                                  *
                                                                  */
-#define REST_RELEASE "2.3.14"
-#define REST_RELEASE_DATE "Thu 15 Dec"
-#define REST_RELEASE_TIME "2022 10:01:56 AM CET"
-#define REST_RELEASE_NAME "Henri Becquerel"
-#define REST_GIT_COMMIT "81928e9f"
-#define REST_VERSION_CODE 131854
+#define REST_RELEASE "2.3.15"
+#define REST_RELEASE_DATE "Fri 30 Dec"
+#define REST_RELEASE_TIME "2022 08:49:05 AM CET"
+#define REST_RELEASE_NAME "David R. Nygren"
+#define REST_GIT_COMMIT "ed155a15"
+#define REST_VERSION_CODE 131855
 #define REST_VERSION(a, b, c) (((a) << 16) + ((b) << 8) + (c))
 #define REST_SCHEMA_EVOLUTION "ON"
 #endif

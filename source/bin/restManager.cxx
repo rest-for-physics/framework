@@ -23,9 +23,11 @@ int fork_n_execute(string command) {
 
     if (pid == 0) {
         /* This is the child process */
-        system(command.c_str());  // execute the command
+        int z = system(command.c_str());  // execute the command
+        if (z != 0) printf("Problem executing command : %s", command.c_str());
         // we call exit() when system() returns to complete child process
         exit(EXIT_SUCCESS);
+
     } else if (pid < 0) {
         /* The fork failed */
         printf("Failed to fork(): %s ", command.c_str());
@@ -126,7 +128,7 @@ int main(int argc, char* argv[]) {
     argVApp[1] = batch;
     {
         // handle special arguments like "--batch"
-        for (int i = 1; i < args.size(); i++) {
+        for (unsigned int i = 1; i < args.size(); i++) {
             if (args[i] == "--batch") {
                 RESTcout << "you are in batch mode, all graphical displays off" << RESTendl;
                 REST_Display_CompatibilityMode = true;
@@ -160,7 +162,7 @@ int main(int argc, char* argv[]) {
     // read arguments
     if (args.size() >= 2) {
         if (args[1][0] == '-') {  // usage1
-            for (int i = 1; i < args.size(); i++) {
+            for (unsigned int i = 1; i < args.size(); i++) {
                 char* c = &args[i][0];
                 if (*c == '-') {
                     c++;
@@ -215,7 +217,6 @@ int main(int argc, char* argv[]) {
             RESTcout << "Launching TRestManager..." << RESTendl;
             RESTcout << RESTendl;
 
-            int pid = 0;
             if (doFork && input_files.size() > maxForksAllowed) {
                 RESTError << "Fork list is larger than " << maxForksAllowed
                           << " files. Please, use a glob pattern producing a shorter list" << RESTendl;
@@ -252,7 +253,7 @@ int main(int argc, char* argv[]) {
         } else  // usage2
         {
             vector<string> argumentlist;
-            for (int i = 2; i < args.size(); i++) {
+            for (unsigned int i = 2; i < args.size(); i++) {
                 argumentlist.push_back(args[i]);
             }
             string type = (args[1]);

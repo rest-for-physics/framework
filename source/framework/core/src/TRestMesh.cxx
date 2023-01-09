@@ -317,7 +317,7 @@ Int_t TRestMesh::GetNodeZ(TVector3 v, Bool_t relative) {
 ///
 void TRestMesh::SetNodesFromHits(TRestHits* hits) {
     double nan = numeric_limits<double>::quiet_NaN();
-    for (int hit = 0; hit < hits->GetNumberOfHits(); hit++) {
+    for (unsigned int hit = 0; hit < hits->GetNumberOfHits(); hit++) {
         if (hits->GetEnergy(hit) <= 0) continue;
         REST_HitType type = hits->GetType(hit);
         this->AddNode(type == YZ ? nan : hits->GetX(hit), type == XZ ? nan : hits->GetY(hit), hits->GetZ(hit),
@@ -336,7 +336,7 @@ void TRestMesh::SetNodesFromSphericalHits(TRestHits* hits) {
     if (!fIsSpherical)
         cout << "TRestMesh::SetNodesFromSphericalHits is only to be used with a spherical mesh!" << endl;
 
-    for (int hit = 0; hit < hits->GetNumberOfHits(); hit++) {
+    for (unsigned int hit = 0; hit < hits->GetNumberOfHits(); hit++) {
         if (hits->GetEnergy(hit) <= 0) continue;
         this->AddSphericalNode(hits->GetX(hit), hits->GetY(hit), hits->GetZ(hit), hits->GetEnergy(hit));
     }
@@ -771,10 +771,6 @@ std::vector<TVector3> TRestMesh::GetTrackBoundaries(TVector3 pos, TVector3 dir, 
     }
 
     if (boundaries.size() == 2) {
-        TVector3 center = 0.5 * (boundaries[0] + boundaries[1]);
-        Double_t product_1 = (boundaries[0] - center) * dir;
-        Double_t product_2 = (boundaries[1] - center) * dir;
-
         if (particle) {
             // d1 and d2 is the signed distance to the volume boundaries
             Double_t d1 = (boundaries[0] - pos) * dir;

@@ -27,6 +27,8 @@ print("Each REST official release takes the name of a researcher that did a majo
 print("We will search for particle physicists, physicists, mathematicians or any other discipline in that order." )
 print("We will then use the birthdate to decide which physicist or scientist deserves the name of the release.")
 print("")
+print("You may use the following website: https://www.bornglorious.com/world/birthday/?pf=169470" )
+print("")
 releaseName = input("Please, enter the name of the candidate!:  ")
 
 print( "Release name : " + str(releaseName) )
@@ -144,7 +146,7 @@ print('-----> git add ../source/framework/core/inc/TRestVersion.h')
 print('-----> git commit -m "Updated TRestVersion.h to v2.' + str(b)
       + '.' + str(c) + '" ')
 print('\n')
-print('You should generate a new Git tag now!\n')
+print('Once your PR has been accepted and merged, you should generate a new Git tag at the master branch.\n')
 print('-----> git tag -a v' + str(a) + '.' + str(b) + '.' + str(c)
       + ' -m "Update to version v' + str(a) + '.' + str(b) + '.'
       + str(c) + '"\n')
