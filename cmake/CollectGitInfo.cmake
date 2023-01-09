@@ -6,9 +6,9 @@ set(GIT_BRANCH)
 set(GIT_CLEANSTATE)
 set(REST_OFFICIAL_RELEASE "No")
 
-if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     return()
-endif()
+endif ()
 
 execute_process(
     COMMAND git status --porcelain
@@ -16,11 +16,11 @@ execute_process(
     OUTPUT_VARIABLE GIT_CLEANSTATE
     ERROR_VARIABLE gitstatuserr)
 
-if(GIT_CLEANSTATE STREQUAL "")
+if (GIT_CLEANSTATE STREQUAL "")
     set(GIT_CLEANSTATE "Yes")
-else()
+else ()
     set(GIT_CLEANSTATE "No")
-endif()
+endif ()
 
 execute_process(
     COMMAND git describe --tags
@@ -28,10 +28,10 @@ execute_process(
     OUTPUT_VARIABLE gitdiscribe
     ERROR_VARIABLE err)
 
-if(err MATCHES ".*fatal.*")
+if (err MATCHES ".*fatal.*")
     message("Warning! not a git repository")
     return()
-endif()
+endif ()
 
 set(GIT_VALID TRUE)
 
@@ -79,9 +79,9 @@ string(REPLACE "\n" "" git_branch ${git_branch})
 string(SUBSTRING ${git_branch} 2 -1 git_branch)
 set(GIT_BRANCH ${git_branch})
 
-if(GIT_COMMIT STREQUAL GIT_LASTTAG_COMMIT)
+if (GIT_COMMIT STREQUAL GIT_LASTTAG_COMMIT)
     set(REST_OFFICIAL_RELEASE "Yes")
-endif()
+endif ()
 
 message("")
 message(STATUS "REST release : ${GIT_TAG}")

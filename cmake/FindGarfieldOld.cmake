@@ -18,11 +18,11 @@ find_library(
     NAMES libGarfield.so Garfield
     HINTS ${Garfield_DIR}/lib ${Garfield_LIB_DIR})
 
-if(Garfield_INCLUDE_DIRS AND Garfield_LIBRARIES)
+if (Garfield_INCLUDE_DIRS AND Garfield_LIBRARIES)
     set(Garfield_FOUND TRUE)
-endif()
+endif ()
 
-if(NOT DEFINED ENV{GARFIELD_HOME})
+if (NOT DEFINED ENV{GARFIELD_HOME})
     message(
         "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\nError : GARFIELD HOME is not defined!
 		\nCheck Garfield is installed and GARFIELD_HOME is pointing to install directory
@@ -31,21 +31,21 @@ if(NOT DEFINED ENV{GARFIELD_HOME})
         \nplease, run cmake disabling REST_GARFIELD variable
         \n\ni.e. : cmake -DREST_GARFIELD=OFF ../
 		\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
-endif()
+endif ()
 
-if(Garfield_FOUND)
-    if(NOT Garfield_FIND_QUIETLY)
+if (Garfield_FOUND)
+    if (NOT Garfield_FIND_QUIETLY)
         message(STATUS "Found Garfield includes in ${Garfield_INCLUDE_DIRS}")
         message(STATUS "Found Garfield libraries ${Garfield_LIBRARIES}")
-    endif(NOT Garfield_FIND_QUIETLY)
-else(Garfield_FOUND)
-    if(Garfield_FIND_REQUIRED)
+    endif (NOT Garfield_FIND_QUIETLY)
+else (Garfield_FOUND)
+    if (Garfield_FIND_REQUIRED)
         message(
             FATAL_ERROR
                 "Garfield required, but not found!\ntry to run \"./scripts/installation/v2.2/installGarfield.sh\" to install it.
 		")
-    endif(Garfield_FIND_REQUIRED)
-endif(Garfield_FOUND)
+    endif (Garfield_FIND_REQUIRED)
+endif (Garfield_FOUND)
 
 # Make variables changeable to the advanced user
 mark_as_advanced(Garfield_INCLUDE_DIRS)

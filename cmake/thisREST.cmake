@@ -16,26 +16,26 @@ execute_process(
 string(REGEX REPLACE "\n$" "" GEANT4_PATH "${GEANT4_PATH}")
 get_filename_component(GEANT4_BIN_DIR "${GEANT4_PATH}/bin/" REALPATH)
 
-if(${REST_G4} MATCHES "ON")
+if (${REST_G4} MATCHES "ON")
     # https://github.com/rest-for-physics/framework/issues/331
     set(loadG4
         "\# if geant4.sh script is found we load the same Geant4 version as used in compilation\nif [[ -f \\\"${GEANT4_BIN_DIR}/geant4.sh\\\" ]]; then
     [[ -n \\\"\\\${ZSH_VERSION}\\\" ]] && pushd ${GEANT4_BIN_DIR} > /dev/null\n    source ${GEANT4_BIN_DIR}/geant4.sh\n    [[ -n \\\"\\\${ZSH_VERSION}\\\" ]] && popd > /dev/null\nfi\n"
     )
-else()
+else ()
     set(loadG4 "")
-endif(${REST_G4} MATCHES "ON")
+endif (${REST_G4} MATCHES "ON")
 
-if(DEFINED MPFR_PATH)
+if (DEFINED MPFR_PATH)
     set(loadMPFR "export LD_LIBRARY_PATH=${MPFR_PATH}/lib:\$LD_LIBRARY_PATH")
-else()
+else ()
     set(loadMPFR "")
-endif()
+endif ()
 
 set(loadGarfield "")
 set(Garfield_INCLUDE_ENV "")
-if(${REST_GARFIELD} MATCHES "ON")
-    if(DEFINED ENV{GARFIELD_INSTALL})
+if (${REST_GARFIELD} MATCHES "ON")
+    if (DEFINED ENV{GARFIELD_INSTALL})
         # this is the recommended way to source newer Garfield installations
         set(loadGarfield
             "
@@ -43,7 +43,7 @@ if(${REST_GARFIELD} MATCHES "ON")
 source $ENV{GARFIELD_INSTALL}/share/Garfield/setupGarfield.sh
 ")
         set(Garfield_INSTALL "$ENV{GARFIELD_INSTALL}")
-    else()
+    else ()
         set(loadGarfield
             "
 # if GARFIELD is enabled we load the same Garfield environment used in compilation
@@ -52,9 +52,9 @@ export HEED_DATABASE=\$GARFIELD_HOME/Heed/heed++/database
 export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH
 ")
         set(Garfield_INSTALL "$ENV{GARFIELD_HOME}")
-    endif()
+    endif ()
     set(Garfield_INCLUDE_ENV ":$ENV{GARFIELD_INSTALL}/include")
-endif()
+endif ()
 
 file(STRINGS
      "${CMAKE_CURRENT_SOURCE_DIR}/source/framework/core/inc/TRestVersion.h"
@@ -143,7 +143,7 @@ fi
 )
         ")
 
-foreach(mac ${rest_macros})
+foreach (mac ${rest_macros})
 
     string(REPLACE " " "" mac ${mac})
     string(REPLACE "rest" "" m ${mac})
@@ -156,7 +156,7 @@ file( APPEND \${CMAKE_INSTALL_PREFIX}/thisREST.sh
 )
         ")
 
-endforeach(mac ${rest_macros})
+endforeach (mac ${rest_macros})
 
 # install thisREST script, csh VERSION
 install(
@@ -186,7 +186,7 @@ endif
 )
         ")
 
-foreach(mac ${rest_macros})
+foreach (mac ${rest_macros})
 
     string(REPLACE " " "" mac ${mac})
     string(REPLACE "rest" "" m ${mac})
@@ -199,7 +199,7 @@ file( APPEND \${CMAKE_INSTALL_PREFIX}/thisREST.csh
 )
         ")
 
-endforeach(mac ${rest_macros})
+endforeach (mac ${rest_macros})
 
 # install rest-config
 install(

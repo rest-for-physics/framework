@@ -1,20 +1,20 @@
-if(NOT DEFINED TEST OR NOT TEST)
+if (NOT DEFINED TEST OR NOT TEST)
     set(TEST OFF)
     message(
         STATUS
             "Testing disabled (Disabled by default, enabled via -DTEST=ON flag)"
     )
-endif()
-if(TEST)
+endif ()
+if (TEST)
     message(
         STATUS
             "Testing enabled (Disabled by default, enabled via -DTEST=ON flag)")
     enable_testing()
     add_compile_definitions(REST_TESTING_ENABLED)
-endif()
+endif ()
 
-macro(ADD_LIBRARY_TEST)
-    if(TEST)
+macro (ADD_LIBRARY_TEST)
+    if (TEST)
         message(STATUS "Adding tests at ${CMAKE_CURRENT_SOURCE_DIR}")
 
         get_filename_component(DIR_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
@@ -41,5 +41,5 @@ macro(ADD_LIBRARY_TEST)
         include(GoogleTest)
 
         gtest_add_tests(TARGET ${TESTING_EXECUTABLE} SOURCES ${SOURCES})
-    endif()
-endmacro()
+    endif ()
+endmacro ()

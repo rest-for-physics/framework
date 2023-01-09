@@ -1,8 +1,8 @@
-if(APPLE)
+if (APPLE)
     set(LD_LIBRARY_PATH_VAR DYLD_LIBRARY_PATH)
-else()
+else ()
     set(LD_LIBRARY_PATH_VAR LD_LIBRARY_PATH)
-endif()
+endif ()
 set(LD_LIBRARY_PATH_CONTENTS $ENV{${LD_LIBRARY_PATH_VAR}})
 # MESSAGE( STATUS "LD_LIBRARY_PATH_CONTENTS: ${LD_LIBRARY_PATH_CONTENTS}" )
 
@@ -10,26 +10,26 @@ set(ROOT_CINT_WRAPPER
     ${LD_LIBRARY_PATH_VAR}=${ROOT_LIBRARY_DIR}:${LD_LIBRARY_PATH_CONTENTS}
     ${ROOTCINT_EXECUTABLE})
 
-if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(ROOT_CINT_WRAPPER ${ROOTCINT_EXECUTABLE} -D_HAS_STD_BYTE=0)
-endif()
+endif ()
 
-if(NOT DEFINED ROOT_DICT_OUTPUT_DIR)
+if (NOT DEFINED ROOT_DICT_OUTPUT_DIR)
     set(ROOT_DICT_OUTPUT_DIR "${PROJECT_BINARY_DIR}/rootdict")
-endif()
+endif ()
 
 # clean generated header files with 'make clean'
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
                                     "${ROOT_DICT_OUTPUT_DIR}")
 
-if(NOT ROOT_FIND_QUIETLY)
+if (NOT ROOT_FIND_QUIETLY)
     message(
         STATUS "Check for ROOT_DICT_OUTPUT_DIR: ${PROJECT_BINARY_DIR}/rootdict")
     message(
         STATUS
             "Check for ROOT_DICT_CINT_DEFINITIONS: ${ROOT_DICT_CINT_DEFINITIONS}"
     )
-endif()
+endif ()
 
 # ============================================================================
 # helper macro to prepare input headers for GEN_ROOT_DICT_SOURCES sorts
@@ -41,19 +41,19 @@ endif()
 # ${input_dir}_LinkDef.h as the last header (if found)
 #
 # ----------------------------------------------------------------------------
-macro(PREPARE_ROOT_DICT_HEADERS _input_dir)
+macro (PREPARE_ROOT_DICT_HEADERS _input_dir)
 
     file(GLOB ROOT_DICT_INPUT_HEADERS "${_input_dir}/*.h")
     file(GLOB _linkdef_hdr "${_input_dir}/LinkDef.h")
 
-    if(_linkdef_hdr)
+    if (_linkdef_hdr)
         list(REMOVE_ITEM ROOT_DICT_INPUT_HEADERS "${_linkdef_hdr}")
         list(APPEND ROOT_DICT_INPUT_HEADERS "${_linkdef_hdr}")
-    endif()
+    endif ()
 
     # MESSAGE( STATUS "ROOT_DICT_INPUT_HEADERS: ${ROOT_DICT_INPUT_HEADERS}" )
 
-endmacro(PREPARE_ROOT_DICT_HEADERS)
+endmacro (PREPARE_ROOT_DICT_HEADERS)
 
 # ============================================================================
 # helper macro to generate Linkdef.h files for rootcint
@@ -65,7 +65,7 @@ endmacro(PREPARE_ROOT_DICT_HEADERS)
 # the correct order to be used by macro GEN_ROOT_DICT_SOURCES
 #
 # ----------------------------------------------------------------------------
-macro(GEN_ROOT_DICT_LINKDEF_HEADER _namespace)
+macro (GEN_ROOT_DICT_LINKDEF_HEADER _namespace)
 
     set(_input_headers ${ARGN})
     set(_linkdef_header "${ROOT_DICT_OUTPUT_DIR}/${_namespace}_Linkdef.h")
@@ -77,44 +77,44 @@ macro(GEN_ROOT_DICT_LINKDEF_HEADER _namespace)
     file(STRINGS "${_input_headers}" lines)
     string(FIND "${lines}" "struct" FOUND_STRUCT)
     set(_structName "NONE")
-    if(FOUND_STRUCT GREATER 0)
+    if (FOUND_STRUCT GREATER 0)
         string(SUBSTRING "${lines}" ${FOUND_STRUCT} 50 subline)
         string(FIND "${subline}" "{" FOUND_OPEN_BRACE)
         # It helps to filter some undesired occurences of struct. But it limits
         # the size of the struct name
-        if(FOUND_OPEN_BRACE GREATER 0 AND FOUND_OPEN_BRACE LESS 30)
+        if (FOUND_OPEN_BRACE GREATER 0 AND FOUND_OPEN_BRACE LESS 30)
             string(SUBSTRING "${subline}" 7 ${FOUND_OPEN_BRACE} _structName)
             string(FIND "${_structName}" " {" FOUND_OPEN_BRACE)
             string(SUBSTRING "${_structName}" 0 ${FOUND_OPEN_BRACE} _structName)
-        endif(FOUND_OPEN_BRACE GREATER 0 AND FOUND_OPEN_BRACE LESS 30)
-    endif(FOUND_STRUCT GREATER 0)
+        endif (FOUND_OPEN_BRACE GREATER 0 AND FOUND_OPEN_BRACE LESS 30)
+    endif (FOUND_STRUCT GREATER 0)
 
     set(FOUND_STD_STRUCT "NO")
-    if(NOT _structName MATCHES "NONE")
+    if (NOT _structName MATCHES "NONE")
         # message( STATUS "Found::${_structName}::" )
-        while(lines)
+        while (lines)
             list(POP_FRONT lines LINE)
             # message( STATUS "This is line::${LINE}::" )
             string(FIND "${LINE}" "${_structName}" FOUND_STRUCT_NAME)
             string(FIND "${LINE}" "std::" FOUND_STD)
-            if(FOUND_STRUCT_NAME GREATER 0 AND FOUND_STD GREATER 0)
+            if (FOUND_STRUCT_NAME GREATER 0 AND FOUND_STD GREATER 0)
                 string(SUBSTRING "${LINE}" ${FOUND_STD} -1 LINE)
                 string(FIND "${LINE}" ">" FOUND_END REVERSE)
-                if(FOUND_END GREATER 0 AND FOUND_END LESS 80)
+                if (FOUND_END GREATER 0 AND FOUND_END LESS 80)
                     math(EXPR FOUND_END "${FOUND_END}+1")
                     string(SUBSTRING "${LINE}" 0 ${FOUND_END} LINE)
                     message(STATUS "Adding ${LINE} to the dictionary!")
                     set(FOUND_STD_STRUCT "${LINE}")
-                endif(FOUND_END GREATER 0 AND FOUND_END LESS 80)
-            endif(FOUND_STRUCT_NAME GREATER 0 AND FOUND_STD GREATER 0)
+                endif (FOUND_END GREATER 0 AND FOUND_END LESS 80)
+            endif (FOUND_STRUCT_NAME GREATER 0 AND FOUND_STD GREATER 0)
 
             string(FIND LINE "${_structName}" FOUND_STRUCT_NAME)
-        endwhile()
-    endif(NOT _structName MATCHES "NONE")
+        endwhile ()
+    endif (NOT _structName MATCHES "NONE")
     # This code is used to identify and add std:: lists that use a struct to
     # LinkDef
 
-    foreach(_header ${_input_headers})
+    foreach (_header ${_input_headers})
         set(${_namespace}_file_contents
             "${${_namespace}_file_contents}#ifdef __ROOTCLING__" \n)
         set(${_namespace}_file_contents
@@ -127,27 +127,27 @@ macro(GEN_ROOT_DICT_LINKDEF_HEADER _namespace)
             "${${_namespace}_file_contents}#pragma link C++ nestedclasses\;" \n)
         set(${_namespace}_file_contents
             "${${_namespace}_file_contents}#pragma link C++ nestedtypedef\;" \n)
-        if(NOT FOUND_STD_STRUCT MATCHES "NO")
+        if (NOT FOUND_STD_STRUCT MATCHES "NO")
             set(${_namespace}_file_contents
                 "${${_namespace}_file_contents}#pragma link C++ class ${_structName}+\;"
                 \n)
             set(${_namespace}_file_contents
                 "${${_namespace}_file_contents}#pragma link C++ class ${FOUND_STD_STRUCT}+\;"
                 \n)
-        endif(NOT FOUND_STD_STRUCT MATCHES "NO")
+        endif (NOT FOUND_STD_STRUCT MATCHES "NO")
         set(${_namespace}_file_contents
             "${${_namespace}_file_contents}#pragma link C++ class ${_namespace}+\;"
             \n)
         set(${_namespace}_file_contents "${${_namespace}_file_contents}#endif"
                                         \n)
-    endforeach()
+    endforeach ()
 
     file(MAKE_DIRECTORY ${ROOT_DICT_OUTPUT_DIR})
     file(WRITE ${_linkdef_header} ${${_namespace}_file_contents})
 
     set(ROOT_DICT_INPUT_HEADERS ${_input_headers} ${_linkdef_header})
 
-endmacro()
+endmacro ()
 
 # ============================================================================
 # macro for generating root dict sources with rootcint
@@ -165,18 +165,18 @@ endmacro()
 # previously generated sources
 
 # ----------------------------------------------------------------------------
-macro(GEN_ROOT_DICT_SOURCE _dict_src_filename)
+macro (GEN_ROOT_DICT_SOURCE _dict_src_filename)
 
     set(_input_depend ${ARGN})
     # TODO check for ROOT_CINT_EXECUTABLE
     file(MAKE_DIRECTORY ${ROOT_DICT_OUTPUT_DIR})
     # need to prefix all include dirs with -I
     set(_dict_includes "-I../include")
-    foreach(_inc ${ROOT_DICT_INCLUDE_DIRS})
+    foreach (_inc ${ROOT_DICT_INCLUDE_DIRS})
         set(_dict_includes "${_dict_includes}\t-I${_inc}") # fg: the \t fixes a
                                                            # wired string
                                                            # expansion
-    endforeach()
+    endforeach ()
 
     # We modify the list of headers to be given to ROOTCINT command. We must
     # remove/clean the full path from the main header
@@ -198,15 +198,15 @@ macro(GEN_ROOT_DICT_SOURCE _dict_src_filename)
         COMMENT "generating: ${_dict_src_file} with ${ROOT_DICT_INPUT_HEADERS}")
     list(APPEND ROOT_DICT_OUTPUT_SOURCES ${_dict_src_file})
 
-endmacro()
+endmacro ()
 
 # for backwards compatibility
-macro(GEN_ROOT_DICT_SOURCES _dict_src_filename)
+macro (GEN_ROOT_DICT_SOURCES _dict_src_filename)
     # MESSAGE( "USING DEPRECATED GEN_ROOT_DICT_SOURCES. PLEASE USE
     # GEN_ROOT_DICT_SOURCE instead." )
     set(ROOT_DICT_OUTPUT_SOURCES)
     gen_root_dict_source(${_dict_src_filename})
-endmacro()
+endmacro ()
 # ============================================================================
 
 # ============================================================================
@@ -250,7 +250,7 @@ endmacro()
 # regular directory form, set them in this argument to include them.
 #
 # ----------------------------------------------------------------------------
-macro(COMPILEDIR libname)
+macro (COMPILEDIR libname)
 
     message(
         STATUS
@@ -264,34 +264,34 @@ macro(COMPILEDIR libname)
 
     set(contentfiles)
 
-    if(DEFINED contents)
+    if (DEFINED contents)
         message("specified sub-dirs: ${contents}")
-        foreach(content ${contents})
+        foreach (content ${contents})
             set(local_include_dirs
                 ${local_include_dirs} ${addon_inc}
                 ${CMAKE_CURRENT_SOURCE_DIR}/${content}
                 ${CMAKE_CURRENT_SOURCE_DIR}/${content}/inc)
-        endforeach(content)
+        endforeach (content)
         set(local_include_dirs
             ${local_include_dirs}
             PARENT_SCOPE)
 
-        foreach(content ${contents})
+        foreach (content ${contents})
             file(GLOB_RECURSE files ${content}/*.cxx)
-            foreach(file ${files})
+            foreach (file ${files})
 
                 string(REGEX MATCH "[^/\\]*cxx" temp ${file})
                 string(REPLACE ".cxx" "" class ${temp})
 
                 set(SKIP "FALSE")
-                if(DEFINED excludes)
-                    foreach(exclude ${excludes})
-                        if("${exclude}" STREQUAL "${class}")
+                if (DEFINED excludes)
+                    foreach (exclude ${excludes})
+                        if ("${exclude}" STREQUAL "${class}")
                             set(SKIP "TRUE")
                             # message( STATUS "Skipping ${class}" )
-                        endif()
-                    endforeach(exclude)
-                endif()
+                        endif ()
+                    endforeach (exclude)
+                endif ()
 
                 # We will remove those classes that do not inherit from TObject
                 # from dictionary generation
@@ -301,21 +301,21 @@ macro(COMPILEDIR libname)
                 set(nodicts
                     "TRestReflector;TRestSystemOfUnits;TRestStringHelper;TRestPhysics;TRestDataBase;TRestTools;TRestThread"
                 )
-                foreach(nodict ${nodicts})
-                    if("${nodict}" STREQUAL "${class}")
+                foreach (nodict ${nodicts})
+                    if ("${nodict}" STREQUAL "${class}")
                         set(NOTDICT "TRUE")
                         message(
                             STATUS "Skipping dictionary generation for ${class}"
                         )
-                    endif()
-                endforeach(nodict)
+                    endif ()
+                endforeach (nodict)
                 # ##############################################################
 
-                if(${SKIP} STREQUAL "FALSE")
+                if (${SKIP} STREQUAL "FALSE")
                     set(ROOT_DICT_INCLUDE_DIRS ${local_include_dirs}
                                                ${external_include_dirs})
                     file(GLOB_RECURSE header ${class}.h)
-                    if(NOT header)
+                    if (NOT header)
                         message(
                             WARNING
                                 "header file: "
@@ -324,30 +324,30 @@ macro(COMPILEDIR libname)
                                 ${file}
                                 ". If you really want to build it, add it to \"addon_src\" variable before calling COMPILEDIR()"
                         )
-                    else()
+                    else ()
                         set(ROOT_DICT_INPUT_HEADERS
                             ${header}
                             ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
-                        if(${SCHEMA_EVOLUTION} MATCHES "ON"
-                           AND ${NOTDICT} STREQUAL "FALSE")
+                        if (${SCHEMA_EVOLUTION} MATCHES "ON"
+                            AND ${NOTDICT} STREQUAL "FALSE")
                             gen_root_dict_linkdef_header(${class} ${header})
                             gen_root_dict_sources(
                                 CINT_${class}.cxx
                                 ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
-                        elseif(${NOTDICT} STREQUAL "FALSE")
+                        elseif (${NOTDICT} STREQUAL "FALSE")
                             gen_root_dict_sources(CINT_${class}.cxx)
-                        endif()
+                        endif ()
 
                         set(contentfiles ${contentfiles} ${file}
                                          ${ROOT_DICT_OUTPUT_SOURCES})
-                    endif()
-                endif(${SKIP} STREQUAL "FALSE")
+                    endif ()
+                endif (${SKIP} STREQUAL "FALSE")
 
-            endforeach(file)
+            endforeach (file)
 
             # message( STATUS "contentfiles: ${contentfiles}" )
-        endforeach(content)
-    else()
+        endforeach (content)
+    else ()
         message("using inc/src folders in root directory")
         set(local_include_dirs
             ${local_include_dirs} ${addon_inc} ${CMAKE_CURRENT_SOURCE_DIR}
@@ -357,26 +357,26 @@ macro(COMPILEDIR libname)
             PARENT_SCOPE)
 
         file(GLOB_RECURSE files src/*.cxx)
-        foreach(file ${files})
+        foreach (file ${files})
             string(REGEX MATCH "[^/\\]*cxx" temp ${file})
             string(REPLACE ".cxx" "" class ${temp})
 
             set(SKIP "FALSE")
-            if(DEFINED excludes)
+            if (DEFINED excludes)
                 # message ( STATUS "EXCLUDES: ${excludes}" )
-                foreach(exclude ${excludes})
-                    if("${exclude}" STREQUAL "${class}")
+                foreach (exclude ${excludes})
+                    if ("${exclude}" STREQUAL "${class}")
                         set(SKIP "TRUE")
                         # message( STATUS "Skipping ${class}" )
-                    endif()
-                endforeach(exclude)
-            endif()
+                    endif ()
+                endforeach (exclude)
+            endif ()
 
-            if(${SKIP} STREQUAL "FALSE")
+            if (${SKIP} STREQUAL "FALSE")
                 set(ROOT_DICT_INCLUDE_DIRS ${local_include_dirs}
                                            ${external_include_dirs})
                 file(GLOB_RECURSE header ${class}.h)
-                if(NOT header)
+                if (NOT header)
                     message(
                         WARNING
                             "header file: "
@@ -385,77 +385,77 @@ macro(COMPILEDIR libname)
                             ${file}
                             ". If you really want to build it, add it to \"addon_src\" variable before calling COMPILEDIR()"
                     )
-                else()
+                else ()
                     set(ROOT_DICT_INPUT_HEADERS
                         ${header} ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
-                    if(${SCHEMA_EVOLUTION} MATCHES "ON")
+                    if (${SCHEMA_EVOLUTION} MATCHES "ON")
                         gen_root_dict_linkdef_header(${class} ${header})
                         gen_root_dict_sources(
                             CINT_${class}.cxx
                             ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
-                    else()
+                    else ()
                         gen_root_dict_sources(CINT_${class}.cxx)
-                    endif()
+                    endif ()
 
                     set(contentfiles ${contentfiles} ${file}
                                      ${ROOT_DICT_OUTPUT_SOURCES})
-                endif()
-            endif(${SKIP} STREQUAL "FALSE")
-        endforeach(file)
-    endif()
+                endif ()
+            endif (${SKIP} STREQUAL "FALSE")
+        endforeach (file)
+    endif ()
 
-    foreach(src ${addon_CINT})
+    foreach (src ${addon_CINT})
         string(REGEX MATCH "[^/\\]+$" filename ${src})
         set(ROOT_DICT_INCLUDE_DIRS ${local_include_dirs}
                                    ${external_include_dirs})
         set(ROOT_DICT_INPUT_HEADERS ${src})
         gen_root_dict_sources(CINT_${filename}.cxx)
         set(contentfiles ${contentfiles} ${src} ${ROOT_DICT_OUTPUT_SOURCES})
-    endforeach(src)
+    endforeach (src)
 
     include_directories(${local_include_dirs})
     add_library(${libname} SHARED ${contentfiles} ${addon_src})
     target_link_libraries(${libname} ${local_libraries} ${external_libs})
 
-    if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+    if (CMAKE_SYSTEM_NAME MATCHES "Windows")
         set_target_properties(${libname} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS
                                                     TRUE)
-    else()
+    else ()
         install(
             TARGETS ${libname}
             RUNTIME DESTINATION bin
             LIBRARY DESTINATION lib
             ARCHIVE DESTINATION lib/static)
-    endif()
+    endif ()
     set(local_libraries ${local_libraries} ${libname})
     set(local_libraries
         ${local_libraries}
         PARENT_SCOPE)
-endmacro()
+endmacro ()
 
-macro(SUBDIRLIST result curdir)
+macro (SUBDIRLIST result curdir)
     file(
         GLOB children
         RELATIVE ${curdir}
         ${curdir}/*)
     set(dirlist "")
-    foreach(child ${children})
-        if(IS_DIRECTORY ${curdir}/${child})
+    foreach (child ${children})
+        if (IS_DIRECTORY ${curdir}/${child})
             list(APPEND dirlist ${child})
-        endif()
-    endforeach()
+        endif ()
+    endforeach ()
     set(${result} ${dirlist})
-endmacro()
+endmacro ()
 
 # ============================================================================
 # Macro to convert directory name to REST library name e.g. axion --> RestAxion
 # e.g. detector --> RestDetector
-macro(DIRNAME2LIBNAME result dirname)
+macro (DIRNAME2LIBNAME result dirname)
     string(SUBSTRING ${dirname} 0 1 firstletter)
     string(TOUPPER ${firstletter} firstlettercapital)
     string(SUBSTRING ${dirname} 1 -1 remainingletter)
     set(${result} "Rest${firstlettercapital}${remainingletter}")
-endmacro()
+endmacro ()
 
 # ============================================================================
 # Macro to convert directory name to REST CMake Option name e.g.
@@ -464,20 +464,20 @@ endmacro()
 #
 # result: the converted option string. Will be empty if error dirname: the
 # relative path from CMAKE_CURRENT_SOURCE_DIR to the target dir
-macro(DIRNAME2OPTION result dirname)
+macro (DIRNAME2OPTION result dirname)
     set(${result} "")
-    if(${dirname} MATCHES "libraries/")
+    if (${dirname} MATCHES "libraries/")
         string(REPLACE "libraries/" "" purename ${dirname})
         string(TOUPPER ${purename} uppername)
         set(${result} "RESTLIB_${uppername}")
-    endif()
+    endif ()
 
-    if(${dirname} MATCHES "packages/")
+    if (${dirname} MATCHES "packages/")
         string(REPLACE "packages/rest" "" purename ${dirname})
         set(${result} "REST_${purename}")
-    endif()
+    endif ()
 
-endmacro()
+endmacro ()
 
 # ============================================================================
 # Macro to compile REST libraries sub-dir into a single library
@@ -521,7 +521,7 @@ endmacro()
 # regular directory form, set them in this argument to include them.
 #
 # ----------------------------------------------------------------------------
-macro(COMPILELIB dependency)
+macro (COMPILELIB dependency)
 
     string(REGEX MATCH "[^/\\]*$" puredirname ${CMAKE_CURRENT_SOURCE_DIR})
     dirname2libname(libname ${puredirname})
@@ -538,12 +538,12 @@ macro(COMPILELIB dependency)
     set(libs_to_link ${rest_framework_libraries})
 
     # check dependency
-    foreach(dep ${${dependency}})
+    foreach (dep ${${dependency}})
         set(dirs_to_include ${dirs_to_include}
                             "${CMAKE_CURRENT_SOURCE_DIR}/../${dep}/inc")
         dirname2libname(deplibname ${dep})
         set(libs_to_link ${libs_to_link} ${deplibname})
-    endforeach()
+    endforeach ()
 
     # include dir
     set(dirs_to_include
@@ -552,26 +552,26 @@ macro(COMPILELIB dependency)
 
     # generate CINT files
     file(GLOB_RECURSE files_cxx ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cxx)
-    foreach(file ${files_cxx})
+    foreach (file ${files_cxx})
         string(REGEX MATCH "[^/\\]*cxx$" temp ${file}) # get pure file name
         string(REPLACE ".cxx" "" class ${temp}) # get file name without
                                                 # extension, i.e. class name
 
         set(SKIP "FALSE")
-        if(DEFINED excludes)
-            foreach(exclude ${excludes})
-                if("${exclude}" STREQUAL "${class}")
+        if (DEFINED excludes)
+            foreach (exclude ${excludes})
+                if ("${exclude}" STREQUAL "${class}")
                     set(SKIP "TRUE")
                     # message( STATUS "Skipping ${class}" )
-                endif()
-            endforeach(exclude)
-        endif()
+                endif ()
+            endforeach (exclude)
+        endif ()
 
-        if(${SKIP} STREQUAL "FALSE")
+        if (${SKIP} STREQUAL "FALSE")
             set(ROOT_DICT_INCLUDE_DIRS ${dirs_to_include}
                                        ${external_include_dirs})
             file(GLOB_RECURSE header ${class}.h)
-            if(NOT header)
+            if (NOT header)
                 message(
                     WARNING
                         "header file: "
@@ -580,33 +580,33 @@ macro(COMPILELIB dependency)
                         ${file}
                         ". If you really want to build it, add it to \"addon_src\" variable before calling COMPILEDIR()"
                 )
-            else()
+            else ()
                 set(ROOT_DICT_INPUT_HEADERS
                     ${header} ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
-                if(${SCHEMA_EVOLUTION} MATCHES "ON")
+                if (${SCHEMA_EVOLUTION} MATCHES "ON")
                     gen_root_dict_linkdef_header(${class} ${header})
                     gen_root_dict_sources(
                         CINT_${class}.cxx
                         ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
-                else()
+                else ()
                     gen_root_dict_sources(CINT_${class}.cxx)
-                endif()
+                endif ()
 
                 set(files_to_compile_cxx ${files_to_compile_cxx} ${file})
                 set(files_to_compile_cint ${files_to_compile_cint}
                                           ${ROOT_DICT_OUTPUT_SOURCES})
-            endif()
-        endif(${SKIP} STREQUAL "FALSE")
-    endforeach(file)
+            endif ()
+        endif (${SKIP} STREQUAL "FALSE")
+    endforeach (file)
 
-    foreach(src ${addon_CINT})
+    foreach (src ${addon_CINT})
         string(REGEX MATCH "[^/\\]+$" filename ${src})
         set(ROOT_DICT_INCLUDE_DIRS ${dirs_to_include} ${external_include_dirs})
         set(ROOT_DICT_INPUT_HEADERS ${src})
         gen_root_dict_sources(CINT_${filename}.cxx)
         set(files_to_compile ${files_to_compile} ${src}
                              ${ROOT_DICT_OUTPUT_SOURCES})
-    endforeach(src)
+    endforeach (src)
 
     list(LENGTH files_cxx Nfiles_cxx)
     list(LENGTH files_to_compile_cint Nfiles_cint)
@@ -624,16 +624,16 @@ macro(COMPILELIB dependency)
     target_link_libraries(${libname} ${libs_to_link} ${external_libs})
 
     # install
-    if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+    if (CMAKE_SYSTEM_NAME MATCHES "Windows")
         set_target_properties(${libname} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS
                                                     TRUE)
-    else()
+    else ()
         install(
             TARGETS ${libname}
             RUNTIME DESTINATION bin
             LIBRARY DESTINATION lib
             ARCHIVE DESTINATION lib/static)
-    endif()
+    endif ()
 
     file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h")
     install(FILES ${Headers} DESTINATION include)
@@ -645,4 +645,4 @@ macro(COMPILELIB dependency)
     set(library_added
         ${library_added}
         PARENT_SCOPE)
-endmacro()
+endmacro ()

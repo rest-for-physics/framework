@@ -5,9 +5,9 @@
 
 find_program(SQL_CONFIG_EXECUTABLE mysql_config)
 
-if(NOT SQL_CONFIG_EXECUTABLE)
+if (NOT SQL_CONFIG_EXECUTABLE)
     set(SQL_FOUND FALSE)
-else()
+else ()
     set(SQL_FOUND TRUE)
 
     execute_process(
@@ -15,26 +15,26 @@ else()
         OUTPUT_VARIABLE SQL_VERSION
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-    if(NOT SQL_VERSION MATCHES "5.5.68")
+    if (NOT SQL_VERSION MATCHES "5.5.68")
         execute_process(
             COMMAND ${SQL_CONFIG_EXECUTABLE} --cxxflags
             OUTPUT_VARIABLE SQL_INCLUDE_DIR
             OUTPUT_STRIP_TRAILING_WHITESPACE)
-    else()
+    else ()
         execute_process(
             COMMAND ${SQL_CONFIG_EXECUTABLE} --cflags
             OUTPUT_VARIABLE SQL_INCLUDE_DIR
             OUTPUT_STRIP_TRAILING_WHITESPACE)
-    endif()
+    endif ()
 
     execute_process(
         COMMAND ${SQL_CONFIG_EXECUTABLE} --libs
         OUTPUT_VARIABLE SQL_LIBRARIES
         OUTPUT_STRIP_TRAILING_WHITESPACE)
-endif()
+endif ()
 
-if(NOT SQL_FOUND)
+if (NOT SQL_FOUND)
     message(FATAL_ERROR "SQL required, but not found")
-else()
+else ()
     message(STATUS "Found MySQL ${SQL_VERSION}")
-endif()
+endif ()

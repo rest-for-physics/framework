@@ -5,7 +5,7 @@ set(rest_exes)
 
 set(files restManager.cxx restRoot.cxx)
 
-foreach(file ${files})
+foreach (file ${files})
     # Get file name without extension
     string(REGEX MATCH "[^/\\]*cxx" temp ${file})
     string(REPLACE ".cxx" "" name ${temp})
@@ -15,7 +15,7 @@ foreach(file ${files})
     install(TARGETS ${name} RUNTIME DESTINATION bin)
     set(rest_exes ${rest_exes} ${name})
 
-endforeach(file)
+endforeach (file)
 
 set(rest_exes
     ${rest_exes}

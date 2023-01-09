@@ -4,7 +4,7 @@ include(FetchContent)
 set(FETCHCONTENT_QUIET ON)
 
 # Google Test
-if(TEST)
+if (TEST)
     # https://google.github.io/googletest/quickstart-cmake.html
     message(STATUS "- Google Test")
     FetchContent_Declare(
@@ -15,7 +15,7 @@ if(TEST)
         ON
         CACHE BOOL "" FORCE) # Windows only
     FetchContent_MakeAvailable(googletest)
-endif()
+endif ()
 
 # # c++ modern string formatting (https://github.com/fmtlib/fmt) message(STATUS
 # "- fmt") FetchContent_Declare( fmt GIT_REPOSITORY

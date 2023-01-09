@@ -29,65 +29,65 @@ add_subdirectory(bin)
 
 # clear the cache first
 subdirlist(subdirs "${CMAKE_CURRENT_SOURCE_DIR}/libraries")
-foreach(subdir ${subdirs})
+foreach (subdir ${subdirs})
     dirname2libname(libname ${subdir})
     set("${libname}_COMPILED" "FALSE")
-endforeach()
+endforeach ()
 
 # loop all the dirs and set the option
 set(dirs "libraries" "packages")
-foreach(dir ${dirs})
+foreach (dir ${dirs})
     subdirlist(subdirs "${CMAKE_CURRENT_SOURCE_DIR}/${dir}")
-    foreach(subdir ${subdirs})
+    foreach (subdir ${subdirs})
         set(fullname "${dir}/${subdir}")
         dirname2option(option ${fullname})
 
         file(GLOB ff "*/${subdir}/CMakeLists.txt")
-        if(ff) # if dir not empty, set the option to ON
-            if(NOT DEFINED ${option})
-                if(${REST_ALL_LIBS} MATCHES "ON")
+        if (ff) # if dir not empty, set the option to ON
+            if (NOT DEFINED ${option})
+                if (${REST_ALL_LIBS} MATCHES "ON")
                     set(${option} ON)
-                else()
+                else ()
                     set(${option} OFF)
-                endif()
-            endif()
+                endif ()
+            endif ()
             message(
                 "Submodule found: ${fullname}. Option: ${option}=${${option}}")
-        else()
+        else ()
             set(${option} OFF)
             message(
                 "Empty submodule dir: ${fullname}. Option: ${option}=${${option}}"
             )
-        endif()
-    endforeach()
-endforeach()
+        endif ()
+    endforeach ()
+endforeach ()
 
-if(${REST_G4} MATCHES ON)
+if (${REST_G4} MATCHES ON)
     set(RESTLIB_GEANT4 ON)
-endif()
+endif ()
 
-if(${RESTLIB_DETECTOR} MATCHES ON)
-    if(${RESTLIB_RAW} MATCHES ON)
+if (${RESTLIB_DETECTOR} MATCHES ON)
+    if (${RESTLIB_RAW} MATCHES ON)
         set(RESTLIB_CONNECTORS ON)
-    endif()
-endif()
+    endif ()
+endif ()
 
 # loop all the dirs and compile if option is ON
-foreach(dir ${dirs})
+foreach (dir ${dirs})
     subdirlist(subdirs "${CMAKE_CURRENT_SOURCE_DIR}/${dir}")
-    foreach(subdir ${subdirs})
+    foreach (subdir ${subdirs})
         set(library_added "")
         set(fullname "${dir}/${subdir}")
         dirname2option(option ${fullname})
 
-        if(${${option}} MATCHES "ON")
+        if (${${option}} MATCHES "ON")
             add_subdirectory(${fullname})
             set(rest_include_dirs ${rest_include_dirs} ${dirs_included})
             set(rest_libraries ${rest_libraries} ${library_added})
             set(rest_packages ${rest_packages} ${package_added})
             set(rest_features ${rest_features} ${feature_added})
 
-            if(NOT library_added STREQUAL "")
+            if (NOT library_added STREQUAL "")
                 # define REST_*Lib e.g. REST_DetectorLib using library name:
                 # RestDetector -> REST_DetectorLib
                 string(REGEX REPLACE "^Rest(.+)$" "REST_\\1Lib"
@@ -95,24 +95,24 @@ foreach(dir ${dirs})
                 message(
                     STATUS "Adding compile definition: ${DEFINE_VARIABLE_NAME}")
                 add_compile_definitions(${DEFINE_VARIABLE_NAME})
-            endif(NOT library_added STREQUAL "")
-        endif()
-    endforeach()
-endforeach()
+            endif (NOT library_added STREQUAL "")
+        endif ()
+    endforeach ()
+endforeach ()
 
 # remove duplicates
-if(DEFINED rest_include_dirs)
+if (DEFINED rest_include_dirs)
     list(REMOVE_DUPLICATES rest_include_dirs)
-endif()
-if(DEFINED rest_libraries)
+endif ()
+if (DEFINED rest_libraries)
     list(REMOVE_DUPLICATES rest_libraries)
-endif()
-if(DEFINED rest_packages)
+endif ()
+if (DEFINED rest_packages)
     list(REMOVE_DUPLICATES rest_packages)
-endif()
-if(DEFINED rest_features)
+endif ()
+if (DEFINED rest_features)
     list(REMOVE_DUPLICATES rest_features)
-endif()
+endif ()
 
 # set REST compilation flags to main cmake
 set(rest_include_dirs
@@ -130,9 +130,9 @@ set(rest_features
 
 # construct REST library regulat string(-L/home/xxx/REST/lib -lxxx)
 set(rest_libraries_regular "-L${CMAKE_INSTALL_PREFIX}/lib ")
-foreach(lib ${rest_libraries})
+foreach (lib ${rest_libraries})
     set(rest_libraries_regular "${rest_libraries_regular} -l${lib} ")
-endforeach(lib)
+endforeach (lib)
 set(rest_libraries_regular
     ${rest_libraries_regular}
     PARENT_SCOPE)
@@ -142,9 +142,9 @@ set(rest_exes
     PARENT_SCOPE)
 # construct REST exes string(separate with blank)
 set(rest_exes_str)
-foreach(exe ${rest_exes})
+foreach (exe ${rest_exes})
     set(rest_exes_str "${rest_exes_str}${exe} ")
-endforeach(exe ${rest_exes})
+endforeach (exe ${rest_exes})
 set(rest_exes_str
     ${rest_exes_str}
     PARENT_SCOPE)
@@ -154,9 +154,9 @@ set(rest_macros
     PARENT_SCOPE)
 # construct REST macros string(separate with blank)
 set(rest_macros_str)
-foreach(mac ${rest_macros})
+foreach (mac ${rest_macros})
     set(rest_macros_str "${rest_macros_str}${mac} ")
-endforeach(mac ${rest_macros})
+endforeach (mac ${rest_macros})
 set(rest_macros_str
     ${rest_macros_str}
     PARENT_SCOPE)

@@ -6,19 +6,19 @@ cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 project(Garfield CXX Fortran)
 
 # DEPENDENCIES #######################################
-if(DEFINED ENV{ROOTSYS})
+if (DEFINED ENV{ROOTSYS})
     find_program(ROOTCINT_EXECUTABLE rootcint PATHS $ENV{ROOTSYS}/bin)
     set(CMAKE_MODULE_PATH $ENV{ROOTSYS}/etc/cmake)
-elseif(DEFINED ROOTSYS)
+elseif (DEFINED ROOTSYS)
     find_program(ROOTCINT_EXECUTABLE rootcint PATHS ${ROOTSYS}/bin)
     set(CMAKE_MODULE_PATH ${ROOTSYS}/etc/cmake)
-else()
+else ()
     message(
         FATAL_ERROR
             "Please consider to set ROOTSYS or use -DROOTSYS=..."
             "If still there is a proplem point to the directory which includes FindROOT.cmake using -DROOT_CMAKE_DIR=..."
     )
-endif(DEFINED ENV{ROOTSYS})
+endif (DEFINED ENV{ROOTSYS})
 
 find_package(ROOT 5.0 REQUIRED COMPONENTS Geom)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake)
@@ -27,7 +27,7 @@ include(MacroRootDict)
 
 # If you cannot create symbolic links turn FALSE the library version
 set(BUILD_WITH_VERSION_NUMBER TRUE)
-if(BUILD_WITH_VERSION_NUMBER)
+if (BUILD_WITH_VERSION_NUMBER)
     set(${PROJECT_NAME}_MAJOR_VERSION 0)
     set(${PROJECT_NAME}_MINOR_VERSION 2)
     set(${PROJECT_NAME}_PATCH_VERSION 0)
@@ -36,19 +36,19 @@ if(BUILD_WITH_VERSION_NUMBER)
     )
     set(${PROJECT_NAME}_SOVERSION ${${PROJECT_NAME}_VERSION})
     include(MacroCheckPackageVersion)
-endif(BUILD_WITH_VERSION_NUMBER)
+endif (BUILD_WITH_VERSION_NUMBER)
 
 # Add root libs ##
 message(" Root libraries: ${ROOT_LIBRARIES} ")
-if(DEFINED ROOT_INCLUDE_DIRS)
+if (DEFINED ROOT_INCLUDE_DIRS)
     # ROOT 6
     include_directories(${PROJECT_SOURCE_DIR} ${ROOT_INCLUDE_DIRS})
-else()
+else ()
     # ROOT 5
     include_directories(${PROJECT_SOURCE_DIR} ${ROOT_INCLUDE_DIR})
     # COMPONENT mechanism in the FIND_PACKAGE is not supported
     set(ROOT_COMPONENT_LIBRARIES "-lGeom")
-endif(DEFINED ROOT_INCLUDE_DIRS)
+endif (DEFINED ROOT_INCLUDE_DIRS)
 
 # add garfield  #######################################
 aux_source_directory(Source garfield_sources)
@@ -72,9 +72,9 @@ set(heed_dirs
     Heed/wcpplib/safetl
     Heed/wcpplib/stream
     Heed/wcpplib/util)
-foreach(heed_dir ${heed_dirs})
+foreach (heed_dir ${heed_dirs})
     aux_source_directory(${heed_dir} heed_sources)
-endforeach()
+endforeach ()
 # Don't build HeedParticle_BGM.c.o because it will not compile
 list(REMOVE_ITEM heed_sources Heed/heed++/code/HeedParticle_BGM.c)
 set_source_files_properties(${heed_sources} PROPERTIES LANGUAGE CXX)
@@ -87,15 +87,15 @@ set(CMAKE_CXX_FLAGS
 # Add common flags for gfortran and g++
 add_definitions("-c")
 # Allow to use debug symbols
-if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL
-                                        "RelWithDebInfo")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL
+                                         "RelWithDebInfo")
     add_definitions("-ggdb -O0")
-else()
+else ()
     add_definitions("-O2")
-endif()
-if(ROOT_VERSION VERSION_GREATER 6.0)
+endif ()
+if (ROOT_VERSION VERSION_GREATER 6.0)
     add_definitions("-std=c++1y")
-endif()
+endif ()
 
 # Add switches used in HEED -DNOT_INCLUDE_GASLIB_IN_PACSLIB is used in
 # Heed/heed++/code/PhotoAbsCS.c
@@ -132,11 +132,11 @@ add_library(${PROJECT_NAME} SHARED ${garfield_sources} ${magboltz_sources}
                                    ${heed_sources})
 target_link_libraries(${PROJECT_NAME} ${ROOT_LIBRARIES}
                       ${ROOT_COMPONENT_LIBRARIES})
-if(BUILD_WITH_VERSION_NUMBER)
+if (BUILD_WITH_VERSION_NUMBER)
     set_target_properties(
         ${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION}
                                    SOVERSION ${${PROJECT_NAME}_SOVERSION})
-endif(BUILD_WITH_VERSION_NUMBER)
+endif (BUILD_WITH_VERSION_NUMBER)
 # EXPORT PACKAGE INFORMATION ##########################
 export(PACKAGE ${PROJECT_NAME})
 
@@ -173,9 +173,9 @@ install(
     DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake
     COMPONENT cmakefiles)
 # install pcm file in case of root 6
-if(ROOT_VERSION VERSION_GREATER 6.0)
+if (ROOT_VERSION VERSION_GREATER 6.0)
     install(
         FILES ${PROJECT_BINARY_DIR}/rootdict/${PROJECT_NAME}Dict_rdict.pcm
         DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/
         COMPONENT dict)
-endif()
+endif ()
