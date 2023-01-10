@@ -39,7 +39,7 @@ In general terms, an RML file to be used with *restG4* must define the following
 ~~~
 
 
-\note Wherever 3 dots (`...`) are provided means a redundant code format, or that additional fields might be required. 
+\note Wherever 3 dots (`...`) are provided means a redundant code format, or that additional fields might be required.
 
 Few basic working examples can be found at REST_PATH/config/template/restG4.rml. Those examples will be used to illustrate step by step the execution of *restG4* and the obtention of few parameters for analysis. The documentation found at TRestGeant4Metadata class will help you construct a generic RML file to allow you define your particular simulation setup.
 
@@ -50,7 +50,7 @@ The geometry of the detector is definned using GDML. Check the GDML official web
 Inside the REST repository you will find an example geometry definition to help you start with a simple working geometry. You will find this example at REST_PATH/config/template/geometry/. This geometry consists of two basic elements,
 
 1. a gas volume which is the active detector component,
-2. and a vessel volume that contains the gas. 
+2. and a vessel volume that contains the gas.
 
 Our simple demo geometry will be organized in few files, as described in the following list.
 
@@ -60,7 +60,7 @@ Our simple demo geometry will be organized in few files, as described in the fol
 
 - **myGeometryTemplate.gdml**: This file defines the solids, volumes and physical volumes using the parameter values defined in `mySetupTemplate.gdml`, and materials defined at `materials.xml`.
 
-In principle, you can follow any other file scheme (i.e. using a unique file for all material and geometry definitions), as soon as the geometry is compatible with ROOT (i.e. it can be imported into TGeoManager ROOT class). 
+In principle, you can follow any other file scheme (i.e. using a unique file for all material and geometry definitions), as soon as the geometry is compatible with ROOT (i.e. it can be imported into TGeoManager ROOT class).
 
 \warning For few geometry primitives, it might happen that are supported in Geant4 but not in ROOT, or viceversa. You will need to load the GDML geometry into ROOT TGeoManager class to verify the geometry will be properly imported into REST.
 
@@ -111,7 +111,7 @@ export REST_DATAPATH=/path/to/your/data/directory
 export NEVENTS=1000
 
 // Launching example 1 (NLDBD)
-restG4 restG4.rml 
+restG4 restG4.rml
 
 // Launching example 2
 restG4 restG4.rml MuonShower
@@ -143,6 +143,4 @@ restRoot
 
 `REST_VIEWER_G4Event` will present a screen created by TEveViewer class. On the left size we have a tree viewer, where we can access to different details, as the particle name and energy deposited, from the particles that are involved in the event that we are visualizing.
 
-![Left. A neutrino less double beta decay event. Right. A simulated cosmic muon. Both visualizations were produced using REST_VIEWER_G4Event.](Geant4Events.png) 
-
-
+![Left. A neutrino less double beta decay event. Right. A simulated cosmic muon. Both visualizations were produced using REST_VIEWER_G4Event.](Geant4Events.png)

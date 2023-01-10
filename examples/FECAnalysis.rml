@@ -10,7 +10,7 @@
   <TRestProcessRunner name="Processor" verboseLevel="info">
     <parameter name="eventsToProcess" value="0" />
     <parameter name="threadNumber" value="2"/>
-    
+
     <parameter name="inputAnalysisStorage" value="on"/>
     <parameter name="inputEventStorage" value="on"/>
     <parameter name="outputEventStorage" value="on"/>
@@ -30,4 +30,3 @@
   <addTask command="Processor->RunProcess()" value="ON"/>
 
 </TRestManager>
-

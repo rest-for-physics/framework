@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
 <!--This example shows the least required components for running a process.
-Additional arguments of input file and output file needs to be specified 
+Additional arguments of input file and output file needs to be specified
 during the calling of restManager.
 
-least required components: 
+least required components:
 1. TRestRun section. Add metadata in it
 2. TRestProcessRunner section. Add processes in it
 
-There are more settings the can be written in the file. Find them in 
-other examples. 
+There are more settings the can be written in the file. Find them in
+other examples.
 -->
 
 <TRestManager name="CoBoDataAnalysis" title="Example" verboseLevel="info" >
@@ -30,5 +30,3 @@ other examples.
 
 
 <!--paramater here is accessible to all the classes-->
-
-

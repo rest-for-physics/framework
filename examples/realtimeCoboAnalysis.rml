@@ -31,7 +31,7 @@
     <parameter name="validateObservables" value="OFF"/>
     <parameter name="sortOutputEvents" value="ON"/>
     <parameter name="usePauseMenu" value="ON"/>
-    
+
     <parameter name="inputAnalysisStorage" value="on"/>
     <parameter name="inputEventStorage" value="on"/>
     <parameter name="outputEventStorage" value="on"/>
@@ -53,7 +53,7 @@
 
   </TRestProcessRunner>
 
-  <addTask command="SJTU_Proto->PrintMetadata()" value="ON"/>  
+  <addTask command="SJTU_Proto->PrintMetadata()" value="ON"/>
   <addTask command="Processor->RunProcess()" value="ON"/>
 
   <globals>
@@ -69,5 +69,3 @@
 
 
 <!--paramater here is accessible to all the classes-->
-
-

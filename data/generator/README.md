@@ -12,7 +12,7 @@ The following describes the contents of the data files inside the directory, con
 
 - Author : Gloria Luzon
 - Date : 22-Feb-2016
-- Description : 
+- Description :
 - Generated using Decay0 :  arxiv.org/pdf/nucl-ex/0104018v1.pdf
 ---------------------
 
@@ -24,19 +24,19 @@ The following describes the contents of the data files inside the directory, con
 	- Tl208.dat--> Tl208 beta decay to Pb208
 
 	- Xe136bb0n.dat
-		event type: Xe136           
-              0nubb(mn) 0+ -> 0+     {2n}      
+		event type: Xe136
+              0nubb(mn) 0+ -> 0+     {2n}
               level, Elevel (MeV) =  0+       0.0000     MeV
 
 	- Xe136bb2n.dat ::: REMOVED FILE leading to wrong results 29/Sep/2019. Needs regeneration and validation.
-		event type: Xe136           
-              2nubb     0+ -> 0+     {2n}      
+		event type: Xe136
+              2nubb     0+ -> 0+     {2n}
               level, Elevel (MeV) =  0+       0.0000     MeV
-              
+
 
 - Author: Xie Chen
 - Date: 2019-4-23
-- Description : The new updated .dat:the decay of Xe136 to excited state of Ba136 
+- Description : The new updated .dat:the decay of Xe136 to excited state of Ba136
 - Generated using Decay0 : https://github.com/BxCppDev/bxdecay0.
 ---------------------
 

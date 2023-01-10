@@ -12,7 +12,7 @@
 
 	<canvas size="(1000,400)" divide="(1,1)" save="/tmp/canvas.pdf"/>
 
-    <plot name="rate" title="Raw acquisition rate versus time" 
+    <plot name="rate" title="Raw acquisition rate versus time"
 	      xlabel="Date/Time" ylabel="Rate [Hz]" value="ON"
 		  logX="false" logY="true" legend="on" timeDisplay="on"
 		  xVariable="timestamp" yRange="(0.01,1.e4)"
@@ -42,4 +42,4 @@
 </TRestManager>
 
 
-<!--paramater here is accessible to all the classes-->
+<!--parameter here is accessible to all the classes-->

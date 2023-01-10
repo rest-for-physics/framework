@@ -17,8 +17,8 @@
     <canvas size="(1000,800)" divide="(1,2)" save="abc.pdf"/>
 
     <globalCut name="Some_Analysis_Variable" condition="&lt;50" value="OFF" />
-    
-    <plot name="Energy-NSig" title="Energy vs NSignal" 
+
+    <plot name="Energy-NSig" title="Energy vs NSignal"
           xlabel="Threshold integral energy [ADC units]" ylabel="Signals" value="ON" stats="ON" option="colz" >
       <variable name="sAna_ThresholdIntegral" nbins="100" />
       <variable name="sAna_NumberOfGoodSignals" range="(0,500)" nbins="100" />
@@ -26,7 +26,7 @@
 
 
 
-    <plot name="Spectrum_CutImpact" title="Impact of cut on the spectrum" 
+    <plot name="Spectrum_CutImpact" title="Impact of cut on the spectrum"
           xlabel="Threshold integral energy [ADC units]" ylabel="Counts" logscale="true"
           legend="on" annotation="on">
 

@@ -61,7 +61,7 @@
        <parameter name="zeroSuppression" value="true"/>
        <parameter name="nPointsOverThreshold" value="3" />
     </addProcess>
-    
+
     <addProcess type="TRestRealTimeDrawingProcess" name="rD" value="ON" drawInterval="1000" >
       <TRestAnalysisPlot name="TriggerRatePlot"  previewPlot="false">
         <canvas size="(1000,800)" save="TriggerRate.png"/>
@@ -88,5 +88,3 @@
 
 
 <!--paramater here is accessible to all the classes-->
-
-
