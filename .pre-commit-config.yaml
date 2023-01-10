@@ -3,6 +3,7 @@ repos:
     rev: v15.0.6
     hooks:
       - id: clang-format
+        exclude: ^external/.*$ # do not format external code such as tinyxml
 
   - repo: https://github.com/cheshirekow/cmake-format-precommit
     rev: v0.6.13
