@@ -22,7 +22,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 ///
-/// TRestAnalysisTree is a TTree but with **managed objects** for the branches to be
+/// TRestAnalysisTree is a TTree but with **custom objects** for the branches that will be
 /// filled. The user will decide ins each event data processing chain which branches/observables/variables
 /// will be finally added to the analysis tree. Inside a TRestAnalysisTree we find always the following six branches
 /// containing event information: runOrigin, subRunOrigin, eventID, subEventID,
