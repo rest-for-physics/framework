@@ -754,7 +754,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 int outVal;
                 TString reducedHistoName = nameString + "_" + std::to_string(j);
                 TString histoName = nameString + "_" + std::to_string(j) + rangeString;
-                RESTInfo << "AnalysisTree->Draw(\"" << plotString << "]]" << histoName << "\", \""
+                RESTInfo << "AnalysisTree->Draw(\"" << plotString << ">>" << histoName << "\", \""
                          << cutString << "\", \"" << optString << "\", " << fDrawNEntries << ", "
                          << fDrawFirstEntry << ")" << RESTendl;
                 outVal = tree->Draw(plotString + "]]" + histoName, cutString, optString, fDrawNEntries,
