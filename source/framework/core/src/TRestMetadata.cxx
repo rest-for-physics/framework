@@ -769,7 +769,7 @@ TRestMetadata* TRestMetadata::InstantiateChildMetadata(std::string pattern, std:
         std::string xmlChild = paraele->Value();
         if (xmlChild.find("TRest") == 0) {
             if (pattern.empty() || xmlChild.find(pattern) != string::npos) {
-                if (name.empty() || !name.empty() && name == (string)paraele->Attribute("name")) {
+                if (name.empty() || (!name.empty() && name == (string)paraele->Attribute("name"))) {
                     TClass* c = TClass::GetClass(xmlChild.c_str());
                     if (c)  // this means we have the metadata class was found
                     {
@@ -940,7 +940,7 @@ void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
         // these sections will be executed individually by the corresponding TRestXXX class
         while (contentelement != nullptr) {
             TiXmlElement* nxt = contentelement->NextSiblingElement();
-            if (recursive || ((string)contentelement->Value()).find("TRest") == -1) {
+            if (recursive || ((string)contentelement->Value()).find("TRest") == string::npos) {
                 RESTDebug << "into child element \"" << contentelement->Value() << "\" of \"" << e->Value()
                           << "\"" << RESTendl;
                 ReadElement(contentelement, recursive);
@@ -985,7 +985,7 @@ void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
     const char* evaluate = e->Attribute("evaluate");
     const char* condition = e->Attribute("condition");
 
-    if (condition == nullptr || string(condition).find_first_of("=!<>") == -1) {
+    if (condition == nullptr || string(condition).find_first_of("=!<>") == string::npos) {
         RESTWarning << "Invalid \"IF\" structure!" << RESTendl;
         return;
     }
@@ -1111,7 +1111,7 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
         if (strcmp(name, "name") != 0) {
             string outputBuffer = val;
 
-            if (outputBuffer.find("[") != (int)string::npos || outputBuffer.find("]") != (int)string::npos) {
+            if (outputBuffer.find("[") != string::npos || outputBuffer.find("]") != string::npos) {
                 RESTError << "TRestMetadata::ReplaceForLoopVars. Old for-loop construction identified"
                           << RESTendl;
                 RESTError << "Please, replace [] variable nomenclature by ${}." << RESTendl;
@@ -1935,20 +1935,17 @@ string TRestMetadata::GetKEYStructure(std::string keyName, size_t& fromPosition,
     return result;
 }
 string TRestMetadata::GetKEYStructure(std::string keyName, size_t& fromPosition, TiXmlElement* ele) {
-    size_t position = fromPosition;
-
     RESTDebug << "Finding " << fromPosition << "th appearance of KEY Structure \"" << keyName << "\"..."
               << RESTendl;
 
     TiXmlElement* childele = ele->FirstChildElement(keyName);
-    for (int i = 0; childele != nullptr && i < fromPosition; i++) {
+    for (unsigned int i = 0; childele != nullptr && i < fromPosition; i++) {
         childele = childele->NextSiblingElement(keyName);
     }
     if (childele != nullptr) {
         string result = ElementToString(childele);
         fromPosition = fromPosition + 1;
         RESTDebug << "Found Key : " << result << RESTendl;
-        // RESTDebug << "New position : " << fromPosition << RESTendl;
         return result;
     }
 
@@ -2118,9 +2115,6 @@ string TRestMetadata::ReplaceVariables(const string buffer) {
 string TRestMetadata::ReplaceConstants(const string buffer) {
     RESTDebug << "Entering ... TRestMetadata::ReplaceConstants (" << buffer << ")" << RESTendl;
     string outputBuffer = buffer;
-
-    int startPosition = 0;
-    int endPosition = 0;
 
     // replace bare constant name. ignore sub strings.
     // e.g. variable "nCh" with value "3" cannot replace the string "nChannels+1"
@@ -2297,7 +2291,7 @@ Int_t TRestMetadata::GetVersionCode() { return TRestTools::ConvertVersionCode((s
 /// fSectionName
 std::string TRestMetadata::GetSectionName() {
     auto a = fSectionName.find('\n', 0);
-    if (a != -1) return fSectionName.substr(0, a);
+    if (a != string::npos) return fSectionName.substr(0, a);
     return fSectionName;
 }
 
@@ -2557,7 +2551,7 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
                 vector<string> availableparameters;
 
                 vector<string> datamembers = thisactual.GetListOfDataMembers();
-                for (int i = 0; i < datamembers.size(); i++) {
+                for (unsigned int i = 0; i < datamembers.size(); i++) {
                     string parameter = DataMemberNameToParameterName(datamembers[i]);
                     if (parameter != "") {
                         if (parameter == "name" || parameter == "title" || parameter == "verboseLevel" ||

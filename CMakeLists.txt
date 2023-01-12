@@ -16,10 +16,19 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif ()
 
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-    SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-fsanitize=address")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 else ()
-    SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-lstdc++fs")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++fs")
 endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+
+if ( CMAKE_BUILD_TYPE MATCHES "Release" )
+	message( STATUS "Enabling warnings as errors" )
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wno-cast-function-type -Wno-unused-function -Wno-unknown-pragmas -Wno-delete-non-virtual-dtor")
+endif ( CMAKE_BUILD_TYPE MATCHES "Release" )
+
+if ( CMAKE_BUILD_TYPE MATCHES "Debug" )
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+endif ( CMAKE_BUILD_TYPE MATCHES "Debug" )
 
 # https://github.com/rest-for-physics/framework/issues/162 & https://github.com/rest-for-physics/framework/issues/236
 if (${CMAKE_VERSION} VERSION_LESS "3.23")

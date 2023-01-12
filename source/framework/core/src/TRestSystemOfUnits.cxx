@@ -264,13 +264,13 @@ TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
     }
     fScaleCombined = 1;
 
-    for (int pos = 0; pos >= 0 && pos < unitsStr.size();) {
+    for (size_t pos = 0; pos >= 0 && pos < unitsStr.size();) {
         if (isalpha(unitsStr[pos])) {
-            int pos1 = pos;
+            size_t pos1 = pos;
             while (pos < unitsStr.size() && isalpha(unitsStr[pos])) {
                 pos++;
             }
-            int pos2 = pos;
+            size_t pos2 = pos;
             string singleunit = unitsStr.substr(pos1, pos2 - pos1);
 
             if (IsBasicUnit(singleunit)) {
@@ -340,7 +340,7 @@ double TRestSystemOfUnits::GetUnitScale(string singleUnit) {
 
 string TRestSystemOfUnits::ToStandardDefinition() {
     string result = "";
-    for (int i = 0; i < fComponents.size(); i++) {
+    for (unsigned int i = 0; i < fComponents.size(); i++) {
         if (fComponentOrder[i] < 0) {
             result += "/";
         } else if (i > 0) {

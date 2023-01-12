@@ -204,7 +204,7 @@ TCanvas* TRestPatternMask::DrawMonteCarlo(Int_t nSamples) {
         TGraph* gr = new TGraph();
         gr->SetName(grname.c_str());
 
-        for (int n = 0; n < x.second.size(); n++) {
+        for (unsigned int n = 0; n < x.second.size(); n++) {
             gr->SetPoint(gr->GetN(), x.second[n].X(), x.second[n].Y());
         }
 

@@ -333,7 +333,7 @@ Bool_t TRestBrowser::OpenFile(const TString& filename) {
         fInputFileName = filename;
 
         fRestRun->OpenInputFile(fInputFileName);
-        TFile* f = fRestRun->GetInputFile();
+        fRestRun->GetInputFile()->cd();
         TTree* t = fRestRun->GetEventTree();
 
         TGeoManager* geometry = gGeoManager;
@@ -343,7 +343,7 @@ Bool_t TRestBrowser::OpenFile(const TString& filename) {
             TObjArray* branches = t->GetListOfBranches();
             for (int i = 0; i <= branches->GetLast(); i++) {
                 auto branch = (TBranch*)branches->At(i);
-                if (((string)branch->GetName()).find("EventBranch") != -1) {
+                if (((string)branch->GetName()).find("EventBranch") != string::npos) {
                     string eventType = Replace((string)branch->GetName(), "Branch", "");
                     fEventTypeComboBox->AddEntry(eventType.c_str(), fEventTypeComboBox->GetNumberOfEntries());
                     // we make the entry of input event being selected
