@@ -667,15 +667,15 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             string label = fPanels[n].label[m];
 
             size_t pos = 0;
-            label = Replace(label, "<<startTime>>", ToDateTimeString(startTime), pos);
+            label = Replace(label, "[[startTime]]", ToDateTimeString(startTime), pos);
             pos = 0;
-            label = Replace(label, "<<endTime>>", ToDateTimeString(endTime), pos);
+            label = Replace(label, "[[endTime]]", ToDateTimeString(endTime), pos);
             pos = 0;
-            label = Replace(label, "<<entries>>", Form("%d", totalEntries), pos);
+            label = Replace(label, "[[entries]]", Form("%d", totalEntries), pos);
             pos = 0;
-            label = Replace(label, "<<runLength>>", Form("%5.2lf", runLength), pos);
+            label = Replace(label, "[[runLength]]", Form("%5.2lf", runLength), pos);
             pos = 0;
-            label = Replace(label, "<<meanRate>>", Form("%5.2lf", meanRate), pos);
+            label = Replace(label, "[[meanRate]]", Form("%5.2lf", meanRate), pos);
 
             auto run = GetRunInfo(fRunInputFileName[0]);
             label = run->ReplaceMetadataMembers(label, fPanels[n].precision);
