@@ -8,7 +8,6 @@ repos:
       - id: check-symlinks
       - id: check-yaml
       - id: check-xml
-        exclude: pipeline/analysisPlot/panel.xml # TODO: fix analysisPlot syntax to use proper xml
       - id: requirements-txt-fixer
       - id: end-of-file-fixer
         exclude: external/.*$
