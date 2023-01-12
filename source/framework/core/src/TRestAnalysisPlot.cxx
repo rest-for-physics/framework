@@ -757,7 +757,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 RESTInfo << "AnalysisTree->Draw(\"" << plotString << ">>" << histoName << "\", \""
                          << cutString << "\", \"" << optString << "\", " << fDrawNEntries << ", "
                          << fDrawFirstEntry << ")" << RESTendl;
-                outVal = tree->Draw(plotString + "]]" + histoName, cutString, optString, fDrawNEntries,
+                outVal = tree->Draw(plotString + ">>" + histoName, cutString, optString, fDrawNEntries,
                                     fDrawFirstEntry);
                 TH3F* hh = (TH3F*)gPad->GetPrimitive(reducedHistoName);
                 if (outVal == 0) {
