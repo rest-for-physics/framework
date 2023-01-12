@@ -12,11 +12,11 @@
 #ifndef RestCore_TRestAnalysisPlot
 #define RestCore_TRestAnalysisPlot
 
+#include <TCanvas.h>
+#include <TH3D.h>
 #include <TLatex.h>
 #include <TRestRun.h>
 
-#include "TCanvas.h"
-#include "TH3D.h"
 #include "TRestAnalysisTree.h"
 
 const int REST_MAX_TAGS = 15;
@@ -64,7 +64,7 @@ class TRestAnalysisPlot : public TRestMetadata {
         Int_t fillStyle;
 
         TH3F* ptr = nullptr;  //!
-        TH3F* operator->() { return ptr; }
+        TH3F* operator->() const { return ptr; }
     };
 
     struct PlotInfoSet {
@@ -156,12 +156,12 @@ class TRestAnalysisPlot : public TRestMetadata {
     void AddFileFromExternalRun();
     void AddFileFromEnv();
 
-    TRestAnalysisTree* GetTree(TString fileName);
-    TRestRun* GetRunInfo(TString fileName);
-    bool IsDynamicRange(TString rangeString);
-    Int_t GetColorIDFromString(std::string in);
-    Int_t GetFillStyleIDFromString(std::string in);
-    Int_t GetLineStyleIDFromString(std::string in);
+    TRestAnalysisTree* GetTree(const TString& fileName);
+    TRestRun* GetRunInfo(const TString& fileName);
+    bool IsDynamicRange(const TString& rangeString);
+    Int_t GetColorIDFromString(const std::string& in);
+    Int_t GetFillStyleIDFromString(const std::string& in);
+    Int_t GetLineStyleIDFromString(const std::string& in);
 
    protected:
    public:
@@ -169,16 +169,16 @@ class TRestAnalysisPlot : public TRestMetadata {
 
     void PrintMetadata() override {}
 
-    void AddFile(TString fileName);
-    void SetFile(TString fileName);
+    void AddFile(const TString& fileName);
+    void SetFile(const TString& fileName);
 
-    void SaveCanvasToPDF(TString fileName);
-    void SavePlotToPDF(TString fileName, Int_t n = 0);
-    void SaveHistoToPDF(TString fileName, Int_t nPlot = 0, Int_t nHisto = 0);
+    void SaveCanvasToPDF(const TString& fileName);
+    void SavePlotToPDF(const TString& fileName, Int_t n = 0);
+    void SaveHistoToPDF(const TString& fileName, Int_t nPlot = 0, Int_t nHisto = 0);
 
-    void SetOutputPlotsFilename(TString fname) { fCanvasSave = fname; }
+    void SetOutputPlotsFilename(const TString& name) { fCanvasSave = name; }
 
-    Int_t GetPlotIndex(TString plotName);
+    Int_t GetPlotIndex(const TString& plotName);
     inline TVector2 GetCanvasSize() const { return fCanvasSize; }
     inline TVector2 GetCanvasDivisions() const { return fCanvasDivisions; }
 
