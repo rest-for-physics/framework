@@ -969,7 +969,7 @@ Double_t TRestAnalysisTree::GetObservableAverage(const TString& obsName, Double_
     if (xHigh == -1)
         this->Draw(obsName);
     else
-        this->Draw(obsName + "]]" + histDefinition);
+        this->Draw(obsName + ">>" + histDefinition);
     TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
     return htemp->GetMean();
 }
@@ -984,7 +984,7 @@ Double_t TRestAnalysisTree::GetObservableRMS(const TString& obsName, Double_t xL
     if (xHigh == -1)
         this->Draw(obsName);
     else
-        this->Draw(obsName + "]]" + histDefinition);
+        this->Draw(obsName + ">>" + histDefinition);
     TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
     return htemp->GetRMS();
 }
@@ -999,7 +999,7 @@ Double_t TRestAnalysisTree::GetObservableMaximum(const TString& obsName, Double_
     if (xHigh == -1)
         this->Draw(obsName);
     else
-        this->Draw(obsName + "]]" + histDefinition);
+        this->Draw(obsName + ">>" + histDefinition);
     TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
     return htemp->GetMaximumStored();
 }
@@ -1014,7 +1014,7 @@ Double_t TRestAnalysisTree::GetObservableMinimum(const TString& obsName, Double_
     if (xHigh == -1)
         this->Draw(obsName);
     else
-        this->Draw(obsName + "]]" + histDefinition);
+        this->Draw(obsName + ">>" + histDefinition);
     TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
     return htemp->GetMinimumStored();
 }
