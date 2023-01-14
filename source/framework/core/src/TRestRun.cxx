@@ -1786,7 +1786,7 @@ Bool_t TRestRun::EvaluateMetadataMember(const string& instr) {
     }
 
     if (!isANumber(results[1])) {
-        if (ReplaceMetadataMember(results[0]) == results[1])
+        if (ReplaceMetadataMember(results[0]).find(results[1]) != string::npos)
             return true;
         else
             return false;
