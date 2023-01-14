@@ -746,7 +746,7 @@ void TRestMetadataPlot::GenerateCanvas() {
             std::map<Double_t, Int_t> dataMapN;
 
             // TODO Here we open the file for each graph construction. This might slowdown these
-            // drawing routnes when we load thousands of files and we have many graphs. It could be
+            // drawing routines when we load thousands of files and we have many graphs. It could be
             // optimized for the case of many graphs by preloading TGraph data into a dedicated
             // structure at Graph_Info_Set
 
