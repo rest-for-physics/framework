@@ -169,9 +169,9 @@ class TRestRun : public TRestMetadata {
 
     TRestMetadata* GetMetadata(const TString& name, TFile* file = nullptr);
     TRestMetadata* GetMetadataClass(const TString& type, TFile* file = nullptr);
-    std::vector<std::string> GetMetadataStructureNames();
-    std::vector<std::string> GetMetadataStructureTitles();
-    inline int GetNumberOfMetadataStructures() const { return fMetadata.size(); }
+    std::vector<std::string> GetMetadataNames();
+    std::vector<std::string> GetMetadataTitles();
+    inline int GetNumberOfMetadata() const { return fMetadata.size(); }
 
     inline std::string GetMetadataMember(const std::string& instr) { return ReplaceMetadataMember(instr); }
     std::string ReplaceMetadataMembers(const std::string& instr, Int_t precision = 2);
