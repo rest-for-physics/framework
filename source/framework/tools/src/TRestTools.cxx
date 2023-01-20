@@ -800,7 +800,7 @@ std::pair<string, string> TRestTools::SeparatePathAndName(const string& fullname
 ///
 string TRestTools::GetFileNameExtension(const string& fullname) {
 #ifdef USE_OLD_FILESYSTEM
-    int pos = fullname.find_last_of(".");
+    size_t pos = fullname.find_last_of(".");
     if(pos==string::npos){
         return "";
     }
@@ -820,7 +820,7 @@ string TRestTools::GetFileNameExtension(const string& fullname) {
 string TRestTools::GetFileNameRoot(const string& fullname) {
 #ifdef USE_OLD_FILESYSTEM
     string name = GetPureFileName(fullname);
-    int pos = name.find_last_of(".");
+    size_t pos = name.find_last_of(".");
     if(pos==string::npos){
         return name;
     }
