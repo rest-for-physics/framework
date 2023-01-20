@@ -62,7 +62,14 @@
 #endif
 
 #include <chrono>
+#if __cplusplus<201703L
+#define USE_OLD_FILESYSTEM
+#include <array>
+#include <dirent.h>
+#include <sys/stat.h>
+#else
 #include <filesystem>
+#endif
 #include <iostream>
 #include <limits>
 #include <memory>
@@ -104,6 +111,23 @@ void TRestTools::LoadRESTLibrary(bool silent) {
     ldPaths.push_back(REST_USER_PATH + "/userlib/");
 
     vector<string> fileList;
+
+#ifdef USE_OLD_FILESYSTEM
+    for (string path : ldPaths) {
+        DIR* dir;
+        struct dirent* ent;
+        if ((dir = opendir(path.c_str())) != nullptr) {
+            /* print all the files and directories within directory */
+            while ((ent = readdir(dir)) != nullptr) {
+                string fName(ent->d_name);
+                if ((fName.find("REST") != -1 || fName.find("Rest") != -1))
+                    if (fName.find(".dylib") != -1 || fName.find(".so") != -1) fileList.push_back(fName);
+            }
+            closedir(dir);
+        }
+    }
+
+#else
     for (const std::filesystem::path path : ldPaths) {
         if (!exists(path)) {
             // RESTWarning << "Directory " << string(path) << " for library loading not exist" << RESTendl;
@@ -138,7 +162,7 @@ void TRestTools::LoadRESTLibrary(bool silent) {
             fileList.emplace_back(it.path().string());
         }
     }
-
+#endif
     // load the found REST libraries
     if (!silent) cout << "= Loading libraries ..." << endl;
     for (const auto& library : fileList) {
@@ -658,7 +682,15 @@ int TRestTools::ReadCSVFile(std::string fName, std::vector<std::vector<Float_t>>
 ///////////////////////////////////////////////
 /// \brief Returns true if the file with path filename exists.
 ///
-Int_t TRestTools::isValidFile(const string& path) { return std::filesystem::is_regular_file(path); }
+Int_t TRestTools::isValidFile(const string& path) { 
+#ifdef USE_OLD_FILESYSTEM    
+    struct stat buffer;
+    stat(path.c_str(), &buffer);
+    return S_ISREG(buffer.st_mode);
+#else
+    return std::filesystem::is_regular_file(path); 
+#endif
+    }
 
 ///////////////////////////////////////////////
 /// \brief Returns true if the file (or directory) with path filename exists.
@@ -667,7 +699,16 @@ Int_t TRestTools::isValidFile(const string& path) { return std::filesystem::is_r
 /// We should call `isValidFile` to check if we will be able to open it without
 /// problems.
 ///
-bool TRestTools::fileExists(const string& filename) { return std::filesystem::exists(filename); }
+bool TRestTools::fileExists(const string& filename) { 
+#ifdef USE_OLD_FILESYSTEM
+    struct stat buffer;
+    return (stat(filename.c_str(), &buffer) == 0);
+ 
+#else
+    return std::filesystem::exists(filename); 
+#endif
+    
+    }
 
 ///////////////////////////////////////////////
 /// \brief Returns true if the **filename** has *.root* extension.
@@ -723,8 +764,33 @@ bool TRestTools::isAbsolutePath(const string& path) {
 /// Input: "/home/nkx/" and ":", Output: { "/home/nkx/", "" }
 ///
 std::pair<string, string> TRestTools::SeparatePathAndName(const string& fullname) {
+#ifdef USE_OLD_FILESYSTEM
+    string _fullname = fullname;
+    _fullname = RemoveMultipleSlash(_fullname);
+    pair<string, string> result;
+    int pos = _fullname.find_last_of('/', -1);
+
+    if (pos == -1) {
+        result.first = ".";
+        result.second = _fullname;
+    } else if (pos == 0) {
+        result.first = "/";
+        result.second = _fullname.substr(1, _fullname.size() - 1);
+    } else if (pos == _fullname.size() - 1) {
+        result.first = _fullname;
+        result.second = "";
+    } else {
+        result.first = _fullname.substr(0, pos + 1);
+        result.second = _fullname.substr(pos + 1, _fullname.size() - pos - 1);
+    }
+    return result;
+
+#else
+
     filesystem::path path(fullname);
     return {path.parent_path().string(), path.filename().string()};
+
+#endif
 }
 
 ///////////////////////////////////////////////
@@ -733,9 +799,17 @@ std::pair<string, string> TRestTools::SeparatePathAndName(const string& fullname
 /// Input: "/home/jgalan/abc.txt" Output: "txt"
 ///
 string TRestTools::GetFileNameExtension(const string& fullname) {
+#ifdef USE_OLD_FILESYSTEM
+    int pos = fullname.find_last_of(".");
+    if(pos==string::npos){
+        return "";
+    }
+    return fullname.substr(pos+1,-1);
+#else
     string extension = filesystem::path(fullname).extension().string();
     if (extension.size() > 1) return extension.substr(1);
     return extension;
+#endif
 }
 
 ///////////////////////////////////////////////
@@ -744,7 +818,16 @@ string TRestTools::GetFileNameExtension(const string& fullname) {
 /// Input: "/home/jgalan/abc.txt" Output: "abc"
 ///
 string TRestTools::GetFileNameRoot(const string& fullname) {
+#ifdef USE_OLD_FILESYSTEM
+    string name = GetPureFileName(fullname);
+    int pos = name.find_last_of(".");
+    if(pos==string::npos){
+        return name;
+    }
+    return name.substr(0,pos);
+#else
     return filesystem::path(fullname).stem().string();
+#endif
 }
 
 ///////////////////////////////////////////////
@@ -772,12 +855,29 @@ string TRestTools::RemoveMultipleSlash(string str) {
 /// Input: "/home/nkx/abc.txt", Returns: "abc.txt"
 /// Input: "/home/nkx/", Output: ""
 ///
-string TRestTools::GetPureFileName(const string& path) { return filesystem::path(path).filename().string(); }
+string TRestTools::GetPureFileName(const string& path) { 
+#ifdef USE_OLD_FILESYSTEM
+    auto path_2 = RemoveMultipleSlash(path);
+    return SeparatePathAndName(path_2).second;
+#else
+    return filesystem::path(path).filename().string(); 
+#endif
+    }
 
 ///////////////////////////////////////////////
 /// \brief It takes a path and returns its absolute path
 ///
 string TRestTools::ToAbsoluteName(const string& filename) {
+#ifdef USE_OLD_FILESYSTEM
+    string result = filename;
+    if (filename[0] == '~') {
+        result = (string)getenv("HOME") + filename.substr(1, -1);
+    } else if (filename[0] != '/') {
+        result = (string)getenv("PWD") + "/" + filename;
+    }
+    result = RemoveMultipleSlash(result);
+    return result;
+#else
     filesystem::path path;
     for (const auto& directory : filesystem::path(filename)) {
         if (path.empty() && directory == "~") {
@@ -802,6 +902,7 @@ string TRestTools::ToAbsoluteName(const string& filename) {
         }
     }
     return filesystem::weakly_canonical(path).string();
+#endif
 }
 
 ///////////////////////////////////////////////
@@ -814,7 +915,43 @@ string TRestTools::ToAbsoluteName(const string& filename) {
 /// Otherwise recurse only certain times.
 ///
 vector<string> TRestTools::GetSubdirectories(const string& _path, int recursion) {
+
     vector<string> result;
+
+#ifdef USE_OLD_FILESYSTEM
+    string path = _path;
+    if (auto dir = opendir(path.c_str())) {
+        while (1) {
+            auto f = readdir(dir);
+            if (f == nullptr) {
+                break;
+            }
+            if (f->d_name[0] == '.') continue;
+
+            string ipath;
+            if (path[path.size() - 1] != '/') {
+                ipath = path + "/" + f->d_name + "/";
+            } else {
+                ipath = path + f->d_name + "/";
+            }
+
+            // if (f->d_type == DT_DIR)
+            if (auto dir2 = opendir(ipath.c_str()))  // to make sure it is a directory
+            {
+                result.push_back(ipath);
+
+                if (recursion != 0) {
+                    vector<string> subD = GetSubdirectories(ipath, recursion - 1);
+                    result.insert(result.begin(), subD.begin(), subD.end());
+                    //, cb);
+                }
+                closedir(dir2);
+            }
+        }
+        closedir(dir);
+    }
+
+#else
 
     std::filesystem::path path(_path);
     if (exists(path)) {
@@ -831,7 +968,10 @@ vector<string> TRestTools::GetSubdirectories(const string& _path, int recursion)
         }
     }
 
+#endif
+
     return result;
+
 }
 
 ///////////////////////////////////////////////
@@ -883,6 +1023,46 @@ bool TRestTools::CheckFileIsAccessible(const std::string& filename) {
 ///
 vector<string> TRestTools::GetFilesMatchingPattern(string pattern) {
     std::vector<string> outputFileNames;
+
+#ifdef USE_OLD_FILESYSTEM
+
+    if (pattern != "") {
+        vector<string> items = Split(pattern, "\n");
+
+        for (auto item : items) {
+            if (item.find_first_of("*") >= 0 || item.find_first_of("?") >= 0) {
+                string a = Execute("find " + item);
+                auto b = Split(a, "\n");
+
+                for (int i = 0; i < b.size(); i++) {
+                    outputFileNames.push_back(b[i]);
+                }
+
+                // char command[256];
+                // sprintf(command, "find %s > /tmp/RESTTools_fileList.tmp",
+                // pattern.Data());
+
+                // system(command);
+
+                // FILE *fin = fopen("/tmp/RESTTools_fileList.tmp", "r");
+                // char str[256];
+                // while (fscanf(fin, "%s\n", str) != EOF)
+                //{
+                //	TString newFile = str;
+                //	outputFileNames.push_back(newFile);
+                //}
+                // fclose(fin);
+
+                // system("rm /tmp/RESTTools_fileList.tmp");
+            } else {
+                if (fileExists(item)) outputFileNames.push_back(item);
+            }
+        }
+    }
+
+#else
+
+
     if (pattern != "") {
         vector<string> items = Split(pattern, "\n");
         for (auto item : items) {
@@ -923,6 +1103,9 @@ vector<string> TRestTools::GetFilesMatchingPattern(string pattern) {
             }
         }
     }
+
+#endif
+
     return outputFileNames;
 }
 
@@ -1068,7 +1251,8 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
     if ((string)url.GetProtocol() == "https" || (string)url.GetProtocol() == "http") {
         string path = TRestTools::SeparatePathAndName(localFiletmp).first;
         if (!TRestTools::fileExists(path)) {
-            if (!filesystem::create_directories(path)){
+            int status = CreateDirectory(path);
+            if (status!=0){
                 std::cerr << "mkdir failed to create directory: " << path << std::endl;
                 return -1;
             }
@@ -1156,7 +1340,8 @@ std::string TRestTools::POSTRequest(const std::string& url, const std::map<std::
     fclose(f);
     curl_global_cleanup();
 
-    std::getline(std::ifstream(filename), file_content, '\0');
+    std::istringstream in(filename);
+    std::getline(in, file_content, '\0');
 #else
     RESTError << "TRestTools::POSTRequest. REST framework was compiled without CURL support" << RESTendl;
     RESTError << "Please recompile REST after installing curl development libraries." << RESTendl;
@@ -1212,7 +1397,34 @@ int TRestTools::UploadToServer(string localFile, string remoteFile, string metho
     return 0;
 }
 
-void TRestTools::ChangeDirectory(const string& toDirectory) { filesystem::current_path(toDirectory); }
+void TRestTools::ChangeDirectory(const string& toDirectory) { 
+#ifdef USE_OLD_FILESYSTEM
+    chdir(toDirectory.c_str());
+#else
+    filesystem::current_path(toDirectory); 
+#endif
+    }
+
+string TRestTools::GetCurrentDirectory(){
+#ifdef USE_OLD_FILESYSTEM
+    char cwd[PATH_MAX];
+   if (getcwd(cwd, sizeof(cwd)) != NULL) {
+       return string(cwd);
+   } 
+   return "";
+#else
+    return filesystem::current_path(); 
+#endif
+}
+
+int TRestTools::CreateDirectory(const string& path){
+#ifdef USE_OLD_FILESYSTEM
+    int status = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+#else
+    int status = filesystem::create_directories(path)?0:-1;
+#endif
+    return status;
+}
 
 string ValueWithQuantity::ToString() const {
     string unit;

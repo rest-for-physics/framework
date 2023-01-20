@@ -363,7 +363,9 @@ std::vector<std::string> TRestDataSet::FileSelection() {
 
         if (!accept) continue;
 
-        for (auto& [name, properties] : fQuantity) {
+        for (auto& item : fQuantity) {
+            auto& name = item.first;
+            auto& properties = item.second;
             Double_t value =
                 REST_StringHelper::StringToDouble(run.ReplaceMetadataMembers(properties.metadata));
 
@@ -455,7 +457,9 @@ void TRestDataSet::PrintMetadata() {
         RESTMetadata << " -------------------- " << RESTendl;
 
         int n = 0;
-        for (auto const& [name, properties] : fQuantity) {
+        for (auto const& item : fQuantity) {
+            auto& name = item.first;
+            auto& properties = item.second;
             RESTMetadata << " - Name : " << name << ". Value : " << properties.value
                          << ". Strategy: " << properties.strategy << RESTendl;
             RESTMetadata << " - Metadata: " << properties.metadata << RESTendl;
@@ -623,7 +627,9 @@ void TRestDataSet::Export(const std::string& filename) {
         }
         fprintf(f, "###\n");
         fprintf(f, "### Relevant quantities: \n");
-        for (auto& [name, properties] : fQuantity) {
+        for (auto& item : fQuantity) {
+            auto& name = item.first;
+            auto& properties = item.second;
             fprintf(f, "### - %s : %lf - %s\n", name.c_str(), properties.value,
                     properties.description.c_str());
         }

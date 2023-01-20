@@ -18,7 +18,7 @@ endif ()
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 else ()
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++fs")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 if ( CMAKE_BUILD_TYPE MATCHES "Release" )
@@ -98,10 +98,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_definitions(-D_HAS_STD_BYTE=0)
 else ()
 
-    if (NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
-        set(external_libs "${external_libs};stdc++fs")
-    endif ()
-
     execute_process(COMMAND root-config --has-cxx20 OUTPUT_VARIABLE HASCXX20)
     execute_process(COMMAND root-config --has-cxx17 OUTPUT_VARIABLE HASCXX17)
     execute_process(COMMAND root-config --has-cxx14 OUTPUT_VARIABLE HASCXX14)
@@ -113,13 +109,23 @@ else ()
 
     if (${HASCXX20} MATCHES "yes")
         set(CMAKE_CXX_STANDARD 20)
+
+        if (NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
+            set(external_libs "${external_libs};stdc++fs")
+        endif ()
+
     elseif (${HASCXX17} MATCHES "yes")
         set(CMAKE_CXX_STANDARD 17)
+
+        if (NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
+            set(external_libs "${external_libs};stdc++fs")
+        endif ()
     else ()
-        message(FATAL_ERROR "Minimum C++ standard version is 17,
+        message(WARNING "Minimum C++ standard version is 17,
                 while the root version is compiled with an older
                 C++ standard, check root-config --cflags ${ROOT_CFLAGS}"
                 )
+        set(CMAKE_CXX_STANDARD 11)
     endif ()
 endif ()
 

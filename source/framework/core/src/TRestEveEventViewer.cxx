@@ -37,7 +37,9 @@ void InitializePerspectiveView() {
         {"Projection XZ", TGLViewer::kCameraOrthoXnOZ},  //
         {"Projection YZ", TGLViewer::kCameraOrthoZOY}    //
     };
-    for (const auto& [name, cameraType] : projectionsMap) {
+    for (const auto& item : projectionsMap) {
+        auto& name = item.first;
+        auto& cameraType = item.second;
         auto slot = TEveWindow::CreateWindowInTab(gEve->GetBrowser()->GetTabRight());
         auto pack = slot->MakePack();
         pack->SetElementName(name);

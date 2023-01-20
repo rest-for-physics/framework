@@ -129,6 +129,8 @@ class TRestTools {
 
     static std::string POSTRequest(const std::string& url, const std::map<std::string, std::string>& keys);
     static void ChangeDirectory(const std::string& toDirectory);
+    static int CreateDirectory(const std::string& dirname);
+    static std::string GetCurrentDirectory();
 };
 
 namespace REST_InitTools {

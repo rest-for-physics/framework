@@ -1,11 +1,13 @@
-#include <filesystem>
-
 #ifdef WIN32
 #include <Windows.h>
 #endif  // WIN32
 
 #ifdef __APPLE__
 #include <unistd.h>
+#endif
+
+#if __cplusplus>=201703L
+#include <filesystem>
 #endif
 
 #include "RVersion.h"
@@ -125,14 +127,26 @@ struct __REST_CONST_INIT {
             auto lsresolve = Split(lsresult, "->", true, true);
             if (lsresolve.size() == 2) {
                 if (lsresolve[1].find("bin")) {
-                    std::filesystem::path path(lsresolve[1]);
-                    REST_PATH = path.parent_path().parent_path().string();
+                    int pos = lsresolve[1].rfind("bin");
+                    if(pos!=string::npos){
+                        REST_PATH = lsresolve[1].substr(0,pos);
+                    }
+                    else{
+                        REST_PATH = lsresolve[1];
+                    }
+
                     RESTWarning << "Lacking system env \"REST_PATH\"!" << RESTendl;
                     RESTWarning << "You need to source \"thisREST.sh\" first!" << RESTendl;
                     RESTWarning << "Setting REST path to the executable path: " << REST_PATH << RESTendl;
                 } else {
-                    std::filesystem::path path(lsresolve[1]);
-                    REST_PATH = path.parent_path().string();
+                    int pos = lsresolve[1].find_last_of("/");
+                    if(pos!=string::npos){
+                        REST_PATH = lsresolve[1].substr(0,pos);
+                    }
+                    else{
+                        REST_PATH = lsresolve[1];
+                    }
+
                     RESTWarning << "Lacking system env \"REST_PATH\"!" << RESTendl;
                     RESTWarning << "REST not installed? Setting to path: " << REST_PATH << RESTendl;
                 }
@@ -185,7 +199,7 @@ struct __REST_CONST_INIT {
         if (REST_USER_PATH != "") {
             // check the data directories
             if (!TRestTools::fileExists(REST_USER_PATH)) {
-                std::filesystem::create_directory(REST_USER_PATH);
+                TRestTools::CreateDirectory(REST_USER_PATH);
             }
             // check the runNumber file
             if (!TRestTools::fileExists(REST_USER_PATH + "/runNumber")) {
@@ -197,11 +211,11 @@ struct __REST_CONST_INIT {
             //}
             // check the download directory
             if (!TRestTools::fileExists(REST_USER_PATH + "/download")) {
-                std::filesystem::create_directory(REST_USER_PATH + "/download");
+                TRestTools::CreateDirectory(REST_USER_PATH + "/download");
             }
             // check the gdml directory
             if (!TRestTools::fileExists(REST_USER_PATH + "/gdml")) {
-                std::filesystem::create_directory(REST_USER_PATH + "/gdml");
+                TRestTools::CreateDirectory(REST_USER_PATH + "/gdml");
             }
         }
     }
