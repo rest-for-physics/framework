@@ -120,12 +120,19 @@ else ()
         if (NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
             set(external_libs "${external_libs};stdc++fs")
         endif ()
+    elseif (${HASCXX14} MATCHES "yes")
+        set(CMAKE_CXX_STANDARD 14)
+        message(WARNING "ROOT is compiled with a rather old c++ standard(14). When compiling REST under this standard, some of the libraries might issue errors."
+                )
+    elseif (${HASCXX11} MATCHES "yes")
+        set(CMAKE_CXX_STANDARD 11)
+        message(WARNING "ROOT is compiled with a rather old c++ standard(11). When compiling REST under this standard, some of the libraries might issue errors."
+                )
     else ()
-        message(WARNING "Minimum C++ standard version is 17,
+        message(FATAL_ERROR "Minimum C++ standard version is 17,
                 while the root version is compiled with an older
                 C++ standard, check root-config --cflags ${ROOT_CFLAGS}"
                 )
-        set(CMAKE_CXX_STANDARD 11)
     endif ()
 endif ()
 
@@ -201,6 +208,18 @@ include(GitHooks)
 
 # Start compile
 include(MacroRootDict)
+
+
+# Clear the install dir
+if (NOT DEFINED INSTALL_CLEARDIR)
+    set(INSTALL_CLEARDIR ON)
+endif ()
+# nkx: Call the rm command before add_subdictory, otherwise the installed libraries will be removed
+if (${INSTALL_CLEARDIR} MATCHES "ON")
+    install(CODE "execute_process(COMMAND rm -r ${CMAKE_INSTALL_PREFIX})")
+endif ()
+
+
 add_subdirectory(source)
 
 message("")
@@ -223,13 +242,7 @@ message("")
 
 file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/framework/*.h")
 
-# Clear the install dir
-if (NOT DEFINED INSTALL_CLEARDIR)
-    set(INSTALL_CLEARDIR ON)
-endif ()
-if (${INSTALL_CLEARDIR} MATCHES "ON")
-    install(CODE "execute_process(COMMAND rm -r ${CMAKE_INSTALL_PREFIX})")
-endif ()
+
 
 # Install the files of the main framework
 install(FILES ${Headers} DESTINATION include)
