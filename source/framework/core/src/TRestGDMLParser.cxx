@@ -71,11 +71,7 @@ void TRestGDMLParser::Load(const string& filename) {
     fOutputGdmlFilename = fOutputGdmlDirectory + "PID" + std::to_string(getpid()) + "_" + filenameNoPath;
     cout << "TRestGDMLParser: Creating temporary file at: \"" << fOutputGdmlFilename << "\"" << endl;
 
-    int status = TRestTools::CreateDirectory(fOutputGdmlDirectory);
-    if (status!=0){
-        std::cerr << "mkdir failed to create directory: " << fOutputGdmlDirectory << std::endl;
-        exit(1);
-    }
+    TRestTools::CreateDirectory(fOutputGdmlDirectory);
 
     ofstream outputFile;
     outputFile.open(fOutputGdmlFilename, ios::trunc);
