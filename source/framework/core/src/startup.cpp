@@ -127,7 +127,7 @@ struct __REST_CONST_INIT {
             auto lsresolve = Split(lsresult, "->", true, true);
             if (lsresolve.size() == 2) {
                 if (lsresolve[1].find("bin")) {
-                    int pos = lsresolve[1].rfind("bin");
+                    size_t pos = lsresolve[1].rfind("bin");
                     if(pos!=string::npos){
                         REST_PATH = lsresolve[1].substr(0,pos);
                     }
@@ -139,7 +139,7 @@ struct __REST_CONST_INIT {
                     RESTWarning << "You need to source \"thisREST.sh\" first!" << RESTendl;
                     RESTWarning << "Setting REST path to the executable path: " << REST_PATH << RESTendl;
                 } else {
-                    int pos = lsresolve[1].find_last_of("/");
+                    size_t pos = lsresolve[1].find_last_of("/");
                     if(pos!=string::npos){
                         REST_PATH = lsresolve[1].substr(0,pos);
                     }
