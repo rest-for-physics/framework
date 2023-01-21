@@ -11,6 +11,14 @@ file(GLOB_RECURSE addon_src
         "tiny*cpp"
         "startup.cpp")
 
+if (NOT ${REST_EVE} MATCHES "ON")
+    set(excludes TRestEveEventViewer)
+endif (NOT ${REST_EVE} MATCHES "ON")
+
+if (NOT ${REST_MPFR} MATCHES "ON")
+	set(excludes TRestComplex)
+endif (NOT ${REST_MPFR} MATCHES "ON")
+
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(excludes TRestBenchMarkProcess TRestRealTimeAddInputFileProcess TRestRealTimeDrawingProcess TRestMessenger ${excludes})
 endif (CMAKE_SYSTEM_NAME MATCHES "Windows")

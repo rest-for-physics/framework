@@ -19,6 +19,7 @@ class TRestRun : public TRestMetadata {
    protected:
     // run info
     Int_t fRunNumber;  //< first identification number
+                       /// It can be used as parent number of subrun number
     Int_t fParentRunNumber;
     TString fRunClassName;
     TString fRunType;  //< Stores bit by bit the type of run. e.g. calibration, background, pedestal,
@@ -120,6 +121,7 @@ class TRestRun : public TRestMetadata {
 
     // Getters
     inline Int_t GetParentRunNumber() const { return fParentRunNumber; }
+    inline Int_t GetSubRunNumber() const { return fParentRunNumber; }
     inline Int_t GetRunNumber() const { return fRunNumber; }
     inline TString GetRunType() const { return fRunType; }
     inline TString GetRunUser() const { return fRunUser; }
@@ -167,9 +169,9 @@ class TRestRun : public TRestMetadata {
 
     TRestMetadata* GetMetadata(const TString& name, TFile* file = nullptr);
     TRestMetadata* GetMetadataClass(const TString& type, TFile* file = nullptr);
-    std::vector<std::string> GetMetadataStructureNames();
-    std::vector<std::string> GetMetadataStructureTitles();
-    inline int GetNumberOfMetadataStructures() const { return fMetadata.size(); }
+    std::vector<std::string> GetMetadataNames();
+    std::vector<std::string> GetMetadataTitles();
+    inline int GetNumberOfMetadata() const { return fMetadata.size(); }
 
     inline std::string GetMetadataMember(const std::string& instr) { return ReplaceMetadataMember(instr); }
     std::string ReplaceMetadataMembers(const std::string& instr, Int_t precision = 2);
