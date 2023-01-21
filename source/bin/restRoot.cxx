@@ -149,10 +149,10 @@ int main(int argc, char* argv[]) {
             }
 
             printf("\n%s\n", "Attaching metadata structures...");
-            Int_t numberOfMetadataStructures = runTmp->GetNumberOfMetadataStructures();
+            Int_t numberOfMetadata = runTmp->GetNumberOfMetadata();
             map<string, int> metanames;
-            for (int n = 0; n < numberOfMetadataStructures; n++) {
-                string metaName = runTmp->GetMetadataStructureNames()[n];
+            for (int n = 0; n < numberOfMetadata; n++) {
+                string metaName = runTmp->GetMetadataNames()[n];
                 if (metaName.find("Historic") != string::npos) {
                     continue;
                 }
