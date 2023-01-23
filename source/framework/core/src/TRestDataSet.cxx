@@ -339,7 +339,7 @@ std::vector<std::string> TRestDataSet::FileSelection() {
         double runStart = run.GetStartTimestamp();
         double runEnd = run.GetEndTimestamp();
 
-        if (runStart < time_stamp_start && runEnd > time_stamp_end) {
+        if (runStart < time_stamp_start || runEnd > time_stamp_end) {
             continue;
         }
 

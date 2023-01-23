@@ -186,7 +186,6 @@ if (${REST_MPFR} MATCHES "ON")
     endif ()
 else ()
     set(REST_MPFR OFF)
-    set(excludes ${excludes} TRestComplex)
 endif (${REST_MPFR} MATCHES "ON")
 
 # CURL  #####
