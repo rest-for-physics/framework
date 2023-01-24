@@ -35,7 +35,7 @@ rm -rf source
 mv root-$ROOT_VERSION source
 
 mkdir -p ${ROOT_DIR}/root_build
-cd ${ROOT_DIR}/root_build
+cd ${ROOT_DIR}/build
 
 cmake -Wno-dev -Dbuiltin_glew=ON -DCMAKE_CXX_STANDARD=17 -Dgdml=ON -DCMAKE_INSTALL_PREFIX=${ROOT_DIR}/install  ../source
 make -j8 install
