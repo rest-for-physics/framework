@@ -291,7 +291,7 @@ Double_t GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, con
 
     // The projections along the cone axis. If positive then the solution
     // gives the cone intersection with the side defined by `axis`
-    Double_t h1 = t1 * dir.Dot(axis) + axis.Dot(deltaV);
+    // Double_t h1 = t1 * dir.Dot(axis) + axis.Dot(deltaV);
     Double_t h2 = t2 * dir.Dot(axis) + axis.Dot(deltaV);
 
     // We use it to select the root we are interested in

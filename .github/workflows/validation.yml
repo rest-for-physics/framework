@@ -323,6 +323,7 @@ jobs:
           rm Signals_01928.root
           root -b -q ../ValidateTrees.C'("validation.root")'
           restRoot -b -q ValidateDetectorParams.C'("Hits_01928.root")'
+          python3 validateStreamer.py
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:

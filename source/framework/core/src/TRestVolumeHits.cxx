@@ -134,8 +134,8 @@ void TRestVolumeHits::RemoveHit(int n) {
 
 void TRestVolumeHits::SortByEnergy() {
     while (!isSortedByEnergy()) {
-        for (int i = 0; i < GetNumberOfHits(); i++) {
-            for (int j = i + 1; j < GetNumberOfHits(); j++) {
+        for (unsigned int i = 0; i < GetNumberOfHits(); i++) {
+            for (unsigned int j = i + 1; j < GetNumberOfHits(); j++) {
                 if (GetEnergy(i) < GetEnergy(j)) SwapHits(i, j);
             }
         }
@@ -155,7 +155,7 @@ TVector3 TRestVolumeHits::GetSigma(int n) const {
 }
 
 void TRestVolumeHits::PrintHits() const {
-    for (int n = 0; n < GetNumberOfHits(); n++) {
+    for (unsigned int n = 0; n < GetNumberOfHits(); n++) {
         cout << "Hit " << n << " X: " << GetX(n) << " Y: " << GetY(n) << " Z: " << GetZ(n)
              << " sX: " << GetSigmaX(n) << " sY: " << GetSigmaY(n) << " sZ: " << GetSigmaZ(n)
              << " Energy: " << GetEnergy(n) << endl;
@@ -174,7 +174,7 @@ void TRestVolumeHits::kMeansClustering(TRestVolumeHits* hits, TRestVolumeHits& v
 
     for (int it = 0; it < maxIt; it++) {
         for (int n = 0; n < nodes; n++) volHits[n].RemoveHits();
-        for (int i = 0; i < hits->GetNumberOfHits(); i++) {
+        for (unsigned int i = 0; i < hits->GetNumberOfHits(); i++) {
             double minDist = 1E9;
             int clIndex = -1;
             for (int n = 0; n < nodes; n++) {

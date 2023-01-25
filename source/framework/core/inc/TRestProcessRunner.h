@@ -39,7 +39,7 @@ class TRestProcessRunner : public TRestMetadata {
     TFile* fOutputDataFile;              //! the TFile pointer being used
     TString fOutputDataFileName;  //! indicates the name of the first file created as output data file. The
                                   //! actual output file maybe changed if tree is too large
-    TTree* fEventTree;                 //!
+    TTree* fEventTree;            //!
     TRestAnalysisTree* fAnalysisTree;  //!
     ProcStatus fProcStatus;            //!
     Int_t fNBranches;                  //!
@@ -99,7 +99,7 @@ class TRestProcessRunner : public TRestMetadata {
     void FillThreadEventFunc(TRestThread* t);
     void ConfigOutputFile();
     void MergeOutputFile();
-    void WriteMetadata();
+    void WriteProcessesMetadata();
 
     // tools
     void ResetRunTimes();

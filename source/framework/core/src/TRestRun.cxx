@@ -258,7 +258,8 @@ void TRestRun::InitFromConfigFile() {
     fOutputFileName = (TString)TRestTools::RemoveMultipleSlash((string)fOutputFileName);
 
     if (!TRestTools::fileExists(outputdir)) {
-        system((TString) "mkdir -p " + outputdir);
+        int z = system((TString) "mkdir -p " + outputdir);
+        if (z != 0) RESTError << "Problem creating directory : " << outputdir << RESTendl;
     }
     if (!TRestTools::isPathWritable(outputdir)) {
         RESTWarning << "TRestRun: Output path '" << outputdir << "' does not exist or it is not writable."
@@ -303,7 +304,7 @@ void TRestRun::InitFromConfigFile() {
     OpenInputFile(0);
     RESTDebug << "TRestRun::EndOfInit. InputFile pattern: \"" << fInputFileName << "\"" << RESTendl;
     RESTInfo << "which matches :" << RESTendl;
-    for (int i = 0; i < fInputFileNames.size(); i++) {
+    for (unsigned int i = 0; i < fInputFileNames.size(); i++) {
         RESTInfo << fInputFileNames[i] << RESTendl;
     }
     RESTEssential << "(" << fInputFileNames.size() << " added files)" << RESTendl;
@@ -313,7 +314,7 @@ void TRestRun::InitFromConfigFile() {
 /// \brief Open the i th file in the file list
 ///
 void TRestRun::OpenInputFile(int i) {
-    if (fInputFileNames.size() > i) {
+    if (fInputFileNames.size() > (unsigned int)i) {
         TString Filename = fInputFileNames[i];
         RESTInfo << "opening... " << Filename << RESTendl;
         OpenInputFile((string)Filename);
@@ -561,7 +562,7 @@ void TRestRun::ReadInputFileTrees() {
             TKey* key;
             while ((key = (TKey*)nextkey())) {
                 // cout << key->GetName() << endl;
-                if (((string)key->GetName()).find("EventTree") != -1) {
+                if (((string)key->GetName()).find("EventTree") != string::npos) {
                     _eventTree = (TTree*)fInputFile->Get(key->GetName());
                     string eventname = Replace(key->GetName(), "Tree", "", 0);
                     TBranch* br = _eventTree->GetBranch("eventBranch");
@@ -715,7 +716,7 @@ void TRestRun::ReadFileInfo(const string& filename) {
     }
 
     pos = -1;
-    for (int i = 0; i < formatsectionlist.size() && i < formatprefixlist.size() - 1; i++) {
+    for (unsigned int i = 0; i < formatsectionlist.size() && i < formatprefixlist.size() - 1; i++) {
         if (i != 0 && formatprefixlist[i] == "") {
             RESTWarning << "file format reference contains error!" << RESTendl;
             return;
@@ -992,12 +993,12 @@ TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilena
 
     RESTDebug << "TRestRun::FormOutputFile. Starting to add files" << RESTendl;
 
-    for (int i = 0; i < filenames.size(); i++) {
+    for (unsigned int i = 0; i < filenames.size(); i++) {
         m->AddFile(filenames[i].c_str(), false);
     }
 
     if (m->Merge()) {
-        for (int i = 0; i < filenames.size(); i++) {
+        for (unsigned int i = 0; i < filenames.size(); i++) {
             remove(filenames[i].c_str());
         }
     } else {
@@ -1038,8 +1039,8 @@ TFile* TRestRun::FormOutputFile() {
     fAnalysisTree = new TRestAnalysisTree("AnalysisTree", "AnalysisTree");
     fEventTree = new TTree("EventTree", "EventTree");
 
-    fAnalysisTree->Write();
-    fEventTree->Write();
+    fAnalysisTree->Write(nullptr, TObject::kOverwrite);
+    fEventTree->Write(nullptr, TObject::kOverwrite);
     this->WriteWithDataBase();
 
     RESTcout << "TRestRun: Output File Created." << RESTendl;
@@ -1152,6 +1153,7 @@ void TRestRun::CloseFile() {
         fEntriesSaved = fAnalysisTree->GetEntries();
         if (fAnalysisTree->GetEntries() > 0 && fInputFile == nullptr) {
             if (fOutputFile != nullptr) {
+                fOutputFile->cd();
                 fAnalysisTree->Write(nullptr, kOverwrite);
                 this->Write(nullptr, kOverwrite);
             }
@@ -1166,8 +1168,8 @@ void TRestRun::CloseFile() {
         fEventTree = nullptr;
     }
 
-    for (int i = 0; i < fMetadata.size(); i++) {
-        for (int j = 0; j < fInputMetadata.size(); j++) {
+    for (unsigned int i = 0; i < fMetadata.size(); i++) {
+        for (unsigned int j = 0; j < fInputMetadata.size(); j++) {
             if (fMetadata[i] == fInputMetadata[j]) {
                 delete fMetadata[i];
                 fMetadata.erase(fMetadata.begin() + i);
@@ -1179,6 +1181,7 @@ void TRestRun::CloseFile() {
     }
 
     if (fOutputFile != nullptr) {
+        fOutputFile->Write(0, TObject::kOverwrite);
         fOutputFile->Close();
         delete fOutputFile;
         fOutputFile = nullptr;
@@ -1395,6 +1398,9 @@ TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, const TStr
 
 std::vector<int> TRestRun::GetEventEntriesWithConditions(const string& cuts, int startingIndex,
                                                          int maxNumber) {
+    int max = maxNumber;
+    if (max < 0) max = GetEntries();
+
     std::vector<int> eventIds;
     // parsing cuts
     std::vector<string> observables;
@@ -1405,9 +1411,9 @@ std::vector<int> TRestRun::GetEventEntriesWithConditions(const string& cuts, int
 
     vector<string> cutsVector = Split(cuts, "&&", false, true);
 
-    for (int i = 0; i < cutsVector.size(); i++) {
+    for (unsigned int i = 0; i < cutsVector.size(); i++) {
         string cut = cutsVector[i];
-        for (int j = 0; j < validOperators.size(); j++) {
+        for (unsigned int j = 0; j < validOperators.size(); j++) {
             if (cut.find(validOperators[j]) != string::npos) {
                 operators.push_back(validOperators[j]);
                 observables.push_back((string)cut.substr(0, cut.find(validOperators[j])));
@@ -1429,7 +1435,7 @@ std::vector<int> TRestRun::GetEventEntriesWithConditions(const string& cuts, int
         branchNames.insert((string)branches->At(i)->GetName());
     }
     // verify all observables in cuts are branch names
-    for (int i = 0; i < observables.size(); i++) {
+    for (unsigned int i = 0; i < observables.size(); i++) {
         // verify operators
         if (std::find(validOperators.begin(), validOperators.end(), operators[i]) == validOperators.end()) {
             // invalid operation
@@ -1452,7 +1458,7 @@ std::vector<int> TRestRun::GetEventEntriesWithConditions(const string& cuts, int
     }
     // read only the necessary branches
     fAnalysisTree->SetBranchStatus("*", false);
-    for (int i = 0; i < observables.size(); i++) {
+    for (unsigned int i = 0; i < observables.size(); i++) {
         fAnalysisTree->SetBranchStatus(observables[i].c_str(), true);
     }
     // comparison code
@@ -1463,7 +1469,7 @@ std::vector<int> TRestRun::GetEventEntriesWithConditions(const string& cuts, int
         i = (iNoOffset + startingIndex) % nEntries;
         fAnalysisTree->GetEntry(i);
         comparisonResult = true;
-        for (int j = 0; j < observables.size(); j++) {
+        for (unsigned int j = 0; j < observables.size(); j++) {
             valueToCompareFrom = fAnalysisTree->GetDblObservableValue(observables[j].c_str());
             if (operators[j] == "=" || operators[j] == "==") {
                 comparisonResult = comparisonResult && (valueToCompareFrom == values[j]);
@@ -1477,8 +1483,9 @@ std::vector<int> TRestRun::GetEventEntriesWithConditions(const string& cuts, int
                 comparisonResult = comparisonResult && (valueToCompareFrom >= values[j]);
             }
         }
+
         if (comparisonResult) {
-            if (eventIds.size() < maxNumber) {
+            if ((int)eventIds.size() < max) {
                 eventIds.push_back(i);
             } else {
                 break;
@@ -1491,9 +1498,12 @@ std::vector<int> TRestRun::GetEventEntriesWithConditions(const string& cuts, int
 }
 
 std::vector<int> TRestRun::GetEventIdsWithConditions(const string& cuts, int startingIndex, int maxNumber) {
-    auto indices = GetEventEntriesWithConditions(cuts, startingIndex, maxNumber);
+    int max = maxNumber;
+    if (max < 0) max = GetEntries();
+
+    auto indices = GetEventEntriesWithConditions(cuts, startingIndex, max);
     std::vector<int> ids;
-    for (int i = 0; i < indices.size(); i++) {
+    for (unsigned int i = 0; i < indices.size(); i++) {
         GetEntry(indices[i]);
         ids.push_back(fAnalysisTree->GetEventID());
     }
@@ -1570,7 +1580,7 @@ TRestMetadata* TRestRun::GetMetadataClass(const TString& type, TFile* file) {
             }
         }
     } else {
-        for (int i = 0; i < fMetadata.size(); i++)
+        for (unsigned int i = 0; i < fMetadata.size(); i++)
             if (fMetadata[i]->InheritsFrom(type)) return fMetadata[i];
 
         if (fInputFile != nullptr && this->GetVersionCode() >= TRestTools::ConvertVersionCode("2.2.1")) {
@@ -1608,18 +1618,18 @@ TRestMetadata* TRestRun::GetMetadata(const TString& name, TFile* file) {
     return nullptr;
 }
 
-std::vector<std::string> TRestRun::GetMetadataStructureNames() {
+std::vector<std::string> TRestRun::GetMetadataNames() {
     std::vector<std::string> strings;
 
-    for (int n = 0; n < GetNumberOfMetadataStructures(); n++) strings.push_back(fMetadata[n]->GetName());
+    for (int n = 0; n < GetNumberOfMetadata(); n++) strings.push_back(fMetadata[n]->GetName());
 
     return strings;
 }
 
-std::vector<std::string> TRestRun::GetMetadataStructureTitles() {
+std::vector<std::string> TRestRun::GetMetadataTitles() {
     std::vector<std::string> strings;
 
-    for (int n = 0; n < GetNumberOfMetadataStructures(); n++) strings.push_back(fMetadata[n]->GetTitle());
+    for (int n = 0; n < GetNumberOfMetadata(); n++) strings.push_back(fMetadata[n]->GetTitle());
 
     return strings;
 }
@@ -1631,7 +1641,7 @@ std::vector<std::string> TRestRun::GetMetadataStructureTitles() {
 /// \return The string with data members replaced
 ///
 string TRestRun::ReplaceMetadataMembers(const string& instr, Int_t precision) {
-    if (instr.find("[", 0) == (int)string::npos) return instr;
+    if (instr.find("[", 0) == string::npos) return instr;
     string outstring = instr;
 
     int startPosition = 0;
@@ -1643,7 +1653,7 @@ string TRestRun::ReplaceMetadataMembers(const string& instr, Int_t precision) {
 
         if (cont < 0) RESTError << "This is a coding error at ReplaceMetadataMembers!" << RESTendl;
 
-        // We search for the enclosing ]. Since we might find a vector index inside.
+        // We search for the enclosing ']'. Since we might find a vector index inside.
         while (cont > 0) {
             endPosition = outstring.find("]", endPosition + 1);
             s = outstring.substr(startPosition + 1, endPosition - startPosition - 1);
@@ -1659,8 +1669,8 @@ string TRestRun::ReplaceMetadataMembers(const string& instr, Int_t precision) {
         endPosition = 0;
     }
 
-    outstring = Replace(outstring, "<<", "[");
-    outstring = Replace(outstring, ">>", "]");
+    outstring = Replace(outstring, "[[", "[");
+    outstring = Replace(outstring, "]]", "]");
 
     return REST_StringHelper::ReplaceMathematicalExpressions(outstring, precision);
 }
@@ -1683,13 +1693,13 @@ string TRestRun::ReplaceMetadataMembers(const string& instr, Int_t precision) {
 ///
 string TRestRun::ReplaceMetadataMember(const string& instr, Int_t precision) {
     if (instr.find("::") == string::npos && instr.find("->") == string::npos) {
-        return "<<" + instr + ">>";
+        return "[[" + instr + "]]";
     }
     vector<string> results = Split(instr, "::", false, true);
     if (results.size() == 1) results = Split(instr, "->", false, true);
 
     if (results.size() == 2) {
-        Int_t index = 0;
+        size_t index = 0;
         int pos1 = results[1].find("[", 0);
         int pos2 = results[1].find("]", pos1);
         if (pos1 > 0 && pos2 > 0) {
@@ -1753,7 +1763,7 @@ Bool_t TRestRun::EvaluateMetadataMember(const string& instr) {
 
     string expOp = "";
     std::vector<string> results;
-    for (int n = 0; n < oper.size(); n++) {
+    for (unsigned int n = 0; n < oper.size(); n++) {
         size_t pos = 0;
         if (instr.find("->") != string::npos) pos = instr.find("->") + 2;
 
@@ -1776,7 +1786,7 @@ Bool_t TRestRun::EvaluateMetadataMember(const string& instr) {
     }
 
     if (!isANumber(results[1])) {
-        if (ReplaceMetadataMember(results[0]) == results[1])
+        if (ReplaceMetadataMember(results[0]).find(results[1]) != string::npos)
             return true;
         else
             return false;
@@ -1882,13 +1892,13 @@ void TRestRun::PrintEndDate() {
 ///
 void TRestRun::PrintErrors() {
     Int_t nErrors = 0;
-    for (int n = 0; n < fMetadata.size(); n++)
+    for (unsigned int n = 0; n < fMetadata.size(); n++)
         if (fMetadata[n]->GetError()) nErrors++;
 
     if (nErrors) {
         cout << endl;
         RESTError << "Found a total of " << nErrors << " metadata errors" << RESTendl;
-        for (int n = 0; n < fMetadata.size(); n++)
+        for (unsigned int n = 0; n < fMetadata.size(); n++)
             if (fMetadata[n]->GetError()) {
                 cout << endl;
                 RESTError << "Class: " << fMetadata[n]->ClassName() << " Name: " << fMetadata[n]->GetName()
@@ -1908,13 +1918,13 @@ void TRestRun::PrintErrors() {
 ///
 void TRestRun::PrintWarnings() {
     Int_t nWarnings = 0;
-    for (int n = 0; n < fMetadata.size(); n++)
+    for (unsigned int n = 0; n < fMetadata.size(); n++)
         if (fMetadata[n]->GetWarning()) nWarnings++;
 
     if (nWarnings) {
         cout << endl;
         RESTWarning << "Found a total of " << nWarnings << " metadata warnings" << RESTendl;
-        for (int n = 0; n < fMetadata.size(); n++)
+        for (unsigned int n = 0; n < fMetadata.size(); n++)
             if (fMetadata[n]->GetWarning()) {
                 cout << endl;
                 RESTWarning << "Class: " << fMetadata[n]->ClassName() << " Name: " << fMetadata[n]->GetName()

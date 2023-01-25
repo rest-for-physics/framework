@@ -69,7 +69,7 @@ class TRestRingsMask : public TRestPatternMask {
             return;
         }
 
-        for (int n = 0; n < innerR.size(); n++) {
+        for (unsigned int n = 0; n < innerR.size(); n++) {
             std::pair<Double_t, Double_t> p(innerR[n], outterR[n]);
             fRingsRadii.push_back(p);
         }

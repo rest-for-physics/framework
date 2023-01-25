@@ -298,14 +298,12 @@ void TRestMetadataPlot::Initialize() {
 /// \brief Initialization of TRestMetadataPlot members through a RML file
 ///
 void TRestMetadataPlot::InitFromConfigFile() {
-    size_t position = 0;
     if (fHostmgr->GetRunInfo() != nullptr) {
         fRun = fHostmgr->GetRunInfo();
     }
 
 #pragma region ReadLabels
     RESTDebug << "TRestMetadataPlot: Reading canvas settings" << RESTendl;
-    position = 0;
     TiXmlElement* formatDefinition = GetElement("labels");
     if (formatDefinition != nullptr) {
         if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
@@ -346,7 +344,6 @@ void TRestMetadataPlot::InitFromConfigFile() {
 #pragma endregion
 
 #pragma region ReadLegend
-    position = 0;
     TiXmlElement* legendDefinition = GetElement("legendPosition");
     if (legendDefinition != nullptr) {
         if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
@@ -380,7 +377,6 @@ void TRestMetadataPlot::InitFromConfigFile() {
 #pragma endregion
 
 #pragma region ReadCanvas
-    position = 0;
     TiXmlElement* canvasDefinition = GetElement("canvas");
     if (canvasDefinition != nullptr) {
         fCanvasSize = StringTo2DVector(GetFieldValue("size", canvasDefinition));
@@ -491,9 +487,9 @@ void TRestMetadataPlot::InitFromConfigFile() {
         }
     }
 
-    for (int n = 0; n < fPanels.size(); n++) {
+    for (unsigned int n = 0; n < fPanels.size(); n++) {
         RESTExtreme << "Panel " << n << " with font size : " << fPanels[n].font_size << RESTendl;
-        for (int m = 0; m < fPanels[n].posX.size(); m++) {
+        for (unsigned int m = 0; m < fPanels[n].posX.size(); m++) {
             RESTExtreme << "Label : " << fPanels[n].label[m] << RESTendl;
             RESTExtreme << "Pos X : " << fPanels[n].posX[m] << RESTendl;
             RESTExtreme << "Pos Y : " << fPanels[n].posY[m] << RESTendl;
@@ -514,7 +510,7 @@ TRestMetadataPlot::Graph_Info_Set TRestMetadataPlot::SetupGraphFromConfigFile(Ti
     graph.drawOption = RemoveWhiteSpaces(GetParameter("option", graphele, ""));
     graph.metadataRule = RemoveWhiteSpaces(GetParameter("metadataRule", graphele, ""));
 
-    for (int n = 0; n < fPlotNamesCheck.size(); n++)
+    for (unsigned int n = 0; n < fPlotNamesCheck.size(); n++)
         if (graph.name == fPlotNamesCheck[n]) {
             RESTError
                 << "Repeated plot/graph names were found! Please, use different names for different plots!"
@@ -566,7 +562,7 @@ void TRestMetadataPlot::AddFileFromExternalRun() {
         } else if (fRun->GetInputFileNames().size() != 0) {
             // if we have only TRestRun, we ask for its input file list
             auto names = fRun->GetInputFileNames();
-            for (int i = 0; i < names.size(); i++) {
+            for (unsigned int i = 0; i < names.size(); i++) {
                 this->AddFile(names[i]);
             }
             return;
@@ -578,7 +574,7 @@ void TRestMetadataPlot::AddFileFromExternalRun() {
 /// \brief We can add input file from parameter "inputFile"
 ///
 void TRestMetadataPlot::AddFileFromEnv() {
-    string filepattern = GetParameter("inputFile", "");
+    string filepattern = GetParameter("inputFileName", "");
     auto files = TRestTools::GetFilesMatchingPattern(filepattern);
 
     for (unsigned int n = 0; n < files.size(); n++) {
@@ -682,7 +678,7 @@ void TRestMetadataPlot::GenerateCanvas() {
         panelRun->SetHistoricMetadataSaving(false);
         panelRun->OpenInputFile(fRunInputFileName[0]);
         for (unsigned int n = 0; n < fPanels.size(); n++) {
-            TPad* targetPad = (TPad*)fCombinedCanvas->cd(n + 1);
+            fCombinedCanvas->cd(n + 1);
             for (unsigned int m = 0; m < fPanels[n].posX.size(); m++) {
                 string label = fPanels[n].label[m];
 
@@ -750,7 +746,7 @@ void TRestMetadataPlot::GenerateCanvas() {
             std::map<Double_t, Int_t> dataMapN;
 
             // TODO Here we open the file for each graph construction. This might slowdown these
-            // drawing routnes when we load thousands of files and we have many graphs. It could be
+            // drawing routines when we load thousands of files and we have many graphs. It could be
             // optimized for the case of many graphs by preloading TGraph data into a dedicated
             // structure at Graph_Info_Set
 
@@ -772,6 +768,9 @@ void TRestMetadataPlot::GenerateCanvas() {
                 // We reject runs with unexpected zero y-data
                 Double_t yVal = StringToDouble(run->GetMetadataMember(graph.yVariable));
                 if (yVal == 0 && skipZeroData) {
+                    RESTWarning
+                        << "Ignoring zero data. This message could be disabled with variable skipZeroData"
+                        << RESTendl;
                     delete run;
                     continue;
                 }
@@ -817,7 +816,7 @@ void TRestMetadataPlot::GenerateCanvas() {
                 RESTWarning << "X: " << xData[0] << " Y: " << yData[0] << RESTendl;
             }
 
-            for (int nn = 0; nn < xData.size(); nn++)
+            for (unsigned int nn = 0; nn < xData.size(); nn++)
                 RESTDebug << "X: " << xData[nn] << " Y: " << yData[nn] << RESTendl;
 
             // adjust the graph

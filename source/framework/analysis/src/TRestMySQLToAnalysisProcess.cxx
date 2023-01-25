@@ -256,7 +256,7 @@ void TRestMySQLToAnalysisProcess::PrintMetadata() {
 
     RESTMetadata << "List of variables added to the analysis tree" << RESTendl;
     RESTMetadata << " ------------------------------------------ " << RESTendl;
-    for (int n = 0; n < fAnaTreeVariables.size(); n++) {
+    for (unsigned int n = 0; n < fAnaTreeVariables.size(); n++) {
         RESTMetadata << " + SQL field : " << fSQLVariables[n] << RESTendl;
         RESTMetadata << "   - Tree name : " << fAnaTreeVariables[n] << RESTendl;
         RESTMetadata << "   - Min value : " << fMinValues[n] << RESTendl;
@@ -408,7 +408,7 @@ void TRestMySQLToAnalysisProcess::FillDBArrays() {
 ///
 string TRestMySQLToAnalysisProcess::BuildQueryString() {
     string sqlQuery = "SELECT timestamp";
-    for (int n = 0; n < fSQLVariables.size(); n++) {
+    for (unsigned int n = 0; n < fSQLVariables.size(); n++) {
         sqlQuery += ",";
         sqlQuery += fSQLVariables[n];
     }
@@ -431,7 +431,7 @@ Double_t TRestMySQLToAnalysisProcess::GetDBValueAtTimestamp(Int_t index, Double_
     Int_t bin = (Int_t)((timestamp - fStartTimestamp) / fSampling);
 
     if (bin < 0) return fDBdata.front()[index];
-    if (bin + 1 >= fDBdata.size()) return fDBdata.back()[index];
+    if ((unsigned int)(bin + 1) >= fDBdata.size()) return fDBdata.back()[index];
 
     double y2 = fDBdata[bin + 1][index];
     double y1 = fDBdata[bin][index];

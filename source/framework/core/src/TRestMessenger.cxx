@@ -130,12 +130,14 @@ void TRestMessenger::InitFromConfigFile() {
     string token = GetParameter("token", "116027");
     string source = GetParameter("messageSource", "OUTPUTFILE");
     key_t key = StringToInteger(token);
-    int flag;
-    if (fMode == MessagePool_Host) {
-        flag = SHMFLAG_CREATEUNIQUE;
-    } else {
-        flag = SHMFLAG_OPEN;
-    }
+    /*
+int flag = 0;
+if (fMode == MessagePool_Host) {
+    flag = SHMFLAG_CREATEUNIQUE;
+} else {
+    flag = SHMFLAG_OPEN;
+}
+    */
 
     bool created = false;
     int shmid = shmget(key, sizeof(messagepool_t), SHMFLAG_OPEN);

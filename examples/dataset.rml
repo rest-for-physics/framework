@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<TRestDataSet name="BabyIAXO">
+    <parameter name="startTime" value="2022/04/28 00:00"/>
+    <parameter name="endTime" value="2022/11/25 13:20"/>
+    <parameter name="filePattern" value="../../framework-data/pipeline/dataset/BabyIAXO_TrueWolterMicromegasTest*.root"/>
+    <filter metadata="TRestRun::fRunNumber" greaterThan="370" lowerThan="375"/>
+    <filter metadata="TRestRun::fRunTag" contains="Test"/>
+    <observables list="window_transmission,optics_efficiency,axionPhoton_probability,axionPhoton_transmission,boreExitGate_transmission"/>
+    <processObservables list="final"/>
+    <quantity name="Nsim" metadata="[TRestProcessRunner::fEventsToProcess]" strategy="accumulate" description="The total number of simulated events."/>
+    <quantity name="SolarFlux" metadata="[axionGen-&gt;fTotalFlux]" strategy="unique" description="The integrated solar flux at earth (in cm-2 s-1) at the given energy range."/>
+    <quantity name="GeneratorArea" metadata="3.1416 * [axionGen::fTargetRadius]/10 * [axionGen::fTargetRadius]/10" strategy="unique" description="The area where the generator launched events (in cm2)."/>
+</TRestDataSet>

@@ -138,7 +138,7 @@ vector<string> TRestEventProcess::ReadObservables() {
 
     }  // now we get a list of all observal names, we add them into fAnalysisTree and fObservableInfo
 
-    for (int i = 0; i < obsNames.size(); i++) {
+    for (unsigned int i = 0; i < obsNames.size(); i++) {
         string obsName = this->GetName() + (string) "_" + obsNames[i];
         fAnalysisTree->AddObservable(obsName, obsTypes[i], obsDesc[i]);
         int id = fAnalysisTree->GetObservableID(obsName);
@@ -296,7 +296,7 @@ TRestEventProcess* TRestEventProcess::GetFriendLive(const string& nameOrType) {
 /// process `TRestRawSignalAnalysisProcess` from thread 2, and a friend process
 /// `TRestRawToSignalProcess` from thread 1.
 TRestEventProcess* TRestEventProcess::GetParallel(int i) {
-    if (i >= 0 && i < fParallelProcesses.size()) {
+    if (i >= 0 && i < (int)fParallelProcesses.size()) {
         return fParallelProcesses[i];
     }
     return nullptr;
