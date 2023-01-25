@@ -36,8 +36,6 @@
 #include <unistd.h>
 #endif  // !WIN32
 
-#include <filesystem>
-
 #include "TRestDataBase.h"
 #include "TRestEventProcess.h"
 #include "TRestManager.h"
@@ -1033,7 +1031,7 @@ TFile* TRestRun::FormOutputFile() {
 
     fOutputFileName = FormFormat(fOutputFileName);
     // remove unwanted "./" etc. from the path while resolving them
-    fOutputFileName = std::filesystem::weakly_canonical(fOutputFileName.Data());
+    fOutputFileName = TRestTools::ToAbsoluteName(fOutputFileName.Data());
 
     fOutputFile = new TFile(fOutputFileName, "recreate");
     fAnalysisTree = new TRestAnalysisTree("AnalysisTree", "AnalysisTree");

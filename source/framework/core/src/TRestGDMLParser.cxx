@@ -1,6 +1,5 @@
 #include "TRestGDMLParser.h"
 
-#include <filesystem>
 #ifdef __APPLE__
 #include <unistd.h>
 #endif
@@ -8,7 +7,9 @@
 using namespace std;
 
 string TRestGDMLParser::GetEntityVersion(const string& name) const {
-    for (auto& [entityName, entityVersion] : fEntityVersionMap) {
+    for (auto& item : fEntityVersionMap) {
+        auto& entityName = item.first;
+        auto& entityVersion = item.second;
         if (entityName == name) {
             return entityVersion;
         }
@@ -70,7 +71,7 @@ void TRestGDMLParser::Load(const string& filename) {
     fOutputGdmlFilename = fOutputGdmlDirectory + "PID" + std::to_string(getpid()) + "_" + filenameNoPath;
     cout << "TRestGDMLParser: Creating temporary file at: \"" << fOutputGdmlFilename << "\"" << endl;
 
-    filesystem::create_directories(fOutputGdmlDirectory);
+    TRestTools::CreateDirectory(fOutputGdmlDirectory);
 
     ofstream outputFile;
     outputFile.open(fOutputGdmlFilename, ios::trunc);
@@ -87,11 +88,11 @@ void TRestGDMLParser::Load(const string& filename) {
 TGeoManager* TRestGDMLParser::CreateGeoManager() {
     // We must change to the gdml file directory, otherwise ROOT cannot load.
     if (!fOutputGdmlFilename.empty()) {
-        const auto currentPath = filesystem::current_path();
-        filesystem::current_path(fOutputGdmlDirectory);
+        const auto currentPath = TRestTools::GetCurrentDirectory();
+        TRestTools::ChangeDirectory(fOutputGdmlDirectory);
         auto geoManager = new TGeoManager();
         geoManager->Import(fOutputGdmlFilename.c_str());
-        filesystem::current_path(currentPath);
+        TRestTools::ChangeDirectory(currentPath);
         return geoManager;
     }
     return nullptr;

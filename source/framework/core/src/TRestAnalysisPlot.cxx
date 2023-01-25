@@ -740,7 +740,9 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 auto run = GetRunInfo(fRunInputFileName[j]);
                 // apply "classify" condition
                 bool flag = true;
-                for (const auto& [inputFile, info] : hist.classifyMap) {
+                for (const auto& pair : hist.classifyMap) {
+                    auto& inputFile = pair.first;
+                    auto& info = pair.second;
                     if (run->GetRunInformation(inputFile).find(info) == string::npos) {
                         flag = false;
                         break;

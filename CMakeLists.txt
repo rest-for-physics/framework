@@ -18,7 +18,7 @@ endif ()
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 else ()
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++fs")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 if ( CMAKE_BUILD_TYPE MATCHES "Release" )
@@ -98,10 +98,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_definitions(-D_HAS_STD_BYTE=0)
 else ()
 
-    if (NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
-        set(external_libs "${external_libs};stdc++fs")
-    endif ()
-
     execute_process(COMMAND root-config --has-cxx20 OUTPUT_VARIABLE HASCXX20)
     execute_process(COMMAND root-config --has-cxx17 OUTPUT_VARIABLE HASCXX17)
     execute_process(COMMAND root-config --has-cxx14 OUTPUT_VARIABLE HASCXX14)
@@ -113,8 +109,25 @@ else ()
 
     if (${HASCXX20} MATCHES "yes")
         set(CMAKE_CXX_STANDARD 20)
+
+        if (NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
+            set(external_libs "${external_libs};stdc++fs")
+        endif ()
+
     elseif (${HASCXX17} MATCHES "yes")
         set(CMAKE_CXX_STANDARD 17)
+
+        if (NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
+            set(external_libs "${external_libs};stdc++fs")
+        endif ()
+    elseif (${HASCXX14} MATCHES "yes")
+        set(CMAKE_CXX_STANDARD 14)
+        message(WARNING "ROOT is compiled with a rather old c++ standard(14). When compiling REST under this standard, some of the libraries might issue errors."
+                )
+    elseif (${HASCXX11} MATCHES "yes")
+        set(CMAKE_CXX_STANDARD 11)
+        message(WARNING "ROOT is compiled with a rather old c++ standard(11). When compiling REST under this standard, some of the libraries might issue errors."
+                )
     else ()
         message(FATAL_ERROR "Minimum C++ standard version is 17,
                 while the root version is compiled with an older
@@ -194,6 +207,18 @@ include(GitHooks)
 
 # Start compile
 include(MacroRootDict)
+
+
+# Clear the install dir
+if (NOT DEFINED INSTALL_CLEARDIR)
+    set(INSTALL_CLEARDIR ON)
+endif ()
+# nkx: Call the rm command before add_subdictory, otherwise the installed libraries will be removed
+if (${INSTALL_CLEARDIR} MATCHES "ON")
+    install(CODE "execute_process(COMMAND rm -r ${CMAKE_INSTALL_PREFIX})")
+endif ()
+
+
 add_subdirectory(source)
 
 message("")
@@ -216,13 +241,7 @@ message("")
 
 file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/framework/*.h")
 
-# Clear the install dir
-if (NOT DEFINED INSTALL_CLEARDIR)
-    set(INSTALL_CLEARDIR ON)
-endif ()
-if (${INSTALL_CLEARDIR} MATCHES "ON")
-    install(CODE "execute_process(COMMAND rm -r ${CMAKE_INSTALL_PREFIX})")
-endif ()
+
 
 # Install the files of the main framework
 install(FILES ${Headers} DESTINATION include)
