@@ -1618,18 +1618,18 @@ TRestMetadata* TRestRun::GetMetadata(const TString& name, TFile* file) {
     return nullptr;
 }
 
-std::vector<std::string> TRestRun::GetMetadataStructureNames() {
+std::vector<std::string> TRestRun::GetMetadataNames() {
     std::vector<std::string> strings;
 
-    for (int n = 0; n < GetNumberOfMetadataStructures(); n++) strings.push_back(fMetadata[n]->GetName());
+    for (int n = 0; n < GetNumberOfMetadata(); n++) strings.push_back(fMetadata[n]->GetName());
 
     return strings;
 }
 
-std::vector<std::string> TRestRun::GetMetadataStructureTitles() {
+std::vector<std::string> TRestRun::GetMetadataTitles() {
     std::vector<std::string> strings;
 
-    for (int n = 0; n < GetNumberOfMetadataStructures(); n++) strings.push_back(fMetadata[n]->GetTitle());
+    for (int n = 0; n < GetNumberOfMetadata(); n++) strings.push_back(fMetadata[n]->GetTitle());
 
     return strings;
 }
@@ -1786,7 +1786,7 @@ Bool_t TRestRun::EvaluateMetadataMember(const string& instr) {
     }
 
     if (!isANumber(results[1])) {
-        if (ReplaceMetadataMember(results[0]) == results[1])
+        if (ReplaceMetadataMember(results[0]).find(results[1]) != string::npos)
             return true;
         else
             return false;
