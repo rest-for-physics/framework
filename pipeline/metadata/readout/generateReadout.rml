@@ -3,11 +3,11 @@
 <!--We generate two TRestDetectorGas objects and a TRestDetectorReadout object in this example, and save them to a root
 file known as metadata file. The file can be used in "addMetadata" section in TRestRun in future.
 
-We first set "searchPath" to tell TRestMetadata where to find the include file. Then we instantiate 
+We first set "searchPath" to tell TRestMetadata where to find the include file. Then we instantiate
 a TRestRun object by adding a section in TRestManager section. TRestRun will hold and manage our metadata.
-Inside TRestRun section, we define two TRestDetectorGas objects from online database(https://sultan.unizar.es/gasFiles/). 
-We also construct an TRestDetectorReadout object by hand. In the construction we first define a readout 
-module known as MicroMegas(module). This is from a pre-defined section in readouts.rml. Then we define a 
+Inside TRestRun section, we define two TRestDetectorGas objects from online database(https://sultan.unizar.es/gasFiles/).
+We also construct an TRestDetectorReadout object by hand. In the construction we first define a readout
+module known as MicroMegas(module). This is from a pre-defined section in readouts.rml. Then we define a
 readout plane and add the modules piece by piece.
 
 Finally we call the method TRestRun::FormOutputFile() through TRestManager to save the metadata file.
@@ -65,4 +65,3 @@ Finally we call the method TRestRun::FormOutputFile() through TRestManager to sa
   <addTask command="readoutrun->FormOutputFile()" value="ON"/>
 
 </TRestManager>
-

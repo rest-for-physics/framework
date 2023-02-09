@@ -254,7 +254,7 @@ void TRestRealTimeDrawingProcess::DrawWithNotification() {
                 int _runNumber = run->GetRunNumber();
                 delete run;
                 if (_runNumber == runNumber) {
-                    for (auto& plot: fPlots) {
+                    for (auto& plot : fPlots) {
                         plot->SetFile(message);
                         plot->PlotCombinedCanvas();
                     }
