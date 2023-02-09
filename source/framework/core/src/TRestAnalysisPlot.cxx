@@ -44,7 +44,9 @@ void TRestAnalysisPlot::Initialize() {
     fDrawFirstEntry = 0;
 }
 
-TRestAnalysisPlot::~TRestAnalysisPlot() { delete fRun; }
+TRestAnalysisPlot::~TRestAnalysisPlot() {
+    if (fRun != nullptr) delete fRun;
+}
 
 void TRestAnalysisPlot::InitFromConfigFile() {
     if (fHostmgr->GetRunInfo() != nullptr) {
@@ -347,8 +349,8 @@ TRestAnalysisPlot::HistoInfoSet TRestAnalysisPlot::SetupHistogramFromConfigFile(
     hist.name = RemoveWhiteSpaces(GetParameter("name", histele, plot.name));
     hist.drawOption = GetParameter("option", histele, "colz");
 
-    for (const auto& n : fPlotNamesCheck)
-        if (hist.name == n) {
+    for (unsigned int n = 0; n < fPlotNamesCheck.size(); n++)
+        if (hist.name == fPlotNamesCheck[n]) {
             RESTError
                 << "Repeated plot/histo names were found! Please, use different names for different plots!"
                 << RESTendl;
@@ -485,7 +487,7 @@ TRestAnalysisPlot::HistoInfoSet TRestAnalysisPlot::SetupHistogramFromConfigFile(
         if (ToUpper(Active) == "ON") {
             TiXmlAttribute* attr = classifyele->FirstAttribute();
             while (attr != nullptr) {
-                if (attr->Value() != nullptr && !string(attr->Value()).empty()) {
+                if (attr->Value() != nullptr && string(attr->Value()) != "") {
                     hist.classifyMap[attr->Name()] = attr->Value();
                 }
                 attr = attr->Next();
@@ -504,14 +506,14 @@ TRestAnalysisPlot::HistoInfoSet TRestAnalysisPlot::SetupHistogramFromConfigFile(
     return hist;
 }
 
-void TRestAnalysisPlot::AddFile(const TString& fileName) {
+void TRestAnalysisPlot::AddFile(TString fileName) {
     RESTInfo << "TRestAnalysisPlot::AddFile. Adding file. " << RESTendl;
     RESTInfo << "File name: " << fileName << RESTendl;
-    fRunInputFileName.emplace_back(fileName.Data());
+    fRunInputFileName.push_back((string)fileName);
     fNFiles++;
 }
 
-void TRestAnalysisPlot::SetFile(const TString& fileName) {
+void TRestAnalysisPlot::SetFile(TString fileName) {
     fRunInputFileName.clear();
     fRunInputFileName = Vector_cast<string, TString>(TRestTools::GetFilesMatchingPattern((string)fileName));
     fNFiles = fRunInputFileName.size();
@@ -534,14 +536,14 @@ void TRestAnalysisPlot::AddFileFromEnv() {
         string filepattern = GetParameter("inputFileName", "");
         auto files = TRestTools::GetFilesMatchingPattern(filepattern);
 
-        for (const auto& file : files) {
-            RESTEssential << "Adding file : " << file << RESTendl;
-            AddFile(file);
+        for (unsigned int n = 0; n < files.size(); n++) {
+            RESTEssential << "Adding file : " << files[n] << RESTendl;
+            AddFile(files[n]);
         }
     }
 }
 
-Int_t TRestAnalysisPlot::GetPlotIndex(const TString& plotName) {
+Int_t TRestAnalysisPlot::GetPlotIndex(TString plotName) {
     for (unsigned int n = 0; n < fPlots.size(); n++)
         if (fPlots[n].name == plotName) return n;
 
@@ -549,7 +551,7 @@ Int_t TRestAnalysisPlot::GetPlotIndex(const TString& plotName) {
     return -1;
 }
 
-TRestAnalysisTree* TRestAnalysisPlot::GetTree(const TString& fileName) {
+TRestAnalysisTree* TRestAnalysisPlot::GetTree(TString fileName) {
     if (fRun->GetInputFile() != nullptr && fRun->GetInputFile()->GetName() == fileName) {
         // this means the file is already opened by TRestRun
         return fRun->GetAnalysisTree();
@@ -567,7 +569,7 @@ TRestAnalysisTree* TRestAnalysisPlot::GetTree(const TString& fileName) {
     return fRun->GetAnalysisTree();
 }
 
-TRestRun* TRestAnalysisPlot::GetRunInfo(const TString& fileName) {
+TRestRun* TRestAnalysisPlot::GetRunInfo(TString fileName) {
     // in any case we directly return fRun. No need to reopen the given file
     if (fRun->GetInputFile() != nullptr && fRun->GetInputFile()->GetName() == fileName) {
         return fRun;
@@ -583,11 +585,11 @@ TRestRun* TRestAnalysisPlot::GetRunInfo(const TString& fileName) {
     return fRun;
 }
 
-bool TRestAnalysisPlot::IsDynamicRange(const TString& rangeString) {
+bool TRestAnalysisPlot::IsDynamicRange(TString rangeString) {
     return (string(rangeString)).find(",  ") != string::npos;
 }
 
-Int_t TRestAnalysisPlot::GetColorIDFromString(const string& in) {
+Int_t TRestAnalysisPlot::GetColorIDFromString(string in) {
     if (in.find_first_not_of("0123456789") == string::npos) {
         return StringToInteger(in);
     } else if (ColorIdMap.count(in) != 0) {
@@ -598,7 +600,7 @@ Int_t TRestAnalysisPlot::GetColorIDFromString(const string& in) {
     return -1;
 }
 
-Int_t TRestAnalysisPlot::GetFillStyleIDFromString(const string& in) {
+Int_t TRestAnalysisPlot::GetFillStyleIDFromString(string in) {
     if (in.find_first_not_of("0123456789") == string::npos) {
         return StringToInteger(in);
     } else if (FillStyleMap.count(in) != 0) {
@@ -609,7 +611,7 @@ Int_t TRestAnalysisPlot::GetFillStyleIDFromString(const string& in) {
     return -1;
 }
 
-Int_t TRestAnalysisPlot::GetLineStyleIDFromString(const string& in) {
+Int_t TRestAnalysisPlot::GetLineStyleIDFromString(string in) {
     if (in.find_first_not_of("0123456789") == string::npos) {
         return StringToInteger(in);
     } else if (LineStyleMap.count(in) != 0) {
@@ -638,8 +640,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     Double_t endTime = 0;
     Double_t runLength = 0;
     Int_t totalEntries = 0;
-    for (const auto& inputFilename : fRunInputFileName) {
-        auto run = GetRunInfo(inputFilename);
+    for (unsigned int n = 0; n < fRunInputFileName.size(); n++) {
+        auto run = GetRunInfo(fRunInputFileName[n]);
 
         Double_t endTimeStamp = run->GetEndTimestamp();
         Double_t startTimeStamp = run->GetStartTimestamp();
@@ -667,23 +669,23 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             string label = fPanels[n].label[m];
 
             size_t pos = 0;
-            label = Replace(label, "[[startTime]]", ToDateTimeString(startTime), pos);
+            label = Replace(label, "<<startTime>>", ToDateTimeString(startTime), pos);
             pos = 0;
-            label = Replace(label, "[[endTime]]", ToDateTimeString(endTime), pos);
+            label = Replace(label, "<<endTime>>", ToDateTimeString(endTime), pos);
             pos = 0;
-            label = Replace(label, "[[entries]]", Form("%d", totalEntries), pos);
+            label = Replace(label, "<<entries>>", Form("%d", totalEntries), pos);
             pos = 0;
-            label = Replace(label, "[[runLength]]", Form("%5.2lf", runLength), pos);
+            label = Replace(label, "<<runLength>>", Form("%5.2lf", runLength), pos);
             pos = 0;
-            label = Replace(label, "[[meanRate]]", Form("%5.2lf", meanRate), pos);
+            label = Replace(label, "<<meanRate>>", Form("%5.2lf", meanRate), pos);
 
             auto run = GetRunInfo(fRunInputFileName[0]);
             label = run->ReplaceMetadataMembers(label, fPanels[n].precision);
 
-            TLatex* textLatex = new TLatex(fPanels[n].posX[m], fPanels[n].posY[m], label.c_str());
-            textLatex->SetTextColor(1);
-            textLatex->SetTextSize(fPanels[n].font_size);
-            textLatex->Draw("same");
+            TLatex* texxt = new TLatex(fPanels[n].posX[m], fPanels[n].posY[m], label.c_str());
+            texxt->SetTextColor(1);
+            texxt->SetTextSize(fPanels[n].font_size);
+            texxt->Draw("same");
         }
     }
 
@@ -719,7 +721,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
             if (cutString == "")
                 cutString = hist.weight;
-            else if (!hist.weight.empty())
+            else if (hist.weight != "")
                 cutString = "(" + cutString + ") * " + hist.weight;
 
             if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
@@ -836,16 +838,16 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             }
         }
 
-        bool allEmpty = true;
+        bool allempty = true;
         for (unsigned int i = 0; i < plot.histos.size(); i++) {
             if (plot.histos[i].ptr == nullptr)
                 continue;
             else {
-                allEmpty = false;
+                allempty = false;
                 break;
             }
         }
-        if (allEmpty) {
+        if (allempty) {
             RESTWarning << "TRestAnalysisPlot: pad empty for the plot: " << plot.name << RESTendl;
             continue;
         }
@@ -907,18 +909,18 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         // save histogram to root file
         if (fRun->GetOutputFile() != nullptr) {
             fRun->GetOutputFile()->cd();
-            for (auto& histo : plot.histos) {
-                if (histo.ptr == nullptr) continue;
-                histo->Write();
+            for (unsigned int i = 0; i < plot.histos.size(); i++) {
+                if (plot.histos[i].ptr == nullptr) continue;
+                plot.histos[i]->Write();
             }
         }
 
         // draw legend
         if (plot.legendOn) {
             TLegend* legend = new TLegend(fLegendX1, fLegendY1, fLegendX2, fLegendY2);
-            for (auto& histo : plot.histos) {
-                if (histo.ptr == nullptr) continue;
-                legend->AddEntry(histo.ptr, histo->GetName(), "lf");
+            for (unsigned int i = 0; i < plot.histos.size(); i++) {
+                if (plot.histos[i].ptr == nullptr) continue;
+                legend->AddEntry(plot.histos[i].ptr, plot.histos[i]->GetName(), "lf");
             }
             legend->Draw("same");
         }
@@ -928,7 +930,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         targetPad->SetLeftMargin(plot.marginLeft);
         targetPad->SetBottomMargin(plot.marginBottom);
         targetPad->Update();
-        if (!plot.save.empty()) targetPad->Print(plot.save.c_str());
+        if (plot.save != "") targetPad->Print(plot.save.c_str());
 
         fCombinedCanvas->Update();
     }
@@ -947,8 +949,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         TRestRun* run = new TRestRun();
         run->SetOutputFileName((string)fCanvasSave);
         run->FormOutputFile();
-        for (auto& h : histCollectionAll) {
-            h->Write();
+        for (unsigned int n = 0; n < histCollectionAll.size(); n++) {
+            histCollectionAll[n]->Write();
         }
         delete run;
     }
@@ -962,9 +964,9 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     delete st;
 }
 
-void TRestAnalysisPlot::SaveCanvasToPDF(const TString& fileName) { fCombinedCanvas->Print(fileName); }
+void TRestAnalysisPlot::SaveCanvasToPDF(TString fileName) { fCombinedCanvas->Print(fileName); }
 
-void TRestAnalysisPlot::SavePlotToPDF(const TString& fileName, Int_t n) {
+void TRestAnalysisPlot::SavePlotToPDF(TString fileName, Int_t n) {
     // gErrorIgnoreLevel = 10;
     fCombinedCanvas->SetBatch(kTRUE);
 
@@ -987,9 +989,11 @@ void TRestAnalysisPlot::SavePlotToPDF(const TString& fileName, Int_t n) {
     delete c;
 
     fCombinedCanvas->SetBatch(kFALSE);
+
+    return;
 }
 
-void TRestAnalysisPlot::SaveHistoToPDF(const TString& fileName, Int_t nPlot, Int_t nHisto) {
+void TRestAnalysisPlot::SaveHistoToPDF(TString fileName, Int_t nPlot, Int_t nHisto) {
     string name = fPlots[nPlot].histos[nHisto].name;
     TH3F* hist = (TH3F*)gPad->GetPrimitive(name.c_str());
 
@@ -1000,4 +1004,5 @@ void TRestAnalysisPlot::SaveHistoToPDF(const TString& fileName, Int_t nPlot, Int
     c->Print(fileName);
 
     delete c;
+    return;
 }
