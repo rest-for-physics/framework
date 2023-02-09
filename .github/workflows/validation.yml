@@ -637,4 +637,4 @@ jobs:
           retention-days: 1
 
   rawlib-validation:
-    uses: rest-for-physics/rawlib/.github/workflows/validation.yml@master
+    uses: rest-for-physics/rawlib/.github/workflows/validation.yml@submodule-validation
