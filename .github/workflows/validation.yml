@@ -635,3 +635,6 @@ jobs:
           name: AlphaTrack
           path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
           retention-days: 1
+
+  rawlib-validation:
+    uses: rest-for-physics/rawlib/.github/workflows/validation.yml@master
