@@ -1911,9 +1911,9 @@ inline std::ostream& mpreal::output(std::ostream& os) const {
     format << ((flags & std::ios::showpos) ? "%+" : "%");
     if (os.precision() >= 0)
         format << '.' << os.precision() << "R*"
-               << ((flags & std::ios::floatfield) == std::ios::fixed
-                       ? 'f'
-                       : (flags & std::ios::floatfield) == std::ios::scientific ? 'e' : 'g');
+               << ((flags & std::ios::floatfield) == std::ios::fixed        ? 'f'
+                   : (flags & std::ios::floatfield) == std::ios::scientific ? 'e'
+                                                                            : 'g');
     else
         format << "R*e";
 

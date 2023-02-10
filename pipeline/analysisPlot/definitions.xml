@@ -18,4 +18,3 @@
 
 	<variable name="MAXPEAK_CUT" value="8" overwrite="false" />
 </globals>
-

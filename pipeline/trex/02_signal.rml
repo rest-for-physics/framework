@@ -9,7 +9,7 @@
 
 	<TRestRun file="run.xml" />
 
-	<TRestProcessRunner name="Signals" title="REST Manager. Raw To Track Analysis (analysis without intermediate output)." verboseLevel="silent"> 
+	<TRestProcessRunner name="Signals" title="REST Manager. Raw To Track Analysis (analysis without intermediate output)." verboseLevel="silent">
 
 		<parameter name="eventsToProcess" value="0" />
 
@@ -34,5 +34,5 @@
 	</TRestProcessRunner>
 
 	<addTask type="processEvents" value="ON" />
-    
+
 </TRestManager>

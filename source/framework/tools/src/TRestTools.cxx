@@ -1068,7 +1068,7 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
     if ((string)url.GetProtocol() == "https" || (string)url.GetProtocol() == "http") {
         string path = TRestTools::SeparatePathAndName(localFiletmp).first;
         if (!TRestTools::fileExists(path)) {
-            if (!filesystem::create_directories(path)){
+            if (!filesystem::create_directories(path)) {
                 std::cerr << "mkdir failed to create directory: " << path << std::endl;
                 return -1;
             }
