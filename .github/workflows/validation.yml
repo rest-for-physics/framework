@@ -658,4 +658,3 @@ jobs:
 
   wimplib-validation:
     uses: rest-for-physics/wimplib/.github/workflows/validation.yml@submodule-validation
-
