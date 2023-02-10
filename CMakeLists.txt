@@ -210,9 +210,6 @@ string(TIMESTAMP date "%Y-%m-%d %H:%M")
 # Enable testing (-DTEST=ON flag, it is OFF by default)
 include(Testing)
 
-# Includes githooks, now using clang-format
-include(GitHooks)
-
 # Start compile
 include(MacroRootDict)
 add_subdirectory(source)
