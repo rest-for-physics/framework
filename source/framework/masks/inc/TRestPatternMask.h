@@ -24,7 +24,6 @@
 #define REST_TRestPatternMask
 
 #include <TCanvas.h>
-
 #include <TRestMetadata.h>
 
 /// An abstract class used to encapsulate different mask pattern class definitions.

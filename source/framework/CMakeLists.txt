@@ -1,4 +1,3 @@
-
 # '-fPIC' flag necessary on some systems to prevent error
 add_compile_options("-fPIC")
 link_libraries("-fPIC")
@@ -7,26 +6,24 @@ add_subdirectory(external)
 
 set(contents external/tinyxml tools core analysis masks)
 
-file(GLOB_RECURSE addon_src
-        "tiny*cpp"
-        "startup.cpp")
+file(GLOB_RECURSE addon_src "tiny*cpp" "startup.cpp")
 
 if (NOT ${REST_EVE} MATCHES "ON")
     set(excludes TRestEveEventViewer)
 endif (NOT ${REST_EVE} MATCHES "ON")
 
 if (NOT ${REST_MPFR} MATCHES "ON")
-	set(excludes TRestComplex)
+    set(excludes TRestComplex)
 endif (NOT ${REST_MPFR} MATCHES "ON")
 
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
-    set(excludes TRestBenchMarkProcess TRestRealTimeAddInputFileProcess TRestRealTimeDrawingProcess TRestMessenger ${excludes})
+    set(excludes TRestBenchMarkProcess TRestRealTimeAddInputFileProcess
+                 TRestRealTimeDrawingProcess TRestMessenger ${excludes})
 endif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
-# It is defined at the main CMakeLists.txt
-#set(external_libs "${external_libs};-lstdc++fs") # sometimes needed for <filesystem>
+# It is defined at the main CMakeLists.txt set(external_libs
+# "${external_libs};-lstdc++fs") # sometimes needed for <filesystem>
 
+compiledir(RestFramework)
 
-COMPILEDIR(RestFramework)
-
-ADD_LIBRARY_TEST()
+add_library_test()

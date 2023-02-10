@@ -16,5 +16,4 @@ void validate() {
         cout << "branch \"interitedvec[0]\" in entry 3 is not 3!" << endl;
         return 3;
     }
-
 }

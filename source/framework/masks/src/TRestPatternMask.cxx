@@ -68,13 +68,13 @@
 /// <hr>
 ///
 
+#include "TRestPatternMask.h"
+
 #include "TAxis.h"
 #include "TColor.h"
 #include "TGraph.h"
 #include "TH1F.h"
 #include "TRandom3.h"
-
-#include "TRestPatternMask.h"
 
 ClassImp(TRestPatternMask);
 

@@ -8,11 +8,10 @@ They include energies and momentum distributions.
  	- Pb214.dat--> Pb214 beta decay to Bi214
 	- Tl208.dat--> Tl208 beta decay to Pb208
 	- Xe136bb0n.dat
-		event type: Xe136           
-              0nubb(mn) 0+ -> 0+     {2n}      
+		event type: Xe136
+              0nubb(mn) 0+ -> 0+     {2n}
               level, Elevel (MeV) =  0+       0.0000     MeV
 	- Xe136bb2n.dat
-		event type: Xe136           
-              2nubb     0+ -> 0+     {2n}      
+		event type: Xe136
+              2nubb     0+ -> 0+     {2n}
               level, Elevel (MeV) =  0+       0.0000     MeV
-

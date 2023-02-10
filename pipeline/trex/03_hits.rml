@@ -9,12 +9,12 @@
 
 	<TRestRun file="run.xml" />
 
-	<TRestProcessRunner name="Signals" title="REST Manager. Raw To Track Analysis (analysis without intermediate output)." verboseLevel="silent"> 
+	<TRestProcessRunner name="Signals" title="REST Manager. Raw To Track Analysis (analysis without intermediate output)." verboseLevel="silent">
 
 		<parameter name="eventsToProcess" value="0" />
 		<parameter name="outputEvent" value="ON" />
 
-		<addProcess type="TRestDetectorSignalToHitsProcess" name="signalToHits" value="ON" verboseLevel="silent" 
+		<addProcess type="TRestDetectorSignalToHitsProcess" name="signalToHits" value="ON" verboseLevel="silent"
 			electricField="${PRESSURE}*${DRIFT_FIELD}"
 			gasPressure="[detParam::fPressure]"
 			driftVelocity=""
@@ -52,6 +52,5 @@
 	</TRestProcessRunner>
 
 	<addTask type="processEvents" value="ON" />
-    
-</TRestManager>
 
+</TRestManager>
