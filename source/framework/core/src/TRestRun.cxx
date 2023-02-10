@@ -1692,7 +1692,6 @@ string TRestRun::ReplaceMetadataMembers(const string& instr, Int_t precision) {
 /// \return The corresponding class data member value in string format.
 ///
 string TRestRun::ReplaceMetadataMember(const string& instr, Int_t precision) {
-    std::cout << "Calling ReplaceMetadataMember" << std::endl;
     if (instr.find("::") == string::npos && instr.find("->") == string::npos) {
         return "{{" + instr + "}}";
     }
