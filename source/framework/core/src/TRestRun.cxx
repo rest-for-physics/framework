@@ -1669,8 +1669,8 @@ string TRestRun::ReplaceMetadataMembers(const string& instr, Int_t precision) {
         endPosition = 0;
     }
 
-    outstring = Replace(outstring, "[[", "[");
-    outstring = Replace(outstring, "]]", "]");
+    outstring = Replace(outstring, "{{", "[");
+    outstring = Replace(outstring, "}}", "]");
 
     return REST_StringHelper::ReplaceMathematicalExpressions(outstring, precision);
 }
@@ -1693,7 +1693,7 @@ string TRestRun::ReplaceMetadataMembers(const string& instr, Int_t precision) {
 ///
 string TRestRun::ReplaceMetadataMember(const string& instr, Int_t precision) {
     if (instr.find("::") == string::npos && instr.find("->") == string::npos) {
-        return "[[" + instr + "]]";
+        return "{{" + instr + "}}";
     }
     vector<string> results = Split(instr, "::", false, true);
     if (results.size() == 1) results = Split(instr, "->", false, true);
