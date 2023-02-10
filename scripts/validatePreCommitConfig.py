@@ -15,15 +15,18 @@ def check_files(base_directory, file_name) -> bool:
     # Note: this function will exit the script if the files are not the same.
 
     branch_name = "master"
-    github_prefix = f"https://raw.githubusercontent.com/rest-for-physics/framework/{branch_name}/"
+    github_prefix = (
+        f"https://raw.githubusercontent.com/rest-for-physics/framework/{branch_name}/"
+    )
 
-    with open(os.path.join(base_directory, file_name), 'r') as f:
+    with open(os.path.join(base_directory, file_name), "r") as f:
         local_file = f.read()
     # download file with curl (this way we avoid adding a python dependency, requests, since curl is installed)
     reference_file = os.popen(f"curl -s {github_prefix}{file_name}").read()
     if local_file != reference_file:
         print(
-            f"WARNING: The file {file_name} is different from the one in the framework repository (branch={branch_name}).")
+            f"WARNING: The file {file_name} is different from the one in the framework repository (branch={branch_name})."
+        )
         return False
 
     return True
