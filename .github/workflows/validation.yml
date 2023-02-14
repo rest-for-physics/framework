@@ -634,3 +634,27 @@ jobs:
           name: AlphaTrack
           path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
           retention-days: 1
+
+  rawlib-validation:
+    uses: rest-for-physics/rawlib/.github/workflows/validation.yml@submodule-validation
+
+  geant4lib-validation:
+    uses: rest-for-physics/geant4lib/.github/workflows/validation.yml@submodule-validation
+
+  detectorlib-validation:
+    uses: rest-for-physics/detectorlib/.github/workflows/validation.yml@submodule-validation
+
+  connectorslib-validation:
+    uses: rest-for-physics/connectorslib/.github/workflows/validation.yml@submodule-validation
+
+  tracklib-validation:
+    uses: rest-for-physics/tracklib/.github/workflows/validation.yml@submodule-validation
+
+  legacylib-validation:
+    uses: rest-for-physics/legacylib/.github/workflows/validation.yml@submodule-validation
+
+  axionlib-validation:
+    uses: rest-for-physics/axionlib/.github/workflows/validation.yml@submodule-validation
+
+  wimplib-validation:
+    uses: rest-for-physics/wimplib/.github/workflows/validation.yml@submodule-validation
