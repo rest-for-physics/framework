@@ -112,7 +112,7 @@
 		  nPointsOverThreshold="5"
 		  signalThreshold="3" />
 
-			<!-- Requires a bit of debugging 
+			<!-- Requires a bit of debugging
 		<addProcess type="TRestDetectorSignalChannelActivityProcess" name="chActivity" value="${RAW_PROCESSING}" verboseLevel="info" observable="all" >
 		    <parameter name="daqChannels" value="240" />
 		    <parameter name="readoutChannels" value="240" />
@@ -144,4 +144,3 @@
     <addTask type="processEvents" value="ON"/>
 
 </TRestManager>
-

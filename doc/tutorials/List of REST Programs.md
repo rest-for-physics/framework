@@ -20,7 +20,7 @@ This is just an indexing list of existing programs included with REST compilatio
 
 **restIntegrateSmearing** : It integrates the entries inside a variable name from TRestAnalysisTree after smearing the input variable.
 
-## Printing info executables 
+## Printing info executables
 
 **restPrintRunInfo** : It prints the metadata information inside a REST file.
 
@@ -32,6 +32,6 @@ This is just an indexing list of existing programs included with REST compilatio
 
 **restPrintEvents** : It prints on screen the content of the event data inside a REST file.
 
-**restDrawEvents** : It draws the events one by one, using the specific TRestEvent::Draw method implemented in the specific event data type found inside the REST file. 
+**restDrawEvents** : It draws the events one by one, using the specific TRestEvent::Draw method implemented in the specific event data type found inside the REST file.
 
 **restG4PrintParticles** : It prints the name of all the different particles registered inside a REST file containing a TRestGeant4Event data type.

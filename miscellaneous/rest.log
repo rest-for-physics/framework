@@ -1,9 +1,9 @@
 +++++++++++++++++++++
 File : rest.log
-Description : This file should keep track of all modifications done in svn. 
+Description : This file should keep track of all modifications done in svn.
 	      Somehow we will find similar information when we execute "svn log -lN" (N is to show the N last revisions).
-	      However, it will allow to log your own activity (might be several days work) before making a commit, 
-	      and probably give more detailed comments than those given at commit time. It is a working log. 
+	      However, it will allow to log your own activity (might be several days work) before making a commit,
+	      and probably give more detailed comments than those given at commit time. It is a working log.
 	      So when there are tasks that should be done we may write (TODO), when they are finished we can change it to (DONE).
 
 
@@ -17,7 +17,7 @@ Author : J. Galan
 - Added G4Rest (a copy from NEXTMM)
 - Many classes in PhysicsList from G4Rest have been removed in order to compile in the new G4.10 version. This should be checked (TODO)
 - Makefiles in restcore and in main directory have been simplified (ROOT_SYS) is now replaced by root-config.
-- Makefile in the root directory should check if modules/libraries are updated. 
+- Makefile in the root directory should check if modules/libraries are updated.
   If not it should go inside modules directory and call their Makefile (DONE)
 - restlauncher has been placed on the root directory. This may be kept this way if we let REST philosophy to only one exe file.
 	+ However we might want to have restLaunchTask, restLaunchGUI, restPrintRunInfo, etc (or perhaps they may go in scripts?)
@@ -264,7 +264,7 @@ Revision 119 - librestcore.so.2.2.0
 m string related classes inside TRestMetadata have been made static
 + TRestRun has been prepared for input/output (full remasterization of this class)
     + Added fHistoricMetadata
-    - SetRunFilename is now a pure virtual method that must be implemented by the derived class 
+    - SetRunFilename is now a pure virtual method that must be implemented by the derived class
     - Added virtual method Save() that should be implemented in the derived class in case some special member must be stored in ROOT file
 m TRestG4Metadata has been renamed to TRestG4Run
 m TRestMetadata LoadConfigFile is now LoadSectionMetadata( ). This loads the specific section on the config buffer and calls the virtual function InitializeFromConfig() that is implemented in the derived class.
@@ -282,5 +282,3 @@ Revision 122 - librestcore.so.2.2.0
 A Added TRestEventViewer class, TRestG4EventViewer class and RESTG4_ViewEvent.C
 A Added TRestGas allowing to generate and read gas files. Implements method to access the properties of the gas.
 m Moved related G4 classes to restsim.
-
-

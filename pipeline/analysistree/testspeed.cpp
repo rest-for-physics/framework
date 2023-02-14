@@ -37,10 +37,10 @@ void testspeedRESTTree() {
 
         ///////////////////////////////////////////////
         // D. Use reflected observable
-        //tree->SetObservable("gaus", gRandom->Gaus(100, 20));
-        //tree->SetObservable("poisson", gRandom->Poisson(36));
-        //tree->SetObservable("rndm", gRandom->Rndm());
-        //tree->SetObservable("landau", gRandom->Landau(10, 2));
+        // tree->SetObservable("gaus", gRandom->Gaus(100, 20));
+        // tree->SetObservable("poisson", gRandom->Poisson(36));
+        // tree->SetObservable("rndm", gRandom->Rndm());
+        // tree->SetObservable("landau", gRandom->Landau(10, 2));
 
         tree->Fill();
     }
