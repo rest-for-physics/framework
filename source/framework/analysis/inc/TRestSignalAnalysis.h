@@ -22,6 +22,7 @@
 
 #include <Rtypes.h>
 #include <TMath.h>
+
 #include <iostream>
 #include <vector>
 
@@ -29,6 +30,7 @@
 #define RestCore_TRestSignalAnalysis
 
 #include <TVector2.h>
+
 #include <numeric>
 
 /// This namespace define utilities (functions) to calculate different signal parameters
