@@ -122,7 +122,7 @@ Double_t GetAverage(const std::vector<Float_t>& signal, Int_t startBin, Int_t en
 ///
 template <typename T>
 std::vector<Float_t> GetSignalSmoothed(const std::vector<T>& signal, int averagingPoints = 3) {
-    const size_t pulseDepth = signal.size();
+    const int pulseDepth = signal.size();
     std::vector<Float_t> smoothed(pulseDepth, 0);
 
     averagingPoints = (averagingPoints / 2) * 2 + 1;  // make it odd >= averagingPoints
@@ -151,7 +151,7 @@ std::vector<Float_t> GetSignalSmoothed(const std::vector<Float_t>& signal, int a
 template <typename T>
 std::vector<Float_t> GetSignalSmoothed_ExcludeOutliers(const std::vector<T>& signal, int averagingPoints,
                                                        Double_t& baseLine, Double_t& baseLineSigma) {
-    const size_t pulseDepth = signal.size();
+    const int pulseDepth = signal.size();
     std::vector<Float_t> smoothed(pulseDepth, 0);
 
     if (baseLine == 0) CalculateBaselineAndSigmaIQR(signal, 5, int(pulseDepth - 5), baseLine, baseLineSigma);
