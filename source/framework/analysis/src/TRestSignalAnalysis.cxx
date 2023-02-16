@@ -38,19 +38,14 @@
 /// <hr>
 ///
 
-///////////////////////////////////////////////
-/// \brief Smoothing of the existing signal and returns
-/// a vector of Float_t values
-///
-/// \param neighbours It defines the number of neighbours
-/// points used to average the signal
-///
-/// \param option If the option is set to "EXCLUDE OUTLIERS", points that are too far away from the median
-/// baseline will be ignored to improve the smoothing result
-///
-
 #include <TRestSignalAnalysis.h>
 
+///////////////////////////////////////////////
+/// \brief This method is used to determine the value
+/// of the baseline as average (arithmetic mean) of the
+/// data in the range defined between startBin and endBin.
+/// The baseline sigma is determined as the standard deviation
+/// of the baseline in range provided.
 template <typename T>
 void TRestSignalAnalysis::CalculateBaselineAndSigmaSD(const std::vector<T>& signal, Int_t startBin,
                                                       Int_t endBin, Double_t& baseLine,
@@ -80,7 +75,13 @@ template void TRestSignalAnalysis::CalculateBaselineAndSigmaSD<Float_t>(const st
                                                                         Int_t startBin, Int_t endBin,
                                                                         Double_t& baseLine,
                                                                         Double_t& baseLineSigma);
-
+///////////////////////////////////////////////
+/// \brief This method is used to determine the value
+/// of the baseline as the median of the data in
+/// the range defined between startBin and endBin.
+/// The baseline sigma is determined as the interquartile
+/// range (IQR) in the baseline range provided. The IQR
+/// is more robust towards outliers than the standard deviation.
 template <typename T>
 void TRestSignalAnalysis::CalculateBaselineAndSigmaIQR(const std::vector<T>& signal, Int_t startBin,
                                                        Int_t endBin, Double_t& baseLine,
@@ -113,7 +114,10 @@ template void TRestSignalAnalysis::CalculateBaselineAndSigmaIQR<Float_t>(const s
                                                                          Int_t startBin, Int_t endBin,
                                                                          Double_t& baseLine,
                                                                          Double_t& baseLineSigma);
-
+///////////////////////////////////////////////
+/// \brief This method performs the average of
+/// the data points in a given range defined
+/// between startBin and endBin
 template <typename T>
 Double_t TRestSignalAnalysis::GetAverage(const std::vector<T>& signal, Int_t startBin, Int_t endBin) {
     int nPoints = 0;
@@ -136,14 +140,11 @@ template Double_t TRestSignalAnalysis::GetAverage<Float_t>(const std::vector<Flo
                                                            Int_t endBin);
 
 ///////////////////////////////////////////////
-/// \brief Return smoothing of signal
+/// \brief Return smoothing of signal as the
+/// moving average of the data
 ///
-///
-/// \param neighbours It defines the number of neighbours
-/// points used to average the signal
-///
-/// \param option If the option is set to "EXCLUDE OUTLIERS", points that are too far away from the median
-/// baseline will be ignored to improve the smoothing result
+/// \param averagingPoints defines the number of
+/// neighbouring points used to average the signal
 ///
 template <typename T>
 std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed(const std::vector<T>& signal,
@@ -176,6 +177,14 @@ template std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed<Short_t>(
 template std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed<Float_t>(
     const std::vector<Float_t>& signal, int averagingPoints);
 
+///////////////////////////////////////////////
+/// \brief Return smoothing of signal, the points
+/// that are too far away from the median baseline
+/// will be ignored to improve the smoothing result.
+///
+/// \param averagingPoints defines the number of
+/// neighbouring points used to average the signal
+///
 template <typename T>
 std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed_ExcludeOutliers(const std::vector<T>& signal,
                                                                             int averagingPoints,
@@ -217,6 +226,39 @@ template std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed_ExcludeOutl
     const std::vector<Short_t>& signal, int averagingPoints, Double_t& baseLine, Double_t& baseLineSigma);
 template std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed_ExcludeOutliers<Float_t>(
     const std::vector<Float_t>& signal, int averagingPoints, Double_t& baseLine, Double_t& baseLineSigma);
+
+///////////////////////////////////////////////
+/// \brief It returns a vector of the data points
+/// that are found over threshold.
+/// The parameters provided to this method are
+/// used to identify those points.
+///
+/// \param thrPar A TVector2 defining two parameters: *pointThreshold* and
+/// *signalThreshold*. Both numbers
+/// define the number of sigmas over the baseline fluctuation, stored in
+/// baseLineSigma. The first parameter,
+/// *pointThreshold*, serves to identify if a single point is over threshold by
+/// satisfying the condition that
+/// is above the baseline by the number of sigmas given in *pointThreshold*.
+/// Once a certain number of
+/// consecutive points have been identified, the parameter *signalThreshold*
+/// will serve to reject the signals
+/// (consecutive points over threshold) that their standard deviation is lower
+/// that *signalThreshold* times
+/// the baseline fluctuation.
+///
+/// \param nPointsOver Only data points with at least *nPointsOver* consecutive
+/// points will be considered.
+///
+/// \param nPointsFlat It will serve to terminate the points over threshold
+/// identification in signals where
+/// we find an overshoot, being the baseline not returning to zero (or its
+/// original value) at the signal tail.
+///
+/// \param baseLine value of the signal baseline calculated beforehand
+///
+/// \param baseLineSigma value of the baseline fluctuation calculated beforehand
+///
 
 template <typename T>
 std::vector<Int_t> TRestSignalAnalysis::GetPointsOverThreshold(const std::vector<T>& signal, TVector2& range,

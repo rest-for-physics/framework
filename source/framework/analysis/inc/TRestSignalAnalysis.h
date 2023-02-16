@@ -33,10 +33,8 @@
 
 #include <numeric>
 
-/// This namespace define utilities (functions) to calculate different signal parameters
+/// This namespace define generic functions to calculate different signal parameters
 namespace TRestSignalAnalysis {
-
-/// Generic functions for different calculations
 
 template <typename T>
 void CalculateBaselineAndSigmaSD(const std::vector<T>& signal, Int_t startBin, Int_t endBin,
@@ -49,16 +47,6 @@ void CalculateBaselineAndSigmaIQR(const std::vector<T>& signal, Int_t startBin, 
 template <typename T>
 Double_t GetAverage(const std::vector<T>& signal, Int_t startBin, Int_t endBin);
 
-///////////////////////////////////////////////
-/// \brief Return smoothing of signal
-///
-///
-/// \param neighbours It defines the number of neighbours
-/// points used to average the signal
-///
-/// \param option If the option is set to "EXCLUDE OUTLIERS", points that are too far away from the median
-/// baseline will be ignored to improve the smoothing result
-///
 template <typename T>
 std::vector<Float_t> GetSignalSmoothed(const std::vector<T>& signal, int averagingPoints = 3);
 
