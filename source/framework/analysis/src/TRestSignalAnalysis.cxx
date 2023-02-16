@@ -235,11 +235,10 @@ std::vector<Int_t> TRestSignalAnalysis::GetPointsOverThreshold(const std::vector
 
     for (int i = range.X(); i < range.Y(); i++) {
         // Filling a pulse with consecutive points that are over threshold
-        double data = signal[i] - baseLine;
-        if (data > threshold) {
+        if ((signal[i] - baseLine) > threshold) {
             int pos = i;
             std::vector<double> pulse;
-            pulse.push_back(data);
+            pulse.push_back(signal[i] - baseLine);
             i++;
 
             // If the pulse ends in a flat end above the threshold, the parameter
@@ -248,7 +247,7 @@ std::vector<Int_t> TRestSignalAnalysis::GetPointsOverThreshold(const std::vector
             // decision to cut this anomalous behaviour. And all points over threshold
             // will be added to the pulse vector.
             int flatN = 0;
-            while (i < range.Y() && data > threshold) {
+            while (i < range.Y() && (signal[i] - baseLine) > threshold) {
                 if (TMath::Abs(signal[i] - signal[i - 1]) > threshold) {
                     flatN = 0;
                 } else {
@@ -256,12 +255,11 @@ std::vector<Int_t> TRestSignalAnalysis::GetPointsOverThreshold(const std::vector
                 }
 
                 if (flatN < nPointsFlat) {
-                    pulse.push_back(data);
+                    pulse.push_back(signal[i] - baseLine);
                     i++;
                 } else {
                     break;
                 }
-                data = signal[i] - baseLine;
             }
 
             if (pulse.size() >= (unsigned int)nPointsOver) {
