@@ -261,14 +261,13 @@ template std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed_ExcludeOutl
 ///
 
 template <typename T>
-std::vector<Int_t> TRestSignalAnalysis::GetPointsOverThreshold(const std::vector<T>& signal, TVector2& range,
-                                                               const TVector2& thrPar, Int_t nPointsOver,
-                                                               Int_t nPointsFlat, Double_t baseLine,
-                                                               Double_t baseLineSigma) {
+std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPointsOverThreshold(
+    const std::vector<T>& signal, TVector2& range, const TVector2& thrPar, Int_t nPointsOver,
+    Int_t nPointsFlat, Double_t baseLine, Double_t baseLineSigma) {
     if (range.X() < 0) range.SetX(0);
     if (range.Y() <= 0) range.SetY(signal.size());
 
-    std::vector<Int_t> pointsOverThreshold;
+    std::vector<std::pair<Float_t, Float_t> > pointsOverThreshold;
 
     double pointTh = thrPar.X();
     double signalTh = thrPar.Y();
@@ -310,7 +309,8 @@ std::vector<Int_t> TRestSignalAnalysis::GetPointsOverThreshold(const std::vector
                 double stdev = std::sqrt(sq_sum / pulse.size() - mean * mean);
 
                 if (stdev > signalTh * baseLineSigma)
-                    for (int j = pos; j < i; j++) pointsOverThreshold.push_back(j);
+                    for (unsigned int j = 0; j < pulse.size(); j++)
+                        pointsOverThreshold.push_back(std::make_pair(pos + j, pulse[j]));
             }
         }
     }
@@ -318,9 +318,9 @@ std::vector<Int_t> TRestSignalAnalysis::GetPointsOverThreshold(const std::vector
     return pointsOverThreshold;
 }
 
-template std::vector<Int_t> TRestSignalAnalysis::GetPointsOverThreshold<Short_t>(
+template std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPointsOverThreshold<Short_t>(
     const std::vector<Short_t>& signal, TVector2& range, const TVector2& thrPar, Int_t nPointsOver,
     Int_t nPointsFlat, Double_t baseLine, Double_t baseLineSigma);
-template std::vector<Int_t> TRestSignalAnalysis::GetPointsOverThreshold<Float_t>(
+template std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPointsOverThreshold<Float_t>(
     const std::vector<Float_t>& signal, TVector2& range, const TVector2& thrPar, Int_t nPointsOver,
     Int_t nPointsFlat, Double_t baseLine, Double_t baseLineSigma);

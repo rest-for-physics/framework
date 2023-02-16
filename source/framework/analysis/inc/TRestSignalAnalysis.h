@@ -30,7 +30,7 @@
 #define RestCore_TRestSignalAnalysis
 
 #include <TVector2.h>
-
+#include <map>
 #include <numeric>
 
 /// This namespace define generic functions to calculate different signal parameters
@@ -55,9 +55,10 @@ std::vector<Float_t> GetSignalSmoothed_ExcludeOutliers(const std::vector<T>& sig
                                                        Double_t& baseLine, Double_t& baseLineSigma);
 
 template <typename T>
-std::vector<Int_t> GetPointsOverThreshold(const std::vector<T>& signal, TVector2& range,
-                                          const TVector2& thrPar, Int_t nPointsOver, Int_t nPointsFlat,
-                                          Double_t baseLine, Double_t baseLineSigma);
+std::vector<std::pair<Float_t, Float_t> > GetPointsOverThreshold(const std::vector<T>& signal,
+                                                                 TVector2& range, const TVector2& thrPar,
+                                                                 Int_t nPointsOver, Int_t nPointsFlat,
+                                                                 Double_t baseLine, Double_t baseLineSigma);
 
 template <typename T>
 Int_t GetMaxBin(const std::vector<T>& signal) {
