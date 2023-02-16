@@ -30,6 +30,7 @@
 #define RestCore_TRestSignalAnalysis
 
 #include <TVector2.h>
+
 #include <map>
 #include <numeric>
 
