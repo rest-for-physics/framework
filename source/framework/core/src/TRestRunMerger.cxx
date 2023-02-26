@@ -41,19 +41,49 @@
 /// 
 /// ### Examples
 /// This example merge the input files that matches the following pattern
-/// from restManager:
+/// e.g. R00622_00XXX_EventSelection_LSC_Calibrationn_user_2.3.15.root
+/// To merge the files with this pattern you should run the following cmd 
 /// \code
-///  restManager --c ../RML/mergeFiles.rml --f "../data/R00622_000*.root"
+///  restManager --c ../RML/mergeFiles.rml --f "../data/R00622_000*EventSelection*.root"
 /// \endcode
+/// The rml file is below, note that the TRestRun section is required in order
+/// to deduce the output file name from the input format.
 /// \code
-///     <WRITE A CODE EXAMPLE HERE>
+/// Note that in the example below the run number 
+/// <TRestRun name="IAXOD1" title="IAXOD1" verboseLevel="debug">
+///	<parameter name="experiment" value="IAXO"/>
+///	<parameter name="runNumber" value="preserve"/>
+///	<parameter name="runTag" value="preserve"/>
+///	<parameter name="runType" value="${RUN_TYPE}" overwrite="true"/>
+///	<parameter name="runDescription" value=""/>
+///	<parameter name="user" value="${USER}"/>
+///	<parameter name="verboseLevel" value="0"/>
+///	<parameter name="overwrite" value="off" />
+///
+///	<parameter name="inputFormat" value="R[fRunNumber]_[fParentRunNumber]_[fRunType]_LSC_[fRunTag]_[fRunUser]_[fVersion].root"/>
+///	<parameter name="outputFileName" value="R[fRunNumber]_EventSelection_LSC_[fRunTag]_[fRunUser]_[fVersion].root" />
+///	<parameter name="readOnly" value="false" />
+///</TRestRun>
+///
+///	<TRestRunMerger name="Merger" title="File merger" verboseLevel="debug">
+///	</TRestRunMerger>
+///	<addTask command="Merger->MergeFiles()" value="ON" />
+///
 /// \endcode
 /// 
-/// ### Running pipeline example
-/// Add the examples to a pipeline to guarantee the code will be running 
-/// on future framework upgrades.                                        
-///         
-///                                                                      
+/// The example below generates the following file name:
+/// R00622_EventSelection_LSC_Calibration_user_2.3.15.root
+///
+/// It is possible to merge files from a macro, the example below merge
+/// all the files following the file pattern:
+///  \code
+///    Int_t REST_MergeFiles(TString pathAndPattern, TString outputFilename) {
+///    vector<string> files = TRestTools::GetFilesMatchingPattern((string)pathAndPattern);
+///    TRestRunMerger merger;
+///    return merger.MergeFiles(files, std::string(outputFilename.Data() ));
+///    }
+///  \endcode
+///
 ///----------------------------------------------------------------------
 ///                                                                      
 /// REST-for-Physics - Software for Rare Event Searches Toolkit 	    
