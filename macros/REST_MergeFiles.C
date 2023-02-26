@@ -1,32 +1,15 @@
-#include "TFileMerger.h"
-#include "TRestTask.h"
-
-#ifndef RESTTask_MergeFiles
-#define RESTTask_MergeFiles
+#include "TRestRunMerger.h"
 
 //*******************************************************************************************************
 //***
-//*** Your HELP is needed to verify, validate and document this macro
-//*** This macro might need update/revision.
+//*** Updated REST_MergeFiles macro with the new TRestRunMerger class
+//*** See TRestRunMerger for more details about this implementation
 //***
 //*******************************************************************************************************
 Int_t REST_MergeFiles(TString pathAndPattern, TString outputFilename) {
     vector<string> files = TRestTools::GetFilesMatchingPattern((string)pathAndPattern);
-    TFileMerger* m = new TFileMerger(false);
-    m->OutputFile(outputFilename);
-    for (auto f : files) {
-        m->AddFile(f.c_str());
-    }
-    int a = m->Merge();
-    delete m;
-    return a;
+    TRestRunMerger merger;
+    
+    return merger.MergeFiles(files, std::string(outputFilename.Data() ));
 
-    // TRestRunMerger *runMerger = new TRestRunMerger( pathAndPattern );
-
-    // runMerger->MergeFiles( outputFilename );
-
-    // delete runMerger;
-
-    // return 0;
 }
-#endif
