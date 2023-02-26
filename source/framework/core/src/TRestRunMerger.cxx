@@ -23,33 +23,33 @@
 /////////////////////////////////////////////////////////////////////////
 /// This class is used to merge different TRestRun files inside one file.
 /// The merging is performed using TFileMerger class from ROOT, all files
-/// with the matching pattern are merged. However, further checks are 
+/// with the matching pattern are merged. However, further checks are
 /// performed in order to avoid different run numbers to be merged in the
 /// same file. It is not a good practise to merger files with a big size,
 /// consider to reduce the size of the file before attempting to merge.
-/// 
+///
 /// ### Parameters
-/// Describe any parameters this process receives: 
-/// * **inputFilePattern **: Pattern from which the input files to be 
+/// Describe any parameters this process receives:
+/// * **inputFilePattern **: Pattern from which the input files to be
 /// merged are generated. If not provided it checks the the input file
 /// name at restManager
-/// * **outputFileName**: Name of the output file to be generated. If 
+/// * **outputFileName**: Name of the output file to be generated. If
 /// not provides tries to generate the output file from the TRestRun
 /// section inside the rml file.
-/// * **removeInputFiles**: If true the input files that have been 
+/// * **removeInputFiles**: If true the input files that have been
 /// merged are removed.
-/// 
+///
 /// ### Examples
 /// This example merge the input files that matches the following pattern
 /// e.g. R00622_00XXX_EventSelection_LSC_Calibrationn_user_2.3.15.root
-/// To merge the files with this pattern you should run the following cmd 
+/// To merge the files with this pattern you should run the following cmd
 /// \code
 ///  restManager --c ../RML/mergeFiles.rml --f "../data/R00622_000*EventSelection*.root"
 /// \endcode
 /// The rml file is below, note that the TRestRun section is required in order
 /// to deduce the output file name from the input format.
 /// \code
-/// Note that in the example below the run number 
+/// Note that in the example below the run number
 /// <TRestRun name="IAXOD1" title="IAXOD1" verboseLevel="debug">
 ///	<parameter name="experiment" value="IAXO"/>
 ///	<parameter name="runNumber" value="preserve"/>
@@ -60,8 +60,9 @@
 ///	<parameter name="verboseLevel" value="0"/>
 ///	<parameter name="overwrite" value="off" />
 ///
-///	<parameter name="inputFormat" value="R[fRunNumber]_[fParentRunNumber]_[fRunType]_LSC_[fRunTag]_[fRunUser]_[fVersion].root"/>
-///	<parameter name="outputFileName" value="R[fRunNumber]_EventSelection_LSC_[fRunTag]_[fRunUser]_[fVersion].root" />
+///	<parameter name="inputFormat"
+///value="R[fRunNumber]_[fParentRunNumber]_[fRunType]_LSC_[fRunTag]_[fRunUser]_[fVersion].root"/> 	<parameter
+///name="outputFileName" value="R[fRunNumber]_EventSelection_LSC_[fRunTag]_[fRunUser]_[fVersion].root" />
 ///	<parameter name="readOnly" value="false" />
 ///</TRestRun>
 ///
@@ -70,7 +71,7 @@
 ///	<addTask command="Merger->MergeFiles()" value="ON" />
 ///
 /// \endcode
-/// 
+///
 /// The example below generates the following file name:
 /// R00622_EventSelection_LSC_Calibration_user_2.3.15.root
 ///
@@ -85,33 +86,32 @@
 ///  \endcode
 ///
 ///----------------------------------------------------------------------
-///                                                                      
-/// REST-for-Physics - Software for Rare Event Searches Toolkit 	    
-///                                                                      
-/// History of developments:                                             
-///                                                                      
+///
+/// REST-for-Physics - Software for Rare Event Searches Toolkit
+///
+/// History of developments:
+///
 /// 2023-February First implementation
 /// JuanAn Garcia
-///                                                                      
-/// \class TRestRunMerger                                               
+///
+/// \class TRestRunMerger
 /// \author: JuanAn Garcia   e-mail: juanangp@unizar.es
-///                                                                      
-/// <hr>                                                                 
-///                                                                      
+///
+/// <hr>
+///
 
 #include "TRestRunMerger.h"
-#include "TRestRun.h"
 
 #include <TSystem.h>
 
+#include "TRestRun.h"
+
 ClassImp(TRestRunMerger);
 
-///////////////////////////////////////////////                          
-/// \brief Default constructor                                          
-///                                                                      
-TRestRunMerger::TRestRunMerger() {
-    Initialize();
-}
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestRunMerger::TRestRunMerger() { Initialize(); }
 
 /////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -131,60 +131,52 @@ TRestRunMerger::TRestRunMerger(const char* configFilename, std::string name) : T
     LoadConfigFromFile(fConfigFileName, name);
 }
 
-///////////////////////////////////////////////                          
-/// \brief Default destructor                                           
-///                                                                      
-TRestRunMerger::~TRestRunMerger() {
-}
+///////////////////////////////////////////////
+/// \brief Default destructor
+///
+TRestRunMerger::~TRestRunMerger() {}
 
-///////////////////////////////////////////////                          
-/// \brief Function to initialize input/output event members and define 
-/// the section name                                                     
-///                                                                      
-void TRestRunMerger::Initialize() {
-    SetSectionName(this->ClassName());
+///////////////////////////////////////////////
+/// \brief Function to initialize input/output event members and define
+/// the section name
+///
+void TRestRunMerger::Initialize() { SetSectionName(this->ClassName()); }
 
-}
-
-///////////////////////////////////////////////                          
+///////////////////////////////////////////////
 /// \brief Function to initialize some variables from
 /// configfile, in case that the variable is not found
 /// in the rml it checks the input and output name from
-/// restManager. In case the output name is empty                    
-///                                                                      
+/// restManager. In case the output name is empty
+///
 void TRestRunMerger::InitFromConfigFile() {
-
     Initialize();
     TRestMetadata::InitFromConfigFile();
 
-    if(fInputFilePattern == "")fInputFilePattern = GetParameter("inputFileName","");
-    if(fOutputFileName == "")fOutputFileName = GetParameter("outputFileName","");
+    if (fInputFilePattern == "") fInputFilePattern = GetParameter("inputFileName", "");
+    if (fOutputFileName == "") fOutputFileName = GetParameter("outputFileName", "");
 
-      if(fOutputFileName == ""){
-         TRestRun restRun (fConfigFileName);
-         auto fileNames = TRestTools::GetFilesMatchingPattern(std::string(fInputFilePattern));
-         restRun.OpenInputFile(fileNames.front().c_str());
-         fOutputFileName = restRun.FormFormat(restRun.GetOutputFileName());
-      }
+    if (fOutputFileName == "") {
+        TRestRun restRun(fConfigFileName);
+        auto fileNames = TRestTools::GetFilesMatchingPattern(std::string(fInputFilePattern));
+        restRun.OpenInputFile(fileNames.front().c_str());
+        fOutputFileName = restRun.FormFormat(restRun.GetOutputFileName());
+    }
 }
 
-///////////////////////////////////////////////                          
-/// \brief This function is a wrapper to merge the 
+///////////////////////////////////////////////
+/// \brief This function is a wrapper to merge the
 /// different input files when it is called from
 /// the rml file
-///    
-void TRestRunMerger::MergeFiles(){
+///
+void TRestRunMerger::MergeFiles() {
+    auto fileNames = TRestTools::GetFilesMatchingPattern(std::string(fInputFilePattern));
 
-  auto fileNames = TRestTools::GetFilesMatchingPattern(std::string(fInputFilePattern));
-
-  MergeFiles(fileNames, std::string(fOutputFileName), fRemoveInputFiles);
-
-
+    MergeFiles(fileNames, std::string(fOutputFileName), fRemoveInputFiles);
 }
 
-///////////////////////////////////////////////                          
+///////////////////////////////////////////////
 /// \brief This function merge the different input
-/// files inside the outputFile 
+/// files inside the outputFile
 ///
 /// \param files vector with the name of the files
 /// that are meant to be merged
@@ -195,64 +187,65 @@ void TRestRunMerger::MergeFiles(){
 /// \param removeInputFiles if true it erases the input
 /// files that have been merged
 ///
-Int_t TRestRunMerger::MergeFiles(const std::vector<std::string> &files, std::string outputFileName, bool removeInputFiles){
-
+Int_t TRestRunMerger::MergeFiles(const std::vector<std::string>& files, std::string outputFileName,
+                                 bool removeInputFiles) {
     RESTDebug << "TRestRunMerger::Merge target : " << outputFileName << RESTendl;
 
-    if(files.size() <= 1){
-      RESTError<<"Cannot merge less than two files"<<RESTendl;
-      return 1;
+    if (files.size() <= 1) {
+        RESTError << "Cannot merge less than two files" << RESTendl;
+        return 1;
     }
 
-    int runNumber =-1;
+    int runNumber = -1;
     double startTime = -1;
-    std::vector<std::string>filesAdd;
+    std::vector<std::string> filesAdd;
 
-        // Check how many files matches
-        for (const auto &f : files) {
-          TRestRun cRun (f.c_str());
-            if(runNumber ==-1 && startTime == -1){
-              startTime = cRun.GetStartTimestamp();
-              runNumber = cRun.GetRunNumber();
-            }
-
-            if(runNumber == cRun.GetRunNumber()){
-               filesAdd.push_back(f);
-            } else {
-              RESTWarning<<"Run number mistmatch "<<runNumber <<" vs "<< cRun.GetRunNumber()<<" only runs with same run number will be merged"<<RESTendl;
-              break;
-            }
+    // Check how many files matches
+    for (const auto& f : files) {
+        TRestRun cRun(f.c_str());
+        if (runNumber == -1 && startTime == -1) {
+            startTime = cRun.GetStartTimestamp();
+            runNumber = cRun.GetRunNumber();
         }
+
+        if (runNumber == cRun.GetRunNumber()) {
+            filesAdd.push_back(f);
+        } else {
+            RESTWarning << "Run number mistmatch " << runNumber << " vs " << cRun.GetRunNumber()
+                        << " only runs with same run number will be merged" << RESTendl;
+            break;
+        }
+    }
 
     const int nMerged = filesAdd.size();
 
-    if(nMerged <= 1){
-      RESTError<<"Only found "<<nMerged<<" that matches, skipping"<<RESTendl;
-      return nMerged;
+    if (nMerged <= 1) {
+        RESTError << "Only found " << nMerged << " that matches, skipping" << RESTendl;
+        return nMerged;
     }
 
-    //Merge the files
-    TFileMerger m (kFALSE);
+    // Merge the files
+    TFileMerger m(kFALSE);
     m.OutputFile(outputFileName.c_str(), "RECREATE");
 
-      for (const auto &f : filesAdd){
+    for (const auto& f : filesAdd) {
         m.AddFile(f.c_str());
-        RESTDebug<<"Adding file "<<f<<RESTendl;
-      }
+        RESTDebug << "Adding file " << f << RESTendl;
+    }
 
     m.Merge();
 
-    TRestRun mergedRun (outputFileName.c_str());
+    TRestRun mergedRun(outputFileName.c_str());
     mergedRun.SetOutputFileName(outputFileName);
     mergedRun.SetStartTimeStamp(startTime);
     mergedRun.OpenAndUpdateOutputFile();
     mergedRun.PrintMetadata();
 
-      if(removeInputFiles){
-         for (const auto &f : filesAdd){
-           gSystem->Unlink(f.c_str());
-        }  
-      }
+    if (removeInputFiles) {
+        for (const auto& f : filesAdd) {
+            gSystem->Unlink(f.c_str());
+        }
+    }
 
     return nMerged;
 }
@@ -265,7 +258,6 @@ void TRestRunMerger::PrintMetadata() {
 
     RESTMetadata << " Input file pattern : " << fInputFilePattern << RESTendl;
     RESTMetadata << " Output file name : " << fOutputFileName << RESTendl;
-    if(fRemoveInputFiles)
-      RESTMetadata << " Input files will be REMOVED" << RESTendl;
+    if (fRemoveInputFiles) RESTMetadata << " Input files will be REMOVED" << RESTendl;
     RESTMetadata << RESTendl;
 }

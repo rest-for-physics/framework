@@ -27,8 +27,7 @@
 
 /// This class is meant to merge different TRestRun files
 class TRestRunMerger : public TRestMetadata {
-private:
-
+   private:
     // Input file patternt to match
     TString fInputFilePattern = "";
     // Name of the output file
@@ -39,17 +38,17 @@ private:
     void Initialize() override;
     void InitFromConfigFile() override;
 
-public:
+   public:
     void PrintMetadata() override;
 
     void MergeFiles();
-    Int_t MergeFiles(const std::vector<std::string> &files, std::string outputFileName, bool removeInputFiles = false);
+    Int_t MergeFiles(const std::vector<std::string>& files, std::string outputFileName,
+                     bool removeInputFiles = false);
 
     TRestRunMerger();
     TRestRunMerger(const char* configFilename, std::string name = "");
     ~TRestRunMerger();
 
     ClassDefOverride(TRestRunMerger, 1);
-
 };
 #endif

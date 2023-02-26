@@ -980,7 +980,7 @@ TString TRestRun::FormFormat(const TString& FilenameFormat) {
 TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilename) {
     RESTDebug << "TRestRun::FormOutputFile. target : " << outputfilename << RESTendl;
     string filename;
-    TFileMerger m (false);
+    TFileMerger m(false);
     if (outputfilename == "") {
         filename = fOutputFileName;
         RESTInfo << "Creating file : " << filename << RESTendl;
@@ -1073,14 +1073,12 @@ TFile* TRestRun::UpdateOutputFile() {
     return nullptr;
 }
 
-
 TFile* TRestRun::OpenAndUpdateOutputFile() {
     if (fOutputFile == nullptr) {
-      fOutputFile = TFile::Open(fOutputFileName,"UPDATE");
+        fOutputFile = TFile::Open(fOutputFileName, "UPDATE");
     }
 
-   return UpdateOutputFile();
-
+    return UpdateOutputFile();
 }
 
 ///////////////////////////////////////////////

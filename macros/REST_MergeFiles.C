@@ -9,7 +9,6 @@
 Int_t REST_MergeFiles(TString pathAndPattern, TString outputFilename) {
     vector<string> files = TRestTools::GetFilesMatchingPattern((string)pathAndPattern);
     TRestRunMerger merger;
-    
-    return merger.MergeFiles(files, std::string(outputFilename.Data() ));
 
+    return merger.MergeFiles(files, std::string(outputFilename.Data()));
 }
