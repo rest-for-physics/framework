@@ -35,7 +35,7 @@ We can generate the gas file by specifying the full path to our configuration fi
 
 \endcode
 
-This should start the generation of the gas file, the calculation will be running for a few hours. When it is finished a new .gas file will have been created at *gasDataPath*. The filename format defines in a unique way the parameters used in the TRestGas section. In this way, it is used by TRestGas to determine if the gas mixture we want to use is already existing as a .gas file. 
+This should start the generation of the gas file, the calculation will be running for a few hours. When it is finished a new .gas file will have been created at *gasDataPath*. The filename format defines in a unique way the parameters used in the TRestGas section. In this way, it is used by TRestGas to determine if the gas mixture we want to use is already existing as a .gas file.
 
 If the gas file exists TRestGas will directly load the gas file. After the previous command is finished you can verify it by closing the session and starting again.
 

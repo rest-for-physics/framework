@@ -52,4 +52,3 @@ fi
 git reset HEAD --hard
 
 exit 1
-

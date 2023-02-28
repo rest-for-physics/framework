@@ -2,7 +2,7 @@
 
 ## Data transformation processes
 
-These processes are in charged of transforming data between different basic data types in REST. 
+These processes are in charged of transforming data between different basic data types in REST.
 
 As soon as we transform one data type to another we can make use of the dedicated data type processes. For example, if we have a geant4 event (TRestGeant4Event), we may transform it to a basic hits event (TRestHitsEvent) and continue processing the event using the basic *hit processes*.
 

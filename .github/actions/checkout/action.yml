@@ -1,0 +1,36 @@
+name: "Checkout submodule"
+description: "Checkout specific repository and branch otherwise, it checkout master"
+inputs:
+  branch:
+    description: "Branch to checkout"
+    required: true
+  repository:
+    description: "Repository"
+    required: true
+  path:
+    description: "Path"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.repository }}
+        path: ${{ inputs.path }}
+    - name: Checkout repository branch
+      id: repositoryBranch
+      run: |
+        cd ${{ inputs.path }}
+          var=$(git ls-remote --heads origin ${{ inputs.branch }})
+          if [[ -z $var ]]; then
+            echo "Branch "${{ inputs.branch }}" not found in " ${{ inputs.repository }}
+            echo "exist=false" >> $GITHUB_OUTPUT
+          else
+            echo "Branch "${{ inputs.branch }}" found in " ${{ inputs.repository }}
+            git fetch
+            git checkout ${{ inputs.branch }}
+            git pull
+          fi
+      shell: bash

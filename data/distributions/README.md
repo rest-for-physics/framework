@@ -9,7 +9,7 @@ File : NeutronSources.root
 Histograms : AmBe, Cf252
 Description : It contains the energy distribution for Am241Be neutron emission (normalized) created using the ISO 8529-2 recommended 241Am-Be spectrum and the energy distribution for a Cf252 source neutron emission created as an evaporation spectrum n=exp(-0.88*N)*sinh(sqrt(2*E))
 	-AmBe: Neutron spectrum in Mev
-	-Cf252: Neutron spectrum in MeV 
+	-Cf252: Neutron spectrum in MeV
 
 Notes: in any Cf252 decay, 4 neutrons are emitted.
 
@@ -68,7 +68,7 @@ Notes:
 File : Muons.root
 Histograms : cosmicmuon, LSCmuon, CJULmuon
 
-Description: it contains sea level, Canfranc and CJUL underground site muon distributions (from tables in "Cosmic Rays at Earth" by Grieder (Ed. Elsevier)) 
+Description: it contains sea level, Canfranc and CJUL underground site muon distributions (from tables in "Cosmic Rays at Earth" by Grieder (Ed. Elsevier))
 
     -cosmicmuons : Sea Level from 0.2 to 328 GeV --> bin size is 1 MeV
                    Flux: ~ 125 muons/m2 s
@@ -100,7 +100,7 @@ Description: it contains a normalized distribution of the neutrons coming form r
 File : RadioactivityGammas.root
 Histograms : Th232, U238, ThetaAngle
 
-Description : Full chain decay simulation of Th232 and U238 launched uniformly inside a concrete wall. Then the gammas coming out the wall are counted and its energy filled inside the histograms Th232 and U238. 
+Description : Full chain decay simulation of Th232 and U238 launched uniformly inside a concrete wall. Then the gammas coming out the wall are counted and its energy filled inside the histograms Th232 and U238.
 
     - Th232 : Gamma energy spectrum resulting from Th232 decay chain (Energy units in keV).
 
@@ -108,7 +108,7 @@ Description : Full chain decay simulation of Th232 and U238 launched uniformly i
 
     - ThetaAngle : Resulting angular distribution from the gamma flux. Theta=0 is the direction normal to the surface.
 
-Notes : 
+Notes :
     - The total number of counts inside the energy distributions corresponds to a simulation of 20M events in a concrete mass of 17664 tonnes.
     - The phi angular distribution is uniform.
 
@@ -145,13 +145,13 @@ Description: This file contains the energy spectrum and angular distribution of 
 
     - U238_Angular      :  Theta angular distibution (Direction normal to the virtualBox walls).
 
-Each of these spectra is given for different virtual box sizes (2500mm, 3000mm and 4000mm). 
+Each of these spectra is given for different virtual box sizes (2500mm, 3000mm and 4000mm).
 Thus Th232_Spectrum_2500 contains the gammas that reached the biasing volume at 2500mm.
 
 Note : These spectra have been generated using config/pandaXIII/biasing/external[Th232,U238].rml
 
 The biasing factors used to obtain the final biasing spectra at the 2.5m virtualBox are given in the following table
-    
+
                         Vbox size  |  Th232  |  U238
                         ----------------------------
                          11.0 m    |   13.2  |  11.4
@@ -164,9 +164,9 @@ The biasing factors used to obtain the final biasing spectra at the 2.5m virtual
                           4.0 m    |    6.4  |   6.3
                           3.0 m    |    2.7  |   2.8
                         ----------------------------
-                         Total     |  8.1E7  | 7.6E6 
-    
-    
+                         Total     |  8.1E7  | 7.6E6
+
+
 
 
 ---------------------------------------------------------------------------

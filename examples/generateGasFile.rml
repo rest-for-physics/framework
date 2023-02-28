@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
-<!--TRestDetectorGas runs with Garfield. For one condition of gas, it does simulation for different E field 
-and gets a table of gas property. The table will be saved as "gas file" for the next load. Gas file 
-name is orgainzed according to the gas condition. In REST, TRestDetectorGas starts up with the following 
+<!--TRestDetectorGas runs with Garfield. For one condition of gas, it does simulation for different E field
+and gets a table of gas property. The table will be saved as "gas file" for the next load. Gas file
+name is orgainzed according to the gas condition. In REST, TRestDetectorGas starts up with the following
 rml section describing gas condition. If the option "generate" is "off", It will search for gas files,
-both in current path and "searchPath". If there is no file matching the target name, It will perform 
-a single E calculation in the next GetDriftVelocity()/GetLongitudinalDiffusion(), etc. If the option 
+both in current path and "searchPath". If there is no file matching the target name, It will perform
+a single E calculation in the next GetDriftVelocity()/GetLongitudinalDiffusion(), etc. If the option
 "generate" is "on", it will directly calculate across the "eField" region and save a gas file in current
 directory-->
 

@@ -882,11 +882,11 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
                 fRunInfo->SetNFilesSplit(fNFilesSplit);
                 if (fOutputDataFile->GetName() != fOutputDataFileName) {
                     auto Mainfile = std::unique_ptr<TFile>{TFile::Open(fOutputDataFileName, "update")};
-                    WriteMetadata();
+                    WriteProcessesMetadata();
                     Mainfile->Write(0, TObject::kOverwrite);
                     Mainfile->Close();
                 } else {
-                    WriteMetadata();
+                    WriteProcessesMetadata();
                 }
 
                 TFile* newfile = new TFile(fOutputDataFileName + "." + ToString(fNFilesSplit), "recreate");
@@ -955,15 +955,23 @@ void TRestProcessRunner::ConfigOutputFile() {
         fOutputDataFile = new TFile(fOutputDataFileName, "update");
     }
     // write metadata
-    WriteMetadata();
+    WriteProcessesMetadata();
 }
 
-void TRestProcessRunner::WriteMetadata() {
-    fOutputDataFile->cd();
+void TRestProcessRunner::WriteProcessesMetadata() {
+    if (fRunInfo->GetInputFile() == nullptr) {
+        if (!fRunInfo->GetOutputFile()) {
+            // We are not ready yet to write
+            return;
+        }
+        fRunInfo->cd();
+    } else
+        fOutputDataFile->cd();
+
     fRunInfo->SetNFilesSplit(fNFilesSplit);
     fRunInfo->Write(nullptr, TObject::kOverwrite);
     this->Write(nullptr, TObject::kWriteDelete);
-    
+
     if (fRunInfo->GetFileProcess() != nullptr) {
         // std::cout << "Run. Process-0. " << fRunInfo->GetFileProcess()->GetName() << std::endl;
         fRunInfo->GetFileProcess()->Write(nullptr, kOverwrite);
@@ -999,6 +1007,7 @@ void TRestProcessRunner::MergeOutputFile() {
     fOutputDataFile->Write(nullptr, TObject::kOverwrite);
     fOutputDataFile->Close();
     fRunInfo->MergeToOutputFile(files_to_merge, fOutputDataFile->GetName());
+    if (fRunInfo->GetInputFile() == nullptr) WriteProcessesMetadata();
 }
 
 // tools

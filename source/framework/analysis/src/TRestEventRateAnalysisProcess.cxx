@@ -129,7 +129,7 @@ void TRestEventRateAnalysisProcess::InitProcess() {
     } else {
         fFirstEventTime = -1;
     }
-    
+
     // if is run under single thread mode, we add rate observables
     fRateAnalysis = GetNumberOfParallelProcesses() <= 1;
 }
@@ -146,13 +146,14 @@ TRestEvent* TRestEventRateAnalysisProcess::ProcessEvent(TRestEvent* inputEvent) 
     SetObservableValue("SecondsFromStart", secondsFromStart);
     SetObservableValue("HoursFromStart", secondsFromStart / 3600.);
 
-    if(fRateAnalysis){
+    if (fRateAnalysis) {
         Double_t evTimeDelay = 0;
         if (fPreviousEventTime.size() > 0) evTimeDelay = fEvent->GetTime() - fPreviousEventTime.back();
         SetObservableValue("EventTimeDelay", evTimeDelay);
 
         Double_t meanRate = 0;
-        if (fPreviousEventTime.size() == 10) meanRate = 10. / (fEvent->GetTime() - fPreviousEventTime.front());
+        if (fPreviousEventTime.size() == 10)
+            meanRate = 10. / (fEvent->GetTime() - fPreviousEventTime.front());
         SetObservableValue("MeanRate_InHz", meanRate);
 
         if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {

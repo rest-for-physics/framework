@@ -574,7 +574,7 @@ void TRestMetadataPlot::AddFileFromExternalRun() {
 /// \brief We can add input file from parameter "inputFile"
 ///
 void TRestMetadataPlot::AddFileFromEnv() {
-    string filepattern = GetParameter("inputFile", "");
+    string filepattern = GetParameter("inputFileName", "");
     auto files = TRestTools::GetFilesMatchingPattern(filepattern);
 
     for (unsigned int n = 0; n < files.size(); n++) {
@@ -746,7 +746,7 @@ void TRestMetadataPlot::GenerateCanvas() {
             std::map<Double_t, Int_t> dataMapN;
 
             // TODO Here we open the file for each graph construction. This might slowdown these
-            // drawing routnes when we load thousands of files and we have many graphs. It could be
+            // drawing routines when we load thousands of files and we have many graphs. It could be
             // optimized for the case of many graphs by preloading TGraph data into a dedicated
             // structure at Graph_Info_Set
 
@@ -768,6 +768,9 @@ void TRestMetadataPlot::GenerateCanvas() {
                 // We reject runs with unexpected zero y-data
                 Double_t yVal = StringToDouble(run->GetMetadataMember(graph.yVariable));
                 if (yVal == 0 && skipZeroData) {
+                    RESTWarning
+                        << "Ignoring zero data. This message could be disabled with variable skipZeroData"
+                        << RESTendl;
                     delete run;
                     continue;
                 }
