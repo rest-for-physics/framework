@@ -7,7 +7,7 @@
 //***
 //*** This macro will implement geometry validation routines
 //*** For the moment it is just calling to CheckOverlaps, although
-//*** additional routines could be incorparated in the future.
+//*** additional routines could be incorporated in the future.
 //***
 //*******************************************************************************************************
 Int_t REST_ValidateGeometry(TString gdmlName) {
