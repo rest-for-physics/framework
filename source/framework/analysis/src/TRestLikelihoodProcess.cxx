@@ -30,12 +30,14 @@
 /// GARCÍA PASCUAL, Juan Antonio. Solar Axion search with Micromegas Detectors in the CAST Experiment
 /// with 3He as buffer gas. Tesis Doctoral. Universidad de Zaragoza, Prensas de la Universidad.
 ///
-/// It is the sum for all observables of log(1.-p)-log(p) (p= porb of observable i)
+/// It is the sum for all observables of log(1.-p)-log(p) (p = porb of observable i)
 ///
 /// Input parameters:
 /// * **fFileWithPdfs* -> String with file name. Root file with pdf as histograms. Name of the histo
 /// has to be the same as the observable.
 /// * **fLikelihoodObservables** -> String with observables to compute LogOdds, separated by ','
+///                               If value set to "all" or "" then all observables in fFileWithPdfs
+///                               are considered.
 ///
 ///
 /// Example for rml files:
@@ -135,9 +137,33 @@ void TRestLikelihoodProcess::InitProcess() {
             // String with observables to vector of strings
             std::string line;
             std::istringstream ss(fLikelihoodObservables);
-            while (std::getline(ss, line, ',')) {
-                fVectorObservables.push_back(line);
-                RESTDebug << "Reading observables" << RESTendl;
+
+            // Read all observables in pdf file
+            if (fLikelihoodObservables == "all" || fLikelihoodObservables == "") {
+                TList* list = fFileHistos->GetListOfKeys();
+                if (!list) {
+                    printf("<E> No keys found in file\n");
+                    exit(-1);
+                }
+                TIter next(list);
+
+                while (TObject* obj = next()) {
+                    RESTDebug << obj->GetName() << RESTendl;
+                    // Check it is a TH1
+                    if (!(fFileHistos->Get(obj->GetName())->InheritsFrom("TH1"))) {
+                        printf("Object %s is not 1D histogram : will not be converted\n", obj->GetName());
+                    } else {
+                        fVectorObservables.push_back(obj->GetName());
+                        RESTDebug << "Reading all observables" << RESTendl;
+                    }
+                }
+            }
+            // Only selected observables
+            else {
+                while (std::getline(ss, line, ',')) {
+                    fVectorObservables.push_back(line);
+                    RESTDebug << "Reading observables" << RESTendl;
+                }
             }
         }
     }
@@ -155,13 +181,13 @@ TRestEvent* TRestLikelihoodProcess::ProcessEvent(TRestEvent* inputEvent) {
     // Search its histogram
     // Compute the prob asociated to its value
     // Add log(1-p)-log(p)
-    // Add the log observable
+    // Include the log observable in AnalysisTree
 
     int bin;
-    double p, logOdds;
+    double p, logOdds = 0;
     TH1* histo;
 
-    for (int i = 0; i < fVectorObservables.size(); i++) {
+    for (vector<int>::size_type i = 0; i < fVectorObservables.size(); i++) {
         histo = fFileHistos->Get<TH1>(fVectorObservables[i].c_str());
         bin = histo->GetXaxis()->FindBin(fAnalysisTree->GetObservableValue<double>(fVectorObservables[i]));
         p = fFileHistos->Get<TH1>(fVectorObservables[i].c_str())->GetBinContent(bin);
@@ -169,6 +195,9 @@ TRestEvent* TRestLikelihoodProcess::ProcessEvent(TRestEvent* inputEvent) {
     }
     RESTDebug << logOdds << RESTendl;
     fAnalysisTree->SetObservableValue("LogOdds", logOdds);
+
+    // If cut condition matches the event will be not registered.
+    if (ApplyCut()) return nullptr;
 
     return fEvent;
 }
@@ -180,7 +209,10 @@ void TRestLikelihoodProcess::PrintMetadata() {
     BeginPrintProcess();
 
     RESTMetadata << "File with PDFs: " << fFileWithPdfs << RESTendl;
-    RESTMetadata << "Selected observables for log-odds: " << fLikelihoodObservables << RESTendl;
+    RESTMetadata << "Observables used for log-odds: " << RESTendl;
+    for (std::string i : fVectorObservables) {
+        RESTMetadata << i << RESTendl;
+    }
 
     EndPrintProcess();
 }
