@@ -40,22 +40,27 @@ if __name__ == "__main__":
         this_branch_name = os.popen("git rev-parse --abbrev-ref HEAD").read().strip()
         # Check this branch name also exists in framework
         if (
-            len(
-                os.popen(
-                    f"git ls-remote --heads https://github.com/rest-for-physics/framework.git {this_branch_name}"
-                )
-                .read()
-                .strip()
+            os.popen(
+                f"git ls-remote --heads https://github.com/rest-for-physics/framework.git {this_branch_name}"
             )
-            != 0
+            .read()
+            .strip()
+            != ""
         ):
             branch_name = this_branch_name
         else:
             print(
                 f"WARNING: The branch '{this_branch_name}' does not exist in the framework repository."
             )
+    else:
+        print(
+            f"WARNING: The current directory ('{os.getcwd()}') is not a git repository."
+        )
 
-    print(f"Comparing files with branch={branch_name} in the framework repository.")
+    if branch_name == "":
+        branch_name = "master"
+
+    print(f"Comparing files with branch='{branch_name}' in the framework repository.")
 
     status = True  # OK
     for file in files:
