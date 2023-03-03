@@ -288,7 +288,7 @@ void TRestDataSet::Initialize() {
 
     ROOT::EnableImplicitMT();
 
-    ROOT::RDataFrame df("AnalysisTree", fFileSelection, finalList);
+    ROOT::RDataFrame df("AnalysisTree", fFileSelection);
 
     std::string pCut ="";
       for(const auto& [param, cut] : fParamCut){
@@ -310,9 +310,10 @@ void TRestDataSet::Initialize() {
 
     std::string user = getenv("USER");
     std::string fOutName = "/tmp/rest_output_" + user + ".root";
-    fDataSet.Snapshot("AnalysisTree", fOutName);
+    fDataSet.Snapshot("AnalysisTree", fOutName, finalList);
 
     fDataSet = ROOT::RDataFrame("AnalysisTree", fOutName);
+
 
     TFile* f = TFile::Open(fOutName.c_str());
     fTree = (TTree*)f->Get("AnalysisTree");
