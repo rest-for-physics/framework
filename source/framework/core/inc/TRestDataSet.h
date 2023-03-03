@@ -76,11 +76,14 @@ class TRestDataSet : public TRestMetadata {
     /// The properties of a relevant quantity that we want to store together with the dataset
     std::map<std::string, RelevantQuantity> fQuantity;  //<
 
+    /// Parameter cuts over the selected dataset
+    std::vector<std::pair<std::string, std::string> > fParamCut;
+
     /// The total integrated run time of selected files
     Double_t fTotalDuration = 0;  //<
 
-    /// The resulting RDataFrame object after initialization
-    ROOT::RDataFrame fDataSet = 0;  //!
+    /// The resulting RDF::RNode object after initialization
+    ROOT::RDF::RNode fDataSet = ROOT::RDataFrame(0);  //!
 
     /// A pointer to the generated tree
     TTree* fTree = nullptr;  //!
@@ -95,7 +98,7 @@ class TRestDataSet : public TRestMetadata {
 
    public:
     /// Gives access to the RDataFrame
-    ROOT::RDataFrame GetDataFrame() const {
+    ROOT::RDF::RNode GetDataFrame() const {
         if (fTree == nullptr) RESTWarning << "DataFrame has not been yet initialized" << RESTendl;
         return fDataSet;
     }

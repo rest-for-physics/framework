@@ -103,6 +103,10 @@
 ///    // Will add to the final tree only the specific observables
 ///    <observables list="g4Ana_totalEdep:hitsAna_energy" />
 ///
+///    // Will apply a cut to the observables
+///    <cut variable="rawAna_NumberOfGoodSignals" condition=">10" />
+///    <cut variable="rawAna_NumberOfGoodSignals" condition="<100" />
+///
 ///    // Will add all the observables from the process `rawAna`
 ///    <processObservables list="rate:rawAna" />
 ///
@@ -284,7 +288,25 @@ void TRestDataSet::Initialize() {
 
     ROOT::EnableImplicitMT();
 
-    fDataSet = ROOT::RDataFrame("AnalysisTree", fFileSelection);
+    ROOT::RDataFrame df("AnalysisTree", fFileSelection, finalList);
+
+    std::string pCut ="";
+      for(const auto& [param, cut] : fParamCut){
+        if(std::find(finalList.begin(), finalList.end(), param) != finalList.end()){
+          if(!pCut.empty()) pCut += " && ";
+          pCut += param + cut;
+        } else {
+          RESTWarning << " Cut observable " << param << " not found in observable list, skipping..." << RESTendl;
+        }
+      }
+    
+      if(!pCut.empty()){
+        RESTDebug << "Applying cut " << pCut << RESTendl;
+        fDataSet = df.Filter(pCut);
+      } else {
+        fDataSet = df;
+      }
+
 
     std::string user = getenv("USER");
     std::string fOutName = "/tmp/rest_output_" + user + ".root";
@@ -562,6 +584,26 @@ void TRestDataSet::InitFromConfigFile() {
 
         quantityDefinition = GetNextElement(quantityDefinition);
     }
+
+    TiXmlElement* cutDefinition = GetElement("cut");
+    while (cutDefinition != nullptr) {
+        std::string variable = GetFieldValue("variable", cutDefinition);
+        if (variable.empty() || variable == "Not defined") {
+            RESTError << "< paramCut variable key does not contain a name!" << RESTendl;
+            exit(1);
+        }
+
+        std::string condition = GetFieldValue("condition", cutDefinition);
+        if (condition.empty() || condition == "Not defined") {
+            RESTError << "< paramCut condition key does not contain a metadata value!" << RESTendl;
+            exit(1);
+        }
+
+        fParamCut.push_back(std::make_pair(variable, condition));
+
+       cutDefinition = GetNextElement(cutDefinition);
+    }
+
 }
 
 ///////////////////////////////////////////////
