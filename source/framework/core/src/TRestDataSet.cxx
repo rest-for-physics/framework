@@ -270,7 +270,7 @@ void TRestDataSet::Initialize() {
     if (fFileSelection.empty()) return;
 
     ///// Disentangling process observables --> producing finalList
-    TRestRun run(fFileSelection[0]);
+    TRestRun run(fFileSelection.front());
     std::vector<std::string> finalList;
     finalList.push_back("runOrigin");
     finalList.push_back("eventID");
@@ -310,7 +310,7 @@ void TRestDataSet::Initialize() {
 
     std::string user = getenv("USER");
     std::string fOutName = "/tmp/rest_output_" + user + ".root";
-    fDataSet.Snapshot("AnalysisTree", fOutName, finalList);
+    fDataSet.Snapshot("AnalysisTree", fOutName);
 
     fDataSet = ROOT::RDataFrame("AnalysisTree", fOutName);
 
