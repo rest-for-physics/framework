@@ -290,30 +290,29 @@ void TRestDataSet::Initialize() {
 
     ROOT::RDataFrame df("AnalysisTree", fFileSelection);
 
-    std::string pCut ="";
-      for(const auto& [param, cut] : fParamCut){
-        if(std::find(finalList.begin(), finalList.end(), param) != finalList.end()){
-          if(!pCut.empty()) pCut += " && ";
-          pCut += param + cut;
+    std::string pCut = "";
+    for (const auto& [param, cut] : fParamCut) {
+        if (std::find(finalList.begin(), finalList.end(), param) != finalList.end()) {
+            if (!pCut.empty()) pCut += " && ";
+            pCut += param + cut;
         } else {
-          RESTWarning << " Cut observable " << param << " not found in observable list, skipping..." << RESTendl;
+            RESTWarning << " Cut observable " << param << " not found in observable list, skipping..."
+                        << RESTendl;
         }
-      }
-    
-      if(!pCut.empty()){
+    }
+
+    if (!pCut.empty()) {
         RESTDebug << "Applying cut " << pCut << RESTendl;
         fDataSet = df.Filter(pCut);
-      } else {
+    } else {
         fDataSet = df;
-      }
-
+    }
 
     std::string user = getenv("USER");
     std::string fOutName = "/tmp/rest_output_" + user + ".root";
     fDataSet.Snapshot("AnalysisTree", fOutName, finalList);
 
     fDataSet = ROOT::RDataFrame("AnalysisTree", fOutName);
-
 
     TFile* f = TFile::Open(fOutName.c_str());
     fTree = (TTree*)f->Get("AnalysisTree");
@@ -602,9 +601,8 @@ void TRestDataSet::InitFromConfigFile() {
 
         fParamCut.push_back(std::make_pair(variable, condition));
 
-       cutDefinition = GetNextElement(cutDefinition);
+        cutDefinition = GetNextElement(cutDefinition);
     }
-
 }
 
 ///////////////////////////////////////////////
