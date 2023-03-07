@@ -61,9 +61,10 @@
 ///	<parameter name="overwrite" value="off" />
 ///
 ///	<parameter name="inputFormat"
-///value="R[fRunNumber]_[fParentRunNumber]_[fRunType]_LSC_[fRunTag]_[fRunUser]_[fVersion].root"/> 	<parameter
-///name="outputFileName" value="R[fRunNumber]_EventSelection_LSC_[fRunTag]_[fRunUser]_[fVersion].root" />
-///	<parameter name="readOnly" value="false" />
+/// value="R[fRunNumber]_[fParentRunNumber]_[fRunType]_LSC_[fRunTag]_[fRunUser]_[fVersion].root"/>
+/// <parameter name="outputFileName"
+/// value="R[fRunNumber]_EventSelection_LSC_[fRunTag]_[fRunUser]_[fVersion].root" /> 	<parameter
+///name="readOnly" value="false" />
 ///</TRestRun>
 ///
 ///	<TRestRunMerger name="Merger" title="File merger" verboseLevel="debug">
