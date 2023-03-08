@@ -279,6 +279,29 @@ class TRestAnalysisTree : public TTree {
     void EnableQuickObservableValueSetting();
     void DisableQuickObservableValueSetting();
 
+    Double_t GetIntegral(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
+                         Int_t nBins = 1000) {
+        GetObservableIntegral(obsName, xLow, xHigh, nBins);
+    }
+
+    Double_t GetAverage(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1, Int_t nBins = 1000) {
+        GetObservableAverage(obsName, xLow, xHigh, nBins);
+    }
+
+    Double_t GetRMS(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1, Int_t nBins = 1000) {
+        GetObservableRMS(obsName, xLow, xHigh, nBins);
+    }
+
+    Double_t GetMinimum(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1, Int_t nBins = 1000) {
+        GetObservableMinimum(obsName, xLow, xHigh, nBins);
+    }
+    Double_t GetMaximum(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1, Int_t nBins = 1000) {
+        GetObservableMaximum(obsName, xLow, xHigh, nBins);
+    }
+
+    Double_t GetObservableIntegral(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
+                                   Int_t nBins = 1000);
+
     Double_t GetObservableAverage(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
                                   Int_t nBins = 1000);
 

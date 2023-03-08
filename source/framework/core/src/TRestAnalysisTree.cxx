@@ -960,6 +960,21 @@ void TRestAnalysisTree::EnableQuickObservableValueSetting() { this->fQuickSetObs
 void TRestAnalysisTree::DisableQuickObservableValueSetting() { this->fQuickSetObservableValue = false; }
 
 ///////////////////////////////////////////////
+/// \brief It returns the integral of the observable considering the given range. If no range is given
+/// the full histogram range will be considered.
+///
+Double_t TRestAnalysisTree::GetObservableIntegral(const TString& obsName, Double_t xLow, Double_t xHigh,
+                                                  Int_t nBins) {
+    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
+    if (xHigh == -1)
+        this->Draw(obsName);
+    else
+        this->Draw(obsName + ">>" + histDefinition);
+    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
+    return htemp->Integral();
+}
+
+///////////////////////////////////////////////
 /// \brief It returns the average of the observable considering the given range. If no range is given
 /// the full histogram range will be considered.
 ///
