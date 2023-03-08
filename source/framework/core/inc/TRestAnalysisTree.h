@@ -318,7 +318,7 @@ class TRestAnalysisTree : public TTree {
     Double_t GetObservableMaximum(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
                                   Int_t nBins = 1000);
 
-    Double_t GetObservableContour(const TString& obsName, const TString& obsIndexer);
+    Double_t GetObservableContour(const TString& obsName, const TString& obsIndexer, Double_t level = 0.5);
 
     Int_t WriteAsTTree(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 

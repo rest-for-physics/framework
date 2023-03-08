@@ -149,6 +149,7 @@ void TRestAnalysisTree::Initialize() {
 ///
 /// If not exist, it will return -1. It will call MakeObservableIdMap() to
 /// update observable id map before searching
+///
 Int_t TRestAnalysisTree::GetObservableID(const string& obsName) {
     MakeObservableIdMap();
     auto iter = fObservableIdMap.find(obsName);
@@ -164,6 +165,7 @@ Int_t TRestAnalysisTree::GetObservableID(const string& obsName) {
 ///
 /// Ignores prefix like "sAna_". Case sensitive, misspelling prompted.
 /// If not exist, it will return -1.
+///
 Int_t TRestAnalysisTree::GetMatchedObservableID(const string& obsName) {
     // if (ObservableExists(obsName)) return GetObservableID(obsName);
     auto iter = fObservableIdSearchMap.find(obsName);
@@ -225,6 +227,7 @@ Int_t TRestAnalysisTree::GetMatchedObservableID(const string& obsName) {
 /// \brief Get if the specified observable exists
 ///
 /// It will call MakeObservableIdMap() to update observable id map before searching
+///
 Bool_t TRestAnalysisTree::ObservableExists(const string& obsName) {
     MakeObservableIdMap();
     return fObservableIdMap.count(obsName) > 0;
@@ -308,6 +311,7 @@ int TRestAnalysisTree::EvaluateStatus() {
 /// to the existing TTree branches. Then it will create new observable objects by
 /// reflection, and connect them also to the existing TTree branches. After
 /// re-connection, this method will change status 2->5, 3->4
+///
 void TRestAnalysisTree::UpdateObservables() {
     // connect basic event branches
     TBranch* br1 = GetBranch("runOrigin");
@@ -371,6 +375,7 @@ void TRestAnalysisTree::UpdateObservables() {
 /// observables. Note that this method can be called multiple times during the
 /// first loop of observable setting. After branch creation, this method will
 /// change status 1->4, or stay 4.
+///
 void TRestAnalysisTree::UpdateBranches() {
     if (!GetBranch("runOrigin")) Branch("runOrigin", &fRunOrigin);
     if (!GetBranch("subRunOrigin")) Branch("subRunOrigin", &fSubRunOrigin);
@@ -430,6 +435,7 @@ void TRestAnalysisTree::InitObservables() {
 /// \brief Update the map of observable name to observable id.
 ///
 /// Using map will improve the speed of "SetObservableValue"
+///
 void TRestAnalysisTree::MakeObservableIdMap() {
     if (fObservableIdMap.size() != fObservableNames.size()) {
         fObservableIdMap.clear();
