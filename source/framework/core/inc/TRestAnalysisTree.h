@@ -281,22 +281,22 @@ class TRestAnalysisTree : public TTree {
 
     Double_t GetIntegral(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
                          Int_t nBins = 1000) {
-        GetObservableIntegral(obsName, xLow, xHigh, nBins);
+        return GetObservableIntegral(obsName, xLow, xHigh, nBins);
     }
 
     Double_t GetAverage(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1, Int_t nBins = 1000) {
-        GetObservableAverage(obsName, xLow, xHigh, nBins);
+        return GetObservableAverage(obsName, xLow, xHigh, nBins);
     }
 
     Double_t GetRMS(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1, Int_t nBins = 1000) {
-        GetObservableRMS(obsName, xLow, xHigh, nBins);
+        return GetObservableRMS(obsName, xLow, xHigh, nBins);
     }
 
     Double_t GetMinimum(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1, Int_t nBins = 1000) {
-        GetObservableMinimum(obsName, xLow, xHigh, nBins);
+        return GetObservableMinimum(obsName, xLow, xHigh, nBins);
     }
     Double_t GetMaximum(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1, Int_t nBins = 1000) {
-        GetObservableMaximum(obsName, xLow, xHigh, nBins);
+        return GetObservableMaximum(obsName, xLow, xHigh, nBins);
     }
 
     Double_t GetObservableIntegral(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
