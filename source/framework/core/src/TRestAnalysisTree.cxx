@@ -76,6 +76,7 @@
 #include <TH1F.h>
 #include <TLeaf.h>
 #include <TObjArray.h>
+#include <TTreeIndex.h>
 
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
@@ -1032,6 +1033,34 @@ Double_t TRestAnalysisTree::GetObservableMinimum(const TString& obsName, Double_
         this->Draw(obsName + ">>" + histDefinition);
     TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
     return htemp->GetMinimumStored();
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the value from obsName entry at which the `obsIndexer` reaches half the integral.
+///
+/// The tree entries will be indexed/sorted by the observable we want to obtain the half width, `obsName`.
+///
+/// Then, the entry at which the accumumated value of `obsIndexer` exceeds half of its integral
+/// will be used to retrieve the value of the corresponding entry at `obsName`.
+///
+/// \return Returns the value at which the obsName observable contains half of the integral of the
+/// `obsIndexer` observable.
+///
+Double_t TRestAnalysisTree::GetObservableHalfWidth(const TString& obsName, const TString& obsIndexer) {
+    Double_t integral = this->GetIntegral(obsIndexer);
+
+    this->BuildIndex(obsName);
+    TTreeIndex* index = (TTreeIndex*)this->GetTreeIndex();
+
+    Double_t sum = 0;
+    for (int i = 0; index->GetN(); i++) {
+        this->GetEntry(index->GetIndex()[i]);
+
+        sum += this->GetDblObservableValue((std::string)obsIndexer);
+
+        if (sum > integral) return this->GetDblObservableValue((std::string)obsName);
+    }
+    return 0;
 }
 
 ///////////////////////////////////////////////
