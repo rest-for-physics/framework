@@ -300,8 +300,8 @@ class TRestAnalysisTree : public TTree {
         return GetObservableMaximum(obsName, xLow, xHigh, nBins);
     }
 
-    Double_t GetHalfWidth(const TString& obsName, const TString& obsIndexer) {
-        return GetObservableHalfWidth(obsName, obsIndexer);
+    Double_t GetContour(const TString& obsName, const TString& obsIndexer, Double_t level = 0.5) {
+        return GetObservableContour(obsName, obsIndexer, level);
     }
 
     Double_t GetObservableIntegral(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
@@ -318,7 +318,7 @@ class TRestAnalysisTree : public TTree {
     Double_t GetObservableMaximum(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
                                   Int_t nBins = 1000);
 
-    Double_t GetObservableHalfWidth(const TString& obsName, const TString& obsIndexer);
+    Double_t GetObservableContour(const TString& obsName, const TString& obsIndexer);
 
     Int_t WriteAsTTree(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 

@@ -1036,17 +1036,24 @@ Double_t TRestAnalysisTree::GetObservableMinimum(const TString& obsName, Double_
 }
 
 ///////////////////////////////////////////////
-/// \brief It returns the value from obsName entry at which the `obsIndexer` reaches half the integral.
+/// \brief It returns the value from obsName entry at which the `obsIndexer` reaches the integral
+/// fraction that is defined by the `level` argument that should be defined between 0 and 1.
 ///
-/// The tree entries will be indexed/sorted by the observable we want to obtain the half width, `obsName`.
+/// The tree entries will be indexed/sorted by the observable we want to obtain the contour,
+/// `obsName`.
 ///
-/// Then, the entry at which the accumumated value of `obsIndexer` exceeds half of its integral
-/// will be used to retrieve the value of the corresponding entry at `obsName`.
+/// Then, the entry at which the accumulated value of `obsIndexer` exceeds the `level` fraction of
+/// its integral will be used to retrieve the value of the corresponding entry at `obsName`.
 ///
-/// \return Returns the value at which the obsName observable contains half of the integral of the
-/// `obsIndexer` observable.
+/// If not given the default `level` value is 0.5.
 ///
-Double_t TRestAnalysisTree::GetObservableHalfWidth(const TString& obsName, const TString& obsIndexer) {
+/// \return Returns the value at which the obsName observable contains a `level` fraction of the
+/// integral of the `obsIndexer` observable.
+///
+Double_t TRestAnalysisTree::GetObservableContour(const TString& obsName, const TString& obsIndexer,
+                                                 Double_t level) {
+    if (level > 1 || level < 0) return 0;
+
     Double_t integral = this->GetIntegral(obsIndexer);
 
     this->BuildIndex(obsName);
@@ -1058,7 +1065,7 @@ Double_t TRestAnalysisTree::GetObservableHalfWidth(const TString& obsName, const
 
         sum += this->GetDblObservableValue((std::string)obsIndexer);
 
-        if (sum > integral) return this->GetDblObservableValue((std::string)obsName);
+        if (sum > level * integral) return this->GetDblObservableValue((std::string)obsName);
     }
     return 0;
 }
