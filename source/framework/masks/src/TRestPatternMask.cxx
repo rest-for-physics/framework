@@ -68,13 +68,13 @@
 /// <hr>
 ///
 
+#include "TRestPatternMask.h"
+
 #include "TAxis.h"
 #include "TColor.h"
 #include "TGraph.h"
 #include "TH1F.h"
 #include "TRandom3.h"
-
-#include "TRestPatternMask.h"
 
 ClassImp(TRestPatternMask);
 
@@ -204,7 +204,7 @@ TCanvas* TRestPatternMask::DrawMonteCarlo(Int_t nSamples) {
         TGraph* gr = new TGraph();
         gr->SetName(grname.c_str());
 
-        for (int n = 0; n < x.second.size(); n++) {
+        for (unsigned int n = 0; n < x.second.size(); n++) {
             gr->SetPoint(gr->GetN(), x.second[n].X(), x.second[n].Y());
         }
 

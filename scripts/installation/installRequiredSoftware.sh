@@ -20,11 +20,10 @@ sudo apt-get -y install subversion git
 sudo apt-get -y install texlive-latex-base
 
 # root
-sudo apt-get -y install libxpm-dev libxft-dev 
+sudo apt-get -y install libxpm-dev libxft-dev
 
 # geant4
 sudo apt-get -y install expat libexpat1-dev zlib1g-dev libxerces-c3.2 libxerces-c-dev libicu-dev qt4-dev-tools qt4-doc qt4-qtconfig
 
 #root 6.20 recommended packages
 sudo apt-get install -y libtbb2 dpkg-dev cmake g++ gcc binutils libx11-dev libxpm-dev libxft-dev libxext-dev python libssl-dev gfortran libpcre3-dev xlibmesa-glu-dev libglew1.5-dev libftgl-dev libmysqlclient-dev libfftw3-dev libcfitsio-dev graphviz-dev libavahi-compat-libdnssd-dev libldap2-dev python-dev libxml2-dev libkrb5-dev libgsl0-dev wget git
-

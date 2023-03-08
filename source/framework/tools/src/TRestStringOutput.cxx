@@ -1,4 +1,5 @@
 #include "TRestStringOutput.h"
+
 #include "TRestStringHelper.h"
 
 using namespace std;
@@ -60,9 +61,9 @@ bool Console::kbhit() {
     fcntl(STDIN_FILENO, F_SETFL, oldf);
     if (ch != EOF) {
         ungetc(ch, stdin);
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 
 // int byteswaiting;
 //   ioctl(0, FIONREAD, &byteswaiting);
@@ -264,7 +265,7 @@ string TRestStringOutput::FormattingPrintString(string input) {
         }
 
         string& border = formatstring;
-        for (unsigned int i = 0; i < Lfmt && i < length; i++) {
+        for (int i = 0; i < Lfmt && i < length; i++) {
             output[i] = border[i];
             output[length - i - 1] = mirrorchar(border[i]);
         }

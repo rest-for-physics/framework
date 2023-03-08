@@ -5,13 +5,14 @@
 
 //*******************************************************************************************************
 //***
-//*** Your HELP is needed to verify, validate and document this macro
-//*** This macro might need update/revision.
+//*** This macro will implement geometry validation routines
+//*** For the moment it is just calling to CheckOverlaps, although
+//*** additional routines could be incorporated in the future.
 //***
 //*******************************************************************************************************
 Int_t REST_ValidateGeometry(TString gdmlName) {
-    TGeoManager* geo = new TGeoManager();
-    geo->Import(gdmlName);
+    TRestGDMLParser* g = new TRestGDMLParser();
+    TGeoManager* geo = g->GetGeoManager((std::string)gdmlName);
 
     geo->CheckOverlaps(0.0000001);
     geo->PrintOverlaps();

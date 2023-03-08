@@ -170,7 +170,7 @@ TRestEvent* TRestSummaryProcess::ProcessEvent(TRestEvent* inputEvent) {
 /// \brief Function to use when all events have been processed
 ///
 void TRestSummaryProcess::EndProcess() {
-    Int_t nEntries = fRunInfo->GetEntries();
+    Int_t nEntries = GetFullAnalysisTree()->GetEntries();
     Double_t startTime = fRunInfo->GetStartTimestamp();
     Double_t endTime = fRunInfo->GetEndTimestamp();
 

@@ -102,7 +102,11 @@ class TRestDataSet : public TRestMetadata {
 
     /// Gives access to the tree
     TTree* GetTree() const {
-        if (fTree == nullptr) RESTWarning << "Tree has not been yet initialized" << RESTendl;
+        if (fTree == nullptr) {
+            RESTError << "Tree has not been yet initialized" << RESTendl;
+            RESTError << "You should invoke TRestDataSet::Initialize() before trying to access the tree"
+                      << RESTendl;
+        }
         return fTree;
     }
 

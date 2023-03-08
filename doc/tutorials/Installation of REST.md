@@ -18,14 +18,14 @@ or downloading an alternative git client following the instructions [here](https
 
 To get access to the repository via SSH you need to generate a SSH key at your local machine. Follow [these instructions] (https://git-scm.com/book/en/v2/Git-on-the-Server-Generating-Your-SSH-Public-Key) to generate a public SSH key. Then, add the SSH key to your Git user account profile, through the [Gitlab web interface](https://lfna.unizar.es/).
 
-You have to set up your git client to recognize your credentials 
+You have to set up your git client to recognize your credentials
 
 \code
  git config --global user.name "your name"
  git config --global user.email "your e-mail"
 \endcode
 
-And, finally, clone the repository in a local folder: 
+And, finally, clone the repository in a local folder:
 
 \code
  git clone git@lfna.unizar.es:rest-development/REST_v2.git
@@ -192,7 +192,7 @@ source $HOME/apps/geant4_10_02_p02-install/bin/geant4.sh
 
 The REST repository contains the source code of the REST libraries and programs that need to be compiled.
 
-We assume in the following that the REST sources have been downloaded to a local path $REST_v2 in your home (substitute by your particular case in the following instructions). 
+We assume in the following that the REST sources have been downloaded to a local path $REST_v2 in your home (substitute by your particular case in the following instructions).
 
 First of all, create a build directory wherever you want, here we assume it is done inside the $REST_v2 folder:
 
@@ -233,13 +233,13 @@ and install of REST at the previously specified *INSTALL_PREFIX*,
 \warning You will need to have write access to the final installation destination.
 
 
-Finally, you must add the following line to your .bashrc so that REST environment is loaded 
+Finally, you must add the following line to your .bashrc so that REST environment is loaded
 
 \code
- source $REST_v2/install/thisREST.sh 
+ source $REST_v2/install/thisREST.sh
 \endcode
 
-Where $REST_v2 must be sustituted by the full path pointing your REST directory. 
+Where $REST_v2 must be sustituted by the full path pointing your REST directory.
 
 Then restart a new terminal to load REST. If everything went fine you should be able to launch a root session with REST libraries/scripts loaded,
 
@@ -255,7 +255,7 @@ If you reached this point you have REST libraries and binaries operational... Co
 ### "REST packages" compilation: restG4
 
 To do REST packages installation you should have already installed REST and loaded it in your environment by sourcing thisREST.sh.
- 
+
 Now you need to compile "REST packages" that can be found under the <code>$REST_v2/packages</code> directory. At the moment the sole example is <code>restG4</code>.
 
 As before, you need to create a build directory:
@@ -285,7 +285,7 @@ Finally, if <code>cmake</code> executed with no errors you should be able now to
 And to install it in <code>$REST_v2/install</code>:
 
 \code
- make install 
+ make install
 \endcode
 
 <code> restG4 </code> executable should be now available.

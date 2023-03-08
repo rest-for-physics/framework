@@ -28,7 +28,7 @@ class TRestTask : public TRestMetadata {
    protected:
     TRestTask(TString TaskString, REST_TASKMODE mode = TASK_MACRO);
 
-    int fNRequiredArgument;
+    unsigned int fNRequiredArgument;
     REST_TASKMODE fMode;
     std::string fInvokeObject = "";
     std::string fInvokeMethod = "";

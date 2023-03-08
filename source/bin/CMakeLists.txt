@@ -1,4 +1,3 @@
-
 include_directories(${rest_include_dirs})
 include_directories(${external_include_dirs})
 
@@ -11,11 +10,13 @@ foreach (file ${files})
     string(REGEX MATCH "[^/\\]*cxx" temp ${file})
     string(REPLACE ".cxx" "" name ${temp})
 
-    ADD_EXECUTABLE(${name} ${file})
-    TARGET_LINK_LIBRARIES(${name} ${rest_libraries} ${external_libs})
+    add_executable(${name} ${file})
+    target_link_libraries(${name} ${rest_libraries} ${external_libs})
     install(TARGETS ${name} RUNTIME DESTINATION bin)
     set(rest_exes ${rest_exes} ${name})
 
 endforeach (file)
 
-set(rest_exes ${rest_exes} PARENT_SCOPE)
+set(rest_exes
+    ${rest_exes}
+    PARENT_SCOPE)
