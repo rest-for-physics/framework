@@ -1056,22 +1056,28 @@ Double_t TRestAnalysisTree::GetObservableMinimum(const TString& obsName, Double_
 /// \return Returns the value at which the obsName observable contains a `level` fraction of the
 /// integral of the `obsIndexer` observable.
 ///
-Double_t TRestAnalysisTree::GetObservableContour(const TString& obsName, const TString& obsIndexer,
-                                                 Double_t level) {
-    if (level > 1 || level < 0) return 0;
+Double_t TRestAnalysisTree::GetObservableContour(const TString& obsName, const TString& obsWeight,
+                                                 Double_t level, Int_t nBins, Double_t xLow, Double_t xHigh) {
+    if (level > 1 || level < 0) {
+        std::cout << "Level must be between 0 and 1" << std::endl;
+        return 0;
+    }
+
+    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
+    if (xHigh == -1)
+        this->Draw(obsName, obsWeight);
+    else
+        this->Draw(obsName + ">>" + histDefinition, obsWeight);
+
+    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
 
     Double_t integral = this->GetIntegral(obsIndexer);
 
-    this->BuildIndex(obsName);
-    TTreeIndex* index = (TTreeIndex*)this->GetTreeIndex();
-
     Double_t sum = 0;
-    for (int i = 0; index->GetN(); i++) {
-        this->GetEntry(index->GetIndex()[i]);
+    for (int i = 0; htemp->GetNbinsX(); i++) {
+        sum += this->GetBinContent(i + 1);
 
-        sum += this->GetDblObservableValue((std::string)obsIndexer);
-
-        if (sum > level * integral) return this->GetDblObservableValue((std::string)obsName);
+        if (sum > level * integral) return htemp->GetBinCenter(i + 1);
     }
     return 0;
 }
