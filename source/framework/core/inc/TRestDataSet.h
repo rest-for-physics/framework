@@ -86,7 +86,7 @@ class TRestDataSet : public TRestMetadata {
     TTree* fTree = nullptr;  //!
 
     /// A list populated by the FileSelection method using the conditions of the dataset
-    std::vector<std::string> fFileSelection;  //!
+    std::vector<std::string> fFileSelection;  //<
 
     void InitFromConfigFile() override;
 
@@ -130,6 +130,6 @@ class TRestDataSet : public TRestMetadata {
     TRestDataSet(const char* cfgFileName, const std::string& name = "");
     ~TRestDataSet();
 
-    ClassDefOverride(TRestDataSet, 1);
+    ClassDefOverride(TRestDataSet, 2);
 };
 #endif
