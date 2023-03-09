@@ -1042,19 +1042,28 @@ Double_t TRestAnalysisTree::GetObservableMinimum(const TString& obsName, Double_
 }
 
 ///////////////////////////////////////////////
-/// \brief It returns the value from obsName entry at which the `obsIndexer` reaches the integral
-/// fraction that is defined by the `level` argument that should be defined between 0 and 1.
+/// \brief This method generates a histogram of the the observable `obsName` given in the
+/// argument weighting it with a second observable also given by argument as `obsWeight`.
 ///
-/// The tree entries will be indexed/sorted by the observable we want to obtain the contour,
-/// `obsName`.
-///
-/// Then, the entry at which the accumulated value of `obsIndexer` exceeds the `level` fraction of
-/// its integral will be used to retrieve the value of the corresponding entry at `obsName`.
+/// This method will return the value at which `obsName` integral reaches a fraction of the
+/// total integral defined by the argument `level`. E.g. if `level=0.5`, then the value of
+/// `obsName` at which the histogram `obsName` reaches half the integral is returned.
 ///
 /// If not given the default `level` value is 0.5.
 ///
-/// \return Returns the value at which the obsName observable contains a `level` fraction of the
-/// integral of the `obsIndexer` observable.
+/// Optionally we may define the parameters of the histogram. If not, ROOT will use the
+/// default values defined by the user.
+///
+/// For example, we could bin the variable `final_R` between 0 and 1cm in 1000 bins, and
+/// get the value of `final_R` where `optics_efficiency` integrated events is 80% of the
+/// total.
+///
+/// \code
+/// analysisTree->GetObservableContour("final_R", "optics_efficiency", 0.8, 1000, 0, 1)
+/// \endcode
+///
+/// \return Returns the value at which `obsName` contains a `level` fraction of the
+/// integral of the `obsWeight` observable.
 ///
 Double_t TRestAnalysisTree::GetObservableContour(const TString& obsName, const TString& obsWeight,
                                                  Double_t level, Int_t nBins, Double_t xLow, Double_t xHigh) {
