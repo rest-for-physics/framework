@@ -76,7 +76,6 @@
 #include <TH1F.h>
 #include <TLeaf.h>
 #include <TObjArray.h>
-#include <TTreeIndex.h>
 
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
@@ -1080,11 +1079,11 @@ Double_t TRestAnalysisTree::GetObservableContour(const TString& obsName, const T
 
     TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
 
-    Double_t integral = this->GetIntegral(obsIndexer);
+    Double_t integral = this->GetIntegral(obsWeight);
 
     Double_t sum = 0;
     for (int i = 0; htemp->GetNbinsX(); i++) {
-        sum += this->GetBinContent(i + 1);
+        sum += htemp->GetBinContent(i + 1);
 
         if (sum > level * integral) return htemp->GetBinCenter(i + 1);
     }
