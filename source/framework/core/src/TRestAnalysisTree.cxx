@@ -973,9 +973,9 @@ Double_t TRestAnalysisTree::GetObservableIntegral(const TString& obsName, Double
                                                   Int_t nBins) {
     TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
-        this->Draw(obsName);
+        this->Draw(obsName, obsName);
     else
-        this->Draw(obsName + ">>" + histDefinition);
+        this->Draw(obsName + ">>" + histDefinition, obsName);
     TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
     return htemp->Integral();
 }
@@ -1067,7 +1067,8 @@ Double_t TRestAnalysisTree::GetObservableMinimum(const TString& obsName, Double_
 Double_t TRestAnalysisTree::GetObservableContour(const TString& obsName, const TString& obsWeight,
                                                  Double_t level, Int_t nBins, Double_t xLow, Double_t xHigh) {
     if (level > 1 || level < 0) {
-        std::cout << "Level must be between 0 and 1" << std::endl;
+        RESTWarning << "Level is : " << level << RESTendl;
+        RESTWarning << "Level must be between 0 and 1" << RESTendl;
         return 0;
     }
 
@@ -1082,7 +1083,7 @@ Double_t TRestAnalysisTree::GetObservableContour(const TString& obsName, const T
     Double_t integral = this->GetIntegral(obsWeight);
 
     Double_t sum = 0;
-    for (int i = 0; htemp->GetNbinsX(); i++) {
+    for (int i = 0; i < htemp->GetNbinsX(); i++) {
         sum += htemp->GetBinContent(i + 1);
 
         if (sum > level * integral) return htemp->GetBinCenter(i + 1);
