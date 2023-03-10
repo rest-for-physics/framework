@@ -302,7 +302,7 @@ class TRestAnalysisTree : public TTree {
 
     Double_t GetContour(const TString& obsName, const TString& obsIndexer, Double_t level = 0.5,
                         Int_t nBins = -1, Double_t xLow = -1, Double_t xHigh = -1) {
-        return GetObservableContour(obsName, obsIndexer, nBins, xLow, xHigh, level);
+        return GetObservableContour(obsName, obsIndexer, level, nBins, xLow, xHigh);
     }
 
     Double_t GetObservableIntegral(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
