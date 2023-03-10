@@ -971,12 +971,12 @@ void TRestAnalysisTree::DisableQuickObservableValueSetting() { this->fQuickSetOb
 ///
 Double_t TRestAnalysisTree::GetObservableIntegral(const TString& obsName, Double_t xLow, Double_t xHigh,
                                                   Int_t nBins) {
-    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
+    TString histDefinition = Form("hint(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
         this->Draw(obsName, obsName);
     else
         this->Draw(obsName + ">>" + histDefinition, obsName);
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
+    TH1F* htemp = (TH1F*)gPad->GetPrimitive("hint");
     return htemp->Integral();
 }
 
@@ -986,12 +986,12 @@ Double_t TRestAnalysisTree::GetObservableIntegral(const TString& obsName, Double
 ///
 Double_t TRestAnalysisTree::GetObservableAverage(const TString& obsName, Double_t xLow, Double_t xHigh,
                                                  Int_t nBins) {
-    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
+    TString histDefinition = Form("havg(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
         this->Draw(obsName);
     else
         this->Draw(obsName + ">>" + histDefinition);
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
+    TH1F* htemp = (TH1F*)gPad->GetPrimitive("havg");
     return htemp->GetMean();
 }
 
@@ -1001,12 +1001,12 @@ Double_t TRestAnalysisTree::GetObservableAverage(const TString& obsName, Double_
 ///
 Double_t TRestAnalysisTree::GetObservableRMS(const TString& obsName, Double_t xLow, Double_t xHigh,
                                              Int_t nBins) {
-    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
+    TString histDefinition = Form("hrms(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
         this->Draw(obsName);
     else
         this->Draw(obsName + ">>" + histDefinition);
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
+    TH1F* htemp = (TH1F*)gPad->GetPrimitive("hrms");
     return htemp->GetRMS();
 }
 
@@ -1016,12 +1016,12 @@ Double_t TRestAnalysisTree::GetObservableRMS(const TString& obsName, Double_t xL
 ///
 Double_t TRestAnalysisTree::GetObservableMaximum(const TString& obsName, Double_t xLow, Double_t xHigh,
                                                  Int_t nBins) {
-    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
+    TString histDefinition = Form("hmax(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
         this->Draw(obsName);
     else
         this->Draw(obsName + ">>" + histDefinition);
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
+    TH1F* htemp = (TH1F*)gPad->GetPrimitive("hmax");
     return htemp->GetMaximumStored();
 }
 
@@ -1031,12 +1031,12 @@ Double_t TRestAnalysisTree::GetObservableMaximum(const TString& obsName, Double_
 ///
 Double_t TRestAnalysisTree::GetObservableMinimum(const TString& obsName, Double_t xLow, Double_t xHigh,
                                                  Int_t nBins) {
-    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
+    TString histDefinition = Form("hmin(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
         this->Draw(obsName);
     else
         this->Draw(obsName + ">>" + histDefinition);
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
+    TH1F* htemp = (TH1F*)gPad->GetPrimitive("hmin");
     return htemp->GetMinimumStored();
 }
 
@@ -1072,15 +1072,15 @@ Double_t TRestAnalysisTree::GetObservableContour(const TString& obsName, const T
         return 0;
     }
 
-    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
+    Double_t integral = this->GetIntegral(obsWeight);
+
+    TString histDefinition = Form("hc(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
         this->Draw(obsName, obsWeight);
     else
         this->Draw(obsName + ">>" + histDefinition, obsWeight);
 
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
-
-    Double_t integral = this->GetIntegral(obsWeight);
+    TH1F* htemp = (TH1F*)gPad->GetPrimitive("hc");
 
     Double_t sum = 0;
     for (int i = 0; i < htemp->GetNbinsX(); i++) {
