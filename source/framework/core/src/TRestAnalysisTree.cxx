@@ -973,9 +973,10 @@ Double_t TRestAnalysisTree::GetObservableIntegral(const TString& obsName, Double
                                                   Int_t nBins) {
     TString histDefinition = Form("hint(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
-        this->Draw(obsName, obsName);
+        this->Draw(obsName + ">>hint", obsName);
     else
         this->Draw(obsName + ">>" + histDefinition, obsName);
+
     TH1F* htemp = (TH1F*)gPad->GetPrimitive("hint");
     return htemp->Integral();
 }
@@ -988,7 +989,7 @@ Double_t TRestAnalysisTree::GetObservableAverage(const TString& obsName, Double_
                                                  Int_t nBins) {
     TString histDefinition = Form("havg(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
-        this->Draw(obsName);
+        this->Draw(obsName + ">>havg");
     else
         this->Draw(obsName + ">>" + histDefinition);
     TH1F* htemp = (TH1F*)gPad->GetPrimitive("havg");
@@ -1003,7 +1004,7 @@ Double_t TRestAnalysisTree::GetObservableRMS(const TString& obsName, Double_t xL
                                              Int_t nBins) {
     TString histDefinition = Form("hrms(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
-        this->Draw(obsName);
+        this->Draw(obsName + ">>hrms");
     else
         this->Draw(obsName + ">>" + histDefinition);
     TH1F* htemp = (TH1F*)gPad->GetPrimitive("hrms");
@@ -1018,7 +1019,7 @@ Double_t TRestAnalysisTree::GetObservableMaximum(const TString& obsName, Double_
                                                  Int_t nBins) {
     TString histDefinition = Form("hmax(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
-        this->Draw(obsName);
+        this->Draw(obsName + ">>hmax");
     else
         this->Draw(obsName + ">>" + histDefinition);
     TH1F* htemp = (TH1F*)gPad->GetPrimitive("hmax");
@@ -1033,7 +1034,7 @@ Double_t TRestAnalysisTree::GetObservableMinimum(const TString& obsName, Double_
                                                  Int_t nBins) {
     TString histDefinition = Form("hmin(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
-        this->Draw(obsName);
+        this->Draw(obsName + ">>hmin");
     else
         this->Draw(obsName + ">>" + histDefinition);
     TH1F* htemp = (TH1F*)gPad->GetPrimitive("hmin");
@@ -1072,11 +1073,11 @@ Double_t TRestAnalysisTree::GetObservableContour(const TString& obsName, const T
         return 0;
     }
 
-    Double_t integral = this->GetIntegral(obsWeight);
+    Double_t integral = this->GetIntegral(obsWeight, xLow, xHigh, nBins);
 
     TString histDefinition = Form("hc(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
-        this->Draw(obsName, obsWeight);
+        this->Draw(obsName + ">>hc", obsWeight);
     else
         this->Draw(obsName + ">>" + histDefinition, obsWeight);
 
