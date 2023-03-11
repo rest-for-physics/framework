@@ -21,24 +21,7 @@
  *************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////
-/// This class allows to make a selection of ROOT data files that fulfill
-/// certain metadata conditions allowing to create a group of files that
-/// define a particular dataset. The files will be searched in a relative
-/// or absolute path that is given together the `filePattern` parameter.
-///
-/// ### Basic file selection
-///
-/// We will be able to define the dates range where files will be
-/// accepted, using `startTime` and `endTime` parameters. The run start
-/// time and end time stored inside TRestRun will be evaluated to decide
-/// if the file should be considered.
-///
-/// A summary of the basic parameters follows:
-///
-/// * **filePattern**: A full path glob pattern to the files that will
-/// be considered. It is a first filter considering the path and the
-/// filename. Usual wild cards such as * or ? will be allowed to target
-/// a given range of files.
+/// This class allows to ...
 ///
 ///
 ///----------------------------------------------------------------------
@@ -47,7 +30,7 @@
 ///
 /// History of developments:
 ///
-/// 2022-December: First implementation of TRestComponent
+/// 2023-December: First implementation of TRestComponent
 /// Javier Galan
 ///
 /// \class TRestComponent
@@ -63,6 +46,27 @@ ClassImp(TRestComponent);
 /// \brief Default constructor
 ///
 TRestComponent::TRestComponent() { Initialize(); }
+
+/////////////////////////////////////////////
+/// \brief Constructor loading data from a config file
+///
+/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// The default behaviour is that the config file must be specified with
+/// full path, absolute or relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param name The name of the specific metadata. It will be used to find the
+/// corresponding TRestAxionMagneticField section inside the RML.
+///
+TRestComponent::TRestComponent(const char* cfgFileName, const std::string& name)
+    : TRestMetadata(cfgFileName) {
+    LoadConfigFromFile(fConfigFileName, name);
+
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
+}
 
 ///////////////////////////////////////////////
 /// \brief Default destructor
@@ -94,5 +98,69 @@ Double_t TRestComponent::GetRate(std::vector<Double_t> point) {
 void TRestComponent::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
+    if (fVariables.size() != fRanges.size())
+        RESTWarning << "The number of variables does not match with the number of defined ranges!"
+                    << RESTendl;
+
+    else if (fVariables.size() != fNbins.size())
+        RESTWarning << "The number of variables does not match with the number of defined bins!" << RESTendl;
+    else {
+        int n = 0;
+        RESTMetadata << " === Variables === " << RESTendl;
+        for (const auto& varName : fVariables) {
+            RESTMetadata << " - Name: " << varName << " Range: (" << fRanges[n].X() << ", " << fRanges[n].Y()
+                         << ") bins: " << fNbins[n] << RESTendl;
+            n++;
+        }
+    }
+
+    RESTMetadata << " " << RESTendl;
+    RESTMetadata << " === Weights === " << RESTendl;
+    for (const auto& wName : fWeights) RESTMetadata << "- " << wName << RESTendl;
+
+    if (!fParametricVariable.empty()) {
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << " === Parametrization === " << RESTendl;
+        RESTMetadata << "- Parametric variable : " << fParametricVariable << RESTendl;
+
+        RESTMetadata << " - Parametric nodes : ";
+        for (const auto& node : fParametrizationNodes) {
+            RESTMetadata << node << " ";
+        }
+        RESTMetadata << RESTendl;
+    }
+
+    RESTMetadata << " - Parametrization binning : " << fParametrizationBinning << RESTendl;
+
     RESTMetadata << "----" << RESTendl;
+}
+
+/////////////////////////////////////////////
+/// \brief It customizes the retrieval of XML data values of this class
+///
+void TRestComponent::InitFromConfigFile() {
+    TRestMetadata::InitFromConfigFile();
+
+    auto ele = GetElement("variable");
+    while (ele != nullptr) {
+        std::string name = GetParameter("name", ele, "");
+        TVector2 v = Get2DVectorParameterWithUnits("range", ele);
+        Int_t bins = StringToInteger(GetParameter("bins", ele, "100"));
+
+        fVariables.push_back(name);
+        fRanges.push_back(v);
+        fNbins.push_back(bins);
+
+        ele = GetNextElement(ele);
+    }
+
+    ele = GetElement("parametricVariable");
+    while (ele != nullptr) {
+        fParametricVariable = GetParameter("name", ele, "");
+        std::cout << GetParameter("nodes", ele, "-1") << std::endl;
+        fParametrizationNodes = StringToElements(GetParameter("nodes", ele, "-1"), ",");
+        fParametrizationBinning = StringToInteger(GetParameter("bins", ele, "100"));
+
+        ele = GetNextElement(ele);
+    }
 }
