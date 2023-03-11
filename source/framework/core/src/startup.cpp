@@ -288,7 +288,8 @@ vector<T> StringToVector(string vec) {
         }
 
     } else {
-        cout << "illegal format!" << endl;
+        cout << "Startup. StringToVector. Illegal format!" << endl;
+        cout << "A vector should be defined using brackets and comma separated elements: {a,b,c,d}" << endl;
         return vector<T>{};
     }
 
