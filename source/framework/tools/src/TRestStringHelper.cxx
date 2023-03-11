@@ -248,11 +248,13 @@ vector<string> REST_StringHelper::Split(string in, string separator, bool allowB
 ///////////////////////////////////////////////
 /// \brief Convert the input string into a  vector of double elements
 ///
+/// The method will remove any delimiters found in the string (), [] or {}.
+///
 /// e.g. Input: "1,2,3,4", Output: {1.,2.,3.,4.}
 ///
 vector<double> REST_StringHelper::StringToElements(string in, string separator) {
     vector<double> result;
-    vector<string> vec_str = REST_StringHelper::Split(in, separator);
+    vector<string> vec_str = REST_StringHelper::Split(RemoveDelimiters(in), separator);
     for (unsigned int i = 0; i < vec_str.size(); i++) {
         double temp = REST_StringHelper::StringToDouble(vec_str[i]);
         result.push_back(temp);
@@ -284,6 +286,19 @@ vector<double> REST_StringHelper::StringToElements(string in, string headChar, s
     }
 
     return result;
+}
+
+///////////////////////////////////////////////
+/// \brief Returns the input string removing any delimiters ({[]})
+///
+string REST_StringHelper::RemoveDelimiters(string in) {
+    string out = in;
+    size_t pos = out.find_first_of("+-*/e^%");
+    while ((pos = out.find_first_of("({[]})")) != string::npos) {
+        out.erase(pos, 1);
+    }
+
+    return out;
 }
 
 ///////////////////////////////////////////////
