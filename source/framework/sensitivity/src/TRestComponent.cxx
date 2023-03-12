@@ -157,7 +157,6 @@ void TRestComponent::InitFromConfigFile() {
     ele = GetElement("parametricVariable");
     while (ele != nullptr) {
         fParametricVariable = GetParameter("name", ele, "");
-        std::cout << GetParameter("nodes", ele, "-1") << std::endl;
         fParametrizationNodes = StringToElements(GetParameter("nodes", ele, "-1"), ",");
         fParametrizationBinning = StringToInteger(GetParameter("bins", ele, "100"));
 
