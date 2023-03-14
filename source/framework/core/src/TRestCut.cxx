@@ -45,9 +45,9 @@
 /// 2021-dec: First concept.
 ///           Ni Kaixiang
 ///
-/// 2023-March: 
+/// 2023-March:
 ///
-/// 
+///
 /// \class TRestCut
 ///
 /// <hr>
@@ -71,31 +71,30 @@ void TRestCut::Initialize() { fCuts.clear(); }
 void TRestCut::InitFromConfigFile() {
     auto ele = GetElement("cut");
     while (ele != nullptr) {
-
         string name = GetParameter("name", ele, "");
-          if (name.empty() || name == "Not defined") {
+        if (name.empty() || name == "Not defined") {
             RESTError << "< cut does not contain a name!" << RESTendl;
             exit(1);
-          }
+        }
 
         string cutStr = GetParameter("value", ele, "");
         string variable = GetParameter("variable", ele, "");
         string condition = GetParameter("condition", ele, "");
 
-        if(!cutStr.empty()){
-          cutStr = Replace(cutStr, " AND ", " && ");
-          cutStr = Replace(cutStr, " OR ", " || ");
-          fCutStrings.push_back(cutStr);
-          AddCut(TCut(name.c_str(), cutStr.c_str()));
-        } else if (!variable.empty() && !condition.empty()){
-           fParamCut.push_back(std::make_pair(variable, condition));
-           string cutVar = variable + condition;
-           AddCut(TCut(name.c_str(), cutVar.c_str()));
+        if (!cutStr.empty()) {
+            cutStr = Replace(cutStr, " AND ", " && ");
+            cutStr = Replace(cutStr, " OR ", " || ");
+            fCutStrings.push_back(cutStr);
+            AddCut(TCut(name.c_str(), cutStr.c_str()));
+        } else if (!variable.empty() && !condition.empty()) {
+            fParamCut.push_back(std::make_pair(variable, condition));
+            string cutVar = variable + condition;
+            AddCut(TCut(name.c_str(), cutVar.c_str()));
         } else {
-          RESTError << "TRestCut does not contain a valid parameter/condition or cut string!" << RESTendl;
-          RESTError << "<cut name='cc1' value='XX>10 AND XX<90'/>" << RESTendl;
-          RESTError << "<cut name='cc3' variable='sAna_ThresholdIntegral' condition='>0'" << RESTendl;
-          exit(1);
+            RESTError << "TRestCut does not contain a valid parameter/condition or cut string!" << RESTendl;
+            RESTError << "<cut name='cc1' value='XX>10 AND XX<90'/>" << RESTendl;
+            RESTError << "<cut name='cc3' variable='sAna_ThresholdIntegral' condition='>0'" << RESTendl;
+            exit(1);
         }
 
         ele = GetNextElement(ele);
@@ -132,9 +131,9 @@ void TRestCut::PrintMetadata() {
     TRestMetadata::PrintMetadata();
     RESTMetadata << " " << RESTendl;
     RESTMetadata << "Cuts added: " << RESTendl;
-      for(const auto& cut : fCuts){
-         RESTMetadata << cut.GetName() << " " << cut.GetTitle() << RESTendl;
-      }
+    for (const auto& cut : fCuts) {
+        RESTMetadata << cut.GetName() << " " << cut.GetTitle() << RESTendl;
+    }
     RESTMetadata << "+++" << RESTendl;
 }
 

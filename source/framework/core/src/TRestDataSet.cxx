@@ -292,35 +292,37 @@ void TRestDataSet::Initialize() {
     ROOT::RDataFrame df("AnalysisTree", fFileSelection);
     fDataSet = df;
 
-    if(fCut) {
-      auto paramCut = fCut->GetParamCut();
-        for(const auto& [param, condition] : paramCut){
-          if(std::find(finalList.begin(), finalList.end(), param) != finalList.end()){
-            std::string pCut =param + condition;
-            RESTDebug << "Applying cut " << pCut << RESTendl;
-            fDataSet = fDataSet.Filter(pCut);
-          } else {
-            RESTWarning << " Cut observable " << param << " not found in observable list, skipping..." << RESTendl;
-          }
-        }
-
-      auto cutString = fCut->GetCutStrings();
-        for(const auto& pCut : cutString){
-          bool added = false;
-          for (const auto& obs : finalList) {
-            if(pCut.find(obs) != std::string::npos){
-              RESTDebug << "Applying cut " << pCut << RESTendl;
-              fDataSet = fDataSet.Filter(pCut);
-              added = true;
-              break;
+    if (fCut) {
+        auto paramCut = fCut->GetParamCut();
+        for (const auto& [param, condition] : paramCut) {
+            if (std::find(finalList.begin(), finalList.end(), param) != finalList.end()) {
+                std::string pCut = param + condition;
+                RESTDebug << "Applying cut " << pCut << RESTendl;
+                fDataSet = fDataSet.Filter(pCut);
+            } else {
+                RESTWarning << " Cut observable " << param << " not found in observable list, skipping..."
+                            << RESTendl;
             }
-          }
-
-          if(!added){
-            RESTWarning << " Cut string " << pCut << " not found in observable list, skipping..." << RESTendl;
-          }
         }
-     }
+
+        auto cutString = fCut->GetCutStrings();
+        for (const auto& pCut : cutString) {
+            bool added = false;
+            for (const auto& obs : finalList) {
+                if (pCut.find(obs) != std::string::npos) {
+                    RESTDebug << "Applying cut " << pCut << RESTendl;
+                    fDataSet = fDataSet.Filter(pCut);
+                    added = true;
+                    break;
+                }
+            }
+
+            if (!added) {
+                RESTWarning << " Cut string " << pCut << " not found in observable list, skipping..."
+                            << RESTendl;
+            }
+        }
+    }
 
     std::string user = getenv("USER");
     std::string fOutName = "/tmp/rest_output_" + user + ".root";
@@ -600,7 +602,6 @@ void TRestDataSet::InitFromConfigFile() {
     }
 
     fCut = (TRestCut*)InstantiateChildMetadata("TRestCut");
-
 }
 
 ///////////////////////////////////////////////

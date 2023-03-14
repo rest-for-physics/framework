@@ -27,8 +27,8 @@
 
 #include <ROOT/RDataFrame.hxx>
 
-#include "TRestMetadata.h"
 #include "TRestCut.h"
+#include "TRestMetadata.h"
 
 struct RelevantQuantity {
     /// The associated metadata member used to register the relevant quantity
@@ -78,7 +78,7 @@ class TRestDataSet : public TRestMetadata {
     std::map<std::string, RelevantQuantity> fQuantity;  //<
 
     /// Parameter cuts over the selected dataset
-    TRestCut *fCut = nullptr;
+    TRestCut* fCut = nullptr;
 
     /// The total integrated run time of selected files
     Double_t fTotalDuration = 0;  //<
