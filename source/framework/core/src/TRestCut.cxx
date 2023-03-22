@@ -26,6 +26,7 @@
 /// <TRestCut/>
 ///   <cut name="cc1" value="XX>10 AND XX<90"/>
 ///   <cut name="cc2" value="sAna_ThresholdIntegral<100e3"/>
+///   <cut name="cc3" variable="sAna_ThresholdIntegral" condition=">0">
 /// </TRestCut>
 ///
 /// Note that the notations " AND " and " OR " will be replaced by " && " and " || "
@@ -43,6 +44,9 @@
 ///
 /// 2021-dec: First concept.
 ///           Ni Kaixiang
+///
+/// 2023-March:
+///
 ///
 /// \class TRestCut
 ///
@@ -68,12 +72,42 @@ void TRestCut::InitFromConfigFile() {
     auto ele = GetElement("cut");
     while (ele != nullptr) {
         string name = GetParameter("name", ele, "");
+        if (name.empty() || name == "Not defined") {
+            RESTError << "< cut does not contain a name!" << RESTendl;
+            exit(1);
+        }
+
         string cutStr = GetParameter("value", ele, "");
-        cutStr = Replace(cutStr, " AND ", " && ");
-        cutStr = Replace(cutStr, " OR ", " || ");
-        AddCut(TCut(name.c_str(), cutStr.c_str()));
+        string variable = GetParameter("variable", ele, "");
+        string condition = GetParameter("condition", ele, "");
+
+        if (!cutStr.empty()) {
+            cutStr = Replace(cutStr, " AND ", " && ");
+            cutStr = Replace(cutStr, " OR ", " || ");
+            fCutStrings.push_back(cutStr);
+            AddCut(TCut(name.c_str(), cutStr.c_str()));
+        } else if (!variable.empty() && !condition.empty()) {
+            fParamCut.push_back(std::make_pair(variable, condition));
+            string cutVar = variable + condition;
+            AddCut(TCut(name.c_str(), cutVar.c_str()));
+        } else {
+            RESTError << "TRestCut does not contain a valid parameter/condition or cut string!" << RESTendl;
+            RESTError << "<cut name='cc1' value='XX>10 AND XX<90'/>" << RESTendl;
+            RESTError << "<cut name='cc3' variable='sAna_ThresholdIntegral' condition='>0'" << RESTendl;
+            exit(1);
+        }
+
         ele = GetNextElement(ele);
     }
+}
+
+TRestCut& TRestCut::operator=(TRestCut& cut) {
+    SetName(cut.GetName());
+    SetTitle(cut.GetTitle());
+    fCuts = cut.GetCuts();
+    fCutStrings = cut.GetCutStrings();
+    fParamCut = cut.GetParamCut();
+    return *this;
 }
 
 void TRestCut::AddCut(TCut cut) {
@@ -105,8 +139,10 @@ TCut TRestCut::GetCut(string name) {
 void TRestCut::PrintMetadata() {
     TRestMetadata::PrintMetadata();
     RESTMetadata << " " << RESTendl;
-    RESTMetadata << "Number of TCut objects added: " << fCuts.size() << RESTendl;
-    RESTMetadata << " " << RESTendl;
+    RESTMetadata << "Cuts added: " << RESTendl;
+    for (const auto& cut : fCuts) {
+        RESTMetadata << cut.GetName() << " " << cut.GetTitle() << RESTendl;
+    }
     RESTMetadata << "+++" << RESTendl;
 }
 

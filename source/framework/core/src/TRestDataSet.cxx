@@ -104,9 +104,10 @@
 ///    <observables list="g4Ana_totalEdep:hitsAna_energy" />
 ///
 ///    // Will apply a cut to the observables
-///    <cut variable="rawAna_NumberOfGoodSignals" condition=">10" />
-///    <cut variable="rawAna_NumberOfGoodSignals" condition="<100" />
-///
+///    <TRestCut>
+///      <cut name="c1" variable="rawAna_NumberOfGoodSignals" condition=">10" />
+///      <cut name="c1" variable="rawAna_NumberOfGoodSignals" condition="<100" />
+///    </TRestCut>
 ///    // Will add all the observables from the process `rawAna`
 ///    <processObservables list="rate:rawAna" />
 ///
@@ -289,23 +290,38 @@ void TRestDataSet::Initialize() {
     ROOT::EnableImplicitMT();
 
     ROOT::RDataFrame df("AnalysisTree", fFileSelection);
+    fDataSet = df;
 
-    std::string pCut = "";
-    for (const auto& [param, cut] : fParamCut) {
-        if (std::find(finalList.begin(), finalList.end(), param) != finalList.end()) {
-            if (!pCut.empty()) pCut += " && ";
-            pCut += param + cut;
-        } else {
-            RESTWarning << " Cut observable " << param << " not found in observable list, skipping..."
-                        << RESTendl;
+    if (fCut) {
+        auto paramCut = fCut->GetParamCut();
+        for (const auto& [param, condition] : paramCut) {
+            if (std::find(finalList.begin(), finalList.end(), param) != finalList.end()) {
+                std::string pCut = param + condition;
+                RESTDebug << "Applying cut " << pCut << RESTendl;
+                fDataSet = fDataSet.Filter(pCut);
+            } else {
+                RESTWarning << " Cut observable " << param << " not found in observable list, skipping..."
+                            << RESTendl;
+            }
         }
-    }
 
-    if (!pCut.empty()) {
-        RESTDebug << "Applying cut " << pCut << RESTendl;
-        fDataSet = df.Filter(pCut);
-    } else {
-        fDataSet = df;
+        auto cutString = fCut->GetCutStrings();
+        for (const auto& pCut : cutString) {
+            bool added = false;
+            for (const auto& obs : finalList) {
+                if (pCut.find(obs) != std::string::npos) {
+                    RESTDebug << "Applying cut " << pCut << RESTendl;
+                    fDataSet = fDataSet.Filter(pCut);
+                    added = true;
+                    break;
+                }
+            }
+
+            if (!added) {
+                RESTWarning << " Cut string " << pCut << " not found in observable list, skipping..."
+                            << RESTendl;
+            }
+        }
     }
 
     std::string user = getenv("USER");
@@ -585,24 +601,7 @@ void TRestDataSet::InitFromConfigFile() {
         quantityDefinition = GetNextElement(quantityDefinition);
     }
 
-    TiXmlElement* cutDefinition = GetElement("cut");
-    while (cutDefinition != nullptr) {
-        std::string variable = GetFieldValue("variable", cutDefinition);
-        if (variable.empty() || variable == "Not defined") {
-            RESTError << "< paramCut variable key does not contain a name!" << RESTendl;
-            exit(1);
-        }
-
-        std::string condition = GetFieldValue("condition", cutDefinition);
-        if (condition.empty() || condition == "Not defined") {
-            RESTError << "< paramCut condition key does not contain a metadata value!" << RESTendl;
-            exit(1);
-        }
-
-        fParamCut.push_back(std::make_pair(variable, condition));
-
-        cutDefinition = GetNextElement(cutDefinition);
-    }
+    fCut = (TRestCut*)InstantiateChildMetadata("TRestCut");
 }
 
 ///////////////////////////////////////////////
