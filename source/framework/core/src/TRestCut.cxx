@@ -101,6 +101,15 @@ void TRestCut::InitFromConfigFile() {
     }
 }
 
+TRestCut& TRestCut::operator=(TRestCut& cut) {
+   SetName(cut.GetName());
+   SetTitle(cut.GetTitle());
+   fCuts = cut.GetCuts();
+   fCutStrings = cut.GetCutStrings();
+   fParamCut = cut. GetParamCut();
+   return *this;
+}
+
 void TRestCut::AddCut(TCut cut) {
     if ((string)cut.GetName() == "") {
         RESTWarning << "TRestCut::AddCut: cannot add cut without name!" << RESTendl;
