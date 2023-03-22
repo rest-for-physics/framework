@@ -161,6 +161,14 @@
 /// [3] d.Export("mydataset.root");
 /// \endcode
 ///
+/// Example 2 Import existing DataSet:
+/// \code
+/// restRoot
+/// [0] TRestDataSet d();
+/// [1] d.Import("myDataSet.root");
+/// [2] d.GetTree()->GetEntries()
+/// \endcode
+///
 /// ### Relevant quantities
 ///
 /// Sometimes we will be willing that our dataset contains few variables
@@ -353,8 +361,8 @@ void TRestDataSet::Initialize() {
 std::vector<std::string> TRestDataSet::FileSelection() {
     fFileSelection.clear();
 
-    std::time_t time_stamp_start = REST_StringHelper::StringToTimeStamp(fStartTime);
-    std::time_t time_stamp_end = REST_StringHelper::StringToTimeStamp(fEndTime);
+    std::time_t time_stamp_start = REST_StringHelper::StringToTimeStamp(fFilterStartTime);
+    std::time_t time_stamp_end = REST_StringHelper::StringToTimeStamp(fFilterEndTime);
 
     if (!time_stamp_end || !time_stamp_start) {
         RESTError << "TRestDataSet::FileSelect. Start or end dates not properly formed. Please, check "
@@ -428,6 +436,10 @@ std::vector<std::string> TRestDataSet::FileSelection() {
             if (properties.strategy == "last") properties.value = value;
         }
 
+        if(run.GetStartTimestamp() < fStartTime) fStartTime = run.GetStartTimestamp();
+
+        if(run.GetEndTimestamp() > fEndTime )fEndTime = run.GetEndTimestamp();
+
         fTotalDuration += run.GetEndTimestamp() - run.GetStartTimestamp();
         fFileSelection.push_back(file);
     }
@@ -442,8 +454,8 @@ std::vector<std::string> TRestDataSet::FileSelection() {
 void TRestDataSet::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    RESTMetadata << " - StartTime : " << fStartTime << RESTendl;
-    RESTMetadata << " - EndTime : " << fEndTime << RESTendl;
+    RESTMetadata << " - StartTime : " << REST_StringHelper::ToDateTimeString(fStartTime) << RESTendl;
+    RESTMetadata << " - EndTime : " << REST_StringHelper::ToDateTimeString(fEndTime) << RESTendl;
     RESTMetadata << " - Path : " << TRestTools::SeparatePathAndName(fFilePattern).first << RESTendl;
     RESTMetadata << " - File pattern : " << TRestTools::SeparatePathAndName(fFilePattern).second << RESTendl;
     RESTMetadata << "  " << RESTendl;
@@ -472,7 +484,8 @@ void TRestDataSet::PrintMetadata() {
     if (!fFilterMetadata.empty()) {
         RESTMetadata << " Metadata filters: " << RESTendl;
         RESTMetadata << " ----------------- " << RESTendl;
-
+        RESTMetadata << " - StartTime : " << fFilterStartTime << RESTendl;
+        RESTMetadata << " - EndTime : " << fFilterEndTime << RESTendl;
         int n = 0;
         for (const auto& mdFilter : fFilterMetadata) {
             RESTMetadata << " - " << mdFilter << ".";
@@ -639,8 +652,8 @@ void TRestDataSet::Export(const std::string& filename) {
         ///// Writing header
         fprintf(f, "### TRestDataSet generated file\n");
         fprintf(f, "### \n");
-        fprintf(f, "### StartTime : %s\n", fStartTime.c_str());
-        fprintf(f, "### EndTime : %s\n", fEndTime.c_str());
+        fprintf(f, "### StartTime : %s\n", fFilterStartTime.c_str());
+        fprintf(f, "### EndTime : %s\n", fFilterEndTime.c_str());
         fprintf(f, "###\n");
         fprintf(f, "### Accumulated run time (seconds) : %lf\n", fTotalDuration);
         fprintf(f, "### Accumulated run time (hours) : %lf\n", fTotalDuration / 3600.);
@@ -704,4 +717,65 @@ void TRestDataSet::Export(const std::string& filename) {
         RESTWarning << "TRestDataSet::Export. Extension " << TRestTools::GetFileNameExtension(filename)
                     << " not recognized" << RESTendl;
     }
+}
+
+///////////////////////////////////////////////
+/// \brief Operator to copy TRestDataSet metadata
+///
+TRestDataSet& TRestDataSet::operator=(TRestDataSet& dS) {
+
+    SetName(dS.GetName());
+    fFilterStartTime = dS.GetFilterStartTime();
+    fFilterEndTime = dS.GetFilterEndTime();
+    fStartTime = dS.GetStartTime();
+    fEndTime = dS.GetEndTime();
+    fFilePattern = dS.GetFilePattern();
+    fObservablesList = dS.GetObservablesList();
+    fProcessObservablesList = dS.GetProcessObservablesList();
+    fFilterMetadata = dS.GetFilterMetadata();
+    fFilterContains = dS.GetFilterContains ();
+    fFilterGreaterThan = dS.GetFilterGreaterThan ();
+    fFilterLowerThan = dS.GetFilterLowerThan ();
+    fQuantity = dS.GetQuantity();
+    fTotalDuration = dS.GetTotalTimeInSeconds();
+    fCut = dS.GetCut();
+
+  return *this;
+
+}
+
+///////////////////////////////////////////////
+/// \brief This function imports metadata from a root file
+/// it import metadata info from the previous dataSet
+/// while it opens the analysis tree
+///
+void TRestDataSet::Import(const std::string& fileName) {
+
+    if (TRestTools::GetFileNameExtension(fileName) != "root") {
+      RESTError<<"Datasets can only be imported from root files"<<RESTendl;
+      return;
+    }
+
+    TFile *file = TFile::Open (fileName.c_str(),"READ");
+    if (file != nullptr) {
+        TIter nextkey(file->GetListOfKeys());
+        TKey* key;
+            while ((key = (TKey*)nextkey())) {
+              std::string kName = key->GetClassName();
+                if (REST_Reflection::GetClassQuick(kName.c_str()) != nullptr &&
+                  REST_Reflection::GetClassQuick(kName.c_str())->InheritsFrom("TRestDataSet")) {
+                  TRestDataSet *dS = file->Get<TRestDataSet>(key->GetName());
+                  if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info)dS->PrintMetadata();
+                  *this = *dS;
+                }
+            }
+    } else {
+      RESTError << "Cannot open "<<fileName << RESTendl;
+      exit(1);
+    }
+
+    RESTInfo << "Opening " << fileName << RESTendl;
+    fDataSet = ROOT::RDataFrame ("AnalysisTree", fileName);
+    
+    fTree = (TTree*)file->Get("AnalysisTree");
 }

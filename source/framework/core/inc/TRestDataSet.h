@@ -48,10 +48,10 @@ struct RelevantQuantity {
 class TRestDataSet : public TRestMetadata {
    private:
     /// All the selected runs will have a starting date after fStartTime
-    std::string fStartTime = "2000/01/01";  //<
+    std::string fFilterStartTime = "2000/01/01";  //<
 
     /// All the selected runs will have an ending date before fEndTime
-    std::string fEndTime = "3000/12/31";  //<
+    std::string fFilterEndTime = "3000/12/31";  //<
 
     /// A glob file pattern that must be satisfied by all files
     std::string fFilePattern = "";  //<
@@ -85,6 +85,12 @@ class TRestDataSet : public TRestMetadata {
 
     /// A list populated by the FileSelection method using the conditions of the dataset
     std::vector<std::string> fFileSelection;  //<
+
+    /// TimeStamp for the start time of the first file
+    Double_t fStartTime = REST_StringHelper::StringToTimeStamp(fFilterEndTime);
+
+    /// TimeStamp for the end time of the last file
+    Double_t fEndTime = REST_StringHelper::StringToTimeStamp(fFilterStartTime);
 
     /// The resulting RDF::RNode object after initialization
     ROOT::RDF::RNode fDataSet = ROOT::RDataFrame(0);  //!
@@ -126,6 +132,24 @@ class TRestDataSet : public TRestMetadata {
     /// It returns the accumulated run time in seconds
     Double_t GetTotalTimeInSeconds() const { return fTotalDuration; }
 
+    inline auto GetFilterStartTime ( ) const {return fFilterStartTime;}
+    inline auto GetFilterEndTime ( ) const {return fFilterEndTime;}
+    inline auto GetStartTime ( ) const {return fStartTime;}
+    inline auto GetEndTime ( ) const {return fEndTime;}
+    inline auto GetFilePattern () const { return fFilePattern;}
+    inline auto GetObservablesList() const {return fObservablesList;}
+    inline auto GetProcessObservablesList( ) const {return fProcessObservablesList;}
+    inline auto GetFilterMetadata () const { return fFilterMetadata;}
+    inline auto GetFilterContains () const {return fFilterContains;}
+    inline auto GetFilterGreaterThan () const {return fFilterGreaterThan;}
+    inline auto GetFilterLowerThan () const {return fFilterLowerThan;}
+    inline auto GetQuantity () const {return fQuantity;}
+    inline auto GetCut () const {return fCut;}
+
+    inline void SetFilePattern (const std::string &pattern){ fFilePattern = pattern;}
+
+    TRestDataSet& operator=(TRestDataSet& dS);
+    void Import(const std::string& fileName);
     void Export(const std::string& filename);
 
     void PrintMetadata() override;
