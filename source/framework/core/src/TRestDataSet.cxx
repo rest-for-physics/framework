@@ -105,7 +105,7 @@
 ///
 ///    // Will apply a cut to the observables
 ///    <TRestCut>
-///      <cut name="c1" variable="rawAna_NumberOfGoodSignals" condition=">10" />
+///      <cut name="c1" variable="rawAna_NumberOfGoodSignals" condition=">1" />
 ///      <cut name="c1" variable="rawAna_NumberOfGoodSignals" condition="<100" />
 ///    </TRestCut>
 ///    // Will add all the observables from the process `rawAna`
@@ -124,7 +124,7 @@
 /// \code
 /// restRoot
 /// [0] TRestDataSet d("dataset");
-/// [1] d.Initialize();
+/// [1] d.GenerateDataSet();
 /// [2] d.GetTree()->GetEntries()
 /// [3] d.GetDataFrame().GetColumnNames()
 /// \endcode
@@ -152,11 +152,11 @@
 /// instance.
 ///
 ///
-/// Example:
+/// Example 1 Generate DataSet from config file:
 /// \code
 /// restRoot
-/// [0] TRestDataSet d("dataset");
-/// [1] d.Initialize();
+/// [0] TRestDataSet d("dataset", "dataSetName");
+/// [1] d.GenerateDataSet();
 /// [2] d.Export("mydataset.csv");
 /// [3] d.Export("mydataset.root");
 /// \endcode
@@ -262,11 +262,19 @@ TRestDataSet::TRestDataSet(const char* cfgFileName, const std::string& name) : T
 TRestDataSet::~TRestDataSet() {}
 
 ///////////////////////////////////////////////
-/// \brief It will initialize the data frame with the filelist and column names
-/// (or observables) that have been defined by the user.
+/// \brief This function initialize different parameters
+/// from the TRestDataSet
 ///
 void TRestDataSet::Initialize() {
     SetSectionName(this->ClassName());
+
+}
+
+///////////////////////////////////////////////
+/// \brief This function generates the data frame with the filelist and column names
+/// (or observables) that have been defined by the user.
+///
+void TRestDataSet::GenerateDataSet(){
 
     if (fTree != nullptr) {
         RESTWarning << "Tree has already been loaded. Skipping TRestDataSet::Initialize ... " << RESTendl;
@@ -276,7 +284,10 @@ void TRestDataSet::Initialize() {
     if (fFileSelection.empty()) FileSelection();
 
     // We are not ready yet
-    if (fFileSelection.empty()) return;
+    if (fFileSelection.empty()){
+       RESTError << "File selection is empty "<< RESTendl;
+       return;
+    }
 
     ///// Disentangling process observables --> producing finalList
     TRestRun run(fFileSelection.front());
@@ -285,52 +296,30 @@ void TRestDataSet::Initialize() {
     finalList.push_back("eventID");
     finalList.push_back("timeStamp");
 
-    for (const auto& obs : fObservablesList) finalList.push_back(obs);
+    auto obsNames = run.GetAnalysisTree()->GetObservableNames();
+    for (const auto& obs : fObservablesList){
+       if(std::find(obsNames.begin(), obsNames.end(), obs) != obsNames.end()){
+         finalList.push_back(obs);
+       } else {
+         RESTWarning << " Observable " << obs << " not found in observable list, skipping..." << RESTendl;
+       }
+    }
 
-    std::vector<std::string> obsNames = run.GetAnalysisTree()->GetObservableNames();
     for (const auto& name : obsNames) {
         for (const auto& pcs : fProcessObservablesList) {
             if (name.find(pcs) == 0) finalList.push_back(name);
         }
     }
-    ///////
+
+    // Remove duplicated observables if any
+    std::sort( finalList.begin(), finalList.end() );
+    finalList.erase( std::unique( finalList.begin(), finalList.end() ), finalList.end() );
 
     ROOT::EnableImplicitMT();
 
-    ROOT::RDataFrame df("AnalysisTree", fFileSelection);
-    fDataSet = df;
+    fDataSet = ROOT::RDataFrame("AnalysisTree", fFileSelection);
 
-    if (fCut) {
-        auto paramCut = fCut->GetParamCut();
-        for (const auto& [param, condition] : paramCut) {
-            if (std::find(finalList.begin(), finalList.end(), param) != finalList.end()) {
-                std::string pCut = param + condition;
-                RESTDebug << "Applying cut " << pCut << RESTendl;
-                fDataSet = fDataSet.Filter(pCut);
-            } else {
-                RESTWarning << " Cut observable " << param << " not found in observable list, skipping..."
-                            << RESTendl;
-            }
-        }
-
-        auto cutString = fCut->GetCutStrings();
-        for (const auto& pCut : cutString) {
-            bool added = false;
-            for (const auto& obs : finalList) {
-                if (pCut.find(obs) != std::string::npos) {
-                    RESTDebug << "Applying cut " << pCut << RESTendl;
-                    fDataSet = fDataSet.Filter(pCut);
-                    added = true;
-                    break;
-                }
-            }
-
-            if (!added) {
-                RESTWarning << " Cut string " << pCut << " not found in observable list, skipping..."
-                            << RESTendl;
-            }
-        }
-    }
+    fDataSet = MakeCut(fCut);
 
     std::string user = getenv("USER");
     std::string fOutName = "/tmp/rest_output_" + user + ".root";
@@ -338,19 +327,8 @@ void TRestDataSet::Initialize() {
 
     fDataSet = ROOT::RDataFrame("AnalysisTree", fOutName);
 
-    TFile* f = TFile::Open(fOutName.c_str());
+    TFile *f = TFile::Open (fOutName.c_str());
     fTree = (TTree*)f->Get("AnalysisTree");
-
-    int cont = 0;
-    std::string obsListStr;
-    for (const auto& l : finalList) {
-        if (cont > 0) obsListStr += ":";
-        obsListStr += l;
-        cont++;
-    }
-
-    // We do this so that later we can recover the values using TTree::GetVal
-    fTree->Draw((TString)obsListStr, "", "goff");
 
     RESTInfo << " - Dataset initialized!" << RESTendl;
 }
@@ -494,7 +472,7 @@ ROOT::RDF::RNode TRestDataSet::MakeCut(const TRestCut* cut){
 }
 
 /////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
+/// \brief Prints on screen the information about the metadata members of TRestDataSet
 ///
 void TRestDataSet::PrintMetadata() {
     TRestMetadata::PrintMetadata();
@@ -605,7 +583,7 @@ void TRestDataSet::InitFromConfigFile() {
 
         std::vector<std::string> obsList = REST_StringHelper::Split(observables, ",");
 
-        for (const auto& l : obsList) fObservablesList.push_back(l);
+        fObservablesList.insert(fObservablesList.end(), obsList.begin(), obsList.end());
 
         observablesDefinition = GetNextElement(observablesDefinition);
     }
@@ -734,6 +712,16 @@ void TRestDataSet::Export(const std::string& filename) {
         fprintf(f, "\n");
         fprintf(f, "###\n");
         fprintf(f, "### Data starts here\n");
+
+        auto obsNames = fDataSet.GetColumnNames();
+        std::string obsListStr ="";
+          for (const auto& l : obsNames) {
+            if (!obsListStr.empty()) obsListStr += ":";
+            obsListStr += l;
+         }
+
+        // We do this so that later we can recover the values using TTree::GetVal
+        fTree->Draw((TString)obsListStr, "", "goff");
 
         for (unsigned int n = 0; n < fTree->GetEntries(); n++) {
             for (unsigned int m = 0; m < GetNumberOfBranches(); m++) {
