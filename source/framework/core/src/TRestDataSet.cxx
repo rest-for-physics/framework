@@ -448,6 +448,51 @@ std::vector<std::string> TRestDataSet::FileSelection() {
     return fFileSelection;
 }
 
+///////////////////////////////////////////////
+/// \brief This function apply a TRestCut to the dataframe
+/// and returns a dataframe with the applied cuts. Note that
+/// the cuts are not applied directly to the dataframe on
+/// TRestDataSet, to do so you should do fDataSet = MakeCut(fCut);
+///
+ROOT::RDF::RNode TRestDataSet::MakeCut(const TRestCut* cut){
+
+      auto df = fDataSet;
+
+      if (cut == nullptr) return df;
+
+      auto paramCut = cut->GetParamCut();
+      auto obsList = df.GetColumnNames();
+      for (const auto& [param, condition] : paramCut) {
+          if (std::find(obsList.begin(), obsList.end(), param) != obsList.end()) {
+              std::string pCut = param + condition;
+              RESTDebug << "Applying cut " << pCut << RESTendl;
+              df = df.Filter(pCut);
+          } else {
+              RESTWarning << " Cut observable " << param << " not found in observable list, skipping..." << RESTendl;
+          }
+      }
+
+      auto cutString = cut->GetCutStrings();
+      for (const auto& pCut : cutString) {
+          bool added = false;
+          for (const auto& obs : obsList) {
+              if (pCut.find(obs) != std::string::npos) {
+                  RESTDebug << "Applying cut " << pCut << RESTendl;
+                  df = df.Filter(pCut);
+                  added = true;
+                  break;
+              }
+          }
+
+          if (!added) {
+              RESTWarning << " Cut string " << pCut << " not found in observable list, skipping..." << RESTendl;
+          }
+      }
+
+  return df;
+
+}
+
 /////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
 ///

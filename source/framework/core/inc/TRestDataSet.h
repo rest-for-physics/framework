@@ -152,6 +152,8 @@ class TRestDataSet : public TRestMetadata {
     void Import(const std::string& fileName);
     void Export(const std::string& filename);
 
+    ROOT::RDF::RNode MakeCut(const TRestCut* cut);
+
     void PrintMetadata() override;
     void Initialize() override;
     TRestDataSet();
