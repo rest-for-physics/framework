@@ -110,9 +110,7 @@ class TRestDataSet : public TRestMetadata {
         return fDataSet;
     }
 
-    void SetDataSet (const ROOT::RDF::RNode &dS){
-      fDataSet = dS;
-    }
+    void SetDataSet(const ROOT::RDF::RNode& dS) { fDataSet = dS; }
 
     /// Gives access to the tree
     TTree* GetTree() const {
@@ -136,21 +134,21 @@ class TRestDataSet : public TRestMetadata {
     /// It returns the accumulated run time in seconds
     Double_t GetTotalTimeInSeconds() const { return fTotalDuration; }
 
-    inline auto GetFilterStartTime ( ) const {return fFilterStartTime;}
-    inline auto GetFilterEndTime ( ) const {return fFilterEndTime;}
-    inline auto GetStartTime ( ) const {return fStartTime;}
-    inline auto GetEndTime ( ) const {return fEndTime;}
-    inline auto GetFilePattern () const { return fFilePattern;}
-    inline auto GetObservablesList() const {return fObservablesList;}
-    inline auto GetProcessObservablesList( ) const {return fProcessObservablesList;}
-    inline auto GetFilterMetadata () const { return fFilterMetadata;}
-    inline auto GetFilterContains () const {return fFilterContains;}
-    inline auto GetFilterGreaterThan () const {return fFilterGreaterThan;}
-    inline auto GetFilterLowerThan () const {return fFilterLowerThan;}
-    inline auto GetQuantity () const {return fQuantity;}
-    inline auto GetCut () const {return fCut;}
+    inline auto GetFilterStartTime() const { return fFilterStartTime; }
+    inline auto GetFilterEndTime() const { return fFilterEndTime; }
+    inline auto GetStartTime() const { return fStartTime; }
+    inline auto GetEndTime() const { return fEndTime; }
+    inline auto GetFilePattern() const { return fFilePattern; }
+    inline auto GetObservablesList() const { return fObservablesList; }
+    inline auto GetProcessObservablesList() const { return fProcessObservablesList; }
+    inline auto GetFilterMetadata() const { return fFilterMetadata; }
+    inline auto GetFilterContains() const { return fFilterContains; }
+    inline auto GetFilterGreaterThan() const { return fFilterGreaterThan; }
+    inline auto GetFilterLowerThan() const { return fFilterLowerThan; }
+    inline auto GetQuantity() const { return fQuantity; }
+    inline auto GetCut() const { return fCut; }
 
-    inline void SetFilePattern (const std::string &pattern){ fFilePattern = pattern;}
+    inline void SetFilePattern(const std::string& pattern) { fFilePattern = pattern; }
 
     TRestDataSet& operator=(TRestDataSet& dS);
     void Import(const std::string& fileName);
