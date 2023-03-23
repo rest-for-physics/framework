@@ -33,7 +33,7 @@ class TRestCut : public TRestMetadata {
     /// Vector of TCuts
     std::vector<TCut> fCuts;
 
-    // Vector of cut strings e.g. when you use a complex cut
+    /// Vector of cut strings e.g. when you use a complex cut
     std::vector<std::string> fCutStrings;
 
     // Vector of parameter cuts, first item is parameter and second is the condition
