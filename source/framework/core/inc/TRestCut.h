@@ -30,7 +30,7 @@
 //! A class to help on cuts definitions. To be used with TRestAnalysisTree
 class TRestCut : public TRestMetadata {
    private:
-    // Vector of TCuts
+    /// Vector of TCuts
     std::vector<TCut> fCuts;
 
     // Vector of cut strings e.g. when you use a complex cut
