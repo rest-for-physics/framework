@@ -45,8 +45,8 @@
 /// 2021-dec: First concept.
 ///           Ni Kaixiang
 ///
-/// 2023-March:
-///
+/// 2023-March: Updating metadata structures
+///             JuanAn García
 ///
 /// \class TRestCut
 ///
