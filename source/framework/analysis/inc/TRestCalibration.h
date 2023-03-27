@@ -27,18 +27,17 @@
 
 /// This class is meant to perform the calibration of different runs
 class TRestCalibration : public TRestMetadata {
-private:
-
+   private:
     // Name of the output file
     std::string fOutputFileName = "";
     // Name of the dataSet inside the config file
     std::string fDataSetName = "";
-    // Vector containing expected energy peaks in keV must be sorted 
-    std::vector< double > fEnergyPeaks;
+    // Vector containing expected energy peaks in keV must be sorted
+    std::vector<double> fEnergyPeaks;
     // Vector containing calibrated peaks in ADCs
-    std::vector< double > fCalibPeaks;
+    std::vector<double> fCalibPeaks;
     // Vector containing calibrated sigma in ADCs
-    std::vector< double > fCalibFWHM;
+    std::vector<double> fCalibFWHM;
     // Name of the calibration file to be used
     std::string fCalibFile = "";
     // Calibration variable to be used
@@ -55,27 +54,26 @@ private:
     void Initialize() override;
     void InitFromConfigFile() override;
 
-public:
+   public:
     void PrintMetadata() override;
 
-    void Calibrate( );
+    void Calibrate();
 
-    inline void SetDataSetName (const std::string &dSName) {fDataSetName = dSName;}
-    inline void SetOutputFileName (const std::string &outName) {fOutputFileName = outName;}
-    inline void SetCalibrationFile (const std::string &calibFile) {fCalibFile = calibFile;}
+    inline void SetDataSetName(const std::string& dSName) { fDataSetName = dSName; }
+    inline void SetOutputFileName(const std::string& outName) { fOutputFileName = outName; }
+    inline void SetCalibrationFile(const std::string& calibFile) { fCalibFile = calibFile; }
 
-    inline auto GetCalibPeaks() const {return fCalibPeaks;}
-    inline auto GetCalibFWHM() const {return fCalibFWHM;}
+    inline auto GetCalibPeaks() const { return fCalibPeaks; }
+    inline auto GetCalibFWHM() const { return fCalibFWHM; }
 
-    inline double GetSlope() const {return fSlope;}
-    inline double GetIntercept() const {return fIntercept;}
-    inline std::string GetCalObservable() const {return fCalObservable;}
+    inline double GetSlope() const { return fSlope; }
+    inline double GetIntercept() const { return fIntercept; }
+    inline std::string GetCalObservable() const { return fCalObservable; }
 
     TRestCalibration();
     TRestCalibration(const char* configFilename, std::string name = "");
     ~TRestCalibration();
 
     ClassDefOverride(TRestCalibration, 1);
-
 };
 #endif
