@@ -24,13 +24,11 @@
 ///
 /// TRestAnalysisTree is a TTree but with **custom objects** for the branches that will be
 /// filled. The user will decide ins each event data processing chain which branches/observables/variables
-/// will be finally added to the analysis tree. Inside a TRestAnalysisTree we find always the following six branches
-/// containing event information: runOrigin, subRunOrigin, eventID, subEventID,
-/// subEventTag and timeStamp. Those branches point to the corresponding class
-/// members inside TRestAnalysisTree, we name those branches the `event branches`.
-/// Additional branches can be added by the user, they will point to some objects
-/// whose addresses are also stored in this class. Those objects are called
-/// `observables`.
+/// will be finally added to the analysis tree. Inside a TRestAnalysisTree we find always the following six
+/// branches containing event information: runOrigin, subRunOrigin, eventID, subEventID, subEventTag and
+/// timeStamp. Those branches point to the corresponding class members inside TRestAnalysisTree, we name those
+/// branches the `event branches`. Additional branches can be added by the user, they will point to some
+/// objects whose addresses are also stored in this class. Those objects are called `observables`.
 ///
 /// In the traditional `TTree` case, the user defines multiple global variables,
 /// and adds branches with the address of these variables to the tree. Then the
