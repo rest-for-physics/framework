@@ -38,7 +38,7 @@
 /// * **oddsFile**: Name of the input odds file to be used for the definition of the
 /// different PDFs.
 ///
-/// The different obserbables, range and nBins are added as follow:
+/// The different observables, range and nBins are added as follow:
 /// \code
 /// <observable name="tckAna_MaxTrack_XYZ_SigmaZ2" range="(0,20)" nBins="100"/>
 /// \endcode
