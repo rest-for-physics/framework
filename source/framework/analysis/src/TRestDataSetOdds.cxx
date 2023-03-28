@@ -101,7 +101,6 @@
 ///
 
 #include "TRestDataSetOdds.h"
-
 #include "TRestDataSet.h"
 
 ClassImp(TRestDataSetOdds);

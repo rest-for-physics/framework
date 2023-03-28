@@ -23,8 +23,8 @@
 /////////////////////////////////////////////////////////////////////////
 /// TRestDataSetCalibration performs the calibration of a TRestDataSet, the
 /// calibration is performed over different peaks provided in the config
-/// file. The first peak provided in the config file should correspond 
-/// to the maximum in the spectra. The expected position of the rest 
+/// file. The first peak provided in the config file should correspond
+/// to the maximum in the spectra. The expected position of the rest
 /// of the peaks are estimated with respect to the maximum.
 ///
 /// A summary of the basic parameters is described below:
@@ -98,7 +98,6 @@
 ///
 
 #include "TRestDataSetCalibration.h"
-
 #include "TRestDataSet.h"
 
 ClassImp(TRestDataSetCalibration);
