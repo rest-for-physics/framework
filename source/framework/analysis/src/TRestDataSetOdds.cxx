@@ -101,6 +101,7 @@
 ///
 
 #include "TRestDataSetOdds.h"
+
 #include "TRestDataSet.h"
 
 ClassImp(TRestDataSetOdds);
@@ -124,7 +125,8 @@ TRestDataSetOdds::TRestDataSetOdds() { Initialize(); }
 /// \param name The name of the metadata section. It will be used to find the
 /// corresponding TRestDataSetOdds section inside the RML.
 ///
-TRestDataSetOdds::TRestDataSetOdds(const char* configFilename, std::string name) : TRestMetadata(configFilename) {
+TRestDataSetOdds::TRestDataSetOdds(const char* configFilename, std::string name)
+    : TRestMetadata(configFilename) {
     LoadConfigFromFile(fConfigFileName, name);
     Initialize();
 
