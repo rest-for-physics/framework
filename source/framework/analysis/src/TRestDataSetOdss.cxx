@@ -100,9 +100,8 @@
 /// <hr>
 ///
 
-#include "TRestOdds.h"
-
 #include "TRestDataSet.h"
+#include "TRestOdds.h"
 
 ClassImp(TRestOdds);
 

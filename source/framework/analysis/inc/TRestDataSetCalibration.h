@@ -28,7 +28,6 @@
 /// This class is meant to perform the calibration of different runs
 class TRestCalibration : public TRestMetadata {
    private:
-
     /// Name of the output file
     std::string fOutputFileName = "";
 

@@ -30,7 +30,6 @@
 /// This class is meant to compute the log odds for different datasets
 class TRestOdds : public TRestMetadata {
    private:
-
     /// Name of the output file
     std::string fOutputFileName = "";
 
