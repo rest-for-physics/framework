@@ -21,7 +21,6 @@
  *************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////
-/// Write the class description Here
 /// TRestOdds performs the log odds of the different observables given
 /// in the config file and for a particular dataSet. To perform the log odds
 /// first the probability density funcion (PDF) is obtained for a set of
