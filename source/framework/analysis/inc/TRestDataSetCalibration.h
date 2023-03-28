@@ -20,13 +20,13 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef REST_TRestCalibration
-#define REST_TRestCalibration
+#ifndef REST_TRestDataSetCalibration
+#define REST_TRestDataSetCalibration
 
 #include "TRestMetadata.h"
 
 /// This class is meant to perform the calibration of different runs
-class TRestCalibration : public TRestMetadata {
+class TRestDataSetCalibration : public TRestMetadata {
    private:
 
     /// Name of the output file
@@ -81,10 +81,10 @@ class TRestCalibration : public TRestMetadata {
     inline double GetIntercept() const { return fIntercept; }
     inline std::string GetCalObservable() const { return fCalObservable; }
 
-    TRestCalibration();
-    TRestCalibration(const char* configFilename, std::string name = "");
-    ~TRestCalibration();
+    TRestDataSetCalibration();
+    TRestDataSetCalibration(const char* configFilename, std::string name = "");
+    ~TRestDataSetCalibration();
 
-    ClassDefOverride(TRestCalibration, 1);
+    ClassDefOverride(TRestDataSetCalibration, 1);
 };
 #endif

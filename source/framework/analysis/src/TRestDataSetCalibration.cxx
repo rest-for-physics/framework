@@ -21,7 +21,7 @@
  *************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////
-/// TRestCalibration performs the calibration of a TRestDataSet, the
+/// TRestDataSetCalibration performs the calibration of a TRestDataSet, the
 /// calibration is performed over different peaks provided in the config
 /// file. The first peak provided in the config file should correspond 
 /// to the maximum in the spectra. The expected position of the rest 
@@ -56,18 +56,18 @@
 /// ### Examples
 /// RML example to calibrate a dataset with a peak at 5.89 keV
 /// \code
-/// <TRestCalibration name="EnergyCalibration" verboseLevel="info">
+/// <TRestDataSetCalibration name="EnergyCalibration" verboseLevel="info">
 ///    <peak energy="5.899" />
 ///    <parameter name="calObservable" value="tckAna_MaxTrackEnergy"/>
 ///    <parameter name="nBins" value="1024"/>
 ///    <parameter name="calibRange" value="(0,20000)" />
 ///    <parameter name="dataSetName" value="myDataSet.root"/>
-/// </TRestCalibration>
+/// </TRestDataSetCalibration>
 /// \endcode
 ///
 /// Example to perform calibration over a calibration dataSet using restRoot:
 /// \code
-/// [0] TRestCalibration cal ("calibration.rml");
+/// [0] TRestDataSetCalibration cal ("calibration.rml");
 /// [1] cal.SetDataSetName("myDataSet.root");
 /// [2] cal.SetOutputFileName("myCalibratedDataSet.root");
 /// [3] cal.Calibrate();
@@ -75,7 +75,7 @@
 ///
 /// Example to perform calibration over a background dataSet using restRoot:
 /// \code
-/// [0] TRestCalibration cal ("calibration.rml");
+/// [0] TRestDataSetCalibration cal ("calibration.rml");
 /// [1] cal.SetDataSetName("myBackgroundDataSet.root");
 /// [2] cal.SetOutputFileName("myBackgroundCalibratedDataSet.root");
 /// [3] cal.SetCalibrationFile("myCalibratedDataSet.root");
@@ -88,25 +88,25 @@
 ///
 /// History of developments:
 ///
-/// 2023-03: First implementation of TRestCalibration
+/// 2023-03: First implementation of TRestDataSetCalibration
 /// JuanAn Garcia
 ///
-/// \class TRestCalibration
+/// \class TRestDataSetCalibration
 /// \author: JuanAn Garcia   e-mail: juanangp@unizar.es
 ///
 /// <hr>
 ///
 
-#include "TRestCalibration.h"
+#include "TRestDataSetCalibration.h"
 
 #include "TRestDataSet.h"
 
-ClassImp(TRestCalibration);
+ClassImp(TRestDataSetCalibration);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestCalibration::TRestCalibration() { Initialize(); }
+TRestDataSetCalibration::TRestDataSetCalibration() { Initialize(); }
 
 /////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -120,9 +120,9 @@ TRestCalibration::TRestCalibration() { Initialize(); }
 ///
 /// \param configFilename A const char* that defines the RML filename.
 /// \param name The name of the metadata section. It will be used to find the
-/// corresponding TRestCalibration section inside the RML.
+/// corresponding TRestDataSetCalibration section inside the RML.
 ///
-TRestCalibration::TRestCalibration(const char* configFilename, std::string name)
+TRestDataSetCalibration::TRestDataSetCalibration(const char* configFilename, std::string name)
     : TRestMetadata(configFilename) {
     LoadConfigFromFile(fConfigFileName, name);
     Initialize();
@@ -133,20 +133,20 @@ TRestCalibration::TRestCalibration(const char* configFilename, std::string name)
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestCalibration::~TRestCalibration() {}
+TRestDataSetCalibration::~TRestDataSetCalibration() {}
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize input/output event members and define
 /// the section name
 ///
-void TRestCalibration::Initialize() { SetSectionName(this->ClassName()); }
+void TRestDataSetCalibration::Initialize() { SetSectionName(this->ClassName()); }
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize some variables from
 /// configfile, in case that the variable is not found
 /// in the rml it checks the input file pattern.
 ///
-void TRestCalibration::InitFromConfigFile() {
+void TRestDataSetCalibration::InitFromConfigFile() {
     Initialize();
     TRestMetadata::InitFromConfigFile();
 
@@ -178,7 +178,7 @@ void TRestCalibration::InitFromConfigFile() {
 /// Otherwise, it takes the calibration constants from the
 /// provided calibration file.
 ///
-void TRestCalibration::Calibrate() {
+void TRestDataSetCalibration::Calibrate() {
     PrintMetadata();
 
     TRestDataSet dataSet;
@@ -270,9 +270,9 @@ void TRestCalibration::Calibrate() {
 }
 
 /////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestCalibration
+/// \brief Prints on screen the information about the metadata members of TRestDataSetCalibration
 ///
-void TRestCalibration::PrintMetadata() {
+void TRestDataSetCalibration::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     RESTMetadata << " Energy peaks to calibrate: ";

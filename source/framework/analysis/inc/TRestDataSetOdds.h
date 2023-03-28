@@ -20,15 +20,15 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef REST_TRestOdds
-#define REST_TRestOdds
+#ifndef REST_TRestDataSetOdds
+#define REST_TRestDataSetOdds
 
 #include "TH1F.h"
 #include "TRestCut.h"
 #include "TRestMetadata.h"
 
 /// This class is meant to compute the log odds for different datasets
-class TRestOdds : public TRestMetadata {
+class TRestDataSetOdds : public TRestMetadata {
    private:
 
     /// Name of the output file
@@ -67,10 +67,10 @@ class TRestOdds : public TRestMetadata {
     inline void SetOutputFileName(const std::string& outName) { fOutputFileName = outName; }
     inline void SetOddsFile(const std::string& oddsFile) { fOddsFile = oddsFile; }
 
-    TRestOdds();
-    TRestOdds(const char* configFilename, std::string name = "");
-    ~TRestOdds();
+    TRestDataSetOdds();
+    TRestDataSetOdds(const char* configFilename, std::string name = "");
+    ~TRestDataSetOdds();
 
-    ClassDefOverride(TRestOdds, 1);
+    ClassDefOverride(TRestDataSetOdds, 1);
 };
 #endif

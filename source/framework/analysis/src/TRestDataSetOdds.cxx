@@ -21,7 +21,7 @@
  *************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////
-/// TRestOdds performs the log odds of the different observables given
+/// TRestDataSetOdds performs the log odds of the different observables given
 /// in the config file and for a particular dataSet. To perform the log odds
 /// first the probability density funcion (PDF) is obtained for a set of
 /// observables in the desired range. Later on, the log odds is computed as
@@ -51,7 +51,7 @@
 /// ### Examples
 /// Example of RML config file:
 /// \code
-///     <TRestOdds name="LogOdds" verboseLevel="info">
+///     <TRestDataSetOdds name="LogOdds" verboseLevel="info">
 ///    <observable name="tckAna_MaxTrack_XYZ_SigmaZ2" range="(0,20)" nBins="100"/>
 ///    <observable name="tckAna_MaxTrackEnergyBalanceXY" range="(-5,5)" nBins="100"/>
 ///    <observable name="tckAna_MaxTrack_XZ_nHits" range="(0,20)" nBins="20" />
@@ -65,12 +65,12 @@
 ///      <cut name="c2" variable="calib_Energy" condition="<8" />
 ///    </TRestCut>
 ///    <parameter name="dataSetName" value="myDataSet.root"/>
-/// </TRestOdds>
+/// </TRestDataSetOdds>
 /// \endcode
 ///
 /// Example to compute the the odds over a dataSet using restRoot:
 /// \code
-/// [0] TRestOdds odds ("odds.rml");
+/// [0] TRestDataSetOdds odds ("odds.rml");
 /// [1] odds.SetDataSetName("myDataSet.root");
 /// [2] odds.SetOutputFileName("myComputedOddsDataSet.root");
 /// [3] odds.ComputeLogOdds();
@@ -78,7 +78,7 @@
 ///
 /// Example to compute the the odds over a dataSet with input odds file using restRoot:
 /// \code
-/// [0] TRestOdds odds ("odds.rml");
+/// [0] TRestDataSetOdds odds ("odds.rml");
 /// [1] odds.SetDataSetName("myDataSet.root");
 /// [2] odds.SetOutputFileName("myComputedOddsDataSet.root");
 /// [3] odds.odds.SetOddsFile("myOddsDataSet.root");
@@ -91,25 +91,25 @@
 ///
 /// History of developments:
 ///
-/// 2023-03: First implementation of TRestOdds
+/// 2023-03: First implementation of TRestDataSetOdds
 /// JuanAn Garcia
 ///
-/// \class TRestOdds
+/// \class TRestDataSetOdds
 /// \author: JuanAn Garcia   e-mail: juanangp@unizar.es
 ///
 /// <hr>
 ///
 
-#include "TRestOdds.h"
+#include "TRestDataSetOdds.h"
 
 #include "TRestDataSet.h"
 
-ClassImp(TRestOdds);
+ClassImp(TRestDataSetOdds);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestOdds::TRestOdds() { Initialize(); }
+TRestDataSetOdds::TRestDataSetOdds() { Initialize(); }
 
 /////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -123,9 +123,9 @@ TRestOdds::TRestOdds() { Initialize(); }
 ///
 /// \param configFilename A const char* that defines the RML filename.
 /// \param name The name of the metadata section. It will be used to find the
-/// corresponding TRestOdds section inside the RML.
+/// corresponding TRestDataSetOdds section inside the RML.
 ///
-TRestOdds::TRestOdds(const char* configFilename, std::string name) : TRestMetadata(configFilename) {
+TRestDataSetOdds::TRestDataSetOdds(const char* configFilename, std::string name) : TRestMetadata(configFilename) {
     LoadConfigFromFile(fConfigFileName, name);
     Initialize();
 
@@ -135,19 +135,19 @@ TRestOdds::TRestOdds(const char* configFilename, std::string name) : TRestMetada
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestOdds::~TRestOdds() {}
+TRestDataSetOdds::~TRestDataSetOdds() {}
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize input/output event members and define
 /// the section name
 ///
-void TRestOdds::Initialize() { SetSectionName(this->ClassName()); }
+void TRestDataSetOdds::Initialize() { SetSectionName(this->ClassName()); }
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize some variables from
 /// configfile
 ///
-void TRestOdds::InitFromConfigFile() {
+void TRestDataSetOdds::InitFromConfigFile() {
     Initialize();
     TRestMetadata::InitFromConfigFile();
 
@@ -200,7 +200,7 @@ void TRestOdds::InitFromConfigFile() {
 /// odds_obsName and the addition of all of them for a further
 /// processing, which is stored in odds_total observable.
 ///
-void TRestOdds::ComputeLogOdds() {
+void TRestDataSetOdds::ComputeLogOdds() {
     PrintMetadata();
 
     TRestDataSet dataSet;
@@ -266,9 +266,9 @@ void TRestOdds::ComputeLogOdds() {
 }
 
 /////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestOdds
+/// \brief Prints on screen the information about the metadata members of TRestDataSetOdds
 ///
-void TRestOdds::PrintMetadata() {
+void TRestDataSetOdds::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     RESTMetadata << " Observables to compute: " << RESTendl;
