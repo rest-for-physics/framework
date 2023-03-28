@@ -23,11 +23,11 @@
 #ifndef RestCore_TRestComplex
 #define RestCore_TRestComplex
 
+#include <string>
+
+#include "Rtypes.h"
 #include "TObject.h"
 #include "mpreal.h"
-
-#include <string>
-#include "Rtypes.h"
 
 /// A generic class to handle complex numbers with real precision
 class TRestComplex {

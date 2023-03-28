@@ -8,7 +8,7 @@ All you need to integrate processes or metadata structures inside REST is to wri
 
 As soon as the library name contains REST or Rest (case sensitive) your new library will be automatically recognized by *restRoot* environment and *restManager* executable. I.e. you will be able to load your classes into a ROOT sesion started with *restRoot* or add your processes to the processing queue definning in the TRestManager RML section.
 
-This document will show you step by step to write new processes/metadata classes, compile them into a new library, and use them in ROOT or REST. 
+This document will show you step by step to write new processes/metadata classes, compile them into a new library, and use them in ROOT or REST.
 
 ## Compiling and installing the example included in REST
 
@@ -18,9 +18,9 @@ The following code shows how to compile and install the library, we assume the w
 
 \code
 
-~/REST_v2$ cd example 
+~/REST_v2$ cd example
 
-// We create the build directory inside 
+// We create the build directory inside
 ~/REST_v2/example/$ mkdir build
 
 // We enter the build directory and create the compilation environment
@@ -42,7 +42,7 @@ Add the following line to your *.bashrc* file and launch a new terminal.
 
 \code
 
-// We assume here the REST_v2 source directory is at your home. 
+// We assume here the REST_v2 source directory is at your home.
 // Change it according to your system!
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/REST_v2/example/lib
 
@@ -127,7 +127,7 @@ The class *mySignalProcess* can be connected to the processing queue inside the 
 
 The new *mySignalProcess* will need a specific RML section definition inside the *processes.rml* file defined in TRestManager. Our new process does nothing but transfer the input signal event into the output signal event. An output message will be displayed on screen only if the verbose level of the process is set to *debug*.
 
-\code 
+\code
 <section mySignalProcess name="dummySignal" verboseLevel="debug" >
 
     <parameter name="aDummyParameter" value="13" />
@@ -164,13 +164,13 @@ To start from scratch you could just migrate the basic parts of the example dire
 
 One last step is required to define the name of the new library. Just open the *CMakeLists.txt* file for editing, and replace the following line inside,
 
-\code 
+\code
 set( MY_LIBRARY "MyRESTLibrary" )
 \endcode
 
 by the name of your library containing REST, or Rest, inside its name. For example,
 
-\code 
+\code
 set( MY_LIBRARY "MyProjectRESTLibrary" )
 \endcode
 
@@ -184,8 +184,6 @@ This section describes the details you must be aware when implementing a new cla
 
 ### Details on the implementation of a new metadata class
 
-This section relates to the implementation of metadata methods that *must* be implemented in a class deriving from a TRestMetadata class. This applies to a pure TRestMetada specific metadata class, as *myMetadata* class defined before, 
+This section relates to the implementation of metadata methods that *must* be implemented in a class deriving from a TRestMetadata class. This applies to a pure TRestMetada specific metadata class, as *myMetadata* class defined before,
 
 ### Details on the implementation of a new process class
-
-

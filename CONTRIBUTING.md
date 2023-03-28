@@ -4,7 +4,7 @@
 
 The Git system is an efficient way to track changes to the code in the repository *if used smartly*.
 The history of the code repository will be digested into **commits**. Being a commit a minimum change to
-the code of the repository. Usually involving **no more than 2-3 files**. 
+the code of the repository. Usually involving **no more than 2-3 files**.
 
 The code can be independently developed into **branches** where we add *commits*.
 For details on branches usage refer to the [branches section](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell) at the Git documentation.
@@ -13,7 +13,7 @@ You may refer to the [Git website](https://git-scm.com/book/en/v2/Getting-Starte
 
 ### Using branches in REST repository
 
-A branch may be contributed by several users at the same time. The main branch or 
+A branch may be contributed by several users at the same time. The main branch or
 **master branch** is the branch where we should finally merge the definitive changes after peer review.
 Development will happen at a different branch, and once the changes need the intervention and review from other developers, a pull-request will be created, so that the changes are reviewed and eventually merged to **master**.
 It is recommended that new contributions and functionalities added to REST have been previously discussed in [the forum](https://rest-forum.unizar.es/) or at GitHub teams.
@@ -35,7 +35,7 @@ TODO : describe how changes should be discussed at REST forum. Bug report, repor
 It is critical to prepare the **commit** following a few basic rules in order to allow future code review and track
 historical changes that may produce a future conflict identified much later on in time.
 
-The changes introduced to any single file added to the **commit** should be minimal, i.e. avoiding to upload a 
+The changes introduced to any single file added to the **commit** should be minimal, i.e. avoiding to upload a
 file with temporary debugging code or comments used during the code development and testing process.
 
 Only the files involved in a particular change, delimited by the commit message, should be included in the **commit**.
@@ -55,7 +55,7 @@ git add sourceFile.cxx
 
 Hint: Use `git status` frequently!
 
-We should proceed following this scheme (checking for differences for each file to be committed before 
+We should proceed following this scheme (checking for differences for each file to be committed before
 adding it to the `commit`). When we have added all the files in a commit we can prepare the commit.
 
 ```
@@ -69,7 +69,7 @@ to `push` (or upload) these changes to the repository we must do `git push`.
 git push
 ```
 
-Note: This action may fail in case your local branch is not synchronized with the **remote branch**, or in 
+Note: This action may fail in case your local branch is not synchronized with the **remote branch**, or in
 other words, the repository contains new commits that you have not pulled (downloaded) to your **local copy**.
 
 In that case you will need to update your local copy before pushing any changes using `git pull`.
@@ -88,7 +88,7 @@ The interface allows to search commits by using the contents of the commit messa
 commit message will allow us to search and identify promptly where given changes were introduced.
 
 The commit message **should include** at least the name of the main class, the name of the binary, script
- or package being modified. Having a commit message format will help in the future to find all changes 
+ or package being modified. Having a commit message format will help in the future to find all changes
  related to a given REST class or file. Some examples of **good commit messages** are the following ones
 
 ```
@@ -121,19 +121,19 @@ The above-mentioned commit message contains the following mistakes:
 ## 2. REST Versioning
 
 Since version `2.2.1`, REST is adopting **automatic schema evolution** feature of ROOT.
-Therefore, the impact of changes in REST classes, i.e. adding, removing or modifying class members, 
-should have been minimized. That is, any future REST version *should be able to read 
-older versions* without major issues or warnings. Therefore, any new/future generation 
+Therefore, the impact of changes in REST classes, i.e. adding, removing or modifying class members,
+should have been minimized. That is, any future REST version *should be able to read
+older versions* without major issues or warnings. Therefore, any new/future generation
 of data `before v2.2.1` is **not recommended** for compatibility reasons.
 
 ----
 
-The REST versioning system will allow to **stamp the data generated** with REST and it will 
+The REST versioning system will allow to **stamp the data generated** with REST and it will
 allow to **identify new features or major changes** to the code.
 
-The stamped version number in the file might serve as a solution to reproduce or 
-recover previous results which may show discrepancies with future versions. The version 
-number shall be provided together with published or internal results. Moreover, if we own 
+The stamped version number in the file might serve as a solution to reproduce or
+recover previous results which may show discrepancies with future versions. The version
+number shall be provided together with published or internal results. Moreover, if we own
 the data file, we will always be able to recover the version used to generate those results.
 
 A change in REST version serves to mark down an important step or a timeline in the evolution
@@ -169,7 +169,7 @@ The contents of the generated file will look something like this
 #define REST_Version
 /* Version information automatically generated by installer. *//*
  * These macros can be used in the following way:
- * 
+ *
  * #if REST_VERSION_CODE >= REST_VERSION(2,23,4)
  *     #include <newheader.h>
  * #else
@@ -191,10 +191,10 @@ Once the new version has been uploaded to the repository we must add the main ch
 
 ### Version control strategy
 
-REST uses the git tagging system to control its version. The tag value is directly used to extract the REST version number. 
-It must be written using the following format 2.X.Y, where X represents a major change or transition in 
-the code, and Y represents a minor change/correction/update of the code. Usually we increase the value 
-of Y when updating the version. Both X and Y ranges from 0 to 255. Usually X will be updated when a major change, or 
+REST uses the git tagging system to control its version. The tag value is directly used to extract the REST version number.
+It must be written using the following format 2.X.Y, where X represents a major change or transition in
+the code, and Y represents a minor change/correction/update of the code. Usually we increase the value
+of Y when updating the version. Both X and Y ranges from 0 to 255. Usually X will be updated when a major change, or
 backwards compatibility takes place.
 
 The script `generateVersionHeader.py` found under scripts directory will generate a `TRestVersion.h` header. This header
@@ -214,23 +214,23 @@ branch, that will be at some point merged to master, and the *only one* that wil
 
 ### Using the version number
 
-Any `TRestMetadata` class contains a member named `fVersion` that will be initialized using `TRestVersion.h` 
-and that will be written to disk together with other metadata information. This member can be accessed by 
+Any `TRestMetadata` class contains a member named `fVersion` that will be initialized using `TRestVersion.h`
+and that will be written to disk together with other metadata information. This member can be accessed by
 inherited classes by using `GetVersion()`, `GetVersionCode()` and `SetVersion()`.
- 
+
 `fVersion` is retrieved together with the metadata structure from a previously written ROOT file. Then the result of GetVersion()
 might be different from the version of current REST build. We can compare them and act differently according to the result.
- 
+
 There are two important parameters defined in `TRestVersion.h`: `REST_RELEASE` and `REST_VERSION_CODE`.
 
 * `REST_RELEASE` is a string that will be stored in any `TRestMetadata::fVersion` class member when it is written
-to disk, and it can be recovered in future using `TRestMetadata::GetVersion()`. 
-* `REST_VERSION_CODE` is a 
-code generated using `REST_VERSION( 2, X, Y)` where X and Y are the major and minor version numbers. 
+to disk, and it can be recovered in future using `TRestMetadata::GetVersion()`.
+* `REST_VERSION_CODE` is a
+code generated using `REST_VERSION( 2, X, Y)` where X and Y are the major and minor version numbers.
 This code can be used to determine if a REST version is more recent or older than the installed REST
 version. The code of any metadata structure can be retrieved calling `TRestMetadata::GetVersionCode()`.
 
-These two parameters, `REST_RELEASE` and `REST_VERSION` will allow us to compare the installed version 
+These two parameters, `REST_RELEASE` and `REST_VERSION` will allow us to compare the installed version
 to the version stored in a `TRestMetadata` structures as follows.
 
 ```c++
@@ -248,7 +248,7 @@ if( md->GetVersion() == REST_RELEASE )
     cout << "The REST version used to generate this metadata structure is the same as the installed REST version!" << endl;
 ```
 
-This programming enables the REST users to take special actions that may need to be done with a particular 
+This programming enables the REST users to take special actions that may need to be done with a particular
 version or after a particular version.
 
 ## 3. Programming style
@@ -280,15 +280,15 @@ peak, width, rms for each signals added, sampling points for the first signal ad
 
 There are some other notes:
 
-* One can directly use `info << "some message" << endl;` for convenience and better appearance. The efficiency 
-is a little lower than `if(GetVerboseLevel() >= REST_Info) cout << "some message" << endl;`  
-* Process name should be attached when printing info message. e.g. 
-`info << this->GetName() << " : Signals added : " << N <<endl;`  
-* Don't add separators like `cout << "--------------" << endl;` for debug or extreme message. 
-REST will add them for you.  
+* One can directly use `info << "some message" << endl;` for convenience and better appearance. The efficiency
+is a little lower than `if(GetVerboseLevel() >= REST_Info) cout << "some message" << endl;`
+* Process name should be attached when printing info message. e.g.
+`info << this->GetName() << " : Signals added : " << N <<endl;`
+* Don't add separators like `cout << "--------------" << endl;` for debug or extreme message.
+REST will add them for you.
 * Don't add getchar() for debug or extreme message. REST will also pause for you. In debug level, it will
-pause after each event. In extreme level, it will pause after each process.  
-* In both two verbose levels multi threading is disabled.  
+pause after each event. In extreme level, it will pause after each process.
+* In both two verbose levels multi threading is disabled.
 
 ### Style of PrintMetadata()
 

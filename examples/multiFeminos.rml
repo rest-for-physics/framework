@@ -28,7 +28,7 @@
   <TRestProcessRunner name="Processor" verboseLevel="info">
     <parameter name="eventsToProcess" value="0" />
     <parameter name="threadNumber" value="2"/>
-    
+
     <parameter name="inputAnalysisStorage" value="on"/>
     <parameter name="inputEventStorage" value="on"/>
     <parameter name="outputEventStorage" value="on"/>
@@ -42,7 +42,7 @@
 
   </TRestProcessRunner>
 
-  <addTask command="SJTU_Proto->PrintAllMetadata()" value="ON"/>  
+  <addTask command="SJTU_Proto->PrintAllMetadata()" value="ON"/>
   <addTask command="Processor->RunProcess()" value="ON"/>
 
   <globals>
@@ -54,6 +54,4 @@
 </TRestManager>
 
 
-<!--paramater here is accessible to all the classes-->
-
-
+<!--parameter here is accessible to all the classes-->

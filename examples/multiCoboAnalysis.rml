@@ -35,7 +35,7 @@
     <parameter name="validateObservables" value="OFF"/>
     <parameter name="sortOutputEvents" value="ON"/>
     <parameter name="usePauseMenu" value="OFF"/>
-    
+
     <parameter name="inputAnalysisStorage" value="on"/>
     <parameter name="inputEventStorage" value="on"/>
     <parameter name="outputEventStorage" value="on"/>
@@ -77,7 +77,7 @@
 
   </TRestAnalysisPlot>
 
-  <addTask command="SJTU_Proto->PrintMetadata()" value="ON"/>  
+  <addTask command="SJTU_Proto->PrintMetadata()" value="ON"/>
   <addTask command="Processor->RunProcess()" value="ON"/>
   <addTask command="restplot->PlotCombinedCanvas()" value="OFF"/>
 
@@ -93,6 +93,4 @@
 </TRestManager>
 
 
-<!--paramater here is accessible to all the classes-->
-
-
+<!--parameter here is accessible to all the classes-->

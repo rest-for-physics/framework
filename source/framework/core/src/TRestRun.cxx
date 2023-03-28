@@ -1618,18 +1618,18 @@ TRestMetadata* TRestRun::GetMetadata(const TString& name, TFile* file) {
     return nullptr;
 }
 
-std::vector<std::string> TRestRun::GetMetadataStructureNames() {
+std::vector<std::string> TRestRun::GetMetadataNames() {
     std::vector<std::string> strings;
 
-    for (int n = 0; n < GetNumberOfMetadataStructures(); n++) strings.push_back(fMetadata[n]->GetName());
+    for (int n = 0; n < GetNumberOfMetadata(); n++) strings.push_back(fMetadata[n]->GetName());
 
     return strings;
 }
 
-std::vector<std::string> TRestRun::GetMetadataStructureTitles() {
+std::vector<std::string> TRestRun::GetMetadataTitles() {
     std::vector<std::string> strings;
 
-    for (int n = 0; n < GetNumberOfMetadataStructures(); n++) strings.push_back(fMetadata[n]->GetTitle());
+    for (int n = 0; n < GetNumberOfMetadata(); n++) strings.push_back(fMetadata[n]->GetTitle());
 
     return strings;
 }
@@ -1669,8 +1669,8 @@ string TRestRun::ReplaceMetadataMembers(const string& instr, Int_t precision) {
         endPosition = 0;
     }
 
-    outstring = Replace(outstring, "[[", "[");
-    outstring = Replace(outstring, "]]", "]");
+    outstring = Replace(outstring, "{{", "[");
+    outstring = Replace(outstring, "}}", "]");
 
     return REST_StringHelper::ReplaceMathematicalExpressions(outstring, precision);
 }
@@ -1693,7 +1693,7 @@ string TRestRun::ReplaceMetadataMembers(const string& instr, Int_t precision) {
 ///
 string TRestRun::ReplaceMetadataMember(const string& instr, Int_t precision) {
     if (instr.find("::") == string::npos && instr.find("->") == string::npos) {
-        return "[[" + instr + "]]";
+        return "{{" + instr + "}}";
     }
     vector<string> results = Split(instr, "::", false, true);
     if (results.size() == 1) results = Split(instr, "->", false, true);
@@ -1786,7 +1786,7 @@ Bool_t TRestRun::EvaluateMetadataMember(const string& instr) {
     }
 
     if (!isANumber(results[1])) {
-        if (ReplaceMetadataMember(results[0]) == results[1])
+        if (ReplaceMetadataMember(results[0]).find(results[1]) != string::npos)
             return true;
         else
             return false;

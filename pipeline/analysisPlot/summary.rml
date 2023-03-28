@@ -16,7 +16,7 @@
 
 		<include file="panel.xml" />
 
-		<plot name="ThresholdIntegralEvolution" title="ThresholdIntegral" ylabel="Threshold integral" xlabel="Time/Date" 
+		<plot name="ThresholdIntegralEvolution" title="ThresholdIntegral" ylabel="Threshold integral" xlabel="Time/Date"
 			legend="OFF" logscale="false" value="ON" annotation="OFF" timeDisplay="ON" >
 			<histo name="ThresholdIntegralEvolution_Raw">
 				<variable name="timeStamp" range="" nbins="100" />
@@ -25,7 +25,7 @@
 			</histo>
 		</plot>
 
-		<plot name="ThresholdIntegral" title="ThresholdIntegral" xlabel="Threshold Integral value" ylabel="Counts" 
+		<plot name="ThresholdIntegral" title="ThresholdIntegral" xlabel="Threshold Integral value" ylabel="Counts"
 			legend="OFF" logscale="false" value="ON" annotation="OFF" >
 			<histo name="ThresholdIntegral_Raw">
 				<variable name="rawAna_ThresholdIntegral" range="${RAW_THINT_RANGE}" nbins="500" />
@@ -67,4 +67,4 @@
 </TRestManager>
 
 
-<!--paramater here is accessible to all the classes-->
+<!--parameter here is accessible to all the classes-->

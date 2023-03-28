@@ -103,6 +103,11 @@
 ///    // Will add to the final tree only the specific observables
 ///    <observables list="g4Ana_totalEdep:hitsAna_energy" />
 ///
+///    // Will apply a cut to the observables
+///    <TRestCut>
+///      <cut name="c1" variable="rawAna_NumberOfGoodSignals" condition=">1" />
+///      <cut name="c1" variable="rawAna_NumberOfGoodSignals" condition="<100" />
+///    </TRestCut>
 ///    // Will add all the observables from the process `rawAna`
 ///    <processObservables list="rate:rawAna" />
 ///
@@ -119,7 +124,7 @@
 /// \code
 /// restRoot
 /// [0] TRestDataSet d("dataset");
-/// [1] d.Initialize();
+/// [1] d.GenerateDataSet();
 /// [2] d.GetTree()->GetEntries()
 /// [3] d.GetDataFrame().GetColumnNames()
 /// \endcode
@@ -147,13 +152,21 @@
 /// instance.
 ///
 ///
-/// Example:
+/// Example 1 Generate DataSet from config file:
 /// \code
 /// restRoot
-/// [0] TRestDataSet d("dataset");
-/// [1] d.Initialize();
+/// [0] TRestDataSet d("dataset", "dataSetName");
+/// [1] d.GenerateDataSet();
 /// [2] d.Export("mydataset.csv");
 /// [3] d.Export("mydataset.root");
+/// \endcode
+///
+/// Example 2 Import existing DataSet:
+/// \code
+/// restRoot
+/// [0] TRestDataSet d();
+/// [1] d.Import("myDataSet.root");
+/// [2] d.GetTree()->GetEntries()
 /// \endcode
 ///
 /// ### Relevant quantities
@@ -249,12 +262,16 @@ TRestDataSet::TRestDataSet(const char* cfgFileName, const std::string& name) : T
 TRestDataSet::~TRestDataSet() {}
 
 ///////////////////////////////////////////////
-/// \brief It will initialize the data frame with the filelist and column names
+/// \brief This function initialize different parameters
+/// from the TRestDataSet
+///
+void TRestDataSet::Initialize() { SetSectionName(this->ClassName()); }
+
+///////////////////////////////////////////////
+/// \brief This function generates the data frame with the filelist and column names
 /// (or observables) that have been defined by the user.
 ///
-void TRestDataSet::Initialize() {
-    SetSectionName(this->ClassName());
-
+void TRestDataSet::GenerateDataSet() {
     if (fTree != nullptr) {
         RESTWarning << "Tree has already been loaded. Skipping TRestDataSet::Initialize ... " << RESTendl;
         return;
@@ -263,28 +280,42 @@ void TRestDataSet::Initialize() {
     if (fFileSelection.empty()) FileSelection();
 
     // We are not ready yet
-    if (fFileSelection.empty()) return;
+    if (fFileSelection.empty()) {
+        RESTError << "File selection is empty " << RESTendl;
+        return;
+    }
 
     ///// Disentangling process observables --> producing finalList
-    TRestRun run(fFileSelection[0]);
+    TRestRun run(fFileSelection.front());
     std::vector<std::string> finalList;
     finalList.push_back("runOrigin");
     finalList.push_back("eventID");
     finalList.push_back("timeStamp");
 
-    for (const auto& obs : fObservablesList) finalList.push_back(obs);
+    auto obsNames = run.GetAnalysisTree()->GetObservableNames();
+    for (const auto& obs : fObservablesList) {
+        if (std::find(obsNames.begin(), obsNames.end(), obs) != obsNames.end()) {
+            finalList.push_back(obs);
+        } else {
+            RESTWarning << " Observable " << obs << " not found in observable list, skipping..." << RESTendl;
+        }
+    }
 
-    std::vector<std::string> obsNames = run.GetAnalysisTree()->GetObservableNames();
     for (const auto& name : obsNames) {
         for (const auto& pcs : fProcessObservablesList) {
             if (name.find(pcs) == 0) finalList.push_back(name);
         }
     }
-    ///////
+
+    // Remove duplicated observables if any
+    std::sort(finalList.begin(), finalList.end());
+    finalList.erase(std::unique(finalList.begin(), finalList.end()), finalList.end());
 
     ROOT::EnableImplicitMT();
 
     fDataSet = ROOT::RDataFrame("AnalysisTree", fFileSelection);
+
+    fDataSet = MakeCut(fCut);
 
     std::string user = getenv("USER");
     std::string fOutName = "/tmp/rest_output_" + user + ".root";
@@ -295,17 +326,6 @@ void TRestDataSet::Initialize() {
     TFile* f = TFile::Open(fOutName.c_str());
     fTree = (TTree*)f->Get("AnalysisTree");
 
-    int cont = 0;
-    std::string obsListStr;
-    for (const auto& l : finalList) {
-        if (cont > 0) obsListStr += ":";
-        obsListStr += l;
-        cont++;
-    }
-
-    // We do this so that later we can recover the values using TTree::GetVal
-    fTree->Draw((TString)obsListStr, "", "goff");
-
     RESTInfo << " - Dataset initialized!" << RESTendl;
 }
 
@@ -315,8 +335,8 @@ void TRestDataSet::Initialize() {
 std::vector<std::string> TRestDataSet::FileSelection() {
     fFileSelection.clear();
 
-    std::time_t time_stamp_start = REST_StringHelper::StringToTimeStamp(fStartTime);
-    std::time_t time_stamp_end = REST_StringHelper::StringToTimeStamp(fEndTime);
+    std::time_t time_stamp_start = REST_StringHelper::StringToTimeStamp(fFilterStartTime);
+    std::time_t time_stamp_end = REST_StringHelper::StringToTimeStamp(fFilterEndTime);
 
     if (!time_stamp_end || !time_stamp_start) {
         RESTError << "TRestDataSet::FileSelect. Start or end dates not properly formed. Please, check "
@@ -339,7 +359,7 @@ std::vector<std::string> TRestDataSet::FileSelection() {
         double runStart = run.GetStartTimestamp();
         double runEnd = run.GetEndTimestamp();
 
-        if (runStart < time_stamp_start && runEnd > time_stamp_end) {
+        if (runStart < time_stamp_start || runEnd > time_stamp_end) {
             continue;
         }
 
@@ -390,6 +410,10 @@ std::vector<std::string> TRestDataSet::FileSelection() {
             if (properties.strategy == "last") properties.value = value;
         }
 
+        if (run.GetStartTimestamp() < fStartTime) fStartTime = run.GetStartTimestamp();
+
+        if (run.GetEndTimestamp() > fEndTime) fEndTime = run.GetEndTimestamp();
+
         fTotalDuration += run.GetEndTimestamp() - run.GetStartTimestamp();
         fFileSelection.push_back(file);
     }
@@ -398,14 +422,58 @@ std::vector<std::string> TRestDataSet::FileSelection() {
     return fFileSelection;
 }
 
+///////////////////////////////////////////////
+/// \brief This function apply a TRestCut to the dataframe
+/// and returns a dataframe with the applied cuts. Note that
+/// the cuts are not applied directly to the dataframe on
+/// TRestDataSet, to do so you should do fDataSet = MakeCut(fCut);
+///
+ROOT::RDF::RNode TRestDataSet::MakeCut(const TRestCut* cut) {
+    auto df = fDataSet;
+
+    if (cut == nullptr) return df;
+
+    auto paramCut = cut->GetParamCut();
+    auto obsList = df.GetColumnNames();
+    for (const auto& [param, condition] : paramCut) {
+        if (std::find(obsList.begin(), obsList.end(), param) != obsList.end()) {
+            std::string pCut = param + condition;
+            RESTDebug << "Applying cut " << pCut << RESTendl;
+            df = df.Filter(pCut);
+        } else {
+            RESTWarning << " Cut observable " << param << " not found in observable list, skipping..."
+                        << RESTendl;
+        }
+    }
+
+    auto cutString = cut->GetCutStrings();
+    for (const auto& pCut : cutString) {
+        bool added = false;
+        for (const auto& obs : obsList) {
+            if (pCut.find(obs) != std::string::npos) {
+                RESTDebug << "Applying cut " << pCut << RESTendl;
+                df = df.Filter(pCut);
+                added = true;
+                break;
+            }
+        }
+
+        if (!added) {
+            RESTWarning << " Cut string " << pCut << " not found in observable list, skipping..." << RESTendl;
+        }
+    }
+
+    return df;
+}
+
 /////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
+/// \brief Prints on screen the information about the metadata members of TRestDataSet
 ///
 void TRestDataSet::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    RESTMetadata << " - StartTime : " << fStartTime << RESTendl;
-    RESTMetadata << " - EndTime : " << fEndTime << RESTendl;
+    RESTMetadata << " - StartTime : " << REST_StringHelper::ToDateTimeString(fStartTime) << RESTendl;
+    RESTMetadata << " - EndTime : " << REST_StringHelper::ToDateTimeString(fEndTime) << RESTendl;
     RESTMetadata << " - Path : " << TRestTools::SeparatePathAndName(fFilePattern).first << RESTendl;
     RESTMetadata << " - File pattern : " << TRestTools::SeparatePathAndName(fFilePattern).second << RESTendl;
     RESTMetadata << "  " << RESTendl;
@@ -434,7 +502,8 @@ void TRestDataSet::PrintMetadata() {
     if (!fFilterMetadata.empty()) {
         RESTMetadata << " Metadata filters: " << RESTendl;
         RESTMetadata << " ----------------- " << RESTendl;
-
+        RESTMetadata << " - StartTime : " << fFilterStartTime << RESTendl;
+        RESTMetadata << " - EndTime : " << fFilterEndTime << RESTendl;
         int n = 0;
         for (const auto& mdFilter : fFilterMetadata) {
             RESTMetadata << " - " << mdFilter << ".";
@@ -509,7 +578,7 @@ void TRestDataSet::InitFromConfigFile() {
 
         std::vector<std::string> obsList = REST_StringHelper::Split(observables, ",");
 
-        for (const auto& l : obsList) fObservablesList.push_back(l);
+        fObservablesList.insert(fObservablesList.end(), obsList.begin(), obsList.end());
 
         observablesDefinition = GetNextElement(observablesDefinition);
     }
@@ -562,6 +631,8 @@ void TRestDataSet::InitFromConfigFile() {
 
         quantityDefinition = GetNextElement(quantityDefinition);
     }
+
+    fCut = (TRestCut*)InstantiateChildMetadata("TRestCut");
 }
 
 ///////////////////////////////////////////////
@@ -599,8 +670,8 @@ void TRestDataSet::Export(const std::string& filename) {
         ///// Writing header
         fprintf(f, "### TRestDataSet generated file\n");
         fprintf(f, "### \n");
-        fprintf(f, "### StartTime : %s\n", fStartTime.c_str());
-        fprintf(f, "### EndTime : %s\n", fEndTime.c_str());
+        fprintf(f, "### StartTime : %s\n", fFilterStartTime.c_str());
+        fprintf(f, "### EndTime : %s\n", fFilterEndTime.c_str());
         fprintf(f, "###\n");
         fprintf(f, "### Accumulated run time (seconds) : %lf\n", fTotalDuration);
         fprintf(f, "### Accumulated run time (hours) : %lf\n", fTotalDuration / 3600.);
@@ -637,6 +708,16 @@ void TRestDataSet::Export(const std::string& filename) {
         fprintf(f, "###\n");
         fprintf(f, "### Data starts here\n");
 
+        auto obsNames = fDataSet.GetColumnNames();
+        std::string obsListStr = "";
+        for (const auto& l : obsNames) {
+            if (!obsListStr.empty()) obsListStr += ":";
+            obsListStr += l;
+        }
+
+        // We do this so that later we can recover the values using TTree::GetVal
+        fTree->Draw((TString)obsListStr, "", "goff");
+
         for (unsigned int n = 0; n < fTree->GetEntries(); n++) {
             for (unsigned int m = 0; m < GetNumberOfBranches(); m++) {
                 std::string bName = fTree->GetListOfBranches()->At(m)->GetName();
@@ -664,4 +745,63 @@ void TRestDataSet::Export(const std::string& filename) {
         RESTWarning << "TRestDataSet::Export. Extension " << TRestTools::GetFileNameExtension(filename)
                     << " not recognized" << RESTendl;
     }
+}
+
+///////////////////////////////////////////////
+/// \brief Operator to copy TRestDataSet metadata
+///
+TRestDataSet& TRestDataSet::operator=(TRestDataSet& dS) {
+    SetName(dS.GetName());
+    fFilterStartTime = dS.GetFilterStartTime();
+    fFilterEndTime = dS.GetFilterEndTime();
+    fStartTime = dS.GetStartTime();
+    fEndTime = dS.GetEndTime();
+    fFilePattern = dS.GetFilePattern();
+    fObservablesList = dS.GetObservablesList();
+    fProcessObservablesList = dS.GetProcessObservablesList();
+    fFilterMetadata = dS.GetFilterMetadata();
+    fFilterContains = dS.GetFilterContains();
+    fFilterGreaterThan = dS.GetFilterGreaterThan();
+    fFilterLowerThan = dS.GetFilterLowerThan();
+    fQuantity = dS.GetQuantity();
+    fTotalDuration = dS.GetTotalTimeInSeconds();
+    fCut = dS.GetCut();
+
+    return *this;
+}
+
+///////////////////////////////////////////////
+/// \brief This function imports metadata from a root file
+/// it import metadata info from the previous dataSet
+/// while it opens the analysis tree
+///
+void TRestDataSet::Import(const std::string& fileName) {
+    if (TRestTools::GetFileNameExtension(fileName) != "root") {
+        RESTError << "Datasets can only be imported from root files" << RESTendl;
+        return;
+    }
+
+    TFile* file = TFile::Open(fileName.c_str(), "READ");
+    if (file != nullptr) {
+        TIter nextkey(file->GetListOfKeys());
+        TKey* key;
+        while ((key = (TKey*)nextkey())) {
+            std::string kName = key->GetClassName();
+            if (REST_Reflection::GetClassQuick(kName.c_str()) != nullptr &&
+                REST_Reflection::GetClassQuick(kName.c_str())->InheritsFrom("TRestDataSet")) {
+                TRestDataSet* dS = file->Get<TRestDataSet>(key->GetName());
+                if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info)
+                    dS->PrintMetadata();
+                *this = *dS;
+            }
+        }
+    } else {
+        RESTError << "Cannot open " << fileName << RESTendl;
+        exit(1);
+    }
+
+    RESTInfo << "Opening " << fileName << RESTendl;
+    fDataSet = ROOT::RDataFrame("AnalysisTree", fileName);
+
+    fTree = (TTree*)file->Get("AnalysisTree");
 }
