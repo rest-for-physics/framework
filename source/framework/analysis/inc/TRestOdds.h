@@ -30,23 +30,29 @@
 /// This class is meant to compute the log odds for different datasets
 class TRestOdds : public TRestMetadata {
    private:
-    // Name of the output file
+
+    /// Name of the output file
     std::string fOutputFileName = "";
-    // Name of the dataSet inside the config file
+
+    /// Name of the dataSet inside the config file
     std::string fDataSetName = "";
-    // Vector containing different obserbable names
+
+    /// Vector containing different obserbable names
     std::vector<std::string> fObsName;
-    // Vector containing different obserbable ranges
+
+    /// Vector containing different obserbable ranges
     std::vector<TVector2> fObsRange;
-    // Vector containing number of bins for the different observables
+
+    /// Vector containing number of bins for the different observables
     std::vector<int> fObsNbins;
-    // Name of the odds file to be used to get the PDF
+
+    /// Name of the odds file to be used to get the PDF
     std::string fOddsFile = "";
 
     /// Cuts over the dataset for PDF selection
     TRestCut* fCut = nullptr;
 
-    // Map containing the PDF of the different observables
+    /// Map containing the PDF of the different observables
     std::map<std::string, TH1F*> fHistos;  //!
 
     void Initialize() override;

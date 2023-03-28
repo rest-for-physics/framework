@@ -28,27 +28,38 @@
 /// This class is meant to perform the calibration of different runs
 class TRestCalibration : public TRestMetadata {
    private:
-    // Name of the output file
+
+    /// Name of the output file
     std::string fOutputFileName = "";
-    // Name of the dataSet inside the config file
+
+    /// Name of the dataSet inside the config file
     std::string fDataSetName = "";
-    // Vector containing expected energy peaks in keV must be sorted
+
+    /// Vector containing expected energy peaks in keV must be sorted
     std::vector<double> fEnergyPeaks;
-    // Vector containing calibrated peaks in ADCs
+
+    /// Vector containing calibrated peaks in ADCs
     std::vector<double> fCalibPeaks;
-    // Vector containing calibrated sigma in ADCs
+
+    /// Vector containing calibrated sigma in ADCs
     std::vector<double> fCalibFWHM;
-    // Name of the calibration file to be used
+
+    /// Name of the calibration file to be used
     std::string fCalibFile = "";
-    // Calibration variable to be used
+
+    /// Calibration variable to be used
     std::string fCalObservable = "";
-    // Range to be calibrated
+
+    /// Range to be calibrated
     TVector2 fCalibRange;
-    // Number of bins used in the calibration
+
+    /// Number of bins used in the calibration
     Int_t fNBins;
-    // Slope from the calibration fit
+
+    /// Slope from the calibration fit
     Double_t fSlope = 0;
-    // Intercept of the calibration fit
+
+    /// Intercept of the calibration fit
     Double_t fIntercept = 0;
 
     void Initialize() override;

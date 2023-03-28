@@ -23,8 +23,9 @@
 /////////////////////////////////////////////////////////////////////////
 /// TRestCalibration performs the calibration of a TRestDataSet, the
 /// calibration is performed over different peaks provided in the config
-/// file, in which the first peak should corresponds to the maximum in the
-/// spectrum histogram.
+/// file. The first peak provided in the config file should correspond 
+/// to the maximum in the spectra. The expected position of the rest 
+/// of the peaks are estimated with respect to the maximum.
 ///
 /// A summary of the basic parameters is described below:
 /// * **calObservable**: Name of the observable to be calibrated
