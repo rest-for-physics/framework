@@ -116,8 +116,8 @@ class TRestDataSet : public TRestMetadata {
     TTree* GetTree() const {
         if (fTree == nullptr) {
             RESTError << "Tree has not been yet initialized" << RESTendl;
-            RESTError << "You should invoke TRestDataSet::Initialize() before trying to access the tree"
-                      << RESTendl;
+            RESTError << "You should invoke TRestDataSet::GenerateDataSet() or " << RESTendl;
+            RESTError << "TRestDataSet::Import( fname ) before trying to access the tree" << RESTendl;
         }
         return fTree;
     }
