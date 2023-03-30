@@ -273,7 +273,8 @@ void TRestDataSet::Initialize() { SetSectionName(this->ClassName()); }
 ///
 void TRestDataSet::GenerateDataSet() {
     if (fTree != nullptr) {
-        RESTWarning << "Tree has already been loaded. Skipping TRestDataSet::Initialize ... " << RESTendl;
+        RESTWarning << "Tree has already been loaded. Skipping TRestDataSet::GenerateDataSet ... "
+                    << RESTendl;
         return;
     }
 
