@@ -27,7 +27,7 @@
 /// will be finally added to the analysis tree. Inside a TRestAnalysisTree we find always the following six
 /// branches containing event information: runOrigin, subRunOrigin, eventID, subEventID, subEventTag and
 /// timeStamp. Those branches point to the corresponding class members inside TRestAnalysisTree, we name those
-/// branches the `event branches`. Additional branches can be added by the user in a processing chain by any 
+/// branches the `event branches`. Additional branches can be added by the user in a processing chain by any
 /// class inheriting by TRestEventProcess. Those process generated branches will also point to some
 /// objects whose addresses are also stored in this class. Those objects are called `observables`.
 ///
@@ -38,14 +38,14 @@
 ///
 /// In TRestAnalysisTree, the concept of "Branch" is weakened. We update the
 /// variables by invoking the `SetObservableValue()` method and then
-/// TRestAnalysisTree::Fill() to generate a new entry inside the tree. As soon as 
-/// TRestEventProcess::SetObservable method is invoked, a new branch will be 
-/// generated inside this tree. The code inside REST processes will be simplified 
+/// TRestAnalysisTree::Fill() to generate a new entry inside the tree. As soon as
+/// TRestEventProcess::SetObservable method is invoked, a new branch will be
+/// generated inside this tree. The code inside REST processes will be simplified
 /// while sacrificing a little performance. We can use
 /// temporary variable to set observable value directly. We can the focus on the analysis
 /// code inside each process, without caring about variable initialization before that.
 ///
-/// As soon as TRestEventProcess::SetObservable method is invoked, a new branch will be 
+/// As soon as TRestEventProcess::SetObservable method is invoked, a new branch will be
 /// generated inside this tree.
 ///
 /// The following is a summary of speed of filling 1000000 entries for TTree and
