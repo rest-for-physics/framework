@@ -329,7 +329,8 @@ std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPointsOverThre
                 double stdev = std::sqrt(sq_sum / pulse.size() - mean * mean);
 
                 if (stdev > signalTh * baseLineSigma)
-                    for (int j = pos; j < i; j++) pointsOverThreshold.push_back(std::make_pair(pos + j, pulse[j]));
+                    for (int j = pos; j < i; j++)
+                        pointsOverThreshold.push_back(std::make_pair(pos + j, pulse[j]));
             }
         }
     }

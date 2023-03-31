@@ -62,7 +62,6 @@ std::vector<std::pair<Float_t, Float_t> > GetPointsOverThreshold(const std::vect
                                                                  Int_t nPointsOver, Int_t nPointsFlat,
                                                                  Double_t baseLineSigma);
 
-
 template <typename T>
 Int_t GetMaxBin(const std::vector<T>& signal, int startBin = 0, int endBin = 0) {
     if (endBin <= 0 || endBin > (int)signal.size()) endBin = signal.size();
