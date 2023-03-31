@@ -283,7 +283,7 @@ template std::vector<Float_t> TRestSignalAnalysis::GetDerivative(const std::vect
 template <typename T>
 std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPointsOverThreshold(
     const std::vector<T>& signal, TVector2& range, const TVector2& thrPar, Int_t nPointsOver,
-    Int_t nPointsFlat, Double_t baseLine, Double_t baseLineSigma) {
+    Int_t nPointsFlat, Double_t baseLineSigma) {
     if (range.X() < 0) range.SetX(0);
     if (range.Y() <= 0) range.SetY(signal.size());
 
@@ -296,10 +296,10 @@ std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPointsOverThre
 
     for (int i = range.X(); i < range.Y(); i++) {
         // Filling a pulse with consecutive points that are over threshold
-        if ((signal[i] - baseLine) > threshold) {
+        if (signal[i] > threshold) {
             int pos = i;
             std::vector<double> pulse;
-            pulse.push_back(signal[i] - baseLine);
+            pulse.push_back(signal[i]);
             i++;
 
             // If the pulse ends in a flat end above the threshold, the parameter
@@ -308,7 +308,7 @@ std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPointsOverThre
             // decision to cut this anomalous behaviour. And all points over threshold
             // will be added to the pulse vector.
             int flatN = 0;
-            while (i < range.Y() && (signal[i] - baseLine) > threshold) {
+            while (i < range.Y() && signal[i] > threshold) {
                 if (TMath::Abs(signal[i] - signal[i - 1]) > threshold) {
                     flatN = 0;
                 } else {
@@ -316,7 +316,7 @@ std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPointsOverThre
                 }
 
                 if (flatN < nPointsFlat) {
-                    pulse.push_back(signal[i] - baseLine);
+                    pulse.push_back(signal[i]);
                     i++;
                 } else {
                     break;
@@ -329,8 +329,7 @@ std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPointsOverThre
                 double stdev = std::sqrt(sq_sum / pulse.size() - mean * mean);
 
                 if (stdev > signalTh * baseLineSigma)
-                    for (unsigned int j = 0; j < pulse.size(); j++)
-                        pointsOverThreshold.push_back(std::make_pair(pos + j, pulse[j]));
+                    for (int j = pos; j < i; j++) pointsOverThreshold.push_back(std::make_pair(pos + j, pulse[j]));
             }
         }
     }
@@ -340,10 +339,10 @@ std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPointsOverThre
 
 template std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPointsOverThreshold<Short_t>(
     const std::vector<Short_t>& signal, TVector2& range, const TVector2& thrPar, Int_t nPointsOver,
-    Int_t nPointsFlat, Double_t baseLine, Double_t baseLineSigma);
+    Int_t nPointsFlat, Double_t baseLineSigma);
 template std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPointsOverThreshold<Float_t>(
     const std::vector<Float_t>& signal, TVector2& range, const TVector2& thrPar, Int_t nPointsOver,
-    Int_t nPointsFlat, Double_t baseLine, Double_t baseLineSigma);
+    Int_t nPointsFlat, Double_t baseLineSigma);
 
 ///////////////////////////////////////////////
 /// \brief It returns the integral of the signal in the

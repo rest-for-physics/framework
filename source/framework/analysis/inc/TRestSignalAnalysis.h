@@ -60,15 +60,11 @@ template <typename T>
 std::vector<std::pair<Float_t, Float_t> > GetPointsOverThreshold(const std::vector<T>& signal,
                                                                  TVector2& range, const TVector2& thrPar,
                                                                  Int_t nPointsOver, Int_t nPointsFlat,
-                                                                 Double_t baseLine, Double_t baseLineSigma);
+                                                                 Double_t baseLineSigma);
+
 
 template <typename T>
-Int_t GetMaxBin(const std::vector<T>& signal) {
-    return std::distance(signal.begin(), std::max_element(signal.begin(), signal.end()));
-}
-
-template <typename T>
-Int_t GetMaxBin(const std::vector<T>& signal, int startBin, int endBin) {
+Int_t GetMaxBin(const std::vector<T>& signal, int startBin = 0, int endBin = 0) {
     if (endBin <= 0 || endBin > (int)signal.size()) endBin = signal.size();
     if (startBin < 0) startBin = 0;
 
@@ -77,12 +73,7 @@ Int_t GetMaxBin(const std::vector<T>& signal, int startBin, int endBin) {
 }
 
 template <typename T>
-Int_t GetMinBin(const std::vector<T>& signal) {
-    return std::distance(signal.begin(), std::min_element(signal.begin(), signal.end()));
-}
-
-template <typename T>
-Int_t GetMinBin(const std::vector<T>& signal, int startBin, int endBin) {
+Int_t GetMinBin(const std::vector<T>& signal, int startBin = 0, int endBin = 0) {
     if (endBin <= 0 || endBin > (int)signal.size()) endBin = signal.size();
     if (startBin < 0) startBin = 0;
 
