@@ -20,18 +20,17 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
+#ifndef RestCore_TRestSignalAnalysis
+#define RestCore_TRestSignalAnalysis
+
 #include <Rtypes.h>
 #include <TMath.h>
 
 #include <iostream>
 #include <vector>
 
-#ifndef RestCore_TRestSignalAnalysis
-#define RestCore_TRestSignalAnalysis
-
 #include <TVector2.h>
-
-#include <map>
+#include <TGraph.h>
 #include <numeric>
 
 /// This namespace define generic functions to calculate different signal parameters
@@ -56,6 +55,10 @@ std::vector<Float_t> GetSignalSmoothed_ExcludeOutliers(const std::vector<T>& sig
                                                        Double_t& baseLine, Double_t& baseLineSigma);
 
 template <typename T>
+std::vector<Float_t> GetDerivative(const std::vector<T>& signal);
+
+
+template <typename T>
 std::vector<std::pair<Float_t, Float_t> > GetPointsOverThreshold(const std::vector<T>& signal,
                                                                  TVector2& range, const TVector2& thrPar,
                                                                  Int_t nPointsOver, Int_t nPointsFlat,
@@ -70,6 +73,24 @@ template <typename T>
 Int_t GetMinBin(const std::vector<T>& signal) {
     return std::distance(signal.begin(), std::min_element(signal.begin(), signal.end()));
 }
+
+template <typename T>
+Double_t GetIntegral(const std::vector<T>& signal, Int_t startBin, Int_t endBin);
+
+template <typename T>
+Double_t GetMaxPeakWidth(const std::vector<T>& signal);
+
+Double_t GetSlopeIntegral(const std::vector<std::pair<Float_t, Float_t> > & signal );
+Double_t GetRiseSlope(const std::vector<std::pair<Float_t, Float_t> > & signal );
+Double_t GetRiseTime(const std::vector<std::pair<Float_t, Float_t> > & signal );
+
+std::vector <std::pair<double, double> > GetIntWindow(TGraph *signal, double intWindow);
+std::array <std::pair<Double_t,Double_t>, 3> GetTripleMax(TGraph *signal);
+TVector2 GetTripleMaxAverage(TGraph *signal);
+Double_t GetTripleMaxIntegral(TGraph *signal);
+TVector2 GetMaxGauss(TGraph *signal);
+TVector2 GetMaxLandau(TGraph *signal);
+TVector2 GetMaxAget(TGraph *signal);
 
 }  // namespace TRestSignalAnalysis
 

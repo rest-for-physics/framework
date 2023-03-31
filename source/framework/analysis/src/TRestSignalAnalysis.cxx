@@ -40,6 +40,9 @@
 
 #include <TRestSignalAnalysis.h>
 
+#include <TF1.h>
+#include <TFitResult.h>
+
 ///////////////////////////////////////////////
 /// \brief This method is used to determine the value
 /// of the baseline as average (arithmetic mean) of the
@@ -227,6 +230,26 @@ template std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed_ExcludeOutl
 template std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed_ExcludeOutliers<Float_t>(
     const std::vector<Float_t>& signal, int averagingPoints, Double_t& baseLine, Double_t& baseLineSigma);
 
+
+///////////////////////////////////////////////
+/// \brief Return derivative of a vector of data
+/// points
+///
+template <typename T>
+std::vector<Float_t> TRestSignalAnalysis::GetDerivative(const std::vector<T>& signal){
+
+  std::vector<Float_t> derivative (0, signal.size()-1);
+
+    for(size_t i = 0;i< signal.size()-1; i++){
+      derivative[i] = signal[i+1] - signal[i];
+    }
+
+  return derivative;
+}
+
+template std::vector<Float_t> TRestSignalAnalysis::GetDerivative(const std::vector<Float_t>& signal);
+template std::vector<Float_t> TRestSignalAnalysis::GetDerivative(const std::vector<Short_t>& signal);
+
 ///////////////////////////////////////////////
 /// \brief It returns a vector of the data points
 /// that are found over threshold.
@@ -324,3 +347,335 @@ template std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPoint
 template std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPointsOverThreshold<Float_t>(
     const std::vector<Float_t>& signal, TVector2& range, const TVector2& thrPar, Int_t nPointsOver,
     Int_t nPointsFlat, Double_t baseLine, Double_t baseLineSigma);
+
+///////////////////////////////////////////////
+/// \brief It returns the integral of the signal in the
+/// range passed as argument
+///
+template <typename T>
+Double_t TRestSignalAnalysis::GetIntegral(const std::vector<T>& signal, Int_t startBin, Int_t endBin) {
+    Double_t sum = 0;
+    for (int i = startBin; i < endBin; i++)
+        if (i > 0 && i < (int)signal.size()) sum += signal[i];
+
+    return sum;
+}
+template Double_t TRestSignalAnalysis::GetIntegral(const std::vector<Short_t>& signal, Int_t startBin, Int_t endBin);
+template Double_t TRestSignalAnalysis::GetIntegral(const std::vector<Float_t>& signal, Int_t startBin, Int_t endBin);
+
+///////////////////////////////////////////////
+/// \brief It returns the width of the pulses
+/// as the number of bins between the half of the
+/// maximum
+/// 
+template <typename T>
+Double_t TRestSignalAnalysis::GetMaxPeakWidth(const std::vector<T>& signal) {
+    
+    Int_t maxIndex = GetMaxBin(signal);
+    Double_t maxValue = signal[maxIndex];
+
+    const int signalSize = signal.size();
+
+    Double_t value = maxValue;
+    Int_t rightIndex = maxIndex;
+    while (value > maxValue / 2. && rightIndex < signalSize) {
+        value = signal[rightIndex];
+        rightIndex++;
+    }
+    Int_t leftIndex = maxIndex;
+    value = maxValue;
+    while (value > maxValue / 2. && leftIndex > 0) {
+        value = signal[rightIndex];
+        leftIndex--;
+    }
+
+    return rightIndex - leftIndex;
+}
+template Double_t TRestSignalAnalysis::GetMaxPeakWidth(const std::vector<Short_t>& signal);
+template Double_t TRestSignalAnalysis::GetMaxPeakWidth(const std::vector<Float_t>& signal);
+
+///////////////////////////////////////////////
+/// \brief It performs a gaussian fit to the signal
+/// which is stored inside a TGraph. It returns
+/// a TVector 2 with the maximum and the mean of the
+/// gaussian fit
+///
+TVector2 TRestSignalAnalysis::GetMaxGauss(TGraph *signal){
+
+  Int_t maxBin = TMath::LocMax(signal->GetN(), signal->GetY());
+  Double_t maxTime = signal->GetPointX(maxBin);
+  Double_t gaussMax = -1, gaussMean = -1;
+  Double_t lowerLimit = maxTime - maxTime * 0.1;  // us
+  Double_t upperLimit = maxTime + maxTime * 0.2;  // us
+
+  TF1* gaus = new TF1("gaus", "gaus", lowerLimit, upperLimit);
+  TFitResultPtr fitResult = signal->Fit(gaus, "QNRS");
+
+  if (fitResult->IsValid()) {
+        gaussMax = gaus->GetParameter(0);
+        gaussMean = gaus->GetParameter(1);
+    } else {
+        // the fit failed, return -1 to indicate failure
+        std::cout << std::endl
+             << "WARNING: bad fit with maximum at time = " << maxTime
+             << "Failed fit parameters = " << gaus->GetParameter(0) << " || " << gaus->GetParameter(1)
+             << " || " << gaus->GetParameter(2) << "\n"
+             << "Assigned fit parameters : energy = " << gaussMax << ", time = " << gaussMean << std::endl;
+        /*
+        TCanvas* c2 = new TCanvas("c2", "Signal fit", 200, 10, 1280, 720);
+        signal->Draw();
+        c2->Update();
+        getchar();
+        delete c2;
+        */
+    }
+
+    delete gaus;
+
+    return TVector2(gaussMean, gaussMax);
+
+}
+
+///////////////////////////////////////////////
+/// \brief It performs a landau fit to the signal
+/// which is stored inside a TGraph. It returns
+/// a TVector 2 with the maximum and the mean of the
+/// landau fit
+///
+TVector2 TRestSignalAnalysis::GetMaxLandau(TGraph *signal){
+
+  Int_t maxBin = TMath::LocMax(signal->GetN(), signal->GetY());
+  Double_t maxTime = signal->GetPointX(maxBin);
+  Double_t landauMax = -1, landauMean = -1;
+  Double_t lowerLimit = maxTime - maxTime * 0.1;  // us
+  Double_t upperLimit = maxTime + maxTime * 0.2;  // us
+
+  TF1* landau = new TF1("landau", "landau", lowerLimit, upperLimit);
+  TFitResultPtr fitResult = signal->Fit(landau, "QNRS");
+
+  if (fitResult->IsValid()) {
+        landauMax = landau->GetParameter(0);
+        landauMean = landau->GetParameter(1);
+    } else {
+        // the fit failed, return -1 to indicate failure
+        std::cout << std::endl
+             << "WARNING: bad fit with maximum at time = " << maxTime
+             << "Failed fit parameters = " << landau->GetParameter(0) << " || " << landau->GetParameter(1)
+             << " || " << landau->GetParameter(2) << "\n"
+             << "Assigned fit parameters : energy = " << landauMax << ", time = " << landauMean << std::endl;
+        /*
+        TCanvas* c2 = new TCanvas("c2", "Signal fit", 200, 10, 1280, 720);
+        signal->Draw();
+        c2->Update();
+        getchar();
+        delete c2;
+        */
+    }
+
+    delete landau;
+
+    return TVector2(landauMean, landauMax);
+
+}
+
+///////////////////////////////////////////////
+/// \brief It performs a fit of the signal to a
+/// the aget response function. It returns a
+/// TVector 2 with the maximum and the mean of the
+/// gaussian fit
+///
+TVector2 TRestSignalAnalysis::GetMaxAget(TGraph *signal){
+
+  Int_t maxBin = TMath::LocMax(signal->GetN(), signal->GetY());
+  Double_t maxTime = signal->GetPointX(maxBin);
+  Double_t agetMax = -1, agetMean = -1;
+  Double_t lowerLimit = maxTime - maxTime * 0.25;  // us
+  Double_t upperLimit = maxTime + maxTime * 0.35;   // us
+
+  // 1.1664 is the x value where the maximum of the base function (i.e. without parameters)
+  TF1* aget = new TF1("aget", "[&](double *x, double *p){ double arg = (x[0] - par[1] + 1.1664) / par[2]; return par[0] / 0.0440895 * exp(-3 * (arg)) * (arg) * (arg) *               (arg)*sin(arg);}", lowerLimit, upperLimit, 3);
+  TFitResultPtr fitResult = signal->Fit(aget, "QNRS");
+
+  if (fitResult->IsValid()) {
+        agetMax = aget->GetParameter(0);
+        agetMean = aget->GetParameter(1);
+    } else {
+        // the fit failed, return -1 to indicate failure
+        std::cout << std::endl
+             << "WARNING: bad fit with maximum at time = " << maxTime
+             << "Failed fit parameters = " << aget->GetParameter(0) << " || " << aget->GetParameter(1)
+             << " || " << aget->GetParameter(2) << "\n"
+             << "Assigned fit parameters : energy = " << agetMax << ", time = " << agetMean << std::endl;
+        /*
+        TCanvas* c2 = new TCanvas("c2", "Signal fit", 200, 10, 1280, 720);
+        signal->Draw();
+        c2->Update();
+        getchar();
+        delete c2;
+        */
+    }
+
+    delete aget;
+
+    return TVector2(agetMean, agetMax);
+
+}
+
+///////////////////////////////////////////////
+/// \brief It averages the pulse inside the time window
+/// passed as argument. It returns a vector of pairs
+/// with the integrated window time and energy (charge)
+///
+std::vector <std::pair<double, double> > TRestSignalAnalysis::GetIntWindow(TGraph *signal, double intWindow){
+
+  const int nPoints = signal->GetN();
+
+  std::map<int, std::pair<int, double> > windowMap;
+      for (int j = 0; j < nPoints; j++) {
+          int index = signal->GetPointX(j) / intWindow;
+          auto it = windowMap.find(index);
+            if (it != windowMap.end()) {
+                it->second.first++;
+                it->second.second += signal->GetPointY(j);
+            } else {
+                windowMap[index] = std::make_pair(1, signal->GetPointY(j));
+            }
+      }
+
+  std::vector <std::pair<double, double> > result;
+
+      for (const auto& [index, pair] : windowMap) {
+          Double_t hitTime = index * intWindow + intWindow / 2.;
+          Double_t energy = pair.second / pair.first;
+          result.push_back(std::make_pair( hitTime, energy ) );
+      }
+
+  return result;
+
+}
+
+///////////////////////////////////////////////
+/// \brief It calculates the triple max over a TGraph
+/// and returns an array of pairs with the time and
+/// the energy of the maximum and the neighbouring
+/// points(three points in total).
+///
+std::array <std::pair<Double_t,Double_t>, 3> TRestSignalAnalysis::GetTripleMax(TGraph *signal){
+
+  Int_t maxBin = TMath::LocMax(signal->GetN(), signal->GetY());
+
+  std::array <std::pair<Double_t,Double_t>, 3> tripleMax;
+
+    for(int i = 0; i < 3; i++){
+        int index = maxBin + i - 1;
+        if(index >0 && index < signal->GetN() ){
+          tripleMax[i] = std::make_pair(signal->GetPointX(index), signal->GetPointY(index));
+        } else {
+          tripleMax[i] = std::make_pair(signal->GetPointX(maxBin), signal->GetPointY(maxBin));
+        }
+    }
+
+  return tripleMax;
+
+}
+
+///////////////////////////////////////////////
+/// \brief It calculates the triple max average over
+/// a TGraph and returns a TVector2 with the average
+/// time and energy (charge)
+///
+TVector2 TRestSignalAnalysis::GetTripleMaxAverage(TGraph *signal){
+
+  auto tripleMax = TRestSignalAnalysis::GetTripleMax(signal);
+  double eAvg = 0;
+  double hitTimeAvg = 0;
+      for(const auto & [hitTime, energy] : tripleMax){
+          hitTimeAvg += hitTime*energy;
+          eAvg += energy;
+      }
+
+  hitTimeAvg /= eAvg;
+  eAvg /= 3.;
+
+  return TVector2(hitTimeAvg, eAvg);
+
+}
+
+///////////////////////////////////////////////
+/// \brief It calculates the triple max integral over
+/// a TGraph and returns the addition of the maximum plus
+/// the neigbouring bins.
+///
+Double_t TRestSignalAnalysis::GetTripleMaxIntegral(TGraph *signal){
+
+  auto tripleMax = TRestSignalAnalysis::GetTripleMax(signal);
+  double totEnergy = 0;
+      for(const auto & [hitTime, energy] : tripleMax){
+          totEnergy += energy;
+      }
+
+  return totEnergy;
+
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the integral of the first positive
+/// rise (risetime) over a vector of pairs, that should 
+/// correspond to the points over threshold for a given signal.
+///
+Double_t TRestSignalAnalysis::GetSlopeIntegral(const std::vector<std::pair<Float_t, Float_t> > & signal ) {
+    Double_t sum = 0;
+    /*Double_t pVal = 0;
+    for (const auto& [index, val] : signal) {
+        if (val - pVal < 0) break;
+        sum += val;
+        pVal = val;
+    }*/
+    auto max = std::max_element(std::begin(signal), std::end(signal),
+                                [](const auto& p1, const auto& p2) { return p1.second < p2.second; });
+
+      for(auto it = signal.begin(); it != max; ++it)
+        sum += it->second;
+
+    return sum;
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the slope of the first positive
+/// rise (risetime) over a vector of pairs, that should 
+/// correspond to the points over threshold for a given signal.
+///
+Double_t TRestSignalAnalysis::GetRiseSlope(const std::vector<std::pair<Float_t, Float_t> > & signal ) {
+
+   if (signal.size() < 2)
+      return 0;
+
+    auto max = std::max_element(std::begin(signal), std::end(signal),
+                                [](const auto& p1, const auto& p2) { return p1.second < p2.second; });
+
+    auto maxBin = max->first;
+    auto startBin = signal.front().first;
+    Double_t hP = max->second;
+    Double_t lP = signal.front().second;
+
+    return (hP - lP) / (maxBin - startBin - 1);
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the time of the first positive
+/// rise or risetime over a vector of pairs, that should 
+/// correspond to the points over threshold for a given signal.
+///
+Double_t TRestSignalAnalysis::GetRiseTime(const std::vector<std::pair<Float_t, Float_t> > & signal ) {
+
+   if (signal.size() < 2) {
+      return 0;
+    }
+
+    auto max = std::max_element(std::begin(signal), std::end(signal),
+                                [](const auto& p1, const auto& p2) { return p1.second < p2.second; });
+
+    auto maxBin = max->first;
+    auto startBin = signal.front().first;
+    return maxBin - startBin;
+}
