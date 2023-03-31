@@ -233,7 +233,7 @@ Are you sure to proceed? (y/n)
     if force:
         print("Forcing reset: ", end="")
         p = subprocess.run(
-            f"git submodule foreach --recursive 'git reset --hard'",  #
+            f"git submodule foreach --recursive 'git reset --hard || true'",  #
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -259,7 +259,7 @@ Are you sure to proceed? (y/n)
     if latest:
         print("Pulling submodules: ", end="")
         p = subprocess.run(
-            f"git submodule foreach  --recursive 'git fetch; if [ -z \"$(git ls-remote --heads origin {frameworkBranchName})\" ]; then git checkout master; else git checkout {frameworkBranchName};fi;git pull'",  #
+            f"git submodule foreach  --recursive 'git fetch; if [ -z \"$(git ls-remote --heads origin {frameworkBranchName})\" ]; then git checkout master; else git checkout {frameworkBranchName};fi;git pull || true'",  #
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -282,7 +282,7 @@ Are you sure to proceed? (y/n)
             print("[\033[92m OK \x1b[0m]")
     # get commit id
     p = subprocess.run(
-        f"git submodule foreach  --recursive 'git rev-parse HEAD'",  #
+        f"git submodule foreach  --recursive 'git rev-parse HEAD || true'",  #
         shell=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
