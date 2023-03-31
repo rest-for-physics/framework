@@ -615,17 +615,19 @@ Double_t TRestSignalAnalysis::GetTripleMaxIntegral(TGraph* signal) {
 ///
 Double_t TRestSignalAnalysis::GetSlopeIntegral(const std::vector<std::pair<Float_t, Float_t> >& signal) {
     Double_t sum = 0;
-    /*Double_t pVal = 0;
+    Double_t pVal = 0;
     for (const auto& [index, val] : signal) {
-        if (val - pVal < 0) break;
+          if (val - pVal < 0){
+            break;
+          }
         sum += val;
         pVal = val;
-    }*/
-    auto max = std::max_element(std::begin(signal), std::end(signal),
+    }
+/*    auto max = std::max_element(std::begin(signal), std::end(signal),
                                 [](const auto& p1, const auto& p2) { return p1.second < p2.second; });
 
     for (auto it = signal.begin(); it != max; ++it) sum += it->second;
-
+*/
     return sum;
 }
 
@@ -641,11 +643,12 @@ Double_t TRestSignalAnalysis::GetRiseSlope(const std::vector<std::pair<Float_t, 
                                 [](const auto& p1, const auto& p2) { return p1.second < p2.second; });
 
     auto maxBin = max->first;
+    --maxBin;
     auto startBin = signal.front().first;
     Double_t hP = max->second;
     Double_t lP = signal.front().second;
 
-    return (hP - lP) / (maxBin - startBin - 1);
+    return (hP - lP) / (maxBin - startBin);
 }
 
 ///////////////////////////////////////////////
