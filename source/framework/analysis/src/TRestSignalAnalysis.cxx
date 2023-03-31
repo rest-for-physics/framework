@@ -617,17 +617,17 @@ Double_t TRestSignalAnalysis::GetSlopeIntegral(const std::vector<std::pair<Float
     Double_t sum = 0;
     Double_t pVal = 0;
     for (const auto& [index, val] : signal) {
-          if (val - pVal < 0){
+        if (val - pVal < 0) {
             break;
-          }
+        }
         sum += val;
         pVal = val;
     }
-/*    auto max = std::max_element(std::begin(signal), std::end(signal),
-                                [](const auto& p1, const auto& p2) { return p1.second < p2.second; });
+    /*    auto max = std::max_element(std::begin(signal), std::end(signal),
+                                    [](const auto& p1, const auto& p2) { return p1.second < p2.second; });
 
-    for (auto it = signal.begin(); it != max; ++it) sum += it->second;
-*/
+        for (auto it = signal.begin(); it != max; ++it) sum += it->second;
+    */
     return sum;
 }
 
