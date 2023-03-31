@@ -68,8 +68,24 @@ Int_t GetMaxBin(const std::vector<T>& signal) {
 }
 
 template <typename T>
+Int_t GetMaxBin(const std::vector<T>& signal, int startBin, int endBin) {
+    if (endBin <= 0 || endBin > (int)signal.size()) endBin= signal.size();
+    if (startBin < 0) startBin = 0;
+
+    return std::distance(signal.begin(), std::max_element(signal.begin()+startBin, signal.begin()+endBin));
+}
+
+template <typename T>
 Int_t GetMinBin(const std::vector<T>& signal) {
     return std::distance(signal.begin(), std::min_element(signal.begin(), signal.end()));
+}
+
+template <typename T>
+Int_t GetMinBin(const std::vector<T>& signal, int startBin, int endBin) {
+    if (endBin <= 0 || endBin > (int)signal.size()) endBin= signal.size();
+    if (startBin < 0) startBin = 0;
+
+    return std::distance(signal.begin(), std::min_element(signal.begin()+startBin, signal.begin()+endBin));
 }
 
 template <typename T>
