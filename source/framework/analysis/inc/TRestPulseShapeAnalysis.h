@@ -20,8 +20,8 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestSignalAnalysis
-#define RestCore_TRestSignalAnalysis
+#ifndef RestCore_TRestPulseShapeAnalysis
+#define RestCore_TRestPulseShapeAnalysis
 
 #include <Rtypes.h>
 #include <TGraph.h>
@@ -33,7 +33,7 @@
 #include <vector>
 
 /// This namespace define generic functions to calculate different signal parameters
-namespace TRestSignalAnalysis {
+namespace TRestPulseShapeAnalysis {
 
 template <typename T>
 void CalculateBaselineAndSigmaSD(const std::vector<T>& signal, Int_t startBin, Int_t endBin,
@@ -98,6 +98,6 @@ TVector2 GetMaxGauss(TGraph* signal);
 TVector2 GetMaxLandau(TGraph* signal);
 TVector2 GetMaxAget(TGraph* signal);
 
-}  // namespace TRestSignalAnalysis
+}  // namespace TRestPulseShapeAnalysis
 
 #endif

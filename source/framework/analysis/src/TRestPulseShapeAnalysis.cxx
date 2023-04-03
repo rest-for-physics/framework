@@ -21,7 +21,7 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestSignalAnalysis defines several functions to calculate different
+/// TRestPulseShapeAnalysis defines several functions to calculate different
 /// signal parameters.
 ///--------------------------------------------------------------------------
 ///
@@ -32,7 +32,7 @@
 /// 2022-December First implementation
 /// JuanAn Garcia
 ///
-/// \class TRestSignalAnalysis
+/// \class TRestPulseShapeAnalysis
 /// \author: JuanAn Garcia   e-mail: juanangp@unizar.es
 ///
 /// <hr>
@@ -40,7 +40,7 @@
 
 #include <TF1.h>
 #include <TFitResult.h>
-#include <TRestSignalAnalysis.h>
+#include <TRestPulseShapeAnalysis.h>
 
 ///////////////////////////////////////////////
 /// \brief This method is used to determine the value
@@ -49,7 +49,7 @@
 /// The baseline sigma is determined as the standard deviation
 /// of the baseline in range provided.
 template <typename T>
-void TRestSignalAnalysis::CalculateBaselineAndSigmaSD(const std::vector<T>& signal, Int_t startBin,
+void TRestPulseShapeAnalysis::CalculateBaselineAndSigmaSD(const std::vector<T>& signal, Int_t startBin,
                                                       Int_t endBin, Double_t& baseLine,
                                                       Double_t& baseLineSigma) {
     baseLine = 0;
@@ -69,11 +69,11 @@ void TRestSignalAnalysis::CalculateBaselineAndSigmaSD(const std::vector<T>& sign
         baseLineSigma = TMath::Sqrt(baseLineSigma / (double)nPoints - baseLine * baseLine);
     }
 }
-template void TRestSignalAnalysis::CalculateBaselineAndSigmaSD<Short_t>(const std::vector<Short_t>& signal,
+template void TRestPulseShapeAnalysis::CalculateBaselineAndSigmaSD<Short_t>(const std::vector<Short_t>& signal,
                                                                         Int_t startBin, Int_t endBin,
                                                                         Double_t& baseLine,
                                                                         Double_t& baseLineSigma);
-template void TRestSignalAnalysis::CalculateBaselineAndSigmaSD<Float_t>(const std::vector<Float_t>& signal,
+template void TRestPulseShapeAnalysis::CalculateBaselineAndSigmaSD<Float_t>(const std::vector<Float_t>& signal,
                                                                         Int_t startBin, Int_t endBin,
                                                                         Double_t& baseLine,
                                                                         Double_t& baseLineSigma);
@@ -85,7 +85,7 @@ template void TRestSignalAnalysis::CalculateBaselineAndSigmaSD<Float_t>(const st
 /// range (IQR) in the baseline range provided. The IQR
 /// is more robust towards outliers than the standard deviation.
 template <typename T>
-void TRestSignalAnalysis::CalculateBaselineAndSigmaIQR(const std::vector<T>& signal, Int_t startBin,
+void TRestPulseShapeAnalysis::CalculateBaselineAndSigmaIQR(const std::vector<T>& signal, Int_t startBin,
                                                        Int_t endBin, Double_t& baseLine,
                                                        Double_t& baseLineSigma) {
     baseLine = 0;
@@ -108,11 +108,11 @@ void TRestSignalAnalysis::CalculateBaselineAndSigmaIQR(const std::vector<T>& sig
             1.349;  // IQR/1.349 equals the standard deviation in case of normally distributed data
 }
 
-template void TRestSignalAnalysis::CalculateBaselineAndSigmaIQR<Short_t>(const std::vector<Short_t>& signal,
+template void TRestPulseShapeAnalysis::CalculateBaselineAndSigmaIQR<Short_t>(const std::vector<Short_t>& signal,
                                                                          Int_t startBin, Int_t endBin,
                                                                          Double_t& baseLine,
                                                                          Double_t& baseLineSigma);
-template void TRestSignalAnalysis::CalculateBaselineAndSigmaIQR<Float_t>(const std::vector<Float_t>& signal,
+template void TRestPulseShapeAnalysis::CalculateBaselineAndSigmaIQR<Float_t>(const std::vector<Float_t>& signal,
                                                                          Int_t startBin, Int_t endBin,
                                                                          Double_t& baseLine,
                                                                          Double_t& baseLineSigma);
@@ -121,7 +121,7 @@ template void TRestSignalAnalysis::CalculateBaselineAndSigmaIQR<Float_t>(const s
 /// the data points in a given range defined
 /// between startBin and endBin
 template <typename T>
-Double_t TRestSignalAnalysis::GetAverage(const std::vector<T>& signal, Int_t startBin, Int_t endBin) {
+Double_t TRestPulseShapeAnalysis::GetAverage(const std::vector<T>& signal, Int_t startBin, Int_t endBin) {
     int nPoints = 0;
     Double_t avg = 0;
 
@@ -136,9 +136,9 @@ Double_t TRestSignalAnalysis::GetAverage(const std::vector<T>& signal, Int_t sta
     return avg;
 }
 
-template Double_t TRestSignalAnalysis::GetAverage<Short_t>(const std::vector<Short_t>& signal, Int_t startBin,
+template Double_t TRestPulseShapeAnalysis::GetAverage<Short_t>(const std::vector<Short_t>& signal, Int_t startBin,
                                                            Int_t endBin);
-template Double_t TRestSignalAnalysis::GetAverage<Float_t>(const std::vector<Float_t>& signal, Int_t startBin,
+template Double_t TRestPulseShapeAnalysis::GetAverage<Float_t>(const std::vector<Float_t>& signal, Int_t startBin,
                                                            Int_t endBin);
 
 ///////////////////////////////////////////////
@@ -149,14 +149,14 @@ template Double_t TRestSignalAnalysis::GetAverage<Float_t>(const std::vector<Flo
 /// neighbouring points used to average the signal
 ///
 template <typename T>
-std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed(const std::vector<T>& signal,
+std::vector<Float_t> TRestPulseShapeAnalysis::GetSignalSmoothed(const std::vector<T>& signal,
                                                             int averagingPoints) {
     const int pulseDepth = signal.size();
     std::vector<Float_t> smoothed(pulseDepth, 0);
 
     averagingPoints = (averagingPoints / 2) * 2 + 1;  // make it odd >= averagingPoints
 
-    Float_t sumAvg = TRestSignalAnalysis::GetAverage(signal, 0, averagingPoints);
+    Float_t sumAvg = TRestPulseShapeAnalysis::GetAverage(signal, 0, averagingPoints);
 
     // Points at the beginning, where we can calculate a moving average
     for (int i = 0; i <= averagingPoints / 2; i++) smoothed[i] = sumAvg;
@@ -174,9 +174,9 @@ std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed(const std::vector<T>
 
     return smoothed;
 }
-template std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed<Short_t>(
+template std::vector<Float_t> TRestPulseShapeAnalysis::GetSignalSmoothed<Short_t>(
     const std::vector<Short_t>& signal, int averagingPoints);
-template std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed<Float_t>(
+template std::vector<Float_t> TRestPulseShapeAnalysis::GetSignalSmoothed<Float_t>(
     const std::vector<Float_t>& signal, int averagingPoints);
 
 ///////////////////////////////////////////////
@@ -188,7 +188,7 @@ template std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed<Float_t>(
 /// neighbouring points used to average the signal
 ///
 template <typename T>
-std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed_ExcludeOutliers(const std::vector<T>& signal,
+std::vector<Float_t> TRestPulseShapeAnalysis::GetSignalSmoothed_ExcludeOutliers(const std::vector<T>& signal,
                                                                             int averagingPoints,
                                                                             Double_t& baseLine,
                                                                             Double_t& baseLineSigma) {
@@ -199,7 +199,7 @@ std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed_ExcludeOutliers(cons
 
     averagingPoints = (averagingPoints / 2) * 2 + 1;  // make it odd >= averagingPoints
 
-    Float_t sumAvg = TRestSignalAnalysis::GetAverage(signal, 0, averagingPoints);
+    Float_t sumAvg = TRestPulseShapeAnalysis::GetAverage(signal, 0, averagingPoints);
 
     // Points at the beginning, where we can calculate a moving average
     for (int i = 0; i <= averagingPoints / 2; i++) smoothed[i] = sumAvg;
@@ -224,9 +224,9 @@ std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed_ExcludeOutliers(cons
     return smoothed;
 }
 
-template std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed_ExcludeOutliers<Short_t>(
+template std::vector<Float_t> TRestPulseShapeAnalysis::GetSignalSmoothed_ExcludeOutliers<Short_t>(
     const std::vector<Short_t>& signal, int averagingPoints, Double_t& baseLine, Double_t& baseLineSigma);
-template std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed_ExcludeOutliers<Float_t>(
+template std::vector<Float_t> TRestPulseShapeAnalysis::GetSignalSmoothed_ExcludeOutliers<Float_t>(
     const std::vector<Float_t>& signal, int averagingPoints, Double_t& baseLine, Double_t& baseLineSigma);
 
 ///////////////////////////////////////////////
@@ -234,7 +234,7 @@ template std::vector<Float_t> TRestSignalAnalysis::GetSignalSmoothed_ExcludeOutl
 /// points
 ///
 template <typename T>
-std::vector<Float_t> TRestSignalAnalysis::GetDerivative(const std::vector<T>& signal) {
+std::vector<Float_t> TRestPulseShapeAnalysis::GetDerivative(const std::vector<T>& signal) {
     std::vector<Float_t> derivative(0, signal.size() - 1);
 
     for (size_t i = 0; i < signal.size() - 1; i++) {
@@ -244,8 +244,8 @@ std::vector<Float_t> TRestSignalAnalysis::GetDerivative(const std::vector<T>& si
     return derivative;
 }
 
-template std::vector<Float_t> TRestSignalAnalysis::GetDerivative(const std::vector<Float_t>& signal);
-template std::vector<Float_t> TRestSignalAnalysis::GetDerivative(const std::vector<Short_t>& signal);
+template std::vector<Float_t> TRestPulseShapeAnalysis::GetDerivative(const std::vector<Float_t>& signal);
+template std::vector<Float_t> TRestPulseShapeAnalysis::GetDerivative(const std::vector<Short_t>& signal);
 
 ///////////////////////////////////////////////
 /// \brief It returns a vector of the data points
@@ -281,7 +281,7 @@ template std::vector<Float_t> TRestSignalAnalysis::GetDerivative(const std::vect
 ///
 
 template <typename T>
-std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPointsOverThreshold(
+std::vector<std::pair<Float_t, Float_t> > TRestPulseShapeAnalysis::GetPointsOverThreshold(
     const std::vector<T>& signal, TVector2& range, const TVector2& thrPar, Int_t nPointsOver,
     Int_t nPointsFlat, Double_t baseLineSigma) {
     if (range.X() < 0) range.SetX(0);
@@ -338,10 +338,10 @@ std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPointsOverThre
     return pointsOverThreshold;
 }
 
-template std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPointsOverThreshold<Short_t>(
+template std::vector<std::pair<Float_t, Float_t> > TRestPulseShapeAnalysis::GetPointsOverThreshold<Short_t>(
     const std::vector<Short_t>& signal, TVector2& range, const TVector2& thrPar, Int_t nPointsOver,
     Int_t nPointsFlat, Double_t baseLineSigma);
-template std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPointsOverThreshold<Float_t>(
+template std::vector<std::pair<Float_t, Float_t> > TRestPulseShapeAnalysis::GetPointsOverThreshold<Float_t>(
     const std::vector<Float_t>& signal, TVector2& range, const TVector2& thrPar, Int_t nPointsOver,
     Int_t nPointsFlat, Double_t baseLineSigma);
 
@@ -350,16 +350,16 @@ template std::vector<std::pair<Float_t, Float_t> > TRestSignalAnalysis::GetPoint
 /// range passed as argument
 ///
 template <typename T>
-Double_t TRestSignalAnalysis::GetIntegral(const std::vector<T>& signal, Int_t startBin, Int_t endBin) {
+Double_t TRestPulseShapeAnalysis::GetIntegral(const std::vector<T>& signal, Int_t startBin, Int_t endBin) {
     Double_t sum = 0;
     for (int i = startBin; i < endBin; i++)
         if (i > 0 && i < (int)signal.size()) sum += signal[i];
 
     return sum;
 }
-template Double_t TRestSignalAnalysis::GetIntegral(const std::vector<Short_t>& signal, Int_t startBin,
+template Double_t TRestPulseShapeAnalysis::GetIntegral(const std::vector<Short_t>& signal, Int_t startBin,
                                                    Int_t endBin);
-template Double_t TRestSignalAnalysis::GetIntegral(const std::vector<Float_t>& signal, Int_t startBin,
+template Double_t TRestPulseShapeAnalysis::GetIntegral(const std::vector<Float_t>& signal, Int_t startBin,
                                                    Int_t endBin);
 
 ///////////////////////////////////////////////
@@ -368,7 +368,7 @@ template Double_t TRestSignalAnalysis::GetIntegral(const std::vector<Float_t>& s
 /// maximum
 ///
 template <typename T>
-Double_t TRestSignalAnalysis::GetMaxPeakWidth(const std::vector<T>& signal) {
+Double_t TRestPulseShapeAnalysis::GetMaxPeakWidth(const std::vector<T>& signal) {
     Int_t maxIndex = GetMaxBin(signal);
     Double_t maxValue = signal[maxIndex];
 
@@ -389,8 +389,8 @@ Double_t TRestSignalAnalysis::GetMaxPeakWidth(const std::vector<T>& signal) {
 
     return rightIndex - leftIndex;
 }
-template Double_t TRestSignalAnalysis::GetMaxPeakWidth(const std::vector<Short_t>& signal);
-template Double_t TRestSignalAnalysis::GetMaxPeakWidth(const std::vector<Float_t>& signal);
+template Double_t TRestPulseShapeAnalysis::GetMaxPeakWidth(const std::vector<Short_t>& signal);
+template Double_t TRestPulseShapeAnalysis::GetMaxPeakWidth(const std::vector<Float_t>& signal);
 
 ///////////////////////////////////////////////
 /// \brief It performs a gaussian fit to the signal
@@ -398,7 +398,7 @@ template Double_t TRestSignalAnalysis::GetMaxPeakWidth(const std::vector<Float_t
 /// a TVector 2 with the maximum and the mean of the
 /// gaussian fit
 ///
-TVector2 TRestSignalAnalysis::GetMaxGauss(TGraph* signal) {
+TVector2 TRestPulseShapeAnalysis::GetMaxGauss(TGraph* signal) {
     Int_t maxBin = TMath::LocMax(signal->GetN(), signal->GetY());
     Double_t maxTime = signal->GetPointX(maxBin);
     Double_t gaussMax = -1, gaussMean = -1;
@@ -439,7 +439,7 @@ TVector2 TRestSignalAnalysis::GetMaxGauss(TGraph* signal) {
 /// a TVector 2 with the maximum and the mean of the
 /// landau fit
 ///
-TVector2 TRestSignalAnalysis::GetMaxLandau(TGraph* signal) {
+TVector2 TRestPulseShapeAnalysis::GetMaxLandau(TGraph* signal) {
     Int_t maxBin = TMath::LocMax(signal->GetN(), signal->GetY());
     Double_t maxTime = signal->GetPointX(maxBin);
     Double_t landauMax = -1, landauMean = -1;
@@ -480,7 +480,7 @@ TVector2 TRestSignalAnalysis::GetMaxLandau(TGraph* signal) {
 /// TVector 2 with the maximum and the mean of the
 /// gaussian fit
 ///
-TVector2 TRestSignalAnalysis::GetMaxAget(TGraph* signal) {
+TVector2 TRestPulseShapeAnalysis::GetMaxAget(TGraph* signal) {
     Int_t maxBin = TMath::LocMax(signal->GetN(), signal->GetY());
     Double_t maxTime = signal->GetPointX(maxBin);
     Double_t agetMax = -1, agetMean = -1;
@@ -524,7 +524,7 @@ TVector2 TRestSignalAnalysis::GetMaxAget(TGraph* signal) {
 /// passed as argument. It returns a vector of pairs
 /// with the integrated window time and energy (charge)
 ///
-std::vector<std::pair<double, double> > TRestSignalAnalysis::GetIntWindow(TGraph* signal, double intWindow) {
+std::vector<std::pair<double, double> > TRestPulseShapeAnalysis::GetIntWindow(TGraph* signal, double intWindow) {
     const int nPoints = signal->GetN();
 
     std::map<int, std::pair<int, double> > windowMap;
@@ -556,7 +556,7 @@ std::vector<std::pair<double, double> > TRestSignalAnalysis::GetIntWindow(TGraph
 /// the energy of the maximum and the neighbouring
 /// points(three points in total).
 ///
-std::array<std::pair<Double_t, Double_t>, 3> TRestSignalAnalysis::GetTripleMax(TGraph* signal) {
+std::array<std::pair<Double_t, Double_t>, 3> TRestPulseShapeAnalysis::GetTripleMax(TGraph* signal) {
     Int_t maxBin = TMath::LocMax(signal->GetN(), signal->GetY());
 
     std::array<std::pair<Double_t, Double_t>, 3> tripleMax;
@@ -578,8 +578,8 @@ std::array<std::pair<Double_t, Double_t>, 3> TRestSignalAnalysis::GetTripleMax(T
 /// a TGraph and returns a TVector2 with the average
 /// time and energy (charge)
 ///
-TVector2 TRestSignalAnalysis::GetTripleMaxAverage(TGraph* signal) {
-    auto tripleMax = TRestSignalAnalysis::GetTripleMax(signal);
+TVector2 TRestPulseShapeAnalysis::GetTripleMaxAverage(TGraph* signal) {
+    auto tripleMax = TRestPulseShapeAnalysis::GetTripleMax(signal);
     double eAvg = 0;
     double hitTimeAvg = 0;
     for (const auto& [hitTime, energy] : tripleMax) {
@@ -598,8 +598,8 @@ TVector2 TRestSignalAnalysis::GetTripleMaxAverage(TGraph* signal) {
 /// a TGraph and returns the addition of the maximum plus
 /// the neigbouring bins.
 ///
-Double_t TRestSignalAnalysis::GetTripleMaxIntegral(TGraph* signal) {
-    auto tripleMax = TRestSignalAnalysis::GetTripleMax(signal);
+Double_t TRestPulseShapeAnalysis::GetTripleMaxIntegral(TGraph* signal) {
+    auto tripleMax = TRestPulseShapeAnalysis::GetTripleMax(signal);
     double totEnergy = 0;
     for (const auto& [hitTime, energy] : tripleMax) {
         totEnergy += energy;
@@ -613,7 +613,7 @@ Double_t TRestSignalAnalysis::GetTripleMaxIntegral(TGraph* signal) {
 /// rise (risetime) over a vector of pairs, that should
 /// correspond to the points over threshold for a given signal.
 ///
-Double_t TRestSignalAnalysis::GetSlopeIntegral(const std::vector<std::pair<Float_t, Float_t> >& signal) {
+Double_t TRestPulseShapeAnalysis::GetSlopeIntegral(const std::vector<std::pair<Float_t, Float_t> >& signal) {
     Double_t sum = 0;
     Double_t pVal = 0;
     for (const auto& [index, val] : signal) {
@@ -636,7 +636,7 @@ Double_t TRestSignalAnalysis::GetSlopeIntegral(const std::vector<std::pair<Float
 /// rise (risetime) over a vector of pairs, that should
 /// correspond to the points over threshold for a given signal.
 ///
-Double_t TRestSignalAnalysis::GetRiseSlope(const std::vector<std::pair<Float_t, Float_t> >& signal) {
+Double_t TRestPulseShapeAnalysis::GetRiseSlope(const std::vector<std::pair<Float_t, Float_t> >& signal) {
     if (signal.size() < 2) return 0;
 
     auto max = std::max_element(std::begin(signal), std::end(signal),
@@ -656,7 +656,7 @@ Double_t TRestSignalAnalysis::GetRiseSlope(const std::vector<std::pair<Float_t, 
 /// rise or risetime over a vector of pairs, that should
 /// correspond to the points over threshold for a given signal.
 ///
-Double_t TRestSignalAnalysis::GetRiseTime(const std::vector<std::pair<Float_t, Float_t> >& signal) {
+Double_t TRestPulseShapeAnalysis::GetRiseTime(const std::vector<std::pair<Float_t, Float_t> >& signal) {
     if (signal.size() < 2) {
         return 0;
     }
