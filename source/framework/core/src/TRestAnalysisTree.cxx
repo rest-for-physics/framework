@@ -416,7 +416,7 @@ void TRestAnalysisTree::UpdateBranches() {
             } else if (typeName == "int") {
                 this->Branch(brName, (int*)ref);
             } else if (typeName == "short") {
-                this->Branch(brName, (unsigned short*)ref);
+                this->Branch(brName, (short*)ref);
             } else if (typeName == "unsigned char") {
                 this->Branch(brName, (unsigned char*)ref);
             } else if (typeName == "unsigned int") {
