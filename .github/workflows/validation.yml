@@ -645,7 +645,8 @@ jobs:
           path: framework
       - name: Checkout framework branch
         run: |
-          ./framework/scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
+          cd framework
+          ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
       - name: Validate rawlib
         uses: ./framework/.github/actions/validation
         with:
