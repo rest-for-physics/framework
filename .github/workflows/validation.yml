@@ -643,7 +643,6 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: rest-for-physics/rawlib
-        branch: master
         path: rest-for-physics/rawlib
     - name: Checkout repository branch
       run: |
@@ -658,6 +657,7 @@ jobs:
             git checkout ${{ env.BRANCH_NAME }}
             git pull
           fi
+        shell: bash
     - name: Validate library
       uses: ./rest-for-physics/rawlib/.github/workflows/validation.yml
 
