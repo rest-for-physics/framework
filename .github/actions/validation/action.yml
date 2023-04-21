@@ -18,8 +18,10 @@ runs:
       uses: actions/checkout@v3
       with:
         repository: ${{ inputs.repository }}
+        path: submodule
     - name: Checkout repository branch
       run: |
+          cd submodule
           var=$(git ls-remote --heads origin ${{ inputs.branch }})
           if [[ -z $var ]]; then
             echo "Branch "${{ inputs.branch }}" not found in " ${{ inputs.repository }}
@@ -30,6 +32,12 @@ runs:
             git checkout ${{ inputs.branch }}
             git pull
           fi
+          ls -lrth .github/workflows/validation.yml
+      shell: bash
+      - name: Debug
+      run: |
+          ls -lrth submodule
+          ls -lrth .github/workflows/validation.yml
       shell: bash
     - name: Validate library
-      uses: ./.github/workflows/validation.yml
+      uses: ./submodule/.github/workflows/validation.yml
