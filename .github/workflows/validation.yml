@@ -636,7 +636,15 @@ jobs:
           retention-days: 1
 
   rawlib-validation:
-    uses: rest-for-physics/rawlib/.github/workflows/validation.yml@master
+    name: Rawlib validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: rest-for-physics/framework/.github/actions/checkout@master
+        with:
+          branch: ${{ env.BRANCH_NAME }}
+          repository: rest-for-physics/rawlib
+          path: rawlib
+      - uses: ./.github/workflows/validation.yml
 
   geant4lib-validation:
     uses: rest-for-physics/geant4lib/.github/workflows/validation.yml@master
