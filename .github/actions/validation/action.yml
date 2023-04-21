@@ -1,0 +1,24 @@
+name: "Validation Action"
+description: "Runs the validation workflow in the proper branch"
+inputs:
+  branch:
+    description: "Branch to checkout"
+    required: true
+  repository:
+    description: "Repository"
+    required: true
+  path:
+    description: "Path"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout branch
+        uses: rest-for-physics/framework/.github/actions/checkout@master
+        with:
+          branch: ${{ inputs.branch }}
+          repository: ${{ inputs.repository }}
+          path: ${{ inputs.path }}
+    - name: Validate library
+        uses: ./${{ inputs.path }}/.github/workflows/validation.yml
