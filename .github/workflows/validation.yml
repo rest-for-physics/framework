@@ -643,8 +643,11 @@ jobs:
         with:
           repository: rest-for-physics/framework
           path: framework
+      - name: Checkout framework branch
+        run: |
+          ./framework/scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
       - name: Validate rawlib
-        uses: ./.github/actions/validation
+        uses: ./framework/.github/actions/validation
         with:
           branch: ${{ env.BRANCH_NAME }}
           repository: rest-for-physics/rawlib
