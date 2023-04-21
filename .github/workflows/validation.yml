@@ -642,26 +642,21 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
       with:
-        repository: rest-for-physics/rawlib
-        token: ${{ secrets.GITHUB_TOKEN }}
-        path: rest-for-physics/rawlib
-    - name: Checkout repository branch
+          repository: rest-for-physics/framework
+          path: framework
+    - name: Checkout framework branch
       run: |
-        cd rest-for-physics/rawlib
-          var=$(git ls-remote --heads origin ${{ env.BRANCH_NAME }})
-          echo "$var"
-          if [[ -z $var ]]; then
-            echo "Branch "${{ env.BRANCH_NAME }}" not found"
-          else
-            echo "Branch "${{ env.BRANCH_NAME }}" found"
-            git fetch
-            git checkout ${{ env.BRANCH_NAME }}
-            git pull
-          fi
-    - name: Debug
+        cd framework
+        ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
+    - name: Checkout framework branch
       run: |
-        cat ./rest-for-physics/rawlib/.github/workflows/validation.yml
-    - uses: ./rest-for-physics/rawlib/.github/workflows/validation.yml
+        cd framework
+        ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
+    - name: Pull submodules
+      run: |
+        python3 pull-submodules.py --force --dontask --onlylibs --latest:${{ inputs.branch }}
+    - name: Validate rawlib
+      uses: ./source/libraries/rawlib/.github/workflows/validation.yml
 
   geant4lib-validation:
     uses: rest-for-physics/geant4lib/.github/workflows/validation.yml@master
