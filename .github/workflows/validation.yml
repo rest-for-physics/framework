@@ -643,14 +643,15 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: rest-for-physics/rawlib
+        branch: master
         path: rest-for-physics/rawlib
     - name: Checkout repository branch
       run: |
         cd rest-for-physics/rawlib
           var=$(git ls-remote --heads origin ${{ env.BRANCH_NAME }})
+          echo $var
           if [[ -z $var ]]; then
             echo "Branch "${{ env.BRANCH_NAME }}" not found
-            echo "exist=false" >> $GITHUB_OUTPUT
           else
             echo "Branch "${{ env.BRANCH_NAME }}" found}
             git fetch
