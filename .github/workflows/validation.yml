@@ -648,10 +648,6 @@ jobs:
       run: |
         cd framework
         ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
-    - name: Checkout framework branch
-      run: |
-        cd framework
-        ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
         python3 pull-submodules.py --force --dontask --latest:${{ env.BRANCH_NAME }}
     - name: Validate rawlib
       uses: ./source/libraries/rawlib/.github/workflows/validation.yml
