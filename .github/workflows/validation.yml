@@ -649,7 +649,7 @@ jobs:
         cd rest-for-physics/rawlib
           var=$(git ls-remote --heads origin ${{ env.BRANCH_NAME }})
           if [[ -z $var ]]; then
-            echo "Branch "${{ env.BRANCH_NAME }}" not found 
+            echo "Branch "${{ env.BRANCH_NAME }}" not found
             echo "exist=false" >> $GITHUB_OUTPUT
           else
             echo "Branch "${{ env.BRANCH_NAME }}" found}
