@@ -213,12 +213,23 @@ include(Testing)
 # Start compile
 include(MacroRootDict)
 
+# uninstall target
+if(NOT TARGET uninstall)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY)
+
+  add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+endif()
+
 # Clear the install dir
 if (NOT DEFINED INSTALL_CLEARDIR)
     set(INSTALL_CLEARDIR ON)
 endif ()
 if (${INSTALL_CLEARDIR} MATCHES "ON")
-    install(CODE "execute_process(COMMAND rm -r ${CMAKE_INSTALL_PREFIX})")
+    install(CODE "execute_process(COMMAND \"${CMAKE_COMMAND}\" -P \"${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake\")" )
 endif ()
 
 # Compile and install for each subdir
@@ -287,30 +298,18 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows") # we must call library install here in
     endforeach ()
 
     # Copy pcm files to bin
-    install(
-        CODE "
-    file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/*.pcm\")
-    file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/bin)
-    ")
+    file(GLOB PCMFILES "${CMAKE_BINARY_DIR}/rootdict/*.pcm")
+    install( FILES ${PCMFILES} DESTINATION bin COMPONENT install)
 
 else ()
     # Copy pcm files to lib
-    install(
-        CODE "
-    file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/*.pcm\")
-    file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/lib)
-    ")
+    file(GLOB PCMFILES "${CMAKE_BINARY_DIR}/rootdict/*.pcm")
+    install( FILES ${PCMFILES} DESTINATION lib COMPONENT install)
 
     add_subdirectory(python-bindings)
 
     # Create thisREST.sh
     include(thisREST)
-
-    # Add permissions
-    install(
-        CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/bin/rest-config)"
-    )
-    install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX})")
 
 endif ()
 
@@ -333,10 +332,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin") # we must call library install here in
     endforeach ()
 
     # Copy pcm files to bin
-    install(
-        CODE "
-    file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/*.pcm\")
-    file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/bin)
-    ")
+    file(GLOB PCMFILES "${CMAKE_BINARY_DIR}/rootdict/*.pcm")
+    install( FILES ${PCMFILES} DESTINATION bin COMPONENT install)
 
 endif ()
