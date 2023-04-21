@@ -639,19 +639,16 @@ jobs:
     name: Rawlib validation
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout branch
-        uses: rest-for-physics/framework/.github/actions/checkout@master
+      - uses: actions/checkout@v3
+        with:
+          repository: rest-for-physics/framework
+          path: framework
+      - name: Validate rawlib
+        uses: ./.github/actions/validation
         with:
           branch: ${{ env.BRANCH_NAME }}
           repository: rest-for-physics/rawlib
           path: rawlib
-      - name: Check dir
-        run: |
-          ls
-          ls rawlib
-          ls ./rawlib/.github/workflows/validation.yml
-      - name: Validate rawlib
-        uses: ./rawlib/.github/workflows/validation.yml
 
   geant4lib-validation:
     uses: rest-for-physics/geant4lib/.github/workflows/validation.yml@master
