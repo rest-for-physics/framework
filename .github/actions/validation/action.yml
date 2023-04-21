@@ -20,12 +20,12 @@ runs:
         repository: ${{ inputs.repository }}
         path: ${{ inputs.path }}
     - name: Checkout repository branch
-      id: repositoryBranch
       run: |
         cd ${{ inputs.path }}
           var=$(git ls-remote --heads origin ${{ inputs.branch }})
           if [[ -z $var ]]; then
             echo "Branch "${{ inputs.branch }}" not found in " ${{ inputs.repository }}
+            echo "exist=false" >> $GITHUB_OUTPUT
           else
             echo "Branch "${{ inputs.branch }}" found in " ${{ inputs.repository }}
             git fetch
@@ -34,4 +34,4 @@ runs:
           fi
       shell: bash
     - name: Validate library
-        uses: ./${{ inputs.path }}/.github/workflows/validation.yml
+      uses: ./${{ inputs.path }}/.github/workflows/validation.yml
