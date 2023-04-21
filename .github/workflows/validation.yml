@@ -652,9 +652,7 @@ jobs:
       run: |
         cd framework
         ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
-    - name: Pull submodules
-      run: |
-        python3 pull-submodules.py --force --dontask --onlylibs --latest:${{ inputs.branch }}
+        python3 pull-submodules.py --force --dontask --latest:${{ env.BRANCH_NAME }}
     - name: Validate rawlib
       uses: ./source/libraries/rawlib/.github/workflows/validation.yml
 
