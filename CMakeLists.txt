@@ -319,6 +319,12 @@ else ()
     # Create thisREST.sh
     include(thisREST)
 
+    # Add permissions
+    install(
+        CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/bin/rest-config)"
+    )
+    install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX})")
+
 endif ()
 
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin") # we must call library install here in
