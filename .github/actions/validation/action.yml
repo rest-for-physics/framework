@@ -34,10 +34,11 @@ runs:
           fi
           ls -lrth .github/workflows/validation.yml
       shell: bash
-      - name: Debug
+    - name: Debug
       run: |
+          pwd
           ls -lrth submodule
-          ls -lrth .github/workflows/validation.yml
+          ls -lrth submodule/.github/workflows/validation.yml
       shell: bash
     - name: Validate library
       uses: ./submodule/.github/workflows/validation.yml
