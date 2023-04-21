@@ -35,7 +35,7 @@ runs:
     - name: Debug
       run: |
           pwd
-          ls -lrth 
+          ls -lrth
           ls -lrth ./.github/workflows/validation.yml
           cat ./.github/workflows/validation.yml
       shell: bash
