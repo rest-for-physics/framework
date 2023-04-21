@@ -657,7 +657,6 @@ jobs:
             git checkout ${{ env.BRANCH_NAME }}
             git pull
           fi
-        shell: bash
     - name: Validate library
       uses: ./rest-for-physics/rawlib/.github/workflows/validation.yml
 
