@@ -657,6 +657,9 @@ jobs:
             git checkout ${{ env.BRANCH_NAME }}
             git pull
           fi
+    - name: Debug
+      run: |
+        cat ./rest-for-physics/rawlib/.github/workflows/validation.yml
     - name: Validate library
       uses: ./rest-for-physics/rawlib/.github/workflows/validation.yml
 
