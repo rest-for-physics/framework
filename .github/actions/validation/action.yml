@@ -18,10 +18,8 @@ runs:
       uses: actions/checkout@v3
       with:
         repository: ${{ inputs.repository }}
-        path: ${{ inputs.path }}
     - name: Checkout repository branch
       run: |
-        cd ${{ inputs.path }}
           var=$(git ls-remote --heads origin ${{ inputs.branch }})
           if [[ -z $var ]]; then
             echo "Branch "${{ inputs.branch }}" not found in " ${{ inputs.repository }}
@@ -34,4 +32,4 @@ runs:
           fi
       shell: bash
     - name: Validate library
-      uses: ./${{ inputs.path }}/.github/workflows/validation.yml
+      uses: ./.github/workflows/validation.yml
