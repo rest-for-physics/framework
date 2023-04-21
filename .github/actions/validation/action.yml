@@ -30,7 +30,6 @@ runs:
             git checkout ${{ inputs.branch }}
             git pull
           fi
-          ls -lrth .github/workflows/validation.yml
       shell: bash
     - name: Debug
       run: |
