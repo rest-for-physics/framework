@@ -299,20 +299,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows") # we must call library install here in
             ARCHIVE DESTINATION lib)
     endforeach ()
 
-    # Copy pcm files to bin
-    file(GLOB PCMFILES "${CMAKE_BINARY_DIR}/rootdict/*.pcm")
-    install(
-        FILES ${PCMFILES}
-        DESTINATION bin
-        COMPONENT install)
-
 else ()
-    # Copy pcm files to lib
-    file(GLOB PCMFILES "${CMAKE_BINARY_DIR}/rootdict/*.pcm")
-    install(
-        FILES ${PCMFILES}
-        DESTINATION lib
-        COMPONENT install)
 
     add_subdirectory(python-bindings)
 
@@ -345,11 +332,24 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin") # we must call library install here in
             ARCHIVE DESTINATION lib)
     endforeach ()
 
+endif ()
+
+#Copy pcm files
+if (CMAKE_SYSTEM_NAME MATCHES "Darwin" OR CMAKE_SYSTEM_NAME MATCHES "Windows")
+
     # Copy pcm files to bin
-    file(GLOB PCMFILES "${CMAKE_BINARY_DIR}/rootdict/*.pcm")
+    file(GLOB PCMFILES "${CMAKE_CURRENT_BINARY_DIR}/rootdict/*.pcm")
     install(
         FILES ${PCMFILES}
         DESTINATION bin
         COMPONENT install)
+else ()
 
-endif ()
+    # Copy pcm files to lib
+    file(GLOB PCMFILES "${CMAKE_CURRENT_BINARY_DIR}/rootdict/*.pcm")
+    install(
+        FILES ${PCMFILES}
+        DESTINATION lib
+        COMPONENT install)
+
+endif()
