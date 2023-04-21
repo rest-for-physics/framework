@@ -338,12 +338,18 @@ endif ()
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin" OR CMAKE_SYSTEM_NAME MATCHES "Windows")
 
     # Copy pcm files to bin
-    install(DIRECTORY icons ${CMAKE_CURRENT_BINARY_DIR}/rootdict/ DESTINATION bin
-        FILES_MATCHING PATTERN "*.pcm")
+    install(
+        DIRECTORY icons ${CMAKE_CURRENT_BINARY_DIR}/rootdict/
+        DESTINATION bin
+        FILES_MATCHING
+        PATTERN "*.pcm")
 else ()
 
     # Copy pcm files to lib
-    install(DIRECTORY icons ${CMAKE_CURRENT_BINARY_DIR}/rootdict/ DESTINATION lib
-        FILES_MATCHING PATTERN "*.pcm")
+    install(
+        DIRECTORY icons ${CMAKE_CURRENT_BINARY_DIR}/rootdict/
+        DESTINATION lib
+        FILES_MATCHING
+        PATTERN "*.pcm")
 
 endif ()
