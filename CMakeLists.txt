@@ -214,22 +214,24 @@ include(Testing)
 include(MacroRootDict)
 
 # uninstall target
-if(NOT TARGET uninstall)
-  configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-    IMMEDIATE @ONLY)
+if (NOT TARGET uninstall)
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake" IMMEDIATE @ONLY)
 
-  add_custom_target(uninstall
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
-endif()
+    add_custom_target(
+        uninstall COMMAND ${CMAKE_COMMAND} -P
+                          ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+endif ()
 
 # Clear the install dir
 if (NOT DEFINED INSTALL_CLEARDIR)
     set(INSTALL_CLEARDIR ON)
 endif ()
 if (${INSTALL_CLEARDIR} MATCHES "ON")
-    install(CODE "execute_process(COMMAND \"${CMAKE_COMMAND}\" -P \"${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake\")" )
+    install(
+        CODE "execute_process(COMMAND \"${CMAKE_COMMAND}\" -P \"${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake\")"
+    )
 endif ()
 
 # Compile and install for each subdir
@@ -299,12 +301,18 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows") # we must call library install here in
 
     # Copy pcm files to bin
     file(GLOB PCMFILES "${CMAKE_BINARY_DIR}/rootdict/*.pcm")
-    install( FILES ${PCMFILES} DESTINATION bin COMPONENT install)
+    install(
+        FILES ${PCMFILES}
+        DESTINATION bin
+        COMPONENT install)
 
 else ()
     # Copy pcm files to lib
     file(GLOB PCMFILES "${CMAKE_BINARY_DIR}/rootdict/*.pcm")
-    install( FILES ${PCMFILES} DESTINATION lib COMPONENT install)
+    install(
+        FILES ${PCMFILES}
+        DESTINATION lib
+        COMPONENT install)
 
     add_subdirectory(python-bindings)
 
@@ -333,6 +341,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin") # we must call library install here in
 
     # Copy pcm files to bin
     file(GLOB PCMFILES "${CMAKE_BINARY_DIR}/rootdict/*.pcm")
-    install( FILES ${PCMFILES} DESTINATION bin COMPONENT install)
+    install(
+        FILES ${PCMFILES}
+        DESTINATION bin
+        COMPONENT install)
 
 endif ()
