@@ -661,8 +661,7 @@ jobs:
     - name: Debug
       run: |
         cat ./rest-for-physics/rawlib/.github/workflows/validation.yml
-    - name: Validate library
-      uses: ./rest-for-physics/rawlib/.github/workflows/validation.yml
+    - uses: ./rest-for-physics/rawlib/.github/workflows/validation.yml
 
   geant4lib-validation:
     uses: rest-for-physics/geant4lib/.github/workflows/validation.yml@master
