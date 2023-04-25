@@ -326,7 +326,7 @@ void TRestDataSet::GenerateDataSet() {
     TFile* f = TFile::Open(fOutName.c_str());
     fTree = (TTree*)f->Get("AnalysisTree");
 
-    RESTInfo << " - Dataset initialized!" << RESTendl;
+    RESTInfo << " - Dataset generated!" << RESTendl;
 }
 
 ///////////////////////////////////////////////
@@ -768,6 +768,7 @@ TRestDataSet& TRestDataSet::operator=(TRestDataSet& dS) {
     fFilterLowerThan = dS.GetFilterLowerThan();
     fQuantity = dS.GetQuantity();
     fTotalDuration = dS.GetTotalTimeInSeconds();
+    fFileSelection = dS.GetFileSelection();
     fCut = dS.GetCut();
 
     return *this;
@@ -784,26 +785,30 @@ void TRestDataSet::Import(const std::string& fileName) {
         return;
     }
 
+    TRestDataSet* dS = nullptr;
     TFile* file = TFile::Open(fileName.c_str(), "READ");
-    if (file != nullptr) {
+    if (file != nullptr ) {
         TIter nextkey(file->GetListOfKeys());
         TKey* key;
         while ((key = (TKey*)nextkey())) {
             std::string kName = key->GetClassName();
             if (REST_Reflection::GetClassQuick(kName.c_str()) != nullptr &&
                 REST_Reflection::GetClassQuick(kName.c_str())->InheritsFrom("TRestDataSet")) {
-                TRestDataSet* dS = file->Get<TRestDataSet>(key->GetName());
+                dS = file->Get<TRestDataSet>(key->GetName());
                 if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info)
                     dS->PrintMetadata();
                 *this = *dS;
             }
         }
-    } else {
-        RESTError << "Cannot open " << fileName << RESTendl;
-        exit(1);
     }
+    
+      if (dS == nullptr) {
+        RESTError << fileName << " is not a valid dataSet" << RESTendl;
+        return;
+      }
 
-    RESTInfo << "Opening " << fileName << RESTendl;
+    ROOT::EnableImplicitMT();
+
     fDataSet = ROOT::RDataFrame("AnalysisTree", fileName);
 
     fTree = (TTree*)file->Get("AnalysisTree");

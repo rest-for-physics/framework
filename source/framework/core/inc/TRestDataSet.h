@@ -148,7 +148,9 @@ class TRestDataSet : public TRestMetadata {
     inline auto GetQuantity() const { return fQuantity; }
     inline auto GetCut() const { return fCut; }
 
+    inline void SetObservablesList(std::vector<std::string> & obsList) { fObservablesList = obsList; }
     inline void SetFilePattern(const std::string& pattern) { fFilePattern = pattern; }
+    inline void SetQuantity(const std::map<std::string, RelevantQuantity> & quantity) { fQuantity = quantity; }
 
     TRestDataSet& operator=(TRestDataSet& dS);
     void Import(const std::string& fileName);
