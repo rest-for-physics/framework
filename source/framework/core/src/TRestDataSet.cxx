@@ -384,19 +384,22 @@ std::vector<std::string> TRestDataSet::FileSelection() {
         if (!accept) continue;
 
         for (auto& [name, properties] : fQuantity) {
-            Double_t value =
-                REST_StringHelper::StringToDouble(run.ReplaceMetadataMembers(properties.metadata));
+            std::string value = run.ReplaceMetadataMembers(properties.metadata);
+            Double_t val = REST_StringHelper::StringToDouble(value);
 
-            if (properties.strategy == "accumulate") properties.value += value;
+            if (properties.strategy == "accumulate"){
+              if(!properties.value.empty())properties.value += ", ";
+              properties.value += value;
+            }
 
             if (properties.strategy == "max")
-                if (properties.value == 0 || properties.value < value) properties.value = value;
+                if (properties.value.empty() || REST_StringHelper::StringToDouble(properties.value) < val) properties.value = value;
 
             if (properties.strategy == "min")
-                if (properties.value == 0 || properties.value > value) properties.value = value;
+                if (properties.value.empty() || REST_StringHelper::StringToDouble(properties.value) > val) properties.value = value;
 
             if (properties.strategy == "unique") {
-                if (properties.value == 0)
+                if (properties.value.empty())
                     properties.value = value;
                 else if (properties.value != value) {
                     RESTWarning << "TRestDataSet::FileSelection. Relevant quantity retrieval." << RESTendl;
@@ -625,7 +628,7 @@ void TRestDataSet::InitFromConfigFile() {
         quantity.metadata = metadata;
         quantity.strategy = strategy;
         quantity.description = description;
-        quantity.value = 0;
+        quantity.value = "";
 
         fQuantity[name] = quantity;
 
@@ -695,7 +698,7 @@ void TRestDataSet::Export(const std::string& filename) {
         fprintf(f, "###\n");
         fprintf(f, "### Relevant quantities: \n");
         for (auto& [name, properties] : fQuantity) {
-            fprintf(f, "### - %s : %lf - %s\n", name.c_str(), properties.value,
+            fprintf(f, "### - %s : %s - %s\n", name.c_str(), properties.value.c_str(),
                     properties.description.c_str());
         }
         fprintf(f, "###\n");

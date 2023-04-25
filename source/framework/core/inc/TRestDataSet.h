@@ -41,7 +41,7 @@ struct RelevantQuantity {
     std::string description;
 
     /// The quantity value
-    Double_t value;
+    std::string value;
 };
 
 /// It allows to group a number of runs that satisfy given metadata conditions
