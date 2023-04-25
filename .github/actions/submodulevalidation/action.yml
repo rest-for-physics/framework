@@ -1,0 +1,20 @@
+name: "Sumbodule validation"
+description: "Submodule validation"
+inputs:
+  branch:
+    description: "Branch to check"
+    required: true
+  repository:
+    description: "Repository"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.repository }}
+        ref: ${{ inputs.branch }}
+    - name: Validation
+      uses: ./.github/workflows/validation.yml
