@@ -110,7 +110,7 @@ class TRestDataSet : public TRestMetadata {
         return fDataSet;
     }
 
-    void SetDataSet(const ROOT::RDF::RNode& dS) { fDataSet = dS; }
+    void SetDataFrame(const ROOT::RDF::RNode& dS) { fDataSet = dS; }
 
     /// Gives access to the tree
     TTree* GetTree() const {

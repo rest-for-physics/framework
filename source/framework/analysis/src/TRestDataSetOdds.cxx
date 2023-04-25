@@ -253,7 +253,7 @@ void TRestDataSetOdds::ComputeLogOdds() {
 
     df = df.Define("odds_total", totName);
 
-    dataSet.SetDataSet(df);
+    dataSet.SetDataFrame(df);
 
     if (!fOutputFileName.empty()) {
         if (TRestTools::GetFileNameExtension(fOutputFileName) == "root") {
