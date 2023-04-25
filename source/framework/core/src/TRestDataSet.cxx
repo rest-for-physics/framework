@@ -387,16 +387,18 @@ std::vector<std::string> TRestDataSet::FileSelection() {
             std::string value = run.ReplaceMetadataMembers(properties.metadata);
             Double_t val = REST_StringHelper::StringToDouble(value);
 
-            if (properties.strategy == "accumulate"){
-              if(!properties.value.empty())properties.value += ", ";
-              properties.value += value;
+            if (properties.strategy == "accumulate") {
+                if (!properties.value.empty()) properties.value += ", ";
+                properties.value += value;
             }
 
             if (properties.strategy == "max")
-                if (properties.value.empty() || REST_StringHelper::StringToDouble(properties.value) < val) properties.value = value;
+                if (properties.value.empty() || REST_StringHelper::StringToDouble(properties.value) < val)
+                    properties.value = value;
 
             if (properties.strategy == "min")
-                if (properties.value.empty() || REST_StringHelper::StringToDouble(properties.value) > val) properties.value = value;
+                if (properties.value.empty() || REST_StringHelper::StringToDouble(properties.value) > val)
+                    properties.value = value;
 
             if (properties.strategy == "unique") {
                 if (properties.value.empty())
@@ -787,7 +789,7 @@ void TRestDataSet::Import(const std::string& fileName) {
 
     TRestDataSet* dS = nullptr;
     TFile* file = TFile::Open(fileName.c_str(), "READ");
-    if (file != nullptr ) {
+    if (file != nullptr) {
         TIter nextkey(file->GetListOfKeys());
         TKey* key;
         while ((key = (TKey*)nextkey())) {
@@ -801,11 +803,11 @@ void TRestDataSet::Import(const std::string& fileName) {
             }
         }
     }
-    
-      if (dS == nullptr) {
+
+    if (dS == nullptr) {
         RESTError << fileName << " is not a valid dataSet" << RESTendl;
         return;
-      }
+    }
 
     ROOT::EnableImplicitMT();
 

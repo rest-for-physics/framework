@@ -191,20 +191,18 @@ string REST_StringHelper::EvaluateExpression(string exp) {
 ///
 /// ROOT GUI won't be jammed during this pause.
 Int_t REST_StringHelper::GetChar(string hint) {
-
     cout << hint << endl;
     int result = -1;
     if (gApplication != nullptr && !gApplication->IsRunning()) {
-        
-        std::unique_ptr<TTimer> timer (new TTimer("gSystem->ProcessEvents();", 50, kFALSE) );
+        std::unique_ptr<TTimer> timer(new TTimer("gSystem->ProcessEvents();", 50, kFALSE));
         bool done = false;
         do {
-          timer->TurnOn();
-          timer->Reset();
-          result = REST_Display_CompatibilityMode ? 1 : getchar();
-          timer->TurnOff();
-          done = true;
-       } while (!done);
+            timer->TurnOn();
+            timer->Reset();
+            result = REST_Display_CompatibilityMode ? 1 : getchar();
+            timer->TurnOff();
+            done = true;
+        } while (!done);
     } else {
         result = REST_Display_CompatibilityMode ? 1 : getchar();
     }

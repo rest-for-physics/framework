@@ -75,7 +75,7 @@ std::string ToString(T source, int length = -1, char fill = ' ') {
 }
 
 template <class T>
-std::string StringWithPrecision (T &value, int precision){
+std::string StringWithPrecision(T& value, int precision) {
     std::stringstream ss;
     ss.precision(precision);
     ss << value;
