@@ -113,9 +113,11 @@ TRestCut& TRestCut::operator=(TRestCut& cut) {
 void TRestCut::AddCut(TCut cut) {
     if ((string)cut.GetName() == "") {
         RESTWarning << "TRestCut::AddCut: cannot add cut without name!" << RESTendl;
+        return;
     }
     if ((string)cut.GetTitle() == "") {
         RESTWarning << "TRestCut::AddCut: cannot add empty cut!" << RESTendl;
+        return;
     }
     for (auto c : fCuts) {
         if ((string)c.GetName() == (string)cut.GetName()) {
@@ -134,6 +136,23 @@ TCut TRestCut::GetCut(string name) {
         }
     }
     return TCut();
+}
+
+void TRestCut::AddCut(TRestCut *cut){
+    if(cut == nullptr){
+      RESTWarning << "Cut to be added is nullptr, skipping" << RESTendl;
+      return;
+    }
+  for(const auto &c : cut->GetCuts() ){
+     AddCut(c);
+  }
+
+  const auto paramCut = cut->GetParamCut();
+  fParamCut.insert(fParamCut.end(), paramCut.begin(), paramCut.end());
+
+  const auto cutStrings = cut->GetCutStrings();
+  fCutStrings.insert(fCutStrings.end(), cutStrings.begin(), cutStrings.end());
+
 }
 
 void TRestCut::PrintMetadata() {
