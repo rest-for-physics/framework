@@ -1,0 +1,32 @@
+name: "Return ref of the input branch"
+description: "Returns the ref of the input branch, otherwise returns master"
+inputs:
+  branch:
+    description: "Branch to check"
+    required: true
+  repository:
+    description: "Repository"
+    required: true
+outputs:
+  reference:
+    description: "Reference branch"
+    value: ${{ steps.ref.outputs.reference-branch }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.repository }}
+    - id: ref
+      run: |
+          var=$(git ls-remote --heads origin ${{ inputs.branch }})
+          if [[ -z $var ]]; then
+            echo "Branch "${{ inputs.branch }}" not found in " ${{ inputs.repository }}
+            echo "reference-branch=master" >> $GITHUB_OUTPUT
+          else
+            echo "Branch "${{ inputs.branch }}" found in " ${{ inputs.repository }}
+            echo "reference-branch=${{ inputs.branch }}" >> $GITHUB_OUTPUT
+          fi
+      shell: bash
