@@ -653,7 +653,7 @@ jobs:
       uses: ./source/libraries/raw/.github/workflows/validation.yml
 
   geant4lib-validation:
-    uses: rest-for-physics/geant4lib/.github/workflows/validation.yml@master
+    uses: rest-for-physics/geant4lib/.github/workflows/validation.yml@{ref}
 
   detectorlib-validation:
     uses: rest-for-physics/detectorlib/.github/workflows/validation.yml@master
