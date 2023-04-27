@@ -1,0 +1,42 @@
+name: "Automatic PR on framework at submodule PR"
+inputs:
+  branch:
+    description: "Branch to perform the PR"
+    required: true
+  submodule:
+    description: "Relative path to the submodule"
+    required: true
+  token:
+    description: "Authentification token"
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+  - name: Checkout framework repository and branch
+    uses: rest-for-physics/framework/.github/actions/checkout@master
+    with:
+      branch: ${{ inputs.branch }}
+      repository: rest-for-physics/framework
+      path: framework
+  - name: Pull submodules
+    run: |
+      cd framework
+      ./scripts/checkoutRemoteBranch.sh ${{ inputs.branch }}
+      python3 pull-submodules.py --force --dontask --latest:${{ inputs.branch }}
+    shell: bash
+  - name: Check if framework branch exist
+    id: frameworkBranch
+    run: |
+      cd framework
+      echo "ref=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_OUTPUT
+    shell: bash
+  - name: Commit changes
+    if:  steps.frameworkBranch.outputs.ref == ${{ inputs.branch }}
+    run: |
+      cd framework
+      git submodule update --remote ${{ inputs.submodule }}
+      git commit -am "Updating submodule ${{ inputs.submodule }}"
+      git push
+    shell: bash
+
