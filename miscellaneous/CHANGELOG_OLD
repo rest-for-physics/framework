@@ -19,7 +19,7 @@ TRestRun changes :
 
 * Added method `GetMetadataClass( className )`. It returns the first occurrence of className.
 
-* The method GetAnalysisTree() has been added to get external access to the analysis tree. The members of the analysis tree are updated when we call TRestRun::GetEntry( n ), TRestRun::GetNextEvent(), TRestRun::GetEventWithID( id ), etc, for the instance of TRestRun containing the analysis tree. 
+* The method GetAnalysisTree() has been added to get external access to the analysis tree. The members of the analysis tree are updated when we call TRestRun::GetEntry( n ), TRestRun::GetNextEvent(), TRestRun::GetEventWithID( id ), etc, for the instance of TRestRun containing the analysis tree.
 
 TRestMetadata changes :
 -----------------------
@@ -32,7 +32,7 @@ TRestMetadata changes :
 
 * The `LoadSectionMetadata` method accepts now a second argument with the name of the section that we want to read. If no name is specified the first occurence of `fSectionName` is loaded in the config buffer.
 
-* Several classes deriving from TRestMetadata have been re-adapted to accept retrieving the section specifying the name : TRestGas, TRestReadout, TRestEventProcess, and several processes. Not all processes have been updated to this new scheme. 
+* Several classes deriving from TRestMetadata have been re-adapted to accept retrieving the section specifying the name : TRestGas, TRestReadout, TRestEventProcess, and several processes. Not all processes have been updated to this new scheme.
 
 * Commit 21885cb1 shows the changes required in a specific process. All the specific processes  that have been added to `TRestManager.cxx` have been migrated to this scheme.
 
@@ -47,7 +47,7 @@ TRestAnalysisTree changes :
 RESTG4
 ======
 
-* Added a new argument to `restG4.cc` in order to be able to specify the name of the restG4 section we want to read. We can now have several restG4 sections in a same config file and select the section name we will use in our simulation. 
+* Added a new argument to `restG4.cc` in order to be able to specify the name of the restG4 section we want to read. We can now have several restG4 sections in a same config file and select the section name we will use in our simulation.
 
 * Then, we can execute as follows `restG4 $REST_PATH/config/template/config.rml DBDsimulation` to read the section defined as `<section restG4 name="DBDsimulation" ..>`. If the name is not specified the first occurrence of restG4 section will be read.
 
@@ -102,12 +102,12 @@ TRestElectronDiffusion process :
 
 * New members have been added to the process. `fDriftVelocity`, `fLongDiffCoeff`, `fTransDiffCoeff`, and `fWvalue`. These members are now used in the event processing. The values of these members can be provided directly through the configuration file. If values are not specified in the config file, the values of these members are obtained from `TRestGas`, that should be found inside `TRestRun`.
 
-Analysis processes : 
+Analysis processes :
 --------------------
 
 * The method `TRestEventProcess::ReadObservables` has been modified in order to modify the name of the observable (or branch name). The name of the observable will be `processName.obsName`.
 
-* Thus, in order **to reference properly the observable** inside the process implementation we need to construct the observable name with the specific name of the process. 
+* Thus, in order **to reference properly the observable** inside the process implementation we need to construct the observable name with the specific name of the process.
 
        TString obsName = this->GetName + (TString) "./obsName";
 
@@ -128,7 +128,7 @@ Title : Major upgrade in Geant4 event storage and in restcore to include an anal
 
 == RESTCORE ==
 
-TRestEvent changes : 
+TRestEvent changes :
 --------------------
 
 * New members added to store a sub-event identification number `fSubEventID` and tag name `fSubEventTag`.
@@ -139,14 +139,14 @@ TRestEvent changes :
 
 * `GetEventXXX()` members have been replaced by `GetXXX()` members (i.e. `GetEventID()` is now `GetID()` ).
 
-TRestRun changes : 
+TRestRun changes :
 ------------------
 
 * New members have been added containing a vector of event ids `fEventIDs` and a vector of sub-event ids `fSubEventIDs`.
     - These vectors contain the same entries as the analysis and event tree.
     - They are used for quick search of events with an specific event and subevent id.
 
-* New method `GetEntry( Int_t entry )` implemented in TRestRun. 
+* New method `GetEntry( Int_t entry )` implemented in TRestRun.
     - This method should be used now in order to fill all the event structures related to a particular entry in TRestRun.
     - Instead of accessing directly the `inputEventTree` Now we should use `run->GetEntry( anEntry )` to load the input of a specific entry.
 
@@ -166,7 +166,7 @@ This new class allows to add new observable branches to a tree and gives access 
 TRestMetadata :
 ---------------
 
-* Added a new member GetObservablesList( ) obtainning all the key tags starting with the key <observable 
+* Added a new member GetObservablesList( ) obtainning all the key tags starting with the key <observable
     - The observable is defined as <observable name="obsName" value="on"/>.
     - The observables can be activated or deactivated depending on its value.
 
@@ -209,17 +209,17 @@ TRestG4Event changes:
 * Added new processes to `TRestG4Track`
 == RESTG4 ==
 
-* Major changes in restG4 main program. 
-    - All the histograms generated here have been removed. 
+* Major changes in restG4 main program.
+    - All the histograms generated here have been removed.
     - This has been replaced now by a Geant4 analysis process, that fills user defined branches.
 
 * Major changes on TRestG4Event storage.
     - Now the event will be splitted in several TRestG4Event structures that will be saved independently.
-    - The splitting preserves the same `fEventID` and increases the `subEventID` number. 
+    - The splitting preserves the same `fEventID` and increases the `subEventID` number.
     - A new metadata member has been added to `TRestG4Metadata`, `subEventTimeDelay`. This parameter defines the global time difference between two track that is used to split events.
 
 * TH1D energy generator type has been modified to accept energy distributions with different energies.
-    - The energy range is read from the x-label title. 
+    - The energy range is read from the x-label title.
     - In practice PrimaryGenerator::SetSpectrum will check if the title of x-axis contains the string MeV or GeV, in case they are not found keV is assumed.
 
 
@@ -237,11 +237,11 @@ GEANT4 SIMULATION
 
 Updated PhysicsList
 --------------------------------
- 
-* This file has been changed to include a larger list of PhysicsList form Geant 4 distribution. 
+
+* This file has been changed to include a larger list of PhysicsList form Geant 4 distribution.
   - G4EmLivemorePhysics for em processes (already existing in previous versions of RESTSoft)
   - G4DecayPhysicsList (already included) for decaying isotopes
-  - G4RadiactiveDeacyPhysics for decaying particles 
+  - G4RadiactiveDeacyPhysics for decaying particles
   - High precision Hadronic PhyscisList: G4HadronElasticPhysicsHP, G4IonBinaryCascadePhysics, G4HadronPhysicsQGSP_BIC_HP, G4NeutronTrackingCut, new G4EmExtraPhysics for hadronic and photonulcear processes.
 
 * Processes and particles are constructed from predefined Geant4 PhysicsList
@@ -263,7 +263,7 @@ Title : Several changes on configuration, metadata, restG4 and restcore
 
 # Major change on the structure of configuration directory.
 
-Now config/ is distributed in diferent directories. Each directory related to a specific example of use of REST. An important change is that now the geometry of our detector setup is also stored inside the config directory tree 
+Now config/ is distributed in diferent directories. Each directory related to a specific example of use of REST. An important change is that now the geometry of our detector setup is also stored inside the config directory tree
 
 We will find the following new directories inside :
 
@@ -274,7 +274,7 @@ We will find the following new directories inside :
 * config/pandaXIII : Configuration files related to pandaXIII setup. It contains several geometry setups, traditional, resistive, etc.
 
 The pandaXIII directory contains just prototyped configuration files under pandaXIII/templates/ directory. The pandaXIII directory can be populated with specific config files using the following scripts:
-    
+
       - generateExamples.sh : produces specific metadata files.
       - cleanExamples.sh : removes configuration files generated with generateExamples.sh
 
@@ -287,7 +287,7 @@ The pandaXIII directory contains just prototyped configuration files under panda
 * Added a script `replaceRMLVars.py` inside config/ directory. This script is used to replace enviromental variables in a prototyped configuration template substituting them for specific values.
 
 ---
-Example : 
+Example :
   replaceRMLVars.py inputFile.rml outputFile.rml [REST_NEVENTS=100000;REST_ISOTOPE=Tl208;REST_RUN=100]
 ---
 
@@ -305,7 +305,7 @@ Example :
        In order to implement materials.xml in specific configurations we just use a symbolic link.
        materials.xml symlink has been added to the different geometries in the configuration directories.
 
-     Note : Now we must specify full path when referencing a file. 
+     Note : Now we must specify full path when referencing a file.
 
 ---
 Example:
@@ -323,8 +323,8 @@ Example:
 * New method `GetEventWithID(Int_t id)`: This methods gets the tree entry correspoding to the event with `fEventID==id`.
     Thus, it fills the fInputEvent structure inside `TRestRun` with the event with `id`.
 
-* A new member `vector <Int_t> fEventIDs;` has been added to the TRestRun members. 
-    This is a vector that relates directly the entries on the eventTree with its eventID. 
+* A new member `vector <Int_t> fEventIDs;` has been added to the TRestRun members.
+    This is a vector that relates directly the entries on the eventTree with its eventID.
     It is used in `GetEventWithID(id)` for quick pick-up of the required event with a specific `id`.
 
 And other minor fixes.
@@ -358,7 +358,7 @@ Date : 11th / March / 2016
 Branch : translate
 Author : Javier Gracia
 Merge : #52
-Title : Translate and rotation of TRestHits 
+Title : Translate and rotation of TRestHits
 ==========================================================
 
 Implementation of TRestHitsRotateAndTraslateProcess.
@@ -368,10 +368,10 @@ An script to perform this operation is also icluded.
 
 ==========================================================
 Date : 09th / March / 2016
-Branch : fixRawToRoot  
+Branch : fixRawToRoot
 Author : Javier Gracia
 Merge : #51
-Title : Minor modifications in TRestRun::ProcessEvents() 
+Title : Minor modifications in TRestRun::ProcessEvents()
 ==========================================================
 
 If the input event is a binary file from the daq, the eventID and timeStamp of the output event Tree are not filled from the input event Tree.
@@ -384,7 +384,7 @@ Author : Javier Gracia
 Merge : #50
 ==========================================================
 
-Implementation of TRestGaussianConvolutionProcess. 
+Implementation of TRestGaussianConvolutionProcess.
 A TRestSignalEvent is transformed into another TRestSignalEvent.
 It requires as metadata the sigma of the gaussian function and the number of simgas to which the convolution is extended.
 
@@ -407,7 +407,7 @@ Merge : #43
 
 README files have been added and/or modified in data/distributions and data/generator. This files contain detailed descriptions of the files found under each folfer.
 
-- Reorganized the data/distributions. 
+- Reorganized the data/distributions.
 
 - New generators found at data/generator
 
@@ -477,13 +477,13 @@ Merge : #36
 
 == RESTCORE ==
 
-- TRestRun. 
+- TRestRun.
     + SetVersion now takes the commit identificative number and writes it in the filename.
     + The version member value inside TRestRun is properly updated now each time we open an output file, so that the version from the input file is not necesarily preserved.
 
 == RESTMETADATA ==
 
-- TRestReadout. 
+- TRestReadout.
     + GetX and GetY now verify the case where we have 1-pixel strip. In order to return NaN in the undefined direction.
     + Fixed a small spelling bug in GetX() and GetY().
 
@@ -494,8 +494,8 @@ Merge : #36
 == RESTEVENTS ==
 
 - TRestSignal and TRestSignalEvent.
-    + TGraph has been removed from TRestSignalEvent. 
-    + TRestSignal implements now a GetGraph method and defines the fGraph. 
+    + TGraph has been removed from TRestSignalEvent.
+    + TRestSignal implements now a GetGraph method and defines the fGraph.
     + Changes in TRestSignalEvent::DrawEvent using the new GetGraph method.
     + Removed vector2 member that was just used to return a value in a method!!
 
@@ -508,7 +508,7 @@ Merge : #36
     + Revisited areXY methods and GetXArray methods to properly handle NaN values.
     + GetXZHits methods now preserve the NaN values of the hits.
     + GetDistance method verifies now if the hits are projected in a particular plane.
-    
+
 
 - TRestTrackEvent. Added new methods:
     + GetOriginTrackID() : Finds the original track from which this track derives (the one with parentID = 0).
@@ -522,13 +522,13 @@ Merge : #36
 - TRestElectronDiffusionProcess.
     + fGas is properly initialized to NULL solving problem of segmentation fault when we use a TBrowser to open a file containing this process.
 
-- TRestPathMinimizationProcess. 
+- TRestPathMinimizationProcess.
     + Added error handling in case Heldkarp minimization method fails.
 
 - TRestTRackReductionProcess.
     + The event processing has been modified. The process now starts merging hits at the new parameter startingDistance. All nodes within this distance will be merged. The process continues increasing the merging distance multiplying this distance by the new metadata parameter distanceStepFactor. The process continues as soon as the number of nodes is below the metadata parameter maxNodes or the metadata parameter minimumDistance has not been reached.
 
-- New process. TRestTrackLinearizationProcess. 
+- New process. TRestTrackLinearizationProcess.
     + This process projects the origin tracks from a TRestEventTrack using the top layer tracks (or nodes) as reference. The result is stored in the new event types TRestLinearizedTrackEvent.
 
 == SCRIPTS ==
@@ -556,7 +556,7 @@ Added attachment to ElectronDiffusionProcess. It requires the parameter atachmen
 ==========================================================
 Date : 18th / February / 2016
 Branch : gasFiles
-Author : Elisa Ruiz Choliz 
+Author : Elisa Ruiz Choliz
 Merge : #34
 ==========================================================
 
@@ -617,7 +617,7 @@ A new process TRestFastHitsToTrackProcess has been added. This process uses TRes
 
 ==========================================================
 Date : 8th / February / 2016
-Branch : configAndPaths 
+Branch : configAndPaths
 Author : Javier Galan
 Merge : #25
 ==========================================================

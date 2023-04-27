@@ -30,7 +30,14 @@
 //! A class to help on cuts definitions. To be used with TRestAnalysisTree
 class TRestCut : public TRestMetadata {
    private:
+    /// Vector of TCuts
     std::vector<TCut> fCuts;
+
+    /// Vector of cut strings e.g. when you use a complex cut
+    std::vector<std::string> fCutStrings;
+
+    /// Vector of parameter cuts, first item is parameter and second is the condition
+    std::vector<std::pair<std::string, std::string> > fParamCut;
 
    protected:
     void Initialize() override;
@@ -39,6 +46,12 @@ class TRestCut : public TRestMetadata {
    public:
     void AddCut(TCut cut);
     TCut GetCut(std::string name);
+
+    inline auto GetCutStrings() const { return fCutStrings; }
+    inline auto GetParamCut() const { return fParamCut; }
+    inline auto GetCuts() const { return fCuts; }
+
+    TRestCut& operator=(TRestCut& cut);
 
     void PrintMetadata() override;
 
@@ -49,7 +62,7 @@ class TRestCut : public TRestMetadata {
     // Destructor
     ~TRestCut() {}
 
-    ClassDefOverride(TRestCut, 1);  // Template for a REST "event process" class inherited from
+    ClassDefOverride(TRestCut, 2);  // Template for a REST "event process" class inherited from
                                     // TRestEventProcess
 };
 #endif

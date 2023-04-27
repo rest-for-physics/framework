@@ -5,7 +5,7 @@
 ##################################
 #
 ##################################
-# Feminos Settings 
+# Feminos Settings
 ##################################
 # SCA write clock: 100MHz / wckdiv
 sca wckdiv 0x1
@@ -25,7 +25,7 @@ tdata A 0x40
 ##################################
 aget * autoreset_bank 0x1
 aget * dis_multiplicity_out 0x0
-# Vicm: 0x1 for negative polarity 0x2 for positive 
+# Vicm: 0x1 for negative polarity 0x2 for positive
 aget * vicm 0x1
 aget * polarity 0x0
 aget * en_mkr_rst 0x0
@@ -84,7 +84,7 @@ hped clr * *
 #  0: drop data
 #  1: send to DAQ
 #  2: feed to pedestal histos
-#  3: feed to hit channel histos 
+#  3: feed to hit channel histos
 ##################################
 serve_target 2
 ##################################

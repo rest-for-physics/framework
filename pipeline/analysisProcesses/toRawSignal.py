@@ -4,6 +4,7 @@ import ROOT
 
 def load_REST():
     import ROOT
+
     ROOT.gSystem.Load("libRestFramework.so")
     ROOT.gSystem.Load("libRestConnectors.so")
     ROOT.gSystem.Load("libRestDetector.so")
@@ -17,6 +18,7 @@ load_REST()
 
 # Create a fake detector event
 
+
 def generate_random_detector_event() -> ROOT.TRestDetectorSignalEvent:
     event = ROOT.TRestDetectorSignalEvent()
     time_range = (0.0, 100.0 * 1000)  # ns
@@ -24,7 +26,10 @@ def generate_random_detector_event() -> ROOT.TRestDetectorSignalEvent:
     for signal_id in range(4):
         n_hits = np.random.randint(20, 50)
         time = np.random.rand(n_hits) * (time_range[1] - time_range[0]) + time_range[0]
-        energy = np.random.rand(n_hits) * (energy_range[1] - energy_range[0]) + energy_range[0]
+        energy = (
+            np.random.rand(n_hits) * (energy_range[1] - energy_range[0])
+            + energy_range[0]
+        )
 
         for i in range(n_hits):
             event.AddChargeToSignal(signal_id, time[i], energy[i])

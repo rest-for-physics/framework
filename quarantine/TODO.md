@@ -1,7 +1,7 @@
 TODO list
 ---------
 
-This is our TODO list. A TODO bullet might be connected to a post in the forum site (An identifying symbol/character is given at the beginning of each line to help referencing in the forum). 
+This is our TODO list. A TODO bullet might be connected to a post in the forum site (An identifying symbol/character is given at the beginning of each line to help referencing in the forum).
 Use it to discuss about options to solve a particular point, or to inform others about a fix commited to the development branch.
 
 ## A. Isolated topics
@@ -38,7 +38,7 @@ Use it to discuss about options to solve a particular point, or to inform others
 
 * A.16 [x] Optimize TRestReadout initialization See [forum post](http://ezpc10.unizar.es/t/optimize-trestreadout-startup-time/52).
 
-* A.17 [ ] We need to work on the `TRestEvent::DrawEvent()` methods of the different event types. See implementation of `TRestG4Event::DrawEvent` to be used as reference. 
+* A.17 [ ] We need to work on the `TRestEvent::DrawEvent()` methods of the different event types. See implementation of `TRestG4Event::DrawEvent` to be used as reference.
   We should create first the documentation of this method in `TRestG4Event` and then use it in other `TRestEvent::DrawEvent` methods.
 
 * A.18 [x] Work on `basic RML's examples` and validation for REST new comers. Add a README.md giving a brief description of the examples.
@@ -53,7 +53,7 @@ TODO: This section will evolve in a section to determine README files or directo
 
 ## C. Examples
 
-TODO: Write a list of existing examples, which examples require validation or documentation? 
+TODO: Write a list of existing examples, which examples require validation or documentation?
 I.e. describe how to launch the example, example description, what it does, what is required, etc.
 
 We should place permanent data files in a public server for those examples that require to access a particular input data file.
@@ -64,10 +64,10 @@ Examples brainstorming. restG4 examples, analysis plot examples, event reconstru
 ## D. Documentation of all classes using doxygen.
 
    * General guidelines for documentation.
-    
+
         - CXX File should include a LICENCE header, and general class description. See for example TRestG4Metadata.
 
-        - Methods should be documented where ever they are implemented. If implemented in TRestXX.h file they must be documented in the TRestXX.h file. 
+        - Methods should be documented where ever they are implemented. If implemented in TRestXX.h file they must be documented in the TRestXX.h file.
         Use \brief to have a quick description on the method list on the HTML result.
 
         - Members of the class should be documented using /// on top of the definition. Check TRestG4Metadata.h
@@ -80,8 +80,8 @@ Examples brainstorming. restG4 examples, analysis plot examples, event reconstru
                 - Documentation: Author who wrote the initial documentation.
                 - Review: Author who reviewed/modified/fixed/updated the documentation.
                 - Validation: Author - different from first concept one - who certifies the class is operating as it should.
-            
-            - For example: 
+
+            - For example:
                 History of developmens:
                 2018-May - First concept - any comments if necessary
                 \author J.Galan
@@ -101,7 +101,7 @@ Examples brainstorming. restG4 examples, analysis plot examples, event reconstru
 
 
 The future proposed structure, naming of classes, will be applied once we have finished documenting the classes.
-Re-naming of classes is not good for compatibility. 
+Re-naming of classes is not good for compatibility.
 Thus, although this TODO section proposes re-naming classes this should only apply at the last moment.
 New structure will be further detailed in point E.
 This should be applied in a REST 2.3 version.
@@ -124,7 +124,7 @@ This should be applied in a REST 2.3 version.
 
 ### D.2 restcore/ --> framework/tools and framework/core
 
-* D.2.1 [ ] RmlUpdateTool. What we do with this? This is only necessary to migrate RMLs from 2.1 to 2.2? 
+* D.2.1 [ ] RmlUpdateTool. What we do with this? This is only necessary to migrate RMLs from 2.1 to 2.2?
       Perhaps we may remove it from 2.3?
 
 * D.2.2 [ ] TRestTask. It should describe how to fully integrate a macro into REST, and extend functionalities. Add header.
@@ -380,4 +380,3 @@ Preliminary proposed structure, this is just a very open proposal to be discusse
 - libraries/projectedTrack : Related TRestProjectedTrack processes and metadata.
 
 - libraries/dummy : It will be used as a reference for all other libraries, CMakeLists and directory structure, data/ examples/ etc/ macros/ src/ inc/.
-

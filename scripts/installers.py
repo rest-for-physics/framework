@@ -9,27 +9,30 @@ import StringIO
 import vars
 
 
-
 def initgit():
-    out, err = subprocess.Popen(["git rev-parse --short HEAD"], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True).communicate()
+    out, err = subprocess.Popen(
+        ["git rev-parse --short HEAD"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=True,
+    ).communicate()
     if "fatal" in err:
         print("linking remote git repository to local")
         os.chdir(vars.opt["Source_Path"])
         os.system("rm -rf .git")
         os.system("git init")
-        os.system("git remote add origin "+vars.var["REST_Repository"])
-        os.system("git checkout -b "+vars.opt["Branch"])
+        os.system("git remote add origin " + vars.var["REST_Repository"])
+        os.system("git checkout -b " + vars.opt["Branch"])
         os.system("git fetch --depth 1")
-        os.system("git reset --hard origin/"+vars.opt["Branch"])
+        os.system("git reset --hard origin/" + vars.opt["Branch"])
         print("git repository is ready!")
         return True
-    else :
+    else:
         print("git repository is ready!")
         return False
 
 
-class installer():
-
+class installer:
     def ready(self):
         print("checking environment")
         return False
@@ -39,7 +42,6 @@ class installer():
 
 
 class RESTinstaller(installer):
-
     def ready(self):
         if vars.software["root"] == False:
             print("ROOT6 is not installed!")
@@ -61,18 +63,15 @@ class RESTinstaller(installer):
         os.system("make install")
 
 
-
 class restG4installer(installer):
-
     def ready(self):
-        if vars.software["geant4"] == False :
+        if vars.software["geant4"] == False:
             print("geant4 is not installed!")
             return False
         return True
 
-
     def install(self):
-        if vars.software["REST"] == False :
+        if vars.software["REST"] == False:
             print("you must install REST mainbody first!")
             return False
         print("installing restG4...\n\n")
@@ -85,16 +84,14 @@ class restG4installer(installer):
 
 
 class restDBinstaller(installer):
-
     def ready(self):
         if vars.software["pgsql"] == False:
             print("PostgreSQL is not installed!")
             return False
         return True
 
-
     def install(self):
-        if vars.software["REST"] == False :
+        if vars.software["REST"] == False:
             print("you must install REST mainbody first!")
             return False
         print("installing restDataBaseImpl...\n\n")
@@ -107,13 +104,11 @@ class restDBinstaller(installer):
 
 
 class restCustomProcessinstaller(installer):
-
     def ready(self):
         return True
 
-
     def install(self):
-        if vars.software["REST"] == False :
+        if vars.software["REST"] == False:
             print("you must install REST mainbody first!")
             return False
         print("installing userRESTLibrary...\n\n")
@@ -126,16 +121,14 @@ class restCustomProcessinstaller(installer):
 
 
 class restGasinstaller(installer):
-
     def ready(self):
         if vars.software["garfield"] == False:
             print("Garfield is not installed!")
             return False
         return True
 
-
     def install(self):
-        if vars.software["REST"] == False :
+        if vars.software["REST"] == False:
             print("you must install REST mainbody first!")
             return False
         print("installing restGas...\n\n")

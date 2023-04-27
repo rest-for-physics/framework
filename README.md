@@ -9,13 +9,13 @@ The REST-for-Physics (Rare Event Searches Toolkit) Framework is mainly written i
 REST was initially born as a collaborative software effort to provide common tools for acquisition, simulation, and data analysis of gaseous Time Projection Chambers (TPCs). However, the framework is already extending its usage to be non-exclusive of detector data analysis. The possibilities of the framework are provided by the different libraries and packages written for REST in our community.
 
 The REST Framework provides 3 interfaces that prototype the use of **event types**, **metadata** and **event processes** through `TRestEvent`, `TRestMetadata` and `TRestEventProcess` abstract class definitions.
-Any REST library will implement **specific objects** that inherit from those 3 basic interfaces. 
+Any REST library will implement **specific objects** that inherit from those 3 basic interfaces.
 
-Different **event processes** can be combined to build complex event processing chains with full traceability. 
+Different **event processes** can be combined to build complex event processing chains with full traceability.
 The **metadata** objects will allow us to provide input parameters or information to the framework using a XML-like format.
 REST integrates a special **metadata** object named `TRestManager` that encapsulates all the required information to launch the processing of a particular data chain.
 REST will produce output using ROOT format. Any REST file will always contain a `TRestRun` metadata object.
-`TRestRun` is a **metadata** object responsible to encapsulate and give access to all the objects stored inside the REST/ROOT file; 
+`TRestRun` is a **metadata** object responsible to encapsulate and give access to all the objects stored inside the REST/ROOT file;
 i.e. the **specific** resulting `TRestEvent` output, the `TRestAnalysisTree`, and any **specific** `TRestMetadata` object used during a processing chain.
 
 This framework provides additionally different interfaces to **browse data**, `TRestBrowser`, **event visualization** `TRestEventViewer`, define a **event data processing** infraestructure, `TRestProcessRunner`, **event analysis and metadata plotting**, `TRestAnalysisPlot` or `TRestMetadataPlot`, a common access **analysis tree** based on `TTree` ROOT object, `TRestAnalysisTree`, and centralizing the use of REST through a manager `TRestManager` are few of the features the framework offers when used standalone.
@@ -46,7 +46,7 @@ Please, visit the [REST-for-Physics userguide](https://rest-for-physics.github.i
 ## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) to get some guidelines on how to contribute to this project.
-Before any contribution, those guidelines must be assimilated and accepted. 
+Before any contribution, those guidelines must be assimilated and accepted.
 In any case, changes, improvements, or addons, to [CONTRIBUTING.md](CONTRIBUTING.md) are aceptable after proposal and discussion with other authors at the [REST Framework forum](https://ezpc10.unizar.es/).
 
 The framework exploits the Git tagging system to produce its own versioning system. It is important to emphasize that the REST framework centralizes the versioning of all the submodules (libraries, packages, ...) that it contains. Details on how the REST version number is produced are given in [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -90,4 +90,3 @@ This project is licensed under the GNU License - see the [LICENSE](LICENCE) file
 We acknowledge support from the the European Research Council (ERC) under the European Union’s Horizon 2020 research and innovation programme, grant agreement ERC-2017-AdG788781 (IAXO+), and from the Spanish Agencia Estatal de Investigacion under grant FPA2016-76978-C3-1-P
 
 ![Insitution logos](miscellaneous/institution_logos.png)
-

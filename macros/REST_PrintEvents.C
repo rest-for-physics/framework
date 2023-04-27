@@ -6,7 +6,7 @@
 #include "TRestDetectorHitsEvent.h"
 #include "TRestDetectorSignalEvent.h"
 #endif
-//#include "TRestLinearTrackEvent.h"
+// #include "TRestLinearTrackEvent.h"
 
 #ifdef REST_RawLib
 #include "TRestRawSignalEvent.h"

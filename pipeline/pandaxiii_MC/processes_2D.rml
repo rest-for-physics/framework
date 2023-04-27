@@ -109,7 +109,7 @@
         <observable name="nHits" value="ON" type="int"/>
         <observable name="nHitsX" value="ON" type="int"/>
         <observable name="nHitsY" value="ON" type="int"/>
-        <!-- Observables and parameters to determine if hits are 
+        <!-- Observables and parameters to determine if hits are
          inside a certain fiducial volume (cylinder or prism). -->
         <!-- This parameter allows to enable/disable the cylinder fiducialization. -->
         <parameter name="cylinderFiducialization" value="false"/>
@@ -136,7 +136,7 @@
         <observable name="nHits" value="ON" type="int"/>
         <observable name="nHitsX" value="ON" type="int"/>
         <observable name="nHitsY" value="ON" type="int"/>
-        <!-- Observables and parameters to determine if hits are 
+        <!-- Observables and parameters to determine if hits are
          inside a certain fiducial volume (cylinder or prism). -->
         <!-- This parameter allows to enable/disable the cylinder fiducialization. -->
         <parameter name="cylinderFiducialization" value="false"/>
@@ -428,7 +428,7 @@
         <parameter name="hitsToCheckFraction" value="0.25"/>
     </TRestTrackBlobAnalysisProcess>
     <TRestRawToDetectorSignalProcess name="zS" title="" verboseLevel="silent">
-        <!-- These parameters define the integral with threshold. 
+        <!-- These parameters define the integral with threshold.
          threshold : number of baseline noise sigmas to consider a point for integration.
          pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
          minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
@@ -448,7 +448,7 @@
         <parameter name="baseLineRange" value="(50,120)"/>
         <!-- This parameter is used to define the signal integration window -->
         <parameter name="integralRange" value="(40,472)"/>
-        <!-- These parameters define the integral with threshold. 
+        <!-- These parameters define the integral with threshold.
          threshold : number of baseline noise sigmas to consider a point for integration.
          pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
          minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
@@ -459,7 +459,7 @@
         <!-- ++++++++++++++++++++++
          Observable definitions
          ++++++++++++++++++++++ -->
-        <!-- This observable needs to be refined 
+        <!-- This observable needs to be refined
     <observable name="TimeBinsLength" value="ON" />
 -->
         <!-- Event time observables -->
@@ -487,7 +487,7 @@
     </TRestDetectorSignalShapingProcess>
     <TRestGeant4ToDetectorHitsProcess name="G4ToHits" title="G4Hits to Hits process"/>
     <bambooToRESTProcess name="bambooToREST" title="A process reading bamboo files">
-        <!-- Rotation parameter in degrees. It will rotate the original coordinates 
+        <!-- Rotation parameter in degrees. It will rotate the original coordinates
          in the following order RotateX -> RotateY -> RotateZ -->
         <parameter name="rotation" value="(90,0,0)"/>
     </bambooToRESTProcess>

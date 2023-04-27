@@ -24,7 +24,7 @@ sleep 1
 serve_target 0
 sleep 4
 ##################################
-# Feminos Settings 
+# Feminos Settings
 ##################################
 # SCA write clock: 100MHz / wckdiv
 sca wckdiv 0x1
@@ -64,14 +64,14 @@ zs_pre_post 8 4
 event_limit 0x0
 # Range: 0:0.1Hz-10Hz 1:10Hz-1kHz 2:100Hz-10kHz 3:1kHz-100kHz
 trig_rate 1 50
-# Trigger enable bits (OR several if desired): 0x1:generator 0x2:trigger pin 0x4:pulser 0x8: TCM 
+# Trigger enable bits (OR several if desired): 0x1:generator 0x2:trigger pin 0x4:pulser 0x8: TCM
 trig_enable 0x1
 ##################################
 # Set Data server target:
 #  0: drop data
 #  1: send to DAQ
 #  2: feed to pedestal histos
-#  3: feed to hit channel histos 
+#  3: feed to hit channel histos
 ##################################
 serve_target 1
 ##################################
@@ -106,7 +106,3 @@ hbusy get
 # Close result file
 ##################################
 fclose
-
-
-
-
