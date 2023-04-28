@@ -1,5 +1,4 @@
 name: "Automatic PR checks and merge"
-name: Check on submodules PR
 
 on:
   pull_request:
