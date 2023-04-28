@@ -53,16 +53,12 @@ jobs:
           #Check PR
           gh auth status
           gh pr view
-          prurl=$(gh pr view --json url -t '{{ .url }}')
-          echo "prurl=$prurl" >> $GITHUB_OUTPUT
-          mergeStateStatus=$(gh pr view --json mergeStateStatus -t '{{ .mergeStateStatus }}')
-          echo "MergeStateStatus " $mergeStateStatus
-          echo "mergeStateStatus=$mergeStateStatus" >> $GITHUB_OUTPUT
-          prState=$(gh pr view --json state -t '{{ .state }}')
-          echo "prState=$prState" >> $GITHUB_OUTPUT
+          echo "prurl=$(gh pr view --json url -t '{{ .url }}')" >> $GITHUB_OUTPUT
+          echo "mergeStateStatus=$(gh pr view --json mergeStateStatus -t '{{ .mergeStateStatus }}')" >> $GITHUB_OUTPUT
+          echo "Merge state Status " $mergeStateStatus
+          echo "prState=$(gh pr view --json state -t '{{ .state }}')" >> $GITHUB_OUTPUT
           echo "PullRequestState " $prState
-          review=$(gh pr view --json reviewDecision -t '{{ .reviewDecision }}')
-          echo "review=$review" >> $GITHUB_OUTPUT
+          echo "review=$(gh pr view --json reviewDecision -t '{{ .reviewDecision }}')"  >> $GITHUB_OUTPUT
           echo "Review decision " $review
           if [[ $prState == "MERGED" ]]; then
             echo "PR already merged"
