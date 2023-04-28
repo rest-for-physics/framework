@@ -21,7 +21,7 @@ jobs:
   submodule-pr:
     strategy:
       matrix:
-        submodule: ["rest-for-physics/rawlib", "rest-for-physics/detectorlib", "rest-for-physics/geant4lib","rest-for-physics/tracklib", "rest-for-physics/connectorslib", "rest-for-physics/axionlib", "rest-for-physics/legacylib", , "rest-for-physics/wimplib", "rest-for-physics/restG4"]
+        submodule: ["rest-for-physics/rawlib", "rest-for-physics/detectorlib", "rest-for-physics/geant4lib","rest-for-physics/tracklib", "rest-for-physics/connectorslib", "rest-for-physics/axionlib", "rest-for-physics/legacylib", "rest-for-physics/wimplib", "rest-for-physics/restG4"]
     runs-on: ubuntu-latest
     if: github.head_ref || github.ref_name != 'master'
     steps:
