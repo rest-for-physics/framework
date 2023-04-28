@@ -41,7 +41,7 @@ runs:
       git push
     shell: bash
   - name: Commit changes to new branch
-    if: steps.frameworkBranch.outputs.ref == "master"
+    if: steps.frameworkBranch.outputs.ref == 'master'
     run: |
       cd framework
       git submodule update --remote ${{ inputs.submodule }}
@@ -50,7 +50,7 @@ runs:
       git push --set-upstream origin ${{ inputs.branch }}
     shell: bash
   - name: Checkout submodule
-    if: steps.frameworkBranch.outputs.ref == "master"
+    if: steps.frameworkBranch.outputs.ref == 'master'
     uses: actions/checkout@v3
     with:
       ref: ${{ inputs.branch }}
@@ -70,7 +70,7 @@ runs:
       GITHUB_TOKEN: ${{ inputs.token }}
     shell: bash
   - name: Create PR
-    if:  steps.frameworkBranch.outputs.ref == "master"
+    if:  steps.frameworkBranch.outputs.ref == 'master'
     run: |
       gh pr create -B master -H ${{ inputs.branch }} --title 'Submodule Updates from ${{ inputs.submodule }} branch ${{ inputs.branch }}' --body 'Automatic PR from ${{ inputs.submodule }} branch ${{ inputs.branch }}, related PR ${{ steps.PRCheck.outputs.prurl }}'
     env:
