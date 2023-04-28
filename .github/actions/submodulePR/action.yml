@@ -16,6 +16,7 @@ runs:
   - name: Checkout framework repository
     uses: actions/checkout@v3
     with:
+      token: ${{ inputs.token }}
       repository: rest-for-physics/framework
       ref: master
       path: framework
@@ -24,6 +25,8 @@ runs:
       cd framework
       ./scripts/checkoutRemoteBranch.sh ${{ inputs.branch }}
       python3 pull-submodules.py --force --dontask --latest:${{ inputs.branch }}
+      git config --global user.name "${{ github.actor }}"
+      git config --global user.email "${{ github.actor }}@users.noreply.github.com"
     shell: bash
   - name: Check if framework branch exist
     id: frameworkBranch
