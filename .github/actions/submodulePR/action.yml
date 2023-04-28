@@ -57,7 +57,6 @@ runs:
       path: submodule
   - name: Check submodule PR
     id: PRCheck
-    if:  steps.frameworkBranch.outputs.ref == "master"
       run: |
         cd submodule
         #Check PR
@@ -65,6 +64,8 @@ runs:
         gh pr view
         prurl=$(gh pr view --json url -t '{{ .url }}')
         echo "prurl=$prurl" >> $GITHUB_OUTPUT
+        #Create label for further usage
+        gh label create framework-pr --description "This PR has to be merged from framework" --color E99695
     env:
       GITHUB_TOKEN: ${{ inputs.token }}
     shell: bash
