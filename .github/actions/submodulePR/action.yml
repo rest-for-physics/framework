@@ -16,7 +16,7 @@ runs:
   - name: Checkout framework repository
     uses: actions/checkout@v3
     with:
-      token: ${{ inputs.github_token }}
+      token: ${{ inputs.token }}
       repository: rest-for-physics/framework
       ref: master
       path: framework
