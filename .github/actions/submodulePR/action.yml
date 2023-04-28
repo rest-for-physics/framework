@@ -33,7 +33,7 @@ runs:
       echo "ref=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_OUTPUT
     shell: bash
   - name: Commit changes if branch exist
-    if:  steps.frameworkBranch.outputs.ref == ${{ inputs.branch }}
+    if: steps.frameworkBranch.outputs.ref == ${{ inputs.branch }}
     run: |
       cd framework
       git submodule update --remote ${{ inputs.submodule }}
@@ -41,7 +41,7 @@ runs:
       git push
     shell: bash
   - name: Commit changes to new branch
-    if:  steps.frameworkBranch.outputs.ref == "master"
+    if: steps.frameworkBranch.outputs.ref == "master"
     run: |
       cd framework
       git submodule update --remote ${{ inputs.submodule }}
@@ -50,22 +50,22 @@ runs:
       git push --set-upstream origin ${{ inputs.branch }}
     shell: bash
   - name: Checkout submodule
-    if:  steps.frameworkBranch.outputs.ref == "master"
+    if: steps.frameworkBranch.outputs.ref == "master"
     uses: actions/checkout@v3
     with:
       ref: ${{ inputs.branch }}
       path: submodule
   - name: Check submodule PR
     id: PRCheck
-      run: |
-        cd submodule
-        #Check PR
-        gh auth status
-        gh pr view
-        prurl=$(gh pr view --json url -t '{{ .url }}')
-        echo "prurl=$prurl" >> $GITHUB_OUTPUT
-        #Create label for further usage
-        gh label create framework-pr --description "This PR has to be merged from framework" --color E99695
+    run: |
+      cd submodule
+      #Check PR
+      gh auth status
+      gh pr view
+      prurl=$(gh pr view --json url -t '{{ .url }}')
+      echo "prurl=$prurl" >> $GITHUB_OUTPUT
+      #Create label for further usage
+      gh label create framework-pr --description "This PR has to be merged from framework" --color E99695
     env:
       GITHUB_TOKEN: ${{ inputs.token }}
     shell: bash
