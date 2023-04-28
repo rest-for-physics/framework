@@ -3,14 +3,14 @@ name: "Check if framework-pr label is present in a PR"
 runs:
   using: 'composite'
   steps:
-  -name: Framework-pr label is present
-   if: contains(github.event.pull_request.labels.*.name, 'framework-pr')
-   run: |
-     echo "This PR can only be merged from framework"
-     exit 1
-   shell: bash
-   -name: Framework-pr label is missing
-   if: !contains(github.event.pull_request.labels.*.name, 'framework-pr')
-   run: |
-     echo "This PR is able to be merged"
-   shell: bash
+  - name: Framework-pr label is present
+    if: contains(github.event.pull_request.labels.*.name, 'framework-pr')
+    run: |
+      echo "This PR can only be merged from framework"
+      exit 1
+    shell: bash
+  - name: Framework-pr label is missing
+    if: !contains(github.event.pull_request.labels.*.name, 'framework-pr')
+    run: |
+      echo "This PR is able to be merged"
+    shell: bash
