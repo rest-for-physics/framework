@@ -43,7 +43,7 @@ runs:
         if [[ -z $var ]]; then
           echo "Nothing to commit"
         else
-          git commit -am "Updating submodule ${{ inputs.submodule }}"
+          git commit -m "Updating submodule ${{ inputs.submodule }}"
           git push
         fi
     shell: bash
@@ -53,7 +53,7 @@ runs:
       cd framework
       git checkout -b ${{ inputs.branch }}
       git add ${{ inputs.submodule }}
-      git commit -am "Updating submodule ${{ inputs.submodule }}"
+      git commit -m "Updating submodule ${{ inputs.submodule }}"
       git push --set-upstream origin ${{ inputs.branch }}
     shell: bash
   - name: Checkout submodule
@@ -78,6 +78,7 @@ runs:
   - name: Create PR
     if:  steps.frameworkBranch.outputs.ref == 'master'
     run: |
+      cd framework
       gh pr create -B master -H ${{ inputs.branch }} --title 'Submodule Updates from ${{ inputs.submodule }} branch ${{ inputs.branch }}' --body 'Automatic PR from ${{ inputs.submodule }} branch ${{ inputs.branch }}, related PR ${{ steps.PRCheck.outputs.prurl }}'
     env:
       GITHUB_TOKEN: ${{ inputs.github_token }}
