@@ -38,16 +38,21 @@ runs:
     if: steps.frameworkBranch.outputs.ref == ${{ inputs.branch }}
     run: |
       cd framework
-      git submodule update --remote ${{ inputs.submodule }}
-      git commit -am "Updating submodule ${{ inputs.submodule }}"
-      git push
+      git add ${{ inputs.submodule }}
+      var=$(git diff --cached)
+        if [[ -z $var ]]; then
+          echo "Nothing to commit"
+        else
+          git commit -am "Updating submodule ${{ inputs.submodule }}"
+          git push
+        fi
     shell: bash
   - name: Commit changes to new branch
     if: steps.frameworkBranch.outputs.ref == 'master'
     run: |
       cd framework
-      git submodule update --remote ${{ inputs.submodule }}
       git checkout -b ${{ inputs.branch }}
+      git add ${{ inputs.submodule }}
       git commit -am "Updating submodule ${{ inputs.submodule }}"
       git push --set-upstream origin ${{ inputs.branch }}
     shell: bash
