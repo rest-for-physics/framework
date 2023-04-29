@@ -6,6 +6,8 @@ inputs:
   submodule:
     description: "Relative path to the submodule"
     required: true
+  label:
+    description: "Add the following label to the submodule PR"
   token:
     description: "Authentification token"
     required: true
@@ -83,6 +85,8 @@ runs:
       #Check framework PR
       gh pr view
       echo "prurl=$(gh pr view --json url -t '{{ .url }}')" >> $GITHUB_OUTPUT
+      #Add custom label
+      gh pr edit $prurl --add-label ${{ inputs.label }}
     env:
       GITHUB_TOKEN: ${{ inputs.token }}
     shell: bash
