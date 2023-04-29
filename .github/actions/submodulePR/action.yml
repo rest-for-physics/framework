@@ -94,11 +94,11 @@ runs:
     env:
       GITHUB_TOKEN: ${{ inputs.github_token }}
     shell: bash
-   - name: Update submodule PR body
-     if: "steps.frameworkBranch.outputs.ref != 'master' && !contains(steps.submodulePR.outputs.body, steps.frameworkPR.outputs.prurl)"
-     run: |
-       cd framework
-       gh pr edit ${{ steps.submodulePR.outputs.prurl }} --body "${{ steps.submodulePR.outputs.body }} \n Related framework PR "${{ steps.frameworkPR.outputs.prurl }}"
-     env:
-       GITHUB_TOKEN: ${{ inputs.github_token }}
-     shell: bash
+  - name: Update submodule PR body
+    if: "steps.frameworkBranch.outputs.ref != 'master' && !contains(steps.submodulePR.outputs.body, steps.frameworkPR.outputs.prurl)"
+    run: |
+      cd framework
+      gh pr edit ${{ steps.submodulePR.outputs.prurl }} --body "${{ steps.submodulePR.outputs.body }} \n Related framework PR "${{ steps.frameworkPR.outputs.prurl }}"
+    env:
+      GITHUB_TOKEN: ${{ inputs.github_token }}
+    shell: bash
