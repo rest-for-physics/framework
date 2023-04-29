@@ -81,7 +81,7 @@ jobs:
         if: (github.event.action == 'closed' && github.event.pull_request.merged == true && steps.PRCheck.outputs.review == 'APPROVED' && steps.PRCheck.outputs.prState != 'MERGED')
         run: |
           cd submodule
-          gh label delete framework-pr
+          gh pr edit ${{ steps.PRCheck.outputs.prurl }} --remove "framework-pr"
         env:
           GITHUB_TOKEN: ${{ secrets.REST_TOKEN }}
       - name: Merge PR
