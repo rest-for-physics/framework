@@ -70,7 +70,7 @@ runs:
       gh pr view
       prurl=$(gh pr view --json url -t '{{ .url }}')
       echo "prurl=$prurl" >> $GITHUB_OUTPUT
-      echo "body=$(gh pr view --json body -t '{{ .body }}')"  >> $GITHUB_OUTPUT
+      echo -e "body<<EOF\n$(gh pr view --json body -t '{{ .body }}')\nEOF" >> $GITHUB_OUTPUT
       #Add framework-pr label
       gh pr edit $prurl --add-label "framework-pr"
     env:
