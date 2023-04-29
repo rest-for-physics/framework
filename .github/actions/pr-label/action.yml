@@ -18,7 +18,7 @@ runs:
       if [[ " ${prlabel[*]} " =~ ${{ inputs.label }} ]]; then
         echo "Label " ${{ inputs.label }}  "is present "
         echo "exist=true" >> $GITHUB_OUTPUT
-      elif
+      else
         echo "Label " ${{ inputs.label }}  "is missing "
         echo "exist=false" >> $GITHUB_OUTPUT
       fi
