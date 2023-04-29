@@ -16,7 +16,7 @@ runs:
     run: |
       prlabel=${{ github.event.pull_request.labels.*.name }}
       echo "Label " ${{ github.event.pull_request.labels.*.name }}
-      echo "PRlabel ${prlabel[*]}" 
+      echo "PRlabel ${prlabel[*]}"
       if [[ " ${prlabel[*]} " =~ ${{ inputs.label }} ]]; then
         echo "Label " ${{ inputs.label }}  "is present "
         echo "exist=true" >> $GITHUB_OUTPUT
