@@ -55,19 +55,8 @@ jobs:
           gh pr view
           echo "prurl=$(gh pr view --json url -t '{{ .url }}')" >> $GITHUB_OUTPUT
           echo "mergeStateStatus=$(gh pr view --json mergeStateStatus -t '{{ .mergeStateStatus }}')" >> $GITHUB_OUTPUT
-          echo "Merge state Status " $mergeStateStatus
           echo "prState=$(gh pr view --json state -t '{{ .state }}')" >> $GITHUB_OUTPUT
-          echo "PullRequestState " $prState
           echo "review=$(gh pr view --json reviewDecision -t '{{ .reviewDecision }}')"  >> $GITHUB_OUTPUT
-          echo "Review decision " $review
-          if [[ $prState == "MERGED" ]]; then
-            echo "PR already merged"
-          elif [[ $review == "APPROVED" ]]; then
-            echo "PR is approved and mergeStateStatus is " $mergeStateStatus
-          else
-            echo "No valid PR found for branch " ${{ env.BRANCH_NAME }} " in " ${{ matrix.submodule }}  " merge is not allowed"
-            exit 1
-          fi
         env:
           GITHUB_TOKEN: ${{ secrets.REST_TOKEN }}
       - name: Print outputs
@@ -77,14 +66,14 @@ jobs:
           echo "PR REVIEW " ${{ steps.PRCheck.outputs.review }}
           echo "PR url " ${{ steps.PRCheck.outputs.prurl }}
           echo "PR state " ${{ steps.PRCheck.outputs.prState }}
-      - name: Remove label to allow merging of PR
-        if: (github.event.action == 'closed' && github.event.pull_request.merged == true && steps.PRCheck.outputs.review == 'APPROVED' && steps.PRCheck.outputs.prState != 'MERGED')
-        run: |
-          cd submodule
-          gh pr edit ${{ steps.PRCheck.outputs.prurl }} --remove "framework-pr"
-        env:
-          GITHUB_TOKEN: ${{ secrets.REST_TOKEN }}
-      - name: Merge PR
+          if [[ ${{ steps.PRCheck.outputs.prState }} == "MERGED" ]]; then
+            echo "PR already merged"
+          elif [[ ${{ steps.PRCheck.outputs.review }} == "APPROVED" ]]; then
+            echo "PR is approved and mergeStateStatus is " $mergeStateStatus
+          else
+            echo "Not approved or invalid PR for branch " ${{ env.BRANCH_NAME }} " in " ${{ matrix.submodule }}  " merge is not allowed"
+            exit 1
+          fi
         if: (github.event.action == 'closed' && github.event.pull_request.merged == true && steps.PRCheck.outputs.review == 'APPROVED' && steps.PRCheck.outputs.prState != 'MERGED')
         run: |
           cd submodule
