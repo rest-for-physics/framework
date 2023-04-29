@@ -100,5 +100,5 @@ runs:
        cd framework
        gh pr edit ${{ steps.submodulePR.outputs.prurl }} --body "${{ steps.submodulePR.outputs.body }} \n Related framework PR "${{ steps.frameworkPR.outputs.prurl }}"
      env:
-      GITHUB_TOKEN: ${{ inputs.github_token }}
+       GITHUB_TOKEN: ${{ inputs.github_token }}
      shell: bash
