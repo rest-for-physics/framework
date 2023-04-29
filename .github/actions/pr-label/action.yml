@@ -1,20 +1,27 @@
-name: "Check a particular label is present in a PR"
+name: "Check if a particular label is present in a PR"
 inputs:
   label:
     description: "Label to check"
     required: true
+outputs:
+  label-is-present:
+    description: "Return true or false if the label is present"
+    value: ${{ steps.label.outputs.exist }}
 
 runs:
   using: 'composite'
   steps:
-  - name: Framework-pr label is present
-    if: "contains(github.event.pull_request.labels.*.name, ${{ inputs.label }})"
+  - name: Label is present
+    id: label
+    echo "${{ github.event.pull_request.labels.*.name }}"
+    id: label
     run: |
-      echo "This PR can only be merged from framework"
-      exit 1
-    shell: bash
-  - name: Framework-pr label is missing
-    if: "!contains(github.event.pull_request.labels.*.name, ${{ inputs.label }})"
-    run: |
-      echo "This PR is able to be merged"
+      prlabel=${{ github.event.pull_request.labels.*.name }}
+      if [[ " ${prlabel[*]} " =~ ${{ inputs.label }} ]]; then
+        echo "Label " ${{ inputs.label }}  "is present "
+        echo "exist=true" >> $GITHUB_OUTPUT
+      elif
+        echo "Label " ${{ inputs.label }}  "is missing "
+        echo "exist=false" >> $GITHUB_OUTPUT
+      fi
     shell: bash
