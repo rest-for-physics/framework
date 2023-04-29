@@ -70,8 +70,8 @@ runs:
       gh pr view
       prurl=$(gh pr view --json url -t '{{ .url }}')
       echo "prurl=$prurl" >> $GITHUB_OUTPUT
-      #Create label for further usage
-      gh label create framework-pr --description "This PR has to be merged from framework" --color E99695
+      #Add framework-pr label
+      gh pr edit $prurl --add-label "framework-pr"
     env:
       GITHUB_TOKEN: ${{ inputs.token }}
     shell: bash
