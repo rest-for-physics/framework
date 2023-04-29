@@ -3,7 +3,7 @@ name: "Automatic PR checks and merge"
 on:
   pull_request:
     branches: [ "master" ]
-   types: [ "opened", "reopened", "created", "closed", "synchronize", "labeled", "unlabeled"]
+    types: [ "opened", "reopened", "created", "closed", "synchronize", "labeled", "unlabeled"]
 
   workflow_dispatch:
 
