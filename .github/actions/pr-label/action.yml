@@ -1,0 +1,21 @@
+name: "Check a particular label is present in a PR"
+inputs:
+  label:
+    description: "Label to check"
+    required: true
+  submodule:
+
+runs:
+  using: 'composite'
+  steps:
+  - name: Framework-pr label is present
+    if: "contains(github.event.pull_request.labels.*.name, ${{ inputs.label }})"
+    run: |
+      echo "This PR can only be merged from framework"
+      exit 1
+    shell: bash
+  - name: Framework-pr label is missing
+    if: "!contains(github.event.pull_request.labels.*.name, ${{ inputs.label }})"
+    run: |
+      echo "This PR is able to be merged"
+    shell: bash
