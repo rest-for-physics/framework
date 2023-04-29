@@ -6,15 +6,13 @@ inputs:
 outputs:
   label-is-present:
     description: "Return true or false if the label is present"
-    value: ${{ steps.label.outputs.exist }}
+    value: ${{ steps.label-check.outputs.exist }}
 
 runs:
   using: 'composite'
   steps:
   - name: Label is present
-    id: label
-    echo "${{ github.event.pull_request.labels.*.name }}"
-    id: label
+    id: label-check
     run: |
       prlabel=${{ github.event.pull_request.labels.*.name }}
       if [[ " ${prlabel[*]} " =~ ${{ inputs.label }} ]]; then
