@@ -3,7 +3,6 @@ inputs:
   label:
     description: "Label to check"
     required: true
-  submodule:
 
 runs:
   using: 'composite'
