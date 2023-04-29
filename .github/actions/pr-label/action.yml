@@ -14,7 +14,7 @@ runs:
   - name: Label is present
     id: label-check
     run: |
-      prlabel=${{ github.event.pull_request.labels.*.name }}
+      prlabel=${{ fromJSON(github.event.pull_request.labels.*.name) }}
       echo "Label " ${{ github.event.pull_request.labels.*.name }}
       echo "PRlabel ${prlabel[*]}"
       if [[ " ${prlabel[*]} " =~ ${{ inputs.label }} ]]; then
