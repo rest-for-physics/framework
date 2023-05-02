@@ -33,9 +33,8 @@
 class TRestDataSetPlot : public TRestMetadata {
     /// Nested classes for internal use only
    public:
-    /// Auxiliary class for histograms
-    class HistoInfo {
-       public:
+    /// Auxiliary struct for histograms
+    struct HistoInfo {
         std::string name = "";
         std::string drawOption = "";
         std::vector<std::string> variable;
@@ -51,9 +50,8 @@ class TRestDataSetPlot : public TRestMetadata {
         TH1* histo = nullptr;
     };
 
-    /// Auxiliary class for plots/pads
-    class PlotInfo {
-       public:
+    /// Auxiliary struct for plots/pads
+    struct PlotInfo {
         std::string name = "";
         std::string title = "";
 
@@ -90,8 +88,7 @@ class TRestDataSetPlot : public TRestMetadata {
     };
 
     /// Auxiliary class for panels/labels
-    class PanelInfo {
-       public:
+    struct PanelInfo {
         Float_t font_size;
         Int_t precision;
 
