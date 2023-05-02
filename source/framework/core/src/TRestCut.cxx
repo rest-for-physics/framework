@@ -110,7 +110,7 @@ TRestCut& TRestCut::operator=(TRestCut& cut) {
     return *this;
 }
 
-void TRestCut::AddCut(const TCut &cut) {
+void TRestCut::AddCut(const TCut& cut) {
     if ((string)cut.GetName() == "") {
         RESTWarning << "TRestCut::AddCut: cannot add cut without name!" << RESTendl;
         return;
@@ -119,7 +119,7 @@ void TRestCut::AddCut(const TCut &cut) {
         RESTWarning << "TRestCut::AddCut: cannot add empty cut!" << RESTendl;
         return;
     }
-    for (const auto &c : fCuts) {
+    for (const auto& c : fCuts) {
         if ((string)c.GetName() == (string)cut.GetName()) {
             RESTWarning << "TRestCut::AddCut: cut with name \"" << c.GetName() << "\" already added!"
                         << RESTendl;
