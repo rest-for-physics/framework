@@ -163,7 +163,7 @@
 /// \endcode
 ///
 /// ### Examples
-/// Following example creates one panel and three histograms:
+/// Following example creates one panel and three plots including one or two histograms:
 /// \code
 /// <TRestDataSetPlot name="alphaTrackPlot" title="Basic Plots for alpha tracks" previewPlot="true"
 /// canvasSize="(1200,1200)" canvasDivisions="(2,2)" verboseLevel="info"
