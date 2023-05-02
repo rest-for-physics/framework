@@ -165,9 +165,10 @@
 /// ### Examples
 /// Following example creates one panel and three plots including one or two histograms:
 /// \code
-/// <TRestDataSetPlot name="alphaTrackPlot" title="Basic Plots for alpha tracks" previewPlot="true"
-/// canvasSize="(1200,1200)" canvasDivisions="(2,2)" verboseLevel="info"
-/// outputFileName="Plots_[TRestRun::fRunTag]_plots.root">
+///  <TRestManager name="alphaTrack" title="alphaTrack" verboseLevel="info">
+///    <TRestDataSetPlot name="alphaTrackPlot" title="Basic Plots for alpha tracks" previewPlot="true"
+///    canvasSize="(1200,1200)" canvasDivisions="(2,2)" verboseLevel="info"
+///    outputFileName="Plots_[TRestRun::fRunTag]_plots.root">
 ///      <addCut name="North"/>
 ///      <addCut name="TrackBalance"/>
 ///      <TRestCut name="North" verboseLevel="info">
@@ -230,12 +231,15 @@
 ///              <addCut name="Upwards"/>
 ///          </histo>
 ///      </plot>
-///  </TRestDataSetPlot>
-///  <addTask command="alphaTrackPlot->PlotCombinedCanvas()" value="ON"/>
+///    </TRestDataSetPlot>
+///    <addTask command="alphaTrackPlot->PlotCombinedCanvas()" value="ON"/>
+///  </TRestManager>
 /// \endcode
 ///
-/// ### Running pipeline example
-/// To be added
+/// ### Running example
+/// \code
+///   restManager --c thisExample.rml --f FileWithDataSet.root
+/// \endcode
 ///
 /// Figure to be added (a png image should be uploaded to the ./images/ directory)
 ///
