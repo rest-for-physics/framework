@@ -194,7 +194,7 @@ Int_t REST_StringHelper::GetChar(string hint) {
     cout << hint << endl;
     int result = -1;
     if (gApplication != nullptr && !gApplication->IsRunning()) {
-        std::unique_ptr<TTimer> timer(new TTimer("gSystem->ProcessEvents();", 50, kFALSE));
+        auto timer = std::make_unique<TTimer>("gSystem->ProcessEvents();", 50, kFALSE);
         bool done = false;
         do {
             timer->TurnOn();
