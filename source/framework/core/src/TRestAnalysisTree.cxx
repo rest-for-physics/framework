@@ -161,6 +161,7 @@ void TRestAnalysisTree::Initialize() {
 ///
 /// If not exist, it will return -1. It will call MakeObservableIdMap() to
 /// update observable id map before searching
+///
 Int_t TRestAnalysisTree::GetObservableID(const string& obsName) {
     MakeObservableIdMap();
     auto iter = fObservableIdMap.find(obsName);
@@ -176,6 +177,7 @@ Int_t TRestAnalysisTree::GetObservableID(const string& obsName) {
 ///
 /// Ignores prefix like "sAna_". Case sensitive, misspelling prompted.
 /// If not exist, it will return -1.
+///
 Int_t TRestAnalysisTree::GetMatchedObservableID(const string& obsName) {
     // if (ObservableExists(obsName)) return GetObservableID(obsName);
     auto iter = fObservableIdSearchMap.find(obsName);
@@ -237,6 +239,7 @@ Int_t TRestAnalysisTree::GetMatchedObservableID(const string& obsName) {
 /// \brief Get if the specified observable exists
 ///
 /// It will call MakeObservableIdMap() to update observable id map before searching
+///
 Bool_t TRestAnalysisTree::ObservableExists(const string& obsName) {
     MakeObservableIdMap();
     return fObservableIdMap.count(obsName) > 0;
@@ -320,6 +323,7 @@ int TRestAnalysisTree::EvaluateStatus() {
 /// to the existing TTree branches. Then it will create new observable objects by
 /// reflection, and connect them also to the existing TTree branches. After
 /// re-connection, this method will change status 2->5, 3->4
+///
 void TRestAnalysisTree::UpdateObservables() {
     // connect basic event branches
     TBranch* br1 = GetBranch("runOrigin");
@@ -383,6 +387,7 @@ void TRestAnalysisTree::UpdateObservables() {
 /// observables. Note that this method can be called multiple times during the
 /// first loop of observable setting. After branch creation, this method will
 /// change status 1->4, or stay 4.
+///
 void TRestAnalysisTree::UpdateBranches() {
     if (!GetBranch("runOrigin")) Branch("runOrigin", &fRunOrigin);
     if (!GetBranch("subRunOrigin")) Branch("subRunOrigin", &fSubRunOrigin);
@@ -442,6 +447,7 @@ void TRestAnalysisTree::InitObservables() {
 /// \brief Update the map of observable name to observable id.
 ///
 /// Using map will improve the speed of "SetObservableValue"
+///
 void TRestAnalysisTree::MakeObservableIdMap() {
     if (fObservableIdMap.size() != fObservableNames.size()) {
         fObservableIdMap.clear();
@@ -973,17 +979,33 @@ void TRestAnalysisTree::EnableQuickObservableValueSetting() { this->fQuickSetObs
 void TRestAnalysisTree::DisableQuickObservableValueSetting() { this->fQuickSetObservableValue = false; }
 
 ///////////////////////////////////////////////
+/// \brief It returns the integral of the observable considering the given range. If no range is given
+/// the full histogram range will be considered.
+///
+Double_t TRestAnalysisTree::GetObservableIntegral(const TString& obsName, Double_t xLow, Double_t xHigh,
+                                                  Int_t nBins) {
+    TString histDefinition = Form("hint(%5d,%lf,%lf)", nBins, xLow, xHigh);
+    if (xHigh == -1)
+        this->Draw(obsName + ">>hint", obsName);
+    else
+        this->Draw(obsName + ">>" + histDefinition, obsName);
+
+    TH1F* htemp = (TH1F*)gPad->GetPrimitive("hint");
+    return htemp->Integral();
+}
+
+///////////////////////////////////////////////
 /// \brief It returns the average of the observable considering the given range. If no range is given
 /// the full histogram range will be considered.
 ///
 Double_t TRestAnalysisTree::GetObservableAverage(const TString& obsName, Double_t xLow, Double_t xHigh,
                                                  Int_t nBins) {
-    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
+    TString histDefinition = Form("havg(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
-        this->Draw(obsName);
+        this->Draw(obsName + ">>havg");
     else
         this->Draw(obsName + ">>" + histDefinition);
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
+    TH1F* htemp = (TH1F*)gPad->GetPrimitive("havg");
     return htemp->GetMean();
 }
 
@@ -993,12 +1015,12 @@ Double_t TRestAnalysisTree::GetObservableAverage(const TString& obsName, Double_
 ///
 Double_t TRestAnalysisTree::GetObservableRMS(const TString& obsName, Double_t xLow, Double_t xHigh,
                                              Int_t nBins) {
-    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
+    TString histDefinition = Form("hrms(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
-        this->Draw(obsName);
+        this->Draw(obsName + ">>hrms");
     else
         this->Draw(obsName + ">>" + histDefinition);
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
+    TH1F* htemp = (TH1F*)gPad->GetPrimitive("hrms");
     return htemp->GetRMS();
 }
 
@@ -1008,12 +1030,12 @@ Double_t TRestAnalysisTree::GetObservableRMS(const TString& obsName, Double_t xL
 ///
 Double_t TRestAnalysisTree::GetObservableMaximum(const TString& obsName, Double_t xLow, Double_t xHigh,
                                                  Int_t nBins) {
-    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
+    TString histDefinition = Form("hmax(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
-        this->Draw(obsName);
+        this->Draw(obsName + ">>hmax");
     else
         this->Draw(obsName + ">>" + histDefinition);
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
+    TH1F* htemp = (TH1F*)gPad->GetPrimitive("hmax");
     return htemp->GetMaximumStored();
 }
 
@@ -1023,13 +1045,64 @@ Double_t TRestAnalysisTree::GetObservableMaximum(const TString& obsName, Double_
 ///
 Double_t TRestAnalysisTree::GetObservableMinimum(const TString& obsName, Double_t xLow, Double_t xHigh,
                                                  Int_t nBins) {
-    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
+    TString histDefinition = Form("hmin(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
-        this->Draw(obsName);
+        this->Draw(obsName + ">>hmin");
     else
         this->Draw(obsName + ">>" + histDefinition);
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
+    TH1F* htemp = (TH1F*)gPad->GetPrimitive("hmin");
     return htemp->GetMinimumStored();
+}
+
+///////////////////////////////////////////////
+/// \brief This method generates a histogram of the the observable `obsName` given in the
+/// argument weighting it with a second observable also given by argument as `obsWeight`.
+///
+/// This method will return the value at which `obsName` integral reaches a fraction of the
+/// total integral defined by the argument `level`. E.g. if `level=0.5`, then the value of
+/// `obsName` at which the histogram `obsName` reaches half the integral is returned.
+///
+/// If not given the default `level` value is 0.5.
+///
+/// Optionally we may define the parameters of the histogram. If not, ROOT will use the
+/// default values defined by the user.
+///
+/// For example, we could bin the variable `final_R` between 0 and 1cm in 1000 bins, and
+/// get the value of `final_R` where `optics_efficiency` integrated events is 80% of the
+/// total.
+///
+/// \code
+/// analysisTree->GetObservableContour("final_R", "optics_efficiency", 0.8, 1000, 0, 1)
+/// \endcode
+///
+/// \return Returns the value at which `obsName` contains a `level` fraction of the
+/// integral of the `obsWeight` observable.
+///
+Double_t TRestAnalysisTree::GetObservableContour(const TString& obsName, const TString& obsWeight,
+                                                 Double_t level, Int_t nBins, Double_t xLow, Double_t xHigh) {
+    if (level > 1 || level < 0) {
+        RESTWarning << "Level is : " << level << RESTendl;
+        RESTWarning << "Level must be between 0 and 1" << RESTendl;
+        return 0;
+    }
+
+    Double_t integral = this->GetIntegral(obsWeight, xLow, xHigh, nBins);
+
+    TString histDefinition = Form("hc(%5d,%lf,%lf)", nBins, xLow, xHigh);
+    if (xHigh == -1)
+        this->Draw(obsName + ">>hc", obsWeight);
+    else
+        this->Draw(obsName + ">>" + histDefinition, obsWeight);
+
+    TH1F* htemp = (TH1F*)gPad->GetPrimitive("hc");
+
+    Double_t sum = 0;
+    for (int i = 0; i < htemp->GetNbinsX(); i++) {
+        sum += htemp->GetBinContent(i + 1);
+
+        if (sum > level * integral) return htemp->GetBinCenter(i + 1);
+    }
+    return 0;
 }
 
 ///////////////////////////////////////////////
