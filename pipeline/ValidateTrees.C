@@ -59,6 +59,16 @@ Int_t ValidateTrees(const char* validationFilename, const char* inputFilename = 
                 printf("  value: %.15f, should be: %.15f\n", (*inputObservableVector)[m],
                        (*validationObservableVector)[m]);
 
+                cout << "Validation vector contents: " << endl;
+                for (int m = 0; m < (*validationObservableVector).size(); m++)
+                    cout << (*validationObservableVector)[m] << "\t";
+                cout << endl;
+
+                cout << "Results vector contents: " << endl;
+                for (int m = 0; m < (*inputObservableVector).size(); m++)
+                    cout << (*inputObservableVector)[m] << "\t";
+                cout << endl;
+
                 if (!TMath::IsNaN((*inputObservableVector)[m] - (*validationObservableVector)[m]) &&
                     abs(((*inputObservableVector)[m] - (*validationObservableVector)[m]) /
                         (*inputObservableVector)[m]) < 1e-15) {
