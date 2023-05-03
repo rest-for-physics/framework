@@ -412,18 +412,10 @@ void TRestAnalysisTree::UpdateBranches() {
                 this->Branch(brName, (int*)ref);
             } else if (typeName == "short") {
                 this->Branch(brName, (short*)ref);
-            } else if (typeName == "unsigned char") {
-                this->Branch(brName, (unsigned char*)ref);
-            } else if (typeName == "unsigned int") {
-                this->Branch(brName, (unsigned int*)ref);
-            } else if (typeName == "unsigned short") {
-                this->Branch(brName, (unsigned short*)ref);
             } else if (typeName == "long") {
                 this->Branch(brName, (long*)ref);
             } else if (typeName == "long long") {
                 this->Branch(brName, (long long*)ref);
-            } else if (typeName == "unsigned long") {
-                this->Branch(brName, (unsigned long*)ref);
             } else if (typeName == "unsigned long long") {
                 this->Branch(brName, (unsigned long long*)ref);
             } else {
