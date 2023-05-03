@@ -27,7 +27,6 @@
 
 #include <ROOT/RDataFrame.hxx>
 
-#include "TRestCut.h"
 #include "TRestMetadata.h"
 
 struct RelevantQuantity {
@@ -48,10 +47,10 @@ struct RelevantQuantity {
 class TRestDataSet : public TRestMetadata {
    private:
     /// All the selected runs will have a starting date after fStartTime
-    std::string fFilterStartTime = "2000/01/01";  //<
+    std::string fStartTime = "2000/01/01";  //<
 
     /// All the selected runs will have an ending date before fEndTime
-    std::string fFilterEndTime = "3000/12/31";  //<
+    std::string fEndTime = "3000/12/31";  //<
 
     /// A glob file pattern that must be satisfied by all files
     std::string fFilePattern = "";  //<
@@ -77,26 +76,17 @@ class TRestDataSet : public TRestMetadata {
     /// The properties of a relevant quantity that we want to store together with the dataset
     std::map<std::string, RelevantQuantity> fQuantity;  //<
 
-    /// Parameter cuts over the selected dataset
-    TRestCut* fCut = nullptr;
-
     /// The total integrated run time of selected files
     Double_t fTotalDuration = 0;  //<
 
-    /// A list populated by the FileSelection method using the conditions of the dataset
-    std::vector<std::string> fFileSelection;  //<
-
-    /// TimeStamp for the start time of the first file
-    Double_t fStartTime = REST_StringHelper::StringToTimeStamp(fFilterEndTime);
-
-    /// TimeStamp for the end time of the last file
-    Double_t fEndTime = REST_StringHelper::StringToTimeStamp(fFilterStartTime);
-
-    /// The resulting RDF::RNode object after initialization
-    ROOT::RDF::RNode fDataSet = ROOT::RDataFrame(0);  //!
+    /// The resulting RDataFrame object after initialization
+    ROOT::RDataFrame fDataSet = 0;  //!
 
     /// A pointer to the generated tree
     TTree* fTree = nullptr;  //!
+
+    /// A list populated by the FileSelection method using the conditions of the dataset
+    std::vector<std::string> fFileSelection;  //!
 
     void InitFromConfigFile() override;
 
@@ -105,12 +95,10 @@ class TRestDataSet : public TRestMetadata {
 
    public:
     /// Gives access to the RDataFrame
-    ROOT::RDF::RNode GetDataFrame() const {
+    ROOT::RDataFrame GetDataFrame() const {
         if (fTree == nullptr) RESTWarning << "DataFrame has not been yet initialized" << RESTendl;
         return fDataSet;
     }
-
-    void SetDataSet(const ROOT::RDF::RNode& dS) { fDataSet = dS; }
 
     /// Gives access to the tree
     TTree* GetTree() const {
@@ -134,37 +122,14 @@ class TRestDataSet : public TRestMetadata {
     /// It returns the accumulated run time in seconds
     Double_t GetTotalTimeInSeconds() const { return fTotalDuration; }
 
-    inline auto GetFilterStartTime() const { return fFilterStartTime; }
-    inline auto GetFilterEndTime() const { return fFilterEndTime; }
-    inline auto GetStartTime() const { return fStartTime; }
-    inline auto GetEndTime() const { return fEndTime; }
-    inline auto GetFilePattern() const { return fFilePattern; }
-    inline auto GetObservablesList() const { return fObservablesList; }
-    inline auto GetProcessObservablesList() const { return fProcessObservablesList; }
-    inline auto GetFilterMetadata() const { return fFilterMetadata; }
-    inline auto GetFilterContains() const { return fFilterContains; }
-    inline auto GetFilterGreaterThan() const { return fFilterGreaterThan; }
-    inline auto GetFilterLowerThan() const { return fFilterLowerThan; }
-    inline auto GetQuantity() const { return fQuantity; }
-    inline auto GetCut() const { return fCut; }
-
-    inline void SetFilePattern(const std::string& pattern) { fFilePattern = pattern; }
-
-    TRestDataSet& operator=(TRestDataSet& dS);
-    void Import(const std::string& fileName);
     void Export(const std::string& filename);
-
-    ROOT::RDF::RNode MakeCut(const TRestCut* cut);
 
     void PrintMetadata() override;
     void Initialize() override;
-
-    void GenerateDataSet();
-
     TRestDataSet();
     TRestDataSet(const char* cfgFileName, const std::string& name = "");
     ~TRestDataSet();
 
-    ClassDefOverride(TRestDataSet, 2);
+    ClassDefOverride(TRestDataSet, 1);
 };
 #endif
