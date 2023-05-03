@@ -658,3 +658,7 @@ jobs:
 
   wimplib-validation:
     uses: rest-for-physics/wimplib/.github/workflows/validation.yml@master
+
+
+  restG4-validation:
+    uses: rest-for-physics/restG4/.github/workflows/validation.yml@validation_framework
