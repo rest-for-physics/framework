@@ -212,16 +212,6 @@ include(Testing)
 
 # Start compile
 include(MacroRootDict)
-
-# Clear the install dir
-if (NOT DEFINED INSTALL_CLEARDIR)
-    set(INSTALL_CLEARDIR ON)
-endif ()
-if (${INSTALL_CLEARDIR} MATCHES "ON")
-    install(CODE "execute_process(COMMAND rm -r ${CMAKE_INSTALL_PREFIX})")
-endif ()
-
-# Compile and install for each subdir
 add_subdirectory(source)
 
 message("")
@@ -245,6 +235,14 @@ message(
 message("")
 
 file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/framework/*.h")
+
+# Clear the install dir
+if (NOT DEFINED INSTALL_CLEARDIR)
+    set(INSTALL_CLEARDIR ON)
+endif ()
+if (${INSTALL_CLEARDIR} MATCHES "ON")
+    install(CODE "execute_process(COMMAND rm -r ${CMAKE_INSTALL_PREFIX})")
+endif ()
 
 # Install the files of the main framework
 install(FILES ${Headers} DESTINATION include)
