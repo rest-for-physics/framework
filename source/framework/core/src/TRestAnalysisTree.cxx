@@ -22,36 +22,49 @@
 
 //////////////////////////////////////////////////////////////////////////
 ///
-/// TRestAnalysisTree is TTree but with **managed objects** for the branches to fill.
-/// There are six fixed branches of event information in TRestAnalysisTree: runOrigin,
-/// subRunOrigin, eventID, subEventID, subEventTag and timeStamp. They are pointing
-/// to the corresponding class members inside TRestAnalysisTree. Those branches are
-/// called `event branches`. Additional branches could be added by the user, they will
-/// point to some objects whose addresses are also stored in this class. Those objects
-/// are called `observables`.
+/// TRestAnalysisTree is a TTree but with **custom objects** for the branches that will be
+/// filled. The user will decide in each event data processing chain which branches/observables/variables
+/// will be finally added to the analysis tree. Inside a TRestAnalysisTree we find always the following six
+/// branches containing event information: runOrigin, subRunOrigin, eventID, subEventID, subEventTag and
+/// timeStamp. Those branches point to the corresponding class members inside TRestAnalysisTree, we name those
+/// branches the `event branches`. Additional branches can be added by the user in a processing chain by any
+/// class inheriting by TRestEventProcess. Those process generated branches will also point to some
+/// objects whose addresses are also stored in this class. Those objects are called `observables`.
 ///
-/// In traditional TTree case, the user defines multiple global variables, and add
-/// branches with the address of these variables to the tree. Then the user changes the
-/// value of those variables somewhere in the code, and calls `TTree::Fill()` to create
-/// and save a new entry in the data list.
+/// In the traditional `TTree` case, the user defines multiple global variables,
+/// and adds branches with the address of these variables to the tree. Then the
+/// user changes the value of those variables somewhere in the code, and calls
+/// `TTree::Fill()` to create and save a new entry inside the tree.
 ///
-/// In TRestAnalysisTree, the concept of "Branch" is weakened. We can directly call
-/// `SetObservableValue()` and then `TRestAnalysisTree::Fill()` to do the data saving.
-/// The code could be simplified while sacrificing a little performance. We can use
-/// temporary variable to set observable value directly. We can focus on the analysis
-/// code inside the loop, without caring about varaible initialization before that.
+/// In TRestAnalysisTree, the concept of "Branch" is weakened. We update the
+/// variables by invoking the `SetObservableValue()` method and then
+/// TRestAnalysisTree::Fill() to generate a new entry inside the tree. As soon as
+/// TRestEventProcess::SetObservable method is invoked, a new branch will be
+/// generated inside this tree. The code inside REST processes will be simplified
+/// while sacrificing a little performance. We can use
+/// temporary variable to set observable value directly. We can the focus on the analysis
+/// code inside each process, without caring about variable initialization before that.
+///
+/// As soon as TRestEventProcess::SetObservable method is invoked, a new branch will be
+/// generated inside this tree.
 ///
 /// The following is a summary of speed of filling 1000000 entries for TTree and
 /// TRestAnalysisTree. Four observables and six event branches are added. We take the
-/// average of 3 tests as the result. See the file pipeline/analysistree/testspeed.cpp
+/// average of 3 tests as the result. See the file `pipeline/analysistree/testspeed.cpp`.
 /// for more details.
 ///
-/// Condition                           |    time(us)   |
-/// A. Do not use observable            |      846,522  |
-/// B. Use quick observable (default)   |    1,188,232  |
-/// C. Do not use quick observable      |    2,014,646  |
-/// D. Use reflected observable         |    8,425,772  |
-/// TTree                               |      841,744  |
+/// <center>
+///
+/// Condition                           |    time(us)
+/// ----------------------------------- | -------------
+/// A. Do not use observable            |      846,522
+/// B. Use quick observable (default)   |    1,188,232
+/// C. Do not use quick observable      |    2,014,646
+/// D. Use reflected observable         |    8,425,772
+/// TTree                               |      841,744
+///
+/// </center>
+///
 ///_______________________________________________________________________________
 ///
 /// RESTsoft - Software for Rare Event Searches with TPCs
