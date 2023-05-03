@@ -190,6 +190,7 @@ bool TRestThread::TestRun() {
         }
 
         fOutputEvent = ProcessedEvent;
+        fHostRunner->GetNextevtFunc(fInputEvent, fAnalysisTree);
         if (fOutputEvent != nullptr) {
             RESTDebug << "Output Event ---- " << fOutputEvent->ClassName() << "(" << fOutputEvent << ")"
                       << RESTendl;
@@ -197,7 +198,6 @@ bool TRestThread::TestRun() {
         } else {
             RESTDebug << "Null output, trying again" << RESTendl;
         }
-        fHostRunner->GetNextevtFunc(fInputEvent, fAnalysisTree);
     }
     if (fOutputEvent == nullptr) {
         // fOutputEvent = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent();
