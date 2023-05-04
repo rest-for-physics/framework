@@ -284,8 +284,8 @@ class TRestAnalysisTree : public TTree {
         return GetObservableIntegral(obsName, xLow, xHigh, nBins);
     }
 
-    Double_t GetAverage(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1, Int_t nBins = 1000) {
-        return GetObservableAverage(obsName, xLow, xHigh, nBins);
+    Double_t GetAverage(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1) {
+        return GetObservableAverage(obsName, xLow, xHigh);
     }
 
     Double_t GetRMS(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1, Int_t nBins = 1000) {
@@ -308,8 +308,7 @@ class TRestAnalysisTree : public TTree {
     Double_t GetObservableIntegral(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
                                    Int_t nBins = 1000);
 
-    Double_t GetObservableAverage(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
-                                  Int_t nBins = 1000);
+    Double_t GetObservableAverage(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1);
 
     Double_t GetObservableRMS(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
                               Int_t nBins = 1000);

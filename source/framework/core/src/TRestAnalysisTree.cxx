@@ -1006,18 +1006,23 @@ Double_t TRestAnalysisTree::GetObservableIntegral(const TString& obsName, Double
 /// \brief It returns the average of the observable considering the given range. If no range is given
 /// the full histogram range will be considered.
 ///
-Double_t TRestAnalysisTree::GetObservableAverage(const TString& obsName, Double_t xLow, Double_t xHigh,
-                                                 Int_t nBins) {
+Double_t TRestAnalysisTree::GetObservableAverage(const TString& obsName, Double_t xLow, Double_t xHigh) {
     Int_t id = GetObservableID((std::string)obsName);
 
     Double_t sum = 0;
+    Int_t N = 0;
     for (Int_t n = 0; n < TTree::GetEntries(); n++) {
         TTree::GetEntry(n);
+        Double_t value = GetDblObservableValue(id);
+
+        if (xLow != -1 && xHigh != -1 && (value < xLow || value > xHigh)) continue;
+        N++;
         sum += GetDblObservableValue(id);
     }
-    if (TTree::GetEntries() <= 0) return 0;
 
-    return sum / TTree::GetEntries();
+    if (N <= 0) return 0;
+
+    return sum / N;
 }
 
 ///////////////////////////////////////////////
