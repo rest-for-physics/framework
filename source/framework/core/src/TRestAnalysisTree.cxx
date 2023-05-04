@@ -986,13 +986,13 @@ void TRestAnalysisTree::DisableQuickObservableValueSetting() { this->fQuickSetOb
 ///
 Double_t TRestAnalysisTree::GetObservableAverage(const TString& obsName, Double_t xLow, Double_t xHigh,
                                                  Int_t nBins) {
-    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
+    TString histDefinition = Form("havg(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
-        this->Draw(obsName);
+        this->Draw(obsName + ">>havg");
     else
         this->Draw(obsName + ">>" + histDefinition);
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
-    return htemp->GetMean();
+    TH1F* havg = (TH1F*)gPad->GetPrimitive("havg");
+    return havg->GetMean();
 }
 
 ///////////////////////////////////////////////
