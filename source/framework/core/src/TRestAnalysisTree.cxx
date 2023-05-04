@@ -1008,13 +1008,16 @@ Double_t TRestAnalysisTree::GetObservableIntegral(const TString& obsName, Double
 ///
 Double_t TRestAnalysisTree::GetObservableAverage(const TString& obsName, Double_t xLow, Double_t xHigh,
                                                  Int_t nBins) {
-    TString histDefinition = Form("havg(%5d,%lf,%lf)", nBins, xLow, xHigh);
-    if (xHigh == -1)
-        this->Draw(obsName + ">>havg");
-    else
-        this->Draw(obsName + ">>" + histDefinition);
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("havg");
-    return htemp->GetMean();
+    Int_t id = GetObservableID((std::string)obsName);
+
+    Double_t sum = 0;
+    for (Int_t n = 0; n < TTree::GetEntries(); n++) {
+        TTree::GetEntry(n);
+        sum += GetDblObservableValue(id);
+    }
+    if (TTree::GetEntries() <= 0) return 0;
+
+    return sum / TTree::GetEntries();
 }
 
 ///////////////////////////////////////////////
