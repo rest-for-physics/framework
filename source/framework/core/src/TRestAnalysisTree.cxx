@@ -990,16 +990,25 @@ void TRestAnalysisTree::DisableQuickObservableValueSetting() { this->fQuickSetOb
 /// \brief It returns the integral of the observable considering the given range. If no range is given
 /// the full histogram range will be considered.
 ///
-Double_t TRestAnalysisTree::GetObservableIntegral(const TString& obsName, Double_t xLow, Double_t xHigh,
-                                                  Int_t nBins) {
-    TString histDefinition = Form("hint(%5d,%lf,%lf)", nBins, xLow, xHigh);
-    if (xHigh == -1)
-        this->Draw(obsName + ">>hint", obsName);
-    else
-        this->Draw(obsName + ">>" + histDefinition, obsName);
+Double_t TRestAnalysisTree::GetObservableIntegral(const TString& obsName, Double_t xLow, Double_t xHigh) {
+    Int_t id = GetObservableID((std::string)obsName);
 
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("hint");
-    return htemp->Integral();
+    if (id < 0) {
+        RESTError << "TRestAnalysisTree::GetObservableIntegral. Observable not found! : " << obsName
+                  << RESTendl;
+        return 0;
+    }
+
+    Double_t sum = 0;
+    for (Int_t n = 0; n < TTree::GetEntries(); n++) {
+        TTree::GetEntry(n);
+        Double_t value = GetDblObservableValue(id);
+
+        if (xLow != -1 && xHigh != -1 && (value < xLow || value > xHigh)) continue;
+        sum += value;
+    }
+
+    return sum;
 }
 
 ///////////////////////////////////////////////
@@ -1009,6 +1018,12 @@ Double_t TRestAnalysisTree::GetObservableIntegral(const TString& obsName, Double
 Double_t TRestAnalysisTree::GetObservableAverage(const TString& obsName, Double_t xLow, Double_t xHigh) {
     Int_t id = GetObservableID((std::string)obsName);
 
+    if (id < 0) {
+        RESTError << "TRestAnalysisTree::GetObservableAverage. Observable not found! : " << obsName
+                  << RESTendl;
+        return 0;
+    }
+
     Double_t sum = 0;
     Int_t N = 0;
     for (Int_t n = 0; n < TTree::GetEntries(); n++) {
@@ -1017,7 +1032,7 @@ Double_t TRestAnalysisTree::GetObservableAverage(const TString& obsName, Double_
 
         if (xLow != -1 && xHigh != -1 && (value < xLow || value > xHigh)) continue;
         N++;
-        sum += GetDblObservableValue(id);
+        sum += value;
     }
 
     if (N <= 0) return 0;
@@ -1029,45 +1044,76 @@ Double_t TRestAnalysisTree::GetObservableAverage(const TString& obsName, Double_
 /// \brief It returns the RMS of the observable considering the given range. If no range is given
 /// the full histogram range will be considered.
 ///
-Double_t TRestAnalysisTree::GetObservableRMS(const TString& obsName, Double_t xLow, Double_t xHigh,
-                                             Int_t nBins) {
-    TString histDefinition = Form("hrms(%5d,%lf,%lf)", nBins, xLow, xHigh);
-    if (xHigh == -1)
-        this->Draw(obsName + ">>hrms");
-    else
-        this->Draw(obsName + ">>" + histDefinition);
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("hrms");
-    return htemp->GetRMS();
+Double_t TRestAnalysisTree::GetObservableRMS(const TString& obsName, Double_t xLow, Double_t xHigh) {
+    Double_t mean = GetObservableAverage(obsName, xLow, xHigh);
+
+    Int_t id = GetObservableID((std::string)obsName);
+
+    Double_t sum = 0;
+    Int_t N = 0;
+    for (Int_t n = 0; n < TTree::GetEntries(); n++) {
+        TTree::GetEntry(n);
+        Double_t value = GetDblObservableValue(id);
+
+        if (xLow != -1 && xHigh != -1 && (value < xLow || value > xHigh)) continue;
+        N++;
+
+        sum += (value - mean) * (value - mean);
+    }
+
+    if (N <= 0) return 0;
+
+    return TMath::Sqrt(sum / N);
 }
 
 ///////////////////////////////////////////////
 /// \brief It returns the maximum value of obsName considering the given range. If no range is given
 /// the full histogram range will be considered.
 ///
-Double_t TRestAnalysisTree::GetObservableMaximum(const TString& obsName, Double_t xLow, Double_t xHigh,
-                                                 Int_t nBins) {
-    TString histDefinition = Form("hmax(%5d,%lf,%lf)", nBins, xLow, xHigh);
-    if (xHigh == -1)
-        this->Draw(obsName + ">>hmax");
-    else
-        this->Draw(obsName + ">>" + histDefinition);
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("hmax");
-    return htemp->GetMaximumStored();
+Double_t TRestAnalysisTree::GetObservableMaximum(const TString& obsName, Double_t xLow, Double_t xHigh) {
+    Int_t id = GetObservableID((std::string)obsName);
+
+    if (id < 0) {
+        RESTError << "TRestAnalysisTree::GetObservableMaximum. Observable not found! : " << obsName
+                  << RESTendl;
+        return 0;
+    }
+
+    Double_t max = -DBL_MAX;
+    for (Int_t n = 0; n < TTree::GetEntries(); n++) {
+        TTree::GetEntry(n);
+        Double_t value = GetDblObservableValue(id);
+
+        if (xLow != -1 && xHigh != -1 && (value < xLow || value > xHigh)) continue;
+        if (value > max) max = value;
+    }
+
+    return max;
 }
 
 ///////////////////////////////////////////////
 /// \brief It returns the minimum value of obsName considering the given range. If no range is given
 /// the full histogram range will be considered.
 ///
-Double_t TRestAnalysisTree::GetObservableMinimum(const TString& obsName, Double_t xLow, Double_t xHigh,
-                                                 Int_t nBins) {
-    TString histDefinition = Form("hmin(%5d,%lf,%lf)", nBins, xLow, xHigh);
-    if (xHigh == -1)
-        this->Draw(obsName + ">>hmin");
-    else
-        this->Draw(obsName + ">>" + histDefinition);
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("hmin");
-    return htemp->GetMinimumStored();
+Double_t TRestAnalysisTree::GetObservableMinimum(const TString& obsName, Double_t xLow, Double_t xHigh) {
+    Int_t id = GetObservableID((std::string)obsName);
+
+    if (id < 0) {
+        RESTError << "TRestAnalysisTree::GetObservableMinimum. Observable not found! : " << obsName
+                  << RESTendl;
+        return 0;
+    }
+
+    Double_t min = DBL_MAX;
+    for (Int_t n = 0; n < TTree::GetEntries(); n++) {
+        TTree::GetEntry(n);
+        Double_t value = GetDblObservableValue(id);
+
+        if (xLow != -1 && xHigh != -1 && (value < xLow || value > xHigh)) continue;
+        if (value < min) min = value;
+    }
+
+    return min;
 }
 
 ///////////////////////////////////////////////
@@ -1102,7 +1148,7 @@ Double_t TRestAnalysisTree::GetObservableContour(const TString& obsName, const T
         return 0;
     }
 
-    Double_t integral = this->GetIntegral(obsWeight, xLow, xHigh, nBins);
+    Double_t integral = this->GetIntegral(obsWeight, xLow, xHigh);
 
     TString histDefinition = Form("hc(%5d,%lf,%lf)", nBins, xLow, xHigh);
     if (xHigh == -1)
