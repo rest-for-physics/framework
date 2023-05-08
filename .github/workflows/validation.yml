@@ -72,7 +72,6 @@ jobs:
         with:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
           path: ${{ env.REST_PATH }}
-          upload-when-found: true
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
