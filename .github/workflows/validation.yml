@@ -70,7 +70,7 @@ jobs:
         id: framework-install-cache
         uses: actions/cache@v3
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
@@ -94,7 +94,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: Open V2.2 file
         run: |
@@ -117,7 +117,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: Load restRootMacros
         run: |
@@ -141,7 +141,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: Test REST classes in PyROOT
         run: |
@@ -167,7 +167,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       # Not used in gitlab pipeline, checks $CI_SERVER_HOST
       - name: Load Gas
@@ -219,7 +219,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: 02_PandaXiiiMC
         run: |
@@ -307,7 +307,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: TREX-DM Latest Data
         run: |
@@ -360,7 +360,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: Test Metadata
         run: |
@@ -460,7 +460,7 @@ jobs:
         id: framework-install-cache-reference
         uses: actions/cache@v3
         with:
-          key: ${{ env.BRANCH_NAME }}-ref-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-ref-${{ github.sha }}
           path: ${{ env.REST_PATH }}
 
   pandax-iii-reference:
@@ -482,7 +482,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache-reference
         with:
-          key: ${{ env.BRANCH_NAME }}-ref-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-ref-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: 02_PandaXiiiMC
         run: |
@@ -552,7 +552,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache-reference
         with:
-          key: ${{ env.BRANCH_NAME }}-ref-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-ref-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: Test Metadata
         run: |
