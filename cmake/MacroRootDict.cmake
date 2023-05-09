@@ -420,7 +420,7 @@ macro (COMPILEDIR libname)
     if (CMAKE_SYSTEM_NAME MATCHES "Windows")
         set_target_properties(${libname} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS
                                                     TRUE)
-    elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
         install(
             TARGETS ${libname}
             RUNTIME DESTINATION bin
