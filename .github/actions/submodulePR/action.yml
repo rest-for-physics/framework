@@ -82,7 +82,6 @@ runs:
     id: frameworkPR
     run: |
       cd framework
-      gh auth status
       #Check framework PR
       echo "prurl=$(gh pr view --json url -t '{{ .url }}')" >> $GITHUB_OUTPUT
     env:
@@ -113,7 +112,6 @@ runs:
     if: "steps.frameworkBranch.outputs.ref != 'master' && !contains(steps.submodulePR.outputs.body, steps.PRFramework.outputs.prurl)"
     run: |
       cd submodule
-      gh auth status
       gh pr edit ${{ steps.submodulePR.outputs.prurl }} --body  '${{ steps.submodulePR.outputs.body }}   Related framework PR ${{ steps.PRFramework.outputs.prurl }}'
     env:
       GITHUB_TOKEN: ${{ inputs.token }}
@@ -122,8 +120,7 @@ runs:
     if: "steps.frameworkBranch.outputs.ref != 'master' && !contains(steps.PRFramework.outputs.body, steps.submodulePR.outputs.prurl)"
     run: |
       cd framework
-      gh auth status
       gh pr edit ${{ steps.PRFramework.outputs.prurl }} --body '${{ steps.PRFramework.outputs.body }}  Related PR ${{ steps.submodulePR.outputs.prurl }}'
     env:
-      GITHUB_TOKEN: ${{ inputs.github_token }}
+      GITHUB_TOKEN: ${{ inputs.token }}
     shell: bash
