@@ -79,17 +79,10 @@ jobs:
             echo "Not approved or invalid PR for branch " ${{ env.BRANCH_NAME }} " in " ${{ matrix.submodule }}  " merge is not allowed"
             exit 1
           fi
-      - name: Remove label to allow merging of PR
-        if: (github.event.action == 'closed' && github.event.pull_request.merged == true && steps.PRCheck.outputs.review == 'APPROVED' && steps.PRCheck.outputs.prState != 'MERGED')
-        run: |
-          cd submodule
-          gh pr edit ${{ steps.PRCheck.outputs.prurl }} --remove "framework-pr"
-        env:
-          GITHUB_TOKEN: ${{ secrets.REST_TOKEN }}
       - name: Merge PR
         if: (github.event.action == 'closed' && github.event.pull_request.merged == true && steps.PRCheck.outputs.review == 'APPROVED' && steps.PRCheck.outputs.prState != 'MERGED')
-        run: |
           cd submodule
+          gh pr edit ${{ steps.PRCheck.outputs.prurl }} --remove "framework-pr"
           gh auth status
           echo "actor " ${{ github.actor }}
           gh pr merge --auto --merge "$PR_URL"
