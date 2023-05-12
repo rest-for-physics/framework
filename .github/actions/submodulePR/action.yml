@@ -97,7 +97,7 @@ runs:
       cd framework
       gh pr create -B master -H ${{ inputs.branch }} --title 'Submodule Updates from ${{ inputs.submodule }} branch ${{ inputs.branch }}' --body 'Automatic PR from ${{ inputs.submodule }} branch ${{ inputs.branch }}, related PR ${{ steps.submodulePR.outputs.prurl }}'
     env:
-      GITHUB_TOKEN: ${{ inputs.github_token }}
+      GITHUB_TOKEN: ${{ inputs.token }}
     shell: bash
   - name: Update submodule PR body
     if: "steps.frameworkBranch.outputs.ref != 'master' && !contains(steps.submodulePR.outputs.body, steps.frameworkPR.outputs.prurl)"
@@ -105,7 +105,7 @@ runs:
       cd submodule
       gh pr edit ${{ steps.submodulePR.outputs.prurl }} --body  '${{ steps.submodulePR.outputs.body }}   Related framework PR ${{ steps.frameworkPR.outputs.prurl }}'
     env:
-      GITHUB_TOKEN: ${{ inputs.github_token }}
+      GITHUB_TOKEN: ${{ inputs.token }}
     shell: bash
   - name: Update framework PR body
     if: "steps.frameworkBranch.outputs.ref != 'master' && !contains(steps.frameworkPR.outputs.body, steps.submodulePR.outputs.prurl)"
