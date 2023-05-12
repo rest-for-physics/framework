@@ -103,7 +103,7 @@ runs:
     if: "steps.frameworkBranch.outputs.ref != 'master' && !contains(steps.submodulePR.outputs.body, steps.frameworkPR.outputs.prurl)"
     run: |
       cd submodule
-      gh pr edit ${{ steps.submodulePR.outputs.prurl }} --body  "${{ steps.submodulePR.outputs.body }}   Related framework PR ${{ steps.frameworkPR.outputs.prurl }}"
+      gh pr edit ${{ steps.submodulePR.outputs.prurl }} --body  '${{ steps.submodulePR.outputs.body }}   Related framework PR ${{ steps.frameworkPR.outputs.prurl }}'
     env:
       GITHUB_TOKEN: ${{ inputs.github_token }}
     shell: bash
@@ -111,7 +111,7 @@ runs:
     if: "steps.frameworkBranch.outputs.ref != 'master' && !contains(steps.frameworkPR.outputs.body, steps.submodulePR.outputs.prurl)"
     run: |
       cd framework
-      gh pr edit ${{ steps.frameworkPR.outputs.prurl }} --body "${{ steps.frameworkPR.outputs.body }}  Related PR ${{ steps.submodulePR.outputs.prurl }}"
+      gh pr edit ${{ steps.frameworkPR.outputs.prurl }} --body '${{ steps.frameworkPR.outputs.body }}  Related PR ${{ steps.submodulePR.outputs.prurl }}'
     env:
       GITHUB_TOKEN: ${{ inputs.github_token }}
     shell: bash
