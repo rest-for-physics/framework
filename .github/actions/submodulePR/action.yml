@@ -104,6 +104,7 @@ runs:
     run: |
       cd submodule
       echo -e "${{ steps.submodulePR.outputs.body }}\nRelated framework PR ${{ steps.frameworkPR.outputs.prurl }}" > msg
+      export msg=$(cat msg)
       gh pr edit ${{ steps.submodulePR.outputs.prurl }} --body "$msg"
     env:
       GITHUB_TOKEN: ${{ inputs.github_token }}
@@ -113,6 +114,7 @@ runs:
     run: |
       cd framework
       echo -e "${{ steps.frameworkPR.outputs.body }}\nRelated PR ${{ steps.submodulePR.outputs.prurl }}"  > msg
+      export msg=$(cat msg)
       gh pr edit ${{ steps.frameworkPR.outputs.prurl }} --body "$msg"
     env:
       GITHUB_TOKEN: ${{ inputs.github_token }}
