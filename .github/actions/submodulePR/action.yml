@@ -85,7 +85,7 @@ runs:
       #Check framework PR
       gh pr view
       echo "prurl=$(gh pr view --json url -t '{{ .url }}')" >> $GITHUB_OUTPUT
-       echo -e "body<<EOF\n$(gh pr view --json body -t '{{ .body }}')\nEOF" >> $GITHUB_OUTPUT
+      echo -e "body<<EOF\n$(gh pr view --json body -t '{{ .body }}')\nEOF" >> $GITHUB_OUTPUT
       #Add custom label
       gh pr edit $prurl --add-label ${{ inputs.label }}
     env:
@@ -103,7 +103,8 @@ runs:
     if: "steps.frameworkBranch.outputs.ref != 'master' && !contains(steps.submodulePR.outputs.body, steps.frameworkPR.outputs.prurl)"
     run: |
       cd submodule
-      gh pr edit ${{ steps.submodulePR.outputs.prurl }} --body "${{ steps.submodulePR.outputs.body }} \n Related framework PR "${{ steps.frameworkPR.outputs.prurl }}"
+      echo -e "${{ steps.submodulePR.outputs.body }}\nRelated framework PR ${{ steps.frameworkPR.outputs.prurl }}" > msg
+      gh pr edit ${{ steps.submodulePR.outputs.prurl }} --body "$msg"
     env:
       GITHUB_TOKEN: ${{ inputs.github_token }}
     shell: bash
@@ -111,7 +112,8 @@ runs:
     if: "steps.frameworkBranch.outputs.ref != 'master' && !contains(steps.frameworkPR.outputs.body, steps.submodulePR.outputs.prurl)"
     run: |
       cd framework
-      gh pr edit ${{ steps.frameworkPR.outputs.prurl }} --body "${{ steps.frameworkPR.outputs.body }} \n Related PR "${{ steps.submodulePR.outputs.prurl }}"
+      echo -e "${{ steps.frameworkPR.outputs.body }}\nRelated PR ${{ steps.submodulePR.outputs.prurl }}"  > msg
+      gh pr edit ${{ steps.frameworkPR.outputs.prurl }} --body "$msg"
     env:
       GITHUB_TOKEN: ${{ inputs.github_token }}
     shell: bash
