@@ -129,6 +129,8 @@ class TRestTools {
 
     static std::string POSTRequest(const std::string& url, const std::map<std::string, std::string>& keys);
     static void ChangeDirectory(const std::string& toDirectory);
+
+    static bool GzipInflate(const std::string& compressedBytes, std::string& uncompressedBytes);
 };
 
 namespace REST_InitTools {
