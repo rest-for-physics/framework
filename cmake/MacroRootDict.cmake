@@ -69,16 +69,19 @@ macro (GEN_ROOT_DICT_LINKDEF_HEADER _namespace)
 
     set(_input_headers ${ARGN})
     set(_linkdef_header "${ROOT_DICT_OUTPUT_DIR}/${_namespace}_Linkdef.h")
+    # message("Class: ${_namespace}_Linkdef.h")
 
     # message ( STATUS "${_input_headers}" )
 
     # This code is used to identify and add std:: lists that use a struct to
     # LinkDef
     file(STRINGS "${_input_headers}" lines)
-    string(FIND "${lines}" "struct" FOUND_STRUCT)
+    string(FIND "${lines}" "struct " FOUND_STRUCT)
+    # message( "${FOUND_STRUCT}")
     set(_structName "NONE")
     if (FOUND_STRUCT GREATER 0)
         string(SUBSTRING "${lines}" ${FOUND_STRUCT} 50 subline)
+        # message( "Subline : ${subline}" )
         string(FIND "${subline}" "{" FOUND_OPEN_BRACE)
         # It helps to filter some undesired occurences of struct. But it limits
         # the size of the struct name
