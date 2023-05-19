@@ -40,6 +40,7 @@ runs:
     if: steps.frameworkBranch.outputs.ref == ${{ inputs.branch }}
     run: |
       cd framework
+      git pull
       git add ${{ inputs.submodule }}
       var=$(git diff --cached)
         if [[ -z $var ]]; then
