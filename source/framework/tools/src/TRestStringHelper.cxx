@@ -654,9 +654,9 @@ TVector3 REST_StringHelper::StringTo3DVector(string in) {
     if (firstComma >= endVector || firstComma <= startVector) return a;
     if (secondComma >= endVector || secondComma <= startVector) return a;
 
-    string X = in.substr(startVector + 1, firstComma - startVector - 1);
-    string Y = in.substr(firstComma + 1, secondComma - firstComma - 1);
-    string Z = in.substr(secondComma + 1, endVector - secondComma - 1);
+    string X = Trim(in.substr(startVector + 1, firstComma - startVector - 1));
+    string Y = Trim(in.substr(firstComma + 1, secondComma - firstComma - 1));
+    string Z = Trim(in.substr(secondComma + 1, endVector - secondComma - 1));
 
     a.SetXYZ(StringToDouble(X), StringToDouble(Y), StringToDouble(Z));
 
@@ -682,8 +682,8 @@ TVector2 REST_StringHelper::StringTo2DVector(string in) {
 
     if (firstComma >= endVector || firstComma <= startVector) return a;
 
-    string X = in.substr(startVector + 1, firstComma - startVector - 1);
-    string Y = in.substr(firstComma + 1, endVector - firstComma - 1);
+    string X = Trim(in.substr(startVector + 1, firstComma - startVector - 1));
+    string Y = Trim(in.substr(firstComma + 1, endVector - firstComma - 1));
 
     a.Set(StringToDouble(X), StringToDouble(Y));
 
