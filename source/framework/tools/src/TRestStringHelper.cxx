@@ -212,7 +212,8 @@ Int_t REST_StringHelper::GetChar(string hint) {
 /// not it returns 0.
 ///
 Int_t REST_StringHelper::isANumber(string in) {
-    return (in.find_first_not_of("-+0123456789.eE") == string::npos && in.length() != 0);
+    std::string inTrim = Trim(in);
+    return (inTrim.find_first_not_of("-+0123456789.eE") == string::npos && inTrim.length() != 0);
 }
 
 ///////////////////////////////////////////////
@@ -577,8 +578,8 @@ TRestStringOutput::REST_Verbose_Level REST_StringHelper::StringToVerboseLevel(st
 /// \brief Gets a double from a string.
 ///
 Double_t REST_StringHelper::StringToDouble(string in) {
-    if (isANumber(in)) {
-        return stod(in);
+    if (isANumber(inT)) {
+        return stod(inT);
     } else {
         return -1;
     }
