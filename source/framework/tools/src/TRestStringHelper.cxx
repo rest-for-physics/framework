@@ -213,7 +213,7 @@ Int_t REST_StringHelper::GetChar(string hint) {
 ///
 Int_t REST_StringHelper::isANumber(string in) {
     std::string inTrim = Trim(in);
-    return (inTrim.find_first_not_of("-+0123456789.eE") == string::npos && inTrim.length() != 0);
+    return (inTrim.find_first_not_of("-+0123456789.eE") == string::npos && !inTrim.empty() );
 }
 
 ///////////////////////////////////////////////
