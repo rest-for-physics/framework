@@ -578,8 +578,8 @@ TRestStringOutput::REST_Verbose_Level REST_StringHelper::StringToVerboseLevel(st
 /// \brief Gets a double from a string.
 ///
 Double_t REST_StringHelper::StringToDouble(string in) {
-    if (isANumber(inT)) {
-        return stod(inT);
+    if (isANumber(in)) {
+        return stod(in);
     } else {
         return -1;
     }
@@ -655,9 +655,9 @@ TVector3 REST_StringHelper::StringTo3DVector(string in) {
     if (firstComma >= endVector || firstComma <= startVector) return a;
     if (secondComma >= endVector || secondComma <= startVector) return a;
 
-    string X = Trim(in.substr(startVector + 1, firstComma - startVector - 1));
-    string Y = Trim(in.substr(firstComma + 1, secondComma - firstComma - 1));
-    string Z = Trim(in.substr(secondComma + 1, endVector - secondComma - 1));
+    string X = in.substr(startVector + 1, firstComma - startVector - 1);
+    string Y = in.substr(firstComma + 1, secondComma - firstComma - 1);
+    string Z = in.substr(secondComma + 1, endVector - secondComma - 1);
 
     a.SetXYZ(StringToDouble(X), StringToDouble(Y), StringToDouble(Z));
 
