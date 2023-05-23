@@ -18,11 +18,13 @@ get_filename_component(GEANT4_BIN_DIR "${GEANT4_PATH}/bin/" REALPATH)
 
 if (${REST_G4} MATCHES "ON")
     # https://github.com/rest-for-physics/framework/issues/331
+    set(g4LibPath ":${GEANT4_PATH}/lib/")
     set(loadG4
         "\# if geant4.sh script is found we load the same Geant4 version as used in compilation\nif [[ -f \\\"${GEANT4_BIN_DIR}/geant4.sh\\\" ]]; then
     [[ -n \\\"\\\${ZSH_VERSION}\\\" ]] && pushd ${GEANT4_BIN_DIR} > /dev/null\n    source ${GEANT4_BIN_DIR}/geant4.sh\n    [[ -n \\\"\\\${ZSH_VERSION}\\\" ]] && popd > /dev/null\nfi\n"
     )
 else ()
+    set(g4LibPath "")
     set(loadG4 "")
 endif (${REST_G4} MATCHES "ON")
 
@@ -128,6 +130,8 @@ export REST_GARFIELD_INCLUDE=${Garfield_INCLUDE_DIRS}
 export REST_GARFIELD_LIB=${Garfield_LIBRARIES}
 export PATH=\\\$REST_PATH/bin:\\\$_PATH
 export LD_LIBRARY_PATH=\\\$REST_PATH/lib:\\\$_LD_LIBRARY_PATH
+# DYLD_LIBRARY_PATH is required by MacOs
+export DYLD_LIBRARY_PATH=\\\$REST_PATH/lib:\\\$LD_LIBRARY_PATH${g4LibPath}
 export LIBRARY_PATH=\\\$REST_PATH/lib:\\\$LIBRARY_PATH
 export PYTHONPATH=${PYTHON_BINDINGS_INSTALL_DIR}:\\\$PYTHONPATH
 
