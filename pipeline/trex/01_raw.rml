@@ -38,7 +38,7 @@
 		</addProcess>
 
 		<addProcess type="TRestRawSignalAnalysisProcess" name="rawAna" value="ON"
-			baseLineRange="(${BL_MIN},${BL_MAX})" integralRange="(${INT_MIN},${INT_MAX})"
+			baseLineRange="(${BL_MIN},${BL_MAX})" analysisRange="(${INT_MIN},${INT_MAX})"
 			pointThreshold="${POINT_TH}" pointsOverThreshold="${NPOINTS}" signalThreshold="${SGNL_TH}"
 			verboseLevel="silent" >
             // We define all observables except MinValue because is not yet on validation.root
