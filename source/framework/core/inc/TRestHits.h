@@ -125,9 +125,9 @@ class TRestHits {
     Double_t GetSkewXY() const;
     Double_t GetSkewZ() const;
 
-    Double_t GetGaussSigmaX();
-    Double_t GetGaussSigmaY();
-    Double_t GetGaussSigmaZ();
+    Double_t GetGaussSigmaX(Double_t error = 150.0);
+    Double_t GetGaussSigmaY(Double_t error = 150.0);
+    Double_t GetGaussSigmaZ(Double_t error = 150.0);
 
     Double_t GetEnergyX() const;
     Double_t GetEnergyY() const;

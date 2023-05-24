@@ -763,11 +763,11 @@ void TRestHits::GetBoundaries(std::vector<double>& dist, double& max, double& mi
 }
 ///////////////////////////////////////////////
 /// \brief It computes the gaussian sigma in the X-coordinate.
-/// It adds a hit to the right and a hit to the left, with energy = 0 +/- 70 ADC.
+/// It adds a hit to the right and a hit to the left, with energy = 0 +/- user defined error in ADC.
 /// Then it fits a gaussian to the hits and extracts the sigma. The hits are just added
 /// for fitting purposes and do not go into any further processing.
 ///
-Double_t TRestHits::GetGaussSigmaX() {
+Double_t TRestHits::GetGaussSigmaX(Double_t error) {
     Double_t gausSigmaX = 0;
     Int_t nHits = GetNumberOfHits();
     if (nHits <= 0) {
@@ -804,8 +804,8 @@ Double_t TRestHits::GetGaussSigmaX() {
             y[h] = 0.0;
             ex[0] = 0.0;
             ex[h] = 0.0;
-            ey[0] = 70.0;
-            ey[h] = 70.0;
+            ey[0] = error;
+            ey[h] = error;
         }
         TGraphErrors* grX = new TGraphErrors(nElems, &x[0], &y[0], &ex[0], &ey[0]);
         // TCanvas *c = new TCanvas("c","X position fit",200,10,500,500);
@@ -837,10 +837,10 @@ Double_t TRestHits::GetGaussSigmaX() {
     return abs(gausSigmaX);
 }
 /// \brief It computes the gaussian sigma in the Y-coordinate.
-/// It adds a hit to the right and a hit to the left, with energy = 0 +/- 70 ADC.
+/// It adds a hit to the right and a hit to the left, with energy = 0 +/- user defined error in ADC.
 /// Then it fits a gaussian to the hits and extracts the sigma. The hits are just added
 /// for fitting purposes and do not go into any further processing.
-Double_t TRestHits::GetGaussSigmaY() {
+Double_t TRestHits::GetGaussSigmaY(Double_t error) {
     Double_t gausSigmaY = 0;
     Int_t nHits = GetNumberOfHits();
     if (nHits <= 0) {
@@ -876,8 +876,8 @@ Double_t TRestHits::GetGaussSigmaY() {
             y[h] = 0.0;
             ex[0] = 0.0;
             ex[h] = 0.0;
-            ey[0] = 70.0;
-            ey[h] = 70.0;
+            ey[0] = error;
+            ey[h] = error;
         }
         TGraphErrors* grY = new TGraphErrors(nElems, &x[0], &y[0], &ex[0], &ey[0]);
         // TCanvas *c = new TCanvas("c","Y position fit",200,10,500,500);
@@ -908,10 +908,10 @@ Double_t TRestHits::GetGaussSigmaY() {
     return abs(gausSigmaY);
 }
 /// \brief It computes the gaussian sigma in the Z-coordinate.
-/// It adds a hit to the right and a hit to the left, with energy = 0 +/- 70 ADC.
+/// It adds a hit to the right and a hit to the left, with energy = 0 +/- user defined error in ADC.
 /// Then it fits a gaussian to the hits and extracts the sigma. The hits are just added
 /// for fitting purposes and do not go into any further processing.
-Double_t TRestHits::GetGaussSigmaZ() {
+Double_t TRestHits::GetGaussSigmaZ(Double_t error) {
     Double_t gausSigmaZ = 0;
     Int_t nHits = GetNumberOfHits();
     if (nHits <= 0) {
@@ -947,8 +947,8 @@ Double_t TRestHits::GetGaussSigmaZ() {
             y[h] = 0.0;
             ex[0] = 0.0;
             ex[h] = 0.0;
-            ey[0] = 70.0;
-            ey[h] = 70.0;
+            ey[0] = error;
+            ey[h] = error;
         }
         TGraphErrors* grZ = new TGraphErrors(nElems, &x[0], &y[0], &ex[0], &ey[0]);
         // TCanvas *c = new TCanvas("c","Z position fit",200,10,500,500);
