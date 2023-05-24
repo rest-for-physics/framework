@@ -1,5 +1,5 @@
-#include "TRestTask.h"
 #include "TRestDataSet.h"
+#include "TRestTask.h"
 
 #ifndef RestTask_GenerateDataSet
 #define RestTask_GenerateDataSet
@@ -15,18 +15,15 @@
 //***
 //*******************************************************************************************************
 
-Int_t REST_GenerateDataSet( std::string inputRML, std::string datasets )
-{
+Int_t REST_GenerateDataSet(std::string inputRML, std::string datasets) {
+    std::vector<std::string> sets = REST_StringHelper::Split(datasets, ",");
 
-	std::vector<std::string> sets = REST_StringHelper::Split( datasets, "," );
-
-	for( const auto &set: sets ) {
-		std::cout << "Set : " << set << std::endl;
-		TRestDataSet d( inputRML.c_str(), set.c_str() ); 
-		d.GenerateDataSet();
-		d.Export( "dataset_" + set + ".root" );
-	}
-	return 0;
-
+    for (const auto& set : sets) {
+        std::cout << "Set : " << set << std::endl;
+        TRestDataSet d(inputRML.c_str(), set.c_str());
+        d.GenerateDataSet();
+        d.Export("dataset_" + set + ".root");
+    }
+    return 0;
 }
 #endif
