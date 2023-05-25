@@ -22,7 +22,7 @@ Int_t REST_GenerateDataSet(std::string inputRML, std::string datasets) {
         std::cout << "Set : " << set << std::endl;
         TRestDataSet d(inputRML.c_str(), set.c_str());
         d.GenerateDataSet();
-        d.Export("dataset_" + set + ".root");
+        d.Export("Dataset_" + set + ".root");
     }
     return 0;
 }
