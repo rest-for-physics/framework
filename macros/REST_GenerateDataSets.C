@@ -11,11 +11,11 @@
 //*** to be generated from the existing ones inside `dataset.rml`.
 //***
 //*** --------------
-//*** Usage: restManager GenerateDataSet datasets.rml set1,set2,set3
+//*** Usage: restManager GenerateDataSets datasets.rml set1,set2,set3
 //***
 //*******************************************************************************************************
 
-Int_t REST_GenerateDataSets(std::string inputRML, std::string datasets) {
+Int_t REST_GenerateDataSets(const std::string& inputRML, const std::string& datasets) {
     std::vector<std::string> sets = REST_StringHelper::Split(datasets, ",");
 
     for (const auto& set : sets) {
