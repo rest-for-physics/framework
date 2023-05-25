@@ -1,8 +1,8 @@
 #include "TRestDataSet.h"
 #include "TRestTask.h"
 
-#ifndef RestTask_GenerateDataSet
-#define RestTask_GenerateDataSet
+#ifndef RestTask_GenerateDataSets
+#define RestTask_GenerateDataSets
 
 //*******************************************************************************************************
 //*** Description: This macro will launch the generation of datasets defined
