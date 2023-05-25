@@ -121,7 +121,6 @@ class TRestDataSet : public TRestMetadata {
             RESTError << "Tree has not been yet initialized" << RESTendl;
             RESTError << "You should invoke TRestDataSet::GenerateDataSet() or " << RESTendl;
             RESTError << "TRestDataSet::Import( fname ) before trying to access the tree" << RESTendl;
-            << RESTendl;
         }
         return fTree;
     }
