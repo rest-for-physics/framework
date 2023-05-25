@@ -57,7 +57,7 @@ template <typename T>
 std::vector<Float_t> GetDerivative(const std::vector<T>& signal);
 
 template <typename T>
-std::vector<std::pair<Float_t, Float_t> > GetPointsOverThreshold(const std::vector<T>& signal,
+std::vector<std::pair<Int_t, Float_t> > GetPointsOverThreshold(const std::vector<T>& signal,
                                                                  TVector2& range, const TVector2& thrPar,
                                                                  Int_t nPointsOver, Int_t nPointsFlat,
                                                                  Double_t baseLineSigma);
@@ -86,9 +86,12 @@ Double_t GetIntegral(const std::vector<T>& signal, Int_t startBin, Int_t endBin)
 template <typename T>
 Double_t GetMaxPeakWidth(const std::vector<T>& signal);
 
-Double_t GetSlopeIntegral(const std::vector<std::pair<Float_t, Float_t> >& signal);
-Double_t GetRiseSlope(const std::vector<std::pair<Float_t, Float_t> >& signal);
-Double_t GetRiseTime(const std::vector<std::pair<Float_t, Float_t> >& signal);
+template <typename T>
+Double_t GetSlopeIntegral(const std::vector<std::pair<T, Float_t> >& signal);
+template <typename T>
+Double_t GetRiseSlope(const std::vector<std::pair<T, Float_t> >& signal);
+template <typename T>
+Double_t GetRiseTime(const std::vector<std::pair<T, Float_t> >& signal);
 
 std::vector<std::pair<double, double> > GetIntWindow(TGraph* signal, double intWindow);
 std::array<std::pair<Double_t, Double_t>, 3> GetTripleMax(TGraph* signal);

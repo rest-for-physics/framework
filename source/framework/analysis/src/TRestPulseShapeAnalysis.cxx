@@ -277,13 +277,13 @@ template std::vector<Float_t> TRestPulseShapeAnalysis::GetDerivative(const std::
 ///
 
 template <typename T>
-std::vector<std::pair<Float_t, Float_t> > TRestPulseShapeAnalysis::GetPointsOverThreshold(
+std::vector<std::pair<Int_t, Float_t> > TRestPulseShapeAnalysis::GetPointsOverThreshold(
     const std::vector<T>& signal, TVector2& range, const TVector2& thrPar, Int_t nPointsOver,
     Int_t nPointsFlat, Double_t baseLineSigma) {
     if (range.X() < 0) range.SetX(0);
     if (range.Y() <= 0) range.SetY(signal.size());
 
-    std::vector<std::pair<Float_t, Float_t> > pointsOverThreshold;
+    std::vector<std::pair<Int_t, Float_t> > pointsOverThreshold;
 
     double pointTh = thrPar.X();
     double signalTh = thrPar.Y();
@@ -333,11 +333,10 @@ std::vector<std::pair<Float_t, Float_t> > TRestPulseShapeAnalysis::GetPointsOver
 
     return pointsOverThreshold;
 }
-
-template std::vector<std::pair<Float_t, Float_t> > TRestPulseShapeAnalysis::GetPointsOverThreshold<Short_t>(
+template std::vector<std::pair<Int_t, Float_t> > TRestPulseShapeAnalysis::GetPointsOverThreshold<Short_t>(
     const std::vector<Short_t>& signal, TVector2& range, const TVector2& thrPar, Int_t nPointsOver,
     Int_t nPointsFlat, Double_t baseLineSigma);
-template std::vector<std::pair<Float_t, Float_t> > TRestPulseShapeAnalysis::GetPointsOverThreshold<Float_t>(
+template std::vector<std::pair<Int_t, Float_t> > TRestPulseShapeAnalysis::GetPointsOverThreshold<Float_t>(
     const std::vector<Float_t>& signal, TVector2& range, const TVector2& thrPar, Int_t nPointsOver,
     Int_t nPointsFlat, Double_t baseLineSigma);
 
@@ -610,7 +609,8 @@ Double_t TRestPulseShapeAnalysis::GetTripleMaxIntegral(TGraph* signal) {
 /// rise (risetime) over a vector of pairs, that should
 /// correspond to the points over threshold for a given signal.
 ///
-Double_t TRestPulseShapeAnalysis::GetSlopeIntegral(const std::vector<std::pair<Float_t, Float_t> >& signal) {
+template <typename T>
+Double_t TRestPulseShapeAnalysis::GetSlopeIntegral(const std::vector<std::pair<T, Float_t> >& signal) {
     Double_t sum = 0;
     Double_t pVal = 0;
     for (const auto& [index, val] : signal) {
@@ -627,13 +627,16 @@ Double_t TRestPulseShapeAnalysis::GetSlopeIntegral(const std::vector<std::pair<F
     */
     return sum;
 }
+template Double_t TRestPulseShapeAnalysis::GetSlopeIntegral(const std::vector<std::pair<Int_t, Float_t> >& signal);
+template Double_t TRestPulseShapeAnalysis::GetSlopeIntegral(const std::vector<std::pair<Float_t, Float_t> >& signal);
 
 ///////////////////////////////////////////////
 /// \brief It returns the slope of the first positive
 /// rise (risetime) over a vector of pairs, that should
 /// correspond to the points over threshold for a given signal.
 ///
-Double_t TRestPulseShapeAnalysis::GetRiseSlope(const std::vector<std::pair<Float_t, Float_t> >& signal) {
+template <typename T>
+Double_t TRestPulseShapeAnalysis::GetRiseSlope(const std::vector<std::pair<T, Float_t> >& signal) {
     if (signal.size() < 2) return 0;
 
     auto max = std::max_element(std::begin(signal), std::end(signal),
@@ -647,13 +650,17 @@ Double_t TRestPulseShapeAnalysis::GetRiseSlope(const std::vector<std::pair<Float
 
     return (hP - lP) / (maxBin - startBin);
 }
+template Double_t TRestPulseShapeAnalysis::GetRiseSlope(const std::vector<std::pair<Int_t, Float_t> >& signal);
+template Double_t TRestPulseShapeAnalysis::GetRiseSlope(const std::vector<std::pair<Float_t, Float_t> >& signal);
+
 
 ///////////////////////////////////////////////
 /// \brief It returns the time of the first positive
 /// rise or risetime over a vector of pairs, that should
 /// correspond to the points over threshold for a given signal.
 ///
-Double_t TRestPulseShapeAnalysis::GetRiseTime(const std::vector<std::pair<Float_t, Float_t> >& signal) {
+template <typename T>
+Double_t TRestPulseShapeAnalysis::GetRiseTime(const std::vector<std::pair<T, Float_t> >& signal) {
     if (signal.size() < 2) {
         return 0;
     }
@@ -665,3 +672,6 @@ Double_t TRestPulseShapeAnalysis::GetRiseTime(const std::vector<std::pair<Float_
     auto startBin = signal.front().first;
     return maxBin - startBin;
 }
+template Double_t TRestPulseShapeAnalysis::GetRiseTime(const std::vector<std::pair<Int_t, Float_t> >& signal);
+template Double_t TRestPulseShapeAnalysis::GetRiseTime(const std::vector<std::pair<Float_t, Float_t> >& signal);
+
