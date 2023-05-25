@@ -379,6 +379,9 @@ std::vector<std::string> TRestDataSet::FileSelection() {
             if (fFilterLowerThan[n] != -1)
                 if (StringToDouble(mdValue) >= fFilterLowerThan[n]) accept = false;
 
+            if (fFilterEqualsTo[n] != -1)
+                if (StringToDouble(mdValue) != fFilterEqualsTo[n]) accept = false;
+
             n++;
         }
 
@@ -512,6 +515,7 @@ void TRestDataSet::PrintMetadata() {
             if (!fFilterContains[n].empty()) RESTMetadata << " Contains: " << fFilterContains[n];
             if (fFilterGreaterThan[n] != -1) RESTMetadata << " Greater than: " << fFilterGreaterThan[n];
             if (fFilterLowerThan[n] != -1) RESTMetadata << " Lower than: " << fFilterLowerThan[n];
+            if (fFilterEqualsTo[n] != -1) RESTMetadata << " Equals to: " << fFilterEqualsTo[n];
 
             RESTMetadata << RESTendl;
             n++;
@@ -560,10 +564,12 @@ void TRestDataSet::InitFromConfigFile() {
         if (contains == "Not defined") contains = "";
         Double_t greaterThan = StringToDouble(GetFieldValue("greaterThan", filterDefinition));
         Double_t lowerThan = StringToDouble(GetFieldValue("lowerThan", filterDefinition));
+        Double_t equalsTo = StringToDouble(GetFieldValue("equalsTo", filterDefinition));
 
         fFilterContains.push_back(contains);
         fFilterGreaterThan.push_back(greaterThan);
         fFilterLowerThan.push_back(lowerThan);
+        fFilterEqualsTo.push_back(equalsTo);
 
         filterDefinition = GetNextElement(filterDefinition);
     }
@@ -689,6 +695,7 @@ void TRestDataSet::Export(const std::string& filename) {
                 if (!fFilterContains[n].empty()) fprintf(f, " Contains: %s.", fFilterContains[n].c_str());
                 if (fFilterGreaterThan[n] != -1) fprintf(f, " Greater than: %6.3lf.", fFilterGreaterThan[n]);
                 if (fFilterLowerThan[n] != -1) fprintf(f, " Lower than: %6.3lf.", fFilterLowerThan[n]);
+                if (fFilterEqualsTo[n] != -1) fprintf(f, " Equals to: %6.3lf.", fFilterLowerThan[n]);
                 fprintf(f, "\n");
                 n++;
             }
@@ -764,6 +771,7 @@ TRestDataSet& TRestDataSet::operator=(TRestDataSet& dS) {
     fFilterContains = dS.GetFilterContains();
     fFilterGreaterThan = dS.GetFilterGreaterThan();
     fFilterLowerThan = dS.GetFilterLowerThan();
+    fFilterEqualsTo = dS.GetFilterEqualsTo();
     fQuantity = dS.GetQuantity();
     fTotalDuration = dS.GetTotalTimeInSeconds();
     fCut = dS.GetCut();

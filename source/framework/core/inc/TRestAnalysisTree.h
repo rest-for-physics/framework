@@ -279,25 +279,24 @@ class TRestAnalysisTree : public TTree {
     void EnableQuickObservableValueSetting();
     void DisableQuickObservableValueSetting();
 
-    Double_t GetIntegral(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
-                         Int_t nBins = 1000) {
-        return GetObservableIntegral(obsName, xLow, xHigh, nBins);
+    Double_t GetIntegral(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1) {
+        return GetObservableIntegral(obsName, xLow, xHigh);
     }
 
-    Double_t GetAverage(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1, Int_t nBins = 1000) {
-        return GetObservableAverage(obsName, xLow, xHigh, nBins);
+    Double_t GetAverage(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1) {
+        return GetObservableAverage(obsName, xLow, xHigh);
     }
 
-    Double_t GetRMS(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1, Int_t nBins = 1000) {
-        return GetObservableRMS(obsName, xLow, xHigh, nBins);
+    Double_t GetRMS(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1) {
+        return GetObservableRMS(obsName, xLow, xHigh);
     }
 
-    Double_t GetMinimum(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1, Int_t nBins = 1000) {
-        return GetObservableMinimum(obsName, xLow, xHigh, nBins);
+    Double_t GetMinimum(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1) {
+        return GetObservableMinimum(obsName, xLow, xHigh);
     }
 
-    Double_t GetMaximum(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1, Int_t nBins = 1000) {
-        return GetObservableMaximum(obsName, xLow, xHigh, nBins);
+    Double_t GetMaximum(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1) {
+        return GetObservableMaximum(obsName, xLow, xHigh);
     }
 
     Double_t GetContour(const TString& obsName, const TString& obsIndexer, Double_t level = 0.5,
@@ -305,19 +304,14 @@ class TRestAnalysisTree : public TTree {
         return GetObservableContour(obsName, obsIndexer, level, nBins, xLow, xHigh);
     }
 
-    Double_t GetObservableIntegral(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
-                                   Int_t nBins = 1000);
+    Double_t GetObservableIntegral(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1);
 
-    Double_t GetObservableAverage(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
-                                  Int_t nBins = 1000);
+    Double_t GetObservableAverage(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1);
 
-    Double_t GetObservableRMS(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
-                              Int_t nBins = 1000);
+    Double_t GetObservableRMS(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1);
 
-    Double_t GetObservableMinimum(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
-                                  Int_t nBins = 1000);
-    Double_t GetObservableMaximum(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1,
-                                  Int_t nBins = 1000);
+    Double_t GetObservableMinimum(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1);
+    Double_t GetObservableMaximum(const TString& obsName, Double_t xLow = -1, Double_t xHigh = -1);
 
     Double_t GetObservableContour(const TString& obsName, const TString& obsIndexer, Double_t level = 0.5,
                                   Int_t nBins = -1, Double_t xLow = -1, Double_t xHigh = -1);

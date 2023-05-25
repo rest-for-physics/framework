@@ -55,6 +55,35 @@ macro (PREPARE_ROOT_DICT_HEADERS _input_dir)
 
 endmacro (PREPARE_ROOT_DICT_HEADERS)
 
+# This macro will generate a list with all the structures identified inside
+# `inlines`
+macro (GET_STRUCT_LIST inlines structList)
+
+    set(sList "")
+    string(FIND "${lines}" "struct " FOUND_STRUCT)
+    # message( "${FOUND_STRUCT}")
+    set(_structName "")
+    while (FOUND_STRUCT GREATER 0)
+        string(SUBSTRING "${lines}" ${FOUND_STRUCT} 50 subline)
+        # message( "Subline : ${subline}" )
+        string(FIND "${subline}" "{" FOUND_OPEN_BRACE)
+        # It helps to filter some undesired occurences of struct. But it limits
+        # the size of the struct name
+        if (FOUND_OPEN_BRACE GREATER 0 AND FOUND_OPEN_BRACE LESS 30)
+            string(SUBSTRING "${subline}" 7 ${FOUND_OPEN_BRACE} _structName)
+            string(FIND "${_structName}" " {" FOUND_OPEN_BRACE)
+            string(SUBSTRING "${_structName}" 0 ${FOUND_OPEN_BRACE} _structName)
+        endif (FOUND_OPEN_BRACE GREATER 0 AND FOUND_OPEN_BRACE LESS 30)
+        list(APPEND sList ${_structName})
+
+        math(EXPR FOUND_STRUCT "${FOUND_STRUCT}+1")
+        string(SUBSTRING "${lines}" ${FOUND_STRUCT} 100000000 lines)
+        string(FIND "${lines}" "struct " FOUND_STRUCT)
+    endwhile (FOUND_STRUCT GREATER 0)
+    set(structList "${sList}")
+
+endmacro ()
+
 # ============================================================================
 # helper macro to generate Linkdef.h files for rootcint
 #
@@ -69,33 +98,26 @@ macro (GEN_ROOT_DICT_LINKDEF_HEADER _namespace)
 
     set(_input_headers ${ARGN})
     set(_linkdef_header "${ROOT_DICT_OUTPUT_DIR}/${_namespace}_Linkdef.h")
+    # message("Class: ${_namespace}_Linkdef.h")
 
     # message ( STATUS "${_input_headers}" )
 
     # This code is used to identify and add std:: lists that use a struct to
     # LinkDef
     file(STRINGS "${_input_headers}" lines)
-    string(FIND "${lines}" "struct" FOUND_STRUCT)
-    set(_structName "NONE")
-    if (FOUND_STRUCT GREATER 0)
-        string(SUBSTRING "${lines}" ${FOUND_STRUCT} 50 subline)
-        string(FIND "${subline}" "{" FOUND_OPEN_BRACE)
-        # It helps to filter some undesired occurences of struct. But it limits
-        # the size of the struct name
-        if (FOUND_OPEN_BRACE GREATER 0 AND FOUND_OPEN_BRACE LESS 30)
-            string(SUBSTRING "${subline}" 7 ${FOUND_OPEN_BRACE} _structName)
-            string(FIND "${_structName}" " {" FOUND_OPEN_BRACE)
-            string(SUBSTRING "${_structName}" 0 ${FOUND_OPEN_BRACE} _structName)
-        endif (FOUND_OPEN_BRACE GREATER 0 AND FOUND_OPEN_BRACE LESS 30)
-    endif (FOUND_STRUCT GREATER 0)
 
-    set(FOUND_STD_STRUCT "NO")
-    if (NOT _structName MATCHES "NONE")
-        # message( STATUS "Found::${_structName}::" )
-        while (lines)
-            list(POP_FRONT lines LINE)
-            # message( STATUS "This is line::${LINE}::" )
-            string(FIND "${LINE}" "${_structName}" FOUND_STRUCT_NAME)
+    # Getting a list of structures inside the header file
+    set(structList "")
+    get_struct_list(lines structList)
+    # message( "Struct LIST: ${structList}" )
+
+    file(STRINGS "${_input_headers}" lines)
+    set(FOUND_STD_STRUCT "")
+    while (lines)
+        list(POP_FRONT lines LINE)
+        # message( STATUS "This is line::${LINE}::" )
+        foreach (_stName ${structList})
+            string(FIND "${LINE}" "${_stName}" FOUND_STRUCT_NAME)
             string(FIND "${LINE}" "std::" FOUND_STD)
             if (FOUND_STRUCT_NAME GREATER 0 AND FOUND_STD GREATER 0)
                 string(SUBSTRING "${LINE}" ${FOUND_STD} -1 LINE)
@@ -104,13 +126,13 @@ macro (GEN_ROOT_DICT_LINKDEF_HEADER _namespace)
                     math(EXPR FOUND_END "${FOUND_END}+1")
                     string(SUBSTRING "${LINE}" 0 ${FOUND_END} LINE)
                     message(STATUS "Adding ${LINE} to the dictionary!")
-                    set(FOUND_STD_STRUCT "${LINE}")
+                    list(APPEND FOUND_STD_STRUCT "${_stName}-${LINE}")
                 endif (FOUND_END GREATER 0 AND FOUND_END LESS 80)
             endif (FOUND_STRUCT_NAME GREATER 0 AND FOUND_STD GREATER 0)
+            # string(FIND LINE "${_stName}" FOUND_STRUCT_NAME)
+        endforeach ()
 
-            string(FIND LINE "${_structName}" FOUND_STRUCT_NAME)
-        endwhile ()
-    endif (NOT _structName MATCHES "NONE")
+    endwhile ()
     # This code is used to identify and add std:: lists that use a struct to
     # LinkDef
 
@@ -127,14 +149,23 @@ macro (GEN_ROOT_DICT_LINKDEF_HEADER _namespace)
             "${${_namespace}_file_contents}#pragma link C++ nestedclasses\;" \n)
         set(${_namespace}_file_contents
             "${${_namespace}_file_contents}#pragma link C++ nestedtypedef\;" \n)
-        if (NOT FOUND_STD_STRUCT MATCHES "NO")
+        foreach (stdFound ${FOUND_STD_STRUCT})
+            # message( "Found struct! : ${stdFound}" )
+            string(FIND "${stdFound}" "-" FOUND_SEPARATOR)
+            math(EXPR FOUND_SEPARATOR_1 "${FOUND_SEPARATOR}-1")
+            math(EXPR FOUND_SEPARATOR_2 "${FOUND_SEPARATOR}+1")
+
+            string(SUBSTRING ${stdFound} 0 ${FOUND_SEPARATOR} _sName)
+            string(SUBSTRING ${stdFound} ${FOUND_SEPARATOR_2} 1000000 _stdName)
+            # message( "Struct: ${_sName}" ) message( "STD Struct: ${_stdName}"
+            # )
             set(${_namespace}_file_contents
-                "${${_namespace}_file_contents}#pragma link C++ class ${_structName}+\;"
+                "${${_namespace}_file_contents}#pragma link C++ class ${_sName}+\;"
                 \n)
             set(${_namespace}_file_contents
-                "${${_namespace}_file_contents}#pragma link C++ class ${FOUND_STD_STRUCT}+\;"
+                "${${_namespace}_file_contents}#pragma link C++ class ${_stdName}+\;"
                 \n)
-        endif (NOT FOUND_STD_STRUCT MATCHES "NO")
+        endforeach ()
         set(${_namespace}_file_contents
             "${${_namespace}_file_contents}#pragma link C++ class ${_namespace}+\;"
             \n)

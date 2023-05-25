@@ -65,7 +65,7 @@ class TRestDataSet : public TRestMetadata {
     /// A list of metadata members where filters will be applied
     std::vector<std::string> fFilterMetadata;  //<
 
-    /// If not empty it will check if the metadata member contains the value
+    /// If not empty it will check if the metadata member contains the string
     std::vector<std::string> fFilterContains;  //<
 
     /// If the corresponding element is not empty it will check if the metadata member is greater
@@ -73,6 +73,9 @@ class TRestDataSet : public TRestMetadata {
 
     /// If the corresponding element is not empty it will check if the metadata member is lower
     std::vector<Double_t> fFilterLowerThan;  //<
+
+    /// If the corresponding element is not empty it will check if the metadata member is equal
+    std::vector<Double_t> fFilterEqualsTo;  //<
 
     /// The properties of a relevant quantity that we want to store together with the dataset
     std::map<std::string, RelevantQuantity> fQuantity;  //<
@@ -118,6 +121,7 @@ class TRestDataSet : public TRestMetadata {
             RESTError << "Tree has not been yet initialized" << RESTendl;
             RESTError << "You should invoke TRestDataSet::GenerateDataSet() or " << RESTendl;
             RESTError << "TRestDataSet::Import( fname ) before trying to access the tree" << RESTendl;
+            << RESTendl;
         }
         return fTree;
     }
@@ -145,6 +149,7 @@ class TRestDataSet : public TRestMetadata {
     inline auto GetFilterContains() const { return fFilterContains; }
     inline auto GetFilterGreaterThan() const { return fFilterGreaterThan; }
     inline auto GetFilterLowerThan() const { return fFilterLowerThan; }
+    inline auto GetFilterEqualsTo() const { return fFilterEqualsTo; }
     inline auto GetQuantity() const { return fQuantity; }
     inline auto GetCut() const { return fCut; }
 
