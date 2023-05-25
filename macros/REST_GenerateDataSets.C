@@ -15,7 +15,7 @@
 //***
 //*******************************************************************************************************
 
-Int_t REST_GenerateDataSet(std::string inputRML, std::string datasets) {
+Int_t REST_GenerateDataSets(std::string inputRML, std::string datasets) {
     std::vector<std::string> sets = REST_StringHelper::Split(datasets, ",");
 
     for (const auto& set : sets) {
