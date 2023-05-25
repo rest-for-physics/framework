@@ -337,7 +337,7 @@ void TRestDataSet::GenerateDataSet() {
     fDataSet = ROOT::RDataFrame("AnalysisTree", fOutName);
 
     TFile* f = TFile::Open(fOutName.c_str());
-    fTree = (TTree*)f->Get("AnalysisTree");
+    fTree = (TChain*)f->Get("AnalysisTree");
 
     RESTInfo << " - Dataset initialized!" << RESTendl;
 }
@@ -847,5 +847,56 @@ void TRestDataSet::Import(const std::string& fileName) {
     RESTInfo << "Opening " << fileName << RESTendl;
     fDataSet = ROOT::RDataFrame("AnalysisTree", fileName);
 
-    fTree = (TTree*)file->Get("AnalysisTree");
+    fTree = (TChain*)file->Get("AnalysisTree");
+}
+
+///////////////////////////////////////////////
+/// \brief This function initializes the chained tree and the RDataFrame using
+/// as input several root files that should contain TRestDataSet metadata
+/// information. The values of the first dataset will be considered to be stored
+/// in this new instance.
+///
+/// The metadata member `fMergedDataset` will be set to true to understand this
+/// dataset is the combination of several datasets, and not a pure original one.
+///
+void TRestDataSet::Import(std::vector<std::string> fileNames) {
+    for (const auto& fN : fileNames)
+        if (TRestTools::GetFileNameExtension(fN) != "root") {
+            RESTError << "Datasets can only be imported from root files" << RESTendl;
+            return;
+        }
+
+    if (fileNames.size() == 0) return;
+
+    TFile* file = TFile::Open(fileNames[0].c_str(), "READ");
+    if (file != nullptr) {
+        TIter nextkey(file->GetListOfKeys());
+        TKey* key;
+        while ((key = (TKey*)nextkey())) {
+            std::string kName = key->GetClassName();
+            if (REST_Reflection::GetClassQuick(kName.c_str()) != nullptr &&
+                REST_Reflection::GetClassQuick(kName.c_str())->InheritsFrom("TRestDataSet")) {
+                TRestDataSet* dS = file->Get<TRestDataSet>(key->GetName());
+                if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info)
+                    dS->PrintMetadata();
+                *this = *dS;
+            }
+        }
+    } else {
+        RESTError << "Cannot open " << fileNames[0] << RESTendl;
+        exit(1);
+    }
+
+    RESTInfo << "Opening list of files. First file: " << fileNames[0] << RESTendl;
+    fDataSet = ROOT::RDataFrame("AnalysisTree", fileNames);
+
+    if (fTree != nullptr) {
+        delete fTree;
+        fTree = nullptr;
+    }
+    fTree = new TChain("AnalysisTree");
+
+    for (const auto& fN : fileNames) fTree->Add((TString)fN);
+
+    fMergedDataset = true;
 }
