@@ -160,6 +160,8 @@ class TRestDataSet : public TRestMetadata {
 
     ROOT::RDF::RNode MakeCut(const TRestCut* cut);
 
+    ROOT::RDF::RNode Define(const std::string& columnName, const std::string& formula);
+
     void PrintMetadata() override;
     void Initialize() override;
 

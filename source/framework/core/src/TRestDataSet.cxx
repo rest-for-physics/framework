@@ -470,6 +470,29 @@ ROOT::RDF::RNode TRestDataSet::MakeCut(const TRestCut* cut) {
     return df;
 }
 
+///////////////////////////////////////////////
+/// \brief This function will add a new column to the RDataFrame using
+/// the same scheme as the usual RDF::Define method, but it will on top of
+/// that evaluate the values of any relevant quantities used.
+///
+/// For example, the following code line would create a new column named
+/// `test` replacing the relevant quantity `Nsim` and the previously
+/// existing column `probability`.
+/// \code
+/// d.Define("test", "Nsim * probability");
+/// \endcode
+///
+ROOT::RDF::RNode TRestDataSet::Define(const std::string& columnName, const std::string& formula) {
+    std::string evalFormula = formula;
+    for (auto const& [name, properties] : fQuantity)
+        evalFormula =
+            REST_StringHelper::Replace(evalFormula, name, DoubleToString(properties.value, "%12.10e"));
+
+    fDataSet = fDataSet.Define(columnName, evalFormula);
+
+    return fDataSet;
+}
+
 /////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestDataSet
 ///
