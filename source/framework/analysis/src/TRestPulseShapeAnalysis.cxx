@@ -627,8 +627,10 @@ Double_t TRestPulseShapeAnalysis::GetSlopeIntegral(const std::vector<std::pair<T
     */
     return sum;
 }
-template Double_t TRestPulseShapeAnalysis::GetSlopeIntegral(const std::vector<std::pair<Int_t, Float_t> >& signal);
-template Double_t TRestPulseShapeAnalysis::GetSlopeIntegral(const std::vector<std::pair<Float_t, Float_t> >& signal);
+template Double_t TRestPulseShapeAnalysis::GetSlopeIntegral(
+    const std::vector<std::pair<Int_t, Float_t> >& signal);
+template Double_t TRestPulseShapeAnalysis::GetSlopeIntegral(
+    const std::vector<std::pair<Float_t, Float_t> >& signal);
 
 ///////////////////////////////////////////////
 /// \brief It returns the slope of the first positive
@@ -650,9 +652,10 @@ Double_t TRestPulseShapeAnalysis::GetRiseSlope(const std::vector<std::pair<T, Fl
 
     return (hP - lP) / (maxBin - startBin);
 }
-template Double_t TRestPulseShapeAnalysis::GetRiseSlope(const std::vector<std::pair<Int_t, Float_t> >& signal);
-template Double_t TRestPulseShapeAnalysis::GetRiseSlope(const std::vector<std::pair<Float_t, Float_t> >& signal);
-
+template Double_t TRestPulseShapeAnalysis::GetRiseSlope(
+    const std::vector<std::pair<Int_t, Float_t> >& signal);
+template Double_t TRestPulseShapeAnalysis::GetRiseSlope(
+    const std::vector<std::pair<Float_t, Float_t> >& signal);
 
 ///////////////////////////////////////////////
 /// \brief It returns the time of the first positive
@@ -673,5 +676,5 @@ Double_t TRestPulseShapeAnalysis::GetRiseTime(const std::vector<std::pair<T, Flo
     return maxBin - startBin;
 }
 template Double_t TRestPulseShapeAnalysis::GetRiseTime(const std::vector<std::pair<Int_t, Float_t> >& signal);
-template Double_t TRestPulseShapeAnalysis::GetRiseTime(const std::vector<std::pair<Float_t, Float_t> >& signal);
-
+template Double_t TRestPulseShapeAnalysis::GetRiseTime(
+    const std::vector<std::pair<Float_t, Float_t> >& signal);
