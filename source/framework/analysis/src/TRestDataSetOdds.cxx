@@ -239,7 +239,7 @@ void TRestDataSetOdds::ComputeLogOdds() {
     std::string totName = "";
     for (const auto& [obsName, histo] : fHistos) {
         const std::string oddsName = "odds_" + obsName;
-        auto GetLogOdds = [& histo = histo](double val) {
+        auto GetLogOdds = [&histo = histo](double val) {
             double odds = histo->GetBinContent(histo->GetXaxis()->FindBin(val));
             if (odds == 0) return 1000.;
             return log(1. - odds) - log(odds);
