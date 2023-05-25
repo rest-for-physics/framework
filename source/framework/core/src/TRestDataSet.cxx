@@ -209,6 +209,18 @@
 /// - **last**: It will simply register the value of the metadata member
 /// from the last file in the list of selected files.
 ///
+/// ### Adding a new column based on relevant quantities
+///
+/// Using the method TRestDataSet::Define method we can implement a
+/// formula based on column names and relevant quantities. Then, the
+/// relevant quantities will be sustituted by their dataset value.
+///
+/// \code
+/// dataset.GetColumnNames()
+/// dataset.Define("newColumnName", "QuantityName * column1" )
+/// dataset.GetColumnNames()
+/// dataset.GetDataFrame().Display({"column1", "newColumnName"})->Print();
+/// \endcode
 ///
 ///----------------------------------------------------------------------
 ///
