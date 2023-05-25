@@ -40,12 +40,20 @@
 ///
 #include "TRestComponent.h"
 
+#include "TKey.h"
+
 ClassImp(TRestComponent);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
 TRestComponent::TRestComponent() { Initialize(); }
+
+TRestComponent::TRestComponent(const char* configFilename) : TRestMetadata(configFilename) {
+    Initialize();
+
+    LoadConfigFromFile(fConfigFileName);
+}
 
 /////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -162,4 +170,60 @@ void TRestComponent::InitFromConfigFile() {
 
         ele = GetNextElement(ele);
     }
+
+    if (fDataSetFileName != "") {
+        fDataSetLoaded = LoadDataSet(fDataSetFileName);
+    } else {
+        RESTWarning
+            << "Dataset filename was not defined. You may still use TRestComponent::LoadDataSet( filename );"
+            << RESTendl;
+    }
+}
+
+Bool_t TRestComponent::LoadDataSet(std::string fname) {
+    std::string fullFileName = SearchFile(fDataSetFileName);
+    if (fullFileName.empty()) {
+        RESTError << "TRestComponent::LoadDataSet. Error loading file : " << fDataSetFileName << RESTendl;
+        RESTError << "Does the file exist?" << RESTendl;
+        RESTError << "You may use `<globals> <searchPath ...` to indicate the path location" << RESTendl;
+        return false;
+    }
+
+    fDataSet.Import(fullFileName);
+
+    if (fDataSet.GetTree() == nullptr) {
+        RESTError << "Problem loading dataset from file :" << fDataSetFileName << RESTendl;
+        return false;
+    }
+
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) fDataSet.PrintMetadata();
+
+    return (VariablesOk() && WeightsOk());
+}
+
+/////////////////////////////////////////////
+/// \brief It returns true if all variables have been found inside TRestDataSet
+///
+Bool_t TRestComponent::VariablesOk() {
+    Bool_t ok = true;
+    std::vector cNames = fDataSet.GetDataFrame().GetColumnNames();
+
+    for (const auto var : fVariables)
+        if (std::count(cNames.begin(), cNames.end(), var) == 0) {
+            RESTError << "Variable ---> " << var << " <--- NOT found on dataset" << RESTendl;
+            ok = false;
+        }
+    return ok;
+}
+
+Bool_t TRestComponent::WeightsOk() {
+    Bool_t ok = true;
+    std::vector cNames = fDataSet.GetDataFrame().GetColumnNames();
+
+    for (const auto var : fWeights)
+        if (std::count(cNames.begin(), cNames.end(), var) == 0) {
+            RESTError << "Weight ---> " << var << " <--- NOT found on dataset" << RESTendl;
+            ok = false;
+        }
+    return ok;
 }
