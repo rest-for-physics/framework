@@ -899,4 +899,6 @@ void TRestDataSet::Import(std::vector<std::string> fileNames) {
     for (const auto& fN : fileNames) fTree->Add((TString)fN);
 
     fMergedDataset = true;
+
+    fQuantity.clear();
 }
