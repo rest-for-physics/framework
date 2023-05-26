@@ -575,6 +575,19 @@ void TRestDataSet::PrintMetadata() {
         }
     }
 
+    if (fMergedDataset) {
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << "This is a combined dataset." << RESTendl;
+        RESTMetadata << " -------------------- " << RESTendl;
+        RESTMetadata << " - Relevant quantities have been removed!" << RESTendl;
+        RESTMetadata << " - Dataset metadata properties correspond to the first file in the list."
+                     << RESTendl;
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << "List of imported files: " << RESTendl;
+        RESTMetadata << " -------------------- " << RESTendl;
+        for (const auto& fn : fImportedFiles) RESTMetadata << " - " << fn << RESTendl;
+    }
+
     RESTMetadata << "----" << RESTendl;
 }
 
@@ -899,6 +912,7 @@ void TRestDataSet::Import(std::vector<std::string> fileNames) {
     for (const auto& fN : fileNames) fTree->Add((TString)fN);
 
     fMergedDataset = true;
+    fImportedFiles = fileNames;
 
     fQuantity.clear();
 }

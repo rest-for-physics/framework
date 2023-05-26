@@ -90,13 +90,16 @@ class TRestDataSet : public TRestMetadata {
     std::vector<std::string> fFileSelection;  //<
 
     /// TimeStamp for the start time of the first file
-    Double_t fStartTime = REST_StringHelper::StringToTimeStamp(fFilterEndTime);
+    Double_t fStartTime = REST_StringHelper::StringToTimeStamp(fFilterEndTime);  //<
 
     /// TimeStamp for the end time of the last file
-    Double_t fEndTime = REST_StringHelper::StringToTimeStamp(fFilterStartTime);
+    Double_t fEndTime = REST_StringHelper::StringToTimeStamp(fFilterStartTime);  //<
 
     /// It keeps track if the generated dataset is a pure dataset or a merged one
-    Bool_t fMergedDataset = false;
+    Bool_t fMergedDataset = false;  //<
+
+    /// The list of dataset files imported
+    std::vector<std::string> fImportedFiles;  //<
 
     /// The resulting RDF::RNode object after initialization
     ROOT::RDF::RNode fDataSet = ROOT::RDataFrame(0);  //!
