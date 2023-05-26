@@ -1,8 +1,8 @@
 #include "TRestDataSet.h"
 #include "TRestTask.h"
 
-#ifndef RestTask_GenerateDataSet
-#define RestTask_GenerateDataSet
+#ifndef RestTask_GenerateDataSets
+#define RestTask_GenerateDataSets
 
 //*******************************************************************************************************
 //*** Description: This macro will launch the generation of datasets defined
@@ -11,11 +11,11 @@
 //*** to be generated from the existing ones inside `dataset.rml`.
 //***
 //*** --------------
-//*** Usage: restManager GenerateDataSet datasets.rml set1,set2,set3
+//*** Usage: restManager GenerateDataSets datasets.rml set1,set2,set3
 //***
 //*******************************************************************************************************
 
-Int_t REST_GenerateDataSet(std::string inputRML, std::string datasets) {
+Int_t REST_GenerateDataSets(const std::string& inputRML, const std::string& datasets) {
     std::vector<std::string> sets = REST_StringHelper::Split(datasets, ",");
 
     for (const auto& set : sets) {

@@ -90,16 +90,22 @@ class TRestDataSet : public TRestMetadata {
     std::vector<std::string> fFileSelection;  //<
 
     /// TimeStamp for the start time of the first file
-    Double_t fStartTime = REST_StringHelper::StringToTimeStamp(fFilterEndTime);
+    Double_t fStartTime = REST_StringHelper::StringToTimeStamp(fFilterEndTime);  //<
 
     /// TimeStamp for the end time of the last file
-    Double_t fEndTime = REST_StringHelper::StringToTimeStamp(fFilterStartTime);
+    Double_t fEndTime = REST_StringHelper::StringToTimeStamp(fFilterStartTime);  //<
+
+    /// It keeps track if the generated dataset is a pure dataset or a merged one
+    Bool_t fMergedDataset = false;  //<
+
+    /// The list of dataset files imported
+    std::vector<std::string> fImportedFiles;  //<
 
     /// The resulting RDF::RNode object after initialization
     ROOT::RDF::RNode fDataSet = ROOT::RDataFrame(0);  //!
 
     /// A pointer to the generated tree
-    TTree* fTree = nullptr;  //!
+    TChain* fTree = nullptr;  //!
 
     void InitFromConfigFile() override;
 
@@ -151,14 +157,18 @@ class TRestDataSet : public TRestMetadata {
     inline auto GetFilterEqualsTo() const { return fFilterEqualsTo; }
     inline auto GetQuantity() const { return fQuantity; }
     inline auto GetCut() const { return fCut; }
+    inline auto IsMergedDataSet() const { return fMergedDataset; }
 
     inline void SetFilePattern(const std::string& pattern) { fFilePattern = pattern; }
 
     TRestDataSet& operator=(TRestDataSet& dS);
     void Import(const std::string& fileName);
+    void Import(std::vector<std::string> fileNames);
     void Export(const std::string& filename);
 
     ROOT::RDF::RNode MakeCut(const TRestCut* cut);
+
+    ROOT::RDF::RNode Define(const std::string& columnName, const std::string& formula);
 
     void PrintMetadata() override;
     void Initialize() override;
@@ -169,6 +179,6 @@ class TRestDataSet : public TRestMetadata {
     TRestDataSet(const char* cfgFileName, const std::string& name = "");
     ~TRestDataSet();
 
-    ClassDefOverride(TRestDataSet, 2);
+    ClassDefOverride(TRestDataSet, 3);
 };
 #endif
