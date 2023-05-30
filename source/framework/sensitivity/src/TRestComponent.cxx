@@ -171,8 +171,14 @@ void TRestComponent::InitFromConfigFile() {
         ele = GetNextElement(ele);
     }
 
-    if (fDataSetFileName != "") {
-        fDataSetLoaded = LoadDataSet(fDataSetFileName);
+    ele = GetElement("dataset");
+    while (ele != nullptr) {
+        fDataSetFileNames.push_back(GetParameter("file", ele, ""));
+        ele = GetNextElement(ele);
+    }
+
+    if (!fDataSetFileNames.empty()) {
+        fDataSetLoaded = LoadDataSets();
     } else {
         RESTWarning
             << "Dataset filename was not defined. You may still use TRestComponent::LoadDataSet( filename );"
@@ -180,19 +186,27 @@ void TRestComponent::InitFromConfigFile() {
     }
 }
 
-Bool_t TRestComponent::LoadDataSet(std::string fname) {
-    std::string fullFileName = SearchFile(fDataSetFileName);
-    if (fullFileName.empty()) {
-        RESTError << "TRestComponent::LoadDataSet. Error loading file : " << fDataSetFileName << RESTendl;
-        RESTError << "Does the file exist?" << RESTendl;
-        RESTError << "You may use `<globals> <searchPath ...` to indicate the path location" << RESTendl;
-        return false;
+/////////////////////////////////////////////
+/// \brief A method responsible to import a list of TRestDataSet into fDataSet
+///
+Bool_t TRestComponent::LoadDataSets() {
+    std::vector<std::string> fullFileNames;
+    for (const auto& name : fDataSetFileNames) {
+        std::string fileName = SearchFile(name);
+        if (fileName.empty()) {
+            RESTError << "TRestComponent::LoadDataSet. Error loading file : " << name << RESTendl;
+            RESTError << "Does the file exist?" << RESTendl;
+            RESTError << "You may use `<globals> <searchPath ...` to indicate the path location" << RESTendl;
+            return false;
+        }
+        fullFileNames.push_back(fileName);
     }
 
-    fDataSet.Import(fullFileName);
+    fDataSet.Import(fullFileNames);
 
     if (fDataSet.GetTree() == nullptr) {
-        RESTError << "Problem loading dataset from file :" << fDataSetFileName << RESTendl;
+        RESTError << "Problem loading dataset from file list :" << RESTendl;
+        for (const auto& f : fDataSetFileNames) RESTError << " - " << f << RESTendl;
         return false;
     }
 
@@ -216,6 +230,9 @@ Bool_t TRestComponent::VariablesOk() {
     return ok;
 }
 
+/////////////////////////////////////////////
+/// \brief It returns true if all weights have been found inside TRestDataSet
+///
 Bool_t TRestComponent::WeightsOk() {
     Bool_t ok = true;
     std::vector cNames = fDataSet.GetDataFrame().GetColumnNames();

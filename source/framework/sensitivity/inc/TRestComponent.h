@@ -60,7 +60,7 @@ class TRestComponent : public TRestMetadata {
     //////////
 
     /// The filename of the dataset used
-    std::string fDataSetFileName = "";  //<
+    std::vector<std::string> fDataSetFileNames;  //<
 
     /// The dataset used to initialize the distribution
     TRestDataSet fDataSet;  //!
@@ -91,7 +91,7 @@ class TRestComponent : public TRestMetadata {
     void InitFromConfigFile() override;
 
    public:
-    Bool_t LoadDataSet(std::string fname);
+    Bool_t LoadDataSets();
 
     /// This method should go to TRestDataSetComponent
     Bool_t IsDataSetLoaded() { return fDataSetLoaded; }
