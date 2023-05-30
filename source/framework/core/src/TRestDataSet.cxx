@@ -502,8 +502,7 @@ ROOT::RDF::RNode TRestDataSet::MakeCut(const TRestCut* cut) {
 ROOT::RDF::RNode TRestDataSet::Define(const std::string& columnName, const std::string& formula) {
     std::string evalFormula = formula;
     for (auto const& [name, properties] : fQuantity)
-        evalFormula =
-            REST_StringHelper::Replace(evalFormula, name, properties.value);
+        evalFormula = REST_StringHelper::Replace(evalFormula, name, properties.value);
 
     fDataSet = fDataSet.Define(columnName, evalFormula);
 
