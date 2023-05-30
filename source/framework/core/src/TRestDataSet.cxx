@@ -814,6 +814,7 @@ TRestDataSet& TRestDataSet::operator=(TRestDataSet& dS) {
     fEndTime = dS.GetEndTime();
     fFilePattern = dS.GetFilePattern();
     fObservablesList = dS.GetObservablesList();
+    fFileSelection = dS.GetFileSelection();
     fProcessObservablesList = dS.GetProcessObservablesList();
     fFilterMetadata = dS.GetFilterMetadata();
     fFilterContains = dS.GetFilterContains();
