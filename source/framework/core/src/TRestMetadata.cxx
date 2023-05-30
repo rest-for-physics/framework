@@ -2327,6 +2327,8 @@ std::vector<string> TRestMetadata::GetDataMemberValues(string memberName, Int_t 
 
     result = Replace(result, "{", "");
     result = Replace(result, "}", "");
+    result = Replace(result, "(", "");
+    result = Replace(result, ")", "");
 
     std::vector<std::string> results = REST_StringHelper::Split(result, ",");
 
