@@ -174,7 +174,7 @@ class TRestRun : public TRestMetadata {
     inline int GetNumberOfMetadata() const { return fMetadata.size(); }
 
     inline std::string GetMetadataMember(const std::string& instr) { return ReplaceMetadataMember(instr); }
-    std::string ReplaceMetadataMembers(const std::string& instr, Int_t precision = 2);
+    std::string ReplaceMetadataMembers(const std::string& instr, Int_t precision = 8);
 
     Bool_t EvaluateMetadataMember(const std::string& instr);
 

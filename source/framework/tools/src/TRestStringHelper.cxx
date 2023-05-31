@@ -79,8 +79,13 @@ string REST_StringHelper::CropWithPrecision(string in, Int_t precision) {
     if (precision == 0) return in;
     if (REST_StringHelper::isANumber(in) && in.find(".") != string::npos) {
         string rootStr;
-        if (in.find("e") != string::npos) rootStr = in.substr(in.find("e"), -1);
-        return in.substr(0, in.find(".") + precision + 1) + rootStr;
+        size_t newPrecision = precision;
+        if (in.find("e") != string::npos) {
+            rootStr = in.substr(in.find("e"), -1);
+            newPrecision = std::min((int)newPrecision, (int)in.find("e") - (int)in.find(".") - 1);
+        }
+        std::string rr = in.substr(0, in.find(".") + newPrecision + 1) + rootStr;
+        return rr;
     }
     return in;
 }
