@@ -1,23 +1,30 @@
 # Write thisREST.[c]sh to INSTALL directory
 
-## We identify the thisroot.sh script for the corresponding ROOT version
-execute_process(COMMAND root-config --prefix
-        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-        OUTPUT_VARIABLE ROOT_PATH)
+# We identify the thisroot.sh script for the corresponding ROOT version
+execute_process(
+    COMMAND root-config --prefix
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+    OUTPUT_VARIABLE ROOT_PATH)
 string(REGEX REPLACE "\n$" "" ROOT_PATH "${ROOT_PATH}")
 set(thisROOT "${ROOT_PATH}/bin/thisroot.sh")
 
-## We identify the geant4.sh script for the corresponding Geant4 version
-execute_process(COMMAND geant4-config --prefix
-        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-        OUTPUT_VARIABLE GEANT4_PATH)
+# We identify the geant4.sh script for the corresponding Geant4 version
+execute_process(
+    COMMAND geant4-config --prefix
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+    OUTPUT_VARIABLE GEANT4_PATH)
 string(REGEX REPLACE "\n$" "" GEANT4_PATH "${GEANT4_PATH}")
-set(thisGeant4 "${GEANT4_PATH}/bin/geant4.sh")
+get_filename_component(GEANT4_BIN_DIR "${GEANT4_PATH}/bin/" REALPATH)
 
 if (${REST_G4} MATCHES "ON")
-    set(loadG4 "\# if geant4.sh script is found we load the same Geant4 version as used in compilation\nif [[ -f \\\"${thisGeant4}\\\" ]]; then
-    source ${thisGeant4}\nfi\n")
+    # https://github.com/rest-for-physics/framework/issues/331
+    set(g4LibPath ":${GEANT4_PATH}/lib/")
+    set(loadG4
+        "\# if geant4.sh script is found we load the same Geant4 version as used in compilation\nif [[ -f \\\"${GEANT4_BIN_DIR}/geant4.sh\\\" ]]; then
+    [[ -n \\\"\\\${ZSH_VERSION}\\\" ]] && pushd ${GEANT4_BIN_DIR} > /dev/null\n    source ${GEANT4_BIN_DIR}/geant4.sh\n    [[ -n \\\"\\\${ZSH_VERSION}\\\" ]] && popd > /dev/null\nfi\n"
+    )
 else ()
+    set(g4LibPath "")
     set(loadG4 "")
 endif (${REST_G4} MATCHES "ON")
 
@@ -32,13 +39,15 @@ set(Garfield_INCLUDE_ENV "")
 if (${REST_GARFIELD} MATCHES "ON")
     if (DEFINED ENV{GARFIELD_INSTALL})
         # this is the recommended way to source newer Garfield installations
-        set(loadGarfield "
+        set(loadGarfield
+            "
 # if GARFIELD is enabled we load the same Garfield environment used in compilation
 source $ENV{GARFIELD_INSTALL}/share/Garfield/setupGarfield.sh
 ")
         set(Garfield_INSTALL "$ENV{GARFIELD_INSTALL}")
     else ()
-        set(loadGarfield "
+        set(loadGarfield
+            "
 # if GARFIELD is enabled we load the same Garfield environment used in compilation
 export GARFIELD_HOME=$ENV{GARFIELD_HOME}
 export HEED_DATABASE=\$GARFIELD_HOME/Heed/heed++/database
@@ -49,9 +58,38 @@ export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH
     set(Garfield_INCLUDE_ENV ":$ENV{GARFIELD_INSTALL}/include")
 endif ()
 
+file(STRINGS
+     "${CMAKE_CURRENT_SOURCE_DIR}/source/framework/core/inc/TRestVersion.h"
+     lines)
+
+message(STATUS "########## Latest release info #############")
+
+string(FIND "${lines}" "REST_RELEASE " FOUND_RELEASE)
+string(SUBSTRING "${lines}" ${FOUND_RELEASE} 50 release)
+string(SUBSTRING "${release}" 14 30 release)
+string(FIND "${release}" "\"" FOUND_RELEASE)
+string(SUBSTRING "${release}" 0 ${FOUND_RELEASE} release)
+message(STATUS "Release version : ${release}")
+
+string(FIND "${lines}" "REST_RELEASE_NAME" FOUND_RELEASE_NAME)
+string(SUBSTRING "${lines}" ${FOUND_RELEASE_NAME} 50 releaseName)
+string(SUBSTRING "${releaseName}" 19 30 releaseName)
+string(FIND "${releaseName}" "\"" FOUND_RELEASE_NAME)
+string(SUBSTRING "${releaseName}" 0 ${FOUND_RELEASE_NAME} releaseName)
+message(STATUS "Release name : ${releaseName}")
+
+string(FIND "${lines}" "REST_RELEASE_DATE" FOUND_RELEASE_DATE)
+string(SUBSTRING "${lines}" ${FOUND_RELEASE_DATE} 50 releaseDate)
+string(SUBSTRING "${releaseDate}" 19 30 releaseDate)
+string(FIND "${releaseDate}" "\"" FOUND_RELEASE_DATE)
+string(SUBSTRING "${releaseDate}" 0 ${FOUND_RELEASE_DATE} releaseDate)
+message(STATUS "Release date : ${releaseDate}")
+message(STATUS "########## Latest release info #############")
+message("")
+
 # install thisREST script, sh VERSION
-install(CODE
-        "
+install(
+    CODE "
 file( WRITE \${CMAKE_INSTALL_PREFIX}/thisREST.sh
 
 \"\#!/bin/bash
@@ -92,7 +130,10 @@ export REST_GARFIELD_INCLUDE=${Garfield_INCLUDE_DIRS}
 export REST_GARFIELD_LIB=${Garfield_LIBRARIES}
 export PATH=\\\$REST_PATH/bin:\\\$_PATH
 export LD_LIBRARY_PATH=\\\$REST_PATH/lib:\\\$_LD_LIBRARY_PATH
+# DYLD_LIBRARY_PATH is required by MacOs
+export DYLD_LIBRARY_PATH=\\\$REST_PATH/lib:\\\$LD_LIBRARY_PATH${g4LibPath}
 export LIBRARY_PATH=\\\$REST_PATH/lib:\\\$LIBRARY_PATH
+export PYTHONPATH=${PYTHON_BINDINGS_INSTALL_DIR}:\\\$PYTHONPATH
 
 alias restRoot=\\\"restRoot -l\\\"
 alias restRootMacros=\\\"restRoot -l --m 1\\\"
@@ -104,29 +145,27 @@ fi
 # REST aliases
 \"
 )
-        "
-        )
+        ")
 
 foreach (mac ${rest_macros})
 
     string(REPLACE " " "" mac ${mac})
     string(REPLACE "rest" "" m ${mac})
 
-    install(CODE
-            "
+    install(
+        CODE "
 file( APPEND \${CMAKE_INSTALL_PREFIX}/thisREST.sh
 \"alias ${mac}=\\\"restManager ${m}\\\"
 \"
 )
-        "
-            )
+        ")
 
 endforeach (mac ${rest_macros})
 
 # install thisREST script, csh VERSION
-install(CODE
-        "
-file( WRITE \${CMAKE_INSTALL_PREFIX}/thisREST.csh 
+install(
+    CODE "
+file( WRITE \${CMAKE_INSTALL_PREFIX}/thisREST.csh
 
 \"\#!/bin/csh
 
@@ -142,35 +181,33 @@ setenv PATH \\\$REST_PATH/bin:\\\$PATH
 setenv LD_LIBRARY_PATH \\\$REST_PATH/lib:\\\$LD_LIBRARY_PATH
 if ( \\\$?LIBRARY_PATH == 0 ) setenv LIBRARY_PATH
 setenv LIBRARY_PATH \\\${LIBRARY_PATH}:\\\$REST_PATH/lib
+setenv PYTHONPATH \\\${PYTHONPATH}:${PYTHON_BINDINGS_INSTALL_DIR}
 
 if ( `rest-config --flags | grep -c \\\"REST_WELCOME=ON\\\"` ) then
 rest-config --welcome
 endif
 \"
 )
-        "
-        )
-
+        ")
 
 foreach (mac ${rest_macros})
 
     string(REPLACE " " "" mac ${mac})
     string(REPLACE "rest" "" m ${mac})
 
-    install(CODE
-            "
-file( APPEND \${CMAKE_INSTALL_PREFIX}/thisREST.csh 
-alias ${mac} \\\"restManager ${m}\\\"
+    install(
+        CODE "
+file( APPEND \${CMAKE_INSTALL_PREFIX}/thisREST.csh
+\"alias ${mac} \\\"restManager ${m}\\\"
 \"
 )
-        "
-            )
+        ")
 
 endforeach (mac ${rest_macros})
 
 # install rest-config
-install(CODE
-        "
+install(
+    CODE "
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CollectGitInfo.cmake)
 
 message(STATUS \"Installing: \${CMAKE_INSTALL_PREFIX}/bin/rest-config\")
@@ -179,11 +216,11 @@ file( WRITE \${CMAKE_INSTALL_PREFIX}/bin/rest-config
 
 \"
 
-if [ $# -ne 1 ] ; then 
+if [ $# -ne 1 ] ; then
 
 echo \\\"  Use restRoot command to load REST libraries and scripts inside ROOT          \\\"
 echo \\\"  Use restManager command to manage the configurations and start REST          \\\"
-echo \\\"  Type \\\\\\\"rest-config --help\\\\\\\" for more info                        \\\"    
+echo \\\"  Type \\\\\\\"rest-config --help\\\\\\\" for more info                        \\\"
 
 else
 
@@ -205,7 +242,7 @@ echo ${rest_libraries_regular}
 fi
 
 if [ $option = \\\"--exes\\\" ] ; then
-echo ${rest_exes} 
+echo ${rest_exes}
 echo -------------------------------------------
 echo ${rest_macros_str}
 
@@ -256,6 +293,9 @@ echo \\\"  \\\"
 echo \\\"  Commit  : \${GIT_COMMIT} (\${GIT_DATE})  \\\"
 echo \\\"  Branch/Version : \${GIT_BRANCH}/\${GIT_TAG}  \\\"
 echo \\\"  Compilation date : ${date}  \\\"
+echo \\\"  \\\"
+echo \\\"  Latest release: : v${release} - ${releaseName} - ${releaseDate}  \\\"
+echo \\\"  \\\"
 echo \\\"  Official release : \${REST_OFFICIAL_RELEASE} \\\"
 echo \\\"  Clean state : \${GIT_CLEANSTATE} \\\"
 echo \\\"  \\\"
@@ -266,7 +306,7 @@ echo \\\"  \\\"
 echo \\\"  Remember that REST is made by physicists for physicists, \\\"
 echo \\\"  who are supposed to toil and suffer till they become experts. \\\"
 echo \\\"  *****************************************************************************\\\"
-echo \\\"  \\\" 
+echo \\\"  \\\"
 
 fi
 
@@ -291,5 +331,4 @@ fi
 
 \"
 )
-        "
-        )
+        ")

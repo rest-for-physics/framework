@@ -66,6 +66,10 @@
 
 #include "TRestRealTimeAddInputFileProcess.h"
 
+#ifdef __APPLE__
+#include <unistd.h>
+#endif
+
 using namespace std;
 
 ClassImp(TRestRealTimeAddInputFileProcess);

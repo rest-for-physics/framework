@@ -4,21 +4,21 @@ here contains several python scripts for different usage
 
 ### REST GUI installer
 
-Type `python scriptsGUI.py` and just follow the wizard!  
-You must run the python scripts in this dicectory!  
+Type `python scriptsGUI.py` and just follow the wizard!
+You must run the python scripts in this dicectory!
 
 Required package: python2.7, python-tk. They can be installed by following:
 
-**in centos:**  
-`yum update python`  
-`yum install tkinter`  
+**in centos:**
+`yum update python`
+`yum install tkinter`
 
-**in debain:**  
-`apt-get update python`  
-`apt-get install python-tk`  
+**in debain:**
+`apt-get update python`
+`apt-get install python-tk`
 
->REST required package: ROOT6  
->Optional packages: geant4, garfield(compiled with ROOT6), postgresql  
+>REST required package: ROOT6
+>Optional packages: geant4, garfield(compiled with ROOT6), postgresql
 
 ### rml updating tool for V2.1
 
@@ -38,6 +38,6 @@ Required package: python2.7, python-tk. They can be installed by following:
 
 ### cluster job launching tool
 
->Last update : 3-Nov-2018  
+>Last update : 3-Nov-2018
 
->Visit our user guide [here](https://pandax.physics.sjtu.edu.cn/docdb3/ShowDocument?docid=561)  
+>Visit our user guide [here](https://pandax.physics.sjtu.edu.cn/docdb3/ShowDocument?docid=561)

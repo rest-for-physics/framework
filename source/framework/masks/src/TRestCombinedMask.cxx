@@ -146,7 +146,7 @@ void TRestCombinedMask::Initialize() {
 /// The particle will be counter-rotated to emulate the mask rotation
 /// using the method TRestPatternMask::ApplyCommonMaskTransformation
 ///
-Int_t TRestCombinedMask::GetRegion(Double_t x, Double_t y) {
+Int_t TRestCombinedMask::GetRegion(Double_t& x, Double_t& y) {
     Int_t region = 0;
     for (const auto mask : fMasks) {
         Int_t id = mask->GetRegion(x, y);

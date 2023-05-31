@@ -57,6 +57,10 @@
 #include "unistd.h"
 #endif  // !WIN32
 
+#ifdef __APPLE__
+#include <array>
+#endif
+
 #include <chrono>
 #include <filesystem>
 #include <iostream>
@@ -68,8 +72,6 @@
 #include "TRestStringOutput.h"
 
 using namespace std;
-
-ClassImp(TRestTools);
 
 ///////////////////////////////////////////////
 /// \brief Returns all the options in an option string
@@ -93,6 +95,8 @@ void TRestTools::LoadRESTLibrary(bool silent) {
 
     vector<string> ldPaths;
 #ifdef WIN32
+    ldPaths.push_back(REST_PATH + "/bin/");
+#elif __APPLE__
     ldPaths.push_back(REST_PATH + "/bin/");
 #else
     ldPaths.push_back(REST_PATH + "/lib/");
@@ -156,7 +160,7 @@ int TRestTools::PrintTable(std::vector<std::vector<T>> data, Int_t start, Int_t 
     Int_t size = data.size();
     if (end > 0 && size > end) size = end;
     for (int n = start; n < size; n++) {
-        for (int m = 0; m < data[n].size(); m++) cout << data[n][m] << "\t";
+        for (unsigned int m = 0; m < data[n].size(); m++) cout << data[n][m] << "\t";
         cout << endl;
     }
     return 0;
@@ -179,8 +183,8 @@ int TRestTools::ExportASCIITable(std::string fname, std::vector<std::vector<T>>&
         return 1;
     }
 
-    for (int n = 0; n < data.size(); n++)
-        for (int m = 0; m < data[n].size(); m++) {
+    for (unsigned int n = 0; n < data.size(); n++)
+        for (unsigned int m = 0; m < data[n].size(); m++) {
             file << data[n][m];
             if (m + 1 < data[n].size()) file << "\t";
             if (m + 1 == data[n].size()) file << "\n";
@@ -208,8 +212,8 @@ int TRestTools::ExportBinaryTable(std::string fname, std::vector<std::vector<T>>
         return 1;
     }
 
-    for (int n = 0; n < data.size(); n++)
-        for (int m = 0; m < data[n].size(); m++) {
+    for (unsigned int n = 0; n < data.size(); n++)
+        for (unsigned int m = 0; m < data[n].size(); m++) {
             file.write((char*)&data[n][m], sizeof(T));
         }
     file.close();
@@ -337,8 +341,8 @@ void TRestTools::TransposeTable(std::vector<std::vector<T>>& data) {
 
     std::vector<std::vector<T>> trans_vec(data[0].size(), std::vector<T>());
 
-    for (int i = 0; i < data.size(); i++)
-        for (int j = 0; j < data[i].size(); j++) trans_vec[j].push_back(data[i][j]);
+    for (unsigned int i = 0; i < data.size(); i++)
+        for (unsigned int j = 0; j < data[i].size(); j++) trans_vec[j].push_back(data[i][j]);
 
     data = trans_vec;
 }
@@ -359,16 +363,16 @@ template void TRestTools::TransposeTable<Int_t>(std::vector<std::vector<Int_t>>&
 template <typename T>
 T TRestTools::GetMaxValueFromTable(const std::vector<std::vector<T>>& data, Int_t column) {
     if (data.size() == 0) return 0;
-    if (column != -1 && data[0].size() <= column) return 0;
+    if (column > -1 && data[0].size() <= (unsigned int)column) return 0;
 
     T maxValue = data[0][0];
     if (column == -1) {
-        for (int n = 0; n < data.size(); n++)
-            for (int c = 0; c < data[n].size(); c++)
+        for (unsigned int n = 0; n < data.size(); n++)
+            for (unsigned int c = 0; c < data[n].size(); c++)
                 if (maxValue < data[n][c]) maxValue = data[n][c];
     } else {
         maxValue = data[0][column];
-        for (int n = 0; n < data.size(); n++)
+        for (unsigned int n = 0; n < data.size(); n++)
             if (maxValue < data[n][column]) maxValue = data[n][column];
     }
 
@@ -394,16 +398,16 @@ template Double_t TRestTools::GetMaxValueFromTable<Double_t>(const std::vector<s
 template <typename T>
 T TRestTools::GetMinValueFromTable(const std::vector<std::vector<T>>& data, Int_t column) {
     if (data.empty()) return 0;
-    if (column != -1 && data[0].size() <= column) return 0;
+    if (column != -1 && data[0].size() <= (unsigned int)column) return 0;
 
     T minValue = data[0][0];
     if (column == -1) {
-        for (int n = 0; n < data.size(); n++)
-            for (int c = 0; c < data[n].size(); c++)
+        for (unsigned int n = 0; n < data.size(); n++)
+            for (unsigned int c = 0; c < data[n].size(); c++)
                 if (minValue > data[n][c]) minValue = data[n][c];
     } else {
         minValue = data[0][column];
-        for (int n = 0; n < data.size(); n++)
+        for (unsigned int n = 0; n < data.size(); n++)
             if (minValue > data[n][column]) minValue = data[n][column];
     }
 
@@ -430,9 +434,9 @@ template Double_t TRestTools::GetMinValueFromTable<Double_t>(const std::vector<s
 ///
 template <typename T>
 T TRestTools::GetLowestIncreaseFromTable(std::vector<std::vector<T>> data, Int_t column) {
-    if (data.size() == 0 || data[0].size() <= column) return 0;
+    if (data.size() == 0 || data[0].size() <= (unsigned int)column) return 0;
     T lowestIncrease = abs(data[0][column] - data[1][column]);
-    for (int n = 1; n < data.size(); n++) {
+    for (unsigned int n = 1; n < data.size(); n++) {
         T value = abs(data[n - 1][column] - data[n][column]);
         if (lowestIncrease == 0) lowestIncrease = value;
         if (value > 0 && value < lowestIncrease) lowestIncrease = value;
@@ -462,8 +466,8 @@ template <typename T>
 T TRestTools::GetIntegralFromTable(const std::vector<std::vector<T>>& data) {
     if (data.size() == 0) return 0;
     T sum = 0;
-    for (int n = 0; n < data.size(); n++) {
-        for (int m = 0; m < data[n].size(); m++) sum += data[n][m];
+    for (unsigned int n = 0; n < data.size(); n++) {
+        for (unsigned int m = 0; m < data[n].size(); m++) sum += data[n][m];
     }
     return sum;
 }
@@ -481,23 +485,23 @@ template Double_t TRestTools::GetIntegralFromTable<Double_t>(const std::vector<s
 /// This method is available for tables of type Float_t, Double_t and Int_t.
 ///
 template <typename T>
-std::vector<T> TRestTools::GetColumnFromTable(const std::vector<std::vector<T>>& data, int column) {
+std::vector<T> TRestTools::GetColumnFromTable(const std::vector<std::vector<T>>& data, unsigned int column) {
     std::vector<T> columnData;
     if (data.size() == 0 || data[0].size() <= column) return columnData;
 
-    for (int n = 0; n < data.size(); n++) columnData.push_back(data[n][column]);
+    for (unsigned int n = 0; n < data.size(); n++) columnData.push_back(data[n][column]);
 
     return columnData;
 }
 
 template std::vector<Int_t> TRestTools::GetColumnFromTable<Int_t>(const std::vector<std::vector<Int_t>>& data,
-                                                                  int column);
+                                                                  unsigned int column);
 
 template std::vector<Float_t> TRestTools::GetColumnFromTable<Float_t>(
-    const std::vector<std::vector<Float_t>>& data, int column);
+    const std::vector<std::vector<Float_t>>& data, unsigned int column);
 
 template std::vector<Double_t> TRestTools::GetColumnFromTable<Double_t>(
-    const std::vector<std::vector<Double_t>>& data, int column);
+    const std::vector<std::vector<Double_t>>& data, unsigned int column);
 
 ///////////////////////////////////////////////
 /// \brief Reads an ASCII file containing a table with values
@@ -546,11 +550,11 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
     }
 
     // Filling the double values table (TODO error handling in case ToDouble conversion fails)
-    for (int n = 0; n < values.size(); n++) {
+    for (unsigned int n = 0; n < values.size(); n++) {
         std::vector<Double_t> dblTmp;
         dblTmp.clear();
 
-        for (int m = 0; m < values[n].size(); m++) dblTmp.push_back(StringToDouble(values[n][m]));
+        for (unsigned int m = 0; m < values[n].size(); m++) dblTmp.push_back(StringToDouble(values[n][m]));
 
         data.push_back(dblTmp);
     }
@@ -605,11 +609,11 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& 
     }
 
     // Filling the float values table (TODO error handling in case ToFloat conversion fails)
-    for (int n = 0; n < values.size(); n++) {
+    for (unsigned int n = 0; n < values.size(); n++) {
         std::vector<Float_t> dblTmp;
         dblTmp.clear();
 
-        for (int m = 0; m < values[n].size(); m++) dblTmp.push_back(StringToFloat(values[n][m]));
+        for (unsigned int m = 0; m < values[n].size(); m++) dblTmp.push_back(StringToFloat(values[n][m]));
 
         data.push_back(dblTmp);
     }
@@ -701,7 +705,7 @@ bool TRestTools::isPathWritable(const string& path) {
 /// \brief Check if the path is absolute path or not
 ///
 bool TRestTools::isAbsolutePath(const string& path) {
-    if (path[0] == '/' || path[0] == '~' || path.find(':') != -1) {
+    if (path[0] == '/' || path[0] == '~' || path.find(':') != string::npos) {
         return true;
     }
     return false;
@@ -775,7 +779,7 @@ string TRestTools::GetPureFileName(const string& path) { return filesystem::path
 ///
 string TRestTools::ToAbsoluteName(const string& filename) {
     filesystem::path path;
-    for (const auto directory : filesystem::path(filename)) {
+    for (const auto& directory : filesystem::path(filename)) {
         if (path.empty() && directory == "~") {
             // path starts with ~
             const auto envVariableHome = getenv("HOME");
@@ -838,7 +842,7 @@ string TRestTools::SearchFileInPath(vector<string> paths, string filename) {
     if (fileExists(filename)) {
         return filename;
     } else {
-        for (int i = 0; i < paths.size(); i++) {
+        for (unsigned int i = 0; i < paths.size(); i++) {
             string path = paths[i];
             if (path[path.size() - 1] != '/') {
                 path = path + "/";
@@ -850,7 +854,7 @@ string TRestTools::SearchFileInPath(vector<string> paths, string filename) {
 
             // search also in subdirectory, but only 5 times of recursion
             vector<string> pathsExpanded = GetSubdirectories(paths[i], 5);
-            for (int j = 0; j < pathsExpanded.size(); j++)
+            for (unsigned int j = 0; j < pathsExpanded.size(); j++)
                 if (fileExists(pathsExpanded[j] + "/" + filename)) return pathsExpanded[j] + "/" + filename;
         }
     }
@@ -909,7 +913,7 @@ vector<string> TRestTools::GetFilesMatchingPattern(string pattern) {
                 string a = Execute("find " + item);
                 auto b = Split(a, "\n");
 
-                for (int i = 0; i < b.size(); i++) {
+                for (unsigned int i = 0; i < b.size(); i++) {
                     outputFileNames.push_back(b[i]);
                 }
 #endif
@@ -1064,7 +1068,10 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
     if ((string)url.GetProtocol() == "https" || (string)url.GetProtocol() == "http") {
         string path = TRestTools::SeparatePathAndName(localFiletmp).first;
         if (!TRestTools::fileExists(path)) {
-            system(("mkdir -p " + path).c_str());
+            if (!filesystem::create_directories(path)) {
+                std::cerr << "mkdir failed to create directory: " << path << std::endl;
+                return -1;
+            }
         }
 
         string cmd = "wget --no-check-certificate " + EscapeSpecialLetters(remoteFile) + " -O " +

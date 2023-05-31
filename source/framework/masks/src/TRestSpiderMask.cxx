@@ -36,6 +36,9 @@
 /// * **armsWidth**: The width of each arm in radians.
 /// * **initialRadius**: The radius from which the ring structure starts to
 /// be effective.
+/// * **internalRegionRadius**: If different from 0, which is the default,
+/// it will define an additional circular region inside the `initialRadius`
+/// where the spider structure starts.
 ///
 /// \note Once those parameters have been initialized, and when using this
 /// class in a stand-alone mode, we need to call the method
@@ -167,17 +170,21 @@ void TRestSpiderMask::Initialize() {
 /// The particle will be counter-rotated to emulate the mask rotation
 /// using the method TRestPatternMask::ApplyCommonMaskTransformation
 ///
-Int_t TRestSpiderMask::GetRegion(Double_t x, Double_t y) {
+Int_t TRestSpiderMask::GetRegion(Double_t& x, Double_t& y) {
     if (TRestPatternMask::GetRegion(x, y)) return 0;
 
     Double_t d = TMath::Sqrt(x * x + y * y);
 
-    if (fArmsSeparationAngle == 0 || d < fInitialRadius) return 0;
+    if (fArmsSeparationAngle == 0 || d < fInitialRadius) {
+        if (fInternalRegionRadius > 0 && d < fInternalRegionRadius) return 1;
+
+        return 0;
+    }
 
     Double_t cos_angle = y / d;
 
     if (x >= 0) {
-        int region = 0;
+        int region = 1;
         for (unsigned int n = 0; n < fPositiveRanges.size() - 1; n++) {
             if (cos_angle < fPositiveRanges[n].second && cos_angle > fPositiveRanges[n + 1].first)
                 return region % fMaxRegions + 1;
@@ -186,7 +193,7 @@ Int_t TRestSpiderMask::GetRegion(Double_t x, Double_t y) {
         if (cos_angle < fPositiveRanges.back().second && cos_angle >= -1) return region % fMaxRegions + 1;
 
     } else {
-        int region = fPositiveRanges.size();
+        int region = fPositiveRanges.size() + 1;
 
         if (cos_angle < fNegativeRanges[0].first && cos_angle >= -1) return region % fMaxRegions + 1;
         region++;
@@ -239,38 +246,38 @@ void TRestSpiderMask::GenerateSpider() {
 
     RESTDebug << "Printing positive spider angles" << RESTendl;
     RESTDebug << "-------------------------------" << RESTendl;
-    for (int n = 0; n < fPositiveRanges.size(); n++) {
+    for (unsigned int n = 0; n < fPositiveRanges.size(); n++) {
         RESTDebug << "n : " << n << " from : " << 180 * fPositiveRanges[n].first / TMath::Pi() << " to "
                   << 180 * fPositiveRanges[n].second / TMath::Pi() << RESTendl;
     }
 
     RESTDebug << "Printing negative spider angles" << RESTendl;
     RESTDebug << "-------------------------------" << RESTendl;
-    for (int n = 0; n < fNegativeRanges.size(); n++) {
+    for (unsigned int n = 0; n < fNegativeRanges.size(); n++) {
         RESTDebug << "n : " << n << " from : " << 180 * fNegativeRanges[n].first / TMath::Pi() << " to "
                   << 180 * fNegativeRanges[n].second / TMath::Pi() << RESTendl;
     }
 
-    for (int n = 0; n < fNegativeRanges.size(); n++) {
+    for (unsigned int n = 0; n < fNegativeRanges.size(); n++) {
         fNegativeRanges[n].first = TMath::Cos(fNegativeRanges[n].first);
         fNegativeRanges[n].second = TMath::Cos(fNegativeRanges[n].second);
     }
 
-    for (int n = 0; n < fPositiveRanges.size(); n++) {
+    for (unsigned int n = 0; n < fPositiveRanges.size(); n++) {
         fPositiveRanges[n].first = TMath::Cos(fPositiveRanges[n].first);
         fPositiveRanges[n].second = TMath::Cos(fPositiveRanges[n].second);
     }
 
     RESTDebug << "Printing positive spider angles" << RESTendl;
     RESTDebug << "-------------------------------" << RESTendl;
-    for (int n = 0; n < fPositiveRanges.size(); n++) {
+    for (unsigned int n = 0; n < fPositiveRanges.size(); n++) {
         RESTDebug << "n : " << n << " from : " << fPositiveRanges[n].first << " to "
                   << fPositiveRanges[n].second << RESTendl;
     }
 
     RESTDebug << "Printing negative spider cosines" << RESTendl;
     RESTDebug << "--------------------------------" << RESTendl;
-    for (int n = 0; n < fNegativeRanges.size(); n++) {
+    for (unsigned int n = 0; n < fNegativeRanges.size(); n++) {
         RESTDebug << "n : " << n << " from : " << fNegativeRanges[n].first << " to "
                   << fNegativeRanges[n].second << RESTendl;
     }
@@ -305,23 +312,25 @@ void TRestSpiderMask::PrintMaskMembers() {
                  << RESTendl;
     RESTMetadata << " - Arms angular width : " << fArmsWidth * units("degrees") << " degrees" << RESTendl;
     RESTMetadata << " - Spider start radius : " << fInitialRadius * units("cm") << " cm" << RESTendl;
+    RESTMetadata << " - Internal region radius : " << fInternalRegionRadius * units("cm") << " cm"
+                 << RESTendl;
 
     if (fPositiveRanges.size() > 0) {
         RESTMetadata << "-------------------------------" << RESTendl;
-        for (int n = 0; n < fPositiveRanges.size(); n++) {
+        for (unsigned int n = 0; n < fPositiveRanges.size(); n++) {
             RESTDebug << "n : " << n << " from : " << 180 * fPositiveRanges[n].first / TMath::Pi() << " to "
                       << 180 * fPositiveRanges[n].second / TMath::Pi() << RESTendl;
         }
 
         RESTMetadata << "Positive ranges : {";
-        for (int n = 0; n < fPositiveRanges.size(); n++) {
+        for (unsigned int n = 0; n < fPositiveRanges.size(); n++) {
             if (n > 0) RESTMetadata << ", ";
             RESTMetadata << "(" << fPositiveRanges[n].first << ", " << fPositiveRanges[n].second << ")";
         }
         RESTMetadata << "}" << RESTendl;
 
         RESTMetadata << "Negative ranges : {";
-        for (int n = 0; n < fNegativeRanges.size(); n++) {
+        for (unsigned int n = 0; n < fNegativeRanges.size(); n++) {
             if (n > 0) RESTMetadata << ", ";
             RESTMetadata << "(" << fNegativeRanges[n].first << ", " << fNegativeRanges[n].second << ")";
         }

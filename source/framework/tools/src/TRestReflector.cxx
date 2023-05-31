@@ -201,7 +201,11 @@ int TRestReflector::InitDictionary() {
                  << endl;
             return -1;
         }
-        system(Form("mkdir -p %s/AddonDict", REST_USER_PATH.c_str()));
+        int z = system(Form("mkdir -p %s/AddonDict", REST_USER_PATH.c_str()));
+        if (z != 0) {
+            cout << "mkdir failed to create directory" << endl;
+            return -1;
+        }
 
         string linkdeffilename = REST_USER_PATH + (string) "/AddonDict/LinkDef.h";
         ofstream ofs(linkdeffilename);

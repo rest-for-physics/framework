@@ -165,7 +165,7 @@ void TRestRingsMask::Initialize() {
 /// The particle will be counter-rotated to emulate the mask rotation
 /// using the method TRestPatternMask::RotateAndTranslate.
 ///
-Int_t TRestRingsMask::GetRegion(Double_t x, Double_t y) {
+Int_t TRestRingsMask::GetRegion(Double_t& x, Double_t& y) {
     if (TRestPatternMask::GetRegion(x, y)) return 0;
 
     Double_t r = TMath::Sqrt(x * x + y * y);
@@ -224,7 +224,7 @@ void TRestRingsMask::PrintMaskMembers() {
     if (fRingsRadii.size() > 0) {
         if (fNRings > 0) RESTMetadata << "-----" << RESTendl;
         RESTMetadata << "Inner radii : (";
-        for (int n = 0; n < fRingsRadii.size(); n++) {
+        for (unsigned int n = 0; n < fRingsRadii.size(); n++) {
             if (n > 0) RESTMetadata << ", ";
             RESTMetadata << fRingsRadii[n].first;
         }
@@ -232,7 +232,7 @@ void TRestRingsMask::PrintMaskMembers() {
     }
     if (fRingsRadii.size() > 0) {
         RESTMetadata << "Outter radii : (";
-        for (int n = 0; n < fRingsRadii.size(); n++) {
+        for (unsigned int n = 0; n < fRingsRadii.size(); n++) {
             if (n > 0) RESTMetadata << ", ";
             RESTMetadata << fRingsRadii[n].second;
         }
@@ -245,6 +245,6 @@ void TRestRingsMask::PrintMaskMembers() {
 /// excluding common metadata headers.
 ///
 void TRestRingsMask::PrintRings() {
-    for (int n = 0; n < fRingsRadii.size(); n++)
+    for (unsigned int n = 0; n < fRingsRadii.size(); n++)
         std::cout << n << " - " << fRingsRadii[n].first << " - " << fRingsRadii[n].second << std::endl;
 }

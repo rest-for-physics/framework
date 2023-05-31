@@ -3,5 +3,3 @@
 - **TRestPointLikeAnaProcess**: Used by J.Gracia to identify X-ray like events.
 - **TRestSignalDeconvolutionProcess**: A process to deconvolute a rawsignal pulse using its known response function. It is quarantine because together with TRestFFT it should be adapted to TRestRawSignal.
 - **TRestLinearTrackXXX**: Few classes that are used to find projection of a track along its path. Could go on RestTrackLib. But it is not in final state, and dont see the time to work on it.
-
-

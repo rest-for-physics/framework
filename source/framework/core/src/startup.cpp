@@ -4,6 +4,10 @@
 #include <Windows.h>
 #endif  // WIN32
 
+#ifdef __APPLE__
+#include <unistd.h>
+#endif
+
 #include "RVersion.h"
 #include "TEnv.h"
 #include "TRestDataBase.h"
@@ -71,13 +75,13 @@ struct __REST_CONST_INIT {
         COLOR_RESET = info[0].Attributes;
 #endif  // WIN32
 
-         char* _REST_PATH = getenv("REST_PATH");
-         char* _REST_USER = getenv("USER");
-         char* _REST_USERHOME = getenv("HOME");
+        char* _REST_PATH = getenv("REST_PATH");
+        char* _REST_USER = getenv("USER");
+        char* _REST_USERHOME = getenv("HOME");
 
-        //char* _REST_PATH = 0;
-        //char* _REST_USER = 0;
-        //char* _REST_USERHOME = 0;
+        // char* _REST_PATH = 0;
+        // char* _REST_USER = 0;
+        // char* _REST_USERHOME = 0;
 
 #ifdef WIN32
         if (_REST_PATH == nullptr) {
@@ -256,7 +260,7 @@ template <class T>
 string VectorToString(vector<T> vec) {
     stringstream ss;
     ss << "{";
-    for (int i = 0; i < vec.size(); i++) {
+    for (unsigned int i = 0; i < vec.size(); i++) {
         ss << Converter<T>::thisptr->ToStringFunc(vec.at(i));
         if (i < vec.size() - 1) {
             ss << ",";

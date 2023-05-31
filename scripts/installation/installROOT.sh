@@ -12,7 +12,7 @@ case "${unameOut}" in
     *)          machine="UNKNOWN:${unameOut}"
 esac
 
-ROOT_VERSION=6.24.02
+ROOT_VERSION=6.28.02
 ROOT_DIR=$HOME/apps/root-$ROOT_VERSION
 
 mkdir -p ${ROOT_DIR}
@@ -37,9 +37,8 @@ mv root-$ROOT_VERSION source
 mkdir -p ${ROOT_DIR}/build
 cd ${ROOT_DIR}/build
 
-cmake -DCMAKE_CXX_STANDARD=17 -Dgdml=ON -DCMAKE_INSTALL_PREFIX=${ROOT_DIR}/install  ../source
-make -j30
-make install
+cmake -Wno-dev -Dbuiltin_glew=ON -DCMAKE_CXX_STANDARD=17 -Dxrootd=OFF -Dbuiltin_xrootd=OFF -Dgdml=ON -DCMAKE_INSTALL_PREFIX=${ROOT_DIR}/install  ../source
+make -j8 install
 
 cd ${CURRENT_DIR}
 

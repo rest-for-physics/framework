@@ -4,7 +4,7 @@ We will address two different examples following basic readout topologies. These
 
 You will find a variety of more complex examples at REST_v2/data/definitions/readouts/readouts.rml. More details about readout construction are available at the documentation of TRestDetectorReadout class. The class TRestMetadata describes detailed information on how to write RML files.
 
-## Example 1. A basic pixelated readout 
+## Example 1. A basic pixelated readout
 
 In this example we generate a readout with a single readout plane, and one pixelated readout module placed inside. To achieve that each channel has a unique pixel definition.
 
@@ -22,13 +22,13 @@ In this example we generate a readout with a single readout plane, and one pixel
     <myParameter name="nChannels" value="${CHANNELS}" />
     <myParameter name="pixelSize" value="${PIX_SIZE}" />
 
-    // Mapping nodes is the number of nodes N, in a NxN grid. 
+    // Mapping nodes is the number of nodes N, in a NxN grid.
     // This grid allows for faster channel/pixel finding algorithm.
 
     // If the mappingNodes value is 0. The value will be automatically assigned by REST.
     <parameter name="mappingNodes" value="0" />
 
-    // This is just the module definition. 
+    // This is just the module definition.
     <readoutModule name="pixelModule" size="(nChannels*pixelSize, nChannels*pixelSize)" tolerance="1.e-4" >
 
         // We use for loops to generate any number of channels given by the CHANNELS variable.
@@ -38,7 +38,7 @@ In this example we generate a readout with a single readout plane, and one pixel
 
                 // The readout channel id will be used to identify the channel and associate it to a daq id
                 <readoutChannel id="[nChX]*nChannels+[nChY]" >
-                    // In this example we define one pixel per channel. 
+                    // In this example we define one pixel per channel.
                     // But we can define any number of pixels inside a channel
                     <addPixel id="0" origin="([nChX]*pixelSize, [nChY]*pixelSize)" size="(${PIX_SIZE},${PIX_SIZE})" rotation="0" />
                 </readoutChannel>
@@ -48,11 +48,11 @@ In this example we generate a readout with a single readout plane, and one pixel
 
     </readoutModule>
 
-    // The real readout implementation is done inside the readout plane. 
+    // The real readout implementation is done inside the readout plane.
 
     // The readout plane parameters define the active volume.
     <readoutPlane position="(0,0,-990)" units="mm" planeVector="(0,0,1)"
-        chargeCollection="1" 
+        chargeCollection="1"
         cathodePosition="(0,0,0)" units="mm" >
 
         // We can add any number of modules
@@ -60,7 +60,7 @@ In this example we generate a readout with a single readout plane, and one pixel
         // name="pixelModule" is the name defined at the <readoutModule structure.
         <addReadoutModule id="0" name="pixelModule"
         // We define the module position inside the readout plane
-            origin="(-nChannels*pixelSize/2,-nChannels*pixelSize/2)" 
+            origin="(-nChannels*pixelSize/2,-nChannels*pixelSize/2)"
             rotation="0" />
 
     </readoutPlane>
@@ -68,9 +68,9 @@ In this example we generate a readout with a single readout plane, and one pixel
 </section>
 \endcode
 
-## Example 2. A multilayer stripped readout 
+## Example 2. A multilayer stripped readout
 
-In this example we define a stripped readout using single pixels with y-dimension much longer than x-dimension. 
+In this example we define a stripped readout using single pixels with y-dimension much longer than x-dimension.
 We create two readout module definitions, one for each axis, and place each readout module at a different readout planes.
 
 \code
@@ -112,24 +112,24 @@ We create two readout module definitions, one for each axis, and place each read
 
     // We define a first readout plane
     <readoutPlane position="(0,0,-990)" units="mm" planeVector="(0,0,1)"
-        chargeCollection="1" 
+        chargeCollection="1"
         cathodePosition="(0,0,0)" units="mm" >
 
         // This readout plane includes the readout with the strips along Y-axis (X-position)
         <addReadoutModule id="0" name="stripsX"
-            origin="(-nChannels*pixelSize/2,-nChannels*pixelSize/2)" 
+            origin="(-nChannels*pixelSize/2,-nChannels*pixelSize/2)"
             rotation="0" />
 
     </readoutPlane>
 
     // We define a second readout plane covering the same active volume.
     <readoutPlane position="(0,0,-990)" units="mm" planeVector="(0,0,1)"
-        chargeCollection="1" 
+        chargeCollection="1"
         cathodePosition="(0,0,0)" units="mm" >
 
         // This readout plane includes the readout with the strips along X-axis (Y-position)
         <addReadoutModule id="0" name="stripsY"
-            origin="(-nChannels*pixelSize/2,-nChannels*pixelSize/2)" 
+            origin="(-nChannels*pixelSize/2,-nChannels*pixelSize/2)"
             rotation="0" />
 
     </readoutPlane>
@@ -169,7 +169,7 @@ The following code will instantiate the TRestDetectorReadout class using the pix
 [6] .q
 \endcode
 
-After executing this code we will have a *readouts.root* file with two different readouts, named *pixel* and *strip*. 
+After executing this code we will have a *readouts.root* file with two different readouts, named *pixel* and *strip*.
 
 \note The original readout name given at the RML file has been lost. And in order to reference it in ROOT or REST we will use the names given at write time, *pixel* and *strip*.
 
@@ -207,7 +207,7 @@ The following code recovers the TRestDetectorReadout structure
 
 The readout visualization is still far from optimal, but a couple of ways are available in order to verify the task of readout design.
 
-In a ROOT session we can call the method TRestDetectorReadoutPlane::GetReadoutHistogram to draw the pixel boundaries. 
+In a ROOT session we can call the method TRestDetectorReadoutPlane::GetReadoutHistogram to draw the pixel boundaries.
 
 \code
 
@@ -257,7 +257,7 @@ $~ restRoot
 // We define the 128 bits mask to enable different channels
 [0] Int_t mask[4];
 
-[1] mask[0] = 0x80000100;   // Channels 8 and 31 enabled    
+[1] mask[0] = 0x80000100;   // Channels 8 and 31 enabled
 
 [2] mask[1] = 0x000000FF;   // Channels from 32 to 47 enabled
 
@@ -294,5 +294,4 @@ REST_UTILS_CheckReadout( "readouts.root", "pixel", region, mask, N, pId )
 
 These figures show the result of running the *REST_UTILS_CheckReadout* script for different channels.
 
-![Validating different channels and regions in different readout topologies.](readoutValidation.png) 
-
+![Validating different channels and regions in different readout topologies.](readoutValidation.png)

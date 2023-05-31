@@ -677,7 +677,8 @@ void TRestProcessRunner::PauseMenu() {
                     fThreads[i]->StartThread();
                 }
                 RESTInfo << "Re-directing output to " << file << RESTendl;
-                freopen(file.c_str(), "w", stdout);
+                FILE* f = freopen(file.c_str(), "w", stdout);
+                if (f == nullptr) RESTWarning << "Couldnt redirect output for file: " << file << RESTendl;
                 REST_Display_CompatibilityMode = true;
             }
             // father process
@@ -881,10 +882,11 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
                 fRunInfo->SetNFilesSplit(fNFilesSplit);
                 if (fOutputDataFile->GetName() != fOutputDataFileName) {
                     auto Mainfile = std::unique_ptr<TFile>{TFile::Open(fOutputDataFileName, "update")};
-                    WriteMetadata();
+                    WriteProcessesMetadata();
+                    Mainfile->Write(0, TObject::kOverwrite);
                     Mainfile->Close();
                 } else {
-                    WriteMetadata();
+                    WriteProcessesMetadata();
                 }
 
                 TFile* newfile = new TFile(fOutputDataFileName + "." + ToString(fNFilesSplit), "recreate");
@@ -910,6 +912,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
                     }
                 }
 
+                fOutputDataFile->Write(0, TObject::kOverwrite);
                 fOutputDataFile->Close();
                 delete fOutputDataFile;
                 fOutputDataFile = newfile;
@@ -952,20 +955,29 @@ void TRestProcessRunner::ConfigOutputFile() {
         fOutputDataFile = new TFile(fOutputDataFileName, "update");
     }
     // write metadata
-    WriteMetadata();
+    WriteProcessesMetadata();
 }
 
-void TRestProcessRunner::WriteMetadata() {
+void TRestProcessRunner::WriteProcessesMetadata() {
+    if (fRunInfo->GetInputFile() == nullptr) {
+        if (!fRunInfo->GetOutputFile()) {
+            // We are not ready yet to write
+            return;
+        }
+        fRunInfo->cd();
+    } else
+        fOutputDataFile->cd();
+
     fRunInfo->SetNFilesSplit(fNFilesSplit);
-    fRunInfo->Write();
-    this->Write();
-    char tmpString[256];
+    fRunInfo->Write(nullptr, TObject::kOverwrite);
+    this->Write(nullptr, TObject::kWriteDelete);
+
     if (fRunInfo->GetFileProcess() != nullptr) {
-        // sprintf(tmpString, "Process-%d. %s", 0, fRunInfo->GetFileProcess()->GetName());
+        // std::cout << "Run. Process-0. " << fRunInfo->GetFileProcess()->GetName() << std::endl;
         fRunInfo->GetFileProcess()->Write(nullptr, kOverwrite);
     }
     for (int i = 0; i < fProcessNumber; i++) {
-        // sprintf(tmpString, "Process-%d. %s", i + 1, fThreads[0]->GetProcess(i)->GetName());
+        // std::cout << "Thread. Process-" << i + 1 << fThreads[0]->GetProcess(i)->GetName() << std::endl;
         fThreads[0]->GetProcess(i)->Write(nullptr, kOverwrite);
     }
 }
@@ -984,12 +996,18 @@ void TRestProcessRunner::MergeOutputFile() {
     vector<string> files_to_merge;
     for (int i = 0; i < fThreadNumber; i++) {
         TFile* f = fThreads[i]->GetOutputFile();
-        if (f != nullptr) f->Close();
+        if (f != nullptr) {
+            f->Write(0, TObject::kOverwrite);
+            f->Close();
+        }
         files_to_merge.push_back(f->GetName());
     }
 
+    fOutputDataFile->cd();
+    fOutputDataFile->Write(nullptr, TObject::kOverwrite);
     fOutputDataFile->Close();
     fRunInfo->MergeToOutputFile(files_to_merge, fOutputDataFile->GetName());
+    if (fRunInfo->GetInputFile() == nullptr) WriteProcessesMetadata();
 }
 
 // tools

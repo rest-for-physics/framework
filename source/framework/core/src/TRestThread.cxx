@@ -32,8 +32,6 @@ using namespace std;
 using namespace chrono;
 #endif
 
-ClassImp(TRestThread);
-
 ///////////////////////////////////////////////
 /// \brief Set variables by default during initialization.
 ///
@@ -102,7 +100,7 @@ Int_t TRestThread::ValidateChain(TRestEvent* input) {
         }
 
         // verify that the output event type is good to be the input event of the next process
-        for (int i = 0; i < processes.size() - 1; i++) {
+        for (unsigned int i = 0; i < processes.size() - 1; i++) {
             string outEventType = processes[i]->GetOutputEvent().type;
             string nextinEventType = processes[i + 1]->GetInputEvent().type;
             if (outEventType != nextinEventType && outEventType != "TRestEvent" &&
@@ -163,6 +161,7 @@ bool TRestThread::TestRun() {
 
             fProcessChain[j]->BeginOfEventProcess(ProcessedEvent);
             ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
+            if (fProcessChain[j]->ApplyCut()) ProcessedEvent = nullptr;
             // if the output of ProcessEvent() is NULL we assume the event is cut.
             // we try to use GetOutputEvent()
             if (ProcessedEvent == nullptr) {
@@ -191,7 +190,6 @@ bool TRestThread::TestRun() {
         }
 
         fOutputEvent = ProcessedEvent;
-        fHostRunner->GetNextevtFunc(fInputEvent, fAnalysisTree);
         if (fOutputEvent != nullptr) {
             RESTDebug << "Output Event ---- " << fOutputEvent->ClassName() << "(" << fOutputEvent << ")"
                       << RESTendl;
@@ -199,6 +197,7 @@ bool TRestThread::TestRun() {
         } else {
             RESTDebug << "Null output, trying again" << RESTendl;
         }
+        fHostRunner->GetNextevtFunc(fInputEvent, fAnalysisTree);
     }
     if (fOutputEvent == nullptr) {
         // fOutputEvent = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent();
@@ -325,7 +324,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
                 if (branchesToAdd.size() == 0)
                     branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
                 else
-                    for (int j = 0; j < branchesToAdd.size(); j++) {
+                    for (unsigned int j = 0; j < branchesToAdd.size(); j++) {
                         if (branchesToAdd[j].first == BranchName)
                             branchesToAdd[j].second = evt;
                         else if (j == branchesToAdd.size() - 1)
@@ -340,7 +339,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
                     if (branchesToAdd.size() == 0)
                         branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
                     else
-                        for (int j = 0; j < branchesToAdd.size(); j++) {
+                        for (unsigned int j = 0; j < branchesToAdd.size(); j++) {
                             if (branchesToAdd[j].first == BranchName)
                                 branchesToAdd[j].second = evt;
                             else if (j == branchesToAdd.size() - 1)
@@ -358,7 +357,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
                 if (branchesToAdd.size() == 0)
                     branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
                 else
-                    for (int j = 0; j < branchesToAdd.size(); j++) {
+                    for (unsigned int j = 0; j < branchesToAdd.size(); j++) {
                         if (branchesToAdd[j].first == BranchName)
                             branchesToAdd[j].second = evt;
                         else if (j == branchesToAdd.size() - 1)
@@ -499,6 +498,7 @@ void TRestThread::ProcessEvent() {
 
             fProcessChain[j]->BeginOfEventProcess(ProcessedEvent);
             ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
+            if (fProcessChain[j]->ApplyCut()) ProcessedEvent = nullptr;
             fProcessChain[j]->EndOfEventProcess();
 
 #ifdef TIME_MEASUREMENT
@@ -547,6 +547,7 @@ void TRestThread::ProcessEvent() {
         for (unsigned int j = 0; j < fProcessChain.size(); j++) {
             fProcessChain[j]->BeginOfEventProcess(ProcessedEvent);
             ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
+            if (fProcessChain[j]->ApplyCut()) ProcessedEvent = nullptr;
             fProcessChain[j]->EndOfEventProcess();
             if (ProcessedEvent == nullptr) {
                 fProcessNullReturned = true;

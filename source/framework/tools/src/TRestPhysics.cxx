@@ -55,7 +55,7 @@ namespace REST_Physics {
 ///
 /// If the vector is parallel to the plane the position `pos` will not be translated.
 ///
-TVector3 MoveToPlane(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a) {
+TVector3 MoveToPlane(const TVector3& pos, const TVector3& dir, const TVector3& n, const TVector3& a) {
     if (n * dir != 0) {
         Double_t t = (n * a - n * pos) / (n * dir);
 
@@ -91,14 +91,14 @@ TVector3 GetPlaneVectorIntersection(const TVector3& pos, const TVector3& dir, co
 ///
 /// In case no intersection is found this method returns the unmodified input position
 ///
-TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t& alpha,
-                                        const Double_t& R3, const Double_t& lMirr) {
+TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t alpha,
+                                        const Double_t R3, const Double_t lMirr) {
     Double_t e = 2 * R3 * TMath::Tan(alpha);
     Double_t a = dir.X() * dir.X() + dir.Y() * dir.Y();
     Double_t b = 2 * (pos.X() * dir.X() + pos.Y() * dir.Y()) + e * dir.Z();
     Double_t half_b = b / 2;
     Double_t c = pos.X() * pos.X() + pos.Y() * pos.Y() - R3 * R3 + e * pos.Z();
-    if (a != 0) { 
+    if (a != 0) {
         Double_t root1 = (-half_b - TMath::Sqrt(half_b * half_b - a * c)) / a;
         Double_t root2 = (-half_b + TMath::Sqrt(half_b * half_b - a * c)) / a;
         if (pos.Z() + root1 * dir.Z() > -lMirr and pos.Z() + root1 * dir.Z() < 0) {
@@ -114,13 +114,13 @@ TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir
 //////////////////////////////////////////////
 /// This method will find the intersection between a vector and a hyperbolic shape where 3 * `alpha` is the
 /// angle between the optical axis and the hyperboloid at the plane where the hyperboloid has a radius of
-/// `R3`. The hyperboloid is rotationally symmetric around the optical axis. `alpha` in rad. The region in which
-/// the intersection can happen here is between 0 and `lMirr` on the `z` (optical) axis
+/// `R3`. The hyperboloid is rotationally symmetric around the optical axis. `alpha` in rad. The region in
+/// which the intersection can happen here is between 0 and `lMirr` on the `z` (optical) axis
 ///
 /// In case no intersection is found this method returns the unmodified input position
 ///
-TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t& alpha,
-                                         const Double_t& R3, const Double_t& lMirr, const Double_t& focal) {
+TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t alpha,
+                                         const Double_t R3, const Double_t lMirr, const Double_t focal) {
     Double_t beta = 3 * alpha;
     Double_t e = 2 * R3 * TMath::Tan(beta);
     /// Just replaced here *TMath::Cot by /TMath::Tan to fix compilation issues
@@ -144,7 +144,7 @@ TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& di
 /// \brief It returns the cone matrix M = d^T x d - cosTheta^2 x I, extracted from the document
 /// by "David Eberly, Geometric Tools, Redmond WA 98052, Intersection of a Line and a Cone".
 ///
-TMatrixD GetConeMatrix(const TVector3& d, const Double_t& cosTheta) {
+TMatrixD GetConeMatrix(const TVector3& d, const Double_t cosTheta) {
     double cAxis[3];
     d.GetXYZ(cAxis);
 
@@ -183,7 +183,7 @@ Double_t GetVectorsAngle(const TVector3& v1, const TVector3& v2) { return TMath:
 /// Optionally, the radius of the cone at the given `pos` can be provided to facilitate the
 /// calculation
 ///
-TVector3 GetConeNormal(const TVector3& pos, const Double_t& alpha, const Double_t& R) {
+TVector3 GetConeNormal(const TVector3& pos, const Double_t alpha, const Double_t R) {
     Double_t r = 0;
     if (R == 0)
         r = TMath::Sqrt(pos.X() * pos.X() + pos.Y() * pos.Y());
@@ -202,7 +202,7 @@ TVector3 GetConeNormal(const TVector3& pos, const Double_t& alpha, const Double_
 /// `alpha` is the angle between the paraboloid and the optical (z) axis at the plane where the
 /// paraboloid has the radius `R3`.
 ///
-TVector3 GetParabolicNormal(const TVector3& pos, const Double_t& alpha, const Double_t& R3) {
+TVector3 GetParabolicNormal(const TVector3& pos, const Double_t alpha, const Double_t R3) {
     TVector3 normalVec = pos;
     Double_t m =
         1 / (R3 * TMath::Tan(alpha) / TMath::Sqrt(R3 * R3 + R3 * 2 * TMath::Tan(alpha) * (-pos.Z())));
@@ -217,8 +217,8 @@ TVector3 GetParabolicNormal(const TVector3& pos, const Double_t& alpha, const Do
 /// `beta` is the angle between the hyperboloid and the optical (z) axis at the plane where the
 /// hyperboloid has the radius `R3`.
 ///
-TVector3 GetHyperbolicNormal(const TVector3& pos, const Double_t& alpha, const Double_t& R3,
-                             const Double_t& focal) {
+TVector3 GetHyperbolicNormal(const TVector3& pos, const Double_t alpha, const Double_t R3,
+                             const Double_t focal) {
     TVector3 normalVec = pos;
     Double_t beta = 3 * alpha;
     /// Just replaced here *TMath::Cot by /TMath::Tan to fix compilation issues
@@ -243,7 +243,7 @@ TVector3 GetHyperbolicNormal(const TVector3& pos, const Double_t& alpha, const D
 /// Intersection of a Line and a Cone".
 ///
 Double_t GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, const TVector3& d,
-                                   const TVector3& v, const Double_t& cosTheta) {
+                                   const TVector3& v, const Double_t cosTheta) {
     TMatrixD M = GetConeMatrix(d, cosTheta);
     return GetConeVectorIntersection(pos, dir, M, d, v);
 }
@@ -291,7 +291,7 @@ Double_t GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, con
 
     // The projections along the cone axis. If positive then the solution
     // gives the cone intersection with the side defined by `axis`
-    Double_t h1 = t1 * dir.Dot(axis) + axis.Dot(deltaV);
+    // Double_t h1 = t1 * dir.Dot(axis) + axis.Dot(deltaV);
     Double_t h2 = t2 * dir.Dot(axis) + axis.Dot(deltaV);
 
     // We use it to select the root we are interested in
@@ -304,21 +304,21 @@ Double_t GetConeVectorIntersection(const TVector3& pos, const TVector3& dir, con
 ///////////////////////////////////////////////
 /// \brief This method transports a position `pos` by a distance `d` in the direction defined by `dir`.
 ///
-TVector3 MoveByDistance(TVector3 pos, TVector3 dir, Double_t d) { return pos + d * dir.Unit(); }
+TVector3 MoveByDistance(const TVector3& pos, const TVector3& dir, Double_t d) { return pos + d * dir.Unit(); }
 
 ///////////////////////////////////////////////
 /// \brief This method transports a position `pos` by a distance `d` in the direction defined by `dir`.
 /// This method assumes the vector `dir` is unitary!
 ///
-TVector3 MoveByDistanceFast(TVector3 pos, TVector3 dir, Double_t d) { return pos + d * dir; }
+TVector3 MoveByDistanceFast(const TVector3& pos, const TVector3& dir, Double_t d) { return pos + d * dir; }
 
 ///////////////////////////////////////////////
 /// \brief This method returns the cartesian distance between vector v2 and v1.
 ///
-Double_t GetDistance(TVector3 v1, TVector3 v2) { return (v2 - v1).Mag(); }
+Double_t GetDistance(const TVector3& v1, const TVector3& v2) { return (v2 - v1).Mag(); }
 
 ///////////////////////////////////////////////
 /// \brief This method returns the squared cartesian distance between vector v2 and v1.
 ///
-Double_t GetDistance2(TVector3 v1, TVector3 v2) { return (v2 - v1).Mag2(); }
+Double_t GetDistance2(const TVector3& v1, const TVector3& v2) { return (v2 - v1).Mag2(); }
 }  // namespace REST_Physics

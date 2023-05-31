@@ -1,29 +1,28 @@
 #ifndef RestCore_TRestBrowser
 #define RestCore_TRestBrowser
 
-#include <iostream>
+#include <TApplication.h>
+#include <TBrowser.h>
+#include <TCanvas.h>
+#include <TGButton.h>
+#include <TGComboBox.h>
+#include <TGDimension.h>
+#include <TGFileDialog.h>
+#include <TGFrame.h>
+#include <TGLabel.h>
+#include <TGNumberEntry.h>
+#include <TGTextEntry.h>
+#include <TObject.h>
+#include <TROOT.h>
+#include <TRestEventViewer.h>
+#include <TRestRun.h>
+#include <TSystem.h>
 
-#include "TApplication.h"
-#include "TBrowser.h"
-#include "TCanvas.h"
-#include "TGButton.h"
-#include "TGComboBox.h"
-#include "TGDimension.h"
-#include "TGFileDialog.h"
-#include "TGFrame.h"
-#include "TGLabel.h"
-#include "TGNumberEntry.h"
-#include "TGTextEntry.h"
-#include "TObject.h"
-#include "TROOT.h"
-#include "TRestEventViewer.h"
-#include "TRestRun.h"
-#include "TSystem.h"
+#include <iostream>
 
 /// Event browser for different input file
 class TRestBrowser {
    protected:
-#ifndef __CINT__
     TGMainFrame* frmMain = nullptr;  //!
     TGMainFrame* frmBot = nullptr;   //!
 
@@ -41,12 +40,12 @@ class TRestBrowser {
 
     TGLabel* fPlotOptionLabel = nullptr;        //!
     TGTextEntry* fPlotOptionTextBox = nullptr;  //! TextBox for plot options
-    TGTextButton* fButOptPrev = nullptr;        //! Previous plot option
+    TGPictureButton* fButOptPrev = nullptr;     //! Previous plot option
     TGTextButton* fButOptRefresh = nullptr;     //! Refresh plot
-    TGTextButton* fButOptNext = nullptr;        //! Next plot option
+    TGPictureButton* fButOptNext = nullptr;     //! Next plot option
 
     TGPictureButton* fMenuOpen = nullptr;  //! Open file button
-    TGTextButton* fExit = nullptr;         //! Exit button
+    TGPictureButton* fExit = nullptr;      //! Exit button
 
     // Frames and buttons on bottom
     TGVerticalFrame* fHFrame = nullptr;         //!
@@ -62,12 +61,10 @@ class TRestBrowser {
 
     TBrowser* fBrowser = nullptr;  //!
     TRestRun* fRestRun = nullptr;  //!
-#endif
 
    private:
-#ifndef __CINT__
-    Bool_t pureAnalysis;
-    TString fInputFileName;
+    Bool_t pureAnalysis;     //!
+    TString fInputFileName;  //!
 
     TRestEventViewer* fEventViewer = nullptr;  //!
 
@@ -77,12 +74,11 @@ class TRestBrowser {
     void SetBottomPanelButtons();
     Bool_t LoadEventId(Int_t eventID, Int_t subEventID = -1);
     Bool_t LoadEventEntry(Int_t n);
-#endif
 
    public:
     // tool method
     void Initialize(const TString& opt = "FI");
-    void InitFromConfigFile();
+    static void InitFromConfigFile();
     Bool_t OpenFile(const TString& filename);
 
     // setters
@@ -94,7 +90,7 @@ class TRestBrowser {
 
     // actions
     void LoadFileAction();
-    void ExitAction();
+    static void ExitAction();
 
     void RowValueChangedAction(Long_t val);
     void IdValueChangedAction(Long_t val);

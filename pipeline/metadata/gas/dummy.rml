@@ -9,5 +9,5 @@
    <eField Emin="50" Emax="100." nodes="2" />
    <gasComponent name="xe" fraction="0.001" />
    <gasComponent name="n(ch3)3" fraction="0.99" />
-</TRestDetectorGas> 
+</TRestDetectorGas>
 </gases>

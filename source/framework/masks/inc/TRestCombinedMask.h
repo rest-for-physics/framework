@@ -35,7 +35,7 @@ class TRestCombinedMask : public TRestPatternMask {
 
     void AddMask(TRestPatternMask* mask) { fMasks.push_back(mask); }
 
-    TRestPatternMask* const& GetMask(int index) const {
+    TRestPatternMask* const& GetMask(unsigned int index) const {
         if (index < fMasks.size()) {
             return fMasks[index];
         }
@@ -43,7 +43,7 @@ class TRestCombinedMask : public TRestPatternMask {
         return fMasks[0];
     }
 
-    Int_t GetRegion(Double_t x, Double_t y) override;
+    Int_t GetRegion(Double_t& x, Double_t& y) override;
 
     void InitFromConfigFile() override;
 

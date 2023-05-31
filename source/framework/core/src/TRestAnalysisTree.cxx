@@ -22,36 +22,49 @@
 
 //////////////////////////////////////////////////////////////////////////
 ///
-/// TRestAnalysisTree is TTree but with **managed objects** for the branches to fill.
-/// There are six fixed branches of event information in TRestAnalysisTree: runOrigin,
-/// subRunOrigin, eventID, subEventID, subEventTag and timeStamp. They are pointing
-/// to the corresponding class members inside TRestAnalysisTree. Those branches are
-/// called `event branches`. Additional branches could be added by the user, they will
-/// point to some objects whose addresses are also stored in this class. Those objects
-/// are called `observables`.
+/// TRestAnalysisTree is a TTree but with **custom objects** for the branches that will be
+/// filled. The user will decide in each event data processing chain which branches/observables/variables
+/// will be finally added to the analysis tree. Inside a TRestAnalysisTree we find always the following six
+/// branches containing event information: runOrigin, subRunOrigin, eventID, subEventID, subEventTag and
+/// timeStamp. Those branches point to the corresponding class members inside TRestAnalysisTree, we name those
+/// branches the `event branches`. Additional branches can be added by the user in a processing chain by any
+/// class inheriting by TRestEventProcess. Those process generated branches will also point to some
+/// objects whose addresses are also stored in this class. Those objects are called `observables`.
 ///
-/// In traditional TTree case, the user defines multiple global variables, and add
-/// branches with the address of these variables to the tree. Then the user changes the
-/// value of those variables somewhere in the code, and calls `TTree::Fill()` to create
-/// and save a new entry in the data list.
+/// In the traditional `TTree` case, the user defines multiple global variables,
+/// and adds branches with the address of these variables to the tree. Then the
+/// user changes the value of those variables somewhere in the code, and calls
+/// `TTree::Fill()` to create and save a new entry inside the tree.
 ///
-/// In TRestAnalysisTree, the concept of "Branch" is weakened. We can directly call
-/// `SetObservableValue()` and then `TRestAnalysisTree::Fill()` to do the data saving.
-/// The code could be simplified while sacrificing a little performance. We can use
-/// temporary variable to set observable value directly. We can focus on the analysis
-/// code inside the loop, without caring about varaible initialization before that.
+/// In TRestAnalysisTree, the concept of "Branch" is weakened. We update the
+/// variables by invoking the `SetObservableValue()` method and then
+/// TRestAnalysisTree::Fill() to generate a new entry inside the tree. As soon as
+/// TRestEventProcess::SetObservable method is invoked, a new branch will be
+/// generated inside this tree. The code inside REST processes will be simplified
+/// while sacrificing a little performance. We can use
+/// temporary variable to set observable value directly. We can the focus on the analysis
+/// code inside each process, without caring about variable initialization before that.
+///
+/// As soon as TRestEventProcess::SetObservable method is invoked, a new branch will be
+/// generated inside this tree.
 ///
 /// The following is a summary of speed of filling 1000000 entries for TTree and
 /// TRestAnalysisTree. Four observables and six event branches are added. We take the
-/// average of 3 tests as the result. See the file pipeline/analysistree/testspeed.cpp
+/// average of 3 tests as the result. See the file `pipeline/analysistree/testspeed.cpp`.
 /// for more details.
 ///
-/// Condition                           |    time(us)   |
-/// A. Do not use observable            |      846,522  |
-/// B. Use quick observable (default)   |    1,188,232  |
-/// C. Do not use quick observable      |    2,014,646  |
-/// D. Use reflected observable         |    8,425,772  |
-/// TTree                               |      841,744  |
+/// <center>
+///
+/// Condition                           |    time(us)
+/// ----------------------------------- | -------------
+/// A. Do not use observable            |      846,522
+/// B. Use quick observable (default)   |    1,188,232
+/// C. Do not use quick observable      |    2,014,646
+/// D. Use reflected observable         |    8,425,772
+/// TTree                               |      841,744
+///
+/// </center>
+///
 ///_______________________________________________________________________________
 ///
 /// RESTsoft - Software for Rare Event Searches with TPCs
@@ -117,7 +130,7 @@ TRestAnalysisTree* TRestAnalysisTree::ConvertFromTTree(TTree* tree) {
     return new TRestAnalysisTree(tree);
 }
 
-TRestAnalysisTree::TRestAnalysisTree(TString name, TString title) : TTree(name, title) {
+TRestAnalysisTree::TRestAnalysisTree(const TString& name, const TString& title) : TTree(name, title) {
     SetName(name);
     SetTitle(title);
 
@@ -148,6 +161,7 @@ void TRestAnalysisTree::Initialize() {
 ///
 /// If not exist, it will return -1. It will call MakeObservableIdMap() to
 /// update observable id map before searching
+///
 Int_t TRestAnalysisTree::GetObservableID(const string& obsName) {
     MakeObservableIdMap();
     auto iter = fObservableIdMap.find(obsName);
@@ -156,8 +170,6 @@ Int_t TRestAnalysisTree::GetObservableID(const string& obsName) {
     } else {
         return -1;
     }
-    // if (!ObservableExists(obsName)) return -1;
-    // return fObservableIdMap[obsName];
 }
 
 ///////////////////////////////////////////////
@@ -165,6 +177,7 @@ Int_t TRestAnalysisTree::GetObservableID(const string& obsName) {
 ///
 /// Ignores prefix like "sAna_". Case sensitive, misspelling prompted.
 /// If not exist, it will return -1.
+///
 Int_t TRestAnalysisTree::GetMatchedObservableID(const string& obsName) {
     // if (ObservableExists(obsName)) return GetObservableID(obsName);
     auto iter = fObservableIdSearchMap.find(obsName);
@@ -172,8 +185,8 @@ Int_t TRestAnalysisTree::GetMatchedObservableID(const string& obsName) {
         return iter->second;
     } else {
         vector<int> diffs;
-        for (int i = 0; i < fObservableNames.size(); i++) {
-            string obs = (string)fObservableNames[i];
+        for (auto& fObservableName : fObservableNames) {
+            string obs = (string)fObservableName;
             int diff1 = DiffString(obs, obsName);
 
             obs = obs.substr(obs.find('_') + 1, -1);
@@ -182,28 +195,28 @@ Int_t TRestAnalysisTree::GetMatchedObservableID(const string& obsName) {
             diffs.push_back(min(diff1, diff2));
         }
 
-        int matchedcount = 0;
-        int minpos = 0;
+        int matchedCount = 0;
+        int minPos = 0;
         int min = 1e5;
-        for (int i = 0; i < diffs.size(); i++) {
+        for (unsigned int i = 0; i < diffs.size(); i++) {
             if (min > diffs[i]) {
                 min = diffs[i];
-                minpos = i;
+                minPos = i;
             }
             if (diffs[i] == 0) {
-                matchedcount++;
+                matchedCount++;
             }
         }
 
-        if (matchedcount == 1) {
-            cout << "TRestAnalysisTree::GetObservableID(): Find observable " << fObservableNames[minpos]
+        if (matchedCount == 1) {
+            cout << "TRestAnalysisTree::GetObservableID(): Find observable " << fObservableNames[minPos]
                  << " for obs name: " << obsName << endl;
-            fObservableIdSearchMap[obsName] = minpos;
-            return minpos;
-        } else if (matchedcount == 0) {
+            fObservableIdSearchMap[obsName] = minPos;
+            return minPos;
+        } else if (matchedCount == 0) {
             RESTError << "TRestAnalysisTree::GetObservableID(): No Matching observable found" << RESTendl;
             if (min <= 2) {
-                RESTError << "did you mean \"" << fObservableNames[minpos] << "\" ?" << RESTendl;
+                RESTError << "did you mean \"" << fObservableNames[minPos] << "\" ?" << RESTendl;
                 fObservableIdSearchMap[obsName] = -1;
                 return -1;
             }
@@ -212,10 +225,10 @@ Int_t TRestAnalysisTree::GetMatchedObservableID(const string& obsName) {
             RESTWarning
                 << "Please specify the full observable name (e.g, sAna_ThresholdIntegral) in your code. "
                 << RESTendl;
-            RESTWarning << "Returning the first matched observable : " << fObservableNames[minpos]
+            RESTWarning << "Returning the first matched observable : " << fObservableNames[minPos]
                         << RESTendl;
-            fObservableIdSearchMap[obsName] = minpos;
-            return minpos;
+            fObservableIdSearchMap[obsName] = minPos;
+            return minPos;
         }
     }
     fObservableIdSearchMap[obsName] = -1;
@@ -226,6 +239,7 @@ Int_t TRestAnalysisTree::GetMatchedObservableID(const string& obsName) {
 /// \brief Get if the specified observable exists
 ///
 /// It will call MakeObservableIdMap() to update observable id map before searching
+///
 Bool_t TRestAnalysisTree::ObservableExists(const string& obsName) {
     MakeObservableIdMap();
     return fObservableIdMap.count(obsName) > 0;
@@ -281,7 +295,7 @@ int TRestAnalysisTree::EvaluateStatus() {
             }
         }
     } else if (NBranches == 6) {
-        TBranch* br = (TBranch*)GetListOfBranches()->UncheckedAt(0);
+        auto br = (TBranch*)GetListOfBranches()->UncheckedAt(0);
         if ((int*)br->GetAddress() != &fRunOrigin) {
             if (Entries > 0) {
                 return TRestAnalysisTree_Status::Retrieved;
@@ -309,6 +323,7 @@ int TRestAnalysisTree::EvaluateStatus() {
 /// to the existing TTree branches. Then it will create new observable objects by
 /// reflection, and connect them also to the existing TTree branches. After
 /// re-connection, this method will change status 2->5, 3->4
+///
 void TRestAnalysisTree::UpdateObservables() {
     // connect basic event branches
     TBranch* br1 = GetBranch("runOrigin");
@@ -372,6 +387,7 @@ void TRestAnalysisTree::UpdateObservables() {
 /// observables. Note that this method can be called multiple times during the
 /// first loop of observable setting. After branch creation, this method will
 /// change status 1->4, or stay 4.
+///
 void TRestAnalysisTree::UpdateBranches() {
     if (!GetBranch("runOrigin")) Branch("runOrigin", &fRunOrigin);
     if (!GetBranch("subRunOrigin")) Branch("subRunOrigin", &fSubRunOrigin);
@@ -401,10 +417,18 @@ void TRestAnalysisTree::UpdateBranches() {
                 this->Branch(brName, (int*)ref);
             } else if (typeName == "short") {
                 this->Branch(brName, (short*)ref);
+            } else if (typeName == "unsigned char") {
+                this->Branch(brName, (unsigned char*)ref);
+            } else if (typeName == "unsigned int") {
+                this->Branch(brName, (unsigned int*)ref);
+            } else if (typeName == "unsigned short") {
+                this->Branch(brName, (unsigned short*)ref);
             } else if (typeName == "long") {
                 this->Branch(brName, (long*)ref);
             } else if (typeName == "long long") {
                 this->Branch(brName, (long long*)ref);
+            } else if (typeName == "unsigned long") {
+                this->Branch(brName, (unsigned long*)ref);
             } else if (typeName == "unsigned long long") {
                 this->Branch(brName, (unsigned long long*)ref);
             } else {
@@ -431,10 +455,11 @@ void TRestAnalysisTree::InitObservables() {
 /// \brief Update the map of observable name to observable id.
 ///
 /// Using map will improve the speed of "SetObservableValue"
+///
 void TRestAnalysisTree::MakeObservableIdMap() {
     if (fObservableIdMap.size() != fObservableNames.size()) {
         fObservableIdMap.clear();
-        for (int i = 0; i < fObservableNames.size(); i++) {
+        for (unsigned int i = 0; i < fObservableNames.size(); i++) {
             fObservableIdMap[(string)fObservableNames[i]] = i;
         }
         if (fObservableIdMap.size() != fObservableNames.size()) {
@@ -450,7 +475,7 @@ void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, RESTValue& obs) {
         // this means we need to determine the observable type first
         string type;
         string leafdef(lf->GetBranch()->GetTitle());
-        if (leafdef.find("[") == -1) {
+        if (leafdef.find("[") == string::npos) {
             // there is no [] mark in the leaf. The leaf is a single values
             switch (leafdef[leafdef.size() - 1]) {
                 case 'C':
@@ -506,7 +531,7 @@ void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, RESTValue& obs) {
         // the observable is basic type, we directly set it address from leaf
         obs.address = (char*)lf->GetValuePointer();
     } else if (obs.type == "vector<double>") {
-        double* ptr = (double*)lf->GetValuePointer();
+        auto ptr = (double*)lf->GetValuePointer();
         vector<double> val(ptr, ptr + lf->GetLen());
         obs.SetValue(val);
     } else if (obs.type == "vector<int>") {
@@ -514,7 +539,7 @@ void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, RESTValue& obs) {
         vector<int> val(ptr, ptr + lf->GetLen());
         obs.SetValue(val);
     } else if (obs.type == "vector<float>") {
-        float* ptr = (float*)lf->GetValuePointer();
+        auto ptr = (float*)lf->GetValuePointer();
         vector<float> val(ptr, ptr + lf->GetLen());
         obs.SetValue(val);
     } else if (obs.type == "string") {
@@ -526,9 +551,9 @@ void TRestAnalysisTree::ReadLeafValueToObservable(TLeaf* lf, RESTValue& obs) {
     }
 }
 
-RESTValue TRestAnalysisTree::GetObservable(string obsName) {
+RESTValue TRestAnalysisTree::GetObservable(const string& obsName) {
     Int_t id = GetObservableID(obsName);
-    if (id == -1) return RESTValue();
+    if (id == -1) return {};
     return GetObservable(id);
 }
 
@@ -537,7 +562,7 @@ RESTValue TRestAnalysisTree::GetObservable(string obsName) {
 RESTValue TRestAnalysisTree::GetObservable(Int_t n) {
     if (n >= fNObservables) {
         cout << "Error! TRestAnalysisTree::GetObservable(): index outside limits!" << endl;
-        return RESTValue();
+        return {};
     }
 
     if (fChain != nullptr) {
@@ -575,7 +600,7 @@ TString TRestAnalysisTree::GetObservableType(Int_t n) {
 }
 ///////////////////////////////////////////////
 /// \brief Get the observable type according to its name
-TString TRestAnalysisTree::GetObservableType(string obsName) {
+TString TRestAnalysisTree::GetObservableType(const string& obsName) {
     Int_t id = GetObservableID(obsName);
     if (id == -1) return "NotFound";
     return GetObservableType(id);
@@ -584,7 +609,7 @@ TString TRestAnalysisTree::GetObservableType(string obsName) {
 /// \brief Get double value of the observable, according to the name.
 ///
 /// It assumes the observable is in double/int type. If not it will print error and return 0
-Double_t TRestAnalysisTree::GetDblObservableValue(string obsName) {
+Double_t TRestAnalysisTree::GetDblObservableValue(const string& obsName) {
     return GetDblObservableValue(GetObservableID(obsName));
 }
 ///////////////////////////////////////////////
@@ -605,8 +630,8 @@ Double_t TRestAnalysisTree::GetDblObservableValue(Int_t n) {
     return 0.;
 }
 
-RESTValue TRestAnalysisTree::AddObservable(TString observableName, TString observableType,
-                                           TString description) {
+RESTValue TRestAnalysisTree::AddObservable(const TString& observableName, const TString& observableType,
+                                           const TString& description) {
     if (fStatus == None) fStatus = EvaluateStatus();
 
     if (fStatus == Created) {
@@ -624,7 +649,6 @@ RESTValue TRestAnalysisTree::AddObservable(TString observableName, TString obser
         return -1;
     }
 
-    Double_t x = 0;
     if (GetObservableID((string)observableName) == -1) {
         RESTValue ptr = REST_Reflection::Assembly((string)observableType);
         ptr.name = observableName;
@@ -701,29 +725,6 @@ Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
     } else if (fStatus == Filled) {
     }
 
-    // if (fROOTTree != nullptr) {
-    //    // if it is connected to an external tree, we get entry on that
-    //    int result = fROOTTree->GetEntry(entry, getall);
-
-    //    TObjArray* lfs = fROOTTree->GetListOfLeaves();
-    //    if (fObservables.size() != lfs->GetLast() + 1) {
-    //        cout << "Warning: external TTree may have changed!" << endl;
-    //        for (int i = 0; i < lfs->GetLast() + 1; i++) {
-    //            TLeaf* lf = (TLeaf*)lfs->UncheckedAt(i);
-    //            RESTValue obs;
-    //            ReadLeafValueToObservable(lf, obs);
-    //            obs.name = lf->GetName();
-    //            SetObservable(-1, obs);
-    //        }
-    //    } else {
-    //        for (int i = 0; i < lfs->GetLast() + 1; i++) {
-    //            TLeaf* lf = (TLeaf*)lfs->UncheckedAt(i);
-    //            ReadLeafValueToObservable(lf, fObservables[i]);
-    //        }
-    //    }
-
-    //    return result;
-    //}
     if (fChain != nullptr) {
         return fChain->GetEntry(entry, getall);
     } else {
@@ -815,7 +816,7 @@ void TRestAnalysisTree::SetObservable(Int_t id, RESTValue obs) {
             AddObservable(obs.name, obs.type);
             id = GetObservableID(obs.name);
         }
-    } else if (id == fObservables.size()) {
+    } else if (id == (int)fObservables.size()) {
         // this means we want to add observable directly
         AddObservable(obs.name, obs.type);
         id = GetObservableID(obs.name);
@@ -877,11 +878,14 @@ void TRestAnalysisTree::SetObservable(string name, RESTValue value) {
 /// It will evaluate the given conditions and return the result. Valid operators are "==", "<=", ">=", "!=",
 /// "=", ">" and "<".
 ///
-Bool_t TRestAnalysisTree::EvaluateCuts(const string cut) {
+Bool_t TRestAnalysisTree::EvaluateCuts(const string& cut) {
     std::vector<string> cuts = Split(cut, "&&", false, true);
 
-    for (int n = 0; n < cuts.size(); n++)
-        if (!EvaluateCut(cuts[n])) return false;
+    for (auto& cut : cuts) {
+        if (!EvaluateCut(cut)) {
+            return false;
+        }
+    }
 
     return true;
 }
@@ -892,33 +896,33 @@ Bool_t TRestAnalysisTree::EvaluateCuts(const string cut) {
 ///
 /// It will evaluate the given conditions and return the result. Valid operators are "==", "<=", ">=", "!=",
 /// "=", ">" and "<".
-Bool_t TRestAnalysisTree::EvaluateCut(const string cut) {
+Bool_t TRestAnalysisTree::EvaluateCut(const string& cut) {
     const std::vector<string> validOperators = {"==", "<=", ">=", "!=", "=", ">", "<"};
 
     if (cut.find("&&") != string::npos) return EvaluateCuts(cut);
 
-    string oper = "", observable = "";
-    Double_t value;
-    for (int j = 0; j < validOperators.size(); j++) {
-        if (cut.find(validOperators[j]) != string::npos) {
-            oper = validOperators[j];
-            observable = (string)cut.substr(0, cut.find(oper));
-            value = std::stod((string)cut.substr(cut.find(oper) + oper.length(), string::npos));
+    string operation, observable;
+    Double_t value = -1;
+    for (const auto& validOperator : validOperators) {
+        if (cut.find(validOperator) != string::npos) {
+            operation = validOperator;
+            observable = (string)cut.substr(0, cut.find(operation));
+            value = std::stod((string)cut.substr(cut.find(operation) + operation.length(), string::npos));
             break;
         }
     }
 
-    if (oper == "")
+    if (operation.empty())
         cout << "TRestAnalysisTree::EvaluateCut. Invalid operator in cut definition! " << cut << endl;
 
     Double_t val = GetDblObservableValue(observable);
-    if (oper == "==" && value == val) return true;
-    if (oper == "!=" && value != val) return true;
-    if (oper == "<=" && val <= value) return true;
-    if (oper == ">=" && val >= value) return true;
-    if (oper == "=" && val == value) return true;
-    if (oper == ">" && val > value) return true;
-    if (oper == "<" && val < value) return true;
+    if (operation == "==" && value == val) return true;
+    if (operation == "!=" && value != val) return true;
+    if (operation == "<=" && val <= value) return true;
+    if (operation == ">=" && val >= value) return true;
+    if (operation == "=" && val == value) return true;
+    if (operation == ">" && val > value) return true;
+    if (operation == "<" && val < value) return true;
 
     return false;
 }
@@ -927,18 +931,17 @@ Bool_t TRestAnalysisTree::EvaluateCut(const string cut) {
 /// \brief It will return a list with the names found in a string with conditions, as given in methods as
 /// EvaluateCuts. I.e. a construction as "obsName1==value1&&obsName2<=value2" will return {obsName1,obsName2}.
 ///
-vector<string> TRestAnalysisTree::GetCutObservables(const string cut_str) {
+vector<string> TRestAnalysisTree::GetCutObservables(const string& cut_str) {
     const std::vector<string> validOperators = {"==", "<=", ">=", "!=", "=", ">", "<"};
 
     std::vector<string> cuts = Split(cut_str, "&&", false, true);
 
     vector<string> obsNames;
-    for (int n = 0; n < cuts.size(); n++) {
-        string oper = "", observable = "";
-        Double_t value;
-        for (int j = 0; j < validOperators.size(); j++) {
-            if (cuts[n].find(validOperators[j]) != string::npos) {
-                obsNames.push_back((string)cuts[n].substr(0, cuts[n].find(validOperators[j])));
+    for (auto& cut : cuts) {
+        string operation, observable;
+        for (const auto& validOperator : validOperators) {
+            if (cut.find(validOperator) != string::npos) {
+                obsNames.push_back((string)cut.substr(0, cut.find(validOperator)));
                 break;
             }
         }
@@ -950,14 +953,14 @@ vector<string> TRestAnalysisTree::GetCutObservables(const string cut_str) {
 /// \brief It will enable the branches given by argument
 ///
 void TRestAnalysisTree::EnableBranches(vector<string> obsNames) {
-    for (int n = 0; n < obsNames.size(); n++) this->SetBranchStatus(obsNames[n].c_str(), true);
+    for (auto& obsName : obsNames) this->SetBranchStatus(obsName.c_str(), true);
 }
 
 ///////////////////////////////////////////////
 /// \brief It will disable the branches given by argument
 ///
 void TRestAnalysisTree::DisableBranches(vector<string> obsNames) {
-    for (int n = 0; n < obsNames.size(); n++) this->SetBranchStatus(obsNames[n].c_str(), false);
+    for (auto& obsName : obsNames) this->SetBranchStatus(obsName.c_str(), false);
 }
 
 ///////////////////////////////////////////////
@@ -984,77 +987,200 @@ void TRestAnalysisTree::EnableQuickObservableValueSetting() { this->fQuickSetObs
 void TRestAnalysisTree::DisableQuickObservableValueSetting() { this->fQuickSetObservableValue = false; }
 
 ///////////////////////////////////////////////
+/// \brief It returns the integral of the observable considering the given range. If no range is given
+/// the full histogram range will be considered.
+///
+Double_t TRestAnalysisTree::GetObservableIntegral(const TString& obsName, Double_t xLow, Double_t xHigh) {
+    Int_t id = GetObservableID((std::string)obsName);
+
+    if (id < 0) {
+        RESTError << "TRestAnalysisTree::GetObservableIntegral. Observable not found! : " << obsName
+                  << RESTendl;
+        return 0;
+    }
+
+    Double_t sum = 0;
+    for (Int_t n = 0; n < TTree::GetEntries(); n++) {
+        TTree::GetEntry(n);
+        Double_t value = GetDblObservableValue(id);
+
+        if (xLow != -1 && xHigh != -1 && (value < xLow || value > xHigh)) continue;
+        sum += value;
+    }
+
+    return sum;
+}
+
+///////////////////////////////////////////////
 /// \brief It returns the average of the observable considering the given range. If no range is given
 /// the full histogram range will be considered.
 ///
-Double_t TRestAnalysisTree::GetObservableAverage(TString obsName, Double_t xLow, Double_t xHigh,
-                                                 Int_t nBins) {
-    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
-    if (xHigh == -1)
-        this->Draw(obsName);
-    else
-        this->Draw(obsName + ">>" + histDefinition);
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
-    return htemp->GetMean();
+Double_t TRestAnalysisTree::GetObservableAverage(const TString& obsName, Double_t xLow, Double_t xHigh) {
+    Int_t id = GetObservableID((std::string)obsName);
+
+    if (id < 0) {
+        RESTError << "TRestAnalysisTree::GetObservableAverage. Observable not found! : " << obsName
+                  << RESTendl;
+        return 0;
+    }
+
+    Double_t sum = 0;
+    Int_t N = 0;
+    for (Int_t n = 0; n < TTree::GetEntries(); n++) {
+        TTree::GetEntry(n);
+        Double_t value = GetDblObservableValue(id);
+
+        if (xLow != -1 && xHigh != -1 && (value < xLow || value > xHigh)) continue;
+        N++;
+        sum += value;
+    }
+
+    if (N <= 0) return 0;
+
+    return sum / N;
 }
 
 ///////////////////////////////////////////////
 /// \brief It returns the RMS of the observable considering the given range. If no range is given
 /// the full histogram range will be considered.
 ///
-Double_t TRestAnalysisTree::GetObservableRMS(TString obsName, Double_t xLow, Double_t xHigh, Int_t nBins) {
-    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
-    if (xHigh == -1)
-        this->Draw(obsName);
-    else
-        this->Draw(obsName + ">>" + histDefinition);
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
-    return htemp->GetRMS();
+Double_t TRestAnalysisTree::GetObservableRMS(const TString& obsName, Double_t xLow, Double_t xHigh) {
+    Double_t mean = GetObservableAverage(obsName, xLow, xHigh);
+
+    Int_t id = GetObservableID((std::string)obsName);
+
+    Double_t sum = 0;
+    Int_t N = 0;
+    for (Int_t n = 0; n < TTree::GetEntries(); n++) {
+        TTree::GetEntry(n);
+        Double_t value = GetDblObservableValue(id);
+
+        if (xLow != -1 && xHigh != -1 && (value < xLow || value > xHigh)) continue;
+        N++;
+
+        sum += (value - mean) * (value - mean);
+    }
+
+    if (N <= 0) return 0;
+
+    return TMath::Sqrt(sum / N);
 }
 
 ///////////////////////////////////////////////
 /// \brief It returns the maximum value of obsName considering the given range. If no range is given
 /// the full histogram range will be considered.
 ///
-Double_t TRestAnalysisTree::GetObservableMaximum(TString obsName, Double_t xLow, Double_t xHigh,
-                                                 Int_t nBins) {
-    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
-    if (xHigh == -1)
-        this->Draw(obsName);
-    else
-        this->Draw(obsName + ">>" + histDefinition);
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
-    return htemp->GetMaximumStored();
+Double_t TRestAnalysisTree::GetObservableMaximum(const TString& obsName, Double_t xLow, Double_t xHigh) {
+    Int_t id = GetObservableID((std::string)obsName);
+
+    if (id < 0) {
+        RESTError << "TRestAnalysisTree::GetObservableMaximum. Observable not found! : " << obsName
+                  << RESTendl;
+        return 0;
+    }
+
+    Double_t max = -DBL_MAX;
+    for (Int_t n = 0; n < TTree::GetEntries(); n++) {
+        TTree::GetEntry(n);
+        Double_t value = GetDblObservableValue(id);
+
+        if (xLow != -1 && xHigh != -1 && (value < xLow || value > xHigh)) continue;
+        if (value > max) max = value;
+    }
+
+    return max;
 }
 
 ///////////////////////////////////////////////
 /// \brief It returns the minimum value of obsName considering the given range. If no range is given
 /// the full histogram range will be considered.
 ///
-Double_t TRestAnalysisTree::GetObservableMinimum(TString obsName, Double_t xLow, Double_t xHigh,
-                                                 Int_t nBins) {
-    TString histDefinition = Form("htemp(%5d,%lf,%lf)", nBins, xLow, xHigh);
-    if (xHigh == -1)
-        this->Draw(obsName);
-    else
-        this->Draw(obsName + ">>" + histDefinition);
-    TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
-    return htemp->GetMinimumStored();
+Double_t TRestAnalysisTree::GetObservableMinimum(const TString& obsName, Double_t xLow, Double_t xHigh) {
+    Int_t id = GetObservableID((std::string)obsName);
+
+    if (id < 0) {
+        RESTError << "TRestAnalysisTree::GetObservableMinimum. Observable not found! : " << obsName
+                  << RESTendl;
+        return 0;
+    }
+
+    Double_t min = DBL_MAX;
+    for (Int_t n = 0; n < TTree::GetEntries(); n++) {
+        TTree::GetEntry(n);
+        Double_t value = GetDblObservableValue(id);
+
+        if (xLow != -1 && xHigh != -1 && (value < xLow || value > xHigh)) continue;
+        if (value < min) min = value;
+    }
+
+    return min;
 }
 
 ///////////////////////////////////////////////
-/// \brief It returns a string containing all the observables that exist in the analysis tree.
+/// \brief This method generates a histogram of the the observable `obsName` given in the
+/// argument weighting it with a second observable also given by argument as `obsWeight`.
 ///
-TString TRestAnalysisTree::GetStringWithObservableNames() {
-    Int_t nEntries = GetEntries();
-    auto branches = GetListOfBranches();
-    std::string branchNames = "";
-    for (int i = 0; i < branches->GetEntries(); i++) {
-        if (i > 0) branchNames += " ";
-        branchNames += (string)branches->At(i)->GetName();
+/// This method will return the value at which `obsName` integral reaches a fraction of the
+/// total integral defined by the argument `level`. E.g. if `level=0.5`, then the value of
+/// `obsName` at which the histogram `obsName` reaches half the integral is returned.
+///
+/// If not given the default `level` value is 0.5.
+///
+/// Optionally we may define the parameters of the histogram. If not, ROOT will use the
+/// default values defined by the user.
+///
+/// For example, we could bin the variable `final_R` between 0 and 1cm in 1000 bins, and
+/// get the value of `final_R` where `optics_efficiency` integrated events is 80% of the
+/// total.
+///
+/// \code
+/// analysisTree->GetObservableContour("final_R", "optics_efficiency", 0.8, 1000, 0, 1)
+/// \endcode
+///
+/// \return Returns the value at which `obsName` contains a `level` fraction of the
+/// integral of the `obsWeight` observable.
+///
+Double_t TRestAnalysisTree::GetObservableContour(const TString& obsName, const TString& obsWeight,
+                                                 Double_t level, Int_t nBins, Double_t xLow, Double_t xHigh) {
+    if (level > 1 || level < 0) {
+        RESTWarning << "Level is : " << level << RESTendl;
+        RESTWarning << "Level must be between 0 and 1" << RESTendl;
+        return 0;
     }
 
-    return (TString)branchNames;
+    Double_t integral = this->GetIntegral(obsWeight, xLow, xHigh);
+
+    TString histDefinition = Form("hc(%5d,%lf,%lf)", nBins, xLow, xHigh);
+    if (xHigh == -1)
+        this->Draw(obsName + ">>hc", obsWeight);
+    else
+        this->Draw(obsName + ">>" + histDefinition, obsWeight);
+
+    TH1F* htemp = (TH1F*)gPad->GetPrimitive("hc");
+
+    Double_t sum = 0;
+    for (int i = 0; i < htemp->GetNbinsX(); i++) {
+        sum += htemp->GetBinContent(i + 1);
+
+        if (sum > level * integral) return htemp->GetBinCenter(i + 1);
+    }
+    return 0;
+}
+
+///////////////////////////////////////////////
+/// \brief It returns a vector with strings containing all the observables that exist in
+/// the analysis tree.
+///
+
+std::vector<std::string> TRestAnalysisTree::GetObservableNames() {
+    std::vector<std::string> names;
+
+    auto branches = GetListOfBranches();
+    for (int i = 0; i < branches->GetEntries(); i++) {
+        names.push_back((string)branches->At(i)->GetName());
+    }
+
+    return names;
 }
 
 ///////////////////////////////////////////////
@@ -1089,7 +1215,7 @@ Int_t TRestAnalysisTree::WriteAsTTree(const char* name, Int_t option, Int_t bufs
 /// </summary>
 /// <param name="file"> The input file that contains another AnalysisTree with same run id </param>
 /// <returns></returns>
-Bool_t TRestAnalysisTree::AddChainFile(string _file) {
+Bool_t TRestAnalysisTree::AddChainFile(const string& _file) {
     auto file = std::unique_ptr<TFile>{TFile::Open(_file.c_str(), "update")};
     if (!file->IsOpen()) {
         RESTWarning << "TRestAnalysisTree::AddChainFile(): failed to open file " << _file << RESTendl;
@@ -1100,7 +1226,7 @@ Bool_t TRestAnalysisTree::AddChainFile(string _file) {
         this->GetEntry(0);
     }
 
-    TRestAnalysisTree* tree = (TRestAnalysisTree*)file->Get("AnalysisTree");
+    auto tree = (TRestAnalysisTree*)file->Get("AnalysisTree");
     if (tree != nullptr && tree->GetEntry(0)) {
         if (tree->GetEntry(0) > 0) {
             if (tree->GetRunOrigin() == this->GetRunOrigin()) {
@@ -1170,6 +1296,4 @@ Long64_t TRestAnalysisTree::GetEntries(const char* sel) {
     return fChain->GetEntries(sel);
 }
 
-TRestAnalysisTree::~TRestAnalysisTree() {
-    if (fSubEventTag != nullptr) delete fSubEventTag;
-}
+TRestAnalysisTree::~TRestAnalysisTree() { delete fSubEventTag; }

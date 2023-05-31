@@ -48,7 +48,7 @@ class TRestRingsMask : public TRestPatternMask {
    public:
     void GenerateRings();
 
-    virtual Int_t GetRegion(Double_t x, Double_t y) override;
+    virtual Int_t GetRegion(Double_t& x, Double_t& y) override;
 
     /// It returns the gap/periodicity of the rings in mm
     Double_t GetRingsGap() { return fRingsGap; }
@@ -69,7 +69,7 @@ class TRestRingsMask : public TRestPatternMask {
             return;
         }
 
-        for (int n = 0; n < innerR.size(); n++) {
+        for (unsigned int n = 0; n < innerR.size(); n++) {
             std::pair<Double_t, Double_t> p(innerR[n], outterR[n]);
             fRingsRadii.push_back(p);
         }
