@@ -73,7 +73,7 @@ if (${RESTLIB_DETECTOR} MATCHES ON)
     endif ()
 endif ()
 
-if( ${REST_DAQ} MATCHES ON )
+if (${REST_DAQ} MATCHES ON)
     if (${RESTLIB_RAW} MATCHES OFF)
         set(RESTLIB_RAW ON)
     endif ()
@@ -81,16 +81,19 @@ endif ()
 
 # Print all the submodules to compile after internal dependencies
 foreach (dir ${dirs})
-    SUBDIRLIST(subdirs "${CMAKE_CURRENT_SOURCE_DIR}/${dir}")
+    subdirlist(subdirs "${CMAKE_CURRENT_SOURCE_DIR}/${dir}")
     foreach (subdir ${subdirs})
         set(fullname "${dir}/${subdir}")
-        DIRNAME2OPTION(option ${fullname})
+        dirname2option(option ${fullname})
 
         file(GLOB ff "*/${subdir}/CMakeLists.txt")
         if (ff)
-            message("Submodule found: ${fullname}. Option: ${option}=${${option}}")
+            message(
+                "Submodule found: ${fullname}. Option: ${option}=${${option}}")
         else ()
-            message("Empty submodule dir: ${fullname}. Option: ${option}=${${option}}")
+            message(
+                "Empty submodule dir: ${fullname}. Option: ${option}=${${option}}"
+            )
         endif ()
     endforeach ()
 endforeach ()
