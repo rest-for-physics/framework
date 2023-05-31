@@ -213,12 +213,25 @@ include(Testing)
 # Start compile
 include(MacroRootDict)
 
+# uninstall target
+if (NOT TARGET uninstall)
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake" IMMEDIATE @ONLY)
+
+    add_custom_target(
+        uninstall COMMAND ${CMAKE_COMMAND} -P
+                          ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+endif ()
+
 # Clear the install dir
 if (NOT DEFINED INSTALL_CLEARDIR)
     set(INSTALL_CLEARDIR ON)
 endif ()
 if (${INSTALL_CLEARDIR} MATCHES "ON")
-    install(CODE "execute_process(COMMAND rm -r ${CMAKE_INSTALL_PREFIX})")
+    install(
+        CODE "execute_process(COMMAND \"${CMAKE_COMMAND}\" -P \"${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake\")"
+    )
 endif ()
 
 # Compile and install for each subdir
@@ -286,20 +299,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows") # we must call library install here in
             ARCHIVE DESTINATION lib)
     endforeach ()
 
-    # Copy pcm files to bin
-    install(
-        CODE "
-    file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/*.pcm\")
-    file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/bin)
-    ")
-
 else ()
-    # Copy pcm files to lib
-    install(
-        CODE "
-    file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/*.pcm\")
-    file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/lib)
-    ")
 
     add_subdirectory(python-bindings)
 
@@ -332,11 +332,24 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin") # we must call library install here in
             ARCHIVE DESTINATION lib)
     endforeach ()
 
+endif ()
+
+# Copy pcm files
+if (CMAKE_SYSTEM_NAME MATCHES "Darwin" OR CMAKE_SYSTEM_NAME MATCHES "Windows")
+
     # Copy pcm files to bin
     install(
-        CODE "
-    file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/*.pcm\")
-    file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/bin)
-    ")
+        DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/rootdict/
+        DESTINATION bin
+        FILES_MATCHING
+        PATTERN "*.pcm")
+else ()
+
+    # Copy pcm files to lib
+    install(
+        DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/rootdict/
+        DESTINATION lib
+        FILES_MATCHING
+        PATTERN "*.pcm")
 
 endif ()

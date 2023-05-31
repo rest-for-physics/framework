@@ -80,8 +80,13 @@ string REST_StringHelper::CropWithPrecision(string in, Int_t precision) {
     if (precision == 0) return in;
     if (REST_StringHelper::isANumber(in) && in.find(".") != string::npos) {
         string rootStr;
-        if (in.find("e") != string::npos) rootStr = in.substr(in.find("e"), -1);
-        return in.substr(0, in.find(".") + precision + 1) + rootStr;
+        size_t newPrecision = precision;
+        if (in.find("e") != string::npos) {
+            rootStr = in.substr(in.find("e"), -1);
+            newPrecision = std::min((int)newPrecision, (int)in.find("e") - (int)in.find(".") - 1);
+        }
+        std::string rr = in.substr(0, in.find(".") + newPrecision + 1) + rootStr;
+        return rr;
     }
     return in;
 }
@@ -212,7 +217,8 @@ Int_t REST_StringHelper::GetChar(string hint) {
 /// not it returns 0.
 ///
 Int_t REST_StringHelper::isANumber(string in) {
-    return (in.find_first_not_of("-+0123456789.eE") == string::npos && in.length() != 0);
+    std::string inTrim = Trim(in);
+    return (inTrim.find_first_not_of("-+0123456789.eE") == string::npos && !inTrim.empty());
 }
 
 ///////////////////////////////////////////////
