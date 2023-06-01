@@ -222,6 +222,25 @@
 /// dataset.GetDataFrame().Display({"column1", "newColumnName"})->Print();
 /// \endcode
 ///
+/// ### Adding a new column on-the-fly during the dataset generation
+///
+/// It is also possible to add new column definitions inside the RML
+/// so that the new column will be already pre-generated and included
+/// in the new dataset when we invoke TRestDataSet::GenerateDataSet.
+///
+/// We can use a valid mathematical expression where we may include any
+/// already existing column or observable, and/or any relevant quantity we
+/// introduced in our dataset definition.
+///
+/// We may use the `addColumn` keyword to add new columns as follows:
+///
+/// \code
+/// <addColumn name="NormalFlux" expression="SolarFlux*GeneratorArea/Nsim" />
+/// \endcode
+///
+/// where `SolarFlux`,`GeneratorArea` and `Nsim` are the given names of
+/// the relevant quantities inside the dataset.
+///
 ///----------------------------------------------------------------------
 ///
 /// REST-for-Physics - Software for Rare Event Searches Toolkit
@@ -329,6 +348,12 @@ void TRestDataSet::GenerateDataSet() {
     fDataSet = ROOT::RDataFrame("AnalysisTree", fFileSelection);
 
     fDataSet = MakeCut(fCut);
+
+    // Adding new user columns added to the dataset
+    for (size_t n = 0; n < fColumnNames.size(); n++) {
+        finalList.emplace_back(fColumnNames[n]);
+        fDataSet.Define(fColumnNames[n], fColumnExpressions[n]);
+    }
 
     std::string user = getenv("USER");
     std::string fOutName = "/tmp/rest_output_" + user + ".root";
@@ -563,16 +588,21 @@ void TRestDataSet::PrintMetadata() {
         RESTMetadata << " Relevant quantities: " << RESTendl;
         RESTMetadata << " -------------------- " << RESTendl;
 
-        int n = 0;
         for (auto const& [name, properties] : fQuantity) {
             RESTMetadata << " - Name : " << name << ". Value : " << properties.value
                          << ". Strategy: " << properties.strategy << RESTendl;
             RESTMetadata << " - Metadata: " << properties.metadata << RESTendl;
             RESTMetadata << " - Description: " << properties.description << RESTendl;
-
             RESTMetadata << " " << RESTendl;
-            n++;
         }
+    }
+
+    if (!fColumnNames.empty()) {
+        RESTMetadata << " New columns added to generated dataframe: " << RESTendl;
+        RESTMetadata << " ---------------------------------------- " << RESTendl;
+        for (size_t n = 0; n < fColumnNames.size(); n++)
+            RESTMetadata << " - Name : " << fColumnNames[n] << " Expression: " << fColumnExpressions[n]
+                         << RESTendl;
     }
 
     if (fMergedDataset) {
@@ -685,6 +715,27 @@ void TRestDataSet::InitFromConfigFile() {
         fQuantity[name] = quantity;
 
         quantityDefinition = GetNextElement(quantityDefinition);
+    }
+
+    /// Reading new dataset columns
+    TiXmlElement* columnDefinition = GetElement("addColumn");
+    while (columnDefinition != nullptr) {
+        std::string name = GetFieldValue("name", columnDefinition);
+        if (name.empty() || name == "Not defined") {
+            RESTError << "<define key does not contain a name name!" << RESTendl;
+            exit(1);
+        }
+
+        std::string expression = GetFieldValue("expression", columnDefinition);
+        if (expression.empty() || expression == "Not defined") {
+            RESTError << "<addColumn key does not contain a expression value!" << RESTendl;
+            exit(1);
+        }
+
+        fColumnNames.push_back(name);
+        fColumnExpressions.push_back(expression);
+
+        columnDefinition = GetNextElement(columnDefinition);
     }
 
     fCut = (TRestCut*)InstantiateChildMetadata("TRestCut");
