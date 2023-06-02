@@ -40,8 +40,8 @@ Int_t REST_StringHelper::isAExpression(const string& in) {
     }
 
     if (!symbol) {
-        size_t pos = in.find_first_of("+-*/e^%");
-        if (pos > 0 && pos < in.size() - 1) {
+        size_t pos = in.substr(1, in.length() - 2).find_first_of("+-*/e^%");
+        if (pos != string::npos) {
             symbol = true;
         }
     }
