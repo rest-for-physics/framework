@@ -330,7 +330,7 @@ void TRestProcessRunner::ReadProcInfo() {
 /// detatched after this calling.
 /// 6. The main thread loops for progress bar while waiting the child threads to
 /// finish.
-/// 7. After finished, print some information, reset ROOT mutes.
+/// 7. After finished, print some information, reset ROOT mutexs.
 /// 8. Call ConfigOutputFile() method to save the output file
 ///
 void TRestProcessRunner::RunProcess() {
@@ -408,7 +408,9 @@ void TRestProcessRunner::RunProcess() {
         exit(1);
     }
 
-    ConfigOutputFile();
+    fOutputDataFile->cd();
+    if (fEventTree != nullptr) fEventTree->Write(nullptr, kOverwrite);
+    if (fAnalysisTree != nullptr) fAnalysisTree->Write(nullptr, kOverwrite);
 
     // reset runner
     this->ResetRunTimes();
@@ -526,7 +528,6 @@ void TRestProcessRunner::RunProcess() {
 
     if (fRunInfo->GetOutputFileName() != "/dev/null") {
         ConfigOutputFile();
-        MergeOutputFile();
     }
 }
 
@@ -935,41 +936,46 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Forming an output file
+/// \brief Forming an output file, step1
 ///
-/// It first saves process metadata in to the main output file, then calls
-/// TRestRun::FormOutputFile() to merge the main file with process's tmp file.
+/// Saves process metadata in to the main output file
 void TRestProcessRunner::ConfigOutputFile() {
     RESTEssential << "Configuring output file, writing metadata and tree objects" << RESTendl;
 #ifdef TIME_MEASUREMENT
     fProcessInfo["ProcessTime"] = ToString(deltaTime) + "ms";
 #endif
-    // write tree
+    // write the last tree
     fOutputDataFile->cd();
     if (fEventTree != nullptr) fEventTree->Write(nullptr, kOverwrite);
     if (fAnalysisTree != nullptr) fAnalysisTree->Write(nullptr, kOverwrite);
 
-    // go back to the first file
-    if (fOutputDataFile->GetName() != fOutputDataFileName) {
-        delete fOutputDataFile;
-        fOutputDataFile = new TFile(fOutputDataFileName, "update");
-    }
+    // close file
+    fOutputDataFile->Write();
+    fOutputDataFile->Close();
+    delete fOutputDataFile;
+
+    // merge process's data file to the main file
+    // we must call this method before writing process metadata, 
+    // otherwise there would be problems of streamer missing
+    // https://github.com/rest-for-physics/framework/issues/348
+    fRunInfo->SetNFilesSplit(fNFilesSplit);
+    MergeOutputFile();
+
     // write metadata
     WriteProcessesMetadata();
 }
 
 void TRestProcessRunner::WriteProcessesMetadata() {
-    if (fRunInfo->GetInputFile() == nullptr) {
-        if (!fRunInfo->GetOutputFile()) {
-            // We are not ready yet to write
-            return;
-        }
-        fRunInfo->cd();
-    } else
-        fOutputDataFile->cd();
+    //if (fRunInfo->GetInputFile() == nullptr) {
+    //    if (!fRunInfo->GetOutputFile()) {
+    //        // We are not ready yet to write
+    //        return;
+    //    }
+    //    fRunInfo->cd();
+    //} else
+    //    
+    fOutputDataFile->cd();
 
-    fRunInfo->SetNFilesSplit(fNFilesSplit);
-    fRunInfo->Write(nullptr, TObject::kOverwrite);
     this->Write(nullptr, TObject::kWriteDelete);
 
     if (fRunInfo->GetFileProcess() != nullptr) {
@@ -983,10 +989,9 @@ void TRestProcessRunner::WriteProcessesMetadata() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Forming an output file
+/// \brief Calls TRestRun::MergeOutputFile() to merge the main file with process's tmp file.
 ///
-/// It first saves process metadata in to the main output file, then calls
-/// TRestRun::FormOutputFile() to merge the main file with process's tmp file.
+/// After this operation, fOutputDataFile will be set to TRestRun's output file
 void TRestProcessRunner::MergeOutputFile() {
     RESTEssential << "Merging thread files together" << RESTendl;
     // add threads file
@@ -1003,11 +1008,13 @@ void TRestProcessRunner::MergeOutputFile() {
         files_to_merge.push_back(f->GetName());
     }
 
-    fOutputDataFile->cd();
-    fOutputDataFile->Write(nullptr, TObject::kOverwrite);
-    fOutputDataFile->Close();
-    fRunInfo->MergeToOutputFile(files_to_merge, fOutputDataFile->GetName());
-    if (fRunInfo->GetInputFile() == nullptr) WriteProcessesMetadata();
+    if (TRestTools::fileExists((string)fOutputDataFileName)) {
+        fOutputDataFile = fRunInfo->MergeToOutputFile(files_to_merge, (string)fOutputDataFileName);
+    } else {
+        RESTError << "Output file: " << fOutputDataFileName << " is lost?" << RESTendl;
+    }
+    //if (fRunInfo->GetInputFile() == nullptr) 
+    //WriteProcessesMetadata();
 }
 
 // tools

@@ -991,7 +991,7 @@ TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilena
         m->OutputFile(filename.c_str(), "RECREATE");
     } else {
         filename = outputfilename;
-        RESTInfo << "Creating file : " << filename << RESTendl;
+        RESTInfo << "Updating file : " << filename << RESTendl;
         m->OutputFile(filename.c_str(), "UPDATE");
     }
 
