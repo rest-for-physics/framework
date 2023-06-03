@@ -955,7 +955,7 @@ void TRestProcessRunner::ConfigOutputFile() {
     delete fOutputDataFile;
 
     // merge process's data file to the main file
-    // we must call this method before writing process metadata, 
+    // we must call this method before writing process metadata,
     // otherwise there would be problems of streamer missing
     // https://github.com/rest-for-physics/framework/issues/348
     fRunInfo->SetNFilesSplit(fNFilesSplit);
@@ -966,14 +966,14 @@ void TRestProcessRunner::ConfigOutputFile() {
 }
 
 void TRestProcessRunner::WriteProcessesMetadata() {
-    //if (fRunInfo->GetInputFile() == nullptr) {
-    //    if (!fRunInfo->GetOutputFile()) {
-    //        // We are not ready yet to write
-    //        return;
-    //    }
-    //    fRunInfo->cd();
-    //} else
-    //    
+    // if (fRunInfo->GetInputFile() == nullptr) {
+    //     if (!fRunInfo->GetOutputFile()) {
+    //         // We are not ready yet to write
+    //         return;
+    //     }
+    //     fRunInfo->cd();
+    // } else
+    //
     fOutputDataFile->cd();
 
     this->Write(nullptr, TObject::kWriteDelete);
@@ -1013,8 +1013,8 @@ void TRestProcessRunner::MergeOutputFile() {
     } else {
         RESTError << "Output file: " << fOutputDataFileName << " is lost?" << RESTendl;
     }
-    //if (fRunInfo->GetInputFile() == nullptr) 
-    //WriteProcessesMetadata();
+    // if (fRunInfo->GetInputFile() == nullptr)
+    // WriteProcessesMetadata();
 }
 
 // tools
