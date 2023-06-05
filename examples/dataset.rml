@@ -10,4 +10,10 @@
     <quantity name="Nsim" metadata="[TRestProcessRunner::fEventsToProcess]" strategy="accumulate" description="The total number of simulated events."/>
     <quantity name="SolarFlux" metadata="[axionGen-&gt;fTotalFlux]" strategy="unique" description="The integrated solar flux at earth (in cm-2 s-1) at the given energy range."/>
     <quantity name="GeneratorArea" metadata="3.1416 * [axionGen::fTargetRadius]/10 * [axionGen::fTargetRadius]/10" strategy="unique" description="The area where the generator launched events (in cm2)."/>
+    <quantity name="EnergyRangeX" metadata="[axionGen::fEnergyRange[0]]" strategy="unique" description="The high energy range in keV."/>
+    <quantity name="EnergyRangeY" metadata="[axionGen::fEnergyRange[1]]" strategy="unique" description="The low energy range in keV."/>
+    <quantity name="MassInterval" metadata="[axionGen::fAxionMassRange[1]]-[axionGen::fAxionMassRange[0]]" strategy="unique" description="The axion mass length interval where the MC was generated in keV."/>
+    <addColumn name="Probability" expression="axionPhoton_probability*axionPhoton_transmission*boreExitGate_transmission*optics_efficiency*window_transmission"/>
+    <addColumn name="NormalFlux" expression="SolarFlux*GeneratorArea/Nsim"/>
+    <addColumn name="NGamma" expression="SolarFlux*GeneratorArea*(1000*MassInterval)/Nsim"/>
 </TRestDataSet>
