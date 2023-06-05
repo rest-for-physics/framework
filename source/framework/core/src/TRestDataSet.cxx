@@ -600,7 +600,7 @@ void TRestDataSet::PrintMetadata() {
     if (!fColumnNameExpressions.empty()) {
         RESTMetadata << " New columns added to generated dataframe: " << RESTendl;
         RESTMetadata << " ---------------------------------------- " << RESTendl;
-        for (const auto [cName, cExpression] : fColumnNameExpressions)
+        for (const auto& [cName, cExpression] : fColumnNameExpressions)
             RESTMetadata << " - Name : " << cName << " Expression: " << cExpression << RESTendl;
     }
 
