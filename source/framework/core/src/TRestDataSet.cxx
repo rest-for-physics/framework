@@ -350,9 +350,9 @@ void TRestDataSet::GenerateDataSet() {
     fDataSet = MakeCut(fCut);
 
     // Adding new user columns added to the dataset
-    for (size_t n = 0; n < fColumnNames.size(); n++) {
-        finalList.emplace_back(fColumnNames[n]);
-        fDataSet.Define(fColumnNames[n], fColumnExpressions[n]);
+    for (const auto& [cName, cExpression] : fColumnNameExpressions) {
+        finalList.emplace_back(cName);
+        fDataSet.Define(cName, cExpression);
     }
 
     std::string user = getenv("USER");
@@ -597,12 +597,11 @@ void TRestDataSet::PrintMetadata() {
         }
     }
 
-    if (!fColumnNames.empty()) {
+    if (!fColumnNameExpressions.empty()) {
         RESTMetadata << " New columns added to generated dataframe: " << RESTendl;
         RESTMetadata << " ---------------------------------------- " << RESTendl;
-        for (size_t n = 0; n < fColumnNames.size(); n++)
-            RESTMetadata << " - Name : " << fColumnNames[n] << " Expression: " << fColumnExpressions[n]
-                         << RESTendl;
+        for (const auto [cName, cExpression] : fColumnNameExpressions)
+            RESTMetadata << " - Name : " << cName << " Expression: " << cExpression << RESTendl;
     }
 
     if (fMergedDataset) {
@@ -732,8 +731,7 @@ void TRestDataSet::InitFromConfigFile() {
             exit(1);
         }
 
-        fColumnNames.push_back(name);
-        fColumnExpressions.push_back(expression);
+        fColumnNameExpressions.push_back({name, expression});
 
         columnDefinition = GetNextElement(columnDefinition);
     }

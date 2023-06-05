@@ -101,11 +101,8 @@ class TRestDataSet : public TRestMetadata {
     /// The list of dataset files imported
     std::vector<std::string> fImportedFiles;  //<
 
-    /// A list of new columns added during the dataset generation
-    std::vector<std::string> fColumnNames;
-
-    /// The list of expressions correspoding to each fColumnNames element
-    std::vector<std::string> fColumnExpressions;
+    /// A list of new columns together with its corresponding expressions added to the dataset
+    std::vector<std::pair<std::string, std::string>> fColumnNameExpressions;
 
     /// The resulting RDF::RNode object after initialization
     ROOT::RDF::RNode fDataSet = ROOT::RDataFrame(0);  //!
