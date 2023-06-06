@@ -352,7 +352,7 @@ void TRestDataSet::GenerateDataSet() {
     // Adding new user columns added to the dataset
     for (const auto& [cName, cExpression] : fColumnNameExpressions) {
         finalList.emplace_back(cName);
-        fDataSet.Define(cName, cExpression);
+        this->Define(cName, cExpression);
     }
 
     std::string user = getenv("USER");
