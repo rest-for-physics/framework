@@ -399,13 +399,14 @@ std::vector<std::string> TRestDataSet::FileSelection() {
 
         if (!accept) continue;
 
+        Double_t acc = 0;
         for (auto& [name, properties] : fQuantity) {
             std::string value = run.ReplaceMetadataMembers(properties.metadata);
-            Double_t val = REST_StringHelper::StringToDouble(value);
+            const Double_t val = REST_StringHelper::StringToDouble(value);
 
             if (properties.strategy == "accumulate") {
-                if (!properties.value.empty()) properties.value += ", ";
-                properties.value += value;
+                acc += val;
+                properties.value = StringWithPrecision(val, 2);
             }
 
             if (properties.strategy == "max")
