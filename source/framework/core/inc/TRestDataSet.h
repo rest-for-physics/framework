@@ -30,22 +30,24 @@
 #include "TRestCut.h"
 #include "TRestMetadata.h"
 
-struct RelevantQuantity {
-    /// The associated metadata member used to register the relevant quantity
-    std::string metadata;
-
-    /// It determines how to produce the relevant quantity (accumulate/unique/last/max/min)
-    std::string strategy;
-
-    /// A user given description that can be used to define the relevant quantity
-    std::string description;
-
-    /// The quantity value
-    std::string value;
-};
-
 /// It allows to group a number of runs that satisfy given metadata conditions
 class TRestDataSet : public TRestMetadata {
+  public:
+   struct RelevantQuantity {
+      /// The associated metadata member used to register the relevant quantity
+      std::string metadata;
+
+      /// It determines how to produce the relevant quantity (accumulate/unique/last/max/min)
+      std::string strategy;
+
+      /// A user given description that can be used to define the relevant quantity
+      std::string description;
+
+      /// The quantity value
+      std::string value;
+   };
+
+
    private:
     /// All the selected runs will have a starting date after fStartTime
     std::string fFilterStartTime = "2000/01/01";  //<

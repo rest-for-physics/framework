@@ -502,7 +502,7 @@ void TRestDataSetPlot::GenerateDataSetFromFilePattern(TRestDataSet& dataSet) {
         }
     }
 
-    std::map<std::string, RelevantQuantity> quantity;
+    std::map<std::string, TRestDataSet::RelevantQuantity> quantity;
 
     for (auto& panel : fPanels) {
         // Add obserbables from panel info, both variables and cuts
@@ -513,7 +513,7 @@ void TRestDataSetPlot::GenerateDataSetFromFilePattern(TRestDataSet& dataSet) {
         // Add relevant quantity to metadata from the panel info
         for (auto& [key, posLabel] : panel.metadataPos) {
             auto&& [metadata, label, units] = key;
-            RelevantQuantity quant;
+            TRestDataSet::RelevantQuantity quant;
             quant.metadata = metadata;
             quant.strategy = "unique";
             quantity[label] = quant;
