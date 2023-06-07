@@ -149,6 +149,7 @@ class TRestDataSet : public TRestMetadata {
     inline auto GetEndTime() const { return fEndTime; }
     inline auto GetFilePattern() const { return fFilePattern; }
     inline auto GetObservablesList() const { return fObservablesList; }
+    inline auto GetFileSelection() const { return fFileSelection; }
     inline auto GetProcessObservablesList() const { return fProcessObservablesList; }
     inline auto GetFilterMetadata() const { return fFilterMetadata; }
     inline auto GetFilterContains() const { return fFilterContains; }
