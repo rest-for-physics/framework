@@ -148,8 +148,16 @@ void TRestCombinedMask::Initialize() {
 ///
 Int_t TRestCombinedMask::GetRegion(Double_t& x, Double_t& y) {
     Int_t region = 0;
+    Double_t xIn = x;
+    Double_t yIn = y;
     for (const auto mask : fMasks) {
         Int_t id = mask->GetRegion(x, y);
+
+        // The (x,y) coordinates are transformed for each mask.
+        // We need to recover the original point to be evaluated for each mask.
+        x = xIn;
+        y = yIn;
+
         RESTDebug << "TRestCombinedMask::GetRegion. Mask type: " << mask->GetType() << " region : " << id
                   << RESTendl;
         if (id == 0) return 0;
