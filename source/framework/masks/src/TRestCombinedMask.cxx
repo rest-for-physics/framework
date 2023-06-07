@@ -61,7 +61,6 @@
 ///
 /// \code
 ///     TRestCombinedMask mask("masks.rml", "combined");
-///     mask.GenerateCombined();
 ///     TCanvas *c = mask.DrawMonteCarlo(30000);
 ///     c->Draw();
 ///     c->Print("combined.png");
