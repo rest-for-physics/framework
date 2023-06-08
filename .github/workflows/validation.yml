@@ -642,7 +642,7 @@ jobs:
     uses: rest-for-physics/geant4lib/.github/workflows/validation.yml@master
 
   detectorlib-validation:
-    uses: rest-for-physics/detectorlib/.github/workflows/validation.yml@master
+    uses: rest-for-physics/detectorlib/.github/workflows/validation.yml@jgalan-readoutplane-update
 
   connectorslib-validation:
     uses: rest-for-physics/connectorslib/.github/workflows/validation.yml@master
