@@ -352,7 +352,7 @@ void TRestDataSet::GenerateDataSet() {
     // Adding new user columns added to the dataset
     for (const auto& [cName, cExpression] : fColumnNameExpressions) {
         finalList.emplace_back(cName);
-        this->Define(cName, cExpression);
+        fDataSet = DefineColumn(cName, cExpression);
     }
 
     std::string user = getenv("USER");
@@ -519,15 +519,17 @@ ROOT::RDF::RNode TRestDataSet::MakeCut(const TRestCut* cut) {
 /// d.Define("test", "Nsim * probability");
 /// \endcode
 ///
-ROOT::RDF::RNode TRestDataSet::Define(const std::string& columnName, const std::string& formula) {
+ROOT::RDF::RNode TRestDataSet::DefineColumn(const std::string& columnName, const std::string& formula) {
+    auto df = fDataSet;
+
     std::string evalFormula = formula;
     for (auto const& [name, properties] : fQuantity)
         evalFormula =
             REST_StringHelper::Replace(evalFormula, name, DoubleToString(properties.value, "%12.10e"));
 
-    fDataSet = fDataSet.Define(columnName, evalFormula);
+    df = df.Define(columnName, evalFormula);
 
-    return fDataSet;
+    return df;
 }
 
 /////////////////////////////////////////////
