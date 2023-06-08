@@ -17,7 +17,7 @@ for line in lines:
         sys.exit(0)
     else:
         print("The number of processes inside the event data chain is NOT 9! Fail!")
-        print("The number of processes is: " + line + "\n" )
+        print("The number of processes is: " + line + "\n")
         sys.exit(1)
 
 sys.exit(0)
