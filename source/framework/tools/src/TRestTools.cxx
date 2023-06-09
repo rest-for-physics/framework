@@ -44,6 +44,8 @@
 #include "TRestTools.h"
 
 #include <TClass.h>
+#include <TFile.h>
+#include <TKey.h>
 #include <TSystem.h>
 #include <TUrl.h>
 
@@ -673,6 +675,20 @@ bool TRestTools::fileExists(const string& filename) { return std::filesystem::ex
 /// \brief Returns true if the **filename** has *.root* extension.
 ///
 bool TRestTools::isRootFile(const string& filename) { return GetFileNameExtension(filename) == "root"; }
+
+///////////////////////////////////////////////
+/// \brief It checks if the file has been processed using a REST event processing chain
+///
+bool TRestTools::isRunFile(const std::string& filename) {
+    TFile* f = TFile::Open((TString)filename);
+
+    TIter nextkey(f->GetListOfKeys());
+    TKey* key;
+    while ((key = (TKey*)nextkey())) {
+        if ((std::string)key->GetClassName() == "TRestRun") return true;
+    }
+    return false;
+}
 
 ///////////////////////////////////////////////
 /// \brief Returns true if **filename** is an *http* address.
