@@ -680,6 +680,8 @@ bool TRestTools::isRootFile(const string& filename) { return GetFileNameExtensio
 /// \brief It checks if the file has been processed using a REST event processing chain
 ///
 bool TRestTools::isRunFile(const std::string& filename) {
+    if (!isRootFile(filename)) return false;
+
     TFile* f = TFile::Open((TString)filename);
 
     TIter nextkey(f->GetListOfKeys());
