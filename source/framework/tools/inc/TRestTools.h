@@ -108,6 +108,7 @@ class TRestTools {
     static bool fileExists(const std::string& filename);
     static bool isRootFile(const std::string& filename);
     static bool isRunFile(const std::string& filename);
+    static bool isDataSet(const std::string& filename);
     static bool isURL(const std::string& filename);
     static bool isPathWritable(const std::string& path);
     static bool isAbsolutePath(const std::string& path);

@@ -693,6 +693,22 @@ bool TRestTools::isRunFile(const std::string& filename) {
 }
 
 ///////////////////////////////////////////////
+/// \brief It checks if the file contains a dataset object
+///
+bool TRestTools::isDataSet(const std::string& filename) {
+    if (!isRootFile(filename)) return false;
+
+    TFile* f = TFile::Open((TString)filename);
+
+    TIter nextkey(f->GetListOfKeys());
+    TKey* key;
+    while ((key = (TKey*)nextkey())) {
+        if ((std::string)key->GetClassName() == "TRestDataSet") return true;
+    }
+    return false;
+}
+
+///////////////////////////////////////////////
 /// \brief Returns true if **filename** is an *http* address.
 ///
 bool TRestTools::isURL(const string& filename) {
