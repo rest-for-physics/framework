@@ -561,10 +561,9 @@ void TRestRun::ReadInputFileTrees() {
             }
             RESTDebug << "Old REST file successfully recovered!" << RESTendl;
         } else {
-            RESTError << "(OpenInputFile) : AnalysisTree was not found" << RESTendl;
-            RESTError << "Inside file : " << filename << RESTendl;
-            RESTError << "This may be not REST output file!" << RESTendl;
-            exit(1);
+            RESTWarning << "(OpenInputFile) : AnalysisTree was not found" << RESTendl;
+            RESTWarning << "Inside file : " << filename << RESTendl;
+            RESTWarning << "This may not be a REST output file!" << RESTendl;
         }
 
         if (_eventTree != nullptr) {
