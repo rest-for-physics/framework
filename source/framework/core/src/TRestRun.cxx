@@ -583,7 +583,7 @@ void TRestRun::ReadInputFileTrees() {
 
         if (_eventTree != nullptr) {
             if (fNFilesSplit > 0) {
-                // eventTree shall be initailized as TChain
+                // eventTree shall be initialized as TChain
                 delete _eventTree;
                 RESTEssential << "Linking event tree from split data files" << RESTendl;
                 TChain* _fEventTree = new TChain("EventTree");
