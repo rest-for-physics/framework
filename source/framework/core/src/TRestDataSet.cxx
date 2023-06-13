@@ -425,13 +425,12 @@ std::vector<std::string> TRestDataSet::FileSelection() {
 
             if (properties.strategy == "last") properties.value = value;
         }
+		if (run.GetStartTimestamp() < fStartTime) fStartTime = run.GetStartTimestamp();
 
-        if (run.GetStartTimestamp() < fStartTime) fStartTime = run.GetStartTimestamp();
+		if (run.GetEndTimestamp() > fEndTime) fEndTime = run.GetEndTimestamp();
 
-        if (run.GetEndTimestamp() > fEndTime) fEndTime = run.GetEndTimestamp();
-
-        fTotalDuration += run.GetEndTimestamp() - run.GetStartTimestamp();
-        fFileSelection.push_back(file);
+		fTotalDuration += GetRunDuration(run);
+		fFileSelection.push_back(file);
     }
     RESTInfo << RESTendl;
 
@@ -586,6 +585,11 @@ void TRestDataSet::PrintMetadata() {
         RESTMetadata << "List of imported files: " << RESTendl;
         RESTMetadata << " -------------------- " << RESTendl;
         for (const auto& fn : fImportedFiles) RESTMetadata << " - " << fn << RESTendl;
+    }
+    
+    if (fTimeCorrection) {
+    	RESTMetadata << "The combined datasset time correction analysis is activated." <<RESTendl;
+    
     }
 
     RESTMetadata << "----" << RESTendl;
@@ -916,4 +920,17 @@ void TRestDataSet::Import(std::vector<std::string> fileNames) {
     fImportedFiles = fileNames;
 
     fQuantity.clear();
+}
+
+///////////////////////////////////////////////
+/// \brief This function calculates a corrected time of a given Run,
+/// corresponding to the time where a certain variable has remained above a 
+/// given threshold (for example, the time for which the detection rate is above a certain value)
+Double_t TRestDataSet::GetRunDuration(const TRestRun &r){
+    Double_t runTime = 0;
+    if( fTimeCorrection ) {
+       return runTime;
+    }
+    
+    return runTime;
 }

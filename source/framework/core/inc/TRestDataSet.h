@@ -97,6 +97,11 @@ class TRestDataSet : public TRestMetadata {
 
     /// It keeps track if the generated dataset is a pure dataset or a merged one
     Bool_t fMergedDataset = false;  //<
+    
+    /// Keeps track if the time correction algorithm will be applied
+    Bool_t fTimeCorrection = false; //<
+    
+    ///Añadir parámetros para el análisis
 
     /// The list of dataset files imported
     std::vector<std::string> fImportedFiles;  //<
@@ -108,6 +113,8 @@ class TRestDataSet : public TRestMetadata {
     TChain* fTree = nullptr;  //!
 
     void InitFromConfigFile() override;
+    
+    Double_t GetRunDuration(const TRestRun &r);
 
    protected:
     virtual std::vector<std::string> FileSelection();
@@ -159,6 +166,7 @@ class TRestDataSet : public TRestMetadata {
     inline auto GetQuantity() const { return fQuantity; }
     inline auto GetCut() const { return fCut; }
     inline auto IsMergedDataSet() const { return fMergedDataset; }
+    inline auto IsTimeCorrected() const { return fTimeCorrection; }
 
     inline void SetFilePattern(const std::string& pattern) { fFilePattern = pattern; }
 
@@ -180,6 +188,6 @@ class TRestDataSet : public TRestMetadata {
     TRestDataSet(const char* cfgFileName, const std::string& name = "");
     ~TRestDataSet();
 
-    ClassDefOverride(TRestDataSet, 3);
+    ClassDefOverride(TRestDataSet, 4);
 };
 #endif
