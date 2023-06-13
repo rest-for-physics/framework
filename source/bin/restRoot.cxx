@@ -188,16 +188,15 @@ int main(int argc, char* argv[]) {
         } else if (TRestTools::fileExists(opt) && TRestTools::isDataSet(opt)) {
             string runcmd = "TRestDataSet d;";
             gROOT->ProcessLine(runcmd.c_str());
-            string runcmd = Form("d.Import(\"%s\");", opt.c_str());
+            runcmd = Form("d.Import(\"%s\");", opt.c_str());
             gROOT->ProcessLine(runcmd.c_str());
         } else
             printf("\nFile %s not compatible ... !!\n", opt.c_str());
     }
-}
 
-// display root's command line
-TRint theApp("App", &argc, argv);
-theApp.Run();
+    // display root's command line
+    TRint theApp("App", &argc, argv);
+    theApp.Run();
 
-return 0;
+    return 0;
 }
