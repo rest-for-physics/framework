@@ -186,6 +186,7 @@ int main(int argc, char* argv[]) {
             string runcmd = Form("TFile* f = TFile::Open(\"%s\");", opt.c_str());
             gROOT->ProcessLine(runcmd.c_str());
         } else if (TRestTools::fileExists(opt) && TRestTools::isDataSet(opt)) {
+            printf("\n%s\n", "Importing dataset as `d`.");
             string runcmd = "TRestDataSet d;";
             gROOT->ProcessLine(runcmd.c_str());
             runcmd = Form("d.Import(\"%s\");", opt.c_str());
