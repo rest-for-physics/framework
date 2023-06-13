@@ -427,15 +427,26 @@ std::vector<std::string> TRestDataSet::FileSelection() {
         }
 
         if (run.GetStartTimestamp() < fStartTime) fStartTime = run.GetStartTimestamp();
-
         if (run.GetEndTimestamp() > fEndTime) fEndTime = run.GetEndTimestamp();
-
-        fTotalDuration += run.GetEndTimestamp() - run.GetStartTimestamp();
+      
+        fTotalDuration += GetRunDuration( run );
         fFileSelection.push_back(file);
     }
     RESTInfo << RESTendl;
 
     return fFileSelection;
+}
+
+Double_t TRestDataSet::GetRunDuration( const TRestRun &r )
+{
+	if( fTimeCorrection )
+	{
+	    Double_t runTime = 0;
+	    
+	    return runTime;
+	}
+
+      return r.GetEndTimestamp() - r.GetStartTimestamp();
 }
 
 ///////////////////////////////////////////////
@@ -521,6 +532,11 @@ void TRestDataSet::PrintMetadata() {
     RESTMetadata << " - Accumulated run time (days) : " << fTotalDuration / 3600. / 24. << RESTendl;
 
     RESTMetadata << "  " << RESTendl;
+    
+    if (fTimeCorrection) {
+    	RESTMetadata << "Time correction option has been activated." << RESTendl;
+    	RESTMetadata << "  " << RESTendl;
+    }
 
     if (!fObservablesList.empty()) {
         RESTMetadata << " Single observables added:" << RESTendl;
@@ -574,6 +590,8 @@ void TRestDataSet::PrintMetadata() {
             n++;
         }
     }
+
+
 
     if (fMergedDataset) {
         RESTMetadata << " " << RESTendl;
@@ -741,7 +759,7 @@ void TRestDataSet::Export(const std::string& filename) {
             for (const auto& md : fFilterMetadata) {
                 fprintf(f, "### - %s.", md.c_str());
                 if (!fFilterContains[n].empty()) fprintf(f, " Contains: %s.", fFilterContains[n].c_str());
-                if (fFilterGreaterThan[n] != -1) fprintf(f, " Greater than: %6.3lf.", fFilterGreaterThan[n]);
+                if (fFilterGreaterThan[n] != -1) fprintf(f, " Greater than: %6.3lf.", fFilterGreaterThan[n]); 
                 if (fFilterLowerThan[n] != -1) fprintf(f, " Lower than: %6.3lf.", fFilterLowerThan[n]);
                 if (fFilterEqualsTo[n] != -1) fprintf(f, " Equals to: %6.3lf.", fFilterLowerThan[n]);
                 fprintf(f, "\n");
