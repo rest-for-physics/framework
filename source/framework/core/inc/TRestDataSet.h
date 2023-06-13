@@ -99,7 +99,7 @@ class TRestDataSet : public TRestMetadata {
     Bool_t fMergedDataset = false;  //<
 
     /// Default False value for time correction variable, then the usser will choose
-    Bool_t fTimeCorrection = false; //<
+    Bool_t fTimeCorrection = false;  //<
 
     /// The list of dataset files imported
     std::vector<std::string> fImportedFiles;  //<
@@ -112,7 +112,8 @@ class TRestDataSet : public TRestMetadata {
 
     void InitFromConfigFile() override;
 
-    Double_t GetRunDuration( const TRestRun &r );
+    Double_t GetRunDuration(const TRestRun& r);
+
    protected:
     virtual std::vector<std::string> FileSelection();
 
