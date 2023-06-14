@@ -12,11 +12,11 @@ with open("output.log") as f:
     lines = f.readlines()
 
 for line in lines:
-    if line.find("9") == 0:
-        print("The number of processes inside the event data chain is 9. Succeed!")
+    if line.find("11") == 0:
+        print("The number of processes inside the event data chain is 11. Succeed!")
         sys.exit(0)
     else:
-        print("The number of processes inside the event data chain is NOT 9! Fail!")
+        print("The number of processes inside the event data chain is NOT 11! Fail!")
         print("The number of processes is: " + line + "\n")
         sys.exit(1)
 
