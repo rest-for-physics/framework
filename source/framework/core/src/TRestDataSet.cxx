@@ -594,7 +594,7 @@ void TRestDataSet::PrintMetadata() {
     }
 
     if (fTimeCorrection) {
-        RESTMetadata << "The combined datasset time correction analysis is activated." << RESTendl;
+        RESTMetadata << "The combined dataset time correction analysis is activated." << RESTendl;
     }
 
     RESTMetadata << "----" << RESTendl;
