@@ -29,25 +29,25 @@ Finally we call the method TRestRun::FormOutputFile() through TRestManager to sa
         <TRestDetectorReadout name="PandaReadout_MxM" title="PANDA readout 7module">
             <parameter name="verboseLevel" value="info"/>
             <parameter name="mappingNodes" value="0"/>
-            <myParameter name="nChannels" value="${CHANNELS}"/>
-            <myParameter name="nModules" value="${MODULES}"/>
-            <myParameter name="pitch" value="${PITCH}"/>
-            <myParameter name="pixelSize" value="${PITCH}/sqrt(2.)"/>
-            <myParameter name="myDecodingFile" value="${REST_INPUTDATA}/decoding/MM_On_AGET0-1.dec"/>
+            <constant name="nChannels" value="${CHANNELS}"/>
+            <constant name="nModules" value="${MODULES}"/>
+            <constant name="pitch" value="${PITCH}"/>
+            <constant name="pixelSize" value="${PITCH}/sqrt(2.)"/>
+            <constant name="myDecodingFile" value="${REST_INPUTDATA}/decoding/MM_On_AGET0-1.dec"/>
             <readoutModule name="module" file="microbulkModule.rml"/>
             <readoutPlane position="(0,0,990)mm" normal="(0,0,-1)mm" chargeCollection="1" height="990mm">
 
         see the readout plane configuration here : https://pandax.physics.sjtu.edu.cn/docdb3/0004/000496/005/Data_taking_prototype%20_1130.pdf
 
-        <addReadoutModule id="0" name="module" origin="(292.175,-194.65)" rotation="90" decodingFile="myDecodingFile" firstDaqChannel="136*5"/>
-        <addReadoutModule id="2" name="module" origin="(-292.175,194.65)" rotation="-90" decodingFile="myDecodingFile" firstDaqChannel="136*3"/>
-        <addReadoutModule id="3" name="module" origin="(292.175,1.15)" rotation="90" decodingFile="myDecodingFile" firstDaqChannel="136*4"/>
-        <addReadoutModule id="4" name="module" origin="(-292.175,-1.525)" rotation="-90" decodingFile="myDecodingFile" firstDaqChannel="136*2"/>
-        <addReadoutModule id="6" name="module" origin="(-96.75,-96.375)" rotation="0" decodingFile="myDecodingFile" firstDaqChannel="136*1"/>
-        <addReadoutModule id="8" name="module" origin="(96.75,292.175)" rotation="180" decodingFile="myDecodingFile" firstDaqChannel="136*6+68"/>
-        <addReadoutModule id="9" name="module" origin="(-96.75,-292.175)" rotation="0" decodingFile="myDecodingFile" firstDaqChannel="136*0"/>
+                <addReadoutModule id="0" name="module" origin="(292.175,-194.65)" rotation="90" decodingFile="myDecodingFile" firstDaqChannel="136*5"/>
+                <addReadoutModule id="2" name="module" origin="(-292.175,194.65)" rotation="-90" decodingFile="myDecodingFile" firstDaqChannel="136*3"/>
+                <addReadoutModule id="3" name="module" origin="(292.175,1.15)" rotation="90" decodingFile="myDecodingFile" firstDaqChannel="136*4"/>
+                <addReadoutModule id="4" name="module" origin="(-292.175,-1.525)" rotation="-90" decodingFile="myDecodingFile" firstDaqChannel="136*2"/>
+                <addReadoutModule id="6" name="module" origin="(-96.75,-96.375)" rotation="0" decodingFile="myDecodingFile" firstDaqChannel="136*1"/>
+                <addReadoutModule id="8" name="module" origin="(96.75,292.175)" rotation="180" decodingFile="myDecodingFile" firstDaqChannel="136*6+68"/>
+                <addReadoutModule id="9" name="module" origin="(-96.75,-292.175)" rotation="0" decodingFile="myDecodingFile" firstDaqChannel="136*0"/>
 
-      </readoutPlane>
+            </readoutPlane>
         </TRestDetectorReadout>
     </TRestRun>
     <addTask command="readoutrun-&gt;FormOutputFile()" value="ON"/>
