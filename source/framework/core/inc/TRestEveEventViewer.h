@@ -38,7 +38,7 @@
 
 #include "TRestEventViewer.h"
 
-#define GEOM_SCALE 0.1
+#define GEOM_SCALE 1
 
 class TRestEveEventViewer : public TRestEventViewer {
    protected:
