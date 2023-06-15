@@ -149,7 +149,7 @@ jobs:
           python3 -c """import ROOT;import REST;ROOT.TRestRun();ROOT.TRestGeant4Event()"""
 
   metadata:
-    name: "Metadata"
+    name: "Datasets"
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
@@ -169,28 +169,14 @@ jobs:
         with:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
           path: ${{ env.REST_PATH }}
-      # Not used in gitlab pipeline, checks $CI_SERVER_HOST
-      - name: Load Gas
-        run: |
-          source ${{ env.REST_PATH }}/thisREST.sh
-          cd framework/pipeline/metadata/gas/
-          restRoot -b -q LoadGasFromServerAndValidate.C
-      # Not working, not used in gitlab pipeline
-      #- name: Generate Gas
-      #  run: |
-      #    source ${{ env.REST_PATH }}/thisREST.sh
-      #    source $(root-config --bindir)/thisroot.sh
-      #    cd framework/pipeline/metadata/gas/
-      #    restRoot -b -q GenerateDummyGas.C
-
-      - name: DataSet Tests
+      - name: Basic tests
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/datasets/
           wget https://github.com/rest-for-physics/rest-school/blob/master/data/R11520_00000_RawToTrack_Calibration_30min_jgalan_2.3.15.root
           wget https://github.com/rest-for-physics/rest-school/blob/master/data/R11521_00000_RawToTrack_Background_23hr_jgalan_2.3.15.root
           wget https://github.com/rest-for-physics/rest-school/blob/master/data/R11523_00000_RawToTrack_Background_20hr_jgalan_2.3.15.root
-          restRoot -b -q DataSetTests.C'
+          restRoot -b -q DataSetTests.C
 
 
       - name: Basic Readout
