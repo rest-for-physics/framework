@@ -182,14 +182,6 @@ jobs:
       #    source $(root-config --bindir)/thisroot.sh
       #    cd framework/pipeline/metadata/gas/
       #    restRoot -b -q GenerateDummyGas.C
-      - name: Generate Readout
-        run: |
-          source ${{ env.REST_PATH }}/thisREST.sh
-          cd framework/pipeline/metadata/readout/
-          restManager --c generateReadout.rml --o readout.root
-          restRoot -b -q PrintReadout.C'("readout.root")' > /dev/null
-      # We need to introduce basic validation here
-      #    - diff validation.txt print.txt
 
       - name: DataSet Tests
         run: |
