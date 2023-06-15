@@ -11,7 +11,7 @@
 	<parameter name="readOnly" value="false" />
 	<parameter name="inputFormat" value="${FORMAT}" />
 
-	<addMetadata type="TRestDetectorReadout" name="TREXDM_Nov2018" file="readouts_v2.3.root" store="false" />
+	<addMetadata type="TRestDetectorReadout" name="TREXDM_Nov2018" file="readouts_v2.4.root" store="false" />
 
 	<TRestDetectorGas name="Neon-Isobutane 2Pct 10-10E3Vcm" pressure="1" file="server" />
 

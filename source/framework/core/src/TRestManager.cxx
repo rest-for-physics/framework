@@ -37,16 +37,28 @@ ClassImp(TRestManager);
 
 TRestManager::TRestManager() { Initialize(); }
 
-TRestManager::~TRestManager() {}
+TRestManager::~TRestManager() {
+    // delete all the added metadata objects(besides self)
+    if (fMetaObjects.size() > 1) {
+        for (unsigned int i = fMetaObjects.size() - 1; i >= 1; i--) {
+            delete fMetaObjects[i];
+        }
+    }
+}
 
 ///////////////////////////////////////////////
 /// \brief Set the class name as section name during initialization.
 ///
 void TRestManager::Initialize() {
     SetSectionName(this->ClassName());
-
+    // delete all the added metadata objects(besides self)
+    if (fMetaObjects.size() > 1) {
+        for (unsigned int i = fMetaObjects.size() - 1; i >= 1; i--) {
+            delete fMetaObjects[i];
+        }
+    }
+    // add self to the metadata objects list
     fMetaObjects.clear();
-
     fMetaObjects.push_back(this);
 }
 
