@@ -1080,6 +1080,18 @@ TFile* TRestRun::UpdateOutputFile() {
 }
 
 ///////////////////////////////////////////////
+/// \brief Open and update output file in case is closed
+///
+TFile* TRestRun::OpenAndUpdateOutputFile() {
+    if (fOutputFile == nullptr) {
+      fOutputFile = TFile::Open(fOutputFileName,"UPDATE");
+    }
+
+   return UpdateOutputFile();
+
+}
+
+///////////////////////////////////////////////
 /// \brief Write this object into TFile and add a new entry in database
 ///
 /// level=0 : add a new run in database. run number is the next number, subrun
