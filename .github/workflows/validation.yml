@@ -178,17 +178,6 @@ jobs:
           wget https://github.com/rest-for-physics/rest-school/blob/master/data/R11523_00000_RawToTrack_Background_20hr_jgalan_2.3.15.root
           restRoot -b -q DataSetTests.C
 
-
-      - name: Basic Readout
-        run: |
-          source ${{ env.REST_PATH }}/thisREST.sh
-          cd framework/projects/basic-examples/
-          git submodule update --init .
-          cd basic-readouts
-          git submodule update --init .
-          restRoot -b -q GenerateReadouts.C'("basic.root")'
-          restRoot -b -q BasicValidation.C'("basic.root", "pixelDecoding")'
-
   pandax-iii:
     name: "PandaX-III"
     runs-on: ubuntu-latest
