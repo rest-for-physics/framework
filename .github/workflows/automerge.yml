@@ -1,0 +1,92 @@
+name: "Automatic PR checks and merge"
+
+on:
+  pull_request:
+    branches: [ "master" ]
+    types: [ "opened", "reopened", "created", "closed", "synchronize", "labeled", "unlabeled"]
+
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+#permissions: write-all
+
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  submodule-pr:
+    strategy:
+      fail-fast: false
+      matrix:
+        submodule: ["rest-for-physics/rawlib", "rest-for-physics/detectorlib", "rest-for-physics/geant4lib","rest-for-physics/tracklib", "rest-for-physics/connectorslib", "rest-for-physics/axionlib", "rest-for-physics/legacylib", "rest-for-physics/wimplib", "rest-for-physics/restG4"]
+    runs-on: ubuntu-latest
+    if: github.head_ref || github.ref_name != 'master'
+    steps:
+      - name: Checkout submodule
+        uses: actions/checkout@v3
+        with:
+          repository: ${{  matrix.submodule }}
+          path: submodule
+      - name: Check submodule branch
+        id: submoduleBranch
+        run: |
+          cd submodule
+          var=$(git ls-remote --heads origin ${{ env.BRANCH_NAME }})
+          if [[ -z $var ]]; then
+            echo "Branch "${{ env.BRANCH_NAME }}" not found in " ${{ matrix.submodule }}
+            echo "exist=false" >> $GITHUB_OUTPUT
+          else
+            echo "Branch "${{ env.BRANCH_NAME }}" found in " ${{ matrix.submodule }}
+            git fetch
+            git checkout ${{ env.BRANCH_NAME }}
+            git pull
+            echo "exist=true" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+      - name: Check PR
+        id: PRCheck
+        if:  steps.submoduleBranch.outputs.exist == 'true'
+        run: |
+          cd submodule
+          #Check PR
+          gh auth status
+          gh pr view
+          echo "prurl=$(gh pr view --json url -t '{{ .url }}')" >> $GITHUB_OUTPUT
+          echo "mergeStateStatus=$(gh pr view --json mergeStateStatus -t '{{ .mergeStateStatus }}')" >> $GITHUB_OUTPUT
+          echo "prState=$(gh pr view --json state -t '{{ .state }}')" >> $GITHUB_OUTPUT
+          echo "review=$(gh pr view --json reviewDecision -t '{{ .reviewDecision }}')"  >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.REST_TOKEN }}
+      - name: Print outputs
+        if:  steps.submoduleBranch.outputs.exist == 'true'
+        run: |
+          echo "Merge status " ${{ steps.PRCheck.outputs.mergeStateStatus }}
+          echo "PR REVIEW " ${{ steps.PRCheck.outputs.review }}
+          echo "PR url " ${{ steps.PRCheck.outputs.prurl }}
+          echo "PR state " ${{ steps.PRCheck.outputs.prState }}
+          if [[ ${{ steps.PRCheck.outputs.prState }} == "MERGED" ]]; then
+            echo "PR already merged"
+          elif [[ ${{ steps.PRCheck.outputs.review }} == "APPROVED" ]]; then
+            echo "PR is approved and mergeStateStatus is " $mergeStateStatus
+          else
+            echo "Not approved or invalid PR for branch " ${{ env.BRANCH_NAME }} " in " ${{ matrix.submodule }}  " merge is not allowed"
+            exit 1
+          fi
+      - name: Merge PR
+        if: (github.event.action == 'closed' && github.event.pull_request.merged == true && steps.PRCheck.outputs.review == 'APPROVED' && steps.PRCheck.outputs.prState != 'MERGED')
+        run: |
+          cd submodule
+          gh pr edit ${{ steps.PRCheck.outputs.prurl }} --remove "framework-pr"
+          gh auth status
+          echo "actor " ${{ github.actor }}
+          gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{ steps.PRCheck.outputs.prurl }}
+          GITHUB_TOKEN: ${{ secrets.REST_TOKEN }}

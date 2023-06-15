@@ -1,0 +1,127 @@
+name: "Automatic PR on framework at submodule PR"
+inputs:
+  branch:
+    description: "Target branch name"
+    required: true
+  submodule:
+    description: "Relative path to the submodule"
+    required: true
+  label:
+    description: "Add the following label to the submodule PR"
+  token:
+    description: "Authentification token"
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+  - name: Checkout framework repository
+    uses: actions/checkout@v3
+    with:
+      token: ${{ inputs.token }}
+      repository: rest-for-physics/framework
+      ref: master
+      path: framework
+  - name: Pull submodules
+    run: |
+      cd framework
+      ./scripts/checkoutRemoteBranch.sh ${{ inputs.branch }}
+      python3 pull-submodules.py --force --dontask --latest:${{ inputs.branch }}
+      git config --global user.name "${{ github.actor }}"
+      git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+    shell: bash
+  - name: Check if framework branch exist
+    id: frameworkBranch
+    run: |
+      cd framework
+      echo "ref=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_OUTPUT
+    shell: bash
+  - name: Commit changes if branch exist
+    if: steps.frameworkBranch.outputs.ref == ${{ inputs.branch }}
+    run: |
+      cd framework
+      git pull
+      git add ${{ inputs.submodule }}
+      var=$(git diff --cached)
+        if [[ -z $var ]]; then
+          echo "Nothing to commit"
+        else
+          git commit -m "Updating submodule ${{ inputs.submodule }}"
+          git push
+        fi
+    shell: bash
+  - name: Commit changes to new branch
+    if: steps.frameworkBranch.outputs.ref == 'master'
+    run: |
+      cd framework
+      git checkout -b ${{ inputs.branch }}
+      git add ${{ inputs.submodule }}
+      git commit -m "Updating submodule ${{ inputs.submodule }}"
+      git push --set-upstream origin ${{ inputs.branch }}
+    shell: bash
+  - name: Checkout submodule
+    uses: actions/checkout@v3
+    with:
+      ref: ${{ inputs.branch }}
+      path: submodule
+  - name: Check submodule PR
+    id: submodulePR
+    run: |
+      cd submodule
+      #Check submodule PR
+      gh auth status
+      gh pr view
+      prurl=$(gh pr view --json url -t '{{ .url }}')
+      echo "prurl=$prurl" >> $GITHUB_OUTPUT
+      echo -e "body<<EOF\n$(gh pr view --json body -t '{{ .body }}')\nEOF" >> $GITHUB_OUTPUT
+      #Add framework-pr label
+      gh pr edit $prurl --add-label "framework-pr"
+    env:
+      GITHUB_TOKEN: ${{ inputs.token }}
+    shell: bash
+  - name: Check framework PR
+    id: frameworkPR
+    run: |
+      cd framework
+      #Check framework PR
+      echo "prurl=$(gh pr view --json url -t '{{ .url }}')" >> $GITHUB_OUTPUT
+    env:
+      GITHUB_TOKEN: ${{ inputs.token }}
+    shell: bash
+  - name: Create PR in framework
+    if: "steps.frameworkBranch.outputs.ref == 'master' || steps.frameworkPR.outputs.prurl == ''"
+    run: |
+      cd framework
+      gh pr create -B master -H ${{ inputs.branch }} --title 'Submodule Updates from ${{ inputs.submodule }} branch ${{ inputs.branch }}' --body 'Automatic PR from ${{ inputs.submodule }} branch ${{ inputs.branch }}, related PR ${{ steps.submodulePR.outputs.prurl }}'
+    env:
+      GITHUB_TOKEN: ${{ inputs.token }}
+    shell: bash
+  - name: Second check on framework PR
+    id: PRFramework
+    run: |
+      cd framework
+      #Check framework PR
+      gh pr view
+      echo "prurl=$(gh pr view --json url -t '{{ .url }}')" >> $GITHUB_OUTPUT
+      echo -e "body<<EOF\n$(gh pr view --json body -t '{{ .body }}')\nEOF" >> $GITHUB_OUTPUT
+      #Add custom label
+      gh pr edit $prurl --add-label ${{ inputs.label }}
+    env:
+      GITHUB_TOKEN: ${{ inputs.token }}
+    shell: bash
+  - name: Update submodule PR body
+    if: "steps.frameworkBranch.outputs.ref != 'master' && !contains(steps.submodulePR.outputs.body, steps.PRFramework.outputs.prurl)"
+    run: |
+      cd submodule
+      gh pr edit ${{ steps.submodulePR.outputs.prurl }} --body  '${{ steps.submodulePR.outputs.body }}   Related framework PR ${{ steps.PRFramework.outputs.prurl }}'
+    env:
+      GITHUB_TOKEN: ${{ inputs.token }}
+    shell: bash
+  - name: Update framework PR body
+    if: "steps.frameworkBranch.outputs.ref != 'master' && !contains(steps.PRFramework.outputs.body, steps.submodulePR.outputs.prurl)"
+    run: |
+      cd framework
+      gh pr edit ${{ steps.PRFramework.outputs.prurl }} --body '${{ steps.PRFramework.outputs.body }}  Related PR ${{ steps.submodulePR.outputs.prurl }}'
+    env:
+      GITHUB_TOKEN: ${{ inputs.token }}
+    shell: bash
