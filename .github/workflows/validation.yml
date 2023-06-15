@@ -173,9 +173,9 @@ jobs:
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/datasets/
-          wget https://github.com/rest-for-physics/rest-school/blob/master/data/R11520_00000_RawToTrack_Calibration_30min_jgalan_2.3.15.root
-          wget https://github.com/rest-for-physics/rest-school/blob/master/data/R11521_00000_RawToTrack_Background_23hr_jgalan_2.3.15.root
-          wget https://github.com/rest-for-physics/rest-school/blob/master/data/R11523_00000_RawToTrack_Background_20hr_jgalan_2.3.15.root
+          wget https://github.com/rest-for-physics/rest-school/raw/master/data/R11520_00000_RawToTrack_Calibration_30min_jgalan_2.3.15.root
+          wget https://github.com/rest-for-physics/rest-school/raw/master/data/R11521_00000_RawToTrack_Background_23hr_jgalan_2.3.15.root
+          wget https://github.com/rest-for-physics/rest-school/raw/master/data/R11523_00000_RawToTrack_Background_20hr_jgalan_2.3.15.root
           restRoot -b -q DataSetTests.C
 
   pandax-iii:
