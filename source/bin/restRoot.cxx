@@ -99,7 +99,11 @@ int main(int argc, char* argv[]) {
     int nFile = 0;
     for (int i = 1; i < argc; i++) {
         string opt = (string)argv[i];
+        if (opt.find("-") == 0) continue;
+        printf("\nAttaching file %s\n", opt.c_str());
+
         if (opt.find("http") != string::npos || (TRestTools::fileExists(opt) && TRestTools::isRunFile(opt))) {
+            printf("\n%s\n", "REST processed file identified. It contains a valid TRestRun.");
             printf("\nAttaching file %s as run%i...\n", opt.c_str(), nFile);
 
             TRestRun* runTmp = new TRestRun(opt);
@@ -182,14 +186,22 @@ int main(int argc, char* argv[]) {
 
             argv[i] = (char*)"";
             nFile++;
-        } else if (TRestTools::fileExists(opt) && TRestTools::isRootFile(opt)) {
-            string runcmd = Form("TFile* f = TFile::Open(\"%s\");", opt.c_str());
-            gROOT->ProcessLine(runcmd.c_str());
         } else if (TRestTools::fileExists(opt) && TRestTools::isDataSet(opt)) {
-            printf("\n%s\n", "Importing dataset as `d`.");
-            string runcmd = "TRestDataSet d;";
+            printf("\n%s\n", "REST dataset file identified. It contains a valid TRestDataSet.");
+            printf("\n%s\n", "Importing dataset as `dSet`.");
+            printf("\n%s\n", "The dataset is ready. You may now access the dataset using:");
+            printf("\n%s\n", " - dSet.PrintMetadata()");
+            printf("%s\n", " - dSet.GetDataFrame().GetColumnNames()");
+            printf("%s\n\n", " - dSet.GetTree()->GetEntries()");
+            string runcmd = "TRestDataSet dSet;";
             gROOT->ProcessLine(runcmd.c_str());
-            runcmd = Form("d.Import(\"%s\");", opt.c_str());
+            runcmd = Form("dSet.Import(\"%s\");", opt.c_str());
+            gROOT->ProcessLine(runcmd.c_str());
+        } else if (TRestTools::fileExists(opt) && TRestTools::isRootFile(opt)) {
+            printf("\n%s\n", "It is still a ROOT file. We open using TFile.");
+            string runcmd = Form("TFile* f = TFile::Open(\"%s\");", opt.c_str());
+            printf("\n%s\n", runcmd);
+
             gROOT->ProcessLine(runcmd.c_str());
         } else
             printf("\nFile %s not compatible ... !!\n", opt.c_str());
