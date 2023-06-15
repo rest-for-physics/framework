@@ -364,7 +364,7 @@ void TRestDataSet::GenerateDataSet() {
     TFile* f = TFile::Open(fOutName.c_str());
     fTree = (TChain*)f->Get("AnalysisTree");
 
-    RESTInfo << " - Dataset initialized!" << RESTendl;
+    RESTInfo << " - Dataset generated!" << RESTendl;
 }
 
 ///////////////////////////////////////////////
@@ -424,20 +424,26 @@ std::vector<std::string> TRestDataSet::FileSelection() {
 
         if (!accept) continue;
 
+        Double_t acc = 0;
         for (auto& [name, properties] : fQuantity) {
-            Double_t value =
-                REST_StringHelper::StringToDouble(run.ReplaceMetadataMembers(properties.metadata));
+            std::string value = run.ReplaceMetadataMembers(properties.metadata);
+            const Double_t val = REST_StringHelper::StringToDouble(value);
 
-            if (properties.strategy == "accumulate") properties.value += value;
+            if (properties.strategy == "accumulate") {
+                acc += val;
+                properties.value = StringWithPrecision(val, 2);
+            }
 
             if (properties.strategy == "max")
-                if (properties.value == 0 || properties.value < value) properties.value = value;
+                if (properties.value.empty() || REST_StringHelper::StringToDouble(properties.value) < val)
+                    properties.value = value;
 
             if (properties.strategy == "min")
-                if (properties.value == 0 || properties.value > value) properties.value = value;
+                if (properties.value.empty() || REST_StringHelper::StringToDouble(properties.value) > val)
+                    properties.value = value;
 
             if (properties.strategy == "unique") {
-                if (properties.value == 0)
+                if (properties.value.empty())
                     properties.value = value;
                 else if (properties.value != value) {
                     RESTWarning << "TRestDataSet::FileSelection. Relevant quantity retrieval." << RESTendl;
@@ -524,8 +530,7 @@ ROOT::RDF::RNode TRestDataSet::DefineColumn(const std::string& columnName, const
 
     std::string evalFormula = formula;
     for (auto const& [name, properties] : fQuantity)
-        evalFormula =
-            REST_StringHelper::Replace(evalFormula, name, DoubleToString(properties.value, "%12.10e"));
+        evalFormula = REST_StringHelper::Replace(evalFormula, name, properties.value);
 
     df = df.Define(columnName, evalFormula);
 
@@ -711,7 +716,7 @@ void TRestDataSet::InitFromConfigFile() {
         quantity.metadata = metadata;
         quantity.strategy = strategy;
         quantity.description = description;
-        quantity.value = 0;
+        quantity.value = "";
 
         fQuantity[name] = quantity;
 
@@ -802,7 +807,7 @@ void TRestDataSet::Export(const std::string& filename) {
         fprintf(f, "###\n");
         fprintf(f, "### Relevant quantities: \n");
         for (auto& [name, properties] : fQuantity) {
-            fprintf(f, "### - %s : %lf - %s\n", name.c_str(), properties.value,
+            fprintf(f, "### - %s : %s - %s\n", name.c_str(), properties.value.c_str(),
                     properties.description.c_str());
         }
         fprintf(f, "###\n");
@@ -874,6 +879,7 @@ TRestDataSet& TRestDataSet::operator=(TRestDataSet& dS) {
     fFilterEqualsTo = dS.GetFilterEqualsTo();
     fQuantity = dS.GetQuantity();
     fTotalDuration = dS.GetTotalTimeInSeconds();
+    fFileSelection = dS.GetFileSelection();
     fCut = dS.GetCut();
 
     return *this;
@@ -890,6 +896,7 @@ void TRestDataSet::Import(const std::string& fileName) {
         return;
     }
 
+    TRestDataSet* dS = nullptr;
     TFile* file = TFile::Open(fileName.c_str(), "READ");
     if (file != nullptr) {
         TIter nextkey(file->GetListOfKeys());
@@ -898,18 +905,21 @@ void TRestDataSet::Import(const std::string& fileName) {
             std::string kName = key->GetClassName();
             if (REST_Reflection::GetClassQuick(kName.c_str()) != nullptr &&
                 REST_Reflection::GetClassQuick(kName.c_str())->InheritsFrom("TRestDataSet")) {
-                TRestDataSet* dS = file->Get<TRestDataSet>(key->GetName());
+                dS = file->Get<TRestDataSet>(key->GetName());
                 if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info)
                     dS->PrintMetadata();
                 *this = *dS;
             }
         }
-    } else {
-        RESTError << "Cannot open " << fileName << RESTendl;
-        exit(1);
     }
 
-    RESTInfo << "Opening " << fileName << RESTendl;
+    if (dS == nullptr) {
+        RESTError << fileName << " is not a valid dataSet" << RESTendl;
+        return;
+    }
+
+    ROOT::EnableImplicitMT();
+
     fDataSet = ROOT::RDataFrame("AnalysisTree", fileName);
 
     fTree = (TChain*)file->Get("AnalysisTree");

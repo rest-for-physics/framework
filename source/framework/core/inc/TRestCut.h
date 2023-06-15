@@ -44,8 +44,10 @@ class TRestCut : public TRestMetadata {
     void InitFromConfigFile() override;
 
    public:
-    void AddCut(TCut cut);
+    void AddCut(const TCut& cut);
     TCut GetCut(std::string name);
+
+    void AddCut(TRestCut* cut);
 
     inline auto GetCutStrings() const { return fCutStrings; }
     inline auto GetParamCut() const { return fParamCut; }
