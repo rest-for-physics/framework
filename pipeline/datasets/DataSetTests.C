@@ -1,6 +1,6 @@
 // We run a couple validations to see if everything in the dataset is ok
 
-Int_t ValidateDataSet() {
+Int_t DataSetTests() {
     TRestDataSet d("dataset.rml");
     d.GenerateDataSet();
 
