@@ -197,12 +197,14 @@ int main(int argc, char* argv[]) {
             gROOT->ProcessLine(runcmd.c_str());
             runcmd = Form("dSet.Import(\"%s\");", opt.c_str());
             gROOT->ProcessLine(runcmd.c_str());
+            argv[i] = (char*)"";
         } else if (TRestTools::fileExists(opt) && TRestTools::isRootFile(opt)) {
             printf("\n%s\n", "It is still a ROOT file. We open using TFile.");
             string runcmd = Form("TFile* f = TFile::Open(\"%s\");", opt.c_str());
             printf("\n%s\n", runcmd.c_str());
 
             gROOT->ProcessLine(runcmd.c_str());
+            argv[i] = (char*)"";
         } else
             printf("\nFile %s not compatible ... !!\n", opt.c_str());
     }
