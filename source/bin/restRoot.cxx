@@ -100,15 +100,15 @@ int main(int argc, char* argv[]) {
     int nDataSet = 0;
     for (int i = 1; i < argc; i++) {
         const string opt = (string)argv[i];
-        if (opt.at(0) == ('-') ) continue;
+        if (opt.at(0) == ('-')) continue;
         printf("\nAttaching file %s\n", opt.c_str());
 
-        if (opt.find("http") == string::npos && !TRestTools::fileExists(opt) ){
-          printf("\nFile %s not compatible ... !!\n", opt.c_str());
-          continue;
+        if (opt.find("http") == string::npos && !TRestTools::fileExists(opt)) {
+            printf("\nFile %s not compatible ... !!\n", opt.c_str());
+            continue;
         }
 
-         if ( TRestTools::isRunFile(opt) ) {
+        if (TRestTools::isRunFile(opt)) {
             printf("\n%s\n", "REST processed file identified. It contains a valid TRestRun.");
             printf("\nAttaching TRestRun %s as run%i...\n", opt.c_str(), nFile);
             string runcmd = Form("TRestRun* run%i = new TRestRun (\"%s\");", nFile, opt.c_str());
@@ -118,12 +118,12 @@ int main(int argc, char* argv[]) {
             nFile++;
         } else if (TRestTools::isDataSet(opt)) {
             printf("\n%s\n", "REST dataset file identified. It contains a valid TRestDataSet.");
-            printf("\nImporting dataset as `dSet%i`\n",nDataSet);
+            printf("\nImporting dataset as `dSet%i`\n", nDataSet);
             printf("\n%s\n", "The dataset is ready. You may now access the dataset using:");
             printf("\n%s\n", " - dSet0->PrintMetadata()");
             printf("%s\n", " - dSet0->GetDataFrame().GetColumnNames()");
             printf("%s\n\n", " - dSet0->GetTree()->GetEntries()");
-            string runcmd = "TRestDataSet *dSet"+to_string(nDataSet) +" = new TRestDataSet();";
+            string runcmd = "TRestDataSet *dSet" + to_string(nDataSet) + " = new TRestDataSet();";
             gROOT->ProcessLine(runcmd.c_str());
             runcmd = Form("dSet%i->Import(\"%s\");", nDataSet, opt.c_str());
             gROOT->ProcessLine(runcmd.c_str());
