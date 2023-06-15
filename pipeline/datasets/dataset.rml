@@ -1,0 +1,32 @@
+<datasets>
+	
+<TRestDataSet name="Calibrations">
+   <parameter name="filterStartTime" value = "2021/04/28 00:00" />
+   <parameter name="filterEndTime" value = "2021/06/28 23:59" />
+   <parameter name="filePattern" value="*RawToTrack*.root"/>
+   <parameter name="timeCorrection" value = "true" />
+   <parameter name="columnTimeCorrection" value = "rateAna_MeanRate_InHz" />
+   <parameter name="thresholdTimeCorrection" value = "15" />
+   <filter metadata="TRestRun::fRunTag" contains="Calibration" />
+
+   // Will add to the final tree only the specific observables
+   <observables list="sAna_NumberOfGoodSignals,tckAna_xMean,tckAna_yMean,sAna_ThresholdIntegral,sAna_BaseLineMean,sAna_RiseTimeAvg" />
+   // Will add all the observables from the process `rateAna`
+   <processObservables list="rateAna" />
+</TRestDataSet>
+
+<TRestDataSet name="Backgrounds">
+   <parameter name="startTime" value = "2022/04/30 00:00" />
+   <parameter name="endTime" value = "2022/04/31 23:25" />
+   <parameter name="filePattern" value="*RawToTrack*.root"/>
+   <parameter name="timeCorrection" value = "true" />
+   <parameter name="columnTimeCorrection" value = "rateAna_MeanRate_InHz" />
+   <parameter name="thresholdTimeCorrection" value = "15" />
+   <filter metadata="TRestRun::fRunTag" contains="Background" />
+   // Will add to the final tree only the specific observables
+   <observables list="sAna_NumberOfGoodSignals,tckAna_xMean,tckAna_yMean,sAna_ThresholdIntegral,sAna_BaseLineMean,sAna_RiseTimeAvg" />
+   // Will add all the observables from the process `rateAna`
+   <processObservables list="rateAna" />
+</TRestDataSet>
+
+</datasets>

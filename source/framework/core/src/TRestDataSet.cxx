@@ -967,9 +967,9 @@ Double_t TRestDataSet::GetRunDuration(TRestRun& r) {
                     recovery_events++;
                     if (recovery_events > max_events_below_threshold) {
                         r.GetEntry(first_bad_event);
-                        t1 = r.GetAnalysisTree()->GetObservableValue<double>("rateAna_SecondsFromStart");
+                        t1 = r.GetAnalysisTree()->GetTimeStamp();
                         r.GetEntry(last_bad_event);
-                        t2 = r.GetAnalysisTree()->GetObservableValue<double>("rateAna_SecondsFromStart");
+                        t2 = r.GetAnalysisTree()->GetTimeStamp();
                         corrected_time += t2 - t1;
                         events_below_threshold = 0;
                     }
@@ -979,9 +979,9 @@ Double_t TRestDataSet::GetRunDuration(TRestRun& r) {
                 (events_below_threshold > max_events_below_threshold)) {
                 last_bad_event = r.GetEntries() - 1;
                 r.GetEntry(first_bad_event);
-                t1 = r.GetAnalysisTree()->GetObservableValue<double>("rateAna_SecondsFromStart");
+                t1 = r.GetAnalysisTree()->GetTimeStamp();
                 r.GetEntry(last_bad_event);
-                t2 = r.GetAnalysisTree()->GetObservableValue<double>("rateAna_SecondsFromStart");
+                t2 = r.GetAnalysisTree()->GetTimeStamp();
                 corrected_time += t2 - t1;
             }
         }
