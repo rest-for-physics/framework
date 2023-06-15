@@ -203,6 +203,7 @@ int main(int argc, char* argv[]) {
             string runcmd = Form("TFile* f = TFile::Open(\"%s\");", opt.c_str());
             printf("\n%s\n", runcmd.c_str());
 
+            printf("\n%s\n", "Opening ROOT file as `f`:");
             gROOT->ProcessLine(runcmd.c_str());
             argv[i] = (char*)"";
         } else
