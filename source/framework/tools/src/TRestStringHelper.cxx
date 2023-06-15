@@ -3,8 +3,7 @@
 #include <Rtypes.h>
 #include <TApplication.h>
 #include <TSystem.h>
-
-#include <thread>
+#include <TTimer.h>
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(6, 0, 0)
 #include <TFormula.h>
@@ -40,8 +39,8 @@ Int_t REST_StringHelper::isAExpression(const string& in) {
     }
 
     if (!symbol) {
-        size_t pos = in.find_first_of("+-*/e^%");
-        if (pos > 0 && pos < in.size() - 1) {
+        size_t pos = in.substr(1, in.length() - 2).find_first_of("+-*/e^%");
+        if (pos != string::npos) {
             symbol = true;
         }
     }
@@ -80,8 +79,13 @@ string REST_StringHelper::CropWithPrecision(string in, Int_t precision) {
     if (precision == 0) return in;
     if (REST_StringHelper::isANumber(in) && in.find(".") != string::npos) {
         string rootStr;
-        if (in.find("e") != string::npos) rootStr = in.substr(in.find("e"), -1);
-        return in.substr(0, in.find(".") + precision + 1) + rootStr;
+        size_t newPrecision = precision;
+        if (in.find("e") != string::npos) {
+            rootStr = in.substr(in.find("e"), -1);
+            newPrecision = std::min((int)newPrecision, (int)in.find("e") - (int)in.find(".") - 1);
+        }
+        std::string rr = in.substr(0, in.find(".") + newPrecision + 1) + rootStr;
+        return rr;
     }
     return in;
 }
@@ -192,19 +196,22 @@ string REST_StringHelper::EvaluateExpression(string exp) {
 ///
 /// ROOT GUI won't be jammed during this pause.
 Int_t REST_StringHelper::GetChar(string hint) {
+    cout << hint << endl;
+    int result = -1;
     if (gApplication != nullptr && !gApplication->IsRunning()) {
-        thread t = thread(&TApplication::Run, gApplication, true);
-        t.detach();
-
-        cout << hint << endl;
-        int result = REST_Display_CompatibilityMode ? 1 : getchar();
-        gSystem->ExitLoop();
-        return result;
+        auto timer = std::make_unique<TTimer>("gSystem->ProcessEvents();", 50, kFALSE);
+        bool done = false;
+        do {
+            timer->TurnOn();
+            timer->Reset();
+            result = REST_Display_CompatibilityMode ? 1 : getchar();
+            timer->TurnOff();
+            done = true;
+        } while (!done);
     } else {
-        cout << hint << endl;
-        return REST_Display_CompatibilityMode ? 1 : getchar();
+        result = REST_Display_CompatibilityMode ? 1 : getchar();
     }
-    return -1;
+    return result;
 }
 
 ///////////////////////////////////////////////
@@ -212,7 +219,8 @@ Int_t REST_StringHelper::GetChar(string hint) {
 /// not it returns 0.
 ///
 Int_t REST_StringHelper::isANumber(string in) {
-    return (in.find_first_not_of("-+0123456789.eE") == string::npos && in.length() != 0);
+    std::string inTrim = Trim(in);
+    return (inTrim.find_first_not_of("-+0123456789.eE") == string::npos && !inTrim.empty());
 }
 
 ///////////////////////////////////////////////

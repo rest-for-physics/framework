@@ -209,6 +209,37 @@
 /// - **last**: It will simply register the value of the metadata member
 /// from the last file in the list of selected files.
 ///
+/// ### Adding a new column based on relevant quantities
+///
+/// Using the method TRestDataSet::Define method we can implement a
+/// formula based on column names and relevant quantities. Then, the
+/// relevant quantities will be sustituted by their dataset value.
+///
+/// \code
+/// dataset.GetColumnNames()
+/// dataset.Define("newColumnName", "QuantityName * column1" )
+/// dataset.GetColumnNames()
+/// dataset.GetDataFrame().Display({"column1", "newColumnName"})->Print();
+/// \endcode
+///
+/// ### Adding a new column on-the-fly during the dataset generation
+///
+/// It is also possible to add new column definitions inside the RML
+/// so that the new column will be already pre-generated and included
+/// in the new dataset when we invoke TRestDataSet::GenerateDataSet.
+///
+/// We can use a valid mathematical expression where we may include any
+/// already existing column or observable, and/or any relevant quantity we
+/// introduced in our dataset definition.
+///
+/// We may use the `addColumn` keyword to add new columns as follows:
+///
+/// \code
+/// <addColumn name="NormalFlux" expression="SolarFlux*GeneratorArea/Nsim" />
+/// \endcode
+///
+/// where `SolarFlux`,`GeneratorArea` and `Nsim` are the given names of
+/// the relevant quantities inside the dataset.
 ///
 ///----------------------------------------------------------------------
 ///
@@ -318,6 +349,12 @@ void TRestDataSet::GenerateDataSet() {
 
     fDataSet = MakeCut(fCut);
 
+    // Adding new user columns added to the dataset
+    for (const auto& [cName, cExpression] : fColumnNameExpressions) {
+        finalList.emplace_back(cName);
+        fDataSet = DefineColumn(cName, cExpression);
+    }
+
     std::string user = getenv("USER");
     std::string fOutName = "/tmp/rest_output_" + user + ".root";
     fDataSet.Snapshot("AnalysisTree", fOutName, finalList);
@@ -325,9 +362,9 @@ void TRestDataSet::GenerateDataSet() {
     fDataSet = ROOT::RDataFrame("AnalysisTree", fOutName);
 
     TFile* f = TFile::Open(fOutName.c_str());
-    fTree = (TTree*)f->Get("AnalysisTree");
+    fTree = (TChain*)f->Get("AnalysisTree");
 
-    RESTInfo << " - Dataset initialized!" << RESTendl;
+    RESTInfo << " - Dataset generated!" << RESTendl;
 }
 
 ///////////////////////////////////////////////
@@ -379,25 +416,34 @@ std::vector<std::string> TRestDataSet::FileSelection() {
             if (fFilterLowerThan[n] != -1)
                 if (StringToDouble(mdValue) >= fFilterLowerThan[n]) accept = false;
 
+            if (fFilterEqualsTo[n] != -1)
+                if (StringToDouble(mdValue) != fFilterEqualsTo[n]) accept = false;
+
             n++;
         }
 
         if (!accept) continue;
 
+        Double_t acc = 0;
         for (auto& [name, properties] : fQuantity) {
-            Double_t value =
-                REST_StringHelper::StringToDouble(run.ReplaceMetadataMembers(properties.metadata));
+            std::string value = run.ReplaceMetadataMembers(properties.metadata);
+            const Double_t val = REST_StringHelper::StringToDouble(value);
 
-            if (properties.strategy == "accumulate") properties.value += value;
+            if (properties.strategy == "accumulate") {
+                acc += val;
+                properties.value = StringWithPrecision(val, 2);
+            }
 
             if (properties.strategy == "max")
-                if (properties.value == 0 || properties.value < value) properties.value = value;
+                if (properties.value.empty() || REST_StringHelper::StringToDouble(properties.value) < val)
+                    properties.value = value;
 
             if (properties.strategy == "min")
-                if (properties.value == 0 || properties.value > value) properties.value = value;
+                if (properties.value.empty() || REST_StringHelper::StringToDouble(properties.value) > val)
+                    properties.value = value;
 
             if (properties.strategy == "unique") {
-                if (properties.value == 0)
+                if (properties.value.empty())
                     properties.value = value;
                 else if (properties.value != value) {
                     RESTWarning << "TRestDataSet::FileSelection. Relevant quantity retrieval." << RESTendl;
@@ -467,6 +513,30 @@ ROOT::RDF::RNode TRestDataSet::MakeCut(const TRestCut* cut) {
     return df;
 }
 
+///////////////////////////////////////////////
+/// \brief This function will add a new column to the RDataFrame using
+/// the same scheme as the usual RDF::Define method, but it will on top of
+/// that evaluate the values of any relevant quantities used.
+///
+/// For example, the following code line would create a new column named
+/// `test` replacing the relevant quantity `Nsim` and the previously
+/// existing column `probability`.
+/// \code
+/// d.Define("test", "Nsim * probability");
+/// \endcode
+///
+ROOT::RDF::RNode TRestDataSet::DefineColumn(const std::string& columnName, const std::string& formula) {
+    auto df = fDataSet;
+
+    std::string evalFormula = formula;
+    for (auto const& [name, properties] : fQuantity)
+        evalFormula = REST_StringHelper::Replace(evalFormula, name, properties.value);
+
+    df = df.Define(columnName, evalFormula);
+
+    return df;
+}
+
 /////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestDataSet
 ///
@@ -512,6 +582,7 @@ void TRestDataSet::PrintMetadata() {
             if (!fFilterContains[n].empty()) RESTMetadata << " Contains: " << fFilterContains[n];
             if (fFilterGreaterThan[n] != -1) RESTMetadata << " Greater than: " << fFilterGreaterThan[n];
             if (fFilterLowerThan[n] != -1) RESTMetadata << " Lower than: " << fFilterLowerThan[n];
+            if (fFilterEqualsTo[n] != -1) RESTMetadata << " Equals to: " << fFilterEqualsTo[n];
 
             RESTMetadata << RESTendl;
             n++;
@@ -524,16 +595,33 @@ void TRestDataSet::PrintMetadata() {
         RESTMetadata << " Relevant quantities: " << RESTendl;
         RESTMetadata << " -------------------- " << RESTendl;
 
-        int n = 0;
         for (auto const& [name, properties] : fQuantity) {
             RESTMetadata << " - Name : " << name << ". Value : " << properties.value
                          << ". Strategy: " << properties.strategy << RESTendl;
             RESTMetadata << " - Metadata: " << properties.metadata << RESTendl;
             RESTMetadata << " - Description: " << properties.description << RESTendl;
-
             RESTMetadata << " " << RESTendl;
-            n++;
         }
+    }
+
+    if (!fColumnNameExpressions.empty()) {
+        RESTMetadata << " New columns added to generated dataframe: " << RESTendl;
+        RESTMetadata << " ---------------------------------------- " << RESTendl;
+        for (const auto& [cName, cExpression] : fColumnNameExpressions)
+            RESTMetadata << " - Name : " << cName << " Expression: " << cExpression << RESTendl;
+    }
+
+    if (fMergedDataset) {
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << "This is a combined dataset." << RESTendl;
+        RESTMetadata << " -------------------- " << RESTendl;
+        RESTMetadata << " - Relevant quantities have been removed!" << RESTendl;
+        RESTMetadata << " - Dataset metadata properties correspond to the first file in the list."
+                     << RESTendl;
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << "List of imported files: " << RESTendl;
+        RESTMetadata << " -------------------- " << RESTendl;
+        for (const auto& fn : fImportedFiles) RESTMetadata << " - " << fn << RESTendl;
     }
 
     RESTMetadata << "----" << RESTendl;
@@ -560,10 +648,12 @@ void TRestDataSet::InitFromConfigFile() {
         if (contains == "Not defined") contains = "";
         Double_t greaterThan = StringToDouble(GetFieldValue("greaterThan", filterDefinition));
         Double_t lowerThan = StringToDouble(GetFieldValue("lowerThan", filterDefinition));
+        Double_t equalsTo = StringToDouble(GetFieldValue("equalsTo", filterDefinition));
 
         fFilterContains.push_back(contains);
         fFilterGreaterThan.push_back(greaterThan);
         fFilterLowerThan.push_back(lowerThan);
+        fFilterEqualsTo.push_back(equalsTo);
 
         filterDefinition = GetNextElement(filterDefinition);
     }
@@ -626,11 +716,31 @@ void TRestDataSet::InitFromConfigFile() {
         quantity.metadata = metadata;
         quantity.strategy = strategy;
         quantity.description = description;
-        quantity.value = 0;
+        quantity.value = "";
 
         fQuantity[name] = quantity;
 
         quantityDefinition = GetNextElement(quantityDefinition);
+    }
+
+    /// Reading new dataset columns
+    TiXmlElement* columnDefinition = GetElement("addColumn");
+    while (columnDefinition != nullptr) {
+        std::string name = GetFieldValue("name", columnDefinition);
+        if (name.empty() || name == "Not defined") {
+            RESTError << "<define key does not contain a name name!" << RESTendl;
+            exit(1);
+        }
+
+        std::string expression = GetFieldValue("expression", columnDefinition);
+        if (expression.empty() || expression == "Not defined") {
+            RESTError << "<addColumn key does not contain a expression value!" << RESTendl;
+            exit(1);
+        }
+
+        fColumnNameExpressions.push_back({name, expression});
+
+        columnDefinition = GetNextElement(columnDefinition);
     }
 
     fCut = (TRestCut*)InstantiateChildMetadata("TRestCut");
@@ -689,6 +799,7 @@ void TRestDataSet::Export(const std::string& filename) {
                 if (!fFilterContains[n].empty()) fprintf(f, " Contains: %s.", fFilterContains[n].c_str());
                 if (fFilterGreaterThan[n] != -1) fprintf(f, " Greater than: %6.3lf.", fFilterGreaterThan[n]);
                 if (fFilterLowerThan[n] != -1) fprintf(f, " Lower than: %6.3lf.", fFilterLowerThan[n]);
+                if (fFilterEqualsTo[n] != -1) fprintf(f, " Equals to: %6.3lf.", fFilterLowerThan[n]);
                 fprintf(f, "\n");
                 n++;
             }
@@ -696,7 +807,7 @@ void TRestDataSet::Export(const std::string& filename) {
         fprintf(f, "###\n");
         fprintf(f, "### Relevant quantities: \n");
         for (auto& [name, properties] : fQuantity) {
-            fprintf(f, "### - %s : %lf - %s\n", name.c_str(), properties.value,
+            fprintf(f, "### - %s : %s - %s\n", name.c_str(), properties.value.c_str(),
                     properties.description.c_str());
         }
         fprintf(f, "###\n");
@@ -759,13 +870,16 @@ TRestDataSet& TRestDataSet::operator=(TRestDataSet& dS) {
     fEndTime = dS.GetEndTime();
     fFilePattern = dS.GetFilePattern();
     fObservablesList = dS.GetObservablesList();
+    fFileSelection = dS.GetFileSelection();
     fProcessObservablesList = dS.GetProcessObservablesList();
     fFilterMetadata = dS.GetFilterMetadata();
     fFilterContains = dS.GetFilterContains();
     fFilterGreaterThan = dS.GetFilterGreaterThan();
     fFilterLowerThan = dS.GetFilterLowerThan();
+    fFilterEqualsTo = dS.GetFilterEqualsTo();
     fQuantity = dS.GetQuantity();
     fTotalDuration = dS.GetTotalTimeInSeconds();
+    fFileSelection = dS.GetFileSelection();
     fCut = dS.GetCut();
 
     return *this;
@@ -782,7 +896,54 @@ void TRestDataSet::Import(const std::string& fileName) {
         return;
     }
 
+    TRestDataSet* dS = nullptr;
     TFile* file = TFile::Open(fileName.c_str(), "READ");
+    if (file != nullptr) {
+        TIter nextkey(file->GetListOfKeys());
+        TKey* key;
+        while ((key = (TKey*)nextkey())) {
+            std::string kName = key->GetClassName();
+            if (REST_Reflection::GetClassQuick(kName.c_str()) != nullptr &&
+                REST_Reflection::GetClassQuick(kName.c_str())->InheritsFrom("TRestDataSet")) {
+                dS = file->Get<TRestDataSet>(key->GetName());
+                if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info)
+                    dS->PrintMetadata();
+                *this = *dS;
+            }
+        }
+    }
+
+    if (dS == nullptr) {
+        RESTError << fileName << " is not a valid dataSet" << RESTendl;
+        return;
+    }
+
+    ROOT::EnableImplicitMT();
+
+    fDataSet = ROOT::RDataFrame("AnalysisTree", fileName);
+
+    fTree = (TChain*)file->Get("AnalysisTree");
+}
+
+///////////////////////////////////////////////
+/// \brief This function initializes the chained tree and the RDataFrame using
+/// as input several root files that should contain TRestDataSet metadata
+/// information. The values of the first dataset will be considered to be stored
+/// in this new instance.
+///
+/// The metadata member `fMergedDataset` will be set to true to understand this
+/// dataset is the combination of several datasets, and not a pure original one.
+///
+void TRestDataSet::Import(std::vector<std::string> fileNames) {
+    for (const auto& fN : fileNames)
+        if (TRestTools::GetFileNameExtension(fN) != "root") {
+            RESTError << "Datasets can only be imported from root files" << RESTendl;
+            return;
+        }
+
+    if (fileNames.size() == 0) return;
+
+    TFile* file = TFile::Open(fileNames[0].c_str(), "READ");
     if (file != nullptr) {
         TIter nextkey(file->GetListOfKeys());
         TKey* key;
@@ -797,12 +958,23 @@ void TRestDataSet::Import(const std::string& fileName) {
             }
         }
     } else {
-        RESTError << "Cannot open " << fileName << RESTendl;
+        RESTError << "Cannot open " << fileNames[0] << RESTendl;
         exit(1);
     }
 
-    RESTInfo << "Opening " << fileName << RESTendl;
-    fDataSet = ROOT::RDataFrame("AnalysisTree", fileName);
+    RESTInfo << "Opening list of files. First file: " << fileNames[0] << RESTendl;
+    fDataSet = ROOT::RDataFrame("AnalysisTree", fileNames);
 
-    fTree = (TTree*)file->Get("AnalysisTree");
+    if (fTree != nullptr) {
+        delete fTree;
+        fTree = nullptr;
+    }
+    fTree = new TChain("AnalysisTree");
+
+    for (const auto& fN : fileNames) fTree->Add((TString)fN);
+
+    fMergedDataset = true;
+    fImportedFiles = fileNames;
+
+    fQuantity.clear();
 }

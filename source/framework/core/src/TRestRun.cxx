@@ -828,36 +828,40 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
         //}
         fCurrentEvent++;
     } else {
-        RESTDebug << "TRestRun: getting next event from root file" << RESTendl;
-        if (fAnalysisTree == nullptr) {
-            RESTWarning << "error to get event from input file, missing analysis tree from input file"
-                        << RESTendl;
-            eve = nullptr;
+        if (eve == nullptr) {
+            RESTDebug << "TRestRun::GetNextEvent(): input event has not been initialized!" << RESTendl;
         } else {
-            if (fCurrentEvent >= fAnalysisTree->GetTree()->GetEntriesFast()) {
+            RESTDebug << "TRestRun: getting next event from root file" << RESTendl;
+            if (fAnalysisTree == nullptr) {
+                RESTWarning << "error to get event from input file, missing analysis tree from input file"
+                            << RESTendl;
                 eve = nullptr;
             } else {
-                if (targettree != nullptr) {
-                    // normal reading procedure
-                    eve->Initialize();
-                    fBytesRead += fAnalysisTree->GetEntry(fCurrentEvent);
-                    targettree->SetEventInfo(fAnalysisTree);
-                    for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
-                        targettree->SetObservable(n, fAnalysisTree->GetObservable(n));
-                }
-                if (fEventTree != nullptr) {
-                    if (fEventTree->IsA() == TChain::Class()) {
-                        Long64_t entry = fEventTree->LoadTree(fCurrentEvent);
-                        fBytesRead += ((TBranch*)fEventTree->GetTree()->GetListOfBranches()->UncheckedAt(
-                                           fEventBranchLoc))
-                                          ->GetEntry(entry);
-                    } else {
-                        fBytesRead +=
-                            ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))
-                                ->GetEntry(fCurrentEvent);
+                if (fCurrentEvent >= fAnalysisTree->GetTree()->GetEntriesFast()) {
+                    eve = nullptr;
+                } else {
+                    if (targettree != nullptr) {
+                        // normal reading procedure
+                        eve->Initialize();
+                        fBytesRead += fAnalysisTree->GetEntry(fCurrentEvent);
+                        targettree->SetEventInfo(fAnalysisTree);
+                        for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
+                            targettree->SetObservable(n, fAnalysisTree->GetObservable(n));
                     }
+                    if (fEventTree != nullptr) {
+                        if (fEventTree->IsA() == TChain::Class()) {
+                            Long64_t entry = fEventTree->LoadTree(fCurrentEvent);
+                            fBytesRead += ((TBranch*)fEventTree->GetTree()->GetListOfBranches()->UncheckedAt(
+                                               fEventBranchLoc))
+                                              ->GetEntry(entry);
+                        } else {
+                            fBytesRead +=
+                                ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))
+                                    ->GetEntry(fCurrentEvent);
+                        }
+                    }
+                    fCurrentEvent++;
                 }
-                fCurrentEvent++;
             }
         }
     }
@@ -987,7 +991,7 @@ TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilena
         m->OutputFile(filename.c_str(), "RECREATE");
     } else {
         filename = outputfilename;
-        RESTInfo << "Creating file : " << filename << RESTendl;
+        RESTInfo << "Updating file : " << filename << RESTendl;
         m->OutputFile(filename.c_str(), "UPDATE");
     }
 
