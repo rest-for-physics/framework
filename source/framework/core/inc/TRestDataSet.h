@@ -169,8 +169,8 @@ class TRestDataSet : public TRestMetadata {
     inline void SetQuantity(const std::map<std::string, RelevantQuantity>& quantity) { fQuantity = quantity; }
 
     TRestDataSet& operator=(TRestDataSet& dS);
-    void Import(const std::string& fileName);
     void Import(std::vector<std::string> fileNames);
+    void Import(const std::string& fileName, bool enableMT = true);
     void Export(const std::string& filename);
 
     ROOT::RDF::RNode MakeCut(const TRestCut* cut);

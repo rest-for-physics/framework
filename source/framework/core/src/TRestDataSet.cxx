@@ -890,7 +890,7 @@ TRestDataSet& TRestDataSet::operator=(TRestDataSet& dS) {
 /// it import metadata info from the previous dataSet
 /// while it opens the analysis tree
 ///
-void TRestDataSet::Import(const std::string& fileName) {
+void TRestDataSet::Import(const std::string& fileName, bool enableMT) {
     if (TRestTools::GetFileNameExtension(fileName) != "root") {
         RESTError << "Datasets can only be imported from root files" << RESTendl;
         return;
@@ -918,7 +918,7 @@ void TRestDataSet::Import(const std::string& fileName) {
         return;
     }
 
-    ROOT::EnableImplicitMT();
+    if(enableMT)ROOT::EnableImplicitMT();
 
     fDataSet = ROOT::RDataFrame("AnalysisTree", fileName);
 
