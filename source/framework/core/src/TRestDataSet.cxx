@@ -918,7 +918,7 @@ void TRestDataSet::Import(const std::string& fileName, bool enableMT) {
         return;
     }
 
-    if(enableMT)ROOT::EnableImplicitMT();
+    if (enableMT) ROOT::EnableImplicitMT();
 
     fDataSet = ROOT::RDataFrame("AnalysisTree", fileName);
 

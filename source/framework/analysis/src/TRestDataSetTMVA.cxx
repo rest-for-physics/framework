@@ -27,7 +27,7 @@
 /// supported. TMVA requires a signal and a background dataset from which the
 /// different TMVA methods are computed. The different methods are evaluated
 /// in a set of observables that are provided in the RML file. Different cuts
-/// can be performed in either the signal or the background datasets prior to 
+/// can be performed in either the signal or the background datasets prior to
 /// the TMVA evaluation. The output of this class is a root file which contains
 /// a signal and a background tree with the cuts applied and the different observables
 /// that are generated with the TMVA analysis. In addition, a folder is created
@@ -40,12 +40,12 @@
 /// * **dataSetBackground**: Name of the dataset file containing the background
 /// * **outputPath**: Name of the output path with the evaluation results
 /// * **drawROCCurve**: If true display the ROC curve for the evaluation of all methods
-/// 
+///
 /// The different observables for the TMVA analysis can be added with the following key:
 /// \code
 /// <observable name="tckAna_MaxTrack_XYZ_SigmaZ2" />
 /// \endcode
-/// 
+///
 /// * **name**: Name of the observable be computed
 ///
 /// The different signal and background cuts can be added awith the following key:
@@ -72,7 +72,8 @@
 ///
 /// The different TMVA methods can be added wit the following key:
 /// \code
-///  <addMethod name="MLP" parameters="!H:!V:NeuronType=tanh:VarTransform=N:NCycles=100:HiddenLayers=N+5:TestRate=5:!UseRegulator"/>
+///  <addMethod name="MLP"
+///  parameters="!H:!V:NeuronType=tanh:VarTransform=N:NCycles=100:HiddenLayers=N+5:TestRate=5:!UseRegulator"/>
 /// \endcode
 /// The different parameters for adding TMVA methods are described below:
 /// * **name**: Name of the TMVA method, only Likelihood, LikelihoodKDE, Fisher, BDT and MLP
@@ -107,11 +108,16 @@
 ///      <cut name="c11" variable="tckAna_MaxTrackxySigmaBalance" condition=">-1"/>
 ///      <cut name="c12" variable="tckAna_MaxTrackxySigmaBalance" condition="<1"/>
 ///    </TRestCut>
-///    <addMethod name="Likelihood" parameters="H:!V:TransformOutput:PDFInterpol=Spline2:NSmoothSig[0]=20:NSmoothBkg[0]=10:NSmoothBkg[1]=5:NSmooth=1:NAvEvtPerBin=10"/>
-///    <addMethod name="LikelihoodKDE" parameters="!H:!V:!TransformOutput:PDFInterpol=KDE:KDEtype=Gauss:KDEiter=Adaptive:KDEFineFactor=0.3:KDEborder=None:NAvEvtPerBin=10"/>
-///    <addMethod name="Fisher" parameters="H:!V:Fisher:VarTransform=None:CreateMVAPdfs:PDFInterpolMVAPdf=Spline2:NbinsMVAPdf=50:NsmoothMVAPdf=10"/>
-///    <addMethod name="BDT" parameters="!V:NTrees=200:MinNodeSize=2.5%:MaxDepth=2:BoostType=AdaBoost:AdaBoostBeta=0.5:UseBaggedBoost:BaggedSampleFraction=0.5:SeparationType=GiniIndex:nCuts=20"/>
-///    <addMethod name="MLP" parameters="!H:!V:NeuronType=tanh:VarTransform=N:NCycles=100:HiddenLayers=N+5:TestRate=5:!UseRegulator"/>
+///    <addMethod name="Likelihood"
+///    parameters="H:!V:TransformOutput:PDFInterpol=Spline2:NSmoothSig[0]=20:NSmoothBkg[0]=10:NSmoothBkg[1]=5:NSmooth=1:NAvEvtPerBin=10"/>
+///    <addMethod name="LikelihoodKDE"
+///    parameters="!H:!V:!TransformOutput:PDFInterpol=KDE:KDEtype=Gauss:KDEiter=Adaptive:KDEFineFactor=0.3:KDEborder=None:NAvEvtPerBin=10"/>
+///    <addMethod name="Fisher"
+///    parameters="H:!V:Fisher:VarTransform=None:CreateMVAPdfs:PDFInterpolMVAPdf=Spline2:NbinsMVAPdf=50:NsmoothMVAPdf=10"/>
+///    <addMethod name="BDT"
+///    parameters="!V:NTrees=200:MinNodeSize=2.5%:MaxDepth=2:BoostType=AdaBoost:AdaBoostBeta=0.5:UseBaggedBoost:BaggedSampleFraction=0.5:SeparationType=GiniIndex:nCuts=20"/>
+///    <addMethod name="MLP"
+///    parameters="!H:!V:NeuronType=tanh:VarTransform=N:NCycles=100:HiddenLayers=N+5:TestRate=5:!UseRegulator"/>
 /// </TRestDataSetTMVA>
 /// \endcode
 ///
@@ -148,14 +154,13 @@
 
 #include "TRestDataSetTMVA.h"
 
-#include "TRestDataSet.h"
-
+#include "ROOT/RDFHelpers.hxx"
 #include "TMVA/CrossValidation.h"
 #include "TMVA/DataLoader.h"
-#include "ROOT/RDFHelpers.hxx"
 #include "TMVA/Factory.h"
-#include "TMVA/Tools.h"
 #include "TMVA/TMVAGui.h"
+#include "TMVA/Tools.h"
+#include "TRestDataSet.h"
 
 ClassImp(TRestDataSetTMVA);
 
@@ -249,20 +254,19 @@ void TRestDataSetTMVA::InitFromConfigFile() {
         std::string name = GetParameter("name", method, "");
         std::string params = GetParameter("parameters", method, "");
         if (name.empty() || params.empty()) {
-           RESTWarning << "Empty method" << RESTendl;
+            RESTWarning << "Empty method" << RESTendl;
         } else {
-          fMethod.push_back(std::make_pair(name, params));
+            fMethod.push_back(std::make_pair(name, params));
         }
         method = GetNextElement(method);
     }
 
-    if (fObsName.empty() ) {
+    if (fObsName.empty()) {
         RESTError << "No observables provided, exiting..." << RESTendl;
         exit(1);
     }
 
     if (fOutputFileName == "") fOutputFileName = GetParameter("outputFileName", "");
-
 }
 
 /////////////////////////////////////////////
@@ -274,17 +278,17 @@ void TRestDataSetTMVA::InitFromConfigFile() {
 /// root files.
 ///
 void TRestDataSetTMVA::ComputeTMVA() {
-
-    if(fOutputFileName.empty() || fOutputPath.empty() || fDataSetSignal.empty() || fDataSetBackground.empty() ){
-      RESTError <<"Empty output file name, path, signal or background files "<<RESTendl;
-      PrintMetadata();
-      exit(1);
+    if (fOutputFileName.empty() || fOutputPath.empty() || fDataSetSignal.empty() ||
+        fDataSetBackground.empty()) {
+        RESTError << "Empty output file name, path, signal or background files " << RESTendl;
+        PrintMetadata();
+        exit(1);
     }
 
-    if(fMethod.empty()){
-      RESTError <<"No TMVA methods have been added "<<RESTendl;
-      PrintMetadata();
-      exit(1);
+    if (fMethod.empty()) {
+        RESTError << "No TMVA methods have been added " << RESTendl;
+        PrintMetadata();
+        exit(1);
     }
 
     // Add signal dataset
@@ -298,7 +302,7 @@ void TRestDataSetTMVA::ComputeTMVA() {
     bck.Import(fDataSetBackground);
     auto dfBackground = bck.MakeCut(fBackgroundCut);
     ROOT::RDF::RSnapshotOptions opt;
-    opt.fMode="update";
+    opt.fMode = "update";
     dfBackground.Snapshot("Background", fOutputFileName, "", opt);
 
     auto outputFile = TFile::Open(fOutputFileName.c_str(), "UPDATE");
@@ -307,47 +311,46 @@ void TRestDataSetTMVA::ComputeTMVA() {
     auto bckTree = outputFile->Get<TTree>("Background");
 
     TMVA::Factory factory("TMVA_Classification", outputFile,
-                         "!V:ROC:!Silent:Color:AnalysisType=Classification" );
+                          "!V:ROC:!Silent:Color:AnalysisType=Classification");
 
-    TMVA::DataLoader loader (fOutputPath);
- 
+    TMVA::DataLoader loader(fOutputPath);
+
     // Add observables for the evaluation
-    for(const auto &obs : fObsName)loader.AddVariable(obs);
+    for (const auto& obs : fObsName) loader.AddVariable(obs);
 
-    loader.AddSignalTree ( signalTree, 1.0);
-    loader.AddBackgroundTree( bckTree, 1.0);
-    loader.PrepareTrainingAndTestTree( "","", 
-                                        ":SplitMode=Random"
-                                        ":NormMode=NumEvents"
-                                        ":!V");
+    loader.AddSignalTree(signalTree, 1.0);
+    loader.AddBackgroundTree(bckTree, 1.0);
+    loader.PrepareTrainingAndTestTree("", "",
+                                      ":SplitMode=Random"
+                                      ":NormMode=NumEvents"
+                                      ":!V");
 
     // Add different TMVA methods
-    for(const auto &[name, params] : fMethod){
-      auto it = fMethodMap.find(name);
-      if(it == fMethodMap.end() ){
-        RESTWarning << "Method " << name << " not supported "<<RESTendl;
-        RESTWarning << "Currently supported methods: ";
-          for(const auto &[method, val] : fMethodMap) RESTWarning << method <<", ";
-        RESTWarning << RESTendl;
-        continue;
-      }
-      std::cout<< "Added method "<< name << " "<< it->second << " " << params << std::endl;
-      factory.BookMethod(&loader, it->second, name.c_str(), params.c_str());
+    for (const auto& [name, params] : fMethod) {
+        auto it = fMethodMap.find(name);
+        if (it == fMethodMap.end()) {
+            RESTWarning << "Method " << name << " not supported " << RESTendl;
+            RESTWarning << "Currently supported methods: ";
+            for (const auto& [method, val] : fMethodMap) RESTWarning << method << ", ";
+            RESTWarning << RESTendl;
+            continue;
+        }
+        std::cout << "Added method " << name << " " << it->second << " " << params << std::endl;
+        factory.BookMethod(&loader, it->second, name.c_str(), params.c_str());
     }
 
-   // Train, test and evaluate all methods
-   factory.TrainAllMethods();
-   factory.TestAllMethods();
-   factory.EvaluateAllMethods();
+    // Train, test and evaluate all methods
+    factory.TrainAllMethods();
+    factory.TestAllMethods();
+    factory.EvaluateAllMethods();
 
-   // Draw ROC curve
-   if (fDrawROCCurve && gApplication != nullptr && gApplication->IsRunning()){
-     auto c1 = factory.GetROCCurve(&loader);
-     c1->Draw();
-   }
- 
-   outputFile->Close();
+    // Draw ROC curve
+    if (fDrawROCCurve && gApplication != nullptr && gApplication->IsRunning()) {
+        auto c1 = factory.GetROCCurve(&loader);
+        c1->Draw();
+    }
 
+    outputFile->Close();
 }
 
 /////////////////////////////////////////////
@@ -357,12 +360,12 @@ void TRestDataSetTMVA::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     RESTMetadata << " Observables to compute: " << RESTendl;
-      for (const auto & obs : fObsName) {
+    for (const auto& obs : fObsName) {
         RESTMetadata << obs << RESTendl;
-      }
+    }
     RESTMetadata << " TMVA Methods " << RESTendl;
-      for(const auto &[name, params] : fMethod){
-        RESTMetadata << name << " "<< params << RESTendl;
-      }
+    for (const auto& [name, params] : fMethod) {
+        RESTMetadata << name << " " << params << RESTendl;
+    }
     RESTMetadata << "----" << RESTendl;
 }

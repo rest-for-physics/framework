@@ -31,22 +31,22 @@
 class TRestDataSetTMVAClassification : public TRestMetadata {
    private:
     /// Name of the output file
-    std::string fOutputFileName = ""; //<
+    std::string fOutputFileName = "";  //<
 
     /// Name of the dataSet to classify
-    std::string fDataSetName = ""; //<
+    std::string fDataSetName = "";  //<
 
     /// Name of the TMVA method
-    std::string fTmvaMethod = ""; //<
+    std::string fTmvaMethod = "";  //<
 
     /// Name of the TMVA weights file
-    std::string fTmvaFile = ""; //<
+    std::string fTmvaFile = "";  //<
 
     /// Vector containing different obserbable names
-    std::vector<std::string> fObsName; //<
+    std::vector<std::string> fObsName;  //<
 
     /// Cuts over the dataset for PDF selection
-    TRestCut* fCut = nullptr; //<
+    TRestCut* fCut = nullptr;  //<
 
     void Initialize() override;
     void InitFromConfigFile() override;

@@ -23,7 +23,7 @@
 /////////////////////////////////////////////////////////////////////////
 /// TRestDataSetTMVAClassification performs the classification of a given
 /// dataSet using as input the results of the TMVA evaluation methods
-/// generated using TRestDataSetTMVA. Note that the observables used on 
+/// generated using TRestDataSetTMVA. Note that the observables used on
 /// TRestDataSetTMVA and TRestDataSetTMVA needs to match. This class generates
 /// as output a dataset with a new observable which is defined using the name of
 /// the TMVA method that has been used to classify the dataset. Only one TMVA
@@ -36,7 +36,7 @@
 /// * **tmvaMethod**: Name of the TMVA method used to classify
 /// * **outputFileName**: Name of the output dataset
 ///
-/// 
+///
 /// The different observables for the TMVA classification can be added with the following key:
 /// \code
 /// <observable name="tckAna_MaxTrack_XYZ_SigmaZ2" />
@@ -72,7 +72,7 @@
 ///       <cut name="c5" variable="tckAna_MaxTrackEnergyBalanceXY" condition="<5"/>
 ///       <cut name="c6" variable="tckAna_MaxTrackEnergyBalanceXY" condition=">-5"/>
 ///       <cut name="c7" variable="tckAna_MaxTrackxySigmaBalance" condition=">-1"/>
-///       <cut name="c8" variable="tckAna_MaxTrackxySigmaBalance" condition="<1"/>     
+///       <cut name="c8" variable="tckAna_MaxTrackxySigmaBalance" condition="<1"/>
 ///     </TRestCut>
 /// </TRestDataSetTMVAClassification>
 /// \endcode
@@ -102,16 +102,15 @@
 
 #include "TRestDataSetTMVAClassification.h"
 
-#include "TRestDataSet.h"
-
+#include "ROOT/RDFHelpers.hxx"
 #include "TMVA/CrossValidation.h"
 #include "TMVA/DataLoader.h"
-#include "TMVA/RReader.hxx"
-#include "ROOT/RDFHelpers.hxx"
-#include "TMVA/RTensorUtils.hxx"
-#include "TMVA/RInferenceUtils.hxx"
 #include "TMVA/Factory.h"
+#include "TMVA/RInferenceUtils.hxx"
+#include "TMVA/RReader.hxx"
+#include "TMVA/RTensorUtils.hxx"
 #include "TMVA/Tools.h"
+#include "TRestDataSet.h"
 
 ClassImp(TRestDataSetTMVAClassification);
 
@@ -175,7 +174,7 @@ void TRestDataSetTMVAClassification::InitFromConfigFile() {
     }
 
     TiXmlElement* cutele = GetElement("addCut");
-      while (cutele != nullptr) {
+    while (cutele != nullptr) {
         std::string cutName = GetParameter("name", cutele, "");
         if (!cutName.empty()) {
             if (fCut == nullptr) {
@@ -185,9 +184,9 @@ void TRestDataSetTMVAClassification::InitFromConfigFile() {
             }
         }
         cutele = GetNextElement(cutele);
-      }
+    }
 
-   if (fOutputFileName == "") fOutputFileName = GetParameter("outputFileName", "");
+    if (fOutputFileName == "") fOutputFileName = GetParameter("outputFileName", "");
 }
 
 /////////////////////////////////////////////
@@ -202,83 +201,84 @@ void TRestDataSetTMVAClassification::InitFromConfigFile() {
 void TRestDataSetTMVAClassification::ClassifyTMVA() {
     PrintMetadata();
 
-    if (fObsName.empty() ) {
+    if (fObsName.empty()) {
         RESTError << "No observables provided, exiting..." << RESTendl;
         exit(1);
     }
 
-    TMVA::Reader reader ( "!Color:!Silent" );
-    std::vector<Float_t> var (fObsName.size());
+    TMVA::Reader reader("!Color:!Silent");
+    std::vector<Float_t> var(fObsName.size());
 
-      // Add variables to the reader
-      for(unsigned int i=0; i<fObsName.size(); i++){
+    // Add variables to the reader
+    for (unsigned int i = 0; i < fObsName.size(); i++) {
         reader.AddVariable(fObsName[i].c_str(), &var[i]);
-      }
+    }
 
-   // Book TMVA method
-   reader.BookMVA( fTmvaMethod.c_str(), fTmvaFile.c_str());
+    // Book TMVA method
+    reader.BookMVA(fTmvaMethod.c_str(), fTmvaFile.c_str());
 
-   // Lambda for evaluation of the method
-   auto eval = [&reader = reader, &tmvaMethod = fTmvaMethod](const std::vector<double> &val) { return reader.EvaluateMVA(val, tmvaMethod.c_str()); };
+    // Lambda for evaluation of the method
+    auto eval = [&reader = reader, &tmvaMethod = fTmvaMethod](const std::vector<double>& val) {
+        return reader.EvaluateMVA(val, tmvaMethod.c_str());
+    };
 
-   TRestDataSet dataSet;
-   dataSet.Import(fDataSetName);
-   
-   auto df = dataSet.MakeCut(fCut);
-   
-   std::string obsName = fTmvaMethod +"_score";
+    TRestDataSet dataSet;
+    dataSet.Import(fDataSetName);
 
-     // Ugly but cannot pass vector size to ROOT::RDF::PassAsVec
-     switch (fObsName.size()){
-       case 1:
-         df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<1, double>(eval), fObsName);
-         break;
-       case 2:
-         df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<2, double>(eval), fObsName);
-         break;
-       case 3:
-         df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<3, double>(eval), fObsName);
-         break;
-       case 4:
-         df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<4, double>(eval), fObsName);
-         break;
-       case 5:
-         df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<5, double>(eval), fObsName);
-         break;
-       case 6:
-         df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<6, double>(eval), fObsName);
-         break;
-       case 7:
-         df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<7, double>(eval), fObsName);
-         break;
-       case 8:
-         df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<8, double>(eval), fObsName);
-         break;
-       case 9:
-         df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<9, double>(eval), fObsName);
-         break;
-       case 10:
-         df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<10, double>(eval), fObsName);
-         break;
-       case 11:
-         df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<11, double>(eval), fObsName);
-         break;
-       default:
-         RESTError<<"Number of observables "<<fObsName.size()<<" is not supported" << RESTendl;
-         exit(1);
-     }
+    auto df = dataSet.MakeCut(fCut);
 
-   dataSet.SetDataFrame(df);
+    std::string obsName = fTmvaMethod + "_score";
 
-     if (!fOutputFileName.empty()) {
+    // Ugly but cannot pass vector size to ROOT::RDF::PassAsVec
+    switch (fObsName.size()) {
+        case 1:
+            df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<1, double>(eval), fObsName);
+            break;
+        case 2:
+            df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<2, double>(eval), fObsName);
+            break;
+        case 3:
+            df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<3, double>(eval), fObsName);
+            break;
+        case 4:
+            df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<4, double>(eval), fObsName);
+            break;
+        case 5:
+            df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<5, double>(eval), fObsName);
+            break;
+        case 6:
+            df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<6, double>(eval), fObsName);
+            break;
+        case 7:
+            df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<7, double>(eval), fObsName);
+            break;
+        case 8:
+            df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<8, double>(eval), fObsName);
+            break;
+        case 9:
+            df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<9, double>(eval), fObsName);
+            break;
+        case 10:
+            df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<10, double>(eval), fObsName);
+            break;
+        case 11:
+            df = df.Define(obsName.c_str(), ROOT::RDF::PassAsVec<11, double>(eval), fObsName);
+            break;
+        default:
+            RESTError << "Number of observables " << fObsName.size() << " is not supported" << RESTendl;
+            exit(1);
+    }
+
+    dataSet.SetDataFrame(df);
+
+    if (!fOutputFileName.empty()) {
         if (TRestTools::GetFileNameExtension(fOutputFileName) == "root") {
             dataSet.Export(fOutputFileName);
             TFile* f = TFile::Open(fOutputFileName.c_str(), "UPDATE");
             this->Write();
             f->Close();
         }
-     }
-
+    }
 }
 
 /////////////////////////////////////////////
