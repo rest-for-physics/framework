@@ -97,117 +97,39 @@ int main(int argc, char* argv[]) {
 
     // load input root file with TRestRun, initialize input event, analysis tree and metadata structures
     int nFile = 0;
+    int nDataSet = 0;
     for (int i = 1; i < argc; i++) {
-        string opt = (string)argv[i];
-        if (opt.find("-") == 0) continue;
+        const string opt = (string)argv[i];
+        if (opt.at(0) == ('-') ) continue;
         printf("\nAttaching file %s\n", opt.c_str());
 
-        if (opt.find("http") != string::npos || (TRestTools::fileExists(opt) && TRestTools::isRunFile(opt))) {
-            printf("\n%s\n", "REST processed file identified. It contains a valid TRestRun.");
-            printf("\nAttaching file %s as run%i...\n", opt.c_str(), nFile);
+        if (opt.find("http") == string::npos && !TRestTools::fileExists(opt) ){
+          printf("\nFile %s not compatible ... !!\n", opt.c_str());
+          continue;
+        }
 
-            TRestRun* runTmp = new TRestRun(opt);
-            string runcmd =
-                Form("TRestRun* run%i = (TRestRun*)%s;", nFile, (PTR_ADDR_PREFIX + ToString(runTmp)).c_str());
+         if ( TRestTools::isRunFile(opt) ) {
+            printf("\n%s\n", "REST processed file identified. It contains a valid TRestRun.");
+            printf("\nAttaching TRestRun %s as run%i...\n", opt.c_str(), nFile);
+            string runcmd = Form("TRestRun* run%i = new TRestRun (\"%s\");", nFile, opt.c_str());
             if (debug) printf("%s\n", runcmd.c_str());
             gROOT->ProcessLine(runcmd.c_str());
-            if (runTmp->GetInputEvent() != nullptr) {
-                string eventType = runTmp->GetInputEvent()->ClassName();
-
-                printf("Attaching event %s as ev%i...\n", eventType.c_str(), nFile);
-                string evcmd = Form("%s* ev%i = (%s*)%s;", eventType.c_str(), nFile, eventType.c_str(),
-                                    (PTR_ADDR_PREFIX + ToString(runTmp->GetInputEvent())).c_str());
-                if (debug) printf("%s\n", evcmd.c_str());
-                gROOT->ProcessLine(evcmd.c_str());
-                runTmp->GetEntry(0);
-            }
-
-            // command line AnalysisTree object
-            if (runTmp->GetAnalysisTree() != nullptr) {
-                // if (runTmp->GetAnalysisTree()->GetChain() != nullptr) {
-                //    printf("Attaching ana_tree%i...\n", nFile);
-                //    string evcmd = Form("TChain* ana_tree%i = (TChain*)%s;", nFile,
-                //        ToString(runTmp->GetAnalysisTree()->GetChain()).c_str());
-                //    if (debug) printf("%s\n", evcmd.c_str());
-                //    gROOT->ProcessLine(evcmd.c_str());
-                //}
-                // else
-                //{
-                printf("Attaching ana_tree%i...\n", nFile);
-                string evcmd = Form("TRestAnalysisTree* ana_tree%i = (TRestAnalysisTree*)%s;", nFile,
-                                    (PTR_ADDR_PREFIX + ToString(runTmp->GetAnalysisTree())).c_str());
-                if (debug) printf("%s\n", evcmd.c_str());
-                gROOT->ProcessLine(evcmd.c_str());
-                // runTmp->GetEntry(0);
-                //}
-            }
-
-            // command line EventTree object
-            if (runTmp->GetEventTree() != nullptr) {
-                printf("Attaching ev_tree%i...\n", nFile);
-                string evcmd = Form("TTree* ev_tree%i = (TTree*)%s;", nFile,
-                                    (PTR_ADDR_PREFIX + ToString(runTmp->GetEventTree())).c_str());
-                if (debug) printf("%s\n", evcmd.c_str());
-                gROOT->ProcessLine(evcmd.c_str());
-            }
-
-            printf("\n%s\n", "Attaching metadata structures...");
-            Int_t numberOfMetadata = runTmp->GetNumberOfMetadata();
-            map<string, int> metanames;
-            for (int n = 0; n < numberOfMetadata; n++) {
-                string metaName = runTmp->GetMetadataNames()[n];
-                if (metaName.find("Historic") != string::npos) {
-                    continue;
-                }
-
-                TRestMetadata* md = runTmp->GetMetadata(metaName);
-                string metaType = md->ClassName();
-
-                string metaFixed = Replace(metaName, "-", "_");
-                metaFixed = Replace(metaFixed, " ", "");
-                metaFixed = Replace(metaFixed, ".", "_");
-                metaFixed = "md" + ToString(nFile) + "_" + metaFixed;
-                if (metanames.count(metaFixed) != 0) continue;
-                metanames[metaFixed] = 0;
-                printf("- %s (%s)\n", metaFixed.c_str(), metaType.c_str());
-
-                string mdcmd = Form("%s* %s = (%s*)%s;", metaType.c_str(), metaFixed.c_str(),
-                                    metaType.c_str(), (PTR_ADDR_PREFIX + ToString(md)).c_str());
-
-                if (debug) printf("%s\n", mdcmd.c_str());
-
-                gROOT->ProcessLine(mdcmd.c_str());
-
-                // if (metaType == "TRestGas") {
-                //    string gascmd = Form("%s->LoadGasFile();", metaFixed.c_str());
-                //    gROOT->ProcessLine(gascmd.c_str());
-                //}
-            }
-
             argv[i] = (char*)"";
             nFile++;
-        } else if (TRestTools::fileExists(opt) && TRestTools::isDataSet(opt)) {
+        } else if (TRestTools::isDataSet(opt)) {
             printf("\n%s\n", "REST dataset file identified. It contains a valid TRestDataSet.");
-            printf("\n%s\n", "Importing dataset as `dSet`.");
+            printf("\nImporting dataset as `dSet%i`\n",nDataSet);
             printf("\n%s\n", "The dataset is ready. You may now access the dataset using:");
-            printf("\n%s\n", " - dSet.PrintMetadata()");
-            printf("%s\n", " - dSet.GetDataFrame().GetColumnNames()");
-            printf("%s\n\n", " - dSet.GetTree()->GetEntries()");
-            string runcmd = "TRestDataSet dSet;";
+            printf("\n%s\n", " - dSet0->PrintMetadata()");
+            printf("%s\n", " - dSet0->GetDataFrame().GetColumnNames()");
+            printf("%s\n\n", " - dSet0->GetTree()->GetEntries()");
+            string runcmd = "TRestDataSet *dSet"+to_string(nDataSet) +" = new TRestDataSet();";
             gROOT->ProcessLine(runcmd.c_str());
-            runcmd = Form("dSet.Import(\"%s\");", opt.c_str());
-            gROOT->ProcessLine(runcmd.c_str());
-            argv[i] = (char*)"";
-        } else if (TRestTools::fileExists(opt) && TRestTools::isRootFile(opt)) {
-            printf("\n%s\n", "It is still a ROOT file. We open using TFile.");
-            string runcmd = Form("TFile* f = TFile::Open(\"%s\");", opt.c_str());
-            printf("\n%s\n", runcmd.c_str());
-
-            printf("\n%s\n", "Opening ROOT file as `f`:");
+            runcmd = Form("dSet%i->Import(\"%s\");", nDataSet, opt.c_str());
             gROOT->ProcessLine(runcmd.c_str());
             argv[i] = (char*)"";
-        } else
-            printf("\nFile %s not compatible ... !!\n", opt.c_str());
+            nDataSet++;
+        }
     }
 
     // display root's command line
