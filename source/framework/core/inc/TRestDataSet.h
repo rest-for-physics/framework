@@ -102,6 +102,9 @@ class TRestDataSet : public TRestMetadata {
     /// The list of dataset files imported
     std::vector<std::string> fImportedFiles;  //<
 
+    /// A list of new columns together with its corresponding expressions added to the dataset
+    std::vector<std::pair<std::string, std::string>> fColumnNameExpressions;
+
     /// The resulting RDF::RNode object after initialization
     ROOT::RDF::RNode fDataSet = ROOT::RDataFrame(0);  //!
 
@@ -172,7 +175,7 @@ class TRestDataSet : public TRestMetadata {
 
     ROOT::RDF::RNode MakeCut(const TRestCut* cut);
 
-    ROOT::RDF::RNode Define(const std::string& columnName, const std::string& formula);
+    ROOT::RDF::RNode DefineColumn(const std::string& columnName, const std::string& formula);
 
     void PrintMetadata() override;
     void Initialize() override;
@@ -183,6 +186,6 @@ class TRestDataSet : public TRestMetadata {
     TRestDataSet(const char* cfgFileName, const std::string& name = "");
     ~TRestDataSet();
 
-    ClassDefOverride(TRestDataSet, 3);
+    ClassDefOverride(TRestDataSet, 4);
 };
 #endif
