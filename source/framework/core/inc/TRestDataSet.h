@@ -186,6 +186,6 @@ class TRestDataSet : public TRestMetadata {
     TRestDataSet(const char* cfgFileName, const std::string& name = "");
     ~TRestDataSet();
 
-    ClassDefOverride(TRestDataSet, 4);
+    ClassDefOverride(TRestDataSet, 5);
 };
 #endif
