@@ -3,9 +3,9 @@
 #include <TRint.h>
 #include <TSystem.h>
 
-#include "TRestMetadata.h"
-#include "TRestRun.h"
 #include "TRestTools.h"
+#include "TRestStringOutput.h"
+#include "TRestStringHelper.h"
 #include "TRestVersion.h"
 
 using namespace std;
