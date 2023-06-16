@@ -95,10 +95,10 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // load input root file with TRestRun, initialize input event, analysis tree and metadata structures
-    int nFile = 0;
-    int nDataSet = 0;
-    for (int i = 1; i < argc; i++) {
+    std::string runName = "";
+    std::string dSName = "";
+
+     for (int i = 1; i < argc; i++) {
         const string opt = (string)argv[i];
         if (opt.at(0) == ('-')) continue;
         printf("\nAttaching file %s\n", opt.c_str());
@@ -107,30 +107,22 @@ int main(int argc, char* argv[]) {
             printf("\nFile %s not compatible ... !!\n", opt.c_str());
             continue;
         }
-
-        if (TRestTools::isRunFile(opt)) {
-            printf("\n%s\n", "REST processed file identified. It contains a valid TRestRun.");
-            printf("\nAttaching TRestRun %s as run%i...\n", opt.c_str(), nFile);
-            string runcmd = Form("TRestRun* run%i = new TRestRun (\"%s\");", nFile, opt.c_str());
-            if (debug) printf("%s\n", runcmd.c_str());
-            gROOT->ProcessLine(runcmd.c_str());
-            argv[i] = (char*)"";
-            nFile++;
-        } else if (TRestTools::isDataSet(opt)) {
-            printf("\n%s\n", "REST dataset file identified. It contains a valid TRestDataSet.");
-            printf("\nImporting dataset as `dSet%i`\n", nDataSet);
-            printf("\n%s\n", "The dataset is ready. You may now access the dataset using:");
-            printf("\n%s\n", " - dSet0->PrintMetadata()");
-            printf("%s\n", " - dSet0->GetDataFrame().GetColumnNames()");
-            printf("%s\n\n", " - dSet0->GetTree()->GetEntries()");
-            string runcmd = "TRestDataSet *dSet" + to_string(nDataSet) + " = new TRestDataSet();";
-            gROOT->ProcessLine(runcmd.c_str());
-            runcmd = Form("dSet%i->Import(\"%s\");", nDataSet, opt.c_str());
-            gROOT->ProcessLine(runcmd.c_str());
-            argv[i] = (char*)"";
-            nDataSet++;
+        if (TRestTools::isRunFile(opt) && runName.empty()){
+          runName = opt;
+          string cmd = ".L "+ REST_PATH + "/macros/REST_OpenInputFile.C";
+          if (!loadMacros && dSName.empty())gROOT->ProcessLine(cmd.c_str());
+          cmd = "REST_OpenInputFile(\""+runName +"\")";
+          gROOT->ProcessLine(cmd.c_str());
+          argv[i] = (char*)"";
+        } else if (TRestTools::isDataSet(opt) && dSName.empty()) {
+          dSName = opt;
+          string cmd = ".L "+ REST_PATH + "/macros/REST_OpenInputFile.C";
+          if (!loadMacros && runName.empty())gROOT->ProcessLine(cmd.c_str());
+          cmd = "REST_OpenInputFile(\""+dSName +"\")";
+          gROOT->ProcessLine(cmd.c_str());
+          argv[i] = (char*)"";
         }
-    }
+     }
 
     // display root's command line
     TRint theApp("App", &argc, argv);
