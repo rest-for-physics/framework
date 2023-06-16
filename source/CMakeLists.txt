@@ -4,6 +4,8 @@
 set(rest_macros)
 set(rest_macros_str)
 
+include(${CMAKE_SOURCE_DIR}/cmake/LibraryVersion.cmake)
+
 add_subdirectory(framework)
 add_subdirectory(../macros tasks.out)
 
