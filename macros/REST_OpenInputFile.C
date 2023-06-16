@@ -1,4 +1,3 @@
-
 TRestRun *run0 = nullptr;
 TRestAnalysisTree *ana_tree0 = nullptr;
 TTree *ev_tree0 = nullptr;
@@ -39,5 +38,4 @@ void REST_OpenInputFile(const std::string &fileName){
   } else {
     printf("\n%s is not a valid TRestRun or TRestDataSet\n",fileName.c_str());
   }
-
 }

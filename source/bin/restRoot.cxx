@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
     std::string runName = "";
     std::string dSName = "";
 
-     for (int i = 1; i < argc; i++) {
+    for (int i = 1; i < argc; i++) {
         const string opt = (string)argv[i];
         if (opt.at(0) == ('-')) continue;
 
@@ -106,22 +106,22 @@ int main(int argc, char* argv[]) {
             printf("\nFile %s not compatible ... !!\n", opt.c_str());
             continue;
         }
-        if (TRestTools::isRunFile(opt) && runName.empty()){
-          runName = opt;
-          string cmd = ".L "+ REST_PATH + "/macros/REST_OpenInputFile.C";
-          if (!loadMacros && dSName.empty())gROOT->ProcessLine(cmd.c_str());
-          cmd = "REST_OpenInputFile(\""+runName +"\")";
-          gROOT->ProcessLine(cmd.c_str());
-          argv[i] = (char*)"";
+        if (TRestTools::isRunFile(opt) && runName.empty()) {
+            runName = opt;
+            string cmd = ".L " + REST_PATH + "/macros/REST_OpenInputFile.C";
+            if (!loadMacros && dSName.empty()) gROOT->ProcessLine(cmd.c_str());
+            cmd = "REST_OpenInputFile(\"" + runName + "\")";
+            gROOT->ProcessLine(cmd.c_str());
+            argv[i] = (char*)"";
         } else if (TRestTools::isDataSet(opt) && dSName.empty()) {
-          dSName = opt;
-          string cmd = ".L "+ REST_PATH + "/macros/REST_OpenInputFile.C";
-          if (!loadMacros && runName.empty())gROOT->ProcessLine(cmd.c_str());
-          cmd = "REST_OpenInputFile(\""+dSName +"\")";
-          gROOT->ProcessLine(cmd.c_str());
-          argv[i] = (char*)"";
+            dSName = opt;
+            string cmd = ".L " + REST_PATH + "/macros/REST_OpenInputFile.C";
+            if (!loadMacros && runName.empty()) gROOT->ProcessLine(cmd.c_str());
+            cmd = "REST_OpenInputFile(\"" + dSName + "\")";
+            gROOT->ProcessLine(cmd.c_str());
+            argv[i] = (char*)"";
         }
-     }
+    }
 
     // display root's command line
     TRint theApp("App", &argc, argv);
