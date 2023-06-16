@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
     // set the env and debug status
     setenv("REST_VERSION", REST_RELEASE, 1);
 
-    Int_t loadMacros = 0;
+    Bool_t loadMacros = false;
     for (int i = 1; i < argc; i++) {
         char* c = &argv[i][0];
         if (*c == '-') {
@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
                     gVerbose = StringToVerboseLevel(argv[i + 1]);
                     break;
                 case 'm':
-                    loadMacros = StringToInteger(argv[i + 1]);
+                    loadMacros = true;
                     break;
                 case 'h':
                     // We use cout here since we will just exit afterwards
@@ -101,7 +101,6 @@ int main(int argc, char* argv[]) {
      for (int i = 1; i < argc; i++) {
         const string opt = (string)argv[i];
         if (opt.at(0) == ('-')) continue;
-        printf("\nAttaching file %s\n", opt.c_str());
 
         if (opt.find("http") == string::npos && !TRestTools::fileExists(opt)) {
             printf("\nFile %s not compatible ... !!\n", opt.c_str());
