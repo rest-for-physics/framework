@@ -8,7 +8,7 @@ function (set_library_version TAG_VARIABLE)
     if (NOT GIT_TAG)
         message(
             WARNING
-                "Failed to retrieve Git tag for ${CMAKE_CURRENT_SOURCE_DIR}. Probably the '.git' directory is missing. This may happen in remove development environments. To fix this configure the syncing of the '.git' directory."
+                "Failed to retrieve Git tag for ${CMAKE_CURRENT_SOURCE_DIR}. Probably the '.git' directory is missing. This may happen in remote development environments. To fix this configure the syncing of the '.git' directory."
         )
         return()
     endif ()
