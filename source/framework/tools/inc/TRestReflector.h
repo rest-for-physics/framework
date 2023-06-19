@@ -287,7 +287,7 @@ class TRestReflector {
    private:
     /// Prepare the ROOT dictionary for this type
     int InitDictionary();
-    /// If on heap, we can call Destroy() to TRestReflector. True only when initailized from Assembly()
+    /// If on heap, we can call Destroy() to TRestReflector. True only when initialized from Assembly()
     bool onheap = false;
 
    public:

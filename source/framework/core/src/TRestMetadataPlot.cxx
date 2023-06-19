@@ -302,7 +302,6 @@ void TRestMetadataPlot::InitFromConfigFile() {
         fRun = fHostmgr->GetRunInfo();
     }
 
-#pragma region ReadLabels
     RESTDebug << "TRestMetadataPlot: Reading canvas settings" << RESTendl;
     TiXmlElement* formatDefinition = GetElement("labels");
     if (formatDefinition != nullptr) {
@@ -341,9 +340,7 @@ void TRestMetadataPlot::InitFromConfigFile() {
             if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Extreme) GetChar();
         }
     }
-#pragma endregion
 
-#pragma region ReadLegend
     TiXmlElement* legendDefinition = GetElement("legendPosition");
     if (legendDefinition != nullptr) {
         if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
@@ -374,9 +371,7 @@ void TRestMetadataPlot::InitFromConfigFile() {
         fLegendOption = GetFieldValue("option", legendDefinition);
         if (fLegendOption == "Not defined") fLegendOption = "lp";
     }
-#pragma endregion
 
-#pragma region ReadCanvas
     TiXmlElement* canvasDefinition = GetElement("canvas");
     if (canvasDefinition != nullptr) {
         fCanvasSize = StringTo2DVector(GetFieldValue("size", canvasDefinition));
@@ -386,9 +381,7 @@ void TRestMetadataPlot::InitFromConfigFile() {
             fCanvasSave = GetParameter("pdfFilename", REST_TMP_PATH + "restplot.pdf");
         }
     }
-#pragma endregion
 
-#pragma region ReadPlot
     RESTDebug << "TRestMetadataPlot: Reading plot sections" << RESTendl;
     Int_t maxPlots = (Int_t)fCanvasDivisions.X() * (Int_t)fCanvasDivisions.Y();
     TiXmlElement* plotele = fElement->FirstChildElement("plot");
@@ -453,9 +446,7 @@ void TRestMetadataPlot::InitFromConfigFile() {
             plotele = plotele->NextSiblingElement("plot");
         }
     }
-#pragma endregion
 
-#pragma region ReadPanel
     RESTDebug << "TRestMetadataPlot: Reading panel sections" << RESTendl;
     maxPlots -= fPlots.size();  // remaining spaces on canvas
     TiXmlElement* panelele = fElement->FirstChildElement("panel");

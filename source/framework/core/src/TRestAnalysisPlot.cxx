@@ -82,7 +82,6 @@ void TRestAnalysisPlot::InitFromConfigFile() {
         // exit(1);
     }
 
-#pragma region ReadLabels
     RESTDebug << "TRestAnalysisPlot: Reading canvas settings" << RESTendl;
     TiXmlElement* formatDefinition = GetElement("labels");
     if (formatDefinition != nullptr) {
@@ -121,9 +120,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Extreme) GetChar();
         }
     }
-#pragma endregion
 
-#pragma region ReadLegend
     TiXmlElement* legendDefinition = GetElement("legendPosition");
     if (legendDefinition != nullptr) {
         if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
@@ -151,9 +148,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Extreme) GetChar();
         }
     }
-#pragma endregion
 
-#pragma region ReadCanvas
     TiXmlElement* canvasdef = fElement->FirstChildElement("canvas");
     if (canvasdef == nullptr) {
         canvasdef = fElement;
@@ -170,9 +165,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
         fCanvasSave = GetDataPath() + save;
 
     fPaletteStyle = StringToInteger(GetParameter("paletteStyle", canvasdef, "57"));
-#pragma endregion
 
-#pragma region ReadGlobalCuts
     RESTDebug << "TRestAnalysisPlot: Reading global cuts" << RESTendl;
     vector<string> globalCuts;
     TiXmlElement* gCutele = GetElement("globalCut");
@@ -201,9 +194,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 
         gCutele = GetNextElement(gCutele);
     }
-#pragma endregion
 
-#pragma region ReadGlobalCutStrings
     RESTDebug << "TRestAnalysisPlot: Reading global cut strings" << RESTendl;
     TiXmlElement* gCutStrele = GetElement("globalCutString");
     while (gCutStrele != nullptr)  // general cuts
@@ -220,9 +211,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 
         gCutStrele = GetNextElement(gCutStrele);
     }
-#pragma endregion
 
-#pragma region ReadPlot
     RESTDebug << "TRestAnalysisPlot: Reading plot sections" << RESTendl;
     Int_t maxPlots = (Int_t)fCanvasDivisions.X() * (Int_t)fCanvasDivisions.Y();
     TiXmlElement* plotele = GetElement("plot");
@@ -295,9 +284,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             plotele = GetNextElement(plotele);
         }
     }
-#pragma endregion
 
-#pragma region ReadPanel
     RESTDebug << "TRestAnalysisPlot: Reading panel sections" << RESTendl;
     maxPlots -= fPlots.size();  // remaining spaces on canvas
     TiXmlElement* panelele = GetElement("panel");
@@ -339,7 +326,6 @@ void TRestAnalysisPlot::InitFromConfigFile() {
         }
     }
 }
-#pragma endregion
 
 TRestAnalysisPlot::HistoInfoSet TRestAnalysisPlot::SetupHistogramFromConfigFile(TiXmlElement* histele,
                                                                                 PlotInfoSet plot) {
