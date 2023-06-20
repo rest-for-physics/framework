@@ -30,22 +30,23 @@
 #include "TRestCut.h"
 #include "TRestMetadata.h"
 
-struct RelevantQuantity {
-    /// The associated metadata member used to register the relevant quantity
-    std::string metadata;
-
-    /// It determines how to produce the relevant quantity (accumulate/unique/last/max/min)
-    std::string strategy;
-
-    /// A user given description that can be used to define the relevant quantity
-    std::string description;
-
-    /// The quantity value
-    Double_t value;
-};
-
 /// It allows to group a number of runs that satisfy given metadata conditions
 class TRestDataSet : public TRestMetadata {
+   public:
+    struct RelevantQuantity {
+        /// The associated metadata member used to register the relevant quantity
+        std::string metadata;
+
+        /// It determines how to produce the relevant quantity (accumulate/unique/last/max/min)
+        std::string strategy;
+
+        /// A user given description that can be used to define the relevant quantity
+        std::string description;
+
+        /// The quantity value
+        std::string value;
+    };
+
    private:
     /// All the selected runs will have a starting date after fStartTime
     std::string fFilterStartTime = "2000/01/01";  //<
@@ -101,6 +102,9 @@ class TRestDataSet : public TRestMetadata {
     /// The list of dataset files imported
     std::vector<std::string> fImportedFiles;  //<
 
+    /// A list of new columns together with its corresponding expressions added to the dataset
+    std::vector<std::pair<std::string, std::string>> fColumnNameExpressions;
+
     /// The resulting RDF::RNode object after initialization
     ROOT::RDF::RNode fDataSet = ROOT::RDataFrame(0);  //!
 
@@ -119,7 +123,7 @@ class TRestDataSet : public TRestMetadata {
         return fDataSet;
     }
 
-    void SetDataSet(const ROOT::RDF::RNode& dS) { fDataSet = dS; }
+    void SetDataFrame(const ROOT::RDF::RNode& dS) { fDataSet = dS; }
 
     /// Gives access to the tree
     TTree* GetTree() const {
@@ -149,6 +153,7 @@ class TRestDataSet : public TRestMetadata {
     inline auto GetEndTime() const { return fEndTime; }
     inline auto GetFilePattern() const { return fFilePattern; }
     inline auto GetObservablesList() const { return fObservablesList; }
+    inline auto GetFileSelection() const { return fFileSelection; }
     inline auto GetProcessObservablesList() const { return fProcessObservablesList; }
     inline auto GetFilterMetadata() const { return fFilterMetadata; }
     inline auto GetFilterContains() const { return fFilterContains; }
@@ -159,7 +164,9 @@ class TRestDataSet : public TRestMetadata {
     inline auto GetCut() const { return fCut; }
     inline auto IsMergedDataSet() const { return fMergedDataset; }
 
+    inline void SetObservablesList(const std::vector<std::string>& obsList) { fObservablesList = obsList; }
     inline void SetFilePattern(const std::string& pattern) { fFilePattern = pattern; }
+    inline void SetQuantity(const std::map<std::string, RelevantQuantity>& quantity) { fQuantity = quantity; }
 
     TRestDataSet& operator=(TRestDataSet& dS);
     void Import(const std::string& fileName);
@@ -168,7 +175,7 @@ class TRestDataSet : public TRestMetadata {
 
     ROOT::RDF::RNode MakeCut(const TRestCut* cut);
 
-    ROOT::RDF::RNode Define(const std::string& columnName, const std::string& formula);
+    ROOT::RDF::RNode DefineColumn(const std::string& columnName, const std::string& formula);
 
     void PrintMetadata() override;
     void Initialize() override;
@@ -179,6 +186,6 @@ class TRestDataSet : public TRestMetadata {
     TRestDataSet(const char* cfgFileName, const std::string& name = "");
     ~TRestDataSet();
 
-    ClassDefOverride(TRestDataSet, 3);
+    ClassDefOverride(TRestDataSet, 5);
 };
 #endif

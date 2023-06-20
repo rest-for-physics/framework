@@ -222,6 +222,25 @@
 /// dataset.GetDataFrame().Display({"column1", "newColumnName"})->Print();
 /// \endcode
 ///
+/// ### Adding a new column on-the-fly during the dataset generation
+///
+/// It is also possible to add new column definitions inside the RML
+/// so that the new column will be already pre-generated and included
+/// in the new dataset when we invoke TRestDataSet::GenerateDataSet.
+///
+/// We can use a valid mathematical expression where we may include any
+/// already existing column or observable, and/or any relevant quantity we
+/// introduced in our dataset definition.
+///
+/// We may use the `addColumn` keyword to add new columns as follows:
+///
+/// \code
+/// <addColumn name="NormalFlux" expression="SolarFlux*GeneratorArea/Nsim" />
+/// \endcode
+///
+/// where `SolarFlux`,`GeneratorArea` and `Nsim` are the given names of
+/// the relevant quantities inside the dataset.
+///
 ///----------------------------------------------------------------------
 ///
 /// REST-for-Physics - Software for Rare Event Searches Toolkit
@@ -330,6 +349,12 @@ void TRestDataSet::GenerateDataSet() {
 
     fDataSet = MakeCut(fCut);
 
+    // Adding new user columns added to the dataset
+    for (const auto& [cName, cExpression] : fColumnNameExpressions) {
+        finalList.emplace_back(cName);
+        fDataSet = DefineColumn(cName, cExpression);
+    }
+
     std::string user = getenv("USER");
     std::string fOutName = "/tmp/rest_output_" + user + ".root";
     fDataSet.Snapshot("AnalysisTree", fOutName, finalList);
@@ -339,7 +364,7 @@ void TRestDataSet::GenerateDataSet() {
     TFile* f = TFile::Open(fOutName.c_str());
     fTree = (TChain*)f->Get("AnalysisTree");
 
-    RESTInfo << " - Dataset initialized!" << RESTendl;
+    RESTInfo << " - Dataset generated!" << RESTendl;
 }
 
 ///////////////////////////////////////////////
@@ -399,20 +424,26 @@ std::vector<std::string> TRestDataSet::FileSelection() {
 
         if (!accept) continue;
 
+        Double_t acc = 0;
         for (auto& [name, properties] : fQuantity) {
-            Double_t value =
-                REST_StringHelper::StringToDouble(run.ReplaceMetadataMembers(properties.metadata));
+            std::string value = run.ReplaceMetadataMembers(properties.metadata);
+            const Double_t val = REST_StringHelper::StringToDouble(value);
 
-            if (properties.strategy == "accumulate") properties.value += value;
+            if (properties.strategy == "accumulate") {
+                acc += val;
+                properties.value = StringWithPrecision(val, 2);
+            }
 
             if (properties.strategy == "max")
-                if (properties.value == 0 || properties.value < value) properties.value = value;
+                if (properties.value.empty() || REST_StringHelper::StringToDouble(properties.value) < val)
+                    properties.value = value;
 
             if (properties.strategy == "min")
-                if (properties.value == 0 || properties.value > value) properties.value = value;
+                if (properties.value.empty() || REST_StringHelper::StringToDouble(properties.value) > val)
+                    properties.value = value;
 
             if (properties.strategy == "unique") {
-                if (properties.value == 0)
+                if (properties.value.empty())
                     properties.value = value;
                 else if (properties.value != value) {
                     RESTWarning << "TRestDataSet::FileSelection. Relevant quantity retrieval." << RESTendl;
@@ -494,15 +525,16 @@ ROOT::RDF::RNode TRestDataSet::MakeCut(const TRestCut* cut) {
 /// d.Define("test", "Nsim * probability");
 /// \endcode
 ///
-ROOT::RDF::RNode TRestDataSet::Define(const std::string& columnName, const std::string& formula) {
+ROOT::RDF::RNode TRestDataSet::DefineColumn(const std::string& columnName, const std::string& formula) {
+    auto df = fDataSet;
+
     std::string evalFormula = formula;
     for (auto const& [name, properties] : fQuantity)
-        evalFormula =
-            REST_StringHelper::Replace(evalFormula, name, DoubleToString(properties.value, "%12.10e"));
+        evalFormula = REST_StringHelper::Replace(evalFormula, name, properties.value);
 
-    fDataSet = fDataSet.Define(columnName, evalFormula);
+    df = df.Define(columnName, evalFormula);
 
-    return fDataSet;
+    return df;
 }
 
 /////////////////////////////////////////////
@@ -563,16 +595,20 @@ void TRestDataSet::PrintMetadata() {
         RESTMetadata << " Relevant quantities: " << RESTendl;
         RESTMetadata << " -------------------- " << RESTendl;
 
-        int n = 0;
         for (auto const& [name, properties] : fQuantity) {
             RESTMetadata << " - Name : " << name << ". Value : " << properties.value
                          << ". Strategy: " << properties.strategy << RESTendl;
             RESTMetadata << " - Metadata: " << properties.metadata << RESTendl;
             RESTMetadata << " - Description: " << properties.description << RESTendl;
-
             RESTMetadata << " " << RESTendl;
-            n++;
         }
+    }
+
+    if (!fColumnNameExpressions.empty()) {
+        RESTMetadata << " New columns added to generated dataframe: " << RESTendl;
+        RESTMetadata << " ---------------------------------------- " << RESTendl;
+        for (const auto& [cName, cExpression] : fColumnNameExpressions)
+            RESTMetadata << " - Name : " << cName << " Expression: " << cExpression << RESTendl;
     }
 
     if (fMergedDataset) {
@@ -680,11 +716,31 @@ void TRestDataSet::InitFromConfigFile() {
         quantity.metadata = metadata;
         quantity.strategy = strategy;
         quantity.description = description;
-        quantity.value = 0;
+        quantity.value = "";
 
         fQuantity[name] = quantity;
 
         quantityDefinition = GetNextElement(quantityDefinition);
+    }
+
+    /// Reading new dataset columns
+    TiXmlElement* columnDefinition = GetElement("addColumn");
+    while (columnDefinition != nullptr) {
+        std::string name = GetFieldValue("name", columnDefinition);
+        if (name.empty() || name == "Not defined") {
+            RESTError << "<define key does not contain a name name!" << RESTendl;
+            exit(1);
+        }
+
+        std::string expression = GetFieldValue("expression", columnDefinition);
+        if (expression.empty() || expression == "Not defined") {
+            RESTError << "<addColumn key does not contain a expression value!" << RESTendl;
+            exit(1);
+        }
+
+        fColumnNameExpressions.push_back({name, expression});
+
+        columnDefinition = GetNextElement(columnDefinition);
     }
 
     fCut = (TRestCut*)InstantiateChildMetadata("TRestCut");
@@ -751,7 +807,7 @@ void TRestDataSet::Export(const std::string& filename) {
         fprintf(f, "###\n");
         fprintf(f, "### Relevant quantities: \n");
         for (auto& [name, properties] : fQuantity) {
-            fprintf(f, "### - %s : %lf - %s\n", name.c_str(), properties.value,
+            fprintf(f, "### - %s : %s - %s\n", name.c_str(), properties.value.c_str(),
                     properties.description.c_str());
         }
         fprintf(f, "###\n");
@@ -814,6 +870,7 @@ TRestDataSet& TRestDataSet::operator=(TRestDataSet& dS) {
     fEndTime = dS.GetEndTime();
     fFilePattern = dS.GetFilePattern();
     fObservablesList = dS.GetObservablesList();
+    fFileSelection = dS.GetFileSelection();
     fProcessObservablesList = dS.GetProcessObservablesList();
     fFilterMetadata = dS.GetFilterMetadata();
     fFilterContains = dS.GetFilterContains();
@@ -822,6 +879,7 @@ TRestDataSet& TRestDataSet::operator=(TRestDataSet& dS) {
     fFilterEqualsTo = dS.GetFilterEqualsTo();
     fQuantity = dS.GetQuantity();
     fTotalDuration = dS.GetTotalTimeInSeconds();
+    fFileSelection = dS.GetFileSelection();
     fCut = dS.GetCut();
 
     return *this;
@@ -838,6 +896,7 @@ void TRestDataSet::Import(const std::string& fileName) {
         return;
     }
 
+    TRestDataSet* dS = nullptr;
     TFile* file = TFile::Open(fileName.c_str(), "READ");
     if (file != nullptr) {
         TIter nextkey(file->GetListOfKeys());
@@ -846,18 +905,21 @@ void TRestDataSet::Import(const std::string& fileName) {
             std::string kName = key->GetClassName();
             if (REST_Reflection::GetClassQuick(kName.c_str()) != nullptr &&
                 REST_Reflection::GetClassQuick(kName.c_str())->InheritsFrom("TRestDataSet")) {
-                TRestDataSet* dS = file->Get<TRestDataSet>(key->GetName());
+                dS = file->Get<TRestDataSet>(key->GetName());
                 if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info)
                     dS->PrintMetadata();
                 *this = *dS;
             }
         }
-    } else {
-        RESTError << "Cannot open " << fileName << RESTendl;
-        exit(1);
     }
 
-    RESTInfo << "Opening " << fileName << RESTendl;
+    if (dS == nullptr) {
+        RESTError << fileName << " is not a valid dataSet" << RESTendl;
+        return;
+    }
+
+    ROOT::EnableImplicitMT();
+
     fDataSet = ROOT::RDataFrame("AnalysisTree", fileName);
 
     fTree = (TChain*)file->Get("AnalysisTree");

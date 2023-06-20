@@ -3,8 +3,8 @@
 #include <TRint.h>
 #include <TSystem.h>
 
-#include "TRestMetadata.h"
-#include "TRestRun.h"
+#include "TRestStringHelper.h"
+#include "TRestStringOutput.h"
 #include "TRestTools.h"
 #include "TRestVersion.h"
 
@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
     // set the env and debug status
     setenv("REST_VERSION", REST_RELEASE, 1);
 
-    Int_t loadMacros = 0;
+    Bool_t loadMacros = false;
     for (int i = 1; i < argc; i++) {
         char* c = &argv[i][0];
         if (*c == '-') {
@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
                     gVerbose = StringToVerboseLevel(argv[i + 1]);
                     break;
                 case 'm':
-                    loadMacros = StringToInteger(argv[i + 1]);
+                    loadMacros = true;
                     break;
                 case 'h':
                     // We use cout here since we will just exit afterwards
@@ -95,96 +95,31 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // load input root file with TRestRun, initialize input event, analysis tree and metadata structures
-    int nFile = 0;
+    std::string runName = "";
+    std::string dSName = "";
+
     for (int i = 1; i < argc; i++) {
-        string opt = (string)argv[i];
-        if (opt.find("http") != string::npos ||
-            (TRestTools::fileExists(opt) && TRestTools::isRootFile(opt))) {
-            printf("\nAttaching file %s as run%i...\n", opt.c_str(), nFile);
+        const string opt = (string)argv[i];
+        if (opt.at(0) == ('-')) continue;
 
-            TRestRun* runTmp = new TRestRun(opt);
-            string runcmd =
-                Form("TRestRun* run%i = (TRestRun*)%s;", nFile, (PTR_ADDR_PREFIX + ToString(runTmp)).c_str());
-            if (debug) printf("%s\n", runcmd.c_str());
-            gROOT->ProcessLine(runcmd.c_str());
-            if (runTmp->GetInputEvent() != nullptr) {
-                string eventType = runTmp->GetInputEvent()->ClassName();
-
-                printf("Attaching event %s as ev%i...\n", eventType.c_str(), nFile);
-                string evcmd = Form("%s* ev%i = (%s*)%s;", eventType.c_str(), nFile, eventType.c_str(),
-                                    (PTR_ADDR_PREFIX + ToString(runTmp->GetInputEvent())).c_str());
-                if (debug) printf("%s\n", evcmd.c_str());
-                gROOT->ProcessLine(evcmd.c_str());
-                runTmp->GetEntry(0);
-            }
-
-            // command line AnalysisTree object
-            if (runTmp->GetAnalysisTree() != nullptr) {
-                // if (runTmp->GetAnalysisTree()->GetChain() != nullptr) {
-                //    printf("Attaching ana_tree%i...\n", nFile);
-                //    string evcmd = Form("TChain* ana_tree%i = (TChain*)%s;", nFile,
-                //        ToString(runTmp->GetAnalysisTree()->GetChain()).c_str());
-                //    if (debug) printf("%s\n", evcmd.c_str());
-                //    gROOT->ProcessLine(evcmd.c_str());
-                //}
-                // else
-                //{
-                printf("Attaching ana_tree%i...\n", nFile);
-                string evcmd = Form("TRestAnalysisTree* ana_tree%i = (TRestAnalysisTree*)%s;", nFile,
-                                    (PTR_ADDR_PREFIX + ToString(runTmp->GetAnalysisTree())).c_str());
-                if (debug) printf("%s\n", evcmd.c_str());
-                gROOT->ProcessLine(evcmd.c_str());
-                // runTmp->GetEntry(0);
-                //}
-            }
-
-            // command line EventTree object
-            if (runTmp->GetEventTree() != nullptr) {
-                printf("Attaching ev_tree%i...\n", nFile);
-                string evcmd = Form("TTree* ev_tree%i = (TTree*)%s;", nFile,
-                                    (PTR_ADDR_PREFIX + ToString(runTmp->GetEventTree())).c_str());
-                if (debug) printf("%s\n", evcmd.c_str());
-                gROOT->ProcessLine(evcmd.c_str());
-            }
-
-            printf("\n%s\n", "Attaching metadata structures...");
-            Int_t numberOfMetadata = runTmp->GetNumberOfMetadata();
-            map<string, int> metanames;
-            for (int n = 0; n < numberOfMetadata; n++) {
-                string metaName = runTmp->GetMetadataNames()[n];
-                if (metaName.find("Historic") != string::npos) {
-                    continue;
-                }
-
-                TRestMetadata* md = runTmp->GetMetadata(metaName);
-                string metaType = md->ClassName();
-
-                string metaFixed = Replace(metaName, "-", "_");
-                metaFixed = Replace(metaFixed, " ", "");
-                metaFixed = Replace(metaFixed, ".", "_");
-                metaFixed = "md" + ToString(nFile) + "_" + metaFixed;
-                if (metanames.count(metaFixed) != 0) continue;
-                metanames[metaFixed] = 0;
-                printf("- %s (%s)\n", metaFixed.c_str(), metaType.c_str());
-
-                string mdcmd = Form("%s* %s = (%s*)%s;", metaType.c_str(), metaFixed.c_str(),
-                                    metaType.c_str(), (PTR_ADDR_PREFIX + ToString(md)).c_str());
-
-                if (debug) printf("%s\n", mdcmd.c_str());
-
-                gROOT->ProcessLine(mdcmd.c_str());
-
-                // if (metaType == "TRestGas") {
-                //    string gascmd = Form("%s->LoadGasFile();", metaFixed.c_str());
-                //    gROOT->ProcessLine(gascmd.c_str());
-                //}
-            }
-
+        if (opt.find("http") == string::npos && !TRestTools::fileExists(opt)) {
+            printf("\nFile %s not compatible ... !!\n", opt.c_str());
+            continue;
+        }
+        if (TRestTools::isRunFile(opt) && runName.empty()) {
+            runName = opt;
+            string cmd = ".L " + REST_PATH + "/macros/REST_OpenInputFile.C";
+            if (!loadMacros && dSName.empty()) gROOT->ProcessLine(cmd.c_str());
+            cmd = "REST_OpenInputFile(\"" + runName + "\")";
+            gROOT->ProcessLine(cmd.c_str());
             argv[i] = (char*)"";
-            nFile++;
-        } else if (TRestTools::isRootFile(opt)) {
-            printf("\nFile %s not found ... !!\n", opt.c_str());
+        } else if (TRestTools::isDataSet(opt) && dSName.empty()) {
+            dSName = opt;
+            string cmd = ".L " + REST_PATH + "/macros/REST_OpenInputFile.C";
+            if (!loadMacros && runName.empty()) gROOT->ProcessLine(cmd.c_str());
+            cmd = "REST_OpenInputFile(\"" + dSName + "\")";
+            gROOT->ProcessLine(cmd.c_str());
+            argv[i] = (char*)"";
         }
     }
 
