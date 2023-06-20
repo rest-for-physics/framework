@@ -15,8 +15,8 @@ void REST_OpenInputFile(const std::string& fileName) {
         ev_tree = run->GetEventTree();
         printf("\nAttaching event tree as ev_tree...\n");
         ev = run->GetInputEvent();
-        printf("\nAttaching input event %s as ev...\n",ev->ClassName());
         run->GetEntry(0);
+        printf("\nAttaching input event %s as ev...\n", ev->ClassName());
         for (auto& [name, meta] : metadata) delete meta;
         metadata.clear();
         for (int n = 0; n < run->GetNumberOfMetadata(); n++) {
