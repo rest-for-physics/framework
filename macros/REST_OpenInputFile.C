@@ -15,15 +15,21 @@ void REST_OpenInputFile(const std::string& fileName) {
         ev_tree = run->GetEventTree();
         printf("\nAttaching event tree as ev_tree...\n");
         ev = run->GetInputEvent();
-        run->GetEntry(0);
         printf("\nAttaching input event %s as ev...\n",ev->ClassName());
-        std::map<std::string, int> metanames;
+        run->GetEntry(0);
         for (auto& [name, meta] : metadata) delete meta;
         metadata.clear();
         for (int n = 0; n < run->GetNumberOfMetadata(); n++) {
             std::string metaName = run->GetMetadataNames()[n];
             if (metaName.find("Historic") != string::npos) continue;
             TRestMetadata* md = run->GetMetadata(metaName);
+              if(md == nullptr){
+                printf("\nERROR Cannot get metadata pointer for class %s and name%s\n", md->ClassName(),
+                   metaName.c_str() );
+                continue;
+              }
+            metaName = Replace(metaName, " ", "");
+            metaName = Replace(metaName, ".", "_");
             metadata[metaName] = md;
             printf("\nAttaching Metadata class %s as metadata[\"%s\"]...\n", md->ClassName(),
                    metaName.c_str());
