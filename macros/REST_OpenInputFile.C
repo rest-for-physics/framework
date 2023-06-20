@@ -23,11 +23,11 @@ void REST_OpenInputFile(const std::string& fileName) {
             std::string metaName = run->GetMetadataNames()[n];
             if (metaName.find("Historic") != string::npos) continue;
             TRestMetadata* md = run->GetMetadata(metaName);
-              if(md == nullptr){
+            if (md == nullptr) {
                 printf("\nERROR Cannot get metadata pointer for class %s and name%s\n", md->ClassName(),
-                   metaName.c_str() );
+                       metaName.c_str());
                 continue;
-              }
+            }
             metaName = Replace(metaName, " ", "");
             metaName = Replace(metaName, ".", "_");
             metadata[metaName] = md;
