@@ -13,6 +13,7 @@
 ///_______________________________________________________________________________
 
 #include "TRestEveEventViewer.h"
+#include "TRestStringOutput.h"
 
 using namespace std;
 
@@ -22,6 +23,8 @@ TRestEveEventViewer::TRestEveEventViewer() {
     Initialize();
     fEnergyDeposits = new TEvePointSet();
     fEnergyDeposits->SetElementName("Energy deposits");
+
+    RESTWarning << "XXX" << RESTendl;
 }
 
 TRestEveEventViewer::~TRestEveEventViewer() {
@@ -182,7 +185,7 @@ void TRestEveEventViewer::Update() {
 
 void TRestEveEventViewer::AddSphericalHit(double x, double y, double z, double radius, double en) {
     fEnergyDeposits->SetOwnIds(kTRUE);
-    fEnergyDeposits->SetNextPoint(x * GEOM_SCALE, y * GEOM_SCALE, z * GEOM_SCALE);
+    fEnergyDeposits->SetNextPoint(x * fGeomScale, y * fGeomScale, z * fGeomScale);
     fEnergyDeposits->SetMarkerColor(kYellow);
     fEnergyDeposits->SetMarkerSize(Size_t(radius));
     fEnergyDeposits->SetMarkerStyle(4);

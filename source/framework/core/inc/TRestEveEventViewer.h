@@ -38,10 +38,9 @@
 
 #include "TRestEventViewer.h"
 
-#define GEOM_SCALE 1
-
 class TRestEveEventViewer : public TRestEventViewer {
    protected:
+    Double_t fGeomScale = 0.1;
     TEveManager* gEve;
 
     TEveWindowSlot* slot;
@@ -86,8 +85,11 @@ class TRestEveEventViewer : public TRestEventViewer {
     void SetGeometry(TGeoManager* geo);
     void Update();
 
-    void SetMinRadious(Double_t rmin) { fMinRadius = rmin; }
-    void SetMaxRadious(Double_t rmax) { fMaxRadius = rmax; }
+    void SetMinRadius(Double_t rmin) { fMinRadius = rmin; }
+    void SetMaxRadius(Double_t rmax) { fMaxRadius = rmax; }
+
+    void SetGeomScale(const Double_t& scale) { fGeomScale = scale; }
+    Double_t GetGeomScale() { return fGeomScale; }
 
     // Constructor
     TRestEveEventViewer();
