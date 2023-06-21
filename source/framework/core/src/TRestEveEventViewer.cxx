@@ -30,7 +30,7 @@ TRestEveEventViewer::TRestEveEventViewer() {
         << "We use a geometry scaling factor to place the hits in the scene and correct a placement problem"
         << RESTendl;
     RESTWarning << "Presently the default value of fGeomScale is " << fGeomScale << RESTendl;
-    RESTWarning << "Please, report to the dev-team if you experience problems visualizing the geometry."
+    RESTWarning << "Please, report to the dev team if you experience problems visualizing the geometry."
                 << RESTendl;
     RESTWarning << "For example: when hit positions seem to do not match geometry positions" << RESTendl;
 

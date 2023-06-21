@@ -57,7 +57,7 @@ class TRestEventViewer {
     TGeoManager* GetGeometry() { return fGeometry; }
     TRestEvent* GetEvent() { return fEvent; }
 
-    void SetGeomScale(const Double_t& scale) { fGeomScale = scale; }
+    void SetGeomScale(Double_t scale) { fGeomScale = scale; }
     Double_t GetGeomScale() { return fGeomScale; }
 
     // Constructor

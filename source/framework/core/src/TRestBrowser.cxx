@@ -41,7 +41,7 @@ TRestBrowser::TRestBrowser() {
     }
 }
 
-TRestBrowser::TRestBrowser(const TString& viewerName, const Double_t& geomScale) {
+TRestBrowser::TRestBrowser(const TString& viewerName, Double_t geomScale) {
     Initialize("I");
     SetViewer(viewerName, geomScale);
 }
@@ -89,7 +89,7 @@ void TRestBrowser::Initialize(const TString& opt) {
     // frmMain->MapWindow();
 }
 
-void TRestBrowser::SetViewer(TRestEventViewer* eV, const Double_t& geomScale) {
+void TRestBrowser::SetViewer(TRestEventViewer* eV, Double_t geomScale) {
     if (fEventViewer != nullptr) {
         cout << "Event viewer has already been set!" << endl;
         return;
@@ -103,7 +103,7 @@ void TRestBrowser::SetViewer(TRestEventViewer* eV, const Double_t& geomScale) {
     }
 }
 
-void TRestBrowser::SetViewer(const TString& viewerName, const Double_t& geomScale) {
+void TRestBrowser::SetViewer(const TString& viewerName, Double_t geomScale) {
     if (Count((string)viewerName, "Viewer") > 0) {
         TRestEventViewer* viewer = REST_Reflection::Assembly((string)viewerName);
         viewer->SetGeomScale(geomScale);
