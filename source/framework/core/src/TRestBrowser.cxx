@@ -90,13 +90,13 @@ void TRestBrowser::Initialize(const TString& opt) {
 }
 
 void TRestBrowser::SetViewer(TRestEventViewer* eV, const Double_t& geomScale) {
-    eV->SetGeomScale(geomScale);
     if (fEventViewer != nullptr) {
         cout << "Event viewer has already been set!" << endl;
         return;
     }
     if (eV != nullptr) {
         fEventViewer = eV;
+        fEventViewer->SetGeomScale(geomScale);
         // b->StartEmbedding(1, -1);
         eV->Embed(fBrowser);
         // b->StopEmbedding();
@@ -108,7 +108,7 @@ void TRestBrowser::SetViewer(const TString& viewerName, const Double_t& geomScal
         TRestEventViewer* viewer = REST_Reflection::Assembly((string)viewerName);
         viewer->SetGeomScale(geomScale);
         if (viewer != nullptr) {
-            SetViewer(viewer);
+            SetViewer(viewer, geomScale);
         } else {
             RESTError << viewerName << " not recognized! Did you install the corresponding library?"
                       << RESTendl;
