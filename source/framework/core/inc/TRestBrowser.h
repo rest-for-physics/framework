@@ -68,8 +68,8 @@ class TRestBrowser {
 
     TRestEventViewer* fEventViewer = nullptr;  //!
 
-    void SetViewer(TRestEventViewer* eV);
-    void SetViewer(const TString& viewerName);
+    void SetViewer(TRestEventViewer* eV, const Double_t& geomScale = 0.1);
+    void SetViewer(const TString& viewerName, const Double_t& geomScale = 0.1);
     void SetLeftPanelButtons();
     void SetBottomPanelButtons();
     Bool_t LoadEventId(Int_t eventID, Int_t subEventID = -1);
@@ -105,7 +105,7 @@ class TRestBrowser {
 
     // Constructors
     TRestBrowser();
-    TRestBrowser(const TString& viewerName);
+    TRestBrowser(const TString& viewerName, const Double_t& geomScale = 0.1);
 
     // Destructor
     ~TRestBrowser();
