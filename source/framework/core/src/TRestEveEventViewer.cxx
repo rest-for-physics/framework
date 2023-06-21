@@ -23,8 +23,6 @@ TRestEveEventViewer::TRestEveEventViewer() {
     Initialize();
     fEnergyDeposits = new TEvePointSet();
     fEnergyDeposits->SetElementName("Energy deposits");
-
-    RESTWarning << "XXX" << RESTendl;
 }
 
 TRestEveEventViewer::~TRestEveEventViewer() {

@@ -35,6 +35,8 @@ class TRestEventViewer {
     TGeoManager* fGeometry = nullptr;  //!
     TRestEvent* fEvent = nullptr;      //!
 
+    Double_t fGeomScale = 0.1;
+
     TPad* fPad = nullptr;
     TCanvas* fCanvas = nullptr;
 
@@ -54,6 +56,9 @@ class TRestEventViewer {
     // Getters
     TGeoManager* GetGeometry() { return fGeometry; }
     TRestEvent* GetEvent() { return fEvent; }
+
+    void SetGeomScale(const Double_t& scale) { fGeomScale = scale; }
+    Double_t GetGeomScale() { return fGeomScale; }
 
     // Constructor
     TRestEventViewer();
