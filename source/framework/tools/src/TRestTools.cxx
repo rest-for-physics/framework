@@ -1137,7 +1137,10 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
             return 0;
         }
     } else {
-        RESTError << "unknown protocol!" << RESTendl;
+        if (!TRestTools::fileExists(remoteFile)) {
+            RESTWarning << "Trying to download: " << remoteFile << RESTendl;
+            RESTWarning << "Unknown protocol!" << RESTendl;
+        }
     }
 
     return -1;
