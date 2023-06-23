@@ -628,7 +628,7 @@ jobs:
           retention-days: 1
 
   rawlib-validation:
-    uses: rest-for-physics/rawlib/.github/workflows/validation.yml@master
+    uses: rest-for-physics/rawlib/.github/workflows/validation.yml@jgalan-raw-analysis
 
   geant4lib-validation:
     uses: rest-for-physics/geant4lib/.github/workflows/validation.yml@master
