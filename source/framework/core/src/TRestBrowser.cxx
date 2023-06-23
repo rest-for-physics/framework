@@ -41,9 +41,9 @@ TRestBrowser::TRestBrowser() {
     }
 }
 
-TRestBrowser::TRestBrowser(const TString& viewerName) {
+TRestBrowser::TRestBrowser(const TString& viewerName, Double_t geomScale) {
     Initialize("I");
-    SetViewer(viewerName);
+    SetViewer(viewerName, geomScale);
 }
 
 TRestBrowser::~TRestBrowser() {
@@ -89,26 +89,28 @@ void TRestBrowser::Initialize(const TString& opt) {
     // frmMain->MapWindow();
 }
 
-void TRestBrowser::SetViewer(TRestEventViewer* eV) {
+void TRestBrowser::SetViewer(TRestEventViewer* eV, Double_t geomScale) {
     if (fEventViewer != nullptr) {
         cout << "Event viewer has already been set!" << endl;
         return;
     }
     if (eV != nullptr) {
         fEventViewer = eV;
+        fEventViewer->SetGeomScale(geomScale);
         // b->StartEmbedding(1, -1);
         eV->Embed(fBrowser);
         // b->StopEmbedding();
     }
 }
 
-void TRestBrowser::SetViewer(const TString& viewerName) {
+void TRestBrowser::SetViewer(const TString& viewerName, Double_t geomScale) {
     if (Count((string)viewerName, "Viewer") > 0) {
         TRestEventViewer* viewer = REST_Reflection::Assembly((string)viewerName);
+        viewer->SetGeomScale(geomScale);
         if (viewer != nullptr) {
-            SetViewer(viewer);
+            SetViewer(viewer, geomScale);
         } else {
-            RESTError << viewerName << " not recoginzed! Did you install the corresponding library?"
+            RESTError << viewerName << " not recognized! Did you install the corresponding library?"
                       << RESTendl;
             RESTError << "Also check EVE feature is turned on in REST for 3d event viewing." << RESTendl;
             RESTWarning << "Using default event viewer" << RESTendl;
