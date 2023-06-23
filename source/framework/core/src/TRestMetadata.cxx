@@ -2060,7 +2060,7 @@ string TRestMetadata::GetParameter(string parName, size_t& pos, string inputStri
 }
 
 ///////////////////////////////////////////////
-/// \brief Identifies enviromental variable replacing marks in the input buffer,
+/// \brief Identifies environmental variable replacing marks in the input buffer,
 /// and replace them with corresponding value.
 ///
 /// Replacing marks is like ${VARIABLE_NAME}. "variables" include system env, values
