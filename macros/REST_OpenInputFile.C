@@ -1,9 +1,7 @@
 TRestRun* run = nullptr;
 TRestAnalysisTree* ana_tree = nullptr;
 TTree* ev_tree = nullptr;
-TRestEvent* ev = nullptr;
 TRestDataSet* dSet = nullptr;
-std::map<std::string, TRestMetadata*> metadata;
 
 void REST_OpenInputFile(const std::string& fileName) {
     if (TRestTools::isRunFile(fileName)) {
@@ -14,11 +12,11 @@ void REST_OpenInputFile(const std::string& fileName) {
         printf("Attaching TRestAnalysisTree as ana_tree...\n");
         ev_tree = run->GetEventTree();
         printf("Attaching event tree as ev_tree...\n");
-        ev = run->GetInputEvent();
+        std::string eventType = run->GetInputEvent()->ClassName();
+        std::string evcmd = Form("%s* ev = (%s*)run->GetInputEvent();", eventType.c_str(), eventType.c_str());
+        gROOT->ProcessLine(evcmd.c_str());
         run->GetEntry(0);
-        printf("Attaching input event %s as ev...\n", ev->ClassName());
-        for (auto& [name, meta] : metadata) delete meta;
-        metadata.clear();
+        printf("Attaching input event %s as ev...\n", eventType.c_str());
         for (int n = 0; n < run->GetNumberOfMetadata(); n++) {
             if (n == 0) printf("Attaching Metadata classes:\n");
             std::string metaName = run->GetMetadataNames()[n];
@@ -29,10 +27,12 @@ void REST_OpenInputFile(const std::string& fileName) {
                        metaName.c_str());
                 continue;
             }
-            metaName = Replace(metaName, " ", "");
-            metaName = Replace(metaName, ".", "_");
-            metadata[metaName] = md;
-            printf("- %s as metadata[\"%s\"]...\n", md->ClassName(), metaName.c_str());
+            std::string mName = Replace(metaName, " ", "");
+            mName = Replace(mName, ".", "_");
+            std::string mdcmd = Form("%s* %s = (%s*)run->GetMetadata(\"%s\");", md->ClassName(), mName.c_str(),
+                                    md->ClassName(), metaName.c_str());
+            gROOT->ProcessLine(mdcmd.c_str());
+            printf("- %s as %s\n", md->ClassName(), mName.c_str());
         }
         printf("\n");
 
