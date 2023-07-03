@@ -2632,7 +2632,7 @@ void TRestMetadata::SetError(string message, bool print) {
 ///////////////////////////////////////////////
 /// \brief It retrieves a map of all parameter:value found in the metadata class
 ///
-void TRestMetadata::SetWarning(string message, bool print, bool onlyFirst) {
+void TRestMetadata::SetWarning(string message, bool print) {
     fWarning = true;
     fNWarnings++;
     if (message != "") {
