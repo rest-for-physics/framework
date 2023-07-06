@@ -168,6 +168,8 @@ class TRestRun : public TRestMetadata {
     inline TTree* GetEventTree() const { return fEventTree; }
     inline Int_t GetInputFileNumber() const { return fFileProcess == nullptr ? fInputFileNames.size() : 1; }
 
+    std::vector<std::string> GetEventTypesList();
+
     TRestMetadata* GetMetadata(const TString& name, TFile* file = nullptr);
     TRestMetadata* GetMetadataClass(const TString& type, TFile* file = nullptr);
     std::vector<std::string> GetMetadataNames();

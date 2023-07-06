@@ -888,7 +888,24 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetEvent, TRestAnalysisTree* targetT
 }
 
 ///////////////////////////////////////////////
+/// \brief It returns a list of available event types inside the file
+///
+std::vector<std::string> TRestRun::GetEventTypesList() {
+    std::vector<std::string> list;
+    TObjArray* branches = GetEventTree()->GetListOfBranches();
+    for (int i = 0; i <= branches->GetLast(); i++) {
+        auto branch = (TBranch*)branches->At(i);
+        if (((std::string)branch->GetName()).find("EventBranch") != string::npos) {
+            std::string eventType = Replace((string)branch->GetName(), "Branch", "");
+            list.emplace_back(eventType);
+        }
+    }
+    return list;
+}
+
+///////////////////////////////////////////////
 /// \brief Calls GetEntry() for both AnalysisTree and EventTree
+///
 void TRestRun::GetEntry(Long64_t entry) {
     if (entry >= GetEntries()) {
         RESTWarning << "TRestRun::GetEntry. Entry requested out of limits" << RESTendl;
