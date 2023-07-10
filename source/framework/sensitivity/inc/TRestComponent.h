@@ -43,12 +43,11 @@ class TRestComponent : public TRestMetadata {
     /// The number of bins in which we should divide each variable
     std::vector<Int_t> fNbins;  //<
 
-    /// A list with the branches that will be used to construct the distribution density
+    /// A list with the branches that will be used to weight the distribution density
     std::vector<std::string> fWeights;  //<
 
-    /// It does not contribute to define the density distribution but allows to parametrize a set of
-    /// distribution densities
-    std::string fParametricVariable = "";  //<
+    /// It is used to parametrize a set of distribution densities
+    std::vector<std::string> fParametricVariables = "";  //<
 
     /// It defines the nodes of the parametrization
     std::vector<Double_t> fParametrizationNodes;  //<
