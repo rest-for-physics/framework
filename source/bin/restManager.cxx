@@ -53,7 +53,8 @@ void PrintHelp() {
 
     RESTcout.setheader("Usage1 : ./restManager ");
     RESTcout << "--c CONFIG_FILE [--i/f INPUT] [--o OUTPUT] [--j THREADS] [--e EVENTS_TO_PROCESS] [--v "
-                "VERBOSELEVEL] [--d RUNID] [--p PDF_PLOTS.pdf]" << RESTendl;
+                "VERBOSELEVEL] [--d RUNID] [--p PDF_PLOTS.pdf]"
+             << RESTendl;
     RESTcout.setheader("Usage2 : ./restManager ");
     RESTcout << "TASK_NAME ARG1 ARG2 ARG3" << RESTendl;
 
@@ -63,20 +64,24 @@ void PrintHelp() {
     RESTcout.setheader("CONFIG_FILE: ");
     RESTcout << "-" << RESTendl;
     RESTcout << "The rml configuration file. It should contain a TRestManager section. This "
-                "argument MUST be provided. The others can be also specified in the rml file." << RESTendl;
+                "argument MUST be provided. The others can be also specified in the rml file."
+             << RESTendl;
     RESTcout.setheader("INPUT      : ");
     RESTcout << "-" << RESTendl;
     RESTcout << "Input file name. If not given it will be acquired from the rml file. If you want "
                 "to use multiple input file, you can either specify the string of matching pattern with "
-                "quotation marks surrounding it, or put the file names in a .list file." << RESTendl;
+                "quotation marks surrounding it, or put the file names in a .list file."
+             << RESTendl;
     RESTcout.setheader("OUTPUT     : ");
     RESTcout << "-" << RESTendl;
     RESTcout << "Output file name. It can be given as a name string (abc.root), or as an expression "
-                "with naming fields to be replaced (Run[RunNumber]_[Tag].root)." << RESTendl;
+                "with naming fields to be replaced (Run[RunNumber]_[Tag].root)."
+             << RESTendl;
     RESTcout.setheader("THREADS    : ");
     RESTcout << "-" << RESTendl;
     RESTcout << "Enable specific number of threads to run the jobs. In most time 3~6 threads are "
-                "enough to make full use of computer power. Maximum is 15." << RESTendl;
+                "enough to make full use of computer power. Maximum is 15."
+             << RESTendl;
     RESTcout.setheader("");
     RESTcout << "=" << RESTendl;
 }
