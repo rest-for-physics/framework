@@ -11,11 +11,14 @@ using namespace std;
 
 //*******************************************************************************************************
 //***
-//*** Your HELP is needed to verify, validate and document this macro
-//*** This macro might need update/revision.
+//*** This macro receives as input a filename pattern. The files matching the glob pattern will be open
+//*** and if the run metadata does not exist, or the file was not properly closed, the file will be added
+//*** to a list, helping to identify the corrupted files.
+//***
+//*** Usage: restManager CheckRunFileList "/path/to/data/Run*tag*V2.4.0.root"
 //***
 //*******************************************************************************************************
-Int_t REST_CheckRunFileList(TString namePattern, Int_t N = 100000) {
+Int_t REST_CheckRunFileList(TString namePattern) {
     TGeoManager::SetVerboseLevel(0);
 
     vector<TString> filesNotWellClosed;
