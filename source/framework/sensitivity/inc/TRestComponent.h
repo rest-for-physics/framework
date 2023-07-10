@@ -26,7 +26,7 @@
 #include "TRestDataSet.h"
 #include "TRestMetadata.h"
 
-/// It defines a background/signal distribution in a given parameter space (tipically x,y,en)
+/// It defines a background/signal model distribution in a given parameter space (tipically x,y,en)
 class TRestComponent : public TRestMetadata {
    private:
     //// This will not be necessary the day TRestComponent is a pure abstract class.
@@ -37,7 +37,7 @@ class TRestComponent : public TRestMetadata {
     /// A list with the branches that will be used to create the distribution space
     std::vector<std::string> fVariables;  //<
 
-    /// The range of each of the variables used to create the distribution
+    /// The range of each of the variables used to create the PDF distribution
     std::vector<TVector2> fRanges;  //<
 
     /// The number of bins in which we should divide each variable
@@ -51,17 +51,25 @@ class TRestComponent : public TRestMetadata {
     std::string fParametricVariable = "";  //<
 
     /// It defines the nodes of the parametrization
-    std::vector<Double_t> fParametrizationNodes;
+    std::vector<Double_t> fParametrizationNodes;  //<
 
     /// It defines the binning between the parametrization nodes
-    Int_t fParametrizationBinning = 0;
+    Int_t fParametrizationBinning = 0;  //<
 
     ////////// This should be implemented in TRestDataSetComponent
     //////////
+
+    /// The filename of the dataset used
+    std::vector<std::string> fDataSetFileNames;  //<
+
     /// The dataset used to initialize the distribution
     TRestDataSet fDataSet;  //!
-                            //////////
-                            ////////// This should be implemented in TRestDataSetComponent
+
+    /// It is true of the dataset was loaded without issues
+    Bool_t fDataSetLoaded = false;
+
+    //////////
+    ////////// This should be implemented in TRestDataSetComponent
 
     ////////// This should be implemented in TRestFormulaComponent
     //////////
@@ -76,15 +84,24 @@ class TRestComponent : public TRestMetadata {
     /// A pointer to the component distribution
     // THnD* fDistribution = nullptr;  //!
 
+    Bool_t VariablesOk();
+    Bool_t WeightsOk();
+
    protected:
     void InitFromConfigFile() override;
 
    public:
+    Bool_t LoadDataSets();
+
+    /// This method should go to TRestDataSetComponent
+    Bool_t IsDataSetLoaded() { return fDataSetLoaded; }
+
     Double_t GetRate(std::vector<Double_t> point);
 
     void PrintMetadata() override;
 
     void Initialize() override;
+    TRestComponent(const char* configFilename);
     TRestComponent(const char* cfgFileName, const std::string& name);
     TRestComponent();
     ~TRestComponent();

@@ -40,12 +40,20 @@
 ///
 #include "TRestComponent.h"
 
+#include "TKey.h"
+
 ClassImp(TRestComponent);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
 TRestComponent::TRestComponent() { Initialize(); }
+
+TRestComponent::TRestComponent(const char* configFilename) : TRestMetadata(configFilename) {
+    Initialize();
+
+    LoadConfigFromFile(fConfigFileName);
+}
 
 /////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -162,4 +170,77 @@ void TRestComponent::InitFromConfigFile() {
 
         ele = GetNextElement(ele);
     }
+
+    ele = GetElement("dataset");
+    while (ele != nullptr) {
+        fDataSetFileNames.push_back(GetParameter("file", ele, ""));
+        ele = GetNextElement(ele);
+    }
+
+    if (!fDataSetFileNames.empty()) {
+        fDataSetLoaded = LoadDataSets();
+    } else {
+        RESTWarning
+            << "Dataset filename was not defined. You may still use TRestComponent::LoadDataSet( filename );"
+            << RESTendl;
+    }
+}
+
+/////////////////////////////////////////////
+/// \brief A method responsible to import a list of TRestDataSet into fDataSet
+///
+Bool_t TRestComponent::LoadDataSets() {
+    std::vector<std::string> fullFileNames;
+    for (const auto& name : fDataSetFileNames) {
+        std::string fileName = SearchFile(name);
+        if (fileName.empty()) {
+            RESTError << "TRestComponent::LoadDataSet. Error loading file : " << name << RESTendl;
+            RESTError << "Does the file exist?" << RESTendl;
+            RESTError << "You may use `<globals> <searchPath ...` to indicate the path location" << RESTendl;
+            return false;
+        }
+        fullFileNames.push_back(fileName);
+    }
+
+    fDataSet.Import(fullFileNames);
+
+    if (fDataSet.GetTree() == nullptr) {
+        RESTError << "Problem loading dataset from file list :" << RESTendl;
+        for (const auto& f : fDataSetFileNames) RESTError << " - " << f << RESTendl;
+        return false;
+    }
+
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) fDataSet.PrintMetadata();
+
+    return (VariablesOk() && WeightsOk());
+}
+
+/////////////////////////////////////////////
+/// \brief It returns true if all variables have been found inside TRestDataSet
+///
+Bool_t TRestComponent::VariablesOk() {
+    Bool_t ok = true;
+    std::vector cNames = fDataSet.GetDataFrame().GetColumnNames();
+
+    for (const auto var : fVariables)
+        if (std::count(cNames.begin(), cNames.end(), var) == 0) {
+            RESTError << "Variable ---> " << var << " <--- NOT found on dataset" << RESTendl;
+            ok = false;
+        }
+    return ok;
+}
+
+/////////////////////////////////////////////
+/// \brief It returns true if all weights have been found inside TRestDataSet
+///
+Bool_t TRestComponent::WeightsOk() {
+    Bool_t ok = true;
+    std::vector cNames = fDataSet.GetDataFrame().GetColumnNames();
+
+    for (const auto var : fWeights)
+        if (std::count(cNames.begin(), cNames.end(), var) == 0) {
+            RESTError << "Weight ---> " << var << " <--- NOT found on dataset" << RESTendl;
+            ok = false;
+        }
+    return ok;
 }

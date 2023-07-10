@@ -167,6 +167,8 @@ class TRestRun : public TRestMetadata {
     inline TTree* GetEventTree() const { return fEventTree; }
     inline Int_t GetInputFileNumber() const { return fFileProcess == nullptr ? fInputFileNames.size() : 1; }
 
+    std::vector<std::string> GetEventTypesList();
+
     TRestMetadata* GetMetadata(const TString& name, TFile* file = nullptr);
     TRestMetadata* GetMetadataClass(const TString& type, TFile* file = nullptr);
     std::vector<std::string> GetMetadataNames();
@@ -174,7 +176,7 @@ class TRestRun : public TRestMetadata {
     inline int GetNumberOfMetadata() const { return fMetadata.size(); }
 
     inline std::string GetMetadataMember(const std::string& instr) { return ReplaceMetadataMember(instr); }
-    std::string ReplaceMetadataMembers(const std::string& instr, Int_t precision = 2);
+    std::string ReplaceMetadataMembers(const std::string& instr, Int_t precision = 8);
 
     Bool_t EvaluateMetadataMember(const std::string& instr);
 
