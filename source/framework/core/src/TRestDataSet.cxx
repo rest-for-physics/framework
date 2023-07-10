@@ -345,20 +345,25 @@ void TRestDataSet::GenerateDataSet() {
 
     ROOT::EnableImplicitMT();
 
+    RESTInfo << "Initializing dataset" << RESTendl;
     fDataSet = ROOT::RDataFrame("AnalysisTree", fFileSelection);
 
+    RESTInfo << "Making cuts" << RESTendl;
     fDataSet = MakeCut(fCut);
 
     // Adding new user columns added to the dataset
-    for (const auto& [cName, cExpression] : fColumnNameExpressions) {
+    for (const auto & [ cName, cExpression ] : fColumnNameExpressions) {
+        RESTInfo << "Adding column to dataset: " << cName << RESTendl;
         finalList.emplace_back(cName);
         fDataSet = DefineColumn(cName, cExpression);
     }
 
+    RESTInfo << "Generating snapshot." << RESTendl;
     std::string user = getenv("USER");
     std::string fOutName = "/tmp/rest_output_" + user + ".root";
     fDataSet.Snapshot("AnalysisTree", fOutName, finalList);
 
+    RESTInfo << "Re-importing analysis tree." << RESTendl;
     fDataSet = ROOT::RDataFrame("AnalysisTree", fOutName);
 
     TFile* f = TFile::Open(fOutName.c_str());
@@ -378,8 +383,7 @@ std::vector<std::string> TRestDataSet::FileSelection() {
 
     if (!time_stamp_end || !time_stamp_start) {
         RESTError << "TRestDataSet::FileSelect. Start or end dates not properly formed. Please, check "
-                     "REST_StringHelper::StringToTimeStamp documentation for valid formats"
-                  << RESTendl;
+                     "REST_StringHelper::StringToTimeStamp documentation for valid formats" << RESTendl;
         return fFileSelection;
     }
 
@@ -392,8 +396,17 @@ std::vector<std::string> TRestDataSet::FileSelection() {
     }
 
     fTotalDuration = 0;
+    std::cout << "Total files : " << fileNames.size() << std::endl;
+    std::cout << "Processing file selection .";
+    int cnt = 1;
     for (const auto& file : fileNames) {
+        if (cnt % 100 == 0) {
+            std::cout << std::endl;
+            std::cout << "Files processed: " << cnt << " ." << std::flush;
+        }
+        cnt++;
         TRestRun run(file);
+        std::cout << "." << std::flush;
         double runStart = run.GetStartTimestamp();
         double runEnd = run.GetEndTimestamp();
 
@@ -425,7 +438,7 @@ std::vector<std::string> TRestDataSet::FileSelection() {
         if (!accept) continue;
 
         Double_t acc = 0;
-        for (auto& [name, properties] : fQuantity) {
+        for (auto & [ name, properties ] : fQuantity) {
             std::string value = run.ReplaceMetadataMembers(properties.metadata);
             const Double_t val = REST_StringHelper::StringToDouble(value);
 
@@ -464,7 +477,7 @@ std::vector<std::string> TRestDataSet::FileSelection() {
         fTotalDuration += run.GetEndTimestamp() - run.GetStartTimestamp();
         fFileSelection.push_back(file);
     }
-    RESTInfo << RESTendl;
+    std::cout << std::endl;
 
     return fFileSelection;
 }
@@ -482,7 +495,7 @@ ROOT::RDF::RNode TRestDataSet::MakeCut(const TRestCut* cut) {
 
     auto paramCut = cut->GetParamCut();
     auto obsList = df.GetColumnNames();
-    for (const auto& [param, condition] : paramCut) {
+    for (const auto & [ param, condition ] : paramCut) {
         if (std::find(obsList.begin(), obsList.end(), param) != obsList.end()) {
             std::string pCut = param + condition;
             RESTDebug << "Applying cut " << pCut << RESTendl;
@@ -529,7 +542,7 @@ ROOT::RDF::RNode TRestDataSet::DefineColumn(const std::string& columnName, const
     auto df = fDataSet;
 
     std::string evalFormula = formula;
-    for (auto const& [name, properties] : fQuantity)
+    for (auto const & [ name, properties ] : fQuantity)
         evalFormula = REST_StringHelper::Replace(evalFormula, name, properties.value);
 
     df = df.Define(columnName, evalFormula);
@@ -595,7 +608,7 @@ void TRestDataSet::PrintMetadata() {
         RESTMetadata << " Relevant quantities: " << RESTendl;
         RESTMetadata << " -------------------- " << RESTendl;
 
-        for (auto const& [name, properties] : fQuantity) {
+        for (auto const & [ name, properties ] : fQuantity) {
             RESTMetadata << " - Name : " << name << ". Value : " << properties.value
                          << ". Strategy: " << properties.strategy << RESTendl;
             RESTMetadata << " - Metadata: " << properties.metadata << RESTendl;
@@ -607,7 +620,7 @@ void TRestDataSet::PrintMetadata() {
     if (!fColumnNameExpressions.empty()) {
         RESTMetadata << " New columns added to generated dataframe: " << RESTendl;
         RESTMetadata << " ---------------------------------------- " << RESTendl;
-        for (const auto& [cName, cExpression] : fColumnNameExpressions)
+        for (const auto & [ cName, cExpression ] : fColumnNameExpressions)
             RESTMetadata << " - Name : " << cName << " Expression: " << cExpression << RESTendl;
     }
 
@@ -760,6 +773,7 @@ void TRestDataSet::InitFromConfigFile() {
 /// of the TRestDataSet instance that contains the conditions used to generate the dataset.
 ///
 void TRestDataSet::Export(const std::string& filename) {
+    RESTInfo << "Exporting dataset" << RESTendl;
     if (TRestTools::GetFileNameExtension(filename) == "txt" ||
         TRestTools::GetFileNameExtension(filename) == "csv") {
         std::vector<std::string> dataTypes;
@@ -770,8 +784,7 @@ void TRestDataSet::Export(const std::string& filename) {
             if (type != "Double_t" && type != "Int_t") {
                 RESTError << "Branch name : " << bName << " is type : " << type << RESTendl;
                 RESTError << "Only Int_t and Double_t types are allowed for "
-                             "exporting to ASCII table"
-                          << RESTendl;
+                             "exporting to ASCII table" << RESTendl;
                 RESTError << "File will not be generated" << RESTendl;
                 return;
             }
@@ -806,7 +819,7 @@ void TRestDataSet::Export(const std::string& filename) {
         }
         fprintf(f, "###\n");
         fprintf(f, "### Relevant quantities: \n");
-        for (auto& [name, properties] : fQuantity) {
+        for (auto & [ name, properties ] : fQuantity) {
             fprintf(f, "### - %s : %s - %s\n", name.c_str(), properties.value.c_str(),
                     properties.description.c_str());
         }
