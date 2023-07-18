@@ -199,6 +199,5 @@ class TRestDataSet : public TRestMetadata {
     ~TRestDataSet();
 
     ClassDefOverride(TRestDataSet, 5);
-
 };
 #endif
