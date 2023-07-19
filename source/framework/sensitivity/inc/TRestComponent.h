@@ -46,14 +46,11 @@ class TRestComponent : public TRestMetadata {
     /// A list with the branches that will be used to weight the distribution density
     std::vector<std::string> fWeights;  //<
 
-    /// It is used to parametrize a set of distribution densities
-    std::vector<std::string> fParametricVariables = "";  //<
+    /// It is used to parameterize a set of distribution densities (e.g. WIMP or axion mass)
+    std::string fParameter = "";  //<
 
-    /// It defines the nodes of the parametrization
-    std::vector<Double_t> fParametrizationNodes;  //<
-
-    /// It defines the binning between the parametrization nodes
-    Int_t fParametrizationBinning = 0;  //<
+    /// It defines the nodes of the parametrization (Initialized by the dataset)
+    std::vector<Double_t> fParameterizationNodes;  //<
 
     ////////// This should be implemented in TRestDataSetComponent
     //////////

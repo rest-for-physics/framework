@@ -126,19 +126,17 @@ void TRestComponent::PrintMetadata() {
     RESTMetadata << " === Weights === " << RESTendl;
     for (const auto& wName : fWeights) RESTMetadata << "- " << wName << RESTendl;
 
-    if (!fParametricVariable.empty()) {
+    if (!fParameter.empty()) {
         RESTMetadata << " " << RESTendl;
-        RESTMetadata << " === Parametrization === " << RESTendl;
-        RESTMetadata << "- Parametric variable : " << fParametricVariable << RESTendl;
+        RESTMetadata << " === Parameterization === " << RESTendl;
+        RESTMetadata << "- Parameter : " << fParameter << RESTendl;
 
         RESTMetadata << " - Parametric nodes : ";
-        for (const auto& node : fParametrizationNodes) {
+        for (const auto& node : fParameterizationNodes) {
             RESTMetadata << node << " ";
         }
         RESTMetadata << RESTendl;
     }
-
-    RESTMetadata << " - Parametrization binning : " << fParametrizationBinning << RESTendl;
 
     RESTMetadata << "----" << RESTendl;
 }
@@ -152,32 +150,30 @@ void TRestComponent::InitFromConfigFile() {
     auto ele = GetElement("variable");
     while (ele != nullptr) {
         std::string name = GetParameter("name", ele, "");
-        TVector2 v = Get2DVectorParameterWithUnits("range", ele);
-        Int_t bins = StringToInteger(GetParameter("bins", ele, "100"));
+        TVector2 v = Get2DVectorParameterWithUnits("range", ele, TVector2(-1, -1));
+        Int_t bins = StringToInteger(GetParameter("bins", ele, "0"));
 
-        fVariables.push_back(name);
-        fRanges.push_back(v);
-        fNbins.push_back(bins);
-
-        ele = GetNextElement(ele);
-    }
-
-    ele = GetElement("parametricVariable");
-    while (ele != nullptr) {
-        fParametricVariable = GetParameter("name", ele, "");
-        fParametrizationNodes = StringToElements(GetParameter("nodes", ele, "-1"), ",");
-        fParametrizationBinning = StringToInteger(GetParameter("bins", ele, "100"));
+        if (name.empty() || (v.X() == -1 && v.Y() == -1) || bins == 0) {
+            RESTWarning << "TRestComponent::fVariable. Problem with definition." << RESTendl;
+            RESTWarning << "Name: " << name << " range: (" << v.X() << ", " << v.Y() << ") bins: " << bins
+                        << RESTendl;
+        } else {
+            fVariables.push_back(name);
+            fRanges.push_back(v);
+            fNbins.push_back(bins);
+        }
 
         ele = GetNextElement(ele);
     }
 
     ele = GetElement("dataset");
     while (ele != nullptr) {
-        fDataSetFileNames.push_back(GetParameter("file", ele, ""));
+        fDataSetFileNames.push_back(GetParameter("filename", ele, ""));
         ele = GetNextElement(ele);
     }
 
     if (!fDataSetFileNames.empty()) {
+        RESTInfo << "Loading datasets" << RESTendl;
         fDataSetLoaded = LoadDataSets();
     } else {
         RESTWarning
