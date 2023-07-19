@@ -172,6 +172,8 @@ void TRestMySQLToAnalysisProcess::Initialize() {
 TRestEvent* TRestMySQLToAnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     fEvent = inputEvent;
 
+    std::cout << fEvent->GetID() << std::endl;
+
 #if defined USE_SQL
     RESTDebug << "TRestMySQLToAnalysisProcess. Ev ID : " << fEvent->GetID() << RESTendl;
     RESTDebug << "TRestMySQLToAnalysisProcess. Get timestamp : " << fEvent->GetTime() << RESTendl;
@@ -315,12 +317,9 @@ void TRestMySQLToAnalysisProcess::FillDBArrays() {
     fSampling = (fEndTimestamp - fStartTimestamp) / num_rows / 2;
 
     if (num_rows < 3) {
-        RESTError << "Not enough data found on the event data range" << RESTendl;
-        RESTError
-            << "If no database entries exist remove TRestMySQLToAnalysisProcess from your processing chain"
-            << RESTendl;
         this->SetError("No DB entries found for the run period!");
         fDataBaseExists = false;
+        return;
     }
 
     // We register all the data inside a std::vector.
