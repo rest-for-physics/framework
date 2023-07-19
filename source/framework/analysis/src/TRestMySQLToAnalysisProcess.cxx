@@ -172,8 +172,6 @@ void TRestMySQLToAnalysisProcess::Initialize() {
 TRestEvent* TRestMySQLToAnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     fEvent = inputEvent;
 
-    std::cout << fEvent->GetID() << std::endl;
-
 #if defined USE_SQL
     RESTDebug << "TRestMySQLToAnalysisProcess. Ev ID : " << fEvent->GetID() << RESTendl;
     RESTDebug << "TRestMySQLToAnalysisProcess. Get timestamp : " << fEvent->GetTime() << RESTendl;
