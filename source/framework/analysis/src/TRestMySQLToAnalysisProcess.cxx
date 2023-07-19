@@ -319,10 +319,7 @@ void TRestMySQLToAnalysisProcess::FillDBArrays() {
         RESTError
             << "If no database entries exist remove TRestMySQLToAnalysisProcess from your processing chain"
             << RESTendl;
-        // We take the decision to stop processing to make sure we are aware of the problem.
-        // Specially to identify possible errors in this code.
-        // But we might get more flexible with time, and this process just prompts a worning and does nothing.
-        exit(1);
+        fDataBaseExists = false;
     }
 
     // We register all the data inside a std::vector.
@@ -428,6 +425,7 @@ string TRestMySQLToAnalysisProcess::BuildQueryString() {
 /// neighbouring timestamps inside the fDBdata dataset.
 ///
 Double_t TRestMySQLToAnalysisProcess::GetDBValueAtTimestamp(Int_t index, Double_t timestamp) {
+    if (!fDataBaseExists) return -1;
     Int_t bin = (Int_t)((timestamp - fStartTimestamp) / fSampling);
 
     if (bin < 0) return fDBdata.front()[index];
