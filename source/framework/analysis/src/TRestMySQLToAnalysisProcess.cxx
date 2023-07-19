@@ -319,6 +319,7 @@ void TRestMySQLToAnalysisProcess::FillDBArrays() {
         RESTError
             << "If no database entries exist remove TRestMySQLToAnalysisProcess from your processing chain"
             << RESTendl;
+        this->SetError("No DB entries found for the run period!");
         fDataBaseExists = false;
     }
 
