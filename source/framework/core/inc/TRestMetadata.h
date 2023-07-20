@@ -216,10 +216,10 @@ class TRestMetadata : public TNamed {
     void AddLog(std::string log = "", bool print = true);
 
     /// A metadata class may use this method to signal that something went wrong
-    void SetError(std::string message = "", bool print = true);
+    void SetError(std::string message = "", bool print = true, int maxPrint = 5);
 
     /// A metadata class may use this method to signal that something went wrong
-    void SetWarning(std::string message = "", bool print = true);
+    void SetWarning(std::string message = "", bool print = true, int maxPrint = 5);
 
     /// Returns a std::string containing the error message
     TString GetErrorMessage();

@@ -2617,23 +2617,23 @@ void TRestMetadata::AddLog(string log, bool print) {
     }
 }
 
-void TRestMetadata::SetError(string message, bool print) {
+void TRestMetadata::SetError(string message, bool print, int maxPrint) {
     fError = true;
     fNErrors++;
     if (message != "") {
         fErrorMessage += message + "\n";
-        if (print) {
+        if (print && fNErrors < maxPrint) {
             cout << message << endl;
         }
     }
 }
 
-void TRestMetadata::SetWarning(string message, bool print) {
+void TRestMetadata::SetWarning(string message, bool print, int maxPrint) {
     fWarning = true;
     fNWarnings++;
     if (message != "") {
         fWarningMessage += message + "\n";
-        if (print) {
+        if (print && fNWarnings < maxPrint) {
             RESTWarning << message << RESTendl;
         }
     }
