@@ -943,6 +943,11 @@ void TRestDataSet::Import(std::vector<std::string> fileNames) {
 
     if (fileNames.size() == 0) return;
 
+    if (fileNames.size() == 1) {
+        this->Import(fileNames[0]);
+        return;
+    }
+
     TFile* file = TFile::Open(fileNames[0].c_str(), "READ");
     if (file != nullptr) {
         TIter nextkey(file->GetListOfKeys());
