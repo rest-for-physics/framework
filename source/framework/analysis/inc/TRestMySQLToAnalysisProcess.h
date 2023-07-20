@@ -112,7 +112,7 @@ class TRestMySQLToAnalysisProcess : public TRestEventProcess {
 
     ~TRestMySQLToAnalysisProcess();
 
-    // If new members are added, removed or modified in this class version number must be increased!
-    ClassDefOverride(TRestMySQLToAnalysisProcess, 1);
+    /// If new members are added, removed or modified in this class version number must be increased!
+    ClassDefOverride(TRestMySQLToAnalysisProcess, 2);
 };
 #endif
