@@ -103,7 +103,7 @@ class TRestDataSet : public TRestMetadata {
     std::vector<std::string> fImportedFiles;  //<
 
     /// A list of new columns together with its corresponding expressions added to the dataset
-    std::vector<std::pair<std::string, std::string>> fColumnNameExpressions;
+    std::vector<std::pair<std::string, std::string>> fColumnNameExpressions;  //<
 
     /// The resulting RDF::RNode object after initialization
     ROOT::RDF::RNode fDataSet = ROOT::RDataFrame(0);  //!
@@ -161,6 +161,7 @@ class TRestDataSet : public TRestMetadata {
     inline auto GetFilterLowerThan() const { return fFilterLowerThan; }
     inline auto GetFilterEqualsTo() const { return fFilterEqualsTo; }
     inline auto GetQuantity() const { return fQuantity; }
+    inline auto GetAddedColumns() const { return fColumnNameExpressions; }
     inline auto GetCut() const { return fCut; }
     inline auto IsMergedDataSet() const { return fMergedDataset; }
 

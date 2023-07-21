@@ -607,8 +607,11 @@ void TRestDataSet::PrintMetadata() {
     if (!fColumnNameExpressions.empty()) {
         RESTMetadata << " New columns added to generated dataframe: " << RESTendl;
         RESTMetadata << " ---------------------------------------- " << RESTendl;
-        for (const auto& [cName, cExpression] : fColumnNameExpressions)
-            RESTMetadata << " - Name : " << cName << " Expression: " << cExpression << RESTendl;
+        for (const auto& [cName, cExpression] : fColumnNameExpressions) {
+            RESTMetadata << " - Name : " << cName << RESTendl;
+            RESTMetadata << " - Expression: " << cExpression << RESTendl;
+            RESTMetadata << " " << RESTendl;
+        }
     }
 
     if (fMergedDataset) {
@@ -878,6 +881,7 @@ TRestDataSet& TRestDataSet::operator=(TRestDataSet& dS) {
     fFilterLowerThan = dS.GetFilterLowerThan();
     fFilterEqualsTo = dS.GetFilterEqualsTo();
     fQuantity = dS.GetQuantity();
+    fColumnNameExpressions = dS.GetAddedColumns();
     fTotalDuration = dS.GetTotalTimeInSeconds();
     fFileSelection = dS.GetFileSelection();
     fCut = dS.GetCut();
