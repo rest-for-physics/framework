@@ -134,17 +134,6 @@ void TRestComponent::PrintMetadata() {
         RESTMetadata << " - Parametric nodes : " << fParameterizationNodes.size() << RESTendl;
         RESTMetadata << " " << RESTendl;
         RESTMetadata << " Use : this->PrintStatistics() for additional info" << RESTendl;
-        /*
-        RESTMetadata << " Values : ";
-        int n = 0;
-        for (const auto& node : fParameterizationNodes) {
-            if ( n == 0 ) RESTMetadata << node;
-            else RESTMetadata << ", " << node;
-            n++;
-            if( n % 10 == 0 ) RESTMetadata << RESTendl;
-        }
-        RESTMetadata << RESTendl;
-        */
     }
 
     RESTMetadata << "----" << RESTendl;
