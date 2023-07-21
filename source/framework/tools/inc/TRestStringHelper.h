@@ -73,6 +73,16 @@ std::string ToString(T source, int length = -1, char fill = ' ') {
         return s.substr(0, length);
     }
 }
+
+template <class T>
+std::string StringWithPrecision(T& value, int precision) {
+    std::stringstream ss;
+    ss.precision(precision);
+    ss << value;
+
+    return ss.str();
+}
+
 template <class T1, class T2>
 inline std::vector<T2> Vector_cast(std::vector<T1> vecstring) {
     std::vector<T2> result;

@@ -252,7 +252,7 @@ void TRestDataSetCalibration::Calibrate() {
     };
     df = df.Define("calib_Energy", calibrate, {fCalObservable});
 
-    dataSet.SetDataSet(df);
+    dataSet.SetDataFrame(df);
 
     if (!fOutputFileName.empty()) {
         if (TRestTools::GetFileNameExtension(fOutputFileName) == "root") {

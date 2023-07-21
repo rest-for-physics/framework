@@ -216,6 +216,9 @@ Int_t TRestSpiderMask::GetRegion(Double_t& x, Double_t& y) {
 void TRestSpiderMask::GenerateSpider() {
     if (fArmsSeparationAngle <= 0) return;
 
+    fPositiveRanges.clear();
+    fNegativeRanges.clear();
+
     std::pair<Double_t, Double_t> additional_negative = {-1, -1};
 
     // The angle parameter could introduce an offset but we let finally this task to TRestPatternMask
