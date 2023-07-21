@@ -131,14 +131,37 @@ void TRestComponent::PrintMetadata() {
         RESTMetadata << " === Parameterization === " << RESTendl;
         RESTMetadata << "- Parameter : " << fParameter << RESTendl;
 
-        RESTMetadata << " - Parametric nodes : ";
+        RESTMetadata << " - Parametric nodes : " << fParameterizationNodes.size() << RESTendl;
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << " Use : this->PrintStatistics() for additional info" << RESTendl;
+        /*
+        RESTMetadata << " Values : ";
+        int n = 0;
         for (const auto& node : fParameterizationNodes) {
-            RESTMetadata << node << " ";
+            if ( n == 0 ) RESTMetadata << node;
+            else RESTMetadata << ", " << node;
+            n++;
+            if( n % 10 == 0 ) RESTMetadata << RESTendl;
         }
         RESTMetadata << RESTendl;
+        */
     }
 
     RESTMetadata << "----" << RESTendl;
+}
+
+void TRestComponent::PrintStatistics() {
+    auto nEv = fDataSet.GetDataFrame().Count();
+    std::cout << "Total counts : " << *nEv << std::endl;
+    std::cout << std::endl;
+
+    fNodeStatistics = ExtractNodeStatistics();
+    std::cout << " Parameter node statistics (" << fParameter << ")" << std::endl;
+    int n = 0;
+    for (const auto& p : fParameterizationNodes) {
+        std::cout << " - Value : " << p << " Counts: " << fNodeStatistics[n] << std::endl;
+        n++;
+    }
 }
 
 /////////////////////////////////////////////
@@ -175,11 +198,41 @@ void TRestComponent::InitFromConfigFile() {
     if (!fDataSetFileNames.empty()) {
         RESTInfo << "Loading datasets" << RESTendl;
         fDataSetLoaded = LoadDataSets();
+
+        fParameterizationNodes = ExtractParameterizationNodes();
     } else {
         RESTWarning
             << "Dataset filename was not defined. You may still use TRestComponent::LoadDataSet( filename );"
             << RESTendl;
     }
+}
+
+std::vector<Double_t> TRestComponent::ExtractParameterizationNodes() {
+    auto parValues = fDataSet.GetDataFrame().Take<double>(fParameter);
+    std::vector<double> vs;
+    for (const auto v : parValues) vs.push_back(v);
+
+    std::vector<double>::iterator ip;
+    ip = std::unique(vs.begin(), vs.begin() + vs.size());
+    vs.resize(std::distance(vs.begin(), ip));
+    std::sort(vs.begin(), vs.end());
+    ip = std::unique(vs.begin(), vs.end());
+    vs.resize(std::distance(vs.begin(), ip));
+
+    return vs;
+}
+
+std::vector<Int_t> TRestComponent::ExtractNodeStatistics() {
+    if (!fNodeStatistics.empty()) return fNodeStatistics;
+
+    std::cout << "Counting statistics for each node ..." << std::endl;
+    std::vector<Int_t> stats;
+    for (const auto& p : fParameterizationNodes) {
+        std::string filter = fParameter + " == " + DoubleToString(p);
+        auto nEv = fDataSet.GetDataFrame().Filter(filter).Count();
+        stats.push_back(*nEv);
+    }
+    return stats;
 }
 
 /////////////////////////////////////////////

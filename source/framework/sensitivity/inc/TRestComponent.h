@@ -49,8 +49,11 @@ class TRestComponent : public TRestMetadata {
     /// It is used to parameterize a set of distribution densities (e.g. WIMP or axion mass)
     std::string fParameter = "";  //<
 
-    /// It defines the nodes of the parametrization (Initialized by the dataset)
+    /// It defines the nodes of the parameterization (Initialized by the dataset)
     std::vector<Double_t> fParameterizationNodes;  //<
+
+    /// It defines the statistics of each parameterization node (Initialized by the dataset)
+    std::vector<Int_t> fNodeStatistics;  //<
 
     ////////// This should be implemented in TRestDataSetComponent
     //////////
@@ -80,6 +83,9 @@ class TRestComponent : public TRestMetadata {
     /// A pointer to the component distribution
     // THnD* fDistribution = nullptr;  //!
 
+    std::vector<Double_t> ExtractParameterizationNodes();
+    std::vector<Int_t> ExtractNodeStatistics();
+
     Bool_t VariablesOk();
     Bool_t WeightsOk();
 
@@ -95,6 +101,8 @@ class TRestComponent : public TRestMetadata {
     Double_t GetRate(std::vector<Double_t> point);
 
     void PrintMetadata() override;
+
+    void PrintStatistics();
 
     void Initialize() override;
     TRestComponent(const char* configFilename);
