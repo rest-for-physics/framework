@@ -29,6 +29,7 @@ void REST_OpenInputFile(const std::string& fileName) {
             }
             std::string mName = Replace(metaName, " ", "");
             mName = Replace(mName, ".", "_");
+            mName = Replace(mName, "-", "_");
             std::string mdcmd = Form("%s* %s = (%s*)run->GetMetadata(\"%s\");", md->ClassName(),
                                      mName.c_str(), md->ClassName(), metaName.c_str());
             gROOT->ProcessLine(mdcmd.c_str());
