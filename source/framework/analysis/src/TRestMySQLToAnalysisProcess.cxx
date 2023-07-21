@@ -59,6 +59,9 @@
 /// </addProcess>
 /// ```
 ///
+/// \note If no DB entries were found, the branches will still be created inside
+/// the analysis tree, but their value will be equal to -1.
+///
 ///--------------------------------------------------------------------------
 ///
 /// RESTsoft - Software for Rare Event Searches with TPCs
