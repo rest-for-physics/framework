@@ -35,7 +35,7 @@ Float_t StringToFloat(std::string in);
 Double_t StringToDouble(std::string in);
 Int_t StringToInteger(std::string in);
 std::string IntegerToString(Int_t n, std::string format = "%d");
-std::string DoubleToString(Double_t d, std::string format = "%4.2lf");
+std::string DoubleToString(Double_t d, std::string format = "%8.6e");
 Bool_t StringToBool(std::string booleanString);
 Long64_t StringToLong(std::string in);
 TVector3 StringTo3DVector(std::string in);
