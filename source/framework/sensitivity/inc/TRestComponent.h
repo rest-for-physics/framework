@@ -23,6 +23,7 @@
 #ifndef REST_TRestComponent
 #define REST_TRestComponent
 
+#include <THnSparse.h>
 #include "TRestDataSet.h"
 #include "TRestMetadata.h"
 
@@ -61,6 +62,9 @@ class TRestComponent : public TRestMetadata {
     /// The filename of the dataset used
     std::vector<std::string> fDataSetFileNames;  //<
 
+    /// The generated N-dimensional PDF
+    std::map<std::string, THnSparse*> fPDFs;  //<
+
     /// The dataset used to initialize the distribution
     TRestDataSet fDataSet;  //!
 
@@ -85,6 +89,7 @@ class TRestComponent : public TRestMetadata {
 
     std::vector<Double_t> ExtractParameterizationNodes();
     std::vector<Int_t> ExtractNodeStatistics();
+    void InitializeSparseHistograms();
 
     Bool_t VariablesOk();
     Bool_t WeightsOk();

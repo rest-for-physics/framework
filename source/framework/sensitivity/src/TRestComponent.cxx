@@ -189,6 +189,7 @@ void TRestComponent::InitFromConfigFile() {
         fDataSetLoaded = LoadDataSets();
 
         fParameterizationNodes = ExtractParameterizationNodes();
+        InitializeSparseHistograms();
     } else {
         RESTWarning
             << "Dataset filename was not defined. You may still use TRestComponent::LoadDataSet( filename );"
@@ -196,7 +197,63 @@ void TRestComponent::InitFromConfigFile() {
     }
 }
 
+/////////////////////////////////////////////
+/// \brief
+///
+void TRestComponent::InitializeSparseHistograms() {
+    // fNodeStatistics = ExtractNodeStatistics();
+
+    RESTInfo << "Initializing Sparse histograms" << RESTendl;
+    for (const auto& node : fParameterizationNodes) {
+        std::string filter = fParameter + " == " + DoubleToString(node);
+        RESTInfo << "Creating THnSparse for parameter " << fParameter << ": " << DoubleToString(node)
+                 << RESTendl;
+        ROOT::RDF::RNode df = fDataSet.GetDataFrame().Filter(filter);
+
+        Int_t* bins = new Int_t[fNbins.size()];
+        Double_t* xmin = new Double_t[fNbins.size()];
+        Double_t* xmax = new Double_t[fNbins.size()];
+
+        for (size_t n = 0; n < fNbins.size(); n++) {
+            bins[n] = fNbins[n];
+            xmin[n] = fRanges[n].X();
+            xmax[n] = fRanges[n].Y();
+        }
+
+        TString hName = fParameter + "_" + DoubleToString(node);
+        THnSparseD* sparse = new THnSparseD(hName, hName, fNbins.size(), bins, xmin, xmax);
+
+        std::vector<std::vector<double> > data;
+        for (const auto& v : fVariables) {
+            auto parValues = fDataSet.GetDataFrame().Take<double>(v);
+            data.push_back(*parValues);
+        }
+
+        Double_t* values = new Double_t[fVariables.size()];
+        if (!data.empty())
+            for (size_t m = 0; m < data[0].size(); m++)
+                for (size_t v = 0; v < fVariables.size(); v++) {
+                    values[v] = data[v][m];
+                    sparse->Fill(values);
+                }
+        delete[] values;
+    }
+
+    if (fParameterizationNodes.empty()) {
+        std::cout << "We use the full dataset" << std::endl;
+    }
+}
+
+/////////////////////////////////////////////
+/// \brief It returns a vector with all the different values found on
+/// the dataset column for the user given parameterization variable.
+///
+/// If fParameterizationNodes has already been initialized it will
+/// directly return its value.
+///
 std::vector<Double_t> TRestComponent::ExtractParameterizationNodes() {
+    if (!fParameterizationNodes.empty()) return fParameterizationNodes;
+
     auto parValues = fDataSet.GetDataFrame().Take<double>(fParameter);
     std::vector<double> vs;
     for (const auto v : parValues) vs.push_back(v);
@@ -211,10 +268,18 @@ std::vector<Double_t> TRestComponent::ExtractParameterizationNodes() {
     return vs;
 }
 
+/////////////////////////////////////////////
+/// \brief It returns a vector with the number of entries found for each
+/// parameterization node.
+///
+/// If fNodeStatistics has already been initialized it will
+/// directly return its value.
+///
 std::vector<Int_t> TRestComponent::ExtractNodeStatistics() {
     if (!fNodeStatistics.empty()) return fNodeStatistics;
 
-    std::cout << "Counting statistics for each node ..." << std::endl;
+    RESTInfo << "Counting statistics for each node ..." << RESTendl;
+    RESTInfo << "Number of nodes : " << fParameterizationNodes.size() << RESTendl;
     std::vector<Int_t> stats;
     for (const auto& p : fParameterizationNodes) {
         std::string filter = fParameter + " == " + DoubleToString(p);
@@ -226,6 +291,8 @@ std::vector<Int_t> TRestComponent::ExtractNodeStatistics() {
 
 /////////////////////////////////////////////
 /// \brief A method responsible to import a list of TRestDataSet into fDataSet
+/// and check that the variables and weights defined by the user can be found
+/// inside the dataset.
 ///
 Bool_t TRestComponent::LoadDataSets() {
     std::vector<std::string> fullFileNames;
