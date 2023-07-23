@@ -345,20 +345,25 @@ void TRestDataSet::GenerateDataSet() {
 
     ROOT::EnableImplicitMT();
 
+    RESTInfo << "Initializing dataset" << RESTendl;
     fDataSet = ROOT::RDataFrame("AnalysisTree", fFileSelection);
 
+    RESTInfo << "Making cuts" << RESTendl;
     fDataSet = MakeCut(fCut);
 
     // Adding new user columns added to the dataset
     for (const auto& [cName, cExpression] : fColumnNameExpressions) {
+        RESTInfo << "Adding column to dataset: " << cName << RESTendl;
         finalList.emplace_back(cName);
         fDataSet = DefineColumn(cName, cExpression);
     }
 
+    RESTInfo << "Generating snapshot." << RESTendl;
     std::string user = getenv("USER");
     std::string fOutName = "/tmp/rest_output_" + user + ".root";
     fDataSet.Snapshot("AnalysisTree", fOutName, finalList);
 
+    RESTInfo << "Re-importing analysis tree." << RESTendl;
     fDataSet = ROOT::RDataFrame("AnalysisTree", fOutName);
 
     TFile* f = TFile::Open(fOutName.c_str());
@@ -392,8 +397,17 @@ std::vector<std::string> TRestDataSet::FileSelection() {
     }
 
     fTotalDuration = 0;
+    std::cout << "Total files : " << fileNames.size() << std::endl;
+    std::cout << "Processing file selection .";
+    int cnt = 1;
     for (const auto& file : fileNames) {
+        if (cnt % 100 == 0) {
+            std::cout << std::endl;
+            std::cout << "Files processed: " << cnt << " ." << std::flush;
+        }
+        cnt++;
         TRestRun run(file);
+        std::cout << "." << std::flush;
         double runStart = run.GetStartTimestamp();
         double runEnd = run.GetEndTimestamp();
 
@@ -464,7 +478,7 @@ std::vector<std::string> TRestDataSet::FileSelection() {
         fTotalDuration += run.GetEndTimestamp() - run.GetStartTimestamp();
         fFileSelection.push_back(file);
     }
-    RESTInfo << RESTendl;
+    std::cout << std::endl;
 
     return fFileSelection;
 }
@@ -763,6 +777,7 @@ void TRestDataSet::InitFromConfigFile() {
 /// of the TRestDataSet instance that contains the conditions used to generate the dataset.
 ///
 void TRestDataSet::Export(const std::string& filename) {
+    RESTInfo << "Exporting dataset" << RESTendl;
     if (TRestTools::GetFileNameExtension(filename) == "txt" ||
         TRestTools::GetFileNameExtension(filename) == "csv") {
         std::vector<std::string> dataTypes;
