@@ -24,6 +24,7 @@
 #define REST_TRestComponent
 
 #include <THnSparse.h>
+
 #include "TRestDataSet.h"
 #include "TRestMetadata.h"
 
