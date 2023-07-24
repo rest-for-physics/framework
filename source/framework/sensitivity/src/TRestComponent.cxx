@@ -42,6 +42,8 @@
 
 #include "TKey.h"
 
+#include <numeric>
+
 ClassImp(TRestComponent);
 
 ///////////////////////////////////////////////
@@ -139,18 +141,31 @@ void TRestComponent::PrintMetadata() {
     RESTMetadata << "----" << RESTendl;
 }
 
+/////////////////////////////////////////////
+/// \brief It prints out the statistics available for each parametric node
+///
 void TRestComponent::PrintStatistics() {
-    auto nEv = fDataSet.GetDataFrame().Count();
-    std::cout << "Total counts : " << *nEv << std::endl;
+    if (fNodeStatistics.empty() && IsDataSetLoaded()) fNodeStatistics = ExtractNodeStatistics();
+
+    auto result = std::accumulate(fNodeStatistics.begin(), fNodeStatistics.end(), 0);
+    std::cout << "Total counts : " << result << std::endl;
     std::cout << std::endl;
 
-    fNodeStatistics = ExtractNodeStatistics();
     std::cout << " Parameter node statistics (" << fParameter << ")" << std::endl;
     int n = 0;
     for (const auto& p : fParameterizationNodes) {
         std::cout << " - Value : " << p << " Counts: " << fNodeStatistics[n] << std::endl;
         n++;
     }
+}
+
+/////////////////////////////////////////////
+/// \brief It prints out on screen the values of the parametric node
+///
+void TRestComponent::PrintNodes() {
+    std::cout << " - Number of nodes : " << fParameterizationNodes.size() << std::endl;
+    for (const auto& x : fParameterizationNodes) std::cout << x;
+    std::cout << std::endl;
 }
 
 /////////////////////////////////////////////
@@ -189,7 +204,7 @@ void TRestComponent::InitFromConfigFile() {
         fDataSetLoaded = LoadDataSets();
 
         fParameterizationNodes = ExtractParameterizationNodes();
-        InitializeSparseHistograms();
+        GenerateSparseHistograms();
     } else {
         RESTWarning
             << "Dataset filename was not defined. You may still use TRestComponent::LoadDataSet( filename );"
@@ -200,10 +215,16 @@ void TRestComponent::InitFromConfigFile() {
 /////////////////////////////////////////////
 /// \brief
 ///
-void TRestComponent::InitializeSparseHistograms() {
-    // fNodeStatistics = ExtractNodeStatistics();
+void TRestComponent::GenerateSparseHistograms() {
+    fNodeStatistics = ExtractNodeStatistics();
 
-    RESTInfo << "Initializing Sparse histograms" << RESTendl;
+    if (!IsDataSetLoaded()) {
+        RESTError << "TRestComponent::GenerateSparseHistograms. Dataset has not been initialized!"
+                  << RESTendl;
+        return;
+    }
+
+    RESTInfo << "Generating Sparse histograms" << RESTendl;
     for (const auto& node : fParameterizationNodes) {
         std::string filter = fParameter + " == " + DoubleToString(node);
         RESTInfo << "Creating THnSparse for parameter " << fParameter << ": " << DoubleToString(node)
@@ -225,7 +246,7 @@ void TRestComponent::InitializeSparseHistograms() {
 
         std::vector<std::vector<double> > data;
         for (const auto& v : fVariables) {
-            auto parValues = fDataSet.GetDataFrame().Take<double>(v);
+            auto parValues = df.Take<double>(v);
             data.push_back(*parValues);
         }
 
@@ -237,11 +258,85 @@ void TRestComponent::InitializeSparseHistograms() {
                     sparse->Fill(values);
                 }
         delete[] values;
+
+        fNodeDensity.push_back(sparse);
     }
 
     if (fParameterizationNodes.empty()) {
         std::cout << "We use the full dataset" << std::endl;
+        std::cout << "Not implemented yet!" << std::endl;
     }
+}
+
+/////////////////////////////////////////////
+/// \brief It returns the position of the fVariable element for
+/// the variable name given by argument.
+///
+Int_t TRestComponent::GetVariableIndex(std::string varName) {
+    int n = 0;
+    for (const auto& v : fVariables) {
+        if (v == varName) return n;
+        n++;
+    }
+
+    return -1;
+}
+
+/////////////////////////////////////////////
+/// \brief
+///
+THnSparse* TRestComponent::GetDensityForNode(Double_t node) {
+    int n = 0;
+    for (const auto& x : fParameterizationNodes) {
+        if (x == node) {
+            return fNodeDensity[n];
+        }
+        n++;
+    }
+
+    RESTError << "Parametric node : " << node << " was not found in component" << RESTendl;
+    PrintNodes();
+    return nullptr;
+}
+
+/////////////////////////////////////////////
+/// \brief It returns a 1-dimensional projected histogram for the variable names
+/// provided in the argument
+///
+TH1D* TRestComponent::GetHistogram(Double_t node, std::string varName) {
+    Int_t v1 = GetVariableIndex(varName);
+
+    if (v1 >= 0) return GetDensityForNode(node)->Projection(v1);
+
+    return nullptr;
+}
+
+/////////////////////////////////////////////
+/// \brief It returns the 2-dimensional projected histogram for the variable names
+/// provided in the argument
+///
+TH2D* TRestComponent::GetHistogram(Double_t node, std::string varName1, std::string varName2) {
+    Int_t v1 = GetVariableIndex(varName1);
+    Int_t v2 = GetVariableIndex(varName2);
+
+    if (v1 >= 0 && v2 >= 0) return GetDensityForNode(node)->Projection(v1, v2);
+
+    return nullptr;
+}
+
+/////////////////////////////////////////////
+/// \brief It returns the 3-dimensional projected histogram for the variable names
+/// provided in the argument
+///
+TH3D* TRestComponent::GetHistogram(Double_t node, std::string varName1, std::string varName2,
+                                   std::string varName3) {
+    Int_t v1 = GetVariableIndex(varName1);
+    Int_t v2 = GetVariableIndex(varName2);
+    Int_t v3 = GetVariableIndex(varName3);
+
+    if (v1 >= 0 && v2 >= 0 && v3 >= 0) return GetDensityForNode(node)->Projection(v1, v2, v3);
+
+    return nullptr;
 }
 
 /////////////////////////////////////////////
@@ -254,8 +349,14 @@ void TRestComponent::InitializeSparseHistograms() {
 std::vector<Double_t> TRestComponent::ExtractParameterizationNodes() {
     if (!fParameterizationNodes.empty()) return fParameterizationNodes;
 
-    auto parValues = fDataSet.GetDataFrame().Take<double>(fParameter);
     std::vector<double> vs;
+    if (!IsDataSetLoaded()) {
+        RESTError << "TRestComponent::ExtractParameterizationNodes. Dataset has not been initialized!"
+                  << RESTendl;
+        return vs;
+    }
+
+    auto parValues = fDataSet.GetDataFrame().Take<double>(fParameter);
     for (const auto v : parValues) vs.push_back(v);
 
     std::vector<double>::iterator ip;
@@ -278,9 +379,14 @@ std::vector<Double_t> TRestComponent::ExtractParameterizationNodes() {
 std::vector<Int_t> TRestComponent::ExtractNodeStatistics() {
     if (!fNodeStatistics.empty()) return fNodeStatistics;
 
+    std::vector<Int_t> stats;
+    if (!IsDataSetLoaded()) {
+        RESTError << "TRestComponent::ExtractNodeStatistics. Dataset has not been initialized!" << RESTendl;
+        return stats;
+    }
+
     RESTInfo << "Counting statistics for each node ..." << RESTendl;
     RESTInfo << "Number of nodes : " << fParameterizationNodes.size() << RESTendl;
-    std::vector<Int_t> stats;
     for (const auto& p : fParameterizationNodes) {
         std::string filter = fParameter + " == " + DoubleToString(p);
         auto nEv = fDataSet.GetDataFrame().Filter(filter).Count();

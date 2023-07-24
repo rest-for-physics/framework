@@ -63,14 +63,17 @@ class TRestComponent : public TRestMetadata {
     /// The filename of the dataset used
     std::vector<std::string> fDataSetFileNames;  //<
 
-    /// The generated N-dimensional PDF
-    std::map<std::string, THnSparse*> fPDFs;  //<
+    /// The generated N-dimensional variable space density for a given node
+    std::vector<THnSparse*> fNodeDensity;  //<
+
+    /// The generated N-dimensional variable space density for the complete dataset
+    THnSparse* fTotalDensity = nullptr;  //<
 
     /// The dataset used to initialize the distribution
     TRestDataSet fDataSet;  //!
 
     /// It is true of the dataset was loaded without issues
-    Bool_t fDataSetLoaded = false;
+    Bool_t fDataSetLoaded = false;  //!
 
     //////////
     ////////// This should be implemented in TRestDataSetComponent
@@ -88,14 +91,16 @@ class TRestComponent : public TRestMetadata {
     /// A pointer to the component distribution
     // THnD* fDistribution = nullptr;  //!
 
+   protected:
     std::vector<Double_t> ExtractParameterizationNodes();
     std::vector<Int_t> ExtractNodeStatistics();
-    void InitializeSparseHistograms();
+    void GenerateSparseHistograms();
 
     Bool_t VariablesOk();
     Bool_t WeightsOk();
 
-   protected:
+    Int_t GetVariableIndex(std::string varName);
+
     void InitFromConfigFile() override;
 
    public:
@@ -106,9 +111,16 @@ class TRestComponent : public TRestMetadata {
 
     Double_t GetRate(std::vector<Double_t> point);
 
+    THnSparse* GetDensityForNode(Double_t value);
+
+    TH1D* GetHistogram(Double_t node, std::string varName);
+    TH2D* GetHistogram(Double_t node, std::string varName1, std::string varName2);
+    TH3D* GetHistogram(Double_t node, std::string varName1, std::string varName2, std::string varName3);
+
     void PrintMetadata() override;
 
     void PrintStatistics();
+    void PrintNodes();
 
     void Initialize() override;
     TRestComponent(const char* configFilename);
