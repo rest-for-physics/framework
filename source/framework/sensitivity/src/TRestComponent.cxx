@@ -40,9 +40,9 @@
 ///
 #include "TRestComponent.h"
 
-#include "TKey.h"
-
 #include <numeric>
+
+#include "TKey.h"
 
 ClassImp(TRestComponent);
 
