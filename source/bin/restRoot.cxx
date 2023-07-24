@@ -25,6 +25,10 @@ int main(int argc, char* argv[]) {
     // set the env and debug status
     setenv("REST_VERSION", REST_RELEASE, 1);
 
+    printf("Setting verbose level to info. You may change level using `restRoot -v N`.\n");
+    printf("Use `restRoot --help` for additional info.\n");
+    gVerbose = StringToVerboseLevel("2");
+
     Bool_t loadMacros = false;
     for (int i = 1; i < argc; i++) {
         char* c = &argv[i][0];
