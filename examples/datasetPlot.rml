@@ -1,0 +1,69 @@
+  <TRestManager name="alphaTrack" title="alphaTrack" verboseLevel="info">
+    <TRestDataSetPlot name="alphaTrackPlot" title="Basic Plots for alpha tracks" previewPlot="true"
+    canvasSize="(1200,1200)" canvasDivisions="(2,2)" verboseLevel="info"
+    outputFileName="Plots_[TRestRun::fRunTag]_plots.root">
+      <addCut name="North"/>
+      <addCut name="TrackBalance"/>
+      <TRestCut name="North" verboseLevel="info">
+          <cut name="c1" variable="alphaTrackAna_originZ" condition="<0"/>
+      </TRestCut>
+      <TRestCut name="Fiducial" verboseLevel="info">
+          <cut name="c2" variable="alphaTrackAna_originX" condition=">20"/>
+          <cut name="c3" variable="alphaTrackAna_originX" condition="<225"/>
+          <cut name="c4" variable="alphaTrackAna_originY" condition=">20"/>
+          <cut name="c5" variable="alphaTrackAna_originY" condition="<225"/>
+      </TRestCut>
+      <TRestCut name="Upwards" verboseLevel="info">
+          <cut name="c6" variable="alphaTrackAna_downwards" condition="==false"/>
+      </TRestCut>
+      <TRestCut name="Downwards" verboseLevel="info">
+          <cut name="c7" variable="alphaTrackAna_downwards" condition="==true"/>
+      </TRestCut>
+      <TRestCut name="TrackBalance" verboseLevel="info">
+          <cut name="c8" variable="alphaTrackAna_trackBalanceX" condition=">0.9"/>
+          <cut name="c9" variable="alphaTrackAna_trackBalanceY" condition=">0.9"/>
+      </TRestCut>
+      <panel font_size="0.05" precision="3">
+          <variable label="Summary" x="0.25" y="0.9"/>
+          <metadata value="[TRestRun::fRunTag]" label="Run tag" x="0.25" y="0.82"/>
+          <variable value="[[startTime]]" label="Data starts" x="0.25" y="0.74"/>
+          <variable value="[[endTime]]" label="Data ends" x="0.25" y="0.66"/>
+          <variable value="[[entries]]" label="Entries" x="0.25" y="0.58"/>
+          <variable value="[[runLength]]" label="Run duration" units="hours" x="0.25" y="0.50"/>
+          <observable value="alphaTrackAna_angle" label="Mean Angle" units="rad" x="0.25" y="0.42"/>
+          <addCut name="Fiducial"/>
+      </panel>
+      <plot name="TrackOrigin" title="TrackOrigin" xlabel="X [mm]" ylabel="Y [mm]" save="" value="ON"
+      stats="ON">
+          <variable name="alphaTrackAna_originX" range="(0,250)" nbins="256"/>
+          <variable name="alphaTrackAna_originY" range="(0,250)" nbins="256"/>
+      </plot>
+      <plot name="Spectra" title="Spectra" xlabel="Amplitude(ADC)" ylabel="Counts" legend="ON" value="ON"
+      save="Spectra.pdf">
+          <histo name="SpectraDownwards">
+              <variable name="alphaTrackAna_totalEnergy" range="(0,1000000)" nbins="200"/>
+              <addCut name="Fiducial"/>
+              <addCut name="Downwards"/>
+          </histo>
+          <histo name="SpectraUpwards">
+              <variable name="alphaTrackAna_totalEnergy" range="(0,1000000)" nbins="200"/>
+              <parameter name="lineColor" value="1"/>
+              <addCut name="Fiducial"/>
+              <addCut name="Upwards"/>
+          </histo>
+      </plot>
+      <plot name="Rate" title="Rate" xlabel="Date/time" ylabel="Rate (Hz)" legend="ON" value="ON"
+      scale="binSize" timeDisplay="ON">
+          <histo name="RateDownwards">
+              <variable name="timeStamp" range="" nbins="100"/>
+              <addCut name="Downwards"/>
+          </histo>
+          <histo name="RateUpwards">
+              <variable name="timeStamp" range="" nbins="100"/>
+              <parameter name="lineColor" value="1"/>
+              <addCut name="Upwards"/>
+          </histo>
+      </plot>
+    </TRestDataSetPlot>
+    <addTask command="alphaTrackPlot->PlotCombinedCanvas()" value="ON"/>
+  </TRestManager>

@@ -58,6 +58,9 @@ class TRestMySQLToAnalysisProcess : public TRestEventProcess {
     /// The maximum value of the corresponding extracted field variable
     std::vector<Double_t> fMaxValues;  //<
 
+    /// It will be true in case the database found some entries for the timestamp range
+    Bool_t fDataBaseExists = true;  //<
+
     /// Stores the start timestamp used to extract the SQL data
     Double_t fStartTimestamp;  //!
 
@@ -109,7 +112,7 @@ class TRestMySQLToAnalysisProcess : public TRestEventProcess {
 
     ~TRestMySQLToAnalysisProcess();
 
-    // If new members are added, removed or modified in this class version number must be increased!
-    ClassDefOverride(TRestMySQLToAnalysisProcess, 1);
+    /// If new members are added, removed or modified in this class version number must be increased!
+    ClassDefOverride(TRestMySQLToAnalysisProcess, 2);
 };
 #endif
