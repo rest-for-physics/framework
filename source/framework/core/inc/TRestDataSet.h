@@ -105,6 +105,10 @@ class TRestDataSet : public TRestMetadata {
     /// A list of new columns together with its corresponding expressions added to the dataset
     std::vector<std::pair<std::string, std::string>> fColumnNameExpressions;  //<
 
+    /// A flag to enable Multithreading during dataframe generation
+    Bool_t fMT = false;  //<
+
+    inline auto GetAddedColumns() const { return fColumnNameExpressions; }
     /// The resulting RDF::RNode object after initialization
     ROOT::RDF::RNode fDataSet = ROOT::RDataFrame(0);  //!
 
