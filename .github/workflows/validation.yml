@@ -32,7 +32,7 @@ jobs:
     name: Build and run tests
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root-garfield-geant4:latest
     steps:
       - uses: actions/checkout@v3
       - name: Build and install
@@ -51,7 +51,7 @@ jobs:
     name: Build and cache installation
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root-garfield-geant4:latest
     steps:
       - uses: actions/checkout@v3
       - name: Build and install
@@ -70,7 +70,7 @@ jobs:
         id: framework-install-cache
         uses: actions/cache@v3
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
@@ -83,7 +83,7 @@ jobs:
     name: "Previous Version File Compatibility"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root-garfield-geant4:latest
     needs: [ framework-install ]
     steps:
       - uses: actions/checkout@v3
@@ -94,7 +94,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: Open V2.2 file
         run: |
@@ -106,7 +106,7 @@ jobs:
     name: "Macros with clean error output"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root-garfield-geant4:latest
     needs: [ framework-install ]
     steps:
       - uses: actions/checkout@v3
@@ -117,7 +117,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: Load restRootMacros
         run: |
@@ -134,14 +134,14 @@ jobs:
     name: "PyROOT"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root-garfield-geant4:latest
     needs: [ framework-install ]
     steps:
       - name: Restore cache
         uses: actions/cache@v3
         id: framework-install-cache
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: Test REST classes in PyROOT
         run: |
@@ -152,7 +152,7 @@ jobs:
     name: "Metadata"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root-garfield-geant4:latest
     needs: [ framework-install ]
     steps:
       - uses: actions/checkout@v3
@@ -167,7 +167,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       # Not used in gitlab pipeline, checks $CI_SERVER_HOST
       - name: Load Gas
@@ -196,7 +196,7 @@ jobs:
     name: "PandaX-III"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root-garfield-geant4:latest
     needs: [ framework-install ]
     steps:
       - uses: actions/checkout@v3
@@ -211,7 +211,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: 02_PandaXiiiMC
         run: |
@@ -284,7 +284,7 @@ jobs:
     name: "TREX-DM"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root-garfield-geant4:latest
     needs: [ framework-install ]
     steps:
       - uses: actions/checkout@v3
@@ -299,7 +299,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: TREX-DM Latest Data
         run: |
@@ -337,7 +337,7 @@ jobs:
     name: Run examples
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root-garfield-geant4:latest
     needs: [ framework-install ]
     steps:
       - uses: actions/checkout@v3
@@ -352,7 +352,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: Test Metadata
         run: |
@@ -452,9 +452,8 @@ jobs:
         id: framework-install-cache-reference
         uses: actions/cache@v3
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-ref-${{ github.sha }}
           path: ${{ env.REST_PATH }}
-
 
   pandax-iii-reference:
     name: "PandaX-III on reference version"
@@ -475,7 +474,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache-reference
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-ref-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: 02_PandaXiiiMC
         run: |
@@ -545,7 +544,7 @@ jobs:
         uses: actions/cache@v3
         id: framework-install-cache-reference
         with:
-          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          key: ${{ env.BRANCH_NAME }}-framework-ref-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: Test Metadata
         run: |
