@@ -23,7 +23,7 @@
 #ifndef REST_TRestComponent
 #define REST_TRestComponent
 
-#include <THnSparse.h>
+#include <THn.h>
 
 #include "TRestDataSet.h"
 #include "TRestMetadata.h"
@@ -64,10 +64,13 @@ class TRestComponent : public TRestMetadata {
     std::vector<std::string> fDataSetFileNames;  //<
 
     /// The generated N-dimensional variable space density for a given node
-    std::vector<THnSparse*> fNodeDensity;  //<
+    std::vector<THnD*> fNodeDensity;  //<
+
+    /// Methods will return the density of the active node
+    Int_t fActiveNode = -1;  //<
 
     /// The generated N-dimensional variable space density for the complete dataset
-    THnSparse* fTotalDensity = nullptr;  //<
+    // THnD* fTotalDensity = nullptr;  //<
 
     /// The dataset used to initialize the distribution
     TRestDataSet fDataSet;  //!
@@ -111,11 +114,18 @@ class TRestComponent : public TRestMetadata {
 
     Double_t GetRate(std::vector<Double_t> point);
 
-    THnSparse* GetDensityForNode(Double_t value);
+    Int_t SetActiveNode(Double_t node);
+
+    THnD* GetDensityForNode(Double_t value);
+    THnD* GetDensityForActiveNode();
 
     TH1D* GetHistogram(Double_t node, std::string varName);
     TH2D* GetHistogram(Double_t node, std::string varName1, std::string varName2);
     TH3D* GetHistogram(Double_t node, std::string varName1, std::string varName2, std::string varName3);
+
+    TH1D* GetHistogram(std::string varName);
+    TH2D* GetHistogram(std::string varName1, std::string varName2);
+    TH3D* GetHistogram(std::string varName1, std::string varName2, std::string varName3);
 
     void PrintMetadata() override;
 

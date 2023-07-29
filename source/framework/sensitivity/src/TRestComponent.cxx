@@ -73,9 +73,8 @@ TRestComponent::TRestComponent(const char* configFilename) : TRestMetadata(confi
 ///
 TRestComponent::TRestComponent(const char* cfgFileName, const std::string& name)
     : TRestMetadata(cfgFileName) {
+    Initialize();
     LoadConfigFromFile(fConfigFileName, name);
-
-    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -98,8 +97,7 @@ void TRestComponent::Initialize() { SetSectionName(this->ClassName()); }
 /// of the distribution.
 ///
 Double_t TRestComponent::GetRate(std::vector<Double_t> point) {
-    // we get the rate in seconds at the corresponding bin
-    return 0.0;
+    return GetDensityForActiveNode()->GetBinContent(GetDensityForActiveNode()->GetBin(point.data()));
 }
 
 /////////////////////////////////////////////
@@ -133,9 +131,9 @@ void TRestComponent::PrintMetadata() {
         RESTMetadata << " === Parameterization === " << RESTendl;
         RESTMetadata << "- Parameter : " << fParameter << RESTendl;
 
-        RESTMetadata << " - Parametric nodes : " << fParameterizationNodes.size() << RESTendl;
+        RESTMetadata << " - Number of parametric nodes : " << fParameterizationNodes.size() << RESTendl;
         RESTMetadata << " " << RESTendl;
-        RESTMetadata << " Use : this->PrintStatistics() for additional info" << RESTendl;
+        RESTMetadata << " Use : PrintStatistics() or PrintNodes() for additional info" << RESTendl;
     }
 
     RESTMetadata << "----" << RESTendl;
@@ -164,7 +162,7 @@ void TRestComponent::PrintStatistics() {
 ///
 void TRestComponent::PrintNodes() {
     std::cout << " - Number of nodes : " << fParameterizationNodes.size() << std::endl;
-    for (const auto& x : fParameterizationNodes) std::cout << x;
+    for (const auto& x : fParameterizationNodes) std::cout << x << " ";
     std::cout << std::endl;
 }
 
@@ -198,18 +196,6 @@ void TRestComponent::InitFromConfigFile() {
         fDataSetFileNames.push_back(GetParameter("filename", ele, ""));
         ele = GetNextElement(ele);
     }
-
-    if (!fDataSetFileNames.empty()) {
-        RESTInfo << "Loading datasets" << RESTendl;
-        fDataSetLoaded = LoadDataSets();
-
-        fParameterizationNodes = ExtractParameterizationNodes();
-        GenerateSparseHistograms();
-    } else {
-        RESTWarning
-            << "Dataset filename was not defined. You may still use TRestComponent::LoadDataSet( filename );"
-            << RESTendl;
-    }
 }
 
 /////////////////////////////////////////////
@@ -224,12 +210,36 @@ void TRestComponent::GenerateSparseHistograms() {
         return;
     }
 
+    if (fParameterizationNodes.empty()) {
+        RESTWarning << "Nodes have not been defined" << RESTendl;
+        RESTWarning << "The full dataset will be used to generate the density distribution" << RESTendl;
+        fParameterizationNodes.push_back(-137);
+    }
+
     RESTInfo << "Generating Sparse histograms" << RESTendl;
+    int nIndex = 0;
     for (const auto& node : fParameterizationNodes) {
-        std::string filter = fParameter + " == " + DoubleToString(node);
-        RESTInfo << "Creating THnSparse for parameter " << fParameter << ": " << DoubleToString(node)
-                 << RESTendl;
-        ROOT::RDF::RNode df = fDataSet.GetDataFrame().Filter(filter);
+        ROOT::RDF::RNode df = ROOT::RDataFrame(0);
+        if (fParameterizationNodes.size() == 1 && node == -137) {
+            RESTInfo << "Creating component with no parameters (full dataset used)" << RESTendl;
+            df = fDataSet.GetDataFrame();
+            fParameterizationNodes.clear();
+        } else {
+            RESTInfo << "Creating THnD for parameter " << fParameter << ": " << DoubleToString(node)
+                     << RESTendl;
+            std::string filter = fParameter + " == " + DoubleToString(node);
+            df = fDataSet.GetDataFrame();
+            // df = fDataSet.GetDataFrame().Filter(filter);
+        }
+
+        std::string weightsStr = "";
+        for (size_t n = 0; n < fWeights.size(); n++) {
+            if (n > 0) weightsStr += "*";
+
+            weightsStr += fWeights[n];
+        }
+        auto wValues = df.Define("componentWeight", weightsStr).Take<double>("componentWeight");
+        std::vector<double> weightValues = *wValues;
 
         Int_t* bins = new Int_t[fNbins.size()];
         Double_t* xmin = new Double_t[fNbins.size()];
@@ -242,7 +252,10 @@ void TRestComponent::GenerateSparseHistograms() {
         }
 
         TString hName = fParameter + "_" + DoubleToString(node);
-        THnSparseD* sparse = new THnSparseD(hName, hName, fNbins.size(), bins, xmin, xmax);
+
+        /// It is named sparse because I tried to use first THnSparse.
+        /// See root-forum post: https://root-forum.cern.ch/t/problems-using-thnsparse-projection/55829/3
+        THnD* sparse = new THnD(hName, hName, fNbins.size(), bins, xmin, xmax);
 
         std::vector<std::vector<double> > data;
         for (const auto& v : fVariables) {
@@ -251,20 +264,19 @@ void TRestComponent::GenerateSparseHistograms() {
         }
 
         Double_t* values = new Double_t[fVariables.size()];
+        std::cout << "N-values filled : " << data[0].size() << std::endl;
         if (!data.empty())
-            for (size_t m = 0; m < data[0].size(); m++)
+            for (size_t m = 0; m < data[0].size(); m++) {
                 for (size_t v = 0; v < fVariables.size(); v++) {
                     values[v] = data[v][m];
-                    sparse->Fill(values);
                 }
+                sparse->Fill(values);  // weightValues[m]/fNodeStatistics[nIndex]);
+            }
         delete[] values;
 
         fNodeDensity.push_back(sparse);
-    }
-
-    if (fParameterizationNodes.empty()) {
-        std::cout << "We use the full dataset" << std::endl;
-        std::cout << "Not implemented yet!" << std::endl;
+        fActiveNode = nIndex;
+        nIndex++;
     }
 }
 
@@ -283,9 +295,30 @@ Int_t TRestComponent::GetVariableIndex(std::string varName) {
 }
 
 /////////////////////////////////////////////
+/// \brief It returns the position of the fParameterizationNodes
+/// element for the variable name given by argument.
+///
+Int_t TRestComponent::SetActiveNode(Double_t node) {
+    int n = 0;
+    for (const auto& v : fParameterizationNodes) {
+        if (v == node) {
+            fActiveNode = n;
+            return fActiveNode;
+        }
+        n++;
+    }
+
+    RESTError << "Parametric node : " << node << " was not found in component" << RESTendl;
+    RESTError << "Keeping previous node as active : " << fParameterizationNodes[fActiveNode] << RESTendl;
+    PrintNodes();
+
+    return fActiveNode;
+}
+
+/////////////////////////////////////////////
 /// \brief
 ///
-THnSparse* TRestComponent::GetDensityForNode(Double_t node) {
+THnD* TRestComponent::GetDensityForNode(Double_t node) {
     int n = 0;
     for (const auto& x : fParameterizationNodes) {
         if (x == node) {
@@ -300,6 +333,17 @@ THnSparse* TRestComponent::GetDensityForNode(Double_t node) {
 }
 
 /////////////////////////////////////////////
+/// \brief
+///
+THnD* TRestComponent::GetDensityForActiveNode() {
+    if (fActiveNode >= 0) return fNodeDensity[fActiveNode];
+
+    RESTError << "The active node is invalid" << RESTendl;
+    PrintNodes();
+    return nullptr;
+}
+
+/////////////////////////////////////////////
 /// \brief It returns a 1-dimensional projected histogram for the variable names
 /// provided in the argument
 ///
@@ -307,6 +351,19 @@ TH1D* TRestComponent::GetHistogram(Double_t node, std::string varName) {
     Int_t v1 = GetVariableIndex(varName);
 
     if (v1 >= 0) return GetDensityForNode(node)->Projection(v1);
+
+    return nullptr;
+}
+
+/////////////////////////////////////////////
+/// \brief It returns a 1-dimensional projected histogram for the variable names
+/// provided in the argument. It will recover the histogram corresponding to
+/// the active node.
+///
+TH1D* TRestComponent::GetHistogram(std::string varName) {
+    Int_t v1 = GetVariableIndex(varName);
+
+    if (v1 >= 0 && GetDensityForActiveNode()) return GetDensityForActiveNode()->Projection(v1);
 
     return nullptr;
 }
@@ -325,6 +382,21 @@ TH2D* TRestComponent::GetHistogram(Double_t node, std::string varName1, std::str
 }
 
 /////////////////////////////////////////////
+/// \brief It returns a 2-dimensional projected histogram for the variable names
+/// provided in the argument. It will recover the histogram corresponding to
+/// the active node.
+///
+TH2D* TRestComponent::GetHistogram(std::string varName1, std::string varName2) {
+    Int_t v1 = GetVariableIndex(varName1);
+    Int_t v2 = GetVariableIndex(varName2);
+
+    if (v1 >= 0 && v2 >= 0)
+        if (GetDensityForActiveNode()) return GetDensityForActiveNode()->Projection(v1, v2);
+
+    return nullptr;
+}
+
+/////////////////////////////////////////////
 /// \brief It returns the 3-dimensional projected histogram for the variable names
 /// provided in the argument
 ///
@@ -335,6 +407,22 @@ TH3D* TRestComponent::GetHistogram(Double_t node, std::string varName1, std::str
     Int_t v3 = GetVariableIndex(varName3);
 
     if (v1 >= 0 && v2 >= 0 && v3 >= 0) return GetDensityForNode(node)->Projection(v1, v2, v3);
+
+    return nullptr;
+}
+
+/////////////////////////////////////////////
+/// \brief It returns a 3-dimensional projected histogram for the variable names
+/// provided in the argument. It will recover the histogram corresponding to
+/// the active node.
+///
+TH3D* TRestComponent::GetHistogram(std::string varName1, std::string varName2, std::string varName3) {
+    Int_t v1 = GetVariableIndex(varName1);
+    Int_t v2 = GetVariableIndex(varName2);
+    Int_t v3 = GetVariableIndex(varName3);
+
+    if (v1 >= 0 && v2 >= 0 && v3 >= 0)
+        if (GetDensityForActiveNode()) return GetDensityForActiveNode()->Projection(v1, v2, v3);
 
     return nullptr;
 }
@@ -401,6 +489,16 @@ std::vector<Int_t> TRestComponent::ExtractNodeStatistics() {
 /// inside the dataset.
 ///
 Bool_t TRestComponent::LoadDataSets() {
+    if (fDataSetFileNames.empty()) {
+        RESTWarning
+            << "Dataset filename was not defined. You may still use TRestComponent::LoadDataSet( filename );"
+            << RESTendl;
+        fDataSetLoaded = false;
+        return fDataSetLoaded;
+    }
+
+    RESTInfo << "Loading datasets" << RESTendl;
+
     std::vector<std::string> fullFileNames;
     for (const auto& name : fDataSetFileNames) {
         std::string fileName = SearchFile(name);
@@ -414,6 +512,7 @@ Bool_t TRestComponent::LoadDataSets() {
     }
 
     fDataSet.Import(fullFileNames);
+    fDataSetLoaded = true;
 
     if (fDataSet.GetTree() == nullptr) {
         RESTError << "Problem loading dataset from file list :" << RESTendl;
@@ -423,7 +522,13 @@ Bool_t TRestComponent::LoadDataSets() {
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) fDataSet.PrintMetadata();
 
-    return (VariablesOk() && WeightsOk());
+    if (VariablesOk() && WeightsOk()) {
+        fParameterizationNodes = ExtractParameterizationNodes();
+        GenerateSparseHistograms();
+        return fDataSetLoaded;
+    }
+
+    return fDataSetLoaded;
 }
 
 /////////////////////////////////////////////
