@@ -97,7 +97,7 @@ class TRestComponent : public TRestMetadata {
    protected:
     std::vector<Double_t> ExtractParameterizationNodes();
     std::vector<Int_t> ExtractNodeStatistics();
-    void GenerateSparseHistograms();
+    void FillHistograms();
 
     Bool_t VariablesOk();
     Bool_t WeightsOk();

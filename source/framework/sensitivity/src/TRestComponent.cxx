@@ -145,6 +145,12 @@ void TRestComponent::PrintMetadata() {
 void TRestComponent::PrintStatistics() {
     if (fNodeStatistics.empty() && IsDataSetLoaded()) fNodeStatistics = ExtractNodeStatistics();
 
+    if (!IsDataSetLoaded()) {
+        RESTWarning << "TRestComponent::PrintStatistics. No dataset loaded." << RESTendl;
+        RESTWarning << "Invoking TRestComponent::LoadDataSets might solve the problem" << RESTendl;
+        return;
+    }
+
     auto result = std::accumulate(fNodeStatistics.begin(), fNodeStatistics.end(), 0);
     std::cout << "Total counts : " << result << std::endl;
     std::cout << std::endl;
@@ -199,14 +205,14 @@ void TRestComponent::InitFromConfigFile() {
 }
 
 /////////////////////////////////////////////
-/// \brief
+/// \brief It will produce a histogram with the distribution defined using the
+/// variables and the weights for each of the parameter nodes.
 ///
-void TRestComponent::GenerateSparseHistograms() {
+void TRestComponent::FillHistograms() {
     fNodeStatistics = ExtractNodeStatistics();
 
     if (!IsDataSetLoaded()) {
-        RESTError << "TRestComponent::GenerateSparseHistograms. Dataset has not been initialized!"
-                  << RESTendl;
+        RESTError << "TRestComponent::FillHistograms. Dataset has not been initialized!" << RESTendl;
         return;
     }
 
@@ -228,18 +234,8 @@ void TRestComponent::GenerateSparseHistograms() {
             RESTInfo << "Creating THnD for parameter " << fParameter << ": " << DoubleToString(node)
                      << RESTendl;
             std::string filter = fParameter + " == " + DoubleToString(node);
-            df = fDataSet.GetDataFrame();
-            // df = fDataSet.GetDataFrame().Filter(filter);
+            df = fDataSet.GetDataFrame().Filter(filter);
         }
-
-        std::string weightsStr = "";
-        for (size_t n = 0; n < fWeights.size(); n++) {
-            if (n > 0) weightsStr += "*";
-
-            weightsStr += fWeights[n];
-        }
-        auto wValues = df.Define("componentWeight", weightsStr).Take<double>("componentWeight");
-        std::vector<double> weightValues = *wValues;
 
         Int_t* bins = new Int_t[fNbins.size()];
         Double_t* xmin = new Double_t[fNbins.size()];
@@ -253,28 +249,22 @@ void TRestComponent::GenerateSparseHistograms() {
 
         TString hName = fParameter + "_" + DoubleToString(node);
 
-        /// It is named sparse because I tried to use first THnSparse.
-        /// See root-forum post: https://root-forum.cern.ch/t/problems-using-thnsparse-projection/55829/3
-        THnD* sparse = new THnD(hName, hName, fNbins.size(), bins, xmin, xmax);
+        std::vector<std::string> varsAndWeight = fVariables;
+        if (!fWeights.empty()) {
+            std::string weightsStr = "";
+            for (size_t n = 0; n < fWeights.size(); n++) {
+                if (n > 0) weightsStr += "*";
 
-        std::vector<std::vector<double> > data;
-        for (const auto& v : fVariables) {
-            auto parValues = df.Take<double>(v);
-            data.push_back(*parValues);
+                weightsStr += fWeights[n];
+            }
+            df = df.Define("componentWeight", weightsStr);
+            varsAndWeight.push_back("componentWeight");
         }
 
-        Double_t* values = new Double_t[fVariables.size()];
-        std::cout << "N-values filled : " << data[0].size() << std::endl;
-        if (!data.empty())
-            for (size_t m = 0; m < data[0].size(); m++) {
-                for (size_t v = 0; v < fVariables.size(); v++) {
-                    values[v] = data[v][m];
-                }
-                sparse->Fill(values);  // weightValues[m]/fNodeStatistics[nIndex]);
-            }
-        delete[] values;
+        auto hn = df.HistoND({hName, hName, (int)fNbins.size(), bins, xmin, xmax}, varsAndWeight);
+        THnD* hNd = new THnD(*hn);
 
-        fNodeDensity.push_back(sparse);
+        fNodeDensity.push_back(hNd);
         fActiveNode = nIndex;
         nIndex++;
     }
@@ -524,7 +514,7 @@ Bool_t TRestComponent::LoadDataSets() {
 
     if (VariablesOk() && WeightsOk()) {
         fParameterizationNodes = ExtractParameterizationNodes();
-        GenerateSparseHistograms();
+        FillHistograms();
         return fDataSetLoaded;
     }
 
