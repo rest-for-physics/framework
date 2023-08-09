@@ -97,7 +97,7 @@ string REST_StringHelper::CropWithPrecision(string in, Int_t precision) {
 /// The buffer string may define sub-expressions that will be evaluated by using single quotes.
 ///
 /// I.e. The sentence "The following operation 3 x 4 is '3*4'" will be translated to
-/// "The following operatin 3 x 4 is 12".
+/// "The following operation 3 x 4 is 12".
 ///
 string REST_StringHelper::ReplaceMathematicalExpressions(string buffer, Int_t precision,
                                                          string errorMessage) {
@@ -585,8 +585,9 @@ TRestStringOutput::REST_Verbose_Level REST_StringHelper::StringToVerboseLevel(st
 /// \brief Gets a double from a string.
 ///
 Double_t REST_StringHelper::StringToDouble(string in) {
-    if (isANumber(in)) {
-        return stod(in);
+    std::string out = ReplaceMathematicalExpressions(in, 0);
+    if (isANumber(out)) {
+        return stod(out);
     } else {
         return -1;
     }
@@ -596,8 +597,9 @@ Double_t REST_StringHelper::StringToDouble(string in) {
 /// \brief Gets a float from a string.
 ///
 Float_t REST_StringHelper::StringToFloat(string in) {
-    if (isANumber(in)) {
-        return stof(in);
+    std::string out = ReplaceMathematicalExpressions(in, 0);
+    if (isANumber(out)) {
+        return stof(out);
     } else {
         return -1;
     }
