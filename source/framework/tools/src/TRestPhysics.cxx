@@ -105,7 +105,8 @@ TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir
         if (pos.Z() + root1 * dir.Z() > -(lMirr * TMath::Cos(alpha)) and pos.Z() + root1 * dir.Z() < 0) {
             pos.Z() -= 0.5 * x_sep;
             return pos + root1 * dir;
-        } else if (pos.Z() + root2 * dir.Z() > -(lMirr * TMath::Cos(alpha)) and pos.Z() + root2 * dir.Z() < 0) {
+        } else if (pos.Z() + root2 * dir.Z() > -(lMirr * TMath::Cos(alpha)) and
+                   pos.Z() + root2 * dir.Z() < 0) {
             pos.Z() -= 0.5 * x_sep;
             return pos + root2 * dir;
         }
@@ -123,7 +124,8 @@ TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir
 /// In case no intersection is found this method returns the unmodified input position
 ///
 TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t alpha,
-                                         const Double_t R3, const Double_t lMirr, const Double_t focal, const Double_t x_sep) {
+                                         const Double_t R3, const Double_t lMirr, const Double_t focal,
+                                         const Double_t x_sep) {
     pos.Z() -= 0.5 * x_sep;
     Double_t beta = 3 * alpha;
     Double_t e = 2 * R3 * TMath::Tan(beta);
