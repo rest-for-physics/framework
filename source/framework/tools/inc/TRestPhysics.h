@@ -76,10 +76,10 @@ TVector3 GetPlaneVectorIntersection(const TVector3& pos, const TVector3& dir, TV
                                     TVector3 const& a);
 
 TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t alpha,
-                                        const Double_t R3, const Double_t lMirr);
+                                        const Double_t R3, const Double_t lMirr, const Double_t x_sep);
 
 TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t alpha,
-                                         const Double_t R3, const Double_t lMirr, const Double_t focal);
+                                         const Double_t R3, const Double_t lMirr, const Double_t focal, const Double_t x_sep);
 
 TVector3 GetConeNormal(const TVector3& pos, const Double_t alpha, const Double_t R = 0);
 
