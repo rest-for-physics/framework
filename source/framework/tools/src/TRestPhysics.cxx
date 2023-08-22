@@ -102,9 +102,9 @@ TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir
     if (a != 0) {
         Double_t root1 = (-half_b - TMath::Sqrt(half_b * half_b - a * c)) / a;
         Double_t root2 = (-half_b + TMath::Sqrt(half_b * half_b - a * c)) / a;
-        if (pos.Z() + root1 * dir.Z() > -lMirr and pos.Z() + root1 * dir.Z() < 0) {
+        if (pos.Z() + root1 * dir.Z() > -(lMirr * TMath::Cos(alpha)) and pos.Z() + root1 * dir.Z() < 0) {
             return pos + root1 * dir;
-        } else if (pos.Z() + root2 * dir.Z() > -lMirr and pos.Z() + root2 * dir.Z() < 0) {
+        } else if (pos.Z() + root2 * dir.Z() > -(lMirr * TMath::Cos(alpha)) and pos.Z() + root2 * dir.Z() < 0) {
             return pos + root2 * dir;
         }
         return pos;
@@ -134,9 +134,9 @@ TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& di
     Double_t c = pos.X() * pos.X() + pos.Y() * pos.Y() - R3 * R3 + e * pos.Z() - g * pos.Z() * pos.Z();
     Double_t root1 = (-half_b - TMath::Sqrt(half_b * half_b - a * c)) / a;
     Double_t root2 = (-half_b + TMath::Sqrt(half_b * half_b - a * c)) / a;
-    if (pos.Z() + root1 * dir.Z() > 0 and pos.Z() + root1 * dir.Z() < lMirr) {
+    if (pos.Z() + root1 * dir.Z() > 0 and pos.Z() + root1 * dir.Z() < (lMirr * TMath::Cos(beta))) {
         return pos + root1 * dir;
-    } else if (pos.Z() + root2 * dir.Z() > 0 and pos.Z() + root2 * dir.Z() < lMirr) {
+    } else if (pos.Z() + root2 * dir.Z() > 0 and pos.Z() + root2 * dir.Z() < (lMirr * TMath::Cos(beta))) {
         return pos + root2 * dir;
     }
 
