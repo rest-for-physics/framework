@@ -125,7 +125,6 @@ else ()
     execute_process(COMMAND root-config --cflags OUTPUT_VARIABLE ROOT_CFLAGS)
 
     set(CMAKE_CXX_STANDARD_REQUIRED YES)
-
     if (${HASCXX20} MATCHES "yes")
         set(CMAKE_CXX_STANDARD 20)
     elseif (${HASCXX17} MATCHES "yes")

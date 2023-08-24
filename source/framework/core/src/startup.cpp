@@ -433,3 +433,113 @@ AddConverter(MapToString, StringToMap, map<TString comma TString>);
 AddConverter(MapToString, StringToMap, map<TString comma string>);
 
 AddConverter(MapToString, StringToMap, map<TString comma TVector2>);
+
+template <class T, class U>
+string PairToString(pair<T, U> p) {
+    string result = "{";
+    result += Converter<T>::thisptr->ToStringFunc(p.first);
+    result += ",";
+    result += Converter<U>::thisptr->ToStringFunc(p.second);
+    result += "}";
+    return result;
+}
+template <class T, class U>
+pair<T, U> StringToPair(string vec) {
+    pair<T, U> result;
+    if (vec[0] == '{' && vec[vec.size() - 1] == '}') {
+        vec.erase(vec.begin());
+        vec.erase(vec.end() - 1);
+        vector<string> parts = Split(vec, ",");
+
+        if (parts.size() == 2) {
+            while (parts[0][0] == ' ') {
+                parts[0].erase(parts[0].begin());
+            }
+            while (parts[0][parts[0].size() - 1] == ' ') {
+                parts[0].erase(parts[0].end() - 1);
+            }
+            while (parts[1][0] == ' ') {
+                parts[1].erase(parts[1].begin());
+            }
+            while (parts[1][parts[1].size() - 1] == ' ') {
+                parts[1].erase(parts[1].end() - 1);
+            }
+            result.first = Converter<T>::thisptr->ParseStringFunc(parts[0]);
+            result.second = Converter<U>::thisptr->ParseStringFunc(parts[1]);
+        } else {
+            cout << "illegal format!" << endl;
+            return pair<T, U>{};
+        }
+
+    } else {
+        cout << "illegal format!" << endl;
+        return pair<T, U>{};
+    }
+    return result;
+}
+AddConverter(PairToString, StringToPair, pair<int comma int>);
+AddConverter(PairToString, StringToPair, pair<UShort_t comma double>);
+
+// a vector of pairs
+template <class T, class U>
+string PairVectorToString(vector<pair<T, U>> vec) {
+    stringstream ss;
+    ss << "{";
+    int cont = 0;
+    for (auto const& x : vec) {
+        if (cont > 0) ss << ",";
+        cont++;
+
+        ss << "[";
+        ss << Converter<T>::thisptr->ToStringFunc(x.first);
+        ss << ":";
+        ss << Converter<U>::thisptr->ToStringFunc(x.second);
+        ss << "]";
+    }
+    ss << "}";
+    return ss.str();
+}
+template <class T, class U>
+vector<pair<T, U>> StringToPairVector(string vec) {
+    vector<pair<T, U>> result;
+    // input string format: {[dd:7],[aa:8],[ss:9]}
+    if (vec[0] == '{' && vec[vec.size() - 1] == '}') {
+        vec.erase(vec.begin());
+        vec.erase(vec.end() - 1);
+        vector<string> parts = Split(vec, ",");
+
+        for (string part : parts) {
+            while (part[0] == ' ') {
+                part.erase(part.begin());
+            }
+            while (part[part.size() - 1] == ' ') {
+                part.erase(part.end() - 1);
+            }
+
+            if (part[0] == '[' && part[part.size() - 1] == ']') {
+                part.erase(part.begin());
+                part.erase(part.end() - 1);
+                vector<string> key_value = Split(part, ":");
+                if (key_value.size() == 2) {
+                    T key = Converter<T>::thisptr->ParseStringFunc(key_value[0]);
+                    U value = Converter<U>::thisptr->ParseStringFunc(key_value[1]);
+                    result.push_back(pair<T, U>(key, value));
+                } else {
+                    cout << "illegal format!" << endl;
+                    return vector<pair<T, U>>{};
+                }
+            } else {
+                cout << "illegal format!" << endl;
+                return vector<pair<T, U>>{};
+            }
+        }
+
+    } else {
+        cout << "illegal format!" << endl;
+        return vector<pair<T, U>>{};
+    }
+
+    return result;
+}
+AddConverter(PairVectorToString, StringToPairVector, vector<pair<int comma int>>);
+AddConverter(PairVectorToString, StringToPairVector, vector<pair<UShort_t comma double>>);
