@@ -202,7 +202,7 @@ TRestG4Event changes:
 * Added member `fTotalDepositedEnergy` containing the total energy deposited in the event.
 
 * Added a new vector member `fVolumeDepositedEnergy` to store the energy deposited in each of the active volumes.
-    - We can access it through the method `GetEnergyInVolume( Int_t id )`. The id is related to the volume list stored in `TRestG4Metadata`.
+    - We can access it through the method `GetEnergyDepositedInVolume( Int_t id )`. The id is related to the volume list stored in `TRestG4Metadata`.
 
 * Added new methods to determine if a TRestG4Track or a TRestG4Event contains a given physics process isPhotoElectric(), isCompton(), etc.
 
