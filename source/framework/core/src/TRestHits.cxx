@@ -169,7 +169,9 @@ Bool_t TRestHits::isNaN(Int_t n) const {
 ///
 Double_t TRestHits::GetEnergyIntegral() const {
     Double_t sum = 0;
-    for (unsigned int i = 0; i < GetNumberOfHits(); i++) sum += GetEnergy(i);
+    for (unsigned int i = 0; i < GetNumberOfHits(); i++) {
+        sum += GetEnergy(i);
+    }
     return sum;
 }
 
@@ -207,8 +209,11 @@ Double_t TRestHits::GetEnergyInPrism(const TVector3& x0, const TVector3& x1, Dou
                                      Double_t theta) const {
     Double_t energy = 0.;
 
-    for (unsigned int n = 0; n < GetNumberOfHits(); n++)
-        if (isHitNInsidePrism(n, x0, x1, sizeX, sizeY, theta)) energy += this->GetEnergy(n);
+    for (unsigned int n = 0; n < GetNumberOfHits(); n++) {
+        if (isHitNInsidePrism(n, x0, x1, sizeX, sizeY, theta)) {
+            energy += this->GetEnergy(n);
+        }
+    }
 
     return energy;
 }
