@@ -478,6 +478,9 @@ pair<T, U> StringToPair(string vec) {
     return result;
 }
 AddConverter(PairToString, StringToPair, pair<int comma int>);
+AddConverter(PairToString, StringToPair, pair<int comma float>);
+AddConverter(PairToString, StringToPair, pair<int comma double>);
+AddConverter(PairToString, StringToPair, pair<UShort_t comma float>);
 AddConverter(PairToString, StringToPair, pair<UShort_t comma double>);
 
 // a vector of pairs
@@ -542,4 +545,142 @@ vector<pair<T, U>> StringToPairVector(string vec) {
     return result;
 }
 AddConverter(PairVectorToString, StringToPairVector, vector<pair<int comma int>>);
+AddConverter(PairVectorToString, StringToPairVector, vector<pair<int comma float>>);
+AddConverter(PairVectorToString, StringToPairVector, vector<pair<int comma double>>);
+AddConverter(PairVectorToString, StringToPairVector, vector<pair<UShort_t comma float>>);
 AddConverter(PairVectorToString, StringToPairVector, vector<pair<UShort_t comma double>>);
+
+// Implement for triple (tuple)
+template <class T, class U, class V>
+string TripleToString(tuple<T, U, V> t) {
+    string result = "{";
+    result += Converter<T>::thisptr->ToStringFunc(get<0>(t));
+    result += ",";
+    result += Converter<U>::thisptr->ToStringFunc(get<1>(t));
+    result += ",";
+    result += Converter<V>::thisptr->ToStringFunc(get<2>(t));
+    result += "}";
+    return result;
+}
+
+template <class T, class U, class V>
+tuple<T, U, V> StringToTriple(string vec) {
+    tuple<T, U, V> result;
+    if (vec[0] == '{' && vec[vec.size() - 1] == '}') {
+        vec.erase(vec.begin());
+        vec.erase(vec.end() - 1);
+        vector<string> parts = Split(vec, ",");
+
+        if (parts.size() == 3) {
+            while (parts[0][0] == ' ') {
+                parts[0].erase(parts[0].begin());
+            }
+            while (parts[0][parts[0].size() - 1] == ' ') {
+                parts[0].erase(parts[0].end() - 1);
+            }
+            while (parts[1][0] == ' ') {
+                parts[1].erase(parts[1].begin());
+            }
+            while (parts[1][parts[1].size() - 1] == ' ') {
+                parts[1].erase(parts[1].end() - 1);
+            }
+            while (parts[2][0] == ' ') {
+                parts[2].erase(parts[2].begin());
+            }
+            while (parts[2][parts[2].size() - 1] == ' ') {
+                parts[2].erase(parts[2].end() - 1);
+            }
+            get<0>(result) = Converter<T>::thisptr->ParseStringFunc(parts[0]);
+            get<1>(result) = Converter<U>::thisptr->ParseStringFunc(parts[1]);
+            get<2>(result) = Converter<V>::thisptr->ParseStringFunc(parts[2]);
+        } else {
+            cout << "illegal format!" << endl;
+            return tuple<T, U, V>{};
+        }
+
+    } else {
+        cout << "illegal format!" << endl;
+        return tuple<T, U, V>{};
+    }
+    return result;
+}
+
+AddConverter(TripleToString, StringToTriple, tuple<int comma int comma int>);
+AddConverter(TripleToString, StringToTriple, tuple<int comma int comma float>);
+AddConverter(TripleToString, StringToTriple, tuple<int comma int comma double>);
+AddConverter(TripleToString, StringToTriple, tuple<UShort_t comma UShort_t comma int>);
+AddConverter(TripleToString, StringToTriple, tuple<UShort_t comma UShort_t comma float>);
+AddConverter(TripleToString, StringToTriple, tuple<UShort_t comma UShort_t comma double>);
+
+// vector of triple
+template <class T, class U, class V>
+string TripleVectorToString(vector<tuple<T, U, V>> vec) {
+    stringstream ss;
+    ss << "{";
+    int cont = 0;
+    for (auto const& x : vec) {
+        if (cont > 0) ss << ",";
+        cont++;
+
+        ss << "[";
+        ss << Converter<T>::thisptr->ToStringFunc(get<0>(x));
+        ss << ":";
+        ss << Converter<U>::thisptr->ToStringFunc(get<1>(x));
+        ss << ":";
+        ss << Converter<V>::thisptr->ToStringFunc(get<2>(x));
+        ss << "]";
+    }
+    ss << "}";
+    return ss.str();
+}
+
+template <class T, class U, class V>
+vector<tuple<T, U, V>> StringToTripleVector(string vec) {
+    vector<tuple<T, U, V>> result;
+    // input string format: {[dd:7],[aa:8],[ss:9]}
+    if (vec[0] == '{' && vec[vec.size() - 1] == '}') {
+        vec.erase(vec.begin());
+        vec.erase(vec.end() - 1);
+        vector<string> parts = Split(vec, ",");
+
+        for (string part : parts) {
+            while (part[0] == ' ') {
+                part.erase(part.begin());
+            }
+            while (part[part.size() - 1] == ' ') {
+                part.erase(part.end() - 1);
+            }
+
+            if (part[0] == '[' && part[part.size() - 1] == ']') {
+                part.erase(part.begin());
+                part.erase(part.end() - 1);
+                vector<string> key_value = Split(part, ":");
+                if (key_value.size() == 3) {
+                    T key = Converter<T>::thisptr->ParseStringFunc(key_value[0]);
+                    U value = Converter<U>::thisptr->ParseStringFunc(key_value[1]);
+                    V value2 = Converter<V>::thisptr->ParseStringFunc(key_value[2]);
+                    result.push_back(tuple<T, U, V>(key, value, value2));
+                } else {
+                    cout << "illegal format!" << endl;
+                    return vector<tuple<T, U, V>>{};
+                }
+            } else {
+                cout << "illegal format!" << endl;
+                return vector<tuple<T, U, V>>{};
+            }
+        }
+
+    } else {
+        cout << "illegal format!" << endl;
+        return vector<tuple<T, U, V>>{};
+    }
+
+    return result;
+}
+
+AddConverter(TripleVectorToString, StringToTripleVector, vector<tuple<int comma int comma int>>);
+AddConverter(TripleVectorToString, StringToTripleVector, vector<tuple<int comma int comma float>>);
+AddConverter(TripleVectorToString, StringToTripleVector, vector<tuple<int comma int comma double>>);
+AddConverter(TripleVectorToString, StringToTripleVector, vector<tuple<UShort_t comma UShort_t comma int>>);
+AddConverter(TripleVectorToString, StringToTripleVector, vector<tuple<UShort_t comma UShort_t comma float>>);
+AddConverter(TripleVectorToString, StringToTripleVector, vector<tuple<UShort_t comma UShort_t comma double>>);
