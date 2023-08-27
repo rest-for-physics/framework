@@ -295,6 +295,7 @@ vector<T> StringToVector(string vec) {
     return result;
 }
 AddConverter(VectorToString, StringToVector, vector<int>);
+AddConverter(VectorToString, StringToVector, vector<UShort_t>);
 AddConverter(VectorToString, StringToVector, vector<float>);
 AddConverter(VectorToString, StringToVector, vector<double>);
 AddConverter(VectorToString, StringToVector, vector<string>);
