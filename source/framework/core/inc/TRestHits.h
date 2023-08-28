@@ -35,7 +35,7 @@
 
 #include <iostream>
 
-enum REST_HitType { unknown = -1, X = 2, Y = 3, Z = 5, XY = 6, XZ = 10, YZ = 15, XYZ = 30 };
+enum REST_HitType { unknown = -1, X = 2, Y = 3, Z = 5, XY = 6, XZ = 10, YZ = 15, XYZ = 30, VETO = 100 };
 
 /// It saves a 3-coordinate position and an energy for each punctual deposition.
 class TRestHits {
