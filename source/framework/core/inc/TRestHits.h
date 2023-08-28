@@ -197,7 +197,14 @@ class TRestHits {
 
     virtual void PrintHits(Int_t nHits = -1) const;
 
-    class TRestHits_Iterator : public std::iterator<std::random_access_iterator_tag, TRestHits_Iterator> {
+    class TRestHits_Iterator {
+       public:
+        using iterator_category = std::random_access_iterator_tag;
+        using value_type = TRestHits_Iterator;
+        using difference_type = int;
+        using pointer = void;
+        using reference = void;
+
        private:
         int maxIndex = 0;
         int index = 0;
