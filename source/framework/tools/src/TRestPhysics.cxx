@@ -87,9 +87,9 @@ TVector3 GetPlaneVectorIntersection(const TVector3& pos, const TVector3& dir, co
 /// This method will find the intersection between a vector and a parabolic shape where `alpha` is the angle
 /// between the z-axis and the paraboloid at the plane where the paraboloid has a radius of `R3`.
 /// The paraboloid is rotationally symmetric around the z-axis. `alpha` in rad.
-/// The region in which the intersection can happen here is in negative direction on the z-axis
+/// The region in which the intersection can happen here is in negative direction on the z-axis.
 ///
-/// In case no intersection is found this method returns the unmodified input position
+/// In case no intersection is found this method returns the unmodified input position.
 ///
 TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t alpha,
                                         const Double_t R3) {
@@ -115,9 +115,9 @@ TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir
 /// This method will find the intersection between a vector and a hyperbolic shape where 3 * `alpha` is the
 /// angle between the z-axis and the hyperboloid at the plane where the hyperboloid has a radius of
 /// `R3`. The hyperboloid is rotationally symmetric around the z-axis. `alpha` in rad. The region in
-/// which the intersection can happen here is in positive direction on the z-axis
+/// which the intersection can happen here is in positive direction on the z-axis.
 ///
-/// In case no intersection is found this method returns the unmodified input position
+/// In case no intersection is found this method returns the unmodified input position.
 ///
 TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t alpha,
                                          const Double_t R3, const Double_t focal) {
