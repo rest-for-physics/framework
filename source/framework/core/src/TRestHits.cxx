@@ -421,17 +421,17 @@ void TRestHits::Translate(Int_t n, double x, double y, double z) {
 /// \brief It rotates hit `n` following rotations in Z, Y and X by angles gamma, beta and alpha. The
 /// rotation is performed with center at `vMean`.
 ///
-void TRestHits::RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, const TVector3& vMean) {
-    TVector3 position = GetPosition(n);
-    TVector3 vHit = position - vMean;
+void TRestHits::RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, const TVector3& center) {
+    const TVector3 position = GetPosition(n);
+    TVector3 vHit = position - center;
 
     vHit.RotateZ(gamma);
     vHit.RotateY(beta);
     vHit.RotateX(alpha);
 
-    fX[n] = vHit[0] + vMean[0];
-    fY[n] = vHit[1] + vMean[1];
-    fZ[n] = vHit[2] + vMean[2];
+    fX[n] = vHit.X() + center.X();
+    fY[n] = vHit.Y() + center.Y();
+    fZ[n] = vHit.Z() + center.Z();
 }
 
 ///////////////////////////////////////////////
