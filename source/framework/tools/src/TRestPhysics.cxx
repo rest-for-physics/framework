@@ -87,12 +87,12 @@ TVector3 GetPlaneVectorIntersection(const TVector3& pos, const TVector3& dir, co
 /// This method will find the intersection between a vector and a parabolic shape where `alpha` is the angle
 /// between the optical axis and the paraboloid at the plane where the paraboloid has a radius of `R3`.
 /// The paraboloid is rotationally symmetric around the optical axis. `alpha` in rad.
-/// The region in which the intersection can happen here is between `-lMirr` and 0 on the z (optical) axis
+/// The region in which the intersection can happen here is in negative direction on the z (optical) axis
 ///
 /// In case no intersection is found this method returns the unmodified input position
 ///
 TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t alpha,
-                                        const Double_t R3, const Double_t lMirr) {
+                                        const Double_t R3) {
     Double_t e = 2 * R3 * TMath::Tan(alpha);
     Double_t a = dir.X() * dir.X() + dir.Y() * dir.Y();
     Double_t b = 2 * (pos.X() * dir.X() + pos.Y() * dir.Y()) + e * dir.Z();
@@ -101,9 +101,9 @@ TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir
     if (a != 0) {
         Double_t root1 = (-half_b - TMath::Sqrt(half_b * half_b - a * c)) / a;
         Double_t root2 = (-half_b + TMath::Sqrt(half_b * half_b - a * c)) / a;
-        if (pos.Z() + root1 * dir.Z() > -lMirr and pos.Z() + root1 * dir.Z() < 0) {
+        if (pos.Z() + root1 * dir.Z() < 0) {
             return pos + root1 * dir;
-        } else if (pos.Z() + root2 * dir.Z() > -lMirr and pos.Z() + root2 * dir.Z() < 0) {
+        } else if (pos.Z() + root2 * dir.Z() < 0) {
             return pos + root2 * dir;
         }
         return pos;
@@ -115,12 +115,12 @@ TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir
 /// This method will find the intersection between a vector and a hyperbolic shape where 3 * `alpha` is the
 /// angle between the optical axis and the hyperboloid at the plane where the hyperboloid has a radius of
 /// `R3`. The hyperboloid is rotationally symmetric around the optical axis. `alpha` in rad. The region in
-/// which the intersection can happen here is between 0 and `lMirr` on the `z` (optical) axis
+/// which the intersection can happen here is in positive direction on the `z` (optical) axis
 ///
 /// In case no intersection is found this method returns the unmodified input position
 ///
 TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t alpha,
-                                         const Double_t R3, const Double_t lMirr, const Double_t focal) {
+                                         const Double_t R3, const Double_t focal) {
     Double_t beta = 3 * alpha;
     Double_t e = 2 * R3 * TMath::Tan(beta);
     /// Just replaced here *TMath::Cot by /TMath::Tan to fix compilation issues
@@ -131,9 +131,9 @@ TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& di
     Double_t c = pos.X() * pos.X() + pos.Y() * pos.Y() - R3 * R3 + e * pos.Z() - g * pos.Z() * pos.Z();
     Double_t root1 = (-half_b - TMath::Sqrt(half_b * half_b - a * c)) / a;
     Double_t root2 = (-half_b + TMath::Sqrt(half_b * half_b - a * c)) / a;
-    if (pos.Z() + root1 * dir.Z() > 0 and pos.Z() + root1 * dir.Z() < lMirr) {
+    if (pos.Z() + root1 * dir.Z() > 0) {
         return pos + root1 * dir;
-    } else if (pos.Z() + root2 * dir.Z() > 0 and pos.Z() + root2 * dir.Z() < lMirr) {
+    } else if (pos.Z() + root2 * dir.Z() > 0) {
         return pos + root2 * dir;
     }
 
