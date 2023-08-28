@@ -63,7 +63,7 @@ class TRestHits {
 
    public:
     void Translate(Int_t n, Double_t x, Double_t y, Double_t z);
-    void RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, const TVector3& vMean);
+    void RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, const TVector3& center);
     void Rotate(Int_t n, Double_t alpha, const TVector3& vAxis, const TVector3& vMean);
 
     void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
