@@ -1617,8 +1617,11 @@ TRestMetadata* TRestRun::GetMetadata(const TString& name, TFile* file) {
             }
         }
     } else {
-        for (unsigned int i = 0; i < fMetadata.size(); i++)
-            if (fMetadata[i]->GetName() == name) return fMetadata[i];
+        for (unsigned int i = 0; i < fMetadata.size(); i++) {
+            if (fMetadata[i]->GetName() == name) {
+                return fMetadata[i];
+            }
+        }
     }
 
     return nullptr;

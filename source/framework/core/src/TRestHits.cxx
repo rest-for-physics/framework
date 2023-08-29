@@ -169,7 +169,9 @@ Bool_t TRestHits::isNaN(Int_t n) const {
 ///
 Double_t TRestHits::GetEnergyIntegral() const {
     Double_t sum = 0;
-    for (unsigned int i = 0; i < GetNumberOfHits(); i++) sum += GetEnergy(i);
+    for (unsigned int i = 0; i < GetNumberOfHits(); i++) {
+        sum += GetEnergy(i);
+    }
     return sum;
 }
 
@@ -207,8 +209,11 @@ Double_t TRestHits::GetEnergyInPrism(const TVector3& x0, const TVector3& x1, Dou
                                      Double_t theta) const {
     Double_t energy = 0.;
 
-    for (unsigned int n = 0; n < GetNumberOfHits(); n++)
-        if (isHitNInsidePrism(n, x0, x1, sizeX, sizeY, theta)) energy += this->GetEnergy(n);
+    for (unsigned int n = 0; n < GetNumberOfHits(); n++) {
+        if (isHitNInsidePrism(n, x0, x1, sizeX, sizeY, theta)) {
+            energy += this->GetEnergy(n);
+        }
+    }
 
     return energy;
 }
@@ -416,17 +421,17 @@ void TRestHits::Translate(Int_t n, double x, double y, double z) {
 /// \brief It rotates hit `n` following rotations in Z, Y and X by angles gamma, beta and alpha. The
 /// rotation is performed with center at `vMean`.
 ///
-void TRestHits::RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, const TVector3& vMean) {
-    TVector3 position = GetPosition(n);
-    TVector3 vHit = position - vMean;
+void TRestHits::RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, const TVector3& center) {
+    const TVector3 position = GetPosition(n);
+    TVector3 vHit = position - center;
 
     vHit.RotateZ(gamma);
     vHit.RotateY(beta);
     vHit.RotateX(alpha);
 
-    fX[n] = vHit[0] + vMean[0];
-    fY[n] = vHit[1] + vMean[1];
-    fZ[n] = vHit[2] + vMean[2];
+    fX[n] = vHit.X() + center.X();
+    fY[n] = vHit.Y() + center.Y();
+    fZ[n] = vHit.Z() + center.Z();
 }
 
 ///////////////////////////////////////////////
