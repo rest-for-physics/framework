@@ -272,7 +272,7 @@ class TRestHits {
     TRestHits();
     ~TRestHits();
 
-    ClassDef(TRestHits, 8);
+    ClassDef(TRestHits, 7);
 };
 
 #endif
