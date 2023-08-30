@@ -1,4 +1,4 @@
-\brief A list of the different event data processes implemented in REST together with a brief funcionality description.
+\brief A list of the different event data processes implemented in REST together with a brief functionality description.
 
 ## Data transformation processes
 
