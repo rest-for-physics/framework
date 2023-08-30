@@ -173,7 +173,7 @@ class TRestHits {
     Double_t GetEnergyIntegral() const;
     inline Double_t GetTotalDepositedEnergy() const { return fTotalEnergy; }
     inline Double_t GetTotalEnergy() const { return fTotalEnergy; }
-    inline Double_t GetEnergy() const { return fTotalEnergy; }
+    Double_t GetEnergy() const;
     Double_t GetDistance2(int n, int m) const;
     inline Double_t GetDistance(int N, int M) const { return TMath::Sqrt(GetDistance2(N, M)); }
     Double_t GetTotalDistance() const;
@@ -275,7 +275,7 @@ class TRestHits {
     TRestHits();
     ~TRestHits();
 
-    ClassDef(TRestHits, 6);
+    ClassDef(TRestHits, 7);
 };
 
 #endif

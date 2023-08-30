@@ -1396,6 +1396,14 @@ void TRestHits::PrintHits(Int_t nHits) const {
     }
 }
 
+Double_t TRestHits::GetEnergy() const {
+    double energy = 0;
+    for (unsigned int n = 0; n < GetNumberOfHits(); n++) {
+        energy += GetEnergy(n);
+    }
+    return energy;
+}
+
 ///////////////////////
 // Iterator methods
 
