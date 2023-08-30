@@ -112,7 +112,7 @@ TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir
 }
 
 //////////////////////////////////////////////
-/// This method will find the intersection between a vector and a hyperbolic shape where 3 * `alpha` is the
+/// This method will find the intersection between a vector and a hyperbolic shape where beta = 3 * `alpha` is the
 /// angle between the z-axis and the hyperboloid at the plane where the hyperboloid has a radius of
 /// `R3`. The hyperboloid is rotationally symmetric around the z-axis. `alpha` in rad. The region in
 /// which the intersection can happen here is in positive direction on the z-axis.
