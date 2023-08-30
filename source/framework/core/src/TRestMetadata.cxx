@@ -2305,7 +2305,7 @@ std::string TRestMetadata::GetConfigBuffer() { return configBuffer; }
 /// All kinds of data member can be found, including non-streamed
 /// data member and base-class data member
 string TRestMetadata::GetDataMemberValue(string memberName) {
-    return any(this, this->ClassName()).GetDataMemberValueString(memberName);
+    return RESTValue(this, this->ClassName()).GetDataMemberValueString(memberName);
 }
 
 ///////////////////////////////////////////////
