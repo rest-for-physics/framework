@@ -58,7 +58,7 @@ class TRestHits {
 
    public:
     void Translate(Int_t n, Double_t x, Double_t y, Double_t z);
-    void RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, const TVector3& vMean);
+    void RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, const TVector3& center);
     void Rotate(Int_t n, Double_t alpha, const TVector3& vAxis, const TVector3& vMean);
 
     void AddHit(const TVector3& position, Double_t energy, Double_t time = 0, REST_HitType type = XYZ);
@@ -187,7 +187,14 @@ class TRestHits {
 
     virtual void PrintHits(Int_t nHits = -1) const;
 
-    class TRestHits_Iterator : public std::iterator<std::random_access_iterator_tag, TRestHits_Iterator> {
+    class TRestHits_Iterator {
+       public:
+        using iterator_category = std::random_access_iterator_tag;
+        using value_type = TRestHits_Iterator;
+        using difference_type = int;
+        using pointer = void;
+        using reference = void;
+
        private:
         int maxIndex = 0;
         int index = 0;
