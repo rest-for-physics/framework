@@ -987,7 +987,9 @@ Double_t TRestHits::GetSigmaZ2() const {
     Double_t meanZ = this->GetMeanPositionZ();
 
     for (unsigned int n = 0; n < GetNumberOfHits(); n++) {
-        if (!IsNaN(fZ[n])) sigmaZ2 += fEnergy[n] * (meanZ - fZ[n]) * (meanZ - fZ[n]);
+        if (!IsNaN(fZ[n])) {
+            sigmaZ2 += fEnergy[n] * (meanZ - fZ[n]) * (meanZ - fZ[n]);
+        }
     }
     return sigmaZ2 /= totalEnergy;
 }
