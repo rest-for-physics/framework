@@ -38,6 +38,11 @@ enum REST_HitType { unknown = -1, X = 2, Y = 3, Z = 5, XY = 6, XZ = 10, YZ = 15,
 /// It saves a 3-coordinate position and an energy for each punctual deposition.
 class TRestHits {
    protected:
+    // TODO: This is no longer used, it should be removed
+    size_t fNHits = 0;  ///< Number of punctual energy depositions, it is the length for all the arrays
+    // TODO: This is no longer used, it should be removed
+    Double_t fTotalEnergy = 0;  ///< Event total energy
+
     /// Position on X axis for each punctual deposition (units mm)
     std::vector<Float_t> fX;  // [fNHits]
 

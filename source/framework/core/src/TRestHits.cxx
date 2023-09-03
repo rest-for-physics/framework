@@ -183,8 +183,11 @@ Bool_t TRestHits::isHitNInsidePrism(Int_t n, const TVector3& x0, const TVector3&
     hitPos.RotateZ(theta);
     Double_t l = axis.Dot(hitPos) / prismLength;
 
-    if ((l > 0) && (l < prismLength))
-        if ((TMath::Abs(hitPos.X()) < sizeX / 2) && (TMath::Abs(hitPos.Y()) < sizeY / 2)) return true;
+    if ((l > 0) && (l < prismLength)) {
+        if ((TMath::Abs(hitPos.X()) < sizeX / 2) && (TMath::Abs(hitPos.Y()) < sizeY / 2)) {
+            return true;
+        }
+    }
 
     return false;
 }
@@ -196,11 +199,12 @@ Bool_t TRestHits::isHitNInsidePrism(Int_t n, const TVector3& x0, const TVector3&
 ///
 Double_t TRestHits::GetEnergyInPrism(const TVector3& x0, const TVector3& x1, Double_t sizeX, Double_t sizeY,
                                      Double_t theta) const {
-    Double_t energy = 0.;
-
-    for (unsigned int n = 0; n < GetNumberOfHits(); n++)
-        if (isHitNInsidePrism(n, x0, x1, sizeX, sizeY, theta)) energy += this->GetEnergy(n);
-
+    Double_t energy = 0;
+    for (unsigned int n = 0; n < GetNumberOfHits(); n++) {
+        if (isHitNInsidePrism(n, x0, x1, sizeX, sizeY, theta)) {
+            energy += this->GetEnergy(n);
+        }
+    }
     return energy;
 }
 
