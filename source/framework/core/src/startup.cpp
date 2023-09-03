@@ -685,3 +685,69 @@ AddConverter(TripleVectorToString, StringToTripleVector, vector<tuple<int comma 
 AddConverter(TripleVectorToString, StringToTripleVector, vector<tuple<UShort_t comma UShort_t comma int>>);
 AddConverter(TripleVectorToString, StringToTripleVector, vector<tuple<UShort_t comma UShort_t comma float>>);
 AddConverter(TripleVectorToString, StringToTripleVector, vector<tuple<UShort_t comma UShort_t comma double>>);
+
+// Vector of vectors
+template <class T>
+string VectorVectorToString(vector<vector<T>> vec) {
+    stringstream ss;
+    ss << "{";
+    int cont = 0;
+    for (auto const& x : vec) {
+        if (cont > 0) ss << ",";
+        cont++;
+
+        ss << "[";
+        ss << Converter<vector<T>>::thisptr->ToStringFunc(x);
+        ss << "]";
+    }
+    ss << "}";
+    return ss.str();
+}
+
+template <class T>
+vector<vector<T>> StringToVectorVector(string vec) {
+    vector<vector<T>> result;
+    // input string format: {[dd:7],[aa:8],[ss:9]}
+    if (vec[0] == '{' && vec[vec.size() - 1] == '}') {
+        vec.erase(vec.begin());
+        vec.erase(vec.end() - 1);
+        vector<string> parts = Split(vec, ",");
+
+        for (string part : parts) {
+            while (part[0] == ' ') {
+                part.erase(part.begin());
+            }
+            while (part[part.size() - 1] == ' ') {
+                part.erase(part.end() - 1);
+            }
+
+            if (part[0] == '[' && part[part.size() - 1] == ']') {
+                part.erase(part.begin());
+                part.erase(part.end() - 1);
+                vector<string> key_value = Split(part, ":");
+                if (key_value.size() == 1) {
+                    vector<T> value = Converter<vector<T>>::thisptr->ParseStringFunc(key_value[0]);
+                    result.push_back(value);
+                } else {
+                    cout << "illegal format!" << endl;
+                    return vector<vector<T>>{};
+                }
+            } else {
+                cout << "illegal format!" << endl;
+                return vector<vector<T>>{};
+            }
+        }
+
+    } else {
+        cout << "illegal format!" << endl;
+        return vector<vector<T>>{};
+    }
+
+    return result;
+}
+
+AddConverter(VectorVectorToString, StringToVectorVector, vector<vector<int>>);
+AddConverter(VectorVectorToString, StringToVectorVector, vector<vector<float>>);
+AddConverter(VectorVectorToString, StringToVectorVector, vector<vector<double>>);
+AddConverter(VectorVectorToString, StringToVectorVector, vector<vector<string>>);
+AddConverter(VectorVectorToString, StringToVectorVector, vector<vector<UShort_t>>);
