@@ -1144,10 +1144,9 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
                 }
             }
 
-            e->SetAttribute(name, ReplaceMathematicalExpressions(
-                                      outputBuffer, 0,
-                                      "Please, check parameter name: " + parName + " (ReplaceForLoopVars)")
-                                      .c_str());
+            e->SetAttribute(name, ReplaceMathematicalExpressions(outputBuffer, 0,
+                                                                 "Please, check parameter name: " + parName +
+                                                                     " (ReplaceForLoopVars)").c_str());
         }
 
         attr = attr->Next();
@@ -1300,8 +1299,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
             TiXmlElement* ele = GetElementFromFile(filename);
             if (ele == nullptr) {
                 RESTError << "TRestMetadata::ExpandIncludeFile. No xml elements contained in the include "
-                             "file \""
-                          << filename << "\"" << RESTendl;
+                             "file \"" << filename << "\"" << RESTendl;
                 exit(1);
             }
             while (ele != nullptr) {
@@ -1383,8 +1381,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
 
                 if (remoteele == nullptr) {
                     RESTWarning << "Cannot find the needed xml section in "
-                                   "include file!"
-                                << RESTendl;
+                                   "include file!" << RESTendl;
                     RESTWarning << "type: \"" << type << "\" , name: \"" << name << "\" . Skipping"
                                 << RESTendl;
                     RESTWarning << RESTendl;
@@ -1669,7 +1666,7 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVect
 /// Exits the whole program if the xml file does not exist, or is in wrong in
 /// syntax. Returns NULL if no element matches NameOrDecalre
 ///
-TiXmlElement* TRestMetadata::GetElementFromFile(std::string configFilename, std::string NameOrDecalre) {
+TiXmlElement* TRestMetadata::GetElementFromFile(std::string configFilename, std::string NameOrDeclare) {
     TiXmlDocument doc;
     TiXmlElement* rootele;
 
@@ -1693,26 +1690,27 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string configFilename, std:
                   << RESTendl;
         exit(1);
     }
-    if (NameOrDecalre == "") {
+    if (NameOrDeclare == "") {
         return (TiXmlElement*)rootele->Clone();
     }
     // search with either name or declare in either root element or sub-root
     // element
     while (rootele != nullptr) {
-        if (rootele->Value() != nullptr && (string)rootele->Value() == NameOrDecalre) {
+        if (rootele->Value() != nullptr && (string)rootele->Value() == NameOrDeclare) {
             return (TiXmlElement*)rootele->Clone();
         }
 
-        if (rootele->Attribute("name") != nullptr && (string)rootele->Attribute("name") == NameOrDecalre) {
+        if (rootele->Attribute("name") != nullptr && (string)rootele->Attribute("name") == NameOrDeclare) {
             return (TiXmlElement*)rootele->Clone();
         }
 
-        TiXmlElement* etemp = GetElement(NameOrDecalre, rootele);
+        TiXmlElement* etemp = GetElement(NameOrDeclare, rootele);
         if (etemp != nullptr) {
             return (TiXmlElement*)etemp->Clone();
         }
 
-        etemp = GetElementWithName("", NameOrDecalre, rootele);
+        etemp = GetElementWithName("", NameOrDeclare, rootele);
+
         if (etemp != nullptr) {
             return (TiXmlElement*)etemp->Clone();
         }
@@ -1721,7 +1719,7 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string configFilename, std:
     }
 
     return nullptr;
-    /*ferr << "Cannot find xml element with name \""<< NameOrDecalre <<"\" in rml
+    /*ferr << "Cannot find xml element with name \""<< NameOrDeclare <<"\" in rml
     file \"" << configFilename << endl; GetChar(); exit(1);*/
 }
 
@@ -1761,8 +1759,12 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
     {
         TiXmlElement* ele = e->FirstChildElement();
         while (ele != nullptr) {
-            if (ele->Attribute("name") != nullptr && (string)ele->Attribute("name") == eleName) {
-                return ele;
+            if (ele->Attribute("name") != nullptr) {
+                std::string nameValue = (string)ele->Attribute("name");
+                nameValue = ReplaceVariables(nameValue);
+                if (nameValue == eleName) {
+                    return ele;
+                }
             }
             ele = ele->NextSiblingElement();
         }
@@ -1771,8 +1773,12 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
     {
         TiXmlElement* ele = e->FirstChildElement(eleDeclare.c_str());
         while (ele != nullptr) {
-            if (ele->Attribute("name") != nullptr && (string)ele->Attribute("name") == eleName) {
-                return ele;
+            if (ele->Attribute("name") != nullptr) {
+                std::string nameValue = (string)ele->Attribute("name");
+                nameValue = ReplaceVariables(nameValue);
+                if (nameValue == eleName) {
+                    return ele;
+                }
             }
             ele = ele->NextSiblingElement(eleDeclare.c_str());
         }
@@ -2258,8 +2264,7 @@ TString TRestMetadata::GetLibraryVersion() { return fLibraryVersion; }
 void TRestMetadata::ReSetVersion() {
     if (!this->InheritsFrom("TRestRun"))
         RESTError << "version is a static value, you cannot set version "
-                     "for a class!"
-                  << RESTendl;
+                     "for a class!" << RESTendl;
     else {
         fVersion = REST_RELEASE;
     }
@@ -2271,8 +2276,7 @@ void TRestMetadata::ReSetVersion() {
 void TRestMetadata::UnSetVersion() {
     if (!this->InheritsFrom("TRestRun"))
         RESTError << "version is a static value, you cannot set version "
-                     "for a class!"
-                  << RESTendl;
+                     "for a class!" << RESTendl;
     else {
         fVersion = -1;
         fCommit = -1;
@@ -2537,8 +2541,7 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
                     } else {
                         RESTWarning << this->ClassName() << " find unit definition in parameter: " << name
                                     << ", but the corresponding data member doesn't support it. Data "
-                                       "member type: "
-                                    << datamember.type << RESTendl;
+                                       "member type: " << datamember.type << RESTendl;
                         datamember.ParseString(value);
                     }
                 } else {
