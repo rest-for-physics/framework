@@ -425,8 +425,11 @@ void TRestHits::Rotate(Int_t n, Double_t alpha, const TVector3& vAxis, const TVe
 ///
 Double_t TRestHits::GetMaximumHitEnergy() const {
     Double_t energy = 0;
-    for (unsigned int i = 0; i < GetNumberOfHits(); i++)
-        if (GetEnergy(i) > energy) energy = GetEnergy(i);
+    for (unsigned int i = 0; i < GetNumberOfHits(); i++) {
+        if (GetEnergy(i) > energy) {
+            energy = GetEnergy(i);
+        }
+    }
     return energy;
 }
 
@@ -435,8 +438,11 @@ Double_t TRestHits::GetMaximumHitEnergy() const {
 ///
 Double_t TRestHits::GetMinimumHitEnergy() const {
     Double_t energy = GetMaximumHitEnergy();
-    for (unsigned int i = 0; i < GetNumberOfHits(); i++)
-        if (GetEnergy(i) < energy) energy = GetEnergy(i);
+    for (unsigned int i = 0; i < GetNumberOfHits(); i++) {
+        if (GetEnergy(i) < energy) {
+            energy = GetEnergy(i);
+        }
+    }
     return energy;
 }
 
@@ -482,8 +488,11 @@ void TRestHits::SwapHits(Int_t i, Int_t j) {
 /// \brief It returns true if the hits are ordered in increasing energies.
 ///
 Bool_t TRestHits::isSortedByEnergy() const {
-    for (unsigned int i = 0; i < GetNumberOfHits() - 1; i++)
-        if (GetEnergy(i + 1) > GetEnergy(i)) return false;
+    for (unsigned int i = 0; i < GetNumberOfHits() - 1; i++) {
+        if (GetEnergy(i + 1) > GetEnergy(i)) {
+            return false;
+        }
+    }
 
     return true;
 }
