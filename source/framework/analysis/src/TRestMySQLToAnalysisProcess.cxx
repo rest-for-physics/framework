@@ -59,6 +59,9 @@
 /// </addProcess>
 /// ```
 ///
+/// \note If no DB entries were found, the branches will still be created inside
+/// the analysis tree, but their value will be equal to -1.
+///
 ///--------------------------------------------------------------------------
 ///
 /// RESTsoft - Software for Rare Event Searches with TPCs
@@ -315,14 +318,9 @@ void TRestMySQLToAnalysisProcess::FillDBArrays() {
     fSampling = (fEndTimestamp - fStartTimestamp) / num_rows / 2;
 
     if (num_rows < 3) {
-        RESTError << "Not enough data found on the event data range" << RESTendl;
-        RESTError
-            << "If no database entries exist remove TRestMySQLToAnalysisProcess from your processing chain"
-            << RESTendl;
-        // We take the decision to stop processing to make sure we are aware of the problem.
-        // Specially to identify possible errors in this code.
-        // But we might get more flexible with time, and this process just prompts a worning and does nothing.
-        exit(1);
+        this->SetError("No DB entries found for the run period!");
+        fDataBaseExists = false;
+        return;
     }
 
     // We register all the data inside a std::vector.
@@ -428,6 +426,7 @@ string TRestMySQLToAnalysisProcess::BuildQueryString() {
 /// neighbouring timestamps inside the fDBdata dataset.
 ///
 Double_t TRestMySQLToAnalysisProcess::GetDBValueAtTimestamp(Int_t index, Double_t timestamp) {
+    if (!fDataBaseExists) return -1;
     Int_t bin = (Int_t)((timestamp - fStartTimestamp) / fSampling);
 
     if (bin < 0) return fDBdata.front()[index];

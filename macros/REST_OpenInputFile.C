@@ -7,6 +7,8 @@ void REST_OpenInputFile(const std::string& fileName) {
     if (TRestTools::isRunFile(fileName)) {
         printf("\n%s\n\n", "REST processed file identified. It contains a valid TRestRun.");
         run = new TRestRun(fileName);
+        // print number of entries in the run
+        printf("\nThe run has %lld entries.\n", run->GetEntries());
         printf("\nAttaching TRestRun %s as run...\n", fileName.c_str());
         ana_tree = run->GetAnalysisTree();
         printf("Attaching TRestAnalysisTree as ana_tree...\n");
@@ -29,6 +31,7 @@ void REST_OpenInputFile(const std::string& fileName) {
             }
             std::string mName = Replace(metaName, " ", "");
             mName = Replace(mName, ".", "_");
+            mName = Replace(mName, "-", "_");
             std::string mdcmd = Form("%s* %s = (%s*)run->GetMetadata(\"%s\");", md->ClassName(),
                                      mName.c_str(), md->ClassName(), metaName.c_str());
             gROOT->ProcessLine(mdcmd.c_str());
