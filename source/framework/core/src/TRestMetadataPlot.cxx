@@ -486,7 +486,6 @@ void TRestMetadataPlot::InitFromConfigFile() {
             RESTExtreme << "Pos Y : " << fPanels[n].posY[m] << RESTendl;
         }
     }
-#pragma endregion
 }
 
 ///////////////////////////////////////////////
