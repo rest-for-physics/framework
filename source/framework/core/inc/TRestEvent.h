@@ -24,7 +24,6 @@
 #define RestCore_TRestEvent
 
 #include <TBufferFile.h>
-#include <TObject.h>
 #include <TPad.h>
 #include <TString.h>
 #include <TTimeStamp.h>
