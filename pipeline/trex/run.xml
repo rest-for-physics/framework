@@ -1,24 +1,24 @@
 <TRestRun name="TREX-DM" title="TREX-DM test data analysis" verboseLevel="silent">
-	<parameter name="experimentName" value="TREXDM_LSC"/>
-	<parameter name="runNumber" value="preserve"/>
-	<parameter name="runTag" value="preserve"/>
-	<parameter name="runType" value="${RUN_TYPE}"/>
-	<parameter name="runDescription" value=""/>
-	<parameter name="user" value="${USER}"/>
-	<parameter name="verboseLevel" value="0"/>
-	<parameter name="overwrite" value="on" />
-	<parameter name="outputFileName" value="[fRunType]_[fRunNumber].root" />
-	<parameter name="readOnly" value="false" />
-	<parameter name="inputFormat" value="${FORMAT}" />
+    <parameter name="experimentName" value="TREXDM_LSC"/>
+    <parameter name="runNumber" value="preserve"/>
+    <parameter name="runTag" value="preserve"/>
+    <parameter name="runType" value="${RUN_TYPE}"/>
+    <parameter name="runDescription" value=""/>
+    <parameter name="user" value="${USER}"/>
+    <parameter name="verboseLevel" value="0"/>
+    <parameter name="overwrite" value="on"/>
+    <parameter name="outputFileName" value="[fRunType]_[fRunNumber].root"/>
+    <parameter name="readOnly" value="false"/>
+    <parameter name="inputFormat" value="${FORMAT}"/>
 
-	<addMetadata type="TRestDetectorReadout" name="TREXDM_Nov2018" file="readouts_v2.4.root" store="false" />
+    <addMetadata type="TRestDetectorReadout" name="TREXDM_Nov2018" file="readouts_v2.4.root" store="false"/>
 
-	<TRestDetectorGas name="Neon-Isobutane 2Pct 10-10E3Vcm" pressure="1" file="server" />
+    <TRestDetectorGas name="Neon-Isobutane 2Pct 10-10E3Vcm" pressure="1" file="server"/>
 
-	<if condition="${RUN_TYPE}==RawData">
-		<TRestDetector name="detParam" >
-			<parameter name="detectorName" value="TREXDM_0" />
-		</TRestDetector>
-	</if>
+    <if condition="${RUN_TYPE}==RawData">
+        <TRestDetector name="detParam">
+            <parameter name="detectorName" value="TREXDM_0"/>
+        </TRestDetector>
+    </if>
 
 </TRestRun>

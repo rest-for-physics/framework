@@ -37,7 +37,7 @@ void TRestVolumeHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Do
         return;
     }
 
-    TRestHits::AddHit(x, y, z, en, time, type);
+    TRestHits::AddHit({x, y, z}, en, time, type);
     fSigmaX.push_back((Float_t)sigmaX);
     fSigmaY.push_back((Float_t)sigmaY);
     fSigmaZ.push_back((Float_t)sigmaZ);
