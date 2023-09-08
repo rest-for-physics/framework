@@ -1669,7 +1669,7 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVect
 /// Exits the whole program if the xml file does not exist, or is in wrong in
 /// syntax. Returns NULL if no element matches NameOrDecalre
 ///
-TiXmlElement* TRestMetadata::GetElementFromFile(std::string configFilename, std::string NameOrDecalre) {
+TiXmlElement* TRestMetadata::GetElementFromFile(std::string configFilename, std::string NameOrDeclare) {
     TiXmlDocument doc;
     TiXmlElement* rootele;
 
@@ -1693,26 +1693,27 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string configFilename, std:
                   << RESTendl;
         exit(1);
     }
-    if (NameOrDecalre == "") {
+    if (NameOrDeclare == "") {
         return (TiXmlElement*)rootele->Clone();
     }
     // search with either name or declare in either root element or sub-root
     // element
     while (rootele != nullptr) {
-        if (rootele->Value() != nullptr && (string)rootele->Value() == NameOrDecalre) {
+        if (rootele->Value() != nullptr && (string)rootele->Value() == NameOrDeclare) {
             return (TiXmlElement*)rootele->Clone();
         }
 
-        if (rootele->Attribute("name") != nullptr && (string)rootele->Attribute("name") == NameOrDecalre) {
+        if (rootele->Attribute("name") != nullptr && (string)rootele->Attribute("name") == NameOrDeclare) {
             return (TiXmlElement*)rootele->Clone();
         }
 
-        TiXmlElement* etemp = GetElement(NameOrDecalre, rootele);
+        TiXmlElement* etemp = GetElement(NameOrDeclare, rootele);
         if (etemp != nullptr) {
             return (TiXmlElement*)etemp->Clone();
         }
 
-        etemp = GetElementWithName("", NameOrDecalre, rootele);
+        etemp = GetElementWithName("", NameOrDeclare, rootele);
+
         if (etemp != nullptr) {
             return (TiXmlElement*)etemp->Clone();
         }
@@ -1721,7 +1722,7 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string configFilename, std:
     }
 
     return nullptr;
-    /*ferr << "Cannot find xml element with name \""<< NameOrDecalre <<"\" in rml
+    /*ferr << "Cannot find xml element with name \""<< NameOrDeclare <<"\" in rml
     file \"" << configFilename << endl; GetChar(); exit(1);*/
 }
 
@@ -1761,8 +1762,12 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
     {
         TiXmlElement* ele = e->FirstChildElement();
         while (ele != nullptr) {
-            if (ele->Attribute("name") != nullptr && (string)ele->Attribute("name") == eleName) {
-                return ele;
+            if (ele->Attribute("name") != nullptr) {
+                std::string nameValue = (string)ele->Attribute("name");
+                nameValue = ReplaceVariables(nameValue);
+                if (nameValue == eleName) {
+                    return ele;
+                }
             }
             ele = ele->NextSiblingElement();
         }
@@ -1771,8 +1776,12 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
     {
         TiXmlElement* ele = e->FirstChildElement(eleDeclare.c_str());
         while (ele != nullptr) {
-            if (ele->Attribute("name") != nullptr && (string)ele->Attribute("name") == eleName) {
-                return ele;
+            if (ele->Attribute("name") != nullptr) {
+                std::string nameValue = (string)ele->Attribute("name");
+                nameValue = ReplaceVariables(nameValue);
+                if (nameValue == eleName) {
+                    return ele;
+                }
             }
             ele = ele->NextSiblingElement(eleDeclare.c_str());
         }
@@ -2305,7 +2314,7 @@ std::string TRestMetadata::GetConfigBuffer() { return configBuffer; }
 /// All kinds of data member can be found, including non-streamed
 /// data member and base-class data member
 string TRestMetadata::GetDataMemberValue(string memberName) {
-    return any(this, this->ClassName()).GetDataMemberValueString(memberName);
+    return RESTValue(this, this->ClassName()).GetDataMemberValueString(memberName);
 }
 
 ///////////////////////////////////////////////

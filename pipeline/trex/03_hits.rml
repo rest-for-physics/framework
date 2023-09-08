@@ -2,55 +2,57 @@
 
 <TRestManager>
 
-	<globals file="globals.xml"/>
-	<globals>
-	  	<variable name="RUN_TYPE" value="Hits" overwrite="false" />
-	</globals>
+    <globals file="globals.xml"/>
+    <globals>
+        <variable name="RUN_TYPE" value="Hits" overwrite="false"/>
+    </globals>
 
-	<TRestRun file="run.xml" />
+    <TRestRun file="run.xml"/>
 
-	<TRestProcessRunner name="Signals" title="REST Manager. Raw To Track Analysis (analysis without intermediate output)." verboseLevel="silent">
+    <TRestProcessRunner name="Signals"
+                        title="REST Manager. Raw To Track Analysis (analysis without intermediate output)."
+                        verboseLevel="silent">
 
-		<parameter name="eventsToProcess" value="0" />
-		<parameter name="outputEvent" value="ON" />
+        <parameter name="eventsToProcess" value="0"/>
+        <parameter name="outputEvent" value="ON"/>
 
-		<addProcess type="TRestDetectorSignalToHitsProcess" name="signalToHits" value="ON" verboseLevel="silent"
-			electricField="${PRESSURE}*${DRIFT_FIELD}"
-			gasPressure="[detParam::fPressure]"
-			driftVelocity=""
-			observable="all"
-			method="tripleMax" />
+        <addProcess type="TRestDetectorSignalToHitsProcess" name="signalToHits" value="ON" verboseLevel="silent"
+                    electricField="${PRESSURE}*${DRIFT_FIELD}"
+                    gasPressure="[detParam::fPressure]"
+                    driftVelocity=""
+                    observable="all"
+                    method="tripleMax"/>
 
-		<addProcess type="TRestDetectorHitsAnalysisProcess" name="hitsAna" value="ON" verboseLevel="silent" >
-			<observable name="energy" value="ON" />
-			<observable name="energyX" value="ON" />
-			<observable name="energyY" value="ON" />
-			<observable name="balanceXYenergy" value="ON" />
+        <addProcess type="TRestDetectorHitsAnalysisProcess" name="hitsAna" value="ON" verboseLevel="silent">
+            <observable name="energy" value="ON"/>
+            <observable name="energyX" value="ON"/>
+            <observable name="energyY" value="ON"/>
+            <observable name="balanceXYenergy" value="ON"/>
 
-			<observable name="nHits" type="int" value="ON" />
-			<observable name="nHitsX" type="int" value="ON" />
-			<observable name="nHitsY" type="int" value="ON" />
-			<observable name="nHitsSizeXY" value="ON" />
+            <observable name="nHits" type="int" value="ON"/>
+            <observable name="nHitsX" type="int" value="ON"/>
+            <observable name="nHitsY" type="int" value="ON"/>
+            <observable name="nHitsSizeXY" value="ON"/>
 
-			<observable name="maxHitEnergy" value="ON" />
-			<observable name="minHitEnergy" value="ON" />
-			<observable name="meanHitEnergy" value="ON" />
+            <observable name="maxHitEnergy" value="ON"/>
+            <observable name="minHitEnergy" value="ON"/>
+            <observable name="meanHitEnergy" value="ON"/>
 
-			<observable name="xMean" value="ON" />
-			<observable name="yMean" value="ON" />
-			<observable name="zMean" value="ON" />
+            <observable name="xMean" value="ON"/>
+            <observable name="yMean" value="ON"/>
+            <observable name="zMean" value="ON"/>
 
-			<observable name="xSigma" value="ON" />
-			<observable name="ySigma" value="ON" />
-			<observable name="xy2Sigma" value="ON" />
-			<observable name="xySigmaBalance" value="ON" />
-			<observable name="z2Sigma" value="ON" />
-			<observable name="xySkew" value="ON" />
-			<observable name="zSkew" value="ON" />
-		</addProcess>
+            <observable name="xSigma" value="ON"/>
+            <observable name="ySigma" value="ON"/>
+            <observable name="xy2Sigma" value="ON"/>
+            <observable name="xySigmaBalance" value="ON"/>
+            <observable name="z2Sigma" value="ON"/>
+            <observable name="xySkew" value="ON"/>
+            <observable name="zSkew" value="ON"/>
+        </addProcess>
 
-	</TRestProcessRunner>
+    </TRestProcessRunner>
 
-	<addTask type="processEvents" value="ON" />
+    <addTask type="processEvents" value="ON"/>
 
 </TRestManager>
