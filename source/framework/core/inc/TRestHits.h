@@ -23,8 +23,6 @@
 #ifndef TRestSoft_TRestHits
 #define TRestSoft_TRestHits
 
-#include <TArrayD.h>
-#include <TArrayI.h>
 #include <TCanvas.h>
 #include <TF1.h>
 #include <TGraphErrors.h>
@@ -40,7 +38,9 @@ enum REST_HitType { unknown = -1, X = 2, Y = 3, Z = 5, XY = 6, XZ = 10, YZ = 15,
 /// It saves a 3-coordinate position and an energy for each punctual deposition.
 class TRestHits {
    protected:
+    // TODO: This is no longer used, it should be removed
     size_t fNHits = 0;  ///< Number of punctual energy depositions, it is the length for all the arrays
+    // TODO: This is no longer used, it should be removed
     Double_t fTotalEnergy = 0;  ///< Event total energy
 
     /// Position on X axis for each punctual deposition (units mm)
@@ -66,8 +66,7 @@ class TRestHits {
     void RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, const TVector3& center);
     void Rotate(Int_t n, Double_t alpha, const TVector3& vAxis, const TVector3& vMean);
 
-    void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
-    void AddHit(const TVector3& pos, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
+    void AddHit(const TVector3& position, Double_t energy, Double_t time = 0, REST_HitType type = XYZ);
     void AddHit(TRestHits& hits, Int_t n);
 
     Int_t GetMostEnergeticHitInRange(Int_t n, Int_t m) const;
@@ -91,7 +90,7 @@ class TRestHits {
 
     Bool_t isSortedByEnergy() const;
 
-    inline size_t GetNumberOfHits() const { return fNHits; }
+    inline size_t GetNumberOfHits() const { return fEnergy.size(); }
 
     inline const std::vector<Float_t>& GetX() const { return fX; }
     inline const std::vector<Float_t>& GetY() const { return fY; }
@@ -99,11 +98,11 @@ class TRestHits {
     inline const std::vector<Float_t>& GetTime() const { return fTime; }
     inline const std::vector<Float_t>& GetEnergyVector() const { return fEnergy; }
 
-    inline Double_t GetX(int n) const { return ((Double_t)fX[n]); }            // return value in mm
-    inline Double_t GetY(int n) const { return ((Double_t)fY[n]); }            // return value in mm
-    inline Double_t GetZ(int n) const { return ((Double_t)fZ[n]); }            // return value in mm
-    inline Double_t GetTime(int n) const { return ((Double_t)fTime[n]); }      // return value in us
-    inline Double_t GetEnergy(int n) const { return ((Double_t)fEnergy[n]); }  // return value in keV
+    inline Double_t GetX(int n) const { return fX[n]; }            // return value in mm
+    inline Double_t GetY(int n) const { return fY[n]; }            // return value in mm
+    inline Double_t GetZ(int n) const { return fZ[n]; }            // return value in mm
+    inline Double_t GetTime(int n) const { return fTime[n]; }      // return value in us
+    inline Double_t GetEnergy(int n) const { return fEnergy[n]; }  // return value in keV
 
     inline REST_HitType GetType(int n) const { return fType[n]; }
 
@@ -169,11 +168,7 @@ class TRestHits {
     Double_t GetMinimumHitEnergy() const;
     Double_t GetMeanHitEnergy() const;
 
-    inline void CalculateTotalDepositedEnergy() { fTotalEnergy = GetEnergyIntegral(); }
-    Double_t GetEnergyIntegral() const;
-    inline Double_t GetTotalDepositedEnergy() const { return fTotalEnergy; }
-    inline Double_t GetTotalEnergy() const { return fTotalEnergy; }
-    inline Double_t GetEnergy() const { return fTotalEnergy; }
+    Double_t GetTotalEnergy() const;
     Double_t GetDistance2(int n, int m) const;
     inline Double_t GetDistance(int N, int M) const { return TMath::Sqrt(GetDistance2(N, M)); }
     Double_t GetTotalDistance() const;
@@ -276,7 +271,7 @@ class TRestHits {
         TRestHits_Iterator(TRestHits* h, int _index);
     };
     inline TRestHits_Iterator begin() { return {this, 0}; }
-    inline TRestHits_Iterator end() { return {this, static_cast<int>(fNHits)}; }
+    inline TRestHits_Iterator end() { return {this, static_cast<int>(GetNumberOfHits())}; }
     typedef TRestHits_Iterator iterator;
 
     TRestHits();

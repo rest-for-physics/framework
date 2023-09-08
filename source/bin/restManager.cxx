@@ -158,6 +158,7 @@ int main(int argc, char* argv[]) {
     // Load libraries
     TRestTools::LoadRESTLibrary(true);
     gInterpreter->ProcessLine("#define REST_MANAGER");
+    gVerbose = StringToVerboseLevel("2");
 
     // read arguments
     if (args.size() >= 2) {
