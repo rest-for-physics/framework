@@ -493,7 +493,7 @@ jobs:
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/pandaxiii_MC
-          restManager --c AllProcesses.rml --i Xe136bb0n_small_reference.root --o Xe136bb0n_small_reference_processed.root --j 1 --e 5
+          restManager --c AllProcesses.rml --i Xe136bb0n_small_reference.root --o Xe136bb0n_small_reference_processed.root --j 1 --e 5 --v 3
           restRoot -b -q ../MakeBasicTree.C'("Xe136bb0n_small_reference_processed.root")'
           restRoot -b -q ../ValidateTrees.C'("Xe136bb0n_validation.root")'
           # restManager --c plots.rml --i Xe136bb0n_small_reference_processed.root

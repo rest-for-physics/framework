@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+<?xml version="1.0"?>
 <processes>
     <TRestDetectorElectronDiffusionProcess name="eDiff_1kVcm_10atm" title="eDiff" verboseLevel="silent">
         <parameter name="electricField" value="1" units="kV/cm"/>
@@ -10,25 +10,18 @@
         <!--<observable name="readoutPlaneEnergy_1" value="ON" /> -->
         <!-- There is no need to specify additional parameters if all values will be taken from the gas properties (TRestDetectorGas). -->
     </TRestDetectorElectronDiffusionProcess>
-
-    <TRestDetectorAvalancheProcess name="avalancheProcess" title="IAXOD0 chamber">
-        <parameter name="energyReference" value="5.9keV"/>
-        <parameter name="resolutionReference" value="13"/>// fwhm
-        <parameter name="detectorGain" value="8000"/>// absolute gain // parameter name=&quot;electronicsGain&quot;
-        value=&quot;671744&quot; // electrons for 4096 ADC units
+    <TRestDetectorAvalancheProcess name="avalancheProcess" title="IAXOD0 chamber"><parameter name="energyReference" value="5.9keV"/><parameter name="resolutionReference" value="13"/>// fwhm
+        <parameter name="detectorGain" value="8000"/>// absolute gain // parameter name="electronicsGain"
+        value="671744" // electrons for 4096 ADC units
     </TRestDetectorAvalancheProcess>
-
     <TRestDetectorSignalDeconvolutionProcess name="deconvolution-Template" title="Deconvolution of AGET signals">
         <parameter name="transversalDiffusionCoefficient" value="10"/>
         <!-- There is no need to specify additional parameters if all values will be taken from the gas properties (TRestDetectorGas). -->
     </TRestDetectorSignalDeconvolutionProcess>
-    <TRestDetectorAvalancheProcess name="avalancheProcess" title="IAXOD0 chamber">
-        <parameter name="energyReference" value="5.9keV"/>
-        <parameter name="resolutionReference" value="13"/>// fwhm
-        <parameter name="detectorGain" value="8000"/>// absolute gain // parameter name=&quot;electronicsGain&quot;
-        value=&quot;671744&quot; // electrons for 4096 ADC units
+    <TRestDetectorAvalancheProcess name="avalancheProcess" title="IAXOD0 chamber"><parameter name="energyReference" value="5.9keV"/><parameter name="resolutionReference" value="13"/>// fwhm
+        <parameter name="detectorGain" value="8000"/>// absolute gain // parameter name="electronicsGain"
+        value="671744" // electrons for 4096 ADC units
     </TRestDetectorAvalancheProcess>
-
     <TRestDetectorSignalDeconvolutionProcess name="deconv" title="Deconvolution of AGET signals" verboseLevel="silent">
         <parameter name="frequency1" value="2.71383005928202273"/>
         <parameter name="frequency2" value="18.6067876433914706e"/>
@@ -41,18 +34,11 @@
         <parameter name="cutFrequency" value="12"/>
         <parameter name="responseFile" value="AGET_Response_SJTU_2017Feb22.root"/>
     </TRestDetectorSignalDeconvolutionProcess>
-
-    <TRestDetectorSignalGaussianConvolutionProcess name="gConv" title="Gaussian convolution of signals">
-        <parameter name="sigma" value=".1us"/>
-        <parameter name="nSigmas" value="2"/>// Number of sigmas to perform the calculation
+    <TRestDetectorSignalGaussianConvolutionProcess name="gConv" title="Gaussian convolution of signals"><parameter name="sigma" value=".1us"/><parameter name="nSigmas" value="2"/>// Number of sigmas to perform the calculation
     </TRestDetectorSignalGaussianConvolutionProcess>
-
-    <TRestAddSignalNoiseProcess name="addSignalNoiseProcess" title="Test AddNoise to Signal">
-        <parameter name="noiseLevel" value="5"/>// // electrons in each time bin
+    <TRestAddSignalNoiseProcess name="addSignalNoiseProcess" title="Test AddNoise to Signal"><parameter name="noiseLevel" value="5"/>// // electrons in each time bin
     </TRestAddSignalNoiseProcess>
-
-    <TRestDetectorSignalToHitsProcess name="signalToHits" title="A Signal To Hits reconstruction template."
-                                      verboseLevel="silent">
+    <TRestDetectorSignalToHitsProcess name="signalToHits" title="A Signal To Hits reconstruction template." verboseLevel="silent">
         <parameter name="sampling" value="200ns"/>
         <parameter name="electricField" value="1000" units="V/cm"/>
         <!-- If not specified, the following values will be taken from TRestDetectorGas properties -->
@@ -62,7 +48,6 @@
         <!-- in cm/us -->
         <parameter name="method" value="all"/>
     </TRestDetectorSignalToHitsProcess>
-
     <TRestDetectorHitsToSignalProcess name="hitsToSignal" title="A hits to signal template" verboseLevel="silent">
         <parameter name="sampling" value="200ns"/>
         <parameter name="electricField" value="1000" units="V/cm"/>
@@ -70,7 +55,6 @@
         <parameter name="gasPressure" value=""/>
         <parameter name="driftVelocity" value=""/>
     </TRestDetectorHitsToSignalProcess>
-
     <TRestDetectorHitsToTrackProcess name="ihitsToTrack" title="">
         <parameter name="clusterDistance" value="7.5" units="mm"/>
     </TRestDetectorHitsToTrackProcess>
@@ -88,8 +72,7 @@
         <parameter name="distanceStepFactor" value="1.15"/>
         <parameter name="maxNodes" value="25"/>
     </TRestDetectorHitsReductionProcess>
-    <TRestTrackReductionProcess name="trackReduction" title="Merges the closer hits in a TrackEvent"
-                                verboseLevel="silent">
+    <TRestTrackReductionProcess name="trackReduction" title="Merges the closer hits in a TrackEvent" verboseLevel="silent">
         <parameter name="startingDistance" value="0.15mm"/>
         <parameter name="minimumDistance" value="0.5mm"/>
         <parameter name="distanceStepFactor" value="1.15"/>
@@ -112,12 +95,9 @@
         <observable name="GasVolumeEDep" value="ON" description="Energy deposited in the gas volume in keV"/>
         <observable name="vesselVolumeEDep" value="OFF" description="Energy deposited in the vessel volume in keV"/>
         <observable name="totalEdep" value="ON" description="Total energy deposited in all the volumes in keV"/>
-        <observable name="photoelectric" value="ON" type="int"
-                    description="Its value will be 1 if the event contains a photoelectric interaction."/>
-        <observable name="compton" value="ON" type="int"
-                    description="Its value will be 1 if the event contains a compton scattering process."/>
-        <observable name="bremstralung" value="ON" type="int"
-                    description="Its value will be 1 if the event contains a bremstralung physics process."/>
+        <observable name="photoelectric" value="ON" type="int" description="Its value will be 1 if the event contains a photoelectric interaction."/>
+        <observable name="compton" value="ON" type="int" description="Its value will be 1 if the event contains a compton scattering process."/>
+        <observable name="bremstralung" value="ON" type="int" description="Its value will be 1 if the event contains a bremstralung physics process."/>
         <parameter name="lowEnergyCut" value="600keV"/>
         <parameter name="highEnergyCut" value="3000keV"/>
     </TRestGeant4AnalysisProcess>
@@ -193,19 +173,16 @@
     <TRestDetectorHitsSmearingProcess name="smear_3FWHM" title="Smearing template">
         <parameter name="energyReference" value="879keV"/>
         <parameter name="resolutionReference" value="5.0"/>
+        <parameter name="seed" value="624"/>
     </TRestDetectorHitsSmearingProcess>
     <TRestDetectorHitsNormalizationProcess name="hitsNorm" title="Hits normalization template">
         <parameter name="normFactor" value="0.021917"/>
     </TRestDetectorHitsNormalizationProcess>
     <TRestTrackAnalysisProcess name="tckAna" title="Track analysis template">
-        <observable name="nTracksXYZ" type="int" value="ON"
-                    description="Number of pure 3D-tracks (with valid XYZ-hits)."/>
-        <observable name="nTrackEnergyRatio" value="ON"
-                    description="Energy ratio between track event energy excluding the main track and total track event energy."/>
-        <observable name="nTracks_HE_100" type="int" value="ON"
-                    description="Number of tracks with energy higher than 100 keV."/>
-        <observable name="nTracks_LE_100" type="int" value="ON"
-                    description="Number of tracks with energy lower than 100 keV."/>
+        <observable name="nTracksXYZ" type="int" value="ON" description="Number of pure 3D-tracks (with valid XYZ-hits)."/>
+        <observable name="nTrackEnergyRatio" value="ON" description="Energy ratio between track event energy excluding the main track and total track event energy."/>
+        <observable name="nTracks_HE_100" type="int" value="ON" description="Number of tracks with energy higher than 100 keV."/>
+        <observable name="nTracks_LE_100" type="int" value="ON" description="Number of tracks with energy lower than 100 keV."/>
         <observable name="SecondMaxTrackEnergy" value="ON" description="The energy of the second most energetic track"/>
         <observable name="xMean" value="ON"/>
         <observable name="yMean" value="ON"/>
@@ -214,8 +191,7 @@
     <TRestTrackAnalysisProcess name="tckAna_2" title="Track analysis template">
         <observable name="nTracks_X" type="int" value="ON" description="Number of 2D-tracks (with valid XZ-hits)."/>
         <observable name="nTracks_Y" type="int" value="ON" description="Number of 2D-tracks (with valid YZ-hits)."/>
-        <observable name="nTrackEnergyRatio" value="ON"
-                    description="Energy ratio between track event energy excluding the main track and total track event energy."/>
+        <observable name="nTrackEnergyRatio" value="ON" description="Energy ratio between track event energy excluding the main track and total track event energy."/>
     </TRestTrackAnalysisProcess>
     <TRestTrackAnalysisProcess name="tckVol_2D" title="Track analysis template">
         <observable name="MaxTrackVolume_X" value="ON" description=""/>
@@ -227,14 +203,11 @@
         <observable name="zMean" value="ON"/>
         <observable name="nTracks_X" type="int" value="ON" description="Number of 2D-tracks (with valid XZ-hits)."/>
         <observable name="nTracks_Y" type="int" value="ON" description="Number of 2D-tracks (with valid YZ-hits)."/>
-        <observable name="MaxTrackEnergyRatio" value="ON"
-                    description="Energy ratio between secondary tracks and main track."/>
+        <observable name="MaxTrackEnergyRatio" value="ON" description="Energy ratio between secondary tracks and main track."/>
         <observable name="MaxTrackLength_X" value="ON" description=""/>
         <observable name="MaxTrackLength_Y" value="ON" description=""/>
-        <observable name="SecondMaxTrackEnergy_X" value="ON"
-                    description="The energy of the second most energetic track in X"/>
-        <observable name="SecondMaxTrackEnergy_Y" value="ON"
-                    description="The energy of the second most energetic track in Y"/>
+        <observable name="SecondMaxTrackEnergy_X" value="ON" description="The energy of the second most energetic track in X"/>
+        <observable name="SecondMaxTrackEnergy_Y" value="ON" description="The energy of the second most energetic track in Y"/>
         <observable name="MaxTrackVolume_X" value="ON" description=""/>
         <observable name="MaxTrackVolume_Y" value="ON" description=""/>
         <parameter name="enableTwistParameters" value="true"/>
@@ -509,8 +482,7 @@
         <parameter name="resolutionReference" value="1"/>
         <parameter name="detectorGain" value="1"/>
     </TRestDetectorAvalancheProcess>
-    <TRestDetectorSignalShapingProcess name="signalShapingProcess" title="Test SignalShaping">
-        <parameter name="responseFile" value="AGET_Response_12.5MHz_Gain0x1_Shaping0x4.root"/>//response file to be used
+    <TRestDetectorSignalShapingProcess name="signalShapingProcess" title="Test SignalShaping"><parameter name="responseFile" value="AGET_Response_12.5MHz_Gain0x1_Shaping0x4.root"/>//response file to be used
         to shape the signal
     </TRestDetectorSignalShapingProcess>
     <TRestGeant4ToDetectorHitsProcess name="G4ToHits" title="G4Hits to Hits process"/>
