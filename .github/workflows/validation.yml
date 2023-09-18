@@ -356,10 +356,14 @@ jobs:
           path: ${{ env.REST_PATH }}
       - name: Check iaxo projects
         run: |
-          cd framework/projects/iaxo/iaxo-simulations
-          git submodule update --init --recursive
-          git pull
-          git checkout master
+          cd framework/
+          python3 pull-submodules --latest
+          cd projects/
+          ls
+          cd iaxo
+          ls
+          cd iaxo-simulations
+          ls
 
   examples:
     name: Run examples
