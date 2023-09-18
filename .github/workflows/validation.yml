@@ -357,7 +357,7 @@ jobs:
       - name: Check iaxo projects
         run: |
           cd framework/
-          python3 pull-submodules --latest
+          python3 pull-submodules.py --latest
           cd projects/
           ls
           cd iaxo
