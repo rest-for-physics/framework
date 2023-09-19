@@ -2661,3 +2661,14 @@ TString TRestMetadata::GetWarningMessage() {
     else
         return "No warning!";
 }
+
+void TRestMetadata::Merge(const TRestMetadata& metadata) {
+    if (!metadata.InheritsFrom(ClassName())) {
+        RESTError << "TRestMetadata::Merge. Metadata is not of type " << ClassName() << RESTendl;
+        exit(1);
+    }
+
+    if (fName.IsNull()) {
+        fName = metadata.GetName();
+    }
+}
