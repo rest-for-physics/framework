@@ -686,7 +686,7 @@ void TRestRun::ReadFileInfo(const string& filename) {
     int pos = -1;
     int pos1 = 0;
     int pos2 = 0;
-    while (1) {
+    while (true) {
         pos1 = format.find("[", pos + 1);
         pos2 = format.find("]", pos1);
         if (pos1 == -1 || pos2 == -1) {

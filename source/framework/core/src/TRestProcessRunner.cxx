@@ -22,6 +22,8 @@
 /// <hr>
 //////////////////////////////////////////////////////////////////////////
 
+#include <TGeoManager.h>
+
 #include "Math/MinimizerOptions.h"
 #include "TBranchRef.h"
 #include "TInterpreter.h"
@@ -169,7 +171,7 @@ void TRestProcessRunner::BeginOfInit() {
     // fUsePauseMenu = StringToBool(GetParameter("usePauseMenu", "OFF"));
     if (!fUsePauseMenu || fVerboseLevel >= TRestStringOutput::REST_Verbose_Level::REST_Debug)
         fProcStatus = kIgnore;
-    if (fOutputAnalysisStorage == false) {
+    if (!fOutputAnalysisStorage) {
         RESTError << "output analysis must be turned on to process data!" << RESTendl;
         exit(1);
     }
@@ -183,8 +185,12 @@ void TRestProcessRunner::BeginOfInit() {
 
     // fOutputItem = Split(GetParameter("treeBranches",
     // "inputevent:outputevent:inputanalysis"), ":");
-    if (fThreadNumber < 1) fThreadNumber = 1;
-    if (fThreadNumber > 15) fThreadNumber = 15;
+    if (fThreadNumber < 1) {
+        fThreadNumber = 1;
+    }
+    if (fThreadNumber > 15) {
+        fThreadNumber = 15;
+    }
 
     for (int i = 0; i < fThreadNumber; i++) {
         TRestThread* t = new TRestThread();
@@ -204,7 +210,7 @@ void TRestProcessRunner::BeginOfInit() {
 /// InstantiateProcess() The processes will be added into each TRestThread
 /// instance. If the process is external process, then it will be sent to
 /// TRestRun.
-Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement* e) {
+Int_t TRestProcessRunner::ReadConfig(const string& keydeclare, TiXmlElement* e) {
     if (keydeclare == "addProcess") {
         string active = GetParameter("value", e, "");
         if (active != "" && ToUpper(active) != "ON") return 0;
@@ -388,9 +394,9 @@ void TRestProcessRunner::RunProcess() {
         fEventTree->SetName("EventTree");
         fEventTree->SetTitle("REST Event Tree");
         fEventTree->SetDirectory(fOutputDataFile);
-        fEventTree->SetMaxTreeSize(100000000000LL > fFileSplitSize * 2
-                                       ? 100000000000LL
-                                       : fFileSplitSize * 2);  // the default size is 100GB
+        TTree::SetMaxTreeSize(100000000000LL > fFileSplitSize * 2
+                                  ? 100000000000LL
+                                  : fFileSplitSize * 2);  // the default size is 100GB
     } else {
         fEventTree = nullptr;
     }
@@ -398,7 +404,8 @@ void TRestProcessRunner::RunProcess() {
     // initialize analysis tree
     fAnalysisTree = new TRestAnalysisTree("AnalysisTree", "REST Process Analysis Tree");
     fAnalysisTree->SetDirectory(fOutputDataFile);
-    fAnalysisTree->SetMaxTreeSize(100000000000LL > fFileSplitSize * 2 ? 100000000000LL : fFileSplitSize * 2);
+    TRestAnalysisTree::SetMaxTreeSize(100000000000LL > fFileSplitSize * 2 ? 100000000000LL
+                                                                          : fFileSplitSize * 2);
 
     tree = fThreads[0]->GetAnalysisTree();
     if (tree != nullptr) {
@@ -409,8 +416,12 @@ void TRestProcessRunner::RunProcess() {
     }
 
     fOutputDataFile->cd();
-    if (fEventTree != nullptr) fEventTree->Write(nullptr, kOverwrite);
-    if (fAnalysisTree != nullptr) fAnalysisTree->Write(nullptr, kOverwrite);
+    if (fEventTree != nullptr) {
+        fEventTree->Write(nullptr, kOverwrite);
+    }
+    if (fAnalysisTree != nullptr) {
+        fAnalysisTree->Write(nullptr, kOverwrite);
+    }
 
     // reset runner
     this->ResetRunTimes();
@@ -481,7 +492,7 @@ void TRestProcessRunner::RunProcess() {
 
     RESTEssential << "Waiting for processes to finish ..." << RESTendl;
 
-    while (1) {
+    while (true) {
         usleep(100000);
         bool finish = fThreads[0]->Finished();
         for (int i = 1; i < fThreadNumber; i++) {
@@ -557,8 +568,7 @@ void TRestProcessRunner::PauseMenu() {
     RESTLog << RESTendl;
     int menuupper = 15;
     int infobar = 11;
-    while (1) {
-        // Console::CursorUp(1);
+    while (true) {
         Console::ClearCurrentLine();
         int b = Console::ReadKey();  // no need to press enter
 
@@ -578,7 +588,7 @@ void TRestProcessRunner::PauseMenu() {
             RESTLog << "-" << RESTendl;
             RESTLog << RESTendl;
             RESTLog << RESTendl;
-            while (1) {
+            while (true) {
                 Console::CursorUp(1);
                 int c = Console::Read();
                 if (c != '\n')
@@ -758,7 +768,7 @@ Int_t TRestProcessRunner::GetNextevtFunc(TRestEvent* targetevt, TRestAnalysisTre
     if (fProcessedEvents >= fEventsToProcess || targetevt == nullptr || fProcStatus == kStopping) {
         n = -1;
     } else {
-        if (fInputAnalysisStorage == false) {
+        if (!fInputAnalysisStorage) {
             n = fRunInfo->GetNextEvent(targetevt, nullptr);
         } else {
             n = fRunInfo->GetNextEvent(targetevt, targettree);
@@ -782,8 +792,8 @@ Int_t TRestProcessRunner::GetNextevtFunc(TRestEvent* targetevt, TRestAnalysisTre
 void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
     if (fSortOutputEvents) {
         // Make sure the thread has the minimum event id in the all the
-        // threads. Otherwise just wait.
-        while (1) {
+        // threads. Otherwise, just wait.
+        while (true) {
             bool smallest = true;
             for (TRestThread* otherT : fThreads) {
                 if (otherT->Finished()) {
@@ -848,8 +858,6 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
                 branchL->SetAddress(branchT->GetAddress());
             }
             fEventTree->Fill();
-
-            // cout << t->GetOutputEvent()->GetID() << endl;
         }
         fProcessedEvents++;
 
@@ -913,7 +921,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
                     }
                 }
 
-                fOutputDataFile->Write(0, TObject::kOverwrite);
+                fOutputDataFile->Write(nullptr, TObject::kOverwrite);
                 fOutputDataFile->Close();
                 delete fOutputDataFile;
                 fOutputDataFile = newfile;
@@ -947,8 +955,12 @@ void TRestProcessRunner::ConfigOutputFile() {
 #endif
     // write the last tree
     fOutputDataFile->cd();
-    if (fEventTree != nullptr) fEventTree->Write(nullptr, kOverwrite);
-    if (fAnalysisTree != nullptr) fAnalysisTree->Write(nullptr, kOverwrite);
+    if (fEventTree != nullptr) {
+        fEventTree->Write(nullptr, kOverwrite);
+    }
+    if (fAnalysisTree != nullptr) {
+        fAnalysisTree->Write(nullptr, kOverwrite);
+    }
 
     // close file
     fOutputDataFile->Write();
@@ -964,30 +976,25 @@ void TRestProcessRunner::ConfigOutputFile() {
 
     // write metadata
     WriteProcessesMetadata();
+
+    // Write geometry
+    if (gGeoManager != nullptr) {
+        gGeoManager->Write("Geometry", TObject::kOverwrite);
+    }
 }
 
 ///////////////////////////////////////////////
 /// \brief Write process metadata to fOutputDataFile
 ///
 void TRestProcessRunner::WriteProcessesMetadata() {
-    // if (fRunInfo->GetInputFile() == nullptr) {
-    //     if (!fRunInfo->GetOutputFile()) {
-    //         // We are not ready yet to write
-    //         return;
-    //     }
-    //     fRunInfo->cd();
-    // } else
-    //
     fOutputDataFile->cd();
 
     this->Write(nullptr, TObject::kWriteDelete);
 
     if (fRunInfo->GetFileProcess() != nullptr) {
-        // std::cout << "Run. Process-0. " << fRunInfo->GetFileProcess()->GetName() << std::endl;
         fRunInfo->GetFileProcess()->Write(nullptr, kOverwrite);
     }
     for (int i = 0; i < fProcessNumber; i++) {
-        // std::cout << "Thread. Process-" << i + 1 << fThreads[0]->GetProcess(i)->GetName() << std::endl;
         fThreads[0]->GetProcess(i)->Write(nullptr, kOverwrite);
     }
 }
@@ -1006,7 +1013,7 @@ void TRestProcessRunner::MergeOutputFile() {
     for (int i = 0; i < fThreadNumber; i++) {
         TFile* f = fThreads[i]->GetOutputFile();
         if (f != nullptr) {
-            f->Write(0, TObject::kOverwrite);
+            f->Write(nullptr, TObject::kOverwrite);
             f->Close();
         }
         files_to_merge.push_back(f->GetName());
@@ -1017,8 +1024,6 @@ void TRestProcessRunner::MergeOutputFile() {
     } else {
         RESTError << "Output file: " << fOutputDataFileName << " is lost?" << RESTendl;
     }
-    // if (fRunInfo->GetInputFile() == nullptr)
-    // WriteProcessesMetadata();
 }
 
 // tools
@@ -1137,8 +1142,6 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
             fflush(stdout);
         }
 
-        // CursorUp(4);
-
         bytesAdded[poscalculated] = fRunInfo->GetBytesReaded() - bytesReaded_last;
         bytesReaded_last = fRunInfo->GetBytesReaded();
         progAdded[poscalculated] = prog - prog_last;
@@ -1169,15 +1172,7 @@ TRestEvent* TRestProcessRunner::GetInputEvent() { return fRunInfo->GetInputEvent
 TRestAnalysisTree* TRestProcessRunner::GetInputAnalysisTree() { return fRunInfo->GetAnalysisTree(); }
 
 void TRestProcessRunner::PrintMetadata() {
-    // cout.precision(10);
     TRestMetadata::PrintMetadata();
-
-    /*
-    TRestStringOutput cout;
-    cout.setborder("||");
-    cout.setorientation(1);
-    cout.setlength(100);
-    */
 
     string status;
     if (fProcStatus == kNormal)
@@ -1188,16 +1183,12 @@ void TRestProcessRunner::PrintMetadata() {
         status = "Unknown";
 
     RESTMetadata << "Status : " << status << RESTendl;
-    RESTMetadata << "Processesed events : " << fProcessedEvents << RESTendl;
+    RESTMetadata << "Processed events : " << fProcessedEvents << RESTendl;
     RESTMetadata << "Analysis tree branches : " << fNBranches << RESTendl;
     RESTMetadata << "Thread number : " << fThreadNumber << RESTendl;
     RESTMetadata << "Processes in each thread : " << fProcessNumber << RESTendl;
     RESTMetadata << "File auto split size: " << fFileSplitSize << RESTendl;
     RESTMetadata << "File compression level: " << fFileCompression << RESTendl;
-    // cout << "Input filename : " << fInputFilename << endl;
-    // cout << "Output filename : " << fOutputFilename << endl;
-    // cout << "Number of initial events : " << GetNumberOfEvents() << endl;
-    // cout << "Number of processed events : " << fProcessedEvents << endl;
     RESTMetadata << "******************************************" << RESTendl;
     RESTMetadata << RESTendl;
     RESTMetadata << RESTendl;
