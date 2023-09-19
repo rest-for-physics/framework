@@ -241,7 +241,7 @@ class TRestMetadata : public TNamed {
 
     /// Merge the metadata information from another metadata object.
     /// Needs to be implemented in the derived class.
-    virtual void Merge(const TRestMetadata& metadata);
+    virtual void Merge(const TRestMetadata&);
 
     /// Making default settings.
     virtual void Initialize() {}
