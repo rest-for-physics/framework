@@ -239,6 +239,10 @@ class TRestMetadata : public TNamed {
     TRestMetadata* InstantiateChildMetadata(int index, std::string pattern = "");
     TRestMetadata* InstantiateChildMetadata(std::string pattern = "", std::string name = "");
 
+    /// Merge the metadata information from another metadata object.
+    /// Needs to be implemented in the derived class.
+    virtual void Merge(const TRestMetadata&);
+
     /// Making default settings.
     virtual void Initialize() {}
 
