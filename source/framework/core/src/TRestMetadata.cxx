@@ -1209,7 +1209,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e, map<string, string> forloopv
         vector<string> loopvars = Split(_in, ":");
 
         RESTDebug << "----expanding for loop----" << RESTendl;
-        for (string loopvar : loopvars) {
+        for (const string& loopvar : loopvars) {
             forloopvar[_name] = loopvar;
             fVariables[_name] = loopvar;
             ExpandForLoopOnce(e, forloopvar);
@@ -1265,7 +1265,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         filename = TRestTools::DownloadRemoteFile(url);
     } else {
         filename = SearchFile(_filename);
-    }l
+    }
 
     if (filename.empty()) {
         RESTError << "TRestMetadata::ExpandIncludeFile. Include file \"" << _filename << "\" does not exist!"
