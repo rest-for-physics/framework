@@ -1049,9 +1049,10 @@ std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
 /// will be used, including scp, wget. Downloads to REST_USER_PATH + "/download/" + filename
 /// by default.
 ///
-std::string TRestTools::DownloadRemoteFile(string url) {
-    string purename = TRestTools::GetPureFileName(url);
-    if (purename == "") {
+std::string TRestTools::DownloadRemoteFile(const string& url) {
+    cout << "TRestTools::DownloadRemoteFile: " << url << endl;
+    string pureName = TRestTools::GetPureFileName(url);
+    if (pureName.empty()) {
         cout << "error! (TRestTools::DownloadRemoteFile): url is not a file!" << endl;
         cout << "please specify a concrete file name in this url" << endl;
         cout << "url: " << url << endl;
@@ -1061,7 +1062,7 @@ std::string TRestTools::DownloadRemoteFile(string url) {
     if (url.find("local:") == 0) {
         return Replace(url, "local:", "");
     } else {
-        string fullpath = REST_USER_PATH + "/download/" + purename;
+        string fullpath = REST_USER_PATH + "/download/" + pureName;
         int out;
         int attempts = 10;
         do {
