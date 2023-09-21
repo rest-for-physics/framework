@@ -192,6 +192,37 @@ jobs:
           restRoot -b -q GenerateReadouts.C'("basic.root")'
           restRoot -b -q BasicValidation.C'("basic.root", "pixelDecoding")'
 
+  pandax-iii:
+    name: "PandaX-III"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    needs: [ framework-install ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: rest-for-physics/framework
+          path: framework
+      - name: Checkout framework branch
+        run: |
+          cd framework
+          ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: framework-install-cache
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      - name: PandaXIII Geant4
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          restG4 ${{ env.REST_PATH }}/examples/restG4/05.PandaXIII/Xe136bb0n.rml -o Xe136bb0n.root
+      - name: PandaXIII Data
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd framework/pipeline/panda-x
+          restManager --c P3AutoChain.rml --i CoBo_AsAd0_2019-03-15.graw --o testOutput.root --j 1
+
   trex-dm:
     name: "TREX-DM"
     runs-on: ubuntu-latest
