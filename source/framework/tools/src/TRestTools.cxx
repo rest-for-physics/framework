@@ -1050,12 +1050,11 @@ std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
 /// by default.
 ///
 std::string TRestTools::DownloadRemoteFile(const string& url) {
-    cout << "TRestTools::DownloadRemoteFile: " << url << endl;
     string pureName = TRestTools::GetPureFileName(url);
     if (pureName.empty()) {
-        cout << "error! (TRestTools::DownloadRemoteFile): url is not a file!" << endl;
-        cout << "please specify a concrete file name in this url" << endl;
-        cout << "url: " << url << endl;
+        RESTWarning << "error! (TRestTools::DownloadRemoteFile): url is not a file!" << RESTendl;
+        RESTWarning << "please specify a concrete file name in this url" << RESTendl;
+        RESTWarning << "url: " << url << RESTendl;
         return "";
     }
 
@@ -1071,14 +1070,12 @@ std::string TRestTools::DownloadRemoteFile(const string& url) {
                 RESTWarning << "Retrying download in 5 seconds" << RESTendl;
                 std::this_thread::sleep_for(std::chrono::seconds(5));
             } else if (attempts < 10) {
-                RESTSuccess << "Download suceeded after " << 10 - attempts << " attempts" << RESTendl;
+                RESTSuccess << "Download succeeded after " << 10 - attempts << " attempts" << RESTendl;
             }
             attempts--;
         } while (out == 1024 && attempts > 0);
 
-        if (out == 0) {
-            return fullpath;
-        } else if (TRestTools::fileExists(fullpath)) {
+        if (out == 0 || TRestTools::fileExists(fullpath)) {
             return fullpath;
         } else {
             return "";
