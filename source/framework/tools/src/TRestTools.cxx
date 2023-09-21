@@ -49,6 +49,8 @@
 #include <TSystem.h>
 #include <TUrl.h>
 
+#include <regex>
+
 #ifdef USE_Curl
 #include <curl/curl.h>
 #endif
@@ -711,11 +713,9 @@ bool TRestTools::isDataSet(const std::string& filename) {
 ///////////////////////////////////////////////
 /// \brief Returns true if **filename** is an *http* address.
 ///
-bool TRestTools::isURL(const string& filename) {
-    if (filename.find("http") == 0) {
-        return true;
-    }
-    return false;
+bool TRestTools::isURL(const string& s) {
+    std::regex pattern("^https?://(.+)");
+    return std::regex_match(s, pattern);
 }
 
 ///////////////////////////////////////////////
