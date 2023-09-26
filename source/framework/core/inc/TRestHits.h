@@ -201,7 +201,7 @@ class TRestHits {
         using reference = float&;
 
         reference operator*() {
-            return isAccessor ? x() : fHits->fX[index]; // Replace with the appropriate member access
+            return isAccessor ? x() : fHits->fX[index];  // Replace with the appropriate member access
         }
 
        private:
