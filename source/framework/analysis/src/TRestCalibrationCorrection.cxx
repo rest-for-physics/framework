@@ -157,12 +157,12 @@ void TRestCalibrationCorrection::InitFromConfigFile() {
 /// \brief Function to calculate the calibration parameters of all modules
 ///
 void TRestCalibrationCorrection::Calibrate() {
-    for (auto& i : fModulesCal) {
-        RESTInfo << "Calibrating plane " << i.GetPlaneId() << " module " << i.GetModuleId() << RESTendl;
-        i.CalculateCalibrationParameters();
+    for (auto& mod : fModulesCal) {
+        RESTInfo << "Calibrating plane " << mod.GetPlaneId() << " module " << mod.GetModuleId() << RESTendl;
+        mod.CalculateCalibrationParameters();
         if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) {
-            i.DrawSpectrum();
-            i.DrawGainMap();
+            mod.DrawSpectrum();
+            mod.DrawGainMap();
         }
     }
 }
@@ -172,7 +172,7 @@ void TRestCalibrationCorrection::Calibrate() {
 ///
 void TRestCalibrationCorrection::CalibrateDataSet(const std::string& dataSetFileName,
                                                   std::string outputFileName) {
-    if (fModulesCal.size() == 0) {
+    if (fModulesCal.empty()) {
         RESTError << "TRestCalibrationCorrection::CalibrateDataSet: No modules defined." << RESTendl;
         return;
     }
@@ -186,7 +186,7 @@ void TRestCalibrationCorrection::CalibrateDataSet(const std::string& dataSetFile
     std::string pmIDname = (std::string)GetName() + "_pmID";
     int pmID = fModulesCal[0].GetPlaneId() * 10 + fModulesCal[0].GetModuleId();
     dataFrame = dataFrame.Define(pmIDname, modCut + " ? " + std::to_string(pmID) + " : -1");
-    for (int n = 1; n < fModulesCal.size(); n++) {
+    for (size_t n = 1; n < fModulesCal.size(); n++) {
         modCut = fModulesCal[n].GetModuleDefinitionCut();
         pmID = fModulesCal[n].GetPlaneId() * 10 + fModulesCal[n].GetModuleId();
         dataFrame = dataFrame.Redefine(pmIDname, (modCut + " ? " + std::to_string(pmID) + " : " + pmIDname));
@@ -442,12 +442,12 @@ std::pair<int, int> TRestCalibrationCorrection::Module::GetIndexMatrix(const dou
 ///
 double TRestCalibrationCorrection::Module::GetSlope(const double x, const double y) const {
     auto [index_x, index_y] = GetIndexMatrix(x, y);
-    if (fSlope.size() == 0) {
+    if (fSlope.empty()) {
         RESTError << "Calibration slope matrix is empty. Returning 0" << p->RESTendl;
         return 0;
     }
 
-    if (index_x > fSlope.size() || index_y > fSlope.at(0).size()) {
+    if (index_x > (int)fSlope.size() || index_y > (int)fSlope.at(0).size()) {
         RESTError << "Index out of range. Returning 0" << p->RESTendl;
         return 0;
     }
@@ -464,12 +464,12 @@ double TRestCalibrationCorrection::Module::GetSlope(const double x, const double
 ///
 double TRestCalibrationCorrection::Module::GetIntercept(const double x, const double y) const {
     auto [index_x, index_y] = GetIndexMatrix(x, y);
-    if (fIntercept.size() == 0) {
+    if (fIntercept.empty()) {
         RESTError << "Calibration constant matrix is empty. Returning 0" << p->RESTendl;
         return 0;
     }
 
-    if (index_x > fIntercept.size() || index_y > fIntercept.at(0).size()) {
+    if (index_x > (int)fIntercept.size() || index_y > (int)fIntercept.at(0).size()) {
         RESTError << "Index out of range. Returning 0" << p->RESTendl;
         return 0;
     }
@@ -550,7 +550,7 @@ void TRestCalibrationCorrection::Module::CalculateCalibrationParameters() {
         if (cut.empty()) cut = "1";
         auto histo = dataSet.GetDataFrame().Filter(cut).Histo1D({"temp", "", fNBins, 0, 0}, GetObservable());
         std::unique_ptr<TH1F> hpunt = std::unique_ptr<TH1F>(static_cast<TH1F*>(histo->Clone()));
-        double xMin = hpunt->GetXaxis()->GetXmin();
+        //double xMin = hpunt->GetXaxis()->GetXmin();
         double xMax = hpunt->GetXaxis()->GetXmax();
 
         // Reduce the range to avoid the possible empty (nCounts<1%) end part of the spectrum
@@ -572,8 +572,8 @@ void TRestCalibrationCorrection::Module::CalculateCalibrationParameters() {
 
     //--- Definition of histogram matrix ---
     std::vector<std::vector<TH1F*>> h(fNumberOfSegmentsX, std::vector<TH1F*>(fNumberOfSegmentsY, nullptr));
-    for (int i = 0; i < h.size(); i++) {
-        for (int j = 0; j < h.at(0).size(); j++) {
+    for (size_t i = 0; i < h.size(); i++) {
+        for (size_t j = 0; j < h.at(0).size(); j++) {
             h[i][j] = new TH1F("", "", fNBins, fCalibRange.X(),
                                fCalibRange.Y());  // h[column][row] equivalent to h[x][y]
         }
@@ -585,9 +585,9 @@ void TRestCalibrationCorrection::Module::CalculateCalibrationParameters() {
 
     // build the spectrum for each segment
     auto itX = fSplitX.begin();
-    for (int i = 0; i < h.size(); i++) {
+    for (size_t i = 0; i < h.size(); i++) {
         auto itY = fSplitY.begin();
-        for (int j = 0; j < h.at(0).size(); j++) {
+        for (size_t j = 0; j < h.at(0).size(); j++) {
             // Get the segment limits from the splits
             auto xLower = *itX;
             auto xUpper = *std::next(itX);
@@ -619,8 +619,8 @@ void TRestCalibrationCorrection::Module::CalculateCalibrationParameters() {
 
     //--- Fit every peak energy for every segment ---
     fSegLinearFit = std::vector(h.size(), std::vector<TGraph*>(h.at(0).size(), nullptr));
-    for (int i = 0; i < h.size(); i++) {
-        for (int j = 0; j < h.at(0).size(); j++) {
+    for (size_t i = 0; i < h.size(); i++) {
+        for (size_t j = 0; j < h.at(0).size(); j++) {
             RESTExtreme << "Segment[" << i << "][" << j << "]" << p->RESTendl;
             // Search for peaks --> peakPos
             std::unique_ptr<TSpectrum> s(new TSpectrum(2 * fEnergyPeaks.size() + 1));
@@ -737,7 +737,7 @@ void TRestCalibrationCorrection::Module::Refit(const double x, const double y, c
                                                const TVector2& range) {
     auto [index_x, index_y] = GetIndexMatrix(x, y);
     int peakNumber = -1;
-    for (int i = 0; i < fEnergyPeaks.size(); i++)
+    for (size_t i = 0; i < fEnergyPeaks.size(); i++)
         if (fEnergyPeaks.at(i) == energyPeak) {
             peakNumber = i;
             break;
@@ -855,11 +855,11 @@ void TRestCalibrationCorrection::Module::LoadConfigFromTiXmlElement(const TiXmlE
 }
 
 void TRestCalibrationCorrection::Module::DrawSpectrum(const double x, const double y, TCanvas* c) {
-    auto [index_x, index_y] = GetIndexMatrix(x, y);
-    DrawSpectrum(index_x, index_y, c);
+    std::pair<size_t, size_t> index = GetIndexMatrix(x, y);
+    DrawSpectrum(index.first, index.second, c);
 }
 
-void TRestCalibrationCorrection::Module::DrawSpectrum(const int index_x, const int index_y, TCanvas* c) {
+void TRestCalibrationCorrection::Module::DrawSpectrum(const size_t index_x, const size_t index_y, TCanvas* c) {
     if (fSegSpectra.size() == 0) {
         RESTError << "Spectra matrix is empty." << p->RESTendl;
         return;
@@ -884,7 +884,7 @@ void TRestCalibrationCorrection::Module::DrawSpectrum(const int index_x, const i
                      GetObservable() + ";counts";
     fSegSpectra[index_x][index_y]->SetTitle(tH.c_str());
     fSegSpectra[index_x][index_y]->Draw();
-    for (int c = 0; c < fEnergyPeaks.size(); c++) {
+    for (size_t c = 0; c < fEnergyPeaks.size(); c++) {
         auto fit = fSegSpectra[index_x][index_y]->GetFunction(("g" + std::to_string(c)).c_str());
         if (!fit) RESTError << "Fit for energy peak" << fEnergyPeaks[c] << " not found." << p->RESTendl;
         if (!fit) break;
@@ -901,8 +901,8 @@ void TRestCalibrationCorrection::Module::DrawSpectrum() {
     std::string t = "spectra_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId);
     TCanvas* myCanvas = new TCanvas(t.c_str(), t.c_str());
     myCanvas->Divide(fSegSpectra.size(), fSegSpectra.at(0).size());
-    for (int i = 0; i < fSegSpectra.size(); i++) {
-        for (int j = 0; j < fSegSpectra[i].size(); j++) {
+    for (size_t i = 0; i < fSegSpectra.size(); i++) {
+        for (size_t j = 0; j < fSegSpectra[i].size(); j++) {
             myCanvas->cd(i + 1 + fSegSpectra[i].size() * j);
             DrawSpectrum(i, fSegSpectra[i].size() - 1 - j, myCanvas);
         }
@@ -918,22 +918,23 @@ void TRestCalibrationCorrection::Module::DrawFullSpectrum() {
                  fSegSpectra[0][0]->GetXaxis()->GetXmax());
 
     sumHist->SetTitle(("Full spectrum;" + GetObservable() + ";counts").c_str());
-    for (int i = 0; i < fSegSpectra.size(); i++) {
-        for (int j = 0; j < fSegSpectra.at(0).size(); j++) {
+    for (size_t i = 0; i < fSegSpectra.size(); i++) {
+        for (size_t j = 0; j < fSegSpectra.at(0).size(); j++) {
             sumHist->Add(fSegSpectra[i][j]);
         }
     }
     std::string t = "fullSpc_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId);
     TCanvas* c = new TCanvas(t.c_str(), t.c_str());
+    c->cd();
     sumHist->Draw();
 }
 
 void TRestCalibrationCorrection::Module::DrawLinearFit(const double x, const double y, TCanvas* c) {
-    auto [index_x, index_y] = GetIndexMatrix(x, y);
-    DrawLinearFit(index_x, index_y, c);
+    std::pair<size_t, size_t> index = GetIndexMatrix(x, y);
+    DrawLinearFit(index.first, index.second, c);
 }
 
-void TRestCalibrationCorrection::Module::DrawLinearFit(const int index_x, const int index_y, TCanvas* c) {
+void TRestCalibrationCorrection::Module::DrawLinearFit(const size_t index_x, const size_t index_y, TCanvas* c) {
     if (fSegLinearFit.size() == 0) {
         RESTError << "Spectra matrix is empty." << p->RESTendl;
         return;
@@ -962,8 +963,8 @@ void TRestCalibrationCorrection::Module::DrawLinearFit() {
     std::string t = "linearFits_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId);
     TCanvas* myCanvas = new TCanvas(t.c_str(), t.c_str());
     myCanvas->Divide(fSegLinearFit.size(), fSegLinearFit.at(0).size());
-    for (int i = 0; i < fSegLinearFit.size(); i++) {
-        for (int j = 0; j < fSegLinearFit[i].size(); j++) {
+    for (size_t i = 0; i < fSegLinearFit.size(); i++) {
+        for (size_t j = 0; j < fSegLinearFit[i].size(); j++) {
             myCanvas->cd(i + 1 + fSegLinearFit[i].size() * j);
             // fSegLinearFit[i][j]->Draw("AL*");
             DrawLinearFit(i, fSegSpectra[i].size() - 1 - j, myCanvas);
@@ -972,7 +973,7 @@ void TRestCalibrationCorrection::Module::DrawLinearFit() {
 }
 
 void TRestCalibrationCorrection::Module::DrawGainMap(const int peakNumber) {
-    if (peakNumber < 0 || peakNumber >= fEnergyPeaks.size()) {
+    if (peakNumber < 0 || peakNumber >= (int)fEnergyPeaks.size()) {
         RESTError << "Peak number out of range (peakNumber should be between 0 and "
                   << fEnergyPeaks.size() - 1 << " )" << p->RESTendl;
         return;
@@ -983,6 +984,7 @@ void TRestCalibrationCorrection::Module::DrawGainMap(const int peakNumber) {
     std::string t = "gainMap" + std::to_string(peakNumber) + "_" + std::to_string(fPlaneId) + "_" +
                     std::to_string(fModuleId);
     TCanvas* gainMap = new TCanvas(t.c_str(), t.c_str());
+    gainMap->cd();
     TH2F* hGainMap = new TH2F(("h" + t).c_str(), title.c_str(), fNumberOfSegmentsY, fReadoutRange.X(),
                               fReadoutRange.Y(), fNumberOfSegmentsX, fReadoutRange.X(), fReadoutRange.Y());
 
@@ -990,9 +992,9 @@ void TRestCalibrationCorrection::Module::DrawGainMap(const int peakNumber) {
         fSegLinearFit[(fNumberOfSegmentsX - 1) / 2][(fNumberOfSegmentsY - 1) / 2]->GetPointX(peakNumber);
 
     auto itX = fSplitX.begin();
-    for (int i = 0; i < fSegLinearFit.size(); i++) {
+    for (size_t i = 0; i < fSegLinearFit.size(); i++) {
         auto itY = fSplitY.begin();
-        for (int j = 0; j < fSegLinearFit.at(0).size(); j++) {
+        for (size_t j = 0; j < fSegLinearFit.at(0).size(); j++) {
             auto xLower = *itX;
             auto xUpper = *std::next(itX);
             auto yLower = *itY;
@@ -1061,11 +1063,11 @@ void TRestCalibrationCorrection::Module::Print() {
     RESTMetadata << p->RESTendl;
 
     RESTMetadata << " Slope: " << p->RESTendl;
-    int maxSize = 0;
+    size_t maxSize = 0;
     for (auto& x : fSlope)
         if (maxSize < x.size()) maxSize = x.size();
-    for (int j = 0; j < maxSize; j++) {
-        for (int k = 0; k < fSlope.size(); k++) {
+    for (size_t j = 0; j < maxSize; j++) {
+        for (size_t k = 0; k < fSlope.size(); k++) {
             if (j < fSlope[k].size())
                 RESTMetadata << DoubleToString(fSlope[k][fSlope[k].size() - 1 - j], "%.3e") << "   ";
             else
@@ -1077,8 +1079,8 @@ void TRestCalibrationCorrection::Module::Print() {
     maxSize = 0;
     for (auto& x : fIntercept)
         if (maxSize < x.size()) maxSize = x.size();
-    for (int j = 0; j < maxSize; j++) {
-        for (int k = 0; k < fIntercept.size(); k++) {
+    for (size_t j = 0; j < maxSize; j++) {
+        for (size_t k = 0; k < fIntercept.size(); k++) {
             if (j < fIntercept[k].size())
                 RESTMetadata << DoubleToString(fIntercept[k][fIntercept[k].size() - 1 - j], "%+.3e") << "   ";
             else

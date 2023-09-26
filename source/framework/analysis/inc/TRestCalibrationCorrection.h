@@ -171,12 +171,12 @@ class TRestCalibrationCorrection : public TRestMetadata {
 
         void DrawSpectrum();
         void DrawSpectrum(const double x, const double y, TCanvas* c = nullptr);
-        void DrawSpectrum(const int index_x, const int index_y, TCanvas* c = nullptr);
+        void DrawSpectrum(const size_t index_x, const size_t index_y, TCanvas* c = nullptr);
         void DrawFullSpectrum();
 
         void DrawLinearFit();
         void DrawLinearFit(const double x, const double y, TCanvas* c = nullptr);
-        void DrawLinearFit(const int index_x, const int index_y, TCanvas* c = nullptr);
+        void DrawLinearFit(const size_t index_x, const size_t index_y, TCanvas* c = nullptr);
 
         void DrawGainMap(const int peakNumber = 0);
 
