@@ -16,9 +16,9 @@
 #include "TRestStringOutput.h"
 #include "TRestSystemOfUnits.h"
 #include "TRestTools.h"
-#include "TRestVersion.h"
+
 //////////////////////////////////////////////////////////////////////////
-/// This script initializes REST global variables in sequence to clearify
+/// This script initializes REST global variables in sequence to clarify
 /// their dependency, therefore avoiding seg.fault during startup. All
 /// global variables in libRestTools, if depend on other global variable,
 /// should be placed here for initialization.
@@ -77,11 +77,19 @@ struct __REST_CONST_INIT {
 
         char* _REST_PATH = getenv("REST_PATH");
         char* _REST_USER = getenv("USER");
-        char* _REST_USERHOME = getenv("HOME");
 
-        // char* _REST_PATH = 0;
-        // char* _REST_USER = 0;
-        // char* _REST_USERHOME = 0;
+        // Should first look into REST_HOME, then HOME
+        char* _REST_USERHOME = getenv("REST_HOME");
+
+        if (_REST_USERHOME == nullptr) {
+            _REST_USERHOME = getenv("HOME");
+        }else{
+            cout << "REST_HOME is set to " << _REST_USERHOME << endl;
+            // create the directory if it does not exist
+                        std::filesystem::create_directories(_REST_USERHOME);
+
+        }
+
 
 #ifdef WIN32
         if (_REST_PATH == nullptr) {

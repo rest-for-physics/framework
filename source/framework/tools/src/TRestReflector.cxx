@@ -259,7 +259,7 @@ int TRestReflector::InitDictionary() {
 }
 
 bool TRestReflector::IsZombie() {
-    return (type == "" || address == 0 || size == 0 || (cl == 0 && !is_data_type));
+    return (type.empty() || address == nullptr || size == 0 || (cl == 0 && !is_data_type));
 }
 
 TRestReflector Assembly(string typeName) {
