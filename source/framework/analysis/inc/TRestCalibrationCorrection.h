@@ -206,7 +206,7 @@ class TRestCalibrationCorrection : public TRestMetadata {
         void SetZeroPoint(const bool& ZeroPoint) { fZeroPoint = ZeroPoint; }
         void SetAutoRangePeaks(const bool& autoRangePeaks) { fAutoRangePeaks = autoRangePeaks; }
 
-        void Print();
+        void Print() const;
 
         void CalculateCalibrationParameters();
         void Initialize();
