@@ -232,11 +232,13 @@ int TRestReflector::InitDictionary() {
             return -1;
         }
 
+        const auto command = Form("gcc %s `root-config --cflags` "
+            "`root-config --libs` -lGui -lGeom -lGdml -lMinuit -L/usr/lib64 "
+            "-lstdc++ -shared -fPIC -o %s",
+            cxxfilename.c_str(), sofilename.c_str());
+        cout << "Executing command: " << command << endl;
         int b =
-            system(Form("gcc %s `root-config --cflags` "
-                        "`root-config --libs` -lGui -lGeom -lGdml -lMinuit -L/usr/lib64 "
-                        "-lstdc++ -shared -fPIC -o %s",
-                        cxxfilename.c_str(), sofilename.c_str()));
+            system(command);
 
         // int c =
         //    system(Form("gcc %s/lib/AddonDict/*.cxx -std=c++11 -I`root-config --incdir` "
