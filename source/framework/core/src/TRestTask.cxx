@@ -245,10 +245,10 @@ void TRestTask::PrintArgumentHelp() {
     } else if (fMode == 2) {
         RESTError << "Macro class \"" << this->ClassName() << "\" gets invalided input!" << RESTendl;
         RESTError << "You should give the following arguments ( * : necessary input):" << RESTendl;
-        unsigned int n = any(this).GetNumberOfDataMembers();
+        unsigned int n = RESTValue(this).GetNumberOfDataMembers();
         for (unsigned int i = 1; i < n; i++) {
             if (i < fNRequiredArgument + 1) RESTError << "*";
-            RESTError << any(this).GetDataMember(i).name << RESTendl;
+            RESTError << RESTValue(this).GetDataMember(i).name << RESTendl;
         }
     }
 }

@@ -1065,8 +1065,10 @@ void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
 
 ///////////////////////////////////////////////
 /// \brief Helper method for TRestMetadata::ExpandForLoops().
-void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e, map<string, string> forLoopVar) {
-    if (e == nullptr) return;
+void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e, const map<string, string>& forLoopVar) {
+    if (e == nullptr) {
+        return;
+    }
 
     TiXmlElement* parele = (TiXmlElement*)e->Parent();
     TiXmlElement* contentelement = e->FirstChildElement();
@@ -1098,7 +1100,7 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
     if (e == nullptr) return;
 
     RESTDebug << "Entering ... TRestMetadata::ReplaceForLoopVars" << RESTendl;
-    std::string parName = "";
+    std::string parName;
     TiXmlAttribute* attr = e->FirstAttribute();
     while (attr != nullptr) {
         const char* val = attr->Value();
@@ -1111,7 +1113,7 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
         if (strcmp(name, "name") != 0) {
             string outputBuffer = val;
 
-            if (outputBuffer.find("[") != string::npos || outputBuffer.find("]") != string::npos) {
+            if (outputBuffer.find('[') != string::npos || outputBuffer.find(']') != string::npos) {
                 RESTError << "TRestMetadata::ReplaceForLoopVars. Old for-loop construction identified"
                           << RESTendl;
                 RESTError << "Please, replace [] variable nomenclature by ${}." << RESTendl;
@@ -1134,7 +1136,7 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
 
                 string proenv = forLoopVar.count(expression) > 0 ? forLoopVar[expression] : "";
 
-                if (proenv != "") {
+                if (!proenv.empty()) {
                     outputBuffer.replace(replacePos, replaceLen, proenv);
                     endPosition = 0;
                 } else {
@@ -1203,11 +1205,11 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e, map<string, string> forloopv
 
         if (fVerboseLevel >= TRestStringOutput::REST_Verbose_Level::REST_Extreme) parele->Print(stdout, 0);
         RESTDebug << "----end of for loop----" << RESTendl;
-    } else if (_in != "") {
+    } else if (!_in.empty()) {
         vector<string> loopvars = Split(_in, ":");
 
         RESTDebug << "----expanding for loop----" << RESTendl;
-        for (string loopvar : loopvars) {
+        for (const string& loopvar : loopvars) {
             forloopvar[_name] = loopvar;
             fVariables[_name] = loopvar;
             ExpandForLoopOnce(e, forloopvar);
@@ -1250,18 +1252,22 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     if (_filename == nullptr) return;
 
     string filename;
-    if (string(_filename) == "server") {
+    if (string(_filename) == "server" || TRestTools::isURL(_filename)) {
         // Let TRestRun to retrieve data according to run number later-on
-        // if ((string) this->ClassName() == "TRestRun") return;
 
         // match the database, runNumber=0(default data), type="META_RML", tag=<section name>
         auto url = gDataBase->query_data(DBEntry(0, "META_RML", e->Value())).value;
+        if (url.empty()) {
+            // don't really understand this "database" code, this just works
+            url = _filename;
+        }
+
         filename = TRestTools::DownloadRemoteFile(url);
     } else {
         filename = SearchFile(_filename);
     }
 
-    if (filename == "") {
+    if (filename.empty()) {
         RESTError << "TRestMetadata::ExpandIncludeFile. Include file \"" << _filename << "\" does not exist!"
                   << RESTendl;
         exit(1);
@@ -1369,7 +1375,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
                         }
                         ele = ele->NextSiblingElement();
                     }
-                    // more than 1 elements found
+                    // more than 1 element found
                     if (eles.size() > 1) {
                         RESTWarning << "(expand include file): find multiple xml sections with same name!"
                                     << RESTendl;
@@ -1669,7 +1675,7 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVect
 /// Exits the whole program if the xml file does not exist, or is in wrong in
 /// syntax. Returns NULL if no element matches NameOrDecalre
 ///
-TiXmlElement* TRestMetadata::GetElementFromFile(std::string configFilename, std::string NameOrDecalre) {
+TiXmlElement* TRestMetadata::GetElementFromFile(std::string configFilename, std::string NameOrDeclare) {
     TiXmlDocument doc;
     TiXmlElement* rootele;
 
@@ -1693,26 +1699,27 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string configFilename, std:
                   << RESTendl;
         exit(1);
     }
-    if (NameOrDecalre == "") {
+    if (NameOrDeclare == "") {
         return (TiXmlElement*)rootele->Clone();
     }
     // search with either name or declare in either root element or sub-root
     // element
     while (rootele != nullptr) {
-        if (rootele->Value() != nullptr && (string)rootele->Value() == NameOrDecalre) {
+        if (rootele->Value() != nullptr && (string)rootele->Value() == NameOrDeclare) {
             return (TiXmlElement*)rootele->Clone();
         }
 
-        if (rootele->Attribute("name") != nullptr && (string)rootele->Attribute("name") == NameOrDecalre) {
+        if (rootele->Attribute("name") != nullptr && (string)rootele->Attribute("name") == NameOrDeclare) {
             return (TiXmlElement*)rootele->Clone();
         }
 
-        TiXmlElement* etemp = GetElement(NameOrDecalre, rootele);
+        TiXmlElement* etemp = GetElement(NameOrDeclare, rootele);
         if (etemp != nullptr) {
             return (TiXmlElement*)etemp->Clone();
         }
 
-        etemp = GetElementWithName("", NameOrDecalre, rootele);
+        etemp = GetElementWithName("", NameOrDeclare, rootele);
+
         if (etemp != nullptr) {
             return (TiXmlElement*)etemp->Clone();
         }
@@ -1721,7 +1728,7 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string configFilename, std:
     }
 
     return nullptr;
-    /*ferr << "Cannot find xml element with name \""<< NameOrDecalre <<"\" in rml
+    /*ferr << "Cannot find xml element with name \""<< NameOrDeclare <<"\" in rml
     file \"" << configFilename << endl; GetChar(); exit(1);*/
 }
 
@@ -1761,8 +1768,12 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
     {
         TiXmlElement* ele = e->FirstChildElement();
         while (ele != nullptr) {
-            if (ele->Attribute("name") != nullptr && (string)ele->Attribute("name") == eleName) {
-                return ele;
+            if (ele->Attribute("name") != nullptr) {
+                std::string nameValue = (string)ele->Attribute("name");
+                nameValue = ReplaceVariables(nameValue);
+                if (nameValue == eleName) {
+                    return ele;
+                }
             }
             ele = ele->NextSiblingElement();
         }
@@ -1771,8 +1782,12 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
     {
         TiXmlElement* ele = e->FirstChildElement(eleDeclare.c_str());
         while (ele != nullptr) {
-            if (ele->Attribute("name") != nullptr && (string)ele->Attribute("name") == eleName) {
-                return ele;
+            if (ele->Attribute("name") != nullptr) {
+                std::string nameValue = (string)ele->Attribute("name");
+                nameValue = ReplaceVariables(nameValue);
+                if (nameValue == eleName) {
+                    return ele;
+                }
             }
             ele = ele->NextSiblingElement(eleDeclare.c_str());
         }
@@ -2305,7 +2320,7 @@ std::string TRestMetadata::GetConfigBuffer() { return configBuffer; }
 /// All kinds of data member can be found, including non-streamed
 /// data member and base-class data member
 string TRestMetadata::GetDataMemberValue(string memberName) {
-    return any(this, this->ClassName()).GetDataMemberValueString(memberName);
+    return RESTValue(this, this->ClassName()).GetDataMemberValueString(memberName);
 }
 
 ///////////////////////////////////////////////
@@ -2651,4 +2666,15 @@ TString TRestMetadata::GetWarningMessage() {
         return fWarningMessage;
     else
         return "No warning!";
+}
+
+void TRestMetadata::Merge(const TRestMetadata& metadata) {
+    if (!metadata.InheritsFrom(ClassName())) {
+        RESTError << "TRestMetadata::Merge. Metadata is not of type " << ClassName() << RESTendl;
+        exit(1);
+    }
+
+    if (fName.IsNull()) {
+        fName = metadata.GetName();
+    }
 }

@@ -72,7 +72,7 @@ class TRestMetadata : public TNamed {
     void ReadEnvInElement(TiXmlElement* e, bool overwrite = true);
     void ReadElement(TiXmlElement* e, bool recursive = false);
     void ReplaceForLoopVars(TiXmlElement* e, std::map<std::string, std::string> forLoopVar);
-    void ExpandForLoopOnce(TiXmlElement* e, std::map<std::string, std::string> forLoopVar);
+    void ExpandForLoopOnce(TiXmlElement* e, const std::map<std::string, std::string>& forLoopVar);
     void ExpandForLoops(TiXmlElement* e, std::map<std::string, std::string> forLoopVar);
     void ExpandIfSections(TiXmlElement* e);
     void ExpandIncludeFile(TiXmlElement* e);
@@ -238,6 +238,10 @@ class TRestMetadata : public TNamed {
 
     TRestMetadata* InstantiateChildMetadata(int index, std::string pattern = "");
     TRestMetadata* InstantiateChildMetadata(std::string pattern = "", std::string name = "");
+
+    /// Merge the metadata information from another metadata object.
+    /// Needs to be implemented in the derived class.
+    virtual void Merge(const TRestMetadata&);
 
     /// Making default settings.
     virtual void Initialize() {}

@@ -686,7 +686,7 @@ void TRestRun::ReadFileInfo(const string& filename) {
     int pos = -1;
     int pos1 = 0;
     int pos2 = 0;
-    while (1) {
+    while (true) {
         pos1 = format.find("[", pos + 1);
         pos2 = format.find("]", pos1);
         if (pos1 == -1 || pos2 == -1) {
@@ -1617,8 +1617,11 @@ TRestMetadata* TRestRun::GetMetadata(const TString& name, TFile* file) {
             }
         }
     } else {
-        for (unsigned int i = 0; i < fMetadata.size(); i++)
-            if (fMetadata[i]->GetName() == name) return fMetadata[i];
+        for (unsigned int i = 0; i < fMetadata.size(); i++) {
+            if (fMetadata[i]->GetName() == name) {
+                return fMetadata[i];
+            }
+        }
     }
 
     return nullptr;

@@ -38,7 +38,7 @@ std::vector<string> metadataConditions = {};  // {"sc->fMinValues[0]> 3.8", "sc-
 //*** Usage: restManager DataSummary /full/path/file_*pattern*.root [startDate] [endDate]
 //*** --------------
 //*** TODO: Make this macro more efficient by accessing to the SQL database created by restSQL.
-//*** This could be done preserving the actual funcionality by identifying a particular format
+//*** This could be done preserving the actual functionality by identifying a particular format
 //*** from the first string argument where we provide the SQL server access credentials.
 //*** Then we could use both modes ROOT and SQL to crosscheck.
 //***
