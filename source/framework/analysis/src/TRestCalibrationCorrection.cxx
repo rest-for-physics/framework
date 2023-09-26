@@ -550,7 +550,7 @@ void TRestCalibrationCorrection::Module::CalculateCalibrationParameters() {
         if (cut.empty()) cut = "1";
         auto histo = dataSet.GetDataFrame().Filter(cut).Histo1D({"temp", "", fNBins, 0, 0}, GetObservable());
         std::unique_ptr<TH1F> hpunt = std::unique_ptr<TH1F>(static_cast<TH1F*>(histo->Clone()));
-        //double xMin = hpunt->GetXaxis()->GetXmin();
+        // double xMin = hpunt->GetXaxis()->GetXmin();
         double xMax = hpunt->GetXaxis()->GetXmax();
 
         // Reduce the range to avoid the possible empty (nCounts<1%) end part of the spectrum
@@ -859,7 +859,8 @@ void TRestCalibrationCorrection::Module::DrawSpectrum(const double x, const doub
     DrawSpectrum(index.first, index.second, c);
 }
 
-void TRestCalibrationCorrection::Module::DrawSpectrum(const size_t index_x, const size_t index_y, TCanvas* c) {
+void TRestCalibrationCorrection::Module::DrawSpectrum(const size_t index_x, const size_t index_y,
+                                                      TCanvas* c) {
     if (fSegSpectra.size() == 0) {
         RESTError << "Spectra matrix is empty." << p->RESTendl;
         return;
@@ -934,7 +935,8 @@ void TRestCalibrationCorrection::Module::DrawLinearFit(const double x, const dou
     DrawLinearFit(index.first, index.second, c);
 }
 
-void TRestCalibrationCorrection::Module::DrawLinearFit(const size_t index_x, const size_t index_y, TCanvas* c) {
+void TRestCalibrationCorrection::Module::DrawLinearFit(const size_t index_x, const size_t index_y,
+                                                       TCanvas* c) {
     if (fSegLinearFit.size() == 0) {
         RESTError << "Spectra matrix is empty." << p->RESTendl;
         return;
