@@ -1017,7 +1017,7 @@ void TRestCalibrationCorrection::Module::DrawGainMap(const int peakNumber) {
 /// \brief Prints on screen the information about the
 /// members of Module
 ///
-void TRestCalibrationCorrection::Module::Print() {
+void TRestCalibrationCorrection::Module::Print() const {
     RESTMetadata << "-----------------------------------------------" << p->RESTendl;
     RESTMetadata << " Plane ID: " << fPlaneId << p->RESTendl;
     RESTMetadata << " Module ID: " << fModuleId << p->RESTendl;
