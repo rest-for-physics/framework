@@ -83,13 +83,11 @@ struct __REST_CONST_INIT {
 
         if (_REST_USERHOME == nullptr) {
             _REST_USERHOME = getenv("HOME");
-        }else{
+        } else {
             cout << "REST_HOME is set to " << _REST_USERHOME << endl;
             // create the directory if it does not exist
-                        std::filesystem::create_directories(_REST_USERHOME);
-
+            std::filesystem::create_directories(_REST_USERHOME);
         }
-
 
 #ifdef WIN32
         if (_REST_PATH == nullptr) {
