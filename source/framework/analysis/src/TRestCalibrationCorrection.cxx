@@ -23,10 +23,36 @@
 /////////////////////////////////////////////////////////////////////////
 /// TRestCalibrationCorrection calculates and stores the calibration
 /// parameters for a given detector with multiple (or just one) modules.
-/// The modules are defined using the Module class (defined internally). It performs a gain correction
-/// based on a spatial segmentation of the detector module. This is useful for
-/// big modules such as the ones used in TREX-DM experiment.
+/// The modules are defined using the Module class (defined internally).
+/// It performs a gain correction based on a spatial segmentation of the
+/// detector module. This is useful forbig modules such as the ones used
+/// in TREX-DM experiment. The input data files for this methods are
+/// TRestDataSet for both calculating the calibration parameters and
+/// performing the calibration of the desired events.
 ///
+/// To correct the gain inhomogeneities, the module is divided in
+/// fNumberOfSegmentsX*fNumberOfSegmentsY segments. The energy peaks provided
+/// are fitted in each segment. The events are associated to each segment based on
+/// the observables fSpatialObservableX and fSpatialObservablesY. This results in
+/// the following plot that can be obtain with the function
+/// TRestCalibrationCorrection::Module::DrawSpectrum()
+///
+/// \htmlonly <style>div.image img[src="drawSpectrum.png"]{width:600px;}</style> \endhtmlonly
+/// ![Peak fitting of each segment. Plot obtain with
+/// TRestCalibrationCorrection::Module::DrawSpectrum()](drawSpectrum.png)
+///
+/// Also, the peak position provides a gain map that can be plotted with the function
+/// TRestCalibrationCorrection::Module::DrawGainMap(peakNumber)
+///
+/// \htmlonly <style>div.image img[src="drawGainMap.png"]{width:600px;}</style> \endhtmlonly
+/// ![Gain map. Plot obtain with TRestCalibrationCorrection::Module::DrawGainMap()](drawGainMap.png)
+///
+/// The result is a better energy resolution with the gain corrected
+/// calibration (red) than the plain calibration (blue).
+///
+/// \htmlonly <style>div.image img[src="gainCorrectionComparison.png"]{width:600px;}</style> \endhtmlonly
+/// ![Gain correction comparison.](gainCorrectionComparison.png)
+
 /// ### Parameters
 /// * **calibFileName**: name of the file to use for the calibration. It should be a DataSet
 /// * **outputFileName**: name of the file to save this calibration metadata
@@ -38,51 +64,38 @@
 /// * **modulesCal**: vector of Module objects
 ///
 /// ### Examples
-/// Give examples of usage and RML descriptions that can be tested.
+/// A example of RML definition of this class can be found inside the file
+/// `REST_PATH/examples/calibrationCorrection.rml`. This have the following structure:
 /// \code
-///     <TRestCalibrationCorrection name="calib" verboseLevel="info">
-///             <parameter name="calibFileName" value="myDataSet.root"/>
-///             <parameter name="outputFileName" value = "myCalibration.root"/>
-///             <parameter name = "observable" value="rawAna_ThresholdIntegral"/>
-///             <parameter name = "spatialObservableX" value="hitsAna_xMean"/>
-///             <parameter name = "spatialObservableY" value="hitsAna_yMean"/>
-///             <module planeId="0" moduleId="0"
-///                 moduleDefinitionCut="TREXsides_tagId==1"
-///                 numberOfSegmentsX="5"
-///                 numberOfSegmentsY="5"
-///                 readoutRange="(-1,246.24)">
-///                 <peak energy="22.5" range=""/>
-///                 <peak energy="8.0"  range=""/>
+///     <TRestCalibrationCorrection name="calib">
+///             ...
+///             <module>
+///                 ...
 ///             </module>
-///             <module planeId="1" moduleId="0"
-///                 moduleDefinitionCut="TREXsides_tagId==2"
-///                 numberOfSegmentsX="5"
-///                 numberOfSegmentsY="5"
-///                 readoutRange="(-1,246.24)">
-///                 <peak energy="22.5" range=""/>
-///                 <peak energy="8.0"  range=""/>
+///             <module>
+///                 ...
 ///             </module>
 ///   </TRestCalibrationCorrection>
 /// \endcode
 ///
 /// Example to calculate the calibration parameters over a calibration dataSet using restRoot:
 /// \code
-/// [0] TRestCalibrationCorrection cal ("makeCalibration.rml");
-/// [1] cal.SetCalibrationFileName("myDataSet.root"); //if not already defined in rml file
-/// [2] cal.SetOutputFileName("myCalibration.root"); //if not already defined in rml file
-/// [3] cal.Calibrate();
-/// [4] cal.Export();
+/// TRestCalibrationCorrection cal ("calibrationCorrection.rml");
+/// cal.SetCalibrationFileName("myDataSet.root"); //if not already defined in rml file
+/// cal.SetOutputFileName("myCalibration.root"); //if not already defined in rml file
+/// cal.Calibrate();
+/// cal.Export();
 /// \endcode
 ///
 /// Example to calibrate a dataSet with the previously calculated calibration parameters
 /// and draw the result (using restRoot):
 /// \code
-/// [0] TRestCalibrationCorrection cal;
-/// [1] cal.Import("myCalibration.root");
-/// [2] cal.CalibrateDataSet("dataSetToCalibrate.root", "calibratedDataSet.root");
-/// [3] TRestDataSet ds("calibratedDataSet.root");
-/// [4] auto h = ds->GetDataFrame().Histo1D({"hname", "",100,-1,40.}, "calib_ThresholdIntegral");
-/// [5] h->Draw();
+/// TRestCalibrationCorrection cal;
+/// cal.Import("myCalibration.root");
+/// cal.CalibrateDataSet("dataSetToCalibrate.root", "calibratedDataSet.root");
+/// TRestDataSet ds("calibratedDataSet.root");
+/// auto h = ds->GetDataFrame().Histo1D({"hname", "",100,-1,40.}, "calib_ThresholdIntegral");
+/// h->Draw();
 /// \endcode
 ///----------------------------------------------------------------------
 ///
@@ -90,7 +103,7 @@
 ///
 /// History of developments:
 ///
-/// 2023-May: First implementation of TRestCalibrationCorrection
+/// 2023-September: First implementation of TRestCalibrationCorrection
 /// Álvaro Ezquerro
 ///
 /// \class TRestCalibrationCorrection
