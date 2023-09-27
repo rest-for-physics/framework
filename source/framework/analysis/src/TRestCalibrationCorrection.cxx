@@ -29,7 +29,7 @@
 ///
 /// ### Parameters
 /// * **calibFileName**: name of the file to use for the calibration. It should be a DataSet
-/// * **outputFileName**: name of the file to save the this calibration metadata
+/// * **outputFileName**: name of the file to save this calibration metadata
 /// * **observable**: name of the observable to be calibrated. It must be a branch of the calibration DataSet
 /// * **spatialObservableX**: name of the observable to be used for the spatial segmentation along the X axis.
 /// It must be a branch of the calibration DataSet
