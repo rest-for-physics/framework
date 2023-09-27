@@ -23,7 +23,7 @@
 /////////////////////////////////////////////////////////////////////////
 /// TRestCalibrationCorrection calculates and stores the calibration
 /// parameters for a given detector with multiple (or just one) modules.
-/// This modules are defined in the Module class. It performs a gain correction
+/// The modules are defined using the Module class (defined internally). It performs a gain correction
 /// based on a spatial segmentation of the detector module. This is useful for
 /// big modules such as the ones used in TREX-DM experiment.
 ///
