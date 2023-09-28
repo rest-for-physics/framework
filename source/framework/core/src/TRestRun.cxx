@@ -986,24 +986,25 @@ TString TRestRun::FormFormat(const TString& FilenameFormat) {
 TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilename) {
     RESTDebug << "TRestRun::FormOutputFile. target : " << outputfilename << RESTendl;
     string filename;
-    TFileMerger* m = new TFileMerger(false);
+
+    TFileMerger m(false);
     if (outputfilename.empty()) {
         filename = fOutputFileName;
         RESTInfo << "Creating file : " << filename << RESTendl;
-        m->OutputFile(filename.c_str(), "RECREATE");
+        m.OutputFile(filename.c_str(), "RECREATE");
     } else {
         filename = outputfilename;
-        RESTInfo << "Updating file : " << filename << RESTendl;
-        m->OutputFile(filename.c_str(), "UPDATE");
+        RESTInfo << "Creating file : " << filename << RESTendl;
+        m.OutputFile(filename.c_str(), "UPDATE");
     }
 
     RESTDebug << "TRestRun::FormOutputFile. Starting to add files" << RESTendl;
 
     for (unsigned int i = 0; i < filenames.size(); i++) {
-        m->AddFile(filenames[i].c_str(), false);
+        m.AddFile(filenames[i].c_str(), false);
     }
 
-    if (m->Merge()) {
+    if (m.Merge()) {
         for (unsigned int i = 0; i < filenames.size(); i++) {
             remove(filenames[i].c_str());
         }
@@ -1012,8 +1013,6 @@ TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilena
         RESTError << "(Merge files) failed to merge process files." << RESTendl;
         exit(1);
     }
-
-    delete m;
 
     // we rename the created output file
     fOutputFileName = FormFormat(filename);
@@ -1079,6 +1078,17 @@ TFile* TRestRun::UpdateOutputFile() {
         RESTError << "TRestRun::UpdateOutputFile(): output file is closed" << RESTendl;
     }
     return nullptr;
+}
+
+///////////////////////////////////////////////
+/// \brief Open and update output file in case is closed
+///
+TFile* TRestRun::OpenAndUpdateOutputFile() {
+    if (fOutputFile == nullptr) {
+        fOutputFile = TFile::Open(fOutputFileName, "UPDATE");
+    }
+
+    return UpdateOutputFile();
 }
 
 ///////////////////////////////////////////////

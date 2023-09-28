@@ -94,6 +94,7 @@ class TRestRun : public TRestMetadata {
     TFile* MergeToOutputFile(std::vector<std::string> filefullnames, std::string outputfilename = "");
     TFile* FormOutputFile();
     TFile* UpdateOutputFile();
+    TFile* OpenAndUpdateOutputFile();
 
     void PassOutputFile() {
         fOutputFile = fInputFile;

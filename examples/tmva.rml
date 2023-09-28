@@ -1,0 +1,66 @@
+<TRestManager>
+
+<TRestDataSetTMVA name="TMVA" verboseLevel="info">
+   <observable name="tckAna_MaxTrack_XYZ_SigmaZ2"/>
+   <observable name="tckAna_MaxTrackEnergyBalanceXY"/>
+   <observable name="tckAna_MaxTrackEnergyRatio"/>
+   <observable name="tckAna_MaxTrack_XZ_SigmaX" />
+   <observable name="tckAna_MaxTrack_YZ_SigmaY" />
+   <observable name="tckAna_MaxTrackxySigmaBalance"/>
+
+   <addBackgroundCut name="ParamCut"/>
+   <addSignalCut name="ParamCut"/>
+   <addSignalCut name="EnergyCut"/>
+
+   <TRestCut name="EnergyCut" verboseLevel="info">
+     <cut name="c1" variable="calib_Energy" condition=">4" />
+     <cut name="c2" variable="calib_Energy" condition="<8" />
+   </TRestCut>
+
+  <TRestCut name="ParamCut" verboseLevel="info">
+     <cut name="c3" variable="tckAna_nTracks_X" condition=">0" />
+     <cut name="c4" variable="tckAna_nTracks_Y" condition=">0" />
+     <cut name="c5" variable="tckAna_MaxTrackEnergyRatio" condition="<0.1" />
+     <cut name="c8" variable="tckAna_MaxTrack_XYZ_SigmaZ2" condition="<20." />
+     <cut name="c9" variable="tckAna_MaxTrackEnergyBalanceXY" condition="<5"/>
+     <cut name="c10" variable="tckAna_MaxTrackEnergyBalanceXY" condition=">-5"/>
+     <cut name="c11" variable="tckAna_MaxTrackxySigmaBalance" condition=">-1"/>
+     <cut name="c12" variable="tckAna_MaxTrackxySigmaBalance" condition="<1"/>
+   </TRestCut>
+
+   <addMethod name="Likelihood" parameters="H:!V:TransformOutput:PDFInterpol=Spline2:NSmoothSig[0]=20:NSmoothBkg[0]=10:NSmoothBkg[1]=5:NSmooth=1:NAvEvtPerBin=10"/>
+   <addMethod name="LikelihoodKDE" parameters="!H:!V:!TransformOutput:PDFInterpol=KDE:KDEtype=Gauss:KDEiter=Adaptive:KDEFineFactor=0.3:KDEborder=None:NAvEvtPerBin=10"/>
+   <addMethod name="Fisher" parameters="H:!V:Fisher:VarTransform=None:CreateMVAPdfs:PDFInterpolMVAPdf=Spline2:NbinsMVAPdf=50:NsmoothMVAPdf=10"/>
+   <addMethod name="BDT" parameters="!V:NTrees=200:MinNodeSize=2.5%:MaxDepth=2:BoostType=AdaBoost:AdaBoostBeta=0.5:UseBaggedBoost:BaggedSampleFraction=0.5:SeparationType=GiniIndex:nCuts=20"/>
+   <addMethod name="MLP" parameters="!H:!V:NeuronType=tanh:VarTransform=N:NCycles=100:HiddenLayers=N+5:TestRate=5:!UseRegulator"/>
+
+</TRestDataSetTMVA>
+
+
+<TRestDataSetTMVAClassification name="TMVA" verboseLevel="info">
+   <observable name="tckAna_MaxTrack_XYZ_SigmaZ2"/>
+   <observable name="tckAna_MaxTrackEnergyBalanceXY"/>
+   <observable name="tckAna_MaxTrackEnergyRatio"/>
+   <observable name="tckAna_MaxTrack_XZ_SigmaX" />
+   <observable name="tckAna_MaxTrack_YZ_SigmaY" />
+   <observable name="tckAna_MaxTrackxySigmaBalance"/>
+
+   <parameter name="tmvaFile" value="/storage/iaxo/iaxo-lsc/analysis/ana/test/test/weights/TMVA_Classification_BDT.weights.xml" />
+   <parameter name="tmvaMethod" value="BDT" />
+   <addCut name="ParamCut"/>
+
+  <TRestCut name="ParamCut" verboseLevel="info">
+     <cut name="c3" variable="tckAna_nTracks_X" condition=">0" />
+     <cut name="c4" variable="tckAna_nTracks_Y" condition=">0" />
+     <cut name="c5" variable="tckAna_MaxTrackEnergyRatio" condition="<0.1" />
+     <cut name="c8" variable="tckAna_MaxTrack_XYZ_SigmaZ2" condition="<20." />
+     <cut name="c9" variable="tckAna_MaxTrackEnergyBalanceXY" condition="<5"/>
+     <cut name="c10" variable="tckAna_MaxTrackEnergyBalanceXY" condition=">-5"/>
+     <cut name="c11" variable="tckAna_MaxTrackxySigmaBalance" condition=">-1"/>
+     <cut name="c12" variable="tckAna_MaxTrackxySigmaBalance" condition="<1"/>
+
+   </TRestCut>
+
+</TRestDataSetTMVAClassification>
+
+</TRestManager>

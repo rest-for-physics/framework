@@ -79,7 +79,8 @@ set(ROOT_REQUIRED_LIBRARIES
     Gdml
     Minuit
     Spectrum
-    XMLIO)
+    XMLIO
+    TMVA)
 
 # Auto schema evolution for ROOT
 if (NOT DEFINED REST_SE)
