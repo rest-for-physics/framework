@@ -60,8 +60,7 @@ class TRestCalibrationCorrection : public TRestMetadata {
     Int_t GetNumberOfPlanes() const { return GetPlaneIDs().size(); }
     Int_t GetNumberOfModules() const {
         int sum = 0;
-        for (auto pID : GetPlaneIDs())
-            for (auto n : GetModuleIDs(pID)) sum += n;
+        for (auto pID : GetPlaneIDs()) sum += GetModuleIDs(pID).size();
         return sum;
     }
     // Int_t GetNumberOfModulesOfPlane(const int planeID) const { return fNModules.at(planeID);}

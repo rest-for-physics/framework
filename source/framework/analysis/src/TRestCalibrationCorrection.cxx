@@ -94,7 +94,7 @@
 /// cal.Import("myCalibration.root");
 /// cal.CalibrateDataSet("dataSetToCalibrate.root", "calibratedDataSet.root");
 /// TRestDataSet ds("calibratedDataSet.root");
-/// auto h = ds->GetDataFrame().Histo1D({"hname", "",100,-1,40.}, "calib_ThresholdIntegral");
+/// auto h = ds.GetDataFrame().Histo1D({"hname", "",100,-1,40.}, "calib_ThresholdIntegral");
 /// h->Draw();
 /// \endcode
 ///----------------------------------------------------------------------
