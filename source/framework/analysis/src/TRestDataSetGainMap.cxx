@@ -21,7 +21,7 @@
  *************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////
-/// TRestCalibrationCorrection calculates and stores the calibration
+/// TRestDataSetGainMap calculates and stores the calibration
 /// parameters for a given detector with multiple (or just one) modules.
 /// The modules are defined using the Module class (defined internally).
 /// It performs a gain correction based on a spatial segmentation of the
@@ -35,17 +35,17 @@
 /// are fitted in each segment. The events are associated to each segment based on
 /// the observables fSpatialObservableX and fSpatialObservablesY. This results in
 /// the following plot that can be obtain with the function
-/// TRestCalibrationCorrection::Module::DrawSpectrum()
+/// TRestDataSetGainMap::Module::DrawSpectrum()
 ///
 /// \htmlonly <style>div.image img[src="drawSpectrum.png"]{width:600px;}</style> \endhtmlonly
 /// ![Peak fitting of each segment. Plot obtain with
-/// TRestCalibrationCorrection::Module::DrawSpectrum()](drawSpectrum.png)
+/// TRestDataSetGainMap::Module::DrawSpectrum()](drawSpectrum.png)
 ///
 /// Also, the peak position provides a gain map that can be plotted with the function
-/// TRestCalibrationCorrection::Module::DrawGainMap(peakNumber)
+/// TRestDataSetGainMap::Module::DrawGainMap(peakNumber)
 ///
 /// \htmlonly <style>div.image img[src="drawGainMap.png"]{width:600px;}</style> \endhtmlonly
-/// ![Gain map. Plot obtain with TRestCalibrationCorrection::Module::DrawGainMap()](drawGainMap.png)
+/// ![Gain map. Plot obtain with TRestDataSetGainMap::Module::DrawGainMap()](drawGainMap.png)
 ///
 /// The result is a better energy resolution with the gain corrected
 /// calibration (red) than the plain calibration (blue).
@@ -67,7 +67,7 @@
 /// A example of RML definition of this class can be found inside the file
 /// `REST_PATH/examples/calibrationCorrection.rml`. This have the following structure:
 /// \code
-///     <TRestCalibrationCorrection name="calib">
+///     <TRestDataSetGainMap name="calib">
 ///             ...
 ///             <module>
 ///                 ...
@@ -75,12 +75,12 @@
 ///             <module>
 ///                 ...
 ///             </module>
-///   </TRestCalibrationCorrection>
+///   </TRestDataSetGainMap>
 /// \endcode
 ///
 /// Example to calculate the calibration parameters over a calibration dataSet using restRoot:
 /// \code
-/// TRestCalibrationCorrection cal ("calibrationCorrection.rml");
+/// TRestDataSetGainMap cal ("calibrationCorrection.rml");
 /// cal.SetCalibrationFileName("myDataSet.root"); //if not already defined in rml file
 /// cal.SetOutputFileName("myCalibration.root"); //if not already defined in rml file
 /// cal.Calibrate();
@@ -90,7 +90,7 @@
 /// Example to calibrate a dataSet with the previously calculated calibration parameters
 /// and draw the result (using restRoot):
 /// \code
-/// TRestCalibrationCorrection cal;
+/// TRestDataSetGainMap cal;
 /// cal.Import("myCalibration.root");
 /// cal.CalibrateDataSet("dataSetToCalibrate.root", "calibratedDataSet.root");
 /// TRestDataSet ds("calibratedDataSet.root");
@@ -103,22 +103,22 @@
 ///
 /// History of developments:
 ///
-/// 2023-September: First implementation of TRestCalibrationCorrection
+/// 2023-September: First implementation of TRestDataSetGainMap
 /// Álvaro Ezquerro
 ///
-/// \class TRestCalibrationCorrection
+/// \class TRestDataSetGainMap
 /// \author: Álvaro Ezquerro aezquerro@unizar.es
 ///
 /// <hr>
 ///
 
-#include "TRestCalibrationCorrection.h"
+#include "TRestDataSetGainMap.h"
 
-ClassImp(TRestCalibrationCorrection);
+ClassImp(TRestDataSetGainMap);
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestCalibrationCorrection::TRestCalibrationCorrection() { Initialize(); }
+TRestDataSetGainMap::TRestDataSetGainMap() { Initialize(); }
 
 /////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -132,9 +132,9 @@ TRestCalibrationCorrection::TRestCalibrationCorrection() { Initialize(); }
 ///
 /// \param configFilename A const char* that defines the RML filename.
 /// \param name The name of the metadata section. It will be used to find the
-/// corresponding TRestCalibrationCorrection section inside the RML.
+/// corresponding TRestDataSetGainMap section inside the RML.
 ///
-TRestCalibrationCorrection::TRestCalibrationCorrection(const char* configFilename, std::string name)
+TRestDataSetGainMap::TRestDataSetGainMap(const char* configFilename, std::string name)
     : TRestMetadata(configFilename) {
     LoadConfigFromFile(fConfigFileName, name);
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
@@ -143,14 +143,14 @@ TRestCalibrationCorrection::TRestCalibrationCorrection(const char* configFilenam
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestCalibrationCorrection::~TRestCalibrationCorrection() {}
+TRestDataSetGainMap::~TRestDataSetGainMap() {}
 
-void TRestCalibrationCorrection::Initialize() { SetSectionName(this->ClassName()); }
+void TRestDataSetGainMap::Initialize() { SetSectionName(this->ClassName()); }
 ///////////////////////////////////////////////
-/// \brief Initialization of TRestCalibrationCorrection
+/// \brief Initialization of TRestDataSetGainMap
 /// members through a RML file
 ///
-void TRestCalibrationCorrection::InitFromConfigFile() {
+void TRestDataSetGainMap::InitFromConfigFile() {
     this->Initialize();
     TRestMetadata::InitFromConfigFile();
 
@@ -169,7 +169,7 @@ void TRestCalibrationCorrection::InitFromConfigFile() {
 /////////////////////////////////////////////
 /// \brief Function to calculate the calibration parameters of all modules
 ///
-void TRestCalibrationCorrection::Calibrate() {
+void TRestDataSetGainMap::Calibrate() {
     for (auto& mod : fModulesCal) {
         RESTInfo << "Calibrating plane " << mod.GetPlaneId() << " module " << mod.GetModuleId() << RESTendl;
         mod.CalculateCalibrationParameters();
@@ -183,10 +183,9 @@ void TRestCalibrationCorrection::Calibrate() {
 /////////////////////////////////////////////
 /// \brief Function to calibrate a dataSet
 ///
-void TRestCalibrationCorrection::CalibrateDataSet(const std::string& dataSetFileName,
-                                                  std::string outputFileName) {
+void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, std::string outputFileName) {
     if (fModulesCal.empty()) {
-        RESTError << "TRestCalibrationCorrection::CalibrateDataSet: No modules defined." << RESTendl;
+        RESTError << "TRestDataSetGainMap::CalibrateDataSet: No modules defined." << RESTendl;
         return;
     }
 
@@ -211,7 +210,7 @@ void TRestCalibrationCorrection::CalibrateDataSet(const std::string& dataSetFile
             if (pmID == m.GetPlaneId() * 10 + m.GetModuleId())
                 return m.GetSlope(x, y) * val + m.GetIntercept(x, y);
         }
-        // RESTError << "TRestCalibrationCorrection::CalibrateDataSet: Module not found for pmID " << pmID <<
+        // RESTError << "TRestDataSetGainMap::CalibrateDataSet: Module not found for pmID " << pmID <<
         // RESTendl;
         return std::numeric_limits<double>::quiet_NaN();
     };
@@ -225,7 +224,7 @@ void TRestCalibrationCorrection::CalibrateDataSet(const std::string& dataSetFile
     // Format the output file name and export the dataSet
     if (outputFileName.empty()) {
         outputFileName = dataSetFileName;
-        RESTWarning << "TRestCalibrationCorrection::CalibrateDataSet: No output file name defined. "
+        RESTWarning << "TRestDataSetGainMap::CalibrateDataSet: No output file name defined. "
                     << "Using input file name " << outputFileName << RESTendl;
     } else if (TRestTools::GetFileNameExtension(outputFileName) != "root")
         outputFileName = outputFileName + ".root";
@@ -233,7 +232,7 @@ void TRestCalibrationCorrection::CalibrateDataSet(const std::string& dataSetFile
     RESTInfo << "Exporting calibrated dataSet to " << outputFileName << RESTendl;
     dataSet.Export(outputFileName);
 
-    // Add this TRestCalibrationCorrection metadata to the output file
+    // Add this TRestDataSetGainMap metadata to the output file
     TFile* f = TFile::Open(outputFileName.c_str(), "UPDATE");
     this->Write();
     f->Close();
@@ -244,8 +243,8 @@ void TRestCalibrationCorrection::CalibrateDataSet(const std::string& dataSetFile
 /// \brief Function to retrieve the module calibration with planeID and moduleID
 ///
 ///
-TRestCalibrationCorrection::Module* TRestCalibrationCorrection::GetModuleCalibration(const int planeID,
-                                                                                     const int moduleID) {
+TRestDataSetGainMap::Module* TRestDataSetGainMap::GetModuleCalibration(const int planeID,
+                                                                       const int moduleID) {
     for (auto& i : fModulesCal) {
         if (i.GetPlaneId() == planeID && i.GetModuleId() == moduleID) return &i;
     }
@@ -258,8 +257,8 @@ TRestCalibrationCorrection::Module* TRestCalibrationCorrection::GetModuleCalibra
 /// planeID and moduleID at physical position (x,y)
 ///
 ///
-double TRestCalibrationCorrection::GetSlopeParameter(const int planeID, const int moduleID, const double x,
-                                                     const double y) {
+double TRestDataSetGainMap::GetSlopeParameter(const int planeID, const int moduleID, const double x,
+                                              const double y) {
     Module* moduleCal = GetModuleCalibration(planeID, moduleID);
     if (moduleCal == nullptr) return 0;  // return numeric_limits<double>::quiet_NaN()
     return moduleCal->GetSlope(x, y);
@@ -270,8 +269,8 @@ double TRestCalibrationCorrection::GetSlopeParameter(const int planeID, const in
 /// planeID and moduleID at physical position (x,y)
 ///
 ///
-double TRestCalibrationCorrection::GetInterceptParameter(const int planeID, const int moduleID,
-                                                         const double x, const double y) {
+double TRestDataSetGainMap::GetInterceptParameter(const int planeID, const int moduleID, const double x,
+                                                  const double y) {
     Module* moduleCal = GetModuleCalibration(planeID, moduleID);
     if (moduleCal == nullptr) return 0;  // return numeric_limits<double>::quiet_NaN()
     return moduleCal->GetIntercept(x, y);
@@ -281,7 +280,7 @@ double TRestCalibrationCorrection::GetInterceptParameter(const int planeID, cons
 /// \brief Function to get a list (set) of the plane IDs
 ///
 ///
-std::set<int> TRestCalibrationCorrection::GetPlaneIDs() const {
+std::set<int> TRestDataSetGainMap::GetPlaneIDs() const {
     std::set<int> planeIDs;
     for (const auto& mc : fModulesCal) planeIDs.insert(mc.GetPlaneId());
     return planeIDs;
@@ -291,7 +290,7 @@ std::set<int> TRestCalibrationCorrection::GetPlaneIDs() const {
 /// \brief Function to get a list (set) of the module IDs
 /// of the plane with planeID
 ///
-std::set<int> TRestCalibrationCorrection::GetModuleIDs(const int planeId) const {
+std::set<int> TRestDataSetGainMap::GetModuleIDs(const int planeId) const {
     std::set<int> moduleIDs;
     for (const auto& mc : fModulesCal)
         if (mc.GetPlaneId() == planeId) moduleIDs.insert(mc.GetModuleId());
@@ -301,14 +300,14 @@ std::set<int> TRestCalibrationCorrection::GetModuleIDs(const int planeId) const 
 /////////////////////////////////////////////
 /// \brief Function to get the map of the module IDs for each plane ID
 ///
-std::map<int, std::set<int>> TRestCalibrationCorrection::GetModuleIDs() const {
+std::map<int, std::set<int>> TRestDataSetGainMap::GetModuleIDs() const {
     std::map<int, std::set<int>> moduleIds;
     for (const int planeId : GetPlaneIDs())
         moduleIds.insert(std::pair<int, std::set<int>>(planeId, GetModuleIDs(planeId)));
     return moduleIds;
 }
 
-TRestCalibrationCorrection& TRestCalibrationCorrection::operator=(TRestCalibrationCorrection& src) {
+TRestDataSetGainMap& TRestDataSetGainMap::operator=(TRestDataSetGainMap& src) {
     SetName(src.GetName());
     fOutputFileName = src.GetOutputFileName();
     fObservable = src.GetObservable();
@@ -324,7 +323,7 @@ TRestCalibrationCorrection& TRestCalibrationCorrection::operator=(TRestCalibrati
 /// \brief Function to set a module calibration. If the module calibration
 /// already exists (same planeId and moduleId), it will be replaced.
 ///
-void TRestCalibrationCorrection::SetModuleCalibration(const Module& moduleCal) {
+void TRestDataSetGainMap::SetModuleCalibration(const Module& moduleCal) {
     for (auto& i : fModulesCal) {
         if (i.GetPlaneId() == moduleCal.GetPlaneId() && i.GetModuleId() == moduleCal.GetModuleId()) {
             i = moduleCal;
@@ -338,7 +337,7 @@ void TRestCalibrationCorrection::SetModuleCalibration(const Module& moduleCal) {
 /// \brief Function to import the calibration parameters
 /// from the root file fileName.
 ///
-void TRestCalibrationCorrection::Import(const std::string& fileName) {
+void TRestDataSetGainMap::Import(const std::string& fileName) {
     if (fileName.empty()) {
         RESTError << "No input calibration file defined" << RESTendl;
         return;
@@ -352,16 +351,15 @@ void TRestCalibrationCorrection::Import(const std::string& fileName) {
             return;
         }
 
-        TRestCalibrationCorrection* cal = nullptr;
+        TRestDataSetGainMap* cal = nullptr;
         if (f != nullptr) {
             TIter nextkey(f->GetListOfKeys());
             TKey* key;
             while ((key = (TKey*)nextkey())) {
                 std::string kName = key->GetClassName();
                 if (REST_Reflection::GetClassQuick(kName.c_str()) != nullptr &&
-                    REST_Reflection::GetClassQuick(kName.c_str())
-                        ->InheritsFrom("TRestCalibrationCorrection")) {
-                    cal = f->Get<TRestCalibrationCorrection>(key->GetName());
+                    REST_Reflection::GetClassQuick(kName.c_str())->InheritsFrom("TRestDataSetGainMap")) {
+                    cal = f->Get<TRestDataSetGainMap>(key->GetName());
                     *this = *cal;
                 }
             }
@@ -375,7 +373,7 @@ void TRestCalibrationCorrection::Import(const std::string& fileName) {
 /// \brief Function to export the calibration
 /// to the file fileName.
 ///
-void TRestCalibrationCorrection::Export(const std::string& fileName) {
+void TRestDataSetGainMap::Export(const std::string& fileName) {
     if (!fileName.empty()) fOutputFileName = fileName;
     if (fOutputFileName.empty()) {
         RESTError << "No output file defined" << RESTendl;
@@ -395,7 +393,7 @@ void TRestCalibrationCorrection::Export(const std::string& fileName) {
 /////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members
 ///
-void TRestCalibrationCorrection::PrintMetadata() {
+void TRestDataSetGainMap::PrintMetadata() {
     TRestMetadata::PrintMetadata();
     RESTMetadata << " Calibration file: " << fCalibFileName << RESTendl;
     RESTMetadata << " Output file: " << fOutputFileName << RESTendl;
@@ -417,7 +415,7 @@ void TRestCalibrationCorrection::PrintMetadata() {
 /// \param x A const double that defines the x position on the detector plane.
 /// \param y A const double that defines the y position on the detector plane.
 ///
-std::pair<int, int> TRestCalibrationCorrection::Module::GetIndexMatrix(const double x, const double y) const {
+std::pair<int, int> TRestDataSetGainMap::Module::GetIndexMatrix(const double x, const double y) const {
     int index_x = -1, index_y = -1;
 
     if (fSplitX.upper_bound(x) != fSplitX.end()) {
@@ -453,7 +451,7 @@ std::pair<int, int> TRestCalibrationCorrection::Module::GetIndexMatrix(const dou
 /// \param x A const double that defines the x position on the detector plane.
 /// \param y A const double that defines the y position on the detector plane.
 ///
-double TRestCalibrationCorrection::Module::GetSlope(const double x, const double y) const {
+double TRestDataSetGainMap::Module::GetSlope(const double x, const double y) const {
     auto [index_x, index_y] = GetIndexMatrix(x, y);
     if (fSlope.empty()) {
         RESTError << "Calibration slope matrix is empty. Returning 0" << p->RESTendl;
@@ -475,7 +473,7 @@ double TRestCalibrationCorrection::Module::GetSlope(const double x, const double
 /// \param x A const double that defines the x position on the detector plane.
 /// \param y A const double that defines the y position on the detector plane.
 ///
-double TRestCalibrationCorrection::Module::GetIntercept(const double x, const double y) const {
+double TRestDataSetGainMap::Module::GetIntercept(const double x, const double y) const {
     auto [index_x, index_y] = GetIndexMatrix(x, y);
     if (fIntercept.empty()) {
         RESTError << "Calibration constant matrix is empty. Returning 0" << p->RESTendl;
@@ -493,7 +491,7 @@ double TRestCalibrationCorrection::Module::GetIntercept(const double x, const do
 /////////////////////////////////////////////
 /// \brief Function to set the class members for segmentation of
 /// the detector plane along the X and Y axis.
-void TRestCalibrationCorrection::Module::SetSplits() {
+void TRestDataSetGainMap::Module::SetSplits() {
     SetSplitX();
     SetSplitY();
 }
@@ -503,7 +501,7 @@ void TRestCalibrationCorrection::Module::SetSplits() {
 ///
 /// It uses the number of segments and the readout range to define the
 /// edges of the segments.
-void TRestCalibrationCorrection::Module::SetSplitX() {
+void TRestDataSetGainMap::Module::SetSplitX() {
     fSplitX.clear();
     for (int i = 0; i <= fNumberOfSegmentsX; i++) {  // <= so that the last segment is included
         double x =
@@ -517,7 +515,7 @@ void TRestCalibrationCorrection::Module::SetSplitX() {
 ///
 /// It uses the number of segments and the readout range to define the
 /// edges of the segments.
-void TRestCalibrationCorrection::Module::SetSplitY() {
+void TRestDataSetGainMap::Module::SetSplitY() {
     fSplitY.clear();
     for (int i = 0; i <= fNumberOfSegmentsY; i++) {  // <= so that the last segment is included
         double y =
@@ -542,7 +540,7 @@ void TRestCalibrationCorrection::Module::SetSplitY() {
 ///    and the peak position of the next peak to define the range.
 /// 4. If fRangePeaks is not defined and fAutoRangePeaks is true: same as 3.
 ///
-void TRestCalibrationCorrection::Module::CalculateCalibrationParameters() {
+void TRestDataSetGainMap::Module::CalculateCalibrationParameters() {
     //--- Initial checks and settings ---
     if (fDataSetFileName.empty()) fDataSetFileName = p->GetCalibrationFileName();
     if (fDataSetFileName.empty()) {
@@ -746,8 +744,8 @@ void TRestCalibrationCorrection::Module::CalculateCalibrationParameters() {
 /// \param energyPeak The energy of the peak to be fitted (in physical units).
 /// \param range The range for the fitting of the peak (in the observables corresponding units).
 ///
-void TRestCalibrationCorrection::Module::Refit(const double x, const double y, const double energyPeak,
-                                               const TVector2& range) {
+void TRestDataSetGainMap::Module::Refit(const double x, const double y, const double energyPeak,
+                                        const TVector2& range) {
     auto [index_x, index_y] = GetIndexMatrix(x, y);
     int peakNumber = -1;
     for (size_t i = 0; i < fEnergyPeaks.size(); i++)
@@ -770,8 +768,8 @@ void TRestCalibrationCorrection::Module::Refit(const double x, const double y, c
 /// \param peakNumber The index of the peak to be fitted.
 /// \param range The range for the fitting of the peak (in the observables corresponding units).
 ///
-void TRestCalibrationCorrection::Module::Refit(const int x, const int y, const int peakNumber,
-                                               const TVector2& range) {
+void TRestDataSetGainMap::Module::Refit(const int x, const int y, const int peakNumber,
+                                        const TVector2& range) {
     // Refit the desired peak
     std::string name = "g" + std::to_string(peakNumber);
     TF1* g = new TF1(name.c_str(), "gaus", range.X(), range.Y());
@@ -810,9 +808,9 @@ void TRestCalibrationCorrection::Module::Refit(const int x, const int y, const i
 ///                <peak energy="8.0"  range=""/>
 ///         </module>
 ///
-void TRestCalibrationCorrection::Module::LoadConfigFromTiXmlElement(const TiXmlElement* module) {
+void TRestDataSetGainMap::Module::LoadConfigFromTiXmlElement(const TiXmlElement* module) {
     if (module == nullptr) {
-        RESTError << "TRestCalibrationCorrection::Module::LoadConfigFromTiXmlElement: module is nullptr"
+        RESTError << "TRestDataSetGainMap::Module::LoadConfigFromTiXmlElement: module is nullptr"
                   << p->RESTendl;
         return;
     }
@@ -867,13 +865,12 @@ void TRestCalibrationCorrection::Module::LoadConfigFromTiXmlElement(const TiXmlE
     }
 }
 
-void TRestCalibrationCorrection::Module::DrawSpectrum(const double x, const double y, TCanvas* c) {
+void TRestDataSetGainMap::Module::DrawSpectrum(const double x, const double y, TCanvas* c) {
     std::pair<size_t, size_t> index = GetIndexMatrix(x, y);
     DrawSpectrum(index.first, index.second, c);
 }
 
-void TRestCalibrationCorrection::Module::DrawSpectrum(const size_t index_x, const size_t index_y,
-                                                      TCanvas* c) {
+void TRestDataSetGainMap::Module::DrawSpectrum(const size_t index_x, const size_t index_y, TCanvas* c) {
     if (fSegSpectra.size() == 0) {
         RESTError << "Spectra matrix is empty." << p->RESTendl;
         return;
@@ -907,7 +904,7 @@ void TRestCalibrationCorrection::Module::DrawSpectrum(const size_t index_x, cons
     }
 }
 
-void TRestCalibrationCorrection::Module::DrawSpectrum() {
+void TRestDataSetGainMap::Module::DrawSpectrum() {
     if (fSegSpectra.size() == 0) {
         RESTError << "Spectra matrix is empty." << p->RESTendl;
         return;
@@ -922,7 +919,7 @@ void TRestCalibrationCorrection::Module::DrawSpectrum() {
         }
     }
 }
-void TRestCalibrationCorrection::Module::DrawFullSpectrum() {
+void TRestDataSetGainMap::Module::DrawFullSpectrum() {
     if (fSegSpectra.size() == 0) {
         RESTError << "Spectra matrix is empty." << p->RESTendl;
         return;
@@ -943,13 +940,12 @@ void TRestCalibrationCorrection::Module::DrawFullSpectrum() {
     sumHist->Draw();
 }
 
-void TRestCalibrationCorrection::Module::DrawLinearFit(const double x, const double y, TCanvas* c) {
+void TRestDataSetGainMap::Module::DrawLinearFit(const double x, const double y, TCanvas* c) {
     std::pair<size_t, size_t> index = GetIndexMatrix(x, y);
     DrawLinearFit(index.first, index.second, c);
 }
 
-void TRestCalibrationCorrection::Module::DrawLinearFit(const size_t index_x, const size_t index_y,
-                                                       TCanvas* c) {
+void TRestDataSetGainMap::Module::DrawLinearFit(const size_t index_x, const size_t index_y, TCanvas* c) {
     if (fSegLinearFit.size() == 0) {
         RESTError << "Spectra matrix is empty." << p->RESTendl;
         return;
@@ -974,7 +970,7 @@ void TRestCalibrationCorrection::Module::DrawLinearFit(const size_t index_x, con
     fSegLinearFit[index_x][index_y]->Draw("AL*");
 }
 
-void TRestCalibrationCorrection::Module::DrawLinearFit() {
+void TRestDataSetGainMap::Module::DrawLinearFit() {
     std::string t = "linearFits_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId);
     TCanvas* myCanvas = new TCanvas(t.c_str(), t.c_str());
     myCanvas->Divide(fSegLinearFit.size(), fSegLinearFit.at(0).size());
@@ -987,7 +983,7 @@ void TRestCalibrationCorrection::Module::DrawLinearFit() {
     }
 }
 
-void TRestCalibrationCorrection::Module::DrawGainMap(const int peakNumber) {
+void TRestDataSetGainMap::Module::DrawGainMap(const int peakNumber) {
     if (peakNumber < 0 || peakNumber >= (int)fEnergyPeaks.size()) {
         RESTError << "Peak number out of range (peakNumber should be between 0 and "
                   << fEnergyPeaks.size() - 1 << " )" << p->RESTendl;
@@ -1030,7 +1026,7 @@ void TRestCalibrationCorrection::Module::DrawGainMap(const int peakNumber) {
 /// \brief Prints on screen the information about the
 /// members of Module
 ///
-void TRestCalibrationCorrection::Module::Print() const {
+void TRestDataSetGainMap::Module::Print() const {
     RESTMetadata << "-----------------------------------------------" << p->RESTendl;
     RESTMetadata << " Plane ID: " << fPlaneId << p->RESTendl;
     RESTMetadata << " Module ID: " << fModuleId << p->RESTendl;

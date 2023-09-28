@@ -20,8 +20,8 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef REST_TRestCalibrationCorrection
-#define REST_TRestCalibrationCorrection
+#ifndef REST_TRestDataSetGainMap
+#define REST_TRestDataSetGainMap
 
 #include <TCanvas.h>
 #include <TFile.h>
@@ -37,7 +37,7 @@
 #include "TRestMetadata.h"
 
 /// Metadata class to calculate,store and apply the gain corrected calibration of a group of detectors.
-class TRestCalibrationCorrection : public TRestMetadata {
+class TRestDataSetGainMap : public TRestMetadata {
    public:
     class Module;
 
@@ -88,7 +88,7 @@ class TRestCalibrationCorrection : public TRestMetadata {
     void Import(const std::string& fileName);
     void Export(const std::string& fileName = "");
 
-    TRestCalibrationCorrection& operator=(TRestCalibrationCorrection& src);
+    TRestDataSetGainMap& operator=(TRestDataSetGainMap& src);
 
    public:
     void PrintMetadata() override;
@@ -96,20 +96,20 @@ class TRestCalibrationCorrection : public TRestMetadata {
     void Calibrate();
     void CalibrateDataSet(const std::string& dataSetFileName, std::string outputFileName = "");
 
-    TRestCalibrationCorrection();
-    TRestCalibrationCorrection(const char* configFilename, std::string name = "");
-    ~TRestCalibrationCorrection();
+    TRestDataSetGainMap();
+    TRestDataSetGainMap(const char* configFilename, std::string name = "");
+    ~TRestDataSetGainMap();
 
     // REMOVE COMMENT. ROOT class definition helper. Increase the number in it every time
     // you add/rename/remove the metadata members
-    ClassDefOverride(TRestCalibrationCorrection, 1);
+    ClassDefOverride(TRestDataSetGainMap, 1);
 
     class Module {
        private:
-        const TRestCalibrationCorrection* p = nullptr;  //<! Pointer to the parent class
-       public:                                          /// Members that will be written to the ROOT file.
-        Int_t fPlaneId = -1;                            //< // Plane ID
-        Int_t fModuleId = -1;                           //< // Module ID
+        const TRestDataSetGainMap* p = nullptr;  //<! Pointer to the parent class
+       public:                                   /// Members that will be written to the ROOT file.
+        Int_t fPlaneId = -1;                     //< // Plane ID
+        Int_t fModuleId = -1;                    //< // Module ID
 
         std::vector<double> fEnergyPeaks = {};  //{22.5, 8.0};
         std::vector<TVector2> fRangePeaks =
@@ -211,9 +211,8 @@ class TRestCalibrationCorrection : public TRestMetadata {
         void Initialize();
 
         Module() {}
-        Module(const TRestCalibrationCorrection& parent) : p(&parent){};
-        Module(const TRestCalibrationCorrection& parent, const Int_t planeId, const Int_t moduleId)
-            : p(&parent) {
+        Module(const TRestDataSetGainMap& parent) : p(&parent){};
+        Module(const TRestDataSetGainMap& parent, const Int_t planeId, const Int_t moduleId) : p(&parent) {
             SetPlaneId(planeId);
             SetModuleId(moduleId);
         };
