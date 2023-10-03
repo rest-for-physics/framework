@@ -113,6 +113,7 @@ class TRestComponent : public TRestMetadata {
     Bool_t IsDataSetLoaded() { return fDataSetLoaded; }
 
     Double_t GetRate(std::vector<Double_t> point);
+    Double_t GetTotalRate();
 
     Int_t SetActiveNode(Double_t node);
 

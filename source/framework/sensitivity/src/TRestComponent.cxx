@@ -93,11 +93,43 @@ void TRestComponent::Initialize() { SetSectionName(this->ClassName()); }
 /// generated distribution or formula evaluated at the position of the parameter
 /// space given by point.
 ///
+/// The density should be normalized to the corresponding parameter space. During
+/// the component construction, **the user is responsible** to initialize the component
+/// with the appropriate units. For example, if the parameter space is 2 spatial
+/// dimensions and 1 energy dimension, the contribution of each cell or event to
+/// the component will be expressed in mm-2 keV-1 which are the default units for
+/// distance and energy.
+///
 /// The size of the point vector must have the same dimension as the dimensions
 /// of the distribution.
 ///
 Double_t TRestComponent::GetRate(std::vector<Double_t> point) {
-    return GetDensityForActiveNode()->GetBinContent(GetDensityForActiveNode()->GetBin(point.data()));
+    Double_t density =
+        GetDensityForActiveNode()->GetBinContent(GetDensityForActiveNode()->GetBin(point.data()));
+
+    Double_t norm = 1;
+
+    // Perhaps this value could be stored internally
+    for (size_t n = 0; n < fNbins.size(); n++) norm = norm * (fRanges[n].Y() - fRanges[n].X()) / fNbins[n];
+
+    return norm * density;
+}
+
+///////////////////////////////////////////////
+/// \brief This method integrates the rate to all the parameter space defined in the density function.
+/// The result will be returned in s-1.
+///
+Double_t TRestComponent::GetTotalRate() {
+    THnD* dHist = GetDensityForActiveNode();
+
+    Double_t integral = 0;
+    if (dHist != nullptr) integral = dHist->ComputeIntegral();
+
+    // Perhaps this value could be stored internally
+    for (size_t n = 0; n < fNbins.size(); n++)
+        integral = integral * (fRanges[n].Y() - fRanges[n].X()) / fNbins[n];
+
+    return integral;
 }
 
 /////////////////////////////////////////////
@@ -222,7 +254,7 @@ void TRestComponent::FillHistograms() {
         fParameterizationNodes.push_back(-137);
     }
 
-    RESTInfo << "Generating Sparse histograms" << RESTendl;
+    RESTInfo << "Generating N-dim histograms" << RESTendl;
     int nIndex = 0;
     for (const auto& node : fParameterizationNodes) {
         ROOT::RDF::RNode df = ROOT::RDataFrame(0);
