@@ -904,20 +904,22 @@ TRestDataSet& TRestDataSet::operator=(TRestDataSet& dS) {
 /// metadata in current dataSet
 ///
 Bool_t TRestDataSet::Merge(TRestDataSet& dS) {
-
     auto obsNames = GetObservablesList();
-      for (const auto& obs : fObservablesList) {
+    for (const auto& obs : fObservablesList) {
         if (std::find(obsNames.begin(), obsNames.end(), obs) != obsNames.end()) {
-            RESTError<<"Cannot merge dataSets with different observable list "<<RESTendl;
+            RESTError << "Cannot merge dataSets with different observable list " << RESTendl;
             return false;
         }
-      }
+    }
 
-      if(REST_StringHelper::StringToTimeStamp(fFilterStartTime) > REST_StringHelper::StringToTimeStamp(dS.GetFilterStartTime()) )fFilterStartTime = dS.GetFilterStartTime();
-      if(REST_StringHelper::StringToTimeStamp(fFilterEndTime) < REST_StringHelper::StringToTimeStamp(dS.GetFilterEndTime()) )fFilterEndTime = dS.GetFilterEndTime();
-      if (fStartTime > dS.GetStartTime())fStartTime = dS.GetStartTime();
-      if (fEndTime < dS.GetEndTime())fEndTime = dS.GetEndTime();
-
+    if (REST_StringHelper::StringToTimeStamp(fFilterStartTime) >
+        REST_StringHelper::StringToTimeStamp(dS.GetFilterStartTime()))
+        fFilterStartTime = dS.GetFilterStartTime();
+    if (REST_StringHelper::StringToTimeStamp(fFilterEndTime) <
+        REST_StringHelper::StringToTimeStamp(dS.GetFilterEndTime()))
+        fFilterEndTime = dS.GetFilterEndTime();
+    if (fStartTime > dS.GetStartTime()) fStartTime = dS.GetStartTime();
+    if (fEndTime < dS.GetEndTime()) fEndTime = dS.GetEndTime();
 
     auto fileSelection = dS.GetFileSelection();
     fFileSelection.insert(fFileSelection.end(), fileSelection.begin(), fileSelection.end());
@@ -987,46 +989,46 @@ void TRestDataSet::Import(std::vector<std::string> fileNames) {
 
     int count = 0;
     auto it = fileNames.begin();
-    while (it != fileNames.end()){
-      std::string fileName = *it;
-      TFile* file = TFile::Open(fileName.c_str(), "READ");
-      bool isValid = false;
-      if (file != nullptr) {
-          TIter nextkey(file->GetListOfKeys());
-          TKey* key;
-          while ((key = (TKey*)nextkey())) {
-              std::string kName = key->GetClassName();
-              if (REST_Reflection::GetClassQuick(kName.c_str()) != nullptr &&
-                  REST_Reflection::GetClassQuick(kName.c_str())->InheritsFrom("TRestDataSet")) {
-                  TRestDataSet* dS = file->Get<TRestDataSet>(key->GetName());
-                  if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info)
-                      dS->PrintMetadata();
+    while (it != fileNames.end()) {
+        std::string fileName = *it;
+        TFile* file = TFile::Open(fileName.c_str(), "READ");
+        bool isValid = false;
+        if (file != nullptr) {
+            TIter nextkey(file->GetListOfKeys());
+            TKey* key;
+            while ((key = (TKey*)nextkey())) {
+                std::string kName = key->GetClassName();
+                if (REST_Reflection::GetClassQuick(kName.c_str()) != nullptr &&
+                    REST_Reflection::GetClassQuick(kName.c_str())->InheritsFrom("TRestDataSet")) {
+                    TRestDataSet* dS = file->Get<TRestDataSet>(key->GetName());
+                    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info)
+                        dS->PrintMetadata();
 
-                  if(count == 0){
-                    *this = *dS;
-                    isValid = true;
-                  } else {
-                    isValid = Merge(*dS);
-                  }
+                    if (count == 0) {
+                        *this = *dS;
+                        isValid = true;
+                    } else {
+                        isValid = Merge(*dS);
+                    }
 
-                  if(isValid)count++;
-              }
-          }
-      } else {
-        RESTError << "Cannot open " << fileName << RESTendl;
-      }
+                    if (isValid) count++;
+                }
+            }
+        } else {
+            RESTError << "Cannot open " << fileName << RESTendl;
+        }
 
-      if (!isValid){
-        RESTError << fileName << " is not a valid dataSet skipping..."<<RESTendl;
-        it = fileNames.erase(it);
-      } else {
-        ++it;
-      }
+        if (!isValid) {
+            RESTError << fileName << " is not a valid dataSet skipping..." << RESTendl;
+            it = fileNames.erase(it);
+        } else {
+            ++it;
+        }
     }
 
     if (fileNames.empty()) {
-       RESTError << "File selection is empty, dataSet will not be imported " << RESTendl;
-       return;
+        RESTError << "File selection is empty, dataSet will not be imported " << RESTendl;
+        return;
     }
 
     RESTInfo << "Opening list of files. First file: " << fileNames[0] << RESTendl;
