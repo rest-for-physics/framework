@@ -894,7 +894,6 @@ TRestDataSet& TRestDataSet::operator=(TRestDataSet& dS) {
     fFilterEqualsTo = dS.GetFilterEqualsTo();
     fQuantity = dS.GetQuantity();
     fTotalDuration = dS.GetTotalTimeInSeconds();
-    fFileSelection = dS.GetFileSelection();
     fCut = dS.GetCut();
 
     return *this;
