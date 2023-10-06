@@ -194,10 +194,16 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
     auto dataFrame = dataSet.GetDataFrame();
 
     // Define a new column with the identifier (pmID) of the module for each row (event)
-    std::string modCut = fModulesCal[0].GetModuleDefinitionCut();
     std::string pmIDname = (std::string)GetName() + "_pmID";
+    std::string modCut = fModulesCal[0].GetModuleDefinitionCut();
     int pmID = fModulesCal[0].GetPlaneId() * 10 + fModulesCal[0].GetModuleId();
-    dataFrame = dataFrame.Define(pmIDname, modCut + " ? " + std::to_string(pmID) + " : -1");
+
+    auto columnList = dataFrame.GetColumnNames();
+    if (std::find(columnList.begin(), columnList.end(), pmIDname) == columnList.end())
+        dataFrame = dataFrame.Define(pmIDname, modCut + " ? " + std::to_string(pmID) + " : -1");
+    else
+        dataFrame = dataFrame.Redefine(pmIDname, modCut + " ? " + std::to_string(pmID) + " : -1");
+
     for (size_t n = 1; n < fModulesCal.size(); n++) {
         modCut = fModulesCal[n].GetModuleDefinitionCut();
         pmID = fModulesCal[n].GetPlaneId() * 10 + fModulesCal[n].GetModuleId();
