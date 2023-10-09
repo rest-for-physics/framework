@@ -903,7 +903,7 @@ TRestDataSet& TRestDataSet::operator=(TRestDataSet& dS) {
 /// \brief This function merge different TRestDataSet
 /// metadata in current dataSet
 ///
-Bool_t TRestDataSet::Merge(TRestDataSet& dS) {
+Bool_t TRestDataSet::Merge(const TRestDataSet& dS) {
     auto obsNames = GetObservablesList();
     for (const auto& obs : fObservablesList) {
         if (std::find(obsNames.begin(), obsNames.end(), obs) != obsNames.end()) {
