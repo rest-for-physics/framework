@@ -912,19 +912,11 @@ Bool_t TRestDataSet::Merge(const TRestDataSet& dS) {
         }
     }
 
-    if (REST_StringHelper::StringToTimeStamp(fFilterStartTime) >
-        REST_StringHelper::StringToTimeStamp(dS.GetFilterStartTime()))
-        fFilterStartTime = dS.GetFilterStartTime();
-    if (REST_StringHelper::StringToTimeStamp(fFilterEndTime) <
-        REST_StringHelper::StringToTimeStamp(dS.GetFilterEndTime()))
-        fFilterEndTime = dS.GetFilterEndTime();
     if (fStartTime > dS.GetStartTime()) fStartTime = dS.GetStartTime();
     if (fEndTime < dS.GetEndTime()) fEndTime = dS.GetEndTime();
 
     auto fileSelection = dS.GetFileSelection();
     fFileSelection.insert(fFileSelection.end(), fileSelection.begin(), fileSelection.end());
-
-    fProcessObservablesList = dS.GetProcessObservablesList();
 
     fTotalDuration += dS.GetTotalTimeInSeconds();
 
