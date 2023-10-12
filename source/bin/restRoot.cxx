@@ -83,9 +83,8 @@ int main(int argc, char* argv[]) {
     if (loadMacros) {
         if (!silent) printf("= Loading macros ...\n");
         vector<string> macroFiles;
-        const vector<string> patterns = {
-            REST_PATH + "/macros/REST_*.C",   // framework
-            REST_PATH + "/macros/*/REST_*.C"  // libraries
+        const vector<string> patterns = {REST_PATH + "/macros/REST_*.C",   // framework
+                                         REST_PATH + "/macros/*/REST_*.C"  // libraries
         };
         for (const auto& pattern : patterns) {
             for (const auto& macroFile : TRestTools::GetFilesMatchingPattern(pattern)) {
@@ -104,6 +103,10 @@ int main(int argc, char* argv[]) {
 
     for (int i = 1; i < argc; i++) {
         const string opt = (string)argv[i];
+        if (opt.at(0) == ('-') && opt.length() > 1 && opt.at(1) == ('-')) {
+            i++;
+            continue;
+        }
         if (opt.at(0) == ('-')) continue;
 
         if (opt.find("http") == string::npos && !TRestTools::fileExists(opt)) {
