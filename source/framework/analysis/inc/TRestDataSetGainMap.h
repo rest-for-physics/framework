@@ -161,9 +161,11 @@ class TRestDataSetGainMap : public TRestMetadata {
         std::string GetDataSetFileName() const { return fDataSetFileName; }
         TVector2 GetReadoutRangeVar() const { return fReadoutRange; }
 
-        void DrawSpectrum();
-        void DrawSpectrum(const double x, const double y, TCanvas* c = nullptr);
-        void DrawSpectrum(const size_t index_x, const size_t index_y, TCanvas* c = nullptr);
+        void DrawSpectrum(bool drawFits = true, int color = -1, TCanvas* c = nullptr);
+        void DrawSpectrum(const double x, const double y, bool drawFits = true, int color = -1,
+                          TCanvas* c = nullptr);
+        void DrawSpectrum(const size_t index_x, const size_t index_y, bool drawFits = true, int color = -1,
+                          TCanvas* c = nullptr);
         void DrawFullSpectrum();
 
         void DrawLinearFit();

@@ -84,7 +84,7 @@
 /// cal.SetCalibrationFileName("myDataSet.root"); //if not already defined in rml file
 /// cal.SetOutputFileName("myCalibration.root"); //if not already defined in rml file
 /// cal.Calibrate();
-/// cal.Export();
+/// cal.Export(); // cal.Export("anyOtherFileName.root")
 /// \endcode
 ///
 /// Example to calibrate a dataSet with the previously calculated calibration parameters
@@ -96,6 +96,26 @@
 /// TRestDataSet ds("calibratedDataSet.root");
 /// auto h = ds.GetDataFrame().Histo1D({"hname", "",100,-1,40.}, "calib_ThresholdIntegral");
 /// h->Draw();
+/// \endcode
+///
+/// Example to refit manually the peaks of the gain map if any of them is not well fitted
+/// (using restRoot):
+/// \code
+/// TRestDataSetGainMap cal;
+/// cal.Import("myCalibration.root");
+/// // Draw all segmented spectra and check if any need a refit
+/// for (auto pID : cal.GetPlaneIDs())
+///     for (auto mID : cal.GetModuleIDs(pID))
+///         cal.GetModule(pID,mID)->DrawSpectrum();
+/// // Draw only the desired spectrum (the one at position (x,y)=(0,0) in this case)
+/// cal.GetModule(0,0)->DrawSpectrum(0.0, 0.0);
+/// // Refit the desired peak (peak with energy 22.5 in this case) with a new range
+/// TVector2 range(100000, 200000); // Define here the new range for the fit as you wish
+/// cal.GetModule(0,0)->Refit(0.0, 0.0, 22.5, range)
+/// // Check the result
+/// cal.GetModule(0,0)->DrawSpectrum(0.0, 0.0);
+/// Export the new calibration
+/// cal.Export(); // cal.Export("anyOtherFileName.root")
 /// \endcode
 ///----------------------------------------------------------------------
 ///
@@ -870,12 +890,14 @@ void TRestDataSetGainMap::Module::LoadConfigFromTiXmlElement(const TiXmlElement*
     }
 }
 
-void TRestDataSetGainMap::Module::DrawSpectrum(const double x, const double y, TCanvas* c) {
+void TRestDataSetGainMap::Module::DrawSpectrum(const double x, const double y, bool drawFits, int color,
+                                               TCanvas* c) {
     std::pair<size_t, size_t> index = GetIndexMatrix(x, y);
-    DrawSpectrum(index.first, index.second, c);
+    DrawSpectrum(index.first, index.second, drawFits, color, c);
 }
 
-void TRestDataSetGainMap::Module::DrawSpectrum(const size_t index_x, const size_t index_y, TCanvas* c) {
+void TRestDataSetGainMap::Module::DrawSpectrum(const size_t index_x, const size_t index_y, bool drawFits,
+                                               int color, TCanvas* c) {
     if (fSegSpectra.size() == 0) {
         RESTError << "Spectra matrix is empty." << p->RESTendl;
         return;
@@ -899,28 +921,67 @@ void TRestDataSetGainMap::Module::DrawSpectrum(const size_t index_x, const size_
                      ") y=[" + DoubleToString(yLower, "%g") + ", " + DoubleToString(yUpper, "%g") + ");" +
                      GetObservable() + ";counts";
     fSegSpectra[index_x][index_y]->SetTitle(tH.c_str());
-    fSegSpectra[index_x][index_y]->Draw();
-    for (size_t c = 0; c < fEnergyPeaks.size(); c++) {
-        auto fit = fSegSpectra[index_x][index_y]->GetFunction(("g" + std::to_string(c)).c_str());
-        if (!fit) RESTError << "Fit for energy peak" << fEnergyPeaks[c] << " not found." << p->RESTendl;
-        if (!fit) break;
-        fit->SetLineColor(c + 2);  // skipe 0 which is white and 1 which is blue as histogram
-        fit->Draw("same");
-    }
+
+    if (color > 0) fSegSpectra[index_x][index_y]->SetLineColor(color);
+    size_t colorT = fSegSpectra[index_x][index_y]->GetLineColor();
+    fSegSpectra[index_x][index_y]->Draw("same");
+
+    if (drawFits)
+        for (size_t c = 0; c < fEnergyPeaks.size(); c++) {
+            auto fit = fSegSpectra[index_x][index_y]->GetFunction(("g" + std::to_string(c)).c_str());
+            if (!fit) RESTError << "Fit for energy peak" << fEnergyPeaks[c] << " not found." << p->RESTendl;
+            if (!fit) break;
+            fit->SetLineColor(c + 2 != colorT++ ? c + 2 : c + 3); /* does not work with kRed, kBlue, etc.
+                  as they are not defined with the same number as the first 10 basic colors. See
+                  https://root.cern.ch/doc/master/classTColor.html#C01 and
+                  https://root.cern.ch/doc/master/classTColor.html#C02 */
+            fit->Draw("same");
+        }
 }
 
-void TRestDataSetGainMap::Module::DrawSpectrum() {
+/////////////////////////////////////////////
+/// \brief Function to draw the spectrum for each segment of the module
+/// on the same canvas. The canvas is divided in fNumberOfSegmentsX x fNumberOfSegmentsY
+/// pads. The segments are drawn with the bottom left corner corresponding to the
+/// minimun x and y values of the readout range and top right corner corresponding
+/// to the maximum x and y values of the readout range.
+/// Tip: define a canvas and use this same canvas along different calls to this function
+/// to draw the spectra of different modules on the same canvas.
+/// Example:
+/// TCanvas *myCanvas = new TCanvas();
+/// module1->DrawSpectrum(false, kBlue, myCanvas);
+/// module2->DrawSpectrum(false, kRed, myCanvas);
+///
+/// \param drawFits A bool to also draw the fits or not.
+/// \param color An int to set the color of the spectra. If negative,
+/// the color of the spectra is not changed.
+/// \param c A TCanvas pointer to draw the spectra. If none (nullptr) is given,
+/// a new one is created.
+///
+void TRestDataSetGainMap::Module::DrawSpectrum(bool drawFits, int color, TCanvas* c) {
     if (fSegSpectra.size() == 0) {
         RESTError << "Spectra matrix is empty." << p->RESTendl;
         return;
     }
-    std::string t = "spectra_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId);
-    TCanvas* myCanvas = new TCanvas(t.c_str(), t.c_str());
-    myCanvas->Divide(fSegSpectra.size(), fSegSpectra.at(0).size());
+    if (!c) {
+        std::string t = "spectrum_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId);
+        c = new TCanvas(t.c_str(), t.c_str());
+    }
+
+    size_t nPads = 0;
+    for (const auto& object : *c->GetListOfPrimitives())
+        if (object->InheritsFrom(TVirtualPad::Class())) ++nPads;
+    if (nPads != 0 && nPads != fSegSpectra.size() * fSegSpectra.at(0).size()) {
+        RESTError << "Canvas " << c->GetName() << " has " << nPads << " pads, but "
+                  << fSegSpectra.size() * fSegSpectra.at(0).size() << " are needed." << p->RESTendl;
+        return;
+    } else if (nPads == 0)
+        c->Divide(fSegSpectra.size(), fSegSpectra.at(0).size());
+
     for (size_t i = 0; i < fSegSpectra.size(); i++) {
         for (size_t j = 0; j < fSegSpectra[i].size(); j++) {
-            myCanvas->cd(i + 1 + fSegSpectra[i].size() * j);
-            DrawSpectrum(i, fSegSpectra[i].size() - 1 - j, myCanvas);
+            c->cd(i + 1 + fSegSpectra[i].size() * j);
+            DrawSpectrum(i, fSegSpectra[i].size() - 1 - j, drawFits, color, c);
         }
     }
 }
