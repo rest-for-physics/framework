@@ -249,8 +249,7 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
 /// \brief Function to retrieve the module calibration with planeID and moduleID
 ///
 ///
-TRestDataSetGainMap::Module* TRestDataSetGainMap::GetModuleCalibration(const int planeID,
-                                                                       const int moduleID) {
+TRestDataSetGainMap::Module* TRestDataSetGainMap::GetModule(const int planeID, const int moduleID) {
     for (auto& i : fModulesCal) {
         if (i.GetPlaneId() == planeID && i.GetModuleId() == moduleID) return &i;
     }
@@ -265,7 +264,7 @@ TRestDataSetGainMap::Module* TRestDataSetGainMap::GetModuleCalibration(const int
 ///
 double TRestDataSetGainMap::GetSlopeParameter(const int planeID, const int moduleID, const double x,
                                               const double y) {
-    Module* moduleCal = GetModuleCalibration(planeID, moduleID);
+    Module* moduleCal = GetModule(planeID, moduleID);
     if (moduleCal == nullptr) return 0;  // return numeric_limits<double>::quiet_NaN()
     return moduleCal->GetSlope(x, y);
 }
@@ -277,7 +276,7 @@ double TRestDataSetGainMap::GetSlopeParameter(const int planeID, const int modul
 ///
 double TRestDataSetGainMap::GetInterceptParameter(const int planeID, const int moduleID, const double x,
                                                   const double y) {
-    Module* moduleCal = GetModuleCalibration(planeID, moduleID);
+    Module* moduleCal = GetModule(planeID, moduleID);
     if (moduleCal == nullptr) return 0;  // return numeric_limits<double>::quiet_NaN()
     return moduleCal->GetIntercept(x, y);
 }
@@ -321,7 +320,7 @@ TRestDataSetGainMap& TRestDataSetGainMap::operator=(TRestDataSetGainMap& src) {
     fSpatialObservableY = src.GetSpatialObservableY();
     fModulesCal.clear();
     for (auto pID : src.GetPlaneIDs())
-        for (auto mID : src.GetModuleIDs(pID)) fModulesCal.push_back(*src.GetModuleCalibration(pID, mID));
+        for (auto mID : src.GetModuleIDs(pID)) fModulesCal.push_back(*src.GetModule(pID, mID));
     return *this;
 }
 

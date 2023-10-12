@@ -63,14 +63,14 @@ class TRestDataSetGainMap : public TRestMetadata {
         for (auto pID : GetPlaneIDs()) sum += GetModuleIDs(pID).size();
         return sum;
     }
-    // Int_t GetNumberOfModulesOfPlane(const int planeID) const { return fNModules.at(planeID);}
+
     std::string GetCalibrationFileName() const { return fCalibFileName; }
     std::string GetOutputFileName() const { return fOutputFileName; }
     std::string GetObservable() const { return fObservable; }
     std::string GetSpatialObservableX() const { return fSpatialObservableX; }
     std::string GetSpatialObservableY() const { return fSpatialObservableY; }
 
-    Module* GetModuleCalibration(const int planeID, const int moduleID);
+    Module* GetModule(const int planeID, const int moduleID);
     double GetSlopeParameter(const int planeID, const int moduleID, const double x, const double y);
     double GetInterceptParameter(const int planeID, const int moduleID, const double x, const double y);
 
@@ -100,8 +100,6 @@ class TRestDataSetGainMap : public TRestMetadata {
     TRestDataSetGainMap(const char* configFilename, std::string name = "");
     ~TRestDataSetGainMap();
 
-    // REMOVE COMMENT. ROOT class definition helper. Increase the number in it every time
-    // you add/rename/remove the metadata members
     ClassDefOverride(TRestDataSetGainMap, 1);
 
     class Module {
@@ -111,32 +109,27 @@ class TRestDataSetGainMap : public TRestMetadata {
         Int_t fPlaneId = -1;                     //< // Plane ID
         Int_t fModuleId = -1;                    //< // Module ID
 
-        std::vector<double> fEnergyPeaks = {};  //{22.5, 8.0};
-        std::vector<TVector2> fRangePeaks =
-            {};  //{TVector2(230000, 650000), TVector2(40000, 230000)}; //in development...
-        TVector2 fCalibRange = TVector2(0, 0);  //< // Calibration range
-        Int_t fNBins = 100;                     //< // Number of bins for the spectrum histograms
+        std::vector<double> fEnergyPeaks = {};
+        std::vector<TVector2> fRangePeaks = {};  //{TVector2(230000, 650000), TVector2(40000, 230000)};
+        TVector2 fCalibRange = TVector2(0, 0);   //< // Calibration range
+        Int_t fNBins = 100;                      //< // Number of bins for the spectrum histograms
+        std::string fDefinitionCut = "";         //"TREXsides_tagId == 2"; //<
 
-        /*std::string fObservable = ""; //"rawAna_ThresholdIntegral"; //<
-        std::string fSpatialObservableX = ""; //"hitsAna_xMean"; //<
-        std::string fSpatialObservableY = ""; //"hitsAna_yMean"; //<*/
-        std::string fDefinitionCut = "";  //"TREXsides_tagId == 2"; //<
+        Int_t fNumberOfSegmentsX = 1;                   //<
+        Int_t fNumberOfSegmentsY = 1;                   //<
+        TVector2 fReadoutRange = TVector2(-1, 246.24);  //< // Readout dimensions
+        std::set<double> fSplitX = {};                  //<
+        std::set<double> fSplitY = {};                  //<
 
-        Int_t fNumberOfSegmentsX = 1;               //<
-        Int_t fNumberOfSegmentsY = 1;               //<
-        TVector2 fReadoutRange = TVector2(0, 246);  //< // Readout dimensions
-        std::set<double> fSplitX = {};              //<
-        std::set<double> fSplitY = {};              //<
-
-        std::string fDataSetFileName = "";  //< // File name for the dataset
+        std::string fDataSetFileName = "";  //< // File name for the calibration dataset
 
         std::vector<std::vector<double>> fSlope = {};      //<
         std::vector<std::vector<double>> fIntercept = {};  //<
 
         bool fZeroPoint = false;  //< Zero point will be automatically added if there are less than 2 peaks
-        bool fAutoRangePeaks = true;                           //< Automatic range peaks
-        std::vector<std::vector<TH1F*>> fSegSpectra = {};      // fSegmentedSpectra
-        std::vector<std::vector<TGraph*>> fSegLinearFit = {};  // fSegmentedLinearFit
+        bool fAutoRangePeaks = true;  //< Automatic range peaks
+        std::vector<std::vector<TH1F*>> fSegSpectra = {};
+        std::vector<std::vector<TGraph*>> fSegLinearFit = {};
 
        public:
         void SetSplitX();
@@ -198,8 +191,7 @@ class TRestDataSetGainMap : public TRestMetadata {
             fNumberOfSegmentsY = numberOfSegmentsY;
             SetSplitY();
         }
-        // void SetInputFile( const std::string &inputFile) { fInputFile = inputFile;}
-        // void SetOutputFile( const std::string &outputFile) { fOutputFile = outputFile;}
+
         void SetDataSetFileName(const std::string& dataSetFileName) { fDataSetFileName = dataSetFileName; }
         void SetReadoutRange(const TVector2& readoutRange) { fReadoutRange = readoutRange; }
         void SetZeroPoint(const bool& ZeroPoint) { fZeroPoint = ZeroPoint; }
