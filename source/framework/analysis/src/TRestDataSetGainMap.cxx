@@ -228,12 +228,12 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
     dataSet.SetDataFrame(dataFrame);
 
     // Format the output file name and export the dataSet
-    if (outputFileName.empty()) {
-        outputFileName = dataSetFileName;
-        RESTWarning << "TRestDataSetGainMap::CalibrateDataSet: No output file name defined. "
-                    << "Using input file name " << outputFileName << RESTendl;
-    } else if (TRestTools::GetFileNameExtension(outputFileName) != "root")
-        outputFileName = outputFileName + ".root";
+    if (outputFileName.empty()) outputFileName = dataSetFileName;
+
+    if (outputFileName == dataSetFileName) {  // TRestDataSet cannot be overwritten
+        outputFileName = outputFileName.substr(0, outputFileName.find_last_of(".")) + "_cc.";
+        outputFileName += TRestTools::GetFileNameExtension(dataSetFileName);
+    }
 
     RESTInfo << "Exporting calibrated dataSet to " << outputFileName << RESTendl;
     dataSet.Export(outputFileName);
