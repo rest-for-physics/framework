@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<TRestCalibrationCorrection name="calib" verboseLevel="info">
+<TRestDataSetGainMap name="calib" verboseLevel="info">
         <parameter name="calibFileName" value="myDataSet.root"/>
         <parameter name="outputFileName" value = "myCalibration.root"/>
         <parameter name = "observable" value="rawAna_ThresholdIntegral"/>
@@ -21,4 +21,4 @@
             <peak energy="22.5" range=""/>
             <peak energy="8.0"  range=""/>
         </module>
-</TRestCalibrationCorrection>
+</TRestDataSetGainMap>
