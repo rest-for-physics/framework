@@ -132,10 +132,6 @@ class TRestDataSetGainMap : public TRestMetadata {
         std::vector<std::vector<TGraph*>> fSegLinearFit = {};
 
        public:
-        void SetSplitX();
-        void SetSplitY();
-        void SetSplits();
-
         void AddPeak(const double& energyPeak, const TVector2& rangePeak = TVector2(0, 0)) {
             fEnergyPeaks.push_back(energyPeak);
             fRangePeaks.push_back(rangePeak);
@@ -184,15 +180,18 @@ class TRestDataSetGainMap : public TRestMetadata {
         }
         void SetCalibrationRange(const TVector2& calibrationRange) { fCalibRange = calibrationRange; }
         void SetNBins(const Int_t& nBins) { fNBins = nBins; }
+        void SetSplitX();
+        void SetSplitY();
+        void SetSplitX(const std::set<double>& splitX);
+        void SetSplitY(const std::set<double>& splitY);
+        void SetSplits();
+        void SetSplits(const std::set<double>& splitXandY) {
+            SetSplitX(splitXandY);
+            SetSplitY(splitXandY);
+        }
 
-        void SetNumberOfSegmentsX(const Int_t& numberOfSegmentsX) {
-            fNumberOfSegmentsX = numberOfSegmentsX;
-            SetSplitX();
-        }
-        void SetNumberOfSegmentsY(const Int_t& numberOfSegmentsY) {
-            fNumberOfSegmentsY = numberOfSegmentsY;
-            SetSplitY();
-        }
+        void SetNumberOfSegmentsX(const Int_t& numberOfSegmentsX) { fNumberOfSegmentsX = numberOfSegmentsX; }
+        void SetNumberOfSegmentsY(const Int_t& numberOfSegmentsY) { fNumberOfSegmentsY = numberOfSegmentsY; }
 
         void SetDataSetFileName(const std::string& dataSetFileName) { fDataSetFileName = dataSetFileName; }
         void SetReadoutRange(const TVector2& readoutRange) { fReadoutRange = readoutRange; }

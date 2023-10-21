@@ -527,12 +527,31 @@ void TRestDataSetGainMap::Module::SetSplits() {
 /// It uses the number of segments and the readout range to define the
 /// edges of the segments.
 void TRestDataSetGainMap::Module::SetSplitX() {
-    fSplitX.clear();
+    if (fNumberOfSegmentsX < 1) {
+        RESTError << "SetSplitX: fNumberOfSegmentsX must be >=1." << p->RESTendl;
+        return;
+    }
+    std::set<double> split;
     for (int i = 0; i <= fNumberOfSegmentsX; i++) {  // <= so that the last segment is included
         double x =
             fReadoutRange.X() + ((fReadoutRange.Y() - fReadoutRange.X()) / (float)fNumberOfSegmentsX) * i;
-        fSplitX.insert(x);
+        split.insert(x);
     }
+    SetSplitX(split);
+}
+
+void TRestDataSetGainMap::Module::SetSplitX(const std::set<double>& splitX) {
+    if (splitX.size() < 2) {
+        RESTError << "SetSplitX: split size must be >=2 (start and end of range must be included)."
+                  << p->RESTendl;
+        return;
+    }
+    if (!fSlope.empty())
+        RESTWarning << "SetSplitX: changing split but current gain map and calibration paremeters correspond "
+                       "to previous splitting. Use GenerateGainMap() to update them."
+                    << p->RESTendl;
+    fSplitX = splitX;
+    fNumberOfSegmentsX = fSplitX.size() - 1;
 }
 /////////////////////////////////////////////
 /// \brief Function to set the class members for segmentation of
@@ -541,12 +560,31 @@ void TRestDataSetGainMap::Module::SetSplitX() {
 /// It uses the number of segments and the readout range to define the
 /// edges of the segments.
 void TRestDataSetGainMap::Module::SetSplitY() {
-    fSplitY.clear();
+    if (fNumberOfSegmentsY < 1) {
+        RESTError << "SetSplitY: fNumberOfSegmentsY must be >=1." << p->RESTendl;
+        return;
+    }
+    std::set<double> split;
     for (int i = 0; i <= fNumberOfSegmentsY; i++) {  // <= so that the last segment is included
         double y =
             fReadoutRange.X() + ((fReadoutRange.Y() - fReadoutRange.X()) / (float)fNumberOfSegmentsY) * i;
-        fSplitY.insert(y);
+        split.insert(y);
     }
+    SetSplitY(split);
+}
+
+void TRestDataSetGainMap::Module::SetSplitY(const std::set<double>& splitY) {
+    if (splitY.size() < 2) {
+        RESTError << "SetSplitY: split size must be >=2 (start and end of range must be included)."
+                  << p->RESTendl;
+        return;
+    }
+    if (!fSlope.empty())
+        RESTWarning << "SetSplitY: changing split but current gain map and calibration paremeters correspond "
+                       "to previous splitting. Use GenerateGainMap() to update them."
+                    << p->RESTendl;
+    fSplitY = splitY;
+    fNumberOfSegmentsY = fSplitY.size() - 1;
 }
 
 /////////////////////////////////////////////
@@ -584,6 +622,9 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
     fDataSetFileName = dsFileName;
 
     SetSplits();
+
+    if (fSplitX.empty()) SetSplitX();
+    if (fSplitY.empty()) SetSplitY();
 
     //--- Get the calibration range if not provided (default is 0,0) ---
     if (fCalibRange.X() >= fCalibRange.Y()) {
