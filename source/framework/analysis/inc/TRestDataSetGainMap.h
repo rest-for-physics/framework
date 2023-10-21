@@ -93,7 +93,7 @@ class TRestDataSetGainMap : public TRestMetadata {
    public:
     void PrintMetadata() override;
 
-    void Calibrate();
+    void GenerateGainMap();
     void CalibrateDataSet(const std::string& dataSetFileName, std::string outputFileName = "");
 
     TRestDataSetGainMap();
@@ -201,7 +201,7 @@ class TRestDataSetGainMap : public TRestMetadata {
 
         void Print() const;
 
-        void CalculateCalibrationParameters();
+        void GenerateGainMap();
         void Initialize();
 
         Module() {}

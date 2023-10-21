@@ -83,7 +83,7 @@
 /// TRestDataSetGainMap cal ("calibrationCorrection.rml");
 /// cal.SetCalibrationFileName("myDataSet.root"); //if not already defined in rml file
 /// cal.SetOutputFileName("myCalibration.root"); //if not already defined in rml file
-/// cal.Calibrate();
+/// cal.GenerateGainMap();
 /// cal.Export(); // cal.Export("anyOtherFileName.root")
 /// \endcode
 ///
@@ -189,10 +189,10 @@ void TRestDataSetGainMap::InitFromConfigFile() {
 /////////////////////////////////////////////
 /// \brief Function to calculate the calibration parameters of all modules
 ///
-void TRestDataSetGainMap::Calibrate() {
+void TRestDataSetGainMap::GenerateGainMap() {
     for (auto& mod : fModulesCal) {
         RESTInfo << "Calibrating plane " << mod.GetPlaneId() << " module " << mod.GetModuleId() << RESTendl;
-        mod.CalculateCalibrationParameters();
+        mod.GenerateGainMap();
         if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) {
             mod.DrawSpectrum();
             mod.DrawGainMap();
@@ -420,7 +420,7 @@ void TRestDataSetGainMap::Export(const std::string& fileName) {
 ///
 void TRestDataSetGainMap::PrintMetadata() {
     TRestMetadata::PrintMetadata();
-    RESTMetadata << " Calibration file: " << fCalibFileName << RESTendl;
+    RESTMetadata << " Calibration dataset: " << fCalibFileName << RESTendl;
     RESTMetadata << " Output file: " << fOutputFileName << RESTendl;
     RESTMetadata << " Number of planes:  " << GetNumberOfPlanes() << RESTendl;
     RESTMetadata << " Number of modules: " << GetNumberOfModules() << RESTendl;
@@ -550,14 +550,14 @@ void TRestDataSetGainMap::Module::SetSplitY() {
 }
 
 /////////////////////////////////////////////
-/// \brief Function calculate the calibration parameters for each segment
-/// defined at fSplitX and fSplitY.
+/// \brief Function that calculates the calibration parameters for each segment
+/// defined at fSplitX and fSplitY ang generate their spectra and gain map.
 ///
 /// It uses the data of the observable fObservable from the TRestDataSet
-/// at fDataSetFileName (or fCalibrationFileName if first is empty).
+/// at fDataSetFileName (or fCalibFileName if first is empty).
 /// The segmentation is given by the splits.
 ///
-/// Fitting ranges logic is as follows:
+/// Ranges for peak fitting follows this logic:
 /// 1. If fRangePeaks is defined and fAutoRangePeaks is false: fRangePeaks is used.
 /// 2. If fRangePeaks is defined and fAutoRangePeaks is true: the fitting range
 ///     is calculated by the peak position found by TSpectrum inside fRangePeaks.
@@ -565,18 +565,24 @@ void TRestDataSetGainMap::Module::SetSplitY() {
 ///    and the peak position of the next peak to define the range.
 /// 4. If fRangePeaks is not defined and fAutoRangePeaks is true: same as 3.
 ///
-void TRestDataSetGainMap::Module::CalculateCalibrationParameters() {
+void TRestDataSetGainMap::Module::GenerateGainMap() {
     //--- Initial checks and settings ---
-    if (fDataSetFileName.empty()) fDataSetFileName = p->GetCalibrationFileName();
-    if (fDataSetFileName.empty()) {
+    std::string dsFileName = fDataSetFileName;
+    if (dsFileName.empty()) dsFileName = p->GetCalibrationFileName();
+    if (dsFileName.empty()) {
         RESTError << "No calibration file defined" << p->RESTendl;
         return;
     }
 
-    if (!TRestTools::isDataSet(fDataSetFileName))
-        RESTWarning << fDataSetFileName << " is not a dataset." << p->RESTendl;
+    if (!TRestTools::fileExists(dsFileName)) {
+        RESTError << "Calibration file " << dsFileName << " does not exist." << p->RESTendl;
+        return;
+    }
+    if (!TRestTools::isDataSet(dsFileName)) RESTWarning << dsFileName << " is not a dataset." << p->RESTendl;
     TRestDataSet dataSet;
-    dataSet.Import(fDataSetFileName);
+    dataSet.Import(dsFileName);
+    fDataSetFileName = dsFileName;
+
     SetSplits();
 
     //--- Get the calibration range if not provided (default is 0,0) ---
@@ -1099,7 +1105,7 @@ void TRestDataSetGainMap::Module::Print() const {
     RESTMetadata << " Definition cut: " << fDefinitionCut << p->RESTendl;
     RESTMetadata << p->RESTendl;
 
-    RESTMetadata << " DataSet: " << fDataSetFileName << p->RESTendl;
+    RESTMetadata << " Calibration dataset: " << fDataSetFileName << p->RESTendl;
     RESTMetadata << p->RESTendl;
 
     RESTMetadata << " Energy peaks: ";
