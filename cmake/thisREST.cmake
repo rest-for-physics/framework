@@ -35,9 +35,9 @@ else ()
 endif ()
 
 if (DEFINED REST_CRY_PATH)
-	set(loadCRY "export LD_LIBRARY_PATH=${REST_CRY_PATH}/lib:\$LD_LIBRARY_PATH")
+    set(loadCRY "export LD_LIBRARY_PATH=${REST_CRY_PATH}/lib:\$LD_LIBRARY_PATH")
 else ()
-	set(loadCRY "")
+    set(loadCRY "")
 endif ()
 
 set(loadGarfield "")
