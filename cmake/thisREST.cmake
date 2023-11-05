@@ -34,6 +34,12 @@ else ()
     set(loadMPFR "")
 endif ()
 
+if (DEFINED REST_CRY_PATH)
+	set(loadCRY "export LD_LIBRARY_PATH=${REST_CRY_PATH}/lib:\$LD_LIBRARY_PATH")
+else ()
+	set(loadCRY "")
+endif ()
+
 set(loadGarfield "")
 set(Garfield_INCLUDE_ENV "")
 if (${REST_GARFIELD} MATCHES "ON")
@@ -111,6 +117,7 @@ fi
 
 ${loadG4}
 ${loadMPFR}
+${loadCRY}
 ${loadGarfield}
 
 if [ \\\$REST_PATH ] ; then
