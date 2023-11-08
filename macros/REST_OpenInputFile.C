@@ -48,6 +48,7 @@ void REST_OpenInputFile(const std::string& fileName) {
         printf("%s\n\n", " - dSet->GetTree()->GetEntries()");
         if (dSet) delete dSet;
         dSet = new TRestDataSet();
+        dSet->EnableMultiThreading(false);
         dSet->Import(fileName);
     } else {
         printf("\n%s is not a valid TRestRun or TRestDataSet\n", fileName.c_str());

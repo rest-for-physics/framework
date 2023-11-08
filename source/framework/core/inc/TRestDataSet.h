@@ -125,6 +125,8 @@ class TRestDataSet : public TRestMetadata {
 
     void SetDataFrame(const ROOT::RDF::RNode& dS) { fDataSet = dS; }
 
+    void EnableMultiThreading(Bool_t enable = true) { fMT = enable; }
+
     /// Gives access to the tree
     TTree* GetTree() const {
         if (fTree == nullptr) {
