@@ -273,7 +273,7 @@ template <class T>
 vector<T> StringToVector(string vec) {
     vector<T> result;
 
-	if ( vec.empty() ) return result;
+    if (vec.empty()) return result;
 
     if (vec[0] == '{' && vec[vec.size() - 1] == '}') {
         vec.erase(vec.begin());
@@ -292,7 +292,7 @@ vector<T> StringToVector(string vec) {
 
     } else {
         cout << "Startup. StringToVector. Illegal format!" << endl;
-		cout << "The vector string is : " << vec << endl;
+        cout << "The vector string is : " << vec << endl;
         cout << "A vector should be defined using brackets and comma separated elements: {a,b,c,d}" << endl;
         return vector<T>{};
     }
