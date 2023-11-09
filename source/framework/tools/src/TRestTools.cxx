@@ -49,6 +49,8 @@
 #include <TSystem.h>
 #include <TUrl.h>
 
+#include <regex>
+
 #ifdef USE_Curl
 #include <curl/curl.h>
 #endif
@@ -711,11 +713,9 @@ bool TRestTools::isDataSet(const std::string& filename) {
 ///////////////////////////////////////////////
 /// \brief Returns true if **filename** is an *http* address.
 ///
-bool TRestTools::isURL(const string& filename) {
-    if (filename.find("http") == 0) {
-        return true;
-    }
-    return false;
+bool TRestTools::isURL(const string& s) {
+    std::regex pattern("^https?://(.+)");
+    return std::regex_match(s, pattern);
 }
 
 ///////////////////////////////////////////////
@@ -819,15 +819,13 @@ string TRestTools::ToAbsoluteName(const string& filename) {
             const auto envVariableHome = getenv("HOME");
             if (envVariableHome == nullptr) {
                 cout << "TRestTools::ToAbsoluteName - ERROR - "
-                        "cannot resolve ~ because 'HOME' env variable does not exist"
-                     << endl;
+                        "cannot resolve ~ because 'HOME' env variable does not exist" << endl;
                 exit(1);
             }
             const auto userHomePath = filesystem::path(envVariableHome);
             if (userHomePath.empty()) {
                 cout << "TRestTools::ToAbsoluteName - ERROR - "
-                        "cannot resolve ~ because 'HOME' env variable is not set to a valid value"
-                     << endl;
+                        "cannot resolve ~ because 'HOME' env variable is not set to a valid value" << endl;
                 exit(1);
             }
             path /= userHomePath;
@@ -1032,7 +1030,7 @@ std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
             case '\r':
                 if (sb->sgetc() == '\n') sb->sbumpc();
                 return is;
-            case std::streambuf::traits_type::eof():
+            case std::streambuf::traits_type::eof() :
                 // Also handle the case when the last line has no line ending
                 if (t.empty()) is.setstate(std::ios::eofbit);
                 return is;
@@ -1049,19 +1047,19 @@ std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
 /// will be used, including scp, wget. Downloads to REST_USER_PATH + "/download/" + filename
 /// by default.
 ///
-std::string TRestTools::DownloadRemoteFile(string url) {
-    string purename = TRestTools::GetPureFileName(url);
-    if (purename == "") {
-        cout << "error! (TRestTools::DownloadRemoteFile): url is not a file!" << endl;
-        cout << "please specify a concrete file name in this url" << endl;
-        cout << "url: " << url << endl;
+std::string TRestTools::DownloadRemoteFile(const string& url) {
+    string pureName = TRestTools::GetPureFileName(url);
+    if (pureName.empty()) {
+        RESTWarning << "error! (TRestTools::DownloadRemoteFile): url is not a file!" << RESTendl;
+        RESTWarning << "please specify a concrete file name in this url" << RESTendl;
+        RESTWarning << "url: " << url << RESTendl;
         return "";
     }
 
     if (url.find("local:") == 0) {
         return Replace(url, "local:", "");
     } else {
-        string fullpath = REST_USER_PATH + "/download/" + purename;
+        string fullpath = REST_USER_PATH + "/download/" + pureName;
         int out;
         int attempts = 10;
         do {
@@ -1070,14 +1068,12 @@ std::string TRestTools::DownloadRemoteFile(string url) {
                 RESTWarning << "Retrying download in 5 seconds" << RESTendl;
                 std::this_thread::sleep_for(std::chrono::seconds(5));
             } else if (attempts < 10) {
-                RESTSuccess << "Download suceeded after " << 10 - attempts << " attempts" << RESTendl;
+                RESTSuccess << "Download succeeded after " << 10 - attempts << " attempts" << RESTendl;
             }
             attempts--;
         } while (out == 1024 && attempts > 0);
 
-        if (out == 0) {
-            return fullpath;
-        } else if (TRestTools::fileExists(fullpath)) {
+        if (out == 0 || TRestTools::fileExists(fullpath)) {
             return fullpath;
         } else {
             return "";
@@ -1239,8 +1235,7 @@ int TRestTools::UploadToServer(string localFile, string remoteFile, string metho
             RESTError << __PRETTY_FUNCTION__ << RESTendl;
             RESTError << "problem copying gases definitions to remote server" << RESTendl;
             RESTError << "Please report this problem at "
-                         "http://gifna.unizar.es/rest-forum/"
-                      << RESTendl;
+                         "http://gifna.unizar.es/rest-forum/" << RESTendl;
             return -1;
         }
 
