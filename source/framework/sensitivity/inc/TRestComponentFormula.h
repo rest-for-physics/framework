@@ -25,8 +25,8 @@
 
 #include <THn.h>
 
-#include "TRestDataSet.h"
 #include "TRestComponent.h"
+#include "TRestDataSet.h"
 
 /// It defines a background/signal model distribution in a given parameter space (tipically x,y,en)
 class TRestComponentFormula : public TRestComponent {

@@ -72,7 +72,6 @@ TRestComponentDataSet::~TRestComponentDataSet() {}
 ///
 TRestComponentDataSet::TRestComponentDataSet(const char* cfgFileName, const std::string& name)
     : TRestComponent(cfgFileName) {
-
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);
@@ -106,7 +105,6 @@ void TRestComponentDataSet::Initialize() {
 /// of the distribution.
 ///
 Double_t TRestComponentDataSet::GetRate(std::vector<Double_t> point) {
-
     if (!IsDataSetLoaded()) {
         RESTError << "TRestComponentDataSet::GetRate. Dataset has not been loaded" << RESTendl;
         RESTError << "Try calling TRestComponentDataSet::LoadDataSets" << RESTendl;
@@ -472,7 +470,8 @@ std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
 Bool_t TRestComponentDataSet::LoadDataSets() {
     if (fDataSetFileNames.empty()) {
         RESTWarning << "Dataset filename was not defined. You may still use "
-                       "TRestComponentDataSet::LoadDataSet( filename );" << RESTendl;
+                       "TRestComponentDataSet::LoadDataSet( filename );"
+                    << RESTendl;
         fDataSetLoaded = false;
         return fDataSetLoaded;
     }
