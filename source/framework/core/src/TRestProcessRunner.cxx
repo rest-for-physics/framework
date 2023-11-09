@@ -118,7 +118,8 @@ void TRestProcessRunner::BeginOfInit() {
         if (fRunInfo == nullptr) {
             RESTError << "File IO has not been specified, " << RESTendl;
             RESTError << "please make sure the \"TRestFiles\" section is ahead of the "
-                         "\"TRestProcessRunner\" section" << RESTendl;
+                         "\"TRestProcessRunner\" section"
+                      << RESTendl;
             exit(0);
         }
     } else {
@@ -526,12 +527,13 @@ void TRestProcessRunner::RunProcess() {
 
 #ifdef TIME_MEASUREMENT
     RESTInfo << "Total processing time : " << ((Double_t)deltaTime) / 1000. << " ms" << RESTendl;
-    RESTInfo << "Average read time from disk (per event) : " << ((Double_t)readTime) / fProcessedEvents /
-                                                                    1000. << " ms" << RESTendl;
-    RESTInfo << "Average process time (per event) : " << ((Double_t)(deltaTime - readTime - writeTime)) /
-                                                             fProcessedEvents / 1000. << " ms" << RESTendl;
-    RESTInfo << "Average write time to disk (per event) : " << ((Double_t)writeTime) / fProcessedEvents /
-                                                                   1000. << " ms" << RESTendl;
+    RESTInfo << "Average read time from disk (per event) : "
+             << ((Double_t)readTime) / fProcessedEvents / 1000. << " ms" << RESTendl;
+    RESTInfo << "Average process time (per event) : "
+             << ((Double_t)(deltaTime - readTime - writeTime)) / fProcessedEvents / 1000. << " ms"
+             << RESTendl;
+    RESTInfo << "Average write time to disk (per event) : "
+             << ((Double_t)writeTime) / fProcessedEvents / 1000. << " ms" << RESTendl;
     RESTInfo << "=" << RESTendl;
 #endif
 
@@ -1086,15 +1088,15 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
 
         double prog = 0;
         if (fEventsToProcess == REST_MAXIMUM_EVENTS && fRunInfo->GetFileProcess() != nullptr)
-            // Nevents is unknown, reading external data file
+        // Nevents is unknown, reading external data file
         {
             prog = fRunInfo->GetBytesReaded() / (double)fRunInfo->GetTotalBytes() * 100;
         } else if (fRunInfo->GetFileProcess() != nullptr)
-            // Nevents is known, reading external data file
+        // Nevents is known, reading external data file
         {
             prog = fProcessedEvents / (double)fEventsToProcess * 100;
         } else if (fEventsToProcess == REST_MAXIMUM_EVENTS)
-            // Nevents is unknown, reading root file
+        // Nevents is unknown, reading root file
         {
             prog = fRunInfo->GetCurrentEntry() / (double)inputtreeentries * 100;
         } else {
