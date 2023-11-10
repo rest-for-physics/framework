@@ -51,14 +51,6 @@ ClassImp(TRestComponentFormula);
 ///
 TRestComponentFormula::TRestComponentFormula() { Initialize(); }
 
-TRestComponentFormula::TRestComponentFormula(const char* configFilename) : TRestComponent(configFilename) {
-    Initialize();
-
-    LoadConfigFromFile(fConfigFileName);
-
-    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
-}
-
 /////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
 ///
@@ -78,6 +70,8 @@ TRestComponentFormula::TRestComponentFormula(const char* cfgFileName, const std:
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);
+
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////

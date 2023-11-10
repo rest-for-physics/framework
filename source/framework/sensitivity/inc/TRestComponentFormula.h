@@ -50,7 +50,6 @@ class TRestComponentFormula : public TRestComponent {
     void PrintMetadata() override;
 
     void Initialize() override;
-    TRestComponentFormula(const char* configFilename);
     TRestComponentFormula(const char* cfgFileName, const std::string& name);
     TRestComponentFormula();
     ~TRestComponentFormula();

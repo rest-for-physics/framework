@@ -51,12 +51,6 @@ ClassImp(TRestComponent);
 ///
 TRestComponent::TRestComponent() { Initialize(); }
 
-TRestComponent::TRestComponent(const char* configFilename) : TRestMetadata(configFilename) {
-    Initialize();
-
-    LoadConfigFromFile(fConfigFileName);
-}
-
 /////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
 ///
@@ -73,8 +67,8 @@ TRestComponent::TRestComponent(const char* configFilename) : TRestMetadata(confi
 ///
 TRestComponent::TRestComponent(const char* cfgFileName, const std::string& name)
     : TRestMetadata(cfgFileName) {
-    Initialize();
-    LoadConfigFromFile(fConfigFileName, name);
+    RESTDebug << "Entering TRestComponent constructor( cfgFileName, name )" << RESTendl;
+    RESTDebug << "File: " << cfgFileName << " Name: " << name << RESTendl;
 }
 
 ///////////////////////////////////////////////

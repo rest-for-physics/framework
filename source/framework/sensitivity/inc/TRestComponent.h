@@ -82,8 +82,7 @@ TH3D* GetHistogram(std::string varName1, std::string varName2, std::string varNa
     void PrintNodes();
 
     void Initialize() override;
-    TRestComponent(const char* configFilename);
-    TRestComponent(const char* cfgFileName, const std::string& name);
+    TRestComponent(const char* cfgFileName, const std::string& name = "");
     TRestComponent();
     ~TRestComponent();
 
