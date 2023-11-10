@@ -108,10 +108,6 @@ class TRestDataSet : public TRestMetadata {
     /// A flag to enable Multithreading during dataframe generation
     Bool_t fMT = false;  //<
 
-    /// A flag to enable Multithreading during dataframe generation
-    Bool_t fMT = false;  //<
-
-    inline auto GetAddedColumns() const { return fColumnNameExpressions; }
     /// The resulting RDF::RNode object after initialization
     ROOT::RDF::RNode fDataSet = ROOT::RDataFrame(0);  //!
 
