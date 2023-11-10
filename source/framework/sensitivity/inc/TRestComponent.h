@@ -30,7 +30,6 @@
 
 /// It defines a background/signal model distribution in a given parameter space (tipically x,y,en)
 class TRestComponent : public TRestMetadata {
-
    protected:
     /// A list with the branches that will be used to create the distribution space
     std::vector<std::string> fVariables;  //<
