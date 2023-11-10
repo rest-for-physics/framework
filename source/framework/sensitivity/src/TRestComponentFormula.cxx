@@ -75,7 +75,6 @@ TRestComponentFormula::TRestComponentFormula(const char* configFilename) : TRest
 ///
 TRestComponentFormula::TRestComponentFormula(const char* cfgFileName, const std::string& name)
     : TRestComponent(cfgFileName) {
-
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);
@@ -91,7 +90,6 @@ TRestComponentFormula::~TRestComponentFormula() {}
 /// (or observables) that have been defined by the user.
 ///
 void TRestComponentFormula::Initialize() {
-
     TRestComponent::Initialize();
 
     SetSectionName(this->ClassName());
