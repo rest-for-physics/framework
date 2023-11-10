@@ -2636,18 +2636,23 @@ void TRestMetadata::SetError(string message, bool print) {
     fError = true;
     fNErrors++;
     if (message != "") {
-        fErrorMessage += message + "\n";
+        // We keep only the last error message
+        fErrorMessage = message + "\n";
         if (print) {
             cout << message << endl;
         }
     }
 }
 
+///////////////////////////////////////////////
+/// \brief It retrieves a map of all parameter:value found in the metadata class
+///
 void TRestMetadata::SetWarning(string message, bool print) {
     fWarning = true;
     fNWarnings++;
     if (message != "") {
-        fWarningMessage += message + "\n";
+        // We keep only the last warning message
+        fWarningMessage = message + "\n";
         if (print) {
             RESTWarning << message << RESTendl;
         }

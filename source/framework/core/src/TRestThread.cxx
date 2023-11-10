@@ -585,13 +585,21 @@ void TRestThread::EndProcess() {
         if (fProcessChain[i]->GetWarning()) nWarnings++;
     }
 
-    if (nWarnings)
+    if (nWarnings) {
         RESTWarning << nWarnings
-                    << " process warnings were found! Use run0->PrintWarnings(); to get additional info."
+                    << " process warnings were found! Check them inside the generated root file: "
                     << RESTendl;
-    if (nErrors)
+        RESTWarning << "restRoot output.root" << RESTendl;
+        RESTWarning << "[0] run->PrintWarnings(); to get additional info." << RESTendl;
+    }
+    if (nErrors) {
         RESTError << nErrors << " process errors were found! Use run0->PrintErrors(); to get additional info."
                   << RESTendl;
+        RESTError << nErrors
+                  << " process errors were found! Check them inside the generated root file: " << RESTendl;
+        RESTError << "restRoot output.root" << RESTendl;
+        RESTError << "[0] run->PrintErrors(); to get additional info." << RESTendl;
+    }
 
     delete fAnalysisTree;
 }
