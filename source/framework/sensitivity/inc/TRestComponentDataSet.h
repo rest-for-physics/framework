@@ -46,6 +46,7 @@ class TRestComponentDataSet : public TRestComponent {
     /// TODO we need to define multiple datasets and weigth. The weight will be used
     /// to create a model, such as weighting different background contaminations or
     /// different signal coupling contributions.
+
     /// TODO Then we probably need here a `std::vector <TRestDataSet>` and another vector
     /// with the weights (isotope activity/flux/etc).
 

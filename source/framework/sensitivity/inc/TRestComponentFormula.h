@@ -31,27 +31,6 @@
 /// It defines a background/signal model distribution in a given parameter space (tipically x,y,en)
 class TRestComponentFormula : public TRestComponent {
    private:
-    /// A list with the branches that will be used to create the distribution space
-    std::vector<std::string> fVariables;  //<
-
-    /// The range of each of the variables used to create the PDF distribution
-    std::vector<TVector2> fRanges;  //<
-
-    /// The number of bins in which we should divide each variable
-    std::vector<Int_t> fNbins;  //<
-
-    /// A list with the branches that will be used to weight the distribution density
-    std::vector<std::string> fWeights;  //<
-
-    /// It is used to parameterize a set of distribution densities (e.g. WIMP or axion mass)
-    std::string fParameter = "";  //<
-
-    /// It defines the nodes of the parameterization (Initialized by the dataset)
-    std::vector<Double_t> fParameterizationNodes;  //<
-
-    /// It defines the statistics of each parameterization node (Initialized by the dataset)
-    std::vector<Int_t> fNodeStatistics;  //<
-
     /// The function used to initialize the distribution
     /// std::string fFunction = "";  //!
     ///
@@ -62,35 +41,13 @@ class TRestComponentFormula : public TRestComponent {
     // THnD* fDistribution = nullptr;  //!
 
    protected:
-    std::vector<Double_t> ExtractParameterizationNodes();
-    std::vector<Int_t> ExtractNodeStatistics();
-    void FillHistograms();
-
-    Bool_t VariablesOk();
-    Bool_t WeightsOk();
-
-    Int_t GetVariableIndex(std::string varName);
-
     void InitFromConfigFile() override;
 
    public:
-    Bool_t LoadDataSets();
-
-    /// This method should go to TRestDataSetComponent
-    Bool_t IsDataSetLoaded() { return fDataSetLoaded; }
-
     Double_t GetRate(std::vector<Double_t> point) override;
     Double_t GetTotalRate() override;
 
-    Int_t SetActiveNode(Double_t node);
-
-    THnD* GetDensityForNode(Double_t value);
-    THnD* GetDensityForActiveNode();
-
     void PrintMetadata() override;
-
-    void PrintStatistics();
-    void PrintNodes();
 
     void Initialize() override;
     TRestComponentFormula(const char* configFilename);
