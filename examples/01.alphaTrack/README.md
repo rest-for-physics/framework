@@ -22,7 +22,7 @@ This will produce an initial ROOT file that contains the simulated Geant4 event 
 In order to further process the data we need to execute:
 
 ```
-restManager --c processing --f data/Run_5MeV_1um.root
+restManager --c processing.rml --f data/Run_5MeV_1um.root
 ```
 
 The processing includes the electron diffusion, the readout segmentation, and shaping and noise signal effects.
