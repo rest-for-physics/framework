@@ -111,7 +111,6 @@ Double_t TRestComponentFormula::GetRate(std::vector<Double_t> point) { return 0.
 /// The result will be returned in s-1.
 ///
 Double_t TRestComponentFormula::GetTotalRate() {
-
     Double_t integral = 0;
 
     return integral;
