@@ -283,8 +283,6 @@ TRestDataSet::TRestDataSet() { Initialize(); }
 ///
 TRestDataSet::TRestDataSet(const char* cfgFileName, const std::string& name) : TRestMetadata(cfgFileName) {
     LoadConfigFromFile(fConfigFileName, name);
-
-    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -343,7 +341,10 @@ void TRestDataSet::GenerateDataSet() {
     std::sort(finalList.begin(), finalList.end());
     finalList.erase(std::unique(finalList.begin(), finalList.end()), finalList.end());
 
-    ROOT::EnableImplicitMT();
+    if (fMT)
+        ROOT::EnableImplicitMT();
+    else
+        ROOT::DisableImplicitMT();
 
     RESTInfo << "Initializing dataset" << RESTendl;
     fDataSet = ROOT::RDataFrame("AnalysisTree", fFileSelection);
@@ -621,8 +622,11 @@ void TRestDataSet::PrintMetadata() {
     if (!fColumnNameExpressions.empty()) {
         RESTMetadata << " New columns added to generated dataframe: " << RESTendl;
         RESTMetadata << " ---------------------------------------- " << RESTendl;
-        for (const auto& [cName, cExpression] : fColumnNameExpressions)
-            RESTMetadata << " - Name : " << cName << " Expression: " << cExpression << RESTendl;
+        for (const auto& [cName, cExpression] : fColumnNameExpressions) {
+            RESTMetadata << " - Name : " << cName << RESTendl;
+            RESTMetadata << " - Expression: " << cExpression << RESTendl;
+            RESTMetadata << " " << RESTendl;
+        }
     }
 
     if (fMergedDataset) {
@@ -637,6 +641,12 @@ void TRestDataSet::PrintMetadata() {
         RESTMetadata << " -------------------- " << RESTendl;
         for (const auto& fn : fImportedFiles) RESTMetadata << " - " << fn << RESTendl;
     }
+
+    RESTMetadata << " " << RESTendl;
+    if (fMT)
+        RESTMetadata << " - Multithreading was enabled" << RESTendl;
+    else
+        RESTMetadata << " - Multithreading was NOT enabled" << RESTendl;
 
     RESTMetadata << "----" << RESTendl;
 }
@@ -944,8 +954,6 @@ void TRestDataSet::Import(const std::string& fileName) {
             if (REST_Reflection::GetClassQuick(kName.c_str()) != nullptr &&
                 REST_Reflection::GetClassQuick(kName.c_str())->InheritsFrom("TRestDataSet")) {
                 dS = file->Get<TRestDataSet>(key->GetName());
-                if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info)
-                    dS->PrintMetadata();
                 *this = *dS;
             }
         }
@@ -956,7 +964,10 @@ void TRestDataSet::Import(const std::string& fileName) {
         return;
     }
 
-    ROOT::EnableImplicitMT();
+    if (fMT)
+        ROOT::EnableImplicitMT();
+    else
+        ROOT::DisableImplicitMT();
 
     fDataSet = ROOT::RDataFrame("AnalysisTree", fileName);
 
