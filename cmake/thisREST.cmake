@@ -16,6 +16,8 @@ execute_process(
 string(REGEX REPLACE "\n$" "" GEANT4_PATH "${GEANT4_PATH}")
 get_filename_component(GEANT4_BIN_DIR "${GEANT4_PATH}/bin/" REALPATH)
 
+set(g4LibPath "")
+set(loadG4 "")
 if (${REST_G4} MATCHES "ON")
     # https://github.com/rest-for-physics/framework/issues/331
     set(g4LibPath ":${GEANT4_PATH}/lib/")
@@ -23,15 +25,16 @@ if (${REST_G4} MATCHES "ON")
         "\# if geant4.sh script is found we load the same Geant4 version as used in compilation\nif [[ -f \\\"${GEANT4_BIN_DIR}/geant4.sh\\\" ]]; then
     [[ -n \\\"\\\${ZSH_VERSION}\\\" ]] && pushd ${GEANT4_BIN_DIR} > /dev/null\n    source ${GEANT4_BIN_DIR}/geant4.sh\n    [[ -n \\\"\\\${ZSH_VERSION}\\\" ]] && popd > /dev/null\nfi\n"
     )
-else ()
-    set(g4LibPath "")
-    set(loadG4 "")
-endif (${REST_G4} MATCHES "ON")
+endif ()
 
+set(loadMPFR "")
 if (DEFINED MPFR_PATH)
     set(loadMPFR "export LD_LIBRARY_PATH=${MPFR_PATH}/lib:\$LD_LIBRARY_PATH")
-else ()
-    set(loadMPFR "")
+endif ()
+
+set(loadCRY "")
+if (DEFINED REST_CRY_PATH)
+    set(loadCRY "export LD_LIBRARY_PATH=${REST_CRY_PATH}/lib:\$LD_LIBRARY_PATH")
 endif ()
 
 set(loadGarfield "")
@@ -111,6 +114,7 @@ fi
 
 ${loadG4}
 ${loadMPFR}
+${loadCRY}
 ${loadGarfield}
 
 if [ \\\$REST_PATH ] ; then
