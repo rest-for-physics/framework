@@ -25,6 +25,10 @@ int main(int argc, char* argv[]) {
     // set the env and debug status
     setenv("REST_VERSION", REST_RELEASE, 1);
 
+    printf("Setting verbose level to info. You may change level using `restRoot -v N`.\n");
+    printf("Use `restRoot --help` for additional info.\n");
+    gVerbose = StringToVerboseLevel("2");
+
     Bool_t loadMacros = false;
     for (int i = 1; i < argc; i++) {
         char* c = &argv[i][0];
@@ -100,6 +104,10 @@ int main(int argc, char* argv[]) {
 
     for (int i = 1; i < argc; i++) {
         const string opt = (string)argv[i];
+        if (opt.at(0) == ('-') && opt.length() > 1 && opt.at(1) == ('-')) {
+            i++;
+            continue;
+        }
         if (opt.at(0) == ('-')) continue;
 
         if (opt.find("http") == string::npos && !TRestTools::fileExists(opt)) {
