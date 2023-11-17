@@ -306,9 +306,9 @@ class TRestReflector {
     /// Pointer to the corresponding TDataType helper, if the wrapped object is in data type
     bool is_data_type = false;
     /// If this object type wrapper is invalid
-    bool IsZombie();
+    bool IsZombie() const;
     /// Deep copy the content of the wrapped object to `to`.
-    void operator>>(TRestReflector to);
+    void operator>>(const TRestReflector& to);
     /// Output overload by calling ToString();
     friend std::ostream& operator<<(std::ostream& cin, TRestReflector ptr) { return cin << ptr.ToString(); }
     /// Get the value of the wrapped type, not recommended to use
@@ -333,25 +333,25 @@ class TRestReflector {
         if (address != nullptr) *((T*)(address)) = val;
     }
     /// Convert the wrapped object to std::string
-    std::string ToString();
+    std::string ToString() const;
     /// Set the value of the wrapped object from std::string
-    void ParseString(std::string str);
+    void ParseString(const std::string& str) const;
     /// Assembly a new object, and save its address. The old object will be destroied if not null
     void Assembly();
     /// Destroy the current object. It will make the class to be zombie.
-    void Destroy();
+    void Destroy() const;
     /// Print the Hex memory std::map of the wrappered object
     void PrintMemory(int bytepreline = 16);
     /// Find the class's datamember as TRestReflector object, including those from base class
-    TRestReflector GetDataMember(std::string name);
+    TRestReflector GetDataMember(const std::string& name);
     /// Get the i-th datamember of the class, ignoring those from base class
     TRestReflector GetDataMember(int ID);
     /// Get a list of the class's datamembers as a std::vector of std::string, including those from base class
-    std::vector<std::string> GetListOfDataMembers();
+    std::vector<std::string> GetListOfDataMembers() const;
     /// Get the value of datamember as std::string.
-    std::string GetDataMemberValueString(std::string name);
+    std::string GetDataMemberValueString(const std::string& name);
     /// Get the number of data members of a class
-    int GetNumberOfDataMembers();
+    int GetNumberOfDataMembers() const;
 
     /// Type conversion operator. With this, one can implicitly convert TRestReflector object to
     /// pointer of certain type. For example, `TRestEvent* eve =
@@ -403,19 +403,19 @@ class TRestReflector {
 ///////////////////////////////////////////////
 /// \brief Assembly an object of type: typeName, returning the allocated memory address and size
 ///
-TRestReflector Assembly(std::string typeName);
+TRestReflector Assembly(const std::string& typeName);
 
 ///////////////////////////////////////////////
 /// \brief Wrap information an object of type: typeName, memory is not allocated
 ///
-TRestReflector WrapType(std::string typeName);
+TRestReflector WrapType(const std::string& typeName);
 
 ///////////////////////////////////////////////
 /// \brief Deep copy the content of object `from` to `to`
 ///
 /// Calls RESTVirtualConverter::CloneObj(). The actual methods are registered in converter.cpp
 /// If not registered, you can add it manually with AddConverter() macro
-void CloneAny(TRestReflector from, TRestReflector to);
+void CloneAny(const TRestReflector& from, const TRestReflector& to);
 };  // namespace REST_Reflection
 
 typedef REST_Reflection::TRestReflector RESTValue;
