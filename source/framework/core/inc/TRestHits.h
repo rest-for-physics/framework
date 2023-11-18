@@ -197,8 +197,12 @@ class TRestHits {
         using iterator_category = std::random_access_iterator_tag;
         using value_type = TRestHits_Iterator;
         using difference_type = int;
-        using pointer = void;
-        using reference = void;
+        using pointer = float*;
+        using reference = float&;
+
+        reference operator*() {
+            return isAccessor ? x() : fHits->fX[index];  // Replace with the appropriate member access
+        }
 
        private:
         int maxIndex = 0;
