@@ -244,6 +244,12 @@ void TRestDataSetOdds::ComputeLogOdds() {
             if (odds == 0) return 1000.;
             return log(1. - odds) - log(odds);
         };
+
+        if (df.GetColumnType(obsName) != "Double_t") {
+            RESTWarning << "Column " << obsName << " is not of type 'double'. It will be converted."
+                        << RESTendl;
+            df = df.Redefine(obsName, "static_cast<double>(" + obsName + ")");
+        }
         df = df.Define(oddsName, GetLogOdds, {obsName});
         auto h = df.Histo1D(oddsName);
 
