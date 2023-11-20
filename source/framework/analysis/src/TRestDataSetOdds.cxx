@@ -281,11 +281,40 @@ void TRestDataSetOdds::ComputeLogOdds() {
     }
 }
 
+std::vector<std::tuple<std::string, TVector2, int>> TRestDataSetOdds::GetOddsObservables() {
+    std::vector<std::tuple<std::string, TVector2, int>> obs;
+    for (size_t i = 0; i < fObsName.size(); i++) {
+        if (i >= fObsName.size() || i >= fObsRange.size() || i >= fObsNbins.size()) {
+            RESTError << "Sizes for observables names, ranges and bins do not match!" << RESTendl;
+            break;
+        }
+        obs.push_back(std::make_tuple(fObsName[i], fObsRange[i], fObsNbins[i]));
+    }
+    return obs;
+}
+
+void TRestDataSetOdds::AddOddsObservable(const std::string& name, const TVector2& range, int nbins) {
+    fObsName.push_back(name);
+    fObsRange.push_back(range);
+    fObsNbins.push_back(nbins);
+}
+
+void TRestDataSetOdds::SetOddsObservables(const std::vector<std::tuple<std::string, TVector2, int>>& obs) {
+    fObsName.clear();
+    fObsRange.clear();
+    fObsNbins.clear();
+    for (const auto& [name, range, nbins] : obs) AddOddsObservable(name, range, nbins);
+}
+
 /////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestDataSetOdds
 ///
 void TRestDataSetOdds::PrintMetadata() {
     TRestMetadata::PrintMetadata();
+
+    // if (fCut) fCut->PrintMetadata();
+    if (!fOddsFile.empty()) RESTMetadata << " Odds file: " << fOddsFile << RESTendl;
+    RESTMetadata << " DataSet file: " << fDataSetName << RESTendl;
 
     RESTMetadata << " Observables to compute: " << RESTendl;
     for (size_t i = 0; i < fObsName.size(); i++) {
