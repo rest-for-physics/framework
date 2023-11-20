@@ -209,14 +209,18 @@ void TRestDataSetOdds::ComputeLogOdds() {
 
     if (fOddsFile.empty()) {
         auto DF = dataSet.MakeCut(fCut);
+        RESTInfo << "Generating PDFs for dataset: " << fDataSetName << RESTendl;
         for (size_t i = 0; i < fObsName.size(); i++) {
             const std::string obsName = fObsName[i];
             const TVector2 range = fObsRange[i];
             const std::string histName = "h" + obsName;
             const int nBins = fObsNbins[i];
+            RESTDebug << "\tGenerating PDF for " << obsName << " with range: (" << range.X() << ", "
+                      << range.Y() << ") and nBins: " << nBins << RESTendl;
             auto histo =
                 DF.Histo1D({histName.c_str(), histName.c_str(), nBins, range.X(), range.Y()}, obsName);
             TH1F* h = static_cast<TH1F*>(histo->DrawClone());
+            RESTDebug << "\tNormalizing by integral = " << h->Integral() << RESTendl;
             h->Scale(1. / h->Integral());
             fHistos[obsName] = h;
         }
@@ -226,7 +230,7 @@ void TRestDataSetOdds::ComputeLogOdds() {
             RESTError << "Cannot open calibration odds file " << fOddsFile << RESTendl;
             exit(1);
         }
-        std::cout << "Opening " << fOddsFile << std::endl;
+        RESTInfo << "Opening " << fOddsFile << " as oddsFile." << RESTendl;
         for (size_t i = 0; i < fObsName.size(); i++) {
             const std::string obsName = fObsName[i];
             const std::string histName = "h" + obsName;
@@ -237,6 +241,7 @@ void TRestDataSetOdds::ComputeLogOdds() {
 
     auto df = dataSet.GetDataFrame();
     std::string totName = "";
+    RESTDebug << "Computing log odds from " << fDataSetName << RESTendl;
     for (const auto& [obsName, histo] : fHistos) {
         const std::string oddsName = "odds_" + obsName;
         auto GetLogOdds = [&histo = histo](double val) {
@@ -257,15 +262,19 @@ void TRestDataSetOdds::ComputeLogOdds() {
         totName += oddsName;
     }
 
+    RESTDebug << "Computing total log odds" << RESTendl;
+    RESTDebug << "\tTotal log odds = " << totName << RESTendl;
     df = df.Define("odds_total", totName);
 
     dataSet.SetDataFrame(df);
 
     if (!fOutputFileName.empty()) {
         if (TRestTools::GetFileNameExtension(fOutputFileName) == "root") {
+            RESTDebug << "Exporting dataset to " << fOutputFileName << RESTendl;
             dataSet.Export(fOutputFileName);
             TFile* f = TFile::Open(fOutputFileName.c_str(), "UPDATE");
             this->Write();
+            RESTDebug << "Writing histograms to " << fOutputFileName << RESTendl;
             for (const auto& [obsName, histo] : fHistos) histo->Write();
             f->Close();
         }
