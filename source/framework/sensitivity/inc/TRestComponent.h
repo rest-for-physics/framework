@@ -61,6 +61,8 @@ class TRestComponent : public TRestMetadata {
     virtual Double_t GetTotalRate() = 0;
 
     Int_t SetActiveNode(Double_t node);
+    Int_t GetActiveNode() { return fActiveNode; }
+    Double_t GetActiveNodeValue() { return fParameterizationNodes[fActiveNode]; }
 
     /*
 THnD* GetDensityForNode(Double_t value);
