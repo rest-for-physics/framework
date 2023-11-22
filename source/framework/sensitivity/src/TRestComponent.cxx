@@ -124,7 +124,6 @@ void TRestComponent::PrintMetadata() {
         RESTMetadata << " - Number of parametric nodes : " << fParameterizationNodes.size() << RESTendl;
         RESTMetadata << " " << RESTendl;
         RESTMetadata << " Use : PrintNodes() for additional info" << RESTendl;
-        RESTMetadata << " Use : PrintStatistics() if this is a TRestComponentDataSet" << RESTendl;
     }
 
     RESTMetadata << "----" << RESTendl;

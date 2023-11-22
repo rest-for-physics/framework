@@ -173,6 +173,13 @@ void TRestComponentDataSet::PrintMetadata() {
     }
 
     RESTMetadata << "----" << RESTendl;
+
+    if (!fParameter.empty() && fParameterizationNodes.empty()) {
+        RESTMetadata << "This component has no nodes!" << RESTendl;
+        RESTMetadata << " Use: LoadDataSets() to initialize the nodes" << RESTendl;
+    }
+    RESTMetadata << " Use : PrintStatistics() to check node statistics" << RESTendl;
+    RESTMetadata << "----" << RESTendl;
 }
 
 /////////////////////////////////////////////
@@ -259,17 +266,18 @@ void TRestComponentDataSet::FillHistograms() {
         if (fParameterizationNodes.empty()) hName = "full";
 
         std::vector<std::string> varsAndWeight = fVariables;
-        /*
-if (!fWeights.empty()) {
-    std::string weightsStr = "";
-    for (size_t n = 0; n < fWeights.size(); n++) {
-        if (n > 0) weightsStr += "*";
 
-        weightsStr += fWeights[n];
-    }
-    df = df.Define("componentWeight", weightsStr);
-    varsAndWeight.push_back("componentWeight");
-}
+        /*
+        if (!fWeights.empty()) {
+                std::string weightsStr = "";
+                for (size_t n = 0; n < fWeights.size(); n++) {
+                        if (n > 0) weightsStr += "*";
+
+                        weightsStr += fWeights[n];
+                }
+                df = df.Define("componentWeight", weightsStr);
+                varsAndWeight.push_back("componentWeight");
+        }
         */
 
         auto hn = df.HistoND({hName, hName, (int)fNbins.size(), bins, xmin, xmax}, varsAndWeight);
@@ -415,6 +423,8 @@ TH3D* TRestComponentDataSet::GetHistogram(std::string varName1, std::string varN
 std::vector<Double_t> TRestComponentDataSet::ExtractParameterizationNodes() {
     if (!fParameterizationNodes.empty()) return fParameterizationNodes;
 
+    RESTInfo << "Extracting parameterization nodes" << RESTendl;
+
     std::vector<double> vs;
     if (!IsDataSetLoaded()) {
         RESTError << "TRestComponentDataSet::ExtractParameterizationNodes. Dataset has not been initialized!"
@@ -470,8 +480,7 @@ std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
 Bool_t TRestComponentDataSet::LoadDataSets() {
     if (fDataSetFileNames.empty()) {
         RESTWarning << "Dataset filename was not defined. You may still use "
-                       "TRestComponentDataSet::LoadDataSet( filename );"
-                    << RESTendl;
+                       "TRestComponentDataSet::LoadDataSet( filename );" << RESTendl;
         fDataSetLoaded = false;
         return fDataSetLoaded;
     }
