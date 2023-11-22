@@ -143,6 +143,7 @@ export PYTHONPATH=${PYTHON_BINDINGS_INSTALL_DIR}:\\\$PYTHONPATH
 
 alias restRoot=\\\"restRoot -l\\\"
 alias restRootMacros=\\\"restRoot -l --m\\\"
+alias restListMacros=\\\"restManager ListMacros\\\"
 
 if [ \\\$(rest-config --flags | grep \\\"REST_WELCOME=ON\\\") ]; then
     rest-config --welcome
