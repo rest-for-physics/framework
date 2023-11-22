@@ -310,8 +310,16 @@ TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
 
         } else {
             if (pos == unitsStr.size() - 1) {
-                RESTWarning << "last character inside \"" << unitsStr << "\" \"" << unitsStr[pos]
+                RESTWarning << "Last character inside \"" << unitsStr << "\" \"" << unitsStr[pos]
                             << "\" unrecognized in unit definition!" << RESTendl;
+
+                std::string lastChar = unitsStr.substr(pos, 1);
+
+                if (isANumber(lastChar)) {
+                    std::string tmpStr = unitsStr;
+                    tmpStr.insert(pos, "^");
+                    RESTWarning << "Perhaps you meant: " << tmpStr << RESTendl;
+                }
             }
 
             pos++;
