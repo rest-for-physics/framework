@@ -480,7 +480,8 @@ std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
 Bool_t TRestComponentDataSet::LoadDataSets() {
     if (fDataSetFileNames.empty()) {
         RESTWarning << "Dataset filename was not defined. You may still use "
-                       "TRestComponentDataSet::LoadDataSet( filename );" << RESTendl;
+                       "TRestComponentDataSet::LoadDataSet( filename );"
+                    << RESTendl;
         fDataSetLoaded = false;
         return fDataSetLoaded;
     }
