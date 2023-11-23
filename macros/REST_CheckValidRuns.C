@@ -1,24 +1,47 @@
 #include <iostream>
+#include <filesystem>
+
 #include <vector>
 
 #include "TGeoManager.h"
 #include "TRestTask.h"
 #include "TSystem.h"
 using namespace std;
+namespace fs = std::filesystem;
 
-#ifndef RESTTask_CheckRunFileList
-#define RESTTask_CheckRunFileList
+#ifndef RESTTask_CheckValidRuns
+#define RESTTask_CheckValidRuns
 
 //*******************************************************************************************************
 //***
-//*** Your HELP is needed to verify, validate and document this macro
-//*** This macro might need update/revision.
+//*** Description: This macro will identify run files that were not properly closed.
+//***
+//*** --------------
+//*** The first and mandatory argument must provide a full data and pattern to filter the files that
+//*** will be checked. E.g. to add all the Hits files from run number 123 the first argument would be
+//*** pattern = "/path/to/data/Run00123*Hits*root".
+//***
+//*** IMPORTANT: The pattern must be given using double quotes ""
+//***
+//*** --------------
+//*** Usage: restManager CheckValidRuns "/full/path/file_*pattern*.root" [purge]
+//*** --------------
+//***
+//*** An optional parameter `purge` can be made true. In that case, this macro will not just provide
+//*** a list of the files not properly closed but it will also remove them!
+//***
+//*** The following command will remove the non-valid runs
+//*** --------------
+//*** Usage: restManager CheckValidRuns "/full/path/file_*pattern*.root" 1
+//*** --------------
+//***
+//*** CAUTION: Be aware that any non-REST file in the list will be removed if you use purge=1
 //***
 //*******************************************************************************************************
-Int_t REST_CheckRunFileList(TString namePattern, Int_t N = 100000) {
+Int_t REST_CheckValidRuns(TString namePattern, Bool_t purge = false) {
     TGeoManager::SetVerboseLevel(0);
 
-    vector<TString> filesNotWellClosed;
+    vector<std::string> filesNotWellClosed;
 
     TRestStringOutput RESTLog;
 
@@ -70,7 +93,16 @@ Int_t REST_CheckRunFileList(TString namePattern, Int_t N = 100000) {
         RESTLog << "---------------------" << RESTendl;
         RESTLog << "Files not well closed" << RESTendl;
         RESTLog << "---------------------" << RESTendl;
-        for (int i = 0; i < filesNotWellClosed.size(); i++) RESTLog << filesNotWellClosed[i] << RESTendl;
+        for (int i = 0; i < filesNotWellClosed.size(); i++) {
+            RESTLog << filesNotWellClosed[i] << RESTendl;
+            if (purge) fs::remove(filesNotWellClosed[i]);
+        }
+
+        if (purge) {
+            RESTLog << "---------------------------" << RESTendl;
+            RESTLog << "The files have been removed" << RESTendl;
+            RESTLog << "---------------------------" << RESTendl;
+        }
     }
 
     RESTLog << "------------------------------" << RESTendl;
