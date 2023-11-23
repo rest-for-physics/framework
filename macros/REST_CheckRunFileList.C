@@ -54,11 +54,12 @@ Int_t REST_CheckRunFileList(TString namePattern, Int_t N = 100000) {
         }
 
         RESTLog << "Run time (hours) : " << run->GetRunLength() / 3600. << RESTendl;
-        if (run->GetRunLength() > 0) totalTime += run->GetRunLength() / 3600.;
+        RESTLog << "Entries : " << run->GetEntries() << RESTendl;
 
-        if (run->GetEndTimestamp() == 0 || run->GetRunLength() < 0) {
+        if (run->GetEndTimestamp() == 0 || run->GetRunLength() < 0 || run->GetEntries() == 0) {
             filesNotWellClosed.push_back(filename);
-        }
+        } else if (run->GetRunLength() > 0)
+            totalTime += run->GetRunLength() / 3600.;
 
         delete run;
 
@@ -70,7 +71,15 @@ Int_t REST_CheckRunFileList(TString namePattern, Int_t N = 100000) {
         RESTLog << "---------------------" << RESTendl;
         RESTLog << "Files not well closed" << RESTendl;
         RESTLog << "---------------------" << RESTendl;
-        for (int i = 0; i < filesNotWellClosed.size(); i++) RESTLog << filesNotWellClosed[i] << RESTendl;
+        for (int i = 0; i < filesNotWellClosed.size(); i++) {
+            RESTLog << filesNotWellClosed[i] << RESTendl;
+            if (purge) fs::remove(filesNotWellClosed[i]);
+        }
+
+        if (purge) {
+            RESTLog << "---------------------------" << RESTendl;
+            RESTLog << "The files have been removed" << RESTendl;
+        }
     }
 
     RESTLog << "------------------------------" << RESTendl;

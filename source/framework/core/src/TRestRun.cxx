@@ -148,8 +148,7 @@ void TRestRun::InitFromConfigFile() {
     }
     if (ToUpper(runNstr) == "AUTO" && ToUpper(inputName) == "AUTO") {
         RESTError << "TRestRun: run number and input file name cannot both be "
-                     "\"AUTO\""
-                  << RESTendl;
+                     "\"AUTO\"" << RESTendl;
         exit(1);
     }
 
@@ -273,8 +272,7 @@ void TRestRun::InitFromConfigFile() {
                 ImportMetadata(e->Attribute("file"), e->Attribute("name"), e->Attribute("type"), true);
             } else {
                 RESTWarning << "Wrong definition of addMetadata! Metadata name or file name "
-                               "is not given!"
-                            << RESTendl;
+                               "is not given!" << RESTendl;
             }
         } else if (Count(key, "TRest") > 0) {
             if (e->Attribute("file") != nullptr && TRestTools::isRootFile(e->Attribute("file"))) {
@@ -404,8 +402,7 @@ void TRestRun::OpenInputFile(const TString& filename, const string& mode) {
                     ReadInputFileMetadata();
                 } else {
                     RESTWarning << "-- W : The metadata version found on input file is lower "
-                                   "than 2.2.1!"
-                                << RESTendl;
+                                   "than 2.2.1!" << RESTendl;
                     RESTWarning << "-- W : metadata from input file will not be read" << RESTendl;
                 }
             }
@@ -606,12 +603,10 @@ void TRestRun::ReadInputFileTrees() {
 
                         if (fInputEvent == nullptr) {
                             RESTError << "TRestRun:OpenInputFile. Cannot initialize input event, event "
-                                         "tree not read"
-                                      << RESTendl;
+                                         "tree not read" << RESTendl;
                             RESTError
                                 << "Please install corresponding libraries to provide root dictionaries for "
-                                   "class reading."
-                                << RESTendl;
+                                   "class reading." << RESTendl;
                             return;
                         }
 
@@ -626,8 +621,7 @@ void TRestRun::ReadInputFileTrees() {
                 string brname = (string)fInputEvent->ClassName() + "Branch";
                 if (fEventTree->GetBranch(brname.c_str()) == nullptr) {
                     RESTWarning << "REST WARNING (OpenInputFile) : No matched event branch "
-                                   "inside file : "
-                                << filename << RESTendl;
+                                   "inside file : " << filename << RESTendl;
                     RESTWarning << "Branch required: " << brname << RESTendl;
                 } else {
                     fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
@@ -836,8 +830,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetEvent, TRestAnalysisTree* targetT
                         if (fEventTree->IsA() == TChain::Class()) {
                             Long64_t entry = fEventTree->LoadTree(fCurrentEvent);
                             fBytesRead += ((TBranch*)fEventTree->GetTree()->GetListOfBranches()->UncheckedAt(
-                                               fEventBranchLoc))
-                                              ->GetEntry(entry);
+                                               fEventBranchLoc))->GetEntry(entry);
                         } else {
                             fBytesRead +=
                                 ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))
@@ -1263,8 +1256,7 @@ void TRestRun::SetInputEvent(TRestEvent* event) {
                     break;
                 } else if (i == branches->GetLast()) {
                     RESTWarning << "REST Warning : (TRestRun) cannot find corresponding "
-                                   "branch in event tree!"
-                                << RESTendl;
+                                   "branch in event tree!" << RESTendl;
                     RESTWarning << "Event Type : " << event->ClassName() << RESTendl;
                     RESTWarning << "Input event not set!" << RESTendl;
                 }
@@ -1312,8 +1304,7 @@ void TRestRun::ImportMetadata(const TString& File, const TString& name, const TS
     // TODO give error in case we try to obtain a class that is not TRestMetadata
     if (type == "" && name == "") {
         RESTError << "(ImportMetadata) : metadata type and name is not "
-                     "specified!"
-                  << RESTendl;
+                     "specified!" << RESTendl;
         return;
     }
 
@@ -1367,7 +1358,8 @@ Long64_t TRestRun::GetEntries() const {
     if (fAnalysisTree != nullptr) {
         return fAnalysisTree->GetEntries();
     }
-    return REST_MAXIMUM_EVENTS;
+    return fEntriesSaved;
+    //   return REST_MAXIMUM_EVENTS;
 }
 
 // Getters
@@ -1579,8 +1571,7 @@ TRestMetadata* TRestRun::GetMetadataClass(const TString& type, TFile* file) {
                     return metadata;
                 } else {
                     RESTWarning << "TRestRun::GetMetadataClass() : The object to import is "
-                                   "not inherited from TRestMetadata"
-                                << RESTendl;
+                                   "not inherited from TRestMetadata" << RESTendl;
                 }
             }
         }
@@ -1610,8 +1601,7 @@ TRestMetadata* TRestRun::GetMetadata(const TString& name, TFile* file) {
                     return metadata;
                 } else {
                     RESTWarning << "TRestRun::GetMetadata() : The object to import is not "
-                                   "inherited from TRestMetadata"
-                                << RESTendl;
+                                   "inherited from TRestMetadata" << RESTendl;
                 }
             }
         }
