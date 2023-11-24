@@ -52,6 +52,13 @@ class TRestComponent : public TRestMetadata {
     /// It returns true if any nodes have been defined.
     Bool_t HasNodes() { return !fParameterizationNodes.empty(); }
 
+    /// It returns true if the node has been properly identified
+    Bool_t ValidNode(Double_t node) {
+        SetActiveNode(node);
+        if (GetActiveNode() >= 0) return true;
+        return false;
+    }
+
     Int_t GetVariableIndex(std::string varName);
 
     void InitFromConfigFile() override;
