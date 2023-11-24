@@ -105,8 +105,8 @@ void TRestComponentDataSet::Initialize() {
 /// of the distribution.
 ///
 Double_t TRestComponentDataSet::GetRate(std::vector<Double_t> point) {
-    if (!IsDataSetLoaded()) {
-        RESTError << "TRestComponentDataSet::GetRate. Dataset has not been loaded" << RESTendl;
+    if (!HasNodes()) {
+        RESTError << "TRestComponentDataSet::GetRate. The component has no nodes!" << RESTendl;
         RESTError << "Try calling TRestComponentDataSet::LoadDataSets" << RESTendl;
 
         RESTInfo << "Trying to load datasets" << RESTendl;
@@ -188,8 +188,9 @@ void TRestComponentDataSet::PrintMetadata() {
 void TRestComponentDataSet::PrintStatistics() {
     if (fNodeStatistics.empty() && IsDataSetLoaded()) fNodeStatistics = ExtractNodeStatistics();
 
-    if (!IsDataSetLoaded()) {
-        RESTWarning << "TRestComponentDataSet::PrintStatistics. No dataset loaded." << RESTendl;
+    if (!HasNodes() && !IsDataSetLoaded()) {
+        RESTWarning << "TRestComponentDataSet::PrintStatistics. Empty nodes and no dataset loaded!"
+                    << RESTendl;
         RESTWarning << "Invoking TRestComponentDataSet::LoadDataSets might solve the problem" << RESTendl;
         return;
     }
@@ -241,6 +242,8 @@ void TRestComponentDataSet::FillHistograms() {
     int nIndex = 0;
     for (const auto& node : fParameterizationNodes) {
         ROOT::RDF::RNode df = ROOT::RDataFrame(0);
+        //// Yet not tested in the case when we want to define a unique node without filters
+        //// Needs to be improved
         if (fParameterizationNodes.size() == 1 && node == -137) {
             RESTInfo << "Creating component with no parameters (full dataset used)" << RESTendl;
             df = fDataSet.GetDataFrame();
@@ -322,7 +325,7 @@ THnD* TRestComponentDataSet::GetDensityForActiveNode() {
 /// provided in the argument
 ///
 TH1D* TRestComponentDataSet::GetHistogram(Double_t node, std::string varName) {
-    if (!ValidDataSet()) return nullptr;
+    if (!ValidNode(node)) return nullptr;
 
     Int_t v1 = GetVariableIndex(varName);
 
@@ -337,7 +340,7 @@ TH1D* TRestComponentDataSet::GetHistogram(Double_t node, std::string varName) {
 /// the active node.
 ///
 TH1D* TRestComponentDataSet::GetHistogram(std::string varName) {
-    if (!ValidDataSet()) return nullptr;
+    if (fActiveNode < 0) return nullptr;
 
     Int_t v1 = GetVariableIndex(varName);
 
@@ -351,7 +354,7 @@ TH1D* TRestComponentDataSet::GetHistogram(std::string varName) {
 /// provided in the argument
 ///
 TH2D* TRestComponentDataSet::GetHistogram(Double_t node, std::string varName1, std::string varName2) {
-    if (!ValidDataSet()) return nullptr;
+    if (!ValidNode(node)) return nullptr;
 
     Int_t v1 = GetVariableIndex(varName1);
     Int_t v2 = GetVariableIndex(varName2);
@@ -367,7 +370,7 @@ TH2D* TRestComponentDataSet::GetHistogram(Double_t node, std::string varName1, s
 /// the active node.
 ///
 TH2D* TRestComponentDataSet::GetHistogram(std::string varName1, std::string varName2) {
-    if (!ValidDataSet()) return nullptr;
+    if (fActiveNode < 0) return nullptr;
 
     Int_t v1 = GetVariableIndex(varName1);
     Int_t v2 = GetVariableIndex(varName2);
@@ -384,7 +387,7 @@ TH2D* TRestComponentDataSet::GetHistogram(std::string varName1, std::string varN
 ///
 TH3D* TRestComponentDataSet::GetHistogram(Double_t node, std::string varName1, std::string varName2,
                                           std::string varName3) {
-    if (!ValidDataSet()) return nullptr;
+    if (!ValidNode(node)) return nullptr;
 
     Int_t v1 = GetVariableIndex(varName1);
     Int_t v2 = GetVariableIndex(varName2);
@@ -401,7 +404,7 @@ TH3D* TRestComponentDataSet::GetHistogram(Double_t node, std::string varName1, s
 /// the active node.
 ///
 TH3D* TRestComponentDataSet::GetHistogram(std::string varName1, std::string varName2, std::string varName3) {
-    if (!ValidDataSet()) return nullptr;
+    if (fActiveNode < 0) return nullptr;
 
     Int_t v1 = GetVariableIndex(varName1);
     Int_t v2 = GetVariableIndex(varName2);
@@ -480,8 +483,7 @@ std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
 Bool_t TRestComponentDataSet::LoadDataSets() {
     if (fDataSetFileNames.empty()) {
         RESTWarning << "Dataset filename was not defined. You may still use "
-                       "TRestComponentDataSet::LoadDataSet( filename );"
-                    << RESTendl;
+                       "TRestComponentDataSet::LoadDataSet( filename );" << RESTendl;
         fDataSetLoaded = false;
         return fDataSetLoaded;
     }
@@ -561,7 +563,7 @@ Bool_t TRestComponentDataSet::WeightsOk() {
 ///
 Bool_t TRestComponentDataSet::ValidDataSet() {
     if (!IsDataSetLoaded()) {
-        RESTWarning << "TRestComponentDataSet::GetRate. Dataset has not been loaded" << RESTendl;
+        RESTWarning << "TRestComponentDataSet::ValidDataSet. Dataset has not been loaded" << RESTendl;
         RESTWarning << "Try calling TRestComponentDataSet::LoadDataSets" << RESTendl;
 
         RESTInfo << "Trying to load datasets" << RESTendl;
@@ -575,7 +577,7 @@ Bool_t TRestComponentDataSet::ValidDataSet() {
     }
 
     if (HasNodes() && fActiveNode == -1) {
-        RESTError << "TRestComponentDataSet::GetRate. Active node has not been defined" << RESTendl;
+        RESTError << "TRestComponentDataSet::ValidDataSet. Active node has not been defined" << RESTendl;
         return false;
     }
     return true;
