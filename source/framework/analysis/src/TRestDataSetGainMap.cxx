@@ -657,7 +657,9 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
     std::vector<std::vector<TH1F*>> h(fNumberOfSegmentsX, std::vector<TH1F*>(fNumberOfSegmentsY, nullptr));
     for (size_t i = 0; i < h.size(); i++) {
         for (size_t j = 0; j < h.at(0).size(); j++) {
-            h[i][j] = new TH1F("", "", fNBins, fCalibRange.X(),
+            std::string name = "hSpc_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId) + "_" +
+                               std::to_string(i) + "_" + std::to_string(j);
+            h[i][j] = new TH1F(name.c_str(), "", fNBins, fCalibRange.X(),
                                fCalibRange.Y());  // h[column][row] equivalent to h[x][y]
         }
     }
