@@ -171,7 +171,8 @@ class TRestDataSetGainMap : public TRestMetadata {
         void DrawGainMap(const int peakNumber = 0);
 
         void Refit(const double x, const double y, const double energy, const TVector2& range);
-        void Refit(const int x, const int y, const int peakNumber, const TVector2& range);
+        void Refit(const size_t x, const size_t y, const size_t peakNumber, const TVector2& range);
+        void UpdateCalibrationFits(const size_t x, const size_t y);
 
         void SetPlaneId(const Int_t& planeId) { fPlaneId = planeId; }
         void SetModuleId(const Int_t& moduleId) { fModuleId = moduleId; }

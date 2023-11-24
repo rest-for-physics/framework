@@ -831,31 +831,75 @@ void TRestDataSetGainMap::Module::Refit(const double x, const double y, const do
         RESTError << "Energy " << energyPeak << " not found in the list of energy peaks" << p->RESTendl;
         return;
     }
-    Refit(index_x, index_y, peakNumber, range);
+    Refit((size_t)index_x, (size_t)index_y, (size_t)peakNumber, range);
 }
 
 /////////////////////////////////////////////
-/// \brief Function to fit again manually a peak for a given segment of the module.
+/// \brief Function to fit again manually a peak for a given segment of the module. The
+/// calibration curve is updated after the fit.
 ///
 /// \param x index along X-axis of the corresponding segment.
 /// \param y index along Y-axis of the corresponding segment.
 /// \param peakNumber The index of the peak to be fitted.
 /// \param range The range for the fitting of the peak (in the observables corresponding units).
 ///
-void TRestDataSetGainMap::Module::Refit(const int x, const int y, const int peakNumber,
+void TRestDataSetGainMap::Module::Refit(const size_t x, const size_t y, const size_t peakNumber,
                                         const TVector2& range) {
+    if (fSegSpectra.empty()) {
+        RESTError << "No gain map found. Use GenerateGainMap() first." << p->RESTendl;
+        return;
+    }
+    if (x >= fSegSpectra.size() || y >= fSegSpectra.at(0).size()) {
+        RESTError << "Segment with index (" << x << ", " << y << ") not found" << p->RESTendl;
+        return;
+    }
+    if (peakNumber >= fEnergyPeaks.size()) {
+        RESTError << "Peak with index " << peakNumber << " not found" << p->RESTendl;
+        return;
+    }
+
     // Refit the desired peak
     std::string name = "g" + std::to_string(peakNumber);
     TF1* g = new TF1(name.c_str(), "gaus", range.X(), range.Y());
     TH1F* h = fSegSpectra.at(x).at(y);
-    if (h->GetFunction(name.c_str()))  // remove previous fit
+    while (h->GetFunction(name.c_str()))  // clear previous fits for this peakNumber
         h->GetListOfFunctions()->Remove(h->GetFunction(name.c_str()));
     h->Fit(g, "R+Q0");  // use 0 to not draw the fit but save it
-    const double mu = g->GetParameter(1);
 
     // Change the point of the graph
+    UpdateCalibrationFits(x, y);
+}
+
+/////////////////////////////////////////////
+/// \brief Function to update the calibration curve for a given segment of the module. The calibration
+/// curve is cleared and then the means of the gaussian fits for each energy peak are added. If there are
+/// less than 2 fits, zero points are added. Then, the calibration curve is refitted (linearFit).
+///
+/// \param x index along X-axis of the corresponding segment.
+/// \param y index along Y-axis of the corresponding segment.
+///
+void TRestDataSetGainMap::Module::UpdateCalibrationFits(const size_t x, const size_t y) {
+    TH1F* h = fSegSpectra.at(x).at(y);
+
+    // Change the points of the graph
     TGraph* gr = fSegLinearFit.at(x).at(y);
-    gr->SetPoint(peakNumber, mu, fEnergyPeaks.at(peakNumber));
+    for (size_t i = 0; i < fEnergyPeaks.size(); i++) gr->RemovePoint(i);
+
+    int c = 0;
+    for (size_t i = 0; i < fEnergyPeaks.size(); i++) {
+        TF1* g = h->GetFunction(((std::string) "g" + std::to_string(peakNumber)).c_str());
+        if (!g)
+            RESTWarning << "No fit found for energy peak " << newPeakPos << " in segment " << x << "," << y
+                        << p->RESTendl;
+        gr->SetPoint(c++, g->GetParameter(1), fEnergyPeaks[i]);
+    }
+
+    // Add zero points if needed (if there are less than 2 points)
+    while (gr->GetN() < 2) {
+        gr->AddPoint(0, 0);
+        RESTWarning << "Not enough points for linear fit at segment (" << x << ", " << y
+                    << "). Adding zero point." << p->RESTendl;
+    }
 
     // Refit the calibration curve
     TF1* lf = nullptr;
@@ -979,7 +1023,7 @@ void TRestDataSetGainMap::Module::DrawSpectrum(const size_t index_x, const size_
         for (size_t c = 0; c < fEnergyPeaks.size(); c++) {
             auto fit = fSegSpectra[index_x][index_y]->GetFunction(("g" + std::to_string(c)).c_str());
             if (!fit) RESTError << "Fit for energy peak" << fEnergyPeaks[c] << " not found." << p->RESTendl;
-            if (!fit) break;
+            if (!fit) continue;
             fit->SetLineColor(c + 2 != colorT++ ? c + 2 : c + 3); /* does not work with kRed, kBlue, etc.
                   as they are not defined with the same number as the first 10 basic colors. See
                   https://root.cern.ch/doc/master/classTColor.html#C01 and
