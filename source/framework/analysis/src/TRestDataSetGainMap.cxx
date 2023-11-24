@@ -37,30 +37,31 @@
 /// the following plot that can be obtain with the function
 /// TRestDataSetGainMap::Module::DrawSpectrum()
 ///
-/// \htmlonly <style>div.image img[src="drawSpectrum.png"]{width:600px;}</style> \endhtmlonly
+/// \htmlonly <style>div.image img[src="drawSpectrum.png"]{width:300px;}</style> \endhtmlonly
 /// ![Peak fitting of each segment. Plot obtain with
 /// TRestDataSetGainMap::Module::DrawSpectrum()](drawSpectrum.png)
 ///
 /// Also, the peak position provides a gain map that can be plotted with the function
 /// TRestDataSetGainMap::Module::DrawGainMap(peakNumber)
 ///
-/// \htmlonly <style>div.image img[src="drawGainMap.png"]{width:600px;}</style> \endhtmlonly
+/// \htmlonly <style>div.image img[src="drawGainMap.png"]{width:200px;}</style> \endhtmlonly
 /// ![Gain map. Plot obtain with TRestDataSetGainMap::Module::DrawGainMap()](drawGainMap.png)
 ///
 /// The result is a better energy resolution with the gain corrected
 /// calibration (red) than the plain calibration (blue).
 ///
-/// \htmlonly <style>div.image img[src="gainCorrectionComparison.png"]{width:600px;}</style> \endhtmlonly
+/// \htmlonly <style>div.image img[src="gainCorrectionComparison.png"]{width:200px;}</style> \endhtmlonly
 /// ![Gain correction comparison.](gainCorrectionComparison.png)
 
 /// ### Parameters
-/// * **calibFileName**: name of the file to use for the calibration. It should be a DataSet
+/// * **calibFileName**: name of the file to use for the calibration. It should be a TRestDataSet
 /// * **outputFileName**: name of the file to save this calibration metadata
-/// * **observable**: name of the observable to be calibrated. It must be a branch of the calibration DataSet
+/// * **observable**: name of the observable to be calibrated. It must be a branch of the calibration
+/// TRestDataSet
 /// * **spatialObservableX**: name of the observable to be used for the spatial segmentation along the X axis.
-/// It must be a branch of the calibration DataSet
+/// It must be a column (branch) of the calibration TRestDataSet
 /// * **spatialObservableY**: name of the observable to be used for the spatial segmentation along the Y axis.
-/// It must be a branch of the calibration DataSet
+/// It must be a column (branch) of the calibration TRestDataSet
 /// * **modulesCal**: vector of Module objects
 ///
 /// ### Examples
@@ -80,20 +81,21 @@
 ///
 /// Example to calculate the calibration parameters over a calibration dataSet using restRoot:
 /// \code
-/// TRestDataSetGainMap cal ("calibrationCorrection.rml");
-/// cal.SetCalibrationFileName("myDataSet.root"); //if not already defined in rml file
-/// cal.SetOutputFileName("myCalibration.root"); //if not already defined in rml file
-/// cal.GenerateGainMap();
-/// cal.Export(); // cal.Export("anyOtherFileName.root")
+/// TRestDataSetGainMap gm ("calibrationCorrection.rml");
+/// gm.SetCalibrationFileName("myDataSet.root"); //if not already defined in rml file
+/// gm.SetOutputFileName("myCalibration.root"); //if not already defined in rml file
+/// gm.GenerateGainMap();
+/// gm.Export(); // gm.Export("anyOtherFileName.root")
 /// \endcode
 ///
 /// Example to calibrate a dataSet with the previously calculated calibration parameters
 /// and draw the result (using restRoot):
 /// \code
-/// TRestDataSetGainMap cal;
-/// cal.Import("myCalibration.root");
-/// cal.CalibrateDataSet("dataSetToCalibrate.root", "calibratedDataSet.root");
-/// TRestDataSet ds("calibratedDataSet.root");
+/// TRestDataSetGainMap gm;
+/// gm.Import("myCalibration.root");
+/// gm.CalibrateDataSet("dataSetToCalibrate.root", "calibratedDataSet.root");
+/// TRestDataSet ds;
+/// ds.Import("calibratedDataSet.root");
 /// auto h = ds.GetDataFrame().Histo1D({"hname", "",100,-1,40.}, "calib_ThresholdIntegral");
 /// h->Draw();
 /// \endcode
@@ -101,22 +103,23 @@
 /// Example to refit manually the peaks of the gain map if any of them is not well fitted
 /// (using restRoot):
 /// \code
-/// TRestDataSetGainMap cal;
-/// cal.Import("myCalibration.root");
+/// TRestDataSetGainMap gm;
+/// gm.Import("myCalibration.root");
 /// // Draw all segmented spectra and check if any need a refit
-/// for (auto pID : cal.GetPlaneIDs())
-///     for (auto mID : cal.GetModuleIDs(pID))
-///         cal.GetModule(pID,mID)->DrawSpectrum();
+/// for (auto pID : gm.GetPlaneIDs())
+///     for (auto mID : gm.GetModuleIDs(pID))
+///         gm.GetModule(pID,mID)->DrawSpectrum();
 /// // Draw only the desired spectrum (the one at position (x,y)=(0,0) in this case)
-/// cal.GetModule(0,0)->DrawSpectrum(0.0, 0.0);
+/// gm.GetModule(0,0)->DrawSpectrum(0.0, 0.0);
 /// // Refit the desired peak (peak with energy 22.5 in this case) with a new range
 /// TVector2 range(100000, 200000); // Define here the new range for the fit as you wish
-/// cal.GetModule(0,0)->Refit(0.0, 0.0, 22.5, range)
+/// gm.GetModule(0,0)->Refit(0.0, 0.0, 22.5, range)
 /// // Check the result
-/// cal.GetModule(0,0)->DrawSpectrum(0.0, 0.0);
-/// Export the new calibration
-/// cal.Export(); // cal.Export("anyOtherFileName.root")
+/// gm.GetModule(0,0)->DrawSpectrum(0.0, 0.0);
+/// // Export the new calibration
+/// gm.Export(); // gm.Export("anyOtherFileName.root")
 /// \endcode
+///
 ///----------------------------------------------------------------------
 ///
 /// REST-for-Physics - Software for Rare Event Searches Toolkit
@@ -201,7 +204,12 @@ void TRestDataSetGainMap::GenerateGainMap() {
 }
 
 /////////////////////////////////////////////
-/// \brief Function to calibrate a dataSet
+/// \brief Function to calibrate a dataset.
+///
+/// \param dataSetFileName the name of the root file where the TRestDataSet to be calibrated is stored.
+/// \param outputFileName the name of the output (root) file where the calibrated TRestDataSet will be
+/// exported. If empty, the output file will be named as the input file with the suffix "_cc". E.g.
+/// "data/myDataSet.root" -> "data/myDataSet_cc.root".
 ///
 void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, std::string outputFileName) {
     if (fModulesCal.empty()) {
@@ -397,6 +405,8 @@ void TRestDataSetGainMap::Import(const std::string& fileName) {
 /////////////////////////////////////////////
 /// \brief Function to export the calibration
 /// to the file fileName.
+/// \param fileName The name of the output file. If empty, the output file
+/// will be the fOutputFileName class member.
 ///
 void TRestDataSetGainMap::Export(const std::string& fileName) {
     if (!fileName.empty()) fOutputFileName = fileName;
