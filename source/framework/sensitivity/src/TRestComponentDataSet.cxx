@@ -325,13 +325,8 @@ THnD* TRestComponentDataSet::GetDensityForActiveNode() {
 /// provided in the argument
 ///
 TH1D* TRestComponentDataSet::GetHistogram(Double_t node, std::string varName) {
-    if (!ValidNode(node)) return nullptr;
-
-    Int_t v1 = GetVariableIndex(varName);
-
-    if (v1 >= 0) return GetDensityForNode(node)->Projection(v1);
-
-    return nullptr;
+    SetActiveNode(node);
+    return GetHistogram(varName);
 }
 
 /////////////////////////////////////////////
@@ -354,14 +349,8 @@ TH1D* TRestComponentDataSet::GetHistogram(std::string varName) {
 /// provided in the argument
 ///
 TH2D* TRestComponentDataSet::GetHistogram(Double_t node, std::string varName1, std::string varName2) {
-    if (!ValidNode(node)) return nullptr;
-
-    Int_t v1 = GetVariableIndex(varName1);
-    Int_t v2 = GetVariableIndex(varName2);
-
-    if (v1 >= 0 && v2 >= 0) return GetDensityForNode(node)->Projection(v1, v2);
-
-    return nullptr;
+    SetActiveNode(node);
+    return GetHistogram(varName1, varName2);
 }
 
 /////////////////////////////////////////////
@@ -387,15 +376,8 @@ TH2D* TRestComponentDataSet::GetHistogram(std::string varName1, std::string varN
 ///
 TH3D* TRestComponentDataSet::GetHistogram(Double_t node, std::string varName1, std::string varName2,
                                           std::string varName3) {
-    if (!ValidNode(node)) return nullptr;
-
-    Int_t v1 = GetVariableIndex(varName1);
-    Int_t v2 = GetVariableIndex(varName2);
-    Int_t v3 = GetVariableIndex(varName3);
-
-    if (v1 >= 0 && v2 >= 0 && v3 >= 0) return GetDensityForNode(node)->Projection(v1, v2, v3);
-
-    return nullptr;
+    SetActiveNode(node);
+    return GetHistogram(varName1, varName2, varName3);
 }
 
 /////////////////////////////////////////////
