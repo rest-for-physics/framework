@@ -897,10 +897,11 @@ void TRestDataSetGainMap::Module::UpdateCalibrationFits(const size_t x, const si
 
     int c = 0;
     for (size_t i = 0; i < fEnergyPeaks.size(); i++) {
-        TF1* g = h->GetFunction(((std::string) "g" + std::to_string(peakNumber)).c_str());
+        std::string fitName = (std::string) "g" + std::to_string(i);
+        TF1* g = h->GetFunction(fitName.c_str());
         if (!g)
-            RESTWarning << "No fit found for energy peak " << newPeakPos << " in segment " << x << "," << y
-                        << p->RESTendl;
+            RESTWarning << "No fit ( " << fitName << " ) found for energy peak " << fEnergyPeaks[i]
+                        << " in segment " << x << "," << y << p->RESTendl;
         gr->SetPoint(c++, g->GetParameter(1), fEnergyPeaks[i]);
     }
 
@@ -1032,7 +1033,7 @@ void TRestDataSetGainMap::Module::DrawSpectrum(const size_t index_x, const size_
     if (drawFits)
         for (size_t c = 0; c < fEnergyPeaks.size(); c++) {
             auto fit = fSegSpectra[index_x][index_y]->GetFunction(("g" + std::to_string(c)).c_str());
-            if (!fit) RESTError << "Fit for energy peak" << fEnergyPeaks[c] << " not found." << p->RESTendl;
+            if (!fit) RESTWarning << "Fit for energy peak" << fEnergyPeaks[c] << " not found." << p->RESTendl;
             if (!fit) continue;
             fit->SetLineColor(c + 2 != colorT++ ? c + 2 : c + 3); /* does not work with kRed, kBlue, etc.
                   as they are not defined with the same number as the first 10 basic colors. See
