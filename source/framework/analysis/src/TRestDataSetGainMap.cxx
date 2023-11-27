@@ -109,13 +109,13 @@
 /// for (auto pID : gm.GetPlaneIDs())
 ///     for (auto mID : gm.GetModuleIDs(pID))
 ///         gm.GetModule(pID,mID)->DrawSpectrum();
-/// // Draw only the desired spectrum (the one at position (x,y)=(0,0) in this case)
-/// gm.GetModule(0,0)->DrawSpectrum(0.0, 0.0);
+/// // Draw only the desired spectrum (segment 0,0 in this case)
+/// gm.GetModule(0,0)->DrawSpectrum(0, 0);
 /// // Refit the desired peak (peak with energy 22.5 in this case) with a new range
 /// TVector2 range(100000, 200000); // Define here the new range for the fit as you wish
-/// gm.GetModule(0,0)->Refit(0.0, 0.0, 22.5, range)
+/// gm.GetModule(0,0)->Refit(TVector2(0,0), 22.5, range);
 /// // Check the result
-/// gm.GetModule(0,0)->DrawSpectrum(0.0, 0.0);
+/// gm.GetModule(0,0)->DrawSpectrum(TVector2(0.0,0.0)); // using x,y physical coord is possible
 /// // Export the new calibration
 /// gm.Export(); // gm.Export("anyOtherFileName.root")
 /// \endcode
