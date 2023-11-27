@@ -156,28 +156,20 @@ Double_t TRestComponentDataSet::GetTotalRate() {
 void TRestComponentDataSet::PrintMetadata() {
     TRestComponent::PrintMetadata();
 
-    if (fVariables.size() != fRanges.size())
-        RESTWarning << "The number of variables does not match with the number of defined ranges!"
-                    << RESTendl;
-
-    else if (fVariables.size() != fNbins.size())
-        RESTWarning << "The number of variables does not match with the number of defined bins!" << RESTendl;
-    else {
-        int n = 0;
-        RESTMetadata << " === Variables === " << RESTendl;
-        for (const auto& varName : fVariables) {
-            RESTMetadata << " - Name: " << varName << " Range: (" << fRanges[n].X() << ", " << fRanges[n].Y()
-                         << ") bins: " << fNbins[n] << RESTendl;
-            n++;
-        }
-    }
-
-    RESTMetadata << "----" << RESTendl;
-
     if (!fParameter.empty() && fParameterizationNodes.empty()) {
         RESTMetadata << "This component has no nodes!" << RESTendl;
         RESTMetadata << " Use: LoadDataSets() to initialize the nodes" << RESTendl;
     }
+
+    if (!fWeights.empty()) {
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << " == Weights ==" << RESTendl;
+
+        for (const auto& x : fWeights) RESTMetadata << "- " << x << RESTendl;
+
+        RESTMetadata << " " << RESTendl;
+    }
+
     RESTMetadata << " Use : PrintStatistics() to check node statistics" << RESTendl;
     RESTMetadata << "----" << RESTendl;
 }
@@ -186,7 +178,7 @@ void TRestComponentDataSet::PrintMetadata() {
 /// \brief It prints out the statistics available for each parametric node
 ///
 void TRestComponentDataSet::PrintStatistics() {
-    if (fNodeStatistics.empty() && IsDataSetLoaded()) fNodeStatistics = ExtractNodeStatistics();
+    if (fNSimPerNode.empty() && IsDataSetLoaded()) fNSimPerNode = ExtractNodeStatistics();
 
     if (!HasNodes() && !IsDataSetLoaded()) {
         RESTWarning << "TRestComponentDataSet::PrintStatistics. Empty nodes and no dataset loaded!"
@@ -195,14 +187,14 @@ void TRestComponentDataSet::PrintStatistics() {
         return;
     }
 
-    auto result = std::accumulate(fNodeStatistics.begin(), fNodeStatistics.end(), 0);
+    auto result = std::accumulate(fNSimPerNode.begin(), fNSimPerNode.end(), 0);
     std::cout << "Total counts : " << result << std::endl;
     std::cout << std::endl;
 
     std::cout << " Parameter node statistics (" << fParameter << ")" << std::endl;
     int n = 0;
     for (const auto& p : fParameterizationNodes) {
-        std::cout << " - Value : " << p << " Counts: " << fNodeStatistics[n] << std::endl;
+        std::cout << " - Value : " << p << " Counts: " << fNSimPerNode[n] << std::endl;
         n++;
     }
 }
@@ -225,7 +217,7 @@ void TRestComponentDataSet::InitFromConfigFile() {
 /// variables and the weights for each of the parameter nodes.
 ///
 void TRestComponentDataSet::FillHistograms() {
-    fNodeStatistics = ExtractNodeStatistics();
+    fNSimPerNode = ExtractNodeStatistics();
 
     if (!IsDataSetLoaded()) {
         RESTError << "TRestComponentDataSet::FillHistograms. Dataset has not been initialized!" << RESTendl;
@@ -270,21 +262,20 @@ void TRestComponentDataSet::FillHistograms() {
 
         std::vector<std::string> varsAndWeight = fVariables;
 
-        /*
         if (!fWeights.empty()) {
-                std::string weightsStr = "";
-                for (size_t n = 0; n < fWeights.size(); n++) {
-                        if (n > 0) weightsStr += "*";
+            std::string weightsStr = "";
+            for (size_t n = 0; n < fWeights.size(); n++) {
+                if (n > 0) weightsStr += "*";
 
-                        weightsStr += fWeights[n];
-                }
-                df = df.Define("componentWeight", weightsStr);
-                varsAndWeight.push_back("componentWeight");
+                weightsStr += fWeights[n];
+            }
+            df = df.Define("componentWeight", weightsStr);
+            varsAndWeight.push_back("componentWeight");
         }
-        */
 
         auto hn = df.HistoND({hName, hName, (int)fNbins.size(), bins, xmin, xmax}, varsAndWeight);
         THnD* hNd = new THnD(*hn);
+        hNd->Scale(1. / fNSimPerNode[nIndex]);
 
         fNodeDensity.push_back(hNd);
         fActiveNode = nIndex;
@@ -434,11 +425,11 @@ std::vector<Double_t> TRestComponentDataSet::ExtractParameterizationNodes() {
 /// \brief It returns a vector with the number of entries found for each
 /// parameterization node.
 ///
-/// If fNodeStatistics has already been initialized it will
+/// If fNSimPerNode has already been initialized it will
 /// directly return its value.
 ///
 std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
-    if (!fNodeStatistics.empty()) return fNodeStatistics;
+    if (!fNSimPerNode.empty()) return fNSimPerNode;
 
     std::vector<Int_t> stats;
     if (!IsDataSetLoaded()) {

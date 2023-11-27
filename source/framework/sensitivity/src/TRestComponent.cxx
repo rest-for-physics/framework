@@ -106,12 +106,14 @@ void TRestComponent::PrintMetadata() {
         RESTWarning << "The number of variables does not match with the number of defined ranges!"
                     << RESTendl;
 
-    else if (!fVariables.empty()) {
+    else if (fVariables.size() != fNbins.size())
+        RESTWarning << "The number of variables does not match with the number of defined bins!" << RESTendl;
+    else {
         int n = 0;
         RESTMetadata << " === Variables === " << RESTendl;
         for (const auto& varName : fVariables) {
             RESTMetadata << " - Name: " << varName << " Range: (" << fRanges[n].X() << ", " << fRanges[n].Y()
-                         << ")" << RESTendl;
+                         << ") bins: " << fNbins[n] << RESTendl;
             n++;
         }
     }

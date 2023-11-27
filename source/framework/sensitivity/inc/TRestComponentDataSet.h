@@ -34,8 +34,8 @@ class TRestComponentDataSet : public TRestComponent {
     /// A list with the dataset columns used to weight the distribution density and define rate
     std::vector<std::string> fWeights;  //<
 
-    /// It defines the statistics of each parameterization node (Initialized by the dataset)
-    std::vector<Int_t> fNodeStatistics;  //<
+    /// It defines the number of entries for each parameterization node (Initialized by the dataset)
+    std::vector<Int_t> fNSimPerNode;  //<
 
     /// The filename of the dataset used
     std::vector<std::string> fDataSetFileNames;  //<
