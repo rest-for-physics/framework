@@ -823,14 +823,13 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
 /////////////////////////////////////////////
 /// \brief Function to fit again manually a peak for a given segment of the module.
 ///
-/// \param x position along X-axis at the detector module (in physical units).
-/// \param y position along Y-axis at the detector module (in physical units).
+/// \param position position along X and Y axes at the detector module (in physical units).
 /// \param energyPeak The energy of the peak to be fitted (in physical units).
 /// \param range The range for the fitting of the peak (in the observables corresponding units).
 ///
-void TRestDataSetGainMap::Module::Refit(const double x, const double y, const double energyPeak,
+void TRestDataSetGainMap::Module::Refit(const TVector2& position, const double energyPeak,
                                         const TVector2& range) {
-    auto [index_x, index_y] = GetIndexMatrix(x, y);
+    auto [index_x, index_y] = GetIndexMatrix(position.X(), position.Y());
     int peakNumber = -1;
     for (size_t i = 0; i < fEnergyPeaks.size(); i++)
         if (fEnergyPeaks.at(i) == energyPeak) {
@@ -1005,19 +1004,20 @@ void TRestDataSetGainMap::Module::LoadConfigFromTiXmlElement(const TiXmlElement*
     }
 }
 
-void TRestDataSetGainMap::Module::DrawSpectrum(const double x, const double y, bool drawFits, int color,
+void TRestDataSetGainMap::Module::DrawSpectrum(const TVector2& position, bool drawFits, int color,
                                                TCanvas* c) {
-    std::pair<size_t, size_t> index = GetIndexMatrix(x, y);
+    std::pair<size_t, size_t> index = GetIndexMatrix(position.X(), position.Y());
     DrawSpectrum(index.first, index.second, drawFits, color, c);
 }
 
-void TRestDataSetGainMap::Module::DrawSpectrum(const size_t index_x, const size_t index_y, bool drawFits,
-                                               int color, TCanvas* c) {
+void TRestDataSetGainMap::Module::DrawSpectrum(const int index_x, const int index_y, bool drawFits, int color,
+                                               TCanvas* c) {
     if (fSegSpectra.size() == 0) {
         RESTError << "Spectra matrix is empty." << p->RESTendl;
         return;
     }
-    if (index_x >= fSegSpectra.size() || index_y >= fSegSpectra.at(index_x).size()) {
+    if (index_x < 0 || index_y < 0 || index_x >= (int)fSegSpectra.size() ||
+        index_y >= (int)fSegSpectra.at(index_x).size()) {
         RESTError << "Index out of range." << p->RESTendl;
         return;
     }
@@ -1046,7 +1046,7 @@ void TRestDataSetGainMap::Module::DrawSpectrum(const size_t index_x, const size_
             auto fit = fSegSpectra[index_x][index_y]->GetFunction(("g" + std::to_string(c)).c_str());
             if (!fit) RESTWarning << "Fit for energy peak" << fEnergyPeaks[c] << " not found." << p->RESTendl;
             if (!fit) continue;
-            fit->SetLineColor(c + 2 != colorT++ ? c + 2 : c + 3); /* does not work with kRed, kBlue, etc.
+            fit->SetLineColor(c + 2 != colorT ? c + 2 : ++colorT); /* does not work with kRed, kBlue, etc.
                   as they are not defined with the same number as the first 10 basic colors. See
                   https://root.cern.ch/doc/master/classTColor.html#C01 and
                   https://root.cern.ch/doc/master/classTColor.html#C02 */
@@ -1073,7 +1073,7 @@ void TRestDataSetGainMap::Module::DrawSpectrum(const size_t index_x, const size_
 /// \param c A TCanvas pointer to draw the spectra. If none (nullptr) is given,
 /// a new one is created.
 ///
-void TRestDataSetGainMap::Module::DrawSpectrum(bool drawFits, int color, TCanvas* c) {
+void TRestDataSetGainMap::Module::DrawSpectrum(const bool drawFits, const int color, TCanvas* c) {
     if (fSegSpectra.size() == 0) {
         RESTError << "Spectra matrix is empty." << p->RESTendl;
         return;
@@ -1121,17 +1121,18 @@ void TRestDataSetGainMap::Module::DrawFullSpectrum() {
     sumHist->Draw();
 }
 
-void TRestDataSetGainMap::Module::DrawLinearFit(const double x, const double y, TCanvas* c) {
-    std::pair<size_t, size_t> index = GetIndexMatrix(x, y);
+void TRestDataSetGainMap::Module::DrawLinearFit(const TVector2& position, TCanvas* c) {
+    std::pair<size_t, size_t> index = GetIndexMatrix(position.X(), position.Y());
     DrawLinearFit(index.first, index.second, c);
 }
 
-void TRestDataSetGainMap::Module::DrawLinearFit(const size_t index_x, const size_t index_y, TCanvas* c) {
+void TRestDataSetGainMap::Module::DrawLinearFit(const int index_x, const int index_y, TCanvas* c) {
     if (fSegLinearFit.size() == 0) {
         RESTError << "Spectra matrix is empty." << p->RESTendl;
         return;
     }
-    if (index_x >= fSegLinearFit.size() || index_y >= fSegLinearFit.at(index_x).size()) {
+    if (index_x < 0 || index_y < 0 || index_x >= (int)fSegLinearFit.size() ||
+        index_y >= (int)fSegLinearFit.at(index_x).size()) {
         RESTError << "Index out of range." << p->RESTendl;
         return;
     }
