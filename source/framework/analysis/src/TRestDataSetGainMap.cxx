@@ -889,25 +889,36 @@ void TRestDataSetGainMap::Module::Refit(const size_t x, const size_t y, const si
 /// \param y index along Y-axis of the corresponding segment.
 ///
 void TRestDataSetGainMap::Module::UpdateCalibrationFits(const size_t x, const size_t y) {
+    if (fSegSpectra.empty()) {
+        RESTError << "No gain map found. Use GenerateGainMap() first." << p->RESTendl;
+        return;
+    }
+    if (x >= fSegSpectra.size() || y >= fSegSpectra.at(0).size()) {
+        RESTError << "Segment with index (" << x << ", " << y << ") not found" << p->RESTendl;
+        return;
+    }
+
     TH1F* h = fSegSpectra.at(x).at(y);
-
-    // Change the points of the graph
     TGraph* gr = fSegLinearFit.at(x).at(y);
-    for (size_t i = 0; i < fEnergyPeaks.size(); i++) gr->RemovePoint(i);
 
+    // Clear the points of the graph
+    for (size_t i = 0; i < fEnergyPeaks.size(); i++) gr->RemovePoint(i);
+    // Add the new points to the graph
     int c = 0;
     for (size_t i = 0; i < fEnergyPeaks.size(); i++) {
         std::string fitName = (std::string) "g" + std::to_string(i);
         TF1* g = h->GetFunction(fitName.c_str());
-        if (!g)
+        if (!g) {
             RESTWarning << "No fit ( " << fitName << " ) found for energy peak " << fEnergyPeaks[i]
                         << " in segment " << x << "," << y << p->RESTendl;
+            continue;
+        }
         gr->SetPoint(c++, g->GetParameter(1), fEnergyPeaks[i]);
     }
 
     // Add zero points if needed (if there are less than 2 points)
     while (gr->GetN() < 2) {
-        gr->AddPoint(0, 0);
+        gr->SetPoint(c++, 0, 0);
         RESTWarning << "Not enough points for linear fit at segment (" << x << ", " << y
                     << "). Adding zero point." << p->RESTendl;
     }
