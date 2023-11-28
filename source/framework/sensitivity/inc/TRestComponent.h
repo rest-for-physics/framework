@@ -24,6 +24,7 @@
 #define REST_TRestComponent
 
 #include <THn.h>
+#include <TCanvas.h>
 
 #include "TRestDataSet.h"
 #include "TRestMetadata.h"
@@ -48,6 +49,9 @@ class TRestComponent : public TRestMetadata {
 
     /// It is used to define the node that will be accessed for rate retrieval
     Int_t fActiveNode = -1;  //<
+
+    /// A canvas for drawing the active node component
+    TCanvas* fCanvas = nullptr;  //!
 
     /// It returns true if any nodes have been defined.
     Bool_t HasNodes() { return !fParameterizationNodes.empty(); }

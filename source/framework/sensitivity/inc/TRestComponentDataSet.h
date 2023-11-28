@@ -75,6 +75,9 @@ class TRestComponentDataSet : public TRestComponent {
     Double_t GetRate(std::vector<Double_t> point) override;
     Double_t GetTotalRate() override;
 
+    TCanvas* DrawComponent(std::vector<std::string> drawVariables, std::vector<std::string> scanVariables,
+                           Int_t reduction = 1);
+
     THnD* GetDensityForNode(Double_t value);
     THnD* GetDensityForActiveNode();
     THnD* GetDensity() { return GetDensityForActiveNode(); }

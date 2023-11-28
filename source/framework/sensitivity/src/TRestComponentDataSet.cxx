@@ -150,11 +150,75 @@ Double_t TRestComponentDataSet::GetTotalRate() {
     return integral;
 }
 
+///////////////////////////////////////////////
+/// \brief
+///
+TCanvas* TRestComponentDataSet::DrawComponent(std::vector<std::string> drawVariables,
+                                              std::vector<std::string> scanVariables, Int_t reduction) {
+    if (drawVariables.size() > 2) {
+        RESTError << "TRestComponentDataSet::DrawComponent. The number of variables that can be drawn cannot "
+                     "be more than 2!" << RESTendl;
+        return fCanvas;
+    }
+
+    if (scanVariables.size() > 2) {
+        RESTError << "TRestComponentDataSet::DrawComponent. The number of variables that can be scanned "
+                     "cannot be more than 2!" << RESTendl;
+        return fCanvas;
+    }
+
+    if (scanVariables.size() == 0) {
+        RESTError << "TRestComponentDataSet::DrawComponent. Needs at least one scan variable!" << RESTendl;
+        return fCanvas;
+    }
+
+    if (drawVariables.size() == 0) {
+        RESTError << "TRestComponentDataSet::DrawComponent. Needs at least one variable to be drawn!"
+                  << RESTendl;
+        return fCanvas;
+    }
+
+    // Initializing canvas window
+    if (fCanvas != nullptr) {
+        delete fCanvas;
+        fCanvas = nullptr;
+    }
+
+    std::vector<int> scanIndexes;
+    for (const auto& x : scanVariables) scanIndexes.push_back(GetVariableIndex(x));
+
+    std::vector<int> variableIndexes;
+    for (const auto& x : drawVariables) variableIndexes.push_back(GetVariableIndex(x));
+
+    if (scanIndexes.size() == 1) {
+        std::vector<int> canvasDivisions = TRestTools::CanvasDivisions(fNbins[scanIndexes[0]]);
+
+        std::cout << "- " <<
+    } else if (scanIndexes.size() == 2) {
+    }
+
+    fCanvas = new TCanvas(this->GetName(), this->GetName(), 0, 0, 640, 480);
+    /*
+    fCanvas->Divide((Int_t)fCanvasDivisions.X(), (Int_t)fCanvasDivisions.Y(),
+                    fCanvasDivisionMargins.X(), fCanvasDivisionMargins.Y());
+                    */
+    return fCanvas;
+}
+
 /////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
 ///
 void TRestComponentDataSet::PrintMetadata() {
     TRestComponent::PrintMetadata();
+
+    if (!fDataSetFileNames.empty()) {
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << " == Dataset filenames ==" << RESTendl;
+
+        for (const auto& x : fDataSetFileNames) RESTMetadata << "- " << x << RESTendl;
+
+        RESTMetadata << " " << RESTendl;
+    }
 
     if (!fParameter.empty() && fParameterizationNodes.empty()) {
         RESTMetadata << "This component has no nodes!" << RESTendl;
@@ -456,8 +520,7 @@ std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
 Bool_t TRestComponentDataSet::LoadDataSets() {
     if (fDataSetFileNames.empty()) {
         RESTWarning << "Dataset filename was not defined. You may still use "
-                       "TRestComponentDataSet::LoadDataSet( filename );"
-                    << RESTendl;
+                       "TRestComponentDataSet::LoadDataSet( filename );" << RESTendl;
         fDataSetLoaded = false;
         return fDataSetLoaded;
     }
