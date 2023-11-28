@@ -157,13 +157,15 @@ TCanvas* TRestComponentDataSet::DrawComponent(std::vector<std::string> drawVaria
                                               std::vector<std::string> scanVariables, Int_t reduction) {
     if (drawVariables.size() > 2) {
         RESTError << "TRestComponentDataSet::DrawComponent. The number of variables that can be drawn cannot "
-                     "be more than 2!" << RESTendl;
+                     "be more than 2!"
+                  << RESTendl;
         return fCanvas;
     }
 
     if (scanVariables.size() > 2) {
         RESTError << "TRestComponentDataSet::DrawComponent. The number of variables that can be scanned "
-                     "cannot be more than 2!" << RESTendl;
+                     "cannot be more than 2!"
+                  << RESTendl;
         return fCanvas;
     }
 
@@ -520,7 +522,8 @@ std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
 Bool_t TRestComponentDataSet::LoadDataSets() {
     if (fDataSetFileNames.empty()) {
         RESTWarning << "Dataset filename was not defined. You may still use "
-                       "TRestComponentDataSet::LoadDataSet( filename );" << RESTendl;
+                       "TRestComponentDataSet::LoadDataSet( filename );"
+                    << RESTendl;
         fDataSetLoaded = false;
         return fDataSetLoaded;
     }
