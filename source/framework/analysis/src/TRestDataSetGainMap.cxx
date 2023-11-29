@@ -37,30 +37,31 @@
 /// the following plot that can be obtain with the function
 /// TRestDataSetGainMap::Module::DrawSpectrum()
 ///
-/// \htmlonly <style>div.image img[src="drawSpectrum.png"]{width:600px;}</style> \endhtmlonly
+/// \htmlonly <style>div.image img[src="drawSpectrum.png"]{width:300px;}</style> \endhtmlonly
 /// ![Peak fitting of each segment. Plot obtain with
 /// TRestDataSetGainMap::Module::DrawSpectrum()](drawSpectrum.png)
 ///
 /// Also, the peak position provides a gain map that can be plotted with the function
 /// TRestDataSetGainMap::Module::DrawGainMap(peakNumber)
 ///
-/// \htmlonly <style>div.image img[src="drawGainMap.png"]{width:600px;}</style> \endhtmlonly
+/// \htmlonly <style>div.image img[src="drawGainMap.png"]{width:200px;}</style> \endhtmlonly
 /// ![Gain map. Plot obtain with TRestDataSetGainMap::Module::DrawGainMap()](drawGainMap.png)
 ///
 /// The result is a better energy resolution with the gain corrected
 /// calibration (red) than the plain calibration (blue).
 ///
-/// \htmlonly <style>div.image img[src="gainCorrectionComparison.png"]{width:600px;}</style> \endhtmlonly
+/// \htmlonly <style>div.image img[src="gainCorrectionComparison.png"]{width:200px;}</style> \endhtmlonly
 /// ![Gain correction comparison.](gainCorrectionComparison.png)
 
 /// ### Parameters
-/// * **calibFileName**: name of the file to use for the calibration. It should be a DataSet
+/// * **calibFileName**: name of the file to use for the calibration. It should be a TRestDataSet
 /// * **outputFileName**: name of the file to save this calibration metadata
-/// * **observable**: name of the observable to be calibrated. It must be a branch of the calibration DataSet
+/// * **observable**: name of the observable to be calibrated. It must be a branch of the calibration
+/// TRestDataSet
 /// * **spatialObservableX**: name of the observable to be used for the spatial segmentation along the X axis.
-/// It must be a branch of the calibration DataSet
+/// It must be a column (branch) of the calibration TRestDataSet
 /// * **spatialObservableY**: name of the observable to be used for the spatial segmentation along the Y axis.
-/// It must be a branch of the calibration DataSet
+/// It must be a column (branch) of the calibration TRestDataSet
 /// * **modulesCal**: vector of Module objects
 ///
 /// ### Examples
@@ -80,20 +81,21 @@
 ///
 /// Example to calculate the calibration parameters over a calibration dataSet using restRoot:
 /// \code
-/// TRestDataSetGainMap cal ("calibrationCorrection.rml");
-/// cal.SetCalibrationFileName("myDataSet.root"); //if not already defined in rml file
-/// cal.SetOutputFileName("myCalibration.root"); //if not already defined in rml file
-/// cal.GenerateGainMap();
-/// cal.Export(); // cal.Export("anyOtherFileName.root")
+/// TRestDataSetGainMap gm ("calibrationCorrection.rml");
+/// gm.SetCalibrationFileName("myDataSet.root"); //if not already defined in rml file
+/// gm.SetOutputFileName("myCalibration.root"); //if not already defined in rml file
+/// gm.GenerateGainMap();
+/// gm.Export(); // gm.Export("anyOtherFileName.root")
 /// \endcode
 ///
 /// Example to calibrate a dataSet with the previously calculated calibration parameters
 /// and draw the result (using restRoot):
 /// \code
-/// TRestDataSetGainMap cal;
-/// cal.Import("myCalibration.root");
-/// cal.CalibrateDataSet("dataSetToCalibrate.root", "calibratedDataSet.root");
-/// TRestDataSet ds("calibratedDataSet.root");
+/// TRestDataSetGainMap gm;
+/// gm.Import("myCalibration.root");
+/// gm.CalibrateDataSet("dataSetToCalibrate.root", "calibratedDataSet.root");
+/// TRestDataSet ds;
+/// ds.Import("calibratedDataSet.root");
 /// auto h = ds.GetDataFrame().Histo1D({"hname", "",100,-1,40.}, "calib_ThresholdIntegral");
 /// h->Draw();
 /// \endcode
@@ -101,22 +103,23 @@
 /// Example to refit manually the peaks of the gain map if any of them is not well fitted
 /// (using restRoot):
 /// \code
-/// TRestDataSetGainMap cal;
-/// cal.Import("myCalibration.root");
+/// TRestDataSetGainMap gm;
+/// gm.Import("myCalibration.root");
 /// // Draw all segmented spectra and check if any need a refit
-/// for (auto pID : cal.GetPlaneIDs())
-///     for (auto mID : cal.GetModuleIDs(pID))
-///         cal.GetModule(pID,mID)->DrawSpectrum();
-/// // Draw only the desired spectrum (the one at position (x,y)=(0,0) in this case)
-/// cal.GetModule(0,0)->DrawSpectrum(0.0, 0.0);
+/// for (auto pID : gm.GetPlaneIDs())
+///     for (auto mID : gm.GetModuleIDs(pID))
+///         gm.GetModule(pID,mID)->DrawSpectrum();
+/// // Draw only the desired spectrum (segment 0,0 in this case)
+/// gm.GetModule(0,0)->DrawSpectrum(0, 0);
 /// // Refit the desired peak (peak with energy 22.5 in this case) with a new range
 /// TVector2 range(100000, 200000); // Define here the new range for the fit as you wish
-/// cal.GetModule(0,0)->Refit(0.0, 0.0, 22.5, range)
+/// gm.GetModule(0,0)->Refit(TVector2(0,0), 22.5, range);
 /// // Check the result
-/// cal.GetModule(0,0)->DrawSpectrum(0.0, 0.0);
-/// Export the new calibration
-/// cal.Export(); // cal.Export("anyOtherFileName.root")
+/// gm.GetModule(0,0)->DrawSpectrum(TVector2(0.0,0.0)); // using x,y physical coord is possible
+/// // Export the new calibration
+/// gm.Export(); // gm.Export("anyOtherFileName.root")
 /// \endcode
+///
 ///----------------------------------------------------------------------
 ///
 /// REST-for-Physics - Software for Rare Event Searches Toolkit
@@ -201,7 +204,12 @@ void TRestDataSetGainMap::GenerateGainMap() {
 }
 
 /////////////////////////////////////////////
-/// \brief Function to calibrate a dataSet
+/// \brief Function to calibrate a dataset.
+///
+/// \param dataSetFileName the name of the root file where the TRestDataSet to be calibrated is stored.
+/// \param outputFileName the name of the output (root) file where the calibrated TRestDataSet will be
+/// exported. If empty, the output file will be named as the input file with the suffix "_cc". E.g.
+/// "data/myDataSet.root" -> "data/myDataSet_cc.root".
 ///
 void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, std::string outputFileName) {
     if (fModulesCal.empty()) {
@@ -397,6 +405,8 @@ void TRestDataSetGainMap::Import(const std::string& fileName) {
 /////////////////////////////////////////////
 /// \brief Function to export the calibration
 /// to the file fileName.
+/// \param fileName The name of the output file. If empty, the output file
+/// will be the fOutputFileName class member.
 ///
 void TRestDataSetGainMap::Export(const std::string& fileName) {
     if (!fileName.empty()) fOutputFileName = fileName;
@@ -657,7 +667,9 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
     std::vector<std::vector<TH1F*>> h(fNumberOfSegmentsX, std::vector<TH1F*>(fNumberOfSegmentsY, nullptr));
     for (size_t i = 0; i < h.size(); i++) {
         for (size_t j = 0; j < h.at(0).size(); j++) {
-            h[i][j] = new TH1F("", "", fNBins, fCalibRange.X(),
+            std::string name = "hSpc_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId) + "_" +
+                               std::to_string(i) + "_" + std::to_string(j);
+            h[i][j] = new TH1F(name.c_str(), "", fNBins, fCalibRange.X(),
                                fCalibRange.Y());  // h[column][row] equivalent to h[x][y]
         }
     }
@@ -811,14 +823,13 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
 /////////////////////////////////////////////
 /// \brief Function to fit again manually a peak for a given segment of the module.
 ///
-/// \param x position along X-axis at the detector module (in physical units).
-/// \param y position along Y-axis at the detector module (in physical units).
+/// \param position position along X and Y axes at the detector module (in physical units).
 /// \param energyPeak The energy of the peak to be fitted (in physical units).
 /// \param range The range for the fitting of the peak (in the observables corresponding units).
 ///
-void TRestDataSetGainMap::Module::Refit(const double x, const double y, const double energyPeak,
+void TRestDataSetGainMap::Module::Refit(const TVector2& position, const double energyPeak,
                                         const TVector2& range) {
-    auto [index_x, index_y] = GetIndexMatrix(x, y);
+    auto [index_x, index_y] = GetIndexMatrix(position.X(), position.Y());
     int peakNumber = -1;
     for (size_t i = 0; i < fEnergyPeaks.size(); i++)
         if (fEnergyPeaks.at(i) == energyPeak) {
@@ -829,31 +840,87 @@ void TRestDataSetGainMap::Module::Refit(const double x, const double y, const do
         RESTError << "Energy " << energyPeak << " not found in the list of energy peaks" << p->RESTendl;
         return;
     }
-    Refit(index_x, index_y, peakNumber, range);
+    Refit((size_t)index_x, (size_t)index_y, (size_t)peakNumber, range);
 }
 
 /////////////////////////////////////////////
-/// \brief Function to fit again manually a peak for a given segment of the module.
+/// \brief Function to fit again manually a peak for a given segment of the module. The
+/// calibration curve is updated after the fit.
 ///
 /// \param x index along X-axis of the corresponding segment.
 /// \param y index along Y-axis of the corresponding segment.
 /// \param peakNumber The index of the peak to be fitted.
 /// \param range The range for the fitting of the peak (in the observables corresponding units).
 ///
-void TRestDataSetGainMap::Module::Refit(const int x, const int y, const int peakNumber,
+void TRestDataSetGainMap::Module::Refit(const size_t x, const size_t y, const size_t peakNumber,
                                         const TVector2& range) {
+    if (fSegSpectra.empty()) {
+        RESTError << "No gain map found. Use GenerateGainMap() first." << p->RESTendl;
+        return;
+    }
+    if (x >= fSegSpectra.size() || y >= fSegSpectra.at(0).size()) {
+        RESTError << "Segment with index (" << x << ", " << y << ") not found" << p->RESTendl;
+        return;
+    }
+    if (peakNumber >= fEnergyPeaks.size()) {
+        RESTError << "Peak with index " << peakNumber << " not found" << p->RESTendl;
+        return;
+    }
+
     // Refit the desired peak
     std::string name = "g" + std::to_string(peakNumber);
     TF1* g = new TF1(name.c_str(), "gaus", range.X(), range.Y());
     TH1F* h = fSegSpectra.at(x).at(y);
-    if (h->GetFunction(name.c_str()))  // remove previous fit
+    while (h->GetFunction(name.c_str()))  // clear previous fits for this peakNumber
         h->GetListOfFunctions()->Remove(h->GetFunction(name.c_str()));
     h->Fit(g, "R+Q0");  // use 0 to not draw the fit but save it
-    const double mu = g->GetParameter(1);
 
     // Change the point of the graph
+    UpdateCalibrationFits(x, y);
+}
+
+/////////////////////////////////////////////
+/// \brief Function to update the calibration curve for a given segment of the module. The calibration
+/// curve is cleared and then the means of the gaussian fits for each energy peak are added. If there are
+/// less than 2 fits, zero points are added. Then, the calibration curve is refitted (linearFit).
+///
+/// \param x index along X-axis of the corresponding segment.
+/// \param y index along Y-axis of the corresponding segment.
+///
+void TRestDataSetGainMap::Module::UpdateCalibrationFits(const size_t x, const size_t y) {
+    if (fSegSpectra.empty()) {
+        RESTError << "No gain map found. Use GenerateGainMap() first." << p->RESTendl;
+        return;
+    }
+    if (x >= fSegSpectra.size() || y >= fSegSpectra.at(0).size()) {
+        RESTError << "Segment with index (" << x << ", " << y << ") not found" << p->RESTendl;
+        return;
+    }
+
+    TH1F* h = fSegSpectra.at(x).at(y);
     TGraph* gr = fSegLinearFit.at(x).at(y);
-    gr->SetPoint(peakNumber, mu, fEnergyPeaks.at(peakNumber));
+
+    // Clear the points of the graph
+    for (size_t i = 0; i < fEnergyPeaks.size(); i++) gr->RemovePoint(i);
+    // Add the new points to the graph
+    int c = 0;
+    for (size_t i = 0; i < fEnergyPeaks.size(); i++) {
+        std::string fitName = (std::string) "g" + std::to_string(i);
+        TF1* g = h->GetFunction(fitName.c_str());
+        if (!g) {
+            RESTWarning << "No fit ( " << fitName << " ) found for energy peak " << fEnergyPeaks[i]
+                        << " in segment " << x << "," << y << p->RESTendl;
+            continue;
+        }
+        gr->SetPoint(c++, g->GetParameter(1), fEnergyPeaks[i]);
+    }
+
+    // Add zero points if needed (if there are less than 2 points)
+    while (gr->GetN() < 2) {
+        gr->SetPoint(c++, 0, 0);
+        RESTWarning << "Not enough points for linear fit at segment (" << x << ", " << y
+                    << "). Adding zero point." << p->RESTendl;
+    }
 
     // Refit the calibration curve
     TF1* lf = nullptr;
@@ -937,19 +1004,20 @@ void TRestDataSetGainMap::Module::LoadConfigFromTiXmlElement(const TiXmlElement*
     }
 }
 
-void TRestDataSetGainMap::Module::DrawSpectrum(const double x, const double y, bool drawFits, int color,
+void TRestDataSetGainMap::Module::DrawSpectrum(const TVector2& position, bool drawFits, int color,
                                                TCanvas* c) {
-    std::pair<size_t, size_t> index = GetIndexMatrix(x, y);
+    std::pair<size_t, size_t> index = GetIndexMatrix(position.X(), position.Y());
     DrawSpectrum(index.first, index.second, drawFits, color, c);
 }
 
-void TRestDataSetGainMap::Module::DrawSpectrum(const size_t index_x, const size_t index_y, bool drawFits,
-                                               int color, TCanvas* c) {
+void TRestDataSetGainMap::Module::DrawSpectrum(const int index_x, const int index_y, bool drawFits, int color,
+                                               TCanvas* c) {
     if (fSegSpectra.size() == 0) {
         RESTError << "Spectra matrix is empty." << p->RESTendl;
         return;
     }
-    if (index_x >= fSegSpectra.size() || index_y >= fSegSpectra.at(index_x).size()) {
+    if (index_x < 0 || index_y < 0 || index_x >= (int)fSegSpectra.size() ||
+        index_y >= (int)fSegSpectra.at(index_x).size()) {
         RESTError << "Index out of range." << p->RESTendl;
         return;
     }
@@ -976,9 +1044,9 @@ void TRestDataSetGainMap::Module::DrawSpectrum(const size_t index_x, const size_
     if (drawFits)
         for (size_t c = 0; c < fEnergyPeaks.size(); c++) {
             auto fit = fSegSpectra[index_x][index_y]->GetFunction(("g" + std::to_string(c)).c_str());
-            if (!fit) RESTError << "Fit for energy peak" << fEnergyPeaks[c] << " not found." << p->RESTendl;
-            if (!fit) break;
-            fit->SetLineColor(c + 2 != colorT++ ? c + 2 : c + 3); /* does not work with kRed, kBlue, etc.
+            if (!fit) RESTWarning << "Fit for energy peak" << fEnergyPeaks[c] << " not found." << p->RESTendl;
+            if (!fit) continue;
+            fit->SetLineColor(c + 2 != colorT ? c + 2 : ++colorT); /* does not work with kRed, kBlue, etc.
                   as they are not defined with the same number as the first 10 basic colors. See
                   https://root.cern.ch/doc/master/classTColor.html#C01 and
                   https://root.cern.ch/doc/master/classTColor.html#C02 */
@@ -1005,7 +1073,7 @@ void TRestDataSetGainMap::Module::DrawSpectrum(const size_t index_x, const size_
 /// \param c A TCanvas pointer to draw the spectra. If none (nullptr) is given,
 /// a new one is created.
 ///
-void TRestDataSetGainMap::Module::DrawSpectrum(bool drawFits, int color, TCanvas* c) {
+void TRestDataSetGainMap::Module::DrawSpectrum(const bool drawFits, const int color, TCanvas* c) {
     if (fSegSpectra.size() == 0) {
         RESTError << "Spectra matrix is empty." << p->RESTendl;
         return;
@@ -1053,17 +1121,18 @@ void TRestDataSetGainMap::Module::DrawFullSpectrum() {
     sumHist->Draw();
 }
 
-void TRestDataSetGainMap::Module::DrawLinearFit(const double x, const double y, TCanvas* c) {
-    std::pair<size_t, size_t> index = GetIndexMatrix(x, y);
+void TRestDataSetGainMap::Module::DrawLinearFit(const TVector2& position, TCanvas* c) {
+    std::pair<size_t, size_t> index = GetIndexMatrix(position.X(), position.Y());
     DrawLinearFit(index.first, index.second, c);
 }
 
-void TRestDataSetGainMap::Module::DrawLinearFit(const size_t index_x, const size_t index_y, TCanvas* c) {
+void TRestDataSetGainMap::Module::DrawLinearFit(const int index_x, const int index_y, TCanvas* c) {
     if (fSegLinearFit.size() == 0) {
         RESTError << "Spectra matrix is empty." << p->RESTendl;
         return;
     }
-    if (index_x >= fSegLinearFit.size() || index_y >= fSegLinearFit.at(index_x).size()) {
+    if (index_x < 0 || index_y < 0 || index_x >= (int)fSegLinearFit.size() ||
+        index_y >= (int)fSegLinearFit.at(index_x).size()) {
         RESTError << "Index out of range." << p->RESTendl;
         return;
     }

@@ -157,21 +157,22 @@ class TRestDataSetGainMap : public TRestMetadata {
         std::string GetDataSetFileName() const { return fDataSetFileName; }
         TVector2 GetReadoutRangeVar() const { return fReadoutRange; }
 
-        void DrawSpectrum(bool drawFits = true, int color = -1, TCanvas* c = nullptr);
-        void DrawSpectrum(const double x, const double y, bool drawFits = true, int color = -1,
+        void DrawSpectrum(const bool drawFits = true, const int color = -1, TCanvas* c = nullptr);
+        void DrawSpectrum(const TVector2& position, bool drawFits = true, int color = -1,
                           TCanvas* c = nullptr);
-        void DrawSpectrum(const size_t index_x, const size_t index_y, bool drawFits = true, int color = -1,
+        void DrawSpectrum(const int index_x, const int index_y, bool drawFits = true, int color = -1,
                           TCanvas* c = nullptr);
         void DrawFullSpectrum();
 
         void DrawLinearFit();
-        void DrawLinearFit(const double x, const double y, TCanvas* c = nullptr);
-        void DrawLinearFit(const size_t index_x, const size_t index_y, TCanvas* c = nullptr);
+        void DrawLinearFit(const TVector2& position, TCanvas* c = nullptr);
+        void DrawLinearFit(const int index_x, const int index_y, TCanvas* c = nullptr);
 
         void DrawGainMap(const int peakNumber = 0);
 
-        void Refit(const double x, const double y, const double energy, const TVector2& range);
-        void Refit(const int x, const int y, const int peakNumber, const TVector2& range);
+        void Refit(const TVector2& position, const double energy, const TVector2& range);
+        void Refit(const size_t x, const size_t y, const size_t peakNumber, const TVector2& range);
+        void UpdateCalibrationFits(const size_t x, const size_t y);
 
         void SetPlaneId(const Int_t& planeId) { fPlaneId = planeId; }
         void SetModuleId(const Int_t& moduleId) { fModuleId = moduleId; }
