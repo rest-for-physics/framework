@@ -819,15 +819,13 @@ string TRestTools::ToAbsoluteName(const string& filename) {
             const auto envVariableHome = getenv("HOME");
             if (envVariableHome == nullptr) {
                 cout << "TRestTools::ToAbsoluteName - ERROR - "
-                        "cannot resolve ~ because 'HOME' env variable does not exist"
-                     << endl;
+                        "cannot resolve ~ because 'HOME' env variable does not exist" << endl;
                 exit(1);
             }
             const auto userHomePath = filesystem::path(envVariableHome);
             if (userHomePath.empty()) {
                 cout << "TRestTools::ToAbsoluteName - ERROR - "
-                        "cannot resolve ~ because 'HOME' env variable is not set to a valid value"
-                     << endl;
+                        "cannot resolve ~ because 'HOME' env variable is not set to a valid value" << endl;
                 exit(1);
             }
             path /= userHomePath;
@@ -1032,7 +1030,7 @@ std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
             case '\r':
                 if (sb->sgetc() == '\n') sb->sbumpc();
                 return is;
-            case std::streambuf::traits_type::eof():
+            case std::streambuf::traits_type::eof() :
                 // Also handle the case when the last line has no line ending
                 if (t.empty()) is.setstate(std::ios::eofbit);
                 return is;
@@ -1237,8 +1235,7 @@ int TRestTools::UploadToServer(string localFile, string remoteFile, string metho
             RESTError << __PRETTY_FUNCTION__ << RESTendl;
             RESTError << "problem copying gases definitions to remote server" << RESTendl;
             RESTError << "Please report this problem at "
-                         "http://gifna.unizar.es/rest-forum/"
-                      << RESTendl;
+                         "http://gifna.unizar.es/rest-forum/" << RESTendl;
             return -1;
         }
 
@@ -1248,6 +1245,58 @@ int TRestTools::UploadToServer(string localFile, string remoteFile, string metho
 }
 
 void TRestTools::ChangeDirectory(const string& toDirectory) { filesystem::current_path(toDirectory); }
+
+///////////////////////////////////////////////
+/// \brief It returns a vector with 2 components {a,b}, the components satisfy that `a x b = n`,
+/// being the ratio a/b as close to 1 as possible.
+///
+/// This method can be used to help dividing a canvas that will contain a number `n` of plots.
+///
+/// If `n` is a prime number, then the pair generated will be `n x 1`.
+///
+std::vector<int> TRestTools::CanvasDivisions(int n) {
+    std::vector<int> r;
+    for (int i = 2; i * i <= n; i += 1 + (i > 2)) {
+        while ((n % i) == 0) {
+            r.push_back(i);
+            n /= i;
+        }
+    }
+    if (n != 1) r.push_back(n);
+
+    while (r.size() > 2) {
+        // We multiply the 2 lowest elements and
+        // replace the elements in the vector by the result
+        auto min1 = std::min_element(r.begin(), r.end());
+        int low1 = *min1;
+
+        // Remove the first element equal to min1 (efficient way)
+        auto it = std::find(r.begin(), r.end(), low1);
+        if (it != r.end()) {
+            std::iter_swap(it, r.end() - 1);
+            r.erase(r.end() - 1);
+        }
+
+        auto min2 = std::min_element(r.begin(), r.end());
+        int low2 = *min2;
+
+        // Remove the first element equal to min2 (efficient way)
+        it = std::find(r.begin(), r.end(), low2);
+        if (it != r.end()) {
+            std::iter_swap(it, r.end() - 1);
+            r.erase(r.end() - 1);
+        }
+
+        int resultado = low1 * low2;
+        r.push_back(resultado);
+    }
+
+    std::sort(r.begin(), r.end());
+
+    if (r.size() == 1) r.push_back(1);
+
+    return r;
+}
 
 string ValueWithQuantity::ToString() const {
     string unit;
