@@ -131,6 +131,8 @@ class TRestTools {
 
     static std::string POSTRequest(const std::string& url, const std::map<std::string, std::string>& keys);
     static void ChangeDirectory(const std::string& toDirectory);
+
+    static std::vector<int> CanvasDivisions(int n);
 };
 
 namespace REST_InitTools {
