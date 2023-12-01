@@ -23,8 +23,8 @@
 #ifndef REST_TRestComponent
 #define REST_TRestComponent
 
-#include <THn.h>
 #include <TCanvas.h>
+#include <THn.h>
 
 #include "TRestDataSet.h"
 #include "TRestMetadata.h"
