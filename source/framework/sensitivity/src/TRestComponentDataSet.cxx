@@ -42,7 +42,8 @@
 
 #include <numeric>
 
-#include "TKey.h"
+#include <TKey.h>
+#include <TLatex.h>
 
 ClassImp(TRestComponentDataSet);
 
@@ -154,54 +155,144 @@ Double_t TRestComponentDataSet::GetTotalRate() {
 /// \brief
 ///
 TCanvas* TRestComponentDataSet::DrawComponent(std::vector<std::string> drawVariables,
-                                              std::vector<std::string> scanVariables, Int_t reduction) {
-    if (drawVariables.size() > 2) {
-        RESTError << "TRestComponentDataSet::DrawComponent. The number of variables that can be drawn cannot "
-                     "be more than 2!" << RESTendl;
+                                              std::vector<std::string> scanVariables, Int_t binScanSize,
+                                              TString drawOption) {
+    if (drawVariables.size() > 2 || drawVariables.size() == 0) {
+        RESTError << "TRestComponentDataSet::DrawComponent. The number of variables to be drawn must "
+                     "be 1 or 2!" << RESTendl;
         return fCanvas;
     }
 
-    if (scanVariables.size() > 2) {
-        RESTError << "TRestComponentDataSet::DrawComponent. The number of variables that can be scanned "
-                     "cannot be more than 2!" << RESTendl;
+    if (scanVariables.size() > 2 || scanVariables.size() == 0) {
+        RESTError << "TRestComponentDataSet::DrawComponent. The number of variables to be scanned must "
+                     "be 1 or 2!" << RESTendl;
         return fCanvas;
     }
 
-    if (scanVariables.size() == 0) {
-        RESTError << "TRestComponentDataSet::DrawComponent. Needs at least one scan variable!" << RESTendl;
-        return fCanvas;
+    //// Checking the number of plots to be generated
+    std::vector<int> scanIndexes;
+    for (const auto& x : scanVariables) scanIndexes.push_back(GetVariableIndex(x));
+
+    Int_t nPlots = 1;
+    size_t n = 0;
+    for (const auto& x : scanIndexes) {
+        if (fNbins[x] % binScanSize != 0) {
+            RESTWarning << "The variable " << scanVariables[n] << " contains " << fNbins[x]
+                        << " bins and it doesnt match with a bin size " << binScanSize << RESTendl;
+            RESTWarning << "The bin size must be a multiple of the number of bins." << RESTendl;
+            RESTWarning << "Redefining bin size to 1." << RESTendl;
+            binScanSize = 1;
+        }
+        nPlots *= fNbins[x] / binScanSize;
+        n++;
     }
 
-    if (drawVariables.size() == 0) {
-        RESTError << "TRestComponentDataSet::DrawComponent. Needs at least one variable to be drawn!"
-                  << RESTendl;
-        return fCanvas;
+    /// Finding canvas division scheme
+    Int_t nPlotsX = 0;
+    Int_t nPlotsY = 0;
+
+    if (scanIndexes.size() == 2) {
+        nPlotsX = fNbins[scanIndexes[0]] / binScanSize;
+        nPlotsY = fNbins[scanIndexes[1]] / binScanSize;
+    } else {
+        nPlotsX = TRestTools::CanvasDivisions(nPlots)[1];
+        nPlotsY = TRestTools::CanvasDivisions(nPlots)[0];
     }
 
-    // Initializing canvas window
+    RESTInfo << "Number of plots to be generated: " << nPlots << RESTendl;
+    RESTInfo << "Canvas size : " << nPlotsX << " x " << nPlotsY << RESTendl;
+
+    //// Setting up the canvas with the appropriate number of divisions
     if (fCanvas != nullptr) {
         delete fCanvas;
         fCanvas = nullptr;
     }
 
-    std::vector<int> scanIndexes;
-    for (const auto& x : scanVariables) scanIndexes.push_back(GetVariableIndex(x));
+    fCanvas = new TCanvas(this->GetName(), this->GetName(), 0, 0, nPlotsX * 640, nPlotsY * 480);
+    fCanvas->Divide(nPlotsX, nPlotsY, 0.01, 0.01);
 
     std::vector<int> variableIndexes;
     for (const auto& x : drawVariables) variableIndexes.push_back(GetVariableIndex(x));
 
-    if (scanIndexes.size() == 1) {
-        std::vector<int> canvasDivisions = TRestTools::CanvasDivisions(fNbins[scanIndexes[0]]);
+    for (int n = 0; n < nPlotsX; n++)
+        for (int m = 0; m < nPlotsY; m++) {
+            fCanvas->cd(n * nPlotsY + m + 1);
 
-        std::cout << "- " <<
-    } else if (scanIndexes.size() == 2) {
-    }
+            THnD* hnd = GetDensity();
 
-    fCanvas = new TCanvas(this->GetName(), this->GetName(), 0, 0, 640, 480);
-    /*
-    fCanvas->Divide((Int_t)fCanvasDivisions.X(), (Int_t)fCanvasDivisions.Y(),
-                    fCanvasDivisionMargins.X(), fCanvasDivisionMargins.Y());
-                    */
+            int binXo = binScanSize * n + 1;
+            int binXf = binScanSize * n + binScanSize;
+            int binYo = binScanSize * m + 1;
+            int binYf = binScanSize * m + binScanSize;
+
+            if (scanVariables.size() == 2) {
+                hnd->GetAxis(scanIndexes[0])->SetRange(binXo, binXf);
+                hnd->GetAxis(scanIndexes[1])->SetRange(binYo, binYf);
+            } else if (scanVariables.size() == 1) {
+                binXo = binScanSize * nPlotsY * n + binScanSize * m + 1;
+                binXf = binScanSize * nPlotsY * n + binScanSize * m + binScanSize;
+                hnd->GetAxis(scanIndexes[0])->SetRange(binXo, binXf);
+            }
+
+            if (variableIndexes.size() == 1) {
+                TH1D* h1 = hnd->Projection(variableIndexes[0]);
+                std::string hName;
+
+                if (scanIndexes.size() == 2)
+                    hName = scanVariables[0] + "(" + IntegerToString(binXo) + ", " + IntegerToString(binXf) +
+                            ") " + scanVariables[1] + "(" + IntegerToString(binYo) + ", " +
+                            IntegerToString(binYf) + ") ";
+
+                if (scanIndexes.size() == 1)
+                    hName = scanVariables[0] + "(" + IntegerToString(binXo) + ", " + IntegerToString(binXf) +
+                            ") ";
+
+                TH1D* newh = (TH1D*)h1->Clone(hName.c_str());
+                newh->SetTitle(hName.c_str());
+                newh->SetStats(false);
+                newh->GetXaxis()->SetTitle((TString)drawVariables[0]);
+                newh->SetMarkerStyle(kFullCircle);
+                newh->Draw("PLC PMC");
+
+                TString entriesStr = "Entries: " + IntegerToString(newh->GetEntries());
+                TLatex* textLatex = new TLatex(0.62, 0.825, entriesStr);
+                textLatex->SetNDC();
+                textLatex->SetTextColor(1);
+                textLatex->SetTextSize(0.05);
+                textLatex->Draw("same");
+                delete h1;
+            }
+
+            if (variableIndexes.size() == 2) {
+                TH2D* h2 = hnd->Projection(variableIndexes[0], variableIndexes[1]);
+
+                std::string hName;
+                if (scanIndexes.size() == 2)
+                    hName = scanVariables[0] + "(" + IntegerToString(binXo) + ", " + IntegerToString(binXf) +
+                            ") " + scanVariables[1] + "(" + IntegerToString(binYo) + ", " +
+                            IntegerToString(binYf) + ") ";
+
+                if (scanIndexes.size() == 1)
+                    hName = scanVariables[0] + "(" + IntegerToString(binXo) + ", " + IntegerToString(binXf) +
+                            ") ";
+
+                TH2D* newh = (TH2D*)h2->Clone(hName.c_str());
+                newh->SetStats(false);
+                newh->GetXaxis()->SetTitle((TString)drawVariables[0]);
+                newh->GetYaxis()->SetTitle((TString)drawVariables[1]);
+                newh->SetTitle(hName.c_str());
+                newh->Draw(drawOption);
+
+                TString entriesStr = "Entries: " + IntegerToString(newh->GetEntries());
+                TLatex* textLatex = new TLatex(0.62, 0.825, entriesStr);
+                textLatex->SetNDC();
+                textLatex->SetTextColor(1);
+                textLatex->SetTextSize(0.05);
+                textLatex->Draw("same");
+                delete h2;
+            }
+        }
+
     return fCanvas;
 }
 
