@@ -71,6 +71,8 @@ class TRestComponent : public TRestMetadata {
     virtual Double_t GetRate(std::vector<Double_t> point) = 0;
     virtual Double_t GetTotalRate() = 0;
 
+    size_t GetDimensions() { return fVariables.size(); }
+
     Int_t SetActiveNode(Double_t node);
     Int_t GetActiveNode() { return fActiveNode; }
     Double_t GetActiveNodeValue() { return fParameterizationNodes[fActiveNode]; }
