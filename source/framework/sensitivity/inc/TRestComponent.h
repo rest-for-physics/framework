@@ -68,6 +68,7 @@ class TRestComponent : public TRestMetadata {
     void InitFromConfigFile() override;
 
    public:
+    Double_t GetNormalizedRate(std::vector<Double_t> point);
     virtual Double_t GetRate(std::vector<Double_t> point) = 0;
     virtual Double_t GetTotalRate() = 0;
 
@@ -76,19 +77,6 @@ class TRestComponent : public TRestMetadata {
     Int_t SetActiveNode(Double_t node);
     Int_t GetActiveNode() { return fActiveNode; }
     Double_t GetActiveNodeValue() { return fParameterizationNodes[fActiveNode]; }
-
-    /*
-THnD* GetDensityForNode(Double_t value);
-THnD* GetDensityForActiveNode();
-
-TH1D* GetHistogram(Double_t node, std::string varName);
-TH2D* GetHistogram(Double_t node, std::string varName1, std::string varName2);
-TH3D* GetHistogram(Double_t node, std::string varName1, std::string varName2, std::string varName3);
-
-TH1D* GetHistogram(std::string varName);
-TH2D* GetHistogram(std::string varName1, std::string varName2);
-TH3D* GetHistogram(std::string varName1, std::string varName2, std::string varName3);
-    */
 
     void PrintMetadata() override;
 
