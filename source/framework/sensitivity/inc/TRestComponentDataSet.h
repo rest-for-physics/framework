@@ -43,6 +43,9 @@ class TRestComponentDataSet : public TRestComponent {
     /// The generated N-dimensional variable space density for a given node
     std::vector<THnD*> fNodeDensity;  //<
 
+    /// Enables or disables the interpolation at TRestComponentDataSet::GetRate
+    Bool_t fInterpolation = true;
+
     /// TODO we need to define multiple datasets and weigth. The weight will be used
     /// to create a model, such as weighting different background contaminations or
     /// different signal coupling contributions.
@@ -68,12 +71,16 @@ class TRestComponentDataSet : public TRestComponent {
 
    public:
     Bool_t LoadDataSets();
-
-    /// This method should go to TRestComponentDataSet
     Bool_t IsDataSetLoaded() { return fDataSetLoaded; }
+
+    Bool_t Interpolation() { return fInterpolation; }
+    void EnableInterpolation() { fInterpolation = true; }
+    void DisableInterpolation() { fInterpolation = false; }
 
     Double_t GetRate(std::vector<Double_t> point) override;
     Double_t GetTotalRate() override;
+
+    Double_t GetBinCenter(Int_t nDim, const Int_t bin);
 
     TCanvas* DrawComponent(std::vector<std::string> drawVariables, std::vector<std::string> scanVariables,
                            Int_t binScanSize = 1, TString drawOption = "");
@@ -100,6 +107,6 @@ class TRestComponentDataSet : public TRestComponent {
     TRestComponentDataSet(const char* cfgFileName, const std::string& name);
     ~TRestComponentDataSet();
 
-    ClassDefOverride(TRestComponentDataSet, 1);
+    ClassDefOverride(TRestComponentDataSet, 2);
 };
 #endif
