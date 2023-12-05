@@ -35,6 +35,7 @@ Float_t StringToFloat(std::string in);
 Double_t StringToDouble(std::string in);
 Int_t StringToInteger(std::string in);
 std::string IntegerToString(Int_t n, std::string format = "%d");
+std::vector<int> IntegerToBinary(int number, size_t dimension = 0);
 std::string DoubleToString(Double_t d, std::string format = "%8.6e");
 Bool_t StringToBool(std::string booleanString);
 Long64_t StringToLong(std::string in);

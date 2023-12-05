@@ -634,6 +634,37 @@ Int_t REST_StringHelper::StringToInteger(string in) {
 string REST_StringHelper::IntegerToString(Int_t n, string format) { return Form(format.c_str(), n); }
 
 ///////////////////////////////////////////////
+/// \brief It returns an integer vector with the binary digits decomposed.
+///
+/// Example: IntegerToBinary(7) will return { 1, 1, 1 }.
+///
+/// Optionally we can fix the minimum number of digits to be returned, so that
+/// it will be filled with zeros to the left.
+///
+/// Example: IntegerToBinary(9,8) will return { 0, 0, 0, 0, 1, 0, 0, 1 }.
+///
+std::vector<int> REST_StringHelper::IntegerToBinary(int number, size_t dimension) {
+    std::vector<int> binaryNumber;
+
+    if (number == 0) {
+        binaryNumber.insert(binaryNumber.begin(), dimension, 0);
+        if (binaryNumber.empty()) binaryNumber.push_back(0);
+        return binaryNumber;
+    }
+
+    while (number > 0) {
+        int digit = number % 2;
+        binaryNumber.insert(binaryNumber.begin(), digit);
+        number /= 2;
+    }
+
+    if (dimension > binaryNumber.size())
+        binaryNumber.insert(binaryNumber.begin(), dimension - binaryNumber.size(), 0);
+
+    return binaryNumber;
+}
+
+///////////////////////////////////////////////
 /// \brief Gets a string from a double
 ///
 string REST_StringHelper::DoubleToString(Double_t d, string format) { return Form(format.c_str(), d); }
