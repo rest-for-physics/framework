@@ -139,17 +139,30 @@ void TRestComponentDataSet::Initialize() {
 /// generated distribution or formula evaluated at the position of the parameter
 /// space given by point.
 ///
-/// The density should be normalized to the corresponding parameter space. During
-/// the component construction, **the user is responsible** to initialize the component
-/// with the appropriate units. For example, if the parameter space is 2 spatial
-/// dimensions and 1 energy dimension, the contribution of each cell or event to
-/// the component will be expressed in mm-2 keV-1 which are the default units for
-/// distance and energy.
+/// The rate will be normalized to the corresponding parameter space. Thus, if
+/// the parameter consists of 2-spatial dimensions and 1-energy dimension, the
+/// returned rate will be expressed in standard REST units as, s-1 mm-2 keV-1.
 ///
 /// The size of the point vector must have the same dimension as the dimensions
 /// of the distribution.
 ///
+/// If interpolation is enabled (which is the default) the rate will be evaluated
+/// using interpolation with neighbor histogram cells.
+///
+/// Interpolation technique extracted from:
+/// https://math.stackexchange.com/questions/1342364/formula-for-n-dimensional-linear-interpolation
+///
+/// 𝑓(𝑥0,𝑥1,𝑥2)=𝐴000(1−𝑥0)(1−𝑥1)(1−𝑥2)+𝐴001𝑥0(1−𝑥1)(1−𝑥2)+𝐴010(1−𝑥0)𝑥1(1−𝑥2)⋯+𝐴111𝑥0𝑥1𝑥
+///
 Double_t TRestComponentDataSet::GetRate(std::vector<Double_t> point) {
+
+    if (point.size() != GetDimensions()) {
+        RESTError << "The size of the point given is : " << point.size() << RESTendl;
+        RESTError << "The density distribution dimensions are : " << GetDimensions() << RESTendl;
+        RESTError << "Point must have the same dimensions as the distribution" << RESTendl;
+        return 0;
+    }
+
     if (!HasNodes()) {
         RESTError << "TRestComponentDataSet::GetRate. The component has no nodes!" << RESTendl;
         RESTError << "Try calling TRestComponentDataSet::LoadDataSets" << RESTendl;
@@ -167,15 +180,55 @@ Double_t TRestComponentDataSet::GetRate(std::vector<Double_t> point) {
         return 0;
     }
 
-    Double_t density =
-        GetDensityForActiveNode()->GetBinContent(GetDensityForActiveNode()->GetBin(point.data()));
+    Int_t centerBin[GetDimensions()];
+    Double_t centralDensity = GetDensity()->GetBinContent(GetDensity()->GetBin(point.data()), centerBin);
+    if (!Interpolation()) return centralDensity;
 
-    Double_t norm = 1;
+    std::vector<Int_t> direction;
+    std::vector<Double_t> nDist;
+    for (size_t dim = 0; dim < GetDimensions(); dim++) {
+        Double_t x1 = GetBinCenter(dim, centerBin[dim] - 1);
+        Double_t x2 = GetBinCenter(dim, centerBin[dim] + 1);
 
-    // Perhaps this value could be stored internally
-    // for (size_t n = 0; n < fNbins.size(); n++) norm = norm * (fRanges[n].Y() - fRanges[n].X()) / fNbins[n];
+        if (centerBin[dim] == 1 || centerBin[dim] == fNbins[dim]) {
+            direction.push_back(0);
+            nDist.push_back(0);
+        } else if (x2 - point[dim] > point[dim] - x1) {
+            // we chose left bin (x1) since it is closer than right bin
+            direction.push_back(-1);
+            nDist.push_back(1 - 2 * (point[dim] - x1) / (x2 - x1));
+        } else {
+            direction.push_back(1);
+            nDist.push_back(1 - 2 * (x2 - point[dim]) / (x2 - x1));
+        }
+    }
 
-    return norm * density;
+    // In 3-dimensions we got 8 points to interpolate
+    // In 4-dimensions we would get 16 points to interpolate
+    // ...
+    Int_t nPoints = (Int_t)TMath::Power(2, (Int_t)GetDimensions());
+
+    Double_t sum = 0;
+    for (int n = 0; n < nPoints; n++) {
+        std::vector<int> cell = TRestTools::IntegerToBinary(n, GetDimensions());
+
+        Double_t weightDistance = 1;
+        int cont = 0;
+        for (const auto& c : cell) {
+            if (c == 0)
+                weightDistance *= (1 - nDist[cont]);
+            else
+                weightDistance *= nDist[cont];
+            cont++;
+        }
+
+        for (size_t k = 0; k < cell.size(); k++) cell[k] = cell[k] * direction[k] + centerBin[k];
+
+        Double_t density = GetDensity()->GetBinContent(cell.data());
+        sum += density * weightDistance;
+    }
+
+    return sum;
 }
 
 ///////////////////////////////////////////////
@@ -196,22 +249,35 @@ Double_t TRestComponentDataSet::GetTotalRate() {
 }
 
 ///////////////////////////////////////////////
-/// \brief
+/// \brief It returns the bin center of the given component dimension.
+///
+/// It required implementation since I did not find a method inside THnD. Surprising.
+///
+Double_t TRestComponentDataSet::GetBinCenter(Int_t nDim, const Int_t bin) {
+    return fRanges[nDim].X() + (fRanges[nDim].Y() - fRanges[nDim].X()) * ((double)bin - 0.5) / fNbins[nDim];
+}
+
+///////////////////////////////////////////////
+/// \brief A method allowing to draw a series of plots representing the density distributions.
+///
+/// The method will produce 1- or 2-dimensional histograms of the `drawVariables` given in the
+/// argument. A third scan variable must be provided in order to show the distribution slices
+/// along the scan variable.
+///
+/// The binScanSize argument can be used to define the binSize of the scanning variables.
 ///
 TCanvas* TRestComponentDataSet::DrawComponent(std::vector<std::string> drawVariables,
                                               std::vector<std::string> scanVariables, Int_t binScanSize,
                                               TString drawOption) {
     if (drawVariables.size() > 2 || drawVariables.size() == 0) {
         RESTError << "TRestComponentDataSet::DrawComponent. The number of variables to be drawn must "
-                     "be 1 or 2!"
-                  << RESTendl;
+                     "be 1 or 2!" << RESTendl;
         return fCanvas;
     }
 
     if (scanVariables.size() > 2 || scanVariables.size() == 0) {
         RESTError << "TRestComponentDataSet::DrawComponent. The number of variables to be scanned must "
-                     "be 1 or 2!"
-                  << RESTendl;
+                     "be 1 or 2!" << RESTendl;
         return fCanvas;
     }
 
@@ -262,7 +328,8 @@ TCanvas* TRestComponentDataSet::DrawComponent(std::vector<std::string> drawVaria
 
     for (int n = 0; n < nPlotsX; n++)
         for (int m = 0; m < nPlotsY; m++) {
-            fCanvas->cd(n * nPlotsY + m + 1);
+            TPad* pad = (TPad*)fCanvas->cd(n * nPlotsY + m + 1);
+            pad->SetFixedAspectRatio(true);
 
             THnD* hnd = GetDensity();
 
@@ -657,8 +724,7 @@ std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
 Bool_t TRestComponentDataSet::LoadDataSets() {
     if (fDataSetFileNames.empty()) {
         RESTWarning << "Dataset filename was not defined. You may still use "
-                       "TRestComponentDataSet::LoadDataSet( filename );"
-                    << RESTendl;
+                       "TRestComponentDataSet::LoadDataSet( filename );" << RESTendl;
         fDataSetLoaded = false;
         return fDataSetLoaded;
     }
