@@ -210,7 +210,7 @@ Double_t TRestComponentDataSet::GetRate(std::vector<Double_t> point) {
 
     Double_t sum = 0;
     for (int n = 0; n < nPoints; n++) {
-        std::vector<int> cell = TRestTools::IntegerToBinary(n, GetDimensions());
+        std::vector<int> cell = REST_StringHelper::IntegerToBinary(n, GetDimensions());
 
         Double_t weightDistance = 1;
         int cont = 0;
