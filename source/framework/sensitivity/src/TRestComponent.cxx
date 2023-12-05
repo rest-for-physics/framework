@@ -107,7 +107,6 @@ Int_t TRestComponent::GetVariableIndex(std::string varName) {
 /// expressed in standard REST units as, s-1 mm-2 keV-1.
 ///
 Double_t TRestComponent::GetNormalizedRate(std::vector<Double_t> point) {
-
     Double_t normFactor = 1;
     for (size_t n = 0; n < GetDimensions(); n++) normFactor *= fNbins[n] / (fRanges[n].Y() - fRanges[n].X());
 
