@@ -26,9 +26,9 @@
 #include <TCanvas.h>
 #include <THn.h>
 
-#include "TRestResponse.h"
 #include "TRestDataSet.h"
 #include "TRestMetadata.h"
+#include "TRestResponse.h"
 
 /// It defines a background/signal model distribution in a given parameter space (tipically x,y,en)
 class TRestComponent : public TRestMetadata {

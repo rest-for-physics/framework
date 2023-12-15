@@ -137,7 +137,6 @@ void TRestResponse::LoadResponse(Bool_t transpose) {
 /// metadata members.
 ///
 std::vector<std::pair<Double_t, Double_t>> TRestResponse::GetResponse(Double_t input) {
-
     std::vector<std::pair<Double_t, Double_t>> response;
 
     if (fResponseMatrix.empty()) {
