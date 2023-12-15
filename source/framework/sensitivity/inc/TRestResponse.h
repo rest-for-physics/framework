@@ -25,16 +25,59 @@
 
 #include "TRestMetadata.h"
 
-/// A response matrix that might be applied to a given signal variable inside TRestResponse
+/// A response matrix that might be applied to a given component inside a TRestComponent
 class TRestResponse : public TRestMetadata {
    private:
-    // TODO Add here the response matrix. Probably a TH2D
+    /// The filename used to import the response matrix
+    std::string fFilename = "";
+
+    /// It defines the variable name for which the response should be applied to
+    std::string fVariable = "";
+
+    /// First element of the response matrix (input/incident, output/detected)
+    TVector2 fOrigin = TVector2(0, 0);
+
+    /// The resolution of the response matrix (binning)
+    Double_t fBinSize = 0.1;  //<
+
+    /// The response matrix
+    std::vector<std::vector<Float_t>> fResponseMatrix;  //<
+
+    /// Determines if the response matrix has been transposed
+    Bool_t fTransposed = false;
 
    public:
+    void SetBinSize(Double_t bSize) { fBinSize = bSize; }
+    void SetResponseFilename(std::string responseFile) { fFilename = responseFile; }
+    void SetOrigin(const TVector2& v) { fOrigin = v; }
+    void SetVariable(const std::string& var) { fVariable = var; }
+
+    Double_t GetBinSize() const { return fBinSize; }
+    std::string GetResponseFilename() const { return fFilename; }
+    TVector2 GetOrigin() const { return fOrigin; }
+    std::string GetVariable() const { return fVariable; }
+
+    TVector2 GetInputRange() const {
+        return TVector2(fOrigin.X(), fOrigin.X() + fResponseMatrix[0].size() * fBinSize);
+    }
+
+    TVector2 GetOutputRange() const {
+        return TVector2(fOrigin.Y(), fOrigin.Y() + fResponseMatrix.size() * fBinSize);
+    }
+
     void Initialize() override;
+
+    void LoadResponse(Bool_t transpose = true);
+
+    std::vector<std::pair<Double_t, Double_t>> GetResponse(Double_t input);
+
+    void PrintResponseMatrix(Int_t fromRow, Int_t toRow);
 
     void PrintMetadata() override;
 
+    std::vector<std::vector<Float_t>> GetMatrix() const { return fResponseMatrix; }
+
+    TRestResponse(const char* cfgFileName, const std::string& name = "");
     TRestResponse();
     ~TRestResponse();
 

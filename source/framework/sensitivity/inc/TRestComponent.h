@@ -26,6 +26,7 @@
 #include <TCanvas.h>
 #include <THn.h>
 
+#include "TRestResponse.h"
 #include "TRestDataSet.h"
 #include "TRestMetadata.h"
 
@@ -50,6 +51,9 @@ class TRestComponent : public TRestMetadata {
     /// It is used to define the node that will be accessed for rate retrieval
     Int_t fActiveNode = -1;  //<
 
+    ///
+    TRestResponse* fResponse = nullptr;  //<
+
     /// A canvas for drawing the active node component
     TCanvas* fCanvas = nullptr;  //!
 
@@ -69,14 +73,18 @@ class TRestComponent : public TRestMetadata {
 
    public:
     Double_t GetNormalizedRate(std::vector<Double_t> point);
+    Double_t GetResponseRate(std::vector<Double_t> point);
+
     virtual Double_t GetRate(std::vector<Double_t> point) = 0;
     virtual Double_t GetTotalRate() = 0;
 
     size_t GetDimensions() { return fVariables.size(); }
 
-    Int_t SetActiveNode(Double_t node);
     Int_t GetActiveNode() { return fActiveNode; }
+    Int_t SetActiveNode(Double_t node);
     Double_t GetActiveNodeValue() { return fParameterizationNodes[fActiveNode]; }
+
+    void LoadResponse(const TRestResponse& resp);
 
     void PrintMetadata() override;
 
@@ -88,6 +96,6 @@ class TRestComponent : public TRestMetadata {
     TRestComponent();
     ~TRestComponent();
 
-    ClassDefOverride(TRestComponent, 1);
+    ClassDefOverride(TRestComponent, 2);
 };
 #endif

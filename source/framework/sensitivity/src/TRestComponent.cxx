@@ -113,6 +113,37 @@ Double_t TRestComponent::GetNormalizedRate(std::vector<Double_t> point) {
     return normFactor * GetRate(point);
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the intensity/rate (in seconds) corresponding to the
+/// generated distribution or formula evaluated at the position of the parameter
+/// space given by point.
+///
+/// The rate returned by the TRestComponent::GetRate method will be normalized
+/// to the corresponding parameter space. Thus, if the parameter consists of
+/// 2-spatial dimensions and 1-energy dimension, the returned rate will be
+/// expressed in standard REST units as, s-1 mm-2 keV-1.
+///
+Double_t TRestComponent::GetResponseRate(std::vector<Double_t> point) {
+    Double_t normFactor = 1;
+    for (size_t n = 0; n < GetDimensions(); n++) normFactor *= fNbins[n] / (fRanges[n].Y() - fRanges[n].X());
+
+    return normFactor * GetRate(point);
+}
+
+///////////////////////////////////////////////
+/// \brief
+///
+void TRestComponent::LoadResponse(const TRestResponse& resp) {
+    if (fResponse) {
+        delete fResponse;
+        fResponse = nullptr;
+    }
+
+    fResponse = (TRestResponse*)resp.Clone("response");
+
+    fResponse->PrintMetadata();
+}
+
 /////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
 ///
