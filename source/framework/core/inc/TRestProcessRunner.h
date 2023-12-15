@@ -87,7 +87,7 @@ class TRestProcessRunner : public TRestMetadata {
         EndOfInit();
     }
     void BeginOfInit();
-    Int_t ReadConfig(std::string keydeclare, TiXmlElement* e);
+    Int_t ReadConfig(const std::string& keydeclare, TiXmlElement* e);
     void EndOfInit();
     void PrintMetadata() override;
 

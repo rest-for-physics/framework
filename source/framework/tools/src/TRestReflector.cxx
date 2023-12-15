@@ -64,10 +64,10 @@ TRestReflector::TRestReflector(void* _address, const string& _type) {
         return;
     }
 
-    typeinfo = cl == 0 ? dt.typeinfo : cl->GetTypeInfo();
+    typeinfo = cl == nullptr ? dt.typeinfo : cl->GetTypeInfo();
     is_data_type = dt.size > 0;
-    size = cl == 0 ? dt.size : cl->Size();
-    type = cl == 0 ? dt.name : cl->GetName();
+    size = cl == nullptr ? dt.size : cl->Size();
+    type = cl == nullptr ? dt.name : cl->GetName();
 
     InitDictionary();
 }
@@ -87,9 +87,11 @@ void TRestReflector::Assembly() {
     }
 }
 
-void TRestReflector::Destroy() {
-    if (address == nullptr) return;
-    if (onheap == false) {
+void TRestReflector::Destroy() const {
+    if (address == nullptr) {
+        return;
+    }
+    if (!onheap) {
         // It can only delete/free objects on heap memory
         cout << "In TRestReflector::Destroy() : cannot free on stack memory!" << endl;
         return;
@@ -119,11 +121,15 @@ void TRestReflector::PrintMemory(int bytepreline) {
     }
 }
 
-void TRestReflector::operator>>(TRestReflector to) { CloneAny(*this, to); }
+void TRestReflector::operator>>(const TRestReflector& to) { CloneAny(*this, to); }
 
-string TRestReflector::ToString() {
-    if (type == "string") return *(string*)(address);
-    if (address == nullptr) return "null";
+string TRestReflector::ToString() const {
+    if (type == "string") {
+        return *(string*)(address);
+    }
+    if (address == nullptr) {
+        return "null";
+    }
     RESTVirtualConverter* converter = RESTConverterMethodBase[typeinfo->hash_code()];
     if (converter != nullptr) {
         return converter->ToString(address);
@@ -132,7 +138,7 @@ string TRestReflector::ToString() {
     }
 }
 
-void TRestReflector::ParseString(string str) {
+void TRestReflector::ParseString(const string& str) const {
     if (type == "string") {
         *(string*)(address) = str;
     } else {
@@ -146,7 +152,9 @@ void TRestReflector::ParseString(string str) {
 }
 
 int TRestReflector::InitDictionary() {
-    if (is_data_type) return 0;
+    if (is_data_type) {
+        return 0;
+    }
 
     if (cl != nullptr) {
         if (cl->GetCollectionProxy() && dynamic_cast<TEmulatedCollectionProxy*>(cl->GetCollectionProxy())) {
@@ -159,12 +167,12 @@ int TRestReflector::InitDictionary() {
         }
     }
 
-    if (type == "" || size == 0 || cl == nullptr) {
+    if (type.empty() || size == 0 || cl == nullptr) {
         cout << "Error in CreateDictionary: object is zombie!" << endl;
         return -1;
     }
 
-    int pos = ((string)type).find("<");
+    int pos = ((string)type).find('<');
 
     string basetype = ((string)type).substr(0, pos);
     vector<string> stltypes{"vector", "list", "map", "set", "array", "deque"};
@@ -190,7 +198,6 @@ int TRestReflector::InitDictionary() {
     if (TRestTools::fileExists(sofilename)) {
         cout << "Loading external dictionary for: \"" << type << "\":" << endl;
         cout << sofilename << endl;
-
     } else {
         // we create a new library of dictionary for that type
         if (!TRestTools::isPathWritable(REST_USER_PATH)) {
@@ -201,8 +208,7 @@ int TRestReflector::InitDictionary() {
                  << endl;
             return -1;
         }
-        int z = system(Form("mkdir -p %s/AddonDict", REST_USER_PATH.c_str()));
-        if (z != 0) {
+        if (system(Form("mkdir -p %s/AddonDict", REST_USER_PATH.c_str())) != 0) {
             cout << "mkdir failed to create directory" << endl;
             return -1;
         }
@@ -225,26 +231,15 @@ int TRestReflector::InitDictionary() {
         cout << "Creating external dictionary for: \"" << type << "\":" << endl;
         cout << sofilename << endl;
 
-        // cout << Form("rootcling -f %s -c %s", outfilename.c_str(), infilename.c_str()) << endl;
-        int a = system(Form("rootcling -f %s -c %s", cxxfilename.c_str(), linkdeffilename.c_str()));
-        if (a != 0) {
+        if (system(Form("rootcling -f %s -c %s", cxxfilename.c_str(), linkdeffilename.c_str())) != 0) {
             cout << "rootcling failed to generate dictionary" << endl;
             return -1;
         }
 
-        int b =
-            system(Form("gcc %s `root-config --cflags` "
+        if (system(Form("gcc %s `root-config --cflags` "
                         "`root-config --libs` -lGui -lGeom -lGdml -lMinuit -L/usr/lib64 "
                         "-lstdc++ -shared -fPIC -o %s",
-                        cxxfilename.c_str(), sofilename.c_str()));
-
-        // int c =
-        //    system(Form("gcc %s/lib/AddonDict/*.cxx -std=c++11 -I`root-config --incdir` "
-        //                "`root-config --libs` -lGui -lEve -lGeom -lMathMore -lGdml -lMinuit -L/usr/lib64 "
-        //                "-lstdc++ -shared -fPIC -o %s/lib/AddonDict/libRestAddonDict.so",
-        //                restpath, restpath));
-
-        if (b != 0 /*|| c != 0*/) {
+                        cxxfilename.c_str(), sofilename.c_str())) != 0) {
             cout << "gcc failed to generate library for the dictionary" << endl;
             return -1;
         }
@@ -258,19 +253,19 @@ int TRestReflector::InitDictionary() {
     return 0;
 }
 
-bool TRestReflector::IsZombie() {
-    return (type == "" || address == 0 || size == 0 || (cl == 0 && !is_data_type));
+bool TRestReflector::IsZombie() const {
+    return (type.empty() || address == nullptr || size == 0 || (cl == nullptr && !is_data_type));
 }
 
-TRestReflector Assembly(string typeName) {
+TRestReflector Assembly(const string& typeName) {
     TRestReflector ptr = WrapType(typeName);
     ptr.Assembly();
     return ptr;
 }
 
-TRestReflector WrapType(string type) { return TRestReflector(0, type); }
+TRestReflector WrapType(const string& type) { return TRestReflector(nullptr, type); }
 
-void CloneAny(TRestReflector from, TRestReflector to) {
+void CloneAny(const TRestReflector& from, const TRestReflector& to) {
     if (from.IsZombie() || to.IsZombie()) {
         cout << "In TRestReflector::CloneTo() : the ptr is zombie! " << endl;
         return;
@@ -288,24 +283,9 @@ void CloneAny(TRestReflector from, TRestReflector to) {
     } else {
         cout << "Method for cloning type: \"" << from.type << "\" has not been registered!" << endl;
     }
-    // if (from.cl == nullptr) {
-    //    memcpy(to.address, from.address, from.size);
-    //} else {
-    //    TBufferFile buffer(TBuffer::kWrite);
-
-    //    buffer.MapObject(from.address, from.cl);  // register obj in map to handle self reference
-    //    from.cl->Streamer(from.address, buffer);
-
-    //    buffer.SetReadMode();
-    //    buffer.ResetMap();
-    //    buffer.SetBufferOffset(0);
-
-    //    buffer.MapObject(to.address, to.cl);  // register obj in map to handle self reference
-    //    to.cl->Streamer(to.address, buffer);
-    //}
 }
 
-TRestReflector TRestReflector::GetDataMember(string name) {
+TRestReflector TRestReflector::GetDataMember(const string& name) {
     if (cl != nullptr) {
         TDataMember* mem = cl->GetDataMember(name.c_str());
         if (mem == nullptr) {
@@ -349,7 +329,7 @@ TRestReflector TRestReflector::GetDataMember(int ID) {
     return TRestReflector();
 }
 
-vector<string> TRestReflector::GetListOfDataMembers() {
+vector<string> TRestReflector::GetListOfDataMembers() const {
     vector<string> dataMembers;
 
     // add datamembers from base class first
@@ -380,7 +360,7 @@ vector<string> TRestReflector::GetListOfDataMembers() {
     return dataMembers;
 }
 
-string TRestReflector::GetDataMemberValueString(string name) {
+string TRestReflector::GetDataMemberValueString(const string& name) {
     TRestReflector member = GetDataMember(name);
     if (!member.IsZombie()) {
         return member.ToString();
@@ -388,7 +368,7 @@ string TRestReflector::GetDataMemberValueString(string name) {
     return "";
 }
 
-int TRestReflector::GetNumberOfDataMembers() {
+int TRestReflector::GetNumberOfDataMembers() const {
     if (cl != nullptr) {
         return cl->GetNdata();
     }

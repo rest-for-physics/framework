@@ -105,6 +105,10 @@ class TRestDataSet : public TRestMetadata {
     /// A list of new columns together with its corresponding expressions added to the dataset
     std::vector<std::pair<std::string, std::string>> fColumnNameExpressions;
 
+    /// A flag to enable Multithreading during dataframe generation
+    Bool_t fMT = false;  //<
+
+    inline auto GetAddedColumns() const { return fColumnNameExpressions; }
     /// The resulting RDF::RNode object after initialization
     ROOT::RDF::RNode fDataSet = ROOT::RDataFrame(0);  //!
 
@@ -124,6 +128,8 @@ class TRestDataSet : public TRestMetadata {
     }
 
     void SetDataFrame(const ROOT::RDF::RNode& dS) { fDataSet = dS; }
+
+    void EnableMultiThreading(Bool_t enable = true) { fMT = enable; }
 
     /// Gives access to the tree
     TTree* GetTree() const {
@@ -169,6 +175,7 @@ class TRestDataSet : public TRestMetadata {
     inline void SetQuantity(const std::map<std::string, RelevantQuantity>& quantity) { fQuantity = quantity; }
 
     TRestDataSet& operator=(TRestDataSet& dS);
+    Bool_t Merge(const TRestDataSet& dS);
     void Import(const std::string& fileName);
     void Import(std::vector<std::string> fileNames);
     void Export(const std::string& filename);
