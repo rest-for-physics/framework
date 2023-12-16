@@ -112,7 +112,9 @@ f = open("TRestVersion.tmp", "w")
 f.write("#ifndef REST_Version\n")
 f.write("#define REST_Version\n")
 
-f.write("/* This header has been generated using scripts/generateVersionHeader.py */\n\n")
+f.write(
+    "/* This header has been generated using scripts/generateVersionHeader.py */\n\n"
+)
 
 f.write("/*\n")
 f.write(" * The macros defined here can be used in the following way:\n")
