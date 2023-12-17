@@ -270,15 +270,13 @@ TCanvas* TRestComponentDataSet::DrawComponent(std::vector<std::string> drawVaria
                                               TString drawOption) {
     if (drawVariables.size() > 2 || drawVariables.size() == 0) {
         RESTError << "TRestComponentDataSet::DrawComponent. The number of variables to be drawn must "
-                     "be 1 or 2!"
-                  << RESTendl;
+                     "be 1 or 2!" << RESTendl;
         return fCanvas;
     }
 
     if (scanVariables.size() > 2 || scanVariables.size() == 0) {
         RESTError << "TRestComponentDataSet::DrawComponent. The number of variables to be scanned must "
-                     "be 1 or 2!"
-                  << RESTendl;
+                     "be 1 or 2!" << RESTendl;
         return fCanvas;
     }
 
@@ -725,8 +723,7 @@ std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
 Bool_t TRestComponentDataSet::LoadDataSets() {
     if (fDataSetFileNames.empty()) {
         RESTWarning << "Dataset filename was not defined. You may still use "
-                       "TRestComponentDataSet::LoadDataSet( filename );"
-                    << RESTendl;
+                       "TRestComponentDataSet::LoadDataSet( filename );" << RESTendl;
         fDataSetLoaded = false;
         return fDataSetLoaded;
     }
@@ -777,7 +774,7 @@ Bool_t TRestComponentDataSet::VariablesOk() {
     Bool_t ok = true;
     std::vector cNames = fDataSet.GetDataFrame().GetColumnNames();
 
-    for (const auto var : fVariables)
+    for (const auto& var : fVariables)
         if (std::count(cNames.begin(), cNames.end(), var) == 0) {
             RESTError << "Variable ---> " << var << " <--- NOT found on dataset" << RESTendl;
             ok = false;
@@ -792,7 +789,7 @@ Bool_t TRestComponentDataSet::WeightsOk() {
     Bool_t ok = true;
     std::vector cNames = fDataSet.GetDataFrame().GetColumnNames();
 
-    for (const auto var : fWeights)
+    for (const auto& var : fWeights)
         if (std::count(cNames.begin(), cNames.end(), var) == 0) {
             RESTError << "Weight ---> " << var << " <--- NOT found on dataset" << RESTendl;
             ok = false;
