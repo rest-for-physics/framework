@@ -242,7 +242,7 @@ void TRestDataSetOdds::ComputeLogOdds() {
     auto df = dataSet.GetDataFrame();
     std::string totName = "";
     RESTDebug << "Computing log odds from " << fDataSetName << RESTendl;
-    for (const auto & [ obsName, histo ] : fHistos) {
+    for (const auto& [obsName, histo] : fHistos) {
         const std::string oddsName = "odds_" + obsName;
         auto GetLogOdds = [&histo = histo](double val) {
             double odds = histo->GetBinContent(histo->GetXaxis()->FindBin(val));
@@ -275,7 +275,7 @@ void TRestDataSetOdds::ComputeLogOdds() {
             TFile* f = TFile::Open(fOutputFileName.c_str(), "UPDATE");
             this->Write();
             RESTDebug << "Writing histograms to " << fOutputFileName << RESTendl;
-            for (const auto & [ obsName, histo ] : fHistos) histo->Write();
+            for (const auto& [obsName, histo] : fHistos) histo->Write();
             f->Close();
         }
     }
@@ -303,7 +303,7 @@ void TRestDataSetOdds::SetOddsObservables(const std::vector<std::tuple<std::stri
     fObsName.clear();
     fObsRange.clear();
     fObsNbins.clear();
-    for (const auto & [ name, range, nbins ] : obs) AddOddsObservable(name, range, nbins);
+    for (const auto& [name, range, nbins] : obs) AddOddsObservable(name, range, nbins);
 }
 
 /////////////////////////////////////////////

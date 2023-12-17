@@ -487,7 +487,7 @@ std::pair<int, int> TRestDataSetGainMap::Module::GetIndexMatrix(const double x, 
 /// \param y A const double that defines the y position on the detector plane.
 ///
 double TRestDataSetGainMap::Module::GetSlope(const double x, const double y) const {
-    auto[ index_x, index_y ] = GetIndexMatrix(x, y);
+    auto [index_x, index_y] = GetIndexMatrix(x, y);
     if (fSlope.empty()) {
         RESTError << "Calibration slope matrix is empty. Returning 0" << p->RESTendl;
         return 0;
@@ -509,7 +509,7 @@ double TRestDataSetGainMap::Module::GetSlope(const double x, const double y) con
 /// \param y A const double that defines the y position on the detector plane.
 ///
 double TRestDataSetGainMap::Module::GetIntercept(const double x, const double y) const {
-    auto[ index_x, index_y ] = GetIndexMatrix(x, y);
+    auto [index_x, index_y] = GetIndexMatrix(x, y);
     if (fIntercept.empty()) {
         RESTError << "Calibration constant matrix is empty. Returning 0" << p->RESTendl;
         return 0;
@@ -558,7 +558,8 @@ void TRestDataSetGainMap::Module::SetSplitX(const std::set<double>& splitX) {
     }
     if (!fSlope.empty())
         RESTWarning << "SetSplitX: changing split but current gain map and calibration paremeters correspond "
-                       "to previous splitting. Use GenerateGainMap() to update them." << p->RESTendl;
+                       "to previous splitting. Use GenerateGainMap() to update them."
+                    << p->RESTendl;
     fSplitX = splitX;
     fNumberOfSegmentsX = fSplitX.size() - 1;
 }
@@ -590,7 +591,8 @@ void TRestDataSetGainMap::Module::SetSplitY(const std::set<double>& splitY) {
     }
     if (!fSlope.empty())
         RESTWarning << "SetSplitY: changing split but current gain map and calibration paremeters correspond "
-                       "to previous splitting. Use GenerateGainMap() to update them." << p->RESTendl;
+                       "to previous splitting. Use GenerateGainMap() to update them."
+                    << p->RESTendl;
     fSplitY = splitY;
     fNumberOfSegmentsY = fSplitY.size() - 1;
 }
@@ -697,10 +699,11 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
             if (!fDefinitionCut.empty()) segment_cut += "&&" + fDefinitionCut;
             if (segment_cut.empty()) segment_cut = "1";
             RESTExtreme << "Segment[" << i << "][" << j << "] cut: " << segment_cut << p->RESTendl;
-            auto histo = dataSet.GetDataFrame().Filter(segment_cut).Histo1D(
-                {"temp",                         "",                            h[i][j]->GetNbinsX(),
-                 h[i][j]->GetXaxis()->GetXmin(), h[i][j]->GetXaxis()->GetXmax()},
-                GetObservable());
+            auto histo = dataSet.GetDataFrame()
+                             .Filter(segment_cut)
+                             .Histo1D({"temp", "", h[i][j]->GetNbinsX(), h[i][j]->GetXaxis()->GetXmin(),
+                                       h[i][j]->GetXaxis()->GetXmax()},
+                                      GetObservable());
             std::unique_ptr<TH1F> hpunt = std::unique_ptr<TH1F>(static_cast<TH1F*>(histo->Clone()));
             h[i][j]->Add(hpunt.get());
             hpunt.reset();  // delete hpunt;
@@ -826,7 +829,7 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
 ///
 void TRestDataSetGainMap::Module::Refit(const TVector2& position, const double energyPeak,
                                         const TVector2& range) {
-    auto[ index_x, index_y ] = GetIndexMatrix(position.X(), position.Y());
+    auto [index_x, index_y] = GetIndexMatrix(position.X(), position.Y());
     int peakNumber = -1;
     for (size_t i = 0; i < fEnergyPeaks.size(); i++)
         if (fEnergyPeaks.at(i) == energyPeak) {
