@@ -209,14 +209,18 @@ void TRestDataSetOdds::ComputeLogOdds() {
 
     if (fOddsFile.empty()) {
         auto DF = dataSet.MakeCut(fCut);
+        RESTInfo << "Generating PDFs for dataset: " << fDataSetName << RESTendl;
         for (size_t i = 0; i < fObsName.size(); i++) {
             const std::string obsName = fObsName[i];
             const TVector2 range = fObsRange[i];
             const std::string histName = "h" + obsName;
             const int nBins = fObsNbins[i];
+            RESTDebug << "\tGenerating PDF for " << obsName << " with range: (" << range.X() << ", "
+                      << range.Y() << ") and nBins: " << nBins << RESTendl;
             auto histo =
                 DF.Histo1D({histName.c_str(), histName.c_str(), nBins, range.X(), range.Y()}, obsName);
             TH1F* h = static_cast<TH1F*>(histo->DrawClone());
+            RESTDebug << "\tNormalizing by integral = " << h->Integral() << RESTendl;
             h->Scale(1. / h->Integral());
             fHistos[obsName] = h;
         }
@@ -226,7 +230,7 @@ void TRestDataSetOdds::ComputeLogOdds() {
             RESTError << "Cannot open calibration odds file " << fOddsFile << RESTendl;
             exit(1);
         }
-        std::cout << "Opening " << fOddsFile << std::endl;
+        RESTInfo << "Opening " << fOddsFile << " as oddsFile." << RESTendl;
         for (size_t i = 0; i < fObsName.size(); i++) {
             const std::string obsName = fObsName[i];
             const std::string histName = "h" + obsName;
@@ -237,13 +241,20 @@ void TRestDataSetOdds::ComputeLogOdds() {
 
     auto df = dataSet.GetDataFrame();
     std::string totName = "";
-    for (const auto& [obsName, histo] : fHistos) {
+    RESTDebug << "Computing log odds from " << fDataSetName << RESTendl;
+    for (const auto & [ obsName, histo ] : fHistos) {
         const std::string oddsName = "odds_" + obsName;
         auto GetLogOdds = [&histo = histo](double val) {
             double odds = histo->GetBinContent(histo->GetXaxis()->FindBin(val));
             if (odds == 0) return 1000.;
             return log(1. - odds) - log(odds);
         };
+
+        if (df.GetColumnType(obsName) != "Double_t") {
+            RESTWarning << "Column " << obsName << " is not of type 'double'. It will be converted."
+                        << RESTendl;
+            df = df.Redefine(obsName, "static_cast<double>(" + obsName + ")");
+        }
         df = df.Define(oddsName, GetLogOdds, {obsName});
         auto h = df.Histo1D(oddsName);
 
@@ -251,19 +262,48 @@ void TRestDataSetOdds::ComputeLogOdds() {
         totName += oddsName;
     }
 
+    RESTDebug << "Computing total log odds" << RESTendl;
+    RESTDebug << "\tTotal log odds = " << totName << RESTendl;
     df = df.Define("odds_total", totName);
 
     dataSet.SetDataFrame(df);
 
     if (!fOutputFileName.empty()) {
         if (TRestTools::GetFileNameExtension(fOutputFileName) == "root") {
+            RESTDebug << "Exporting dataset to " << fOutputFileName << RESTendl;
             dataSet.Export(fOutputFileName);
             TFile* f = TFile::Open(fOutputFileName.c_str(), "UPDATE");
             this->Write();
-            for (const auto& [obsName, histo] : fHistos) histo->Write();
+            RESTDebug << "Writing histograms to " << fOutputFileName << RESTendl;
+            for (const auto & [ obsName, histo ] : fHistos) histo->Write();
             f->Close();
         }
     }
+}
+
+std::vector<std::tuple<std::string, TVector2, int>> TRestDataSetOdds::GetOddsObservables() {
+    std::vector<std::tuple<std::string, TVector2, int>> obs;
+    for (size_t i = 0; i < fObsName.size(); i++) {
+        if (i >= fObsName.size() || i >= fObsRange.size() || i >= fObsNbins.size()) {
+            RESTError << "Sizes for observables names, ranges and bins do not match!" << RESTendl;
+            break;
+        }
+        obs.push_back(std::make_tuple(fObsName[i], fObsRange[i], fObsNbins[i]));
+    }
+    return obs;
+}
+
+void TRestDataSetOdds::AddOddsObservable(const std::string& name, const TVector2& range, int nbins) {
+    fObsName.push_back(name);
+    fObsRange.push_back(range);
+    fObsNbins.push_back(nbins);
+}
+
+void TRestDataSetOdds::SetOddsObservables(const std::vector<std::tuple<std::string, TVector2, int>>& obs) {
+    fObsName.clear();
+    fObsRange.clear();
+    fObsNbins.clear();
+    for (const auto & [ name, range, nbins ] : obs) AddOddsObservable(name, range, nbins);
 }
 
 /////////////////////////////////////////////
@@ -271,6 +311,10 @@ void TRestDataSetOdds::ComputeLogOdds() {
 ///
 void TRestDataSetOdds::PrintMetadata() {
     TRestMetadata::PrintMetadata();
+
+    // if (fCut) fCut->PrintMetadata();
+    if (!fOddsFile.empty()) RESTMetadata << " Odds file: " << fOddsFile << RESTendl;
+    RESTMetadata << " DataSet file: " << fDataSetName << RESTendl;
 
     RESTMetadata << " Observables to compute: " << RESTendl;
     for (size_t i = 0; i < fObsName.size(); i++) {
