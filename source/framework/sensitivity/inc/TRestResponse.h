@@ -44,13 +44,19 @@ class TRestResponse : public TRestMetadata {
     std::vector<std::vector<Float_t>> fResponseMatrix;  //<
 
     /// Determines if the response matrix has been transposed
-    Bool_t fTransposed = false;
+    Bool_t fTransposed = false;  //<
+
+    /// It allows to decide if the returned response should be interpolated (default:false)
+    Bool_t fInterpolation = false;  //!
 
    public:
     void SetBinSize(Double_t bSize) { fBinSize = bSize; }
     void SetResponseFilename(std::string responseFile) { fFilename = responseFile; }
     void SetOrigin(const TVector2& v) { fOrigin = v; }
     void SetVariable(const std::string& var) { fVariable = var; }
+
+    Bool_t ApplyInterpolation() { return fInterpolation; }
+    void Interpolate(Bool_t interpolate = true) { fInterpolation = interpolate; }
 
     Double_t GetBinSize() const { return fBinSize; }
     std::string GetResponseFilename() const { return fFilename; }

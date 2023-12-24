@@ -131,7 +131,8 @@ void TRestResponse::LoadResponse(Bool_t transpose) {
 
 /////////////////////////////////////////////
 /// \brief This method will return a vector of std::pair, each pair will contain the
-/// output/frequency/energy value for the corresponding response.
+/// output energy together with the corresponding response (or efficiency), for the
+/// given input energy.
 ///
 /// The output value will be mapped following the binning and the origin given on the
 /// metadata members.
@@ -147,6 +148,21 @@ std::vector<std::pair<Double_t, Double_t>> TRestResponse::GetResponse(Double_t i
     if (input < GetInputRange().X() || input > GetInputRange().Y()) {
         RESTError << "TRestResponse::GetResponse. The input value " << input << " is outside range!"
                   << RESTendl;
+        return response;
+    }
+
+    if (!fInterpolation) {
+        Int_t bin = (Int_t)((input - fOrigin.X()) / fBinSize);
+
+        for (std::size_t n = 0; n < fResponseMatrix[bin].size(); n++) {
+            Double_t output = fOrigin.Y() + ((double)n + 0.5) * fBinSize;
+            Double_t value = fResponseMatrix[bin][n];
+
+            std::pair<Double_t, Double_t> outp{output, value};
+
+            response.push_back(outp);
+        }
+
         return response;
     }
 
@@ -169,6 +185,7 @@ std::vector<std::pair<Double_t, Double_t>> TRestResponse::GetResponse(Double_t i
 
     for (std::size_t n = 0; n < fResponseMatrix[binLeft].size(); n++) {
         Double_t output = fOrigin.Y() + ((double)n + 0.5) * fBinSize;
+
         Double_t value = fResponseMatrix[binLeft][n] * (1 - distLeft / fBinSize) +
                          fResponseMatrix[binRight][n] * distLeft / fBinSize;
 
@@ -219,6 +236,13 @@ void TRestResponse::PrintMetadata() {
     } else {
         RESTMetadata << "Response matrix has NOT been loaded" << RESTendl;
         RESTMetadata << "Try calling TRestResponse::LoadResponse()" << RESTendl;
+    }
+    if (fInterpolation) {
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << "Interpolation is enabled" << RESTendl;
+    } else {
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << "Interpolation is disabled" << RESTendl;
     }
     RESTMetadata << "----" << RESTendl;
 }
