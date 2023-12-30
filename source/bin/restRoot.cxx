@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
                     printf("\n");
                     printf(" restRoot --m [0,1]\n");
                     printf("\n");
-                    printf(" Option 0 will disable macro loading. Option 1 is the default.\n");
+                    printf(" Option 0 will disable macro loading. Option 0 is the default.\n");
                     printf("\n");
                     exit(0);
             }
@@ -81,11 +81,21 @@ int main(int argc, char* argv[]) {
     gROOT->ProcessLine("#include <TRestPhysics.h>");
     gROOT->ProcessLine("#include <TRestSystemOfUnits.h>");
     if (loadMacros) {
-        if (!silent) printf("= Loading macros ...\n");
+        if (!silent) {
+            printf("= Loading macros ...\n");
+            printf(
+                "= HINT. Loading all macros may require a long time till you get access to the interactive "
+                "shell\n");
+            printf("= HINT. You may use `restListMacros` outside `restRoot` to check the available macros\n");
+            printf(
+                "= HINT. Then, you may execute the macro externally by using: `restManager MacroName "
+                "[ARGUMENTS]\n");
+            printf("= HINT. `MacroName` is the name of the macro after removing the macro name header\n");
+            printf("= HINT. E.g. REST_Detector_XYZ(arg1,arg2) may be called as: restManager XYZ arg1 arg2\n");
+        }
         vector<string> macroFiles;
-        const vector<string> patterns = {
-            REST_PATH + "/macros/REST_*.C",   // framework
-            REST_PATH + "/macros/*/REST_*.C"  // libraries
+        const vector<string> patterns = {REST_PATH + "/macros/REST_*.C",   // framework
+                                         REST_PATH + "/macros/*/REST_*.C"  // libraries
         };
         for (const auto& pattern : patterns) {
             for (const auto& macroFile : TRestTools::GetFilesMatchingPattern(pattern)) {
