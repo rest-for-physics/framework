@@ -819,15 +819,13 @@ string TRestTools::ToAbsoluteName(const string& filename) {
             const auto envVariableHome = getenv("HOME");
             if (envVariableHome == nullptr) {
                 cout << "TRestTools::ToAbsoluteName - ERROR - "
-                        "cannot resolve ~ because 'HOME' env variable does not exist"
-                     << endl;
+                        "cannot resolve ~ because 'HOME' env variable does not exist" << endl;
                 exit(1);
             }
             const auto userHomePath = filesystem::path(envVariableHome);
             if (userHomePath.empty()) {
                 cout << "TRestTools::ToAbsoluteName - ERROR - "
-                        "cannot resolve ~ because 'HOME' env variable is not set to a valid value"
-                     << endl;
+                        "cannot resolve ~ because 'HOME' env variable is not set to a valid value" << endl;
                 exit(1);
             }
             path /= userHomePath;
@@ -915,7 +913,11 @@ bool TRestTools::CheckFileIsAccessible(const std::string& filename) {
 /// \brief Returns a list of files whose name match the pattern string. Key word
 /// is "*". e.g. abc00*.root
 ///
-vector<string> TRestTools::GetFilesMatchingPattern(string pattern) {
+/// Argument unlimited will fix an issue with the number of files being to high.
+/// However, it causes issues when searching/listing the macros.
+/// The default value for unlimited is `false`.
+///
+vector<string> TRestTools::GetFilesMatchingPattern(string pattern, bool unlimited) {
     std::vector<string> outputFileNames;
     if (pattern != "") {
         vector<string> items = Split(pattern, "\n");
@@ -944,11 +946,26 @@ vector<string> TRestTools::GetFilesMatchingPattern(string pattern) {
                     }
                 }
 #else
-                string a = Execute("find " + item);
-                auto b = Split(a, "\n");
+                auto path_name = SeparatePathAndName(item);
+                if (unlimited) {
+                    std::string currentDir = filesystem::current_path();
+                    std::cout << "Current dir:" << currentDir << std::endl;
+                    ChangeDirectory(path_name.first);
+                    string a = Execute("find -type f -name \'" + path_name.second + "\'");
+                    ChangeDirectory(currentDir);
+                    auto b = Split(a, "\n");
 
-                for (unsigned int i = 0; i < b.size(); i++) {
-                    outputFileNames.push_back(b[i]);
+                    for (unsigned int i = 0; i < b.size(); i++) {
+                        outputFileNames.push_back(path_name.first + "/" + b[i]);
+                    }
+
+                } else {
+                    string a = Execute("find " + item);
+                    auto b = Split(a, "\n");
+
+                    for (unsigned int i = 0; i < b.size(); i++) {
+                        outputFileNames.push_back(b[i]);
+                    }
                 }
 #endif
 
@@ -1032,7 +1049,7 @@ std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
             case '\r':
                 if (sb->sgetc() == '\n') sb->sbumpc();
                 return is;
-            case std::streambuf::traits_type::eof():
+            case std::streambuf::traits_type::eof() :
                 // Also handle the case when the last line has no line ending
                 if (t.empty()) is.setstate(std::ios::eofbit);
                 return is;
@@ -1237,8 +1254,7 @@ int TRestTools::UploadToServer(string localFile, string remoteFile, string metho
             RESTError << __PRETTY_FUNCTION__ << RESTendl;
             RESTError << "problem copying gases definitions to remote server" << RESTendl;
             RESTError << "Please report this problem at "
-                         "http://gifna.unizar.es/rest-forum/"
-                      << RESTendl;
+                         "http://gifna.unizar.es/rest-forum/" << RESTendl;
             return -1;
         }
 
