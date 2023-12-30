@@ -949,7 +949,6 @@ vector<string> TRestTools::GetFilesMatchingPattern(string pattern, bool unlimite
                 auto path_name = SeparatePathAndName(item);
                 if (unlimited) {
                     std::string currentDir = filesystem::current_path();
-                    std::cout << "Current dir:" << currentDir << std::endl;
                     ChangeDirectory(path_name.first);
                     string a = Execute("find -type f -name \'" + path_name.second + "\'");
                     ChangeDirectory(currentDir);
