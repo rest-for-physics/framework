@@ -37,15 +37,14 @@ namespace fs = std::filesystem;
 //*** CAUTION: Be aware that any non-REST file in the list will be removed if you use purge=1
 //***
 //*******************************************************************************************************
-Int_t REST_CheckValidRuns(TString namePattern, Bool_t purge = false) {
+Int_t REST_CheckValidRuns(std::string namePattern, Bool_t purge = false) {
     TGeoManager::SetVerboseLevel(0);
 
     vector<std::string> filesNotWellClosed;
 
     TRestStringOutput RESTLog;
 
-    string a = TRestTools::Execute((string)("ls -d -1 " + namePattern));
-    vector<string> b = Split(a, "\n");
+    std::vector<std::string> b = TRestTools::GetFilesMatchingPattern(namePattern, true);
 
     Double_t totalTime = 0;
     int cont = 0;
