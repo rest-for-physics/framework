@@ -353,7 +353,7 @@ void TRestDataSet::GenerateDataSet() {
     fDataSet = MakeCut(fCut);
 
     // Adding new user columns added to the dataset
-    for (const auto& [cName, cExpression] : fColumnNameExpressions) {
+    for (const auto & [ cName, cExpression ] : fColumnNameExpressions) {
         RESTInfo << "Adding column to dataset: " << cName << RESTendl;
         finalList.emplace_back(cName);
         fDataSet = DefineColumn(cName, cExpression);
@@ -384,22 +384,18 @@ std::vector<std::string> TRestDataSet::FileSelection() {
 
     if (!time_stamp_end || !time_stamp_start) {
         RESTError << "TRestDataSet::FileSelect. Start or end dates not properly formed. Please, check "
-                     "REST_StringHelper::StringToTimeStamp documentation for valid formats"
-                  << RESTendl;
+                     "REST_StringHelper::StringToTimeStamp documentation for valid formats" << RESTendl;
         return fFileSelection;
     }
 
     std::vector<std::string> fileNames = TRestTools::GetFilesMatchingPattern(fFilePattern);
 
-    if (!fileNames.empty()) {
-        RESTInfo << "TRestDataSet::FileSelection. Starting file selection." << RESTendl;
-        RESTInfo << "Total files : " << fileNames.size() << RESTendl;
-        RESTInfo << "This process may take long computation time in case there are many files." << RESTendl;
-    }
+    RESTInfo << "TRestDataSet::FileSelection. Starting file selection." << RESTendl;
+    RESTInfo << "Total files : " << fileNames.size() << RESTendl;
+    RESTInfo << "This process may take long computation time in case there are many files." << RESTendl;
 
     fTotalDuration = 0;
-    std::cout << "Total files : " << fileNames.size() << std::endl;
-    std::cout << "Processing file selection .";
+    std::cout << "Processing file selection.";
     int cnt = 1;
     for (const auto& file : fileNames) {
         if (cnt % 100 == 0) {
@@ -413,6 +409,7 @@ std::vector<std::string> TRestDataSet::FileSelection() {
         double runEnd = run.GetEndTimestamp();
 
         if (runStart < time_stamp_start || runEnd > time_stamp_end) {
+            RESTInfo << "Rejecting file out of date range: " << file << RESTendl;
             continue;
         }
 
@@ -440,7 +437,7 @@ std::vector<std::string> TRestDataSet::FileSelection() {
         if (!accept) continue;
 
         Double_t acc = 0;
-        for (auto& [name, properties] : fQuantity) {
+        for (auto & [ name, properties ] : fQuantity) {
             std::string value = run.ReplaceMetadataMembers(properties.metadata);
             const Double_t val = REST_StringHelper::StringToDouble(value);
 
@@ -497,7 +494,7 @@ ROOT::RDF::RNode TRestDataSet::MakeCut(const TRestCut* cut) {
 
     auto paramCut = cut->GetParamCut();
     auto obsList = df.GetColumnNames();
-    for (const auto& [param, condition] : paramCut) {
+    for (const auto & [ param, condition ] : paramCut) {
         if (std::find(obsList.begin(), obsList.end(), param) != obsList.end()) {
             std::string pCut = param + condition;
             RESTDebug << "Applying cut " << pCut << RESTendl;
@@ -544,7 +541,7 @@ ROOT::RDF::RNode TRestDataSet::DefineColumn(const std::string& columnName, const
     auto df = fDataSet;
 
     std::string evalFormula = formula;
-    for (auto const& [name, properties] : fQuantity)
+    for (auto const & [ name, properties ] : fQuantity)
         evalFormula = REST_StringHelper::Replace(evalFormula, name, properties.value);
 
     df = df.Define(columnName, evalFormula);
@@ -610,7 +607,7 @@ void TRestDataSet::PrintMetadata() {
         RESTMetadata << " Relevant quantities: " << RESTendl;
         RESTMetadata << " -------------------- " << RESTendl;
 
-        for (auto const& [name, properties] : fQuantity) {
+        for (auto const & [ name, properties ] : fQuantity) {
             RESTMetadata << " - Name : " << name << ". Value : " << properties.value
                          << ". Strategy: " << properties.strategy << RESTendl;
             RESTMetadata << " - Metadata: " << properties.metadata << RESTendl;
@@ -622,7 +619,7 @@ void TRestDataSet::PrintMetadata() {
     if (!fColumnNameExpressions.empty()) {
         RESTMetadata << " New columns added to generated dataframe: " << RESTendl;
         RESTMetadata << " ---------------------------------------- " << RESTendl;
-        for (const auto& [cName, cExpression] : fColumnNameExpressions) {
+        for (const auto & [ cName, cExpression ] : fColumnNameExpressions) {
             RESTMetadata << " - Name : " << cName << RESTendl;
             RESTMetadata << " - Expression: " << cExpression << RESTendl;
             RESTMetadata << " " << RESTendl;
@@ -795,8 +792,7 @@ void TRestDataSet::Export(const std::string& filename) {
             if (type != "Double_t" && type != "Int_t") {
                 RESTError << "Branch name : " << bName << " is type : " << type << RESTendl;
                 RESTError << "Only Int_t and Double_t types are allowed for "
-                             "exporting to ASCII table"
-                          << RESTendl;
+                             "exporting to ASCII table" << RESTendl;
                 RESTError << "File will not be generated" << RESTendl;
                 return;
             }
@@ -831,7 +827,7 @@ void TRestDataSet::Export(const std::string& filename) {
         }
         fprintf(f, "###\n");
         fprintf(f, "### Relevant quantities: \n");
-        for (auto& [name, properties] : fQuantity) {
+        for (auto & [ name, properties ] : fQuantity) {
             fprintf(f, "### - %s : %s - %s\n", name.c_str(), properties.value.c_str(),
                     properties.description.c_str());
         }
@@ -882,6 +878,7 @@ void TRestDataSet::Export(const std::string& filename) {
         RESTWarning << "TRestDataSet::Export. Extension " << TRestTools::GetFileNameExtension(filename)
                     << " not recognized" << RESTendl;
     }
+    RESTInfo << "Dataset generated: " << filename << RESTendl;
 }
 
 ///////////////////////////////////////////////
