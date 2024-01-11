@@ -128,7 +128,6 @@ Double_t TRestComponent::GetNormalizedRate(std::vector<Double_t> point) {
 /// be applied.
 ///
 Double_t TRestComponent::GetRateWithResponse(std::vector<Double_t> point) {
-
     if (!fResponse) {
         RESTError << "TRestComponent::GetRateWithResponse. Response has not been defined!" << RESTendl;
         RESTError << "You may directly call GetRate in order to get the raw expected rate without warning."
