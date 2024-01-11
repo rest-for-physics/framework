@@ -108,9 +108,55 @@ Int_t TRestComponent::GetVariableIndex(std::string varName) {
 ///
 Double_t TRestComponent::GetNormalizedRate(std::vector<Double_t> point) {
     Double_t normFactor = 1;
-    for (size_t n = 0; n < GetDimensions(); n++) normFactor *= fNbins[n] / (fRanges[n].Y() - fRanges[n].X());
+    for (size_t n = 0; n < GetDimensions(); n++) {
+        std::cout << "bins: " << fNbins[n] << std::endl;
+        std::cout << "rangeX " << fRanges[n].X() << std::endl;
+        std::cout << "rangeY " << fRanges[n].Y() << std::endl;
+        normFactor *= fNbins[n] / (fRanges[n].Y() - fRanges[n].X());
+    }
 
     return normFactor * GetRate(point);
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the intensity/rate (in seconds) corresponding to the
+/// generated distribution or formula evaluated at the position of the parameter
+/// space given by point.
+///
+/// The response matrix (if defined) will be used to convolute the expected rate.
+/// The TRestResponse metadata class defines the variable where the response will
+/// be applied.
+///
+Double_t TRestComponent::GetRateWithResponse(std::vector<Double_t> point) {
+
+    if (!fResponse) {
+        RESTError << "TRestComponent::GetRateWithResponse. Response has not been defined!" << RESTendl;
+        RESTError << "You may directly call GetRate in order to get the raw expected rate without warning."
+                  << RESTendl;
+        return GetRate(point);
+    }
+
+    std::string responseVariable = fResponse->GetVariable();
+    Int_t respVarIndex = GetVariableIndex(responseVariable);
+
+    if (respVarIndex == -1) {
+        RESTError << "The response variable `" << responseVariable << "`, defined inside TRestResponse,"
+                  << RESTendl;
+        RESTError << "could not be found inside the component." << RESTendl;
+        RESTError << "Please, check the component variable names." << RESTendl;
+        return 0;
+    }
+
+    std::vector<std::pair<Double_t, Double_t> > response = fResponse->GetResponse(point[respVarIndex]);
+
+    Double_t rate = 0;
+    for (const auto& resp : response) {
+        std::vector<Double_t> newPoint = point;
+        newPoint[respVarIndex] = resp.first;
+        rate += resp.second * GetRate(newPoint);
+    }
+
+    return rate;
 }
 
 ///////////////////////////////////////////////
@@ -123,11 +169,11 @@ Double_t TRestComponent::GetNormalizedRate(std::vector<Double_t> point) {
 /// 2-spatial dimensions and 1-energy dimension, the returned rate will be
 /// expressed in standard REST units as, s-1 mm-2 keV-1.
 ///
-Double_t TRestComponent::GetResponseRate(std::vector<Double_t> point) {
+Double_t TRestComponent::GetNormalizedRateWithResponse(std::vector<Double_t> point) {
     Double_t normFactor = 1;
     for (size_t n = 0; n < GetDimensions(); n++) normFactor *= fNbins[n] / (fRanges[n].Y() - fRanges[n].X());
 
-    return normFactor * GetRate(point);
+    return normFactor * GetRateWithResponse(point);
 }
 
 ///////////////////////////////////////////////
@@ -140,6 +186,7 @@ void TRestComponent::LoadResponse(const TRestResponse& resp) {
     }
 
     fResponse = (TRestResponse*)resp.Clone("response");
+    if (fResponse) fResponse->LoadResponse();
 
     fResponse->PrintMetadata();
 }
@@ -174,6 +221,13 @@ void TRestComponent::PrintMetadata() {
         RESTMetadata << " - Number of parametric nodes : " << fParameterizationNodes.size() << RESTendl;
         RESTMetadata << " " << RESTendl;
         RESTMetadata << " Use : PrintNodes() for additional info" << RESTendl;
+    }
+
+    if (fResponse) {
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << "A response matrix was loaded inside the component" << RESTendl;
+        RESTMetadata << "You may get more details using TRestComponent::GetResponse()->PrintMetadata()"
+                     << RESTendl;
     }
 
     RESTMetadata << "----" << RESTendl;
@@ -212,6 +266,14 @@ void TRestComponent::InitFromConfigFile() {
 
         ele = GetNextElement(ele);
     }
+
+    if (fResponse) {
+        delete fResponse;
+        fResponse = nullptr;
+    }
+
+    fResponse = (TRestResponse*)this->InstantiateChildMetadata("Response");
+    if (fResponse) fResponse->LoadResponse();
 }
 
 /////////////////////////////////////////////

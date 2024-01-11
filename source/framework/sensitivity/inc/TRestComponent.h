@@ -51,7 +51,7 @@ class TRestComponent : public TRestMetadata {
     /// It is used to define the node that will be accessed for rate retrieval
     Int_t fActiveNode = -1;  //<
 
-    ///
+    /// A pointer to the detector response
     TRestResponse* fResponse = nullptr;  //<
 
     /// A canvas for drawing the active node component
@@ -72,11 +72,14 @@ class TRestComponent : public TRestMetadata {
     void InitFromConfigFile() override;
 
    public:
-    Double_t GetNormalizedRate(std::vector<Double_t> point);
-    Double_t GetResponseRate(std::vector<Double_t> point);
+    TRestResponse* GetResponse() const { return fResponse; }
 
     virtual Double_t GetRate(std::vector<Double_t> point) = 0;
     virtual Double_t GetTotalRate() = 0;
+
+    Double_t GetNormalizedRate(std::vector<Double_t> point);
+    Double_t GetRateWithResponse(std::vector<Double_t> point);
+    Double_t GetNormalizedRateWithResponse(std::vector<Double_t> point);
 
     size_t GetDimensions() { return fVariables.size(); }
 
