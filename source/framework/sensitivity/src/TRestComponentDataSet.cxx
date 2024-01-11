@@ -146,8 +146,8 @@ void TRestComponentDataSet::Initialize() {
 /// The size of the point vector must have the same dimension as the dimensions
 /// of the distribution.
 ///
-/// If interpolation is enabled (which is the default) the rate will be evaluated
-/// using interpolation with neighbor histogram cells.
+/// If interpolation is enabled (which is disabled by default) the rate will be
+/// evaluated using interpolation with neighbour histogram cells.
 ///
 /// Interpolation technique extracted from:
 /// https://math.stackexchange.com/questions/1342364/formula-for-n-dimensional-linear-interpolation
@@ -270,15 +270,13 @@ TCanvas* TRestComponentDataSet::DrawComponent(std::vector<std::string> drawVaria
                                               TString drawOption) {
     if (drawVariables.size() > 2 || drawVariables.size() == 0) {
         RESTError << "TRestComponentDataSet::DrawComponent. The number of variables to be drawn must "
-                     "be 1 or 2!"
-                  << RESTendl;
+                     "be 1 or 2!" << RESTendl;
         return fCanvas;
     }
 
     if (scanVariables.size() > 2 || scanVariables.size() == 0) {
         RESTError << "TRestComponentDataSet::DrawComponent. The number of variables to be scanned must "
-                     "be 1 or 2!"
-                  << RESTendl;
+                     "be 1 or 2!" << RESTendl;
         return fCanvas;
     }
 
@@ -457,13 +455,13 @@ void TRestComponentDataSet::PrintStatistics() {
     }
 
     auto result = std::accumulate(fNSimPerNode.begin(), fNSimPerNode.end(), 0);
-    std::cout << "Total counts : " << result << std::endl;
+    RESTInfo << "Total counts : " << result << RESTendl;
     std::cout << std::endl;
 
-    std::cout << " Parameter node statistics (" << fParameter << ")" << std::endl;
+    RESTInfo << " Parameter node statistics (" << fParameter << ")" << RESTendl;
     int n = 0;
     for (const auto& p : fParameterizationNodes) {
-        std::cout << " - Value : " << p << " Counts: " << fNSimPerNode[n] << std::endl;
+        RESTInfo << " - Value : " << p << " Counts: " << fNSimPerNode[n] << RESTendl;
         n++;
     }
 }
@@ -694,10 +692,12 @@ std::vector<Double_t> TRestComponentDataSet::ExtractParameterizationNodes() {
 /// \brief It returns a vector with the number of entries found for each
 /// parameterization node.
 ///
-/// If fNSimPerNode has already been initialized it will
-/// directly return its value.
+/// If fNSimPerNode has already been initialized it will directly return its value.
 ///
-std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
+/// The argument precision will be used to include a thin range where to select
+/// the node values.
+///
+std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics(Double_t precision) {
     if (!fNSimPerNode.empty()) return fNSimPerNode;
 
     std::vector<Int_t> stats;
@@ -710,8 +710,13 @@ std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
     RESTInfo << "Counting statistics for each node ..." << RESTendl;
     RESTInfo << "Number of nodes : " << fParameterizationNodes.size() << RESTendl;
     for (const auto& p : fParameterizationNodes) {
-        std::string filter = fParameter + " == " + DoubleToString(p);
+        Double_t pUp = p + precision / 2;
+        Double_t pDown = p - precision / 2;
+        std::string filter =
+            fParameter + " < " + DoubleToString(pUp) + " && " + fParameter + " > " + DoubleToString(pDown);
+        RESTInfo << "Counting stats for : " << fParameter << " = " << p << RESTendl;
         auto nEv = fDataSet.GetDataFrame().Filter(filter).Count();
+        RESTInfo << "Counts found : " << *nEv << RESTendl;
         stats.push_back(*nEv);
     }
     return stats;
@@ -725,8 +730,7 @@ std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
 Bool_t TRestComponentDataSet::LoadDataSets() {
     if (fDataSetFileNames.empty()) {
         RESTWarning << "Dataset filename was not defined. You may still use "
-                       "TRestComponentDataSet::LoadDataSet( filename );"
-                    << RESTendl;
+                       "TRestComponentDataSet::LoadDataSet( filename );" << RESTendl;
         fDataSetLoaded = false;
         return fDataSetLoaded;
     }
