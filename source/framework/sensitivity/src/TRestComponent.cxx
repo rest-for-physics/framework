@@ -101,17 +101,15 @@ Int_t TRestComponent::GetVariableIndex(std::string varName) {
 /// generated distribution or formula evaluated at the position of the parameter
 /// space given by point.
 ///
-/// The rate returned by the TRestComponent::GetRate method will be normalized
-/// to the corresponding parameter space. Thus, if the parameter consists of
+/// The rate returned by the TRestComponent::GetRate method is integrated to the
+/// cell size for the given parameter space binning and range. This method will
+/// return the normalized value. Thus, if the parameter consists of
 /// 2-spatial dimensions and 1-energy dimension, the returned rate will be
 /// expressed in standard REST units as, s-1 mm-2 keV-1.
 ///
 Double_t TRestComponent::GetNormalizedRate(std::vector<Double_t> point) {
     Double_t normFactor = 1;
     for (size_t n = 0; n < GetDimensions(); n++) {
-        std::cout << "bins: " << fNbins[n] << std::endl;
-        std::cout << "rangeX " << fRanges[n].X() << std::endl;
-        std::cout << "rangeY " << fRanges[n].Y() << std::endl;
         normFactor *= fNbins[n] / (fRanges[n].Y() - fRanges[n].X());
     }
 
