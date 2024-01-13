@@ -126,7 +126,6 @@ Double_t TRestComponent::GetNormalizedRate(std::vector<Double_t> point) {
 /// be applied.
 ///
 Double_t TRestComponent::GetRateWithResponse(std::vector<Double_t> point) {
-
     if (!fResponse) {
         return GetRate(point);
     }

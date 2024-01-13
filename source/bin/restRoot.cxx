@@ -94,8 +94,9 @@ int main(int argc, char* argv[]) {
             printf("= HINT. E.g. REST_Detector_XYZ(arg1,arg2) may be called as: restManager XYZ arg1 arg2\n");
         }
         vector<string> macroFiles;
-        const vector<string> patterns = {REST_PATH + "/macros/REST_*.C",   // framework
-                                         REST_PATH + "/macros/*/REST_*.C"  // libraries
+        const vector<string> patterns = {
+            REST_PATH + "/macros/REST_*.C",   // framework
+            REST_PATH + "/macros/*/REST_*.C"  // libraries
         };
         for (const auto& pattern : patterns) {
             for (const auto& macroFile : TRestTools::GetFilesMatchingPattern(pattern)) {
