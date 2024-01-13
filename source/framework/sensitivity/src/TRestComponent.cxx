@@ -128,9 +128,6 @@ Double_t TRestComponent::GetNormalizedRate(std::vector<Double_t> point) {
 Double_t TRestComponent::GetRateWithResponse(std::vector<Double_t> point) {
 
     if (!fResponse) {
-        RESTError << "TRestComponent::GetRateWithResponse. Response has not been defined!" << RESTendl;
-        RESTError << "You may directly call GetRate in order to get the raw expected rate without warning."
-                  << RESTendl;
         return GetRate(point);
     }
 
@@ -166,6 +163,17 @@ Double_t TRestComponent::GetRateWithResponse(std::vector<Double_t> point) {
 /// to the corresponding parameter space. Thus, if the parameter consists of
 /// 2-spatial dimensions and 1-energy dimension, the returned rate will be
 /// expressed in standard REST units as, s-1 mm-2 keV-1.
+///
+/// The returned value may be recovered back with the desired units using
+/// the REST_Units namespace.
+///
+/// \code
+/// component->GetNormalizedRateWithResponse( {0,0,0} ) * units("cm^-2*keV^-1")
+/// \endcode
+///
+/// The response matrix (if defined) will be used to convolute the expected rate.
+/// The TRestResponse metadata class defines the variable where the response will
+/// be applied.
 ///
 Double_t TRestComponent::GetNormalizedRateWithResponse(std::vector<Double_t> point) {
     Double_t normFactor = 1;
