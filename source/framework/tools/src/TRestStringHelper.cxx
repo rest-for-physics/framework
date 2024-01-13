@@ -479,7 +479,7 @@ Int_t REST_StringHelper::DiffString(const string& source, const string& target) 
 }
 
 ///////////////////////////////////////////////
-/// \brief Replace every occurences of **thisSring** by **byThisString** inside
+/// \brief Replace any occurences of **thisSring** by **byThisString** inside
 /// string **in**.
 ///
 string REST_StringHelper::Replace(string in, string thisString, string byThisString, size_t fromPosition,
