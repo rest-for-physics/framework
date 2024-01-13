@@ -94,17 +94,30 @@ void TRestComponentFormula::Initialize() {
 /// generated distribution or formula evaluated at the position of the parameter
 /// space given by point.
 ///
-/// The density should be normalized to the corresponding parameter space. During
-/// the component construction, **the user is responsible** to initialize the component
-/// with the appropriate units. For example, if the parameter space is 2 spatial
-/// dimensions and 1 energy dimension, the contribution of each cell or event to
-/// the component will be expressed in mm-2 keV-1 which are the default units for
-/// distance and energy.
-///
 /// The size of the point vector must have the same dimension as the dimensions
 /// of the distribution.
 ///
-Double_t TRestComponentFormula::GetRate(std::vector<Double_t> point) { return 0.0; }
+Double_t TRestComponentFormula::GetRate(std::vector<Double_t> point) {
+
+    if (fVariables.size() != point.size()) {
+        RESTError << "Point should have same dimensions as number of variables!" << RESTendl;
+        return 0;
+    }
+
+    Double_t result = 0;
+    for (auto& formula : fFormulas) {
+        for (size_t n = 0; n < fVariables.size(); n++) formula.SetParameter(fVariables[n].c_str(), point[n]);
+
+        result += formula.EvalPar(nullptr);
+    }
+
+    Double_t normFactor = 1;
+    for (size_t n = 0; n < GetDimensions(); n++) {
+        normFactor *= (fRanges[n].Y() - fRanges[n].X()) / fNbins[n];
+    }
+
+    return normFactor * result / units(fUnits);
+}
 
 ///////////////////////////////////////////////
 /// \brief This method integrates the rate to all the parameter space defined in the density function.
@@ -122,10 +135,54 @@ Double_t TRestComponentFormula::GetTotalRate() {
 void TRestComponentFormula::PrintMetadata() {
     TRestComponent::PrintMetadata();
 
+    RESTMetadata << " " << RESTendl;
+    RESTMetadata << "Formula units: " << fUnits << RESTendl;
+
+    if (!fFormulas.empty()) {
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << " == Term expressions implemented inside the component ==" << RESTendl;
+
+        for (const auto& x : fFormulas)
+            RESTMetadata << "- " << x.GetName() << " = " << x.GetExpFormula() << RESTendl;
+
+        RESTMetadata << " " << RESTendl;
+    }
+
     RESTMetadata << "----" << RESTendl;
 }
 
 /////////////////////////////////////////////
 /// \brief It customizes the retrieval of XML data values of this class
 ///
-void TRestComponentFormula::InitFromConfigFile() { TRestComponent::InitFromConfigFile(); }
+void TRestComponentFormula::InitFromConfigFile() {
+    TRestComponent::InitFromConfigFile();
+
+    if (!fFormulas.empty()) return;
+
+    auto ele = GetElement("formula");
+    while (ele != nullptr) {
+        std::string name = GetParameter("name", ele, "");
+        std::string expression = GetParameter("expression", ele, "");
+
+        if (expression.empty()) {
+            RESTWarning << "TRestComponentFormula::InitFromConfigFile. Invalid formula" << RESTendl;
+        } else {
+            TFormula formula(name.c_str(), expression.c_str());
+
+            for (Int_t n = 0; n < formula.GetNpar(); n++) {
+                if (std::find(fVariables.begin(), fVariables.end(), formula.GetParName(n)) ==
+                    fVariables.end()) {
+                    RESTError << "Variable : " << formula.GetParName(n) << " not found in component! "
+                              << RESTendl;
+                    RESTError << "TRestComponentFormula evaluation will lead to wrong results!" << RESTendl;
+                }
+            }
+
+            for (const auto& varName : fVariables) formula.SetParameter(varName.c_str(), 0.0);
+
+            fFormulas.push_back(formula);
+        }
+
+        ele = GetNextElement(ele);
+    }
+}

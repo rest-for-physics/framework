@@ -23,22 +23,19 @@
 #ifndef REST_TRestComponentFormula
 #define REST_TRestComponentFormula
 
-#include <THn.h>
+#include <TFormula.h>
 
 #include "TRestComponent.h"
 #include "TRestDataSet.h"
 
-/// It defines a background/signal model distribution in a given parameter space (tipically x,y,en)
+/// It defines an analytical component model distribution in a given parameter space (tipically x,y,en)
 class TRestComponentFormula : public TRestComponent {
    private:
-    /// The function used to initialize the distribution
-    /// std::string fFunction = "";  //!
-    ///
-    /// The function used to initialize the distribution
-    /// TFormula fFormula;  //!
+    /// A vector of formulas that will be added up to integrate a given rate
+    std::vector<TFormula> fFormulas;
 
-    /// A pointer to the component distribution
-    // THnD* fDistribution = nullptr;  //!
+    /// The formulas should be expressed in the following units
+    std::string fUnits = "cm^-2*keV^-1";  //<
 
    protected:
     void InitFromConfigFile() override;
