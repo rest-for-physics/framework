@@ -43,7 +43,7 @@ class TRestComponentDataSet : public TRestComponent {
     /// The generated N-dimensional variable space density for a given node
     std::vector<THnD*> fNodeDensity;  //<
 
-    /// Enables or disables the interpolation at TRestComponentDataSet::GetRate
+    /// Enables or disables the interpolation at TRestComponentDataSet::GetRawRate
     Bool_t fInterpolation = true;
 
     /// TODO we need to define multiple datasets and weigth. The weight will be used
@@ -77,7 +77,7 @@ class TRestComponentDataSet : public TRestComponent {
     void EnableInterpolation() { fInterpolation = true; }
     void DisableInterpolation() { fInterpolation = false; }
 
-    Double_t GetRate(std::vector<Double_t> point) override;
+    Double_t GetRawRate(std::vector<Double_t> point) override;
     Double_t GetTotalRate() override;
 
     Double_t GetBinCenter(Int_t nDim, const Int_t bin);

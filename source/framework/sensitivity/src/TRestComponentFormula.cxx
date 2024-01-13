@@ -92,12 +92,12 @@ void TRestComponentFormula::Initialize() {
 ///////////////////////////////////////////////
 /// \brief It returns the intensity/rate (in seconds) corresponding to the
 /// generated distribution or formula evaluated at the position of the parameter
-/// space given by point.
+/// space given by point and integrated to the parameter space cell volume.
 ///
 /// The size of the point vector must have the same dimension as the dimensions
-/// of the distribution.
+/// of the variables of the distribution.
 ///
-Double_t TRestComponentFormula::GetRate(std::vector<Double_t> point) {
+Double_t TRestComponentFormula::GetRawRate(std::vector<Double_t> point) {
 
     if (fVariables.size() != point.size()) {
         RESTError << "Point should have same dimensions as number of variables!" << RESTendl;
@@ -123,11 +123,7 @@ Double_t TRestComponentFormula::GetRate(std::vector<Double_t> point) {
 /// \brief This method integrates the rate to all the parameter space defined in the density function.
 /// The result will be returned in s-1.
 ///
-Double_t TRestComponentFormula::GetTotalRate() {
-    Double_t integral = 0;
-
-    return integral;
-}
+Double_t TRestComponentFormula::GetTotalRate() { return 0.0; }
 
 /////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux

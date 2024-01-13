@@ -101,33 +101,13 @@ Int_t TRestComponent::GetVariableIndex(std::string varName) {
 /// generated distribution or formula evaluated at the position of the parameter
 /// space given by point.
 ///
-/// The rate returned by the TRestComponent::GetRate method is integrated to the
-/// cell size for the given parameter space binning and range. This method will
-/// return the normalized value. Thus, if the parameter consists of
-/// 2-spatial dimensions and 1-energy dimension, the returned rate will be
-/// expressed in standard REST units as, s-1 mm-2 keV-1.
-///
-Double_t TRestComponent::GetNormalizedRate(std::vector<Double_t> point) {
-    Double_t normFactor = 1;
-    for (size_t n = 0; n < GetDimensions(); n++) {
-        normFactor *= fNbins[n] / (fRanges[n].Y() - fRanges[n].X());
-    }
-
-    return normFactor * GetRate(point);
-}
-
-///////////////////////////////////////////////
-/// \brief It returns the intensity/rate (in seconds) corresponding to the
-/// generated distribution or formula evaluated at the position of the parameter
-/// space given by point.
-///
 /// The response matrix (if defined) will be used to convolute the expected rate.
 /// The TRestResponse metadata class defines the variable where the response will
 /// be applied.
 ///
-Double_t TRestComponent::GetRateWithResponse(std::vector<Double_t> point) {
+Double_t TRestComponent::GetRate(std::vector<Double_t> point) {
     if (!fResponse) {
-        return GetRate(point);
+        return GetRawRate(point);
     }
 
     std::string responseVariable = fResponse->GetVariable();
@@ -147,7 +127,7 @@ Double_t TRestComponent::GetRateWithResponse(std::vector<Double_t> point) {
     for (const auto& resp : response) {
         std::vector<Double_t> newPoint = point;
         newPoint[respVarIndex] = resp.first;
-        rate += resp.second * GetRate(newPoint);
+        rate += resp.second * GetRawRate(newPoint);
     }
 
     return rate;
@@ -158,7 +138,7 @@ Double_t TRestComponent::GetRateWithResponse(std::vector<Double_t> point) {
 /// generated distribution or formula evaluated at the position of the parameter
 /// space given by point.
 ///
-/// The rate returned by the TRestComponent::GetRate method will be normalized
+/// The rate returned by the TRestComponent::GetRawRate method will be normalized
 /// to the corresponding parameter space. Thus, if the parameter consists of
 /// 2-spatial dimensions and 1-energy dimension, the returned rate will be
 /// expressed in standard REST units as, s-1 mm-2 keV-1.
@@ -167,18 +147,18 @@ Double_t TRestComponent::GetRateWithResponse(std::vector<Double_t> point) {
 /// the REST_Units namespace.
 ///
 /// \code
-/// component->GetNormalizedRateWithResponse( {0,0,0} ) * units("cm^-2*keV^-1")
+/// component->GetNormalizedRate( {0,0,0} ) * units("cm^-2*keV^-1")
 /// \endcode
 ///
 /// The response matrix (if defined) will be used to convolute the expected rate.
 /// The TRestResponse metadata class defines the variable where the response will
 /// be applied.
 ///
-Double_t TRestComponent::GetNormalizedRateWithResponse(std::vector<Double_t> point) {
+Double_t TRestComponent::GetNormalizedRate(std::vector<Double_t> point) {
     Double_t normFactor = 1;
     for (size_t n = 0; n < GetDimensions(); n++) normFactor *= fNbins[n] / (fRanges[n].Y() - fRanges[n].X());
 
-    return normFactor * GetRateWithResponse(point);
+    return normFactor * GetRate(point);
 }
 
 ///////////////////////////////////////////////

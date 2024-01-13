@@ -41,7 +41,7 @@ class TRestComponentFormula : public TRestComponent {
     void InitFromConfigFile() override;
 
    public:
-    Double_t GetRate(std::vector<Double_t> point) override;
+    Double_t GetRawRate(std::vector<Double_t> point) override;
     Double_t GetTotalRate() override;
 
     void PrintMetadata() override;

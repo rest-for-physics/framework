@@ -152,7 +152,7 @@ void TRestComponentDataSet::Initialize() {
 ///
 /// 𝑓(𝑥0,𝑥1,𝑥2)=𝐴000(1−𝑥0)(1−𝑥1)(1−𝑥2)+𝐴001𝑥0(1−𝑥1)(1−𝑥2)+𝐴010(1−𝑥0)𝑥1(1−𝑥2)⋯+𝐴111𝑥0𝑥1𝑥
 ///
-Double_t TRestComponentDataSet::GetRate(std::vector<Double_t> point) {
+Double_t TRestComponentDataSet::GetRawRate(std::vector<Double_t> point) {
     if (point.size() != GetDimensions()) {
         RESTError << "The size of the point given is : " << point.size() << RESTendl;
         RESTError << "The density distribution dimensions are : " << GetDimensions() << RESTendl;
@@ -268,15 +268,13 @@ TCanvas* TRestComponentDataSet::DrawComponent(std::vector<std::string> drawVaria
                                               TString drawOption) {
     if (drawVariables.size() > 2 || drawVariables.size() == 0) {
         RESTError << "TRestComponentDataSet::DrawComponent. The number of variables to be drawn must "
-                     "be 1 or 2!"
-                  << RESTendl;
+                     "be 1 or 2!" << RESTendl;
         return fCanvas;
     }
 
     if (scanVariables.size() > 2 || scanVariables.size() == 0) {
         RESTError << "TRestComponentDataSet::DrawComponent. The number of variables to be scanned must "
-                     "be 1 or 2!"
-                  << RESTendl;
+                     "be 1 or 2!" << RESTendl;
         return fCanvas;
     }
 
@@ -730,8 +728,7 @@ std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics(Double_t precisi
 Bool_t TRestComponentDataSet::LoadDataSets() {
     if (fDataSetFileNames.empty()) {
         RESTWarning << "Dataset filename was not defined. You may still use "
-                       "TRestComponentDataSet::LoadDataSet( filename );"
-                    << RESTendl;
+                       "TRestComponentDataSet::LoadDataSet( filename );" << RESTendl;
         fDataSetLoaded = false;
         return fDataSetLoaded;
     }
