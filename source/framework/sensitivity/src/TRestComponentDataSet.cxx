@@ -137,11 +137,9 @@ void TRestComponentDataSet::Initialize() {
 ///////////////////////////////////////////////
 /// \brief It returns the intensity/rate (in seconds) corresponding to the
 /// generated distribution or formula evaluated at the position of the parameter
-/// space given by point.
-///
-/// The rate will be normalized to the corresponding parameter space. Thus, if
-/// the parameter consists of 2-spatial dimensions and 1-energy dimension, the
-/// returned rate will be expressed in standard REST units as, s-1 mm-2 keV-1.
+/// space given by point. The returned rate is integrated to the granularity
+/// of the parameter space (cell size). To get a normalized rate use
+/// TRestComponent::GetNormalizedRate.
 ///
 /// The size of the point vector must have the same dimension as the dimensions
 /// of the distribution.
