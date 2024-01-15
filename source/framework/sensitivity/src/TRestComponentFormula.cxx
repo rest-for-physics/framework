@@ -24,6 +24,20 @@
 /// This class allows to ...
 ///
 ///
+///    <TRestComponentFormula name="DummyFormulaComponent">
+///            <variable name="final_posX" range="(-10,10)mm" bins="100" />
+///            <variable name="final_posY" range="(-1,1)cm" bins="100" />
+///            <variable name="final_energy" range="(0,10)keV" bins="20" />
+///
+///            <parameter name="units" value="cm^-2*keV^-1" />
+///
+///			   // A spatial gaussian component contribution (energy normalized)
+///            <formula name="gaus" expression="1E-${REST_BCK_LEVEL} *
+/// TMath::Exp(-[final_posX]*[final_posX]-[final_posY]*[final_posY])/(1+[final_energy])" />
+///			   // A flat contribution
+///            <formula name="flat" expression="1E-7" />
+///     </TRestComponentFormula>
+///
 ///----------------------------------------------------------------------
 ///
 /// REST-for-Physics - Software for Rare Event Searches Toolkit
@@ -87,17 +101,19 @@ void TRestComponentFormula::Initialize() {
     TRestComponent::Initialize();
 
     SetSectionName(this->ClassName());
+
+    FillHistograms();
 }
 
 ///////////////////////////////////////////////
 /// \brief It returns the intensity/rate (in seconds) corresponding to the
-/// generated distribution or formula evaluated at the position of the parameter
-/// space given by point and integrated to the parameter space cell volume.
+/// formula evaluated at the position of the parameter space given by point
+/// and integrated to the parameter space cell volume.
 ///
 /// The size of the point vector must have the same dimension as the dimensions
 /// of the variables of the distribution.
 ///
-Double_t TRestComponentFormula::GetRawRate(std::vector<Double_t> point) {
+Double_t TRestComponentFormula::GetFormulaRate(std::vector<Double_t> point) {
 
     if (fVariables.size() != point.size()) {
         RESTError << "Point should have same dimensions as number of variables!" << RESTendl;
@@ -119,11 +135,74 @@ Double_t TRestComponentFormula::GetRawRate(std::vector<Double_t> point) {
     return normFactor * result / units(fUnits);
 }
 
-///////////////////////////////////////////////
-/// \brief This method integrates the rate to all the parameter space defined in the density function.
-/// The result will be returned in s-1.
+/////////////////////////////////////////////
+/// \brief It will produce a histogram with the distribution using the formula
+/// contributions.
 ///
-Double_t TRestComponentFormula::GetTotalRate() { return 0.0; }
+/// For the moment this method will just fill one node (without fParameter). But
+/// if the component expression depends on the node parameter it might require
+/// further development.
+///
+void TRestComponentFormula::FillHistograms(Double_t precision) {
+
+    if (fFormulas.empty()) return;
+
+    if (fParameterizationNodes.empty()) {
+        RESTWarning << "Nodes have not been defined" << RESTendl;
+        RESTWarning << "The full dataset will be used to generate the density distribution" << RESTendl;
+        fParameterizationNodes.push_back(-137);
+    }
+
+    RESTInfo << "Generating N-dim histogram" << RESTendl;
+
+    TString hName = "formula";
+
+    Int_t* bins = new Int_t[fNbins.size()];
+    Double_t* xlow = new Double_t[fNbins.size()];
+    Double_t* xhigh = new Double_t[fNbins.size()];
+
+    for (size_t n = 0; n < fNbins.size(); n++) {
+        bins[n] = fNbins[n];
+        xlow[n] = fRanges[n].X();
+        xhigh[n] = fRanges[n].Y();
+    }
+
+    THnD* hNd = new THnD(hName, hName, fNbins.size(), bins, xlow, xhigh);
+
+    // Calculate the bin width in each dimension
+    std::vector<double> binWidths;
+    for (size_t i = 0; i < fNbins.size(); ++i) {
+        double width = static_cast<double>(xhigh[i] - xlow[i]) / bins[i];
+        binWidths.push_back(width);
+    }
+
+    // Nested loop to iterate over each bin and print its center
+    std::vector<int> binIndices(fNbins.size(), 0);  // Initialize bin indices to 0 in each dimension
+
+    bool carry = false;
+    while (!carry) {
+        // Calculate the center of the current bin in each dimension
+        std::vector<double> binCenter;
+        for (size_t i = 0; i < fNbins.size(); ++i)
+            binCenter.push_back(xlow[i] + (binIndices[i] + 0.5) * binWidths[i]);
+
+        hNd->Fill(binCenter.data(), GetFormulaRate(binCenter));
+
+        // Update bin indices for the next iteration
+        carry = true;
+        for (size_t i = 0; i < fNbins.size(); ++i) {
+            binIndices[i]++;
+            if (binIndices[i] < bins[i]) {
+                carry = false;
+                break;
+            }
+            binIndices[i] = 0;
+        }
+    }
+
+    fNodeDensity.push_back(hNd);
+    fActiveNode = 0;  // For the moment only 1-node!
+}
 
 /////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
@@ -181,4 +260,6 @@ void TRestComponentFormula::InitFromConfigFile() {
 
         ele = GetNextElement(ele);
     }
+
+    if (!fFormulas.empty()) Initialize();
 }
