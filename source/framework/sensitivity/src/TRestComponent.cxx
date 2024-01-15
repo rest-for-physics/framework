@@ -41,15 +41,15 @@
 #include "TRestComponent.h"
 
 #include <numeric>
-
-#include "TKey.h"
+#include <TKey.h>
+#include <TLatex.h>
 
 ClassImp(TRestComponent);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestComponent::TRestComponent() { Initialize(); }
+TRestComponent::TRestComponent() {}
 
 /////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -75,12 +75,6 @@ TRestComponent::TRestComponent(const char* cfgFileName, const std::string& name)
 /// \brief Default destructor
 ///
 TRestComponent::~TRestComponent() {}
-
-///////////////////////////////////////////////
-/// \brief It will initialize the data frame with the filelist and column names
-/// (or observables) that have been defined by the user.
-///
-void TRestComponent::Initialize() { SetSectionName(this->ClassName()); }
 
 ///////////////////////////////////////////
 /// \brief It returns the position of the fVariable element for the variable
@@ -162,6 +156,278 @@ Double_t TRestComponent::GetNormalizedRate(std::vector<Double_t> point) {
 }
 
 ///////////////////////////////////////////////
+/// \brief It returns the intensity/rate (in seconds) corresponding to the
+/// generated distribution or formula evaluated at the position of the parameter
+/// space given by point. The returned rate is integrated to the granularity
+/// of the parameter space (cell size). To get a normalized rate use
+/// TRestComponent::GetNormalizedRate.
+///
+/// The size of the point vector must have the same dimension as the dimensions
+/// of the distribution.
+///
+/// If interpolation is enabled (which is disabled by default) the rate will be
+/// evaluated using interpolation with neighbour histogram cells.
+///
+/// Interpolation technique extracted from:
+/// https://math.stackexchange.com/questions/1342364/formula-for-n-dimensional-linear-interpolation
+///
+/// 𝑓(𝑥0,𝑥1,𝑥2)=𝐴000(1−𝑥0)(1−𝑥1)(1−𝑥2)+𝐴001𝑥0(1−𝑥1)(1−𝑥2)+𝐴010(1−𝑥0)𝑥1(1−𝑥2)⋯+𝐴111𝑥0𝑥1𝑥
+///
+Double_t TRestComponent::GetRawRate(std::vector<Double_t> point) {
+    if (point.size() != GetDimensions()) {
+        RESTError << "The size of the point given is : " << point.size() << RESTendl;
+        RESTError << "The density distribution dimensions are : " << GetDimensions() << RESTendl;
+        RESTError << "Point must have the same dimension as the distribution" << RESTendl;
+        return 0;
+    }
+
+    if (!HasNodes()) {
+        RESTError << "TRestComponent::GetRawRate. The component has no nodes!" << RESTendl;
+        RESTError << "Try calling TRestComponent::Initialize" << RESTendl;
+
+        RESTInfo << "Trying to initialize" << RESTendl;
+        Initialize();
+        if (HasNodes())
+            RESTInfo << "Sucess!" << RESTendl;
+        else
+            return 0;
+    }
+
+    if (HasNodes() && fActiveNode == -1) {
+        RESTError << "TRestComponent::GetRawRate. Active node has not been defined" << RESTendl;
+        return 0;
+    }
+
+    Int_t centerBin[GetDimensions()];
+    Double_t centralDensity = GetDensity()->GetBinContent(GetDensity()->GetBin(point.data()), centerBin);
+    if (!Interpolation()) return centralDensity;
+
+    std::vector<Int_t> direction;
+    std::vector<Double_t> nDist;
+    for (size_t dim = 0; dim < GetDimensions(); dim++) {
+        Double_t x1 = GetBinCenter(dim, centerBin[dim] - 1);
+        Double_t x2 = GetBinCenter(dim, centerBin[dim] + 1);
+
+        if (centerBin[dim] == 1 || centerBin[dim] == fNbins[dim]) {
+            direction.push_back(0);
+            nDist.push_back(0);
+        } else if (x2 - point[dim] > point[dim] - x1) {
+            // we chose left bin (x1) since it is closer than right bin
+            direction.push_back(-1);
+            nDist.push_back(1 - 2 * (point[dim] - x1) / (x2 - x1));
+        } else {
+            direction.push_back(1);
+            nDist.push_back(1 - 2 * (x2 - point[dim]) / (x2 - x1));
+        }
+    }
+
+    // In 3-dimensions we got 8 points to interpolate
+    // In 4-dimensions we would get 16 points to interpolate
+    // ...
+    Int_t nPoints = (Int_t)TMath::Power(2, (Int_t)GetDimensions());
+
+    Double_t sum = 0;
+    for (int n = 0; n < nPoints; n++) {
+        std::vector<int> cell = REST_StringHelper::IntegerToBinary(n, GetDimensions());
+
+        Double_t weightDistance = 1;
+        int cont = 0;
+        for (const auto& c : cell) {
+            if (c == 0)
+                weightDistance *= (1 - nDist[cont]);
+            else
+                weightDistance *= nDist[cont];
+            cont++;
+        }
+
+        for (size_t k = 0; k < cell.size(); k++) cell[k] = cell[k] * direction[k] + centerBin[k];
+
+        Double_t density = GetDensity()->GetBinContent(cell.data());
+        sum += density * weightDistance;
+    }
+
+    return sum;
+}
+
+///////////////////////////////////////////////
+/// \brief This method integrates the rate to all the parameter space defined in the density function.
+/// The result will be returned in s-1.
+///
+Double_t TRestComponent::GetTotalRate() {
+    THnD* dHist = GetDensityForActiveNode();
+
+    Double_t integral = 0;
+    if (dHist != nullptr) integral = dHist->ComputeIntegral();
+
+    // Perhaps this value could be stored internally
+    for (size_t n = 0; n < fNbins.size(); n++)
+        integral = integral * (fRanges[n].Y() - fRanges[n].X()) / fNbins[n];
+
+    return integral;
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the bin center of the given component dimension.
+///
+/// It required implementation since I did not find a method inside THnD. Surprising.
+///
+Double_t TRestComponent::GetBinCenter(Int_t nDim, const Int_t bin) {
+    return fRanges[nDim].X() + (fRanges[nDim].Y() - fRanges[nDim].X()) * ((double)bin - 0.5) / fNbins[nDim];
+}
+
+///////////////////////////////////////////////
+/// \brief A method allowing to draw a series of plots representing the density distributions.
+///
+/// The method will produce 1- or 2-dimensional histograms of the `drawVariables` given in the
+/// argument. A third scan variable must be provided in order to show the distribution slices
+/// along the scan variable.
+///
+/// The binScanSize argument can be used to define the binSize of the scanning variables.
+///
+TCanvas* TRestComponent::DrawComponent(std::vector<std::string> drawVariables,
+                                       std::vector<std::string> scanVariables, Int_t binScanSize,
+                                       TString drawOption) {
+    if (drawVariables.size() > 2 || drawVariables.size() == 0) {
+        RESTError << "TRestComponent::DrawComponent. The number of variables to be drawn must "
+                     "be 1 or 2!" << RESTendl;
+        return fCanvas;
+    }
+
+    if (scanVariables.size() > 2 || scanVariables.size() == 0) {
+        RESTError << "TRestComponent::DrawComponent. The number of variables to be scanned must "
+                     "be 1 or 2!" << RESTendl;
+        return fCanvas;
+    }
+
+    //// Checking the number of plots to be generated
+    std::vector<int> scanIndexes;
+    for (const auto& x : scanVariables) scanIndexes.push_back(GetVariableIndex(x));
+
+    Int_t nPlots = 1;
+    size_t n = 0;
+    for (const auto& x : scanIndexes) {
+        if (fNbins[x] % binScanSize != 0) {
+            RESTWarning << "The variable " << scanVariables[n] << " contains " << fNbins[x]
+                        << " bins and it doesnt match with a bin size " << binScanSize << RESTendl;
+            RESTWarning << "The bin size must be a multiple of the number of bins." << RESTendl;
+            RESTWarning << "Redefining bin size to 1." << RESTendl;
+            binScanSize = 1;
+        }
+        nPlots *= fNbins[x] / binScanSize;
+        n++;
+    }
+
+    /// Finding canvas division scheme
+    Int_t nPlotsX = 0;
+    Int_t nPlotsY = 0;
+
+    if (scanIndexes.size() == 2) {
+        nPlotsX = fNbins[scanIndexes[0]] / binScanSize;
+        nPlotsY = fNbins[scanIndexes[1]] / binScanSize;
+    } else {
+        nPlotsX = TRestTools::CanvasDivisions(nPlots)[1];
+        nPlotsY = TRestTools::CanvasDivisions(nPlots)[0];
+    }
+
+    RESTInfo << "Number of plots to be generated: " << nPlots << RESTendl;
+    RESTInfo << "Canvas size : " << nPlotsX << " x " << nPlotsY << RESTendl;
+
+    //// Setting up the canvas with the appropriate number of divisions
+    if (fCanvas != nullptr) {
+        delete fCanvas;
+        fCanvas = nullptr;
+    }
+
+    fCanvas = new TCanvas(this->GetName(), this->GetName(), 0, 0, nPlotsX * 640, nPlotsY * 480);
+    fCanvas->Divide(nPlotsX, nPlotsY, 0.01, 0.01);
+
+    std::vector<int> variableIndexes;
+    for (const auto& x : drawVariables) variableIndexes.push_back(GetVariableIndex(x));
+
+    for (int n = 0; n < nPlotsX; n++)
+        for (int m = 0; m < nPlotsY; m++) {
+            TPad* pad = (TPad*)fCanvas->cd(n * nPlotsY + m + 1);
+            pad->SetFixedAspectRatio(true);
+
+            THnD* hnd = GetDensity();
+
+            int binXo = binScanSize * n + 1;
+            int binXf = binScanSize * n + binScanSize;
+            int binYo = binScanSize * m + 1;
+            int binYf = binScanSize * m + binScanSize;
+
+            if (scanVariables.size() == 2) {
+                hnd->GetAxis(scanIndexes[0])->SetRange(binXo, binXf);
+                hnd->GetAxis(scanIndexes[1])->SetRange(binYo, binYf);
+            } else if (scanVariables.size() == 1) {
+                binXo = binScanSize * nPlotsY * n + binScanSize * m + 1;
+                binXf = binScanSize * nPlotsY * n + binScanSize * m + binScanSize;
+                hnd->GetAxis(scanIndexes[0])->SetRange(binXo, binXf);
+            }
+
+            if (variableIndexes.size() == 1) {
+                TH1D* h1 = hnd->Projection(variableIndexes[0]);
+                std::string hName;
+
+                if (scanIndexes.size() == 2)
+                    hName = scanVariables[0] + "(" + IntegerToString(binXo) + ", " + IntegerToString(binXf) +
+                            ") " + scanVariables[1] + "(" + IntegerToString(binYo) + ", " +
+                            IntegerToString(binYf) + ") ";
+
+                if (scanIndexes.size() == 1)
+                    hName = scanVariables[0] + "(" + IntegerToString(binXo) + ", " + IntegerToString(binXf) +
+                            ") ";
+
+                TH1D* newh = (TH1D*)h1->Clone(hName.c_str());
+                newh->SetTitle(hName.c_str());
+                newh->SetStats(false);
+                newh->GetXaxis()->SetTitle((TString)drawVariables[0]);
+                newh->SetMarkerStyle(kFullCircle);
+                newh->Draw("PLC PMC");
+
+                TString entriesStr = "Entries: " + IntegerToString(newh->GetEntries());
+                TLatex* textLatex = new TLatex(0.62, 0.825, entriesStr);
+                textLatex->SetNDC();
+                textLatex->SetTextColor(1);
+                textLatex->SetTextSize(0.05);
+                textLatex->Draw("same");
+                delete h1;
+            }
+
+            if (variableIndexes.size() == 2) {
+                TH2D* h2 = hnd->Projection(variableIndexes[0], variableIndexes[1]);
+
+                std::string hName;
+                if (scanIndexes.size() == 2)
+                    hName = scanVariables[0] + "(" + IntegerToString(binXo) + ", " + IntegerToString(binXf) +
+                            ") " + scanVariables[1] + "(" + IntegerToString(binYo) + ", " +
+                            IntegerToString(binYf) + ") ";
+
+                if (scanIndexes.size() == 1)
+                    hName = scanVariables[0] + "(" + IntegerToString(binXo) + ", " + IntegerToString(binXf) +
+                            ") ";
+
+                TH2D* newh = (TH2D*)h2->Clone(hName.c_str());
+                newh->SetStats(false);
+                newh->GetXaxis()->SetTitle((TString)drawVariables[0]);
+                newh->GetYaxis()->SetTitle((TString)drawVariables[1]);
+                newh->SetTitle(hName.c_str());
+                newh->Draw(drawOption);
+
+                TString entriesStr = "Entries: " + IntegerToString(newh->GetEntries());
+                TLatex* textLatex = new TLatex(0.62, 0.825, entriesStr);
+                textLatex->SetNDC();
+                textLatex->SetTextColor(1);
+                textLatex->SetTextSize(0.05);
+                textLatex->Draw("same");
+                delete h2;
+            }
+        }
+
+    return fCanvas;
+}
+
+///////////////////////////////////////////////
 /// \brief
 ///
 void TRestComponent::LoadResponse(const TRestResponse& resp) {
@@ -181,6 +447,9 @@ void TRestComponent::LoadResponse(const TRestResponse& resp) {
 ///
 void TRestComponent::PrintMetadata() {
     TRestMetadata::PrintMetadata();
+
+    RESTMetadata << "Component nature : " << fNature << RESTendl;
+    RESTMetadata << " " << RESTendl;
 
     if (fVariables.size() != fRanges.size())
         RESTWarning << "The number of variables does not match with the number of defined ranges!"
@@ -280,4 +549,110 @@ Int_t TRestComponent::SetActiveNode(Double_t node) {
     PrintNodes();
 
     return fActiveNode;
+}
+
+/////////////////////////////////////////////
+/// \brief
+///
+THnD* TRestComponent::GetDensityForNode(Double_t node) {
+    int n = 0;
+    for (const auto& x : fParameterizationNodes) {
+        if (x == node) {
+            return fNodeDensity[n];
+        }
+        n++;
+    }
+
+    RESTError << "Parametric node : " << node << " was not found in component" << RESTendl;
+    PrintNodes();
+    return nullptr;
+}
+
+/////////////////////////////////////////////
+/// \brief
+///
+THnD* TRestComponent::GetDensityForActiveNode() {
+    if (fActiveNode >= 0) return fNodeDensity[fActiveNode];
+
+    RESTError << "The active node is invalid" << RESTendl;
+    PrintNodes();
+    return nullptr;
+}
+
+/////////////////////////////////////////////
+/// \brief It returns a 1-dimensional projected histogram for the variable names
+/// provided in the argument
+///
+TH1D* TRestComponent::GetHistogram(Double_t node, std::string varName) {
+    SetActiveNode(node);
+    return GetHistogram(varName);
+}
+
+/////////////////////////////////////////////
+/// \brief It returns a 1-dimensional projected histogram for the variable names
+/// provided in the argument. It will recover the histogram corresponding to
+/// the active node.
+///
+TH1D* TRestComponent::GetHistogram(std::string varName) {
+    if (fActiveNode < 0) return nullptr;
+
+    Int_t v1 = GetVariableIndex(varName);
+
+    if (v1 >= 0 && GetDensityForActiveNode()) return GetDensityForActiveNode()->Projection(v1);
+
+    return nullptr;
+}
+
+/////////////////////////////////////////////
+/// \brief It returns the 2-dimensional projected histogram for the variable names
+/// provided in the argument
+///
+TH2D* TRestComponent::GetHistogram(Double_t node, std::string varName1, std::string varName2) {
+    SetActiveNode(node);
+    return GetHistogram(varName1, varName2);
+}
+
+/////////////////////////////////////////////
+/// \brief It returns a 2-dimensional projected histogram for the variable names
+/// provided in the argument. It will recover the histogram corresponding to
+/// the active node.
+///
+TH2D* TRestComponent::GetHistogram(std::string varName1, std::string varName2) {
+    if (fActiveNode < 0) return nullptr;
+
+    Int_t v1 = GetVariableIndex(varName1);
+    Int_t v2 = GetVariableIndex(varName2);
+
+    if (v1 >= 0 && v2 >= 0)
+        if (GetDensityForActiveNode()) return GetDensityForActiveNode()->Projection(v1, v2);
+
+    return nullptr;
+}
+
+/////////////////////////////////////////////
+/// \brief It returns the 3-dimensional projected histogram for the variable names
+/// provided in the argument
+///
+TH3D* TRestComponent::GetHistogram(Double_t node, std::string varName1, std::string varName2,
+                                   std::string varName3) {
+    SetActiveNode(node);
+    return GetHistogram(varName1, varName2, varName3);
+}
+
+/////////////////////////////////////////////
+/// \brief It returns a 3-dimensional projected histogram for the variable names
+/// provided in the argument. It will recover the histogram corresponding to
+/// the active node.
+///
+TH3D* TRestComponent::GetHistogram(std::string varName1, std::string varName2, std::string varName3) {
+    if (fActiveNode < 0) return nullptr;
+
+    Int_t v1 = GetVariableIndex(varName1);
+    Int_t v2 = GetVariableIndex(varName2);
+    Int_t v3 = GetVariableIndex(varName3);
+
+    if (v1 >= 0 && v2 >= 0 && v3 >= 0)
+        if (GetDensityForActiveNode()) return GetDensityForActiveNode()->Projection(v1, v2, v3);
+
+    return nullptr;
 }

@@ -32,7 +32,11 @@
 
 /// It defines a background/signal model distribution in a given parameter space (tipically x,y,en)
 class TRestComponent : public TRestMetadata {
+
    protected:
+    /// It defines the component type (unknown/signal/background)
+    std::string fNature = "unknown";  //<
+
     /// A list with the branches that will be used to create the distribution space
     std::vector<std::string> fVariables;  //<
 
@@ -50,6 +54,12 @@ class TRestComponent : public TRestMetadata {
 
     /// It is used to define the node that will be accessed for rate retrieval
     Int_t fActiveNode = -1;  //<
+
+    /// The generated N-dimensional variable space density for a given node
+    std::vector<THnD*> fNodeDensity;  //<
+
+    /// Enables or disables the interpolation at TRestComponentDataSet::GetRawRate
+    Bool_t fInterpolation = true;  //<
 
     /// A pointer to the detector response
     TRestResponse* fResponse = nullptr;  //<
@@ -71,11 +81,19 @@ class TRestComponent : public TRestMetadata {
 
     void InitFromConfigFile() override;
 
+    virtual void FillHistograms(Double_t precision = 0.01) = 0;
+
    public:
+    std::string GetNature() const { return fNature; }
     TRestResponse* GetResponse() const { return fResponse; }
 
-    virtual Double_t GetRawRate(std::vector<Double_t> point) = 0;
-    virtual Double_t GetTotalRate() = 0;
+    Double_t GetRawRate(std::vector<Double_t> point);
+    Double_t GetTotalRate();
+
+    Double_t GetBinCenter(Int_t nDim, const Int_t bin);
+
+    TCanvas* DrawComponent(std::vector<std::string> drawVariables, std::vector<std::string> scanVariables,
+                           Int_t binScanSize = 1, TString drawOption = "");
 
     Double_t GetNormalizedRate(std::vector<Double_t> point);
     Double_t GetRate(std::vector<Double_t> point);
@@ -86,6 +104,22 @@ class TRestComponent : public TRestMetadata {
     Int_t SetActiveNode(Double_t node);
     Double_t GetActiveNodeValue() { return fParameterizationNodes[fActiveNode]; }
 
+    Bool_t Interpolation() { return fInterpolation; }
+    void EnableInterpolation() { fInterpolation = true; }
+    void DisableInterpolation() { fInterpolation = false; }
+
+    THnD* GetDensityForNode(Double_t value);
+    THnD* GetDensityForActiveNode();
+    THnD* GetDensity() { return GetDensityForActiveNode(); }
+
+    TH1D* GetHistogram(Double_t node, std::string varName);
+    TH2D* GetHistogram(Double_t node, std::string varName1, std::string varName2);
+    TH3D* GetHistogram(Double_t node, std::string varName1, std::string varName2, std::string varName3);
+
+    TH1D* GetHistogram(std::string varName);
+    TH2D* GetHistogram(std::string varName1, std::string varName2);
+    TH3D* GetHistogram(std::string varName1, std::string varName2, std::string varName3);
+
     void LoadResponse(const TRestResponse& resp);
 
     void PrintMetadata() override;
@@ -93,11 +127,10 @@ class TRestComponent : public TRestMetadata {
     void PrintStatistics();
     void PrintNodes();
 
-    void Initialize() override;
     TRestComponent(const char* cfgFileName, const std::string& name = "");
     TRestComponent();
     ~TRestComponent();
 
-    ClassDefOverride(TRestComponent, 2);
+    ClassDefOverride(TRestComponent, 3);
 };
 #endif
