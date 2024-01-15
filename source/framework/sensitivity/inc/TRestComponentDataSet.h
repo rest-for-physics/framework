@@ -63,8 +63,9 @@ class TRestComponentDataSet : public TRestComponent {
     Bool_t VariablesOk();
     Bool_t WeightsOk();
 
-   public:
     Bool_t LoadDataSets();
+
+   public:
     Bool_t IsDataSetLoaded() { return fDataSetLoaded; }
 
     void PrintStatistics();

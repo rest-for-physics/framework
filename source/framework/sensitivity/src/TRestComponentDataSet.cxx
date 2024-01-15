@@ -175,7 +175,7 @@ void TRestComponentDataSet::PrintStatistics() {
     if (!HasNodes() && !IsDataSetLoaded()) {
         RESTWarning << "TRestComponentDataSet::PrintStatistics. Empty nodes and no dataset loaded!"
                     << RESTendl;
-        RESTWarning << "Invoking TRestComponentDataSet::LoadDataSets might solve the problem" << RESTendl;
+        RESTWarning << "Invoking TRestComponentDataSet::Initialize() might solve the problem" << RESTendl;
         return;
     }
 
@@ -436,7 +436,7 @@ Bool_t TRestComponentDataSet::WeightsOk() {
 Bool_t TRestComponentDataSet::ValidDataSet() {
     if (!IsDataSetLoaded()) {
         RESTWarning << "TRestComponentDataSet::ValidDataSet. Dataset has not been loaded" << RESTendl;
-        RESTWarning << "Try calling TRestComponentDataSet::LoadDataSets" << RESTendl;
+        RESTWarning << "Try calling TRestComponentDataSet::Initialize()" << RESTendl;
 
         RESTInfo << "Trying to load datasets" << RESTendl;
         LoadDataSets();
