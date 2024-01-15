@@ -40,12 +40,6 @@ class TRestComponentDataSet : public TRestComponent {
     /// The filename of the dataset used
     std::vector<std::string> fDataSetFileNames;  //<
 
-    /// The generated N-dimensional variable space density for a given node
-    std::vector<THnD*> fNodeDensity;  //<
-
-    /// Enables or disables the interpolation at TRestComponentDataSet::GetRawRate
-    Bool_t fInterpolation = true;
-
     /// TODO we need to define multiple datasets and weigth. The weight will be used
     /// to create a model, such as weighting different background contaminations or
     /// different signal coupling contributions.
@@ -63,8 +57,8 @@ class TRestComponentDataSet : public TRestComponent {
 
    protected:
     std::vector<Double_t> ExtractParameterizationNodes();
-    std::vector<Int_t> ExtractNodeStatistics(Double_t precision = 0.00000001);
-    void FillHistograms();
+    std::vector<Int_t> ExtractNodeStatistics(Double_t precision = 0.01);
+    void FillHistograms(Double_t precision = 0.01) override;
 
     Bool_t VariablesOk();
     Bool_t WeightsOk();
@@ -72,30 +66,6 @@ class TRestComponentDataSet : public TRestComponent {
    public:
     Bool_t LoadDataSets();
     Bool_t IsDataSetLoaded() { return fDataSetLoaded; }
-
-    Bool_t Interpolation() { return fInterpolation; }
-    void EnableInterpolation() { fInterpolation = true; }
-    void DisableInterpolation() { fInterpolation = false; }
-
-    Double_t GetRawRate(std::vector<Double_t> point) override;
-    Double_t GetTotalRate() override;
-
-    Double_t GetBinCenter(Int_t nDim, const Int_t bin);
-
-    TCanvas* DrawComponent(std::vector<std::string> drawVariables, std::vector<std::string> scanVariables,
-                           Int_t binScanSize = 1, TString drawOption = "");
-
-    THnD* GetDensityForNode(Double_t value);
-    THnD* GetDensityForActiveNode();
-    THnD* GetDensity() { return GetDensityForActiveNode(); }
-
-    TH1D* GetHistogram(Double_t node, std::string varName);
-    TH2D* GetHistogram(Double_t node, std::string varName1, std::string varName2);
-    TH3D* GetHistogram(Double_t node, std::string varName1, std::string varName2, std::string varName3);
-
-    TH1D* GetHistogram(std::string varName);
-    TH2D* GetHistogram(std::string varName1, std::string varName2);
-    TH3D* GetHistogram(std::string varName1, std::string varName2, std::string varName3);
 
     void PrintStatistics();
 
@@ -107,6 +77,6 @@ class TRestComponentDataSet : public TRestComponent {
     TRestComponentDataSet(const char* cfgFileName, const std::string& name);
     ~TRestComponentDataSet();
 
-    ClassDefOverride(TRestComponentDataSet, 2);
+    ClassDefOverride(TRestComponentDataSet, 3);
 };
 #endif
