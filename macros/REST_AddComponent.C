@@ -27,7 +27,7 @@ Int_t REST_AddComponent(std::string cfgFile, std::string sectionName,
                         std::string outputFile = "components.root", std::string componentName = "",
                         Bool_t update = true) {
     TRestComponentDataSet comp(cfgFile.c_str(), sectionName.c_str());
-    comp.LoadDataSets();
+    comp.Initialize();
 
     TFile *f;
     if (update)
