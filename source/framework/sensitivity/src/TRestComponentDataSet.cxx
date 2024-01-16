@@ -213,6 +213,8 @@ void TRestComponentDataSet::InitFromConfigFile() {
 /// The precision is used to define the active node
 ///
 void TRestComponentDataSet::FillHistograms(Double_t precision) {
+    if (!fNodeDensity.empty()) return;
+
     fNSimPerNode = ExtractNodeStatistics(precision);
 
     if (!IsDataSetLoaded()) {
