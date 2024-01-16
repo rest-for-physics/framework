@@ -26,12 +26,12 @@
 #include <TCanvas.h>
 #include <THn.h>
 
+#include <ROOT/RDataFrame.hxx>
+#include <ROOT/RVec.hxx>
+
 #include "TRestDataSet.h"
 #include "TRestMetadata.h"
 #include "TRestResponse.h"
-
-#include <ROOT/RDataFrame.hxx>
-#include <ROOT/RVec.hxx>
 
 /// It defines a background/signal model distribution in a given parameter space (tipically x,y,en)
 class TRestComponent : public TRestMetadata {
