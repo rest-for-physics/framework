@@ -23,9 +23,9 @@
 #ifndef REST_TRestExperiment
 #define REST_TRestExperiment
 
-#include "TRestMetadata.h"
-#include "TRestDataSet.h"
 #include "TRestComponent.h"
+#include "TRestDataSet.h"
+#include "TRestMetadata.h"
 
 /// It includes a model definition and experimental data used to obtain a final experimental sensitivity
 class TRestExperiment : public TRestMetadata {
