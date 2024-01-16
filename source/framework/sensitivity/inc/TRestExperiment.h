@@ -23,24 +23,39 @@
 #ifndef REST_TRestExperiment
 #define REST_TRestExperiment
 
-#include "TRestDataSet.h"
 #include "TRestMetadata.h"
-#include "TRestModel.h"
+#include "TRestDataSet.h"
+#include "TRestComponent.h"
 
 /// It includes a model definition and experimental data used to obtain a final experimental sensitivity
 class TRestExperiment : public TRestMetadata {
    private:
-    /// It contains the model definition, including signal and background
-    TRestModel* fModel = nullptr;  //<
+    /// The exposure time. If 0 it will be extracted from the tracking dataset
+    Double_t fExposureTime = 0;  //<
 
-    /// It contains the experimental data to be compared with the model
-    TRestDataSet fExperimentalData;  //<
+    /// A pointer to the background component
+    TRestComponent* fBackground = nullptr;  //<
+
+    /// A pointer to the signal component
+    TRestComponent* fSignal = nullptr;  //<
+
+    /// It contains the experimental data (should contain same columns as the components)
+    TRestDataSet fTrackingData;  //<
+
+    /// If enabled the tracking data will be MC-generated following background compatibility
+    Bool_t fMockTracking = false;  //<
+
+   protected:
+    void InitFromConfigFile() override;
 
    public:
+    void GenerateMockDataSet();
+
     void Initialize() override;
 
     void PrintMetadata() override;
 
+    TRestExperiment(const char* cfgFileName, const std::string& name = "");
     TRestExperiment();
     ~TRestExperiment();
 
