@@ -44,6 +44,9 @@
 #include <TKey.h>
 #include <TLatex.h>
 
+#include <ROOT/RDataFrame.hxx>
+#include <ROOT/RVec.hxx>
+
 ClassImp(TRestComponent);
 
 ///////////////////////////////////////////////
@@ -274,6 +277,75 @@ Double_t TRestComponent::GetTotalRate() {
 Double_t TRestComponent::GetBinCenter(Int_t nDim, const Int_t bin) {
     return fRanges[nDim].X() + (fRanges[nDim].Y() - fRanges[nDim].X()) * ((double)bin - 0.5) / fNbins[nDim];
 }
+
+std::vector<Double_t> TRestComponent::GetRandom() {
+    Double_t* tuple = new Double_t[GetDimensions()];
+    GetDensity()->GetRandom(tuple);
+
+    std::vector<Double_t> result;
+    for (size_t n = 0; n < GetDimensions(); n++) result.push_back(tuple[n]);
+    return result;
+}
+
+ROOT::RDF::RNode TRestComponent::GetMonteCarloDataFrame(Int_t N) {
+    // Create a RDataFrame with the specified columns
+    ROOT::RDF::RNode df = ROOT::RDataFrame(N);
+
+    // Function to fill the RDataFrame using GetRandom method
+    auto fillDataFrame = [this]() {
+        auto randomValues = GetRandom();
+
+        // Check if the size of randomValues matches the size of columnNames
+        if (randomValues.size() != fVariables.size()) {
+            throw std::runtime_error("Mismatch in sizes of fVariables and randomValues");
+        }
+    };
+
+    // Fill the RDataFrame with values from GetRandom
+    for (size_t i = 0; i < fVariables.size(); ++i) {
+        df = df.Define(fVariables[i], [&randomValues, &i]() { return randomValues[i]; });
+    }
+
+    // Apply the fillDataFrame function to each entry in the RDataFrame
+    df.Foreach(fillDataFrame);
+
+    std::cout << df.GetColumnNames().size() << std::endl;
+
+    for (const auto& x : df.GetColumnNames()) std::cout << x << std::endl;
+
+    // Return the RNode (RDataFrame)
+    return df;
+}
+
+/*
+ROOT::RDF::RNode TRestComponent::GetMonteCarloDataFrame( Int_t N )
+{
+        // Create a data frame with 100 rows
+        ROOT::RDataFrame df(100);
+
+        // Define a new column `x` that contains random numbers
+        //auto rdf_x = rdf.Define("x", [](){ return fBackground->GetRandom()[0]; });
+
+        std::vector<Double_t> trackingCount = GetRandom();
+        //auto rdf_x = rdf.Define("random_value", [this]() { return GetRandom()[0]; });
+
+        // Fill the RDataFrame with correlated values
+        for (size_t i = 0; i < fVariables.size(); ++i) {
+                const auto& column_name = fVariables[i];
+                std::cout << "Name :" << column_name << std::endl;
+                df.Define(column_name, [trackingCount, i]() { return trackingCount[i]; });
+        }
+
+        for( const auto &c: df.GetColumnNames() )
+        std::cout << c << std::endl;
+        auto a = df.Count();
+        std::cout << *a << std::endl;
+
+        df.Display({"final_posX"})->Print();
+
+        return df;
+}
+*/
 
 ///////////////////////////////////////////////
 /// \brief A method allowing to draw a series of plots representing the density distributions.

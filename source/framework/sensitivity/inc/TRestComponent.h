@@ -120,6 +120,10 @@ class TRestComponent : public TRestMetadata {
     TH2D* GetHistogram(std::string varName1, std::string varName2);
     TH3D* GetHistogram(std::string varName1, std::string varName2, std::string varName3);
 
+    std::vector<Double_t> GetRandom();
+
+    ROOT::RDF::RNode GetMonteCarloDataFrame(Int_t N = 100);
+
     void LoadResponse(const TRestResponse& resp);
 
     void PrintMetadata() override;
