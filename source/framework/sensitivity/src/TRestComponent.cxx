@@ -292,55 +292,25 @@ ROOT::RDF::RNode TRestComponent::GetMonteCarloDataFrame(Int_t N) {
     ROOT::RDF::RNode df = ROOT::RDataFrame(N);
 
     // Function to fill the RDataFrame using GetRandom method
-    auto fillRndm =
-        [this]() {
-            auto randomValues = GetRandom();
-            return randomValues;
-        } df.Define("Rndm", fillRndm)
+    auto fillRndm = [this]() {
+        auto randomValues = GetRandom();
+        return randomValues;
+    };
+    df = df.Define("Rndm", fillRndm);
 
-            for (size_t i = 0; i < fVariables.size(); ++i) {
+    for (size_t i = 0; i < fVariables.size(); ++i) {
         auto varName = fVariables[i];
-        auto FillRand = [&i = i](const ROOT::RVec<double> randomValues) { return randomValues[i]; } df =
-                            df.Define(varName, FillRand, "Rndm");
+        auto FillRand = [&i = i](const std::vector<double> randomValues) {
+            return randomValues[i];
+        };
+        df = df.Define(varName, FillRand, {"Rndm"});
     }
 
     std::cout << df.GetColumnNames().size() << std::endl;
-
     for (const auto& x : df.GetColumnNames()) std::cout << x << std::endl;
 
-    // Return the RNode (RDataFrame)
     return df;
 }
-
-/*
-ROOT::RDF::RNode TRestComponent::GetMonteCarloDataFrame( Int_t N )
-{
-        // Create a data frame with 100 rows
-        ROOT::RDataFrame df(100);
-
-        // Define a new column `x` that contains random numbers
-        //auto rdf_x = rdf.Define("x", [](){ return fBackground->GetRandom()[0]; });
-
-        std::vector<Double_t> trackingCount = GetRandom();
-        //auto rdf_x = rdf.Define("random_value", [this]() { return GetRandom()[0]; });
-
-        // Fill the RDataFrame with correlated values
-        for (size_t i = 0; i < fVariables.size(); ++i) {
-                const auto& column_name = fVariables[i];
-                std::cout << "Name :" << column_name << std::endl;
-                df.Define(column_name, [trackingCount, i]() { return trackingCount[i]; });
-        }
-
-        for( const auto &c: df.GetColumnNames() )
-        std::cout << c << std::endl;
-        auto a = df.Count();
-        std::cout << *a << std::endl;
-
-        df.Display({"final_posX"})->Print();
-
-        return df;
-}
-*/
 
 ///////////////////////////////////////////////
 /// \brief A method allowing to draw a series of plots representing the density distributions.
@@ -356,15 +326,13 @@ TCanvas* TRestComponent::DrawComponent(std::vector<std::string> drawVariables,
                                        TString drawOption) {
     if (drawVariables.size() > 2 || drawVariables.size() == 0) {
         RESTError << "TRestComponent::DrawComponent. The number of variables to be drawn must "
-                     "be 1 or 2!"
-                  << RESTendl;
+                     "be 1 or 2!" << RESTendl;
         return fCanvas;
     }
 
     if (scanVariables.size() > 2 || scanVariables.size() == 0) {
         RESTError << "TRestComponent::DrawComponent. The number of variables to be scanned must "
-                     "be 1 or 2!"
-                  << RESTendl;
+                     "be 1 or 2!" << RESTendl;
         return fCanvas;
     }
 
