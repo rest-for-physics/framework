@@ -292,18 +292,16 @@ ROOT::RDF::RNode TRestComponent::GetMonteCarloDataFrame(Int_t N) {
     ROOT::RDF::RNode df = ROOT::RDataFrame(N);
 
     // Function to fill the RDataFrame using GetRandom method
-   auto fillRndm = [this]() {
-        auto randomValues = GetRandom();
-        return randomValues;
-   }
-   df.Define("Rndm", fillRndm)
+    auto fillRndm =
+        [this]() {
+            auto randomValues = GetRandom();
+            return randomValues;
+        } df.Define("Rndm", fillRndm)
 
-    for (size_t i = 0; i < fVariables.size(); ++i) {
+            for (size_t i = 0; i < fVariables.size(); ++i) {
         auto varName = fVariables[i];
-        auto FillRand = [&i = i]( const ROOT::RVec<double> randomValues){
-            return randomValues[i];
-        }
-        df = df.Define(varName,  FillRand, "Rndm");
+        auto FillRand = [&i = i](const ROOT::RVec<double> randomValues) { return randomValues[i]; } df =
+                            df.Define(varName, FillRand, "Rndm");
     }
 
     std::cout << df.GetColumnNames().size() << std::endl;
