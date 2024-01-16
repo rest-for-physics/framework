@@ -42,17 +42,7 @@
 namespace REST_Units {
 
 // We use more common physics units instead of SI unit
-enum Physical_Unit {
-    Energy,
-    Time,
-    Length,
-    Mass,
-    Voltage,
-    MagneticField,
-    Pressure,
-    Angle,
-    NOT_A_UNIT = -1
-};
+enum Physical_Unit { Energy, Time, Length, Mass, Voltage, MagneticField, Pressure, Angle, NOT_A_UNIT = -1 };
 
 class TRestSystemOfUnits {
    private:

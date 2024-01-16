@@ -32,7 +32,6 @@
 
 /// It defines a background/signal model distribution in a given parameter space (tipically x,y,en)
 class TRestComponent : public TRestMetadata {
-
    protected:
     /// It defines the component type (unknown/signal/background)
     std::string fNature = "unknown";  //<

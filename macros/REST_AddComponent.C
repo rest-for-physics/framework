@@ -29,7 +29,7 @@ Int_t REST_AddComponent(std::string cfgFile, std::string sectionName,
     TRestComponentDataSet comp(cfgFile.c_str(), sectionName.c_str());
     comp.Initialize();
 
-    TFile *f;
+    TFile* f;
     if (update)
         f = TFile::Open(outputFile.c_str(), "UPDATE");
     else

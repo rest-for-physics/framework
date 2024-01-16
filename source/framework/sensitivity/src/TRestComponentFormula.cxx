@@ -114,7 +114,6 @@ void TRestComponentFormula::Initialize() {
 /// of the variables of the distribution.
 ///
 Double_t TRestComponentFormula::GetFormulaRate(std::vector<Double_t> point) {
-
     if (fVariables.size() != point.size()) {
         RESTError << "Point should have same dimensions as number of variables!" << RESTendl;
         return 0;
@@ -144,7 +143,6 @@ Double_t TRestComponentFormula::GetFormulaRate(std::vector<Double_t> point) {
 /// further development.
 ///
 void TRestComponentFormula::FillHistograms(Double_t precision) {
-
     if (fFormulas.empty()) return;
 
     RESTInfo << "Generating N-dim histogram for " << GetName() << RESTendl;
