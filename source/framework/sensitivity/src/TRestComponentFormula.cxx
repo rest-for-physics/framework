@@ -207,7 +207,7 @@ void TRestComponentFormula::PrintMetadata() {
 
     if (!fFormulas.empty()) {
         RESTMetadata << " " << RESTendl;
-        RESTMetadata << " == Term expressions implemented inside the component ==" << RESTendl;
+        RESTMetadata << " == Contributions implemented inside the component ==" << RESTendl;
 
         for (const auto& x : fFormulas)
             RESTMetadata << "- " << x.GetName() << " = " << x.GetExpFormula() << RESTendl;
