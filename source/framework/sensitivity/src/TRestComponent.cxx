@@ -300,9 +300,7 @@ ROOT::RDF::RNode TRestComponent::GetMonteCarloDataFrame(Int_t N) {
 
     for (size_t i = 0; i < fVariables.size(); ++i) {
         auto varName = fVariables[i];
-        auto FillRand = [&i = i](const std::vector<double> randomValues) {
-            return randomValues[i];
-        };
+        auto FillRand = [&i = i](const std::vector<double> randomValues) { return randomValues[i]; };
         df = df.Define(varName, FillRand, {"Rndm"});
     }
 
@@ -326,13 +324,15 @@ TCanvas* TRestComponent::DrawComponent(std::vector<std::string> drawVariables,
                                        TString drawOption) {
     if (drawVariables.size() > 2 || drawVariables.size() == 0) {
         RESTError << "TRestComponent::DrawComponent. The number of variables to be drawn must "
-                     "be 1 or 2!" << RESTendl;
+                     "be 1 or 2!"
+                  << RESTendl;
         return fCanvas;
     }
 
     if (scanVariables.size() > 2 || scanVariables.size() == 0) {
         RESTError << "TRestComponent::DrawComponent. The number of variables to be scanned must "
-                     "be 1 or 2!" << RESTendl;
+                     "be 1 or 2!"
+                  << RESTendl;
         return fCanvas;
     }
 
