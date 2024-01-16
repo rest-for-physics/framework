@@ -147,13 +147,7 @@ void TRestComponentFormula::FillHistograms(Double_t precision) {
 
     if (fFormulas.empty()) return;
 
-    if (fParameterizationNodes.empty()) {
-        RESTWarning << "Nodes have not been defined" << RESTendl;
-        RESTWarning << "The full dataset will be used to generate the density distribution" << RESTendl;
-        fParameterizationNodes.push_back(-137);
-    }
-
-    RESTInfo << "Generating N-dim histogram" << RESTendl;
+    RESTInfo << "Generating N-dim histogram for " << GetName() << RESTendl;
 
     TString hName = "formula";
 
@@ -260,6 +254,4 @@ void TRestComponentFormula::InitFromConfigFile() {
 
         ele = GetNextElement(ele);
     }
-
-    if (!fFormulas.empty()) Initialize();
 }
