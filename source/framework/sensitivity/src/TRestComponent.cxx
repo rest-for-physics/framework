@@ -280,32 +280,27 @@ ROOT::RVecD TRestComponent::GetRandom() {
     Double_t* tuple = new Double_t[GetDimensions()];
     GetDensity()->GetRandom(tuple);
 
-    std::vector<Double_t> result;
+    ROOT::RVecD result;
     for (size_t n = 0; n < GetDimensions(); n++) result.push_back(tuple[n]);
-    return (ROOT::RVecD)result;
+    return result;
 }
 
 ROOT::RDF::RNode TRestComponent::GetMonteCarloDataFrame(Int_t N) {
-    // Create a RDataFrame with the specified columns
     ROOT::RDF::RNode df = ROOT::RDataFrame(N);
 
     // Function to fill the RDataFrame using GetRandom method
-    auto fillRndm = [this]() {
-        auto randomValues = GetRandom();
+    auto fillRndm = [&]() {
+        ROOT::RVecD randomValues = GetRandom();
         return randomValues;
     };
     df = df.Define("Rndm", fillRndm);
 
+    // Creating dedicated columns for each GetRandom component
     for (size_t i = 0; i < fVariables.size(); ++i) {
         auto varName = fVariables[i];
-        auto FillRand = [&i = i](const ROOT::RVecD & randomValues) {
-            return randomValues[i];
-        };
+        auto FillRand = [i](const ROOT::RVecD& randomValues) { return randomValues[i]; };
         df = df.Define(varName, FillRand, {"Rndm"});
     }
-
-    std::cout << df.GetColumnNames().size() << std::endl;
-    for (const auto& x : df.GetColumnNames()) std::cout << x << std::endl;
 
     return df;
 }
