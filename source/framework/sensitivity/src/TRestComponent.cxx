@@ -43,8 +43,6 @@
 #include <TKey.h>
 #include <TLatex.h>
 
-#include <ROOT/RDataFrame.hxx>
-#include <ROOT/RVec.hxx>
 #include <numeric>
 
 ClassImp(TRestComponent);
@@ -278,13 +276,13 @@ Double_t TRestComponent::GetBinCenter(Int_t nDim, const Int_t bin) {
     return fRanges[nDim].X() + (fRanges[nDim].Y() - fRanges[nDim].X()) * ((double)bin - 0.5) / fNbins[nDim];
 }
 
-std::vector<Double_t> TRestComponent::GetRandom() {
+ROOT::RVecD TRestComponent::GetRandom() {
     Double_t* tuple = new Double_t[GetDimensions()];
     GetDensity()->GetRandom(tuple);
 
     std::vector<Double_t> result;
     for (size_t n = 0; n < GetDimensions(); n++) result.push_back(tuple[n]);
-    return result;
+    return (ROOT::RVecD)result;
 }
 
 ROOT::RDF::RNode TRestComponent::GetMonteCarloDataFrame(Int_t N) {
@@ -300,7 +298,7 @@ ROOT::RDF::RNode TRestComponent::GetMonteCarloDataFrame(Int_t N) {
 
     for (size_t i = 0; i < fVariables.size(); ++i) {
         auto varName = fVariables[i];
-        auto FillRand = [&i = i](const std::vector<double> randomValues) {
+        auto FillRand = [&i = i](const ROOT::RVecD & randomValues) {
             return randomValues[i];
         };
         df = df.Define(varName, FillRand, {"Rndm"});

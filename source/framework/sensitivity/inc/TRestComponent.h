@@ -30,6 +30,9 @@
 #include "TRestMetadata.h"
 #include "TRestResponse.h"
 
+#include <ROOT/RDataFrame.hxx>
+#include <ROOT/RVec.hxx>
+
 /// It defines a background/signal model distribution in a given parameter space (tipically x,y,en)
 class TRestComponent : public TRestMetadata {
    protected:
@@ -119,7 +122,7 @@ class TRestComponent : public TRestMetadata {
     TH2D* GetHistogram(std::string varName1, std::string varName2);
     TH3D* GetHistogram(std::string varName1, std::string varName2, std::string varName3);
 
-    std::vector<Double_t> GetRandom();
+    ROOT::RVecD GetRandom();
 
     ROOT::RDF::RNode GetMonteCarloDataFrame(Int_t N = 100);
 
