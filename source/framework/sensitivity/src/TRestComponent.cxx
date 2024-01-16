@@ -40,12 +40,12 @@
 ///
 #include "TRestComponent.h"
 
-#include <numeric>
 #include <TKey.h>
 #include <TLatex.h>
 
 #include <ROOT/RDataFrame.hxx>
 #include <ROOT/RVec.hxx>
+#include <numeric>
 
 ClassImp(TRestComponent);
 
@@ -361,13 +361,15 @@ TCanvas* TRestComponent::DrawComponent(std::vector<std::string> drawVariables,
                                        TString drawOption) {
     if (drawVariables.size() > 2 || drawVariables.size() == 0) {
         RESTError << "TRestComponent::DrawComponent. The number of variables to be drawn must "
-                     "be 1 or 2!" << RESTendl;
+                     "be 1 or 2!"
+                  << RESTendl;
         return fCanvas;
     }
 
     if (scanVariables.size() > 2 || scanVariables.size() == 0) {
         RESTError << "TRestComponent::DrawComponent. The number of variables to be scanned must "
-                     "be 1 or 2!" << RESTendl;
+                     "be 1 or 2!"
+                  << RESTendl;
         return fCanvas;
     }
 

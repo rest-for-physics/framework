@@ -85,6 +85,7 @@
 #include "TRestComponentDataSet.h"
 
 #include <TKey.h>
+
 #include <numeric>
 
 ClassImp(TRestComponentDataSet);
@@ -115,7 +116,6 @@ TRestComponentDataSet::~TRestComponentDataSet() {}
 ///
 TRestComponentDataSet::TRestComponentDataSet(const char* cfgFileName, const std::string& name)
     : TRestComponent(cfgFileName) {
-
     LoadConfigFromFile(fConfigFileName, name);
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
