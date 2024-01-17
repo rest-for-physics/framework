@@ -258,11 +258,10 @@ Double_t TRestComponent::GetTotalRate() {
     THnD* dHist = GetDensityForActiveNode();
 
     Double_t integral = 0;
-    if (dHist != nullptr) integral = dHist->ComputeIntegral();
-
-    // Perhaps this value could be stored internally
-    for (size_t n = 0; n < fNbins.size(); n++)
-        integral = integral * (fRanges[n].Y() - fRanges[n].X()) / fNbins[n];
+    if (dHist != nullptr) {
+        TH1D* h1 = dHist->Projection(0);
+        integral = h1->Integral();
+    }
 
     return integral;
 }
