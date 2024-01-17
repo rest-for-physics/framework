@@ -72,6 +72,8 @@ class TRestComponent : public TRestMetadata {
     /// It returns true if any nodes have been defined.
     Bool_t HasNodes() { return !fParameterizationNodes.empty(); }
 
+    Bool_t HasDensity() { return !fNodeDensity.empty(); }
+
     /// It returns true if the node has been properly identified
     Bool_t ValidNode(Double_t node) {
         SetActiveNode(node);

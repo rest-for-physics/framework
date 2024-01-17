@@ -182,7 +182,7 @@ Double_t TRestComponent::GetRawRate(std::vector<Double_t> point) {
         return 0;
     }
 
-    if (!HasNodes()) {
+    if (!HasNodes() && !HasDensity()) {
         RESTError << "TRestComponent::GetRawRate. The component has no nodes!" << RESTendl;
         RESTError << "Try calling TRestComponent::Initialize" << RESTendl;
 

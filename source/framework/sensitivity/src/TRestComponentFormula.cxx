@@ -192,6 +192,7 @@ void TRestComponentFormula::FillHistograms(Double_t precision) {
         }
     }
 
+    fNodeDensity.clear();
     fNodeDensity.push_back(hNd);
     fActiveNode = 0;  // For the moment only 1-node!
 }
