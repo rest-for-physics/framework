@@ -261,6 +261,7 @@ Double_t TRestComponent::GetTotalRate() {
     if (dHist != nullptr) {
         TH1D* h1 = dHist->Projection(0);
         integral = h1->Integral();
+        delete h1;
     }
 
     return integral;
