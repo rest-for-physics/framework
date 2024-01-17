@@ -30,7 +30,7 @@
 /// It includes a model definition and experimental data used to obtain a final experimental sensitivity
 class TRestExperiment : public TRestMetadata {
    private:
-    /// The exposure time. If 0 it will be extracted from the tracking dataset
+    /// The exposure time. If 0 it will be extracted from the tracking dataset (In us, standard REST unit)
     Double_t fExposureTime = 0;  //<
 
     /// A pointer to the background component
@@ -50,6 +50,9 @@ class TRestExperiment : public TRestMetadata {
 
    public:
     void GenerateMockDataSet();
+
+    TRestComponent* GetBackground() const { return fBackground; }
+    TRestComponent* GetSignal() const { return fSignal; }
 
     void Initialize() override;
 
