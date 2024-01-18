@@ -99,9 +99,6 @@ class TRestDataSet : public TRestMetadata {
     /// It keeps track if the generated dataset is a pure dataset or a merged one
     Bool_t fMergedDataset = false;  //<
 
-    // If the dataframe was defined externally it will be true
-    Bool_t fExternal = false;
-
     /// The list of dataset files imported
     std::vector<std::string> fImportedFiles;  //<
 
@@ -110,6 +107,9 @@ class TRestDataSet : public TRestMetadata {
 
     /// A flag to enable Multithreading during dataframe generation
     Bool_t fMT = false;  //<
+
+    // If the dataframe was defined externally it will be true
+    Bool_t fExternal = false;  //<
 
     /// The resulting RDF::RNode object after initialization
     ROOT::RDF::RNode fDataSet = ROOT::RDataFrame(0);  //!
@@ -209,6 +209,6 @@ class TRestDataSet : public TRestMetadata {
     TRestDataSet(const char* cfgFileName, const std::string& name = "");
     ~TRestDataSet();
 
-    ClassDefOverride(TRestDataSet, 6);
+    ClassDefOverride(TRestDataSet, 7);
 };
 #endif
