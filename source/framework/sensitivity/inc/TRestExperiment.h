@@ -23,6 +23,8 @@
 #ifndef REST_TRestExperiment
 #define REST_TRestExperiment
 
+#include <TRandom3.h>
+
 #include "TRestComponent.h"
 #include "TRestDataSet.h"
 #include "TRestMetadata.h"
@@ -45,6 +47,12 @@ class TRestExperiment : public TRestMetadata {
     /// If enabled the tracking data will be MC-generated following background compatibility
     Bool_t fMockTracking = false;  //<
 
+    /// Internal process random generator
+    TRandom3* fRandom = nullptr;  //!
+
+    /// Seed used in random generator
+    Int_t fSeed = 0;  //<
+
    protected:
     void InitFromConfigFile() override;
 
@@ -53,6 +61,7 @@ class TRestExperiment : public TRestMetadata {
 
     TRestComponent* GetBackground() const { return fBackground; }
     TRestComponent* GetSignal() const { return fSignal; }
+    ROOT::RDF::RNode GetTrackingData() { return fTrackingData.GetDataFrame(); }
 
     void Initialize() override;
 

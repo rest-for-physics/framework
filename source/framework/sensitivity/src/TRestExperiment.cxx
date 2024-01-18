@@ -75,7 +75,18 @@ TRestExperiment::TRestExperiment(const char* cfgFileName, const std::string& nam
 /// \brief It will initialize the data frame with the filelist and column names
 /// (or observables) that have been defined by the user.
 ///
-void TRestExperiment::Initialize() { SetSectionName(this->ClassName()); }
+void TRestExperiment::Initialize() {
+
+    SetSectionName(this->ClassName());
+
+    if (!fRandom) {
+        delete fRandom;
+        fRandom = nullptr;
+    }
+
+    fRandom = new TRandom3(fSeed);
+    fSeed = fRandom->TRandom::GetSeed();
+}
 
 void TRestExperiment::GenerateMockDataSet() {
     if (!fBackground) {
@@ -84,9 +95,19 @@ void TRestExperiment::GenerateMockDataSet() {
         return;
     }
 
-    ROOT::RDF::RNode df = fBackground->GetMonteCarloDataFrame(10);
+    if (fExposureTime <= 0) {
+        RESTError << "The experimental exposure time has not been defined" << RESTendl;
+        RESTError << "This time is required to create the mock dataset" << RESTendl;
+    }
 
-    df.Display({"final_posX"})->Print();
+    Double_t meanCounts = GetBackground()->GetTotalRate() * fExposureTime * units("s");
+
+    Int_t N = fRandom->Poisson(meanCounts);
+
+    ROOT::RDF::RNode df = fBackground->GetMonteCarloDataFrame(N);
+
+    fTrackingData.SetDataFrame(df);
+    fTrackingData.SetTotalTimeInSeconds(fExposureTime * units("s"));
 }
 
 /////////////////////////////////////////////
@@ -140,6 +161,8 @@ void TRestExperiment::InitFromConfigFile() {
             }
         }
     }
+
+    Initialize();
 }
 
 /////////////////////////////////////////////
