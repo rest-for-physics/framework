@@ -82,7 +82,7 @@ class TRestDataSet : public TRestMetadata {
     std::map<std::string, RelevantQuantity> fQuantity;  //<
 
     /// Parameter cuts over the selected dataset
-    TRestCut* fCut = nullptr;
+    TRestCut* fCut = nullptr;  //<
 
     /// The total integrated run time of selected files
     Double_t fTotalDuration = 0;  //<
@@ -98,6 +98,9 @@ class TRestDataSet : public TRestMetadata {
 
     /// It keeps track if the generated dataset is a pure dataset or a merged one
     Bool_t fMergedDataset = false;  //<
+
+    // If the dataframe was defined externally it will be true
+    Bool_t fExternal = false;
 
     /// The list of dataset files imported
     std::vector<std::string> fImportedFiles;  //<
@@ -122,16 +125,24 @@ class TRestDataSet : public TRestMetadata {
    public:
     /// Gives access to the RDataFrame
     ROOT::RDF::RNode GetDataFrame() const {
-        if (fTree == nullptr) RESTWarning << "DataFrame has not been yet initialized" << RESTendl;
+        if (!fExternal && fTree == nullptr)
+            RESTWarning << "DataFrame has not been yet initialized" << RESTendl;
         return fDataSet;
     }
-
-    void SetDataFrame(const ROOT::RDF::RNode& dS) { fDataSet = dS; }
 
     void EnableMultiThreading(Bool_t enable = true) { fMT = enable; }
 
     /// Gives access to the tree
     TTree* GetTree() const {
+
+        if (fTree == nullptr && fExternal) {
+            RESTInfo << "The tree is not accessible. Only GetDataFrame can be used in an externally "
+                        "generated dataset" << RESTendl;
+            RESTInfo << "You may write a tree using GetDataFrame()->Snapshot(\"MyTree\", \"output.root\");"
+                     << RESTendl;
+            return fTree;
+        }
+
         if (fTree == nullptr) {
             RESTError << "Tree has not been yet initialized" << RESTendl;
             RESTError << "You should invoke TRestDataSet::GenerateDataSet() or " << RESTendl;
@@ -174,6 +185,12 @@ class TRestDataSet : public TRestMetadata {
     inline void SetFilePattern(const std::string& pattern) { fFilePattern = pattern; }
     inline void SetQuantity(const std::map<std::string, RelevantQuantity>& quantity) { fQuantity = quantity; }
 
+    void SetTotalTimeInSeconds(Double_t seconds) { fTotalDuration = seconds; }
+    void SetDataFrame(const ROOT::RDF::RNode& dS) {
+        fDataSet = dS;
+        fExternal = true;
+    }
+
     TRestDataSet& operator=(TRestDataSet& dS);
     Bool_t Merge(const TRestDataSet& dS);
     void Import(const std::string& fileName);
@@ -181,7 +198,6 @@ class TRestDataSet : public TRestMetadata {
     void Export(const std::string& filename);
 
     ROOT::RDF::RNode MakeCut(const TRestCut* cut);
-
     ROOT::RDF::RNode DefineColumn(const std::string& columnName, const std::string& formula);
 
     void PrintMetadata() override;
