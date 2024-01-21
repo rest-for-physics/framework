@@ -168,14 +168,9 @@ void TRestExperiment::InitFromConfigFile() {
     if (fExposureTime > 0 && fDataFile.empty()) {
         GenerateMockDataSet();
     } else if (fExposureTime == 0 && !fDataFile.empty()) {
-        fDataFile = SearchFile(fDataFile);
-        fExperimentalData.Import(fDataFile);
-        fExperimentalData.SetTotalTimeInSeconds(fExposureTime);
 
-        fMockData = false;
+        SetExperimentalDataSetFile(fDataFile);
 
-        /// TODO : We need to check here that the experimental data got the same variables as the components.
-        /// Or we need to create a way to define which are the column names to be used in the dataset
     } else {
         RESTError << "The exposure time is not zero and the experimental data filename was defined!"
                   << RESTendl;

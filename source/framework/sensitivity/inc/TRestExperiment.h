@@ -64,6 +64,17 @@ class TRestExperiment : public TRestMetadata {
 
     Bool_t IsMockData() { return fMockData; }
 
+    void SetExperimentalDataSetFile(const std::string& filename) {
+        fDataFile = SearchFile(filename);
+        fExperimentalData.Import(fDataFile);
+        fExposureTime = fExperimentalData.GetTotalTimeInSeconds() * units("s");
+
+        fMockData = false;
+
+        /// TODO : We need to check here that the experimental data got the same variables as the components.
+        /// Or we need to create a way to define which are the column names to be used in the dataset
+    }
+
     TRestComponent* GetBackground() const { return fBackground; }
     TRestComponent* GetSignal() const { return fSignal; }
     ROOT::RDF::RNode GetExperimentalData() { return fExperimentalData.GetDataFrame(); }
