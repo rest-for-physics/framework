@@ -327,13 +327,15 @@ TCanvas* TRestComponent::DrawComponent(std::vector<std::string> drawVariables,
                                        TString drawOption) {
     if (drawVariables.size() > 2 || drawVariables.size() == 0) {
         RESTError << "TRestComponent::DrawComponent. The number of variables to be drawn must "
-                     "be 1 or 2!" << RESTendl;
+                     "be 1 or 2!"
+                  << RESTendl;
         return fCanvas;
     }
 
     if (scanVariables.size() > 2 || scanVariables.size() == 0) {
         RESTError << "TRestComponent::DrawComponent. The number of variables to be scanned must "
-                     "be 1 or 2!" << RESTendl;
+                     "be 1 or 2!"
+                  << RESTendl;
         return fCanvas;
     }
 
