@@ -279,6 +279,7 @@ Double_t TRestComponent::GetBinCenter(Int_t nDim, const Int_t bin) {
 ROOT::RVecD TRestComponent::GetRandom() {
     Double_t* tuple = new Double_t[GetDimensions()];
 
+    ROOT::RVecD result;
     if (!GetDensity()) {
         for (size_t n = 0; n < GetDimensions(); n++) result.push_back(0);
         RESTWarning << "TRestComponent::GetRandom. Component might not be initialized! Use "
@@ -288,7 +289,6 @@ ROOT::RVecD TRestComponent::GetRandom() {
 
     GetDensity()->GetRandom(tuple);
 
-    ROOT::RVecD result;
     for (size_t n = 0; n < GetDimensions(); n++) result.push_back(tuple[n]);
     return result;
 }
