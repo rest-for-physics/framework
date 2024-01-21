@@ -873,13 +873,15 @@ string TRestTools::ToAbsoluteName(const string& filename) {
             const auto envVariableHome = getenv("HOME");
             if (envVariableHome == nullptr) {
                 cout << "TRestTools::ToAbsoluteName - ERROR - "
-                        "cannot resolve ~ because 'HOME' env variable does not exist" << endl;
+                        "cannot resolve ~ because 'HOME' env variable does not exist"
+                     << endl;
                 exit(1);
             }
             const auto userHomePath = filesystem::path(envVariableHome);
             if (userHomePath.empty()) {
                 cout << "TRestTools::ToAbsoluteName - ERROR - "
-                        "cannot resolve ~ because 'HOME' env variable is not set to a valid value" << endl;
+                        "cannot resolve ~ because 'HOME' env variable is not set to a valid value"
+                     << endl;
                 exit(1);
             }
             path /= userHomePath;
@@ -1102,7 +1104,7 @@ std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
             case '\r':
                 if (sb->sgetc() == '\n') sb->sbumpc();
                 return is;
-            case std::streambuf::traits_type::eof() :
+            case std::streambuf::traits_type::eof():
                 // Also handle the case when the last line has no line ending
                 if (t.empty()) is.setstate(std::ios::eofbit);
                 return is;
@@ -1307,7 +1309,8 @@ int TRestTools::UploadToServer(string localFile, string remoteFile, string metho
             RESTError << __PRETTY_FUNCTION__ << RESTendl;
             RESTError << "problem copying gases definitions to remote server" << RESTendl;
             RESTError << "Please report this problem at "
-                         "http://gifna.unizar.es/rest-forum/" << RESTendl;
+                         "http://gifna.unizar.es/rest-forum/"
+                      << RESTendl;
             return -1;
         }
 

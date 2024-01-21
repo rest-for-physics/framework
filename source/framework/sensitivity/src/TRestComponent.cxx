@@ -283,7 +283,8 @@ ROOT::RVecD TRestComponent::GetRandom() {
     if (!GetDensity()) {
         for (size_t n = 0; n < GetDimensions(); n++) result.push_back(0);
         RESTWarning << "TRestComponent::GetRandom. Component might not be initialized! Use "
-                       "TRestComponent::Initialize()." << RESTendl;
+                       "TRestComponent::Initialize()."
+                    << RESTendl;
         return result;
     }
 

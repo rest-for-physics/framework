@@ -32,7 +32,7 @@
 #include <string>
 #include <vector>
 
-#define UNUSED(x) (void) x
+#define UNUSED(x) (void)x
 
 #ifdef WIN32
 #define EXTERN_DEF __declspec(dllimport)
@@ -183,14 +183,10 @@ inline void SetInitLevel(T* name, int level) {
 
 }  // namespace REST_InitTools
 
-enum Quantities {
-    ENERGY,
-    LENGTH,
-    TIME
-};
+enum Quantities { ENERGY, LENGTH, TIME };
 class ValueWithQuantity {
    public:
-    ValueWithQuantity(double value, Quantities quantity) : fValue(value), fQuantity(quantity) {};
+    ValueWithQuantity(double value, Quantities quantity) : fValue(value), fQuantity(quantity){};
     double GetValue() const { return fValue; }
     std::string ToString() const;
 

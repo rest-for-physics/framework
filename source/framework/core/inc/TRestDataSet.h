@@ -134,10 +134,10 @@ class TRestDataSet : public TRestMetadata {
 
     /// Gives access to the tree
     TTree* GetTree() const {
-
         if (fTree == nullptr && fExternal) {
             RESTInfo << "The tree is not accessible. Only GetDataFrame can be used in an externally "
-                        "generated dataset" << RESTendl;
+                        "generated dataset"
+                     << RESTendl;
             RESTInfo << "You may write a tree using GetDataFrame()->Snapshot(\"MyTree\", \"output.root\");"
                      << RESTendl;
             return fTree;
