@@ -41,11 +41,14 @@ class TRestExperiment : public TRestMetadata {
     /// A pointer to the signal component
     TRestComponent* fSignal = nullptr;  //<
 
-    /// It contains the experimental data (should contain same columns as the components)
-    TRestDataSet fTrackingData;  //<
+    /// It defines the filename used to load the dataset
+    std::string fDataFile = "";
 
-    /// If enabled the tracking data will be MC-generated following background compatibility
-    Bool_t fMockTracking = false;  //<
+    /// It contains the experimental data (should contain same columns as the components)
+    TRestDataSet fExperimentalData;  //<
+
+    /// If enabled it means that the experimental data was MC-generated
+    Bool_t fMockData = false;  //<
 
     /// Internal process random generator
     TRandom3* fRandom = nullptr;  //!
@@ -59,9 +62,11 @@ class TRestExperiment : public TRestMetadata {
    public:
     void GenerateMockDataSet();
 
+    Bool_t IsMockData() { return fMockData; }
+
     TRestComponent* GetBackground() const { return fBackground; }
     TRestComponent* GetSignal() const { return fSignal; }
-    ROOT::RDF::RNode GetTrackingData() { return fTrackingData.GetDataFrame(); }
+    ROOT::RDF::RNode GetExperimentalData() { return fExperimentalData.GetDataFrame(); }
 
     void Initialize() override;
 

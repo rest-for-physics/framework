@@ -106,8 +106,10 @@ void TRestExperiment::GenerateMockDataSet() {
 
     ROOT::RDF::RNode df = fBackground->GetMonteCarloDataFrame(N);
 
-    fTrackingData.SetDataFrame(df);
-    fTrackingData.SetTotalTimeInSeconds(fExposureTime * units("s"));
+    fExperimentalData.SetDataFrame(df);
+    fExperimentalData.SetTotalTimeInSeconds(fExposureTime * units("s"));
+
+    fMockData = true;
 }
 
 /////////////////////////////////////////////
@@ -136,11 +138,12 @@ void TRestExperiment::InitFromConfigFile() {
         std::string component = GetParameter("component", ele, "");
 
         if (filename.empty())
-            RESTWarning << "TRestExperiment. There is a problem with `filename` definition inside <addSignal."
-                        << RESTendl;
+            RESTWarning
+                << "TRestExperiment. There is a problem with `filename` definition inside <addComponent."
+                << RESTendl;
         if (component.empty())
             RESTWarning
-                << "TRestExperiment. There is a problem with `component` definition inside <addSignal."
+                << "TRestExperiment. There is a problem with `component` definition inside <addComponent."
                 << RESTendl;
 
         if (TRestTools::fileExists(filename) && TRestTools::isRootFile(filename)) {
@@ -160,6 +163,26 @@ void TRestExperiment::InitFromConfigFile() {
                               << " not found! File : " << filename << RESTendl;
             }
         }
+    }
+
+    if (fExposureTime > 0 && fDataFile.empty()) {
+        GenerateMockDataSet();
+    } else if (fExposureTime == 0 && !fDataFile.empty()) {
+        fDataFile = SearchFile(fDataFile);
+        fExperimentalData.Import(fDataFile);
+        fExperimentalData.SetTotalTimeInSeconds(fExposureTime);
+
+        fMockData = false;
+
+        /// TODO : We need to check here that the experimental data got the same variables as the components.
+        /// Or we need to create a way to define which are the column names to be used in the dataset
+    } else {
+        RESTError << "The exposure time is not zero and the experimental data filename was defined!"
+                  << RESTendl;
+        RESTError << "The exposure time will be defined by the dataset duration. Set exposure time to zero,"
+                  << RESTendl;
+        RESTError << " or do not define a dataset to generate mock data using the exposure time given"
+                  << RESTendl;
     }
 
     Initialize();
