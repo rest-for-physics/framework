@@ -76,7 +76,6 @@ TRestExperiment::TRestExperiment(const char* cfgFileName, const std::string& nam
 /// (or observables) that have been defined by the user.
 ///
 void TRestExperiment::Initialize() {
-
     SetSectionName(this->ClassName());
 
     if (!fRandom) {
