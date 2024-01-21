@@ -50,6 +50,15 @@ class TRestExperimentList : public TRestMetadata {
     /// A vector with a list of experiments includes the background components in this model
     std::vector<TRestExperiment*> fExperiments;  //<
 
+    /// If not zero this will be the common exposure time in micro-seconds (standard REST units)
+    Double_t fExposureTime = 0;
+
+    /// If not null this will be the common signal used in each experiment
+    TRestComponent* fSignal = nullptr;  //<
+
+    /// If not null this will be the common signal used in each experiment
+    TRestComponent* fBackground = nullptr;  //<
+
    protected:
     void InitFromConfigFile() override;
 

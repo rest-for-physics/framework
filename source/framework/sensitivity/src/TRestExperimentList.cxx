@@ -82,31 +82,64 @@ void TRestExperimentList::Initialize() { SetSectionName(this->ClassName()); }
 void TRestExperimentList::InitFromConfigFile() {
     TRestMetadata::InitFromConfigFile();
 
-    /*
-auto ele = GetElement("variable");
-while (ele != nullptr) {
-    std::string name = GetParameter("name", ele, "");
-    TVector2 v = Get2DVectorParameterWithUnits("range", ele, TVector2(-1, -1));
-    Int_t bins = StringToInteger(GetParameter("bins", ele, "0"));
-
-    if (name.empty() || (v.X() == -1 && v.Y() == -1) || bins == 0) {
-        RESTWarning << "TRestComponentFormula::fVariable. Problem with definition." << RESTendl;
-        RESTWarning << "Name: " << name << " range: (" << v.X() << ", " << v.Y() << ") bins: " << bins
-                    << RESTendl;
-    } else {
-        fVariables.push_back(name);
-        fRanges.push_back(v);
-        fNbins.push_back(bins);
-    }
-
-    ele = GetNextElement(ele);
-}
-    */
-
     if (!fExperimentsFile.empty()) {
         TRestTools::ReadASCIITable(fExperimentsFile, fExperimentsTable);
 
-        TRestTools::PrintTable(fExperimentsTable, 0, 3);
+        for (auto& row : fExperimentsTable)
+            for (auto& el : row) el = REST_StringHelper::ReplaceMathematicalExpressions(el);
+
+        if (fExperimentsTable.empty()) {
+            RESTError << "TRestExperimentList::InitFromConfigFile. The experiments table is empty!"
+                      << RESTendl;
+            return;
+        }
+
+        Int_t nTableColumns = fExperimentsTable[0].size();
+
+        int cont = 0;
+        TRestComponent* comp = (TRestComponent*)this->InstantiateChildMetadata(cont, "Component");
+        while (comp != nullptr) {
+            if (ToLower(comp->GetNature()) == "background")
+                fBackground = comp;
+            else if (ToLower(comp->GetNature()) == "signal")
+                fSignal = comp;
+            else
+                RESTWarning << "TRestExperimentList::InitFromConfigFile. Unknown component!" << RESTendl;
+
+            cont++;
+            comp = (TRestComponent*)this->InstantiateChildMetadata(cont, "Component");
+        }
+
+        Int_t nExpectedColumns = 3;
+        if (fSignal) nExpectedColumns--;
+        if (fBackground) nExpectedColumns--;
+        if (fExposureTime > 0) nExpectedColumns--;
+
+        if (nExpectedColumns == 0) {
+            RESTError << "TRestExperimentList::InitFromConfigFile. At least one free parameter required! "
+                         "(Exposure/Background/Signal)" << RESTendl;
+            return;
+        }
+
+        if (nExpectedColumns != nTableColumns) {
+            std::string expectedColumns = "";
+            if (fExposureTime == 0) expectedColumns += "exposure";
+            if (!fSignal) {
+                if (fExposureTime == 0) expectedColumns += "/";
+                expectedColumns += "signal";
+            }
+            if (!fBackground) {
+                if (fExposureTime == 0 || !fSignal) expectedColumns += "/";
+                expectedColumns += "background";
+            }
+
+            RESTError << "TRestExperimentList::InitFromConfigFile. Number of expected columns does not match "
+                         "the number of table columns" << RESTendl;
+            RESTError << "Number of table columns : " << nTableColumns << RESTendl;
+            RESTError << "Number of expected columns : " << nExpectedColumns << RESTendl;
+            RESTError << "Expected columns : " << expectedColumns << RESTendl;
+            return;
+        }
     }
 }
 
@@ -115,6 +148,8 @@ while (ele != nullptr) {
 ///
 void TRestExperimentList::PrintMetadata() {
     TRestMetadata::PrintMetadata();
+
+    RESTMetadata << "Number of experiments loaded: " << fExperiments.size() << RESTendl;
 
     RESTMetadata << "----" << RESTendl;
 }
