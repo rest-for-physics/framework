@@ -32,7 +32,7 @@
 #include <string>
 #include <vector>
 
-#define UNUSED(x) (void)x
+#define UNUSED(x) (void) x
 
 #ifdef WIN32
 #define EXTERN_DEF __declspec(dllimport)
@@ -63,6 +63,8 @@ class TRestTools {
                               Int_t skipLines = 0, std::string separator = "\t");
     static int ReadASCIITable(std::string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines = 0,
                               std::string separator = "\t");
+    static int ReadASCIITable(std::string fName, std::vector<std::vector<std::string>>& data,
+                              Int_t skipLines = 0, std::string separator = "\t");
 
     static int ReadCSVFile(std::string fName, std::vector<std::vector<Double_t>>& data, Int_t skipLines = 0);
     static int ReadCSVFile(std::string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines = 0);
@@ -181,10 +183,14 @@ inline void SetInitLevel(T* name, int level) {
 
 }  // namespace REST_InitTools
 
-enum Quantities { ENERGY, LENGTH, TIME };
+enum Quantities {
+    ENERGY,
+    LENGTH,
+    TIME
+};
 class ValueWithQuantity {
    public:
-    ValueWithQuantity(double value, Quantities quantity) : fValue(value), fQuantity(quantity){};
+    ValueWithQuantity(double value, Quantities quantity) : fValue(value), fQuantity(quantity) {};
     double GetValue() const { return fValue; }
     std::string ToString() const;
 

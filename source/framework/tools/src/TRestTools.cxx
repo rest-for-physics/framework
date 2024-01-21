@@ -174,6 +174,8 @@ template int TRestTools::PrintTable<Int_t>(std::vector<std::vector<Int_t>> data,
 template int TRestTools::PrintTable<Float_t>(std::vector<std::vector<Float_t>> data, Int_t start, Int_t end);
 template int TRestTools::PrintTable<Double_t>(std::vector<std::vector<Double_t>> data, Int_t start,
                                               Int_t end);
+template int TRestTools::PrintTable<std::string>(std::vector<std::vector<std::string>> data, Int_t start,
+                                                 Int_t end);
 
 ///////////////////////////////////////////////
 /// \brief Writes the contents of the vector table given as argument to `fname`.
@@ -507,6 +509,58 @@ template std::vector<Float_t> TRestTools::GetColumnFromTable<Float_t>(
 template std::vector<Double_t> TRestTools::GetColumnFromTable<Double_t>(
     const std::vector<std::vector<Double_t>>& data, unsigned int column);
 
+template std::vector<std::string> TRestTools::GetColumnFromTable<std::string>(
+    const std::vector<std::vector<std::string>>& data, unsigned int column);
+
+///////////////////////////////////////////////
+/// \brief Reads an ASCII file containing a table with values
+///
+/// This method will open the file fName. This file should contain a tabulated
+/// ASCII table containing any format values. The values on the table will be
+/// loaded in the matrix provided through the argument `data`. The content of
+/// `data` will be cleared in this method.
+///
+/// If any header in the file is present, it should be skipped using the argument
+///`skipLines` or preceding any line inside the header using `#`.
+///
+/// This table will just split the ASCII elements inside a std::string matrix
+///
+int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<std::string>>& data, Int_t skipLines,
+                               std::string separator) {
+    if (!TRestTools::isValidFile((string)fName)) {
+        cout << "TRestTools::ReadASCIITable. Error" << endl;
+        cout << "Cannot open file : " << fName << endl;
+        return 0;
+    }
+
+    data.clear();
+
+    std::ifstream fin(fName);
+
+    // First we create a table with string values
+    std::vector<std::vector<string>> values;
+
+    for (string line; std::getline(fin, line);) {
+        if (skipLines > 0) {
+            skipLines--;
+            continue;
+        }
+
+        if (line.find("#") == string::npos) {
+            std::istringstream in(line);
+
+            std::string token;
+            std::vector<std::string> tokens;
+            while (std::getline(in, token, (char)separator[0])) {
+                tokens.push_back(token);
+            }
+            data.push_back(tokens);
+        }
+    }
+
+    return 1;
+}
+
 ///////////////////////////////////////////////
 /// \brief Reads an ASCII file containing a table with values
 ///
@@ -819,15 +873,13 @@ string TRestTools::ToAbsoluteName(const string& filename) {
             const auto envVariableHome = getenv("HOME");
             if (envVariableHome == nullptr) {
                 cout << "TRestTools::ToAbsoluteName - ERROR - "
-                        "cannot resolve ~ because 'HOME' env variable does not exist"
-                     << endl;
+                        "cannot resolve ~ because 'HOME' env variable does not exist" << endl;
                 exit(1);
             }
             const auto userHomePath = filesystem::path(envVariableHome);
             if (userHomePath.empty()) {
                 cout << "TRestTools::ToAbsoluteName - ERROR - "
-                        "cannot resolve ~ because 'HOME' env variable is not set to a valid value"
-                     << endl;
+                        "cannot resolve ~ because 'HOME' env variable is not set to a valid value" << endl;
                 exit(1);
             }
             path /= userHomePath;
@@ -1050,7 +1102,7 @@ std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
             case '\r':
                 if (sb->sgetc() == '\n') sb->sbumpc();
                 return is;
-            case std::streambuf::traits_type::eof():
+            case std::streambuf::traits_type::eof() :
                 // Also handle the case when the last line has no line ending
                 if (t.empty()) is.setstate(std::ios::eofbit);
                 return is;
@@ -1255,8 +1307,7 @@ int TRestTools::UploadToServer(string localFile, string remoteFile, string metho
             RESTError << __PRETTY_FUNCTION__ << RESTendl;
             RESTError << "problem copying gases definitions to remote server" << RESTendl;
             RESTError << "Please report this problem at "
-                         "http://gifna.unizar.es/rest-forum/"
-                      << RESTendl;
+                         "http://gifna.unizar.es/rest-forum/" << RESTendl;
             return -1;
         }
 
