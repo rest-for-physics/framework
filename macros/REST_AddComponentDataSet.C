@@ -9,7 +9,7 @@
 //*** will write it inside the file given as outputFile
 //***
 //*** --------------
-//*** Usage: restManager AddComponent components.rml sectionName [outputFile] [componentName] [update]
+//*** Usage: restManager AddComponentDataSet components.rml sectionName [outputFile] [componentName] [update]
 //***
 //*** Arguments description:
 //***
@@ -23,9 +23,9 @@
 //***
 //*******************************************************************************************************
 
-Int_t REST_AddComponent(std::string cfgFile, std::string sectionName,
-                        std::string outputFile = "components.root", std::string componentName = "",
-                        Bool_t update = true) {
+Int_t REST_AddComponentDataSet(std::string cfgFile, std::string sectionName,
+                               std::string outputFile = "components.root", std::string componentName = "",
+                               Bool_t update = true) {
     TRestComponentDataSet comp(cfgFile.c_str(), sectionName.c_str());
     comp.Initialize();
 

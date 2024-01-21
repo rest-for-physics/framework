@@ -30,62 +30,90 @@
 ///
 /// History of developments:
 ///
-/// 2022-December: First implementation of TRestModel
+/// 2022-December: First implementation of TRestExperimentList
 /// Javier Galan
 ///
-/// \class TRestModel
+/// \class TRestExperimentList
 /// \author: Javier Galan (javier.galan.lacarra@cern.ch)
 ///
 /// <hr>
 ///
-#include "TRestModel.h"
+#include "TRestExperimentList.h"
 
-ClassImp(TRestModel);
+ClassImp(TRestExperimentList);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestModel::TRestModel() { Initialize(); }
+TRestExperimentList::TRestExperimentList() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestModel::~TRestModel() {}
+TRestExperimentList::~TRestExperimentList() {}
+
+/////////////////////////////////////////////
+/// \brief Constructor loading data from a config file
+///
+/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// The default behaviour is that the config file must be specified with
+/// full path, absolute or relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param name The name of the specific metadata.
+///
+TRestExperimentList::TRestExperimentList(const char* cfgFileName, const std::string& name)
+    : TRestMetadata(cfgFileName) {
+    LoadConfigFromFile(fConfigFileName, name);
+}
 
 ///////////////////////////////////////////////
 /// \brief It will initialize the data frame with the filelist and column names
 /// (or observables) that have been defined by the user.
 ///
-void TRestModel::Initialize() { SetSectionName(this->ClassName()); }
+void TRestExperimentList::Initialize() { SetSectionName(this->ClassName()); }
 
-///////////////////////////////////////////////
-/// \brief It returns the intensity/rate (in seconds) corresponding to the
-/// combined background.
+/////////////////////////////////////////////
+/// \brief It customizes the retrieval of XML data values of this class
 ///
-/// The size of the point vector must have the same dimension as the dimensions
-/// of the distribution.
-///
-Double_t TRestModel::GetBackground(std::vector<Double_t> point) {
-    // we get the rate in seconds at the corresponding bin
-    return 0.0;
+void TRestExperimentList::InitFromConfigFile() {
+    TRestMetadata::InitFromConfigFile();
+
+    /*
+auto ele = GetElement("variable");
+while (ele != nullptr) {
+    std::string name = GetParameter("name", ele, "");
+    TVector2 v = Get2DVectorParameterWithUnits("range", ele, TVector2(-1, -1));
+    Int_t bins = StringToInteger(GetParameter("bins", ele, "0"));
+
+    if (name.empty() || (v.X() == -1 && v.Y() == -1) || bins == 0) {
+        RESTWarning << "TRestComponentFormula::fVariable. Problem with definition." << RESTendl;
+        RESTWarning << "Name: " << name << " range: (" << v.X() << ", " << v.Y() << ") bins: " << bins
+                    << RESTendl;
+    } else {
+        fVariables.push_back(name);
+        fRanges.push_back(v);
+        fNbins.push_back(bins);
+    }
+
+    ele = GetNextElement(ele);
 }
+    */
 
-///////////////////////////////////////////////
-/// \brief It returns the intensity/rate (in seconds) corresponding to the
-/// combined signal.
-///
-/// The size of the point vector must have the same dimension as the dimensions
-/// of the distribution.
-///
-Double_t TRestModel::GetSignal(std::vector<Double_t> point) {
-    // we get the rate in seconds at the corresponding bin
-    return 0.0;
+    if (!fExperimentsFile.empty()) {
+        TRestTools::ReadASCIITable(fExperimentsFile, fExperimentsTable);
+
+        TRestTools::PrintTable(fExperimentsTable, 0, 3);
+    }
 }
 
 /////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
 ///
-void TRestModel::PrintMetadata() {
+void TRestExperimentList::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     RESTMetadata << "----" << RESTendl;

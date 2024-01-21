@@ -20,35 +20,51 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef REST_TRestModel
-#define REST_TRestModel
+#ifndef REST_TRestExperimentList
+#define REST_TRestExperimentList
 
-#include "TRestComponent.h"
+#include "TRestExperiment.h"
 #include "TRestMetadata.h"
 
-/// A combination of signal and background components that build a complete signal and background model
-class TRestModel : public TRestMetadata {
+/// A helper metadata class to create a list of TRestExperiment instances
+class TRestExperimentList : public TRestMetadata {
    private:
-    // TODO At some point we may want to add here a coupling for each signal component
+    /// A fullpath filename pattern helping to initialize the component files vector
+    std::string fComponentPattern = "";  //<
 
-    /// A vector that includes the signal components in this model
-    std::vector<TRestComponent*> fSignal;  //<
+    /// A vector with filenames containing the components
+    std::vector<std::string> fComponentFiles;  //<
 
-    /// A vector that includes the background components in this model
-    std::vector<TRestComponent*> fBackground;
+    /// A fullpath filename pattern helping to initialize the dataset files vector
+    std::string fDataSetPattern = "";  //<
+
+    /// A vector with filenames containing the datasets with experimental data
+    std::vector<std::string> fDataSetFilenames;  //<
+
+    /// A file where we define experiment components, exposureTime, and tracking data of each experiment
+    std::string fExperimentsFile = "";  //< Exposure/TrackingData - SignalComponent - BackgroundComponent
+
+    /// A table with the experiment file information
+    std::vector<std::vector<std::string> > fExperimentsTable;  //<
+
+    /// A vector with a list of experiments includes the background components in this model
+    std::vector<TRestExperiment*> fExperiments;  //<
+
+   protected:
+    void InitFromConfigFile() override;
 
    public:
     void Initialize() override;
 
-    Double_t GetSignal(std::vector<Double_t> point);
-
-    Double_t GetBackground(std::vector<Double_t> point);
+    std::vector<TRestExperiment*> GetExperiments() { return fExperiments; }
 
     void PrintMetadata() override;
 
-    TRestModel();
-    ~TRestModel();
+    TRestExperimentList(const char* cfgFileName, const std::string& name);
 
-    ClassDefOverride(TRestModel, 1);
+    TRestExperimentList();
+    ~TRestExperimentList();
+
+    ClassDefOverride(TRestExperimentList, 1);
 };
 #endif
