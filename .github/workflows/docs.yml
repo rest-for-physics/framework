@@ -32,8 +32,8 @@ jobs:
 
           - name: Install dependencies
             run: |
-              apt-get update
-              apt-get install -y doxygen
+              sudo apt-get update
+              sudo kapt-get install -y doxygen
 
           - name: Build doxygen
             run: |
