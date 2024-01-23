@@ -3,11 +3,7 @@
 name: Docs
 on:
   workflow_dispatch:
-
   push:
-    branches:
-      - master
-  pull_request:
     branches:
       - master
 
@@ -55,6 +51,5 @@ jobs:
           path: doc/doxygen/html
 
       - name: Deploy to GitHub Pages
-        if : github.ref == 'refs/heads/master'
         id: deployment
         uses: actions/deploy-pages@v1
