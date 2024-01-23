@@ -51,8 +51,9 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: doc/doxygen
+          path: doc/doxygen/html
 
       - name: Deploy to GitHub Pages
+        if : github.ref == 'refs/heads/master'
         id: deployment
         uses: actions/deploy-pages@v1
