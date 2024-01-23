@@ -167,7 +167,6 @@ void TRestExperiment::InitFromConfigFile() {
     if (fExposureTime > 0 && fDataFile.empty()) {
         GenerateMockDataSet();
     } else if (fExposureTime == 0 && !fDataFile.empty()) {
-
         SetExperimentalDataSetFile(fDataFile);
 
     } else {
