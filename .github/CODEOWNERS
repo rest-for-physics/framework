@@ -1,0 +1,5 @@
+.github/ @lobis
+* @jgalan
+*.py @lobis
+*.cmake @lobis
+CMakelists.txt @lobis
