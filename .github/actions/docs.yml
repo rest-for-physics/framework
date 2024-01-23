@@ -5,10 +5,10 @@ description: Build and deploy documentation
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
     build:
