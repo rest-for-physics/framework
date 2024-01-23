@@ -15,34 +15,44 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-          - name: Checkout repo
-            uses: actions/checkout@v3
+  build:
+    permissions:
+      pages: write
+      id-token: write
 
-          - name: Setup Python
-            uses: actions/setup-python@v3
-            with:
-              python-version: 3.12
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
-          - name: Clone submodules
-            run: |
-              python pull-submodules.py --clean --dontask
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-          - name: Install dependencies
-            run: |
-              sudo apt-get update
-              sudo apt-get install -y doxygen
+      - name: Setup Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.12
 
-          - name: Build doxygen
-            run: |
-              cd doc/doxygen
-              doxygen REST.conf
+      - name: Clone submodules
+        run: |
+          python pull-submodules.py --clean --dontask
 
-          - name: Upload docs
-            uses: actions/upload-artifact@v3
-            with:
-              name: docs
-              path: doc/doxygen
-              retention-days: 1
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen
+
+      - name: Build doxygen
+        run: |
+          cd doc/doxygen
+          doxygen REST.conf
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: doc/doxygen
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
