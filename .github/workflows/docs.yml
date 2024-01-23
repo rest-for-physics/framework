@@ -2,6 +2,7 @@
 
 name: Docs
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
@@ -50,7 +51,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: doc/doxygen/html
+          path: doc/doxygen
 
       - name: Deploy to GitHub Pages
         id: deployment
