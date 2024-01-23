@@ -1242,7 +1242,8 @@ Bool_t TRestAnalysisTree::AddChainFile(const string& _file) {
             }
             RESTWarning
                 << "TRestAnalysisTree::AddChainFile(): invalid file, AnalysisTree in file has different "
-                   "run id!" << RESTendl;
+                   "run id!"
+                << RESTendl;
         }
         RESTWarning << "TRestAnalysisTree::AddChainFile(): invalid file, AnalysisTree in file is empty!"
                     << RESTendl;
