@@ -1,7 +1,6 @@
 # generate doxygen
 
 name: Docs
-description: Build and deploy documentation
 on:
   workflow_dispatch:
   push:
