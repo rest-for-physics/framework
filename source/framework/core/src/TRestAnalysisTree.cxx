@@ -623,6 +623,7 @@ Double_t TRestAnalysisTree::GetDblObservableValue(Int_t n) {
     }
 
     if (GetObservableType(n) == "int") return GetObservableValue<int>(n);
+    if (GetObservableType(n) == "float") return GetObservableValue<float>(n);
     if (GetObservableType(n) == "double") return GetObservableValue<double>(n);
 
     cout << "TRestAnalysisTree::GetDblObservableValue. Type " << GetObservableType(n)
@@ -1241,8 +1242,7 @@ Bool_t TRestAnalysisTree::AddChainFile(const string& _file) {
             }
             RESTWarning
                 << "TRestAnalysisTree::AddChainFile(): invalid file, AnalysisTree in file has different "
-                   "run id!"
-                << RESTendl;
+                   "run id!" << RESTendl;
         }
         RESTWarning << "TRestAnalysisTree::AddChainFile(): invalid file, AnalysisTree in file is empty!"
                     << RESTendl;
