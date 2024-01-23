@@ -1,0 +1,44 @@
+# generate doxygen
+
+name: Docs
+description: Build and deploy documentation
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout repo
+            uses: actions/checkout@v3
+
+          - name: Setup Python
+            uses: actions/setup-python@v3
+            with:
+              python-version: 3.12
+
+          - name: Clone submodules
+            run: |
+              python pull-submodules.py --clean --dontask
+
+          - name: Install dependencies
+            run: |
+              apt-get update
+              apt-get install -y doxygen
+
+          - name: Build doxygen
+            run: |
+              cd doc/doxygen
+              doxygen REST.conf
+
+          - name: Upload docs
+            uses: actions/upload-artifact@v3
+            with:
+              name: docs
+              path: doc/doxygen
+              retention-days: 1
