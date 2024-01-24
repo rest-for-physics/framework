@@ -54,7 +54,7 @@ class TRestExperiment : public TRestMetadata {
     TRandom3* fRandom = nullptr;  //!
 
     /// Seed used in random generator
-    Int_t fSeed = 0;  //<
+    UInt_t fSeed = 0;  //<
 
    protected:
     void InitFromConfigFile() override;
@@ -64,6 +64,10 @@ class TRestExperiment : public TRestMetadata {
 
     Bool_t IsMockData() { return fMockData; }
 
+    void SetExposureInSeconds(const Double_t exposure) { fExposureTime = exposure / units("s"); }
+    void SetSignal(TRestComponent* comp) { fSignal = comp; }
+    void SetBackground(TRestComponent* comp) { fBackground = comp; }
+
     void SetExperimentalDataSetFile(const std::string& filename) {
         fDataFile = SearchFile(filename);
         fExperimentalData.Import(fDataFile);
@@ -72,9 +76,11 @@ class TRestExperiment : public TRestMetadata {
         fMockData = false;
 
         /// TODO : We need to check here that the experimental data got the same variables as the components.
-        /// Or we need to create a way to define which are the column names to be used in the dataset
+        /// Or we need to create a way to connect the column names to be used in the dataset with the
+        /// variables
     }
 
+    Double_t GetExposureInSeconds() { return fExposureTime * units("s"); }
     TRestComponent* GetBackground() const { return fBackground; }
     TRestComponent* GetSignal() const { return fSignal; }
     ROOT::RDF::RNode GetExperimentalData() { return fExperimentalData.GetDataFrame(); }
