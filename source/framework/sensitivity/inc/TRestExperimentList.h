@@ -48,28 +48,42 @@ class TRestExperimentList : public TRestMetadata {
     std::vector<std::vector<std::string> > fExperimentsTable;  //<
 
     /// A vector with a list of experiments includes the background components in this model
-    std::vector<TRestExperiment*> fExperiments;  //<
+    std::vector<TRestExperiment *> fExperiments;  //<
 
     /// If not zero this will be the common exposure time in micro-seconds (standard REST units)
     Double_t fExposureTime = 0;
 
     /// If not null this will be the common signal used in each experiment
-    TRestComponent* fSignal = nullptr;  //<
+    TRestComponent *fSignal = nullptr;  //<
 
     /// If not null this will be the common signal used in each experiment
-    TRestComponent* fBackground = nullptr;  //<
+    TRestComponent *fBackground = nullptr;  //<
 
    protected:
+    TRestComponent *GetComponent(std::string compName);
+
     void InitFromConfigFile() override;
 
    public:
     void Initialize() override;
 
-    std::vector<TRestExperiment*> GetExperiments() { return fExperiments; }
+    void SetExposure(const Double_t &exposure) { fExposureTime = exposure; }
+    void SetSignal(TRestComponent *comp) { fSignal = comp; }
+    void SetBackground(TRestComponent *comp) { fBackground = comp; }
+
+    std::vector<TRestExperiment *> GetExperiments() { return fExperiments; }
+    TRestExperiment *GetExperiment(const size_t &n) {
+        if (n >= GetNumberOfExperiments())
+            return nullptr;
+        else
+            return fExperiments[n];
+    }
+
+    size_t GetNumberOfExperiments() { return fExperiments.size(); }
 
     void PrintMetadata() override;
 
-    TRestExperimentList(const char* cfgFileName, const std::string& name);
+    TRestExperimentList(const char *cfgFileName, const std::string &name);
 
     TRestExperimentList();
     ~TRestExperimentList();
