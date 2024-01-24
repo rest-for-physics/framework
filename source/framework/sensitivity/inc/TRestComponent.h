@@ -106,6 +106,10 @@ class TRestComponent : public TRestMetadata {
 
     Int_t GetActiveNode() { return fActiveNode; }
     Int_t SetActiveNode(Double_t node);
+    Int_t SetActiveNode(Int_t n) {
+        fActiveNode = n;
+        return fActiveNode;
+    }
     Double_t GetActiveNodeValue() { return fParameterizationNodes[fActiveNode]; }
 
     Bool_t Interpolation() { return fInterpolation; }
