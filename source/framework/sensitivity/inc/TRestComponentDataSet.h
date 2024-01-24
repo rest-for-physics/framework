@@ -57,8 +57,8 @@ class TRestComponentDataSet : public TRestComponent {
 
    protected:
     std::vector<Double_t> ExtractParameterizationNodes();
-    std::vector<Int_t> ExtractNodeStatistics(Double_t precision = 0.01);
-    void FillHistograms(Double_t precision = 0.01) override;
+    std::vector<Int_t> ExtractNodeStatistics();
+    void FillHistograms() override;
 
     Bool_t VariablesOk();
     Bool_t WeightsOk();

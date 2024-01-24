@@ -40,7 +40,7 @@ class TRestComponentFormula : public TRestComponent {
    protected:
     void InitFromConfigFile() override;
 
-    void FillHistograms(Double_t precision = 0.01) override;
+    void FillHistograms() override;
 
    public:
     Double_t GetFormulaRate(std::vector<Double_t> point);

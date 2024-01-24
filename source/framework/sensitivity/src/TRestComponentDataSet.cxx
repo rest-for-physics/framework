@@ -210,12 +210,12 @@ void TRestComponentDataSet::InitFromConfigFile() {
 /// \brief It will produce a histogram with the distribution defined using the
 /// variables and the weights for each of the parameter nodes.
 ///
-/// The precision is used to define the active node
+/// fPrecision is used to define the active node
 ///
-void TRestComponentDataSet::FillHistograms(Double_t precision) {
+void TRestComponentDataSet::FillHistograms() {
     if (!fNodeDensity.empty()) return;
 
-    fNSimPerNode = ExtractNodeStatistics(precision);
+    fNSimPerNode = ExtractNodeStatistics();
 
     if (!IsDataSetLoaded()) {
         RESTError << "TRestComponentDataSet::FillHistograms. Dataset has not been initialized!" << RESTendl;
@@ -241,8 +241,8 @@ void TRestComponentDataSet::FillHistograms(Double_t precision) {
         } else {
             RESTInfo << "Creating THnD for parameter " << fParameter << ": " << DoubleToString(node)
                      << RESTendl;
-            Double_t pUp = node * (1 + precision / 2);
-            Double_t pDown = node * (1 - precision / 2);
+            Double_t pUp = node * (1 + fPrecision / 2);
+            Double_t pDown = node * (1 - fPrecision / 2);
             std::string filter = fParameter + " < " + DoubleToString(pUp) + " && " + fParameter + " > " +
                                  DoubleToString(pDown);
             df = fDataSet.GetDataFrame().Filter(filter);
@@ -322,11 +322,11 @@ std::vector<Double_t> TRestComponentDataSet::ExtractParameterizationNodes() {
 ///
 /// If fNSimPerNode has already been initialized it will directly return its value.
 ///
-/// The argument precision will be used to include a thin range where to select
+/// fPrecision will be used to include a thin range where to select
 /// the node values. The value defines the range with a fraction proportional to
 /// the parameter value.
 ///
-std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics(Double_t precision) {
+std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
     if (!fNSimPerNode.empty()) return fNSimPerNode;
 
     std::vector<Int_t> stats;
@@ -339,8 +339,8 @@ std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics(Double_t precisi
     RESTInfo << "Counting statistics for each node ..." << RESTendl;
     RESTInfo << "Number of nodes : " << fParameterizationNodes.size() << RESTendl;
     for (const auto& p : fParameterizationNodes) {
-        Double_t pUp = p * (1 + precision / 2);
-        Double_t pDown = p * (1 - precision / 2);
+        Double_t pUp = p * (1 + fPrecision / 2);
+        Double_t pDown = p * (1 - fPrecision / 2);
         std::string filter =
             fParameter + " < " + DoubleToString(pUp) + " && " + fParameter + " > " + DoubleToString(pDown);
         RESTInfo << "Counting stats for : " << fParameter << " = " << p << RESTendl;

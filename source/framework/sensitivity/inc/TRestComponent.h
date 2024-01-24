@@ -66,6 +66,9 @@ class TRestComponent : public TRestMetadata {
     /// A pointer to the detector response
     TRestResponse* fResponse = nullptr;  //<
 
+    /// A precision used to select the node value with a given range defined as a fraction of the value
+    Float_t fPrecision = 0.01;
+
     /// A canvas for drawing the active node component
     TCanvas* fCanvas = nullptr;  //!
 
@@ -85,32 +88,30 @@ class TRestComponent : public TRestMetadata {
 
     void InitFromConfigFile() override;
 
-    virtual void FillHistograms(Double_t precision = 0.01) = 0;
+    virtual void FillHistograms() = 0;
 
    public:
     std::string GetNature() const { return fNature; }
     TRestResponse* GetResponse() const { return fResponse; }
+    Float_t GetPrecision() { return fPrecision; }
+    size_t GetDimensions() { return fVariables.size(); }
+    Int_t GetActiveNode() { return fActiveNode; }
+    Double_t GetActiveNodeValue() { return fParameterizationNodes[fActiveNode]; }
 
     Double_t GetRawRate(std::vector<Double_t> point);
     Double_t GetTotalRate();
-
-    Double_t GetBinCenter(Int_t nDim, const Int_t bin);
-
-    TCanvas* DrawComponent(std::vector<std::string> drawVariables, std::vector<std::string> scanVariables,
-                           Int_t binScanSize = 1, TString drawOption = "");
-
     Double_t GetNormalizedRate(std::vector<Double_t> point);
     Double_t GetRate(std::vector<Double_t> point);
 
-    size_t GetDimensions() { return fVariables.size(); }
+    Double_t GetBinCenter(Int_t nDim, const Int_t bin);
 
-    Int_t GetActiveNode() { return fActiveNode; }
+    void SetPrecision(const Float_t& pr) { fPrecision = pr; }
+
     Int_t SetActiveNode(Double_t node);
     Int_t SetActiveNode(Int_t n) {
         fActiveNode = n;
         return fActiveNode;
     }
-    Double_t GetActiveNodeValue() { return fParameterizationNodes[fActiveNode]; }
 
     Bool_t Interpolation() { return fInterpolation; }
     void EnableInterpolation() { fInterpolation = true; }
@@ -131,6 +132,9 @@ class TRestComponent : public TRestMetadata {
     ROOT::RVecD GetRandom();
 
     ROOT::RDF::RNode GetMonteCarloDataFrame(Int_t N = 100);
+
+    TCanvas* DrawComponent(std::vector<std::string> drawVariables, std::vector<std::string> scanVariables,
+                           Int_t binScanSize = 1, TString drawOption = "");
 
     void LoadResponse(const TRestResponse& resp);
 

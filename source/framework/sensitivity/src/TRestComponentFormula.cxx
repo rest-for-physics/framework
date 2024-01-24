@@ -142,7 +142,7 @@ Double_t TRestComponentFormula::GetFormulaRate(std::vector<Double_t> point) {
 /// if the component expression depends on the node parameter it might require
 /// further development.
 ///
-void TRestComponentFormula::FillHistograms(Double_t precision) {
+void TRestComponentFormula::FillHistograms() {
     if (fFormulas.empty()) return;
 
     RESTInfo << "Generating N-dim histogram for " << GetName() << RESTendl;
