@@ -187,9 +187,27 @@ void TRestExperiment::InitFromConfigFile() {
 void TRestExperiment::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    if (fSignal) RESTMetadata << "Signal component : " << fSignal->GetName() << RESTendl;
+    RESTMetadata << "Random seed : " << fSeed << RESTendl;
+    RESTMetadata << " " << RESTendl;
+    if (fExposureTime > 0)
+        RESTMetadata << " - Exposure time : " << fExposureTime* units("s") << " s" << RESTendl;
 
-    if (fBackground) RESTMetadata << "Background component : " << fBackground->GetName() << RESTendl;
+    if (fSignal) RESTMetadata << " - Signal component : " << fSignal->GetName() << RESTendl;
+
+    if (fBackground) RESTMetadata << " - Background component : " << fBackground->GetName() << RESTendl;
+
+    if (fMockData) {
+        RESTMetadata << " " << RESTendl;
+        if (fMockData)
+            RESTMetadata << "The dataset was MC-generated" << RESTendl;
+        else {
+            RESTMetadata << "The dataset was loaded from an existing dataset file" << RESTendl;
+            if (!fDataFile.empty())
+                RESTMetadata << " - Experimental dataset file : " << fDataFile << RESTendl;
+        }
+    }
+
+    RESTMetadata << " - Experimental counts : " << *fExperimentalData.GetDataFrame().Count() << RESTendl;
 
     RESTMetadata << "----" << RESTendl;
 }
