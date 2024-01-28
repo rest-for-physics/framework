@@ -38,7 +38,8 @@
 ///
 /// <hr>
 ///
-#include "TRestSensitivity.h"
+#include <TRestSensitivity.h>
+#include <TRestExperimentList.h>
 
 ClassImp(TRestSensitivity);
 
@@ -52,11 +53,55 @@ TRestSensitivity::TRestSensitivity() { Initialize(); }
 ///
 TRestSensitivity::~TRestSensitivity() {}
 
+/////////////////////////////////////////////
+/// \brief Constructor loading data from a config file
+///
+/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// The default behaviour is that the config file must be specified with
+/// full path, absolute or relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param name The name of the specific metadata. It will be used to find the
+/// corresponding TRestAxionMagneticField section inside the RML.
+///
+TRestSensitivity::TRestSensitivity(const char *cfgFileName, const std::string &name)
+    : TRestMetadata(cfgFileName) {
+    LoadConfigFromFile(fConfigFileName, name);
+}
+
 ///////////////////////////////////////////////
 /// \brief It will initialize the data frame with the filelist and column names
 /// (or observables) that have been defined by the user.
 ///
 void TRestSensitivity::Initialize() { SetSectionName(this->ClassName()); }
+
+/////////////////////////////////////////////
+/// \brief It customizes the retrieval of XML data values of this class
+///
+void TRestSensitivity::InitFromConfigFile() {
+    TRestMetadata::InitFromConfigFile();
+
+    int cont = 0;
+    TRestMetadata *metadata = (TRestMetadata *)this->InstantiateChildMetadata(cont, "Experiment");
+    while (metadata != nullptr) {
+
+        cont++;
+        if (metadata->InheritsFrom("TRestExperimentList")) {
+            TRestExperimentList *experimentsList = (TRestExperimentList *)metadata;
+            std::vector<TRestExperiment *> exList = experimentsList->GetExperiments();
+            fExperiments.insert(fExperiments.end(), exList.begin(), exList.end());
+        } else if (metadata->InheritsFrom("TRestExperiment")) {
+            fExperiments.push_back((TRestExperiment *)metadata);
+        }
+
+        metadata = (TRestMetadata *)this->InstantiateChildMetadata(cont, "Experiment");
+    }
+
+    Initialize();
+}
 
 /////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux

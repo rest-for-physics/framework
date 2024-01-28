@@ -29,13 +29,27 @@
 class TRestSensitivity : public TRestMetadata {
    private:
     /// A list of experimental conditions included to get a final sensitivity plot
-    std::vector<TRestExperiment*> fExperiment;  //<
+    std::vector<TRestExperiment *> fExperiments;  //<
+
+   protected:
+    void InitFromConfigFile() override;
 
    public:
     void Initialize() override;
 
+    std::vector<TRestExperiment *> GetExperiments() { return fExperiments; }
+    TRestExperiment *GetExperiment(const size_t &n) {
+        if (n >= GetNumberOfExperiments())
+            return nullptr;
+        else
+            return fExperiments[n];
+    }
+
+    size_t GetNumberOfExperiments() { return fExperiments.size(); }
+
     void PrintMetadata() override;
 
+    TRestSensitivity(const char *cfgFileName, const std::string &name = "");
     TRestSensitivity();
     ~TRestSensitivity();
 
