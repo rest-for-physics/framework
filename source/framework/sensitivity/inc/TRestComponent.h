@@ -23,6 +23,8 @@
 #ifndef REST_TRestComponent
 #define REST_TRestComponent
 
+#include <TRandom3.h>
+
 #include <TCanvas.h>
 #include <THn.h>
 
@@ -67,7 +69,13 @@ class TRestComponent : public TRestMetadata {
     TRestResponse* fResponse = nullptr;  //<
 
     /// A precision used to select the node value with a given range defined as a fraction of the value
-    Float_t fPrecision = 0.01;
+    Float_t fPrecision = 0.01;  //<
+
+    /// Internal process random generator
+    TRandom3* fRandom = nullptr;  //!
+
+    /// Seed used in random generator
+    UInt_t fSeed = 0;  //<
 
     /// A canvas for drawing the active node component
     TCanvas* fCanvas = nullptr;  //!
@@ -91,6 +99,8 @@ class TRestComponent : public TRestMetadata {
     virtual void FillHistograms() = 0;
 
    public:
+    void Initialize() override;
+
     std::string GetNature() const { return fNature; }
     TRestResponse* GetResponse() const { return fResponse; }
     Float_t GetPrecision() { return fPrecision; }
@@ -147,6 +157,6 @@ class TRestComponent : public TRestMetadata {
     TRestComponent();
     ~TRestComponent();
 
-    ClassDefOverride(TRestComponent, 3);
+    ClassDefOverride(TRestComponent, 4);
 };
 #endif

@@ -77,6 +77,24 @@ TRestComponent::TRestComponent(const char* cfgFileName, const std::string& name)
 ///
 TRestComponent::~TRestComponent() {}
 
+///////////////////////////////////////////////
+/// \brief It initializes the random number. We avoid to define the section name
+/// here since we will never define a TRestComponent section in our RML file,
+/// since this class is pure virtual. It will be the inherited class the
+/// responsible to define the section name.
+///
+void TRestComponent::Initialize() {
+    //   SetSectionName(this->ClassName());
+
+    if (!fRandom) {
+        delete fRandom;
+        fRandom = nullptr;
+    }
+
+    fRandom = new TRandom3(fSeed);
+    fSeed = fRandom->TRandom::GetSeed();
+}
+
 ///////////////////////////////////////////
 /// \brief It returns the position of the fVariable element for the variable
 /// name given by argument.
@@ -487,6 +505,9 @@ void TRestComponent::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     RESTMetadata << "Component nature : " << fNature << RESTendl;
+    RESTMetadata << " " << RESTendl;
+
+    RESTMetadata << "Random seed : " << fSeed << RESTendl;
     RESTMetadata << " " << RESTendl;
 
     if (fVariables.size() != fRanges.size())
