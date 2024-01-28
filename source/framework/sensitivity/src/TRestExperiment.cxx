@@ -164,10 +164,10 @@ void TRestExperiment::InitFromConfigFile() {
         }
     }
 
-    if (fExposureTime > 0 && fDataFile.empty()) {
+    if (fExposureTime > 0 && fExperimentalDataSet.empty()) {
         GenerateMockDataSet();
-    } else if (fExposureTime == 0 && !fDataFile.empty()) {
-        SetExperimentalDataSetFile(fDataFile);
+    } else if (fExposureTime == 0 && !fExperimentalDataSet.empty()) {
+        SetExperimentalDataSetFile(fExperimentalDataSet);
 
     } else {
         RESTError << "The exposure time is not zero and the experimental data filename was defined!"
@@ -202,8 +202,8 @@ void TRestExperiment::PrintMetadata() {
             RESTMetadata << "The dataset was MC-generated" << RESTendl;
         else {
             RESTMetadata << "The dataset was loaded from an existing dataset file" << RESTendl;
-            if (!fDataFile.empty())
-                RESTMetadata << " - Experimental dataset file : " << fDataFile << RESTendl;
+            if (!fExperimentalDataSet.empty())
+                RESTMetadata << " - Experimental dataset file : " << fExperimentalDataSet << RESTendl;
         }
     }
 

@@ -42,7 +42,7 @@ class TRestExperiment : public TRestMetadata {
     TRestComponent* fSignal = nullptr;  //<
 
     /// It defines the filename used to load the dataset
-    std::string fDataFile = "";
+    std::string fExperimentalDataSet = "";
 
     /// It contains the experimental data (should contain same columns as the components)
     TRestDataSet fExperimentalData;  //<
@@ -69,8 +69,8 @@ class TRestExperiment : public TRestMetadata {
     void SetBackground(TRestComponent* comp) { fBackground = comp; }
 
     void SetExperimentalDataSetFile(const std::string& filename) {
-        fDataFile = SearchFile(filename);
-        fExperimentalData.Import(fDataFile);
+        fExperimentalDataSet = SearchFile(filename);
+        fExperimentalData.Import(fExperimentalDataSet);
         fExposureTime = fExperimentalData.GetTotalTimeInSeconds() * units("s");
 
         fMockData = false;
