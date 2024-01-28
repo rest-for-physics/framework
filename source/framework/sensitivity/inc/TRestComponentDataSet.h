@@ -34,11 +34,18 @@ class TRestComponentDataSet : public TRestComponent {
     /// A list with the dataset columns used to weight the distribution density and define rate
     std::vector<std::string> fWeights;  //<
 
-    /// It defines the number of entries for each parameterization node (Initialized by the dataset)
+    /// It defines the number of entries in the sample for each parameterization node (Initialized by the
+    /// dataset)
     std::vector<Int_t> fNSimPerNode;  //<
+
+    /// It defines the total number of entries for each parameterization node (Initialized by the dataset)
+    std::vector<Int_t> fTotalSamples;  //<
 
     /// The filename of the dataset used
     std::vector<std::string> fDataSetFileNames;  //<
+
+    /// It introduces a fixed number of samples (if 0 it will take all available samples)
+    Int_t fSamples = 0;
 
     /// TODO we need to define multiple datasets and weigth. The weight will be used
     /// to create a model, such as weighting different background contaminations or

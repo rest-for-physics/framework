@@ -139,6 +139,8 @@ void TRestComponentDataSet::Initialize() {
 void TRestComponentDataSet::PrintMetadata() {
     TRestComponent::PrintMetadata();
 
+    if (fSamples) RESTMetadata << "Data subset samples : " << fSamples << RESTendl;
+
     if (!fDataSetFileNames.empty()) {
         RESTMetadata << " " << RESTendl;
         RESTMetadata << " == Dataset filenames ==" << RESTendl;
@@ -231,12 +233,19 @@ void TRestComponentDataSet::FillHistograms() {
     RESTInfo << "Generating N-dim histograms" << RESTendl;
     int nIndex = 0;
     for (const auto& node : fParameterizationNodes) {
+        Int_t from = 0;
+        Int_t to = 0;
+        if (fSamples > 0 && fTotalSamples[nIndex] - fSamples > 0) {
+            from = fRandom->Integer(fTotalSamples[nIndex] - fSamples);
+            to = from + fSamples;
+        }
+
         ROOT::RDF::RNode df = ROOT::RDataFrame(0);
         //// Yet not tested in the case when we want to define a unique node without filters
         //// Needs to be improved
         if (fParameterizationNodes.size() == 1 && node == -137) {
             RESTInfo << "Creating component with no parameters (full dataset used)" << RESTendl;
-            df = fDataSet.GetDataFrame();
+            df = fDataSet.GetDataFrame().Range(from, to);
             fParameterizationNodes.clear();
         } else {
             RESTInfo << "Creating THnD for parameter " << fParameter << ": " << DoubleToString(node)
@@ -245,7 +254,7 @@ void TRestComponentDataSet::FillHistograms() {
             Double_t pDown = node * (1 - fPrecision / 2);
             std::string filter = fParameter + " < " + DoubleToString(pUp) + " && " + fParameter + " > " +
                                  DoubleToString(pDown);
-            df = fDataSet.GetDataFrame().Filter(filter);
+            df = fDataSet.GetDataFrame().Filter(filter).Range(from, to);
         }
 
         Int_t* bins = new Int_t[fNbins.size()];
@@ -329,6 +338,8 @@ std::vector<Double_t> TRestComponentDataSet::ExtractParameterizationNodes() {
 std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
     if (!fNSimPerNode.empty()) return fNSimPerNode;
 
+    fTotalSamples.clear();
+
     std::vector<Int_t> stats;
     if (!IsDataSetLoaded()) {
         RESTError << "TRestComponentDataSet::ExtractNodeStatistics. Dataset has not been initialized!"
@@ -339,13 +350,24 @@ std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
     RESTInfo << "Counting statistics for each node ..." << RESTendl;
     RESTInfo << "Number of nodes : " << fParameterizationNodes.size() << RESTendl;
     for (const auto& p : fParameterizationNodes) {
+
         Double_t pUp = p * (1 + fPrecision / 2);
         Double_t pDown = p * (1 - fPrecision / 2);
         std::string filter =
             fParameter + " < " + DoubleToString(pUp) + " && " + fParameter + " > " + DoubleToString(pDown);
         RESTInfo << "Counting stats for : " << fParameter << " = " << p << RESTendl;
         auto nEv = fDataSet.GetDataFrame().Filter(filter).Count();
-        RESTInfo << "Counts found : " << *nEv << RESTendl;
+        fTotalSamples.push_back(*nEv);
+        RESTInfo << "Total entries for " << fParameter << ":" << p << " = " << *nEv << RESTendl;
+        if (fSamples != 0) {
+            nEv = fDataSet.GetDataFrame().Filter(filter).Range(fSamples).Count();
+        }
+
+        if ((Int_t) * nEv < fSamples) {
+            RESTWarning << "The number of requested samples (" << fSamples
+                        << ") is higher than the number of dataset entries (" << *nEv << ")" << RESTendl;
+        }
+        RESTInfo << "Samples to be used for " << fParameter << ":" << p << " = " << *nEv << RESTendl;
         stats.push_back(*nEv);
     }
     return stats;
