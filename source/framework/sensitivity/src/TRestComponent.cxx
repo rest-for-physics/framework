@@ -301,7 +301,8 @@ ROOT::RVecD TRestComponent::GetRandom() {
     if (!GetDensity()) {
         for (size_t n = 0; n < GetDimensions(); n++) result.push_back(0);
         RESTWarning << "TRestComponent::GetRandom. Component might not be initialized! Use "
-                       "TRestComponent::Initialize()." << RESTendl;
+                       "TRestComponent::Initialize()."
+                    << RESTendl;
         return result;
     }
 
@@ -345,13 +346,15 @@ TCanvas* TRestComponent::DrawComponent(std::vector<std::string> drawVariables,
                                        TString drawOption) {
     if (drawVariables.size() > 2 || drawVariables.size() == 0) {
         RESTError << "TRestComponent::DrawComponent. The number of variables to be drawn must "
-                     "be 1 or 2!" << RESTendl;
+                     "be 1 or 2!"
+                  << RESTendl;
         return fCanvas;
     }
 
     if (scanVariables.size() > 2 || scanVariables.size() == 0) {
         RESTError << "TRestComponent::DrawComponent. The number of variables to be scanned must "
-                     "be 1 or 2!" << RESTendl;
+                     "be 1 or 2!"
+                  << RESTendl;
         return fCanvas;
     }
 

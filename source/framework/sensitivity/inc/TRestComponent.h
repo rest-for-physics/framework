@@ -23,10 +23,9 @@
 #ifndef REST_TRestComponent
 #define REST_TRestComponent
 
-#include <TRandom3.h>
-
 #include <TCanvas.h>
 #include <THn.h>
+#include <TRandom3.h>
 
 #include <ROOT/RDataFrame.hxx>
 #include <ROOT/RVec.hxx>
