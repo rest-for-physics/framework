@@ -189,8 +189,11 @@ void TRestExperiment::PrintMetadata() {
 
     RESTMetadata << "Random seed : " << fSeed << RESTendl;
     RESTMetadata << " " << RESTendl;
-    if (fExposureTime > 0)
-        RESTMetadata << " - Exposure time : " << fExposureTime* units("s") << " s" << RESTendl;
+    if (fExposureTime > 0) {
+        RESTMetadata << " - Exposure time : " << fExposureTime* units("s") << " seconds" << RESTendl;
+        RESTMetadata << " - Exposure time : " << fExposureTime* units("hr") << " hours" << RESTendl;
+        RESTMetadata << " - Exposure time : " << fExposureTime* units("day") << " days" << RESTendl;
+    }
 
     if (fSignal) RESTMetadata << " - Signal component : " << fSignal->GetName() << RESTendl;
 
