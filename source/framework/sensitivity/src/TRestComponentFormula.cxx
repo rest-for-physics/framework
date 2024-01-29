@@ -142,6 +142,10 @@ Double_t TRestComponentFormula::GetFormulaRate(std::vector<Double_t> point) {
 /// if the component expression depends on the node parameter it might require
 /// further development.
 ///
+/// TODO: The histogram is filled just by evaluating the formula, but it would
+/// be more realistic that we fill the histograms with a number N of entries
+/// that mimic a MC generation scheme similar to TRestComponentDataSet.
+///
 void TRestComponentFormula::FillHistograms() {
     if (fFormulas.empty()) return;
 
