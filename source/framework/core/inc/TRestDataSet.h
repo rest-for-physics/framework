@@ -136,8 +136,7 @@ class TRestDataSet : public TRestMetadata {
     TTree* GetTree() const {
         if (fTree == nullptr && fExternal) {
             RESTInfo << "The tree is not accessible. Only GetDataFrame can be used in an externally "
-                        "generated dataset"
-                     << RESTendl;
+                        "generated dataset" << RESTendl;
             RESTInfo << "You may write a tree using GetDataFrame()->Snapshot(\"MyTree\", \"output.root\");"
                      << RESTendl;
             return fTree;
@@ -195,7 +194,7 @@ class TRestDataSet : public TRestMetadata {
     Bool_t Merge(const TRestDataSet& dS);
     void Import(const std::string& fileName);
     void Import(std::vector<std::string> fileNames);
-    void Export(const std::string& filename);
+    void Export(const std::string& filename, std::vector<std::string> excludeColumns = {});
 
     ROOT::RDF::RNode MakeCut(const TRestCut* cut);
     ROOT::RDF::RNode DefineColumn(const std::string& columnName, const std::string& formula);
