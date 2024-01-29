@@ -65,7 +65,7 @@ TRestExperimentList::~TRestExperimentList() {}
 /// \param cfgFileName A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata.
 ///
-TRestExperimentList::TRestExperimentList(const char *cfgFileName, const std::string &name)
+TRestExperimentList::TRestExperimentList(const char* cfgFileName, const std::string& name)
     : TRestMetadata(cfgFileName) {
     LoadConfigFromFile(fConfigFileName, name);
 }
@@ -85,8 +85,8 @@ void TRestExperimentList::InitFromConfigFile() {
     if (!fExperimentsFile.empty() && fExperiments.empty()) {
         TRestTools::ReadASCIITable(fExperimentsFile, fExperimentsTable);
 
-        for (auto &row : fExperimentsTable)
-            for (auto &el : row) el = REST_StringHelper::ReplaceMathematicalExpressions(el);
+        for (auto& row : fExperimentsTable)
+            for (auto& el : row) el = REST_StringHelper::ReplaceMathematicalExpressions(el);
 
         if (fExperimentsTable.empty()) {
             RESTError << "TRestExperimentList::InitFromConfigFile. The experiments table is empty!"
@@ -97,7 +97,7 @@ void TRestExperimentList::InitFromConfigFile() {
         Int_t nTableColumns = fExperimentsTable[0].size();
 
         int cont = 0;
-        TRestComponent *comp = (TRestComponent *)this->InstantiateChildMetadata(cont, "Component");
+        TRestComponent* comp = (TRestComponent*)this->InstantiateChildMetadata(cont, "Component");
         while (comp != nullptr) {
             if (ToLower(comp->GetNature()) == "background")
                 fBackground = comp;
@@ -107,7 +107,7 @@ void TRestExperimentList::InitFromConfigFile() {
                 RESTWarning << "TRestExperimentList::InitFromConfigFile. Unknown component!" << RESTendl;
 
             cont++;
-            comp = (TRestComponent *)this->InstantiateChildMetadata(cont, "Component");
+            comp = (TRestComponent*)this->InstantiateChildMetadata(cont, "Component");
         }
 
         Int_t nExpectedColumns = 3;
@@ -144,11 +144,11 @@ void TRestExperimentList::InitFromConfigFile() {
         fComponentFiles = TRestTools::GetFilesMatchingPattern(fComponentPattern);
 
         Bool_t generateMockData = false;
-        for (const auto &experimentRow : fExperimentsTable) {
-            TRestExperiment *experiment = new TRestExperiment();
+        for (const auto& experimentRow : fExperimentsTable) {
+            TRestExperiment* experiment = new TRestExperiment();
 
             std::string rowStr = "";
-            for (const auto &el : experimentRow) {
+            for (const auto& el : experimentRow) {
                 rowStr += el + " ";
             }
 
@@ -181,7 +181,7 @@ void TRestExperimentList::InitFromConfigFile() {
             }
 
             if (!fSignal) {
-                TRestComponent *sgnl = (TRestComponent *)GetComponent(experimentRow[column])->Clone();
+                TRestComponent* sgnl = (TRestComponent*)GetComponent(experimentRow[column])->Clone();
                 experiment->SetSignal(sgnl);
                 column++;
             } else {
@@ -189,7 +189,7 @@ void TRestExperimentList::InitFromConfigFile() {
             }
 
             if (!fBackground) {
-                TRestComponent *bck = (TRestComponent *)GetComponent(experimentRow[column])->Clone();
+                TRestComponent* bck = (TRestComponent*)GetComponent(experimentRow[column])->Clone();
                 experiment->SetBackground(bck);
             } else {
                 experiment->SetBackground(fBackground);
@@ -205,16 +205,16 @@ void TRestExperimentList::InitFromConfigFile() {
     }
 }
 
-TRestComponent *TRestExperimentList::GetComponent(std::string compName) {
-    TRestComponent *component = nullptr;
-    for (const auto &c : fComponentFiles) {
-        TFile *f = TFile::Open(c.c_str(), "READ");
-        TObject *obj = f->Get((TString)compName);
+TRestComponent* TRestExperimentList::GetComponent(std::string compName) {
+    TRestComponent* component = nullptr;
+    for (const auto& c : fComponentFiles) {
+        TFile* f = TFile::Open(c.c_str(), "READ");
+        TObject* obj = f->Get((TString)compName);
 
         if (!obj) continue;
 
         if (obj->InheritsFrom("TRestComponent")) {
-            return (TRestComponent *)obj;
+            return (TRestComponent*)obj;
         } else {
             RESTError << "An object named : " << compName
                       << " exists inside the file, but it does not inherit from TRestComponent" << RESTendl;

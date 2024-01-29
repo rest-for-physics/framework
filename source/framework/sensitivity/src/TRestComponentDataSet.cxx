@@ -350,7 +350,6 @@ std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
     RESTInfo << "Counting statistics for each node ..." << RESTendl;
     RESTInfo << "Number of nodes : " << fParameterizationNodes.size() << RESTendl;
     for (const auto& p : fParameterizationNodes) {
-
         Double_t pUp = p * (1 + fPrecision / 2);
         Double_t pDown = p * (1 - fPrecision / 2);
         std::string filter =

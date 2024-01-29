@@ -38,8 +38,8 @@
 ///
 /// <hr>
 ///
-#include <TRestSensitivity.h>
 #include <TRestExperimentList.h>
+#include <TRestSensitivity.h>
 
 ClassImp(TRestSensitivity);
 
@@ -67,7 +67,7 @@ TRestSensitivity::~TRestSensitivity() {}
 /// \param name The name of the specific metadata. It will be used to find the
 /// corresponding TRestAxionMagneticField section inside the RML.
 ///
-TRestSensitivity::TRestSensitivity(const char *cfgFileName, const std::string &name)
+TRestSensitivity::TRestSensitivity(const char* cfgFileName, const std::string& name)
     : TRestMetadata(cfgFileName) {
     LoadConfigFromFile(fConfigFileName, name);
 }
@@ -85,19 +85,18 @@ void TRestSensitivity::InitFromConfigFile() {
     TRestMetadata::InitFromConfigFile();
 
     int cont = 0;
-    TRestMetadata *metadata = (TRestMetadata *)this->InstantiateChildMetadata(cont, "Experiment");
+    TRestMetadata* metadata = (TRestMetadata*)this->InstantiateChildMetadata(cont, "Experiment");
     while (metadata != nullptr) {
-
         cont++;
         if (metadata->InheritsFrom("TRestExperimentList")) {
-            TRestExperimentList *experimentsList = (TRestExperimentList *)metadata;
-            std::vector<TRestExperiment *> exList = experimentsList->GetExperiments();
+            TRestExperimentList* experimentsList = (TRestExperimentList*)metadata;
+            std::vector<TRestExperiment*> exList = experimentsList->GetExperiments();
             fExperiments.insert(fExperiments.end(), exList.begin(), exList.end());
         } else if (metadata->InheritsFrom("TRestExperiment")) {
-            fExperiments.push_back((TRestExperiment *)metadata);
+            fExperiments.push_back((TRestExperiment*)metadata);
         }
 
-        metadata = (TRestMetadata *)this->InstantiateChildMetadata(cont, "Experiment");
+        metadata = (TRestMetadata*)this->InstantiateChildMetadata(cont, "Experiment");
     }
 
     Initialize();
