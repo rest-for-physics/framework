@@ -328,6 +328,21 @@ ROOT::RDF::RNode TRestComponent::GetMonteCarloDataFrame(Int_t N) {
         df = df.Define(varName, FillRand, {"Rndm"});
     }
 
+    /* Excluding Rndm from df */
+    std::vector<std::string> columns = df.GetColumnNames();
+    std::vector<std::string> excludeColumns = {"Rndm"};
+    columns.erase(std::remove_if(columns.begin(), columns.end(), [&excludeColumns](std::string elem) {
+                      return std::find(excludeColumns.begin(), excludeColumns.end(), elem) !=
+                             excludeColumns.end();
+                  }),
+                  columns.end());
+
+    std::string user = getenv("USER");
+    std::string fOutName = "/tmp/rest_output_" + user + ".root";
+    df.Snapshot("AnalysisTree", fOutName, columns);
+
+    df = ROOT::RDataFrame("AnalysisTree", fOutName);
+
     return df;
 }
 
