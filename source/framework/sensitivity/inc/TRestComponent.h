@@ -99,6 +99,7 @@ class TRestComponent : public TRestMetadata {
 
    public:
     void Initialize() override;
+    void RegenerateHistograms(UInt_t seed = 0);
 
     std::string GetNature() const { return fNature; }
     TRestResponse* GetResponse() const { return fResponse; }

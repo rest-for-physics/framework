@@ -95,6 +95,21 @@ void TRestComponent::Initialize() {
     fSeed = fRandom->TRandom::GetSeed();
 }
 
+/////////////////////////////////////////////
+/// \brief It will produce a histogram with the distribution defined using the
+/// variables and the weights for each of the parameter nodes.
+///
+/// fPrecision is used to define the active node
+///
+void TRestComponent::RegenerateHistograms(UInt_t seed) {
+    fNodeDensity.clear();
+
+    fSeed = seed;
+    TRestComponent::Initialize();
+
+    FillHistograms();
+}
+
 ///////////////////////////////////////////
 /// \brief It returns the position of the fVariable element for the variable
 /// name given by argument.
