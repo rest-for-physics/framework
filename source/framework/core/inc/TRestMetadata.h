@@ -332,8 +332,8 @@ class TRestMetadata : public TNamed {
     ~TRestMetadata();
 
     // Making class constructors protected to keep this class abstract
-    TRestMetadata& operator=(const TRestMetadata&) = delete;
-    TRestMetadata(const TRestMetadata&) = delete;
+    TRestMetadata& operator=(const TRestMetadata&);
+    TRestMetadata(const TRestMetadata&);
 
     /// Call CINT to generate streamers for this class
     ClassDef(TRestMetadata, 9);
