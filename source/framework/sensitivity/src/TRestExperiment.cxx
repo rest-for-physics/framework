@@ -168,14 +168,44 @@ void TRestExperiment::InitFromConfigFile() {
         GenerateMockDataSet();
     } else if (fExposureTime == 0 && !fExperimentalDataSet.empty()) {
         SetExperimentalDataSetFile(fExperimentalDataSet);
-
     } else {
-        RESTError << "The exposure time is not zero and the experimental data filename was defined!"
+        RESTWarning << "The exposure time is not zero but a experimental data filename was defined!"
+                    << RESTendl;
+        RESTWarning << "The exposure time will be recovered from the dataset duration. To avoid confusion is"
+                    << RESTendl;
+        RESTWarning << "better that you set exposure time to zero inside the RML definition," << RESTendl;
+        RESTError
+            << " or do not define a dataset if you wish to generate mock data using the exposure time given"
+            << RESTendl;
+    }
+
+    /// Checking that signal/background/tracking got the same variable names and ranges
+    if (fSignal->GetVariables() != fBackground->GetVariables()) {
+        RESTError << "TRestExperiment : " << GetName() << RESTendl;
+        RESTError << "Background and signal components got different variable names or variable ordering!"
                   << RESTendl;
-        RESTError << "The exposure time will be defined by the dataset duration. Set exposure time to zero,"
-                  << RESTendl;
-        RESTError << " or do not define a dataset to generate mock data using the exposure time given"
-                  << RESTendl;
+        RESTError << "This will lead to undesired results during Likelihood calculation!" << RESTendl;
+        return;
+    }
+
+    if (fSignal->GetNbins() != fBackground->GetNbins()) {
+        RESTError << "TRestExperiment : " << GetName() << RESTendl;
+        RESTError << "Background and signal components got different binning values!" << RESTendl;
+        RESTError << "This will lead to undesired results during Likelihood calculation!" << RESTendl;
+        return;
+    }
+
+    cont = 0;
+    std::vector<TVector2> bckRanges = fBackground->GetRanges();
+    std::vector<TVector2> sgnlRanges = fSignal->GetRanges();
+    for (const TVector2& sRange : sgnlRanges) {
+        if (sRange.X() != bckRanges[cont].X() || sRange.Y() != bckRanges[cont].Y()) {
+            RESTError << "TRestExperiment : " << GetName() << RESTendl;
+            RESTError << "Background and signal components got different range definitions!" << RESTendl;
+            RESTError << "This will lead to undesired results during Likelihood calculation!" << RESTendl;
+            return;
+        }
+        cont++;
     }
 
     Initialize();
