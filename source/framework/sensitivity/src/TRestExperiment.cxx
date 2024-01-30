@@ -124,7 +124,8 @@ void TRestExperiment::SetExperimentalDataSetFile(const std::string& filename) {
 
     if (!fSignal || !fBackground) {
         RESTWarning << "TRestExperiment::SetExperimentalDataSetFile. Signal and background components must "
-                       "be available before atempt to load experimental data" << RESTendl;
+                       "be available before atempt to load experimental data"
+                    << RESTendl;
         fDataReady = false;
         return;
     }
@@ -133,7 +134,8 @@ void TRestExperiment::SetExperimentalDataSetFile(const std::string& filename) {
     for (const auto& v : fSignal->GetVariables()) {
         if (std::find(columns.begin(), columns.end(), v) == columns.end()) {
             RESTError << "TRestExperiment::SetExperimentalDataSetFile a component variable was not found in "
-                         "the dataset!" << RESTendl;
+                         "the dataset!"
+                      << RESTendl;
             fDataReady = false;
             return;
         }
