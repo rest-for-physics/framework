@@ -80,11 +80,13 @@ class TRestExperiment : public TRestMetadata {
         /// variables
     }
 
-    Double_t GetExposureInSeconds() { return fExposureTime * units("s"); }
+    Double_t GetExposureInSeconds() const { return fExposureTime * units("s"); }
     TRestComponent* GetBackground() const { return fBackground; }
     TRestComponent* GetSignal() const { return fSignal; }
     TRestDataSet& GetExperimentalDataSet() { return fExperimentalData; }
     ROOT::RDF::RNode GetExperimentalDataFrame() { return fExperimentalData.GetDataFrame(); }
+
+    void PrintExperimentalData() { GetExperimentalDataFrame().Display("")->Print(); }
 
     void Initialize() override;
 
