@@ -101,6 +101,8 @@ class TRestComponent : public TRestMetadata {
     void Initialize() override;
     void RegenerateHistograms(UInt_t seed = 0);
 
+    virtual void RegenerateActiveNodeDensity() {}
+
     std::string GetNature() const { return fNature; }
     TRestResponse* GetResponse() const { return fResponse; }
     Float_t GetPrecision() { return fPrecision; }

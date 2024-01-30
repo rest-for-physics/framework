@@ -63,6 +63,8 @@ class TRestComponentDataSet : public TRestComponent {
     Bool_t ValidDataSet();
 
    protected:
+    void RegenerateActiveNodeDensity() override;
+
     std::vector<Double_t> ExtractParameterizationNodes();
     std::vector<Int_t> ExtractNodeStatistics();
     void FillHistograms() override;

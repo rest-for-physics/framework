@@ -294,6 +294,71 @@ void TRestComponentDataSet::FillHistograms() {
 }
 
 /////////////////////////////////////////////
+/// \brief It will regenerate the density histogram for the active node. It is
+/// practical in the case when the number of samples fSamples is lower than the total
+/// number of samples. The density distribution will be then re-generated with a
+/// different random sample.
+///
+void TRestComponentDataSet::RegenerateActiveNodeDensity() {
+
+    if (fActiveNode >= 0 && fNodeDensity[fActiveNode]) {
+        delete fNodeDensity[fActiveNode];
+    } else {
+        RESTError << "TRestComponentDataSet::RegenerateActiveNode. Active node undefined!" << RESTendl;
+        return;
+    }
+
+    Int_t from = 0;
+    Int_t to = 0;
+    if (fSamples > 0 && fTotalSamples[fActiveNode] - fSamples > 0) {
+        from = fRandom->Integer(fTotalSamples[fActiveNode] - fSamples);
+        to = from + fSamples;
+    }
+
+    Double_t node = GetActiveNodeValue();
+    RESTInfo << "Creating THnD for parameter " << fParameter << ": " << DoubleToString(node) << RESTendl;
+
+    ROOT::RDF::RNode df = ROOT::RDataFrame(0);
+    Double_t pUp = node * (1 + fPrecision / 2);
+    Double_t pDown = node * (1 - fPrecision / 2);
+    std::string filter =
+        fParameter + " < " + DoubleToString(pUp) + " && " + fParameter + " > " + DoubleToString(pDown);
+    df = fDataSet.GetDataFrame().Filter(filter).Range(from, to);
+
+    Int_t* bins = new Int_t[fNbins.size()];
+    Double_t* xmin = new Double_t[fNbins.size()];
+    Double_t* xmax = new Double_t[fNbins.size()];
+
+    for (size_t n = 0; n < fNbins.size(); n++) {
+        bins[n] = fNbins[n];
+        xmin[n] = fRanges[n].X();
+        xmax[n] = fRanges[n].Y();
+    }
+
+    TString hName = fParameter + "_" + DoubleToString(node);
+    if (fParameterizationNodes.empty()) hName = "full";
+
+    std::vector<std::string> varsAndWeight = fVariables;
+
+    if (!fWeights.empty()) {
+        std::string weightsStr = "";
+        for (size_t n = 0; n < fWeights.size(); n++) {
+            if (n > 0) weightsStr += "*";
+
+            weightsStr += fWeights[n];
+        }
+        df = df.Define("componentWeight", weightsStr);
+        varsAndWeight.push_back("componentWeight");
+    }
+
+    auto hn = df.HistoND({hName, hName, (int)fNbins.size(), bins, xmin, xmax}, varsAndWeight);
+    THnD* hNd = new THnD(*hn);
+    hNd->Scale(1. / fNSimPerNode[fActiveNode]);
+
+    fNodeDensity[fActiveNode] = hNd;
+}
+
+/////////////////////////////////////////////
 /// \brief It returns a vector with all the different values found on
 /// the dataset column for the user given parameterization variable.
 ///
@@ -362,7 +427,7 @@ std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
             nEv = fDataSet.GetDataFrame().Filter(filter).Range(fSamples).Count();
         }
 
-        if ((Int_t)*nEv < fSamples) {
+        if ((Int_t) * nEv < fSamples) {
             RESTWarning << "The number of requested samples (" << fSamples
                         << ") is higher than the number of dataset entries (" << *nEv << ")" << RESTendl;
         }
