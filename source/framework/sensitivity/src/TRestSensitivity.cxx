@@ -67,7 +67,7 @@ TRestSensitivity::~TRestSensitivity() {}
 /// \param name The name of the specific metadata. It will be used to find the
 /// corresponding TRestAxionMagneticField section inside the RML.
 ///
-TRestSensitivity::TRestSensitivity(const char* cfgFileName, const std::string& name)
+TRestSensitivity::TRestSensitivity(const char *cfgFileName, const std::string &name)
     : TRestMetadata(cfgFileName) {
     LoadConfigFromFile(fConfigFileName, name);
 }
@@ -78,6 +78,110 @@ TRestSensitivity::TRestSensitivity(const char* cfgFileName, const std::string& n
 ///
 void TRestSensitivity::Initialize() { SetSectionName(this->ClassName()); }
 
+///////////////////////////////////////////////
+/// \brief It will return a value of the coupling, g4, such that (chi-chi0) gets
+/// closer to the target value given by argument. The factor will be used to
+/// increase or decrease the coupling, and evaluate the likelihood.
+///
+Double_t TRestSensitivity::ApproachByFactor(Double_t g4, Double_t chi0, Double_t target, Double_t factor) {
+    if (factor == 1) {
+        return 0;
+    }
+
+    /// Coarse movement to get to Chi2 above target
+    Double_t Chi2 = 0;
+    do {
+        Chi2 = 0;
+        for (const auto &exp : fExperiments) Chi2 += -2 * UnbinnedLogLikelihood(exp, g4);
+
+        g4 = factor * g4;
+    } while (Chi2 - chi0 < target);
+    g4 = g4 / factor;
+
+    /// Coarse movement to get to Chi2 below target (/2)
+    do {
+        Chi2 = 0;
+        for (const auto &exp : fExperiments) Chi2 += -2 * UnbinnedLogLikelihood(exp, g4);
+
+        g4 = g4 / factor;
+    } while (Chi2 - chi0 > target);
+
+    return g4 * factor;
+}
+
+///////////////////////////////////////////////
+/// \brief It will return the coupling value for which Chi=sigma
+///
+Double_t TRestSensitivity::GetCoupling(Double_t sigma, Double_t precision) {
+    Double_t Chi2_0 = 0;
+    for (const auto &exp : fExperiments) Chi2_0 += -2 * UnbinnedLogLikelihood(exp, 0);
+
+    Double_t target = sigma * sigma;
+
+    Double_t g4 = 0.5;
+
+    g4 = ApproachByFactor(g4, Chi2_0, target, 2);
+    g4 = ApproachByFactor(g4, Chi2_0, target, 1.2);
+    g4 = ApproachByFactor(g4, Chi2_0, target, 1.02);
+    g4 = ApproachByFactor(g4, Chi2_0, target, 1.0002);
+
+    return g4;
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the Log(L) for the experiment and coupling given by argument.
+///
+Double_t TRestSensitivity::UnbinnedLogLikelihood(const TRestExperiment *experiment, Double_t g4) {
+    Double_t lhood = 0;
+    if (!experiment->IsDataReady()) {
+        RESTError << "TRestSensitivity::UnbinnedLogLikelihood. Experiment " << experiment->GetName()
+                  << " is not ready!" << RESTendl;
+        return lhood;
+    }
+
+    Double_t signal = g4 * experiment->GetSignal()->GetTotalRate() * experiment->GetExposureInSeconds();
+
+    lhood = -signal;
+
+    /*
+    std::cout << "Total rate: " << experiment->GetSignal()->GetTotalRate() << std::endl;
+    std::cout << "Exposure: " << experiment->GetExposureInSeconds() << std::endl;
+    std::cout << "Signal : " << signal << std::endl;
+    */
+
+    if (ROOT::IsImplicitMTEnabled()) ROOT::DisableImplicitMT();
+
+    std::vector<std::vector<Double_t>> trackingData;
+    for (const auto &var : experiment->GetSignal()->GetVariables()) {
+        auto values = experiment->GetExperimentalDataFrame().Take<Double_t>(var);
+        std::vector<Double_t> vDbl = std::move(*values);
+        trackingData.push_back(vDbl);
+    }
+
+    for (size_t n = 0; n < trackingData[0].size(); n++) {
+        std::vector<Double_t> point;
+        for (size_t m = 0; m < trackingData.size(); m++) point.push_back(trackingData[m][n]);
+
+        Double_t bckRate = experiment->GetBackground()->GetRate(point);
+        Double_t sgnlRate = experiment->GetSignal()->GetRate(point);
+
+        Double_t expectedRate = bckRate + g4 * sgnlRate;
+        lhood += TMath::Log(expectedRate);
+    }
+
+    /*
+      if( lhood == 0 )
+      GetChar();
+
+    if (isinf(lhood) || isnan(lhood)) {
+        cout << "IS INF" << endl;
+        GetChar();
+    }
+    */
+
+    return lhood;
+}
+
 /////////////////////////////////////////////
 /// \brief It customizes the retrieval of XML data values of this class
 ///
@@ -85,18 +189,18 @@ void TRestSensitivity::InitFromConfigFile() {
     TRestMetadata::InitFromConfigFile();
 
     int cont = 0;
-    TRestMetadata* metadata = (TRestMetadata*)this->InstantiateChildMetadata(cont, "Experiment");
+    TRestMetadata *metadata = (TRestMetadata *)this->InstantiateChildMetadata(cont, "Experiment");
     while (metadata != nullptr) {
         cont++;
         if (metadata->InheritsFrom("TRestExperimentList")) {
-            TRestExperimentList* experimentsList = (TRestExperimentList*)metadata;
-            std::vector<TRestExperiment*> exList = experimentsList->GetExperiments();
+            TRestExperimentList *experimentsList = (TRestExperimentList *)metadata;
+            std::vector<TRestExperiment *> exList = experimentsList->GetExperiments();
             fExperiments.insert(fExperiments.end(), exList.begin(), exList.end());
         } else if (metadata->InheritsFrom("TRestExperiment")) {
-            fExperiments.push_back((TRestExperiment*)metadata);
+            fExperiments.push_back((TRestExperiment *)metadata);
         }
 
-        metadata = (TRestMetadata*)this->InstantiateChildMetadata(cont, "Experiment");
+        metadata = (TRestMetadata *)this->InstantiateChildMetadata(cont, "Experiment");
     }
 
     Initialize();

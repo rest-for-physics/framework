@@ -34,8 +34,13 @@ class TRestSensitivity : public TRestMetadata {
    protected:
     void InitFromConfigFile() override;
 
+    Double_t UnbinnedLogLikelihood(const TRestExperiment* experiment, Double_t g4 = 0);
+    Double_t ApproachByFactor(Double_t g4, Double_t chi0, Double_t target, Double_t factor);
+
    public:
     void Initialize() override;
+
+    Double_t GetCoupling(Double_t sigma = 2, Double_t precision = 0.01);
 
     std::vector<TRestExperiment*> GetExperiments() { return fExperiments; }
     TRestExperiment* GetExperiment(const size_t& n) {
