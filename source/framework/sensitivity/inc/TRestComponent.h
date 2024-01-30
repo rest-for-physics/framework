@@ -108,6 +108,10 @@ class TRestComponent : public TRestMetadata {
     Int_t GetActiveNode() { return fActiveNode; }
     Double_t GetActiveNodeValue() { return fParameterizationNodes[fActiveNode]; }
 
+    std::vector<std::string> GetVariables() const { return fVariables; }
+    std::vector<TVector2> GetRanges() const { return fRanges; }
+    std::vector<Int_t> GetNbins() const { return fNbins; }
+
     Double_t GetRawRate(std::vector<Double_t> point);
     Double_t GetTotalRate();
     Double_t GetNormalizedRate(std::vector<Double_t> point);
