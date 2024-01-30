@@ -50,6 +50,9 @@ class TRestExperiment : public TRestMetadata {
     /// If enabled it means that the experimental data was MC-generated
     Bool_t fMockData = false;  //<
 
+    /// Only if it is true we will be able to calculate the LogLikelihood
+    Bool_t fDataReady = false;  //<
+
     /// Internal process random generator
     TRandom3* fRandom = nullptr;  //!
 
@@ -62,29 +65,20 @@ class TRestExperiment : public TRestMetadata {
    public:
     void GenerateMockDataSet();
 
-    Bool_t IsMockData() { return fMockData; }
+    Bool_t IsMockData() const { return fMockData; }
+    Bool_t IsDataReady() const { return fDataReady; }
 
     void SetExposureInSeconds(const Double_t exposure) { fExposureTime = exposure / units("s"); }
     void SetSignal(TRestComponent* comp) { fSignal = comp; }
     void SetBackground(TRestComponent* comp) { fBackground = comp; }
 
-    void SetExperimentalDataSetFile(const std::string& filename) {
-        fExperimentalDataSet = SearchFile(filename);
-        fExperimentalData.Import(fExperimentalDataSet);
-        fExposureTime = fExperimentalData.GetTotalTimeInSeconds() * units("s");
-
-        fMockData = false;
-
-        /// TODO : We need to check here that the experimental data got the same variables as the components.
-        /// Or we need to create a way to connect the column names to be used in the dataset with the
-        /// variables
-    }
+    void SetExperimentalDataSetFile(const std::string& filename);
 
     Double_t GetExposureInSeconds() const { return fExposureTime * units("s"); }
     TRestComponent* GetBackground() const { return fBackground; }
     TRestComponent* GetSignal() const { return fSignal; }
-    TRestDataSet& GetExperimentalDataSet() { return fExperimentalData; }
-    ROOT::RDF::RNode GetExperimentalDataFrame() { return fExperimentalData.GetDataFrame(); }
+    TRestDataSet GetExperimentalDataSet() const { return fExperimentalData; }
+    ROOT::RDF::RNode GetExperimentalDataFrame() const { return fExperimentalData.GetDataFrame(); }
 
     void PrintExperimentalData() { GetExperimentalDataFrame().Display("")->Print(); }
 

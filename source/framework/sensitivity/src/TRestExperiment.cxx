@@ -109,6 +109,35 @@ void TRestExperiment::GenerateMockDataSet() {
     fExperimentalData.SetTotalTimeInSeconds(fExposureTime * units("s"));
 
     fMockData = true;
+    fDataReady = true;
+}
+
+void TRestExperiment::SetExperimentalDataSetFile(const std::string& filename) {
+    fExperimentalDataSet = SearchFile(filename);
+    fExperimentalData.Import(fExperimentalDataSet);
+
+    /// fExposureTime is in standard REST units : us
+    fExposureTime = fExperimentalData.GetTotalTimeInSeconds() / units("s");
+
+    fMockData = false;
+    fDataReady = true;
+
+    if (!fSignal || !fBackground) {
+        RESTWarning << "TRestExperiment::SetExperimentalDataSetFile. Signal and background components must "
+                       "be available before atempt to load experimental data" << RESTendl;
+        fDataReady = false;
+        return;
+    }
+
+    std::vector<std::string> columns = fExperimentalData.GetDataFrame().GetColumnNames();
+    for (const auto& v : fSignal->GetVariables()) {
+        if (std::find(columns.begin(), columns.end(), v) == columns.end()) {
+            RESTError << "TRestExperiment::SetExperimentalDataSetFile a component variable was not found in "
+                         "the dataset!" << RESTendl;
+            fDataReady = false;
+            return;
+        }
+    }
 }
 
 /////////////////////////////////////////////
