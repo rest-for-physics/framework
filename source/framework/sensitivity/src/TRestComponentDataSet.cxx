@@ -306,7 +306,6 @@ void TRestComponentDataSet::FillHistograms() {
 /// different random sample.
 ///
 void TRestComponentDataSet::RegenerateActiveNodeDensity() {
-
     if (fActiveNode >= 0 && fNodeDensity[fActiveNode]) {
         delete fNodeDensity[fActiveNode];
     } else {
@@ -434,7 +433,7 @@ std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
             nEv = fDataSet.GetDataFrame().Filter(filter).Range(fSamples).Count();
         }
 
-        if ((Int_t) * nEv < fSamples) {
+        if ((Int_t)*nEv < fSamples) {
             RESTWarning << "The number of requested samples (" << fSamples
                         << ") is higher than the number of dataset entries (" << *nEv << ")" << RESTendl;
         }

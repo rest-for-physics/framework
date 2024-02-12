@@ -188,18 +188,17 @@ else ()
     set(REST_MPFR OFF)
 endif (${REST_MPFR} MATCHES "ON")
 
-#### GSL ####
-# Find GSL
+# GSL #### Find GSL
 find_package(GSL REQUIRED)
 
 # Include GSL directories
 set(external_include_dirs ${external_include_dirs} ${GSL_INCLUDE_DIRS})
 
 # Link GSL libraries
-set(external_libs ${external_libs};${GSL_LIBRARIES} )
+set(external_libs ${external_libs};${GSL_LIBRARIES})
 
-message ( STATUS "Found GSL libraries : ${GSL_LIBRARIES}") 
-message ( STATUS "GSL headers : ${GSL_INCLUDE_DIRS}") 
+message(STATUS "Found GSL libraries : ${GSL_LIBRARIES}")
+message(STATUS "GSL headers : ${GSL_INCLUDE_DIRS}")
 
 # CURL  #####
 find_library(CURL_LIB curl)

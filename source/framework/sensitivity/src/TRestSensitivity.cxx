@@ -67,7 +67,7 @@ TRestSensitivity::~TRestSensitivity() {}
 /// \param name The name of the specific metadata. It will be used to find the
 /// corresponding TRestAxionMagneticField section inside the RML.
 ///
-TRestSensitivity::TRestSensitivity(const char *cfgFileName, const std::string &name)
+TRestSensitivity::TRestSensitivity(const char* cfgFileName, const std::string& name)
     : TRestMetadata(cfgFileName) {
     LoadConfigFromFile(fConfigFileName, name);
 }
@@ -92,7 +92,7 @@ Double_t TRestSensitivity::ApproachByFactor(Double_t g4, Double_t chi0, Double_t
     Double_t Chi2 = 0;
     do {
         Chi2 = 0;
-        for (const auto &exp : fExperiments) Chi2 += -2 * UnbinnedLogLikelihood(exp, g4);
+        for (const auto& exp : fExperiments) Chi2 += -2 * UnbinnedLogLikelihood(exp, g4);
 
         g4 = factor * g4;
     } while (Chi2 - chi0 < target);
@@ -101,7 +101,7 @@ Double_t TRestSensitivity::ApproachByFactor(Double_t g4, Double_t chi0, Double_t
     /// Coarse movement to get to Chi2 below target (/2)
     do {
         Chi2 = 0;
-        for (const auto &exp : fExperiments) Chi2 += -2 * UnbinnedLogLikelihood(exp, g4);
+        for (const auto& exp : fExperiments) Chi2 += -2 * UnbinnedLogLikelihood(exp, g4);
 
         g4 = g4 / factor;
     } while (Chi2 - chi0 > target);
@@ -114,7 +114,7 @@ Double_t TRestSensitivity::ApproachByFactor(Double_t g4, Double_t chi0, Double_t
 ///
 Double_t TRestSensitivity::GetCoupling(Double_t sigma, Double_t precision) {
     Double_t Chi2_0 = 0;
-    for (const auto &exp : fExperiments) Chi2_0 += -2 * UnbinnedLogLikelihood(exp, 0);
+    for (const auto& exp : fExperiments) Chi2_0 += -2 * UnbinnedLogLikelihood(exp, 0);
 
     Double_t target = sigma * sigma;
 
@@ -131,7 +131,7 @@ Double_t TRestSensitivity::GetCoupling(Double_t sigma, Double_t precision) {
 ///////////////////////////////////////////////
 /// \brief It returns the Log(L) for the experiment and coupling given by argument.
 ///
-Double_t TRestSensitivity::UnbinnedLogLikelihood(const TRestExperiment *experiment, Double_t g4) {
+Double_t TRestSensitivity::UnbinnedLogLikelihood(const TRestExperiment* experiment, Double_t g4) {
     Double_t lhood = 0;
     if (!experiment->IsDataReady()) {
         RESTError << "TRestSensitivity::UnbinnedLogLikelihood. Experiment " << experiment->GetName()
@@ -146,7 +146,7 @@ Double_t TRestSensitivity::UnbinnedLogLikelihood(const TRestExperiment *experime
     if (ROOT::IsImplicitMTEnabled()) ROOT::DisableImplicitMT();
 
     std::vector<std::vector<Double_t>> trackingData;
-    for (const auto &var : experiment->GetSignal()->GetVariables()) {
+    for (const auto& var : experiment->GetSignal()->GetVariables()) {
         auto values = experiment->GetExperimentalDataFrame().Take<Double_t>(var);
         std::vector<Double_t> vDbl = std::move(*values);
         trackingData.push_back(vDbl);
@@ -169,11 +169,10 @@ Double_t TRestSensitivity::UnbinnedLogLikelihood(const TRestExperiment *experime
 ///////////////////////////////////////////////
 /// \brief
 ///
-TH1D *TRestSensitivity::SignalStatisticalTest(Int_t N) {
-
+TH1D* TRestSensitivity::SignalStatisticalTest(Int_t N) {
     std::vector<Double_t> couplings;
     for (int n = 0; n < N; n++) {
-        for (const auto &exp : fExperiments) exp->GetSignal()->RegenerateActiveNodeDensity();
+        for (const auto& exp : fExperiments) exp->GetSignal()->RegenerateActiveNodeDensity();
 
         Double_t coupling = TMath::Sqrt(TMath::Sqrt(GetCoupling()));
         couplings.push_back(coupling);
@@ -185,7 +184,7 @@ TH1D *TRestSensitivity::SignalStatisticalTest(Int_t N) {
 
     if (fSignalTest) delete fSignalTest;
     fSignalTest = new TH1D("SignalTest", "A signal test", 100, 0.9 * min_value, 1.1 * max_value);
-    for (const auto &coup : couplings) fSignalTest->Fill(coup);
+    for (const auto& coup : couplings) fSignalTest->Fill(coup);
 
     return fSignalTest;
 }
@@ -197,18 +196,18 @@ void TRestSensitivity::InitFromConfigFile() {
     TRestMetadata::InitFromConfigFile();
 
     int cont = 0;
-    TRestMetadata *metadata = (TRestMetadata *)this->InstantiateChildMetadata(cont, "Experiment");
+    TRestMetadata* metadata = (TRestMetadata*)this->InstantiateChildMetadata(cont, "Experiment");
     while (metadata != nullptr) {
         cont++;
         if (metadata->InheritsFrom("TRestExperimentList")) {
-            TRestExperimentList *experimentsList = (TRestExperimentList *)metadata;
-            std::vector<TRestExperiment *> exList = experimentsList->GetExperiments();
+            TRestExperimentList* experimentsList = (TRestExperimentList*)metadata;
+            std::vector<TRestExperiment*> exList = experimentsList->GetExperiments();
             fExperiments.insert(fExperiments.end(), exList.begin(), exList.end());
         } else if (metadata->InheritsFrom("TRestExperiment")) {
-            fExperiments.push_back((TRestExperiment *)metadata);
+            fExperiments.push_back((TRestExperiment*)metadata);
         }
 
-        metadata = (TRestMetadata *)this->InstantiateChildMetadata(cont, "Experiment");
+        metadata = (TRestMetadata*)this->InstantiateChildMetadata(cont, "Experiment");
     }
 
     Initialize();

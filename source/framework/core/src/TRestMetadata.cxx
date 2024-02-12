@@ -1168,9 +1168,10 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
                 }
             }
 
-            e->SetAttribute(name, ReplaceMathematicalExpressions(outputBuffer, 0,
-                                                                 "Please, check parameter name: " + parName +
-                                                                     " (ReplaceForLoopVars)").c_str());
+            e->SetAttribute(name, ReplaceMathematicalExpressions(
+                                      outputBuffer, 0,
+                                      "Please, check parameter name: " + parName + " (ReplaceForLoopVars)")
+                                      .c_str());
         }
 
         attr = attr->Next();
@@ -1327,7 +1328,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
             TiXmlElement* ele = GetElementFromFile(filename);
             if (ele == nullptr) {
                 RESTError << "TRestMetadata::ExpandIncludeFile. No xml elements contained in the include "
-                             "file \"" << filename << "\"" << RESTendl;
+                             "file \""
+                          << filename << "\"" << RESTendl;
                 exit(1);
             }
             while (ele != nullptr) {
@@ -1409,7 +1411,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
 
                 if (remoteele == nullptr) {
                     RESTWarning << "Cannot find the needed xml section in "
-                                   "include file!" << RESTendl;
+                                   "include file!"
+                                << RESTendl;
                     RESTWarning << "type: \"" << type << "\" , name: \"" << name << "\" . Skipping"
                                 << RESTendl;
                     RESTWarning << RESTendl;
@@ -2292,7 +2295,8 @@ TString TRestMetadata::GetLibraryVersion() { return fLibraryVersion; }
 void TRestMetadata::ReSetVersion() {
     if (!this->InheritsFrom("TRestRun"))
         RESTError << "version is a static value, you cannot set version "
-                     "for a class!" << RESTendl;
+                     "for a class!"
+                  << RESTendl;
     else {
         fVersion = REST_RELEASE;
     }
@@ -2304,7 +2308,8 @@ void TRestMetadata::ReSetVersion() {
 void TRestMetadata::UnSetVersion() {
     if (!this->InheritsFrom("TRestRun"))
         RESTError << "version is a static value, you cannot set version "
-                     "for a class!" << RESTendl;
+                     "for a class!"
+                  << RESTendl;
     else {
         fVersion = -1;
         fCommit = -1;
@@ -2571,7 +2576,8 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
                     } else {
                         RESTWarning << this->ClassName() << " find unit definition in parameter: " << name
                                     << ", but the corresponding data member doesn't support it. Data "
-                                       "member type: " << datamember.type << RESTendl;
+                                       "member type: "
+                                    << datamember.type << RESTendl;
                         datamember.ParseString(value);
                     }
                 } else {
