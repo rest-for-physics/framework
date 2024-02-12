@@ -117,8 +117,7 @@ void TRestExperimentList::InitFromConfigFile() {
 
         if (nExpectedColumns == 0) {
             RESTError << "TRestExperimentList::InitFromConfigFile. At least one free parameter required! "
-                         "(Exposure/Background/Signal)"
-                      << RESTendl;
+                         "(Exposure/Background/Signal)" << RESTendl;
             return;
         }
 
@@ -135,8 +134,7 @@ void TRestExperimentList::InitFromConfigFile() {
             }
 
             RESTError << "TRestExperimentList::InitFromConfigFile. Number of expected columns does not match "
-                         "the number of table columns"
-                      << RESTendl;
+                         "the number of table columns" << RESTendl;
             RESTError << "Number of table columns : " << nTableColumns << RESTendl;
             RESTError << "Number of expected columns : " << nExpectedColumns << RESTendl;
             RESTError << "Expected columns : " << expectedColumns << RESTendl;
@@ -154,7 +152,7 @@ void TRestExperimentList::InitFromConfigFile() {
                 rowStr += el + " ";
             }
 
-            RESTInfo << "Loading experiment: " << rowStr << RESTendl;
+            RESTInfo << "TRestExperimentList. Loading experiment: " << rowStr << RESTendl;
 
             int column = 0;
             if (fExposureTime == 0) {
@@ -166,7 +164,7 @@ void TRestExperimentList::InitFromConfigFile() {
                 } else if (TRestTools::isRootFile(experimentRow[column])) {
                     // We load the file with the dataset into the experimental data
                     std::string fname = SearchFile(experimentRow[column]);
-                    experiment->SetExperimentalDataSetFile(fname);
+                    experiment->SetExperimentalDataSet(fname);
                     RESTWarning << "Loading experimental data havent been tested yet!" << RESTendl;
                     RESTWarning
                         << "It might require further development. Remove these lines once it works smooth!"
@@ -183,22 +181,32 @@ void TRestExperimentList::InitFromConfigFile() {
             }
 
             if (!fSignal) {
-                TRestComponent* sgnl = (TRestComponent*)GetComponent(experimentRow[column])->Clone();
-                experiment->SetSignal(sgnl);
+                if (GetComponent(experimentRow[column])) {
+                    TRestComponent* sgnl = (TRestComponent*)GetComponent(experimentRow[column])->Clone();
+                    experiment->SetSignal(sgnl);
+                } else {
+                    RESTError << "TRestExperimentList. Signal component : " << experimentRow[column]
+                              << " not found!" << RESTendl;
+                }
                 column++;
             } else {
                 experiment->SetSignal(fSignal);
             }
 
             if (!fBackground) {
-                TRestComponent* bck = (TRestComponent*)GetComponent(experimentRow[column])->Clone();
-                experiment->SetBackground(bck);
+                if (GetComponent(experimentRow[column])) {
+                    TRestComponent* bck = (TRestComponent*)GetComponent(experimentRow[column])->Clone();
+                    experiment->SetBackground(bck);
+                } else {
+                    RESTError << "TRestExperimentList. Background component : " << experimentRow[column]
+                              << " not found!" << RESTendl;
+                }
             } else {
                 experiment->SetBackground(fBackground);
             }
 
             if (generateMockData) {
-                RESTInfo << "Generating mock dataset" << RESTendl;
+                RESTInfo << "TRestExperimentList. Generating mock dataset" << RESTendl;
                 experiment->GenerateMockDataSet();
             }
 

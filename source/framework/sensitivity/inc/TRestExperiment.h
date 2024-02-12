@@ -72,7 +72,7 @@ class TRestExperiment : public TRestMetadata {
     void SetSignal(TRestComponent* comp) { fSignal = comp; }
     void SetBackground(TRestComponent* comp) { fBackground = comp; }
 
-    void SetExperimentalDataSetFile(const std::string& filename);
+    void SetExperimentalDataSet(const std::string& filename);
 
     Double_t GetExposureInSeconds() const { return fExposureTime * units("s"); }
     TRestComponent* GetBackground() const { return fBackground; }
