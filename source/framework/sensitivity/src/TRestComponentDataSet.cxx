@@ -139,8 +139,6 @@ void TRestComponentDataSet::Initialize() {
 void TRestComponentDataSet::PrintMetadata() {
     TRestComponent::PrintMetadata();
 
-    if (fSamples) RESTMetadata << "Data subset samples : " << fSamples << RESTendl;
-
     if (!fDataSetFileNames.empty()) {
         RESTMetadata << " " << RESTendl;
         RESTMetadata << " == Dataset filenames ==" << RESTendl;
@@ -217,6 +215,13 @@ void TRestComponentDataSet::InitFromConfigFile() {
 void TRestComponentDataSet::FillHistograms() {
     if (!fNodeDensity.empty()) return;
 
+    if (fNbins.size() == 0) {
+        RESTError
+            << "TRestComponentDataSet::FillHistograms. Trying to fill histograms but no variables found!"
+            << RESTendl;
+        return;
+    }
+
     fNSimPerNode = ExtractNodeStatistics();
 
     if (!IsDataSetLoaded()) {
@@ -238,6 +243,7 @@ void TRestComponentDataSet::FillHistograms() {
         if (fSamples > 0 && fTotalSamples[nIndex] - fSamples > 0) {
             from = fRandom->Integer(fTotalSamples[nIndex] - fSamples);
             to = from + fSamples;
+            fNSimPerNode[nIndex] = fSamples;
         }
 
         ROOT::RDF::RNode df = ROOT::RDataFrame(0);
@@ -313,6 +319,7 @@ void TRestComponentDataSet::RegenerateActiveNodeDensity() {
     if (fSamples > 0 && fTotalSamples[fActiveNode] - fSamples > 0) {
         from = fRandom->Integer(fTotalSamples[fActiveNode] - fSamples);
         to = from + fSamples;
+        fNSimPerNode[fActiveNode] = fSamples;
     }
 
     Double_t node = GetActiveNodeValue();

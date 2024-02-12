@@ -44,9 +44,6 @@ class TRestComponentDataSet : public TRestComponent {
     /// The filename of the dataset used
     std::vector<std::string> fDataSetFileNames;  //<
 
-    /// It introduces a fixed number of samples (if 0 it will take all available samples)
-    Int_t fSamples = 0;
-
     /// TODO we need to define multiple datasets and weigth. The weight will be used
     /// to create a model, such as weighting different background contaminations or
     /// different signal coupling contributions.
