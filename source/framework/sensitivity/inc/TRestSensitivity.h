@@ -31,6 +31,8 @@ class TRestSensitivity : public TRestMetadata {
     /// A list of experimental conditions included to get a final sensitivity plot
     std::vector<TRestExperiment*> fExperiments;  //<
 
+    TH1D* fSignalTest = nullptr;
+
    protected:
     void InitFromConfigFile() override;
 
@@ -41,6 +43,8 @@ class TRestSensitivity : public TRestMetadata {
     void Initialize() override;
 
     Double_t GetCoupling(Double_t sigma = 2, Double_t precision = 0.01);
+
+    TH1D* SignalStatisticalTest(Int_t N);
 
     std::vector<TRestExperiment*> GetExperiments() { return fExperiments; }
     TRestExperiment* GetExperiment(const size_t& n) {
