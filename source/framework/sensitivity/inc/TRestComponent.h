@@ -61,6 +61,9 @@ class TRestComponent : public TRestMetadata {
     /// The generated N-dimensional variable space density for a given node
     std::vector<THnD*> fNodeDensity;  //<
 
+    /// It introduces a fixed number of samples (if 0 it will take all available samples)
+    Int_t fSamples = 0;  //<
+
     /// Enables or disables the interpolation at TRestComponentDataSet::GetRawRate
     Bool_t fInterpolation = true;  //<
 
@@ -107,6 +110,7 @@ class TRestComponent : public TRestMetadata {
     TRestResponse* GetResponse() const { return fResponse; }
     Float_t GetPrecision() { return fPrecision; }
     size_t GetDimensions() { return fVariables.size(); }
+    Int_t GetSamples() { return fSamples; }
     Int_t GetActiveNode() { return fActiveNode; }
     Double_t GetActiveNodeValue() { return fParameterizationNodes[fActiveNode]; }
 
@@ -128,6 +132,8 @@ class TRestComponent : public TRestMetadata {
         fActiveNode = n;
         return fActiveNode;
     }
+
+    void SetSamples(Int_t samples) { fSamples = samples; }
 
     Bool_t Interpolation() { return fInterpolation; }
     void EnableInterpolation() { fInterpolation = true; }
@@ -163,6 +169,6 @@ class TRestComponent : public TRestMetadata {
     TRestComponent();
     ~TRestComponent();
 
-    ClassDefOverride(TRestComponent, 4);
+    ClassDefOverride(TRestComponent, 5);
 };
 #endif

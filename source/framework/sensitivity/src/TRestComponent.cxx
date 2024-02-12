@@ -538,6 +538,7 @@ void TRestComponent::PrintMetadata() {
     RESTMetadata << " " << RESTendl;
 
     RESTMetadata << "Random seed : " << fSeed << RESTendl;
+    if (fSamples) RESTMetadata << "Samples : " << fSamples << RESTendl;
     RESTMetadata << " " << RESTendl;
 
     if (fVariables.size() != fRanges.size())
@@ -609,6 +610,9 @@ void TRestComponent::InitFromConfigFile() {
 
         ele = GetNextElement(ele);
     }
+
+    if (fNbins.size() == 0)
+        RESTError << "TRestComponent::InitFromConfigFile. No cVariables where found!" << RESTendl;
 
     if (fResponse) {
         delete fResponse;
