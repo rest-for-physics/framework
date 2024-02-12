@@ -188,24 +188,26 @@ else ()
     set(REST_MPFR OFF)
 endif (${REST_MPFR} MATCHES "ON")
 
-if( ((${REST_ALL_LIBS} MATCHES "ON") AND (NOT DEFINED RESTLIB_AXION)) OR (${RESTLIB_AXION} MATCHES "ON") )
-	# GSL #### Find GSL
-	find_package(GSL REQUIRED)
+if (((${REST_ALL_LIBS} MATCHES "ON") AND (NOT DEFINED RESTLIB_AXION))
+    OR (${RESTLIB_AXION} MATCHES "ON"))
+    # GSL #### Find GSL
+    find_package(GSL REQUIRED)
 
-	# Include GSL directories
-	set(external_include_dirs ${external_include_dirs} ${GSL_INCLUDE_DIRS})
+    # Include GSL directories
+    set(external_include_dirs ${external_include_dirs} ${GSL_INCLUDE_DIRS})
 
-	# Link GSL libraries
-	set(external_libs ${external_libs};${GSL_LIBRARIES})
+    # Link GSL libraries
+    set(external_libs ${external_libs};${GSL_LIBRARIES})
 
-	message(STATUS "Found GSL libraries : ${GSL_LIBRARIES}")
-	message(STATUS "GSL headers : ${GSL_INCLUDE_DIRS}")
+    message(STATUS "Found GSL libraries : ${GSL_LIBRARIES}")
+    message(STATUS "GSL headers : ${GSL_INCLUDE_DIRS}")
 
-	set(REST_GSL ON)
+    set(REST_GSL ON)
 else ()
-	set(REST_GSL OFF)
-	message(STATUS "GSL libraries not required")
-endif( ((${REST_ALL_LIBS} MATCHES "ON") AND (NOT DEFINED RESTLIB_AXION)) OR (${RESTLIB_AXION} MATCHES "ON") )
+    set(REST_GSL OFF)
+    message(STATUS "GSL libraries not required")
+endif (((${REST_ALL_LIBS} MATCHES "ON") AND (NOT DEFINED RESTLIB_AXION))
+       OR (${RESTLIB_AXION} MATCHES "ON"))
 
 # CURL  #####
 find_library(CURL_LIB curl)
