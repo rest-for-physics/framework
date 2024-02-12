@@ -35,6 +35,7 @@ Float_t StringToFloat(std::string in);
 Double_t StringToDouble(std::string in);
 Int_t StringToInteger(std::string in);
 std::string IntegerToString(Int_t n, std::string format = "%d");
+std::vector<int> IntegerToBinary(int number, size_t dimension = 0);
 std::string DoubleToString(Double_t d, std::string format = "%8.6e");
 Bool_t StringToBool(std::string booleanString);
 Long64_t StringToLong(std::string in);
@@ -45,6 +46,7 @@ std::vector<std::string> Split(std::string in, std::string separator, bool allow
 std::vector<double> StringToElements(std::string in, std::string separator);
 std::vector<double> StringToElements(std::string in, std::string headChar, std::string separator,
                                      std::string tailChar);
+std::string RemoveDelimiters(std::string in);
 std::string RemoveWhiteSpaces(std::string in);
 std::string Replace(std::string in, std::string thisString, std::string byThisString, size_t fromPosition = 0,
                     Int_t N = 0);
