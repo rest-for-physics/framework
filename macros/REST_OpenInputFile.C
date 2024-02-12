@@ -45,7 +45,8 @@ void REST_OpenInputFile(const std::string& fileName) {
         printf("\n%s\n", "The dataset is ready. You may now access the dataset using:");
         printf("\n%s\n", " - dSet->PrintMetadata()");
         printf("%s\n", " - dSet->GetDataFrame().GetColumnNames()");
-        printf("%s\n", " - dSet->GetTree()->GetEntries()");
+        printf("%s\n\n", " - dSet->GetTree()->GetEntries()");
+        printf("%s\n", " - dSet->GetDataFrame().Display(\"\")->Print()");
         printf("%s\n\n", " - dSet->GetDataFrame().Display({\"colName1,colName2\"})->Print()");
         if (dSet) delete dSet;
         dSet = new TRestDataSet();
