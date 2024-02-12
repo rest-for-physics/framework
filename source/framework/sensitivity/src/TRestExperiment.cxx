@@ -112,7 +112,7 @@ void TRestExperiment::GenerateMockDataSet() {
     fDataReady = true;
 }
 
-void TRestExperiment::SetExperimentalDataSetFile(const std::string& filename) {
+void TRestExperiment::SetExperimentalDataSet(const std::string& filename) {
     fExperimentalDataSet = SearchFile(filename);
     fExperimentalData.Import(fExperimentalDataSet);
 
@@ -123,9 +123,8 @@ void TRestExperiment::SetExperimentalDataSetFile(const std::string& filename) {
     fDataReady = true;
 
     if (!fSignal || !fBackground) {
-        RESTWarning << "TRestExperiment::SetExperimentalDataSetFile. Signal and background components must "
-                       "be available before atempt to load experimental data"
-                    << RESTendl;
+        RESTWarning << "TRestExperiment::SetExperimentalDataSet. Signal and background components must "
+                       "be available before atempt to load experimental data" << RESTendl;
         fDataReady = false;
         return;
     }
@@ -134,8 +133,7 @@ void TRestExperiment::SetExperimentalDataSetFile(const std::string& filename) {
     for (const auto& v : fSignal->GetVariables()) {
         if (std::find(columns.begin(), columns.end(), v) == columns.end()) {
             RESTError << "TRestExperiment::SetExperimentalDataSetFile a component variable was not found in "
-                         "the dataset!"
-                      << RESTendl;
+                         "the dataset!" << RESTendl;
             fDataReady = false;
             return;
         }
@@ -198,7 +196,7 @@ void TRestExperiment::InitFromConfigFile() {
     if (fExposureTime > 0 && fExperimentalDataSet.empty()) {
         GenerateMockDataSet();
     } else if (fExposureTime == 0 && !fExperimentalDataSet.empty()) {
-        SetExperimentalDataSetFile(fExperimentalDataSet);
+        SetExperimentalDataSet(fExperimentalDataSet);
     } else {
         RESTWarning << "The exposure time is not zero but a experimental data filename was defined!"
                     << RESTendl;
@@ -208,6 +206,18 @@ void TRestExperiment::InitFromConfigFile() {
         RESTError
             << " or do not define a dataset if you wish to generate mock data using the exposure time given"
             << RESTendl;
+    }
+
+    if (!fSignal) {
+        RESTError << "TRestExperiment : " << GetName() << RESTendl;
+        RESTError << "There was a problem initiazing the signal component!" << RESTendl;
+        return;
+    }
+
+    if (!fBackground) {
+        RESTError << "TRestExperiment : " << GetName() << RESTendl;
+        RESTError << "There was a problem initiazing the background component!" << RESTendl;
+        return;
     }
 
     /// Checking that signal/background/tracking got the same variable names and ranges
@@ -251,9 +261,9 @@ void TRestExperiment::PrintMetadata() {
     RESTMetadata << "Random seed : " << fSeed << RESTendl;
     RESTMetadata << " " << RESTendl;
     if (fExposureTime > 0) {
-        RESTMetadata << " - Exposure time : " << fExposureTime * units("s") << " seconds" << RESTendl;
-        RESTMetadata << " - Exposure time : " << fExposureTime * units("hr") << " hours" << RESTendl;
-        RESTMetadata << " - Exposure time : " << fExposureTime * units("day") << " days" << RESTendl;
+        RESTMetadata << " - Exposure time : " << fExposureTime* units("s") << " seconds" << RESTendl;
+        RESTMetadata << " - Exposure time : " << fExposureTime* units("hr") << " hours" << RESTendl;
+        RESTMetadata << " - Exposure time : " << fExposureTime* units("day") << " days" << RESTendl;
     }
 
     if (fSignal) RESTMetadata << " - Signal component : " << fSignal->GetName() << RESTendl;
