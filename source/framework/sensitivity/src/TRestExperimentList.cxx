@@ -117,7 +117,8 @@ void TRestExperimentList::InitFromConfigFile() {
 
         if (nExpectedColumns == 0) {
             RESTError << "TRestExperimentList::InitFromConfigFile. At least one free parameter required! "
-                         "(Exposure/Background/Signal)" << RESTendl;
+                         "(Exposure/Background/Signal)"
+                      << RESTendl;
             return;
         }
 
@@ -134,7 +135,8 @@ void TRestExperimentList::InitFromConfigFile() {
             }
 
             RESTError << "TRestExperimentList::InitFromConfigFile. Number of expected columns does not match "
-                         "the number of table columns" << RESTendl;
+                         "the number of table columns"
+                      << RESTendl;
             RESTError << "Number of table columns : " << nTableColumns << RESTendl;
             RESTError << "Number of expected columns : " << nExpectedColumns << RESTendl;
             RESTError << "Expected columns : " << expectedColumns << RESTendl;
