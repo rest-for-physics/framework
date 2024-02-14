@@ -102,11 +102,14 @@ void TRestExperiment::GenerateMockDataSet() {
     Double_t meanCounts = GetBackground()->GetTotalRate() * fExposureTime * units("s");
 
     Int_t N = fRandom->Poisson(meanCounts);
+    RESTInfo << "Experiment: " << GetName() << " Generating mock dataset. Counts: " << N << RESTendl;
 
     ROOT::RDF::RNode df = fBackground->GetMonteCarloDataFrame(N);
 
     fExperimentalData.SetDataFrame(df);
     fExperimentalData.SetTotalTimeInSeconds(fExposureTime * units("s"));
+
+    fExperimentalCounts = *fExperimentalData.GetDataFrame().Count();
 
     fMockData = true;
     fDataReady = true;
@@ -118,14 +121,14 @@ void TRestExperiment::SetExperimentalDataSet(const std::string& filename) {
 
     /// fExposureTime is in standard REST units : us
     fExposureTime = fExperimentalData.GetTotalTimeInSeconds() / units("s");
+    fExperimentalCounts = *fExperimentalData.GetDataFrame().Count();
 
     fMockData = false;
     fDataReady = true;
 
     if (!fSignal || !fBackground) {
         RESTWarning << "TRestExperiment::SetExperimentalDataSet. Signal and background components must "
-                       "be available before atempt to load experimental data"
-                    << RESTendl;
+                       "be available before atempt to load experimental data" << RESTendl;
         fDataReady = false;
         return;
     }
@@ -134,8 +137,7 @@ void TRestExperiment::SetExperimentalDataSet(const std::string& filename) {
     for (const auto& v : fSignal->GetVariables()) {
         if (std::find(columns.begin(), columns.end(), v) == columns.end()) {
             RESTError << "TRestExperiment::SetExperimentalDataSetFile a component variable was not found in "
-                         "the dataset!"
-                      << RESTendl;
+                         "the dataset!" << RESTendl;
             fDataReady = false;
             return;
         }
@@ -263,9 +265,9 @@ void TRestExperiment::PrintMetadata() {
     RESTMetadata << "Random seed : " << fSeed << RESTendl;
     RESTMetadata << " " << RESTendl;
     if (fExposureTime > 0) {
-        RESTMetadata << " - Exposure time : " << fExposureTime * units("s") << " seconds" << RESTendl;
-        RESTMetadata << " - Exposure time : " << fExposureTime * units("hr") << " hours" << RESTendl;
-        RESTMetadata << " - Exposure time : " << fExposureTime * units("day") << " days" << RESTendl;
+        RESTMetadata << " - Exposure time : " << fExposureTime* units("s") << " seconds" << RESTendl;
+        RESTMetadata << " - Exposure time : " << fExposureTime* units("hr") << " hours" << RESTendl;
+        RESTMetadata << " - Exposure time : " << fExposureTime* units("day") << " days" << RESTendl;
     }
 
     if (fSignal) RESTMetadata << " - Signal component : " << fSignal->GetName() << RESTendl;
@@ -283,7 +285,7 @@ void TRestExperiment::PrintMetadata() {
         }
     }
 
-    RESTMetadata << " - Experimental counts : " << *fExperimentalData.GetDataFrame().Count() << RESTendl;
+    RESTMetadata << " - Experimental counts : " << fExperimentalCounts << RESTendl;
 
     RESTMetadata << "----" << RESTendl;
 }
