@@ -31,20 +31,33 @@ class TRestSensitivity : public TRestMetadata {
     /// A list of experimental conditions included to get a final sensitivity plot
     std::vector<TRestExperiment*> fExperiments;  //<
 
+    /// The fusioned list of parameterization nodes found at each experiment signal
+    std::vector<Double_t> fParameterizationNodes;  //<
+
+    /// The calculated coupling for each parametric node
+    std::vector<Double_t> fCouplingForNode;  //<
+
+    /// It is used to generate a histogram with the signal distribution produced with different signal samples
     TH1D* fSignalTest = nullptr;
 
    protected:
     void InitFromConfigFile() override;
 
-    Double_t UnbinnedLogLikelihood(const TRestExperiment* experiment, Double_t g4 = 0);
-    Double_t ApproachByFactor(Double_t g4, Double_t chi0, Double_t target, Double_t factor);
+    Double_t UnbinnedLogLikelihood(const TRestExperiment* experiment, Double_t node, Double_t g4 = 0);
+    Double_t ApproachByFactor(Double_t node, Double_t g4, Double_t chi0, Double_t target, Double_t factor);
 
    public:
     void Initialize() override;
 
-    Double_t GetCoupling(Double_t sigma = 2, Double_t precision = 0.01);
+    void ExtractExperimentParameterizationNodes();
+    std::vector<Double_t> GetParameterizationNodes() { return fParameterizationNodes; }
+    void PrintParameterizationNodes();
 
-    TH1D* SignalStatisticalTest(Int_t N);
+    Double_t GetCoupling(Double_t node, Double_t sigma = 2, Double_t precision = 0.01);
+    void GenerateCurve();
+    void ExportCurve(std::string fname);
+
+    TH1D* SignalStatisticalTest(Double_t node, Int_t N);
 
     std::vector<TRestExperiment*> GetExperiments() { return fExperiments; }
     TRestExperiment* GetExperiment(const size_t& n) {

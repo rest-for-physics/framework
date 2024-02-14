@@ -76,14 +76,19 @@ TRestSensitivity::TRestSensitivity(const char* cfgFileName, const std::string& n
 /// \brief It will initialize the data frame with the filelist and column names
 /// (or observables) that have been defined by the user.
 ///
-void TRestSensitivity::Initialize() { SetSectionName(this->ClassName()); }
+void TRestSensitivity::Initialize() {
+    SetSectionName(this->ClassName());
+
+    ExtractExperimentParameterizationNodes();
+}
 
 ///////////////////////////////////////////////
 /// \brief It will return a value of the coupling, g4, such that (chi-chi0) gets
 /// closer to the target value given by argument. The factor will be used to
 /// increase or decrease the coupling, and evaluate the likelihood.
 ///
-Double_t TRestSensitivity::ApproachByFactor(Double_t g4, Double_t chi0, Double_t target, Double_t factor) {
+Double_t TRestSensitivity::ApproachByFactor(Double_t node, Double_t g4, Double_t chi0, Double_t target,
+                                            Double_t factor) {
     if (factor == 1) {
         return 0;
     }
@@ -92,7 +97,7 @@ Double_t TRestSensitivity::ApproachByFactor(Double_t g4, Double_t chi0, Double_t
     Double_t Chi2 = 0;
     do {
         Chi2 = 0;
-        for (const auto& exp : fExperiments) Chi2 += -2 * UnbinnedLogLikelihood(exp, g4);
+        for (const auto& exp : fExperiments) Chi2 += -2 * UnbinnedLogLikelihood(exp, node, g4);
 
         g4 = factor * g4;
     } while (Chi2 - chi0 < target);
@@ -101,7 +106,7 @@ Double_t TRestSensitivity::ApproachByFactor(Double_t g4, Double_t chi0, Double_t
     /// Coarse movement to get to Chi2 below target (/2)
     do {
         Chi2 = 0;
-        for (const auto& exp : fExperiments) Chi2 += -2 * UnbinnedLogLikelihood(exp, g4);
+        for (const auto& exp : fExperiments) Chi2 += -2 * UnbinnedLogLikelihood(exp, node, g4);
 
         g4 = g4 / factor;
     } while (Chi2 - chi0 > target);
@@ -109,21 +114,64 @@ Double_t TRestSensitivity::ApproachByFactor(Double_t g4, Double_t chi0, Double_t
     return g4 * factor;
 }
 
+void TRestSensitivity::GenerateCurve() {
+    ExtractExperimentParameterizationNodes();
+
+    RESTInfo << "Generating sensitivity curve" << RESTendl;
+    fCouplingForNode.clear();
+    for (const auto& node : fParameterizationNodes) {
+        RESTInfo << "Generating node : " << node << RESTendl;
+        fCouplingForNode.push_back(GetCoupling(node));
+    }
+
+    RESTInfo << "Curve has been generated. You may use now TRestSensitivity::ExportCurve( fname.txt )."
+             << RESTendl;
+}
+
+void TRestSensitivity::ExportCurve(std::string fname) {
+    // Open a file for writing
+    std::ofstream outputFile(fname);
+
+    // Check if the file is opened successfully
+    if (!outputFile) {
+        RESTError << "TRestSensitivity::ExportCurve. Error opening file for writing!" << RESTendl;
+        return;
+    }
+
+    if (fParameterizationNodes.size() != fCouplingForNode.size()) {
+        RESTError << "TRestSensitivity::ExportCurve. Curve has not been generated" << RESTendl;
+        RESTError << "Try invoking TRestSensitivity::ExportCurve" << RESTendl;
+        return;
+    }
+
+    int n = 0;
+    for (const auto& node : fParameterizationNodes) {
+        outputFile << node << " " << fCouplingForNode[n] << std::endl;
+        n++;
+    }
+
+    outputFile.close();
+
+    RESTInfo << "TRestSensitivity::ExportCurve. File has been written successfully!" << RESTendl;
+}
+
 ///////////////////////////////////////////////
 /// \brief It will return the coupling value for which Chi=sigma
 ///
-Double_t TRestSensitivity::GetCoupling(Double_t sigma, Double_t precision) {
+Double_t TRestSensitivity::GetCoupling(Double_t node, Double_t sigma, Double_t precision) {
     Double_t Chi2_0 = 0;
-    for (const auto& exp : fExperiments) Chi2_0 += -2 * UnbinnedLogLikelihood(exp, 0);
+    for (const auto& exp : fExperiments) {
+        Chi2_0 += -2 * UnbinnedLogLikelihood(exp, node, 0);
+    }
 
     Double_t target = sigma * sigma;
 
     Double_t g4 = 0.5;
 
-    g4 = ApproachByFactor(g4, Chi2_0, target, 2);
-    g4 = ApproachByFactor(g4, Chi2_0, target, 1.2);
-    g4 = ApproachByFactor(g4, Chi2_0, target, 1.02);
-    g4 = ApproachByFactor(g4, Chi2_0, target, 1.0002);
+    g4 = ApproachByFactor(node, g4, Chi2_0, target, 2);
+    g4 = ApproachByFactor(node, g4, Chi2_0, target, 1.2);
+    g4 = ApproachByFactor(node, g4, Chi2_0, target, 1.02);
+    g4 = ApproachByFactor(node, g4, Chi2_0, target, 1.0002);
 
     return g4;
 }
@@ -131,7 +179,8 @@ Double_t TRestSensitivity::GetCoupling(Double_t sigma, Double_t precision) {
 ///////////////////////////////////////////////
 /// \brief It returns the Log(L) for the experiment and coupling given by argument.
 ///
-Double_t TRestSensitivity::UnbinnedLogLikelihood(const TRestExperiment* experiment, Double_t g4) {
+Double_t TRestSensitivity::UnbinnedLogLikelihood(const TRestExperiment* experiment, Double_t node,
+                                                 Double_t g4) {
     Double_t lhood = 0;
     if (!experiment->IsDataReady()) {
         RESTError << "TRestSensitivity::UnbinnedLogLikelihood. Experiment " << experiment->GetName()
@@ -139,9 +188,31 @@ Double_t TRestSensitivity::UnbinnedLogLikelihood(const TRestExperiment* experime
         return lhood;
     }
 
+    /// We check if the signal component is sensitive to that particular node
+    /// If not, this experiment will not contribute to that node
+    Int_t nd = experiment->GetSignal()->FindActiveNode(node);
+    if (nd >= 0)
+        experiment->GetSignal()->SetActiveNode(nd);
+    else
+        return 0.0;
+
+    /// We could check if background has also components, but for the moment we do not have a background
+    /// for each node, although it could be the case, if for example the background depends on the detector
+    /// conditions. For example, higher pressure inside the detector gains in signal sensitivity but
+    /// it will produce also higher background.
+
+    if (experiment->GetBackground()->HasNodes()) {
+        RESTWarning
+            << "TRestSensitivity::UnbinnedLogLikelihood is not ready to have background parameter nodes!"
+            << RESTendl;
+        return 0.0;
+    }
+
     Double_t signal = g4 * experiment->GetSignal()->GetTotalRate() * experiment->GetExposureInSeconds();
 
     lhood = -signal;
+
+    if (experiment->GetExperimentalCounts() == 0) return lhood;
 
     if (ROOT::IsImplicitMTEnabled()) ROOT::DisableImplicitMT();
 
@@ -169,12 +240,12 @@ Double_t TRestSensitivity::UnbinnedLogLikelihood(const TRestExperiment* experime
 ///////////////////////////////////////////////
 /// \brief
 ///
-TH1D* TRestSensitivity::SignalStatisticalTest(Int_t N) {
+TH1D* TRestSensitivity::SignalStatisticalTest(Double_t node, Int_t N) {
     std::vector<Double_t> couplings;
     for (int n = 0; n < N; n++) {
         for (const auto& exp : fExperiments) exp->GetSignal()->RegenerateActiveNodeDensity();
 
-        Double_t coupling = TMath::Sqrt(TMath::Sqrt(GetCoupling()));
+        Double_t coupling = TMath::Sqrt(TMath::Sqrt(GetCoupling(node)));
         couplings.push_back(coupling);
     }
 
@@ -211,6 +282,32 @@ void TRestSensitivity::InitFromConfigFile() {
     }
 
     Initialize();
+}
+
+/////////////////////////////////////////////
+/// \brief It scans all the experiment signals parametric nodes to build a complete list
+/// of nodes used to build a complete sensitivity curve. Some experiments may be
+/// sensitivy to a particular node, while others may be sensitivy to another. If more
+/// than one experiment is sensitivy to a given node, the sensitivity will be combined
+/// later on.
+///
+void TRestSensitivity::ExtractExperimentParameterizationNodes() {
+    fParameterizationNodes.clear();
+
+    for (const auto& experiment : fExperiments) {
+        std::vector<Double_t> nodes = experiment->GetSignal()->GetParameterizationNodes();
+        fParameterizationNodes.insert(fParameterizationNodes.end(), nodes.begin(), nodes.end());
+
+        std::sort(fParameterizationNodes.begin(), fParameterizationNodes.end());
+        auto last = std::unique(fParameterizationNodes.begin(), fParameterizationNodes.end());
+        fParameterizationNodes.erase(last, fParameterizationNodes.end());
+    }
+}
+
+void TRestSensitivity::PrintParameterizationNodes() {
+    std::cout << "Curve sensitivity nodes: ";
+    for (const auto& node : fParameterizationNodes) std::cout << node << "\t";
+    std::cout << std::endl;
 }
 
 /////////////////////////////////////////////
