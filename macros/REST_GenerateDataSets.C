@@ -15,14 +15,16 @@
 //***
 //*******************************************************************************************************
 
-Int_t REST_GenerateDataSets(const std::string& inputRML, const std::string& datasets) {
+Int_t REST_GenerateDataSets(const std::string& inputRML, const std::string& datasets,
+                            std::string outPath = "") {
     std::vector<std::string> sets = REST_StringHelper::Split(datasets, ",");
 
     for (const auto& set : sets) {
         std::cout << "Set : " << set << std::endl;
         TRestDataSet d(inputRML.c_str(), set.c_str());
         d.GenerateDataSet();
-        d.Export("Dataset_" + set + ".root");
+        if (!outPath.empty() && outPath.back() != '/') outPath += '/';
+        d.Export(outPath + "Dataset_" + set + ".root");
     }
     return 0;
 }

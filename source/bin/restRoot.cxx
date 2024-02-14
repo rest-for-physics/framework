@@ -25,6 +25,10 @@ int main(int argc, char* argv[]) {
     // set the env and debug status
     setenv("REST_VERSION", REST_RELEASE, 1);
 
+    printf("Setting verbose level to info. You may change level using `restRoot -v N`.\n");
+    printf("Use `restRoot --help` for additional info.\n");
+    gVerbose = StringToVerboseLevel("2");
+
     Bool_t loadMacros = false;
     for (int i = 1; i < argc; i++) {
         char* c = &argv[i][0];
@@ -57,7 +61,7 @@ int main(int argc, char* argv[]) {
                     printf("\n");
                     printf(" restRoot --m [0,1]\n");
                     printf("\n");
-                    printf(" Option 0 will disable macro loading. Option 1 is the default.\n");
+                    printf(" Option 0 will disable macro loading. Option 0 is the default.\n");
                     printf("\n");
                     exit(0);
             }
@@ -77,7 +81,18 @@ int main(int argc, char* argv[]) {
     gROOT->ProcessLine("#include <TRestPhysics.h>");
     gROOT->ProcessLine("#include <TRestSystemOfUnits.h>");
     if (loadMacros) {
-        if (!silent) printf("= Loading macros ...\n");
+        if (!silent) {
+            printf("= Loading macros ...\n");
+            printf(
+                "= HINT. Loading all macros may require a long time till you get access to the interactive "
+                "shell\n");
+            printf("= HINT. You may use `restListMacros` outside `restRoot` to check the available macros\n");
+            printf(
+                "= HINT. Then, you may execute the macro externally by using: `restManager MacroName "
+                "[ARGUMENTS]\n");
+            printf("= HINT. `MacroName` is the name of the macro after removing the macro name header\n");
+            printf("= HINT. E.g. REST_Detector_XYZ(arg1,arg2) may be called as: restManager XYZ arg1 arg2\n");
+        }
         vector<string> macroFiles;
         const vector<string> patterns = {
             REST_PATH + "/macros/REST_*.C",   // framework
@@ -100,6 +115,10 @@ int main(int argc, char* argv[]) {
 
     for (int i = 1; i < argc; i++) {
         const string opt = (string)argv[i];
+        if (opt.at(0) == ('-') && opt.length() > 1 && opt.at(1) == ('-')) {
+            i++;
+            continue;
+        }
         if (opt.at(0) == ('-')) continue;
 
         if (opt.find("http") == string::npos && !TRestTools::fileExists(opt)) {

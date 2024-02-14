@@ -49,7 +49,7 @@ constexpr double kBoltzman = 1.380E-23;
 constexpr double hPlanck = 1.054E-34;
 
 /// A meter in eV
-constexpr double PhMeterIneV = 5067731.236453719;  // 8.0655447654281218E5;// 506.773123645372;
+constexpr double PhMeterIneV = 5067731.236453719;
 /// A second in eV (using natural units)
 constexpr double secondIneV = 1519225802531030.2;
 /// Electron charge in natural units

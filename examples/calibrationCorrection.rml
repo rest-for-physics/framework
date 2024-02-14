@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<TRestDataSetGainMap name="calib" verboseLevel="info">
+        <parameter name="calibFileName" value="myDataSet.root"/>
+        <parameter name="outputFileName" value = "myCalibration.root"/>
+        <parameter name = "observable" value="rawAna_ThresholdIntegral"/>
+        <parameter name = "spatialObservableX" value="hitsAna_xMean"/>
+        <parameter name = "spatialObservableY" value="hitsAna_yMean"/>
+        <module planeId="0" moduleId="0"
+            moduleDefinitionCut="TREXsides_tagId==1"
+            numberOfSegmentsX="5"
+            numberOfSegmentsY="5"
+            readoutRange="(-1,246.24)">
+            <peak energy="22.5" range=""/>
+            <peak energy="8.0"  range=""/>
+        </module>
+        <module planeId="1" moduleId="0"
+            moduleDefinitionCut="TREXsides_tagId==2"
+            numberOfSegmentsX="5"
+            numberOfSegmentsY="5"
+            readoutRange="(-1,246.24)">
+            <peak energy="22.5" range=""/>
+            <peak energy="8.0"  range=""/>
+        </module>
+</TRestDataSetGainMap>

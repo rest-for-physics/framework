@@ -84,7 +84,9 @@ class TRestRun : public TRestMetadata {
     void GetEntry(Long64_t entry);
 
     void GetNextEntry() {
-        if (fCurrentEvent + 1 >= GetEntries()) fCurrentEvent = -1;
+        if (fCurrentEvent + 1 >= GetEntries()) {
+            fCurrentEvent = -1;
+        }
         GetEntry(fCurrentEvent + 1);
     }
 
@@ -246,7 +248,7 @@ class TRestRun : public TRestMetadata {
 
     // Constructor & Destructor
     TRestRun();
-    TRestRun(const std::string& filename);
+    explicit TRestRun(const std::string& filename);
     ~TRestRun();
 
     ClassDefOverride(TRestRun, 6);

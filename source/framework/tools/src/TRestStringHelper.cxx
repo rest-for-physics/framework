@@ -256,11 +256,13 @@ vector<string> REST_StringHelper::Split(string in, string separator, bool allowB
 ///////////////////////////////////////////////
 /// \brief Convert the input string into a  vector of double elements
 ///
+/// The method will remove any delimiters found in the string (), [] or {}.
+///
 /// e.g. Input: "1,2,3,4", Output: {1.,2.,3.,4.}
 ///
 vector<double> REST_StringHelper::StringToElements(string in, string separator) {
     vector<double> result;
-    vector<string> vec_str = REST_StringHelper::Split(in, separator);
+    vector<string> vec_str = REST_StringHelper::Split(RemoveDelimiters(in), separator);
     for (unsigned int i = 0; i < vec_str.size(); i++) {
         double temp = REST_StringHelper::StringToDouble(vec_str[i]);
         result.push_back(temp);
@@ -292,6 +294,19 @@ vector<double> REST_StringHelper::StringToElements(string in, string headChar, s
     }
 
     return result;
+}
+
+///////////////////////////////////////////////
+/// \brief Returns the input string removing any delimiters ({[]})
+///
+string REST_StringHelper::RemoveDelimiters(string in) {
+    string out = in;
+    size_t pos = out.find_first_of("+-*/e^%");
+    while ((pos = out.find_first_of("({[]})")) != string::npos) {
+        out.erase(pos, 1);
+    }
+
+    return out;
 }
 
 ///////////////////////////////////////////////
@@ -464,7 +479,7 @@ Int_t REST_StringHelper::DiffString(const string& source, const string& target) 
 }
 
 ///////////////////////////////////////////////
-/// \brief Replace every occurences of **thisSring** by **byThisString** inside
+/// \brief Replace any occurences of **thisSring** by **byThisString** inside
 /// string **in**.
 ///
 string REST_StringHelper::Replace(string in, string thisString, string byThisString, size_t fromPosition,
@@ -617,6 +632,37 @@ Int_t REST_StringHelper::StringToInteger(string in) {
 /// \brief Gets a string from an integer.
 ///
 string REST_StringHelper::IntegerToString(Int_t n, string format) { return Form(format.c_str(), n); }
+
+///////////////////////////////////////////////
+/// \brief It returns an integer vector with the binary digits decomposed.
+///
+/// Example: IntegerToBinary(7) will return { 1, 1, 1 }.
+///
+/// Optionally we can fix the minimum number of digits to be returned, so that
+/// it will be filled with zeros to the left.
+///
+/// Example: IntegerToBinary(9,8) will return { 0, 0, 0, 0, 1, 0, 0, 1 }.
+///
+std::vector<int> REST_StringHelper::IntegerToBinary(int number, size_t dimension) {
+    std::vector<int> binaryNumber;
+
+    if (number == 0) {
+        binaryNumber.insert(binaryNumber.begin(), dimension, 0);
+        if (binaryNumber.empty()) binaryNumber.push_back(0);
+        return binaryNumber;
+    }
+
+    while (number > 0) {
+        int digit = number % 2;
+        binaryNumber.insert(binaryNumber.begin(), digit);
+        number /= 2;
+    }
+
+    if (dimension > binaryNumber.size())
+        binaryNumber.insert(binaryNumber.begin(), dimension - binaryNumber.size(), 0);
+
+    return binaryNumber;
+}
 
 ///////////////////////////////////////////////
 /// \brief Gets a string from a double

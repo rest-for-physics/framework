@@ -16,9 +16,9 @@
 #include "TRestStringOutput.h"
 #include "TRestSystemOfUnits.h"
 #include "TRestTools.h"
-#include "TRestVersion.h"
+
 //////////////////////////////////////////////////////////////////////////
-/// This script initializes REST global variables in sequence to clearify
+/// This script initializes REST global variables in sequence to clarify
 /// their dependency, therefore avoiding seg.fault during startup. All
 /// global variables in libRestTools, if depend on other global variable,
 /// should be placed here for initialization.
@@ -77,11 +77,17 @@ struct __REST_CONST_INIT {
 
         char* _REST_PATH = getenv("REST_PATH");
         char* _REST_USER = getenv("USER");
-        char* _REST_USERHOME = getenv("HOME");
 
-        // char* _REST_PATH = 0;
-        // char* _REST_USER = 0;
-        // char* _REST_USERHOME = 0;
+        // Should first look into REST_HOME, then HOME
+        char* _REST_USERHOME = getenv("REST_HOME");
+
+        if (_REST_USERHOME == nullptr) {
+            _REST_USERHOME = getenv("HOME");
+        } else {
+            cout << "REST_HOME is set to " << _REST_USERHOME << endl;
+            // create the directory if it does not exist
+            std::filesystem::create_directories(_REST_USERHOME);
+        }
 
 #ifdef WIN32
         if (_REST_PATH == nullptr) {
@@ -272,6 +278,9 @@ string VectorToString(vector<T> vec) {
 template <class T>
 vector<T> StringToVector(string vec) {
     vector<T> result;
+
+    if (vec.empty()) return result;
+
     if (vec[0] == '{' && vec[vec.size() - 1] == '}') {
         vec.erase(vec.begin());
         vec.erase(vec.end() - 1);
@@ -288,13 +297,16 @@ vector<T> StringToVector(string vec) {
         }
 
     } else {
-        cout << "illegal format!" << endl;
+        cout << "Startup. StringToVector. Illegal format!" << endl;
+        cout << "The vector string is : " << vec << endl;
+        cout << "A vector should be defined using brackets and comma separated elements: {a,b,c,d}" << endl;
         return vector<T>{};
     }
 
     return result;
 }
 AddConverter(VectorToString, StringToVector, vector<int>);
+AddConverter(VectorToString, StringToVector, vector<UShort_t>);
 AddConverter(VectorToString, StringToVector, vector<float>);
 AddConverter(VectorToString, StringToVector, vector<double>);
 AddConverter(VectorToString, StringToVector, vector<string>);
@@ -433,3 +445,320 @@ AddConverter(MapToString, StringToMap, map<TString comma TString>);
 AddConverter(MapToString, StringToMap, map<TString comma string>);
 
 AddConverter(MapToString, StringToMap, map<TString comma TVector2>);
+
+template <class T, class U>
+string PairToString(pair<T, U> p) {
+    string result = "{";
+    result += Converter<T>::thisptr->ToStringFunc(p.first);
+    result += ",";
+    result += Converter<U>::thisptr->ToStringFunc(p.second);
+    result += "}";
+    return result;
+}
+template <class T, class U>
+pair<T, U> StringToPair(string vec) {
+    pair<T, U> result;
+    if (vec[0] == '{' && vec[vec.size() - 1] == '}') {
+        vec.erase(vec.begin());
+        vec.erase(vec.end() - 1);
+        vector<string> parts = Split(vec, ",");
+
+        if (parts.size() == 2) {
+            while (parts[0][0] == ' ') {
+                parts[0].erase(parts[0].begin());
+            }
+            while (parts[0][parts[0].size() - 1] == ' ') {
+                parts[0].erase(parts[0].end() - 1);
+            }
+            while (parts[1][0] == ' ') {
+                parts[1].erase(parts[1].begin());
+            }
+            while (parts[1][parts[1].size() - 1] == ' ') {
+                parts[1].erase(parts[1].end() - 1);
+            }
+            result.first = Converter<T>::thisptr->ParseStringFunc(parts[0]);
+            result.second = Converter<U>::thisptr->ParseStringFunc(parts[1]);
+        } else {
+            cout << "illegal format!" << endl;
+            return pair<T, U>{};
+        }
+
+    } else {
+        cout << "illegal format!" << endl;
+        return pair<T, U>{};
+    }
+    return result;
+}
+AddConverter(PairToString, StringToPair, pair<int comma int>);
+AddConverter(PairToString, StringToPair, pair<int comma float>);
+AddConverter(PairToString, StringToPair, pair<int comma double>);
+AddConverter(PairToString, StringToPair, pair<UShort_t comma float>);
+AddConverter(PairToString, StringToPair, pair<UShort_t comma double>);
+
+// a vector of pairs
+template <class T, class U>
+string PairVectorToString(vector<pair<T, U>> vec) {
+    stringstream ss;
+    ss << "{";
+    int cont = 0;
+    for (auto const& x : vec) {
+        if (cont > 0) ss << ",";
+        cont++;
+
+        ss << "[";
+        ss << Converter<T>::thisptr->ToStringFunc(x.first);
+        ss << ":";
+        ss << Converter<U>::thisptr->ToStringFunc(x.second);
+        ss << "]";
+    }
+    ss << "}";
+    return ss.str();
+}
+template <class T, class U>
+vector<pair<T, U>> StringToPairVector(string vec) {
+    vector<pair<T, U>> result;
+    // input string format: {[dd:7],[aa:8],[ss:9]}
+    if (vec[0] == '{' && vec[vec.size() - 1] == '}') {
+        vec.erase(vec.begin());
+        vec.erase(vec.end() - 1);
+        vector<string> parts = Split(vec, ",");
+
+        for (string part : parts) {
+            while (part[0] == ' ') {
+                part.erase(part.begin());
+            }
+            while (part[part.size() - 1] == ' ') {
+                part.erase(part.end() - 1);
+            }
+
+            if (part[0] == '[' && part[part.size() - 1] == ']') {
+                part.erase(part.begin());
+                part.erase(part.end() - 1);
+                vector<string> key_value = Split(part, ":");
+                if (key_value.size() == 2) {
+                    T key = Converter<T>::thisptr->ParseStringFunc(key_value[0]);
+                    U value = Converter<U>::thisptr->ParseStringFunc(key_value[1]);
+                    result.push_back(pair<T, U>(key, value));
+                } else {
+                    cout << "illegal format!" << endl;
+                    return vector<pair<T, U>>{};
+                }
+            } else {
+                cout << "illegal format!" << endl;
+                return vector<pair<T, U>>{};
+            }
+        }
+
+    } else {
+        cout << "illegal format!" << endl;
+        return vector<pair<T, U>>{};
+    }
+
+    return result;
+}
+AddConverter(PairVectorToString, StringToPairVector, vector<pair<int comma int>>);
+AddConverter(PairVectorToString, StringToPairVector, vector<pair<int comma float>>);
+AddConverter(PairVectorToString, StringToPairVector, vector<pair<int comma double>>);
+AddConverter(PairVectorToString, StringToPairVector, vector<pair<UShort_t comma float>>);
+AddConverter(PairVectorToString, StringToPairVector, vector<pair<UShort_t comma double>>);
+
+// Implement for triple (tuple)
+template <class T, class U, class V>
+string TripleToString(tuple<T, U, V> t) {
+    string result = "{";
+    result += Converter<T>::thisptr->ToStringFunc(get<0>(t));
+    result += ",";
+    result += Converter<U>::thisptr->ToStringFunc(get<1>(t));
+    result += ",";
+    result += Converter<V>::thisptr->ToStringFunc(get<2>(t));
+    result += "}";
+    return result;
+}
+
+template <class T, class U, class V>
+tuple<T, U, V> StringToTriple(string vec) {
+    tuple<T, U, V> result;
+    if (vec[0] == '{' && vec[vec.size() - 1] == '}') {
+        vec.erase(vec.begin());
+        vec.erase(vec.end() - 1);
+        vector<string> parts = Split(vec, ",");
+
+        if (parts.size() == 3) {
+            while (parts[0][0] == ' ') {
+                parts[0].erase(parts[0].begin());
+            }
+            while (parts[0][parts[0].size() - 1] == ' ') {
+                parts[0].erase(parts[0].end() - 1);
+            }
+            while (parts[1][0] == ' ') {
+                parts[1].erase(parts[1].begin());
+            }
+            while (parts[1][parts[1].size() - 1] == ' ') {
+                parts[1].erase(parts[1].end() - 1);
+            }
+            while (parts[2][0] == ' ') {
+                parts[2].erase(parts[2].begin());
+            }
+            while (parts[2][parts[2].size() - 1] == ' ') {
+                parts[2].erase(parts[2].end() - 1);
+            }
+            get<0>(result) = Converter<T>::thisptr->ParseStringFunc(parts[0]);
+            get<1>(result) = Converter<U>::thisptr->ParseStringFunc(parts[1]);
+            get<2>(result) = Converter<V>::thisptr->ParseStringFunc(parts[2]);
+        } else {
+            cout << "illegal format!" << endl;
+            return tuple<T, U, V>{};
+        }
+
+    } else {
+        cout << "illegal format!" << endl;
+        return tuple<T, U, V>{};
+    }
+    return result;
+}
+
+AddConverter(TripleToString, StringToTriple, tuple<int comma int comma int>);
+AddConverter(TripleToString, StringToTriple, tuple<int comma int comma float>);
+AddConverter(TripleToString, StringToTriple, tuple<int comma int comma double>);
+AddConverter(TripleToString, StringToTriple, tuple<UShort_t comma UShort_t comma int>);
+AddConverter(TripleToString, StringToTriple, tuple<UShort_t comma UShort_t comma float>);
+AddConverter(TripleToString, StringToTriple, tuple<UShort_t comma UShort_t comma double>);
+
+// vector of triple
+template <class T, class U, class V>
+string TripleVectorToString(vector<tuple<T, U, V>> vec) {
+    stringstream ss;
+    ss << "{";
+    int cont = 0;
+    for (auto const& x : vec) {
+        if (cont > 0) ss << ",";
+        cont++;
+
+        ss << "[";
+        ss << Converter<T>::thisptr->ToStringFunc(get<0>(x));
+        ss << ":";
+        ss << Converter<U>::thisptr->ToStringFunc(get<1>(x));
+        ss << ":";
+        ss << Converter<V>::thisptr->ToStringFunc(get<2>(x));
+        ss << "]";
+    }
+    ss << "}";
+    return ss.str();
+}
+
+template <class T, class U, class V>
+vector<tuple<T, U, V>> StringToTripleVector(string vec) {
+    vector<tuple<T, U, V>> result;
+    // input string format: {[dd:7],[aa:8],[ss:9]}
+    if (vec[0] == '{' && vec[vec.size() - 1] == '}') {
+        vec.erase(vec.begin());
+        vec.erase(vec.end() - 1);
+        vector<string> parts = Split(vec, ",");
+
+        for (string part : parts) {
+            while (part[0] == ' ') {
+                part.erase(part.begin());
+            }
+            while (part[part.size() - 1] == ' ') {
+                part.erase(part.end() - 1);
+            }
+
+            if (part[0] == '[' && part[part.size() - 1] == ']') {
+                part.erase(part.begin());
+                part.erase(part.end() - 1);
+                vector<string> key_value = Split(part, ":");
+                if (key_value.size() == 3) {
+                    T key = Converter<T>::thisptr->ParseStringFunc(key_value[0]);
+                    U value = Converter<U>::thisptr->ParseStringFunc(key_value[1]);
+                    V value2 = Converter<V>::thisptr->ParseStringFunc(key_value[2]);
+                    result.push_back(tuple<T, U, V>(key, value, value2));
+                } else {
+                    cout << "illegal format!" << endl;
+                    return vector<tuple<T, U, V>>{};
+                }
+            } else {
+                cout << "illegal format!" << endl;
+                return vector<tuple<T, U, V>>{};
+            }
+        }
+
+    } else {
+        cout << "illegal format!" << endl;
+        return vector<tuple<T, U, V>>{};
+    }
+
+    return result;
+}
+
+AddConverter(TripleVectorToString, StringToTripleVector, vector<tuple<int comma int comma int>>);
+AddConverter(TripleVectorToString, StringToTripleVector, vector<tuple<int comma int comma float>>);
+AddConverter(TripleVectorToString, StringToTripleVector, vector<tuple<int comma int comma double>>);
+AddConverter(TripleVectorToString, StringToTripleVector, vector<tuple<UShort_t comma UShort_t comma int>>);
+AddConverter(TripleVectorToString, StringToTripleVector, vector<tuple<UShort_t comma UShort_t comma float>>);
+AddConverter(TripleVectorToString, StringToTripleVector, vector<tuple<UShort_t comma UShort_t comma double>>);
+
+// Vector of vectors
+template <class T>
+string VectorVectorToString(vector<vector<T>> vec) {
+    stringstream ss;
+    ss << "{";
+    int cont = 0;
+    for (auto const& x : vec) {
+        if (cont > 0) ss << ",";
+        cont++;
+
+        ss << "[";
+        ss << Converter<vector<T>>::thisptr->ToStringFunc(x);
+        ss << "]";
+    }
+    ss << "}";
+    return ss.str();
+}
+
+template <class T>
+vector<vector<T>> StringToVectorVector(string vec) {
+    vector<vector<T>> result;
+    // input string format: {[dd:7],[aa:8],[ss:9]}
+    if (vec[0] == '{' && vec[vec.size() - 1] == '}') {
+        vec.erase(vec.begin());
+        vec.erase(vec.end() - 1);
+        vector<string> parts = Split(vec, ",");
+
+        for (string part : parts) {
+            while (part[0] == ' ') {
+                part.erase(part.begin());
+            }
+            while (part[part.size() - 1] == ' ') {
+                part.erase(part.end() - 1);
+            }
+
+            if (part[0] == '[' && part[part.size() - 1] == ']') {
+                part.erase(part.begin());
+                part.erase(part.end() - 1);
+                vector<string> key_value = Split(part, ":");
+                if (key_value.size() == 1) {
+                    vector<T> value = Converter<vector<T>>::thisptr->ParseStringFunc(key_value[0]);
+                    result.push_back(value);
+                } else {
+                    cout << "illegal format!" << endl;
+                    return vector<vector<T>>{};
+                }
+            } else {
+                cout << "illegal format!" << endl;
+                return vector<vector<T>>{};
+            }
+        }
+
+    } else {
+        cout << "illegal format!" << endl;
+        return vector<vector<T>>{};
+    }
+
+    return result;
+}
+
+AddConverter(VectorVectorToString, StringToVectorVector, vector<vector<int>>);
+AddConverter(VectorVectorToString, StringToVectorVector, vector<vector<float>>);
+AddConverter(VectorVectorToString, StringToVectorVector, vector<vector<double>>);
+AddConverter(VectorVectorToString, StringToVectorVector, vector<vector<string>>);
+AddConverter(VectorVectorToString, StringToVectorVector, vector<vector<UShort_t>>);
