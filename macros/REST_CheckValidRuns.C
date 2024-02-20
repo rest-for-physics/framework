@@ -37,15 +37,14 @@ namespace fs = std::filesystem;
 //*** CAUTION: Be aware that any non-REST file in the list will be removed if you use purge=1
 //***
 //*******************************************************************************************************
-Int_t REST_CheckValidRuns(TString namePattern, Bool_t purge = false) {
+Int_t REST_CheckValidRuns(std::string namePattern, Bool_t purge = false) {
     TGeoManager::SetVerboseLevel(0);
 
     vector<std::string> filesNotWellClosed;
 
     TRestStringOutput RESTLog;
 
-    string a = TRestTools::Execute((string)("ls -d -1 " + namePattern));
-    vector<string> b = Split(a, "\n");
+    std::vector<std::string> b = TRestTools::GetFilesMatchingPattern(namePattern, true);
 
     Double_t totalTime = 0;
     int cont = 0;
@@ -76,11 +75,12 @@ Int_t REST_CheckValidRuns(TString namePattern, Bool_t purge = false) {
         }
 
         RESTLog << "Run time (hours) : " << run->GetRunLength() / 3600. << RESTendl;
-        if (run->GetRunLength() > 0) totalTime += run->GetRunLength() / 3600.;
+        RESTLog << "Entries : " << run->GetEntries() << RESTendl;
 
-        if (run->GetEndTimestamp() == 0 || run->GetRunLength() < 0) {
+        if (run->GetEndTimestamp() == 0 || run->GetRunLength() < 0 || run->GetEntries() == 0) {
             filesNotWellClosed.push_back(filename);
-        }
+        } else if (run->GetRunLength() > 0)
+            totalTime += run->GetRunLength() / 3600.;
 
         delete run;
 
@@ -100,7 +100,6 @@ Int_t REST_CheckValidRuns(TString namePattern, Bool_t purge = false) {
         if (purge) {
             RESTLog << "---------------------------" << RESTendl;
             RESTLog << "The files have been removed" << RESTendl;
-            RESTLog << "---------------------------" << RESTendl;
         }
     }
 
