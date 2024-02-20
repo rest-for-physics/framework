@@ -169,6 +169,26 @@
 /// [2] d.GetTree()->GetEntries()
 /// \endcode
 ///
+/// Example 3 Automatically importing a dataset using restRoot
+///
+/// \code
+/// restRoot Dataset_FinalBabyIAXO_XMM_mM_P14.root
+///
+///  REST dataset file identified. It contains a valid TRestDataSet.
+///
+///  Importing dataset /nfs/dust/iaxo/user/jgalan//Dataset_FinalBabyIAXO_XMM_mM_P14.root as `dSet`
+///
+///  The dataset is ready. You may now access the dataset using:
+///
+///   - dSet->PrintMetadata()
+///   - dSet->GetDataFrame().GetColumnNames()
+///   - dSet->GetTree()->GetEntries()
+///
+///   - dSet->GetDataFrame().Display("")->Print()
+///   - dSet->GetDataFrame().Display({"colName1,colName2"})->Print()
+/// [0]
+/// \endcode
+///
 /// ### Relevant quantities
 ///
 /// Sometimes we will be willing that our dataset contains few variables
