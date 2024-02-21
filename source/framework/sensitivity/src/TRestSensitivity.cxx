@@ -195,7 +195,6 @@ void TRestSensitivity::ExportAveragedCurve(std::string fname) {
 }
 
 void TRestSensitivity::ExportCurve(std::string fname, int n = 0) {
-
     std::vector<Double_t> curve = GetSensitivityCurve(n);
     if (curve.empty()) return;
 
@@ -362,7 +361,6 @@ void TRestSensitivity::InitFromConfigFile() {
 /// later on.
 ///
 void TRestSensitivity::ExtractExperimentParameterizationNodes(Bool_t rescan) {
-
     if (fParameterizationNodes.empty() || rescan) {
         fParameterizationNodes.clear();
 
