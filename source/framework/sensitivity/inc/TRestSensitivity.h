@@ -35,7 +35,7 @@ class TRestSensitivity : public TRestMetadata {
     std::vector<Double_t> fParameterizationNodes;  //<
 
     /// The calculated coupling for each parametric node
-    std::vector<Double_t> fCouplingForNode;  //<
+    std::vector<std::vector<Double_t>> fCouplingsForNode;  //<
 
     /// It is used to generate a histogram with the signal distribution produced with different signal samples
     TH1D* fSignalTest = nullptr;
@@ -49,13 +49,21 @@ class TRestSensitivity : public TRestMetadata {
    public:
     void Initialize() override;
 
-    void ExtractExperimentParameterizationNodes();
+    void ExtractExperimentParameterizationNodes(Bool_t rescan = false);
     std::vector<Double_t> GetParameterizationNodes() { return fParameterizationNodes; }
     void PrintParameterizationNodes();
 
     Double_t GetCoupling(Double_t node, Double_t sigma = 2, Double_t precision = 0.01);
     void GenerateCurve();
-    void ExportCurve(std::string fname);
+    void GenerateCurves(Int_t N);
+
+    std::vector<Double_t> GetAveragedCurve();
+
+    void ExportCurve(std::string fname, int n);
+    void ExportAveragedCurve(std::string fname);
+
+    size_t GetNumberOfCurves() { return fCouplingsForNode.size(); }
+    std::vector<Double_t> GetSensitivityCurve(size_t n = 0);
 
     TH1D* SignalStatisticalTest(Double_t node, Int_t N);
 

@@ -76,11 +76,7 @@ TRestSensitivity::TRestSensitivity(const char* cfgFileName, const std::string& n
 /// \brief It will initialize the data frame with the filelist and column names
 /// (or observables) that have been defined by the user.
 ///
-void TRestSensitivity::Initialize() {
-    SetSectionName(this->ClassName());
-
-    ExtractExperimentParameterizationNodes();
-}
+void TRestSensitivity::Initialize() { SetSectionName(this->ClassName()); }
 
 ///////////////////////////////////////////////
 /// \brief It will return a value of the coupling, g4, such that (chi-chi0) gets
@@ -117,18 +113,60 @@ Double_t TRestSensitivity::ApproachByFactor(Double_t node, Double_t g4, Double_t
 void TRestSensitivity::GenerateCurve() {
     ExtractExperimentParameterizationNodes();
 
+    if (GetNumberOfCurves() > 0)
+        for (const auto& exp : fExperiments) {
+            exp->GenerateMockDataSet();
+        }
+
     RESTInfo << "Generating sensitivity curve" << RESTendl;
-    fCouplingForNode.clear();
+    std::vector<Double_t> curve;
     for (const auto& node : fParameterizationNodes) {
         RESTInfo << "Generating node : " << node << RESTendl;
-        fCouplingForNode.push_back(GetCoupling(node));
+        curve.push_back(GetCoupling(node));
     }
+    fCouplingsForNode.push_back(curve);
 
     RESTInfo << "Curve has been generated. You may use now TRestSensitivity::ExportCurve( fname.txt )."
              << RESTendl;
 }
 
-void TRestSensitivity::ExportCurve(std::string fname) {
+void TRestSensitivity::GenerateCurves(Int_t N) {
+    for (int n = 0; n < N; n++) GenerateCurve();
+}
+
+std::vector<Double_t> TRestSensitivity::GetSensitivityCurve(size_t n) {
+    if (n >= GetNumberOfCurves()) {
+        RESTWarning << "Requested curve number : " << n << " but only " << GetNumberOfCurves() << " generated"
+                    << RESTendl;
+        return std::vector<Double_t>();
+    }
+    return fCouplingsForNode[n];
+}
+
+std::vector<Double_t> TRestSensitivity::GetAveragedCurve() {
+    if (GetNumberOfCurves() <= 0) return std::vector<Double_t>();
+
+    std::cout << "Points : " << fCouplingsForNode[0].size() << std::endl;
+    std::vector<double> averagedCurve(fCouplingsForNode[0].size(), 0.0);  // Initialize with zeros
+
+    for (const auto& row : fCouplingsForNode) {
+        for (size_t i = 0; i < row.size(); ++i) {
+            averagedCurve[i] += row[i];
+        }
+    }
+
+    for (double& avg : averagedCurve) {
+        avg /= static_cast<double>(fCouplingsForNode.size());
+    }
+
+    return averagedCurve;
+}
+
+void TRestSensitivity::ExportAveragedCurve(std::string fname) {
+    std::vector<Double_t> curve = GetAveragedCurve();
+    if (curve.empty()) std::cout << "Curve is empty" << std::endl;
+    if (curve.empty()) return;
+
     // Open a file for writing
     std::ofstream outputFile(fname);
 
@@ -138,16 +176,48 @@ void TRestSensitivity::ExportCurve(std::string fname) {
         return;
     }
 
-    if (fParameterizationNodes.size() != fCouplingForNode.size()) {
-        RESTError << "TRestSensitivity::ExportCurve. Curve has not been generated" << RESTendl;
-        RESTError << "Try invoking TRestSensitivity::ExportCurve" << RESTendl;
+    if (fParameterizationNodes.size() != curve.size()) {
+        RESTError << "TRestSensitivity::ExportCurve. Curve has not been properly generated" << RESTendl;
+        RESTError << "Parameterization nodes: " << fParameterizationNodes.size() << RESTendl;
+        RESTError << "Try invoking TRestSensitivity::GenerateCurve" << RESTendl;
         return;
     }
 
-    int n = 0;
+    int m = 0;
     for (const auto& node : fParameterizationNodes) {
-        outputFile << node << " " << fCouplingForNode[n] << std::endl;
-        n++;
+        outputFile << node << " " << curve[m] << std::endl;
+        m++;
+    }
+
+    outputFile.close();
+
+    RESTInfo << "TRestSensitivity::ExportCurve. File has been written successfully!" << RESTendl;
+}
+
+void TRestSensitivity::ExportCurve(std::string fname, int n = 0) {
+
+    std::vector<Double_t> curve = GetSensitivityCurve(n);
+    if (curve.empty()) return;
+
+    // Open a file for writing
+    std::ofstream outputFile(fname);
+
+    // Check if the file is opened successfully
+    if (!outputFile) {
+        RESTError << "TRestSensitivity::ExportCurve. Error opening file for writing!" << RESTendl;
+        return;
+    }
+
+    if (fParameterizationNodes.size() != curve.size()) {
+        RESTError << "TRestSensitivity::ExportCurve. Curve has not been properly generated" << RESTendl;
+        RESTError << "Try invoking TRestSensitivity::GenerateCurve" << RESTendl;
+        return;
+    }
+
+    int m = 0;
+    for (const auto& node : fParameterizationNodes) {
+        outputFile << node << " " << curve[m] << std::endl;
+        m++;
     }
 
     outputFile.close();
@@ -291,16 +361,19 @@ void TRestSensitivity::InitFromConfigFile() {
 /// than one experiment is sensitivy to a given node, the sensitivity will be combined
 /// later on.
 ///
-void TRestSensitivity::ExtractExperimentParameterizationNodes() {
-    fParameterizationNodes.clear();
+void TRestSensitivity::ExtractExperimentParameterizationNodes(Bool_t rescan) {
 
-    for (const auto& experiment : fExperiments) {
-        std::vector<Double_t> nodes = experiment->GetSignal()->GetParameterizationNodes();
-        fParameterizationNodes.insert(fParameterizationNodes.end(), nodes.begin(), nodes.end());
+    if (fParameterizationNodes.empty() || rescan) {
+        fParameterizationNodes.clear();
 
-        std::sort(fParameterizationNodes.begin(), fParameterizationNodes.end());
-        auto last = std::unique(fParameterizationNodes.begin(), fParameterizationNodes.end());
-        fParameterizationNodes.erase(last, fParameterizationNodes.end());
+        for (const auto& experiment : fExperiments) {
+            std::vector<Double_t> nodes = experiment->GetSignal()->GetParameterizationNodes();
+            fParameterizationNodes.insert(fParameterizationNodes.end(), nodes.begin(), nodes.end());
+
+            std::sort(fParameterizationNodes.begin(), fParameterizationNodes.end());
+            auto last = std::unique(fParameterizationNodes.begin(), fParameterizationNodes.end());
+            fParameterizationNodes.erase(last, fParameterizationNodes.end());
+        }
     }
 }
 
