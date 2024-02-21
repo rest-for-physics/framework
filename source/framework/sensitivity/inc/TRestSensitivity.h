@@ -34,8 +34,11 @@ class TRestSensitivity : public TRestMetadata {
     /// The fusioned list of parameterization nodes found at each experiment signal
     std::vector<Double_t> fParameterizationNodes;  //<
 
-    /// The calculated coupling for each parametric node
-    std::vector<std::vector<Double_t>> fCouplingsForNode;  //<
+    /// A vector of calculated sensitivity curves defined as a funtion of the parametric node
+    std::vector<std::vector<Double_t>> fCurves;  //<
+
+    /// A flag that will frozen adding more experiments in the future.
+    Bool_t fFrozen = false;  //<  Only needed if we add experiments by other means than RML
 
     /// It is used to generate a histogram with the signal distribution produced with different signal samples
     TH1D* fSignalTest = nullptr;
@@ -62,10 +65,11 @@ class TRestSensitivity : public TRestMetadata {
     void ExportCurve(std::string fname, int n);
     void ExportAveragedCurve(std::string fname);
 
-    size_t GetNumberOfCurves() { return fCouplingsForNode.size(); }
     std::vector<Double_t> GetSensitivityCurve(size_t n = 0);
 
     TH1D* SignalStatisticalTest(Double_t node, Int_t N);
+
+    void Freeze() { fFrozen = true; }
 
     std::vector<TRestExperiment*> GetExperiments() { return fExperiments; }
     TRestExperiment* GetExperiment(const size_t& n) {
@@ -76,6 +80,8 @@ class TRestSensitivity : public TRestMetadata {
     }
 
     size_t GetNumberOfExperiments() { return fExperiments.size(); }
+    size_t GetNumberOfCurves() { return fCurves.size(); }
+    size_t GetNumberOfNodes() { return fParameterizationNodes.size(); }
 
     void PrintMetadata() override;
 
@@ -83,6 +89,6 @@ class TRestSensitivity : public TRestMetadata {
     TRestSensitivity();
     ~TRestSensitivity();
 
-    ClassDefOverride(TRestSensitivity, 1);
+    ClassDefOverride(TRestSensitivity, 2);
 };
 #endif

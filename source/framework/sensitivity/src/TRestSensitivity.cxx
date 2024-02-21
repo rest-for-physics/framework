@@ -124,7 +124,7 @@ void TRestSensitivity::GenerateCurve() {
         RESTInfo << "Generating node : " << node << RESTendl;
         curve.push_back(GetCoupling(node));
     }
-    fCouplingsForNode.push_back(curve);
+    fCurves.push_back(curve);
 
     RESTInfo << "Curve has been generated. You may use now TRestSensitivity::ExportCurve( fname.txt )."
              << RESTendl;
@@ -140,23 +140,22 @@ std::vector<Double_t> TRestSensitivity::GetSensitivityCurve(size_t n) {
                     << RESTendl;
         return std::vector<Double_t>();
     }
-    return fCouplingsForNode[n];
+    return fCurves[n];
 }
 
 std::vector<Double_t> TRestSensitivity::GetAveragedCurve() {
     if (GetNumberOfCurves() <= 0) return std::vector<Double_t>();
 
-    std::cout << "Points : " << fCouplingsForNode[0].size() << std::endl;
-    std::vector<double> averagedCurve(fCouplingsForNode[0].size(), 0.0);  // Initialize with zeros
+    std::vector<double> averagedCurve(fCurves[0].size(), 0.0);  // Initialize with zeros
 
-    for (const auto& row : fCouplingsForNode) {
+    for (const auto& row : fCurves) {
         for (size_t i = 0; i < row.size(); ++i) {
             averagedCurve[i] += row[i];
         }
     }
 
     for (double& avg : averagedCurve) {
-        avg /= static_cast<double>(fCouplingsForNode.size());
+        avg /= static_cast<double>(fCurves.size());
     }
 
     return averagedCurve;
@@ -388,6 +387,12 @@ void TRestSensitivity::PrintParameterizationNodes() {
 ///
 void TRestSensitivity::PrintMetadata() {
     TRestMetadata::PrintMetadata();
+
+    RESTMetadata << " - Number of parameterization nodes : " << GetNumberOfNodes() << RESTendl;
+    RESTMetadata << " - Number of experiments loaded : " << GetNumberOfExperiments() << RESTendl;
+    RESTMetadata << " - Number of sensitivity curves generated : " << GetNumberOfCurves() << RESTendl;
+    RESTMetadata << " " << RESTendl;
+    RESTMetadata << " You may access experiment info using TRestSensitivity::GetExperiment(n)" << RESTendl;
 
     RESTMetadata << "----" << RESTendl;
 }
