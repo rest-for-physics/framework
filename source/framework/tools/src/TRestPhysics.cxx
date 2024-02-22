@@ -121,9 +121,8 @@ TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir
 ///
 /// In case no intersection is found this method returns the unmodified input position.
 ///
-TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t alpha,
+TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t beta,
                                          const Double_t R3, const Double_t focal) {
-    Double_t beta = 3 * alpha;
     Double_t e = 2 * R3 * TMath::Tan(beta);
     /// Just replaced here *TMath::Cot by /TMath::Tan to fix compilation issues
     Double_t g = 2 * R3 * TMath::Tan(beta) / (focal + R3 / TMath::Tan(2 * alpha));
@@ -220,10 +219,9 @@ TVector3 GetParabolicNormal(const TVector3& pos, const Double_t alpha, const Dou
 /// `beta` is the angle between the hyperboloid and the z-axis at the plane where the
 /// hyperboloid has the radius `R3`.
 ///
-TVector3 GetHyperbolicNormal(const TVector3& pos, const Double_t alpha, const Double_t R3,
+TVector3 GetHyperbolicNormal(const TVector3& pos, const Double_t beta, const Double_t R3,
                              const Double_t focal) {
     TVector3 normalVec = pos;
-    Double_t beta = 3 * alpha;
     /// Just replaced here *TMath::Cot by /TMath::Tan to fix compilation issues
     Double_t m = 1 / (R3 * TMath::Tan(beta) * (1 - 2 * pos.Z() / (focal + R3 / TMath::Tan(2 * alpha))) /
                       TMath::Sqrt(R3 * R3 - R3 * 2 * TMath::Tan(beta) * pos.Z() *
