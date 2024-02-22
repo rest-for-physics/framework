@@ -124,6 +124,7 @@ TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir
 TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t beta,
                                          const Double_t R3, const Double_t focal) {
     Double_t e = 2 * R3 * TMath::Tan(beta);
+    Double_t alpha = beta / 3;
     /// Just replaced here *TMath::Cot by /TMath::Tan to fix compilation issues
     Double_t g = 2 * R3 * TMath::Tan(beta) / (focal + R3 / TMath::Tan(2 * alpha));
     Double_t a = dir.X() * dir.X() + dir.Y() * dir.Y() - g * dir.Z() * dir.Z();
@@ -222,6 +223,7 @@ TVector3 GetParabolicNormal(const TVector3& pos, const Double_t alpha, const Dou
 TVector3 GetHyperbolicNormal(const TVector3& pos, const Double_t beta, const Double_t R3,
                              const Double_t focal) {
     TVector3 normalVec = pos;
+    Double_t alpha = beta / 3;
     /// Just replaced here *TMath::Cot by /TMath::Tan to fix compilation issues
     Double_t m = 1 / (R3 * TMath::Tan(beta) * (1 - 2 * pos.Z() / (focal + R3 / TMath::Tan(2 * alpha))) /
                       TMath::Sqrt(R3 * R3 - R3 * 2 * TMath::Tan(beta) * pos.Z() *
