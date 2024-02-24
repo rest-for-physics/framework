@@ -85,14 +85,14 @@ TVector3 GetPlaneVectorIntersection(const TVector3& pos, const TVector3& dir, co
 
 //////////////////////////////////////////////
 /// This method will find the intersection between a vector and a parabolic shape where `alpha` is the angle
-/// between the optical axis and the paraboloid at the plane where the paraboloid has a radius of `R3`.
-/// The paraboloid is rotationally symmetric around the optical axis. `alpha` in rad.
-/// The region in which the intersection can happen here is between `-lMirr` and 0 on the z (optical) axis
+/// between the z-axis and the paraboloid at the plane where the paraboloid has a radius of `R3`.
+/// The paraboloid is rotationally symmetric around the z-axis. `alpha` in rad.
+/// The region in which the intersection can happen here is in negative direction on the z-axis.
 ///
-/// In case no intersection is found this method returns the unmodified input position
+/// In case no intersection is found this method returns the unmodified input position.
 ///
 TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t alpha,
-                                        const Double_t R3, const Double_t lMirr) {
+                                        const Double_t R3) {
     Double_t e = 2 * R3 * TMath::Tan(alpha);
     Double_t a = dir.X() * dir.X() + dir.Y() * dir.Y();
     Double_t b = 2 * (pos.X() * dir.X() + pos.Y() * dir.Y()) + e * dir.Z();
@@ -101,9 +101,11 @@ TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir
     if (a != 0) {
         Double_t root1 = (-half_b - TMath::Sqrt(half_b * half_b - a * c)) / a;
         Double_t root2 = (-half_b + TMath::Sqrt(half_b * half_b - a * c)) / a;
-        if (pos.Z() + root1 * dir.Z() > -lMirr and pos.Z() + root1 * dir.Z() < 0) {
+        Double_t int1 = pos.Z() + root1 * dir.Z();
+        Double_t int2 = pos.Z() + root2 * dir.Z();
+        if (int1 < 0 and int2 < 0 and int1 > int2) {
             return pos + root1 * dir;
-        } else if (pos.Z() + root2 * dir.Z() > -lMirr and pos.Z() + root2 * dir.Z() < 0) {
+        } else if (int1 < 0 and int2 < 0 and int1 < int2) {
             return pos + root2 * dir;
         }
         return pos;
@@ -112,17 +114,17 @@ TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir
 }
 
 //////////////////////////////////////////////
-/// This method will find the intersection between a vector and a hyperbolic shape where 3 * `alpha` is the
-/// angle between the optical axis and the hyperboloid at the plane where the hyperboloid has a radius of
-/// `R3`. The hyperboloid is rotationally symmetric around the optical axis. `alpha` in rad. The region in
-/// which the intersection can happen here is between 0 and `lMirr` on the `z` (optical) axis
+/// This method will find the intersection between a vector and a hyperbolic shape where beta = 3 * `alpha` is
+/// the angle between the z-axis and the hyperboloid at the plane where the hyperboloid has a radius of `R3`.
+/// The hyperboloid is rotationally symmetric around the z-axis. `alpha` in rad. The region in which the
+/// intersection can happen here is in positive direction on the z-axis.
 ///
-/// In case no intersection is found this method returns the unmodified input position
+/// In case no intersection is found this method returns the unmodified input position.
 ///
-TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t alpha,
-                                         const Double_t R3, const Double_t lMirr, const Double_t focal) {
-    Double_t beta = 3 * alpha;
+TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t beta,
+                                         const Double_t R3, const Double_t focal) {
     Double_t e = 2 * R3 * TMath::Tan(beta);
+    Double_t alpha = beta / 3;
     /// Just replaced here *TMath::Cot by /TMath::Tan to fix compilation issues
     Double_t g = 2 * R3 * TMath::Tan(beta) / (focal + R3 / TMath::Tan(2 * alpha));
     Double_t a = dir.X() * dir.X() + dir.Y() * dir.Y() - g * dir.Z() * dir.Z();
@@ -131,12 +133,13 @@ TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& di
     Double_t c = pos.X() * pos.X() + pos.Y() * pos.Y() - R3 * R3 + e * pos.Z() - g * pos.Z() * pos.Z();
     Double_t root1 = (-half_b - TMath::Sqrt(half_b * half_b - a * c)) / a;
     Double_t root2 = (-half_b + TMath::Sqrt(half_b * half_b - a * c)) / a;
-    if (pos.Z() + root1 * dir.Z() > 0 and pos.Z() + root1 * dir.Z() < lMirr) {
+    Double_t int1 = pos.Z() + root1 * dir.Z();
+    Double_t int2 = pos.Z() + root2 * dir.Z();
+    if (int1 > 0 and int2 > 0 and int1 < int2) {
         return pos + root1 * dir;
-    } else if (pos.Z() + root2 * dir.Z() > 0 and pos.Z() + root2 * dir.Z() < lMirr) {
+    } else if (int1 > 0 and int2 > 0 and int1 > int2) {
         return pos + root2 * dir;
     }
-
     return pos;
 }
 
@@ -199,7 +202,7 @@ TVector3 GetConeNormal(const TVector3& pos, const Double_t alpha, const Double_t
 ///////////////////////////////////////////////
 /// \brief This method returns the normal vector on a parabolic surface pointing towards the inside
 /// of the paraboloid. `pos` is the origin point of the normal vector on the parabolic plane and
-/// `alpha` is the angle between the paraboloid and the optical (z) axis at the plane where the
+/// `alpha` is the angle between the paraboloid and the z-axis at the plane where the
 /// paraboloid has the radius `R3`.
 ///
 TVector3 GetParabolicNormal(const TVector3& pos, const Double_t alpha, const Double_t R3) {
@@ -214,13 +217,13 @@ TVector3 GetParabolicNormal(const TVector3& pos, const Double_t alpha, const Dou
 ///////////////////////////////////////////////
 /// \brief This method returns the normal vector on a hyperbolic surface pointing towards the inside
 /// of the hyperboloid. `pos` is the origin point of the normal vector on the hyperbolic plane and
-/// `beta` is the angle between the hyperboloid and the optical (z) axis at the plane where the
+/// `beta` is the angle between the hyperboloid and the z-axis at the plane where the
 /// hyperboloid has the radius `R3`.
 ///
-TVector3 GetHyperbolicNormal(const TVector3& pos, const Double_t alpha, const Double_t R3,
+TVector3 GetHyperbolicNormal(const TVector3& pos, const Double_t beta, const Double_t R3,
                              const Double_t focal) {
     TVector3 normalVec = pos;
-    Double_t beta = 3 * alpha;
+    Double_t alpha = beta / 3;
     /// Just replaced here *TMath::Cot by /TMath::Tan to fix compilation issues
     Double_t m = 1 / (R3 * TMath::Tan(beta) * (1 - 2 * pos.Z() / (focal + R3 / TMath::Tan(2 * alpha))) /
                       TMath::Sqrt(R3 * R3 - R3 * 2 * TMath::Tan(beta) * pos.Z() *
