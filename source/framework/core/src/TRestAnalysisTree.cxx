@@ -623,6 +623,7 @@ Double_t TRestAnalysisTree::GetDblObservableValue(Int_t n) {
     }
 
     if (GetObservableType(n) == "int") return GetObservableValue<int>(n);
+    if (GetObservableType(n) == "float") return GetObservableValue<float>(n);
     if (GetObservableType(n) == "double") return GetObservableValue<double>(n);
 
     cout << "TRestAnalysisTree::GetDblObservableValue. Type " << GetObservableType(n)
