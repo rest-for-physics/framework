@@ -512,6 +512,28 @@ TRestMetadata::TRestMetadata() : RESTendl(this) {
 #endif
 }
 
+TRestMetadata::TRestMetadata(const TRestMetadata&) : RESTendl(this) {
+    fStore = true;
+    fElementGlobal = nullptr;
+    fElement = nullptr;
+    fVerboseLevel = gVerbose;
+    fVariables.clear();
+    fConstants.clear();
+    fHostmgr = nullptr;
+
+    fConfigFileName = "null";
+    configBuffer = "";
+    RESTMetadata.setlength(100);
+
+#ifdef WIN32
+    fOfficialRelease = true;
+    fCleanState = true;
+#else
+    if (TRestTools::Execute("rest-config --release") == "Yes") fOfficialRelease = true;
+    if (TRestTools::Execute("rest-config --clean") == "Yes") fCleanState = true;
+#endif
+}
+
 ///////////////////////////////////////////////
 /// \brief constructor
 ///
@@ -2549,6 +2571,8 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
                         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
                         Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
                         *(TVector3*)datamember = TVector3(valueX, valueY, valueZ);
+                    } else if (datamember.type == "string") {
+                        // We just ignore this case
                     } else {
                         RESTWarning << this->ClassName() << " find unit definition in parameter: " << name
                                     << ", but the corresponding data member doesn't support it. Data "
