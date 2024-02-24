@@ -49,7 +49,7 @@ constexpr double kBoltzman = 1.380E-23;
 constexpr double hPlanck = 1.054E-34;
 
 /// A meter in eV
-constexpr double PhMeterIneV = 5067731.236453719;  // 8.0655447654281218E5;// 506.773123645372;
+constexpr double PhMeterIneV = 5067731.236453719;
 /// A second in eV (using natural units)
 constexpr double secondIneV = 1519225802531030.2;
 /// Electron charge in natural units
@@ -76,16 +76,16 @@ TVector3 GetPlaneVectorIntersection(const TVector3& pos, const TVector3& dir, TV
                                     TVector3 const& a);
 
 TVector3 GetParabolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t alpha,
-                                        const Double_t R3, const Double_t lMirr);
+                                        const Double_t R3);
 
-TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t alpha,
-                                         const Double_t R3, const Double_t lMirr, const Double_t focal);
+TVector3 GetHyperbolicVectorIntersection(const TVector3& pos, const TVector3& dir, const Double_t beta,
+                                         const Double_t R3, const Double_t focal);
 
 TVector3 GetConeNormal(const TVector3& pos, const Double_t alpha, const Double_t R = 0);
 
 TVector3 GetParabolicNormal(const TVector3& pos, const Double_t alpha, const Double_t R3);
 
-TVector3 GetHyperbolicNormal(const TVector3& pos, const Double_t alpha, const Double_t R3,
+TVector3 GetHyperbolicNormal(const TVector3& pos, const Double_t beta, const Double_t R3,
                              const Double_t focal);
 
 TMatrixD GetConeMatrix(const TVector3& d, const Double_t cosTheta);

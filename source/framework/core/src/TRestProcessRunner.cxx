@@ -1099,9 +1099,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
         // Nevents is unknown, reading root file
         {
             prog = fRunInfo->GetCurrentEntry() / (double)inputtreeentries * 100;
-        }
-
-        else {
+        } else {
             prog = fProcessedEvents / (double)fEventsToProcess * 100;
         }
 
