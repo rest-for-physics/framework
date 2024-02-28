@@ -66,6 +66,11 @@ endif ()
 set(external_include_dirs)
 set(external_libs)
 
+if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    set(external_include_dirs ${external_include_dirs} "/usr/local/include/")
+    message(STATUS "Adding BREW include directory: /usr/local/include")
+endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${DECAY_PATH}/cmake
                       ${CMAKE_MODULE_PATH})
 set(CMAKE_MACOSX_RPATH 1)
