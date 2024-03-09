@@ -1284,7 +1284,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
             url = _filename;
         }
 
-        filename = TRestTools::DownloadRemoteFile(url);
+        filename = TRestTools::DownloadRemoteFile(url, true);
     } else {
         filename = SearchFile(_filename);
     }
