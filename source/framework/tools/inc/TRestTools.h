@@ -127,7 +127,7 @@ class TRestTools {
 
     static std::string Execute(std::string cmd);
 
-    static std::string DownloadRemoteFile(const std::string& remoteFile);
+    static std::string DownloadRemoteFile(const std::string& remoteFile, bool pidPrefix = false);
     static int DownloadRemoteFile(std::string remoteFile, std::string localFile);
     static int UploadToServer(std::string localFile, std::string remoteFile, std::string methodUrl = "");
 
