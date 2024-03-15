@@ -186,6 +186,8 @@ void TRestDataSetGainMap::InitFromConfigFile() {
         moduleDefinition = GetNextElement(moduleDefinition);
     }
 
+    fCut = (TRestCut*)InstantiateChildMetadata("TRestCut");
+
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) PrintMetadata();
 }
 
@@ -347,6 +349,7 @@ TRestDataSetGainMap& TRestDataSetGainMap::operator=(TRestDataSetGainMap& src) {
     fObservable = src.GetObservable();
     fSpatialObservableX = src.GetSpatialObservableX();
     fSpatialObservableY = src.GetSpatialObservableY();
+    fCut = src.GetCut();
     fModulesCal.clear();
     for (auto pID : src.GetPlaneIDs())
         for (auto mID : src.GetModuleIDs(pID)) fModulesCal.push_back(*src.GetModule(pID, mID));
@@ -432,6 +435,7 @@ void TRestDataSetGainMap::Export(const std::string& fileName) {
 void TRestDataSetGainMap::PrintMetadata() {
     TRestMetadata::PrintMetadata();
     RESTMetadata << " Calibration dataset: " << fCalibFileName << RESTendl;
+    if (fCut) fCut->Print();
     RESTMetadata << " Output file: " << fOutputFileName << RESTendl;
     RESTMetadata << " Number of planes:  " << GetNumberOfPlanes() << RESTendl;
     RESTMetadata << " Number of modules: " << GetNumberOfModules() << RESTendl;
@@ -632,6 +636,8 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
     dataSet.EnableMultiThreading(true);
     dataSet.Import(dsFileName);
     fDataSetFileName = dsFileName;
+
+    dataSet.SetDataFrame(dataSet.MakeCut(p->GetCut()));
 
     SetSplits();
 

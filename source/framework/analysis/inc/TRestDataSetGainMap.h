@@ -33,6 +33,7 @@
 #include <TTree.h>
 #include <TVector2.h>
 
+#include "TRestCut.h"
 #include "TRestDataSet.h"
 #include "TRestMetadata.h"
 
@@ -60,6 +61,8 @@ class TRestDataSetGainMap : public TRestMetadata {
     /// Name of the file where the gain map was (or will be) exported
     std::string fOutputFileName = "";  //<
 
+    /// Cut to be applied to the calibration data
+    TRestCut* fCut = nullptr;  //<
 
     void Initialize() override;
     void InitFromConfigFile() override;
@@ -80,6 +83,7 @@ class TRestDataSetGainMap : public TRestMetadata {
     std::string GetObservable() const { return fObservable; }
     std::string GetSpatialObservableX() const { return fSpatialObservableX; }
     std::string GetSpatialObservableY() const { return fSpatialObservableY; }
+    TRestCut* GetCut() const { return fCut; }
 
     Module* GetModule(const int planeID, const int moduleID);
     double GetSlopeParameter(const int planeID, const int moduleID, const double x, const double y);
@@ -95,6 +99,7 @@ class TRestDataSetGainMap : public TRestMetadata {
     void SetSpatialObservableY(const std::string& spatialObservableY) {
         fSpatialObservableY = spatialObservableY;
     }
+    void SetCut(TRestCut* cut) { fCut = cut; }
 
     void Import(const std::string& fileName);
     void Export(const std::string& fileName = "");
