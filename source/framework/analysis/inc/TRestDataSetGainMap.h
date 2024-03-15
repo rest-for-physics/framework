@@ -217,7 +217,7 @@ class TRestDataSetGainMap : public TRestMetadata {
                           TCanvas* c = nullptr);
         void DrawFullSpectrum();
 
-        void DrawLinearFit();
+        void DrawLinearFit(TCanvas* c = nullptr);
         void DrawLinearFit(const TVector2& position, TCanvas* c = nullptr);
         void DrawLinearFit(const int index_x, const int index_y, TCanvas* c = nullptr);
 

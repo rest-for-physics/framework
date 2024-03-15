@@ -1103,8 +1103,9 @@ void TRestDataSetGainMap::Module::DrawSpectrum(const bool drawFits, const int co
 
     for (size_t i = 0; i < fSegSpectra.size(); i++) {
         for (size_t j = 0; j < fSegSpectra[i].size(); j++) {
-            c->cd(i + 1 + fSegSpectra[i].size() * j);
-            DrawSpectrum(i, fSegSpectra[i].size() - 1 - j, drawFits, color, c);
+            int pad = fSegSpectra.size() * (fSegSpectra[i].size() - 1) + 1 + i - fSegSpectra.size() * j;
+            c->cd(pad);
+            DrawSpectrum(i, j, drawFits, color, c);
         }
     }
 }
@@ -1160,15 +1161,31 @@ void TRestDataSetGainMap::Module::DrawLinearFit(const int index_x, const int ind
     fSegLinearFit[index_x][index_y]->Draw("AL*");
 }
 
-void TRestDataSetGainMap::Module::DrawLinearFit() {
-    std::string t = "linearFits_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId);
-    TCanvas* myCanvas = new TCanvas(t.c_str(), t.c_str());
-    myCanvas->Divide(fSegLinearFit.size(), fSegLinearFit.at(0).size());
+void TRestDataSetGainMap::Module::DrawLinearFit(TCanvas* c) {
+    if (fSegLinearFit.size() == 0) {
+        RESTError << "Spectra matrix is empty." << p->RESTendl;
+        return;
+    }
+    if (!c) {
+        std::string t = "linearFits_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId);
+        c = new TCanvas(t.c_str(), t.c_str());
+    }
+
+    size_t nPads = 0;
+    for (const auto& object : *c->GetListOfPrimitives())
+        if (object->InheritsFrom(TVirtualPad::Class())) ++nPads;
+    if (nPads != 0 && nPads != fSegLinearFit.size() * fSegLinearFit.at(0).size()) {
+        RESTError << "Canvas " << c->GetName() << " has " << nPads << " pads, but "
+                  << fSegLinearFit.size() * fSegLinearFit.at(0).size() << " are needed." << p->RESTendl;
+        return;
+    } else if (nPads == 0)
+        c->Divide(fSegLinearFit.size(), fSegLinearFit.at(0).size());
+
     for (size_t i = 0; i < fSegLinearFit.size(); i++) {
         for (size_t j = 0; j < fSegLinearFit[i].size(); j++) {
-            myCanvas->cd(i + 1 + fSegLinearFit[i].size() * j);
-            // fSegLinearFit[i][j]->Draw("AL*");
-            DrawLinearFit(i, fSegSpectra[i].size() - 1 - j, myCanvas);
+            int pad = fSegLinearFit.size() * (fSegLinearFit[i].size() - 1) + 1 + i - fSegLinearFit.size() * j;
+            c->cd(pad);
+            DrawLinearFit(i, j, c);
         }
     }
 }
@@ -1179,6 +1196,11 @@ void TRestDataSetGainMap::Module::DrawGainMap(const int peakNumber) {
                   << fEnergyPeaks.size() - 1 << " )" << p->RESTendl;
         return;
     }
+    if (fSegLinearFit.size() == 0) {
+        RESTError << "Linear fit matrix is empty." << p->RESTendl;
+        return;
+    }
+
     double peakEnergy = fEnergyPeaks[peakNumber];
     std::string title = "Gain map for energy " + DoubleToString(peakEnergy, "%g") + ";" +
                         GetSpatialObservableX() + ";" + GetSpatialObservableY();  // + " keV";
@@ -1186,8 +1208,8 @@ void TRestDataSetGainMap::Module::DrawGainMap(const int peakNumber) {
                     std::to_string(fModuleId);
     TCanvas* gainMap = new TCanvas(t.c_str(), t.c_str());
     gainMap->cd();
-    TH2F* hGainMap = new TH2F(("h" + t).c_str(), title.c_str(), fNumberOfSegmentsY, fReadoutRange.X(),
-                              fReadoutRange.Y(), fNumberOfSegmentsX, fReadoutRange.X(), fReadoutRange.Y());
+    TH2F* hGainMap = new TH2F(("h" + t).c_str(), title.c_str(), fNumberOfSegmentsX, fReadoutRange.X(),
+                              fReadoutRange.Y(), fNumberOfSegmentsY, fReadoutRange.X(), fReadoutRange.Y());
 
     const double peakPosRef =
         fSegLinearFit[(fNumberOfSegmentsX - 1) / 2][(fNumberOfSegmentsY - 1) / 2]->GetPointX(peakNumber);
@@ -1200,8 +1222,10 @@ void TRestDataSetGainMap::Module::DrawGainMap(const int peakNumber) {
             auto xUpper = *std::next(itX);
             auto yLower = *itY;
             auto yUpper = *std::next(itY);
-            hGainMap->Fill((xUpper + xLower) / 2., (yUpper + yLower) / 2.,
-                           fSegLinearFit[i][j]->GetPointX(peakNumber) / peakPosRef);
+            float xMean = (xUpper + xLower) / 2.;
+            float yMean = (yUpper + yLower) / 2.;
+            auto [index_x, index_y] = GetIndexMatrix(xMean, yMean);
+            hGainMap->Fill(xMean, yMean, fSegLinearFit[index_x][index_y]->GetPointX(peakNumber) / peakPosRef);
             itY++;
         }
         itX++;
