@@ -218,6 +218,7 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
     }
 
     TRestDataSet dataSet;
+    dataSet.EnableMultiThreading(true);
     dataSet.Import(dataSetFileName);
     auto dataFrame = dataSet.GetDataFrame();
 
@@ -628,6 +629,7 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
     }
     if (!TRestTools::isDataSet(dsFileName)) RESTWarning << dsFileName << " is not a dataset." << p->RESTendl;
     TRestDataSet dataSet;
+    dataSet.EnableMultiThreading(true);
     dataSet.Import(dsFileName);
     fDataSetFileName = dsFileName;
 
