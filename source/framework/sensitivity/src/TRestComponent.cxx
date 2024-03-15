@@ -631,6 +631,25 @@ void TRestComponent::InitFromConfigFile() {
 /// \brief It returns the position of the fParameterizationNodes
 /// element for the variable name given by argument.
 ///
+Int_t TRestComponent::FindActiveNode(Double_t node) {
+    int n = 0;
+    for (const auto& v : fParameterizationNodes) {
+        Double_t pUp = node * (1 + fPrecision / 2);
+        Double_t pDown = node * (1 - fPrecision / 2);
+        if (v > pDown && v < pUp) {
+            fActiveNode = n;
+            return fActiveNode;
+        }
+        n++;
+    }
+
+    return -1;
+}
+
+/////////////////////////////////////////////
+/// \brief It returns the position of the fParameterizationNodes
+/// element for the variable name given by argument.
+///
 Int_t TRestComponent::SetActiveNode(Double_t node) {
     int n = 0;
     for (const auto& v : fParameterizationNodes) {

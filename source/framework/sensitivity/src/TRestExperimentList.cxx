@@ -177,14 +177,17 @@ void TRestExperimentList::InitFromConfigFile() {
                 }
                 column++;
             } else {
-                experiment->SetExposureInSeconds(fExposureTime * units("s"));
-                // We will generate mock data once we load the background component
-                generateMockData = true;
+                if (ToLower(fExposureStrategy) == "unique") {
+                    experiment->SetExposureInSeconds(fExposureTime * units("s"));
+                    // We will generate mock data once we load the background component
+                    generateMockData = true;
+                }
             }
 
             if (!fSignal) {
                 if (GetComponent(experimentRow[column])) {
                     TRestComponent* sgnl = (TRestComponent*)GetComponent(experimentRow[column])->Clone();
+                    sgnl->SetName((TString)experimentRow[column]);
                     experiment->SetSignal(sgnl);
                 } else {
                     RESTError << "TRestExperimentList. Signal component : " << experimentRow[column]
@@ -212,9 +215,82 @@ void TRestExperimentList::InitFromConfigFile() {
                 experiment->GenerateMockDataSet();
             }
 
-            fExperiments.push_back(experiment);
+            if (experiment->GetSignal() && experiment->GetBackground()) {
+                experiment->SetName(experiment->GetSignal()->GetName());
+                fExperiments.push_back(experiment);
+            }
+        }
+
+        /// TODO. I am being lazy here. It would be more appropriate that
+        /// I create a TRestAxionExperimentList::TRestExperimentList
+        /// that implements this axion dedicated piece of code
+        if (fExposureTime > 0 && ToLower(fExposureStrategy) == "ksvz") {
+            ExtractExperimentParameterizationNodes();
+
+            Double_t Coefficient = 0;
+            for (const auto& node : fParameterizationNodes) {
+                Double_t expectedRate = 0;
+                for (const auto& experiment : fExperiments) {
+                    Int_t nd = experiment->GetSignal()->FindActiveNode(node);
+                    if (nd >= 0) {
+                        experiment->GetSignal()->SetActiveNode(nd);
+                        expectedRate += experiment->GetSignal()->GetTotalRate();
+                    }
+                }
+
+                Coefficient += 1. / node / expectedRate;
+            }
+
+            Double_t expectedRate = 0;
+            for (const auto& experiment : fExperiments) {
+                // We consider the contribution to each node for a given experiment
+                for (const auto& node : fParameterizationNodes) {
+                    Int_t nd = experiment->GetSignal()->FindActiveNode(node);
+                    if (nd >= 0) {
+                        experiment->GetSignal()->SetActiveNode(nd);
+                        expectedRate += node * experiment->GetSignal()->GetTotalRate();
+                    }
+                }
+                Double_t experimentTime = fExposureTime / Coefficient / expectedRate;
+                experiment->SetExposureInSeconds(experimentTime * units("s"));
+            }
+
+            Double_t totalExp = 0;
+            for (const auto& experiment : fExperiments) totalExp += experiment->GetExposureInSeconds();
+
+            for (const auto& experiment : fExperiments) {
+                Double_t xp = experiment->GetExposureInSeconds();
+                experiment->SetExposureInSeconds(xp * fExposureTime * units("s") / totalExp);
+                experiment->GenerateMockDataSet();
+            }
         }
     }
+}
+
+/////////////////////////////////////////////
+/// \brief It scans all the experiment signals parametric nodes to build a complete list
+/// of nodes used to build a complete sensitivity curve. Some experiments may be
+/// sensitivy to a particular node, while others may be sensitivy to another. If more
+/// than one experiment is sensitivy to a given node, the sensitivity will be combined
+/// later on.
+///
+void TRestExperimentList::ExtractExperimentParameterizationNodes() {
+    fParameterizationNodes.clear();
+
+    for (const auto& experiment : fExperiments) {
+        std::vector<Double_t> nodes = experiment->GetSignal()->GetParameterizationNodes();
+        fParameterizationNodes.insert(fParameterizationNodes.end(), nodes.begin(), nodes.end());
+
+        std::sort(fParameterizationNodes.begin(), fParameterizationNodes.end());
+        auto last = std::unique(fParameterizationNodes.begin(), fParameterizationNodes.end());
+        fParameterizationNodes.erase(last, fParameterizationNodes.end());
+    }
+}
+
+void TRestExperimentList::PrintParameterizationNodes() {
+    std::cout << "Experiment list nodes: ";
+    for (const auto& node : fParameterizationNodes) std::cout << node << "\t";
+    std::cout << std::endl;
 }
 
 TRestComponent* TRestExperimentList::GetComponent(std::string compName) {

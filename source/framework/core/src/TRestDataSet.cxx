@@ -169,6 +169,26 @@
 /// [2] d.GetTree()->GetEntries()
 /// \endcode
 ///
+/// Example 3 Automatically importing a dataset using restRoot
+///
+/// \code
+/// restRoot Dataset_FinalBabyIAXO_XMM_mM_P14.root
+///
+///  REST dataset file identified. It contains a valid TRestDataSet.
+///
+///  Importing dataset /nfs/dust/iaxo/user/jgalan//Dataset_FinalBabyIAXO_XMM_mM_P14.root as `dSet`
+///
+///  The dataset is ready. You may now access the dataset using:
+///
+///   - dSet->PrintMetadata()
+///   - dSet->GetDataFrame().GetColumnNames()
+///   - dSet->GetTree()->GetEntries()
+///
+///   - dSet->GetDataFrame().Display("")->Print()
+///   - dSet->GetDataFrame().Display({"colName1,colName2"})->Print()
+/// [0]
+/// \endcode
+///
 /// ### Relevant quantities
 ///
 /// Sometimes we will be willing that our dataset contains few variables
@@ -240,6 +260,21 @@
 ///
 /// where `SolarFlux`,`GeneratorArea` and `Nsim` are the given names of
 /// the relevant quantities inside the dataset.
+///
+/// ### Adding cuts
+///
+/// It is also possible to add cuts used to filter the data that will
+/// be stored inside the dataset. We can do that including a TRestCut
+/// definition inside the TRestDataSet.
+///
+/// For example, the following cut definition would discard entries
+/// with unexpected values inside the specified column, `process_status`.
+///
+/// \code
+///    <TRestCut>
+///            <cut name="goodData" value="!TMath::IsNaN(process_status)"/>
+///    </TRestCut>
+/// \endcode
 ///
 ///----------------------------------------------------------------------
 ///
@@ -483,7 +518,7 @@ std::vector<std::string> TRestDataSet::FileSelection() {
 }
 
 ///////////////////////////////////////////////
-/// \brief This function apply a TRestCut to the dataframe
+/// \brief This function applies a TRestCut to the dataframe
 /// and returns a dataframe with the applied cuts. Note that
 /// the cuts are not applied directly to the dataframe on
 /// TRestDataSet, to do so you should do fDataSet = MakeCut(fCut);

@@ -102,11 +102,14 @@ void TRestExperiment::GenerateMockDataSet() {
     Double_t meanCounts = GetBackground()->GetTotalRate() * fExposureTime * units("s");
 
     Int_t N = fRandom->Poisson(meanCounts);
+    RESTInfo << "Experiment: " << GetName() << " Generating mock dataset. Counts: " << N << RESTendl;
 
     ROOT::RDF::RNode df = fBackground->GetMonteCarloDataFrame(N);
 
     fExperimentalData.SetDataFrame(df);
     fExperimentalData.SetTotalTimeInSeconds(fExposureTime * units("s"));
+
+    fExperimentalCounts = *fExperimentalData.GetDataFrame().Count();
 
     fMockData = true;
     fDataReady = true;
@@ -118,6 +121,7 @@ void TRestExperiment::SetExperimentalDataSet(const std::string& filename) {
 
     /// fExposureTime is in standard REST units : us
     fExposureTime = fExperimentalData.GetTotalTimeInSeconds() / units("s");
+    fExperimentalCounts = *fExperimentalData.GetDataFrame().Count();
 
     fMockData = false;
     fDataReady = true;
@@ -283,7 +287,7 @@ void TRestExperiment::PrintMetadata() {
         }
     }
 
-    RESTMetadata << " - Experimental counts : " << *fExperimentalData.GetDataFrame().Count() << RESTendl;
+    RESTMetadata << " - Experimental counts : " << fExperimentalCounts << RESTendl;
 
     RESTMetadata << "----" << RESTendl;
 }

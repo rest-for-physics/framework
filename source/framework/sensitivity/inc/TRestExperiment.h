@@ -42,7 +42,7 @@ class TRestExperiment : public TRestMetadata {
     TRestComponent* fSignal = nullptr;  //<
 
     /// It defines the filename used to load the dataset
-    std::string fExperimentalDataSet = "";
+    std::string fExperimentalDataSet = "";  //<
 
     /// It contains the experimental data (should contain same columns as the components)
     TRestDataSet fExperimentalData;  //<
@@ -52,6 +52,9 @@ class TRestExperiment : public TRestMetadata {
 
     /// Only if it is true we will be able to calculate the LogLikelihood
     Bool_t fDataReady = false;  //<
+
+    /// It keeps track on the number of counts inside the dataset
+    Int_t fExperimentalCounts = 0;  //<
 
     /// Internal process random generator
     TRandom3* fRandom = nullptr;  //!
@@ -64,6 +67,7 @@ class TRestExperiment : public TRestMetadata {
 
    public:
     void GenerateMockDataSet();
+    Int_t GetExperimentalCounts() const { return fExperimentalCounts; }
 
     Bool_t IsMockData() const { return fMockData; }
     Bool_t IsDataReady() const { return fDataReady; }

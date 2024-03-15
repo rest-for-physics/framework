@@ -50,8 +50,14 @@ class TRestExperimentList : public TRestMetadata {
     /// A vector with a list of experiments includes the background components in this model
     std::vector<TRestExperiment*> fExperiments;  //<
 
+    /// The fusioned list of parameterization nodes found at each experiment signal
+    std::vector<Double_t> fParameterizationNodes;  //<
+
     /// If not zero this will be the common exposure time in micro-seconds (standard REST units)
     Double_t fExposureTime = 0;
+
+    /// In case an exposure time is given it defines how to assign time to each experiment (unique/ksvz).
+    std::string fExposureStrategy = "unique";
 
     /// If not null this will be the common signal used in each experiment
     TRestComponent* fSignal = nullptr;  //<
@@ -70,6 +76,10 @@ class TRestExperimentList : public TRestMetadata {
     void SetExposure(const Double_t& exposure) { fExposureTime = exposure; }
     void SetSignal(TRestComponent* comp) { fSignal = comp; }
     void SetBackground(TRestComponent* comp) { fBackground = comp; }
+
+    void ExtractExperimentParameterizationNodes();
+    std::vector<Double_t> GetParameterizationNodes() { return fParameterizationNodes; }
+    void PrintParameterizationNodes();
 
     std::vector<TRestExperiment*> GetExperiments() { return fExperiments; }
     TRestExperiment* GetExperiment(const size_t& n) {
