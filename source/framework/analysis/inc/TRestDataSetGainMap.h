@@ -42,13 +42,24 @@ class TRestDataSetGainMap : public TRestMetadata {
     class Module;
 
    private:
-    std::string fObservable = "";          //"rawAna_ThresholdIntegral"; //<
-    std::string fSpatialObservableX = "";  //"hitsAna_xMean"; //<
-    std::string fSpatialObservableY = "";  //"hitsAna_yMean"; //<
+    /// Observable that will be used to calculate the gain map
+    std::string fObservable = "";  //<
 
-    std::vector<Module> fModulesCal = {};
-    std::string fCalibFileName = "";
-    std::string fOutputFileName = "";
+    /// Observable that will be used to segmentize the gain map in the x direction
+    std::string fSpatialObservableX = "";  //<
+
+    /// Observable that will be used to segmentize the gain map in the y direction
+    std::string fSpatialObservableY = "";  //<
+
+    /// List of modules
+    std::vector<Module> fModulesCal = {};  //<
+
+    /// Name of the file that contains the calibration data
+    std::string fCalibFileName = "";  //<
+
+    /// Name of the file where the gain map was (or will be) exported
+    std::string fOutputFileName = "";  //<
+
 
     void Initialize() override;
     void InitFromConfigFile() override;
@@ -90,46 +101,83 @@ class TRestDataSetGainMap : public TRestMetadata {
 
     TRestDataSetGainMap& operator=(TRestDataSetGainMap& src);
 
-   public:
     void PrintMetadata() override;
 
     void GenerateGainMap();
-    void CalibrateDataSet(const std::string& dataSetFileName, std::string outputFileName = "");
+    void CalibrateDataSet(const std::string& dataSetFileName, std::string outputFileName = "",
+                          std::vector<std::string> excludeColumns = {});
 
     TRestDataSetGainMap();
     TRestDataSetGainMap(const char* configFilename, std::string name = "");
     ~TRestDataSetGainMap();
 
-    ClassDefOverride(TRestDataSetGainMap, 1);
+    ClassDefOverride(TRestDataSetGainMap, 2);
 
     class Module {
        private:
-        const TRestDataSetGainMap* p = nullptr;  //<! Pointer to the parent class
-       public:                                   /// Members that will be written to the ROOT file.
-        Int_t fPlaneId = -1;                     //< // Plane ID
-        Int_t fModuleId = -1;                    //< // Module ID
+        /// Pointer to the parent class
+        const TRestDataSetGainMap* p = nullptr;  //<!
+       public:
+        /// Plane ID (unique identifier). Although it is not linked to any TRestDetectorReadout it is
+        /// recommended to use the same.
+        Int_t fPlaneId = -1;  //<
 
-        std::vector<double> fEnergyPeaks = {};
-        std::vector<TVector2> fRangePeaks = {};  //{TVector2(230000, 650000), TVector2(40000, 230000)};
-        TVector2 fCalibRange = TVector2(0, 0);   //< // Calibration range
-        Int_t fNBins = 100;                      //< // Number of bins for the spectrum histograms
-        std::string fDefinitionCut = "";         //"TREXsides_tagId == 2"; //<
+        // Module ID (unique identifier). Although it is not linked to any TRestDetectorReadout it is
+        // recommended to use the same.
+        Int_t fModuleId = -1;  //<
 
-        Int_t fNumberOfSegmentsX = 1;                   //<
-        Int_t fNumberOfSegmentsY = 1;                   //<
-        TVector2 fReadoutRange = TVector2(-1, 246.24);  //< // Readout dimensions
-        std::set<double> fSplitX = {};                  //<
-        std::set<double> fSplitY = {};                  //<
+        /// Energy of the peaks to be used for the calibration.
+        std::vector<double> fEnergyPeaks = {};  //<
 
-        std::string fDataSetFileName = "";  //< // File name for the calibration dataset
+        /// Range of the peaks to be used for the calibration. If empty it will be automatically calculated.
+        std::vector<TVector2> fRangePeaks = {};  //<
 
-        std::vector<std::vector<double>> fSlope = {};      //<
+        /// Calibration range. If fCalibRange.X()>=fCalibRange.Y() the range will be automatically calculated.
+        TVector2 fCalibRange = TVector2(0, 0);  //<
+
+        /// Number of bins for the spectrum histograms.
+        Int_t fNBins = 100;  //<
+
+        /// Cut that defines which events are from this module.
+        std::string fDefinitionCut = "";  //<
+
+        /// Number of segments in the x direction.
+        Int_t fNumberOfSegmentsX = 1;  //<
+
+        /// Number of segments in the y direction.
+        Int_t fNumberOfSegmentsY = 1;  //<
+
+        /// Readout dimensions
+        TVector2 fReadoutRange = TVector2(-1, 246.24);  //<
+
+        /// Split points in the x direction.
+        std::set<double> fSplitX = {};  //<
+
+        /// Split points in the y direction.
+        std::set<double> fSplitY = {};  //<
+
+        /// Name of the file that contains the calibration data. If empty, it will use its parent
+        /// TRestDataSetGainMap::fCalibFileName.
+        std::string fDataSetFileName = "";  //<
+
+        /// Array containing the slope of the linear fit for each segment.
+        std::vector<std::vector<double>> fSlope = {};  //<
+
+        /// Array containing the intercept of the linear fit for each segment.
         std::vector<std::vector<double>> fIntercept = {};  //<
 
-        bool fZeroPoint = false;  //< Zero point will be automatically added if there are less than 2 peaks
-        bool fAutoRangePeaks = true;  //< Automatic range peaks
-        std::vector<std::vector<TH1F*>> fSegSpectra = {};
-        std::vector<std::vector<TGraph*>> fSegLinearFit = {};
+        /// Add zero point to the calibration linear fit. Zero point will be automatically added if there are
+        /// less than 2 points.
+        bool fZeroPoint = false;  //<
+
+        /// Automatic range for the peaks fitting. See GenerateGainMap() for more information of the logic.
+        bool fAutoRangePeaks = true;  //<
+
+        /// Array containing the observable spectrum for each segment.
+        std::vector<std::vector<TH1F*>> fSegSpectra = {};  //<
+
+        /// Array containing the calibration linear fit for each segment.
+        std::vector<std::vector<TGraph*>> fSegLinearFit = {};  //<
 
        public:
         void AddPeak(const double& energyPeak, const TVector2& rangePeak = TVector2(0, 0)) {
