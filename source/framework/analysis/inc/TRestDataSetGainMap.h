@@ -88,6 +88,8 @@ class TRestDataSetGainMap : public TRestMetadata {
     Module* GetModule(const int planeID, const int moduleID);
     double GetSlopeParameter(const int planeID, const int moduleID, const double x, const double y);
     double GetInterceptParameter(const int planeID, const int moduleID, const double x, const double y);
+    double GetSlopeParameterFullSpc(const int planeID, const int moduleID);
+    double GetInterceptParameterFullSpc(const int planeID, const int moduleID);
 
     void SetCalibrationFileName(const std::string& fileName) { fCalibFileName = fileName; }
     void SetOutputFileName(const std::string& fileName) { fOutputFileName = fileName; }
@@ -168,6 +170,12 @@ class TRestDataSetGainMap : public TRestMetadata {
         /// Array containing the slope of the linear fit for each segment.
         std::vector<std::vector<double>> fSlope = {};  //<
 
+        /// Slope of the calibration linear fit of whole module
+        double fFullSlope = 0;  //<
+
+        /// Intercept of the calibration linear fit of whole module
+        double fFullIntercept = 0;  //<
+
         /// Array containing the intercept of the linear fit for each segment.
         std::vector<std::vector<double>> fIntercept = {};  //<
 
@@ -181,8 +189,14 @@ class TRestDataSetGainMap : public TRestMetadata {
         /// Array containing the observable spectrum for each segment.
         std::vector<std::vector<TH1F*>> fSegSpectra = {};  //<
 
+        /// Spectrum of the observable for the whole module.
+        TH1F* fFullSpectrum = nullptr;  //<
+
         /// Array containing the calibration linear fit for each segment.
         std::vector<std::vector<TGraph*>> fSegLinearFit = {};  //<
+
+        /// Calibration linear fit for the whole module.
+        TGraph* fFullLinearFit = nullptr;  //<
 
        public:
         void AddPeak(const double& energyPeak, const TVector2& rangePeak = TVector2(0, 0)) {
@@ -195,6 +209,8 @@ class TRestDataSetGainMap : public TRestMetadata {
         std::pair<int, int> GetIndexMatrix(const double x, const double y) const;
         double GetSlope(const double x, const double y) const;
         double GetIntercept(const double x, const double y) const;
+        double GetSlopeFullSpc() const { return fFullSlope; };
+        double GetInterceptFullSpc() const { return fFullIntercept; };
 
         Int_t GetPlaneId() const { return fPlaneId; }
         Int_t GetModuleId() const { return fModuleId; }
@@ -215,7 +231,7 @@ class TRestDataSetGainMap : public TRestMetadata {
                           TCanvas* c = nullptr);
         void DrawSpectrum(const int index_x, const int index_y, bool drawFits = true, int color = -1,
                           TCanvas* c = nullptr);
-        void DrawFullSpectrum();
+        void DrawFullSpectrum(const bool drawFits = true, const int color = -1, TCanvas* c = nullptr);
 
         void DrawLinearFit(TCanvas* c = nullptr);
         void DrawLinearFit(const TVector2& position, TCanvas* c = nullptr);
@@ -225,7 +241,10 @@ class TRestDataSetGainMap : public TRestMetadata {
 
         void Refit(const TVector2& position, const double energy, const TVector2& range);
         void Refit(const size_t x, const size_t y, const size_t peakNumber, const TVector2& range);
+        void RefitFullSpc(const double energy, const TVector2& range);
+        void RefitFullSpc(const size_t peakNumber, const TVector2& range);
         void UpdateCalibrationFits(const size_t x, const size_t y);
+        void UpdateCalibrationFitsFullSpc();
 
         void SetPlaneId(const Int_t& planeId) { fPlaneId = planeId; }
         void SetModuleId(const Int_t& moduleId) { fModuleId = moduleId; }
