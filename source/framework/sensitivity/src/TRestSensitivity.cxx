@@ -134,7 +134,7 @@ void TRestSensitivity::GenerateCurves(Int_t N) {
     for (int n = 0; n < N; n++) GenerateCurve();
 }
 
-std::vector<Double_t> TRestSensitivity::GetSensitivityCurve(size_t n) {
+std::vector<Double_t> TRestSensitivity::GetCurve(size_t n) {
     if (n >= GetNumberOfCurves()) {
         RESTWarning << "Requested curve number : " << n << " but only " << GetNumberOfCurves() << " generated"
                     << RESTendl;
@@ -195,7 +195,7 @@ void TRestSensitivity::ExportAveragedCurve(std::string fname) {
 
 void TRestSensitivity::ExportCurve(std::string fname, int n = 0) {
 
-    std::vector<Double_t> curve = GetSensitivityCurve(n);
+    std::vector<Double_t> curve = GetCurve(n);
     if (curve.empty()) return;
 
     // Open a file for writing
@@ -351,6 +351,87 @@ void TRestSensitivity::InitFromConfigFile() {
     }
 
     Initialize();
+}
+
+TCanvas* TRestSensitivity::DrawCurves() {
+
+    if (fCanvas != NULL) {
+        delete fCanvas;
+        fCanvas = NULL;
+    }
+    fCanvas = new TCanvas("canv", "This is the canvas title", 600, 450);
+    fCanvas->Draw();
+
+    TPad* pad1 = new TPad("pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97);
+    // pad1->Divide(2, 2);
+    pad1->Draw();
+
+    ////// Drawing reflectivity versus angle
+    //   pad1->cd()->SetLogx();
+    pad1->cd()->SetRightMargin(0.09);
+    pad1->cd()->SetLeftMargin(0.15);
+    pad1->cd()->SetBottomMargin(0.15);
+
+    std::vector<TGraph*> graphs;
+
+    for (size_t n = 0; n < 20; n++) {
+        std::string grname = "gr" + IntegerToString(n);
+        TGraph* gr = new TGraph();
+        gr->SetName(grname.c_str());
+        for (size_t m = 0; m < this->GetCurve(n).size(); m++)
+            gr->SetPoint(gr->GetN(), fParameterizationNodes[m],
+                         TMath::Sqrt(TMath::Sqrt(this->GetCurve(n)[m])));
+
+        gr->SetLineColorAlpha(kBlue + n, 0.3);
+        gr->SetLineWidth(1);
+        graphs.push_back(gr);
+    }
+
+    TGraph* avGr = new TGraph();
+    std::vector<Double_t> avCurve = GetAveragedCurve();
+    for (size_t m = 0; m < avCurve.size(); m++)
+        avGr->SetPoint(avGr->GetN(), fParameterizationNodes[m], TMath::Sqrt(TMath::Sqrt(avCurve[m])));
+    avGr->SetLineColor(kBlack);
+    avGr->SetLineWidth(2);
+
+    graphs[0]->GetXaxis()->SetLimits(0, 0.25);
+    //   graphs[0]->GetHistogram()->SetMaximum(1);
+    //   graphs[0]->GetHistogram()->SetMinimum(lowRange);
+
+    graphs[0]->GetXaxis()->SetTitle("mass [eV]");
+    graphs[0]->GetXaxis()->SetTitleSize(0.05);
+    graphs[0]->GetXaxis()->SetLabelSize(0.05);
+    graphs[0]->GetYaxis()->SetTitle("g_{a#gamma} [10^{-10} GeV^{-1}]");
+    graphs[0]->GetYaxis()->SetTitleOffset(1.5);
+    graphs[0]->GetYaxis()->SetTitleSize(0.05);
+    graphs[0]->GetYaxis()->SetLabelSize(0.05);
+    // pad1->cd()->SetLogy();
+    graphs[0]->Draw("AL");
+    for (unsigned int n = 1; n < graphs.size(); n++) graphs[n]->Draw("L");
+    avGr->Draw("L");
+
+    /*
+Double_t lx1 = 0.6, ly1 = 0.75, lx2 = 0.9, ly2 = 0.95;
+if (eLegendCoords.size() > 0) {
+    lx1 = eLegendCoords[0];
+    ly1 = eLegendCoords[1];
+    lx2 = eLegendCoords[2];
+    ly2 = eLegendCoords[3];
+}
+TLegend* legend = new TLegend(lx1, ly1, lx2, ly2);
+
+legend->SetTextSize(0.03);
+legend->SetHeader("Energies", "C");  // option "C" allows to center the header
+for (unsigned int n = 0; n < energies.size(); n++) {
+    std::string lname = "gr" + IntegerToString(n);
+    std::string ltitle = DoubleToString(energies[n]) + " keV";
+
+    legend->AddEntry(lname.c_str(), ltitle.c_str(), "l");
+}
+legend->Draw();
+    */
+
+    return fCanvas;
 }
 
 /////////////////////////////////////////////

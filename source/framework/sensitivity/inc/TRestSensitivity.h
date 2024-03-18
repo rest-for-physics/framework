@@ -29,7 +29,7 @@
 class TRestSensitivity : public TRestMetadata {
    private:
     /// A list of experimental conditions included to get a final sensitivity plot
-    std::vector<TRestExperiment*> fExperiments;  //<
+    std::vector<TRestExperiment*> fExperiments;  //!
 
     /// The fusioned list of parameterization nodes found at each experiment signal
     std::vector<Double_t> fParameterizationNodes;  //<
@@ -42,6 +42,9 @@ class TRestSensitivity : public TRestMetadata {
 
     /// It is used to generate a histogram with the signal distribution produced with different signal samples
     TH1D* fSignalTest = nullptr;
+
+    /// A canvas to draw
+    TCanvas* fCanvas = nullptr;  //!
 
    protected:
     void InitFromConfigFile() override;
@@ -57,15 +60,15 @@ class TRestSensitivity : public TRestMetadata {
     void PrintParameterizationNodes();
 
     Double_t GetCoupling(Double_t node, Double_t sigma = 2, Double_t precision = 0.01);
+    void AddCurve(const std::vector<Double_t>& curve) { fCurves.push_back(curve); }
     void GenerateCurve();
     void GenerateCurves(Int_t N);
 
+    std::vector<Double_t> GetCurve(size_t n = 0);
     std::vector<Double_t> GetAveragedCurve();
 
     void ExportCurve(std::string fname, int n);
     void ExportAveragedCurve(std::string fname);
-
-    std::vector<Double_t> GetSensitivityCurve(size_t n = 0);
 
     TH1D* SignalStatisticalTest(Double_t node, Int_t N);
 
@@ -84,6 +87,8 @@ class TRestSensitivity : public TRestMetadata {
     size_t GetNumberOfNodes() { return fParameterizationNodes.size(); }
 
     void PrintMetadata() override;
+
+    TCanvas* DrawCurves();
 
     TRestSensitivity(const char* cfgFileName, const std::string& name = "");
     TRestSensitivity();
