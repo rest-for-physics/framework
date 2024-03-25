@@ -195,8 +195,8 @@ Int_t TRestMesh::GetNodeX(TVector3 v, Bool_t relative) {
 
     if (posInside.Mag() > fNetSizeX) {
         cout << "REST WARNING (TRestMesh) : Relative position (" << posInside.X() << ", " << posInside.Y()
-             << ", " << posInside.Z() << ")"
-             << ") outside boundaries. Setting it to : " << fNodesX - 1 << endl;
+             << ", " << posInside.Z() << ")" << ") outside boundaries. Setting it to : " << fNodesX - 1
+             << endl;
         return fNodesX - 1;
     }
 

@@ -100,15 +100,12 @@ Int_t REST_MakeProcess(TString name, TString inputevent = "TRestEvent", TString 
     headerfile << "private:" << endl;
 
     if (inputevent == outputevent) {
-        headerfile << "    "
-                   << "/// A pointer to the specific " << inputevent << " input event" << endl;
+        headerfile << "    " << "/// A pointer to the specific " << inputevent << " input event" << endl;
         headerfile << "    " << inputevent << "* " << inputeventname << ";  //!" << endl;
     } else {
-        headerfile << "    "
-                   << "/// A pointer to the specific " << inputevent << " input event" << endl;
+        headerfile << "    " << "/// A pointer to the specific " << inputevent << " input event" << endl;
         headerfile << "    " << inputevent << "* " << inputeventname << ";  //!" << endl;
-        headerfile << "    "
-                   << "/// A pointer to the specific " << outputevent << " output event" << endl;
+        headerfile << "    " << "/// A pointer to the specific " << outputevent << " output event" << endl;
         headerfile << "    " << outputevent << "* " << outputeventname << ";  //!" << endl;
     }
 
