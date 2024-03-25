@@ -104,9 +104,7 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
         string name;
         string call;
         if (Split(cmd, "->").size() != 2) {
-            RESTWarning << "command"
-                        << " \"" << cmd << "\" "
-                        << "is illegal!" << RESTendl;
+            RESTWarning << "command" << " \"" << cmd << "\" " << "is illegal!" << RESTendl;
             fMode = TASK_ERROR;
             return;
         } else {
@@ -117,9 +115,7 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
         int p1 = call.find_first_of("(");
         int p2 = call.find_last_of(")");
         if (p1 == -1 || p2 == -1 || p1 >= p2) {
-            RESTWarning << "command"
-                        << " \"" << cmd << "\" "
-                        << "is illegal!" << RESTendl;
+            RESTWarning << "command" << " \"" << cmd << "\" " << "is illegal!" << RESTendl;
             fMode = TASK_ERROR;
             return;
         }

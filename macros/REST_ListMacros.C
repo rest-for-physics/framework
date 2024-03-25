@@ -25,8 +25,7 @@ Int_t REST_ListMacros(int details = 0, std::string onlyThisMacro = "") {
             std::string macro = TRestTools::SeparatePathAndName(main_files[m]).second;
             if (!onlyThisMacro.empty() && onlyThisMacro != macro) continue;
             cout << "     ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-            cout << "     ++   "
-                 << " Macro : " << macro << endl;
+            cout << "     ++   " << " Macro : " << macro << endl;
             std::ifstream t(main_files[m]);
             std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
 

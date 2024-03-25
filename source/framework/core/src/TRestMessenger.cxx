@@ -352,9 +352,8 @@ void TRestMessenger::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     if (IsConnected()) {
-        RESTMetadata << "Connected : "
-                     << " (token: " << fPoolToken << ", shmid: " << fShmId << ", source: " << fPoolSource
-                     << ")" << RESTendl;
+        RESTMetadata << "Connected : " << " (token: " << fPoolToken << ", shmid: " << fShmId
+                     << ", source: " << fPoolSource << ")" << RESTendl;
     } else {
         RESTMetadata << "Not Connected" << RESTendl;
     }
