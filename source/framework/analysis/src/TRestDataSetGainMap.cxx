@@ -196,10 +196,12 @@ void TRestDataSetGainMap::InitFromConfigFile() {
 ///
 void TRestDataSetGainMap::GenerateGainMap() {
     for (auto& mod : fModulesCal) {
-        RESTInfo << "Calibrating plane " << mod.GetPlaneId() << " module " << mod.GetModuleId() << RESTendl;
+        RESTInfo << "Generating gain map of plane " << mod.GetPlaneId() << " module " << mod.GetModuleId()
+                 << RESTendl;
         mod.GenerateGainMap();
         if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) {
             mod.DrawSpectrum();
+            mod.DrawFullSpectrum();
             mod.DrawGainMap();
         }
     }
@@ -274,6 +276,21 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
     this->Write();
     f->Close();
     delete f;
+}
+
+/////////////////////////////////////////////
+/// \brief Function to retrieve the module calibration by index. Default is 0.
+///
+///
+TRestDataSetGainMap::Module* TRestDataSetGainMap::GetModule(const size_t index) {
+    if (index < fModulesCal.size()) return &fModulesCal[index];
+
+    RESTError << "No ModuleCalibration with index " << index;
+    if (fModulesCal.empty())
+        RESTError << ". There are no modules defined." << RESTendl;
+    else
+        RESTError << ". Max index is " << fModulesCal.size() - 1 << RESTendl;
+    return nullptr;
 }
 
 /////////////////////////////////////////////
@@ -380,7 +397,7 @@ TRestDataSetGainMap& TRestDataSetGainMap::operator=(TRestDataSetGainMap& src) {
 /// \brief Function to set a module calibration. If the module calibration
 /// already exists (same planeId and moduleId), it will be replaced.
 ///
-void TRestDataSetGainMap::SetModuleCalibration(const Module& moduleCal) {
+void TRestDataSetGainMap::SetModule(const Module& moduleCal) {
     for (auto& i : fModulesCal) {
         if (i.GetPlaneId() == moduleCal.GetPlaneId() && i.GetModuleId() == moduleCal.GetModuleId()) {
             i = moduleCal;
@@ -1170,6 +1187,10 @@ void TRestDataSetGainMap::Module::DrawSpectrum(const int index_x, const int inde
         RESTError << "Index out of range." << p->RESTendl;
         return;
     }
+    if (!fSegSpectra[index_x][index_y]) {
+        RESTError << "No Spectrum for segment (" << index_x << ", " << index_y << ")." << p->RESTendl;
+        return;
+    }
 
     if (!c) {
         std::string t = "spectrum_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId) + "_" +
@@ -1193,7 +1214,8 @@ void TRestDataSetGainMap::Module::DrawSpectrum(const int index_x, const int inde
     if (drawFits)
         for (size_t c = 0; c < fEnergyPeaks.size(); c++) {
             auto fit = fSegSpectra[index_x][index_y]->GetFunction(("g" + std::to_string(c)).c_str());
-            if (!fit) RESTWarning << "Fit for energy peak" << fEnergyPeaks[c] << " not found." << p->RESTendl;
+            if (!fit)
+                RESTWarning << "Fit for energy peak " << fEnergyPeaks[c] << " not found." << p->RESTendl;
             if (!fit) continue;
             fit->SetLineColor(c + 2 != colorT ? c + 2 : ++colorT); /* does not work with kRed, kBlue, etc.
                   as they are not defined with the same number as the first 10 basic colors. See
@@ -1296,6 +1318,11 @@ void TRestDataSetGainMap::Module::DrawLinearFit(const int index_x, const int ind
         RESTError << "Index out of range." << p->RESTendl;
         return;
     }
+    if (!fSegLinearFit[index_x][index_y]) {
+        RESTError << "No linear fit for segment (" << index_x << ", " << index_y << ")." << p->RESTendl;
+        return;
+    }
+
     if (!c) {
         std::string t = "linearFit_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId) + "_" +
                         std::to_string(index_x) + "_" + std::to_string(index_y);
@@ -1379,6 +1406,7 @@ void TRestDataSetGainMap::Module::DrawGainMap(const int peakNumber) {
             float xMean = (xUpper + xLower) / 2.;
             float yMean = (yUpper + yLower) / 2.;
             auto [index_x, index_y] = GetIndexMatrix(xMean, yMean);
+            if (!fSegLinearFit[index_x][index_y]) continue;
             hGainMap->Fill(xMean, yMean, fSegLinearFit[index_x][index_y]->GetPointX(peakNumber) / peakPosRef);
             itY++;
         }
@@ -1467,7 +1495,7 @@ void TRestDataSetGainMap::Module::Print() const {
         }
         RESTMetadata << p->RESTendl;
     }
-
+    RESTMetadata << p->RESTendl;
     RESTMetadata << " Full slope: " << DoubleToString(fFullSlope, "%.3e") << p->RESTendl;
     RESTMetadata << " Full intercept: " << DoubleToString(fFullIntercept, "%+.3e") << p->RESTendl;
 

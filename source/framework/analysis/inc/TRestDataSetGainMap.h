@@ -85,6 +85,7 @@ class TRestDataSetGainMap : public TRestMetadata {
     std::string GetSpatialObservableY() const { return fSpatialObservableY; }
     TRestCut* GetCut() const { return fCut; }
 
+    Module* GetModule(const size_t index = 0);
     Module* GetModule(const int planeID, const int moduleID);
     double GetSlopeParameter(const int planeID, const int moduleID, const double x, const double y);
     double GetInterceptParameter(const int planeID, const int moduleID, const double x, const double y);
@@ -93,7 +94,7 @@ class TRestDataSetGainMap : public TRestMetadata {
 
     void SetCalibrationFileName(const std::string& fileName) { fCalibFileName = fileName; }
     void SetOutputFileName(const std::string& fileName) { fOutputFileName = fileName; }
-    void SetModuleCalibration(const Module& moduleCal);
+    void SetModule(const Module& moduleCal);
     void SetObservable(const std::string& observable) { fObservable = observable; }
     void SetSpatialObservableX(const std::string& spatialObservableX) {
         fSpatialObservableX = spatialObservableX;
@@ -189,11 +190,11 @@ class TRestDataSetGainMap : public TRestMetadata {
         /// Array containing the observable spectrum for each segment.
         std::vector<std::vector<TH1F*>> fSegSpectra = {};  //<
 
-        /// Spectrum of the observable for the whole module.
-        TH1F* fFullSpectrum = nullptr;  //<
-
         /// Array containing the calibration linear fit for each segment.
         std::vector<std::vector<TGraph*>> fSegLinearFit = {};  //<
+
+        /// Spectrum of the observable for the whole module.
+        TH1F* fFullSpectrum = nullptr;  //<
 
         /// Calibration linear fit for the whole module.
         TGraph* fFullLinearFit = nullptr;  //<
@@ -206,6 +207,7 @@ class TRestDataSetGainMap : public TRestMetadata {
 
         void LoadConfigFromTiXmlElement(const TiXmlElement* module);
 
+        TRestDataSetGainMap* GetParent() const { return const_cast<TRestDataSetGainMap*>(p); }
         std::pair<int, int> GetIndexMatrix(const double x, const double y) const;
         double GetSlope(const double x, const double y) const;
         double GetIntercept(const double x, const double y) const;
@@ -224,7 +226,7 @@ class TRestDataSetGainMap : public TRestMetadata {
         std::set<double> GetSplitX() const { return fSplitX; }
         std::set<double> GetSplitY() const { return fSplitY; }
         std::string GetDataSetFileName() const { return fDataSetFileName; }
-        TVector2 GetReadoutRangeVar() const { return fReadoutRange; }
+        TVector2 GetReadoutRange() const { return fReadoutRange; }
 
         void DrawSpectrum(const bool drawFits = true, const int color = -1, TCanvas* c = nullptr);
         void DrawSpectrum(const TVector2& position, bool drawFits = true, int color = -1,
