@@ -208,14 +208,19 @@ void TRestDataSetGainMap::GenerateGainMap() {
 }
 
 /////////////////////////////////////////////
-/// \brief Function to calibrate a dataset.
+/// \brief Function to calibrate a dataset with this gain map.
 ///
 /// \param dataSetFileName the name of the root file where the TRestDataSet to be calibrated is stored.
 /// \param outputFileName the name of the output (root) file where the calibrated TRestDataSet will be
-/// exported. If empty, the output file will be named as the input file with the suffix "_cc". E.g.
-/// "data/myDataSet.root" -> "data/myDataSet_cc.root".
+/// exported. If empty, the output file will be named as the input file plus the name of the
+/// TRestDataSetGainMap. E.g. "data/myDataSet.root" -> "data/myDataSet_<gmName>.root".
+/// \param excludeColumns a vector of strings with the names of the columns to be excluded from the
+/// output file. If empty, all columns will be included. If "all" is in the list, all columns will be
+/// excluded except the calibrated observable, the calibrated observable with no segmentation and
+/// the plane-module identifier (pmID).
 ///
-void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, std::string outputFileName) {
+void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, std::string outputFileName,
+                                           std::vector<std::string> excludeColumns) {
     if (fModulesCal.empty()) {
         RESTError << "TRestDataSetGainMap::CalibrateDataSet: No modules defined." << RESTendl;
         return;
@@ -258,18 +263,54 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
     dataFrame = dataFrame.Define(calibObsName, calibrate,
                                  {fObservable, fSpatialObservableX, fSpatialObservableY, pmIDname});
 
+    // Define a new column with the calibrated observable for the whole module calibration
+    auto calibrateFullSpc = [this](double val, int pmID) {
+        for (auto& m : fModulesCal) {
+            if (pmID == m.GetPlaneId() * 10 + m.GetModuleId())
+                return m.GetSlopeFullSpc() * val + m.GetInterceptFullSpc();
+        }
+        // RESTError << "TRestDataSetGainMap::CalibrateDataSet: Module not found for pmID " << pmID <<
+        // RESTendl;
+        return std::numeric_limits<double>::quiet_NaN();
+    };
+    std::string calibObsNameFullSpc = (std::string)GetName() + "_";
+    calibObsNameFullSpc +=
+        GetObservable().erase(0, GetObservable().find("_") + 1);  // remove the "rawAna_" part
+    calibObsNameFullSpc += "_NoSegmentation";
+    dataFrame = dataFrame.Define(calibObsNameFullSpc, calibrateFullSpc, {fObservable, pmIDname});
+
     dataSet.SetDataFrame(dataFrame);
 
     // Format the output file name and export the dataSet
     if (outputFileName.empty()) outputFileName = dataSetFileName;
-
     if (outputFileName == dataSetFileName) {  // TRestDataSet cannot be overwritten
-        outputFileName = outputFileName.substr(0, outputFileName.find_last_of(".")) + "_cc.";
+        std::string gmName = GetName();
+        outputFileName = outputFileName.substr(0, outputFileName.find_last_of("."));  // remove extension
+        outputFileName += "_" + gmName;
         outputFileName += TRestTools::GetFileNameExtension(dataSetFileName);
     }
 
-    RESTInfo << "Exporting calibrated dataSet to " << outputFileName << RESTendl;
-    dataSet.Export(outputFileName);
+    // Export dataset. Exclude columns if requested.
+    std::set<std::string> excludeCol;  // vector with the explicit column names to be excluded
+    auto columns = dataSet.GetDataFrame().GetColumnNames();
+    // Get the columns to be excluded from the list of columns. It accepts wildcards "*" and "?"
+    for (auto& eC : excludeColumns) {
+        if (eC.find("*") != std::string::npos || eC.find("?") != std::string::npos) {
+            for (auto& c : columns)
+                if (MatchString(c, eC)) excludeCol.insert(c);
+        } else
+            excludeCol.insert(eC);
+    }
+    // Remove the calibObsName, calibObsNameFullSpc and pmIDname from the list of columns to be excluded
+    excludeCol.erase(calibObsName);
+    excludeCol.erase(calibObsNameFullSpc);
+    excludeCol.erase(pmIDname);
+
+    RESTDebug << "Excluding columns: " << RESTendl;
+    for (auto& c : excludeCol) RESTDebug << c << ", ";
+    RESTDebug << RESTendl;
+
+    dataSet.Export(outputFileName, std::vector<std::string>(excludeCol.begin(), excludeCol.end()));
 
     // Add this TRestDataSetGainMap metadata to the output file
     TFile* f = TFile::Open(outputFileName.c_str(), "UPDATE");
