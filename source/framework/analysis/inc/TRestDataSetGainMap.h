@@ -125,6 +125,9 @@ class TRestDataSetGainMap : public TRestMetadata {
        private:
         /// Pointer to the parent class
         const TRestDataSetGainMap* p = nullptr;  //<!
+
+        std::pair<double, double> FitPeaks(TH1F* hSeg, TGraph* gr);
+
        public:
         /// Plane ID (unique identifier). Although it is not linked to any TRestDetectorReadout it is
         /// recommended to use the same.

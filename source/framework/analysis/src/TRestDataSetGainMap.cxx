@@ -710,28 +710,25 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
 
     // --- Definition of histogram whole module ---
     std::string hModuleName = "hSpc_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId);
-    TH1F* hModule = new TH1F(hModuleName.c_str(), "", fNBins, fCalibRange.X(), fCalibRange.Y());
+    fFullSpectrum = new TH1F(hModuleName.c_str(), "", fNBins, fCalibRange.X(), fCalibRange.Y());
 
     // build the spectrum for the whole module
     std::string cut = fDefinitionCut;
     if (cut.empty()) cut = "1";
     auto histoMod = dataSet.GetDataFrame().Filter(cut).Histo1D(
         {"tempMod", "", fNBins, fCalibRange.X(), fCalibRange.Y()}, GetObservable());
-    hModule = (TH1F*)histoMod->Clone(hModuleName.c_str());
+    std::unique_ptr<TH1F> hpuntMod = std::unique_ptr<TH1F>(static_cast<TH1F*>(histoMod->Clone()));
+    fFullSpectrum->Add(hpuntMod.get());
 
     //--- Definition of histogram matrix ---
     std::vector<std::vector<TH1F*>> h(fNumberOfSegmentsX, std::vector<TH1F*>(fNumberOfSegmentsY, nullptr));
     for (size_t i = 0; i < h.size(); i++) {
         for (size_t j = 0; j < h.at(0).size(); j++) {
-            std::string name = hModuleName + std::to_string(i) + "_" + std::to_string(j);
+            std::string name = hModuleName + "_" + std::to_string(i) + "_" + std::to_string(j);
             h[i][j] = new TH1F(name.c_str(), "", fNBins, fCalibRange.X(),
                                fCalibRange.Y());  // h[column][row] equivalent to h[x][y]
         }
     }
-    std::vector<std::vector<double>> calParSlope(fNumberOfSegmentsX,
-                                                 std::vector<double>(fNumberOfSegmentsY, 0));
-    std::vector<std::vector<double>> calParIntercept(fNumberOfSegmentsX,
-                                                     std::vector<double>(fNumberOfSegmentsY, 0));
 
     // build the spectrum for each segment
     auto itX = fSplitX.begin();
@@ -768,128 +765,128 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
     }
 
     //--- Fit every peak energy for every segment ---
+    std::vector<std::vector<double>> calParSlope(fNumberOfSegmentsX,
+                                                 std::vector<double>(fNumberOfSegmentsY, 0));
+    std::vector<std::vector<double>> calParIntercept(fNumberOfSegmentsX,
+                                                     std::vector<double>(fNumberOfSegmentsY, 0));
     fSegLinearFit = std::vector(h.size(), std::vector<TGraph*>(h.at(0).size(), nullptr));
-    for (size_t i = 0; i < h.size(); i++) {
-        for (int j = -1; j < (int)h.at(0).size(); j++)  // -1 for the whole module
-        {
-            TH1F* hSeg = nullptr;
-            if (i > 0 && j == -1)
-                continue;
-            else if (i == 0 && j == -1) {
-                hSeg = hModule;
-                RESTExtreme << "Whole module" << p->RESTendl;
-            } else {
-                hSeg = h[i][j];
-                RESTExtreme << "Segment[" << i << "][" << j << "]" << p->RESTendl;
-            }
-
-            // Search for peaks --> peakPos
-            std::unique_ptr<TSpectrum> s(new TSpectrum(2 * fEnergyPeaks.size() + 1));
-            std::vector<double> peakPos;
-            s->Search(hSeg, 2, "goff", 0.1);
-            for (int k = 0; k < s->GetNPeaks(); k++) peakPos.push_back(s->GetPositionX()[k]);
-            std::sort(peakPos.begin(), peakPos.end(), std::greater<double>());
-            const double ratio = peakPos.size() == 0
-                                     ? 1
-                                     : peakPos.front() / fEnergyPeaks.front();  // to estimate peak position
-
-            // Initialize graph for linear fit
-            std::shared_ptr<TGraph> gr;
-            gr = std::shared_ptr<TGraph>(new TGraph());
-            gr->SetName("grFit");
-            gr->SetTitle((";" + GetObservable() + ";energy").c_str());
-
-            // Fit every energy peak
-            int c = 0;
-            double mu = 0;
-            for (const auto& energy : fEnergyPeaks) {
-                RESTExtreme << "\t fitting energy " << DoubleToString(energy, "%g") << p->RESTendl;
-                // estimation of the peak position is between start and end
-                double pos = energy * ratio;
-                double start = pos * 0.8;
-                double end = pos * 1.2;
-                if (fRangePeaks.at(c).X() < fRangePeaks.at(c).Y()) {  // if range is defined use it
-                    start = fRangePeaks.at(c).X();
-                    end = fRangePeaks.at(c).Y();
-                }
-
-                do {
-                    if (fAutoRangePeaks) {
-                        if (peakPos.size() > 0) {
-                            // Find the peak position that is between start and end
-                            pos = peakPos.at(0);
-                            while (!(start < pos && pos < end)) {
-                                // if none of the peak position is
-                                // between start and end, use the greater one.
-                                if (pos == peakPos.back()) {
-                                    pos = peakPos.at(0);
-                                    break;
-                                }
-                                pos = *std::next(std::find(peakPos.begin(), peakPos.end(),
-                                                           pos));  // get next peak position
-                            }
-                            peakPos.erase(std::find(peakPos.begin(), peakPos.end(),
-                                                    pos));  // remove this peak position from the list
-                            // final estimation of the peak range (idem fitting window) with this peak
-                            // position pos
-                            start = pos * 0.8;
-                            end = pos * 1.2;
-                            const double relDist = peakPos.size() > 0 ? (pos - peakPos.front()) / pos : 999;
-                            if (relDist < 0.2) {  // if the next peak is too close reduce the window width
-                                start = pos * (1 - relDist / 2);
-                                end = pos * (1 + relDist / 2);
-                            }
-                        }
-                    }
-
-                    std::string name = "g" + std::to_string(c);
-                    TF1* g = new TF1(name.c_str(), "gaus", start, end);
-                    RESTExtreme << "\t\tat " << DoubleToString(pos, "%.3g") << ". Range("
-                                << DoubleToString(start, "%.3g") << ", " << DoubleToString(end, "%.3g") << ")"
-                                << p->RESTendl;
-
-                    if (hSeg->GetFunction(name.c_str()))  // remove previous fit
-                        hSeg->GetListOfFunctions()->Remove(hSeg->GetFunction(name.c_str()));
-
-                    hSeg->Fit(g, "R+Q0");  // use 0 to not draw the fit but save it
-                    mu = g->GetParameter(1);
-                    RESTExtreme << "\t\tgaus mean " << DoubleToString(mu, "%g") << p->RESTendl;
-                } while (fAutoRangePeaks && peakPos.size() > 0 &&
-                         !(start < mu && mu < end));  // avoid small peaks on main peak tail
-                gr->SetPoint(c++, mu, energy);
-            }
-            s.reset();  // delete s;
-
-            if (fZeroPoint) gr->SetPoint(c++, 0, 0);
-            while (gr->GetN() < 2) {  // minimun 2 points needed for linear fit
-                gr->SetPoint(c++, 0, 0);
-                SetZeroPoint(true);
-                RESTDebug << "Not enough points for linear fit. Adding and setting zero point to true"
-                          << p->RESTendl;
-            }
-
-            // Linear fit
-            std::unique_ptr<TF1> linearFit;
-            linearFit = std::unique_ptr<TF1>(new TF1("linearFit", "pol1"));
-            gr->Fit("linearFit", "SQ");  // Q for quiet mode
-            const double slope = linearFit->GetParameter(1);
-            const double intercept = linearFit->GetParameter(0);
-
-            if (j == -1) {
-                fFullLinearFit = (TGraph*)gr->Clone();
-                fFullSlope = slope;
-                fFullIntercept = intercept;
-            } else {
-                fSegLinearFit.at(i).at(j) = (TGraph*)gr->Clone();
-                calParSlope.at(i).at(j) = slope;
-                calParIntercept.at(i).at(j) = intercept;
-            }
+    for (size_t i = 0; i < h.size(); i++)
+        for (int j = 0; j < (int)h.at(0).size(); j++) {
+            fSegLinearFit[i][j] = new TGraph();
+            auto [intercept, slope] = FitPeaks(h[i][j], fSegLinearFit[i][j]);
+            calParSlope[i][j] = slope;
+            calParIntercept[i][j] = intercept;
         }
-    }
-    fSegSpectra = h;
-    fFullSpectrum = hModule;
     fSlope = calParSlope;
     fIntercept = calParIntercept;
+    fSegSpectra = h;
+
+    //--- Fit every peak energy for the whole module ---
+    fFullLinearFit = new TGraph();
+    auto [intercept, slope] = FitPeaks(fFullSpectrum, fFullLinearFit);
+    fFullSlope = slope;
+    fFullIntercept = intercept;
+}
+
+std::pair<double, double> TRestDataSetGainMap::Module::FitPeaks(TH1F* hSeg, TGraph* gr) {
+    if (!hSeg) {
+        RESTError << "No histogram for fitting" << p->RESTendl;
+        return std::make_pair(0, 0);
+    }
+    if (hSeg->Integral() == 0) {
+        RESTError << "Empty spectrum " << hSeg->GetName() << p->RESTendl;
+        return std::make_pair(0, 0);
+    }
+    if (!gr) gr = new TGraph();
+    RESTExtreme << "Fitting peaks for " << hSeg->GetName() << p->RESTendl;
+
+    // Search for peaks --> peakPos
+    std::unique_ptr<TSpectrum> s(new TSpectrum(2 * fEnergyPeaks.size() + 1));
+    std::vector<double> peakPos;
+    s->Search(hSeg, 2, "goff", 0.1);
+    for (int k = 0; k < s->GetNPeaks(); k++) peakPos.push_back(s->GetPositionX()[k]);
+    std::sort(peakPos.begin(), peakPos.end(), std::greater<double>());
+    const double ratio =
+        peakPos.size() == 0 ? 1 : peakPos.front() / fEnergyPeaks.front();  // to estimate peak position
+
+    // Initialize graph for linear fit
+    gr->SetName("grFit");
+    gr->SetTitle((";" + GetObservable() + ";energy").c_str());
+
+    // Fit every energy peak
+    int c = 0;
+    double mu = 0;
+    for (const auto& energy : fEnergyPeaks) {
+        RESTExtreme << "\t fitting energy " << DoubleToString(energy, "%g") << p->RESTendl;
+        // estimation of the peak position is between start and end
+        double pos = energy * ratio;
+        double start = pos * 0.8;
+        double end = pos * 1.2;
+        if (fRangePeaks.at(c).X() < fRangePeaks.at(c).Y()) {  // if range is defined use it
+            start = fRangePeaks.at(c).X();
+            end = fRangePeaks.at(c).Y();
+        }
+
+        do {
+            if (fAutoRangePeaks) {
+                if (peakPos.size() > 0) {
+                    // Find the peak position that is between start and end
+                    pos = peakPos.at(0);
+                    while (!(start < pos && pos < end)) {
+                        // if none of the peak position is
+                        // between start and end, use the greater one.
+                        if (pos == peakPos.back()) {
+                            pos = peakPos.at(0);
+                            break;
+                        }
+                        pos = *std::next(std::find(peakPos.begin(), peakPos.end(),
+                                                   pos));  // get next peak position
+                    }
+                    peakPos.erase(std::find(peakPos.begin(), peakPos.end(),
+                                            pos));  // remove this peak position from the list
+                    // final estimation of the peak range (idem fitting window) with this peak
+                    // position pos
+                    start = pos * 0.8;
+                    end = pos * 1.2;
+                    const double relDist = peakPos.size() > 0 ? (pos - peakPos.front()) / pos : 999;
+                    if (relDist < 0.2) {  // if the next peak is too close reduce the window width
+                        start = pos * (1 - relDist / 2);
+                        end = pos * (1 + relDist / 2);
+                    }
+                }
+            }
+
+            std::string name = "g" + std::to_string(c);
+            TF1* g = new TF1(name.c_str(), "gaus", start, end);
+            RESTExtreme << "\t\tat " << DoubleToString(pos, "%.3g") << ". Range("
+                        << DoubleToString(start, "%.3g") << ", " << DoubleToString(end, "%.3g") << ")"
+                        << p->RESTendl;
+
+            if (hSeg->GetFunction(name.c_str()))  // remove previous fit
+                hSeg->GetListOfFunctions()->Remove(hSeg->GetFunction(name.c_str()));
+
+            hSeg->Fit(g, "R+Q0");  // use 0 to not draw the fit but save it
+            mu = g->GetParameter(1);
+            RESTExtreme << "\t\tgaus mean " << DoubleToString(mu, "%g") << p->RESTendl;
+        } while (fAutoRangePeaks && peakPos.size() > 0 &&
+                 !(start < mu && mu < end));  // avoid small peaks on main peak tail
+        gr->SetPoint(c++, mu, energy);
+    }
+    s.reset();  // delete s;
+
+    if (fZeroPoint) gr->SetPoint(c++, 0, 0);
+    while (gr->GetN() < 2) {  // minimun 2 points needed for linear fit
+        gr->SetPoint(c++, 0, 0);
+        SetZeroPoint(true);
+        RESTDebug << "Not enough points for linear fit. Adding and setting zero point to true" << p->RESTendl;
+    }
+
+    // Linear fit
+    std::unique_ptr<TF1> linearFit;
+    linearFit = std::unique_ptr<TF1>(new TF1("linearFit", "pol1"));
+    gr->Fit("linearFit", "SQ");  // Q for quiet mode
+
+    return std::make_pair(linearFit->GetParameter(0), linearFit->GetParameter(1));
 }
 
 /////////////////////////////////////////////
