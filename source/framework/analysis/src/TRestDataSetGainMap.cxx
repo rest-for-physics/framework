@@ -298,7 +298,7 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
         if (eC.find("*") != std::string::npos || eC.find("?") != std::string::npos) {
             for (auto& c : columns)
                 if (MatchString(c, eC)) excludeCol.insert(c);
-        } else
+        } else if (std::find(columns.begin(), columns.end(), eC) != columns.end())
             excludeCol.insert(eC);
     }
     // Remove the calibObsName, calibObsNameFullSpc and pmIDname from the list of columns to be excluded
@@ -306,7 +306,7 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
     excludeCol.erase(calibObsNameFullSpc);
     excludeCol.erase(pmIDname);
 
-    RESTDebug << "Excluding columns: " << RESTendl;
+    RESTDebug << "Excluding columns: ";
     for (auto& c : excludeCol) RESTDebug << c << ", ";
     RESTDebug << RESTendl;
 
@@ -513,8 +513,16 @@ void TRestDataSetGainMap::Export(const std::string& fileName) {
 void TRestDataSetGainMap::PrintMetadata() {
     TRestMetadata::PrintMetadata();
     RESTMetadata << " Calibration dataset: " << fCalibFileName << RESTendl;
-    if (fCut) fCut->Print();
+    if (fCut) {
+        RESTMetadata << " Cuts applied: ";
+        /* print only cutStrings and paramCut because
+        TRestDataSet::MakeCut() uses fCut->GetCutStrings() and fCut->GetParamCut() */
+        for (const auto& cut : fCut->GetCutStrings()) RESTMetadata << cut << ", " << RESTendl;
+        for (const auto& cut : fCut->GetParamCut())
+            RESTMetadata << cut.first << " " << cut.second << ", " << RESTendl;
+    }
     RESTMetadata << " Output file: " << fOutputFileName << RESTendl;
+    RESTMetadata << RESTendl;
     RESTMetadata << " Number of planes:  " << GetNumberOfPlanes() << RESTendl;
     RESTMetadata << " Number of modules: " << GetNumberOfModules() << RESTendl;
     RESTMetadata << " Calibration observable: " << fObservable << RESTendl;
