@@ -127,6 +127,7 @@ class TRestDataSetGainMap : public TRestMetadata {
         const TRestDataSetGainMap* p = nullptr;  //<!
 
         std::pair<double, double> FitPeaks(TH1F* hSeg, TGraph* gr);
+        std::pair<double, double> UpdateCalibrationFits(TH1F* hSeg, TGraph* gr);
 
        public:
         /// Plane ID (unique identifier). Although it is not linked to any TRestDetectorReadout it is

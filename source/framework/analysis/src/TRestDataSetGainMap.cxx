@@ -757,6 +757,7 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
 
     // --- Definition of histogram whole module ---
     std::string hModuleName = "hSpc_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId);
+    delete fFullSpectrum;
     fFullSpectrum = new TH1F(hModuleName.c_str(), "", fNBins, fCalibRange.X(), fCalibRange.Y());
 
     // build the spectrum for the whole module
@@ -829,6 +830,7 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
     fSegSpectra = h;
 
     //--- Fit every peak energy for the whole module ---
+    delete fFullLinearFit;
     fFullLinearFit = new TGraph();
     auto [intercept, slope] = FitPeaks(fFullSpectrum, fFullLinearFit);
     fFullSlope = slope;
@@ -844,7 +846,7 @@ std::pair<double, double> TRestDataSetGainMap::Module::FitPeaks(TH1F* hSeg, TGra
         RESTError << "Empty spectrum " << hSeg->GetName() << p->RESTendl;
         return std::make_pair(0, 0);
     }
-    if (!gr) gr = new TGraph();
+    std::shared_ptr<TGraph> graph = std::shared_ptr<TGraph>(new TGraph());
     RESTExtreme << "Fitting peaks for " << hSeg->GetName() << p->RESTendl;
 
     // Search for peaks --> peakPos
@@ -857,8 +859,8 @@ std::pair<double, double> TRestDataSetGainMap::Module::FitPeaks(TH1F* hSeg, TGra
         peakPos.size() == 0 ? 1 : peakPos.front() / fEnergyPeaks.front();  // to estimate peak position
 
     // Initialize graph for linear fit
-    gr->SetName("grFit");
-    gr->SetTitle((";" + GetObservable() + ";energy").c_str());
+    graph->SetName("grFit");
+    graph->SetTitle((";" + GetObservable() + ";energy").c_str());
 
     // Fit every energy peak
     int c = 0;
@@ -917,13 +919,13 @@ std::pair<double, double> TRestDataSetGainMap::Module::FitPeaks(TH1F* hSeg, TGra
             RESTExtreme << "\t\tgaus mean " << DoubleToString(mu, "%g") << p->RESTendl;
         } while (fAutoRangePeaks && peakPos.size() > 0 &&
                  !(start < mu && mu < end));  // avoid small peaks on main peak tail
-        gr->SetPoint(c++, mu, energy);
+        graph->SetPoint(c++, mu, energy);
     }
     s.reset();  // delete s;
 
-    if (fZeroPoint) gr->SetPoint(c++, 0, 0);
-    while (gr->GetN() < 2) {  // minimun 2 points needed for linear fit
-        gr->SetPoint(c++, 0, 0);
+    if (fZeroPoint) graph->SetPoint(c++, 0, 0);
+    while (graph->GetN() < 2) {  // minimun 2 points needed for linear fit
+        graph->SetPoint(c++, 0, 0);
         SetZeroPoint(true);
         RESTDebug << "Not enough points for linear fit. Adding and setting zero point to true" << p->RESTendl;
     }
@@ -931,8 +933,9 @@ std::pair<double, double> TRestDataSetGainMap::Module::FitPeaks(TH1F* hSeg, TGra
     // Linear fit
     std::unique_ptr<TF1> linearFit;
     linearFit = std::unique_ptr<TF1>(new TF1("linearFit", "pol1"));
-    gr->Fit("linearFit", "SQ");  // Q for quiet mode
+    graph->Fit("linearFit", "SQ");  // Q for quiet mode
 
+    if (gr) *gr = *(TGraph*)graph->Clone();  // if nullptr is passed, do not copy the graph
     return std::make_pair(linearFit->GetParameter(0), linearFit->GetParameter(1));
 }
 
@@ -1065,6 +1068,25 @@ void TRestDataSetGainMap::Module::UpdateCalibrationFits(const size_t x, const si
     TH1F* h = fSegSpectra.at(x).at(y);
     TGraph* gr = fSegLinearFit.at(x).at(y);
 
+    auto [intercept, slope] = UpdateCalibrationFits(h, gr);
+    fSlope[x][y] = slope;
+    fIntercept[x][y] = intercept;
+}
+
+std::pair<double, double> TRestDataSetGainMap::Module::UpdateCalibrationFits(TH1F* h, TGraph* gr) {
+    if (!h) {
+        RESTError << "No histogram for updating fits" << p->RESTendl;
+        return std::make_pair(0, 0);
+    }
+    if (!gr) {
+        RESTError << "No graph for updating fits" << p->RESTendl;
+        return std::make_pair(0, 0);
+    }
+    if (h->Integral() == 0) {
+        RESTError << "Empty spectrum " << h->GetName() << p->RESTendl;
+        return std::make_pair(0, 0);
+    }
+
     // Clear the points of the graph
     for (size_t i = 0; i < fEnergyPeaks.size(); i++) gr->RemovePoint(i);
     // Add the new points to the graph
@@ -1074,7 +1096,7 @@ void TRestDataSetGainMap::Module::UpdateCalibrationFits(const size_t x, const si
         TF1* g = h->GetFunction(fitName.c_str());
         if (!g) {
             RESTWarning << "No fit ( " << fitName << " ) found for energy peak " << fEnergyPeaks[i]
-                        << " in segment " << x << "," << y << p->RESTendl;
+                        << " in histogram " << h->GetName() << p->RESTendl;
             continue;
         }
         gr->SetPoint(c++, g->GetParameter(1), fEnergyPeaks[i]);
@@ -1083,8 +1105,6 @@ void TRestDataSetGainMap::Module::UpdateCalibrationFits(const size_t x, const si
     // Add zero points if needed (if there are less than 2 points)
     while (gr->GetN() < 2) {
         gr->SetPoint(c++, 0, 0);
-        RESTWarning << "Not enough points for linear fit at segment (" << x << ", " << y
-                    << "). Adding zero point." << p->RESTendl;
     }
 
     // Refit the calibration curve
@@ -1094,8 +1114,8 @@ void TRestDataSetGainMap::Module::UpdateCalibrationFits(const size_t x, const si
     else
         lf = new TF1("linearFit", "pol1");
     gr->Fit(lf, "SQ");  // Q for quiet mode
-    fSlope.at(x).at(y) = lf->GetParameter(1);
-    fIntercept.at(x).at(y) = lf->GetParameter(0);
+
+    return std::make_pair(lf->GetParameter(0), lf->GetParameter(1));
 }
 
 /////////////////////////////////////////////
@@ -1104,43 +1124,9 @@ void TRestDataSetGainMap::Module::UpdateCalibrationFits(const size_t x, const si
 /// less than 2 fits, zero points are added. Then, the calibration curve is refitted (linearFit).
 ///
 void TRestDataSetGainMap::Module::UpdateCalibrationFitsFullSpc() {
-    if (!fFullSpectrum) {
-        RESTError << "No gain map found. Use GenerateGainMap() first." << p->RESTendl;
-        return;
-    }
-
-    TGraph* gr = fFullLinearFit;
-
-    // Clear the points of the graph
-    for (size_t i = 0; i < fEnergyPeaks.size(); i++) gr->RemovePoint(i);
-    // Add the new points to the graph
-    int c = 0;
-    for (size_t i = 0; i < fEnergyPeaks.size(); i++) {
-        std::string fitName = (std::string) "g" + std::to_string(i);
-        TF1* g = fFullSpectrum->GetFunction(fitName.c_str());
-        if (!g) {
-            RESTWarning << "No fit ( " << fitName << " ) found for energy peak " << fEnergyPeaks[i]
-                        << " in whole module" << p->RESTendl;
-            continue;
-        }
-        gr->SetPoint(c++, g->GetParameter(1), fEnergyPeaks[i]);
-    }
-
-    // Add zero points if needed (if there are less than 2 points)
-    while (gr->GetN() < 2) {
-        gr->SetPoint(c++, 0, 0);
-        RESTWarning << "Not enough points for linear fit at whole module. Adding zero point." << p->RESTendl;
-    }
-
-    // Refit the calibration curve
-    TF1* lf = nullptr;
-    if (gr->GetFunction("linearFit"))
-        lf = gr->GetFunction("linearFit");
-    else
-        lf = new TF1("linearFit", "pol1");
-    gr->Fit(lf, "SQ");  // Q for quiet mode
-    fFullSlope = lf->GetParameter(1);
-    fFullIntercept = lf->GetParameter(0);
+    auto [intercept, slope] = UpdateCalibrationFits(fFullSpectrum, fFullLinearFit);
+    fFullSlope = slope;
+    fFullIntercept = intercept;
 }
 
 /////////////////////////////////////////////
