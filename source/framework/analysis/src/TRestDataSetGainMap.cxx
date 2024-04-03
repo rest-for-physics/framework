@@ -725,8 +725,6 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
 
     dataSet.SetDataFrame(dataSet.MakeCut(p->GetCut()));
 
-    SetSplits();
-
     if (fSplitX.empty()) SetSplitX();
     if (fSplitY.empty()) SetSplitY();
 
