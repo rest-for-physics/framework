@@ -1412,7 +1412,15 @@ void TRestDataSetGainMap::Module::DrawLinearFit(TCanvas* c) {
     }
 }
 
-void TRestDataSetGainMap::Module::DrawGainMap(const int peakNumber) {
+/////////////////////////////////////////////
+/// \brief Function to draw the relative gain map for a given energy peak of the module.
+///
+/// \param peakNumber The index of the peak to be drawn (remember they are in descending order).
+/// \param fullModuleAsRef If true, it will use the peak position at the full module spectrum
+/// as reference for the gain map. If false, it will use the centered segment of the module
+/// as reference.
+///
+void TRestDataSetGainMap::Module::DrawGainMap(const int peakNumber, bool fullModuleAsRef) {
     if (peakNumber < 0 || peakNumber >= (int)fEnergyPeaks.size()) {
         RESTError << "Peak number out of range (peakNumber should be between 0 and "
                   << fEnergyPeaks.size() - 1 << " )" << p->RESTendl;
@@ -1437,7 +1445,12 @@ void TRestDataSetGainMap::Module::DrawGainMap(const int peakNumber) {
     TH2F* hGainMap = new TH2F(("h" + t).c_str(), title.c_str(), fNumberOfSegmentsX, fReadoutRange.X(),
                               fReadoutRange.Y(), fNumberOfSegmentsY, fReadoutRange.X(), fReadoutRange.Y());
 
-    const double peakPosRef = fFullLinearFit->GetPointX(peakNumber);
+    double peakPosRef = fFullLinearFit->GetPointX(peakNumber);
+    if (!fullModuleAsRef) {
+        int index_x = fNumberOfSegmentsX > 0 ? (fNumberOfSegmentsX - 1) / 2 : 0;
+        int index_y = fNumberOfSegmentsY > 0 ? (fNumberOfSegmentsY - 1) / 2 : 0;
+        peakPosRef = fSegLinearFit[index_x][index_y]->GetPointX(peakNumber);
+    }
 
     auto itX = fSplitX.begin();
     for (size_t i = 0; i < fSegLinearFit.size(); i++) {

@@ -242,7 +242,7 @@ class TRestDataSetGainMap : public TRestMetadata {
         void DrawLinearFit(const TVector2& position, TCanvas* c = nullptr);
         void DrawLinearFit(const int index_x, const int index_y, TCanvas* c = nullptr);
 
-        void DrawGainMap(const int peakNumber = 0);
+        void DrawGainMap(const int peakNumber = 0, const bool fullModuleAsRef = true);
 
         void Refit(const TVector2& position, const double energy, const TVector2& range);
         void Refit(const size_t x, const size_t y, const size_t peakNumber, const TVector2& range);
