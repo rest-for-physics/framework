@@ -353,6 +353,48 @@ void TRestSensitivity::InitFromConfigFile() {
     Initialize();
 }
 
+/////////////////////////////////////////////
+/// \brief This method is used to obtain the list of curves that satisfy that each value inside
+/// the curve is placed at a specified level. E.g. if we provide a level 0.5, then the corresponding
+/// curve will be constructed with the central value extracted at each parameter point.
+//
+/// We may then construct the profile of the sensitivity curves at 98%, 95% and 68% C.L. as follows:
+///
+/// \code
+/// TRestSensitivity::GetLevelCurves( {0.01, 0.025, 0.16, 0.84, 0.975, 0.99} );
+/// \endcode
+///
+std::vector<std::vector<Double_t>> TRestSensitivity::GetLevelCurves(const std::vector<Double_t>& levels) {
+    std::vector<std::vector<Double_t>> curves(levels.size());
+
+    for (const auto& l : levels) {
+        if (l >= 1 || l <= 0) {
+            RESTError << "The level value should be between 0 and 1" << RESTendl;
+            return curves;
+        }
+    }
+
+    std::vector<int> intLevels;
+    for (const auto& l : levels) {
+        int val = (int)round(l * fCurves.size());
+        if (val >= (int)fCurves.size()) val = fCurves.size() - 1;
+        if (val < 0) val = 0;
+
+        intLevels.push_back(val);
+    }
+
+    for (size_t m = 0; m < fCurves[0].size(); m++) {
+        std::vector<Double_t> v;
+        for (size_t n = 0; n < fCurves.size(); n++) v.push_back(fCurves[n][m]);
+
+        std::sort(v.begin(), v.begin() + v.size());
+
+        for (size_t n = 0; n < intLevels.size(); n++) curves[n].push_back(v[intLevels[n]]);
+    }
+
+    return curves;
+}
+
 TCanvas* TRestSensitivity::DrawCurves() {
 
     if (fCanvas != NULL) {

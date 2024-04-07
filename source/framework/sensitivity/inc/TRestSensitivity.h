@@ -66,6 +66,7 @@ class TRestSensitivity : public TRestMetadata {
 
     std::vector<Double_t> GetCurve(size_t n = 0);
     std::vector<Double_t> GetAveragedCurve();
+    std::vector<std::vector<Double_t>> GetLevelCurves(const std::vector<Double_t>& levels);
 
     void ExportCurve(std::string fname, int n);
     void ExportAveragedCurve(std::string fname);
