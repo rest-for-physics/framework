@@ -484,7 +484,6 @@ legend->Draw();
 /// later on.
 ///
 void TRestSensitivity::ExtractExperimentParameterizationNodes(Bool_t rescan) {
-
     if (fParameterizationNodes.empty() || rescan) {
         fParameterizationNodes.clear();
 
