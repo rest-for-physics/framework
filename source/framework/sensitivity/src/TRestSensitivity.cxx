@@ -194,7 +194,6 @@ void TRestSensitivity::ExportAveragedCurve(std::string fname) {
 }
 
 void TRestSensitivity::ExportCurve(std::string fname, int n = 0) {
-
     std::vector<Double_t> curve = GetCurve(n);
     if (curve.empty()) return;
 
@@ -396,7 +395,6 @@ std::vector<std::vector<Double_t>> TRestSensitivity::GetLevelCurves(const std::v
 }
 
 TCanvas* TRestSensitivity::DrawCurves() {
-
     if (fCanvas != NULL) {
         delete fCanvas;
         fCanvas = NULL;
@@ -478,7 +476,6 @@ legend->Draw();
 }
 
 TCanvas* TRestSensitivity::DrawLevelCurves() {
-
     if (fCanvas != NULL) {
         delete fCanvas;
         fCanvas = NULL;
