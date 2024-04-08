@@ -1284,7 +1284,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
             url = _filename;
         }
 
-        filename = TRestTools::DownloadRemoteFile(url);
+        filename = TRestTools::DownloadRemoteFile(url, true);
     } else {
         filename = SearchFile(_filename);
     }
@@ -2701,4 +2701,19 @@ void TRestMetadata::Merge(const TRestMetadata& metadata) {
     if (fName.IsNull()) {
         fName = metadata.GetName();
     }
+}
+
+UInt_t TRestMetadata::GetVersionMajor() const {
+    TString major = fVersion(0, fVersion.First('.'));
+    return major.Atoi();
+}
+
+UInt_t TRestMetadata::GetVersionMinor() const {
+    TString minor = fVersion(fVersion.First('.') + 1, fVersion.Last('.'));
+    return minor.Atoi();
+}
+
+UInt_t TRestMetadata::GetVersionPatch() const {
+    TString patch = fVersion(fVersion.Last('.') + 1, fVersion.Length());
+    return patch.Atoi();
 }

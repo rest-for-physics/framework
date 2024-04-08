@@ -49,6 +49,8 @@
 
 #include "TRestEvent.h"
 
+#include "TRestRun.h"
+
 using namespace std;
 
 ClassImp(TRestEvent);
@@ -170,7 +172,11 @@ void TRestEvent::RestartPad(Int_t nElements) {
 
 void TRestEvent::InitializeWithMetadata(TRestRun* run) { Initialize(); }
 
-void TRestEvent::InitializeReferences(TRestRun* run) { fRun = run; }
+void TRestEvent::InitializeReferences(TRestRun* run) {
+    fRun = run;
+    SetRunOrigin(fRun->GetRunNumber());
+    SetSubRunOrigin(fRun->GetSubRunNumber());
+}
 
 //////////////////////////////////////////////////////////////////////////
 /// Run to print event data info on console
