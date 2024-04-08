@@ -446,7 +446,8 @@ TCanvas* TRestSensitivity::DrawCurves() {
     graphs[0]->GetYaxis()->SetTitle("g_{a#gamma} [10^{-10} GeV^{-1}]");
     graphs[0]->GetYaxis()->SetTitleOffset(1.5);
     graphs[0]->GetYaxis()->SetTitleSize(0.05);
-    graphs[0]->GetYaxis()->SetLabelSize(0.05);
+    // graphs[0]->GetYaxis()->SetLabelSize(0.05);
+    // graphs[0]->GetYaxis()->SetLabelOffset(0.0);
     // pad1->cd()->SetLogy();
     graphs[0]->Draw("AL");
     for (unsigned int n = 1; n < graphs.size(); n++) graphs[n]->Draw("L");
@@ -472,6 +473,93 @@ for (unsigned int n = 0; n < energies.size(); n++) {
 }
 legend->Draw();
     */
+
+    return fCanvas;
+}
+
+TCanvas* TRestSensitivity::DrawLevelCurves() {
+
+    if (fCanvas != NULL) {
+        delete fCanvas;
+        fCanvas = NULL;
+    }
+    fCanvas = new TCanvas("canv", "This is the canvas title", 500, 400);
+    fCanvas->Draw();
+    fCanvas->SetLeftMargin(0.15);
+    fCanvas->SetRightMargin(0.04);
+    fCanvas->SetLogx();
+
+    std::vector<std::vector<Double_t>> levelCurves = GetLevelCurves({0.025, 0.16, 0.375, 0.625, 0.84, 0.975});
+
+    std::vector<TGraph*> graphs;
+    for (size_t n = 0; n < levelCurves.size(); n++) {
+        std::string grname = "gr" + IntegerToString(n);
+        TGraph* gr = new TGraph();
+        gr->SetName(grname.c_str());
+        for (size_t m = 0; m < levelCurves[n].size(); m++)
+            gr->SetPoint(gr->GetN(), fParameterizationNodes[m], TMath::Sqrt(TMath::Sqrt(levelCurves[n][m])));
+
+        gr->SetLineColor(kBlack);
+        gr->SetLineWidth(1);
+        graphs.push_back(gr);
+    }
+
+    TGraph* centralGr = new TGraph();
+    std::vector<Double_t> centralCurve = GetLevelCurves({0.5})[0];
+    for (size_t m = 0; m < centralCurve.size(); m++)
+        centralGr->SetPoint(centralGr->GetN(), fParameterizationNodes[m],
+                            TMath::Sqrt(TMath::Sqrt(centralCurve[m])));
+    centralGr->SetLineColor(kBlack);
+    centralGr->SetLineWidth(2);
+    centralGr->SetMarkerSize(0.1);
+
+    graphs[0]->GetYaxis()->SetRangeUser(0, 0.5);
+    graphs[0]->GetXaxis()->SetRangeUser(0.001, 0.25);
+    graphs[0]->GetXaxis()->SetLimits(0.0001, 0.25);
+    graphs[0]->GetXaxis()->SetTitle("mass [eV]");
+    graphs[0]->GetXaxis()->SetTitleSize(0.04);
+    graphs[0]->GetXaxis()->SetTitleOffset(1.15);
+    graphs[0]->GetXaxis()->SetLabelSize(0.04);
+
+    //   graphs[0]->GetYaxis()->SetLabelFont(43);
+    graphs[0]->GetYaxis()->SetTitle("g_{a#gamma} [10^{-10} GeV^{-1}]");
+    graphs[0]->GetYaxis()->SetTitleOffset(1.5);
+    graphs[0]->GetYaxis()->SetTitleSize(0.04);
+    graphs[0]->GetYaxis()->SetLabelSize(0.04);
+    // graphs[0]->GetYaxis()->SetLabelOffset(0);
+    // graphs[0]->GetYaxis()->SetLabelFont(43);
+    graphs[0]->Draw("AL");
+
+    TGraph* randomGr = new TGraph();
+    std::vector<Double_t> randomCurve = fCurves[13];
+    for (size_t m = 0; m < randomCurve.size(); m++)
+        randomGr->SetPoint(randomGr->GetN(), fParameterizationNodes[m],
+                           TMath::Sqrt(TMath::Sqrt(randomCurve[m])));
+    randomGr->SetLineColor(kBlack);
+    randomGr->SetLineWidth(1);
+    randomGr->SetMarkerSize(0.3);
+    randomGr->SetMarkerStyle(4);
+
+    std::vector<TGraph*> shadeGraphs;
+
+    int M = (int)levelCurves.size();
+    for (int x = 0; x < M / 2; x++) {
+        TGraph* shade = new TGraph();
+        int N = levelCurves[0].size();
+        for (size_t m = 0; m < levelCurves[0].size(); m++)
+            shade->SetPoint(shade->GetN(), fParameterizationNodes[m],
+                            TMath::Sqrt(TMath::Sqrt(levelCurves[x][m])));
+        for (int m = N - 1; m >= 0; --m)
+            shade->SetPoint(shade->GetN(), fParameterizationNodes[m],
+                            TMath::Sqrt(TMath::Sqrt(levelCurves[M - 1 - x][m])));
+        shade->SetFillColorAlpha(kRed, 0.25);
+        shade->Draw("f");
+        shadeGraphs.push_back(shade);
+    }
+
+    for (unsigned int n = 1; n < graphs.size(); n++) graphs[n]->Draw("Lsame");
+    randomGr->Draw("LPsame");
+    // centralGr->Draw("Lsame");
 
     return fCanvas;
 }

@@ -90,6 +90,7 @@ class TRestSensitivity : public TRestMetadata {
     void PrintMetadata() override;
 
     TCanvas* DrawCurves();
+    TCanvas* DrawLevelCurves();
 
     TRestSensitivity(const char* cfgFileName, const std::string& name = "");
     TRestSensitivity();
