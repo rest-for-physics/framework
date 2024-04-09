@@ -462,7 +462,7 @@ jobs:
           source ${{ env.REST_PATH }}/thisREST.sh
           cd ${{ env.REST_PATH }}/examples/restG4/07.FullChainDecay/
           restG4 fullChain.rml -o Run00001_U238_FullChainDecay.root
-          restRoot -b -q Validate.C'("Run00001_U238_FullChainDecay.root", 15)'
+          restRoot -b -q Validate.C'("Run00001_U238_FullChainDecay.root", 16)'
           restG4 singleDecay.rml -o Run00002_U238_SingleChainDecay.root
           restRoot -b -q Validate.C'("Run00002_U238_SingleChainDecay.root", 1)'
           export REST_ISOTOPE=Be7
