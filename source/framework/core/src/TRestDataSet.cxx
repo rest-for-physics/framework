@@ -389,16 +389,16 @@ std::vector<std::string> TRestDataSet::FileSelection() {
         return fFileSelection;
     }
 
-    std::vector<std::string> fileNames = TRestTools::GetFilesMatchingPattern(fFilePattern);
+    if(fFileList.empty())fFileList = TRestTools::GetFilesMatchingPattern(fFilePattern);
 
     RESTInfo << "TRestDataSet::FileSelection. Starting file selection." << RESTendl;
-    RESTInfo << "Total files : " << fileNames.size() << RESTendl;
+    RESTInfo << "Total files : " << fFileList.size() << RESTendl;
     RESTInfo << "This process may take long computation time in case there are many files." << RESTendl;
 
     fTotalDuration = 0;
     std::cout << "Processing file selection.";
     int cnt = 1;
-    for (const auto& file : fileNames) {
+    for (const auto& file : fFileList) {
         if (cnt % 100 == 0) {
             std::cout << std::endl;
             std::cout << "Files processed: " << cnt << " ." << std::flush;

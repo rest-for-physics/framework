@@ -105,6 +105,9 @@ class TRestDataSet : public TRestMetadata {
     /// A list of new columns together with its corresponding expressions added to the dataset
     std::vector<std::pair<std::string, std::string>> fColumnNameExpressions;  //<
 
+    /// List of files to generate the dataSet
+    std::vector<std::string> fFileList;  //!
+
     /// A flag to enable Multithreading during dataframe generation
     Bool_t fMT = false;  //<
 
@@ -181,6 +184,7 @@ class TRestDataSet : public TRestMetadata {
     inline auto GetCut() const { return fCut; }
     inline auto IsMergedDataSet() const { return fMergedDataset; }
 
+    inline void SetFileList(const std::vector<std::string>& fileList) { fFileList = fileList; }
     inline void SetObservablesList(const std::vector<std::string>& obsList) { fObservablesList = obsList; }
     inline void SetFilePattern(const std::string& pattern) { fFilePattern = pattern; }
     inline void SetQuantity(const std::map<std::string, RelevantQuantity>& quantity) { fQuantity = quantity; }
