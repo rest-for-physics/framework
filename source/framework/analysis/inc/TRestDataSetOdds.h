@@ -62,9 +62,18 @@ class TRestDataSetOdds : public TRestMetadata {
 
     void ComputeLogOdds();
 
+    std::vector<std::tuple<std::string, TVector2, int>> GetOddsObservables();
+    std::string GetOddsFile() { return fOddsFile; }
+    std::string GetDataSetName() { return fDataSetName; }
+    std::string GetOutputFileName() { return fOutputFileName; }
+    TRestCut* GetCut() { return fCut; }
+
     inline void SetDataSetName(const std::string& dSName) { fDataSetName = dSName; }
     inline void SetOutputFileName(const std::string& outName) { fOutputFileName = outName; }
     inline void SetOddsFile(const std::string& oddsFile) { fOddsFile = oddsFile; }
+    inline void SetCut(TRestCut* cut) { fCut = cut; }
+    void SetOddsObservables(const std::vector<std::tuple<std::string, TVector2, int>>& obs);
+    void AddOddsObservable(const std::string& name, const TVector2& range, int nbins);
 
     TRestDataSetOdds();
     TRestDataSetOdds(const char* configFilename, std::string name = "");

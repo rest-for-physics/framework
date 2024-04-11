@@ -66,6 +66,11 @@ endif ()
 set(external_include_dirs)
 set(external_libs)
 
+if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    set(external_include_dirs ${external_include_dirs} "/usr/local/include/")
+    message(STATUS "Adding BREW include directory: /usr/local/include")
+endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${DECAY_PATH}/cmake
                       ${CMAKE_MODULE_PATH})
 set(CMAKE_MACOSX_RPATH 1)
@@ -187,6 +192,27 @@ if (${REST_MPFR} MATCHES "ON")
 else ()
     set(REST_MPFR OFF)
 endif (${REST_MPFR} MATCHES "ON")
+
+if (((${REST_ALL_LIBS} MATCHES "ON") AND (NOT DEFINED RESTLIB_AXION))
+    OR (${RESTLIB_AXION} MATCHES "ON"))
+    # GSL #### Find GSL
+    find_package(GSL REQUIRED)
+
+    # Include GSL directories
+    set(external_include_dirs ${external_include_dirs} ${GSL_INCLUDE_DIRS})
+
+    # Link GSL libraries
+    set(external_libs ${external_libs};${GSL_LIBRARIES})
+
+    message(STATUS "Found GSL libraries : ${GSL_LIBRARIES}")
+    message(STATUS "GSL headers : ${GSL_INCLUDE_DIRS}")
+
+    set(REST_GSL ON)
+else ()
+    set(REST_GSL OFF)
+    message(STATUS "GSL libraries not required")
+endif (((${REST_ALL_LIBS} MATCHES "ON") AND (NOT DEFINED RESTLIB_AXION))
+       OR (${RESTLIB_AXION} MATCHES "ON"))
 
 # CURL  #####
 find_library(CURL_LIB curl)
@@ -335,7 +361,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin") # we must call library install here in
 endif ()
 
 # Copy pcm files
-if (CMAKE_SYSTEM_NAME MATCHES "Darwin" OR CMAKE_SYSTEM_NAME MATCHES "Windows")
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
     # Copy pcm files to bin
     install(

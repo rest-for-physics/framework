@@ -49,6 +49,8 @@
 #include <TSystem.h>
 #include <TUrl.h>
 
+#include <regex>
+
 #ifdef USE_Curl
 #include <curl/curl.h>
 #endif
@@ -172,6 +174,8 @@ template int TRestTools::PrintTable<Int_t>(std::vector<std::vector<Int_t>> data,
 template int TRestTools::PrintTable<Float_t>(std::vector<std::vector<Float_t>> data, Int_t start, Int_t end);
 template int TRestTools::PrintTable<Double_t>(std::vector<std::vector<Double_t>> data, Int_t start,
                                               Int_t end);
+template int TRestTools::PrintTable<std::string>(std::vector<std::vector<std::string>> data, Int_t start,
+                                                 Int_t end);
 
 ///////////////////////////////////////////////
 /// \brief Writes the contents of the vector table given as argument to `fname`.
@@ -505,6 +509,58 @@ template std::vector<Float_t> TRestTools::GetColumnFromTable<Float_t>(
 template std::vector<Double_t> TRestTools::GetColumnFromTable<Double_t>(
     const std::vector<std::vector<Double_t>>& data, unsigned int column);
 
+template std::vector<std::string> TRestTools::GetColumnFromTable<std::string>(
+    const std::vector<std::vector<std::string>>& data, unsigned int column);
+
+///////////////////////////////////////////////
+/// \brief Reads an ASCII file containing a table with values
+///
+/// This method will open the file fName. This file should contain a tabulated
+/// ASCII table containing any format values. The values on the table will be
+/// loaded in the matrix provided through the argument `data`. The content of
+/// `data` will be cleared in this method.
+///
+/// If any header in the file is present, it should be skipped using the argument
+///`skipLines` or preceding any line inside the header using `#`.
+///
+/// This table will just split the ASCII elements inside a std::string matrix
+///
+int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<std::string>>& data, Int_t skipLines,
+                               std::string separator) {
+    if (!TRestTools::isValidFile((string)fName)) {
+        cout << "TRestTools::ReadASCIITable. Error" << endl;
+        cout << "Cannot open file : " << fName << endl;
+        return 0;
+    }
+
+    data.clear();
+
+    std::ifstream fin(fName);
+
+    // First we create a table with string values
+    std::vector<std::vector<string>> values;
+
+    for (string line; std::getline(fin, line);) {
+        if (skipLines > 0) {
+            skipLines--;
+            continue;
+        }
+
+        if (line.find("#") == string::npos) {
+            std::istringstream in(line);
+
+            std::string token;
+            std::vector<std::string> tokens;
+            while (std::getline(in, token, (char)separator[0])) {
+                tokens.push_back(token);
+            }
+            data.push_back(tokens);
+        }
+    }
+
+    return 1;
+}
+
 ///////////////////////////////////////////////
 /// \brief Reads an ASCII file containing a table with values
 ///
@@ -711,11 +767,9 @@ bool TRestTools::isDataSet(const std::string& filename) {
 ///////////////////////////////////////////////
 /// \brief Returns true if **filename** is an *http* address.
 ///
-bool TRestTools::isURL(const string& filename) {
-    if (filename.find("http") == 0) {
-        return true;
-    }
-    return false;
+bool TRestTools::isURL(const string& s) {
+    std::regex pattern("^https?://(.+)");
+    return std::regex_match(s, pattern);
 }
 
 ///////////////////////////////////////////////
@@ -915,7 +969,11 @@ bool TRestTools::CheckFileIsAccessible(const std::string& filename) {
 /// \brief Returns a list of files whose name match the pattern string. Key word
 /// is "*". e.g. abc00*.root
 ///
-vector<string> TRestTools::GetFilesMatchingPattern(string pattern) {
+/// Argument unlimited will fix an issue with the number of files being to high.
+/// However, it causes issues when searching/listing the macros.
+/// The default value for unlimited is `false`.
+///
+vector<string> TRestTools::GetFilesMatchingPattern(string pattern, bool unlimited) {
     std::vector<string> outputFileNames;
     if (pattern != "") {
         vector<string> items = Split(pattern, "\n");
@@ -944,11 +1002,25 @@ vector<string> TRestTools::GetFilesMatchingPattern(string pattern) {
                     }
                 }
 #else
-                string a = Execute("find " + item);
-                auto b = Split(a, "\n");
+                auto path_name = SeparatePathAndName(item);
+                if (unlimited) {
+                    std::string currentDir = filesystem::current_path();
+                    ChangeDirectory(path_name.first);
+                    string a = Execute("find -type f -name \'" + path_name.second + "\'");
+                    ChangeDirectory(currentDir);
+                    auto b = Split(a, "\n");
 
-                for (unsigned int i = 0; i < b.size(); i++) {
-                    outputFileNames.push_back(b[i]);
+                    for (unsigned int i = 0; i < b.size(); i++) {
+                        outputFileNames.push_back(path_name.first + "/" + b[i]);
+                    }
+
+                } else {
+                    string a = Execute("find " + item);
+                    auto b = Split(a, "\n");
+
+                    for (unsigned int i = 0; i < b.size(); i++) {
+                        outputFileNames.push_back(b[i]);
+                    }
                 }
 #endif
 
@@ -1049,19 +1121,20 @@ std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
 /// will be used, including scp, wget. Downloads to REST_USER_PATH + "/download/" + filename
 /// by default.
 ///
-std::string TRestTools::DownloadRemoteFile(string url) {
-    string purename = TRestTools::GetPureFileName(url);
-    if (purename == "") {
-        cout << "error! (TRestTools::DownloadRemoteFile): url is not a file!" << endl;
-        cout << "please specify a concrete file name in this url" << endl;
-        cout << "url: " << url << endl;
+std::string TRestTools::DownloadRemoteFile(const string& url, bool pidPrefix) {
+    string pureName = TRestTools::GetPureFileName(url);
+    if (pureName.empty()) {
+        RESTWarning << "error! (TRestTools::DownloadRemoteFile): url is not a file!" << RESTendl;
+        RESTWarning << "please specify a concrete file name in this url" << RESTendl;
+        RESTWarning << "url: " << url << RESTendl;
         return "";
     }
 
     if (url.find("local:") == 0) {
         return Replace(url, "local:", "");
     } else {
-        string fullpath = REST_USER_PATH + "/download/" + purename;
+        string fullpath =
+            REST_USER_PATH + "/download/" + (pidPrefix ? "PID_" + ToString(getpid()) + "_" : "") + pureName;
         int out;
         int attempts = 10;
         do {
@@ -1070,20 +1143,17 @@ std::string TRestTools::DownloadRemoteFile(string url) {
                 RESTWarning << "Retrying download in 5 seconds" << RESTendl;
                 std::this_thread::sleep_for(std::chrono::seconds(5));
             } else if (attempts < 10) {
-                RESTSuccess << "Download suceeded after " << 10 - attempts << " attempts" << RESTendl;
+                RESTSuccess << "Download succeeded after " << 10 - attempts << " attempts" << RESTendl;
             }
             attempts--;
         } while (out == 1024 && attempts > 0);
 
-        if (out == 0) {
-            return fullpath;
-        } else if (TRestTools::fileExists(fullpath)) {
+        if (out == 0 || TRestTools::fileExists(fullpath)) {
             return fullpath;
         } else {
             return "";
         }
     }
-    return "";
 }
 
 ///////////////////////////////////////////////
@@ -1250,6 +1320,58 @@ int TRestTools::UploadToServer(string localFile, string remoteFile, string metho
 }
 
 void TRestTools::ChangeDirectory(const string& toDirectory) { filesystem::current_path(toDirectory); }
+
+///////////////////////////////////////////////
+/// \brief It returns a vector with 2 components {a,b}, the components satisfy that `a x b = n`,
+/// being the ratio a/b as close to 1 as possible.
+///
+/// This method can be used to help dividing a canvas that will contain a number `n` of plots.
+///
+/// If `n` is a prime number, then the pair generated will be `n x 1`.
+///
+std::vector<int> TRestTools::CanvasDivisions(int n) {
+    std::vector<int> r;
+    for (int i = 2; i * i <= n; i += 1 + (i > 2)) {
+        while ((n % i) == 0) {
+            r.push_back(i);
+            n /= i;
+        }
+    }
+    if (n != 1) r.push_back(n);
+
+    while (r.size() > 2) {
+        // We multiply the 2 lowest elements and
+        // replace the elements in the vector by the result
+        auto min1 = std::min_element(r.begin(), r.end());
+        int low1 = *min1;
+
+        // Remove the first element equal to min1 (efficient way)
+        auto it = std::find(r.begin(), r.end(), low1);
+        if (it != r.end()) {
+            std::iter_swap(it, r.end() - 1);
+            r.erase(r.end() - 1);
+        }
+
+        auto min2 = std::min_element(r.begin(), r.end());
+        int low2 = *min2;
+
+        // Remove the first element equal to min2 (efficient way)
+        it = std::find(r.begin(), r.end(), low2);
+        if (it != r.end()) {
+            std::iter_swap(it, r.end() - 1);
+            r.erase(r.end() - 1);
+        }
+
+        int resultado = low1 * low2;
+        r.push_back(resultado);
+    }
+
+    std::sort(r.begin(), r.end());
+
+    if (r.size() == 1) r.push_back(1);
+
+    return r;
+}
 
 string ValueWithQuantity::ToString() const {
     string unit;

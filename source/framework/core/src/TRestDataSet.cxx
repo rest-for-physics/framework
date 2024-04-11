@@ -283,8 +283,6 @@ TRestDataSet::TRestDataSet() { Initialize(); }
 ///
 TRestDataSet::TRestDataSet(const char* cfgFileName, const std::string& name) : TRestMetadata(cfgFileName) {
     LoadConfigFromFile(fConfigFileName, name);
-
-    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -343,7 +341,10 @@ void TRestDataSet::GenerateDataSet() {
     std::sort(finalList.begin(), finalList.end());
     finalList.erase(std::unique(finalList.begin(), finalList.end()), finalList.end());
 
-    ROOT::EnableImplicitMT();
+    if (fMT)
+        ROOT::EnableImplicitMT();
+    else
+        ROOT::DisableImplicitMT();
 
     RESTInfo << "Initializing dataset" << RESTendl;
     fDataSet = ROOT::RDataFrame("AnalysisTree", fFileSelection);
@@ -390,15 +391,12 @@ std::vector<std::string> TRestDataSet::FileSelection() {
 
     std::vector<std::string> fileNames = TRestTools::GetFilesMatchingPattern(fFilePattern);
 
-    if (!fileNames.empty()) {
-        RESTInfo << "TRestDataSet::FileSelection. Starting file selection." << RESTendl;
-        RESTInfo << "Total files : " << fileNames.size() << RESTendl;
-        RESTInfo << "This process may take long computation time in case there are many files." << RESTendl;
-    }
+    RESTInfo << "TRestDataSet::FileSelection. Starting file selection." << RESTendl;
+    RESTInfo << "Total files : " << fileNames.size() << RESTendl;
+    RESTInfo << "This process may take long computation time in case there are many files." << RESTendl;
 
     fTotalDuration = 0;
-    std::cout << "Total files : " << fileNames.size() << std::endl;
-    std::cout << "Processing file selection .";
+    std::cout << "Processing file selection.";
     int cnt = 1;
     for (const auto& file : fileNames) {
         if (cnt % 100 == 0) {
@@ -412,6 +410,7 @@ std::vector<std::string> TRestDataSet::FileSelection() {
         double runEnd = run.GetEndTimestamp();
 
         if (runStart < time_stamp_start || runEnd > time_stamp_end) {
+            RESTInfo << "Rejecting file out of date range: " << file << RESTendl;
             continue;
         }
 
@@ -626,8 +625,11 @@ void TRestDataSet::PrintMetadata() {
     if (!fColumnNameExpressions.empty()) {
         RESTMetadata << " New columns added to generated dataframe: " << RESTendl;
         RESTMetadata << " ---------------------------------------- " << RESTendl;
-        for (const auto& [cName, cExpression] : fColumnNameExpressions)
-            RESTMetadata << " - Name : " << cName << " Expression: " << cExpression << RESTendl;
+        for (const auto& [cName, cExpression] : fColumnNameExpressions) {
+            RESTMetadata << " - Name : " << cName << RESTendl;
+            RESTMetadata << " - Expression: " << cExpression << RESTendl;
+            RESTMetadata << " " << RESTendl;
+        }
     }
 
     if (fMergedDataset) {
@@ -643,9 +645,17 @@ void TRestDataSet::PrintMetadata() {
         for (const auto& fn : fImportedFiles) RESTMetadata << " - " << fn << RESTendl;
     }
 
+
     if (fTimeCorrection) {
         RESTMetadata << "The combined dataset time correction analysis is activated." << RESTendl;
     }
+
+    RESTMetadata << " " << RESTendl;
+    if (fMT)
+        RESTMetadata << " - Multithreading was enabled" << RESTendl;
+    else
+        RESTMetadata << " - Multithreading was NOT enabled" << RESTendl;
+
 
     RESTMetadata << "----" << RESTendl;
 }
@@ -782,10 +792,42 @@ void TRestDataSet::InitFromConfigFile() {
 /// Snapshot of the current dataset, i.e. in standard TTree format, together with a copy
 /// of the TRestDataSet instance that contains the conditions used to generate the dataset.
 ///
-void TRestDataSet::Export(const std::string& filename) {
+void TRestDataSet::Export(const std::string& filename, std::vector<std::string> excludeColumns) {
     RESTInfo << "Exporting dataset" << RESTendl;
+
+    std::vector<std::string> columns = fDataSet.GetColumnNames();
+    if (!excludeColumns.empty()) {
+        columns.erase(std::remove_if(columns.begin(), columns.end(),
+                                     [&excludeColumns](std::string elem) {
+                                         return std::find(excludeColumns.begin(), excludeColumns.end(),
+                                                          elem) != excludeColumns.end();
+                                     }),
+                      columns.end());
+
+        RESTInfo << "Re-Generating snapshot." << RESTendl;
+        std::string user = getenv("USER");
+        std::string fOutName = "/tmp/rest_output_" + user + ".root";
+        fDataSet.Snapshot("AnalysisTree", fOutName, columns);
+
+        RESTInfo << "Re-importing analysis tree." << RESTendl;
+        fDataSet = ROOT::RDataFrame("AnalysisTree", fOutName);
+
+        TFile* f = TFile::Open(fOutName.c_str());
+        fTree = (TChain*)f->Get("AnalysisTree");
+    }
+
     if (TRestTools::GetFileNameExtension(filename) == "txt" ||
         TRestTools::GetFileNameExtension(filename) == "csv") {
+        if (excludeColumns.empty()) {
+            RESTInfo << "Re-Generating snapshot." << RESTendl;
+            std::string user = getenv("USER");
+            std::string fOutName = "/tmp/rest_output_" + user + ".root";
+            fDataSet.Snapshot("AnalysisTree", fOutName);
+
+            TFile* f = TFile::Open(fOutName.c_str());
+            fTree = (TChain*)f->Get("AnalysisTree");
+        }
+
         std::vector<std::string> dataTypes;
         for (int n = 0; n < fTree->GetListOfBranches()->GetEntries(); n++) {
             std::string bName = fTree->GetListOfBranches()->At(n)->GetName();
@@ -875,12 +917,15 @@ void TRestDataSet::Export(const std::string& filename) {
         fDataSet.Snapshot("AnalysisTree", filename);
 
         TFile* f = TFile::Open(filename.c_str(), "UPDATE");
-        this->Write();
+        std::string name = this->GetName();
+        if (name.empty()) name = "mock";
+        this->Write(name.c_str());
         f->Close();
     } else {
         RESTWarning << "TRestDataSet::Export. Extension " << TRestTools::GetFileNameExtension(filename)
                     << " not recognized" << RESTendl;
     }
+    RESTInfo << "Dataset generated: " << filename << RESTendl;
 }
 
 ///////////////////////////////////////////////
@@ -902,11 +947,35 @@ TRestDataSet& TRestDataSet::operator=(TRestDataSet& dS) {
     fFilterLowerThan = dS.GetFilterLowerThan();
     fFilterEqualsTo = dS.GetFilterEqualsTo();
     fQuantity = dS.GetQuantity();
+    fColumnNameExpressions = dS.GetAddedColumns();
     fTotalDuration = dS.GetTotalTimeInSeconds();
-    fFileSelection = dS.GetFileSelection();
     fCut = dS.GetCut();
 
     return *this;
+}
+
+///////////////////////////////////////////////
+/// \brief This function merge different TRestDataSet
+/// metadata in current dataSet
+///
+Bool_t TRestDataSet::Merge(const TRestDataSet& dS) {
+    auto obsNames = GetObservablesList();
+    for (const auto& obs : fObservablesList) {
+        if (std::find(obsNames.begin(), obsNames.end(), obs) != obsNames.end()) {
+            RESTError << "Cannot merge dataSets with different observable list " << RESTendl;
+            return false;
+        }
+    }
+
+    if (fStartTime > dS.GetStartTime()) fStartTime = dS.GetStartTime();
+    if (fEndTime < dS.GetEndTime()) fEndTime = dS.GetEndTime();
+
+    auto fileSelection = dS.GetFileSelection();
+    fFileSelection.insert(fFileSelection.end(), fileSelection.begin(), fileSelection.end());
+
+    fTotalDuration += dS.GetTotalTimeInSeconds();
+
+    return true;
 }
 
 ///////////////////////////////////////////////
@@ -930,8 +999,6 @@ void TRestDataSet::Import(const std::string& fileName) {
             if (REST_Reflection::GetClassQuick(kName.c_str()) != nullptr &&
                 REST_Reflection::GetClassQuick(kName.c_str())->InheritsFrom("TRestDataSet")) {
                 dS = file->Get<TRestDataSet>(key->GetName());
-                if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info)
-                    dS->PrintMetadata();
                 *this = *dS;
             }
         }
@@ -942,7 +1009,10 @@ void TRestDataSet::Import(const std::string& fileName) {
         return;
     }
 
-    ROOT::EnableImplicitMT();
+    if (fMT)
+        ROOT::EnableImplicitMT();
+    else
+        ROOT::DisableImplicitMT();
 
     fDataSet = ROOT::RDataFrame("AnalysisTree", fileName);
 
@@ -965,25 +1035,48 @@ void TRestDataSet::Import(std::vector<std::string> fileNames) {
             return;
         }
 
-    if (fileNames.size() == 0) return;
+    int count = 0;
+    auto it = fileNames.begin();
+    while (it != fileNames.end()) {
+        std::string fileName = *it;
+        TFile* file = TFile::Open(fileName.c_str(), "READ");
+        bool isValid = false;
+        if (file != nullptr) {
+            TIter nextkey(file->GetListOfKeys());
+            TKey* key;
+            while ((key = (TKey*)nextkey())) {
+                std::string kName = key->GetClassName();
+                if (REST_Reflection::GetClassQuick(kName.c_str()) != nullptr &&
+                    REST_Reflection::GetClassQuick(kName.c_str())->InheritsFrom("TRestDataSet")) {
+                    TRestDataSet* dS = file->Get<TRestDataSet>(key->GetName());
+                    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info)
+                        dS->PrintMetadata();
 
-    TFile* file = TFile::Open(fileNames[0].c_str(), "READ");
-    if (file != nullptr) {
-        TIter nextkey(file->GetListOfKeys());
-        TKey* key;
-        while ((key = (TKey*)nextkey())) {
-            std::string kName = key->GetClassName();
-            if (REST_Reflection::GetClassQuick(kName.c_str()) != nullptr &&
-                REST_Reflection::GetClassQuick(kName.c_str())->InheritsFrom("TRestDataSet")) {
-                TRestDataSet* dS = file->Get<TRestDataSet>(key->GetName());
-                if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info)
-                    dS->PrintMetadata();
-                *this = *dS;
+                    if (count == 0) {
+                        *this = *dS;
+                        isValid = true;
+                    } else {
+                        isValid = Merge(*dS);
+                    }
+
+                    if (isValid) count++;
+                }
             }
+        } else {
+            RESTError << "Cannot open " << fileName << RESTendl;
         }
-    } else {
-        RESTError << "Cannot open " << fileNames[0] << RESTendl;
-        exit(1);
+
+        if (!isValid) {
+            RESTError << fileName << " is not a valid dataSet skipping..." << RESTendl;
+            it = fileNames.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    if (fileNames.empty()) {
+        RESTError << "File selection is empty, dataSet will not be imported " << RESTendl;
+        return;
     }
 
     RESTInfo << "Opening list of files. First file: " << fileNames[0] << RESTendl;

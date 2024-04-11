@@ -46,8 +46,11 @@ void REST_OpenInputFile(const std::string& fileName) {
         printf("\n%s\n", " - dSet->PrintMetadata()");
         printf("%s\n", " - dSet->GetDataFrame().GetColumnNames()");
         printf("%s\n\n", " - dSet->GetTree()->GetEntries()");
+        printf("%s\n", " - dSet->GetDataFrame().Display(\"\")->Print()");
+        printf("%s\n\n", " - dSet->GetDataFrame().Display({\"colName1,colName2\"})->Print()");
         if (dSet) delete dSet;
         dSet = new TRestDataSet();
+        dSet->EnableMultiThreading(false);
         dSet->Import(fileName);
     } else {
         printf("\n%s is not a valid TRestRun or TRestDataSet\n", fileName.c_str());

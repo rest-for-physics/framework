@@ -515,9 +515,8 @@ void TRestRun::ReadInputFileTrees() {
 
             if (fNFilesSplit > 0) {  // fNFilesSplit=1: split to 1 additional file
                 RESTEssential << "Linking analysis tree from split data files" << RESTendl;
-                fAnalysisTree =
-                    (TRestAnalysisTree*)
-                        fAnalysisTree->Clone();  // we must make a copy to have TBrowser correctly browsed.
+                fAnalysisTree = (TRestAnalysisTree*)fAnalysisTree->Clone();  // we must make a copy to have
+                                                                             // TBrowser correctly browsed.
                 for (int i = 1; i <= fNFilesSplit; i++) {
                     string filename = fInputFile->GetName() + (string) "." + ToString(i);
                     RESTInfo << filename << " --> ";
@@ -686,7 +685,7 @@ void TRestRun::ReadFileInfo(const string& filename) {
     int pos = -1;
     int pos1 = 0;
     int pos2 = 0;
-    while (1) {
+    while (true) {
         pos1 = format.find("[", pos + 1);
         pos2 = format.find("]", pos1);
         if (pos1 == -1 || pos2 == -1) {
@@ -1368,7 +1367,8 @@ Long64_t TRestRun::GetEntries() const {
     if (fAnalysisTree != nullptr) {
         return fAnalysisTree->GetEntries();
     }
-    return REST_MAXIMUM_EVENTS;
+    return fEntriesSaved;
+    //   return REST_MAXIMUM_EVENTS;
 }
 
 // Getters

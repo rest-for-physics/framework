@@ -512,6 +512,28 @@ TRestMetadata::TRestMetadata() : RESTendl(this) {
 #endif
 }
 
+TRestMetadata::TRestMetadata(const TRestMetadata&) : RESTendl(this) {
+    fStore = true;
+    fElementGlobal = nullptr;
+    fElement = nullptr;
+    fVerboseLevel = gVerbose;
+    fVariables.clear();
+    fConstants.clear();
+    fHostmgr = nullptr;
+
+    fConfigFileName = "null";
+    configBuffer = "";
+    RESTMetadata.setlength(100);
+
+#ifdef WIN32
+    fOfficialRelease = true;
+    fCleanState = true;
+#else
+    if (TRestTools::Execute("rest-config --release") == "Yes") fOfficialRelease = true;
+    if (TRestTools::Execute("rest-config --clean") == "Yes") fCleanState = true;
+#endif
+}
+
 ///////////////////////////////////////////////
 /// \brief constructor
 ///
@@ -1065,8 +1087,10 @@ void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
 
 ///////////////////////////////////////////////
 /// \brief Helper method for TRestMetadata::ExpandForLoops().
-void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e, map<string, string> forLoopVar) {
-    if (e == nullptr) return;
+void TRestMetadata::ExpandForLoopOnce(TiXmlElement* e, const map<string, string>& forLoopVar) {
+    if (e == nullptr) {
+        return;
+    }
 
     TiXmlElement* parele = (TiXmlElement*)e->Parent();
     TiXmlElement* contentelement = e->FirstChildElement();
@@ -1098,7 +1122,7 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
     if (e == nullptr) return;
 
     RESTDebug << "Entering ... TRestMetadata::ReplaceForLoopVars" << RESTendl;
-    std::string parName = "";
+    std::string parName;
     TiXmlAttribute* attr = e->FirstAttribute();
     while (attr != nullptr) {
         const char* val = attr->Value();
@@ -1111,7 +1135,7 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
         if (strcmp(name, "name") != 0) {
             string outputBuffer = val;
 
-            if (outputBuffer.find("[") != string::npos || outputBuffer.find("]") != string::npos) {
+            if (outputBuffer.find('[') != string::npos || outputBuffer.find(']') != string::npos) {
                 RESTError << "TRestMetadata::ReplaceForLoopVars. Old for-loop construction identified"
                           << RESTendl;
                 RESTError << "Please, replace [] variable nomenclature by ${}." << RESTendl;
@@ -1134,7 +1158,7 @@ void TRestMetadata::ReplaceForLoopVars(TiXmlElement* e, map<string, string> forL
 
                 string proenv = forLoopVar.count(expression) > 0 ? forLoopVar[expression] : "";
 
-                if (proenv != "") {
+                if (!proenv.empty()) {
                     outputBuffer.replace(replacePos, replaceLen, proenv);
                     endPosition = 0;
                 } else {
@@ -1203,11 +1227,11 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e, map<string, string> forloopv
 
         if (fVerboseLevel >= TRestStringOutput::REST_Verbose_Level::REST_Extreme) parele->Print(stdout, 0);
         RESTDebug << "----end of for loop----" << RESTendl;
-    } else if (_in != "") {
+    } else if (!_in.empty()) {
         vector<string> loopvars = Split(_in, ":");
 
         RESTDebug << "----expanding for loop----" << RESTendl;
-        for (string loopvar : loopvars) {
+        for (const string& loopvar : loopvars) {
             forloopvar[_name] = loopvar;
             fVariables[_name] = loopvar;
             ExpandForLoopOnce(e, forloopvar);
@@ -1250,18 +1274,22 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     if (_filename == nullptr) return;
 
     string filename;
-    if (string(_filename) == "server") {
+    if (string(_filename) == "server" || TRestTools::isURL(_filename)) {
         // Let TRestRun to retrieve data according to run number later-on
-        // if ((string) this->ClassName() == "TRestRun") return;
 
         // match the database, runNumber=0(default data), type="META_RML", tag=<section name>
         auto url = gDataBase->query_data(DBEntry(0, "META_RML", e->Value())).value;
-        filename = TRestTools::DownloadRemoteFile(url);
+        if (url.empty()) {
+            // don't really understand this "database" code, this just works
+            url = _filename;
+        }
+
+        filename = TRestTools::DownloadRemoteFile(url, true);
     } else {
         filename = SearchFile(_filename);
     }
 
-    if (filename == "") {
+    if (filename.empty()) {
         RESTError << "TRestMetadata::ExpandIncludeFile. Include file \"" << _filename << "\" does not exist!"
                   << RESTendl;
         exit(1);
@@ -1369,7 +1397,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
                         }
                         ele = ele->NextSiblingElement();
                     }
-                    // more than 1 elements found
+                    // more than 1 element found
                     if (eles.size() > 1) {
                         RESTWarning << "(expand include file): find multiple xml sections with same name!"
                                     << RESTendl;
@@ -2543,6 +2571,8 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
                         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
                         Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
                         *(TVector3*)datamember = TVector3(valueX, valueY, valueZ);
+                    } else if (datamember.type == "string") {
+                        // We just ignore this case
                     } else {
                         RESTWarning << this->ClassName() << " find unit definition in parameter: " << name
                                     << ", but the corresponding data member doesn't support it. Data "
@@ -2626,23 +2656,23 @@ void TRestMetadata::AddLog(string log, bool print) {
     }
 }
 
-void TRestMetadata::SetError(string message, bool print) {
+void TRestMetadata::SetError(string message, bool print, int maxPrint) {
     fError = true;
     fNErrors++;
     if (message != "") {
         fErrorMessage += message + "\n";
-        if (print) {
+        if (print && fNErrors < maxPrint) {
             cout << message << endl;
         }
     }
 }
 
-void TRestMetadata::SetWarning(string message, bool print) {
+void TRestMetadata::SetWarning(string message, bool print, int maxPrint) {
     fWarning = true;
     fNWarnings++;
     if (message != "") {
         fWarningMessage += message + "\n";
-        if (print) {
+        if (print && fNWarnings < maxPrint) {
             RESTWarning << message << RESTendl;
         }
     }
@@ -2660,4 +2690,30 @@ TString TRestMetadata::GetWarningMessage() {
         return fWarningMessage;
     else
         return "No warning!";
+}
+
+void TRestMetadata::Merge(const TRestMetadata& metadata) {
+    if (!metadata.InheritsFrom(ClassName())) {
+        RESTError << "TRestMetadata::Merge. Metadata is not of type " << ClassName() << RESTendl;
+        exit(1);
+    }
+
+    if (fName.IsNull()) {
+        fName = metadata.GetName();
+    }
+}
+
+UInt_t TRestMetadata::GetVersionMajor() const {
+    TString major = fVersion(0, fVersion.First('.'));
+    return major.Atoi();
+}
+
+UInt_t TRestMetadata::GetVersionMinor() const {
+    TString minor = fVersion(fVersion.First('.') + 1, fVersion.Last('.'));
+    return minor.Atoi();
+}
+
+UInt_t TRestMetadata::GetVersionPatch() const {
+    TString patch = fVersion(fVersion.Last('.') + 1, fVersion.Length());
+    return patch.Atoi();
 }

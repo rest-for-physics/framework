@@ -1,3 +1,25 @@
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
+
 #include <iostream>
 #include <limits>
 
@@ -45,10 +67,16 @@ map<string, pair<int, double>> __ListOfRESTUnits;  // name, {type, scale}
 ///
 /// History of developments:
 ///
-/// 2017-Nov:   First concept and implementation of REST_Units namespace.
-/// \author     Javier Galan
+/// 2016-Feb:  First concept of REST standard system of units
+///            Javier Galán
 ///
+/// 2017-Aug:  Major upgrades
+///            Kaixiang Ni
+///
+/// \class TRestSystemOfUnits
 /// \namespace REST_Units
+/// \author     Javier Galan
+/// \author     Kaixiang Ni
 ///
 /// <hr>
 namespace REST_Units {
@@ -280,7 +308,7 @@ TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
                         orderprefix = -1;
                     } else if (unitsStr[pos1 - 1] == '-' || unitsStr[pos1 - 1] == '*') {
                     } else {
-                        RESTWarning << "illegeal unit combiner \"" << unitsStr[pos1 - 1] << "\"" << RESTendl;
+                        RESTWarning << "illegal unit combiner \"" << unitsStr[pos1 - 1] << "\"" << RESTendl;
                     }
                 }
 
@@ -310,8 +338,16 @@ TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
 
         } else {
             if (pos == unitsStr.size() - 1) {
-                RESTWarning << "last character inside \"" << unitsStr << "\" \"" << unitsStr[pos]
+                RESTWarning << "Last character inside \"" << unitsStr << "\" \"" << unitsStr[pos]
                             << "\" unrecognized in unit definition!" << RESTendl;
+
+                std::string lastChar = unitsStr.substr(pos, 1);
+
+                if (isANumber(lastChar)) {
+                    std::string tmpStr = unitsStr;
+                    tmpStr.insert(pos, "^");
+                    RESTWarning << "Perhaps you meant: " << tmpStr << RESTendl;
+                }
             }
 
             pos++;
