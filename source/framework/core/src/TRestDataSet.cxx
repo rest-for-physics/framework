@@ -645,7 +645,6 @@ void TRestDataSet::PrintMetadata() {
         for (const auto& fn : fImportedFiles) RESTMetadata << " - " << fn << RESTendl;
     }
 
-
     if (fTimeCorrection) {
         RESTMetadata << "The combined dataset time correction analysis is activated." << RESTendl;
     }
@@ -655,7 +654,6 @@ void TRestDataSet::PrintMetadata() {
         RESTMetadata << " - Multithreading was enabled" << RESTendl;
     else
         RESTMetadata << " - Multithreading was NOT enabled" << RESTendl;
-
 
     RESTMetadata << "----" << RESTendl;
 }
