@@ -55,7 +55,7 @@ class TRestDataSet : public TRestMetadata {
     std::string fFilterEndTime = "3000/12/31";  //<
 
     /// A glob file pattern that must be satisfied by all files
-    std::string fFilePattern = "";  //<
+    std::vector<std::string> fFilePatternList;  //<
 
     /// It contains a list of the observables that will be added to the final tree or exported file
     std::vector<std::string> fObservablesList;  //<
@@ -104,9 +104,6 @@ class TRestDataSet : public TRestMetadata {
 
     /// A list of new columns together with its corresponding expressions added to the dataset
     std::vector<std::pair<std::string, std::string>> fColumnNameExpressions;  //<
-
-    /// List of files to generate the dataSet
-    std::vector<std::string> fFileList;  //!
 
     /// A flag to enable Multithreading during dataframe generation
     Bool_t fMT = false;  //<
@@ -170,7 +167,7 @@ class TRestDataSet : public TRestMetadata {
     inline auto GetFilterEndTime() const { return fFilterEndTime; }
     inline auto GetStartTime() const { return fStartTime; }
     inline auto GetEndTime() const { return fEndTime; }
-    inline auto GetFilePattern() const { return fFilePattern; }
+    inline auto GetFilePattern() const { return fFilePatternList; }
     inline auto GetObservablesList() const { return fObservablesList; }
     inline auto GetFileSelection() const { return fFileSelection; }
     inline auto GetProcessObservablesList() const { return fProcessObservablesList; }
@@ -184,9 +181,8 @@ class TRestDataSet : public TRestMetadata {
     inline auto GetCut() const { return fCut; }
     inline auto IsMergedDataSet() const { return fMergedDataset; }
 
-    inline void SetFileList(const std::vector<std::string>& fileList) { fFileList = fileList; }
     inline void SetObservablesList(const std::vector<std::string>& obsList) { fObservablesList = obsList; }
-    inline void SetFilePattern(const std::string& pattern) { fFilePattern = pattern; }
+    inline void SetFilePattern(const std::string& pattern) { fFilePatternList.push_back(pattern); }
     inline void SetQuantity(const std::map<std::string, RelevantQuantity>& quantity) { fQuantity = quantity; }
 
     void SetTotalTimeInSeconds(Double_t seconds) { fTotalDuration = seconds; }
