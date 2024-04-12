@@ -389,15 +389,11 @@ std::vector<std::string> TRestDataSet::FileSelection() {
         return fFileSelection;
     }
 
-<<<<<<< HEAD
     std::vector<std::string> fileList;
       for(const auto &pattern : fFilePatternList){
         auto list = TRestTools::GetFilesMatchingPattern(pattern);
         fileList.insert(end(fileList), begin(list), end(list));
       }
-=======
-    if (fFileList.empty()) fFileList = TRestTools::GetFilesMatchingPattern(fFilePattern);
->>>>>>> 0b81d3761936c020e7cfa432c980a57974368ea5
 
     RESTInfo << "TRestDataSet::FileSelection. Starting file selection." << RESTendl;
     RESTInfo << "Total files : " << fileList.size() << RESTendl;
