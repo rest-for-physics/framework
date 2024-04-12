@@ -391,10 +391,10 @@ std::vector<std::string> TRestDataSet::FileSelection() {
 
 <<<<<<< HEAD
     std::vector<std::string> fileList;
-      for(const auto &pattern : fFilePatternList){
+    for (const auto& pattern : fFilePatternList) {
         auto list = TRestTools::GetFilesMatchingPattern(pattern);
         fileList.insert(end(fileList), begin(list), end(list));
-      }
+    }
 =======
     if (fFileList.empty()) fFileList = TRestTools::GetFilesMatchingPattern(fFilePattern);
 >>>>>>> 0b81d3761936c020e7cfa432c980a57974368ea5
@@ -566,9 +566,9 @@ void TRestDataSet::PrintMetadata() {
 
     RESTMetadata << " - StartTime : " << REST_StringHelper::ToDateTimeString(fStartTime) << RESTendl;
     RESTMetadata << " - EndTime : " << REST_StringHelper::ToDateTimeString(fEndTime) << RESTendl;
-    for(const auto& pattern : fFilePatternList){
-      RESTMetadata << " - Path : " << TRestTools::SeparatePathAndName(pattern).first << RESTendl;
-      RESTMetadata << " - File pattern : " << TRestTools::SeparatePathAndName(pattern).second << RESTendl;
+    for (const auto& pattern : fFilePatternList) {
+        RESTMetadata << " - Path : " << TRestTools::SeparatePathAndName(pattern).first << RESTendl;
+        RESTMetadata << " - File pattern : " << TRestTools::SeparatePathAndName(pattern).second << RESTendl;
     }
     RESTMetadata << "  " << RESTendl;
     RESTMetadata << " - Accumulated run time (seconds) : " << fTotalDuration << RESTendl;
@@ -665,8 +665,8 @@ void TRestDataSet::PrintMetadata() {
 void TRestDataSet::InitFromConfigFile() {
     TRestMetadata::InitFromConfigFile();
 
-    std::string filePattern = GetParameter("filePattern","");
-    if(!filePattern.empty())fFilePatternList.push_back(filePattern);
+    std::string filePattern = GetParameter("filePattern", "");
+    if (!filePattern.empty()) fFilePatternList.push_back(filePattern);
 
     /// Reading filters
     TiXmlElement* filterDefinition = GetElement("filter");
@@ -856,9 +856,9 @@ void TRestDataSet::Export(const std::string& filename, std::vector<std::string> 
         fprintf(f, "### Accumulated run time (hours) : %lf\n", fTotalDuration / 3600.);
         fprintf(f, "### Accumulated run time (days) : %lf\n", fTotalDuration / 3600. / 24.);
         fprintf(f, "###\n");
-        for(const auto& pattern : fFilePatternList){
-          fprintf(f, "### Data path : %s\n", TRestTools::SeparatePathAndName(pattern).first.c_str());
-          fprintf(f, "### File pattern : %s\n", TRestTools::SeparatePathAndName(pattern).second.c_str());
+        for (const auto& pattern : fFilePatternList) {
+            fprintf(f, "### Data path : %s\n", TRestTools::SeparatePathAndName(pattern).first.c_str());
+            fprintf(f, "### File pattern : %s\n", TRestTools::SeparatePathAndName(pattern).second.c_str());
         }
         fprintf(f, "###\n");
         if (!fFilterMetadata.empty()) {
