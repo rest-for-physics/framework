@@ -286,6 +286,10 @@ class TRestMetadata : public TNamed {
 
     inline Bool_t isCleanState() const { return fCleanState; }
 
+    UInt_t GetVersionMajor() const;
+    UInt_t GetVersionMinor() const;
+    UInt_t GetVersionPatch() const;
+
     Int_t GetVersionCode();
     /// Returns a std::string with the path used for data storage
     inline TString GetDataPath() {
@@ -332,8 +336,8 @@ class TRestMetadata : public TNamed {
     ~TRestMetadata();
 
     // Making class constructors protected to keep this class abstract
-    TRestMetadata& operator=(const TRestMetadata&) = delete;
-    TRestMetadata(const TRestMetadata&) = delete;
+    TRestMetadata& operator=(const TRestMetadata&);
+    TRestMetadata(const TRestMetadata&);
 
     /// Call CINT to generate streamers for this class
     ClassDef(TRestMetadata, 9);

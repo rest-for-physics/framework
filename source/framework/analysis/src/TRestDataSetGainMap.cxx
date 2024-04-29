@@ -186,6 +186,8 @@ void TRestDataSetGainMap::InitFromConfigFile() {
         moduleDefinition = GetNextElement(moduleDefinition);
     }
 
+    fCut = (TRestCut*)InstantiateChildMetadata("TRestCut");
+
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) PrintMetadata();
 }
 
@@ -194,30 +196,38 @@ void TRestDataSetGainMap::InitFromConfigFile() {
 ///
 void TRestDataSetGainMap::GenerateGainMap() {
     for (auto& mod : fModulesCal) {
-        RESTInfo << "Calibrating plane " << mod.GetPlaneId() << " module " << mod.GetModuleId() << RESTendl;
+        RESTInfo << "Generating gain map of plane " << mod.GetPlaneId() << " module " << mod.GetModuleId()
+                 << RESTendl;
         mod.GenerateGainMap();
         if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) {
             mod.DrawSpectrum();
+            mod.DrawFullSpectrum();
             mod.DrawGainMap();
         }
     }
 }
 
 /////////////////////////////////////////////
-/// \brief Function to calibrate a dataset.
+/// \brief Function to calibrate a dataset with this gain map.
 ///
 /// \param dataSetFileName the name of the root file where the TRestDataSet to be calibrated is stored.
 /// \param outputFileName the name of the output (root) file where the calibrated TRestDataSet will be
-/// exported. If empty, the output file will be named as the input file with the suffix "_cc". E.g.
-/// "data/myDataSet.root" -> "data/myDataSet_cc.root".
+/// exported. If empty, the output file will be named as the input file plus the name of the
+/// TRestDataSetGainMap. E.g. "data/myDataSet.root" -> "data/myDataSet_<gmName>.root".
+/// \param excludeColumns a vector of strings with the names of the columns to be excluded from the
+/// output file. If empty, all columns will be included. If "all" is in the list, all columns will be
+/// excluded except the calibrated observable, the calibrated observable with no segmentation and
+/// the plane-module identifier (pmID).
 ///
-void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, std::string outputFileName) {
+void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, std::string outputFileName,
+                                           std::vector<std::string> excludeColumns) {
     if (fModulesCal.empty()) {
         RESTError << "TRestDataSetGainMap::CalibrateDataSet: No modules defined." << RESTendl;
         return;
     }
 
     TRestDataSet dataSet;
+    dataSet.EnableMultiThreading(true);
     dataSet.Import(dataSetFileName);
     auto dataFrame = dataSet.GetDataFrame();
 
@@ -253,24 +263,75 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
     dataFrame = dataFrame.Define(calibObsName, calibrate,
                                  {fObservable, fSpatialObservableX, fSpatialObservableY, pmIDname});
 
+    // Define a new column with the calibrated observable for the whole module calibration
+    auto calibrateFullSpc = [this](double val, int pmID) {
+        for (auto& m : fModulesCal) {
+            if (pmID == m.GetPlaneId() * 10 + m.GetModuleId())
+                return m.GetSlopeFullSpc() * val + m.GetInterceptFullSpc();
+        }
+        // RESTError << "TRestDataSetGainMap::CalibrateDataSet: Module not found for pmID " << pmID <<
+        // RESTendl;
+        return std::numeric_limits<double>::quiet_NaN();
+    };
+    std::string calibObsNameFullSpc = (std::string)GetName() + "_";
+    calibObsNameFullSpc +=
+        GetObservable().erase(0, GetObservable().find("_") + 1);  // remove the "rawAna_" part
+    calibObsNameFullSpc += "_NoSegmentation";
+    dataFrame = dataFrame.Define(calibObsNameFullSpc, calibrateFullSpc, {fObservable, pmIDname});
+
     dataSet.SetDataFrame(dataFrame);
 
     // Format the output file name and export the dataSet
     if (outputFileName.empty()) outputFileName = dataSetFileName;
-
     if (outputFileName == dataSetFileName) {  // TRestDataSet cannot be overwritten
-        outputFileName = outputFileName.substr(0, outputFileName.find_last_of(".")) + "_cc.";
+        std::string gmName = GetName();
+        outputFileName = outputFileName.substr(0, outputFileName.find_last_of("."));  // remove extension
+        outputFileName += "_" + gmName;
         outputFileName += TRestTools::GetFileNameExtension(dataSetFileName);
     }
 
-    RESTInfo << "Exporting calibrated dataSet to " << outputFileName << RESTendl;
-    dataSet.Export(outputFileName);
+    // Export dataset. Exclude columns if requested.
+    std::set<std::string> excludeCol;  // vector with the explicit column names to be excluded
+    auto columns = dataSet.GetDataFrame().GetColumnNames();
+    // Get the columns to be excluded from the list of columns. It accepts wildcards "*" and "?"
+    for (auto& eC : excludeColumns) {
+        if (eC.find("*") != std::string::npos || eC.find("?") != std::string::npos) {
+            for (auto& c : columns)
+                if (MatchString(c, eC)) excludeCol.insert(c);
+        } else if (std::find(columns.begin(), columns.end(), eC) != columns.end())
+            excludeCol.insert(eC);
+    }
+    // Remove the calibObsName, calibObsNameFullSpc and pmIDname from the list of columns to be excluded
+    excludeCol.erase(calibObsName);
+    excludeCol.erase(calibObsNameFullSpc);
+    excludeCol.erase(pmIDname);
+
+    RESTDebug << "Excluding columns: ";
+    for (auto& c : excludeCol) RESTDebug << c << ", ";
+    RESTDebug << RESTendl;
+
+    dataSet.Export(outputFileName, std::vector<std::string>(excludeCol.begin(), excludeCol.end()));
 
     // Add this TRestDataSetGainMap metadata to the output file
     TFile* f = TFile::Open(outputFileName.c_str(), "UPDATE");
     this->Write();
     f->Close();
     delete f;
+}
+
+/////////////////////////////////////////////
+/// \brief Function to retrieve the module calibration by index. Default is 0.
+///
+///
+TRestDataSetGainMap::Module* TRestDataSetGainMap::GetModule(const size_t index) {
+    if (index < fModulesCal.size()) return &fModulesCal[index];
+
+    RESTError << "No ModuleCalibration with index " << index;
+    if (fModulesCal.empty())
+        RESTError << ". There are no modules defined." << RESTendl;
+    else
+        RESTError << ". Max index is " << fModulesCal.size() - 1 << RESTendl;
+    return nullptr;
 }
 
 /////////////////////////////////////////////
@@ -298,6 +359,16 @@ double TRestDataSetGainMap::GetSlopeParameter(const int planeID, const int modul
 }
 
 /////////////////////////////////////////////
+/// \brief Function to get the slope parameter of the whole module with
+/// planeID and moduleID.
+///
+double TRestDataSetGainMap::GetSlopeParameterFullSpc(const int planeID, const int moduleID) {
+    Module* moduleCal = GetModule(planeID, moduleID);
+    if (moduleCal == nullptr) return 0;  // return numeric_limits<double>::quiet_NaN()
+    return moduleCal->GetSlopeFullSpc();
+}
+
+/////////////////////////////////////////////
 /// \brief Function to get the intercept parameter of the module with
 /// planeID and moduleID at physical position (x,y)
 ///
@@ -307,6 +378,16 @@ double TRestDataSetGainMap::GetInterceptParameter(const int planeID, const int m
     Module* moduleCal = GetModule(planeID, moduleID);
     if (moduleCal == nullptr) return 0;  // return numeric_limits<double>::quiet_NaN()
     return moduleCal->GetIntercept(x, y);
+}
+
+/////////////////////////////////////////////
+/// \brief Function to get the intercept parameter of the whole module with
+/// planeID and moduleID.
+///
+double TRestDataSetGainMap::GetInterceptParameterFullSpc(const int planeID, const int moduleID) {
+    Module* moduleCal = GetModule(planeID, moduleID);
+    if (moduleCal == nullptr) return 0;  // return numeric_limits<double>::quiet_NaN()
+    return moduleCal->GetInterceptFullSpc();
 }
 
 /////////////////////////////////////////////
@@ -346,6 +427,7 @@ TRestDataSetGainMap& TRestDataSetGainMap::operator=(TRestDataSetGainMap& src) {
     fObservable = src.GetObservable();
     fSpatialObservableX = src.GetSpatialObservableX();
     fSpatialObservableY = src.GetSpatialObservableY();
+    fCut = src.GetCut();
     fModulesCal.clear();
     for (auto pID : src.GetPlaneIDs())
         for (auto mID : src.GetModuleIDs(pID)) fModulesCal.push_back(*src.GetModule(pID, mID));
@@ -356,7 +438,7 @@ TRestDataSetGainMap& TRestDataSetGainMap::operator=(TRestDataSetGainMap& src) {
 /// \brief Function to set a module calibration. If the module calibration
 /// already exists (same planeId and moduleId), it will be replaced.
 ///
-void TRestDataSetGainMap::SetModuleCalibration(const Module& moduleCal) {
+void TRestDataSetGainMap::SetModule(const Module& moduleCal) {
     for (auto& i : fModulesCal) {
         if (i.GetPlaneId() == moduleCal.GetPlaneId() && i.GetModuleId() == moduleCal.GetModuleId()) {
             i = moduleCal;
@@ -431,7 +513,16 @@ void TRestDataSetGainMap::Export(const std::string& fileName) {
 void TRestDataSetGainMap::PrintMetadata() {
     TRestMetadata::PrintMetadata();
     RESTMetadata << " Calibration dataset: " << fCalibFileName << RESTendl;
+    if (fCut) {
+        RESTMetadata << " Cuts applied: ";
+        /* print only cutStrings and paramCut because
+        TRestDataSet::MakeCut() uses fCut->GetCutStrings() and fCut->GetParamCut() */
+        for (const auto& cut : fCut->GetCutStrings()) RESTMetadata << cut << ", " << RESTendl;
+        for (const auto& cut : fCut->GetParamCut())
+            RESTMetadata << cut.first << " " << cut.second << ", " << RESTendl;
+    }
     RESTMetadata << " Output file: " << fOutputFileName << RESTendl;
+    RESTMetadata << RESTendl;
     RESTMetadata << " Number of planes:  " << GetNumberOfPlanes() << RESTendl;
     RESTMetadata << " Number of modules: " << GetNumberOfModules() << RESTendl;
     RESTMetadata << " Calibration observable: " << fObservable << RESTendl;
@@ -628,10 +719,11 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
     }
     if (!TRestTools::isDataSet(dsFileName)) RESTWarning << dsFileName << " is not a dataset." << p->RESTendl;
     TRestDataSet dataSet;
+    dataSet.EnableMultiThreading(true);
     dataSet.Import(dsFileName);
     fDataSetFileName = dsFileName;
 
-    SetSplits();
+    dataSet.SetDataFrame(dataSet.MakeCut(p->GetCut()));
 
     if (fSplitX.empty()) SetSplitX();
     if (fSplitY.empty()) SetSplitY();
@@ -663,20 +755,28 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
                   << p->RESTendl;
     }
 
+    // --- Definition of histogram whole module ---
+    std::string hModuleName = "hSpc_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId);
+    delete fFullSpectrum;
+    fFullSpectrum = new TH1F(hModuleName.c_str(), "", fNBins, fCalibRange.X(), fCalibRange.Y());
+
+    // build the spectrum for the whole module
+    std::string cut = fDefinitionCut;
+    if (cut.empty()) cut = "1";
+    auto histoMod = dataSet.GetDataFrame().Filter(cut).Histo1D(
+        {"tempMod", "", fNBins, fCalibRange.X(), fCalibRange.Y()}, GetObservable());
+    std::unique_ptr<TH1F> hpuntMod = std::unique_ptr<TH1F>(static_cast<TH1F*>(histoMod->Clone()));
+    fFullSpectrum->Add(hpuntMod.get());
+
     //--- Definition of histogram matrix ---
     std::vector<std::vector<TH1F*>> h(fNumberOfSegmentsX, std::vector<TH1F*>(fNumberOfSegmentsY, nullptr));
     for (size_t i = 0; i < h.size(); i++) {
         for (size_t j = 0; j < h.at(0).size(); j++) {
-            std::string name = "hSpc_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId) + "_" +
-                               std::to_string(i) + "_" + std::to_string(j);
+            std::string name = hModuleName + "_" + std::to_string(i) + "_" + std::to_string(j);
             h[i][j] = new TH1F(name.c_str(), "", fNBins, fCalibRange.X(),
                                fCalibRange.Y());  // h[column][row] equivalent to h[x][y]
         }
     }
-    std::vector<std::vector<double>> calParSlope(fNumberOfSegmentsX,
-                                                 std::vector<double>(fNumberOfSegmentsY, 0));
-    std::vector<std::vector<double>> calParIntercept(fNumberOfSegmentsX,
-                                                     std::vector<double>(fNumberOfSegmentsY, 0));
 
     // build the spectrum for each segment
     auto itX = fSplitX.begin();
@@ -713,111 +813,130 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
     }
 
     //--- Fit every peak energy for every segment ---
+    std::vector<std::vector<double>> calParSlope(fNumberOfSegmentsX,
+                                                 std::vector<double>(fNumberOfSegmentsY, 0));
+    std::vector<std::vector<double>> calParIntercept(fNumberOfSegmentsX,
+                                                     std::vector<double>(fNumberOfSegmentsY, 0));
     fSegLinearFit = std::vector(h.size(), std::vector<TGraph*>(h.at(0).size(), nullptr));
-    for (size_t i = 0; i < h.size(); i++) {
-        for (size_t j = 0; j < h.at(0).size(); j++) {
-            RESTExtreme << "Segment[" << i << "][" << j << "]" << p->RESTendl;
-            // Search for peaks --> peakPos
-            std::unique_ptr<TSpectrum> s(new TSpectrum(2 * fEnergyPeaks.size() + 1));
-            std::vector<double> peakPos;
-            s->Search(h[i][j], 2, "goff", 0.1);
-            for (int k = 0; k < s->GetNPeaks(); k++) peakPos.push_back(s->GetPositionX()[k]);
-            std::sort(peakPos.begin(), peakPos.end(), std::greater<double>());
-            const double ratio = peakPos.size() == 0
-                                     ? 1
-                                     : peakPos.front() / fEnergyPeaks.front();  // to estimate peak position
-
-            // Initialize graph for linear fit
-            std::shared_ptr<TGraph> gr;
-            gr = std::shared_ptr<TGraph>(new TGraph());
-            gr->SetName("grFit");
-            gr->SetTitle((";" + GetObservable() + ";energy").c_str());
-
-            // Fit every energy peak
-            int c = 0;
-            double mu = 0;
-            for (const auto& energy : fEnergyPeaks) {
-                RESTExtreme << "\t fitting energy " << DoubleToString(energy, "%g") << p->RESTendl;
-                // estimation of the peak position is between start and end
-                double pos = energy * ratio;
-                double start = pos * 0.8;
-                double end = pos * 1.2;
-                if (fRangePeaks.at(c).X() < fRangePeaks.at(c).Y()) {  // if range is defined use it
-                    start = fRangePeaks.at(c).X();
-                    end = fRangePeaks.at(c).Y();
-                }
-
-                do {
-                    if (fAutoRangePeaks) {
-                        if (peakPos.size() > 0) {
-                            // Find the peak position that is between start and end
-                            pos = peakPos.at(0);
-                            while (!(start < pos && pos < end)) {
-                                // if none of the peak position is
-                                // between start and end, use the greater one.
-                                if (pos == peakPos.back()) {
-                                    pos = peakPos.at(0);
-                                    break;
-                                }
-                                pos = *std::next(std::find(peakPos.begin(), peakPos.end(),
-                                                           pos));  // get next peak position
-                            }
-                            peakPos.erase(std::find(peakPos.begin(), peakPos.end(),
-                                                    pos));  // remove this peak position from the list
-                            // final estimation of the peak range (idem fitting window) with this peak
-                            // position pos
-                            start = pos * 0.8;
-                            end = pos * 1.2;
-                            const double relDist = peakPos.size() > 0 ? (pos - peakPos.front()) / pos : 999;
-                            if (relDist < 0.2) {  // if the next peak is too close reduce the window width
-                                start = pos * (1 - relDist / 2);
-                                end = pos * (1 + relDist / 2);
-                            }
-                        }
-                    }
-
-                    std::string name = "g" + std::to_string(c);
-                    TF1* g = new TF1(name.c_str(), "gaus", start, end);
-                    RESTExtreme << "\t\tat " << DoubleToString(pos, "%.3g") << ". Range("
-                                << DoubleToString(start, "%.3g") << ", " << DoubleToString(end, "%.3g") << ")"
-                                << p->RESTendl;
-
-                    if (h[i][j]->GetFunction(name.c_str()))  // remove previous fit
-                        h[i][j]->GetListOfFunctions()->Remove(h[i][j]->GetFunction(name.c_str()));
-
-                    h[i][j]->Fit(g, "R+Q0");  // use 0 to not draw the fit but save it
-                    mu = g->GetParameter(1);
-                    RESTExtreme << "\t\tgaus mean " << DoubleToString(mu, "%g") << p->RESTendl;
-                } while (fAutoRangePeaks && peakPos.size() > 0 &&
-                         !(start < mu && mu < end));  // avoid small peaks on main peak tail
-                gr->SetPoint(c++, mu, energy);
-            }
-            s.reset();  // delete s;
-
-            if (fZeroPoint) gr->SetPoint(c++, 0, 0);
-            while (gr->GetN() < 2) {  // minimun 2 points needed for linear fit
-                gr->SetPoint(c++, 0, 0);
-                SetZeroPoint(true);
-                RESTDebug << "Not enough points for linear fit. Adding and setting zero point to true"
-                          << p->RESTendl;
-            }
-
-            // Linear fit
-            std::unique_ptr<TF1> linearFit;
-            linearFit = std::unique_ptr<TF1>(new TF1("linearFit", "pol1"));
-            gr->Fit("linearFit", "SQ");  // Q for quiet mode
-
-            fSegLinearFit.at(i).at(j) = (TGraph*)gr->Clone();
-
-            const double slope = linearFit->GetParameter(1);
-            const double intercept = linearFit->GetParameter(0);
-            calParSlope.at(i).at(j) = slope;
-            calParIntercept.at(i).at(j) = intercept;
+    for (size_t i = 0; i < h.size(); i++)
+        for (int j = 0; j < (int)h.at(0).size(); j++) {
+            fSegLinearFit[i][j] = new TGraph();
+            auto [intercept, slope] = FitPeaks(h[i][j], fSegLinearFit[i][j]);
+            calParSlope[i][j] = slope;
+            calParIntercept[i][j] = intercept;
         }
-    }
-    fSegSpectra = h;
     fSlope = calParSlope;
     fIntercept = calParIntercept;
+    fSegSpectra = h;
+
+    //--- Fit every peak energy for the whole module ---
+    delete fFullLinearFit;
+    fFullLinearFit = new TGraph();
+    auto [intercept, slope] = FitPeaks(fFullSpectrum, fFullLinearFit);
+    fFullSlope = slope;
+    fFullIntercept = intercept;
+}
+
+std::pair<double, double> TRestDataSetGainMap::Module::FitPeaks(TH1F* hSeg, TGraph* gr) {
+    if (!hSeg) {
+        RESTError << "No histogram for fitting" << p->RESTendl;
+        return std::make_pair(0, 0);
+    }
+    if (hSeg->Integral() == 0) {
+        RESTError << "Empty spectrum " << hSeg->GetName() << p->RESTendl;
+        return std::make_pair(0, 0);
+    }
+    std::shared_ptr<TGraph> graph = std::shared_ptr<TGraph>(new TGraph());
+    RESTExtreme << "Fitting peaks for " << hSeg->GetName() << p->RESTendl;
+
+    // Search for peaks --> peakPos
+    std::unique_ptr<TSpectrum> s(new TSpectrum(2 * fEnergyPeaks.size() + 1));
+    std::vector<double> peakPos;
+    s->Search(hSeg, 2, "goff", 0.1);
+    for (int k = 0; k < s->GetNPeaks(); k++) peakPos.push_back(s->GetPositionX()[k]);
+    std::sort(peakPos.begin(), peakPos.end(), std::greater<double>());
+    const double ratio =
+        peakPos.size() == 0 ? 1 : peakPos.front() / fEnergyPeaks.front();  // to estimate peak position
+
+    // Initialize graph for linear fit
+    graph->SetName("grFit");
+    graph->SetTitle((";" + GetObservable() + ";energy").c_str());
+
+    // Fit every energy peak
+    int c = 0;
+    double mu = 0;
+    for (const auto& energy : fEnergyPeaks) {
+        RESTExtreme << "\t fitting energy " << DoubleToString(energy, "%g") << p->RESTendl;
+        // estimation of the peak position is between start and end
+        double pos = energy * ratio;
+        double start = pos * 0.8;
+        double end = pos * 1.2;
+        if (fRangePeaks.at(c).X() < fRangePeaks.at(c).Y()) {  // if range is defined use it
+            start = fRangePeaks.at(c).X();
+            end = fRangePeaks.at(c).Y();
+        }
+
+        do {
+            if (fAutoRangePeaks) {
+                if (peakPos.size() > 0) {
+                    // Find the peak position that is between start and end
+                    pos = peakPos.at(0);
+                    while (!(start < pos && pos < end)) {
+                        // if none of the peak position is
+                        // between start and end, use the greater one.
+                        if (pos == peakPos.back()) {
+                            pos = peakPos.at(0);
+                            break;
+                        }
+                        pos = *std::next(std::find(peakPos.begin(), peakPos.end(),
+                                                   pos));  // get next peak position
+                    }
+                    peakPos.erase(std::find(peakPos.begin(), peakPos.end(),
+                                            pos));  // remove this peak position from the list
+                    // final estimation of the peak range (idem fitting window) with this peak
+                    // position pos
+                    start = pos * 0.8;
+                    end = pos * 1.2;
+                    const double relDist = peakPos.size() > 0 ? (pos - peakPos.front()) / pos : 999;
+                    if (relDist < 0.2) {  // if the next peak is too close reduce the window width
+                        start = pos * (1 - relDist / 2);
+                        end = pos * (1 + relDist / 2);
+                    }
+                }
+            }
+
+            std::string name = "g" + std::to_string(c);
+            TF1* g = new TF1(name.c_str(), "gaus", start, end);
+            RESTExtreme << "\t\tat " << DoubleToString(pos, "%.3g") << ". Range("
+                        << DoubleToString(start, "%.3g") << ", " << DoubleToString(end, "%.3g") << ")"
+                        << p->RESTendl;
+
+            if (hSeg->GetFunction(name.c_str()))  // remove previous fit
+                hSeg->GetListOfFunctions()->Remove(hSeg->GetFunction(name.c_str()));
+
+            hSeg->Fit(g, "R+Q0");  // use 0 to not draw the fit but save it
+            mu = g->GetParameter(1);
+            RESTExtreme << "\t\tgaus mean " << DoubleToString(mu, "%g") << p->RESTendl;
+        } while (fAutoRangePeaks && peakPos.size() > 0 &&
+                 !(start < mu && mu < end));  // avoid small peaks on main peak tail
+        graph->SetPoint(c++, mu, energy);
+    }
+    s.reset();  // delete s;
+
+    if (fZeroPoint) graph->SetPoint(c++, 0, 0);
+    while (graph->GetN() < 2) {  // minimun 2 points needed for linear fit
+        graph->SetPoint(c++, 0, 0);
+        SetZeroPoint(true);
+        RESTDebug << "Not enough points for linear fit. Adding and setting zero point to true" << p->RESTendl;
+    }
+
+    // Linear fit
+    std::unique_ptr<TF1> linearFit;
+    linearFit = std::unique_ptr<TF1>(new TF1("linearFit", "pol1"));
+    graph->Fit("linearFit", "SQ");  // Q for quiet mode
+
+    if (gr) *gr = *(TGraph*)graph->Clone();  // if nullptr is passed, do not copy the graph
+    return std::make_pair(linearFit->GetParameter(0), linearFit->GetParameter(1));
 }
 
 /////////////////////////////////////////////
@@ -880,6 +999,55 @@ void TRestDataSetGainMap::Module::Refit(const size_t x, const size_t y, const si
 }
 
 /////////////////////////////////////////////
+/// \brief Function to fit again manually a peak for the whole module spectrum. The
+/// calibration curve is updated after the fit.
+///
+/// \param energyPeak The energy of the peak to be fitted (in physical units).
+/// \param range The range for the fitting of the peak (in the observables corresponding units).
+///
+void TRestDataSetGainMap::Module::RefitFullSpc(const double energyPeak, const TVector2& range) {
+    int peakNumber = -1;
+    for (size_t i = 0; i < fEnergyPeaks.size(); i++)
+        if (fEnergyPeaks.at(i) == energyPeak) {
+            peakNumber = i;
+            break;
+        }
+    if (peakNumber == -1) {
+        RESTError << "Energy " << energyPeak << " not found in the list of energy peaks" << p->RESTendl;
+        return;
+    }
+    RefitFullSpc((size_t)peakNumber, range);
+}
+
+/////////////////////////////////////////////
+/// \brief Function to fit again manually a peak for the whole module spectrum. The
+/// calibration curve is updated after the fit.
+///
+/// \param peakNumber The index of the peak to be fitted.
+/// \param range The range for the fitting of the peak (in the observables corresponding units).
+///
+void TRestDataSetGainMap::Module::RefitFullSpc(const size_t peakNumber, const TVector2& range) {
+    if (!fFullSpectrum) {
+        RESTError << "No gain map found. Use GenerateGainMap() first." << p->RESTendl;
+        return;
+    }
+    if (peakNumber >= fEnergyPeaks.size()) {
+        RESTError << "Peak with index " << peakNumber << " not found" << p->RESTendl;
+        return;
+    }
+
+    // Refit the desired peak
+    std::string name = "g" + std::to_string(peakNumber);
+    TF1* g = new TF1(name.c_str(), "gaus", range.X(), range.Y());
+    while (fFullSpectrum->GetFunction(name.c_str()))  // clear previous fits for this peakNumber
+        fFullSpectrum->GetListOfFunctions()->Remove(fFullSpectrum->GetFunction(name.c_str()));
+    fFullSpectrum->Fit(g, "R+Q0");  // use 0 to not draw the fit but save it
+
+    // Change the point of the graph
+    UpdateCalibrationFitsFullSpc();
+}
+
+/////////////////////////////////////////////
 /// \brief Function to update the calibration curve for a given segment of the module. The calibration
 /// curve is cleared and then the means of the gaussian fits for each energy peak are added. If there are
 /// less than 2 fits, zero points are added. Then, the calibration curve is refitted (linearFit).
@@ -900,6 +1068,25 @@ void TRestDataSetGainMap::Module::UpdateCalibrationFits(const size_t x, const si
     TH1F* h = fSegSpectra.at(x).at(y);
     TGraph* gr = fSegLinearFit.at(x).at(y);
 
+    auto [intercept, slope] = UpdateCalibrationFits(h, gr);
+    fSlope[x][y] = slope;
+    fIntercept[x][y] = intercept;
+}
+
+std::pair<double, double> TRestDataSetGainMap::Module::UpdateCalibrationFits(TH1F* h, TGraph* gr) {
+    if (!h) {
+        RESTError << "No histogram for updating fits" << p->RESTendl;
+        return std::make_pair(0, 0);
+    }
+    if (!gr) {
+        RESTError << "No graph for updating fits" << p->RESTendl;
+        return std::make_pair(0, 0);
+    }
+    if (h->Integral() == 0) {
+        RESTError << "Empty spectrum " << h->GetName() << p->RESTendl;
+        return std::make_pair(0, 0);
+    }
+
     // Clear the points of the graph
     for (size_t i = 0; i < fEnergyPeaks.size(); i++) gr->RemovePoint(i);
     // Add the new points to the graph
@@ -909,7 +1096,7 @@ void TRestDataSetGainMap::Module::UpdateCalibrationFits(const size_t x, const si
         TF1* g = h->GetFunction(fitName.c_str());
         if (!g) {
             RESTWarning << "No fit ( " << fitName << " ) found for energy peak " << fEnergyPeaks[i]
-                        << " in segment " << x << "," << y << p->RESTendl;
+                        << " in histogram " << h->GetName() << p->RESTendl;
             continue;
         }
         gr->SetPoint(c++, g->GetParameter(1), fEnergyPeaks[i]);
@@ -918,8 +1105,6 @@ void TRestDataSetGainMap::Module::UpdateCalibrationFits(const size_t x, const si
     // Add zero points if needed (if there are less than 2 points)
     while (gr->GetN() < 2) {
         gr->SetPoint(c++, 0, 0);
-        RESTWarning << "Not enough points for linear fit at segment (" << x << ", " << y
-                    << "). Adding zero point." << p->RESTendl;
     }
 
     // Refit the calibration curve
@@ -929,8 +1114,19 @@ void TRestDataSetGainMap::Module::UpdateCalibrationFits(const size_t x, const si
     else
         lf = new TF1("linearFit", "pol1");
     gr->Fit(lf, "SQ");  // Q for quiet mode
-    fSlope.at(x).at(y) = lf->GetParameter(1);
-    fIntercept.at(x).at(y) = lf->GetParameter(0);
+
+    return std::make_pair(lf->GetParameter(0), lf->GetParameter(1));
+}
+
+/////////////////////////////////////////////
+/// \brief Function to update the calibration curve for the whole module. The calibration
+/// curve is cleared and then the means of the gaussian fits for each energy peak are added. If there are
+/// less than 2 fits, zero points are added. Then, the calibration curve is refitted (linearFit).
+///
+void TRestDataSetGainMap::Module::UpdateCalibrationFitsFullSpc() {
+    auto [intercept, slope] = UpdateCalibrationFits(fFullSpectrum, fFullLinearFit);
+    fFullSlope = slope;
+    fFullIntercept = intercept;
 }
 
 /////////////////////////////////////////////
@@ -1021,6 +1217,10 @@ void TRestDataSetGainMap::Module::DrawSpectrum(const int index_x, const int inde
         RESTError << "Index out of range." << p->RESTendl;
         return;
     }
+    if (!fSegSpectra[index_x][index_y]) {
+        RESTError << "No Spectrum for segment (" << index_x << ", " << index_y << ")." << p->RESTendl;
+        return;
+    }
 
     if (!c) {
         std::string t = "spectrum_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId) + "_" +
@@ -1044,7 +1244,8 @@ void TRestDataSetGainMap::Module::DrawSpectrum(const int index_x, const int inde
     if (drawFits)
         for (size_t c = 0; c < fEnergyPeaks.size(); c++) {
             auto fit = fSegSpectra[index_x][index_y]->GetFunction(("g" + std::to_string(c)).c_str());
-            if (!fit) RESTWarning << "Fit for energy peak" << fEnergyPeaks[c] << " not found." << p->RESTendl;
+            if (!fit)
+                RESTWarning << "Fit for energy peak " << fEnergyPeaks[c] << " not found." << p->RESTendl;
             if (!fit) continue;
             fit->SetLineColor(c + 2 != colorT ? c + 2 : ++colorT); /* does not work with kRed, kBlue, etc.
                   as they are not defined with the same number as the first 10 basic colors. See
@@ -1095,30 +1296,41 @@ void TRestDataSetGainMap::Module::DrawSpectrum(const bool drawFits, const int co
 
     for (size_t i = 0; i < fSegSpectra.size(); i++) {
         for (size_t j = 0; j < fSegSpectra[i].size(); j++) {
-            c->cd(i + 1 + fSegSpectra[i].size() * j);
-            DrawSpectrum(i, fSegSpectra[i].size() - 1 - j, drawFits, color, c);
+            int pad = fSegSpectra.size() * (fSegSpectra[i].size() - 1) + 1 + i - fSegSpectra.size() * j;
+            c->cd(pad);
+            DrawSpectrum(i, j, drawFits, color, c);
         }
     }
 }
-void TRestDataSetGainMap::Module::DrawFullSpectrum() {
-    if (fSegSpectra.size() == 0) {
-        RESTError << "Spectra matrix is empty." << p->RESTendl;
+void TRestDataSetGainMap::Module::DrawFullSpectrum(const bool drawFits, const int color, TCanvas* c) {
+    if (!fFullSpectrum) {
+        RESTError << "Spectrum is empty." << p->RESTendl;
         return;
     }
-    TH1F* sumHist =
-        new TH1F("fullSpc", "", fSegSpectra[0][0]->GetNbinsX(), fSegSpectra[0][0]->GetXaxis()->GetXmin(),
-                 fSegSpectra[0][0]->GetXaxis()->GetXmax());
 
-    sumHist->SetTitle(("Full spectrum;" + GetObservable() + ";counts").c_str());
-    for (size_t i = 0; i < fSegSpectra.size(); i++) {
-        for (size_t j = 0; j < fSegSpectra.at(0).size(); j++) {
-            sumHist->Add(fSegSpectra[i][j]);
-        }
+    if (!c) {
+        std::string t = "fullSpc_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId);
+        c = new TCanvas(t.c_str(), t.c_str());
     }
-    std::string t = "fullSpc_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId);
-    TCanvas* c = new TCanvas(t.c_str(), t.c_str());
     c->cd();
-    sumHist->Draw();
+
+    fFullSpectrum->SetTitle(("Full spectrum;" + GetObservable() + ";counts").c_str());
+
+    if (color > 0) fFullSpectrum->SetLineColor(color);
+    size_t colorT = fFullSpectrum->GetLineColor();
+    fFullSpectrum->Draw("same");
+
+    if (drawFits)
+        for (size_t c = 0; c < fEnergyPeaks.size(); c++) {
+            auto fit = fFullSpectrum->GetFunction(("g" + std::to_string(c)).c_str());
+            if (!fit) RESTWarning << "Fit for energy peak" << fEnergyPeaks[c] << " not found." << p->RESTendl;
+            if (!fit) continue;
+            fit->SetLineColor(c + 2 != colorT ? c + 2 : ++colorT); /* does not work with kRed, kBlue, etc.
+                  as they are not defined with the same number as the first 10 basic colors. See
+                  https://root.cern.ch/doc/master/classTColor.html#C01 and
+                  https://root.cern.ch/doc/master/classTColor.html#C02 */
+            fit->Draw("same");
+        }
 }
 
 void TRestDataSetGainMap::Module::DrawLinearFit(const TVector2& position, TCanvas* c) {
@@ -1136,6 +1348,11 @@ void TRestDataSetGainMap::Module::DrawLinearFit(const int index_x, const int ind
         RESTError << "Index out of range." << p->RESTendl;
         return;
     }
+    if (!fSegLinearFit[index_x][index_y]) {
+        RESTError << "No linear fit for segment (" << index_x << ", " << index_y << ")." << p->RESTendl;
+        return;
+    }
+
     if (!c) {
         std::string t = "linearFit_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId) + "_" +
                         std::to_string(index_x) + "_" + std::to_string(index_y);
@@ -1152,25 +1369,58 @@ void TRestDataSetGainMap::Module::DrawLinearFit(const int index_x, const int ind
     fSegLinearFit[index_x][index_y]->Draw("AL*");
 }
 
-void TRestDataSetGainMap::Module::DrawLinearFit() {
-    std::string t = "linearFits_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId);
-    TCanvas* myCanvas = new TCanvas(t.c_str(), t.c_str());
-    myCanvas->Divide(fSegLinearFit.size(), fSegLinearFit.at(0).size());
+void TRestDataSetGainMap::Module::DrawLinearFit(TCanvas* c) {
+    if (fSegLinearFit.size() == 0) {
+        RESTError << "Spectra matrix is empty." << p->RESTendl;
+        return;
+    }
+    if (!c) {
+        std::string t = "linearFits_" + std::to_string(fPlaneId) + "_" + std::to_string(fModuleId);
+        c = new TCanvas(t.c_str(), t.c_str());
+    }
+
+    size_t nPads = 0;
+    for (const auto& object : *c->GetListOfPrimitives())
+        if (object->InheritsFrom(TVirtualPad::Class())) ++nPads;
+    if (nPads != 0 && nPads != fSegLinearFit.size() * fSegLinearFit.at(0).size()) {
+        RESTError << "Canvas " << c->GetName() << " has " << nPads << " pads, but "
+                  << fSegLinearFit.size() * fSegLinearFit.at(0).size() << " are needed." << p->RESTendl;
+        return;
+    } else if (nPads == 0)
+        c->Divide(fSegLinearFit.size(), fSegLinearFit.at(0).size());
+
     for (size_t i = 0; i < fSegLinearFit.size(); i++) {
         for (size_t j = 0; j < fSegLinearFit[i].size(); j++) {
-            myCanvas->cd(i + 1 + fSegLinearFit[i].size() * j);
-            // fSegLinearFit[i][j]->Draw("AL*");
-            DrawLinearFit(i, fSegSpectra[i].size() - 1 - j, myCanvas);
+            int pad = fSegLinearFit.size() * (fSegLinearFit[i].size() - 1) + 1 + i - fSegLinearFit.size() * j;
+            c->cd(pad);
+            DrawLinearFit(i, j, c);
         }
     }
 }
 
-void TRestDataSetGainMap::Module::DrawGainMap(const int peakNumber) {
+/////////////////////////////////////////////
+/// \brief Function to draw the relative gain map for a given energy peak of the module.
+///
+/// \param peakNumber The index of the peak to be drawn (remember they are in descending order).
+/// \param fullModuleAsRef If true, it will use the peak position at the full module spectrum
+/// as reference for the gain map. If false, it will use the centered segment of the module
+/// as reference.
+///
+void TRestDataSetGainMap::Module::DrawGainMap(const int peakNumber, bool fullModuleAsRef) {
     if (peakNumber < 0 || peakNumber >= (int)fEnergyPeaks.size()) {
         RESTError << "Peak number out of range (peakNumber should be between 0 and "
                   << fEnergyPeaks.size() - 1 << " )" << p->RESTendl;
         return;
     }
+    if (fSegLinearFit.size() == 0) {
+        RESTError << "Linear fit matrix is empty." << p->RESTendl;
+        return;
+    }
+    if (!fFullLinearFit) {
+        RESTError << "Full linear fit is empty." << p->RESTendl;
+        return;
+    }
+
     double peakEnergy = fEnergyPeaks[peakNumber];
     std::string title = "Gain map for energy " + DoubleToString(peakEnergy, "%g") + ";" +
                         GetSpatialObservableX() + ";" + GetSpatialObservableY();  // + " keV";
@@ -1178,11 +1428,15 @@ void TRestDataSetGainMap::Module::DrawGainMap(const int peakNumber) {
                     std::to_string(fModuleId);
     TCanvas* gainMap = new TCanvas(t.c_str(), t.c_str());
     gainMap->cd();
-    TH2F* hGainMap = new TH2F(("h" + t).c_str(), title.c_str(), fNumberOfSegmentsY, fReadoutRange.X(),
-                              fReadoutRange.Y(), fNumberOfSegmentsX, fReadoutRange.X(), fReadoutRange.Y());
+    TH2F* hGainMap = new TH2F(("h" + t).c_str(), title.c_str(), fNumberOfSegmentsX, fReadoutRange.X(),
+                              fReadoutRange.Y(), fNumberOfSegmentsY, fReadoutRange.X(), fReadoutRange.Y());
 
-    const double peakPosRef =
-        fSegLinearFit[(fNumberOfSegmentsX - 1) / 2][(fNumberOfSegmentsY - 1) / 2]->GetPointX(peakNumber);
+    double peakPosRef = fFullLinearFit->GetPointX(peakNumber);
+    if (!fullModuleAsRef) {
+        int index_x = fNumberOfSegmentsX > 0 ? (fNumberOfSegmentsX - 1) / 2 : 0;
+        int index_y = fNumberOfSegmentsY > 0 ? (fNumberOfSegmentsY - 1) / 2 : 0;
+        peakPosRef = fSegLinearFit[index_x][index_y]->GetPointX(peakNumber);
+    }
 
     auto itX = fSplitX.begin();
     for (size_t i = 0; i < fSegLinearFit.size(); i++) {
@@ -1192,8 +1446,11 @@ void TRestDataSetGainMap::Module::DrawGainMap(const int peakNumber) {
             auto xUpper = *std::next(itX);
             auto yLower = *itY;
             auto yUpper = *std::next(itY);
-            hGainMap->Fill((xUpper + xLower) / 2., (yUpper + yLower) / 2.,
-                           fSegLinearFit[i][j]->GetPointX(peakNumber) / peakPosRef);
+            float xMean = (xUpper + xLower) / 2.;
+            float yMean = (yUpper + yLower) / 2.;
+            auto [index_x, index_y] = GetIndexMatrix(xMean, yMean);
+            if (!fSegLinearFit[index_x][index_y]) continue;
+            hGainMap->Fill(xMean, yMean, fSegLinearFit[index_x][index_y]->GetPointX(peakNumber) / peakPosRef);
             itY++;
         }
         itX++;
@@ -1281,5 +1538,9 @@ void TRestDataSetGainMap::Module::Print() const {
         }
         RESTMetadata << p->RESTendl;
     }
+    RESTMetadata << p->RESTendl;
+    RESTMetadata << " Full slope: " << DoubleToString(fFullSlope, "%.3e") << p->RESTendl;
+    RESTMetadata << " Full intercept: " << DoubleToString(fFullIntercept, "%+.3e") << p->RESTendl;
+
     RESTMetadata << "-----------------------------------------------" << p->RESTendl;
 }

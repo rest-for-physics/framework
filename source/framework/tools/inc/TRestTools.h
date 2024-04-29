@@ -63,6 +63,8 @@ class TRestTools {
                               Int_t skipLines = 0, std::string separator = "\t");
     static int ReadASCIITable(std::string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines = 0,
                               std::string separator = "\t");
+    static int ReadASCIITable(std::string fName, std::vector<std::vector<std::string>>& data,
+                              Int_t skipLines = 0, std::string separator = "\t");
 
     static int ReadCSVFile(std::string fName, std::vector<std::vector<Double_t>>& data, Int_t skipLines = 0);
     static int ReadCSVFile(std::string fName, std::vector<std::vector<Float_t>>& data, Int_t skipLines = 0);
@@ -119,18 +121,20 @@ class TRestTools {
     static std::string GetPureFileName(const std::string& fullPathFileName);
     static std::string SearchFileInPath(std::vector<std::string> path, std::string filename);
     static bool CheckFileIsAccessible(const std::string&);
-    static std::vector<std::string> GetFilesMatchingPattern(std::string pattern);
+    static std::vector<std::string> GetFilesMatchingPattern(std::string pattern, bool unlimited = false);
     static int ConvertVersionCode(std::string in);
     static std::istream& GetLine(std::istream& is, std::string& t);
 
     static std::string Execute(std::string cmd);
 
-    static std::string DownloadRemoteFile(const std::string& remoteFile);
+    static std::string DownloadRemoteFile(const std::string& remoteFile, bool pidPrefix = false);
     static int DownloadRemoteFile(std::string remoteFile, std::string localFile);
     static int UploadToServer(std::string localFile, std::string remoteFile, std::string methodUrl = "");
 
     static std::string POSTRequest(const std::string& url, const std::map<std::string, std::string>& keys);
     static void ChangeDirectory(const std::string& toDirectory);
+
+    static std::vector<int> CanvasDivisions(int n);
 };
 
 namespace REST_InitTools {
