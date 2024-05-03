@@ -159,9 +159,9 @@ print(
 )
 print("\n")
 print(
-	"Once your PR has been accepted and merged, you should generate a new Git tag and RELEASE at the master branch.\n"
+    "Once your PR has been accepted and merged, you should generate a new Git tag and RELEASE at the master branch.\n"
 )
-#print(
+# print(
 #    "-----> git tag -a v"
 #    + str(a)
 #    + "."
@@ -175,13 +175,13 @@ print(
 #    + "."
 #    + str(c)
 #    + '"\n'
-#)
-#print(
+# )
+# print(
 #    "And push the changes to repository. You should also push your branch to GitHub if you have not already.\n"
-#)
-#print("-----> git push origin v" + str(a) + "." + str(b) + "." + str(c) + "\n")
-#print(
+# )
+# print("-----> git push origin v" + str(a) + "." + str(b) + "." + str(c) + "\n")
+# print(
 #    "IMPORTANT. Summarize the changes in the tag generated at the Gitlab repository website.\n"
-#)
+# )
 
 exit(0)
