@@ -174,7 +174,7 @@ print(
 #    + str(b)
 #    + "."
 #    + str(c)
-    + '"\n'
+#    + '"\n'
 #)
 #print(
 #    "And push the changes to repository. You should also push your branch to GitHub if you have not already.\n"
