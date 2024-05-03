@@ -82,9 +82,6 @@ class TRestComponent : public TRestMetadata {
     /// A canvas for drawing the active node component
     TCanvas* fCanvas = nullptr;  //!
 
-    /// It returns true if any nodes have been defined.
-    Bool_t HasNodes() { return !fParameterizationNodes.empty(); }
-
     Bool_t HasDensity() { return !fNodeDensity.empty(); }
 
     /// It returns true if the node has been properly identified
@@ -104,6 +101,9 @@ class TRestComponent : public TRestMetadata {
     void Initialize() override;
     void RegenerateHistograms(UInt_t seed = 0);
 
+    /// It returns true if any nodes have been defined.
+    Bool_t HasNodes() { return !fParameterizationNodes.empty(); }
+
     virtual void RegenerateActiveNodeDensity() {}
 
     std::string GetNature() const { return fNature; }
@@ -113,6 +113,7 @@ class TRestComponent : public TRestMetadata {
     Int_t GetSamples() { return fSamples; }
     Int_t GetActiveNode() { return fActiveNode; }
     Double_t GetActiveNodeValue() { return fParameterizationNodes[fActiveNode]; }
+    std::vector<Double_t> GetParameterizationNodes() { return fParameterizationNodes; }
 
     std::vector<std::string> GetVariables() const { return fVariables; }
     std::vector<TVector2> GetRanges() const { return fRanges; }
@@ -127,6 +128,7 @@ class TRestComponent : public TRestMetadata {
 
     void SetPrecision(const Float_t& pr) { fPrecision = pr; }
 
+    Int_t FindActiveNode(Double_t node);
     Int_t SetActiveNode(Double_t node);
     Int_t SetActiveNode(Int_t n) {
         fActiveNode = n;
