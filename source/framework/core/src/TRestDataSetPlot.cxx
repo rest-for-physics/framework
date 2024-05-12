@@ -124,8 +124,10 @@
 /// * **timeDisplay**: If true/ON time display is set in the X axis
 /// * **norm**: Normalization constant in which the plot will be normalized, e.g. use `1` in
 /// case you want to normalize by 1.
-/// * **scale**: Multiply all the histogram bins by a constant given by scale. If you want to
-/// use the size of the bin to normalize you should write down `binSize`
+/// * **scale**: Divide all the histogram bins by a constant given by scale. You may use any
+/// mathematical expression in combination with the special keywords: `binSize`, `entries`,
+/// `runLength` (in hours) and `integral`. Adding a scale will make the histogram to be
+/// drawn with errors. To avoid this, set parameter option to 'hist' in the histogram.
 /// * **value**: If true/ON plot is displayed, otherwise is ignored
 /// * **save**: String with the name of the output file in which the plot will be saved
 /// in a separated file, several formats are supported (root, pdf, eps, jpg,...)
@@ -691,13 +693,25 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
             }
             // Scale histos
             if (plots.scale != "") {
-                Double_t scale = 1.;
-                if (plots.scale == "binSize") {
-                    scale = 1. / hist.histo->GetXaxis()->GetBinWidth(1);
-                } else {
-                    scale = StringToDouble(plots.scale);
+                std::string inputScale = plots.scale;
+                while (inputScale.find("binSize") != std::string::npos) {
+                    double binSize = hist.histo->GetXaxis()->GetBinWidth(1);
+                    inputScale.replace(inputScale.find("binSize"), 7, DoubleToString(binSize));
                 }
-                hist.histo->Scale(scale);
+                while (inputScale.find("entries") != std::string::npos) {
+                    double entries = hist.histo->GetEntries();
+                    inputScale.replace(inputScale.find("entries"), 7, DoubleToString(entries));
+                }
+                while (inputScale.find("runLength") != std::string::npos) {
+                    double runLength = dataSet.GetTotalTimeInSeconds() / 3600.;  // in hours
+                    inputScale.replace(inputScale.find("runLength"), 9, DoubleToString(runLength));
+                }
+                while (inputScale.find("integral") != std::string::npos) {
+                    double integral = hist.histo->Integral("width");
+                    inputScale.replace(inputScale.find("integral"), 8, DoubleToString(integral));
+                }
+                std::string scale = "1./(" + inputScale + ")";
+                hist.histo->Scale(StringToDouble(EvaluateExpression(scale)));
             }
 
             // Add histos to the THStack
