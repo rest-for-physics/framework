@@ -537,6 +537,7 @@ void TRestDataSetPlot::GenerateDataSetFromFilePattern(TRestDataSet& dataSet) {
 ///
 void TRestDataSetPlot::PlotCombinedCanvas() {
     TRestDataSet dataSet;
+    dataSet.EnableMultiThreading(true);
 
     // Import dataSet
     dataSet.Import(fDataSetName);
