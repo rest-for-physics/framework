@@ -589,6 +589,41 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
         paramMap["[[runLength]]"] = StringWithPrecision(runLength, panel.precision);
         paramMap["[[entries]]"] = StringWithPrecision(entries, panel.precision);
         paramMap["[[meanRate]]"] = StringWithPrecision(meanRate, panel.precision);
+
+        paramMap["[[cutNames]]"] = "";
+        paramMap["[[cuts]]"] = "";
+        if (fCut) {
+            for (const auto& cut : fCut->GetCuts()) {
+                if (paramMap["[[cutNames]]"].empty())
+                    paramMap["[[cutNames]]"] += cut.GetName();
+                else
+                    paramMap["[[cutNames]]"] += "," + (std::string)cut.GetName();
+                if (paramMap["[[cuts]]"].empty())
+                    paramMap["[[cuts]]"] += cut.GetTitle();
+                else
+                    paramMap["[[cuts]]"] += " && " + (std::string)cut.GetTitle();
+            }
+        }
+
+        paramMap["[[panelCutNames]]"] = "";
+        paramMap["[[panelCuts]]"] = "";
+        if (panel.panelCut) {
+            for (const auto& cut : panel.panelCut->GetCuts()) {
+                if (paramMap["[[panelCutNames]]"].empty())
+                    paramMap["[[panelCutNames]]"] += cut.GetName();
+                else
+                    paramMap["[[panelCutNames]]"] += "," + (std::string)cut.GetName();
+                if (paramMap["[[panelCuts]]"].empty())
+                    paramMap["[[panelCuts]]"] += cut.GetTitle();
+                else
+                    paramMap["[[panelCuts]]"] += " && " + (std::string)cut.GetTitle();
+            }
+        }
+
+        RESTInfo << "Global cuts: " << paramMap["[[cuts]]"] << RESTendl;
+        if (!paramMap["[[panelCuts]]"].empty())
+            RESTInfo << "Additional panel cuts: " << paramMap["[[panelCuts]]"] << RESTendl;
+
         // Replace panel variables and generate a TLatex label
         for (const auto& [key, posLabel] : panel.variablePos) {
             auto&& [variable, label, units] = key;
