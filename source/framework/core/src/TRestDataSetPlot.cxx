@@ -256,6 +256,8 @@
 /// 2023-04: First implementation of TRestDataSetPlot, based on TRestAnalysisPlot
 /// JuanAn Garcia
 ///
+/// 2024-05: Extend some functionalities, Álvaro Ezquerro
+///
 /// \class TRestDataSetPlot
 /// \author: JuanAn Garcia   e-mail: juanangp@unizar.es
 ///
