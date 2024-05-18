@@ -776,24 +776,18 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
             // Scale histos
             if (plots.scale != "") {
                 std::string inputScale = plots.scale;
-                while (inputScale.find("binSize") != std::string::npos) {
-                    double binSize = hist.histo->GetXaxis()->GetBinWidth(1);
-                    inputScale.replace(inputScale.find("binSize"), 7, DoubleToString(binSize));
-                }
-                while (inputScale.find("entries") != std::string::npos) {
-                    double entries = hist.histo->GetEntries();
-                    inputScale.replace(inputScale.find("entries"), 7, DoubleToString(entries));
-                }
-                while (inputScale.find("runLength") != std::string::npos) {
-                    double runLength = dataSet.GetTotalTimeInSeconds() / 3600.;  // in hours
-                    inputScale.replace(inputScale.find("runLength"), 9, DoubleToString(runLength));
-                }
-                while (inputScale.find("integral") != std::string::npos) {
-                    double integral = hist.histo->Integral("width");
-                    inputScale.replace(inputScale.find("integral"), 8, DoubleToString(integral));
-                }
+                double binSize = hist.histo->GetXaxis()->GetBinWidth(1);
+                double entries = hist.histo->GetEntries();
+                double runLength = dataSet.GetTotalTimeInSeconds() / 3600.;  // in hours
+                double integral = hist.histo->Integral("width");
+
+                inputScale = Replace(inputScale, "binSize", DoubleToString(binSize));
+                inputScale = Replace(inputScale, "entries", DoubleToString(entries));
+                inputScale = Replace(inputScale, "runLength", DoubleToString(runLength));
+                inputScale = Replace(inputScale, "integral", DoubleToString(integral));
+
                 std::string scale = "1./(" + inputScale + ")";
-                hist.histo->Scale(StringToDouble(EvaluateExpression(scale)));
+                hist.histo->Scale(StringToDouble(EvaluateExpression(scale)));  // -1 if 'scale' isn't valid
             }
 
             // Add histos to the THStack
