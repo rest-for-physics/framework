@@ -91,8 +91,10 @@
 /// * **precision**: Precision for the values to be written.
 /// * **value**: If true/ON panel is displayed, otherwise is ignored
 /// Different keys are provided: `metadata` is meant for the metadata info inside the
-/// TRestDataSet, `variable` for a predefined variable e.g. rate and `observable` for an
-/// observable value. All the keys have the same structure which is detailed below:
+/// TRestDataSet (as a RelevantQuantity), `variable` for a predefined variable e.g. rate,
+/// `observable` for an observable value and `expression` for a mathematical expression
+/// that can contain any of the previous.
+/// All the keys have the same structure which is detailed below:
 /// * **value**: Name of the metadata, variable or observable value.
 /// * **label**: String of the label that will be written before the observable value.
 /// * **units**: String with the units to be appended to the label.
@@ -391,6 +393,19 @@ void TRestDataSetPlot::ReadPanelInfo() {
 
             observable = GetNextElement(observable);
         }
+        TiXmlElement* expression = GetElement("expression", panelele);
+        while (expression != nullptr) {
+            std::array<std::string, 3> label;
+            label[0] = GetParameter("value", expression, "");
+            label[1] = GetParameter("label", expression, "");
+            label[2] = GetParameter("units", expression, "");
+            double posX = StringToDouble(GetParameter("x", expression, "0.1"));
+            double posY = StringToDouble(GetParameter("y", expression, "0.1"));
+
+            panel.expPos.push_back(std::make_pair(label, TVector2(posX, posY)));
+
+            expression = GetNextElement(expression);
+        }
 
         fPanels.push_back(panel);
         panelele = GetNextElement(panelele);
@@ -668,6 +683,35 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
             auto value = *dataFrame.Mean(obs);
 
             std::string lab = label + ": " + StringWithPrecision(value, panel.precision) + " " + units;
+            panel.text.emplace_back(new TLatex(posLabel.X(), posLabel.Y(), lab.c_str()));
+        }
+
+        // Replace any expression and generate TLatex label
+        for (const auto& [key, posLabel] : panel.expPos) {
+            auto&& [text, label, units] = key;
+            std::string var = text;
+
+            // replace variables
+            for (const auto& [param, val] : paramMap) {
+                var = Replace(var, param, val);
+            }
+            // replace metadata
+            for (const auto& [name, quant] : quantity) {
+                var = Replace(var, name, quant.value);
+            }
+            // replace observables
+            for (const auto& obs : dataFrame.GetColumnNames()) {
+                if (var.find(obs) == std::string::npos) continue;
+                // here there should be a checking that the mean(obs) can be calculated
+                // (checking obs data type?)
+                double value = *dataFrame.Mean(obs);
+                var = Replace(var, obs, DoubleToString(value));
+            }
+            var = Replace(var, "[", "(");
+            var = Replace(var, "]", ")");
+            var = EvaluateExpression(var);
+
+            std::string lab = label + ": " + var + " " + units;
             panel.text.emplace_back(new TLatex(posLabel.X(), posLabel.Y(), lab.c_str()));
         }
 
