@@ -524,7 +524,50 @@ void TRestDataSetPlot::GenerateDataSetFromFilePattern(TRestDataSet& dataSet) {
     std::map<std::string, TRestDataSet::RelevantQuantity> quantity;
 
     for (auto& panel : fPanels) {
-        // Add obserbables from panel info, both variables and cuts
+        // Add metadata and observables from expression key from panel info
+        for (auto& [key, posLabel] : panel.expPos) {
+            // look for metadata which are surrounded by [] but not [[]] (variables)
+            auto&& [exp, label, units] = key;
+            std::string text = exp;
+            while (text.find_last_of('[') != std::string::npos) {
+                int squareBracketCorrector = 0;
+                size_t posOpen = text.find_last_of('[');
+                size_t posClose = text.find_first_of(']', posOpen);
+                if (posOpen != 0) {
+                    if (text[posOpen - 1] == '[') {
+                        squareBracketCorrector = 1;
+                    }
+                }
+                std::string varOrMeta = text.substr(posOpen - squareBracketCorrector,
+                                                    posClose + 1 - posOpen + 2 * squareBracketCorrector);
+                if (squareBracketCorrector == 0) {
+                    // Here varOrMeta is a metadata
+                    // Add metadata to relevant quantity from the panel info
+                    TRestDataSet::RelevantQuantity quant;
+                    quant.metadata = varOrMeta;
+                    quant.strategy = "unique";
+                    quantity[label] = quant;
+                }
+                text = Replace(text, varOrMeta, "1");
+            }
+
+            // look for observables (characterized by having a _ in the name)
+            while (text.find("_") != std::string::npos) {
+                size_t pos_ = text.find("_");
+                size_t beginning = text.find_last_of(" -+*/)(^%", pos_) + 1;
+                size_t end = text.find_first_of(" -+*/)(^%", pos_);
+                std::string obs = text.substr(beginning, end - beginning);
+                text = Replace(text, obs, "1");
+                obsList.push_back(obs);
+            }
+
+            if (!(isAExpression(text) || isANumber(text)))
+                RESTWarning << "The expression " << exp
+                            << " has not been correctly parsed into variables, metadata and observables"
+                            << RESTendl;
+        }
+
+        // Add observables from observable key of panel info
         for (auto& [key, posLabel] : panel.obsPos) {
             auto&& [obs, label, units] = key;
             obsList.push_back(obs);
@@ -968,6 +1011,12 @@ void TRestDataSetPlot::PrintMetadata() {
         for (auto& [key, posLabel] : panel.obsPos) {
             auto&& [obs, label, units] = key;
             RESTMetadata << "Label Observable " << obs << ", label " << label << ", units " << units
+                         << " Pos (" << posLabel.X() << ", " << posLabel.Y() << ")" << RESTendl;
+        }
+        RESTMetadata << "****************" << RESTendl;
+        for (auto& [key, posLabel] : panel.expPos) {
+            auto&& [obs, label, units] = key;
+            RESTMetadata << "Label Expression " << obs << ", label " << label << ", units " << units
                          << " Pos (" << posLabel.X() << ", " << posLabel.Y() << ")" << RESTendl;
         }
         RESTMetadata << "****************" << RESTendl;
