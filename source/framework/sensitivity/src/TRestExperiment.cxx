@@ -153,18 +153,23 @@ void TRestExperiment::InitFromConfigFile() {
     TRestMetadata::InitFromConfigFile();
 
     int cont = 0;
-    TRestComponent* comp = (TRestComponent*)this->InstantiateChildMetadata(cont, "Component");
-    while (comp != nullptr) {
-        if (ToLower(comp->GetNature()) == "background")
-            fBackground = comp;
-        else if (ToLower(comp->GetNature()) == "signal")
-            fSignal = comp;
-        else
-            RESTWarning << "TRestExperiment::InitFromConfigFile. Unknown component!" << RESTendl;
+    TRestMetadata* md = (TRestMetadata*) this->InstantiateChildMetadata(cont);
+	while (md != nullptr) {
 
-        cont++;
-        comp = (TRestComponent*)this->InstantiateChildMetadata(cont, "Component");
-    }
+		if (md->InheritsFrom("TRestComponent")  )
+		{
+			TRestComponent *comp = (TRestComponent *) md;
+			if (ToLower(comp->GetNature()) == "background")
+				fBackground = comp;
+			else if (ToLower(comp->GetNature()) == "signal")
+				fSignal = comp;
+			else
+				RESTWarning << "TRestExperiment::InitFromConfigFile. Unknown component!" << RESTendl;
+
+		}
+		cont++;
+		md = (TRestMetadata*)this->InstantiateChildMetadata(cont);
+	}
 
     auto ele = GetElement("addComponent");
     if (ele != nullptr) {
