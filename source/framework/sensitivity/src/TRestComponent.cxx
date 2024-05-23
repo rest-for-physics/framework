@@ -232,6 +232,13 @@ Double_t TRestComponent::GetRawRate(std::vector<Double_t> point) {
         return 0;
     }
 
+	for( size_t n = 0; n < point.size(); n++ )
+	{
+		// The point is outside boundaries
+		if( point[n] < fRanges[n].X() || point[n] > fRanges[n].Y() )
+			return 0;
+	}
+
     Int_t centerBin[GetDimensions()];
     Double_t centralDensity = GetDensity()->GetBinContent(GetDensity()->GetBin(point.data()), centerBin);
     if (!Interpolation()) return centralDensity;
