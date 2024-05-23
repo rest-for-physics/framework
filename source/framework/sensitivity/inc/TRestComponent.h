@@ -115,7 +115,7 @@ class TRestComponent : public TRestMetadata {
     Int_t GetSamples() { return fSamples; }
     Int_t GetActiveNode() { return fActiveNode; }
     Double_t GetActiveNodeValue() { 
-		if( fActiveNode >= 0 && fActiveNode < fParameterizationNodes.size() )
+		if( fActiveNode >= 0 && fActiveNode < (Int_t) fParameterizationNodes.size() )
 		   	return fParameterizationNodes[fActiveNode]; 
 		return 0; 
 	}

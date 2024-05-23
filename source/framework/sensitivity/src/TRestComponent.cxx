@@ -287,7 +287,7 @@ Double_t TRestComponent::GetRawRate(std::vector<Double_t> point) {
     // In 3-dimensions we got 8 points to interpolate
     // In 4-dimensions we would get 16 points to interpolate
     // ...
-    Int_t nPoints = (Int_t)TMath::Power(2, (Int_t)GetDimensions());
+    Int_t nPoints = (Int_t)TMath::Power(2, (Int_t) GetDimensions());
 
     Double_t sum = 0;
     for (int n = 0; n < nPoints; n++) {
@@ -326,12 +326,12 @@ Double_t TRestComponent::GetTotalRate() {
 		Int_t centerBin[GetDimensions()];
 		std::vector <Double_t> point;
 
-		Double_t centralDensity = dHist->GetBinContent(n, centerBin);
-		for (Int_t d = 0; d < GetDimensions(); ++d)
+		dHist->GetBinContent(n, centerBin);
+		for (size_t d = 0; d < GetDimensions(); ++d)
 			point.push_back( GetBinCenter( d, centerBin[d] ) );
 
 		Bool_t skip = false;
-		for (Int_t d = 0; d < GetDimensions(); ++d)
+		for (size_t d = 0; d < GetDimensions(); ++d)
 		{
 			if( point[d] < fRanges[d].X() || point[d] > fRanges[d].Y() )
 				skip = true;
