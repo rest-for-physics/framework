@@ -110,6 +110,28 @@ void TRestComponent::RegenerateHistograms(UInt_t seed) {
     FillHistograms();
 }
 
+/////////////////////////////////////////////
+/// \brief It allows to produce a parameter nodes list providing the initial
+/// value, the final value and the step. We might chose the step growing in
+/// linear increase steps or exponential. Linear is the default value.
+///
+void TRestComponent::RegenerateParametricNodes(Double_t from, Double_t to, Double_t step, Bool_t expIncrease )
+{
+	fParameterizationNodes.clear();
+
+	if( expIncrease ) {
+		for( double p = from; p < to; p *= step )
+			fParameterizationNodes.push_back(p); 
+	}
+	else
+	{
+		for( double p = from; p < to; p += step )
+			fParameterizationNodes.push_back(p);
+	}
+
+	RegenerateHistograms( fSeed );
+}
+
 ///////////////////////////////////////////
 /// \brief It returns the position of the fVariable element for the variable
 /// name given by argument.

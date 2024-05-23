@@ -101,6 +101,8 @@ class TRestComponent : public TRestMetadata {
     void Initialize() override;
     void RegenerateHistograms(UInt_t seed = 0);
 
+	void RegenerateParametricNodes(Double_t from, Double_t to, Double_t step, Bool_t expIncrease = false);
+
     /// It returns true if any nodes have been defined.
     Bool_t HasNodes() { return !fParameterizationNodes.empty(); }
 
