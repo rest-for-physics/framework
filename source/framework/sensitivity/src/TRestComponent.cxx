@@ -296,13 +296,27 @@ Double_t TRestComponent::GetRawRate(std::vector<Double_t> point) {
 ///
 Double_t TRestComponent::GetTotalRate() {
     THnD* dHist = GetDensityForActiveNode();
+    if ( !dHist) return 0;
 
     Double_t integral = 0;
-    if (dHist != nullptr) {
-        TH1D* h1 = dHist->Projection(0);
-        integral = h1->Integral();
-        delete h1;
-    }
+	for (Int_t n = 0; n < dHist->GetNbins(); ++n) {
+
+		Int_t centerBin[GetDimensions()];
+		std::vector <Double_t> point;
+
+		Double_t centralDensity = dHist->GetBinContent(n, centerBin);
+		for (Int_t d = 0; d < GetDimensions(); ++d)
+			point.push_back( GetBinCenter( d, centerBin[d] ) );
+
+		Bool_t skip = false;
+		for (Int_t d = 0; d < GetDimensions(); ++d)
+		{
+			if( point[d] < fRanges[d].X() || point[d] > fRanges[d].Y() )
+				skip = true;
+		}
+		if( !skip )
+			integral += GetRate( point );
+	}
 
     return integral;
 }
