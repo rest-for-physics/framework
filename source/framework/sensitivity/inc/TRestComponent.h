@@ -112,7 +112,11 @@ class TRestComponent : public TRestMetadata {
     size_t GetDimensions() { return fVariables.size(); }
     Int_t GetSamples() { return fSamples; }
     Int_t GetActiveNode() { return fActiveNode; }
-    Double_t GetActiveNodeValue() { return fParameterizationNodes[fActiveNode]; }
+    Double_t GetActiveNodeValue() { 
+		if( fActiveNode >= 0 && fActiveNode < fParameterizationNodes.size() )
+		   	return fParameterizationNodes[fActiveNode]; 
+		return 0; 
+	}
     std::vector<Double_t> GetParameterizationNodes() { return fParameterizationNodes; }
 
     std::vector<std::string> GetVariables() const { return fVariables; }
