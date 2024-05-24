@@ -189,6 +189,6 @@ class TRestComponent : public TRestMetadata {
     TRestComponent();
     ~TRestComponent();
 
-    ClassDefOverride(TRestComponent, 5);
+    ClassDefOverride(TRestComponent, 6);
 };
 #endif
