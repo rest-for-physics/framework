@@ -114,8 +114,6 @@ void TRestComponent::RegenerateHistograms(UInt_t seed) {
 
     fSeed = seed;
     TRestComponent::Initialize();
-
-    FillHistograms();
 }
 
 /////////////////////////////////////////////
