@@ -93,6 +93,14 @@ void TRestComponent::Initialize() {
 
     fRandom = new TRandom3(fSeed);
     fSeed = fRandom->TRandom::GetSeed();
+
+	if( fStepParameterValue > 0 )
+	{
+		RegenerateParametricNodes( fFirstParameterValue, fLastParameterValue, fStepParameterValue, fExponential );
+		RegenerateHistograms( fSeed );
+	}
+	else
+		FillHistograms();
 }
 
 /////////////////////////////////////////////
@@ -612,6 +620,19 @@ void TRestComponent::PrintMetadata() {
         RESTMetadata << " - Number of parametric nodes : " << fParameterizationNodes.size() << RESTendl;
         RESTMetadata << " " << RESTendl;
         RESTMetadata << " Use : PrintNodes() for additional info" << RESTendl;
+
+		if( fStepParameterValue > 0 )
+		{
+			RESTMetadata << " " << RESTendl;
+			RESTMetadata << " Nodes were automatically generated using these parameters" << RESTendl;
+			RESTMetadata << " - First node : " << fFirstParameterValue << RESTendl;
+			RESTMetadata << " - Upper limit node : " << fLastParameterValue << RESTendl;
+			RESTMetadata << " - Increasing step : " << fStepParameterValue << RESTendl;
+			if( fExponential ) 
+				RESTMetadata << " - Increases exponentially" << RESTendl;
+			else
+				RESTMetadata << " - Increases linearly" << RESTendl;
+		}
     }
 
     if (fResponse) {

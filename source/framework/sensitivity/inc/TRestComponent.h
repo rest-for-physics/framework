@@ -55,6 +55,18 @@ class TRestComponent : public TRestMetadata {
     /// It defines the nodes of the parameterization (Initialized by the dataset)
     std::vector<Double_t> fParameterizationNodes;  //<
 
+	/// It defines the first parametric node value in case of automatic parameter generation
+	Double_t fFirstParameterValue = 0;
+	
+	/// It defines the upper limit for the automatic parametric node values generation
+	Double_t fLastParameterValue = 0;
+
+	/// It defines the increasing step for automatic parameter list generation
+	Double_t fStepParameterValue = 0;
+
+	/// It true the parametric values automatically generated will grow exponentially
+	Bool_t fExponential = false;
+	
     /// It is used to define the node that will be accessed for rate retrieval
     Int_t fActiveNode = -1;  //<
 
