@@ -113,7 +113,7 @@ void TRestComponent::RegenerateHistograms(UInt_t seed) {
     fNodeDensity.clear();
 
     fSeed = seed;
-    TRestComponent::Initialize();
+	FillHistograms();
 }
 
 /////////////////////////////////////////////
