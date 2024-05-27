@@ -131,6 +131,11 @@ void TRestSensitivity::GenerateCurve() {
 }
 
 void TRestSensitivity::GenerateCurves(Int_t N) {
+	std::cout << "TRestSensitivity::GenerateCurves." << std::endl;
+	std::cout << "There is a potential memory leak when generating several curves." << std::endl;
+	std::cout << "This code needs to be reviewed" << std::endl;
+	return;
+
     for (int n = 0; n < N; n++) GenerateCurve();
 }
 
