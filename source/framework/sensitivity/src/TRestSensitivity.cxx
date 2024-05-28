@@ -131,10 +131,12 @@ void TRestSensitivity::GenerateCurve() {
 }
 
 void TRestSensitivity::GenerateCurves(Int_t N) {
+	/*
 	std::cout << "TRestSensitivity::GenerateCurves." << std::endl;
 	std::cout << "There is a potential memory leak when generating several curves." << std::endl;
 	std::cout << "This code needs to be reviewed" << std::endl;
 	return;
+	*/
 
     for (int n = 0; n < N; n++) GenerateCurve();
 }
@@ -261,13 +263,22 @@ Double_t TRestSensitivity::UnbinnedLogLikelihood(const TRestExperiment* experime
         return lhood;
     }
 
+	if ( !experiment->GetSignal()->HasNodes() ) 
+	{
+		RESTError << "Experiment signal : " << experiment->GetSignal()->GetName() << " has no nodes!" << RESTendl;
+		return lhood;
+	}
+
     /// We check if the signal component is sensitive to that particular node
     /// If not, this experiment will not contribute to that node
     Int_t nd = experiment->GetSignal()->FindActiveNode(node);
     if (nd >= 0)
         experiment->GetSignal()->SetActiveNode(nd);
     else
+	{
+		RESTWarning << "Node : " << node << " not found in signal : " << experiment->GetSignal()->GetName() << RESTendl;
         return 0.0;
+	}
 
     /// We could check if background has also components, but for the moment we do not have a background
     /// for each node, although it could be the case, if for example the background depends on the detector
