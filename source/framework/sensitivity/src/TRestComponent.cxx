@@ -86,6 +86,9 @@ TRestComponent::~TRestComponent() {}
 void TRestComponent::Initialize() {
     //   SetSectionName(this->ClassName());
 
+	/// Avoiding double initialization
+	if( !fNodeDensity.empty() && fRandom ) return;
+
     if (!fRandom) {
         delete fRandom;
         fRandom = nullptr;
@@ -97,10 +100,11 @@ void TRestComponent::Initialize() {
 	if( fStepParameterValue > 0 )
 	{
 		RegenerateParametricNodes( fFirstParameterValue, fLastParameterValue, fStepParameterValue, fExponential );
-		RegenerateHistograms( fSeed );
 	}
 	else
-		FillHistograms();
+	{
+		if( !fParameterizationNodes.empty() ) FillHistograms();
+	}
 }
 
 /////////////////////////////////////////////
@@ -123,6 +127,11 @@ void TRestComponent::RegenerateHistograms(UInt_t seed) {
 ///
 void TRestComponent::RegenerateParametricNodes(Double_t from, Double_t to, Double_t step, Bool_t expIncrease )
 {
+	fStepParameterValue = step;
+	fFirstParameterValue = from;
+	fLastParameterValue = to;
+	fExponential = expIncrease;
+
 	fParameterizationNodes.clear();
 
 	if( expIncrease ) {
@@ -135,6 +144,7 @@ void TRestComponent::RegenerateParametricNodes(Double_t from, Double_t to, Doubl
 			fParameterizationNodes.push_back(p);
 	}
 
+	if( fParameterizationNodes.empty() ) return;
 	RegenerateHistograms( fSeed );
 }
 
@@ -610,7 +620,7 @@ void TRestComponent::PrintMetadata() {
         }
     }
 
-    if (!fParameter.empty()) {
+    if (!fParameterizationNodes.empty()) {
         RESTMetadata << " " << RESTendl;
         RESTMetadata << " === Parameterization === " << RESTendl;
         RESTMetadata << "- Parameter : " << fParameter << RESTendl;
