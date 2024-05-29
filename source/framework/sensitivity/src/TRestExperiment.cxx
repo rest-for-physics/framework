@@ -88,7 +88,7 @@ void TRestExperiment::Initialize() {
 }
 
 void TRestExperiment::GenerateMockDataSet(Bool_t useAverage) {
-	fUseAverage = useAverage;
+    fUseAverage = useAverage;
 
     if (!fBackground) {
         RESTError << "TRestExperiment::GenerateMockData. Background component was not initialized!"
@@ -104,7 +104,7 @@ void TRestExperiment::GenerateMockDataSet(Bool_t useAverage) {
     Double_t meanCounts = GetBackground()->GetTotalRate() * fExposureTime * units("s");
 
     Int_t N = fRandom->Poisson(meanCounts);
-	if( fUseAverage ) N = (Int_t) meanCounts;
+    if (fUseAverage) N = (Int_t)meanCounts;
     RESTInfo << "Experiment: " << GetName() << " Generating mock dataset. Counts: " << N << RESTendl;
 
     ROOT::RDF::RNode df = fBackground->GetMonteCarloDataFrame(N);
@@ -156,23 +156,20 @@ void TRestExperiment::InitFromConfigFile() {
     TRestMetadata::InitFromConfigFile();
 
     int cont = 0;
-    TRestMetadata* md = (TRestMetadata*) this->InstantiateChildMetadata(cont);
-	while (md != nullptr) {
-
-		if (md->InheritsFrom("TRestComponent")  )
-		{
-			TRestComponent *comp = (TRestComponent *) md;
-			if (ToLower(comp->GetNature()) == "background")
-				fBackground = comp;
-			else if (ToLower(comp->GetNature()) == "signal")
-				fSignal = comp;
-			else
-				RESTWarning << "TRestExperiment::InitFromConfigFile. Unknown component!" << RESTendl;
-
-		}
-		cont++;
-		md = (TRestMetadata*)this->InstantiateChildMetadata(cont);
-	}
+    TRestMetadata* md = (TRestMetadata*)this->InstantiateChildMetadata(cont);
+    while (md != nullptr) {
+        if (md->InheritsFrom("TRestComponent")) {
+            TRestComponent* comp = (TRestComponent*)md;
+            if (ToLower(comp->GetNature()) == "background")
+                fBackground = comp;
+            else if (ToLower(comp->GetNature()) == "signal")
+                fSignal = comp;
+            else
+                RESTWarning << "TRestExperiment::InitFromConfigFile. Unknown component!" << RESTendl;
+        }
+        cont++;
+        md = (TRestMetadata*)this->InstantiateChildMetadata(cont);
+    }
 
     auto ele = GetElement("addComponent");
     if (ele != nullptr) {
@@ -206,7 +203,7 @@ void TRestExperiment::InitFromConfigFile() {
             }
         }
     }
-	
+
     if (fExposureTime > 0 && fExperimentalDataSet.empty()) {
         GenerateMockDataSet(fUseAverage);
     } else if (fExposureTime == 0 && !fExperimentalDataSet.empty()) {
@@ -286,14 +283,14 @@ void TRestExperiment::PrintMetadata() {
 
     if (fMockData) {
         RESTMetadata << " " << RESTendl;
-        if (fMockData)
-		{
+        if (fMockData) {
             RESTMetadata << "The dataset was MC-generated" << RESTendl;
-			if( fUseAverage ) 
-				RESTMetadata << " - The number of counts in dataset was generated with the mean background counts" << RESTendl;
+            if (fUseAverage)
+                RESTMetadata
+                    << " - The number of counts in dataset was generated with the mean background counts"
+                    << RESTendl;
 
-		}
-        else {
+        } else {
             RESTMetadata << "The dataset was loaded from an existing dataset file" << RESTendl;
             if (!fExperimentalDataSet.empty())
                 RESTMetadata << " - Experimental dataset file : " << fExperimentalDataSet << RESTendl;

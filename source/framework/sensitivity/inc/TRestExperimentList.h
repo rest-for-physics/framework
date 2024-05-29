@@ -62,7 +62,7 @@ class TRestExperimentList : public TRestMetadata {
     /// In case an exposure time is given it defines how to assign time to each experiment (equal/ksvz).
     std::string fExposureStrategy = "equal";
 
-	/// The factor used on the exponential exposure time as a function of the experiment number
+    /// The factor used on the exponential exposure time as a function of the experiment number
     Double_t fExposureFactor = 0;
 
     /// If not null this will be the common signal used in each experiment
