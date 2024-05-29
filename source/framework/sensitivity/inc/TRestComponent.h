@@ -139,6 +139,8 @@ class TRestComponent : public TRestMetadata {
 
     Double_t GetRawRate(std::vector<Double_t> point);
     Double_t GetTotalRate();
+	Double_t GetMaxRate();
+	Double_t GetAllNodesIntegratedRate();
     Double_t GetNormalizedRate(std::vector<Double_t> point);
     Double_t GetRate(std::vector<Double_t> point);
 

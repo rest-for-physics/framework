@@ -360,6 +360,35 @@ Double_t TRestComponent::GetTotalRate() {
 }
 
 ///////////////////////////////////////////////
+/// \brief This method returns the total rate for the node that has the highest contribution
+/// The result will be returned in s-1.
+///
+Double_t TRestComponent::GetMaxRate() {
+	Double_t maxRate = 0;
+	for( size_t n = 0; n < fParameterizationNodes.size(); n++ )
+	{
+		SetActiveNode((Int_t) n);
+		Double_t rate = GetTotalRate();
+		if( rate > maxRate ) maxRate = rate;
+	}
+	return maxRate;
+}
+
+///////////////////////////////////////////////
+/// \brief This method returns the integrated total rate for all the nodes 
+/// The result will be returned in s-1.
+///
+Double_t TRestComponent::GetAllNodesIntegratedRate() {
+	Double_t rate = 0;
+	for( size_t n = 0; n < fParameterizationNodes.size(); n++ )
+	{
+		SetActiveNode((Int_t) n);
+		rate += GetTotalRate();
+	}
+	return rate;
+}
+
+///////////////////////////////////////////////
 /// \brief It returns the bin center of the given component dimension.
 ///
 /// It required implementation since I did not find a method inside THnD. Surprising.
