@@ -93,7 +93,9 @@
 /// Different keys are provided: `metadata` is meant for the metadata info inside the
 /// TRestDataSet (as a RelevantQuantity), `variable` for a predefined variable e.g. rate,
 /// `observable` for an observable value and `expression` for a mathematical expression
-/// that can contain any of the previous.
+/// that can contain any of the previous. Note that the time-related variables _startTime_,
+/// _endTime_ and _runLength_ (then _meanRate_ too) are obtained from the TRestDataSet and
+/// not the RDataFrame of the TRestDataSet, thus they are not afected by the cuts.
 /// All the keys have the same structure which is detailed below:
 /// * **value**: Name of the metadata, variable or observable value.
 /// * **label**: String of the label that will be written before the observable value.
@@ -109,6 +111,10 @@
 ///          <metadata value="[TRestRun::fRunTag]" label="Run tag" x="0.25" y="0.82" />
 ///          <variable value="[[entries]]" label="Entries" x="0.25" y="0.58" />
 ///          <observable value="alphaTrackAna_angle" label="Mean Angle" units="rad" x="0.25" y="0.01" />
+///          <expression value="cos(alphaTrackAna_angle)^2" label="Cosine of the mean angle" units="" x="0.25"
+///          y="0.12" />
+///          <expression value="[TRestDetector::fDriftField]*[TRestDetector::fPressure]" label="Drift field"
+///          units="V/cm" x="0.25" y="0.24" />
 ///          <addCut name="Fiducial"/>
 ///    </panel>
 /// \endcode
