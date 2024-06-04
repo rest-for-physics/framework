@@ -119,11 +119,14 @@ string REST_StringHelper::ReplaceMathematicalExpressions(string buffer, Int_t pr
     }
 
     // we spilt the unit part and the expresstion part
-    int pos = buffer.find_last_of("1234567890().");
+    int pos = buffer.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ");
 
-    string unit = buffer.substr(pos + 1, -1);
-    string temp = buffer.substr(0, pos + 1);
+	if( pos == string::npos ) pos = 0;
+
+    string unit = buffer.substr(pos, -1);
+    string temp = buffer.substr(0, pos);
     string result = "";
+    if (!isAExpression(temp)) return buffer;
 
     bool erased = false;
 
