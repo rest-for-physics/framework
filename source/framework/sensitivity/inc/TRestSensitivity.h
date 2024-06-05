@@ -41,7 +41,7 @@ class TRestSensitivity : public TRestMetadata {
     Bool_t fFrozen = false;  //<  Only needed if we add experiments by other means than RML
 
     /// It is used to generate a histogram with the signal distribution produced with different signal samples
-    TH1D* fSignalTest = nullptr;
+    TH1D* fSignalTest = nullptr; //<
 
     /// A canvas to draw
     TCanvas* fCanvas = nullptr;  //!
@@ -69,8 +69,8 @@ class TRestSensitivity : public TRestMetadata {
     std::vector<Double_t> GetAveragedCurve();
     std::vector<std::vector<Double_t>> GetLevelCurves(const std::vector<Double_t>& levels);
 
-    void ExportCurve(std::string fname, int n);
-    void ExportAveragedCurve(std::string fname);
+	void ExportCurve(std::string fname, Double_t factor = 1.e-10, Double_t power = 0.25, int n = 0);
+    void ExportAveragedCurve(std::string fname, Double_t factor = 1.e-10, Double_t power = 0.25);
 
     TH1D* SignalStatisticalTest(Double_t node, Int_t N);
 

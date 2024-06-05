@@ -168,7 +168,7 @@ std::vector<Double_t> TRestSensitivity::GetAveragedCurve() {
     return averagedCurve;
 }
 
-void TRestSensitivity::ExportAveragedCurve(std::string fname) {
+void TRestSensitivity::ExportAveragedCurve(std::string fname, Double_t factor, Double_t power) {
     std::vector<Double_t> curve = GetAveragedCurve();
     if (curve.empty()) std::cout << "Curve is empty" << std::endl;
     if (curve.empty()) return;
@@ -191,7 +191,7 @@ void TRestSensitivity::ExportAveragedCurve(std::string fname) {
 
     int m = 0;
     for (const auto& node : fParameterizationNodes) {
-        outputFile << node << " " << curve[m] << std::endl;
+        outputFile << node << " " << factor * TMath::Power(curve[m], power) << std::endl;
         m++;
     }
 
@@ -200,7 +200,7 @@ void TRestSensitivity::ExportAveragedCurve(std::string fname) {
     RESTInfo << "TRestSensitivity::ExportCurve. File has been written successfully!" << RESTendl;
 }
 
-void TRestSensitivity::ExportCurve(std::string fname, int n = 0) {
+void TRestSensitivity::ExportCurve(std::string fname, Double_t factor, Double_t power, int n) {
     std::vector<Double_t> curve = GetCurve(n);
     if (curve.empty()) return;
 
@@ -221,7 +221,7 @@ void TRestSensitivity::ExportCurve(std::string fname, int n = 0) {
 
     int m = 0;
     for (const auto& node : fParameterizationNodes) {
-        outputFile << node << " " << curve[m] << std::endl;
+        outputFile << node << " " << factor * TMath::Power(curve[m], power) << std::endl;
         m++;
     }
 
