@@ -133,7 +133,7 @@ string FindRESTUnitsInString(string s) {
 /// \brief It should remove all units found inside the input string
 ///
 /// We suppose the last of **value** before **units** must be "1234567890(),.-eE".
-/// Hence this prepority can be used to spilt the input string into value part and unit part
+/// Hence this prepority can be used to split the input string into value part and unit part
 /// e.g.
 /// value="(1,-13)mm"
 /// value="-3mm"
@@ -273,7 +273,7 @@ double _AddUnit(string name, int type, double scale) {
 /// **Note**: If the unit definition is not recognized, the object will be zombie,
 /// and the value will not be converted.
 /// **Note**: Single unit must be pure alpha. It cannot contain numbers or symbols.
-/// Do not use cm3, we shal use cm^3 instead.
+/// Do not use cm3, we shall use cm^3 instead.
 ///
 /// \class TRestSystemOfUnits
 ///
