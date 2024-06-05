@@ -118,7 +118,7 @@ string REST_StringHelper::ReplaceMathematicalExpressions(string buffer, Int_t pr
         return ReplaceMathematicalExpressions(newbuff, precision, errorMessage);
     }
 
-    // we spilt the unit part and the expresstion part
+    // we split the unit part and the expression part
     int pos = buffer.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ");
 
 	if( pos == string::npos ) pos = 0;
