@@ -80,192 +80,182 @@ void TRestExperimentList::Initialize() { SetSectionName(this->ClassName()); }
 /// \brief It customizes the retrieval of XML data values of this class
 ///
 void TRestExperimentList::InitFromConfigFile() {
-	TRestMetadata::InitFromConfigFile();
+    TRestMetadata::InitFromConfigFile();
 
-	if (!fExperimentsFile.empty() && fExperiments.empty()) {
-		TRestTools::ReadASCIITable(fExperimentsFile, fExperimentsTable);
+    if (!fExperimentsFile.empty() && fExperiments.empty()) {
+        TRestTools::ReadASCIITable(fExperimentsFile, fExperimentsTable);
 
-		for (auto& row : fExperimentsTable)
-			for (auto& el : row) el = REST_StringHelper::ReplaceMathematicalExpressions(el);
+        for (auto& row : fExperimentsTable)
+            for (auto& el : row) el = REST_StringHelper::ReplaceMathematicalExpressions(el);
 
-		if (fExperimentsTable.empty()) {
-			RESTError << "TRestExperimentList::InitFromConfigFile. The experiments table is empty!"
-				<< RESTendl;
-			return;
-		}
+        if (fExperimentsTable.empty()) {
+            RESTError << "TRestExperimentList::InitFromConfigFile. The experiments table is empty!"
+                      << RESTendl;
+            return;
+        }
 
-		Int_t nTableColumns = fExperimentsTable[0].size();
+        Int_t nTableColumns = fExperimentsTable[0].size();
 
-		int cont = 0;
-		TRestComponent* comp = (TRestComponent*)this->InstantiateChildMetadata(cont, "Component");
-		while (comp != nullptr) {
-			if (ToLower(comp->GetNature()) == "background")
-				fBackground = comp;
-			else if (ToLower(comp->GetNature()) == "signal")
-				fSignal = comp;
-			else
-				RESTWarning << "TRestExperimentList::InitFromConfigFile. Unknown component!" << RESTendl;
+        int cont = 0;
+        TRestComponent* comp = (TRestComponent*)this->InstantiateChildMetadata(cont, "Component");
+        while (comp != nullptr) {
+            if (ToLower(comp->GetNature()) == "background")
+                fBackground = comp;
+            else if (ToLower(comp->GetNature()) == "signal")
+                fSignal = comp;
+            else
+                RESTWarning << "TRestExperimentList::InitFromConfigFile. Unknown component!" << RESTendl;
 
-			cont++;
-			comp = (TRestComponent*)this->InstantiateChildMetadata(cont, "Component");
-		}
+            cont++;
+            comp = (TRestComponent*)this->InstantiateChildMetadata(cont, "Component");
+        }
 
-		Int_t nExpectedColumns = 3;
-		if (fSignal) nExpectedColumns--;
-		if (fBackground) nExpectedColumns--;
-		if (fExposureTime > 0) nExpectedColumns--;
+        Int_t nExpectedColumns = 3;
+        if (fSignal) nExpectedColumns--;
+        if (fBackground) nExpectedColumns--;
+        if (fExposureTime > 0) nExpectedColumns--;
 
-		if (nExpectedColumns == 0) {
-			RESTError << "TRestExperimentList::InitFromConfigFile. At least one free parameter required! "
-				"(Exposure/Background/Signal)"
-				<< RESTendl;
-			return;
-		}
+        if (nExpectedColumns == 0) {
+            RESTError << "TRestExperimentList::InitFromConfigFile. At least one free parameter required! "
+                         "(Exposure/Background/Signal)"
+                      << RESTendl;
+            return;
+        }
 
-		if (nExpectedColumns != nTableColumns) {
-			std::string expectedColumns = "";
-			if (fExposureTime == 0) expectedColumns += "exposure";
-			if (!fSignal) {
-				if (fExposureTime == 0) expectedColumns += "/";
-				expectedColumns += "signal";
-			}
-			if (!fBackground) {
-				if (fExposureTime == 0 || !fSignal) expectedColumns += "/";
-				expectedColumns += "background";
-			}
+        if (nExpectedColumns != nTableColumns) {
+            std::string expectedColumns = "";
+            if (fExposureTime == 0) expectedColumns += "exposure";
+            if (!fSignal) {
+                if (fExposureTime == 0) expectedColumns += "/";
+                expectedColumns += "signal";
+            }
+            if (!fBackground) {
+                if (fExposureTime == 0 || !fSignal) expectedColumns += "/";
+                expectedColumns += "background";
+            }
 
-			RESTError << "TRestExperimentList::InitFromConfigFile. Number of expected columns does not match "
-				"the number of table columns"
-				<< RESTendl;
-			RESTError << "Number of table columns : " << nTableColumns << RESTendl;
-			RESTError << "Number of expected columns : " << nExpectedColumns << RESTendl;
-			RESTError << "Expected columns : " << expectedColumns << RESTendl;
-			return;
-		}
+            RESTError << "TRestExperimentList::InitFromConfigFile. Number of expected columns does not match "
+                         "the number of table columns"
+                      << RESTendl;
+            RESTError << "Number of table columns : " << nTableColumns << RESTendl;
+            RESTError << "Number of expected columns : " << nExpectedColumns << RESTendl;
+            RESTError << "Expected columns : " << expectedColumns << RESTendl;
+            return;
+        }
 
-		fComponentFiles = TRestTools::GetFilesMatchingPattern(fComponentPattern);
+        fComponentFiles = TRestTools::GetFilesMatchingPattern(fComponentPattern);
 
-		Bool_t generateMockData = false;
-		for (const auto& experimentRow : fExperimentsTable) {
-			TRestExperiment* experiment = new TRestExperiment();
+        Bool_t generateMockData = false;
+        for (const auto& experimentRow : fExperimentsTable) {
+            TRestExperiment* experiment = new TRestExperiment();
 
-			std::string rowStr = "";
-			for (const auto& el : experimentRow) {
-				rowStr += el + " ";
-			}
+            std::string rowStr = "";
+            for (const auto& el : experimentRow) {
+                rowStr += el + " ";
+            }
 
-			RESTInfo << "TRestExperimentList. Loading experiment: " << rowStr << RESTendl;
+            RESTInfo << "TRestExperimentList. Loading experiment: " << rowStr << RESTendl;
 
-			int column = 0;
-			if (fExposureTime == 0) {
-				if (REST_StringHelper::isANumber(experimentRow[column])) {
-					experiment->SetExposureInSeconds(
-							REST_StringHelper::StringToDouble(experimentRow[column]));
-					// We will generate mock data once we load the background component
-					generateMockData = true;
-				} else if (TRestTools::isRootFile(experimentRow[column])) {
-					// We load the file with the dataset into the experimental data
-					std::string fname = SearchFile(experimentRow[column]);
-					experiment->SetExperimentalDataSet(fname);
-					RESTWarning << "Loading experimental data havent been tested yet!" << RESTendl;
-					RESTWarning
-						<< "It might require further development. Remove these lines once it works smooth!"
-						<< RESTendl;
-				} else {
-					RESTError << experimentRow[column] << " is not a exposure time or an experimental dataset"
-						<< RESTendl;
-				}
-				column++;
-			} else {
-				if (ToLower(fExposureStrategy) == "unique") {
-					experiment->SetExposureInSeconds(fExposureTime * units("s"));
-					// We will generate mock data once we load the background component
-					generateMockData = true;
-				}
-			}
+            int column = 0;
+            if (fExposureTime == 0) {
+                if (REST_StringHelper::isANumber(experimentRow[column])) {
+                    experiment->SetExposureInSeconds(
+                        REST_StringHelper::StringToDouble(experimentRow[column]));
+                    // We will generate mock data once we load the background component
+                    generateMockData = true;
+                } else if (TRestTools::isRootFile(experimentRow[column])) {
+                    // We load the file with the dataset into the experimental data
+                    std::string fname = SearchFile(experimentRow[column]);
+                    experiment->SetExperimentalDataSet(fname);
+                    RESTWarning << "Loading experimental data havent been tested yet!" << RESTendl;
+                    RESTWarning
+                        << "It might require further development. Remove these lines once it works smooth!"
+                        << RESTendl;
+                } else {
+                    RESTError << experimentRow[column] << " is not a exposure time or an experimental dataset"
+                              << RESTendl;
+                }
+                column++;
+            } else {
+                if (ToLower(fExposureStrategy) == "unique") {
+                    experiment->SetExposureInSeconds(fExposureTime * units("s"));
+                    // We will generate mock data once we load the background component
+                    generateMockData = true;
+                }
+            }
 
-			if (!fSignal) {
-				if (GetComponent(experimentRow[column])) {
-					TRestComponent* sgnl = (TRestComponent*)GetComponent(experimentRow[column])->Clone();
-					sgnl->SetName((TString)experimentRow[column]);
-					experiment->SetSignal(sgnl);
-				} else {
-					RESTError << "TRestExperimentList. Signal component : " << experimentRow[column]
-						<< " not found!" << RESTendl;
-				}
-				column++;
-			} else {
-				experiment->SetSignal(fSignal);
-			}
+            if (!fSignal) {
+                if (GetComponent(experimentRow[column])) {
+                    TRestComponent* sgnl = (TRestComponent*)GetComponent(experimentRow[column])->Clone();
+                    sgnl->SetName((TString)experimentRow[column]);
+                    experiment->SetSignal(sgnl);
+                } else {
+                    RESTError << "TRestExperimentList. Signal component : " << experimentRow[column]
+                              << " not found!" << RESTendl;
+                }
+                column++;
+            } else {
+                experiment->SetSignal(fSignal);
+            }
 
-			if (!fBackground) {
-				if (GetComponent(experimentRow[column])) {
-					TRestComponent* bck = (TRestComponent*)GetComponent(experimentRow[column])->Clone();
-					experiment->SetBackground(bck);
-				} else {
-					RESTError << "TRestExperimentList. Background component : " << experimentRow[column]
-						<< " not found!" << RESTendl;
-				}
-			} else {
-				experiment->SetBackground(fBackground);
-			}
+            if (!fBackground) {
+                if (GetComponent(experimentRow[column])) {
+                    TRestComponent* bck = (TRestComponent*)GetComponent(experimentRow[column])->Clone();
+                    experiment->SetBackground(bck);
+                } else {
+                    RESTError << "TRestExperimentList. Background component : " << experimentRow[column]
+                              << " not found!" << RESTendl;
+                }
+            } else {
+                experiment->SetBackground(fBackground);
+            }
 
-			if (generateMockData) {
-				RESTInfo << "TRestExperimentList. Generating mock dataset" << RESTendl;
-				experiment->GenerateMockDataSet(fUseAverage);
-			}
+            if (generateMockData) {
+                RESTInfo << "TRestExperimentList. Generating mock dataset" << RESTendl;
+                experiment->GenerateMockDataSet(fUseAverage);
+            }
 
-			if (experiment->GetSignal() && experiment->GetBackground()) {
-				experiment->SetName(experiment->GetSignal()->GetName());
-				fExperiments.push_back(experiment);
-			}
-	 	}
+            if (experiment->GetSignal() && experiment->GetBackground()) {
+                experiment->SetName(experiment->GetSignal()->GetName());
+                fExperiments.push_back(experiment);
+            }
+        }
 
-		std::cout << "Total exposure time: " << fExposureTime * units("day") << " days" << std::endl;
+        if (fExposureTime > 0 && ToLower(fExposureStrategy) == "exp") {
+            ExtractExperimentParameterizationNodes();
 
-		if (fExposureTime > 0 && ToLower(fExposureStrategy) == "exp") {
-			ExtractExperimentParameterizationNodes();
+            Double_t sum = 0;
+            for (size_t n = 0; n < fExperiments.size(); n++) sum += TMath::Exp((double)n * fExposureFactor);
 
-			Double_t sum = 0;
-			for( int n = 0; n < fExperiments.size(); n++ )
-				sum += TMath::Exp( (double) n * fExposureFactor );
+            Double_t A = fExposureTime * units("s") / sum;
+            for (size_t n = 0; n < fExperiments.size(); n++) {
+                fExperiments[n]->SetExposureInSeconds(A * TMath::Exp((double)n * fExposureFactor));
+                fExperiments[n]->GenerateMockDataSet(fUseAverage);
+            }
+        }
 
-			Double_t A = fExposureTime * units("s") / sum;
-			for( int n = 0; n < fExperiments.size(); n++ )
-			{
-				fExperiments[n]->SetExposureInSeconds( A * TMath::Exp( (double) n * fExposureFactor ));
-				fExperiments[n]->GenerateMockDataSet(fUseAverage);
-			}
-		}
+        if (fExposureTime > 0 && ToLower(fExposureStrategy) == "power") {
+            ExtractExperimentParameterizationNodes();
 
-		Int_t offset = 5;
-		if (fExposureTime > 0 && ToLower(fExposureStrategy) == "power") {
-			ExtractExperimentParameterizationNodes();
+            Double_t sum = 0;
+            for (size_t n = 0; n < fExperiments.size(); n++) sum += TMath::Power((double)n, fExposureFactor);
 
-			Double_t sum = 0;
-			for( int n = 0; n < fExperiments.size(); n++ )
-				sum += TMath::Power( (double) (n+offset), fExposureFactor );
+            Double_t A = fExposureTime * units("s") / sum;
+            for (size_t n = 0; n < fExperiments.size(); n++) {
+                fExperiments[n]->SetExposureInSeconds(A * TMath::Power((double)n, fExposureFactor));
+                fExperiments[n]->GenerateMockDataSet(fUseAverage);
+            }
+        }
 
-			Double_t A = fExposureTime * units("s") / sum;
-			for( int n = 0; n < fExperiments.size(); n++ )
-			{
-				fExperiments[n]->SetExposureInSeconds( A * TMath::Power( (double) (n+offset), fExposureFactor ));
-				std::cout << "Time: " << A * TMath::Power( (double) (n+offset), fExposureFactor)/3600. << std::endl;
-				if( fUseAverage ) std::cout << "B Using average" << std::endl;
-				fExperiments[n]->GenerateMockDataSet(fUseAverage);
-			}
-		}
+        if (fExposureTime > 0 && ToLower(fExposureStrategy) == "equal") {
+            ExtractExperimentParameterizationNodes();
 
-		if (fExposureTime > 0 && ToLower(fExposureStrategy) == "equal") {
-			ExtractExperimentParameterizationNodes();
-
-			for( int n = 0; n < fExperiments.size(); n++ )
-			{
-				fExperiments[n]->SetExposureInSeconds( fExposureTime * units("s") / fExperiments.size() );
-				fExperiments[n]->GenerateMockDataSet(fUseAverage);
-			}
-		}
-	}
+            for (size_t n = 0; n < fExperiments.size(); n++) {
+                fExperiments[n]->SetExposureInSeconds(fExposureTime * units("s") / fExperiments.size());
+                fExperiments[n]->GenerateMockDataSet(fUseAverage);
+            }
+        }
+    }
 }
 
 /////////////////////////////////////////////
@@ -321,8 +311,7 @@ void TRestExperimentList::PrintMetadata() {
 
     RESTMetadata << "Number of experiments loaded: " << fExperiments.size() << RESTendl;
 
-	if( fUseAverage )
-		RESTMetadata << "Average MonteCarlo counts generation was enabled" << RESTendl;
+    if (fUseAverage) RESTMetadata << "Average MonteCarlo counts generation was enabled" << RESTendl;
 
     RESTMetadata << "----" << RESTendl;
 }

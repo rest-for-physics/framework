@@ -149,12 +149,11 @@ Double_t TRestComponentFormula::GetFormulaRate(std::vector<Double_t> point) {
 void TRestComponentFormula::FillHistograms() {
     if (fFormulas.empty()) return;
 
-	if( GetDimensions() == 0 ) 
-	{
-		RESTError << "TRestComponentFormula::FillHistograms. No variables defined!" << RESTendl;
-		RESTError << "Did you add a <cVariable entry?" << RESTendl;
-		return;
-	}
+    if (GetDimensions() == 0) {
+        RESTError << "TRestComponentFormula::FillHistograms. No variables defined!" << RESTendl;
+        RESTError << "Did you add a <cVariable entry?" << RESTendl;
+        return;
+    }
 
     RESTInfo << "Generating N-dim histogram for " << GetName() << RESTendl;
 
@@ -238,8 +237,8 @@ void TRestComponentFormula::InitFromConfigFile() {
 
     if (!fFormulas.empty()) return;
 
-	/// For some reason I need to do this manually. Dont understand why!
-	fFormulaUnits = GetParameter("formulaUnits");
+    /// For some reason I need to do this manually. Dont understand why!
+    fFormulaUnits = GetParameter("formulaUnits");
 
     auto ele = GetElement("formula");
     while (ele != nullptr) {
