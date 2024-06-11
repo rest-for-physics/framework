@@ -55,6 +55,18 @@ class TRestComponent : public TRestMetadata {
     /// It defines the nodes of the parameterization (Initialized by the dataset)
     std::vector<Double_t> fParameterizationNodes;  //<
 
+    /// It defines the first parametric node value in case of automatic parameter generation
+    Double_t fFirstParameterValue = 0;  //<
+
+    /// It defines the upper limit for the automatic parametric node values generation
+    Double_t fLastParameterValue = 0;  //<
+
+    /// It defines the increasing step for automatic parameter list generation
+    Double_t fStepParameterValue = 0;  //<
+
+    /// It true the parametric values automatically generated will grow exponentially
+    Bool_t fExponential = false;  //<
+
     /// It is used to define the node that will be accessed for rate retrieval
     Int_t fActiveNode = -1;  //<
 
@@ -101,6 +113,8 @@ class TRestComponent : public TRestMetadata {
     void Initialize() override;
     void RegenerateHistograms(UInt_t seed = 0);
 
+    void RegenerateParametricNodes(Double_t from, Double_t to, Double_t step, Bool_t expIncrease = false);
+
     /// It returns true if any nodes have been defined.
     Bool_t HasNodes() { return !fParameterizationNodes.empty(); }
 
@@ -112,7 +126,11 @@ class TRestComponent : public TRestMetadata {
     size_t GetDimensions() { return fVariables.size(); }
     Int_t GetSamples() { return fSamples; }
     Int_t GetActiveNode() { return fActiveNode; }
-    Double_t GetActiveNodeValue() { return fParameterizationNodes[fActiveNode]; }
+    Double_t GetActiveNodeValue() {
+        if (fActiveNode >= 0 && fActiveNode < (Int_t)fParameterizationNodes.size())
+            return fParameterizationNodes[fActiveNode];
+        return 0;
+    }
     std::vector<Double_t> GetParameterizationNodes() { return fParameterizationNodes; }
 
     std::vector<std::string> GetVariables() const { return fVariables; }
@@ -121,6 +139,8 @@ class TRestComponent : public TRestMetadata {
 
     Double_t GetRawRate(std::vector<Double_t> point);
     Double_t GetTotalRate();
+    Double_t GetMaxRate();
+    Double_t GetAllNodesIntegratedRate();
     Double_t GetNormalizedRate(std::vector<Double_t> point);
     Double_t GetRate(std::vector<Double_t> point);
 
@@ -171,6 +191,6 @@ class TRestComponent : public TRestMetadata {
     TRestComponent();
     ~TRestComponent();
 
-    ClassDefOverride(TRestComponent, 5);
+    ClassDefOverride(TRestComponent, 6);
 };
 #endif

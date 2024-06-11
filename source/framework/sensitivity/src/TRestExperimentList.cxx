@@ -212,7 +212,7 @@ void TRestExperimentList::InitFromConfigFile() {
 
             if (generateMockData) {
                 RESTInfo << "TRestExperimentList. Generating mock dataset" << RESTendl;
-                experiment->GenerateMockDataSet();
+                experiment->GenerateMockDataSet(fUseAverage);
             }
 
             if (experiment->GetSignal() && experiment->GetBackground()) {
@@ -221,47 +221,38 @@ void TRestExperimentList::InitFromConfigFile() {
             }
         }
 
-        /// TODO. I am being lazy here. It would be more appropriate that
-        /// I create a TRestAxionExperimentList::TRestExperimentList
-        /// that implements this axion dedicated piece of code
-        if (fExposureTime > 0 && ToLower(fExposureStrategy) == "ksvz") {
+        if (fExposureTime > 0 && ToLower(fExposureStrategy) == "exp") {
             ExtractExperimentParameterizationNodes();
 
-            Double_t Coefficient = 0;
-            for (const auto& node : fParameterizationNodes) {
-                Double_t expectedRate = 0;
-                for (const auto& experiment : fExperiments) {
-                    Int_t nd = experiment->GetSignal()->FindActiveNode(node);
-                    if (nd >= 0) {
-                        experiment->GetSignal()->SetActiveNode(nd);
-                        expectedRate += experiment->GetSignal()->GetTotalRate();
-                    }
-                }
+            Double_t sum = 0;
+            for (size_t n = 0; n < fExperiments.size(); n++) sum += TMath::Exp((double)n * fExposureFactor);
 
-                Coefficient += 1. / node / expectedRate;
+            Double_t A = fExposureTime * units("s") / sum;
+            for (size_t n = 0; n < fExperiments.size(); n++) {
+                fExperiments[n]->SetExposureInSeconds(A * TMath::Exp((double)n * fExposureFactor));
+                fExperiments[n]->GenerateMockDataSet(fUseAverage);
             }
+        }
 
-            Double_t expectedRate = 0;
-            for (const auto& experiment : fExperiments) {
-                // We consider the contribution to each node for a given experiment
-                for (const auto& node : fParameterizationNodes) {
-                    Int_t nd = experiment->GetSignal()->FindActiveNode(node);
-                    if (nd >= 0) {
-                        experiment->GetSignal()->SetActiveNode(nd);
-                        expectedRate += node * experiment->GetSignal()->GetTotalRate();
-                    }
-                }
-                Double_t experimentTime = fExposureTime / Coefficient / expectedRate;
-                experiment->SetExposureInSeconds(experimentTime * units("s"));
+        if (fExposureTime > 0 && ToLower(fExposureStrategy) == "power") {
+            ExtractExperimentParameterizationNodes();
+
+            Double_t sum = 0;
+            for (size_t n = 0; n < fExperiments.size(); n++) sum += TMath::Power((double)n, fExposureFactor);
+
+            Double_t A = fExposureTime * units("s") / sum;
+            for (size_t n = 0; n < fExperiments.size(); n++) {
+                fExperiments[n]->SetExposureInSeconds(A * TMath::Power((double)n, fExposureFactor));
+                fExperiments[n]->GenerateMockDataSet(fUseAverage);
             }
+        }
 
-            Double_t totalExp = 0;
-            for (const auto& experiment : fExperiments) totalExp += experiment->GetExposureInSeconds();
+        if (fExposureTime > 0 && ToLower(fExposureStrategy) == "equal") {
+            ExtractExperimentParameterizationNodes();
 
-            for (const auto& experiment : fExperiments) {
-                Double_t xp = experiment->GetExposureInSeconds();
-                experiment->SetExposureInSeconds(xp * fExposureTime * units("s") / totalExp);
-                experiment->GenerateMockDataSet();
+            for (size_t n = 0; n < fExperiments.size(); n++) {
+                fExperiments[n]->SetExposureInSeconds(fExposureTime * units("s") / fExperiments.size());
+                fExperiments[n]->GenerateMockDataSet(fUseAverage);
             }
         }
     }
@@ -319,6 +310,8 @@ void TRestExperimentList::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     RESTMetadata << "Number of experiments loaded: " << fExperiments.size() << RESTendl;
+
+    if (fUseAverage) RESTMetadata << "Average MonteCarlo counts generation was enabled" << RESTendl;
 
     RESTMetadata << "----" << RESTendl;
 }

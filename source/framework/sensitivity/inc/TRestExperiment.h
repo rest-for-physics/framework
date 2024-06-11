@@ -53,6 +53,9 @@ class TRestExperiment : public TRestMetadata {
     /// Only if it is true we will be able to calculate the LogLikelihood
     Bool_t fDataReady = false;  //<
 
+    /// The mock dataset will be generated using the mean counts instead of a real MonteCarlo
+    Bool_t fUseAverage = false;  //<
+
     /// It keeps track on the number of counts inside the dataset
     Int_t fExperimentalCounts = 0;  //<
 
@@ -66,7 +69,7 @@ class TRestExperiment : public TRestMetadata {
     void InitFromConfigFile() override;
 
    public:
-    void GenerateMockDataSet();
+    void GenerateMockDataSet(Bool_t useAverage = false);
     Int_t GetExperimentalCounts() const { return fExperimentalCounts; }
 
     Bool_t IsMockData() const { return fMockData; }
@@ -94,6 +97,6 @@ class TRestExperiment : public TRestMetadata {
     TRestExperiment();
     ~TRestExperiment();
 
-    ClassDefOverride(TRestExperiment, 1);
+    ClassDefOverride(TRestExperiment, 2);
 };
 #endif

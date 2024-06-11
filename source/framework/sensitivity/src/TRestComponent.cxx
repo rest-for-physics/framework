@@ -86,6 +86,9 @@ TRestComponent::~TRestComponent() {}
 void TRestComponent::Initialize() {
     //   SetSectionName(this->ClassName());
 
+    /// Avoiding double initialization
+    if (!fNodeDensity.empty() && fRandom) return;
+
     if (!fRandom) {
         delete fRandom;
         fRandom = nullptr;
@@ -93,6 +96,13 @@ void TRestComponent::Initialize() {
 
     fRandom = new TRandom3(fSeed);
     fSeed = fRandom->TRandom::GetSeed();
+
+    if (fStepParameterValue > 0) {
+        RegenerateParametricNodes(fFirstParameterValue, fLastParameterValue, fStepParameterValue,
+                                  fExponential);
+    } else {
+        if (!fParameterizationNodes.empty()) FillHistograms();
+    }
 }
 
 /////////////////////////////////////////////
@@ -105,9 +115,31 @@ void TRestComponent::RegenerateHistograms(UInt_t seed) {
     fNodeDensity.clear();
 
     fSeed = seed;
-    TRestComponent::Initialize();
-
     FillHistograms();
+}
+
+/////////////////////////////////////////////
+/// \brief It allows to produce a parameter nodes list providing the initial
+/// value, the final value and the step. We might chose the step growing in
+/// linear increase steps or exponential. Linear is the default value.
+///
+void TRestComponent::RegenerateParametricNodes(Double_t from, Double_t to, Double_t step,
+                                               Bool_t expIncrease) {
+    fStepParameterValue = step;
+    fFirstParameterValue = from;
+    fLastParameterValue = to;
+    fExponential = expIncrease;
+
+    fParameterizationNodes.clear();
+
+    if (expIncrease) {
+        for (double p = from; p < to; p *= step) fParameterizationNodes.push_back(p);
+    } else {
+        for (double p = from; p < to; p += step) fParameterizationNodes.push_back(p);
+    }
+
+    if (fParameterizationNodes.empty()) return;
+    RegenerateHistograms(fSeed);
 }
 
 ///////////////////////////////////////////
@@ -232,6 +264,11 @@ Double_t TRestComponent::GetRawRate(std::vector<Double_t> point) {
         return 0;
     }
 
+    for (size_t n = 0; n < point.size(); n++) {
+        // The point is outside boundaries
+        if (point[n] < fRanges[n].X() || point[n] > fRanges[n].Y()) return 0;
+    }
+
     Int_t centerBin[GetDimensions()];
     Double_t centralDensity = GetDensity()->GetBinContent(GetDensity()->GetBin(point.data()), centerBin);
     if (!Interpolation()) return centralDensity;
@@ -289,15 +326,51 @@ Double_t TRestComponent::GetRawRate(std::vector<Double_t> point) {
 ///
 Double_t TRestComponent::GetTotalRate() {
     THnD* dHist = GetDensityForActiveNode();
+    if (!dHist) return 0;
 
     Double_t integral = 0;
-    if (dHist != nullptr) {
-        TH1D* h1 = dHist->Projection(0);
-        integral = h1->Integral();
-        delete h1;
+    for (Int_t n = 0; n < dHist->GetNbins(); ++n) {
+        Int_t centerBin[GetDimensions()];
+        std::vector<Double_t> point;
+
+        dHist->GetBinContent(n, centerBin);
+        for (size_t d = 0; d < GetDimensions(); ++d) point.push_back(GetBinCenter(d, centerBin[d]));
+
+        Bool_t skip = false;
+        for (size_t d = 0; d < GetDimensions(); ++d) {
+            if (point[d] < fRanges[d].X() || point[d] > fRanges[d].Y()) skip = true;
+        }
+        if (!skip) integral += GetRate(point);
     }
 
     return integral;
+}
+
+///////////////////////////////////////////////
+/// \brief This method returns the total rate for the node that has the highest contribution
+/// The result will be returned in s-1.
+///
+Double_t TRestComponent::GetMaxRate() {
+    Double_t maxRate = 0;
+    for (size_t n = 0; n < fParameterizationNodes.size(); n++) {
+        SetActiveNode((Int_t)n);
+        Double_t rate = GetTotalRate();
+        if (rate > maxRate) maxRate = rate;
+    }
+    return maxRate;
+}
+
+///////////////////////////////////////////////
+/// \brief This method returns the integrated total rate for all the nodes
+/// The result will be returned in s-1.
+///
+Double_t TRestComponent::GetAllNodesIntegratedRate() {
+    Double_t rate = 0;
+    for (size_t n = 0; n < fParameterizationNodes.size(); n++) {
+        SetActiveNode((Int_t)n);
+        rate += GetTotalRate();
+    }
+    return rate;
 }
 
 ///////////////////////////////////////////////
@@ -561,7 +634,7 @@ void TRestComponent::PrintMetadata() {
         }
     }
 
-    if (!fParameter.empty()) {
+    if (!fParameterizationNodes.empty()) {
         RESTMetadata << " " << RESTendl;
         RESTMetadata << " === Parameterization === " << RESTendl;
         RESTMetadata << "- Parameter : " << fParameter << RESTendl;
@@ -569,6 +642,18 @@ void TRestComponent::PrintMetadata() {
         RESTMetadata << " - Number of parametric nodes : " << fParameterizationNodes.size() << RESTendl;
         RESTMetadata << " " << RESTendl;
         RESTMetadata << " Use : PrintNodes() for additional info" << RESTendl;
+
+        if (fStepParameterValue > 0) {
+            RESTMetadata << " " << RESTendl;
+            RESTMetadata << " Nodes were automatically generated using these parameters" << RESTendl;
+            RESTMetadata << " - First node : " << fFirstParameterValue << RESTendl;
+            RESTMetadata << " - Upper limit node : " << fLastParameterValue << RESTendl;
+            RESTMetadata << " - Increasing step : " << fStepParameterValue << RESTendl;
+            if (fExponential)
+                RESTMetadata << " - Increases exponentially" << RESTendl;
+            else
+                RESTMetadata << " - Increases linearly" << RESTendl;
+        }
     }
 
     if (fResponse) {

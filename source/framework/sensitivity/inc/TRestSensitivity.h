@@ -61,6 +61,7 @@ class TRestSensitivity : public TRestMetadata {
 
     Double_t GetCoupling(Double_t node, Double_t sigma = 2, Double_t precision = 0.01);
     void AddCurve(const std::vector<Double_t>& curve) { fCurves.push_back(curve); }
+    void ImportCurve(const std::vector<Double_t>& curve) { AddCurve(curve); }
     void GenerateCurve();
     void GenerateCurves(Int_t N);
 
