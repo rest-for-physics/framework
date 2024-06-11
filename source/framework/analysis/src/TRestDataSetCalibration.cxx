@@ -192,7 +192,7 @@ void TRestDataSetCalibration::Calibrate() {
 
     if (fCalibFile.empty()) {
         auto histo = dataSet.GetDataFrame().Histo1D(
-            {"spectrum", "spectrum", fNBins, fCalibRange.X(), fCalibRange.X()}, fCalObservable);
+            {"spectrum", "spectrum", fNBins, fCalibRange.X(), fCalibRange.Y()}, fCalObservable);
         spectrum = std::unique_ptr<TH1F>(static_cast<TH1F*>(histo->DrawClone()));
 
         // Get position of the maximum

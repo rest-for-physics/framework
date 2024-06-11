@@ -177,14 +177,17 @@ void TRestExperimentList::InitFromConfigFile() {
                 }
                 column++;
             } else {
-                experiment->SetExposureInSeconds(fExposureTime * units("s"));
-                // We will generate mock data once we load the background component
-                generateMockData = true;
+                if (ToLower(fExposureStrategy) == "unique") {
+                    experiment->SetExposureInSeconds(fExposureTime * units("s"));
+                    // We will generate mock data once we load the background component
+                    generateMockData = true;
+                }
             }
 
             if (!fSignal) {
                 if (GetComponent(experimentRow[column])) {
                     TRestComponent* sgnl = (TRestComponent*)GetComponent(experimentRow[column])->Clone();
+                    sgnl->SetName((TString)experimentRow[column]);
                     experiment->SetSignal(sgnl);
                 } else {
                     RESTError << "TRestExperimentList. Signal component : " << experimentRow[column]
@@ -209,12 +212,76 @@ void TRestExperimentList::InitFromConfigFile() {
 
             if (generateMockData) {
                 RESTInfo << "TRestExperimentList. Generating mock dataset" << RESTendl;
-                experiment->GenerateMockDataSet();
+                experiment->GenerateMockDataSet(fUseAverage);
             }
 
-            fExperiments.push_back(experiment);
+            if (experiment->GetSignal() && experiment->GetBackground()) {
+                experiment->SetName(experiment->GetSignal()->GetName());
+                fExperiments.push_back(experiment);
+            }
+        }
+
+        if (fExposureTime > 0 && ToLower(fExposureStrategy) == "exp") {
+            ExtractExperimentParameterizationNodes();
+
+            Double_t sum = 0;
+            for (size_t n = 0; n < fExperiments.size(); n++) sum += TMath::Exp((double)n * fExposureFactor);
+
+            Double_t A = fExposureTime * units("s") / sum;
+            for (size_t n = 0; n < fExperiments.size(); n++) {
+                fExperiments[n]->SetExposureInSeconds(A * TMath::Exp((double)n * fExposureFactor));
+                fExperiments[n]->GenerateMockDataSet(fUseAverage);
+            }
+        }
+
+        if (fExposureTime > 0 && ToLower(fExposureStrategy) == "power") {
+            ExtractExperimentParameterizationNodes();
+
+            Double_t sum = 0;
+            for (size_t n = 0; n < fExperiments.size(); n++) sum += TMath::Power((double)n, fExposureFactor);
+
+            Double_t A = fExposureTime * units("s") / sum;
+            for (size_t n = 0; n < fExperiments.size(); n++) {
+                fExperiments[n]->SetExposureInSeconds(A * TMath::Power((double)n, fExposureFactor));
+                fExperiments[n]->GenerateMockDataSet(fUseAverage);
+            }
+        }
+
+        if (fExposureTime > 0 && ToLower(fExposureStrategy) == "equal") {
+            ExtractExperimentParameterizationNodes();
+
+            for (size_t n = 0; n < fExperiments.size(); n++) {
+                fExperiments[n]->SetExposureInSeconds(fExposureTime * units("s") / fExperiments.size());
+                fExperiments[n]->GenerateMockDataSet(fUseAverage);
+            }
         }
     }
+}
+
+/////////////////////////////////////////////
+/// \brief It scans all the experiment signals parametric nodes to build a complete list
+/// of nodes used to build a complete sensitivity curve. Some experiments may be
+/// sensitivy to a particular node, while others may be sensitivy to another. If more
+/// than one experiment is sensitivy to a given node, the sensitivity will be combined
+/// later on.
+///
+void TRestExperimentList::ExtractExperimentParameterizationNodes() {
+    fParameterizationNodes.clear();
+
+    for (const auto& experiment : fExperiments) {
+        std::vector<Double_t> nodes = experiment->GetSignal()->GetParameterizationNodes();
+        fParameterizationNodes.insert(fParameterizationNodes.end(), nodes.begin(), nodes.end());
+
+        std::sort(fParameterizationNodes.begin(), fParameterizationNodes.end());
+        auto last = std::unique(fParameterizationNodes.begin(), fParameterizationNodes.end());
+        fParameterizationNodes.erase(last, fParameterizationNodes.end());
+    }
+}
+
+void TRestExperimentList::PrintParameterizationNodes() {
+    std::cout << "Experiment list nodes: ";
+    for (const auto& node : fParameterizationNodes) std::cout << node << "\t";
+    std::cout << std::endl;
 }
 
 TRestComponent* TRestExperimentList::GetComponent(std::string compName) {
@@ -243,6 +310,8 @@ void TRestExperimentList::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     RESTMetadata << "Number of experiments loaded: " << fExperiments.size() << RESTendl;
+
+    if (fUseAverage) RESTMetadata << "Average MonteCarlo counts generation was enabled" << RESTendl;
 
     RESTMetadata << "----" << RESTendl;
 }
