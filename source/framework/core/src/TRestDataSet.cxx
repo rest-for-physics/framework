@@ -394,18 +394,28 @@ void TRestDataSet::GenerateDataSet() {
         fDataFrame = DefineColumn(cName, cExpression);
     }
 
+    RegenerateTree(finalList);
+
+    RESTInfo << " - Dataset generated!" << RESTendl;
+}
+
+///////////////////////////////////////////////
+/// \brief It regenerates the tree so that it is an exact copy of the present DataFrame
+///
+void TRestDataSet::RegenerateTree(std::vector<std::string> finalList) {
     RESTInfo << "Generating snapshot." << RESTendl;
     std::string user = getenv("USER");
     std::string fOutName = "/tmp/rest_output_" + user + ".root";
-    fDataFrame.Snapshot("AnalysisTree", fOutName, finalList);
+    if (!finalList.empty())
+        fDataFrame.Snapshot("AnalysisTree", fOutName, finalList);
+    else
+        fDataFrame.Snapshot("AnalysisTree", fOutName);
 
     RESTInfo << "Re-importing analysis tree." << RESTendl;
     fDataFrame = ROOT::RDataFrame("AnalysisTree", fOutName);
 
     TFile* f = TFile::Open(fOutName.c_str());
     fTree = (TChain*)f->Get("AnalysisTree");
-
-    RESTInfo << " - Dataset generated!" << RESTendl;
 }
 
 ///////////////////////////////////////////////
@@ -530,6 +540,7 @@ ROOT::RDF::RNode TRestDataSet::Range(size_t from, size_t to) { return fDataFrame
 ///
 ROOT::RDF::RNode TRestDataSet::ApplyRange(size_t from, size_t to) {
     fDataFrame = fDataFrame.Range(from, to);
+    RegenerateTree();
     return fDataFrame;
 }
 

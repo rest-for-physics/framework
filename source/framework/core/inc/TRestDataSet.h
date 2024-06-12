@@ -122,6 +122,8 @@ class TRestDataSet : public TRestMetadata {
    protected:
     virtual std::vector<std::string> FileSelection();
 
+    void RegenerateTree(std::vector<std::string> finalList = {});
+
    public:
     /// Gives access to the RDataFrame
     ROOT::RDF::RNode GetDataFrame() const {
