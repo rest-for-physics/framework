@@ -148,6 +148,11 @@ void TRestComponentDataSet::PrintMetadata() {
         RESTMetadata << " " << RESTendl;
     }
 
+    if (fDFRange.X() != 0 || fDFRange.Y() != 0) {
+        RESTMetadata << " DataFrame range: ( " << fDFRange.X() << ", " << fDFRange.Y() << ")" << RESTendl;
+        RESTMetadata << " " << RESTendl;
+    }
+
     if (!fParameter.empty() && fParameterizationNodes.empty()) {
         RESTMetadata << "This component has no nodes!" << RESTendl;
         RESTMetadata << " Use: LoadDataSets() to initialize the nodes" << RESTendl;
@@ -477,6 +482,9 @@ Bool_t TRestComponentDataSet::LoadDataSets() {
 
     fDataSet.Import(fullFileNames);
     fDataSetLoaded = true;
+
+    if (fDFRange.X() != 0 || fDFRange.Y() != 0)
+        fDataSet.ApplyRange((size_t)fDFRange.X(), (size_t)fDFRange.Y());
 
     if (fDataSet.GetTree() == nullptr) {
         RESTError << "Problem loading dataset from file list :" << RESTendl;

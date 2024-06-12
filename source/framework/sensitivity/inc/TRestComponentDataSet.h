@@ -57,6 +57,9 @@ class TRestComponentDataSet : public TRestComponent {
     /// It helps to split large datasets when extracting the parameterization nodes
     long long unsigned int fSplitEntries = 600000000;
 
+    /// It creates a sample subset using a range definition
+    TVector2 fDFRange = TVector2(0, 0);
+
     /// It is true of the dataset was loaded without issues
     Bool_t fDataSetLoaded = false;  //!
 
