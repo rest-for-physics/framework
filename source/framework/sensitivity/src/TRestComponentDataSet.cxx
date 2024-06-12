@@ -383,15 +383,17 @@ std::vector<Double_t> TRestComponentDataSet::ExtractParameterizationNodes() {
         return vs;
     }
 
-    auto parValues = fDataSet.GetDataFrame().Take<double>(fParameter);
-    for (const auto v : parValues) vs.push_back(v);
+    auto GetUniqueElements = [](const std::vector<double>& vec) {
+        std::set<double> uniqueSet(vec.begin(), vec.end());
+        return std::vector<double>(uniqueSet.begin(), uniqueSet.end());
+    };
 
-    std::vector<double>::iterator ip;
-    ip = std::unique(vs.begin(), vs.begin() + vs.size());
-    vs.resize(std::distance(vs.begin(), ip));
-    std::sort(vs.begin(), vs.end());
-    ip = std::unique(vs.begin(), vs.end());
-    vs.resize(std::distance(vs.begin(), ip));
+    for (size_t n = 0; n < 1 + fDataSet.GetEntries() / fSplitEntries; n++) {
+        auto nEn = fDataSet.Range(n * fSplitEntries, (n + 1) * fSplitEntries).Count();
+        auto parValues = fDataSet.Range(n * fSplitEntries, (n + 1) * fSplitEntries).Take<double>(fParameter);
+        std::vector<double> uniqueVec = GetUniqueElements(*parValues);
+        vs.insert(vs.end(), uniqueVec.begin(), uniqueVec.end());
+    }
 
     return vs;
 }
@@ -433,7 +435,7 @@ std::vector<Int_t> TRestComponentDataSet::ExtractNodeStatistics() {
             nEv = fDataSet.GetDataFrame().Filter(filter).Range(fSamples).Count();
         }
 
-        if ((Int_t)*nEv < fSamples) {
+        if ((Int_t) * nEv < fSamples) {
             RESTWarning << "The number of requested samples (" << fSamples
                         << ") is higher than the number of dataset entries (" << *nEv << ")" << RESTendl;
         }
@@ -486,6 +488,7 @@ Bool_t TRestComponentDataSet::LoadDataSets() {
 
     if (VariablesOk() && WeightsOk()) {
         fParameterizationNodes = ExtractParameterizationNodes();
+        RESTInfo << "Filling histograms" << RESTendl;
         FillHistograms();
         return fDataSetLoaded;
     }
@@ -515,11 +518,12 @@ Bool_t TRestComponentDataSet::WeightsOk() {
     Bool_t ok = true;
     std::vector cNames = fDataSet.GetDataFrame().GetColumnNames();
 
-    for (const auto& var : fWeights)
-        if (std::count(cNames.begin(), cNames.end(), var) == 0) {
+    for (const auto& var : fWeights) {
+        if (!isANumber(var) && std::count(cNames.begin(), cNames.end(), var) == 0) {
             RESTError << "Weight ---> " << var << " <--- NOT found on dataset" << RESTendl;
             ok = false;
         }
+    }
     return ok;
 }
 
