@@ -91,8 +91,12 @@
 /// * **precision**: Precision for the values to be written.
 /// * **value**: If true/ON panel is displayed, otherwise is ignored
 /// Different keys are provided: `metadata` is meant for the metadata info inside the
-/// TRestDataSet, `variable` for a predefined variable e.g. rate and `observable` for an
-/// observable value. All the keys have the same structure which is detailed below:
+/// TRestDataSet (as a RelevantQuantity), `variable` for a predefined variable e.g. rate,
+/// `observable` for an observable value and `expression` for a mathematical expression
+/// that can contain any of the previous. Note that the time-related variables _startTime_,
+/// _endTime_ and _runLength_ (then _meanRate_ too) are obtained from the TRestDataSet and
+/// not the RDataFrame of the TRestDataSet, thus they are not afected by the cuts.
+/// All the keys have the same structure which is detailed below:
 /// * **value**: Name of the metadata, variable or observable value.
 /// * **label**: String of the label that will be written before the observable value.
 /// * **units**: String with the units to be appended to the label.
@@ -107,6 +111,10 @@
 ///          <metadata value="[TRestRun::fRunTag]" label="Run tag" x="0.25" y="0.82" />
 ///          <variable value="[[entries]]" label="Entries" x="0.25" y="0.58" />
 ///          <observable value="alphaTrackAna_angle" label="Mean Angle" units="rad" x="0.25" y="0.01" />
+///          <expression value="cos(alphaTrackAna_angle)^2" label="Cosine of the mean angle" units="" x="0.25"
+///          y="0.12" />
+///          <expression value="[TRestDetector::fDriftField]*[TRestDetector::fPressure]" label="Drift field"
+///          units="V/cm" x="0.25" y="0.24" />
 ///          <addCut name="Fiducial"/>
 ///    </panel>
 /// \endcode
@@ -124,8 +132,10 @@
 /// * **timeDisplay**: If true/ON time display is set in the X axis
 /// * **norm**: Normalization constant in which the plot will be normalized, e.g. use `1` in
 /// case you want to normalize by 1.
-/// * **scale**: Multiply all the histogram bins by a constant given by scale. If you want to
-/// use the size of the bin to normalize you should write down `binSize`
+/// * **scale**: Divide all the histogram bins by a constant given by scale. You may use any
+/// mathematical expression in combination with the special keywords: `binSize`, `entries`,
+/// `runLength` (in hours) and `integral`. Adding a scale will make the histogram to be
+/// drawn with errors. To avoid this, set parameter option to 'hist' in the histogram.
 /// * **value**: If true/ON plot is displayed, otherwise is ignored
 /// * **save**: String with the name of the output file in which the plot will be saved
 /// in a separated file, several formats are supported (root, pdf, eps, jpg,...)
@@ -251,6 +261,8 @@
 ///
 /// 2023-04: First implementation of TRestDataSetPlot, based on TRestAnalysisPlot
 /// JuanAn Garcia
+///
+/// 2024-05: Extend some functionalities, Álvaro Ezquerro
 ///
 /// \class TRestDataSetPlot
 /// \author: JuanAn Garcia   e-mail: juanangp@unizar.es
@@ -389,6 +401,19 @@ void TRestDataSetPlot::ReadPanelInfo() {
 
             observable = GetNextElement(observable);
         }
+        TiXmlElement* expression = GetElement("expression", panelele);
+        while (expression != nullptr) {
+            std::array<std::string, 3> label;
+            label[0] = GetParameter("value", expression, "");
+            label[1] = GetParameter("label", expression, "");
+            label[2] = GetParameter("units", expression, "");
+            double posX = StringToDouble(GetParameter("x", expression, "0.1"));
+            double posY = StringToDouble(GetParameter("y", expression, "0.1"));
+
+            panel.expPos.push_back(std::make_pair(label, TVector2(posX, posY)));
+
+            expression = GetNextElement(expression);
+        }
 
         fPanels.push_back(panel);
         panelele = GetNextElement(panelele);
@@ -505,7 +530,50 @@ void TRestDataSetPlot::GenerateDataSetFromFilePattern(TRestDataSet& dataSet) {
     std::map<std::string, TRestDataSet::RelevantQuantity> quantity;
 
     for (auto& panel : fPanels) {
-        // Add obserbables from panel info, both variables and cuts
+        // Add metadata and observables from expression key from panel info
+        for (auto& [key, posLabel] : panel.expPos) {
+            // look for metadata which are surrounded by [] but not [[]] (variables)
+            auto&& [exp, label, units] = key;
+            std::string text = exp;
+            while (text.find_last_of('[') != std::string::npos) {
+                int squareBracketCorrector = 0;
+                size_t posOpen = text.find_last_of('[');
+                size_t posClose = text.find_first_of(']', posOpen);
+                if (posOpen != 0) {
+                    if (text[posOpen - 1] == '[') {
+                        squareBracketCorrector = 1;
+                    }
+                }
+                std::string varOrMeta = text.substr(posOpen - squareBracketCorrector,
+                                                    posClose + 1 - posOpen + 2 * squareBracketCorrector);
+                if (squareBracketCorrector == 0) {
+                    // Here varOrMeta is a metadata
+                    // Add metadata to relevant quantity from the panel info
+                    TRestDataSet::RelevantQuantity quant;
+                    quant.metadata = varOrMeta;
+                    quant.strategy = "unique";
+                    quantity[label] = quant;
+                }
+                text = Replace(text, varOrMeta, "1");
+            }
+
+            // look for observables (characterized by having a _ in the name)
+            while (text.find("_") != std::string::npos) {
+                size_t pos_ = text.find("_");
+                size_t beginning = text.find_last_of(" -+*/)(^%", pos_) + 1;
+                size_t end = text.find_first_of(" -+*/)(^%", pos_);
+                std::string obs = text.substr(beginning, end - beginning);
+                text = Replace(text, obs, "1");
+                obsList.push_back(obs);
+            }
+
+            if (!(isAExpression(text) || isANumber(text)))
+                RESTWarning << "The expression " << exp
+                            << " has not been correctly parsed into variables, metadata and observables"
+                            << RESTendl;
+        }
+
+        // Add observables from observable key of panel info
         for (auto& [key, posLabel] : panel.obsPos) {
             auto&& [obs, label, units] = key;
             obsList.push_back(obs);
@@ -535,6 +603,7 @@ void TRestDataSetPlot::GenerateDataSetFromFilePattern(TRestDataSet& dataSet) {
 ///
 void TRestDataSetPlot::PlotCombinedCanvas() {
     TRestDataSet dataSet;
+    dataSet.EnableMultiThreading(true);
 
     // Import dataSet
     dataSet.Import(fDataSetName);
@@ -586,6 +655,41 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
         paramMap["[[runLength]]"] = StringWithPrecision(runLength, panel.precision);
         paramMap["[[entries]]"] = StringWithPrecision(entries, panel.precision);
         paramMap["[[meanRate]]"] = StringWithPrecision(meanRate, panel.precision);
+
+        paramMap["[[cutNames]]"] = "";
+        paramMap["[[cuts]]"] = "";
+        if (fCut) {
+            for (const auto& cut : fCut->GetCuts()) {
+                if (paramMap["[[cutNames]]"].empty())
+                    paramMap["[[cutNames]]"] += cut.GetName();
+                else
+                    paramMap["[[cutNames]]"] += "," + (std::string)cut.GetName();
+                if (paramMap["[[cuts]]"].empty())
+                    paramMap["[[cuts]]"] += cut.GetTitle();
+                else
+                    paramMap["[[cuts]]"] += " && " + (std::string)cut.GetTitle();
+            }
+        }
+
+        paramMap["[[panelCutNames]]"] = "";
+        paramMap["[[panelCuts]]"] = "";
+        if (panel.panelCut) {
+            for (const auto& cut : panel.panelCut->GetCuts()) {
+                if (paramMap["[[panelCutNames]]"].empty())
+                    paramMap["[[panelCutNames]]"] += cut.GetName();
+                else
+                    paramMap["[[panelCutNames]]"] += "," + (std::string)cut.GetName();
+                if (paramMap["[[panelCuts]]"].empty())
+                    paramMap["[[panelCuts]]"] += cut.GetTitle();
+                else
+                    paramMap["[[panelCuts]]"] += " && " + (std::string)cut.GetTitle();
+            }
+        }
+
+        RESTInfo << "Global cuts: " << paramMap["[[cuts]]"] << RESTendl;
+        if (!paramMap["[[panelCuts]]"].empty())
+            RESTInfo << "Additional panel cuts: " << paramMap["[[panelCuts]]"] << RESTendl;
+
         // Replace panel variables and generate a TLatex label
         for (const auto& [key, posLabel] : panel.variablePos) {
             auto&& [variable, label, units] = key;
@@ -630,6 +734,35 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
             auto value = *dataFrame.Mean(obs);
 
             std::string lab = label + ": " + StringWithPrecision(value, panel.precision) + " " + units;
+            panel.text.emplace_back(new TLatex(posLabel.X(), posLabel.Y(), lab.c_str()));
+        }
+
+        // Replace any expression and generate TLatex label
+        for (const auto& [key, posLabel] : panel.expPos) {
+            auto&& [text, label, units] = key;
+            std::string var = text;
+
+            // replace variables
+            for (const auto& [param, val] : paramMap) {
+                var = Replace(var, param, val);
+            }
+            // replace metadata
+            for (const auto& [name, quant] : quantity) {
+                var = Replace(var, name, quant.value);
+            }
+            // replace observables
+            for (const auto& obs : dataFrame.GetColumnNames()) {
+                if (var.find(obs) == std::string::npos) continue;
+                // here there should be a checking that the mean(obs) can be calculated
+                // (checking obs data type?)
+                double value = *dataFrame.Mean(obs);
+                var = Replace(var, obs, DoubleToString(value));
+            }
+            var = Replace(var, "[", "(");
+            var = Replace(var, "]", ")");
+            var = EvaluateExpression(var);
+
+            std::string lab = label + ": " + var + " " + units;
             panel.text.emplace_back(new TLatex(posLabel.X(), posLabel.Y(), lab.c_str()));
         }
 
@@ -691,13 +824,19 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
             }
             // Scale histos
             if (plots.scale != "") {
-                Double_t scale = 1.;
-                if (plots.scale == "binSize") {
-                    scale = 1. / hist.histo->GetXaxis()->GetBinWidth(1);
-                } else {
-                    scale = StringToDouble(plots.scale);
-                }
-                hist.histo->Scale(scale);
+                std::string inputScale = plots.scale;
+                double binSize = hist.histo->GetXaxis()->GetBinWidth(1);
+                double entries = hist.histo->GetEntries();
+                double runLength = dataSet.GetTotalTimeInSeconds() / 3600.;  // in hours
+                double integral = hist.histo->Integral("width");
+
+                inputScale = Replace(inputScale, "binSize", DoubleToString(binSize));
+                inputScale = Replace(inputScale, "entries", DoubleToString(entries));
+                inputScale = Replace(inputScale, "runLength", DoubleToString(runLength));
+                inputScale = Replace(inputScale, "integral", DoubleToString(integral));
+
+                std::string scale = "1./(" + inputScale + ")";
+                hist.histo->Scale(StringToDouble(EvaluateExpression(scale)));  // -1 if 'scale' isn't valid
             }
 
             // Add histos to the THStack
@@ -878,6 +1017,12 @@ void TRestDataSetPlot::PrintMetadata() {
         for (auto& [key, posLabel] : panel.obsPos) {
             auto&& [obs, label, units] = key;
             RESTMetadata << "Label Observable " << obs << ", label " << label << ", units " << units
+                         << " Pos (" << posLabel.X() << ", " << posLabel.Y() << ")" << RESTendl;
+        }
+        RESTMetadata << "****************" << RESTendl;
+        for (auto& [key, posLabel] : panel.expPos) {
+            auto&& [obs, label, units] = key;
+            RESTMetadata << "Label Expression " << obs << ", label " << label << ", units " << units
                          << " Pos (" << posLabel.X() << ", " << posLabel.Y() << ")" << RESTendl;
         }
         RESTMetadata << "****************" << RESTendl;
