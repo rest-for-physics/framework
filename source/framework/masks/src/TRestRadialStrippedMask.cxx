@@ -169,7 +169,6 @@ Int_t TRestRadialStrippedMask::GetRegion(Double_t& x, Double_t& y) {
 	/// phi determines the region where the point is found
 	Int_t region = (Int_t) (phi/fStripsAngle);
 	region = 1 + region%fMaxRegions;
-	std::cout << "Phi: " << phi << " angle: " << fStripsAngle << " Region: " << region << std::endl;
 
 	Double_t angle = 0;
 	/// Checking if we hit an arm
