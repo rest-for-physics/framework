@@ -121,7 +121,7 @@ string REST_StringHelper::ReplaceMathematicalExpressions(string buffer, Int_t pr
     // we split the unit part and the expression part
     int pos = buffer.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ");
 
-	if( pos == string::npos ) pos = 0;
+    if (pos == string::npos) pos = 0;
 
     string unit = buffer.substr(pos, -1);
     string temp = buffer.substr(0, pos);
