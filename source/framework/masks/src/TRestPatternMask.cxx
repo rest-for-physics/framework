@@ -185,8 +185,8 @@ TCanvas* TRestPatternMask::DrawMonteCarlo(Int_t nSamples) {
     for (int n = 0; n < nSamples; n++) {
         Double_t xO = 2.5 * (rnd->Rndm() - 0.5) * fMaskRadius + fOffset.X();
         Double_t yO = 2.5 * (rnd->Rndm() - 0.5) * fMaskRadius + fOffset.Y();
-		Double_t x = xO;
-		Double_t y = yO;
+        Double_t x = xO;
+        Double_t y = yO;
 
         Int_t id = GetRegion(x, y);
 
