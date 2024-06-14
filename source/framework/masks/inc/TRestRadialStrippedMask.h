@@ -31,7 +31,7 @@ class TRestRadialStrippedMask : public TRestPatternMask {
     void Initialize() override;
 
     /// The periodity of the stripped structure in radians
-    Double_t fStripsAngle = TMath::Pi()/3;  //<
+    Double_t fStripsAngle = TMath::Pi() / 3;  //<
 
     /// The width of the stripped structure in mm
     Double_t fStripsThickness = 0.5;  //<

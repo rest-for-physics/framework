@@ -228,8 +228,8 @@ TCanvas* TRestPatternMask::DrawMonteCarlo(Int_t nSamples) {
     }
 
     gridGraphs[0]->GetXaxis()->SetLimits(-1.25 * fMaskRadius, 1.25 * fMaskRadius);
-    gridGraphs[0]->GetHistogram()->SetMaximum(1.25 * fMaskRadius );
-    gridGraphs[0]->GetHistogram()->SetMinimum(-1.25 * fMaskRadius );
+    gridGraphs[0]->GetHistogram()->SetMaximum(1.25 * fMaskRadius);
+    gridGraphs[0]->GetHistogram()->SetMinimum(-1.25 * fMaskRadius);
 
     gridGraphs[0]->GetXaxis()->SetTitle("X [mm]");
     gridGraphs[0]->GetXaxis()->SetTitleSize(0.04);

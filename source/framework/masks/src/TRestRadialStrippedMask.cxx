@@ -178,16 +178,15 @@ Int_t TRestRadialStrippedMask::GetRegion(Double_t& x, Double_t& y) {
 	Int_t region = (Int_t) (phi/fStripsAngle);
 	region = 2 + region%fMaxRegions;
 
-	Double_t angle = 0;
-	/// Checking if we hit an arm
-	while( angle < 2*TMath::Pi() )
-	{
-		if( point.Y() < fStripsThickness/2. && point.Y() > -fStripsThickness/2. && point.X() >= 0 )
-			return 0;
+    Double_t angle = 0;
+    /// Checking if we hit an arm
+    while (angle < 2 * TMath::Pi()) {
+        if (point.Y() < fStripsThickness / 2. && point.Y() > -fStripsThickness / 2. && point.X() >= 0)
+            return 0;
 
-		point = point.Rotate(fStripsAngle);
-		angle += fStripsAngle;
-	}
+        point = point.Rotate(fStripsAngle);
+        angle += fStripsAngle;
+    }
 
     return 1 + region % fModulus;
 }
