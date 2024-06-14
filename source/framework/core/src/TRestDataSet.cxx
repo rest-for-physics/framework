@@ -382,30 +382,40 @@ void TRestDataSet::GenerateDataSet() {
         ROOT::DisableImplicitMT();
 
     RESTInfo << "Initializing dataset" << RESTendl;
-    fDataSet = ROOT::RDataFrame("AnalysisTree", fFileSelection);
+    fDataFrame = ROOT::RDataFrame("AnalysisTree", fFileSelection);
 
     RESTInfo << "Making cuts" << RESTendl;
-    fDataSet = MakeCut(fCut);
+    fDataFrame = MakeCut(fCut);
 
     // Adding new user columns added to the dataset
     for (const auto& [cName, cExpression] : fColumnNameExpressions) {
         RESTInfo << "Adding column to dataset: " << cName << RESTendl;
         finalList.emplace_back(cName);
-        fDataSet = DefineColumn(cName, cExpression);
+        fDataFrame = DefineColumn(cName, cExpression);
     }
 
+    RegenerateTree(finalList);
+
+    RESTInfo << " - Dataset generated!" << RESTendl;
+}
+
+///////////////////////////////////////////////
+/// \brief It regenerates the tree so that it is an exact copy of the present DataFrame
+///
+void TRestDataSet::RegenerateTree(std::vector<std::string> finalList) {
     RESTInfo << "Generating snapshot." << RESTendl;
     std::string user = getenv("USER");
     std::string fOutName = "/tmp/rest_output_" + user + ".root";
-    fDataSet.Snapshot("AnalysisTree", fOutName, finalList);
+    if (!finalList.empty())
+        fDataFrame.Snapshot("AnalysisTree", fOutName, finalList);
+    else
+        fDataFrame.Snapshot("AnalysisTree", fOutName);
 
     RESTInfo << "Re-importing analysis tree." << RESTendl;
-    fDataSet = ROOT::RDataFrame("AnalysisTree", fOutName);
+    fDataFrame = ROOT::RDataFrame("AnalysisTree", fOutName);
 
     TFile* f = TFile::Open(fOutName.c_str());
     fTree = (TChain*)f->Get("AnalysisTree");
-
-    RESTInfo << " - Dataset generated!" << RESTendl;
 }
 
 ///////////////////////////////////////////////
@@ -518,13 +528,31 @@ std::vector<std::string> TRestDataSet::FileSelection() {
 }
 
 ///////////////////////////////////////////////
+/// \brief This method returns a RDataFrame node with the number of
+/// samples inside the dataset by selecting a range. It will not
+/// modify internally the dataset. See ApplyRange to modify internally
+/// the dataset.
+///
+ROOT::RDF::RNode TRestDataSet::Range(size_t from, size_t to) { return fDataFrame.Range(from, to); }
+
+///////////////////////////////////////////////
+/// \brief This method reduces the number of samples inside the
+/// dataset by selecting a range.
+///
+ROOT::RDF::RNode TRestDataSet::ApplyRange(size_t from, size_t to) {
+    fDataFrame = fDataFrame.Range(from, to);
+    RegenerateTree();
+    return fDataFrame;
+}
+
+///////////////////////////////////////////////
 /// \brief This function applies a TRestCut to the dataframe
 /// and returns a dataframe with the applied cuts. Note that
 /// the cuts are not applied directly to the dataframe on
-/// TRestDataSet, to do so you should do fDataSet = MakeCut(fCut);
+/// TRestDataSet, to do so you should do fDataFrame = MakeCut(fCut);
 ///
 ROOT::RDF::RNode TRestDataSet::MakeCut(const TRestCut* cut) {
-    auto df = fDataSet;
+    auto df = fDataFrame;
 
     if (cut == nullptr) return df;
 
@@ -562,6 +590,20 @@ ROOT::RDF::RNode TRestDataSet::MakeCut(const TRestCut* cut) {
 }
 
 ///////////////////////////////////////////////
+/// \brief It returns the number of entries found inside fDataFrame
+/// and prints out a warning if the number of entries inside the
+/// tree is not the same.
+///
+size_t TRestDataSet::GetEntries() {
+    auto nEntries = fDataFrame.Count();
+    if (*nEntries == (long long unsigned int)GetTree()->GetEntries()) return *nEntries;
+    RESTWarning << "TRestDataSet::GetEntries. Number of tree entries is not the same as RDataFrame entries."
+                << RESTendl;
+    RESTWarning << "Returning RDataFrame entries" << RESTendl;
+    return *nEntries;
+}
+
+///////////////////////////////////////////////
 /// \brief This function will add a new column to the RDataFrame using
 /// the same scheme as the usual RDF::Define method, but it will on top of
 /// that evaluate the values of any relevant quantities used.
@@ -574,7 +616,7 @@ ROOT::RDF::RNode TRestDataSet::MakeCut(const TRestCut* cut) {
 /// \endcode
 ///
 ROOT::RDF::RNode TRestDataSet::DefineColumn(const std::string& columnName, const std::string& formula) {
-    auto df = fDataSet;
+    auto df = fDataFrame;
 
     std::string evalFormula = formula;
     for (auto const& [name, properties] : fQuantity)
@@ -819,7 +861,7 @@ void TRestDataSet::InitFromConfigFile() {
 void TRestDataSet::Export(const std::string& filename, std::vector<std::string> excludeColumns) {
     RESTInfo << "Exporting dataset" << RESTendl;
 
-    std::vector<std::string> columns = fDataSet.GetColumnNames();
+    std::vector<std::string> columns = fDataFrame.GetColumnNames();
     if (!excludeColumns.empty()) {
         columns.erase(std::remove_if(columns.begin(), columns.end(),
                                      [&excludeColumns](std::string elem) {
@@ -831,10 +873,10 @@ void TRestDataSet::Export(const std::string& filename, std::vector<std::string> 
         RESTInfo << "Re-Generating snapshot." << RESTendl;
         std::string user = getenv("USER");
         std::string fOutName = "/tmp/rest_output_" + user + ".root";
-        fDataSet.Snapshot("AnalysisTree", fOutName, columns);
+        fDataFrame.Snapshot("AnalysisTree", fOutName, columns);
 
         RESTInfo << "Re-importing analysis tree." << RESTendl;
-        fDataSet = ROOT::RDataFrame("AnalysisTree", fOutName);
+        fDataFrame = ROOT::RDataFrame("AnalysisTree", fOutName);
 
         TFile* f = TFile::Open(fOutName.c_str());
         fTree = (TChain*)f->Get("AnalysisTree");
@@ -846,7 +888,7 @@ void TRestDataSet::Export(const std::string& filename, std::vector<std::string> 
             RESTInfo << "Re-Generating snapshot." << RESTendl;
             std::string user = getenv("USER");
             std::string fOutName = "/tmp/rest_output_" + user + ".root";
-            fDataSet.Snapshot("AnalysisTree", fOutName);
+            fDataFrame.Snapshot("AnalysisTree", fOutName);
 
             TFile* f = TFile::Open(fOutName.c_str());
             fTree = (TChain*)f->Get("AnalysisTree");
@@ -910,7 +952,7 @@ void TRestDataSet::Export(const std::string& filename, std::vector<std::string> 
         fprintf(f, "###\n");
         fprintf(f, "### Data starts here\n");
 
-        auto obsNames = fDataSet.GetColumnNames();
+        auto obsNames = fDataFrame.GetColumnNames();
         std::string obsListStr = "";
         for (const auto& l : obsNames) {
             if (!obsListStr.empty()) obsListStr += ":";
@@ -938,7 +980,7 @@ void TRestDataSet::Export(const std::string& filename, std::vector<std::string> 
 
         return;
     } else if (TRestTools::GetFileNameExtension(filename) == "root") {
-        fDataSet.Snapshot("AnalysisTree", filename);
+        fDataFrame.Snapshot("AnalysisTree", filename);
 
         TFile* f = TFile::Open(filename.c_str(), "UPDATE");
         std::string name = this->GetName();
@@ -1038,7 +1080,7 @@ void TRestDataSet::Import(const std::string& fileName) {
     else
         ROOT::DisableImplicitMT();
 
-    fDataSet = ROOT::RDataFrame("AnalysisTree", fileName);
+    fDataFrame = ROOT::RDataFrame("AnalysisTree", fileName);
 
     fTree = (TChain*)file->Get("AnalysisTree");
 }
@@ -1104,7 +1146,7 @@ void TRestDataSet::Import(std::vector<std::string> fileNames) {
     }
 
     RESTInfo << "Opening list of files. First file: " << fileNames[0] << RESTendl;
-    fDataSet = ROOT::RDataFrame("AnalysisTree", fileNames);
+    fDataFrame = ROOT::RDataFrame("AnalysisTree", fileNames);
 
     if (fTree != nullptr) {
         delete fTree;
