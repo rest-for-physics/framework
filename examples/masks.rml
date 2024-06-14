@@ -19,8 +19,8 @@
 		<parameter name="offset" value="(0,0)cm" />
 		<parameter name="rotationAngle" value="30degrees" />
 
-		<parameter name="initialRadius" value="10cm" />
-		<parameter name="internalRegionRadius" value="7.5cm" />
+		<parameter name="initialRadius" value="5.4cm" />
+		<parameter name="internalRegionRadius" value="0cm" />
 
 		<parameter name="stripsAngle" value="60degrees" />
 		<parameter name="stripsThickness" value="0.7cm" />
