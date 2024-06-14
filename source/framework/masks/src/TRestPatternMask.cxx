@@ -114,6 +114,7 @@ TRestPatternMask::~TRestPatternMask() {}
 /// to shift.
 ///
 Int_t TRestPatternMask::ApplyCommonMaskTransformation(Double_t& x, Double_t& y) {
+    if (fMaskRadius > 0 && x * x + y * y > fMaskRadius * fMaskRadius) return 0;
 
     TVector2 pos(x, y);
 
@@ -122,8 +123,6 @@ Int_t TRestPatternMask::ApplyCommonMaskTransformation(Double_t& x, Double_t& y) 
 
     x = pos.X();
     y = pos.Y();
-
-    if (fMaskRadius > 0 && x * x + y * y > fMaskRadius * fMaskRadius) return 0;
 
     return 1;
 }
