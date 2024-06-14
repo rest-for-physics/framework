@@ -163,12 +163,20 @@ void TRestRadialStrippedMask::Initialize() {
 Int_t TRestRadialStrippedMask::GetRegion(Double_t& x, Double_t& y) {
     if (TRestPatternMask::GetRegion(x, y)) return 0;
 
+    Double_t d = TMath::Sqrt(x * x + y * y);
+
+    if (d < fInitialRadius) {
+        if (fInternalRegionRadius > 0 && d < fInternalRegionRadius) return 1;
+
+        return 0;
+    }
+
 	TVector2 point(x, y);
 	Double_t phi = point.Phi();
 
 	/// phi determines the region where the point is found
 	Int_t region = (Int_t) (phi/fStripsAngle);
-	region = 1 + region%fMaxRegions;
+	region = 2 + region%fMaxRegions;
 
 	Double_t angle = 0;
 	/// Checking if we hit an arm

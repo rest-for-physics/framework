@@ -36,6 +36,12 @@ class TRestRadialStrippedMask : public TRestPatternMask {
     /// The width of the stripped structure in mm
     Double_t fStripsThickness = 0.5;  //<
 
+    /// The spacers structure will be effective from this radius, in mm. Default is from 20 mm.
+    Double_t fInitialRadius = 20.;  //<
+
+    /// Radius of an internal circular region defined inside the fInitialRadius. If 0, there will be no region
+    Double_t fInternalRegionRadius = 0.;  //<
+
     /// It defines the maximum number of cells/regions in each axis
     Int_t fModulus = 10;
 
