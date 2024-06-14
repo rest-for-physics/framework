@@ -183,10 +183,10 @@ TCanvas* TRestPatternMask::DrawMonteCarlo(Int_t nSamples) {
     TRandom3* rnd = new TRandom3(0);
 
     for (int n = 0; n < nSamples; n++) {
-        Double_t xO = 2.5 * (rnd->Rndm() - 0.5) * fMaskRadius + fOffset.X();
-        Double_t yO = 2.5 * (rnd->Rndm() - 0.5) * fMaskRadius + fOffset.Y();
-		Double_t x = xO;
-		Double_t y = yO;
+        Double_t xO = 2.5 * (rnd->Rndm() - 0.5) * fMaskRadius;
+        Double_t yO = 2.5 * (rnd->Rndm() - 0.5) * fMaskRadius;
+        Double_t x = xO;
+        Double_t y = yO;
 
         Int_t id = GetRegion(x, y);
 
@@ -227,9 +227,9 @@ TCanvas* TRestPatternMask::DrawMonteCarlo(Int_t nSamples) {
         nGraphs++;
     }
 
-    gridGraphs[0]->GetXaxis()->SetLimits(-1.25 * fMaskRadius + fOffset.X(), 1.25 * fMaskRadius + fOffset.X());
-    gridGraphs[0]->GetHistogram()->SetMaximum(1.25 * fMaskRadius + fOffset.Y());
-    gridGraphs[0]->GetHistogram()->SetMinimum(-1.25 * fMaskRadius + fOffset.Y());
+    gridGraphs[0]->GetXaxis()->SetLimits(-1.25 * fMaskRadius, 1.25 * fMaskRadius);
+    gridGraphs[0]->GetHistogram()->SetMaximum(1.25 * fMaskRadius );
+    gridGraphs[0]->GetHistogram()->SetMinimum(-1.25 * fMaskRadius );
 
     gridGraphs[0]->GetXaxis()->SetTitle("X [mm]");
     gridGraphs[0]->GetXaxis()->SetTitleSize(0.04);
