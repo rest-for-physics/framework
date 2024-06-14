@@ -112,7 +112,7 @@ class TRestDataSet : public TRestMetadata {
     Bool_t fExternal = false;  //<
 
     /// The resulting RDF::RNode object after initialization
-    ROOT::RDF::RNode fDataSet = ROOT::RDataFrame(0);  //!
+    ROOT::RDF::RNode fDataFrame = ROOT::RDataFrame(0);  //!
 
     /// A pointer to the generated tree
     TChain* fTree = nullptr;  //!
@@ -122,12 +122,14 @@ class TRestDataSet : public TRestMetadata {
    protected:
     virtual std::vector<std::string> FileSelection();
 
+    void RegenerateTree(std::vector<std::string> finalList = {});
+
    public:
     /// Gives access to the RDataFrame
     ROOT::RDF::RNode GetDataFrame() const {
         if (!fExternal && fTree == nullptr)
             RESTWarning << "DataFrame has not been yet initialized" << RESTendl;
-        return fDataSet;
+        return fDataFrame;
     }
 
     void EnableMultiThreading(Bool_t enable = true) { fMT = enable; }
@@ -152,7 +154,7 @@ class TRestDataSet : public TRestMetadata {
     }
 
     /// Number of variables (or observables)
-    size_t GetNumberOfColumns() { return fDataSet.GetColumnNames().size(); }
+    size_t GetNumberOfColumns() { return fDataFrame.GetColumnNames().size(); }
 
     /// Number of variables (or observables)
     size_t GetNumberOfBranches() { return GetNumberOfColumns(); }
@@ -187,7 +189,7 @@ class TRestDataSet : public TRestMetadata {
 
     void SetTotalTimeInSeconds(Double_t seconds) { fTotalDuration = seconds; }
     void SetDataFrame(const ROOT::RDF::RNode& dS) {
-        fDataSet = dS;
+        fDataFrame = dS;
         fExternal = true;
     }
 
@@ -198,7 +200,11 @@ class TRestDataSet : public TRestMetadata {
     void Export(const std::string& filename, std::vector<std::string> excludeColumns = {});
 
     ROOT::RDF::RNode MakeCut(const TRestCut* cut);
+    ROOT::RDF::RNode ApplyRange(size_t from, size_t to);
+    ROOT::RDF::RNode Range(size_t from, size_t to);
     ROOT::RDF::RNode DefineColumn(const std::string& columnName, const std::string& formula);
+
+    size_t GetEntries();
 
     void PrintMetadata() override;
     void Initialize() override;
@@ -209,6 +215,6 @@ class TRestDataSet : public TRestMetadata {
     TRestDataSet(const char* cfgFileName, const std::string& name = "");
     ~TRestDataSet();
 
-    ClassDefOverride(TRestDataSet, 7);
+    ClassDefOverride(TRestDataSet, 8);
 };
 #endif
