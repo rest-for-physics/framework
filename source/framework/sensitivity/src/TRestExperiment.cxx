@@ -131,8 +131,7 @@ void TRestExperiment::SetExperimentalDataSet(const std::string& filename) {
 
     if (!fSignal || !fBackground) {
         RESTWarning << "TRestExperiment::SetExperimentalDataSet. Signal and background components must "
-                       "be available before atempt to load experimental data"
-                    << RESTendl;
+                       "be available before atempt to load experimental data" << RESTendl;
         fDataReady = false;
         return;
     }
@@ -141,8 +140,7 @@ void TRestExperiment::SetExperimentalDataSet(const std::string& filename) {
     for (const auto& v : fSignal->GetVariables()) {
         if (std::find(columns.begin(), columns.end(), v) == columns.end()) {
             RESTError << "TRestExperiment::SetExperimentalDataSetFile a component variable was not found in "
-                         "the dataset!"
-                      << RESTendl;
+                         "the dataset!" << RESTendl;
             fDataReady = false;
             return;
         }
@@ -173,7 +171,7 @@ void TRestExperiment::InitFromConfigFile() {
 
     auto ele = GetElement("addComponent");
     if (ele != nullptr) {
-        std::string filename = GetParameter("filename", ele, "");
+        std::string filename = SearchFile(GetParameter("filename", ele, ""));
         std::string component = GetParameter("component", ele, "");
 
         if (filename.empty())
@@ -221,7 +219,7 @@ void TRestExperiment::InitFromConfigFile() {
 
     if (!fSignal) {
         RESTError << "TRestExperiment : " << GetName() << RESTendl;
-        RESTError << "There was a problem initiazing the signal component!" << RESTendl;
+        RESTError << "There was a problem initializing the signal component!" << RESTendl;
         return;
     }
 
@@ -272,9 +270,9 @@ void TRestExperiment::PrintMetadata() {
     RESTMetadata << "Random seed : " << fSeed << RESTendl;
     RESTMetadata << " " << RESTendl;
     if (fExposureTime > 0) {
-        RESTMetadata << " - Exposure time : " << fExposureTime * units("s") << " seconds" << RESTendl;
-        RESTMetadata << " - Exposure time : " << fExposureTime * units("hr") << " hours" << RESTendl;
-        RESTMetadata << " - Exposure time : " << fExposureTime * units("day") << " days" << RESTendl;
+        RESTMetadata << " - Exposure time : " << fExposureTime* units("s") << " seconds" << RESTendl;
+        RESTMetadata << " - Exposure time : " << fExposureTime* units("hr") << " hours" << RESTendl;
+        RESTMetadata << " - Exposure time : " << fExposureTime* units("day") << " days" << RESTendl;
     }
 
     if (fSignal) RESTMetadata << " - Signal component : " << fSignal->GetName() << RESTendl;
