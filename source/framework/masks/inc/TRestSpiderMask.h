@@ -28,7 +28,6 @@
 /// A class used to define and generate a spider structure mask
 class TRestSpiderMask : public TRestPatternMask {
    private:
-    void Initialize() override;
     /// The angle between two consecutive spider arms measured in radians.
     Double_t fArmsSeparationAngle = 0;  //<
 
@@ -48,6 +47,8 @@ class TRestSpiderMask : public TRestPatternMask {
     std::vector<std::pair<Double_t, Double_t>> fNegativeRanges;  //!
 
    public:
+    void Initialize() override;
+
     void GenerateSpider();
 
     virtual Int_t GetRegion(Double_t& x, Double_t& y) override;
