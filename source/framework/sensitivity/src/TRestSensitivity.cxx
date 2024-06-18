@@ -191,7 +191,7 @@ void TRestSensitivity::ExportAveragedCurve(std::string fname, Double_t factor, D
 
     int m = 0;
     for (const auto& node : fParameterizationNodes) {
-        outputFile << node << " " << factor * TMath::Power(curve[m], power) << std::endl;
+        outputFile << node << " " << factor* TMath::Power(curve[m], power) << std::endl;
         m++;
     }
 
@@ -221,7 +221,7 @@ void TRestSensitivity::ExportCurve(std::string fname, Double_t factor, Double_t 
 
     int m = 0;
     for (const auto& node : fParameterizationNodes) {
-        outputFile << node << " " << factor * TMath::Power(curve[m], power) << std::endl;
+        outputFile << node << " " << factor* TMath::Power(curve[m], power) << std::endl;
         m++;
     }
 
@@ -236,6 +236,7 @@ void TRestSensitivity::ExportCurve(std::string fname, Double_t factor, Double_t 
 Double_t TRestSensitivity::GetCoupling(Double_t node, Double_t sigma, Double_t precision) {
     Double_t Chi2_0 = 0;
     for (const auto& exp : fExperiments) {
+
         Chi2_0 += -2 * UnbinnedLogLikelihood(exp, node, 0);
     }
 
@@ -275,8 +276,6 @@ Double_t TRestSensitivity::UnbinnedLogLikelihood(const TRestExperiment* experime
     if (nd >= 0)
         experiment->GetSignal()->SetActiveNode(nd);
     else {
-        RESTWarning << "Node : " << node << " not found in signal : " << experiment->GetSignal()->GetName()
-                    << RESTendl;
         return 0.0;
     }
 
