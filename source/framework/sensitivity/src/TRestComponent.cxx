@@ -62,7 +62,7 @@ TRestComponent::TRestComponent() {}
 /// The default behaviour is that the config file must be specified with
 /// full path, absolute or relative.
 ///
-/// \param cfgFileName A const char* giving the path to an RML file.
+// \param cfgFileName A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
 /// corresponding TRestAxionMagneticField section inside the RML.
 ///
@@ -103,6 +103,9 @@ void TRestComponent::Initialize() {
     } else {
         if (!fParameterizationNodes.empty()) FillHistograms();
     }
+
+    fCachedRates.clear();
+    if (fNodeDensity.size() > 0) fCachedRates.resize(fNodeDensity.size(), 0.0);
 }
 
 /////////////////////////////////////////////
@@ -325,6 +328,10 @@ Double_t TRestComponent::GetRawRate(std::vector<Double_t> point) {
 /// The result will be returned in s-1.
 ///
 Double_t TRestComponent::GetTotalRate() {
+    if (fCachedRates.size() == 0 && fNodeDensity.size() > 0) fCachedRates.resize(fNodeDensity.size(), 0.0);
+    if (fActiveNode >= 0 && (Int_t)fCachedRates.size() > fActiveNode && fCachedRates[fActiveNode] > 0)
+        return fCachedRates[fActiveNode];
+
     THnD* dHist = GetDensityForActiveNode();
     if (!dHist) return 0;
 
@@ -342,6 +349,8 @@ Double_t TRestComponent::GetTotalRate() {
         }
         if (!skip) integral += GetRate(point);
     }
+
+    if ((Int_t)fCachedRates.size() > fActiveNode) fCachedRates[fActiveNode] = integral;
 
     return integral;
 }
@@ -389,8 +398,7 @@ ROOT::RVecD TRestComponent::GetRandom() {
     if (!GetDensity()) {
         for (size_t n = 0; n < GetDimensions(); n++) result.push_back(0);
         RESTWarning << "TRestComponent::GetRandom. Component might not be initialized! Use "
-                       "TRestComponent::Initialize()."
-                    << RESTendl;
+                       "TRestComponent::Initialize()." << RESTendl;
         return result;
     }
 
@@ -420,11 +428,10 @@ ROOT::RDF::RNode TRestComponent::GetMonteCarloDataFrame(Int_t N) {
     /* Excluding Rndm from df */
     std::vector<std::string> columns = df.GetColumnNames();
     std::vector<std::string> excludeColumns = {"Rndm"};
-    columns.erase(std::remove_if(columns.begin(), columns.end(),
-                                 [&excludeColumns](std::string elem) {
-                                     return std::find(excludeColumns.begin(), excludeColumns.end(), elem) !=
-                                            excludeColumns.end();
-                                 }),
+    columns.erase(std::remove_if(columns.begin(), columns.end(), [&excludeColumns](std::string elem) {
+                      return std::find(excludeColumns.begin(), excludeColumns.end(), elem) !=
+                             excludeColumns.end();
+                  }),
                   columns.end());
 
     std::string user = getenv("USER");
@@ -450,15 +457,13 @@ TCanvas* TRestComponent::DrawComponent(std::vector<std::string> drawVariables,
                                        TString drawOption) {
     if (drawVariables.size() > 2 || drawVariables.size() == 0) {
         RESTError << "TRestComponent::DrawComponent. The number of variables to be drawn must "
-                     "be 1 or 2!"
-                  << RESTendl;
+                     "be 1 or 2!" << RESTendl;
         return fCanvas;
     }
 
     if (scanVariables.size() > 2 || scanVariables.size() == 0) {
         RESTError << "TRestComponent::DrawComponent. The number of variables to be scanned must "
-                     "be 1 or 2!"
-                  << RESTendl;
+                     "be 1 or 2!" << RESTendl;
         return fCanvas;
     }
 
