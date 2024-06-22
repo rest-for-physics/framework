@@ -76,7 +76,10 @@ TRestSensitivity::TRestSensitivity(const char* cfgFileName, const std::string& n
 /// \brief It will initialize the data frame with the filelist and column names
 /// (or observables) that have been defined by the user.
 ///
-void TRestSensitivity::Initialize() { SetSectionName(this->ClassName()); }
+void TRestSensitivity::Initialize() {
+    SetSectionName(this->ClassName());
+    ExtractExperimentParameterizationNodes();
+}
 
 ///////////////////////////////////////////////
 /// \brief It will return a value of the coupling, g4, such that (chi-chi0) gets
@@ -543,7 +546,7 @@ TCanvas* TRestSensitivity::DrawLevelCurves() {
     graphs[0]->Draw("AL");
 
     TGraph* randomGr = new TGraph();
-    std::vector<Double_t> randomCurve = fCurves[13];
+    std::vector<Double_t> randomCurve = fCurves[GetNumberOfCurves() / 2];
     for (size_t m = 0; m < randomCurve.size(); m++)
         randomGr->SetPoint(randomGr->GetN(), fParameterizationNodes[m],
                            TMath::Sqrt(TMath::Sqrt(randomCurve[m])));
@@ -571,7 +574,7 @@ TCanvas* TRestSensitivity::DrawLevelCurves() {
 
     for (unsigned int n = 1; n < graphs.size(); n++) graphs[n]->Draw("Lsame");
     randomGr->Draw("LPsame");
-    // centralGr->Draw("Lsame");
+    //   centralGr->Draw("Lsame");
 
     return fCanvas;
 }
@@ -617,4 +620,14 @@ void TRestSensitivity::PrintMetadata() {
     RESTMetadata << " You may access experiment info using TRestSensitivity::GetExperiment(n)" << RESTendl;
 
     RESTMetadata << "----" << RESTendl;
+}
+
+Int_t TRestSensitivity::Write(const char* name, Int_t option, Int_t bufsize) {
+    if (!fSaveExperiments) {
+        RESTInfo << "TRestSensitivity::Write. Removing experiments before writting to disk." << RESTendl;
+        RESTInfo << "Use TRestSensitivity::SaveExperiments( true ) to change this behaviour" << RESTendl;
+        fExperiments.clear();
+    }
+
+    return TRestMetadata::Write(name, option, bufsize);
 }
