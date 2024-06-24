@@ -23,7 +23,7 @@
 //////////////////////////////////////////////////////////////////////////
 /// The TRestEventSelectionProcess allows procesing of selected events only.
 ///
-/// There are two ways of selecting events:
+/// There are three ways of selecting events:
 ///
 /// * Providing a txt file with the IDs of the events to be processed (fileWithIDs).
 /// It reads the list, if an event is not in the list it returns NULL,
@@ -31,6 +31,11 @@
 ///
 /// * Providing a root file (fileWithIDs) and the conditions to select the events (conditions).
 /// Only events that satisfy the conditions will be processed.
+///
+/// * Not providing any fileWithIDs (empty string). In this case, the process will use the TRestAnalysisTree
+/// of the processing file itself to evaluate the conditions and select the events. Make sure that the
+/// analysis processes that generate the obervables needed for the conditions are executed before this
+/// process. See TRestAnalysisTree::EvaluateCuts for more information on conditions format.
 ///
 /// Examples for rml files:
 /// <addProcess type="TRestEventSelectionProcess" name="evSelection" fileWithIDs="/path/to/file/IDs.txt"
@@ -41,7 +46,7 @@
 ///
 /// <hr>
 ///
-/// \warning **? REST is under continous development.** This documentation
+/// \warning ** REST is under continous development.** This documentation
 /// is offered to you by the REST community. Your HELP is needed to keep this code
 /// up to date. Your feedback will be worth to support this software, please report
 /// any problems/suggestions you may find while using it at [The REST Framework
@@ -66,9 +71,13 @@
 /// 2021-Mar: Read IDs from root with conditions
 ///              David Diez
 ///
+/// 2024-Jun: Use of the processing file itself (no need for external fileWithIDs)
+///              Alvaro Ezquerro
+///
 /// \class      TRestEventSelectionProcess
 /// \author     Javier Galan
 /// \author     David Diez
+/// \author     Alvaro Ezquerro
 ///
 /// <hr>
 ///
@@ -115,6 +124,8 @@ void TRestEventSelectionProcess::InitProcess() {
         TRestRun* run = new TRestRun(fFileWithIDs);
         fList = run->GetEventIdsWithConditions(fConditions);
         delete run;
+    } else {
+        RESTDebug << "TRestEventSelectionProcess: using the processing file itself." << RESTendl;
     }
 }
 
@@ -123,6 +134,10 @@ void TRestEventSelectionProcess::InitProcess() {
 ///
 TRestEvent* TRestEventSelectionProcess::ProcessEvent(TRestEvent* inputEvent) {
     fEvent = inputEvent;
+
+    if (fFileWithIDs.empty()) {
+        if (this->GetAnalysisTree()->EvaluateCuts(fConditions)) return fEvent;
+    }
 
     for (unsigned int i = 0; i < fList.size(); i++) {
         if (fList[i] == fEvent->GetID()) {
@@ -140,9 +155,7 @@ void TRestEventSelectionProcess::PrintMetadata() {
     BeginPrintProcess();
 
     RESTMetadata << "File with IDs: " << fFileWithIDs << RESTendl;
-    if (fFileWithIDs.substr(fFileWithIDs.length() - 4) == "root") {
-        RESTMetadata << "Conditions: " << fConditions << RESTendl;
-    }
+    RESTMetadata << "Conditions: " << fConditions << RESTendl;
 
     EndPrintProcess();
 }
