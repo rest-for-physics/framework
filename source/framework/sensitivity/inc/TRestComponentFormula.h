@@ -35,7 +35,7 @@ class TRestComponentFormula : public TRestComponent {
     std::vector<TFormula> fFormulas;
 
     /// The formulas should be expressed in the following units
-    std::string fUnits = "cm^-2*keV^-1";  //<
+    std::string fFormulaUnits = "cm^-2*keV^-1";  //<
 
    protected:
     void InitFromConfigFile() override;

@@ -286,6 +286,10 @@ class TRestMetadata : public TNamed {
 
     inline Bool_t isCleanState() const { return fCleanState; }
 
+    UInt_t GetVersionMajor() const;
+    UInt_t GetVersionMinor() const;
+    UInt_t GetVersionPatch() const;
+
     Int_t GetVersionCode();
     /// Returns a std::string with the path used for data storage
     inline TString GetDataPath() {
