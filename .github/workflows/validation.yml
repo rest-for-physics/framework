@@ -68,7 +68,7 @@ jobs:
           restRoot -b -q
       - name: Cache framework installation
         id: framework-install-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
           path: ${{ env.REST_PATH }}
@@ -91,7 +91,7 @@ jobs:
           repository: rest-for-physics/framework
           path: framework
       - name: Restore cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: framework-install-cache
         with:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
@@ -114,7 +114,7 @@ jobs:
           repository: rest-for-physics/framework
           path: framework
       - name: Restore cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: framework-install-cache
         with:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
@@ -138,7 +138,7 @@ jobs:
     needs: [ framework-install ]
     steps:
       - name: Restore cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: framework-install-cache
         with:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
@@ -164,7 +164,7 @@ jobs:
           cd framework
           ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
       - name: Restore cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: framework-install-cache
         with:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
@@ -208,7 +208,7 @@ jobs:
           cd framework
           ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
       - name: Restore cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: framework-install-cache
         with:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
@@ -239,7 +239,7 @@ jobs:
           cd framework
           ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
       - name: Restore cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: framework-install-cache
         with:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
@@ -292,7 +292,7 @@ jobs:
           cd framework
           ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
       - name: Restore cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: framework-install-cache
         with:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
@@ -393,7 +393,7 @@ jobs:
           restRoot -b -q
       - name: Cache framework installation
         id: framework-install-cache-reference
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
           path: ${{ env.REST_PATH }}
@@ -414,7 +414,7 @@ jobs:
           cd framework
           ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
       - name: Restore cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: framework-install-cache-reference
         with:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
