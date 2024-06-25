@@ -123,7 +123,7 @@ void TRestEventSelectionProcess::InitProcess() {
         }
     } else if (TRestTools::GetFileNameExtension(fFileWithIDs) == "root") {
         TRestRun run(fFileWithIDs);
-        run.GetEventIdsWithConditions(fConditions);
+        fList = run.GetEventIdsWithConditions(fConditions);
     } else {
         RESTDebug << "TRestEventSelectionProcess: using the processing file itself." << RESTendl;
     }
