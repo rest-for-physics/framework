@@ -85,6 +85,7 @@
 #include "TRestEventSelectionProcess.h"
 
 using namespace std;
+
 ClassImp(TRestEventSelectionProcess);
 
 ///////////////////////////////////////////////
@@ -121,9 +122,8 @@ void TRestEventSelectionProcess::InitProcess() {
             File.close();
         }
     } else if (TRestTools::GetFileNameExtension(fFileWithIDs) == "root") {
-        TRestRun* run = new TRestRun(fFileWithIDs);
-        fList = run->GetEventIdsWithConditions(fConditions);
-        delete run;
+        TRestRun run(fFileWithIDs);
+        run.GetEventIdsWithConditions(fConditions);
     } else {
         RESTDebug << "TRestEventSelectionProcess: using the processing file itself." << RESTendl;
     }
@@ -136,11 +136,13 @@ TRestEvent* TRestEventSelectionProcess::ProcessEvent(TRestEvent* inputEvent) {
     fEvent = inputEvent;
 
     if (fFileWithIDs.empty()) {
-        if (this->GetAnalysisTree()->EvaluateCuts(fConditions)) return fEvent;
+        if (this->GetAnalysisTree()->EvaluateCuts(fConditions)) {
+            return fEvent;
+        }
     }
 
-    for (unsigned int i = 0; i < fList.size(); i++) {
-        if (fList[i] == fEvent->GetID()) {
+    for (auto id : fList) {
+        if (id == fEvent->GetID()) {
             return fEvent;
         }
     }
