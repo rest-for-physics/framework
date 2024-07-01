@@ -73,7 +73,7 @@ jobs:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
           path: ${{ env.REST_PATH }}
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rest-install
           path: ${{ env.REST_PATH }}
@@ -259,7 +259,7 @@ jobs:
           restRoot -b -q ValidateDetectorParams.C'("Hits_01928.root")'
           python3 validateStreamer.py
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: TREXHits
           path: framework/pipeline/trex/Hits_01928.root
@@ -303,7 +303,7 @@ jobs:
           cd ${{ env.REST_PATH }}/examples
           restManager --c saveMetadataFile.rml --o meta.root
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Metadata
           path: ${{ env.REST_PATH }}/examples/meta.root
@@ -315,7 +315,7 @@ jobs:
           restG4 NLDBD.rml
           restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: NLDBD
           path: ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root
@@ -330,7 +330,7 @@ jobs:
           restManager --c g4EvSelectionIDsFromFile.rml --f Run00001_NLDBD_Test_g4Analysis.root
           restRoot -b -q ValidateIDsFromFile.C'("Run00001_NLDBD_Test_EvSelectionIDsFromFile.root")'
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: EventSelection
           path: framework/pipeline/selection/IDs.txt
@@ -344,7 +344,7 @@ jobs:
           export REST_FOIL=1
           restG4 alphas.rml
       #      - name: Upload Artifacts
-      #        uses: actions/upload-artifact@v3
+      #        uses: actions/upload-artifact@v4
       #        with:
       #          name: Alphas
       #          path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
@@ -360,7 +360,7 @@ jobs:
           restManager --c processing.rml --f ../restG4/08.Alphas/data/Run_5MeV_1um.root
           restRoot -b -q Validate.C'("data/Response_5MeV_1um.root")'
       #       - name: Upload Artifacts
-      #         uses: actions/upload-artifact@v3
+      #         uses: actions/upload-artifact@v4
       #         with:
       #           name: AlphaTrack
       #           path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
@@ -425,7 +425,7 @@ jobs:
           cd ${{ env.REST_PATH }}/examples
           restManager --c saveMetadataFile.rml --o meta.root
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MetadataRef
           path: ${{ env.REST_PATH }}/examples/meta.root
@@ -437,7 +437,7 @@ jobs:
           restG4 NLDBD.rml
           restRoot -b -q Validate.C'("Run00001_NLDBD_Test.root")'
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: NLDBDRef
           path: ${{ env.REST_PATH }}/examples/restG4/01.NLDBD/Run00001_NLDBD_Test.root
@@ -452,7 +452,7 @@ jobs:
           restManager --c g4EvSelectionIDsFromFile.rml --f Run00001_NLDBD_Test_g4Analysis.root
           restRoot -b -q ValidateIDsFromFile.C'("Run00001_NLDBD_Test_EvSelectionIDsFromFile.root")'
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: EventSelectionRef
           path: framework/pipeline/selection/IDs.txt
@@ -477,7 +477,7 @@ jobs:
           export REST_FOIL=1
           restG4 alphas.rml
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: AlphasRef
           path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
@@ -493,7 +493,7 @@ jobs:
           restManager --c processing.rml --f ../restG4/08.Alphas/data/Run_5MeV_1um.root
           restRoot -b -q Validate.C'("data/Response_5MeV_1um.root")'
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: AlphaTrack
           path: ${{ env.REST_PATH }}/examples/restG4/08.Alphas/data/Run_5MeV_1um.root
