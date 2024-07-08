@@ -228,6 +228,13 @@
 /// not exactly the same, then a warning output message will be prompted.
 /// - **last**: It will simply register the value of the metadata member
 /// from the last file in the list of selected files.
+/// - **append**: It will append the metadata member value to the previous
+/// value. The user can specify the appender string after the `append`
+/// keyword. If no appender is given, then an empty string will be used.
+/// It will check if the value is already in the string and not append it
+/// if it is. Use _extend_ if you want to force the append.
+/// - **extend**: same as _append_ but it will not check if the value is
+/// already in the string.
 ///
 /// ### Adding a new column based on relevant quantities
 ///
@@ -513,6 +520,26 @@ std::vector<std::string> TRestDataSet::FileSelection() {
             }
 
             if (properties.strategy == "last") properties.value = value;
+
+            if (properties.strategy.find("append") != std::string::npos) {
+                // Get appender from "append" til the end of string. E.g. "append," -> "," or "append" -> ""
+                std::string appender = properties.strategy.substr(properties.strategy.find("append") + 6);
+                if (properties.value.empty())
+                    properties.value = value;
+                else
+                    // do not append if value already contains the value to append
+                    if (properties.value.find(value) == std::string::npos)
+                        properties.value += appender + value;
+            }
+
+            if (properties.strategy.find("extend") != std::string::npos) {
+                // Get appender from "extend" til the end of string. E.g. "extend," -> "," or "extend" -> ""
+                std::string appender = properties.strategy.substr(properties.strategy.find("extend") + 6);
+                if (properties.value.empty())
+                    properties.value = value;
+                else
+                    properties.value += appender + value;
+            }
         }
 
         if (run.GetStartTimestamp() < fStartTime) fStartTime = run.GetStartTimestamp();
