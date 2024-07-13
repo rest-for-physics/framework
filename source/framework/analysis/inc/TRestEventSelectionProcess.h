@@ -24,17 +24,16 @@
 #define RestProcess_TRestEventSelectionProcess
 
 #include <TH1D.h>
+#include <TRestEventProcess.h>
 
 #include <iostream>
-
-#include "TRestEventProcess.h"
 
 //! A template process to serve as an example to create new TRestRawSignalEventProcess
 class TRestEventSelectionProcess : public TRestEventProcess {
    private:
     TRestEvent* fEvent;  //!
-    std::string fFileWithIDs = "";
-    std::string fConditions = "";
+    std::string fFileWithIDs;
+    std::string fConditions;
     std::vector<Int_t> fList;
 
     /// A list with the event ids that have been selected.
