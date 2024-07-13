@@ -27,6 +27,12 @@ if (${REST_G4} MATCHES "ON")
     )
 endif ()
 
+set(loadLCG "")
+if( ${REST_LCG} MATCHES "ON" )
+    set(loadG4
+		"\# REST_LCG was enabled. We load LCG_104 environment.\nsource /cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-el9-gcc11-opt/setup.sh\n\n")
+endif()
+
 set(loadMPFR "")
 if (DEFINED MPFR_PATH)
     set(loadMPFR "export LD_LIBRARY_PATH=${MPFR_PATH}/lib:\$LD_LIBRARY_PATH")
@@ -112,6 +118,7 @@ if [[ -f \\\"${thisROOT}\\\" ]]; then
     source ${thisROOT}
 fi
 
+${loadLCG}
 ${loadG4}
 ${loadMPFR}
 ${loadCRY}
