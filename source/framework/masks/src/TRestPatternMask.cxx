@@ -168,7 +168,7 @@ TCanvas* TRestPatternMask::DrawMonteCarlo(Int_t nSamples) {
         fCanvas = NULL;
     }
     fCanvas = new TCanvas("canv", "This is the canvas title", 1200, 1200);
-	fCanvas->SetRealAspectRatio();
+    fCanvas->SetRealAspectRatio();
     fCanvas->Draw();
 
     TPad* pad1 = new TPad("pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97);

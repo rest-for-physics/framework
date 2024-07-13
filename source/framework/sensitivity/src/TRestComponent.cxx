@@ -398,7 +398,8 @@ ROOT::RVecD TRestComponent::GetRandom() {
     if (!GetDensity()) {
         for (size_t n = 0; n < GetDimensions(); n++) result.push_back(0);
         RESTWarning << "TRestComponent::GetRandom. Component might not be initialized! Use "
-                       "TRestComponent::Initialize()." << RESTendl;
+                       "TRestComponent::Initialize()."
+                    << RESTendl;
         return result;
     }
 
@@ -428,10 +429,11 @@ ROOT::RDF::RNode TRestComponent::GetMonteCarloDataFrame(Int_t N) {
     /* Excluding Rndm from df */
     std::vector<std::string> columns = df.GetColumnNames();
     std::vector<std::string> excludeColumns = {"Rndm"};
-    columns.erase(std::remove_if(columns.begin(), columns.end(), [&excludeColumns](std::string elem) {
-                      return std::find(excludeColumns.begin(), excludeColumns.end(), elem) !=
-                             excludeColumns.end();
-                  }),
+    columns.erase(std::remove_if(columns.begin(), columns.end(),
+                                 [&excludeColumns](std::string elem) {
+                                     return std::find(excludeColumns.begin(), excludeColumns.end(), elem) !=
+                                            excludeColumns.end();
+                                 }),
                   columns.end());
 
     std::string user = getenv("USER");
@@ -457,13 +459,15 @@ TCanvas* TRestComponent::DrawComponent(std::vector<std::string> drawVariables,
                                        TString drawOption) {
     if (drawVariables.size() > 2 || drawVariables.size() == 0) {
         RESTError << "TRestComponent::DrawComponent. The number of variables to be drawn must "
-                     "be 1 or 2!" << RESTendl;
+                     "be 1 or 2!"
+                  << RESTendl;
         return fCanvas;
     }
 
     if (scanVariables.size() > 2 || scanVariables.size() == 0) {
         RESTError << "TRestComponent::DrawComponent. The number of variables to be scanned must "
-                     "be 1 or 2!" << RESTendl;
+                     "be 1 or 2!"
+                  << RESTendl;
         return fCanvas;
     }
 

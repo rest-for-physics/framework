@@ -64,27 +64,30 @@ class TRestResponse : public TRestMetadata {
     std::string GetVariable() const { return fVariable; }
 
     TVector2 GetInputRange() const {
-		if( fResponseMatrix.empty() ) {
-			RESTError << " TRestResponse::GetInputRange. Response matrix not loaded yet, try using LoadResponse" << RESTendl;
-			return 0;
-		}
+        if (fResponseMatrix.empty()) {
+            RESTError
+                << " TRestResponse::GetInputRange. Response matrix not loaded yet, try using LoadResponse"
+                << RESTendl;
+            return 0;
+        }
         return TVector2(fOrigin.X(), fOrigin.X() + fResponseMatrix[0].size() * fBinSize);
     }
 
     TVector2 GetOutputRange() const {
-		if( fResponseMatrix.empty() ) {
-			RESTError << " TRestResponse::GetOutputRange. Response matrix not loaded yet, try using LoadResponse" << RESTendl;
-			return 0;
-		}
+        if (fResponseMatrix.empty()) {
+            RESTError
+                << " TRestResponse::GetOutputRange. Response matrix not loaded yet, try using LoadResponse"
+                << RESTendl;
+            return 0;
+        }
         return TVector2(fOrigin.Y(), fOrigin.Y() + fResponseMatrix.size() * fBinSize);
     }
-
 
     void Initialize() override;
 
     void LoadResponse(Bool_t transpose = true);
 
-	Double_t GetOverallEfficiency(Double_t from, Double_t to);
+    Double_t GetOverallEfficiency(Double_t from, Double_t to);
 
     std::vector<std::pair<Double_t, Double_t>> GetResponse(Double_t input);
 

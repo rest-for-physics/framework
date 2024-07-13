@@ -139,7 +139,6 @@ TRestSpiderMask::TRestSpiderMask() : TRestPatternMask() { Initialize(); }
 /// corresponding TRestSpiderMask section inside the RML.
 ///
 TRestSpiderMask::TRestSpiderMask(const char* cfgFileName, std::string name) : TRestPatternMask(cfgFileName) {
-
     LoadConfigFromFile(fConfigFileName, name);
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
