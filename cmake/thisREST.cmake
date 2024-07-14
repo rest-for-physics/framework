@@ -14,6 +14,13 @@ if (lcg_pos GREATER -1
     set(lcg_found TRUE)
 endif ()
 
+set(loadLCG "")
+if (lcg_found)
+    set(loadLCG
+        "\# REST_LCG was enabled. We load LCG_104 environment.\nsource /cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-el9-gcc11-opt/setup.sh\n\n"
+    )
+endif ()
+
 # We identify the thisroot.sh script for the corresponding ROOT version
 execute_process(
     COMMAND root-config --prefix
@@ -38,13 +45,6 @@ if (${REST_G4} MATCHES "ON")
     set(loadG4
         "\# if geant4.sh script is found we load the same Geant4 version as used in compilation\nif [[ -f \\\"${GEANT4_BIN_DIR}/geant4.sh\\\" ]]; then
     [[ -n \\\"\\\${ZSH_VERSION}\\\" ]] && pushd ${GEANT4_BIN_DIR} > /dev/null\n    source ${GEANT4_BIN_DIR}/geant4.sh\n    [[ -n \\\"\\\${ZSH_VERSION}\\\" ]] && popd > /dev/null\nfi\n"
-    )
-endif ()
-
-set(loadLCG "")
-if (lcg_found)
-    set(loadLCG
-        "\# REST_LCG was enabled. We load LCG_104 environment.\nsource /cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-el9-gcc11-opt/setup.sh\n\n"
     )
 endif ()
 
