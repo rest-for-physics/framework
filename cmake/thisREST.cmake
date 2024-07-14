@@ -5,7 +5,7 @@ set(lcg_found FALSE)
 
 # Check if the CMAKE_COMMAND contains both "cvmfs", "lcg" and "x86_64-el9-gcc11"
 string(FIND "${CMAKE_COMMAND}" "cvmfs" cvmfs_pos)
-string(FIND "${CMAKE_COMMAND}" "lcg" lcg_pos)
+string(FIND "${CMAKE_COMMAND}" "LCG_104" lcg_pos)
 string(FIND "${CMAKE_COMMAND}" "x86_64-el9-gcc11" gcc_pos)
 
 if (lcg_pos GREATER -1 AND cvmfs_pos GREATER -1 AND gcc_pos GREATER -1)
