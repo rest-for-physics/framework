@@ -103,6 +103,8 @@ file( WRITE \${CMAKE_INSTALL_PREFIX}/thisREST.sh
 
 \"\#!/bin/bash
 
+${loadLCG}
+
 \# check active shell by checking for existence of _VERSION variable
 if [[ -n \\\"\\\${BASH_VERSION}\\\" ]]; then
     thisdir=\\\$(cd \\\$(dirname \\\${BASH_ARGV[0]}); pwd)
@@ -118,7 +120,6 @@ if [[ -f \\\"${thisROOT}\\\" ]]; then
     source ${thisROOT}
 fi
 
-${loadLCG}
 ${loadG4}
 ${loadMPFR}
 ${loadCRY}
