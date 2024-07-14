@@ -1,6 +1,6 @@
 # Write thisREST.[c]sh to INSTALL directory
 
-##### Checking if we are using CVMFS LCG GCC11 environment
+# Checking if we are using CVMFS LCG GCC11 environment
 set(lcg_found FALSE)
 
 # Check if the CMAKE_COMMAND contains both "cvmfs", "lcg" and "x86_64-el9-gcc11"
@@ -8,9 +8,11 @@ string(FIND "${CMAKE_COMMAND}" "cvmfs" cvmfs_pos)
 string(FIND "${CMAKE_COMMAND}" "LCG_104" lcg_pos)
 string(FIND "${CMAKE_COMMAND}" "x86_64-el9-gcc11" gcc_pos)
 
-if (lcg_pos GREATER -1 AND cvmfs_pos GREATER -1 AND gcc_pos GREATER -1)
+if (lcg_pos GREATER -1
+    AND cvmfs_pos GREATER -1
+    AND gcc_pos GREATER -1)
     set(lcg_found TRUE)
-endif()
+endif ()
 
 # We identify the thisroot.sh script for the corresponding ROOT version
 execute_process(
@@ -40,10 +42,11 @@ if (${REST_G4} MATCHES "ON")
 endif ()
 
 set(loadLCG "")
-if( lcg_found )
-	set(loadLCG
-		"\# REST_LCG was enabled. We load LCG_104 environment.\nsource /cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-el9-gcc11-opt/setup.sh\n\n")
-endif()
+if (lcg_found)
+    set(loadLCG
+        "\# REST_LCG was enabled. We load LCG_104 environment.\nsource /cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-el9-gcc11-opt/setup.sh\n\n"
+    )
+endif ()
 
 set(loadMPFR "")
 if (DEFINED MPFR_PATH)
