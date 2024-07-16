@@ -30,7 +30,7 @@ if (DEFINED ENV{LCG_VERSION})
     message(STATUS "Modified path: ${LCG_SETUP}")
 
     set(loadLCG
-        "\# We load the LCG_${LCG_VERSION} environment.\necho \"Loading\ LCG_${LCG_VERSION}\ environment\"\nsource ${LCG_SETUP}\n"
+        "\# We load the LCG_${LCG_VERSION} environment.\necho \\\"Loading\ LCG_${LCG_VERSION}\ environment\\\"\nsource ${LCG_SETUP}\n"
     )
 
 endif ()
