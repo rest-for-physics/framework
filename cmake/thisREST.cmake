@@ -1,37 +1,39 @@
 # Write thisREST.[c]sh to INSTALL directory
 
-# Check if the LCG environment was loaded. Then it will be sourced in thisREST.sh
+# Check if the LCG environment was loaded. Then it will be sourced in
+# thisREST.sh
 set(loadLCG "")
-if(DEFINED ENV{LCG_VERSION})
+if (DEFINED ENV{LCG_VERSION})
     # Retrieve the value of the environment variable
-	set(LCG_VERSION $ENV{LCG_VERSION})
+    set(LCG_VERSION $ENV{LCG_VERSION})
 
     # Print the value of the environment variable in CMake
-	message(STATUS "Found LCG environment! Version: ${LCG_VERSION}")
+    message(STATUS "Found LCG environment! Version: ${LCG_VERSION}")
 
-	set(C_INCLUDE_PATH "$ENV{C_INCLUDE_PATH}")
+    set(C_INCLUDE_PATH "$ENV{C_INCLUDE_PATH}")
 
-	string(FIND "${C_INCLUDE_PATH}" ":" COLON_POSITION)
+    string(FIND "${C_INCLUDE_PATH}" ":" COLON_POSITION)
 
-if(COLON_POSITION GREATER_EQUAL 0)
-    # Extract the substring from the beginning up to the position of the first ':'
-	string(SUBSTRING "${C_INCLUDE_PATH}" 0 "${COLON_POSITION}" C_CLEAN)
-else()
-    # If ':' is not found, use the entire string
-	set(C_CLEAN "${C_INCLUDE_PATH}")
-endif()
+    if (COLON_POSITION GREATER_EQUAL 0)
+        # Extract the substring from the beginning up to the position of the
+        # first ':'
+        string(SUBSTRING "${C_INCLUDE_PATH}" 0 "${COLON_POSITION}" C_CLEAN)
+    else ()
+        # If ':' is not found, use the entire string
+        set(C_CLEAN "${C_INCLUDE_PATH}")
+    endif ()
 
-	string(REPLACE "include" "setup.sh" LCG_SETUP "${C_CLEAN}")
+    string(REPLACE "include" "setup.sh" LCG_SETUP "${C_CLEAN}")
 
-	# Print the modified string
-	message(STATUS "Original path: ${C_CLEAN}")
-	message(STATUS "Modified path: ${LCG_SETUP}")
+    # Print the modified string
+    message(STATUS "Original path: ${C_CLEAN}")
+    message(STATUS "Modified path: ${LCG_SETUP}")
 
     set(loadLCG
-		"\# We load the LCG_${LCG_VERSION} environment.\necho \"Loading\ LCG_${LCG_VERSION}\ environment\"\nsource ${LCG_SETUP}\n"
+        "\# We load the LCG_${LCG_VERSION} environment.\necho \"Loading\ LCG_${LCG_VERSION}\ environment\"\nsource ${LCG_SETUP}\n"
     )
 
-endif()
+endif ()
 
 # We identify the thisroot.sh script for the corresponding ROOT version
 execute_process(
