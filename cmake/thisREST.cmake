@@ -1,24 +1,38 @@
 # Write thisREST.[c]sh to INSTALL directory
 
-# Checking if we are using CVMFS LCG GCC11 environment
-set(lcg_found FALSE)
-
-# Check if the CMAKE_COMMAND contains both "cvmfs", "lcg" and "x86_64-el9-gcc11"
-string(FIND "${CMAKE_COMMAND}" "cvmfs" cvmfs_pos)
-string(FIND "${CMAKE_COMMAND}" "lcg" lcg_pos)
-string(FIND "${CMAKE_COMMAND}" "x86_64-el9-gcc11" gcc_pos)
-
-if (lcg_pos GREATER -1
-    AND cvmfs_pos GREATER -1
-    AND gcc_pos GREATER -1)
-    set(lcg_found TRUE)
-endif ()
-
+# Check if the LCG environment was loaded. Then it will be sourced in
+# thisREST.sh
 set(loadLCG "")
-if (lcg_found)
+if (DEFINED ENV{LCG_VERSION})
+    # Retrieve the value of the environment variable
+    set(LCG_VERSION $ENV{LCG_VERSION})
+
+    # Print the value of the environment variable in CMake
+    message(STATUS "Found LCG environment! Version: ${LCG_VERSION}")
+
+    set(C_INCLUDE_PATH "$ENV{C_INCLUDE_PATH}")
+
+    string(FIND "${C_INCLUDE_PATH}" ":" COLON_POSITION)
+
+    if (COLON_POSITION GREATER_EQUAL 0)
+        # Extract the substring from the beginning up to the position of the
+        # first ':'
+        string(SUBSTRING "${C_INCLUDE_PATH}" 0 "${COLON_POSITION}" C_CLEAN)
+    else ()
+        # If ':' is not found, use the entire string
+        set(C_CLEAN "${C_INCLUDE_PATH}")
+    endif ()
+
+    string(REPLACE "include" "setup.sh" LCG_SETUP "${C_CLEAN}")
+
+    # Print the modified string
+    message(STATUS "Original path: ${C_CLEAN}")
+    message(STATUS "Modified path: ${LCG_SETUP}")
+
     set(loadLCG
-        "\# We load LCG_104 environment.\nsource /cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-el9-gcc11-opt/setup.sh\n\n"
+        "\# We load the LCG_${LCG_VERSION} environment.\necho \"Loading\ LCG_${LCG_VERSION}\ environment\"\nsource ${LCG_SETUP}\n"
     )
+
 endif ()
 
 # We identify the thisroot.sh script for the corresponding ROOT version
