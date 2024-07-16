@@ -129,7 +129,7 @@ void TRestComponentDataSet::Initialize() {
     SetSectionName(this->ClassName());
 
     LoadDataSets();
-	
+
     TRestComponent::Initialize();
 }
 
