@@ -1,5 +1,4 @@
 #include "TRestStringOutput.h"
-
 #include "TRestStringHelper.h"
 
 using namespace std;
@@ -8,10 +7,6 @@ using namespace std;
 #include <Windows.h>
 #include <conio.h>
 #endif  // WIN32
-
-#ifdef __APPLE__
-#include <unistd.h>
-#endif
 
 int Console::GetWidth() {
 #ifdef WIN32
