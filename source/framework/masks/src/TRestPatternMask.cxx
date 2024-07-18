@@ -167,7 +167,7 @@ TCanvas* TRestPatternMask::DrawMonteCarlo(Int_t nSamples) {
         delete fCanvas;
         fCanvas = NULL;
     }
-    fCanvas = new TCanvas("canv", "This is the canvas title", 1400, 1200);
+    fCanvas = new TCanvas("canv", "This is the canvas title", 1200, 1200);
     fCanvas->Draw();
 
     TPad* pad1 = new TPad("pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97);
@@ -183,17 +183,19 @@ TCanvas* TRestPatternMask::DrawMonteCarlo(Int_t nSamples) {
     TRandom3* rnd = new TRandom3(0);
 
     for (int n = 0; n < nSamples; n++) {
-        Double_t x = 2.5 * (rnd->Rndm() - 0.5) * fMaskRadius;
-        Double_t y = 2.5 * (rnd->Rndm() - 0.5) * fMaskRadius;
+        Double_t xO = 2.5 * (rnd->Rndm() - 0.5) * fMaskRadius;
+        Double_t yO = 2.5 * (rnd->Rndm() - 0.5) * fMaskRadius;
+        Double_t x = xO;
+        Double_t y = yO;
 
         Int_t id = GetRegion(x, y);
 
         if (points.count(id) == 0) {
             std::vector<TVector2> a;
-            a.push_back(TVector2(x, y));
+            a.push_back(TVector2(xO, yO));
             points[id] = a;
         } else {
-            points[id].push_back(TVector2(x, y));
+            points[id].push_back(TVector2(xO, yO));
         }
     }
 

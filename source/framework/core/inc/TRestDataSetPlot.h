@@ -95,6 +95,7 @@ class TRestDataSetPlot : public TRestMetadata {
         std::vector<std::pair<std::array<std::string, 3>, TVector2>> variablePos;
         std::vector<std::pair<std::array<std::string, 3>, TVector2>> metadataPos;
         std::vector<std::pair<std::array<std::string, 3>, TVector2>> obsPos;
+        std::vector<std::pair<std::array<std::string, 3>, TVector2>> expPos;
 
         TRestCut* panelCut = nullptr;
 
@@ -182,6 +183,6 @@ class TRestDataSetPlot : public TRestMetadata {
     TRestDataSetPlot(const char* configFilename, std::string name = "");
     ~TRestDataSetPlot();
 
-    ClassDefOverride(TRestDataSetPlot, 1);
+    ClassDefOverride(TRestDataSetPlot, 2);
 };
 #endif
