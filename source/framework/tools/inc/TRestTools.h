@@ -42,6 +42,10 @@
 #define EXTERN_IMP
 #endif
 
+#ifndef WIN32
+#include <unistd.h>
+#endif
+
 const std::string PARAMETER_NOT_FOUND_STR = "NO_SUCH_PARA";
 const double PARAMETER_NOT_FOUND_DBL = -99999999;
 
