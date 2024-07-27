@@ -327,17 +327,15 @@ Double_t TRestSensitivity::UnbinnedLogLikelihood(const TRestExperiment* experime
 ///
 TH1D* TRestSensitivity::SignalStatisticalTest(Double_t node, Int_t N) {
     std::vector<Double_t> couplings;
-	Int_t nodeCheck = 0;
-	if( fExperiments.size() > 0 )
-		nodeCheck = fExperiments[0]->GetSignal()->GetActiveNode();
+    Int_t nodeCheck = 0;
+    if (fExperiments.size() > 0) nodeCheck = fExperiments[0]->GetSignal()->GetActiveNode();
     for (int n = 0; n < N; n++) {
-        for (const auto& exp : fExperiments)
-		{
-			if( exp->GetSignal()->GetActiveNode() != nodeCheck )
-				RESTError << "TRestSensitivity::SignalStatisticalTest. Problem" << RESTendl;
-			exp->GetSignal()->SetActiveNode(exp->GetSignal()->GetActiveNode()+1);
-			exp->GetSignal()->RegenerateActiveNodeDensity();
-		}
+        for (const auto& exp : fExperiments) {
+            if (exp->GetSignal()->GetActiveNode() != nodeCheck)
+                RESTError << "TRestSensitivity::SignalStatisticalTest. Problem" << RESTendl;
+            exp->GetSignal()->SetActiveNode(exp->GetSignal()->GetActiveNode() + 1);
+            exp->GetSignal()->RegenerateActiveNodeDensity();
+        }
 
         Double_t coupling = TMath::Sqrt(TMath::Sqrt(GetCoupling(node)));
         couplings.push_back(coupling);

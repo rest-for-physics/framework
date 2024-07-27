@@ -120,7 +120,7 @@ class TRestComponent : public TRestMetadata {
 
     /// It returns true if any nodes have been defined.
     Bool_t HasNodes() { return !fParameterizationNodes.empty(); }
-	size_t GetNumberOfParameterizationNodes() { return fParameterizationNodes.size();} 
+    size_t GetNumberOfParameterizationNodes() { return fParameterizationNodes.size(); }
 
     virtual void RegenerateActiveNodeDensity() {}
 
@@ -155,7 +155,7 @@ class TRestComponent : public TRestMetadata {
     Int_t FindActiveNode(Double_t node);
     Int_t SetActiveNode(Double_t node);
     Int_t SetActiveNode(Int_t n) {
-		fActiveNode = n%fParameterizationNodes.size();
+        fActiveNode = n % fParameterizationNodes.size();
         return fActiveNode;
     }
 
