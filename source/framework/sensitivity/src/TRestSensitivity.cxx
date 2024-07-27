@@ -504,11 +504,12 @@ TCanvas* TRestSensitivity::DrawLevelCurves() {
         delete fCanvas;
         fCanvas = NULL;
     }
-    fCanvas = new TCanvas("canv", "This is the canvas title", 500, 400);
+    fCanvas = new TCanvas("canv", "This is the canvas title", 600, 500);
     fCanvas->Draw();
     fCanvas->SetLeftMargin(0.15);
     fCanvas->SetRightMargin(0.04);
     fCanvas->SetLogx();
+    fCanvas->SetLogy();
 
     std::vector<std::vector<Double_t>> levelCurves = GetLevelCurves({0.025, 0.16, 0.375, 0.625, 0.84, 0.975});
 
@@ -534,9 +535,9 @@ TCanvas* TRestSensitivity::DrawLevelCurves() {
     centralGr->SetLineWidth(2);
     centralGr->SetMarkerSize(0.1);
 
-    graphs[0]->GetYaxis()->SetRangeUser(0, 0.5);
-    graphs[0]->GetXaxis()->SetRangeUser(0.001, 0.25);
-    graphs[0]->GetXaxis()->SetLimits(0.0001, 0.25);
+    graphs[0]->GetYaxis()->SetRangeUser(0, 0.31);
+    graphs[0]->GetXaxis()->SetRangeUser(0.001, 0.31);
+    graphs[0]->GetXaxis()->SetLimits(0.0001, 0.31);
     graphs[0]->GetXaxis()->SetTitle("mass [eV]");
     graphs[0]->GetXaxis()->SetTitleSize(0.04);
     graphs[0]->GetXaxis()->SetTitleOffset(1.15);
@@ -547,6 +548,7 @@ TCanvas* TRestSensitivity::DrawLevelCurves() {
     graphs[0]->GetYaxis()->SetTitleOffset(1.5);
     graphs[0]->GetYaxis()->SetTitleSize(0.04);
     graphs[0]->GetYaxis()->SetLabelSize(0.04);
+    graphs[0]->GetYaxis()->SetRangeUser(0.1, 30);
     // graphs[0]->GetYaxis()->SetLabelOffset(0);
     // graphs[0]->GetYaxis()->SetLabelFont(43);
     graphs[0]->Draw("AL");
