@@ -327,8 +327,17 @@ Double_t TRestSensitivity::UnbinnedLogLikelihood(const TRestExperiment* experime
 ///
 TH1D* TRestSensitivity::SignalStatisticalTest(Double_t node, Int_t N) {
     std::vector<Double_t> couplings;
+	Int_t nodeCheck = 0;
+	if( fExperiments.size() > 0 )
+		nodeCheck = fExperiments[0]->GetSignal()->GetActiveNode();
     for (int n = 0; n < N; n++) {
-        for (const auto& exp : fExperiments) exp->GetSignal()->RegenerateActiveNodeDensity();
+        for (const auto& exp : fExperiments)
+		{
+			if( exp->GetSignal()->GetActiveNode() != nodeCheck )
+				RESTError << "TRestSensitivity::SignalStatisticalTest. Problem" << RESTendl;
+			exp->GetSignal()->SetActiveNode(exp->GetSignal()->GetActiveNode()+1);
+			exp->GetSignal()->RegenerateActiveNodeDensity();
+		}
 
         Double_t coupling = TMath::Sqrt(TMath::Sqrt(GetCoupling(node)));
         couplings.push_back(coupling);
@@ -339,7 +348,7 @@ TH1D* TRestSensitivity::SignalStatisticalTest(Double_t node, Int_t N) {
     double max_value = *std::max_element(couplings.begin(), couplings.end());
 
     if (fSignalTest) delete fSignalTest;
-    fSignalTest = new TH1D("SignalTest", "A signal test", 100, 0.9 * min_value, 1.1 * max_value);
+    fSignalTest = new TH1D("SignalTest", "A signal test", 1000, 0.9 * min_value, 1.1 * max_value);
     for (const auto& coup : couplings) fSignalTest->Fill(coup);
 
     return fSignalTest;
