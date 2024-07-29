@@ -143,7 +143,7 @@ class TRestRun : public TRestMetadata {
     inline TFile* GetInputFile() const { return fInputFile; }
     inline TFile* GetOutputFile() const { return fOutputFile; }
     inline int GetCurrentEntry() const { return fCurrentEvent; }
-    inline Long64_t GetBytesReaded() const { return fBytesRead; }
+    inline Long64_t GetBytesRead() const { return fBytesRead; }
     Long64_t GetTotalBytes();
     Long64_t GetEntries() const;
 
