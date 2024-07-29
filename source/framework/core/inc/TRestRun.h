@@ -176,6 +176,7 @@ class TRestRun : public TRestMetadata {
     std::vector<std::string> GetMetadataNames();
     std::vector<std::string> GetMetadataTitles();
     inline int GetNumberOfMetadata() const { return fMetadata.size(); }
+    Double_t GetElapsedTimeSeconds() const { return fEndTime - fStartTime; }
 
     inline std::string GetMetadataMember(const std::string& instr) { return ReplaceMetadataMember(instr); }
     std::string ReplaceMetadataMembers(const std::string& instr, Int_t precision = 8);
@@ -214,6 +215,7 @@ class TRestRun : public TRestMetadata {
     inline void SetNFilesSplit(int n) { fNFilesSplit = n; }
     inline void HangUpEndFile() { fHangUpEndFile = true; }
     inline void ReleaseEndFile() { fHangUpEndFile = false; }
+
     // Printers
     void PrintStartDate();
     void PrintEndDate();
