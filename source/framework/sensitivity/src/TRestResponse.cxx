@@ -129,6 +129,28 @@ void TRestResponse::LoadResponse(Bool_t transpose) {
     RESTError << "Extension format - " << extension << " - not recognized!" << RESTendl;
 }
 
+///////////////////////////////////////////////
+/// \brief It is used to integrate the response matrix and obtain the overall efficiency
+/// inside an energy range given by argument.
+///
+Double_t TRestResponse::GetOverallEfficiency(Double_t from, Double_t to) {
+    if (fResponseMatrix.empty()) {
+        RESTError
+            << " TRestResponse::GetOverallEfficiency. Response matrix not loaded yet, try using LoadResponse"
+            << RESTendl;
+        return 0;
+    }
+
+    Int_t nBins = 0;
+    Double_t eff = 0;
+    for (double en = from; en < to; en += fBinSize) {
+        std::vector<std::pair<Double_t, Double_t>> effs = GetResponse(en);
+        for (const auto& ef : effs) eff += ef.second;
+        nBins++;
+    }
+    return eff / nBins;
+}
+
 /////////////////////////////////////////////
 /// \brief This method will return a vector of std::pair, each pair will contain the
 /// output energy together with the corresponding response (or efficiency), for the
