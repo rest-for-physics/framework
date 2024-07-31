@@ -1090,7 +1090,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
         if (fEventsToProcess == REST_MAXIMUM_EVENTS && fRunInfo->GetFileProcess() != nullptr)
         // Nevents is unknown, reading external data file
         {
-            prog = fRunInfo->GetBytesReaded() / (double)fRunInfo->GetTotalBytes() * 100;
+            prog = fRunInfo->GetBytesRead() / (double)fRunInfo->GetTotalBytes() * 100;
         } else if (fRunInfo->GetFileProcess() != nullptr)
         // Nevents is known, reading external data file
         {
@@ -1140,8 +1140,8 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
             fflush(stdout);
         }
 
-        bytesAdded[poscalculated] = fRunInfo->GetBytesReaded() - bytesReaded_last;
-        bytesReaded_last = fRunInfo->GetBytesReaded();
+        bytesAdded[poscalculated] = fRunInfo->GetBytesRead() - bytesReaded_last;
+        bytesReaded_last = fRunInfo->GetBytesRead();
         progAdded[poscalculated] = prog - prog_last;
         prog_last = prog;
 
