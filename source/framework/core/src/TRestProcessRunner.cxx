@@ -52,14 +52,14 @@ high_resolution_clock::time_point tS, tE;
 #endif
 
 int ncalculated = 10;
-Long64_t bytesRead_last = 0;
-Double_t prog_last = 0;
-Int_t prog_last_printed = 0;
+Long64_t bytesReadLast = 0;
+Double_t progressLast = 0;
+Int_t progressLastPrinted = 0;
 vector<Long64_t> bytesAdded(ncalculated, 0);
 vector<Double_t> progAdded(ncalculated, 0);
-int poscalculated = 0;
+int positionCalculated = 0;
 int printInterval = 200000;  // 0.2s
-int inputtreeentries = 0;
+int inputTreeEntries = 0;
 
 ClassImp(TRestProcessRunner);
 
@@ -428,7 +428,7 @@ void TRestProcessRunner::RunProcess() {
     fProcessedEvents = 0;
     fRunInfo->ResetEntry();
     fRunInfo->SetCurrentEntry(fFirstEntry);
-    inputtreeentries = fRunInfo->GetEntries();
+    inputTreeEntries = fRunInfo->GetEntries();
 
     // set root mutex
     //!!!!!!!!!!!!Important!!!!!!!!!!!!
@@ -1098,7 +1098,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
         } else if (fEventsToProcess == REST_MAXIMUM_EVENTS)
         // Nevents is unknown, reading root file
         {
-            prog = fRunInfo->GetCurrentEntry() / (double)inputtreeentries * 100;
+            prog = fRunInfo->GetCurrentEntry() / (double)inputTreeEntries * 100;
         } else {
             prog = fProcessedEvents / (double)fEventsToProcess * 100;
         }
@@ -1113,9 +1113,9 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
         string s1(buffer);
 
         if (fProcStatus == kNormal) {
-            sprintf(buffer, "%.1f min ETA, (Pause: \"p\") ", (100 - prog_last) / progspeed / 60);
+            sprintf(buffer, "%.1f min ETA, (Pause: \"p\") ", (100 - progressLast) / progspeed / 60);
         } else {
-            sprintf(buffer, "%.1f min ETA, (Pause Disabled) ", (100 - prog_last) / progspeed / 60);
+            sprintf(buffer, "%.1f min ETA, (Pause Disabled) ", (100 - progressLast) / progspeed / 60);
         }
         string s2(buffer);
 
@@ -1131,22 +1131,22 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
         delete[] buffer;
 
         if (REST_Display_CompatibilityMode) {
-            if (((int)prog) != prog_last_printed) {
+            if (((int)prog) != progressLastPrinted) {
                 cout << s1 << s2 << s3 << endl;
-                prog_last_printed = (int)prog;
+                progressLastPrinted = (int)prog;
             }
         } else if (fThreads[0]->GetVerboseLevel() < TRestStringOutput::REST_Verbose_Level::REST_Debug) {
             printf("%s", (s1 + s2 + s3 + "\r").c_str());
             fflush(stdout);
         }
 
-        bytesAdded[poscalculated] = fRunInfo->GetBytesRead() - bytesRead_last;
-        bytesRead_last = fRunInfo->GetBytesRead();
-        progAdded[poscalculated] = prog - prog_last;
-        prog_last = prog;
+        bytesAdded[positionCalculated] = fRunInfo->GetBytesRead() - bytesReadLast;
+        bytesReadLast = fRunInfo->GetBytesRead();
+        progAdded[positionCalculated] = prog - progressLast;
+        progressLast = prog;
 
-        poscalculated++;
-        if (poscalculated >= ncalculated) poscalculated -= ncalculated;
+        positionCalculated++;
+        if (positionCalculated >= ncalculated) positionCalculated -= ncalculated;
     }
 }
 
