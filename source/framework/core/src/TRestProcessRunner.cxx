@@ -52,7 +52,7 @@ high_resolution_clock::time_point tS, tE;
 #endif
 
 int ncalculated = 10;
-Long64_t bytesReaded_last = 0;
+Long64_t bytesRead_last = 0;
 Double_t prog_last = 0;
 Int_t prog_last_printed = 0;
 vector<Long64_t> bytesAdded(ncalculated, 0);
@@ -1140,8 +1140,8 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
             fflush(stdout);
         }
 
-        bytesAdded[poscalculated] = fRunInfo->GetBytesRead() - bytesReaded_last;
-        bytesReaded_last = fRunInfo->GetBytesRead();
+        bytesAdded[poscalculated] = fRunInfo->GetBytesRead() - bytesRead_last;
+        bytesRead_last = fRunInfo->GetBytesRead();
         progAdded[poscalculated] = prog - prog_last;
         prog_last = prog;
 
