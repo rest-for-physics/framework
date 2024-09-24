@@ -60,6 +60,8 @@ class TRestRun : public TRestMetadata {
     bool fHangUpEndFile = false;           //!
     bool fFromRML = false;                 //!
 
+    Long64_t fFeminosDaqTotalEvents = 0;  //!
+
     void InitFromConfigFile() override;
 
    private:
@@ -215,6 +217,9 @@ class TRestRun : public TRestMetadata {
     inline void SetNFilesSplit(int n) { fNFilesSplit = n; }
     inline void HangUpEndFile() { fHangUpEndFile = true; }
     inline void ReleaseEndFile() { fHangUpEndFile = false; }
+
+    inline void SetFeminosDaqTotalEvents(Long64_t n) { fFeminosDaqTotalEvents = n; }
+    inline Long64_t GetFeminosDaqTotalEvents() const { return fFeminosDaqTotalEvents; }
 
     // Printers
     void PrintStartDate();

@@ -1087,7 +1087,9 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
         double progspeed = progsum / ncalculated / printInterval * 1000000;
 
         double prog = 0;
-        if (fEventsToProcess == REST_MAXIMUM_EVENTS && fRunInfo->GetFileProcess() != nullptr)
+        if (fRunInfo->GetFeminosDaqTotalEvents() > 0) {
+            prog = fProcessedEvents / (double)fRunInfo->GetFeminosDaqTotalEvents() * 100;
+        } else if (fEventsToProcess == REST_MAXIMUM_EVENTS && fRunInfo->GetFileProcess() != nullptr)
         // Nevents is unknown, reading external data file
         {
             prog = fRunInfo->GetBytesRead() / (double)fRunInfo->GetTotalBytes() * 100;
@@ -1104,7 +1106,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
         }
 
         char* buffer = new char[500]();
-        if (fRunInfo->GetFileProcess() != nullptr) {
+        if (fRunInfo->GetFileProcess() != nullptr && speedbyte > 0) {
             sprintf(buffer, "%d Events (%.1fMB/s), ", fProcessedEvents, speedbyte / 1024 / 1024);
         } else {
             sprintf(buffer, "%d Events, ", fProcessedEvents);
