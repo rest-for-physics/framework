@@ -47,7 +47,7 @@ TRestEveEventViewer::~TRestEveEventViewer() {
 
 void InitializePerspectiveView() {
     const std::map<TString, TGLViewer::ECameraType> projectionsMap = {
-        {"Projection XY", TGLViewer::kCameraOrthoXnOY},  //
+        {"Projection XY", TGLViewer::kCameraOrthoXOY},  //
         {"Projection XZ", TGLViewer::kCameraOrthoXnOZ},  //
         {"Projection YZ", TGLViewer::kCameraOrthoZOY}    //
     };
