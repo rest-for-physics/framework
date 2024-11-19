@@ -53,19 +53,18 @@
 ///
 /// ### Parameters
 /// * **fileWithTimes**: name of the file that contains the time ranges.
-/// * **isActiveTime**: if `true` (default) the time ranges represent active periods of time, if `false` the time ranges represent dead periods of time.
+/// * **isActiveTime**: if `true` (default) the time ranges represent active periods of time, if `false` the
+/// time ranges represent dead periods of time.
 /// * **delimiter**: delimiter used in the file with the time ranges (default is `,`).
-/// * **offsetTimeInSeconds**: offset time in seconds to be added to the event time (default is 0). This is useful
-/// to correct the time of the events if needed. This number of seconds will be added to the event time before
-/// checking if it is within the time ranges.
+/// * **offsetTimeInSeconds**: offset time in seconds to be added to the event time (default is 0). This is
+/// useful to correct the time of the events if needed. This number of seconds will be added to the event time
+/// before checking if it is within the time ranges.
 ///
 /// ### Examples
 /// Examples for rml files:
 /// \code
-/// <addProcess type="TRestEventTimeSelectionProcess" name="timeSel" fileWithTimes="/path/to/file/timeperiods.txt"
-/// value="ON" verboseLevel="info">
-/// \endcode
-/// <hr>
+/// <addProcess type="TRestEventTimeSelectionProcess" name="timeSel"
+/// fileWithTimes="/path/to/file/timeperiods.txt" value="ON" verboseLevel="info"> \endcode <hr>
 ///
 /// \warning ** REST is under continuous development.** This documentation
 /// is offered to you by the REST community. Your HELP is needed to keep this code
@@ -131,12 +130,13 @@ void TRestEventTimeSelectionProcess::InitProcess() {
         ifstream file(fFileWithTimes);
         if (file.is_open()) {
             while (getline(file, line)) {
-                if (line[0] == '#') { // understand as comment
+                if (line[0] == '#') {  // understand as comment
                     continue;
                 }
                 std::istringstream lineStream(line);
                 std::string startDate, endDate;
-                if (std::getline(lineStream, startDate, fDelimiter) && std::getline(lineStream, endDate, fDelimiter)) {
+                if (std::getline(lineStream, startDate, fDelimiter) &&
+                    std::getline(lineStream, endDate, fDelimiter)) {
                     fStartEndTimes.emplace_back(startDate, endDate);
                     RESTDebug << "Start: " << startDate << " End: " << endDate << RESTendl;
                 }
@@ -162,7 +162,7 @@ TRestEvent* TRestEventTimeSelectionProcess::ProcessEvent(TRestEvent* inputEvent)
 
     TTimeStamp eventTime = fEvent->GetTimeStamp();
     eventTime.Add(TTimeStamp(fOffsetTimeInSeconds));
-    if (fIsActiveTime){ // time ranges represent active periods of time
+    if (fIsActiveTime) {  // time ranges represent active periods of time
         for (auto id : fStartEndTimes) {
             TTimeStamp startTime = TTimeStamp(StringToTimeStamp(id.first), 0);
             TTimeStamp endTime = TTimeStamp(StringToTimeStamp(id.second), 0);
@@ -173,7 +173,7 @@ TRestEvent* TRestEventTimeSelectionProcess::ProcessEvent(TRestEvent* inputEvent)
         }
     }
 
-    if (!fIsActiveTime){ // time ranges represent dead periods of time
+    if (!fIsActiveTime) {  // time ranges represent dead periods of time
         Bool_t isInDeadPeriod = false;
         for (auto id : fStartEndTimes) {
             TTimeStamp startTime = TTimeStamp(StringToTimeStamp(id.first), 0);
@@ -193,10 +193,10 @@ TRestEvent* TRestEventTimeSelectionProcess::ProcessEvent(TRestEvent* inputEvent)
     return nullptr;
 }
 
-///////////////////////////////////////////////                          
+///////////////////////////////////////////////
 /// \brief Function to include required actions after all events have been
-/// processed.                                                            
-///                                                                       
+/// processed.
+///
 void TRestEventTimeSelectionProcess::EndProcess() {
     // Write here the jobs to do when all the events are processed
 }
@@ -205,29 +205,32 @@ void TRestEventTimeSelectionProcess::EndProcess() {
 /// \brief Function to get the cut string that reproduce the time selection
 /// done by this process (useful for TRestDataSet::MakeCut() for example).
 /// \note The cut string can be really long if there are many time ranges and
-/// this may cause the following error 
-/// 'Error in <TTreeFormula::Compile>:  Too many operators !' when trying to 
-/// use the cut in TTree->Draw(). In such case, use 
-/// \code 
+/// this may cause the following error
+/// 'Error in <TTreeFormula::Compile>:  Too many operators !' when trying to
+/// use the cut in TTree->Draw(). In such case, use
+/// \code
 /// ROOT::v5::TFormula::SetMaxima(10000) // or any other big enough number
 /// \endcode
 /// to increase the maximum number of operators allowed in a formula.
 ///
-std::string TRestEventTimeSelectionProcess::GetTimeStampCut(std::string timeStampObsName, Bool_t useOffset, Int_t nTimes) {
+std::string TRestEventTimeSelectionProcess::GetTimeStampCut(std::string timeStampObsName, Bool_t useOffset,
+                                                            Int_t nTimes) {
     std::string timeCut = "";
     std::string timeStampObsNameWithOffset = timeStampObsName;
     if (useOffset) {
         timeStampObsNameWithOffset += "+" + to_string(fOffsetTimeInSeconds);
     }
-    if (nTimes<0) nTimes = fStartEndTimes.size();
+    if (nTimes < 0) nTimes = fStartEndTimes.size();
     Int_t c = 0;
     for (auto id : fStartEndTimes) {
         if (c++ >= nTimes) break;
         auto startTime = StringToTimeStamp(id.first);
         auto endTime = StringToTimeStamp(id.second);
-        if (!timeCut.empty()){
-            if (fIsActiveTime) timeCut += " || ";
-            else timeCut += " && ";
+        if (!timeCut.empty()) {
+            if (fIsActiveTime)
+                timeCut += " || ";
+            else
+                timeCut += " && ";
         }
         if (!fIsActiveTime) timeCut += "!";
         timeCut += "(";
@@ -252,20 +255,23 @@ void TRestEventTimeSelectionProcess::PrintMetadata() {
     for (auto id : fStartEndTimes) {
         RESTMetadata << id.first << " to " << id.second << RESTendl;
     }
-    
-    if ((Int_t) (fTotalTimeInSeconds / 24/3600) != 0 ) // order of days
-        RESTMetadata << "Total " << typeOfTime << " time: " << fTotalTimeInSeconds / 24/3600 << " days" << RESTendl;
-    else if ((Int_t) (fTotalTimeInSeconds / 3600) != 0 ) // order of hours
-        RESTMetadata << "Total " << typeOfTime << " time: " << fTotalTimeInSeconds / 3600 << " hours" << RESTendl;
-    else if ((Int_t) (fTotalTimeInSeconds / 60) != 0 ) // order of minutes
-        RESTMetadata << "Total " << typeOfTime << " time: " << fTotalTimeInSeconds / 60 << " minutes" << RESTendl;
+
+    if ((Int_t)(fTotalTimeInSeconds / 24 / 3600) != 0)  // order of days
+        RESTMetadata << "Total " << typeOfTime << " time: " << fTotalTimeInSeconds / 24 / 3600 << " days"
+                     << RESTendl;
+    else if ((Int_t)(fTotalTimeInSeconds / 3600) != 0)  // order of hours
+        RESTMetadata << "Total " << typeOfTime << " time: " << fTotalTimeInSeconds / 3600 << " hours"
+                     << RESTendl;
+    else if ((Int_t)(fTotalTimeInSeconds / 60) != 0)  // order of minutes
+        RESTMetadata << "Total " << typeOfTime << " time: " << fTotalTimeInSeconds / 60 << " minutes"
+                     << RESTendl;
     else
         RESTMetadata << "Total " << typeOfTime << " time: " << fTotalTimeInSeconds << RESTendl;
 
     RESTMetadata << "Number of events rejected: " << fNEventsRejected << " ("
-    << fNEventsRejected*1. / (fNEventsRejected + fNEventsSelected) * 100 << " %)" << RESTendl;
+                 << fNEventsRejected * 1. / (fNEventsRejected + fNEventsSelected) * 100 << " %)" << RESTendl;
     RESTMetadata << "Number of events selected: " << fNEventsSelected << " ("
-    << fNEventsSelected*1. / (fNEventsRejected + fNEventsSelected) * 100 << " %)" << RESTendl;
+                 << fNEventsSelected * 1. / (fNEventsRejected + fNEventsSelected) * 100 << " %)" << RESTendl;
 
     EndPrintProcess();
 }
