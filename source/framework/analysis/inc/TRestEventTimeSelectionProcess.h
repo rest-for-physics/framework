@@ -27,7 +27,6 @@
 
 #include <iostream>
 
-
 class TRestEventTimeSelectionProcess : public TRestEventProcess {
    private:
     TRestEvent* fEvent;  //!
@@ -35,7 +34,7 @@ class TRestEventTimeSelectionProcess : public TRestEventProcess {
     Bool_t fIsActiveTime;
     Char_t fDelimiter;
     Long_t fOffsetTimeInSeconds;
-    std::vector<std::pair<std::string,std::string>> fStartEndTimes;
+    std::vector<std::pair<std::string, std::string>> fStartEndTimes;
 
     /// Information about the events processed
 
@@ -68,8 +67,9 @@ class TRestEventTimeSelectionProcess : public TRestEventProcess {
     Bool_t GetIsActiveTime() const { return fIsActiveTime; }
     Char_t GetDelimiter() const { return fDelimiter; }
 
-    std::vector<std::pair<std::string,std::string>> GetStartEndTimes() const { return fStartEndTimes; }
-    std::string GetTimeStampCut(std::string timeStampObsName = "timeStamp", Bool_t useOffset = true, Int_t nTimes = -1);
+    std::vector<std::pair<std::string, std::string>> GetStartEndTimes() const { return fStartEndTimes; }
+    std::string GetTimeStampCut(std::string timeStampObsName = "timeStamp", Bool_t useOffset = true,
+                                Int_t nTimes = -1);
     Int_t GetNEventsRejected() const { return fNEventsRejected; }
     Int_t GetNEventsSelected() const { return fNEventsSelected; }
     Double_t GetTotalTimeInSeconds() const { return fTotalTimeInSeconds; }
@@ -77,7 +77,9 @@ class TRestEventTimeSelectionProcess : public TRestEventProcess {
     void SetFileWithTimes(const std::string& fileWithTimes) { fFileWithTimes = fileWithTimes; }
     void SetIsActiveTime(Bool_t isActiveTime) { fIsActiveTime = isActiveTime; }
     void SetDelimiter(Char_t delimiter) { fDelimiter = delimiter; }
-    void SetStartEndTimes(const std::vector<std::pair<std::string,std::string>>& startEndTimes) { fStartEndTimes = startEndTimes; }
+    void SetStartEndTimes(const std::vector<std::pair<std::string, std::string>>& startEndTimes) {
+        fStartEndTimes = startEndTimes;
+    }
 
     ClassDefOverride(TRestEventTimeSelectionProcess, 1);
 };
