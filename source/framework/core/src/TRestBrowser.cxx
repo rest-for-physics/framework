@@ -301,7 +301,7 @@ Bool_t TRestBrowser::LoadEventId(Int_t eventID, Int_t subEventID) {
 
     if (fRestRun->GetAnalysisTree() != nullptr && fRestRun->GetAnalysisTree()->GetEntries() > 0) {
         TRestEvent* event = fRestRun->GetEventWithID(eventID, subEventID);
-        if (event != nullptr) {
+        if (event == nullptr) {
             RESTWarning << "Event ID : " << eventID << " with sub ID : " << subEventID << " not found!"
                         << RESTendl;
             return kFALSE;
