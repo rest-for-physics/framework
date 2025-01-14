@@ -112,7 +112,9 @@ void TRestEventTimeSelectionProcess::Initialize() {
     fIsActiveTime = true;
     fDelimiter = ',';
     fStartEndTimes.clear();
-    fOffsetTimeInSeconds = 0;
+    fTimeOffsetInSeconds = 0;
+    fTimeStartMarginInSeconds = 0;
+    fTimeEndMarginInSeconds = 0;
     fNEventsRejected = 0;
     fNEventsSelected = 0;
     fTotalTimeInSeconds = 0;
@@ -144,14 +146,27 @@ void TRestEventTimeSelectionProcess::InitProcess() {
             file.close();
         }
     }
-    fTotalTimeInSeconds = 0;
+    fTotalTimeInSeconds = CalculateTotalTimeInSeconds();
+    fNEventsRejected = 0;
+    fNEventsSelected = 0;
+}
+
+Double_t TRestEventTimeSelectionProcess::CalculateTotalTimeInSeconds(){
+    Double_t totalTime = 0;
     for (auto id : fStartEndTimes) {
         TTimeStamp startTime = TTimeStamp(StringToTimeStamp(id.first), 0);
         TTimeStamp endTime = TTimeStamp(StringToTimeStamp(id.second), 0);
-        fTotalTimeInSeconds += endTime.AsDouble() - startTime.AsDouble();
+        // Reduce the time by the margin in both sides
+        startTime.Add(TTimeStamp(fTimeStartMarginInSeconds));
+        endTime.Add(TTimeStamp(-fTimeEndMarginInSeconds));
+        auto timeDiff = endTime.AsDouble() - startTime.AsDouble();
+        if (timeDiff < 0) {
+            RESTDebug << "End time is before start time in time range: " << id.first << " to " << id.second << RESTendl;
+            continue;
+        }
+        totalTime += endTime.AsDouble() - startTime.AsDouble();
     }
-    fNEventsRejected = 0;
-    fNEventsSelected = 0;
+    return totalTime;
 }
 
 ///////////////////////////////////////////////
@@ -166,6 +181,9 @@ TRestEvent* TRestEventTimeSelectionProcess::ProcessEvent(TRestEvent* inputEvent)
         for (auto id : fStartEndTimes) {
             TTimeStamp startTime = TTimeStamp(StringToTimeStamp(id.first), 0);
             TTimeStamp endTime = TTimeStamp(StringToTimeStamp(id.second), 0);
+            // Reduce the time by the margin in both sides
+            startTime.Add(TTimeStamp(fTimeStartMarginInSeconds));
+            endTime.Add(TTimeStamp(-fTimeEndMarginInSeconds));
             if (eventTime >= startTime && eventTime <= endTime) {
                 fNEventsSelected++;
                 return fEvent;
@@ -178,6 +196,9 @@ TRestEvent* TRestEventTimeSelectionProcess::ProcessEvent(TRestEvent* inputEvent)
         for (auto id : fStartEndTimes) {
             TTimeStamp startTime = TTimeStamp(StringToTimeStamp(id.first), 0);
             TTimeStamp endTime = TTimeStamp(StringToTimeStamp(id.second), 0);
+            // Reduce the time by the margin in both sides
+            startTime.Add(TTimeStamp(fTimeStartMarginInSeconds));
+            endTime.Add(TTimeStamp(-fTimeEndMarginInSeconds));
             if (eventTime >= startTime && eventTime <= endTime) {
                 isInDeadPeriod = true;
                 break;
@@ -218,7 +239,7 @@ std::string TRestEventTimeSelectionProcess::GetTimeStampCut(std::string timeStam
     std::string timeCut = "";
     std::string timeStampObsNameWithOffset = timeStampObsName;
     if (useOffset) {
-        timeStampObsNameWithOffset += "+" + to_string(fOffsetTimeInSeconds);
+        timeStampObsNameWithOffset += "+" + to_string(fTimeOffsetInSeconds);
     }
     if (nTimes < 0) nTimes = fStartEndTimes.size();
     Int_t c = 0;
@@ -226,11 +247,12 @@ std::string TRestEventTimeSelectionProcess::GetTimeStampCut(std::string timeStam
         if (c++ >= nTimes) break;
         auto startTime = StringToTimeStamp(id.first);
         auto endTime = StringToTimeStamp(id.second);
-        if (!timeCut.empty()) {
-            if (fIsActiveTime)
-                timeCut += " || ";
-            else
-                timeCut += " && ";
+        // Reduce the time by the margin in both sides
+        startTime += fTimeStartMarginInSeconds;
+        endTime -= fTimeEndMarginInSeconds;
+        if (!timeCut.empty()){
+            if (fIsActiveTime) timeCut += " || ";
+            else timeCut += " && ";
         }
         if (!fIsActiveTime) timeCut += "!";
         timeCut += "(";
@@ -250,7 +272,9 @@ void TRestEventTimeSelectionProcess::PrintMetadata() {
 
     RESTMetadata << "File with times: " << fFileWithTimes << RESTendl;
     // print periods
-    RESTMetadata << "Offset time: " << fOffsetTimeInSeconds << " seconds" << RESTendl;
+    RESTMetadata << "Offset time: " << fTimeOffsetInSeconds << " seconds" << RESTendl;
+    RESTMetadata << "Start margin time: " << fTimeStartMarginInSeconds << " seconds" << RESTendl;
+    RESTMetadata << "End margin time: " << fTimeEndMarginInSeconds << " seconds" << RESTendl;
     RESTMetadata << typeOfTime << " time periods: " << RESTendl;
     for (auto id : fStartEndTimes) {
         RESTMetadata << id.first << " to " << id.second << RESTendl;
