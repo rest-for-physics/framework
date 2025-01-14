@@ -151,7 +151,7 @@ void TRestEventTimeSelectionProcess::InitProcess() {
     fNEventsSelected = 0;
 }
 
-Double_t TRestEventTimeSelectionProcess::CalculateTotalTimeInSeconds(){
+Double_t TRestEventTimeSelectionProcess::CalculateTotalTimeInSeconds() {
     Double_t totalTime = 0;
     for (auto id : fStartEndTimes) {
         TTimeStamp startTime = TTimeStamp(StringToTimeStamp(id.first), 0);
@@ -161,7 +161,8 @@ Double_t TRestEventTimeSelectionProcess::CalculateTotalTimeInSeconds(){
         endTime.Add(TTimeStamp(-fTimeEndMarginInSeconds));
         auto timeDiff = endTime.AsDouble() - startTime.AsDouble();
         if (timeDiff < 0) {
-            RESTDebug << "End time is before start time in time range: " << id.first << " to " << id.second << RESTendl;
+            RESTDebug << "End time is before start time in time range: " << id.first << " to " << id.second
+                      << RESTendl;
             continue;
         }
         totalTime += endTime.AsDouble() - startTime.AsDouble();
@@ -250,9 +251,11 @@ std::string TRestEventTimeSelectionProcess::GetTimeStampCut(std::string timeStam
         // Reduce the time by the margin in both sides
         startTime += fTimeStartMarginInSeconds;
         endTime -= fTimeEndMarginInSeconds;
-        if (!timeCut.empty()){
-            if (fIsActiveTime) timeCut += " || ";
-            else timeCut += " && ";
+        if (!timeCut.empty()) {
+            if (fIsActiveTime)
+                timeCut += " || ";
+            else
+                timeCut += " && ";
         }
         if (!fIsActiveTime) timeCut += "!";
         timeCut += "(";

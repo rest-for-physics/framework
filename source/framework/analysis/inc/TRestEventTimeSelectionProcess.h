@@ -36,7 +36,7 @@ class TRestEventTimeSelectionProcess : public TRestEventProcess {
     Long_t fTimeOffsetInSeconds;
     Long_t fTimeStartMarginInSeconds;
     Long_t fTimeEndMarginInSeconds;
-    std::vector<std::pair<std::string,std::string>> fStartEndTimes;
+    std::vector<std::pair<std::string, std::string>> fStartEndTimes;
 
     /// Information about the events processed
 
@@ -84,10 +84,16 @@ class TRestEventTimeSelectionProcess : public TRestEventProcess {
     void SetFileWithTimes(const std::string& fileWithTimes) { fFileWithTimes = fileWithTimes; }
     void SetIsActiveTime(Bool_t isActiveTime) { fIsActiveTime = isActiveTime; }
     void SetDelimiter(Char_t delimiter) { fDelimiter = delimiter; }
-    void SetStartEndTimes(const std::vector<std::pair<std::string,std::string>>& startEndTimes) { fStartEndTimes = startEndTimes; }
+    void SetStartEndTimes(const std::vector<std::pair<std::string, std::string>>& startEndTimes) {
+        fStartEndTimes = startEndTimes;
+    }
     void SetTimeOffsetInSeconds(Long_t timeOffsetInSeconds) { fTimeOffsetInSeconds = timeOffsetInSeconds; }
-    void SetTimeStartMarginInSeconds(Long_t timeStartMarginInSeconds) { fTimeStartMarginInSeconds = timeStartMarginInSeconds; }
-    void SetTimeEndMarginInSeconds(Long_t timeEndMarginInSeconds) { fTimeEndMarginInSeconds = timeEndMarginInSeconds; }
+    void SetTimeStartMarginInSeconds(Long_t timeStartMarginInSeconds) {
+        fTimeStartMarginInSeconds = timeStartMarginInSeconds;
+    }
+    void SetTimeEndMarginInSeconds(Long_t timeEndMarginInSeconds) {
+        fTimeEndMarginInSeconds = timeEndMarginInSeconds;
+    }
 
     ClassDefOverride(TRestEventTimeSelectionProcess, 1);
 };
