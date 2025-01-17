@@ -151,6 +151,11 @@ void TRestEventTimeSelectionProcess::InitProcess() {
     fNEventsSelected = 0;
 }
 
+///////////////////////////////////////////////
+/// \brief Function to calculate the total time in seconds of all the time ranges
+/// (active or dead periods of time). It takes into account the time offset,
+/// and both the start and end margins.
+///
 Double_t TRestEventTimeSelectionProcess::CalculateTotalTimeInSeconds() {
     Double_t totalTime = 0;
     for (auto id : fStartEndTimes) {
