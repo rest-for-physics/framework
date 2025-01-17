@@ -178,39 +178,35 @@ TRestEvent* TRestEventTimeSelectionProcess::ProcessEvent(TRestEvent* inputEvent)
 
     TTimeStamp eventTime = fEvent->GetTimeStamp();
     eventTime.Add(TTimeStamp(fTimeOffsetInSeconds));
-    if (fIsActiveTime) {  // time ranges represent active periods of time
-        for (auto id : fStartEndTimes) {
-            TTimeStamp startTime = TTimeStamp(StringToTimeStamp(id.first), 0);
-            TTimeStamp endTime = TTimeStamp(StringToTimeStamp(id.second), 0);
-            // Reduce the time by the margin in both sides
-            startTime.Add(TTimeStamp(fTimeStartMarginInSeconds));
-            endTime.Add(TTimeStamp(-fTimeEndMarginInSeconds));
-            if (eventTime >= startTime && eventTime <= endTime) {
-                fNEventsSelected++;
-                return fEvent;
-            }
+
+    Bool_t isInsideAnyTimeRange = false;
+    for (auto id : fStartEndTimes) {
+        TTimeStamp startTime = TTimeStamp(StringToTimeStamp(id.first), 0);
+        TTimeStamp endTime = TTimeStamp(StringToTimeStamp(id.second), 0);
+        // Reduce the time by the margin in both sides
+        startTime.Add(TTimeStamp(fTimeStartMarginInSeconds));
+        endTime.Add(TTimeStamp(-fTimeEndMarginInSeconds));
+        if (eventTime >= startTime && eventTime <= endTime) {
+            isInsideAnyTimeRange = true;
+            break;
         }
     }
 
-    if (!fIsActiveTime) {  // time ranges represent dead periods of time
-        Bool_t isInDeadPeriod = false;
-        for (auto id : fStartEndTimes) {
-            TTimeStamp startTime = TTimeStamp(StringToTimeStamp(id.first), 0);
-            TTimeStamp endTime = TTimeStamp(StringToTimeStamp(id.second), 0);
-            // Reduce the time by the margin in both sides
-            startTime.Add(TTimeStamp(fTimeStartMarginInSeconds));
-            endTime.Add(TTimeStamp(-fTimeEndMarginInSeconds));
-            if (eventTime >= startTime && eventTime <= endTime) {
-                isInDeadPeriod = true;
-                break;
-            }
+    // Decide if the event is selected or rejected based on the time ranges
+    // and their meaning (active or dead periods of time).
+    if (fIsActiveTime) { // time ranges represent active periods of time
+        if (isInsideAnyTimeRange) { // time is inside an active period of time
+            fNEventsSelected++;
+            return fEvent;
         }
-        if (!isInDeadPeriod) {
+    } else { // time ranges represent dead periods of time
+        if (!isInsideAnyTimeRange) { // time is outside all dead period of time
             fNEventsSelected++;
             return fEvent;
         }
     }
 
+    // rejected events are not returned
     fNEventsRejected++;
     return nullptr;
 }
