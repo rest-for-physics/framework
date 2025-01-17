@@ -177,7 +177,7 @@ TRestEvent* TRestEventTimeSelectionProcess::ProcessEvent(TRestEvent* inputEvent)
     fEvent = inputEvent;
 
     TTimeStamp eventTime = fEvent->GetTimeStamp();
-    eventTime.Add(TTimeStamp(fOffsetTimeInSeconds));
+    eventTime.Add(TTimeStamp(fTimeOffsetInSeconds));
     if (fIsActiveTime) {  // time ranges represent active periods of time
         for (auto id : fStartEndTimes) {
             TTimeStamp startTime = TTimeStamp(StringToTimeStamp(id.first), 0);
