@@ -199,13 +199,13 @@ TRestEvent* TRestEventTimeSelectionProcess::ProcessEvent(TRestEvent* inputEvent)
 
     // Decide if the event is selected or rejected based on the time ranges
     // and their meaning (active or dead periods of time).
-    if (fIsActiveTime) { // time ranges represent active periods of time
-        if (isInsideAnyTimeRange) { // time is inside an active period of time
+    if (fIsActiveTime) {             // time ranges represent active periods of time
+        if (isInsideAnyTimeRange) {  // time is inside an active period of time
             fNEventsSelected++;
             return fEvent;
         }
-    } else { // time ranges represent dead periods of time
-        if (!isInsideAnyTimeRange) { // time is outside all dead period of time
+    } else {                          // time ranges represent dead periods of time
+        if (!isInsideAnyTimeRange) {  // time is outside all dead period of time
             fNEventsSelected++;
             return fEvent;
         }
