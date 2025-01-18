@@ -139,10 +139,9 @@ void TRestEventTimeSelectionProcess::InitProcess() {
                 std::string startDate, endDate;
                 if (std::getline(lineStream, startDate, fDelimiter) &&
                     std::getline(lineStream, endDate, fDelimiter)) {
-                    
                     // check if the time format is correct. TODO: use better way to check
                     // (StringToTimeStamp usually returns a negative big number if not)
-                    if (StringToTimeStamp(startDate)<0 || StringToTimeStamp(endDate)<0) {
+                    if (StringToTimeStamp(startDate) < 0 || StringToTimeStamp(endDate) < 0) {
                         RESTDebug << "Time format is not correct in line: " << line << RESTendl;
                         continue;
                     }
