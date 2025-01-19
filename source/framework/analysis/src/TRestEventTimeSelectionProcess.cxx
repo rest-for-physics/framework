@@ -66,13 +66,21 @@
 ///
 /// ### Observables
 /// The process does not produce event observables but it keeps track of the number of events selected and
-/// rejected and the total time of the time ranges in the metadata members.
+/// rejected and the total time of the time ranges in the metadata members:
+/// * **nEventsRejected**: number of events rejected.
+/// * **nEventsSelected**: number of events selected.
 ///
 /// ### Examples
 /// Examples for rml files:
 /// \code
-/// <addProcess type="TRestEventTimeSelectionProcess" name="timeSel"
-/// fileWithTimes="/path/to/file/timeperiods.txt" value="ON" verboseLevel="info"> \endcode <hr>
+///    <addProcess type="TRestEventTimeSelectionProcess" name="timeSel" value="ON" verboseLevel="info">
+///        <parameter name="isActiveTime" value="true" /> <!-- default is true-->
+///        <parameter name="fileWithTimes" value="/path/to/fileWithTimes.txt" />
+///        <parameter name="timeOffsetInSeconds" value="-58" /> <!-- default is 0 -->
+///        <parameter name="timeStartMarginInSeconds" value="5" /> <!-- default is 0 -->
+///        <parameter name="timeEndMarginInSeconds" value="5" /> <!-- default is 0 -->
+///    </addProcess>
+/// \endcode <hr>
 ///
 /// \warning ** REST is under continuous development.** This documentation
 /// is offered to you by the REST community. Your HELP is needed to keep this code
