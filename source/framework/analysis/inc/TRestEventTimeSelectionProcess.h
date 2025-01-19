@@ -71,7 +71,7 @@ class TRestEventTimeSelectionProcess : public TRestEventProcess {
 
     std::vector<std::pair<std::string, std::string>> GetStartEndTimes() const { return fStartEndTimes; }
     std::string GetTimeStampCut(std::string timeStampObsName = "timeStamp", Bool_t useOffset = true,
-                                Int_t nTimes = -1);
+                                Bool_t useMargins = true, Int_t nTimes = -1);
     Int_t GetNEventsRejected() const { return fNEventsRejected; }
     Int_t GetNEventsSelected() const { return fNEventsSelected; }
     Double_t GetTotalTimeInSeconds() const { return fTotalTimeInSeconds; }

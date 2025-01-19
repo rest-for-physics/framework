@@ -244,10 +244,10 @@ void TRestEventTimeSelectionProcess::EndProcess() {
 /// to increase the maximum number of operators allowed in a formula.
 ///
 std::string TRestEventTimeSelectionProcess::GetTimeStampCut(std::string timeStampObsName, Bool_t useOffset,
-                                                            Int_t nTimes) {
+                                                            Bool_t useMargins, Int_t nTimes) {
     std::string timeCut = "";
     std::string timeStampObsNameWithOffset = timeStampObsName;
-    if (useOffset) {
+    if (useOffset && fTimeOffsetInSeconds != 0) {
         timeStampObsNameWithOffset += "+" + to_string(fTimeOffsetInSeconds);
     }
     if (nTimes < 0) nTimes = fStartEndTimes.size();
@@ -257,19 +257,28 @@ std::string TRestEventTimeSelectionProcess::GetTimeStampCut(std::string timeStam
         auto startTime = StringToTimeStamp(id.first);
         auto endTime = StringToTimeStamp(id.second);
         // Reduce the time by the margin in both sides
-        startTime += fTimeStartMarginInSeconds;
-        endTime -= fTimeEndMarginInSeconds;
+        if (useMargins) {
+            startTime += fTimeStartMarginInSeconds;
+            endTime -= fTimeEndMarginInSeconds;
+        }
+
+        if (startTime >= endTime) {
+            continue;
+        }
+
+        // Build the cut string
         if (!timeCut.empty()) {
             if (fIsActiveTime)
-                timeCut += " || ";
+                timeCut += " || "; // inside ANY time range
             else
-                timeCut += " && ";
+                timeCut += " && "; // outside ALL time ranges
         }
-        if (!fIsActiveTime) timeCut += "!";
+        if (!fIsActiveTime) timeCut += "!"; // NOT inside the time range
+        // inside the time range
         timeCut += "(";
-        timeCut += timeStampObsNameWithOffset + ">=" + to_string(startTime);
-        timeCut += "&&";
-        timeCut += timeStampObsNameWithOffset + "<=" + to_string(endTime);
+        timeCut += "(" + timeStampObsNameWithOffset + ">=" + to_string(startTime) + ")";
+        timeCut += " && ";
+        timeCut += "(" + timeStampObsNameWithOffset + "<=" + to_string(endTime) + ")";
         timeCut += ")";
     }
     return timeCut;
