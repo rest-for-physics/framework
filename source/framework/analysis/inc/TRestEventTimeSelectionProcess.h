@@ -83,6 +83,8 @@ class TRestEventTimeSelectionProcess : public TRestEventProcess {
     static std::vector<std::pair<std::string, std::string>> ReadFileWithTimes(std::string fileWithTimes,
                                                                               Char_t delimiter = ',');
 
+    void SetAsActiveTime() { fIsActiveTime = true; }
+    void SetAsDeadTime() { fIsActiveTime = false; }
     void SetFileWithTimes(const std::string& fileWithTimes) { fFileWithTimes = fileWithTimes; }
     void SetIsActiveTime(Bool_t isActiveTime) { fIsActiveTime = isActiveTime; }
     void SetDelimiter(Char_t delimiter) { fDelimiter = delimiter; }
