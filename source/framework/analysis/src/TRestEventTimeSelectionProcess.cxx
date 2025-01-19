@@ -298,19 +298,33 @@ void TRestEventTimeSelectionProcess::PrintMetadata() {
     RESTMetadata << typeOfTime << " time periods: " << RESTendl;
     for (auto id : fStartEndTimes) {
         RESTMetadata << id.first << " to " << id.second << RESTendl;
+        TTimeStamp startTime = TTimeStamp(StringToTimeStamp(id.first), 0);
+        TTimeStamp endTime = TTimeStamp(StringToTimeStamp(id.second), 0);
     }
 
+    // Get total time in seconds
+    TTimeStamp totalTime = TTimeStamp(fTotalTimeInSeconds, 0);
+    if (!fStartEndTimes.empty()) {
+        TTimeStamp firstTime = TTimeStamp(StringToTimeStamp(fStartEndTimes.front().first), 0);
+        TTimeStamp lastTime = TTimeStamp(StringToTimeStamp(fStartEndTimes.back().second), 0);
+        totalTime = lastTime - firstTime;
+    }
+
+    double fractionOfTime = fTotalTimeInSeconds / totalTime.AsDouble() * 100;
+    std::string fractionOfTimeStr = StringWithPrecision(fractionOfTime, 4) + " %";
     if ((Int_t)(fTotalTimeInSeconds / 24 / 3600) != 0)  // order of days
         RESTMetadata << "Total " << typeOfTime << " time: " << fTotalTimeInSeconds / 24 / 3600 << " days"
-                     << RESTendl;
+                        << " (" << fractionOfTimeStr << ")" << RESTendl;
     else if ((Int_t)(fTotalTimeInSeconds / 3600) != 0)  // order of hours
         RESTMetadata << "Total " << typeOfTime << " time: " << fTotalTimeInSeconds / 3600 << " hours"
-                     << RESTendl;
+                        << " (" << fractionOfTimeStr << ")" << RESTendl;
     else if ((Int_t)(fTotalTimeInSeconds / 60) != 0)  // order of minutes
         RESTMetadata << "Total " << typeOfTime << " time: " << fTotalTimeInSeconds / 60 << " minutes"
-                     << RESTendl;
+                        << " (" << fractionOfTimeStr << ")" << RESTendl;
     else
-        RESTMetadata << "Total " << typeOfTime << " time: " << fTotalTimeInSeconds << RESTendl;
+        RESTMetadata << "Total " << typeOfTime << " time: " << fTotalTimeInSeconds << " seconds"
+                        << " (" << fractionOfTimeStr << ")" << RESTendl;
+
 
     RESTMetadata << "Number of events rejected: " << fNEventsRejected << " ("
                  << fNEventsRejected * 1. / (fNEventsRejected + fNEventsSelected) * 100 << " %)" << RESTendl;
