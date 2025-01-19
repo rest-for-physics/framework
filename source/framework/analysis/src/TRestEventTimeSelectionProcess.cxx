@@ -59,6 +59,14 @@
 /// * **offsetTimeInSeconds**: offset time in seconds to be added to the event time (default is 0). This is
 /// useful to correct the time of the events if needed. This number of seconds will be added to the event time
 /// before checking if it is within the time ranges.
+/// * **startMarginTimeInSeconds**: margin time in seconds to be added to the start time of the time ranges
+/// (default is 0). This is useful to consider the events that are close to the start time of the time ranges.
+/// * **endMarginTimeInSeconds**: margin time in seconds to be subtracted from the end time of the time ranges
+/// (default is 0). This is useful to consider the events that are close to the end time of the time ranges.
+///
+/// ### Observables
+/// The process does not produce event observables but it keeps track of the number of events selected and rejected
+/// and the total time of the time ranges in the metadata members.
 ///
 /// ### Examples
 /// Examples for rml files:
@@ -81,7 +89,7 @@
 /// RESTsoft - Software for Rare Event Searches with TPCs
 ///
 /// History of developments:
-/// 2024-Jun: Use of the processing file itself (no need for external fileWithIDs)
+/// 2025-Jan - First version of the code
 ///              Alvaro Ezquerro
 ///
 /// \class      TRestEventTimeSelectionProcess
