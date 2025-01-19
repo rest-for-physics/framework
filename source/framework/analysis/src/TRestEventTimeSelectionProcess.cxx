@@ -65,8 +65,8 @@
 /// (default is 0). This is useful to consider the events that are close to the end time of the time ranges.
 ///
 /// ### Observables
-/// The process does not produce event observables but it keeps track of the number of events selected and rejected
-/// and the total time of the time ranges in the metadata members.
+/// The process does not produce event observables but it keeps track of the number of events selected and
+/// rejected and the total time of the time ranges in the metadata members.
 ///
 /// ### Examples
 /// Examples for rml files:
@@ -169,7 +169,6 @@ std::vector<std::pair<std::string, std::string>> TRestEventTimeSelectionProcess:
     }
     return startEndTimes;
 }
-
 
 ///////////////////////////////////////////////
 /// \brief Function to calculate the total time in seconds of all the time ranges
@@ -282,11 +281,11 @@ std::string TRestEventTimeSelectionProcess::GetTimeStampCut(std::string timeStam
         // Build the cut string
         if (!timeCut.empty()) {
             if (fIsActiveTime)
-                timeCut += " || "; // inside ANY time range
+                timeCut += " || ";  // inside ANY time range
             else
-                timeCut += " && "; // outside ALL time ranges
+                timeCut += " && ";  // outside ALL time ranges
         }
-        if (!fIsActiveTime) timeCut += "!"; // NOT inside the time range
+        if (!fIsActiveTime) timeCut += "!";  // NOT inside the time range
         // inside the time range
         timeCut += "(";
         timeCut += "(" + timeStampObsNameWithOffset + ">=" + to_string(startTime) + ")";
@@ -327,17 +326,16 @@ void TRestEventTimeSelectionProcess::PrintMetadata() {
     std::string fractionOfTimeStr = StringWithPrecision(fractionOfTime, 4) + " %";
     if ((Int_t)(fTotalTimeInSeconds / 24 / 3600) != 0)  // order of days
         RESTMetadata << "Total " << typeOfTime << " time: " << fTotalTimeInSeconds / 24 / 3600 << " days"
-                        << " (" << fractionOfTimeStr << ")" << RESTendl;
+                     << " (" << fractionOfTimeStr << ")" << RESTendl;
     else if ((Int_t)(fTotalTimeInSeconds / 3600) != 0)  // order of hours
         RESTMetadata << "Total " << typeOfTime << " time: " << fTotalTimeInSeconds / 3600 << " hours"
-                        << " (" << fractionOfTimeStr << ")" << RESTendl;
+                     << " (" << fractionOfTimeStr << ")" << RESTendl;
     else if ((Int_t)(fTotalTimeInSeconds / 60) != 0)  // order of minutes
         RESTMetadata << "Total " << typeOfTime << " time: " << fTotalTimeInSeconds / 60 << " minutes"
-                        << " (" << fractionOfTimeStr << ")" << RESTendl;
+                     << " (" << fractionOfTimeStr << ")" << RESTendl;
     else
         RESTMetadata << "Total " << typeOfTime << " time: " << fTotalTimeInSeconds << " seconds"
-                        << " (" << fractionOfTimeStr << ")" << RESTendl;
-
+                     << " (" << fractionOfTimeStr << ")" << RESTendl;
 
     RESTMetadata << "Number of events rejected: " << fNEventsRejected << " ("
                  << fNEventsRejected * 1. / (fNEventsRejected + fNEventsSelected) * 100 << " %)" << RESTendl;
