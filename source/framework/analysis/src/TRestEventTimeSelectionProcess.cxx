@@ -127,36 +127,41 @@ void TRestEventTimeSelectionProcess::Initialize() {
 void TRestEventTimeSelectionProcess::InitProcess() {
     // Read the file with the time ranges
     if (!fFileWithTimes.empty()) {
-        fStartEndTimes.clear();
-        string line;
-        ifstream file(fFileWithTimes);
-        if (file.is_open()) {
-            while (getline(file, line)) {
-                if (line[0] == '#') {  // understand as comment
-                    continue;
-                }
-                std::istringstream lineStream(line);
-                std::string startDate, endDate;
-                if (std::getline(lineStream, startDate, fDelimiter) &&
-                    std::getline(lineStream, endDate, fDelimiter)) {
-                    // check if the time format is correct. TODO: use better way to check
-                    // (StringToTimeStamp usually returns a negative big number if not)
-                    if (StringToTimeStamp(startDate) < 0 || StringToTimeStamp(endDate) < 0) {
-                        RESTDebug << "Time format is not correct in line: " << line << RESTendl;
-                        continue;
-                    }
-
-                    fStartEndTimes.emplace_back(startDate, endDate);
-                    RESTDebug << "Start: " << startDate << " End: " << endDate << RESTendl;
-                }
-            }
-            file.close();
-        }
+        fStartEndTimes = ReadFileWithTimes(fFileWithTimes, fDelimiter);
     }
     fTotalTimeInSeconds = CalculateTotalTimeInSeconds();
     fNEventsRejected = 0;
     fNEventsSelected = 0;
 }
+
+std::vector<std::pair<std::string, std::string>> TRestEventTimeSelectionProcess::ReadFileWithTimes(
+    std::string fileWithTimes, Char_t delimiter) {
+    std::vector<std::pair<std::string, std::string>> startEndTimes;
+    string line;
+    ifstream file(fileWithTimes);
+    if (file.is_open()) {
+        while (getline(file, line)) {
+            if (line[0] == '#') {  // understand as comment
+                continue;
+            }
+            std::istringstream lineStream(line);
+            std::string startDate, endDate;
+            if (std::getline(lineStream, startDate, delimiter) &&
+                std::getline(lineStream, endDate, delimiter)) {
+                // check if the time format is correct. TODO: use better way to check
+                // (StringToTimeStamp usually returns a negative big number if not)
+                if (StringToTimeStamp(startDate) < 0 || StringToTimeStamp(endDate) < 0) {
+                    continue;
+                }
+
+                startEndTimes.emplace_back(startDate, endDate);
+            }
+        }
+        file.close();
+    }
+    return startEndTimes;
+}
+
 
 ///////////////////////////////////////////////
 /// \brief Function to calculate the total time in seconds of all the time ranges

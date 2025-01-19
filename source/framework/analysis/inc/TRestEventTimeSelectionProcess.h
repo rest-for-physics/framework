@@ -80,6 +80,8 @@ class TRestEventTimeSelectionProcess : public TRestEventProcess {
     Long_t GetTimeEndMarginInSeconds() const { return fTimeEndMarginInSeconds; }
 
     Double_t CalculateTotalTimeInSeconds();
+    static std::vector<std::pair<std::string, std::string>> ReadFileWithTimes(std::string fileWithTimes,
+                                                                              Char_t delimiter = ',');
 
     void SetFileWithTimes(const std::string& fileWithTimes) { fFileWithTimes = fileWithTimes; }
     void SetIsActiveTime(Bool_t isActiveTime) { fIsActiveTime = isActiveTime; }
