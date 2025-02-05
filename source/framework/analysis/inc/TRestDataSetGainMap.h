@@ -33,6 +33,7 @@
 #include <TTree.h>
 #include <TVector2.h>
 
+#include "TRestCut.h"
 #include "TRestDataSet.h"
 #include "TRestMetadata.h"
 
@@ -42,13 +43,26 @@ class TRestDataSetGainMap : public TRestMetadata {
     class Module;
 
    private:
-    std::string fObservable = "";          //"rawAna_ThresholdIntegral"; //<
-    std::string fSpatialObservableX = "";  //"hitsAna_xMean"; //<
-    std::string fSpatialObservableY = "";  //"hitsAna_yMean"; //<
+    /// Observable that will be used to calculate the gain map
+    std::string fObservable = "";  //<
 
-    std::vector<Module> fModulesCal = {};
-    std::string fCalibFileName = "";
-    std::string fOutputFileName = "";
+    /// Observable that will be used to segmentize the gain map in the x direction
+    std::string fSpatialObservableX = "";  //<
+
+    /// Observable that will be used to segmentize the gain map in the y direction
+    std::string fSpatialObservableY = "";  //<
+
+    /// List of modules
+    std::vector<Module> fModulesCal = {};  //<
+
+    /// Name of the file that contains the calibration data
+    std::string fCalibFileName = "";  //<
+
+    /// Name of the file where the gain map was (or will be) exported
+    std::string fOutputFileName = "";  //<
+
+    /// Cut to be applied to the calibration data
+    TRestCut* fCut = nullptr;  //<
 
     void Initialize() override;
     void InitFromConfigFile() override;
@@ -69,14 +83,18 @@ class TRestDataSetGainMap : public TRestMetadata {
     std::string GetObservable() const { return fObservable; }
     std::string GetSpatialObservableX() const { return fSpatialObservableX; }
     std::string GetSpatialObservableY() const { return fSpatialObservableY; }
+    TRestCut* GetCut() const { return fCut; }
 
+    Module* GetModule(const size_t index = 0);
     Module* GetModule(const int planeID, const int moduleID);
     double GetSlopeParameter(const int planeID, const int moduleID, const double x, const double y);
     double GetInterceptParameter(const int planeID, const int moduleID, const double x, const double y);
+    double GetSlopeParameterFullSpc(const int planeID, const int moduleID);
+    double GetInterceptParameterFullSpc(const int planeID, const int moduleID);
 
     void SetCalibrationFileName(const std::string& fileName) { fCalibFileName = fileName; }
     void SetOutputFileName(const std::string& fileName) { fOutputFileName = fileName; }
-    void SetModuleCalibration(const Module& moduleCal);
+    void SetModule(const Module& moduleCal);
     void SetObservable(const std::string& observable) { fObservable = observable; }
     void SetSpatialObservableX(const std::string& spatialObservableX) {
         fSpatialObservableX = spatialObservableX;
@@ -84,52 +102,106 @@ class TRestDataSetGainMap : public TRestMetadata {
     void SetSpatialObservableY(const std::string& spatialObservableY) {
         fSpatialObservableY = spatialObservableY;
     }
+    void SetCut(TRestCut* cut) { fCut = cut; }
 
     void Import(const std::string& fileName);
     void Export(const std::string& fileName = "");
 
     TRestDataSetGainMap& operator=(TRestDataSetGainMap& src);
 
-   public:
     void PrintMetadata() override;
 
     void GenerateGainMap();
-    void CalibrateDataSet(const std::string& dataSetFileName, std::string outputFileName = "");
+    void CalibrateDataSet(const std::string& dataSetFileName, std::string outputFileName = "",
+                          std::vector<std::string> excludeColumns = {});
 
     TRestDataSetGainMap();
     TRestDataSetGainMap(const char* configFilename, std::string name = "");
     ~TRestDataSetGainMap();
 
-    ClassDefOverride(TRestDataSetGainMap, 1);
+    ClassDefOverride(TRestDataSetGainMap, 2);
 
     class Module {
        private:
-        const TRestDataSetGainMap* p = nullptr;  //<! Pointer to the parent class
-       public:                                   /// Members that will be written to the ROOT file.
-        Int_t fPlaneId = -1;                     //< // Plane ID
-        Int_t fModuleId = -1;                    //< // Module ID
+        /// Pointer to the parent class
+        const TRestDataSetGainMap* p = nullptr;  //<!
 
-        std::vector<double> fEnergyPeaks = {};
-        std::vector<TVector2> fRangePeaks = {};  //{TVector2(230000, 650000), TVector2(40000, 230000)};
-        TVector2 fCalibRange = TVector2(0, 0);   //< // Calibration range
-        Int_t fNBins = 100;                      //< // Number of bins for the spectrum histograms
-        std::string fDefinitionCut = "";         //"TREXsides_tagId == 2"; //<
+        std::pair<double, double> FitPeaks(TH1F* hSeg, TGraph* gr);
+        std::pair<double, double> UpdateCalibrationFits(TH1F* hSeg, TGraph* gr);
 
-        Int_t fNumberOfSegmentsX = 1;                   //<
-        Int_t fNumberOfSegmentsY = 1;                   //<
-        TVector2 fReadoutRange = TVector2(-1, 246.24);  //< // Readout dimensions
-        std::set<double> fSplitX = {};                  //<
-        std::set<double> fSplitY = {};                  //<
+       public:
+        /// Plane ID (unique identifier). Although it is not linked to any TRestDetectorReadout it is
+        /// recommended to use the same.
+        Int_t fPlaneId = -1;  //<
 
-        std::string fDataSetFileName = "";  //< // File name for the calibration dataset
+        // Module ID (unique identifier). Although it is not linked to any TRestDetectorReadout it is
+        // recommended to use the same.
+        Int_t fModuleId = -1;  //<
 
-        std::vector<std::vector<double>> fSlope = {};      //<
+        /// Energy of the peaks to be used for the calibration.
+        std::vector<double> fEnergyPeaks = {};  //<
+
+        /// Range of the peaks to be used for the calibration. If empty it will be automatically calculated.
+        std::vector<TVector2> fRangePeaks = {};  //<
+
+        /// Calibration range. If fCalibRange.X()>=fCalibRange.Y() the range will be automatically calculated.
+        TVector2 fCalibRange = TVector2(0, 0);  //<
+
+        /// Number of bins for the spectrum histograms.
+        Int_t fNBins = 100;  //<
+
+        /// Cut that defines which events are from this module.
+        std::string fDefinitionCut = "";  //<
+
+        /// Number of segments in the x direction.
+        Int_t fNumberOfSegmentsX = 1;  //<
+
+        /// Number of segments in the y direction.
+        Int_t fNumberOfSegmentsY = 1;  //<
+
+        /// Readout dimensions
+        TVector2 fReadoutRange = TVector2(-1, 246.24);  //<
+
+        /// Split points in the x direction.
+        std::set<double> fSplitX = {};  //<
+
+        /// Split points in the y direction.
+        std::set<double> fSplitY = {};  //<
+
+        /// Name of the file that contains the calibration data. If empty, it will use its parent
+        /// TRestDataSetGainMap::fCalibFileName.
+        std::string fDataSetFileName = "";  //<
+
+        /// Array containing the slope of the linear fit for each segment.
+        std::vector<std::vector<double>> fSlope = {};  //<
+
+        /// Slope of the calibration linear fit of whole module
+        double fFullSlope = 0;  //<
+
+        /// Intercept of the calibration linear fit of whole module
+        double fFullIntercept = 0;  //<
+
+        /// Array containing the intercept of the linear fit for each segment.
         std::vector<std::vector<double>> fIntercept = {};  //<
 
-        bool fZeroPoint = false;  //< Zero point will be automatically added if there are less than 2 peaks
-        bool fAutoRangePeaks = true;  //< Automatic range peaks
-        std::vector<std::vector<TH1F*>> fSegSpectra = {};
-        std::vector<std::vector<TGraph*>> fSegLinearFit = {};
+        /// Add zero point to the calibration linear fit. Zero point will be automatically added if there are
+        /// less than 2 points.
+        bool fZeroPoint = false;  //<
+
+        /// Automatic range for the peaks fitting. See GenerateGainMap() for more information of the logic.
+        bool fAutoRangePeaks = true;  //<
+
+        /// Array containing the observable spectrum for each segment.
+        std::vector<std::vector<TH1F*>> fSegSpectra = {};  //<
+
+        /// Array containing the calibration linear fit for each segment.
+        std::vector<std::vector<TGraph*>> fSegLinearFit = {};  //<
+
+        /// Spectrum of the observable for the whole module.
+        TH1F* fFullSpectrum = nullptr;  //<
+
+        /// Calibration linear fit for the whole module.
+        TGraph* fFullLinearFit = nullptr;  //<
 
        public:
         void AddPeak(const double& energyPeak, const TVector2& rangePeak = TVector2(0, 0)) {
@@ -139,9 +211,12 @@ class TRestDataSetGainMap : public TRestMetadata {
 
         void LoadConfigFromTiXmlElement(const TiXmlElement* module);
 
+        TRestDataSetGainMap* GetParent() const { return const_cast<TRestDataSetGainMap*>(p); }
         std::pair<int, int> GetIndexMatrix(const double x, const double y) const;
         double GetSlope(const double x, const double y) const;
         double GetIntercept(const double x, const double y) const;
+        double GetSlopeFullSpc() const { return fFullSlope; };
+        double GetInterceptFullSpc() const { return fFullIntercept; };
 
         Int_t GetPlaneId() const { return fPlaneId; }
         Int_t GetModuleId() const { return fModuleId; }
@@ -155,24 +230,27 @@ class TRestDataSetGainMap : public TRestMetadata {
         std::set<double> GetSplitX() const { return fSplitX; }
         std::set<double> GetSplitY() const { return fSplitY; }
         std::string GetDataSetFileName() const { return fDataSetFileName; }
-        TVector2 GetReadoutRangeVar() const { return fReadoutRange; }
+        TVector2 GetReadoutRange() const { return fReadoutRange; }
 
         void DrawSpectrum(const bool drawFits = true, const int color = -1, TCanvas* c = nullptr);
         void DrawSpectrum(const TVector2& position, bool drawFits = true, int color = -1,
                           TCanvas* c = nullptr);
         void DrawSpectrum(const int index_x, const int index_y, bool drawFits = true, int color = -1,
                           TCanvas* c = nullptr);
-        void DrawFullSpectrum();
+        void DrawFullSpectrum(const bool drawFits = true, const int color = -1, TCanvas* c = nullptr);
 
-        void DrawLinearFit();
+        void DrawLinearFit(TCanvas* c = nullptr);
         void DrawLinearFit(const TVector2& position, TCanvas* c = nullptr);
         void DrawLinearFit(const int index_x, const int index_y, TCanvas* c = nullptr);
 
-        void DrawGainMap(const int peakNumber = 0);
+        void DrawGainMap(const int peakNumber = 0, const bool fullModuleAsRef = true);
 
         void Refit(const TVector2& position, const double energy, const TVector2& range);
         void Refit(const size_t x, const size_t y, const size_t peakNumber, const TVector2& range);
+        void RefitFullSpc(const double energy, const TVector2& range);
+        void RefitFullSpc(const size_t peakNumber, const TVector2& range);
         void UpdateCalibrationFits(const size_t x, const size_t y);
+        void UpdateCalibrationFitsFullSpc();
 
         void SetPlaneId(const Int_t& planeId) { fPlaneId = planeId; }
         void SetModuleId(const Int_t& moduleId) { fModuleId = moduleId; }

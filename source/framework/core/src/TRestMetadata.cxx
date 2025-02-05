@@ -512,6 +512,28 @@ TRestMetadata::TRestMetadata() : RESTendl(this) {
 #endif
 }
 
+TRestMetadata::TRestMetadata(const TRestMetadata&) : RESTendl(this) {
+    fStore = true;
+    fElementGlobal = nullptr;
+    fElement = nullptr;
+    fVerboseLevel = gVerbose;
+    fVariables.clear();
+    fConstants.clear();
+    fHostmgr = nullptr;
+
+    fConfigFileName = "null";
+    configBuffer = "";
+    RESTMetadata.setlength(100);
+
+#ifdef WIN32
+    fOfficialRelease = true;
+    fCleanState = true;
+#else
+    if (TRestTools::Execute("rest-config --release") == "Yes") fOfficialRelease = true;
+    if (TRestTools::Execute("rest-config --clean") == "Yes") fCleanState = true;
+#endif
+}
+
 ///////////////////////////////////////////////
 /// \brief constructor
 ///
@@ -1262,7 +1284,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
             url = _filename;
         }
 
-        filename = TRestTools::DownloadRemoteFile(url);
+        filename = TRestTools::DownloadRemoteFile(url, true);
     } else {
         filename = SearchFile(_filename);
     }
@@ -2549,6 +2571,8 @@ void TRestMetadata::ReadOneParameter(string name, string value) {
                         Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
                         Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
                         *(TVector3*)datamember = TVector3(valueX, valueY, valueZ);
+                    } else if (datamember.type == "string") {
+                        // We just ignore this case
                     } else {
                         RESTWarning << this->ClassName() << " find unit definition in parameter: " << name
                                     << ", but the corresponding data member doesn't support it. Data "
@@ -2677,4 +2701,19 @@ void TRestMetadata::Merge(const TRestMetadata& metadata) {
     if (fName.IsNull()) {
         fName = metadata.GetName();
     }
+}
+
+UInt_t TRestMetadata::GetVersionMajor() const {
+    TString major = fVersion(0, fVersion.First('.'));
+    return major.Atoi();
+}
+
+UInt_t TRestMetadata::GetVersionMinor() const {
+    TString minor = fVersion(fVersion.First('.') + 1, fVersion.Last('.'));
+    return minor.Atoi();
+}
+
+UInt_t TRestMetadata::GetVersionPatch() const {
+    TString patch = fVersion(fVersion.Last('.') + 1, fVersion.Length());
+    return patch.Atoi();
 }

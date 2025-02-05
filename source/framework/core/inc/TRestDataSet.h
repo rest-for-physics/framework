@@ -82,7 +82,7 @@ class TRestDataSet : public TRestMetadata {
     std::map<std::string, RelevantQuantity> fQuantity;  //<
 
     /// Parameter cuts over the selected dataset
-    TRestCut* fCut = nullptr;
+    TRestCut* fCut = nullptr;  //<
 
     /// The total integrated run time of selected files
     Double_t fTotalDuration = 0;  //<
@@ -103,14 +103,16 @@ class TRestDataSet : public TRestMetadata {
     std::vector<std::string> fImportedFiles;  //<
 
     /// A list of new columns together with its corresponding expressions added to the dataset
-    std::vector<std::pair<std::string, std::string>> fColumnNameExpressions;
+    std::vector<std::pair<std::string, std::string>> fColumnNameExpressions;  //<
 
     /// A flag to enable Multithreading during dataframe generation
     Bool_t fMT = false;  //<
 
-    inline auto GetAddedColumns() const { return fColumnNameExpressions; }
+    // If the dataframe was defined externally it will be true
+    Bool_t fExternal = false;  //<
+
     /// The resulting RDF::RNode object after initialization
-    ROOT::RDF::RNode fDataSet = ROOT::RDataFrame(0);  //!
+    ROOT::RDF::RNode fDataFrame = ROOT::RDataFrame(0);  //!
 
     /// A pointer to the generated tree
     TChain* fTree = nullptr;  //!
@@ -120,29 +122,39 @@ class TRestDataSet : public TRestMetadata {
    protected:
     virtual std::vector<std::string> FileSelection();
 
+    void RegenerateTree(std::vector<std::string> finalList = {});
+
    public:
     /// Gives access to the RDataFrame
     ROOT::RDF::RNode GetDataFrame() const {
-        if (fTree == nullptr) RESTWarning << "DataFrame has not been yet initialized" << RESTendl;
-        return fDataSet;
+        if (!fExternal && fTree == nullptr)
+            RESTWarning << "DataFrame has not been yet initialized" << RESTendl;
+        return fDataFrame;
     }
-
-    void SetDataFrame(const ROOT::RDF::RNode& dS) { fDataSet = dS; }
 
     void EnableMultiThreading(Bool_t enable = true) { fMT = enable; }
 
     /// Gives access to the tree
     TTree* GetTree() const {
+        if (fTree == nullptr && fExternal) {
+            RESTInfo << "The tree is not accessible. Only GetDataFrame can be used in an externally "
+                        "generated dataset"
+                     << RESTendl;
+            RESTInfo << "You may write a tree using GetDataFrame()->Snapshot(\"MyTree\", \"output.root\");"
+                     << RESTendl;
+            return fTree;
+        }
+
         if (fTree == nullptr) {
             RESTError << "Tree has not been yet initialized" << RESTendl;
-            RESTError << "You should invoke TRestDataSet::GenerateDataSet() before trying to access the tree"
-                      << RESTendl;
+            RESTError << "You should invoke TRestDataSet::GenerateDataSet() or " << RESTendl;
+            RESTError << "TRestDataSet::Import( fname ) before trying to access the tree" << RESTendl;
         }
         return fTree;
     }
 
     /// Number of variables (or observables)
-    size_t GetNumberOfColumns() { return fDataSet.GetColumnNames().size(); }
+    size_t GetNumberOfColumns() { return fDataFrame.GetColumnNames().size(); }
 
     /// Number of variables (or observables)
     size_t GetNumberOfBranches() { return GetNumberOfColumns(); }
@@ -167,6 +179,7 @@ class TRestDataSet : public TRestMetadata {
     inline auto GetFilterLowerThan() const { return fFilterLowerThan; }
     inline auto GetFilterEqualsTo() const { return fFilterEqualsTo; }
     inline auto GetQuantity() const { return fQuantity; }
+    inline auto GetAddedColumns() const { return fColumnNameExpressions; }
     inline auto GetCut() const { return fCut; }
     inline auto IsMergedDataSet() const { return fMergedDataset; }
 
@@ -174,15 +187,24 @@ class TRestDataSet : public TRestMetadata {
     inline void SetFilePattern(const std::string& pattern) { fFilePattern = pattern; }
     inline void SetQuantity(const std::map<std::string, RelevantQuantity>& quantity) { fQuantity = quantity; }
 
+    void SetTotalTimeInSeconds(Double_t seconds) { fTotalDuration = seconds; }
+    void SetDataFrame(const ROOT::RDF::RNode& dS) {
+        fDataFrame = dS;
+        fExternal = true;
+    }
+
     TRestDataSet& operator=(TRestDataSet& dS);
     Bool_t Merge(const TRestDataSet& dS);
     void Import(const std::string& fileName);
     void Import(std::vector<std::string> fileNames);
-    void Export(const std::string& filename);
+    void Export(const std::string& filename, std::vector<std::string> excludeColumns = {});
 
     ROOT::RDF::RNode MakeCut(const TRestCut* cut);
-
+    ROOT::RDF::RNode ApplyRange(size_t from, size_t to);
+    ROOT::RDF::RNode Range(size_t from, size_t to);
     ROOT::RDF::RNode DefineColumn(const std::string& columnName, const std::string& formula);
+
+    size_t GetEntries();
 
     void PrintMetadata() override;
     void Initialize() override;
@@ -193,6 +215,6 @@ class TRestDataSet : public TRestMetadata {
     TRestDataSet(const char* cfgFileName, const std::string& name = "");
     ~TRestDataSet();
 
-    ClassDefOverride(TRestDataSet, 5);
+    ClassDefOverride(TRestDataSet, 8);
 };
 #endif
