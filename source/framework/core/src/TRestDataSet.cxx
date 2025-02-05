@@ -434,16 +434,20 @@ std::vector<std::string> TRestDataSet::FileSelection() {
         return fFileSelection;
     }
 
-    std::vector<std::string> fileNames = TRestTools::GetFilesMatchingPattern(fFilePattern);
+    std::vector<std::string> fileList;
+    for (const auto& pattern : fFilePatternList) {
+        auto list = TRestTools::GetFilesMatchingPattern(pattern);
+        fileList.insert(end(fileList), begin(list), end(list));
+    }
 
     RESTInfo << "TRestDataSet::FileSelection. Starting file selection." << RESTendl;
-    RESTInfo << "Total files : " << fileNames.size() << RESTendl;
+    RESTInfo << "Total files : " << fileList.size() << RESTendl;
     RESTInfo << "This process may take long computation time in case there are many files." << RESTendl;
 
     fTotalDuration = 0;
     std::cout << "Processing file selection.";
     int cnt = 1;
-    for (const auto& file : fileNames) {
+    for (const auto& file : fileList) {
         if (cnt % 100 == 0) {
             std::cout << std::endl;
             std::cout << "Files processed: " << cnt << " ." << std::flush;
@@ -635,8 +639,10 @@ void TRestDataSet::PrintMetadata() {
 
     RESTMetadata << " - StartTime : " << REST_StringHelper::ToDateTimeString(fStartTime) << RESTendl;
     RESTMetadata << " - EndTime : " << REST_StringHelper::ToDateTimeString(fEndTime) << RESTendl;
-    RESTMetadata << " - Path : " << TRestTools::SeparatePathAndName(fFilePattern).first << RESTendl;
-    RESTMetadata << " - File pattern : " << TRestTools::SeparatePathAndName(fFilePattern).second << RESTendl;
+    for (const auto& pattern : fFilePatternList) {
+        RESTMetadata << " - Path : " << TRestTools::SeparatePathAndName(pattern).first << RESTendl;
+        RESTMetadata << " - File pattern : " << TRestTools::SeparatePathAndName(pattern).second << RESTendl;
+    }
     RESTMetadata << "  " << RESTendl;
     RESTMetadata << " - Accumulated run time (seconds) : " << fTotalDuration << RESTendl;
     RESTMetadata << " - Accumulated run time (hours) : " << fTotalDuration / 3600. << RESTendl;
@@ -731,6 +737,9 @@ void TRestDataSet::PrintMetadata() {
 ///
 void TRestDataSet::InitFromConfigFile() {
     TRestMetadata::InitFromConfigFile();
+
+    std::string filePattern = GetParameter("filePattern", "");
+    if (!filePattern.empty()) fFilePatternList.push_back(filePattern);
 
     /// Reading filters
     TiXmlElement* filterDefinition = GetElement("filter");
@@ -920,8 +929,10 @@ void TRestDataSet::Export(const std::string& filename, std::vector<std::string> 
         fprintf(f, "### Accumulated run time (hours) : %lf\n", fTotalDuration / 3600.);
         fprintf(f, "### Accumulated run time (days) : %lf\n", fTotalDuration / 3600. / 24.);
         fprintf(f, "###\n");
-        fprintf(f, "### Data path : %s\n", TRestTools::SeparatePathAndName(fFilePattern).first.c_str());
-        fprintf(f, "### File pattern : %s\n", TRestTools::SeparatePathAndName(fFilePattern).second.c_str());
+        for (const auto& pattern : fFilePatternList) {
+            fprintf(f, "### Data path : %s\n", TRestTools::SeparatePathAndName(pattern).first.c_str());
+            fprintf(f, "### File pattern : %s\n", TRestTools::SeparatePathAndName(pattern).second.c_str());
+        }
         fprintf(f, "###\n");
         if (!fFilterMetadata.empty()) {
             fprintf(f, "### Metadata filters : \n");
@@ -1003,7 +1014,7 @@ TRestDataSet& TRestDataSet::operator=(TRestDataSet& dS) {
     fFilterEndTime = dS.GetFilterEndTime();
     fStartTime = dS.GetStartTime();
     fEndTime = dS.GetEndTime();
-    fFilePattern = dS.GetFilePattern();
+    fFilePatternList = dS.GetFilePattern();
     fObservablesList = dS.GetObservablesList();
     fFileSelection = dS.GetFileSelection();
     fProcessObservablesList = dS.GetProcessObservablesList();
