@@ -514,12 +514,11 @@ std::vector<std::string> TRestDataSet::FileSelection() {
 
             if (properties.strategy == "last") properties.value = value;
         }
-
         if (run.GetStartTimestamp() < fStartTime) fStartTime = run.GetStartTimestamp();
 
         if (run.GetEndTimestamp() > fEndTime) fEndTime = run.GetEndTimestamp();
 
-        fTotalDuration += run.GetEndTimestamp() - run.GetStartTimestamp();
+        fTotalDuration += GetRunDuration(run);
         fFileSelection.push_back(file);
     }
     std::cout << std::endl;
@@ -641,6 +640,12 @@ void TRestDataSet::PrintMetadata() {
     RESTMetadata << " - Accumulated run time (seconds) : " << fTotalDuration << RESTendl;
     RESTMetadata << " - Accumulated run time (hours) : " << fTotalDuration / 3600. << RESTendl;
     RESTMetadata << " - Accumulated run time (days) : " << fTotalDuration / 3600. / 24. << RESTendl;
+    RESTMetadata << "  " << RESTendl;
+    RESTMetadata << " - Time correction activated: " << fTimeCorrection << RESTendl;
+    if (fTimeCorrection) {
+        RESTMetadata << " - Time correction applied to data in column: " << fColumnTimeCorrection << RESTendl;
+        RESTMetadata << " - With a threshold value of: " << fThresholdTimeCorrection << RESTendl;
+    }
 
     RESTMetadata << "  " << RESTendl;
 
@@ -715,6 +720,10 @@ void TRestDataSet::PrintMetadata() {
         RESTMetadata << "List of imported files: " << RESTendl;
         RESTMetadata << " -------------------- " << RESTendl;
         for (const auto& fn : fImportedFiles) RESTMetadata << " - " << fn << RESTendl;
+    }
+
+    if (fTimeCorrection) {
+        RESTMetadata << "The combined dataset time correction analysis is activated." << RESTendl;
     }
 
     RESTMetadata << " " << RESTendl;
@@ -1160,4 +1169,67 @@ void TRestDataSet::Import(std::vector<std::string> fileNames) {
     fImportedFiles = fileNames;
 
     fQuantity.clear();
+}
+
+///////////////////////////////////////////////
+/// \brief This function calculates a corrected time of a given Run,
+/// corresponding to the time where a certain variable has remained above a
+/// given threshold (for example, the time for which the detection rate is above a certain value)
+Double_t TRestDataSet::GetRunDuration(TRestRun& r) {
+    Double_t runTime = 0;
+    Double_t corrected_time = 0;
+    if (fTimeCorrection) {
+        Int_t max_events_below_threshold = 5;
+        Int_t events_below_threshold =
+            0;                      // Number of events in a row (except recovery) below the desired threshold
+        Int_t recovery_events = 0;  // Events above the threshold after a series of bad events
+        Int_t first_bad_event = 0;
+        Int_t last_bad_event = 0;
+        Int_t t1 = 0;
+        Int_t t2 = 0;
+        Double_t val = 0.0;
+        if (r.GetAnalysisTree()->GetObservableType(fColumnTimeCorrection) != "double") {
+            RESTError << fColumnTimeCorrection << "is not a double" << RESTendl;
+            exit(1);
+        }
+        for (int ev = 0; ev < r.GetEntries(); ev++) {
+            r.GetEntry(ev);
+            val = r.GetAnalysisTree()->GetObservableValue<double>(fColumnTimeCorrection);
+
+            if (val < fThresholdTimeCorrection) {
+                recovery_events = 0;
+                if (events_below_threshold == 0) {
+                    first_bad_event = ev;
+                }
+                last_bad_event = ev;
+                events_below_threshold++;
+
+            } else {
+                if (events_below_threshold <= max_events_below_threshold) {
+                    events_below_threshold = 0;
+                } else {
+                    recovery_events++;
+                    if (recovery_events > max_events_below_threshold) {
+                        r.GetEntry(first_bad_event);
+                        t1 = r.GetAnalysisTree()->GetTimeStamp();
+                        r.GetEntry(last_bad_event);
+                        t2 = r.GetAnalysisTree()->GetTimeStamp();
+                        corrected_time += t2 - t1;
+                        events_below_threshold = 0;
+                    }
+                }
+            }
+            if ((ev == r.GetEntries() - max_events_below_threshold) &&
+                (events_below_threshold > max_events_below_threshold)) {
+                last_bad_event = r.GetEntries() - 1;
+                r.GetEntry(first_bad_event);
+                t1 = r.GetAnalysisTree()->GetTimeStamp();
+                r.GetEntry(last_bad_event);
+                t2 = r.GetAnalysisTree()->GetTimeStamp();
+                corrected_time += t2 - t1;
+            }
+        }
+    }
+    runTime = r.GetEndTimestamp() - r.GetStartTimestamp() - corrected_time;
+    return runTime;
 }
