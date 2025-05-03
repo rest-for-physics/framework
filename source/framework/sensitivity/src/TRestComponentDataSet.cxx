@@ -126,11 +126,11 @@ TRestComponentDataSet::TRestComponentDataSet(const char* cfgFileName, const std:
 /// (or observables) that have been defined by the user.
 ///
 void TRestComponentDataSet::Initialize() {
-    TRestComponent::Initialize();
-
     SetSectionName(this->ClassName());
 
     LoadDataSets();
+
+    TRestComponent::Initialize();
 }
 
 /////////////////////////////////////////////
