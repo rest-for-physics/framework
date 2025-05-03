@@ -1,0 +1,86 @@
+name: "Automatic PR checks and merge"
+description: "Checks if a particular branch and pull request exist in a repository"
+inputs:
+  branch:
+    description: "Branch to checkout"
+    required: true
+  repository:
+    description: "Repository"
+    required: true
+  token:
+    description: "Authentification token"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.repository }}
+        path: repository
+    - name: Check repository branch
+      id: repositoryBranch
+      run: |
+        cd repository
+          var=$(git ls-remote --heads origin ${{ inputs.branch }})
+          if [[ -z $var ]]; then
+            echo "Branch "${{ inputs.branch }}" not found in " ${{ inputs.repository }}
+            echo "exist=false" >> $GITHUB_OUTPUT
+          else
+            echo "Branch "${{ inputs.branch }}" found in " ${{ inputs.repository }}
+            git fetch
+            git checkout ${{ inputs.branch }}
+            git pull
+            echo "exist=true" >> $GITHUB_OUTPUT
+          fi
+      shell: bash
+    - name: Check PR
+      id: PRCheck
+      if:  steps.repositoryBranch.outputs.exist == 'true'
+      run: |
+        cd repository
+        #Check PR
+        gh auth status
+        gh pr view
+        prurl=$(gh pr view --json url -t '{{ .url }}')
+        echo "prurl=$prurl" >> $GITHUB_OUTPUT
+        mergeStateStatus=$(gh pr view --json mergeStateStatus -t '{{ .mergeStateStatus }}')
+        echo "MergeStateStatus " $mergeStateStatus
+        echo "mergeStateStatus=$mergeStateStatus" >> $GITHUB_OUTPUT
+        prState=$(gh pr view --json state -t '{{ .state }}')
+        echo "prState=$prState" >> $GITHUB_OUTPUT
+        echo "PullRequestState " $prState
+        review=$(gh pr view --json reviewDecision -t '{{ .reviewDecision }}')
+        echo "review=$review" >> $GITHUB_OUTPUT
+        echo "Review decision " $review
+          if [[ $prState == "MERGED" ]]; then
+            echo "PR already merged"
+          elif [[ $review == "APPROVED" ]]; then
+            echo "PR is approved and mergeStateStatus is " $mergeStateStatus
+          else
+            echo "No valid PR found for branch " ${{ inputs.branch }} " in " ${{ inputs.repository }}  " merge is not allowed"
+            exit 1
+          fi
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+      shell: bash 
+    - name: Print outputs
+      if:  steps.repositoryBranch.outputs.exist == 'true'
+      run: |
+        echo "Merge status " ${{ steps.PRCheck.outputs.mergeStateStatus }}
+        echo "PR REVIEW " ${{ steps.PRCheck.outputs.review }}
+        echo "PR url " ${{ steps.PRCheck.outputs.prurl }}
+        echo "PR state " ${{ steps.PRCheck.outputs.prState }}
+      shell: bash
+    - name: Merge PR
+      if: (github.event.action == 'closed' && github.event.pull_request.merged == true && steps.PRCheck.outputs.review == 'APPROVED' && steps.PRCheck.outputs.prState != 'MERGED')
+      run: |
+        cd repository
+        gh auth status
+        echo "actor " ${{ github.actor }}
+        gh pr merge --auto --merge "$PR_URL"
+      env:
+        PR_URL: ${{ steps.PRCheck.outputs.prurl }}
+        GITHUB_TOKEN: ${{ inputs.token }}
+      shell: bash
