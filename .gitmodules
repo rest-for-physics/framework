@@ -55,3 +55,6 @@
 [submodule "source/libraries/wimp"]
 	path = source/libraries/wimp
 	url = https://github.com/rest-for-physics/wimplib.git
+[submodule "source/packages/restDAQ"]
+	path = source/packages/restDAQ
+	url = https://github.com/rest-for-physics/restDAQ.git
