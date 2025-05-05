@@ -77,7 +77,7 @@ A major change at 2.3 will prevent from backwards compatibility, since class nam
 - PandaX-III: Searching for neutrinoless double beta decay with high pressure 136Xe gas time projection chambers. [X. Chen et al., Science China Physics, Mechanics & Astronomy 60, 061011 (2017)](https://doi.org/10.1007/s11433-017-9028-0) [arXiv:1610.08883](https://arxiv.org/abs/1610.08883).
 
 ## Presentations
-- An overview of REST-for-Physics, Gloria Luzón, [2025-Mar, Journées 2025 du réseau détecteurs gazeux IN2P3/CEA, Paris-Saclay](https://indico.ijclab.in2p3.fr/event/11577/sessions/5795/#20250331)
+- An overview of REST-for-Physics, Gloria Luzón, [2025-Mar, Journées 2025 du réseau détecteurs gazeux IN2P3/CEA, Paris-Saclay](https://indico.ijclab.in2p3.fr/event/11577/contributions/37231/)
 - Background model studies for IAXO using the REST-for-Physics framework, Luis Obis, [2024-Apr, VIEnna Workshop on Simulations 2024  (VIEWS24), Vienna](https://indico.cern.ch/event/1275551/contributions/5858816/).
 - REST-for-Physics framework for Geant4 simulations and data analysis, Álvaro Ezquerro, [2024-Apr, VIEnna Workshop on Simulations 2024  (VIEWS24), Vienna](https://indico.cern.ch/event/1275551/contributions/5858814/).
 - REST-for-Physics, Luis Obis, [2022-May, ROOT Users Workshop, FermiLab](https://indico.fnal.gov/event/23628/contributions/240755/).
