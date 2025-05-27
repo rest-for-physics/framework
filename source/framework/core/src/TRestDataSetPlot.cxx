@@ -359,6 +359,7 @@ void TRestDataSetPlot::ReadPanelInfo() {
         PanelInfo panel;
         panel.font_size = StringToDouble(GetParameter("font_size", panelele, "0.1"));
         panel.precision = StringToInteger(GetParameter("precision", panelele, "2"));
+        panel.delimiter = GetParameter("delimiter", panelele, ": ");
 
         panel.panelCut = ReadCut(panel.panelCut, panelele);
 
@@ -706,7 +707,7 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
                 }
                 if (!found) RESTWarning << "Variable " << variable << " not found" << RESTendl;
             }
-            std::string lab = label + ": " + StringWithPrecision(var, panel.precision) + " " + units;
+            std::string lab = label + panel.delimiter.Data() + StringWithPrecision(var, panel.precision) + " " + units;
             panel.text.emplace_back(new TLatex(posLabel.X(), posLabel.Y(), lab.c_str()));
         }
 
@@ -724,7 +725,7 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
                 continue;
             }
 
-            std::string lab = label + ": " + StringWithPrecision(value, panel.precision) + " " + units;
+            std::string lab = label + panel.delimiter.Data() + StringWithPrecision(value, panel.precision) + " " + units;
             panel.text.emplace_back(new TLatex(posLabel.X(), posLabel.Y(), lab.c_str()));
         }
 
@@ -733,7 +734,7 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
             auto&& [obs, label, units] = key;
             auto value = *dataFrame.Mean(obs);
 
-            std::string lab = label + ": " + StringWithPrecision(value, panel.precision) + " " + units;
+            std::string lab = label + panel.delimiter.Data() + StringWithPrecision(value, panel.precision) + " " + units;
             panel.text.emplace_back(new TLatex(posLabel.X(), posLabel.Y(), lab.c_str()));
         }
 
@@ -762,7 +763,7 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
             var = Replace(var, "]", ")");
             var = EvaluateExpression(var);
 
-            std::string lab = label + ": " + var + " " + units;
+            std::string lab = label + panel.delimiter.Data() + var + " " + units;
             panel.text.emplace_back(new TLatex(posLabel.X(), posLabel.Y(), lab.c_str()));
         }
 

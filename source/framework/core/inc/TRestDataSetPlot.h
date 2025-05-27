@@ -91,6 +91,7 @@ class TRestDataSetPlot : public TRestMetadata {
     struct PanelInfo {
         Float_t font_size;
         Int_t precision;
+        TString delimiter;
 
         std::vector<std::pair<std::array<std::string, 3>, TVector2>> variablePos;
         std::vector<std::pair<std::array<std::string, 3>, TVector2>> metadataPos;
