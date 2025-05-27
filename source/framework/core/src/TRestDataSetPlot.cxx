@@ -32,21 +32,20 @@
 /// between metadata, variables or observable values.
 ///
 /// The rml file can be splitted in three main blocks that are detailed below;
-/// * Basic parameters: global variables to perform the plot such as canvas size,
+/// * Basic TRestDataSetPlot parameters: global variables to perform the plot such as canvas size,
 /// pad divisions, preview or outputFile info.
-/// * Panel parameters: A panel defines different labels that will be written in
+/// * Panel: it defines different labels that will be written in
 /// a pad, it accepts different parameters such as metadata info, variable values,
 /// and observable values, that can be written in the panel. A cut can be provided
 /// to a panel in order to print the info after appliying a particular cut.
-/// * Plot parameters: It contains the info to produce a plot at the pad level.
+/// * Plots: It contains the info to produce a plot at the pad level.
 /// A plot consists of a set of histograms that can be plot together using
 /// THStack, note that only 1D and 2D histograms are supported. The histograms
 /// are defined inside the plot metadata section and one or two variables must
 /// be provided (1D or 2D histos) besides the range, while a cut can be set at the
 /// histogram level.
 ///
-/// ### Parameters
-/// * Basic parameters of TRestDataSetPlot:
+/// ## Basic TRestDataSetPlot parameters
 /// * **name**: Name of the TRestDataSetPlot class and canvas
 /// * **title**: Title of the TRestDataSetPlot class and canvas
 /// * **dataSetName**: Name of the dataSet to be used to perform the plots. Note
@@ -85,18 +84,25 @@
 ///    </TRestDataSetPlot>
 /// \endcode
 ///
-/// * Panel parameters:
+/// ## Panel
 /// Basic panel parameters:
 /// * **font_size**: Font size of the entire panel.
 /// * **precision**: Precision for the values to be written.
-/// * **value**: If true/ON panel is displayed, otherwise is ignored
-/// Different keys are provided: `metadata` is meant for the metadata info inside the
-/// TRestDataSet (as a RelevantQuantity), `variable` for a predefined variable e.g. rate,
-/// `observable` for an observable value and `expression` for a mathematical expression
-/// that can contain any of the previous. Note that the time-related variables _startTime_,
-/// _endTime_ and _runLength_ (then _meanRate_ too) are obtained from the TRestDataSet and
+/// * **delimiter**: Delimiter to be used between the label and the value, by default is ": ".
+/// * **value**: If true/ON panel is displayed, otherwise is ignored.
+///
+/// ### Panel keys
+/// Different keys are provided:
+/// * **metadata** is meant for the metadata info inside the TRestDataSet (as a RelevantQuantity).
+/// * **variable** for a predefined variable.These can be any of _entries_, _runLength_ (in hours),
+/// _startTime_, _endTime_, _meanRate_ (in Hz), _cuts_, _panelCuts_, _cutNames_ or _panelCutNames_.
+/// * **observable** for the mean value of an observable.
+/// * **expression** for a mathematical expression that can contain any of the previous.
+///
+/// Note that the time-related variables _startTime_, _endTime_ and _runLength_
+/// (then _meanRate_ too) are obtained from the TRestDataSet and
 /// not the RDataFrame of the TRestDataSet, thus they are not afected by the cuts.
-/// All the keys have the same structure which is detailed below:
+/// All the keys have the following parameters:
 /// * **value**: Name of the metadata, variable or observable value.
 /// * **label**: String of the label that will be written before the observable value.
 /// * **units**: String with the units to be appended to the label.
@@ -120,7 +126,8 @@
 ///    </panel>
 /// \endcode
 ///
-/// * Plot parameters:
+/// ## Plot
+/// Basic plot parameters:
 /// * **name**: Name of the plot
 /// * **title**: Title of the plot
 /// * **xlabel**: Title of the label in the X axis
@@ -140,24 +147,26 @@
 /// * **value**: If true/ON plot is displayed, otherwise is ignored
 /// * **save**: String with the name of the output file in which the plot will be saved
 /// in a separated file, several formats are supported (root, pdf, eps, jpg,...)
-/// * Histogram parameters:
-/// Please, use the `histo` key inside `plot` to add the plot parameters. You can add as many
+///
+/// ### Histogram:
+/// Use the `histo` key inside `plot` to add the plot parameters. You can add as many
 /// histograms as you want but note that only 1D and 2D histograms are supported.
 /// * **name**: Name of the histogram
-/// * **option*: Draw option to be used, note that by default is set to `COLZ`
-/// * **lineColor*: Color of the line used in the histogram.
-/// * **lineWidth*: Width of the line used in the histogram.
-/// * **lineStyle*: Line style to be used in the histogram.
-/// * **fillStyle*: Fill style to used in the histogram.
-/// * **fillColor*: Fill color to used in the histogram.
-/// * **stats**: If true/ON it plots histogram statistics
+/// * **option**: Draw option to be used, note that by default is set to `COLZ`
+/// * **lineColor**: Color of the line used in the histogram.
+/// * **lineWidth**: Width of the line used in the histogram.
+/// * **lineStyle**: Line style to be used in the histogram.
+/// * **fillStyle**: Fill style to used in the histogram.
+/// * **fillColor**: Fill color to used in the histogram.
+/// * **stats**: If true/ON it plots histogram statistics.
+///
 /// In order to add one or two variables to the histogram please use the `variable` key.
 /// In order to perform a 2D plot you should add two variable` keys, where the first one
 /// corresponds to the X axis. The `variable` key has the following parameters:
-/// * **name*: Name of the observable to be plotted, the observable must be defined inside
+/// * **name**: Name of the observable to be plotted, the observable must be defined inside
 /// the dataSet.
-/// * **range*: TVector2 with the range of the variable to be plotted
-/// * **nBins*: Number of bins that will be used in the histogram.
+/// * **range**: TVector2 with the range of the variable to be plotted
+/// * **nBins**: Number of bins that will be used in the histogram.
 /// The key `addCut` can be povided in order to perform the cut to the histogram. Note
 /// that the TRestCut must be defined inside the rml.
 ///
@@ -173,7 +182,7 @@
 ///     </plot>
 /// \endcode
 ///
-/// ### Examples
+/// ## Full example
 /// Following example creates one panel and three plots including one or two histograms:
 /// \code
 ///  <TRestManager name="alphaTrack" title="alphaTrack" verboseLevel="info">
