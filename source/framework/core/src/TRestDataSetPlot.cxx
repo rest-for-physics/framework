@@ -718,7 +718,8 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
                 }
                 if (!found) RESTWarning << "Variable " << variable << " not found" << RESTendl;
             }
-            std::string lab = label + panel.delimiter.Data() + StringWithPrecision(var, panel.precision) + " " + units;
+            std::string lab =
+                label + panel.delimiter.Data() + StringWithPrecision(var, panel.precision) + " " + units;
             panel.text.emplace_back(new TLatex(posLabel.X(), posLabel.Y(), lab.c_str()));
         }
 
@@ -736,7 +737,8 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
                 continue;
             }
 
-            std::string lab = label + panel.delimiter.Data() + StringWithPrecision(value, panel.precision) + " " + units;
+            std::string lab =
+                label + panel.delimiter.Data() + StringWithPrecision(value, panel.precision) + " " + units;
             panel.text.emplace_back(new TLatex(posLabel.X(), posLabel.Y(), lab.c_str()));
         }
 
@@ -745,7 +747,8 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
             auto&& [obs, label, units] = key;
             auto value = *dataFrame.Mean(obs);
 
-            std::string lab = label + panel.delimiter.Data() + StringWithPrecision(value, panel.precision) + " " + units;
+            std::string lab =
+                label + panel.delimiter.Data() + StringWithPrecision(value, panel.precision) + " " + units;
             panel.text.emplace_back(new TLatex(posLabel.X(), posLabel.Y(), lab.c_str()));
         }
 
@@ -760,8 +763,8 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
             }
             // replace metadata
             for (const auto& [name, quant] : quantity) {
-                var = Replace(var, "["+name+"]", quant.value); // metadata are surrounded by []
-                var = Replace(var, name, quant.value); // just in case ?
+                var = Replace(var, "[" + name + "]", quant.value);  // metadata are surrounded by []
+                var = Replace(var, name, quant.value);              // just in case ?
             }
             // replace observables
             for (const auto& obs : dataFrame.GetColumnNames()) {
@@ -774,7 +777,7 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
             var = Replace(var, "[", "(");
             var = Replace(var, "]", ")");
             var = EvaluateExpression(var);
-            if (isANumber(var)){
+            if (isANumber(var)) {
                 double value = StringToDouble(var);
                 var = StringWithPrecision(value, StringToInteger(precision));
             }
