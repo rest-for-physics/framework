@@ -102,6 +102,7 @@
 /// * **units**: String with the units to be appended to the label.
 /// * **x**: X position of the label inside the pad
 /// * **y**: Y position of the label inside the pad
+/// * **precision**: Precision of the value to be written, by default is set to 2.
 /// The key `addCut` can be povided in order to perform the cut to the panel. Note
 /// that the TRestCut must be defined inside the rml.
 ///
@@ -112,7 +113,7 @@
 ///          <variable value="[[entries]]" label="Entries" x="0.25" y="0.58" />
 ///          <observable value="alphaTrackAna_angle" label="Mean Angle" units="rad" x="0.25" y="0.01" />
 ///          <expression value="cos(alphaTrackAna_angle)^2" label="Cosine of the mean angle" units="" x="0.25"
-///          y="0.12" />
+///          y="0.12" precision="5" />
 ///          <expression value="[TRestDetector::fDriftField]*[TRestDetector::fPressure]" label="Drift field"
 ///          units="V/cm" x="0.25" y="0.24" />
 ///          <addCut name="Fiducial"/>
@@ -404,10 +405,11 @@ void TRestDataSetPlot::ReadPanelInfo() {
         }
         TiXmlElement* expression = GetElement("expression", panelele);
         while (expression != nullptr) {
-            std::array<std::string, 3> label;
+            std::array<std::string, 4> label;
             label[0] = GetParameter("value", expression, "");
             label[1] = GetParameter("label", expression, "");
             label[2] = GetParameter("units", expression, "");
+            label[3] = GetParameter("precision", expression, IntegerToString(panel.precision));
             double posX = StringToDouble(GetParameter("x", expression, "0.1"));
             double posY = StringToDouble(GetParameter("y", expression, "0.1"));
 
@@ -534,7 +536,7 @@ void TRestDataSetPlot::GenerateDataSetFromFilePattern(TRestDataSet& dataSet) {
         // Add metadata and observables from expression key from panel info
         for (auto& [key, posLabel] : panel.expPos) {
             // look for metadata which are surrounded by [] but not [[]] (variables)
-            auto&& [exp, label, units] = key;
+            auto&& [exp, label, units, precision] = key;
             std::string text = exp;
             while (text.find_last_of('[') != std::string::npos) {
                 int squareBracketCorrector = 0;
@@ -740,7 +742,7 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
 
         // Replace any expression and generate TLatex label
         for (const auto& [key, posLabel] : panel.expPos) {
-            auto&& [text, label, units] = key;
+            auto&& [text, label, units, precision] = key;
             std::string var = text;
 
             // replace variables
@@ -762,6 +764,10 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
             var = Replace(var, "[", "(");
             var = Replace(var, "]", ")");
             var = EvaluateExpression(var);
+            if (isANumber(var)){
+                double value = StringToDouble(var);
+                var = StringWithPrecision(value, StringToInteger(precision));
+            }
 
             std::string lab = label + panel.delimiter.Data() + var + " " + units;
             panel.text.emplace_back(new TLatex(posLabel.X(), posLabel.Y(), lab.c_str()));
@@ -1022,7 +1028,7 @@ void TRestDataSetPlot::PrintMetadata() {
         }
         RESTMetadata << "****************" << RESTendl;
         for (auto& [key, posLabel] : panel.expPos) {
-            auto&& [obs, label, units] = key;
+            auto&& [obs, label, units, precision] = key;
             RESTMetadata << "Label Expression " << obs << ", label " << label << ", units " << units
                          << " Pos (" << posLabel.X() << ", " << posLabel.Y() << ")" << RESTendl;
         }
