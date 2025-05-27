@@ -184,6 +184,6 @@ class TRestDataSetPlot : public TRestMetadata {
     TRestDataSetPlot(const char* configFilename, std::string name = "");
     ~TRestDataSetPlot();
 
-    ClassDefOverride(TRestDataSetPlot, 2);
+    ClassDefOverride(TRestDataSetPlot, 3);
 };
 #endif
