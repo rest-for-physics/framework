@@ -760,7 +760,8 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
             }
             // replace metadata
             for (const auto& [name, quant] : quantity) {
-                var = Replace(var, name, quant.value);
+                var = Replace(var, "["+name+"]", quant.value); // metadata are surrounded by []
+                var = Replace(var, name, quant.value); // just in case ?
             }
             // replace observables
             for (const auto& obs : dataFrame.GetColumnNames()) {
