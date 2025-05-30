@@ -673,9 +673,9 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
         const int entries = *dataFrame.Count();
         const double meanRate = entries / duration;
         const double runLength = duration / 3600.;
-        paramMap["[[runLength]]"] = StringWithPrecision(runLength, panel.precision);
-        paramMap["[[entries]]"] = StringWithPrecision(entries, panel.precision);
-        paramMap["[[meanRate]]"] = StringWithPrecision(meanRate, panel.precision);
+        paramMap["[[runLength]]"] = DoubleToString(runLength, "%.9e");
+        paramMap["[[entries]]"] = IntegerToString(entries);
+        paramMap["[[meanRate]]"] = DoubleToString(meanRate, "%.9e");
 
         paramMap["[[cutNames]]"] = "";
         paramMap["[[cuts]]"] = "";
@@ -726,6 +726,15 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
                     }
                 }
                 if (!found) RESTWarning << "Variable " << variable << " not found" << RESTendl;
+            }
+            if (isANumber(var)) { // if it is a number, convert it to number to apply precision
+                if (var.find('.') == std::string::npos) {
+                    int dblVar = StringToInteger(var);
+                    var = StringWithPrecision(dblVar, panel.precision);
+                } else {
+                    double dblVar = StringToDouble(var);
+                    var = StringWithPrecision(dblVar, panel.precision);
+                }
             }
             std::string lab =
                 label + panel.delimiter.Data() + StringWithPrecision(var, panel.precision) + " " + units;
