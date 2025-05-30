@@ -130,7 +130,8 @@
 ///          <observable value="alphaTrackAna_angle" label="Mean Angle" units="rad" x="0.25" y="0.01" />
 ///          <expression value="cos(alphaTrackAna_angle)^2" label="Cosine of the mean angle" units="" x="0.25"
 ///          y="0.12" precision="5" />
-///          <expression value="({[[meanRate]]*24*3600} #pm {sqrt([[entries]])/[[runLength]]*24})" label="Mean rate: "
+///          <expression value="({[[meanRate]]*24*3600} #pm {sqrt([[entries]])/[[runLength]]*24})" label="Mean
+///          rate: "
 ///              units="per day" x="0.05" y="0.54" precision="%g,%.1g" />
 ///          <addCut name="Fiducial"/>
 ///    </panel>
@@ -728,7 +729,7 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
                 }
                 if (!found) RESTWarning << "Variable " << variable << " not found" << RESTendl;
             }
-            if (isANumber(var)) { // if it is a number, convert it to number to apply precision
+            if (isANumber(var)) {  // if it is a number, convert it to number to apply precision
                 if (var.find('.') == std::string::npos) {
                     int dblVar = StringToInteger(var);
                     var = StringWithPrecision(dblVar, panel.precision);
@@ -799,11 +800,11 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
             }
             if (precisionParts.size() != subtexts.size()) {
                 RESTDebug << "Not enough precision values provided for the expression: `" << text
-                            << "`. Using " << precisionParts.back() << " for last subtexts." << RESTendl;
-                precisionParts.resize(subtexts.size(), precisionParts.back()); // fill with last value
+                          << "`. Using " << precisionParts.back() << " for last subtexts." << RESTendl;
+                precisionParts.resize(subtexts.size(), precisionParts.back());  // fill with last value
             }
 
-            size_t precisionIndex = precisionParts.size()-1;
+            size_t precisionIndex = precisionParts.size() - 1;
             for (const auto& subtext : subtexts) {
                 std::string subVar = subtext;
                 // replace variables
@@ -829,13 +830,13 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
                 if (isANumber(subVar)) {
                     double value = StringToDouble(subVar);
                     std::string prec = precisionParts[precisionIndex--];
-                    if (prec.find('%') != std::string::npos) { // it is a format e.g. %.2f
+                    if (prec.find('%') != std::string::npos) {  // it is a format e.g. %.2f
                         subVar = DoubleToString(value, prec);
-                    } else if (isANumber(prec)) { // it is a number
+                    } else if (isANumber(prec)) {  // it is a number
                         subVar = StringWithPrecision(value, StringToInteger(prec));
                     } else {
-                        RESTWarning << "Unknown precision format: " << prec << ". Using panels precision: "
-                                   << panel.precision << RESTendl;
+                        RESTWarning << "Unknown precision format: " << prec
+                                    << ". Using panels precision: " << panel.precision << RESTendl;
                         subVar = StringWithPrecision(value, panel.precision);
                     }
                 }
@@ -1103,8 +1104,8 @@ void TRestDataSetPlot::PrintMetadata() {
         for (auto& [key, posLabel] : panel.expPos) {
             auto&& [obs, label, units, precision] = key;
             RESTMetadata << "Label Expression " << obs << ", label " << label << ", units " << units
-                         << ", precision " << precision
-                         << " Pos (" << posLabel.X() << ", " << posLabel.Y() << ")" << RESTendl;
+                         << ", precision " << precision << " Pos (" << posLabel.X() << ", " << posLabel.Y()
+                         << ")" << RESTendl;
         }
         RESTMetadata << "****************" << RESTendl;
     }
