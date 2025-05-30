@@ -46,8 +46,8 @@
 /// histogram level.
 ///
 /// ## Basic TRestDataSetPlot parameters
-/// * **name**: Name of the TRestDataSetPlot class and canvas
-/// * **title**: Title of the TRestDataSetPlot class and canvas
+/// * **name**: Name of the TRestDataSetPlot class and canvas.
+/// * **title**: Title of the TRestDataSetPlot class and canvas.
 /// * **dataSetName**: Name of the dataSet to be used to perform the plots. Note
 /// that if this variable is empty, it will use the name of the inputfile provided
 /// at restManager.
@@ -59,16 +59,17 @@
 /// * **previewPlot**: If true the plot (canvas) is displayed and can be modified before
 /// saving it.
 /// * **paletteStyle**: Style of the palette to be used in all the plots.
-/// * **legendX1**: Start position of the legend in the X axis
-/// * **legendY1**: Start position of the legend in the X axis
-/// * **legendX2**: End position of the legend in the X axis
-/// * **legendY2**: End position of the legend in the X axis
-/// * **canvasSize**: TVector2 with the size of the canvas in points
-/// * **canvasDivisions**: TVector2 with the divisions of the canvas e.g. (3, 2) --> 3 x 2
+/// * **legendX1**: Start position of the legend in the X axis.
+/// * **legendY1**: Start position of the legend in the Y axis.
+/// * **legendX2**: End position of the legend in the X axis.
+/// * **legendY2**: End position of the legend in the Y axis.
+/// * **canvasSize**: TVector2 with the size of the canvas in points.
+/// * **canvasDivisions**: TVector2 with the divisions of the canvas e.g. (3, 2) --> 3 x 2.
+///
 /// The key `addCut` can be povided in order to perform the cut to the entire dataSet. Note
 /// that the TRestCut must be defined inside the rml and several cuts can be added.
 ///
-/// Example of TRestDataSetPlot basic parameters with a set TRestCuts:
+/// Example of TRestDataSetPlot basic parameters with a set of TRestCuts:
 /// \code
 ///    <TRestDataSetPlot name="restplot" title="Basic Plots" previewPlot="true" canvasSize="(1200,1200)"
 ///    canvasDivisions="(2,2)" verboseLevel="info">
@@ -113,8 +114,8 @@
 /// * **units**: String with the units to be appended to the label.
 /// * **x**: X position of the label inside the pad
 /// * **y**: Y position of the label inside the pad
-/// * **precision**: Precision of the value to be written, by default is set to 2. Only valid
-/// for expression key. You can use a number or printf-style formatting specifier (e.g. `%.3f`).
+/// * **precision**: Precision of the value to be written, by default is set to the panel precision.
+/// Only valid for expression key. You can use a number or printf-style formatting specifier (e.g. `%.3f`).
 /// If the expression contains multiple values encapsulated with brace brackets, you can independently
 /// set the precision for each value by separating them with a comma, e.g. `2,%.3f`.
 ///
@@ -145,7 +146,7 @@
 /// * **gridX;gridY**: If true plot grid in the corresponding axis (X or Y)
 /// * **marginLeft;marginRight;marginTop;marginBottom**: Margins size
 /// * **legend**: If true/ON it plots the legend
-/// * **stackOption*: THStack draw option to be used, note that by default is set to `NOSTACK`
+/// * **stackOption**: THStack draw option to be used, note that by default is set to `NOSTACK`
 /// * **timeDisplay**: If true/ON time display is set in the X axis
 /// * **norm**: Normalization constant in which the plot will be normalized, e.g. use `1` in
 /// case you want to normalize by 1.
