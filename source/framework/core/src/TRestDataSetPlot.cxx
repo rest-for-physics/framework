@@ -94,10 +94,15 @@
 /// ### Panel keys
 /// Different keys are provided:
 /// * **metadata** is meant for the metadata info inside the TRestDataSet (as a RelevantQuantity).
+/// They must be written between square brackets, e.g. `[TRestRun::fRunTag]`.
 /// * **variable** for a predefined variable.These can be any of _entries_, _runLength_ (in hours),
 /// _startTime_, _endTime_, _meanRate_ (in Hz), _cuts_, _panelCuts_, _cutNames_ or _panelCutNames_.
-/// * **observable** for the mean value of an observable.
-/// * **expression** for a mathematical expression that can contain any of the previous.
+/// They must be written between double square brackets, e.g. `[[entries]]`.
+/// * **observable** for the mean value of an observable. They must contain a '_' character in
+/// the name in order to be recognized as an observable, e.g. `alphaTrackAna_angle`.
+/// * **expression** for a mathematical expression that can contain any of the previous. You can
+/// also use multiple independent mathematical expressions by encapsulating them with brace brackets,
+/// e.g. `{[[meanRate]]*24*3600} #pm {sqrt([[entries]])/[[runLength]]*24}`.
 ///
 /// Note that the time-related variables _startTime_, _endTime_ and _runLength_
 /// (then _meanRate_ too) are obtained from the TRestDataSet and
@@ -108,7 +113,11 @@
 /// * **units**: String with the units to be appended to the label.
 /// * **x**: X position of the label inside the pad
 /// * **y**: Y position of the label inside the pad
-/// * **precision**: Precision of the value to be written, by default is set to 2.
+/// * **precision**: Precision of the value to be written, by default is set to 2. Only valid
+/// for expression key. You can use a number or printf-style formatting specifier (e.g. `%.3f`).
+/// If the expression contains multiple values encapsulated with brace brackets, you can independently
+/// set the precision for each value by separating them with a comma, e.g. `2,%.3f`.
+///
 /// The key `addCut` can be povided in order to perform the cut to the panel. Note
 /// that the TRestCut must be defined inside the rml.
 ///
@@ -120,8 +129,8 @@
 ///          <observable value="alphaTrackAna_angle" label="Mean Angle" units="rad" x="0.25" y="0.01" />
 ///          <expression value="cos(alphaTrackAna_angle)^2" label="Cosine of the mean angle" units="" x="0.25"
 ///          y="0.12" precision="5" />
-///          <expression value="[TRestDetector::fDriftField]*[TRestDetector::fPressure]" label="Drift field"
-///          units="V/cm" x="0.25" y="0.24" />
+///          <expression value="({[[meanRate]]*24*3600} #pm {sqrt([[entries]])/[[runLength]]*24})" label="Mean rate: "
+///              units="per day" x="0.05" y="0.54" precision="%g,%.1g" />
 ///          <addCut name="Fiducial"/>
 ///    </panel>
 /// \endcode
@@ -757,29 +766,70 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
             auto&& [text, label, units, precision] = key;
             std::string var = text;
 
-            // replace variables
-            for (const auto& [param, val] : paramMap) {
-                var = Replace(var, param, val);
+            // find and split the text into subtexts which are surrounded by {}
+            std::vector<std::string> subtexts;
+            while (var.find_last_of('{') != std::string::npos) {
+                size_t posOpen = var.find_last_of('{');
+                size_t posClose = var.find_first_of('}', posOpen);
+                if (posClose == std::string::npos) {
+                    RESTWarning << "Unmatched { in expression: " << var << RESTendl;
+                    break;
+                }
+                std::string subtext = var.substr(posOpen + 1, posClose - posOpen - 1);
+                subtexts.push_back(subtext);
+                // get rid of "{"+subtext+"}" from the var
+                var.erase(posOpen, posClose - posOpen + 1);
             }
-            // replace metadata
-            for (const auto& [name, quant] : quantity) {
-                var = Replace(var, "[" + name + "]", quant.value);  // metadata are surrounded by []
-                var = Replace(var, name, quant.value);              // just in case ?
+            var = text;  // reset var to the original text
+
+            // get precision formatting
+            std::vector<std::string> precisionParts;
+            for (const auto& part : Split(precision, ",", false, true)) {
+                precisionParts.push_back(part);
             }
-            // replace observables
-            for (const auto& obs : dataFrame.GetColumnNames()) {
-                if (var.find(obs) == std::string::npos) continue;
-                // here there should be a checking that the mean(obs) can be calculated
-                // (checking obs data type?)
-                double value = *dataFrame.Mean(obs);
-                var = Replace(var, obs, DoubleToString(value));
+            if (precisionParts.size() != subtexts.size()) {
+                RESTDebug << "Not enough precision values provided for the expression: `" << text
+                            << "`. Using " << precisionParts.back() << " for last subtexts." << RESTendl;
+                precisionParts.resize(subtexts.size(), precisionParts.back()); // fill with last value
             }
-            var = Replace(var, "[", "(");
-            var = Replace(var, "]", ")");
-            var = EvaluateExpression(var);
-            if (isANumber(var)) {
-                double value = StringToDouble(var);
-                var = StringWithPrecision(value, StringToInteger(precision));
+
+            size_t precisionIndex = precisionParts.size()-1;
+            for (const auto& subtext : subtexts) {
+                std::string subVar = subtext;
+                // replace variables
+                for (const auto& [param, val] : paramMap) {
+                    subVar = Replace(subVar, param, val);
+                }
+                // replace metadata
+                for (const auto& [name, quant] : quantity) {
+                    subVar = Replace(subVar, "[" + name + "]", quant.value);  // metadata are surrounded by []
+                    subVar = Replace(subVar, name, quant.value);              // just in case ?
+                }
+                // replace observables
+                for (const auto& obs : dataFrame.GetColumnNames()) {
+                    if (var.find(obs) == std::string::npos) continue;
+                    // here there should be a checking that the mean(obs) can be calculated
+                    // (checking obs data type?)
+                    double value = *dataFrame.Mean(obs);
+                    subVar = Replace(subVar, obs, DoubleToString(value));
+                }
+                subVar = Replace(subVar, "[", "(");
+                subVar = Replace(subVar, "]", ")");
+                subVar = EvaluateExpression(subVar);
+                if (isANumber(subVar)) {
+                    double value = StringToDouble(subVar);
+                    std::string prec = precisionParts[precisionIndex--];
+                    if (prec.find('%') != std::string::npos) { // it is a format e.g. %.2f
+                        subVar = DoubleToString(value, prec);
+                    } else if (isANumber(prec)) { // it is a number
+                        subVar = StringWithPrecision(value, StringToInteger(prec));
+                    } else {
+                        RESTWarning << "Unknown precision format: " << prec << ". Using panels precision: "
+                                   << panel.precision << RESTendl;
+                        subVar = StringWithPrecision(value, panel.precision);
+                    }
+                }
+                var = Replace(var, "{" + subtext + "}", subVar);
             }
 
             std::string lab = label + panel.delimiter.Data() + var + " " + units;
@@ -1043,6 +1093,7 @@ void TRestDataSetPlot::PrintMetadata() {
         for (auto& [key, posLabel] : panel.expPos) {
             auto&& [obs, label, units, precision] = key;
             RESTMetadata << "Label Expression " << obs << ", label " << label << ", units " << units
+                         << ", precision " << precision
                          << " Pos (" << posLabel.X() << ", " << posLabel.Y() << ")" << RESTendl;
         }
         RESTMetadata << "****************" << RESTendl;
