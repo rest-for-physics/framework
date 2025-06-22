@@ -1,0 +1,33 @@
+name: Check on submodules PR
+
+on:
+  pull_request:
+    branches: [ "master" ]
+    types: [ "opened", "reopened", "created", "closed", "synchronize"]
+
+  workflow_dispatch:
+
+permissions: write-all
+
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  framework-pr:
+    strategy:
+      matrix:
+        submodules: ["rest-for-physics/rawlib", "rest-for-physics/detectorlib", "rest-for-physics/geant4lib","rest-for-physics/tracklib", "rest-for-physics/connectorslib", "rest-for-physics/axionlib", "rest-for-physics/legacylib", "rest-for-physics/restG4"]
+    runs-on: ubuntu-latest
+    if: github.head_ref || github.ref_name != 'master'
+    steps:
+    - uses: actions/checkout@v3
+    - name: Checkout submodules
+      uses: ./.github/actions/automerge
+      with:
+        branch: ${{ env.BRANCH_NAME }}
+        repository: ${{ matrix.submodules }}
+        token: ${{ secrets.REST_TOKEN }}
