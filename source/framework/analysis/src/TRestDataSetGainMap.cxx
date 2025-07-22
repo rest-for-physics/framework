@@ -286,8 +286,7 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
     if (outputFileName == dataSetFileName) {  // TRestDataSet cannot be overwritten
         std::string gmName = GetName();
         outputFileName = outputFileName.substr(0, outputFileName.find_last_of("."));  // remove extension
-        outputFileName += "_" + gmName;
-        outputFileName += TRestTools::GetFileNameExtension(dataSetFileName);
+        outputFileName += "_" + gmName + "." + TRestTools::GetFileNameExtension(dataSetFileName);
     }
 
     // Export dataset. Exclude columns if requested.
