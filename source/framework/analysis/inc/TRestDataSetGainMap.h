@@ -150,8 +150,8 @@ class TRestDataSetGainMap : public TRestMetadata {
         /// Number of bins for the spectrum histograms.
         Int_t fNBins = 100;  //<
 
-        /// Cut that defines which events are from this module.
-        std::string fDefinitionCut = "";  //<
+        /// Cut that defines which events are from this module. Default is "1" (all events).
+        std::string fDefinitionCut = "1";  //<
 
         /// Number of segments in the x direction.
         Int_t fNumberOfSegmentsX = 1;  //<

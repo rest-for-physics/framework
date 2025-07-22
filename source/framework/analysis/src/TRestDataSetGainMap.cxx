@@ -234,6 +234,7 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
     // Define a new column with the identifier (pmID) of the module for each row (event)
     std::string pmIDname = (std::string)GetName() + "_pmID";
     std::string modCut = fModulesCal[0].GetModuleDefinitionCut();
+    if (modCut.empty()) modCut = "1";  // if no cut is defined, use "1" (all events)
     int pmID = fModulesCal[0].GetPlaneId() * 10 + fModulesCal[0].GetModuleId();
 
     auto columnList = dataFrame.GetColumnNames();
@@ -244,6 +245,7 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
 
     for (size_t n = 1; n < fModulesCal.size(); n++) {
         modCut = fModulesCal[n].GetModuleDefinitionCut();
+        if (modCut.empty()) modCut = "1";  // if no cut is defined, use "1" (all events)
         pmID = fModulesCal[n].GetPlaneId() * 10 + fModulesCal[n].GetModuleId();
         dataFrame = dataFrame.Redefine(pmIDname, (modCut + " ? " + std::to_string(pmID) + " : " + pmIDname));
     }
