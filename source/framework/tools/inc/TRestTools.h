@@ -83,6 +83,7 @@ class TRestTools {
 
     static std::string GetFileNameExtension(const std::string& fullname);
     static std::string GetFileNameRoot(const std::string& fullname);
+    static std::vector<std::string> GetObservablesInString(const std::string& observablesStr, bool removeDuplicates = true);
 
     static int GetBinaryFileColumns(std::string fname);
 
