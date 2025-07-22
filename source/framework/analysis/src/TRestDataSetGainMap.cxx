@@ -38,11 +38,13 @@
 /// the observables fSpatialObservableX and fSpatialObservablesY. This results in
 /// the following plot:
 ///
-/// \image html drawSpectrum.png "Peak fitting of each segment. Plot obtained with TRestDataSetGainMap::Module::DrawSpectrum()" width=700px
+/// \image html drawSpectrum.png "Peak fitting of each segment. Plot obtained with
+/// TRestDataSetGainMap::Module::DrawSpectrum()" width=700px
 ///
 /// Also, the peak position provides a gain map:
 ///
-/// \image html drawGainMap.png "Gain map. Plot obtain with TRestDataSetGainMap::Module::DrawGainMap()" width=500px
+/// \image html drawGainMap.png "Gain map. Plot obtain with TRestDataSetGainMap::Module::DrawGainMap()"
+/// width=500px
 ///
 /// The result is a better energy resolution with the gain corrected
 /// calibration (red) than the plain calibration (blue).
