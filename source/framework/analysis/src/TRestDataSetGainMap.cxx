@@ -25,7 +25,7 @@
 /// parameters for a given detector with multiple (or just one) modules.
 /// The modules are defined using the Module class (defined internally).
 /// It performs a gain correction based on a spatial segmentation of the
-/// detector module. This is useful forbig modules such as the ones used
+/// detector module. This is useful for big modules such as the ones used
 /// in TREX-DM experiment. The input data files for this methods are
 /// TRestDataSet for both calculating the calibration parameters and
 /// performing the calibration of the desired events.
@@ -34,27 +34,23 @@
 /// fNumberOfSegmentsX*fNumberOfSegmentsY segments. The energy peaks provided
 /// are fitted in each segment. The events are associated to each segment based on
 /// the observables fSpatialObservableX and fSpatialObservablesY. This results in
-/// the following plot that can be obtain with the function
-/// TRestDataSetGainMap::Module::DrawSpectrum()
+/// the following plot:
 ///
-/// \htmlonly <style>div.image img[src="drawSpectrum.png"]{width:300px;}</style> \endhtmlonly
-/// ![Peak fitting of each segment. Plot obtain with
-/// TRestDataSetGainMap::Module::DrawSpectrum()](drawSpectrum.png)
+/// \image html drawSpectrum.png "Peak fitting of each segment. Plot obtained with TRestDataSetGainMap::Module::DrawSpectrum()" width=700px
 ///
-/// Also, the peak position provides a gain map that can be plotted with the function
-/// TRestDataSetGainMap::Module::DrawGainMap(peakNumber)
+/// Also, the peak position provides a gain map:
 ///
-/// \htmlonly <style>div.image img[src="drawGainMap.png"]{width:200px;}</style> \endhtmlonly
-/// ![Gain map. Plot obtain with TRestDataSetGainMap::Module::DrawGainMap()](drawGainMap.png)
+/// \image html drawGainMap.png "Gain map. Plot obtain with TRestDataSetGainMap::Module::DrawGainMap()" width=500px
 ///
 /// The result is a better energy resolution with the gain corrected
 /// calibration (red) than the plain calibration (blue).
 ///
-/// \htmlonly <style>div.image img[src="gainCorrectionComparison.png"]{width:200px;}</style> \endhtmlonly
-/// ![Gain correction comparison.](gainCorrectionComparison.png)
-
+/// \image html gainCorrectionComparison.png "Gain correction comparison." width=500px
+///
+///
 /// ### Parameters
-/// * **calibFileName**: name of the file to use for the calibration. It should be a TRestDataSet
+/// * **calibFileName**: name of the file to use for the calibration. It can be a TRestDataSet file,
+/// a TRestRun file or a file pattern for several TRestRun files.
 /// * **outputFileName**: name of the file to save this calibration metadata
 /// * **observable**: name of the observable to be calibrated. It must be a branch of the calibration
 /// TRestDataSet
@@ -126,11 +122,10 @@
 ///
 /// History of developments:
 ///
-/// 2023-September: First implementation of TRestDataSetGainMap
-/// Álvaro Ezquerro
+/// 2023-September: First implementation of TRestDataSetGainMap, Álvaro Ezquerro
 ///
 /// \class TRestDataSetGainMap
-/// \author: Álvaro Ezquerro aezquerro@unizar.es
+/// \author Álvaro Ezquerro aezquerro@unizar.es
 ///
 /// <hr>
 ///
@@ -731,11 +726,12 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
         // look for observables (characterized by having a _ in the name) in the definition cut
         auto modDefCutObs = TRestTools::GetObservablesInString(fDefinitionCut, true);
         obsList.insert(obsList.end(), modDefCutObs.begin(), modDefCutObs.end());
+
+        // look for observables in the cut
         for (const auto& cut : p->GetCut()->GetCutStrings()) {
             auto cutObs = TRestTools::GetObservablesInString(cut, true);
             obsList.insert(obsList.end(), cutObs.begin(), cutObs.end());
         }
-        // look for observables in the cut
         for (const auto& [variable, condition] : p->GetCut()->GetParamCut()) {
             auto cutObs = TRestTools::GetObservablesInString(variable, true);
             obsList.insert(obsList.end(), cutObs.begin(), cutObs.end());
