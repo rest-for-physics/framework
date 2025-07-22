@@ -26,9 +26,11 @@
 /// The modules are defined using the Module class (defined internally).
 /// It performs a gain correction based on a spatial segmentation of the
 /// detector module. This is useful for big modules such as the ones used
-/// in TREX-DM experiment. The input data files for this methods are
-/// TRestDataSet for both calculating the calibration parameters and
-/// performing the calibration of the desired events.
+/// in TREX-DM experiment. The input data for this methods can be a
+/// TRestDataSet, a TRestRun file or a file pattern for several TRestRun
+/// files for calculating the calibration parameters. The input data file
+/// to be used for performing the calibration of the desired events must
+/// be a TRestDataSet.
 ///
 /// To correct the gain inhomogeneities, the module is divided in
 /// fNumberOfSegmentsX*fNumberOfSegmentsY segments. The energy peaks provided
@@ -94,6 +96,11 @@
 /// ds.Import("calibratedDataSet.root");
 /// auto h = ds.GetDataFrame().Histo1D({"hname", "",100,-1,40.}, "calib_ThresholdIntegral");
 /// h->Draw();
+/// \endcode
+///
+/// Example to refit the peaks with the *REST_RefitGainMap* macro (using restRootMacros):
+/// \code
+/// REST_RefitGainMap("myCalibration.root");
 /// \endcode
 ///
 /// Example to refit manually the peaks of the gain map if any of them is not well fitted
