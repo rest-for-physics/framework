@@ -714,15 +714,46 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
         return;
     }
 
-    if (!TRestTools::fileExists(dsFileName)) {
-        RESTError << "Calibration file " << dsFileName << " does not exist." << p->RESTendl;
-        return;
-    }
-    if (!TRestTools::isDataSet(dsFileName)) RESTWarning << dsFileName << " is not a dataset." << p->RESTendl;
     TRestDataSet dataSet;
     dataSet.EnableMultiThreading(true);
-    dataSet.Import(dsFileName);
-    fDataSetFileName = dsFileName;
+    if (TRestTools::isDataSet(dsFileName)){
+        dataSet.Import(dsFileName);
+        fDataSetFileName = dsFileName;
+    } else {
+        RESTWarning << dsFileName << " is not a dataset. Generating a temporal one..." << p->RESTendl;
+        // get all the observables needed for the gain map
+        std::vector<std::string> obsList;
+
+        obsList.push_back(p->GetObservable());
+        obsList.push_back(p->GetSpatialObservableX());
+        obsList.push_back(p->GetSpatialObservableY());
+
+        // look for observables (characterized by having a _ in the name) in the definition cut
+        auto modDefCutObs = TRestTools::GetObservablesInString(fDefinitionCut, true);
+        obsList.insert(obsList.end(), modDefCutObs.begin(), modDefCutObs.end());
+        for (const auto& cut : p->GetCut()->GetCutStrings()) {
+            auto cutObs = TRestTools::GetObservablesInString(cut, true);
+            obsList.insert(obsList.end(), cutObs.begin(), cutObs.end());
+        }
+        // look for observables in the cut
+        for (const auto& [variable, condition] : p->GetCut()->GetParamCut()) {
+            auto cutObs = TRestTools::GetObservablesInString(variable, true);
+            obsList.insert(obsList.end(), cutObs.begin(), cutObs.end());
+            // not sure if any obs can be in the condition. Just in case...
+            cutObs = TRestTools::GetObservablesInString(condition, true);
+            obsList.insert(obsList.end(), cutObs.begin(), cutObs.end());
+        }
+
+        // remove duplicates
+        std::sort(obsList.begin(), obsList.end());
+        obsList.erase(std::unique(obsList.begin(), obsList.end()), obsList.end());
+
+        // generate the dataset with the needed observables
+        dataSet.SetFilePattern(dsFileName);
+        dataSet.SetObservablesList(obsList);
+        dataSet.GenerateDataSet();
+        fDataSetFileName = dsFileName;
+    }
 
     dataSet.SetDataFrame(dataSet.MakeCut(p->GetCut()));
 
