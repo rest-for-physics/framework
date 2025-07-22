@@ -754,6 +754,8 @@ bool TRestTools::isRunFile(const std::string& filename) {
 bool TRestTools::isDataSet(const std::string& filename) {
     if (!isRootFile(filename)) return false;
 
+    if (!TRestTools::fileExists(filename)) return false;
+
     TFile* f = TFile::Open((TString)filename);
 
     TIter nextkey(f->GetListOfKeys());
