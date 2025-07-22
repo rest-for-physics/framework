@@ -846,7 +846,8 @@ string TRestTools::GetFileNameRoot(const string& fullname) {
 /// Input: "hitsAna_xMean*hitsAna_xMean+hitsAna_yMean*hitsAna_yMean<100" and false,
 /// Output: {"hitsAna_xMean", "hitsAna_xMean", "hitsAna_yMean", "hitsAna_yMean"}
 ///
-std::vector<std::string> TRestTools::GetObservablesInString(const std::string& observablesStr, bool removeDuplicates) {
+std::vector<std::string> TRestTools::GetObservablesInString(const std::string& observablesStr,
+                                                            bool removeDuplicates) {
     std::vector<std::string> obsList;
     std::string text = observablesStr;
     while (text.find("_") != std::string::npos) {

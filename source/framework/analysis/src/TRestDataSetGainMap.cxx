@@ -716,7 +716,7 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
 
     TRestDataSet dataSet;
     dataSet.EnableMultiThreading(true);
-    if (TRestTools::isDataSet(dsFileName)){
+    if (TRestTools::isDataSet(dsFileName)) {
         dataSet.Import(dsFileName);
         fDataSetFileName = dsFileName;
     } else {
