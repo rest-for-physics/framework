@@ -239,7 +239,7 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
         RESTWarning << dataSetFileName << " is not a dataset. Generating a temporal one..." << RESTendl;
         // generate the dataset with the needed observables
         dataSet.SetFilePattern(dataSetFileName);
-        dataSet.SetObservablesList({"*"}); // get all observables
+        dataSet.SetObservablesList({"*"});  // get all observables
         dataSet.GenerateDataSet();
     }
 
