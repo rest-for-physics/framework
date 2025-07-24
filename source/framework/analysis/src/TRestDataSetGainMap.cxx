@@ -25,36 +25,34 @@
 /// parameters for a given detector with multiple (or just one) modules.
 /// The modules are defined using the Module class (defined internally).
 /// It performs a gain correction based on a spatial segmentation of the
-/// detector module. This is useful forbig modules such as the ones used
-/// in TREX-DM experiment. The input data files for this methods are
-/// TRestDataSet for both calculating the calibration parameters and
-/// performing the calibration of the desired events.
+/// detector module. This is useful for big modules such as the ones used
+/// in TREX-DM experiment. The input data for this methods can be a
+/// TRestDataSet, a TRestRun file or a file pattern for several TRestRun
+/// files for calculating the calibration parameters. The input data file
+/// to be used for performing the calibration of the desired events must
+/// be a TRestDataSet.
 ///
 /// To correct the gain inhomogeneities, the module is divided in
 /// fNumberOfSegmentsX*fNumberOfSegmentsY segments. The energy peaks provided
 /// are fitted in each segment. The events are associated to each segment based on
 /// the observables fSpatialObservableX and fSpatialObservablesY. This results in
-/// the following plot that can be obtain with the function
-/// TRestDataSetGainMap::Module::DrawSpectrum()
+/// the following plot:
 ///
-/// \htmlonly <style>div.image img[src="drawSpectrum.png"]{width:300px;}</style> \endhtmlonly
-/// ![Peak fitting of each segment. Plot obtain with
-/// TRestDataSetGainMap::Module::DrawSpectrum()](drawSpectrum.png)
+/// \image html drawSpectrum.png "Plotted by TRestDataSetGainMap::Module::DrawSpectrum()" width=700px
 ///
-/// Also, the peak position provides a gain map that can be plotted with the function
-/// TRestDataSetGainMap::Module::DrawGainMap(peakNumber)
+/// Also, the peak position provides a gain map:
 ///
-/// \htmlonly <style>div.image img[src="drawGainMap.png"]{width:200px;}</style> \endhtmlonly
-/// ![Gain map. Plot obtain with TRestDataSetGainMap::Module::DrawGainMap()](drawGainMap.png)
+/// \image html drawGainMap.png "Plotted by TRestDataSetGainMap::Module::DrawGainMap()" width=500px
 ///
 /// The result is a better energy resolution with the gain corrected
 /// calibration (red) than the plain calibration (blue).
 ///
-/// \htmlonly <style>div.image img[src="gainCorrectionComparison.png"]{width:200px;}</style> \endhtmlonly
-/// ![Gain correction comparison.](gainCorrectionComparison.png)
-
+/// \image html gainCorrectionComparison.png "Gain correction comparison." width=500px
+///
+///
 /// ### Parameters
-/// * **calibFileName**: name of the file to use for the calibration. It should be a TRestDataSet
+/// * **calibFileName**: name of the file to use for the calibration. It can be a TRestDataSet file,
+/// a TRestRun file or a file pattern for several TRestRun files.
 /// * **outputFileName**: name of the file to save this calibration metadata
 /// * **observable**: name of the observable to be calibrated. It must be a branch of the calibration
 /// TRestDataSet
@@ -100,6 +98,11 @@
 /// h->Draw();
 /// \endcode
 ///
+/// Example to refit the peaks with the *REST_RefitGainMap* macro (using restRootMacros):
+/// \code
+/// REST_RefitGainMap("myCalibration.root");
+/// \endcode
+///
 /// Example to refit manually the peaks of the gain map if any of them is not well fitted
 /// (using restRoot):
 /// \code
@@ -126,11 +129,10 @@
 ///
 /// History of developments:
 ///
-/// 2023-September: First implementation of TRestDataSetGainMap
-/// Álvaro Ezquerro
+/// 2023-September: First implementation of TRestDataSetGainMap, Álvaro Ezquerro
 ///
 /// \class TRestDataSetGainMap
-/// \author: Álvaro Ezquerro aezquerro@unizar.es
+/// \author Álvaro Ezquerro aezquerro@unizar.es
 ///
 /// <hr>
 ///
@@ -234,6 +236,7 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
     // Define a new column with the identifier (pmID) of the module for each row (event)
     std::string pmIDname = (std::string)GetName() + "_pmID";
     std::string modCut = fModulesCal[0].GetModuleDefinitionCut();
+    if (modCut.empty()) modCut = "1";  // if no cut is defined, use "1" (all events)
     int pmID = fModulesCal[0].GetPlaneId() * 10 + fModulesCal[0].GetModuleId();
 
     auto columnList = dataFrame.GetColumnNames();
@@ -244,6 +247,7 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
 
     for (size_t n = 1; n < fModulesCal.size(); n++) {
         modCut = fModulesCal[n].GetModuleDefinitionCut();
+        if (modCut.empty()) modCut = "1";  // if no cut is defined, use "1" (all events)
         pmID = fModulesCal[n].GetPlaneId() * 10 + fModulesCal[n].GetModuleId();
         dataFrame = dataFrame.Redefine(pmIDname, (modCut + " ? " + std::to_string(pmID) + " : " + pmIDname));
     }
@@ -286,8 +290,7 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
     if (outputFileName == dataSetFileName) {  // TRestDataSet cannot be overwritten
         std::string gmName = GetName();
         outputFileName = outputFileName.substr(0, outputFileName.find_last_of("."));  // remove extension
-        outputFileName += "_" + gmName;
-        outputFileName += TRestTools::GetFileNameExtension(dataSetFileName);
+        outputFileName += "_" + gmName + "." + TRestTools::GetFileNameExtension(dataSetFileName);
     }
 
     // Export dataset. Exclude columns if requested.
@@ -713,15 +716,47 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
         return;
     }
 
-    if (!TRestTools::fileExists(dsFileName)) {
-        RESTError << "Calibration file " << dsFileName << " does not exist." << p->RESTendl;
-        return;
-    }
-    if (!TRestTools::isDataSet(dsFileName)) RESTWarning << dsFileName << " is not a dataset." << p->RESTendl;
     TRestDataSet dataSet;
     dataSet.EnableMultiThreading(true);
-    dataSet.Import(dsFileName);
-    fDataSetFileName = dsFileName;
+    if (TRestTools::isDataSet(dsFileName)) {
+        dataSet.Import(dsFileName);
+        fDataSetFileName = dsFileName;
+    } else {
+        RESTWarning << dsFileName << " is not a dataset. Generating a temporal one..." << p->RESTendl;
+        // get all the observables needed for the gain map
+        std::vector<std::string> obsList;
+
+        obsList.push_back(p->GetObservable());
+        obsList.push_back(p->GetSpatialObservableX());
+        obsList.push_back(p->GetSpatialObservableY());
+
+        // look for observables (characterized by having a _ in the name) in the definition cut
+        auto modDefCutObs = TRestTools::GetObservablesInString(fDefinitionCut, true);
+        obsList.insert(obsList.end(), modDefCutObs.begin(), modDefCutObs.end());
+
+        // look for observables in the cut
+        for (const auto& cut : p->GetCut()->GetCutStrings()) {
+            auto cutObs = TRestTools::GetObservablesInString(cut, true);
+            obsList.insert(obsList.end(), cutObs.begin(), cutObs.end());
+        }
+        for (const auto& [variable, condition] : p->GetCut()->GetParamCut()) {
+            auto cutObs = TRestTools::GetObservablesInString(variable, true);
+            obsList.insert(obsList.end(), cutObs.begin(), cutObs.end());
+            // not sure if any obs can be in the condition. Just in case...
+            cutObs = TRestTools::GetObservablesInString(condition, true);
+            obsList.insert(obsList.end(), cutObs.begin(), cutObs.end());
+        }
+
+        // remove duplicates
+        std::sort(obsList.begin(), obsList.end());
+        obsList.erase(std::unique(obsList.begin(), obsList.end()), obsList.end());
+
+        // generate the dataset with the needed observables
+        dataSet.SetFilePattern(dsFileName);
+        dataSet.SetObservablesList(obsList);
+        dataSet.GenerateDataSet();
+        fDataSetFileName = dsFileName;
+    }
 
     dataSet.SetDataFrame(dataSet.MakeCut(p->GetCut()));
 

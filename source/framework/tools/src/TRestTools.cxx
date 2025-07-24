@@ -754,6 +754,8 @@ bool TRestTools::isRunFile(const std::string& filename) {
 bool TRestTools::isDataSet(const std::string& filename) {
     if (!isRootFile(filename)) return false;
 
+    if (!TRestTools::fileExists(filename)) return false;
+
     TFile* f = TFile::Open((TString)filename);
 
     TIter nextkey(f->GetListOfKeys());
@@ -833,6 +835,30 @@ string TRestTools::GetFileNameExtension(const string& fullname) {
 ///
 string TRestTools::GetFileNameRoot(const string& fullname) {
     return filesystem::path(fullname).stem().string();
+}
+
+//////////////////////////////////////////////////
+/// \brief Returns a vector with the observables names found in the input string.
+/// The observables names must contain the character "_" to be identified as such.
+/// e.g. Input: "x1_x2 + x3 - x4*y_z". Output: {"x1_x2", "y_z"}
+/// Input: "hitsAna_xMean*hitsAna_xMean+hitsAna_yMean*hitsAna_yMean<100" and true,
+// Output: {"hitsAna_xMean", "hitsAna_yMean"}.
+/// Input: "hitsAna_xMean*hitsAna_xMean+hitsAna_yMean*hitsAna_yMean<100" and false,
+/// Output: {"hitsAna_xMean", "hitsAna_xMean", "hitsAna_yMean", "hitsAna_yMean"}
+///
+std::vector<std::string> TRestTools::GetObservablesInString(const std::string& observablesStr,
+                                                            bool removeDuplicates) {
+    std::vector<std::string> obsList;
+    std::string text = observablesStr;
+    while (text.find("_") != std::string::npos) {
+        size_t pos_ = text.find("_");
+        size_t beginning = text.find_last_of(" -+*/)(^%<>", pos_) + 1;
+        size_t end = text.find_first_of(" -+*/)(^%<>", pos_);
+        std::string obs = text.substr(beginning, end - beginning);
+        text = Replace(text, obs, "1", 0, removeDuplicates ? 0 : 1);
+        obsList.push_back(obs);
+    }
+    return obsList;
 }
 
 ///////////////////////////////////////////////
