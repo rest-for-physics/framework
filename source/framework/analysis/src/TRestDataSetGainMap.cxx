@@ -306,17 +306,9 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
     }
 
     // Export dataset. Exclude columns if requested.
-    std::set<std::string> excludeCol;  // vector with the explicit column names to be excluded
     auto columns = dataSet.GetDataFrame().GetColumnNames();
-    // Get the columns to be excluded from the list of columns. It accepts wildcards "*" and "?"
-    for (auto& eC : excludeColumns) {
-        if (eC.find("*") != std::string::npos || eC.find("?") != std::string::npos) {
-            for (auto& c : columns)
-                if (MatchString(c, eC)) excludeCol.insert(c);
-        } else if (std::find(columns.begin(), columns.end(), eC) != columns.end())
-            excludeCol.insert(eC);
-    }
-    // Remove the calibObsName, calibObsNameFullSpc and pmIDname from the list of columns to be excluded
+    std::set<std::string> excludeCol = TRestTools::GetMatchingStrings(columns, excludeColumns);
+    // Never exclude the calibObsName, calibObsNameFullSpc and pmIDname
     excludeCol.erase(calibObsName);
     excludeCol.erase(calibObsNameFullSpc);
     excludeCol.erase(pmIDname);
