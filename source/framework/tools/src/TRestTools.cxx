@@ -873,7 +873,7 @@ std::vector<std::string> TRestTools::GetObservablesInString(const std::string& o
 /// Output: {"x1", "x11", "x2", "y1", "y2", "z1"}
 ///
 std::set<std::string> TRestTools::GetMatchingStrings(const std::vector<std::string>& stack,
-                                                       const std::vector<std::string>& wantedStrings) {
+                                                     const std::vector<std::string>& wantedStrings) {
     std::set<std::string> result;
     for (auto& ws : wantedStrings) {
         if (ws.find("*") != std::string::npos || ws.find("?") != std::string::npos) {
@@ -882,7 +882,7 @@ std::set<std::string> TRestTools::GetMatchingStrings(const std::vector<std::stri
         } else if (std::find(stack.begin(), stack.end(), ws) != stack.end())
             result.insert(ws);
     }
-    //return std::vector<std::string>(result.begin(), result.end()); // convert to vector
+    // return std::vector<std::string>(result.begin(), result.end()); // convert to vector
     return result;
 }
 
