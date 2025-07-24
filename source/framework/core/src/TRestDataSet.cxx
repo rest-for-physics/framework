@@ -637,7 +637,6 @@ void TRestDataSet::PrintMetadata() {
         RESTMetadata << "  " << RESTendl;
     }
 
-
     if (!fFilterMetadata.empty()) {
         RESTMetadata << " Metadata filters: " << RESTendl;
         RESTMetadata << " ----------------- " << RESTendl;
@@ -762,8 +761,8 @@ void TRestDataSet::InitFromConfigFile() {
 
         std::vector<std::string> obsList = REST_StringHelper::Split(observables, ",");
 
-        for (const auto& l : obsList){
-            std::string processObsPattern = l+ "_*";
+        for (const auto& l : obsList) {
+            std::string processObsPattern = l + "_*";
             fObservablesList.push_back(processObsPattern);
         }
 
