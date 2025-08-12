@@ -34,7 +34,7 @@ jobs:
     container:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build and install
         uses: rest-for-physics/framework/.github/actions/build@master
         with:
@@ -53,7 +53,7 @@ jobs:
     container:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build and install
         uses: rest-for-physics/framework/.github/actions/build@master
         with:
@@ -86,7 +86,7 @@ jobs:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ framework-install ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: rest-for-physics/framework
           path: framework
@@ -109,7 +109,7 @@ jobs:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ framework-install ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: rest-for-physics/framework
           path: framework
@@ -155,7 +155,7 @@ jobs:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ framework-install ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: rest-for-physics/framework
           path: framework
@@ -199,7 +199,7 @@ jobs:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ framework-install ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: rest-for-physics/framework
           path: framework
@@ -230,7 +230,7 @@ jobs:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ framework-install ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: rest-for-physics/framework
           path: framework
@@ -283,7 +283,7 @@ jobs:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ framework-install ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: rest-for-physics/framework
           path: framework
@@ -374,7 +374,7 @@ jobs:
     container:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-reference-jun2022
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build and install
         uses: rest-for-physics/framework/.github/actions/build@master
         with:
@@ -405,7 +405,7 @@ jobs:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-reference-jun2022
     needs: [ framework-install-reference ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: rest-for-physics/framework
           path: framework
