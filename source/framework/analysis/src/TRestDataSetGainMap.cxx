@@ -430,6 +430,8 @@ TRestDataSetGainMap& TRestDataSetGainMap::operator=(TRestDataSetGainMap& src) {
     fObservable = src.GetObservable();
     fSpatialObservableX = src.GetSpatialObservableX();
     fSpatialObservableY = src.GetSpatialObservableY();
+    fSpatialObservableXSecondary = src.GetSpatialObservableXSecondary();
+    fSpatialObservableYSecondary = src.GetSpatialObservableYSecondary();
     fCut = src.GetCut();
     fModulesCal.clear();
     for (auto pID : src.GetPlaneIDs())
@@ -531,6 +533,10 @@ void TRestDataSetGainMap::PrintMetadata() {
     RESTMetadata << " Calibration observable: " << fObservable << RESTendl;
     RESTMetadata << " Spatial observable X: " << fSpatialObservableX << RESTendl;
     RESTMetadata << " Spatial observable Y: " << fSpatialObservableY << RESTendl;
+    if (!fSpatialObservableXSecondary.empty())
+        RESTMetadata << " Secondary spatial observable X: " << fSpatialObservableXSecondary << RESTendl;
+    if (!fSpatialObservableYSecondary.empty())
+        RESTMetadata << " Secondary spatial observable Y: " << fSpatialObservableYSecondary << RESTendl;
     RESTMetadata << "-----------------------------------------------" << RESTendl;
     for (auto& i : fModulesCal) i.Print();
     RESTMetadata << "***********************************************" << RESTendl;
@@ -729,6 +735,10 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
         obsList.push_back(p->GetObservable());
         obsList.push_back(p->GetSpatialObservableX());
         obsList.push_back(p->GetSpatialObservableY());
+        if (!p->GetSpatialObservableXSecondary().empty())
+            obsList.push_back(p->GetSpatialObservableXSecondary());
+        if (!p->GetSpatialObservableYSecondary().empty())
+            obsList.push_back(p->GetSpatialObservableYSecondary());
 
         // look for observables (characterized by having a _ in the name) in the definition cut
         auto modDefCutObs = TRestTools::GetObservablesInString(fDefinitionCut, true);
@@ -831,6 +841,12 @@ void TRestDataSetGainMap::Module::GenerateGainMap() {
             if (!GetSpatialObservableY().empty())
                 segment_cut += "&&" + GetSpatialObservableY() + ">=" + std::to_string(yLower) + "&&" +
                                GetSpatialObservableY() + "<" + std::to_string(yUpper);
+            if (!GetSpatialObservableXSecondary().empty())
+                segment_cut += "&&" + GetSpatialObservableXSecondary() + ">=" + std::to_string(xLower) +
+                               "&&" + GetSpatialObservableXSecondary() + "<" + std::to_string(xUpper);
+            if (!GetSpatialObservableYSecondary().empty())
+                segment_cut += "&&" + GetSpatialObservableYSecondary() + ">=" + std::to_string(yLower) +
+                               "&&" + GetSpatialObservableYSecondary() + "<" + std::to_string(yUpper);
             if (!fDefinitionCut.empty()) segment_cut += "&&" + fDefinitionCut;
             if (segment_cut.empty()) segment_cut = "1";
             RESTExtreme << "Segment[" << i << "][" << j << "] cut: " << segment_cut << p->RESTendl;
