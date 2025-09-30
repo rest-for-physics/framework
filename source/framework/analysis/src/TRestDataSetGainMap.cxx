@@ -1456,8 +1456,9 @@ void TRestDataSetGainMap::Module::DrawLinearFit(TCanvas* c) {
 /// \param fullModuleAsRef If true, it will use the peak position at the full module spectrum
 /// as reference for the gain map. If false, it will use the centered segment of the module
 /// as reference.
+/// \param showText If true, it will show the gain value in each segment.
 ///
-void TRestDataSetGainMap::Module::DrawGainMap(const int peakNumber, bool fullModuleAsRef) {
+void TRestDataSetGainMap::Module::DrawGainMap(const int peakNumber, const bool fullModuleAsRef, const bool showText) {
     if (peakNumber < 0 || peakNumber >= (int)fEnergyPeaks.size()) {
         RESTError << "Peak number out of range (peakNumber should be between 0 and "
                   << fEnergyPeaks.size() - 1 << " )" << p->RESTendl;
@@ -1509,7 +1510,9 @@ void TRestDataSetGainMap::Module::DrawGainMap(const int peakNumber, bool fullMod
     hGainMap->SetStats(0);
     hGainMap->Draw("colz");
     hGainMap->SetBarOffset(0.2);
-    hGainMap->Draw("TEXT SAME");
+    if (showText) {
+        hGainMap->Draw("TEXT SAME");
+    }
 }
 
 /////////////////////////////////////////////
