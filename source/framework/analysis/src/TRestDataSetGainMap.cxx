@@ -1458,7 +1458,8 @@ void TRestDataSetGainMap::Module::DrawLinearFit(TCanvas* c) {
 /// as reference.
 /// \param showText If true, it will show the gain value in each segment.
 ///
-void TRestDataSetGainMap::Module::DrawGainMap(const int peakNumber, const bool fullModuleAsRef, const bool showText) {
+void TRestDataSetGainMap::Module::DrawGainMap(const int peakNumber, const bool fullModuleAsRef,
+                                              const bool showText) {
     if (peakNumber < 0 || peakNumber >= (int)fEnergyPeaks.size()) {
         RESTError << "Peak number out of range (peakNumber should be between 0 and "
                   << fEnergyPeaks.size() - 1 << " )" << p->RESTendl;
