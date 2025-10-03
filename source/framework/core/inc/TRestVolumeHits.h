@@ -69,7 +69,8 @@ class TRestVolumeHits : public TRestHits {
         return TMath::Sqrt(fSigmaX[n] * fSigmaX[n] + fSigmaY[n] * fSigmaY[n]);
     }
 
-    static void kMeansClustering(TRestVolumeHits* hits, TRestVolumeHits& vHits, int maxIt = 100, bool fixBoundaries = false);
+    static void kMeansClustering(TRestVolumeHits* hits, TRestVolumeHits& vHits, int maxIt = 100,
+                                 bool fixBoundaries = false);
 
     // Constructor & Destructor
     TRestVolumeHits();

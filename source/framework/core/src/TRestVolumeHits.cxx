@@ -162,13 +162,14 @@ void TRestVolumeHits::PrintHits() const {
     }
 }
 
-void TRestVolumeHits::kMeansClustering(TRestVolumeHits* hits, TRestVolumeHits& vHits, int maxIt, bool fixBoundaries) {
+void TRestVolumeHits::kMeansClustering(TRestVolumeHits* hits, TRestVolumeHits& vHits, int maxIt,
+                                       bool fixBoundaries) {
     const int nodes = vHits.GetNumberOfHits();
     vector<TRestVolumeHits> volHits(nodes);
     // std::cout<<"Nhits "<<hits->GetNumberOfHits()<<" Nodes "<<nodes<<std::endl;
     TVector3 nullVector = TVector3(0, 0, 0);
     std::vector<TVector3> centroid(nodes);
-    std::vector<TVector3> centroidOld(nodes, nullVector); // used for iterations
+    std::vector<TVector3> centroidOld(nodes, nullVector);  // used for iterations
 
     for (int h = 0; h < nodes; h++) centroid[h] = vHits.GetPosition(h);
 
@@ -178,7 +179,7 @@ void TRestVolumeHits::kMeansClustering(TRestVolumeHits* hits, TRestVolumeHits& v
             double minDist = 1E9;
             int clIndex = -1;
             for (int n = 0; n < nodes; n++) {
-                if (fixBoundaries && (n == 0 || n == nodes - 1)) continue; // Skip fixed nodes
+                if (fixBoundaries && (n == 0 || n == nodes - 1)) continue;  // Skip fixed nodes
                 TVector3 hitPos = hits->GetPosition(i);
                 double dist = (centroid[n] - hitPos).Mag();
                 if (dist < minDist) {
@@ -193,7 +194,7 @@ void TRestVolumeHits::kMeansClustering(TRestVolumeHits* hits, TRestVolumeHits& v
         // Update centroids and check for convergence
         bool converge = true;
         for (int n = 0; n < nodes; n++) {
-            if ( fixBoundaries && (n == 0 || n == nodes - 1) ) continue; // Skip fixed nodes
+            if (fixBoundaries && (n == 0 || n == nodes - 1)) continue;  // Skip fixed nodes
             centroid[n] = volHits[n].GetMeanPosition();
             converge &= (centroid[n] == centroidOld[n]);
             centroidOld[n] = centroid[n];
@@ -210,8 +211,8 @@ void TRestVolumeHits::kMeansClustering(TRestVolumeHits* hits, TRestVolumeHits& v
             vHits.AddHit(centroid[n], 0, 0, vHits.GetType(n), sigma);
         } else {
             if (volHits[n].GetNumberOfHits() > 0)
-                vHits.AddHit(volHits[n].GetMeanPosition(), volHits[n].GetTotalEnergy(), 0, volHits[n].GetType(0),
-                            sigma);
+                vHits.AddHit(volHits[n].GetMeanPosition(), volHits[n].GetTotalEnergy(), 0,
+                             volHits[n].GetType(0), sigma);
         }
     }
 }
