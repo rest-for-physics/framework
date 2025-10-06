@@ -192,7 +192,7 @@ inline void SetInitLevel(T* name, int level) {
 enum Quantities { ENERGY, LENGTH, TIME };
 class ValueWithQuantity {
    public:
-    ValueWithQuantity(double value, Quantities quantity) : fValue(value), fQuantity(quantity){};
+    ValueWithQuantity(double value, Quantities quantity) : fValue(value), fQuantity(quantity) {};
     double GetValue() const { return fValue; }
     std::string ToString() const;
 
