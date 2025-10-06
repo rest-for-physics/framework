@@ -283,12 +283,12 @@ class TRestDataSetGainMap : public TRestMetadata {
         void Initialize();
 
         Module() {}
-        Module(const TRestDataSetGainMap& parent) : p(&parent){};
+        Module(const TRestDataSetGainMap& parent) : p(&parent) {};
         Module(const TRestDataSetGainMap& parent, const Int_t planeId, const Int_t moduleId) : p(&parent) {
             SetPlaneId(planeId);
             SetModuleId(moduleId);
         };
-        ~Module(){};
+        ~Module() {};
     };
 };
 #endif

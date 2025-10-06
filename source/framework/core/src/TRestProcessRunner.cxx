@@ -487,8 +487,7 @@ void TRestProcessRunner::RunProcess() {
     }
 
     if (fProcStatus != kIgnore && Console::kbhit())
-        while (getchar() != '\n')
-            ;  // clear buffer
+        while (getchar() != '\n');  // clear buffer
 
     RESTEssential << "Waiting for processes to finish ..." << RESTendl;
 
@@ -592,8 +591,7 @@ void TRestProcessRunner::PauseMenu() {
                 Console::CursorUp(1);
                 int c = Console::Read();
                 if (c != '\n')
-                    while (Console::Read() != '\n')
-                        ;
+                    while (Console::Read() != '\n');
                 TRestStringOutput::REST_Verbose_Level l;
                 if (c == '0' || c == 's') {
                     l = TRestStringOutput::REST_Verbose_Level::REST_Silent;
