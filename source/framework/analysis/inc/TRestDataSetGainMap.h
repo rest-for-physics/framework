@@ -52,6 +52,12 @@ class TRestDataSetGainMap : public TRestMetadata {
     /// Observable that will be used to segmentize the gain map in the y direction
     std::string fSpatialObservableY = "";  //<
 
+    /// Secondary observable that will be used to segmentize the gain map in the x direction (if needed)
+    std::string fSpatialObservableXSecondary = "";  //<
+
+    /// Secondary observable that will be used to segmentize the gain map in the y direction (if needed)
+    std::string fSpatialObservableYSecondary = "";  //<
+
     /// List of modules
     std::vector<Module> fModulesCal = {};  //<
 
@@ -83,6 +89,8 @@ class TRestDataSetGainMap : public TRestMetadata {
     std::string GetObservable() const { return fObservable; }
     std::string GetSpatialObservableX() const { return fSpatialObservableX; }
     std::string GetSpatialObservableY() const { return fSpatialObservableY; }
+    std::string GetSpatialObservableXSecondary() const { return fSpatialObservableXSecondary; }
+    std::string GetSpatialObservableYSecondary() const { return fSpatialObservableYSecondary; }
     TRestCut* GetCut() const { return fCut; }
 
     Module* GetModule(const size_t index = 0);
@@ -119,7 +127,7 @@ class TRestDataSetGainMap : public TRestMetadata {
     TRestDataSetGainMap(const char* configFilename, std::string name = "");
     ~TRestDataSetGainMap();
 
-    ClassDefOverride(TRestDataSetGainMap, 2);
+    ClassDefOverride(TRestDataSetGainMap, 3);
 
     class Module {
        private:
@@ -223,6 +231,8 @@ class TRestDataSetGainMap : public TRestMetadata {
         std::string GetObservable() const { return p->fObservable; }
         std::string GetSpatialObservableX() const { return p->fSpatialObservableX; }
         std::string GetSpatialObservableY() const { return p->fSpatialObservableY; }
+        std::string GetSpatialObservableXSecondary() const { return p->fSpatialObservableXSecondary; }
+        std::string GetSpatialObservableYSecondary() const { return p->fSpatialObservableYSecondary; }
         inline std::string GetModuleDefinitionCut() const { return fDefinitionCut; }
         Int_t GetNumberOfSegmentsX() const { return fNumberOfSegmentsX; }
         Int_t GetNumberOfSegmentsY() const { return fNumberOfSegmentsY; }
@@ -243,7 +253,8 @@ class TRestDataSetGainMap : public TRestMetadata {
         void DrawLinearFit(const TVector2& position, TCanvas* c = nullptr);
         void DrawLinearFit(const int index_x, const int index_y, TCanvas* c = nullptr);
 
-        void DrawGainMap(const int peakNumber = 0, const bool fullModuleAsRef = true);
+        void DrawGainMap(const int peakNumber = 0, const bool fullModuleAsRef = true,
+                         const bool showText = true);
 
         void Refit(const TVector2& position, const double energy, const TVector2& range);
         void Refit(const size_t x, const size_t y, const size_t peakNumber, const TVector2& range);
