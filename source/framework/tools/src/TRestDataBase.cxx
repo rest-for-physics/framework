@@ -4,6 +4,12 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/file.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+#include <chrono>
+#include <thread>
 
 #include "TClass.h"
 #include "TRestStringHelper.h"
@@ -152,18 +158,23 @@ TRestDataBase::TRestDataBase() {
 /// Note that this file saves run number of the **next** run. So it returns
 /// The run number -1.
 int TRestDataBase::get_lastrun() {
-    int runNr;
+    int runNr=1;
     string runFilename = REST_USER_PATH + "/runNumber";
-    if (!TRestTools::fileExists(runFilename)) {
-        if (TRestTools::isPathWritable(REST_USER_PATH)) {
-            // we fix the "runNumber" file
-            TRestTools::Execute("echo 1 > " + runFilename);
-            runNr = 1;
-        }
+    bool fileExist = TRestTools::fileExists(runFilename);
+    int fd = open(runFilename.c_str(), O_RDWR | O_CREAT, 0666);
+    flock(fd, LOCK_EX);
+    if (!fileExist) {
+        string newRun = to_string(runNr) + "\n";
+        write(fd, newRun.c_str(), newRun.size());
+        fsync(fd);
     } else {
-        ifstream ifs(runFilename);
-        ifs >> runNr;
+        lseek(fd, 0, SEEK_SET);
+        char buffer[64] = {0};
+        read(fd, buffer, sizeof(buffer) - 1);
+        runNr = std::atoi(buffer);
     }
+    flock(fd, LOCK_UN);
+    close(fd);
     // the number recorded in "runNumber" file is for the next run, we subtract 1 to get the latest run.
     return runNr - 1;
 }
@@ -192,13 +203,19 @@ int TRestDataBase::set_run(DBEntry info, bool overwrite) {
 
     string runFilename = REST_USER_PATH + "/runNumber";
     if (TRestTools::isPathWritable(REST_USER_PATH)) {
-        TRestTools::Execute("echo " + ToString(newRunNr + 1) + " > " + runFilename);
+        int fd = open(runFilename.c_str(), O_RDWR | O_CREAT, 0666);
+        flock(fd, LOCK_EX);
+        string newRun = to_string(newRunNr + 1) + "\n";
+        write(fd, newRun.c_str(), newRun.size());
+        fsync(fd);
+        flock(fd, LOCK_UN);
+    close(fd);
+        
     } else {
         RESTWarning << "runNumber file not writable. auto run number "
                        "increment is disabled"
                     << RESTendl;
     }
-
     return newRunNr;
 }
 
