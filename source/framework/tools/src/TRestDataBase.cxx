@@ -1,12 +1,12 @@
 #include "TRestDataBase.h"
 
 #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
+#include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <sys/file.h>
 #include <unistd.h>
-#include <fcntl.h>
 
 #include <chrono>
 #include <thread>
@@ -158,7 +158,7 @@ TRestDataBase::TRestDataBase() {
 /// Note that this file saves run number of the **next** run. So it returns
 /// The run number -1.
 int TRestDataBase::get_lastrun() {
-    int runNr=1;
+    int runNr = 1;
     string runFilename = REST_USER_PATH + "/runNumber";
     bool fileExist = TRestTools::fileExists(runFilename);
     int fd = open(runFilename.c_str(), O_RDWR | O_CREAT, 0666);
@@ -209,8 +209,8 @@ int TRestDataBase::set_run(DBEntry info, bool overwrite) {
         write(fd, newRun.c_str(), newRun.size());
         fsync(fd);
         flock(fd, LOCK_UN);
-    close(fd);
-        
+        close(fd);
+
     } else {
         RESTWarning << "runNumber file not writable. auto run number "
                        "increment is disabled"
