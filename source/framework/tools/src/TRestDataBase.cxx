@@ -165,13 +165,15 @@ int TRestDataBase::get_lastrun() {
     flock(fd, LOCK_EX);
     if (!fileExist) {
         string newRun = to_string(runNr) + "\n";
-        write(fd, newRun.c_str(), newRun.size());
+        if(write(fd, newRun.c_str(), newRun.size()) == -1)
+            RESTError << "Error writing file " <<runFilename << strerror(errno) << RESTendl;
         fsync(fd);
     } else {
         lseek(fd, 0, SEEK_SET);
         char buffer[64] = {0};
-        read(fd, buffer, sizeof(buffer) - 1);
-        runNr = std::atoi(buffer);
+        ssize_t bytesReaded = read(fd, buffer, sizeof(buffer) - 1);
+        if (bytesReaded > 0)
+            runNr = std::atoi(buffer);
     }
     flock(fd, LOCK_UN);
     close(fd);
@@ -206,7 +208,8 @@ int TRestDataBase::set_run(DBEntry info, bool overwrite) {
         int fd = open(runFilename.c_str(), O_RDWR | O_CREAT, 0666);
         flock(fd, LOCK_EX);
         string newRun = to_string(newRunNr + 1) + "\n";
-        write(fd, newRun.c_str(), newRun.size());
+        if(write(fd, newRun.c_str(), newRun.size()) == -1)
+            RESTError << "Error writing file " <<runFilename << strerror(errno) << RESTendl;
         fsync(fd);
         flock(fd, LOCK_UN);
         close(fd);
