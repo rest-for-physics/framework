@@ -162,6 +162,10 @@ int TRestDataBase::get_lastrun() {
     string runFilename = REST_USER_PATH + "/runNumber";
     bool fileExist = TRestTools::fileExists(runFilename);
     int fd = open(runFilename.c_str(), O_RDWR | O_CREAT, 0666);
+    if (fd == -1) {
+        RESTError << "Error opening file " << runFilename << strerror(errno) << RESTendl;
+        return -1;
+    }
     flock(fd, LOCK_EX);
     if (!fileExist) {
         string newRun = to_string(runNr) + "\n";
@@ -193,7 +197,7 @@ int TRestDataBase::get_lastrun() {
 ///
 /// The method in derived class shall follow this rule.
 int TRestDataBase::set_run(DBEntry info, bool overwrite) {
-    int newRunNr;
+    int newRunNr = -1;
     if (info.runNr == 0) {
         newRunNr = get_lastrun() + 1;
     } else if (info.runNr > 0) {
@@ -205,6 +209,10 @@ int TRestDataBase::set_run(DBEntry info, bool overwrite) {
     string runFilename = REST_USER_PATH + "/runNumber";
     if (TRestTools::isPathWritable(REST_USER_PATH)) {
         int fd = open(runFilename.c_str(), O_RDWR | O_CREAT, 0666);
+        if (fd == -1) {
+            RESTError << "Error opening file " << runFilename << strerror(errno) << RESTendl;
+            return -1;
+        }
         flock(fd, LOCK_EX);
         string newRun = to_string(newRunNr + 1) + "\n";
         if (write(fd, newRun.c_str(), newRun.size()) == -1)
