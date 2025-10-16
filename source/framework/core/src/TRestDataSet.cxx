@@ -359,29 +359,14 @@ void TRestDataSet::GenerateDataSet() {
 
     ///// Disentangling process observables --> producing finalList
     TRestRun run(fFileSelection.front());
-    std::vector<std::string> finalList;
-    finalList.push_back("runOrigin");
-    finalList.push_back("eventID");
-    finalList.push_back("timeStamp");
+    std::set<std::string> finalList;
+    finalList.insert("runOrigin");
+    finalList.insert("eventID");
+    finalList.insert("timeStamp");
 
     auto obsNames = run.GetAnalysisTree()->GetObservableNames();
-    for (const auto& obs : fObservablesList) {
-        if (std::find(obsNames.begin(), obsNames.end(), obs) != obsNames.end()) {
-            finalList.push_back(obs);
-        } else {
-            RESTWarning << " Observable " << obs << " not found in observable list, skipping..." << RESTendl;
-        }
-    }
-
-    for (const auto& name : obsNames) {
-        for (const auto& pcs : fProcessObservablesList) {
-            if (name.find(pcs) == 0) finalList.push_back(name);
-        }
-    }
-
-    // Remove duplicated observables if any
-    std::sort(finalList.begin(), finalList.end());
-    finalList.erase(std::unique(finalList.begin(), finalList.end()), finalList.end());
+    auto obsFromList = TRestTools::GetMatchingStrings(obsNames, fObservablesList);
+    finalList.insert(obsFromList.begin(), obsFromList.end());
 
     if (fMT)
         ROOT::EnableImplicitMT();
@@ -397,11 +382,11 @@ void TRestDataSet::GenerateDataSet() {
     // Adding new user columns added to the dataset
     for (const auto& [cName, cExpression] : fColumnNameExpressions) {
         RESTInfo << "Adding column to dataset: " << cName << RESTendl;
-        finalList.emplace_back(cName);
+        finalList.emplace(cName);
         fDataFrame = DefineColumn(cName, cExpression);
     }
 
-    RegenerateTree(finalList);
+    RegenerateTree(std::vector<std::string>(finalList.begin(), finalList.end()));
 
     RESTInfo << " - Dataset generated!" << RESTendl;
 }
@@ -672,17 +657,9 @@ void TRestDataSet::PrintMetadata() {
     RESTMetadata << "  " << RESTendl;
 
     if (!fObservablesList.empty()) {
-        RESTMetadata << " Single observables added:" << RESTendl;
+        RESTMetadata << " Observables added:" << RESTendl;
         RESTMetadata << " -------------------------" << RESTendl;
         for (const auto& l : fObservablesList) RESTMetadata << " - " << l << RESTendl;
-
-        RESTMetadata << "  " << RESTendl;
-    }
-
-    if (!fProcessObservablesList.empty()) {
-        RESTMetadata << " Process observables added: " << RESTendl;
-        RESTMetadata << " -------------------------- " << RESTendl;
-        for (const auto& l : fProcessObservablesList) RESTMetadata << " - " << l << RESTendl;
 
         RESTMetadata << "  " << RESTendl;
     }
@@ -811,7 +788,10 @@ void TRestDataSet::InitFromConfigFile() {
 
         std::vector<std::string> obsList = REST_StringHelper::Split(observables, ",");
 
-        for (const auto& l : obsList) fProcessObservablesList.push_back(l);
+        for (const auto& l : obsList) {
+            std::string processObsPattern = l + "_*";
+            fObservablesList.push_back(processObsPattern);
+        }
 
         obsProcessDefinition = GetNextElement(obsProcessDefinition);
     }
@@ -1033,7 +1013,6 @@ TRestDataSet& TRestDataSet::operator=(TRestDataSet& dS) {
     fFilePattern = dS.GetFilePattern();
     fObservablesList = dS.GetObservablesList();
     fFileSelection = dS.GetFileSelection();
-    fProcessObservablesList = dS.GetProcessObservablesList();
     fFilterMetadata = dS.GetFilterMetadata();
     fFilterContains = dS.GetFilterContains();
     fFilterGreaterThan = dS.GetFilterGreaterThan();
