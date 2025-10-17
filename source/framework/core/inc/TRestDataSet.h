@@ -60,9 +60,6 @@ class TRestDataSet : public TRestMetadata {
     /// It contains a list of the observables that will be added to the final tree or exported file
     std::vector<std::string> fObservablesList;  //<
 
-    /// It contains a list of the process where all observables should be added
-    std::vector<std::string> fProcessObservablesList;  //<
-
     /// A list of metadata members where filters will be applied
     std::vector<std::string> fFilterMetadata;  //<
 
@@ -172,7 +169,6 @@ class TRestDataSet : public TRestMetadata {
     inline auto GetFilePattern() const { return fFilePattern; }
     inline auto GetObservablesList() const { return fObservablesList; }
     inline auto GetFileSelection() const { return fFileSelection; }
-    inline auto GetProcessObservablesList() const { return fProcessObservablesList; }
     inline auto GetFilterMetadata() const { return fFilterMetadata; }
     inline auto GetFilterContains() const { return fFilterContains; }
     inline auto GetFilterGreaterThan() const { return fFilterGreaterThan; }
@@ -215,6 +211,6 @@ class TRestDataSet : public TRestMetadata {
     TRestDataSet(const char* cfgFileName, const std::string& name = "");
     ~TRestDataSet();
 
-    ClassDefOverride(TRestDataSet, 8);
+    ClassDefOverride(TRestDataSet, 9);
 };
 #endif

@@ -861,6 +861,31 @@ std::vector<std::string> TRestTools::GetObservablesInString(const std::string& o
     return obsList;
 }
 
+////////////////////////////////////////////////////////////
+/// \brief Returns a set of strings that match the wanted strings from the stack.
+/// The wanted strings can contain wildcards "*" and "?".
+/// \param stack: vector of strings to be searched
+/// \param wantedStrings: vector of strings with the wanted strings to be matched.
+/// \return a set of strings that match the wanted strings
+/// e.g.
+/// Input: stack = {"x1", "x2", "x11", "y1", "y2", "y11", "z1", "z2"},
+/// wantedStrings = {"x*", "y?", "z1"},
+/// Output: {"x1", "x11", "x2", "y1", "y2", "z1"}
+///
+std::set<std::string> TRestTools::GetMatchingStrings(const std::vector<std::string>& stack,
+                                                     const std::vector<std::string>& wantedStrings) {
+    std::set<std::string> result;
+    for (auto& ws : wantedStrings) {
+        if (ws.find("*") != std::string::npos || ws.find("?") != std::string::npos) {
+            for (auto& c : stack)
+                if (MatchString(c, ws)) result.insert(c);
+        } else if (std::find(stack.begin(), stack.end(), ws) != stack.end())
+            result.insert(ws);
+    }
+    // return std::vector<std::string>(result.begin(), result.end()); // convert to vector
+    return result;
+}
+
 ///////////////////////////////////////////////
 /// \brief Returns the input string but without multiple slashes ("/")
 ///

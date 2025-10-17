@@ -29,6 +29,7 @@
 
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -85,6 +86,8 @@ class TRestTools {
     static std::string GetFileNameRoot(const std::string& fullname);
     static std::vector<std::string> GetObservablesInString(const std::string& observablesStr,
                                                            bool removeDuplicates = true);
+    static std::set<std::string> GetMatchingStrings(const std::vector<std::string>& stack,
+                                                    const std::vector<std::string>& wantedStrings);
 
     static int GetBinaryFileColumns(std::string fname);
 

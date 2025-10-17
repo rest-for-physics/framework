@@ -228,6 +228,13 @@
 /// not exactly the same, then a warning output message will be prompted.
 /// - **last**: It will simply register the value of the metadata member
 /// from the last file in the list of selected files.
+/// - **append**: It will append the metadata member value to the previous
+/// value. The user can specify the appender string after the `append`
+/// keyword. If no appender is given, then an empty string will be used.
+/// It will check if the value is already in the string and not append it
+/// if it is. Use _extend_ if you want to force the append.
+/// - **extend**: same as _append_ but it will not check if the value is
+/// already in the string.
 ///
 /// ### Adding a new column based on relevant quantities
 ///
@@ -352,29 +359,14 @@ void TRestDataSet::GenerateDataSet() {
 
     ///// Disentangling process observables --> producing finalList
     TRestRun run(fFileSelection.front());
-    std::vector<std::string> finalList;
-    finalList.push_back("runOrigin");
-    finalList.push_back("eventID");
-    finalList.push_back("timeStamp");
+    std::set<std::string> finalList;
+    finalList.insert("runOrigin");
+    finalList.insert("eventID");
+    finalList.insert("timeStamp");
 
     auto obsNames = run.GetAnalysisTree()->GetObservableNames();
-    for (const auto& obs : fObservablesList) {
-        if (std::find(obsNames.begin(), obsNames.end(), obs) != obsNames.end()) {
-            finalList.push_back(obs);
-        } else {
-            RESTWarning << " Observable " << obs << " not found in observable list, skipping..." << RESTendl;
-        }
-    }
-
-    for (const auto& name : obsNames) {
-        for (const auto& pcs : fProcessObservablesList) {
-            if (name.find(pcs) == 0) finalList.push_back(name);
-        }
-    }
-
-    // Remove duplicated observables if any
-    std::sort(finalList.begin(), finalList.end());
-    finalList.erase(std::unique(finalList.begin(), finalList.end()), finalList.end());
+    auto obsFromList = TRestTools::GetMatchingStrings(obsNames, fObservablesList);
+    finalList.insert(obsFromList.begin(), obsFromList.end());
 
     if (fMT)
         ROOT::EnableImplicitMT();
@@ -390,11 +382,11 @@ void TRestDataSet::GenerateDataSet() {
     // Adding new user columns added to the dataset
     for (const auto& [cName, cExpression] : fColumnNameExpressions) {
         RESTInfo << "Adding column to dataset: " << cName << RESTendl;
-        finalList.emplace_back(cName);
+        finalList.emplace(cName);
         fDataFrame = DefineColumn(cName, cExpression);
     }
 
-    RegenerateTree(finalList);
+    RegenerateTree(std::vector<std::string>(finalList.begin(), finalList.end()));
 
     RESTInfo << " - Dataset generated!" << RESTendl;
 }
@@ -513,6 +505,26 @@ std::vector<std::string> TRestDataSet::FileSelection() {
             }
 
             if (properties.strategy == "last") properties.value = value;
+
+            if (properties.strategy.find("append") != std::string::npos) {
+                // Get appender from "append" til the end of string. E.g. "append," -> "," or "append" -> ""
+                std::string appender = properties.strategy.substr(properties.strategy.find("append") + 6);
+                if (properties.value.empty())
+                    properties.value = value;
+                else
+                    // do not append if value already contains the value to append
+                    if (properties.value.find(value) == std::string::npos)
+                        properties.value += appender + value;
+            }
+
+            if (properties.strategy.find("extend") != std::string::npos) {
+                // Get appender from "extend" til the end of string. E.g. "extend," -> "," or "extend" -> ""
+                std::string appender = properties.strategy.substr(properties.strategy.find("extend") + 6);
+                if (properties.value.empty())
+                    properties.value = value;
+                else
+                    properties.value += appender + value;
+            }
         }
 
         if (run.GetStartTimestamp() < fStartTime) fStartTime = run.GetStartTimestamp();
@@ -645,17 +657,9 @@ void TRestDataSet::PrintMetadata() {
     RESTMetadata << "  " << RESTendl;
 
     if (!fObservablesList.empty()) {
-        RESTMetadata << " Single observables added:" << RESTendl;
+        RESTMetadata << " Observables added:" << RESTendl;
         RESTMetadata << " -------------------------" << RESTendl;
         for (const auto& l : fObservablesList) RESTMetadata << " - " << l << RESTendl;
-
-        RESTMetadata << "  " << RESTendl;
-    }
-
-    if (!fProcessObservablesList.empty()) {
-        RESTMetadata << " Process observables added: " << RESTendl;
-        RESTMetadata << " -------------------------- " << RESTendl;
-        for (const auto& l : fProcessObservablesList) RESTMetadata << " - " << l << RESTendl;
 
         RESTMetadata << "  " << RESTendl;
     }
@@ -784,7 +788,10 @@ void TRestDataSet::InitFromConfigFile() {
 
         std::vector<std::string> obsList = REST_StringHelper::Split(observables, ",");
 
-        for (const auto& l : obsList) fProcessObservablesList.push_back(l);
+        for (const auto& l : obsList) {
+            std::string processObsPattern = l + "_*";
+            fObservablesList.push_back(processObsPattern);
+        }
 
         obsProcessDefinition = GetNextElement(obsProcessDefinition);
     }
@@ -1006,7 +1013,6 @@ TRestDataSet& TRestDataSet::operator=(TRestDataSet& dS) {
     fFilePattern = dS.GetFilePattern();
     fObservablesList = dS.GetObservablesList();
     fFileSelection = dS.GetFileSelection();
-    fProcessObservablesList = dS.GetProcessObservablesList();
     fFilterMetadata = dS.GetFilterMetadata();
     fFilterContains = dS.GetFilterContains();
     fFilterGreaterThan = dS.GetFilterGreaterThan();
