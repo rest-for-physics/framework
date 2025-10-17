@@ -1,9 +1,15 @@
 #include "TRestDataBase.h"
 
 #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
+#include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
+
+#include <chrono>
+#include <thread>
 
 #include "TClass.h"
 #include "TRestStringHelper.h"
@@ -152,18 +158,28 @@ TRestDataBase::TRestDataBase() {
 /// Note that this file saves run number of the **next** run. So it returns
 /// The run number -1.
 int TRestDataBase::get_lastrun() {
-    int runNr;
+    int runNr = 1;
     string runFilename = REST_USER_PATH + "/runNumber";
-    if (!TRestTools::fileExists(runFilename)) {
-        if (TRestTools::isPathWritable(REST_USER_PATH)) {
-            // we fix the "runNumber" file
-            TRestTools::Execute("echo 1 > " + runFilename);
-            runNr = 1;
-        }
-    } else {
-        ifstream ifs(runFilename);
-        ifs >> runNr;
+    bool fileExist = TRestTools::fileExists(runFilename);
+    int fd = open(runFilename.c_str(), O_RDWR | O_CREAT, 0666);
+    if (fd == -1) {
+        RESTError << "Error opening file " << runFilename << strerror(errno) << RESTendl;
+        return -1;
     }
+    flock(fd, LOCK_EX);
+    if (!fileExist) {
+        string newRun = to_string(runNr) + "\n";
+        if (write(fd, newRun.c_str(), newRun.size()) == -1)
+            RESTError << "Error writing file " << runFilename << strerror(errno) << RESTendl;
+        fsync(fd);
+    } else {
+        lseek(fd, 0, SEEK_SET);
+        char buffer[64] = {0};
+        ssize_t bytesReaded = read(fd, buffer, sizeof(buffer) - 1);
+        if (bytesReaded > 0) runNr = std::atoi(buffer);
+    }
+    flock(fd, LOCK_UN);
+    close(fd);
     // the number recorded in "runNumber" file is for the next run, we subtract 1 to get the latest run.
     return runNr - 1;
 }
@@ -181,7 +197,7 @@ int TRestDataBase::get_lastrun() {
 ///
 /// The method in derived class shall follow this rule.
 int TRestDataBase::set_run(DBEntry info, bool overwrite) {
-    int newRunNr;
+    int newRunNr = -1;
     if (info.runNr == 0) {
         newRunNr = get_lastrun() + 1;
     } else if (info.runNr > 0) {
@@ -192,13 +208,24 @@ int TRestDataBase::set_run(DBEntry info, bool overwrite) {
 
     string runFilename = REST_USER_PATH + "/runNumber";
     if (TRestTools::isPathWritable(REST_USER_PATH)) {
-        TRestTools::Execute("echo " + ToString(newRunNr + 1) + " > " + runFilename);
+        int fd = open(runFilename.c_str(), O_RDWR | O_CREAT, 0666);
+        if (fd == -1) {
+            RESTError << "Error opening file " << runFilename << strerror(errno) << RESTendl;
+            return -1;
+        }
+        flock(fd, LOCK_EX);
+        string newRun = to_string(newRunNr + 1) + "\n";
+        if (write(fd, newRun.c_str(), newRun.size()) == -1)
+            RESTError << "Error writing file " << runFilename << strerror(errno) << RESTendl;
+        fsync(fd);
+        flock(fd, LOCK_UN);
+        close(fd);
+
     } else {
         RESTWarning << "runNumber file not writable. auto run number "
                        "increment is disabled"
                     << RESTendl;
     }
-
     return newRunNr;
 }
 
