@@ -276,6 +276,38 @@ jobs:
           restManager --batch --c classify.rml
           restRoot -b -q ValidateClassify.C
 
+  iaxo:
+    name: "IAXO simulations"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    needs: [ framework-install ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: rest-for-physics/framework
+          path: framework
+      - name: Checkout framework branch
+        run: |
+          cd framework
+          ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: framework-install-cache
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      - name: Check iaxo projects
+        run: |
+          cd framework/
+          python3 pull-submodules.py --latest
+          cd projects/
+          ls
+          cd iaxo
+          ls
+          cd iaxo-simulations
+          ls
+
   examples:
     name: Run examples
     runs-on: ubuntu-latest
