@@ -65,7 +65,7 @@
 ///
 /// <hr>
 ///
-/// \warning **⚠ REST is under continous development.** This documentation
+/// \warning **⚠ REST is under continuous development.** This documentation
 /// is offered to you by the REST community. Your HELP is needed to keep this
 /// code up to date. Your feedback will be worth to support this software, please
 /// report any problems/suggestions you may find will using it at [The REST Framework

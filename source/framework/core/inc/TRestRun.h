@@ -60,6 +60,8 @@ class TRestRun : public TRestMetadata {
     bool fHangUpEndFile = false;           //!
     bool fFromRML = false;                 //!
 
+    Long64_t fFeminosDaqTotalEvents = 0;  //!
+
     void InitFromConfigFile() override;
 
    private:
@@ -90,8 +92,8 @@ class TRestRun : public TRestMetadata {
         GetEntry(fCurrentEvent + 1);
     }
 
-    TString FormFormat(const TString& FilenameFormat);
-    TFile* MergeToOutputFile(std::vector<std::string> filefullnames, std::string outputfilename = "");
+    TString FormFormat(const TString& filenameFormat);
+    TFile* MergeToOutputFile(std::vector<std::string> fileFullNames, std::string outputFileName = "");
     TFile* FormOutputFile();
     TFile* UpdateOutputFile();
 
@@ -143,7 +145,7 @@ class TRestRun : public TRestMetadata {
     inline TFile* GetInputFile() const { return fInputFile; }
     inline TFile* GetOutputFile() const { return fOutputFile; }
     inline int GetCurrentEntry() const { return fCurrentEvent; }
-    inline Long64_t GetBytesReaded() const { return fBytesRead; }
+    inline Long64_t GetBytesRead() const { return fBytesRead; }
     Long64_t GetTotalBytes();
     Long64_t GetEntries() const;
 
@@ -176,6 +178,7 @@ class TRestRun : public TRestMetadata {
     std::vector<std::string> GetMetadataNames();
     std::vector<std::string> GetMetadataTitles();
     inline int GetNumberOfMetadata() const { return fMetadata.size(); }
+    Double_t GetElapsedTimeSeconds() const { return fEndTime - fStartTime; }
 
     inline std::string GetMetadataMember(const std::string& instr) { return ReplaceMetadataMember(instr); }
     std::string ReplaceMetadataMembers(const std::string& instr, Int_t precision = 8);
@@ -191,7 +194,6 @@ class TRestRun : public TRestMetadata {
     inline void SetOutputFileName(const std::string& s) { fOutputFileName = s; }
     void SetExtProcess(TRestEventProcess* p);
     inline void SetCurrentEntry(int i) { fCurrentEvent = i; }
-    // void AddFileTask(TRestFileTask* t) { fFileTasks.push_back(t); }
     void SetInputEvent(TRestEvent* event);
     inline void SetRunNumber(Int_t number) { fRunNumber = number; }
     inline void SetParentRunNumber(Int_t number) { fParentRunNumber = number; }
@@ -215,6 +217,10 @@ class TRestRun : public TRestMetadata {
     inline void SetNFilesSplit(int n) { fNFilesSplit = n; }
     inline void HangUpEndFile() { fHangUpEndFile = true; }
     inline void ReleaseEndFile() { fHangUpEndFile = false; }
+
+    inline void SetFeminosDaqTotalEvents(Long64_t n) { fFeminosDaqTotalEvents = n; }
+    inline Long64_t GetFeminosDaqTotalEvents() const { return fFeminosDaqTotalEvents; }
+
     // Printers
     void PrintStartDate();
     void PrintEndDate();
@@ -222,7 +228,9 @@ class TRestRun : public TRestMetadata {
     void PrintMetadata() override;
     inline void PrintAllMetadata() {
         PrintMetadata();
-        for (unsigned int i = 0; i < fMetadata.size(); i++) fMetadata[i]->PrintMetadata();
+        for (unsigned int i = 0; i < fMetadata.size(); i++) {
+            fMetadata[i]->PrintMetadata();
+        }
     }
     inline void PrintTrees() const {
         if (fEventTree != nullptr) {
@@ -237,7 +245,9 @@ class TRestRun : public TRestMetadata {
         }
     }
     void PrintObservables() {
-        if (fAnalysisTree != nullptr) fAnalysisTree->PrintObservables();
+        if (fAnalysisTree != nullptr) {
+            fAnalysisTree->PrintObservables();
+        }
     }
 
     inline void PrintEvent() const { fInputEvent->PrintEvent(); }

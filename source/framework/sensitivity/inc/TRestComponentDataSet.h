@@ -54,6 +54,12 @@ class TRestComponentDataSet : public TRestComponent {
     /// The dataset used to initialize the distribution
     TRestDataSet fDataSet;  //!
 
+    /// It helps to split large datasets when extracting the parameterization nodes
+    long long unsigned int fSplitEntries = 600000000;
+
+    /// It creates a sample subset using a range definition
+    TVector2 fDFRange = TVector2(0, 0);
+
     /// It is true of the dataset was loaded without issues
     Bool_t fDataSetLoaded = false;  //!
 
@@ -84,6 +90,6 @@ class TRestComponentDataSet : public TRestComponent {
     TRestComponentDataSet(const char* cfgFileName, const std::string& name);
     ~TRestComponentDataSet();
 
-    ClassDefOverride(TRestComponentDataSet, 3);
+    ClassDefOverride(TRestComponentDataSet, 4);
 };
 #endif

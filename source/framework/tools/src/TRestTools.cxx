@@ -754,6 +754,8 @@ bool TRestTools::isRunFile(const std::string& filename) {
 bool TRestTools::isDataSet(const std::string& filename) {
     if (!isRootFile(filename)) return false;
 
+    if (!TRestTools::fileExists(filename)) return false;
+
     TFile* f = TFile::Open((TString)filename);
 
     TIter nextkey(f->GetListOfKeys());
@@ -833,6 +835,55 @@ string TRestTools::GetFileNameExtension(const string& fullname) {
 ///
 string TRestTools::GetFileNameRoot(const string& fullname) {
     return filesystem::path(fullname).stem().string();
+}
+
+//////////////////////////////////////////////////
+/// \brief Returns a vector with the observables names found in the input string.
+/// The observables names must contain the character "_" to be identified as such.
+/// e.g. Input: "x1_x2 + x3 - x4*y_z". Output: {"x1_x2", "y_z"}
+/// Input: "hitsAna_xMean*hitsAna_xMean+hitsAna_yMean*hitsAna_yMean<100" and true,
+// Output: {"hitsAna_xMean", "hitsAna_yMean"}.
+/// Input: "hitsAna_xMean*hitsAna_xMean+hitsAna_yMean*hitsAna_yMean<100" and false,
+/// Output: {"hitsAna_xMean", "hitsAna_xMean", "hitsAna_yMean", "hitsAna_yMean"}
+///
+std::vector<std::string> TRestTools::GetObservablesInString(const std::string& observablesStr,
+                                                            bool removeDuplicates) {
+    std::vector<std::string> obsList;
+    std::string text = observablesStr;
+    while (text.find("_") != std::string::npos) {
+        size_t pos_ = text.find("_");
+        size_t beginning = text.find_last_of(" -+*/)(^%<>", pos_) + 1;
+        size_t end = text.find_first_of(" -+*/)(^%<>", pos_);
+        std::string obs = text.substr(beginning, end - beginning);
+        text = Replace(text, obs, "1", 0, removeDuplicates ? 0 : 1);
+        obsList.push_back(obs);
+    }
+    return obsList;
+}
+
+////////////////////////////////////////////////////////////
+/// \brief Returns a set of strings that match the wanted strings from the stack.
+/// The wanted strings can contain wildcards "*" and "?".
+/// \param stack: vector of strings to be searched
+/// \param wantedStrings: vector of strings with the wanted strings to be matched.
+/// \return a set of strings that match the wanted strings
+/// e.g.
+/// Input: stack = {"x1", "x2", "x11", "y1", "y2", "y11", "z1", "z2"},
+/// wantedStrings = {"x*", "y?", "z1"},
+/// Output: {"x1", "x11", "x2", "y1", "y2", "z1"}
+///
+std::set<std::string> TRestTools::GetMatchingStrings(const std::vector<std::string>& stack,
+                                                     const std::vector<std::string>& wantedStrings) {
+    std::set<std::string> result;
+    for (auto& ws : wantedStrings) {
+        if (ws.find("*") != std::string::npos || ws.find("?") != std::string::npos) {
+            for (auto& c : stack)
+                if (MatchString(c, ws)) result.insert(c);
+        } else if (std::find(stack.begin(), stack.end(), ws) != stack.end())
+            result.insert(ws);
+    }
+    // return std::vector<std::string>(result.begin(), result.end()); // convert to vector
+    return result;
 }
 
 ///////////////////////////////////////////////

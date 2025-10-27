@@ -32,23 +32,22 @@
 /// between metadata, variables or observable values.
 ///
 /// The rml file can be splitted in three main blocks that are detailed below;
-/// * Basic parameters: global variables to perform the plot such as canvas size,
+/// * Basic TRestDataSetPlot parameters: global variables to perform the plot such as canvas size,
 /// pad divisions, preview or outputFile info.
-/// * Panel parameters: A panel defines different labels that will be written in
+/// * Panel: it defines different labels that will be written in
 /// a pad, it accepts different parameters such as metadata info, variable values,
 /// and observable values, that can be written in the panel. A cut can be provided
 /// to a panel in order to print the info after appliying a particular cut.
-/// * Plot parameters: It contains the info to produce a plot at the pad level.
+/// * Plots: It contains the info to produce a plot at the pad level.
 /// A plot consists of a set of histograms that can be plot together using
 /// THStack, note that only 1D and 2D histograms are supported. The histograms
 /// are defined inside the plot metadata section and one or two variables must
 /// be provided (1D or 2D histos) besides the range, while a cut can be set at the
 /// histogram level.
 ///
-/// ### Parameters
-/// * Basic parameters of TRestDataSetPlot:
-/// * **name**: Name of the TRestDataSetPlot class and canvas
-/// * **title**: Title of the TRestDataSetPlot class and canvas
+/// ## Basic TRestDataSetPlot parameters
+/// * **name**: Name of the TRestDataSetPlot class and canvas.
+/// * **title**: Title of the TRestDataSetPlot class and canvas.
 /// * **dataSetName**: Name of the dataSet to be used to perform the plots. Note
 /// that if this variable is empty, it will use the name of the inputfile provided
 /// at restManager.
@@ -60,16 +59,17 @@
 /// * **previewPlot**: If true the plot (canvas) is displayed and can be modified before
 /// saving it.
 /// * **paletteStyle**: Style of the palette to be used in all the plots.
-/// * **legendX1**: Start position of the legend in the X axis
-/// * **legendY1**: Start position of the legend in the X axis
-/// * **legendX2**: End position of the legend in the X axis
-/// * **legendY2**: End position of the legend in the X axis
-/// * **canvasSize**: TVector2 with the size of the canvas in points
-/// * **canvasDivisions**: TVector2 with the divisions of the canvas e.g. (3, 2) --> 3 x 2
+/// * **legendX1**: Start position of the legend in the X axis.
+/// * **legendY1**: Start position of the legend in the Y axis.
+/// * **legendX2**: End position of the legend in the X axis.
+/// * **legendY2**: End position of the legend in the Y axis.
+/// * **canvasSize**: TVector2 with the size of the canvas in points.
+/// * **canvasDivisions**: TVector2 with the divisions of the canvas e.g. (3, 2) --> 3 x 2.
+///
 /// The key `addCut` can be povided in order to perform the cut to the entire dataSet. Note
 /// that the TRestCut must be defined inside the rml and several cuts can be added.
 ///
-/// Example of TRestDataSetPlot basic parameters with a set TRestCuts:
+/// Example of TRestDataSetPlot basic parameters with a set of TRestCuts:
 /// \code
 ///    <TRestDataSetPlot name="restplot" title="Basic Plots" previewPlot="true" canvasSize="(1200,1200)"
 ///    canvasDivisions="(2,2)" verboseLevel="info">
@@ -85,19 +85,40 @@
 ///    </TRestDataSetPlot>
 /// \endcode
 ///
-/// * Panel parameters:
+/// ## Panel
 /// Basic panel parameters:
 /// * **font_size**: Font size of the entire panel.
 /// * **precision**: Precision for the values to be written.
-/// * **value**: If true/ON panel is displayed, otherwise is ignored
-/// Different keys are provided: `metadata` is meant for the metadata info inside the
-/// TRestDataSet, `variable` for a predefined variable e.g. rate and `observable` for an
-/// observable value. All the keys have the same structure which is detailed below:
+/// * **delimiter**: Delimiter to be used between the label and the value, by default is ": ".
+/// * **value**: If true/ON panel is displayed, otherwise is ignored.
+///
+/// ### Panel keys
+/// Different keys are provided:
+/// * **metadata** is meant for the metadata info inside the TRestDataSet (as a RelevantQuantity).
+/// They must be written between square brackets, e.g. `[TRestRun::fRunTag]`.
+/// * **variable** for a predefined variable.These can be any of _entries_, _runLength_ (in hours),
+/// _startTime_, _endTime_, _meanRate_ (in Hz), _cuts_, _panelCuts_, _cutNames_ or _panelCutNames_.
+/// They must be written between double square brackets, e.g. `[[entries]]`.
+/// * **observable** for the mean value of an observable. They must contain a '_' character in
+/// the name in order to be recognized as an observable, e.g. `alphaTrackAna_angle`.
+/// * **expression** for a mathematical expression that can contain any of the previous. You can
+/// also use multiple independent mathematical expressions by encapsulating them with brace brackets,
+/// e.g. `{[[meanRate]]*24*3600} #pm {sqrt([[entries]])/[[runLength]]*24}`.
+///
+/// Note that the time-related variables _startTime_, _endTime_ and _runLength_
+/// (then _meanRate_ too) are obtained from the TRestDataSet and
+/// not the RDataFrame of the TRestDataSet, thus they are not afected by the cuts.
+/// All the keys have the following parameters:
 /// * **value**: Name of the metadata, variable or observable value.
 /// * **label**: String of the label that will be written before the observable value.
 /// * **units**: String with the units to be appended to the label.
 /// * **x**: X position of the label inside the pad
 /// * **y**: Y position of the label inside the pad
+/// * **precision**: Precision of the value to be written, by default is set to the panel precision.
+/// Only valid for expression key. You can use a number or printf-style formatting specifier (e.g. `%.3f`).
+/// If the expression contains multiple values encapsulated with brace brackets, you can independently
+/// set the precision for each value by separating them with a comma, e.g. `2,%.3f`.
+///
 /// The key `addCut` can be povided in order to perform the cut to the panel. Note
 /// that the TRestCut must be defined inside the rml.
 ///
@@ -107,11 +128,17 @@
 ///          <metadata value="[TRestRun::fRunTag]" label="Run tag" x="0.25" y="0.82" />
 ///          <variable value="[[entries]]" label="Entries" x="0.25" y="0.58" />
 ///          <observable value="alphaTrackAna_angle" label="Mean Angle" units="rad" x="0.25" y="0.01" />
+///          <expression value="cos(alphaTrackAna_angle)^2" label="Cosine of the mean angle" units="" x="0.25"
+///          y="0.12" precision="5" />
+///          <expression value="({[[meanRate]]*24*3600} #pm {sqrt([[entries]])/[[runLength]]*24})" label="Mean
+///          rate: "
+///              units="per day" x="0.05" y="0.54" precision="%g,%.1g" />
 ///          <addCut name="Fiducial"/>
 ///    </panel>
 /// \endcode
 ///
-/// * Plot parameters:
+/// ## Plot
+/// Basic plot parameters:
 /// * **name**: Name of the plot
 /// * **title**: Title of the plot
 /// * **xlabel**: Title of the label in the X axis
@@ -120,33 +147,37 @@
 /// * **gridX;gridY**: If true plot grid in the corresponding axis (X or Y)
 /// * **marginLeft;marginRight;marginTop;marginBottom**: Margins size
 /// * **legend**: If true/ON it plots the legend
-/// * **stackOption*: THStack draw option to be used, note that by default is set to `NOSTACK`
+/// * **stackOption**: THStack draw option to be used, note that by default is set to `NOSTACK`
 /// * **timeDisplay**: If true/ON time display is set in the X axis
 /// * **norm**: Normalization constant in which the plot will be normalized, e.g. use `1` in
 /// case you want to normalize by 1.
-/// * **scale**: Multiply all the histogram bins by a constant given by scale. If you want to
-/// use the size of the bin to normalize you should write down `binSize`
+/// * **scale**: Divide all the histogram bins by a constant given by scale. You may use any
+/// mathematical expression in combination with the special keywords: `binSize`, `entries`,
+/// `runLength` (in hours) and `integral`. Adding a scale will make the histogram to be
+/// drawn with errors. To avoid this, set parameter option to 'hist' in the histogram.
 /// * **value**: If true/ON plot is displayed, otherwise is ignored
 /// * **save**: String with the name of the output file in which the plot will be saved
 /// in a separated file, several formats are supported (root, pdf, eps, jpg,...)
-/// * Histogram parameters:
-/// Please, use the `histo` key inside `plot` to add the plot parameters. You can add as many
+///
+/// ### Histogram:
+/// Use the `histo` key inside `plot` to add the plot parameters. You can add as many
 /// histograms as you want but note that only 1D and 2D histograms are supported.
 /// * **name**: Name of the histogram
-/// * **option*: Draw option to be used, note that by default is set to `COLZ`
-/// * **lineColor*: Color of the line used in the histogram.
-/// * **lineWidth*: Width of the line used in the histogram.
-/// * **lineStyle*: Line style to be used in the histogram.
-/// * **fillStyle*: Fill style to used in the histogram.
-/// * **fillColor*: Fill color to used in the histogram.
-/// * **stats**: If true/ON it plots histogram statistics
+/// * **option**: Draw option to be used, note that by default is set to `COLZ`
+/// * **lineColor**: Color of the line used in the histogram.
+/// * **lineWidth**: Width of the line used in the histogram.
+/// * **lineStyle**: Line style to be used in the histogram.
+/// * **fillStyle**: Fill style to used in the histogram.
+/// * **fillColor**: Fill color to used in the histogram.
+/// * **stats**: If true/ON it plots histogram statistics.
+///
 /// In order to add one or two variables to the histogram please use the `variable` key.
 /// In order to perform a 2D plot you should add two variable` keys, where the first one
 /// corresponds to the X axis. The `variable` key has the following parameters:
-/// * **name*: Name of the observable to be plotted, the observable must be defined inside
+/// * **name**: Name of the observable to be plotted, the observable must be defined inside
 /// the dataSet.
-/// * **range*: TVector2 with the range of the variable to be plotted
-/// * **nBins*: Number of bins that will be used in the histogram.
+/// * **range**: TVector2 with the range of the variable to be plotted
+/// * **nBins**: Number of bins that will be used in the histogram.
 /// The key `addCut` can be povided in order to perform the cut to the histogram. Note
 /// that the TRestCut must be defined inside the rml.
 ///
@@ -162,7 +193,7 @@
 ///     </plot>
 /// \endcode
 ///
-/// ### Examples
+/// ## Full example
 /// Following example creates one panel and three plots including one or two histograms:
 /// \code
 ///  <TRestManager name="alphaTrack" title="alphaTrack" verboseLevel="info">
@@ -251,6 +282,8 @@
 ///
 /// 2023-04: First implementation of TRestDataSetPlot, based on TRestAnalysisPlot
 /// JuanAn Garcia
+///
+/// 2024-05: Extend some functionalities, Álvaro Ezquerro
 ///
 /// \class TRestDataSetPlot
 /// \author: JuanAn Garcia   e-mail: juanangp@unizar.es
@@ -347,6 +380,7 @@ void TRestDataSetPlot::ReadPanelInfo() {
         PanelInfo panel;
         panel.font_size = StringToDouble(GetParameter("font_size", panelele, "0.1"));
         panel.precision = StringToInteger(GetParameter("precision", panelele, "2"));
+        panel.delimiter = GetParameter("delimiter", panelele, ": ");
 
         panel.panelCut = ReadCut(panel.panelCut, panelele);
 
@@ -388,6 +422,20 @@ void TRestDataSetPlot::ReadPanelInfo() {
             panel.obsPos.push_back(std::make_pair(label, TVector2(posX, posY)));
 
             observable = GetNextElement(observable);
+        }
+        TiXmlElement* expression = GetElement("expression", panelele);
+        while (expression != nullptr) {
+            std::array<std::string, 4> label;
+            label[0] = GetParameter("value", expression, "");
+            label[1] = GetParameter("label", expression, "");
+            label[2] = GetParameter("units", expression, "");
+            label[3] = GetParameter("precision", expression, IntegerToString(panel.precision));
+            double posX = StringToDouble(GetParameter("x", expression, "0.1"));
+            double posY = StringToDouble(GetParameter("y", expression, "0.1"));
+
+            panel.expPos.push_back(std::make_pair(label, TVector2(posX, posY)));
+
+            expression = GetNextElement(expression);
         }
 
         fPanels.push_back(panel);
@@ -505,7 +553,50 @@ void TRestDataSetPlot::GenerateDataSetFromFilePattern(TRestDataSet& dataSet) {
     std::map<std::string, TRestDataSet::RelevantQuantity> quantity;
 
     for (auto& panel : fPanels) {
-        // Add obserbables from panel info, both variables and cuts
+        // Add metadata and observables from expression key from panel info
+        for (auto& [key, posLabel] : panel.expPos) {
+            // look for metadata which are surrounded by [] but not [[]] (variables)
+            auto&& [exp, label, units, precision] = key;
+            std::string text = exp;
+            while (text.find_last_of('[') != std::string::npos) {
+                int squareBracketCorrector = 0;
+                size_t posOpen = text.find_last_of('[');
+                size_t posClose = text.find_first_of(']', posOpen);
+                if (posOpen != 0) {
+                    if (text[posOpen - 1] == '[') {
+                        squareBracketCorrector = 1;
+                    }
+                }
+                std::string varOrMeta = text.substr(posOpen - squareBracketCorrector,
+                                                    posClose + 1 - posOpen + 2 * squareBracketCorrector);
+                if (squareBracketCorrector == 0) {
+                    // Here varOrMeta is a metadata
+                    // Add metadata to relevant quantity from the panel info
+                    TRestDataSet::RelevantQuantity quant;
+                    quant.metadata = varOrMeta;
+                    quant.strategy = "unique";
+                    quantity[label] = quant;
+                }
+                text = Replace(text, varOrMeta, "1");
+            }
+
+            // look for observables (characterized by having a _ in the name)
+            while (text.find("_") != std::string::npos) {
+                size_t pos_ = text.find("_");
+                size_t beginning = text.find_last_of(" -+*/)(^%", pos_) + 1;
+                size_t end = text.find_first_of(" -+*/)(^%", pos_);
+                std::string obs = text.substr(beginning, end - beginning);
+                text = Replace(text, obs, "1");
+                obsList.push_back(obs);
+            }
+
+            if (!(isAExpression(text) || isANumber(text)))
+                RESTWarning << "The expression " << exp
+                            << " has not been correctly parsed into variables, metadata and observables"
+                            << RESTendl;
+        }
+
+        // Add observables from observable key of panel info
         for (auto& [key, posLabel] : panel.obsPos) {
             auto&& [obs, label, units] = key;
             obsList.push_back(obs);
@@ -535,6 +626,7 @@ void TRestDataSetPlot::GenerateDataSetFromFilePattern(TRestDataSet& dataSet) {
 ///
 void TRestDataSetPlot::PlotCombinedCanvas() {
     TRestDataSet dataSet;
+    dataSet.EnableMultiThreading(true);
 
     // Import dataSet
     dataSet.Import(fDataSetName);
@@ -583,9 +675,44 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
         const int entries = *dataFrame.Count();
         const double meanRate = entries / duration;
         const double runLength = duration / 3600.;
-        paramMap["[[runLength]]"] = StringWithPrecision(runLength, panel.precision);
-        paramMap["[[entries]]"] = StringWithPrecision(entries, panel.precision);
-        paramMap["[[meanRate]]"] = StringWithPrecision(meanRate, panel.precision);
+        paramMap["[[runLength]]"] = DoubleToString(runLength, "%.9e");
+        paramMap["[[entries]]"] = IntegerToString(entries);
+        paramMap["[[meanRate]]"] = DoubleToString(meanRate, "%.9e");
+
+        paramMap["[[cutNames]]"] = "";
+        paramMap["[[cuts]]"] = "";
+        if (fCut) {
+            for (const auto& cut : fCut->GetCuts()) {
+                if (paramMap["[[cutNames]]"].empty())
+                    paramMap["[[cutNames]]"] += cut.GetName();
+                else
+                    paramMap["[[cutNames]]"] += "," + (std::string)cut.GetName();
+                if (paramMap["[[cuts]]"].empty())
+                    paramMap["[[cuts]]"] += cut.GetTitle();
+                else
+                    paramMap["[[cuts]]"] += " && " + (std::string)cut.GetTitle();
+            }
+        }
+
+        paramMap["[[panelCutNames]]"] = "";
+        paramMap["[[panelCuts]]"] = "";
+        if (panel.panelCut) {
+            for (const auto& cut : panel.panelCut->GetCuts()) {
+                if (paramMap["[[panelCutNames]]"].empty())
+                    paramMap["[[panelCutNames]]"] += cut.GetName();
+                else
+                    paramMap["[[panelCutNames]]"] += "," + (std::string)cut.GetName();
+                if (paramMap["[[panelCuts]]"].empty())
+                    paramMap["[[panelCuts]]"] += cut.GetTitle();
+                else
+                    paramMap["[[panelCuts]]"] += " && " + (std::string)cut.GetTitle();
+            }
+        }
+
+        RESTInfo << "Global cuts: " << paramMap["[[cuts]]"] << RESTendl;
+        if (!paramMap["[[panelCuts]]"].empty())
+            RESTInfo << "Additional panel cuts: " << paramMap["[[panelCuts]]"] << RESTendl;
+
         // Replace panel variables and generate a TLatex label
         for (const auto& [key, posLabel] : panel.variablePos) {
             auto&& [variable, label, units] = key;
@@ -602,7 +729,17 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
                 }
                 if (!found) RESTWarning << "Variable " << variable << " not found" << RESTendl;
             }
-            std::string lab = label + ": " + StringWithPrecision(var, panel.precision) + " " + units;
+            if (isANumber(var)) {  // if it is a number, convert it to number to apply precision
+                if (var.find('.') == std::string::npos) {
+                    int dblVar = StringToInteger(var);
+                    var = StringWithPrecision(dblVar, panel.precision);
+                } else {
+                    double dblVar = StringToDouble(var);
+                    var = StringWithPrecision(dblVar, panel.precision);
+                }
+            }
+            std::string lab =
+                label + panel.delimiter.Data() + StringWithPrecision(var, panel.precision) + " " + units;
             panel.text.emplace_back(new TLatex(posLabel.X(), posLabel.Y(), lab.c_str()));
         }
 
@@ -620,7 +757,8 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
                 continue;
             }
 
-            std::string lab = label + ": " + StringWithPrecision(value, panel.precision) + " " + units;
+            std::string lab =
+                label + panel.delimiter.Data() + StringWithPrecision(value, panel.precision) + " " + units;
             panel.text.emplace_back(new TLatex(posLabel.X(), posLabel.Y(), lab.c_str()));
         }
 
@@ -629,7 +767,83 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
             auto&& [obs, label, units] = key;
             auto value = *dataFrame.Mean(obs);
 
-            std::string lab = label + ": " + StringWithPrecision(value, panel.precision) + " " + units;
+            std::string lab =
+                label + panel.delimiter.Data() + StringWithPrecision(value, panel.precision) + " " + units;
+            panel.text.emplace_back(new TLatex(posLabel.X(), posLabel.Y(), lab.c_str()));
+        }
+
+        // Replace any expression and generate TLatex label
+        for (const auto& [key, posLabel] : panel.expPos) {
+            auto&& [text, label, units, precision] = key;
+            std::string var = text;
+
+            // find and split the text into subtexts which are surrounded by {}
+            std::vector<std::string> subtexts;
+            while (var.find_last_of('{') != std::string::npos) {
+                size_t posOpen = var.find_last_of('{');
+                size_t posClose = var.find_first_of('}', posOpen);
+                if (posClose == std::string::npos) {
+                    RESTWarning << "Unmatched { in expression: " << var << RESTendl;
+                    break;
+                }
+                std::string subtext = var.substr(posOpen + 1, posClose - posOpen - 1);
+                subtexts.push_back(subtext);
+                // get rid of "{"+subtext+"}" from the var
+                var.erase(posOpen, posClose - posOpen + 1);
+            }
+            var = text;  // reset var to the original text
+
+            // get precision formatting
+            std::vector<std::string> precisionParts;
+            for (const auto& part : Split(precision, ",", false, true)) {
+                precisionParts.push_back(part);
+            }
+            if (precisionParts.size() != subtexts.size()) {
+                RESTDebug << "Not enough precision values provided for the expression: `" << text
+                          << "`. Using " << precisionParts.back() << " for last subtexts." << RESTendl;
+                precisionParts.resize(subtexts.size(), precisionParts.back());  // fill with last value
+            }
+
+            size_t precisionIndex = precisionParts.size() - 1;
+            for (const auto& subtext : subtexts) {
+                std::string subVar = subtext;
+                // replace variables
+                for (const auto& [param, val] : paramMap) {
+                    subVar = Replace(subVar, param, val);
+                }
+                // replace metadata
+                for (const auto& [name, quant] : quantity) {
+                    subVar = Replace(subVar, "[" + name + "]", quant.value);  // metadata are surrounded by []
+                    subVar = Replace(subVar, name, quant.value);              // just in case ?
+                }
+                // replace observables
+                for (const auto& obs : dataFrame.GetColumnNames()) {
+                    if (var.find(obs) == std::string::npos) continue;
+                    // here there should be a checking that the mean(obs) can be calculated
+                    // (checking obs data type?)
+                    double value = *dataFrame.Mean(obs);
+                    subVar = Replace(subVar, obs, DoubleToString(value));
+                }
+                subVar = Replace(subVar, "[", "(");
+                subVar = Replace(subVar, "]", ")");
+                subVar = EvaluateExpression(subVar);
+                if (isANumber(subVar)) {
+                    double value = StringToDouble(subVar);
+                    std::string prec = precisionParts[precisionIndex--];
+                    if (prec.find('%') != std::string::npos) {  // it is a format e.g. %.2f
+                        subVar = DoubleToString(value, prec);
+                    } else if (isANumber(prec)) {  // it is a number
+                        subVar = StringWithPrecision(value, StringToInteger(prec));
+                    } else {
+                        RESTWarning << "Unknown precision format: " << prec
+                                    << ". Using panels precision: " << panel.precision << RESTendl;
+                        subVar = StringWithPrecision(value, panel.precision);
+                    }
+                }
+                var = Replace(var, "{" + subtext + "}", subVar);
+            }
+
+            std::string lab = label + panel.delimiter.Data() + var + " " + units;
             panel.text.emplace_back(new TLatex(posLabel.X(), posLabel.Y(), lab.c_str()));
         }
 
@@ -691,13 +905,19 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
             }
             // Scale histos
             if (plots.scale != "") {
-                Double_t scale = 1.;
-                if (plots.scale == "binSize") {
-                    scale = 1. / hist.histo->GetXaxis()->GetBinWidth(1);
-                } else {
-                    scale = StringToDouble(plots.scale);
-                }
-                hist.histo->Scale(scale);
+                std::string inputScale = plots.scale;
+                double binSize = hist.histo->GetXaxis()->GetBinWidth(1);
+                double entries = hist.histo->GetEntries();
+                double runLength = dataSet.GetTotalTimeInSeconds() / 3600.;  // in hours
+                double integral = hist.histo->Integral("width");
+
+                inputScale = Replace(inputScale, "binSize", DoubleToString(binSize));
+                inputScale = Replace(inputScale, "entries", DoubleToString(entries));
+                inputScale = Replace(inputScale, "runLength", DoubleToString(runLength));
+                inputScale = Replace(inputScale, "integral", DoubleToString(integral));
+
+                std::string scale = "1./(" + inputScale + ")";
+                hist.histo->Scale(StringToDouble(EvaluateExpression(scale)));  // -1 if 'scale' isn't valid
             }
 
             // Add histos to the THStack
@@ -879,6 +1099,13 @@ void TRestDataSetPlot::PrintMetadata() {
             auto&& [obs, label, units] = key;
             RESTMetadata << "Label Observable " << obs << ", label " << label << ", units " << units
                          << " Pos (" << posLabel.X() << ", " << posLabel.Y() << ")" << RESTendl;
+        }
+        RESTMetadata << "****************" << RESTendl;
+        for (auto& [key, posLabel] : panel.expPos) {
+            auto&& [obs, label, units, precision] = key;
+            RESTMetadata << "Label Expression " << obs << ", label " << label << ", units " << units
+                         << ", precision " << precision << " Pos (" << posLabel.X() << ", " << posLabel.Y()
+                         << ")" << RESTendl;
         }
         RESTMetadata << "****************" << RESTendl;
     }

@@ -20,38 +20,51 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef REST_TRestComponentFormula
-#define REST_TRestComponentFormula
+#ifndef REST_TRestRadialStrippedMask
+#define REST_TRestRadialStrippedMask
 
-#include <TFormula.h>
+#include <TRestPatternMask.h>
 
-#include "TRestComponent.h"
-#include "TRestDataSet.h"
-
-/// It defines an analytical component model distribution in a given parameter space (tipically x,y,en)
-class TRestComponentFormula : public TRestComponent {
+/// A class used to define a stripped mask pattern
+class TRestRadialStrippedMask : public TRestPatternMask {
    private:
-    /// A vector of formulas that will be added up to integrate a given rate
-    std::vector<TFormula> fFormulas;
+    void Initialize() override;
 
-    /// The formulas should be expressed in the following units
-    std::string fFormulaUnits = "cm^-2*keV^-1";  //<
+    /// The periodity of the stripped structure in radians
+    Double_t fStripsAngle = TMath::Pi() / 3;  //<
 
-   protected:
-    void InitFromConfigFile() override;
+    /// The width of the stripped structure in mm
+    Double_t fStripsThickness = 0.5;  //<
 
-    void FillHistograms() override;
+    /// The spacers structure will be effective from this radius, in mm. Default is from 20 mm.
+    Double_t fInitialRadius = 20.;  //<
+
+    /// Radius of an internal circular region defined inside the fInitialRadius. If 0, there will be no region
+    Double_t fInternalRegionRadius = 0.;  //<
+
+    /// It defines the maximum number of cells/regions in each axis
+    Int_t fModulus = 10;
 
    public:
-    Double_t GetFormulaRate(std::vector<Double_t> point);
+    virtual Int_t GetRegion(Double_t& x, Double_t& y) override;
+
+    /// It returns the gap/periodicity of the strips in degrees
+    Double_t GetStripsAngle() { return fStripsAngle * units("degrees"); }
+
+    /// It returns the thickness of the strips in mm
+    Double_t GetStripsThickness() { return fStripsThickness; }
+
+    /// It returns the modulus used to define a finite set of ids
+    Int_t GetModulus() { return fModulus; }
 
     void PrintMetadata() override;
+    void PrintMaskMembers() override;
+    void PrintMask() override;
 
-    void Initialize() override;
-    TRestComponentFormula(const char* cfgFileName, const std::string& name);
-    TRestComponentFormula();
-    ~TRestComponentFormula();
+    TRestRadialStrippedMask();
+    TRestRadialStrippedMask(const char* cfgFileName, std::string name = "");
+    ~TRestRadialStrippedMask();
 
-    ClassDefOverride(TRestComponentFormula, 1);
+    ClassDefOverride(TRestRadialStrippedMask, 1);
 };
 #endif

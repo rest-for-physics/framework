@@ -43,6 +43,10 @@
 #include "TRestVersion.h"
 #include "tinyxml.h"
 
+#ifndef WIN32
+#include <unistd.h>
+#endif
+
 /* We keep using REST_RELEASE, REST_VERSION(2,X,Y) and REST_VERSION_CODE
    to determine the installed REST version and avoid too much prototyping
 

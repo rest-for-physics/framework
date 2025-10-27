@@ -14,6 +14,17 @@
         <parameter name="stripsGap" value="12mm"/>
         <parameter name="stripsThickness" value="1.2mm"/>
     </TRestStrippedMask>
+	<TRestRadialStrippedMask name="radialStrips" verboseLevel="warning">
+		<parameter name="maskRadius" value="19.4cm" />
+		<parameter name="offset" value="(0,0)cm" />
+		<parameter name="rotationAngle" value="30degrees" />
+
+		<parameter name="initialRadius" value="5.4cm" />
+		<parameter name="internalRegionRadius" value="0cm" />
+
+		<parameter name="stripsAngle" value="60degrees" />
+		<parameter name="stripsThickness" value="0.7cm" />
+	</TRestRadialStrippedMask>
     <TRestRingsMask name="rings" verboseLevel="warning">
         <parameter name="maskRadius" value="9cm"/>
         <parameter name="offset" value="(3,3)mm"/>

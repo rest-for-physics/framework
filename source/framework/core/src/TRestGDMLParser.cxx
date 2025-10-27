@@ -1,9 +1,6 @@
 #include "TRestGDMLParser.h"
 
 #include <filesystem>
-#ifdef __APPLE__
-#include <unistd.h>
-#endif
 
 using namespace std;
 

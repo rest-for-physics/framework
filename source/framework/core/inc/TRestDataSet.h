@@ -60,9 +60,6 @@ class TRestDataSet : public TRestMetadata {
     /// It contains a list of the observables that will be added to the final tree or exported file
     std::vector<std::string> fObservablesList;  //<
 
-    /// It contains a list of the process where all observables should be added
-    std::vector<std::string> fProcessObservablesList;  //<
-
     /// A list of metadata members where filters will be applied
     std::vector<std::string> fFilterMetadata;  //<
 
@@ -112,7 +109,7 @@ class TRestDataSet : public TRestMetadata {
     Bool_t fExternal = false;  //<
 
     /// The resulting RDF::RNode object after initialization
-    ROOT::RDF::RNode fDataSet = ROOT::RDataFrame(0);  //!
+    ROOT::RDF::RNode fDataFrame = ROOT::RDataFrame(0);  //!
 
     /// A pointer to the generated tree
     TChain* fTree = nullptr;  //!
@@ -122,12 +119,14 @@ class TRestDataSet : public TRestMetadata {
    protected:
     virtual std::vector<std::string> FileSelection();
 
+    void RegenerateTree(std::vector<std::string> finalList = {});
+
    public:
     /// Gives access to the RDataFrame
     ROOT::RDF::RNode GetDataFrame() const {
         if (!fExternal && fTree == nullptr)
             RESTWarning << "DataFrame has not been yet initialized" << RESTendl;
-        return fDataSet;
+        return fDataFrame;
     }
 
     void EnableMultiThreading(Bool_t enable = true) { fMT = enable; }
@@ -152,7 +151,7 @@ class TRestDataSet : public TRestMetadata {
     }
 
     /// Number of variables (or observables)
-    size_t GetNumberOfColumns() { return fDataSet.GetColumnNames().size(); }
+    size_t GetNumberOfColumns() { return fDataFrame.GetColumnNames().size(); }
 
     /// Number of variables (or observables)
     size_t GetNumberOfBranches() { return GetNumberOfColumns(); }
@@ -170,7 +169,6 @@ class TRestDataSet : public TRestMetadata {
     inline auto GetFilePattern() const { return fFilePattern; }
     inline auto GetObservablesList() const { return fObservablesList; }
     inline auto GetFileSelection() const { return fFileSelection; }
-    inline auto GetProcessObservablesList() const { return fProcessObservablesList; }
     inline auto GetFilterMetadata() const { return fFilterMetadata; }
     inline auto GetFilterContains() const { return fFilterContains; }
     inline auto GetFilterGreaterThan() const { return fFilterGreaterThan; }
@@ -187,7 +185,7 @@ class TRestDataSet : public TRestMetadata {
 
     void SetTotalTimeInSeconds(Double_t seconds) { fTotalDuration = seconds; }
     void SetDataFrame(const ROOT::RDF::RNode& dS) {
-        fDataSet = dS;
+        fDataFrame = dS;
         fExternal = true;
     }
 
@@ -198,7 +196,11 @@ class TRestDataSet : public TRestMetadata {
     void Export(const std::string& filename, std::vector<std::string> excludeColumns = {});
 
     ROOT::RDF::RNode MakeCut(const TRestCut* cut);
+    ROOT::RDF::RNode ApplyRange(size_t from, size_t to);
+    ROOT::RDF::RNode Range(size_t from, size_t to);
     ROOT::RDF::RNode DefineColumn(const std::string& columnName, const std::string& formula);
+
+    size_t GetEntries();
 
     void PrintMetadata() override;
     void Initialize() override;
@@ -209,6 +211,6 @@ class TRestDataSet : public TRestMetadata {
     TRestDataSet(const char* cfgFileName, const std::string& name = "");
     ~TRestDataSet();
 
-    ClassDefOverride(TRestDataSet, 7);
+    ClassDefOverride(TRestDataSet, 9);
 };
 #endif

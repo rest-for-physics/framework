@@ -50,8 +50,20 @@ class TRestExperimentList : public TRestMetadata {
     /// A vector with a list of experiments includes the background components in this model
     std::vector<TRestExperiment*> fExperiments;  //<
 
+    /// The fusioned list of parameterization nodes found at each experiment signal
+    std::vector<Double_t> fParameterizationNodes;  //<
+
+    /// The mock dataset will be generated using the mean counts instead of a real MonteCarlo
+    Bool_t fUseAverage = false;  //<
+
     /// If not zero this will be the common exposure time in micro-seconds (standard REST units)
     Double_t fExposureTime = 0;
+
+    /// In case an exposure time is given it defines how to assign time to each experiment (equal/ksvz).
+    std::string fExposureStrategy = "equal";
+
+    /// The factor used on the exponential exposure time as a function of the experiment number
+    Double_t fExposureFactor = 0;
 
     /// If not null this will be the common signal used in each experiment
     TRestComponent* fSignal = nullptr;  //<
@@ -71,6 +83,10 @@ class TRestExperimentList : public TRestMetadata {
     void SetSignal(TRestComponent* comp) { fSignal = comp; }
     void SetBackground(TRestComponent* comp) { fBackground = comp; }
 
+    void ExtractExperimentParameterizationNodes();
+    std::vector<Double_t> GetParameterizationNodes() { return fParameterizationNodes; }
+    void PrintParameterizationNodes();
+
     std::vector<TRestExperiment*> GetExperiments() { return fExperiments; }
     TRestExperiment* GetExperiment(const size_t& n) {
         if (n >= GetNumberOfExperiments())
@@ -88,6 +104,6 @@ class TRestExperimentList : public TRestMetadata {
     TRestExperimentList();
     ~TRestExperimentList();
 
-    ClassDefOverride(TRestExperimentList, 1);
+    ClassDefOverride(TRestExperimentList, 2);
 };
 #endif

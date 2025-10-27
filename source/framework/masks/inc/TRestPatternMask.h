@@ -29,7 +29,7 @@
 /// An abstract class used to encapsulate different mask pattern class definitions.
 class TRestPatternMask : public TRestMetadata {
    private:
-    /// It is used to introduce an offset on the pattern
+    /// It is used to introduce an offset on the pattern (not the mask, mask is always centered)
     TVector2 fOffset = TVector2(0, 0);  //<
 
     /// An angle (in radians) used to introduce a rotation to the pattern

@@ -29,6 +29,7 @@
 
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -40,6 +41,10 @@
 #else
 #define EXTERN_DEF extern
 #define EXTERN_IMP
+#endif
+
+#ifndef WIN32
+#include <unistd.h>
 #endif
 
 const std::string PARAMETER_NOT_FOUND_STR = "NO_SUCH_PARA";
@@ -79,6 +84,10 @@ class TRestTools {
 
     static std::string GetFileNameExtension(const std::string& fullname);
     static std::string GetFileNameRoot(const std::string& fullname);
+    static std::vector<std::string> GetObservablesInString(const std::string& observablesStr,
+                                                           bool removeDuplicates = true);
+    static std::set<std::string> GetMatchingStrings(const std::vector<std::string>& stack,
+                                                    const std::vector<std::string>& wantedStrings);
 
     static int GetBinaryFileColumns(std::string fname);
 
