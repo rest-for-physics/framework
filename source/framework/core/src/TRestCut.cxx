@@ -66,7 +66,11 @@ ClassImp(TRestCut);
 
 TRestCut::TRestCut() { Initialize(); }
 
-void TRestCut::Initialize() { fCuts.clear(); }
+void TRestCut::Initialize() {
+    fCuts.clear();
+    fCutStrings.clear();
+    fParamCut.clear();
+}
 
 void TRestCut::InitFromConfigFile() {
     auto ele = GetElement("cut");
