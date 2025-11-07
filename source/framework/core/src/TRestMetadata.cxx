@@ -747,8 +747,8 @@ TRestMetadata* TRestMetadata::InstantiateChildMetadata(int index, std::string pa
                         md->SetConfigFile(fConfigFileName);
                         TiXmlElement* rootEle = GetElementFromFile(fConfigFileName);
                         TiXmlElement* Global = GetElement("globals", rootEle);
-                        md->LoadConfigFromElement(paraele, Global, {});
                         md->Initialize();
+                        md->LoadConfigFromElement(paraele, Global, {});
                         return md;
                     }
                 }
