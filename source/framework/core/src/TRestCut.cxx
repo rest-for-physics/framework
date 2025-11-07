@@ -162,10 +162,12 @@ void TRestCut::PrintMetadata() {
     TRestMetadata::PrintMetadata();
     RESTMetadata << " " << RESTendl;
     RESTMetadata << "Cuts added: " << RESTendl;
-    for (const auto& cut : fCuts) {
-        RESTMetadata << cut.GetName() << " " << cut.GetTitle() << RESTendl;
-    }
+    Print();
     RESTMetadata << "+++" << RESTendl;
+}
+
+void TRestCut::Print() {
+    for (const auto& cut : fCuts) RESTMetadata << cut.GetName() << " " << cut.GetTitle() << RESTendl;
 }
 
 Int_t TRestCut::Write(const char* name, Int_t option, Int_t bufsize) {
