@@ -227,14 +227,9 @@ jobs:
     name: "TREX-DM"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/alvaroezq/root-geant4-garfield:rest-for-physics-sultancertificate
     needs: [ framework-install ]
     steps:
-      - name: Fix TLS certificates
-        run: |
-          apt-get update
-          apt-get install -y --reinstall ca-certificates openssl
-          update-ca-certificates --fresh
       - uses: actions/checkout@v4
         with:
           repository: rest-for-physics/framework
