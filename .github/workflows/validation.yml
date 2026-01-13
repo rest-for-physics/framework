@@ -273,8 +273,8 @@ jobs:
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/analysisPlot/
-          wget https://sultan.unizar.es/rest_pipeline/v2.3.8_10852.root
-          wget https://sultan.unizar.es/rest_pipeline/v2.4.0_10964.root
+          wget -nv https://sultan.unizar.es/rest_pipeline/v2.3.8_10852.root
+          wget -nv https://sultan.unizar.es/rest_pipeline/v2.4.0_10964.root
           restManager --batch --c classify.rml
           restRoot -b -q ValidateClassify.C
 
