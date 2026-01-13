@@ -32,7 +32,7 @@ jobs:
     name: Build and run tests
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/alvaroezq/root-geant4-garfield:rest-for-physics-sultancertificate
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     steps:
       - uses: actions/checkout@v4
       - name: Build and install
@@ -51,7 +51,7 @@ jobs:
     name: Build and cache installation
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/alvaroezq/root-geant4-garfield:rest-for-physics-sultancertificate
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     steps:
       - uses: actions/checkout@v4
       - name: Build and install
@@ -83,7 +83,7 @@ jobs:
     name: "Previous Version File Compatibility"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/alvaroezq/root-geant4-garfield:rest-for-physics-sultancertificate
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ framework-install ]
     steps:
       - uses: actions/checkout@v4
@@ -106,7 +106,7 @@ jobs:
     name: "Macros with clean error output"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/alvaroezq/root-geant4-garfield:rest-for-physics-sultancertificate
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ framework-install ]
     steps:
       - uses: actions/checkout@v4
@@ -134,7 +134,7 @@ jobs:
     name: "PyROOT"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/alvaroezq/root-geant4-garfield:rest-for-physics-sultancertificate
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ framework-install ]
     steps:
       - name: Restore cache
@@ -152,7 +152,7 @@ jobs:
     name: "Metadata"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/alvaroezq/root-geant4-garfield:rest-for-physics-sultancertificate
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ framework-install ]
     steps:
       - uses: actions/checkout@v4
@@ -196,7 +196,7 @@ jobs:
     name: "PandaX-III"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/alvaroezq/root-geant4-garfield:rest-for-physics-sultancertificate
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ framework-install ]
     steps:
       - uses: actions/checkout@v4
@@ -227,7 +227,7 @@ jobs:
     name: "TREX-DM"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/alvaroezq/root-geant4-garfield:rest-for-physics-sultancertificate
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ framework-install ]
     steps:
       - uses: actions/checkout@v4
@@ -269,6 +269,11 @@ jobs:
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/analysisPlot/
           restManager --c summary.rml --f ../trex/Hits_01928.root
+      - name: Import sultan certificates
+        run: |
+          openssl s_client -connect sultan.unizar.es:443 -showcerts < /dev/null > cert.pem
+          cp cert.pem /usr/local/share/ca-certificates/custom-cert.crt
+          update-ca-certificates
       - name: AnalysisPlot2
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
@@ -283,7 +288,7 @@ jobs:
     name: Run examples
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/alvaroezq/root-geant4-garfield:rest-for-physics-sultancertificate
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ framework-install ]
     steps:
       - uses: actions/checkout@v4
