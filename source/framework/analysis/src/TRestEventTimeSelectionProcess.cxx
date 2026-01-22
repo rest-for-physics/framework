@@ -150,9 +150,9 @@ void TRestEventTimeSelectionProcess::InitProcess() {
     fNEventsSelected = 0;
 }
 
-std::vector<std::pair<std::string, std::string>> TRestEventTimeSelectionProcess::ReadFileWithTimes(
+std::vector<Interval> TRestEventTimeSelectionProcess::ReadFileWithTimes(
     std::string fileWithTimes, Char_t delimiter) {
-    std::vector<std::pair<std::string, std::string>> startEndTimes;
+    std::vector<Interval> startEndTimes;
     string line;
     ifstream file(fileWithTimes);
     if (file.is_open()) {
@@ -169,8 +169,9 @@ std::vector<std::pair<std::string, std::string>> TRestEventTimeSelectionProcess:
                 if (StringToTimeStamp(startDate) < 0 || StringToTimeStamp(endDate) < 0) {
                     continue;
                 }
-
-                startEndTimes.emplace_back(startDate, endDate);
+                TTimeStamp sts = StringToTimeStamp(startDate);
+                TTimeStamp ets = StringToTimeStamp(endDate);
+                startEndTimes.emplace_back(sts, ets);
             }
         }
         file.close();
@@ -185,15 +186,15 @@ std::vector<std::pair<std::string, std::string>> TRestEventTimeSelectionProcess:
 ///
 Double_t TRestEventTimeSelectionProcess::CalculateTotalTimeInSeconds() {
     Double_t totalTime = 0;
-    for (auto id : fStartEndTimes) {
-        TTimeStamp startTime = TTimeStamp(StringToTimeStamp(id.first), 0);
-        TTimeStamp endTime = TTimeStamp(StringToTimeStamp(id.second), 0);
+    for (auto se : fStartEndTimes) {
+        TTimeStamp startTime = se.first;
+        TTimeStamp endTime = se.second;
         // Reduce the time by the margin in both sides
         startTime.Add(TTimeStamp(fTimeStartMarginInSeconds));
         endTime.Add(TTimeStamp(-fTimeEndMarginInSeconds));
         auto timeDiff = endTime.AsDouble() - startTime.AsDouble();
         if (timeDiff < 0) {
-            RESTDebug << "End time is before start time in time range: " << id.first << " to " << id.second
+            RESTDebug << "End time is before start time in time range: " << se.first << " to " << se.second
                       << RESTendl;
             continue;
         }
@@ -212,12 +213,13 @@ TRestEvent* TRestEventTimeSelectionProcess::ProcessEvent(TRestEvent* inputEvent)
     eventTime.Add(TTimeStamp(fTimeOffsetInSeconds));
 
     Bool_t isInsideAnyTimeRange = false;
-    for (auto id : fStartEndTimes) {
-        TTimeStamp startTime = TTimeStamp(StringToTimeStamp(id.first), 0);
-        TTimeStamp endTime = TTimeStamp(StringToTimeStamp(id.second), 0);
-        // Reduce the time by the margin in both sides
+    for (auto se : fStartEndTimes) {
+        TTimeStamp startTime = se.first;
+        TTimeStamp endTime = se.second;
+        // Reduce the active time window by the margin in both sides
         startTime.Add(TTimeStamp(fTimeStartMarginInSeconds));
         endTime.Add(TTimeStamp(-fTimeEndMarginInSeconds));
+
         if (eventTime >= startTime && eventTime <= endTime) {
             isInsideAnyTimeRange = true;
             break;
@@ -272,14 +274,14 @@ std::string TRestEventTimeSelectionProcess::GetTimeStampCut(std::string timeStam
     }
     if (nTimes < 0) nTimes = fStartEndTimes.size();
     Int_t c = 0;
-    for (auto id : fStartEndTimes) {
+    for (auto se : fStartEndTimes) {
         if (c++ >= nTimes) break;
-        auto startTime = StringToTimeStamp(id.first);
-        auto endTime = StringToTimeStamp(id.second);
+        auto startTime = se.first;
+        auto endTime = se.second;
         // Reduce the time by the margin in both sides
         if (useMargins) {
-            startTime += fTimeStartMarginInSeconds;
-            endTime -= fTimeEndMarginInSeconds;
+            startTime.Add(fTimeStartMarginInSeconds);
+            endTime.Add(fTimeEndMarginInSeconds);
         }
 
         if (startTime >= endTime) {
@@ -316,17 +318,17 @@ void TRestEventTimeSelectionProcess::PrintMetadata() {
     RESTMetadata << "Start margin time: " << fTimeStartMarginInSeconds << " seconds" << RESTendl;
     RESTMetadata << "End margin time: " << fTimeEndMarginInSeconds << " seconds" << RESTendl;
     RESTMetadata << typeOfTime << " time periods: " << RESTendl;
-    for (auto id : fStartEndTimes) {
-        RESTMetadata << id.first << " to " << id.second << RESTendl;
-        TTimeStamp startTime = TTimeStamp(StringToTimeStamp(id.first), 0);
-        TTimeStamp endTime = TTimeStamp(StringToTimeStamp(id.second), 0);
+    for (auto se : fStartEndTimes) {
+        std::string startStr = ToDateTimeString(se.first);
+        std::string endStr = ToDateTimeString(se.second);
+        RESTMetadata << startStr << " to " << endStr << RESTendl;
     }
 
     // Get total time in seconds
     TTimeStamp totalTime = TTimeStamp(fTotalTimeInSeconds, 0);
     if (!fStartEndTimes.empty()) {
-        TTimeStamp firstTime = TTimeStamp(StringToTimeStamp(fStartEndTimes.front().first), 0);
-        TTimeStamp lastTime = TTimeStamp(StringToTimeStamp(fStartEndTimes.back().second), 0);
+        TTimeStamp firstTime = fStartEndTimes.front().first;
+        TTimeStamp lastTime = fStartEndTimes.back().second;
         totalTime = lastTime - firstTime;
     }
 

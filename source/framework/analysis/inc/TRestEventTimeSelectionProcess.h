@@ -27,6 +27,8 @@
 
 #include <iostream>
 
+using Interval = std::pair<TTimeStamp, TTimeStamp>;
+
 class TRestEventTimeSelectionProcess : public TRestEventProcess {
    private:
     TRestEvent* fEvent;  //!
@@ -36,7 +38,7 @@ class TRestEventTimeSelectionProcess : public TRestEventProcess {
     Long_t fTimeOffsetInSeconds;
     Long_t fTimeStartMarginInSeconds;
     Long_t fTimeEndMarginInSeconds;
-    std::vector<std::pair<std::string, std::string>> fStartEndTimes;
+    std::vector<Interval> fStartEndTimes;
 
     /// Information about the events processed
 
@@ -69,7 +71,7 @@ class TRestEventTimeSelectionProcess : public TRestEventProcess {
     Bool_t GetIsActiveTime() const { return fIsActiveTime; }
     Char_t GetDelimiter() const { return fDelimiter; }
 
-    std::vector<std::pair<std::string, std::string>> GetStartEndTimes() const { return fStartEndTimes; }
+    std::vector<Interval> GetStartEndTimes() const { return fStartEndTimes; }
     std::string GetTimeStampCut(std::string timeStampObsName = "timeStamp", Bool_t useOffset = true,
                                 Bool_t useMargins = true, Int_t nTimes = -1);
     Int_t GetNEventsRejected() const { return fNEventsRejected; }
@@ -80,7 +82,7 @@ class TRestEventTimeSelectionProcess : public TRestEventProcess {
     Long_t GetTimeEndMarginInSeconds() const { return fTimeEndMarginInSeconds; }
 
     Double_t CalculateTotalTimeInSeconds();
-    static std::vector<std::pair<std::string, std::string>> ReadFileWithTimes(std::string fileWithTimes,
+    static std::vector<Interval> ReadFileWithTimes(std::string fileWithTimes,
                                                                               Char_t delimiter = ',');
 
     void SetAsActiveTime() { fIsActiveTime = true; }
@@ -88,7 +90,7 @@ class TRestEventTimeSelectionProcess : public TRestEventProcess {
     void SetFileWithTimes(const std::string& fileWithTimes) { fFileWithTimes = fileWithTimes; }
     void SetIsActiveTime(Bool_t isActiveTime) { fIsActiveTime = isActiveTime; }
     void SetDelimiter(Char_t delimiter) { fDelimiter = delimiter; }
-    void SetStartEndTimes(const std::vector<std::pair<std::string, std::string>>& startEndTimes) {
+    void SetStartEndTimes(const std::vector<Interval>& startEndTimes) {
         fStartEndTimes = startEndTimes;
     }
     void SetTimeOffsetInSeconds(Long_t timeOffsetInSeconds) { fTimeOffsetInSeconds = timeOffsetInSeconds; }
