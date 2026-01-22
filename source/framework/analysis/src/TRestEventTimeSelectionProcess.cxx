@@ -176,6 +176,10 @@ std::vector<Interval> TRestEventTimeSelectionProcess::ReadFileWithTimes(
         }
         file.close();
     }
+
+    // sort by start time and then by end time (lexicographically)
+    std::sort(startEndTimes.begin(), startEndTimes.end());
+
     return startEndTimes;
 }
 
