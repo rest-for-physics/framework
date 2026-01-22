@@ -162,8 +162,8 @@ void TRestEventTimeSelectionProcess::InitProcess() {
     fNEventsSelected = 0;
 }
 
-std::vector<Interval> TRestEventTimeSelectionProcess::ReadFileWithTimes(
-    std::string fileWithTimes, Char_t delimiter) {
+std::vector<Interval> TRestEventTimeSelectionProcess::ReadFileWithTimes(std::string fileWithTimes,
+                                                                        Char_t delimiter) {
     std::vector<Interval> startEndTimes;
     string line;
     ifstream file(fileWithTimes);
@@ -301,7 +301,6 @@ void TRestEventTimeSelectionProcess::ApplyStartRunTime(const TTimeStamp& runStar
         // modify the start time of the found interval
         fStartEndTimes[startIndex].first = runStart;
     }
-
 }
 
 void TRestEventTimeSelectionProcess::ApplyEndRunTime(const TTimeStamp& runEnd) {

@@ -83,8 +83,7 @@ class TRestEventTimeSelectionProcess : public TRestEventProcess {
     Long_t GetTimeEndMarginInSeconds() const { return fTimeEndMarginInSeconds; }
 
     Double_t CalculateTotalTimeInSeconds();
-    static std::vector<Interval> ReadFileWithTimes(std::string fileWithTimes,
-                                                                              Char_t delimiter = ',');
+    static std::vector<Interval> ReadFileWithTimes(std::string fileWithTimes, Char_t delimiter = ',');
     void ApplyStartRunTime(const TTimeStamp& runStartTime);
     void ApplyEndRunTime(const TTimeStamp& runEndTime);
 
@@ -93,9 +92,7 @@ class TRestEventTimeSelectionProcess : public TRestEventProcess {
     void SetFileWithTimes(const std::string& fileWithTimes) { fFileWithTimes = fileWithTimes; }
     void SetIsActiveTime(Bool_t isActiveTime) { fIsActiveTime = isActiveTime; }
     void SetDelimiter(Char_t delimiter) { fDelimiter = delimiter; }
-    void SetStartEndTimes(const std::vector<Interval>& startEndTimes) {
-        fStartEndTimes = startEndTimes;
-    }
+    void SetStartEndTimes(const std::vector<Interval>& startEndTimes) { fStartEndTimes = startEndTimes; }
     void SetTimeOffsetInSeconds(Long_t timeOffsetInSeconds) { fTimeOffsetInSeconds = timeOffsetInSeconds; }
     void SetTimeStartMarginInSeconds(Long_t timeStartMarginInSeconds) {
         fTimeStartMarginInSeconds = timeStartMarginInSeconds;
