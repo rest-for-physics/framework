@@ -220,9 +220,15 @@ TRestEvent* TRestEventTimeSelectionProcess::ProcessEvent(TRestEvent* inputEvent)
     for (auto se : fStartEndTimes) {
         TTimeStamp startTime = se.first;
         TTimeStamp endTime = se.second;
-        // Reduce the active time window by the margin in both sides
-        startTime.Add(TTimeStamp(fTimeStartMarginInSeconds));
-        endTime.Add(TTimeStamp(-fTimeEndMarginInSeconds));
+        if (fIsActiveTime) {
+            // Reduce the active time window by the margin in both sides
+            startTime.Add(TTimeStamp(fTimeStartMarginInSeconds));
+            endTime.Add(TTimeStamp(-fTimeEndMarginInSeconds));
+        } else {
+            // Increase the dead time window by the margin in both sides
+            startTime.Add(TTimeStamp(-fTimeStartMarginInSeconds));
+            endTime.Add(TTimeStamp(fTimeEndMarginInSeconds));
+        }
 
         if (eventTime >= startTime && eventTime <= endTime) {
             isInsideAnyTimeRange = true;
@@ -284,8 +290,15 @@ std::string TRestEventTimeSelectionProcess::GetTimeStampCut(std::string timeStam
         auto endTime = se.second;
         // Reduce the time by the margin in both sides
         if (useMargins) {
-            startTime.Add(fTimeStartMarginInSeconds);
-            endTime.Add(fTimeEndMarginInSeconds);
+            if (fIsActiveTime) {
+                // Reduce the active time window by the margin in both sides
+                startTime.Add(fTimeStartMarginInSeconds);
+                endTime.Add(-fTimeEndMarginInSeconds);
+            } else {
+                // Increase the dead time window by the margin in both sides
+                startTime.Add(-fTimeStartMarginInSeconds);
+                endTime.Add(fTimeEndMarginInSeconds);
+            }
         }
 
         if (startTime >= endTime) {
