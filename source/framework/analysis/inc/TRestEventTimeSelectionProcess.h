@@ -39,6 +39,7 @@ class TRestEventTimeSelectionProcess : public TRestEventProcess {
     Long_t fTimeStartMarginInSeconds;
     Long_t fTimeEndMarginInSeconds;
     std::vector<Interval> fStartEndTimes;
+    Bool_t fUseRunStartAndEndTimes;
 
     /// Information about the events processed
 
@@ -84,6 +85,8 @@ class TRestEventTimeSelectionProcess : public TRestEventProcess {
     Double_t CalculateTotalTimeInSeconds();
     static std::vector<Interval> ReadFileWithTimes(std::string fileWithTimes,
                                                                               Char_t delimiter = ',');
+    void ApplyStartRunTime(const TTimeStamp& runStartTime);
+    void ApplyEndRunTime(const TTimeStamp& runEndTime);
 
     void SetAsActiveTime() { fIsActiveTime = true; }
     void SetAsDeadTime() { fIsActiveTime = false; }
@@ -101,6 +104,6 @@ class TRestEventTimeSelectionProcess : public TRestEventProcess {
         fTimeEndMarginInSeconds = timeEndMarginInSeconds;
     }
 
-    ClassDefOverride(TRestEventTimeSelectionProcess, 1);
+    ClassDefOverride(TRestEventTimeSelectionProcess, 2);
 };
 #endif

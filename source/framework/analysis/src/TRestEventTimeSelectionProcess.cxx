@@ -131,6 +131,7 @@ void TRestEventTimeSelectionProcess::Initialize() {
     fTimeOffsetInSeconds = 0;
     fTimeStartMarginInSeconds = 0;
     fTimeEndMarginInSeconds = 0;
+    fUseRunStartAndEndTimes = false;
     fNEventsRejected = 0;
     fNEventsSelected = 0;
     fTotalTimeInSeconds = 0;
@@ -144,6 +145,17 @@ void TRestEventTimeSelectionProcess::InitProcess() {
     // Read the file with the time ranges
     if (!fFileWithTimes.empty()) {
         fStartEndTimes = ReadFileWithTimes(fFileWithTimes, fDelimiter);
+    }
+    if (fUseRunStartAndEndTimes) {
+        TRestRun* run = GetRunInfo();
+        if (run) {
+            auto startTimeStamp = run->GetStartTimestamp();
+            auto endTimeStamp = run->GetEndTimestamp();
+            ApplyStartRunTime(startTimeStamp);
+            ApplyEndRunTime(endTimeStamp);
+        } else {
+            RESTWarning << "No run information available to get TRestRun start and end times." << RESTendl;
+        }
     }
     fTotalTimeInSeconds = CalculateTotalTimeInSeconds();
     fNEventsRejected = 0;
@@ -263,6 +275,63 @@ void TRestEventTimeSelectionProcess::EndProcess() {
     // Write here the jobs to do when all the events are processed
 }
 
+void TRestEventTimeSelectionProcess::ApplyStartRunTime(const TTimeStamp& runStart) {
+    size_t startIndex = 0;
+    bool isInsideTimeRange = false;
+    for (auto se : fStartEndTimes) {
+        TTimeStamp s = se.first;
+        TTimeStamp e = se.second;
+
+        if (runStart < s) {
+            isInsideTimeRange = false;
+            break;
+        }
+
+        if (runStart >= s && runStart <= e) {
+            isInsideTimeRange = true;
+            break;
+        }
+
+        startIndex++;
+    }
+
+    // remove all intervals before the run start time
+    fStartEndTimes.erase(fStartEndTimes.begin(), fStartEndTimes.begin() + startIndex);
+    if (isInsideTimeRange) {
+        // modify the start time of the found interval
+        fStartEndTimes[startIndex].first = runStart;
+    }
+
+}
+
+void TRestEventTimeSelectionProcess::ApplyEndRunTime(const TTimeStamp& runEnd) {
+    size_t endIndex = 0;
+    bool isInsideTimeRange = false;
+    for (auto se : fStartEndTimes) {
+        TTimeStamp s = se.first;
+        TTimeStamp e = se.second;
+
+        if (runEnd < s) {
+            isInsideTimeRange = false;
+            break;
+        }
+
+        if (runEnd >= s && runEnd <= e) {
+            isInsideTimeRange = true;
+            break;
+        }
+
+        endIndex++;
+    }
+
+    // remove all intervals after the run end time
+    fStartEndTimes.erase(fStartEndTimes.begin() + endIndex + 1, fStartEndTimes.end());
+    if (isInsideTimeRange) {
+        // modify the end time of the found interval
+        fStartEndTimes[endIndex].second = runEnd;
+    }
+}
+
 ///////////////////////////////////////////////
 /// \brief Function to get the cut string that reproduce the time selection
 /// done by this process (useful for TRestDataSet::MakeCut() for example).
@@ -331,6 +400,7 @@ void TRestEventTimeSelectionProcess::PrintMetadata() {
 
     RESTMetadata << "File with times: " << fFileWithTimes << RESTendl;
     // print periods
+    RESTMetadata << "Use run start and end: " << (fUseRunStartAndEndTimes ? "true" : "false") << RESTendl;
     RESTMetadata << "Offset time: " << fTimeOffsetInSeconds << " seconds" << RESTendl;
     RESTMetadata << "Start margin time: " << fTimeStartMarginInSeconds << " seconds" << RESTendl;
     RESTMetadata << "End margin time: " << fTimeEndMarginInSeconds << " seconds" << RESTendl;
