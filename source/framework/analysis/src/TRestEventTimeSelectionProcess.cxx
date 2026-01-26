@@ -295,12 +295,12 @@ void TRestEventTimeSelectionProcess::ApplyStartRunTime(const TTimeStamp& runStar
         startIndex++;
     }
 
-    // remove all intervals before the run start time
-    fStartEndTimes.erase(fStartEndTimes.begin(), fStartEndTimes.begin() + startIndex);
     if (isInsideTimeRange) {
         // modify the start time of the found interval
         fStartEndTimes[startIndex].first = runStart;
     }
+    // remove all intervals before the run start time
+    fStartEndTimes.erase(fStartEndTimes.begin(), fStartEndTimes.begin() + startIndex);
 }
 
 void TRestEventTimeSelectionProcess::ApplyEndRunTime(const TTimeStamp& runEnd) {
@@ -323,12 +323,13 @@ void TRestEventTimeSelectionProcess::ApplyEndRunTime(const TTimeStamp& runEnd) {
         endIndex++;
     }
 
-    // remove all intervals after the run end time
-    fStartEndTimes.erase(fStartEndTimes.begin() + endIndex + 1, fStartEndTimes.end());
     if (isInsideTimeRange) {
         // modify the end time of the found interval
         fStartEndTimes[endIndex].second = runEnd;
+        endIndex++; // to erase from the next interval
     }
+    // remove all intervals after the run end time
+    fStartEndTimes.erase(fStartEndTimes.begin() + endIndex, fStartEndTimes.end());
 }
 
 ///////////////////////////////////////////////
