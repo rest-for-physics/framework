@@ -326,7 +326,7 @@ void TRestEventTimeSelectionProcess::ApplyEndRunTime(const TTimeStamp& runEnd) {
     if (isInsideTimeRange) {
         // modify the end time of the found interval
         fStartEndTimes[endIndex].second = runEnd;
-        endIndex++; // to erase from the next interval
+        endIndex++;  // to erase from the next interval
     }
     // remove all intervals after the run end time
     fStartEndTimes.erase(fStartEndTimes.begin() + endIndex, fStartEndTimes.end());
