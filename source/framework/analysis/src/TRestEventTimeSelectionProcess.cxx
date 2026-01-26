@@ -61,8 +61,12 @@
 /// before checking if it is within the time ranges.
 /// * **startMarginTimeInSeconds**: margin time in seconds to be added to the start time of the time ranges
 /// (default is 0). This is useful to consider the events that are close to the start time of the time ranges.
+/// Meant to be a positive number, as the process will take care of adding or subtracting it if the time ranges
+/// represent active or dead periods of time respectively.
 /// * **endMarginTimeInSeconds**: margin time in seconds to be subtracted from the end time of the time ranges
 /// (default is 0). This is useful to consider the events that are close to the end time of the time ranges.
+/// Meant to be a positive number, as the process will take care of subtracting or adding it if the time ranges
+/// represent active or dead periods of time respectively.
 ///* **useRunStartAndEndTimes**: if `true` (default) the start and end times of the TRestRun
 /// will be used to restrict the time ranges to those involved (those that are between the run start and end
 /// times).
