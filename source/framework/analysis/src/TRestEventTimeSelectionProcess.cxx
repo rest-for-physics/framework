@@ -63,6 +63,8 @@
 /// (default is 0). This is useful to consider the events that are close to the start time of the time ranges.
 /// * **endMarginTimeInSeconds**: margin time in seconds to be subtracted from the end time of the time ranges
 /// (default is 0). This is useful to consider the events that are close to the end time of the time ranges.
+///* **useRunStartAndEndTimes**: if `true` (default) the start and end times of the TRestRun
+/// will be used to restrict the time ranges to those involved (those that are between the run start and end times).
 ///
 /// ### Observables
 /// The process does not produce event observables but it keeps track of the number of events selected and
@@ -131,7 +133,7 @@ void TRestEventTimeSelectionProcess::Initialize() {
     fTimeOffsetInSeconds = 0;
     fTimeStartMarginInSeconds = 0;
     fTimeEndMarginInSeconds = 0;
-    fUseRunStartAndEndTimes = false;
+    fUseRunStartAndEndTimes = true;
     fNEventsRejected = 0;
     fNEventsSelected = 0;
     fTotalTimeInSeconds = 0;
