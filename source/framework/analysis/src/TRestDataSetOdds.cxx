@@ -243,7 +243,7 @@ void TRestDataSetOdds::ComputeLogOdds() {
     std::string totName = "";
     RESTDebug << "Computing log odds from " << fDataSetName << RESTendl;
     for (const auto& [obsName, histo] : fHistos) {
-        const std::string oddsName = "odds_" + obsName;
+        const std::string oddsName = std::string(GetName()) + "_" + obsName;
         auto GetLogOdds = [&histo = histo](double val) {
             double odds = histo->GetBinContent(histo->GetXaxis()->FindBin(val));
             if (odds == 0) return 1000.;
@@ -264,7 +264,7 @@ void TRestDataSetOdds::ComputeLogOdds() {
 
     RESTDebug << "Computing total log odds" << RESTendl;
     RESTDebug << "\tTotal log odds = " << totName << RESTendl;
-    df = df.Define("odds_total", totName);
+    df = df.Define(std::string(GetName()) + "_total", totName);
 
     dataSet.SetDataFrame(df);
 
