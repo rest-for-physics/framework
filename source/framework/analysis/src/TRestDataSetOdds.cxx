@@ -213,7 +213,7 @@ void TRestDataSetOdds::ComputeLogOdds() {
         for (size_t i = 0; i < fObsName.size(); i++) {
             const std::string obsName = fObsName[i];
             const TVector2 range = fObsRange[i];
-            const std::string histName = "h" + obsName;
+            const std::string histName = "h" + std::string(GetName()) + obsName;
             const int nBins = fObsNbins[i];
             RESTDebug << "\tGenerating PDF for " << obsName << " with range: (" << range.X() << ", "
                       << range.Y() << ") and nBins: " << nBins << RESTendl;
@@ -233,7 +233,7 @@ void TRestDataSetOdds::ComputeLogOdds() {
         RESTInfo << "Opening " << fOddsFile << " as oddsFile." << RESTendl;
         for (size_t i = 0; i < fObsName.size(); i++) {
             const std::string obsName = fObsName[i];
-            const std::string histName = "h" + obsName;
+            const std::string histName = "h" + std::string(GetName()) + obsName;
             TH1F* h = (TH1F*)f->Get(histName.c_str());
             fHistos[obsName] = h;
         }
