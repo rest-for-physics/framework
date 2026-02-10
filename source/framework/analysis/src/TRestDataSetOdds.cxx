@@ -28,7 +28,8 @@
 /// log(1. - odds) - log(odds) obtaining a number which is proportional to
 /// how likely is an event with respect the desired distribution; lower the number,
 /// more likely is the event to the input distribution. New observables are created in
-/// the output dataSet odds_obserbable and the addition of all of them in odds_total.
+/// the output dataSet odds_obserbable and the addition of all of them in odds_total, 
+/// where odds represents the TRestDataSetOdds name.
 /// If an input odds file is provided, the different PDFs are retrieved from the input
 /// file.
 ///
@@ -199,7 +200,7 @@ void TRestDataSetOdds::InitFromConfigFile() {
 /// observables. Otherwise, it takes the PDF from the
 /// input file. This function generate different observables
 /// odds_obsName and the addition of all of them for a further
-/// processing, which is stored in odds_total observable.
+/// processing, which is stored in odds_total observable, where odds is the TRestDataSetOdds name.
 ///
 void TRestDataSetOdds::ComputeLogOdds() {
     PrintMetadata();
@@ -304,6 +305,14 @@ void TRestDataSetOdds::SetOddsObservables(const std::vector<std::tuple<std::stri
     fObsRange.clear();
     fObsNbins.clear();
     for (const auto& [name, range, nbins] : obs) AddOddsObservable(name, range, nbins);
+}
+
+void TRestDataSetOdds::WriteHistograms(TFile* f) const {
+    if (!f) return;
+    f->cd();
+    for (const auto& [name, histo] : fHistos) {
+        if (histo) histo->Write();
+    }
 }
 
 /////////////////////////////////////////////
