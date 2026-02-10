@@ -28,7 +28,7 @@
 /// log(1. - odds) - log(odds) obtaining a number which is proportional to
 /// how likely is an event with respect the desired distribution; lower the number,
 /// more likely is the event to the input distribution. New observables are created in
-/// the output dataSet odds_obserbable and the addition of all of them in odds_total, 
+/// the output dataSet odds_obserbable and the addition of all of them in odds_total,
 /// where odds represents the TRestDataSetOdds name.
 /// If an input odds file is provided, the different PDFs are retrieved from the input
 /// file.
