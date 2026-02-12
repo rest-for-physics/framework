@@ -28,7 +28,8 @@
 /// log(1. - odds) - log(odds) obtaining a number which is proportional to
 /// how likely is an event with respect the desired distribution; lower the number,
 /// more likely is the event to the input distribution. New observables are created in
-/// the output dataSet odds_obserbable and the addition of all of them in odds_total.
+/// the output dataSet odds_obserbable and the addition of all of them in odds_total,
+/// where odds represents the TRestDataSetOdds name.
 /// If an input odds file is provided, the different PDFs are retrieved from the input
 /// file.
 ///
@@ -199,7 +200,7 @@ void TRestDataSetOdds::InitFromConfigFile() {
 /// observables. Otherwise, it takes the PDF from the
 /// input file. This function generate different observables
 /// odds_obsName and the addition of all of them for a further
-/// processing, which is stored in odds_total observable.
+/// processing, which is stored in odds_total observable, where odds is the TRestDataSetOdds name.
 ///
 void TRestDataSetOdds::ComputeLogOdds() {
     PrintMetadata();
@@ -213,7 +214,7 @@ void TRestDataSetOdds::ComputeLogOdds() {
         for (size_t i = 0; i < fObsName.size(); i++) {
             const std::string obsName = fObsName[i];
             const TVector2 range = fObsRange[i];
-            const std::string histName = "h" + obsName;
+            const std::string histName = "h" + std::string(GetName()) + "_" + obsName;
             const int nBins = fObsNbins[i];
             RESTDebug << "\tGenerating PDF for " << obsName << " with range: (" << range.X() << ", "
                       << range.Y() << ") and nBins: " << nBins << RESTendl;
@@ -233,7 +234,7 @@ void TRestDataSetOdds::ComputeLogOdds() {
         RESTInfo << "Opening " << fOddsFile << " as oddsFile." << RESTendl;
         for (size_t i = 0; i < fObsName.size(); i++) {
             const std::string obsName = fObsName[i];
-            const std::string histName = "h" + obsName;
+            const std::string histName = "h" + std::string(GetName()) + "_" + obsName;
             TH1F* h = (TH1F*)f->Get(histName.c_str());
             fHistos[obsName] = h;
         }
@@ -243,7 +244,7 @@ void TRestDataSetOdds::ComputeLogOdds() {
     std::string totName = "";
     RESTDebug << "Computing log odds from " << fDataSetName << RESTendl;
     for (const auto& [obsName, histo] : fHistos) {
-        const std::string oddsName = "odds_" + obsName;
+        const std::string oddsName = std::string(GetName()) + "_" + obsName;
         auto GetLogOdds = [&histo = histo](double val) {
             double odds = histo->GetBinContent(histo->GetXaxis()->FindBin(val));
             if (odds == 0) return 1000.;
@@ -264,7 +265,7 @@ void TRestDataSetOdds::ComputeLogOdds() {
 
     RESTDebug << "Computing total log odds" << RESTendl;
     RESTDebug << "\tTotal log odds = " << totName << RESTendl;
-    df = df.Define("odds_total", totName);
+    df = df.Define(std::string(GetName()) + "_total", totName);
 
     dataSet.SetDataFrame(df);
 
@@ -304,6 +305,14 @@ void TRestDataSetOdds::SetOddsObservables(const std::vector<std::tuple<std::stri
     fObsRange.clear();
     fObsNbins.clear();
     for (const auto& [name, range, nbins] : obs) AddOddsObservable(name, range, nbins);
+}
+
+void TRestDataSetOdds::WriteHistograms(TFile* f) const {
+    if (!f) return;
+    f->cd();
+    for (const auto& [name, histo] : fHistos) {
+        if (histo) histo->Write();
+    }
 }
 
 /////////////////////////////////////////////

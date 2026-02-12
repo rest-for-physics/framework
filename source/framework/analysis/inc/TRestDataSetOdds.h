@@ -66,6 +66,7 @@ class TRestDataSetOdds : public TRestMetadata {
     std::string GetOddsFile() { return fOddsFile; }
     std::string GetDataSetName() { return fDataSetName; }
     std::string GetOutputFileName() { return fOutputFileName; }
+    const std::map<std::string, TH1F*>& GetHistos() const { return fHistos; }
     TRestCut* GetCut() { return fCut; }
 
     inline void SetDataSetName(const std::string& dSName) { fDataSetName = dSName; }
@@ -74,6 +75,7 @@ class TRestDataSetOdds : public TRestMetadata {
     inline void SetCut(TRestCut* cut) { fCut = cut; }
     void SetOddsObservables(const std::vector<std::tuple<std::string, TVector2, int>>& obs);
     void AddOddsObservable(const std::string& name, const TVector2& range, int nbins);
+    void WriteHistograms(TFile* f) const;
 
     TRestDataSetOdds();
     TRestDataSetOdds(const char* configFilename, std::string name = "");
