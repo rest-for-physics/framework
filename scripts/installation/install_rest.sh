@@ -237,8 +237,19 @@ sep
 
 if [[ "$INSTALL_MODE" == "1" ]]; then
     ask "Enter the path to the system thisREST.sh to load ROOT/Geant4/Garfield:"
-    echo "  Example: /programas/titan/rest/latest/thisREST.sh"
-    read -rp "Path: " SYSTEM_THIS_REST
+    echo "  Sultan: /programas/rest/latest/thisREST.sh"
+    echo "  Titan:  /programas/titan/rest/latest/thisREST.sh"
+    case "$(hostname)" in
+        *sultan*) DEFAULT_THIS_REST="/programas/rest/latest/thisREST.sh" ;;
+        *titan*)  DEFAULT_THIS_REST="/programas/titan/rest/latest/thisREST.sh" ;;
+        *)        DEFAULT_THIS_REST="" ;;
+    esac
+    if [[ -n "$DEFAULT_THIS_REST" ]]; then
+        read -rp "Path [default: $DEFAULT_THIS_REST]: " SYSTEM_THIS_REST
+        SYSTEM_THIS_REST="${SYSTEM_THIS_REST:-$DEFAULT_THIS_REST}"
+    else
+        read -rp "Path: " SYSTEM_THIS_REST
+    fi
     SYSTEM_THIS_REST="${SYSTEM_THIS_REST/#\~/$HOME}"
     if [[ ! -f "$SYSTEM_THIS_REST" ]]; then
         error "File not found: $SYSTEM_THIS_REST"
@@ -308,13 +319,15 @@ echo ""
 # =============================================================================
 sep
 ask "How do you want to pull REST submodules?"
-echo "  1) --latest   Pull the latest commit from each submodule branch"
-echo "               (may occasionally be incompatible but stays up to date)"
-echo "  2) (default)  Use the version recorded in the framework repository"
-echo "               (safer, guaranteed compatible)"
+echo "  1) --latest  (default)  Pull the latest commit from each submodule"
+echo "                          branch. Recommended for day-to-day use."
+echo "  2) Pinned                Use the versions recorded in the framework"
+echo "                          repository. Slower to update but always"
+echo "                          mutually compatible. Try this if option 1"
+echo "                          fails to build (a submodule may have drifted)."
 echo ""
-read -rp "Enter choice [1/2, default: 2]: " SUB_CHOICE
-SUB_CHOICE="${SUB_CHOICE:-2}"
+read -rp "Enter choice [1/2, default: 1]: " SUB_CHOICE
+SUB_CHOICE="${SUB_CHOICE:-1}"
 
 # =============================================================================
 #  STEP 5 -- Clone / update REST framework
