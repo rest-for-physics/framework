@@ -1184,7 +1184,8 @@ void TRestRun::CloseFile() {
             }
         }
     }
-
+    delete fInputEvent;
+    fInputEvent = nullptr;
     if (fOutputFile != nullptr) {
         fOutputFile->Write(0, TObject::kOverwrite);
         fOutputFile->Close();
