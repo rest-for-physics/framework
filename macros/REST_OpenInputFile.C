@@ -1,3 +1,16 @@
+bool gSchemaError = false;
+
+void SchemaErrorHandler(int level, Bool_t abort, const char* location, const char* msg) {
+    if (level >= kError) {
+        std::string loc(location);
+        if (loc.find("TBufferFile") != std::string::npos ||
+            loc.find("TStreamerInfo") != std::string::npos) {
+            gSchemaError = true;
+        }
+    }
+    DefaultErrorHandler(level, abort, location, msg);
+}
+
 TRestRun* run = nullptr;
 TRestAnalysisTree* ana_tree = nullptr;
 TTree* ev_tree = nullptr;
@@ -6,7 +19,10 @@ TRestDataSet* dSet = nullptr;
 void REST_OpenInputFile(const std::string& fileName) {
     if (TRestTools::isRunFile(fileName)) {
         printf("\n%s\n\n", "REST processed file identified. It contains a valid TRestRun.");
+        gSchemaError = false;
+        auto oldHandler = SetErrorHandler(SchemaErrorHandler);
         run = new TRestRun(fileName);
+        SetErrorHandler(oldHandler);
         // print number of entries in the run
         printf("\nThe run has %lld entries.\n", run->GetEntries());
         printf("\nAttaching TRestRun %s as run...\n", fileName.c_str());
@@ -17,7 +33,12 @@ void REST_OpenInputFile(const std::string& fileName) {
         std::string eventType = run->GetInputEvent()->ClassName();
         std::string evcmd = Form("%s* ev = (%s*)run->GetInputEvent();", eventType.c_str(), eventType.c_str());
         gROOT->ProcessLine(evcmd.c_str());
-        run->GetEntry(0);
+        if (gSchemaError) {
+            printf("\nWARNING: Schema errors were detected. This file was produced with an older REST version.\n");
+            printf("Event browsing is disabled to prevent hanging. You can still use ana_tree and metadata.\n\n");
+        } else {
+            run->GetEntry(0);
+        }
         printf("Attaching input event %s as ev...\n", eventType.c_str());
         for (int n = 0; n < run->GetNumberOfMetadata(); n++) {
             if (n == 0) printf("Attaching Metadata classes:\n");
