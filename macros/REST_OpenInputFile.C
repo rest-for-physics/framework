@@ -3,8 +3,7 @@ bool gSchemaError = false;
 void SchemaErrorHandler(int level, Bool_t abort, const char* location, const char* msg) {
     if (level >= kError) {
         std::string loc(location);
-        if (loc.find("TBufferFile") != std::string::npos ||
-            loc.find("TStreamerInfo") != std::string::npos) {
+        if (loc.find("TBufferFile") != std::string::npos || loc.find("TStreamerInfo") != std::string::npos) {
             gSchemaError = true;
         }
     }
@@ -34,8 +33,12 @@ void REST_OpenInputFile(const std::string& fileName) {
         std::string evcmd = Form("%s* ev = (%s*)run->GetInputEvent();", eventType.c_str(), eventType.c_str());
         gROOT->ProcessLine(evcmd.c_str());
         if (gSchemaError) {
-            printf("\nWARNING: Schema errors were detected. This file was produced with an older REST version.\n");
-            printf("Event browsing is disabled to prevent hanging. You can still use ana_tree and metadata.\n\n");
+            printf(
+                "\nWARNING: Schema errors were detected. This file was produced with an older REST "
+                "version.\n");
+            printf(
+                "Event browsing is disabled to prevent hanging. You can still use ana_tree and "
+                "metadata.\n\n");
         } else {
             run->GetEntry(0);
         }
