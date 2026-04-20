@@ -618,6 +618,9 @@ void TRestRun::ReadInputFileTrees() {
                         fInputEvent->InitializeWithMetadata(this);
                         fEventTree->SetBranchAddress(br->GetName(), &fInputEvent);
                         fEventBranchLoc = branches->GetLast();
+                        // Disable unused event branches to prevent memory leak
+                        fEventTree->SetBranchStatus("*", 0);
+                        fEventTree->SetBranchStatus((string(br->GetName()) + "*").c_str(), 1);
                         RESTDebug << "found event branch of event type: " << fInputEvent->ClassName()
                                   << RESTendl;
                     }
