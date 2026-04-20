@@ -48,7 +48,8 @@ using namespace std;
 std::mutex mutex_read;
 
 namespace {
-// TTree::SetBranchStatus by name does not reliably reach sub-branches; recurse via TBranch::SetStatus instead.
+// TTree::SetBranchStatus by name does not reliably reach sub-branches; recurse via TBranch::SetStatus
+// instead.
 void SetBranchStatusRecursive(TBranch* b, int status) {
     if (!b) return;
     b->SetStatus(status);
