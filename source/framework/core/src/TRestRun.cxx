@@ -1277,8 +1277,14 @@ void TRestRun::SetInputEvent(TRestEvent* event) {
                     RESTDebug << "Setting input event.. Type: " << event->ClassName() << " Address: " << event
                               << RESTendl;
                     fInputEvent = event;
-                    fEventTree->SetBranchAddress(branchName.c_str(), &fInputEvent);
                     SetBranchStatusRecursive(branch, 1);
+                    // Reset sub-branch addresses so ROOT re-derives them from the fresh top-level bind.
+                    auto subs = branch->GetListOfBranches();
+                    for (int j = 0; j <= subs->GetLast(); j++) {
+                        ((TBranch*)subs->At(j))->ResetAddress();
+                    }
+                    branch->ResetAddress();
+                    fEventTree->SetBranchAddress(branchName.c_str(), &fInputEvent);
                     fEventBranchLoc = i;
                     break;
                 } else if (i == branches->GetLast()) {
