@@ -302,6 +302,8 @@
 #include "TRestRun.h"
 #include "TRestTools.h"
 
+#include <TLeaf.h>
+
 ClassImp(TRestDataSet);
 
 ///////////////////////////////////////////////
