@@ -36,14 +36,14 @@
 #include <unistd.h>
 #endif  // !WIN32
 
+#include <TBranchElement.h>
+
 #include <filesystem>
 
 #include "TRestDataBase.h"
 #include "TRestEventProcess.h"
 #include "TRestManager.h"
 #include "TRestVersion.h"
-
-#include <TBranchElement.h>
 
 using namespace std;
 
