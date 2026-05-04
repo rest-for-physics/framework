@@ -43,9 +43,64 @@
 #include "TRestManager.h"
 #include "TRestVersion.h"
 
+#include <TBranchElement.h>
+
 using namespace std;
 
 std::mutex mutex_read;
+
+namespace {
+void DisableBranchRecursively(TBranch* branch) {
+    if (branch == nullptr) return;
+
+    branch->SetStatus(false);
+    auto subs = branch->GetListOfBranches();
+    for (int i = 0; i <= subs->GetLast(); i++) {
+        DisableBranchRecursively((TBranch*)subs->At(i));
+    }
+}
+
+bool BranchHasLegacyDetectorSignalStreamer(TBranch* branch) {
+    if (branch == nullptr) return false;
+
+    auto branchElement = dynamic_cast<TBranchElement*>(branch);
+    if (branchElement != nullptr && ((std::string)branch->GetName() == "fSignal.fSignalTime" ||
+                                     (std::string)branch->GetName() == "fSignal.fSignalCharge")) {
+        const auto version = branchElement->GetClassVersion();
+        if (version > 0 && version < 4) return true;
+    }
+
+    auto subs = branch->GetListOfBranches();
+    for (int i = 0; i <= subs->GetLast(); i++) {
+        if (BranchHasLegacyDetectorSignalStreamer((TBranch*)subs->At(i))) return true;
+    }
+
+    return false;
+}
+
+bool IsUnsupportedLegacyDetectorSignalBranch(TBranch* branch) {
+    if (branch == nullptr) return false;
+    if ((std::string)branch->GetName() != "TRestDetectorSignalEventBranch") return false;
+
+    const auto signalClass = TClass::GetClass("TRestDetectorSignal");
+    if (signalClass == nullptr || signalClass->GetClassVersion() < 4) return false;
+
+    return BranchHasLegacyDetectorSignalStreamer(branch);
+}
+
+void WarnUnsupportedLegacyDetectorSignalBranch() {
+    RESTWarning << "REST Warning : (TRestRun) cannot read TRestDetectorSignalEvent from this file with "
+                   "the loaded detector library."
+                << RESTendl;
+    RESTWarning << "The file contains legacy vector<float> signal time/charge split branches, while the "
+                   "current TRestDetectorSignal class expects vector<double>."
+                << RESTendl;
+    RESTWarning << "This is the schema change introduced in detectorlib PR109. Other event branches can "
+                   "still be read, but this detector signal event branch is disabled to avoid excessive "
+                   "memory usage or a crash."
+                << RESTendl;
+}
+}  // namespace
 
 ClassImp(TRestRun);
 
@@ -616,6 +671,13 @@ void TRestRun::ReadInputFileTrees() {
                         }
 
                         fInputEvent->InitializeWithMetadata(this);
+                        if (IsUnsupportedLegacyDetectorSignalBranch(br)) {
+                            WarnUnsupportedLegacyDetectorSignalBranch();
+                            DisableBranchRecursively(br);
+                            delete fInputEvent;
+                            fInputEvent = nullptr;
+                            return;
+                        }
                         fEventTree->SetBranchAddress(br->GetName(), &fInputEvent);
                         fEventBranchLoc = branches->GetLast();
                         RESTDebug << "found event branch of event type: " << fInputEvent->ClassName()
@@ -1246,30 +1308,45 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
 void TRestRun::SetInputEvent(TRestEvent* event) {
     if (event != nullptr) {
         if (fEventTree != nullptr) {
+            TObjArray* branches = fEventTree->GetListOfBranches();
+            string branchName = (string)event->ClassName() + "Branch";
+            TBranch* selectedBranch = nullptr;
+            Int_t selectedBranchIndex = -1;
+            for (int i = 0; i <= branches->GetLast(); i++) {
+                auto branch = (TBranch*)branches->At(i);
+                if ((string)branch->GetName() == branchName) {
+                    selectedBranch = branch;
+                    selectedBranchIndex = i;
+                    break;
+                }
+            }
+
+            if (selectedBranch == nullptr) {
+                RESTWarning << "REST Warning : (TRestRun) cannot find corresponding "
+                               "branch in event tree!"
+                            << RESTendl;
+                RESTWarning << "Event Type : " << event->ClassName() << RESTendl;
+                RESTWarning << "Input event not set!" << RESTendl;
+                return;
+            }
+
+            if (IsUnsupportedLegacyDetectorSignalBranch(selectedBranch)) {
+                WarnUnsupportedLegacyDetectorSignalBranch();
+                DisableBranchRecursively(selectedBranch);
+                return;
+            }
+
             if (fInputEvent != nullptr) {
                 fEventTree->SetBranchAddress((TString)fInputEvent->ClassName() + "Branch", nullptr);
                 fEventTree->SetBranchStatus((TString)fInputEvent->ClassName() + "Branch", false);
             }
-            TObjArray* branches = fEventTree->GetListOfBranches();
-            string branchName = (string)event->ClassName() + "Branch";
-            for (int i = 0; i <= branches->GetLast(); i++) {
-                auto branch = (TBranch*)branches->At(i);
-                if ((string)branch->GetName() == branchName) {
-                    RESTDebug << "Setting input event.. Type: " << event->ClassName() << " Address: " << event
-                              << RESTendl;
-                    fInputEvent = event;
-                    fEventTree->SetBranchAddress(branchName.c_str(), &fInputEvent);
-                    fEventTree->SetBranchStatus(branchName.c_str(), false);
-                    fEventBranchLoc = i;
-                    break;
-                } else if (i == branches->GetLast()) {
-                    RESTWarning << "REST Warning : (TRestRun) cannot find corresponding "
-                                   "branch in event tree!"
-                                << RESTendl;
-                    RESTWarning << "Event Type : " << event->ClassName() << RESTendl;
-                    RESTWarning << "Input event not set!" << RESTendl;
-                }
-            }
+
+            RESTDebug << "Setting input event.. Type: " << event->ClassName() << " Address: " << event
+                      << RESTendl;
+            fInputEvent = event;
+            fEventTree->SetBranchAddress(branchName.c_str(), &fInputEvent);
+            fEventTree->SetBranchStatus(branchName.c_str(), false);
+            fEventBranchLoc = selectedBranchIndex;
         } else {
             fInputEvent = event;
         }
