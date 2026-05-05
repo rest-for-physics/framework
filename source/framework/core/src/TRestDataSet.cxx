@@ -299,6 +299,8 @@
 ///
 #include "TRestDataSet.h"
 
+#include <TLeaf.h>
+
 #include "TRestRun.h"
 #include "TRestTools.h"
 
