@@ -227,6 +227,5 @@ void recoverLegacySignalData(const char* inputFile, const char* outputFile = "")
     std::cout << "Signal data written to: " << outName << std::endl;
     std::cout << std::endl;
     std::cout << "Next step — rebuild the fixed file with restRoot:" << std::endl;
-    std::cout << "    restRoot -b -q 'REST_RebuildLegacySignalFile.C(\"" << inputFile << "\")'"
-              << std::endl;
+    std::cout << "    restRoot -b -q 'REST_RebuildLegacySignalFile.C(\"" << inputFile << "\")'" << std::endl;
 }

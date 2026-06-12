@@ -61,8 +61,7 @@ void SetBranchStatusRecursive(TBranch* branch, Bool_t status) {
     if (branch == nullptr) return;
     branch->SetStatus(status);
     auto subs = branch->GetListOfBranches();
-    for (int i = 0; i <= subs->GetLast(); i++)
-        SetBranchStatusRecursive((TBranch*)subs->At(i), status);
+    for (int i = 0; i <= subs->GetLast(); i++) SetBranchStatusRecursive((TBranch*)subs->At(i), status);
 }
 
 }  // namespace REST_Rebuild_Internal
@@ -234,8 +233,7 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
             TRestDetectorSignal signal;
             signal.SetSignalID(signalID->at(s));
             const size_t n = nPoints->at(s);
-            for (size_t p = 0; p < n; p++)
-                signal.NewPoint(times->at(offset + p), charges->at(offset + p));
+            for (size_t p = 0; p < n; p++) signal.NewPoint(times->at(offset + p), charges->at(offset + p));
             offset += n;
             event->AddSignal(signal);
         }
@@ -265,8 +263,8 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
     if (overwrite) {
         const std::string backup = std::string(originalFile) + ".bak";
         if (gSystem->Rename(originalFile, backup.c_str()) != 0) {
-            std::cout << "ERROR: could not move original to " << backup << "; fixed file left at "
-                      << outName << std::endl;
+            std::cout << "ERROR: could not move original to " << backup << "; fixed file left at " << outName
+                      << std::endl;
             return;
         }
         gSystem->Rename(outName.c_str(), originalFile);
