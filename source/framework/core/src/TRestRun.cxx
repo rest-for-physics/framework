@@ -99,6 +99,13 @@ void WarnUnsupportedLegacyDetectorSignalBranch() {
                    "still be read, but this detector signal event branch is disabled to avoid excessive "
                    "memory usage or a crash."
                 << RESTendl;
+    RESTWarning << "The data is recoverable: convert the file once with the macros in "
+                   "$REST_PATH/macros/legacy :"
+                << RESTendl;
+    RESTWarning << "  1) root -l -b -q 'recoverLegacySignalData.C+(\"yourFile.root\")'   (plain root, NOT "
+                   "restRoot)"
+                << RESTendl;
+    RESTWarning << "  2) restRoot -b -q 'REST_RebuildLegacySignalFile.C(\"yourFile.root\")'" << RESTendl;
 }
 }  // namespace
 
