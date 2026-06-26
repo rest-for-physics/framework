@@ -446,6 +446,11 @@ if [[ "$INSTALL_MODE" == "3" && -n "$GARFIELD_HOME" ]]; then
     mkdir -p "$GARFIELD_HOME"
     ln -sfn "$GV/include" "$GARFIELD_HOME/include"
     ln -sfn "$GV/$GLIB"   "$GARFIELD_HOME/lib"
+    # Capital-I 'Include' (-> the lowercase include): lets cling resolve the
+    # Garfield dictionary's autoload header paths (Include/Garfield/*.hh) and so
+    # silences ~50 harmless "Missing FileEntry" warnings at restRoot startup.
+    # (Used together with ROOT_INCLUDE_PATH below.)
+    ln -sfn include "$GARFIELD_HOME/Include"
     success "Garfield shim ready: $GARFIELD_HOME -> $GV ($GLIB)"
 fi
 
@@ -572,6 +577,10 @@ case "$BASHRC_CHOICE" in
             if [[ "$INSTALL_MODE" == "3" ]]; then
                 LOCAL_LINE="$LOCAL_LINE
 export REST_HOME=$REST_DIR   # REST .rest dir on writable disk (AFS \$HOME is not writable)"
+                if [[ -n "$GARFIELD_HOME" ]]; then
+                    LOCAL_LINE="$LOCAL_LINE
+export ROOT_INCLUDE_PATH=$GARFIELD_HOME:\$ROOT_INCLUDE_PATH   # silence Garfield cling autoload warnings"
+                fi
             fi
             CHECK_LINE="$INSTALL_DIR/thisREST.sh"
         else
