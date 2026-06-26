@@ -3,16 +3,18 @@
 #  REST-for-Physics -- Interactive Installation Script
 #  https://github.com/rest-for-physics/framework
 #
-#  Supports two modes:
+#  Supports three modes:
 #    1. Server install  -- ROOT/Geant4/Garfield already available (e.g. titan)
 #    2. Full install    -- Builds ROOT 6.26.10, Geant4 11.0.3, Garfield++, REST
 #                         from source (e.g. WSL / fresh Ubuntu)
+#    3. CVMFS install   -- Loads a CERN LCG view from /cvmfs for ROOT/Geant4/
+#                         Garfield and builds only REST (e.g. NAF-IAXO / RHEL9)
 #
 #  Usage:  bash install_rest.sh
 # =============================================================================
 
 # Self-fix Windows line endings before anything else
-grep -q $'\r' "$0" 2>/dev/null && sed -i 's/\r//' "$0" && exec bash "$0" "$@"
+grep -qP '\r' "$0" 2>/dev/null && sed -i 's/\r//' "$0" && exec bash "$0" "$@"
 
 set -euo pipefail
 
@@ -43,6 +45,11 @@ echo ""
 # -- GCC compatibility flags (fixes GCC 14 -Werror issues) --------------------
 GCC_COMPAT_FLAGS="-Wno-error=ignored-attributes -Wno-error=overloaded-virtual -Wno-error=maybe-uninitialized"
 
+# -- Per-mode variables (kept defined for set -u safety) ----------------------
+CMAKE_EXTRA_FLAGS=""      # extra cmake flags (e.g. Garfield Heed dir in mode 3)
+GARFIELD_HOME=""          # set by mode 3 (CVMFS shim)
+GARFIELD_SETUP=""         # set by mode 2 (path to built Garfield setupGarfield.sh)
+
 # =============================================================================
 #  STEP 0 -- Choose install mode
 # =============================================================================
@@ -52,13 +59,16 @@ echo "  1) Server install  -- use pre-installed ROOT/Geant4/Garfield on this mac
 echo "     (for clusters like titan where a system REST environment exists)"
 echo "  2) Full install    -- build ROOT, Geant4, Garfield++ and REST from source"
 echo "     (for a fresh Ubuntu / WSL system)"
+echo "  3) CVMFS install   -- load a CERN LCG view from /cvmfs for ROOT/Geant4/"
+echo "     Garfield and build only REST (for HEP clusters like NAF-IAXO / RHEL9)"
 echo ""
-read -rp "Enter choice [1/2]: " INSTALL_MODE
+read -rp "Enter choice [1/2/3]: " INSTALL_MODE
 
 case "$INSTALL_MODE" in
     1) info "Mode: Server install (using pre-built dependencies)" ;;
     2) info "Mode: Full install from source" ;;
-    *) error "Invalid choice. Please run again and enter 1 or 2." ;;
+    3) info "Mode: CVMFS install (CERN LCG view + local REST build)" ;;
+    *) error "Invalid choice. Please run again and enter 1, 2 or 3." ;;
 esac
 echo ""
 
@@ -74,6 +84,14 @@ REST_DIR="${REST_DIR/#\~/$HOME}"   # expand ~ manually
 info "REST will be installed in: $REST_DIR"
 echo ""
 
+# AFS home is small and token-based; a REST build belongs on scratch (e.g. DUST).
+if [[ "$REST_DIR" == /afs/* ]]; then
+    warn "$REST_DIR is on AFS, which is small and not suited to a REST build."
+    warn "On DESY/NAF, prefer a DUST area, e.g. /data/dust/user/<user>/rest."
+    read -rp "Use this AFS path anyway? [y/N]: " AFS_CONFIRM
+    [[ "$AFS_CONFIRM" =~ ^[Yy]$ ]] || error "Aborted. Re-run and choose a scratch/DUST path."
+fi
+
 if [[ -d "$REST_DIR" ]]; then
     warn "Directory $REST_DIR already exists."
     read -rp "Continue and use it anyway? [y/N]: " CONFIRM
@@ -87,51 +105,39 @@ if [[ "$INSTALL_MODE" == "2" ]]; then
 
     sep
     # Check for sudo access before attempting anything
-    SKIP_APT=false
     if ! sudo -v 2>/dev/null; then
-        warn "Cannot obtain sudo access."
-        warn "If system packages are already installed, you can skip this step."
-        read -rp "Skip apt package installation? [y/N]: " SKIP_APT_ANS
-        if [[ "$SKIP_APT_ANS" =~ ^[Yy]$ ]]; then
-            SKIP_APT=true
-            info "Skipping apt package installation."
-        else
-            error "Mode 2 requires sudo access to install system packages.\n       On shared servers (e.g. titan), use mode 1 instead."
-        fi
+        error "Mode 2 requires sudo access to install system packages.\n       On shared servers (e.g. titan), use mode 1 instead."
     fi
+    warn "This package list was designed for Ubuntu 22/24 with ROOT 6.26.10,"
+    warn "Geant4 11.0.3 and Garfield++. It has not been fully tested on a"
+    warn "fresh system yet. If something fails, a package may be missing or"
+    warn "named differently on your Ubuntu version."
+    read -rp "Press Enter to continue or Ctrl+C to abort: "
+    echo ""
+    info "Installing system dependencies (requires sudo)..."
+    sudo apt update && sudo apt install -y \
+        build-essential cmake git wget curl \
+        gcc-11 g++-11 gfortran \
+        python3 python3-full python3-pip python3-numpy \
+        libssl-dev libxerces-c-dev libxml2-dev \
+        nlohmann-json3-dev \
+        libxxhash-dev libzstd-dev liblzma-dev liblz4-dev \
+        libfreetype6-dev \
+        libglew-dev libgl2ps-dev \
+        libx11-dev libxpm-dev libxft-dev libxext-dev \
+        libxmu-dev libxi-dev \
+        libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev \
+        qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools \
+        libfftw3-dev libtinyxml2-dev libgsl-dev libglpk-dev \
+        libcfitsio-dev libcurl4-openssl-dev \
+        software-properties-common
 
-    if [[ "$SKIP_APT" == false ]]; then
-        warn "This package list was designed for Ubuntu 22/24 with ROOT 6.26.10,"
-        warn "Geant4 11.0.3 and Garfield++. It has not been fully tested on a"
-        warn "fresh system yet. If something fails, a package may be missing or"
-        warn "named differently on your Ubuntu version."
-        read -rp "Press Enter to continue or Ctrl+C to abort: "
-        echo ""
-        info "Installing system dependencies (requires sudo)..."
-        sudo apt update && sudo apt install -y \
-            build-essential cmake git wget curl \
-            gcc-11 g++-11 gfortran \
-            python3 python3-full python3-pip python3-numpy \
-            libssl-dev libxerces-c-dev libxml2-dev \
-            nlohmann-json3-dev \
-            libxxhash-dev libzstd-dev liblzma-dev liblz4-dev \
-            libfreetype6-dev \
-            libglew-dev libgl2ps-dev \
-            libx11-dev libxpm-dev libxft-dev libxext-dev \
-            libxmu-dev libxi-dev \
-            libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev \
-            qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools \
-            libfftw3-dev libtinyxml2-dev libgsl-dev libglpk-dev \
-            libcfitsio-dev libcurl4-openssl-dev \
-            software-properties-common
-
-        # Python 3.10 for ROOT 6.26 compatibility
-        info "Adding deadsnakes PPA and installing Python 3.10..."
-        sudo add-apt-repository ppa:deadsnakes/ppa -y
-        sudo apt update
-        sudo apt install -y python3.10 python3.10-dev python3.10-venv
-        success "System dependencies installed."
-    fi
+    # Python 3.10 for ROOT 6.26 compatibility
+    info "Adding deadsnakes PPA and installing Python 3.10..."
+    sudo add-apt-repository ppa:deadsnakes/ppa -y
+    sudo apt update
+    sudo apt install -y python3.10 python3.10-dev python3.10-venv
+    success "System dependencies installed."
     echo ""
 
     SOFTWARE_DIR="$REST_DIR/../software"
@@ -193,10 +199,8 @@ if [[ "$INSTALL_MODE" == "2" ]]; then
         -DCMAKE_CXX_COMPILER=g++-11 \
         -DGEANT4_USE_GDML=ON
     make -j"$(nproc)" install
-    # Fix ownership if files ended up root-owned (e.g. from a previous sudo run)
-    if [[ -O "$SOFTWARE_DIR/geant4-v11.0.3/install" ]]; then
-        : # Already owned by current user, nothing to do
-    else
+    # Fix ownership only if files ended up root-owned (e.g. from a previous sudo run)
+    if [[ ! -O "$SOFTWARE_DIR/geant4-v11.0.3/install" ]]; then
         sudo chown -R "$(whoami):$(whoami)" "$SOFTWARE_DIR/geant4-v11.0.3/install"
     fi
     GEANT4_SH="$SOFTWARE_DIR/geant4-v11.0.3/install/bin/geant4.sh"
@@ -231,7 +235,63 @@ if [[ "$INSTALL_MODE" == "2" ]]; then
 fi  # end MODE 2 dependencies
 
 # =============================================================================
-#  STEP 2 -- Source the environment (mode 1: system; mode 2: freshly built)
+#  MODE 3 -- CVMFS install: load a CERN LCG view + shim Garfield
+# =============================================================================
+if [[ "$INSTALL_MODE" == "3" ]]; then
+
+    sep
+    info "Mode 3 uses CERN's CVMFS software (an LCG 'view') for ROOT, Geant4,"
+    info "GSL and Garfield. Only REST itself is built locally. This survives OS"
+    info "upgrades far better than a hand-built stack."
+    echo ""
+    DEFAULT_VIEW="/cvmfs/sft.cern.ch/lcg/views/LCG_109/x86_64-el9-gcc13-opt/setup.sh"
+    ask "Path to the LCG view setup.sh:"
+    echo "  Default is tested on NAF-IAXO (RHEL9): $DEFAULT_VIEW"
+    read -rp "LCG view setup.sh [default: $DEFAULT_VIEW]: " LCG_VIEW_SETUP
+    LCG_VIEW_SETUP="${LCG_VIEW_SETUP:-$DEFAULT_VIEW}"
+    LCG_VIEW_SETUP="${LCG_VIEW_SETUP/#\~/$HOME}"
+    [[ -f "$LCG_VIEW_SETUP" ]] || error "Not found: $LCG_VIEW_SETUP\n       Check that /cvmfs is mounted and the path is correct."
+
+    info "Sourcing LCG view: $LCG_VIEW_SETUP"
+    set +u
+    source "$LCG_VIEW_SETUP"
+    set -u
+    info "ROOT $(root-config --version 2>/dev/null), Geant4 $(geant4-config --version 2>/dev/null)"
+    success "CVMFS environment loaded."
+    echo ""
+
+    # -- Garfield shim -------------------------------------------------------
+    # CVMFS Garfield ships no CMake config and uses lib64, so REST falls back to
+    # its 'old' GARFIELD_HOME detection path. We present a shim directory with
+    # the layout REST expects (lib + include), and later feed FindGarfieldOld a
+    # valid Heed include dir (it hunts for the removed HeedChamber.hh).
+    VIEW_DIR="$(dirname "$LCG_VIEW_SETUP")"
+    PLATFORM="$(basename "$VIEW_DIR")"
+    LCG_REL="$(basename "$(dirname "$VIEW_DIR")")"
+    GV="$(ls -d /cvmfs/sft.cern.ch/lcg/releases/"$LCG_REL"/Garfield++/*/"$PLATFORM" 2>/dev/null | head -1)"
+
+    if [[ -n "$GV" && -d "$GV" ]]; then
+        GLIB="lib"; [[ -d "$GV/lib64" ]] && GLIB="lib64"
+        # The shim dir lives inside REST_DIR, which must be empty for the
+        # 'git clone' in STEP 5 -- so we only compute its path here and create
+        # the actual symlinks after the clone (see STEP 5).
+        GARFIELD_HOME="$REST_DIR/garfield_home"
+        export GARFIELD_HOME
+        unset GARFIELD_INSTALL || true   # force REST's old (GARFIELD_HOME) path
+        CMAKE_EXTRA_FLAGS="-DGarfield_INCLUDE_Heed_DIRS=$GV/include/Garfield"
+        info "Garfield found: $GV ($GLIB) -- shim created after clone."
+    else
+        GARFIELD_HOME=""
+        warn "Garfield not found in $LCG_REL for platform $PLATFORM."
+        warn "If you need Garfield, choose a different LCG view; otherwise answer"
+        warn "'n' to the Garfield question below to build REST without it."
+    fi
+    echo ""
+
+fi  # end MODE 3 setup
+
+# =============================================================================
+#  STEP 2 -- Source the environment (1: system, 2: freshly built, 3: CVMFS)
 # =============================================================================
 sep
 
@@ -260,14 +320,27 @@ if [[ "$INSTALL_MODE" == "1" ]]; then
     source "$SYSTEM_THIS_REST"
     set -u
     success "System environment loaded."
+    ENV_LINES="source $SYSTEM_THIS_REST   # loads system ROOT / Geant4 / Garfield"
+elif [[ "$INSTALL_MODE" == "3" ]]; then
+    # Environment already loaded in the MODE 3 setup block above.
+    info "Using CVMFS environment from: $LCG_VIEW_SETUP"
+    if [[ -n "$GARFIELD_HOME" ]]; then
+        ENV_LINES="source $LCG_VIEW_SETUP   # CERN CVMFS LCG view (ROOT/Geant4/Garfield)
+export GARFIELD_HOME=$GARFIELD_HOME   # CVMFS Garfield shim (lib64 -> lib)"
+    else
+        ENV_LINES="source $LCG_VIEW_SETUP   # CERN CVMFS LCG view (ROOT/Geant4/Garfield)"
+    fi
 else
-    # Already sourced above during build
+    # Mode 2: ROOT/Geant4/Garfield freshly built above
     set +u
     source "$ROOT_THISROOT"
     source "$GEANT4_SH"
     source "$GARFIELD_SETUP"
     set -u
     success "Build environment loaded."
+    ENV_LINES="source $ROOT_THISROOT
+source $GEANT4_SH
+source $GARFIELD_SETUP"
 fi
 echo ""
 
@@ -319,15 +392,13 @@ echo ""
 # =============================================================================
 sep
 ask "How do you want to pull REST submodules?"
-echo "  1) --latest  (default)  Pull the latest commit from each submodule"
-echo "                          branch. Recommended for day-to-day use."
-echo "  2) Pinned                Use the versions recorded in the framework"
-echo "                          repository. Slower to update but always"
-echo "                          mutually compatible. Try this if option 1"
-echo "                          fails to build (a submodule may have drifted)."
+echo "  1) --latest   Pull the latest commit from each submodule branch"
+echo "               (may occasionally be incompatible but stays up to date)"
+echo "  2) (default)  Use the version recorded in the framework repository"
+echo "               (safer, guaranteed compatible)"
 echo ""
-read -rp "Enter choice [1/2, default: 1]: " SUB_CHOICE
-SUB_CHOICE="${SUB_CHOICE:-1}"
+read -rp "Enter choice [1/2, default: 2]: " SUB_CHOICE
+SUB_CHOICE="${SUB_CHOICE:-2}"
 
 # =============================================================================
 #  STEP 5 -- Clone / update REST framework
@@ -339,17 +410,7 @@ if [[ -d "$REST_DIR/.git" ]]; then
     git pull
 else
     info "Cloning REST framework into $REST_DIR..."
-    if [[ -d "$REST_DIR" && "$(ls -A "$REST_DIR" 2>/dev/null)" ]]; then
-        # Directory exists and is non-empty; clone to temp then move contents
-        TMPCLONE="$(mktemp -d)"
-        git clone https://github.com/rest-for-physics/framework.git "$TMPCLONE/framework"
-        shopt -s dotglob
-        mv "$TMPCLONE/framework"/* "$REST_DIR/"
-        shopt -u dotglob
-        rm -rf "$TMPCLONE"
-    else
-        git clone https://github.com/rest-for-physics/framework.git "$REST_DIR"
-    fi
+    git clone https://github.com/rest-for-physics/framework.git "$REST_DIR"
     cd "$REST_DIR"
 fi
 
@@ -360,23 +421,62 @@ fi
 info "Pulling submodules..."
 # --onlylibs skips private university repos (iaxo, detector-template, etc.)
 # that would hang waiting for SSH access most users don't have.
-# If REST_G4 is enabled, also pull the restG4 package explicitly.
 if [[ "$SUB_CHOICE" == "1" ]]; then
-    python3 "$REST_DIR/pull-submodules.py" --latest --onlylibs
+    python3 pull-submodules.py --latest --onlylibs
 else
-    # --clean asks "Are you sure?" — answer automatically to avoid consuming
-    # the main script's stdin when running non-interactively.
-    echo y | python3 "$REST_DIR/pull-submodules.py" --clean --onlylibs
+    # --clean asks "Are you sure?" -- answer automatically so it doesn't
+    # consume the script's stdin.
+    echo y | python3 pull-submodules.py --clean --onlylibs
 fi
 
 # restG4 lives in packages/, not libraries/, so --onlylibs skips it.
-# Pull it explicitly if Geant4 integration was requested.
+# Pull it explicitly if Geant4 integration / restG4 was requested.
 if [[ "$CMAKE_LIB_FLAGS" == *"REST_G4=ON"* ]]; then
     info "Pulling restG4 package..."
-    echo y | python3 "$REST_DIR/pull-submodules.py" --clean --only:restG4
+    echo y | python3 pull-submodules.py --clean --only:restG4
 fi
 success "REST framework and submodules ready."
 echo ""
+
+# -- Mode 3: create the Garfield shim now that REST_DIR exists ---------------
+# Deferred from the MODE 3 setup block: REST_DIR had to be empty for the clone.
+# Presents the CVMFS Garfield (include + lib64) in the lib/include layout REST
+# expects via GARFIELD_HOME.
+if [[ "$INSTALL_MODE" == "3" && -n "$GARFIELD_HOME" ]]; then
+    mkdir -p "$GARFIELD_HOME"
+    ln -sfn "$GV/include" "$GARFIELD_HOME/include"
+    ln -sfn "$GV/$GLIB"   "$GARFIELD_HOME/lib"
+    success "Garfield shim ready: $GARFIELD_HOME -> $GV ($GLIB)"
+fi
+
+# -- Mode 3: temporary modern-Garfield source patch --------------------------
+# CVMFS/LCG ships a modern Garfield, which renamed ComponentBase -> Component
+# (header and class). REST's detector lib still selects its USE_Garfield_OLD
+# branch here (CVMFS Garfield has no CMake config), which references the removed
+# names. Patch the old-branch names to the modern ones. This is a harmless
+# no-op once detectorlib is fixed upstream.
+# TODO: remove once detectorlib selects its modern Garfield branch on its own.
+if [[ "$INSTALL_MODE" == "3" && -n "$GARFIELD_HOME" ]]; then
+    DET_INC="$REST_DIR/source/libraries/detector/inc"
+    if [[ -f "$DET_INC/TRestDetectorGeometry.h" ]]; then
+        sed -i \
+            -e 's|#include "ComponentBase.hh"|#include "Component.hh"|' \
+            -e 's|typedef Garfield::ComponentBase Component;|typedef Garfield::Component Component;|' \
+            "$DET_INC/TRestDetectorGeometry.h" \
+            "$DET_INC/TRestDetectorGarfieldDriftProcess.h"
+        info "Applied temporary modern-Garfield (ComponentBase->Component) patch."
+    fi
+fi
+
+# -- Mode 3: let restG4 build against the CVMFS (C++20) Geant4 ----------------
+# restG4's CMake hard-requires a C++17 Geant4, but the LCG/CVMFS Geant4 11.4
+# (and ROOT 6.38) are built with C++20. REST itself builds fine with C++20, so
+# relax the check to also accept 20/23.
+# TODO: fix upstream in restG4 (accept C++17 or newer).
+if [[ "$INSTALL_MODE" == "3" && -f "$REST_DIR/source/packages/restG4/CMakeLists.txt" ]]; then
+    sed -i 's#MATCHES "17")#MATCHES "17|20|23")#' "$REST_DIR/source/packages/restG4/CMakeLists.txt"
+    info "Relaxed restG4 C++ standard check to allow C++20 (CVMFS Geant4)."
+fi
 
 # =============================================================================
 #  STEP 6 -- Configure and build
@@ -417,7 +517,7 @@ cmake "$REST_DIR" \
     -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_CXX_FLAGS="$GCC_COMPAT_FLAGS" \
-    $CMAKE_LIB_FLAGS
+    $CMAKE_LIB_FLAGS $CMAKE_EXTRA_FLAGS
 
 echo ""
 info "Building REST with $NJOBS parallel jobs..."
@@ -447,7 +547,6 @@ echo ""
 #  STEP 8 -- Optional: add to .bashrc
 # =============================================================================
 sep
-# Flush any leftover input from the build output before asking
 # Flush leftover keystrokes only when running interactively
 [[ -t 0 ]] && { read -r -t 0.1 -n 10000 discard 2>/dev/null || true; }
 ask "How do you want to set up your ~/.bashrc?"
@@ -462,52 +561,54 @@ BASHRC_CHOICE="${BASHRC_CHOICE:-1}"
 
 case "$BASHRC_CHOICE" in
     1|2)
+        # ENV_LINES (set in STEP 2) loads the dependency environment for the
+        # chosen mode. Full setup also sources the local REST; system-only
+        # leaves it commented for the user to enable manually.
         if [[ "$BASHRC_CHOICE" == "1" ]]; then
-            # Full setup: system env + local REST
-            if [[ "$INSTALL_MODE" == "1" ]]; then
-                BASHRC_BLOCK="
-# -- REST-for-Physics ---------------------------------------------------------
-source \"$SYSTEM_THIS_REST\"   # loads system ROOT / Geant4 / Garfield
-source \"$INSTALL_DIR/thisREST.sh\"   # your local REST install
-# -----------------------------------------------------------------------------"
-            else
-                BASHRC_BLOCK="
-# -- REST-for-Physics ---------------------------------------------------------
-source \"$ROOT_THISROOT\"
-source \"$GEANT4_SH\"
-source \"$GARFIELD_SETUP\"
-source \"$INSTALL_DIR/thisREST.sh\"   # your local REST install
-# -----------------------------------------------------------------------------"
+            LOCAL_LINE="source $INSTALL_DIR/thisREST.sh   # your local REST install"
+            # On NAF $HOME is AFS (not writable in-session); REST stores its
+            # .rest dir under $REST_HOME, which thisREST.sh sets to $HOME -- so
+            # override it AFTER sourcing, to a writable path.
+            if [[ "$INSTALL_MODE" == "3" ]]; then
+                LOCAL_LINE="$LOCAL_LINE
+export REST_HOME=$REST_DIR   # REST .rest dir on writable disk (AFS \$HOME is not writable)"
             fi
             CHECK_LINE="$INSTALL_DIR/thisREST.sh"
         else
-            # System only
-            if [[ "$INSTALL_MODE" == "1" ]]; then
-                BASHRC_BLOCK="
-# -- REST-for-Physics ---------------------------------------------------------
-source \"$SYSTEM_THIS_REST\"   # loads system ROOT / Geant4 / Garfield
-# source \"$INSTALL_DIR/thisREST.sh\"   # uncomment to use your local REST build
-# -----------------------------------------------------------------------------"
-            else
-                BASHRC_BLOCK="
-# -- REST-for-Physics ---------------------------------------------------------
-source \"$ROOT_THISROOT\"
-source \"$GEANT4_SH\"
-source \"$GARFIELD_SETUP\"
-# source \"$INSTALL_DIR/thisREST.sh\"   # uncomment to use your local REST build
-# -----------------------------------------------------------------------------"
-            fi
+            LOCAL_LINE="# source $INSTALL_DIR/thisREST.sh   # uncomment to use your local REST build"
             CHECK_LINE="REST-for-Physics"
             info "Your local REST is installed at: $INSTALL_DIR/thisREST.sh"
             info "Source it manually any time you want to switch to your local build."
         fi
 
-        # Avoid duplicate entries
-        if grep -qF "$CHECK_LINE" ~/.bashrc 2>/dev/null; then
-            warn "~/.bashrc already contains a REST entry -- skipping."
+        BASHRC_BLOCK="
+# -- REST-for-Physics ---------------------------------------------------------
+$ENV_LINES
+$LOCAL_LINE
+# -----------------------------------------------------------------------------"
+
+        # The REST block goes in ~/.bashrc (canonical for interactive shells).
+        RC_FILE="$HOME/.bashrc"
+        if grep -qF "$CHECK_LINE" "$RC_FILE" 2>/dev/null; then
+            warn "$RC_FILE already contains a REST entry -- skipping."
         else
-            echo "$BASHRC_BLOCK" >> ~/.bashrc
-            success "Added to ~/.bashrc."
+            echo "$BASHRC_BLOCK" >> "$RC_FILE"
+            success "Added REST setup to $RC_FILE."
+        fi
+
+        # Login shells (e.g. SSH on NAF) read a profile file, NOT ~/.bashrc, so
+        # make sure the login profile sources ~/.bashrc -- otherwise REST would
+        # not load on login. (Ubuntu's default ~/.profile already does this.)
+        LOGIN_FILE=""
+        for f in "$HOME/.bash_profile" "$HOME/.bash_login" "$HOME/.profile"; do
+            [[ -f "$f" ]] && { LOGIN_FILE="$f"; break; }
+        done
+        [[ -z "$LOGIN_FILE" ]] && LOGIN_FILE="$HOME/.bash_profile"  # none exists: create standard one
+        if grep -q '\.bashrc' "$LOGIN_FILE" 2>/dev/null; then
+            info "$LOGIN_FILE already sources ~/.bashrc."
+        else
+            printf '\n# Source ~/.bashrc for login shells (added by REST installer)\n[ -f ~/.bashrc ] && . ~/.bashrc\n' >> "$LOGIN_FILE"
+            success "Updated $LOGIN_FILE to source ~/.bashrc (needed for login shells, e.g. SSH)."
         fi
 
         # ROOT browser fix
@@ -541,8 +642,12 @@ echo -e "${RESET}"
 echo "  To activate REST (if not already in your ~/.bashrc):"
 if [[ "$INSTALL_MODE" == "1" ]]; then
     echo "    source $SYSTEM_THIS_REST   # system ROOT/Geant4/Garfield"
+elif [[ "$INSTALL_MODE" == "3" ]]; then
+    echo "    source $LCG_VIEW_SETUP   # CVMFS ROOT/Geant4/Garfield"
+    [[ -n "$GARFIELD_HOME" ]] && echo "    export GARFIELD_HOME=$GARFIELD_HOME"
 fi
 echo "    source $INSTALL_DIR/thisREST.sh   # your local REST build"
+[[ "$INSTALL_MODE" == "3" ]] && echo "    export REST_HOME=$REST_DIR   # REST .rest dir (AFS \$HOME is not writable)"
 echo ""
 echo "  Quick test:    restRoot"
 echo "  Docs:          https://rest-for-physics.github.io"
