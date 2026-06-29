@@ -70,8 +70,8 @@ On clusters where `$HOME` is on AFS (not writable in-session), the script sets
 - **Install directory** -- where REST source and build will live (default: `~/rest`)
 - **Libraries** -- all, a common subset, or pick individually
 - **Garfield++ / Geant4 integration** -- enable or disable
-- **Submodule strategy** -- latest commits (default) or framework-pinned versions
-  (pick pinned if a latest build fails to compile)
+- **Submodule strategy** -- `--latest` commits (default) or the `--clean`
+  framework-recorded versions (pick `--clean` if a latest build fails to compile)
 - **Parallel jobs** -- capped at 16 for shared-server politeness
 
 ## Individual scripts (legacy)
