@@ -340,26 +340,6 @@ else ()
 
 endif ()
 
-if (CMAKE_SYSTEM_NAME MATCHES "Darwin") # we must call library install here in
-    # MacOs
-    foreach (lib ${rest_libraries})
-        install(
-            TARGETS ${lib}
-            RUNTIME DESTINATION bin
-            LIBRARY DESTINATION bin
-            ARCHIVE DESTINATION lib)
-    endforeach ()
-
-    foreach (exe ${rest_exes})
-        install(
-            TARGETS ${exe}
-            RUNTIME DESTINATION bin
-            LIBRARY DESTINATION bin
-            ARCHIVE DESTINATION lib)
-    endforeach ()
-
-endif ()
-
 # Copy pcm files
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
