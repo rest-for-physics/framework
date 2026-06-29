@@ -392,13 +392,15 @@ echo ""
 # =============================================================================
 sep
 ask "How do you want to pull REST submodules?"
-echo "  1) --latest   Pull the latest commit from each submodule branch"
-echo "               (may occasionally be incompatible but stays up to date)"
-echo "  2) (default)  Use the version recorded in the framework repository"
-echo "               (safer, guaranteed compatible)"
+echo "  1) (default)  --latest -- pull the latest commit from each submodule"
+echo "                branch (newest features; may occasionally be momentarily"
+echo "                incompatible across submodules)"
+echo "  2) Pinned     use the versions recorded in the framework repository"
+echo "                (reproducible / guaranteed compatible -- try this if"
+echo "                option 1 fails to build)"
 echo ""
-read -rp "Enter choice [1/2, default: 2]: " SUB_CHOICE
-SUB_CHOICE="${SUB_CHOICE:-2}"
+read -rp "Enter choice [1/2, default: 1]: " SUB_CHOICE
+SUB_CHOICE="${SUB_CHOICE:-1}"
 
 # =============================================================================
 #  STEP 5 -- Clone / update REST framework
