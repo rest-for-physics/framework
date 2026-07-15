@@ -136,13 +136,14 @@ ${loadLCG}
 
 \# check active shell by checking for existence of _VERSION variable
 if [[ -n \\\"\\\${BASH_VERSION}\\\" ]]; then
-    thisdir=\\\$(cd \\\$(dirname \\\${BASH_ARGV[0]}); pwd)
+    thisfile=\\\${BASH_SOURCE[0]}
 elif [[ -n \\\"\\\${ZSH_VERSION}\\\" ]]; then
-    thisdir=\\\$(cd \\\$(dirname \\\$0); pwd)
+    thisfile=\\\${(%):-%x}
 else
     echo \\\"Invalid shell! Either source with bash or zsh!\\\"
     return 1
 fi
+thisdir=\\\$(cd \\\"\\\$(dirname \\\"\\\${thisfile}\\\")\\\"; pwd)
 
 \# if thisroot.sh script is found we load the same ROOT version as used in compilation
 if [[ -f \\\"${thisROOT}\\\" ]]; then

@@ -61,8 +61,15 @@
 /// before checking if it is within the time ranges.
 /// * **startMarginTimeInSeconds**: margin time in seconds to be added to the start time of the time ranges
 /// (default is 0). This is useful to consider the events that are close to the start time of the time ranges.
+/// Meant to be a positive number, as the process will take care of adding or subtracting it if the time
+/// ranges represent active or dead periods of time respectively.
 /// * **endMarginTimeInSeconds**: margin time in seconds to be subtracted from the end time of the time ranges
 /// (default is 0). This is useful to consider the events that are close to the end time of the time ranges.
+/// Meant to be a positive number, as the process will take care of subtracting or adding it if the time
+/// ranges represent active or dead periods of time respectively.
+///* **useRunStartAndEndTimes**: if `true` (default) the start and end times of the TRestRun
+/// will be used to restrict the time ranges to those involved (those that are between the run start and end
+/// times).
 ///
 /// ### Observables
 /// The process does not produce event observables but it keeps track of the number of events selected and
@@ -131,6 +138,7 @@ void TRestEventTimeSelectionProcess::Initialize() {
     fTimeOffsetInSeconds = 0;
     fTimeStartMarginInSeconds = 0;
     fTimeEndMarginInSeconds = 0;
+    fUseRunStartAndEndTimes = true;
     fNEventsRejected = 0;
     fNEventsSelected = 0;
     fTotalTimeInSeconds = 0;
@@ -145,14 +153,25 @@ void TRestEventTimeSelectionProcess::InitProcess() {
     if (!fFileWithTimes.empty()) {
         fStartEndTimes = ReadFileWithTimes(fFileWithTimes, fDelimiter);
     }
+    if (fUseRunStartAndEndTimes) {
+        TRestRun* run = GetRunInfo();
+        if (run) {
+            auto startTimeStamp = run->GetStartTimestamp();
+            auto endTimeStamp = run->GetEndTimestamp();
+            ApplyStartRunTime(startTimeStamp);
+            ApplyEndRunTime(endTimeStamp);
+        } else {
+            RESTWarning << "No run information available to get TRestRun start and end times." << RESTendl;
+        }
+    }
     fTotalTimeInSeconds = CalculateTotalTimeInSeconds();
     fNEventsRejected = 0;
     fNEventsSelected = 0;
 }
 
-std::vector<std::pair<std::string, std::string>> TRestEventTimeSelectionProcess::ReadFileWithTimes(
-    std::string fileWithTimes, Char_t delimiter) {
-    std::vector<std::pair<std::string, std::string>> startEndTimes;
+std::vector<Interval> TRestEventTimeSelectionProcess::ReadFileWithTimes(std::string fileWithTimes,
+                                                                        Char_t delimiter) {
+    std::vector<Interval> startEndTimes;
     string line;
     ifstream file(fileWithTimes);
     if (file.is_open()) {
@@ -169,12 +188,17 @@ std::vector<std::pair<std::string, std::string>> TRestEventTimeSelectionProcess:
                 if (StringToTimeStamp(startDate) < 0 || StringToTimeStamp(endDate) < 0) {
                     continue;
                 }
-
-                startEndTimes.emplace_back(startDate, endDate);
+                TTimeStamp sts = StringToTimeStamp(startDate);
+                TTimeStamp ets = StringToTimeStamp(endDate);
+                startEndTimes.emplace_back(sts, ets);
             }
         }
         file.close();
     }
+
+    // sort by start time and then by end time (lexicographically)
+    std::sort(startEndTimes.begin(), startEndTimes.end());
+
     return startEndTimes;
 }
 
@@ -185,15 +209,15 @@ std::vector<std::pair<std::string, std::string>> TRestEventTimeSelectionProcess:
 ///
 Double_t TRestEventTimeSelectionProcess::CalculateTotalTimeInSeconds() {
     Double_t totalTime = 0;
-    for (auto id : fStartEndTimes) {
-        TTimeStamp startTime = TTimeStamp(StringToTimeStamp(id.first), 0);
-        TTimeStamp endTime = TTimeStamp(StringToTimeStamp(id.second), 0);
+    for (auto se : fStartEndTimes) {
+        TTimeStamp startTime = se.first;
+        TTimeStamp endTime = se.second;
         // Reduce the time by the margin in both sides
         startTime.Add(TTimeStamp(fTimeStartMarginInSeconds));
         endTime.Add(TTimeStamp(-fTimeEndMarginInSeconds));
         auto timeDiff = endTime.AsDouble() - startTime.AsDouble();
         if (timeDiff < 0) {
-            RESTDebug << "End time is before start time in time range: " << id.first << " to " << id.second
+            RESTDebug << "End time is before start time in time range: " << se.first << " to " << se.second
                       << RESTendl;
             continue;
         }
@@ -212,12 +236,19 @@ TRestEvent* TRestEventTimeSelectionProcess::ProcessEvent(TRestEvent* inputEvent)
     eventTime.Add(TTimeStamp(fTimeOffsetInSeconds));
 
     Bool_t isInsideAnyTimeRange = false;
-    for (auto id : fStartEndTimes) {
-        TTimeStamp startTime = TTimeStamp(StringToTimeStamp(id.first), 0);
-        TTimeStamp endTime = TTimeStamp(StringToTimeStamp(id.second), 0);
-        // Reduce the time by the margin in both sides
-        startTime.Add(TTimeStamp(fTimeStartMarginInSeconds));
-        endTime.Add(TTimeStamp(-fTimeEndMarginInSeconds));
+    for (auto se : fStartEndTimes) {
+        TTimeStamp startTime = se.first;
+        TTimeStamp endTime = se.second;
+        if (fIsActiveTime) {
+            // Reduce the active time window by the margin in both sides
+            startTime.Add(TTimeStamp(fTimeStartMarginInSeconds));
+            endTime.Add(TTimeStamp(-fTimeEndMarginInSeconds));
+        } else {
+            // Increase the dead time window by the margin in both sides
+            startTime.Add(TTimeStamp(-fTimeStartMarginInSeconds));
+            endTime.Add(TTimeStamp(fTimeEndMarginInSeconds));
+        }
+
         if (eventTime >= startTime && eventTime <= endTime) {
             isInsideAnyTimeRange = true;
             break;
@@ -251,6 +282,63 @@ void TRestEventTimeSelectionProcess::EndProcess() {
     // Write here the jobs to do when all the events are processed
 }
 
+void TRestEventTimeSelectionProcess::ApplyStartRunTime(const TTimeStamp& runStart) {
+    size_t startIndex = 0;
+    bool isInsideTimeRange = false;
+    for (auto se : fStartEndTimes) {
+        TTimeStamp s = se.first;
+        TTimeStamp e = se.second;
+
+        if (runStart < s) {
+            isInsideTimeRange = false;
+            break;
+        }
+
+        if (runStart >= s && runStart <= e) {
+            isInsideTimeRange = true;
+            break;
+        }
+
+        startIndex++;
+    }
+
+    if (isInsideTimeRange) {
+        // modify the start time of the found interval
+        fStartEndTimes[startIndex].first = runStart;
+    }
+    // remove all intervals before the run start time
+    fStartEndTimes.erase(fStartEndTimes.begin(), fStartEndTimes.begin() + startIndex);
+}
+
+void TRestEventTimeSelectionProcess::ApplyEndRunTime(const TTimeStamp& runEnd) {
+    size_t endIndex = 0;
+    bool isInsideTimeRange = false;
+    for (auto se : fStartEndTimes) {
+        TTimeStamp s = se.first;
+        TTimeStamp e = se.second;
+
+        if (runEnd < s) {
+            isInsideTimeRange = false;
+            break;
+        }
+
+        if (runEnd >= s && runEnd <= e) {
+            isInsideTimeRange = true;
+            break;
+        }
+
+        endIndex++;
+    }
+
+    if (isInsideTimeRange) {
+        // modify the end time of the found interval
+        fStartEndTimes[endIndex].second = runEnd;
+        endIndex++;  // to erase from the next interval
+    }
+    // remove all intervals after the run end time
+    fStartEndTimes.erase(fStartEndTimes.begin() + endIndex, fStartEndTimes.end());
+}
+
 ///////////////////////////////////////////////
 /// \brief Function to get the cut string that reproduce the time selection
 /// done by this process (useful for TRestDataSet::MakeCut() for example).
@@ -272,14 +360,21 @@ std::string TRestEventTimeSelectionProcess::GetTimeStampCut(std::string timeStam
     }
     if (nTimes < 0) nTimes = fStartEndTimes.size();
     Int_t c = 0;
-    for (auto id : fStartEndTimes) {
+    for (auto se : fStartEndTimes) {
         if (c++ >= nTimes) break;
-        auto startTime = StringToTimeStamp(id.first);
-        auto endTime = StringToTimeStamp(id.second);
+        auto startTime = se.first;
+        auto endTime = se.second;
         // Reduce the time by the margin in both sides
         if (useMargins) {
-            startTime += fTimeStartMarginInSeconds;
-            endTime -= fTimeEndMarginInSeconds;
+            if (fIsActiveTime) {
+                // Reduce the active time window by the margin in both sides
+                startTime.Add(fTimeStartMarginInSeconds);
+                endTime.Add(-fTimeEndMarginInSeconds);
+            } else {
+                // Increase the dead time window by the margin in both sides
+                startTime.Add(-fTimeStartMarginInSeconds);
+                endTime.Add(fTimeEndMarginInSeconds);
+            }
         }
 
         if (startTime >= endTime) {
@@ -312,21 +407,22 @@ void TRestEventTimeSelectionProcess::PrintMetadata() {
 
     RESTMetadata << "File with times: " << fFileWithTimes << RESTendl;
     // print periods
+    RESTMetadata << "Use run start and end: " << (fUseRunStartAndEndTimes ? "true" : "false") << RESTendl;
     RESTMetadata << "Offset time: " << fTimeOffsetInSeconds << " seconds" << RESTendl;
     RESTMetadata << "Start margin time: " << fTimeStartMarginInSeconds << " seconds" << RESTendl;
     RESTMetadata << "End margin time: " << fTimeEndMarginInSeconds << " seconds" << RESTendl;
     RESTMetadata << typeOfTime << " time periods: " << RESTendl;
-    for (auto id : fStartEndTimes) {
-        RESTMetadata << id.first << " to " << id.second << RESTendl;
-        TTimeStamp startTime = TTimeStamp(StringToTimeStamp(id.first), 0);
-        TTimeStamp endTime = TTimeStamp(StringToTimeStamp(id.second), 0);
+    for (auto se : fStartEndTimes) {
+        std::string startStr = ToDateTimeString(se.first);
+        std::string endStr = ToDateTimeString(se.second);
+        RESTMetadata << startStr << " to " << endStr << RESTendl;
     }
 
     // Get total time in seconds
     TTimeStamp totalTime = TTimeStamp(fTotalTimeInSeconds, 0);
     if (!fStartEndTimes.empty()) {
-        TTimeStamp firstTime = TTimeStamp(StringToTimeStamp(fStartEndTimes.front().first), 0);
-        TTimeStamp lastTime = TTimeStamp(StringToTimeStamp(fStartEndTimes.back().second), 0);
+        TTimeStamp firstTime = fStartEndTimes.front().first;
+        TTimeStamp lastTime = fStartEndTimes.back().second;
         totalTime = lastTime - firstTime;
     }
 

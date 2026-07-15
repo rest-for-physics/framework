@@ -213,6 +213,8 @@ void TRestDataSetGainMap::GenerateGainMap() {
 /// \brief Function to calibrate a dataset with this gain map.
 ///
 /// \param dataSetFileName the name of the root file where the TRestDataSet to be calibrated is stored.
+/// If the file is not a TRestDataSet, it will be treated as a file pattern for several TRestRun files
+/// to generate a temporary TRestDataSet with the needed observables.
 /// \param outputFileName the name of the output (root) file where the calibrated TRestDataSet will be
 /// exported. If empty, the output file will be named as the input file plus the name of the
 /// TRestDataSetGainMap. E.g. "data/myDataSet.root" -> "data/myDataSet_<gmName>.root".
@@ -230,7 +232,17 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
 
     TRestDataSet dataSet;
     dataSet.EnableMultiThreading(true);
-    dataSet.Import(dataSetFileName);
+
+    if (TRestTools::isDataSet(dataSetFileName)) {
+        dataSet.Import(dataSetFileName);
+    } else {
+        RESTWarning << dataSetFileName << " is not a dataset. Generating a temporal one..." << RESTendl;
+        // generate the dataset with the needed observables
+        dataSet.SetFilePattern(dataSetFileName);
+        dataSet.SetObservablesList({"*"});  // get all observables
+        dataSet.GenerateDataSet();
+    }
+
     auto dataFrame = dataSet.GetDataFrame();
 
     // Define a new column with the identifier (pmID) of the module for each row (event)
@@ -294,17 +306,9 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
     }
 
     // Export dataset. Exclude columns if requested.
-    std::set<std::string> excludeCol;  // vector with the explicit column names to be excluded
     auto columns = dataSet.GetDataFrame().GetColumnNames();
-    // Get the columns to be excluded from the list of columns. It accepts wildcards "*" and "?"
-    for (auto& eC : excludeColumns) {
-        if (eC.find("*") != std::string::npos || eC.find("?") != std::string::npos) {
-            for (auto& c : columns)
-                if (MatchString(c, eC)) excludeCol.insert(c);
-        } else if (std::find(columns.begin(), columns.end(), eC) != columns.end())
-            excludeCol.insert(eC);
-    }
-    // Remove the calibObsName, calibObsNameFullSpc and pmIDname from the list of columns to be excluded
+    std::set<std::string> excludeCol = TRestTools::GetMatchingStrings(columns, excludeColumns);
+    // Never exclude the calibObsName, calibObsNameFullSpc and pmIDname
     excludeCol.erase(calibObsName);
     excludeCol.erase(calibObsNameFullSpc);
     excludeCol.erase(pmIDname);

@@ -17,8 +17,8 @@
 
     <TRestAnalysisPlot name="CalToBackComp" title="Calibration and background comparison" previewPlot="false" verboseLevel="info">
 
-		<addFile name="https://sultan.unizar.es/rest_pipeline/v2.3.8_${RUN1}.root"/>
-		<addFile name="https://sultan.unizar.es/rest_pipeline/v2.3.8_${RUN2}.root"/>
+		<addFile name="v2.3.8_${RUN1}.root"/>
+		<addFile name="v2.3.8_${RUN2}.root"/>
 
 		<canvas size="(800,600)" divide="(1,1)" save="/tmp/canvas.root" />
 

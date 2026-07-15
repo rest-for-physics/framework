@@ -269,10 +269,18 @@ jobs:
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/analysisPlot/
           restManager --c summary.rml --f ../trex/Hits_01928.root
+      - name: Import sultan certificates
+        run: |
+          openssl s_client -connect sultan.unizar.es:443 -showcerts < /dev/null > cert.pem
+          cp cert.pem /usr/local/share/ca-certificates/custom-cert.crt
+          update-ca-certificates
       - name: AnalysisPlot2
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
           cd framework/pipeline/analysisPlot/
+          echo "Downloading files from sultan"
+          wget -nv https://sultan.unizar.es/rest_pipeline/v2.3.8_10852.root
+          wget -nv https://sultan.unizar.es/rest_pipeline/v2.3.8_10964.root
           restManager --batch --c classify.rml
           restRoot -b -q ValidateClassify.C
 
