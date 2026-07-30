@@ -57,6 +57,44 @@ EXTERN_DEF std::string REST_USER_PATH;
 EXTERN_DEF std::string REST_TMP_PATH;
 EXTERN_DEF std::map<std::string, std::string> REST_ARGS;
 
+class TFile;
+
+enum class TRestRootFileMode { Read, Recreate, Update };
+
+/// Move-only owner for ROOT files opened by REST.
+///
+/// UPDATE mode preserves the complete on-disk StreamerInfo record before the
+/// writable file is exposed. A failed open or preservation produces an invalid
+/// handle, queryable through operator bool() and Error().
+class TRestRootFileHandle {
+   private:
+    std::unique_ptr<TFile> fFile;
+    std::string fError;
+
+   public:
+    TRestRootFileHandle() = default;
+    static TRestRootFileHandle Open(const std::string& filename, TRestRootFileMode mode);
+
+    TRestRootFileHandle(const TRestRootFileHandle&) = delete;
+    TRestRootFileHandle& operator=(const TRestRootFileHandle&) = delete;
+    TRestRootFileHandle(TRestRootFileHandle&& other) noexcept;
+    TRestRootFileHandle& operator=(TRestRootFileHandle&& other) noexcept;
+    ~TRestRootFileHandle();
+
+    explicit operator bool() const noexcept { return fFile != nullptr; }
+    TFile* Get() const noexcept { return fFile.get(); }
+    TFile* operator->() const noexcept { return fFile.get(); }
+    TFile& operator*() const noexcept { return *fFile; }
+    const std::string& Error() const noexcept { return fError; }
+
+    bool Close() noexcept;
+
+    /// Validate an already-owned READ file, then transition it safely to UPDATE.
+    ///
+    /// The file remains read-only when validation fails before ReOpen.
+    static bool PrepareBorrowedUpdate(TFile& file, std::string* error = nullptr);
+};
+
 /// A generic class with useful static methods.
 class TRestTools {
    public:
@@ -121,6 +159,27 @@ class TRestTools {
     static bool isRunFile(const std::string& filename);
     static bool isDataSet(const std::string& filename);
     static bool isURL(const std::string& filename);
+    static bool IsRemoteRootPath(const std::string& filename);
+
+    /// Merge into a same-directory temporary ROOT file and replace the local
+    /// destination only after the merge and StreamerInfo validation succeed.
+    ///
+    /// `existingTarget`, when non-empty, is added as the first input. Remote
+    /// inputs are supported by ROOT, but `outputFile` must resolve to a local
+    /// file URL/path. Local `inputFiles` are removed only after a successful
+    /// replacement when `removeInputsOnSuccess` is true.
+    static bool MergeRootFilesTransactionally(const std::string& outputFile,
+                                              const std::vector<std::string>& inputFiles,
+                                              const std::string& existingTarget = "",
+                                              bool removeInputsOnSuccess = true,
+                                              std::string* error = nullptr);
+
+#ifdef REST_TESTING_ENABLED
+    /// Force the next transactional merge to fail its post-replacement
+    /// validation so tests can exercise rollback of an already-replaced file.
+    static void ForceNextTransactionalMergeValidationFailureForTesting();
+#endif
+
     static bool isPathWritable(const std::string& path);
     static bool isAbsolutePath(const std::string& path);
     static std::string RemoveMultipleSlash(std::string);

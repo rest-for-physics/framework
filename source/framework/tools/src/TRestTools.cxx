@@ -43,10 +43,20 @@
 ///
 #include "TRestTools.h"
 
+#include <TArrayC.h>
 #include <TClass.h>
+#include <TDirectory.h>
 #include <TFile.h>
+#include <TFileMerger.h>
 #include <TKey.h>
+#include <TList.h>
+#include <TObjString.h>
+#include <TSchemaRule.h>
+#include <TSchemaRuleSet.h>
+#include <TStreamerInfo.h>
 #include <TSystem.h>
+#include <TTree.h>
+#include <TUUID.h>
 #include <TUrl.h>
 
 #include <regex>
@@ -57,7 +67,10 @@
 
 #ifdef WIN32
 #include <io.h>
+#include <windows.h>
 #else
+#include <sys/stat.h>
+
 #include "unistd.h"
 #endif  // !WIN32
 
@@ -65,17 +78,571 @@
 #include <array>
 #endif
 
+#include <atomic>
+#include <cerrno>
 #include <chrono>
+#include <cstring>
 #include <filesystem>
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <thread>
+#include <tuple>
 
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
 
 using namespace std;
+
+namespace {
+#ifdef REST_TESTING_ENABLED
+std::atomic_bool gForceNextMergeValidationFailure{false};
+#endif
+
+struct StreamerInfoIdentity {
+    std::string name;
+    Int_t version;
+    UInt_t checksum;
+
+    bool operator<(const StreamerInfoIdentity& other) const {
+        return std::tie(name, version, checksum) < std::tie(other.name, other.version, other.checksum);
+    }
+};
+
+struct RootSchemaSnapshot {
+    std::set<StreamerInfoIdentity> streamerInfos;
+    std::set<std::string> schemaRules;
+};
+
+struct RootContentEntry {
+    std::string className;
+    std::optional<Long64_t> treeEntries;
+};
+
+using RootContentManifest = std::map<std::string, RootContentEntry>;
+
+struct LocalFileIdentity {
+    std::uintmax_t size;
+    std::filesystem::file_time_type modificationTime;
+#ifndef WIN32
+    std::uintmax_t device;
+    std::uintmax_t inode;
+#endif
+
+    bool operator==(const LocalFileIdentity& other) const {
+        return size == other.size && modificationTime == other.modificationTime
+#ifndef WIN32
+               && device == other.device && inode == other.inode
+#endif
+            ;
+    }
+};
+
+std::optional<std::filesystem::path> LocalRootPath(const std::string& filename) {
+    TUrl url(filename.c_str(), kTRUE);
+    if (!url.IsValid() || std::string(url.GetProtocol()) != "file") return std::nullopt;
+    return std::filesystem::path(url.GetFile());
+}
+
+std::optional<LocalFileIdentity> CaptureLocalFileIdentity(const std::filesystem::path& path,
+                                                          std::string& error) {
+    std::error_code ec;
+    LocalFileIdentity identity;
+    identity.size = std::filesystem::file_size(path, ec);
+    if (ec) {
+        error = "Cannot inspect size of " + path.string() + ": " + ec.message();
+        return std::nullopt;
+    }
+    identity.modificationTime = std::filesystem::last_write_time(path, ec);
+    if (ec) {
+        error = "Cannot inspect modification time of " + path.string() + ": " + ec.message();
+        return std::nullopt;
+    }
+#ifndef WIN32
+    struct stat status{};
+    if (::stat(path.c_str(), &status) != 0) {
+        error = "Cannot inspect filesystem identity of " + path.string() + ": " + std::strerror(errno);
+        return std::nullopt;
+    }
+    identity.device = static_cast<std::uintmax_t>(status.st_dev);
+    identity.inode = static_cast<std::uintmax_t>(status.st_ino);
+#endif
+    return identity;
+}
+
+std::string NormalizeSchemaRule(const std::string& rule, std::string* targetClass = nullptr) {
+    ROOT::TSchemaRule parsed;
+    if (!parsed.SetFromRule(rule.c_str())) return "";
+    TString normalized;
+    parsed.AsString(normalized);
+    if (targetClass != nullptr) *targetClass = parsed.GetTargetClass();
+    return normalized.Data();
+}
+
+bool ReadSchemaSnapshot(TFile& file, RootSchemaSnapshot& snapshot, std::string& error) {
+    if (!file.IsOpen() || file.IsZombie()) {
+        error = "Cannot inspect StreamerInfos in a closed or invalid ROOT file";
+        return false;
+    }
+    if (file.GetSeekInfo() == 0) return true;
+
+    std::unique_ptr<TList> infos(file.GetStreamerInfoList());
+    if (infos == nullptr) {
+        error = "ROOT could not read the existing StreamerInfo record";
+        return false;
+    }
+    infos->SetOwner(kTRUE);
+
+    TIter next(infos.get());
+    while (TObject* object = next()) {
+        if (auto* info = dynamic_cast<TStreamerInfo*>(object)) {
+            snapshot.streamerInfos.insert({info->GetName(), info->GetClassVersion(), info->GetCheckSum()});
+            continue;
+        }
+
+        auto* rules = dynamic_cast<TList*>(object);
+        if (rules == nullptr || std::string(rules->GetName()) != "listOfRules") continue;
+        TIter nextRule(rules);
+        while (TObject* ruleObject = nextRule()) {
+            auto* rule = dynamic_cast<TObjString*>(ruleObject);
+            if (rule == nullptr) continue;
+            const std::string normalized = NormalizeSchemaRule(rule->GetString().Data());
+            if (normalized.empty()) {
+                error = "The on-disk StreamerInfo contains an invalid schema rule";
+                return false;
+            }
+            snapshot.schemaRules.insert(normalized);
+        }
+    }
+    return true;
+}
+
+bool IsSubset(const RootSchemaSnapshot& expected, const RootSchemaSnapshot& actual, std::string& error) {
+    for (const auto& info : expected.streamerInfos) {
+        if (actual.streamerInfos.count(info) == 0) {
+            error = "Merged file lost StreamerInfo " + info.name + " version " +
+                    std::to_string(info.version) + " checksum " + std::to_string(info.checksum);
+            return false;
+        }
+    }
+    for (const auto& rule : expected.schemaRules) {
+        if (actual.schemaRules.count(rule) == 0) {
+            error = "Merged file lost an on-disk schema-evolution rule";
+            return false;
+        }
+    }
+    return true;
+}
+
+bool ReadContentManifest(TDirectory& directory, const std::string& prefix, RootContentManifest& manifest,
+                         std::string& error) {
+    TDirectory::TContext directoryContext(&directory);
+    std::map<std::string, TKey*> newestKeys;
+    TIter nextKey(directory.GetListOfKeys());
+    while (auto* key = dynamic_cast<TKey*>(nextKey())) {
+        auto existing = newestKeys.find(key->GetName());
+        if (existing == newestKeys.end() || key->GetCycle() > existing->second->GetCycle())
+            newestKeys[key->GetName()] = key;
+    }
+
+    for (const auto& [name, key] : newestKeys) {
+        const std::string path = prefix.empty() ? name : prefix + "/" + name;
+        RootContentEntry entry{key->GetClassName(), std::nullopt};
+        TClass* keyClass = TClass::GetClass(key->GetClassName(), kFALSE);
+        const bool isDirectory = keyClass != nullptr && keyClass->InheritsFrom(TDirectory::Class());
+        const bool isTree = keyClass != nullptr && keyClass->InheritsFrom(TTree::Class());
+
+        if (isDirectory || isTree) {
+            std::unique_ptr<TObject> object(key->ReadObj());
+            if (object == nullptr) {
+                error =
+                    "Cannot read " + std::string(isDirectory ? "directory" : "tree") + " key '" + path + "'";
+                return false;
+            }
+            if (isDirectory) {
+                auto* child = dynamic_cast<TDirectory*>(object.get());
+                if (child == nullptr) {
+                    error = "Key '" + path + "' claims directory class '" + entry.className +
+                            "' but ROOT read a different object";
+                    return false;
+                }
+                manifest[path] = entry;
+                if (!ReadContentManifest(*child, path, manifest, error)) return false;
+                continue;
+            }
+
+            auto* tree = dynamic_cast<TTree*>(object.get());
+            if (tree == nullptr) {
+                error = "Key '" + path + "' claims tree class '" + entry.className +
+                        "' but ROOT read a different object";
+                return false;
+            }
+            entry.treeEntries = tree->GetEntries();
+        }
+        manifest[path] = entry;
+    }
+    return true;
+}
+
+bool AddContentManifest(const RootContentManifest& source, RootContentManifest& expected,
+                        std::string& error) {
+    for (const auto& [path, sourceEntry] : source) {
+        const auto existing = expected.find(path);
+        if (existing == expected.end()) {
+            expected[path] = sourceEntry;
+            continue;
+        }
+        if (existing->second.className != sourceEntry.className) {
+            error = "ROOT merge input key '" + path + "' has incompatible classes '" +
+                    existing->second.className + "' and '" + sourceEntry.className + "'";
+            return false;
+        }
+        if (existing->second.treeEntries.has_value() != sourceEntry.treeEntries.has_value()) {
+            error = "ROOT merge input key '" + path + "' is inconsistently identified as a TTree";
+            return false;
+        }
+        if (sourceEntry.treeEntries.has_value()) {
+            if (*sourceEntry.treeEntries >
+                std::numeric_limits<Long64_t>::max() - *existing->second.treeEntries) {
+                error = "Merged TTree entry count overflows for key '" + path + "'";
+                return false;
+            }
+            *existing->second.treeEntries += *sourceEntry.treeEntries;
+        }
+    }
+    return true;
+}
+
+bool ValidateContentManifest(const RootContentManifest& expected, const RootContentManifest& actual,
+                             std::string& error) {
+    for (const auto& [path, expectedEntry] : expected) {
+        const auto found = actual.find(path);
+        if (found == actual.end()) {
+            error = "Merged file lost key '" + path + "'";
+            return false;
+        }
+        if (found->second.className != expectedEntry.className) {
+            error = "Merged key '" + path + "' changed class from '" + expectedEntry.className + "' to '" +
+                    found->second.className + "'";
+            return false;
+        }
+        if (expectedEntry.treeEntries.has_value()) {
+            if (!found->second.treeEntries.has_value()) {
+                error = "Merged key '" + path + "' is no longer readable as a TTree";
+                return false;
+            }
+            if (*found->second.treeEntries != *expectedEntry.treeEntries) {
+                error = "Merged TTree '" + path + "' has " + std::to_string(*found->second.treeEntries) +
+                        " entries; expected " + std::to_string(*expectedEntry.treeEntries);
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool LoadOnDiskSchemaRules(const RootSchemaSnapshot& snapshot, std::string& error) {
+    std::map<std::string, std::set<std::string>> rulesByTarget;
+    for (const auto& rule : snapshot.schemaRules) {
+        std::string targetClass;
+        const std::string normalized = NormalizeSchemaRule(rule, &targetClass);
+        if (normalized.empty() || targetClass.empty()) {
+            error = "Cannot parse an on-disk schema-evolution rule";
+            return false;
+        }
+        rulesByTarget[targetClass].insert(normalized);
+    }
+
+    for (const auto& [targetClass, expectedRules] : rulesByTarget) {
+        TClass* cl = TClass::GetClass(targetClass.c_str(), kFALSE);
+        if (cl == nullptr) {
+            error = "Cannot register schema rules for unloaded class " + targetClass;
+            return false;
+        }
+
+        auto registeredRules = [&cl]() {
+            std::set<std::string> result;
+            if (cl->GetSchemaRules() == nullptr) return result;
+            TObjArrayIter nextRule(cl->GetSchemaRules()->GetRules());
+            while (auto* registered = dynamic_cast<ROOT::TSchemaRule*>(nextRule())) {
+                TString serialized;
+                registered->AsString(serialized);
+                result.insert(serialized.Data());
+            }
+            return result;
+        };
+
+        std::set<std::string> actualRules = registeredRules();
+        for (const auto& expected : expectedRules) {
+            if (actualRules.count(expected) != 0) continue;
+
+            bool added = false;
+            if (cl->TestBit(TClass::kIsEmulation)) {
+                auto parsed = std::make_unique<ROOT::TSchemaRule>();
+                if (parsed->SetFromRule(expected.c_str())) {
+                    auto* rules = cl->GetSchemaRules(kTRUE);
+                    added = rules != nullptr &&
+                            rules->AddRule(parsed.get(), ROOT::Detail::TSchemaRuleSet::kNoCheck);
+                    if (added) parsed.release();
+                }
+            } else {
+                added = TClass::AddRule(expected.c_str());
+            }
+            if (!added) {
+                error = "Cannot register an on-disk schema rule for class " + targetClass;
+                return false;
+            }
+            actualRules = registeredRules();
+        }
+        for (const auto& expected : expectedRules) {
+            if (actualRules.count(expected) == 0) {
+                error = "Cannot preserve an on-disk schema rule for class " + targetClass;
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+TStreamerInfo* FindRegisteredStreamerInfo(const StreamerInfoIdentity& identity) {
+    TClass* cl = TClass::GetClass(identity.name.c_str(), kFALSE);
+    if (cl == nullptr) return nullptr;
+
+    const TObjArray* infos = cl->GetStreamerInfos();
+    if (infos == nullptr) return nullptr;
+    for (Int_t index = 0; index < infos->GetEntriesFast(); ++index) {
+        auto* candidate = dynamic_cast<TStreamerInfo*>(infos->UncheckedAt(index));
+        if (candidate == nullptr || candidate->GetCheckSum() != identity.checksum) continue;
+        if (candidate->GetClassVersion() == identity.version ||
+            candidate->GetOnFileClassVersion() == identity.version)
+            return candidate;
+    }
+    return nullptr;
+}
+
+bool ResolveSchemaUpdate(TFile& file, std::vector<Int_t>& numbers, Int_t& maximumNumber, std::string& error) {
+    RootSchemaSnapshot snapshot;
+    if (!ReadSchemaSnapshot(file, snapshot, error) || !LoadOnDiskSchemaRules(snapshot, error)) return false;
+
+    numbers.clear();
+    maximumNumber = 0;
+    for (const auto& identity : snapshot.streamerInfos) {
+        TStreamerInfo* registered = FindRegisteredStreamerInfo(identity);
+        if (registered == nullptr || registered->GetNumber() <= 0) {
+            error = "Cannot preserve StreamerInfo " + identity.name + " version " +
+                    std::to_string(identity.version) + " checksum " + std::to_string(identity.checksum);
+            return false;
+        }
+        numbers.push_back(registered->GetNumber());
+        maximumNumber = std::max(maximumNumber, registered->GetNumber());
+    }
+    return true;
+}
+
+bool ApplySchemaUpdate(TFile& file, const std::vector<Int_t>& numbers, Int_t maximumNumber,
+                       std::string& error) {
+    TArrayC* classIndex = file.GetClassIndex();
+    if (classIndex == nullptr) {
+        error = "ROOT file has no StreamerInfo class index";
+        return false;
+    }
+    if (maximumNumber >= classIndex->GetSize()) classIndex->Set(maximumNumber + 1);
+    for (const Int_t number : numbers) classIndex->fArray[number] = 1;
+    classIndex->fArray[0] = 1;
+    return true;
+}
+
+std::filesystem::path UniqueSiblingPath(const std::filesystem::path& target, const std::string& label) {
+    for (int attempt = 0; attempt < 20; ++attempt) {
+        TString uuid = TUUID().AsString();
+        uuid.ReplaceAll("-", "");
+        auto candidate =
+            target.parent_path() / ("." + target.filename().string() + ".rest-" + label + "-" + uuid.Data());
+        if (!std::filesystem::exists(candidate)) return candidate;
+    }
+    return {};
+}
+
+bool ReplaceLocalFile(const std::filesystem::path& temporary, const std::filesystem::path& target,
+                      const std::filesystem::path& backup, std::string& error) {
+    const bool targetExists = std::filesystem::exists(target);
+#ifdef WIN32
+    if (targetExists) {
+        if (!ReplaceFileW(target.wstring().c_str(), temporary.wstring().c_str(), backup.wstring().c_str(),
+                          REPLACEFILE_WRITE_THROUGH, nullptr, nullptr)) {
+            error = "Windows ReplaceFile failed with error " + std::to_string(GetLastError());
+            return false;
+        }
+    } else if (!MoveFileExW(temporary.wstring().c_str(), target.wstring().c_str(), MOVEFILE_WRITE_THROUGH)) {
+        error = "Windows MoveFileEx failed with error " + std::to_string(GetLastError());
+        return false;
+    }
+#else
+    if (targetExists) {
+        std::error_code ec;
+        std::filesystem::create_hard_link(target, backup, ec);
+        if (ec) {
+            ec.clear();
+            std::filesystem::copy_file(target, backup, std::filesystem::copy_options::none, ec);
+            if (ec) {
+                error = "Cannot create rollback backup " + backup.string() + ": " + ec.message();
+                return false;
+            }
+        }
+    }
+    if (::rename(temporary.c_str(), target.c_str()) != 0) {
+        error = "Atomic rename to " + target.string() + " failed: " + std::strerror(errno);
+        if (targetExists) {
+            std::error_code cleanupError;
+            std::filesystem::remove(backup, cleanupError);
+            if (cleanupError)
+                error += ". REST also could not remove rollback backup '" + backup.string() +
+                         "': " + cleanupError.message();
+        }
+        return false;
+    }
+#endif
+    return true;
+}
+
+bool RollBackLocalFile(const std::filesystem::path& target, const std::filesystem::path& backup,
+                       bool targetPreviouslyExisted, std::string& error) {
+    if (!targetPreviouslyExisted) {
+        std::error_code ec;
+        std::filesystem::remove(target, ec);
+        if (ec) error = "Cannot remove invalid replacement " + target.string() + ": " + ec.message();
+        return !ec;
+    }
+#ifdef WIN32
+    if (!ReplaceFileW(target.wstring().c_str(), backup.wstring().c_str(), nullptr, REPLACEFILE_WRITE_THROUGH,
+                      nullptr, nullptr)) {
+        error = "Cannot roll back " + target.string() + "; Windows error " + std::to_string(GetLastError());
+        return false;
+    }
+#else
+    if (::rename(backup.c_str(), target.c_str()) != 0) {
+        error = "Cannot roll back " + target.string() + ": " + std::strerror(errno);
+        return false;
+    }
+#endif
+    return true;
+}
+}  // namespace
+
+TRestRootFileHandle TRestRootFileHandle::Open(const std::string& filename, TRestRootFileMode mode) {
+    TRestRootFileHandle result;
+    if (mode != TRestRootFileMode::Read && TRestTools::IsRemoteRootPath(filename)) {
+        result.fError = "REST refuses to mutate remote ROOT destination '" + filename +
+                        "'. Choose an explicit local output file.";
+        return result;
+    }
+
+    const char* option = mode == TRestRootFileMode::Read
+                             ? "READ"
+                             : (mode == TRestRootFileMode::Recreate ? "RECREATE" : "READ");
+    result.fFile.reset(TFile::Open(filename.c_str(), option));
+    if (result.fFile == nullptr || !result.fFile->IsOpen() || result.fFile->IsZombie()) {
+        result.fError = "Cannot open ROOT file '" + filename +
+                        (mode == TRestRootFileMode::Update ? "' for read-only UPDATE preflight"
+                                                           : "' in mode " + std::string(option));
+        result.fFile.reset();
+        return result;
+    }
+    if (mode == TRestRootFileMode::Recreate && !result.fFile->IsWritable()) {
+        result.fError = "ROOT file '" + filename + "' is not writable";
+        result.fFile.reset();
+        return result;
+    }
+
+    if (mode == TRestRootFileMode::Update && !PrepareBorrowedUpdate(*result.fFile, &result.fError)) {
+        result.fFile.reset();
+    }
+    return result;
+}
+
+TRestRootFileHandle::TRestRootFileHandle(TRestRootFileHandle&& other) noexcept
+    : fFile(std::move(other.fFile)), fError(std::move(other.fError)) {}
+
+TRestRootFileHandle& TRestRootFileHandle::operator=(TRestRootFileHandle&& other) noexcept {
+    if (this == &other) return *this;
+    Close();
+    fFile = std::move(other.fFile);
+    fError = std::move(other.fError);
+    return *this;
+}
+
+TRestRootFileHandle::~TRestRootFileHandle() { Close(); }
+
+bool TRestRootFileHandle::Close() noexcept {
+    if (fFile == nullptr) return fError.empty();
+    if (fFile->IsOpen()) fFile->Close();
+    const bool success = !fFile->IsZombie() && !fFile->TestBit(TFile::kWriteError);
+    if (!success && fError.empty())
+        fError = "ROOT reported a write error while closing " + std::string(fFile->GetName());
+    fFile.reset();
+    return success;
+}
+
+bool TRestRootFileHandle::PrepareBorrowedUpdate(TFile& file, std::string* error) {
+    std::string localError;
+    if (!file.IsOpen() || file.IsZombie() || file.IsWritable()) {
+        localError = "UPDATE preparation requires a valid TFile that is currently open in READ mode";
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+
+    const std::string filename = file.GetName();
+    if (TRestTools::IsRemoteRootPath(filename)) {
+        localError = "REST refuses to mutate remote ROOT destination '" + filename +
+                     "'. Choose an explicit local output file.";
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+
+    std::vector<Int_t> numbers;
+    Int_t maximumNumber = 0;
+    if (!ResolveSchemaUpdate(file, numbers, maximumNumber, localError)) {
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+
+    const auto localPath = LocalRootPath(filename);
+    if (!localPath) {
+        localError = "Cannot resolve local ROOT path '" + filename + "'";
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+    const std::string uuidBefore = file.GetUUID().AsString();
+    const auto identityBefore = CaptureLocalFileIdentity(*localPath, localError);
+    if (!identityBefore) {
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+
+    if (file.ReOpen("UPDATE") != 0 || !file.IsWritable()) {
+        localError = "ROOT could not transition '" + filename + "' from the validated READ handle to UPDATE";
+        if (file.IsWritable()) file.SetWritable(kFALSE);
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+
+    const auto identityAfter = CaptureLocalFileIdentity(*localPath, localError);
+    const std::string uuidAfter = file.GetUUID().AsString();
+    if (!identityAfter || !(*identityBefore == *identityAfter) || uuidBefore != uuidAfter) {
+        if (localError.empty())
+            localError = "ROOT file '" + filename + "' changed during the READ-to-UPDATE transition";
+        file.SetWritable(kFALSE);
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+    if (!ApplySchemaUpdate(file, numbers, maximumNumber, localError)) {
+        file.SetWritable(kFALSE);
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+    return true;
+}
 
 ///////////////////////////////////////////////
 /// \brief Returns all the options in an option string
@@ -772,6 +1339,248 @@ bool TRestTools::isDataSet(const std::string& filename) {
 bool TRestTools::isURL(const string& s) {
     std::regex pattern("^https?://(.+)");
     return std::regex_match(s, pattern);
+}
+
+///////////////////////////////////////////////
+/// \brief Returns true when ROOT resolves **filename** to a non-local protocol.
+///
+bool TRestTools::IsRemoteRootPath(const std::string& filename) {
+    TUrl url(filename.c_str(), kTRUE);
+    return url.IsValid() && std::string(url.GetProtocol()) != "file";
+}
+
+#ifdef REST_TESTING_ENABLED
+///////////////////////////////////////////////
+/// \brief Forces one post-replacement validation failure for rollback tests.
+///
+void TRestTools::ForceNextTransactionalMergeValidationFailureForTesting() {
+    gForceNextMergeValidationFailure.store(true);
+}
+#endif
+
+///////////////////////////////////////////////
+/// \brief Transactionally merges ROOT files into a local destination.
+///
+bool TRestTools::MergeRootFilesTransactionally(const std::string& outputFile,
+                                               const std::vector<std::string>& inputFiles,
+                                               const std::string& existingTarget, bool removeInputsOnSuccess,
+                                               std::string* error) {
+    std::string localError;
+    if (IsRemoteRootPath(outputFile)) {
+        localError = "REST refuses to replace remote ROOT destination '" + outputFile +
+                     "'. Choose an explicit local output file.";
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+
+    const auto localOutput = LocalRootPath(outputFile);
+    if (!localOutput) {
+        localError = "Cannot resolve local ROOT output path '" + outputFile + "'";
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+    std::error_code ec;
+    const std::filesystem::path target = std::filesystem::absolute(*localOutput, ec);
+    if (ec) {
+        localError = "Cannot resolve absolute output path '" + outputFile + "': " + ec.message();
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+    if (target.parent_path().empty() || !std::filesystem::exists(target.parent_path())) {
+        localError = "Output directory does not exist for '" + target.string() + "'";
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+
+    std::vector<std::string> sources;
+    if (!existingTarget.empty()) sources.push_back(existingTarget);
+    sources.insert(sources.end(), inputFiles.begin(), inputFiles.end());
+    if (sources.empty()) {
+        localError = "No ROOT input files were provided for transactional merge";
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+
+    RootSchemaSnapshot expectedSchema;
+    RootContentManifest expectedContent;
+    for (const auto& sourceName : sources) {
+        std::unique_ptr<TFile> source(TFile::Open(sourceName.c_str(), "READ"));
+        RootSchemaSnapshot sourceSchema;
+        RootContentManifest sourceContent;
+        if (source == nullptr || !source->IsOpen() || source->IsZombie()) {
+            localError = "Cannot open ROOT merge input '" + sourceName + "'";
+            if (error != nullptr) *error = localError;
+            return false;
+        }
+        if (!ReadSchemaSnapshot(*source, sourceSchema, localError) ||
+            !ReadContentManifest(*source, "", sourceContent, localError)) {
+            localError = "Cannot inspect ROOT merge input '" + sourceName + "': " + localError;
+            if (error != nullptr) *error = localError;
+            return false;
+        }
+        if (!AddContentManifest(sourceContent, expectedContent, localError)) {
+            localError = "Cannot merge ROOT input '" + sourceName + "': " + localError;
+            if (error != nullptr) *error = localError;
+            return false;
+        }
+        expectedSchema.streamerInfos.insert(sourceSchema.streamerInfos.begin(),
+                                            sourceSchema.streamerInfos.end());
+        expectedSchema.schemaRules.insert(sourceSchema.schemaRules.begin(), sourceSchema.schemaRules.end());
+    }
+
+    const std::filesystem::path temporary = UniqueSiblingPath(target, "merge");
+    const std::filesystem::path backup = UniqueSiblingPath(target, "backup");
+    if (temporary.empty() || backup.empty()) {
+        localError = "Cannot allocate temporary paths next to '" + target.string() + "'";
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+
+    auto removeTemporary = [&temporary](std::string& primaryError) {
+        std::error_code cleanupError;
+        std::filesystem::remove(temporary, cleanupError);
+        if (cleanupError)
+            primaryError += ". REST also could not remove temporary file '" + temporary.string() +
+                            "': " + cleanupError.message();
+    };
+
+    {
+        TFileMerger merger(kFALSE);
+        merger.SetPrintLevel(0);
+        if (!merger.OutputFile(temporary.c_str(), "RECREATE")) {
+            localError = "ROOT could not create temporary merge output '" + temporary.string() + "'";
+        } else {
+            for (const auto& source : sources) {
+                if (!merger.AddFile(source.c_str(), kFALSE)) {
+                    localError = "ROOT could not add merge input '" + source + "'";
+                    break;
+                }
+            }
+        }
+        if (localError.empty() && !merger.Merge()) {
+            localError = "ROOT failed while merging into temporary output '" + temporary.string() + "'";
+        }
+    }
+    if (!localError.empty()) {
+        removeTemporary(localError);
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+
+    bool temporaryValid = false;
+    {
+        std::unique_ptr<TFile> merged(TFile::Open(temporary.c_str(), "READ"));
+        RootSchemaSnapshot actualSchema;
+        RootContentManifest actualContent;
+        temporaryValid = merged != nullptr && merged->IsOpen() && !merged->IsZombie() &&
+                         ReadSchemaSnapshot(*merged, actualSchema, localError) &&
+                         IsSubset(expectedSchema, actualSchema, localError) &&
+                         ReadContentManifest(*merged, "", actualContent, localError) &&
+                         ValidateContentManifest(expectedContent, actualContent, localError);
+    }
+    if (!temporaryValid) {
+        if (localError.empty()) localError = "Cannot validate temporary ROOT merge output";
+        removeTemporary(localError);
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+
+    const bool targetExisted = std::filesystem::exists(target);
+    if (targetExisted) {
+        const auto permissions = std::filesystem::status(target, ec).permissions();
+        if (ec) {
+            localError = "Cannot inspect permissions of '" + target.string() + "': " + ec.message();
+            removeTemporary(localError);
+            if (error != nullptr) *error = localError;
+            return false;
+        }
+        std::filesystem::permissions(temporary, permissions, ec);
+        if (ec) {
+            localError = "Cannot preserve permissions on temporary ROOT output: " + ec.message();
+            removeTemporary(localError);
+            if (error != nullptr) *error = localError;
+            return false;
+        }
+    }
+
+    if (!ReplaceLocalFile(temporary, target, backup, localError)) {
+        removeTemporary(localError);
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+
+    bool replacementValid = false;
+    {
+        std::unique_ptr<TFile> merged(TFile::Open(target.c_str(), "READ"));
+        RootSchemaSnapshot actualSchema;
+        RootContentManifest actualContent;
+        replacementValid = merged != nullptr && merged->IsOpen() && !merged->IsZombie() &&
+                           ReadSchemaSnapshot(*merged, actualSchema, localError) &&
+                           IsSubset(expectedSchema, actualSchema, localError) &&
+                           ReadContentManifest(*merged, "", actualContent, localError) &&
+                           ValidateContentManifest(expectedContent, actualContent, localError);
+        if (!replacementValid && localError.empty())
+            localError = "Cannot validate replaced ROOT output '" + target.string() + "'";
+    }
+#ifdef REST_TESTING_ENABLED
+    if (gForceNextMergeValidationFailure.exchange(false)) {
+        replacementValid = false;
+        localError = "Forced post-replacement ROOT validation failure for testing";
+    }
+#endif
+    if (!replacementValid) {
+        std::string rollbackError;
+        if (!RollBackLocalFile(target, backup, targetExisted, rollbackError))
+            localError +=
+                ". Rollback also failed: " + rollbackError + ". The backup is at '" + backup.string() + "'";
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+
+    if (targetExisted) {
+        ec.clear();
+        std::filesystem::remove(backup, ec);
+        if (ec) {
+            localError = "Merged output is valid, but REST could not remove rollback backup '" +
+                         backup.string() + "': " + ec.message();
+            if (error != nullptr) *error = localError;
+            return false;
+        }
+    }
+
+    if (removeInputsOnSuccess) {
+        std::vector<std::string> removalFailures;
+        for (const auto& input : inputFiles) {
+            const auto localInput = LocalRootPath(input);
+            if (!localInput) continue;
+            ec.clear();
+            const auto absoluteInput = std::filesystem::absolute(*localInput, ec);
+            if (ec) {
+                removalFailures.push_back("'" + localInput->string() +
+                                          "': cannot resolve absolute path: " + ec.message());
+                continue;
+            }
+            if (absoluteInput == target) continue;
+            const bool removed = std::filesystem::remove(absoluteInput, ec);
+            std::error_code existsError;
+            const bool stillExists = std::filesystem::exists(absoluteInput, existsError);
+            if (ec || existsError || (!removed && stillExists))
+                removalFailures.push_back(
+                    "'" + absoluteInput.string() + "': " +
+                    (ec ? ec.message() : (existsError ? existsError.message() : "file was not removed")));
+        }
+        if (!removalFailures.empty()) {
+            localError = "Merged output is valid, but REST could not remove input file(s): ";
+            for (std::size_t index = 0; index < removalFailures.size(); ++index) {
+                if (index != 0) localError += "; ";
+                localError += removalFailures[index];
+            }
+            if (error != nullptr) *error = localError;
+            return false;
+        }
+    }
+    if (error != nullptr) error->clear();
+    return true;
 }
 
 ///////////////////////////////////////////////
