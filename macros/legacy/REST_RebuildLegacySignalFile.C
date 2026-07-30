@@ -23,6 +23,12 @@
 // with the current libraries cannot be copied. They are reported explicitly;
 // if any are encountered, in-place recovery is refused and the fixed file is
 // left at <input>_FixedTmp.root for inspection.
+// The intermediate is accepted only when its ROOT UUID and persisted source
+// identity match the requested source. This prevents accidental mix-ups but is
+// not a cryptographic signature against a maliciously edited intermediate.
+// Before an in-place replacement, the completed candidate is closed, reopened,
+// and read back in full; any validation failure leaves the original and any
+// pre-existing backup untouched.
 //
 // Arguments:
 //   originalFile   - the legacy REST file
@@ -38,38 +44,98 @@
 #include <TString.h>
 #include <TTree.h>
 
+#include <cstdint>
 #include <iostream>
+#include <memory>
 #include <set>
 #include <string>
 #include <vector>
 
+#include "LegacyRecoveryCandidateValidation.h"
+#include "LegacyRecoveryDataUtils.h"
 #include "LegacyRecoveryFileUtils.h"
+#include "LegacyRecoveryProvenance.h"
 
 namespace REST_Rebuild_Internal {
-
-Int_t GetOnDiskSignalVersion(TBranch* branch) {
-    if (branch == nullptr) return -1;
-
-    auto branchElement = dynamic_cast<TBranchElement*>(branch);
-    if (branchElement != nullptr) {
-        std::string name = branch->GetName();
-        if (name == "fSignal.fSignalTime" || name == "fSignal.fSignalCharge")
-            return branchElement->GetClassVersion();
-    }
-
-    auto subs = branch->GetListOfBranches();
-    for (int i = 0; i <= subs->GetLast(); i++) {
-        const Int_t version = GetOnDiskSignalVersion((TBranch*)subs->At(i));
-        if (version > 0) return version;
-    }
-    return -1;
-}
 
 void SetBranchStatusRecursive(TBranch* branch, Bool_t status) {
     if (branch == nullptr) return;
     branch->SetStatus(status);
     auto subs = branch->GetListOfBranches();
     for (int i = 0; i <= subs->GetLast(); i++) SetBranchStatusRecursive((TBranch*)subs->At(i), status);
+}
+
+template <typename Address>
+bool BindRequiredBranch(TTree* tree, const char* name, Address address, std::ostream& errors) {
+    if (tree->GetBranch(name) == nullptr) {
+        errors << "ERROR: required intermediate branch '" << name << "' is missing.\n";
+        return false;
+    }
+    const int status = tree->SetBranchAddress(name, address);
+    if (status >= TTree::kMatch) return true;
+
+    errors << "ERROR: cannot bind required intermediate branch '" << name << "' (status " << status << ").\n";
+    return false;
+}
+
+struct IntermediateData {
+    Int_t runOrigin = 0;
+    Int_t subRunOrigin = 0;
+    Int_t eventID = 0;
+    Int_t subEventID = 0;
+    Int_t timeSec = 0;
+    Int_t timeNanoSec = 0;
+    Bool_t ok = false;
+    TString* subEventTag = nullptr;
+    std::vector<Int_t>* signalID = nullptr;
+    std::vector<Int_t>* nPoints = nullptr;
+    std::vector<Float_t>* times = nullptr;
+    std::vector<Float_t>* charges = nullptr;
+
+    bool Bind(TTree* tree, std::ostream& errors) {
+        return BindRequiredBranch(tree, "runOrigin", &runOrigin, errors) &&
+               BindRequiredBranch(tree, "subRunOrigin", &subRunOrigin, errors) &&
+               BindRequiredBranch(tree, "eventID", &eventID, errors) &&
+               BindRequiredBranch(tree, "subEventID", &subEventID, errors) &&
+               BindRequiredBranch(tree, "timeSec", &timeSec, errors) &&
+               BindRequiredBranch(tree, "timeNanoSec", &timeNanoSec, errors) &&
+               BindRequiredBranch(tree, "ok", &ok, errors) &&
+               BindRequiredBranch(tree, "subEventTag", &subEventTag, errors) &&
+               BindRequiredBranch(tree, "signalID", &signalID, errors) &&
+               BindRequiredBranch(tree, "nPoints", &nPoints, errors) &&
+               BindRequiredBranch(tree, "times", &times, errors) &&
+               BindRequiredBranch(tree, "charges", &charges, errors);
+    }
+
+    bool Validate(Long64_t entry, std::uint64_t& pointCount, std::ostream& errors) const {
+        if (subEventTag == nullptr) {
+            errors << "ERROR: intermediate entry " << entry << " has a null subEventTag pointer.\n";
+            return false;
+        }
+        return REST_LegacyRecovery::ValidateFlattenedSignalData(
+            signalID, nPoints, times, charges, pointCount, errors,
+            "intermediate entry " + std::to_string(entry));
+    }
+};
+
+bool ScanIntermediateTree(TTree* tree, IntermediateData& values, REST_LegacyRecovery::RecoveryCounts& counts,
+                          std::ostream& errors) {
+    counts = {};
+    counts.entries = static_cast<std::uint64_t>(tree->GetEntries());
+    for (Long64_t entry = 0; entry < tree->GetEntries(); ++entry) {
+        if (tree->GetEntry(entry) <= 0) {
+            errors << "ERROR: cannot read intermediate entry " << entry << ".\n";
+            return false;
+        }
+        std::uint64_t points = 0;
+        if (!values.Validate(entry, points, errors) ||
+            !REST_LegacyRecovery::CheckedAdd(counts.signals, values.signalID->size(), errors,
+                                             "intermediate signals") ||
+            !REST_LegacyRecovery::CheckedAdd(counts.points, points, errors, "intermediate points")) {
+            return false;
+        }
+    }
+    return true;
 }
 
 }  // namespace REST_Rebuild_Internal
@@ -102,12 +168,12 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
     }
 
     // --- open inputs ---
-    TFile* original = TFile::Open(originalFile);
+    std::unique_ptr<TFile> original(TFile::Open(originalFile));
     if (original == nullptr || original->IsZombie()) {
         std::cout << "ERROR: cannot open original file: " << originalFile << std::endl;
         return;
     }
-    TFile* data = TFile::Open(dataName.c_str());
+    std::unique_ptr<TFile> data(TFile::Open(dataName.c_str()));
     if (data == nullptr || data->IsZombie()) {
         std::cout << "ERROR: cannot open signal data file: " << dataName << std::endl;
         std::cout << "Run stage 1 first (with plain root, NOT restRoot):" << std::endl;
@@ -128,42 +194,62 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
         std::cout << "ERROR: no TRestDetectorSignalEventBranch in " << originalFile << std::endl;
         return;
     }
-    const Int_t onDiskVersion = GetOnDiskSignalVersion(signalBranch);
-    if (onDiskVersion >= 4) {
-        std::cout << "This file already uses the current layout (TRestDetectorSignal v" << onDiskVersion
-                  << "). Nothing to rebuild." << std::endl;
+    const auto onDiskVersions = REST_LegacyRecovery::DetectSignalSchemaVersions(signalBranch);
+    if (!REST_LegacyRecovery::ValidateSupportedLegacySchema(onDiskVersions, std::cout, "source file")) {
         return;
     }
+    const Int_t onDiskVersion = onDiskVersions.time;
 
     const Long64_t nEntries = oldTree->GetEntries();
+    if (nEntries < 0 || original->GetSize() < 0) {
+        std::cout << "ERROR: source file reports an invalid entry count or file size." << std::endl;
+        return;
+    }
     if (dataTree->GetEntries() != nEntries) {
         std::cout << "ERROR: entry mismatch — EventTree has " << nEntries << " entries, signal data has "
                   << dataTree->GetEntries() << ". Wrong intermediate file?" << std::endl;
         return;
     }
 
-    // --- bind the intermediate tree ---
-    Int_t runOrigin, subRunOrigin, eventID, subEventID, timeSec, timeNanoSec;
-    Bool_t ok;
-    TString* subEventTag = nullptr;
-    std::vector<Int_t>*signalID = nullptr, *nPoints = nullptr;
-    std::vector<Float_t>*times = nullptr, *charges = nullptr;
+    std::string sourcePath;
+    std::string pathError;
+    if (!REST_LegacyRecovery::ResolvePathIdentity(originalFile, sourcePath, pathError)) {
+        std::cout << "ERROR: " << pathError << std::endl;
+        return;
+    }
+    std::string intermediatePath;
+    if (!REST_LegacyRecovery::ResolvePathIdentity(dataName, intermediatePath, pathError)) {
+        std::cout << "ERROR: " << pathError << std::endl;
+        return;
+    }
 
-    dataTree->SetBranchAddress("runOrigin", &runOrigin);
-    dataTree->SetBranchAddress("subRunOrigin", &subRunOrigin);
-    dataTree->SetBranchAddress("eventID", &eventID);
-    dataTree->SetBranchAddress("subEventID", &subEventID);
-    dataTree->SetBranchAddress("timeSec", &timeSec);
-    dataTree->SetBranchAddress("timeNanoSec", &timeNanoSec);
-    dataTree->SetBranchAddress("ok", &ok);
-    dataTree->SetBranchAddress("subEventTag", &subEventTag);
-    dataTree->SetBranchAddress("signalID", &signalID);
-    dataTree->SetBranchAddress("nPoints", &nPoints);
-    dataTree->SetBranchAddress("times", &times);
-    dataTree->SetBranchAddress("charges", &charges);
+    REST_LegacyRecovery::SourceIdentity sourceIdentity;
+    sourceIdentity.uuid = original->GetUUID().AsString();
+    sourceIdentity.normalizedPath = sourcePath;
+    sourceIdentity.fileSize = static_cast<std::uint64_t>(original->GetSize());
+    sourceIdentity.entries = static_cast<std::uint64_t>(nEntries);
+    sourceIdentity.signalVersion = onDiskVersion;
+
+    REST_LegacyRecovery::RecoveryProvenance intermediateProvenance;
+    if (!REST_LegacyRecovery::ReadRecoveryProvenance(*data, intermediateProvenance, std::cout) ||
+        !REST_LegacyRecovery::ValidateIntermediateSource(intermediateProvenance, sourceIdentity,
+                                                         data->GetUUID().AsString(), std::cout)) {
+        std::cout << "ERROR: refusing to combine an unauthenticated intermediate with the source."
+                  << std::endl;
+        return;
+    }
+
+    IntermediateData intermediateValues;
+    if (!intermediateValues.Bind(dataTree, std::cout)) return;
+    REST_LegacyRecovery::RecoveryCounts scannedCounts;
+    if (!ScanIntermediateTree(dataTree, intermediateValues, scannedCounts, std::cout) ||
+        !REST_LegacyRecovery::ValidateRecoveredCounts(intermediateProvenance, scannedCounts, std::cout,
+                                                      "intermediate")) {
+        return;
+    }
 
     // --- output file (single write session: StreamerInfos are preserved) ---
-    TFile* out = TFile::Open(outName.c_str(), "CREATE");
+    std::unique_ptr<TFile> out(TFile::Open(outName.c_str(), "CREATE"));
     if (out == nullptr || out->IsZombie()) {
         std::cout << "ERROR: cannot create output file: " << outName << std::endl;
         return;
@@ -172,6 +258,7 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
     // --- copy metadata keys (highest cycle only, skip trees) ---
     std::set<std::string> seen;
     std::vector<std::string> skipped;
+    std::vector<std::string> copiedMetadataKeys;
     TIter nextKey(original->GetListOfKeys());
     TKey* key;
     while ((key = (TKey*)nextKey())) {
@@ -188,7 +275,12 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
             continue;
         }
         out->cd();
-        obj->Write(keyName.c_str());
+        if (obj->Write(keyName.c_str(), TObject::kOverwrite) <= 0) {
+            std::cout << "ERROR: failed to write metadata key '" << keyName << "'." << std::endl;
+            REST_LegacyRecovery::CheckAndCloseOutputFile(*out, std::cout);
+            return;
+        }
+        copiedMetadataKeys.push_back(keyName);
     }
 
     // --- rebuild the EventTree ---
@@ -201,6 +293,7 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
     SetBranchStatusRecursive(signalBranch, 0);
 
     std::vector<std::string> otherBranchNames;
+    std::vector<TBranch*> otherBranches;
     std::vector<std::string> skippedEventBranches;
     TIter nextBranch(oldTree->GetListOfBranches());
     TBranch* br;
@@ -217,6 +310,7 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
             continue;
         }
         otherBranchNames.push_back(name);
+        otherBranches.push_back(br);
     }
 
     out->cd();
@@ -229,54 +323,147 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
         const std::string className = name.substr(0, name.rfind("Branch"));
         TClass* cl = TClass::GetClass(className.c_str());
         otherEvents[b] = (TRestEvent*)cl->New();
-        oldTree->SetBranchAddress(name.c_str(), &otherEvents[b]);
-        newTree->Branch(name.c_str(), className.c_str(), &otherEvents[b]);
+        if (otherEvents[b] == nullptr) {
+            std::cout << "ERROR: cannot construct event class '" << className << "'." << std::endl;
+            REST_LegacyRecovery::CheckAndCloseOutputFile(*out, std::cout);
+            return;
+        }
+        const int bindStatus = oldTree->SetBranchAddress(name.c_str(), &otherEvents[b]);
+        if (bindStatus < TTree::kMatch) {
+            std::cout << "ERROR: cannot bind source event branch '" << name << "' (status " << bindStatus
+                      << ")." << std::endl;
+            REST_LegacyRecovery::CheckAndCloseOutputFile(*out, std::cout);
+            return;
+        }
+        if (newTree->Branch(name.c_str(), className.c_str(), &otherEvents[b]) == nullptr) {
+            std::cout << "ERROR: cannot create rebuilt event branch '" << name << "'." << std::endl;
+            REST_LegacyRecovery::CheckAndCloseOutputFile(*out, std::cout);
+            return;
+        }
     }
 
     auto event = new TRestDetectorSignalEvent();
-    newTree->Branch("TRestDetectorSignalEventBranch", &event);
+    if (newTree->Branch("TRestDetectorSignalEventBranch", &event) == nullptr) {
+        std::cout << "ERROR: cannot create rebuilt detector signal branch." << std::endl;
+        REST_LegacyRecovery::CheckAndCloseOutputFile(*out, std::cout);
+        return;
+    }
 
-    Long64_t totalSignals = 0, totalPoints = 0;
+    REST_LegacyRecovery::RecoveryCounts writtenCounts;
+    writtenCounts.entries = scannedCounts.entries;
     for (Long64_t i = 0; i < nEntries; i++) {
-        oldTree->GetEntry(i);  // reads the other event branches (signal branch disabled)
-        dataTree->GetEntry(i);
+        for (size_t branchIndex = 0; branchIndex < otherBranches.size(); ++branchIndex) {
+            if (otherBranches[branchIndex]->GetEntry(i) <= 0) {
+                std::cout << "ERROR: cannot read source event branch '" << otherBranchNames[branchIndex]
+                          << "' at entry " << i << "." << std::endl;
+                REST_LegacyRecovery::CheckAndCloseOutputFile(*out, std::cout);
+                return;
+            }
+        }
+        if (dataTree->GetEntry(i) <= 0) {
+            std::cout << "ERROR: cannot reread intermediate entry " << i << "." << std::endl;
+            REST_LegacyRecovery::CheckAndCloseOutputFile(*out, std::cout);
+            return;
+        }
+        std::uint64_t entryPoints = 0;
+        if (!intermediateValues.Validate(i, entryPoints, std::cout)) {
+            REST_LegacyRecovery::CheckAndCloseOutputFile(*out, std::cout);
+            return;
+        }
 
         event->Initialize();
-        event->SetRunOrigin(runOrigin);
-        event->SetSubRunOrigin(subRunOrigin);
-        event->SetID(eventID);
-        event->SetSubID(subEventID);
-        event->SetSubEventTag(*subEventTag);
-        event->SetTime((Double_t)timeSec, (Double_t)timeNanoSec);
-        event->SetOK(ok);
+        event->SetRunOrigin(intermediateValues.runOrigin);
+        event->SetSubRunOrigin(intermediateValues.subRunOrigin);
+        event->SetID(intermediateValues.eventID);
+        event->SetSubID(intermediateValues.subEventID);
+        event->SetSubEventTag(*intermediateValues.subEventTag);
+        event->SetTime((Double_t)intermediateValues.timeSec, (Double_t)intermediateValues.timeNanoSec);
+        event->SetOK(intermediateValues.ok);
 
         size_t offset = 0;
-        for (size_t s = 0; s < signalID->size(); s++) {
+        for (size_t s = 0; s < intermediateValues.signalID->size(); s++) {
             TRestDetectorSignal signal;
-            signal.SetSignalID(signalID->at(s));
-            const size_t n = nPoints->at(s);
-            for (size_t p = 0; p < n; p++) signal.NewPoint(times->at(offset + p), charges->at(offset + p));
+            signal.SetSignalID(intermediateValues.signalID->at(s));
+            const size_t n = static_cast<size_t>(intermediateValues.nPoints->at(s));
+            if (offset > intermediateValues.times->size() || n > intermediateValues.times->size() - offset) {
+                std::cout << "ERROR: intermediate entry " << i
+                          << " exceeds flattened array bounds while rebuilding signal " << s << "."
+                          << std::endl;
+                REST_LegacyRecovery::CheckAndCloseOutputFile(*out, std::cout);
+                return;
+            }
+            for (size_t p = 0; p < n; p++) {
+                signal.NewPoint(intermediateValues.times->at(offset + p),
+                                intermediateValues.charges->at(offset + p));
+            }
             offset += n;
             event->AddSignal(signal);
         }
-        totalSignals += signalID->size();
-        totalPoints += offset;
+        if (offset != entryPoints ||
+            !REST_LegacyRecovery::CheckedAdd(writtenCounts.signals, intermediateValues.signalID->size(),
+                                             std::cout, "rebuilt signals") ||
+            !REST_LegacyRecovery::CheckedAdd(writtenCounts.points, offset, std::cout, "rebuilt points")) {
+            std::cout << "ERROR: rebuilt entry " << i << " failed count validation." << std::endl;
+            REST_LegacyRecovery::CheckAndCloseOutputFile(*out, std::cout);
+            return;
+        }
 
-        newTree->Fill();
+        if (newTree->Fill() < 0) {
+            std::cout << "ERROR: failed to write rebuilt EventTree entry " << i << "." << std::endl;
+            REST_LegacyRecovery::CheckAndCloseOutputFile(*out, std::cout);
+            return;
+        }
     }
-    newTree->Write("", TObject::kOverwrite);
+    if (writtenCounts.entries != scannedCounts.entries || writtenCounts.signals != scannedCounts.signals ||
+        writtenCounts.points != scannedCounts.points) {
+        std::cout << "ERROR: rebuilt counts changed while writing the candidate." << std::endl;
+        REST_LegacyRecovery::CheckAndCloseOutputFile(*out, std::cout);
+        return;
+    }
+    if (newTree->Write("", TObject::kOverwrite) <= 0) {
+        std::cout << "ERROR: failed to write the rebuilt EventTree." << std::endl;
+        REST_LegacyRecovery::CheckAndCloseOutputFile(*out, std::cout);
+        return;
+    }
 
     // --- copy the AnalysisTree unchanged ---
     auto anaTree = dynamic_cast<TTree*>(original->Get("AnalysisTree"));
+    Long64_t analysisEntries = -1;
+    std::vector<std::string> analysisBranchNames;
     if (anaTree != nullptr) {
+        analysisEntries = anaTree->GetEntries();
+        TIter nextAnalysisBranch(anaTree->GetListOfBranches());
+        TBranch* analysisBranch;
+        while ((analysisBranch = static_cast<TBranch*>(nextAnalysisBranch()))) {
+            analysisBranchNames.emplace_back(analysisBranch->GetName());
+        }
         out->cd();
         TTree* anaClone = anaTree->CloneTree(-1, "fast");
-        anaClone->Write("", TObject::kOverwrite);
+        if (anaClone == nullptr || anaClone->GetEntries() != analysisEntries ||
+            anaClone->Write("", TObject::kOverwrite) <= 0) {
+            std::cout << "ERROR: failed to clone and write the AnalysisTree." << std::endl;
+            REST_LegacyRecovery::CheckAndCloseOutputFile(*out, std::cout);
+            return;
+        }
     } else {
         std::cout << "WARNING: no AnalysisTree found; skipping." << std::endl;
     }
 
-    out->Close();
+    REST_LegacyRecovery::RecoveryProvenance resultProvenance = intermediateProvenance;
+    resultProvenance.kind = REST_LegacyRecovery::kResultProvenanceKind;
+    resultProvenance.recovered = scannedCounts;
+    resultProvenance.intermediatePath = intermediatePath;
+    resultProvenance.resultUuid = out->GetUUID().AsString();
+    if (!REST_LegacyRecovery::WriteRecoveryProvenance(*out, resultProvenance, std::cout)) {
+        std::cout << "ERROR: failed to persist rebuilt-file recovery provenance." << std::endl;
+        REST_LegacyRecovery::CheckAndCloseOutputFile(*out, std::cout);
+        return;
+    }
+    if (!REST_LegacyRecovery::CheckAndCloseOutputFile(*out, std::cout)) {
+        std::cout << "ERROR: rebuilt candidate is incomplete; the original was not touched." << std::endl;
+        return;
+    }
+
     original->Close();
     data->Close();
 
@@ -294,6 +481,17 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
 
     // --- overwrite handling ---
     std::string finalName = outName;
+    REST_LegacyRecovery::CandidateExpectations candidateExpectations;
+    candidateExpectations.provenance = resultProvenance;
+    candidateExpectations.analysisEntries = analysisEntries;
+    candidateExpectations.metadataKeys = copiedMetadataKeys;
+    candidateExpectations.otherEventBranches = otherBranchNames;
+    candidateExpectations.analysisBranches = analysisBranchNames;
+    const auto validateCandidate = [&candidateExpectations](const std::filesystem::path& path,
+                                                            std::ostream& errors) {
+        return REST_LegacyRecovery::ValidateRecoveryCandidate(path, candidateExpectations, errors);
+    };
+
     if (overwrite) {
         if (!skipped.empty() || !skippedEventBranches.empty()) {
             std::cout << "ERROR: refusing in-place replacement because the rebuilt file has omitted "
@@ -301,15 +499,21 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
                       << "The original is unchanged. Inspect the candidate file at: " << outName << std::endl;
             return;
         }
-        if (!REST_LegacyRecovery::ReplaceFileWithBackup(outName, originalFile, backupName, std::cout)) {
+        if (!REST_LegacyRecovery::ValidateAndReplaceFileWithBackup(outName, originalFile, backupName,
+                                                                   std::cout, validateCandidate)) {
             return;
         }
         finalName = originalFile;
         std::cout << "Original file kept as: " << backupName << std::endl;
+    } else if (!validateCandidate(outName, std::cout)) {
+        std::cout << "ERROR: rebuilt sibling candidate failed readback validation and must not be "
+                     "used."
+                  << std::endl;
+        return;
     }
 
     std::cout << std::endl;
-    std::cout << "Rebuilt " << nEntries << " entries: " << totalSignals << " signals, " << totalPoints
-              << " points." << std::endl;
+    std::cout << "Rebuilt " << nEntries << " entries: " << scannedCounts.signals << " signals, "
+              << scannedCounts.points << " points." << std::endl;
     std::cout << "Fixed file written to: " << finalName << std::endl;
 }

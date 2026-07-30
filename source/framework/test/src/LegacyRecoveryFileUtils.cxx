@@ -7,15 +7,28 @@
 #include <filesystem>
 #include <fstream>
 #include <iterator>
+#include <limits>
 #include <sstream>
 #include <string>
+#include <vector>
+
+#include "../../../../macros/legacy/LegacyRecoveryDataUtils.h"
+#include "../../../../macros/legacy/LegacyRecoveryProvenance.h"
 
 namespace {
 
 namespace fs = std::filesystem;
 using REST_LegacyRecovery::ComparePaths;
+using REST_LegacyRecovery::ParseInteger;
+using REST_LegacyRecovery::RecoveryProvenance;
 using REST_LegacyRecovery::ReplaceFileWithBackup;
+using REST_LegacyRecovery::ResolvePathIdentity;
+using REST_LegacyRecovery::SourceIdentity;
+using REST_LegacyRecovery::ValidateAndReplaceFileWithBackup;
+using REST_LegacyRecovery::ValidateFlattenedSignalData;
+using REST_LegacyRecovery::ValidateIntermediateSource;
 using REST_LegacyRecovery::ValidateNewOutputPath;
+using REST_LegacyRecovery::ValidateSupportedLegacySchema;
 
 class TemporaryDirectory {
    public:
@@ -211,6 +224,181 @@ TEST(LegacyRecoveryFileUtils, ComparesNonexistentDestinationsWithoutThrowing) {
     EXPECT_TRUE(comparison.ok);
     EXPECT_FALSE(comparison.equivalent);
     EXPECT_TRUE(comparison.error.empty());
+}
+
+TEST(LegacyRecoveryFileUtils, ResolvesSymlinkSpellingsToTheSameSourceIdentity) {
+    TemporaryDirectory temporary;
+    const auto input = temporary.path / "input.root";
+    const auto symlink = temporary.path / "input-link.root";
+    WriteText(input, "input");
+
+    std::error_code symlinkError;
+    fs::create_symlink(input, symlink, symlinkError);
+    if (symlinkError) GTEST_SKIP() << "Cannot create symlink: " << symlinkError.message();
+
+    std::string inputIdentity;
+    std::string symlinkIdentity;
+    std::string error;
+    ASSERT_TRUE(ResolvePathIdentity(input, inputIdentity, error)) << error;
+    ASSERT_TRUE(ResolvePathIdentity(symlink, symlinkIdentity, error)) << error;
+    EXPECT_EQ(inputIdentity, symlinkIdentity);
+}
+
+TEST(LegacyRecoveryDataUtils, AcceptsOnlyKnownLegacySchemaVersions) {
+    std::ostringstream errors;
+    EXPECT_TRUE(ValidateSupportedLegacySchema({1, 1}, errors, "test"));
+    EXPECT_TRUE(ValidateSupportedLegacySchema({2, 2}, errors, "test"));
+    EXPECT_TRUE(ValidateSupportedLegacySchema({3, 3}, errors, "test"));
+
+    for (const auto versions :
+         {REST_LegacyRecovery::SignalSchemaVersions{-1, -1}, REST_LegacyRecovery::SignalSchemaVersions{0, 0},
+          REST_LegacyRecovery::SignalSchemaVersions{4, 4}, REST_LegacyRecovery::SignalSchemaVersions{2, 3}}) {
+        errors.str("");
+        EXPECT_FALSE(ValidateSupportedLegacySchema(versions, errors, "test"));
+        EXPECT_FALSE(errors.str().empty());
+    }
+}
+
+TEST(LegacyRecoveryDataUtils, RejectsMalformedFlattenedSignalArrays) {
+    const std::vector<int> ids{7, 9};
+    const std::vector<int> counts{2, 1};
+    const std::vector<float> times{1.F, 2.F, 3.F};
+    const std::vector<float> charges{4.F, 5.F, 6.F};
+    std::uint64_t points = 0;
+    std::ostringstream errors;
+
+    EXPECT_TRUE(ValidateFlattenedSignalData(&ids, &counts, &times, &charges, points, errors, "test"));
+    EXPECT_EQ(points, 3U);
+
+    const std::vector<int> tooFewCounts{3};
+    errors.str("");
+    EXPECT_FALSE(ValidateFlattenedSignalData(&ids, &tooFewCounts, &times, &charges, points, errors, "test"));
+
+    const std::vector<float> tooFewCharges{4.F, 5.F};
+    errors.str("");
+    EXPECT_FALSE(ValidateFlattenedSignalData(&ids, &counts, &times, &tooFewCharges, points, errors, "test"));
+
+    const std::vector<float> nonFiniteTimes{1.F, std::numeric_limits<float>::infinity(), 3.F};
+    errors.str("");
+    EXPECT_FALSE(
+        ValidateFlattenedSignalData(&ids, &counts, &nonFiniteTimes, &charges, points, errors, "test"));
+
+    const std::vector<int> negativeCounts{2, -1};
+    errors.str("");
+    EXPECT_FALSE(
+        ValidateFlattenedSignalData(&ids, &negativeCounts, &times, &charges, points, errors, "test"));
+
+    const std::vector<int> countsTooLarge{2, 2};
+    errors.str("");
+    EXPECT_FALSE(
+        ValidateFlattenedSignalData(&ids, &countsTooLarge, &times, &charges, points, errors, "test"));
+
+    const std::vector<int> countsTooSmall{1, 1};
+    errors.str("");
+    EXPECT_FALSE(
+        ValidateFlattenedSignalData(&ids, &countsTooSmall, &times, &charges, points, errors, "test"));
+
+    const std::vector<int>* nullIds = nullptr;
+    errors.str("");
+    EXPECT_FALSE(ValidateFlattenedSignalData(nullIds, &counts, &times, &charges, points, errors, "test"));
+}
+
+TEST(LegacyRecoveryDataUtils, RejectsMismatchedIntermediateProvenance) {
+    SourceIdentity source;
+    source.uuid = "source-uuid";
+    source.normalizedPath = "/canonical/input.root";
+    source.fileSize = 1234;
+    source.entries = 17;
+    source.signalVersion = 3;
+
+    RecoveryProvenance provenance;
+    provenance.formatVersion = REST_LegacyRecovery::kRecoveryFormatVersion;
+    provenance.kind = REST_LegacyRecovery::kIntermediateProvenanceKind;
+    provenance.source = source;
+    provenance.intermediateUuid = "intermediate-uuid";
+
+    std::ostringstream errors;
+    EXPECT_TRUE(ValidateIntermediateSource(provenance, source, provenance.intermediateUuid, errors));
+
+    const auto expectRejected = [&](const RecoveryProvenance& changed) {
+        errors.str("");
+        EXPECT_FALSE(ValidateIntermediateSource(changed, source, "intermediate-uuid", errors));
+        EXPECT_FALSE(errors.str().empty());
+    };
+
+    auto changed = provenance;
+    changed.formatVersion++;
+    expectRejected(changed);
+    changed = provenance;
+    changed.kind = REST_LegacyRecovery::kResultProvenanceKind;
+    expectRejected(changed);
+    changed = provenance;
+    changed.source.uuid = "wrong-source";
+    expectRejected(changed);
+    changed = provenance;
+    changed.source.normalizedPath = "/different/input.root";
+    expectRejected(changed);
+    changed = provenance;
+    changed.source.fileSize++;
+    expectRejected(changed);
+    changed = provenance;
+    changed.source.entries++;
+    expectRejected(changed);
+    changed = provenance;
+    changed.source.signalVersion--;
+    expectRejected(changed);
+    changed = provenance;
+    changed.intermediateUuid = "wrong-intermediate";
+    expectRejected(changed);
+}
+
+TEST(LegacyRecoveryProvenance, ParsesOnlyCompleteAndRepresentableIntegers) {
+    std::uint64_t unsignedValue = 0;
+    EXPECT_TRUE(ParseInteger("42", unsignedValue));
+    EXPECT_EQ(unsignedValue, 42U);
+    EXPECT_FALSE(ParseInteger("", unsignedValue));
+    EXPECT_FALSE(ParseInteger("-1", unsignedValue));
+    EXPECT_FALSE(ParseInteger("42x", unsignedValue));
+    EXPECT_FALSE(ParseInteger("18446744073709551616", unsignedValue));
+
+    int signedValue = 0;
+    EXPECT_TRUE(ParseInteger("-3", signedValue));
+    EXPECT_EQ(signedValue, -3);
+    EXPECT_FALSE(ParseInteger(" 3", signedValue));
+    EXPECT_FALSE(ParseInteger("2147483648", signedValue));
+}
+
+TEST(LegacyRecoveryFileUtils, FailedCandidateValidationLeavesAllFilesUntouched) {
+    TemporaryDirectory temporary;
+    const auto original = temporary.path / "input.root";
+    const auto replacement = temporary.path / "fixed.root";
+    const auto backup = temporary.path / "input.root.bak";
+    WriteText(original, "original");
+    WriteText(replacement, "invalid candidate");
+    WriteText(backup, "previous backup");
+
+    int validationCalls = 0;
+    int renameCalls = 0;
+    const auto rejectCandidate = [&validationCalls](const fs::path& path, std::ostream& errors) {
+        validationCalls++;
+        errors << "candidate rejected: " << path.string() << '\n';
+        return false;
+    };
+    const auto countRename = [&renameCalls](const fs::path& source, const fs::path& destination,
+                                            std::error_code& error) {
+        renameCalls++;
+        fs::rename(source, destination, error);
+    };
+
+    std::ostringstream errors;
+    EXPECT_FALSE(ValidateAndReplaceFileWithBackup(replacement, original, backup, errors, rejectCandidate,
+                                                  countRename));
+    EXPECT_EQ(validationCalls, 1);
+    EXPECT_EQ(renameCalls, 0);
+    EXPECT_EQ(ReadText(original), "original");
+    EXPECT_EQ(ReadText(replacement), "invalid candidate");
+    EXPECT_EQ(ReadText(backup), "previous backup");
+    EXPECT_NE(errors.str().find("were not touched"), std::string::npos);
 }
 
 }  // namespace

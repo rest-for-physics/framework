@@ -1,18 +1,58 @@
 #include <TBranch.h>
+#include <TFile.h>
 #include <TRestDetectorSignalEvent.h>
 #include <TRestRawSignalEvent.h>
 #include <TRestRun.h>
 #include <TSystem.h>
 #include <gtest/gtest.h>
 
+#include <atomic>
+#include <chrono>
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
+#include <iterator>
 #include <memory>
+#include <sstream>
 #include <string>
+
+#include "../../../../macros/legacy/LegacyRecoveryCandidateValidation.h"
+#include "../../../../macros/legacy/LegacyRecoveryFileUtils.h"
+#include "../../../../macros/legacy/LegacyRecoveryProvenance.h"
 
 namespace {
 
 namespace fs = std::filesystem;
+
+class TemporaryDirectory {
+   public:
+    TemporaryDirectory() {
+        static std::atomic<unsigned long> sequence{0};
+        const auto suffix =
+            std::to_string(std::chrono::high_resolution_clock::now().time_since_epoch().count()) + "_" +
+            std::to_string(sequence++);
+        path = fs::temp_directory_path() / ("rest_legacy_candidate_test_" + suffix);
+        fs::create_directories(path);
+    }
+
+    ~TemporaryDirectory() {
+        std::error_code error;
+        fs::remove_all(path, error);
+    }
+
+    fs::path path;
+};
+
+void WriteText(const fs::path& path, const std::string& text) {
+    std::ofstream output(path);
+    ASSERT_TRUE(output.is_open());
+    output << text;
+}
+
+std::string ReadText(const fs::path& path) {
+    std::ifstream input(path);
+    return {std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
+}
 
 class UnknownEvent : public TRestRawSignalEvent {
    public:
@@ -114,6 +154,51 @@ TEST_F(LegacyDetectorSignalTest, InvalidSelectionPreservesCurrentEvent) {
 
     EXPECT_EQ(run.GetInputEvent(), currentEvent);
     EXPECT_EQ(std::string(run.GetInputEvent()->ClassName()), currentType);
+}
+
+TEST(LegacyRecoveryCandidateValidation, InvalidCandidateLeavesOriginalUntouched) {
+    TemporaryDirectory temporary;
+    const auto original = temporary.path / "input.root";
+    const auto replacement = temporary.path / "fixed.root";
+    const auto backup = temporary.path / "input.root.bak";
+    WriteText(original, "original");
+
+    REST_LegacyRecovery::RecoveryProvenance provenance;
+    provenance.formatVersion = REST_LegacyRecovery::kRecoveryFormatVersion;
+    provenance.kind = REST_LegacyRecovery::kResultProvenanceKind;
+    provenance.source.uuid = "source-uuid";
+    provenance.source.normalizedPath = "/canonical/input.root";
+    provenance.source.fileSize = 1234;
+    provenance.source.entries = 0;
+    provenance.source.signalVersion = 3;
+    provenance.intermediateUuid = "intermediate-uuid";
+    provenance.intermediatePath = "/canonical/intermediate.root";
+
+    std::ostringstream writeErrors;
+    {
+        TFile candidate(replacement.string().c_str(), "CREATE");
+        ASSERT_FALSE(candidate.IsZombie());
+        provenance.resultUuid = candidate.GetUUID().AsString();
+        ASSERT_TRUE(REST_LegacyRecovery::WriteRecoveryProvenance(candidate, provenance, writeErrors))
+            << writeErrors.str();
+        ASSERT_TRUE(REST_LegacyRecovery::CheckAndCloseOutputFile(candidate, writeErrors))
+            << writeErrors.str();
+    }
+
+    REST_LegacyRecovery::CandidateExpectations expectations;
+    expectations.provenance = provenance;
+    const auto validateCandidate = [&expectations](const fs::path& path, std::ostream& errors) {
+        return REST_LegacyRecovery::ValidateRecoveryCandidate(path, expectations, errors);
+    };
+
+    std::ostringstream errors;
+    EXPECT_FALSE(REST_LegacyRecovery::ValidateAndReplaceFileWithBackup(replacement, original, backup, errors,
+                                                                       validateCandidate));
+    EXPECT_EQ(ReadText(original), "original");
+    EXPECT_TRUE(fs::is_regular_file(replacement));
+    EXPECT_FALSE(fs::exists(backup));
+    EXPECT_NE(errors.str().find("no readable EventTree"), std::string::npos);
+    EXPECT_NE(errors.str().find("were not touched"), std::string::npos);
 }
 
 }  // namespace

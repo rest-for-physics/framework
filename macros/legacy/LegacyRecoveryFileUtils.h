@@ -17,26 +17,36 @@ struct PathComparison {
     std::string error;
 };
 
-inline PathComparison ComparePaths(const fs::path& first, const fs::path& second) {
-    std::error_code firstError;
-    const auto firstAbsolute = fs::absolute(first, firstError);
-    if (firstError) {
-        return {false, false, "cannot resolve '" + first.string() + "': " + firstError.message()};
-    }
-    const auto firstPath = fs::weakly_canonical(firstAbsolute, firstError);
-    if (firstError) {
-        return {false, false, "cannot resolve '" + first.string() + "': " + firstError.message()};
+inline bool ResolvePathIdentity(const fs::path& path, std::string& identity, std::string& error) {
+    std::error_code absoluteError;
+    const auto absolute = fs::absolute(path, absoluteError);
+    if (absoluteError) {
+        error = "cannot resolve '" + path.string() + "': " + absoluteError.message();
+        return false;
     }
 
-    std::error_code secondError;
-    const auto secondAbsolute = fs::absolute(second, secondError);
-    if (secondError) {
-        return {false, false, "cannot resolve '" + second.string() + "': " + secondError.message()};
+    std::error_code canonicalError;
+    const auto canonical = fs::weakly_canonical(absolute, canonicalError);
+    if (canonicalError) {
+        error = "cannot resolve '" + path.string() + "': " + canonicalError.message();
+        return false;
     }
-    const auto secondPath = fs::weakly_canonical(secondAbsolute, secondError);
-    if (secondError) {
-        return {false, false, "cannot resolve '" + second.string() + "': " + secondError.message()};
-    }
+
+    identity = canonical.string();
+    return true;
+}
+
+inline PathComparison ComparePaths(const fs::path& first, const fs::path& second) {
+    std::string firstIdentity;
+    std::string firstError;
+    if (!ResolvePathIdentity(first, firstIdentity, firstError)) return {false, false, firstError};
+
+    std::string secondIdentity;
+    std::string secondError;
+    if (!ResolvePathIdentity(second, secondIdentity, secondError)) return {false, false, secondError};
+
+    const fs::path firstPath(firstIdentity);
+    const fs::path secondPath(secondIdentity);
 
     if (firstPath == secondPath) return {true, true, ""};
 
@@ -114,6 +124,7 @@ inline bool ValidateNewOutputPath(const fs::path& inputPath, const fs::path& out
 }
 
 using RenameOperation = std::function<void(const fs::path&, const fs::path&, std::error_code&)>;
+using CandidateValidation = std::function<bool(const fs::path&, std::ostream&)>;
 
 inline void RenamePath(const fs::path& source, const fs::path& destination, std::error_code& error) {
     fs::rename(source, destination, error);
@@ -171,6 +182,18 @@ inline bool ReplaceFileWithBackup(const fs::path& replacementPath, const fs::pat
                << replacementPath.string() << "'.\n";
     }
     return false;
+}
+
+inline bool ValidateAndReplaceFileWithBackup(const fs::path& replacementPath, const fs::path& originalPath,
+                                             const fs::path& backupPath, std::ostream& errors,
+                                             const CandidateValidation& validateCandidate,
+                                             const RenameOperation& renameOperation = RenamePath) {
+    if (!validateCandidate(replacementPath, errors)) {
+        errors << "ERROR: candidate validation failed. The original file and any existing backup "
+                  "were not touched.\n";
+        return false;
+    }
+    return ReplaceFileWithBackup(replacementPath, originalPath, backupPath, errors, renameOperation);
 }
 
 }  // namespace REST_LegacyRecovery
