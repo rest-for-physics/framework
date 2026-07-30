@@ -2,14 +2,19 @@
 #define REST_LEGACY_RECOVERY_CANDIDATE_VALIDATION_H
 
 #include <TBranchElement.h>
+#include <TClass.h>
 #include <TFile.h>
+#include <TKey.h>
+#include <TObjArray.h>
 #include <TRestDetectorSignalEvent.h>
 #include <TTree.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <filesystem>
 #include <memory>
 #include <ostream>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -56,12 +61,142 @@ inline SignalSchemaVersions DetectSignalSchemaVersions(TBranch* branch) {
     return versions;
 }
 
+struct AdditionalTreeExpectation {
+    std::string keyName;
+    std::string objectName;
+    std::string className;
+    Long64_t entries = -1;
+    std::vector<std::string> branches;
+};
+
+inline void CollectBranchInventory(const TObjArray* branches, const std::string& parent,
+                                   std::vector<std::string>& inventory) {
+    if (branches == nullptr) return;
+    for (int index = 0; index <= branches->GetLast(); ++index) {
+        auto branch = dynamic_cast<TBranch*>(branches->At(index));
+        if (branch == nullptr) continue;
+        const std::string path = parent.empty() ? branch->GetName() : parent + "/" + branch->GetName();
+        inventory.push_back(path);
+        CollectBranchInventory(branch->GetListOfBranches(), path, inventory);
+    }
+}
+
+inline AdditionalTreeExpectation DescribeAdditionalTree(const std::string& keyName, TTree& tree) {
+    AdditionalTreeExpectation expectation;
+    expectation.keyName = keyName;
+    expectation.objectName = tree.GetName();
+    expectation.className = tree.ClassName();
+    expectation.entries = tree.GetEntries();
+    CollectBranchInventory(tree.GetListOfBranches(), "", expectation.branches);
+    std::sort(expectation.branches.begin(), expectation.branches.end());
+    return expectation;
+}
+
+inline bool CopyAdditionalTopLevelTrees(TFile& source, TFile& destination,
+                                        std::vector<AdditionalTreeExpectation>& expectations,
+                                        std::ostream& errors) {
+    expectations.clear();
+    std::set<std::string> seen;
+    TIter nextKey(source.GetListOfKeys());
+    TKey* key;
+    while ((key = static_cast<TKey*>(nextKey()))) {
+        const std::string keyName = key->GetName();
+        if (!seen.insert(keyName).second) continue;  // highest cycle only
+        if (keyName == "EventTree" || keyName == "AnalysisTree") continue;
+
+        auto keyClass = TClass::GetClass(key->GetClassName());
+        if (keyClass == nullptr || !keyClass->InheritsFrom(TTree::Class())) continue;
+
+        std::unique_ptr<TObject> object(key->ReadObj());
+        auto tree = dynamic_cast<TTree*>(object.get());
+        if (tree == nullptr) {
+            errors << "ERROR: cannot read additional top-level tree key '" << keyName << "' ("
+                   << key->GetClassName() << ").\n";
+            return false;
+        }
+
+        const auto expectation = DescribeAdditionalTree(keyName, *tree);
+        destination.cd();
+        auto clone = tree->CloneTree(-1, "fast");
+        if (clone == nullptr || clone->GetEntries() != expectation.entries ||
+            clone->Write(keyName.c_str(), TObject::kOverwrite) <= 0) {
+            errors << "ERROR: failed to clone and write additional top-level tree '" << keyName << "'.\n";
+            return false;
+        }
+        expectations.push_back(expectation);
+    }
+    std::sort(expectations.begin(), expectations.end(),
+              [](const AdditionalTreeExpectation& first, const AdditionalTreeExpectation& second) {
+                  return first.keyName < second.keyName;
+              });
+    return true;
+}
+
+inline bool ValidateAdditionalTopLevelTrees(TFile& candidate,
+                                            const std::vector<AdditionalTreeExpectation>& expected,
+                                            std::ostream& errors) {
+    std::set<std::string> actualTreeKeys;
+    std::set<std::string> seen;
+    TIter nextKey(candidate.GetListOfKeys());
+    TKey* key;
+    while ((key = static_cast<TKey*>(nextKey()))) {
+        const std::string keyName = key->GetName();
+        if (!seen.insert(keyName).second) continue;  // highest cycle only
+        if (keyName == "EventTree" || keyName == "AnalysisTree") continue;
+
+        auto keyClass = TClass::GetClass(key->GetClassName());
+        if (keyClass != nullptr && keyClass->InheritsFrom(TTree::Class())) actualTreeKeys.insert(keyName);
+    }
+
+    std::set<std::string> expectedTreeKeys;
+    for (const auto& expectation : expected) {
+        if (!expectedTreeKeys.insert(expectation.keyName).second) {
+            errors << "ERROR: duplicate additional-tree expectation for key '" << expectation.keyName
+                   << "'.\n";
+            return false;
+        }
+
+        auto tree = dynamic_cast<TTree*>(candidate.Get(expectation.keyName.c_str()));
+        if (tree == nullptr) {
+            errors << "ERROR: rebuilt candidate is missing additional top-level tree '" << expectation.keyName
+                   << "'.\n";
+            return false;
+        }
+        if (tree->GetName() != expectation.objectName || tree->ClassName() != expectation.className) {
+            errors << "ERROR: rebuilt candidate additional tree '" << expectation.keyName
+                   << "' has a different object name or class.\n";
+            return false;
+        }
+        if (tree->GetEntries() != expectation.entries) {
+            errors << "ERROR: rebuilt candidate additional tree '" << expectation.keyName << "' has "
+                   << tree->GetEntries() << " entries, expected " << expectation.entries << ".\n";
+            return false;
+        }
+
+        std::vector<std::string> actualBranches;
+        CollectBranchInventory(tree->GetListOfBranches(), "", actualBranches);
+        std::sort(actualBranches.begin(), actualBranches.end());
+        if (actualBranches != expectation.branches) {
+            errors << "ERROR: rebuilt candidate additional tree '" << expectation.keyName
+                   << "' has a different branch inventory.\n";
+            return false;
+        }
+    }
+
+    if (actualTreeKeys != expectedTreeKeys) {
+        errors << "ERROR: rebuilt candidate additional top-level tree inventory differs from the source.\n";
+        return false;
+    }
+    return true;
+}
+
 struct CandidateExpectations {
     RecoveryProvenance provenance;
     Long64_t analysisEntries = -1;
     std::vector<std::string> metadataKeys;
     std::vector<std::string> otherEventBranches;
     std::vector<std::string> analysisBranches;
+    std::vector<AdditionalTreeExpectation> additionalTrees;
 };
 
 inline bool ValidateRecoveryCandidate(const std::filesystem::path& candidatePath,
@@ -184,6 +319,8 @@ inline bool ValidateRecoveryCandidate(const std::filesystem::path& candidatePath
             }
         }
     }
+
+    if (!ValidateAdditionalTopLevelTrees(*candidate, expected.additionalTrees, errors)) return false;
 
     candidate->Close();
     return true;

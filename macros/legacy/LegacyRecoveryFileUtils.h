@@ -17,6 +17,16 @@ struct PathComparison {
     std::string error;
 };
 
+inline fs::path BuildSiblingRootPath(const fs::path& input, const std::string& suffix) {
+    fs::path output = input;
+    const auto filename = output.filename();
+    if (filename.extension() == ".root")
+        output.replace_filename(filename.stem().string() + suffix + ".root");
+    else
+        output += suffix + ".root";
+    return output;
+}
+
 inline bool ResolvePathIdentity(const fs::path& path, std::string& identity, std::string& error) {
     std::error_code absoluteError;
     const auto absolute = fs::absolute(path, absoluteError);
@@ -127,7 +137,18 @@ using RenameOperation = std::function<void(const fs::path&, const fs::path&, std
 using CandidateValidation = std::function<bool(const fs::path&, std::ostream&)>;
 
 inline void RenamePath(const fs::path& source, const fs::path& destination, std::error_code& error) {
-    fs::rename(source, destination, error);
+    // Recovery operates on regular files in one directory. A hard link plus
+    // unlink provides no-replace semantics on POSIX, unlike rename(), which
+    // would silently overwrite a path created after the preflight check.
+    fs::create_hard_link(source, destination, error);
+    if (error) return;
+
+    std::error_code removeError;
+    if (fs::remove(source, removeError)) return;
+
+    std::error_code rollbackError;
+    fs::remove(destination, rollbackError);
+    error = removeError ? removeError : std::make_error_code(std::errc::io_error);
 }
 
 inline bool ReplaceFileWithBackup(const fs::path& replacementPath, const fs::path& originalPath,

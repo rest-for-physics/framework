@@ -6,6 +6,7 @@
 #include <TSystem.h>
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <cstdlib>
@@ -15,6 +16,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "../../../../macros/legacy/LegacyRecoveryCandidateValidation.h"
 #include "../../../../macros/legacy/LegacyRecoveryFileUtils.h"
@@ -198,6 +200,98 @@ TEST(LegacyRecoveryCandidateValidation, InvalidCandidateLeavesOriginalUntouched)
     EXPECT_TRUE(fs::is_regular_file(replacement));
     EXPECT_FALSE(fs::exists(backup));
     EXPECT_NE(errors.str().find("no readable EventTree"), std::string::npos);
+    EXPECT_NE(errors.str().find("were not touched"), std::string::npos);
+}
+
+TEST(LegacyRecoveryCandidateValidation, CopiesAndValidatesEveryAdditionalTopLevelTree) {
+    TemporaryDirectory temporary;
+    const auto sourcePath = temporary.path / "source.root";
+    const auto candidatePath = temporary.path / "candidate.root";
+    {
+        TFile source(sourcePath.string().c_str(), "CREATE");
+        ASSERT_FALSE(source.IsZombie());
+        TTree customTree("CustomTree", "custom data");
+        int value = 1;
+        customTree.Branch("value", &value);
+        customTree.Fill();
+        ASSERT_GT(customTree.Write(), 0);
+        value = 2;
+        customTree.Fill();
+        ASSERT_GT(customTree.Write(), 0);  // newest cycle has two entries
+
+        TTree secondTree("SecondTree", "second custom tree");
+        double measurement = 3.5;
+        secondTree.Branch("measurement", &measurement);
+        secondTree.Fill();
+        ASSERT_GT(secondTree.Write(), 0);
+        source.Close();
+    }
+
+    std::vector<REST_LegacyRecovery::AdditionalTreeExpectation> expectations;
+    std::ostringstream errors;
+    {
+        TFile source(sourcePath.string().c_str(), "READ");
+        TFile candidate(candidatePath.string().c_str(), "CREATE");
+        ASSERT_TRUE(REST_LegacyRecovery::CopyAdditionalTopLevelTrees(source, candidate, expectations, errors))
+            << errors.str();
+        ASSERT_TRUE(REST_LegacyRecovery::CheckAndCloseOutputFile(candidate, errors)) << errors.str();
+        source.Close();
+    }
+
+    ASSERT_EQ(expectations.size(), 2U);
+    const auto custom = std::find_if(expectations.begin(), expectations.end(), [](const auto& expectation) {
+        return expectation.keyName == "CustomTree";
+    });
+    ASSERT_NE(custom, expectations.end());
+    EXPECT_EQ(custom->entries, 2);
+    EXPECT_EQ(custom->branches, std::vector<std::string>({"value"}));
+
+    {
+        TFile candidate(candidatePath.string().c_str(), "READ");
+        ASSERT_TRUE(REST_LegacyRecovery::ValidateAdditionalTopLevelTrees(candidate, expectations, errors))
+            << errors.str();
+    }
+
+    auto wrongInventory = expectations;
+    wrongInventory.front().branches.push_back("missing");
+    {
+        TFile candidate(candidatePath.string().c_str(), "READ");
+        errors.str("");
+        EXPECT_FALSE(REST_LegacyRecovery::ValidateAdditionalTopLevelTrees(candidate, wrongInventory, errors));
+        EXPECT_NE(errors.str().find("branch inventory"), std::string::npos);
+    }
+
+    {
+        TFile candidate(candidatePath.string().c_str(), "UPDATE");
+        TTree unexpected("UnexpectedTree", "unexpected");
+        int extra = 1;
+        unexpected.Branch("extra", &extra);
+        unexpected.Fill();
+        ASSERT_GT(unexpected.Write(), 0);
+        candidate.Close();
+    }
+    {
+        TFile candidate(candidatePath.string().c_str(), "READ");
+        errors.str("");
+        EXPECT_FALSE(REST_LegacyRecovery::ValidateAdditionalTopLevelTrees(candidate, expectations, errors));
+        EXPECT_NE(errors.str().find("inventory differs"), std::string::npos);
+    }
+
+    const auto originalPath = temporary.path / "in-place.root";
+    const auto backupPath = temporary.path / "in-place.root.bak";
+    WriteText(originalPath, "original");
+    const auto validateAdditionalTrees = [&expectations](const fs::path& path,
+                                                         std::ostream& validationErrors) {
+        TFile candidate(path.string().c_str(), "READ");
+        return REST_LegacyRecovery::ValidateAdditionalTopLevelTrees(candidate, expectations,
+                                                                    validationErrors);
+    };
+    errors.str("");
+    EXPECT_FALSE(REST_LegacyRecovery::ValidateAndReplaceFileWithBackup(
+        candidatePath, originalPath, backupPath, errors, validateAdditionalTrees));
+    EXPECT_EQ(ReadText(originalPath), "original");
+    EXPECT_TRUE(fs::is_regular_file(candidatePath));
+    EXPECT_FALSE(fs::exists(backupPath));
     EXPECT_NE(errors.str().find("were not touched"), std::string::npos);
 }
 

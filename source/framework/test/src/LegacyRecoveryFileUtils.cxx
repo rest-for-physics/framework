@@ -18,9 +18,11 @@
 namespace {
 
 namespace fs = std::filesystem;
+using REST_LegacyRecovery::BuildSiblingRootPath;
 using REST_LegacyRecovery::ComparePaths;
 using REST_LegacyRecovery::ParseInteger;
 using REST_LegacyRecovery::RecoveryProvenance;
+using REST_LegacyRecovery::RenamePath;
 using REST_LegacyRecovery::ReplaceFileWithBackup;
 using REST_LegacyRecovery::ResolvePathIdentity;
 using REST_LegacyRecovery::SourceIdentity;
@@ -101,6 +103,13 @@ TEST(LegacyRecoveryFileUtils, RejectsEquivalentAndExistingOutputPaths) {
     EXPECT_FALSE(fs::exists(newOutput));
 }
 
+TEST(LegacyRecoveryFileUtils, BuildsSiblingNamesFromTheFilenameExtensionOnly) {
+    EXPECT_EQ(BuildSiblingRootPath("/data/file.root", "_Fixed"), "/data/file_Fixed.root");
+    EXPECT_EQ(BuildSiblingRootPath("/data.root/file", "_Fixed"), "/data.root/file_Fixed.root");
+    EXPECT_EQ(BuildSiblingRootPath("/data/file.root.backup", "_Fixed"), "/data/file.root.backup_Fixed.root");
+    EXPECT_EQ(BuildSiblingRootPath("relative.root", "_LegacySignalData"), "relative_LegacySignalData.root");
+}
+
 TEST(LegacyRecoveryFileUtils, ReplacesOriginalAndKeepsBackup) {
     TemporaryDirectory temporary;
     const auto original = temporary.path / "input.root";
@@ -132,6 +141,21 @@ TEST(LegacyRecoveryFileUtils, RefusesExistingBackupWithoutChangingFiles) {
     EXPECT_EQ(ReadText(replacement), "fixed");
     EXPECT_EQ(ReadText(backup), "previous backup");
     EXPECT_NE(errors.str().find("Refusing to overwrite"), std::string::npos);
+}
+
+TEST(LegacyRecoveryFileUtils, RenameDoesNotOverwriteDestinationCreatedAfterPreflight) {
+    TemporaryDirectory temporary;
+    const auto source = temporary.path / "source.root";
+    const auto destination = temporary.path / "destination.root";
+    WriteText(source, "source");
+    WriteText(destination, "racer");
+
+    std::error_code error;
+    RenamePath(source, destination, error);
+
+    EXPECT_TRUE(error);
+    EXPECT_EQ(ReadText(source), "source");
+    EXPECT_EQ(ReadText(destination), "racer");
 }
 
 TEST(LegacyRecoveryFileUtils, PreservesFilesWhenBackupMoveFails) {

@@ -5,7 +5,8 @@
 // file in which:
 //   - the TRestDetectorSignalEventBranch is rebuilt with the current
 //     vector<Double_t>-based classes,
-//   - all other EventTree branches and the AnalysisTree are copied unchanged,
+//   - all other EventTree branches, the AnalysisTree, and every additional
+//     top-level TTree (highest key cycle) are copied unchanged,
 //   - all readable metadata keys (TRestRun, readout, processes, ...) are copied,
 //   - the event-class StreamerInfos ARE stored (they are missing from legacy
 //     restManager output, which is what made these files unreadable in the
@@ -33,7 +34,8 @@
 // Arguments:
 //   originalFile   - the legacy REST file
 //   signalDataFile - intermediate from stage 1; default: <original>_LegacySignalData.root
-//   outputFile     - default: <original>_Fixed.root (ignored when overwrite=true)
+//   outputFile     - default: <original>_Fixed.root, or <original>_FixedTmp.root
+//                    when overwrite=true; an explicit path is always honored
 //   overwrite      - replace originalFile in place, keeping a .bak copy
 
 #include <TBranchElement.h>
@@ -45,6 +47,7 @@
 #include <TTree.h>
 
 #include <cstdint>
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <set>
@@ -57,6 +60,9 @@
 #include "LegacyRecoveryProvenance.h"
 
 namespace REST_Rebuild_Internal {
+
+int gLegacySignalRebuildStatus = 1;
+bool gRequireCompleteRecovery = false;
 
 void SetBranchStatusRecursive(TBranch* branch, Bool_t status) {
     if (branch == nullptr) return;
@@ -143,17 +149,16 @@ bool ScanIntermediateTree(TTree* tree, IntermediateData& values, REST_LegacyReco
 void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDataFile = "",
                                   const char* outputFile = "", bool overwrite = false) {
     using namespace REST_Rebuild_Internal;
-
-    std::string base = originalFile;
-    const size_t pos = base.rfind(".root");
-    if (pos != std::string::npos) base = base.substr(0, pos);
+    gLegacySignalRebuildStatus = 1;
 
     std::string dataName = signalDataFile;
-    if (dataName.empty()) dataName = base + "_LegacySignalData.root";
+    if (dataName.empty())
+        dataName = REST_LegacyRecovery::BuildSiblingRootPath(originalFile, "_LegacySignalData").string();
 
     std::string outName = outputFile;
-    if (outName.empty()) outName = base + "_Fixed.root";
-    if (overwrite) outName = base + "_FixedTmp.root";
+    if (outName.empty())
+        outName = REST_LegacyRecovery::BuildSiblingRootPath(originalFile, overwrite ? "_FixedTmp" : "_Fixed")
+                      .string();
 
     if (!REST_LegacyRecovery::ValidateNewOutputPath(originalFile, outName, "fixed output", std::cout)) {
         return;
@@ -176,9 +181,9 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
     std::unique_ptr<TFile> data(TFile::Open(dataName.c_str()));
     if (data == nullptr || data->IsZombie()) {
         std::cout << "ERROR: cannot open signal data file: " << dataName << std::endl;
-        std::cout << "Run stage 1 first (with plain root, NOT restRoot):" << std::endl;
-        std::cout << "    root -l -b -q 'recoverLegacySignalData.C+(\"" << originalFile << "\")'"
-                  << std::endl;
+        std::cout << "Run recoverLegacySignalData.C first with plain root (NOT restRoot)." << std::endl;
+        std::cout << "  original:     " << originalFile << std::endl;
+        std::cout << "  intermediate: " << dataName << std::endl;
         return;
     }
 
@@ -449,6 +454,13 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
         std::cout << "WARNING: no AnalysisTree found; skipping." << std::endl;
     }
 
+    // --- copy every other top-level tree, using the highest key cycle ---
+    std::vector<REST_LegacyRecovery::AdditionalTreeExpectation> additionalTrees;
+    if (!REST_LegacyRecovery::CopyAdditionalTopLevelTrees(*original, *out, additionalTrees, std::cout)) {
+        REST_LegacyRecovery::CheckAndCloseOutputFile(*out, std::cout);
+        return;
+    }
+
     REST_LegacyRecovery::RecoveryProvenance resultProvenance = intermediateProvenance;
     resultProvenance.kind = REST_LegacyRecovery::kResultProvenanceKind;
     resultProvenance.recovered = scannedCounts;
@@ -478,6 +490,12 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
                   << " event branch(es) had no loaded dictionary and were NOT copied:" << std::endl;
         for (const auto& s : skippedEventBranches) std::cout << "   - " << s << std::endl;
     }
+    if (gRequireCompleteRecovery && (!skipped.empty() || !skippedEventBranches.empty())) {
+        std::cout
+            << "ERROR: strict recovery refuses a rebuilt file that omitted metadata or event branches.\n"
+            << "The original is unchanged. Inspect the candidate file at: " << outName << std::endl;
+        return;
+    }
 
     // --- overwrite handling ---
     std::string finalName = outName;
@@ -487,6 +505,7 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
     candidateExpectations.metadataKeys = copiedMetadataKeys;
     candidateExpectations.otherEventBranches = otherBranchNames;
     candidateExpectations.analysisBranches = analysisBranchNames;
+    candidateExpectations.additionalTrees = additionalTrees;
     const auto validateCandidate = [&candidateExpectations](const std::filesystem::path& path,
                                                             std::ostream& errors) {
         return REST_LegacyRecovery::ValidateRecoveryCandidate(path, candidateExpectations, errors);
@@ -497,6 +516,20 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
             std::cout << "ERROR: refusing in-place replacement because the rebuilt file has omitted "
                          "content.\n"
                       << "The original is unchanged. Inspect the candidate file at: " << outName << std::endl;
+            return;
+        }
+        std::error_code permissionError;
+        const auto originalPermissions = std::filesystem::status(originalFile, permissionError).permissions();
+        if (permissionError) {
+            std::cout << "ERROR: cannot read original file permissions: " << permissionError.message()
+                      << ". The original is unchanged." << std::endl;
+            return;
+        }
+        std::filesystem::permissions(outName, originalPermissions, std::filesystem::perm_options::replace,
+                                     permissionError);
+        if (permissionError) {
+            std::cout << "ERROR: cannot preserve original file permissions on the rebuilt candidate: "
+                      << permissionError.message() << ". The original is unchanged." << std::endl;
             return;
         }
         if (!REST_LegacyRecovery::ValidateAndReplaceFileWithBackup(outName, originalFile, backupName,
@@ -516,4 +549,41 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
     std::cout << "Rebuilt " << nEntries << " entries: " << scannedCounts.signals << " signals, "
               << scannedCounts.points << " points." << std::endl;
     std::cout << "Fixed file written to: " << finalName << std::endl;
+    gLegacySignalRebuildStatus = 0;
+}
+
+int REST_RebuildLegacySignalFileWithStatus(const char* originalFile, const char* signalDataFile = "",
+                                           const char* outputFile = "", bool overwrite = false,
+                                           bool requireComplete = false) {
+    REST_Rebuild_Internal::gRequireCompleteRecovery = requireComplete;
+    REST_RebuildLegacySignalFile(originalFile, signalDataFile, outputFile, overwrite);
+    REST_Rebuild_Internal::gRequireCompleteRecovery = false;
+    return REST_Rebuild_Internal::gLegacySignalRebuildStatus;
+}
+
+// No-argument entry point used only by the restRoot one-command orchestrator.
+// Paths come from the child environment and never enter ROOT's command parser.
+void REST_RebuildLegacySignalFile() {
+    const char* input = gSystem->Getenv("REST_LEGACY_RECOVERY_INPUT");
+    const char* intermediate = gSystem->Getenv("REST_LEGACY_RECOVERY_INTERMEDIATE");
+    const char* output = gSystem->Getenv("REST_LEGACY_RECOVERY_OUTPUT");
+    const char* inPlaceValue = gSystem->Getenv("REST_LEGACY_RECOVERY_IN_PLACE");
+    const char* requireCompleteValue = gSystem->Getenv("REST_LEGACY_RECOVERY_REQUIRE_COMPLETE");
+    if (input == nullptr || intermediate == nullptr || output == nullptr || inPlaceValue == nullptr ||
+        requireCompleteValue == nullptr) {
+        std::cerr << "ERROR: incomplete stage-2 recovery environment." << std::endl;
+        gSystem->Exit(64);
+        return;
+    }
+    const std::string inPlaceText(inPlaceValue);
+    const std::string requireCompleteText(requireCompleteValue);
+    if ((inPlaceText != "0" && inPlaceText != "1") ||
+        (requireCompleteText != "0" && requireCompleteText != "1")) {
+        std::cerr << "ERROR: invalid boolean value in the stage-2 recovery environment." << std::endl;
+        gSystem->Exit(64);
+        return;
+    }
+
+    gSystem->Exit(REST_RebuildLegacySignalFileWithStatus(input, intermediate, output, inPlaceText == "1",
+                                                         requireCompleteText == "1"));
 }

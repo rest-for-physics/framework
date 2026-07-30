@@ -122,6 +122,10 @@ static REST_LegacyRecovery::SignalSchemaVersions GetOnDiskSignalVersions(TBranch
     return versions;
 }
 
+namespace {
+int gLegacySignalExtractionStatus = 1;
+}
+
 static bool ValidateLegacyEvent(const TRestDetectorSignalEvent* event, Long64_t entry,
                                 std::uint64_t& signalCount, std::uint64_t& pointCount,
                                 Long64_t* suspectValues, std::ostream& errors) {
@@ -168,23 +172,21 @@ static bool ValidateLegacyEvent(const TRestDetectorSignalEvent* event, Long64_t 
 }
 
 void recoverLegacySignalData(const char* inputFile, const char* outputFile = "") {
+    gLegacySignalExtractionStatus = 1;
     // Refuse to run if the real REST libraries are loaded (restRoot session):
     // the replica classes above would clash with the compiled ones.
     TString loadedLibraries = gSystem->GetLibraries();
     if (loadedLibraries.Contains("libRestFramework") || loadedLibraries.Contains("libRestDetector")) {
         std::cout << "ERROR: REST libraries are loaded in this session." << std::endl;
-        std::cout << "Run this macro with plain root, not restRoot:" << std::endl;
-        std::cout << "    root -l -b -q 'recoverLegacySignalData.C+(\"" << inputFile << "\")'" << std::endl;
+        std::cout << "Exit this session and use the isolated one-command workflow:" << std::endl;
+        std::cout << "    restRoot --recover-legacy-signals INPUT" << std::endl;
+        std::cout << "  input: " << inputFile << std::endl;
         return;
     }
 
     std::string outName = outputFile;
-    if (outName.empty()) {
-        outName = inputFile;
-        const size_t pos = outName.rfind(".root");
-        if (pos != std::string::npos) outName = outName.substr(0, pos);
-        outName += "_LegacySignalData.root";
-    }
+    if (outName.empty())
+        outName = REST_LegacyRecovery::BuildSiblingRootPath(inputFile, "_LegacySignalData").string();
     if (!REST_LegacyRecovery::ValidateNewOutputPath(inputFile, outName, "legacy signal data output",
                                                     std::cout)) {
         return;
@@ -379,7 +381,28 @@ void recoverLegacySignalData(const char* inputFile, const char* outputFile = "")
                   << " suspicious values (|v| > 1e12) found — the recovered data may be corrupted!"
                   << std::endl;
     std::cout << "Signal data written to: " << outName << std::endl;
-    std::cout << std::endl;
-    std::cout << "Next step — rebuild the fixed file with restRoot:" << std::endl;
-    std::cout << "    restRoot -b -q 'REST_RebuildLegacySignalFile.C(\"" << inputFile << "\")'" << std::endl;
+    std::cout << "Run REST_RebuildLegacySignalFile.C in a fresh restRoot process to rebuild the final file."
+              << std::endl;
+    std::cout << "  original:     " << inputFile << std::endl;
+    std::cout << "  intermediate: " << outName << std::endl;
+    gLegacySignalExtractionStatus = 0;
+}
+
+int recoverLegacySignalDataWithStatus(const char* inputFile, const char* outputFile = "") {
+    recoverLegacySignalData(inputFile, outputFile);
+    return gLegacySignalExtractionStatus;
+}
+
+// No-argument entry point used only by the restRoot one-command orchestrator.
+// Paths come from the child environment and never enter ROOT's command parser.
+void recoverLegacySignalData() {
+    const char* input = gSystem->Getenv("REST_LEGACY_RECOVERY_INPUT");
+    const char* intermediate = gSystem->Getenv("REST_LEGACY_RECOVERY_INTERMEDIATE");
+    const char* workDirectory = gSystem->Getenv("REST_LEGACY_RECOVERY_WORK_DIR");
+    if (input == nullptr || intermediate == nullptr || workDirectory == nullptr) {
+        std::cerr << "ERROR: incomplete stage-1 recovery environment." << std::endl;
+        gSystem->Exit(64);
+        return;
+    }
+    gSystem->Exit(recoverLegacySignalDataWithStatus(input, intermediate));
 }
