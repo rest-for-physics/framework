@@ -21,6 +21,7 @@
 //
 // The intermediate file is written next to the input as
 // <input>_LegacySignalData.root unless an explicit output path is given.
+// Existing output files are never overwritten.
 //
 // This file is deliberately NOT named REST_*.C so that restRoot's --m macro
 // loading does not interpret it (the replica class definitions below would
@@ -38,6 +39,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include "LegacyRecoveryFileUtils.h"
 
 //------------------------------------------------------------------------------
 // Replica classes matching the legacy on-disk layout (REST <= v2.4.2).
@@ -105,6 +108,18 @@ void recoverLegacySignalData(const char* inputFile, const char* outputFile = "")
         return;
     }
 
+    std::string outName = outputFile;
+    if (outName.empty()) {
+        outName = inputFile;
+        const size_t pos = outName.rfind(".root");
+        if (pos != std::string::npos) outName = outName.substr(0, pos);
+        outName += "_LegacySignalData.root";
+    }
+    if (!REST_LegacyRecovery::ValidateNewOutputPath(inputFile, outName, "legacy signal data output",
+                                                    std::cout)) {
+        return;
+    }
+
     TFile* f = TFile::Open(inputFile);
     if (f == nullptr || f->IsZombie()) {
         std::cout << "ERROR: cannot open input file: " << inputFile << std::endl;
@@ -140,16 +155,11 @@ void recoverLegacySignalData(const char* inputFile, const char* outputFile = "")
     auto event = new TRestDetectorSignalEvent();
     eventTree->SetBranchAddress("TRestDetectorSignalEventBranch", &event);
 
-    // Output file
-    std::string outName = outputFile;
-    if (outName.empty()) {
-        outName = inputFile;
-        const size_t pos = outName.rfind(".root");
-        if (pos != std::string::npos) outName = outName.substr(0, pos);
-        outName += "_LegacySignalData.root";
+    TFile out(outName.c_str(), "CREATE");
+    if (out.IsZombie()) {
+        std::cout << "ERROR: cannot create output file: " << outName << std::endl;
+        return;
     }
-
-    TFile out(outName.c_str(), "RECREATE");
     TTree dataTree("LegacySignalData", "TRestDetectorSignalEvent data recovered from legacy file");
 
     // Event header

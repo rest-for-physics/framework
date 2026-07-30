@@ -17,6 +17,13 @@
 //   REST_RebuildLegacySignalFile("input.root", "", "", true)
 //       overwrites input.root in place (the original is kept as input.root.bak)
 //
+// The macro never overwrites an existing output or backup. In-place recovery
+// refuses to start while input.root.bak or its temporary fixed file exists.
+// Event branches without a loaded dictionary and metadata objects unreadable
+// with the current libraries cannot be copied. They are reported explicitly;
+// if any are encountered, in-place recovery is refused and the fixed file is
+// left at <input>_FixedTmp.root for inspection.
+//
 // Arguments:
 //   originalFile   - the legacy REST file
 //   signalDataFile - intermediate from stage 1; default: <original>_LegacySignalData.root
@@ -29,13 +36,14 @@
 #include <TNamed.h>
 #include <TRestDetectorSignalEvent.h>
 #include <TString.h>
-#include <TSystem.h>
 #include <TTree.h>
 
 #include <iostream>
 #include <set>
 #include <string>
 #include <vector>
+
+#include "LegacyRecoveryFileUtils.h"
 
 namespace REST_Rebuild_Internal {
 
@@ -80,6 +88,18 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
     std::string outName = outputFile;
     if (outName.empty()) outName = base + "_Fixed.root";
     if (overwrite) outName = base + "_FixedTmp.root";
+
+    if (!REST_LegacyRecovery::ValidateNewOutputPath(originalFile, outName, "fixed output", std::cout)) {
+        return;
+    }
+    if (!REST_LegacyRecovery::ValidateNewOutputPath(dataName, outName, "fixed output", std::cout)) {
+        return;
+    }
+
+    const std::string backupName = std::string(originalFile) + ".bak";
+    if (overwrite && !REST_LegacyRecovery::ValidateUnusedPath(backupName, "backup path", std::cout)) {
+        return;
+    }
 
     // --- open inputs ---
     TFile* original = TFile::Open(originalFile);
@@ -143,7 +163,7 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
     dataTree->SetBranchAddress("charges", &charges);
 
     // --- output file (single write session: StreamerInfos are preserved) ---
-    TFile* out = TFile::Open(outName.c_str(), "RECREATE");
+    TFile* out = TFile::Open(outName.c_str(), "CREATE");
     if (out == nullptr || out->IsZombie()) {
         std::cout << "ERROR: cannot create output file: " << outName << std::endl;
         return;
@@ -181,6 +201,7 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
     SetBranchStatusRecursive(signalBranch, 0);
 
     std::vector<std::string> otherBranchNames;
+    std::vector<std::string> skippedEventBranches;
     TIter nextBranch(oldTree->GetListOfBranches());
     TBranch* br;
     while ((br = (TBranch*)nextBranch())) {
@@ -191,6 +212,7 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
         if (TClass::GetClass(className.c_str()) == nullptr) {
             std::cout << "WARNING: no dictionary for event class '" << className << "'; branch '" << name
                       << "' will NOT be copied!" << std::endl;
+            skippedEventBranches.push_back(name + " (" + className + ")");
             SetBranchStatusRecursive(br, 0);
             continue;
         }
@@ -258,28 +280,36 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
     original->Close();
     data->Close();
 
-    // --- overwrite handling ---
-    std::string finalName = outName;
-    if (overwrite) {
-        const std::string backup = std::string(originalFile) + ".bak";
-        if (gSystem->Rename(originalFile, backup.c_str()) != 0) {
-            std::cout << "ERROR: could not move original to " << backup << "; fixed file left at " << outName
-                      << std::endl;
-            return;
-        }
-        gSystem->Rename(outName.c_str(), originalFile);
-        finalName = originalFile;
-        std::cout << "Original file kept as: " << backup << std::endl;
-    }
-
-    std::cout << std::endl;
-    std::cout << "Rebuilt " << nEntries << " entries: " << totalSignals << " signals, " << totalPoints
-              << " points." << std::endl;
     if (!skipped.empty()) {
         std::cout << "WARNING: " << skipped.size()
                   << " metadata key(s) could not be read with the current libraries and were NOT copied:"
                   << std::endl;
         for (const auto& s : skipped) std::cout << "   - " << s << std::endl;
     }
+    if (!skippedEventBranches.empty()) {
+        std::cout << "WARNING: " << skippedEventBranches.size()
+                  << " event branch(es) had no loaded dictionary and were NOT copied:" << std::endl;
+        for (const auto& s : skippedEventBranches) std::cout << "   - " << s << std::endl;
+    }
+
+    // --- overwrite handling ---
+    std::string finalName = outName;
+    if (overwrite) {
+        if (!skipped.empty() || !skippedEventBranches.empty()) {
+            std::cout << "ERROR: refusing in-place replacement because the rebuilt file has omitted "
+                         "content.\n"
+                      << "The original is unchanged. Inspect the candidate file at: " << outName << std::endl;
+            return;
+        }
+        if (!REST_LegacyRecovery::ReplaceFileWithBackup(outName, originalFile, backupName, std::cout)) {
+            return;
+        }
+        finalName = originalFile;
+        std::cout << "Original file kept as: " << backupName << std::endl;
+    }
+
+    std::cout << std::endl;
+    std::cout << "Rebuilt " << nEntries << " entries: " << totalSignals << " signals, " << totalPoints
+              << " points." << std::endl;
     std::cout << "Fixed file written to: " << finalName << std::endl;
 }
