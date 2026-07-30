@@ -104,6 +104,7 @@
 #include "TRestDataSetOdds.h"
 
 #include "TRestDataSet.h"
+#include "TRestTools.h"
 
 ClassImp(TRestDataSetOdds);
 
@@ -273,11 +274,15 @@ void TRestDataSetOdds::ComputeLogOdds() {
         if (TRestTools::GetFileNameExtension(fOutputFileName) == "root") {
             RESTDebug << "Exporting dataset to " << fOutputFileName << RESTendl;
             dataSet.Export(fOutputFileName);
-            TFile* f = TFile::Open(fOutputFileName.c_str(), "UPDATE");
+            auto file = TRestRootFileHandle::Open(fOutputFileName, TRestRootFileMode::Update);
+            if (!file) {
+                RESTError << file.Error() << RESTendl;
+                return;
+            }
             this->Write();
             RESTDebug << "Writing histograms to " << fOutputFileName << RESTendl;
             for (const auto& [obsName, histo] : fHistos) histo->Write();
-            f->Close();
+            if (!file.Close()) RESTError << file.Error() << RESTendl;
         }
     }
 }

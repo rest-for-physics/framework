@@ -9,6 +9,7 @@
 #include "TRestEventProcess.h"
 #include "TRestMetadata.h"
 #include "TRestRun.h"
+#include "TRestTools.h"
 
 #define TIME_MEASUREMENT
 
@@ -36,6 +37,7 @@ class TRestProcessRunner : public TRestMetadata {
 
     // self variables for processing
     std::vector<TRestThread*> fThreads;  //!
+    TRestRootFileHandle fOutputDataFileOwner;  //!
     TFile* fOutputDataFile;              //! the TFile pointer being used
     TString fOutputDataFileName;  //! indicates the name of the first file created as output data file. The
                                   //! actual output file maybe changed if tree is too large
@@ -99,7 +101,7 @@ class TRestProcessRunner : public TRestMetadata {
     void FillThreadEventFunc(TRestThread* t);
     void ConfigOutputFile();
     void MergeOutputFile();
-    void WriteProcessesMetadata();
+    void WriteProcessesMetadata(TFile* destination = nullptr);
 
     // tools
     void ResetRunTimes();

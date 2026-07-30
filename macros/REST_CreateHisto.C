@@ -5,6 +5,7 @@
 #include <TMath.h>
 #include <TRestRun.h>
 #include <TRestTask.h>
+#include <TRestTools.h>
 #include <TSystem.h>
 
 #ifndef RestTask_CreateHisto
@@ -54,9 +55,13 @@ Int_t REST_CreateHisto(string varName, string rootFileName, TString histoName, i
 
     h->Scale(normFactor);
 
-    TFile* f = new TFile((TString)rootFileName, "update");
+    auto file = TRestRootFileHandle::Open(rootFileName, TRestRootFileMode::Update);
+    if (!file) {
+        RESTLog << file.Error() << RESTendl;
+        return -1;
+    }
     h->Write(histoName);
-    f->Close();
+    if (!file.Close()) return -1;
 
     RESTLog << "Written histogram " << histoName << " into " << rootFileName << RESTendl;
 
