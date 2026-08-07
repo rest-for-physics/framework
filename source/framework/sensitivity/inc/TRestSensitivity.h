@@ -29,13 +29,16 @@
 class TRestSensitivity : public TRestMetadata {
    private:
     /// A list of experimental conditions included to get a final sensitivity plot
-    std::vector<TRestExperiment*> fExperiments;  //!
+    std::vector<TRestExperiment*> fExperiments;  //<
 
     /// The fusioned list of parameterization nodes found at each experiment signal
     std::vector<Double_t> fParameterizationNodes;  //<
 
     /// A vector of calculated sensitivity curves defined as a funtion of the parametric node
     std::vector<std::vector<Double_t>> fCurves;  //<
+
+    /// If disabled the experiments will not be saved to disk
+    Bool_t fSaveExperiments = false;  //<
 
     /// A flag that will frozen adding more experiments in the future.
     Bool_t fFrozen = false;  //<  Only needed if we add experiments by other means than RML
@@ -66,6 +69,7 @@ class TRestSensitivity : public TRestMetadata {
     void GenerateCurves(Int_t N);
 
     std::vector<Double_t> GetCurve(size_t n = 0);
+    std::vector<Double_t> ExportCurve(size_t n = 0) { return GetCurve(n); }
     std::vector<Double_t> GetAveragedCurve();
     std::vector<std::vector<Double_t>> GetLevelCurves(const std::vector<Double_t>& levels);
 
@@ -74,7 +78,8 @@ class TRestSensitivity : public TRestMetadata {
 
     TH1D* SignalStatisticalTest(Double_t node, Int_t N);
 
-    void Freeze() { fFrozen = true; }
+    void Freeze(Bool_t freeze = true) { fFrozen = freeze; }
+    void SaveExperiments(Bool_t save = true) { fSaveExperiments = save; }
 
     std::vector<TRestExperiment*> GetExperiments() { return fExperiments; }
     TRestExperiment* GetExperiment(const size_t& n) {
@@ -90,6 +95,8 @@ class TRestSensitivity : public TRestMetadata {
 
     void PrintMetadata() override;
 
+    virtual Int_t Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0) override;
+
     TCanvas* DrawCurves();
     TCanvas* DrawLevelCurves();
 
@@ -97,6 +104,6 @@ class TRestSensitivity : public TRestMetadata {
     TRestSensitivity();
     ~TRestSensitivity();
 
-    ClassDefOverride(TRestSensitivity, 2);
+    ClassDefOverride(TRestSensitivity, 4);
 };
 #endif

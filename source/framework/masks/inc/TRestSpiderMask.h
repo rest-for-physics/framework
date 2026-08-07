@@ -28,7 +28,6 @@
 /// A class used to define and generate a spider structure mask
 class TRestSpiderMask : public TRestPatternMask {
    private:
-    void Initialize() override;
     /// The angle between two consecutive spider arms measured in radians.
     Double_t fArmsSeparationAngle = 0;  //<
 
@@ -48,6 +47,8 @@ class TRestSpiderMask : public TRestPatternMask {
     std::vector<std::pair<Double_t, Double_t>> fNegativeRanges;  //!
 
    public:
+    void Initialize() override;
+
     void GenerateSpider();
 
     virtual Int_t GetRegion(Double_t& x, Double_t& y) override;
@@ -57,6 +58,12 @@ class TRestSpiderMask : public TRestPatternMask {
 
     /// It returns the angular width of each spider arm in radians
     Double_t GetArmsWidth() { return fArmsWidth; }
+
+    /// It returns the number of arms in the spider structure
+    size_t GetNumberOfArms() {
+        if (fArmsSeparationAngle == 0) return 0;
+        return (size_t)(2 * TMath::Pi() / fArmsSeparationAngle);
+    }
 
     /// It returns the inner ring radius that defines the inner start of the spider structure
     Double_t GetInitialRadius() { return fInitialRadius; }

@@ -173,7 +173,7 @@ void TRestExperiment::InitFromConfigFile() {
 
     auto ele = GetElement("addComponent");
     if (ele != nullptr) {
-        std::string filename = GetParameter("filename", ele, "");
+        std::string filename = SearchFile(GetParameter("filename", ele, ""));
         std::string component = GetParameter("component", ele, "");
 
         if (filename.empty())
@@ -221,7 +221,7 @@ void TRestExperiment::InitFromConfigFile() {
 
     if (!fSignal) {
         RESTError << "TRestExperiment : " << GetName() << RESTendl;
-        RESTError << "There was a problem initiazing the signal component!" << RESTendl;
+        RESTError << "There was a problem initializing the signal component!" << RESTendl;
         return;
     }
 
