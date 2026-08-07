@@ -56,6 +56,7 @@ class TRestCut : public TRestMetadata {
     TRestCut& operator=(TRestCut& cut);
 
     void PrintMetadata() override;
+    void Print();
 
     Int_t Write(const char* name, Int_t option, Int_t bufsize) override;
 
