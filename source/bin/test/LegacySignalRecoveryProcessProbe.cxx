@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
             while (true) pause();
         }
 
-        struct sigaction action{};
+        struct sigaction action {};
         action.sa_handler = RecordSignal;
         sigemptyset(&action.sa_mask);
         if (sigaction(SIGTERM, &action, nullptr) != 0) return 5;

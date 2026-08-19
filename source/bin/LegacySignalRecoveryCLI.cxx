@@ -93,7 +93,7 @@ class SignalForwardingGuard {
    public:
     explicit SignalForwardingGuard(pid_t child) {
         gActiveChildProcessGroup = child;
-        struct sigaction action{};
+        struct sigaction action {};
         action.sa_handler = ForwardSignalToChild;
         sigemptyset(&action.sa_mask);
         action.sa_flags = 0;
@@ -110,9 +110,9 @@ class SignalForwardingGuard {
     }
 
    private:
-    struct sigaction fPreviousInterrupt{};
-    struct sigaction fPreviousTerminate{};
-    struct sigaction fPreviousHangup{};
+    struct sigaction fPreviousInterrupt {};
+    struct sigaction fPreviousTerminate {};
+    struct sigaction fPreviousHangup {};
 };
 #endif
 
@@ -392,7 +392,7 @@ bool CreateUniqueWorkDirectory(const std::filesystem::path& parent, std::filesys
                 return false;
             }
 #ifndef _WIN32
-            struct stat directoryStatus{};
+            struct stat directoryStatus {};
             if (stat(candidate.c_str(), &directoryStatus) != 0 ||
                 (directoryStatus.st_mode & 0777) != S_IRWXU) {
                 std::filesystem::remove(candidate);

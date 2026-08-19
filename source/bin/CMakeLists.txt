@@ -24,31 +24,25 @@ foreach (file ${files})
 endforeach (file)
 
 if (TEST)
-    set(LEGACY_SIGNAL_RECOVERY_CLI_TEST_SOURCE
-        test/LegacySignalRecoveryCLI.cxx)
-    add_executable(
-        testRestRootLegacySignalRecoveryProcessProbe
-        test/LegacySignalRecoveryProcessProbe.cxx)
+    set(LEGACY_SIGNAL_RECOVERY_CLI_TEST_SOURCE test/LegacySignalRecoveryCLI.cxx)
+    add_executable(testRestRootLegacySignalRecoveryProcessProbe
+                   test/LegacySignalRecoveryProcessProbe.cxx)
     add_executable(
         testRestRootLegacySignalRecovery
-        ${LEGACY_SIGNAL_RECOVERY_CLI_TEST_SOURCE}
-        LegacySignalRecoveryCLI.cxx)
-    target_include_directories(
-        testRestRootLegacySignalRecovery PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-    target_link_libraries(
-        testRestRootLegacySignalRecovery PRIVATE gtest_main)
+        ${LEGACY_SIGNAL_RECOVERY_CLI_TEST_SOURCE} LegacySignalRecoveryCLI.cxx)
+    target_include_directories(testRestRootLegacySignalRecovery
+                               PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_link_libraries(testRestRootLegacySignalRecovery PRIVATE gtest_main)
     target_compile_definitions(
         testRestRootLegacySignalRecovery
         PRIVATE
             REST_LEGACY_RECOVERY_PROCESS_PROBE="$<TARGET_FILE:testRestRootLegacySignalRecoveryProcessProbe>"
     )
-    add_dependencies(
-        testRestRootLegacySignalRecovery
-        testRestRootLegacySignalRecoveryProcessProbe)
+    add_dependencies(testRestRootLegacySignalRecovery
+                     testRestRootLegacySignalRecoveryProcessProbe)
     include(GoogleTest)
-    gtest_add_tests(
-        TARGET testRestRootLegacySignalRecovery
-        SOURCES ${LEGACY_SIGNAL_RECOVERY_CLI_TEST_SOURCE})
+    gtest_add_tests(TARGET testRestRootLegacySignalRecovery
+                    SOURCES ${LEGACY_SIGNAL_RECOVERY_CLI_TEST_SOURCE})
 endif ()
 
 set(rest_exes

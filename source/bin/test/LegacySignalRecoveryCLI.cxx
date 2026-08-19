@@ -172,7 +172,7 @@ TEST(LegacySignalRecoveryCLI, CreatesPrivateWorkDirectory) {
     fs::path work;
     std::string error;
     ASSERT_TRUE(CreateUniqueWorkDirectory(temporary.path, work, error)) << error;
-    struct stat status{};
+    struct stat status {};
     ASSERT_EQ(stat(work.c_str(), &status), 0);
     EXPECT_EQ(status.st_mode & 0777, 0700);
 }

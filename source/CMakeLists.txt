@@ -114,11 +114,11 @@ if (NOT TARGET RestTrack)
 endif ()
 
 if (BUILD_LEGACY_SIGNAL_TEST)
-    set(
-        REST_LEGACY_SIGNAL_TEST_FILE
+    set(REST_LEGACY_SIGNAL_TEST_FILE
         ""
-        CACHE FILEPATH
-              "Optional canonical legacy DetectorSignal ROOT file for integration tests"
+        CACHE
+            FILEPATH
+            "Optional canonical legacy DetectorSignal ROOT file for integration tests"
     )
     set(LEGACY_SIGNAL_TEST_SOURCE
         framework/test/integration/LegacyDetectorSignal.cxx)
@@ -129,15 +129,13 @@ if (BUILD_LEGACY_SIGNAL_TEST)
                 framework/core/inc libraries/detector/inc libraries/raw/inc)
     target_compile_definitions(
         testLegacyDetectorSignal
-        PRIVATE
-            REST_LEGACY_SIGNAL_TEST_FILE="${REST_LEGACY_SIGNAL_TEST_FILE}")
+        PRIVATE REST_LEGACY_SIGNAL_TEST_FILE="${REST_LEGACY_SIGNAL_TEST_FILE}")
     target_link_libraries(
-        testLegacyDetectorSignal
-        PRIVATE RestDetector RestRaw RestTrack RestFramework gtest_main
-                stdc++fs)
+        testLegacyDetectorSignal PRIVATE RestDetector RestRaw RestTrack
+                                         RestFramework gtest_main stdc++fs)
     include(GoogleTest)
-    gtest_add_tests(
-        TARGET testLegacyDetectorSignal SOURCES ${LEGACY_SIGNAL_TEST_SOURCE})
+    gtest_add_tests(TARGET testLegacyDetectorSignal
+                    SOURCES ${LEGACY_SIGNAL_TEST_SOURCE})
 endif ()
 unset(BUILD_LEGACY_SIGNAL_TEST)
 
