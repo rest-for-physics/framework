@@ -160,7 +160,7 @@ std::optional<LocalFileIdentity> CaptureLocalFileIdentity(const std::filesystem:
         return std::nullopt;
     }
 #ifndef WIN32
-    struct stat status{};
+    struct stat status {};
     if (::stat(path.c_str(), &status) != 0) {
         error = "Cannot inspect filesystem identity of " + path.string() + ": " + std::strerror(errno);
         return std::nullopt;

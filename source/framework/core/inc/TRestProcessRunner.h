@@ -36,9 +36,9 @@ class TRestProcessRunner : public TRestMetadata {
     TRestEvent* fOutputEvent;  //!
 
     // self variables for processing
-    std::vector<TRestThread*> fThreads;  //!
+    std::vector<TRestThread*> fThreads;        //!
     TRestRootFileHandle fOutputDataFileOwner;  //!
-    TFile* fOutputDataFile;              //! the TFile pointer being used
+    TFile* fOutputDataFile;                    //! the TFile pointer being used
     TString fOutputDataFileName;  //! indicates the name of the first file created as output data file. The
                                   //! actual output file maybe changed if tree is too large
     TTree* fEventTree;            //!
