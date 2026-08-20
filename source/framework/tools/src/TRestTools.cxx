@@ -45,6 +45,7 @@
 
 #include <TArrayC.h>
 #include <TClass.h>
+#include <TClassEdit.h>
 #include <TDirectory.h>
 #include <TFile.h>
 #include <TFileMerger.h>
@@ -97,6 +98,7 @@ using namespace std;
 
 namespace {
 #ifdef REST_TESTING_ENABLED
+std::atomic_bool gForceNextRootUpdatePreflightFailure{false};
 std::atomic_bool gForceNextMergeValidationFailure{false};
 #endif
 
@@ -221,6 +223,12 @@ bool ReadSchemaSnapshot(TFile& file, RootSchemaSnapshot& snapshot, std::string& 
 bool IsSubset(const RootSchemaSnapshot& expected, const RootSchemaSnapshot& actual, std::string& error) {
     for (const auto& info : expected.streamerInfos) {
         if (actual.streamerInfos.count(info) == 0) {
+            // ROOT deliberately normalizes or omits implementation metadata for
+            // standard-library types when it rewrites StreamerInfo. These are
+            // not user schemas; exact historical identities remain mandatory
+            // for every other class.
+            if (TClassEdit::IsStdClass(info.name.c_str()) || TClassEdit::IsStdPairBase(info.name.c_str()))
+                continue;
             error = "Merged file lost StreamerInfo " + info.name + " version " +
                     std::to_string(info.version) + " checksum " + std::to_string(info.checksum);
             return false;
@@ -405,38 +413,60 @@ bool LoadOnDiskSchemaRules(const RootSchemaSnapshot& snapshot, std::string& erro
     return true;
 }
 
-TStreamerInfo* FindRegisteredStreamerInfo(const StreamerInfoIdentity& identity) {
-    TClass* cl = TClass::GetClass(identity.name.c_str(), kFALSE);
-    if (cl == nullptr) return nullptr;
+bool ResolveOnDiskStreamerInfos(TFile& file, std::vector<Int_t>& numbers, Int_t& maximumNumber,
+                                std::string& error) {
+    numbers.clear();
+    maximumNumber = 0;
+    if (file.GetSeekInfo() == 0) return true;
 
-    const TObjArray* infos = cl->GetStreamerInfos();
-    if (infos == nullptr) return nullptr;
-    for (Int_t index = 0; index < infos->GetEntriesFast(); ++index) {
-        auto* candidate = dynamic_cast<TStreamerInfo*>(infos->UncheckedAt(index));
-        if (candidate == nullptr || candidate->GetCheckSum() != identity.checksum) continue;
-        if (candidate->GetClassVersion() == identity.version ||
-            candidate->GetOnFileClassVersion() == identity.version)
-            return candidate;
+    std::unique_ptr<TList> infos(file.GetStreamerInfoList());
+    if (infos == nullptr) {
+        error = "ROOT could not resolve the existing StreamerInfo record";
+        return false;
     }
-    return nullptr;
+
+    // This mirrors TFile::ReadStreamerInfo. BuildCheck may transfer an
+    // on-disk TStreamerInfo into ROOT's global registry, while aliases and
+    // ROOT-managed implementation descriptors are marked kCanDelete. An
+    // owning TList would destroy the globally registered objects.
+    infos->SetOwner(kFALSE);
+    std::set<Int_t> resolvedNumbers;
+    std::string unresolvedError;
+    TIter next(infos.get());
+    while (TObject* object = next()) {
+        auto* info = dynamic_cast<TStreamerInfo*>(object);
+        if (info == nullptr) {
+            object->SetBit(TObject::kCanDelete);
+            continue;
+        }
+
+        info->BuildCheck(&file);
+        const Int_t number = info->GetNumber();
+        if (number > 0) {
+            resolvedNumbers.insert(number);
+            maximumNumber = std::max(maximumNumber, number);
+        } else if (!info->TestBit(TObject::kCanDelete) && unresolvedError.empty()) {
+            unresolvedError = "Cannot preserve StreamerInfo " + std::string(info->GetName()) + " version " +
+                              std::to_string(info->GetClassVersion()) + " checksum " +
+                              std::to_string(info->GetCheckSum());
+        }
+    }
+    infos->Clear();
+
+    if (!unresolvedError.empty()) {
+        error = unresolvedError;
+        return false;
+    }
+    numbers.assign(resolvedNumbers.begin(), resolvedNumbers.end());
+    return true;
 }
 
 bool ResolveSchemaUpdate(TFile& file, std::vector<Int_t>& numbers, Int_t& maximumNumber, std::string& error) {
     RootSchemaSnapshot snapshot;
-    if (!ReadSchemaSnapshot(file, snapshot, error) || !LoadOnDiskSchemaRules(snapshot, error)) return false;
-
-    numbers.clear();
-    maximumNumber = 0;
-    for (const auto& identity : snapshot.streamerInfos) {
-        TStreamerInfo* registered = FindRegisteredStreamerInfo(identity);
-        if (registered == nullptr || registered->GetNumber() <= 0) {
-            error = "Cannot preserve StreamerInfo " + identity.name + " version " +
-                    std::to_string(identity.version) + " checksum " + std::to_string(identity.checksum);
-            return false;
-        }
-        numbers.push_back(registered->GetNumber());
-        maximumNumber = std::max(maximumNumber, registered->GetNumber());
-    }
+    if (!ReadSchemaSnapshot(file, snapshot, error) ||
+        !ResolveOnDiskStreamerInfos(file, numbers, maximumNumber, error) ||
+        !LoadOnDiskSchemaRules(snapshot, error))
+        return false;
     return true;
 }
 
@@ -619,6 +649,14 @@ bool TRestRootFileHandle::PrepareBorrowedUpdate(TFile& file, std::string* error)
         if (error != nullptr) *error = localError;
         return false;
     }
+
+#ifdef REST_TESTING_ENABLED
+    if (gForceNextRootUpdatePreflightFailure.exchange(false)) {
+        localError = "Forced writable ROOT preflight failure for testing";
+        if (error != nullptr) *error = localError;
+        return false;
+    }
+#endif
 
     if (file.ReOpen("UPDATE") != 0 || !file.IsWritable()) {
         localError = "ROOT could not transition '" + filename + "' from the validated READ handle to UPDATE";
@@ -1351,6 +1389,13 @@ bool TRestTools::IsRemoteRootPath(const std::string& filename) {
 
 #ifdef REST_TESTING_ENABLED
 ///////////////////////////////////////////////
+/// \brief Forces one writable ROOT preflight failure for no-mutation tests.
+///
+void TRestTools::ForceNextRootUpdatePreflightFailureForTesting() {
+    gForceNextRootUpdatePreflightFailure.store(true);
+}
+
+///////////////////////////////////////////////
 /// \brief Forces one post-replacement validation failure for rollback tests.
 ///
 void TRestTools::ForceNextTransactionalMergeValidationFailureForTesting() {
@@ -1403,22 +1448,32 @@ bool TRestTools::MergeRootFilesTransactionally(const std::string& outputFile,
 
     RootSchemaSnapshot expectedSchema;
     RootContentManifest expectedContent;
-    for (const auto& sourceName : sources) {
+    RootContentManifest expectedInputContent;
+    std::set<Int_t> resolvedSchemaNumbers;
+    Int_t maximumSchemaNumber = 0;
+    for (std::size_t sourceIndex = 0; sourceIndex < sources.size(); ++sourceIndex) {
+        const auto& sourceName = sources[sourceIndex];
         std::unique_ptr<TFile> source(TFile::Open(sourceName.c_str(), "READ"));
         RootSchemaSnapshot sourceSchema;
         RootContentManifest sourceContent;
+        std::vector<Int_t> sourceSchemaNumbers;
+        Int_t sourceMaximumNumber = 0;
         if (source == nullptr || !source->IsOpen() || source->IsZombie()) {
             localError = "Cannot open ROOT merge input '" + sourceName + "'";
             if (error != nullptr) *error = localError;
             return false;
         }
         if (!ReadSchemaSnapshot(*source, sourceSchema, localError) ||
+            !ResolveOnDiskStreamerInfos(*source, sourceSchemaNumbers, sourceMaximumNumber, localError) ||
+            !LoadOnDiskSchemaRules(sourceSchema, localError) ||
             !ReadContentManifest(*source, "", sourceContent, localError)) {
             localError = "Cannot inspect ROOT merge input '" + sourceName + "': " + localError;
             if (error != nullptr) *error = localError;
             return false;
         }
-        if (!AddContentManifest(sourceContent, expectedContent, localError)) {
+        RootContentManifest& accumulatedContent =
+            !existingTarget.empty() && sourceIndex == 0 ? expectedContent : expectedInputContent;
+        if (!AddContentManifest(sourceContent, accumulatedContent, localError)) {
             localError = "Cannot merge ROOT input '" + sourceName + "': " + localError;
             if (error != nullptr) *error = localError;
             return false;
@@ -1426,6 +1481,23 @@ bool TRestTools::MergeRootFilesTransactionally(const std::string& outputFile,
         expectedSchema.streamerInfos.insert(sourceSchema.streamerInfos.begin(),
                                             sourceSchema.streamerInfos.end());
         expectedSchema.schemaRules.insert(sourceSchema.schemaRules.begin(), sourceSchema.schemaRules.end());
+        resolvedSchemaNumbers.insert(sourceSchemaNumbers.begin(), sourceSchemaNumbers.end());
+        maximumSchemaNumber = std::max(maximumSchemaNumber, sourceMaximumNumber);
+    }
+
+    // Match TFileMerger's historical UPDATE contract: worker inputs merge
+    // with one another, then replace same-named target objects. Target-only
+    // keys remain opaque. Treating the target as another additive input is
+    // what caused #567 to rewrite existing TRestAnalysisTree objects.
+    for (const auto& [path, inputEntry] : expectedInputContent) {
+        const auto targetEntry = expectedContent.find(path);
+        if (targetEntry != expectedContent.end() && targetEntry->second.className != inputEntry.className) {
+            localError = "ROOT merge input key '" + path + "' has incompatible classes '" +
+                         targetEntry->second.className + "' and '" + inputEntry.className + "'";
+            if (error != nullptr) *error = localError;
+            return false;
+        }
+        expectedContent[path] = inputEntry;
     }
 
     const std::filesystem::path temporary = UniqueSiblingPath(target, "merge");
@@ -1444,22 +1516,55 @@ bool TRestTools::MergeRootFilesTransactionally(const std::string& outputFile,
                             "': " + cleanupError.message();
     };
 
-    {
+    if (!existingTarget.empty()) {
+        const auto localExisting = LocalRootPath(existingTarget);
+        if (localExisting) {
+            std::filesystem::copy_file(*localExisting, temporary, std::filesystem::copy_options::none, ec);
+            if (ec)
+                localError =
+                    "Cannot seed temporary merge output from '" + existingTarget + "': " + ec.message();
+        } else if (!TFile::Cp(existingTarget.c_str(), temporary.c_str(), kFALSE)) {
+            localError = "ROOT could not seed temporary merge output from '" + existingTarget + "'";
+        }
+    }
+
+    TRestRootFileHandle outputHandle;
+    if (localError.empty()) {
+        outputHandle =
+            TRestRootFileHandle::Open(temporary.string(), existingTarget.empty() ? TRestRootFileMode::Recreate
+                                                                                 : TRestRootFileMode::Update);
+        if (!outputHandle)
+            localError =
+                "Cannot prepare temporary merge output '" + temporary.string() + "': " + outputHandle.Error();
+    }
+    const std::vector<Int_t> allSchemaNumbers(resolvedSchemaNumbers.begin(), resolvedSchemaNumbers.end());
+    if (localError.empty() &&
+        !ApplySchemaUpdate(*outputHandle, allSchemaNumbers, maximumSchemaNumber, localError)) {
+        localError = "Cannot preserve input schemas in temporary merge output '" + temporary.string() +
+                     "': " + localError;
+    }
+
+    if (localError.empty() && !inputFiles.empty()) {
         TFileMerger merger(kFALSE);
         merger.SetPrintLevel(0);
-        if (!merger.OutputFile(temporary.c_str(), "RECREATE")) {
-            localError = "ROOT could not create temporary merge output '" + temporary.string() + "'";
+        if (!merger.OutputFile(std::move(outputHandle.fFile))) {
+            localError = "ROOT could not adopt temporary merge output '" + temporary.string() + "'";
         } else {
-            for (const auto& source : sources) {
+            // An existing destination seeds the temporary file byte-for-byte.
+            // Only new worker inputs are merged, preserving the historical
+            // TFileMerger UPDATE semantics for target-only objects.
+            for (const auto& source : inputFiles) {
                 if (!merger.AddFile(source.c_str(), kFALSE)) {
                     localError = "ROOT could not add merge input '" + source + "'";
                     break;
                 }
             }
         }
-        if (localError.empty() && !merger.Merge()) {
+        if (localError.empty() && !merger.Merge())
             localError = "ROOT failed while merging into temporary output '" + temporary.string() + "'";
-        }
+    } else if (localError.empty() && !outputHandle.Close()) {
+        localError =
+            "ROOT reported a write error while preparing temporary output '" + temporary.string() + "'";
     }
     if (!localError.empty()) {
         removeTemporary(localError);

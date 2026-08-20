@@ -58,16 +58,20 @@ EXTERN_DEF std::string REST_TMP_PATH;
 EXTERN_DEF std::map<std::string, std::string> REST_ARGS;
 
 class TFile;
+class TRestTools;
 
 enum class TRestRootFileMode { Read, Recreate, Update };
 
 /// Move-only owner for ROOT files opened by REST.
 ///
-/// UPDATE mode preserves the complete on-disk StreamerInfo record before the
-/// writable file is exposed. A failed open or preservation produces an invalid
-/// handle, queryable through operator bool() and Error().
+/// UPDATE mode preserves all semantically required historical user schemas and
+/// embedded rules before the writable file is exposed. A failed open or
+/// preservation produces an invalid handle, queryable through operator bool()
+/// and Error().
 class TRestRootFileHandle {
    private:
+    friend class TRestTools;
+
     std::unique_ptr<TFile> fFile;
     std::string fError;
 
@@ -164,10 +168,12 @@ class TRestTools {
     /// Merge into a same-directory temporary ROOT file and replace the local
     /// destination only after the merge and StreamerInfo validation succeed.
     ///
-    /// `existingTarget`, when non-empty, is added as the first input. Remote
-    /// inputs are supported by ROOT, but `outputFile` must resolve to a local
-    /// file URL/path. Local `inputFiles` are removed only after a successful
-    /// replacement when `removeInputsOnSuccess` is true.
+    /// `existingTarget`, when non-empty, seeds the temporary output and is
+    /// opened through the checked UPDATE path; only `inputFiles` are then
+    /// merged into it. Remote inputs are supported by ROOT, but `outputFile`
+    /// must resolve to a local file URL/path. Local `inputFiles` are removed
+    /// only after a successful replacement when `removeInputsOnSuccess` is
+    /// true.
     static bool MergeRootFilesTransactionally(const std::string& outputFile,
                                               const std::vector<std::string>& inputFiles,
                                               const std::string& existingTarget = "",
@@ -175,6 +181,10 @@ class TRestTools {
                                               std::string* error = nullptr);
 
 #ifdef REST_TESTING_ENABLED
+    /// Force the next writable-open preflight to fail before the READ handle
+    /// transitions to UPDATE, so tests can verify the no-mutation guarantee.
+    static void ForceNextRootUpdatePreflightFailureForTesting();
+
     /// Force the next transactional merge to fail its post-replacement
     /// validation so tests can exercise rollback of an already-replaced file.
     static void ForceNextTransactionalMergeValidationFailureForTesting();

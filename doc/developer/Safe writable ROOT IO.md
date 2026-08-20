@@ -30,8 +30,10 @@ if (!file.Close()) {
 The available modes are `Read`, `Recreate`, and `Update`. `Recreate` intentionally replaces an existing file
 and must not be used as a shortcut for `Update`. An update is initially opened read-only. REST inventories the
 exact class-name, class-version, and checksum tuples stored in the file, collects the embedded schema rules,
-prepares loaded or emulated ROOT classes, and preflights the historical entries. It then transitions the same
-`TFile` to update mode and verifies the local file identity and ROOT UUID before marking the exact historical
+asks ROOT to resolve the on-disk entries into loaded or emulated classes, and only then registers the embedded
+rules. This follows ROOT's own `TFile::ReadStreamerInfo`/`TStreamerInfo::BuildCheck` ownership and resolution
+rules, including unloaded classes and entries such as `ROOT::TIOFeatures`. REST then transitions the same
+`TFile` to update mode and verifies the local file identity and ROOT UUID before marking the historical
 class-index entries required for writing.
 
 `PrepareBorrowedUpdate(TFile&, std::string*)` provides the same update preparation when legacy code already
@@ -50,10 +52,13 @@ Prefer `TRestRootFileHandle` whenever ownership can be changed. A borrowed file 
 responsibility, including checking its close/write status. If preparation fails, propagate the error and do not
 attempt to write through that file.
 
-The preflight preserves the historical StreamerInfo entries and schema rules it found on disk; it does not make
-an incompatible class change or an incorrect schema rule valid. Class authors must still increment class
-versions as required, write correct evolution rules, and test representative old files both before and after a
-writable open.
+The preflight preserves semantically required historical user StreamerInfos and schema rules; it does not make
+an incompatible class change or an incorrect schema rule valid. ROOT may normalize or omit generated
+standard-library implementation metadata (for example libstdc++ `__pair_base` descriptors) when writing a
+file. REST accepts that ROOT-defined normalization but still requires exact identities for ordinary user and
+historical class schemas, plus every embedded rule. Class authors must still increment class versions as
+required, write correct evolution rules, and test representative old files both before and after a writable
+open.
 
 ## Ownership and error handling
 
@@ -79,13 +84,17 @@ if (!TRestTools::MergeRootFilesTransactionally(output, newInputs, existing, true
 }
 ```
 
-When non-empty, `existingTarget` is included as the first merge input. Callers updating an existing output must
-pass it explicitly; otherwise its existing contents are not part of the merge.
+When non-empty, `existingTarget` is copied byte-for-byte to the same-directory temporary file and opened through
+the checked UPDATE path. Only `newInputs` are passed to ROOT's merger. This deliberately preserves ROOT's
+historical UPDATE behavior: target-only objects are not deserialized or rewritten, while a same-named object
+from the new inputs replaces the old target object. Callers updating an existing output must pass it explicitly;
+otherwise its existing contents are not part of the merge.
 
 The helper inventories every input, rejects incompatible classes at the same key path, and constructs the
-result in a temporary sibling of the local destination. Before replacement it validates the expected
-StreamerInfo and schema rules, recursive key paths and classes, and summed `TTree` entries. It validates the
-installed file again and attempts to restore the previous destination from a rollback backup on failure.
+result in a temporary sibling of the local destination. Before replacement it validates the expected user
+StreamerInfos and schema rules, recursive key paths and classes, and `TTree` entry counts using ROOT's UPDATE
+semantics (summed across new inputs, replacing a same-named target tree). It validates the installed file again
+and attempts to restore the previous destination from a rollback backup on failure.
 Local input files are removed only after successful replacement and validation when
 `removeInputsOnSuccess` is true.
 
