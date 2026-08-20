@@ -61,6 +61,19 @@ target_link_libraries(RestIOVerifierV1 PRIVATE RestIOFixtureV1
 set_target_properties(RestIOVerifierV1 PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                                                   "${FIXTURE_OUTPUT_DIR}/bin")
 
+add_executable(RestIOSchemaWriter WriteSchemaFixture.cxx)
+target_link_libraries(RestIOSchemaWriter PRIVATE RestIOFixtureV2
+                                                 ${ROOT_LIBRARIES})
+set_target_properties(RestIOSchemaWriter PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+                                                    "${FIXTURE_OUTPUT_DIR}/bin")
+
+add_executable(RestIOAnalysisTreeVerifier VerifyAnalysisTree.cxx)
+target_link_libraries(RestIOAnalysisTreeVerifier PRIVATE RestFramework
+                                                         ${ROOT_LIBRARIES})
+set_target_properties(
+    RestIOAnalysisTreeVerifier PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+                                          "${FIXTURE_OUTPUT_DIR}/bin")
+
 add_dependencies(
     testRestFramework
     RestIOWriterV1
@@ -68,12 +81,19 @@ add_dependencies(
     RestIOUpdater
     RestIOLoadedUpdater
     RestIOVerifier
-    RestIOVerifierV1)
+    RestIOVerifierV1
+    RestIOSchemaWriter
+    RestIOAnalysisTreeVerifier)
 target_compile_definitions(
     testRestFramework
-    PRIVATE REST_IO_WRITER_V1="$<TARGET_FILE:RestIOWriterV1>"
-            REST_IO_WRITER_V2="$<TARGET_FILE:RestIOWriterV2>"
-            REST_IO_UPDATER="$<TARGET_FILE:RestIOUpdater>"
-            REST_IO_LOADED_UPDATER="$<TARGET_FILE:RestIOLoadedUpdater>"
-            REST_IO_VERIFIER="$<TARGET_FILE:RestIOVerifier>"
-            REST_IO_VERIFIER_V1="$<TARGET_FILE:RestIOVerifierV1>")
+    PRIVATE
+        REST_IO_WRITER_V1="$<TARGET_FILE:RestIOWriterV1>"
+        REST_IO_WRITER_V2="$<TARGET_FILE:RestIOWriterV2>"
+        REST_IO_UPDATER="$<TARGET_FILE:RestIOUpdater>"
+        REST_IO_LOADED_UPDATER="$<TARGET_FILE:RestIOLoadedUpdater>"
+        REST_IO_VERIFIER="$<TARGET_FILE:RestIOVerifier>"
+        REST_IO_VERIFIER_V1="$<TARGET_FILE:RestIOVerifierV1>"
+        REST_IO_SCHEMA_WRITER="$<TARGET_FILE:RestIOSchemaWriter>"
+        REST_IO_ANALYSIS_TREE_VERIFIER="$<TARGET_FILE:RestIOAnalysisTreeVerifier>"
+        REST_PAIR_BASE_SOURCE_FILE="${CMAKE_SOURCE_DIR}/pipeline/fileopening/v2.2.30_hits.root"
+)

@@ -1,3 +1,5 @@
+#include <TArrayC.h>
+#include <TClassEdit.h>
 #include <TFile.h>
 #include <TGraph.h>
 #include <TH1D.h>
@@ -5,6 +7,7 @@
 #include <TList.h>
 #include <TNamed.h>
 #include <TObjString.h>
+#include <TRestAnalysisTree.h>
 #include <TRestProcessRunner.h>
 #include <TRestRun.h>
 #include <TRestTools.h>
@@ -141,6 +144,131 @@ void CreateTwoVersionFixture(const fs::path& filename) {
     ASSERT_EQ(RunProcess(REST_IO_WRITER_V1, {filename.string(), "RECREATE"}), 0);
     ASSERT_EQ(RunProcess(REST_IO_WRITER_V2, {filename.string(), "UPDATE"}), 0);
 }
+
+void CreateNamedInput(const fs::path& filename, const char* name) {
+    auto file = TRestRootFileHandle::Open(filename.string(), TRestRootFileMode::Recreate);
+    ASSERT_TRUE(file) << file.Error();
+    TNamed marker(name, name);
+    marker.Write();
+    ASSERT_TRUE(file.Close()) << file.Error();
+}
+
+void CreatePairBaseFixture(const fs::path& filename) {
+    std::set<StreamerIdentity> found;
+    std::vector<Int_t> numbers;
+    bool allResolved = true;
+    {
+        std::unique_ptr<TFile> source(TFile::Open(REST_PAIR_BASE_SOURCE_FILE, "READ"));
+        ASSERT_TRUE(source != nullptr && source->IsOpen() && !source->IsZombie());
+        std::unique_ptr<TList> infos(source->GetStreamerInfoList());
+        ASSERT_NE(infos, nullptr);
+        infos->SetOwner(kFALSE);
+        TIter next(infos.get());
+        while (TObject* object = next()) {
+            auto* info = dynamic_cast<TStreamerInfo*>(object);
+            if (info == nullptr) {
+                object->SetBit(TObject::kCanDelete);
+                continue;
+            }
+            info->BuildCheck(source.get());
+            if (!TClassEdit::IsStdPairBase(info->GetName())) continue;
+            found.insert({info->GetName(), info->GetClassVersion(), info->GetCheckSum()});
+            if (info->GetNumber() > 0)
+                numbers.push_back(info->GetNumber());
+            else
+                allResolved = false;
+        }
+        infos->Clear();
+    }
+
+    const std::set<StreamerIdentity> expected = {{"__pair_base<int,double>", 1, 30697198},
+                                                 {"__pair_base<int,int>", 1, 637428422}};
+    ASSERT_TRUE(allResolved);
+    ASSERT_EQ(found, expected);
+
+    auto file = TRestRootFileHandle::Open(filename.string(), TRestRootFileMode::Recreate);
+    ASSERT_TRUE(file) << file.Error();
+    TNamed marker("pair-base-marker", "pair-base-marker");
+    marker.Write();
+    TArrayC* classIndex = file->GetClassIndex();
+    ASSERT_NE(classIndex, nullptr);
+    for (const Int_t number : numbers) {
+        if (number >= classIndex->GetSize()) classIndex->Set(number + 1);
+        classIndex->fArray[number] = 1;
+    }
+    classIndex->fArray[0] = 1;
+    file->WriteStreamerInfo();
+    ASSERT_TRUE(file.Close()) << file.Error();
+}
+
+void CreateAnalysisTreeTarget(const fs::path& filename) {
+    auto file = TRestRootFileHandle::Open(filename.string(), TRestRootFileMode::Recreate);
+    ASSERT_TRUE(file) << file.Error();
+    TRestAnalysisTree tree("AnalysisTree", "observable binding regression fixture");
+    tree.DisableQuickObservableValueSetting();
+    for (int entry = 0; entry < 120; ++entry) {
+        tree.SetObservableValue("theta", 2.0 + entry / 400.0);
+        tree.SetObservableValue("phi", 1.0 + entry / 400.0);
+        tree.SetObservableValue("totalEdep", 1000.0 + entry);
+        tree.Fill();
+    }
+    tree.Write();
+    TNamed marker("target-only", "must not be rewritten as a merge input");
+    marker.Write();
+    ASSERT_TRUE(file.Close()) << file.Error();
+}
+
+void CreateWorkerTree(const fs::path& filename, int worker) {
+    auto file = TRestRootFileHandle::Open(filename.string(), TRestRootFileMode::Recreate);
+    ASSERT_TRUE(file) << file.Error();
+    TTree tree("worker", "worker merge payload");
+    tree.Branch("worker", &worker);
+    tree.Fill();
+    tree.Write();
+    ASSERT_TRUE(file.Close()) << file.Error();
+}
+
+void CheckExistingAnalysisTreeMerge(int workerCount) {
+    TemporaryDirectory temporary;
+    const fs::path target = temporary.Path() / "analysis-target.root";
+    CreateAnalysisTreeTarget(target);
+    Long64_t originalSeek = 0;
+    Int_t originalKeyBytes = 0;
+    Int_t originalObjectBytes = 0;
+    {
+        std::unique_ptr<TFile> original(TFile::Open(target.c_str(), "READ"));
+        ASSERT_NE(original, nullptr);
+        TKey* key = original->GetKey("AnalysisTree");
+        ASSERT_NE(key, nullptr);
+        originalSeek = key->GetSeekKey();
+        originalKeyBytes = key->GetNbytes();
+        originalObjectBytes = key->GetObjlen();
+    }
+    std::vector<std::string> inputs;
+    for (int worker = 0; worker < workerCount; ++worker) {
+        const fs::path input = temporary.Path() / ("worker-" + std::to_string(worker) + ".root");
+        CreateWorkerTree(input, worker);
+        inputs.push_back(input.string());
+    }
+
+    std::string error;
+    ASSERT_TRUE(
+        TRestTools::MergeRootFilesTransactionally(target.string(), inputs, target.string(), false, &error))
+        << error;
+    EXPECT_EQ(RunProcess(REST_IO_ANALYSIS_TREE_VERIFIER, {target.string(), "2.25", "1.25", "1100"}), 0);
+
+    std::unique_ptr<TFile> merged(TFile::Open(target.c_str(), "READ"));
+    ASSERT_NE(merged, nullptr);
+    TKey* analysisKey = merged->GetKey("AnalysisTree");
+    ASSERT_NE(analysisKey, nullptr);
+    EXPECT_EQ(analysisKey->GetSeekKey(), originalSeek);
+    EXPECT_EQ(analysisKey->GetNbytes(), originalKeyBytes);
+    EXPECT_EQ(analysisKey->GetObjlen(), originalObjectBytes);
+    EXPECT_NE(merged->Get<TNamed>("target-only"), nullptr);
+    auto* workerTree = merged->Get<TTree>("worker");
+    ASSERT_NE(workerTree, nullptr);
+    EXPECT_EQ(workerTree->GetEntries(), workerCount);
+}
 }  // namespace
 
 TEST(RootIO, UnloadedDictionaryPreservesAutomaticCollectionEvolutionAndRenamedFieldRule) {
@@ -177,6 +305,26 @@ TEST(RootIO, UnloadedDictionaryPreservesAutomaticCollectionEvolutionAndRenamedFi
     EXPECT_EQ(PayloadInfos(after), payloadBefore);
     // Re-read with each matching dictionary to prove that both automatic
     // collection evolution and the independent renamed-field rule still work.
+    EXPECT_EQ(RunProcess(REST_IO_VERIFIER_V1, {filename.string()}), 0);
+    EXPECT_EQ(RunProcess(REST_IO_VERIFIER, {filename.string(), "require-update"}), 0);
+}
+
+TEST(RootIO, UpdateResolvesTreeSchemaWhenAutomaticStreamerRegistrationIsDisabled) {
+    TemporaryDirectory temporary;
+    const fs::path filename = temporary.Path() / "disabled-auto-registration.root";
+    CreateTwoVersionFixture(filename);
+    const SchemaInventory before = ReadInventory(filename);
+    ASSERT_TRUE(std::any_of(before.infos.begin(), before.infos.end(),
+                            [](const auto& identity) { return identity.name == "ROOT::TIOFeatures"; }));
+
+    ASSERT_EQ(RunProcess(REST_IO_UPDATER, {filename.string(), "preserve-with-auto-registration-disabled"}),
+              0);
+
+    const SchemaInventory after = ReadInventory(filename);
+    EXPECT_TRUE(
+        std::includes(after.infos.begin(), after.infos.end(), before.infos.begin(), before.infos.end()));
+    EXPECT_TRUE(
+        std::includes(after.rules.begin(), after.rules.end(), before.rules.begin(), before.rules.end()));
     EXPECT_EQ(RunProcess(REST_IO_VERIFIER_V1, {filename.string()}), 0);
     EXPECT_EQ(RunProcess(REST_IO_VERIFIER, {filename.string(), "require-update"}), 0);
 }
@@ -259,7 +407,7 @@ TEST(RootIO, TransactionalMergeRetainsTargetOnlySchemaAndKeys) {
         events.Fill();
         events.Fill();
         events.Write();
-        auto* nested = file->mkdir("nested");
+        auto* nested = file->mkdir("incoming-nested");
         ASSERT_NE(nested, nullptr);
         nested->cd();
         TNamed inputNested("input-nested", "input nested key");
@@ -277,13 +425,96 @@ TEST(RootIO, TransactionalMergeRetainsTargetOnlySchemaAndKeys) {
     EXPECT_NE(merged->Get<TH1D>("target-only"), nullptr);
     EXPECT_NE(merged->Get<TGraph>("incoming"), nullptr);
     EXPECT_NE(merged->Get<TNamed>("nested/target-nested"), nullptr);
-    EXPECT_NE(merged->Get<TNamed>("nested/input-nested"), nullptr);
+    EXPECT_NE(merged->Get<TNamed>("incoming-nested/input-nested"), nullptr);
     auto* events = merged->Get<TTree>("events");
     ASSERT_NE(events, nullptr);
-    EXPECT_EQ(events->GetEntries(), 5);
+    // Preserve TFileMerger UPDATE semantics: incoming same-name trees replace
+    // the target tree, while target-only objects remain untouched.
+    EXPECT_EQ(events->GetEntries(), 3);
     const SchemaInventory finalSchema = ReadInventory(target);
     EXPECT_TRUE(std::includes(finalSchema.infos.begin(), finalSchema.infos.end(), targetSchema.infos.begin(),
                               targetSchema.infos.end()));
+}
+
+TEST(RootIO, TransactionalMergeAcceptsRootManagedPairBaseNormalization) {
+    TemporaryDirectory temporary;
+    const fs::path pairBase = temporary.Path() / "pair-base.root";
+    const fs::path ordinary = temporary.Path() / "ordinary.root";
+    const fs::path output = temporary.Path() / "merged.root";
+    CreatePairBaseFixture(pairBase);
+    CreateNamedInput(ordinary, "ordinary-marker");
+
+    const SchemaInventory before = ReadInventory(pairBase);
+    ASSERT_EQ(std::count_if(before.infos.begin(), before.infos.end(),
+                            [](const auto& identity) { return TClassEdit::IsStdPairBase(identity.name); }),
+              2);
+
+    std::string error;
+    ASSERT_TRUE(TRestTools::MergeRootFilesTransactionally(
+        output.string(), {pairBase.string(), ordinary.string()}, "", false, &error))
+        << error;
+    std::unique_ptr<TFile> merged(TFile::Open(output.c_str(), "READ"));
+    ASSERT_NE(merged, nullptr);
+    EXPECT_NE(merged->Get<TNamed>("pair-base-marker"), nullptr);
+    EXPECT_NE(merged->Get<TNamed>("ordinary-marker"), nullptr);
+}
+
+TEST(RootIO, TransactionalMergePreservesHistoricalUserSchemasAndRules) {
+    TemporaryDirectory temporary;
+    const fs::path legacy = temporary.Path() / "two-versions.root";
+    const fs::path ordinary = temporary.Path() / "ordinary.root";
+    CreateTwoVersionFixture(legacy);
+    CreateNamedInput(ordinary, "ordinary-marker");
+    const SchemaInventory before = ReadInventory(legacy);
+
+    std::string error;
+    ASSERT_TRUE(TRestTools::MergeRootFilesTransactionally(legacy.string(), {ordinary.string()},
+                                                          legacy.string(), false, &error))
+        << error;
+
+    const SchemaInventory after = ReadInventory(legacy);
+    const auto payloadBefore = PayloadInfos(before);
+    EXPECT_TRUE(
+        std::includes(after.infos.begin(), after.infos.end(), payloadBefore.begin(), payloadBefore.end()));
+    EXPECT_TRUE(
+        std::includes(after.rules.begin(), after.rules.end(), before.rules.begin(), before.rules.end()));
+    EXPECT_EQ(RunProcess(REST_IO_VERIFIER_V1, {legacy.string()}), 0);
+    EXPECT_EQ(RunProcess(REST_IO_VERIFIER, {legacy.string()}), 0);
+}
+
+TEST(RootIO, TransactionalMergePreservesWorkerOnlyHistoricalSchemasAndRules) {
+    TemporaryDirectory temporary;
+    const fs::path legacy = temporary.Path() / "two-versions.root";
+    const fs::path schemaOnly = temporary.Path() / "schema-only.root";
+    const fs::path target = temporary.Path() / "ordinary.root";
+    CreateTwoVersionFixture(legacy);
+    ASSERT_EQ(RunProcess(REST_IO_SCHEMA_WRITER, {legacy.string(), schemaOnly.string()}), 0);
+    CreateNamedInput(target, "ordinary-marker");
+    const SchemaInventory expected = ReadInventory(schemaOnly);
+    ASSERT_FALSE(expected.rules.empty());
+    ASSERT_FALSE(PayloadInfos(expected).empty());
+
+    std::string error;
+    ASSERT_TRUE(TRestTools::MergeRootFilesTransactionally(target.string(), {schemaOnly.string()},
+                                                          target.string(), false, &error))
+        << error;
+
+    const SchemaInventory after = ReadInventory(target);
+    EXPECT_TRUE(
+        std::includes(after.infos.begin(), after.infos.end(), expected.infos.begin(), expected.infos.end()));
+    EXPECT_TRUE(
+        std::includes(after.rules.begin(), after.rules.end(), expected.rules.begin(), expected.rules.end()));
+    std::unique_ptr<TFile> merged(TFile::Open(target.c_str(), "READ"));
+    ASSERT_NE(merged, nullptr);
+    EXPECT_NE(merged->Get<TNamed>("schema-only-worker"), nullptr);
+}
+
+TEST(RootIO, TransactionalUpdateKeepsRestAnalysisTreeValuesWithOneWorker) {
+    CheckExistingAnalysisTreeMerge(1);
+}
+
+TEST(RootIO, TransactionalUpdateKeepsRestAnalysisTreeValuesWithTwoWorkers) {
+    CheckExistingAnalysisTreeMerge(2);
 }
 
 TEST(RootIO, TransactionRejectsIncompatibleSameNameClasses) {
