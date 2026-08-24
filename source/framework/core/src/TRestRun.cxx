@@ -47,6 +47,19 @@ using namespace std;
 
 std::mutex mutex_read;
 
+namespace {
+// TTree::SetBranchStatus by name does not reliably reach sub-branches; recurse via TBranch::SetStatus
+// instead.
+void SetBranchStatusRecursive(TBranch* b, int status) {
+    if (!b) return;
+    b->SetStatus(status);
+    auto subs = b->GetListOfBranches();
+    for (int i = 0; i <= subs->GetLast(); i++) {
+        SetBranchStatusRecursive((TBranch*)subs->At(i), status);
+    }
+}
+}  // namespace
+
 ClassImp(TRestRun);
 
 TRestRun::TRestRun() { Initialize(); }
@@ -618,6 +631,12 @@ void TRestRun::ReadInputFileTrees() {
                         fInputEvent->InitializeWithMetadata(this);
                         fEventTree->SetBranchAddress(br->GetName(), &fInputEvent);
                         fEventBranchLoc = branches->GetLast();
+                        // Disable the other event branches to prevent a memory leak when they are unused.
+                        for (int i = 0; i <= branches->GetLast(); i++) {
+                            auto otherBr = (TBranch*)branches->At(i);
+                            if (otherBr == br || Count(otherBr->GetName(), "EventBranch") == 0) continue;
+                            SetBranchStatusRecursive(otherBr, 0);
+                        }
                         RESTDebug << "found event branch of event type: " << fInputEvent->ClassName()
                                   << RESTendl;
                     }
@@ -1247,8 +1266,9 @@ void TRestRun::SetInputEvent(TRestEvent* event) {
     if (event != nullptr) {
         if (fEventTree != nullptr) {
             if (fInputEvent != nullptr) {
-                fEventTree->SetBranchAddress((TString)fInputEvent->ClassName() + "Branch", nullptr);
-                fEventTree->SetBranchStatus((TString)fInputEvent->ClassName() + "Branch", false);
+                string oldName = string(fInputEvent->ClassName()) + "Branch";
+                fEventTree->SetBranchAddress(oldName.c_str(), nullptr);
+                SetBranchStatusRecursive(fEventTree->GetBranch(oldName.c_str()), 0);
             }
             TObjArray* branches = fEventTree->GetListOfBranches();
             string branchName = (string)event->ClassName() + "Branch";
@@ -1258,8 +1278,14 @@ void TRestRun::SetInputEvent(TRestEvent* event) {
                     RESTDebug << "Setting input event.. Type: " << event->ClassName() << " Address: " << event
                               << RESTendl;
                     fInputEvent = event;
+                    SetBranchStatusRecursive(branch, 1);
+                    // Reset sub-branch addresses so ROOT re-derives them from the fresh top-level bind.
+                    auto subs = branch->GetListOfBranches();
+                    for (int j = 0; j <= subs->GetLast(); j++) {
+                        ((TBranch*)subs->At(j))->ResetAddress();
+                    }
+                    branch->ResetAddress();
                     fEventTree->SetBranchAddress(branchName.c_str(), &fInputEvent);
-                    fEventTree->SetBranchStatus(branchName.c_str(), false);
                     fEventBranchLoc = i;
                     break;
                 } else if (i == branches->GetLast()) {
