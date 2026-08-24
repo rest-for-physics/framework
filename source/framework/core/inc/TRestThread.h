@@ -3,7 +3,6 @@
 #define RestCore_TRestThread
 
 #include <TFile.h>
-#include <TFileMerger.h>
 #include <TKey.h>
 #include <TObject.h>
 #include <TString.h>
@@ -19,6 +18,7 @@
 #include "TRestEventProcess.h"
 #include "TRestMetadata.h"
 #include "TRestProcessRunner.h"
+#include "TRestTools.h"
 
 /// Threaded worker of a process chain
 class TRestThread {
@@ -30,6 +30,7 @@ class TRestThread {
     TRestAnalysisTree* fAnalysisTree;               //!
     TRestEvent* fInputEvent;                        //!
     TRestEvent* fOutputEvent;                       //!
+    TRestRootFileHandle fOutputFileOwner;           //!
     TFile* fOutputFile;                             //!
     TTree* fEventTree;                              //!
 
@@ -63,6 +64,11 @@ class TRestThread {
     inline Int_t GetThreadId() const { return fThreadId; }
     inline TRestEvent* GetInputEvent() { return fInputEvent; }
     inline TFile* GetOutputFile() { return fOutputFile; };
+    bool CloseOutputFile() {
+        const bool result = fOutputFileOwner.Close();
+        fOutputFile = nullptr;
+        return result;
+    }
     inline TRestEvent* GetOutputEvent() { return fProcessNullReturned ? 0 : fOutputEvent; }
     inline Int_t GetProcessnum() const { return fProcessChain.size(); }
     inline TRestEventProcess* GetProcess(int i) const { return fProcessChain[i]; }

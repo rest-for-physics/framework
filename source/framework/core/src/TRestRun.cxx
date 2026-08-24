@@ -41,6 +41,7 @@
 #include "TRestDataBase.h"
 #include "TRestEventProcess.h"
 #include "TRestManager.h"
+#include "TRestTools.h"
 #include "TRestVersion.h"
 
 using namespace std;
@@ -330,12 +331,13 @@ void TRestRun::OpenInputFile(int i) {
 ///
 void TRestRun::OpenInputFile(const TString& filename, const string& mode) {
     CloseFile();
-    if (!filename.Contains("http") && !TRestTools::fileExists((string)filename)) {
+    const bool isRemote = TRestTools::IsRemoteRootPath(filename.Data());
+    if (!isRemote && !TRestTools::fileExists((string)filename)) {
         RESTError << "input file \"" << filename << "\" does not exist!" << RESTendl;
         exit(1);
     }
 
-    if (!filename.Contains("http")) ReadFileInfo((string)filename);
+    if (!isRemote) ReadFileInfo((string)filename);
 
     // add to fInputFileNames in case it is opening a new file
     bool inList = false;
@@ -351,7 +353,29 @@ void TRestRun::OpenInputFile(const TString& filename, const string& mode) {
     }
 
     if (TRestTools::isRootFile((string)filename)) {
-        fInputFile = TFile::Open(filename, mode.c_str());
+        TString normalizedMode(mode);
+        normalizedMode.ToUpper();
+        TRestRootFileMode fileMode;
+        if (normalizedMode.IsNull() || normalizedMode == "READ" || normalizedMode == "OPEN") {
+            fileMode = TRestRootFileMode::Read;
+        } else if (normalizedMode == "UPDATE") {
+            fileMode = TRestRootFileMode::Update;
+        } else {
+            RESTError << "TRestRun::OpenInputFile(): unsupported ROOT mode '" << mode
+                      << "'. Supported modes are READ/OPEN and UPDATE." << RESTendl;
+            exit(1);
+        }
+        auto inputFile = TRestRootFileHandle::Open(filename.Data(), fileMode);
+        if (!inputFile) {
+            RESTError << inputFile.Error() << RESTendl;
+            exit(1);
+        }
+        if (fInputFileOwner && !fInputFileOwner.Close()) {
+            RESTError << fInputFileOwner.Error() << RESTendl;
+            exit(1);
+        }
+        fInputFileOwner = std::move(inputFile);
+        fInputFile = fInputFileOwner.Get();
 
         if (GetMetadataClass("TRestRun", fInputFile)) {
             // This should be the values in RML (if it was initialized using RML)
@@ -419,6 +443,7 @@ void TRestRun::OpenInputFile(const TString& filename, const string& mode) {
             ReadInputFileTrees();
         }
     } else {
+        if (fInputFileOwner && !fInputFileOwner.Close()) RESTError << fInputFileOwner.Error() << RESTendl;
         fInputFile = nullptr;
         fAnalysisTree = nullptr;
         if (fFileProcess != nullptr) {
@@ -979,47 +1004,57 @@ TString TRestRun::FormFormat(const TString& FilenameFormat) {
 ///
 /// If output file name is not given(=""), then it will recreate the output file
 /// according to fOutputFileName. Otherwise it will update the given file. File
-/// Merging is by calling TFileMerger. After this, it will format the merged file name.
-/// This method is used to create output file after TRestProcessRunner is finished.
-/// The metadata objects will also be written into the file.
+/// The merge is built and validated in a same-directory temporary file before
+/// replacing the formatted destination. This method is used to create the
+/// output file after TRestProcessRunner is finished. The metadata objects will
+/// also be written into the file.
 TFile* TRestRun::MergeToOutputFile(vector<string> filenames, string outputfilename) {
     RESTDebug << "TRestRun::FormOutputFile. target : " << outputfilename << RESTendl;
-    string filename;
-    TFileMerger* m = new TFileMerger(false);
-    if (outputfilename.empty()) {
-        filename = fOutputFileName;
-        RESTInfo << "Creating file : " << filename << RESTendl;
-        m->OutputFile(filename.c_str(), "RECREATE");
-    } else {
-        filename = outputfilename;
-        RESTInfo << "Updating file : " << filename << RESTendl;
-        m->OutputFile(filename.c_str(), "UPDATE");
-    }
+    const string filename = outputfilename.empty() ? string(fOutputFileName.Data()) : outputfilename;
+    fOutputFileName = FormFormat(filename);
+    const string finalFilename = fOutputFileName.Data();
+    RESTInfo << (outputfilename.empty() ? "Creating file : " : "Updating file : ") << finalFilename
+             << RESTendl;
 
-    RESTDebug << "TRestRun::FormOutputFile. Starting to add files" << RESTendl;
-
-    for (unsigned int i = 0; i < filenames.size(); i++) {
-        m->AddFile(filenames[i].c_str(), false);
-    }
-
-    if (m->Merge()) {
-        for (unsigned int i = 0; i < filenames.size(); i++) {
-            remove(filenames[i].c_str());
-        }
-    } else {
+    std::error_code targetStatusError;
+    const bool targetExists = !outputfilename.empty() && std::filesystem::exists(filename, targetStatusError);
+    if (targetStatusError) {
         fOutputFileName = "";
-        RESTError << "(Merge files) failed to merge process files." << RESTendl;
+        RESTError << "Cannot inspect merge target '" << filename << "': " << targetStatusError.message()
+                  << RESTendl;
+        exit(1);
+    }
+    const string existingTarget = targetExists ? filename : "";
+    std::string mergeError;
+    if (!TRestTools::MergeRootFilesTransactionally(finalFilename, filenames, existingTarget, true,
+                                                   &mergeError)) {
+        fOutputFileName = "";
+        RESTError << "(Merge files) " << mergeError << RESTendl;
         exit(1);
     }
 
-    delete m;
-
-    // we rename the created output file
-    fOutputFileName = FormFormat(filename);
-    rename(filename.c_str(), fOutputFileName);
+    if (!outputfilename.empty() && filename != finalFilename && !TRestTools::IsRemoteRootPath(filename)) {
+        std::error_code removalError;
+        std::filesystem::remove(filename, removalError);
+        if (removalError)
+            RESTWarning << "Merged output is valid, but the pre-format target '" << filename
+                        << "' could not be removed: " << removalError.message() << RESTendl;
+    }
 
     // write metadata into the output file
-    fOutputFile = new TFile(fOutputFileName, "update");
+    auto outputFile = TRestRootFileHandle::Open(finalFilename, TRestRootFileMode::Update);
+    if (!outputFile) {
+        RESTError << outputFile.Error() << RESTendl;
+        fOutputFileName = "";
+        exit(1);
+    }
+    if (fOutputFileOwner && !fOutputFileOwner.Close()) {
+        RESTError << fOutputFileOwner.Error() << RESTendl;
+        fOutputFileName = "";
+        exit(1);
+    }
+    fOutputFileOwner = std::move(outputFile);
+    fOutputFile = fOutputFileOwner.Get();
     RESTDebug << "TRestRun::FormOutputFile. Calling WriteWithDataBase()" << RESTendl;
     this->WriteWithDataBase();
 
@@ -1040,7 +1075,17 @@ TFile* TRestRun::FormOutputFile() {
     // remove unwanted "./" etc. from the path while resolving them
     fOutputFileName = std::filesystem::weakly_canonical(fOutputFileName.Data());
 
-    fOutputFile = new TFile(fOutputFileName, "recreate");
+    auto outputFile = TRestRootFileHandle::Open(fOutputFileName.Data(), TRestRootFileMode::Recreate);
+    if (!outputFile) {
+        RESTError << outputFile.Error() << RESTendl;
+        return nullptr;
+    }
+    if (fOutputFileOwner && !fOutputFileOwner.Close()) {
+        RESTError << fOutputFileOwner.Error() << RESTendl;
+        return nullptr;
+    }
+    fOutputFileOwner = std::move(outputFile);
+    fOutputFile = fOutputFileOwner.Get();
     fAnalysisTree = new TRestAnalysisTree("AnalysisTree", "AnalysisTree");
     fEventTree = new TTree("EventTree", "EventTree");
 
@@ -1057,8 +1102,16 @@ TFile* TRestRun::FormOutputFile() {
 
 TFile* TRestRun::UpdateOutputFile() {
     if (fOutputFile != nullptr) {
-        if (fOutputFile->IsOpen()) {
-            fOutputFile->ReOpen("update");
+        if (!fOutputFile->IsOpen()) {
+            RESTError << "TRestRun::UpdateOutputFile(): output file is closed" << RESTendl;
+            return nullptr;
+        }
+        if (!fOutputFile->IsWritable()) {
+            std::string updateError;
+            if (!TRestRootFileHandle::PrepareBorrowedUpdate(*fOutputFile, &updateError)) {
+                RESTError << updateError << RESTendl;
+                return nullptr;
+            }
         }
 
         fOutputFile->cd();
@@ -1188,14 +1241,24 @@ void TRestRun::CloseFile() {
     fInputEvent = nullptr;
     if (fOutputFile != nullptr) {
         fOutputFile->Write(0, TObject::kOverwrite);
-        fOutputFile->Close();
-        delete fOutputFile;
+        if (fOutputFileOwner.Get() == fOutputFile) {
+            if (!fOutputFileOwner.Close()) RESTError << fOutputFileOwner.Error() << RESTendl;
+        } else if (fOutputFile != fInputFile) {
+            fOutputFile->Close();
+            delete fOutputFile;
+        }
         fOutputFile = nullptr;
     }
     if (fInputFile != nullptr) {
-        fInputFile->Close();
+        if (fInputFileOwner.Get() == fInputFile) {
+            if (!fInputFileOwner.Close()) RESTError << fInputFileOwner.Error() << RESTendl;
+        } else {
+            fInputFile->Close();
+        }
         fInputFile = nullptr;
     }
+    if (fOutputFileOwner && !fOutputFileOwner.Close()) RESTError << fOutputFileOwner.Error() << RESTendl;
+    if (fInputFileOwner && !fInputFileOwner.Close()) RESTError << fInputFileOwner.Error() << RESTendl;
 }
 
 ///////////////////////////////////////////////
@@ -1217,6 +1280,7 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
             fInputEvent->SetSubRunOrigin(fParentRunNumber);
             fInputEvent->SetTimeStamp(fStartTime);
         }
+        if (fInputFileOwner && !fInputFileOwner.Close()) RESTError << fInputFileOwner.Error() << RESTendl;
         fInputFile = nullptr;
         // we make sure external processes can access to analysis tree
         fAnalysisTree = new TRestAnalysisTree("externalProcessAna", "externalProcessAna");

@@ -22,6 +22,12 @@ It is recommended that new contributions and functionalities added to REST have 
 
 TODO : Explain doxygen formatting, tutorials, where official doc is located. ETC.
 
+### ROOT file I/O changes
+
+Code that creates, updates, replaces, or merges ROOT files must follow the
+[safe writable ROOT I/O guide](doc/developer/Safe%20writable%20ROOT%20IO.md). It documents the required
+schema preflight, ownership, transactional replacement, and local/remote path rules.
+
 ### Pipeline validation tests
 
 TODO : Explain how pipeline validation tests should be implemented
