@@ -328,6 +328,30 @@ TEST(LegacySignalRecoveryCLI, RetainsOwnedWorkAndLeavesOutputAbsentAfterEitherSt
     }
 }
 
+TEST(LegacySignalRecoveryCLI, ReportsUnavailableDetectorRecoveryBeforeStartingExtraction) {
+    TemporaryDirectory temporary;
+    const auto input = temporary.path / "input.root";
+    const auto output = temporary.path / "fixed.root";
+    const auto work = temporary.path / ".owned-work";
+    const auto prefix = temporary.path / "prefix";
+    WriteText(input, "legacy");
+
+    int calls = 0;
+    auto runtime = MakeRuntime(prefix, work, [&](const ProcessSpec&) {
+        ++calls;
+        return 0;
+    });
+    ASSERT_TRUE(fs::remove(prefix / "macros/legacy/REST_RebuildLegacySignalFile.C"));
+
+    Options options{input, output, true, false};
+    std::ostringstream messages;
+    std::ostringstream errors;
+    EXPECT_NE(Execute(options, runtime, messages, errors), 0);
+    EXPECT_EQ(calls, 0);
+    EXPECT_FALSE(fs::exists(work));
+    EXPECT_NE(errors.str().find("built with detectorlib"), std::string::npos);
+}
+
 TEST(LegacySignalRecoveryCLI, RefusesExistingAndRacingOutputsWithoutOverwriting) {
     for (const bool outputExistsInitially : {true, false}) {
         TemporaryDirectory temporary;
@@ -356,7 +380,9 @@ TEST(LegacySignalRecoveryCLI, RefusesExistingAndRacingOutputsWithoutOverwriting)
         EXPECT_NE(Execute(options, runtime, messages, errors), 0);
         EXPECT_EQ(ReadText(output), outputExistsInitially ? "existing" : "racing writer");
         EXPECT_EQ(calls, outputExistsInitially ? 0 : 2);
-        if (!outputExistsInitially) EXPECT_TRUE(fs::exists(work));
+        if (!outputExistsInitially) {
+            EXPECT_TRUE(fs::exists(work));
+        }
     }
 }
 

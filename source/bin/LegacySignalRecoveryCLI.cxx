@@ -504,7 +504,11 @@ int Execute(const Options& options, Runtime runtime, std::ostream& output, std::
     }
     const auto stage1Wrapper = runtime.restPath / "macros/legacy/recoverLegacySignalData.C";
     const auto stage2Wrapper = runtime.restPath / "macros/legacy/REST_RebuildLegacySignalFile.C";
-    if (!RequireMacro(stage1Wrapper, errors) || !RequireMacro(stage2Wrapper, errors)) return kSetupError;
+    if (!RequireMacro(stage1Wrapper, errors)) return kSetupError;
+    if (!RequireMacro(stage2Wrapper, errors)) {
+        errors << "Legacy detector-signal recovery requires a REST installation built with detectorlib.\n";
+        return kSetupError;
+    }
 
     std::filesystem::path workDirectory;
     std::string workError;
