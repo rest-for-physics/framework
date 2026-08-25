@@ -120,29 +120,41 @@ class SignalForwardingGuard {
 
 ParseResult ParseArguments(const Arguments& arguments) {
     ParseResult result;
-    auto recoveryFlag = arguments.end();
-    for (auto argument = arguments.begin() + (arguments.empty() ? 0 : 1); argument != arguments.end();
-         ++argument) {
-        if (*argument == "--recover-legacy-signals") {
-            recoveryFlag = argument;
+
+    // restRoot is commonly aliased to "restRoot -l" (see thisREST.sh), so the
+    // recovery flag may be preceded by ROOT's bareword launcher flags. Accept
+    // those; anything else before --recover-legacy-signals is still rejected.
+    const auto isLeadingLauncherFlag = [](const std::string& token) {
+        return token == "-l" || token == "-b" || token == "-q" || token == "-n" || token == "-x";
+    };
+
+    std::size_t flagIndex = 0;  // 0 is argv[0], so it doubles as "flag not found"
+    for (std::size_t index = (arguments.empty() ? 0 : 1); index < arguments.size(); ++index) {
+        if (arguments[index] == "--recover-legacy-signals") {
+            flagIndex = index;
             break;
         }
     }
-    if (recoveryFlag == arguments.end()) return result;
-    if (recoveryFlag != arguments.begin() + 1) {
-        result.action = ParseAction::kError;
-        result.error = "--recover-legacy-signals must be the first restRoot option";
-        return result;
+    if (flagIndex == 0) return result;  // not a recovery invocation
+
+    for (std::size_t index = 1; index < flagIndex; ++index) {
+        if (!isLeadingLauncherFlag(arguments[index])) {
+            result.action = ParseAction::kError;
+            result.error = "--recover-legacy-signals must be the first restRoot option";
+            return result;
+        }
     }
 
-    if (arguments.size() == 3 && (arguments[2] == "--help" || arguments[2] == "-h")) {
+    const std::size_t optionsStart = flagIndex + 1;
+    if (arguments.size() == optionsStart + 1 &&
+        (arguments[optionsStart] == "--help" || arguments[optionsStart] == "-h")) {
         result.action = ParseAction::kHelp;
         return result;
     }
 
     result.action = ParseAction::kError;
     bool positionalOnly = false;
-    for (std::size_t index = 2; index < arguments.size(); ++index) {
+    for (std::size_t index = optionsStart; index < arguments.size(); ++index) {
         const auto& argument = arguments[index];
         if (!positionalOnly && argument == "--") {
             positionalOnly = true;
@@ -152,6 +164,12 @@ ParseResult ParseArguments(const Arguments& arguments) {
                 return result;
             }
             result.options.inPlace = true;
+        } else if (!positionalOnly && argument == "--require-complete") {
+            if (result.options.requireComplete) {
+                result.error = "--require-complete was specified more than once";
+                return result;
+            }
+            result.options.requireComplete = true;
         } else if (!positionalOnly && argument == "--output") {
             if (result.options.outputWasSpecified) {
                 result.error = "--output was specified more than once";
@@ -192,13 +210,20 @@ ParseResult ParseArguments(const Arguments& arguments) {
 
 void PrintHelp(std::ostream& output) {
     output << "Usage:\n"
-           << "  restRoot --recover-legacy-signals INPUT [--output OUTPUT | --in-place]\n\n"
+           << "  restRoot --recover-legacy-signals INPUT [--output OUTPUT | --in-place] "
+              "[--require-complete]\n\n"
            << "Safely convert a legacy TRestDetectorSignalEvent branch from vector<float>\n"
            << "to the current vector<double> schema. Stage 1 runs in an isolated plain ROOT\n"
            << "process; stage 2 runs in a fresh REST process.\n\n"
            << "By default the fixed file is written beside INPUT as <stem>_Fixed.root.\n"
            << "Existing outputs are never overwritten. --in-place must be explicit and\n"
-           << "keeps the original as INPUT.bak.\n";
+           << "keeps the original as INPUT.bak.\n\n"
+           << "Metadata objects and event branches whose classes are no longer available\n"
+           << "(renamed or removed) cannot be read with the current libraries. By default\n"
+           << "they are skipped, reported, and recovery continues with everything else.\n"
+           << "Pass --require-complete to instead refuse recovery unless every metadata key\n"
+           << "and event branch could be copied. In-place recovery always refuses to replace\n"
+           << "the original when any content was skipped, regardless of this flag.\n";
 }
 
 ProcessSpec BuildStage1Process(const Runtime& runtime, const std::filesystem::path& wrapper,
@@ -230,7 +255,7 @@ ProcessSpec BuildStage1Process(const Runtime& runtime, const std::filesystem::pa
 
 ProcessSpec BuildStage2Process(const Runtime& runtime, const std::filesystem::path& wrapper,
                                const std::filesystem::path& input, const std::filesystem::path& intermediate,
-                               const std::filesystem::path& output, bool inPlace) {
+                               const std::filesystem::path& output, bool inPlace, bool requireComplete) {
     ProcessSpec process;
     process.arguments = {runtime.restRootExecutable, "-l", "-b", "-n", "-x", "-q", wrapper.string()};
     process.environment = {
@@ -241,7 +266,7 @@ ProcessSpec BuildStage2Process(const Runtime& runtime, const std::filesystem::pa
         {"REST_LEGACY_RECOVERY_INTERMEDIATE", intermediate.string()},
         {"REST_LEGACY_RECOVERY_OUTPUT", output.string()},
         {"REST_LEGACY_RECOVERY_IN_PLACE", inPlace ? "1" : "0"},
-        {"REST_LEGACY_RECOVERY_REQUIRE_COMPLETE", "1"}};
+        {"REST_LEGACY_RECOVERY_REQUIRE_COMPLETE", requireComplete ? "1" : "0"}};
 #ifdef __APPLE__
     process.environment.emplace_back("DYLD_LIBRARY_PATH",
                                      PrependSearchPath(runtime.restPath / "lib", "DYLD_LIBRARY_PATH"));
@@ -534,8 +559,8 @@ int Execute(const Options& options, Runtime runtime, std::ostream& output, std::
     }
 
     output << "Legacy signal recovery stage 2/2: rebuilding with REST.\n" << std::flush;
-    const int stage2Status = runtime.runProcess(
-        BuildStage2Process(runtime, stage2Wrapper, inputPath, intermediate, candidate, options.inPlace));
+    const int stage2Status = runtime.runProcess(BuildStage2Process(
+        runtime, stage2Wrapper, inputPath, intermediate, candidate, options.inPlace, options.requireComplete));
     if (stage2Status != 0) {
         errors << "ERROR: REST rebuild failed with exit status " << stage2Status << ".\n";
         ReportRetainedWorkDirectory(workDirectory, errors);

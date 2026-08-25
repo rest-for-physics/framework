@@ -102,7 +102,15 @@ TEST(LegacySignalRecoveryCLI, ParsesOneShotInterfaceAndRejectsAmbiguity) {
     EXPECT_TRUE(parsed.options.inPlace);
 
     EXPECT_EQ(ParseArguments({"restRoot", "--recover-legacy-signals", "--help"}).action, ParseAction::kHelp);
-    EXPECT_EQ(ParseArguments({"restRoot", "-l", "--recover-legacy-signals", "input.root"}).action,
+    // The shipped alias expands to "restRoot -l ...", so a leading launcher flag
+    // before the recovery flag must be accepted, not rejected.
+    parsed = ParseArguments({"restRoot", "-l", "--recover-legacy-signals", "input.root"});
+    ASSERT_EQ(parsed.action, ParseAction::kRun);
+    EXPECT_EQ(parsed.options.input, "input.root");
+    EXPECT_EQ(ParseArguments({"restRoot", "-l", "-b", "--recover-legacy-signals", "input.root", "--help"}).action,
+              ParseAction::kHelp);
+    // A non-launcher token before the flag is still an error.
+    EXPECT_EQ(ParseArguments({"restRoot", "input.root", "--recover-legacy-signals"}).action,
               ParseAction::kError);
     EXPECT_EQ(ParseArguments({"restRoot", "--recover-legacy-signals"}).action, ParseAction::kError);
     EXPECT_EQ(ParseArguments({"restRoot", "--recover-legacy-signals", "input.root", "--output"}).action,
@@ -148,8 +156,8 @@ TEST(LegacySignalRecoveryCLI, BuildsIsolatedProcessesWithoutPuttingDataPathsInRo
     EXPECT_EQ(EnvironmentValue(stage1, "PATH").rfind("/matching ROOT/bin", 0), 0U);
     EXPECT_EQ(EnvironmentValue(stage1, "LD_LIBRARY_PATH").rfind("/matching ROOT/lib", 0), 0U);
 
-    const auto stage2 =
-        BuildStage2Process(runtime, "/matching REST;prefix/stage2.C", input, intermediate, candidate, true);
+    const auto stage2 = BuildStage2Process(runtime, "/matching REST;prefix/stage2.C", input, intermediate,
+                                           candidate, true, true);
     EXPECT_EQ(stage2.arguments.front(), runtime.restRootExecutable);
     EXPECT_NE(std::find(stage2.arguments.begin(), stage2.arguments.end(), "-n"), stage2.arguments.end());
     EXPECT_NE(std::find(stage2.arguments.begin(), stage2.arguments.end(), "-x"), stage2.arguments.end());
@@ -164,6 +172,12 @@ TEST(LegacySignalRecoveryCLI, BuildsIsolatedProcessesWithoutPuttingDataPathsInRo
     EXPECT_EQ(EnvironmentValue(stage2, "REST_LEGACY_RECOVERY_OUTPUT"), candidate);
     EXPECT_EQ(EnvironmentValue(stage2, "REST_LEGACY_RECOVERY_IN_PLACE"), "1");
     EXPECT_EQ(EnvironmentValue(stage2, "REST_LEGACY_RECOVERY_REQUIRE_COMPLETE"), "1");
+
+    // Partial recovery is the default: requireComplete=false must propagate as "0".
+    const auto stage2Partial = BuildStage2Process(runtime, "/matching REST;prefix/stage2.C", input,
+                                                  intermediate, candidate, false, false);
+    EXPECT_EQ(EnvironmentValue(stage2Partial, "REST_LEGACY_RECOVERY_IN_PLACE"), "0");
+    EXPECT_EQ(EnvironmentValue(stage2Partial, "REST_LEGACY_RECOVERY_REQUIRE_COMPLETE"), "0");
 }
 
 #ifndef _WIN32

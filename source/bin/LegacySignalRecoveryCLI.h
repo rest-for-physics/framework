@@ -17,6 +17,7 @@ struct Options {
     std::filesystem::path output;
     bool outputWasSpecified = false;
     bool inPlace = false;
+    bool requireComplete = false;
 };
 
 struct ParseResult {
@@ -51,7 +52,7 @@ ProcessSpec BuildStage1Process(const Runtime& runtime, const std::filesystem::pa
                                const std::filesystem::path& intermediate);
 ProcessSpec BuildStage2Process(const Runtime& runtime, const std::filesystem::path& wrapper,
                                const std::filesystem::path& input, const std::filesystem::path& intermediate,
-                               const std::filesystem::path& output, bool inPlace);
+                               const std::filesystem::path& output, bool inPlace, bool requireComplete);
 
 int RunChildProcess(const ProcessSpec& process);
 std::string ResolveExecutableFromSearchPath(const std::string& executable, const std::string& searchPath);
