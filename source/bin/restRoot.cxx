@@ -3,6 +3,12 @@
 #include <TRint.h>
 #include <TSystem.h>
 
+#include <cstdlib>
+#include <filesystem>
+#include <iostream>
+#include <vector>
+
+#include "LegacySignalRecoveryCLI.h"
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
 #include "TRestTools.h"
@@ -22,6 +28,25 @@ using namespace std;
 // Don't use cout in the main function!
 // This will make cout un-usable in the command line!
 int main(int argc, char* argv[]) {
+    const REST_LegacySignalRecoveryCLI::Arguments arguments(argv, argv + argc);
+    const auto recovery = REST_LegacySignalRecoveryCLI::ParseArguments(arguments);
+    if (recovery.action == REST_LegacySignalRecoveryCLI::ParseAction::kHelp) {
+        REST_LegacySignalRecoveryCLI::PrintHelp(std::cout);
+        return 0;
+    }
+    if (recovery.action == REST_LegacySignalRecoveryCLI::ParseAction::kError) {
+        std::cerr << "ERROR: " << recovery.error << ".\n\n";
+        REST_LegacySignalRecoveryCLI::PrintHelp(std::cerr);
+        return 2;
+    }
+    if (recovery.action == REST_LegacySignalRecoveryCLI::ParseAction::kRun) {
+        REST_LegacySignalRecoveryCLI::Runtime runtime;
+        runtime.rootExecutable = REST_ROOT_EXECUTABLE;
+        runtime.restRootExecutable = REST_LegacySignalRecoveryCLI::ResolveExecutablePath(argv[0]);
+        runtime.restPath = std::filesystem::path(runtime.restRootExecutable).parent_path().parent_path();
+        return REST_LegacySignalRecoveryCLI::Execute(recovery.options, runtime, std::cout, std::cerr);
+    }
+
     // set the env and debug status
     setenv("REST_VERSION", REST_RELEASE, 1);
 
@@ -62,6 +87,14 @@ int main(int argc, char* argv[]) {
                     printf(" restRoot --m [0,1]\n");
                     printf("\n");
                     printf(" Option 0 will disable macro loading. Option 0 is the default.\n");
+                    printf("\n");
+                    printf("-----\n");
+                    printf("\n");
+                    printf(" To recover a legacy detector signal branch safely in one command:\n");
+                    printf("\n");
+                    printf(" restRoot --recover-legacy-signals INPUT [--output OUTPUT | --in-place]\n");
+                    printf("\n");
+                    printf(" Use `restRoot --recover-legacy-signals --help` for details.\n");
                     printf("\n");
                     exit(0);
             }

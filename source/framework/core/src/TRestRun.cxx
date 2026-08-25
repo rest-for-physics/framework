@@ -36,6 +36,9 @@
 #include <unistd.h>
 #endif  // !WIN32
 
+#include <TBranchElement.h>
+#include <TStreamerInfo.h>
+
 #include <filesystem>
 
 #include "TRestDataBase.h"
@@ -46,6 +49,93 @@
 using namespace std;
 
 std::mutex mutex_read;
+
+namespace {
+void SetBranchStatusRecursively(TBranch* branch, bool status) {
+    if (branch == nullptr) return;
+
+    branch->SetStatus(status);
+    auto subs = branch->GetListOfBranches();
+    for (int i = 0; i <= subs->GetLast(); i++) {
+        SetBranchStatusRecursively((TBranch*)subs->At(i), status);
+    }
+}
+
+Int_t GetOnDiskDetectorSignalVersion(TBranch* branch) {
+    if (branch == nullptr) return -1;
+
+    auto branchElement = dynamic_cast<TBranchElement*>(branch);
+    if (branchElement != nullptr && ((std::string)branch->GetName() == "fSignal.fSignalTime" ||
+                                     (std::string)branch->GetName() == "fSignal.fSignalCharge")) {
+        const auto version = branchElement->GetClassVersion();
+        if (version > 0) return version;
+    }
+
+    auto subs = branch->GetListOfBranches();
+    for (int i = 0; i <= subs->GetLast(); i++) {
+        const auto version = GetOnDiskDetectorSignalVersion((TBranch*)subs->At(i));
+        if (version > 0) return version;
+    }
+
+    return -1;
+}
+
+bool FileHasDetectorSignalStreamerInfo(TFile* inputFile, Int_t version) {
+    if (inputFile == nullptr || version < 1) return false;
+
+    auto streamerInfos = inputFile->GetStreamerInfoList();
+    for (int i = 0; i <= streamerInfos->GetLast(); i++) {
+        auto streamerInfo = dynamic_cast<TStreamerInfo*>(streamerInfos->At(i));
+        if (streamerInfo != nullptr && (std::string)streamerInfo->GetName() == "TRestDetectorSignal" &&
+            streamerInfo->GetClassVersion() == version) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool IsUnsupportedLegacyDetectorSignalBranch(TFile* inputFile, TBranch* branch) {
+    if (inputFile == nullptr || branch == nullptr) return false;
+    if ((std::string)branch->GetName() != "TRestDetectorSignalEventBranch") return false;
+
+    const auto signalClass = TClass::GetClass("TRestDetectorSignal");
+    if (signalClass == nullptr || signalClass->GetClassVersion() < 4) return false;
+
+    const auto onDiskVersion = GetOnDiskDetectorSignalVersion(branch);
+    if (onDiskVersion < 1 || onDiskVersion >= 4) return false;
+
+    // With the old class StreamerInfo ROOT can evolve the legacy float vectors safely. The dangerous
+    // restManager files are precisely those where the event-class StreamerInfos were omitted.
+    return !FileHasDetectorSignalStreamerInfo(inputFile, onDiskVersion);
+}
+
+void DisableUnsupportedLegacyDetectorSignalBranch(TTree* eventTree, TBranch* branch) {
+    if (eventTree == nullptr || branch == nullptr) return;
+
+    // TChain remembers SetBranchStatus rules and reapplies them when it switches files. The two leaf
+    // rules are needed because disabling a split parent does not reliably disable its sub-branches.
+    eventTree->SetBranchStatus(branch->GetName(), false);
+    eventTree->SetBranchStatus("fSignal.fSignalTime", false);
+    eventTree->SetBranchStatus("fSignal.fSignalCharge", false);
+    SetBranchStatusRecursively(branch, false);
+}
+
+void WarnUnsupportedLegacyDetectorSignalBranch() {
+    RESTWarning << "REST Warning : (TRestRun) cannot read TRestDetectorSignalEvent from this file with "
+                   "the loaded detector library."
+                << RESTendl;
+    RESTWarning << "The file contains legacy vector<float> signal time/charge split branches, while the "
+                   "current TRestDetectorSignal class expects vector<double>."
+                << RESTendl;
+    RESTWarning << "This is the schema change introduced in detectorlib PR109. Other event branches can "
+                   "still be read, but this detector signal event branch is disabled to avoid excessive "
+                   "memory usage or a crash."
+                << RESTendl;
+    RESTWarning << "The data is recoverable with a matching installed REST:" << RESTendl;
+    RESTWarning << "  restRoot --recover-legacy-signals yourFile.root" << RESTendl;
+    RESTWarning << "Use --in-place only when you explicitly want replacement plus a .bak copy." << RESTendl;
+}
+}  // namespace
 
 ClassImp(TRestRun);
 
@@ -584,9 +674,21 @@ void TRestRun::ReadInputFileTrees() {
                 fEventTree = _eventTree;
             }
 
+            TObjArray* branches = fEventTree->GetListOfBranches();
+            bool warnedAboutLegacyDetectorSignal = false;
+            for (int i = 0; i <= branches->GetLast(); i++) {
+                auto branch = (TBranch*)branches->At(i);
+                if (!IsUnsupportedLegacyDetectorSignalBranch(fInputFile, branch)) continue;
+
+                if (!warnedAboutLegacyDetectorSignal) {
+                    WarnUnsupportedLegacyDetectorSignalBranch();
+                    warnedAboutLegacyDetectorSignal = true;
+                }
+                DisableUnsupportedLegacyDetectorSignalBranch(fEventTree, branch);
+            }
+
             RESTDebug << "Finding event branch.." << RESTendl;
             if (fInputEvent == nullptr) {
-                TObjArray* branches = fEventTree->GetListOfBranches();
                 // get the last event branch as input event branch
                 if (branches->GetLast() > -1) {
                     TBranch* br = (TBranch*)branches->At(branches->GetLast());
@@ -595,6 +697,8 @@ void TRestRun::ReadInputFileTrees() {
                         RESTInfo << "No event branch inside file : " << filename << RESTendl;
                         RESTInfo << "This file may be a pure analysis file" << RESTendl;
                     } else {
+                        if (IsUnsupportedLegacyDetectorSignalBranch(fInputFile, br)) return;
+
                         string type = Replace(br->GetName(), "Branch", "", 0);
                         TClass* cl = TClass::GetClass(type.c_str());
                         if (cl->HasDictionary()) {
@@ -630,7 +734,15 @@ void TRestRun::ReadInputFileTrees() {
                                 << filename << RESTendl;
                     RESTWarning << "Branch required: " << brname << RESTendl;
                 } else {
+                    auto selectedBranch = fEventTree->GetBranch(brname.c_str());
+                    if (IsUnsupportedLegacyDetectorSignalBranch(fInputFile, selectedBranch)) {
+                        delete fInputEvent;
+                        fInputEvent = nullptr;
+                        return;
+                    }
+
                     fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
+                    fEventBranchLoc = branches->IndexOf(selectedBranch);
                     RESTDebug << brname << " is found and set!" << RESTendl;
                 }
             }
@@ -1246,30 +1358,45 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
 void TRestRun::SetInputEvent(TRestEvent* event) {
     if (event != nullptr) {
         if (fEventTree != nullptr) {
+            TObjArray* branches = fEventTree->GetListOfBranches();
+            string branchName = (string)event->ClassName() + "Branch";
+            TBranch* selectedBranch = nullptr;
+            Int_t selectedBranchIndex = -1;
+            for (int i = 0; i <= branches->GetLast(); i++) {
+                auto branch = (TBranch*)branches->At(i);
+                if ((string)branch->GetName() == branchName) {
+                    selectedBranch = branch;
+                    selectedBranchIndex = i;
+                    break;
+                }
+            }
+
+            if (selectedBranch == nullptr) {
+                RESTWarning << "REST Warning : (TRestRun) cannot find corresponding "
+                               "branch in event tree!"
+                            << RESTendl;
+                RESTWarning << "Event Type : " << event->ClassName() << RESTendl;
+                RESTWarning << "Input event not set!" << RESTendl;
+                return;
+            }
+
+            if (IsUnsupportedLegacyDetectorSignalBranch(fInputFile, selectedBranch)) {
+                WarnUnsupportedLegacyDetectorSignalBranch();
+                DisableUnsupportedLegacyDetectorSignalBranch(fEventTree, selectedBranch);
+                return;
+            }
+
             if (fInputEvent != nullptr) {
                 fEventTree->SetBranchAddress((TString)fInputEvent->ClassName() + "Branch", nullptr);
                 fEventTree->SetBranchStatus((TString)fInputEvent->ClassName() + "Branch", false);
             }
-            TObjArray* branches = fEventTree->GetListOfBranches();
-            string branchName = (string)event->ClassName() + "Branch";
-            for (int i = 0; i <= branches->GetLast(); i++) {
-                auto branch = (TBranch*)branches->At(i);
-                if ((string)branch->GetName() == branchName) {
-                    RESTDebug << "Setting input event.. Type: " << event->ClassName() << " Address: " << event
-                              << RESTendl;
-                    fInputEvent = event;
-                    fEventTree->SetBranchAddress(branchName.c_str(), &fInputEvent);
-                    fEventTree->SetBranchStatus(branchName.c_str(), false);
-                    fEventBranchLoc = i;
-                    break;
-                } else if (i == branches->GetLast()) {
-                    RESTWarning << "REST Warning : (TRestRun) cannot find corresponding "
-                                   "branch in event tree!"
-                                << RESTendl;
-                    RESTWarning << "Event Type : " << event->ClassName() << RESTendl;
-                    RESTWarning << "Input event not set!" << RESTendl;
-                }
-            }
+
+            RESTDebug << "Setting input event.. Type: " << event->ClassName() << " Address: " << event
+                      << RESTendl;
+            fInputEvent = event;
+            fEventTree->SetBranchAddress(branchName.c_str(), &fInputEvent);
+            fEventTree->SetBranchStatus(branchName.c_str(), false);
+            fEventBranchLoc = selectedBranchIndex;
         } else {
             fInputEvent = event;
         }

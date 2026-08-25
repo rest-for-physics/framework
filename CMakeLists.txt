@@ -295,7 +295,15 @@ install(
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/macros
     DESTINATION .
-    COMPONENT install)
+    COMPONENT install
+    PATTERN "REST_RebuildLegacySignalFile.C" EXCLUDE)
+if (TARGET RestDetector)
+    install(
+        FILES
+            ${CMAKE_CURRENT_SOURCE_DIR}/macros/legacy/REST_RebuildLegacySignalFile.C
+        DESTINATION macros/legacy
+        COMPONENT install)
+endif ()
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data
     DESTINATION .

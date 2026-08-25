@@ -102,6 +102,43 @@ foreach (dir ${dirs})
     endforeach ()
 endforeach ()
 
+set(BUILD_LEGACY_SIGNAL_TEST ${TEST})
+if (NOT TARGET RestDetector)
+    set(BUILD_LEGACY_SIGNAL_TEST OFF)
+endif ()
+if (NOT TARGET RestRaw)
+    set(BUILD_LEGACY_SIGNAL_TEST OFF)
+endif ()
+if (NOT TARGET RestTrack)
+    set(BUILD_LEGACY_SIGNAL_TEST OFF)
+endif ()
+
+if (BUILD_LEGACY_SIGNAL_TEST)
+    set(REST_LEGACY_SIGNAL_TEST_FILE
+        ""
+        CACHE
+            FILEPATH
+            "Optional canonical legacy DetectorSignal ROOT file for integration tests"
+    )
+    set(LEGACY_SIGNAL_TEST_SOURCE
+        framework/test/integration/LegacyDetectorSignal.cxx)
+    add_executable(testLegacyDetectorSignal ${LEGACY_SIGNAL_TEST_SOURCE})
+    target_include_directories(
+        testLegacyDetectorSignal
+        PRIVATE framework/external/tinyxml framework/tools/inc
+                framework/core/inc libraries/detector/inc libraries/raw/inc)
+    target_compile_definitions(
+        testLegacyDetectorSignal
+        PRIVATE REST_LEGACY_SIGNAL_TEST_FILE="${REST_LEGACY_SIGNAL_TEST_FILE}")
+    target_link_libraries(
+        testLegacyDetectorSignal PRIVATE RestDetector RestRaw RestTrack
+                                         RestFramework gtest_main stdc++fs)
+    include(GoogleTest)
+    gtest_add_tests(TARGET testLegacyDetectorSignal
+                    SOURCES ${LEGACY_SIGNAL_TEST_SOURCE})
+endif ()
+unset(BUILD_LEGACY_SIGNAL_TEST)
+
 # remove duplicates
 if (DEFINED rest_include_dirs)
     list(REMOVE_DUPLICATES rest_include_dirs)
