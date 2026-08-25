@@ -559,8 +559,9 @@ int Execute(const Options& options, Runtime runtime, std::ostream& output, std::
     }
 
     output << "Legacy signal recovery stage 2/2: rebuilding with REST.\n" << std::flush;
-    const int stage2Status = runtime.runProcess(BuildStage2Process(
-        runtime, stage2Wrapper, inputPath, intermediate, candidate, options.inPlace, options.requireComplete));
+    const int stage2Status =
+        runtime.runProcess(BuildStage2Process(runtime, stage2Wrapper, inputPath, intermediate, candidate,
+                                              options.inPlace, options.requireComplete));
     if (stage2Status != 0) {
         errors << "ERROR: REST rebuild failed with exit status " << stage2Status << ".\n";
         ReportRetainedWorkDirectory(workDirectory, errors);

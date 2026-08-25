@@ -107,8 +107,9 @@ TEST(LegacySignalRecoveryCLI, ParsesOneShotInterfaceAndRejectsAmbiguity) {
     parsed = ParseArguments({"restRoot", "-l", "--recover-legacy-signals", "input.root"});
     ASSERT_EQ(parsed.action, ParseAction::kRun);
     EXPECT_EQ(parsed.options.input, "input.root");
-    EXPECT_EQ(ParseArguments({"restRoot", "-l", "-b", "--recover-legacy-signals", "input.root", "--help"}).action,
-              ParseAction::kHelp);
+    EXPECT_EQ(
+        ParseArguments({"restRoot", "-l", "-b", "--recover-legacy-signals", "input.root", "--help"}).action,
+        ParseAction::kHelp);
     // A non-launcher token before the flag is still an error.
     EXPECT_EQ(ParseArguments({"restRoot", "input.root", "--recover-legacy-signals"}).action,
               ParseAction::kError);
