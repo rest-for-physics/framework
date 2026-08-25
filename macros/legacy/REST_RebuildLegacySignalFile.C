@@ -274,7 +274,19 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
         TClass* cl = TClass::GetClass(key->GetClassName());
         if (cl != nullptr && cl->InheritsFrom("TTree")) continue;  // trees handled below
 
-        TObject* obj = (cl != nullptr) ? key->ReadObj() : nullptr;
+        // A non-null TClass is not enough: for a class whose compiled dictionary
+        // is gone (renamed/removed, e.g. obsolete legacy processes), ROOT builds
+        // an *emulated* TClass from the file's StreamerInfo. Reading such an
+        // object can abort inside ROOT when an abstract compiled base in its
+        // inheritance chain cannot be instantiated (TClass::New failure), so the
+        // "obj == nullptr" guard below never gets the chance to skip it. Treat a
+        // missing compiled dictionary the same as a missing class.
+        if (cl == nullptr || !cl->HasDictionary()) {
+            skipped.push_back(keyName + " (" + key->GetClassName() + ")");
+            continue;
+        }
+
+        TObject* obj = key->ReadObj();
         if (obj == nullptr) {
             skipped.push_back(keyName + " (" + key->GetClassName() + ")");
             continue;
@@ -307,7 +319,8 @@ void REST_RebuildLegacySignalFile(const char* originalFile, const char* signalDa
         if (name == "TRestDetectorSignalEventBranch") continue;
         const size_t suffix = name.rfind("Branch");
         const std::string className = (suffix != std::string::npos) ? name.substr(0, suffix) : name;
-        if (TClass::GetClass(className.c_str()) == nullptr) {
+        const TClass* eventClass = TClass::GetClass(className.c_str());
+        if (eventClass == nullptr || !eventClass->HasDictionary()) {
             std::cout << "WARNING: no dictionary for event class '" << className << "'; branch '" << name
                       << "' will NOT be copied!" << std::endl;
             skippedEventBranches.push_back(name + " (" + className + ")");
