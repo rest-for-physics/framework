@@ -45,6 +45,11 @@ Other approaches were rejected:
 - `TTree::CopyTree` runs an entry loop and therefore deserializes branches rather than preserving
   them opaquely.
 - Reading keys with `TKey::ReadObj` deserializes arbitrary metadata.
+- In particular, a class removed from modern REST can still have a non-null emulated `TClass`
+  because its `StreamerInfo` remains in the file. That does not make it readable: on the canonical
+  file, `TKey::ReadObj` for `zS2Raw` (`TRestRawZeroSupressionToRawProcess`) exits with signal 11
+  while ROOT tries to instantiate an abstract compiled base. The recovery never reads unrelated
+  keys; the initial byte copy retains their keys and payloads exactly.
 - Manually rewriting `TKey`, `TBasket`, and `TTree` offsets would duplicate ROOT internals and be
   substantially larger and more fragile than the supported fast-clone path.
 - Physically editing `TTree` branch and leaf arrays can work only if all related arrays remain
