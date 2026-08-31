@@ -6,7 +6,6 @@ from multiprocessing import cpu_count
 import platform
 import subprocess
 
-
 opt = {
     "Install_Path": os.environ["HOME"] + "/REST_Install",
     "Source_Path": os.path.abspath(".") + "/../",
