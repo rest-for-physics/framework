@@ -25,6 +25,12 @@ The input and intermediate are local files. The private work directory is create
 filesystem so publication does not cross filesystems. There is no in-place mode, partial mode,
 rollback protocol, arbitrary object copier, or user-visible intermediate format.
 
+Before its ordinary metadata or event setup, `TRestRun` inspects the split detector-signal branch.
+When a loaded v4 signal class meets an on-disk v1-v3 branch without the matching signal
+`StreamerInfo`, the complete open is rejected with the recovery command. Files with that
+`StreamerInfo` remain readable through ROOT's schema evolution. This fail-fast boundary avoids
+maintaining partially readable branch state inside `TRestRun`.
+
 ## ROOT 6.26 fast-clone boundary
 
 Experiments with ROOT 6.26/10 established the useful boundary:

@@ -36,7 +36,11 @@
 #include <unistd.h>
 #endif  // !WIN32
 
+#include <TBranchElement.h>
+#include <TStreamerInfo.h>
+
 #include <filesystem>
+#include <memory>
 
 #include "TRestDataBase.h"
 #include "TRestEventProcess.h"
@@ -47,6 +51,45 @@
 using namespace std;
 
 std::mutex mutex_read;
+
+namespace {
+Int_t GetDetectorSignalVersion(TBranch* branch) {
+    Int_t time = -1;
+    Int_t charge = -1;
+    const auto visit = [&](auto&& self, TBranch* current) -> void {
+        if (auto* element = dynamic_cast<TBranchElement*>(current)) {
+            const std::string name = current->GetName();
+            if (name == "fSignal.fSignalTime") time = element->GetClassVersion();
+            if (name == "fSignal.fSignalCharge") charge = element->GetClassVersion();
+        }
+        auto* children = current->GetListOfBranches();
+        for (int index = 0; index <= children->GetLast(); ++index)
+            self(self, static_cast<TBranch*>(children->At(index)));
+    };
+    if (branch != nullptr) visit(visit, branch);
+    return time == charge ? time : -1;
+}
+
+bool RequiresLegacySignalRecovery(TFile& file) {
+    auto* currentSignal = TClass::GetClass("TRestDetectorSignal");
+    auto* tree = dynamic_cast<TTree*>(file.Get("EventTree"));
+    auto* branch = tree == nullptr ? nullptr : tree->GetBranch("TRestDetectorSignalEventBranch");
+    const Int_t version = GetDetectorSignalVersion(branch);
+    if (currentSignal == nullptr || currentSignal->GetClassVersion() < 4 || version < 1 || version >= 4)
+        return false;
+
+    std::unique_ptr<TList> infos(file.GetStreamerInfoList());
+    if (infos == nullptr) return true;
+    TIter next(infos.get());
+    while (auto* object = next()) {
+        auto* info = dynamic_cast<TStreamerInfo*>(object);
+        if (info != nullptr && std::string(info->GetName()) == "TRestDetectorSignal" &&
+            info->GetClassVersion() == version)
+            return false;
+    }
+    return true;
+}
+}  // namespace
 
 ClassImp(TRestRun);
 
@@ -376,6 +419,15 @@ void TRestRun::OpenInputFile(const TString& filename, const string& mode) {
         }
         fInputFileOwner = std::move(inputFile);
         fInputFile = fInputFileOwner.Get();
+
+        if (RequiresLegacySignalRecovery(*fInputFile)) {
+            RESTError << "This file contains a legacy detector-signal schema that cannot be read safely "
+                         "with the loaded REST version."
+                      << RESTendl;
+            RESTError << "Recover it first with:" << RESTendl;
+            RESTError << "  restRoot --recover-legacy-signals " << filename << RESTendl;
+            exit(1);
+        }
 
         if (GetMetadataClass("TRestRun", fInputFile)) {
             // This should be the values in RML (if it was initialized using RML)

@@ -71,8 +71,10 @@ int main(int argc, char* argv[]) {
                     printf(" restRoot --m [0,1]\n");
                     printf("\n");
                     printf(" Option 0 will disable macro loading. Option 0 is the default.\n");
+#ifdef REST_LEGACY_SIGNAL_RECOVERY
                     printf("\n Recover legacy detector signal files with:\n");
                     printf(" restRoot --recover-legacy-signals INPUT [--output OUTPUT]\n");
+#endif
                     printf("\n");
                     exit(0);
             }

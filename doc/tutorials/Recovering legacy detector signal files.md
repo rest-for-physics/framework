@@ -9,6 +9,11 @@ class. They can be converted once with:
 restRoot --recover-legacy-signals legacy.root
 ```
 
+`TRestRun` refuses to open an affected file before reading its metadata or events and prints this
+command. It does not offer partial access because accidentally reading the incompatible signal
+branch can cause excessive allocation or a crash. Legacy files that contain the required signal
+`StreamerInfo` continue through ROOT's normal schema evolution without requiring recovery.
+
 The default output is a new sibling named `legacy_Fixed.root`. Select another new local path with:
 
 ```console
