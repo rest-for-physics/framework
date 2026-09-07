@@ -106,7 +106,8 @@ endforeach ()
 # detector event dictionary is part of this build.
 if (TARGET RestDetector)
     target_sources(restRoot PRIVATE bin/LegacySignalRecovery.cxx)
-    target_include_directories(restRoot PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libraries/detector/inc)
+    target_include_directories(
+        restRoot PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libraries/detector/inc)
     target_link_libraries(restRoot RestDetector)
     target_compile_definitions(restRoot PRIVATE REST_LEGACY_SIGNAL_RECOVERY)
 endif ()
