@@ -544,33 +544,39 @@ TRestRootFileHandle TRestRootFileHandle::Open(const std::string& filename, TRest
     }
 
     const char* option = mode == TRestRootFileMode::Recreate ? "RECREATE" : "READ";
+    bool createForUpdate = false;
     if (mode == TRestRootFileMode::Update) {
         std::error_code ec;
         const auto path = LocalRootPath(filename);
-        const bool exists = path && std::filesystem::exists(*path, ec);
+        if (!path) {
+            result.fError = "Cannot resolve local UPDATE destination '" + filename + "'";
+            return result;
+        }
+        createForUpdate = !std::filesystem::exists(*path, ec);
         if (ec) {
             result.fError = "Cannot inspect ROOT destination '" + filename + "': " + ec.message();
             return result;
         }
         // ROOT UPDATE creates missing files. CREATE preserves that contract
         // without overwriting a file appearing between this check and Open.
-        if (!exists) option = "CREATE";
+        if (createForUpdate) option = "CREATE";
     }
     result.fFile.reset(TFile::Open(filename.c_str(), option));
     if (result.fFile == nullptr || !result.fFile->IsOpen() || result.fFile->IsZombie()) {
-        result.fError = "Cannot open ROOT file '" + filename +
-                        (mode == TRestRootFileMode::Update ? "' for read-only UPDATE preflight"
-                                                           : "' in mode " + std::string(option));
+        result.fError =
+            "Cannot open ROOT file '" + filename +
+            (mode == TRestRootFileMode::Update && !createForUpdate ? "' for read-only UPDATE preflight"
+                                                                   : "' in mode " + std::string(option));
         result.fFile.reset();
         return result;
     }
-    if (mode != TRestRootFileMode::Read && std::string(option) != "READ" && !result.fFile->IsWritable()) {
+    if ((mode == TRestRootFileMode::Recreate || createForUpdate) && !result.fFile->IsWritable()) {
         result.fError = "ROOT file '" + filename + "' is not writable";
         result.fFile.reset();
         return result;
     }
 
-    if (mode == TRestRootFileMode::Update && !result.fFile->IsWritable() &&
+    if (mode == TRestRootFileMode::Update && !createForUpdate &&
         !PrepareBorrowedUpdate(*result.fFile, &result.fError)) {
         result.fFile.reset();
     }
@@ -1386,13 +1392,12 @@ bool TRestTools::MergeRootFilesTransactionally(const std::string& outputFile,
             auto source = TRestRootFileHandle::Open(sources[index], TRestRootFileMode::Read);
             Require(bool(source), source.Error());
             RootContentManifest incoming;
-            Require(ReadSchemaSnapshot(*source, schema, detail, true) &&
-                        LoadOnDiskSchemaRules(schema, detail) &&
-                        ReadContentManifest(*source, "", incoming, detail),
-                    detail);
-            Require(AddContentManifest(incoming, !existingTarget.empty() && index == 0 ? content : workers,
-                                       detail),
-                    detail);
+            if (!ReadSchemaSnapshot(*source, schema, detail, true) ||
+                !LoadOnDiskSchemaRules(schema, detail) ||
+                !ReadContentManifest(*source, "", incoming, detail) ||
+                !AddContentManifest(incoming, !existingTarget.empty() && index == 0 ? content : workers,
+                                    detail))
+                throw std::runtime_error("Cannot prepare merge input '" + sources[index] + "': " + detail);
         }
         // ROOT UPDATE merges workers together, replacing same-named target
         // objects; target-only objects stay in the byte-for-byte seed untouched.
