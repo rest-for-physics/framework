@@ -28,13 +28,17 @@ if (!file.Close()) {
 ```
 
 The available modes are `Read`, `Recreate`, and `Update`. `Recreate` intentionally replaces an existing file
-and must not be used as a shortcut for `Update`. An update is initially opened read-only. REST inventories the
+and must not be used as a shortcut for `Update`. Like ROOT's UPDATE mode, `Update` creates a missing local
+file; REST uses CREATE for this case so that a concurrently appearing file cannot be overwritten.
+An existing file is initially opened read-only. REST inventories the
 exact class-name, class-version, and checksum tuples stored in the file, collects the embedded schema rules,
 asks ROOT to resolve the on-disk entries into loaded or emulated classes, and only then registers the embedded
-rules. This follows ROOT's own `TFile::ReadStreamerInfo`/`TStreamerInfo::BuildCheck` ownership and resolution
+rules. Inventory and resolution share one read of the on-disk schema record. REST checks that each resolved
+user schema still has its original name, version, and checksum; a conflicting cached layout is rejected before
+the file becomes writable. This follows ROOT's own `TFile::ReadStreamerInfo`/`TStreamerInfo::BuildCheck` ownership and resolution
 rules, including unloaded classes and entries such as `ROOT::TIOFeatures`. REST then transitions the same
-`TFile` to update mode and verifies the local file identity and ROOT UUID before marking the historical
-class-index entries required for writing.
+`TFile` to update mode and checks that its filesystem identity still matches the identity captured before
+preflight. It then marks the historical class-index entries required for writing.
 
 `PrepareBorrowedUpdate(TFile&, std::string*)` provides the same update preparation when legacy code already
 owns a `TFile`. The supplied file must be valid, open in `READ` mode, and not writable:
@@ -95,7 +99,8 @@ result in a temporary sibling of the local destination. Before replacement it va
 StreamerInfos and schema rules, recursive key paths and classes, and `TTree` entry counts using ROOT's UPDATE
 semantics (summed across new inputs, replacing a same-named target tree). It validates the installed file again
 and attempts to restore the previous destination from a rollback backup on failure.
-Local input files are removed only after successful replacement and validation when
+Destination paths and cleanup exclusions resolve filesystem aliases, so using `./` or a symbolic link cannot
+cause input cleanup to delete the completed output. Local input files are removed only after successful replacement and validation when
 `removeInputsOnSuccess` is true.
 
 A false return can also mean that the merged output is valid but a backup or input could not be removed.
@@ -103,6 +108,11 @@ Always inspect the returned error before deciding how to recover. Replacement us
 operations on sibling paths, but this is not a promise of power-loss durability or atomic behavior on every
 mounted filesystem. Rollback can itself fail; preserve and report the detailed error, including any retained
 backup path.
+
+Internally, the update and merge operations translate failures into exceptions to unwind ROOT file owners
+before cleanup. Their public interfaces retain boolean results and error strings. Both temporary and installed
+merge results pass the same schema/content validator, and any exception during installed-result validation
+triggers rollback before the failure is returned.
 
 ## Local and remote paths
 
