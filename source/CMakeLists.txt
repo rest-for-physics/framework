@@ -36,7 +36,7 @@ foreach (subdir ${subdirs})
     set("${libname}_COMPILED" "FALSE")
 endforeach ()
 
-# loop all the dirs and set the option
+# loop all the dirs and set the option ON or OFF
 set(dirs "libraries" "packages")
 foreach (dir ${dirs})
     subdirlist(subdirs "${CMAKE_CURRENT_SOURCE_DIR}/${dir}")
@@ -64,6 +64,7 @@ foreach (dir ${dirs})
     endforeach ()
 endforeach ()
 
+# Add internal submodule dependencies
 if (${REST_G4} MATCHES ON)
     set(RESTLIB_GEANT4 ON)
 endif ()
@@ -73,6 +74,31 @@ if (${RESTLIB_DETECTOR} MATCHES ON)
         set(RESTLIB_CONNECTORS ON)
     endif ()
 endif ()
+
+if (${REST_DAQ} MATCHES ON)
+    if (${RESTLIB_RAW} MATCHES OFF)
+        set(RESTLIB_RAW ON)
+    endif ()
+endif ()
+
+# Print all the submodules to compile after internal dependencies
+foreach (dir ${dirs})
+    subdirlist(subdirs "${CMAKE_CURRENT_SOURCE_DIR}/${dir}")
+    foreach (subdir ${subdirs})
+        set(fullname "${dir}/${subdir}")
+        dirname2option(option ${fullname})
+
+        file(GLOB ff "*/${subdir}/CMakeLists.txt")
+        if (ff)
+            message(
+                "Submodule found: ${fullname}. Option: ${option}=${${option}}")
+        else ()
+            message(
+                "Empty submodule dir: ${fullname}. Option: ${option}=${${option}}"
+            )
+        endif ()
+    endforeach ()
+endforeach ()
 
 # loop all the dirs and compile if option is ON
 foreach (dir ${dirs})
