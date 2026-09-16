@@ -182,12 +182,11 @@ std::optional<LocalFileIdentity> CaptureLocalFileIdentity(const std::filesystem:
     return identity;
 }
 
-std::string NormalizeSchemaRule(const std::string& rule, std::string* targetClass = nullptr) {
+std::string NormalizeSchemaRule(const std::string& rule) {
     ROOT::TSchemaRule parsed;
     if (!parsed.SetFromRule(rule.c_str())) return "";
     TString normalized;
     parsed.AsString(normalized);
-    if (targetClass != nullptr) *targetClass = parsed.GetTargetClass();
     return normalized.Data();
 }
 
