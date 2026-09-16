@@ -935,10 +935,14 @@ void TRestMetadataPlot::GenerateCanvas() {
 
     // If the extension of the canvas save file is ROOT we store also the histograms
     if (TRestTools::isRootFile((string)fCanvasSave)) {
-        TFile* f = new TFile(fCanvasSave, "UPDATE");
-        f->cd();
+        auto file = TRestRootFileHandle::Open(fCanvasSave.Data(), TRestRootFileMode::Update);
+        if (!file) {
+            RESTError << file.Error() << RESTendl;
+            return;
+        }
+        file->cd();
         for (unsigned int n = 0; n < graphCollectionAll.size(); n++) graphCollectionAll[n]->Write();
-        f->Close();
+        if (!file.Close()) RESTError << file.Error() << RESTendl;
     }
 
     // Save this class to the root file

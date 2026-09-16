@@ -991,11 +991,15 @@ void TRestDataSet::Export(const std::string& filename, std::vector<std::string> 
     } else if (TRestTools::GetFileNameExtension(filename) == "root") {
         fDataFrame.Snapshot("AnalysisTree", filename);
 
-        TFile* f = TFile::Open(filename.c_str(), "UPDATE");
+        auto file = TRestRootFileHandle::Open(filename, TRestRootFileMode::Update);
+        if (!file) {
+            RESTError << file.Error() << RESTendl;
+            return;
+        }
         std::string name = this->GetName();
         if (name.empty()) name = "mock";
         this->Write(name.c_str());
-        f->Close();
+        if (!file.Close()) RESTError << file.Error() << RESTendl;
     } else {
         RESTWarning << "TRestDataSet::Export. Extension " << TRestTools::GetFileNameExtension(filename)
                     << " not recognized" << RESTendl;

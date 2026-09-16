@@ -5,12 +5,12 @@
 #define REST_MAXIMUM_EVENTS 2E9
 
 #include <TFile.h>
-#include <TFileMerger.h>
 #include <TKey.h>
 
 #include "TRestAnalysisTree.h"
 #include "TRestEvent.h"
 #include "TRestMetadata.h"
+#include "TRestTools.h"
 
 class TRestEventProcess;
 
@@ -44,6 +44,8 @@ class TRestRun : public TRestMetadata {
 
     // temp data members
     std::vector<TString> fInputFileNames;  //!
+    TRestRootFileHandle fInputFileOwner;   //!
+    TRestRootFileHandle fOutputFileOwner;  //!
     TFile* fInputFile;                     //!
     TFile* fOutputFile;                    //!
     TRestEvent* fInputEvent;               //!
@@ -98,6 +100,9 @@ class TRestRun : public TRestMetadata {
     TFile* UpdateOutputFile();
 
     void PassOutputFile() {
+        if (!fOutputFileOwner.Close())
+            RESTError << "Failed to close the previously owned output file: " << fOutputFileOwner.Error()
+                      << RESTendl;
         fOutputFile = fInputFile;
         fOutputFileName = fOutputFile->GetName();
     }
@@ -259,6 +264,8 @@ class TRestRun : public TRestMetadata {
     // Constructor & Destructor
     TRestRun();
     explicit TRestRun(const std::string& filename);
+    TRestRun(const TRestRun&) = delete;
+    TRestRun& operator=(const TRestRun&) = delete;
     ~TRestRun();
 
     ClassDefOverride(TRestRun, 6);
