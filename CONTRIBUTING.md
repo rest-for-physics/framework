@@ -28,6 +28,11 @@ Code that creates, updates, replaces, or merges ROOT files must follow the
 [safe writable ROOT I/O guide](doc/developer/Safe%20writable%20ROOT%20IO.md). It documents the required
 schema preflight, ownership, transactional replacement, and local/remote path rules.
 
+This also applies to **existing library code and user-written macros**, not only new code. The handle does not
+intercept direct `TFile` calls: audit and migrate remaining UPDATE opens, including constructors and `ReOpen`.
+The [user macro migration guide](doc/tutorials/Updating%20ROOT%20files%20from%20macros.md) provides a before/after
+example. A passing framework test suite does not establish that external macros have been migrated.
+
 ### Pipeline validation tests
 
 TODO : Explain how pipeline validation tests should be implemented

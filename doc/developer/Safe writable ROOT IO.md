@@ -5,9 +5,24 @@ a file directly with `TFile::Open(..., "UPDATE")` bypasses REST's schema preflig
 schema metadata before REST has established that every historical class layout is usable. Framework code that
 creates or mutates ROOT files must therefore use `TRestRootFileHandle`.
 
+## Existing code and user macros need attention too
+
+**This is not only a convention for new code.** Existing framework/library code and user-written macros that
+open ROOT files directly for UPDATE still bypass the protection. The handle does not intercept `TFile::Open`,
+`TFile` constructors, or `ReOpen`; installing a newer REST version does not redirect those calls automatically.
+Even an update that only adds a histogram can rewrite file-level schema metadata. Whether information is lost
+depends on the file's historical schemas and ROOT's handling of them; this change addresses a pre-existing risk.
+
+Audit existing writable opens and migrate them to the handle, or use the borrowed-file adapter below where
+ownership cannot be changed. The adapter must receive a READ-mode file, not one already opened for UPDATE.
+Read-only opens do not need migration for this schema-preservation protection. See the
+[user-facing migration example](../tutorials/Updating%20ROOT%20files%20from%20macros.md), which also covers error
+handling, borrowed pointers, and existing-file safety. Do not assume all library or external macros are covered
+merely because framework CI passes.
+
 ## Opening files
 
-Use `TRestRootFileHandle::Open` for new code:
+Use `TRestRootFileHandle::Open` for new code and when migrating existing writable opens:
 
 ```cpp
 #include "TRestTools.h"

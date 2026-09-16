@@ -8,6 +8,19 @@
 The REST-for-Physics (Rare Event Searches Toolkit) Framework is mainly written in C++ and it is fully integrated with [ROOT](https://root.cern.ch) I/O interface.
 REST was initially born as a collaborative software effort to provide common tools for acquisition, simulation, and data analysis of gaseous Time Projection Chambers (TPCs). However, the framework is already extending its usage to be non-exclusive of detector data analysis. The possibilities of the framework are provided by the different libraries and packages written for REST in our community.
 
+## Important: review existing macros that update ROOT files
+
+If your macro adds histograms, changes metadata, or otherwise modifies an existing ROOT file, replace direct
+`TFile` UPDATE opens with `TRestRootFileHandle`. This applies to **existing user macros and library code**, not
+just new development. Direct ROOT calls are not automatically protected by REST and can still lose historical
+schema information, even when the macro only writes a histogram. Read-only macros do not need this migration.
+
+See [Updating ROOT files from macros](doc/tutorials/Updating%20ROOT%20files%20from%20macros.md) for a migration
+example, ownership rules, and what to do if an update is refused. The new interface addresses an existing risk;
+it does not make previously written macros newly unsafe.
+
+## Framework overview
+
 The REST Framework provides 3 interfaces that prototype the use of **event types**, **metadata** and **event processes** through `TRestEvent`, `TRestMetadata` and `TRestEventProcess` abstract class definitions.
 Any REST library will implement **specific objects** that inherit from those 3 basic interfaces.
 
@@ -63,8 +76,10 @@ Any **metadata** object written with REST **will be stamped** with few metadata 
 If different REST versions were used to write a ROOT file, e.g. at different steps of the data processing chain, the historic metadata objects will preserve their original version.
 However, the `TRestRun` metadata object **will always store** the version used to write the ROOT file.
 
-After REST release 2.2.1., REST implements correctly the `ROOT schema evolution`. Therefore, any new REST version should always be backwards compatible.
-I.e. Any file written after v2.2.1 should be readable without problems with any future version.
+REST uses ROOT schema evolution to support reading historical data. Compatibility depends on usable historical
+schema information and compatible class definitions/evolution rules; it is not guaranteed by a file's release
+number alone. Use the checked writable interface described above to preserve existing schema information.
+Files already missing required information may need separate recovery.
 
 A major change at 2.3 will prevent from backwards compatibility, since class names have been reviewed.
 
