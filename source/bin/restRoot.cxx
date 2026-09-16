@@ -8,6 +8,10 @@
 #include "TRestTools.h"
 #include "TRestVersion.h"
 
+#ifdef REST_LEGACY_SIGNAL_RECOVERY
+#include "LegacySignalRecovery.h"
+#endif
+
 using namespace std;
 
 #ifdef WIN32
@@ -22,6 +26,11 @@ using namespace std;
 // Don't use cout in the main function!
 // This will make cout un-usable in the command line!
 int main(int argc, char* argv[]) {
+#ifdef REST_LEGACY_SIGNAL_RECOVERY
+    const int recoveryStatus = RunLegacySignalRecoveryCommand(argc, argv);
+    if (recoveryStatus >= 0) return recoveryStatus;
+#endif
+
     // set the env and debug status
     setenv("REST_VERSION", REST_RELEASE, 1);
 
@@ -62,6 +71,10 @@ int main(int argc, char* argv[]) {
                     printf(" restRoot --m [0,1]\n");
                     printf("\n");
                     printf(" Option 0 will disable macro loading. Option 0 is the default.\n");
+#ifdef REST_LEGACY_SIGNAL_RECOVERY
+                    printf("\n Recover legacy detector signal files with:\n");
+                    printf(" restRoot --recover-legacy-signals INPUT [--output OUTPUT]\n");
+#endif
                     printf("\n");
                     exit(0);
             }
