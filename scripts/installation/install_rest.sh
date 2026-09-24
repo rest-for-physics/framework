@@ -435,7 +435,11 @@ fi
 # Pull it explicitly if Geant4 integration / restG4 was requested.
 if [[ "$CMAKE_LIB_FLAGS" == *"REST_G4=ON"* ]]; then
     info "Pulling restG4 package..."
-    echo y | python3 pull-submodules.py --clean --only:restG4
+    if [[ "$SUB_CHOICE" == "1" ]]; then
+        python3 pull-submodules.py --latest --only:restG4
+    else
+        echo y | python3 pull-submodules.py --clean --only:restG4
+    fi
 fi
 success "REST framework and submodules ready."
 echo ""
