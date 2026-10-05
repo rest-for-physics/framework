@@ -53,7 +53,7 @@ if len(sys.argv) > 2:
 p = subprocess.Popen(
     ["git branch"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
 )
-(out, err) = p.communicate()
+out, err = p.communicate()
 
 if len(str(err)) > 3:
     print(
