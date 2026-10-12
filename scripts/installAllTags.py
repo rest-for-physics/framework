@@ -24,9 +24,9 @@ REST_Install_Path = "/programas/REST/"
 
 # You might need to add some environment definitions needed to build REST
 os.environ["GARFIELD_HOME"] = "/programas/garfield"
-os.environ[
-    "LD_LIBRARY_PATH"
-] = "/programas/root34.32/root/lib:/programas/geant4.10.02.p02-install/lib::/programas/garfield/lib"
+os.environ["LD_LIBRARY_PATH"] = (
+    "/programas/root34.32/root/lib:/programas/geant4.10.02.p02-install/lib::/programas/garfield/lib"
+)
 os.environ["PATH"] = os.environ["PATH"] + ":/programas/root34.32/root/bin/"
 # ===================================================
 
