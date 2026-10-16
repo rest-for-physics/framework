@@ -17,6 +17,16 @@ foreach (file ${files})
 
 endforeach (file)
 
+if (TEST)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(
+        NAME RestRoot.ExpressionArguments
+        COMMAND
+            ${Python3_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/../../pipeline/restRoot/test_expression_arguments.py
+            $<TARGET_FILE:restRoot>)
+endif ()
+
 set(rest_exes
     ${rest_exes}
     PARENT_SCOPE)
