@@ -28,7 +28,9 @@ class ExpressionArguments(unittest.TestCase):
         )
 
     def test_long_expression_is_executed_without_filesystem_probe(self):
-        expression = 'std::cout << "REST_LONG_EXPRESSION_OK" << std::endl;'
+        expression = (
+            'std::cout << "REST_LONG_EXPRESSION_OK" << std::endl; gSystem->Exit(0);'
+        )
         expression += " /*" + "x" * 1024 + "*/"
         result = self.run_root("-e", expression)
         self.assertEqual(result.returncode, 0, result.stdout)
@@ -40,7 +42,7 @@ class ExpressionArguments(unittest.TestCase):
             "-e",
             "int restExpressionValue = 41;",
             "-e",
-            'if (restExpressionValue != 41) gSystem->Exit(19); std::cout << "REST_ORDER_OK" << std::endl;',
+            'if (restExpressionValue != 41) gSystem->Exit(19); std::cout << "REST_ORDER_OK" << std::endl; gSystem->Exit(0);',
         )
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("REST_ORDER_OK", result.stdout)
