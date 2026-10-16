@@ -31,6 +31,15 @@ int main(int argc, char* argv[]) {
 
     Bool_t loadMacros = false;
     for (int i = 1; i < argc; i++) {
+        // ROOT consumes the next argument as C++ code, even if it starts with '-'.
+        if (string(argv[i]) == "-e") {
+            if (i + 1 == argc) {
+                fprintf(stderr, "restRoot: -e requires a C++ expression\n");
+                return 1;
+            }
+            i++;
+            continue;
+        }
         char* c = &argv[i][0];
         if (*c == '-') {
             c++;
@@ -115,6 +124,12 @@ int main(int argc, char* argv[]) {
 
     for (int i = 1; i < argc; i++) {
         const string opt = (string)argv[i];
+        // Leave expression arguments untouched for TRint; they are not input files.
+        if (opt == "-e") {
+            i++;
+            continue;
+        }
+        if (opt.empty()) continue;
         if (opt.at(0) == ('-') && opt.length() > 1 && opt.at(1) == ('-')) {
             i++;
             continue;
