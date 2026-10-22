@@ -245,7 +245,17 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
 
     if (fProcessChain.size() > 0) {
         RESTDebug << "TRestThread: Creating file : " << threadFileName << RESTendl;
-        fOutputFile = new TFile(threadFileName.c_str(), "recreate");
+        auto outputFile = TRestRootFileHandle::Open(threadFileName, TRestRootFileMode::Recreate);
+        if (!outputFile) {
+            RESTError << outputFile.Error() << RESTendl;
+            exit(1);
+        }
+        if (fOutputFileOwner && !fOutputFileOwner.Close()) {
+            RESTError << fOutputFileOwner.Error() << RESTendl;
+            exit(1);
+        }
+        fOutputFileOwner = std::move(outputFile);
+        fOutputFile = fOutputFileOwner.Get();
         fOutputFile->SetCompressionLevel(fCompressionLevel);
         fAnalysisTree = new TRestAnalysisTree("AnalysisTree_" + ToString(fThreadId), "dummyTree");
         fAnalysisTree->DisableQuickObservableValueSetting();
@@ -393,7 +403,17 @@ void TRestThread::PrepareToProcess(bool* outputConfig) {
         string tmp = fHostRunner->GetInputEvent()->ClassName();
         fInputEvent = REST_Reflection::Assembly(tmp);
         fOutputEvent = fInputEvent;
-        fOutputFile = new TFile(threadFileName.c_str(), "recreate");
+        auto outputFile = TRestRootFileHandle::Open(threadFileName, TRestRootFileMode::Recreate);
+        if (!outputFile) {
+            RESTError << outputFile.Error() << RESTendl;
+            exit(1);
+        }
+        if (fOutputFileOwner && !fOutputFileOwner.Close()) {
+            RESTError << fOutputFileOwner.Error() << RESTendl;
+            exit(1);
+        }
+        fOutputFileOwner = std::move(outputFile);
+        fOutputFile = fOutputFileOwner.Get();
         fOutputFile->SetCompressionLevel(fCompressionLevel);
         fOutputFile->cd();
 

@@ -139,6 +139,8 @@
 
 #include "TRestDataSetGainMap.h"
 
+#include "TRestTools.h"
+
 ClassImp(TRestDataSetGainMap);
 ///////////////////////////////////////////////
 /// \brief Default constructor
@@ -320,10 +322,13 @@ void TRestDataSetGainMap::CalibrateDataSet(const std::string& dataSetFileName, s
     dataSet.Export(outputFileName, std::vector<std::string>(excludeCol.begin(), excludeCol.end()));
 
     // Add this TRestDataSetGainMap metadata to the output file
-    TFile* f = TFile::Open(outputFileName.c_str(), "UPDATE");
+    auto file = TRestRootFileHandle::Open(outputFileName, TRestRootFileMode::Update);
+    if (!file) {
+        RESTError << file.Error() << RESTendl;
+        return;
+    }
     this->Write();
-    f->Close();
-    delete f;
+    if (!file.Close()) RESTError << file.Error() << RESTendl;
 }
 
 /////////////////////////////////////////////
@@ -507,10 +512,16 @@ void TRestDataSetGainMap::Export(const std::string& fileName) {
     }
 
     if (TRestTools::GetFileNameExtension(fOutputFileName) == "root") {
-        TFile* f = TFile::Open(fOutputFileName.c_str(), "UPDATE");
+        auto file = TRestRootFileHandle::Open(fOutputFileName, TRestRootFileMode::Update);
+        if (!file) {
+            RESTError << file.Error() << RESTendl;
+            return;
+        }
         this->Write(GetName());
-        f->Close();
-        delete f;
+        if (!file.Close()) {
+            RESTError << file.Error() << RESTendl;
+            return;
+        }
         RESTInfo << "Calibration saved to " << fOutputFileName << RESTendl;
     } else
         RESTError << "File extension for " << fOutputFileName << "is not supported." << RESTendl;

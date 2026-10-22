@@ -100,6 +100,7 @@
 #include "TRestDataSetCalibration.h"
 
 #include "TRestDataSet.h"
+#include "TRestTools.h"
 
 ClassImp(TRestDataSetCalibration);
 
@@ -257,14 +258,18 @@ void TRestDataSetCalibration::Calibrate() {
     if (!fOutputFileName.empty()) {
         if (TRestTools::GetFileNameExtension(fOutputFileName) == "root") {
             dataSet.Export(fOutputFileName);
-            TFile* f = TFile::Open(fOutputFileName.c_str(), "UPDATE");
+            auto file = TRestRootFileHandle::Open(fOutputFileName, TRestRootFileMode::Update);
+            if (!file) {
+                RESTError << file.Error() << RESTendl;
+                return;
+            }
             this->Write();
             if (gr) gr->Write();
             if (linearFit) linearFit->Write();
             // if(lFit)lFit->Write();
             // spectrumFit->Write();
             if (spectrum) spectrum->Write();
-            f->Close();
+            if (!file.Close()) RESTError << file.Error() << RESTendl;
         }
     }
 }

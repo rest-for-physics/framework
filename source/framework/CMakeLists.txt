@@ -27,3 +27,6 @@ endif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 compiledir(RestFramework)
 
 add_library_test()
+if (TEST)
+    add_subdirectory(test/io)
+endif ()

@@ -295,6 +295,7 @@
 
 #include "TCanvas.h"
 #include "TDirectory.h"
+#include "TRestTools.h"
 #include "TStyle.h"
 
 ClassImp(TRestDataSetPlot);
@@ -991,13 +992,18 @@ void TRestDataSetPlot::PlotCombinedCanvas() {
         combinedCanvas.Print(fOutputFileName.c_str());
         // In case of root file save also the histograms
         if (TRestTools::GetFileNameExtension(fOutputFileName) == "root") {
-            std::unique_ptr<TFile> f(TFile::Open(fOutputFileName.c_str(), "UPDATE"));
+            auto file = TRestRootFileHandle::Open(fOutputFileName, TRestRootFileMode::Update);
+            if (!file) {
+                RESTError << file.Error() << RESTendl;
+                return;
+            }
             for (auto& plots : fPlots) {
                 for (auto& hist : plots.histos) {
                     hist.histo->Write();
                 }
             }
             this->Write();
+            if (!file.Close()) RESTError << file.Error() << RESTendl;
         }
     }
 

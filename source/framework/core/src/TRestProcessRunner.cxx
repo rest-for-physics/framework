@@ -32,6 +32,7 @@
 #include "TROOT.h"
 #include "TRestManager.h"
 #include "TRestThread.h"
+#include "TRestTools.h"
 
 #ifdef WIN32
 #include <io.h>
@@ -344,7 +345,17 @@ void TRestProcessRunner::RunProcess() {
 
     TString filename = fRunInfo->FormFormat(fRunInfo->GetOutputFileName());
     fOutputDataFileName = filename;
-    fOutputDataFile = new TFile(filename, "recreate");
+    auto output = TRestRootFileHandle::Open(filename.Data(), TRestRootFileMode::Recreate);
+    if (!output) {
+        RESTError << output.Error() << RESTendl;
+        exit(1);
+    }
+    if (fOutputDataFileOwner && !fOutputDataFileOwner.Close()) {
+        RESTError << fOutputDataFileOwner.Error() << RESTendl;
+        exit(1);
+    }
+    fOutputDataFileOwner = std::move(output);
+    fOutputDataFile = fOutputDataFileOwner.Get();
     // set compression level here will cause problem in pipeline
     // we must set in each threadCompression
     // fOutputDataFile->SetCompressionLevel(fFile);
@@ -890,15 +901,30 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
                 // write some information to the first(main) data file
                 fRunInfo->SetNFilesSplit(fNFilesSplit);
                 if (fOutputDataFile->GetName() != fOutputDataFileName) {
-                    auto Mainfile = std::unique_ptr<TFile>{TFile::Open(fOutputDataFileName, "update")};
-                    WriteProcessesMetadata();
-                    Mainfile->Write(0, TObject::kOverwrite);
-                    Mainfile->Close();
+                    auto mainFile =
+                        TRestRootFileHandle::Open(fOutputDataFileName.Data(), TRestRootFileMode::Update);
+                    if (!mainFile) {
+                        RESTError << mainFile.Error() << RESTendl;
+                        exit(1);
+                    }
+                    WriteProcessesMetadata(mainFile.Get());
+                    mainFile->Write(0, TObject::kOverwrite);
+                    if (!mainFile.Close()) {
+                        RESTError << mainFile.Error() << RESTendl;
+                        exit(1);
+                    }
                 } else {
                     WriteProcessesMetadata();
                 }
 
-                TFile* newfile = new TFile(fOutputDataFileName + "." + ToString(fNFilesSplit), "recreate");
+                const std::string splitFileName =
+                    std::string(fOutputDataFileName.Data()) + "." + ToString(fNFilesSplit);
+                auto splitFile = TRestRootFileHandle::Open(splitFileName, TRestRootFileMode::Recreate);
+                if (!splitFile) {
+                    RESTError << splitFile.Error() << RESTendl;
+                    exit(1);
+                }
+                TFile* newfile = splitFile.Get();
 
                 TBranch* branch = nullptr;
                 fAnalysisTree->SetDirectory(newfile);
@@ -922,9 +948,12 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
                 }
 
                 fOutputDataFile->Write(nullptr, TObject::kOverwrite);
-                fOutputDataFile->Close();
-                delete fOutputDataFile;
-                fOutputDataFile = newfile;
+                if (!fOutputDataFileOwner.Close()) {
+                    RESTError << fOutputDataFileOwner.Error() << RESTendl;
+                    exit(1);
+                }
+                fOutputDataFileOwner = std::move(splitFile);
+                fOutputDataFile = fOutputDataFileOwner.Get();
             } else {
                 RESTError << "internal error!" << RESTendl;
             }
@@ -964,8 +993,11 @@ void TRestProcessRunner::ConfigOutputFile() {
 
     // close file
     fOutputDataFile->Write();
-    fOutputDataFile->Close();
-    delete fOutputDataFile;
+    if (!fOutputDataFileOwner.Close()) {
+        RESTError << fOutputDataFileOwner.Error() << RESTendl;
+        exit(1);
+    }
+    fOutputDataFile = nullptr;
 
     // merge process's data file to the main file
     // we must call this method before writing process metadata,
@@ -984,17 +1016,22 @@ void TRestProcessRunner::ConfigOutputFile() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Write process metadata to fOutputDataFile
+/// \brief Write process metadata to the requested file, or fOutputDataFile by default.
 ///
-void TRestProcessRunner::WriteProcessesMetadata() {
-    fOutputDataFile->cd();
+void TRestProcessRunner::WriteProcessesMetadata(TFile* destination) {
+    TFile* output = destination != nullptr ? destination : fOutputDataFile;
+    if (output == nullptr || !output->IsOpen() || !output->IsWritable()) {
+        RESTError << "Cannot write process metadata without a writable destination" << RESTendl;
+        return;
+    }
+    output->cd();
 
     this->Write(nullptr, TObject::kWriteDelete);
 
-    if (fRunInfo->GetFileProcess() != nullptr) {
+    if (fRunInfo != nullptr && fRunInfo->GetFileProcess() != nullptr) {
         fRunInfo->GetFileProcess()->Write(nullptr, kOverwrite);
     }
-    for (int i = 0; i < fProcessNumber; i++) {
+    for (int i = 0; i < fProcessNumber && !fThreads.empty(); i++) {
         fThreads[0]->GetProcess(i)->Write(nullptr, kOverwrite);
     }
 }
@@ -1013,10 +1050,14 @@ void TRestProcessRunner::MergeOutputFile() {
     for (int i = 0; i < fThreadNumber; i++) {
         TFile* f = fThreads[i]->GetOutputFile();
         if (f != nullptr) {
+            const std::string threadFileName = f->GetName();
             f->Write(nullptr, TObject::kOverwrite);
-            f->Close();
+            if (!fThreads[i]->CloseOutputFile()) {
+                RESTError << "Failed to close thread output file " << threadFileName << RESTendl;
+                exit(1);
+            }
+            files_to_merge.push_back(threadFileName);
         }
-        files_to_merge.push_back(f->GetName());
     }
 
     if (TRestTools::fileExists((string)fOutputDataFileName)) {

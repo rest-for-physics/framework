@@ -1,5 +1,6 @@
 #include "TRestComponent.h"
 #include "TRestTask.h"
+#include "TRestTools.h"
 
 #ifndef RestTask_AddComponent
 #define RestTask_AddComponent
@@ -29,18 +30,17 @@ Int_t REST_AddComponentDataSet(std::string cfgFile, std::string sectionName,
     TRestComponentDataSet comp(cfgFile.c_str(), sectionName.c_str());
     comp.Initialize();
 
-    TFile* f;
-    if (update)
-        f = TFile::Open(outputFile.c_str(), "UPDATE");
-    else
-        f = TFile::Open(outputFile.c_str(), "RECREATE");
+    auto file = TRestRootFileHandle::Open(outputFile,
+                                          update ? TRestRootFileMode::Update : TRestRootFileMode::Recreate);
+    if (!file) {
+        RESTError << file.Error() << RESTendl;
+        return -1;
+    }
 
     if (componentName == "") componentName = sectionName;
 
     comp.Write(componentName.c_str());
 
-    f->Close();
-
-    return 0;
+    return file.Close() ? 0 : -1;
 }
 #endif
