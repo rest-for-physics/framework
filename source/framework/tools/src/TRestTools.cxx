@@ -120,6 +120,8 @@ struct RootSchemaSnapshot {
     std::set<Int_t> numbers;
 };
 
+/// Identify ROOT-normalized standard-library metadata, whose exact historical
+/// identity need not survive a rewrite. User class schemas are never exempt.
 bool IsImplementationSchema(const std::string& name) {
     return TClassEdit::IsStdClass(name.c_str()) || TClassEdit::IsStdPairBase(name.c_str());
 }
@@ -156,6 +158,9 @@ std::optional<std::filesystem::path> LocalRootPath(const std::string& filename) 
     return std::filesystem::path(expanded.Data());
 }
 
+/// Record path identity around READ-to-UPDATE reopening to detect replacement or
+/// modification during preflight. These observations are not a writer lock and
+/// cannot exclude concurrent changes after the check.
 std::optional<LocalFileIdentity> CaptureLocalFileIdentity(const std::filesystem::path& path,
                                                           std::string& error) {
     std::error_code ec;
@@ -182,6 +187,8 @@ std::optional<LocalFileIdentity> CaptureLocalFileIdentity(const std::filesystem:
     return identity;
 }
 
+/// Compare embedded evolution rules by ROOT's parsed serialization, so formatting
+/// differences do not masquerade as missing rules. Empty means parsing failed.
 std::string NormalizeSchemaRule(const std::string& rule) {
     ROOT::TSchemaRule parsed;
     if (!parsed.SetFromRule(rule.c_str())) return "";
@@ -190,6 +197,16 @@ std::string NormalizeSchemaRule(const std::string& rule) {
     return normalized.Data();
 }
 
+/// Inventory on-disk layouts and evolution rules independently of ROOT's cache.
+/// Metadata updates and worker merges must preserve these descriptions even when
+/// historical event objects are never read or rewritten.
+///
+/// With resolve=true, BuildCheck reconciles layouts with process-wide TClass /
+/// StreamerInfo knowledge (loaded dictionaries or earlier files). Record identities
+/// before that mutation, then reject user layouts resolved to a different identity.
+/// Successful resolution also collects registry numbers for ApplySchemaUpdate.
+/// This mutates ROOT's registry, not file contents; it is not a data migration or
+/// a proof that arbitrary user evolution code preserves field meaning.
 bool ReadSchemaSnapshot(TFile& file, RootSchemaSnapshot& snapshot, std::string& error, bool resolve = false) {
     if (!file.IsOpen() || file.IsZombie()) {
         error = "Cannot inspect StreamerInfos in a closed or invalid ROOT file";
@@ -256,6 +273,9 @@ bool ReadSchemaSnapshot(TFile& file, RootSchemaSnapshot& snapshot, std::string& 
                 if (registered)
                     error += "; resolved to version " + std::to_string(registered->GetClassVersion()) +
                              " checksum " + std::to_string(registered->GetCheckSum());
+                error += ". Cannot safely preserve this schema; update or merge refused before "
+                         "writing. Input files are unchanged. Check class versioning and schema-evolution "
+                         "rules; an explicit migration may be needed.";
                 resolved = false;
             }
         } else if (!info->TestBit(TObject::kCanDelete)) {
@@ -269,6 +289,10 @@ bool ReadSchemaSnapshot(TFile& file, RootSchemaSnapshot& snapshot, std::string& 
     return resolved;
 }
 
+/// Verify that a merged file retained the independently inventoried input schemas
+/// and rules. Extra schemas are allowed; only ROOT implementation metadata is
+/// exempt from exact historical identity matching. A successful TFileMerger call
+/// alone does not establish this, so check both candidate and installed output.
 bool IsSubset(const RootSchemaSnapshot& expected, const RootSchemaSnapshot& actual, std::string& error) {
     for (const auto& info : expected.streamerInfos) {
         if (actual.streamerInfos.count(info) == 0) {
@@ -291,6 +315,10 @@ bool IsSubset(const RootSchemaSnapshot& expected, const RootSchemaSnapshot& actu
     return true;
 }
 
+/// Inventory the newest key cycle at each path, descending into directories and
+/// reading tree headers for entry counts. Used to check that a merge retained
+/// required objects as well as schema metadata. This does not scan event values,
+/// compare histogram bins, or preserve/check every historical key cycle.
 bool ReadContentManifest(TDirectory& directory, const std::string& prefix, RootContentManifest& manifest,
                          std::string& error) {
     TDirectory::TContext directoryContext(&directory);
@@ -341,6 +369,10 @@ bool ReadContentManifest(TDirectory& directory, const std::string& prefix, RootC
     return true;
 }
 
+/// Combine worker inventories using merge semantics: same-path trees contribute
+/// their summed entry counts, while incompatible classes are rejected. The caller
+/// overlays this combined worker inventory onto the destination inventory; an
+/// existing destination tree is not an additional worker contribution.
 bool AddContentManifest(const RootContentManifest& source, RootContentManifest& expected,
                         std::string& error) {
     for (const auto& [path, sourceEntry] : source) {
@@ -370,6 +402,9 @@ bool AddContentManifest(const RootContentManifest& source, RootContentManifest& 
     return true;
 }
 
+/// Check required paths, classes and tree counts after merging; extra keys are OK.
+/// This structural check catches missing objects and incomplete tree merges, not
+/// corruption or numerical changes inside otherwise matching object contents.
 bool ValidateContentManifest(const RootContentManifest& expected, const RootContentManifest& actual,
                              std::string& error) {
     for (const auto& [path, expectedEntry] : expected) {
@@ -398,6 +433,12 @@ bool ValidateContentManifest(const RootContentManifest& expected, const RootCont
     return true;
 }
 
+/// Restore embedded evolution rules to the process classes before a file rewrite.
+/// Loading StreamerInfos alone is insufficient: ROOT 6.26 ignores the embedded
+/// listOfRules on read, but gathers rules from process classes when writing it.
+/// Without this step an unrelated metadata update can drop a renamed-field rule.
+/// Skip already registered rules and refuse any rule that cannot be preserved;
+/// emulated classes need direct rule-set insertion because no dictionary is loaded.
 bool LoadOnDiskSchemaRules(const RootSchemaSnapshot& snapshot, std::string& error) {
     for (const auto& text : snapshot.schemaRules) {
         auto rule = std::make_unique<ROOT::TSchemaRule>();
@@ -438,6 +479,12 @@ bool LoadOnDiskSchemaRules(const RootSchemaSnapshot& snapshot, std::string& erro
     return true;
 }
 
+/// Keep historical layouts selected for writing during unrelated metadata updates
+/// and worker merges. ROOT's WriteStreamerInfo writes registry entries selected by
+/// this file's class index, not every layout registered in the process. Mark the
+/// resolved on-disk schemas and dirty the index so those descriptions survive.
+/// This preserves schema metadata; it neither rewrites old event bytes nor
+/// converts them to the current class layout.
 bool ApplySchemaUpdate(TFile& file, const std::set<Int_t>& numbers, std::string& error) {
     TArrayC* classIndex = file.GetClassIndex();
     if (classIndex == nullptr) {
@@ -468,6 +515,10 @@ std::filesystem::path UniqueSiblingPath(const std::filesystem::path& target, con
     return {};
 }
 
+/// Install a validated sibling candidate while retaining the old destination for
+/// rollback. POSIX uses a hard-link backup (copy fallback) and rename; Windows uses
+/// ReplaceFile/MoveFileEx. This is not a power-loss durability or writer-locking
+/// guarantee. The caller must validate installation before deleting the backup.
 bool ReplaceLocalFile(const std::filesystem::path& temporary, const std::filesystem::path& target,
                       const std::filesystem::path& backup, std::string& error) {
     const bool targetExists = std::filesystem::exists(target);
@@ -510,6 +561,9 @@ bool ReplaceLocalFile(const std::filesystem::path& temporary, const std::filesys
     return true;
 }
 
+/// Undo failed post-installation validation: restore the previous destination or
+/// remove a newly created one. Report rollback failure so the caller can identify
+/// the retained backup; input files must not be cleaned up on this path.
 bool RollBackLocalFile(const std::filesystem::path& target, const std::filesystem::path& backup,
                        bool targetPreviouslyExisted, std::string& error) {
     if (!targetPreviouslyExisted) {
@@ -534,6 +588,11 @@ bool RollBackLocalFile(const std::filesystem::path& target, const std::filesyste
 }
 }  // namespace
 
+/// Open with explicit ownership and checked writable-mode policy. Existing UPDATE
+/// files first open READ and pass PrepareBorrowedUpdate; missing ones use CREATE
+/// to avoid overwriting a file appearing during the existence check. RECREATE is
+/// intentionally destructive. Remote files are supported only in READ mode.
+/// Failure returns an invalid handle with Error(); callers must check it.
 TRestRootFileHandle TRestRootFileHandle::Open(const std::string& filename, TRestRootFileMode mode) {
     TRestRootFileHandle result;
     if (mode != TRestRootFileMode::Read && TRestTools::IsRemoteRootPath(filename)) {
@@ -595,6 +654,10 @@ TRestRootFileHandle& TRestRootFileHandle::operator=(TRestRootFileHandle&& other)
 
 TRestRootFileHandle::~TRestRootFileHandle() { Close(); }
 
+/// Close and release the owned file, reporting ROOT's zombie/write-error flags.
+/// Writers must call and check this explicitly: the destructor also cleans up,
+/// but cannot report success to its caller. Borrowed pointers become invalid.
+/// This checks reported ROOT errors, not filesystem durability after power loss.
 bool TRestRootFileHandle::Close() noexcept {
     if (fFile == nullptr) return fError.empty();
     if (fFile->IsOpen()) fFile->Close();
@@ -605,6 +668,12 @@ bool TRestRootFileHandle::Close() noexcept {
     return success;
 }
 
+/// Gate an existing owner's READ file into UPDATE without taking ownership.
+/// Resolve and retain historical schemas/rules before requesting writable access;
+/// compare local path identity around ReOpen, then select schemas for later writes.
+/// A preflight refusal leaves the file read-only. If the transition was attempted
+/// before a failure, disable writable state; this is not rollback for arbitrary
+/// subsequent writes and does not serialize concurrent writers.
 bool TRestRootFileHandle::PrepareBorrowedUpdate(TFile& file, std::string* error) {
     bool transitionAttempted = false;
     try {
@@ -1363,7 +1432,21 @@ void TRestTools::ForceNextTransactionalMergeValidationFailureForTesting() {
 #endif
 
 ///////////////////////////////////////////////
-/// \brief Transactionally merges ROOT files into a local destination.
+/// \brief Merge REST worker outputs using a validated candidate and rollback backup.
+///
+/// TFileMerger retains the existing merge semantics: workers combine with each
+/// other and replace matching objects in existingTarget; target-only objects stay.
+/// Inventory schemas/rules and content first, copy existingTarget (if supplied) to
+/// a sibling candidate, merge there, and validate before and after installation.
+/// A failed installed-result check restores the old output or removes a new one.
+/// Only after successful validation are backup and, optionally, inputs removed.
+///
+/// The candidate copies the whole existing output, not just worker objects; disk
+/// and I/O overhead therefore scale with output size. POSIX backups normally use
+/// a hard link, with a full-copy fallback. Structural validation does not compare
+/// event values. This is not a writer lock or a power-loss durability guarantee.
+/// Returns false with an error on failure, including cleanup failures after a
+/// valid output is installed; rollback failures identify the retained backup.
 ///
 bool TRestTools::MergeRootFilesTransactionally(const std::string& outputFile,
                                                const std::vector<std::string>& inputFiles,
