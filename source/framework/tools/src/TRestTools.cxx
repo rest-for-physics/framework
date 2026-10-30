@@ -273,9 +273,10 @@ bool ReadSchemaSnapshot(TFile& file, RootSchemaSnapshot& snapshot, std::string& 
                 if (registered)
                     error += "; resolved to version " + std::to_string(registered->GetClassVersion()) +
                              " checksum " + std::to_string(registered->GetCheckSum());
-                error += ". Cannot safely preserve this schema; update or merge refused before "
-                         "writing. Input files are unchanged. Check class versioning and schema-evolution "
-                         "rules; an explicit migration may be needed.";
+                error +=
+                    ". Cannot safely preserve this schema; update or merge refused before "
+                    "writing. Input files are unchanged. Check class versioning and schema-evolution "
+                    "rules; an explicit migration may be needed.";
                 resolved = false;
             }
         } else if (!info->TestBit(TObject::kCanDelete)) {
