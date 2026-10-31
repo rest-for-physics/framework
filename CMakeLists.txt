@@ -21,7 +21,8 @@ endif (NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 # AddressSanitizer (memory error detector). Disabled by default since it slows
 # down execution and may crash at exit when REST libraries are loaded together
-# with non-instrumented ones (e.g. ROOT/TBB on macOS). Enable with -DREST_ASAN=ON
+# with non-instrumented ones (e.g. ROOT/TBB on macOS). Enable with
+# -DREST_ASAN=ON
 if (NOT DEFINED REST_ASAN)
     set(REST_ASAN OFF)
 endif ()
