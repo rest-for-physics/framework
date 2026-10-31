@@ -43,8 +43,13 @@ void TRestGDMLParser::Load(const string& filename) {
     if (pos != -1) {
         string elementString = fFileString.substr(pos, -1);
 
+        delete fElementGlobal;
+        delete fElement;
         fElement = StringToElement(elementString);
-        fElementGlobal = GetElement("define", fElement);
+        // TRestMetadata owns and deletes both XML trees independently. The
+        // define element is a child of fElement, so it must not be owned twice.
+        const auto define = GetElement("define", fElement);
+        fElementGlobal = define == nullptr ? nullptr : new TiXmlElement(*define);
 
         LoadSectionMetadata();
     }
