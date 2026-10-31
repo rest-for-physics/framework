@@ -15,11 +15,21 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     endif ()
 endif ()
 
-if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-else ()
+if (NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++fs")
-endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+endif (NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
+
+# AddressSanitizer (memory error detector). Disabled by default since it slows
+# down execution and may crash at exit when REST libraries are loaded together
+# with non-instrumented ones (e.g. ROOT/TBB on macOS). Enable with -DREST_ASAN=ON
+if (NOT DEFINED REST_ASAN)
+    set(REST_ASAN OFF)
+endif ()
+if (${REST_ASAN} MATCHES "ON")
+    message(STATUS "Enabling AddressSanitizer (-fsanitize=address)")
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
+endif (${REST_ASAN} MATCHES "ON")
 
 if (CMAKE_BUILD_TYPE MATCHES "Release")
     message(STATUS "Enabling warnings as errors")
