@@ -113,7 +113,7 @@ string GetStandardUnitDefinition(string unitsdef) { return units(unitsdef).ToSta
 /// \brief Find and return the units definition in a string
 ///
 /// We suppose the last of **value** before **units** must be "1234567890(),.-".
-/// Hence this prepority can be used to spilt the input string into value part and unit part
+/// Hence this prepority can be used to split the input string into value part and unit part
 /// e.g.
 /// value="(1,-13)mm"
 /// value="-3mm"
@@ -141,7 +141,7 @@ string FindRESTUnitsInString(string s) {
 /// can both be recognized
 ///
 string RemoveUnitsFromString(string s) {
-    string valstr1 = s.substr(0, s.find_first_not_of("1234567890(),.-eE/: "));
+    string valstr1 = s.substr(0, s.find_first_not_of("1234567890(),.-eE/*+: "));
 
     if (valstr1.size() == 0) {
         return "";
