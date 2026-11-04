@@ -166,8 +166,8 @@ fi
 
 export REST_SOURCE=${CMAKE_CURRENT_SOURCE_DIR}
 export REST_PATH=\\\${thisdir}
-# REST_HOME is where temporary files are stored
-export REST_HOME=\\\${HOME}
+# Preserve an explicit REST_HOME (e.g. worker-local state) across setup.
+export REST_HOME=\\\${REST_HOME:-\\\${HOME}}
 export ROOT_INCLUDE_PATH=\\\$REST_PATH/include${Garfield_INCLUDE_ENV}:\\\$ROOT_INCLUDE_PATH
 export REST_INPUTDATA=\\\$REST_PATH/data
 export REST_GARFIELD_INCLUDE=${Garfield_INCLUDE_DIRS}
