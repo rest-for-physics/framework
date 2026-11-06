@@ -5,7 +5,7 @@
 #
 #  Supports three modes:
 #    1. Server install  -- ROOT/Geant4/Garfield already available (e.g. titan)
-#    2. Full install    -- Builds ROOT 6.26.10, Geant4 11.0.3, Garfield++, REST
+#    2. Full install    -- Builds ROOT 6.38.06, Geant4 11.0.3, Garfield++, REST
 #                         from source (e.g. WSL / fresh Ubuntu)
 #    3. CVMFS install   -- Loads a CERN LCG view from /cvmfs for ROOT/Geant4/
 #                         Garfield and builds only REST (e.g. NAF-IAXO / RHEL9)
@@ -29,6 +29,28 @@ error()   { echo -e "${RED}[ERROR]${RESET} $*"; exit 1; }
 ask()     { echo -e "${BOLD}$*${RESET}"; }
 sep()     { echo "-------------------------------------------------------------"; }
 
+# Download a source tarball and unpack it, safely across re-runs: a truncated
+# download (dropped connection) is detected and fetched again, together with
+# whatever was unpacked from it, instead of building from incomplete sources.
+fetch_and_unpack() {  # fetch_and_unpack <url> <tarball> <source-dir>
+    local url="$1" tarball="$2" dir="$3"
+    if [[ -f "$tarball" ]] && ! gzip -t "$tarball" 2>/dev/null; then
+        warn "$tarball is incomplete (interrupted download?), downloading it again."
+        rm -rf "$tarball" "$dir"
+    fi
+    if [[ ! -f "$tarball" ]]; then
+        wget -O "$tarball.part" "$url"
+        gzip -t "$tarball.part" 2>/dev/null ||
+            error "The download of $tarball is incomplete. Check the connection and re-run."
+        mv "$tarball.part" "$tarball"
+    fi
+    if [[ ! -d "$dir" ]]; then
+        tar xzf "$tarball" || { rm -rf "$dir"; error "Could not unpack $tarball."; }
+    else
+        info "$dir already exists, skipping extraction."
+    fi
+}
+
 # -- Banner -------------------------------------------------------------------
 echo -e "${CYAN}"
 echo "  ____  _____ ____ _____      ___                 ____  _               _"
@@ -45,10 +67,24 @@ echo ""
 # -- GCC compatibility flags (fixes GCC 14 -Werror issues) --------------------
 GCC_COMPAT_FLAGS="-Wno-error=ignored-attributes -Wno-error=overloaded-virtual -Wno-error=maybe-uninitialized"
 
+# -- Dependency versions built in mode 2 --------------------------------------
+# Why these versions, and their history: see "Version choices" in README.md.
+# Keep installROOT.sh / installGeant4.sh / installGarfield.sh in sync.
+ROOT_VERSION="6.38.06"     # same series as LCG_109 (ROOT 6.38.00), see README
+GEANT4_VERSION="11.0.3"
+# Garfield++ is pinned to the exact commit shipped in LCG_109, which REST was
+# tested against on NAF-IAXO (there is no Garfield release tag for it).
+# To build a different Garfield, e.g. the previous default if the new one
+# causes trouble:  GARFIELD_REF=<commit-or-tag> bash install_rest.sh
+GARFIELD_REF_DEFAULT="78fe1bd39eb2a1458bf731462f1c9d3f9d0b8aab"
+GARFIELD_REF_PREVIOUS="a993c5eb015e23aa4bccdd1bdda027314afc2153"
+GARFIELD_REF="${GARFIELD_REF:-$GARFIELD_REF_DEFAULT}"
+
 # -- Per-mode variables (kept defined for set -u safety) ----------------------
 CMAKE_EXTRA_FLAGS=""      # extra cmake flags (e.g. Garfield Heed dir in mode 3)
 GARFIELD_HOME=""          # set by mode 3 (CVMFS shim)
 GARFIELD_SETUP=""         # set by mode 2 (path to built Garfield setupGarfield.sh)
+GARFIELD_BUILT="no"       # mode 2: did this run build Garfield? (for build hints)
 
 # =============================================================================
 #  STEP 0 -- Choose install mode
@@ -98,6 +134,34 @@ if [[ -d "$REST_DIR" ]]; then
     [[ "$CONFIRM" =~ ^[Yy]$ ]] || error "Aborted."
 fi
 
+# -- Parallel build jobs (used for every build: ROOT, Geant4, Garfield, REST) -
+sep
+ask "How many parallel jobs for make? (be careful on shared servers)"
+# Default: one job per CPU, but no more than one per 1.5 GB of available
+# memory. Compiling ROOT's bundled LLVM needs ~1 GB per job; with too many
+# jobs the compiler is killed ("fatal error: Killed signal terminated program
+# cc1plus"), e.g. 12 jobs on a laptop/WSL with 8 GB.
+NCPU=$(nproc 2>/dev/null || echo 4)
+MEM_JOBS=$(awk '/MemAvailable/ {print int($2 / 1536 / 1024)}' /proc/meminfo 2>/dev/null)
+if [[ "${MEM_JOBS:-0}" -ge 1 && "$NCPU" -gt "$MEM_JOBS" ]]; then
+    NCPU="$MEM_JOBS"
+fi
+if [[ "$NCPU" -gt 16 ]]; then
+    NCPU=8
+fi
+read -rp "Jobs [default: $NCPU, max: 16]: " NJOBS
+NJOBS="${NJOBS:-$NCPU}"
+if ! [[ "$NJOBS" =~ ^[0-9]+$ ]]; then
+    warn "Invalid number '$NJOBS', defaulting to $NCPU."
+    NJOBS="$NCPU"
+fi
+if [[ "$NJOBS" -gt 16 ]]; then
+    warn "Capping parallel jobs at 16 to be polite on shared servers."
+    NJOBS=16
+fi
+info "Building with $NJOBS parallel jobs."
+echo ""
+
 # =============================================================================
 #  MODE 2 -- Full install: check/install system dependencies
 # =============================================================================
@@ -108,8 +172,8 @@ if [[ "$INSTALL_MODE" == "2" ]]; then
     if ! sudo -v 2>/dev/null; then
         error "Mode 2 requires sudo access to install system packages.\n       On shared servers (e.g. titan), use mode 1 instead."
     fi
-    warn "This package list was designed for Ubuntu 22/24 with ROOT 6.26.10,"
-    warn "Geant4 11.0.3 and Garfield++. It has not been fully tested on a"
+    warn "This package list was designed for Ubuntu 22/24 with ROOT $ROOT_VERSION,"
+    warn "Geant4 $GEANT4_VERSION and Garfield++. It has not been fully tested on a"
     warn "fresh system yet. If something fails, a package may be missing or"
     warn "named differently on your Ubuntu version."
     read -rp "Press Enter to continue or Ctrl+C to abort: "
@@ -118,7 +182,7 @@ if [[ "$INSTALL_MODE" == "2" ]]; then
     sudo apt update && sudo apt install -y \
         build-essential cmake git wget curl \
         gcc-11 g++-11 gfortran \
-        python3 python3-full python3-pip python3-numpy \
+        python3 python3-dev python3-full python3-pip python3-numpy \
         libssl-dev libxerces-c-dev libxml2-dev \
         nlohmann-json3-dev \
         libxxhash-dev libzstd-dev liblzma-dev liblz4-dev \
@@ -130,13 +194,12 @@ if [[ "$INSTALL_MODE" == "2" ]]; then
         qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools \
         libfftw3-dev libtinyxml2-dev libgsl-dev libglpk-dev \
         libcfitsio-dev libcurl4-openssl-dev \
-        software-properties-common
-
-    # Python 3.10 for ROOT 6.26 compatibility
-    info "Adding deadsnakes PPA and installing Python 3.10..."
-    sudo add-apt-repository ppa:deadsnakes/ppa -y
-    sudo apt update
-    sudo apt install -y python3.10 python3.10-dev python3.10-venv
+        libjpeg-dev libgif-dev libtiff-dev
+    # libjpeg/libgif/libtiff: without them ROOT 6.38 builds its bundled libjpeg,
+    # which fails to link into libASImage ("recompile with -fPIC").
+    # The system Python is enough for ROOT 6.38 (needs >= 3.9; Ubuntu 22.04
+    # ships 3.10, 24.04 ships 3.12). The deadsnakes PPA with Python 3.10 was
+    # only needed for ROOT 6.26, which does not support Python 3.12.
     success "System dependencies installed."
     echo ""
 
@@ -145,92 +208,68 @@ if [[ "$INSTALL_MODE" == "2" ]]; then
     mkdir -p "$SOFTWARE_DIR"
     info "Dependencies will be built in: $SOFTWARE_DIR"
 
-    # -- ROOT 6.26.10 --------------------------------------------------------
+    # -- ROOT ----------------------------------------------------------------
     sep
-    info "Downloading and building ROOT 6.26.10 (this takes a while)..."
+    info "Downloading and building ROOT $ROOT_VERSION (this takes a while)..."
     cd "$SOFTWARE_DIR"
-    if [[ ! -f root_v6.26.10.source.tar.gz ]]; then
-        wget https://root.cern/download/root_v6.26.10.source.tar.gz
-    fi
-    if [[ ! -d root-6.26.10 ]]; then
-        tar xzf root_v6.26.10.source.tar.gz
-    else
-        info "ROOT source directory already exists, skipping extraction."
-    fi
-    cd root-6.26.10
+    fetch_and_unpack "https://root.cern/download/root_v$ROOT_VERSION.source.tar.gz" \
+        "root_v$ROOT_VERSION.source.tar.gz" "root-$ROOT_VERSION"
+    cd root-$ROOT_VERSION
     mkdir -p root_build root_install
     cd root_build
     cmake .. \
         -DCMAKE_INSTALL_PREFIX=../root_install \
-        -DPython3_EXECUTABLE=/usr/bin/python3.10 \
+        -DPython3_EXECUTABLE="$(command -v python3)" \
         -DCMAKE_C_COMPILER=gcc-11 \
         -DCMAKE_CXX_COMPILER=g++-11 \
         -DCMAKE_CXX_STANDARD=17 \
         -Dnetxng=OFF -Dxrootd=OFF
-    make -j"$(nproc)" install
-    ROOT_THISROOT="$SOFTWARE_DIR/root-6.26.10/root_install/bin/thisroot.sh"
+    make -j"$NJOBS" install
+    ROOT_THISROOT="$SOFTWARE_DIR/root-$ROOT_VERSION/root_install/bin/thisroot.sh"
     set +u
     source "$ROOT_THISROOT"
     set -u
-    success "ROOT 6.26.10 installed."
+    success "ROOT $ROOT_VERSION installed."
     echo ""
 
-    # -- Geant4 11.0.3 -------------------------------------------------------
+    # -- Geant4 --------------------------------------------------------------
     sep
-    info "Downloading and building Geant4 11.0.3..."
+    info "Downloading and building Geant4 $GEANT4_VERSION..."
     cd "$SOFTWARE_DIR"
-    if [[ ! -f geant4-v11.0.3.tar.gz ]]; then
-        wget https://gitlab.cern.ch/geant4/geant4/-/archive/v11.0.3/geant4-v11.0.3.tar.gz
-    fi
-    if [[ ! -d geant4-v11.0.3 ]]; then
-        tar xzf geant4-v11.0.3.tar.gz
-    else
-        info "Geant4 source directory already exists, skipping extraction."
-    fi
-    cd geant4-v11.0.3
+    fetch_and_unpack "https://gitlab.cern.ch/geant4/geant4/-/archive/v$GEANT4_VERSION/geant4-v$GEANT4_VERSION.tar.gz" \
+        "geant4-v$GEANT4_VERSION.tar.gz" "geant4-v$GEANT4_VERSION"
+    cd geant4-v$GEANT4_VERSION
     mkdir -p build install
     cd build
+    # GEANT4_USE_SYSTEM_EXPAT=OFF: with CMake >= 3.27 (Ubuntu 24.04), Geant4
+    # 11.0 records an empty EXPAT_LIBRARY in its installed Geant4Config, and
+    # every later find_package(Geant4) (Garfield++, restG4) then fails with
+    # "geant4_set_and_check_package_variable Macro invoked with incorrect
+    # arguments". Geant4's bundled expat avoids that.
     cmake .. \
         -DCMAKE_INSTALL_PREFIX=../install \
+        -DGEANT4_USE_SYSTEM_EXPAT=OFF \
         -DGEANT4_INSTALL_DATA=ON \
         -DGEANT4_USE_OPENGL_X11=ON \
         -DGEANT4_BUILD_MULTITHREADED=ON \
         -DCMAKE_C_COMPILER=gcc-11 \
         -DCMAKE_CXX_COMPILER=g++-11 \
         -DGEANT4_USE_GDML=ON
-    make -j"$(nproc)" install
+    make -j"$NJOBS" install
     # Fix ownership only if files ended up root-owned (e.g. from a previous sudo run)
-    if [[ ! -O "$SOFTWARE_DIR/geant4-v11.0.3/install" ]]; then
-        sudo chown -R "$(whoami):$(whoami)" "$SOFTWARE_DIR/geant4-v11.0.3/install"
+    if [[ ! -O "$SOFTWARE_DIR/geant4-v$GEANT4_VERSION/install" ]]; then
+        sudo chown -R "$(whoami):$(whoami)" "$SOFTWARE_DIR/geant4-v$GEANT4_VERSION/install"
     fi
-    GEANT4_SH="$SOFTWARE_DIR/geant4-v11.0.3/install/bin/geant4.sh"
+    GEANT4_SH="$SOFTWARE_DIR/geant4-v$GEANT4_VERSION/install/bin/geant4.sh"
     set +u
     source "$GEANT4_SH"
     set -u
-    success "Geant4 11.0.3 installed."
+    success "Geant4 $GEANT4_VERSION installed."
     echo ""
 
-    # -- Garfield++ ----------------------------------------------------------
-    sep
-    info "Cloning and building Garfield++ (pinned commit for REST compatibility)..."
-    cd "$SOFTWARE_DIR"
-    if [[ ! -d garfield ]]; then
-        git clone https://gitlab.cern.ch/garfield/garfieldpp.git garfield
-    fi
-    cd garfield
-    git checkout a993c5eb015e23aa4bccdd1bdda027314afc2153
-    mkdir -p build
-    cd build
-    cmake .. \
-        -DCMAKE_INSTALL_PREFIX=../install \
-        -DCMAKE_C_COMPILER=gcc-11 \
-        -DCMAKE_CXX_COMPILER=g++-11
-    make -j"$(nproc)" install
-    # Fix legacy HEED include paths
-    cp -r "$SOFTWARE_DIR/garfield/Heed" "$SOFTWARE_DIR/garfield/install/"
-    GARFIELD_SETUP="$SOFTWARE_DIR/garfield/install/share/Garfield/setupGarfield.sh"
-    success "Garfield++ installed."
-    echo ""
+    # Garfield++ is built later (after STEP 5), once the REST sources are
+    # cloned: the installer checks them first, and skips Garfield entirely if
+    # Garfield integration is not requested.
 
 fi  # end MODE 2 dependencies
 
@@ -331,16 +370,14 @@ export GARFIELD_HOME=$GARFIELD_HOME   # CVMFS Garfield shim (lib64 -> lib)"
         ENV_LINES="source $LCG_VIEW_SETUP   # CERN CVMFS LCG view (ROOT/Geant4/Garfield)"
     fi
 else
-    # Mode 2: ROOT/Geant4/Garfield freshly built above
+    # Mode 2: ROOT/Geant4 freshly built above (Garfield is added after STEP 5)
     set +u
     source "$ROOT_THISROOT"
     source "$GEANT4_SH"
-    source "$GARFIELD_SETUP"
     set -u
     success "Build environment loaded."
     ENV_LINES="source $ROOT_THISROOT
-source $GEANT4_SH
-source $GARFIELD_SETUP"
+source $GEANT4_SH"
 fi
 echo ""
 
@@ -444,6 +481,67 @@ fi
 success "REST framework and submodules ready."
 echo ""
 
+# -- Compatibility checks on the cloned REST sources -------------------------
+# Depending on the submodule choice, the libraries and restG4 are either the
+# latest ones or the commits recorded in the framework (--clean), which can be
+# years older. Instead of comparing version numbers,
+# look for the code each relevant fix introduced. See "Compatibility checks"
+# in README.md.
+DET_DIR="$REST_DIR/source/libraries/detector"
+RESTG4_DIR="$REST_DIR/source/packages/restG4"
+
+# detectorlib supports the Garfield API of Garfield >= 4.0 (Component.hh).
+# Present since March 2022.
+detector_has_modern_garfield_api() {
+    grep -qF '"Component.hh"' "$DET_DIR/inc/TRestDetectorGeometry.h" 2>/dev/null
+}
+# detectorlib#131 (July 2026): when Garfield is found through GARFIELD_HOME,
+# use the legacy ComponentBase API only if Garfield actually ships it.
+detector_selects_garfield_api() {
+    grep -qF 'Garfield_INCLUDE_DIRS}/ComponentBase.hh' "$DET_DIR/CMakeLists.txt" 2>/dev/null
+}
+# restG4#150 (July 2026): accept a Geant4 built with C++17 or newer.
+restg4_has_strict_cxx17_check() {
+    grep -qF 'MATCHES "17")' "$RESTG4_DIR/CMakeLists.txt" 2>/dev/null
+}
+
+# -- Mode 2: build Garfield++ (only if Garfield integration was requested) ---
+if [[ "$INSTALL_MODE" == "2" && "$CMAKE_LIB_FLAGS" == *"REST_GARFIELD=ON"* ]]; then
+    sep
+    if ! detector_has_modern_garfield_api; then
+        error "The detector library in this REST checkout predates support for the\n       Garfield++ API used since Garfield 4.0 (2021), so it cannot be built with\n       any Garfield this installer provides. Re-run choosing '--latest'\n       submodules, or answer 'n' to the Garfield integration question."
+    fi
+    if [[ "$GARFIELD_REF" == "$GARFIELD_REF_DEFAULT" ]]; then
+        info "Cloning and building Garfield++ (commit ${GARFIELD_REF:0:8}, as in LCG_109)..."
+    else
+        warn "Building Garfield++ at GARFIELD_REF=$GARFIELD_REF (overrides the default)."
+    fi
+    cd "$SOFTWARE_DIR"
+    if [[ ! -d garfield ]]; then
+        git clone https://gitlab.cern.ch/garfield/garfieldpp.git garfield
+    fi
+    cd garfield
+    git checkout "$GARFIELD_REF"
+    mkdir -p build
+    cd build
+    cmake .. \
+        -DCMAKE_INSTALL_PREFIX=../install \
+        -DCMAKE_C_COMPILER=gcc-11 \
+        -DCMAKE_CXX_COMPILER=g++-11
+    make -j"$NJOBS" install
+    # Fix legacy HEED include paths
+    cp -r "$SOFTWARE_DIR/garfield/Heed" "$SOFTWARE_DIR/garfield/install/"
+    GARFIELD_SETUP="$SOFTWARE_DIR/garfield/install/share/Garfield/setupGarfield.sh"
+    set +u
+    source "$GARFIELD_SETUP"
+    set -u
+    ENV_LINES="$ENV_LINES
+source $GARFIELD_SETUP"
+    GARFIELD_BUILT="yes"
+    success "Garfield++ installed."
+    echo ""
+fi
+
 # -- Mode 3: create the Garfield shim now that REST_DIR exists ---------------
 # Deferred from the MODE 3 setup block: REST_DIR had to be empty for the clone.
 # Presents the CVMFS Garfield (include + lib64) in the lib/include layout REST
@@ -460,55 +558,49 @@ if [[ "$INSTALL_MODE" == "3" && -n "$GARFIELD_HOME" ]]; then
     success "Garfield shim ready: $GARFIELD_HOME -> $GV ($GLIB)"
 fi
 
-# -- Mode 3: temporary modern-Garfield source patch --------------------------
+# -- Mode 3: modern-Garfield patch, only for detectorlib older than #131 -----
 # CVMFS/LCG ships a modern Garfield, which renamed ComponentBase -> Component
-# (header and class). REST's detector lib still selects its USE_Garfield_OLD
-# branch here (CVMFS Garfield has no CMake config), which references the removed
-# names. Patch the old-branch names to the modern ones. This is a harmless
-# no-op once detectorlib is fixed upstream.
-# TODO: remove once detectorlib selects its modern Garfield branch on its own.
+# (header and class). Before detectorlib#131, the detector library always
+# selected its USE_Garfield_OLD branch when Garfield is found through
+# GARFIELD_HOME (as here: CVMFS Garfield has no CMake config), and that branch
+# references the removed names. For such checkouts, patch the old-branch names
+# to the modern ones. Checkouts that include #131 need nothing.
+# This block becomes dead code once the detectorlib commit recorded in the
+# framework includes #131; it can then be deleted.
 if [[ "$INSTALL_MODE" == "3" && -n "$GARFIELD_HOME" ]]; then
-    DET_INC="$REST_DIR/source/libraries/detector/inc"
-    if [[ -f "$DET_INC/TRestDetectorGeometry.h" ]]; then
+    if detector_selects_garfield_api; then
+        info "detectorlib selects the Garfield API itself (detectorlib#131): no patch needed."
+    elif [[ -f "$DET_DIR/inc/TRestDetectorGeometry.h" ]]; then
         sed -i \
             -e 's|#include "ComponentBase.hh"|#include "Component.hh"|' \
             -e 's|typedef Garfield::ComponentBase Component;|typedef Garfield::Component Component;|' \
-            "$DET_INC/TRestDetectorGeometry.h" \
-            "$DET_INC/TRestDetectorGarfieldDriftProcess.h"
-        info "Applied temporary modern-Garfield (ComponentBase->Component) patch."
+            "$DET_DIR/inc/TRestDetectorGeometry.h" \
+            "$DET_DIR/inc/TRestDetectorGarfieldDriftProcess.h"
+        info "detectorlib predates detectorlib#131: applied the modern-Garfield"
+        info "(ComponentBase->Component) patch to its headers."
     fi
 fi
 
-# -- Mode 3: let restG4 build against the CVMFS (C++20) Geant4 ----------------
-# restG4's CMake hard-requires a C++17 Geant4, but the LCG/CVMFS Geant4 11.4
-# (and ROOT 6.38) are built with C++20. REST itself builds fine with C++20, so
-# relax the check to also accept 20/23.
-# TODO: fix upstream in restG4 (accept C++17 or newer).
-if [[ "$INSTALL_MODE" == "3" && -f "$REST_DIR/source/packages/restG4/CMakeLists.txt" ]]; then
-    sed -i 's#MATCHES "17")#MATCHES "17|20|23")#' "$REST_DIR/source/packages/restG4/CMakeLists.txt"
-    info "Relaxed restG4 C++ standard check to allow C++20 (CVMFS Geant4)."
+# -- Mode 3: restG4 C++ check, only for restG4 older than #150 ---------------
+# The LCG/CVMFS Geant4 11.4 (and ROOT 6.38) are built with C++20. Before
+# restG4#150, restG4's CMake accepted only a C++17 Geant4. REST itself builds
+# fine with C++20, so for such checkouts relax the check to also accept 20/23.
+# Latest restG4 includes #150; this applies with --clean until the restG4 commit
+# recorded in the framework includes #150, and the block can then be deleted.
+if [[ "$INSTALL_MODE" == "3" && -f "$RESTG4_DIR/CMakeLists.txt" ]]; then
+    if restg4_has_strict_cxx17_check; then
+        sed -i 's#MATCHES "17")#MATCHES "17|20|23")#' "$RESTG4_DIR/CMakeLists.txt"
+        info "restG4 predates restG4#150: relaxed its C++ standard check to allow"
+        info "C++20 (CVMFS Geant4)."
+    else
+        info "restG4 accepts C++17 or newer (restG4#150): no patch needed."
+    fi
 fi
 
 # =============================================================================
 #  STEP 6 -- Configure and build
 # =============================================================================
 sep
-ask "How many parallel jobs for make? (be careful on shared servers)"
-NCPU=$(nproc 2>/dev/null || echo 4)
-if [[ "$NCPU" -gt 16 ]]; then
-    NCPU=8
-fi
-read -rp "Jobs [default: $NCPU, max: 16]: " NJOBS
-NJOBS="${NJOBS:-$NCPU}"
-if ! [[ "$NJOBS" =~ ^[0-9]+$ ]]; then
-    warn "Invalid number '$NJOBS', defaulting to $NCPU."
-    NJOBS="$NCPU"
-fi
-if [[ "$NJOBS" -gt 16 ]]; then
-    warn "Capping parallel jobs at 16 to be polite on shared servers."
-    NJOBS=16
-fi
-
 BUILD_DIR="$REST_DIR/build"
 INSTALL_DIR="$REST_DIR/install"
 
@@ -535,7 +627,14 @@ info "Building REST with $NJOBS parallel jobs..."
 info "This can take 15-40 minutes on a first build."
 echo ""
 
-make -j"$NJOBS" install
+if ! make -j"$NJOBS" install; then
+    if [[ "$GARFIELD_BUILT" == "yes" && "$GARFIELD_REF" == "$GARFIELD_REF_DEFAULT" ]]; then
+        warn "If the errors above mention Garfield, try re-running the installer"
+        warn "with the previous default Garfield commit (tested with ROOT 6.26):"
+        warn "  GARFIELD_REF=$GARFIELD_REF_PREVIOUS bash install_rest.sh"
+    fi
+    error "REST build failed. See the compiler output above."
+fi
 success "REST compiled and installed in $INSTALL_DIR"
 echo ""
 

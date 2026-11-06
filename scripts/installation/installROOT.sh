@@ -12,7 +12,8 @@ case "${unameOut}" in
     *)          machine="UNKNOWN:${unameOut}"
 esac
 
-ROOT_VERSION=6.28.02
+# Keep in sync with install_rest.sh. Why this version: see README.md, "Version choices".
+ROOT_VERSION=6.38.06
 ROOT_DIR=$HOME/apps/root-$ROOT_VERSION
 
 mkdir -p ${ROOT_DIR}

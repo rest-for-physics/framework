@@ -31,8 +31,10 @@ rm -rf $GARFIELD_INSTALL/build
 echo checkout the code...
 git clone https://gitlab.cern.ch/garfield/garfieldpp.git $GARFIELD_INSTALL
 cd $GARFIELD_INSTALL
-git checkout tags/4.0
-git checkout -b v4.0
+# Keep in sync with install_rest.sh. Why this commit: see README.md, "Version choices".
+# Override with: GARFIELD_REF=<commit-or-tag> ./installGarfield.sh
+GARFIELD_REF=${GARFIELD_REF:-78fe1bd39eb2a1458bf731462f1c9d3f9d0b8aab}
+git checkout $GARFIELD_REF
 
 echo building...
 mkdir -p build

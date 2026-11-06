@@ -1,4 +1,5 @@
 #!/bin/bash
+# Keep the Geant4 version in sync with install_rest.sh (see README.md, "Version choices").
 
 if [ $(geant4-config --version | grep "11.0.3") ];then
 
@@ -31,7 +32,8 @@ tar xvf $G4_FILE
 
 mkdir -p $G4_ROOT-build
 cd $G4_ROOT-build
-cmake ../$G4_ROOT -DGEANT4_USE_GDML=ON -DGEANT4_USE_QT=OFF -DCMAKE_INSTALL_PREFIX=$HOME/apps/$G4_ROOT-install -DGEANT4_INSTALL_DATA=ON -DGEANT4_INSTALL_DATA_TIMEOUT=7200 -DCMAKE_CXX_STANDARD=17
+# GEANT4_USE_SYSTEM_EXPAT=OFF: see the Geant4 block in install_rest.sh
+cmake ../$G4_ROOT -DGEANT4_USE_SYSTEM_EXPAT=OFF -DGEANT4_USE_GDML=ON -DGEANT4_USE_QT=OFF -DCMAKE_INSTALL_PREFIX=$HOME/apps/$G4_ROOT-install -DGEANT4_INSTALL_DATA=ON -DGEANT4_INSTALL_DATA_TIMEOUT=7200 -DCMAKE_CXX_STANDARD=17
 make -j8
 make install
 
