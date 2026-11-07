@@ -325,8 +325,8 @@ fs::path DefaultOutput(fs::path input) {
  * process boundary; after successful extraction, the caller loads modern REST
  * dictionaries and reconstructs the events in the parent process.
  *
- * Wait for the child and return its exit status (127 if exec fails), -1 if fork
- * fails, or 128 if the child does not exit normally.
+ * Wait for the child and return its exit status (126 if changing directory fails,
+ * 127 if exec fails), -1 if fork fails, or 128 if the child does not exit normally.
  */
 int RunExtractor(const fs::path& input, const fs::path& intermediate, const fs::path& directory) {
     fs::path macro = fs::path(REST_PATH) / "macros/legacy/recoverLegacySignalData.C";
@@ -338,7 +338,12 @@ int RunExtractor(const fs::path& input, const fs::path& intermediate, const fs::
         setenv("REST_LEGACY_RECOVERY_INPUT", input.c_str(), 1);
         setenv("REST_LEGACY_RECOVERY_INTERMEDIATE", intermediate.c_str(), 1);
         setenv("REST_LEGACY_RECOVERY_DIR", directory.c_str(), 1);
-        chdir(directory.c_str());
+        if (chdir(directory.c_str()) != 0) {
+            const std::error_code error(errno, std::generic_category());
+            std::cerr << "ERROR: cannot enter legacy recovery directory " << directory << ": "
+                      << error.message() << '\n';
+            _exit(126);
+        }
         const std::string build = "gSystem->SetBuildDir(gSystem->Getenv(\"REST_LEGACY_RECOVERY_DIR\"),kTRUE)";
         const std::string compiledMacro = macro.string() + "+";
         execlp("root", "root", "-l", "-b", "-n", "-x", "-q", "-e", build.c_str(), compiledMacro.c_str(),
