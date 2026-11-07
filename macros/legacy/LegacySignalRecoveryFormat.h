@@ -14,15 +14,26 @@ namespace REST_LegacySignalRecovery {
 inline constexpr const char* kEventTree = "EventTree";
 inline constexpr const char* kSignalBranch = "TRestDetectorSignalEventBranch";
 inline constexpr const char* kDataTree = "LegacySignalData";
+inline constexpr const char* kSignalTimeBranch = "fSignal.fSignalTime";
+inline constexpr const char* kSignalChargeBranch = "fSignal.fSignalCharge";
 
+/**
+ * Read the stored signal class version from its split time and charge branches.
+ * Pass the kSignalBranch branch: the walk stays within that subtree, so similarly
+ * named members elsewhere in the tree cannot influence schema detection. Walking
+ * the existing branch list directly avoids FindBranch's streamer-info machinery;
+ * detection needs only the class versions recorded in the TBranchElements.
+ * Return the common version, -1 if both members are absent (or branch is null),
+ * or -2 if their versions disagree or only one member is present.
+ */
 inline int DetectSignalVersion(TBranch* branch) {
     int time = -1;
     int charge = -1;
     const auto visit = [&](auto&& self, TBranch* current) -> void {
         if (auto* element = dynamic_cast<TBranchElement*>(current)) {
             const std::string name = current->GetName();
-            if (name == "fSignal.fSignalTime") time = element->GetClassVersion();
-            if (name == "fSignal.fSignalCharge") charge = element->GetClassVersion();
+            if (name == kSignalTimeBranch) time = element->GetClassVersion();
+            if (name == kSignalChargeBranch) charge = element->GetClassVersion();
         }
         auto* children = current->GetListOfBranches();
         for (int index = 0; index <= children->GetLast(); ++index)

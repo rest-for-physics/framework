@@ -181,6 +181,33 @@ bool ValidateOutput(const fs::path& outputName, const fs::path& intermediateName
     return true;
 }
 
+/**
+ * Rebuild the complete detector signal branch from the extraction intermediate,
+ * preserving the other branches and top-level objects in a copy of the source.
+ * The intermediate includes event and signal metadata as well as samples because
+ * we replace the whole signal object, including its split subbranches.
+ *
+ * ROOT separates the in-memory TTree, its stored header (addressed by a file key
+ * such as EventTree;1), and the baskets containing branch data. Get() loads the
+ * tree object; its baskets can remain on disk. Fast cloning copies the baskets
+ * of every branch outside the disabled signal subtree into the candidate and
+ * builds a new in-memory tree describing them. It does not yet persist the
+ * completed replacement tree header.
+ *
+ * SetName() only renames the in-memory tree, not its existing file keys. The
+ * clone inherits that temporary name, protecting BOTH in-memory trees from
+ * Delete("EventTree;*"), which removes all stored EventTree cycles and would also
+ * delete matching in-memory objects. The old tree remains directory-owned until
+ * the candidate closes; the clone is renamed back to EventTree for publication.
+ *
+ * Filling only the new signal branch adds its entries alongside the already
+ * cloned entries in the other branches. ROOT allocates its baskets and records
+ * their locations; logical entry order does not require the original physical
+ * layout or contiguous placement after the copied baskets. The final Write()
+ * flushes buffered data and saves the completed header linking all branches and
+ * baskets. Copying baskets alone is not enough to publish a readable replacement
+ * tree; without its header those copied baskets can be left unreferenced.
+ */
 bool Rebuild(const fs::path& sourceName, const fs::path& intermediateName, const fs::path& candidateName) {
     TFile source(sourceName.c_str(), "READ");
     TFile intermediate(intermediateName.c_str(), "READ");
@@ -212,6 +239,7 @@ bool Rebuild(const fs::path& sourceName, const fs::path& intermediateName, const
         std::cerr << "ERROR: cannot copy source to recovery candidate: " << error.message() << ".\n";
         return false;
     }
+    // copy_file preserves permission bits, so a read-only source needs a writable copy.
     fs::permissions(candidateName, fs::perms::owner_write, fs::perm_options::add, error);
     if (error) {
         std::cerr << "ERROR: cannot make recovery candidate writable: " << error.message() << ".\n";
@@ -233,6 +261,7 @@ bool Rebuild(const fs::path& sourceName, const fs::path& intermediateName, const
     // signal branch makes ROOT omit its complete split subtree.
     oldSignal->SetStatus(false);
     oldTree->SetName("__RESTLegacySourceEventTree");
+    // CloneTree attaches its clone to ROOT's current directory (not the OS cwd).
     candidate->cd();
     std::cerr << "Recovery: fast-cloning unaffected EventTree branches...\n";
     auto* newTree = oldTree->CloneTree(-1, "fast");
@@ -243,6 +272,7 @@ bool Rebuild(const fs::path& sourceName, const fs::path& intermediateName, const
 
     IntermediateEvent input;
     auto* event = new TRestDetectorSignalEvent;
+    // Branch binds the event pointer; each newSignal->Fill() serializes its current object.
     auto* newSignal = newTree->Branch(kSignalBranch, &event);
     if (!input.Bind(*data) || newSignal == nullptr) return false;
     Long64_t signalCount = 0, pointCount = 0;
@@ -260,6 +290,7 @@ bool Rebuild(const fs::path& sourceName, const fs::path& intermediateName, const
         "source=" + sourceUuid + ";signalVersion=" + std::to_string(sourceVersion) +
         ";entries=" + std::to_string(sourceEntries) + ";signals=" + std::to_string(signalCount) +
         ";points=" + std::to_string(pointCount);
+    // Persist the finished tree header; already copied baskets are not copied again.
     std::cerr << "Recovery: writing rebuilt EventTree...\n";
     if (newTree->Write(kEventTree, TObject::kOverwrite) <= 0 ||
         !WriteText(*candidate, "REST_LegacySignalRecovery", provenance) || !candidate.Close())
@@ -276,6 +307,27 @@ fs::path DefaultOutput(fs::path input) {
 }
 
 #ifndef _WIN32
+/**
+ * Extract legacy signal samples in a fresh plain-ROOT process.
+ *
+ * recoverLegacySignalData.C defines replicas with the original REST class names
+ * and historical float-vector layout, so ROOT can bind the serialized classes
+ * to those definitions. They must not coexist with the modern REST dictionaries,
+ * which use the same names with incompatible layouts. fork() alone would retain
+ * the parent's loaded dictionaries; exec replaces that process image with plain
+ * ROOT. The -n option skips ROOT startup macros, and the extractor also checks
+ * that the REST libraries have not been loaded.
+ *
+ * Paths are passed through the child's environment rather than interpolated into
+ * ROOT expressions. The working directory and ACLiC build directory keep the
+ * compiled replica dictionary and extraction artifacts in the recovery workspace.
+ * The intermediate ROOT file carries plain fields and sample vectors across the
+ * process boundary; after successful extraction, the caller loads modern REST
+ * dictionaries and reconstructs the events in the parent process.
+ *
+ * Wait for the child and return its exit status (127 if exec fails), -1 if fork
+ * fails, or 128 if the child does not exit normally.
+ */
 int RunExtractor(const fs::path& input, const fs::path& intermediate, const fs::path& directory) {
     fs::path macro = fs::path(REST_PATH) / "macros/legacy/recoverLegacySignalData.C";
 #ifdef REST_TESTING_ENABLED

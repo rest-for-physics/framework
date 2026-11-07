@@ -15,6 +15,17 @@
 
 #include "LegacySignalRecoveryFormat.h"
 
+/**
+ * Extraction-only replicas: the original REST class names are intentional so
+ * ROOT can bind the stored objects to these dictionaries. In particular, the
+ * Float_t time and charge vectors reproduce the historical signal storage used
+ * by versions 1-3, rather than the modern Double_t layout.
+ *
+ * These definitions must not coexist with modern REST dictionaries of the same
+ * names. RunExtractor launches this macro in a fresh plain-ROOT process; the
+ * intermediate file carries the extracted fields and vectors back to the parent
+ * process, where Rebuild constructs objects using the modern REST classes.
+ */
 class TRestEvent : public TObject {
    public:
     Int_t fRunOrigin = 0;
