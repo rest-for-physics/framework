@@ -86,11 +86,14 @@ class TRestRootFileHandle {
     ~TRestRootFileHandle();
 
     explicit operator bool() const noexcept { return fFile != nullptr; }
+    /// Borrow the file without transferring ownership; do not delete or outlive the handle.
     TFile* Get() const noexcept { return fFile.get(); }
     TFile* operator->() const noexcept { return fFile.get(); }
     TFile& operator*() const noexcept { return *fFile; }
     const std::string& Error() const noexcept { return fError; }
 
+    /// Release the file and report ROOT close/write errors. Check before claiming write success;
+    /// destructor cleanup alone cannot report success to the caller.
     bool Close() noexcept;
 
     /// Validate an already-owned READ file, then transition it safely to UPDATE.

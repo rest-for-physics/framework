@@ -413,10 +413,6 @@ void TRestRun::OpenInputFile(const TString& filename, const string& mode) {
             RESTError << inputFile.Error() << RESTendl;
             exit(1);
         }
-        if (fInputFileOwner && !fInputFileOwner.Close()) {
-            RESTError << fInputFileOwner.Error() << RESTendl;
-            exit(1);
-        }
         fInputFileOwner = std::move(inputFile);
         fInputFile = fInputFileOwner.Get();
 
@@ -495,7 +491,6 @@ void TRestRun::OpenInputFile(const TString& filename, const string& mode) {
             ReadInputFileTrees();
         }
     } else {
-        if (fInputFileOwner && !fInputFileOwner.Close()) RESTError << fInputFileOwner.Error() << RESTendl;
         fInputFile = nullptr;
         fAnalysisTree = nullptr;
         if (fFileProcess != nullptr) {
@@ -1130,10 +1125,6 @@ TFile* TRestRun::FormOutputFile() {
     auto outputFile = TRestRootFileHandle::Open(fOutputFileName.Data(), TRestRootFileMode::Recreate);
     if (!outputFile) {
         RESTError << outputFile.Error() << RESTendl;
-        return nullptr;
-    }
-    if (fOutputFileOwner && !fOutputFileOwner.Close()) {
-        RESTError << fOutputFileOwner.Error() << RESTendl;
         return nullptr;
     }
     fOutputFileOwner = std::move(outputFile);

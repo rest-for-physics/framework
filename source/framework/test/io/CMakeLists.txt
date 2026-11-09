@@ -97,3 +97,25 @@ target_compile_definitions(
         REST_IO_ANALYSIS_TREE_VERIFIER="$<TARGET_FILE:RestIOAnalysisTreeVerifier>"
         REST_PAIR_BASE_SOURCE_FILE="${CMAKE_SOURCE_DIR}/pipeline/fileopening/v2.2.30_hits.root"
 )
+
+foreach (layout Old New)
+    set(target "RestIOConflict${layout}")
+    set(dictionary "G__${target}")
+    set(options)
+    if (layout STREQUAL "Old")
+        list(APPEND options -DREST_IO_OLD_LAYOUT)
+    endif ()
+    root_generate_dictionary(
+        ${dictionary} "${CMAKE_CURRENT_SOURCE_DIR}/ConflictPayload.h" LINKDEF
+        "${CMAKE_CURRENT_SOURCE_DIR}/ConflictLinkDef.h" OPTIONS ${options})
+    add_executable(${target} ConflictFixture.cxx
+                             "${CMAKE_CURRENT_BINARY_DIR}/${dictionary}.cxx")
+    target_compile_options(${target} PRIVATE ${options})
+    target_link_libraries(${target} PRIVATE RestFramework ${ROOT_LIBRARIES})
+    set_target_properties(${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+                                               "${FIXTURE_OUTPUT_DIR}/bin")
+    add_dependencies(testRestFramework ${target})
+    target_compile_definitions(
+        testRestFramework
+        PRIVATE "REST_IO_CONFLICT_${layout}=\"$<TARGET_FILE:${target}>\"")
+endforeach ()

@@ -8,10 +8,12 @@
 #include <TNamed.h>
 #include <TObjString.h>
 #include <TRestAnalysisTree.h>
+#include <TRestDataSetGainMap.h>
 #include <TRestProcessRunner.h>
 #include <TRestRun.h>
 #include <TRestTools.h>
 #include <TStreamerInfo.h>
+#include <TSystem.h>
 #include <TTree.h>
 #include <gtest/gtest.h>
 
@@ -676,4 +678,86 @@ TEST(RootIO, TRestRunRejectsUnsupportedInputModes) {
             run.OpenInputFile(filename.c_str(), "RECREATE");
         },
         ::testing::ExitedWithCode(1), ".*");
+}
+
+TEST(RootIO, UpdateCreatesMissingFileLikeRootWithoutReplacingExistingData) {
+    TemporaryDirectory temporary;
+    const auto path = temporary.Path() / "new.root";
+    auto file = TRestRootFileHandle::Open(path.string(), TRestRootFileMode::Update);
+    ASSERT_TRUE(file) << file.Error();
+    TNamed marker("original", "UPDATE creates a missing file");
+    marker.Write();
+    ASSERT_TRUE(file.Close()) << file.Error();
+    auto updated = TRestRootFileHandle::Open(path.string(), TRestRootFileMode::Update);
+    ASSERT_TRUE(updated) << updated.Error();
+    EXPECT_NE(updated->Get<TNamed>("original"), nullptr);
+    EXPECT_TRUE(updated.Close()) << updated.Error();
+
+    const auto gainPath = temporary.Path() / "gain.root";
+    TRestDataSetGainMap gainMap;
+    gainMap.Export(gainPath.string());
+    ASSERT_TRUE(fs::exists(gainPath));
+    EXPECT_TRUE(HasKeyClass(gainPath, "TRestDataSetGainMap"));
+}
+
+TEST(RootIO, MergeCleanupNeverDeletesOutputReferencedByPathAlias) {
+    TemporaryDirectory temporary;
+    const auto path = temporary.Path() / "target.root";
+    CreateNamedInput(path, "survivor");
+    const auto alias = temporary.Path() / "." / "target.root";
+    std::string error;
+    ASSERT_TRUE(TRestTools::MergeRootFilesTransactionally(path.string(), {alias.string()}, "", true, &error))
+        << error;
+    auto file = TRestRootFileHandle::Open(path.string(), TRestRootFileMode::Read);
+    ASSERT_TRUE(file) << file.Error();
+    EXPECT_NE(file->Get<TNamed>("survivor"), nullptr);
+}
+
+TEST(RootIO, FailedPublicationOfNewOutputRemovesCandidateAndPreservesInput) {
+    TemporaryDirectory temporary;
+    const auto input = temporary.Path() / "input.root";
+    const auto output = temporary.Path() / "output.root";
+    CreateNamedInput(input, "survivor");
+    const auto before = ReadBytes(input);
+    TRestTools::ForceNextTransactionalMergeValidationFailureForTesting();
+    std::string error;
+    EXPECT_FALSE(
+        TRestTools::MergeRootFilesTransactionally(output.string(), {input.string()}, "", true, &error));
+    EXPECT_NE(error.find("Forced post-replacement"), std::string::npos);
+    EXPECT_FALSE(fs::exists(output));
+    EXPECT_EQ(ReadBytes(input), before);
+    EXPECT_EQ(std::distance(fs::directory_iterator(temporary.Path()), fs::directory_iterator()), 1);
+}
+
+TEST(RootIO, UpdateHonorsRootEnvironmentVariableExpansion) {
+    TemporaryDirectory temporary;
+    const auto path = temporary.Path() / "expanded.root";
+    CreateNamedInput(path, "original");
+    gSystem->Setenv("REST_IO_TEST_DIRECTORY", temporary.Path().c_str());
+    auto file = TRestRootFileHandle::Open("$REST_IO_TEST_DIRECTORY/expanded.root", TRestRootFileMode::Update);
+    gSystem->Unsetenv("REST_IO_TEST_DIRECTORY");
+    ASSERT_TRUE(file) << file.Error();
+    EXPECT_NE(file->Get<TNamed>("original"), nullptr);
+    EXPECT_TRUE(file.Close()) << file.Error();
+}
+
+TEST(RootIO, MergeUpdatesSymbolicLinkDestinationWithoutReplacingTheLink) {
+    TemporaryDirectory temporary;
+    const auto target = temporary.Path() / "target.root";
+    const auto alias = temporary.Path() / "alias.root";
+    const auto input = temporary.Path() / "input.root";
+    CreateNamedInput(target, "original");
+    CreateNamedInput(input, "incoming");
+    std::error_code ec;
+    fs::create_symlink(target, alias, ec);
+    if (ec) GTEST_SKIP() << "Symlinks unavailable: " << ec.message();
+    std::string error;
+    ASSERT_TRUE(TRestTools::MergeRootFilesTransactionally(alias.string(), {input.string()}, alias.string(),
+                                                          true, &error))
+        << error;
+    EXPECT_TRUE(fs::is_symlink(alias));
+    auto file = TRestRootFileHandle::Open(target.string(), TRestRootFileMode::Read);
+    ASSERT_TRUE(file) << file.Error();
+    EXPECT_NE(file->Get<TNamed>("original"), nullptr);
+    EXPECT_NE(file->Get<TNamed>("incoming"), nullptr);
 }

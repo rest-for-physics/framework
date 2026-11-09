@@ -332,6 +332,15 @@ else ()
     # Create thisREST.sh
     include(thisREST)
 
+    if (TEST)
+        add_test(
+            NAME Setup.RestHome
+            COMMAND
+                bash
+                ${CMAKE_CURRENT_SOURCE_DIR}/pipeline/setup/validate_rest_home.sh
+                ${CMAKE_INSTALL_PREFIX}/thisREST.sh)
+    endif ()
+
     # Add permissions
     install(
         CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/bin/rest-config)"
