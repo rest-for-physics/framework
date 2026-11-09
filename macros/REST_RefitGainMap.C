@@ -104,7 +104,7 @@ class GainMapRefitter {
 // Class that inherits from TFitEditor to be able to access the protected methods of TFitEditor
 class TFitEditor2 : public TFitEditor {
    public:
-    TFitEditor2(TVirtualPad* pad, TObject* obj) : TFitEditor(pad, obj){};
+    TFitEditor2(TVirtualPad* pad, TObject* obj) : TFitEditor(pad, obj) {};
     virtual ~TFitEditor2() {}
 
     // making public the protected method GetFitObjectListOfFunctions()

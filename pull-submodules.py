@@ -69,8 +69,7 @@ for x in range(len(sys.argv) - 1):
 
     if sys.argv[x + 1] == "--lfna":
         lfna = True
-        print(
-            """\
+        print("""\
 Adding submodules from lfna repositories.
 Be aware that you should add your local system public ssh to your GitLab and/or GitHub account!
 It is usually placed at ~/.ssh/id_rsa.pub.
@@ -80,8 +79,7 @@ ATTENTION: If a password it is requested the reason behind is no public key for 
 Once you do that, only repositories where you have access rights will be pulled.
 
 If no password is requested everything went fine!
-            """
-        )
+            """)
 
     if sys.argv[x + 1] == "--sjtu":
         sjtu = True
@@ -89,12 +87,10 @@ If no password is requested everything went fine!
             "Adding submodules from sjtu repositories. You may be asked to enter password for it."
         )
     if sys.argv[x + 1].find("--latest") >= 0:
-        print(
-            """\
+        print("""\
 Pulling latest submodules from their git repository, instead of the version recorded by REST.
 This may cause the submodules to be uncompilable.
-        """
-        )
+        """)
         latest = True
         if sys.argv[x + 1].find("--latest:") >= 0:
             fbName = sys.argv[x + 1][9:]
@@ -128,12 +124,10 @@ def main():
     #   --recursive'.format(PROJECT_ROOT))
 
     if force and not dontask:
-        answer = input(
-            """\
+        answer = input("""\
 This will override local changes on the files. And will bring your local repository to a clean state
 Are you sure to proceed? (y/n)
-            """
-        )
+            """)
         if answer != "y":
             sys.exit(0)
 
