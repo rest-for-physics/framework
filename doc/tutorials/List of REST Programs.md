@@ -8,6 +8,10 @@ This is just an indexing list of existing programs included with REST compilatio
 
 **restManager** : The manager program of REST allowing to execute the REST event processes defined in TRestManager. Additional definitions allow to include additional metadata structures inside REST.
 
+**restRoot** : The ROOT interpreter with REST libraries loaded. It also provides the
+`--recover-legacy-signals` command for the known detector-signal v1-v3 recovery described in
+[Recovering legacy detector signal files](Recovering%20legacy%20detector%20signal%20files.md).
+
 **restPlots** : It uses the plot definitions given by RML configuration in a TRestAnalysisPlot section. It creates the plots from the variables at the TRestAnalysisTree and creates a PDF report and a ROOT file including the histograms created.
 
 ## Histogram and integration executables
