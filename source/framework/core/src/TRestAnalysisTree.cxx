@@ -92,6 +92,7 @@
 
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
+#include "TRestTools.h"
 
 using namespace std;
 
@@ -1217,8 +1218,8 @@ Int_t TRestAnalysisTree::WriteAsTTree(const char* name, Int_t option, Int_t bufs
 /// <param name="file"> The input file that contains another AnalysisTree with same run id </param>
 /// <returns></returns>
 Bool_t TRestAnalysisTree::AddChainFile(const string& _file) {
-    auto file = std::unique_ptr<TFile>{TFile::Open(_file.c_str(), "update")};
-    if (!file->IsOpen()) {
+    auto file = TRestRootFileHandle::Open(_file, TRestRootFileMode::Read);
+    if (!file) {
         RESTWarning << "TRestAnalysisTree::AddChainFile(): failed to open file " << _file << RESTendl;
         return false;
     }

@@ -1,5 +1,5 @@
-#include "TFileMerger.h"
 #include "TRestTask.h"
+#include "TRestTools.h"
 
 #ifndef RESTTask_MergeFiles
 #define RESTTask_MergeFiles
@@ -12,14 +12,13 @@
 //*******************************************************************************************************
 Int_t REST_MergeFiles(TString pathAndPattern, TString outputFilename) {
     vector<string> files = TRestTools::GetFilesMatchingPattern((string)pathAndPattern);
-    TFileMerger* m = new TFileMerger(false);
-    m->OutputFile(outputFilename);
-    for (auto f : files) {
-        m->AddFile(f.c_str());
+    std::string error;
+    const bool success =
+        TRestTools::MergeRootFilesTransactionally(outputFilename.Data(), files, "", false, &error);
+    if (!success) {
+        RESTError << error << RESTendl;
     }
-    int a = m->Merge();
-    delete m;
-    return a;
+    return success;
 
     // TRestRunMerger *runMerger = new TRestRunMerger( pathAndPattern );
 
