@@ -8,12 +8,20 @@ Interactive installer for [REST-for-Physics](https://github.com/rest-for-physics
 bash install_rest.sh
 ```
 
-The script is interactive and will guide you through each step.
+The script is interactive and will guide you through each step. Press Enter at
+the release prompt to accept the displayed stable version:
+
+```text
+REST release to install [default: v2.4.3]:
+```
+
+The default is fixed in this copy of the installer; it does not automatically
+advance when another release is published.
 
 ## Installing a release
 
-Download the installer from the release you intend to install, then pass the
-same tag explicitly:
+Accept the default, type a different published tag at the prompt, or skip the
+release question by passing a tag explicitly:
 
 ```bash
 bash install_rest.sh --release TAG
@@ -29,10 +37,21 @@ its framework commit matches the tag and its tracked files/submodules are clean;
 build outputs are retained. Older releases requiring source patches for a modern
 CVMFS environment stop with an explanation rather than modifying release code.
 
-Without `--release`, the framework follows its development branch. Recorded
-library commits are still the default, with latest development libraries offered
-as an explicit choice. Downloading this script from a tag alone does not select
-that tag for the installation.
+Development installation requires an explicit option:
+
+```bash
+bash install_rest.sh --development
+```
+
+This follows the framework development branch. Recorded library commits remain
+the default, with latest development libraries offered as an explicit choice.
+`--development` and `--release` cannot be combined. A missing or inaccessible
+release tag stops the installation; it never falls back to development code.
+
+For release maintainers: set `DEFAULT_RELEASE_TAG` in `install_rest.sh` to the
+matching tag before publishing each release, update the prompt example above,
+and validate the no-option installation. The current `v2.4.3` default is the
+existing published stable release; the upcoming release's name is still pending.
 
 ## Install modes
 
@@ -55,7 +74,7 @@ Builds everything from source:
 | ROOT          | 6.26.10                          |
 | Geant4        | 11.0.3 (with GDML + data)       |
 | Garfield++    | pinned commit `a993c5eb`         |
-| REST          | explicit `--release TAG`, or development branch |
+| REST          | displayed stable tag; override with `--release TAG` or `--development` |
 
 System dependencies are installed via `apt` (requires `sudo`). Use mode 1 when
 dependencies are already available and you do not have sudo access.
@@ -110,8 +129,10 @@ On clusters where `$HOME` is on AFS (not writable in-session), the script sets
 - **Install directory** -- where REST source and build will live (default: `~/rest`)
 - **Libraries** -- all, a common subset, or pick individually
 - **Garfield++ / Geant4 integration** -- enable or disable
-- **Submodule strategy** -- recorded commits (default) or latest development
-  commits. `--release TAG` always uses recorded commits and skips this question.
+- **Release** -- press Enter for the displayed stable tag, or type another tag.
+  `--release TAG` skips this question; `--development` opts into development code.
+- **Submodule strategy** -- release installs always use recorded commits.
+  Development installs offer recorded commits (default) or latest commits.
 - **Parallel jobs** -- asked before dependency builds; the default accounts for
   available memory and is capped at 16
 

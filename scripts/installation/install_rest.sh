@@ -10,7 +10,7 @@
 #    3. CVMFS install   -- Loads a CERN LCG view from /cvmfs for ROOT/Geant4/
 #                         Garfield and builds only REST (e.g. NAF-IAXO / RHEL9)
 #
-#  Usage:  bash install_rest.sh [--release TAG]
+#  Usage:  bash install_rest.sh [--release TAG | --development]
 # =============================================================================
 
 # Self-fix Windows line endings before anything else
@@ -29,29 +29,35 @@ error()   { echo -e "${RED}[ERROR]${RESET} $*"; exit 1; }
 ask()     { echo -e "${BOLD}$*${RESET}"; }
 sep()     { echo "-------------------------------------------------------------"; }
 
+# Set this to the matching release tag before publishing each new release.
+DEFAULT_RELEASE_TAG="v2.4.3"
 RELEASE_TAG=""
+DEVELOPMENT="no"
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --release)
-            [[ $# -ge 2 && -n "$2" && -z "$RELEASE_TAG" ]] || error "Use --release TAG once."
+            [[ $# -ge 2 && -n "$2" && -z "$RELEASE_TAG" && "$DEVELOPMENT" == "no" ]] ||
+                error "Choose either --release TAG or --development, once."
             RELEASE_TAG="$2"
             git check-ref-format "refs/tags/$RELEASE_TAG" >/dev/null || error "Invalid release tag: $RELEASE_TAG"
             shift 2
             ;;
+        --development)
+            [[ -z "$RELEASE_TAG" && "$DEVELOPMENT" == "no" ]] ||
+                error "Choose either --release TAG or --development, once."
+            DEVELOPMENT="yes"
+            shift
+            ;;
         -h|--help)
-            echo "Usage: bash install_rest.sh [--release TAG]"
+            echo "Usage: bash install_rest.sh [--release TAG | --development]"
+            echo "Without options, press Enter at the release prompt to install $DEFAULT_RELEASE_TAG."
             echo "--release TAG installs that exact framework tag and its recorded library/restG4 commits."
-            echo "Without --release, the framework follows its development branch."
+            echo "--development explicitly selects the framework development branch."
             exit 0
             ;;
         *) error "Unknown option: $1. Use --help for usage." ;;
     esac
 done
-
-if [[ -n "$RELEASE_TAG" ]]; then
-    git ls-remote --exit-code --refs https://github.com/rest-for-physics/framework.git \
-        "refs/tags/$RELEASE_TAG" >/dev/null || error "Cannot find or access release tag $RELEASE_TAG."
-fi
 
 # Keep incomplete downloads out of the cache and extract into a temporary tree.
 # Preserve existing sources/builds when replacing a previously truncated archive.
@@ -114,6 +120,17 @@ echo -e "${RESET}"
 echo "  REST-for-Physics installation script"
 echo "  https://github.com/rest-for-physics/framework"
 echo ""
+
+if [[ "$DEVELOPMENT" == "no" ]]; then
+    if [[ -z "$RELEASE_TAG" ]]; then
+        read -rp "REST release to install [default: $DEFAULT_RELEASE_TAG]: " RELEASE_TAG
+        RELEASE_TAG="${RELEASE_TAG:-$DEFAULT_RELEASE_TAG}"
+    fi
+    git check-ref-format "refs/tags/$RELEASE_TAG" >/dev/null || error "Invalid release tag: $RELEASE_TAG"
+    git ls-remote --exit-code --refs https://github.com/rest-for-physics/framework.git \
+        "refs/tags/$RELEASE_TAG" >/dev/null || error "Cannot find or access release tag $RELEASE_TAG."
+    info "Selected REST release: $RELEASE_TAG"
+fi
 
 # -- GCC compatibility flags (fixes GCC 14 -Werror issues) --------------------
 GCC_COMPAT_FLAGS="-Wno-error=ignored-attributes -Wno-error=overloaded-virtual -Wno-error=maybe-uninitialized"
@@ -480,7 +497,7 @@ if [[ -n "$RELEASE_TAG" ]]; then
     SUB_CHOICE=2
     info "Installing release $RELEASE_TAG with its recorded library and restG4 versions."
 else
-    warn "No --release tag selected: the framework will follow its development branch."
+    warn "Development installation selected: the framework will follow its development branch."
     ask "How do you want to pull REST submodules?"
     echo "  1) Latest development commits (may be incompatible with each other)"
     echo "  2) (default) Versions recorded in the framework repository"
