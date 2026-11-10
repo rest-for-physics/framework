@@ -10,7 +10,7 @@
 #    3. CVMFS install   -- Loads a CERN LCG view from /cvmfs for ROOT/Geant4/
 #                         Garfield and builds only REST (e.g. NAF-IAXO / RHEL9)
 #
-#  Usage:  bash install_rest.sh
+#  Usage:  bash install_rest.sh [--release TAG]
 # =============================================================================
 
 # Self-fix Windows line endings before anything else
@@ -28,6 +28,79 @@ warn()    { echo -e "${YELLOW}[WARN]${RESET}  $*"; }
 error()   { echo -e "${RED}[ERROR]${RESET} $*"; exit 1; }
 ask()     { echo -e "${BOLD}$*${RESET}"; }
 sep()     { echo "-------------------------------------------------------------"; }
+
+RELEASE_TAG=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --release)
+            [[ $# -ge 2 && -n "$2" && -z "$RELEASE_TAG" ]] || error "Use --release TAG once."
+            RELEASE_TAG="$2"
+            git check-ref-format "refs/tags/$RELEASE_TAG" >/dev/null || error "Invalid release tag: $RELEASE_TAG"
+            shift 2
+            ;;
+        -h|--help)
+            echo "Usage: bash install_rest.sh [--release TAG]"
+            echo "--release TAG installs that exact framework tag and its recorded library/restG4 commits."
+            echo "Without --release, the framework follows its development branch."
+            exit 0
+            ;;
+        *) error "Unknown option: $1. Use --help for usage." ;;
+    esac
+done
+
+if [[ -n "$RELEASE_TAG" ]]; then
+    git ls-remote --exit-code --refs https://github.com/rest-for-physics/framework.git \
+        "refs/tags/$RELEASE_TAG" >/dev/null || error "Cannot find or access release tag $RELEASE_TAG."
+fi
+
+# Keep incomplete downloads out of the cache and extract into a temporary tree.
+# Preserve existing sources/builds when replacing a previously truncated archive.
+fetch_and_unpack() {
+    local url="$1" tarball="$2" dir="$3" backup unpack
+    if [[ -f "$tarball" ]] && ! gzip -t "$tarball" 2>/dev/null; then
+        if [[ -d "$dir" ]]; then
+            backup=$(mktemp -d "${dir}.incomplete.XXXXXX")
+            mv -- "$dir" "$backup/source"
+            warn "Preserved the old source/build tree in $backup/source."
+        fi
+        mv -f -- "$tarball" "$tarball.part"
+    fi
+    if [[ ! -f "$tarball" ]]; then
+        wget -O "$tarball.part" "$url"
+        gzip -t "$tarball.part" 2>/dev/null || error "Incomplete download: $tarball. Re-run to retry."
+        mv -- "$tarball.part" "$tarball"
+    fi
+    if [[ ! -d "$dir" ]]; then
+        unpack=$(mktemp -d "${dir}.unpack.XXXXXX")
+        tar xzf "$tarball" -C "$unpack" || error "Extraction failed in $unpack. Re-run to retry."
+        [[ -d "$unpack/$dir" ]] || error "Expected $dir in $tarball."
+        mv -- "$unpack/$dir" "$dir"
+        rmdir -- "$unpack"
+    else
+        info "$dir already exists, reusing it."
+    fi
+}
+
+# Match the public-library scope of pull-submodules.py, including nested code
+# but excluding optional data/userguide repositories. Never reset or clean.
+update_recorded_submodules() {
+    local repo="$1" nested="${2:-no}" key path url
+    [[ -f "$repo/.gitmodules" ]] || return 0
+    while read -r key path; do
+        if [[ "$nested" == "no" ]]; then
+            case "$path" in
+                source/libraries/*) ;;
+                source/packages/restG4) [[ "$CMAKE_LIB_FLAGS" == *"REST_G4=ON"* ]] || continue ;;
+                *) continue ;;
+            esac
+        fi
+        case "$path" in *data*|*userguide*) continue ;; esac
+        url=$(git -C "$repo" config -f .gitmodules --get "${key%.path}.url")
+        case "$url" in https://github.com/*|git@github.com:*) ;; *) continue ;; esac
+        git -C "$repo" submodule update --init --checkout -- "$path"
+        update_recorded_submodules "$repo/$path" yes
+    done < <(git -C "$repo" config -f .gitmodules --get-regexp '^submodule\..*\.path$')
+}
 
 # -- Banner -------------------------------------------------------------------
 echo -e "${CYAN}"
@@ -81,6 +154,7 @@ ask "Where do you want to install REST?"
 read -rp "Install directory [default: $DEFAULT_DIR]: " REST_DIR
 REST_DIR="${REST_DIR:-$DEFAULT_DIR}"
 REST_DIR="${REST_DIR/#\~/$HOME}"   # expand ~ manually
+REST_DIR="$(realpath -m "$REST_DIR")"
 info "REST will be installed in: $REST_DIR"
 echo ""
 
@@ -97,6 +171,28 @@ if [[ -d "$REST_DIR" ]]; then
     read -rp "Continue and use it anyway? [y/N]: " CONFIRM
     [[ "$CONFIRM" =~ ^[Yy]$ ]] || error "Aborted."
 fi
+
+# Ask before building any dependency; nproc alone can exhaust a WSL machine's RAM.
+sep
+ask "How many parallel jobs for make?"
+NCPU=$(nproc 2>/dev/null || echo 4)
+MEM_JOBS=$(awk '/MemAvailable/ {print int($2 / 1536 / 1024)}' /proc/meminfo 2>/dev/null || true)
+if [[ "$MEM_JOBS" =~ ^[0-9]+$ ]]; then
+    [[ "$MEM_JOBS" -ge 1 ]] || MEM_JOBS=1
+    [[ "$NCPU" -le "$MEM_JOBS" ]] || NCPU="$MEM_JOBS"
+fi
+[[ "$NCPU" -le 16 ]] || NCPU=16
+read -rp "Jobs [default: $NCPU, max: 16]: " NJOBS
+NJOBS="${NJOBS:-$NCPU}"
+if ! [[ "$NJOBS" =~ ^[1-9][0-9]?$ ]]; then
+    warn "Invalid number '$NJOBS', defaulting to $NCPU."
+    NJOBS="$NCPU"
+fi
+if [[ "$NJOBS" -gt 16 ]]; then
+    warn "Capping parallel jobs at 16."
+    NJOBS=16
+fi
+info "Building with $NJOBS parallel jobs."
 
 # =============================================================================
 #  MODE 2 -- Full install: check/install system dependencies
@@ -149,14 +245,8 @@ if [[ "$INSTALL_MODE" == "2" ]]; then
     sep
     info "Downloading and building ROOT 6.26.10 (this takes a while)..."
     cd "$SOFTWARE_DIR"
-    if [[ ! -f root_v6.26.10.source.tar.gz ]]; then
-        wget https://root.cern/download/root_v6.26.10.source.tar.gz
-    fi
-    if [[ ! -d root-6.26.10 ]]; then
-        tar xzf root_v6.26.10.source.tar.gz
-    else
-        info "ROOT source directory already exists, skipping extraction."
-    fi
+    fetch_and_unpack "https://root.cern/download/root_v6.26.10.source.tar.gz" \
+        "root_v6.26.10.source.tar.gz" "root-6.26.10"
     cd root-6.26.10
     mkdir -p root_build root_install
     cd root_build
@@ -167,7 +257,7 @@ if [[ "$INSTALL_MODE" == "2" ]]; then
         -DCMAKE_CXX_COMPILER=g++-11 \
         -DCMAKE_CXX_STANDARD=17 \
         -Dnetxng=OFF -Dxrootd=OFF
-    make -j"$(nproc)" install
+    make -j"$NJOBS" install
     ROOT_THISROOT="$SOFTWARE_DIR/root-6.26.10/root_install/bin/thisroot.sh"
     set +u
     source "$ROOT_THISROOT"
@@ -179,26 +269,21 @@ if [[ "$INSTALL_MODE" == "2" ]]; then
     sep
     info "Downloading and building Geant4 11.0.3..."
     cd "$SOFTWARE_DIR"
-    if [[ ! -f geant4-v11.0.3.tar.gz ]]; then
-        wget https://gitlab.cern.ch/geant4/geant4/-/archive/v11.0.3/geant4-v11.0.3.tar.gz
-    fi
-    if [[ ! -d geant4-v11.0.3 ]]; then
-        tar xzf geant4-v11.0.3.tar.gz
-    else
-        info "Geant4 source directory already exists, skipping extraction."
-    fi
+    fetch_and_unpack "https://gitlab.cern.ch/geant4/geant4/-/archive/v11.0.3/geant4-v11.0.3.tar.gz" \
+        "geant4-v11.0.3.tar.gz" "geant4-v11.0.3"
     cd geant4-v11.0.3
     mkdir -p build install
     cd build
     cmake .. \
         -DCMAKE_INSTALL_PREFIX=../install \
+        -DGEANT4_USE_SYSTEM_EXPAT=OFF \
         -DGEANT4_INSTALL_DATA=ON \
         -DGEANT4_USE_OPENGL_X11=ON \
         -DGEANT4_BUILD_MULTITHREADED=ON \
         -DCMAKE_C_COMPILER=gcc-11 \
         -DCMAKE_CXX_COMPILER=g++-11 \
         -DGEANT4_USE_GDML=ON
-    make -j"$(nproc)" install
+    make -j"$NJOBS" install
     # Fix ownership only if files ended up root-owned (e.g. from a previous sudo run)
     if [[ ! -O "$SOFTWARE_DIR/geant4-v11.0.3/install" ]]; then
         sudo chown -R "$(whoami):$(whoami)" "$SOFTWARE_DIR/geant4-v11.0.3/install"
@@ -225,7 +310,7 @@ if [[ "$INSTALL_MODE" == "2" ]]; then
         -DCMAKE_INSTALL_PREFIX=../install \
         -DCMAKE_C_COMPILER=gcc-11 \
         -DCMAKE_CXX_COMPILER=g++-11
-    make -j"$(nproc)" install
+    make -j"$NJOBS" install
     # Fix legacy HEED include paths
     cp -r "$SOFTWARE_DIR/garfield/Heed" "$SOFTWARE_DIR/garfield/install/"
     GARFIELD_SETUP="$SOFTWARE_DIR/garfield/install/share/Garfield/setupGarfield.sh"
@@ -391,25 +476,42 @@ echo ""
 #  STEP 4 -- Choose submodule update strategy
 # =============================================================================
 sep
-ask "How do you want to pull REST submodules?"
-echo "  1) (default)  --latest -- pull the latest commit from each submodule"
-echo "                branch (newest features; may occasionally be momentarily"
-echo "                incompatible across submodules)"
-echo "  2) --clean    use the versions recorded in the framework repository"
-echo "                (reproducible / guaranteed compatible -- try this if"
-echo "                option 1 fails to build)"
-echo ""
-read -rp "Enter choice [1/2, default: 1]: " SUB_CHOICE
-SUB_CHOICE="${SUB_CHOICE:-1}"
+if [[ -n "$RELEASE_TAG" ]]; then
+    SUB_CHOICE=2
+    info "Installing release $RELEASE_TAG with its recorded library and restG4 versions."
+else
+    warn "No --release tag selected: the framework will follow its development branch."
+    ask "How do you want to pull REST submodules?"
+    echo "  1) Latest development commits (may be incompatible with each other)"
+    echo "  2) (default) Versions recorded in the framework repository"
+    read -rp "Enter choice [1/2, default: 2]: " SUB_CHOICE
+    SUB_CHOICE="${SUB_CHOICE:-2}"
+    [[ "$SUB_CHOICE" == 1 || "$SUB_CHOICE" == 2 ]] || error "Invalid submodule choice."
+fi
 
 # =============================================================================
 #  STEP 5 -- Clone / update REST framework
 # =============================================================================
 sep
-if [[ -d "$REST_DIR/.git" ]]; then
+if [[ -n "$RELEASE_TAG" ]]; then
+    if [[ -e "$REST_DIR/.git" ]]; then
+        cd "$REST_DIR"
+        [[ -z "$(git status --porcelain --untracked-files=no)" ]] ||
+            error "This checkout has local changes. Choose a fresh installation directory."
+        git fetch --no-tags origin "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
+        [[ "$(git rev-parse HEAD)" == "$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")" ]] ||
+            error "This directory contains a different framework version. Choose a fresh directory."
+    else
+        git clone --no-checkout https://github.com/rest-for-physics/framework.git "$REST_DIR"
+        cd "$REST_DIR"
+        git fetch --no-tags origin "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
+    fi
+    git checkout --detach "refs/tags/$RELEASE_TAG"
+    info "Framework release commit: $(git rev-parse HEAD)"
+elif [[ -e "$REST_DIR/.git" ]]; then
     info "REST repository already exists at $REST_DIR, updating..."
     cd "$REST_DIR"
-    git pull
+    git pull --ff-only
 else
     info "Cloning REST framework into $REST_DIR..."
     git clone https://github.com/rest-for-physics/framework.git "$REST_DIR"
@@ -426,20 +528,16 @@ info "Pulling submodules..."
 if [[ "$SUB_CHOICE" == "1" ]]; then
     python3 pull-submodules.py --latest --onlylibs
 else
-    # --clean asks "Are you sure?" -- answer automatically so it doesn't
-    # consume the script's stdin.
-    echo y | python3 pull-submodules.py --clean --onlylibs
+    [[ -z "$(git status --porcelain --untracked-files=no)" ]] ||
+        error "Local changes found. Choose a fresh directory to install recorded versions."
+    update_recorded_submodules "$REST_DIR"
 fi
 
 # restG4 lives in packages/, not libraries/, so --onlylibs skips it.
 # Pull it explicitly if Geant4 integration / restG4 was requested.
-if [[ "$CMAKE_LIB_FLAGS" == *"REST_G4=ON"* ]]; then
+if [[ "$CMAKE_LIB_FLAGS" == *"REST_G4=ON"* && "$SUB_CHOICE" == 1 ]]; then
     info "Pulling restG4 package..."
-    if [[ "$SUB_CHOICE" == "1" ]]; then
-        python3 pull-submodules.py --latest --only:restG4
-    else
-        echo y | python3 pull-submodules.py --clean --only:restG4
-    fi
+    python3 pull-submodules.py --latest --only:restG4
 fi
 success "REST framework and submodules ready."
 echo ""
@@ -461,15 +559,13 @@ if [[ "$INSTALL_MODE" == "3" && -n "$GARFIELD_HOME" ]]; then
 fi
 
 # -- Mode 3: temporary modern-Garfield source patch --------------------------
-# CVMFS/LCG ships a modern Garfield, which renamed ComponentBase -> Component
-# (header and class). REST's detector lib still selects its USE_Garfield_OLD
-# branch here (CVMFS Garfield has no CMake config), which references the removed
-# names. Patch the old-branch names to the modern ones. This is a harmless
-# no-op once detectorlib is fixed upstream.
-# TODO: remove once detectorlib selects its modern Garfield branch on its own.
-if [[ "$INSTALL_MODE" == "3" && -n "$GARFIELD_HOME" ]]; then
+# Only older detectorlib checkouts need this; detectorlib#131 selects the API.
+# A release installation must not silently modify its recorded sources.
+if [[ "$INSTALL_MODE" == "3" && -n "$GARFIELD_HOME" && "$CMAKE_LIB_FLAGS" == *"REST_GARFIELD=ON"* ]]; then
     DET_INC="$REST_DIR/source/libraries/detector/inc"
-    if [[ -f "$DET_INC/TRestDetectorGeometry.h" ]]; then
+    if [[ -f "$DET_INC/TRestDetectorGeometry.h" ]] &&
+        ! grep -qF 'Garfield_INCLUDE_DIRS}/ComponentBase.hh' "$REST_DIR/source/libraries/detector/CMakeLists.txt"; then
+        [[ -z "$RELEASE_TAG" ]] || error "This release needs an older Garfield environment. Its sources will not be patched."
         sed -i \
             -e 's|#include "ComponentBase.hh"|#include "Component.hh"|' \
             -e 's|typedef Garfield::ComponentBase Component;|typedef Garfield::Component Component;|' \
@@ -480,11 +576,11 @@ if [[ "$INSTALL_MODE" == "3" && -n "$GARFIELD_HOME" ]]; then
 fi
 
 # -- Mode 3: let restG4 build against the CVMFS (C++20) Geant4 ----------------
-# restG4's CMake hard-requires a C++17 Geant4, but the LCG/CVMFS Geant4 11.4
-# (and ROOT 6.38) are built with C++20. REST itself builds fine with C++20, so
-# relax the check to also accept 20/23.
-# TODO: fix upstream in restG4 (accept C++17 or newer).
-if [[ "$INSTALL_MODE" == "3" && -f "$REST_DIR/source/packages/restG4/CMakeLists.txt" ]]; then
+# restG4#150 already accepts newer standards. Keep the legacy development
+# workaround, but require a compatible environment when installing a release.
+if [[ "$INSTALL_MODE" == "3" && "$CMAKE_LIB_FLAGS" == *"REST_G4=ON"* && -f "$REST_DIR/source/packages/restG4/CMakeLists.txt" ]] &&
+    grep -qF 'MATCHES "17")' "$REST_DIR/source/packages/restG4/CMakeLists.txt"; then
+    [[ -z "$RELEASE_TAG" ]] || error "This release requires a C++17 Geant4 environment. Its sources will not be patched."
     sed -i 's#MATCHES "17")#MATCHES "17|20|23")#' "$REST_DIR/source/packages/restG4/CMakeLists.txt"
     info "Relaxed restG4 C++ standard check to allow C++20 (CVMFS Geant4)."
 fi
@@ -493,22 +589,6 @@ fi
 #  STEP 6 -- Configure and build
 # =============================================================================
 sep
-ask "How many parallel jobs for make? (be careful on shared servers)"
-NCPU=$(nproc 2>/dev/null || echo 4)
-if [[ "$NCPU" -gt 16 ]]; then
-    NCPU=8
-fi
-read -rp "Jobs [default: $NCPU, max: 16]: " NJOBS
-NJOBS="${NJOBS:-$NCPU}"
-if ! [[ "$NJOBS" =~ ^[0-9]+$ ]]; then
-    warn "Invalid number '$NJOBS', defaulting to $NCPU."
-    NJOBS="$NCPU"
-fi
-if [[ "$NJOBS" -gt 16 ]]; then
-    warn "Capping parallel jobs at 16 to be polite on shared servers."
-    NJOBS=16
-fi
-
 BUILD_DIR="$REST_DIR/build"
 INSTALL_DIR="$REST_DIR/install"
 

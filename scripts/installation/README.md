@@ -10,6 +10,30 @@ bash install_rest.sh
 
 The script is interactive and will guide you through each step.
 
+## Installing a release
+
+Download the installer from the release you intend to install, then pass the
+same tag explicitly:
+
+```bash
+bash install_rest.sh --release TAG
+```
+
+Replace `TAG` with the published framework release tag. The installer checks out
+that exact tag and the public library and restG4 commits recorded in it. It does
+not follow their latest branches or force-reset local changes. Optional data,
+documentation, and private repositories are not downloaded.
+
+Choose a fresh directory. A retry in an existing checkout is allowed only when
+its framework commit matches the tag and its tracked files/submodules are clean;
+build outputs are retained. Older releases requiring source patches for a modern
+CVMFS environment stop with an explanation rather than modifying release code.
+
+Without `--release`, the framework follows its development branch. Recorded
+library commits are still the default, with latest development libraries offered
+as an explicit choice. Downloading this script from a tag alone does not select
+that tag for the installation.
+
 ## Install modes
 
 ### Mode 1 -- Server install
@@ -31,11 +55,27 @@ Builds everything from source:
 | ROOT          | 6.26.10                          |
 | Geant4        | 11.0.3 (with GDML + data)       |
 | Garfield++    | pinned commit `a993c5eb`         |
-| REST          | latest from `master`             |
+| REST          | explicit `--release TAG`, or development branch |
 
-System dependencies are installed via `apt` (requires `sudo`).
-If `sudo` is not available the script offers to skip this step, assuming
-packages are already present.
+System dependencies are installed via `apt` (requires `sudo`). Use mode 1 when
+dependencies are already available and you do not have sudo access.
+
+This release preparation retains the dependency versions above. The separate
+proposal to upgrade ROOT to 6.38.06 and Garfield is not included. A complete fresh
+mode-2 installation of the final release candidate still needs validation;
+Ubuntu 24.04 coverage is not established by the installer regression checks.
+
+Parallelism is chosen before any compilation and applies to all four builds.
+The default is limited by CPU count, available memory (about 1.5 GiB per job),
+and a maximum of 16. This is a conservative estimate, not a memory guarantee;
+choose fewer jobs if needed. Invalid job counts, including zero, use the default.
+
+ROOT/Geant4 downloads are checked with `gzip -t` before use. Interrupted downloads
+are retried; an existing source/build tree associated with a corrupt archive is
+preserved under a `.incomplete.*` directory. New extractions use temporary
+directories so interrupted unpacking is not mistaken for a complete source tree.
+Geant4 uses its bundled Expat to avoid the reported Geant4 11.0.3 package-config
+failure with newer CMake versions.
 
 ### Mode 3 -- CVMFS install
 
@@ -54,7 +94,7 @@ On clusters where `$HOME` is on AFS (not writable in-session), the script sets
 
 ## What the script does
 
-1. Installs system packages (mode 2, optional)
+1. Asks for build parallelism, then installs system packages (mode 2)
 2. Downloads and builds ROOT, Geant4, Garfield++ (mode 2),
    or loads a CERN LCG view from `/cvmfs` (mode 3)
 3. Asks you to choose which REST libraries to enable
@@ -70,9 +110,10 @@ On clusters where `$HOME` is on AFS (not writable in-session), the script sets
 - **Install directory** -- where REST source and build will live (default: `~/rest`)
 - **Libraries** -- all, a common subset, or pick individually
 - **Garfield++ / Geant4 integration** -- enable or disable
-- **Submodule strategy** -- `--latest` commits (default) or the `--clean`
-  framework-recorded versions (pick `--clean` if a latest build fails to compile)
-- **Parallel jobs** -- capped at 16 for shared-server politeness
+- **Submodule strategy** -- recorded commits (default) or latest development
+  commits. `--release TAG` always uses recorded commits and skips this question.
+- **Parallel jobs** -- asked before dependency builds; the default accounts for
+  available memory and is capped at 16
 
 ## Individual scripts (legacy)
 
