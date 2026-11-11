@@ -734,9 +734,8 @@ void TRestTools::LoadRESTLibrary(bool silent) {
     vector<string> ldPaths;
 #ifdef WIN32
     ldPaths.push_back(REST_PATH + "/bin/");
-#elif __APPLE__
-    ldPaths.push_back(REST_PATH + "/bin/");
 #else
+    // On Linux and macOS the REST libraries are installed at lib/ (see MacroRootDict.cmake)
     ldPaths.push_back(REST_PATH + "/lib/");
 #endif  // WIN32
     ldPaths.push_back(REST_USER_PATH + "/userlib/");
