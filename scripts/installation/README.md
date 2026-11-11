@@ -8,7 +8,50 @@ Interactive installer for [REST-for-Physics](https://github.com/rest-for-physics
 bash install_rest.sh
 ```
 
-The script is interactive and will guide you through each step.
+The script is interactive and will guide you through each step. Press Enter at
+the release prompt to accept the displayed stable version:
+
+```text
+REST release to install [default: v2.4.3]:
+```
+
+The default is fixed in this copy of the installer; it does not automatically
+advance when another release is published.
+
+## Installing a release
+
+Accept the default, type a different published tag at the prompt, or skip the
+release question by passing a tag explicitly:
+
+```bash
+bash install_rest.sh --release TAG
+```
+
+Replace `TAG` with the published framework release tag. The installer checks out
+that exact tag and the public library and restG4 commits recorded in it. It does
+not follow their latest branches or force-reset local changes. Optional data,
+documentation, and private repositories are not downloaded.
+
+Choose a fresh directory. A retry in an existing checkout is allowed only when
+its framework commit matches the tag and its tracked files/submodules are clean;
+build outputs are retained. Older releases requiring source patches for a modern
+CVMFS environment stop with an explanation rather than modifying release code.
+
+Development installation requires an explicit option:
+
+```bash
+bash install_rest.sh --development
+```
+
+This follows the framework development branch. Recorded library commits remain
+the default, with latest development libraries offered as an explicit choice.
+`--development` and `--release` cannot be combined. A missing or inaccessible
+release tag stops the installation; it never falls back to development code.
+
+For release maintainers: set `DEFAULT_RELEASE_TAG` in `install_rest.sh` to the
+matching tag before publishing each release, update the prompt example above,
+and validate the no-option installation. The current `v2.4.3` default is the
+existing published stable release; the upcoming release's name is still pending.
 
 ## Install modes
 
@@ -31,11 +74,27 @@ Builds everything from source:
 | ROOT          | 6.26.10                          |
 | Geant4        | 11.0.3 (with GDML + data)       |
 | Garfield++    | pinned commit `a993c5eb`         |
-| REST          | latest from `master`             |
+| REST          | displayed stable tag; override with `--release TAG` or `--development` |
 
-System dependencies are installed via `apt` (requires `sudo`).
-If `sudo` is not available the script offers to skip this step, assuming
-packages are already present.
+System dependencies are installed via `apt` (requires `sudo`). Use mode 1 when
+dependencies are already available and you do not have sudo access.
+
+This release preparation retains the dependency versions above. The separate
+proposal to upgrade ROOT to 6.38.06 and Garfield is not included. A complete fresh
+mode-2 installation of the final release candidate still needs validation;
+Ubuntu 24.04 coverage is not established by the installer regression checks.
+
+Parallelism is chosen before any compilation and applies to all four builds.
+The default is limited by CPU count, available memory (about 1.5 GiB per job),
+and a maximum of 16. This is a conservative estimate, not a memory guarantee;
+choose fewer jobs if needed. Invalid job counts, including zero, use the default.
+
+ROOT/Geant4 downloads are checked with `gzip -t` before use. Interrupted downloads
+are retried; an existing source/build tree associated with a corrupt archive is
+preserved under a `.incomplete.*` directory. New extractions use temporary
+directories so interrupted unpacking is not mistaken for a complete source tree.
+Geant4 uses its bundled Expat to avoid the reported Geant4 11.0.3 package-config
+failure with newer CMake versions.
 
 ### Mode 3 -- CVMFS install
 
@@ -54,7 +113,7 @@ On clusters where `$HOME` is on AFS (not writable in-session), the script sets
 
 ## What the script does
 
-1. Installs system packages (mode 2, optional)
+1. Asks for build parallelism, then installs system packages (mode 2)
 2. Downloads and builds ROOT, Geant4, Garfield++ (mode 2),
    or loads a CERN LCG view from `/cvmfs` (mode 3)
 3. Asks you to choose which REST libraries to enable
@@ -70,9 +129,12 @@ On clusters where `$HOME` is on AFS (not writable in-session), the script sets
 - **Install directory** -- where REST source and build will live (default: `~/rest`)
 - **Libraries** -- all, a common subset, or pick individually
 - **Garfield++ / Geant4 integration** -- enable or disable
-- **Submodule strategy** -- `--latest` commits (default) or the `--clean`
-  framework-recorded versions (pick `--clean` if a latest build fails to compile)
-- **Parallel jobs** -- capped at 16 for shared-server politeness
+- **Release** -- press Enter for the displayed stable tag, or type another tag.
+  `--release TAG` skips this question; `--development` opts into development code.
+- **Submodule strategy** -- release installs always use recorded commits.
+  Development installs offer recorded commits (default) or latest commits.
+- **Parallel jobs** -- asked before dependency builds; the default accounts for
+  available memory and is capped at 16
 
 ## Individual scripts (legacy)
 
