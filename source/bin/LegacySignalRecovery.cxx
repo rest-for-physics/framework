@@ -9,10 +9,12 @@
 #include <TSystem.h>
 #include <TTree.h>
 
+#include <algorithm>
 #include <cerrno>
 #include <cmath>
 #include <filesystem>
 #include <iostream>
+#include <limits>
 #include <set>
 #include <string>
 #include <system_error>
@@ -189,24 +191,25 @@ bool ValidateOutput(const fs::path& outputName, const fs::path& intermediateName
  *
  * ROOT separates the in-memory TTree, its stored header (addressed by a file key
  * such as EventTree;1), and the baskets containing branch data. Get() loads the
- * tree object; its baskets can remain on disk. Fast cloning copies the baskets
- * of every branch outside the disabled signal subtree into the candidate and
- * builds a new in-memory tree describing them. It does not yet persist the
- * completed replacement tree header.
+ * tree object; its baskets can remain on disk. The candidate is already a byte
+ * copy of the source, so the unaffected branches can retain their original
+ * baskets and file offsets. Only the signal branch is removed and rebuilt.
+ * CloneTree("fast") would unnecessarily bind addresses for the other branches,
+ * which can fail when a loaded dictionary has removed historical base members
+ * (for example TObject::fUniqueID in TRestTrack version 2).
  *
  * SetName() only renames the in-memory tree, not its existing file keys. The
- * clone inherits that temporary name, protecting BOTH in-memory trees from
- * Delete("EventTree;*"), which removes all stored EventTree cycles and would also
- * delete matching in-memory objects. The old tree remains directory-owned until
- * the candidate closes; the clone is renamed back to EventTree for publication.
+ * temporary name protects the in-memory tree from Delete("EventTree;*"), which
+ * removes all stored EventTree cycles and would also delete matching in-memory
+ * objects. The tree is renamed back to EventTree for publication.
  *
  * Filling only the new signal branch adds its entries alongside the already
- * cloned entries in the other branches. ROOT allocates its baskets and records
+ * existing entries in the other branches. ROOT allocates its baskets and records
  * their locations; logical entry order does not require the original physical
  * layout or contiguous placement after the copied baskets. The final Write()
  * flushes buffered data and saves the completed header linking all branches and
- * baskets. Copying baskets alone is not enough to publish a readable replacement
- * tree; without its header those copied baskets can be left unreferenced.
+ * baskets. The removed signal baskets remain unreferenced in the private copy;
+ * no baskets belonging to an unaffected branch are rewritten or deleted.
  */
 bool Rebuild(const fs::path& sourceName, const fs::path& intermediateName, const fs::path& candidateName) {
     TFile source(sourceName.c_str(), "READ");
@@ -257,23 +260,31 @@ bool Rebuild(const fs::path& sourceName, const fs::path& intermediateName, const
         candidate->GetUUID().AsString() != sourceUuid)
         return false;
 
-    // Clone every unaffected branch as raw baskets. Disabling the top-level
-    // signal branch makes ROOT omit its complete split subtree.
-    oldSignal->SetStatus(false);
-    oldTree->SetName("__RESTLegacySourceEventTree");
-    // CloneTree attaches its clone to ROOT's current directory (not the OS cwd).
-    candidate->cd();
-    std::cerr << "Recovery: fast-cloning unaffected EventTree branches...\n";
-    auto* newTree = oldTree->CloneTree(-1, "fast");
-    if (newTree == nullptr || newTree->GetEntries() != sourceEntries) return false;
-    candidate->Delete("EventTree;*");
+    // The whole file was copied above: keep unaffected branches and their
+    // baskets in place instead of asking ROOT to bind their current layouts.
+    // TTree's byte counters include the old signal subtree. Its public counter
+    // updates take Int_t, so subtract large branches in bounded chunks.
+    const auto subtractBytes = [&](Long64_t bytes, void (TTree::*add)(Int_t)) {
+        while (bytes > 0) {
+            const Int_t chunk =
+                static_cast<Int_t>(std::min<Long64_t>(bytes, std::numeric_limits<Int_t>::max()));
+            (oldTree->*add)(-chunk);
+            bytes -= chunk;
+        }
+    };
+    subtractBytes(oldSignal->GetTotBytes("*"), &TTree::AddTotBytes);
+    subtractBytes(oldSignal->GetZipBytes("*"), &TTree::AddZipBytes);
+    oldTree->GetListOfBranches()->Remove(oldSignal);
+    // TBranch's destructor removes this subtree's leaves from the tree as well.
+    delete oldSignal;
+    oldTree->GetListOfBranches()->Compress();
+    oldTree->GetListOfLeaves()->Compress();
     std::cerr << "Recovery: rebuilding detector signal branch...\n";
-    newTree->SetName(kEventTree);
 
     IntermediateEvent input;
     auto* event = new TRestDetectorSignalEvent;
     // Branch binds the event pointer; each newSignal->Fill() serializes its current object.
-    auto* newSignal = newTree->Branch(kSignalBranch, &event);
+    auto* newSignal = oldTree->Branch(kSignalBranch, &event);
     if (!input.Bind(*data) || newSignal == nullptr) return false;
     Long64_t signalCount = 0, pointCount = 0;
     for (Long64_t entry = 0; entry < sourceEntries; ++entry) {
@@ -290,9 +301,13 @@ bool Rebuild(const fs::path& sourceName, const fs::path& intermediateName, const
         "source=" + sourceUuid + ";signalVersion=" + std::to_string(sourceVersion) +
         ";entries=" + std::to_string(sourceEntries) + ";signals=" + std::to_string(signalCount) +
         ";points=" + std::to_string(pointCount);
-    // Persist the finished tree header; already copied baskets are not copied again.
+    // Remove every old header cycle without deleting the directory-owned tree.
+    oldTree->SetName("__RESTLegacySourceEventTree");
+    candidate->Delete("EventTree;*");
+    oldTree->SetName(kEventTree);
+    // Persist the finished header, retaining the unaffected basket references.
     std::cerr << "Recovery: writing rebuilt EventTree...\n";
-    if (newTree->Write(kEventTree, TObject::kOverwrite) <= 0 ||
+    if (oldTree->Write(kEventTree, TObject::kOverwrite) <= 0 ||
         !WriteText(*candidate, "REST_LegacySignalRecovery", provenance) || !candidate.Close())
         return false;
     return ValidateOutput(candidateName, intermediateName, branches, keys);

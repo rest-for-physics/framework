@@ -110,6 +110,14 @@ if (TARGET RestDetector)
         restRoot PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libraries/detector/inc)
     target_link_libraries(restRoot RestDetector)
     target_compile_definitions(restRoot PRIVATE REST_LEGACY_SIGNAL_RECOVERY)
+    if ("${TEST}"
+        AND UNIX
+        AND NOT APPLE
+        AND TARGET RestLegacyRecoveryFixtureWriter
+        AND TARGET RestLegacyRecoveryFixtureReader)
+        find_package(Python3 REQUIRED COMPONENTS Interpreter)
+        add_subdirectory(bin/test/legacy-recovery)
+    endif ()
 endif ()
 
 # remove duplicates
