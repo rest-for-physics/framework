@@ -11,7 +11,6 @@ import installers
 import vars
 import subprocess
 
-
 version = "0.2"
 
 vars.initvar()
