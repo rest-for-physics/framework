@@ -465,7 +465,7 @@ bool LoadOnDiskSchemaRules(const RootSchemaSnapshot& snapshot, std::string& erro
         };
         if (registered()) continue;
         bool added;
-        if (cl->TestBit(TClass::kIsEmulation)) {
+        if (cl->GetState() <= TClass::kEmulated) {
             auto* rules = cl->GetSchemaRules(kTRUE);
             added = rules && rules->AddRule(rule.get(), ROOT::Detail::TSchemaRuleSet::kNoCheck);
             if (added) rule.release();
