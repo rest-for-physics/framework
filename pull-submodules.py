@@ -36,9 +36,7 @@ def print_help():
     print("python3 pull-submodules.py --latest")
     print(" ")
     print(" --clean : It will restore all submodules to the official release versions")
-    print(
-        " --latest : It will pull the matching framework branch, or each submodule default branch"
-    )
+    print(" --latest : It will pull the master branch of each submodule")
     print(" ")
     print(
         "When using --clean make sure the framework local repository is at an official release"
@@ -261,7 +259,7 @@ Are you sure to proceed? (y/n)
     if latest:
         print("Pulling submodules: ", end="")
         p = subprocess.run(
-            f"git submodule foreach  --recursive 'git fetch; if [ -z \"$(git ls-remote --heads origin {frameworkBranchName})\" ]; then defaultBranch=$(git symbolic-ref --short refs/remotes/origin/HEAD) && git checkout \"${{defaultBranch#origin/}}\"; else git checkout {frameworkBranchName};fi;git pull || true'",  #
+            f"git submodule foreach  --recursive 'git fetch; if [ -z \"$(git ls-remote --heads origin {frameworkBranchName})\" ]; then git checkout master; else git checkout {frameworkBranchName};fi;git pull || true'",  #
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
