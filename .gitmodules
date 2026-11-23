@@ -55,3 +55,6 @@
 [submodule "source/libraries/wimp"]
 	path = source/libraries/wimp
 	url = https://github.com/rest-for-physics/wimplib.git
+[submodule "source/libraries/halo"]
+	path = source/libraries/halo
+	url = https://github.com/rest-for-physics/halolib.git

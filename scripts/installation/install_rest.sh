@@ -467,7 +467,7 @@ case "$LIB_CHOICE" in
         ;;
     3)
         CMAKE_LIB_FLAGS=""
-        for LIB in AXION CONNECTORS DETECTOR GEANT4 LEGACY RAW TRACK WIMP; do
+        for LIB in AXION CONNECTORS DETECTOR GEANT4 HALO LEGACY RAW TRACK WIMP; do
             read -rp "  Enable RESTLIB_${LIB}? [y/N]: " LANS
             [[ "$LANS" =~ ^[Yy]$ ]] && CMAKE_LIB_FLAGS="$CMAKE_LIB_FLAGS -DRESTLIB_${LIB}=ON"
         done
@@ -555,6 +555,10 @@ fi
 if [[ "$CMAKE_LIB_FLAGS" == *"REST_G4=ON"* && "$SUB_CHOICE" == 1 ]]; then
     info "Pulling restG4 package..."
     python3 pull-submodules.py --latest --only:restG4
+fi
+if [[ "$CMAKE_LIB_FLAGS" == *"RESTLIB_HALO=ON"* &&
+      ! -f "$REST_DIR/source/libraries/halo/CMakeLists.txt" ]]; then
+    error "The selected REST version does not include halolib. Choose a version that includes it or leave HALO disabled."
 fi
 success "REST framework and submodules ready."
 echo ""
