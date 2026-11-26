@@ -64,6 +64,9 @@ class TRestComponent : public TRestMetadata {
     /// It defines the increasing step for automatic parameter list generation
     Double_t fStepParameterValue = 0;  //<
 
+    /// It keeps track of total rates for quick access
+    std::vector<Double_t> fCachedRates;  //<
+
     /// It true the parametric values automatically generated will grow exponentially
     Bool_t fExponential = false;  //<
 
@@ -117,6 +120,7 @@ class TRestComponent : public TRestMetadata {
 
     /// It returns true if any nodes have been defined.
     Bool_t HasNodes() { return !fParameterizationNodes.empty(); }
+    size_t GetNumberOfParameterizationNodes() { return fParameterizationNodes.size(); }
 
     virtual void RegenerateActiveNodeDensity() {}
 
@@ -151,7 +155,7 @@ class TRestComponent : public TRestMetadata {
     Int_t FindActiveNode(Double_t node);
     Int_t SetActiveNode(Double_t node);
     Int_t SetActiveNode(Int_t n) {
-        fActiveNode = n;
+        fActiveNode = n % fParameterizationNodes.size();
         return fActiveNode;
     }
 
@@ -191,6 +195,6 @@ class TRestComponent : public TRestMetadata {
     TRestComponent();
     ~TRestComponent();
 
-    ClassDefOverride(TRestComponent, 6);
+    ClassDefOverride(TRestComponent, 7);
 };
 #endif

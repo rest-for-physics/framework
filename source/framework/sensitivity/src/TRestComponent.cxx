@@ -62,7 +62,7 @@ TRestComponent::TRestComponent() {}
 /// The default behaviour is that the config file must be specified with
 /// full path, absolute or relative.
 ///
-/// \param cfgFileName A const char* giving the path to an RML file.
+// \param cfgFileName A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
 /// corresponding TRestAxionMagneticField section inside the RML.
 ///
@@ -103,6 +103,9 @@ void TRestComponent::Initialize() {
     } else {
         if (!fParameterizationNodes.empty()) FillHistograms();
     }
+
+    fCachedRates.clear();
+    if (fNodeDensity.size() > 0) fCachedRates.resize(fNodeDensity.size(), 0.0);
 }
 
 /////////////////////////////////////////////
@@ -325,6 +328,10 @@ Double_t TRestComponent::GetRawRate(std::vector<Double_t> point) {
 /// The result will be returned in s-1.
 ///
 Double_t TRestComponent::GetTotalRate() {
+    if (fCachedRates.size() == 0 && fNodeDensity.size() > 0) fCachedRates.resize(fNodeDensity.size(), 0.0);
+    if (fActiveNode >= 0 && (Int_t)fCachedRates.size() > fActiveNode && fCachedRates[fActiveNode] > 0)
+        return fCachedRates[fActiveNode];
+
     THnD* dHist = GetDensityForActiveNode();
     if (!dHist) return 0;
 
@@ -342,6 +349,8 @@ Double_t TRestComponent::GetTotalRate() {
         }
         if (!skip) integral += GetRate(point);
     }
+
+    if ((Int_t)fCachedRates.size() > fActiveNode) fCachedRates[fActiveNode] = integral;
 
     return integral;
 }

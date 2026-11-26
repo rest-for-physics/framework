@@ -76,7 +76,10 @@ TRestSensitivity::TRestSensitivity(const char* cfgFileName, const std::string& n
 /// \brief It will initialize the data frame with the filelist and column names
 /// (or observables) that have been defined by the user.
 ///
-void TRestSensitivity::Initialize() { SetSectionName(this->ClassName()); }
+void TRestSensitivity::Initialize() {
+    SetSectionName(this->ClassName());
+    ExtractExperimentParameterizationNodes();
+}
 
 ///////////////////////////////////////////////
 /// \brief It will return a value of the coupling, g4, such that (chi-chi0) gets
@@ -275,8 +278,6 @@ Double_t TRestSensitivity::UnbinnedLogLikelihood(const TRestExperiment* experime
     if (nd >= 0)
         experiment->GetSignal()->SetActiveNode(nd);
     else {
-        RESTWarning << "Node : " << node << " not found in signal : " << experiment->GetSignal()->GetName()
-                    << RESTendl;
         return 0.0;
     }
 
@@ -326,8 +327,15 @@ Double_t TRestSensitivity::UnbinnedLogLikelihood(const TRestExperiment* experime
 ///
 TH1D* TRestSensitivity::SignalStatisticalTest(Double_t node, Int_t N) {
     std::vector<Double_t> couplings;
+    Int_t nodeCheck = 0;
+    if (fExperiments.size() > 0) nodeCheck = fExperiments[0]->GetSignal()->GetActiveNode();
     for (int n = 0; n < N; n++) {
-        for (const auto& exp : fExperiments) exp->GetSignal()->RegenerateActiveNodeDensity();
+        for (const auto& exp : fExperiments) {
+            if (exp->GetSignal()->GetActiveNode() != nodeCheck)
+                RESTError << "TRestSensitivity::SignalStatisticalTest. Problem" << RESTendl;
+            exp->GetSignal()->SetActiveNode(exp->GetSignal()->GetActiveNode() + 1);
+            exp->GetSignal()->RegenerateActiveNodeDensity();
+        }
 
         Double_t coupling = TMath::Sqrt(TMath::Sqrt(GetCoupling(node)));
         couplings.push_back(coupling);
@@ -338,7 +346,7 @@ TH1D* TRestSensitivity::SignalStatisticalTest(Double_t node, Int_t N) {
     double max_value = *std::max_element(couplings.begin(), couplings.end());
 
     if (fSignalTest) delete fSignalTest;
-    fSignalTest = new TH1D("SignalTest", "A signal test", 100, 0.9 * min_value, 1.1 * max_value);
+    fSignalTest = new TH1D("SignalTest", "A signal test", 1000, 0.9 * min_value, 1.1 * max_value);
     for (const auto& coup : couplings) fSignalTest->Fill(coup);
 
     return fSignalTest;
@@ -496,11 +504,12 @@ TCanvas* TRestSensitivity::DrawLevelCurves() {
         delete fCanvas;
         fCanvas = NULL;
     }
-    fCanvas = new TCanvas("canv", "This is the canvas title", 500, 400);
+    fCanvas = new TCanvas("canv", "This is the canvas title", 600, 500);
     fCanvas->Draw();
     fCanvas->SetLeftMargin(0.15);
     fCanvas->SetRightMargin(0.04);
     fCanvas->SetLogx();
+    fCanvas->SetLogy();
 
     std::vector<std::vector<Double_t>> levelCurves = GetLevelCurves({0.025, 0.16, 0.375, 0.625, 0.84, 0.975});
 
@@ -526,9 +535,9 @@ TCanvas* TRestSensitivity::DrawLevelCurves() {
     centralGr->SetLineWidth(2);
     centralGr->SetMarkerSize(0.1);
 
-    graphs[0]->GetYaxis()->SetRangeUser(0, 0.5);
-    graphs[0]->GetXaxis()->SetRangeUser(0.001, 0.25);
-    graphs[0]->GetXaxis()->SetLimits(0.0001, 0.25);
+    graphs[0]->GetYaxis()->SetRangeUser(0, 0.31);
+    graphs[0]->GetXaxis()->SetRangeUser(0.001, 0.31);
+    graphs[0]->GetXaxis()->SetLimits(0.0001, 0.31);
     graphs[0]->GetXaxis()->SetTitle("mass [eV]");
     graphs[0]->GetXaxis()->SetTitleSize(0.04);
     graphs[0]->GetXaxis()->SetTitleOffset(1.15);
@@ -539,12 +548,13 @@ TCanvas* TRestSensitivity::DrawLevelCurves() {
     graphs[0]->GetYaxis()->SetTitleOffset(1.5);
     graphs[0]->GetYaxis()->SetTitleSize(0.04);
     graphs[0]->GetYaxis()->SetLabelSize(0.04);
+    graphs[0]->GetYaxis()->SetRangeUser(0.1, 30);
     // graphs[0]->GetYaxis()->SetLabelOffset(0);
     // graphs[0]->GetYaxis()->SetLabelFont(43);
     graphs[0]->Draw("AL");
 
     TGraph* randomGr = new TGraph();
-    std::vector<Double_t> randomCurve = fCurves[13];
+    std::vector<Double_t> randomCurve = fCurves[GetNumberOfCurves() / 2];
     for (size_t m = 0; m < randomCurve.size(); m++)
         randomGr->SetPoint(randomGr->GetN(), fParameterizationNodes[m],
                            TMath::Sqrt(TMath::Sqrt(randomCurve[m])));
@@ -572,7 +582,7 @@ TCanvas* TRestSensitivity::DrawLevelCurves() {
 
     for (unsigned int n = 1; n < graphs.size(); n++) graphs[n]->Draw("Lsame");
     randomGr->Draw("LPsame");
-    // centralGr->Draw("Lsame");
+    //   centralGr->Draw("Lsame");
 
     return fCanvas;
 }
@@ -618,4 +628,14 @@ void TRestSensitivity::PrintMetadata() {
     RESTMetadata << " You may access experiment info using TRestSensitivity::GetExperiment(n)" << RESTendl;
 
     RESTMetadata << "----" << RESTendl;
+}
+
+Int_t TRestSensitivity::Write(const char* name, Int_t option, Int_t bufsize) {
+    if (!fSaveExperiments) {
+        RESTInfo << "TRestSensitivity::Write. Removing experiments before writting to disk." << RESTendl;
+        RESTInfo << "Use TRestSensitivity::SaveExperiments( true ) to change this behaviour" << RESTendl;
+        fExperiments.clear();
+    }
+
+    return TRestMetadata::Write(name, option, bufsize);
 }

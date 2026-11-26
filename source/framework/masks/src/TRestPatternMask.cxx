@@ -168,6 +168,7 @@ TCanvas* TRestPatternMask::DrawMonteCarlo(Int_t nSamples) {
         fCanvas = NULL;
     }
     fCanvas = new TCanvas("canv", "This is the canvas title", 1200, 1200);
+    fCanvas->SetRealAspectRatio();
     fCanvas->Draw();
 
     TPad* pad1 = new TPad("pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97);
@@ -213,12 +214,12 @@ TCanvas* TRestPatternMask::DrawMonteCarlo(Int_t nSamples) {
         if (nGraphs == 0) {
             gr->SetLineColor(kBlack);
             gr->SetMarkerColor(kBlack);
-            gr->SetMarkerSize(0.6);
+            gr->SetMarkerSize(0.3);
             gr->SetLineWidth(2);
         } else {
             gr->SetMarkerColor((nGraphs * 3) % 29 + 20);
             gr->SetLineColor((nGraphs * 3) % 29 + 20);
-            gr->SetMarkerSize(0.6);
+            gr->SetMarkerSize(0.3);
             gr->SetLineWidth(2);
         }
 
