@@ -79,7 +79,7 @@ class TRestThread {
 
     // Constructor & Destructor
     TRestThread() { Initialize(); }
-    ~TRestThread(){};
+    ~TRestThread() {};
 };
 
 #endif

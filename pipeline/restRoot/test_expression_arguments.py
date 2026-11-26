@@ -1,4 +1,5 @@
 """Run the real restRoot CLI; no simulation or external input files needed."""
+
 import os
 from pathlib import Path
 import subprocess
